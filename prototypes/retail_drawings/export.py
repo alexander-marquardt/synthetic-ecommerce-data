@@ -33,6 +33,7 @@ from typing import Any
 
 import colorwords
 import facet_leaves
+import type_registry
 from audience import audience_of
 from build_preview4 import samples
 from promotion import CAMPAIGN  # noqa: F401 -- the seeded campaign, read through this module
@@ -165,7 +166,11 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
     "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
 }
-OPTIONS = SHARED_OPTIONS
+#: Every SKU option: the shared ones above and the ones a type spec declares (``TypeSpec.options``,
+#: gen#413). A key declared with two meanings stops the build here and fails the registry's test.
+OPTIONS, _OPTION_PROBLEMS = type_registry.option_table(SHARED_OPTIONS)
+if _OPTION_PROBLEMS:
+    raise ImportError("export.OPTIONS: " + "; ".join(_OPTION_PROBLEMS))
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})
 

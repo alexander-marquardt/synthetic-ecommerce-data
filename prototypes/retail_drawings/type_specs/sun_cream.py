@@ -14,7 +14,7 @@ from __future__ import annotations
 from functools import partial
 
 from beauty_depth import PACK_ROSE, PACK_SAND, PACK_SKY, decoy, row
-from type_registry import Decoy, TypeSpec, a
+from type_registry import Decoy, Option, TypeSpec, a
 
 _SPF = ("15", "30", "50")
 _FACE = partial(row, path=("Beauty", "Suncare", "Face Sun Cream"), ptype="Sun Cream", option=("spf", _SPF))
@@ -36,6 +36,9 @@ ROWS = (
 )  # fmt: skip
 
 SPEC = TypeSpec(
+    options=(
+        Option("spf", "spf", "SPF"),
+    ),
     key="sun_cream",
     department="Beauty",
     product_type="Sun Cream",

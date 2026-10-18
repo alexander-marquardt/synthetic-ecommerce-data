@@ -9,9 +9,12 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _FIT, _L, _NEUTRAL, _PRIMARY, _W, _a, _row, _words
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
+    options=(
+        Option("resistance", "resistance_level", "Resistance level"),
+    ),
     key="resistance_band",
     department="Sports & Outdoors",
     product_type="Resistance Band",

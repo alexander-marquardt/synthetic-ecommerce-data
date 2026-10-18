@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import kit_outdoor  # noqa: F401 -- registers garden_furniture
 from outdoor_helpers import BLACK, BLUE, GREEN, RED, WHITE, YELLOW, H, L, M, V, W, a, axis, row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 _ROOT = ("Garden", "Garden Furniture")
 _PT = "Garden Furniture Set"
@@ -27,6 +27,9 @@ def _attrs(kind: str, material: str, cushions: bool) -> tuple:
 
 
 SPEC = TypeSpec(
+    options=(
+        Option("seats", "seats", "Seats", "C62"),
+    ),
     key="garden_furniture_set",
     department="Garden",
     product_type=_PT,

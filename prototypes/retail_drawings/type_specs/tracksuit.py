@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from class_model import KIDS_WAISTS
 from lowerbody_rows import BLACK, BURGUNDY, GREEN, GREY_MARL, LILAC, NAVY, PINK, RED
-from type_registry import BRAND_OWNER, LRow, TypeSpec, a, count, sizes
+from type_registry import BRAND_OWNER, LRow, Option, TypeSpec, a, count, sizes
 
 #: The brands these rows sell, owned as the rest of the clothing tree states.
 BRANDS = ("Stridewell", "Hollinwray Knits", "Harbour & Pine", "Wrenfield", "Larkmoor")
@@ -38,6 +38,9 @@ _WT, _MT = ("Womens", "Tracksuits"), ("Mens", "Tracksuits")
 _BT, _GT = ("Kids", "Boys", "Tracksuits"), ("Kids", "Girls", "Tracksuits")
 
 SPEC = TypeSpec(
+    options=(
+        Option("sold_as", "sold_as", "Sold as"),
+    ),
     key="tracksuit",
     department="Clothing",
     product_type="Tracksuit",
