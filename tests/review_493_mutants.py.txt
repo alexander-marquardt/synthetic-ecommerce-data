@@ -9,7 +9,7 @@ MUTANTS = [
     (ROWS, '(("pockets", pockets), ("collar", collar.lower()))', '(("pockets", "4"), ("collar", collar.lower()))', "utility jacket always drawn with four pockets"),
     (ROWS, '"Long": "long", "Cropped"', '"Long": "mid", "Cropped"', "Long drawn as mid in LEN"),
     (ROWS, '"Waterproof" if waterproof == "Yes" else ""', '"Waterproof" if waterproof == "No" else ""', "parka title Waterproof flipped"),
-    (ROWS, '"a hood" if hood == "Yes" else "",\n                   "an elastic hem"', '"",\n                   "an elastic hem"', "windbreaker description loses its hood clause"),
+    (ROWS, '"a hood" if hood == "Yes" else "", "an elastic hem"', '"", "an elastic hem"', "windbreaker description loses its hood clause"),
     (ROWS, '"Hooded" if hood == "Yes" else "", zipped if zipped == "Half-Zip"', '"", zipped if zipped == "Half-Zip"', "windbreaker title loses Hooded"),
     (ROWS, '"Hoodie": ("Hoodies",)', '"Hoodie": ("Sweatshirts",)', "Hoodies leaf renamed Sweatshirts"),
     (ROWS, 'for s in (ADULT_M if mens else ADULT)', 'for s in ADULT', "Mens rows given womens sizes"),
