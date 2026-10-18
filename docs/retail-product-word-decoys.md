@@ -19,7 +19,7 @@ class-7 color-word brand on footwear with its own house style.
 Each new real type carries a floor of three ordinary products, listed in `FLOOR`.
 
 **A care cream for jumpers (gen#309).** "cream jumper" also meets a product that says both words
-and is neither: `PLT-DY87`, Jumper and Knitwear Softening Cream, a white tub in Cleaning > Laundry >
+and is neither: `PLT-DY494`, Jumper and Knitwear Softening Cream, a white tub in Cleaning > Laundry >
 Fabric Softener, an existing type with products of its own. Its color is White, so the color policy
 drops it for the shade Cream, the category policy (Jumpers) drops it, and the department policy
 (Cleaning & Janitorial) drops it. `tests/test_retail_knitwear_care_cream_309.py` pins the row, its
@@ -148,7 +148,7 @@ prototype's baseline; the live number is read on the next loaded index.
 | money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
 | hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
 | hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
-| cream jumper | jumper | PLT-DY87 | Jumper and Knitwear Softening Cream | Fabric Softener | category |
+| cream jumper | jumper | PLT-DY494 | Jumper and Knitwear Softening Cream | Fabric Softener | category |
 | high rise jeans | seed phrase | PLT-DY460 | High Rise Jeans Slim Belt | Belt | category |
 | high rise jeans | seed phrase | PLT-DY461 | Skinny Jeans Jeggings | Leggings | category |
 | high rise jeans | seed phrase | PLT-DY462 | Jeans Clip Hangers, 10 Pack | Hanger | department |
@@ -183,8 +183,8 @@ prototype's baseline; the live number is read on the next loaded index.
 | large dresses | seed phrase | PLT-DY491 | Large Garment Bag for Dresses | Garment Bags | department |
 | large dresses | seed phrase | PLT-DY492 | Large Dresses Storage Box | Storage Boxes | department |
 | large dresses | seed phrase | PLT-DY493 | Large Dresses Padded Hangers | Clothes Hangers | department |
-| duvet cover | duvet cover | PLT-DY87 | Duvet Cover Storage Bag | Garment Bags | category |
-| duvet cover | duvet cover | PLT-DY88 | Duvet Cover Mesh Wash Bag | Wash Bags | category |
+| duvet cover | duvet cover | PLT-DY495 | Duvet Cover Storage Bag | Garment Bags | category |
+| duvet cover | duvet cover | PLT-DY496 | Duvet Cover Mesh Wash Bag | Wash Bags | category |
 | bed frame | bed frame | PLT-DY89 | Bed Frame Valance | Valances | category |
 | bed frame | bed frame | PLT-DY90 | Bed Frame Headboard Cushion | Cushion | category |
 | tea towels | tea towels | PLT-DY91 | Tea Towel Hook Rail | Wall Hooks | category |
