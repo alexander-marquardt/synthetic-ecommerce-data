@@ -252,7 +252,7 @@ BOMBER = (
            pattern="check", size_range="regular",
            params=(("fit", "regular"), ("lapel", "notch"), ("buttons", "2"))), _TYPE),
     (Style("CARCHK", "Checked Car Coat", "Bramblewood", "Clothing",
-           (*COATS, "Car Coats"), 99.0,
+           (*COATS, "Coats", "Car Coats"), 99.0,
            "A checked car coat, jacket length, with a contrast collar.",
            "Coat", "coat", one(cw("Camel Check", CAMEL, "gingham", NAVY), 500),
            pattern="check", size_range="regular"), _TYPE),
