@@ -623,8 +623,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
         "domains/industrial/vocab.py",
-        '    _spec("Rockwell Hardness", "line", 0.48),',
-        '    _spec("Rockwell Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
+        '    _spec("Hardness", "line", 0.48),',
+        '    _spec("Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
         "tests/test_catalog_vocab.py tests/test_catalog_generate.py",
         "A",
         "unrelated product types share no vocabulary",

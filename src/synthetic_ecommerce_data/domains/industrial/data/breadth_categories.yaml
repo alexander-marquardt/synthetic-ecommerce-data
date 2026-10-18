@@ -446,7 +446,7 @@
     - Stainless Steel
     Head Type:
     - Dome Head
-    - Countersunk Head
+    - Flat
   skus: 2
   reason: breadth diversity; pop-rivet category gap
 - key: cotter_pins
@@ -968,7 +968,7 @@
   attributes:
     Material:
     - PU Foam
-    Package Quantity:
+    Units per Pack:
     - '10'
     - '50'
     - '100'

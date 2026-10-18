@@ -69,6 +69,7 @@ from synthetic_ecommerce_data.domains.industrial.muststock import (
 )
 from synthetic_ecommerce_data.domains.industrial.newtypes import NEW_TYPES
 from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
+from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
 MM_PER_INCH = 25.4
 
@@ -305,7 +306,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
     def _pack(
         self, type_key: str, line: str, diameter_in: float, diameters: Iterable[float]
     ) -> Attribute:
-        """A pack-sold line's ``Package Quantity`` (:func:`.price.pack_quantity`):
+        """A pack-sold line's ``Units per Pack`` (:func:`.price.pack_quantity`):
         ranked by its diameter among every diameter its type offers, so the
         pack falls as the size grows, and placed by its own draw, so no other
         draw moves."""
@@ -316,10 +317,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             len(offered),
             price.pack_draw(self.config.seed, type_key, line),
         )
-        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
+        return numeric_attribute("Units per Pack", str(quantity), float(quantity))
 
     def _page_pack(self, type_key: str, brand: str, line_attributes: list[Attribute]) -> Attribute:
-        """A line's ``Package Quantity`` when the pack belongs to its group
+        """A line's ``Units per Pack`` when the pack belongs to its group
         page (:func:`.price.page_pack`): drawn from the brand and the line
         attributes every line of the type publishes and a census cell holds
         equal, as :func:`.price.group_draw` reads them, so every size of a
@@ -333,7 +334,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         quantity = price.page_pack(
             type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
         )
-        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
+        return numeric_attribute("Units per Pack", str(quantity), float(quantity))
 
     def _variant_count(self) -> int:
         """How many variants the next product offers, from the ONE distribution knob."""
@@ -429,7 +430,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 "Center Cutting" if rng.random() < 0.8 else "Non-Center Cutting",
             ),
             keyword_attribute(
-                "End Mill Application", rng.choice(("Roughing", "Finishing", "Roughing/Finishing"))
+                "Application", rng.choice(("Roughing", "Finishing", "Roughing/Finishing"))
             ),
             keyword_attribute(
                 "Material Grade - Machining", rng.choice(("General Purpose", "High Performance"))
@@ -760,15 +761,14 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Type", style_name),
             keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", finish),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
-            keyword_attribute("Rockwell Hardness", hardness),
-            keyword_attribute("Meets/Exceeds", standard),
+            keyword_attribute("Hardness", hardness),
+            keyword_attribute(STANDARDS_NAME, standard),
         ]
         draft.descriptors = [("Material", material)]
 
@@ -797,7 +797,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 # ISO 4762 and its three siblings are COARSE-thread standards;
                 # a fine-pitch screw keeps their head dimensions but does not
                 # meet them, so it claims none.
-                draft.line_attrs = [a for a in draft.line_attrs if a.name != "Meets/Exceeds"]
+                draft.line_attrs = [a for a in draft.line_attrs if a.name != STANDARDS_NAME]
                 draft.provenance = f"{standard} head dimensions; ISO 262 fine-pitch thread"
             _retype(draft, "Metric Fine" if metric else "UNF")
 
@@ -820,13 +820,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.attrs = [
                 child.primary,
                 length_attr,
-                # Not on the countersunk line. Its nominal length is measured
-                # OVER the head (ISO 10642, ASME B18.3), so its catalog length
-                # is ``Length``; what lies under the head is that length less a
-                # toleranced cone height, and publishing it put 12.56mm and
-                # 1.3910" beside the stocked lengths -- values no distributor
-                # lists and no shopper types.
-                *([] if flat else [self._length("Length under Head", length_in, style)]),
                 thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -972,12 +965,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.attrs = [
                 child.primary,
                 length_attr,
-                # A hex head does not sink into the work, so the bolt's length
-                # is already measured under the head and the two attributes
-                # state the same span. They are still two attributes: the
-                # shopper's "1-3/4 length under head" has to bind to one, and
-                # binding it to Thread Length would be silently wrong.
-                self._length("Length under Head", length_in, style),
+                # A hex head does not sink into the work, so the bolt's Length
+                # is already measured under the head (#497: no second attribute).
                 thread_attr,
                 self._length("Width Across Flats", head.width_across_flats_in, style),
                 self._length("Head Height", head.head_height_in, style),

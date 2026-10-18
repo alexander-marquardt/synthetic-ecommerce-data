@@ -358,7 +358,7 @@ def test_no_finish_or_hardness_the_material_cannot_have(docs):
     for doc in docs:
         v = _values(doc)
         material, finish = v.get("Material", ""), v.get("Finish", "")
-        hardness, grade = v.get("Rockwell Hardness", ""), v.get("Grade", "")
+        hardness, grade = v.get("Hardness", ""), v.get("Grade", "")
         if "Stainless" in material and finish in NEVER_ON_STAINLESS:
             wrong.append((doc["sku"], material, finish))
         if "Stainless" in material and hardness.startswith("C"):

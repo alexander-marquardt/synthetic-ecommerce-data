@@ -40,7 +40,7 @@ from synthetic_ecommerce_data.domains.industrial.newtypes import (
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 #: The attribute a pack is published under, as the census names it.
-PACK = "Package Quantity"
+PACK = "Units per Pack"
 #: A table price is shown as computed, to the cent: the census ending classes
 #: (.99, .00) move a price by up to a quarter, which would reorder a ladder.
 ENDINGS = {"other": 1.0}

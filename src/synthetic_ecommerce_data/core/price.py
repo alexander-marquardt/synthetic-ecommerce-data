@@ -40,7 +40,7 @@ WITHIN one, so the noise that spreads them is shared by a page.
 **The pack.** The census slope is of PER-PIECE price, within one page. A
 pack-sold type's pack shrinks as its size grows (a bolt census: per-piece
 p90/p10 28, shown 8.2), so its shown price climbs slower across pages. The
-bolts, the nuts and the socket screws publish a ``Package Quantity`` and
+bolts, the nuts and the socket screws publish a ``Units per Pack`` and
 price it on their census pack slope (:data:`PACK_SLOPES`); the socket
 screw's pack is drawn from the census counts so that it falls as the size
 grows (:func:`pack_quantity`), which narrows its shown price. The bolt's is a
@@ -264,14 +264,14 @@ KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
     "end_mill_square": ("Milling Dia.",),
     "hammer_ball_pein": ("Head Weight",),
     "hex_key": ("Size",),
-    "kit_assortment": ("Number of Pieces",),
+    "kit_assortment": ("Piece Count",),
     "nut_hex": ("Thread Size",),
     "screw_button_head": ("Dia./Thread Size",),
     "screw_flat_head": ("Dia./Thread Size",),
     "screw_low_head": ("Dia./Thread Size",),
     "tap_spiral_point": ("Thread Size",),
     "washer_flat": ("Inside Dia.",),
-    "wheel_depressed_center": ("Wheel Dia.",),
+    "wheel_depressed_center": ("Diameter",),
 })  # fmt: skip
 
 #: Each type's key-dimension reader (:func:`key_reader`). Built from the
@@ -282,7 +282,7 @@ KEYS: RegistryTable[str, Callable[[Mapping[str, Attribute]], float | None]] = Re
 })  # fmt: skip
 
 #: Types priced from what they hold (:func:`kit_contents`) rather than from
-#: one key dimension. Their census key (a kit's ``Number of Pieces``) still
+#: one key dimension. Their census key (a kit's ``Piece Count``) still
 #: keys the report's size pairs and its order row, which the price meets as an
 #: outcome: more of the same pieces sum to more. ``scripts/fit_price_model.py``
 #: fits such a type no group noise: the census kit spread comes from kinds of
@@ -317,11 +317,11 @@ def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
     that size (standard tier, a material of 1.0, no noise: the price the
     catalog's single parts are drawn about), times the census per-piece
     share (:data:`PER_PIECE`), times how many of that size the kit holds
-    (``Number of Pieces`` over its sizes: a kit holds as many of each).
+    (``Piece Count`` over its sizes: a kit holds as many of each).
     """
     kind = attributes.get("Type")
     sizes = attributes.get("Sizes Included")
-    pieces = attributes.get("Number of Pieces")
+    pieces = attributes.get("Piece Count")
     if kind is None or sizes is None or pieces is None or pieces.value_num is None:
         return None
     part = KIT_PARTS.get(kind.value)
@@ -1025,7 +1025,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             0.058,
             slope=0.365,
             length_slope=0.128,
-            pack_attribute="Package Quantity",
+            pack_attribute="Units per Pack",
             pack_slope=PACK_ELASTICITY["bolt_hex"],
             pack_ref=100.0,
         ),
@@ -1040,7 +1040,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             0.375,
             0.454,
             0.313,
-            pack_attribute="Package Quantity",
+            pack_attribute="Units per Pack",
             pack_slope=PACK_SLOPES["nut_hex"],
             pack_ref=100.0,
         ),
@@ -1111,7 +1111,7 @@ def _z(quantile: float) -> float:
 #: holding them equal would hold the key dimension equal too.
 SIZE_NAMES = frozenset({"Bearing Number"})
 #: A number a census cell held equal: one pack size per group page.
-HELD_NUMBERS = frozenset({"Package Quantity"})
+HELD_NUMBERS = frozenset({"Units per Pack"})
 
 
 def holds_equal(type_key: str, attribute: Attribute) -> bool:

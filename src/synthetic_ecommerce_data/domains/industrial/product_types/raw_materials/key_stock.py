@@ -78,7 +78,7 @@ STRIDE = 5
 OFFSET = 3
 
 VOCAB = (
-    AttrSpec("Fit", "line"),
+    AttrSpec("Stock Fit", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line"),
     AttrSpec("Length", "line", kind="length"),
@@ -108,12 +108,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     )
     style = gen._style("in")
     draft.line_attrs = [
-        keyword_attribute("Fit", fit),
+        keyword_attribute("Stock Fit", fit),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         gen._length("Length", length, style),
     ]
-    draft.descriptors = [("Fit", fit), ("Material", material)]
+    draft.descriptors = [("Stock Fit", fit), ("Material", material)]
     # A combination's lines start STRIDE sections apart, and each combination
     # OFFSET after the one before, so the few lines a small build gives one
     # combination spread over the sizes. Every section is reached: STRIDE

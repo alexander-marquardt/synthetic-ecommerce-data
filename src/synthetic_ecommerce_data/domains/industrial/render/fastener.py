@@ -111,18 +111,6 @@ class UnsupportedHeadError(UnsupportedFeatureError):
     """The head style is not one this renderer can derive from the attributes."""
 
 
-#: How far a published ``Length Under Head`` may sit from the span the other
-#: dimensions leave under the head before the record is refused, in inches.
-#:
-#: Not a fudge factor for disagreement: the three lengths are published as
-#: strings and the shapes this catalog writes them in are exact -- a fraction
-#: is only used when the magnitude IS that fraction, a decimal carries four
-#: places in inches and two in millimetres. So the only spread a consistent
-#: record can show is that rounding, three orders of magnitude below this.
-#: Anything bigger is a record whose own numbers disagree.
-UNDER_HEAD_TOLERANCE_IN = 0.01
-
-
 @dataclass(frozen=True)
 class FastenerGeometry:
     thread: Thread
@@ -134,10 +122,6 @@ class FastenerGeometry:
     drive_type: str
     drive_size: Length | None
     width_across_flats: Length | None = None
-    #: ``Length Under Head`` when the record publishes it. A third length
-    #: beside ``Length`` and ``Thread Length``, and on a countersunk screw a
-    #: different span from either: the length is measured over that head.
-    length_under_head: Length | None = None
 
     @property
     def countersunk(self) -> bool:
@@ -227,7 +211,6 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         )
     drive_size_raw = record.get("Drive Size")
     flats_raw = record.get("Width Across Flats")
-    under_head_raw = record.get("Length under Head") or record.get("Length Under Head")
     geom = FastenerGeometry(
         thread=parse_thread(require(record, "Dia./Thread Size")),
         length=parse_length(require(record, "Length")),
@@ -238,18 +221,7 @@ def geometry_from_record(record: dict) -> FastenerGeometry:
         drive_type=str(record.get("Drive Type", "")).strip(),
         drive_size=parse_length(drive_size_raw) if drive_size_raw else None,
         width_across_flats=parse_length(flats_raw) if flats_raw else None,
-        length_under_head=parse_length(under_head_raw) if under_head_raw else None,
     )
-    if geom.length_under_head is not None:
-        drift = abs(geom.length_under_head.inches - geom.shank_length)
-        if drift > UNDER_HEAD_TOLERANCE_IN:
-            raise ImpossibleGeometryError(
-                f"record {record.get('sku', '?')!r} publishes Length Under Head "
-                f"{geom.length_under_head.display()} and a head that leaves "
-                f"{geom.shank_length:.4f} in under it -- the record's own lengths "
-                "disagree, and clamping either of them would draw a screw the "
-                "record says is a different one"
-            )
     return geom
 
 
@@ -600,29 +572,6 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         fontsize=cv.FS_SUBLABEL,
     )
 
-    if geom.length_under_head is not None:
-        # The whole shank, head excluded -- a different span from the published
-        # length on a countersunk screw, and the span a shopper's
-        # "5/16-18 x 3/4" names. Drawn on the right, where the two spans can be
-        # read against each other across the part: on a countersunk screw the
-        # left dimension runs a head height past this one, and on every other
-        # style they end together.
-        x_under = frame_w * 0.42
-        span = geom.length_under_head.inches
-        cv.length_dimension(ax, x_under, y_tip, y_tip + span, geom.length_under_head.display())
-        cv.witness(ax, x_under, geom.thread.major.inches / 2, y_tip)
-        cv.witness(ax, x_under, geom.head_dia.inches / 2, y_tip + span)
-        ax.text(
-            x_under + frame_w * 0.055,
-            y_tip + span / 2,
-            "length under head",
-            rotation=90,
-            ha="center",
-            va="center",
-            color=cv.MUTED,
-            fontsize=cv.FS_SUBLABEL,
-        )
-
     cv.diameter_callout(
         ax,
         y_tip + geom.threaded_length * 0.5,
@@ -675,10 +624,6 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     specs = [
         ("Dia./Thread Size", geom.thread.designation),
         ("Length", geom.length.display()),
-        (
-            "Length under Head",
-            geom.length_under_head.display() if geom.length_under_head else "",
-        ),
         ("Thread Length", geom.thread_length.display()),
         ("Head Dia.", geom.head_dia.display()),
         ("Head Height", geom.head_height.display()),
@@ -689,8 +634,8 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Grade", record.get("Grade", "")),
         ("Thread Type", record.get("Thread Type", "")),
         ("Thread Direction", record.get("Thread Direction", "")),
-        ("Rockwell Hardness", record.get("Rockwell Hardness", "")),
-        ("Meets/Exceeds", record.get("Meets/Exceeds", "")),
+        ("Hardness", record.get("Hardness", "")),
+        ("Standards", record.get("Standards", "")),
         ("Width Across Flats", record.get("Width Across Flats", "")),
         ("Type", record.get("Type", "")),
     ]

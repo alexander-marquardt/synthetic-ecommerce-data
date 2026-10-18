@@ -24,7 +24,7 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
     "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Wheel Dia.",),
+    "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
     # the title, the value's trailing "Point" reads as a cut "Point Type".
@@ -46,7 +46,7 @@ def _weighted(rng: random.Random, table) -> object:
 
 #: Keys that hold ONE unit each: a restated value would put the other unit
 #: under them, so the unit-mixing defect leaves them alone.
-UNIT_SPLIT_KEYS = frozenset({"diameter", "dowel_dia_in", "dowel_dia_mm"})
+UNIT_SPLIT_KEYS = frozenset({"diameter"})
 
 
 @dataclass

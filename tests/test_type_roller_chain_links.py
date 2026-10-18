@@ -263,7 +263,7 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
         ("style", "Style", "Single Strand"),
         ("material", "Material", "Steel"),
         ("finish", "Finish", "Plain"),
-        ("package_quantity", "Package Quantity", pack),
+        ("package_quantity", "Units per Pack", pack),
         ("standards", "Standards", "ASME B29.1"),
         ("chain_pitch", "Pitch", "1/2"),
         ("ansi_number", "ANSI Number", "40"),

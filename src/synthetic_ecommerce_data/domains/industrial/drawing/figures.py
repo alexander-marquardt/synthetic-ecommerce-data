@@ -669,7 +669,7 @@ def bearing(record: Record) -> Drawn:
 
 def depressed_wheel(record: Record) -> Drawn:
     """Face with its grit, and the edge profile: the depressed hub, to thickness."""
-    dia, ok_d = _length_or(record, "Wheel Dia.", 4.5)
+    dia, ok_d = _length_or(record, "Diameter", 4.5)
     thick, ok_t = _length_or(record, "Thickness", 0.25)
     arbor, ok_a = _length_or(record, "Arbor Hole", 0.875)
     if arbor >= dia:
@@ -754,7 +754,7 @@ def _kit_slots(record: Record) -> int:
     if contents:
         return max(1, min(15, len([c for c in str(contents).split(",") if c.strip()])))
     try:
-        return max(1, min(15, int(float(str(record.get("Number of Pieces", "6"))))))
+        return max(1, min(15, int(float(str(record.get("Piece Count", "6"))))))
     except ValueError:
         return 6
 

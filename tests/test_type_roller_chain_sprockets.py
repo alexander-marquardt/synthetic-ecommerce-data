@@ -246,7 +246,7 @@ def test_one_sprocket_publishes_exactly_its_row(large_docs):
     assert published == {
         "Item": "Roller Chain Sprocket",
         "Material": "Steel",
-        "Package Quantity": "1",
+        "Units per Pack": "1",
         "Outside Dia.": "2.6520",
         "Pitch": "1/2",
         "Bore Dia.": "3/4",
