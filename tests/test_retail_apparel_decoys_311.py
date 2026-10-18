@@ -204,6 +204,8 @@ REAL_COMPOUNDS = frozenset({
     "Rash Vest Kids Swimsuit", "Skirted Period Swimwear", "Short Period Swimwear",
     "Brief Period Swimwear", "Kimono Cover-Up", "Shirt Cover-Up", "Tunic Cover-Up",
     "Dress Cover-Up", "Poncho Changing Robe", "Parka Changing Robe", "Hoodie Changing Robe",
+    "Tuxedo Trouser Suit", "Waistcoat Trouser Suit", "Culotte Trouser Suit",  # gen#215
+    "Sailor Suit", "Tuxedo Suit", "Page Boy Suit",  # gen#215
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
     "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
     "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
