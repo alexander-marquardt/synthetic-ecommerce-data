@@ -38,7 +38,7 @@ from audience import audience_of
 from build_preview4 import samples
 from promotion import CAMPAIGN  # noqa: F401 -- the seeded campaign, read through this module
 
-from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.core import letter_case, standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.entry import split
 from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SEED
@@ -401,7 +401,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         doc["series"] = rec["product_line"]
     if blend:
         doc["fibre_content"] = blend
-    return doc | {
+    return letter_case.apply(doc | {
         "category_path": path,
         "category_leaf": path[-1],
         "category_depth": len(path),
@@ -414,7 +414,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         "attributes": attributes,
         "variant_count": len(variants),
         "variants": variants,
-    }
+    })
 
 
 def documents() -> list[dict[str, Any]]:

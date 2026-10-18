@@ -26,9 +26,9 @@ if str(RETAIL) not in sys.path:
 
 import grocery  # noqa: E402
 
-ORANGES = ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Citrus Fruit", "Oranges"]
-BEER = ["Food & Drink", "Beer, Wine & Spirits", "Beer"]
-BEER_LEAVES = ("Lager", "Pale Ale", "Sour Beer", "Fruit Beer", "Alcohol Free")
+ORANGES = ["Food & drink", "Fruit & vegetables", "Fresh fruit", "Citrus fruit", "Oranges"]
+BEER = ["Food & drink", "Beer, wine & spirits", "Beer"]
+BEER_LEAVES = ("Lager", "Pale ale", "Sour beer", "Fruit beer", "Alcohol free")
 
 
 @cache
@@ -114,7 +114,7 @@ def test_other_fresh_produce_has_a_bare_noun_leaf_too(leaf: str, variety: str) -
     held = [d for d in docs() if d["category_leaf"] == leaf]
     assert held
     assert all(
-        d["category_path"][:3] == ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
+        d["category_path"][:3] == ["Food & drink", "Fruit & vegetables", "Fresh fruit"]
         for d in held
     )
     assert any(variety in values(v["attributes"], "variety") for d in held for v in d["variants"])
@@ -166,7 +166,7 @@ def test_a_beer_contains_gluten_and_a_lager_need_not_say_beer() -> None:
 
 
 def test_the_alcohol_free_leaf_holds_beers_at_half_a_percent_or_less() -> None:
-    free = [d for d in beers() if d["category_path"][3] == "Alcohol Free"]
+    free = [d for d in beers() if d["category_path"][3] == "Alcohol free"]
     assert free
     assert all(float(next(iter(values(d["attributes"], "abv")))) <= 0.5 for d in free)
 
@@ -174,11 +174,11 @@ def test_the_alcohol_free_leaf_holds_beers_at_half_a_percent_or_less() -> None:
 @pytest.mark.parametrize(
     ("phrase", "path"),
     [
-        ("Ginger Beer", ["Food & Drink", "Drinks", "Soft Drinks"]),
-        ("Beer Battered Scottish Haddock", ["Food & Drink", "Frozen", "Battered Fish"]),
-        ("Beer Battered Cod", ["Food & Drink", "Frozen", "Battered Fish"]),
-        ("Cider Vinegar", ["Food & Drink", "Food Cupboard", "Vinegar"]),
-        ("Wine Gums", ["Food & Drink", "Chocolate & Sweets", "Sweets"]),
+        ("Ginger Beer", ["Food & drink", "Drinks", "Soft drinks"]),
+        ("Beer Battered Scottish Haddock", ["Food & drink", "Frozen", "Battered fish"]),
+        ("Beer Battered Cod", ["Food & drink", "Frozen", "Battered fish"]),
+        ("Cider Vinegar", ["Food & drink", "Food cupboard", "Vinegar"]),
+        ("Wine Gums", ["Food & drink", "Chocolate & sweets", "Sweets"]),
     ],
 )
 def test_a_modifier_or_compound_use_sits_in_its_own_category(phrase: str, path: list[str]) -> None:
@@ -210,7 +210,7 @@ def test_every_fish_product_contains_fish_and_nothing_else_does() -> None:
 
 def test_the_word_beer_names_products_outside_the_beer_category() -> None:
     outside = titled("beer", BEER)
-    assert {d["category_path"][-1] for d in outside} >= {"Soft Drinks", "Battered Fish"}
+    assert {d["category_path"][-1] for d in outside} >= {"Soft drinks", "Battered fish"}
 
 
 # --------------------------------------------------------------------------

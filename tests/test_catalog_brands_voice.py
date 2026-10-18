@@ -30,7 +30,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import without_compatibility
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.brands import (
     BRAND_BOOK,
@@ -95,7 +95,7 @@ def hundred_k() -> list[dict]:
 def _spec(doc: dict) -> frozenset:
     """A SKU's published spec; a repeated name (Standards) is one joined value."""
     values: dict[str, list[str]] = collections.defaultdict(list)
-    for a in published_attributes(doc):
+    for a in authored_attributes(doc):
         if a["name"] not in IDENTIFIER_ATTRIBUTES:
             values[a["name"]].append(a["value"])
     return frozenset((name, "|".join(v)) for name, v in values.items())
@@ -224,7 +224,7 @@ def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
             tuple(
                 sorted(
                     (a["name"], a["value"])
-                    for a in published_attributes(doc)
+                    for a in authored_attributes(doc)
                     if a["name"] not in IDENTIFIER_ATTRIBUTES
                 )
             )
@@ -244,7 +244,7 @@ def test_every_must_stock_example_is_stocked_at_100k(hundred_k):
     for entry in MUST_STOCK:
         assert any(
             entry.matches(
-                doc["product_type"], {a["name"]: a["value"] for a in published_attributes(doc)}
+                doc["product_type"], {a["name"]: a["value"] for a in authored_attributes(doc)}
             )
             for doc in hundred_k
         ), entry.example
@@ -273,7 +273,7 @@ def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, requ
     for doc in request.getfixturevalue(which):
         if doc["product_type"] != "bearing_radial_ball":
             continue
-        a = {x["name"]: x["value"] for x in published_attributes(doc)}
+        a = {x["name"]: x["value"] for x in authored_attributes(doc)}
         assert a.get("Bearing Number") in table, (doc["sku"], a.get("Bearing Number"))
         for name, expected in zip(
             ("Bore Dia.", "Outside Dia.", "Width"), table[a["Bearing Number"]], strict=True
@@ -397,7 +397,9 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
             continue
         seen.add(key)
         variant = parent["variants"][0]
-        record = bundle._record(parent, variant, facets[variant["sku"]])
+        record = bundle._record(
+            parent, variant, facets[variant["sku"]], facets.authored.get(parent["product_type"])
+        )
         data, _ = draw_sku(parent["product_type"], parent["brand"], record)
         svg = data.decode()
         style = house_style(parent["brand"])
@@ -413,7 +415,7 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
 
 def _opening(doc: dict) -> str:
     """What a title says before its item: the brand, a qualifier, or nothing."""
-    values = {a["name"]: a["value"] for a in published_attributes(doc)}
+    values = {a["name"]: a["value"] for a in authored_attributes(doc)}
     # A kit's title names its KIND ("Hex Key Set"); ``Item`` is the one facet
     # value every kit shares.
     item = values["Type"] if doc["product_type"] == "kit_assortment" else values["Item"]
@@ -456,7 +458,7 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
         description = without_compatibility(doc["description"])
         tail = description.split(marker, 1)[1] if marker in description else ""
         sentences = [s.replace(doc["series"], "{S}") for s in re.split(r"(?<=\.) ", tail) if s]
-        facts = " ".join(a["value"] for a in published_attributes(doc))
+        facts = " ".join(a["value"] for a in authored_attributes(doc))
         tails[key].append((sentences, facts))
     bad = [(key, "title", sorted(o)) for key, o in openings.items() if len(o) != 1]
     for key, groups in tails.items():
@@ -516,7 +518,7 @@ def test_every_qualifier_is_non_factual(golden):
     values = collections.defaultdict(set)
     for doc in golden:
         family = STANDARDS_FAMILY[doc["product_type"]]
-        values[family].update(a["value"].lower() for a in published_attributes(doc))
+        values[family].update(a["value"].lower() for a in authored_attributes(doc))
     clashes = [
         (family, word)
         for family, words in PRODUCT_WORDS.items()
@@ -594,10 +596,10 @@ def untraced_numbers(docs: list[dict]) -> tuple[list, int]:
     """(docs with a number no field backs, count excused as modelled defects)."""
     bad, excused = [], 0
     for doc in docs:
-        attributes = {a["name"]: a["value"] for a in published_attributes(doc)}
+        attributes = {a["name"]: a["value"] for a in authored_attributes(doc)}
         # Every value of every attribute: a multi-valued one (a kit's ``Sizes
         # Included``) is several entries under one name.
-        every_value = [a["value"] for a in published_attributes(doc)]
+        every_value = [a["value"] for a in authored_attributes(doc)]
         backed = set(_NUMBER.findall(" ".join([*every_value, doc["series"], doc["brand"]])))
         # The cross-reference sentence's numbers are the OTHER product's (the
         # M12 a key drives) and trace to a standard's table instead;
@@ -631,7 +633,7 @@ def test_a_planted_unbacked_number_is_caught(golden):
     doc = next(
         d
         for d in golden
-        if not _defect_signature({a["name"]: a["value"] for a in published_attributes(d)})
+        if not _defect_signature({a["name"]: a["value"] for a in authored_attributes(d)})
     )
     planted = dict(doc, description=doc["description"] + " Rated to 9999 hours.")
     assert untraced_numbers([planted])[0] == [(doc["sku"], ["9999"])]
@@ -643,7 +645,7 @@ def test_a_pack_quantity_is_only_ever_the_records_own(golden):
     )
     for doc in golden:
         quantity = next(
-            (a["value"] for a in published_attributes(doc) if a["name"] == "Package Quantity"), None
+            (a["value"] for a in authored_attributes(doc) if a["name"] == "Package Quantity"), None
         )
         for match in pack.finditer(doc["title"] + " " + doc["description"]):
             assert quantity is not None and quantity in match.groups(), (doc["sku"], match.group(0))

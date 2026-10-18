@@ -2951,22 +2951,22 @@
    "faceted_attributes": 54,
    "faceted_low": 0.0042,
    "faceted_high": 0.6667,
-   "densest_faceted": "Dowel Dia. (mm)",
-   "smallest_faceted": "Dowel Dia. (mm)",
+   "densest_faceted": "Dowel dia. (mm)",
+   "smallest_faceted": "Dowel dia. (mm)",
    "smallest_faceted_products": 18,
    "drive_size_cardinality": 41,
    "drive_size_present": 1862,
    "held_by_floor": [
-    "Dash Number"
+    "Dash number"
    ],
-   "min_presence_arm": "Neck Length",
+   "min_presence_arm": "Neck length",
    "min_presence_arm_dispersion": 0.9947,
    "min_presence_arm_present": 377,
    "min_presence_arm_type_denominator": 1460,
    "min_presence_arm_share": 0.26,
-   "identifier": "List Number",
+   "identifier": "List number",
    "identifier_dispersion": 0.9653,
-   "densest_terms_facet": "Bearing Number",
+   "densest_terms_facet": "Bearing number",
    "densest_terms_facet_dispersion": 0.1105
   }
  }

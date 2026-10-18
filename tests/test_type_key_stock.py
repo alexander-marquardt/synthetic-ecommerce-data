@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
@@ -83,7 +83,7 @@ def _clean_docs(lines: int | None = None) -> list[dict]:
 
 
 def _values(doc: dict) -> dict[str, dict]:
-    return {a["name"]: a for a in doc["attributes"]}
+    return {a["name"]: a for a in authored_entries(doc)}
 
 
 def _inches(attribute: dict) -> Fraction:
@@ -135,7 +135,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -209,7 +209,7 @@ def test_a_rectangular_bars_title_names_its_height_and_a_square_bars_does_not(la
 
 
 def test_a_record_publishes_the_fits_name_and_no_tolerance_or_standard(large_docs):
-    published = {a["name"] for doc in large_docs for a in doc["attributes"]}
+    published = {a["name"] for doc in large_docs for a in authored_entries(doc)}
     assert published - MEASUREMENT_NAMES == NAMES
     assert {_values(doc)["Item"]["value"] for doc in large_docs} == {"Key Stock"}
     assert typespec.modelled()[KEY].may_claim == frozenset()

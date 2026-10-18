@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import price, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import length_attribute
@@ -81,7 +81,7 @@ def test_every_published_ring_is_its_dash_numbers_row():
     by_dash = {row.dash: row for row in _module().rows()}
     checked = 0
     for doc in _default_docs():
-        values = {a["name"]: a["value"] for a in doc["attributes"]}
+        values = {a["name"]: a["value"] for a in authored_entries(doc)}
         if "Dash Number" not in values:
             continue
         row = by_dash[values["Dash Number"].removeprefix("AS568-")]
@@ -108,7 +108,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
