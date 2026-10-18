@@ -22,6 +22,11 @@ only when this page does not cover what you need.
    * a brand no module states yet goes in `owners=(("Brand", "own"),)`;
    * a hand-authored text-match decoy (gen#294) is a `Decoy(class 1-7, query, policy, row)` in
      `decoys=`; it is never derived and never takes a color completion;
+     the output standard's text check leaves a class 1 to 7 decoy out by itself:
+     `scale.TEXT_EXEMPT` is computed from the registry over every department
+     (`type_registry.text_match_decoy_ids()`, gen#452), so no list in `scale.py` is edited. An id
+     no spec owns is declared with its reason in `type_registry.ONE_OFF_TEXT_EXEMPT`;
+     `tests/test_retail_text_exempt_452.py` fails a stale or redundant entry;
    * a clothing, footwear or lingerie type (Womens, Mens or Kids) carries its apparel decoy plan
      (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan(compounds=...)` with
      one placeholder compound to edit (three decoys per class; `ApparelPlan(family, per_class,

@@ -252,18 +252,29 @@ def decoy_ids() -> frozenset[str]:
     return frozenset(i for spec in specs().values() for i in decoy_ids_of(spec))
 
 
-def text_match_decoy_ids(department: str) -> frozenset[str]:
-    """The ids of one department's spec decoys of classes 1 to 7: they name a color or a feature
-    their structured fields lack on purpose, so the output standard's text check leaves them
-    out (the class-8 decoys of gen#326 are checked like any product)."""
+def text_match_decoy_ids(department: str | None = None) -> frozenset[str]:
+    """The ids of the spec decoys of classes 1 to 7, of one department or (``None``) of every
+    department: they name a color or a feature their structured fields lack on purpose, so the
+    output standard's text check leaves them out (the class-8 decoys of gen#326 are checked like
+    any product). :data:`scale.TEXT_EXEMPT` reads this, so a new type is exempt by registering."""
     return frozenset(
         i
         for spec in specs().values()
-        if spec.department == department
+        if department is None or spec.department == department
         for d in spec.decoys
         if d.cls != 8
         for i in _ids([d.row])
     )
+
+
+#: Declared exemptions from the text check for an id no spec owns: id -> why (gen#452). The
+#: build checks each against the catalog, and refuses one the registry already knows.
+ONE_OFF_TEXT_EXEMPT: dict[str, str] = {
+    "PLT-RQHOOP": (
+        "a rose gold decoy in the Hoop Earrings node since gen#423: its metals are its text "
+        "pool, and Gold Plated names the plating while its color is Yellow Gold"
+    ),
+}
 
 
 def legacy_types() -> frozenset[tuple[str, str]]:
