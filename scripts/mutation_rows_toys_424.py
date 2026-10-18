@@ -167,15 +167,6 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the Toys spec decoys lose the text exemption",
-        "scale.py",
-        ' | type_registry.text_match_decoy_ids("Toys")',
-        "",
-        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
-        "a toy decoy may name a color its structured fields lack",
-        _R,
-    ),
-    (
         "a toy decoy brand has no house style",
         "house_styles.py",
         '    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),\n',

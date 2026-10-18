@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 21012,
+  "images": 21053,
   "non_grocery": {
    "skus": 96008,
    "styles": 5891
   },
-  "skus": 145008,
-  "styles": 14188,
+  "skus": 145623,
+  "styles": 14202,
   "top_levels": {
    "Beauty": {
     "skus": 1094,
@@ -58,8 +58,8 @@
     "styles": 495
    },
    "Womens": {
-    "skus": 89760,
-    "styles": 3307
+    "skus": 90375,
+    "styles": 3321
    }
   }
  },
@@ -512,11 +512,11 @@
  "grocery_values": {
   "checked": 15412,
   "named_but_not_carried": {
-   "contains": 578,
-   "flavor": 1964,
-   "may_contain": 688,
+   "contains": 735,
+   "flavor": 1936,
+   "may_contain": 724,
    "pack_size": 157,
-   "variety": 48
+   "variety": 67
   }
  },
  "near_duplicates": {
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 80802,
-   "styles": 9376
+   "skus": 81417,
+   "styles": 9390
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 739,
   "before_grocery": {
-   "skus": 68393,
-   "styles": 4860
+   "skus": 69008,
+   "styles": 4874
   },
   "breadth_rows": {
    "skus": 687,
@@ -596,8 +596,8 @@
    "styles": 28
   },
   "lowerbody_rows": {
-   "skus": 850,
-   "styles": 35
+   "skus": 1480,
+   "styles": 49
   },
   "main_food": {
    "skus": 132,

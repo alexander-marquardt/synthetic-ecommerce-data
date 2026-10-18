@@ -100,7 +100,7 @@ policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory card
 | baseball | baseball | PLT-DY59 | Baseball Fan Cushion | Cushion | department |
 | baseball | baseball | PLT-DY60 | Baseball Fan Duvet Set | Duvet Set | department |
 | batting | batting | PLT-DY61 | Soft Batting Duvet | Duvet | department |
-| batting | batting | PLT-DY62 | Quilted Batting Throw | Throws | department |
+| batting | batting | PLT-DY62 | Quilted Throw with Batting | Throws | department |
 | swim | swim | PLT-DY63 | Quick-Dry Swim Towel | Towel | department |
 | swim | swim | PLT-DY64 | Mesh Swim Tote Bag | Tote Bag | department |
 | cap | cap | PLT-DY65 | Cap Sleeve Wrap Dress | Dress | department |
