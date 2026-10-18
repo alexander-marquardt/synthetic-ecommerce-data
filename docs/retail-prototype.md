@@ -22,6 +22,14 @@ as round produce). A style that uses one anywhere else fails that test, and the
 failure names the row. A new kind gets its own shape in `kit_more.py`, whose
 docstring lists every shape and its params.
 
+A garment is drawn as the garment its leaf names (gen#447): `leaf_shapes.RULES` lists the leaves
+(bomber, puffer, polo, long sleeve, shirt dress, cargo trousers, pyjama shorts, knee boots) with
+the shape and parameters that draw them, `leaf_shapes.apply` sets them in `scale.templates()`
+before the decoys clone their exemplars, and `test_shape_honesty.py` fails a template of a listed
+leaf drawn another way. A "Checked" or "Striped" title carries a gingham or stripe swatch, and a
+"Boxers" decoy never clones a brief exemplar. The parts a title names (a bra band, a blouse
+collar, a bow, "with Blue Collar") are the next slice.
+
 `tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
 the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
 for a twin pack, shapes in `kit_cleaning.py`), a `tub` only holds a tub of something,
