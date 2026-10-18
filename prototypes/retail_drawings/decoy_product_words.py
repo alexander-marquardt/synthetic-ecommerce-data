@@ -322,7 +322,7 @@ NEW_KINDS.update(_SPORTS_KINDS)
 # -- the clothing and shoe seed-phrase decoys (gen#460): two kinds the build lacks, the rest reused
 _SEED_KINDS = {
     "seed_belt": Kind("Clothing", ("Womens", "Accessories", "Belts"), "Belt", "belt", "Larkmoor",
-                      14.0, extra=_WOMENS),
+                      14.0, extra=(*_WOMENS, ("material", "Material", "Leather"))),
     "seed_jeggings": Kind("Clothing", ("Womens", "Leggings"), "Leggings", "leggings", "Larkmoor",
                           16.0, sizes=UK, size_range="regular",
                           params=(("length", "full"), ("rise", "high"))),

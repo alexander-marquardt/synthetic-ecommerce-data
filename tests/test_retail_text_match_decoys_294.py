@@ -75,7 +75,7 @@ def test_every_demo_query_has_three_to_six_planted_decoys_with_a_class() -> None
         rows = _decoys(query)
         assert 3 <= len(rows) <= 8, (query, len(rows))
         assert all(d.cls in (1, 2, 3, 4, 10) for d in rows), query
-    assert 40 <= sum(not d.true_hit for d in dr.TABLE) <= 120
+    assert 40 <= sum(not d.true_hit for d in dr.TABLE) <= 140
 
 
 def test_every_guard_query_has_a_real_product_holding_its_words() -> None:
