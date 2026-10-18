@@ -35,7 +35,7 @@ until it merges these rows are registered here, and move to it afterwards.)
 3. **audience word**: "Mens Boyfriend Fit Chinos".
 4. **feature absent**: "Mens Wool-Free Coat" has no wool.
 5. **shade in the description only**: "Mens Moonbeam Chinos" are Ivory.
-6. **incidental word in a short title** (a range name): "Mens Red Tarn Chinos" are not red.
+6. **incidental word in a short title** (a range name): "Mens Kettle Hill Chinos" are not kettles.
 7. **invented brand** holding a color or category word: "Black Curlew", "Yellow Plover",
    "Jacket Wren", each with its own house style (``house_styles.py``) so the drawing's logo reads
    the brand's name; the garment is drawn in its true color.
@@ -59,6 +59,7 @@ from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
 from lowerbody_rows import LRow
 from main_color_hex import MAIN_COLORS
+from place_ranges import place_range
 from variants import cw
 
 #: The shop's own brands these rows sell, owned as the rest of the clothing tree states.
@@ -587,7 +588,6 @@ _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Khaki")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Off White")
-_RANGES = ("Red Tarn", "Blue Quarry", "Green Hollow", "Yellow Ridge", "Black Dene", "White Marsh")
 _MENS = "men's"
 _AUDIENCE = ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style")
 _BRAND_TRUE = {"Black Curlew": "White", "Yellow Plover": "Navy", "Jacket Wren": "Grey"}
@@ -647,9 +647,14 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 _TRUE[(k + i + 1) % 6], b, f"{b} {noun.lower()}")  # fmt: skip
             # 3: an audience word that names a sibling cut.
             a = _AUDIENCE[i]
-            add(3, i, f"Mens {a} {noun}",
-                f"{_np(_MENS, noun)} in the {a.lower()}, sold in men's sizes.",
-                _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
+            if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
+                add(3, i, f"Mens Mini-Me {noun}, Kids' Version Sold Separately",
+                    f"{_np(_MENS, noun)} with a matching kids' version, sold in men's sizes.",
+                    _TRUE[(k + i + 2) % 6], "Mini-Me", f"mini-me {noun.lower()}")  # fmt: skip
+            else:
+                add(3, i, f"Mens {a} {noun}",
+                    f"{_np(_MENS, noun)} in the {a.lower()}, sold in men's sizes.",
+                    _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
             # 4: a material or feature named, and absent.
             f = kind.absent[i]
             n4 = kind.absent_noun or noun
@@ -664,14 +669,12 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 f"{_np('', noun)} in soft {s.lower()}, {tails[ptype]}.", s,
                 _FANCY[(k + i) % 6], f"{s.lower()} {noun.lower()}")  # fmt: skip
             # 6: an incidental word in a short title: a range name.
-            r = _RANGES[(k + i * 2) % 6]
-            word = r.split()[0]
+            r, gloss, word = place_range(k + i * 2)
             true6 = _TRUE[(k + i + 4) % 6]
-            if true6 == word:
-                true6 = "Navy"
             add(6, i, f"Mens {r} {noun}",
-                f"From the {r} range, named after a place on a hill walk; the {noun.lower()} "
-                f"{'themselves are' if _plural(noun) else 'itself is'} {true6.lower()}.", true6, word, f"{word.lower()} {noun.lower()}",
+                f"From the {r} range, named for {gloss}; the {noun.lower()} "
+                f"{'themselves are' if _plural(noun) else 'itself is'} {true6.lower()}.",
+                true6, word, word,
                 extra=(_a("range", "Range", r),))  # fmt: skip
             # 7: an invented brand holding a color or category word.
             brand = NEW_BRANDS[i]

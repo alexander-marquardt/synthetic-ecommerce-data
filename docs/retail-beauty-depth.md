@@ -1,4 +1,4 @@
-# Retail beauty depth: nine types (gen#214)
+# Retail beauty depth: ten types (gen#214)
 
 The beauty range held lipstick, foundation, eyeliner, highlighter, a skin tint, a face powder, a
 perfume and a few creams, so a search for a mascara, a setting spray, a serum or an aftershave
@@ -19,14 +19,21 @@ the range grows by authored rows. `tests/test_retail_beauty_214.py` holds the ta
 | Body Mist (`body_mist`) | Fragrance > Body Mists | fragrance family | fragrance x size (ml) | `body_mist` cap |
 | Aftershave (`aftershave`) | Fragrance > Aftershave | fragrance family, concentration | size (ml) | `aftershave` cap |
 | Talc (`talc`) | Bath & Body > Talc | fragrance | size (g) | `talc` lid |
+| Sun Cream (`sun_cream`) | Suncare > Face Sun Cream, Suncare > Body Sun Cream | area (face, body) | SPF x size (ml) | `sun_cream` form |
 
 Every type has at least three styles from three or more invented brands. A body mist's fragrance
 is a third SKU axis (`LRow`), exported as the `fragrance` option beside the size. A mascara's
 shades are a declared exception to the six main colors (`main_colors.EXCEPTIONS`); every other
 type is sold in one pack and carries no color. A drawing never prints a size or a count.
 
-A sun cream (SPF x size) already exists as a legacy type in `class_rows.py`; moving it into a spec
-is a separate migration and is not part of this change.
+A sun cream's SPF (15, 30 and 50) is a second SKU axis (`LRow`), exported as the `spf` option
+beside the size, and its area (face or body) is an attribute and its leaf, so `SPF 30 body sun
+cream` is a filter on two entries and a node. The one-style `SPF 50 Face Sun Cream` of
+`class_rows.py` (`PLT-SPFFCE`) stays beside the range: it is the near-type distractor of the "face
+cream" demo (class 12), and the committed Elasticsearch proof (`real_classes_proof.json`, rebuilt
+only by an `es_proof.py` run) names its id. `PROOF_PINNED_CLASS_ROWS` in
+`tests/test_retail_type_specs_351.py` exempts that one id from the rule that a spec's type has no
+row outside the spec.
 
 ## Text-match decoys (gen#294)
 
@@ -39,8 +46,8 @@ decoys, by id, as it does the other decoy tables.
 
 ## House styles
 
-The 14 invented brands each have a `house_styles.HOUSE_STYLES` entry and a mark of their own: 14
+The 15 invented brands each have a `house_styles.HOUSE_STYLES` entry and a mark of their own: 14
 beauty marks (`m_lash_fan` to `m_rose_bud`) joined the table so none reuses a mark another brand
-holds, and no two brands share a logo arrangement with the same wordmark.
+holds (the fifteenth, Coconut Plover, a sun cream decoy brand, has `m_coconut_palm`), and no two brands share a logo arrangement with the same wordmark.
 `test_each_invented_beauty_brand_has_a_house_style_of_its_own` holds both for these brands. The
 eight mark pairs already on main are #362's.
