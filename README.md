@@ -200,7 +200,10 @@ refusing the tree; rerun it.
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and
-log path, and refuses the merge unless all pass; no GitHub check is read.
+log path, and refuses the merge unless all pass; no GitHub check is read. A red job
+prints its FAILED/ERROR lines (up to 20) and its log is copied to
+`<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
+without a re-run.
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -465,7 +468,11 @@ shared tables):
   source, so none is claimed.
 * **Finish and hardness follow material and grade**: an 18-8 stainless socket
   screw is plain at Rockwell B80, alloy steel is black oxide or zinc at C38
-  (12.9 at C39); a graded hex bolt's material follows its grade, and hot-dip
+  (12.9 at C39); the top strength grade is named on its own system's scale --
+  `Grade 12.9` (ISO 898-1) on a metric socket, flat, button or low head
+  screw, `Grade 8` (SAE J429, C36) on an inch one, never the reverse, which
+  a whole-catalog test over every published string of every document holds
+  (#17); a graded hex bolt's material follows its grade, and hot-dip
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
