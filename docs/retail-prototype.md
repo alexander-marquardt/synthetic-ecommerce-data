@@ -347,8 +347,12 @@ or kind their attributes do not hold, by design: `hammers.decoy_ids(docs)` is th
 `text_exempt`, by id, never a looser rule. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
-written only by a domain that models one (industrial). A field marked optional
-(`series`, `ingredients`, `description`, `price_usd`, `stock`) is absent, never null,
+written only by a domain that models one (industrial). Industrial also writes two
+plain fields on every SKU (gen#14), `pricing_unit` (`Each`, or `Per Pack` when the SKU
+publishes a `Package Quantity` above 1) and `order_multiple` (a whole number, 1 today):
+they are fields beside `price_usd`, never variants or facets. A field marked optional
+(`series`, `ingredients`, `description`, `price_usd`, `stock`, `pricing_unit`,
+`order_multiple`) is absent, never null,
 on a document that has none; the grocery's food-only `ingredients` is one. A domain
 may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
@@ -389,7 +393,7 @@ it: the SKU's own attributes replace the product's under the same key, and
 numbers (retail's rating, bestseller rank, was price, ABV and discount), so
 those can be range-filtered. The keys and types are industrial's except that
 retail has `price`, `currency` and `in_stock` where industrial has
-`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+`price_usd`, `stock`, `pricing_unit` and `order_multiple`, and no `dimension_provenance` or `spec_quality`
 (`tests/test_output_standard.py` pins that list). To write both files:
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
@@ -587,7 +591,7 @@ colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
 is rewritten on every SKU, and the style lists only the values its kept SKUs
 hold (a shoe drops the `upper_material` entry of a material no kept SKU holds). Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
-premium material costs more). A draw whose title or description contradicts an
+premium material costs more; a plate's material is not drawn, so its price, bone china above porcelain above stoneware above enamel above melamine, is what keeps two plates of one finish off one grid tile, gen#229, `PLATES_GRID_CLONES`). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](retail-attribute-text.md)). Today's templates run out at `ceiling` in
 `golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible

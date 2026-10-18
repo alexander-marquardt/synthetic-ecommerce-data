@@ -241,6 +241,32 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
+#: The Plates leaf's own grid-clone share the ceiling build may reach (gen#229). A derived
+#: plate keeps its kind and diameter and varies in a material the picture does not show, so a
+#: template with one colorway drew the same tile at the same price: a "white dinner plate"
+#: grid showed identical tiles, a third of the leaf. The leaf has its own cap so the
+#: catalog-wide :data:`CEILING_GRID_CLONES` headroom is not spent on it again.
+#: Measured on the seed-0 ceiling build of main d63322d: 8 of 145 (5.5%) with the
+#: ``PREMIUM`` plate weights of 2.0 / 1.4 / 1.0 / 0.75 / 0.5; the cap is 14 plates, a
+#: margin of 6. The weights were widened, not the cap, when new templates from main took
+#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 (12.4%) on this seed. Seeds 0 to
+#: 5 of the same build give 8, 4, 6, 0, 11 and 8 plates.
+PLATES_GRID_CLONES = 0.10
+
+
+def test_plates_mostly_draw_a_tile_of_their_own(ceiling):
+    """A results grid of plates shows the leaf, the hero picture and the price; a style that
+    shares all three with another plate reads as a clone whatever its material.
+
+    Guard: this test. Metric: the Plates leaf's grid-clone share, in the failure message."""
+    plates = [r for r in scale.derivable(ceiling.records) if r["category_leaf"] == "Plates"]
+    assert plates, "the ceiling build holds no Plates styles"
+    tiles = collections.Counter(scale.grid_tile(r) for r in plates)
+    shared = sum(n for n in tiles.values() if n > 1)
+    rate = shared / len(plates)
+    assert rate <= PLATES_GRID_CLONES, f"{shared} of {len(plates)} plates ({rate:.1%})"
+
+
 #: The grocery grid-clone share the ceiling build may reach, with a 2-point margin over the
 #: measured count in the figures; it was 96.6% (gen#154).
 GROCERY_GRID_CLONES = 0.02
@@ -322,6 +348,16 @@ def test_a_premium_value_costs_more_and_a_cheaper_one_less():
     assert down < 1.0 < up
     assert scale.price_factor({}) == 1.0
     assert scale.price_factor({"wash": ("Rinse", "Stone")}) == 1.0
+
+
+def test_a_plate_material_has_its_own_price_so_plates_of_one_finish_draw_apart():
+    """The picture shows a plate's finish and color but not its material, so the material
+    alone tells two plates apart on a grid through their price (gen#229): bone china costs
+    most, then porcelain, stoneware, enamel and melamine."""
+    order = ["Bone China", "Porcelain", "Stoneware", "Enamel", "Melamine"]
+    factors = [scale.price_factor({"material": ("Stoneware", m)}) for m in order]
+    assert factors == sorted(factors, reverse=True)
+    assert len(set(factors)) == len(order)
 
 
 def test_a_price_point_is_a_retail_one():
