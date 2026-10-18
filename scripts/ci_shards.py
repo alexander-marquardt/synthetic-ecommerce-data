@@ -84,6 +84,17 @@ def deal(
     return [sorted(shard) for shard in shards]
 
 
+SCOPED_SHARD_SECONDS = 1800.0
+
+
+def scoped_files(base, head, root=REPO):
+    return None
+
+
+def plan(number, of, base="", head="", root=REPO):
+    return of, deal(collected_test_files(root), of, load_weights())[number - 1]
+
+
 def shard_loads(
     count: int,
     root: Path = REPO,
