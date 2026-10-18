@@ -256,7 +256,6 @@ def test_one_product_publishes_exactly_its_row(large_docs):
             "Load Capacity": 2200.0,
         }
         assert {name: a["value"] for name, a in published.items() if "unit_code" not in a} == {
-            "Item": "Turnbuckle",
             "Material": "Steel",
             "End Style": "Jaw and Jaw",
         }

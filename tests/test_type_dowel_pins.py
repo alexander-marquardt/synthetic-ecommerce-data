@@ -287,7 +287,8 @@ def test_each_lines_grade_tolerance_and_finish_are_its_standards(large_docs):
         if standard == "ASME B18.8.2":
             got = (values["Type"], values["Material"], values["Dia. Tolerance"])
             ok = got[:2] == ("Hardened Ground", "Steel") and got[2] in B18_8_2_TOLERANCES
-            ok = ok and "Finish" not in values and "Hardness" not in values
+            ok = ok and "Finish" not in values
+            # One Hardness name since #497: the B18.8.2 pin's is the Rockwell figure.
             ok = ok and values.get("Hardness", "Rockwell C60 min. (surface)") == (
                 "Rockwell C60 min. (surface)"
             )
@@ -299,7 +300,6 @@ def test_each_lines_grade_tolerance_and_finish_are_its_standards(large_docs):
             # Hardness and Finish are sparse: absent is not wrong, a wrong value is.
             ok = ok and values.get("Hardness", hardness) == hardness
             ok = ok and values.get("Finish", "Plain") in finishes
-            ok = ok and "Hardness" not in values
         if not ok:
             wrong.append(f"{standard}: {values}")
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:3]}"

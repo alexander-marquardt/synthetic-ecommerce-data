@@ -14,7 +14,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str, str]] = [
     (
         "a page's lines draw a pack each",
         "core/price.py",
-        'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{sorted(held)}")',
+        'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{hashed}")',
         'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{random.random()}")',
         "tests/test_bolt_page_pack.py -k every_line_of_a_page_shares_one_pack",
         "A",
