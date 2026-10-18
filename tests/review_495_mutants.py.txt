@@ -19,7 +19,7 @@ MUTANTS = [
     (S, '    ".github/",\n', "", "the workflow is not a full-run path"),
     (S, '    "tests/test_ci_select_495.py",\n', "", "the selector's own guard is not a smoke test"),
     (H, "    return max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))", "    return of", "a small selection still takes every shard"),
-    (H, "    if number > active:\n        return active, []", "    if False:\n        return active, []", "a shard past the count deals past the end"),
+    (H, "    if number > active:\n        return active, []", "    if number > active:\n        return active, deal(files, active, weights)[0]", "a shard past the count is dealt files"),
     (H, "    if files is None:", "    if files is not None:", "a scoped run deals every file"),
     (H, '        print("\\n".join(["shards=1", *collected_test_files()]))', '        print("\\n".join(["shards=1"]))', "--plan all prints no file"),
 ]

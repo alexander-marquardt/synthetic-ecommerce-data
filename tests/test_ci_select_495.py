@@ -311,9 +311,7 @@ def test_a_directory_named_in_a_glob_selects_a_test_for_a_file_under_it(tmp_path
         tmp_path,
         {
             "golden-retail/stats.json": "{}\n",
-            "tests/test_gold.py": (
-                'from pathlib import Path\nFILES = Path("golden-retail").glob("*.json")\n'
-            ),
+            "tests/test_gold.py": ('from pathlib import Path\nDIR = Path("golden-retail")\n'),
             "tests/test_other.py": "import json\n",
         },
     )
