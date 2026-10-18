@@ -46,9 +46,7 @@ Builder = Callable[[Path], None]
 def build_retail(root: Path) -> None:
     """Rewrite ``golden-retail/stats.json`` (and the apparel decoy table beside it)."""
     script = root / "prototypes" / "retail_drawings" / "retail_figures.py"
-    done = subprocess.run(
-        [sys.executable, str(script)], cwd=root, capture_output=True, text=True
-    )
+    done = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
     if done.returncode != 0:
         raise SystemExit(f"roll_stats: the retail measurement failed:\n{done.stdout}{done.stderr}")
 

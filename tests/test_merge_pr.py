@@ -78,6 +78,7 @@ case "$1 $2" in
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
     printf 'customer-name-check\tcompleted\tsuccess\n'
+    printf 'stats-roll\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -460,7 +461,8 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check",
+            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check"
+            " stats-roll",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -836,6 +838,7 @@ _ALL_GREEN = _workflow(
         "file-size": "echo size",
         "red-commit-proof": "echo red",
         "customer-name-check": "echo names",
+        "stats-roll": "echo roll",
         "main-merged-tree": "echo drift",
     },
 )
@@ -851,6 +854,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
         "file-size",
         "red-commit-proof",
         "customer-name-check",
+        "stats-roll",
         "main-merged-tree",
     ):
         assert f"local CI {job}: PASS" in done.stdout
@@ -869,6 +873,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "stats-roll": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -890,6 +895,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "stats-roll": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -962,6 +968,7 @@ _OTHER_JOBS = {
     "file-size": "true",
     "red-commit-proof": "true",
     "customer-name-check": "true",
+    "stats-roll": "true",
 }
 
 
