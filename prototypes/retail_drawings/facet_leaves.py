@@ -238,6 +238,7 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Wool Cashmere blend": ("Wool", "Cashmere"),
     "Wool Crepe": ("Wool",),
     "Wool blend": ("Wool",),
+    "Wool Felt": ("Wool",),
     "Woven Cotton": ("Cotton",),
 }
 
