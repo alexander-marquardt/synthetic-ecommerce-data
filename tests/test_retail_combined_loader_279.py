@@ -50,6 +50,9 @@ SIZE_SHAPES = tuple(
         r"^(XXS|XS|S|M|L|XL|XXL|XXXL|Small|Medium|Large)$",
         r"^(S/M|M/L|L/XL)$",
         r"^\d{1,2}(-\d{1,2})? Yrs$",
+        # A baby's age in months (gen#213): NOT yet a size system of the projection, which
+        # refuses it until it learns the row (prism-industrial-products#592).
+        r"^(Newborn|\d{1,2}-\d{1,2} Mths)$",
         r"^(\d{1,2}|\d{2}[A-K]{1,2})$",
         r"^(Hand Towel|Bath Towel|Bath Sheet)$",
         r"^\d+(\.\d+)? x \d+(\.\d+)? ?(cm|in)$",
