@@ -1959,7 +1959,7 @@
   ],
   "driver_bit_sets": [
    "Material",
-   "Number of Pieces"
+   "Piece Count"
   ],
   "end_mill_ball": [
    "Application",
@@ -2019,7 +2019,7 @@
   ],
   "fastener_extractors": [
    "Material",
-   "Number of Pieces"
+   "Piece Count"
   ],
   "flange_nuts": [
    "Finish",
@@ -2034,7 +2034,7 @@
   "fluted_dowels": [
    "Diameter",
    "Material",
-   "Package Quantity"
+   "Units per Pack"
   ],
   "foam_ear_plugs": [
    "Material",
@@ -2268,7 +2268,7 @@
   "nylon_wall_anchors": [
    "Diameter",
    "Material",
-   "Package Quantity"
+   "Units per Pack"
   ],
   "o_rings": [
    "Dash Number",
@@ -2311,7 +2311,7 @@
   "pin_punch_sets": [
    "Finish",
    "Material",
-   "Number of Pieces"
+   "Piece Count"
   ],
   "pneumatic_cut_off_tools": [
    "Diameter",
@@ -2479,7 +2479,7 @@
   ],
   "seal_pick_sets": [
    "Material",
-   "Number of Pieces"
+   "Piece Count"
   ],
   "sems_bolts": [
    "Finish",
@@ -2545,7 +2545,7 @@
   ],
   "sleeve_installation_kits": [
    "Material",
-   "Number of Pieces"
+   "Piece Count"
   ],
   "snap_ring_pliers": [
    "Material",
