@@ -14,7 +14,11 @@ SPEC = TypeSpec(
     product_type="Tankini",
     owners=swimwear_rows.OWNED,
     apparel=ApparelPlan(
-        compounds=(("skirt", "Skirted Tankini"), ("top", "Tankini Top"), ("cami", "Cami Tankini"))
+        compounds=(
+            ("skirt", "Skirted Tankini"),
+            ("tunic", "Tunic Tankini"),
+            ("cami", "Cami Tankini"),
+        )
     ),
     rows=swimwear_rows.TANKINI_ROWS,
 )

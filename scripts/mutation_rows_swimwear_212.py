@@ -94,4 +94,22 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "the spec's product type names the type",
         _R,
     ),
+    (
+        "a robe's fleece lining is never drawn as fleece",
+        "kit_swimwear.py",
+        'for i in range(8)) if lining == "fleece" else',
+        'for i in range(8)) if lining == "never" else',
+        f"{_T} -k every_param_axis",
+        "a lining the record states is the lining drawn",
+        _R,
+    ),
+    (
+        "a kids' short sleeve is drawn to the wrist",
+        "kit_swimwear.py",
+        "{96 if sleeve == 'short' else 214} L{x + 26},{104 if sleeve == 'short' else 220} L134,142 Z\",",
+        "{214} L{x + 26},{220} L134,142 Z\",",
+        f"{_T} -k short_sleeve_ends_high",
+        "a short sleeve the record states is drawn short",
+        _R,
+    ),
 ]

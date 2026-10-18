@@ -275,7 +275,7 @@ def changing_robe(paint: str, fill: Fill, label: str | None, length: str = "knee
     out = [_shadow(hem + 28, 120), _path(d, paint), _dark(d, 0.05)]
     hood = "M150,72 Q150,22 200,20 Q250,22 250,72 Q226,92 200,92 Q174,92 150,72 Z"
     out.append(_g("hood", [_path(hood, paint), _dark(hood, 0.05)]))
-    rim = "M158,70 Q200,98 242,70" if lining == "fleece" else "M158,70 Q200,98 242,70"
+    rim = "M158,70 Q200,98 242,70"
     pile = " ".join(f"M{160 + i * 10},{74 + (i % 2) * 4} q4,-6 8,0" for i in range(8)) if lining == "fleece" else " ".join(f"M{162 + i * 12},{76} m0,0 a4,4 0 1 1 0.1,0" for i in range(7))
     out.append(_g("lining", [_line(rim, 2.0, "", _hi(fill)), _line(pile, 1.3, "", _hi(fill))]))
     for sx in (1, -1):
