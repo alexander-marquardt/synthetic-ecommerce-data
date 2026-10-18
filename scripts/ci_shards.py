@@ -3,6 +3,8 @@
 
     ci_shards.py --shard K --of N     # the files of shard K (1..N), one per line
     ci_shards.py --shard all          # every test file, for a run that is not sharded
+    ci_shards.py --shard K --of N --base B --head H   # the same, for the files B..H reaches (#495)
+    ci_shards.py --plan K --of N --base B --head H    # ``shards=<n>`` then shard K's files
     ci_shards.py --refresh JUNIT...   # rewrite scripts/ci_shard_weights.json from junit reports
 
 The workflow's ``tests`` job is a matrix of N shards on GitHub-hosted runners, each running
@@ -24,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -33,6 +36,10 @@ REPO = Path(__file__).resolve().parent.parent
 WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Seconds of work assumed for a test file with no measured weight.
 DEFAULT_SECONDS = 20.0
+#: Seconds of work (the weights') one shard of a change-scoped run takes on. The full suite
+#: is 16 shards of about this much; a smaller selection runs on fewer shards, so a pull request
+#: does not pay sixteen jobs' set-up for a handful of files (#495).
+SCOPED_SHARD_SECONDS = 1800.0
 #: Files too heavy for one shard: listed in every shard, their test ids dealt out by
 #: ``keeps`` (tests/ci_shard_split.py).
 SPLIT_FILES: frozenset[str] = frozenset(
@@ -84,6 +91,38 @@ def deal(
     return [sorted(shard) for shard in shards]
 
 
+def scoped_files(base: str, head: str, root: Path = REPO) -> list[str] | None:
+    """The test files the change ``base..head`` reaches (scripts/ci_select.py), or None for
+    every test file: no range (a push to main, a manual run) or a diff git cannot read."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import ci_select
+
+    chosen = ci_select.selection_for_range(base, head, root)
+    return None if chosen is None else sorted(chosen)
+
+
+def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
+    """How many of the ``of`` shards a selection is dealt to: enough that none holds more than
+    ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``."""
+    seconds = sum(weights.get(name, DEFAULT_SECONDS) for name in files)
+    return max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))
+
+
+def plan(
+    number: int, of: int, base: str = "", head: str = "", root: Path = REPO
+) -> tuple[int, list[str]]:
+    """``(shards, files)``: how many shards share the run, and shard ``number``'s files (none
+    when the selection does not need that many shards)."""
+    weights = load_weights()
+    files = scoped_files(base, head, root) if base and head else None
+    if files is None:
+        return of, deal(collected_test_files(root), of, weights)[number - 1]
+    active = shards_needed(files, of, weights)
+    if number > active:
+        return active, []
+    return active, deal(files, active, weights)[number - 1]
+
+
 def shard_loads(
     count: int,
     root: Path = REPO,
@@ -122,7 +161,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--shard", help="1..N, or 'all' for every test file")
     parser.add_argument("--of", type=int, default=0, help="the number of shards (N)")
     parser.add_argument("--refresh", nargs="+", type=Path, metavar="JUNIT")
+    parser.add_argument("--plan", help="shard K: print `shards=<n>`, then its files")
+    parser.add_argument(
+        "--base", default="", help="base of the change; with --head, scope the files"
+    )
+    parser.add_argument("--head", default="", help="head of the change")
     args = parser.parse_args(argv)
+    if args.plan == "all":  # a local run: every test file, one shard
+        print("\n".join(["shards=1", *collected_test_files()]))
+        return 0
+    if args.plan:
+        if not args.plan.isdigit() or not 1 <= int(args.plan) <= max(args.of, 0):
+            parser.error("give --plan K --of N with K in 1..N")
+        shards, files = plan(int(args.plan), args.of, args.base, args.head)
+        print("\n".join([f"shards={shards}", *files]))
+        return 0
     if args.refresh:
         WEIGHTS.write_text(json.dumps(refresh(args.refresh), indent=1) + "\n", encoding="utf-8")
         print(f"wrote {WEIGHTS}")
@@ -135,7 +188,7 @@ def main(argv: list[str] | None = None) -> int:
     number = int(args.shard)
     if not 1 <= number <= args.of:
         parser.error(f"shard {number} is not in 1..{args.of}")
-    print("\n".join(deal(collected_test_files(), args.of, load_weights())[number - 1]))
+    print("\n".join(plan(number, args.of, args.base, args.head)[1]))
     return 0
 
 

@@ -45,6 +45,7 @@ import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own fi
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
+import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
 import mutation_rows_red_wine_500  # noqa: E402  (gen#500 rows, kept in their own file)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
@@ -2104,9 +2105,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -2116,11 +2117,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg", '
         '"image_detail_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
@@ -4269,6 +4270,7 @@ MUTATIONS: list[Mutation] = [
     # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
     *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
     *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
+    *(Mutation(f"plate grid clones: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_plate_grid_clones.ROWS),
     *(Mutation(f"seating agreement: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_seating_agreement.ROWS),
     *(Mutation(f"tableware features: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_tableware_features.ROWS),
     # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
