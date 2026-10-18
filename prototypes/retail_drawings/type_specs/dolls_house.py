@@ -82,9 +82,9 @@ SPEC = TypeSpec(
     product_type="Dolls' House",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "yellow dolls house", "generic", _ROWS[0], 16, "Yellow Ridge Dolls House",
-                  "From the Yellow Ridge range, named after a hill; the house itself is "
-                  "painted blue.", color=BLUE),
+        toy_decoy(6, "water gun", "generic", _ROWS[0], 16, "Water Gun Wharf Dolls House",
+                  "From the Water Gun Wharf range, named after a harbour wharf; a house for "
+                  "dolls that squirts no water.", color=BLUE),
         toy_decoy(6, "kite", "generic", _ROWS[1], 17, "Kite Hill Dolls House",
                   "From the Kite Hill range, named after a windy field; a house for dolls "
                   "that does not fly.", color=GREEN),
