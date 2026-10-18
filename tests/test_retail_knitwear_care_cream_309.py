@@ -1,10 +1,11 @@
 """A knitwear care cream: "cream" the product, not a shade, beside the cream jumpers (gen#309).
 
-The knitwear depth of #314 carries the colour decoys, the jumper dress (Dresses) and the jump leads
-(Home, DIY & Car). The one decoy the issue still names is a "cream" that is not a colour on a
-knitwear page: a care cream for jumpers. It is a real Home product of a type with a floor of
-ordinary products, its colour is the tub's (White), and only its title and description hold the
-words "cream" and "jumper". The category policy (Jumpers) and the department policy drop it.
+The knitwear depth of #314 carries the color decoys, the jumper dress (Dresses) and the jump leads
+(Home, DIY & Car). The one decoy the issue still names is a "cream" that is not a color on a
+knitwear page: a care cream for jumpers. It is a real laundry product of an existing type with
+ordinary products of its own, its color is the tub's (White), and only its title and description
+hold the words "cream" and "jumper". The category policy (Jumpers) and the department policy drop
+it.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ import scale  # noqa: E402
 from distractors import tokens  # noqa: E402
 
 QUERY = "cream jumper"
-#: The shade words: a care cream's own colour is none of them.
+#: The shade words: a care cream's own color is none of them.
 SHADES = {"cream", "ivory", "off white", "ecru"}
 
 
@@ -58,17 +59,19 @@ def test_its_words_say_cream_and_jumper_and_its_fields_say_a_home_care_product(
         doc = by_id[f"PLT-{row.code}"]
         words = set(tokens(doc["title"]))
         assert {"cream", "jumper"} <= words, doc["title"]
-        assert doc["category_path"][:2] == ["Home", "Laundry"], doc["category_path"]
+        assert doc["category_path"][:2] == ["Cleaning", "Laundry"], doc["category_path"]
         assert "Jumpers" not in doc["category_path"]
-        colours = {a["value"].lower() for a in doc["attributes"] if a["key"] == "color"}
-        assert colours and not colours & SHADES, colours
+        colors = {c["color"].lower() for c in doc["color_options"]}
+        assert colors and not colors & SHADES, colors
         assert doc["category_leaf"] == doc["category_path"][-1]
 
 
 def test_the_new_care_type_has_ordinary_products_of_its_own(by_id: dict[str, dict]) -> None:
-    leaf = {by_id[f"PLT-{r.code}"]["category_leaf"] for r in _rows()}
-    assert len(leaf) == 1
-    ordinary = [r for r in dpw.FLOOR if by_id[f"PLT-{r.code}"]["category_leaf"] in leaf]
+    """The cream sits in a type that already exists with ordinary products (no new type)."""
+    ids = {f"PLT-{r.code}" for r in _rows()}
+    paths = {tuple(by_id[i]["category_path"]) for i in ids}
+    assert len(paths) == 1
+    ordinary = [i for i, d in by_id.items() if tuple(d["category_path"]) in paths and i not in ids]
     assert len(ordinary) >= 3, ordinary
 
 
