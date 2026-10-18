@@ -71,11 +71,34 @@ def test_the_empty_prefix_and_one_or_two_capitals_are_accepted(prefix):
     ids.check_prefix(prefix)
 
 
-def test_two_domains_cannot_hold_one_prefix():
+@pytest.fixture
+def prefixes_restored():
+    """Leave ``ids.PREFIXES`` as the test found it, so a claim made here does not outlive it."""
+    saved = dict(ids.PREFIXES)
+    yield
+    ids.PREFIXES.clear()
+    ids.PREFIXES.update(saved)
+
+
+def test_two_domains_cannot_hold_one_prefix(prefixes_restored):
     ids.claim_prefix("test_domain_a", "ZA")
     ids.claim_prefix("test_domain_a", "ZA")  # the same domain again is no clash
     with pytest.raises(ValueError, match="ZA"):
         ids.claim_prefix("test_domain_b", "ZA")
+
+
+def test_a_domain_cannot_re_claim_a_different_prefix(prefixes_restored):
+    ids.claim_prefix("d", "ZB")
+    with pytest.raises(ValueError, match="already mints"):
+        ids.claim_prefix("d", "ZC")
+    assert ids.PREFIXES["d"] == "ZB"
+
+
+def test_a_second_domain_cannot_claim_the_empty_prefix_industrial_holds(prefixes_restored):
+    assert ids.PREFIXES["industrial"] == ""
+    with pytest.raises(ValueError, match="industrial"):
+        ids.claim_prefix("test_domain_c", "")
+    assert "test_domain_c" not in ids.PREFIXES
 
 
 def test_the_industrial_generator_mints_through_core_with_the_empty_prefix():
