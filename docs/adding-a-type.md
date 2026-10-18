@@ -696,6 +696,26 @@ stays one per type, and their attributes stay true. The class names the word:
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
 handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
 
+## A decoy for an industrial seed query (#462)
+
+The Combined demo runs a category policy on the industrial half, and a policy has nothing visible to
+remove unless a real product merely mentions the queried noun. That product is a decoy: a breadth
+type (a module under `domains/industrial/product_types/decoys/`) whose SKU title holds the seed's
+words, such as `Hex Nut Driver`, `Roller Chain Breaker Tool` or `Square End Mill Storage Case`, and
+whose category path does not name the seed's own category. It is a real accessory, holder, tool,
+lubricant or storage item with true attributes, never a wrong product, and its leaf is its own
+(one type per leaf, no change to `SHARED_LEAVES`). To serve a seed, add or reuse such a module and
+list its key under the query in `domains/industrial/seed_decoys.py`:
+
+- `SEED_TERMS[query] = (terms, forbidden)`: the words one SKU title holds, and the plural-leaf
+  phrases the category path must not hold (`"hex nuts"`, not `"nut"`, which a `Nut Drivers` leaf
+  holds).
+- `SEED_DECOYS[query]` lists the type keys; `SECTIONS` groups the queries for the PR body.
+
+`tests/test_industrial_seed_decoys_462.py` pins at least two decoy lines per seed, that every listed
+type serves its seed, and that every module under `decoys/` serves one. A head noun a decoy adds
+(`Holder`, `Puller`) is registered in `domains/industrial/names.py` `PRODUCT_NOUNS`.
+
 ## The commands
 
 ```sh
