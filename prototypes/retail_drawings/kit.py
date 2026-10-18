@@ -323,11 +323,32 @@ def blouse(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def dress(paint: str, fill: Fill, label: str | None) -> list[str]:
+#: A dress's neckline (gen#181) -> (the straps or sleeves above the bodice, the neckline drawn on it).
+#: The keys are the top kit's (``kit_garments.NECKLINES``); a dress without the param keeps the
+#: strap dress it always was.
+_STRAPS = "M164,114 L172,48 M236,114 L228,48"
+_CAPS = "M158,114 L126,150 L146,170 L168,138 M242,114 L274,150 L254,170 L232,138"
+DRESS_NECKS: dict[str, tuple[str, str]] = {
+    "crew": (_CAPS, "M168,112 Q200,134 232,112"),
+    "v_neck": (_STRAPS, "M166,112 L200,162 L234,112"),
+    "boat": (_CAPS, "M150,112 Q200,124 250,112"),
+    "scoop": (_STRAPS, "M164,112 Q200,168 236,112"),
+    "square": (_STRAPS, "M166,112 L166,138 L234,138 L234,112"),
+    "roll_neck": (_CAPS, "M176,112 L178,90 Q200,84 222,90 L224,112"),
+    "halter": ("M178,112 L196,52 M222,112 L204,52", "M172,112 Q200,122 228,112"),
+    "cowl": (_STRAPS, "M164,112 Q200,160 236,112 M172,126 Q200,152 228,126"),
+    "collar": (_CAPS, "M170,112 L184,94 L200,122 L216,94 L230,112"),
+}  # fmt: skip
+
+
+def dress(paint: str, fill: Fill, label: str | None, neckline: str | None = None) -> list[str]:
     body = "M158,112 Q200,128 242,112 L236,196 Q290,270 334,352 Q200,378 66,352 Q110,270 164,196 Z"
+    straps, cut = DRESS_NECKS[neckline] if neckline else (_STRAPS, "")
+    out = [_line(straps, 5), _path(body, paint)]
+    if cut:
+        out.append(_line(cut, 2.4))
     return [
-        _line("M164,114 L172,48 M236,114 L228,48", 5),
-        _path(body, paint),
+        *out,
         _line("M164,196 Q200,206 236,196", 2.2),
         _line("M180,206 Q170,290 150,366 M220,206 Q230,290 250,366", 1.2, ' stroke-opacity=".6"'),
     ]
