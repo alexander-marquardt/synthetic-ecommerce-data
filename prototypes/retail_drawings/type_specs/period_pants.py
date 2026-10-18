@@ -7,6 +7,8 @@ styles are templates only (``derivable`` False). The text-match decoys come from
 (gen#311): three of each class, cloned from these rows.
 """
 
+# ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
+
 from __future__ import annotations
 
 from type_registry import ApparelPlan, Row, TypeSpec, a, cw, sizes
