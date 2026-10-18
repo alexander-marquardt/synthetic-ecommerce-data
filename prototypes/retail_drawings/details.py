@@ -106,6 +106,15 @@ PARTS: dict[str, dict[str, dict]] = {
         "heel": band((0.0, 0.78, 0.34, 1.0), "all"),
     },
     "shoe": {"sole": marked("sole")},
+    "swimsuit": {"straps": STRAPS_TOP, "hem": TORSO_HEM},
+    "bikini_top": {"straps": STRAPS_TOP},
+    "bikini_bottoms": {"waistband": WAIST},
+    "tankini": {"straps": STRAPS_TOP, "hem": TORSO_HEM},
+    "swim_shorts": {"waistband": WAIST, "cuffs": HEM},
+    "kids_swimsuit": {"hem": TORSO_HEM},
+    "period_swimwear": {"waistband": WAIST},
+    "cover_up": {"hem": TORSO_HEM},
+    "changing_robe": {"hem": TORSO_HEM},
 }
 
 
