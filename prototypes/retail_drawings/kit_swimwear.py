@@ -61,7 +61,7 @@ def _flip(start: tuple[float, float], segs: list[Seg]) -> list[Seg]:
 
 
 def _closed(start: tuple[float, float], left: list[Seg]) -> str:
-    """A closed outline: the left run from ``start`` (top centre) to the bottom centre, then its
+    """A closed outline: the left run from ``start`` (top center) to the bottom center, then its
     mirror image walked back to the top."""
     return _d(start, left + _flip(start, left)) + " Z"
 
