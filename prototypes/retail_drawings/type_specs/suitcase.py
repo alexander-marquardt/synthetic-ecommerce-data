@@ -9,11 +9,27 @@ The decoys (gen#294) are real suitcases whose title or description holds a word 
 search: a red zip, the word weekend, a lock the case lacks.
 """
 
+# ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
+
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, EXEMPT, FENMOOR, GREEN, MARROWGATE, NAVY, OWNED, RED, SKERRY, TARNWICK, WHITE,
-    YELLOW, a, luggage_row, sized,
+    BLACK,
+    BLUE,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    MARROWGATE,
+    NAVY,
+    OWNED,
+    RED,
+    SKERRY,
+    TARNWICK,
+    WHITE,
+    YELLOW,
+    a,
+    luggage_row,
+    sized,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 

@@ -50,9 +50,9 @@ count = _count
 num = _num
 
 
-def litres(key: str, name: str, n: float) -> tuple[str, str, str, str]:
-    """A capacity in litres on the style (a weekend bag has one size)."""
-    return (key, name, f"{n:g}", "LTR")
+def litres(key: str, name: str, n: float) -> tuple[str, str, str, str, float]:
+    """A capacity in litres on the style (a weekend bag has one size); canonical is millilitres."""
+    return (key, name, f"{n:g}", "LTR", n * 1000.0)
 
 
 def luggage_row(code, title, brand, price, desc, colors, ptype, leaf, shape, attrs, sizes=(), params=(), size_key="capacity_l", extra=()) -> ARow:  # fmt: skip

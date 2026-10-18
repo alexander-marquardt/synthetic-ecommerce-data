@@ -13,8 +13,25 @@ leather.
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, EXEMPT, FENMOOR, GREEN, GREY, MARROWGATE, NAVY, OWNED, PELLBROOK, RED, SKERRY,
-    TAN, TARNWICK, WHITE, YELLOW, a, count, luggage_row,
+    BLACK,
+    BLUE,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    GREY,
+    MARROWGATE,
+    NAVY,
+    OWNED,
+    PELLBROOK,
+    RED,
+    SKERRY,
+    TAN,
+    TARNWICK,
+    WHITE,
+    YELLOW,
+    a,
+    count,
+    luggage_row,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 
@@ -42,7 +59,7 @@ _ROWS = (
          "A toiletry roll that unrolls and hangs on a hook, with three zipped pockets and a "
          "wipe-clean lining.", (NAVY, YELLOW, BLUE), "Toiletry Roll", 1, "Polyester"),
     _row("TRVADP", "Travel Adapter Case", FENMOOR, 9.0,
-         "A hard-lined zip case that holds a universal adapter, a charger and cables, with a "
+         "A hard-lined zip case that holds a plug adapter, a charger and cables, with a "
          "mesh divider.", (BLACK, GREY, WHITE), "Adapter Case", 1, "Polyester"),
 )  # fmt: skip
 
