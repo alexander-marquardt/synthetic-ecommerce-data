@@ -37,9 +37,9 @@ IDS = {d["product_id"] for d in DOCS}
 #: the SKU axis beside color, or None)
 TYPES = {
     "Floor Lamp": ("Floor Lamps", "floor_lamp",
-                   {"style", "height", "shade_material", "switch", "bulb_fitting"}, "finish"),
+                   {"style", "item_height", "shade_material", "switch", "bulb_fitting"}, "finish"),
     "Table Lamp": ("Table Lamps", "table_lamp",
-                   {"style", "height", "base_material", "power"}, "shade_color"),
+                   {"style", "item_height", "base_material", "power"}, "shade_color"),
     "Desk Lamp": ("Desk Lamps", "desk_lamp", {"arm"}, None),
     "Ceiling Light": ("Ceiling Lights", "ceiling_light",
                       {"fixture_type", "light_count", "shade_material", "bulb_fitting"},

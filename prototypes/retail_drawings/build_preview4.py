@@ -48,7 +48,7 @@ from variants import FAMILIES, SIZE_KEYS, sku_report, style_docs  # noqa: E402
 
 #: One product per style: the whole round 4 corpus, the print range (gen#125),
 #: footwear and every class record.
-SAMPLES = 328
+SAMPLES = 352
 
 
 def samples() -> dict[str, list[dict]]:
