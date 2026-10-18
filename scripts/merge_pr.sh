@@ -46,7 +46,9 @@
 #      each one's verdict, duration and log (outside the clone, named
 #      <label>-<job>.log in $MERGE_PR_LOG_DIR, default /tmp; --label sets the
 #      label, default the checkout's directory name) is printed; the merge is
-#      refused unless every job passed. No GitHub check is read. Each job's
+#      refused unless every job passed. A red job also prints its FAILED/ERROR
+#      summary lines (at most 20) and its log is copied to <kept dir>/.git/ci-logs/,
+#      so the failing test is named without a re-run (#453). No GitHub check is read. Each job's
 #      pytest runs on several workers, grouped by file (local_ci_jobs.py adds
 #      -n and --dist loadgroup; LOCAL_CI_WORKERS sets the count): the suite
 #      took 47 to 54 minutes on one core, and merges are serial (#348).
@@ -348,8 +350,25 @@ run_local_ci() {
       local_ci_failed+=" $job"
     fi
     echo "   local CI $job: $verdict ($((SECONDS - started))s) log $log"
+    if [ "$verdict" = FAIL ]; then report_red_job "$log"; fi
   done
   [ -z "$local_ci_failed" ]
+}
+
+# A red job (#453): its FAILED/ERROR summary lines (at most 20) go to this script's own
+# output, and its log is copied into the directory the script keeps for inspection, so
+# the failing test is named without a re-run even when the temp directory is swept.
+# The copy sits under .git: a file beside the tree would be a stray change to the build.
+report_red_job() {
+  local log=$1 kept="$work/.git/ci-logs" total
+  total=$(grep -cE '^(FAILED|ERROR) ' "$log" || true)
+  grep -E '^(FAILED|ERROR) ' "$log" | head -20 | sed 's/^/     /' || true
+  if [ "${total:-0}" -gt 20 ]; then
+    echo "     ... $((total - 20)) more FAILED/ERROR lines in the log"
+  fi
+  if mkdir -p "$kept" && cp -f "$log" "$kept/"; then
+    echo "   kept for inspection: $kept/$(basename "$log")"
+  fi
 }
 
 local_ci_log() { echo "${MERGE_PR_LOG_DIR:-/tmp}/$label-$1.log"; }
@@ -413,7 +432,7 @@ run_github_ci() {
       gh api "repos/$slug/actions/jobs/$job_id/logs" 2>/dev/null || true; } |
       sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g; s/^[0-9T:.Z-]+ //' >"$(local_ci_log "$safe")"
     echo "   GitHub CI $name: $jconclusion $url"
-    grep -E '^(FAILED|ERROR) ' "$(local_ci_log "$safe")" | head -40 | sed 's/^/     /' || true
+    report_red_job "$(local_ci_log "$safe")"
   done <<<"$jobs_tsv"
   for required in "${REQUIRED_CI[@]}"; do
     case " $seen " in
