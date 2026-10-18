@@ -313,20 +313,20 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA11201 | Leggings | 2 another category's noun as a modifier | Blue Regular Cycling Leggings | cycling | cycling | generic |
 | PLT-DA11202 | Leggings | 2 another category's noun as a modifier | Navy Regular Cycling Leggings | cycling | cycling | generic |
 | PLT-DA11300 | Leggings | 3 audience word of a sibling version | Red Boys Fit Compression Leggings | boys | boys leggings | generic |
-| PLT-DA11301 | Leggings | 3 audience word of a sibling version | Cream Mens-Style Leggings | mens | mens leggings | generic |
-| PLT-DA11302 | Leggings | 3 audience word of a sibling version | Blue Boys Fit Compression Leggings | boys | boys leggings | generic |
+| PLT-DA11301 | Leggings | 3 audience word of a sibling version | Cream Mens-Style Compression Leggings | mens | mens leggings | generic |
+| PLT-DA11302 | Leggings | 3 audience word of a sibling version | Blue Boys Fit Regular Leggings | boys | boys leggings | generic |
 | PLT-DA11400 | Leggings | 4 material or feature named but absent | Blue Leather-Look Regular Leggings | leather | leather leggings | special: material claim |
 | PLT-DA11401 | Leggings | 4 material or feature named but absent | Pink Suede-Look Regular Leggings | suede | suede leggings | special: material claim |
 | PLT-DA11402 | Leggings | 4 material or feature named but absent | Cream Cashmere-Feel Regular Leggings | cashmere | cashmere leggings | special: material claim |
 | PLT-DA11500 | Leggings | 5 shade spelled in the description only | Moonbeam Regular Leggings | ivory | ivory leggings | generic |
-| PLT-DA11501 | Leggings | 5 shade spelled in the description only | Driftwood Regular Leggings | taupe | taupe leggings | generic |
+| PLT-DA11501 | Leggings | 5 shade spelled in the description only | Driftwood Compression Leggings | taupe | taupe leggings | generic |
 | PLT-DA11502 | Leggings | 5 shade spelled in the description only | Dune Compression Leggings | beige | beige leggings | generic |
-| PLT-DA11600 | Leggings | 6 incidental word in a range name | Skirt Point Leggings | skirt | skirt | generic |
-| PLT-DA11601 | Leggings | 6 incidental word in a range name | Sandal Wood Compression Leggings | sandal | sandal | generic |
+| PLT-DA11600 | Leggings | 6 incidental word in a range name | Skirt Point Regular Leggings | skirt | skirt | generic |
+| PLT-DA11601 | Leggings | 6 incidental word in a range name | Sandal Wood Regular Leggings | sandal | sandal | generic |
 | PLT-DA11602 | Leggings | 6 incidental word in a range name | Shoe Lane Regular Leggings | shoe | shoe | generic |
 | PLT-DA11700 | Leggings | 7 invented brand holding a color or category word | Red Plover Regular Leggings | red | red leggings | generic |
 | PLT-DA11701 | Leggings | 7 invented brand holding a color or category word | Green Stoat Regular Leggings | green | green leggings | generic |
-| PLT-DA11702 | Leggings | 7 invented brand holding a color or category word | Black Lapwing Regular Leggings | black | black leggings | generic |
+| PLT-DA11702 | Leggings | 7 invented brand holding a color or category word | Black Lapwing Compression Leggings | black | black leggings | generic |
 | PLT-DA12100 | Outfit Set | 1 color names a part | Outfit Set with Green Waistband | green | green outfit set | generic |
 | PLT-DA12101 | Outfit Set | 1 color names a part | Outfit Set with White Waistband | white | white outfit set | generic |
 | PLT-DA12102 | Outfit Set | 1 color names a part | Outfit Set with Red Waistband | red | red outfit set | generic |

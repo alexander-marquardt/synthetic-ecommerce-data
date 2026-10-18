@@ -38,6 +38,7 @@ _OTHERS_GREEN = {
     "file-size": "true",
     "red-commit-proof": "true",
     "customer-name-check": "true",
+    "stats-roll": "true",
 }
 
 

@@ -78,6 +78,7 @@ case "$1 $2" in
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
     printf 'customer-name-check\tcompleted\tsuccess\n'
+    printf 'stats-roll\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -322,6 +323,7 @@ def test_a_stale_golden_is_rebuilt_on_the_merged_tree_pushed_and_merged(world: d
     pushed = _branch(world)
     assert pushed != head, "the merged and rebuilt tree was not pushed"
     assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
+    assert _rolled_by(world, pushed) == "scripts/merge_pr.sh"
     assert _git(world["origin"], "show", f"{pushed}:{_STATS}") == _git(
         world["origin"], "show", f"main:{_STATS}"
     )
@@ -389,6 +391,7 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
     assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
     # Neither side's total: the retail rebuild's.
     assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
+    assert _rolled_by(world, pushed) == "scripts/merge_pr.sh"
     assert _merged(world)
 
 
@@ -458,7 +461,8 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check",
+            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check"
+            " stats-roll",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -684,6 +688,7 @@ def test_no_real_type_takes_a_block_the_merge_test_s_added_types_derive() -> Non
         )
 
 
+@pytest.mark.timeout(900)  # two full merges; 300 s is tight in a heavy shard
 def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
     world: dict,
 ) -> None:
@@ -775,7 +780,9 @@ def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
     retail = _git(REPO, "ls-files", "golden-retail").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map])
+    # retail_figures.py also writes the apparel decoy table (decoy_apparel.write_doc).
+    table = "docs/retail-apparel-decoys.md"
+    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map, table])
 
 
 def test_the_retail_rebuild_is_the_command_the_retail_figures_name() -> None:
@@ -855,6 +862,7 @@ _ALL_GREEN = _workflow(
         "file-size": "echo size",
         "red-commit-proof": "echo red",
         "customer-name-check": "echo names",
+        "stats-roll": "echo roll",
         "main-merged-tree": "echo drift",
     },
 )
@@ -870,6 +878,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
         "file-size",
         "red-commit-proof",
         "customer-name-check",
+        "stats-roll",
         "main-merged-tree",
     ):
         assert f"local CI {job}: PASS" in done.stdout
@@ -888,6 +897,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "stats-roll": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -909,6 +919,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "stats-roll": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -981,6 +992,7 @@ _OTHER_JOBS = {
     "file-size": "true",
     "red-commit-proof": "true",
     "customer-name-check": "true",
+    "stats-roll": "true",
 }
 
 
@@ -998,6 +1010,11 @@ def _subject(world: dict, rev: str) -> str:
     return _git(world["origin"], "log", "-1", "--format=%s", rev)
 
 
+def _rolled_by(world: dict, rev: str) -> str:
+    """The ``Rolled-By`` trailer of a commit, which the stats lint reads (gen#373)."""
+    return _git(world["origin"], "log", "-1", "--format=%(trailers:key=Rolled-By,valueonly)", rev)
+
+
 def test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged(
     world: dict,
 ) -> None:
@@ -1008,6 +1025,7 @@ def test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_an
     assert done.returncode == 0, done.stdout + done.stderr
     pushed = _branch(world)
     assert _subject(world, pushed) == "regenerate golden on main"
+    assert _rolled_by(world, pushed) == "scripts/merge_pr.sh"
     changed = _git(world["origin"], "show", "--stat", "--format=", "--name-only", pushed).split()
     assert changed == [_STATS], changed
     assert _git(world["origin"], "show", f"{pushed}:{_STATS}") == _git(

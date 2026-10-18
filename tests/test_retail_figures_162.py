@@ -131,7 +131,9 @@ def test_the_per_type_spec_aggregate_is_not_a_quoted_total(stats: dict) -> None:
 def test_the_committed_figures_are_what_the_build_measures(stats: dict) -> None:
     fresh = retail_figures.render(retail_figures.measure())
     assert retail_figures.STATS.read_text("utf-8") == fresh, (
-        f"golden-retail/stats.json is stale; run {REBUILD} and commit it"
+        "golden-retail/stats.json is stale; run `uv run python scripts/roll_stats.py`. Do not "
+        "commit it: scripts/merge_pr.sh rolls it when the PR merges and CI rewrites it before "
+        "the tests run (gen#373)"
     )
 
 

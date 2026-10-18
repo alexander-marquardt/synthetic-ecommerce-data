@@ -1670,46 +1670,57 @@
    "Arbor Hole",
    "Backing Material",
    "Diameter",
+   "Dimension Type",
    "Grit",
+   "Item",
    "Max. RPM",
    "Measurement System",
    "Mounting Type",
    "Shape",
-   "Standards"
+   "Standards",
+   "System of Measurement"
   ],
   "anaerobic_threadlockers": [
    "Container Size",
+   "Item",
    "Material"
   ],
   "anti_seize_compounds": [
    "Container Size",
+   "Item",
    "Material"
   ],
   "backing_pads": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "ball_stock_precision": [
    "Diameter",
    "Finish",
    "Grade",
+   "Item",
    "Material"
   ],
   "ball_stock_rubber": [
    "Diameter",
    "Finish",
+   "Item",
    "Material"
   ],
   "ball_valves": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "band_saw_blades": [
+   "Item",
    "Length",
    "Material"
   ],
   "bar_stock_hex": [
+   "Item",
    "Length",
    "Material",
    "Size"
@@ -1717,18 +1728,22 @@
   "bar_stock_round": [
    "Diameter",
    "Finish",
+   "Item",
    "Material"
   ],
   "bar_stock_square": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "bearing_greases": [
    "Container Size",
+   "Item",
    "Material"
   ],
   "bearing_pullers": [
+   "Item",
    "Material",
    "Maximum Size",
    "Type"
@@ -1739,7 +1754,9 @@
    "Bore Dia.",
    "Cage Material",
    "Closure Type",
+   "Dimension Type",
    "Dynamic Load Capacity",
+   "Item",
    "Lubricant",
    "Material",
    "Max. RPM",
@@ -1749,185 +1766,228 @@
    "Series",
    "Standards",
    "Static Load Capacity",
+   "System of Measurement",
    "Type",
    "Width"
   ],
   "bench_tool_racks": [
    "Capacity",
+   "Item",
    "Material"
   ],
   "bench_vises": [
+   "Item",
    "Material",
    "Size",
    "Style"
   ],
   "bit_index_cases": [
    "Capacity",
+   "Item",
    "Material"
   ],
   "bit_sharpeners": [
+   "Item",
    "Material",
    "Maximum Size"
   ],
   "bit_socket_sets": [
    "Drive Size",
+   "Item",
    "Material"
   ],
   "blind_rivets": [
    "Diameter",
    "Head Type",
+   "Item",
    "Material"
   ],
   "bolt_hex": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Finish",
    "Grade",
    "Head Dia.",
    "Head Height",
    "Head Type",
+   "Item",
    "Length",
+   "Length under Head",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Length",
    "Thread Type",
    "Type",
-   "Units per Pack",
    "Width Across Flats"
   ],
   "bronze_sleeve_bushings": [
    "Bore Dia.",
+   "Item",
    "Length",
    "Material"
   ],
   "c_clamps": [
+   "Item",
    "Material",
    "Size",
    "Style"
   ],
   "cantilever_racks": [
    "Finish",
+   "Item",
    "Material",
    "Rated Load"
   ],
   "cap_nuts_acorn": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "carriage_bolts": [
    "Finish",
+   "Item",
    "Length",
    "Material",
    "Thread Size"
   ],
   "center_punches": [
+   "Item",
    "Length",
    "Material",
    "Style"
   ],
   "chain_breakers": [
+   "Item",
    "Material",
    "Size"
   ],
   "chain_lubricants": [
    "Container Size",
+   "Item",
    "Material",
    "Type"
   ],
   "chain_tensioners": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "circle_cutters": [
+   "Item",
    "Material",
    "Maximum Size"
   ],
   "cold_chisels": [
+   "Item",
    "Length",
    "Material",
    "Width"
   ],
   "combination_wrenches": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "compound_cutters": [
    "Handle Material",
+   "Item",
    "Material",
    "Overall Length"
   ],
   "compression_springs": [
+   "Item",
    "Length",
    "Material",
    "Outside Dia."
   ],
   "conduit_pliers": [
    "Finish",
+   "Item",
    "Material",
    "Overall Length"
   ],
   "cord_splicing_kits": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "cotter_pins": [
+   "Dimension Type",
    "Finish",
    "Head Dia.",
    "Head Height",
+   "Item",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Pin Dia.",
    "Standards",
-   "Units per Pack"
+   "System of Measurement"
   ],
   "coupling_nuts": [
    "Finish",
+   "Item",
    "Length",
    "Material",
    "Thread Size"
   ],
   "cut_resistant_gloves": [
    "Color",
+   "Item",
    "Material",
    "Size"
   ],
   "cutter_sharpening_fixtures": [
+   "Item",
    "Material",
    "Size"
   ],
   "cutter_storage_cases": [
+   "Item",
    "Material",
    "Size"
   ],
   "cutter_storage_racks": [
+   "Item",
    "Material",
    "Size"
   ],
   "diamond_wheels": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "dowel_pins": [
    "Dia. Tolerance",
-   "Dowel Dia.",
+   "Dimension Type",
+   "Dowel Dia. (in)",
+   "Dowel Dia. (mm)",
    "Finish",
    "Hardness",
+   "Item",
    "Length",
    "Material",
    "Measurement System",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Type"
   ],
   "drawer_slides": [
    "Finish",
+   "Item",
    "Length",
    "Material"
   ],
   "drill_bushings": [
+   "Item",
    "Length",
    "Material",
    "Size"
@@ -1935,8 +1995,10 @@
   "drill_jobber": [
    "Cutting Direction",
    "Decimal Equivalent",
+   "Dimension Type",
    "Finish",
    "Flute Length",
+   "Item",
    "List Number",
    "Material",
    "Measurement System",
@@ -1946,29 +2008,36 @@
    "Shank Dia.",
    "Shank Type",
    "Size",
-   "Standards"
+   "Standards",
+   "System of Measurement"
   ],
   "drill_stop_collars": [
+   "Item",
    "Material",
    "Size"
   ],
   "drive_guards": [
    "Finish",
+   "Item",
    "Material",
    "Width"
   ],
   "driver_bit_sets": [
+   "Item",
    "Material",
-   "Piece Count"
+   "Number of Pieces"
   ],
   "end_mill_ball": [
-   "Application",
    "Coolant Fed",
    "Corner Radius",
    "Cutting Direction",
    "Cutting Type",
+   "Dimension Type",
+   "End Mill Application",
+   "End Mill Style",
    "Finish",
    "Helix Angle",
+   "Item",
    "Length of Cut",
    "List Number",
    "Material",
@@ -1980,16 +2049,20 @@
    "Overall Length",
    "Shank Dia.",
    "Single End/Double End",
-   "Standards"
+   "Standards",
+   "System of Measurement"
   ],
   "end_mill_square": [
-   "Application",
    "Coolant Fed",
    "Corner Radius",
    "Cutting Direction",
    "Cutting Type",
+   "Dimension Type",
+   "End Mill Application",
+   "End Mill Style",
    "Finish",
    "Helix Angle",
+   "Item",
    "Length of Cut",
    "List Number",
    "Material",
@@ -2001,223 +2074,278 @@
    "Overall Length",
    "Shank Dia.",
    "Single End/Double End",
-   "Standards"
+   "Standards",
+   "System of Measurement"
   ],
   "er_collets": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "eye_bolts": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "fastener_dispensers": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "fastener_extractors": [
+   "Item",
    "Material",
-   "Piece Count"
+   "Number of Pieces"
   ],
   "flange_nuts": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "flat_gaskets": [
+   "Item",
    "Material",
    "Size",
    "Thickness"
   ],
   "fluted_dowels": [
    "Diameter",
+   "Item",
    "Material",
-   "Units per Pack"
+   "Package Quantity"
   ],
   "foam_ear_plugs": [
+   "Item",
    "Material",
-   "Type",
-   "Units per Pack"
+   "Package Quantity",
+   "Type"
   ],
   "gear_pullers": [
+   "Item",
    "Material",
    "Maximum Size",
    "Type"
   ],
   "grinder_guards": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "grooving_cutters": [
+   "Item",
    "Material",
    "Width"
   ],
   "grub_screw_keys": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "hammer_ball_pein": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
    "Overall Length",
-   "Standards"
+   "Standards",
+   "System of Measurement"
   ],
   "hammer_claw": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
-   "Overall Length"
+   "Overall Length",
+   "System of Measurement"
   ],
   "hammer_club": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
-   "Measurement System",
-   "Overall Length"
+   "Overall Length",
+   "System of Measurement"
   ],
   "hammer_dead_blow": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
-   "Overall Length"
+   "Overall Length",
+   "System of Measurement"
   ],
   "hammer_framing": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
-   "Overall Length"
+   "Overall Length",
+   "System of Measurement"
   ],
   "hammer_rubber_mallet": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
    "Overall Length"
   ],
   "hammer_sledge": [
+   "Dimension Type",
    "Face Dia.",
    "Face Type",
    "Handle Grip Material",
    "Handle Length",
    "Handle Material",
    "Head Weight",
+   "Item",
    "Material",
    "Measurement System",
-   "Overall Length"
+   "Overall Length",
+   "System of Measurement"
   ],
   "hand_files": [
+   "Item",
    "Length",
    "Material",
    "Type"
   ],
   "handle_wedges": [
+   "Item",
    "Material",
    "Width"
   ],
   "hex_bit_socket_sets": [
    "Drive Size",
    "Finish",
+   "Item",
    "Material"
   ],
   "hex_bit_sockets": [
+   "Item",
    "Material",
    "Size",
    "Style"
   ],
   "hex_key": [
+   "Dimension Type",
    "Finish",
+   "Item",
    "Material",
    "Measurement System",
    "Overall Length",
    "Overall Width",
    "Size",
    "Standards",
+   "System of Measurement",
    "Tip Style",
    "Type"
   ],
   "hex_pipe_nipples": [
+   "Item",
    "Length",
    "Material",
    "Size"
   ],
   "hose_clamps": [
+   "Item",
    "Material",
    "Size",
    "Style"
   ],
   "induction_heaters": [
+   "Item",
    "Material",
    "Maximum Workpiece Weight"
   ],
   "key_stock": [
+   "Dimension Type",
    "Finish",
+   "Fit",
    "Height",
+   "Item",
    "Length",
    "Material",
    "Measurement System",
-   "Stock Fit",
+   "System of Measurement",
    "Width"
   ],
   "keyed_padlocks": [
+   "Item",
    "Material",
    "Type",
    "Width"
   ],
   "kit_assortment": [
    "Container Type",
+   "Dimension Type",
    "Finish",
+   "Item",
    "Material",
    "Measurement System",
-   "Piece Count",
+   "Number of Pieces",
    "Sizes Included",
+   "System of Measurement",
    "Tip Style",
    "Type"
   ],
   "lag_screws": [
    "Finish",
+   "Item",
    "Length",
    "Material",
    "Size"
   ],
   "lock_nuts_nylon_insert": [
+   "Dimension Type",
    "Finish",
    "Grade",
    "Height",
+   "Insert Material",
+   "Item",
+   "Lock Type",
    "Material",
    "Measurement System",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Size",
    "Thread Type",
@@ -2225,65 +2353,79 @@
    "Width Across Flats"
   ],
   "magnetic_bit_holders": [
+   "Item",
    "Length",
    "Material"
   ],
   "micro_collets": [
+   "Item",
    "Material",
    "Size"
   ],
   "milling_collets": [
+   "Item",
    "Material",
    "Size"
   ],
   "milling_tool_holders": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "nut_drivers_hex": [
    "Drive Size",
+   "Item",
    "Material",
    "Type"
   ],
   "nut_hex": [
+   "Dimension Type",
    "Finish",
    "Grade",
    "Height",
+   "Item",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Size",
    "Thread Type",
    "Type",
-   "Units per Pack",
    "Width Across Flats"
   ],
   "nut_splitters": [
    "Finish",
+   "Item",
    "Material",
    "Maximum Size"
   ],
   "nylon_wall_anchors": [
    "Diameter",
+   "Item",
    "Material",
-   "Units per Pack"
+   "Package Quantity"
   ],
   "o_rings": [
    "Dash Number",
+   "Dimension Type",
    "Hardness",
    "Inside Dia.",
    "Inside Dia. Tolerance",
+   "Item",
    "Material",
    "Measurement System",
    "Size",
    "Standards",
+   "System of Measurement",
    "Width",
    "Width Tolerance"
   ],
   "orb_hydraulic_fittings": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
@@ -2291,301 +2433,377 @@
    "Base to Center Height",
    "Bolt Hole Center-to-Center",
    "Bore Dia.",
+   "Dimension Type",
    "Finish",
+   "Item",
    "Material",
    "Measurement System",
    "Overall Height",
    "Overall Length",
+   "Package Quantity",
    "Standards",
-   "Units per Pack"
+   "System of Measurement"
   ],
   "piloted_counterbores": [
    "Diameter",
    "Finish",
+   "Item",
    "Material"
   ],
   "pin_pullers": [
+   "Item",
    "Material",
    "Maximum Size"
   ],
   "pin_punch_sets": [
    "Finish",
+   "Item",
    "Material",
-   "Piece Count"
+   "Number of Pieces"
   ],
   "pneumatic_cut_off_tools": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "quick_disconnect_couplings": [
+   "Item",
    "Material",
    "Size"
   ],
   "replacement_pins": [
    "Diameter",
    "Finish",
+   "Item",
    "Material"
   ],
   "retaining_rings_external": [
+   "Dimension Type",
    "Finish",
    "For Shaft Diameter",
    "Groove Diameter",
    "Groove Width",
    "Inside Dia.",
+   "Item",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Standards",
-   "Thickness",
-   "Units per Pack"
+   "System of Measurement",
+   "Thickness"
   ],
   "rigging_pulleys": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "rigid_casters": [
    "Capacity",
+   "Item",
    "Material",
    "Size"
   ],
   "rigid_shaft_couplings": [
    "Bore Dia.",
+   "Item",
    "Material",
    "Style"
   ],
   "roll_pins": [
    "Diameter",
+   "Item",
    "Length",
    "Material"
   ],
   "roller_chain": [
    "ANSI Number",
+   "Dimension Type",
    "Finish",
    "Inside Width",
+   "Item",
    "Length",
    "Material",
    "Measurement System",
    "Pitch",
    "Roller Dia.",
    "Standards",
-   "Style"
+   "Style",
+   "System of Measurement"
   ],
   "roller_chain_links": [
    "ANSI Number",
+   "Dimension Type",
    "Finish",
    "Inside Width",
+   "Item",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Pitch",
    "Standards",
    "Style",
-   "Type",
-   "Units per Pack"
+   "System of Measurement"
   ],
   "roller_chain_sprockets": [
    "ANSI Number",
    "Bore Dia.",
+   "Dimension Type",
    "Finish",
    "Hub Diameter",
+   "Item",
    "Length Through Bore",
    "Material",
    "Measurement System",
    "Number of Teeth",
    "Outside Dia.",
+   "Package Quantity",
    "Pitch",
    "Standards",
-   "Units per Pack"
+   "System of Measurement"
   ],
   "safety_glasses": [
    "Color",
+   "Item",
    "Material",
    "Style"
   ],
   "screw_button_head": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Drive Size",
    "Drive Type",
    "Finish",
-   "Hardness",
    "Head Dia.",
    "Head Height",
    "Head Type",
+   "Item",
    "Length",
+   "Length under Head",
    "Material",
    "Measurement System",
+   "Meets/Exceeds",
+   "Package Quantity",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Length",
    "Thread Type",
-   "Units per Pack"
+   "Type"
   ],
   "screw_flat_head": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Drive Size",
    "Drive Type",
    "Finish",
-   "Hardness",
    "Head Dia.",
    "Head Height",
    "Head Type",
+   "Item",
    "Length",
    "Material",
    "Measurement System",
+   "Meets/Exceeds",
+   "Package Quantity",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Length",
    "Thread Type",
-   "Units per Pack"
+   "Type"
   ],
   "screw_low_head": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Drive Size",
    "Drive Type",
    "Finish",
-   "Hardness",
    "Head Dia.",
    "Head Height",
    "Head Type",
+   "Item",
    "Length",
+   "Length under Head",
    "Material",
    "Measurement System",
+   "Meets/Exceeds",
+   "Package Quantity",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Length",
    "Thread Type",
-   "Units per Pack"
+   "Type"
   ],
   "screw_socket_head": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Drive Size",
    "Drive Type",
    "Finish",
-   "Hardness",
    "Head Dia.",
    "Head Height",
    "Head Type",
+   "Item",
    "Length",
+   "Length under Head",
    "Material",
    "Measurement System",
+   "Meets/Exceeds",
+   "Package Quantity",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
    "Thread Length",
    "Thread Type",
-   "Units per Pack"
+   "Type"
   ],
   "sds_drill_bits": [
    "Diameter",
+   "Item",
    "Material"
   ],
   "seal_pick_sets": [
+   "Item",
    "Material",
-   "Piece Count"
+   "Number of Pieces"
   ],
   "sems_bolts": [
    "Finish",
    "Head Type",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "serrated_flange_nuts": [
    "Finish",
    "Grade",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "set_screws_hex_socket": [
    "Dia./Thread Size",
+   "Dimension Type",
    "Drive Size",
    "Drive Type",
    "Finish",
-   "Hardness",
+   "Item",
    "Length",
    "Material",
    "Measurement System",
+   "Meets/Exceeds",
    "Point Dia.",
    "Point Type",
+   "Rockwell Hardness",
    "Standards",
+   "System of Measurement",
    "Thread Direction",
-   "Thread Type"
+   "Thread Type",
+   "Type"
   ],
   "shackles": [
+   "Dimension Type",
    "Finish",
    "Inside Length",
    "Inside Width",
+   "Item",
    "Load Capacity",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Size",
    "Standards",
-   "Type",
-   "Units per Pack"
+   "System of Measurement",
+   "Type"
   ],
   "shaft_alignment_lasers": [
+   "Item",
    "Material",
    "Overall Length"
   ],
   "shaft_collars": [
    "Bore Dia.",
+   "Item",
    "Material",
    "Style"
   ],
   "side_lock_holders": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "silicone_greases": [
    "Container Size",
+   "Item",
    "Material"
   ],
   "sleeve_anchors": [
    "Diameter",
    "Head Type",
+   "Item",
    "Material"
   ],
   "sleeve_installation_kits": [
+   "Item",
    "Material",
-   "Piece Count"
+   "Number of Pieces"
   ],
   "snap_ring_pliers": [
+   "Item",
    "Material",
    "Overall Length",
    "Type"
   ],
   "spanner_wrenches": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "studs_double_end": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "swivel_casters": [
    "Diameter",
    "Finish",
+   "Item",
    "Material"
   ],
   "t_slot_nuts": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "tap_extractors": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "tap_spiral_point": [
+   "Dimension Type",
    "Finish",
+   "Item",
    "Material",
    "Measurement System",
    "Number of Flutes",
    "Overall Length",
    "Shank Dia.",
    "Standards",
+   "System of Measurement",
    "Tap Chamfer",
+   "Tap Style",
    "Thread Direction",
    "Thread Length",
    "Thread Pitch",
@@ -2594,87 +2812,106 @@
    "Threads per Inch"
   ],
   "tap_wrenches": [
+   "Item",
    "Material",
    "Size",
    "Type"
   ],
   "tapping_fluids": [
    "Container Size",
+   "Item",
    "Material"
   ],
   "thread_chasers": [
    "Finish",
+   "Item",
    "Material",
    "Thread Size"
   ],
   "thread_pitch_gages": [
+   "Item",
    "Material",
    "Style",
    "Type"
   ],
   "thread_plug_gages": [
+   "Item",
    "Material",
    "Thread Size",
    "Type"
   ],
   "thread_repair_kits": [
+   "Item",
    "Material",
    "Thread Size"
   ],
   "thread_restoring_files": [
+   "Item",
    "Material",
    "Thread Size"
   ],
   "threaded_rod": [
    "Finish",
+   "Item",
    "Length",
    "Material",
    "Thread Size"
   ],
   "timing_pulleys": [
    "Bore Dia.",
+   "Item",
    "Material",
    "Style"
   ],
   "tool_holsters": [
+   "Item",
    "Material",
    "Width"
   ],
   "turnbuckles": [
    "Closed Length",
+   "Dimension Type",
    "End Style",
    "Finish",
+   "Item",
    "Load Capacity",
    "Material",
    "Measurement System",
+   "Package Quantity",
    "Standards",
+   "System of Measurement",
    "Take Up",
-   "Thread Size",
-   "Units per Pack"
+   "Thread Dia."
   ],
   "u_bolts": [
    "Finish",
+   "Item",
    "Material",
    "Size"
   ],
   "v_belts": [
+   "Item",
    "Length",
    "Material",
    "Type"
   ],
   "washer_flat": [
+   "Dimension Type",
    "Finish",
    "Inside Dia.",
+   "Item",
    "Material",
    "Measurement System",
    "Outside Dia.",
    "Size",
    "Standards",
+   "System of Measurement",
    "Thickness",
    "Type"
   ],
   "wedge_anchors": [
    "Diameter",
+   "Item",
    "Length",
    "Material"
   ],
@@ -2683,32 +2920,38 @@
    "Application",
    "Arbor Hole",
    "Bond Type",
-   "Diameter",
+   "Connector Type",
+   "Dimension Type",
+   "Grade",
    "Grit",
+   "Item",
    "Max. RPM",
    "Measurement System",
-   "Mounting Type",
+   "Package Quantity",
    "Standards",
+   "System of Measurement",
    "Thickness",
    "Type",
-   "Units per Pack",
-   "Wheel Grade"
+   "Wheel Dia."
   ],
   "wheel_mandrels": [
+   "Item",
    "Material",
    "Shank Diameter"
   ],
   "wrench_organizers": [
    "Capacity",
+   "Item",
    "Material"
   ],
   "zerk_grease_fittings": [
+   "Item",
    "Material",
    "Style",
    "Thread Size"
   ]
  },
- "total_attribute_entries": 125612,
+ "total_attribute_entries": 143657,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -2749,19 +2992,10 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0141037,
-   "numerator": 166,
+   "achieved": 0.0147833,
+   "numerator": 174,
    "denominator": 11770,
    "note": "over records with a readable dimension",
-   "band": null
-  },
-  {
-   "name": "parent repeats a (name, value) pair",
-   "target": 0.0085,
-   "achieved": 0.00831899,
-   "numerator": 29,
-   "denominator": 3486,
-   "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
@@ -2812,8 +3046,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5477,
-   "numerator": 125612,
+   "achieved": 12.0629,
+   "numerator": 143657,
    "denominator": 11909,
    "note": "count, not a rate",
    "band": null
@@ -2989,9 +3223,9 @@
   {
    "name": "price larger size costs more: end_mill_ball",
    "target": 0.909,
-   "achieved": 0.901444,
-   "numerator": 4994,
-   "denominator": 5540,
+   "achieved": 0.890205,
+   "numerator": 2781,
+   "denominator": 3124,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.648848,
@@ -3025,9 +3259,9 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.812549,
-   "numerator": 10464,
-   "denominator": 12878,
+   "achieved": 0.829924,
+   "numerator": 5558,
+   "denominator": 6697,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.569266,
@@ -3684,7 +3918,9 @@
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 4903
+  "Measurement System": 1105,
+  "Dimension Type": 3296,
+  "System of Measurement": 502
  },
  "measurement_system_values": {
   "Fractional Inch": 2642,
@@ -3693,14 +3929,14 @@
   "Decimal Inch": 65
  },
  "unit_suffix_distribution": {
-  "in": 23084,
-  "mm": 14485
+  "in": 23795,
+  "mm": 15275
  },
- "standards_present": 6447,
- "standards_multivalued": 1698,
- "standards_total_values": 8476,
+ "standards_present": 6089,
+ "standards_multivalued": 1557,
+ "standards_total_values": 7927,
  "multivalued_attribute_names": {
-  "Standards": 1698,
+  "Standards": 1557,
   "Sizes Included": 59
  },
  "noncopy_audit": {
@@ -3846,7 +4082,7 @@
   },
   "drawings": {
    "count": 11909,
-   "bytes": 30177048,
+   "bytes": 30176968,
    "geometry": {
     "nominal": 219,
     "partial": 2438,
@@ -3856,26 +4092,26 @@
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 54,
-   "faceted_attributes": 51,
-   "faceted_low": 0.0039,
-   "faceted_high": 0.6944,
-   "densest_faceted": "Dowel dia.",
-   "smallest_faceted": "Roller dia.",
-   "smallest_faceted_products": 30,
-   "drive_size_cardinality": 40,
+   "quantitative_attributes": 58,
+   "faceted_attributes": 54,
+   "faceted_low": 0.0042,
+   "faceted_high": 0.6667,
+   "densest_faceted": "Dowel Dia. (mm)",
+   "smallest_faceted": "Dowel Dia. (mm)",
+   "smallest_faceted_products": 18,
+   "drive_size_cardinality": 41,
    "drive_size_present": 1862,
    "held_by_floor": [
-    "Dash number"
+    "Dash Number"
    ],
-   "min_presence_arm": "Neck length",
+   "min_presence_arm": "Neck Length",
    "min_presence_arm_dispersion": 0.9947,
    "min_presence_arm_present": 377,
    "min_presence_arm_type_denominator": 1460,
    "min_presence_arm_share": 0.26,
-   "identifier": "List number",
+   "identifier": "List Number",
    "identifier_dispersion": 0.9653,
-   "densest_terms_facet": "Bearing number",
+   "densest_terms_facet": "Bearing Number",
    "densest_terms_facet_dispersion": 0.1105
   }
  }
