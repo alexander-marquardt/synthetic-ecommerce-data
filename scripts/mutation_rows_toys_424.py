@@ -122,10 +122,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the kite's class-6 color decoy loses its range word",
+        "the kite's water-gun range decoy loses a word of its query",
         "type_specs/kite.py",
-        '"Red Tarn Kite"',
-        '"Tarn Kite"',
+        '"Water Gun Point Kite"',
+        '"Gun Point Kite"',
         f'{_T} -k "toy_decoy_is_a_row and kite-DT08"',
         "a class-6 decoy holds the words of its query",
         _R,
