@@ -156,3 +156,113 @@ def test_round_produce_stays_registered_as_honest_nowhere() -> None:
     """Without its empty entry a round_produce use would pass unchecked."""
     assert HONEST_FOR["round_produce"] == ()
     assert not _honest("round_produce", "Food & Drink > Fruit & Veg > Fruit")
+
+
+# --- gen#447: the leaf names the garment, so the drawing is that garment -----------------------
+
+import image_release  # noqa: E402
+import leaf_shapes  # noqa: E402
+import scale  # noqa: E402
+
+#: The reported products: id -> (shape, the parameters its drawing must carry).
+EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
+    "PLT-DA02102": ("bomber_jacket", {}),
+    "PLT-DA13202": ("puffer_jacket", {}),
+    "PLT-DXP05": ("puffer_jacket", {}),
+    "PLT-DA08701": ("shirt_dress", {}),
+    "PLT-DA22501": ("top", {"sleeve": "long"}),
+    "PLT-DSL029": ("top", {"sleeve": "long"}),
+    "BRD-MDPS240": ("top", {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
+    "BRD-NXMET041": ("trousers", {"cargo": "yes"}),
+    "PLT-DA50603": ("shorts", {"style": "sweat", "pocket": "no"}),
+    "PLT-DA36301": ("shoe", {"kind": "knee_boot"}),
+}
+
+
+@pytest.fixture(scope="module")
+def tpls() -> list[dict]:
+    return scale.templates()
+
+
+@pytest.mark.parametrize("rule", [r.name for r in leaf_shapes.RULES])
+def test_a_listed_leaf_is_drawn_as_its_rule(tpls: list[dict], rule: str) -> None:
+    mine = [t for t in tpls if getattr(leaf_shapes.rule_for(t), "name", None) == rule]
+    assert mine, f"no template falls under the {rule!r} rule"
+    wrong = [v for v in leaf_shapes.violations(tpls) if f"({rule})" in v]
+    assert not wrong, "\n".join(wrong[:10])
+
+
+@pytest.mark.parametrize("pid", sorted(EXAMPLES))
+def test_a_reported_product_is_drawn_as_its_title(tpls: list[dict], pid: str) -> None:
+    shape, params = EXAMPLES[pid]
+    tpl = next(t for t in tpls if t["product_id"] == pid)
+    drawing = tpl["drawing"]
+    assert drawing["shape"] == shape, tpl["title"]
+    for key, value in params.items():
+        assert (drawing.get("params") or {}).get(key) == value, f"{tpl['title']}: {key}"
+
+
+@pytest.mark.parametrize("pid", sorted(EXAMPLES))
+def test_a_reported_product_renders(tpls: list[dict], pid: str) -> None:
+    tpl = next(t for t in tpls if t["product_id"] == pid)
+    assert len(image_release.render(tpl, tpl["skus"][0], styled=False)) > 1000
+
+
+def test_a_decoy_titled_boxers_is_not_drawn_as_briefs(tpls: list[dict]) -> None:
+    briefs = [
+        t["title"]
+        for t in tpls
+        if t["product_type"] == "Boxers"
+        and t["title"].startswith("Boxers")
+        and (t["drawing"].get("params") or {}).get("fit") == "brief"
+    ]
+    assert not briefs, briefs
+
+
+def test_a_title_that_says_checked_or_striped_is_drawn_so(tpls: list[dict]) -> None:
+    bad = []
+    for t in tpls:
+        pattern = (
+            "gingham" if "Checked" in t["title"]
+            else "stripe" if "Striped" in t["title"] and t["drawing"]["shape"] == "top"
+            else None
+        )  # fmt: skip
+        if pattern and any(c.get("pattern") != pattern for c in t.get("color_options") or []):
+            bad.append(f"{t['product_id']} {t['title']}")
+    assert not bad, bad[:10]
+    blazer = next(t for t in tpls if t["product_id"] == "BRD-MFBL017")
+    assert {c["pattern"] for c in blazer["color_options"]} == {"gingham"}
+
+
+# --- gen#447: each new part is drawn by its kit function, against the same call without it ---
+
+import kit_garments  # noqa: E402
+import kit_outerwear  # noqa: E402
+
+
+def _svg(parts: list[str]) -> str:
+    return "".join(parts)
+
+
+def test_a_new_garment_part_is_drawn_by_its_kit_function() -> None:
+    """Fixed fill, no template build: polo collar, cargo pockets, puffer baffles, dress placket."""
+    fill = kit.Fill()
+    kw = {"neckline": "polo", "sleeve": "short"}
+    tee = _svg(kit_garments.top("#7a8fb5", fill, None, kind="tee", **kw))
+    polo = _svg(kit_garments.top("#7a8fb5", fill, None, kind="polo", **kw))
+    assert polo.count("<circle") == tee.count("<circle") + 2, "the placket buttons"
+    assert polo.count("<path") > tee.count("<path"), "the folded collar and placket"
+
+    plain = _svg(kit_garments.trousers("#7a8fb5", fill, None, style="chino", cargo=""))
+    cargo = _svg(kit_garments.trousers("#7a8fb5", fill, None, style="chino", cargo="yes"))
+    assert cargo.count("<path") > plain.count("<path"), "the two flapped pockets"
+    assert cargo.count("<circle") > plain.count("<circle"), "the pocket buttons"
+
+    baffle = "M126,112 Q200,124 274,112"
+    assert baffle in _svg(kit_outerwear.puffer_jacket("#7a8fb5", fill, None))
+    assert baffle not in _svg(kit_outerwear.bomber_jacket("#7a8fb5", fill, None))
+
+    dress = _svg(kit_garments.shirt_dress("#7a8fb5", fill, None))
+    assert dress.count("<circle") == 6, "six buttons"
+    assert "M200,100 L200,364" in dress, "the center placket"
+    assert "M200,100 L200,364" not in _svg(kit.SHAPES["dress"]("#7a8fb5", fill, None))

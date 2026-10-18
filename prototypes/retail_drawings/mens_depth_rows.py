@@ -473,8 +473,11 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             colors = _colors(i, type_colors.palette(leaf.path, leaf.palette))
             lead, material, more = _fabric(fabric, leaf.base or kind.material)
             # a check shirt, or a cloth the pool calls "Checked" (a pattern, gen#448): check colors
-            if leaf.pattern == "check" or any(m[0] == "pattern" for m in more):
+            checked = leaf.pattern == "check" or any(m[0] == "pattern" for m in more)  # gen#447
+            if checked:
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
+            elif detail == "Striped":  # a "Striped Polo Shirt" is drawn striped, not plain
+                colors = tuple(cw(f"{c[0]} Stripe", c[2], "stripe", "#f4f1ea") for c in colors)
             fit_an = _an(fit or "regular")
             noun = detail.lower() if kind.item else (leaf.noun or kind.noun).lower()
             if kind.ptype == "Boxers":  # the fit IS the garment: trunks, boxer shorts, briefs
@@ -511,8 +514,9 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             if suit_params:
                 params = suit_params
             facts = list(kind.facts)
-            if leaf.pattern != "plain":
-                facts.append(("pattern", leaf.pattern))
+            pattern = "check" if checked else "stripe" if detail == "Striped" else leaf.pattern
+            if pattern != "plain":
+                facts.append(("pattern", pattern))
             out.append(_row(f"{prefix}{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
                             tuple(attrs), price=price, params=params, facts=tuple(facts)))
     return out
