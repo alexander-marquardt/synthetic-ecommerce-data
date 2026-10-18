@@ -335,6 +335,7 @@ class Row:
     sibling: str = ""  # a special policy is proved on this sibling query
     target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
     gift_type: str = ""  # the Gifts product type whose word the title holds (gen#425)
+    seeds: tuple[str, ...] = ()  # the homepage seed phrases the title or text holds whole (gen#460)
     sold: int = 2000
 
     @property
