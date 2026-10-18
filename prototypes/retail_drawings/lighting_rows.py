@@ -36,7 +36,7 @@ same key (2700 and 6500), so a filter for 2700-3300K finds it by its warm end an
 state a temperature are the Light Bulb type (``type_specs/light_bulb.py``). A light states a
 temperature only where the light source comes with the product: a bulb, or a lamp with an
 Integrated LED. A fitting that takes a replaceable bulb (E27, E14, GU10, B22) states none, as the
-colour depends on the bulb put in.
+color depends on the bulb put in.
 """
 
 from __future__ import annotations

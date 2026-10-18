@@ -28,7 +28,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a bulb states its temperature under a second name",
         SPEC,
         'return ("color_temperature", "Color temperature", str(k), "KEL", float(k))',
-        'return ("color_temperature", "Colour temp", str(k), "KEL", float(k))',
+        'return ("color_temperature", "Light temp", str(k), "KEL", float(k))',
         f"{BULBS} -k test_every_lighting_temperature_is_the_one_kelvin_key",
         "a bulb's temperature is named Color temperature",
         RETAIL,

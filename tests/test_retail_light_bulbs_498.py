@@ -1,4 +1,4 @@
-"""Light bulbs and one colour temperature key across lighting (gen#498).
+"""Light bulbs and one color temperature key across lighting (gen#498).
 
 A search for *soft white* has to find 3000K bulbs, *warm white* 2700K, *cool white* 4000K and
 *daylight* 6500K: the names printed on a bulb box. So the catalog holds LED bulbs in every
