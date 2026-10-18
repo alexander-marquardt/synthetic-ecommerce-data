@@ -465,7 +465,7 @@ FAMILIES: tuple[Family, ...] = (
            _FRESH, 0.008, item_g=180, axis="variety"),
     Family("VEG", _p("Fruit & Vegetables", "Fresh Vegetables"), "{line} {flavor}", "Fresh Vegetables", "punnet", "Veg", _C, "A", 0.8,
            ("250g", "500g"),
-           (F("Cherry Tomatoes", "#c8312e"), F("Baby Carrots", "#d9822b"), F("Mint", "#3a8f6a"),
+           (F("Sweet Peppers", "#c8312e"), F("Baby Spinach", "#3f7a3a"), F("Mint", "#3a8f6a"),
             F("Button Mushrooms", "#e8e4d8"), F("Green Beans", "#5a9a3a")),
            _FRESH, 0.02, axis="variety"),
     # Meat & Fish
@@ -862,6 +862,40 @@ FAMILIES: tuple[Family, ...] = (
             F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
             F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
            _CHOC, 0.001, base="S", depth=True),
+    # Fresh produce on the plural (gen#445): one bare-noun leaf each for the six fruits and
+    # vegetables a plain "tomatoes" or "bananas" search met no fresh leaf for. Titles are as long as
+    # the decoys' (a variety, a grade or a pack word in the name), appended last so no earlier
+    # depth draw moves; the VEG family above keeps no tomato or carrot, so each lives in one leaf.
+    Family("TOM", _p("Fruit & Vegetables", "Fresh Vegetables", "Tomatoes"), "{line} {flavor}", "Fresh Vegetables", "produce_pile", "Veg",
+           _C, "A", 1.6, ("250g", "500g", "1kg"),
+           (_o("Vine Ripened Tomatoes", "#c8312e", "Spain"), _o("Baby Plum Tomatoes", "#d03a36", "Italy"),
+            _o("Large Beef Tomatoes", "#b8282e", "Spain"), _o("Sweet Salad Tomatoes", "#d9364a", "Morocco")),
+           _FRESH, 0.005, axis="variety", depth=True),
+    Family("ONI", _p("Fruit & Vegetables", "Fresh Vegetables", "Onions"), "{line} {flavor}", "Fresh Vegetables", "produce_pile", "Veg",
+           _C, "A", 1.0, ("500g", "1kg"),
+           (_o("Large Brown Onions", "#b8863a", "United Kingdom"), _o("Sweet Red Onions", "#8a3a5a", "Spain"),
+            _o("Crisp White Onions", "#efe6d0", "Netherlands"), _o("Mild Spanish Onions", "#c8963a", "Spain")),
+           _FRESH, 0.005, axis="variety", depth=True),
+    Family("POT", _p("Fruit & Vegetables", "Potatoes"), "{line} {flavor}", "Fresh Vegetables", "produce_pile", "Veg",
+           _C, "A", 1.5, ("1kg", "2kg"),
+           (_o("Maris Piper Potatoes", "#c8a063", "United Kingdom"), _o("Baby New Potatoes", "#d8b878", "Egypt"),
+            _o("King Edward Potatoes", "#c0926a", "United Kingdom"), _o("Large Baking Potatoes", "#a8825a", "United Kingdom")),
+           _FRESH, 0.005, axis="variety", depth=True),
+    Family("CAR", _p("Fruit & Vegetables", "Fresh Vegetables", "Carrots"), "{line} {flavor}", "Fresh Vegetables", "produce_pile", "Veg",
+           _C, "A", 0.9, ("500g", "1kg"),
+           (_o("Large Loose Carrots", "#d9822b", "United Kingdom"), _o("Sweet Baby Carrots", "#e08a30", "United Kingdom"),
+            _o("Washed Chantenay Carrots", "#d97a24", "France"), _o("Crunchy Rainbow Carrots", "#c8602a", "Netherlands")),
+           _FRESH, 0.005, axis="variety", depth=True),
+    Family("BAN", _FRUIT + ("Bananas",), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 1.2, ("Single", "500g", "1kg"),
+           (_o("Ripe Fairtrade Bananas", "#e8c83a", "Colombia"), _o("Large Ripe Bananas", "#ecd04a", "Costa Rica"),
+            _o("Sweet Baby Bananas", "#e8d24a", "Dominican Republic"), _o("Loose Ripe Bananas", "#e4c23a", "Ecuador")),
+           _FRESH, 0.005, item_g=120, axis="variety", depth=True),
+    Family("CHY", _FRUIT + ("Stone Fruit", "Cherries"), "{line} {flavor}", "Fresh Fruit", "produce_pile", "Fruit",
+           _C, "A", 3.0, ("250g", "400g", "500g"),
+           (_o("Sweet Red Cherries", "#a3182e", "Turkey"), _o("Large Dark Cherries", "#6a1226", "Spain"),
+            _o("Ripe British Cherries", "#b02238", "United Kingdom"), _o("Juicy Morello Cherries", "#8a1a2e", "Chile")),
+           _FRESH, 0.005, axis="variety", depth=True),
 )  # fmt: skip
 
 #: A family that stocks more sizes across its range than any one style sells (gen#347): the
