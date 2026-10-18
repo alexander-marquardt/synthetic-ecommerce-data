@@ -54,7 +54,7 @@ MEAT = re.compile(r"\b(?:chicken|beef|pork|bacon|ham|pepperoni|tuna|salmon|cod|m
 #: Produce, wine and cider (the generator's NO_LIST), and every non-food family (a cleaner, a
 #: body lotion, a hand wash): no label list.
 NO_LIST = (
-    {"Fresh Fruit", "Fresh Vegetables"}
+    {"Fresh fruit", "Fresh vegetables"}
     | {f.product_type for f in FAMILIES if not f.food or f.code in generator_no_list}
 )
 
@@ -222,7 +222,7 @@ def test_a_flat_sku_lists_what_its_variant_lists() -> None:
 def test_the_lists_are_invented_ordered_and_realistic() -> None:
     peanut = next(
         v for d in docs() for v in d["variants"]
-        if d["category_leaf"] == "Chocolate Bars"
+        if d["category_leaf"] == "Chocolate bars"
         and "Peanut Caramel" in values(v["attributes"], "flavor")
     )  # fmt: skip
     assert any(re.fullmatch(r"roasted peanuts \(\d+%\)", i) for i in peanut.get("ingredients", []))
@@ -237,7 +237,7 @@ def test_the_lists_are_invented_ordered_and_realistic() -> None:
 
 
 def test_chocolate_without_peanuts_still_has_both_sides() -> None:
-    skus = [r for r in flat() if r["category_leaf"] == "Chocolate Bars"]
+    skus = [r for r in flat() if r["category_leaf"] == "Chocolate bars"]
     free = [r for r in skus if "Peanuts" not in stated(r, "contains") | stated(r, "may_contain")]
     has = [r for r in skus if "Peanuts" in stated(r, "contains")]
     assert free

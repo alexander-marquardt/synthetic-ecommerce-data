@@ -98,6 +98,7 @@ fi
 #: rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
 #: builder. Pinned to the builds by tests/test_merge_pr.py.
 GENERATED=(
+  golden-catalog/authored_names.json
   golden-catalog/flat.jsonl
   golden-catalog/images.jsonl
   golden-catalog/mapping.flat.json

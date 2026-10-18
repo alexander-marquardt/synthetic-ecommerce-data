@@ -329,7 +329,8 @@ def test_every_sports_style_reaches_the_100k_build_and_meets_the_standard() -> N
     mine = [d for d in docs if d["product_id"] in scale.SPORTS_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
-    assert {d["category_path"][0] for d in mine} == {ROOT}
+    # published: sentence case
+    assert {d["category_path"][0] for d in mine} == {"Sports & outdoors"}
 
 
 @pytest.mark.timeout(300)

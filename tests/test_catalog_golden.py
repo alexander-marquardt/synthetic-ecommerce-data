@@ -56,6 +56,7 @@ GOLDEN_FILES = (
     "mapping.flat.json",
     "mapping.nested.json",
     "stats.json",
+    "authored_names.json",
 )
 
 #: The default build's size: the modelled types' measured part plus one
