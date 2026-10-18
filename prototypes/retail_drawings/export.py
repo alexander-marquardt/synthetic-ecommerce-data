@@ -144,6 +144,8 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A suitcase's size name beside its litres (luggage_common.py, gen#209): cabin, medium, large.
+    "luggage_size": ("luggage_size", "Luggage size", None),
     # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
