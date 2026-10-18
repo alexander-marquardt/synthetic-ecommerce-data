@@ -28,11 +28,13 @@ import scale  # noqa: E402
 from distractors import tokens  # noqa: E402
 
 ROOT_NAME = "Sports & Outdoors"
-#: The seventeen types of the second increment (gen#368), each with its decoys in this PR.
+#: The seventeen types of the second increment (gen#368) and the picnic blanket (gen#217), each
+#: with its decoys in the PR that added it.
 SECOND_INCREMENT = (
     "Yoga Block", "Yoga Strap", "Resistance Band", "Camping Lantern", "Roll Mat", "Bike Pump",
     "Baseball Bat", "Baseball Glove", "Baseball", "Batting Helmet", "Swim Goggles", "Swim Cap",
     "Kickboard", "Swim Armbands", "Football", "Tennis Racket", "Badminton Set",
+    "Picnic Blanket",
 )  # fmt: skip
 #: The seven first-increment types that carry no decoys yet (gen#375 adds them).
 FIRST_INCREMENT = {

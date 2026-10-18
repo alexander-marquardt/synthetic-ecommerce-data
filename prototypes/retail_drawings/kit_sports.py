@@ -33,6 +33,7 @@ swim_armbands   a pair, two or three chambers each          chambers
 football        a ball, classic or modern panels            panels
 tennis_racket   a frame and handle, open or dense strings   strings
 badminton_set   two or four rackets over a shuttlecock      players
+picnic_blanket  a blanket laid flat, a corner lifted        backing
 ==============  ==========================================  =====================
 
 A drawing never prints a size, a berth, a thickness or a weight: a style's SKUs share one image
@@ -473,6 +474,25 @@ def badminton_set(paint: str, fill: Fill, label: str | None, players: str = "2")
     return _label(out, label)
 
 
+def picnic_blanket(paint: str, fill: Fill, label: str | None, backing: str = "plain") -> list[str]:
+    """A blanket laid flat with a lifted corner; the underside of a ``waterproof`` one is a glossy backing."""
+    dark = _shade(fill.base, 0.3)
+    under = "#8fb4c4" if backing.lower() == "waterproof" else dark
+    out = [
+        _path("M110,130 L370,130 L330,310 L40,310 Z", paint),
+        _path("M40,310 L330,310 L330,324 L40,324 Z", dark, 2.4),
+        _path("M330,310 L370,130 L378,142 L338,324 Z", dark, 2.4),
+        _path("M40,310 L110,130 L150,236 Z", under, 2.4),
+        _path("M40,310 L150,236 L150,310 Z", paint, 2.4),
+        _line("M150,236 L124,310", 2, ' stroke-opacity=".5"'),
+    ]
+    for x in range(52, 334, 32):
+        out.append(_line(f"M{x},324 L{x - 4},346", 2.4))
+    if backing.lower() == "waterproof":
+        out += [_highlight("M62,286 L112,166", 4, 0.6)]
+    return _label(out, label)
+
+
 SHAPES = {
     "tent": tent, "sleeping_bag": sleeping_bag, "camp_chair": camp_chair, "yoga_mat": yoga_mat,
     "dumbbell": dumbbell, "kettlebell": kettlebell, "foam_roller": foam_roller,
@@ -481,6 +501,6 @@ SHAPES = {
     "baseball_glove": baseball_glove, "baseball": baseball, "batting_helmet": batting_helmet,
     "swim_goggles": swim_goggles, "swim_cap": swim_cap, "kickboard": kickboard,
     "swim_armbands": swim_armbands, "football": football, "tennis_racket": tennis_racket,
-    "badminton_set": badminton_set,
+    "badminton_set": badminton_set, "picnic_blanket": picnic_blanket,
 }  # fmt: skip
 register(SHAPES)

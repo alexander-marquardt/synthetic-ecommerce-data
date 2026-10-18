@@ -61,6 +61,8 @@ KEYS = {
     "Football": {"cover", "construction", "ball_size", "color"},
     "Tennis Racket": {"material", "head_size", "grip_size", "color"},
     "Badminton Set": {"material", "net_included", "players", "color"},
+    # The picnic blanket (gen#217), a spec of the home accessories and decor issue.
+    "Picnic Blanket": {"waterproof_backing", "material", "dimensions", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -88,6 +90,7 @@ PLAIN_AXES = {
     "Resistance Band": ("resistance", "resistance_level"),
     "Camping Lantern": ("brightness_lm", "brightness"),
     "Tennis Racket": ("grip", "grip_size"),
+    "Picnic Blanket": ("dimensions", "dimensions"),
 }
 
 
