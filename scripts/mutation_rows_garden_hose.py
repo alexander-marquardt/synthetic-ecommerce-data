@@ -17,6 +17,7 @@ import mutation_rows_decor_217
 import mutation_rows_industrial_seed_decoys_462
 import mutation_rows_leaf_shapes_447
 import mutation_rows_plural_445
+import mutation_rows_plural_nonfood_445
 import mutation_rows_real_attributes_448
 import mutation_rows_suits_215
 import mutation_rows_swimwear_212
@@ -105,6 +106,7 @@ ALL: list[tuple[str, ...]] = [
     *(("swimwear", *row) for row in mutation_rows_swimwear_212.ROWS),
     *(("leaf shapes", *row) for row in mutation_rows_leaf_shapes_447.ROWS),
     *(("plural decoys", *row) for row in mutation_rows_plural_445.ROWS),
+    *(("plural nonfood", *row) for row in mutation_rows_plural_nonfood_445.ROWS),
     *(("text exempt", *row) for row in mutation_rows_text_exempt_452.ROWS),
     *(
         ("industrial seed decoys", *row)

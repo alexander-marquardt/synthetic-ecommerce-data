@@ -42,13 +42,16 @@ def _tokens(title: str) -> list[str]:
     return re.findall(r"[a-z][a-z-]*", title.lower())
 
 
-def _rows(plural: str) -> list[dr.Decoy]:
-    return [d for d in dr.TABLE if d.cls == 9 and d.query == plural]
-
-
 @cache
 def _docs() -> dict[str, dict]:
     return {f"PLT-D{d.code}": doc for d, doc in zip(dr.TABLE, dr.docs(), strict=True)}
+
+
+def _rows(plural: str) -> list[dr.Decoy]:
+    """The FOOD class 9 rows of a plural; the non-food ones (a brand, a scent) have their own
+    test, ``tests/test_grocery_plural_nonfood_decoys_445.py``."""
+    return [d for d in dr.TABLE if d.cls == 9 and d.query == plural
+            and _docs()[f"PLT-D{d.code}"]["category_path"][0] == "Food & Drink"]
 
 
 @cache
