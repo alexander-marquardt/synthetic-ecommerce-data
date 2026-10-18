@@ -124,8 +124,9 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
 def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     stray, out_of_spec = _outside_spec(scale.templates(baseline=False))
     assert not any(stray.values()), f"rows registered outside their spec: {stray}"
-    # the one decoy that shares a spec type's name: the black bike pump stands in for "black pumps"
-    assert out_of_spec == {"PLT-DY37"}, out_of_spec
+    # the decoys that share a spec type's name: the black bike pump stands in for "black pumps"
+    # (DY37); two belts stand in for the seed phrases of gen#460 (DY460 jeans, DY485 brogues)
+    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485"}, out_of_spec
 
 
 def test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build() -> None:
