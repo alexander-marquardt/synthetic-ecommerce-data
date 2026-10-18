@@ -37,7 +37,7 @@ from synthetic_ecommerce_data.core.standard import words
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
 #: The bra node, and the purpose nodes that stay under it.
 BRA_NODE = "Bras"
-PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras")
+PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras", "Mastectomy Bras")
 
 #: ``leg_style`` (the failure-class rows' lower-case fit) -> its ``leg_fit`` value.
 LEG_STYLE_FITS = {
@@ -121,6 +121,7 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Nursing Bras": ("Full Cup", None, None, None),
     "Sleep Bras": ("Bralette", "Unlined", None, None),
     "Post-Surgery Bras": ("Full Cup", None, None, None),
+    "Mastectomy Bras": ("Full Cup", None, None, None),
 }
 
 #: Every ``fabric`` value that is not the fibre or weave a shopper names -> (fabric, the blend
