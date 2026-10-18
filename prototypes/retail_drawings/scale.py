@@ -136,6 +136,7 @@ import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
+import womens_depth_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -279,6 +280,8 @@ COLORWORD_IDS = color_word_brand_rows.product_ids()
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The Womens clothing depth (:mod:`womens_depth_rows`, gen#310): templates only.
+WOMENS_DEPTH_IDS = womens_depth_rows.product_ids()
 #: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
 KNITWEAR_IDS = knitwear_rows.product_ids()
 #: The neckline depth (:mod:`neckline_rows`, gen#181): templates only.
@@ -356,6 +359,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *womens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(),
     ]  # fmt: skip
@@ -387,7 +391,8 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | DECOR_IDS | NIKE_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
+                | GARDEN_IDS | DECOR_IDS | NIKE_IDS
                 | NEEDS_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
