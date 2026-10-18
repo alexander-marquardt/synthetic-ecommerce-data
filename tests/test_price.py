@@ -305,6 +305,21 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
     assert not price_report.pin_holds(replace(row, achieved=outside), build)
 
 
+@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+@pytest.mark.parametrize("build", [0, 1])
+def test_a_pin_five_percent_further_out_than_its_record_fails(price_rows, name, build):
+    """The tolerance is 2%, written out here: a figure 5% past its record on
+    the pin's side is a worse shortfall than the record, whatever the tolerance
+    is set to. A build recorded ``None`` has no figure to be past."""
+    (row,) = [row for row in price_rows if row.name == name]
+    recorded = _recorded(name)[build]
+    if recorded is None:
+        return
+    outward = recorded / 1.05 if PINNED_SIDES[name][0] == "below" else recorded * 1.05
+    assert price_report.pin_holds(replace(row, achieved=recorded), build)
+    assert not price_report.pin_holds(replace(row, achieved=outward), build)
+
+
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
     """The wheel's default build lands in band (its record is ``None``), so
     group noise three times louder spreads one spec's brands out of it, and
