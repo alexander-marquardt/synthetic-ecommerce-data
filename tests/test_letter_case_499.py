@@ -10,6 +10,8 @@ output of both builds and the committed golden, nested and flat.
 from __future__ import annotations
 
 import json
+import os
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -17,7 +19,7 @@ from typing import Any
 
 import pytest
 
-from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core import emit, letter_case
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.letter_case import PROPER_NOUNS, apply, sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
@@ -193,3 +195,106 @@ def test_the_searchable_text_carries_the_cased_category(
     for row in industrial_flat[:200]:
         for node in row["category_path"]:
             assert node in row["text"]
+
+
+# --- the readers of an old Title Case name (review of gen#505) --------------------------
+#
+# The export publishes sentence case, so a script that asks Elasticsearch for
+# ``attributes.name: "Shank Dia."``, or a README that shows a published entry named
+# ``Milling Dia.``, reads a name no document carries any more. The old names are computed
+# from the build (the export with the rule off, minus what it still publishes), never typed.
+
+#: Directories that hold no repository text.
+_SKIP_DIRS = {".git", ".venv", ".agent", "node_modules", "__pycache__", ".pytest_cache"}
+
+#: Outputs the build writes: their text is the build's, not a reader's.
+_OUTPUTS = ("golden-catalog/", "golden-retail/", "tests/data/", "reference-statistics/")
+
+#: Files that may name an old name as a ``"name"`` value, and why.
+_AUTHORED_NAME_FIXTURES = {
+    "tests/test_letter_case_499.py": "this guard: the rule's own before/after rows",
+    "tests/test_nested_entry_contract.py": "a planted defect built by hand, never read back",
+    "prototypes/retail_drawings/test_signals_and_paths.py": "reads the unexported class build",
+}
+
+#: Scripts and shipped config that read published documents or Elasticsearch: a quoted
+#: old name there is a lookup that now matches nothing.
+_READERS = ("scripts/verify_", "src/prism_synthetic_industrial/")
+
+
+def _display_strings(docs: list[dict[str, Any]]) -> set[str]:
+    out: set[str] = set()
+    for doc in docs:
+        out.update(doc.get("category_path", ()))
+        out.update(doc.get("attribute_names", ()))
+        out.update(name for _, name in _names(doc))
+    return out
+
+
+@pytest.fixture(scope="module")
+def old_display_names(
+    industrial_nested: list[dict[str, Any]],
+    industrial_flat: list[dict[str, Any]],
+    retail_nested: list[dict[str, Any]],
+) -> list[str]:
+    """Each display name the export changes: what the build authored with the rule off,
+    less what it still publishes under that spelling."""
+    published = _display_strings([*industrial_nested, *industrial_flat, *retail_nested])
+    published |= _display_strings(export.flat_documents())
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(letter_case, "apply", lambda doc: doc)
+        catalog = generate(SMALL)
+        authored = _display_strings([*emit.iter_nested(catalog), *emit.iter_flat(catalog)])
+        authored |= _display_strings(export.documents())
+        authored |= _display_strings(export.flat_documents())
+    return sorted(name for name in authored - published if sentence_case(name) != name)
+
+
+def _repo_text_files() -> list[tuple[str, str]]:
+    found = []
+    for base, dirs, files in os.walk(ROOT):
+        dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+        for file in files:
+            path = Path(base) / file
+            rel = path.relative_to(ROOT).as_posix()
+            if rel.startswith(_OUTPUTS) or file.endswith((".ndjson", ".jsonl")):
+                continue
+            try:
+                found.append((rel, path.read_text("utf-8")))
+            except (UnicodeDecodeError, OSError):
+                continue  # a binary file
+    return found
+
+
+def _alternation(names: list[str]) -> str:
+    return "|".join(re.escape(name) for name in sorted(names, key=len, reverse=True))
+
+
+def test_the_old_names_are_found_in_the_build(old_display_names: list[str]) -> None:
+    """The list the two guards below search for is not empty (anti-vacuity)."""
+    assert {"Shank Dia.", "Milling Dia.", "Handle Material"} <= set(old_display_names)
+
+
+def test_no_text_shows_a_published_entry_under_an_old_display_name(
+    old_display_names: list[str],
+) -> None:
+    pattern = r"""["']name["']\s*[:=]\s*["'](?:""" + _alternation(old_display_names) + r""")["']"""
+    shown = re.compile(pattern)
+    found = sorted(
+        rel for rel, text in _repo_text_files()
+        if rel not in _AUTHORED_NAME_FIXTURES and shown.search(text)
+    )
+    assert found == []
+
+
+def test_no_reader_of_published_documents_quotes_an_old_display_name(
+    old_display_names: list[str],
+) -> None:
+    quoted = re.compile(r"""["'](?:""" + _alternation(old_display_names) + r""")["']""")
+    found = sorted(
+        f"{rel}: {match.group(0)}"
+        for rel, text in _repo_text_files()
+        if rel.startswith(_READERS)
+        for match in quoted.finditer(text)
+    )
+    assert found == []
