@@ -36,7 +36,7 @@ from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.lock_nu
     SERIES,
 )
 from test_attribute_names import CENSUS, OBSERVED
-from test_catalog_brands_voice import same_product_duplicates
+from test_catalog_brands_voice import unexplained_duplicates
 from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "lock_nuts_nylon_insert"
@@ -69,7 +69,9 @@ def test_the_default_build_is_deep():
 def test_no_two_skus_of_one_brand_are_the_same_product():
     docs = _default_docs()
     assert docs, f"{KEY} built nothing"
-    assert same_product_duplicates(docs) == []
+    # A pair the retired Insert Material alone told apart is #497's, see RETIRED_TWIN_TYPES;
+    # measured 1.0% of this type's SKUs at 100K, so 2% here.
+    assert unexplained_duplicates(docs, share=0.02) == []
 
 
 def test_every_published_name_passes_the_census_gate():

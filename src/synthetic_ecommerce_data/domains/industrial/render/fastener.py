@@ -635,7 +635,6 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
         ("Thread Type", record.get("Thread Type", "")),
         ("Thread Direction", record.get("Thread Direction", "")),
         ("Hardness", record.get("Hardness", "")),
-        ("Standards", record.get("Standards", "")),
         ("Width Across Flats", record.get("Width Across Flats", "")),
         ("Type", record.get("Type", "")),
     ]
