@@ -96,7 +96,7 @@ def test_every_corner_sofa_decoy_draws_a_run_beside_its_corner_and_return(
 
 
 def _depth(entries: list[dict]) -> list[dict]:
-    return [e for e in entries if e["key"] == "depth"]
+    return [e for e in entries if e["key"] == "mattress_depth"]
 
 
 def _assert_cm_depth(entry: dict) -> None:

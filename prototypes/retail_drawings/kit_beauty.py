@@ -1,6 +1,6 @@
 """Beauty shapes for the retail drawing kit (gen#214).
 
-Each of the nine types of :mod:`beauty_depth` has its own flat drawing in the kit's house style:
+Each of the ten types of :mod:`beauty_depth` has its own flat drawing in the kit's house style:
 outlines in the kit's ink, the record's fill on the product's main surface. The variant axis that changes how
 the product looks is a param; every param is a string with a default, so each shape draws bare.
 
@@ -25,6 +25,8 @@ aftershave      a square-shouldered bottle, stoppered or    cap (stopper, spray)
                 with a spray head
 talc            a round tin with a shaker lid, or with a    lid (shaker, puff)
                 powder puff on top
+sun_cream       a squeeze bottle with a flip cap, a pump    form (tube, pump,
+                bottle or a trigger spray, a sun on each    spray)
 ==============  ==========================================  =====================
 
 A drawing never prints a size or a count: a style's SKUs share one image per colorway.
@@ -270,9 +272,49 @@ def talc(paint: str, fill: Fill, label: str | None, lid: str = "shaker") -> list
     return _label(out, label)
 
 
+def _sun(cx: float, cy: float, r: float) -> list[str]:
+    """The sun printed on a sun cream bottle: a disc and eight short rays."""
+    rays = " ".join(
+        f"M{cx + 1.35 * r * dx:.1f},{cy + 1.35 * r * dy:.1f} L{cx + 1.8 * r * dx:.1f},{cy + 1.8 * r * dy:.1f}"
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1), (0.7, 0.7), (-0.7, 0.7), (0.7, -0.7), (-0.7, -0.7))
+    )
+    return [_ell(cx, cy, r, r, "#f4c542", 2.6), _line(rays, 2.6)]
+
+
+def sun_cream(paint: str, fill: Fill, label: str | None, form: str = "tube") -> list[str]:
+    """A sun cream: a squat ``tube`` (a squeeze bottle under a wide flip cap), a ``pump`` bottle or
+    a ``spray`` bottle under a trigger head, each with a sun printed on its front."""
+    kind = form.lower()
+    if kind == "pump":
+        out = [
+            _rect(130, 150, 140, 196, paint, 22),
+            _rect(186, 108, 28, 44, CAP, 4),
+            _path("M170,108 L230,108 Q246,108 250,92 L250,80 L170,80 Z", CAP, 2.6),
+            _line("M236,92 L276,92", 6),
+        ]
+        sun = _sun(200, 250, 26)
+    elif kind == "spray":
+        out = [
+            _rect(146, 150, 108, 196, paint, 18),
+            _rect(176, 122, 48, 30, CAP, 4),
+            _path("M166,122 L166,86 Q166,72 180,72 L250,72 L250,100 L228,100 L228,122 Z", CAP, 2.6),
+            _line("M214,126 Q196,136 202,156", 3),
+        ]
+        sun = _sun(200, 250, 24)
+    else:
+        out = [
+            _path("M120,330 L120,172 Q120,140 152,134 L248,134 Q280,140 280,172 L280,330 Q280,346 264,346 L136,346 Q120,346 120,330 Z", paint),
+            _rect(150, 90, 100, 46, CAP, 12),
+            _line("M150,112 L250,112", 1.6),
+        ]
+        sun = _sun(200, 246, 28)
+    out += [_highlight("M138,180 L138,318", 5, 0.5), *sun]
+    return _label(out, label)
+
+
 SHAPES = {
     "mascara": mascara, "primer": primer, "setting_spray": setting_spray, "serum": serum,
     "face_mask": face_mask, "eye_patches": eye_patches, "body_mist": body_mist,
-    "aftershave": aftershave, "talc": talc,
+    "aftershave": aftershave, "talc": talc, "sun_cream": sun_cream,
 }  # fmt: skip
 register(SHAPES)
