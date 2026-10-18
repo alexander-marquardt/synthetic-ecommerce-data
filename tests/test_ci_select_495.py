@@ -439,13 +439,19 @@ def test_every_test_that_imports_a_module_is_selected_when_that_module_changes(
     real: ci_select.Tree,
 ) -> None:
     cache: dict[str, set[str]] = {}
+    # One selection per changed module, not per (test, module) pair: ``select`` walks every test,
+    # and 7000 pairs name about 100 modules (a 100 s test that hit the 300 s limit on a loaded
+    # runner once a PR grew the tree).
+    selected: dict[str, list[str]] = {}
     tests = _test_files(real)
     assert len(tests) > 100
     for test in tests:
         for module in sorted(_import_closure(test, cache)):
             if module.startswith(("vendor/", "tests/conftest")) or module == test:
                 continue
-            chosen = ci_select.select([module], real)[0]
+            if module not in selected:
+                selected[module] = ci_select.select([module], real)[0]
+            chosen = selected[module]
             assert test in chosen, (
                 f"{test} imports {module}, and a change to {module} does not select it"
             )

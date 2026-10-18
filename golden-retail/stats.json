@@ -1,6 +1,6 @@
 {
  "ceiling": {
-  "derived_styles": 4802,
+  "derived_styles": 4799,
   "food_and_drink": {
    "skus": 11981,
    "styles": 4418
@@ -9,16 +9,16 @@
    "skus": 12682,
    "styles": 4630
   },
-  "images": 22589,
+  "images": 22613,
   "non_grocery": {
-   "skus": 95352,
-   "styles": 5880
+   "skus": 93821,
+   "styles": 5877
   },
-  "skus": 153599,
-  "styles": 15054,
+  "skus": 151864,
+  "styles": 15051,
   "top_levels": {
    "Beauty": {
-    "skus": 1142,
+    "skus": 1153,
     "styles": 550
    },
    "Cleaning": {
@@ -34,19 +34,19 @@
     "styles": 342
    },
    "Gifts": {
-    "skus": 696,
+    "skus": 705,
     "styles": 379
    },
    "Home": {
-    "skus": 6109,
-    "styles": 1984
+    "skus": 6158,
+    "styles": 1983
    },
    "Kids": {
-    "skus": 5986,
+    "skus": 5693,
     "styles": 480
    },
    "Mens": {
-    "skus": 26808,
+    "skus": 26781,
     "styles": 1956
    },
    "Sports & Outdoors": {
@@ -54,12 +54,12 @@
     "styles": 56
    },
    "Toys": {
-    "skus": 922,
+    "skus": 901,
     "styles": 496
    },
    "Womens": {
-    "skus": 98120,
-    "styles": 3902
+    "skus": 96657,
+    "styles": 3900
    }
   }
  },
@@ -68,10 +68,10 @@
   "Cleaning & Janitorial": 215,
   "Clothing": 1215,
   "Food & Drink": 228,
-  "Footwear": 822,
+  "Footwear": 820,
   "Garden": 219,
   "Gifts": 321,
-  "Home": 1653,
+  "Home": 1652,
   "Lingerie & Nightwear": 611,
   "Toys": 384
  },
@@ -547,7 +547,7 @@
   "grocery": 0.032,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0165,
-  "non_grocery_grid_clone_rate": 0.1114
+  "non_grocery_grid_clone_rate": 0.1217
  },
  "templates": {
   "accessory_rows": {
@@ -555,7 +555,7 @@
    "styles": 53
   },
   "all": {
-   "skus": 90038,
+   "skus": 89706,
    "styles": 10252
   },
   "appliance_rows": {
@@ -568,7 +568,7 @@
   },
   "authored_images": 739,
   "before_grocery": {
-   "skus": 77356,
+   "skus": 77024,
    "styles": 5622
   },
   "breadth_rows": {
@@ -632,7 +632,7 @@
    "styles": 159
   },
   "mens_depth_rows": {
-   "skus": 4825,
+   "skus": 4804,
    "styles": 504
   },
   "neckline_rows": {
@@ -680,7 +680,7 @@
    "styles": 49
   },
   "type_specs": {
-   "skus": 5438,
+   "skus": 5411,
    "styles": 583
   },
   "underwear_rows": {
