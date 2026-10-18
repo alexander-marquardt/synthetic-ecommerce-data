@@ -11,7 +11,7 @@ from __future__ import annotations
 from functools import partial
 
 from beauty_depth import PACK_ROSE, PACK_SAND, PACK_SKY, decoy, row
-from type_registry import Decoy, TypeSpec, a
+from type_registry import Decoy, Option, TypeSpec, a
 
 _row = partial(row, path=("Beauty", "Fragrance", "Body Mists"), ptype="Body Mist")
 
@@ -34,6 +34,7 @@ SPEC = TypeSpec(
     key="body_mist",
     department="Beauty",
     product_type="Body Mist",
+    options=(Option("fragrance", "fragrance", "Fragrance"),),
     rows=ROWS,
     decoys=(
         Decoy(4, "vanilla body mist", "vocabulary", decoy("BMD1", "Vanilla Cap Floral Body Mist", "A floral mist in a bottle with a vanilla-colored cap.", ROWS[0])),

@@ -40,6 +40,7 @@ import mutation_rows_footwear_216  # noqa: E402  (gen#216 rows, kept in their ow
 import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
+import mutation_rows_kelvin_232  # noqa: E402  (gen#232 rows, kept in their own file)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
@@ -1989,9 +1990,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports rows: a football's ball size is stored without its unit",
-        "prototypes/retail_drawings/export.py",
-        '"ball_size": ("ball_size", "Ball size", "C62"),',
-        '"ball_size": ("ball_size", "Ball size", None),',
+        "prototypes/retail_drawings/type_specs/football.py",
+        'Option("ball_size", "ball_size", "Ball size", "C62")',
+        'Option("ball_size", "ball_size", "Ball size", None)',
         "tests/test_retail_sports_265.py::test_a_measured_axis_is_on_every_sku_with_its_unit[Football]",
         "",
         "the ball size carries its unit",
@@ -3441,7 +3442,7 @@ MUTATIONS: list[Mutation] = [
                 "core/price.py",
                 "PIN_TOLERANCE = 0.02",
                 "PIN_TOLERANCE = 0.5",
-                "a_pin_whose_shortfall_worsens",
+                "a_pin_five_percent_further_out",
                 "a pin may not worsen",
             ),
             (
@@ -3505,10 +3506,26 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
-                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (None, 1.75),",
+                "    _WHEEL_SPREAD_ROW: (None, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
+            ),
+            (
+                "a pin recorded None holds a build out of band",
+                "domains/industrial/price_report.py",
+                "    if recorded is None:\n        return row.within",
+                "    if recorded is None:\n        return True",
+                "a_pin_may_land_no_further_out",
+                "a build the pin records None for stays in band",
+            ),
+            (
+                "the wheel's brand noise is the per-brand 0.70 and its size noise none",
+                "core/price.py",
+                "            0.190,\n            0.139,\n            size_sigma=0.736,",
+                "            0.702,\n            0.306,\n            size_sigma=0.0,",
+                "wheel_brand_spread_lands_in_band",
+                "the wheel brand spread is in band on the default build",
             ),
             (
                 "a pin reads its default figure at 100K",
@@ -3546,8 +3563,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin quotes a tier figure no build measures",
                 "core/price.py",
-                "the brand tiers alone give 1.49 on the default",
-                "the brand tiers alone give 1.39 on the default",
+                "brand tiers alone give 1.86 at 100K",
+                "brand tiers alone give 1.76 at 100K",
                 "tiers_alone_give",
                 "a pin's stated cause is measured",
             ),
@@ -4101,7 +4118,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption from the text check is removed",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
                 "DECOY_IDS = frozenset()\n",
                 "tests/test_retail_apparel_decoys_311.py -k misleading_color",
                 "a decoy naming only another color passes the standard by its id",
@@ -4109,7 +4126,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption widens to every id",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
                 'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
                 "tests/test_retail_apparel_decoys_311.py -k two_tables",
                 "no real product is exempt from the text check",
@@ -4172,6 +4189,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_lighting.ROWS
+    ),
+    # ---- retail: a color temperature as a kelvin entry (gen#232); the rows are in their own file ----
+    *(
+        Mutation(f"kelvin entry: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_kelvin_232.ROWS
     ),
     # ---- retail: appliance colors (gen#243); the rows are in their own file ----
     *(
