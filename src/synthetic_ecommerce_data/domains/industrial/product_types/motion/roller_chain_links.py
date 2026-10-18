@@ -224,7 +224,9 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
         # the table's own and pair each link with half the packs.
         kind = KINDS[gen._rotate(f"kind:{type_key}:{material}:{pack}", len(KINDS))]
         draft.item = kind
-        draft.line_attrs.insert(0, keyword_attribute(TYPE, TYPE_OF[kind]))
+        # ``Type`` takes the place, and so the sparsity draw, of the retired ``Item``
+        # at the head of the list: the random stream stays what it was (#497).
+        draft.line_attrs[0] = keyword_attribute(TYPE, TYPE_OF[kind])
         draft.line_attrs.insert(1, keyword_attribute(STYLE, SINGLE))
         draft.descriptors = [(STYLE, SINGLE), ("Material", material)]
         draft.provenance = PROVENANCE

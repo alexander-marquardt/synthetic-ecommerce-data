@@ -650,13 +650,20 @@ def page_pack(type_key: str, u: float) -> int:
     return _pack_at(type_key, u)
 
 
+#: The names the group and page-pack draws hash an attribute under, where #497
+#: renamed it: each draws as it did before the rename, so no group moves to
+#: another price level and no page to another pack.
+HASHED_AS = {"Units per Pack": "Package Quantity", "Stock Fit": "Fit"}
+
+
 def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[str, str]]) -> float:
     """The quantile a group page's pack is drawn at: its own stream, so no
     other draw moves. A page is one brand and every line attribute a census
     cell holds equal (``held``, as :func:`group_draw` reads them), so every
     line of a page, whatever its size, publishes one pack and a census cell
     holds the same size pairs it held before the pack was published."""
-    return random.Random(f"{seed}:pack-page:{type_key}:{brand}:{sorted(held)}").random()
+    hashed = sorted((HASHED_AS.get(name, name), value) for name, value in held)
+    return random.Random(f"{seed}:pack-page:{type_key}:{brand}:{hashed}").random()
 
 
 #: A breadth category the census measured that is now a modelled type: its
@@ -1141,7 +1148,11 @@ def group_draw(seed: int, type_key: str, brand: str, line_attributes: Iterable[A
     order WITHIN one (larger costs more), and noise drawn per line would
     break the order between two lines of one page.
     """
-    held = sorted((a.name, a.value) for a in line_attributes if holds_equal(type_key, a))
+    held = sorted(
+        (HASHED_AS.get(a.name, a.name), a.value)
+        for a in line_attributes
+        if holds_equal(type_key, a)
+    )
     return random.Random(f"{seed}:price-group:{type_key}:{brand}:{held}").random()
 
 

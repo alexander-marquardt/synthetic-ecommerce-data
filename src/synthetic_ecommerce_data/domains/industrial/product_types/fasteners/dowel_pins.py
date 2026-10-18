@@ -37,6 +37,7 @@ from typing import Any, NamedTuple
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import table_provenance
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import screw_socket_head
@@ -204,9 +205,7 @@ VOCAB = (
 
 def provenance(standard: str) -> str:
     """Every published dimension of a line is its standard's table's."""
-    return table_provenance(
-        *((name, standard) for name in (DIA, "Length", "Dia. Tolerance"))
-    )
+    return table_provenance(*((name, standard) for name in (DIA, "Length", "Dia. Tolerance")))
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
@@ -253,6 +252,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", kind),
         keyword_attribute("Material", material),
         *([keyword_attribute("Finish", finish)] if finish else []),

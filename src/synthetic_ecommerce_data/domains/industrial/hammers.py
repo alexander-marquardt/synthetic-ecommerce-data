@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.core.model import keyword_attribute, numeric_attri
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial import series
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hammer as figure
 from synthetic_ecommerce_data.domains.industrial.vocab import HAMMER_VOCAB
 
@@ -184,6 +185,7 @@ def build(kind: HammerKind):
         )
         face_type = kind.faces[0] if len(kind.faces) == 1 else None
         draft.line_attrs = [
+            retired(keyword_attribute("Item", kind.item)),  # keeps the stream stable for #497
             keyword_attribute("Material", kind.material),
             keyword_attribute("Handle Material", handle),
             keyword_attribute("Handle Grip Material", rng.choice(HAMMER_GRIPS[handle])),

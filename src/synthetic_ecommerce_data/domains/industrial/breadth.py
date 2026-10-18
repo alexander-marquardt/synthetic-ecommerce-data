@@ -60,6 +60,7 @@ from synthetic_ecommerce_data.core.model import (
 from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.core.voice import product_name
 from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
@@ -296,7 +297,9 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
         chosen[name] = row.featured_attrs.get(name) or rng.choice(values)
     _apply_finish_follows_material(chosen, row, rng)
 
-    line_attrs: list[Attribute] = []
+    line_attrs: list[Attribute] = [
+        retired(keyword_attribute("Item", row.item))
+    ]  # keeps the stream stable for #497
     descriptor_value: str | None = None
     for name, value in chosen.items():
         line_attrs.append(keyword_attribute(name, value))
