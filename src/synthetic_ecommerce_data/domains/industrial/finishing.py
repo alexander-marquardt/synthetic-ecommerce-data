@@ -241,7 +241,9 @@ class FinishMixin:
 
         # The product id is built before the SKUs, because every SKU's image
         # id names it: one drawing per SKU, filed under its product.
-        product_id = self._product_id(draft.brand, draft.series, index)
+        product_id = self.minter.product_id(
+            brands.BY_NAME[draft.brand].code, draft.series, index
+        )
 
         # Composed first, for every SKU, because whether a title needs the
         # thing that differs is a question about the LINE and cannot be
@@ -286,7 +288,7 @@ class FinishMixin:
                 continue
             self._drawn_specs.add(key)
 
-            sku = self._new_sku()
+            sku = self.minter.new_sku()
             self._published = {a.name for a in (*line_attrs, *attrs)}
             titles.append(self._build_line_title(draft, child))
             # One draw, where the uniform multiplier this replaced drew one, so
