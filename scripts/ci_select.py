@@ -305,6 +305,13 @@ class Tree:
         if _DYNAMIC.search(text) and not path.startswith("tests/"):
             prefix = str(here) + "/"
             edges |= {p for p in self.py if p.startswith(prefix)}
+            # A package-walk registry (``typespec.discover``) loads every module of the package
+            # it is given by name: the package a dotted string of the file names.
+            for value in strings:
+                for dotted in _DOTTED.findall(value):
+                    for init in self.by_name.get(dotted, ()):
+                        if init.endswith("/__init__.py"):
+                            edges |= {p for p in self.py if p.startswith(init[: -len("__init__.py")])}
         edges.discard(path)
         leaves -= edges
         leaves.discard(path)
@@ -350,6 +357,8 @@ class Tree:
             return True
         if changed.endswith(".py"):
             return False if changed in self.text else self._unresolved_import(members, changed)
+        if self._owner_module_in(members, changed):
+            return True
         patterns = self._tokens(changed)
         readers = _DOC_READERS if changed.endswith(_DOC_SUFFIXES) else ("",)
         return any(
@@ -357,6 +366,30 @@ class Tree:
             for m in members
             if m.startswith(readers)
         )
+
+    def _package_dir(self, changed: str) -> str | None:
+        """The directory of the package that owns a non-Python file under ``src/``: the nearest
+        ancestor that is a package (holds ``__init__.py``) and holds a module other than its
+        ``__init__.py``, so a data directory of a package belongs to the package that reads it."""
+        if not changed.startswith("src/"):
+            return None
+        parent = Path(changed).parent
+        while str(parent) not in ("", "."):
+            here = parent.as_posix()
+            init = f"{here}/__init__.py"
+            if init in self.trees and any(
+                p.startswith(here + "/") and p.count("/") == here.count("/") + 1 and p != init
+                for p in self.py
+            ):
+                return here
+            parent = parent.parent
+        return None
+
+    def _owner_module_in(self, members: frozenset[str], changed: str) -> bool:
+        """A data file of a package is read by a path built from ``__file__``, which no text
+        names: any test whose closure holds a module of the owning package may read it."""
+        here = self._package_dir(changed)
+        return here is not None and any(m.startswith(here + "/") for m in members)
 
     def _unresolved_import(self, members: frozenset[str], changed: str) -> bool:
         """A deleted module: a file that still names it by stem is broken, so it is selected."""
