@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
 import knitwear_rows  # noqa: E402
 import mens_depth_rows  # noqa: E402
 import needs_rows  # noqa: E402
+import place_ranges  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
 
@@ -44,6 +45,13 @@ def _words(text: str) -> set[str]:
 @pytest.fixture(scope="module")
 def shipped() -> dict[str, dict]:
     return {r["product_id"]: r for r in scale.templates()}
+
+
+def test_no_place_range_holds_a_color_word() -> None:
+    """The shared table of place ranges is the single source: no name or gloss holds a color."""
+    assert len(place_ranges.PLACE_RANGES) >= 6
+    for name, gloss in place_ranges.PLACE_RANGES:
+        assert not _words(f"{name} {gloss}") & COLOR_WORDS, (name, gloss)
 
 
 @pytest.mark.parametrize("family", FAMILIES)
