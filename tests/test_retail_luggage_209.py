@@ -253,6 +253,15 @@ def test_a_weekend_bag_decoy_holds_the_capacity_of_the_bag_in_its_material() -> 
     assert by_code["BRD-WKBDLK"] == leather_look  # the faux leather decoy copies the leather-look bag
 
 
+def test_a_suitcase_decoy_described_as_soft_sided_states_no_hard_shell_material() -> None:
+    soft = [d for d in _spec("suitcase").decoys if "soft sided" in d.row.description.lower()]
+    assert soft
+    for decoy in soft:
+        attrs = _attrs(next(d for d in _spec("suitcase").docs() if d["product_id"] == f"BRD-{decoy.row.code}"))
+        assert attrs["shell"]["value"] == "Soft", decoy.row.code
+        assert attrs["material"]["value"] not in {"Polypropylene", "Polycarbonate", "ABS"}, decoy.row.code
+
+
 @pytest.mark.parametrize("brand", ["Tarnwick", "Fenmoor & Co", "Skerry Travel"])
 def test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own(brand: str) -> None:
     import house_styles  # noqa: PLC0415
