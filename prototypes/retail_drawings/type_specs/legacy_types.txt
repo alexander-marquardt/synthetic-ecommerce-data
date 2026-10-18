@@ -44,7 +44,6 @@ Cleaning & Janitorial|Surface Cleaner
 Cleaning & Janitorial|Surface Spray
 Cleaning & Janitorial|Toilet Cleaner
 Clothing|Backpack
-Clothing|Belt
 Clothing|Blouse
 Clothing|Bodysuit
 Clothing|Bomber Jacket
