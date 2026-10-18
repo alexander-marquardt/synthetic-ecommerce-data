@@ -72,6 +72,7 @@ verdict() {
   if [ "$mode" != no-file-size ]; then j 5 file-size success; fi
   j 6 red-commit-proof success
   j 7 customer-name-check success
+  j 9 stats-roll success
   printf '8\tmain-merged-tree\tcompleted\tskipped\t%s/job/8\n' "$RUN_URL"
 }
 if [ "$1 $2" = "workflow run" ]; then
@@ -389,6 +390,7 @@ def test_the_real_workflow_s_pr_jobs_can_be_dispatched_with_the_range_as_inputs(
     document = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())
     inputs = document[True]["workflow_dispatch"]["inputs"]  # YAML reads `on` as True
     assert set(inputs) == {"base", "head", "pr"}
-    for job in ("commit-messages", "file-size", "red-commit-proof", "customer-name-check"):
+    jobs = ("commit-messages", "file-size", "red-commit-proof", "customer-name-check", "stats-roll")
+    for job in jobs:
         condition = document["jobs"][job]["if"]
         assert "workflow_dispatch" in condition and "inputs.head" in condition, job
