@@ -90,11 +90,21 @@ def popularity(doc: dict) -> float:
     return boost * (1.5 if rank is not None and rank <= BESTSELLER_TOP else 1.0)
 
 
-def rank(index: Index, query: str, size: int = 10) -> list[dict]:
-    """The top ``size`` documents for ``query``: text score times popularity, ties by id."""
+def rank(
+    index: Index, query: str, size: int = 10, *, popular: bool = True
+) -> list[dict]:
+    """The top ``size`` documents for ``query``: text score times popularity, ties by id.
+
+    ``popular=False`` ranks by text score alone. A test of which TYPE a query's words find uses it:
+    ``sold_last_5_days`` is drawn from one seeded stream, so adding a type elsewhere moves the
+    draws of every later product and a decoy can outsell the type (#432).
+    """
     words = tokens(query)
     scored = [
-        (index.text_score(i, words) * popularity(index.catalog[i]), index.catalog[i])
+        (
+            index.text_score(i, words) * (popularity(index.catalog[i]) if popular else 1.0),
+            index.catalog[i],
+        )
         for i in index.candidates(words)
     ]
     scored.sort(key=lambda s: (-s[0], s[1]["product_id"]))

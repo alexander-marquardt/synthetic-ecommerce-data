@@ -29,6 +29,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
+import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -443,7 +444,7 @@ def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
 def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
     """Every string field of the drawing, top level and ``params``, follows a changed value:
     a graphic tee carries its ``motif`` at the top level, not in ``params``. It reads the
-    ceiling, whose derived styles start with TARGET's: 88 motif styles to TARGET's 3."""
+    ceiling, whose derived styles start with TARGET's: some 80 motif styles to TARGET's 3."""
     redrawn = top_level = 0
     drawn = _motif_drawn()  # the drawn motif may not be the value: Cherry draws cherries
     for r, t in ceiling_pairs:
@@ -485,7 +486,7 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     """The picture draws the motif, count and placement the attributes name, and the
     description never names the template's motif once the style changed it ("Cherry Graphic
     Mug" -> an orange one must not say "a big pair of cherries"). The ceiling build holds
-    88 derived motif styles (seed 0); :data:`TARGET` holds 3."""
+    some 80 derived motif styles (seed 0, the count re-rolls); :data:`TARGET` holds 3."""
     from build_preview import drawing_svg  # noqa: PLC0415
 
     drawn = _motif_drawn()
@@ -517,8 +518,12 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
         assert stale == [], (r["product_id"], r["description"])
         assert scale._has_word(r["description"], mine["motif"]), (r["product_id"], r["description"])
         assert not re.search(r"\b[Aa] [aeiou]", r["description"]), r["description"]
-    assert styles >= 80  # 88 at the ceiling, seed 0
-    assert changed >= 75  # 86
+    # The property is asserted for every style in the loop above. These floors only keep it from
+    # passing on an empty set. The counts move with every re-roll (a new type changes the
+    # template count that feeds the plan): 88 and 86 on main, 79 and 77 with the accessories,
+    # so a floor near either value reds on the next merge. Half of the lower reading holds.
+    assert styles >= 40, styles
+    assert changed >= 40, changed
 
 
 def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(
@@ -602,16 +607,20 @@ def test_the_cli_refuses_a_target_below_one():
     assert "--skus must be at least 1" in done.stderr
 
 
-def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
-    """The template's attributes a derived style is expected to carry.
+def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may lose: a pendant derived into a form that does not hang
+    has no ``drop_length`` (``lighting_rows.fit_ceiling_form``, gen#237). Nothing else goes, and
+    a hanging form keeps it, so the exception is exactly the documented one."""
+    if t["product_type"] != "Ceiling Light":
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
 
-    A ceiling light derived to a form that does not hang loses ``drop_length`` by design
-    (``lighting_rows.fit_ceiling_form``, gen#237); any other difference stays a failure.
-    """
-    hangs = any(a["key"] == "drop_length" for a in r["attributes"])
-    attrs = t["attributes"]
-    if r["product_type"] == "Ceiling Light" and not hangs:
-        attrs = [a for a in attrs if a["key"] != "drop_length"]
+
+def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
+    """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
+    gone = _fitted_out(r, t)
+    attrs = [a for a in t["attributes"] if a["key"] not in gone]
     # A key the template lists in several entries (a shoe's materials, gen#472) keeps one entry
     # per value its SKUs still hold (``scale._sku_values``): at least one, never a new key.
     held = collections.Counter(a["key"] for a in r["attributes"])
