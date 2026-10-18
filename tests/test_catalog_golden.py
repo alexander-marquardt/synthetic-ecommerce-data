@@ -165,7 +165,11 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
         f"\n"
         f"  1. YOU CHANGED THE GENERATOR. Expected, and the fix is one command:\n"
         f"         {REBUILD}\n"
-        f"     then commit the changed files. The diff is the review artifact --\n"
+        f"     then commit the changed files, but never golden-catalog/stats.json:\n"
+        f"     it is rolled by scripts/merge_pr.sh, not committed by a PR (gen#373),\n"
+        f"     and the lint refuses it. CI rewrites it before this test runs\n"
+        f"     (`uv run python scripts/roll_stats.py` does the same here). The\n"
+        f"     diff is the review artifact --\n"
         f"     that is why these are plain NDJSON. Issue #5 (a distinct drawing\n"
         f"     per product line) will move every image_id and is exactly this\n"
         f"     case: regenerate, commit, and the diff shows what moved.\n"
@@ -290,6 +294,22 @@ def test_the_two_shapes_describe_the_same_skus(
         f"{len(flat_skus - nested_skus)} SKU(s) appear only in flat.jsonl and "
         f"{len(nested_skus - flat_skus)} only in nested.jsonl"
     )
+
+
+def test_the_roll_step_writes_the_stats_a_fresh_build_writes(
+    fresh_build: Path, tmp_path: Path
+) -> None:
+    """``scripts/roll_stats.py`` is what CI runs before the tests and what the merge commits
+    (gen#373): its catalog half is the build's own ``stats.json``, byte for byte."""
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import roll_stats
+
+    roll_stats.build_catalog(tmp_path)
+    assert (tmp_path / "golden-catalog" / "stats.json").read_bytes() == (
+        fresh_build / "stats.json"
+    ).read_bytes()
 
 
 def test_stats_reports_the_catalog_that_was_committed() -> None:
