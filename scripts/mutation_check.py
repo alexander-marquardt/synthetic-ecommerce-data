@@ -4543,8 +4543,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a Nike style enters the seeded derivation",
                 "scale.py",
-                "| GARDEN_IDS | NIKE_IDS",
-                "| GARDEN_IDS",
+                "                | NIKE_IDS | NEEDS_IDS",
+                "                | NEEDS_IDS",
                 "tests/test_retail_nike_341.py -k leave_the_derivation",
                 "the Nike rows are templates only",
             ),

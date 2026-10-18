@@ -89,7 +89,7 @@ _SKIRT_LINING = {"Cotton": "Unlined", "Satin": "Polyester", "Denim": "Unlined", 
 #: top fabric -> how it feels, so only a fabric that stretches is called stretchy.
 _FEEL = {
     "Satin": "a smooth, fluid drape", "Silk Blend": "a smooth, soft drape", "Cotton Jersey": "a soft, stretchy feel",
-    "Lace Trim Jersey": "a stretchy jersey body and a lace trim", "Ribbed Jersey": "a soft, stretchy rib",
+    "Lace Trim Jersey": "a soft, stretchy feel", "Ribbed Jersey": "a soft, stretchy rib",
     "Modal": "a soft, stretchy feel", "Ribbed Cotton": "a stretchy rib", "Organic Cotton": "a soft organic cotton hand",
     "Slub Cotton": "a soft, textured slub", "Linen Blend": "a light, breathable weave",
     "Cotton Voile": "a light, airy weave", "Viscose": "a fluid drape", "Crinkle Cotton": "a crinkled texture",
@@ -256,7 +256,7 @@ _LEAVES = (
          ("Oversized", "Regular", "Relaxed"), ("Collar",), ("Long Sleeve",), "{f} {fit} {s} Shirt"),
     Leaf("CW", ("Womens", "Coats & Jackets", "Wool Coats"), "Coat", 14,
          ("Wool Blend", "Pure Wool", "Wool Cashmere Blend", "Boucle", "Herringbone", "Felted Wool"),
-         ("Regular", "Relaxed", "Oversized"), ("",), ("Long Sleeve",), "{f} {fit} Wool Coat",
+         ("Regular", "Relaxed", "Oversized"), ("",), ("Long Sleeve",), "{f} {fit} {wool}Coat",
          palette=_TAILORED, extra_price=60.0),
     Leaf("CT", ("Womens", "Coats & Jackets", "Trench Coats"), "Coat", 14,
          ("Cotton Gabardine", "Water Repellent Cotton", "Cotton Twill", "Stretch Cotton", "Lightweight Cotton"),
@@ -265,7 +265,7 @@ _LEAVES = (
          extra_price=40.0, styles=("Belted", "Double Breasted", "Single Breasted")),
     Leaf("CR", ("Womens", "Coats & Jackets", "Rain Macs"), "Coat", 12,
          ("Waterproof Nylon", "Recycled Polyester", "Coated Cotton", "Taped Seam Nylon", "Ripstop", "Matte Nylon"),
-         ("Regular", "Relaxed"), ("",), ("Long Sleeve",), "{f} {fit} Hooded Rain Mac", tail="a mesh lining",
+         ("Regular", "Relaxed"), ("",), ("Long Sleeve",), "{f} {fit} Hooded Rain Mac", tail="a mesh lining", styles=("Hooded",),
          palette=("Yellow", "Navy", "Red", "Green", "Black", "Blue", "White", "Pink", "Olive"), extra_price=20.0),
     Leaf("CB", ("Womens", "Coats & Jackets", "Blazers"), "Suit Jacket", 10,
          ("Crepe", "Stretch Suiting", "Linen Blend", "Textured Weave", "Wool Blend", "Tweed Look"),
@@ -310,7 +310,7 @@ def _rows() -> list[LRow]:
         for f, fit, st, neck, s in _product(leaf.fabrics, leaf.fits, leaf.styles, leaf.necks, leaf.sleeves):
             hem = ("Mini", "Midi", "Maxi")[zlib.crc32(f"{f}{fit}{st}".encode()) % 3] if kind.ptype == "Skirt" else ""
             t = "Womens " + " ".join(leaf.title.format(f=f, fit=_fit_title(fit), st=st, s=s, hem=hem,
-                                                      neck=_neck_title(neck)).split())
+                                                      wool="" if "Wool" in f else "Wool ", neck=_neck_title(neck)).split())
             combos.setdefault(t, (f, fit, st, neck, s, hem))
         pairs = _choose([(t, *c) for t, c in combos.items()], leaf.n)
         assert len(pairs) == leaf.n, (leaf.abbr, len(combos))

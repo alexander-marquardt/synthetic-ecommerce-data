@@ -171,10 +171,14 @@ FITS = {"Boxy", "Classic", "Fitted", "Oversized", "Regular", "Relaxed", "Slim"}
 
 
 def test_a_title_reads_as_a_shop_writes_it(templates):
-    """No "Fitted Fit", no "Belted Fit", no neckline word "Collar" in front of a sleeve."""
+    """No "Fitted Fit", no "Belted Fit", no "Collar" before a sleeve, no word twice."""
     pattern = re.compile(r"\b(?:Fitted|Belted|Straight|Tailored) Fit\b|\bCollar (?:\w+ )*Sleeve")
     bad = [r["title"] for r in _new_rows(templates) if pattern.search(r["title"])]
     assert not bad, bad[:3]
+    for r in _new_rows(templates):  # "Wool Regular Fit Wool Coat" is not a shop's title
+        words = [w.lower() for w in r["title"].split()]
+        assert len(words) == len(set(words)), r["title"]
+        assert r["description"].lower().count("lace trim") <= 1, r["description"]
 
 
 def test_the_new_rows_add_no_value_to_the_fit_facet(templates):
@@ -225,7 +229,24 @@ def test_a_skirt_closes_the_way_its_kind_does(templates):
             assert "zip" not in r["description"].lower(), r["description"]
 
 
+#: a feature word in a title -> the stem its description must hold.
+STEMS = {
+    "Hooded": "hood", "Cropped": "cropped", "Funnel Neck": "funnel neck", "Longline": "longline",
+    "Belted": "belt", "Double Breasted": "double-breasted", "Single Breasted": "single-breasted",
+    "Collared": "collar", "Pleated": "pleat",
+}  # fmt: skip
+
+
 def test_a_feature_of_a_coat_is_in_its_title_and_its_description(templates):
-    belted = [r for r in _new_rows(templates) if "Belted" in r["title"]]
-    assert belted
-    assert all("belt" in r["description"] for r in belted)
+    """Every feature word the rows module defines, in a title, is said again in the description."""
+    import womens_depth_rows
+
+    assert set(womens_depth_rows._FEATURE) <= set(STEMS), "a feature word without a stem"
+    words = STEMS
+    rows = _new_rows(templates)
+    for word, stem in words.items():
+        titled = [r for r in rows if re.search(rf"\b{word}\b", r["title"])]
+        assert titled, word
+        bad = [(r["title"], r["description"]) for r in titled
+               if stem not in r["description"].lower()]
+        assert not bad, (word, bad[:2])
