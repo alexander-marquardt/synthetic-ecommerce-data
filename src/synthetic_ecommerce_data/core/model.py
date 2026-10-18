@@ -136,6 +136,11 @@ class Sku:
     #: The copy's noise sentences (:mod:`.noise`): true, distracting, and in
     #: the description and the searchable text only -- never an attribute.
     noise: str = ""
+    #: How the shown price is quoted: ``"Each"``, or ``"Per Pack"`` when the SKU
+    #: publishes a ``Package Quantity`` above 1 (gen#14). A plain field, not a variant.
+    pricing_unit: str = "Each"
+    #: The multiple a SKU is ordered in, in its pricing unit (gen#14). A plain field.
+    order_multiple: int = 1
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)
