@@ -30,14 +30,27 @@ import roll_stats  # noqa: E402
 
 RETAIL = "golden-retail/stats.json"
 CATALOG = "golden-catalog/stats.json"
+TABLE = "docs/retail-apparel-decoys.md"
+#: The stats pair, and the apparel decoy table that retail_figures.py writes beside them.
 BOTH = (RETAIL, CATALOG)
+ALL = (RETAIL, CATALOG, TABLE)
 TRAILER = "Rolled-By: scripts/merge_pr.sh"
 
 
 def _git(repo: Path, *args: str) -> str:
     done = subprocess.run(
-        ["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@example.invalid",
-         "-c", "commit.gpgsign=false", *args],
+        [
+            "git",
+            "-C",
+            str(repo),
+            "-c",
+            "user.name=t",
+            "-c",
+            "user.email=t@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            *args,
+        ],
         capture_output=True,
         text=True,
     )
@@ -64,7 +77,12 @@ def repo(tmp_path: Path) -> Path:
     _commit(
         root,
         "base",
-        {RETAIL: '{"a": 1}\n', CATALOG: '{"b": 1}\n', "golden-catalog/flat.jsonl": "{}\n"},
+        {
+            RETAIL: '{"a": 1}\n',
+            CATALOG: '{"b": 1}\n',
+            TABLE: "| a |\n",
+            "golden-catalog/flat.jsonl": "{}\n",
+        },
     )
     _git(root, "switch", "-q", "-c", "feature")
     return root
@@ -80,18 +98,26 @@ def _edit(repo: Path, message: str, path: str) -> str:
 
 def _lint(repo: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPTS / "check_no_stats_edit.py"), "--root", str(repo),
-         "--base", "main", "--head", "HEAD"],
+        [
+            sys.executable,
+            str(SCRIPTS / "check_no_stats_edit.py"),
+            "--root",
+            str(repo),
+            "--base",
+            "main",
+            "--head",
+            "HEAD",
+        ],
         capture_output=True,
         text=True,
     )
 
 
-def test_the_rolled_files_are_the_two_golden_stats() -> None:
-    assert roll_stats.ROLLED == BOTH
+def test_the_rolled_files_are_the_two_golden_stats_and_the_apparel_decoy_table() -> None:
+    assert roll_stats.ROLLED == ALL
 
 
-@pytest.mark.parametrize("path", BOTH)
+@pytest.mark.parametrize("path", ALL)
 def test_a_pr_that_edits_a_rolled_file_by_hand_is_refused(repo: Path, path: str) -> None:
     _edit(repo, "feat: a type", path)
     done = _lint(repo)
@@ -134,8 +160,16 @@ def test_a_main_that_moved_on_its_own_stats_is_not_the_prs_edit(repo: Path) -> N
     _git(repo, "switch", "-q", "feature")
     _edit(repo, "feat: a type", "golden-catalog/flat.jsonl")
     done = subprocess.run(
-        [sys.executable, str(SCRIPTS / "check_no_stats_edit.py"), "--root", str(repo),
-         "--base", "main", "--head", "feature"],
+        [
+            sys.executable,
+            str(SCRIPTS / "check_no_stats_edit.py"),
+            "--root",
+            str(repo),
+            "--base",
+            "main",
+            "--head",
+            "feature",
+        ],
         capture_output=True,
         text=True,
     )
@@ -174,8 +208,9 @@ def test_roll_writes_both_files_through_the_two_builders(tmp_path: Path) -> None
 
     def retail(root: Path) -> None:
         made.append("retail")
-        (root / RETAIL).parent.mkdir(parents=True, exist_ok=True)
-        (root / RETAIL).write_text("{}\n", encoding="utf-8")
+        for name in (RETAIL, TABLE):
+            (root / name).parent.mkdir(parents=True, exist_ok=True)
+            (root / name).write_text("{}\n", encoding="utf-8")
 
     def catalog(root: Path) -> None:
         made.append("catalog")
@@ -184,7 +219,7 @@ def test_roll_writes_both_files_through_the_two_builders(tmp_path: Path) -> None
 
     rolled = roll_stats.roll(tmp_path, retail=retail, catalog=catalog)
     assert sorted(made) == ["catalog", "retail"]
-    assert rolled == list(BOTH)
+    assert rolled == list(ALL)
 
 
 def test_roll_refuses_a_builder_that_leaves_a_rolled_file_unwritten(tmp_path: Path) -> None:
@@ -223,7 +258,7 @@ def test_the_cli_lists_the_files_it_rolls() -> None:
         [sys.executable, str(SCRIPTS / "roll_stats.py"), "--list"], capture_output=True, text=True
     )
     assert done.returncode == 0, done.stderr
-    assert done.stdout.split() == list(BOTH)
+    assert done.stdout.split() == list(ALL)
 
 
 def _jobs() -> dict:
