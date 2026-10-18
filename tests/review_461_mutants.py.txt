@@ -1,0 +1,42 @@
+TESTS = ["tests/test_retail_seed_decoys_461.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+T = "tests/test_retail_seed_decoys_461.py::"
+S = "tests/test_retail_type_specs_351.py::"
+MUTANTS = [
+    (R + "decoy_product_words.py",
+     '    _h(88, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",\n'
+     '       "A large zipped mesh bag that protects a duvet cover in the washing machine.", "White",\n'
+     '       _CAT),\n',
+     "",
+     "a seed row dropped: duvet cover keeps one decoy",
+     [T + "test_each_seed_has_at_least_two_decoy_rows[duvet_cover]"]),
+    (R + "decoy_product_words.py",
+     "ROWS = (*TABLE, *FLOOR, *SEED_TOYS)", "ROWS = (*TABLE, *FLOOR)",
+     "SEED_TOYS dropped: the tees swamp dinosaur",
+     [T + "test_dinosaur_toys_titled_dinosaur_first_outrank_the_tees"]),
+    (R + "breadth_rows.py",
+     '    Row("OLVSTD", "Olive Tree in Terracotta Pot", "Thistle & Wren", "Garden", _OLIVES, "Plant",\n'
+     '        32.0, "potted_tree",\n'
+     '        "A silver-leaved olive tree for a sunny patio, hardy in a sheltered spot. Water sparingly.",\n'
+     '        (_POT,), _form("Standard"), _HEIGHTS, "Olive", colorless=True),\n',
+     "",
+     "OLVSTD dropped: there is no olive tree product",
+     [T + "test_the_olive_tree_is_a_product_and_ranks_in_the_first_12"]),
+    (R + "decoy_product_words.py",
+     '"Duvet Cover Storage Bag"', '"Grey Duvet Cover Storage Bag"',
+     "a color word in a decoy title",
+     [T + "test_a_seed_decoy_names_no_color_word_the_drawing_does_not_show[duvet_cover]"]),
+    (R + "decoy_product_words.py",
+     '"Bed Frame Headboard Cushion"', '"Soft Bed Frame Headboard Padded Cushion"',
+     "a six word decoy title",
+     [T + "test_a_seed_decoy_holds_every_seed_word_and_is_another_type[bed_frame]"]),
+    (R + "decoy_product_words.py",
+     '"Tea Towel Hook Rail"', '"Towel Hook Rail"',
+     "a decoy title that lacks a seed word",
+     [T + "test_a_seed_decoy_holds_every_seed_word_and_is_another_type[tea_towels]"]),
+    (R + "decoy_product_words.py",
+     '"Make-Up Bag", "pouch"', '"Make-Up Pouch", "pouch"',
+     "a decoy of a new product type, which has no spec file",
+     [S + "test_every_type_is_registered_through_a_spec_or_the_legacy_list"]),
+]
