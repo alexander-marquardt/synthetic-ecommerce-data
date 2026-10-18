@@ -66,4 +66,12 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         f"{_T}::test_every_red_wine_grocery_is_class_10_and_a_decoy_of_the_red_wine_query",
         "every red wine grocery is class 10",
     ),
+    (
+        "the casserole's red wine has no base ingredient row",
+        "grocery_ingredients.py",
+        "wine: wine flavoring; red wine; red wine powder",
+        "wine: wine flavoring",
+        "tests/test_grocery_ingredient_base_295.py::test_the_scale_build_with_the_decoys_has_no_unmapped_label",
+        "every label of a decoy maps to a base ingredient",
+    ),
 ]
