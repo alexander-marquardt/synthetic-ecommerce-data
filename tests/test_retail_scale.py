@@ -569,9 +569,19 @@ def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str,
     (``lighting_rows.fit_ceiling_form``, gen#237); any other difference stays a failure.
     """
     hangs = any(a["key"] == "drop_length" for a in r["attributes"])
+    attrs = t["attributes"]
     if r["product_type"] == "Ceiling Light" and not hangs:
-        return [a for a in t["attributes"] if a["key"] != "drop_length"]
-    return t["attributes"]
+        attrs = [a for a in attrs if a["key"] != "drop_length"]
+    # A key the template lists in several entries (a shoe's materials, gen#472) keeps one entry
+    # per value its SKUs still hold (``scale._sku_values``): at least one, never a new key.
+    held = collections.Counter(a["key"] for a in r["attributes"])
+    seen: collections.Counter[str] = collections.Counter()
+    out = []
+    for a in attrs:
+        seen[a["key"]] += 1
+        if seen[a["key"]] <= max(held[a["key"]], 1):
+            out.append(a)
+    return out
 
 
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
