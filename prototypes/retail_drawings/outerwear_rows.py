@@ -271,7 +271,7 @@ def _util(code, brand, price, kind, fabric, pockets, collar, colors, note, mens=
     count = {"2": "two", "4": "four"}[pockets]
     desc = f"A boxy {cloth.lower()} {kind.lower()} jacket with {count} patch pockets and a {collar.lower()} collar. {note}"
     return _row(code, title, brand, "Utility Jacket", price, desc, colors,
-                (_a("jacket_style", "Style", kind), _a("fabric", "Fabric", fabric), ("pocket_count", "Pocket count", pockets, "C62"), _a("collar", "Collar", collar)),
+                (_a("jacket_style", "Jacket style", kind), _a("fabric", "Fabric", fabric), ("pocket_count", "Pocket count", pockets, "C62"), _a("collar", "Collar", collar)),
                 (("pockets", pockets), ("collar", collar.lower())), mens)  # fmt: skip
 
 
@@ -339,7 +339,7 @@ def _wind(code, brand, price, zipped, hood, packable, fabric, colors, note, mens
                    "a pouch pocket" if style == "Anorak" else "")  # fmt: skip
     desc = f"A light {fabric.lower()} {style.lower()} with {clauses}. {'It packs into a stuff pocket. ' if packable == 'Yes' else ''}{note}"
     return _row(code, title, brand, "Windbreaker", price, desc, colors,
-                (_a("jacket_style", "Style", style), a_z, _a("hood", "Hood", hood), _a("packable", "Packable", packable), _a("fabric", "Fabric", fabric)),
+                (_a("jacket_style", "Jacket style", style), a_z, _a("hood", "Hood", hood), _a("packable", "Packable", packable), _a("fabric", "Fabric", fabric)),
                 (p_z, ("hood", hood.lower())), mens)  # fmt: skip
 
 

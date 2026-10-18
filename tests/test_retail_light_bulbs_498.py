@@ -25,6 +25,7 @@ import export  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: kelvin -> the name printed on a bulb box for it.
@@ -57,7 +58,8 @@ def _value(doc: dict, key: str) -> str:
 def test_a_light_bulb_type_is_registered_under_home_lighting(bulbs: list[dict]) -> None:
     assert "light_bulb" in type_registry.specs()
     assert bulbs
-    assert all(d["category_path"] == ["Home", "Lighting", "Light Bulbs"] for d in bulbs)
+    published = [sentence_case(n) for n in ("Home", "Lighting", "Light Bulbs")]  # gen#499
+    assert all(d["category_path"] == published for d in bulbs)
 
 
 def test_bulbs_exist_in_every_fitting_at_every_temperature(bulbs: list[dict]) -> None:

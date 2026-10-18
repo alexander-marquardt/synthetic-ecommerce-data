@@ -65,13 +65,13 @@ _TAILORED = ("Navy", "Black", "Camel", "Charcoal", "Stone", "Burgundy", "Olive",
 NECKS = {
     "V Neck": ("v-neck", "v_neck"), "Square Neck": ("square", "square"),
     "Boat Neck": ("boat", "boat"), "Crew Neck": ("crew", "crew"),
-    "Scoop Neck": ("scoop", "scoop"), "High Neck": ("high", "roll_neck"),
+    "Scoop Neck": ("round", "scoop"), "High Neck": ("high", "roll_neck"),
     "Collar": ("collared", "crew"),
 }  # fmt: skip
 #: sleeve word -> (the sleeve_length attribute, the drawing's sleeve).
 SLEEVES = {
     "Long Sleeve": ("Long", "long"), "Short Sleeve": ("Short", "short"),
-    "Three Quarter Sleeve": ("Three Quarter", "three_quarter"), "Sleeveless": ("Sleeveless", "sleeveless"),
+    "Three Quarter Sleeve": ("Three quarter", "three_quarter"), "Sleeveless": ("Sleeveless", "sleeveless"),
 }  # fmt: skip
 _SKIRT_SHAPES = {"A-Line": "a_line", "Pleated": "pleated", "Pencil": "pencil", "Wrap": "wrap", "Tiered": "tiered"}
 #: skirt shape -> (how a shop describes the shape, the waist_type fact, how it fastens). A wrap
@@ -240,7 +240,7 @@ _LEAVES = (
          ("Short Sleeve", "Three Quarter Sleeve", "Long Sleeve"), "{f} {fit} {neck} {s} Tea Dress"),
     Leaf("BL", ("Womens", "Shirts & Blouses", "Blouses"), "Blouse", 30,
          ("Crepe", "Satin", "Chiffon", "Cotton Poplin", "Viscose", "Georgette", "Linen Blend", "Silk Blend"),
-         ("Regular", "Relaxed"), ("V Neck", "Collar", "Square Neck", "High Neck", "Boat Neck"),
+         ("Regular", "Relaxed"), ("Collar",),  # the blouse shape draws a collar, so no other neckline
          ("Long Sleeve", "Short Sleeve", "Three Quarter Sleeve"), "{f} {fit} {neck} {s} Blouse"),
     Leaf("SLN", ("Womens", "Tops", "Shirts", "Linen Shirts"), "Shirt", 8,
          ("Pure Linen", "Linen Blend", "Washed Linen", "Linen Cotton"), ("Relaxed", "Regular", "Oversized"),
@@ -254,11 +254,11 @@ _LEAVES = (
     Leaf("SFL", ("Womens", "Tops", "Shirts", "Flannel Shirts"), "Shirt", 8,
          ("Brushed Cotton Flannel", "Soft Flannel", "Cotton Flannel", "Heavyweight Flannel"),
          ("Oversized", "Regular", "Relaxed"), ("Collar",), ("Long Sleeve",), "{f} {fit} {s} Shirt"),
-    Leaf("CW", ("Womens", "Coats & Jackets", "Wool Coats"), "Coat", 14,
+    Leaf("CW", ("Womens", "Coats & Jackets", "Coats", "Wool Coats"), "Coat", 14,
          ("Wool Blend", "Pure Wool", "Wool Cashmere Blend", "Boucle", "Herringbone", "Felted Wool"),
          ("Regular", "Relaxed", "Oversized"), ("",), ("Long Sleeve",), "{f} {fit} {wool}Coat",
          palette=_TAILORED, extra_price=60.0),
-    Leaf("CT", ("Womens", "Coats & Jackets", "Trench Coats"), "Coat", 14,
+    Leaf("CT", ("Womens", "Coats & Jackets", "Coats", "Trench Coats"), "Coat", 14,
          ("Cotton Gabardine", "Water Repellent Cotton", "Cotton Twill", "Stretch Cotton", "Lightweight Cotton"),
          ("Regular", "Relaxed"), ("",), ("Long Sleeve",), "{f} {fit} {st} Trench Coat",
          palette=("Camel", "Stone", "Navy", "Black", "Olive", "Cream", "Red", "Green", "Yellow", "Blue"),

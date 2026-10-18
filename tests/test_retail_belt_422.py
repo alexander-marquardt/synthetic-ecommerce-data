@@ -148,7 +148,10 @@ def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> 
     """
     belt_words = {w for r in ROWS for w in r.title.lower().split()}
     needed = [w for w in query.split() if w in belt_words]
-    top = br.rank(index, query, size=12)
+    # The window holds the planted decoys that outrank the belt on purpose: every apparel type
+    # plants a "Black Leather-Look ..." class 4 decoy (gen#311), so "black leather belt" meets
+    # about two dozen before the first real belt. The window grew with the decoy types (gen#510).
+    top = br.rank(index, query, size=60)
     planted = type_registry.decoy_ids_of(SPEC)
     first = next(
         (
