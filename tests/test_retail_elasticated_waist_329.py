@@ -120,13 +120,15 @@ def test_class_4_names_an_elastic_that_is_not_the_waist_and_sits_elsewhere(decoy
     assert seen == set(NOT_AT_THE_WAIST)
 
 
-def test_class_1_and_6_name_a_main_color_that_is_not_the_products(decoys):
+def test_class_1_names_a_main_color_that_is_not_the_products_and_class_6_a_place(decoys):
+    """Class 6 holds no color (#446): a range name is a place that starts with a product word."""
     assert decoys
     for d, rec in decoys:
-        if d.klass in (1, 6):
+        if d.klass == 1:
             assert d.word in MAIN and d.word != d.color, d.code
             assert d.word.lower() in rec["title"].lower(), d.code
         if d.klass == 6:
+            assert d.word not in MAIN and d.word.lower() in rec["title"].lower(), d.code
             assert d.color.lower() not in rec["title"].lower(), d.code
             assert len(rec["title"].split()) <= 5, rec["title"]
 

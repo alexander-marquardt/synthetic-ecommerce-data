@@ -92,6 +92,8 @@ CI_COMMANDS: dict[str, tuple[str, str]] = {
 #: cheap job cannot go unnoticed.
 LEFT_TO_CI: dict[str, str] = {
     "main-merged-tree": "the merged-tree checks; scripts/merge_pr.sh --local-ci runs them",
+    "tests/Does this shard have a test file to run": "it reads the pull request's base and head,"
+    " which a push does not have yet; tests/test_ci_select_495.py runs the emitted step",
     "red-commit-proof": "it runs each declared red test in a worktree of its commit, and its"
     " range is the pull request's base and head, which a push does not have yet",
 }

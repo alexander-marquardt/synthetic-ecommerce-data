@@ -45,9 +45,9 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the case diameter option is unknown to the export",
-        "export.py",
-        '"case_mm": ("case_diameter", "Case diameter", "MMT"),',
-        '"case_mmx": ("case_diameter", "Case diameter", "MMT"),',
+        "jewellery_rows.py",
+        'size_key="case_mm"',
+        'size_key="case_mmx"',
         f'{_S} -k "meet_the_standard and fitness_band"',
         "every SKU option the build writes has an export entry",
     ),

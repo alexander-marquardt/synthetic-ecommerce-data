@@ -35,7 +35,7 @@ trousers whose title or description misleads on another word; the structured fie
 | 3 audience word | a sibling cut | "Mens Boyfriend Fit Elasticated Trousers" |
 | 4 feature absent | the word "elasticated" on a product whose waist is not elastic | "Mens Elasticated Cuff Cargo Trousers" has a belted waist |
 | 5 shade in the description | a fancy title, the shade in the text | "Mens Moonbeam Elasticated Trousers" are Ivory |
-| 6 incidental word | a range name, carried as a `range` attribute | "Mens Red Tarn Elasticated Trousers" are not red |
+| 6 incidental word | a range name, carried as a `range` attribute | "Mens Kettle Hill Elasticated Trousers" are not kettles; a range is a place, never a color (#446) |
 | 7 invented brand | a brand holding a color or category word | "Black Curlew", "Yellow Plover", "Jacket Wren" |
 
 `needs_rows.TABLE` lists every decoy with its class, the misleading word, the query it targets and

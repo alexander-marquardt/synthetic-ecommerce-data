@@ -27,6 +27,9 @@ closure word at all unless a reason is listed.
 This check and `standard.text_contradictions` are complementary. `text_contradictions` compares a
 text with the values its leaf's pool holds; the closure pool of the leaf holds neither Snap nor
 Magnetic, so a "snap flap" over a Clasp purse, or "magnetic fastening" over Zip, is invisible to it.
+`text_contradictions` reads a value before a hyphen as no claim (`standard.UNHYPHENATED`, the same
+lookahead as `facet_leaves.stated_fabrics`): "Linen-Look", "Wool-Free" and "fleece-back" say what a
+garment is not made of, so they do not contradict a Cotton fabric (gen#187).
 
 A new closure value that its text names, or a new `pattern` value, needs its row in `ALSO` or
 `PATTERN_KIND`; an unmapped pattern is reported, not skipped. `test_every_allowance_is_used_by_a_real_row`

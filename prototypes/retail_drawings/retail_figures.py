@@ -33,6 +33,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
@@ -46,6 +47,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import nike_rows  # noqa: E402
 import scale  # noqa: E402
@@ -127,6 +129,7 @@ def measure() -> dict[str, Any]:
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),
         "garden_rows": garden_rows.docs(),
+        "decor_rows": decor_rows.docs(),
         "school_rows": school_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),
@@ -140,6 +143,7 @@ def measure() -> dict[str, Any]:
         "mens_depth_rows": mens_depth_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
+        "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),

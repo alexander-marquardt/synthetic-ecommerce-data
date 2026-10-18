@@ -9,12 +9,13 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _BASEBALL, _H, _NEUTRAL, _PRIMARY, _W, _a, _axis, _row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="batting_helmet",
     department="Sports & Outdoors",
     product_type="Batting Helmet",
+    options=(Option("head_cm", "head_circumference", "Head circumference", "CMT"),),
     rows=(
         _row("BHLSNG", "Batting Helmet with Single Ear Flap", _H, (*_BASEBALL, "Batting Helmets"), "Batting Helmet", 29.0,
              "batting_helmet", "A hard-shell batting helmet with a flap over the ear facing the pitcher and a vented crown.",
