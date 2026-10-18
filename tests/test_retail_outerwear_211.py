@@ -410,6 +410,24 @@ def test_a_description_reads_as_shop_copy(row) -> None:
     assert "fill rated" not in d and not re.search(r"filled with synthetic(?! insulation)", d), d
     assert not re.search(r"\bcut (regular|slim|oversized)\b", d), f"a fit as a noun: {d}"
     assert not re.search(r"\bA regular\b", d), f"a fit as a noun: {d}"
+    rating = re.search(r"\brated for (warm|very warm|extreme)\b(?! cold)", d)
+    assert not rating, f"a rating as a noun: {d}"
+
+
+def test_a_utility_description_states_the_pockets_and_collar_the_drawing_shows() -> None:
+    words = {"2": "two", "4": "four"}
+    for row in _rows("Utility Jacket"):
+        pockets, collar = _one(row, "pocket_count"), _one(row, "collar")
+        assert f"{words[pockets]} patch pockets" in row.description, row.code
+        assert f"{collar.lower()} collar" in row.description, row.code
+
+
+def test_a_check_flannel_shacket_is_offered_in_check_colourways_only() -> None:
+    rows = [r for r in _rows("Shacket") if _one(r, "fabric") == "Flannel"]
+    assert rows
+    for row in rows:
+        assert "Check" in row.title
+        assert all(c[0].endswith(" Check") and c[1] == "gingham" for c in row.colors), row.code
 
 
 def test_mens_rows_carry_the_mens_size_run_and_womens_rows_the_womens_one() -> None:
