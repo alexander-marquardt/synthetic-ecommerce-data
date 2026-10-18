@@ -2,6 +2,8 @@
 
 The common case is rows plus a drawing shape the kit already has. You edit ONE file. A type
 with a shape of its own and cross-department decoys is the second half of this page.
+What else a type touches (units, `FROZEN_KEYS`, brand owners and house styles, images, the tests)
+is in [adding-a-retail-type.md](adding-a-retail-type.md).
 The long reference for the industrial catalog is [adding-a-type.md](adding-a-type.md); read it
 only when this page does not cover what you need.
 
