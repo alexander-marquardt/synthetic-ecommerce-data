@@ -183,7 +183,10 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
             assert not named, (r.pid, doc["title"], named)
         else:
             assert named <= {w for w in named if re.search(rf"\b{w}\b", doc["brand"].lower())}, (
-                r.pid, doc["title"], doc["brand"])
+                r.pid,
+                doc["title"],
+                doc["brand"],
+            )
     sevens = [r for r in rows if r.cls == 7]
     assert any(r.word in MAIN for r in sevens)
     for r in (r for r in sevens if r.word in MAIN):
@@ -195,6 +198,11 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
 #: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
 #: new compound is added here only after the same review, never copied across.
 REAL_COMPOUNDS = frozenset({
+    # Babywear (gen#213): each is a title a baby shop sells.
+    "Pyjama Sleepsuit", "Babygrow Sleepsuit", "Romper Sleepsuit", "Vest Bodysuit",
+    "Romper Bodysuit", "Sleep Bodysuit", "Snowsuit Trousers", "Snowsuit Jacket",
+    "Fleece Snowsuit", "Rain Puddlesuit", "Waterproof Puddlesuit", "Fleece Puddlesuit",
+    "Jumpsuit All-in-One", "Onesie All-in-One", "Pyjama All-in-One",
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
     "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
     "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
@@ -273,15 +281,32 @@ def test_no_class_2_title_is_outside_the_real_compounds(
 
 
 #: The class 2 phrases the reviewer named as invented (#444): no shopper meets them as a product.
-INVENTED_COMPOUNDS = frozenset({
-    "Dress Pyjamas", "Trouser Blouse", "Poncho Dressing Gown", "Dress Tights", "Legging Tights",
-    "Sweatshirt Tracksuit", "Dress Trainers", "Ballet Sneakers", "Sneaker Loafers",
-    "Trainer School Shoes", "Sock Shoes", "Pump Heels", "Trouser Shorts", "Pyjama Boxers",
-    # #444 review: each names a class the product itself belongs to, not another product's noun
-    "Ballet Flats", "Henley Tee", "Henley T-Shirt", "Slider Sandals", "T-Shirt Bra",
-    # the live "Wedge Sandals" in another word order (15 of 51 live Wedges)
-    "Sandal Wedges",
-})
+INVENTED_COMPOUNDS = frozenset(
+    {
+        "Dress Pyjamas",
+        "Trouser Blouse",
+        "Poncho Dressing Gown",
+        "Dress Tights",
+        "Legging Tights",
+        "Sweatshirt Tracksuit",
+        "Dress Trainers",
+        "Ballet Sneakers",
+        "Sneaker Loafers",
+        "Trainer School Shoes",
+        "Sock Shoes",
+        "Pump Heels",
+        "Trouser Shorts",
+        "Pyjama Boxers",
+        # #444 review: each names a class the product itself belongs to, not another product's noun
+        "Ballet Flats",
+        "Henley Tee",
+        "Henley T-Shirt",
+        "Slider Sandals",
+        "T-Shirt Bra",
+        # the live "Wedge Sandals" in another word order (15 of 51 live Wedges)
+        "Sandal Wedges",
+    }
+)
 
 
 def test_no_invented_compound_is_planned_or_titled() -> None:
@@ -331,11 +356,7 @@ def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
         for spec in da.TYPES:
             if ex["product_type"] == spec.product_type and ex.get("color_options"):
                 built[spec.product_type] |= {o["phrase"] for o in da._options(2, spec, ex)}
-    short = {
-        t.product_type
-        for t in da.TYPES
-        if len(built[t.product_type]) < 3
-    }
+    short = {t.product_type for t in da.TYPES if len(built[t.product_type]) < 3}
     assert short == set(da.SHORT_COMPOUNDS), short ^ set(da.SHORT_COMPOUNDS)
     assert all(len(reason.split()) >= 4 for reason in da.SHORT_COMPOUNDS.values())
     for ptype in short:
@@ -498,8 +519,15 @@ def test_the_mens_types_the_census_exempts_hold_their_own_decoys() -> None:
     """The exemption of Polo Shirt, Jacket, Mens Trousers and the tailoring types is safe only
     while the Mens depth table holds at least three decoys of each class 1 to 7 for each of them."""
     mens = {t for t in da.EXEMPT if any(d.ptype == t for d in mens_depth_rows.TABLE)}
-    assert mens == {"Polo Shirt", "Jacket", "Mens Trousers", "Suit Trousers", "Waistcoat",
-                    "Dinner Suit", "Formal Accessories"}
+    assert mens == {
+        "Polo Shirt",
+        "Jacket",
+        "Mens Trousers",
+        "Suit Trousers",
+        "Waistcoat",
+        "Dinner Suit",
+        "Formal Accessories",
+    }
     for ptype in mens:
         for klass in range(1, 8):
             n = sum(1 for d in mens_depth_rows.TABLE if d.ptype == ptype and d.klass == klass)
