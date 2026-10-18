@@ -18,6 +18,11 @@ documents split them:
 A `pattern` value is lower case (`export.VALUE_CASE`, gen#255), so the table above shows the value
 the facet holds, not the authored word.
 
+A product of two colors carries ONE `color` value written in words, `Blue and White`, never
+`Blue / White` and never a list of both colors (a list would put a mostly blue product into a
+White filter) (gen#514). `tests/test_retail_two_color_514.py` holds it: no `color` value has a
+`/` or `&`, and a two-color value reads `<A> and <B>` in title case.
+
 `colorwords.split` is the one splitter; `export._color_entries` writes the two entries. The
 `pattern` entry sits on the variant (beside its `color`) and, deduplicated, on the product, where
 it joins the style's drawn pattern (`plain`, `stripe`). A pattern attribute is a variant axis
