@@ -121,7 +121,7 @@ MIN_DERIVED = 150
 #: The sample build: the templates, then derived styles to about 4.5K SKUs past them,
 #: under the ceiling (:data:`CAPACITY`). It moves with
 #: :data:`TEMPLATE_SKUS`, so new templates never empty it. Round 4's deep-SKU templates
-#: left 4K at 148 styles, so it went up by 500.
+#: left 4K too few styles, so it went up by 500.
 DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
@@ -367,11 +367,15 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    many = {k for k, n in collections.Counter(a["key"] for a in t["attributes"]).items() if n > 1}
     # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
+    # A key the template lists in several entries (a shoe's materials, gen#472) is never swapped
+    # for another value: the style keeps the entries its SKUs hold.
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] not in many
+        and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
@@ -565,9 +569,19 @@ def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str,
     (``lighting_rows.fit_ceiling_form``, gen#237); any other difference stays a failure.
     """
     hangs = any(a["key"] == "drop_length" for a in r["attributes"])
+    attrs = t["attributes"]
     if r["product_type"] == "Ceiling Light" and not hangs:
-        return [a for a in t["attributes"] if a["key"] != "drop_length"]
-    return t["attributes"]
+        attrs = [a for a in attrs if a["key"] != "drop_length"]
+    # A key the template lists in several entries (a shoe's materials, gen#472) keeps one entry
+    # per value its SKUs still hold (``scale._sku_values``): at least one, never a new key.
+    held = collections.Counter(a["key"] for a in r["attributes"])
+    seen: collections.Counter[str] = collections.Counter()
+    out = []
+    for a in attrs:
+        seen[a["key"]] += 1
+        if seen[a["key"]] <= max(held[a["key"]], 1):
+            out.append(a)
+    return out
 
 
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
@@ -612,9 +626,13 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+        counts = collections.Counter(a["key"] for a in t["attributes"])
+        many = {k for k, n in counts.items() if n > 1}
         for a in _template_attributes(r, t):
             old = str(a["value"])
-            if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
+            if a["key"] == "line" or a["key"] in many:  # entries a style keeps or drops (gen#472)
+                continue
+            if new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue
             assert scale._has_word(r["title"], new[a["key"]]), (
                 r["product_id"],
@@ -1010,7 +1028,11 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
             if not sku_values:
                 continue
             checked += 1
-            style_values = {v.strip().lower() for v in str(a["value"]).split(",")}
+            style_values = {
+                v.strip().lower()
+                for b in r["attributes"] if b["key"] == a["key"]
+                for v in str(b["value"]).split(",")
+            }
             if style_values != sku_values:
                 wrong.append((r["product_id"], a["key"], a["value"], sorted(sku_values)))
     assert checked >= 240

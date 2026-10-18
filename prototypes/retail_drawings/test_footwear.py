@@ -112,11 +112,11 @@ def test_two_to_six_colors_each_with_one_material_and_family() -> None:
         n = len(d["color_options"])
         assert 2 <= n <= 6, d["product_id"]
         for k in d["skus"]:
-            assert k["upper_material"] in fw.MATERIALS
+            assert k["upper_material"].lower() in fw.MATERIALS
             assert "color_family" not in k
         assert {o["family"] for o in d["color_options"]} <= set(COLOR_FAMILIES)
     mats = {k["upper_material"] for d in DOCS for k in d["skus"]}
-    assert {"leather", "suede", "canvas", "synthetic"} <= mats
+    assert {"Leather", "Suede", "Canvas", "Synthetic"} <= mats
 
 
 def test_closures_and_materials_are_attributes_a_filter_reads() -> None:
