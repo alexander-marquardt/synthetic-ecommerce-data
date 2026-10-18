@@ -688,7 +688,9 @@ def build(skus: int, seed: int = 0) -> Scaled:
     rng = random.Random(seed)
     base = derivable(tpls)
     pools = value_pools(base)
-    owners = {r["brand"]: r["brand_owner"] for r in base if "brand_owner" in r}
+    # Every template, grocery too: a derived style that draws a grocery brand (EXTRA_BRANDS)
+    # keeps that brand's owner, not the third-party default (gen#236).
+    owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
     brands = brand_pools(base)
     plan = _plan(base, rng)
     weights = _department_weights(plan)
