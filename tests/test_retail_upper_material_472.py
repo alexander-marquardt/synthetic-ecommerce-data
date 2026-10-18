@@ -21,6 +21,7 @@ import export  # noqa: E402
 import scale  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
+from test_retail_scale import TARGET  # noqa: E402  (TEMPLATE_SKUS + DERIVED_SKUS)
 
 KEY = "upper_material"
 
@@ -36,11 +37,21 @@ MIXED = {
 
 @pytest.fixture(scope="module")
 def documents() -> list[dict]:
-    """The authored export, then the derived styles of a 60K-SKU build: a derived shoe copies
-    its template's materials, so the derivation is held to the rule too."""
-    built = scale.build(60_000).records[len(scale.templates()) :]
+    """The authored export, then the derived styles of a build sized to the derived range
+    (TARGET = every template SKU plus the derived ones; a smaller build is a prefix of the
+    templates and derives nothing): a derived shoe copies its template's materials, so the
+    derivation is held to the rule too."""
+    built = scale.build(TARGET).records[len(scale.templates()) :]
     derived = [export.standard_document(r) for r in built]
     return [*export.documents(), *derived]
+
+
+def test_the_derived_part_of_the_build_holds_shoes(documents):
+    """A floor, so a build that shrinks back into the templates fails loudly instead of
+    leaving the derived half of the checks above with nothing to check."""
+    authored = {d["product_id"] for d in export.documents()}
+    derived_shoes = [d for d in documents if d["product_id"] not in authored and _style_values(d)]
+    assert len(derived_shoes) >= 30
 
 
 def _style_values(doc: dict) -> list[str]:
