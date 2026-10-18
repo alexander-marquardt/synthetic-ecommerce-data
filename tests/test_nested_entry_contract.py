@@ -384,8 +384,8 @@ ORACLE_UNIT_FOR_SUFFIX = {
 ORACLE_BARE_UNIT_FOR_KEY = {
     "number_of_flutes": "C62",
     "grit": "C62",
-    "package_quantity": "C62",
-    "number_of_pieces": "C62",
+    "units_per_pack": "C62",
+    "piece_count": "C62",
     "max_rpm": "RPM",
     "decimal_equivalent": "INH",
     "thread_pitch": "MMT",

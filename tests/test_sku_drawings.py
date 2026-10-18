@@ -308,7 +308,9 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
         "screw_socket_head": lambda r: fastener.geometry_from_record(r).total_height,
         "screw_flat_head": lambda r: fastener.geometry_from_record(r).total_height,
         "bolt_hex": lambda r: fastener.geometry_from_record(r).total_height,
-        "end_mill_square": lambda r: endmill.geometry_from_record(r).oal.inches,
+        "end_mill_square": lambda r: (
+            endmill.geometry_from_record({**r, "End Mill Style": "Square"}).oal.inches
+        ),  # noqa: E501
         "drill_jobber": lambda r: drill.geometry_from_record(r).oal.inches,
     }[type_key]
     figure_fn, _ = FIGURES[type_key]
@@ -535,9 +537,7 @@ LENS_COLOR = "#ffffff"
 
 def _has_lens(svg: bytes) -> bool:
     return any(
-        e.tag.endswith("circle")
-        and e.attrib.get("fill") == LENS_COLOR
-        and "stroke" not in e.attrib
+        e.tag.endswith("circle") and e.attrib.get("fill") == LENS_COLOR and "stroke" not in e.attrib
         for e in ET.fromstring(svg)
     )
 

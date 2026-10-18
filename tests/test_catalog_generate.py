@@ -180,15 +180,14 @@ def test_the_multivalued_attribute_spans_product_types(catalog):
 def test_unrelated_types_share_only_generic_concepts_in_the_output(stats):
     """A threaded fastener and a striking tool share what the census shares.
 
-    The item name, the measurement-system attribute (one idea under three
-    spellings), the standards, and ``Material`` -- one generic name across
-    types since elastic/prism-industrial-products#103, where it used to be a
-    per-type name. Nothing else.
+    The measurement-system attribute, the standards, and ``Material`` -- one
+    generic name across types since elastic/prism-industrial-products#103,
+    where it used to be a per-type name. Nothing else (the item name repeated
+    the product type and is gone, #497).
     """
     screw = set(stats["attribute_names_by_type"]["screw_socket_head"])
     hammer = set(stats["attribute_names_by_type"]["hammer_ball_pein"])
     allowed = {
-        "Item",
         "Material",
         STANDARDS_NAME,
         *(name for name, _ in MEASUREMENT_SYSTEM_NAMES),
@@ -197,10 +196,10 @@ def test_unrelated_types_share_only_generic_concepts_in_the_output(stats):
     assert "Material" in screw & hammer
 
 
-def test_the_measurement_system_attribute_appears_under_more_than_one_spelling(stats):
+def test_the_measurement_system_attribute_appears_under_one_name(stats):
+    """Three spellings of one fact were merged into one (#497)."""
     names = stats["measurement_system_names"]
-    assert len(names) >= 2, names
-    assert "Dimension Type" in names
+    assert list(names) == ["Measurement System"], names
 
 
 def test_both_the_role_ambiguity_cases_occur(stats):
@@ -401,64 +400,31 @@ def _fastener_types() -> tuple[str, ...]:
     """
     from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
-    return tuple(key for key in VOCAB if {"Length", "Length under Head"} <= set(names_for(key)))
+    return tuple(key for key in VOCAB if {"Length", "Thread Length"} <= set(names_for(key)))
 
 
-def test_every_screw_and_bolt_line_publishes_a_length_under_head(catalog):
-    """On every style but the countersunk one, in both systems, unconditionally.
+def test_no_screw_or_bolt_line_publishes_a_length_under_head_and_each_publishes_length(catalog):
+    """``Length under Head`` was a second name for ``Length`` (#497).
 
-    ``Length`` and ``Thread Length`` were both present before this and neither
-    is the measurement a shopper's "x 3/4" names: thread length is how much of
-    the shank is threaded, and a countersunk screw's length is measured over
-    its head. Binding the token to either would return confidently wrong
-    results rather than an empty set.
+    On every style but the countersunk one the stocked nominal length IS the
+    length under the head, and the countersunk one never published it, so the
+    attribute repeated ``Length`` on every screw that carried it. One concept,
+    one name: ``Length`` is published unconditionally, in both systems, and
+    ``Length under Head`` on none.
     """
     types = _fastener_types()
-    # Socket, button and low head screws and the hex bolt; the flat head is
-    # sold by its length over the head and publishes none (see below).
-    assert len(types) >= 4 and "screw_flat_head" not in types, types
+    assert len(types) >= 4 and "screw_flat_head" in types, types
     seen_systems: dict[str, set[str]] = {}
     for line, child in catalog.all_skus():
         if line.type_key not in types:
             continue
         names = {a.name for a in child.attributes}
-        assert "Length under Head" in names, f"{child.sku} ({line.type_key}) publishes {names}"
-        value = next(a.value for a in child.attributes if a.name == "Length under Head")
+        assert "Length under Head" not in names, f"{child.sku} ({line.type_key}) publishes {names}"
+        assert "Length" in names, f"{child.sku} ({line.type_key}) publishes {names}"
+        value = next(a.value for a in child.attributes if a.name == "Length")
         seen_systems.setdefault(line.type_key, set()).add("mm" if "mm" in value else "in")
     assert set(seen_systems) == set(types), sorted(set(types) - set(seen_systems))
     assert {system for systems in seen_systems.values() for system in systems} == {"in", "mm"}
-
-
-def test_the_length_under_head_is_the_stocked_length_and_a_countersunk_screw_has_none(catalog):
-    """On every style that publishes it, the length under the head IS the
-    stocked nominal length; the countersunk line does not publish it.
-
-    A flat head is sold by its length OVER the head (ISO 10642, ASME B18.3), so
-    its "x 3/4" is its ``Length``. Publishing length-less-head-height for it
-    put values no distributor lists -- 12.56mm, 1.3910" -- in the facet.
-    """
-    from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
-
-    same = flat = 0
-    for line, child in catalog.all_skus():
-        values = {a.name: a.value for a in child.attributes}
-        if line.type_key == "screw_flat_head":
-            assert "Length under Head" not in values, f"{child.sku}: {values}"
-            flat += 1
-            continue
-        if "Length under Head" not in values or "Length" not in values:
-            continue
-        try:
-            length = parse_length(values["Length"]).inches
-            under = parse_length(values["Length under Head"]).inches
-        except DimensionParseError:
-            continue
-        # Tolerant of the last published decimal, and of nothing else: the
-        # unit-mixing defect republishes one dimension of a record in the
-        # other system, so a 20 mm length can appear beside a 0.7874" one.
-        assert under == pytest.approx(length, abs=0.001), f"{child.sku}: {values}"
-        same += 1
-    assert flat > 30 and same > 150, (flat, same)
 
 
 def test_the_catalog_offers_all_four_socket_screw_styles(catalog):

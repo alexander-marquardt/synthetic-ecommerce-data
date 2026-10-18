@@ -210,7 +210,7 @@ def _line_standard(doc: dict) -> str:
 
     A type whose provenance is a sentence declares how to read the standard
     from the record's own attributes. No document field carries it: the
-    ``Meets/Exceeds`` attribute is drawn at a presence of 0.40, so keying on
+    ``Standards`` attribute is drawn at a presence of 0.40, so keying on
     it would leave most lines out of the sweep.
     """
     spec = SPECS.get(doc["product_type"])
