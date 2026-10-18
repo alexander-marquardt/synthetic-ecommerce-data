@@ -11,5 +11,5 @@ MUTANTS = [
     (R + "type_specs/travel_organizer.py", "holds a plug adapter", "holds a universal adapter", "the article reads wrong before universal", [S + "test_every_article_agrees_with_the_word_after_it[built]"]),
     (R + "house_styles.py", "\nimport luggage_brand_styles  # noqa", "\n# import luggage_brand_styles  # noqa", "the luggage brands lose their house styles", [L + "test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own", S + "test_every_brand_in_the_build_has_a_house_style"]),
     (R + "luggage_brand_styles.py", '"bearing",     "badge"', '"trunk",       "badge"', "Skerry Travel shares Tarnwick's mark", [L + "test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own"]),
-    ("golden-retail/stats.json", '"skus": 81145,', '"skus": 81007,', "the figures lack the luggage templates", [S + "test_a_derived_price_is_redrawn_inside_its_leafs_band"]),
+    ("golden-retail/stats.json", '"skus": 3867,\n   "styles": 550', '"skus": 3729,\n   "styles": 506', "the figures lack the luggage templates", ["tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures"]),
 ]
