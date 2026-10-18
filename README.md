@@ -549,7 +549,7 @@ differently (`core/voice.py`).
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
-  (`Each`, or `Per Pack` when the record publishes a `Package Quantity` above 1) and
+  (`Each`, or `Per Pack` when the record publishes a `Units per Pack` above 1) and
   `order_multiple` (1: a pack is ordered whole). They are not variants and not facets. The second
   variant axis (a sparse set of packs per size, a SKU and an image for each existing pair) is the
   rest of gen#14 and is not built yet.
