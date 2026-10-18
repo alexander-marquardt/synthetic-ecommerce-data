@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+import kit_suits  # noqa: F401 -- registers suit_jacket, which the check suit jacket is drawn as
 from class_model import (
     BED_SIZE_DIMS,
     INSIDE_LEGS,
@@ -247,8 +248,9 @@ BOMBER = (
     (Style("SUITCK", "Check Suit Jacket", "Calderby & Lune", "Clothing",
            (*COATS, "Blazers"), 80.0,
            "A single breasted check suit jacket, the check jacket that matches our trousers.",
-           "Suit Jacket", "coat", one(cw("Grey Check", "#9a9a9a", "gingham", BLACK), 650),
-           pattern="check", size_range="regular"), _TYPE),
+           "Suit Jacket", "suit_jacket", one(cw("Grey Check", "#9a9a9a", "gingham", BLACK), 650),
+           pattern="check", size_range="regular",
+           params=(("fit", "regular"), ("lapel", "notch"), ("buttons", "2"))), _TYPE),
     (Style("CARCHK", "Checked Car Coat", "Bramblewood", "Clothing",
            (*COATS, "Coats"), 99.0,
            "A checked car coat, jacket length, with a contrast collar.",
