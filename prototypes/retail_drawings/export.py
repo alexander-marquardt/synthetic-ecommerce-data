@@ -146,6 +146,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "weight_kg": ("weight", "Weight", "KGM"),
     # A body mist's fragrance, beside its size (beauty_depth.py, gen#214).
     "fragrance": ("fragrance", "Fragrance", None),
+    # A sun cream's protection factor, beside its size (type_specs/sun_cream.py, gen#214).
+    "spf": ("spf", "SPF", None),
     # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.
     "length_m": ("item_length", "Item length", "MTR"),
     # The second increment (sports_rows.py, gen#368): a block's height (item_height) and a strap's,
@@ -395,7 +397,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         ]
     blend = facet_leaves.fibre_content(attributes, rec["product_type"])
     added, replaced = facet_leaves.leaf_facets(rec, attributes)
-    if replaced:
+    if replaced or added:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
