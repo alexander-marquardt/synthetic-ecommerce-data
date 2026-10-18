@@ -4,7 +4,7 @@ On the combined demo with interpretation off, "lemons" must not return food alon
 believable retail product (gen#444) of a department other than Food & Drink whose title carries
 the exact plural of a fresh fruit or vegetable for one of two real reasons:
 
-- **brand**: the plural is the label shown on the product, as a colour word can be (Red Plover,
+- **brand**: the plural is the label shown on the product, as a color word can be (Red Plover,
   gen#312): "Lucky Lemons Kids' Pyjamas" is a plain pair of pyjamas with ``brand: Lucky Lemons``
   and no lemon on them. The brands are invented (:data:`BRANDS`).
 - **scent**: the product is scented with the fruit, and its ``fragrance`` attribute says so: a

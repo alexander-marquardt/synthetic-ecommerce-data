@@ -20,7 +20,7 @@ def m_clover(c: str) -> list[str]:
 
 
 def m_spiral(c: str) -> list[str]:
-    """A ring with a dot at its centre."""
+    """A ring with a dot at its center."""
     return [_ring(0.0, 0.0, 0.8, 0.12, c), _dot(0.0, 0.0, 0.25, c)]
 
 

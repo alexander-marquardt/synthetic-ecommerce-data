@@ -129,7 +129,7 @@ follow-up asked that `lemons`, `oranges` and `limes` show at least two non-food 
 first twelve (`decoy_plural_nonfood_rows.py`, 16 class 9 rows). A row is one of two things a shopper
 meets: a **brand** shown on the product ("Lucky Lemons Kids' Pyjamas", "Going Bananas Kids'
 Pyjamas", "Couch Potatoes Kids' Sweatshirt"; the five brands are invented and the products carry
-no fruit motif, as with the colour-word brands of gen#312) or a **scent** (a `fragrance` attribute
+no fruit motif, as with the color-word brands of gen#312) or a **scent** (a `fragrance` attribute
 that names the fruit: "Sicilian Lemons Hand Wash, 250ml", "Oranges and Cloves Scented Candle",
 "Limes and Sea Salt Air Freshener"). `lemons` has three such rows, `oranges` and `limes` two,
 every other plural one. `tests/test_grocery_plural_nonfood_decoys_445.py` holds the count, that a
