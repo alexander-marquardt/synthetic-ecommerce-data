@@ -494,7 +494,13 @@ shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list.
 `fibre_content`, a detail in no facet (`facet_leaves.FABRIC_MOVES`, gen#187; no `composition`). A blend names fibres:
 "Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258); the tailored shorts' "Polyester Blend" is Suiting by their text, a move keyed by (product type, value) in `facet_leaves.TYPED_FABRIC_MOVES` (gen#291). A fabric has one name (Faux Leather, not also Leather-Look or Leather Look), and a use, a pocket style or a fit is never a
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
-cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
+cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. The list also holds the fibres a
+shopper types before a garment (Leather, Suede, Faux Suede, Wool, Cashmere, Crochet, Muslin, Voile,
+Brushed Cotton; gen#187's coverage review): skirts carry the first seven, and a Mens or knitwear row that
+states only a `material` ("Wool blend", "Wool Cashmere blend", "Brushed Cotton") also carries the fibre it
+names (`facet_leaves.MATERIAL_FABRICS`, exact rows, the `material` kept). Homeware keeps its own `material`
+facet (Seagrass, Bone China, Melamine, Stainless Steel, Cast Iron). A skirt that only names a fibre in a
+trim, a lining or a belt is a text-match decoy for it (gen#294). Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
 title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
 under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,
