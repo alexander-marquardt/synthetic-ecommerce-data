@@ -357,7 +357,7 @@ industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
 written only by a domain that models one (industrial). Industrial also writes two
 plain fields on every SKU (gen#14), `pricing_unit` (`Each`, or `Per Pack` when the SKU
-publishes a `Package Quantity` above 1) and `order_multiple` (a whole number, 1 today):
+publishes a `Units per Pack` above 1) and `order_multiple` (a whole number, 1 today):
 they are fields beside `price_usd`, never variants or facets. A field marked optional
 (`series`, `ingredients`, `description`, `price_usd`, `stock`, `pricing_unit`,
 `order_multiple`) is absent, never null,
