@@ -86,9 +86,9 @@ SPEC = TypeSpec(
     product_type="Card Game",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "black card game", "generic", _ROWS[0], 20, "Black Dene Card Game",
-                  "From the Black Dene range, named after a wooded valley; the box is red.",
-                  color=RED),
+        toy_decoy(6, "kite", "generic", _ROWS[0], 20, "Kite Field Card Game",
+                  "From the Kite Field range, named after a windy meadow; it is a game of cards "
+                  "and does not fly.", color=RED),
         toy_decoy(6, "marble run", "generic", _ROWS[1], 21, "Marble Run Dene Card Game",
                   "From the Marble Run Dene range, named after a valley of round stones; it is "
                   "a game of cards.", color=GREEN),

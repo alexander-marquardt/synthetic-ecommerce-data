@@ -187,6 +187,16 @@ fields:
     type: numeric
     source: stock
     facet: false
+  # How the shown price is quoted ("Each", "Per Pack") and the multiple a SKU is
+  # ordered in (gen#14): plain published fields on every SKU, not variants.
+  - name: pricing_unit
+    type: terms
+    source: pricing_unit
+    facet: false
+  - name: order_multiple
+    type: numeric
+    source: order_multiple
+    facet: false
 
   # --- attribute inventory --------------------------------------------------
   # Which attribute NAMES a document publishes, as a facet-free keyword list.
@@ -571,8 +581,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 28 distinct values over 5502 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 10020 documents across 77 product type(s); 28 distinct values
+  # Material -- 29 distinct values over 5502 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 10020 documents across 77 product type(s); 29 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -678,7 +688,7 @@ fields:
     type: terms
     source: facets.point_type
   # Rockwell Hardness -- present on 42% of its product types' documents (floor 50%)
-  #   present on 811 documents across 6 product type(s); 5 distinct values
+  #   present on 811 documents across 6 product type(s); 6 distinct values
   - name: rockwell_hardness
     type: terms
     source: facets.rockwell_hardness

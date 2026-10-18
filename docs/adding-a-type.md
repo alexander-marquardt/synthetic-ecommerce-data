@@ -543,8 +543,10 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread, #66; the kit
-  p90/p10, #76). A figure a reason quotes is read from `PINNED_FIGURES` in
+  side (the wheel brand spread at 100K, #66; the kit
+  p90/p10, #76). A size a pin records `None` for is one the row lands in
+  band on: the pin holds there while the row stays in band (the wheel brand
+  spread on the default build, #272). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that
   states the cause, such as what the wheel's brand tiers alone give, is held
   by a test that measures it
@@ -727,6 +729,22 @@ scripts/merge_pr.sh --local-ci <PR number>         # same, CI run here (default 
 
 `uv run python scripts/mutation_check.py --only "type seam:"` plants a defect
 in each of these hooks and refusals and checks that the named test goes red.
+
+## Minting ids for a second domain (#128)
+
+A domain mints product ids and SKUs through `core/ids.py`, not through a
+generator method. It builds one `IdMinter(prefix, type_key, block)` per type
+(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
+once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
+prefix another domain holds.
+
+A prefix is empty or one or two capital letters. The industrial domain's is
+empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not
+change. A prefixed SKU is the prefix and the ten-digit part number
+(`R4127046271`); a prefixed product id is the prefix, a hyphen, then the usual
+id (`R-ABC-S1-1234-0007`). Industrial SKUs are all digits and industrial brand
+codes are three letters, so no prefixed id equals an industrial one.
 
 ## What is still shared
 

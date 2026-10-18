@@ -77,9 +77,9 @@ SPEC = TypeSpec(
     product_type="Marble Run",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "white marble run", "generic", _ROWS[0], 24, "White Marsh Marble Run",
-                  "From the White Marsh range, named after a wet field; the tracks are "
-                  "green.", color=GREEN),
+        toy_decoy(6, "card game", "generic", _ROWS[0], 24, "Card Game Row Marble Run",
+                  "From the Card Game Row range, named after a terrace of cottages; it is a "
+                  "marble run, not a game of cards.", color=GREEN),
         toy_decoy(6, "dolls house", "generic", _ROWS[1], 25, "Dolls House Lane Marble Run",
                   "From the Dolls House Lane range, named after a row of cottages; it is a "
                   "marble run.", color=PINK),
