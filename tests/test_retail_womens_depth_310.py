@@ -12,6 +12,7 @@ type below is planned there, and ``test_retail_apparel_decoys_311.py`` pins thre
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -46,11 +47,13 @@ FLOORS = {
 }
 #: The groups whose floor is also met without the text-match decoys: the ranking needs real
 #: products to choose between.
-REAL_FLOORS = {"dresses": 180, "blouses and shirts": 75, "coats and jackets": 60, "skirts": 70}
-#: leaf -> the floor of its own: the dress shapes the issue names, and the new top leaves.
+REAL_FLOORS = {"dresses": 180, "blouses and shirts": 75, "coats and jackets": 70, "skirts": 70}
+#: leaf -> the floor of its own, counted over products that are not text-match decoys (a decoy is
+#: no answer to "womens puffer jacket"): the dress shapes the issue names, the coats and the new
+#: top leaves.
 LEAF_FLOORS = {
     D + ("Midi Dresses",): 20, D + ("Maxi Dresses",): 20, D + ("Mini Dresses",): 12,
-    D + ("Wrap Dresses",): 20, D + ("Shirt Dresses",): 20, D + ("Tea Dresses",): 20,
+    D + ("Wrap Dresses",): 18, D + ("Shirt Dresses",): 18, D + ("Tea Dresses",): 12,
     D + ("Jumper Dresses",): 10, D + ("Slip Dresses",): 10, D + ("Shift Dresses",): 10,
     D + ("Bodycon Dresses",): 10, D + ("Occasion Dresses",): 10,
     ("Womens", "Coats & Jackets", "Wool Coats"): 8,
@@ -96,8 +99,10 @@ def test_every_group_meets_a_floor_without_its_decoys(templates, group):
 
 @pytest.mark.parametrize("leaf", LEAF_FLOORS, ids=lambda p: " > ".join(p[1:]))
 def test_every_named_leaf_has_its_own_floor(templates, leaf):
-    n = len({r["product_id"] for r in templates if tuple(r["category_path"]) == leaf})
-    assert n >= LEAF_FLOORS[leaf], f"{' > '.join(leaf)}: {n} products, floor {LEAF_FLOORS[leaf]}"
+    n = len({r["product_id"] for r in templates
+             if tuple(r["category_path"]) == leaf and not _decoy(r)})
+    name = " > ".join(leaf)
+    assert n >= LEAF_FLOORS[leaf], f"{name}: {n} products besides decoys, floor {LEAF_FLOORS[leaf]}"
 
 
 @pytest.mark.parametrize("leaf", NECKLINE_LEAVES, ids=lambda p: " > ".join(p[1:]))
@@ -147,3 +152,80 @@ def test_the_new_rows_are_left_out_of_the_derivation(templates):
     assert ids
     derived = {r["product_id"] for r in scale.derivable(templates)}
     assert not ids & derived
+
+
+def _new_rows(templates) -> list[dict]:
+    import womens_depth_rows
+
+    ids = womens_depth_rows.product_ids()
+    return [r for r in templates if r["product_id"] in ids]
+
+
+def _attr(rec: dict, key: str) -> str:
+    return next((a["value"] for a in rec["attributes"] if a["key"] == key), "")
+
+
+#: The Womens `fit` values before this slice: the facet gains none (Belted, Straight and Tailored
+#: are features or cuts a title names, not fit values).
+FITS = {"Boxy", "Classic", "Fitted", "Oversized", "Regular", "Relaxed", "Slim"}
+
+
+def test_a_title_reads_as_a_shop_writes_it(templates):
+    """No "Fitted Fit", no "Belted Fit", no neckline word "Collar" in front of a sleeve."""
+    pattern = re.compile(r"\b(?:Fitted|Belted|Straight|Tailored) Fit\b|\bCollar (?:\w+ )*Sleeve")
+    bad = [r["title"] for r in _new_rows(templates) if pattern.search(r["title"])]
+    assert not bad, bad[:3]
+
+
+def test_the_new_rows_add_no_value_to_the_fit_facet(templates):
+    assert {_attr(r, "fit") for r in _new_rows(templates)} <= FITS
+
+
+def test_the_waist_phrase_follows_the_shape_of_the_dress(templates):
+    """A fitted waist only on a Fitted dress; a shift hangs straight and says so."""
+    dresses = [r for r in _new_rows(templates) if r["category_path"][1] == "Dresses"]
+    assert dresses
+    for r in dresses:
+        shaped = r["category_leaf"] in {"Shift Dresses", "Bodycon Dresses"}
+        said = "fitted waist" in r["description"]
+        assert said == (_attr(r, "fit") == "Fitted" and not shaped), (r["title"], r["description"])
+    for r in dresses:
+        if r["category_leaf"] == "Shift Dresses":
+            assert "straight shape" in r["description"], r["description"]
+
+
+STRETCH_FABRICS = ("jersey", "modal", "stretch", "ribbed", "scuba", "knit", "ponte", "rib")
+
+
+def test_the_stretch_phrase_follows_the_fabric(templates):
+    """Only a fabric that stretches is called stretchy: not georgette, silk blend, lace, linen."""
+    for r in _new_rows(templates):
+        if "stretch" in r["description"].lower():
+            fabric = (_attr(r, "material") or _attr(r, "fabric")).lower()
+            assert any(w in fabric for w in STRETCH_FABRICS), (r["title"], r["description"])
+
+
+CLOSURE = {"A-Line": "side zip", "Pleated": "elastic waist", "Pencil": "back zip",
+           "Wrap": "tie waist", "Tiered": "elastic waist"}
+WAIST_TYPE = {"A-Line": "Zip", "Pleated": "Elastic", "Pencil": "Zip", "Wrap": "Tie",
+              "Tiered": "Elastic"}
+
+
+def test_a_skirt_closes_the_way_its_kind_does(templates):
+    """A wrap ties and has no zip; every new skirt states its waist type and lining."""
+    skirts = [r for r in _new_rows(templates) if r["category_path"][1] == "Skirts"]
+    assert len(skirts) >= 50
+    for r in skirts:
+        shape = _attr(r, "skirt_shape")
+        assert CLOSURE[shape] in r["description"], (r["title"], r["description"])
+        assert _attr(r, "waist_type") == WAIST_TYPE[shape], r["title"]
+        assert _attr(r, "lining"), r["title"]
+        assert " shape and a " not in r["description"], r["description"]
+        if shape == "Wrap":
+            assert "zip" not in r["description"].lower(), r["description"]
+
+
+def test_a_feature_of_a_coat_is_in_its_title_and_its_description(templates):
+    belted = [r for r in _new_rows(templates) if "Belted" in r["title"]]
+    assert belted
+    assert all("belt" in r["description"] for r in belted)
