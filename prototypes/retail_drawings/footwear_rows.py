@@ -245,7 +245,7 @@ class FootwearStyle:
                     if width != self.widths[0] and self.wide and s not in self.wide:
                         continue
                     uk, eu, us = chart[s]
-                    row = {"color": color[0], "upper_material": material}
+                    row = {"color": color[0], "upper_material": material.title()}
                     row |= {"size": s} if self.kind == "slipper" else {}
                     row |= {"size_uk": uk, "size_eu": eu, "size_us": us, "width": width,
                             "price": self._price(s),
@@ -265,7 +265,9 @@ class FootwearStyle:
         materials = list(dict.fromkeys(m for _, _, m in self.colors))
         attrs = [
             attr("closure", "Closure", self.closure),
-            attr("upper_material", "Upper material", ", ".join(materials)),
+            # One entry per material, Title Case: a facet lists each as a value of its own
+            # (gen#472), as the SKUs' own ``upper_material`` does.
+            *(attr("upper_material", "Upper material", m.title()) for m in materials),
             attr("sole", "Sole", self.sole),
             attr("toe", "Toe", self.toe),
             # MMT is UN/CEFACT's millimetre.

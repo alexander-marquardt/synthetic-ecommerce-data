@@ -39,7 +39,7 @@ query it targets and the policy that repairs it. A decoy's structured fields are
 | 3 audience word | a sibling cut | "Mens Women's-Style Cut Jumper" |
 | 4 feature absent | a feature named and missing | "Womens Alpaca-Feel Jumper" has no alpaca |
 | 5 shade in the description | a fancy title, the shade in the text | "Womens Moonbeam Jumper" is Ivory |
-| 6 incidental word | a range name in a short title | "Womens Red Tarn Jumper" is not red |
+| 6 incidental word | a range name in a short title, a place that starts with a product word, never a color (#446) | "Womens Kettle Hill Jumper" is not a kettle |
 | 7 invented brand | a brand holding a color or category word | "White Heron", "Red Kite", "Cardigan Finch" |
 
 The three class 7 brands each have a house style with its own mark and a full lockup whose text
