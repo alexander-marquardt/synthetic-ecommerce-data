@@ -1031,7 +1031,7 @@ TABLE = (*TABLE, *_GIFTS)
 #: A "cream" that is the product, not a shade, on the knitwear page (gen#309): the category
 #: policy (Jumpers) and the department policy (Cleaning & Janitorial) drop it.
 _KNIT = (
-    _d(87, "knit_care", "Jumper and Knitwear Softening Cream",
+    _d(494, "knit_care", "Jumper and Knitwear Softening Cream",
        "A light white cream that softens jumpers, cardigans and other knitwear after washing.",
        "White", "cream jumper", "jumper", _CAT, cross=True),
 )  # fmt: skip
@@ -1168,10 +1168,10 @@ def _h(n, kind, seed, title, desc, color, policy, **kw) -> Row:
 
 _SEEDS = (
     # -- duvet cover: a bag to keep one in, a mesh bag to wash one in
-    _h(87, "carrier", "duvet cover", "Duvet Cover Storage Bag",
+    _h(495, "carrier", "duvet cover", "Duvet Cover Storage Bag",
        "A zip bag that keeps a spare duvet cover clean and dust free on the wardrobe shelf.",
        "Grey", _CAT),
-    _h(88, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",
+    _h(496, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",
        "A large zipped mesh bag that protects a duvet cover in the washing machine.", "White",
        _CAT),
     # -- bed frame: the valance that hides the space under one, a cushion that props against one
