@@ -9,7 +9,7 @@ from synthetic_ecommerce_data.domains.industrial.generate import UNIT_SPLIT_KEYS
 
 
 def test_dowel_pins_publish_both_units_under_one_label_and_key():
-    """#497 merged ``Dowel Dia. (in)`` and ``(mm)`` into one concept: one key, one name, a unit per entry."""
+    """#497 merged ``Dowel Dia. (in)`` and ``(mm)``: one key, one name, a unit per entry."""
     units: dict[tuple[str, str], set[str]] = {}
     for line in type_gates.default_records("dowel_pins"):
         for a in json.loads(line)["attributes"]:

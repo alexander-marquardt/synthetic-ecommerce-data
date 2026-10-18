@@ -260,7 +260,10 @@ def test_no_title_label_is_truncated(stats):
 
 def test_attributes_per_record_is_close_to_the_measured_mean(stats):
     row = next(c for c in stats["comparisons"] if c.name == "attributes per record (mean)")
-    assert 11.5 <= row.achieved <= 14.5, row
+    # The floor was 11.5 before #497 removed the attributes that repeat the product
+    # type or another attribute (Item, Lock Type, Insert Material, ...): about one
+    # and a half per record.
+    assert 10.0 <= row.achieved <= 14.5, row
 
 
 def test_turning_the_defect_rate_off_produces_a_clean_catalog():

@@ -122,9 +122,7 @@ def test_a_standard_is_published_once_per_product(products):
     repeated = [
         product["product_id"]
         for product in products
-        for values in [
-            [e["value"] for e in product["attributes"] if e["key"] == "standards"]
-        ]
+        for values in [[e["value"] for e in product["attributes"] if e["key"] == "standards"]]
         if len(values) != len(set(values))
     ]
     assert repeated == []

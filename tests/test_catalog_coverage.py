@@ -393,13 +393,14 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
 def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> None:
     """All four attribute-value pairs on ONE record, not four counts.
 
-        hex head cap screw: 7/16-14, 1-3/4" length under head,
+        hex head cap screw: 7/16-14, 1-3/4" length,
         grade 8 steel, zinc finish
 
     A parametric query ANDs its terms, so a catalog carrying 116 Grade 8
     records and 547 Zinc Plated ones answers nothing unless some record
-    carries both -- beside the thread size, beside a length under head, on a
-    hex head. The length is asserted as "publishes one at all" rather than as
+    carries both -- beside the thread size, beside a length, on a
+    hex head (``Length under Head`` is not published: it repeated ``Length``, #497).
+    The length is asserted as "publishes one at all" rather than as
     1-3/4" exactly, because which lengths a line stocks is a property of the
     line; that the four attributes CO-OCCUR is the property this checks.
     """
@@ -410,11 +411,11 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
         and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
         and "Zinc Plated" in doc["facets"].get("finish", [])
-        and doc["facets"].get("length_under_head")
+        and doc["facets"].get("length")
         and "Hex" in doc["facets"].get("head_type", [])
     ]
     assert answers, (
-        "no record carries 7/16-14, Grade 8, Zinc Plated and a length under head "
+        "no record carries 7/16-14, Grade 8, Zinc Plated and a length "
         "together on a hex head, so the reference distributor's parametric example resolves to "
         "an empty set however good the rewriting is"
     )
