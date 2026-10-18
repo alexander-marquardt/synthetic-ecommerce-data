@@ -241,12 +241,11 @@ def test_one_sprocket_publishes_exactly_its_row(large_docs):
     published = {a["name"]: a["value"] for a in doc["attributes"]}
     # A line may or may not state its finish, its standard and its measurement
     # system (the product's one draw, gen#63).
-    for sparse in ("Finish", "Standards", "Dimension Type"):
+    for sparse in ("Finish", "Standards", "Measurement System"):
         published.pop(sparse, None)
     assert published == {
-        "Item": "Roller Chain Sprocket",
         "Material": "Steel",
-        "Package Quantity": "1",
+        "Units per Pack": "1",
         "Outside Dia.": "2.6520",
         "Pitch": "1/2",
         "Bore Dia.": "3/4",

@@ -32,6 +32,7 @@ from synthetic_ecommerce_data.domains.industrial import (
 from synthetic_ecommerce_data.domains.industrial.drafts import (
     MAX_MISSES,
     LineDraft,
+    RetiredAttribute,
     _weighted,
 )
 from synthetic_ecommerce_data.domains.industrial.taxonomy import drawing_for, image_id_for
@@ -54,16 +55,32 @@ class FinishMixin:
 
     def _apply_sparsity(self, type_key: str, attrs: list[Attribute], scope: str) -> list[Attribute]:
         """Drop optional attributes at their measured presence rate."""
+        return self._sparsify(type_key, attrs, scope)[0]
+
+    def _sparsify(
+        self, type_key: str, attrs: list[Attribute], scope: str
+    ) -> tuple[list[Attribute], list[Attribute]]:
+        """The published attributes, and the retired ones whose draw kept them.
+
+        A retired attribute (#497) takes the draw its published self took, so no
+        later draw moves, and is never published; the second list holds those
+        the draw would have kept, which the "already made" check still counts.
+        """
         rates = {spec.name: spec for spec in VOCAB[type_key] if spec.scope == scope}
         kept: list[Attribute] = []
+        ghosts: list[Attribute] = []
         for attribute in attrs:
+            if isinstance(attribute, RetiredAttribute):
+                if self.rng.random() <= self.config.scaled_presence(attribute.presence):
+                    ghosts.append(attribute)
+                continue
             spec = rates.get(attribute.name)
             if spec is None:
                 kept.append(attribute)
                 continue
             if self.rng.random() <= self.config.scaled_presence(spec.presence):
                 kept.append(attribute)
-        return kept
+        return kept, ghosts
 
     def _standards_attribute(self, type_key: str, draft: LineDraft) -> Attribute | None:
         """The standards this LINE conforms to, from :mod:`.conformance`'s
@@ -228,7 +245,11 @@ class FinishMixin:
         )
 
     def _differs_only_by_a_drop(
-        self, type_key: str, brand: str, published: list[Attribute]
+        self,
+        type_key: str,
+        brand: str,
+        published: list[Attribute],
+        retired_always: frozenset[str] = frozenset(),
     ) -> bool:
         """Whether a published spec is a subset or superset of one already made.
 
@@ -244,7 +265,7 @@ class FinishMixin:
             for a in published
             if a.name not in self.NOT_SUBSTANCE
         )
-        always = self._always_published(type_key)
+        always = self._always_published(type_key) | retired_always
         bucket = (type_key, brand, tuple(sorted(x for x in spec if x[0] in always)))
         made = self._published_specs.setdefault(bucket, [])
         if any(spec <= other or other <= spec for other in made):
@@ -254,10 +275,24 @@ class FinishMixin:
 
     def _finish_line(self, type_key: str, draft: LineDraft, index: int) -> ProductLine | None:
         rng = self.rng
-        line_attrs = self._apply_sparsity(type_key, draft.line_attrs, "line")
+        line_attrs, line_ghosts = self._sparsify(type_key, draft.line_attrs, "line")
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
         standards_attr = self._standards_attribute(type_key, draft)
+        # A builder may state the standard its own table is (a socket screw's
+        # ASME B18.3): that is the SAME attribute as the conformance draw, so
+        # the two are one list of distinct values, never two entries (#497).
+        stated = [a for a in line_attrs if a.name == STANDARDS_NAME]
+        if stated:
+            line_attrs = [a for a in line_attrs if a.name != STANDARDS_NAME]
+            union = list(
+                dict.fromkeys(
+                    v
+                    for a in (*stated, *([standards_attr] if standards_attr else []))
+                    for v in (a.values or (a.value,))
+                )
+            )
+            standards_attr = multi_attribute(STANDARDS_NAME, tuple(union))
         if standards_attr is not None:
             line_attrs = [*line_attrs, standards_attr]
 
@@ -268,9 +303,7 @@ class FinishMixin:
 
         # The product id is built before the SKUs, because every SKU's image
         # id names it: one drawing per SKU, filed under its product.
-        product_id = self.minter.product_id(
-            brands.BY_NAME[draft.brand].code, draft.series, index
-        )
+        product_id = self.minter.product_id(brands.BY_NAME[draft.brand].code, draft.series, index)
 
         # Composed first, for every SKU, because whether a title needs the
         # thing that differs is a question about the LINE and cannot be
@@ -281,18 +314,18 @@ class FinishMixin:
         if len({c.system for c in draft.children}) > 1:
             raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
         for child in draft.children:
-            attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
+            attrs, sku_ghosts = self._sparsify(type_key, list(child.attrs), "sku")
             if not attrs and not child.zero_axis:
                 continue
-            attrs = self._inject_defects(child, attrs)
+            attrs = self._inject_defects(
+                child, attrs, tuple(a for a in child.attrs if isinstance(a, RetiredAttribute))
+            )
             # The measurement system is the PRODUCT's (gen#63): the first SKU's draw
             # decides whether it is published, its value and whether it contradicts
             # the units, and every SKU of the line carries that one attribute. The
             # later SKUs still take their draws (uncounted), so no other value in
             # the build moves.
-            drawn = self._measurement_system(
-                child.system, system_name, count=line_system is None
-            )
+            drawn = self._measurement_system(child.system, system_name, count=line_system is None)
             line_system = line_system or (drawn,)
             (system_attr, _) = line_system[0]
             if system_attr is not None and not child.zero_axis:
@@ -308,8 +341,14 @@ class FinishMixin:
                 *([system_attr] if system_attr is not None else []),
             ]
             key = self._spec_key(type_key, draft.brand, unsparsified)
+            # What #497 retired still tells two specs apart while its draw kept
+            # it, as it did when it was published (see :class:`.RetiredAttribute`).
+            retired = [*line_ghosts, *sku_ghosts]
             if key in self._drawn_specs or self._differs_only_by_a_drop(
-                type_key, draft.brand, [*line_attrs, *attrs]
+                type_key,
+                draft.brand,
+                [*line_attrs, *attrs, *retired],
+                frozenset(a.name for a in retired if a.always),
             ):
                 self._bump("spec_already_drawn")
                 continue
@@ -381,7 +420,7 @@ class FinishMixin:
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
                     noise=noise_text,
-                    pricing_unit=pricing_unit_for(values.get("Package Quantity")),
+                    pricing_unit=pricing_unit_for(values.get("Units per Pack")),
                 )
             )
             self._bump("skus")
@@ -439,7 +478,14 @@ class FinishMixin:
         seed = self.config.seed
         always = self._always_published(type_key)
         group_u = price.group_draw(
-            seed, type_key, brand, (a for a in line_attributes if a.name in always)
+            seed,
+            type_key,
+            brand,
+            (
+                a
+                for a in line_attributes
+                if a.name in always or (isinstance(a, RetiredAttribute) and a.always)
+            ),
         )
         size_u = price.size_draw(seed, type_key, key, material)
         return price.Draw(model, struct, group_u, sku_u, price.ending_draw(seed, sku), size_u)
