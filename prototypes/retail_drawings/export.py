@@ -123,6 +123,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "recline": ("recline", "Recline", None),
     # How a tracksuit is sold: the set or either piece (lowerbody_rows.py, gen#206).
     "sold_as": ("sold_as", "Sold as", None),
+    # A swimsuit's cup, beside its size (type_specs/swimsuit.py, gen#212).
+    "cup_size": ("cup_size", "Cup size", None),
     "units_per_pack": ("units_per_pack", "Units per pack", "C62"),
     "net_weight_g": ("net_weight", "Net weight", "GRM"),
     "net_volume_ml": ("net_volume", "Net volume", "MLT"),
