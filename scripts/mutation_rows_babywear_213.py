@@ -166,4 +166,22 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a babywear type carries compound-word decoys",
         _R,
     ),
+    (
+        "the waterproof mat decoy denies its title again",
+        "type_specs/changing_mat.py",
+        '"A quilted cotton mat that folds flat, with a zip pouch lined to be waterproof for "\n              "damp wipes and spare clothes."',
+        '"A quilted cotton mat that is not waterproof: wipe it with a damp cloth only."',
+        f'{_T} -k "never_denied_by_its_own_description and changing_mat"',
+        "a decoy's description does not deny its title's claim",
+        _R,
+    ),
+    (
+        "the cot bed blanket decoy denies its title again",
+        "type_specs/baby_blanket.py",
+        '"A pram size fleece blanket printed with a small cot bed pattern."',
+        '"A pram size fleece blanket; it is for a pram, not a cot bed."',
+        f'{_T} -k "never_denied_by_its_own_description and baby_blanket"',
+        "a decoy's description does not deny its title's claim",
+        _R,
+    ),
 ]
