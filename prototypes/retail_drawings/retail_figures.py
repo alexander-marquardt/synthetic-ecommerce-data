@@ -10,7 +10,9 @@ re-measured by hand. The industrial catalog solved this in #115 (``figures`` in
 ``python3 prototypes/retail_drawings/retail_figures.py`` rebuilds the file (seed 0, every
 template exhausted). ``tests/test_retail_figures_162.py`` rebuilds it too and compares,
 so a total that moves reds there naming that command, and refuses a test or doc that
-restates one. A test reads a total with :func:`committed`.
+restates one. A test reads a total with :func:`committed`. A PR never commits the file
+(gen#373): CI rewrites it before the tests (``scripts/roll_stats.py``) and
+``scripts/merge_pr.sh`` commits it when the PR merges.
 
 What stays in a test is an invariant, not a total: no twins in a family, every allergen
 derived from the ingredients, and a cap such as ``CEILING_NEAR_DUPLICATES``.

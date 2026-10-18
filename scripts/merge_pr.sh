@@ -28,7 +28,9 @@
 #      golden-retail/stats.json, gen#343), and commits only GENERATED. A file
 #      still conflicted, or any other change in the tree, is refused. uv runs
 #      --locked, so a stale uv.lock is refused rather than re-locked into the
-#      commit.
+#      commit. The commit carries "Rolled-By: scripts/merge_pr.sh" (ROLLED_BY): a
+#      feature PR never commits the two stats.json files (gen#373), this commit
+#      does, and the stats-roll job (scripts/check_no_stats_edit.py) lets only it by.
 #   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
 #      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
@@ -120,6 +122,11 @@ FRESHNESS_TESTS=(
   tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed
 )
 
+#: The trailer on every commit this script makes of rebuilt files. It is what lets the
+#: stats-roll job (scripts/check_no_stats_edit.py, gen#373) tell the release step's
+#: golden-retail/stats.json and golden-catalog/stats.json from a PR's hand edit.
+ROLLED_BY="Rolled-By: scripts/merge_pr.sh"
+
 #: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
 #: is the one retail_figures.py names as REBUILD, which tests/test_merge_pr.py
 #: pins. The retail build is the slower half, about 40 s.
@@ -130,7 +137,7 @@ RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 #: stands for every ``<name> (...)``). A pull request's commit must carry each
 #: REQUIRED_CI check, green; a SKIPPED_BY_DESIGN_CI check (a push-only job) may
 #: also be skipped. Pinned to the workflow by tests/test_merge_pr.py.
-REQUIRED_CI=(lint tests commit-messages file-size red-commit-proof customer-name-check)
+REQUIRED_CI=(lint tests commit-messages file-size red-commit-proof customer-name-check stats-roll)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree)
 
 die() {
@@ -293,10 +300,10 @@ $stray"
 }
 stage_generated
 if [ -n "$conflicted" ]; then
-  git -C "$work" commit -q -m "Merge $base_ref into $head_ref before merging #$pr; generated files rebuilt"
+  git -C "$work" commit -q -m "Merge $base_ref into $head_ref before merging #$pr; generated files rebuilt" -m "$ROLLED_BY"
   echo "2. the merge commit holds the rebuilt generated files"
 elif ! git -C "$work" diff --cached --quiet; then
-  git -C "$work" commit -q -m "Rebuild golden-catalog on the merge of $base_ref into $head_ref (#$pr)"
+  git -C "$work" commit -q -m "Rebuild golden-catalog on the merge of $base_ref into $head_ref (#$pr)" -m "$ROLLED_BY"
   echo "2. the rebuild changed: $(git -C "$work" show --stat --format= HEAD | tail -1)"
 else
   echo "2. the rebuild changed nothing"
@@ -477,7 +484,7 @@ run_local_ci_regenerating() {
   if git -C "$work" diff --cached --quiet; then
     die "a golden freshness test is red but a rebuild changes nothing (a nondeterministic generator, or the test is red for another reason); NOT merged"
   fi
-  git -C "$work" commit -q -m "regenerate golden on main"
+  git -C "$work" commit -q -m "regenerate golden on main" -m "$ROLLED_BY"
   final_sha=$(git -C "$work" rev-parse HEAD)
   echo "5a. regenerated the golden files on the merged tree: $(git -C "$work" show --stat --format= HEAD | tail -1)"
   $run_ci ||

@@ -197,6 +197,20 @@ resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
 checkout) but not the network. When a real merge's build fails on a dropped
 lookup, the script says "the build failed on the network" apart from the build
 refusing the tree; rerun it.
+
+**What a feature PR commits, and what it never commits (gen#373).** A PR commits its
+sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
+(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, the mappings). It never commits
+`golden-retail/stats.json` or `golden-catalog/stats.json`: those two are build output that moves
+with every type or grocery PR, and 16 of the 21 open PRs on 2026-10-18 edited the first, so each
+merge conflicted the rest. CI rewrites both from the PR's own build before the tests read them
+(`scripts/roll_stats.py`; run it yourself, `uv run python scripts/roll_stats.py`, to see your
+figures), `scripts/merge_pr.sh` is the release step that commits the rebuilt files when the PR
+merges (its commit carries `Rolled-By: scripts/merge_pr.sh`), and the `stats-roll` job
+(`scripts/check_no_stats_edit.py`) refuses a PR that edits either file, naming
+`git checkout <base> -- <file>` to put it back. After `ecom-generate build --out golden-catalog`
+or `retail_figures.py`, put the two files back before you commit.
+
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and

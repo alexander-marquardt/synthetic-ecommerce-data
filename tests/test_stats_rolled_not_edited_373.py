@@ -127,6 +127,21 @@ def test_an_edit_that_a_later_commit_takes_back_is_no_edit(repo: Path) -> None:
     assert done.returncode == 0, done.stdout + done.stderr
 
 
+def test_a_main_that_moved_on_its_own_stats_is_not_the_prs_edit(repo: Path) -> None:
+    """The range is ``base...head``: main rolled the stats after the PR branched."""
+    _git(repo, "switch", "-q", "main")
+    _edit(repo, f"Rebuild\n\n{TRAILER}", RETAIL)
+    _git(repo, "switch", "-q", "feature")
+    _edit(repo, "feat: a type", "golden-catalog/flat.jsonl")
+    done = subprocess.run(
+        [sys.executable, str(SCRIPTS / "check_no_stats_edit.py"), "--root", str(repo),
+         "--base", "main", "--head", "feature"],
+        capture_output=True,
+        text=True,
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
 def test_a_tip_commit_with_the_release_trailer_passes(repo: Path) -> None:
     _edit(repo, "feat: a type", RETAIL)
     _edit(repo, f"Rebuild golden-catalog on the merge\n\n{TRAILER}", CATALOG)
@@ -175,6 +190,32 @@ def test_roll_writes_both_files_through_the_two_builders(tmp_path: Path) -> None
 def test_roll_refuses_a_builder_that_leaves_a_rolled_file_unwritten(tmp_path: Path) -> None:
     with pytest.raises(SystemExit):
         roll_stats.roll(tmp_path, retail=lambda root: None, catalog=lambda root: None)
+
+
+def _fake_root(tmp_path: Path, body: str) -> Path:
+    script = tmp_path / "prototypes" / "retail_drawings" / "retail_figures.py"
+    script.parent.mkdir(parents=True)
+    script.write_text(body, encoding="utf-8")
+    return tmp_path
+
+
+def test_the_retail_builder_runs_the_roots_own_measurement(tmp_path: Path) -> None:
+    root = _fake_root(
+        tmp_path,
+        "from pathlib import Path\n"
+        "out = Path(__file__).resolve().parents[2] / 'golden-retail' / 'stats.json'\n"
+        "out.parent.mkdir(exist_ok=True)\n"
+        "out.write_text('{}')\n",
+    )
+    roll_stats.build_retail(root)
+    assert (root / RETAIL).read_text(encoding="utf-8") == "{}"
+
+
+def test_a_failing_retail_measurement_is_refused_with_its_output(tmp_path: Path) -> None:
+    root = _fake_root(tmp_path, "import sys\nprint('boom')\nsys.exit(3)\n")
+    with pytest.raises(SystemExit) as refused:
+        roll_stats.build_retail(root)
+    assert "boom" in str(refused.value)
 
 
 def test_the_cli_lists_the_files_it_rolls() -> None:
