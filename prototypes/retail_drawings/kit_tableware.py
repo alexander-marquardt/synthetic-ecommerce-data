@@ -506,6 +506,15 @@ def drinking_glass(
                 0.75,
             ),
         ]
+    if kind == "carafe":  # a wine carafe: a wide base, a narrow neck and a flared lip (gen#449)
+        body = "M122,330 Q104,252 156,200 L176,128 L168,66 L232,66 L224,128 L244,200 Q296,252 278,330 Z"
+        return [
+            _shadow(cx, 340, 90),
+            _path(body, paint, extra=glaze),
+            _ellipse(cx, 66, 32, 6, rim_tint, LW_DETAIL),
+            _line("M150,262 Q200,276 250,262", 1.2, ' stroke-opacity=".5"'),
+            _highlight("M146,250 Q150,226 172,208", 6, 0.75),
+        ]
     w, base, height = TUMBLERS.get(kind, TUMBLERS["tumbler"])
     bottom = 330.0
     top = bottom - height

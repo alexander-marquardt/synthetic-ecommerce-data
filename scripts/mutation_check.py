@@ -27,9 +27,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
+import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their own file)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
+import mutation_rows_brand_owner_236  # noqa: E402  (gen#236 rows, kept in their own file)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
@@ -48,6 +50,7 @@ import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their ow
 import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
 import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
 import mutation_rows_text_agrees  # noqa: E402  (gen#139 rows, kept in their own file)
+import mutation_rows_truthful_449  # noqa: E402  (gen#449 rows, kept in their own file)
 import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -4198,6 +4201,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
     ),
     *(
+        Mutation(f"brand owner: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_brand_owner_236.ROWS
+    ),
+    *(
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
@@ -4208,10 +4216,18 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, tests, prop in mutation_rows_footwear_216.ROWS
     ),
     *(
+        Mutation(f"truthful decoys: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_truthful_449.ROWS
+    ),
+    *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
     ),
+    # ---- retail: one attribute key per concept (gen#227); the rows are in their own file ----
+    *(Mutation(f"attribute keys: {r[0]}", *r[1:5], "", r[5], root=r[6])
+      for r in mutation_rows_attribute_keys.ROWS),
     *(
         Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
         for n, o, w, t, pr in mutation_rows_audit_order.ROWS
