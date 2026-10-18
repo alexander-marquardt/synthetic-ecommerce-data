@@ -60,7 +60,7 @@ def test_its_words_say_cream_and_jumper_and_its_fields_say_a_home_care_product(
         assert {"cream", "jumper"} <= words, doc["title"]
         assert doc["category_path"][:2] == ["Home", "Laundry"], doc["category_path"]
         assert "Jumpers" not in doc["category_path"]
-        colours = {a["value"].lower() for a in doc["attributes"] if a["key"] == "color"}
+        colours = {c["color"].lower() for c in doc["color_options"]}
         assert colours and not colours & SHADES, colours
         assert doc["category_leaf"] == doc["category_path"][-1]
 

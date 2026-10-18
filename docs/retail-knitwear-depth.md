@@ -44,3 +44,8 @@ query it targets and the policy that repairs it. A decoy's structured fields are
 
 The three class 7 brands each have a house style with its own mark and a full lockup whose text
 is the brand name; the garment is drawn in its true color.
+
+The decoys outside clothing that the knitwear queries meet are other rows: "jumper dress" under
+Dresses (`decoy_apparel`, class 2), jump leads in Home > DIY & Car, and a knitwear care cream in
+Home > Laundry > Fabric Care for "cream jumper" (both in `decoy_product_words.py`, class 8; see
+`docs/retail-product-word-decoys.md`).

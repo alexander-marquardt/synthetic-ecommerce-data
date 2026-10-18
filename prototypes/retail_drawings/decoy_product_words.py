@@ -120,6 +120,14 @@ NEW_KINDS = {
     "wash_bag": Kind(
         "Home", ("Home", "Laundry", "Wash Bags"), "Wash Bags", "mesh_bag", "Brackenmere Home", 4.0
     ),
+    "knit_care": Kind(
+        "Home",
+        ("Home", "Laundry", "Fabric Care"),
+        "Fabric Care",
+        "tin",
+        "Calderby & Lune",
+        6.0,
+    ),
     "case": Kind(
         "Clothing",
         ("Womens", "Accessories", "Travel", "Travel Cases"),
@@ -972,6 +980,15 @@ _GIFTS = (
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
 
+#: A "cream" that is the product, not a shade, on the knitwear page (gen#309): the category
+#: policy (Jumpers) and the department policy (Home) drop it.
+_KNIT = (
+    _d(87, "knit_care", "Jumper and Knitwear Care Cream",
+       "A light white cream that softens and freshens jumpers, cardigans and other knitwear "
+       "after washing.", "White", "cream jumper", "jumper", _CAT, cross=True),
+)  # fmt: skip
+TABLE = (*TABLE, *_KNIT)
+
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
     "polish": (
@@ -1033,6 +1050,11 @@ _F = {
         ("Mesh Wash Bag, Large", "White", "A large white mesh wash bag."),
         ("Delicates Wash Bag", "Grey", "A grey bag for delicates."),
         ("Zipped Wash Bags, Pack of 3", "White", "Three zipped wash bags."),
+    ),
+    "knit_care": (
+        ("Wool and Cashmere Wash, 500ml", "Blue", "A gentle blue wash for wool and cashmere."),
+        ("Delicates Wash Concentrate", "Pink", "A pink wash for delicates, 500ml."),
+        ("Knitwear Conditioning Balm", "White", "A white balm that keeps knitwear soft."),
     ),
     "case": (
         ("Cosmetic Travel Case", "Pink", "A pink zipped cosmetic case."),
