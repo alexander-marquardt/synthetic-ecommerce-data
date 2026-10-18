@@ -20,6 +20,12 @@ only when this page does not cover what you need.
    * `derivable=True` lets the scaled build draw more styles from the rows (a breadth type);
      False keeps them as templates only;
    * a brand no module states yet goes in `owners=(("Brand", "own"),)`;
+   * a SKU quantity the type varies by (a length in metres) goes in `options=(Option("size_key",
+     "id", "Name", "UNIT"),)`: the SKU field, the entry's key and name, and its unit code or
+     none (gen#413). `type_registry.option_table` merges every spec's options with
+     `export.SHARED_OPTIONS`; a key with two names, or an option declared two ways, fails
+     `tests/test_retail_type_options_413.py` and stops the build. Two specs may declare one
+     option alike, and one key may carry two units (`item_length` in cm or m);
    * a hand-authored text-match decoy (gen#294) is a `Decoy(class 1-7, query, policy, row)` in
      `decoys=`; it is never derived and never takes a color completion;
      the output standard's text check leaves a class 1 to 7 decoy out by itself:
@@ -85,7 +91,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `prototypes/retail_drawings/type_specs/<key>.py` | The spec: the rows, the brands' owners, the in-department decoys. Start from a copy of the worked example; the file name is the key. |
 | `prototypes/retail_drawings/kit_garden.py` | The drawing function and its place in `SHAPES`, for a Garden type; the same job as the next row for another department (`kit_home.py`, `kit_toys.py`, `kit_household.py`). |
 | `prototypes/retail_drawings/kit_sports.py` | The same job for a Sports & Outdoors type; also exports the helpers (`_ell`, `_rect`, `_label`) the garden kit imports. A department with no kit file gets a new `kit_<department>.py`. |
-| `prototypes/retail_drawings/export.py` | `OPTIONS`: one line `size_key -> (id, name, unit code)`, only when the type's SKU axis is a new quantity (a length in metres); an existing key (`item_height`, `item_length`) is reused. |
+| `prototypes/retail_drawings/export.py` | Read only: `SHARED_OPTIONS` holds the options the types not yet moved into spec files share. A new SKU quantity is declared by the spec (`options=(Option("size_key", "id", "Name", "UNIT"),)`), and a key already in the table is reused. |
 | `prototypes/retail_drawings/main_color_hex.py` | Read only: the six main colors (gen#275) every color-bearing type offers across its styles, as plain swatches. |
 | `prototypes/retail_drawings/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
 | `prototypes/retail_drawings/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
@@ -121,7 +127,7 @@ module and feeds the scaled build; nothing is added to the legacy list.
    `prototypes/retail_drawings` on `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"),
    params={...})`, write the SVG to a file and `rsvg-convert -o shape.png shape.svg`.
 2. **Write the rows** in the spec: each style is a `Row` of colors times a SKU axis (`sizes`, or
-   the measured `size_key` axis with its unit in `export.OPTIONS`). The six main colors are spread
+   the measured `size_key` axis with its unit in the spec's `options=`). The six main colors are spread
    across the styles (every type has red, blue, green, yellow, black and white somewhere, gen#275;
    `tests/test_retail_main_colors_275.py` fails the type that lacks one). The `path` nests under
    the generic category (gen#283). `derivable=False` unless the scaled build should invent styles.
