@@ -1,7 +1,7 @@
 """A shoe's ``upper_material`` is one Title Case entry per material (gen#472).
 
 The style used to carry ONE attribute, ``leather, suede, patent``: a facet listed that string as a
-value, so a shopper who filtered on Leather did not find the ballet shoe with a leather colour, and
+value, so a shopper who filtered on Leather did not find the ballet shoe with a leather color, and
 the value was lowercase beside the Title Case values of every other key. Each material is now its
 own entry, in the style's attributes and on its SKUs alike.
 """
