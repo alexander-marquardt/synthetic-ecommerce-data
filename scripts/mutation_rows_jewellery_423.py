@@ -67,4 +67,12 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         f'{_T} -k "text_match_decoys and Digital"',
         "each decoy carries its type's word",
     ),
+    (
+        "a text-only rank still multiplies by popularity",
+        "baseline_rank.py",
+        "(popularity(index.catalog[i]) if popular else 1.0)",
+        "popularity(index.catalog[i])",
+        f'{_T} -k "ranks_its_type_first and silver"',
+        "a query-shape test ranks by text score alone, so a seeded sales draw cannot move it",
+    ),
 ]
