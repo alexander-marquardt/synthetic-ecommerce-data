@@ -317,9 +317,15 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                     _TRUE[(kk + i + 1) % 6], b, f"{b} {low}")  # fmt: skip
                 # 3: an audience word that names a sibling cut.
                 a = _AUDIENCE[root][i]
-                add(3, i, f"{root} {a} {noun}",
-                    f"A {root.lower().rstrip('s')}'s {low} in the {a.lower()}, sold in {root.lower().rstrip('s')}'s sizes.",
-                    _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
+                who = root.lower().rstrip("s")
+                if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
+                    add(3, i, f"{root} Mini-Me {noun}, Kids' Version Sold Separately",
+                        f"A {who}'s {low} with a matching kids' version, sold in {who}'s sizes.",
+                        _TRUE[(kk + i + 2) % 6], "Mini-Me", f"mini-me {low}")  # fmt: skip
+                else:
+                    add(3, i, f"{root} {a} {noun}",
+                        f"A {who}'s {low} in the {a.lower()}, sold in {who}'s sizes.",
+                        _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
                 # 4: a material or feature named, and absent.
                 f = _ABSENT[ptype][i]
                 add(4, i, f"{root} {f} {noun}",
