@@ -38,6 +38,21 @@ description, and is fixed by the department policy (the paper row sits in Gifts,
 policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory cards and gift cards
 (the issue's other "card" examples) need a type this build lacks and are not planted; gen#437 files them.
 
+**Seed queries (gen#461).** A two-word seed ("duvet cover", "lemon drizzle cake") needs every term in the
+Best tier (cross_fields, minimum_should_match 100%), so a decoy with a bare noun never meets it. Each of
+nine seeds (duvet cover, mattress topper, bed frame, tea towels, lipstick, foundation, lemon drizzle cake,
+gift hamper, olive tree) now has at least two decoy products among its first twelve hits with policies off:
+a real product of its own type whose title holds the whole phrase (Duvet Cover Storage Bag, Bed Frame Valance,
+Tea Towel Hook Rail, Lipstick Plant, Foundation Remover Face Cloth, Lemon Drizzle Cake Candle, Empty Gift
+Hamper Basket, Olive Tree Hand Wash). Every decoy is a product of a type the catalogue already has: a new
+type is a spec file (gen#351), never a decoy row. A row sets `seed=` (the table's noun column shows the seed), names no color
+word, and is fixed by the `category` or `department` policy, whichever separates it from the seed's own
+node. Mattress topper needs no new row: the mattress protectors of gen#155 already fill its first twelve.
+The olive tree gets a product of its own (Olive Tree in Terracotta Pot, Garden / Plants / Olive Trees),
+and the dinosaur toys (`SEED_TOYS`, ordinary products titled "Dinosaur ..." first) meet "dinosaur" before
+the graphic tees. The guard is
+`tests/test_retail_seed_decoys_461.py`, which measures the first twelve on the prototype's ranking.
+
 | Query | Noun | Product id | Title | True type | Fixing policy |
 |---|---|---|---|---|---|
 | red dress | dress | PLT-DY01 | Dress for Success, Red Laces | Brogues | category |
@@ -125,3 +140,20 @@ policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory card
 | money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
 | hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
 | hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
+| duvet cover | duvet cover | PLT-DY87 | Duvet Cover Storage Bag | Garment Bags | category |
+| duvet cover | duvet cover | PLT-DY88 | Duvet Cover Mesh Wash Bag | Wash Bags | category |
+| bed frame | bed frame | PLT-DY89 | Bed Frame Valance | Valances | category |
+| bed frame | bed frame | PLT-DY90 | Bed Frame Headboard Cushion | Cushion | category |
+| tea towels | tea towels | PLT-DY91 | Tea Towel Hook Rail | Wall Hooks | category |
+| tea towels | tea towels | PLT-DY92 | Tea Towel Hanger, 4 Pack | Hanger | category |
+| lipstick | lipstick | PLT-DY93 | Lipstick Make-Up Bag, Mini Zip | Make-Up Bag | category |
+| lipstick | lipstick | PLT-DY94 | Lipstick Plant, Trailing | Plant | department |
+| foundation | foundation | PLT-DY95 | Foundation Remover Face Cloth | Towel | category |
+| foundation | foundation | PLT-DY96 | Foundation Brush Make-Up Bag | Make-Up Bag | category |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY97 | Lemon Drizzle Cake Candle | Scented Candle | department |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY98 | Lemon Drizzle Cake Flavour Tea | Tea | department |
+| lemon drizzle cake | lemon drizzle cake | PLT-DY99 | Lemon Drizzle Cake Hand Wash | Hand Wash | department |
+| gift hamper | gift hamper | PLT-DY100 | Empty Gift Hamper Basket, Wicker | Storage Basket | department |
+| gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
+| olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
+| olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
