@@ -119,7 +119,7 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
                     standards_present += 1
                     values = attribute.values or (attribute.value,)
                     standards_values += len(values)
-                    if len(values) > 1:
+                    if len(set(values)) > 1:  # distinct values: a repeat is not multi-valued
                         standards_multi += 1
 
             # -- the attribute-role ambiguity rate
@@ -210,9 +210,7 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         if not any(a.name == STANDARDS_NAME for a in line.attributes):
             continue
         pair_parents += 1
-        pairs = Counter(
-            (a.name, v) for a in line.attributes for v in (a.values or (a.value,))
-        )
+        pairs = Counter((a.name, v) for a in line.attributes for v in (a.values or (a.value,)))
         if any(n > 1 for n in pairs.values()):
             pair_repeated += 1
 

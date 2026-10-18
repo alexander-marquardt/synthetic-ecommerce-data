@@ -1493,6 +1493,7 @@ than asserted.
 | an angle attribute carrying a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
 | unit mixing within one record | 0.0222 | 0.0166 |
+| a parent repeating a (name, value) pair, over parents carrying `Standards` | 0.0085 | 0.0082 |
 | title dimension token carries no label | 0.4667 | 0.4648 |
 | title dimension token is not the primary dimension | 0.1714 | 0.1179 |
 | title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
@@ -1502,6 +1503,18 @@ than asserted.
 
 Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
+
+The repeated-pair row is the shape the `reverse_nested` trap needs (#1): a
+repeated attribute NAME with distinct values (`Standards = [ISO, DIN]`) makes
+every bucket agree with or without `reverse_nested`, while the same value twice
+on one parent (`Standards = [ISO, ISO]`) over-reports it. The multi-valued
+`Standards` stays; on 27 of the 3,307 golden parents that carry it, one value
+is published twice (`parent repeats a (name, value) pair` in `stats.json`).
+The target, `GeneratorConfig.defect_repeated_pair`, is set so the share of ALL
+parents (about 0.43%) matches the 87 in 20,000 documents measured on a live
+retail catalog. It is a defect class, so `--defects 0.0` removes it and
+`--defects N` scales it; the draw has its own stream per product, so changing
+it moves no other value in the catalog.
 
 Two notes on reading that table honestly. The angle row is **deliberately zero**:
 the corpus measures 0.0469, and the generator declines to write a length under an
