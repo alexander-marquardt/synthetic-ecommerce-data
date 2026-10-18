@@ -89,7 +89,7 @@ ceiling build (no finding).
 `prototypes/retail_drawings/decoy_rows.py` holds `TABLE`: one row per planted product, with its
 class (1 color names a part, 2 type names an accessory or a toy, 3 audience names a sibling
 version, 4 a color word that is also a product or a shade, 5 guard, 7 the word is only an
-ingredient, 9 the fresh plural is named in the title) and the query it targets. The proof and the table below read that table, so no count
+ingredient, 9 the fresh plural is named in the title, 10 the phrase is an ingredient of another food) and the query it targets. The proof and the table below read that table, so no count
 is kept by hand. Each decoy keeps its own color, category path and audience; only the title and
 description carry the misleading word. Titles are short and sales and reviews above typical. The
 ids are left out of `scale.derivable()` and out of the color completion of `main_colors`, so a
@@ -126,7 +126,7 @@ ranks first) runs on a loaded catalogue and is the coordinator's after the next 
 
 Queries covered by rows: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer
 jacket (with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold
-top and red wine; guard rows for green tea, black pepper, red velvet cake and pink lady apples;
+top and red wine (class 10, gen#500: two red wine vinegars, a red wine gravy and a beef in red wine casserole, groceries with no wine attribute); guard rows for green tea, black pepper, red velvet cake and pink lady apples;
 class 7 rows for oranges, lemons, strawberries, coconut and lavender (the word is in the
 `ingredients` and the description, not in the title).
 
@@ -189,6 +189,10 @@ with-persona run, is the ingest batch's check, not this PR's.
 | red wine | 4 color word is also a product or a shade | PLT-DXW02 | Red Wine Scented Candle | decoy |
 | red wine | 2 type names an accessory or a toy | PLT-DXW03 | Red Wine Stain Remover | decoy |
 | red wine | 2 type names an accessory or a toy | PLT-DXW04 | Glass Wine Carafe | decoy |
+| red wine | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DXW05 | Red Wine Vinegar, 500ml | decoy |
+| red wine | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DXW06 | Red Wine Vinegar, 250ml | decoy |
+| red wine | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DXW07 | Red Wine Gravy Granules, 170g | decoy |
+| red wine | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DXW08 | Beef in Red Wine Casserole, 400g | decoy |
 | green tea | 5 guard: a real product whose name holds a color word | PLT-DXU01 | Green Tea, 40 Bags | true hit |
 | black pepper | 5 guard: a real product whose name holds a color word | PLT-DXU02 | Black Pepper, Whole Peppercorns | true hit |
 | red velvet cake | 5 guard: a real product whose name holds a color word | PLT-DXU03 | Red Velvet Cake | true hit |

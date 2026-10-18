@@ -2,20 +2,20 @@
  "ceiling": {
   "derived_styles": 4814,
   "food_and_drink": {
-   "skus": 11981,
-   "styles": 4418
+   "skus": 11985,
+   "styles": 4422
   },
   "grocery": {
    "skus": 12682,
    "styles": 4630
   },
-  "images": 22180,
+  "images": 22184,
   "non_grocery": {
    "skus": 94841,
    "styles": 5892
   },
-  "skus": 149956,
-  "styles": 14781,
+  "skus": 149960,
+  "styles": 14785,
   "top_levels": {
    "Beauty": {
     "skus": 1142,
@@ -26,8 +26,8 @@
     "styles": 491
    },
    "Food & Drink": {
-    "skus": 11981,
-    "styles": 4418
+    "skus": 11985,
+    "styles": 4422
    },
    "Garden": {
     "skus": 601,
@@ -555,8 +555,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 86911,
-   "styles": 9967
+   "skus": 86915,
+   "styles": 9971
   },
   "appliance_rows": {
    "skus": 124,
@@ -568,8 +568,8 @@
   },
   "authored_images": 739,
   "before_grocery": {
-   "skus": 74229,
-   "styles": 5337
+   "skus": 74233,
+   "styles": 5341
   },
   "breadth_rows": {
    "skus": 685,
@@ -592,8 +592,8 @@
    "styles": 154
   },
   "decoy_rows": {
-   "skus": 153,
-   "styles": 108
+   "skus": 157,
+   "styles": 112
   },
   "distractor_rows": {
    "skus": 3684,
@@ -624,8 +624,8 @@
    "styles": 49
   },
   "main_food": {
-   "skus": 174,
-   "styles": 159
+   "skus": 178,
+   "styles": 163
   },
   "mens_depth_rows": {
    "skus": 4825,
