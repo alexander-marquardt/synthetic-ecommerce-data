@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import baseline_rank as br  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel as da  # noqa: E402
 import decoy_rows  # noqa: E402
 import details  # noqa: E402
@@ -196,6 +197,13 @@ def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
 #: retailer (when in doubt it is left out). The generator's table must be a subset of it, and a
 #: new compound is added here only after the same review, never copied across.
 REAL_COMPOUNDS = frozenset({
+    "Skirted Swimsuit", "Tank Swimsuit", "Bralette Bikini Top", "Crop Bikini Top",
+    "Sports Bra Bikini Top", "Skirted Bikini Bottoms", "Boyshort Bikini Bottoms",
+    "Brief Bikini Bottoms", "Skirted Tankini", "Tunic Tankini", "Cami Tankini",
+    "Cargo Swim Shorts", "Chino Swim Shorts", "Tailored Swim Shorts", "Skirted Kids Swimsuit",
+    "Rash Vest Kids Swimsuit", "Skirted Period Swimwear", "Short Period Swimwear",
+    "Brief Period Swimwear", "Kimono Cover-Up", "Shirt Cover-Up", "Tunic Cover-Up",
+    "Dress Cover-Up", "Poncho Changing Robe", "Parka Changing Robe", "Hoodie Changing Robe",
     "Dress Blouse", "Shirt Blouse", "Tunic Blouse",
     "Shirt Bodysuit", "Corset Bodysuit", "Cami Bodysuit", "Bodysuit Top",
     "Shirt Jacket", "Blazer Jacket", "Biker Jacket", "Bomber Jacket", "Dress Jacket",
@@ -488,7 +496,8 @@ def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
 ) -> None:
     """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
     is read with ``in``, the way ``check_catalog`` reads it."""
-    tables = decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()
+    tables = (decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() | decor_rows.decoy_ids()
+              | neckline_rows.decoy_ids())
     assert tables == scale.DECOY_IDS
     real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
     assert len(real) > 5 * len(scale.DECOY_IDS)
