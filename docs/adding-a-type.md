@@ -730,6 +730,22 @@ scripts/merge_pr.sh --local-ci <PR number>         # same, CI run here (default 
 `uv run python scripts/mutation_check.py --only "type seam:"` plants a defect
 in each of these hooks and refusals and checks that the named test goes red.
 
+## Minting ids for a second domain (#128)
+
+A domain mints product ids and SKUs through `core/ids.py`, not through a
+generator method. It builds one `IdMinter(prefix, type_key, block)` per type
+(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
+once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
+prefix another domain holds.
+
+A prefix is empty or one or two capital letters. The industrial domain's is
+empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not
+change. A prefixed SKU is the prefix and the ten-digit part number
+(`R4127046271`); a prefixed product id is the prefix, a hyphen, then the usual
+id (`R-ABC-S1-1234-0007`). Industrial SKUs are all digits and industrial brand
+codes are three letters, so no prefixed id equals an industrial one.
+
 ## What is still shared
 
 **Breadth types can be built in parallel.** Two breadth-type pull requests

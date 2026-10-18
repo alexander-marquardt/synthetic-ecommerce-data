@@ -9,12 +9,13 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _L, _NEUTRAL, _PRIMARY, _TEAM, _W, _a, _axis, _row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="football",
     department="Sports & Outdoors",
     product_type="Football",
+    options=(Option("ball_size", "ball_size", "Ball size", "C62"),),
     rows=(
         _row("FBLCLS", "Classic Panel Football", _W, (*_TEAM, "Footballs"), "Football", 12.0, "football",
              "A machine-stitched football with the classic pentagon panels, for training and park games.",
