@@ -164,6 +164,10 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
     "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
+    # A wallpaper roll's length (type_specs/wallpaper.py, gen#217): the roll is cut and sold in
+    # metres; a clock's dial, a tray's size and a stem's height reuse diameter_cm, length_cm and
+    # height_cm.
+    "roll_length_m": ("roll_length", "Roll length", "MTR"),
 }
 #: The SKU fields that are columns of the variant, not options.
 SKU_COLUMNS = frozenset({"sku", "price", "in_stock", "ingredients"})

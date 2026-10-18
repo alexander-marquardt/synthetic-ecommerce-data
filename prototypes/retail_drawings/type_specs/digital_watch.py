@@ -72,5 +72,9 @@ SPEC = TypeSpec(
               _row("DGWDBS", "Basic Time Watch", HARBOUR, WOMENS, 14.0,
                    "A simple digital watch that shows the time and the date, with no alarm, no timer and no backlight.",
                    (WHITE,), "2")),
+        Decoy(2, "alarm clock", "category",
+              _row("DGWACK", "Digital Watch with Alarm Clock", SKERRY, MENS, 20.0,
+                   "A digital wristwatch with an alarm clock mode that wakes you at a set time, a stopwatch and a silicone strap, worn on the wrist.",
+                   (BLACK,), "2")),
     ),
 )  # fmt: skip
