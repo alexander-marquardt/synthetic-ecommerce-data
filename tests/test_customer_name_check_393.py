@@ -405,15 +405,18 @@ def test_the_ci_job_runs_the_script_on_the_pull_requests_range_and_its_live_text
     run = " ".join(_step()["run"].replace("\\\n", " ").split())
     assert "python3 scripts/check_customer_names.py" in run
     assert (
-        '--range "${{ github.event.pull_request.base.sha }}..'
-        '${{ github.event.pull_request.head.sha }}"'
+        '--range "${{ github.event.pull_request.base.sha || inputs.base }}..'
+        '${{ github.event.pull_request.head.sha || inputs.head }}"'
     ) in run
     assert "--pr " in run
 
 
 def test_the_ci_job_runs_on_pull_requests_with_a_read_only_token() -> None:
     job = _job()
-    assert job["if"] == "github.event_name == 'pull_request'"
+    assert job["if"] == (
+        "github.event_name == 'pull_request' ||"
+        " (github.event_name == 'workflow_dispatch' && inputs.head != '')"
+    )
     assert _step()["env"]["GH_TOKEN"] == "${{ github.token }}"
     assert job["permissions"] == {"contents": "read", "pull-requests": "read"}
 
