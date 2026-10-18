@@ -601,6 +601,7 @@ gen#207; likewise copied by no derived style), then the Sports & Outdoors styles
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
 The ten beauty depth types (mascara to sun cream, gen#214) are specs under `type_specs/` and are not derived from; see [retail-beauty-depth.md](retail-beauty-depth.md).
 Every top, dress and knit states a `neckline`, and boat and slash tops are held in depth with the neighbouring necklines (`neckline_rows.py`, gen#181; none is derived); see [retail-neckline-depth.md](retail-neckline-depth.md).
+The seven luggage and travel types (suitcase to neck pillow, gen#209) are specs under `type_specs/` too, likewise not derived from; see [retail-luggage-209.md](retail-luggage-209.md).
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
 or in its hero color family: a rename alone is not a style. When only the hero
