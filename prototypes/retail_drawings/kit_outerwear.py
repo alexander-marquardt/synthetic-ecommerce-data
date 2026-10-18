@@ -10,7 +10,9 @@ drawing marks, so a test reads it back: the length is stamped on the torso (``he
 one ``belt`` group, a hood one ``hood`` group (``fur`` trim, a ``hood-pack`` roll for a packaway
 hood), each button a ``button`` circle, each pocket a ``pocket`` group, a quilted fill its
 ``channel`` or ``diamond`` stitch lines, a teddy fleece its ``pile`` edge. A shape is painted in
-the record's fill and prints no size.
+the record's fill and prints no size. The collar (``collar-point``, ``collar-stand``), the zip
+(``zip-full``, ``zip-half``, ``zip-through``) and a bolero's sleeve (``sleeve-long`` ...) are
+stamped the way the length is, so a test reads each back.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
@@ -94,11 +96,12 @@ def _hood(paint: str, fill: Fill, fur: bool = False, small: bool = False) -> lis
 
 
 def _collar(paint: str, fill: Fill, kind: str) -> str:
+    """The collar, stamped as a ``collar-stand`` or ``collar-point`` group."""
     if kind == "stand":
         d = "M164,48 L236,48 L238,62 Q200,74 162,62 Z"
-        return _path(d, _shade(fill.base, 0.1), LW_DETAIL)
-    d = "M164,48 L200,86 L236,48 L246,76 L200,108 L154,76 Z"
-    return _path(d, _shade(fill.base, 0.1), LW_DETAIL)
+    else:
+        d = "M164,48 L200,86 L236,48 L246,76 L200,108 L154,76 Z"
+    return _g(f"collar-{kind}", [_path(d, _shade(fill.base, 0.1), LW_DETAIL)])
 
 
 def _lapels(fill: Fill, hem: float, wide: bool = True) -> list[str]:
@@ -277,7 +280,7 @@ def bolero(paint: str, fill: Fill, label: str | None, style: str = "bolero", sle
     if sleeve != "none":
         end = {"long": 316, "three_quarter": 250, "short": 172}[sleeve]
         d = f"M130,72 L92,96 L{92 - 28 * (end - 96) / 232:.0f},{end} L{92 - 28 * (end - 96) / 232 + 34:.0f},{end + 5} L124,150 Z"
-        out += [_g("sleeve", [_path(d, paint)]), _g("sleeve", [_path(_mirror(d), paint)])]
+        out += [_g(f"sleeve sleeve-{sleeve}", [_path(d, paint)]), _g(f"sleeve sleeve-{sleeve}", [_path(_mirror(d), paint)])]
     if style == "shrug":
         body = "M170,52 L230,52 L270,76 Q300,120 270,168 L200,148 L130,168 Q100,120 130,76 Z"
     else:
@@ -303,9 +306,9 @@ def windbreaker(paint: str, fill: Fill, label: str | None, zip: str = "full", ho
     xl, xr = _edge(hem - 14)
     out.append(_line(f"M{xl:.0f},{hem - 14} L{xr:.0f},{hem - 14}", 2.0))
     if zip == "full":
-        out.append(_g("zip", [_line(f"M200,62 L200,{hem}", 2.4), _dot(204, 70, 3, _shade(fill.base, 0.4), "zip-pull")]))
+        out.append(_g("zip zip-full", [_line(f"M200,62 L200,{hem}", 2.4), _dot(204, 70, 3, _shade(fill.base, 0.4), "zip-pull")]))
     else:
-        out.append(_g("zip", [_line("M200,62 L200,150", 2.4), _dot(204, 70, 3, _shade(fill.base, 0.4), "zip-pull")]))
+        out.append(_g("zip zip-half", [_line("M200,62 L200,150", 2.4), _dot(204, 70, 3, _shade(fill.base, 0.4), "zip-pull")]))
         out.append(_g("pocket", [_path("M154,186 L246,186 L252,240 L148,240 Z", _shade(fill.base, 0.08), LW_DETAIL)]))
     return out
 
@@ -324,7 +327,7 @@ def hoodie(paint: str, fill: Fill, label: str | None, zip: str = "pullover") -> 
     out.append(_path(f"M{xl:.0f},{hem - 18} L{xr:.0f},{hem - 18} L{xr:.0f},{hem} L{xl:.0f},{hem} Z", _shade(fill.base, 0.14), LW_DETAIL))
     out += [_line("M186,66 L184,118", 1.8), _line("M214,66 L216,118", 1.8)]
     if zip == "through":
-        out.append(_g("zip", [_line(f"M200,60 L200,{hem - 18}", 2.4), _dot(204, 72, 3, _shade(fill.base, 0.4), "zip-pull")]))
+        out.append(_g("zip zip-through", [_line(f"M200,60 L200,{hem - 18}", 2.4), _dot(204, 72, 3, _shade(fill.base, 0.4), "zip-pull")]))
         out += [_pocket(s, 140, 214, 38, 6, slant=False) for s in (1, -1)]
     else:
         out.append(_g("pocket", [_path("M152,200 L248,200 L256,262 L144,262 Z", _shade(fill.base, 0.08), LW_DETAIL)]))
