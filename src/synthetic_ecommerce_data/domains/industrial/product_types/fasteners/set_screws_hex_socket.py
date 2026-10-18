@@ -190,7 +190,6 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
 
 
 VOCAB = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Point Type", "line"),
     _spec("Drive Type", "line"),
@@ -247,7 +246,6 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", "Set Screw"),
         keyword_attribute("Point Type", point),
         keyword_attribute("Drive Type", "Hex Socket"),

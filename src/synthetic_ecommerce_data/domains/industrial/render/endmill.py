@@ -54,6 +54,7 @@ from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
     UnsupportedFeatureError,
+    drawing_title,
     provenance_note,
     require,
     spec_table,
@@ -165,8 +166,14 @@ class EndMillGeometry:
         return self.helix_lead / 2.0
 
 
+#: The cutting end of each end mill type, for a record that states no ``End Mill Style``
+#: (the attribute repeated the product type and is no longer published, #497).
+STYLE_OF_TYPE = {"end_mill_square": "Square", "end_mill_ball": "Ball Nose"}
+
+
 def _style_of(record: dict) -> str:
-    published = str(require(record, "End Mill Style")).strip().lower()
+    stated = record.get("End Mill Style") or STYLE_OF_TYPE.get(str(record.get("product_type")))
+    published = str(stated if stated else require(record, "End Mill Style")).strip().lower()
     try:
         return END_STYLES[published]
     except KeyError as exc:
@@ -529,12 +536,11 @@ def _render_detail(record: dict, geom: EndMillGeometry, profile: Profile):
         fontsize=cv.FS_SUBLABEL,
     )
 
-    title = f"{record.get('Item', 'End Mill')}"
+    title = drawing_title(record, "End Mill")
     fig.text(0.04, 0.955, title, fontsize=cv.FS_TITLE, fontweight="bold", color=cv.INK)
     fig.text(0.04, 0.925, str(record.get("sku", "")), fontsize=cv.FS_SPEC, color=cv.MUTED)
 
     specs = [
-        ("End Mill Style", record.get("End Mill Style", "")),
         ("Milling Dia.", geom.cut_d.display()),
         ("Shank Dia.", geom.shank_d.display()),
         ("Length of Cut", geom.loc.display()),

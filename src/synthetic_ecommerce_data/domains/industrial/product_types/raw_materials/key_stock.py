@@ -78,7 +78,6 @@ STRIDE = 5
 OFFSET = 3
 
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Fit", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line"),
@@ -109,7 +108,6 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     )
     style = gen._style("in")
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
         keyword_attribute("Fit", fit),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),

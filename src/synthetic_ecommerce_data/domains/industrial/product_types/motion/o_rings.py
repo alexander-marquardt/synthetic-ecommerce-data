@@ -91,7 +91,6 @@ PROVENANCE = table_provenance(
 #: ``Width`` is the census's name for a ring's cross-section; ``Dash Number``
 #: and ``Width Tolerance`` are excepted in ``names.NAME_EXCEPTIONS``.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Hardness", "line", 0.9),
     AttrSpec("Size", "sku", kind="length"),
@@ -134,7 +133,6 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
         keyword_attribute("Material", material),
         keyword_attribute("Hardness", hardness),
     ]
