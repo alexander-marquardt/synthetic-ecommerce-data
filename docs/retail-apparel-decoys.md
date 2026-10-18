@@ -251,9 +251,9 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA08502 | Dress | 5 shade spelled in the description only | Dune Dress | beige | beige dress | generic |
 | PLT-DA08600 | Dress | 6 incidental word in a range name | Jumper Lane Dress | jumper | jumper | generic |
 | PLT-DA08601 | Dress | 6 incidental word in a range name | Boot Hill Dress | boot | boot | generic |
-| PLT-DA08602 | Dress | 6 incidental word in a range name | Pump Lane Dress | pump | pump | generic |
+| PLT-DA08602 | Dress | 6 incidental word in a range name | Sandal Wood Dress | sandal | sandal | generic |
 | PLT-DA08700 | Dress | 7 invented brand holding a color or category word | Red Plover Dress | red | red dress | generic |
-| PLT-DA08701 | Dress | 7 invented brand holding a color or category word | White Dormouse Dress | white | white dress | generic |
+| PLT-DA08701 | Dress | 7 invented brand holding a color or category word | Yellow Wagtail Dress | yellow | yellow dress | generic |
 | PLT-DA08702 | Dress | 7 invented brand holding a color or category word | Blue Otter Dress | blue | blue dress | generic |
 | PLT-DA09100 | Joggers | 1 color names a part | Regular Joggers with Red Cuffs | red | red joggers | generic |
 | PLT-DA09101 | Joggers | 1 color names a part | Oversized Joggers with Blue Cuffs | blue | blue joggers | generic |
