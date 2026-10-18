@@ -168,7 +168,7 @@ def _dresses() -> list[LRow]:
             rows.append(_row(f"NK{ni}D{n:02d}", title, _BRANDS[(n + ni + 1) % 4], ("Womens", "Dresses", f"{length} Dresses"),
                              "Dress", "dress", desc, nk, price=round(26.0 + 3.0 * ((k + ni) % 9), 2),
                              params=(("neckline", nk.draw),),
-                             attrs=(("material", "Material", {"Broderie": "Cotton", "Linen Blend": "Linen blend"}.get(fab, fab)),
+                             attrs=(("material", "Material", {"Linen Blend": "Linen blend"}.get(fab, fab)),
                                     ("length", "Length", length))))  # fmt: skip
     return rows
 
