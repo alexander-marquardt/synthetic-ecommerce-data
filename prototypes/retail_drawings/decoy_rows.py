@@ -34,6 +34,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import fruit_word_brand_styles  # noqa: F401 -- registers the five house styles
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
 from decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
