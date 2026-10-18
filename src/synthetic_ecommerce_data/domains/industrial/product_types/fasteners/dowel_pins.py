@@ -192,7 +192,6 @@ DIA_IN = "Dowel Dia. (in)"
 DIA_MM = "Dowel Dia. (mm)"
 
 VOCAB = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
@@ -259,7 +258,6 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", kind),
         keyword_attribute("Material", material),
         *([keyword_attribute("Finish", finish)] if finish else []),

@@ -244,10 +244,7 @@ ITEM = "Nylon Insert Lock Nut"
 #: Generic names, as for the hex nut: ``Type`` for the style (``Nut Style``
 #: is refused by the own-noun rule) and ``Height`` for the height.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Type", "line"),
-    AttrSpec("Lock Type", "line", 0.8),
-    AttrSpec("Insert Material", "line", 0.7),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line", 0.9),
     AttrSpec("Grade", "line", 0.9),
@@ -278,10 +275,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=series.standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
         keyword_attribute("Type", series.style),
-        keyword_attribute("Lock Type", "Nylon Insert"),
-        keyword_attribute("Insert Material", "Nylon"),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),

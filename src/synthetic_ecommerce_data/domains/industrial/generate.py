@@ -414,8 +414,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             ),
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("End Mill Style", style_name),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", coating),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
@@ -567,7 +565,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated from the conventional drill series",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
             Attribute("Point Angle", format_angle(point), point),
@@ -635,8 +632,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         )
         flutes = rng.choice((2, 3))
         draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("Tap Style", "Spiral Point"),
             keyword_attribute("Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
             keyword_attribute("Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
             keyword_attribute("Thread Direction", "Right Hand"),
@@ -765,7 +760,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", style_name),
             keyword_attribute("Type", style_name),
             keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
@@ -938,7 +932,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
             keyword_attribute("Type", "Hex Head"),
             keyword_attribute("Head Type", "Hex"),
             keyword_attribute("Material", BOLT_MATERIAL[grade]),
@@ -1016,7 +1009,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="ISO 7089",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
             keyword_attribute("Type", "Plain"),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", finish),
@@ -1059,7 +1051,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated; no dimensional standard applies",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
             keyword_attribute("Abrasive Material", abrasive),
             keyword_attribute("Backing Material", rng.choice(("Fiberglass", "Plastic"))),
             keyword_attribute("Shape", rng.choice(("Type 27 Flat", "Type 29 Conical"))),

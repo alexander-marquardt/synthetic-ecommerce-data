@@ -14,6 +14,19 @@ from synthetic_ecommerce_data.core.dimensions import DimensionParseError
 from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 
 
+def drawing_title(record: dict, fallback: str) -> str:
+    """What a drawing is headed with: the label of the record's product type.
+
+    The record used to carry an ``Item`` attribute for this; it repeated the product
+    type and is no longer published (#497), so the type's own label heads the drawing.
+    """
+    from synthetic_ecommerce_data.domains.industrial.type_labels import (  # noqa: PLC0415
+        PRODUCT_TYPE_LABELS,
+    )
+
+    return str(PRODUCT_TYPE_LABELS.get(str(record.get("product_type", "")), fallback))
+
+
 class MissingAttributeError(KeyError):
     """The record does not carry an attribute the drawing needs."""
 

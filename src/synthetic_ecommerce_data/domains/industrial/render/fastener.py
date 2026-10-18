@@ -37,6 +37,7 @@ from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
     UnsupportedFeatureError,
+    drawing_title,
     provenance_note,
     require,
     require_any,
@@ -664,7 +665,7 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     fig.text(
         0.04,
         0.955,
-        str(record.get("Type") or record.get("Screw Style") or record.get("Item") or "Cap Screw"),
+        drawing_title(record, "Cap Screw"),
         fontsize=cv.FS_TITLE,
         fontweight="bold",
         color=cv.INK,
@@ -672,7 +673,6 @@ def _render_detail(record: dict, geom: FastenerGeometry, profile: Profile):
     fig.text(0.04, 0.925, str(record.get("sku", "")), fontsize=cv.FS_SPEC, color=cv.MUTED)
 
     specs = [
-        ("Item", record.get("Item", "")),
         ("Dia./Thread Size", geom.thread.designation),
         ("Length", geom.length.display()),
         (

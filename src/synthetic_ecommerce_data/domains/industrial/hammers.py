@@ -184,7 +184,6 @@ def build(kind: HammerKind):
         )
         face_type = kind.faces[0] if len(kind.faces) == 1 else None
         draft.line_attrs = [
-            keyword_attribute("Item", kind.item),
             keyword_attribute("Material", kind.material),
             keyword_attribute("Handle Material", handle),
             keyword_attribute("Handle Grip Material", rng.choice(HAMMER_GRIPS[handle])),

@@ -99,3 +99,6 @@ class LineDraft:
 #: The word a terse title uses for an end mill's end shape, by its
 #: ``End Mill Style``: ``SGL Sq End`` / ``SGL Ball End``.
 END_SHAPE_WORD: dict[str, str] = {"Square": "Sq", "Ball Nose": "Ball"}
+#: The cutting end of each end mill type. ``End Mill Style`` said the same thing and is
+#: no longer published (#497), so the type key decides.
+END_SHAPE_OF_TYPE: dict[str, str] = {"end_mill_square": "Square", "end_mill_ball": "Ball Nose"}

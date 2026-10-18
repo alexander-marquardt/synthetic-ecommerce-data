@@ -142,7 +142,6 @@ OFFERS: tuple[tuple[Offer, float], ...] = (
 ITEM = "Roller Chain"
 
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Style", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line", 0.9),
@@ -184,7 +183,6 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
         keyword_attribute("Style", style_name),
         keyword_attribute("Material", offer.material),
         keyword_attribute("Finish", offer.finish),

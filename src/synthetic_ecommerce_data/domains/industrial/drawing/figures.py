@@ -165,9 +165,11 @@ END_MILL_NOMINAL = {
 }
 
 
-def end_mill(record: Record) -> Drawn:
+def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) -> Drawn:
+    """The end mill figure. ``style`` is the product type's own cutting end, used when the
+    record states none: ``End Mill Style`` repeated the type and is no longer published (#497)."""
     rec = dict(record)
-    rec.setdefault("End Mill Style", END_MILL_NOMINAL["End Mill Style"])
+    rec.setdefault("End Mill Style", style)
     nominal = {**END_MILL_NOMINAL, "End Mill Style": rec["End Mill Style"]}
     geom, source = _read(
         rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal, "Milling Dia."
@@ -559,8 +561,8 @@ def _broken(width: float, height: float) -> Callable[[Record], Drawn]:
 
 
 _FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (end_mill, (3.3, 9.8)),
-    "end_mill_ball": (end_mill, (3.3, 9.8)),
+    "end_mill_square": (lambda record: end_mill(record, "Square"), (3.3, 9.8)),
+    "end_mill_ball": (lambda record: end_mill(record, "Ball Nose"), (3.3, 9.8)),
     "drill_jobber": (drill, (0.52, 8.8)),
     "tap_spiral_point": (tap, (0.52, 4.15)),
     "screw_flat_head": (_broken(3.7, 3.25), (3.7, 3.25)),

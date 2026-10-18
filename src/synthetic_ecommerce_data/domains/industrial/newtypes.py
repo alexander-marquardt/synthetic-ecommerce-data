@@ -308,7 +308,6 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         category=category,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", style_name),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
@@ -576,7 +575,6 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", "Deep Groove"),
         keyword_attribute("Bearing Number", number),
         # The bearing series (60/62/63, or R for the inch series). It shares a
@@ -659,7 +657,6 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", shape),
         length_attribute("Wheel Dia.", gen._publish(dia, style)),
         length_attribute("Thickness", gen._publish(thickness, style)),
@@ -728,7 +725,6 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
         keyword_attribute("Type", "L-Key"),
         keyword_attribute("Tip Style", "Ball End" if ball else "Hex End"),
         keyword_attribute("Material", material),
@@ -919,7 +915,6 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         # ONE item name for every kit, the kind in ``Type``: four kit names
         # would take ``Item`` past the 25-value facet cap, and ``Item`` is a
         # policy target a shopper must be able to see and reverse.
-        keyword_attribute("Item", "Assortment Kit"),
         keyword_attribute("Type", kit.item),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),

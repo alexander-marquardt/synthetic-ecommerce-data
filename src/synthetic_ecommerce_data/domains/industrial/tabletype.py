@@ -194,7 +194,6 @@ def _make(table: TableType) -> Callable[..., Any]:
             standard=table.standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", table.item),
             keyword_attribute("Material", variant.material),
             keyword_attribute("Finish", variant.finish),
             numeric_attribute(PACK, str(pack), float(pack)),
@@ -233,7 +232,6 @@ def spec(table: TableType) -> TypeSpec:
         category=table.category,
         standards_family=table.standards_family,
         vocab=(
-            AttrSpec(name="Item", scope="line", presence=1.0, kind="keyword"),
             AttrSpec(name="Material", scope="line", presence=1.0, kind="keyword"),
             AttrSpec(name="Finish", scope="line", presence=0.85, kind="keyword"),
             AttrSpec(name=PACK, scope="line", presence=1.0, kind="count"),
