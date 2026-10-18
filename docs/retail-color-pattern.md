@@ -12,7 +12,7 @@ documents split them:
 | Light Wash, Mid Wash, Bleach Wash, Rinse | Blue (denim) | the wash: `light wash`, `mid wash`, `bleach wash`, `rinse` |
 | Grey Wash | Grey | `grey wash` |
 | Washed Black | Black | `washed` |
-| Mid Wash / Yellow | Blue / Yellow | `mid wash` |
+| Mid Wash and Yellow | Blue and Yellow | `mid wash` |
 | Navy, Dark Red, 2N | unchanged | none |
 
 A `pattern` value is lower case (`export.VALUE_CASE`, gen#255), so the table above shows the value
