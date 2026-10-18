@@ -521,8 +521,8 @@ title names a more specific node of its own department sits in that node. Two si
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
-is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
-or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
+is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep,
+Post-Surgery or Mastectomy bra, whose node stays; its old style leaf is split into `bra_shape`,
 `padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`). `fabric` is the fibre or weave a
 shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list. A grade or blend
 ("98% Cotton, 2% Elastane") leaves its fibre as the fabric and becomes the document's
