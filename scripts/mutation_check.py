@@ -3442,7 +3442,7 @@ MUTATIONS: list[Mutation] = [
                 "core/price.py",
                 "PIN_TOLERANCE = 0.02",
                 "PIN_TOLERANCE = 0.5",
-                "a_pin_whose_shortfall_worsens",
+                "a_pin_five_percent_further_out",
                 "a pin may not worsen",
             ),
             (
@@ -3506,10 +3506,26 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
-                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (None, 1.75),",
+                "    _WHEEL_SPREAD_ROW: (None, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
+            ),
+            (
+                "a pin recorded None holds a build out of band",
+                "domains/industrial/price_report.py",
+                "    if recorded is None:\n        return row.within",
+                "    if recorded is None:\n        return True",
+                "a_pin_may_land_no_further_out",
+                "a build the pin records None for stays in band",
+            ),
+            (
+                "the wheel's brand noise is the per-brand 0.70 and its size noise none",
+                "core/price.py",
+                "            0.190,\n            0.139,\n            size_sigma=0.736,",
+                "            0.702,\n            0.306,\n            size_sigma=0.0,",
+                "wheel_brand_spread_lands_in_band",
+                "the wheel brand spread is in band on the default build",
             ),
             (
                 "a pin reads its default figure at 100K",
@@ -3547,8 +3563,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin quotes a tier figure no build measures",
                 "core/price.py",
-                "the brand tiers alone give 1.49 on the default",
-                "the brand tiers alone give 1.39 on the default",
+                "brand tiers alone give 1.86 at 100K",
+                "brand tiers alone give 1.76 at 100K",
                 "tiers_alone_give",
                 "a pin's stated cause is measured",
             ),

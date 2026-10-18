@@ -2414,7 +2414,7 @@
   {
    "name": "price p50 (USD): wheel_depressed_center",
    "target": 9.51,
-   "achieved": 9.34,
+   "achieved": 9.61,
    "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -2426,7 +2426,7 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 10.6184,
+   "achieved": 8.65955,
    "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -2438,8 +2438,8 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.807318,
-   "numerator": 9708,
+   "achieved": 0.824615,
+   "numerator": 9916,
    "denominator": 12025,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -2702,10 +2702,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 4.3032,
+   "achieved": 1.70414,
    "numerator": 24,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band: with every noise off, the brand tiers alone give 1.49 on the default build, inside the band top of 1.71, so the excess is the group noise; the tiers still reach for it because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 12 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per brand and spreads the sampled brands of one spec further, to 4.30x apart on the default build and 2.84x apart at 100K (#66)",
+   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band at 100K only, the default build is in band: with every noise off, the brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The p90/p10 is carried by noise one spec shares across its brands (size_sigma), so the group noise left, drawn per brand, spreads the sampled brands of one spec only to 1.75x apart at 100K (#272)",
    "band": [
     0.96285,
     1.70745
@@ -2750,8 +2750,8 @@
   {
    "name": "price ending .50",
    "target": 0.0569473,
-   "achieved": 0.0542344,
-   "numerator": 634,
+   "achieved": 0.0543199,
+   "numerator": 635,
    "denominator": 11690,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [

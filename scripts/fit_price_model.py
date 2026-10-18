@@ -34,7 +34,9 @@ they are. The brand spread is scored as the report scores it, over
 * ``group_sigma``, the noise one price group (a census cell) shares, is the
   sigma whose worst miss over the p50, the p90/p10 and the same-spec brand
   spread is least, with ``sku_sigma`` re-solved at each; a row
-  :data:`.price.PINNED_SHORTFALLS` names is left out. A group draw is one per
+  :data:`.price.PINNED_SHORTFALLS` names is fitted to like any other, so a
+  pinned row lands as near its band as the noise brings it and its pin
+  records the build that stays out (#272). A group draw is one per
   page, so a type with few pages has a median that moves with the build's
   size the louder the group noise is: the p50 row holds it down. A type
   priced from its contents (:data:`.price.CONTENTS_PRICED`, kits) is fitted
@@ -52,9 +54,10 @@ Each printed row says "cannot reach" where no noise the fit scanned brings it
 into band. **Every row lands in band or is pinned, at both builds.** The
 fit exits non-zero, before it writes, on a row out of band at either build
 that :data:`.price.PINNED_SHORTFALLS` does not name, and on a pinned row that
-no longer holds (:func:`.price_report.pin_holds`) at either: back in band, on
-the other side, or further out than :data:`.price.PINNED_FIGURES` records for
-that build. A pinned row whose recorded figures are not the ones it built
+no longer holds (:func:`.price_report.pin_holds`) at either: back in band
+where :data:`.price.PINNED_FIGURES` records a figure, out of band where it
+records ``None`` (a build that lands in band), on the other side, or further
+out than it records for that build. A pinned row whose recorded figures are not the ones it built
 is flagged "re-record" with the figures to write by hand, at both builds:
 ``tests/test_price.py`` holds each record equal to its build's figure.
 
@@ -507,7 +510,8 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
         """The worst miss, in half-bands, over both builds and the rows the
         noise is fitted to: p50, p90/p10 and brand spread, and, where the
         SKU noise is fitted beside it (``sku`` given), the order rows. A
-        pinned row is scored, for the "cannot reach" flag, but not fitted to."""
+        pinned row is fitted to like any other (it was left out until #272, which
+        let the wheel's group noise run to the p90/p10 alone)."""
         joint = sku is not None
         if sku is None:
             sku = sku_for(slope, ls, group, step, size)
@@ -546,8 +550,7 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
                     )
         for name, m in misses.items():
             least[name] = min(least.get(name, math.inf), m)
-        fitted = [m for name, m in misses.items() if name not in price.PINNED_SHORTFALLS]
-        return max(fitted) if fitted else 0.0
+        return max(misses.values())
 
     def equal_miss(step: float, group: float, size: float, sku: float | None) -> float:
         if sku is None:
@@ -750,7 +753,10 @@ def main() -> int:
                 flags.append(f"OUT at {name}")
         recorded = price.PINNED_FIGURES.get(row_name)
         if recorded is not None:
-            built = tuple(round(row.achieved, recorded_digits(row_name)) for row in rows)
+            built = tuple(
+                None if row.within else round(row.achieved, recorded_digits(row_name))
+                for row in rows
+            )
             if built != recorded:
                 flags.append(f"re-record {built}")
         if row_name in unreachable:
