@@ -147,7 +147,7 @@ def test_a_query_shape_ranks_its_type_first(
     if query in STRUCTURED:
         assert STRUCTURED[query](ceiling), query
         return
-    top = br.rank(index, query, 1)[0]
+    top = br.rank(index, query, 1, popular=False)[0]
     assert top["product_type"] in QUERIES[query], (query, top["product_type"], top["title"])
 
 
