@@ -236,7 +236,8 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
     for rec, doc in pairs:
         if rec["product_type"] != "Bra":
             continue
-        text = rec["title"]  # a description denies ("non padded") or lists fibres
+        # A description denies ("non padded") or lists fibres; a title's "Linen-Look" is no linen.
+        text = re.sub(r"\S+-(?:look|feel|free|lined)\b", "", rec["title"], flags=re.IGNORECASE)
         for key in facet_leaves.BRA_KEYS:
             have = {a["value"] for a in doc["attributes"] if a["key"] == key}
             named = _longest_named(text, values[key])
@@ -323,7 +324,8 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
             continue
         fabric, blend = TYPED_MOVED.get(
             (rec["product_type"], old[0]), MOVED.get(old[0], (old[0], None)))
-        assert _values(doc, "fabric") == [fabric], rec["product_id"]
+        also = list(facet_leaves.FABRIC_ALSO.get(old[0], ()))
+        assert _values(doc, "fabric") == [fabric, *also], rec["product_id"]
         assert doc.get("fibre_content") == blend, rec["product_id"]
         moved[rec["product_type"]] += bool(blend)
     assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
@@ -398,7 +400,7 @@ def test_a_material_that_names_wool_cashmere_or_brushed_cotton_is_also_that_fabr
     the document's ``fabric``, so "wool coat" finds them without reading a free-text material."""
     seen = collections.defaultdict(set)
     for rec, doc in zip(built.records, docs, strict=True):
-        if any(a["key"] == "fabric" for a in rec["attributes"]):
+        if any(a["key"] == "fabric" for a in rec["attributes"]) or not facet_leaves.is_textile(rec):
             continue
         for a in rec["attributes"]:
             if a["key"] == "material" and a["value"] in facet_leaves.MATERIAL_FABRICS:
