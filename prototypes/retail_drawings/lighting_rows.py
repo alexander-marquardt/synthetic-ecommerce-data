@@ -382,7 +382,8 @@ LAMPSHADES = (
          _a("fabric", "Fabric", "Silk Dupion"), _a("pattern", "Pattern", "Plain")),
         (("30", 32.0), ("40", 39.0)),
         params=_p(form="pleated", diameter_cm="30"), size_key="diameter_cm"),
-    # gen#329: the two-word spelling a shopper types ("lamp shade") and sells under, one row per form.
+    # gen#329: the two-word spelling a shopper types ("lamp shade") and sells under, one row
+    # per form.
     Row("LTSLDR", "Cotton Drum Lamp Shade", "Lanternby", "Home", SHADES,
         "Lampshade", 19.0, "lampshade",
         "A straight-sided lamp shade in a plain cotton, with a ring that fits a ceiling "
