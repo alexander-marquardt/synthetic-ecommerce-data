@@ -2270,7 +2270,7 @@
   {
    "name": "price p50 (USD): screw_socket_head",
    "target": 21.535,
-   "achieved": 21.0,
+   "achieved": 20.135,
    "numerator": 598,
    "denominator": 308,
    "note": "shown price; denom is the census n",
@@ -2486,8 +2486,8 @@
   {
    "name": "price longer costs more: screw_socket_head",
    "target": 0.662,
-   "achieved": 0.628111,
-   "numerator": 429,
+   "achieved": 0.632504,
+   "numerator": 432,
    "denominator": 683,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -2678,7 +2678,7 @@
   {
    "name": "price brand spread, same spec (median max/min): screw_socket_head",
    "target": 1.3372,
-   "achieved": 1.31936,
+   "achieved": 1.33955,
    "numerator": 54,
    "denominator": 7,
    "note": "over specs (key dimension, material) two or more brands make; 2 brands sampled per spec",
