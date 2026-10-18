@@ -750,6 +750,7 @@ MATERIAL_FACTORS: dict[str, float] = {
     "Chrome Steel": 1.0,
     "Chrome Vanadium Steel": 1.0,
     "Grade 12.9 Alloy Steel": 1.15,
+    "Grade 8 Alloy Steel": 1.1,
     "S2 Tool Steel": 1.2,
     "18-8 Stainless Steel": 1.6,
     "440C Stainless Steel": 1.8,
@@ -925,6 +926,14 @@ SIZE_NOISE: dict[str, str] = {
         "meets both shares, while noise one diameter shares across its lengths inverts a size "
         "pair and leaves a length pair alone"
     ),
+    "wheel_depressed_center": (
+        "the wheel's p90/p10 (10.0) is made of its 2.6x diameter slope, 2.0x brand tiers and "
+        "the noise: group noise loud enough to make up the rest, drawn per brand, spread "
+        "one spec's sampled brands 4.3x apart against the census's 1.28 and moved with the "
+        "wheel product ids (#272), while noise one spec (a diameter in one abrasive) shares "
+        "across its brands carries the p90/p10 and leaves the brand spread to the tiers, as on "
+        "taps and socket screws"
+    ),
 }
 
 #: Each pinned row's figure on the default and on the 100K build, as the
@@ -945,8 +954,8 @@ SIZE_NOISE: dict[str, str] = {
 BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
-PINNED_FIGURES: dict[str, tuple[float, float]] = {
-    _WHEEL_SPREAD_ROW: (4.303, 2.842),
+PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
+    _WHEEL_SPREAD_ROW: (None, 1.75),
     _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
@@ -962,16 +971,14 @@ PIN_TOLERANCE = 0.02
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
     _WHEEL_SPREAD_ROW: (
-        "above band: with every noise off, the brand tiers alone give 1.49 on the default "
-        "build, inside the band top of 1.71, so the excess is the group noise; the tiers "
-        "still reach for it because 3 of the 12 wheel brands "
-        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
-        "take one on 12 of "
-        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
-        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
-        "brand and spreads the sampled brands of one spec further, to "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
+        "above band at 100K only, the default build is in band: with every noise off, the "
+        "brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 "
+        f"wheel brands are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled "
+        "brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where "
+        "the census measures its house label on 4 of its 12. The p90/p10 is carried by noise "
+        "one spec shares across its brands (size_sigma), so the group noise left, drawn per "
+        "brand, spreads the sampled brands of one spec only to "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272)"
     ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
@@ -1047,7 +1054,14 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
             size_sigma=0.215,
         ),
         "washer_flat": _model("washer_flat", 5.243, 0.375, 0.500, 0.701),
-        "wheel_depressed_center": _model("wheel_depressed_center", 7.832, 4.5, 0.702, 0.306),
+        "wheel_depressed_center": _model(
+            "wheel_depressed_center",
+            7.481,
+            4.5,
+            0.190,
+            0.139,
+            size_sigma=0.736,
+        ),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
         # shells. Its curve is hand-set near the level the uniform multiplier
