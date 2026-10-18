@@ -87,6 +87,22 @@ NOT_DRAWN: dict[str, str] = {
         "the supplier's own catalogue code for the line. An identifier, not a "
         "property of the object, and the drawing already carries the SKU"
     ),
+    "Item": (
+        "the product type's name in the supplier's words. It repeated the type, "
+        "so the generator no longer publishes it (#497); a drawing is headed "
+        "with the type's own label, and a record that still carries one adds "
+        "nothing to the picture"
+    ),
+    "Screw Style": (
+        "the product type again, spelled out on the observed cap screw. A "
+        "name for the whole object, not a dimension of it: the head and the "
+        "drive are drawn from their own attributes"
+    ),
+    "Tap Style": (
+        "the tap's point, which is also the product type's name; the "
+        "generator no longer publishes it (#497), so the drawing does not "
+        "read it"
+    ),
     "Application": (
         "what the tool is FOR -- roughing, finishing, or both. A use, not a "
         "form: two mills that differ only in this are the same drawing"
