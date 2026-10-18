@@ -102,7 +102,7 @@ def test_the_flat_export_carries_food_and_drink_with_ingredients_top_level(built
     docs = scale.documents(built)
     rows = scale.flat(docs)
     assert len(rows) == built.skus
-    food = [r for r in rows if r["category_path"][0] == "Food & Drink"]
+    food = [r for r in rows if r["category_path"][0] == "Food & drink"]
     assert len(food) == sum(
         r["sku_count"] for r in built.records if r["category_path"][0] == "Food & Drink"
     )

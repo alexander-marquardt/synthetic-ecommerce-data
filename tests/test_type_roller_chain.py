@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import draw_sku, svg_problems
@@ -69,7 +69,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -128,7 +128,7 @@ def _pitch_entries(rows: list[dict], type_key: str) -> list[dict]:
         a
         for row in rows
         if row["product_type"] == type_key
-        for a in row["attributes"]
+        for a in authored_entries(row)
         if a["name"] in ("Pitch", "Thread Pitch")
     ]
 
@@ -152,7 +152,7 @@ def test_a_taps_pitch_keeps_the_key_pitch(default_rows):
 
 def test_the_facet_derivation_measures_the_two_pitches_apart(default_rows):
     stats = derive.measure(default_rows)
-    pitches = {key: s for key, s in stats.items() if s.name in ("Pitch", "Thread Pitch")}
+    pitches = {key: s for key, s in stats.items() if s.name in ("Pitch", "Thread pitch")}
     assert sorted(pitches) == ["chain_pitch", "thread_pitch"]
     # One facet: the chain, the links that join it, the sprockets it runs on.
     assert pitches["chain_pitch"].product_types == (
@@ -196,7 +196,7 @@ def clean_docs(request) -> list[dict]:
 
 
 def _attrs(doc: dict) -> dict[str, dict]:
-    return {a["name"]: a for a in doc["attributes"]}
+    return {a["name"]: a for a in authored_entries(doc)}
 
 
 def _inches(attribute: dict) -> float:

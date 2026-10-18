@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
@@ -157,7 +157,7 @@ def test_the_fine_pitches_are_iso_262s_and_the_unified_fine_series():
 
 def _published(doc: dict) -> dict[str, str]:
     """Name to published spelling, from flat ``facets`` (a nested entry carries none, #42)."""
-    return {a["name"]: a["value"] for a in published_attributes(doc)}
+    return {a["name"]: a["value"] for a in authored_attributes(doc)}
 
 
 def _same_length(a: str, b: str) -> bool:

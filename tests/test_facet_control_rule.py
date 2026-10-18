@@ -28,6 +28,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.prism.derive import (
@@ -374,7 +375,7 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
 #: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products.
 #: #497 merged its inch and metric labels into one ``Dowel Dia.``, which is over
 #: the threshold.
-NUMERIC_HELD_BY_FLOOR = ("Dowel Dia.",)
+NUMERIC_HELD_BY_FLOOR = ("Dowel dia.",)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -744,7 +745,7 @@ def test_a_multi_valued_attribute_on_few_products_is_not_an_identifier() -> None
     and the products do not, so it is the floor's unit under test.
     """
     kits = {f"K{k}": [f"{13 * k + i}/64 in." for i in range(13)] for k in range(20)}
-    stats = measure(_terms_rows("Sizes Included", kits))["sizes_included"]
+    stats = measure(_terms_rows("Sizes included", kits))["sizes_included"]
     assert (stats.cardinality, stats.product_values, stats.products) == (260, 260, 20)
     assert stats.products < RANGE_MIN_DOCS <= stats.product_values
     decision = decide(stats)
@@ -761,7 +762,7 @@ def test_a_declared_identifier_is_withheld_whatever_its_dispersion() -> None:
     declaration that withholds it.
     """
     codes = {f"P{p}": [f"L{p % 10:03d}"] for p in range(600)}
-    declared = measure(_terms_rows("List Number", codes))["list_number"]
+    declared = measure(_terms_rows("List number", codes))["list_number"]
     assert declared.dispersion < IDENTIFIER_DISPERSION
     decision = decide(declared)
     assert not decision.facet
@@ -776,4 +777,7 @@ def test_derive_reads_the_generators_identifier_declaration() -> None:
     from synthetic_ecommerce_data.domains.industrial.generate import Generator
     from synthetic_ecommerce_data.prism import derive
 
-    assert derive.IDENTIFIER_ATTRIBUTES is Generator.IDENTIFIER_ATTRIBUTES
+    # The generator authors "List Number"; the sidebar reads the published "List number" (gen#499).
+    assert {
+        sentence_case(name) for name in Generator.IDENTIFIER_ATTRIBUTES
+    } == derive.IDENTIFIER_ATTRIBUTES
