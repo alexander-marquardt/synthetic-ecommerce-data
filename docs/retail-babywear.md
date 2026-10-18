@@ -32,8 +32,10 @@ plan of gen#311 (three compound words, such as a "romper" or "babygrow" sleepsui
 `retail-apparel-decoys.md`). A nursery type has no apparel plan, so each carries four hand-authored
 text-match decoys of gen#294, in the classes where a nursery title can mislead: 1 (a color on the
 trim, not the product), 2 (a sibling's word, "changing bag", "nappy bag"), 3 or 4 (a size or a
-feature the product lacks, "cot bed", "waterproof") and 6 or 7 (a name that is a brand or a range,
-"Bear Hill", "Thistle & Wren"). Four per type puts every class a baby search plausibly hits in the
+feature named on a part, not the product: a "cot bed" print on a pram blanket, a "waterproof"
+pouch on a mat that is not) and 6 or 7 (a name that is a brand or a range, "Bear Hill",
+"Thistle & Wren"). A decoy's trigger word is true of a real part or of the shown name, and its
+description never denies its title (gen#404; `tests/test_retail_babywear_213.py`). Four per type puts every class a baby search plausibly hits in the
 node without outweighing the three to four real styles.
 
 The checks are `tests/test_retail_babywear_213.py`; the mutation rows are

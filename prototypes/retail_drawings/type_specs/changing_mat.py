@@ -62,8 +62,10 @@ SPEC = TypeSpec(
     decoys=(
         decoy(1, "red changing mat", _ROWS[0], 5, "Red Trim Wipe-Clean Changing Mat",
               "A blue mat with a red binding round the edge; the mat is blue.", color=BLUE),
-        decoy(4, "waterproof changing mat", _ROWS[1], 6, "Waterproof Quilted Changing Mat",
-              "A quilted cotton mat that is not waterproof: wipe it with a damp cloth only.",
+        decoy(4, "waterproof changing mat", _ROWS[1], 6,
+              "Quilted Changing Mat with Waterproof Storage Pouch",
+              "A quilted cotton mat that folds flat, with a zip pouch lined to be waterproof for "
+              "damp wipes and spare clothes.",
               color=GREY),
         decoy(2, "changing bag", _ROWS[2], 7, "Changing Bag Mat Wipe-Clean",
               "A wipe-clean mat that clips onto a pram. It is a mat, not a bag.",
