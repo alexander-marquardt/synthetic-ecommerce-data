@@ -82,7 +82,13 @@ def prefixes_restored():
 
 def test_two_domains_cannot_hold_one_prefix(prefixes_restored):
     ids.claim_prefix("test_domain_a", "ZA")
-    ids.claim_prefix("test_domain_a", "ZA")  # the same domain again is no clash
+    try:
+        ids.claim_prefix("test_domain_a", "ZA")  # the same domain again is no clash
+    except ValueError:
+        refused_itself = True
+    else:
+        refused_itself = False
+    assert not refused_itself
     with pytest.raises(ValueError, match="ZA"):
         ids.claim_prefix("test_domain_b", "ZA")
 
@@ -95,7 +101,7 @@ def test_a_domain_cannot_re_claim_a_different_prefix(prefixes_restored):
 
 
 def test_a_second_domain_cannot_claim_the_empty_prefix_industrial_holds(prefixes_restored):
-    assert ids.PREFIXES["industrial"] == ""
+    assert ids.PREFIXES.get("industrial") == ""
     with pytest.raises(ValueError, match="industrial"):
         ids.claim_prefix("test_domain_c", "")
     assert "test_domain_c" not in ids.PREFIXES
@@ -107,4 +113,4 @@ def test_the_industrial_generator_mints_through_core_with_the_empty_prefix():
     assert generator.minter.prefix == ""
     assert not hasattr(generator, "_new_sku")
     assert not hasattr(generator, "_product_id")
-    assert ids.PREFIXES["industrial"] == ""
+    assert ids.PREFIXES.get("industrial") == ""
