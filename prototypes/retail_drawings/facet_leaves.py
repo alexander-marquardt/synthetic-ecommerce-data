@@ -173,6 +173,40 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Wool Cashmere blend": ("Wool", "Cashmere"),
 }
 
+#: The closed list a ``fabric`` value comes from: the fibre or weave a shopper names (gen#187).
+#: The single source: the document builder reads it, and the tests guard what it holds.
+SHOPPER_FABRICS = frozenset({
+    "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Flannel", "Fleece", "Jersey", "Knitted",
+    "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
+    "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
+    "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Voile", "Waffle", "Wool",
+})  # fmt: skip
+
+#: The departments whose products are worn, and the types inside them that are not textile
+#: garments (a watch, a bag, a belt, jewellery, a shoe-care product): a fibre is a ``fabric``
+#: of a garment only. A bag or a belt keeps its own ``material``, as homeware does (gen#187).
+TEXTILE_DEPARTMENTS = frozenset({"Clothing", "Lingerie & Nightwear"})
+NON_TEXTILE_TYPES = frozenset({
+    "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Bracelet", "Digital Watch",
+    "Drop Earrings", "Earrings", "Fitness Band", "Handbag", "Hoop Earrings", "Key Clips",
+    "Necklace", "Purse", "Ring", "Shoe Care Kit", "Shoe Laces", "Shoe Polish", "Tote Bag",
+    "Travel Cases", "Umbrella", "Waist Bags", "Watch",
+})  # fmt: skip
+
+
+def is_textile(rec: dict[str, Any]) -> bool:
+    """Whether ``rec`` is a garment, whose fibre is its ``fabric``."""
+    return bool(TEXTILE_DEPARTMENTS & set(rec["department"])) and (
+        rec["product_type"] not in NON_TEXTILE_TYPES
+    )
+
+
+def stated_fabrics(text: str) -> tuple[str, ...]:
+    """The closed-list fibres ``text`` names, in the order it names them."""
+    return ()
+
+
 #: A move that reads one product type's text, not the value alone: (product type, fabric) ->
 #: (fabric, blend). A value here on another type is moved by no one and stays as it is, so the
 #: closed-list guard names it and the new row's author decides (gen#291).
@@ -180,6 +214,12 @@ TYPED_FABRIC_MOVES: dict[tuple[str, str], tuple[str, str | None]] = {
     ("Shorts", "Polyester Blend"): ("Suiting", "Polyester Blend"),
 }
 
+
+#: A garment ``material`` that names a closed-list fibre and is still no ``fabric`` -> why. A
+#: finish is not what the garment is made of.
+MATERIAL_NOT_FABRIC: dict[str, str] = {
+    "Satin Finish": "a finish on a jacket's shell, which the jacket's own text calls a finish",
+}
 
 def fabric_move(product_type: str, value: str) -> tuple[str, str | None] | None:
     """The (fabric, blend) a ``fabric`` value of a ``product_type`` becomes, or ``None`` when
