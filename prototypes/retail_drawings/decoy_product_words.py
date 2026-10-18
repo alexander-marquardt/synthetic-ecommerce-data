@@ -311,6 +311,15 @@ _SPORTS_KINDS = {
                     "Calderby & Lune", 14.0),
 }
 NEW_KINDS.update(_SPORTS_KINDS)
+# -- the clothing and shoe seed-phrase decoys (gen#460): two kinds the build lacks, the rest reused
+_SEED_KINDS = {
+    "seed_belt": Kind("Clothing", ("Womens", "Accessories", "Belts"), "Belt", "belt", "Larkmoor",
+                      14.0, extra=_WOMENS),
+    "seed_jeggings": Kind("Clothing", ("Womens", "Leggings"), "Leggings", "leggings", "Larkmoor",
+                          16.0, sizes=UK, size_range="regular",
+                          params=(("length", "full"), ("rise", "high"))),
+}
+NEW_KINDS.update(_SEED_KINDS)
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 
@@ -973,6 +982,131 @@ _GIFTS = (
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
 
+
+def _p(n, kind, title, desc, color, *seeds) -> Row:
+    """A seed-phrase decoy: another type's product whose title or text holds every word of each
+    seed phrase it serves (#460). A cross-department row is dropped by the department policy,
+    a Womens one by the category policy."""
+    cross = KINDS[kind].path[0] not in _CLOTHES
+    return _d(n, kind, title, desc, color, seeds[0], "", "department" if cross else "category",
+              cross=cross, seeds=seeds)
+
+
+_J3 = ("high rise jeans", "skinny jeans", "jeans")
+_SEED_ROWS = (
+    # -- jeans: a belt, a jersey legging, hangers
+    _p(460, "seed_belt", "High Rise Jeans Slim Belt",
+       "A slim 4 cm belt with a pin buckle, cut to sit at the waist of high rise jeans, skinny "
+       "jeans and straight jeans.", "Brown", *_J3),
+    _p(461, "seed_jeggings", "Skinny Jeans Jeggings",
+       "High rise jersey jeggings with a denim print: the skinny jeans look in soft stretch "
+       "jersey.", "Blue", *_J3),
+    _p(462, "hanger", "Jeans Clip Hangers, 10 Pack",
+       "Non-slip clip hangers that hold high rise jeans and skinny jeans by the waistband.",
+       "Grey", *_J3),
+    _p(463, "hangers", "Skinny Jeans Trouser Hanger",
+       "A slim bar hanger that keeps skinny jeans and other narrow jeans flat.", "Black",
+       "skinny jeans", "jeans"),
+    # -- barrel trousers
+    _p(464, "doll", "Barrel Trousers Fashion Doll",
+       "A fashion doll in barrel trousers and a cropped top, with four small accessories.",
+       "Grey", "barrel trousers"),
+    _p(465, "hanger", "Barrel Trousers Clip Hangers",
+       "Wide clip hangers for barrel trousers and other full-leg trousers, pack of 10.", "White",
+       "barrel trousers"),
+    _p(466, "carrier", "Barrel Trousers Garment Bag",
+       "A breathable garment bag that holds barrel trousers on a hanger, with a hanging hook.",
+       "Grey", "barrel trousers"),
+    # -- womens boat neck top
+    _p(467, "hangers", "Boat Neck Top Hanger",
+       "A wide shoulder hanger that stops a womens boat neck top slipping off.", "Black",
+       "womens boat neck top"),
+    _p(468, "doll", "Boat Neck Top Fashion Doll",
+       "A fashion doll whose outfit copies a womens boat neck top with a pencil skirt.", "Cream",
+       "womens boat neck top"),
+    _p(469, "carrier", "Boat Neck Top Garment Bag",
+       "A breathable bag that keeps a womens boat neck top crease free while you travel.",
+       "White", "womens boat neck top"),
+    # -- tea dress
+    _p(470, "doll", "Tea Dress Fashion Doll",
+       "A fashion doll in a floral tea dress, with a hat and three small accessories.", "Pink",
+       "tea dress"),
+    _p(471, "hangers", "Tea Dress Padded Hangers",
+       "Soft padded hangers with slim shoulders for a tea dress or a light summer dress.",
+       "Cream", "tea dress"),
+    _p(472, "carrier", "Tea Dress Garment Bag",
+       "A breathable bag that holds a tea dress on its hanger, with a hanging hook.", "White",
+       "tea dress"),
+    # -- denim jacket
+    _p(473, "hangers", "Denim Jacket Wide Hanger",
+       "A wide shaped hanger that keeps a denim jacket from losing its shoulders.", "Black",
+       "denim jacket"),
+    _p(474, "doll", "Denim Jacket Fashion Doll",
+       "A fashion doll in a denim jacket and a skirt, with four small accessories.", "Blue",
+       "denim jacket"),
+    _p(475, "carrier", "Denim Jacket Garment Bag",
+       "A breathable bag that holds a denim jacket on its hanger, with a hanging hook.", "Grey",
+       "denim jacket"),
+    # -- pyjamas
+    _p(476, "case", "Pyjama Case, Embroidered",
+       "A zip case with an embroidered front, to keep pyjamas under the pillow.", "Pink",
+       "pyjamas"),
+    _p(477, "doll", "Pyjama Party Doll",
+       "A soft doll in pyjamas with a sleep mask, for pyjama parties and sleepovers.", "Pink",
+       "pyjamas"),
+    _p(478, "s_tote", "Pyjamas Overnight Tote Bag",
+       "A canvas tote with a wide gusset, big enough for pyjamas, a book and a toothbrush.",
+       "Grey", "pyjamas"),
+    # -- leather boots
+    _p(479, "shoe_care", "Leather Boots Care Kit",
+       "A brush, a cloth and a tin of polish to clean and feed leather boots.", "Brown",
+       "leather boots"),
+    _p(480, "polish", "Leather Boot Cream",
+       "A neutral cream that feeds and protects leather boots and keeps the leather supple.",
+       "Cream", "leather boots"),
+    _p(481, "laces", "Leather Boots Waxed Laces",
+       "Round waxed laces, 120 cm long, to relace leather boots.", "Brown", "leather boots"),
+    # -- running shoes
+    _p(482, "laces", "Running Shoes Flat Laces",
+       "Flat stretch laces, 100 cm long, to relace running shoes.", "Grey", "running shoes"),
+    _p(483, "wash_bag", "Running Shoe Mesh Bag",
+       "A ventilated drawstring mesh bag that carries running shoes to the gym or the track.",
+       "Grey", "running shoes"),
+    _p(484, "shoe_care", "Running Shoes Cleaning Kit",
+       "A brush, a cloth and a cleaning gel to wash mud from running shoes.", "White",
+       "running shoes"),
+    # -- brogues
+    _p(485, "seed_belt", "Brogue Detail Leather Belt",
+       "A leather belt with brogue punching along the edge, to wear with brogues.", "Brown",
+       "brogues"),
+    _p(486, "polish", "Brogues Shoe Cream",
+       "A neutral cream polish with a small brush, for brogues and other smart leather shoes.",
+       "Cream", "brogues"),
+    _p(487, "laces", "Brogues Waxed Laces",
+       "Flat waxed laces, 75 cm long, to relace brogues.", "Brown", "brogues"),
+    # -- navy dresses
+    _p(488, "carrier", "Navy Garment Bag for Dresses",
+       "A breathable navy garment bag that holds navy dresses and other long dresses on hangers.",
+       "Navy", "navy dresses"),
+    _p(489, "hangers", "Navy Velvet Hangers for Dresses",
+       "Non-slip navy velvet hangers with slim shoulders, for navy dresses and other dresses.",
+       "Navy", "navy dresses"),
+    _p(490, "doll", "Navy Dresses Fashion Doll Set",
+       "A fashion doll with a wardrobe of navy dresses and four small accessories.", "Navy",
+       "navy dresses"),
+    # -- large dresses
+    _p(491, "carrier", "Large Garment Bag for Dresses",
+       "A large breathable bag, 150 cm long, that holds long and large dresses on hangers.",
+       "Grey", "large dresses"),
+    _p(492, "hat_box", "Large Dresses Storage Box",
+       "A large lidded box that stores large dresses and coats flat under the bed.", "Grey",
+       "large dresses"),
+    _p(493, "hangers", "Large Dresses Padded Hangers",
+       "Wide padded hangers that carry large dresses without marking the shoulders.", "Cream",
+       "large dresses"),
+)  # fmt: skip
+TABLE = (*TABLE, *_SEED_ROWS)
+
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
     "polish": (
@@ -1127,7 +1261,7 @@ def table_markdown() -> str:
     ]
     for r in TABLE:
         lines.append(
-            f"| {r.query} | {r.noun or 'brand'} | PLT-{r.code} | {r.title} | {r.ptype} "
-            f"| {r.policy} |"
+            f"| {r.query} | {r.noun or ('seed phrase' if r.seeds else 'brand')} "
+            f"| PLT-{r.code} | {r.title} | {r.ptype} | {r.policy} |"
         )
     return "\n".join(lines)
