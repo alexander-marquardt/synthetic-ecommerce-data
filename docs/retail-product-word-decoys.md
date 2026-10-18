@@ -18,6 +18,13 @@ class-7 color-word brand on footwear with its own house style.
 
 Each new real type carries a floor of three ordinary products, listed in `FLOOR`.
 
+**A care cream for jumpers (gen#309).** "cream jumper" also meets a product that says both words
+and is neither: `PLT-DY87`, Jumper and Knitwear Softening Cream, a white tub in Cleaning > Laundry >
+Fabric Softener, an existing type with products of its own. Its color is White, so the color policy
+drops it for the shade Cream, the category policy (Jumpers) drops it, and the department policy
+(Cleaning & Janitorial) drops it. `tests/test_retail_knitwear_care_cream_309.py` pins the row, its
+fields and its place in the baseline top 10.
+
 **Sports & Outdoors (gen#368).** Every Sports & Outdoors type carries at least two decoys: a product
 of another department, an existing type of the catalog, whose title holds the shopper's word for the
 sports product (a block-heel shoe for "yoga block", a lantern-sleeve blouse for "camping lantern", a
@@ -128,3 +135,4 @@ policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory card
 | money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
 | hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
 | hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
+| cream jumper | jumper | PLT-DY87 | Jumper and Knitwear Softening Cream | Fabric Softener | category |
