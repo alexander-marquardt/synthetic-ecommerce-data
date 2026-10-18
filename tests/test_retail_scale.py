@@ -72,6 +72,7 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
@@ -108,6 +109,7 @@ TEMPLATES = (
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
+    + COLORWORD_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
 )
@@ -1191,15 +1193,6 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
         seen[r["category_leaf"]].append(words)
 
 
-#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
-#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
-#: doing; the list only shrinks.
-GROCERY_OWNER_SPLITS = frozenset({
-    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
-    "Velling Apothecary",
-})  # fmt: skip
-
-
 def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
     """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
     the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
@@ -1213,5 +1206,31 @@ def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(
         if "brand_owner" in rec:
             owners[rec["brand"]].add(rec["brand_owner"])
     split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
-    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
-    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list
+    assert split == {}
+
+
+def test_no_two_owner_tables_give_one_brand_two_owners():
+    """The tables a row's ``brand_owner`` is read from agree on every brand they share, also for
+    a brand no row carries yet (``Meadowgate Dairy`` was own in ``class_model`` and third party
+    in ``grocery_rows``, and split the moment a class row and a grocery row both used it).
+
+    Guard: every module-level ``OWNERS`` / ``BRAND_OWNER`` dict of the retail modules, not a
+    list of three. Metric: the brands with two values, in the failure message.
+    """
+    import class_model  # noqa: F401
+    import grocery_rows  # noqa: F401
+
+    owners: dict[str, dict[str, str]] = collections.defaultdict(dict)
+    tables = 0
+    for name, mod in sorted(sys.modules.items()):
+        if not str(getattr(mod, "__file__", "") or "").startswith(str(RETAIL)):
+            continue
+        for attr in ("OWNERS", "BRAND_OWNER"):
+            table = getattr(mod, attr, None)
+            if isinstance(table, dict):
+                tables += 1
+                for brand, owner in table.items():
+                    owners[brand].setdefault(owner, f"{name}.{attr}")
+    assert tables >= 3
+    split = {b: o for b, o in owners.items() if len(o) > 1}
+    assert split == {}
