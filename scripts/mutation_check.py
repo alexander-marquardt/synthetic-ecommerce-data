@@ -31,6 +31,7 @@ import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their 
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
 import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
+import mutation_rows_brand_owner_236  # noqa: E402  (gen#236 rows, kept in their own file)
 import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
 import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
 import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
@@ -4181,6 +4182,11 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"lower-body params: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
+    ),
+    *(
+        Mutation(f"brand owner: {name}", file, old, new, test, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, test, prop in mutation_rows_brand_owner_236.ROWS
     ),
     *(
         Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
