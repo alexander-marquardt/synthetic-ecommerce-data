@@ -1615,3 +1615,24 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DSKNITTED_TOP700 | Knitted Top | 7 invented brand holding a color or category word | Coat Crake Knitted Top | coat | coat knitted top | generic |
 | PLT-DSKNITTED_TOP701 | Knitted Top | 7 invented brand holding a color or category word | Green Stoat Knitted Top | green | green knitted top | generic |
 | PLT-DSKNITTED_TOP702 | Knitted Top | 7 invented brand holding a color or category word | Black Lapwing Knitted Top | black | black knitted top | generic |
+| PLT-DSPERIOD_PANTS100 | Period Pants | 1 color names a part | Period Pants with Blue Waistband | blue | blue period pants | generic |
+| PLT-DSPERIOD_PANTS101 | Period Pants | 1 color names a part | Period Pants with Green Waistband | green | green period pants | generic |
+| PLT-DSPERIOD_PANTS102 | Period Pants | 1 color names a part | Period Pants with Red Waistband | red | red period pants | generic |
+| PLT-DSPERIOD_PANTS200 | Period Pants | 2 another category's noun as a modifier | Black Boyshort Period Pants | boyshort | boyshort | generic |
+| PLT-DSPERIOD_PANTS201 | Period Pants | 2 another category's noun as a modifier | Red Thong Period Pants | thong | thong | generic |
+| PLT-DSPERIOD_PANTS202 | Period Pants | 2 another category's noun as a modifier | Green Bikini Period Pants | bikini | bikini | generic |
+| PLT-DSPERIOD_PANTS300 | Period Pants | 3 audience word of a sibling version | Navy Mens Fit Period Pants | mens | mens period pants | generic |
+| PLT-DSPERIOD_PANTS301 | Period Pants | 3 audience word of a sibling version | Blue Mens Fit Period Pants | mens | mens period pants | generic |
+| PLT-DSPERIOD_PANTS302 | Period Pants | 3 audience word of a sibling version | White Mens Fit Period Pants | mens | mens period pants | generic |
+| PLT-DSPERIOD_PANTS400 | Period Pants | 4 material or feature named but absent | Blue Leather-Look Period Pants | leather | leather period pants | special: material claim |
+| PLT-DSPERIOD_PANTS401 | Period Pants | 4 material or feature named but absent | Green Suede-Look Period Pants | suede | suede period pants | special: material claim |
+| PLT-DSPERIOD_PANTS402 | Period Pants | 4 material or feature named but absent | Green Cashmere-Feel Period Pants | cashmere | cashmere period pants | special: material claim |
+| PLT-DSPERIOD_PANTS500 | Period Pants | 5 shade spelled in the description only | Moonbeam Period Pants | ivory | ivory period pants | generic |
+| PLT-DSPERIOD_PANTS501 | Period Pants | 5 shade spelled in the description only | Driftwood Period Pants | taupe | taupe period pants | generic |
+| PLT-DSPERIOD_PANTS502 | Period Pants | 5 shade spelled in the description only | Dune Period Pants | beige | beige period pants | generic |
+| PLT-DSPERIOD_PANTS600 | Period Pants | 6 incidental word in a range name | Dress Circle Period Pants | dress | dress | generic |
+| PLT-DSPERIOD_PANTS601 | Period Pants | 6 incidental word in a range name | Blazer Court Period Pants | blazer | blazer | generic |
+| PLT-DSPERIOD_PANTS602 | Period Pants | 6 incidental word in a range name | Shirt Row Period Pants | shirt | shirt | generic |
+| PLT-DSPERIOD_PANTS700 | Period Pants | 7 invented brand holding a color or category word | Red Plover Period Pants | red | red period pants | generic |
+| PLT-DSPERIOD_PANTS701 | Period Pants | 7 invented brand holding a color or category word | Green Stoat Period Pants | green | green period pants | generic |
+| PLT-DSPERIOD_PANTS702 | Period Pants | 7 invented brand holding a color or category word | Yellow Wagtail Period Pants | yellow | yellow period pants | generic |

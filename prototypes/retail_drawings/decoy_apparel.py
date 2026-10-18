@@ -105,7 +105,7 @@ _PLANNED: tuple[Spec, ...] = (
            "Chukka Boots", "Court Shoes", "Kitten Heels", "Knee High Boots", "Loafers",
            "Running Shoes", "Safety Boots", "Sandals", "School Shoes", "Slippers", "Trainers",
            "Walking Boots", "Wellies"),
-    Spec("Bra", "b", 10),
+    Spec("Bra", "b", 9),
     *_plan("u", "Boxers", "Dressing Gown", "Knickers", "Pyjama Shorts", "Pyjamas", "Shapewear",
            "Slip", "Tights", "Vest"),
     *_plan("a", "School Trousers", "School Skirt", "School Pinafore", "School Shirt"),  # gen#205
