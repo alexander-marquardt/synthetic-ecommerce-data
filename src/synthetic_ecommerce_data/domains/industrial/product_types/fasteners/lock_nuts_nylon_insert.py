@@ -280,8 +280,8 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         # the random stream stable.
         retired(keyword_attribute("Item", ITEM)),
         keyword_attribute("Type", series.style),
-        retired(keyword_attribute("Lock Type", "Nylon Insert"), always=False),
-        retired(keyword_attribute("Insert Material", "Nylon"), always=False),
+        retired(keyword_attribute("Lock Type", "Nylon Insert"), presence=0.8),
+        retired(keyword_attribute("Insert Material", "Nylon"), presence=0.7),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),

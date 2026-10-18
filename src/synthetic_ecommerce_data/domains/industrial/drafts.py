@@ -62,19 +62,26 @@ class RetiredAttribute(Attribute):
     It is never published.
     """
 
-    #: Whether it stood among the attributes sparsity never dropped (presence
-    #: 1.0), which is what the price group and the dedupe bucket read.
-    always: bool = True
+    #: The presence it was published at. At 1.0 it stood among the attributes
+    #: sparsity never dropped, which is what the price group and the dedupe
+    #: bucket read; below it, the draw decides whether the "already made"
+    #: check still counts it, as it counted the published one.
+    presence: float = 1.0
+
+    @property
+    def always(self) -> bool:
+        """Whether sparsity never dropped it."""
+        return self.presence >= 1.0
 
 
-def retired(attribute: Attribute, *, always: bool = True) -> RetiredAttribute:
+def retired(attribute: Attribute, *, presence: float = 1.0) -> RetiredAttribute:
     """``attribute`` as a retired one: same name and value, never published."""
     return RetiredAttribute(
         name=attribute.name,
         value=attribute.value,
         value_num=attribute.value_num,
         values=attribute.values,
-        always=always,
+        presence=presence,
     )
 
 

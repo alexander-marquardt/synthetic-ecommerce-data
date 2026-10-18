@@ -52,13 +52,24 @@ class FinishMixin:
 
     def _apply_sparsity(self, type_key: str, attrs: list[Attribute], scope: str) -> list[Attribute]:
         """Drop optional attributes at their measured presence rate."""
+        return self._sparsify(type_key, attrs, scope)[0]
+
+    def _sparsify(
+        self, type_key: str, attrs: list[Attribute], scope: str
+    ) -> tuple[list[Attribute], list[Attribute]]:
+        """The published attributes, and the retired ones whose draw kept them.
+
+        A retired attribute (#497) takes the draw its published self took, so no
+        later draw moves, and is never published; the second list holds those
+        the draw would have kept, which the "already made" check still counts.
+        """
         rates = {spec.name: spec for spec in VOCAB[type_key] if spec.scope == scope}
         kept: list[Attribute] = []
+        ghosts: list[Attribute] = []
         for attribute in attrs:
             if isinstance(attribute, RetiredAttribute):
-                # Takes the draw its published self took, so no later draw
-                # moves, and is never published (#497).
-                self.rng.random()
+                if self.rng.random() <= self.config.scaled_presence(attribute.presence):
+                    ghosts.append(attribute)
                 continue
             spec = rates.get(attribute.name)
             if spec is None:
@@ -66,7 +77,7 @@ class FinishMixin:
                 continue
             if self.rng.random() <= self.config.scaled_presence(spec.presence):
                 kept.append(attribute)
-        return kept
+        return kept, ghosts
 
     def _standards_attribute(self, type_key: str, draft: LineDraft) -> Attribute | None:
         """The standards this LINE conforms to, from :mod:`.conformance`'s
@@ -236,7 +247,7 @@ class FinishMixin:
 
     def _finish_line(self, type_key: str, draft: LineDraft, index: int) -> ProductLine | None:
         rng = self.rng
-        line_attrs = self._apply_sparsity(type_key, draft.line_attrs, "line")
+        line_attrs, line_ghosts = self._sparsify(type_key, draft.line_attrs, "line")
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
         standards_attr = self._standards_attribute(type_key, draft)
@@ -275,7 +286,7 @@ class FinishMixin:
         if len({c.system for c in draft.children}) > 1:
             raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
         for child in draft.children:
-            attrs = self._apply_sparsity(type_key, list(child.attrs), "sku")
+            attrs, sku_ghosts = self._sparsify(type_key, list(child.attrs), "sku")
             if not attrs and not child.zero_axis:
                 continue
             attrs = self._inject_defects(
@@ -302,11 +313,9 @@ class FinishMixin:
                 *([system_attr] if system_attr is not None else []),
             ]
             key = self._spec_key(type_key, draft.brand, unsparsified)
-            # What #497 retired still tells two specs apart, as it did when it
-            # was published (see :class:`.RetiredAttribute`).
-            retired = [
-                a for a in (*draft.line_attrs, *child.attrs) if isinstance(a, RetiredAttribute)
-            ]
+            # What #497 retired still tells two specs apart while its draw kept
+            # it, as it did when it was published (see :class:`.RetiredAttribute`).
+            retired = [*line_ghosts, *sku_ghosts]
             if key in self._drawn_specs or self._differs_only_by_a_drop(
                 type_key,
                 draft.brand,

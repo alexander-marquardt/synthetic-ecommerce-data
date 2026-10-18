@@ -495,11 +495,12 @@ RETIRED_TERMS_CAP = 25
 #: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
 #: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
 #: and Material, which their four compounds took from 23 values to 27.
-#: A roller chain's ANSI Number is no longer one (#497): the build draws 17 values,
-#: under the retired cap, so the retired rule offered it too. The ``Item``
-#: attribute, once the tenth, is not published any more.
+#: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
+#: strand suffixes included) that repeat across its lines. The ``Item``
+#: attribute, once the tenth, is not published any more (#497).
 NEWLY_OFFERED = frozenset(
     {
+        "ansi_number",
         "bearing_number",
         "dash_number",
         "dia_thread_size",
@@ -717,11 +718,7 @@ def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> N
     sizes = sorted(controls_by_size)
     for key in ("sizes_included", "bore_dia", "overall_length"):
         assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
-    # A List Number is drawn on about half the lines, so at one size it can sit under
-    # the presence gate and be absent here; wherever it is decided it is withheld.
-    decided_list_number = [controls_by_size[lines].get("list_number") for lines in sizes]
-    assert set(decided_list_number) <= {"withheld", None}, decided_list_number
-    assert "withheld" in decided_list_number
+    assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
 
 
 def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:

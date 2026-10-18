@@ -247,6 +247,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     )
     draft.line_attrs = [
         retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
+        retired(keyword_attribute("Type", "Set Screw")),  # likewise
         keyword_attribute("Point Type", point),
         keyword_attribute("Drive Type", "Hex Socket"),
         keyword_attribute("Material", material),
