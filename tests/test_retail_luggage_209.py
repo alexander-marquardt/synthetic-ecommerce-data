@@ -204,6 +204,48 @@ def test_a_cabin_case_decoy_holds_the_capacity_its_dimensions_give() -> None:
     assert by_dims and all(len(litres) == 1 for litres in by_dims.values()), by_dims
 
 
+def test_a_cabin_case_decoy_weighs_what_the_case_of_its_dimensions_weighs() -> None:
+    """Two cabin cases of one size weigh the same, so a decoy states the weight of the row it copies."""
+    by_dims: dict[str, set[str]] = {}
+    for doc in _spec("cabin_case").docs():
+        e = _attrs(doc)
+        by_dims.setdefault(e["dimensions"]["value"], set()).add(e["weight"]["value"])
+    assert by_dims and all(len(kg) == 1 for kg in by_dims.values()), by_dims
+    by_code = {d["product_id"]: _attrs(d)["weight"]["value"] for d in _spec("cabin_case").docs()}
+    assert (by_code["BRD-CBCDNW"], by_code["BRD-CBCDRD"], by_code["BRD-CBCDWK"]) == ("1.2", "2.5", "2.3")
+
+
+def test_a_holdall_titled_wheeled_states_wheels_in_its_structured_entry() -> None:
+    wheeled = [d for d in _spec("holdall").docs() if "wheeled" in d["title"].lower()]
+    assert {d["product_id"] for d in wheeled} >= {"BRD-HLDWHL", "BRD-HLDDSU"}
+    for doc in wheeled:
+        assert _attrs(doc)["wheels"]["value"] != "No Wheels", doc["product_id"]
+
+
+def _skus(code: str) -> list[dict[str, str]]:
+    """Each SKU of a suitcase style as ``{key: value}`` over its color, capacity and weight entries."""
+    doc = next(d for d in _spec("suitcase").docs() if d["product_id"] == f"BRD-{code}")
+    return [{e["key"]: e["value"] for e in v["attributes"]} for v in export.standard_document(doc)["variants"]]
+
+
+def test_the_example_queries_find_a_red_65_litre_suitcase_and_a_cabin_suitcase_under_3_kg() -> None:
+    """``red suitcase 65 litre`` and ``lightweight cabin suitcase under 3 kg`` each have a SKU to find."""
+    assert any(s["color"] == "Red" and s["capacity"] == "65" for s in _skus("SUTSKY"))
+    assert any(s["luggage_size"] == "Cabin" and float(s["weight"]) < 3 for s in _skus("SUTSKY"))
+
+
+def test_a_color_class_decoy_is_not_the_color_its_query_names() -> None:
+    seen = 0
+    for key in KEYS:
+        for decoy in _spec(key).decoys:
+            if decoy.policy == "color":
+                seen += 1
+                word = decoy.query.split()[0]
+                assert word not in {c[0].lower() for c in decoy.row.colors}, decoy.row.code
+                assert word in decoy.row.title.lower() or word in decoy.row.desc.lower(), decoy.row.code
+    assert seen
+
+
 def test_a_weekend_bag_decoy_holds_the_capacity_of_the_bag_in_its_material() -> None:
     by_code = {d["product_id"]: _attrs(d)["capacity"]["value"] for d in _spec("weekend_bag").docs()}
     canvas, leather_look = by_code["BRD-WKBCNV"], by_code["BRD-WKBLTH"]  # the authored bags
