@@ -113,7 +113,6 @@ _TOWEL = (HOME, "Kitchen & Dining", "Tea Towels")
 _BOUQ = ("Garden", "Flowers", "Bouquets")
 _GLASS = (HOME, "Kitchen & Dining", "Glassware")
 _UTEN = (HOME, "Kitchen & Dining", "Kitchen Utensils")
-_BAG = (GIFTS, "Gift Wrap", "Gift Bags")
 
 
 def _decoy(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
@@ -150,9 +149,9 @@ DECOYS = (
     _decoy("DCYWLC", "Wallpaper Print Cushion", EMBERLY, _CUSH, "Cushion", 14.0, "cushion",
            "A cushion cut from fabric in a wallpaper design of leaves.",
            GREEN, "Cotton"),
-    _decoy("DCYWLB", "Wallpaper Stripe Gift Bag", LARCHWOOD, _BAG, "Gift Bag", 3.0, "gift_bag",
-           "A paper gift bag printed in the stripes of a wallpaper.",
-           CREAM, "Paper"),
+    _decoy("DCYWLB", "Wallpaper Stripe Tea Towel", LARCHWOOD, _TOWEL, "Tea Towels", 5.0, "tea_towel",
+           "A cotton tea towel printed in the stripes of a wallpaper. It is a tea towel, not a roll.",
+           CREAM, "Cotton"),
     _decoy("DCYCRD", "Birthday Card Tea Towel", CALDERBY, _TOWEL, "Tea Towels", 5.0, "tea_towel",
            "A cotton tea towel printed with a birthday card. It is a tea towel, not a greeting.",
            RED, "Cotton"),
@@ -168,15 +167,15 @@ DECOYS = (
     _decoy("DCYPCC", "Picnic Blanket Print Cushion", LARCHWOOD, _CUSH, "Cushion", 12.0, "cushion",
            "A cushion in the red check of a picnic blanket.",
            RED, "Cotton"),
-    _decoy("DCYPCT", "Picnic Blanket Tote Gift Bag", THISTLE, _BAG, "Gift Bag", 4.0, "gift_bag",
-           "A paper gift bag with a picnic blanket pattern, for a summer present.",
-           YELLOW, "Paper"),
+    _decoy("DCYPCT", "Picnic Blanket Check Tea Towel", THISTLE, _TOWEL, "Tea Towels", 5.0, "tea_towel",
+           "A cotton tea towel in the check of a picnic blanket. It is a tea towel, not a blanket.",
+           YELLOW, "Cotton"),
     _decoy("DCYDSC", "Door Stop Cat Cushion", EMBERLY, _CUSH, "Cushion", 12.0, "cushion",
            "A heavy cat shaped cushion that some people lean on a door; it is not a door stop.",
            GREY, "Cotton"),
-    _decoy("DCYDSB", "Door Stop Sign Gift Bag", HARBOUR, _BAG, "Gift Bag", 3.0, "gift_bag",
-           "A paper gift bag printed with a door sign.",
-           WHITE, "Paper"),
+    _decoy("DCYDSB", "Door Stop Print Tea Towel", HARBOUR, _TOWEL, "Tea Towels", 5.0, "tea_towel",
+           "A cotton tea towel printed with a wedge door stop. It is a tea towel, not a door stop.",
+           WHITE, "Cotton"),
 )
 
 def docs() -> list[dict]:

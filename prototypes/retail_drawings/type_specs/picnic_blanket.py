@@ -1,6 +1,6 @@
 """Picnic blankets (gen#217, a spec by gen#351): Sports & Outdoors > Camping > Picnic Blankets.
 
-Three styles from three brands, drawn by :func:`kit_decor.picnic_blanket`: the backing (plain or
+Three styles from three brands, drawn by :func:`kit_sports.picnic_blanket`: the backing (plain or
 waterproof) changes the drawing. The waterproof backing and the material are structured entries; a
 style is a color times its dimensions. Every name here is invented.
 """
@@ -9,7 +9,7 @@ style is a color times its dimensions. Every name here is invented.
 
 from __future__ import annotations
 
-import kit_decor  # noqa: F401 -- registers the shapes
+import kit_sports  # noqa: F401 -- registers the shapes
 from decor_rows import (
     BLACK,
     BLANKETS,
@@ -38,7 +38,7 @@ ROWS = (
          "A thick wool picnic blanket with a fringed edge and a leather carry strap.",
          (NAVY, TAN, BLACK),
          (a("waterproof_backing", "Waterproof backing", "No"), a("material", "Material", "Wool")),
-         (("140 x 170 cm", 32.0),), "dimensions", (("backing", "plain"),)),
+         (("140 x 170 cm", 32.0), ("170 x 200 cm", 40.0)), "dimensions", (("backing", "plain"),)),
     row("PCBXLG", "Extra Large Waterproof Picnic Blanket", LARCHWOOD, BLANKETS, "Picnic Blanket", 28.0, "picnic_blanket",
          "A big picnic blanket with a waterproof backing, wide enough for a family and a basket.",
          (WHITE, BLACK, GREEN),

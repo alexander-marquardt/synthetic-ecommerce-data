@@ -27,7 +27,8 @@ department drops it). `tests/test_retail_sports_decoys_368.py` walks the live ca
 Outdoors types, so a new type reds until it has two decoys or an entry in `SPORTS_EXEMPT` that names
 its follow-up issue. The seven first-increment types (tents, sleeping bags, camping chairs, yoga mats,
 dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plural strip reads
-"tennis" as "tenni", so the noun of those two rows is `tenni`.
+"tennis" as "tenni", so the noun of those two rows is `tenni`. The picnic blanket of gen#217 (Camping)
+carries two rows of its own (`picnic`), beside the two decoys of `decor_rows.py`.
 
 **Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
 hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
@@ -115,6 +116,8 @@ policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory card
 | tennis | tenni | PLT-DY74 | Crystal Tennis Bracelet | Bracelet | department |
 | badminton | badminton | PLT-DY75 | Badminton Club T-Shirt | Tee | department |
 | badminton | badminton | PLT-DY76 | Badminton Club Tote Bag | Tote Bag | department |
+| picnic | picnic | PLT-DY87 | Picnic Check Cushion | Cushion | department |
+| picnic | picnic | PLT-DY88 | Insulated Picnic Tote Bag | Tote Bag | department |
 | mug | mug | PLT-DY77 | Wall Mug Rack, Five Hooks | Wall Hooks | department |
 | mug | mug | PLT-DY78 | Microwave Mug Cake | Cake | department |
 | card | card | PLT-DY79 | Travel Card Holder Case | Travel Cases | department |
