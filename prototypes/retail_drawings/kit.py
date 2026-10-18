@@ -620,6 +620,14 @@ def _herb(x: float, y: float) -> str:
     )
 
 
+def _pepper(x: float, y: float) -> str:
+    return (
+        f'<g transform="translate({x} {y})">{_path("M-16,-16 C-26,0 -20,24 -4,28 C0,30 6,30 10,28 C24,22 26,-2 16,-16 C8,-22 -8,-22 -16,-16 Z", "#c8312e", 2)}'
+        f"{_path('M-3,-18 L-1,-30 L4,-30 L4,-18 Z', '#4c9a3c', 1.4)}"
+        f"{_highlight('M-14,-6 Q-14,-14 -6,-16', 2, 0.6)}</g>"
+    )
+
+
 #: What a punnet holds, by the ``produce`` param (a punnet of strawberries when it is absent).
 PRODUCE = {
     "strawberry": _strawberry,
@@ -628,6 +636,7 @@ PRODUCE = {
     "carrot": _carrot,
     "bean": _bean,
     "herb": _herb,
+    "pepper": _pepper,
 }
 
 
