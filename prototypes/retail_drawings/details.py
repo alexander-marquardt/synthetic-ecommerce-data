@@ -98,6 +98,8 @@ PARTS: dict[str, dict[str, dict]] = {
     "school_pinafore": {"straps": STRAPS_TOP},
     "school_shirt": {"hem": TORSO_HEM, "collar": COLLAR},
     "tracksuit": {"cuffs": HEM},
+    "trouser_suit": {"cuffs": HEM},
+    "boys_suit": {"cuffs": HEM},
     "outfit_set": {"waistband": band((0.55, 0.0, 1.0, 0.12))},
     "tights": {"waistband": WAIST},
     "boxers": {"waistband": WAIST},
