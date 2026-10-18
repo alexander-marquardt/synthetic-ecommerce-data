@@ -107,6 +107,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
@@ -241,6 +242,9 @@ SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 #: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
 #: templates only: the Garden department grows by authored rows.
 GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
+#: The text-match decoys of the decor types (:mod:`decor_rows`, gen#217): templates only. The
+#: types themselves are specs and the registry leaves them out of the derivation.
+DECOR_IDS = decor_rows.decoy_ids()
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
 #: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
@@ -288,7 +292,8 @@ SPEC_IDS = type_registry.left_out_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()
+DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
 # Every registered type's text-match decoys, of every department, join by registering
@@ -348,7 +353,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(),
     ]  # fmt: skip
@@ -359,8 +364,8 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids() | NIKE_IDS
-            | type_registry.decoy_ids() | needs_rows.decoy_ids()
+    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
+            | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
             | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
@@ -378,7 +383,8 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | DECOR_IDS | NIKE_IDS
+                | NEEDS_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
