@@ -1,7 +1,7 @@
-"""Stainless Steel Hex Bolt Sleeve Anchor: a text-match decoy for the industrial seed queries (#462).
+"""Stainless Steel Hex Bolt Sleeve Anchor: text-match decoy for the industrial seeds (#462).
 
-A sleeve anchor with a stainless steel hex bolt. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A sleeve anchor with a stainless steel hex bolt. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(2.0, 9.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a sleeve anchor with a stainless steel hex bolt",
+        reason=(
+            "decoy for the industrial seed queries (#462): a sleeve anchor with a stainless steel "
+            "hex bolt"
+        ),
     ),
 )

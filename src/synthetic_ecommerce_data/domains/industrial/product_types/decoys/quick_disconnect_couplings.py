@@ -1,7 +1,7 @@
-"""Quick-Disconnect Coupling with Viton O-Ring Seal: a text-match decoy for the industrial seed queries (#462).
+"""Quick-Disconnect Coupling with Viton O-Ring Seal: text-match decoy (#462).
 
-A coupling sealed with a Viton O-ring. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A coupling sealed with a Viton O-ring. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -30,6 +30,8 @@ SPEC = TypeSpec(
         price_range=(8.0, 34.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a coupling sealed with a Viton O-ring",
+        reason=(
+            "decoy for the industrial seed queries (#462): a coupling sealed with a Viton O-ring"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
 """Hex Key for M6x1 Set Screws: a text-match decoy for the industrial seed queries (#462).
 
-A 3 mm hex key that drives an M6x1 set screw. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A 3 mm hex key that drives an M6x1 set screw. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(3.0, 12.0),
         skus=2,
         featured_sizes=("3 mm",),
-        reason="decoy for the industrial seed queries (#462): a 3 mm hex key that drives an M6x1 set screw",
+        reason=(
+            "decoy for the industrial seed queries (#462): a 3 mm hex key that drives an M6x1 set "
+            "screw"
+        ),
     ),
 )

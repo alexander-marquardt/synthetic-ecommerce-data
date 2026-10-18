@@ -1,7 +1,7 @@
 """ER32 Collet for End Mill: a text-match decoy for the industrial seed queries (#462).
 
-An ER32 collet that grips a 1/2 in end mill. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+An ER32 collet that grips a 1/2 in end mill. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(9.0, 36.0),
         skus=2,
         featured_sizes=("1/2 in",),
-        reason="decoy for the industrial seed queries (#462): an ER32 collet that grips a 1/2 in end mill",
+        reason=(
+            "decoy for the industrial seed queries (#462): an ER32 collet that grips a 1/2 in end "
+            "mill"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
 """Carbide Drill Bit Sharpening Wheel: a text-match decoy for the industrial seed queries (#462).
 
-A diamond wheel that sharpens a carbide drill bit. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A diamond wheel that sharpens a carbide drill bit. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(18.0, 80.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a diamond wheel that sharpens a carbide drill bit",
+        reason=(
+            "decoy for the industrial seed queries (#462): a diamond wheel that sharpens a "
+            "carbide drill bit"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
 """Washer Cutter, Adjustable: a text-match decoy for the industrial seed queries (#462).
 
-An adjustable cutter that cuts washers from gasket sheet. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+An adjustable cutter that cuts washers from gasket sheet. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -22,10 +22,13 @@ SPEC = TypeSpec(
         descriptor_attr=None,
         size_attr="Capacity",
         size_values=("1/2 in to 5 in",),
-        attributes={"Material": ("High-Speed Steel",)},
+        attributes={"Material": ("High Speed Steel",)},
         price_range=(14.0, 48.0),
         skus=1,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): an adjustable cutter that cuts washers from gasket sheet",
+        reason=(
+            "decoy for the industrial seed queries (#462): an adjustable cutter that cuts washers "
+            "from gasket sheet"
+        ),
     ),
 )

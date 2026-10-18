@@ -1,7 +1,7 @@
 """O-Ring Cord Splicing Kit: a text-match decoy for the industrial seed queries (#462).
 
-A kit that cuts and glues O-ring cord to length. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A kit that cuts and glues O-ring cord to length. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -22,10 +22,13 @@ SPEC = TypeSpec(
         descriptor_attr=None,
         size_attr="Diameter",
         size_values=("1/8 in", "3/16 in", "1/4 in"),
-        attributes={"Material": ("Nitrile",)},
+        attributes={"Material": ("Buna-N",)},
         price_range=(12.0, 45.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a kit that cuts and glues O-ring cord to length",
+        reason=(
+            "decoy for the industrial seed queries (#462): a kit that cuts and glues O-ring cord "
+            "to length"
+        ),
     ),
 )

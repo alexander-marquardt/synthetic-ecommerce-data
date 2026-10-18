@@ -1,7 +1,7 @@
 """O-Ring Silicone Grease: a text-match decoy for the industrial seed queries (#462).
 
-A silicone grease that lubricates O-rings. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A silicone grease that lubricates O-rings. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(5.0, 20.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a silicone grease that lubricates O-rings",
+        reason=(
+            "decoy for the industrial seed queries (#462): a silicone grease that lubricates "
+            "O-rings"
+        ),
     ),
 )

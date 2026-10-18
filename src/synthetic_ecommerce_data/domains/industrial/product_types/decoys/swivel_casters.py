@@ -1,7 +1,7 @@
 """Ball Bearing Swivel Caster: a text-match decoy for the industrial seed queries (#462).
 
-A swivel caster on ball bearings, 100 mm. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A swivel caster on ball bearings, 100 mm. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,8 @@ SPEC = TypeSpec(
         price_range=(10.0, 40.0),
         skus=2,
         featured_sizes=("100 mm",),
-        reason="decoy for the industrial seed queries (#462): a swivel caster on ball bearings, 100 mm",
+        reason=(
+            "decoy for the industrial seed queries (#462): a swivel caster on ball bearings, 100 mm"
+        ),
     ),
 )

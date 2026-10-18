@@ -1,7 +1,7 @@
 """Washer-Faced Flange Nut: a text-match decoy for the industrial seed queries (#462).
 
-A flange nut with a washer face, M10. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A flange nut with a washer face, M10. Its title holds the seed noun and its category path does not,
+so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 

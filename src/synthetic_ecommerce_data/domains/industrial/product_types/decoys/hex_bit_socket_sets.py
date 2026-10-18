@@ -1,7 +1,7 @@
-"""Hex Bit Socket Set for M12x1.75 Socket Cap Screws: a text-match decoy for the industrial seed queries (#462).
+"""Hex Bit Socket Set for M12x1.75 Socket Cap Screws: text-match decoy (#462).
 
-A hex bit socket set that drives M12x1.75 socket cap screws. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A hex bit socket set that drives M12x1.75 socket cap screws. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(18.0, 70.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a hex bit socket set that drives M12x1.75 socket cap screws",
+        reason=(
+            "decoy for the industrial seed queries (#462): a hex bit socket set that drives "
+            "M12x1.75 socket cap screws"
+        ),
     ),
 )

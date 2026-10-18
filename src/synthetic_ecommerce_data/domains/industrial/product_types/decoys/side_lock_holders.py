@@ -1,7 +1,7 @@
 """Side-Lock End Mill Holder: a text-match decoy for the industrial seed queries (#462).
 
-A side-lock holder that clamps a 25 mm end mill. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A side-lock holder that clamps a 25 mm end mill. Its title holds the seed noun and its category
+path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(55.0, 190.0),
         skus=2,
         featured_sizes=("25 mm",),
-        reason="decoy for the industrial seed queries (#462): a side-lock holder that clamps a 25 mm end mill",
+        reason=(
+            "decoy for the industrial seed queries (#462): a side-lock holder that clamps a 25 mm "
+            "end mill"
+        ),
     ),
 )

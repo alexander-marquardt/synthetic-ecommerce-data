@@ -1,7 +1,7 @@
 """Hex Head Bolt Thread Restoring File: a text-match decoy for the industrial seed queries (#462).
 
-A file that restores a damaged hex head bolt thread, 7/16-14. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A file that restores a damaged hex head bolt thread, 7/16-14. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(8.0, 30.0),
         skus=2,
         featured_sizes=("7/16-14",),
-        reason="decoy for the industrial seed queries (#462): a file that restores a damaged hex head bolt thread, 7/16-14",
+        reason=(
+            "decoy for the industrial seed queries (#462): a file that restores a damaged hex "
+            "head bolt thread, 7/16-14"
+        ),
     ),
 )

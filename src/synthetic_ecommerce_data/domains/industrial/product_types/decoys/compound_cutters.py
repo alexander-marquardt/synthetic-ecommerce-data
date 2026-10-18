@@ -1,7 +1,7 @@
 """Bolt Cutter: a text-match decoy for the industrial seed queries (#462).
 
-A compound action cutter that shears a bolt. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A compound action cutter that shears a bolt. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(22.0, 85.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a compound action cutter that shears a bolt",
+        reason=(
+            "decoy for the industrial seed queries (#462): a compound action cutter that shears a "
+            "bolt"
+        ),
     ),
 )

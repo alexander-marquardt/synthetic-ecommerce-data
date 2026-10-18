@@ -1,7 +1,7 @@
 """Roller Chain Tensioner: a text-match decoy for the industrial seed queries (#462).
 
-A spring tensioner that takes up slack in roller chain. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A spring tensioner that takes up slack in roller chain. Its title holds the seed noun and its
+category path does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(14.0, 52.0),
         skus=2,
         featured_sizes=(),
-        reason="decoy for the industrial seed queries (#462): a spring tensioner that takes up slack in roller chain",
+        reason=(
+            "decoy for the industrial seed queries (#462): a spring tensioner that takes up slack "
+            "in roller chain"
+        ),
     ),
 )

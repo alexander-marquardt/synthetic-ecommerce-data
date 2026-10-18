@@ -1,7 +1,7 @@
 """Drill Bit Sharpener: a text-match decoy for the industrial seed queries (#462).
 
-A sharpener for drill bits up to 3/8 in. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A sharpener for drill bits up to 3/8 in. Its title holds the seed noun and its category path does
+not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,8 @@ SPEC = TypeSpec(
         price_range=(20.0, 90.0),
         skus=2,
         featured_sizes=("3/8 in",),
-        reason="decoy for the industrial seed queries (#462): a sharpener for drill bits up to 3/8 in",
+        reason=(
+            "decoy for the industrial seed queries (#462): a sharpener for drill bits up to 3/8 in"
+        ),
     ),
 )

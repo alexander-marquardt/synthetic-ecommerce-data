@@ -1,7 +1,7 @@
 """End Mill Holder: a text-match decoy for the industrial seed queries (#462).
 
-A CAT40 holder that clamps a 1/2 in end mill. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A CAT40 holder that clamps a 1/2 in end mill. Its title holds the seed noun and its category path
+does not, so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
@@ -26,6 +26,9 @@ SPEC = TypeSpec(
         price_range=(45.0, 160.0),
         skus=2,
         featured_sizes=("1/2 in",),
-        reason="decoy for the industrial seed queries (#462): a CAT40 holder that clamps a 1/2 in end mill",
+        reason=(
+            "decoy for the industrial seed queries (#462): a CAT40 holder that clamps a 1/2 in "
+            "end mill"
+        ),
     ),
 )

@@ -1,7 +1,7 @@
 """Sprocket Alignment Laser Tool: a text-match decoy for the industrial seed queries (#462).
 
-A laser that lines up two sprockets. Its title holds the seed noun and its category path does not, so it
-shows what a category policy removes (the seeds it serves are in
+A laser that lines up two sprockets. Its title holds the seed noun and its category path does not,
+so it shows what a category policy removes (the seeds it serves are in
 ``domains/industrial/seed_decoys.py``).
 """
 
