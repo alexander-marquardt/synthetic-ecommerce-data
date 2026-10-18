@@ -52,7 +52,7 @@ SHOWN = (
 )
 UNIT = {
     "LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": "", "CMT": " cm", "GM2": " gsm",
-    "KEL": " K",
+    "KEL": " K", "WTT": " W",
 }  # fmt: skip
 GARMENT = {"audience", "leg_fit", "rise", "length", "waist", "neckline", "sleeve_length"}
 
