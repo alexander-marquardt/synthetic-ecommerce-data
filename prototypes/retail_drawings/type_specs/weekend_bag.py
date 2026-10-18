@@ -12,8 +12,24 @@ search (a red lining, a wash bag that comes with it, a leather look that is not 
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, BURGUNDY, EXEMPT, FENMOOR, GREEN, NAVY, OWNED, RED, SKERRY, TAN, WHITE, WRENFIELD,
-    YELLOW, a, count, litres, luggage_row,
+    BLACK,
+    BLUE,
+    BURGUNDY,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    NAVY,
+    OWNED,
+    RED,
+    SKERRY,
+    TAN,
+    WHITE,
+    WRENFIELD,
+    YELLOW,
+    a,
+    count,
+    litres,
+    luggage_row,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 
@@ -40,8 +56,9 @@ _ROWS = (
 )  # fmt: skip
 
 
-def _decoy(cls, query, policy, code, title, desc, color, material, brand):
-    return Decoy(cls, query, policy, _row(code, title, brand, 36.0, desc, (color,), material, 1, False, 38))
+def _decoy(cls, query, policy, code, title, desc, color, material, brand, litre):
+    """A decoy holds the capacity of the authored bag in its material (canvas 35 L, leather-look 40 L)."""
+    return Decoy(cls, query, policy, _row(code, title, brand, 36.0, desc, (color,), material, 1, False, litre))
 
 
 SPEC = TypeSpec(
@@ -53,12 +70,12 @@ SPEC = TypeSpec(
     apparel_exempt=EXEMPT,
     decoys=(
         _decoy(1, "red weekend bag", "color", "WKBDRD", "Weekend Bag, Red Lining",
-               "A navy canvas weekend bag with a bright red lining and red handles.", NAVY, "Canvas", SKERRY),
+               "A navy canvas weekend bag with a bright red lining and red handles.", NAVY, "Canvas", SKERRY, 35),
         _decoy(6, "wash bag", "category", "WKBDWB", "Weekend Bag with Wash Bag",
                "A black canvas weekend bag sold with a small wash bag clipped inside; the bag itself "
-               "is a duffel.", BLACK, "Canvas", FENMOOR),
+               "is a duffel.", BLACK, "Canvas", FENMOOR, 35),
         _decoy(4, "leather weekend bag", "generic", "WKBDLK", "Faux Leather Weekend Bag",
                "A weekend bag in faux leather with a zip top; no leather is used.", TAN,
-               "Faux Leather", WRENFIELD),
+               "Faux Leather", WRENFIELD, 40),
     ),
 )  # fmt: skip

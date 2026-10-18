@@ -12,8 +12,22 @@ piping, a suitcase strap, a fill that only feels like memory foam).
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, EXEMPT, FENMOOR, GREEN, GREY, NAVY, OWNED, PELLBROOK, RED, SKERRY, WHITE, WRENFIELD,
-    YELLOW, a, luggage_row,
+    BLACK,
+    BLUE,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    GREY,
+    NAVY,
+    OWNED,
+    PELLBROOK,
+    RED,
+    SKERRY,
+    WHITE,
+    WRENFIELD,
+    YELLOW,
+    a,
+    luggage_row,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 

@@ -12,8 +12,23 @@ that fools a search (red handles, the word suitcase, a leather look that is not 
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, EXEMPT, FENMOOR, GREEN, KHAKI, MARROWGATE, NAVY, OWNED, PELLBROOK, RED, TARNWICK,
-    WHITE, YELLOW, a, luggage_row, num,
+    BLACK,
+    BLUE,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    KHAKI,
+    MARROWGATE,
+    NAVY,
+    OWNED,
+    PELLBROOK,
+    RED,
+    TARNWICK,
+    WHITE,
+    YELLOW,
+    a,
+    luggage_row,
+    num,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 

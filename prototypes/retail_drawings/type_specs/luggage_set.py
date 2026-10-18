@@ -14,8 +14,22 @@ lock that is not TSA).
 from __future__ import annotations
 
 from luggage_common import (
-    BLACK, BLUE, EXEMPT, FENMOOR, GREEN, MARROWGATE, NAVY, OWNED, RED, SKERRY, TARNWICK, WHITE,
-    YELLOW, a, count, luggage_row,
+    BLACK,
+    BLUE,
+    EXEMPT,
+    FENMOOR,
+    GREEN,
+    MARROWGATE,
+    NAVY,
+    OWNED,
+    RED,
+    SKERRY,
+    TARNWICK,
+    WHITE,
+    YELLOW,
+    a,
+    count,
+    luggage_row,
 )  # fmt: skip
 from type_registry import Decoy, TypeSpec
 
