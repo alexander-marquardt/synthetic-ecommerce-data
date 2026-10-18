@@ -9,17 +9,17 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 21650,
+  "images": 21656,
   "non_grocery": {
    "skus": 95465,
    "styles": 5886
   },
-  "skus": 148110,
-  "styles": 14461,
+  "skus": 148164,
+  "styles": 14467,
   "top_levels": {
    "Beauty": {
-    "skus": 1102,
-    "styles": 544
+    "skus": 1156,
+    "styles": 550
    },
    "Cleaning": {
     "skus": 783,
@@ -531,8 +531,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 84440,
-   "styles": 9654
+   "skus": 84494,
+   "styles": 9660
   },
   "appliance_rows": {
    "skus": 124,
@@ -544,8 +544,8 @@
   },
   "authored_images": 739,
   "before_grocery": {
-   "skus": 72031,
-   "styles": 5138
+   "skus": 72085,
+   "styles": 5144
   },
   "breadth_rows": {
    "skus": 687,
@@ -648,8 +648,8 @@
    "styles": 49
   },
   "type_specs": {
-   "skus": 3675,
-   "styles": 500
+   "skus": 3729,
+   "styles": 506
   },
   "underwear_rows": {
    "skus": 1389,
