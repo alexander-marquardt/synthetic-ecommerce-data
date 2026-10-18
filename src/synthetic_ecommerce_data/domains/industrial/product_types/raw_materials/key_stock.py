@@ -30,6 +30,7 @@ from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.model import keyword_attribute
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import NO_STANDARD
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
@@ -108,6 +109,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     )
     style = gen._style("in")
     draft.line_attrs = [
+        retired(keyword_attribute("Item", ITEM)),  # keeps the stream stable for #497
         keyword_attribute("Stock Fit", fit),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),

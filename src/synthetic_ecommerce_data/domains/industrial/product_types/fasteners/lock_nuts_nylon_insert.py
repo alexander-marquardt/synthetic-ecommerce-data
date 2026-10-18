@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hex_nut
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     _NUT_UNC,
@@ -275,7 +276,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=series.standard,
     )
     draft.line_attrs = [
+        # Retired (#497), listed where they stood so their sparsity draws keep
+        # the random stream stable.
+        retired(keyword_attribute("Item", ITEM)),
         keyword_attribute("Type", series.style),
+        retired(keyword_attribute("Lock Type", "Nylon Insert"), always=False),
+        retired(keyword_attribute("Insert Material", "Nylon"), always=False),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),

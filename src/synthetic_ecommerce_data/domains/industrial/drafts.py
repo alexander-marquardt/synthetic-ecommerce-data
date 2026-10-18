@@ -49,6 +49,35 @@ def _weighted(rng: random.Random, table) -> object:
 UNIT_SPLIT_KEYS = frozenset({"diameter"})
 
 
+@dataclass(frozen=True)
+class RetiredAttribute(Attribute):
+    """An attribute #497 no longer publishes, kept in a draft for its draws.
+
+    Each attribute a builder lists takes one sparsity draw, and the price
+    groups and the "already made" check read the unsparsified list. Dropping
+    ``Item`` (and the others retired in #497) from the builders moved every
+    later draw and so every price. A builder lists the retired attribute where
+    the published one stood: sparsity takes its draw and then drops it, so the
+    random stream, the dedupe key and the price groups are what they were.
+    It is never published.
+    """
+
+    #: Whether it stood among the attributes sparsity never dropped (presence
+    #: 1.0), which is what the price group and the dedupe bucket read.
+    always: bool = True
+
+
+def retired(attribute: Attribute, *, always: bool = True) -> RetiredAttribute:
+    """``attribute`` as a retired one: same name and value, never published."""
+    return RetiredAttribute(
+        name=attribute.name,
+        value=attribute.value,
+        value_num=attribute.value_num,
+        values=attribute.values,
+        always=always,
+    )
+
+
 @dataclass
 class ChildDraft:
     """A child before the shared post-pass touches it."""

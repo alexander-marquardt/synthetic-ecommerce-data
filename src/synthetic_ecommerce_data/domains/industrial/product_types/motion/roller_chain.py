@@ -42,6 +42,7 @@ from synthetic_ecommerce_data.core.model import (
 )
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, _length_or
 from synthetic_ecommerce_data.domains.industrial.newtypes import _weighted, _window
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
@@ -183,6 +184,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
+        retired(keyword_attribute("Item", ITEM)),  # keeps the stream stable for #497
         keyword_attribute("Style", style_name),
         keyword_attribute("Material", offer.material),
         keyword_attribute("Finish", offer.finish),
@@ -315,6 +317,7 @@ PRICE = PriceModel(
     option_attribute="Style",
     option_factors=STRAND_FACTORS,
 )
+
 
 def claims(
     facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str

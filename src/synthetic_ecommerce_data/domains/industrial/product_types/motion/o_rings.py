@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style, format_length_best
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     _window,
@@ -135,6 +136,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
+        retired(keyword_attribute("Item", ITEM)),  # keeps the stream stable for #497
         keyword_attribute("Material", material),
         keyword_attribute("Hardness", hardness),
     ]

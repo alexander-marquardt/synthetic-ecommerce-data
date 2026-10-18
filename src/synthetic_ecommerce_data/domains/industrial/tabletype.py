@@ -31,6 +31,7 @@ from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.model import keyword_attribute, numeric_attribute
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec, discover
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     MM_PER_INCH,
@@ -194,6 +195,7 @@ def _make(table: TableType) -> Callable[..., Any]:
             standard=table.standard,
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", table.item)),  # keeps the stream stable for #497
             keyword_attribute("Material", variant.material),
             keyword_attribute("Finish", variant.finish),
             numeric_attribute(PACK, str(pack), float(pack)),

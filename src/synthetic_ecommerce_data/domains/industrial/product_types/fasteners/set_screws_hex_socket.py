@@ -42,6 +42,7 @@ from synthetic_ecommerce_data.core.drawing.model import Figure, regular_polygon
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial import compat
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import table_provenance
 from synthetic_ecommerce_data.domains.industrial.standards import UNF_THREADS_PER_INCH
@@ -245,6 +246,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Point Type", point),
         keyword_attribute("Drive Type", "Hex Socket"),
         keyword_attribute("Material", material),

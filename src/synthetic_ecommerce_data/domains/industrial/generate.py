@@ -59,7 +59,9 @@ from synthetic_ecommerce_data.domains.industrial.drafts import (  # noqa: F401 -
     UNIT_SPLIT_KEYS,
     ChildDraft,
     LineDraft,
+    RetiredAttribute,
     _weighted,
+    retired,
 )
 from synthetic_ecommerce_data.domains.industrial.finishing import FinishMixin
 from synthetic_ecommerce_data.domains.industrial.muststock import (
@@ -329,7 +331,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         held = [
             (a.name, a.value)
             for a in line_attributes
-            if a.name in always and price.holds_equal(type_key, a)
+            if (a.name in always or (isinstance(a, RetiredAttribute) and a.always))
+            and price.holds_equal(type_key, a)
         ]
         quantity = price.page_pack(
             type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
@@ -415,6 +418,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             ),
         )
         draft.line_attrs = [
+            # Retired (#497), listed where it stood so its sparsity draw keeps
+            # the random stream stable: nothing after it moves.
+            retired(keyword_attribute("Item", item)),
+            retired(keyword_attribute("End Mill Style", style_name)),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", coating),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
@@ -566,6 +573,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated from the conventional drill series",
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
             Attribute("Point Angle", format_angle(point), point),
@@ -633,6 +641,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         )
         flutes = rng.choice((2, 3))
         draft.line_attrs = [
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
+            retired(keyword_attribute("Tap Style", "Spiral Point")),  # likewise
             keyword_attribute("Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
             keyword_attribute("Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
             keyword_attribute("Thread Direction", "Right Hand"),
@@ -761,6 +771,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", style_name)),  # keeps the stream stable for #497
+            retired(keyword_attribute("Type", style_name)),  # likewise
             keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
             keyword_attribute("Material", material),
@@ -820,6 +832,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.attrs = [
                 child.primary,
                 length_attr,
+                # Retired (#497); the countersunk line never carried it.
+                *([] if flat else [retired(self._length("Length under Head", length_in, style))]),
                 thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -925,6 +939,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Type", "Hex Head"),
             keyword_attribute("Head Type", "Hex"),
             keyword_attribute("Material", BOLT_MATERIAL[grade]),
@@ -966,7 +981,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 child.primary,
                 length_attr,
                 # A hex head does not sink into the work, so the bolt's Length
-                # is already measured under the head (#497: no second attribute).
+                # is already measured under the head (#497: no second attribute);
+                # the retired one stays in the draft to keep the stream stable.
+                retired(self._length("Length under Head", length_in, style)),
                 thread_attr,
                 self._length("Width Across Flats", head.width_across_flats_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -998,6 +1015,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="ISO 7089",
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Type", "Plain"),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", finish),
@@ -1040,6 +1058,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated; no dimensional standard applies",
         )
         draft.line_attrs = [
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Abrasive Material", abrasive),
             keyword_attribute("Backing Material", rng.choice(("Fiberglass", "Plastic"))),
             keyword_attribute("Shape", rng.choice(("Type 27 Flat", "Type 29 Conical"))),
