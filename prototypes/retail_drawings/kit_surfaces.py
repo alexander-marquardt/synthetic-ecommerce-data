@@ -14,9 +14,10 @@ from kit import INK, LW, LW_DETAIL, Fill, _highlight, _line, _path, _shade, _tin
 from kit_garments import top, trousers
 
 
-def sweatshirt(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A crew-neck sweatshirt: the kit's jumper with long sleeves and rib bands."""
-    return top(paint, fill, label, neckline="crew", sleeve="long", kind="jumper")
+def sweatshirt(paint: str, fill: Fill, label: str | None, neckline: str = "crew") -> list[str]:
+    """A sweatshirt or jumper (crew neck unless ``neckline`` says otherwise): the kit's jumper
+    with long sleeves and rib bands."""
+    return top(paint, fill, label, neckline=neckline, sleeve="long", kind="jumper")
 
 
 def pyjamas(paint: str, fill: Fill, label: str | None) -> list[str]:

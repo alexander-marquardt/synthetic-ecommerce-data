@@ -64,6 +64,14 @@ jobs:
     # its files on every core of its runner. Raising the count is one edit here
     # (and the weights, docs/ci-sharding.md); the check that waits for "tests"
     # reads every `tests (N)` job.
+    #
+    # A pull request, and a dispatched run (scripts/merge_pr.sh --github-ci), runs
+    # only the test files its change reaches (scripts/ci_select.py, #495): the
+    # range below is what the selection reads, and the selection is dealt to as
+    # few of the shards as hold it (scripts/ci_shards.py --plan). A shard with
+    # nothing to run ends after its checkout and installs nothing. A push to main
+    # has no range, so it runs every test file: the whole suite runs once after
+    # every merge.
     name: tests (${{ matrix.shard }})
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -83,7 +91,20 @@ jobs:
           # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
           # fetch from a shallow checkout would make that origin shallow too.
           fetch-depth: 0
+      # Whether this shard has a file to run: the set-up below is for a shard that has.
+      - name: Does this shard have a test file to run
+        id: select
+        run: |
+          # A planner that crashes is a red step, never an empty plan: a process
+          # substitution would hide its exit status and read as "no test to run".
+          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          first="${plan_text%%$'\n'*}"
+          if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
+          mapfile -t plan <<< "$plan_text"
+          echo "$first: ${#plan[@]} lines (the first is the shard count)"
+          if [ "${#plan[@]}" -gt 1 ]; then echo "run=true" >> "${GITHUB_OUTPUT:-/dev/null}"; else echo "run=false" >> "${GITHUB_OUTPUT:-/dev/null}"; fi
       - uses: astral-sh/setup-uv@v5
+        if: steps.select.outputs.run == 'true'
         with:
           enable-cache: true
       # The golden comparison lives in here: tests/test_catalog_golden.py
@@ -92,14 +113,23 @@ jobs:
       - name: Tests
         env:
           # tests/ci_shard_split.py deals a split file's tests (scripts/ci_shards.py
-          # SPLIT_FILES: tests/test_merge_pr.py) out by these two.
+          # SPLIT_FILES: tests/test_merge_pr.py) out by these two; CI_SHARDS is
+          # replaced below by the number of shards the selection is dealt to.
           CI_SHARD: ${{ matrix.shard }}
           CI_SHARDS: ${{ strategy.job-total }}
           # The junit path: `runner` is available in a step's env, not in the job's.
           PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
         run: |
-          mapfile -t files < <(python3 scripts/ci_shards.py --shard ${{ matrix.shard }} --of ${{ strategy.job-total }})
-          [ "${#files[@]}" -gt 0 ]
+          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          first="${plan_text%%$'\n'*}"
+          if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
+          mapfile -t plan <<< "$plan_text"
+          files=("${plan[@]:1}")
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "this change's tests fit in ${plan[0]#shards=} shards; shard ${{ matrix.shard }} has nothing to run"
+            exit 0
+          fi
+          export CI_SHARDS="${plan[0]#shards=}"
           uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
       - uses: actions/upload-artifact@v4

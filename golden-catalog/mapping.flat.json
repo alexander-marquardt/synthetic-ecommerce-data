@@ -68,6 +68,12 @@
    "stock": {
     "type": "integer"
    },
+   "pricing_unit": {
+    "type": "keyword"
+   },
+   "order_multiple": {
+    "type": "integer"
+   },
    "image_id": {
     "type": "keyword"
    },
