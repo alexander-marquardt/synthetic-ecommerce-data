@@ -4,19 +4,21 @@
     uv run python scripts/roll_stats.py          # rewrite both files from this tree's build
     python3 scripts/roll_stats.py --list         # the files it rolls, one per line
 
-``golden-retail/stats.json`` and ``golden-catalog/stats.json`` are build output. They
-moved with every type or grocery PR, so every PR that committed them conflicted the rest
-(16 of the 21 open PRs on 2026-10-18). A feature PR now commits neither:
+``golden-retail/stats.json``, ``golden-catalog/stats.json`` and ``docs/retail-apparel-decoys.md``
+are build output. They moved with every type or grocery PR, so every PR that committed them
+conflicted the rest (16 of the 21 open PRs on 2026-10-18 edited the first). A feature PR now
+commits none of them:
 
 * CI runs this script before the tests read the files (the ``tests`` job), so a PR's tests
   see the figures of the PR's own build and nothing is compared against a stale file;
-* ``scripts/merge_pr.sh`` is the release step: it rebuilds both on the merged tree and
+* ``scripts/merge_pr.sh`` is the release step: it rebuilds them on the merged tree and
   commits them with a ``Rolled-By: scripts/merge_pr.sh`` trailer when the PR merges;
-* ``scripts/check_no_stats_edit.py`` refuses a PR that edits either file without that
-  trailer on its tip.
+* ``scripts/check_no_stats_edit.py`` refuses a PR that edits one of them without that
+  trailer on its tip. The trailer is the one escape: only ``merge_pr.sh`` writes it.
 
 The roll is the two builders the repository already had, in this order: the retail
-measurement (``prototypes/retail_drawings/retail_figures.py``, about 50 s) and the
+measurement (``prototypes/retail_drawings/retail_figures.py``, about 50 s, which writes the
+stats and the apparel decoy table) and the
 catalog build (``ecom-generate build``, about 10 s, into a temporary directory, of which
 only ``stats.json`` is kept: the other golden files are the PR's own to commit).
 """
@@ -37,14 +39,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 RETAIL = "golden-retail/stats.json"
 CATALOG = "golden-catalog/stats.json"
+#: The apparel decoy table: ``retail_figures.py`` ends with ``decoy_apparel.write_doc()``, so the
+#: retail measurement writes it beside the stats; six open PRs edited it by hand on 2026-10-18.
+TABLE = "docs/retail-apparel-decoys.md"
 #: The one list of the files a feature PR never commits.
-ROLLED: tuple[str, ...] = (RETAIL, CATALOG)
+ROLLED: tuple[str, ...] = (RETAIL, CATALOG, TABLE)
 
 Builder = Callable[[Path], None]
 
 
 def build_retail(root: Path) -> None:
-    """Rewrite ``golden-retail/stats.json`` (and the apparel decoy table beside it)."""
+    """Rewrite ``golden-retail/stats.json`` and the apparel decoy table beside it."""
     script = root / "prototypes" / "retail_drawings" / "retail_figures.py"
     done = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
     if done.returncode != 0:

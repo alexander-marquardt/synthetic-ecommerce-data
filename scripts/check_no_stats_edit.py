@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Refuse a pull request that edits a rolled stats file by hand (gen#373).
+"""Refuse a pull request that edits a rolled generated file by hand (gen#373).
 
     python3 scripts/check_no_stats_edit.py --base <sha> --head <sha>   # CI, the stats-roll job
 
-``golden-retail/stats.json`` and ``golden-catalog/stats.json`` are rolled by
-``scripts/merge_pr.sh`` when a PR merges, not committed by the PR (``scripts/roll_stats.py``
-holds the list and the reason). A PR whose range ``base...head`` changes either file fails,
-unless the tip commit carries the trailer ``Rolled-By: scripts/merge_pr.sh``, which only
-``merge_pr.sh``'s rebuild commits write. The tip is what is read because the rebuild
+``golden-retail/stats.json``, ``golden-catalog/stats.json`` and ``docs/retail-apparel-decoys.md``
+are rolled by ``scripts/merge_pr.sh`` when a PR merges, not committed by the PR
+(``scripts/roll_stats.py`` holds the list and the reason). A PR whose range ``base...head``
+changes one of them fails, unless the tip commit carries the trailer
+``Rolled-By: scripts/merge_pr.sh``, which only ``merge_pr.sh``'s rebuild commits write; the
+trailer is the one escape, a plain line anyone could type, so a review reads a tip that has it.
+The tip is what is read because the rebuild
 regenerates the whole file: whatever an earlier commit put there is overwritten by it.
 
 Exit 0: no rolled file is edited, or the release step wrote the tip. Exit 1: the files and
@@ -51,14 +53,14 @@ def rolled_by_release_step(root: Path, head: str) -> bool:
 
 def refusal(files: list[str], base: str) -> str:
     lines = [
-        "stats-roll: this change edits files that are rolled when a PR merges, not by the PR:",
+        "stats-roll: this change edits generated files, rolled when a PR merges and not by the PR:",
         *(f"  {path}" for path in files),
         "",
-        "CI rewrites both from your build before the tests read them (scripts/roll_stats.py), and",
+        "CI rewrites them from your build before the tests read them (scripts/roll_stats.py), and",
         "scripts/merge_pr.sh commits the rebuilt files with the PR, so a PR that commits them",
         "conflicts every other open PR. Put them back as they are on the base, in a new commit:",
         *(f"  git checkout {base} -- {path}" for path in files),
-        "To see the figures of your build without committing them, run:",
+        "To see the figures and the table of your build without committing them, run:",
         "  uv run python scripts/roll_stats.py",
     ]
     return "\n".join(lines)
