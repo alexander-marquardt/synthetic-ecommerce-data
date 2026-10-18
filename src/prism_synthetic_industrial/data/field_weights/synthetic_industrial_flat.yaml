@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 125 distinct attribute names and a hand-maintained list
-# of 125 declarations drifts from the data the first time either side moves.
+# publishes 128 distinct attribute names and a hand-maintained list
+# of 128 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      125
-#   offered as facets        103  (0 numeric ranges, 103 terms)
+#   attributes declared      128
+#   offered as facets        106  (0 numeric ranges, 106 terms)
 #   declared, not faceted    22
 # =============================================================================
 
@@ -270,8 +270,8 @@ fields:
   - name: cage_material
     type: terms
     source: facets.cage_material
-  # Capacity -- 15 distinct values over 20 product-value pairs is 0.75 per product, at or above the 0.50 identifier threshold but on 11 products, fewer than the 250 the identifier test needs as evidence
-  #   present on 21 documents across 11 product type(s); 15 distinct values
+  # Capacity -- 6 distinct values over 7 product-value pairs is 0.86 per product, at or above the 0.50 identifier threshold but on 4 products, fewer than the 250 the identifier test needs as evidence
+  #   present on 8 documents across 4 product type(s); 6 distinct values
   - name: capacity
     type: terms
     source: facets.capacity
@@ -568,8 +568,8 @@ fields:
     type: terms
     source: facets.list_number
     facet: false
-  # Load Capacity -- a discrete standard set: 26 distinct values over 221 product-value pairs is 0.12 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 221 documents across 3 product type(s); 26 distinct values
+  # Load Capacity -- a discrete standard set: 24 distinct values over 219 product-value pairs is 0.11 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 219 documents across 2 product type(s); 24 distinct values
   - name: load_capacity
     type: terms
     source: facets.load_capacity
@@ -601,6 +601,16 @@ fields:
   - name: max_rpm
     type: terms
     source: facets.max_rpm
+  # Maximum Size -- a discrete list: 7 distinct values over 11 product-value pairs is 0.64 per product, at or above the 0.50 continuity threshold but on 6 products, fewer than the 250 the continuity test needs as evidence
+  #   present on 11 documents across 6 product type(s); 7 distinct values
+  - name: maximum_size
+    type: terms
+    source: facets.maximum_size
+  # Maximum Workpiece Weight -- 2 distinct values over 2 product-value pairs is 1.00 per product, at or above the 0.50 identifier threshold but on 1 products, fewer than the 250 the identifier test needs as evidence
+  #   present on 2 documents across 1 product type(s); 2 distinct values
+  - name: maximum_workpiece_weight
+    type: terms
+    source: facets.maximum_workpiece_weight
   # Measurement System -- present on 9% of its product types' documents (floor 50%)
   #   present on 1106 documents across 35 product type(s); 4 distinct values
   - name: measurement_system
@@ -691,6 +701,11 @@ fields:
   - name: point_type
     type: terms
     source: facets.point_type
+  # Rated Load -- 2 distinct values over 2 product-value pairs is 1.00 per product, at or above the 0.50 identifier threshold but on 1 products, fewer than the 250 the identifier test needs as evidence
+  #   present on 2 documents across 1 product type(s); 2 distinct values
+  - name: rated_load
+    type: terms
+    source: facets.rated_load
   # Rockwell Hardness -- present on 42% of its product types' documents (floor 50%)
   #   present on 811 documents across 6 product type(s); 6 distinct values
   - name: rockwell_hardness
