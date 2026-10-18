@@ -187,6 +187,11 @@ def test_a_25_mm_cutting_diameter_has_exactly_one_spelling(
         if "milling_dia" in doc.get("facets_num", {})
         and abs(doc["facets_num"]["milling_dia"] * MM_PER_INCH - 25.0) < MM_TOLERANCE
         for value in doc["facets"].get("milling_dia", [])
+        # Unit mixing (a separate measured defect class) restates a dimension in the
+        # OTHER system's one canonical spelling (``0.9843"``): a second system, not
+        # a second spelling of the metric value. Whether a 25 mm row is hit is a
+        # draw, so it moves with any change to the generator's random stream (#404).
+        if value.endswith("mm")
     }
     assert spellings == {"25mm"}, (
         f"a 25 mm cutting diameter is published as {sorted(spellings)}. Exactly "
