@@ -321,7 +321,8 @@ def _sofa_bed(code: str, line: str, brand: str, mat: str, seats: int, mech: str,
         price, "sofa_bed", text, colors,
         (("line", "Line", line), _seats(seats), *_dims(width, 92, 84),
          ("material", "Material", mat), ("mechanism", "Mechanism", _MECH[mech]),
-         ("mattress_type", "Mattress type", mattress), _cm("depth", "Depth", depth)),
+         ("mattress_type", "Mattress type", mattress),
+         _cm("mattress_depth", "Mattress depth", depth)),
         ((_BEDS[0], price), (_BEDS[1], price + 100.0)), size_key="bed_size",
         params=(("mechanism", mech), ("seats", str(seats))),
     )  # fmt: skip
@@ -380,7 +381,7 @@ def _stool(code: str, title: str, brand: str, mat: str, form: str, storage: bool
     return Row(
         code, title, brand, "Home", FOOTSTOOLS, "Footstool", price, "footstool", text, colors,
         (("material", "Material", mat), ("shape", "Shape", form.title()),
-         ("storage_compartment", "Storage compartment", _yes(storage)),
+         ("storage_feature", "Storage feature", "Lift-Top" if storage else "None"),
          ("leg_finish", "Leg finish", LEGS[legs]), *_dims(*dims)),
         params=(("form", form), ("storage", _yes(storage)), ("legs", legs)),
     )  # fmt: skip

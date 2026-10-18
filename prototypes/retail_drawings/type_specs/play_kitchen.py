@@ -45,7 +45,7 @@ def _kit(code: str, title: str, brand: str, material: str, cm: float, sounds: bo
         (
             kind("Play Kitchen"),
             a("material", "Material", material),
-            measured("height_cm", "Height", cm, "CMT"),
+            measured("item_height", "Item height", cm, "CMT"),
             a("lights_and_sounds", "Lights and sounds", yes(sounds)),
             a("has_sink", "Sink", yes(sink)),
             a("oven_door", "Oven door", yes(oven)),

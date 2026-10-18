@@ -32,7 +32,7 @@ carries the misleading word. Each is exempt from the text check and left out of 
 | Class | Example | Why it matches |
 |---|---|---|
 | type | "Vintage Lawn Mower Cushion", "BBQ Master Apron", "Robot Mower Chef Apron" | a sibling product holds the type word |
-| absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas", "Latex Free Garden Hose" | a real product of the type names a power source or fuel it lacks |
+| absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas", "Latex Free Garden Hose" | a real product of the type names a power source or fuel it lacks, in its title or, when a title would read as a negation ("Never Cordless"), only in its copy: "Corded Grass Trimmer, 10 m Cable" says "not a cordless model" (gen#449) |
 | incidental | "Freshly Mown Lawn Candle" (a scent), "Red Kite Lawn Mower" (a black mower with red handle), "Red Kite Garden Hose" (red connectors only) | a word of the query sits in a short title or a scent, not in the product's color |
 | secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs", "Black Garden Hose with Green Connectors" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
 | shade | "Light Corded Lawn Mower" (a blue mower with "a bright red start switch"), "Family Kettle BBQ" | the description alone names another main color |
