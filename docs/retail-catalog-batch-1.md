@@ -89,11 +89,40 @@ ceiling build (no finding).
 `prototypes/retail_drawings/decoy_rows.py` holds `TABLE`: one row per planted product, with its
 class (1 color names a part, 2 type names an accessory or a toy, 3 audience names a sibling
 version, 4 a color word that is also a product or a shade, 5 guard, 7 the word is only an
-ingredient) and the query it targets. The proof and the table below read that table, so no count
+ingredient, 9 the fresh plural is named in the title) and the query it targets. The proof and the table below read that table, so no count
 is kept by hand. Each decoy keeps its own color, category path and audience; only the title and
 description carry the misleading word. Titles are short and sales and reviews above typical. The
 ids are left out of `scale.derivable()` and out of the color completion of `main_colors`, so a
 copy or a completion never gives a decoy the query's color.
+
+## Fresh plurals: a raw "oranges" is not too clean (gen#445, class 9)
+
+With interpretation off, a search for a fresh fruit or vegetable in the plural used to return only
+the fresh products: titles name an ingredient in the singular ("Seville Orange Marmalade") and the
+title field ranks the typed spelling first. Class 9 rows (`decoy_plural_rows.py`, 42 rows) are
+believable products of another category whose title holds the exact plural as the ingredient or
+source: a juice pressed from oranges, a chocolate with candied oranges, sun-dried tomatoes in oil,
+a strawberries and cream biscuit. Twelve plurals are covered (oranges, lemons, limes, apples,
+strawberries, raspberries, tomatoes, onions, potatoes, carrots, bananas, cherries), each with three
+or four rows from at least two categories (Drinks, Chocolate & Sweets, Food Cupboard, Frozen,
+Biscuits & Snacks, Dairy & Alternatives, Breakfast). A row's category, ingredients and drawing (a
+carton, a bar, a tin) say what it is, no title or description claims the fresh fruit, and titles
+are five or six tokens at most. The policy that separates them is the category-node reading of the
+fresh word (the Oranges node keeps the fresh leaf and drops the rest); no `special:` policy is
+needed.
+
+The fresh products compete only if their titles are as long. Six plurals had no fresh leaf of their
+own, so the grocery build has depth families `TOM`, `ONI`, `POT`, `CAR`, `BAN` and `CHY` (leaves
+Fresh Vegetables > Tomatoes, Onions, Carrots; Fruit & Vegetables > Potatoes, the leaf of the class 8
+potato rows; Fresh Fruit > Bananas and Stone Fruit > Cherries, which the breadth tier's single cherries row used to hold and now leaves to this family, so the leaf has one owner and no sibling named for its head noun), each
+variety named with a grade, a variety or a pack word ("Vine Ripened Tomatoes", "Maris Piper
+Potatoes"). They are appended after the existing depth families, so no earlier draw moves, and the
+`VEG` family no longer carries a tomato or a carrot (sweet peppers and baby spinach take their
+slots), so each fresh word lives in one leaf. `tests/test_grocery_plural_decoys_445.py` holds, per
+plural: at least three decoys from two categories, none claiming to be fresh, the median title
+length of the fresh products and of the decoys within two tokens, and (on the 10**6-SKU baseline)
+at least three decoys in the first twelve results. The with-interpretation check (the fresh product
+ranks first) runs on a loaded catalogue and is the coordinator's after the next Iowa load.
 
 Queries covered by rows: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer
 jacket (with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold
@@ -159,7 +188,7 @@ with-persona run, is the ingest batch's check, not this PR's.
 | red wine | 2 type names an accessory or a toy | PLT-DXW01 | Red Wine Glasses, Set of 4 | decoy |
 | red wine | 4 color word is also a product or a shade | PLT-DXW02 | Red Wine Scented Candle | decoy |
 | red wine | 2 type names an accessory or a toy | PLT-DXW03 | Red Wine Stain Remover | decoy |
-| red wine | 2 type names an accessory or a toy | PLT-DXW04 | Red Wine Carafe | decoy |
+| red wine | 2 type names an accessory or a toy | PLT-DXW04 | Glass Wine Carafe | decoy |
 | green tea | 5 guard: a real product whose name holds a color word | PLT-DXU01 | Green Tea, 40 Bags | true hit |
 | black pepper | 5 guard: a real product whose name holds a color word | PLT-DXU02 | Black Pepper, Whole Peppercorns | true hit |
 | red velvet cake | 5 guard: a real product whose name holds a color word | PLT-DXU03 | Red Velvet Cake | true hit |
@@ -180,6 +209,48 @@ with-persona run, is the ingest batch's check, not this PR's.
 | lavender | 7 word only in the ingredients | PLT-DXI14 | All Butter Shortbread | decoy |
 | lavender | 7 word only in the ingredients | PLT-DXI15 | Relaxing Bath Salts | decoy |
 | lavender | 7 word only in the ingredients | PLT-DXI16 | Soy Wax Candle | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ01 | Juice Pressed from Oranges, 1L | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ02 | Dark Chocolate with Candied Oranges | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ03 | Mandarin Oranges in Juice, 298g | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ04 | Seville Oranges Thick Cut Marmalade | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ05 | Sparkling Water with Sicilian Lemons | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ06 | Preserved Lemons in Brine, 350g | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ07 | Sherbet Lemons Boiled Sweets | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ08 | Lemons and Ginger Shortbread Biscuits | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ09 | Sparkling Mineral Water with Limes | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ10 | Lemons and Limes Boiled Sweets | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ11 | Marinade with Limes and Coriander | decoy |
+| apples | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ12 | Cloudy Juice from Pressed Apples | decoy |
+| apples | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ13 | Stewed Apples in Light Syrup | decoy |
+| apples | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ14 | Apples and Cinnamon Oat Bars | decoy |
+| apples | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ15 | Spiced Apples Crumble Cake | decoy |
+| strawberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ16 | Strawberries and Cream Biscuits | decoy |
+| strawberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ17 | Strawberries and Cream Ice Cream | decoy |
+| strawberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ18 | Strawberries and Cream Yogurt, 4 Pack | decoy |
+| strawberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ19 | Milk Chocolate Covered Strawberries | decoy |
+| raspberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ20 | White Chocolate with Raspberries Bar | decoy |
+| raspberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ21 | Raspberries and Cream Shortbread Biscuits | decoy |
+| raspberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ22 | Raspberries and Almond Granola | decoy |
+| raspberries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ23 | Seedless Raspberries Jam, 340g | decoy |
+| tomatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ24 | Chopped Tomatoes in Tomato Juice | decoy |
+| tomatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ25 | Sun-Dried Tomatoes in Oil, 270g | decoy |
+| tomatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ26 | Pasta Sauce with Roasted Tomatoes | decoy |
+| tomatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ27 | Roasted Tomatoes and Basil Soup | decoy |
+| onions | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ28 | Crispy Fried Onions, 100g | decoy |
+| onions | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ29 | Pickled Onions in Malt Vinegar | decoy |
+| onions | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ30 | Caramelised Onions Chutney, 290g | decoy |
+| potatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ31 | New Potatoes in Water, 540g | decoy |
+| potatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ32 | Roast Potatoes in Goose Fat | decoy |
+| potatoes | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ33 | Leeks and Potatoes Soup, 400g | decoy |
+| carrots | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ34 | Sliced Carrots in Water, 300g | decoy |
+| carrots | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ35 | Carrots and Coriander Soup | decoy |
+| carrots | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ36 | Houmous with Roasted Carrots | decoy |
+| bananas | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ37 | Strawberries and Bananas Smoothie | decoy |
+| bananas | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ38 | Bananas and Honey Oat Bars | decoy |
+| bananas | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ39 | Milk Chocolate Covered Bananas | decoy |
+| cherries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ40 | Morello Cherries in Syrup, 425g | decoy |
+| cherries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ41 | Black Cherries Conserve, 340g | decoy |
+| cherries | 9 the fresh plural is in the title as an ingredient or source | PLT-DXQ42 | Dark Chocolate Covered Cherries | decoy |
 
 ## Not done in this increment
 
