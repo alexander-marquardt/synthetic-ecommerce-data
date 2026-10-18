@@ -44,8 +44,9 @@ TYPES = {
         ("sleeve", "sleeve", {"Long": "long", "Short": "short"}),
         ("neck", "neck", {"Envelope": "envelope", "Crew": "crew"})]),
     "snowsuit": (CLOTHING, "Snowsuit", ("Kids", "Baby"), "snowsuit",
-                 {"fill", "hood", "mitts", "feet", "season"} | _WORN, [
-        ("hood", "hood", YES), ("mitts", "mitts", YES), ("feet", "feet", YES)]),
+                 {"fill", "hood", "fold_over_mitts", "fold_over_feet", "season"} | _WORN, [
+        ("hood", "hood", YES), ("fold_over_mitts", "mitts", YES),
+        ("fold_over_feet", "feet", YES)]),
     "puddlesuit": (CLOTHING, "Puddlesuit", ("Kids", "Baby"), "puddlesuit",
                    {"waterproof_rating", "lining", "hood", "season"} | _WORN, [
         ("hood", "hood", YES),
