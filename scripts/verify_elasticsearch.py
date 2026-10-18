@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from synthetic_ecommerce_data.core import emit  # noqa: E402
 from synthetic_ecommerce_data.core.config import GeneratorConfig  # noqa: E402
+from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
 from synthetic_ecommerce_data.domains.industrial.generate import generate  # noqa: E402
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME  # noqa: E402
 
@@ -442,9 +443,9 @@ def check_demo_case(host: str, catalog, checks: Checks) -> None:
     unreachable_spellings: set[str] = set()
     for line in catalog.lines:
         for child in line.children:
-            by_name = {a.name: a.value for a in child.attributes}
-            shank = by_name.get("Shank Dia.")
-            mill = by_name.get("Milling Dia.")
+            by_name = {sentence_case(a.name): a.value for a in child.attributes}
+            shank = by_name.get("Shank dia.")
+            mill = by_name.get("Milling dia.")
             if shank is None or mill is None:
                 continue
             if shank.startswith(token) and not text_reachable(shank):
@@ -510,7 +511,7 @@ def check_demo_case(host: str, catalog, checks: Checks) -> None:
     checks.record(
         filter_reach > 0,
         "the structured attribute filter matches something at all (anti-vacuity guard)",
-        f"Milling Dia. prefix {token!r} matches {filter_reach} documents",
+        f"Milling dia. prefix {token!r} matches {filter_reach} documents",
     )
 
     # Now add the structured filter. Those products must drop out.
@@ -535,7 +536,7 @@ def check_demo_case(host: str, catalog, checks: Checks) -> None:
     checks.record(
         filtered == 0,
         "adding the structured attribute filter excludes every one of them",
-        f"{filtered} shank-only products survive the Milling Dia. filter (expected 0)",
+        f"{filtered} shank-only products survive the Milling dia. filter (expected 0)",
     )
 
     # And the filter keeps the products that really do have a 3/8 cutter.
@@ -559,13 +560,14 @@ def check_demo_case(host: str, catalog, checks: Checks) -> None:
 def check_flat_shape_loses_correlation(host: str, catalog, checks: Checks) -> None:
     """The flat shape cannot correlate name with value, and that is the point."""
     # An entry carries 3/8" split (elastic/prism#9935): magnitude plus unit code.
-    name, value, unit = "Shank Dia.", "3/8", "INH"
+    name, value, unit = "Shank dia.", "3/8", "INH"  # the name as published
     truth = set()
     for line in catalog.lines:
         for child in line.children:
             for attribute in child.attributes:
                 for entry in attribute.as_entries():
-                    if (entry["name"], entry["value"], entry.get("unit_code")) == (
+                    published = sentence_case(entry["name"])
+                    if (published, entry["value"], entry.get("unit_code")) == (
                         name,
                         value,
                         unit,

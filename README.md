@@ -738,7 +738,7 @@ than separate keyword and numeric arrays. Each entry follows the data contract
 of elastic/prism#9935:
 
 ```json
-{"key": "milling_dia", "name": "Milling Dia.", "value": "3/8", "unit_code": "INH", "value_canonical": 9.525}
+{"key": "milling_dia", "name": "Milling dia.", "value": "3/8", "unit_code": "INH", "value_canonical": 9.525}
 ```
 
 * `key` is required: the machine name the Engine discovers an attribute by,
@@ -888,7 +888,7 @@ Both shapes publish a SKU's own `description` beside its `title`. The line's
 title ships too, as `parent_title` — it is what a grouped card will be headed
 with — but it is no longer what renders under a SKU's title.
 
-The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
+The flat shape also carries a sanitised `facets` object, because `Milling dia.`
 cannot be an Elasticsearch field name — the trailing dot makes it an invalid
 path. The three spellings of the measurement-system attribute deliberately
 sanitise to three different keys rather than being folded into one: folding
@@ -1177,7 +1177,7 @@ agrees with itself proves nothing.
 
 The flat shape's `attributes` array is a plain object, so `name` and `value`
 become two independent multi-valued fields. Filtering it for
-*name = Shank Dia. AND value = 3/8"* matches **236** documents; only **141**
+*name = Shank dia. AND value = 3/8"* matches **236** documents; only **141**
 actually publish a 3/8" shank. The other 95 carry a 3/8" belonging to a
 different attribute (counted from `golden-catalog/flat.jsonl`).
 
