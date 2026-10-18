@@ -16,8 +16,11 @@ slash. This module gives the demo a list to rank.
   sleeves, a boathouse stripe. The stored neckline is true (crew, v-neck), so a policy on the
   attribute buries them.
 * **Complete.** :func:`complete` gives every other top, dress, blouse and knit a neckline, read
-  from what the style already states (its title, then its drawing), never invented against
-  either: ``tests/test_retail_neckline_181.py`` pins that fact and picture agree.
+  from what the style already states (its title, then its drawing), and the drawing of a top,
+  jumper, cardigan or bodysuit is drawn again when the title's neckline differs from it.
+  ``tests/test_retail_neckline_181.py`` pins that, for every carrier whose shape draws a
+  neckline, :func:`pictured` equals the stored one or is a declared :data:`SAME_PICTURE` pair
+  (round for crew, slash for boat, collared for the crew or v-neck drawn, tie-neck for a collar).
 
 The rows are templates only: :func:`scale.derivable` leaves them out.
 """
@@ -32,6 +35,7 @@ from dataclasses import dataclass
 
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
+from kit_garments import NECKLINES
 from lowerbody_rows import LRow
 from main_colors import MAIN_COLORS
 from variants import cw
@@ -290,9 +294,29 @@ def pictured(rec: dict) -> str | None:
     return _BY_SHAPE.get(d.get("shape"))
 
 
+#: The shapes that take a ``neckline`` param drawn from :data:`kit_garments.NECKLINES`.
+_REDRAWN = frozenset({"top", "sweatshirt", "cardigan", "bodysuit"})
+
+
+def _drawn_to_match(r: dict) -> dict:
+    """``r`` with its drawing re-drawn to show its stored neckline, when it contradicts it, its
+    shape takes a neckline param and the kit draws that neckline; else ``r`` as it is."""
+    d = r.get("drawing") or {}
+    if agrees(r) or d.get("shape") not in _REDRAWN:
+        return r
+    key = next((k for k, v in DRAWN.items() if v == r["neckline"] and k in NECKLINES), None)
+    if key is None:  # collared, slash, tie-neck: no drawing of its own (see SAME_PICTURE)
+        return r
+    return {**r, "drawing": {**d, "params": {**(d.get("params") or {}), "neckline": key}}}
+
+
 def complete(tpls: list[dict]) -> list[dict]:
     """Give each top, dress, blouse and knit without a neckline one: the title's, else the
     drawing's, else (a dress only) one drawn to match. Nothing already stated is changed.
+
+    The title's neckline is the shopper truth, so a style whose drawing contradicts it is drawn
+    again to show it (a dress, a top, a jumper, a cardigan, a bodysuit); one the kit has no
+    drawing for stays as drawn when the pair is declared in :data:`SAME_PICTURE`.
 
     The records are shared with the authored samples (``build_preview4.samples``), which the image
     release draws too: a completed record is a copy, never the shared one edited in place."""
@@ -304,12 +328,12 @@ def complete(tpls: list[dict]) -> list[dict]:
         r = {**r}
         d = r.get("drawing") or {}
         if r["product_type"] in DRESS_TYPES and d.get("shape") == "dress":
-            value = stated(r) or _DRESS_CHOICE[_digest(r["product_id"], "neck") % len(_DRESS_CHOICE)]
-            key = next((k for k, v in DRAWN.items() if v == value), None)
+            r["neckline"] = stated(r) or _DRESS_CHOICE[_digest(r["product_id"], "neck") % len(_DRESS_CHOICE)]
+            key = next((k for k, v in DRAWN.items() if v == r["neckline"]), None)
             if key:  # the picture shows what the fact says (a tie neck has no drawing yet)
                 r["drawing"] = {**d, "params": {**(d.get("params") or {}), "neckline": key}}
-            r["neckline"] = value
         else:
             r["neckline"] = stated(r) or pictured(r) or "crew"
+            r = _drawn_to_match(r)
         out.append(r)
     return out
