@@ -20,6 +20,7 @@ if str(RETAIL) not in sys.path:
 
 import main_colors  # noqa: E402
 import scale  # noqa: E402
+import type_colors  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -28,10 +29,17 @@ def tpls() -> list[dict]:
 
 
 def test_every_type_and_audience_offers_the_main_colors_or_declares_why_not(tpls):
+    """A type declared in ``type_colors.RESTRICTED`` (gen#448) is asked for only the main colors
+    it comes in: no yellow suit trousers."""
     groups = main_colors.groups(tpls)
     assert len({t for t, _ in groups}) > 100
     lacking = {
-        k: [c for c in main_colors.MAIN_COLORS if c not in main_colors.offered(styles)]
+        k: [
+            c
+            for c in main_colors.MAIN_COLORS
+            if c not in main_colors.offered(styles)
+            and any(type_colors.permits(r["category_path"], c) for r in styles)
+        ]
         for k, styles in groups.items()
         if k[0] not in main_colors.EXCEPTIONS
     }
