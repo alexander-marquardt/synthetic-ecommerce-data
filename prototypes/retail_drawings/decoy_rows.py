@@ -99,7 +99,7 @@ KINDS = {
     "trainers": Kind("Footwear", ("Mens", "Shoes", "Trainers"), "Trainers", "shoe", "Stridewell",
                      38.0, params=(("kind", "trainer"), ("material", "canvas"),
                                    ("closure", "Lace-Up"))),
-    "shoe_care": Kind("Footwear", ("Mens", "Shoes", "Shoe Care"), "Shoe Care Kit", "tin",
+    "shoe_care": Kind("Footwear", ("Mens", "Accessories", "Shoe Care"), "Shoe Care Kit", "tin",
                       "Calderby & Lune", 9.0),
     "puffer_m": Kind("Clothing", ("Mens", "Coats & Jackets", "Puffer Jackets"), "Puffer Jacket",
                      "coat", "Stridewell", 70.0, sizes=("S", "M", "L", "XL"),

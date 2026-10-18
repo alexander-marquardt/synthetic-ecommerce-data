@@ -168,7 +168,7 @@ def _decoy(code, title, brand, dept, path, ptype, price, shape, desc, colors, at
                (), label, audience, colorless, params)  # fmt: skip
 
 
-_CARE = ("Mens", "Shoes", "Shoe Care")
+_CARE = ("Mens", "Accessories", "Shoe Care")
 DECOYS = (
     _decoy("CLN", "Trainer Cleaning Kit with Brush", "Calderby & Lune", "Footwear", _CARE,
            "Shoe Care Kit", 9.0, "tin",
