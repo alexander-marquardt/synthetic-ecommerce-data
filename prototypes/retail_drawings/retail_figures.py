@@ -33,6 +33,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
@@ -128,6 +129,7 @@ def measure() -> dict[str, Any]:
         "accessory_rows": accessory_rows.docs(),
         "sports_rows": sports_rows.docs(),
         "garden_rows": garden_rows.docs(),
+        "decor_rows": decor_rows.docs(),
         "school_rows": school_rows.docs(),
         "household_rows": household_rows.docs(),
         "lowerbody_rows": lowerbody_rows.docs(),

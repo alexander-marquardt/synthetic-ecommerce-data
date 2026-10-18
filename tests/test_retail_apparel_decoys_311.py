@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import baseline_rank as br  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel as da  # noqa: E402
 import decoy_rows  # noqa: E402
 import details  # noqa: E402
@@ -488,7 +489,8 @@ def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
 ) -> None:
     """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
     is read with ``in``, the way ``check_catalog`` reads it."""
-    tables = decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()
+    tables = (decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() | decor_rows.decoy_ids()
+              | neckline_rows.decoy_ids())
     assert tables == scale.DECOY_IDS
     real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
     assert len(real) > 5 * len(scale.DECOY_IDS)

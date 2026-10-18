@@ -96,6 +96,7 @@ TRUE_NODE = {
     "football": "Footballs",
     "tenni": "Tennis Rackets",
     "badminton": "Badminton Sets",
+    "picnic": "Picnic Blankets",  # gen#217
     # the Gifts nouns of the #425 rows: the node of the gift
     "mug": "Mugs & Drinkware",
     "card": "Greeting Cards",
