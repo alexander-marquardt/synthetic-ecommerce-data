@@ -142,10 +142,23 @@ BOLT_MATERIAL: dict[str, str] = {
     "Class 10.9": "Alloy Steel",
 }
 
-#: A socket screw's finishes and Rockwell hardness, by material.
+#: A socket screw's material, by the system its standard publishes in. The
+#: top strength grade is graded on that system's own scale: ISO 898-1 class
+#: 12.9 on a metric screw, SAE J429 Grade 8 on an inch one. Each scale belongs
+#: to one system, so ``Grade 12.9`` on a ``1/4-20`` screw names a designation
+#: that does not exist (#17). Both pools hold three entries, so choosing from
+#: either draws the same random bits and nothing else in the catalog moves.
+SOCKET_SCREW_MATERIALS: dict[str, tuple[str, ...]] = {
+    "metric": ("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"),
+    "inch": ("Alloy Steel", "18-8 Stainless Steel", "Grade 8 Alloy Steel"),
+}
+
+#: A socket screw's finishes and Rockwell hardness, by material. SAE J429
+#: Grade 8 is Rockwell C33-39; ISO 898-1 class 12.9 is HRC 39-44.
 SOCKET_SCREW_FINISH: dict[str, tuple[tuple[str, ...], str]] = {
     "Alloy Steel": (("Black Oxide", "Zinc Plated"), "C38"),
     "Grade 12.9 Alloy Steel": (("Black Oxide", "Plain"), "C39"),
+    "Grade 8 Alloy Steel": (("Black Oxide", "Zinc Plated"), "C36"),
     "18-8 Stainless Steel": (("Plain",), "B80"),
 }
 
@@ -759,7 +772,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         head_of = line.head
 
         brand = brands.pick_brand(rng, type_key, self._exhausted)
-        material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
+        material = rng.choice(SOCKET_SCREW_MATERIALS["metric" if metric else "inch"])
         # Finish and hardness follow the material, as a distributor lists them
         # (SOCKET_SCREW_FINISH): alloy steel through-hardened to Rockwell C,
         # black oxide or zinc; 18-8 stainless, cold-worked to Rockwell B and
