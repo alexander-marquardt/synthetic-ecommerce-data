@@ -13,6 +13,7 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "chain_lubricants",
     label="Roller Chain Lubricant",
+    part_number_block=7424,
     breadth=BreadthRow(
         key="chain_lubricants",
         category=("Lubricants, Coolants & Fluids", "Oils & Lubricants", "Chain Lubricants"),
