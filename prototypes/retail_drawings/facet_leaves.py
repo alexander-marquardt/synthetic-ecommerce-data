@@ -153,6 +153,7 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
     "Cotton, Elastane": ("Cotton", "Cotton, Elastane"),
     "Modal, Elastane": ("Modal", "Modal, Elastane"),
     "Recycled Polyamide, Elastane": ("Nylon", "Recycled Polyamide, Elastane"),
@@ -253,10 +254,12 @@ FABRIC_ALSO: dict[str, tuple[str, ...]] = {"Brushed Cotton Flannel": ("Brushed C
 #: The single source: the document builder reads it, and the tests guard what it holds.
 SHOPPER_FABRICS = frozenset({
     "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
-    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Flannel", "Fleece", "Jersey", "Knitted",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Felt", "Flannel", "Fleece", "Jersey",
+    "Knitted",
     "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
     "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
-    "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Viscose", "Voile", "Waffle", "Wool",
+    "Teddy", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Viscose", "Voile",
+    "Waffle", "Wool",
 })  # fmt: skip
 
 #: The departments whose products are worn, and the types inside them that are not textile

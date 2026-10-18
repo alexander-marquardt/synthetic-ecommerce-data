@@ -295,6 +295,7 @@ MOVED = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
 }
 
 
@@ -332,7 +333,8 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
             for v in [a["value"]] if r["product_type"] != "Bra"} >= (
         set(MOVED) | {value for _, value in TYPED_MOVED})
     assert {t for t, n in moved.items() if n} == {
-        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade"}
+        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade",
+        "Sleepsuit", "Baby Bodysuit"}
 
 
 def test_the_flat_document_carries_the_blend_and_never_facets_it(docs):
