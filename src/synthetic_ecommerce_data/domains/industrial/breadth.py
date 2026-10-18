@@ -334,11 +334,11 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     )
     draft.type_key = row.key
     gen._line_facts = {a.name: a.value for a in line_attrs}  # noqa: SLF001
-    product_id = gen._product_id(brand, series, index)  # noqa: SLF001
+    product_id = gen.minter.product_id(brands.BY_NAME[brand].code, series, index)
 
     children: list[Sku] = []
     for size_value in sizes:
-        sku = gen._new_sku()  # noqa: SLF001
+        sku = gen.minter.new_sku()
         # One draw, where the uniform this replaced drew one (see :mod:`.price`).
         price = prices.breadth_price(
             row,

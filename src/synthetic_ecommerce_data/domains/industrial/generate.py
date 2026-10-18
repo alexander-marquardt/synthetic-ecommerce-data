@@ -25,7 +25,7 @@ from dataclasses import replace
 from fractions import Fraction
 from typing import Literal, TypeVar
 
-from synthetic_ecommerce_data.core import brands, price, typespec
+from synthetic_ecommerce_data.core import brands, ids, price, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.formats import (
     LengthStyle,
@@ -71,6 +71,11 @@ from synthetic_ecommerce_data.domains.industrial.newtypes import NEW_TYPES
 from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
 
 MM_PER_INCH = 25.4
+
+#: The prefix the industrial domain mints its ids behind. Empty, so its SKUs
+#: and product ids are the ones it issued before core minted them (#128).
+ID_PREFIX = ""
+ids.claim_prefix("industrial", ID_PREFIX)
 
 #: The manufacturers, their ranges, shares, house styles and voices live in
 #: ONE table, :mod:`.brands`. Re-exported here, where the builders and older
@@ -229,12 +234,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self.config = config or GeneratorConfig()
         self.type_key = type_key
         self.rng = typespec.type_rng(self.config.seed, type_key)
-        #: The type's part-number block, which leads every SKU and product id.
-        self._block = typespec.block_of(type_key)
-        #: How many SKUs and how many product drafts this type has issued.
-        self._sequence = 0
-        self._index = 0
-        self._used_skus: set[str] = set()
+        #: The type's product ids and SKUs, minted by core (#128) behind the
+        #: industrial prefix, which is empty.
+        self.minter = ids.IdMinter(ID_PREFIX, type_key, typespec.block_of(type_key))
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         self._drawn_specs: set[tuple] = set()
         self._title_styles: dict[tuple[str, str], str] = {}
@@ -332,30 +334,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
         )
         return numeric_attribute("Package Quantity", str(quantity), float(quantity))
-
-    def _new_sku(self) -> str:
-        """The type's next part number: its block, then a scrambled sequence.
-
-        Unique by construction rather than by retrying a random draw: a draw
-        checked against every SKU issued so far couples each type to all the
-        others. All digits, so it can never wear a reference SKU's code, every
-        one of which carries letters (``tests/test_catalog_noncopy.py``).
-        """
-        self._sequence += 1
-        sku = typespec.part_number(self._block, self._sequence)
-        if sku in self._used_skus:  # pragma: no cover - the stride is coprime to 10**6
-            raise RuntimeError(f"{self.type_key} issued part number {sku} twice")
-        self._used_skus.add(sku)
-        return sku
-
-    def _next_index(self) -> int:
-        """The type's next product index; every draft takes one, made or not."""
-        self._index += 1
-        return self._index
-
-    def _product_id(self, brand: str, series: str, index: int) -> str:
-        """``<brand code>-<series>-<block>-<index>``: unique because the block is."""
-        return f"{brands.BY_NAME[brand].code}-{series}-{self._block:04d}-{index:04d}"
 
     def _variant_count(self) -> int:
         """How many variants the next product offers, from the ONE distribution knob."""
@@ -1138,14 +1116,13 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             weight = cfg.type_weights.get(key, own.share if own else None)
             count = 0 if weight is None else max(1, round(cfg.lines * weight))
             for _ in range(count):
-                self._keep(
-                    lines, self._finish_line(key, builder(self, key, category), self._next_index())
-                )
+                draft = builder(self, key, category)
+                self._keep(lines, self._finish_line(key, draft, self.minter.next_index()))
         elif kind == "new":
             for _ in range(cfg.new_type_products.get(key, 0)):
                 self._keep(lines, self._new_type_line(key))
         else:
-            lines.append(breadth.build_line(self, breadth.row_for(key), self._next_index()))
+            lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         return lines
@@ -1172,7 +1149,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             only.attrs = []
             only.zero_axis = True
             self._bump("zero_axis_products")
-        return self._finish_line(type_key, draft, self._next_index())
+        return self._finish_line(type_key, draft, self.minter.next_index())
 
     def _must_stock(self, lines: list[ProductLine]) -> list[ProductLine]:
         """A line for every must-stock entry this type owns and does not yet carry.
@@ -1204,7 +1181,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 builder = self._builder()
                 (category,) = taxonomy.LEAVES[key]
                 for _ in range(MAX_ATTEMPTS):
-                    line = self._finish_line(key, builder(self, key, category), self._next_index())
+                    draft = builder(self, key, category)
+                    line = self._finish_line(key, draft, self.minter.next_index())
                     if line is not None and stocked(entry, [line]):
                         added.append(line)
                         self._bump("must_stock_lines")
