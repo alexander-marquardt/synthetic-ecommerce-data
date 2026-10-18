@@ -114,13 +114,13 @@ def ground_truth(catalog) -> dict[str, Any]:
         for attribute in line.attributes:
             values = attribute.values or (attribute.value,)
             for value in values:
-                line_attr_products[(attribute.name, value)].add(line.product_id)
-                name_entries[attribute.name] += 1
-            name_products[attribute.name].add(line.product_id)
-            names_by_type[line.type_key].add(attribute.name)
+                line_attr_products[(sentence_case(attribute.name), value)].add(line.product_id)
+                name_entries[sentence_case(attribute.name)] += 1
+            name_products[sentence_case(attribute.name)].add(line.product_id)
+            names_by_type[line.type_key].add(sentence_case(attribute.name))
         for child in line.children:
             for attribute in catalog.merged_attributes(line, child):
-                flat_names_by_type[line.type_key].add(attribute.name)
+                flat_names_by_type[line.type_key].add(sentence_case(attribute.name))
 
     return {
         "line_attr_products": line_attr_products,
