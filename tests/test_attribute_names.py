@@ -127,7 +127,7 @@ def test_a_mating_or_contained_part_noun_is_not_a_qualifier(type_key, relational
 
 def test_an_allow_listed_type_specific_name_passes():
     """The control: the census's own type-specific names are not refused."""
-    assert names.name_problems({"End Mill Style", "Tap Style"}, OBSERVED, CENSUS) == []
+    assert names.name_problems({"Tap Chamfer", "Wheel Grade"}, OBSERVED, CENSUS) == []
 
 
 def test_every_exception_is_really_unobserved_and_justified():

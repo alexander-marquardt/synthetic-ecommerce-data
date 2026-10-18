@@ -40,6 +40,7 @@ from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
+    drawing_title,
     provenance_note,
     require,
     spec_table,
@@ -326,7 +327,7 @@ def _render_detail(record: dict, geom: DrillGeometry, profile: Profile):
     fig.text(
         0.04,
         0.955,
-        str(record.get("Item", "Drill Bit")),
+        drawing_title(record, "Drill Bit"),
         fontsize=cv.FS_TITLE,
         fontweight="bold",
         color=cv.INK,

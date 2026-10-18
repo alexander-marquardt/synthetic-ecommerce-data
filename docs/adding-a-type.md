@@ -137,6 +137,15 @@ its published attributes. `set_screws_hex_socket` does both.
    `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py`: that table
    keeps the labels of the older types, `register` refuses a key in both, and
    a line added to it conflicts with the next type's (#103).
+- **Attribute keys (#497).** One concept is one key and one display name
+   catalogue-wide, and no attribute repeats the product type. Do not publish
+   `Item`, a `<Type> Style` or `Type` that equals the type's label, or a second
+   spelling of a name another type already uses (`Length`, `Standards`,
+   `Hardness`, `Diameter`, `Units per Pack`, `Piece Count`, `Measurement System`);
+   when two concepts share a word, split them (`Grade` is a bolt's strength,
+   `Wheel Grade` an abrasive's coarseness). `tests/test_attribute_cleanup_497.py`
+   reads the committed `golden-catalog/nested.jsonl` and fails on a removed key,
+   a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
    records, the totals in `stats.json` and the field-weights YAML should
@@ -421,7 +430,7 @@ fails until the measured one is set.
 | `key` | The same key: the module's file name and `SPEC`'s first argument. |
 | `category` | `category=`, unchanged. |
 | `family` | `standards_family=`, unchanged: it picks the type's brands and standards pool. |
-| `item` | The `Item` attribute and `LineDraft.item`, unchanged. |
+| `item` | `LineDraft.item`, the title's noun, unchanged. It is not published as an attribute: an `Item` row repeated the product type (#497). |
 | `size_attr` | The SKU's `primary` attribute, same name; it is the type's `key_attributes=` on its `TypeSpec`. |
 | `size_values`, `featured_sizes` | Every value must be offered by the spec space and appear at the default size. The row's `reason` names the reference queries they serve. |
 | `attributes` | Replaced by the type's own vocabulary. A value may become more specific (`Stainless Steel` became `18-8 Stainless Steel` and `316 Stainless Steel`). |
@@ -494,7 +503,7 @@ the O-rings borrow the flat washer's model, keyed on the cross-section
 that the borrowed price is generated, not measured.
 
 **A type sold as a set of other types' parts: price it from its contents.**
-A kit's census key (`Number of Pieces`) says how many pieces it holds, not
+A kit's census key (`Piece Count`) says how many pieces it holds, not
 what they are, so its price is keyed on what they cost instead: list it in
 `price.CONTENTS_PRICED`, and `price.price_key` reads `price.kit_contents`,
 each piece priced on its own type's curve at that type's census per-piece

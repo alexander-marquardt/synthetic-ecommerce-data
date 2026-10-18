@@ -358,7 +358,7 @@ def test_no_finish_or_hardness_the_material_cannot_have(docs):
     for doc in docs:
         v = _values(doc)
         material, finish = v.get("Material", ""), v.get("Finish", "")
-        hardness, grade = v.get("Rockwell Hardness", ""), v.get("Grade", "")
+        hardness, grade = v.get("Hardness", ""), v.get("Grade", "")
         if "Stainless" in material and finish in NEVER_ON_STAINLESS:
             wrong.append((doc["sku"], material, finish))
         if "Stainless" in material and hardness.startswith("C"):
@@ -464,14 +464,19 @@ def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
     assert metric > 100
 
 
+#: The shape an end mill has is its type: ``End Mill Style`` is no longer published, because the
+#: category leaf (Square end mills, Ball end mills) already says it (#497).
+END_MILL_SHAPE = {"end_mill_square": "Square", "end_mill_ball": "Ball Nose"}
+
+
 def test_a_title_names_the_mills_own_end_shape(docs):
     """``SGL Sq End`` on a ball nose end mill states a shape it does not have
     (168 of 568 ball end mills on 7dac659's golden)."""
     wrong, named = [], collections.Counter()
     for doc in docs:
-        if not doc["product_type"].startswith("end_mill"):
+        shape = END_MILL_SHAPE.get(doc["product_type"])
+        if shape is None:
             continue
-        shape = _values(doc)["End Mill Style"]
         for word, style in (("Sq End", "Square"), ("Ball End", "Ball Nose")):
             if re.search(rf"\b(?:SGL|DBL) {word}\b", doc["title"]):
                 named[style] += 1

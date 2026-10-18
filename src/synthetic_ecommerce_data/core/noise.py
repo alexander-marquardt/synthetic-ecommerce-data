@@ -122,7 +122,7 @@ UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable(
         "drill_jobber": "Size",
         "hex_key": "Size",
         "bearing_radial_ball": "Bore Dia.",
-        "wheel_depressed_center": "Wheel Dia.",
+        "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
     }
 )
