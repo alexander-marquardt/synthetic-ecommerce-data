@@ -19,6 +19,8 @@ The classes (the numbers follow the issue):
    filter that wrongly fires shows as an empty or wrong page.
 9. **plural**: the title names a fresh plural as the ingredient or source of another product
    ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`).
+10. **ingredient phrase**: the query's phrase is an ingredient of another food: red wine
+   vinegar, red wine gravy and a beef in red wine casserole are groceries, not wine (gen#500).
 
 Every decoy's structured fields tell the truth: its color, category path and audience are its
 own, and only the title and description carry the misleading word. Titles are short and the
@@ -162,6 +164,9 @@ KINDS = {
                     "box", "Pantry Mill", 2.4, colorless=True),
     "sauce": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Sauces & Condiments"),
                   "Sauce", "bottle", "Copper Hill Preserves", 2.1, colorless=True),
+    # The red wine groceries (class 10, gen#500): real products, none of them wine.
+    "vinegar": _food(("Food Cupboard", "Vinegar"), "Vinegar", "bottle", "Olivar Grove", 1.6),
+    "gravy": _food(("Food Cupboard", "Sauces & Condiments"), "Sauce", "jar", "Pantry Mill", 1.9),
     # The kinds of the class 9 plural decoys (gen#445), each in a leaf the grocery build has.
     "juice": _food(("Drinks", "Juice"), "Juice", "carton",
              "Vine & Valley", 2.1),
@@ -344,6 +349,20 @@ TABLE = (
     _d("XW04", "carafe", "Glass Wine Carafe",
        "A clear glass carafe for red wine, with a narrow neck for pouring.", "Clear", 2,
        "red wine", 800),
+    _d("XW05", "vinegar", "Red Wine Vinegar, 500ml",
+       "A red wine vinegar for dressings, marinades and sauces, in a 500ml bottle.", "Red", 10,
+       "red wine", 930, brand="Olivar Grove"),
+    _d("XW06", "vinegar", "Red Wine Vinegar, 250ml",
+       "A red wine vinegar for dressings and cooking, in a 250ml bottle.", "Red", 10,
+       "red wine", 910, brand="Copper Hill Preserves"),
+    _d("XW07", "gravy", "Red Wine Gravy Granules, 170g",
+       "Gravy granules with a red wine flavor, for roast beef and sausages. Makes 600ml.", "Red",
+       10, "red wine", 890, ingredients=("potato starch", "salt", "red wine powder (4%)",
+                                         "palm oil", "onion powder", "yeast extract")),
+    _d("XW08", "curry", "Beef in Red Wine Casserole, 400g",
+       "Slow cooked beef in a red wine and shallot sauce, a ready meal for two.", "Red", 10,
+       "red wine", 870, ingredients=("beef (35%)", "water", "red wine (12%)", "shallots",
+                                     "carrots", "wheat flour", "tomato puree")),
     # -- guards: a real product whose name holds a color word (5)
     _d("XU01", "tea", "Green Tea, 40 Bags", "Sencha green tea in round bags, 40 to a box.",
        "Green", 5, "green tea", 900, true_hit=True),
@@ -437,6 +456,7 @@ CLASSES = {
     5: "guard: a real product whose name holds a color word",
     7: "word only in the ingredients",
     9: "the fresh plural is in the title as an ingredient or source",
+    10: "the phrase names an ingredient of another food (vinegar, gravy, a casserole)",
 }
 
 
