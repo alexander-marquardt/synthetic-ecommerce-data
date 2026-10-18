@@ -13,6 +13,7 @@ from __future__ import annotations
 import mutation_rows_decor_217
 import mutation_rows_plural_445
 import mutation_rows_suits_215
+import mutation_rows_swimwear_212
 import mutation_rows_text_exempt_452
 import mutation_rows_toys_424
 import mutation_rows_type_specs
@@ -94,6 +95,7 @@ ALL: list[tuple[str, ...]] = [
     *(("suits", *row) for row in mutation_rows_suits_215.ROWS),
     *(("decor 217", *row, "prototypes/retail_drawings") for row in mutation_rows_decor_217.ROWS),
     *(("toys depth", *row) for row in mutation_rows_toys_424.ROWS),
+    *(("swimwear", *row) for row in mutation_rows_swimwear_212.ROWS),
     *(("plural decoys", *row) for row in mutation_rows_plural_445.ROWS),
     *(("text exempt", *row) for row in mutation_rows_text_exempt_452.ROWS),
 ]
