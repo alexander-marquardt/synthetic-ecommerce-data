@@ -18,4 +18,5 @@ MUTANTS = [
     (R + "type_specs/suitcase.py", '(65, "Medium", 3.1, 69.0)', '(66, "Medium", 3.1, 69.0)', "no red 65 L suitcase", [L + "test_the_example_queries_find_a_red_65_litre_suitcase_and_a_cabin_suitcase_under_3_kg"]),
     (R + "type_specs/suitcase.py", 'BLACK, "hard", "4", TSA),', 'RED, "hard", "4", TSA),', "the red-zips decoy suitcase is red", [L + "test_a_color_class_decoy_is_not_the_color_its_query_names"]),
     (R + "type_specs/holdall.py", 'GREEN, "Polyester", FENMOOR, "yes"),', 'GREEN, "Polyester", FENMOOR),', "the wheeled holdall decoy states no wheels", [L + "test_a_holdall_titled_wheeled_states_wheels_in_its_structured_entry"]),
+    (R + "type_specs/suitcase.py", '"Polyester" if soft else "Polypropylene"', '"Polypropylene"', "the soft sided decoy suitcase states a hard shell material", [L + "test_a_suitcase_decoy_described_as_soft_sided_states_no_hard_shell_material"]),
 ]
