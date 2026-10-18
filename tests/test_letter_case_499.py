@@ -5,10 +5,17 @@ Seals"), retail sentence case ("Handle material"), and one key was shown under b
 normaliser (:mod:`synthetic_ecommerce_data.core.letter_case`) runs at export on both domains;
 this file is its guard: the rule on hand-written strings (the mutant surface), then the shipped
 output of both builds and the committed golden, nested and flat.
+
+It also guards the readers of an old name: a quoted old name in any ``scripts/`` file that is
+not an authoring script, a ``name = <old>`` filter or a backticked old "field name" in the
+docs, and (the one shape no text scan can see, a name that flows through a dict) the truth
+``scripts/verify_elasticsearch.py`` compares a live cluster with, replayed offline against
+the published names.
 """
 
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import re
@@ -20,7 +27,7 @@ from typing import Any
 import pytest
 
 from synthetic_ecommerce_data.core import emit, letter_case
-from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
 from synthetic_ecommerce_data.core.letter_case import PROPER_NOUNS, apply, sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
@@ -219,7 +226,16 @@ _AUTHORED_NAME_FIXTURES = {
 
 #: Scripts and shipped config that read published documents or Elasticsearch: a quoted
 #: old name there is a lookup that now matches nothing.
-_READERS = ("scripts/verify_", "src/prism_synthetic_industrial/")
+_READERS = ("scripts/", "src/prism_synthetic_industrial/")
+
+#: Scripts under ``scripts/`` that quote an authored (Title Case) name on purpose, and why.
+#: Every other script is a reader and may not.
+_AUTHORED_NAME_SCRIPTS = {
+    "scripts/mutation_": "mutants edit the authored source text, which keeps its casing",
+    "scripts/new_type.py": "scaffolds an authored category literal",
+    "scripts/contact_sheet.py": "reads the distributor census's own column names",
+    "scripts/price_census_parse.py": "parses the distributor census's own column names",
+}
 
 
 def _display_strings(docs: list[dict[str, Any]]) -> set[str]:
@@ -294,7 +310,79 @@ def test_no_reader_of_published_documents_quotes_an_old_display_name(
     found = sorted(
         f"{rel}: {match.group(0)}"
         for rel, text in _repo_text_files()
-        if rel.startswith(_READERS)
+        if rel.startswith(_READERS) and not rel.startswith(tuple(_AUTHORED_NAME_SCRIPTS))
         for match in quoted.finditer(text)
     )
     assert found == []
+
+
+def test_no_prose_shows_an_old_display_name_as_a_field_name_or_a_name_filter(
+    old_display_names: list[str],
+) -> None:
+    """A doc that tells a reader to filter ``name = Shank Dia.`` (unquoted, or in
+    asterisks or backticks), or that calls a backticked ``Milling Dia.`` an Elasticsearch
+    field name, shows a published entry under a name no document carries any more.
+    Authored names in prose about the generator (``Length under Head`` in a table of the
+    census's casing) are not this: only these two shapes are searched."""
+    alt = _alternation(old_display_names)
+    prose = re.compile(
+        r"`(?:" + alt + r")`[^.]{0,40}field name|\bname\s*=\s*[*_`]*(?:" + alt + r")(?![\w.])"
+    )
+    found = sorted(
+        f"{rel}: {match.group(0)}"
+        for rel, text in _repo_text_files()
+        if rel.endswith(".md") and rel not in _AUTHORED_NAME_FIXTURES
+        for match in prose.finditer(text)
+    )
+    assert found == []
+
+
+# --- a name that flows through a dict has no literal for the scans above to find ----------
+#
+# ``verify_elasticsearch.ground_truth`` builds the names a live cluster is checked against
+# from ``attribute.name``. The cluster holds the published (sentence case) names, so a truth
+# built from the authored ones differs by case alone. This replays the comparison of
+# ``check_facet_discovery`` (and its flat twin) without a cluster.
+
+_PUBLISHED_TYPES_SEED = GeneratorConfig(seed=42, lines=300)
+
+
+def _verify_elasticsearch() -> Any:
+    scripts = str(ROOT / "scripts")
+    sys.path.insert(0, scripts)
+    try:
+        return importlib.import_module("verify_elasticsearch")
+    finally:
+        sys.path.remove(scripts)
+
+
+@pytest.fixture(scope="module")
+def truth_and_catalog() -> tuple[dict[str, Any], Any]:
+    catalog = generate(_PUBLISHED_TYPES_SEED)
+    return _verify_elasticsearch().ground_truth(catalog), catalog
+
+
+def _published_names(docs: Any) -> dict[str, set[str]]:
+    by_type: dict[str, set[str]] = defaultdict(set)
+    for doc in docs:
+        by_type[doc["product_type"]].update(a["name"] for a in doc["attributes"])
+    return by_type
+
+
+def test_the_live_facet_discovery_truth_equals_the_published_nested_names(
+    truth_and_catalog: tuple[dict[str, Any], Any],
+) -> None:
+    truth, catalog = truth_and_catalog
+    published = _published_names(emit.iter_nested(catalog))
+    assert len(published) > 1 and any(
+        " " in name for names in published.values() for name in names
+    )  # anti-vacuity: several types, and a multi-word name
+    assert {t: truth["names_by_type"][t] for t in published} == dict(published)
+
+
+def test_the_live_truth_of_the_flat_names_equals_the_published_flat_names(
+    truth_and_catalog: tuple[dict[str, Any], Any],
+) -> None:
+    truth, catalog = truth_and_catalog
+    published = _published_names(emit.iter_flat(catalog))
+    assert {t: truth["flat_names_by_type"][t] for t in published} == dict(published)
