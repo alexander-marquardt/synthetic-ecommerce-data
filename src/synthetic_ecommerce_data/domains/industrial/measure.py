@@ -119,7 +119,7 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
                     standards_present += 1
                     values = attribute.values or (attribute.value,)
                     standards_values += len(values)
-                    if len(values) > 1:
+                    if len(set(values)) > 1:  # distinct values: a repeat is not multi-valued
                         standards_multi += 1
 
             # -- the attribute-role ambiguity rate
@@ -205,6 +205,15 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
             else:
                 images_missing += 1
 
+    pair_parents = pair_repeated = 0
+    for line in catalog.lines:
+        if not any(a.name == STANDARDS_NAME for a in line.attributes):
+            continue
+        pair_parents += 1
+        pairs = Counter((a.name, v) for a in line.attributes for v in (a.values or (a.value,)))
+        if any(n > 1 for n in pairs.values()):
+            pair_repeated += 1
+
     counters = catalog.stats
     title_tokens = counters.get("title_token", 0)
     title_truncated = counters.get("title_label_truncated", 0)
@@ -249,6 +258,14 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
             mixing_defect,
             mixing_eligible,
             "over records with a readable dimension",
+        ),
+        Comparison(
+            "parent repeats a (name, value) pair",
+            config.defect_repeated_pair,
+            _rate(pair_repeated, pair_parents),
+            pair_repeated,
+            pair_parents,
+            "over parents carrying Standards; the shape reverse_nested exists for (#1)",
         ),
         Comparison(
             "title dimension token unlabelled",
