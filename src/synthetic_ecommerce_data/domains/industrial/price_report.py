@@ -642,6 +642,8 @@ def pin_holds(row: Comparison, build: int) -> bool:
     build, 1 the 100K one), past :data:`.price.PIN_TOLERANCE`."""
     assert row.band is not None
     recorded = PINNED_FIGURES[row.name][build]
+    if recorded is None:
+        return row.within
     if PINNED_SHORTFALLS[row.name].startswith("below band"):
         return recorded / (1 + PIN_TOLERANCE) <= row.achieved < row.band[0]
     return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)

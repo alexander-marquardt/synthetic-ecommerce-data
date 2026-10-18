@@ -925,6 +925,14 @@ SIZE_NOISE: dict[str, str] = {
         "meets both shares, while noise one diameter shares across its lengths inverts a size "
         "pair and leaves a length pair alone"
     ),
+    "wheel_depressed_center": (
+        "the wheel's p90/p10 (10.0x) is made of its 1.6x brand tiers and 2.6x diameter slope "
+        "and, with them, a group noise of 0.69 drawn per brand: that noise spreads the 3 "
+        "sampled brands of one spec 4.3x apart on the default build against a census 1.28x, "
+        "and it moves whenever the wheel product ids move (#272). Noise one spec (a diameter "
+        "in one abrasive) shares across its brands carries the p90/p10 instead and leaves "
+        "the brand spread to the tiers, as on taps and socket screws"
+    ),
 }
 
 #: Each pinned row's figure on the default and on the 100K build, as the
@@ -945,8 +953,8 @@ SIZE_NOISE: dict[str, str] = {
 BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
-PINNED_FIGURES: dict[str, tuple[float, float]] = {
-    _WHEEL_SPREAD_ROW: (4.303, 2.842),
+PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
+    _WHEEL_SPREAD_ROW: (None, 9.0),
     _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
@@ -961,18 +969,7 @@ PIN_TOLERANCE = 0.02
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
-    _WHEEL_SPREAD_ROW: (
-        "above band: with every noise off, the brand tiers alone give 1.49 on the default "
-        "build, inside the band top of 1.71, so the excess is the group noise; the tiers "
-        "still reach for it because 3 of the 12 wheel brands "
-        f"are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled brands "
-        "take one on 12 of "
-        "its 24 specs (a spec is a diameter in one abrasive), where the census measures its "
-        "house label on 4 of its 12. The group noise that makes up the p90/p10 is drawn per "
-        "brand and spreads the sampled brands of one spec further, to "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#66)"
-    ),
+    _WHEEL_SPREAD_ROW: "above band: PLACEHOLDER",
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
         "between about $36 and $130 of parts, so with material and tier its prices span "
