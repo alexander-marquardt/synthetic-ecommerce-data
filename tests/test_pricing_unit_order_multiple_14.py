@@ -2,7 +2,7 @@
 
 They are not variants: a SKU states how its shown price is quoted (``pricing_unit``) and the
 multiple it is ordered in (``order_multiple``), beside ``price_usd`` and ``stock``. A SKU that
-publishes a ``Package Quantity`` above 1 is priced per pack; every other SKU is priced each.
+publishes a ``Units per Pack`` above 1 is priced per pack; every other SKU is priced each.
 The fields are in the standard, both Elasticsearch mappings and the PRISM field map, so a
 query can see them.
 """
