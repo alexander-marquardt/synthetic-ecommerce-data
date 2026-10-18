@@ -50,7 +50,10 @@ SHOWN = (
     "flavour",
     "serves",
 )
-UNIT = {"LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": "", "CMT": " cm", "GM2": " gsm"}
+UNIT = {
+    "LTR": "L", "MLT": "ml", "GRM": "g", "KGM": "kg", "C62": "", "CMT": " cm", "GM2": " gsm",
+    "KEL": " K",
+}  # fmt: skip
 GARMENT = {"audience", "leg_fit", "rise", "length", "waist", "neckline", "sleeve_length"}
 
 
