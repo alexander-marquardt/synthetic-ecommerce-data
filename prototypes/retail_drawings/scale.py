@@ -464,15 +464,20 @@ def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -
         for key, swap in swaps.items():
             if key in s:
                 s[key] = swap.get(str(s[key]).lower(), s[key])
-    for a in rec["attributes"]:
-        held = {str(s[a["key"]]).lower() for s in skus if a["key"] in s}
-        if held:
-            parts = _parts(str(a["value"]))
-            kept = [p for p in parts if p.lower() in held]
-            a["value"] = ", ".join(kept)
-            for dropped in (p for p in parts if kept and p.lower() not in held):
-                for field in ("title", "description"):
-                    rec[field] = _swap(rec[field], dropped, kept[0])
+    for key in dict.fromkeys(a["key"] for a in rec["attributes"]):
+        held = {str(s[key]).lower() for s in skus if key in s}
+        if not held:
+            continue
+        entries = [a for a in rec["attributes"] if a["key"] == key]
+        kept = [p for a in entries for p in _parts(str(a["value"])) if p.lower() in held]
+        dropped = [p for a in entries for p in _parts(str(a["value"])) if p.lower() not in held]
+        for a in entries:
+            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
+        if kept:  # an entry for a material no kept SKU holds goes (a style lists the ones it sells)
+            rec["attributes"] = [a for a in rec["attributes"] if a["key"] != key or a["value"]]
+        for part in dropped if kept else ():
+            for text in ("title", "description"):
+                rec[text] = _swap(rec[text], part, kept[0])
 
 
 def _swap(text: str, old: str, new: str) -> str:
