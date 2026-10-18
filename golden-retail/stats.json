@@ -512,11 +512,11 @@
  "grocery_values": {
   "checked": 15412,
   "named_but_not_carried": {
-   "contains": 578,
-   "flavor": 1964,
-   "may_contain": 688,
+   "contains": 735,
+   "flavor": 1936,
+   "may_contain": 724,
    "pack_size": 157,
-   "variety": 48
+   "variety": 67
   }
  },
  "near_duplicates": {
