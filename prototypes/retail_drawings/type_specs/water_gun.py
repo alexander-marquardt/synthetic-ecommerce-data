@@ -73,9 +73,9 @@ SPEC = TypeSpec(
     product_type="Water Gun",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "blue water gun", "generic", _ROWS[0], 28, "Blue Quarry Water Gun",
-                  "From the Blue Quarry range, named after a flooded pit; the gun itself is "
-                  "pink.", color=PINK),
+        toy_decoy(6, "kite", "generic", _ROWS[0], 28, "Kite Ridge Water Gun",
+                  "From the Kite Ridge range, named after a windy ridge; it is a water gun and "
+                  "does not fly.", color=PINK),
         toy_decoy(6, "play kitchen", "generic", _ROWS[1], 29, "Play Kitchen Quay Water Gun",
                   "From the Play Kitchen Quay range, named after a harbour wall; it is a "
                   "pistol, not a kitchen.", color=GREEN),

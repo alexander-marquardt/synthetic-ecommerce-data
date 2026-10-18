@@ -2,7 +2,7 @@
 
 The beauty range held lipstick, foundation, eyeliner, highlighter, a skin tint, a face powder, a
 perfume and a few creams, so a search for a mascara, a setting spray, a serum or an aftershave
-found an unrelated make-up item and finish, skin-concern and size had nothing to filter. Nine
+found an unrelated make-up item and finish, skin-concern and size had nothing to filter. Ten
 types fix that, each its own spec under ``type_specs/`` (gen#351) and each drawn as its own shape
 (:mod:`kit_beauty`):
 
@@ -18,9 +18,11 @@ Eye Patches     patch type, skin concern                      pack count (pairs)
 Body Mist       fragrance family                              fragrance x size (ml)
 Aftershave      fragrance family, concentration               size (ml)
 Talc            fragrance                                     size (g)
+Sun Cream       area (face, body)                             SPF x size (ml)
 ==============  ============================================  =============================
 
-A sun cream (SPF x size) already exists as a legacy type in ``class_rows`` and is not moved here.
+The one-style sun cream of ``class_rows`` stays beside the range: it is the near-type distractor
+of the "face cream" demo (class 12), and its type is registered here.
 A mascara's shades are a declared exception to the six main colors (``main_colors.EXCEPTIONS``);
 every other type is sold in its one pack and carries no color. The styles are templates only
 (``derivable`` False): the range grows by authored rows.

@@ -33,7 +33,7 @@ three per class per type and their truth.
 3. **audience word**: "Mens Women's-Style Cut Jumper".
 4. **feature absent**: "Womens Alpaca-Feel Jumper" has no alpaca.
 5. **shade in the description only**: "Womens Moonbeam Jumper" is Ivory.
-6. **incidental word in a short title** (a range name): "Womens Red Tarn Jumper" is not red.
+6. **incidental word in a short title** (a range name): "Womens Kettle Hill Jumper" is not a kettle.
 7. **invented brand** holding a color or category word: "White Heron", "Red Kite", "Cardigan
    Finch", each with its own house style (``house_styles.py``) and a lockup whose text is the
    brand; the garment is drawn in its true color.
@@ -53,6 +53,7 @@ from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
 from lowerbody_rows import LRow
 from main_colors import MAIN_COLORS
+from place_ranges import place_range
 from variants import cw
 
 #: The shop's own brands these rows sell, owned as the rest of the clothing tree states.
@@ -257,7 +258,6 @@ _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Oatmeal")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Ecru", "Off White")
-_RANGES = ("Red Tarn", "Blue Quarry", "Green Hollow", "Yellow Ridge", "Black Dene", "White Marsh")
 _AUDIENCE = {
     "Womens": ("Boyfriend Fit", "Menswear-Style Cut", "Mini-Me Kids' Style"),
     "Mens": ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style"),
@@ -317,9 +317,15 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                     _TRUE[(kk + i + 1) % 6], b, f"{b} {low}")  # fmt: skip
                 # 3: an audience word that names a sibling cut.
                 a = _AUDIENCE[root][i]
-                add(3, i, f"{root} {a} {noun}",
-                    f"A {root.lower().rstrip('s')}'s {low} in the {a.lower()}, sold in {root.lower().rstrip('s')}'s sizes.",
-                    _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
+                who = root.lower().rstrip("s")
+                if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
+                    add(3, i, f"{root} Mini-Me {noun}, Kids' Version Sold Separately",
+                        f"A {who}'s {low} with a matching kids' version, sold in {who}'s sizes.",
+                        _TRUE[(kk + i + 2) % 6], "Mini-Me", f"mini-me {low}")  # fmt: skip
+                else:
+                    add(3, i, f"{root} {a} {noun}",
+                        f"A {who}'s {low} in the {a.lower()}, sold in {who}'s sizes.",
+                        _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
                 # 4: a material or feature named, and absent.
                 f = _ABSENT[ptype][i]
                 add(4, i, f"{root} {f} {noun}",
@@ -331,14 +337,10 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                     f"A {low} in soft {s.lower()}, {_TAIL[ptype]}.", s,
                     _FANCY[(kk + i) % 6], f"{s.lower()} {low}")  # fmt: skip
                 # 6: an incidental word in a short title: a range name.
-                rg = _RANGES[(kk + i * 2) % 6]
-                word = rg.split()[0]
-                true6 = _TRUE[(kk + i + 4) % 6]
-                if true6 == word:
-                    true6 = "Navy"
+                rg, gloss, word = place_range(kk + i * 2)
                 add(6, i, f"{root} {rg} {noun}",
-                    f"From the {rg} range, named after a place on a hill walk; the {low} "
-                    f"itself is {true6.lower()}.", true6, word, f"{word.lower()} {low}",
+                    f"From the {rg} range, named for {gloss}; the {low} itself is "
+                    f"{_TRUE[(kk + i + 4) % 6].lower()}.", _TRUE[(kk + i + 4) % 6], word, word,
                     extra=(_a("range", "Range", rg),))  # fmt: skip
                 # 7: an invented brand holding a color or category word.
                 brand = NEW_BRANDS[i]
