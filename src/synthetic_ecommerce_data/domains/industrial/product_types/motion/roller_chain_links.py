@@ -24,7 +24,7 @@ because no link listing was seen for them.
 **The two links.** A connecting link is a pin link whose cover plate comes
 off, so it joins two roller link ends. An offset link has cranked plates,
 narrow at one end and wide at the other, so it makes a chain an odd number
-of pitches long. Which one a line sells is its ``Item``.
+of pitches long. Which one a line sells is its ``Type``.
 
 Steel and 18-8 stainless, sold singly and in packs of 2 and 5: a
 distributor's offer, not a table.
@@ -59,11 +59,15 @@ PITCH = "Pitch"
 WIDTH = "Inside Width"
 NUMBER = "ANSI Number"
 STYLE = "Style"
-ITEM = "Item"
+TYPE = "Type"
 
 CONNECTING = "Roller Chain Connecting Link"
 OFFSET = "Roller Chain Offset Link"
 KINDS = (CONNECTING, OFFSET)
+#: The link kind as a ``Type`` value: the one thing the product type alone does not
+#: say, since a connecting link and an offset link are one type (#497 removed ``Item``).
+TYPE_OF = {CONNECTING: "Connecting", OFFSET: "Offset"}
+KIND_OF = {value: kind for kind, value in TYPE_OF.items()}
 SINGLE = roller_chain.STRANDS[1]
 
 
@@ -204,7 +208,7 @@ TABLE = TableType(
 
 def _figure(record: dict[str, str]) -> Drawn:
     values, source = lengths(TABLE, record)
-    kind = record.get(ITEM, CONNECTING)
+    kind = KIND_OF.get(record.get(TYPE, ""), "")
     if kind not in KINDS:
         kind, source = CONNECTING, "partial" if source == "record" else source
     return Drawn(draw(values, kind), source)
@@ -214,15 +218,15 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
     def make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         draft = base(gen, type_key, category)
         line = {attribute.name: attribute for attribute in draft.line_attrs}
-        material, pack = line["Material"].value, line["Package Quantity"].value
+        material, pack = line["Material"].value, line["Units per Pack"].value
         # Rotated within each material and pack, so both links are built in
         # every one of them: one rotation over all lines would keep step with
         # the table's own and pair each link with half the packs.
         kind = KINDS[gen._rotate(f"kind:{type_key}:{material}:{pack}", len(KINDS))]
         draft.item = kind
-        draft.line_attrs = [
-            keyword_attribute(ITEM, kind) if a.name == ITEM else a for a in draft.line_attrs
-        ]
+        # ``Type`` takes the place, and so the sparsity draw, of the retired ``Item``
+        # at the head of the list: the random stream stays what it was (#497).
+        draft.line_attrs[0] = keyword_attribute(TYPE, TYPE_OF[kind])
         draft.line_attrs.insert(1, keyword_attribute(STYLE, SINGLE))
         draft.descriptors = [(STYLE, SINGLE), ("Material", material)]
         draft.provenance = PROVENANCE
@@ -252,6 +256,7 @@ SPEC = dataclasses.replace(
         # declares its Pitch a keyword, so its pitches are never rewritten:
         # declared the same way here, a link's pitch reads as its chain's does.
         *(_CHAIN_PITCH if s.name == PITCH else s for s in _BASE.vocab),
+        AttrSpec(name=TYPE, scope="line", presence=1.0, kind="keyword"),
         AttrSpec(name=STYLE, scope="line", presence=1.0, kind="keyword"),
         AttrSpec(name=NUMBER, scope="sku", presence=1.0, kind="keyword"),
     ),

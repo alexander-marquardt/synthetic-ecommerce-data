@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.domains.industrial.render import forms
 from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
+    drawing_title,
     provenance_note,
     require,
     spec_table,
@@ -326,7 +327,7 @@ def _render_detail(record: dict, geom: TapGeometry, profile: Profile):
     fig.text(
         0.04,
         0.955,
-        str(record.get("Item", "Tap")),
+        drawing_title(record, "Tap"),
         fontsize=cv.FS_TITLE,
         fontweight="bold",
         color=cv.INK,
@@ -346,7 +347,6 @@ def _render_detail(record: dict, geom: TapGeometry, profile: Profile):
             ("Square Size", geom.square.display() if geom.square else ""),
             ("Number of Flutes", str(geom.flutes) if geom.flutes else ""),
             ("Tap Chamfer", record.get("Tap Chamfer", "")),
-            ("Tap Style", record.get("Tap Style", "")),
             ("Material", record.get("Material", "")),
             ("Finish", record.get("Finish", "")),
             ("Thread Type", record.get("Thread Type", "")),

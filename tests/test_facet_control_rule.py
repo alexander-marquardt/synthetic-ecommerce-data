@@ -371,10 +371,10 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
 #: Quantities whose ratio is over the continuity threshold but whose product
 #: count is under the floor, so the floor alone keeps them faceted. A dowel pin
 #: diameter was pooled with every other ``Diameter`` (and under the floor's
-#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products,
-#: split by unit into two labels of which only the metric one is over the
-#: threshold.
-NUMERIC_HELD_BY_FLOOR = ("Dowel Dia. (mm)",)
+#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products.
+#: #497 merged its inch and metric labels into one ``Dowel Dia.``, which is over
+#: the threshold.
+NUMERIC_HELD_BY_FLOOR = ("Dowel Dia.",)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -496,14 +496,14 @@ RETIRED_TERMS_CAP = 25
 #: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
 #: and Material, which their four compounds took from 23 values to 27.
 #: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
-#: strand suffixes included) that repeat across its lines.
+#: strand suffixes included) that repeat across its lines. The ``Item``
+#: attribute, once the tenth, is not published any more (#497).
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
         "bearing_number",
         "dash_number",
         "dia_thread_size",
-        "item",
         "material",
         "sizes_included",
         "standards",

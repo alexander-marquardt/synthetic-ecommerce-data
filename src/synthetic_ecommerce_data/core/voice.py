@@ -12,7 +12,7 @@ The title keeps the census structure as its core (``<Item>, <key dim>
 voice only chooses among census-observed variants -- descriptive or terse,
 the brand name first or not, the label spelling of each attribute, where a
 tight delimiter falls -- and adds words AROUND the core: a qualifier before
-the item and, where the record publishes ``Package Quantity``, a pack
+the item and, where the record publishes ``Units per Pack``, a pack
 segment at the end.
 
 Nothing a voice adds may state a fact the record does not carry. The
@@ -122,7 +122,7 @@ FAMILY_PHRASES: tuple[str, ...] = (
     "Listed in the {name} family.",
 )
 
-#: A pack line, used ONLY with the record's own Package Quantity.
+#: A pack line, used ONLY with the record's own Units per Pack.
 PACK_PHRASES: tuple[str, ...] = (
     "Sold in packs of {n}.",
     "Pack of {n}.",
@@ -250,7 +250,7 @@ def description_tail(brand: str, series: str, type_key: str, facts: dict[str, st
     benefit = next(
         (text for (attr, value), text in BENEFITS.items() if facts.get(attr) == value), None
     )
-    quantity = facts.get("Package Quantity")
+    quantity = facts.get("Units per Pack")
     sentences = {
         0: USE_LINES.get(type_key, GENERIC_USE_LINES)[voice.use_style],
         1: FAMILY_PHRASES[voice.family_style].format(name=name),

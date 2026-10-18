@@ -66,9 +66,9 @@ COMBOS = {
     for length in (12, 36)
 }
 #: Every attribute name a record may publish of its own.
-NAMES = {"Item", "Fit", "Material", "Finish", "Length", "Width", "Height"}
-#: The names every type's records may carry for the unit system they are in.
-MEASUREMENT_NAMES = {"Measurement System", "System of Measurement", "Dimension Type"}
+NAMES = {"Stock Fit", "Material", "Finish", "Length", "Width", "Height"}
+#: The name every type's records carry for the unit system they are in.
+MEASUREMENT_NAMES = {"Measurement System"}
 
 
 def _default_docs() -> list[dict]:
@@ -99,7 +99,7 @@ def _section(doc: dict) -> tuple[Fraction, Fraction]:
 def _combo(doc: dict) -> tuple[str, str, str, int]:
     values = _values(doc)
     return (
-        values["Fit"]["value"],
+        values["Stock Fit"]["value"],
         values["Material"]["value"],
         values["Finish"]["value"],
         int(_inches(values["Length"])),
@@ -211,7 +211,6 @@ def test_a_rectangular_bars_title_names_its_height_and_a_square_bars_does_not(la
 def test_a_record_publishes_the_fits_name_and_no_tolerance_or_standard(large_docs):
     published = {a["name"] for doc in large_docs for a in doc["attributes"]}
     assert published - MEASUREMENT_NAMES == NAMES
-    assert {_values(doc)["Item"]["value"] for doc in large_docs} == {"Key Stock"}
     assert typespec.modelled()[KEY].may_claim == frozenset()
 
 

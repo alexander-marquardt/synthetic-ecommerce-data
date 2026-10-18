@@ -79,7 +79,7 @@ LABEL_FORMS: dict[str, tuple[tuple[str, float], ...]] = {
     "Grit": (("Grit", 1.0),),
     "Head Weight": (("Head Weight", 0.5), ("Wt", 0.5)),
     # A kit's piece count, as a set is listed: "240 pcs", "9 Pc".
-    "Number of Pieces": (("pcs", 0.6), ("Pc", 0.4)),
+    "Piece Count": (("pcs", 0.6), ("Pc", 0.4)),
     "Diameter": (("Dia.", 0.6), ("dia.", 0.4)),
     "Outside Dia.": (("Outside Dia.", 0.5), ("Outside Dia", 0.5)),
     "Width Across Flats": (("Width Across Flats", 0.5), ("A/F", 0.5)),

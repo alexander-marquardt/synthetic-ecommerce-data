@@ -37,7 +37,7 @@ def nested(catalog):
 def _pack(doc) -> float | None:
     """The pack the document's own attribute entry states, as a number."""
     return next(
-        (a["value_canonical"] for a in doc["attributes"] if a["key"] == "package_quantity"), None
+        (a["value_canonical"] for a in doc["attributes"] if a["key"] == "units_per_pack"), None
     )
 
 

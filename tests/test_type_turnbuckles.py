@@ -48,7 +48,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 DIMENSIONAL = {"ASTM F1145"}
 #: The published lengths, the size first.
-LENGTHS = ("Thread Dia.", "Take Up", "Closed Length")
+LENGTHS = ("Thread Size", "Take Up", "Closed Length")
 #: ``(thread diameter, take-up)`` in inches: the chart's eight diameters, each
 #: at one take-up.
 SIZES = (
@@ -249,14 +249,13 @@ def test_one_product_publishes_exactly_its_row(large_docs):
         assert claimed is None or claimed["value"] == "ASTM F1145"
         measured = {n: a["value_canonical"] for n, a in published.items() if "unit_code" in a}
         assert measured == {
-            "Package Quantity": 1.0,
-            "Thread Dia.": 12.7,
+            "Units per Pack": 1.0,
+            "Thread Size": 12.7,
             "Take Up": 152.4,
             "Closed Length": 342.9,
             "Load Capacity": 2200.0,
         }
         assert {name: a["value"] for name, a in published.items() if "unit_code" not in a} == {
-            "Item": "Turnbuckle",
             "Material": "Steel",
             "End Style": "Jaw and Jaw",
         }
@@ -268,7 +267,7 @@ def test_one_product_publishes_exactly_its_row(large_docs):
 
 
 def test_a_larger_thread_costs_more_at_every_brand_tier(large_docs):
-    wrong, compared = table_gates.price_order(large_docs, KEY, "Thread Dia.", ("Steel",))
+    wrong, compared = table_gates.price_order(large_docs, KEY, "Thread Size", ("Steel",))
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:4]}"
     assert compared["size"] > 13, f"too few pairs compared: {compared}"
 
@@ -318,7 +317,7 @@ def test_the_largest_drawing_fits_the_declared_extent(drawn):
 
 def test_a_record_without_its_closed_length_is_drawn_from_the_tables():
     figure, _ = FIGURES[KEY]
-    record = {"Thread Dia.": '1/2"', "Take Up": '6"', "End Style": "Hook and Eye"}
+    record = {"Thread Size": '1/2"', "Take Up": '6"', "End Style": "Hook and Eye"}
     partial = figure(record)
     assert partial.source == "partial"
     x0, _, x1, _ = partial.figure.bounds()
@@ -329,7 +328,7 @@ def test_a_record_without_its_closed_length_is_drawn_from_the_tables():
 
 
 def test_each_end_fitting_is_drawn_differently():
-    values = {"Thread Dia.": 0.5, "Take Up": 6.0, "Closed Length": 13.5}
+    values = {"Thread Size": 0.5, "Take Up": 6.0, "Closed Length": 13.5}
     figures = [turnbuckles.draw(values, end).shapes for end in CLOSED]
     assert len(figures) == 3
     assert figures[0] != figures[1] != figures[2] != figures[0]
