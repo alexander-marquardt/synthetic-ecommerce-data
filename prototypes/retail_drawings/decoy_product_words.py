@@ -1262,6 +1262,7 @@ def table_markdown() -> str:
     for r in TABLE:
         lines.append(
             f"| {r.query} | {r.noun or ('seed phrase' if r.seeds else 'brand')} "
-            f"| PLT-{r.code} | {r.title} | {r.ptype} | {r.policy} |"
+            f"| PLT-{r.code} | {r.title} | {r.ptype} "
+            f"| {r.policy} |"
         )
     return "\n".join(lines)
