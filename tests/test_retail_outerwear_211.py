@@ -241,6 +241,192 @@ def test_a_belted_trench_coat_draws_its_belt_and_a_hooded_one_its_hood() -> None
 
 
 # --------------------------------------------------------------------------
+# A mark a record states is a mark the drawing shows (every stated axis, every row), and a
+# feature the title states is a feature the description and the attribute state.
+# --------------------------------------------------------------------------
+
+#: The hem each stated length stamps on the torso; written here, not read from ``LEN``.
+HEM_OF = {"Short": "hem-short", "Mid Length": "hem-mid", "Long": "hem-long",
+          "Cropped": "hem-cropped", "Regular": "hem-regular",
+          "Longline": "hem-longline"}  # fmt: skip
+#: shape -> the axes a record of that shape states and the drawing marks.
+AXES_OF = {
+    "trench_coat": {"length", "breasting", "belt"},
+    "raincoat": {"length", "hood"},
+    "parka": {"length", "hood"},
+    "puffer": {"length", "hood", "quilt"},
+    "gilet": {"padding"},
+    "peacoat": {"length", "breasting"},
+    "utility_jacket": {"pockets", "collar"},
+    "shacket": {"teddy"},
+    "bolero": {"style", "sleeve"},
+    "windbreaker": {"zip", "hood"},
+    "hoodie": {"zip", "hood"},
+}  # fmt: skip
+ALL_AXES = {"length", "breasting", "belt", "pockets", "collar", "teddy", "zip", "hood", "quilt",
+            "padding", "style", "sleeve"}  # fmt: skip
+
+
+def _one(row, key: str) -> str | None:
+    got = _values(row, key)
+    return got[0] if got else None
+
+
+def _classes(svg: str) -> list[str]:
+    """Every class token in the drawing, once per element that carries it."""
+    return [t for c in re.findall(r'class="([^"]+)"', svg) for t in c.split()]
+
+
+def _stated_and_drawn(row) -> dict[str, tuple]:
+    """axis -> (what the record states, what the drawing marks), for the axes of the row's shape."""
+    svg = _svg(row)
+    marks = _classes(svg)
+    named = lambda *names: tuple(sorted({m for m in marks if m in names}))  # noqa: E731
+    prefixed = lambda p: tuple(sorted({m for m in marks if m.startswith(p)}))  # noqa: E731
+    v = lambda k: _one(row, k)  # noqa: E731
+    zips = {"Full-Zip": ("zip-full",), "Half-Zip": ("zip-half",), "Zip-Through": ("zip-through",),
+            "Pullover": ()}  # fmt: skip
+    fills = {"Padded": "channel", "Quilted": "diamond", "Fleece": "pile"}
+    styles = {"Cape": "cape", "Bolero": "hem-bolero", "Shrug": "hem-shrug"}
+    out: dict[str, tuple] = {}
+    for axis in AXES_OF[row.shape]:
+        if axis == "length":
+            got = ((HEM_OF[v("garment_length")],), prefixed("hem-"))
+        elif axis == "belt":
+            got = ((1 if v("belted") == "Yes" else 0,), (marks.count("belt"),))
+        elif axis == "breasting":
+            columns = set(re.findall(r'<circle class="button" cx="([\d.]+)"', svg))
+            got = ((2 if v("breasting") == "Double-Breasted" else 1,), (len(columns),))
+        elif axis == "pockets":
+            got = ((int(v("pocket_count")),), (marks.count("pocket"),))
+        elif axis == "collar":
+            got = (("collar-" + v("collar").lower(),), prefixed("collar-"))
+        elif axis == "teddy":
+            got = ((v("texture") == "Teddy",), ("pile" in marks,))
+        elif axis == "zip":
+            got = (zips[v("zip_style")], named("zip-full", "zip-half", "zip-through"))
+        elif axis == "hood":
+            kind = v("hood_type")
+            hooded = row.shape == "hoodie" or v("hood") == "Yes"
+            got = ((hooded, kind == "Packaway", kind == "Faux-Fur Trim"),
+                   ("hood" in marks, "hood-pack" in marks, "fur" in marks))  # fmt: skip
+        elif axis == "quilt":
+            got = ((v("quilting").lower(),), named("channel", "diamond"))
+        elif axis == "padding":
+            got = ((fills[v("fill")],), named("channel", "diamond", "pile"))
+        elif axis == "style":
+            got = ((styles[v("bolero_style")],), named("cape", "hem-bolero", "hem-shrug"))
+        else:
+            sleeve = v("sleeve_length")
+            want = () if sleeve == "Sleeveless" else ("sleeve-" + sleeve.lower().replace("-", "_"),)
+            got = (want, prefixed("sleeve-"))
+        out[axis] = got
+    return out
+
+
+@pytest.mark.parametrize("row", _all_rows(), ids=lambda r: r.code)
+def test_every_mark_a_record_states_is_the_mark_the_drawing_shows(row) -> None:
+    pairs = _stated_and_drawn(row)
+    assert set(pairs) == AXES_OF[row.shape]
+    wrong = {axis: pair for axis, pair in pairs.items() if pair[0] != pair[1]}
+    assert wrong == {}, f"{row.code}: axis -> (stated, drawn)"
+
+
+def test_the_drawing_check_reaches_every_axis_the_issue_names() -> None:
+    reached = {a for r in _all_rows() for a in _stated_and_drawn(r)}
+    assert reached == ALL_AXES
+    for axis in ALL_AXES:
+        stated = {_stated_and_drawn(r)[axis][0] for r in _all_rows() if axis in AXES_OF[r.shape]}
+        assert len(stated) >= 2, f"{axis}: one reading in every row hides a swap"
+
+
+#: product types -> (title word, attribute key, attribute value that earns it, the description
+#: pattern that states it). The title word is in the title exactly when the attribute says so, and
+#: the description states it in the same case, never in another.
+FEATURES = [
+    (("Raincoat", "Parka", "Puffer Jacket", "Windbreaker"), r"\bHooded\b", "hood", "Yes",
+     r"\bhood"),
+    (("Raincoat",), r"\bLined\b", "lining", "Lined", r"\blin(ed|ing)\b"),
+    (("Parka",), r"\bWaterproof\b", "waterproof", "Yes", r"\bwaterproof\b"),
+    (("Windbreaker",), r"\bPackable\b", "packable", "Yes", r"\bpack"),
+    (("Puffer Jacket",), None, "packable", "Yes", r"\bpacks\b"),
+    (("Trench Coat",), r"\bBelted\b", "belted", "Yes", r"\bbelt\b"),
+    (("Parka",), r"\bFaux-Fur\b", "hood_type", "Faux-Fur Trim", r"\bfaux-fur\b"),
+    (("Raincoat",), r"\bPackaway\b", "hood_type", "Packaway", r"\bpackaway\b"),
+    (("Shacket",), r"\bTeddy Fleece\b", "texture", "Teddy", r"\bteddy\b"),
+    (("Shacket",), r"\bCheck Flannel\b", "fabric", "Flannel", r"\bflannel\b"),
+    (("Gilet",), r"\bPerformance\b", "use", "Performance", r"\brunning\b"),
+    (("Puffer Jacket",), r"\bDiamond Quilted\b", "quilting", "Diamond", r"\bdiamond\b"),
+    (("Puffer Jacket",), r"\bChannel Quilted\b", "quilting", "Channel", r"\bchannel\b"),
+    (("Trench Coat", "Peacoat"), r"\bDouble-Breasted\b", "breasting", "Double-Breasted",
+     r"\bdouble-breasted\b"),
+    (("Trench Coat", "Peacoat"), r"\bSingle-Breasted\b", "breasting", "Single-Breasted",
+     r"\bsingle-breasted\b"),
+]  # fmt: skip
+
+
+def _feature_cases() -> list:
+    cases = []
+    for ptypes, title, key, value, desc in FEATURES:
+        for ptype in ptypes:
+            for row in _rows(ptype):
+                case = pytest.param(row, title, key, value, desc, id=f"{row.code}-{key}-{value}")
+                cases.append(case)
+    return cases
+
+
+@pytest.mark.parametrize(("row", "title", "key", "value", "desc"), _feature_cases())
+def test_a_feature_the_title_states_is_in_the_description_and_agrees_with_the_attribute(
+    row, title: str | None, key: str, value: str, desc: str
+) -> None:
+    earned = _one(row, key) == value
+    if title:
+        assert bool(re.search(title, row.title)) == earned, f"{row.code}: the title and {key}"
+    assert bool(re.search(desc, row.description, re.IGNORECASE)) == earned, (
+        f"{row.code}: the description and {key}: {row.description}"
+    )
+
+
+def test_every_title_names_the_fabric_or_fill_its_description_names() -> None:
+    for row in _all_rows():
+        fabric = _one(row, "fabric")
+        unnamed = {"Raincoat", "Parka", "Puffer Jacket", "Windbreaker", "Gilet"}
+        if fabric and row.product_type not in unnamed:
+            assert fabric.lower() in row.title.lower(), row.code
+        assert fabric is None or fabric.lower() in row.description.lower(), row.code
+        fill = _one(row, "fill")
+        assert fill is None or fill.lower() in row.description.lower(), row.code
+
+
+def test_mens_rows_carry_the_mens_size_run_and_womens_rows_the_womens_one() -> None:
+    mens = [r for r in _all_rows() if r.path[0] == "Mens"]
+    womens = [r for r in _all_rows() if r.path[0] == "Womens"]
+    assert len(mens) >= 6 and len(womens) >= 33
+    for row in mens:
+        assert row.title.startswith("Mens "), row.code
+        assert tuple(s for s, _ in row.sizes) == ("S", "M", "L", "XL", "XXL"), row.code
+    for row in womens:
+        assert not row.title.startswith("Mens "), row.code
+        assert tuple(s for s, _ in row.sizes) == ("XS", "S", "M", "L", "XL"), row.code
+
+
+#: product type -> the leaf under Coats & Jackets, parents first.
+LEAF_OF = {
+    "Trench Coat": ("Coats", "Trench Coats"), "Peacoat": ("Coats", "Peacoats"),
+    "Raincoat": ("Raincoats",), "Parka": ("Parkas",), "Puffer Jacket": ("Puffer Jackets",),
+    "Gilet": ("Gilets",), "Utility Jacket": ("Utility Jackets",), "Shacket": ("Shackets",),
+    "Bolero": ("Boleros & Capes",), "Windbreaker": ("Windbreakers",), "Hoodie": ("Hoodies",),
+}  # fmt: skip
+
+
+@pytest.mark.parametrize("ptype", sorted(TYPES))
+def test_each_type_sits_in_its_named_leaf(ptype: str) -> None:
+    for row in _rows(ptype):
+        assert tuple(row.path[1:]) == ("Coats & Jackets", *LEAF_OF[ptype]), row.code
+        assert _doc(row)["category_leaf"] == LEAF_OF[ptype][-1], row.code
+
+
+# --------------------------------------------------------------------------
 # Colors: the six main colors across the styles of each type and audience.
 # --------------------------------------------------------------------------
 
