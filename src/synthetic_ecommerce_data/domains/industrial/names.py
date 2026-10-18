@@ -120,6 +120,7 @@ TYPE_SPECIFIC: dict[str, str] = {
     "Tap Chamfer": "census 3; a tap's chamfer class (Plug, Bottoming, Taper)",
     "Bearing Number": "reference spec table (ball bearings): the designation",
     "Pin Dia.": "label ruling 2026-10-07: a cotter pin diameter is named by what it measures",
+    "Wheel Grade": "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade",
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
@@ -171,7 +172,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "key stock's oversized or undersized bar, the name distributors facet it"
         " by; the census carries no key stock, and its Class is another concept"
     ),
-    "Wheel Grade": "a wheel's or flap disc's abrasive coarseness (Fine, Medium, Coarse); the census carries no abrasive family, and Grade is a bolt's strength class",
+    "Wheel Grade": (
+        "a wheel's or flap disc's abrasive coarseness (Fine, Medium, Coarse); the census"
+        " carries no abrasive family, and Grade is a bolt's strength class"
+    ),
     "Units per Pack": "how many units one listing sells (#497); the census states it as Package Quantity",
     "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
 }

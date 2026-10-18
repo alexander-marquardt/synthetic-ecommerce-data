@@ -371,10 +371,10 @@ def test_the_measured_figures_describe_a_catalog_that_exists(decided) -> None:
 #: Quantities whose ratio is over the continuity threshold but whose product
 #: count is under the floor, so the floor alone keeps them faceted. A dowel pin
 #: diameter was pooled with every other ``Diameter`` (and under the floor's
-#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products,
-#: split by unit into two labels of which only the metric one is over the
-#: threshold.
-NUMERIC_HELD_BY_FLOOR = ("Dowel Dia. (mm)",)
+#: reach never); on its own key (the 2026-10-07 label ruling) it has 60 products.
+#: #497 merged its inch and metric labels into one ``Dowel Dia.``, which is over
+#: the threshold.
+NUMERIC_HELD_BY_FLOOR = ("Dowel Dia.",)
 
 
 def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
@@ -495,15 +495,14 @@ RETIRED_TERMS_CAP = 25
 #: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
 #: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
 #: and Material, which their four compounds took from 23 values to 27.
-#: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
-#: strand suffixes included) that repeat across its lines.
+#: A roller chain's ANSI Number is no longer one (#497): the build draws 17 values,
+#: under the retired cap, so the retired rule offered it too. The ``Item``
+#: attribute, once the tenth, is not published any more.
 NEWLY_OFFERED = frozenset(
     {
-        "ansi_number",
         "bearing_number",
         "dash_number",
         "dia_thread_size",
-        "item",
         "material",
         "sizes_included",
         "standards",
@@ -718,7 +717,11 @@ def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> N
     sizes = sorted(controls_by_size)
     for key in ("sizes_included", "bore_dia", "overall_length"):
         assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
-    assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
+    # A List Number is drawn on about half the lines, so at one size it can sit under
+    # the presence gate and be absent here; wherever it is decided it is withheld.
+    decided_list_number = [controls_by_size[lines].get("list_number") for lines in sizes]
+    assert set(decided_list_number) <= {"withheld", None}, decided_list_number
+    assert "withheld" in decided_list_number
 
 
 def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:

@@ -3,11 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from helpers import color_mask, figure_pixels, within_axes
-from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
 from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, fastener
-from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 
 REC = FIXTURES["26LD37"]
 
@@ -309,19 +306,12 @@ def test_a_hex_head_falls_back_to_head_dia_when_across_flats_is_not_published():
     assert geom.across_flats == pytest.approx(geom.head_dia.inches)
 
 
-# --- Length Under Head, which is a DRAWN dimension and not only a table row --
+# --- Length under Head is not an attribute any more (#497) -------------------
 #
-# The distinction matters and is the reason these tests measure the elevation
-# rather than the sheet. A value printed in the attribute table makes no claim
-# the drawing could contradict -- it is the record's own text, set beside the
-# record. A dimension LINE claims that this span of this picture is that value,
-# so it is the half that can go wrong silently, and the half issue #10 is about:
-# three channels there can be broken with the whole suite green because the
-# stamp answers for them.
-
-#: The record with the attribute added, which the bundled reference records
-#: predate. 1/2" over the head less a 0.127" head leaves 0.373" under it.
-REC_UNDER_HEAD = {**REC, "Length Under Head": "0.3730 in"}
+# For a non-countersunk screw the nominal Length IS the length under the head,
+# and a countersunk one never published it, so the attribute repeated Length on
+# every screw that carried it. The spec merges it into Length; the elevation
+# therefore draws the published Length and the thread run, and no third span.
 
 
 def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
@@ -329,9 +319,7 @@ def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
 
     Read off the arrows actually added to the DRAWING's axes -- the same
     artists that get rasterised -- rather than off the figure's text, which is
-    where the attribute table lives. A span measured in pixels instead cannot
-    be separated from the diameter callouts' labels, which are set in the same
-    color and cross the same columns.
+    where the attribute table lives.
     """
     _fig, ax, _geom = fastener.build(record, profile)
     spans = []
@@ -345,83 +333,20 @@ def _elevation_dimension_spans(record: dict, profile=DETAIL) -> list[float]:
     return sorted(spans)
 
 
-def _dimension_ink(record: dict, profile=DETAIL) -> int:
-    """Pixels of the dimension color inside the elevation's own axes box."""
-    fig, ax, _geom = fastener.build(record, profile)
-    image = figure_pixels(fig)
-    return int((color_mask(image, cv.DIM, tol=0.10) & within_axes(fig, ax, image.shape[:2])).sum())
-
-
-def test_the_length_under_head_dimension_spans_the_value_the_record_publishes():
-    """Not the total height, not the length, not the thread run.
-
-    Those are the three spans already on the page and every one of them is
-    wrong for this label: on this countersunk screw the published length is a
-    head height longer, the total height is the same again, and the thread run
-    is whatever the record says it is.
-    """
-    published = parse_length(REC_UNDER_HEAD["Length Under Head"]).inches
-    spans = _elevation_dimension_spans(REC_UNDER_HEAD)
-    assert any(span == pytest.approx(published, abs=1e-6) for span in spans), spans
-
-    geom = fastener.geometry_from_record(REC_UNDER_HEAD)
-    assert published != pytest.approx(geom.total_height)
-    assert published != pytest.approx(geom.length.inches)
-
-
-def test_the_three_published_lengths_are_three_spans_on_the_elevation():
-    """A countersunk screw is where they come apart, so it is where it is checked."""
-    geom = fastener.geometry_from_record(REC_UNDER_HEAD)
+def test_the_elevation_draws_the_length_and_the_thread_run_and_no_third_span():
+    """A countersunk screw is where the spans come apart, so it is where it is checked."""
+    geom = fastener.geometry_from_record(REC)
     assert geom.countersunk
-    assert geom.length_under_head is not None
-    assert _elevation_dimension_spans(REC_UNDER_HEAD) == pytest.approx(
-        sorted([geom.length.inches, geom.length_under_head.inches, geom.threaded_length])
+    assert _elevation_dimension_spans(REC) == pytest.approx(
+        sorted([geom.length.inches, geom.threaded_length])
     )
 
 
-def test_a_record_that_does_not_publish_it_gets_no_such_dimension():
-    """Silence draws nothing rather than a span computed from the neighbours.
-
-    The drawing may only contain numbers the record contains, and the shank
-    the other attributes leave is not one the record published.
-    """
-    assert "Length Under Head" not in REC
-    assert fastener.geometry_from_record(REC).length_under_head is None
-    assert (
-        len(_elevation_dimension_spans(REC)) == len(_elevation_dimension_spans(REC_UNDER_HEAD)) - 1
-    )
-
-
-def test_the_dimension_is_inked_in_the_drawing_and_not_only_in_the_table():
-    """The control for the span test above: an arrow that draws nothing would pass it."""
-    assert _dimension_ink(REC_UNDER_HEAD) > _dimension_ink(REC) + 500
-
-
-@pytest.mark.parametrize("published", ["1/2 in", "0.2000 in"])
-def test_a_length_under_head_the_other_lengths_contradict_is_refused(published):
-    """Both directions: too long for the shank, and too short for it.
-
-    A record whose own numbers disagree is refused rather than drawn to one of
-    them, because a drawing that picked a winner would be a picture saying the
-    record is something it is not -- and the defect would then look corroborated.
-    """
-    with pytest.raises(fastener.ImpossibleGeometryError):
-        fastener.geometry_from_record({**REC, "Length Under Head": published})
-
-
-def test_the_refusal_leaves_room_for_the_rounding_the_catalog_publishes():
-    """A tolerance that refused consistent records would empty the catalog.
-
-    The published strings are exact to four decimal inches or two decimal
-    millimetres, so a consistent record's three lengths agree far inside the
-    tolerance -- and one unit out of that last place must not be a refusal.
-    """
-    fastener.geometry_from_record({**REC, "Length Under Head": "0.3731 in"})
-    fastener.geometry_from_record({**REC, "Length Under Head": "9.47 mm"})
-    assert fastener.UNDER_HEAD_TOLERANCE_IN < 0.127, (
-        "a tolerance as wide as this screw's head height would accept a length "
-        "under head that was really the length over it"
-    )
+def test_a_stray_length_under_head_changes_neither_the_geometry_nor_the_drawing():
+    """The drawing may only contain numbers the record publishes under a name it knows."""
+    stray = {**REC, "Length Under Head": "0.3730 in"}
+    assert not hasattr(fastener.geometry_from_record(stray), "length_under_head")
+    assert _elevation_dimension_spans(stray) == pytest.approx(_elevation_dimension_spans(REC))
 
 
 @pytest.mark.parametrize("rise", [0.02, 0.05, 0.127, 0.2055, 0.30, 0.50])
