@@ -11,6 +11,7 @@ prefix, so ``mutation_check.py`` reads one list.
 
 from __future__ import annotations
 
+import mutation_rows_decor_217
 import mutation_rows_plural_445
 import mutation_rows_real_attributes_448
 import mutation_rows_suits_215
@@ -93,6 +94,7 @@ ALL: list[tuple[str, ...]] = [
     *(("type specs", *row) for row in mutation_rows_type_specs.ROWS),
     *(("garden hose", *row) for row in ROWS),
     *(("suits", *row) for row in mutation_rows_suits_215.ROWS),
+    *(("decor 217", *row, "prototypes/retail_drawings") for row in mutation_rows_decor_217.ROWS),
     *(("toys depth", *row) for row in mutation_rows_toys_424.ROWS),
     *(("plural decoys", *row) for row in mutation_rows_plural_445.ROWS),
     *(("text exempt", *row) for row in mutation_rows_text_exempt_452.ROWS),

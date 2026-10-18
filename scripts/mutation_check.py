@@ -4119,7 +4119,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption from the text check is removed",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
+                "DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())\n",
                 "DECOY_IDS = frozenset()\n",
                 "tests/test_retail_apparel_decoys_311.py -k misleading_color",
                 "a decoy naming only another color passes the standard by its id",
@@ -4127,7 +4127,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption widens to every id",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids() | neckline_rows.decoy_ids()\n",
+                "DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())\n",
                 'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
                 "tests/test_retail_apparel_decoys_311.py -k two_tables",
                 "no real product is exempt from the text check",
@@ -4472,8 +4472,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the derivation copies the needs rows as styles",
                 "scale.py",
-                "| NIKE_IDS | NEEDS_IDS\n",
-                "| NIKE_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n                | NEEDS_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n",
                 "tests/test_retail_elasticated_waist_329.py -k every_row_is_a_template",
                 "the needs rows stay templates",
             ),
@@ -4567,8 +4567,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a Nike style enters the seeded derivation",
                 "scale.py",
-                "| GARDEN_IDS | NIKE_IDS",
-                "| GARDEN_IDS",
+                "| GARDEN_IDS | DECOR_IDS | NIKE_IDS",
+                "| GARDEN_IDS | DECOR_IDS",
                 "tests/test_retail_nike_341.py -k leave_the_derivation",
                 "the Nike rows are templates only",
             ),
