@@ -17,8 +17,6 @@ trinket_tray     a round or a rectangular tray with a rim    outline (round, rec
 wallpaper        a roll with its paper unrolled              finish (matt, metallic)
 diary            a closed diary with a ribbon marker,        band (no, yes)
                  with or without an elastic band
-picnic_blanket   a blanket laid flat, with a lifted corner   backing (plain, waterproof)
-                 that shows its underside
 door_stop        a wedge, or a weighted stop with a handle   kind (wedge, weighted)
 ===============  ==========================================  ==========================
 
@@ -277,25 +275,6 @@ def diary(paint: str, fill: Fill, label: str | None, band: str = "no") -> list[s
 # --------------------------------------------------------------------------
 
 
-def picnic_blanket(paint: str, fill: Fill, label: str | None, backing: str = "plain") -> list[str]:
-    """A blanket laid flat with a lifted corner; the underside of a ``waterproof`` one is a glossy backing."""
-    dark = _shade(fill.base, 0.3)
-    under = "#8fb4c4" if backing.lower() == "waterproof" else dark
-    out = [
-        _path("M110,130 L370,130 L330,310 L40,310 Z", paint),
-        _path("M40,310 L330,310 L330,324 L40,324 Z", dark, 2.4),
-        _path("M330,310 L370,130 L378,142 L338,324 Z", dark, 2.4),
-        _path("M40,310 L110,130 L150,236 Z", under, 2.4),
-        _path("M40,310 L150,236 L150,310 Z", paint, 2.4),
-        _line("M150,236 L124,310", 2, ' stroke-opacity=".5"'),
-    ]
-    for x in range(52, 334, 32):
-        out.append(_line(f"M{x},324 L{x - 4},346", 2.4))
-    if backing.lower() == "waterproof":
-        out += [_highlight("M62,286 L112,166", 4, 0.6)]
-    return _label(out, label)
-
-
 def door_stop(paint: str, fill: Fill, label: str | None, kind: str = "wedge") -> list[str]:
     """A door stop: a ``wedge`` of rubber or wood, or a ``weighted`` cylinder with a carrying handle."""
     dark = _shade(fill.base, 0.3)
@@ -321,6 +300,6 @@ def door_stop(paint: str, fill: Fill, label: str | None, kind: str = "wedge") ->
 SHAPES = {
     "clock": clock, "ornament": ornament, "stems": stems, "trinket_tray": trinket_tray,
     "wallpaper": wallpaper, "diary": diary,
-    "picnic_blanket": picnic_blanket, "door_stop": door_stop,
+    "door_stop": door_stop,
 }  # fmt: skip
 register(SHAPES)
