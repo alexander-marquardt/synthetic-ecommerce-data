@@ -45,7 +45,7 @@ def _kit(code: str, title: str, brand: str, material: str, cm: float, sounds: bo
         (
             kind("Play Kitchen"),
             a("material", "Material", material),
-            measured("height_cm", "Height", cm, "CMT"),
+            measured("item_height", "Item height", cm, "CMT"),
             a("lights_and_sounds", "Lights and sounds", yes(sounds)),
             a("has_sink", "Sink", yes(sink)),
             a("oven_door", "Oven door", yes(oven)),
@@ -78,9 +78,9 @@ SPEC = TypeSpec(
     product_type="Play Kitchen",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "green play kitchen", "generic", _ROWS[0], 12, "Green Hollow Play Kitchen",
-                  "From the Green Hollow range, named after a wooded dip; the kitchen itself is "
-                  "red.", color=RED),
+        toy_decoy(6, "marble run", "generic", _ROWS[0], 12, "Marble Run Hollow Play Kitchen",
+                  "From the Marble Run Hollow range, named after a dip full of round stones; it "
+                  "is a play kitchen with no marbles in it.", color=RED),
         toy_decoy(6, "water gun", "generic", _ROWS[1], 13, "Water Gun Bay Play Kitchen",
                   "From the Water Gun Bay range, named after a beach; it is a corner kitchen "
                   "and squirts no water.", color=PINK),

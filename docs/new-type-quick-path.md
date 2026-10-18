@@ -2,6 +2,8 @@
 
 The common case is rows plus a drawing shape the kit already has. You edit ONE file. A type
 with a shape of its own and cross-department decoys is the second half of this page.
+What else a type touches (units, `FROZEN_KEYS`, brand owners and house styles, images, the tests)
+is in [adding-a-retail-type.md](adding-a-retail-type.md).
 The long reference for the industrial catalog is [adding-a-type.md](adding-a-type.md); read it
 only when this page does not cover what you need.
 
@@ -22,10 +24,17 @@ only when this page does not cover what you need.
    * a brand no module states yet goes in `owners=(("Brand", "own"),)`;
    * a hand-authored text-match decoy (gen#294) is a `Decoy(class 1-7, query, policy, row)` in
      `decoys=`; it is never derived and never takes a color completion;
+     the output standard's text check leaves a class 1 to 7 decoy out by itself:
+     `scale.TEXT_EXEMPT` is computed from the registry over every department
+     (`type_registry.text_match_decoy_ids()`, gen#452), so no list in `scale.py` is edited. An id
+     no spec owns is declared with its reason in `type_registry.ONE_OFF_TEXT_EXEMPT`;
+     `tests/test_retail_text_exempt_452.py` fails a stale or redundant entry;
    * a clothing, footwear or lingerie type (Womens, Mens or Kids) carries its apparel decoy plan
-     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan()` (three decoys per
-     class; `ApparelPlan(family, per_class)` picks the word family `a` garment, `b` bra,
-     `u` underwear, `s` shoe, `k` sock, and more per class). A type that should carry none says
+     (gen#311) in the same file: the scaffold writes `apparel=ApparelPlan(compounds=...)` with
+     one placeholder compound to edit (three decoys per class; `ApparelPlan(family, per_class,
+     compounds)` picks the word family `a` garment, `b` bra, `u` underwear, `s` shoe, `k` sock,
+     and more per class; `compounds` are the type's real class 2 names, each `(word, phrase)`
+     such as `("vest", "Knitted Vest Top")`, never an invented one; add each new phrase to `REAL_COMPOUNDS` in `tests/test_retail_apparel_decoys_311.py` after the same review, or the census reds). A type that should carry none says
      why: `apparel_exempt="<reason>"` in place of the plan. A beauty type carries neither.
    Worked examples: `type_specs/tracksuit.py` (clothing, an `LRow` with a SKU axis) and
    `type_specs/shampoo.py` (beauty, a derivable breadth type).

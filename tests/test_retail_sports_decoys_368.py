@@ -38,7 +38,7 @@ SECOND_INCREMENT = (
 FIRST_INCREMENT = {
     "Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell", "Foam Roller",
 }
-COLOR_WORDS = {c.lower() for c in dpw.COLORS}
+COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}  # glass is clear, not a color
 
 
 @pytest.fixture(scope="module")
