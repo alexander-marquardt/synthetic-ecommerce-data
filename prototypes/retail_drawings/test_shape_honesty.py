@@ -167,8 +167,8 @@ import scale  # noqa: E402
 #: The reported products: id -> (shape, the parameters its drawing must carry).
 EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "PLT-DA02102": ("bomber_jacket", {}),
-    "PLT-DA13202": ("puffer_jacket", {}),
-    "PLT-DXP05": ("puffer_jacket", {}),
+    "PLT-DA13202": ("puffer", {}),
+    "PLT-DXP05": ("puffer", {}),
     "PLT-DA08701": ("shirt_dress", {}),
     "PLT-DA22501": ("top", {"sleeve": "long"}),
     "PLT-DSL029": ("top", {"sleeve": "long"}),
