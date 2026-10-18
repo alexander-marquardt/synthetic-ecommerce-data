@@ -22,7 +22,7 @@ import pytest
 
 import type_facts
 import type_gates
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
@@ -242,7 +242,7 @@ def docs(request) -> list[dict]:
 
 def _values(doc: dict) -> dict[str, str]:
     """Name to PUBLISHED spelling, from flat ``facets``: the tables are checked as published."""
-    return {a["name"]: a["value"] for a in published_attributes(doc)}
+    return {a["name"]: a["value"] for a in authored_attributes(doc)}
 
 
 def _inches(value: str) -> float | None:
@@ -348,7 +348,7 @@ def wrong_claims(docs: list[dict]) -> list[tuple[str, str, str]]:
     return [
         (doc["sku"], doc["product_type"], a["value"])
         for doc in docs
-        for a in published_attributes(doc)
+        for a in authored_attributes(doc)
         if a["name"] == "Standards" and a["value"] not in may_claim[doc["product_type"]]
     ]
 
@@ -428,7 +428,7 @@ def wrong_nut_standards(docs: list[dict]) -> tuple[list, int]:
         values = _values(doc)
         claimed = [
             a["value"]
-            for a in published_attributes(doc)
+            for a in authored_attributes(doc)
             if a["name"] == "Standards" and a["value"] in NUT_DIMENSIONS
         ]
         thread = values["Thread Size"]
@@ -455,7 +455,7 @@ def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
     for doc in docs:
         if doc["product_type"] != "bearing_radial_ball":
             continue
-        claimed = {a["value"] for a in published_attributes(doc) if a["name"] == "Standards"}
+        claimed = {a["value"] for a in authored_attributes(doc) if a["name"] == "Standards"}
         if _values(doc)["Bearing Number"].isdigit():
             metric += bool(claimed)
         elif claimed & METRIC_BEARING_ONLY:

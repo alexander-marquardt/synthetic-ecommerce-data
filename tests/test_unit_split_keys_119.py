@@ -15,7 +15,7 @@ def test_dowel_pins_publish_both_units_under_one_label_and_key():
         for a in json.loads(line)["attributes"]:
             if a["key"].startswith("dowel_dia"):
                 units.setdefault((a["name"], a["key"]), set()).add(a["unit_code"])
-    assert units == {("Dowel Dia.", "dowel_dia"): {"INH", "MMT"}}
+    assert units == {("Dowel dia.", "dowel_dia"): {"INH", "MMT"}}
 
 
 def test_the_unit_mixing_defect_leaves_the_unit_split_keys_alone():

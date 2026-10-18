@@ -37,7 +37,9 @@ from pathlib import Path
 
 import pytest
 
+from published import authored_name
 from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial import compat, series, standards
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -216,7 +218,9 @@ def _line_standard(doc: dict) -> str:
     spec = SPECS.get(doc["product_type"])
     if spec is None or spec.line_standard is None:
         return doc["dimension_provenance"]
-    return spec.line_standard({a["name"]: a["value"] for a in doc["attributes"]})
+    return spec.line_standard(
+        {authored_name(doc["product_type"], a["name"]): a["value"] for a in doc["attributes"]}
+    )
 
 
 def _offered_sizes(standard: str) -> tuple[str, ...] | None:
@@ -268,8 +272,7 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0]
-            in ("M24", "1")
+            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0] in ("M24", "1")
         )
     ]
     assert _coverage_problems(dropped) == [
@@ -291,7 +294,7 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and ("Point Type", "Dog Point")
+            and (sentence_case("Point Type"), "Dog Point")
             in [(a["name"], a["value"]) for a in doc["attributes"]]
         )
     ]
