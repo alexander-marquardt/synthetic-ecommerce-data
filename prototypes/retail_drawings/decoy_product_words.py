@@ -120,6 +120,14 @@ NEW_KINDS = {
     "wash_bag": Kind(
         "Home", ("Home", "Laundry", "Wash Bags"), "Wash Bags", "mesh_bag", "Brackenmere Home", 4.0
     ),
+    "knit_care": Kind(
+        "Cleaning & Janitorial",
+        ("Cleaning", "Laundry", "Fabric Softener"),
+        "Fabric Softener",
+        "tin",
+        "Calderby & Lune",
+        4.0,
+    ),
     "case": Kind(
         "Clothing",
         ("Womens", "Accessories", "Travel", "Travel Cases"),
@@ -978,6 +986,15 @@ _GIFTS = (
        "Gift Hamper"),
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
+
+#: A "cream" that is the product, not a shade, on the knitwear page (gen#309): the category
+#: policy (Jumpers) and the department policy (Cleaning & Janitorial) drop it.
+_KNIT = (
+    _d(87, "knit_care", "Jumper and Knitwear Softening Cream",
+       "A light white cream that softens jumpers, cardigans and other knitwear after washing.",
+       "White", "cream jumper", "jumper", _CAT, cross=True),
+)  # fmt: skip
+TABLE = (*TABLE, *_KNIT)
 
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
