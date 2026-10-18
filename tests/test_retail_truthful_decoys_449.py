@@ -110,7 +110,9 @@ def test_a_punnet_holds_what_the_title_says(by_id: dict[str, dict]) -> None:
             assert produce == "mushroom"
         if "carrot" in title:
             assert produce == "carrot"
-        assert produce in {"tomato", "mushroom", "carrot", "bean", "herb"}, rec["title"]
+        if "pepper" in title:
+            assert produce == "pepper"
+        assert produce in {"tomato", "mushroom", "carrot", "bean", "herb", "pepper"}, rec["title"]
         assert strawberry_red not in svg or produce == "tomato", rec["title"]
     assert any("mushroom" in r["title"].lower() for r in veg)
 
