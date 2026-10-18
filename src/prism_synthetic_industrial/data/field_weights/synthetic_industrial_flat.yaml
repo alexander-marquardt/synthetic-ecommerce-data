@@ -581,8 +581,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 28 distinct values over 5502 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 10020 documents across 77 product type(s); 28 distinct values
+  # Material -- 29 distinct values over 5502 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 10020 documents across 77 product type(s); 29 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -688,7 +688,7 @@ fields:
     type: terms
     source: facets.point_type
   # Rockwell Hardness -- present on 42% of its product types' documents (floor 50%)
-  #   present on 811 documents across 6 product type(s); 5 distinct values
+  #   present on 811 documents across 6 product type(s); 6 distinct values
   - name: rockwell_hardness
     type: terms
     source: facets.rockwell_hardness
