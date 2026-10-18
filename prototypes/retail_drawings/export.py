@@ -144,6 +144,8 @@ OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "berth": ("berth", "Berth", "C62"),
     "thickness_mm": ("thickness", "Thickness", "MMT"),
     "weight_kg": ("weight", "Weight", "KGM"),
+    # A suitcase's size name beside its litres (luggage_common.py, gen#209): cabin, medium, large.
+    "luggage_size": ("luggage_size", "Luggage size", None),
     # A body mist's fragrance, beside its size (beauty_depth.py, gen#214).
     "fragrance": ("fragrance", "Fragrance", None),
     # A garden hose's length (garden_rows.py, gen#292): the hose is cut and sold in metres.

@@ -132,7 +132,7 @@ def test_a_type_reaches_the_scaled_build_as_authored_templates(key: str) -> None
     ids = {f"BRD-{r.code}" for r in spec.rows}
     built = {d["product_id"] for d in scale.templates() if d["product_type"] == TYPES[key][0]}
     assert ids and ids <= built
-    assert not any(d["product_id"] in ids for d in scale.derivable())
+    assert not any(d["product_id"] in ids for d in scale.derivable(scale.templates()))
 
 
 def test_a_suitcase_sku_states_size_litres_and_weight() -> None:
