@@ -259,8 +259,14 @@ def test_no_title_label_is_truncated(stats):
     assert row.achieved == 0.0, row
 
 
-def test_attributes_per_record_is_close_to_the_measured_mean(stats):
-    row = next(c for c in stats["comparisons"] if c.name == "attributes per record (mean)")
+def test_attributes_per_record_is_close_to_the_measured_mean(catalog, config):
+    """The depth types' mean: a breadth line is a fast-and-cheap row of three to five attributes.
+
+    The 74 industrial seed decoys (#462) are breadth rows, so counting them would measure how many
+    accessories the catalog holds, not how rich its depth records are.
+    """
+    depth = measure(_without_breadth(catalog), config)
+    row = next(c for c in depth["comparisons"] if c.name == "attributes per record (mean)")
     assert 11.5 <= row.achieved <= 14.5, row
 
 
