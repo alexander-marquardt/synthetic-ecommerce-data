@@ -41,6 +41,7 @@ import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their o
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_kelvin_232  # noqa: E402  (gen#232 rows, kept in their own file)
+import mutation_rows_letter_case_499  # noqa: E402  (gen#499 rows, kept in their own file)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
@@ -1696,8 +1697,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop attribute values out of the searchable text",
         "core/emit.py",
-        "        *(letter_case.sentence_case(node) for node in line.category),\n",
-        "",
+        "    parts = [\n        child.title,\n        line.brand,\n        line.series,\n"
+        "        *(letter_case.sentence_case(node) for node in line.category),\n    ]\n",
+        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []\n',
         "tests/test_catalog_emit.py",
         "",
         "attribute values are reachable by full text",
@@ -4212,6 +4214,10 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
+    ),
+    *(
+        Mutation(f"letter case: {name}", file, old, new, tests, "", prop, root=root)
+        for name, root, file, old, new, tests, prop in mutation_rows_letter_case_499.ROWS
     ),
     *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,

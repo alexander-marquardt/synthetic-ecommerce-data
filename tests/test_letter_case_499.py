@@ -50,6 +50,7 @@ import export  # noqa: E402  -- the prototype's own directory is its import root
         ("T-Slot Nuts", "T-slot nuts"),
         ("T-Shirts", "T-shirts"),
         ("AS568 Dash Number", "AS568 dash number"),
+        ("Thread M12x1", "Thread M12x1"),  # a code with a lower-case tail, after the first word
         # The exception list: a trade name keeps its capital wherever it falls.
         ("Hex & Torx Keys", "Hex & Torx keys"),
         ("Nike Trainers", "Nike trainers"),
