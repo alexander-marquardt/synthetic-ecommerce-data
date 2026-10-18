@@ -65,6 +65,21 @@ def _serves(query: str, key: str) -> bool:
     return any(all(_holds(term, sku["title"]) for term in terms) for sku in skus)
 
 
+@pytest.mark.parametrize(
+    ("term", "title", "held"),
+    [
+        pytest.param("screw", "Thread Repair Insert Kit for 1/4-20 Screws", True, id="plural"),
+        pytest.param("screw", "Magnetic Screwdriver Bit Holder, 2 in", False, id="longer-word"),
+        pytest.param("nut", "Hex Nut Driver, 1/4 in", True, id="singular"),
+        pytest.param("25 mm", "End Mill Storage Rack, 2.5 mm to 25 mm", True, id="size"),
+        pytest.param("25 mm", "Tool Storage Rack, 125 mm", False, id="inside-a-number"),
+        pytest.param("o-ring", "Coupling with Viton O-Ring Seal, 1/4 in", True, id="hyphen"),
+    ],
+)
+def test_a_term_is_a_whole_word_with_an_optional_plural(term, title, held):
+    assert _holds(term, title) is held
+
+
 def test_the_seed_table_names_every_query_of_the_issue():
     assert set(ISSUE_SEEDS) <= set(seed_decoys.SEED_TERMS)
     assert set(ITEM_NOUNS) <= set(seed_decoys.SEED_TERMS)
