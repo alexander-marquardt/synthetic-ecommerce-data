@@ -20,7 +20,9 @@ so :func:`export.standard_document` collapses those leaves here:
 - on every other type, ``fabric`` is the fibre or weave a shopper names (Cotton, Linen,
   Denim, Oxford); a grade or blend becomes the document's ``fibre_content``, a detail and
   no facet (:data:`FABRIC_MOVES`, gen#187; :data:`TYPED_FABRIC_MOVES` for a move that
-  reads one type's text, gen#291).
+  reads one type's text, gen#291). A garment that states a ``material`` and no
+  ``fabric`` ("Wool blend", "Brushed Cotton") also carries the fibre it names
+  (:data:`MATERIAL_FABRICS`).
 
 Only the document changes. The build record, its drawing and so its image id keep the old
 leaf, so the seeded derivation and every image id are what they were. Titles keep their
@@ -154,6 +156,24 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Recycled Polyester, Elastane": ("Polyester", "Recycled Polyester, Elastane"),
 }
 
+#: A garment's free-text ``material`` -> the shopper fibres it names (gen#187). The Mens and
+#: knitwear rows state a ``material`` ("Wool Cashmere blend", "Merino wool", "Brushed Cotton")
+#: and no ``fabric``; the fibre a shopper types ("wool coat", "cashmere") is also the document's
+#: ``fabric``, so the fabric marker reads it. Each row is explicit and exact: no value is read
+#: for a word it holds, and only fibres the coverage review named (wool, cashmere, brushed
+#: cotton) are listed. The ``material`` itself stays, as the detail the product states.
+MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
+    "Brushed Cotton": ("Brushed Cotton",),
+    "Heavy Wool": ("Wool",),
+    "Lambswool": ("Wool",),
+    "Melton Wool": ("Wool",),
+    "Merino blend": ("Wool",),
+    "Merino wool": ("Wool",),
+    "Pure Wool": ("Wool",),
+    "Wool blend": ("Wool",),
+    "Wool Cashmere blend": ("Wool", "Cashmere"),
+}
+
 #: A move that reads one product type's text, not the value alone: (product type, fabric) ->
 #: (fabric, blend). A value here on another type is moved by no one and stays as it is, so the
 #: closed-list guard names it and the new row's author decides (gen#291).
@@ -166,7 +186,6 @@ def fabric_move(product_type: str, value: str) -> tuple[str, str | None] | None:
     """The (fabric, blend) a ``fabric`` value of a ``product_type`` becomes, or ``None`` when
     it is already a shopper's fabric. The typed move wins over the value's own."""
     return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)
-
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
@@ -262,4 +281,8 @@ def leaf_facets(
         moved, _ = _fabric_facets(have, ptype)
         out += [m for m in moved if (m[0], m[2]) not in implied]
         return out, {"bra_style", "fabric"}
-    return _fabric_facets(have, ptype)
+    moved, keys = _fabric_facets(have, ptype)
+    if not moved and "fabric" not in have:
+        fibres = MATERIAL_FABRICS.get(have.get("material", ""), ())
+        moved = [("fabric", "Fabric", fibre) for fibre in fibres]
+    return moved, keys
