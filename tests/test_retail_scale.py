@@ -367,11 +367,15 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    many = {k for k, n in collections.Counter(a["key"] for a in t["attributes"]).items() if n > 1}
     # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
+    # A key the template lists in several entries (a shoe's materials, gen#472) is never swapped
+    # for another value: the style keeps the entries its SKUs hold.
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] not in many
+        and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
@@ -1010,7 +1014,11 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
             if not sku_values:
                 continue
             checked += 1
-            style_values = {v.strip().lower() for v in str(a["value"]).split(",")}
+            style_values = {
+                v.strip().lower()
+                for b in r["attributes"] if b["key"] == a["key"]
+                for v in str(b["value"]).split(",")
+            }
             if style_values != sku_values:
                 wrong.append((r["product_id"], a["key"], a["value"], sorted(sku_values)))
     assert checked >= 240
