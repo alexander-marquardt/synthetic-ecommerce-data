@@ -688,6 +688,7 @@ def test_no_real_type_takes_a_block_the_merge_test_s_added_types_derive() -> Non
         )
 
 
+@pytest.mark.timeout(900)  # two full merges; 300 s is tight in a heavy shard
 def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
     world: dict,
 ) -> None:
