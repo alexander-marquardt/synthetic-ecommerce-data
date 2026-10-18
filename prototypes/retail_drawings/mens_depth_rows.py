@@ -607,9 +607,14 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 _TRUE[(k + i + 1) % 6], b, f"{b} {noun.lower()}")  # fmt: skip
             # 3: an audience word that names a sibling cut.
             a = _AUDIENCE[i]
-            add(3, i, f"Mens {a} {noun}",
-                f"A men's {noun.lower()} in the {a.lower()}, sold in men's sizes.",
-                _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
+            if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
+                add(3, i, f"Mens Mini-Me {noun}, Kids' Version Sold Separately",
+                    f"A men's {noun.lower()} with a matching kids' version, sold in men's sizes.",
+                    _TRUE[(k + i + 2) % 6], "Mini-Me", f"mini-me {noun.lower()}")  # fmt: skip
+            else:
+                add(3, i, f"Mens {a} {noun}",
+                    f"A men's {noun.lower()} in the {a.lower()}, sold in men's sizes.",
+                    _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
             # 4: a material or feature named, and absent.
             f = kind.absent[i]
             n4 = kind.absent_noun or noun

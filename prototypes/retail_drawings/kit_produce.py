@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import zlib
 
-from kit import INK, LW_DETAIL, SHAPES, Fill, _panel, _path, _shade, register
+import kit_motifs  # noqa: F401 -- registers carrot and cherries, drawn in a pile
+from kit import INK, LW_DETAIL, SHAPES, Fill, _highlight, _line, _panel, _path, _shade, register
 
 #: Fruit -> (the kit shape that draws one, its typical weight in grams, drawn size).
 FRUIT = {
@@ -30,6 +31,12 @@ FRUIT = {
     "blueberry": ("orange", 2, 44),
     "blackberry": ("strawberry", 8, 64),
     "grape": ("orange", 5, 56),
+    "tomato": ("tomato", 100, 110),
+    "onion": ("onion", 150, 110),
+    "potato": ("potato", 180, 120),
+    "carrot": ("carrot", 70, 130),
+    "banana": ("banana", 120, 130),
+    "cherry": ("cherries", 10, 90),
 }
 MIN_FRUIT, MAX_FRUIT = 3, 7
 PACKS = ("loose", "net", "bag")
@@ -42,6 +49,53 @@ PILES = {
     6: ((150, 180), (225, 176), (290, 214), (110, 258), (190, 274), (268, 284)),
     7: ((160, 168), (240, 172), (110, 230), (200, 226), (290, 236), (150, 296), (250, 298)),
 }
+
+
+def tomato(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A tomato (gen#445): a flattened round with a star-shaped green calyx."""
+    calyx = "M200,138 L176,112 L194,124 L200,96 L208,124 L228,110 L212,138 L236,148 L200,152 L164,148 Z"
+    return [
+        _path("M96,216 C96,150 150,136 200,148 C250,136 304,150 304,216 C304,290 250,324 200,324 C150,324 96,290 96,216 Z", paint),
+        _path(calyx, "#5aa24a", 2),
+        _highlight("M122,192 Q130,166 160,154", 9, 0.45),
+    ]
+
+
+def onion(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """An onion (gen#445): a bulb drawn up to a dry tip, with a root tuft and papery lines."""
+    bulb = "M200,70 Q214,110 252,140 Q316,196 296,264 Q270,330 200,330 Q130,330 104,264 Q84,196 148,140 Q186,110 200,70 Z"
+    return [
+        _path(bulb, paint),
+        _line("M200,86 Q150,200 176,326 M200,86 Q250,200 224,326 M200,86 Q200,200 200,328", 1.6),
+        _line("M178,330 L168,350 M200,330 L200,352 M222,330 L234,350", 2),
+        _highlight("M130,214 Q136,176 168,150", 8, 0.4),
+    ]
+
+
+def potato(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A potato (gen#445): an uneven oval with a few eyes."""
+    body = "M92,226 Q88,170 150,148 Q210,126 270,150 Q322,176 308,238 Q296,302 224,314 Q150,326 106,286 Q94,262 92,226 Z"
+    eyes = ((150, 214), (214, 188), (262, 236), (188, 270), (126, 262))
+    return [
+        _path(body, paint),
+        *[f'<path d="M{x - 7},{y} Q{x},{y - 5} {x + 7},{y}" fill="none" stroke="{INK}" stroke-width="1.6"/>' for x, y in eyes],
+        _highlight("M124,196 Q136,170 172,160", 9, 0.4),
+    ]
+
+
+def banana(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A banana (gen#445): a crescent with a stalk at one end and a dark tip at the other."""
+    body = "M92,150 Q112,296 252,326 Q304,334 326,290 Q250,300 190,244 Q146,196 140,124 Z"
+    return [
+        _path(body, paint),
+        _path("M92,150 L100,106 L138,100 L140,124 Z", "#8a8a4a", 2),
+        _path("M300,320 Q316,316 326,290 Q312,300 300,320 Z", "#3a3a2a", 2),
+        _line("M130,150 Q160,270 270,312", 1.6),
+        _highlight("M120,170 Q140,250 210,292", 7, 0.4),
+    ]
+
+
+register({"tomato": tomato, "onion": onion, "potato": potato, "banana": banana})
 
 
 def fruit_count(fruit: str, grams: float | None = None, count: int | None = None) -> int:

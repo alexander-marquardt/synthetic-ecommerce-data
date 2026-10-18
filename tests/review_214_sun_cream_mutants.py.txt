@@ -1,0 +1,18 @@
+TESTS = ["tests/test_retail_beauty_214.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+B = "tests/test_retail_beauty_214.py::"
+S = "tests/test_retail_type_specs_351.py::"
+MUTANTS = [
+    (R + "export.py", '"spf": ("spf", "SPF", None)', '"spf": ("protection", "SPF", None)', "spf option under another key", [B + "test_the_sku_axes_are_options_with_their_units"]),
+    (R + "type_specs/legacy_types.txt", "Beauty|Skin Tint\n", "Beauty|Skin Tint\nBeauty|Sun Cream\n", "sun cream back on the legacy list", [B + "test_sun_cream_left_the_legacy_list_and_the_ceiling_followed"]),
+    (R + "type_registry.py", "LEGACY_CEILING = 335", "LEGACY_CEILING = 336", "ceiling not lowered", [B + "test_sun_cream_left_the_legacy_list_and_the_ceiling_followed"]),
+    (R + "type_specs/sun_cream.py", '_SPF = ("15", "30", "50")', '_SPF = ("15", "30")', "no SPF 50", [B + "test_sun_cream_is_sold_in_spf_for_the_face_and_for_the_body"]),
+    (R + "type_specs/sun_cream.py", 'path=("Beauty", "Suncare", "Body Sun Cream")', 'path=("Beauty", "Suncare", "Sun Cream")', "body creams on the generic leaf", [B + "test_sun_cream_is_sold_in_spf_for_the_face_and_for_the_body"]),
+    (R + "type_specs/sun_cream.py", '(a("area", "Area", "Body"),),\n        (("150"', '(a("area", "Area", "Face"),),\n        (("150"', "a body spray stated as face", [B + "test_sun_cream_is_sold_in_spf_for_the_face_and_for_the_body"]),
+    (R + "kit_beauty.py", '    elif kind == "spray":', '    elif kind == "spray_head":', "the spray form draws as the tube", [B + "test_a_shapes_param_changes_the_drawing"]),
+    (R + "type_specs/sun_cream.py", "free from coconut and nut oils", "free from nut oils", "a decoy without its misleading word", [B + "test_a_decoys_misleading_word_is_in_the_text_and_in_no_field"]),
+    (R + "house_styles.py", '"round", "coconut_palm"', '"round", "rose_bud"', "the sun cream decoy brand shares a mark", [B + "test_each_invented_beauty_brand_has_a_house_style_of_its_own"]),
+    ("tests/test_retail_type_specs_351.py", 'PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}', 'PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE", "PLT-GONE"}', "an exemption for a row the proof does not name", [S + "test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build"]),
+    ("tests/test_retail_type_specs_351.py", 'PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}', "PROOF_PINNED_CLASS_ROWS = set()", "no exemption for the class 12 distractor", [S + "test_a_spec_type_has_no_row_outside_its_spec_file"]),
+]
