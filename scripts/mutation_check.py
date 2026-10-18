@@ -2102,9 +2102,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -2114,11 +2114,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg", '
         '"image_detail_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
