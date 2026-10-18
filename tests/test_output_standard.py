@@ -339,6 +339,34 @@ def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradi
     assert standard.check_catalog([*retail, shoe]) == []
 
 
+#: A text, whether it contradicts a Cotton fabric when the leaf's pool also holds Linen, Wool and
+#: Fleece (gen#187): a fibre before a hyphen says what the garment is not made of or is only
+#: like, and the same rule as ``facet_leaves.stated_fabrics``.
+FIBRE_TEXTS = {
+    "a look": ("Mens Linen-Look Chinos", False),
+    "a free-from": ("Mens Wool-Free Blazer", False),
+    "a lining": ("A cosy fleece-back kids sweatshirt", False),
+    "a plain claim": ("Mens Linen Chinos", True),
+    "a claim beside a look": ("Mens Wool-Free Linen Chinos", True),
+    "a claim after a hyphenated word": ("Mens Slim-Fit Linen Chinos", True),
+    "a claim after a look": ("Linen-Look Chinos in wool", True),
+}
+
+
+@pytest.mark.parametrize("plant", sorted(FIBRE_TEXTS))
+def test_a_fibre_before_a_hyphen_is_no_claim_and_one_after_a_space_is(plant):
+    text, contradicts = FIBRE_TEXTS[plant]
+    doc = {
+        "product_id": "T-1",
+        "category_leaf": "Chinos",
+        "title": text,
+        "attributes": [{"key": "fabric", "value": "Cotton"}],
+        "variants": [],
+    }
+    pools = {("Chinos", "fabric"): {"Cotton", "Linen", "Wool", "Fleece"}}
+    assert bool(standard.text_contradictions(doc, pools)) is contradicts
+
+
 def _values(doc: dict[str, Any], key: str) -> list[str]:
     return [e["value"] for e in doc["attributes"] if e["key"] == key]
 

@@ -270,13 +270,15 @@ def test_price_min_and_max_are_derived_from_the_skus() -> None:
         assert d["sku_count"] == max(1, len(d["skus"]))
 
 
-def test_beauty_shades_are_the_sku_colors_of_one_product_with_a_unit_size() -> None:
+def test_beauty_shades_are_the_sku_colors_of_one_product_sold_by_unit_size_or_volume() -> None:
+    """The lipstick has one unit size; the foundation sells three net volumes, one per SKU."""
     shades = {f"PLT-{s.code}" for s in rc.BEAUTY}
     beauty = [d for d in CLASS_DOCS if d["product_id"] in shades]
-    assert sorted((d["product_id"], d["unit_size"], d["unit_measure"]) for d in beauty) == [
-        ("PLT-BTYFND", 30.0, "ml"),
-        ("PLT-BTYLIP", 1.9, "g"),
-    ]
+    sizes = sorted((d["product_id"], d.get("unit_size"), d.get("unit_measure")) for d in beauty)
+    assert sizes == [("PLT-BTYFND", None, None), ("PLT-BTYLIP", 1.9, "g")]
+    foundation = _style("PLT-BTYFND")
+    assert {s["net_volume_ml"] for s in foundation["skus"]} == {15.0, 30.0, 50.0}
+    assert len(_colors(foundation)) == 4 and foundation["sku_count"] == 12
     lip = _style("PLT-BTYLIP")
     assert _colors(lip) == ["Tan", "Brown", "Red"] and lip["sku_count"] == 3
     assert {d["brand"] for d in beauty} == {"Kestlewood Cosmetics"}
