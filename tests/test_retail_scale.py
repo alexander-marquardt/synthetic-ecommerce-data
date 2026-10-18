@@ -902,7 +902,8 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     rows = scale.scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
-    assert len(own) == 26
+    # 26 before gen#329; its ten medical and nursing bras each state their own fitting
+    assert len(own) == 26 + 10
     for s in bras:
         (doc,) = rows.style_docs("Bras", s)
         assert f"with {s.fitting}, in " in doc["description"], s.code
