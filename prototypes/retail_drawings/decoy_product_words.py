@@ -36,6 +36,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import kit_goods  # noqa: F401 -- registers the shapes below
+import kit_seed_decoys  # noqa: F401 -- registers the shapes of the seed decoys (gen#461)
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
 from decoy_rows import COLORS, UK, Kind
@@ -311,6 +312,44 @@ _SPORTS_KINDS = {
                     "Calderby & Lune", 14.0),
 }
 NEW_KINDS.update(_SPORTS_KINDS)
+
+#: The kinds of the seed decoys (gen#461): another type's product whose name holds a seed phrase.
+_KIDS_AUD = "kids"
+_SEED_KINDS = {
+    "apron": Kind("Home", ("Home", "Kitchen & Dining", "Aprons"), "Apron", "apron",
+                  "Hearth & Table", 14.0),
+    "makeup_bag": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Bags"), "Make-Up Bag", "pouch",
+                       "Kestlewood Cosmetics", 7.0),
+    "house_plant": Kind("Garden", ("Garden", "Plants", "House Plants"), "Plant", "potted_tree",
+                        "Thistle & Wren", 9.0, colorless=True),
+    "basket": Kind("Home", ("Home", "Storage", "Storage Baskets"), "Storage Basket", "storage_box",
+                   "Lanternby", 16.0),
+    "fix_kit": Kind("Home", (*_DIY, "Fixing Kits"), "Fixing Kit", "screw", "Brackenmere Home", 6.0,
+                    colorless=True),
+    "bed_riser": Kind("Home", ("Home", "Furniture", "Bed Risers"), "Bed Risers", "bed_risers",
+                      "Brackenmere Home", 14.0),
+    "brush": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Brushes"), "Make-Up Brush",
+                  "makeup_brush", "Kestlewood Cosmetics", 8.0),
+    "sponge": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Sponges"), "Make-Up Sponge",
+                   "makeup_sponge", "Kestlewood Cosmetics", 5.0),
+    "ld_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                      "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lemon"),)),
+    "olive_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                         "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Olive Leaf"),)),
+    "baking_mix": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Baking Mixes"),
+                       "Baking Mix", "box", "Crofter's Bakehouse", 2.8, colorless=True),
+    "gift_box": Kind("Gifts", ("Gifts", "Gift Wrap", "Gift Boxes"), "Gift Box", "box_wide",
+                     "Lanternby", 6.0),
+    "planter": Kind("Garden", ("Garden", "Pots & Planters", "Planters"), "Planter", "tub",
+                    "Thistle & Wren", 18.0),
+    "dino_soft": Kind("Toys", ("Toys", "Soft Toys", "Cuddly Animals"), "Soft Toy", "dinosaur",
+                      "Little Fernby", 14.0, _KIDS_AUD),
+    "dino_bath": Kind("Toys", ("Toys", "Baby & Toddler", "Bath Toys"), "Bath Toy", "dinosaur",
+                      "Little Fernby", 5.0, _KIDS_AUD),
+    "dino_light": Kind("Toys", ("Toys", "Nursery", "Night Lights"), "Night Light", "dinosaur",
+                       "Little Fernby", 14.0, _KIDS_AUD),
+}  # fmt: skip
+NEW_KINDS.update(_SEED_KINDS)
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 
@@ -973,6 +1012,71 @@ _GIFTS = (
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
 
+
+def _h(n, kind, seed, title, desc, color, policy) -> Row:
+    """A seed decoy (gen#461): a product of its own type whose title holds a whole seed phrase."""
+    return _d(n, kind, title, desc, color, seed, "", policy, cross=policy == _DEP, seed=seed)
+
+
+_SEEDS = (
+    # -- duvet cover: a bag to keep one in, a mesh bag to wash one in
+    _h(87, "carrier", "duvet cover", "Duvet Cover Storage Bag",
+       "A zip bag that keeps a spare duvet cover clean and dust free on the wardrobe shelf.",
+       "Grey", _CAT),
+    _h(88, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",
+       "A large zipped mesh bag that protects a duvet cover in the washing machine.", "White",
+       _CAT),
+    # -- bed frame: the bolts that hold one, the blocks that lift one
+    _h(89, "fix_kit", "bed frame", "Bed Frame Fixing Kit",
+       "Bolts, barrel nuts and a hex key to tighten a bed frame that has worked loose.", "Grey",
+       _CAT),
+    _h(90, "bed_riser", "bed frame", "Bed Frame Risers, 4 Pack",
+       "Four sturdy blocks that lift a bed frame by eight centimetres to make room for boxes.",
+       "Brown", _CAT),
+    # -- tea towels: the rail that dries them, an apron cut like one
+    _h(91, "hooks", "tea towels", "Tea Towel Hook Rail",
+       "A wall rail with five hooks where tea towels dry within reach of the cooker.", "Grey",
+       _CAT),
+    _h(92, "apron", "tea towels", "Tea Towel Apron with Pocket",
+       "A soft cotton apron cut like a tea towel, with a front pocket and a neck loop.", "White",
+       _CAT),
+    # -- lipstick: a pouch to carry one, a houseplant named for its flowers
+    _h(93, "makeup_bag", "lipstick", "Lipstick Make-Up Bag, Mini Zip",
+       "A mini zip pouch with room for a lipstick and a compact mirror in a handbag.", "Pink",
+       _CAT),
+    _h(94, "house_plant", "lipstick", "Lipstick Plant, Trailing",
+       "A trailing houseplant (Aeschynanthus) with waxy leaves for a bright windowsill.",
+       "Green", _DEP),
+    # -- foundation: the brush and the sponge that apply it
+    _h(95, "brush", "foundation", "Foundation Brush, Flat Top",
+       "A flat-topped brush with dense bristles that buffs liquid foundation evenly into skin.",
+       "Grey", _CAT),
+    _h(96, "sponge", "foundation", "Foundation Blending Sponge",
+       "A soft teardrop sponge that blends foundation and concealer; wet it before use.", "Pink",
+       _CAT),
+    # -- lemon drizzle cake: a candle that smells of one, a packet mix to bake one
+    _h(97, "ld_candle", "lemon drizzle cake", "Lemon Drizzle Cake Candle",
+       "A candle in a glass jar that fills a room with the smell of a warm lemon drizzle cake.",
+       "Cream", _DEP),
+    _h(98, "baking_mix", "lemon drizzle cake", "Lemon Drizzle Cake Mix",
+       "A packet of sponge mix and an icing sachet that makes a lemon drizzle cake in one bowl.",
+       "Cream", _CAT),
+    # -- gift hamper: the basket and the box that hold one
+    _h(99, "basket", "gift hamper", "Empty Gift Hamper Basket, Wicker",
+       "A lidded wicker basket, sold empty, to fill and give as a gift hamper.", "Brown", _DEP),
+    _h(100, "gift_box", "gift hamper", "Gift Hamper Box, Fold-Flat",
+       "A fold-flat card box with a lid for packing a gift hamper at home.", "Cream", _DEP),
+    # -- olive tree: the planter it grows in, a candle named for the grove
+    _h(101, "planter", "olive tree", "Olive Tree Planter, Large",
+       "A deep planter with drainage holes, sized for an olive tree on a patio.", "Grey", _CAT),
+    _h(102, "olive_candle", "olive tree", "Olive Tree Scented Candle",
+       "A candle in a glass jar with the fresh scent of an olive tree grove.", "Cream", _DEP),
+)  # fmt: skip
+TABLE = (*TABLE, *_SEEDS)
+
+#: The seed queries of gen#461 and the rows that serve them.
+SEED_ROWS = tuple(r for r in TABLE if r.seed)
+
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
     "polish": (
@@ -1091,13 +1195,58 @@ _F = {
         ("Sea Salt Crisps", "Blue", "Sea salt crisps."),
     ),
 }
+_F.update({
+    "bed_riser": (
+        ("Plastic Bed Risers, Set of 4", "Grey", "Four stackable plastic blocks for a bed."),
+        ("Wooden Bed Risers", "Brown", "Solid wood blocks that lift a bed or sofa."),
+        ("Adjustable Furniture Risers", "Black", "Risers with a stepped, adjustable height."),
+    ),
+    "fix_kit": (
+        ("Flat Pack Furniture Fixing Kit", "Grey", "Cam locks, dowels and screws for flat pack."),
+        ("Wardrobe Fixing Kit", "Grey", "Brackets and screws that secure a wardrobe to a wall."),
+        ("Shelf Fixing Kit", "Grey", "Plugs, screws and brackets for a wall shelf."),
+    ),
+    "brush": (
+        ("Powder Brush", "Pink", "A large fluffy brush for loose and pressed powder."),
+        ("Eyeshadow Brush", "Grey", "A small flat brush for eyelids."),
+        ("Blusher Brush", "Pink", "An angled soft brush for cheeks."),
+    ),
+    "sponge": (
+        ("Make-Up Wedge Sponges, 8 Pack", "Cream", "Latex-free wedges for blending."),
+        ("Powder Puff", "Pink", "A velvet puff for setting powder."),
+        ("Concealer Sponge", "Cream", "A small sponge for under the eye."),
+    ),
+    "baking_mix": (
+        ("Victoria Sponge Mix", "Cream", "A packet mix for a classic sponge."),
+        ("Brownie Mix", "Brown", "A packet mix for fudgy brownies."),
+        ("Pancake Mix", "Cream", "Just add milk and an egg."),
+    ),
+    "gift_box": (
+        ("Magnetic Gift Box", "White", "A rigid box with a magnetic lid."),
+        ("Kraft Gift Box, Pack of 5", "Brown", "Plain card boxes with lids."),
+        ("Window Gift Box", "White", "A box with a clear window to see the gift."),
+    ),
+    "planter": (
+        ("Large Plastic Planter", "Grey", "A frost-proof planter with drainage holes."),
+        ("Terracotta Planter", "Brown", "A clay planter for herbs and shrubs."),
+        ("Window Box Planter", "Green", "A trough planter that fits a sill."),
+    ),
+})
 FLOOR = tuple(
     Row(f"FY{n:02d}{i}", kind, title, desc, color, decoy=False, sold=120)
     for n, (kind, rows) in enumerate(_F.items(), 1)
     for i, (title, color, desc) in enumerate(rows)
 )
 NEW_TYPES = tuple(sorted({KINDS[k].product_type for k in _F}))
-ROWS = (*TABLE, *FLOOR)
+
+#: The dinosaur toys of gen#461: ordinary products of existing toy types, titled with the word first
+#: so "dinosaur" meets toys before the graphic tees. Not decoys.
+SEED_TOYS = (
+    Row("DNO01", "dino_soft", "Dinosaur Soft Toy", "A soft dinosaur with a long tail, made for hugging.", "Green", decoy=False),
+    Row("DNO02", "dino_bath", "Dinosaur Bath Squirter", "A squeezy dinosaur that squirts from its mouth in the bath.", "Green", decoy=False),
+    Row("DNO03", "dino_light", "Dinosaur Night Light", "A dinosaur lamp with a touch base and a soft glow.", "Green", decoy=False),
+)  # fmt: skip
+ROWS = (*TABLE, *FLOOR, *SEED_TOYS)
 #: The decoys whose title names a detail color that is not their color: left out of the standard's
 #: text-agrees check (a title and a color field that disagree are the point of the row).
 TEXT_EXEMPT = frozenset(f"PLT-{r.code}" for r in TABLE if r.detail)
@@ -1127,7 +1276,7 @@ def table_markdown() -> str:
     ]
     for r in TABLE:
         lines.append(
-            f"| {r.query} | {r.noun or 'brand'} | PLT-{r.code} | {r.title} | {r.ptype} "
+            f"| {r.query} | {r.noun or r.seed or 'brand'} | PLT-{r.code} | {r.title} | {r.ptype} "
             f"| {r.policy} |"
         )
     return "\n".join(lines)
