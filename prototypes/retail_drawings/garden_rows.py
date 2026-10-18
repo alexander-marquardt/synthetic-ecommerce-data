@@ -350,7 +350,7 @@ _REAL = {
     ),
     "Grass Trimmer": (
         ("DCTA01", "absent", "Not Cordless: Petrol Grass Trimmer", "TRMPET", "yellow", "A two-stroke trimmer with a metal blade, which starts on a pull cord."),
-        ("DCTA02", "absent", "Mains Grass Trimmer, Never Cordless", "TRMELC", "red", "A trimmer on a long cable, with a telescopic shaft."),
+        ("DCTA02", "absent", "Corded Grass Trimmer, 10 m Cable", "TRMELC", "red", "A mains trimmer on a 10 m cable, with a telescopic shaft: not a cordless model, so there is no battery to charge."),
         ("DCTI01", "incidental", "Red Kite Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Kite range."),
         ("DCTI02", "incidental", "Blue Moon Grass Trimmer", "TRMCRD", "yellow", "A battery trimmer with a line head that feeds as you tap it."),
         ("DCTS01", "secondary", "Green Cordless Grass Trimmer with Black Handle", "TRMCRD", "green", "A battery trimmer for edging a lawn and tidying round beds."),
@@ -387,7 +387,7 @@ _REAL = {
     ),
     "Hedge Trimmer": (
         ("DCGA01", "absent", "Not Cordless: Petrol Hedge Trimmer", "HDGPET", "yellow", "A two-stroke hedge trimmer with a pull-start and a wide tooth gap, for thick growth."),
-        ("DCGA02", "absent", "Mains Hedge Trimmer, Never Cordless", "HDGELC", "red", "A hedge trimmer on a long cable, with a double-sided blade and a hand guard."),
+        ("DCGA02", "absent", "Corded Hedge Trimmer, 10 m Cable", "HDGELC", "red", "A mains hedge trimmer on a 10 m cable, with a double-sided blade and a hand guard: not a cordless model, so there is no battery to charge."),
         ("DCGA03", "absent", "Corded Hedge Trimmer, Not Cordless", "HDGELC", "black", "A mains trimmer for a garden hedge, with no battery to charge."),
         ("DCGI01", "incidental", "Red Kite Hedge Trimmer", "HDGELC", "black", "A mains hedge trimmer from the Kite range, with a hand guard."),
         ("DCGI02", "incidental", "Blue Moon Hedge Trimmer", "HDGPET", "yellow", "A petrol hedge trimmer for long hedges, from the Moon range."),
@@ -413,7 +413,7 @@ _REAL = {
     ),
     "Parasol": (
         ("DCPA01", "absent", "Center Pole Parasol, Not Cantilever", "PRSCTR", "blue", "A polyester parasol on a center pole that pushes up with a slide."),
-        ("DCPA02", "absent", "Cantilever Free Tilting Parasol", "PRSTLT", "white", "A crank-lift parasol on a center pole, with a filled base that needs no fixing to the ground."),
+        ("DCPA02", "absent", "Center Pole Parasol with Tilt", "PRSTLT", "white", "A crank-lift parasol on a center pole, not a cantilever (side-arm) design, with a filled base that needs no fixing to the ground."),
         ("DCPA03", "absent", "Parasol with Center Pole, No Cantilever", "PRSTLT", "yellow", "A tilting parasol on a center pole, for a table with a hole in the middle."),
         ("DCPI01", "incidental", "Red Kite Parasol", "PRSCTR", "black", "A center pole parasol from the Kite range, with a push-up slide."),
         ("DCPI02", "incidental", "Blue Moon Parasol", "PRSCNT", "yellow", "A side-arm parasol from the Moon range, with a cross base."),
