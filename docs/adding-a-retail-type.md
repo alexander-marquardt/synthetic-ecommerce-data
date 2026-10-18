@@ -100,11 +100,11 @@ that names two drawings.
 
 ## 9. Rebuild the figures and run the tests
 
-Rebuild `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (the script writes both;
-never edit them) and commit the table only: `golden-retail/stats.json` is rolled when the PR
-merges, and the `stats-roll` job refuses a PR that commits it (README, Contributing, gen#373):
-`uv run python prototypes/retail_drawings/retail_figures.py`, then
-`git checkout origin/main -- golden-retail/stats.json`
+Rebuild the figures with `uv run python prototypes/retail_drawings/retail_figures.py`; it
+writes `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (never edit either), and you
+commit neither: both are rolled when the PR merges, and the `stats-roll` job refuses a PR that
+commits them (README, gen#373). Put them back with
+`git checkout origin/main -- golden-retail/stats.json docs/retail-apparel-decoys.md`
 
 Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_output_standard.py`, `tests/test_retail_scale.py`, `tests/test_retail_breadth_34.py`,

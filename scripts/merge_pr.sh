@@ -108,6 +108,7 @@ GENERATED=(
   golden-catalog/render.jsonl
   golden-catalog/stats.json
   golden-retail/stats.json
+  docs/retail-apparel-decoys.md
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
 
