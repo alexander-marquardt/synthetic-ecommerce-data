@@ -18,7 +18,9 @@ The classes (the numbers follow the issue):
 5. **guard**: no decoy; a real product whose name holds a color word ("green tea"), so a color
    filter that wrongly fires shows as an empty or wrong page.
 9. **plural**: the title names a fresh plural as the ingredient or source of another product
-   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`).
+   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`),
+   or, in a non-food department, as a brand shown on it ("Lucky Lemons Kids' Pyjamas") or the
+   scent it carries ("Sicilian Lemons Hand Wash"; :mod:`decoy_plural_nonfood_rows`).
 
 Every decoy's structured fields tell the truth: its color, category path and audience are its
 own, and only the title and description carry the misleading word. Titles are short and the
@@ -32,9 +34,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from class_model import Style, one
+import fruit_word_brand_styles  # noqa: F401 -- registers the five house styles
+from breadth_rows import OWNERS
+from class_model import BRAND_OWNER, Style, one
+from decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
+from decoy_plural_nonfood_rows import ROWS as PLURAL_NONFOOD_ROWS
 from decoy_plural_rows import ROWS as PLURAL_ROWS
 from variants import cw
+
+# The invented fruit-word brands of the class 9 non-food rows (gen#445), third party.
+OWNERS.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
+BRAND_OWNER.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
 NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
@@ -75,6 +85,7 @@ def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, pric
 
 _SOFAS = ("Home", "Furniture", "Sofas")
 UK = ("6", "8", "10", "12", "14", "16")
+KIDS_SIZES = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs")
 KINDS = {
     "sofa": Kind("Home", _SOFAS, "Sofa", "sofa_seats", "Brackenmere Home", 549.0,
                  params=(("seats", "3"), ("arms", "rolled"), ("legs", "walnut")),
@@ -197,6 +208,25 @@ KINDS = {
                    "Velling Apothecary", 8.0, colorless=True),
     "bath_salts": Kind("Beauty", ("Beauty", "Bath & Body", "Bath Salts"), "Bath Salts", "jar",
                        "Velling Apothecary", 6.0, colorless=True),
+    # The kinds of the class 9 non-food rows (gen#445): a fruit-word brand or a fruit scent.
+    "fruit_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                         "jar", "Lanternby", 16.0),
+    "dish_soap": Kind("Cleaning & Janitorial", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"),
+                      "Dish Soap", "bottle", "Calderby & Lune", 1.5,
+                      params=(("label", "Washing-Up Liquid"),), colorless=True),
+    "hand_wash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
+                      "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
+    "shower_gel": Kind("Beauty", ("Beauty", "Bath & Body", "Shower Gel"), "Shower Gel", "bottle",
+                       "Velling Apothecary", 4.0, params=(("label", "Shower Gel"),),
+                       colorless=True),
+    "air_freshener": Kind("Cleaning & Janitorial", ("Cleaning", "Air Care", "Air Fresheners"),
+                          "Air Freshener", "trigger_spray", "Calderby & Lune", 3.0, colorless=True),
+    "kids_tee": Kind("Clothing", ("Kids", "Tops", "T-Shirts"), "T-Shirt", "tshirt",
+                     "Little Fernby", 8.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
+    "kids_pj": Kind("Lingerie & Nightwear", ("Kids", "Nightwear", "Pyjamas"), "Pyjamas", "pyjamas",
+                    "Little Fernby", 12.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
+    "kids_sweat": Kind("Clothing", ("Kids", "Tops", "Sweatshirts"), "Sweatshirt", "sweatshirt",
+                       "Little Fernby", 14.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
     "surface_spray": Kind("Cleaning & Janitorial",
                           ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Surface Sprays"),
                           "Surface Spray", "bottle", "Calderby & Lune", 3.0, colorless=True),
@@ -218,6 +248,12 @@ class Decoy:
     true_hit: bool = False
     #: Class 7: the label list, where the query word appears and the title does not name it.
     ingredients: tuple[str, ...] = ()
+    #: Class 9 non-food: the fruit the product is scented with (its ``fragrance`` attribute).
+    scent: str | None = None
+
+    def _extra(self, k: Kind) -> tuple[tuple[str, str, str], ...]:
+        """The kind's extra attributes, then the fragrance a scented row names."""
+        return (*k.extra, ("fragrance", "Fragrance", self.scent)) if self.scent else k.extra
 
     def style(self) -> Style:
         k = KINDS[self.kind]
@@ -226,7 +262,7 @@ class Decoy:
         return Style(
             f"D{self.code}", self.title, self.brand or k.brand, k.department, k.path, k.price,
             self.description, k.product_type, k.shape, one(color, self.sold), audience=k.audience,
-            params=k.params, extra=k.extra, sizes=k.sizes, size_range=k.size_range,
+            params=k.params, extra=self._extra(k), sizes=k.sizes, size_range=k.size_range,
             colorless=k.colorless, units_per_pack=k.units_per_pack, pattern=k.pattern,
             reviews=900 + self.sold,
         )
@@ -408,6 +444,9 @@ TABLE = (
     # -- class 9: the fresh plural is in the title as an ingredient or source (gen#445)
     *(_d(code, kind, title, desc, color, 9, plural, sold, ingredients=ing)
       for code, kind, title, desc, color, plural, sold, ing in PLURAL_ROWS),
+    # -- class 9, non-food: the plural is a brand shown on the product or the scent (gen#445)
+    *(_d(code, kind, title, desc, color, 9, plural, sold, brand=brand, scent=scent)
+      for code, kind, title, desc, color, plural, sold, brand, scent in PLURAL_NONFOOD_ROWS),
 )
 
 STYLES = tuple(d.style() for d in TABLE)
@@ -436,7 +475,7 @@ CLASSES = {
     4: "color word is also a product or a shade",
     5: "guard: a real product whose name holds a color word",
     7: "word only in the ingredients",
-    9: "the fresh plural is in the title as an ingredient or source",
+    9: "the fresh plural is in the title as an ingredient, a source, a brand or a scent",
 }
 
 
