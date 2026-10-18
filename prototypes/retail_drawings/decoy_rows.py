@@ -213,7 +213,7 @@ KINDS = {
                          "jar", "Lanternby", 16.0),
     "dish_soap": Kind("Cleaning & Janitorial", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"),
                       "Dish Soap", "bottle", "Calderby & Lune", 1.5,
-                      params=(("label", "Dish Soap"),), colorless=True),
+                      params=(("label", "Washing-Up Liquid"),), colorless=True),
     "hand_wash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
                       "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
     "shower_gel": Kind("Beauty", ("Beauty", "Bath & Body", "Shower Gel"), "Shower Gel", "bottle",
