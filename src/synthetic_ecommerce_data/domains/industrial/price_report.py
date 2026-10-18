@@ -639,9 +639,13 @@ def pin_holds(row: Comparison, build: int) -> bool:
     """Whether a row :data:`.price.PINNED_SHORTFALLS` names is still out of
     band on the side its reason names, and no further out than the figure
     :data:`.price.PINNED_FIGURES` records for ``build`` (0 the default
-    build, 1 the 100K one), past :data:`.price.PIN_TOLERANCE`."""
+    build, 1 the 100K one), past :data:`.price.PIN_TOLERANCE`. A build the
+    record gives ``None`` is one the row lands in band on: the pin holds there
+    while it still does (#272)."""
     assert row.band is not None
     recorded = PINNED_FIGURES[row.name][build]
+    if recorded is None:
+        return row.within
     if PINNED_SHORTFALLS[row.name].startswith("below band"):
         return recorded / (1 + PIN_TOLERANCE) <= row.achieved < row.band[0]
     return row.band[1] < row.achieved <= recorded * (1 + PIN_TOLERANCE)
