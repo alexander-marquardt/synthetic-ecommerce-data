@@ -1,6 +1,6 @@
 {
  "ceiling": {
-  "derived_styles": 4816,
+  "derived_styles": 4832,
   "food_and_drink": {
    "skus": 11666,
    "styles": 4262
@@ -9,13 +9,13 @@
    "skus": 12409,
    "styles": 4516
   },
-  "images": 20893,
+  "images": 20970,
   "non_grocery": {
-   "skus": 95793,
-   "styles": 5895
+   "skus": 96642,
+   "styles": 5911
   },
-  "skus": 144323,
-  "styles": 14150,
+  "skus": 145260,
+  "styles": 14166,
   "top_levels": {
    "Beauty": {
     "skus": 1103,
@@ -34,32 +34,32 @@
     "styles": 341
    },
    "Gifts": {
-    "skus": 692,
+    "skus": 685,
     "styles": 376
    },
    "Home": {
-    "skus": 5969,
-    "styles": 1944
+    "skus": 5972,
+    "styles": 1950
    },
    "Kids": {
-    "skus": 5812,
-    "styles": 453
+    "skus": 5946,
+    "styles": 456
    },
    "Mens": {
-    "skus": 27194,
-    "styles": 1916
+    "skus": 27539,
+    "styles": 1917
    },
    "Sports & Outdoors": {
     "skus": 430,
     "styles": 53
    },
    "Toys": {
-    "skus": 912,
+    "skus": 925,
     "styles": 495
    },
    "Womens": {
-    "skus": 89161,
-    "styles": 3275
+    "skus": 89610,
+    "styles": 3281
    }
   }
  },
@@ -68,10 +68,10 @@
   "Cleaning & Janitorial": 215,
   "Clothing": 1225,
   "Food & Drink": 229,
-  "Footwear": 822,
+  "Footwear": 832,
   "Garden": 219,
   "Gifts": 321,
-  "Home": 1657,
+  "Home": 1663,
   "Lingerie & Nightwear": 611,
   "Toys": 384
  },
@@ -522,8 +522,8 @@
  "near_duplicates": {
   "grocery": 0.0323,
   "grocery_grid_clones": 4,
-  "non_grocery": 0.0165,
-  "non_grocery_grid_clone_rate": 0.1198
+  "non_grocery": 0.0164,
+  "non_grocery_grid_clone_rate": 0.1242
  },
  "templates": {
   "accessory_rows": {
@@ -531,7 +531,7 @@
    "styles": 53
   },
   "all": {
-   "skus": 80338,
+   "skus": 80501,
    "styles": 9334
   },
   "appliance_rows": {
@@ -539,12 +539,12 @@
    "styles": 37
   },
   "authored": {
-   "skus": 7661,
+   "skus": 7736,
    "styles": 352
   },
-  "authored_images": 739,
+  "authored_images": 744,
   "before_grocery": {
-   "skus": 67929,
+   "skus": 68092,
    "styles": 4818
   },
   "breadth_rows": {
@@ -612,7 +612,7 @@
    "styles": 35
   },
   "nike_rows": {
-   "skus": 916,
+   "skus": 1004,
    "styles": 31
   },
   "plain_rows": {

@@ -50,9 +50,9 @@ _KIDS_RUN = fw.run("10 Infant", "6 Junior", chart="kids")
 
 
 def _shades(*names: str, material: str) -> tuple:
-    """The main colors named, each a plain color word with its own hex and family."""
+    """The colors named (the six main ones and Orange), each a plain color word with its own hex and family."""
     hexes = {"Black": "#24262b", "White": "#fbfaf6", "Red": "#c8312e", "Blue": "#2b56b5",
-             "Green": "#3c8d4f", "Yellow": "#f2c230"}  # fmt: skip
+             "Green": "#3c8d4f", "Yellow": "#f2c230", "Orange": "#e8742a"}  # fmt: skip
     return tuple(sh(n, hexes[n], n.lower(), material) for n in names)
 
 
@@ -67,22 +67,22 @@ _MESH = ("Black", "White", "Red", "Blue")
 STYLES = (
     _shoe("MAM90", "Nike Air Max 90 Trainers", _M, "trainer", 124.0,
           "Cushioned trainers with a visible air unit in the heel, a leather and mesh upper and a waffle outsole.",
-          _shades(*_MESH, material="leather"), fw.M_RUN, _AIR, trending=True),
+          _shades(*_MESH, "Orange", material="leather"), fw.M_RUN, _AIR, trending=True),
     _shoe("MAM27", "Nike Air Max 270 Trainers", _M, "trainer", 144.0,
           "Everyday trainers with a tall air unit under the heel and a soft mesh upper.",
-          _shades("Black", "White", "Green", "Blue", material="mesh"), fw.M_RUN, _AIR),
+          _shades("Black", "White", "Green", "Blue", "Orange", material="mesh"), fw.M_RUN, _AIR),
     _shoe("MCTV1", "Nike Court Vision Low Trainers", _M, "trainer", 64.0,
           "Low-top court style trainers in smooth synthetic leather with a cupsole.",
           _shades("White", "Black", "Red", material="synthetic"), fw.M_RUN),
     _shoe("MPEG1", "Nike Pegasus Road Running Shoes", _M, "running", 109.0,
           "Neutral road running shoes with a responsive foam midsole and a breathable mesh upper.",
-          _shades("Black", "White", "Blue", "Yellow", material="mesh"), fw.M_RUN, "Pegasus"),
+          _shades("Black", "White", "Blue", "Yellow", "Orange", material="mesh"), fw.M_RUN, "Pegasus"),
     _shoe("MAMRN", "Nike Air Max Run Running Shoes", _M, "running", 119.0,
           "Cushioned running shoes with an air unit in the heel for easy miles.",
           _shades("Black", "Red", "Green", material="mesh"), fw.M_RUN, _AIR),
     _shoe("WAM90", "Nike Air Max 90 Trainers", _W, "trainer", 124.0,
           "Cushioned trainers with a visible air unit in the heel, a leather and mesh upper and a waffle outsole.",
-          _shades("White", "Black", "Red", "Blue", material="leather"), fw.W_RUN, _AIR),
+          _shades("White", "Black", "Red", "Blue", "Orange", material="leather"), fw.W_RUN, _AIR),
     _shoe("WAMDW", "Nike Air Max Dawn Trainers", _W, "trainer", 119.0,
           "Lightweight trainers with a visible air unit and a knit-look upper.",
           _shades("White", "Black", "Green", "Yellow", material="mesh"), fw.W_RUN, _AIR, trending=True),
@@ -91,19 +91,19 @@ STYLES = (
           _shades("White", "Black", "Blue", material="synthetic"), fw.W_RUN),
     _shoe("WPEG1", "Nike Pegasus Road Running Shoes", _W, "running", 109.0,
           "Neutral road running shoes with a responsive foam midsole and a breathable mesh upper.",
-          _shades("Black", "White", "Red", "Yellow", material="mesh"), fw.W_RUN, "Pegasus"),
+          _shades("Black", "White", "Red", "Yellow", "Orange", material="mesh"), fw.W_RUN, "Pegasus"),
     _shoe("WAMRN", "Nike Air Max Run Running Shoes", _W, "running", 119.0,
           "Cushioned running shoes with an air unit in the heel for easy miles.",
           _shades("Black", "Blue", "Green", material="mesh"), fw.W_RUN, _AIR),
     _shoe("KAM90", "Kids' Nike Air Max 90 Trainers", _K, "trainer", 54.0,
           "Cushioned trainers for kids with an air unit in the heel and a padded tongue.",
-          _shades("White", "Black", "Red", "Blue", material="synthetic"), _KIDS_RUN, _AIR),
+          _shades("White", "Black", "Red", "Blue", "Orange", material="synthetic"), _KIDS_RUN, _AIR),
     _shoe("KAMEX", "Kids' Nike Air Max Excee Trainers", _K, "trainer", 49.0,
           "Chunky kids trainers with a visible air unit and a padded collar.",
           _shades("White", "Black", "Green", material="synthetic"), _KIDS_RUN, _AIR),
     _shoe("KRUN1", "Kids' Nike Revolution Running Shoes", _K, "running", 42.0,
           "Lightweight running shoes for kids with a foam midsole and a mesh upper.",
-          _shades("Black", "Blue", "Yellow", "Red", material="mesh"), _KIDS_RUN, "Revolution"),
+          _shades("Black", "Blue", "Yellow", "Red", "Orange", material="mesh"), _KIDS_RUN, "Revolution"),
     _shoe("KFLEX", "Kids' Nike Flex Runner Running Shoes", _K, "running", 38.0,
           "Slip-on style kids running shoes with a stretch bootie and a flexible sole.",
           _shades("Black", "White", "Green", material="mesh"), _KIDS_RUN, "Flex Runner"),

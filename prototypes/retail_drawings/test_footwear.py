@@ -56,7 +56,7 @@ def test_every_kind_of_shoe_the_range_needs_is_sold() -> None:
               "Ballet Pumps", "Loafers", "Brogues", "Slippers", "Wellies",
               "Safety Boots"):  # fmt: skip
         assert types[t] >= 1, t
-    assert sum(d["sku_count"] for d in DOCS) == 1930
+    assert sum(d["sku_count"] for d in DOCS) == 2005
 
 
 def test_each_size_system_is_its_own_field_read_from_the_audiences_chart() -> None:
