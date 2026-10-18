@@ -62,8 +62,10 @@ SPEC = TypeSpec(
     decoys=(
         decoy(1, "black nappy caddy", _ROWS[0], 9, "Black Handle Nappy Caddy",
               "A grey caddy with a black carry handle; the caddy itself is grey.", color=GREY),
-        decoy(4, "waterproof nappy caddy", _ROWS[2], 10, "Waterproof Nappy Caddy",
-              "A cotton caddy that is not waterproof: spot clean only.", color=RED),
+        decoy(4, "waterproof nappy caddy", _ROWS[2], 10,
+              "Four Pocket Nappy Caddy with Waterproof Wipes Pouch",
+              "A cotton caddy with four pockets and a waterproof zip pouch for used wipes, "
+              "for the changing station.", color=RED),
         decoy(2, "nappy bag", _ROWS[3], 11, "Nappy Bag Style Canvas Caddy",
               "A caddy that stays at home: it has no shoulder strap and is not a changing bag.",
               color=NAVY),
