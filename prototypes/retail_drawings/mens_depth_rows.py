@@ -53,6 +53,7 @@ from dataclasses import dataclass
 from itertools import product as _product
 
 import kit_suits  # noqa: F401 -- registers suit_jacket, suit_trousers, waistcoat, dinner_suit, formal_accessory
+import type_colors
 import type_registry
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
@@ -228,6 +229,33 @@ def _an(phrase: str) -> str:
     return f"{'an' if word[:1] in 'aeiou' else 'a'} {word}"
 
 
+def _plural(noun: str) -> bool:
+    """Whether the noun is a plural that takes no article: chinos, trousers, boxers, socks."""
+    word = noun.lower().split()[-1]
+    return word.endswith("s") and not word.endswith(("ss", "us"))
+
+
+def _np(lead: str, noun: str) -> str:
+    """A capitalised noun phrase, behind its article when the noun is singular: "A black polo
+    shirt", but "Black suit trousers" (a plural takes no article, gen#448)."""
+    phrase = f"{lead} {noun}".strip().lower()
+    return phrase.capitalize() if _plural(noun) else _an(phrase).capitalize()
+
+
+def _fabric(fabric: str, base: str) -> tuple[str, str, tuple]:
+    """(the words that lead the description, the Material value, the attributes beyond it) of a
+    pool entry. The pools mix cloths with finishes ("Crease Resistant"), patterns ("Checked")
+    and sourcing claims ("Recycled"): the cloth is the leaf's base, the rest its own attribute
+    (gen#448)."""
+    key = fabric.lower()
+    if key in type_colors.MATERIAL_OF:
+        material = type_colors.MATERIAL_OF[key]
+        return material, material, ()
+    if key in type_colors.CARRIED_AS:
+        return f"{fabric} {base}", base, (type_colors.CARRIED_AS[key],)
+    return fabric, fabric, ()
+
+
 def _case(material: str) -> str:
     """The catalogue's spelling of a blend: "Linen blend", never "Linen Blend"."""
     return material.replace(" Blend", " blend")
@@ -262,20 +290,25 @@ class Leaf:
     extra_price: float = 0.0
     stripe_accent: bool = False
     waist: str | None = None  # the waist_type attribute, and the drawing's waist when "Elastic"
+    noun: str = ""  # the description's noun when it is not the kind's: the leaf's own ("formal trousers")
+    base: str = ""  # the cloth a finish or pattern entry of ``fabrics`` is made in, when not the kind's
 
 
 _LEAVES = (
     Leaf("CH", ("Mens", "Trousers", "Chinos"), "Mens Trousers", 36,
          ("Stretch Cotton", "Cotton Twill", "Garment Dyed", "Brushed Cotton", "Linen Blend",
           "Organic Cotton", "Washed Cotton", "Lightweight Cotton"),
-         ("Skinny", "Slim", "Straight", "Tapered", "Relaxed"), ("",), "{f} {fit} Fit Chinos"),
+         ("Skinny", "Slim", "Straight", "Tapered", "Relaxed"), ("",), "{f} {fit} Fit Chinos",
+         noun="chinos"),
     Leaf("FT", ("Mens", "Trousers", "Formal Trousers"), "Mens Trousers", 20,
          ("Wool Blend", "Twill", "Flannel", "Stretch Suiting", "Herringbone", "Crease Resistant",
           "Cotton Stretch"), ("Slim", "Regular", "Tapered"), ("",),
-         "{f} {fit} Fit Formal Trousers", palette=_TAILORED, extra_price=10.0),
+         "{f} {fit} Fit Formal Trousers", palette=_TAILORED, extra_price=10.0,
+         noun="formal trousers", base="Polyester Blend"),
     Leaf("CG", ("Mens", "Trousers", "Cargo Trousers"), "Mens Trousers", 10,
          ("Ripstop", "Cotton Twill", "Washed Canvas", "Stretch Cotton", "Lightweight Nylon"),
-         ("Relaxed", "Tapered"), ("",), "{f} {fit} Fit Cargo Trousers", extra_price=4.0),
+         ("Relaxed", "Tapered"), ("",), "{f} {fit} Fit Cargo Trousers", extra_price=4.0,
+         noun="cargo trousers"),
     Leaf("ST", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Suit Trousers", 24,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Flannel"),
          ("Slim", "Tailored", "Regular"), ("Short", "Regular", "Long"),
@@ -342,7 +375,7 @@ _LEAVES = (
     Leaf("BL", ("Mens", "Suits & Tailoring", "Blazers"), "Suit Jacket", 20,
          ("Wool Blend", "Linen Blend", "Cotton Stretch", "Textured", "Herringbone",
           "Unstructured", "Checked"), _FITS3, ("Notch", "Peak"), "{f} {fit} Fit {d} Lapel Blazer",
-         palette=_TAILORED, sleeve="Long"),
+         palette=_TAILORED, sleeve="Long", base="Wool Blend"),
     Leaf("SJ", ("Mens", "Suits & Tailoring", "Suit Jackets"), "Suit Jacket", 24,
          ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Tonic"),
          ("Slim", "Tailored", "Regular"), ("Notch", "Peak"), "{f} {fit} Fit {d} Lapel Suit Jacket",
@@ -437,14 +470,19 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
         for i, (title, fabric, fit, detail) in enumerate(pairs):
             brand = _BRANDS[(i + len(leaf.abbr)) % len(_BRANDS)]
             price = round(kind.base_price + leaf.extra_price + 2.0 * (i % 7), 2)
-            colors = _colors(i, leaf.palette)
-            if leaf.pattern == "check":
+            colors = _colors(i, type_colors.palette(leaf.path, leaf.palette))
+            lead, material, more = _fabric(fabric, leaf.base or kind.material)
+            # a check shirt, or a cloth the pool calls "Checked" (a pattern, gen#448): check colors
+            if leaf.pattern == "check" or any(m[0] == "pattern" for m in more):
                 colors = tuple(cw(f"{c[0]} Check", c[2], "gingham", "#2a2a2e") for c in colors)
             fit_an = _an(fit or "regular")
-            noun = detail.lower() if kind.item else kind.noun.lower()
-            cut = f" cut to {fit_an} fit" if kind.fitted else ""
-            desc = f"{_an(fabric).capitalize()} {noun}{cut} {tails[leaf.kind]}."
-            attrs = [_a("material", "Material", _case(fabric))]
+            noun = detail.lower() if kind.item else (leaf.noun or kind.noun).lower()
+            if kind.ptype == "Boxers":  # the fit IS the garment: trunks, boxer shorts, briefs
+                noun, cut = fit.lower(), ""
+            else:
+                cut = f" cut to {fit_an} fit" if kind.fitted else ""
+            desc = f"{_np(lead, noun)}{cut} {tails[leaf.kind]}."
+            attrs = [_a("material", "Material", _case(material)), *(_a(*m) for m in more)]
             if kind.fitted:
                 attrs.insert(0, _a("fit", "Fit", fit or "Regular"))
             suit_attrs, suit_params = _suit(kind.ptype, fit, detail, i)
@@ -489,14 +527,14 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
 SETS = (
     ("Ashdown", "Wool Blend", "Slim", 0, ("Navy", "Charcoal", "Black")),
     ("Brindley", "Herringbone", "Regular", 1, ("Grey", "Navy", "White")),
-    ("Carrow", "Birdseye", "Tailored", 2, ("Blue", "Charcoal", "Green")),
-    ("Dunmere", "Stretch", "Slim", 3, ("Black", "Red", "Navy")),
-    ("Elmstead", "Twill", "Regular", 4, ("Brown", "Green", "Yellow")),
-    ("Fenwick", "Flannel", "Tailored", 0, ("Charcoal", "Grey", "Burgundy")),
-    ("Garrowby", "Wool Blend", "Regular", 1, ("Stone", "Navy", "Blue")),
-    ("Holloway", "Linen Blend", "Slim", 2, ("White", "Stone", "Blue")),
-    ("Ingleby", "Tweed", "Regular", 3, ("Brown", "Green", "Grey")),
-    ("Kestrel", "Stretch", "Tailored", 4, ("Navy", "Black", "Burgundy")),
+    ("Carrow", "Birdseye", "Tailored", 2, ("Grey", "Charcoal", "Navy")),
+    ("Dunmere", "Stretch", "Slim", 3, ("Black", "Charcoal", "Navy")),
+    ("Elmstead", "Twill", "Regular", 4, ("Charcoal", "Grey", "Black")),
+    ("Fenwick", "Flannel", "Tailored", 0, ("Charcoal", "Grey", "Black")),
+    ("Garrowby", "Wool Blend", "Regular", 1, ("Stone", "Navy", "Grey")),
+    ("Holloway", "Linen Blend", "Slim", 2, ("White", "Stone", "Grey")),
+    ("Ingleby", "Tweed", "Regular", 3, ("Grey", "Charcoal", "Navy")),
+    ("Kestrel", "Stretch", "Tailored", 4, ("Navy", "Black", "Charcoal")),
 )  # fmt: skip
 #: piece -> (kind, leaf path, the detail its params take, the title's noun)
 _PIECES = (
@@ -517,7 +555,7 @@ def _set_rows() -> list[LRow]:
             attrs += extra
             if ptype == "Suit Jacket":
                 attrs.append(_a("sleeve_length", "Sleeve length", "Long"))
-            desc = (f"{_an(fabric).capitalize()} {noun.lower()} cut to {_an(fit)} fit "
+            desc = (f"{_np(fabric, noun)} cut to {_an(fit)} fit "
                     f"{_TAIL[ptype]}. Part of the {name} suit: the jacket, trousers and waistcoat "
                     f"match.")  # fmt: skip
             price = round(kind.base_price + 15.0 + 2.0 * (n % 5), 2)
@@ -550,6 +588,7 @@ _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Khaki")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Off White")
+_MENS = "men's"
 _AUDIENCE = ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style")
 _BRAND_TRUE = {"Black Curlew": "White", "Yellow Plover": "Navy", "Jacket Wren": "Grey"}
 _BRAND_QUERY = {"Black Curlew": "black", "Yellow Plover": "yellow", "Jacket Wren": "jacket"}
@@ -595,7 +634,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 true = "Navy"
             # 1: a trim, a stripe or a print names the other color.
             add(1, i, f"Mens {true} {noun} with {w} {_TRIMS[i]}",
-                f"A {true.lower()} {noun.lower()} {tails[ptype]}, finished with {w.lower()} "
+                f"{_np(true, noun)} {tails[ptype]}, finished with {w.lower()} "
                 f"{_TRIMS[i].lower()}.", true, w, f"{w.lower()} {noun.lower()}")  # fmt: skip
             # 2: another category's noun used as a modifier.
             b = kind.borrow[i]
@@ -603,42 +642,44 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                    "dress": "Dress", "coat": "Coat Length", "trouser": "Trouser",
                    "sock": "Sock Soft", "boot": "Boot Cut", "boxer": "Boxer Print"}[b]
             add(2, i, f"Mens {mod} {noun}",
-                f"{_an(noun).capitalize()} named for its {b} detail; it is not a {b}.",
+                f"{_np('', noun)} named for {'their' if _plural(noun) else 'its'} {b} detail; "
+                f"{'they are' if _plural(noun) else 'it is'} not a {b}.",
                 _TRUE[(k + i + 1) % 6], b, f"{b} {noun.lower()}")  # fmt: skip
             # 3: an audience word that names a sibling cut.
             a = _AUDIENCE[i]
             if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
                 add(3, i, f"Mens Mini-Me {noun}, Kids' Version Sold Separately",
-                    f"A men's {noun.lower()} with a matching kids' version, sold in men's sizes.",
+                    f"{_np(_MENS, noun)} with a matching kids' version, sold in men's sizes.",
                     _TRUE[(k + i + 2) % 6], "Mini-Me", f"mini-me {noun.lower()}")  # fmt: skip
             else:
                 add(3, i, f"Mens {a} {noun}",
-                    f"A men's {noun.lower()} in the {a.lower()}, sold in men's sizes.",
+                    f"{_np(_MENS, noun)} in the {a.lower()}, sold in men's sizes.",
                     _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
             # 4: a material or feature named, and absent.
             f = kind.absent[i]
             n4 = kind.absent_noun or noun
             add(4, i, f"Mens {f} {n4}",
                 kind.absent_text.format(f=f.lower()) if kind.absent_text else
-                f"{_an(n4).capitalize()} that is {f.lower().replace('-', ', ')}: made in "
+                f"{_np('', n4)} that {'are' if _plural(n4) else 'is'} {f.lower()}: made in "
                 f"{kind.material.lower()}.", _TRUE[(k + i + 3) % 6], f,
                 f"{f.split('-')[0].lower()} {noun.lower()}")  # fmt: skip
             # 5: the title gives a fancy name, the description the shade.
             s = _SHADES[i]
             add(5, i, f"Mens {_FANCY[(k + i) % 6]} {noun}",
-                f"{_an(noun).capitalize()} in soft {s.lower()}, {tails[ptype]}.", s,
+                f"{_np('', noun)} in soft {s.lower()}, {tails[ptype]}.", s,
                 _FANCY[(k + i) % 6], f"{s.lower()} {noun.lower()}")  # fmt: skip
             # 6: an incidental word in a short title: a range name.
             r, gloss, word = place_range(k + i * 2)
             true6 = _TRUE[(k + i + 4) % 6]
             add(6, i, f"Mens {r} {noun}",
-                f"From the {r} range, named for {gloss}; the {noun.lower()} itself is "
-                f"{true6.lower()}.", true6, word, word,
+                f"From the {r} range, named for {gloss}; the {noun.lower()} "
+                f"{'themselves are' if _plural(noun) else 'itself is'} {true6.lower()}.",
+                true6, word, word,
                 extra=(_a("range", "Range", r),))  # fmt: skip
             # 7: an invented brand holding a color or category word.
             brand = NEW_BRANDS[i]
             add(7, i, f"Mens {brand} {noun}",
-                f"A {_BRAND_TRUE[brand].lower()} {noun.lower()} from {brand}; the name is the "
+                f"{_np(_BRAND_TRUE[brand], noun)} from {brand}; the name is the "
                 f"brand's, not the color.", _BRAND_TRUE[brand], brand,
                 f"{_BRAND_QUERY[brand]} {noun.lower()}")  # fmt: skip
     return rows, table
