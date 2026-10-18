@@ -66,6 +66,28 @@ def test_every_mastectomy_bra_says_so_in_its_title_and_has_pocketed_cups(templat
         assert "pocket" in r["description"].lower(), r["product_id"]
 
 
+@pytest.mark.parametrize("leaf", ["Mastectomy Bras", "Post-Surgery Bras"])
+def test_a_medical_bra_is_non_wired(templates, leaf):
+    rows = _real(_leaf(templates, (*BRAS, leaf)))
+    assert rows
+    for r in rows:
+        assert _attr(r, "wiring") == {"Non-Wired"}, (r["product_id"], _attr(r, "wiring"))
+
+
+#: The cut each period-pants attribute value is drawn as (spelled here, not read from the rows).
+DRAWN_CUT = {
+    "Bikini": "bikini", "Briefs": "brief", "High-Waisted": "high_waisted", "High-Leg": "high_leg",
+}  # fmt: skip
+
+
+def test_each_period_pants_drawing_shows_the_cut_its_attribute_states(templates):
+    rows = _real(_leaf(templates, PERIOD))
+    assert rows
+    for r in rows:
+        (cut,) = _attr(r, "cut")
+        assert r["drawing"]["params"]["cut"] == DRAWN_CUT[cut], (r["product_id"], cut)
+
+
 def test_a_post_surgery_bra_names_the_mastectomy_it_follows(templates):
     rows = _real(_leaf(templates, (*BRAS, "Post-Surgery Bras")))
     assert sum("mastectomy" in r["description"].lower() for r in rows) >= 2
