@@ -547,7 +547,7 @@
   "grocery": 0.032,
   "grocery_grid_clones": 4,
   "non_grocery": 0.0165,
-  "non_grocery_grid_clone_rate": 0.1219
+  "non_grocery_grid_clone_rate": 0.1114
  },
  "templates": {
   "accessory_rows": {

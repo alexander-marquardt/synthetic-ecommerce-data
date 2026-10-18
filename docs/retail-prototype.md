@@ -347,8 +347,12 @@ or kind their attributes do not hold, by design: `hammers.decoy_ids(docs)` is th
 `text_exempt`, by id, never a looser rule. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
-written only by a domain that models one (industrial). A field marked optional
-(`series`, `ingredients`, `description`, `price_usd`, `stock`) is absent, never null,
+written only by a domain that models one (industrial). Industrial also writes two
+plain fields on every SKU (gen#14), `pricing_unit` (`Each`, or `Per Pack` when the SKU
+publishes a `Package Quantity` above 1) and `order_multiple` (a whole number, 1 today):
+they are fields beside `price_usd`, never variants or facets. A field marked optional
+(`series`, `ingredients`, `description`, `price_usd`, `stock`, `pricing_unit`,
+`order_multiple`) is absent, never null,
 on a document that has none; the grocery's food-only `ingredients` is one. A domain
 may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
@@ -389,7 +393,7 @@ it: the SKU's own attributes replace the product's under the same key, and
 numbers (retail's rating, bestseller rank, was price, ABV and discount), so
 those can be range-filtered. The keys and types are industrial's except that
 retail has `price`, `currency` and `in_stock` where industrial has
-`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+`price_usd`, `stock`, `pricing_unit` and `order_multiple`, and no `dimension_provenance` or `spec_quality`
 (`tests/test_output_standard.py` pins that list). To write both files:
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
@@ -504,9 +508,19 @@ shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list.
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
 cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. The list also holds the fibres a
 shopper types before a garment (Leather, Suede, Faux Suede, Wool, Cashmere, Crochet, Muslin, Voile,
-Brushed Cotton; gen#187's coverage review): skirts carry the first seven, and a Mens or knitwear row that
-states only a `material` ("Wool blend", "Wool Cashmere blend", "Brushed Cotton") also carries the fibre it
-names (`facet_leaves.MATERIAL_FABRICS`, exact rows, the `material` kept). Homeware keeps its own `material`
+Brushed Cotton; gen#187's coverage review): skirts carry the first seven. Any other garment with no
+`fabric` of its own also carries the fibres its `material` names (`facet_leaves.MATERIAL_FABRICS`, exact rows,
+the `material` kept: a Dress "Linen blend" is Linen, a Polo Shirt "Cotton" is Cotton, a coat "Wool Cashmere
+blend" is Wool and Cashmere) and its title names (`facet_leaves.stated_fabrics`: "Cotton Crew Neck Tee",
+"Wool Check Bomber Jacket", "Boat Neck Jersey Top"). A fibre followed by a hyphen is no claim ("Leather-Look",
+"Cashmere-Feel", "Wool-Free", "Fleece-Lined"): those titles are the text-match decoys. A brushed cotton
+flannel is Flannel and Brushed Cotton (`facet_leaves.FABRIC_ALSO`). Viscose joined the list. A new garment
+`material` that names a listed fibre is a row in the table or a reason in `MATERIAL_NOT_FABRIC`, and the
+tests fail until it is. Only a garment gets this: a bag, a belt, a watch, jewellery, a shoe and homeware
+(`facet_leaves.NON_TEXTILE_TYPES`, and every department but Clothing and Lingerie & Nightwear) keep their own
+`material` or `upper_material` ("leather", "suede", Leather, Faux Leather), so one concept has one facet and
+the fabric marker reads `fabric` alone; a retailer who wants "leather boots" or "leather sofa" to match adds
+`upper_material` and `material` as marker sources on the catalogue side. Homeware keeps its own `material`
 facet (Seagrass, Bone China, Melamine, Stainless Steel, Cast Iron). A skirt that only names a fibre in a
 trim, a lining or a belt is a text-match decoy for it (gen#294). Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
@@ -577,7 +591,7 @@ colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
 is rewritten on every SKU, and the style lists only the values its kept SKUs
 hold (a shoe drops the `upper_material` entry of a material no kept SKU holds). Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
-premium material costs more). A draw whose title or description contradicts an
+premium material costs more; a plate's material is not drawn, so its price, bone china above porcelain above stoneware above enamel above melamine, is what keeps two plates of one finish off one grid tile, gen#229, `PLATES_GRID_CLONES`). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](retail-attribute-text.md)). Today's templates run out at `ceiling` in
 `golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
