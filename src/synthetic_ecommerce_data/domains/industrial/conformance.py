@@ -58,6 +58,9 @@ def socket_screw(
     # screws; ISO 3506-1 the stainless ones'; ASTM F837 stainless inch SHCS.
     if metric and "12.9" in material:
         out.append("ISO 898-1")
+    # SAE J429: the inch grades. Grade 8 is the inch screw's counterpart of 12.9.
+    if not metric and material.startswith("Grade "):
+        out.append("SAE J429")
     if metric and stainless:
         out.append("ISO 3506-1")
     if cap_screw and not metric and stainless:
