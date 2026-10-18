@@ -168,6 +168,18 @@ TYPE_SPECIFIC: dict[str, str] = {
 #: The census has no hammer and no abrasive family, so these are unknown there,
 #: not contradicted by it.
 NAME_EXCEPTIONS: dict[str, str] = {
+    "Rated Load": (
+        "a storage rack's rated load in pounds; the census has Load Capacity, which the other"
+        " types publish as a force in newtons or lbf"
+    ),
+    "Maximum Size": (
+        "the largest nut, pin, bearing, gear or bit a hand tool takes, in inches; the census has"
+        " Capacity, which the rigid casters already publish in pounds as a load"
+    ),
+    "Maximum Workpiece Weight": (
+        "the heaviest bearing an induction heater lifts and heats; the census has Capacity, which"
+        " the rigid casters already publish in pounds as a load"
+    ),
     "Wheel Dia.": "a grinding wheel face diameter; the census carries no abrasive family",
     "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
     # Not in TYPE_SPECIFIC: "Dowel" is not a qualifying noun, so only the census gate applies.

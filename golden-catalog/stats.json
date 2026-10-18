@@ -1743,9 +1743,9 @@
    "Material"
   ],
   "bearing_pullers": [
-   "Capacity",
    "Item",
    "Material",
+   "Maximum Size",
    "Type"
   ],
   "bearing_radial_ball": [
@@ -1787,9 +1787,9 @@
    "Material"
   ],
   "bit_sharpeners": [
-   "Capacity",
    "Item",
-   "Material"
+   "Material",
+   "Maximum Size"
   ],
   "bit_socket_sets": [
    "Drive Size",
@@ -1839,8 +1839,8 @@
   "cantilever_racks": [
    "Finish",
    "Item",
-   "Load Capacity",
-   "Material"
+   "Material",
+   "Rated Load"
   ],
   "cap_nuts_acorn": [
    "Finish",
@@ -1879,9 +1879,9 @@
    "Size"
   ],
   "circle_cutters": [
-   "Capacity",
    "Item",
-   "Material"
+   "Material",
+   "Maximum Size"
   ],
   "cold_chisels": [
    "Item",
@@ -2124,9 +2124,9 @@
    "Type"
   ],
   "gear_pullers": [
-   "Capacity",
    "Item",
    "Material",
+   "Maximum Size",
    "Type"
   ],
   "grinder_guards": [
@@ -2292,9 +2292,9 @@
    "Style"
   ],
   "induction_heaters": [
-   "Capacity",
    "Item",
-   "Material"
+   "Material",
+   "Maximum Workpiece Weight"
   ],
   "key_stock": [
    "Dimension Type",
@@ -2397,10 +2397,10 @@
    "Width Across Flats"
   ],
   "nut_splitters": [
-   "Capacity",
    "Finish",
    "Item",
-   "Material"
+   "Material",
+   "Maximum Size"
   ],
   "nylon_wall_anchors": [
    "Diameter",
@@ -2451,9 +2451,9 @@
    "Material"
   ],
   "pin_pullers": [
-   "Capacity",
    "Item",
-   "Material"
+   "Material",
+   "Maximum Size"
   ],
   "pin_punch_sets": [
    "Finish",
