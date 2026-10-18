@@ -7,6 +7,7 @@ a mostly blue product into a White filter). Held at the splitter, at each docume
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -75,3 +76,18 @@ def test_the_exported_retail_build_holds_the_ruled_values() -> None:
     values = _colors(export.documents())
     assert values >= RULED
     assert sorted(v for v in values if "/" in v) == []
+
+
+@pytest.mark.parametrize("name", ["samples.ndjson", "samples4.ndjson"])
+def test_no_committed_sample_color_holds_a_slash_or_an_ampersand(name: str) -> None:
+    """The sneak-peek samples are written by the builders and went stale with slash colors."""
+    records = [json.loads(line) for line in (RETAIL / name).read_text().splitlines()]
+    assert records
+    values = {
+        e["value"]
+        for r in records
+        for e in r["attributes"]
+        if e["key"] == "color" and isinstance(e["value"], str)
+    } | {s["color"] for r in records for s in r.get("skus", []) if isinstance(s.get("color"), str)}
+    assert values
+    assert sorted(v for v in values if "/" in v or "&" in v) == []
