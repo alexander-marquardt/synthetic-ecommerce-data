@@ -61,9 +61,9 @@ _ROWS = (
 )  # fmt: skip
 
 
-def _decoy(cls, query, policy, code, title, desc, color, allowance, dims, shell, wheels, brand, litre):
-    """A decoy is a cabin case of the dimensions it names, so it holds the capacity those give."""
-    return Decoy(cls, query, policy, _row(code, title, brand, 40.0, desc, (color,), allowance, dims, shell, wheels, litre, 2.4))
+def _decoy(cls, query, policy, code, title, desc, color, allowance, dims, shell, wheels, brand, litre, kg):
+    """A decoy is a cabin case of the dimensions it names: it holds the capacity and weighs what the row with those dimensions does."""
+    return Decoy(cls, query, policy, _row(code, title, brand, 40.0, desc, (color,), allowance, dims, shell, wheels, litre, kg))
 
 
 SPEC = TypeSpec(
@@ -76,12 +76,12 @@ SPEC = TypeSpec(
     decoys=(
         _decoy(1, "red cabin case", "color", "CBCDRD", "Cabin Case, Red Piping",
                "A blue hard shell cabin case with red piping round the zip and a red handle grip.",
-               BLUE, "Carry-On", "55 x 40 x 20 cm", "hard", "yes", TARNWICK, 38),
+               BLUE, "Carry-On", "55 x 40 x 20 cm", "hard", "yes", TARNWICK, 38, 2.5),
         _decoy(6, "weekend bag", "category", "CBCDWK", "Weekender Cabin Case",
                "A soft cabin case sized for a weekend away; it rolls on four wheels and is a trolley "
-               "case, not a duffel or a weekend bag.", NAVY, "Carry-On", "55 x 35 x 23 cm", "soft", "yes", FENMOOR, 40),
+               "case, not a duffel or a weekend bag.", NAVY, "Carry-On", "55 x 35 x 23 cm", "soft", "yes", FENMOOR, 40, 2.3),
         _decoy(4, "wheeled cabin case", "generic", "CBCDNW", "Wheel-Free Under-Seat Cabin Case",
                "A black under-seat case with a grab handle and a shoulder strap; it has no wheels.",
-               BLACK, "Under-Seat", "40 x 30 x 20 cm", "soft", "no", SKERRY, 25),
+               BLACK, "Under-Seat", "40 x 30 x 20 cm", "soft", "no", SKERRY, 25, 1.2),
     ),
 )  # fmt: skip

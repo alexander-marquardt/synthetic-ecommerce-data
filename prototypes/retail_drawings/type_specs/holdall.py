@@ -58,8 +58,8 @@ _ROWS = (
 )  # fmt: skip
 
 
-def _decoy(cls, query, policy, code, title, desc, color, material, brand):
-    return Decoy(cls, query, policy, _row(code, title, brand, 30.0, desc, (color,), "Travel", material, "no", ((40, 30.0), (55, 36.0))))
+def _decoy(cls, query, policy, code, title, desc, color, material, brand, wheels="no"):
+    return Decoy(cls, query, policy, _row(code, title, brand, 30.0, desc, (color,), "Travel", material, wheels, ((40, 30.0), (55, 36.0))))
 
 
 SPEC = TypeSpec(
@@ -74,7 +74,7 @@ SPEC = TypeSpec(
                "A black polyester holdall with red handles and a red zip pull.", BLACK, "Polyester", MARROWGATE),
         _decoy(6, "wheeled suitcase", "category", "HLDDSU", "Suitcase Style Wheeled Holdall",
                "A soft holdall that packs like a suitcase, with a telescopic handle; it has no hard "
-               "shell and is a holdall.", GREEN, "Polyester", FENMOOR),
+               "shell and is a holdall.", GREEN, "Polyester", FENMOOR, "yes"),
         _decoy(4, "leather holdall", "generic", "HLDDLK", "Leather-Look Holdall",
                "A smart holdall in polyurethane with a leather finish; there is no leather in it.",
                NAVY, "Polyurethane", PELLBROOK),
