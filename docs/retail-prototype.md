@@ -274,6 +274,11 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
+The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+holds the proof's fingerprint and its claim to the records the build makes now. A change to an
+indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
+drawing is not indexed and does not count).
+
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
 |---|---|---|---|---|---|
 | 2 | Sibling types share a head word | *mattress topper* | 1. Quilted Mattress Protector `PLT-MTPQLT`<br>2. Waterproof Mattress Protector `PLT-MTPWTP`<br>3. Deep Fill Mattress Topper Protector `PLT-MTPTOP`<br>4. Cool Touch Mattress Protector `PLT-MTPCOL`<br>5. Pocket Sprung Mattress `PLT-MTRPKT` | 1. **Memory Foam Mattress Topper `PLT-MTTMEM`**<br>2. **Hollowfibre Mattress Topper `PLT-MTTFIB`**<br>3. **Wool Mattress Topper `PLT-MTTWOL`**<br>4. Memory Foam 5cm Mattress Topper `BED-TOPMEM`<br>5. Quilted Mattress Protector `PLT-MTPQLT` | product_type = Mattress Topper x10; product_type = Mattress Protector or Mattress or Pillow Protector x0.2 |
@@ -499,9 +504,19 @@ shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list.
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
 cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. The list also holds the fibres a
 shopper types before a garment (Leather, Suede, Faux Suede, Wool, Cashmere, Crochet, Muslin, Voile,
-Brushed Cotton; gen#187's coverage review): skirts carry the first seven, and a Mens or knitwear row that
-states only a `material` ("Wool blend", "Wool Cashmere blend", "Brushed Cotton") also carries the fibre it
-names (`facet_leaves.MATERIAL_FABRICS`, exact rows, the `material` kept). Homeware keeps its own `material`
+Brushed Cotton; gen#187's coverage review): skirts carry the first seven. Any other garment with no
+`fabric` of its own also carries the fibres its `material` names (`facet_leaves.MATERIAL_FABRICS`, exact rows,
+the `material` kept: a Dress "Linen blend" is Linen, a Polo Shirt "Cotton" is Cotton, a coat "Wool Cashmere
+blend" is Wool and Cashmere) and its title names (`facet_leaves.stated_fabrics`: "Cotton Crew Neck Tee",
+"Wool Check Bomber Jacket", "Boat Neck Jersey Top"). A fibre followed by a hyphen is no claim ("Leather-Look",
+"Cashmere-Feel", "Wool-Free", "Fleece-Lined"): those titles are the text-match decoys. A brushed cotton
+flannel is Flannel and Brushed Cotton (`facet_leaves.FABRIC_ALSO`). Viscose joined the list. A new garment
+`material` that names a listed fibre is a row in the table or a reason in `MATERIAL_NOT_FABRIC`, and the
+tests fail until it is. Only a garment gets this: a bag, a belt, a watch, jewellery, a shoe and homeware
+(`facet_leaves.NON_TEXTILE_TYPES`, and every department but Clothing and Lingerie & Nightwear) keep their own
+`material` or `upper_material` ("leather", "suede", Leather, Faux Leather), so one concept has one facet and
+the fabric marker reads `fabric` alone; a retailer who wants "leather boots" or "leather sofa" to match adds
+`upper_material` and `material` as marker sources on the catalogue side. Homeware keeps its own `material`
 facet (Seagrass, Bone China, Melamine, Stainless Steel, Cast Iron). A skirt that only names a fibre in a
 trim, a lining or a belt is a text-match decoy for it (gen#294). Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
