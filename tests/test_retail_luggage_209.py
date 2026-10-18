@@ -174,3 +174,50 @@ def test_the_travel_organizers_cover_the_four_kinds_the_issue_names() -> None:
 def test_the_neck_pillows_include_memory_foam() -> None:
     fills = {a[2] for r in _spec("neck_pillow").rows for a in r.attrs if a[0] == "fill"}
     assert {"Memory Foam", "Microbead", "Inflatable"} <= fills
+
+
+def _attrs(doc: dict) -> dict[str, dict]:
+    return {e["key"]: e for e in export.standard_document(doc)["attributes"]}
+
+
+@pytest.mark.parametrize("key", ["suitcase", "cabin_case", "holdall", "weekend_bag"])
+def test_a_capacity_in_litres_carries_its_millilitres_as_the_canonical_value(key: str) -> None:
+    """The standard's LTR canonical is millilitres (``core.standard.canonical``), as a pack size's is."""
+    seen = 0
+    for doc in _spec(key).docs():
+        standard = export.standard_document(doc)
+        for holder in (standard, *standard["variants"]):  # a suitcase's litres sit on its SKUs
+            for entry in holder["attributes"]:
+                if entry["key"] == "capacity":
+                    seen += 1
+                    assert entry["unit_code"] == "LTR"
+                    assert entry["value_canonical"] == float(entry["value"]) * 1000.0, doc["product_id"]
+    assert seen
+
+
+def test_a_cabin_case_decoy_holds_the_capacity_its_dimensions_give() -> None:
+    """A decoy states its own capacity: two cabin cases of one size hold the same litres."""
+    by_dims: dict[str, set[str]] = {}
+    for doc in _spec("cabin_case").docs():
+        e = _attrs(doc)
+        by_dims.setdefault(e["dimensions"]["value"], set()).add(e["capacity"]["value"])
+    assert by_dims and all(len(litres) == 1 for litres in by_dims.values()), by_dims
+
+
+def test_a_weekend_bag_decoy_holds_the_capacity_of_the_bag_in_its_material() -> None:
+    by_code = {d["product_id"]: _attrs(d)["capacity"]["value"] for d in _spec("weekend_bag").docs()}
+    canvas, leather_look = by_code["BRD-WKBCNV"], by_code["BRD-WKBLTH"]  # the authored bags
+    assert by_code["BRD-WKBDRD"] == by_code["BRD-WKBDWB"] == canvas  # the two canvas decoys
+    assert by_code["BRD-WKBDLK"] == leather_look  # the faux leather decoy copies the leather-look bag
+
+
+@pytest.mark.parametrize("brand", ["Tarnwick", "Fenmoor & Co", "Skerry Travel"])
+def test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own(brand: str) -> None:
+    import house_styles  # noqa: PLC0415
+
+    style = house_styles.HOUSE_STYLES.get(brand)
+    assert style is not None, f"{brand} draws no logo: rendering its image raises KeyError"
+    assert style.layout != "mark_only"  # a lockup: the wordmark is the brand field
+    others = [s for b, s in house_styles.HOUSE_STYLES.items() if b != brand]
+    assert style.mark not in {s.mark for s in others}
+    assert house_styles.lockup_key(style) not in {house_styles.lockup_key(s) for s in others}
