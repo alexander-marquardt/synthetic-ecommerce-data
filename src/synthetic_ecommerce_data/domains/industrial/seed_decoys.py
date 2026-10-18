@@ -59,7 +59,68 @@ SEED_TERMS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
 }
 
 #: query -> the type keys (modules under ``product_types/decoys/``) that serve it
-SEED_DECOYS: dict[str, tuple[str, ...]] = {query: () for query in SEED_TERMS}
+SEED_DECOYS: dict[str, tuple[str, ...]] = {
+    # Fasteners
+    "hex nuts": ("nut_drivers_hex", "nut_splitters", "thread_plug_gages"),
+    "lock nuts": ("conduit_pliers", "spanner_wrenches"),
+    "m10 washers": ("sems_bolts", "serrated_flange_nuts"),
+    "stainless steel hex bolts": ("sleeve_anchors", "anti_seize_compounds"),
+    "7/16-14 hex head bolts": ("thread_chasers", "thread_restoring_files"),
+    "m12x1.75 socket cap screws": ("piloted_counterbores", "hex_bit_socket_sets"),
+    "m6x1 set screws": ("anaerobic_threadlockers", "grub_screw_keys"),
+    "1/4-20 screws": ("fastener_extractors", "thread_repair_kits"),
+    "dowel pins": ("pin_pullers", "pin_punch_sets", "fluted_dowels"),
+    "retaining rings": ("snap_ring_pliers", "grooving_cutters", "fastener_dispensers"),
+    # Motion Control, Fluid Power and Fittings
+    "ball bearings": ("bearing_greases", "bearing_pullers", "drawer_slides", "swivel_casters"),
+    "6203 bearing": ("induction_heaters", "sleeve_installation_kits"),
+    "roller chain": ("chain_breakers", "chain_lubricants", "chain_tensioners"),
+    "sprockets": ("gear_pullers", "shaft_alignment_lasers", "drive_guards"),
+    "shackles": ("replacement_pins", "rigging_pulleys", "keyed_padlocks"),
+    # Tools and Raw Materials
+    "1/2 endmill": (
+        "milling_tool_holders",
+        "milling_collets",
+        "cutter_sharpening_fixtures",
+        "cutter_storage_cases",
+    ),
+    "3/8 square endmill": ("cutter_sharpening_fixtures", "cutter_storage_cases"),
+    "2.5mm end mill": ("micro_collets", "cutter_storage_racks"),
+    "25mm end mill": ("side_lock_holders", "cutter_storage_racks"),
+    "3/8 inch drill bit": ("bit_sharpeners", "drill_stop_collars"),
+    "carbide drill bit": ("bit_index_cases", "diamond_wheels"),
+    "spiral flute tap": ("tap_extractors", "tap_wrenches", "tapping_fluids"),
+    "flap discs": ("backing_pads", "grinder_guards"),
+    "cut-off wheels": ("wheel_mandrels", "pneumatic_cut_off_tools"),
+    "hammers": ("handle_wedges", "tool_holsters", "sds_drill_bits"),
+    "screwdrivers": ("bench_tool_racks", "driver_bit_sets", "magnetic_bit_holders"),
+    "hex keys": ("wrench_organizers", "bit_socket_sets", "grub_screw_keys"),
+    "bar stock": ("band_saw_blades", "cantilever_racks"),
+    # Item nouns
+    "o-rings": (
+        "seal_pick_sets",
+        "silicone_greases",
+        "orb_hydraulic_fittings",
+        "cord_splicing_kits",
+        "quick_disconnect_couplings",
+    ),
+    "screws": ("fastener_extractors", "nylon_wall_anchors", "thread_repair_kits"),
+    "bolts": (
+        "compound_cutters",
+        "sleeve_anchors",
+        "anti_seize_compounds",
+        "thread_chasers",
+        "thread_restoring_files",
+    ),
+    "washers": ("sems_bolts", "serrated_flange_nuts", "circle_cutters"),
+    "nuts": (
+        "nut_drivers_hex",
+        "nut_splitters",
+        "thread_plug_gages",
+        "conduit_pliers",
+        "spanner_wrenches",
+    ),
+}
 
 #: section -> its queries, the four tables of the issue
 SECTIONS: dict[str, tuple[str, ...]] = {
