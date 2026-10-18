@@ -25,6 +25,9 @@ wall_light      a wall light on its back plate                       kind (sconc
 lampshade       a shade alone, to scale against a fixed fitting      form (drum, empire,
                                                                      tapered, scalloped,
                                                                      pleated), diameter_cm
+light_bulb      an LED bulb lit in its color temperature             form (gls, candle, spot),
+                                                                     fitting (E27, E14, B22,
+                                                                     GU10), kelvin
 ==============  ===================================================  =========================
 
 A table lamp is :func:`kit_home.table_lamp`, whose ``style`` and ``shade_color`` params this
@@ -446,9 +449,82 @@ def lampshade(paint: str, fill: Fill, label: str | None, form: str = "drum", dia
     return out
 
 
+# --------------------------------------------------------------------------
+# Light bulbs (gen#498)
+# --------------------------------------------------------------------------
+
+#: A bulb's light by color temperature in kelvin: amber at 2700K to a pale blue-white at 6500K.
+KELVIN_LIGHT = {2700: "#ffcf8a", 3000: "#ffdfa8", 4000: "#fff1d2", 6500: "#dcebff"}
+#: A bulb's fitting -> (how its cap is made, the cap's width).
+CAPS = {"E27": ("screw", 46), "E14": ("screw", 32), "B22": ("bayonet", 46), "GU10": ("pins", 0)}
+#: The glass of each form, as a closed path from the top of the sheet's bulb to its neck.
+_ENVELOPES = {
+    "gls": "M200,58 C128,58 108,132 138,190 C156,224 164,236 164,262 L236,262 C236,236 244,224 262,190 C292,132 272,58 200,58 Z",
+    "candle": "M200,48 C216,88 248,118 248,170 C248,214 234,250 234,262 L166,262 C166,250 152,214 152,170 C152,118 184,88 200,48 Z",
+}  # fmt: skip
+
+
+def kelvin_light(kelvin: str) -> str:
+    """The color a bulb of ``kelvin`` K glows; an unknown temperature is a refused drawing."""
+    try:
+        return KELVIN_LIGHT[int(kelvin)]
+    except (KeyError, ValueError):
+        raise ValueError(f"unknown color temperature {kelvin!r}; one of {sorted(KELVIN_LIGHT)}") from None
+
+
+def _cap(fitting: str, paint: str) -> list[str]:
+    """The metal cap under a bulb's glass: a screw thread, a bayonet with two lugs, or two pins."""
+    try:
+        kind, w = CAPS[fitting.upper()]
+    except KeyError:
+        raise ValueError(f"unknown bulb fitting {fitting!r}; one of {sorted(CAPS)}") from None
+    metal = "#c3c7cc"
+    if kind == "pins":
+        out = [_path("M168,262 L232,262 L232,296 L168,296 Z", metal)]
+        out += [_path(f"M{x - 5},296 L{x + 5},296 L{x + 5},326 L{x - 5},326 Z", "#9aa0a6") for x in (182, 218)]
+        out.append(f'<circle cx="200" cy="262" r="2.5" fill="{INK}"/>')
+        return out
+    top, h = 262, 64
+    out = [_path(f"M{200 - w / 2:g},{top} L{200 + w / 2:g},{top} L{200 + w / 2:g},{top + h} L{200 - w / 2:g},{top + h} Z", metal)]
+    if kind == "screw":
+        out += [_line(f"M{200 - w / 2:g},{top + y} L{200 + w / 2:g},{top + y + 5}", 1.8) for y in (12, 24, 36, 48)]
+        out.append(_path(f"M{200 - 9},{top + h} L{200 + 9},{top + h} L{200 + 6},{top + h + 9} L{200 - 6},{top + h + 9} Z", "#9aa0a6"))
+    else:
+        out += [_path(f"M{x0},{top + 38} L{x1},{top + 38} L{x1},{top + 48} L{x0},{top + 48} Z", "#9aa0a6") for x0, x1 in ((200 - w / 2 - 8, 200 - w / 2), (200 + w / 2, 200 + w / 2 + 8))]
+        out.append(_line(f"M{200 - w / 2:g},{top + 12} L{200 + w / 2:g},{top + 12}", 1.8))
+        out.append(_path(f"M{200 - 9},{top + h} L{200 + 9},{top + h} L{200 + 6},{top + h + 9} L{200 - 6},{top + h + 9} Z", "#9aa0a6"))
+    return out
+
+
+def light_bulb(paint: str, fill: Fill, label: str | None, form: str = "gls", fitting: str = "E27", kelvin: str = "3000") -> list[str]:
+    """An LED bulb: the glass in the fill, lit in the color of its ``kelvin`` K, on the cap of its
+    ``fitting``. ``form`` is the glass (``gls`` pear, ``candle`` flame tip, ``spot`` reflector)."""
+    form = form.lower()
+    light = kelvin_light(kelvin)
+    out: list[str] = []
+    if form == "spot":
+        out.append(f'<ellipse cx="200" cy="150" rx="118" ry="104" fill="{light}" fill-opacity=".45"/>')
+        out.append(_path("M118,150 L282,150 L236,262 L164,262 Z", paint))
+        out.append(f'<ellipse cx="200" cy="150" rx="82" ry="20" fill="{light}" stroke="{INK}" stroke-width="{LW}"/>')
+        out.append('<ellipse cx="200" cy="150" rx="34" ry="8" fill="#ffffff" fill-opacity=".7"/>')
+        out += _cap(fitting, paint)
+    else:
+        try:
+            glass = _ENVELOPES[form]
+        except KeyError:
+            raise ValueError(f"unknown bulb form {form!r}; one of {sorted([*_ENVELOPES, 'spot'])}") from None
+        out.append(f'<ellipse cx="200" cy="150" rx="118" ry="112" fill="{light}" fill-opacity=".45"/>')
+        out.append(_path(glass, paint))
+        out.append(_path(glass, light, 1.0, ' fill-opacity=".7"'))
+        out.append(_line("M170,92 Q150,128 160,168", 5, ' stroke-opacity=".6"', "#ffffff"))
+        out += _cap(fitting, paint)
+    out.append(_word(f"{kelvin}K", 200, 368, 120, 22))
+    return out
+
+
 register(
     {"floor_lamp": floor_lamp, "desk_lamp": desk_lamp, "ceiling_light": ceiling_light,
-     "wall_light": wall_light, "lampshade": lampshade},
+     "wall_light": wall_light, "lampshade": lampshade, "light_bulb": light_bulb},
 )  # fmt: skip
 
 

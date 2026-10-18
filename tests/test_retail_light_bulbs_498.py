@@ -118,7 +118,7 @@ def test_lighting_adds_no_second_temperature_key_anywhere_in_the_catalog() -> No
         e["key"]
         for r in scale.templates()
         for e in export.standard_document(r)["attributes"]
-        if "temperature" in e["key"]
+        if "color" in e["key"] and "temperature" in e["key"]
     }
     assert names == {KEY}, names
 

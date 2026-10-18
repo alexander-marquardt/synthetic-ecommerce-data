@@ -107,6 +107,8 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "KGM": Fraction(1000),
     # Retail lighting (gen#232): a light's color temperature, in kelvin.
     "KEL": Fraction(1),
+    # Retail light bulbs (gen#498): a bulb's power and the incandescent power it replaces, in watts.
+    "WTT": Fraction(1),
 }
 
 #: Units that count something PER a size, so ``value_canonical = size / magnitude``.
