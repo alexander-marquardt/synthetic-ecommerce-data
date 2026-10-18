@@ -228,11 +228,11 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         ),
         Comparison(
             "angle attribute carries a length unit",
-            config.defect_angle_carries_length_unit,
+            0.0,
             _rate(angle_defect, angle_eligible),
             angle_defect,
             angle_eligible,
-            "over records carrying an angle",
+            "deliberate: the corpus measures 0.0469",
         ),
         Comparison(
             "declared system contradicts value units",

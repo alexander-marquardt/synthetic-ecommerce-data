@@ -10,20 +10,39 @@ on:
   push:
     branches: ["main"]
   pull_request:
+  # scripts/merge_pr.sh --github-ci (#348) pushes the tree a merge would make to
+  # a throwaway branch ci/merge-<N> and runs this workflow on it, naming the
+  # base and head the pull request's jobs read from the pull_request event.
   workflow_dispatch:
+    inputs:
+      base:
+        description: "Base commit of the checked range (the PR jobs read it from the event on a PR)"
+        required: false
+        default: ""
+      head:
+        description: "Head commit of the checked range"
+        required: false
+        default: ""
+      pr:
+        description: "Pull request number whose title and body the PR jobs read"
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
+# A new push to a pull request supersedes its running checks; main's and a
+# dispatched run are never cancelled.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  tests:
+  lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
-          # fetch from a shallow checkout would make that origin shallow too.
-          fetch-depth: 0
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -36,11 +55,59 @@ jobs:
       # is refused, not silently re-locked for this run only.
       - name: Lint
         run: uv run --locked ruff check .
+
+  tests:
+    # The suite is about 27 minutes of work on one core, and merges are serial
+    # (#348), so it runs as SHARDS on GitHub-hosted runners: the matrix below is
+    # the shard count, scripts/ci_shards.py deals the test files out (every file
+    # in exactly one shard: tests/test_ci_shards_348.py), and each shard runs
+    # its files on every core of its runner. Raising the count is one edit here
+    # (and the weights, docs/ci-sharding.md); the check that waits for "tests"
+    # reads every `tests (N)` job.
+    name: tests (${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    env:
+      # -n always: one worker is the serial suite this job exists to avoid. The
+      # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
+      # (The `runner` context is not available in a job-level `env`: the junit path
+      # is added to PYTEST_ADDOPTS in the Tests step's own env.)
+      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
+          # fetch from a shallow checkout would make that origin shallow too.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       # The golden comparison lives in here: tests/test_catalog_golden.py
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
       - name: Tests
-        run: uv run --locked pytest
+        env:
+          # tests/ci_shard_split.py deals a split file's tests (scripts/ci_shards.py
+          # SPLIT_FILES: tests/test_merge_pr.py) out by these two.
+          CI_SHARD: ${{ matrix.shard }}
+          CI_SHARDS: ${{ strategy.job-total }}
+          # The junit path: `runner` is available in a step's env, not in the job's.
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
+        run: |
+          mapfile -t files < <(python3 scripts/ci_shards.py --shard ${{ matrix.shard }} --of ${{ strategy.job-total }})
+          [ "${#files[@]}" -gt 0 ]
+          uv run --locked pytest "${files[@]}"
+      # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-${{ matrix.shard }}
+          path: ${{ runner.temp }}/junit-${{ matrix.shard }}.xml
+          if-no-files-found: ignore
 
   main-merged-tree:
     # This repository has no branch protection (the plan answers 403), so a
@@ -53,6 +120,8 @@ jobs:
     # whole suite.
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      PYTEST_ADDOPTS: "-n auto --dist loadgroup"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -69,7 +138,7 @@ jobs:
     # ``pre-commit install`` cannot skip it: every commit a pull request adds
     # is checked with scripts/check_commit_msg.py (the vendored core
     # AI-attribution family plus this repository's additions).
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -81,19 +150,21 @@ jobs:
       - name: No AI or bot attribution in the PR's commit messages
         run: >-
           python3 scripts/check_commit_msg.py
-          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
 
   file-size:
     # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
     # file over the cap in scripts/file_size_cap.txt may not grow unless the
     # PR body carries ``File-Size-Exception: `<path>` - <reason>``. The body
     # is read only when something grew: the first run passes, or exits 4 for
-    # a growth a body line could clear. merge_pr.sh --local-ci runs this job
-    # with the base set to current main and gh signed in, so the body is the
-    # PR's as it is at merge time. On GitHub the body is not readable here
-    # (the local runner takes no token expression), so a declared growth is
-    # judged by --local-ci.
-    if: github.event_name == 'pull_request'
+    # a growth a body line could clear. The body is the PR's as it is now: on a
+    # pull_request run the PR is named by its head branch, on a dispatched run
+    # (merge_pr.sh --github-ci) by the number in the `pr` input, and
+    # merge_pr.sh --local-ci runs this job with gh signed in.
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -104,13 +175,16 @@ jobs:
         with:
           python-version: "3.12"
       - name: No file over the size cap grew without its File-Size-Exception line
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_REF: ${{ inputs.pr }}
         run: |
-          base="${{ github.event.pull_request.base.sha }}"
+          base="${{ github.event.pull_request.base.sha || inputs.base }}"
           status=0
           python3 scripts/file_size_gate.py --base "$base" --no-body-is-advisory || status=$?
           [ "$status" -eq 4 ] || exit "$status"
           body="$(mktemp)"
-          gh pr view "${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}" \
+          gh pr view "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}" \
             --json body --jq .body > "$body"
           python3 scripts/file_size_gate.py --base "$base" --pr-body-file "$body"
 
@@ -122,7 +196,7 @@ jobs:
     # instead of asserting, or matches no test. A commit with no trailer, or
     # ``Red-Test: none - <reason>``, runs nothing, so a PR without a declared
     # red commit costs this job a few seconds. docs/red-commit-and-mutants.md.
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -134,7 +208,7 @@ jobs:
       - name: Every declared red commit is red on an assertion
         run: >-
           uv run --locked python scripts/red_commit_proof.py
-          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
 
   customer-name-check:
     # NO CUSTOMER NAME COMES BACK (#393, the generator half of
@@ -150,7 +224,7 @@ jobs:
     # run (scripts/merge_pr.sh --local-ci) takes only the base and head shas
     # from the event. GH_TOKEN is the job's own read-only token here; the
     # local run exports it empty, so the signed-in gh answers.
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
     permissions:
       contents: read
       pull-requests: read
@@ -165,10 +239,11 @@ jobs:
       - name: No customer name in the tree, the commit messages or the PR title and body
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_REF: ${{ inputs.pr }}
         run: >-
           python3 scripts/check_customer_names.py
-          --range "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
-          --pr "${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}"
+          --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
+          --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"
 
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle
