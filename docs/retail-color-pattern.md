@@ -12,8 +12,13 @@ documents split them:
 | Light Wash, Mid Wash, Bleach Wash, Rinse | Blue (denim) | the wash |
 | Grey Wash | Grey | Grey Wash |
 | Washed Black | Black | Washed |
-| Mid Wash / Yellow | Blue / Yellow | Mid Wash |
+| Mid Wash and Yellow | Blue and Yellow | Mid Wash |
 | Navy, Dark Red, 2N | unchanged | none |
+
+A product of two colours carries ONE `color` value written in words, `Blue and White`, never
+`Blue / White` and never a list of both colours (a list would put a mostly blue product into a
+White filter) (gen#514). `tests/test_retail_two_colour_514.py` holds it: no `color` value has a
+`/` or `&`, and a two-colour value reads `<A> and <B>` in title case.
 
 `colorwords.split` is the one splitter; `export._color_entries` writes the two entries. The
 `pattern` entry sits on the variant (beside its `color`) and, deduplicated, on the product, where
