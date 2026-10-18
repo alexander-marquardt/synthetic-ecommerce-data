@@ -99,4 +99,4 @@ def test_aftershave_and_body_mist_offer_the_common_small_size_too() -> None:
     """Beauty depth (gen#214): aftershave is sold from 30 ml and a body mist from 50 ml."""
     held = per_type()
     assert 30.0 in held[("Beauty", "Fragrance", "Aftershave")]
-    assert 50.0 in held[("Beauty", "Fragrance", "Body Mists")]
+    assert 50.0 in held[("Beauty", "Fragrance", "Body mists")]

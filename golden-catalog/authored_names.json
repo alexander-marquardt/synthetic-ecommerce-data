@@ -1,0 +1,484 @@
+{
+ "abrasive_flap_disc": {
+  "Abrasive material": "Abrasive Material",
+  "Arbor hole": "Arbor Hole",
+  "Backing material": "Backing Material",
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Mounting type": "Mounting Type",
+  "System of measurement": "System of Measurement"
+ },
+ "bearing_radial_ball": {
+  "ABEC rating": "ABEC Rating",
+  "Bearing number": "Bearing Number",
+  "Bore dia.": "Bore Dia.",
+  "Cage material": "Cage Material",
+  "Closure type": "Closure Type",
+  "Dimension type": "Dimension Type",
+  "Dynamic load capacity": "Dynamic Load Capacity",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Row type": "Row Type",
+  "Static load capacity": "Static Load Capacity",
+  "System of measurement": "System of Measurement"
+ },
+ "blind_rivets": {
+  "Head type": "Head Type"
+ },
+ "bolt_hex": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Length under head": "Length under Head",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
+ },
+ "bronze_sleeve_bushings": {
+  "Bore dia.": "Bore Dia."
+ },
+ "cap_nuts_acorn": {
+  "Thread size": "Thread Size"
+ },
+ "carriage_bolts": {
+  "Thread size": "Thread Size"
+ },
+ "compression_springs": {
+  "Outside dia.": "Outside Dia."
+ },
+ "cotter_pins": {
+  "Dimension type": "Dimension Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "Pin dia.": "Pin Dia.",
+  "System of measurement": "System of Measurement"
+ },
+ "coupling_nuts": {
+  "Thread size": "Thread Size"
+ },
+ "dowel_pins": {
+  "Dia. tolerance": "Dia. Tolerance",
+  "Dimension type": "Dimension Type",
+  "Dowel dia. (in)": "Dowel Dia. (in)",
+  "Dowel dia. (mm)": "Dowel Dia. (mm)",
+  "Measurement system": "Measurement System",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement"
+ },
+ "drill_jobber": {
+  "Cutting direction": "Cutting Direction",
+  "Decimal equivalent": "Decimal Equivalent",
+  "Dimension type": "Dimension Type",
+  "Flute length": "Flute Length",
+  "List number": "List Number",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "Point angle": "Point Angle",
+  "Point type": "Point Type",
+  "Shank dia.": "Shank Dia.",
+  "Shank type": "Shank Type",
+  "System of measurement": "System of Measurement"
+ },
+ "end_mill_ball": {
+  "Coolant fed": "Coolant Fed",
+  "Corner radius": "Corner Radius",
+  "Cutting direction": "Cutting Direction",
+  "Cutting type": "Cutting Type",
+  "Dimension type": "Dimension Type",
+  "End mill application": "End Mill Application",
+  "End mill style": "End Mill Style",
+  "Helix angle": "Helix Angle",
+  "Length of cut": "Length of Cut",
+  "List number": "List Number",
+  "Material grade - machining": "Material Grade - Machining",
+  "Measurement system": "Measurement System",
+  "Milling dia.": "Milling Dia.",
+  "Neck length": "Neck Length",
+  "Number of flutes": "Number of Flutes",
+  "Overall length": "Overall Length",
+  "Shank dia.": "Shank Dia.",
+  "Single end/double end": "Single End/Double End",
+  "System of measurement": "System of Measurement"
+ },
+ "end_mill_square": {
+  "Coolant fed": "Coolant Fed",
+  "Corner radius": "Corner Radius",
+  "Cutting direction": "Cutting Direction",
+  "Cutting type": "Cutting Type",
+  "Dimension type": "Dimension Type",
+  "End mill application": "End Mill Application",
+  "End mill style": "End Mill Style",
+  "Helix angle": "Helix Angle",
+  "Length of cut": "Length of Cut",
+  "List number": "List Number",
+  "Material grade - machining": "Material Grade - Machining",
+  "Measurement system": "Measurement System",
+  "Milling dia.": "Milling Dia.",
+  "Neck length": "Neck Length",
+  "Number of flutes": "Number of Flutes",
+  "Overall length": "Overall Length",
+  "Shank dia.": "Shank Dia.",
+  "Single end/double end": "Single End/Double End",
+  "System of measurement": "System of Measurement"
+ },
+ "eye_bolts": {
+  "Thread size": "Thread Size"
+ },
+ "flange_nuts": {
+  "Thread size": "Thread Size"
+ },
+ "foam_ear_plugs": {
+  "Package quantity": "Package Quantity"
+ },
+ "hammer_ball_pein": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hammer_claw": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hammer_club": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hammer_dead_blow": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hammer_framing": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hammer_rubber_mallet": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length"
+ },
+ "hammer_sledge": {
+  "Dimension type": "Dimension Type",
+  "Face dia.": "Face Dia.",
+  "Face type": "Face Type",
+  "Handle grip material": "Handle Grip Material",
+  "Handle length": "Handle Length",
+  "Handle material": "Handle Material",
+  "Head weight": "Head Weight",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "System of measurement": "System of Measurement"
+ },
+ "hex_key": {
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Overall length": "Overall Length",
+  "Overall width": "Overall Width",
+  "System of measurement": "System of Measurement",
+  "Tip style": "Tip Style"
+ },
+ "key_stock": {
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "System of measurement": "System of Measurement"
+ },
+ "kit_assortment": {
+  "Container type": "Container Type",
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Number of pieces": "Number of Pieces",
+  "Sizes included": "Sizes Included",
+  "System of measurement": "System of Measurement",
+  "Tip style": "Tip Style"
+ },
+ "lock_nuts_nylon_insert": {
+  "Dimension type": "Dimension Type",
+  "Insert material": "Insert Material",
+  "Lock type": "Lock Type",
+  "Measurement system": "Measurement System",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
+ },
+ "nut_hex": {
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
+ },
+ "o_rings": {
+  "Dash number": "Dash Number",
+  "Dimension type": "Dimension Type",
+  "Inside dia.": "Inside Dia.",
+  "Inside dia. tolerance": "Inside Dia. Tolerance",
+  "Measurement system": "Measurement System",
+  "System of measurement": "System of Measurement",
+  "Width tolerance": "Width Tolerance"
+ },
+ "pillow_block_bearings": {
+  "Base to center height": "Base to Center Height",
+  "Bolt hole center-to-center": "Bolt Hole Center-to-Center",
+  "Bore dia.": "Bore Dia.",
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Overall height": "Overall Height",
+  "Overall length": "Overall Length",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement"
+ },
+ "retaining_rings_external": {
+  "Dimension type": "Dimension Type",
+  "For shaft diameter": "For Shaft Diameter",
+  "Groove diameter": "Groove Diameter",
+  "Groove width": "Groove Width",
+  "Inside dia.": "Inside Dia.",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement"
+ },
+ "rigid_shaft_couplings": {
+  "Bore dia.": "Bore Dia."
+ },
+ "roller_chain": {
+  "ANSI number": "ANSI Number",
+  "Dimension type": "Dimension Type",
+  "Inside width": "Inside Width",
+  "Measurement system": "Measurement System",
+  "Roller dia.": "Roller Dia.",
+  "System of measurement": "System of Measurement"
+ },
+ "roller_chain_links": {
+  "ANSI number": "ANSI Number",
+  "Dimension type": "Dimension Type",
+  "Inside width": "Inside Width",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement"
+ },
+ "roller_chain_sprockets": {
+  "ANSI number": "ANSI Number",
+  "Bore dia.": "Bore Dia.",
+  "Dimension type": "Dimension Type",
+  "Hub diameter": "Hub Diameter",
+  "Length through bore": "Length Through Bore",
+  "Measurement system": "Measurement System",
+  "Number of teeth": "Number of Teeth",
+  "Outside dia.": "Outside Dia.",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement"
+ },
+ "screw_button_head": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Drive size": "Drive Size",
+  "Drive type": "Drive Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Length under head": "Length under Head",
+  "Measurement system": "Measurement System",
+  "Meets/exceeds": "Meets/Exceeds",
+  "Package quantity": "Package Quantity",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type"
+ },
+ "screw_flat_head": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Drive size": "Drive Size",
+  "Drive type": "Drive Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Meets/exceeds": "Meets/Exceeds",
+  "Package quantity": "Package Quantity",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type"
+ },
+ "screw_low_head": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Drive size": "Drive Size",
+  "Drive type": "Drive Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Length under head": "Length under Head",
+  "Measurement system": "Measurement System",
+  "Meets/exceeds": "Meets/Exceeds",
+  "Package quantity": "Package Quantity",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type"
+ },
+ "screw_socket_head": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Drive size": "Drive Size",
+  "Drive type": "Drive Type",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Length under head": "Length under Head",
+  "Measurement system": "Measurement System",
+  "Meets/exceeds": "Meets/Exceeds",
+  "Package quantity": "Package Quantity",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type"
+ },
+ "set_screws_hex_socket": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Dimension type": "Dimension Type",
+  "Drive size": "Drive Size",
+  "Drive type": "Drive Type",
+  "Measurement system": "Measurement System",
+  "Meets/exceeds": "Meets/Exceeds",
+  "Point dia.": "Point Dia.",
+  "Point type": "Point Type",
+  "Rockwell hardness": "Rockwell Hardness",
+  "System of measurement": "System of Measurement",
+  "Thread direction": "Thread Direction",
+  "Thread type": "Thread Type"
+ },
+ "shackles": {
+  "Dimension type": "Dimension Type",
+  "Inside length": "Inside Length",
+  "Inside width": "Inside Width",
+  "Load capacity": "Load Capacity",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement"
+ },
+ "shaft_collars": {
+  "Bore dia.": "Bore Dia."
+ },
+ "studs_double_end": {
+  "Thread size": "Thread Size"
+ },
+ "t_slot_nuts": {
+  "Thread size": "Thread Size"
+ },
+ "tap_spiral_point": {
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Number of flutes": "Number of Flutes",
+  "Overall length": "Overall Length",
+  "Shank dia.": "Shank Dia.",
+  "System of measurement": "System of Measurement",
+  "Tap chamfer": "Tap Chamfer",
+  "Tap style": "Tap Style",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread pitch": "Thread Pitch",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Threads per inch": "Threads per Inch"
+ },
+ "threaded_rod": {
+  "Thread size": "Thread Size"
+ },
+ "timing_pulleys": {
+  "Bore dia.": "Bore Dia."
+ },
+ "turnbuckles": {
+  "Closed length": "Closed Length",
+  "Dimension type": "Dimension Type",
+  "End style": "End Style",
+  "Load capacity": "Load Capacity",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement",
+  "Take up": "Take Up",
+  "Thread dia.": "Thread Dia."
+ },
+ "washer_flat": {
+  "Dimension type": "Dimension Type",
+  "Inside dia.": "Inside Dia.",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "System of measurement": "System of Measurement"
+ },
+ "wheel_depressed_center": {
+  "Abrasive material": "Abrasive Material",
+  "Arbor hole": "Arbor Hole",
+  "Bond type": "Bond Type",
+  "Connector type": "Connector Type",
+  "Dimension type": "Dimension Type",
+  "Measurement system": "Measurement System",
+  "Package quantity": "Package Quantity",
+  "System of measurement": "System of Measurement",
+  "Wheel dia.": "Wheel Dia."
+ },
+ "zerk_grease_fittings": {
+  "Thread size": "Thread Size"
+ }
+}

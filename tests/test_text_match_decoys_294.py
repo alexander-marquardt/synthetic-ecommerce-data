@@ -35,7 +35,7 @@ import scale  # noqa: E402
 
 BASE_PEANUT = "peanuts"
 FIELDS = ("ingredient_base", "contains", "may_contain")
-CHOCOLATE_LEAVES = ("Chocolate Bars", "Chocolate Boxes")
+CHOCOLATE_LEAVES = ("Chocolate bars", "Chocolate boxes")  # published leaves (sentence case)
 
 
 @cache
