@@ -248,6 +248,16 @@ class AttributeStats:
     #: evidence floor :data:`RANGE_MIN_DOCS` counts, because both rules ask
     #: whether values repeat ACROSS products.
     products: int
+    #: Distinct magnitudes, and distinct ``(product_id, magnitude)`` pairs (gen#77).
+    #: Left unset, each is the spelling count it stands in for.
+    magnitudes: int | None = None
+    product_magnitudes: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.magnitudes is None:
+            object.__setattr__(self, "magnitudes", self.cardinality)
+        if self.product_magnitudes is None:
+            object.__setattr__(self, "product_magnitudes", self.product_values)
 
     @property
     def numeric_share(self) -> float:
