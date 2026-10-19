@@ -121,6 +121,14 @@ def test_ink_zero_and_ink_three_are_the_confusable_pair_the_table_uses():
     assert dist.ink_delta_e(brands.INKS[0], brands.INKS[1]) >= dist.MIN_INK_DELTA_E
 
 
+def test_style_of_carries_a_brands_levers_to_the_rule(monkeypatch):
+    brand = brands.BRANDS[0]
+    row = dataclasses.replace(brands.BY_NAME[brand], outline=1, dash=2, margin=1, texture=2)
+    monkeypatch.setitem(brands.BY_NAME, brand, row)
+    style = dist.style_of(brand)
+    assert (style.outline, style.dash, style.margin, style.texture) == (1, 2, 1, 2)
+
+
 def test_every_pair_of_brands_in_the_book_is_visibly_different():
     """The way the (ink, paper, frame) uniqueness was tested: every pair of the book."""
     styles = {name: dist.style_of(name) for name in brands.BRANDS}
