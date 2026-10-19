@@ -570,16 +570,16 @@ def test_the_drill_is_a_declared_spec_of_registered_primitives():
 
 
 PINNED = {
-    "end_mill_square": "74:fe6a930bcf46f329ece8f17d03db1c7e8bd9560218b64bf8dfa3e725c00f012e",
-    "end_mill_ball": "43:57f5c54c3b019167fd9b205688ade936d63d63a499384d7fa80400b0e411171f",
-    "drill_jobber": "36:fcf6ef541d7c6fcac6d146a9226c8ff064d2b03870771ef1f2268c9e2c9cd1ea",
-    "tap_spiral_point": "30:d78502c9a0cb1bd6c3768bb85efff3beb02f17dddc04a6a6398d64f0945bc567",
-    "screw_flat_head": "22:32bc18a5f1811decb65f527dfab122b0140e7254f24e23e1bd28b657db4c1ec2",
-    "screw_button_head": "20:781d74bc233854d81a912a677d0009a3f10d9cb8a2684f28d269bee5a23ddccb",
-    "screw_low_head": "17:14da81ff2867bc0db10d85b95c94f8f5787e69a824ba5c7c0bef9d662e05ee69",
-    "bolt_hex": "31:45edd12e1b1294a04aa30b3bb8cf9ac0946b2fb66a706232cc73415144baaaa3",
-    "washer_flat": "24:4acbbebb7afa54e74931a55b909377ad5dd9fca4b51cc12de7d51a9174f7fdb8",
-    "nut_hex": "64:e7f7d4033db47a0261c8cf9047acf10d08fce9162afddfe009f6f7aa3781c4a2",
+    "end_mill_square": "75:19666fdf434d89778780a972c52d170bc15085e624ab62d7eb07446fcdeb305c",
+    "end_mill_ball": "44:41777bba8f09eb4a2dff814eb92026118cce904e885a5fb93fe9834f7cd60cfe",
+    "drill_jobber": "37:314a201c0d810636d30d6d4e2ce313f227981de767fbd49a352869990f5c4249",
+    "tap_spiral_point": "31:a573394f5f232dd76c86ec12176ecf893dcc4bf822ac060fd1578425d57a8b84",
+    "screw_flat_head": "23:29052f7315ee8fe1f2d51f79658741b56de5351eed692aeff14f42ab08f51285",
+    "screw_button_head": "21:993c2b30ce7bb290a3db9e1c8bb3b311b5eb417f0554df0b61c2e99bf696936a",
+    "screw_low_head": "18:19a56605e9d5d9b25ea5335d246c9820908520e15c050012c63f9f3b49387aaf",
+    "bolt_hex": "32:4b864dcd6c2b82f8bb044b74914cecc00827fb5d6b309a3b96ba5bfccf716bb9",
+    "washer_flat": "25:591f3ece432799789834037f99a33a566f18696896c84025381d6ee6e8ea2649",
+    "nut_hex": "65:c5fcf14fd19e4b2fec365984ff6795812217a6a4f94e09a2d51460ce419c56ce",
 }
 
 

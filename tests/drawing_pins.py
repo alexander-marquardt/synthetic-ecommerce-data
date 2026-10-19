@@ -2,10 +2,11 @@
 
 A figure that moves onto the shared primitives must draw the same SVG for the
 same record. ``pin_digests()`` draws, for each type below, every SKU of the
-small catalog plus four variants of the first SKU's record: its lengths set
-past the type's extent (a broken screw), the optional attributes removed
-(a partial read), every inch value unreadable, and an empty record. A record
-the figure refuses is pinned as the refusal's class name. It returns one
+small catalog plus five variants of the first SKU's record: its length set
+past the type's extent (a broken screw), the same with the thread run the whole
+length, the optional attributes removed (a partial read), every inch value
+unreadable, and an empty record. A record the figure refuses is pinned as the
+refusal's class name. It returns one
 sha256 per type over all of those drawings' bytes.
 
 The pinned values in ``tests/test_drawing_primitives_74.py`` were taken from
@@ -56,8 +57,12 @@ OPTIONAL = (
 
 def variants(record: dict[str, str]) -> list[dict[str, str]]:
     long = {k: ('14-5/8"' if k == "Length" else v) for k, v in record.items()}
+    threaded = {
+        k: ('14-5/8"' if k in ("Length", "Thread Length") else v) for k, v in record.items()
+    }
     return [
         long,
+        threaded,
         {k: v for k, v in record.items() if k not in OPTIONAL},
         {k: ("n/a" if v.endswith('"') else v) for k, v in record.items()},
         {},
