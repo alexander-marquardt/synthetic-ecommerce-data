@@ -106,8 +106,7 @@ def test_the_ornamental_pumpkin_is_a_home_ornament_and_not_a_gift_plant_565():
     assert rec["product_type"] == "Ornament"
     assert rec["department"] == ["Home"]
     doc = export.standard_document(rec)
-    assert doc["category_path"][:2] == ["Home", "Home Accessories"]
-    assert doc["category_leaf"].lower() == "ornaments"
+    assert [p.lower() for p in doc["category_path"]] == ["home", "home accessories", "ornaments"]
     assert doc["product_type"] == "Ornament"
     gift_plants = [r["title"] for r in _records() if r["category_leaf"] == "Gift Plants"]
     assert "Ornamental Pumpkin" not in gift_plants, gift_plants

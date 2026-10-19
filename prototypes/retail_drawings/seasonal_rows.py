@@ -28,6 +28,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from breadth_rows import Row
+from decor_rows import ORNAMENTS
 from toys_rows import RANGES
 from variants import cw
 
@@ -122,7 +123,6 @@ _MAKEUP_SET = ("Beauty", "Gift Sets", "Make-Up Gift Sets")
 _CAKES = ("Food & Drink", "Bakery", "Cakes")
 _SWEETS = ("Food & Drink", "Chocolate & Sweets", "Sweets")
 _BOXES = ("Food & Drink", "Chocolate & Sweets", "Chocolate Boxes")
-_PLANT = ("Garden", "Plants", "Gift Plants")
 _PJ_K = ("Kids", "Nightwear", "Pyjamas")
 _SOFT = ("Toys", "Soft Toys", "Cuddly Animals")
 _C, _L, _H = "Clothing", "Lingerie & Nightwear", "Gifts"
@@ -189,7 +189,7 @@ SEASONS = (
     SRow("SEAXMC", "Iced Christmas Cake", "Hearth & Table", _FOOD, _CAKES, "Cake", 9.0, "cake",
          "A rich fruit cake under marzipan and white icing, ready for Christmas.",
          (WHITE,), collections=(XMAS,), colorless=True, label="Cake"),
-    SRow("SEAPMP", "Ornamental Pumpkin", "Thistle & Wren", "Garden", _PLANT, "Plant", 7.0, "pumpkin",
+    SRow("SEAPMP", "Ornamental Pumpkin", "Thistle & Wren", "Home", ORNAMENTS, "Ornament", 7.0, "pumpkin",
          "A small ornamental pumpkin, for a porch or a table.",
          (ORANGE,), collections=(HALLOWEEN, AUTUMN), colorless=True),
     SRow("SEAHBG", "Trick or Treat Bucket Bag", "Lanternby", _H, _GIFTBAG, "Gift Bag", 5.0, "gift_bag",
