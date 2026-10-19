@@ -299,7 +299,7 @@ if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider "${par
   --junitxml="$checks_log" "${CHECKS[@]}"; then
   die "#$pr is red on the merged tree; NOT pushed, NOT merged"
 fi
-# The report's counts, not the summary line, which the -q in addopts drops.
+# The report's counts, not the summary line: they are exact and need no output parsing.
 count() { sed -nE "s/.*<testsuite[^>]*[[:space:]]$1=\"([0-9]+)\".*/\1/p" "$checks_log" | head -1; }
 passed=$(($(count tests) - $(count skipped) - $(count failures) - $(count errors)))
 [ "$passed" -gt 0 ] ||

@@ -778,7 +778,12 @@ of elastic/prism#9935:
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
-  exactly and rounded to a float once.
+  exactly and rounded to a float once. The rule is PRISM's, not this repository's:
+  `measurement_values.py` in elastic/prism
+  (`packages/prism-engine/src/prism_engine/rewrite/`) takes the product with
+  `fractions.Fraction` and applies `float(...)` as the last step, and
+  `nested.py` in elastic/prism-industrial-products does the same for the
+  `value_canonical` it serves.
 * Thread spacing is published under two keys, as real catalogs publish it: a
   metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
