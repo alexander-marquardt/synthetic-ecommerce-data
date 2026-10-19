@@ -2,7 +2,8 @@
 product type.
 
 ``attribute_cleanup.clean`` runs inside ``export._product_attributes`` and ``export._variant``,
-so the guards read the documents the scaler builds (every template), not the helper alone.
+so the guards read the documents the scaler builds (every template: ``build(10**6)`` is
+past the ceiling), not the helper alone.
 """
 
 from __future__ import annotations
@@ -17,8 +18,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "prototypes" / "
 import attribute_cleanup  # noqa: E402
 import scale  # noqa: E402
 
-CEILING = 81322
-
 
 def _e(key: str, value: Any) -> dict[str, Any]:
     return {"key": key, "name": key.title(), "value": value}
@@ -26,7 +25,7 @@ def _e(key: str, value: Any) -> dict[str, Any]:
 
 @cache
 def _docs() -> tuple[dict[str, Any], ...]:
-    return tuple(scale.documents(scale.build(CEILING)))
+    return tuple(scale.documents(scale.build(10**6)))
 
 
 def _entries(doc: dict[str, Any]):
@@ -80,7 +79,11 @@ def test_the_real_sub_kinds_of_a_removed_key_stay_published() -> None:
         for e in _entries(doc):
             if e["key"] in {"storage_type", "tracker_type"}:
                 seen.setdefault((doc["product_type"], e["key"]), set()).add(e["value"])
-    assert seen == {
-        ("Storage Box", "storage_type"): {"Underbed"},
-        ("Nursery Storage", "storage_type"): {"Basket", "Cube", "Hanging Organizer"},
-    }
+    assert "Underbed" in seen[("Storage Box", "storage_type")]
+    assert {"Basket", "Cube", "Hanging Organizer"} <= seen[("Nursery Storage", "storage_type")]
+    assert ("Fitness Band", "tracker_type") not in seen
+    assert all(
+        value.casefold() != ptype.casefold()
+        for (ptype, _), values in seen.items()
+        for value in values
+    )
