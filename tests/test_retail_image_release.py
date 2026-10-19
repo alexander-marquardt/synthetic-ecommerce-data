@@ -1,4 +1,4 @@
-"""The retail image release: one image per style and colorway, every reference packaged (gen#125).
+"""The retail image release: one image per style, colorway and size rung (gen#125, gen#339).
 
 ``prototypes/retail_drawings/image_release.py`` renders every image the retail
 export (``export.py``) references and packages it as the industrial bundle is
@@ -35,12 +35,15 @@ from variants import FAMILIES  # noqa: E402
 
 #: The authored-styles build, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 RETAIL_SKUS = figures()["templates"]["authored"]["skus"]
-#: One image per style and colorway, plus one image for each style sold in no color.
+#: One image per style, colorway and size rung, plus one for each style sold in no color.
 RETAIL_IMAGES = figures()["templates"]["authored_images"]
 #: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
 SCALED_SKUS = 19_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.
 URL_PREFIX = "/images/"
+
+
+RECORDS = image_release.records()
 
 
 @pytest.fixture(scope="module")
@@ -59,17 +62,26 @@ def _color(variant: dict[str, Any]) -> str | None:
     return "/".join(pair) or None
 
 
-def test_one_image_per_style_and_colorway_never_per_sku(documents, files):
-    by_colorway: dict[tuple[str, str | None], set[str]] = defaultdict(set)
-    by_image: dict[str, set[tuple[str, str | None]]] = defaultdict(set)
+def _rung(doc: dict[str, Any], variant: dict[str, Any]) -> float | None:
+    """The rung a variant stands on: its drawing's ``size_scale`` (``None``: no ladder)."""
+    rec = next(r for r in RECORDS if r["product_id"] == doc["product_id"])
+    sku = next(s for s in rec["skus"] if s["sku"] == variant["sku"])
+    return image_release.colorway_drawing(rec, sku).get("size_scale")
+
+
+def test_one_image_per_style_colorway_and_size_rung_never_per_sku(documents, files):
+    """A colorway has one image, or one per rung of its size ladder when the product's sizes
+    scale (gen#339); the sizes of a rung (a footwear row's UK, EU and US, a bra's cups) share it."""
+    by_key: dict[tuple, set[str]] = defaultdict(set)
+    by_image: dict[str, set[tuple]] = defaultdict(set)
     for doc in documents:
         for variant in doc["variants"]:
-            colorway = (doc["product_id"], _color(variant))
-            by_colorway[colorway].add(variant["image_id"])
-            by_image[variant["image_id"]].add(colorway)
+            key = (doc["product_id"], _color(variant), _rung(doc, variant))
+            by_key[key].add(variant["image_id"])
+            by_image[variant["image_id"]].add(key)
     assert sum(len(d["variants"]) for d in documents) == RETAIL_SKUS
-    assert [c for c, ids in by_colorway.items() if len(ids) != 1] == []
-    assert [i for i, cws in by_image.items() if len(cws) != 1] == []
+    assert [k for k, ids in by_key.items() if len(ids) != 1] == []
+    assert [i for i, keys in by_image.items() if len(keys) != 1] == []
     assert len(by_image) == RETAIL_IMAGES
     assert len(files) == RETAIL_IMAGES
 

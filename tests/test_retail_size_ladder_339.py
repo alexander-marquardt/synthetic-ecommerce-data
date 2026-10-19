@@ -132,12 +132,17 @@ def test_bedding_and_pack_sizes_keep_one_image_per_colour(pid):
 
 
 def test_each_size_of_a_colour_has_its_own_image():
-    rec = BY_ID["PLT-TEEW5"]
-    colour = rec["skus"][0]["color"]
-    ids = [export.image_id(rec, s) for s in rec["skus"] if s["color"] == colour]
-    assert len(ids) == len(set(ids)) == 5
-    other = next(c["color"] for c in rec["color_options"] if c["color"] != colour)
-    assert not set(ids) & {export.image_id(rec, s) for s in rec["skus"] if s["color"] == other}
+    rec = next(r for r in BY_ID.values() if r["product_type"] == "Tee"
+               and {s.get("size") for s in r["skus"]} >= {"XS", "S", "M", "L", "XL"}
+               and len({s.get("color") for s in r["skus"]}) > 1)  # fmt: skip
+    by_colour: dict = {}
+    for sku in rec["skus"]:
+        by_colour.setdefault(sku["color"], []).append(export.image_id(rec, sku))
+    assert len(by_colour) > 1
+    for colour, ids in by_colour.items():
+        assert len(ids) == len(set(ids)) == 5, f"{colour}: one image per size"
+    every = [i for ids in by_colour.values() for i in ids]
+    assert len(every) == len(set(every)), "no image is shared between colours"
 
 
 def _anchor(svg: bytes) -> tuple[float, float, float] | None:

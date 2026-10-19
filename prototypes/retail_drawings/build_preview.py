@@ -74,6 +74,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
         brand=rec["brand"],
         uid=rec["product_id"],
         params=d.get("params"),
+        size_scale=d.get("size_scale"),
         style=HOUSE_STYLES[rec["brand"]] if styled else None,
     )
 

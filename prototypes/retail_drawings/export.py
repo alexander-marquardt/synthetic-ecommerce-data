@@ -33,6 +33,7 @@ from typing import Any
 
 import colorwords
 import facet_leaves
+import size_ladder
 import type_registry
 from audience import audience_of
 from build_preview4 import samples
@@ -231,11 +232,13 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
     SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
     ``diameter_cm``: gen#197). A SKU that carries no param key adds nothing, so its image id
-    is what it was."""
+    is what it was. A clothing or footwear SKU on a size ladder adds its ``size_scale``
+    (gen#339), so each size has its own image."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
-    return spec | {"params": own} if own else spec
+    spec = spec | {"params": own} if own else spec
+    return spec | size_ladder.spec(rec, sku)
 
 
 def image_id(rec: dict, sku: dict) -> str:
