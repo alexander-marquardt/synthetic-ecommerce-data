@@ -23,7 +23,7 @@ from synthetic_ecommerce_data.prism.field_map import render
 
 SERIES = 13
 #: How a brand feed writes the n-th size: four spellings of one magnitude.
-SPELLINGS = ('{}"', "{} in", "{:.3f}\"", "{} in.")
+SPELLINGS = ('{}"', "{} in", '{:.3f}"', "{} in.")
 CHAIN_KEYS = ("chain_pitch", "roller_dia", "inside_width")
 
 
@@ -105,3 +105,25 @@ def test_chain_dimensions_are_discrete_lists_in_the_field_map(default_rows: list
     for key in CHAIN_KEYS:
         block = text.split(f"- name: {key}\n", 1)[1].split("\n  # ", 1)[0]
         assert "type: numeric" not in block, key
+
+
+def test_a_brand_feed_never_rounds_a_chain_dimension_into_a_second_magnitude(
+    default_rows: list[dict],
+) -> None:
+    """A three-decimal feed writes B29.1's 3/16 as ``0.1875``, not ``0.188``.
+
+    The chain's sizes are the table's, so each dimension's magnitude is one of the table's own.
+    """
+    from synthetic_ecommerce_data.domains.industrial.product_types.motion import roller_chain
+
+    table = {
+        "chain_pitch": {float(pitch) for _, pitch, _, _ in roller_chain.ANSI},
+        "roller_dia": {float(roller) for _, _, roller, _ in roller_chain.ANSI if roller},
+        "inside_width": {float(width) for _, _, _, width in roller_chain.ANSI},
+    }
+    chains = [row for row in default_rows if row["product_type"] == "roller_chain"]
+    assert chains, "no roller chains in the default build"
+    for key, sizes in table.items():
+        published = {row["facets_num"][key] for row in chains if key in row["facets_num"]}
+        assert published, key
+        assert published <= sizes, (key, sorted(published - sizes))
