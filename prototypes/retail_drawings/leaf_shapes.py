@@ -54,6 +54,13 @@ def rule_for(tpl: dict) -> Rule | None:
     return next((r for r in RULES if r.matches(tpl)), None)
 
 
+def shape_of(product_type: str, shape: str) -> str:
+    """The shape a row of ``product_type`` authored with ``shape`` is drawn with: its rule's, else
+    its own (the polo rows read ``tshirt`` when authored and are drawn as ``top``)."""
+    rule = next((r for r in RULES if product_type in r.types), None)
+    return rule.shape if rule else shape
+
+
 def apply(tpls: list[dict]) -> list[dict]:
     """``tpls`` with the drawing of every listed leaf set to its rule's shape and parameters."""
     for tpl in tpls:
