@@ -1,0 +1,96 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B1.1"
+  ],
+  "edition": "UNC and UNF threads per inch as carried by domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py and standards.py in the repository at commit 68fd9933; the fine series was transcribed from the Unified Thread Standard table on Wikipedia (CC BY-SA 4.0)",
+  "source": "ASME B1.1 Unified inch screw threads; the coarse pitches agree with the threads per inch of the FreeCAD_FastenersWB ASME B18.3 extraction",
+  "kind": "rows"
+ },
+ "notes": "Only the sizes this catalog offers. Nominal major diameter in inches: the numbered sizes follow 0.060 + 0.013 N, the fractional sizes are their own names.",
+ "rows": [
+  {
+   "size": "#4",
+   "major_dia_in": 0.112,
+   "unc_tpi": 40
+  },
+  {
+   "size": "#6",
+   "major_dia_in": 0.138,
+   "unc_tpi": 32,
+   "unf_tpi": 40
+  },
+  {
+   "size": "#8",
+   "major_dia_in": 0.164,
+   "unc_tpi": 32,
+   "unf_tpi": 36
+  },
+  {
+   "size": "#10",
+   "major_dia_in": 0.19,
+   "unc_tpi": 24,
+   "unf_tpi": 32
+  },
+  {
+   "size": "1/4",
+   "major_dia_in": 0.25,
+   "unc_tpi": 20,
+   "unf_tpi": 28
+  },
+  {
+   "size": "5/16",
+   "major_dia_in": 0.3125,
+   "unc_tpi": 18,
+   "unf_tpi": 24
+  },
+  {
+   "size": "3/8",
+   "major_dia_in": 0.375,
+   "unc_tpi": 16,
+   "unf_tpi": 24
+  },
+  {
+   "size": "7/16",
+   "major_dia_in": 0.4375,
+   "unc_tpi": 14,
+   "unf_tpi": 20
+  },
+  {
+   "size": "1/2",
+   "major_dia_in": 0.5,
+   "unc_tpi": 13,
+   "unf_tpi": 20
+  },
+  {
+   "size": "9/16",
+   "major_dia_in": 0.5625,
+   "unc_tpi": 12,
+   "unf_tpi": 18
+  },
+  {
+   "size": "5/8",
+   "major_dia_in": 0.625,
+   "unc_tpi": 11,
+   "unf_tpi": 18
+  },
+  {
+   "size": "3/4",
+   "major_dia_in": 0.75,
+   "unc_tpi": 10,
+   "unf_tpi": 16
+  },
+  {
+   "size": "7/8",
+   "major_dia_in": 0.875,
+   "unc_tpi": 9,
+   "unf_tpi": 14
+  },
+  {
+   "size": "1",
+   "major_dia_in": 1.0,
+   "unc_tpi": 8,
+   "unf_tpi": 12
+  }
+ ]
+}

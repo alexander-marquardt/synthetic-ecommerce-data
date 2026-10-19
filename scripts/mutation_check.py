@@ -1168,8 +1168,8 @@ MUTATIONS: list[Mutation] = [
         for name, old, new, tests, prop in (
             (
                 "merge_pr: no base re-check before a merge attempt",
-                '[ "$now_base" = "$base_sha" ] ||\n    die',
-                "true ||\n    die",
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                "  true ||",
                 (
                     "tests/test_merge_pr.py::"
                     "test_main_that_moves_during_the_checks_is_not_merged_onto",
@@ -1207,8 +1207,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: base re-checked once, not before every attempt",
-                '  [ "$now_base" = "$base_sha" ] ||',
-                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                '  [ "$attempt" -gt 1 ] || remote_ref_is "$base_ref" "$base_sha" ||',
                 "tests/test_merge_pr.py::"
                 "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
                 "main is the base the checks ran on, at every merge attempt",
@@ -1223,8 +1223,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: no head re-check before a merge attempt",
-                '[ "$now_head" = "$final_sha" ] ||',
-                "true ||",
+                '  remote_ref_is "$head_ref" "$final_sha" ||',
+                "  true ||",
                 "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
                 "the head is the commit that was checked, at every merge attempt",
             ),
@@ -2292,9 +2292,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "domains/industrial/compat.py",
-        '    "M12x1.5": 10.5,',
-        '    "M12x1.5": 10.2,',
+        "core/standards_library/tables/metric_tap_drills.json",
+        '"thread": "M12x1.5",\n   "drill_mm": 10.5',
+        '"thread": "M12x1.5",\n   "drill_mm": 10.2',
         (
             "tests/test_compatibility_text.py -k diameter_less_the_pitch",
             "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -2674,7 +2674,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "domains/industrial/data/fastener_standards.json",
+        "core/standards_library/tables/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",
