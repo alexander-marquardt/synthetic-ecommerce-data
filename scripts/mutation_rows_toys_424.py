@@ -1,13 +1,15 @@
 """Mutation rows for the six toy types of gen#424, in their own file.
 
 Each row plants one defect in a spec, a drawing or a decoy row of gen#424 and names the test that
-must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as rows
+must go red. ``mutation_row.discover`` finds this file by glob and the harness names them as rows
 named ``toys depth: ...`` (``--only "toys depth:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 # ruff: noqa: E501  (a removal row quotes the whole decoy call it takes out)
 from __future__ import annotations
+
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_toys_depth_424.py"
@@ -176,3 +178,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "toys depth"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

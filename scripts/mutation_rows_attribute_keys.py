@@ -9,12 +9,11 @@ old key. ``mutation_check.py`` turns them into ``Mutation`` rows named ``attribu
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_attribute_keys_227.py"
 _R = "prototypes/retail_drawings"
-_LAMP = (
-    '{"key": "item_height", "name": "Item height", "value": "46", '
-    '"unit_code": "CMT", "value_canonical": 460.0}'
-)
+_LAMP = 'attr("item_height", "Item height", 46, "CMT", 460.0)'
 #: The coffee table's entry in furniture_rows.py, up to its closing parenthesis.
 _FEATURE = (
     '    feature = (("storage_feature", "Storage feature", storage.replace("_", "-").title()),'
@@ -103,17 +102,17 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the committed table lamp sample's height goes back to height",
-        "samples.ndjson",
+        "the table lamp sample's height goes back to height",
+        "samples_round2.py",
         _LAMP,
-        _LAMP.replace('"item_height", "name": "Item height"', '"height", "name": "Height"'),
-        f'{_T} -k "no_committed_sample and samples.ndjson"',
+        _LAMP.replace('"item_height", "Item height"', '"height", "Height"'),
+        f'{_T} -k "no_built_sample and samples.ndjson"',
         "a sample table lamp's height is item_height",
         _R,
     ),
     (
-        "the committed table lamp sample's 46 cm is 46 mm",
-        "samples.ndjson",
+        "the table lamp sample's 46 cm is 46 mm",
+        "samples_round2.py",
         _LAMP,
         _LAMP.replace("460.0", "46.0"),
         f'{_T} -k "canonical_in_millimetres and samples.ndjson"',
@@ -166,3 +165,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "attribute keys"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

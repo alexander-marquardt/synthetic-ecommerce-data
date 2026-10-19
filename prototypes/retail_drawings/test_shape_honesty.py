@@ -169,12 +169,12 @@ EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "PLT-DA02102": ("bomber_jacket", {}),
     "PLT-DA13202": ("puffer", {}),
     "PLT-DXP05": ("puffer", {}),
-    "PLT-DA08701": ("shirt_dress", {}),
+    "PLT-DXH05": ("shirt_dress", {}),
     "PLT-DA22501": ("top", {"sleeve": "long"}),
     "PLT-DSL029": ("top", {"sleeve": "long"}),
     "BRD-MDPS240": ("top", {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
     "BRD-NXMET041": ("trousers", {"cargo": "yes"}),
-    "PLT-DA50603": ("shorts", {"style": "sweat", "pocket": "no"}),
+    "PLT-OFRPJS": ("shorts", {"style": "sweat", "pocket": "no"}),
     "PLT-DA36301": ("shoe", {"kind": "knee_boot"}),
 }
 
@@ -182,6 +182,14 @@ EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
 @pytest.fixture(scope="module")
 def tpls() -> list[dict]:
     return scale.templates()
+
+
+def _example(tpls: list[dict], pid: str) -> dict:
+    """The template of a reported product. A decoy's ``PLT-DA`` id is its row's position, so it
+    moves when a sibling slice adds rows (gen#486): the examples name the hand-named ids."""
+    found = [t for t in tpls if t["product_id"] == pid]
+    assert found, f"{pid} is not a product of the build: name the reported product's current id"
+    return found[0]
 
 
 @pytest.mark.parametrize("rule", [r.name for r in leaf_shapes.RULES])
@@ -195,7 +203,7 @@ def test_a_listed_leaf_is_drawn_as_its_rule(tpls: list[dict], rule: str) -> None
 @pytest.mark.parametrize("pid", sorted(EXAMPLES))
 def test_a_reported_product_is_drawn_as_its_title(tpls: list[dict], pid: str) -> None:
     shape, params = EXAMPLES[pid]
-    tpl = next(t for t in tpls if t["product_id"] == pid)
+    tpl = _example(tpls, pid)
     drawing = tpl["drawing"]
     assert drawing["shape"] == shape, tpl["title"]
     for key, value in params.items():
@@ -204,7 +212,7 @@ def test_a_reported_product_is_drawn_as_its_title(tpls: list[dict], pid: str) ->
 
 @pytest.mark.parametrize("pid", sorted(EXAMPLES))
 def test_a_reported_product_renders(tpls: list[dict], pid: str) -> None:
-    tpl = next(t for t in tpls if t["product_id"] == pid)
+    tpl = _example(tpls, pid)
     assert len(image_release.render(tpl, tpl["skus"][0], styled=False)) > 1000
 
 

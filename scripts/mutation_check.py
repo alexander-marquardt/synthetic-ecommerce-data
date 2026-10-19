@@ -26,39 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
-import mutation_rows_attribute_cleanup_497  # noqa: E402  (#497 rows, kept in their own file)
-import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their own file)
-import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
-import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
-import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
-import mutation_rows_brand_owner_236  # noqa: E402  (gen#236 rows, kept in their own file)
-import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
-import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
-import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
-import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
-import mutation_rows_footwear_216  # noqa: E402  (gen#216 rows, kept in their own file)
-import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their own file)
-import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
-import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
-import mutation_rows_kelvin_232  # noqa: E402  (gen#232 rows, kept in their own file)
-import mutation_rows_letter_case_499  # noqa: E402  (gen#499 rows, kept in their own file)
-import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
-import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
-import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
-import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
-import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
-import mutation_rows_plus_sizes  # noqa: E402  (gen#434 rows, kept in their own file)
-import mutation_rows_red_wine_500  # noqa: E402  (gen#500 rows, kept in their own file)
-import mutation_rows_repeated_pair  # noqa: E402  (gen#1 rows)
-import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
-import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
-import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
-import mutation_rows_sofa_bed_223  # noqa: E402  (gen#223 rows, kept in their own file)
-import mutation_rows_tableware_features  # noqa: E402  (gen#230 rows)
-import mutation_rows_text_agrees  # noqa: E402  (gen#139 rows, kept in their own file)
-import mutation_rows_truthful_449  # noqa: E402  (gen#449 rows, kept in their own file)
-import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
+import mutation_row  # noqa: E402  (the glob that finds the mutant-row files)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -97,6 +65,27 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the release build defaults to the ceiling (gen#536) ----
+    Mutation(
+        "release default: the export step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'scale.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'scale.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and export'",
+        "",
+        "the tag build asks for the ceiling",
+        root=".",
+    ),
+    Mutation(
+        "release default: the image step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'image_release.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'image_release.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and image'",
+        "",
+        "the image build asks for the ceiling",
+        root=".",
+    ),
     # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
     Mutation(
         "commit msg: the file name is no longer masked before matching",
@@ -1179,8 +1168,8 @@ MUTATIONS: list[Mutation] = [
         for name, old, new, tests, prop in (
             (
                 "merge_pr: no base re-check before a merge attempt",
-                '[ "$now_base" = "$base_sha" ] ||\n    die',
-                "true ||\n    die",
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                "  true ||",
                 (
                     "tests/test_merge_pr.py::"
                     "test_main_that_moves_during_the_checks_is_not_merged_onto",
@@ -1218,8 +1207,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: base re-checked once, not before every attempt",
-                '  [ "$now_base" = "$base_sha" ] ||',
-                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                '  [ "$attempt" -gt 1 ] || remote_ref_is "$base_ref" "$base_sha" ||',
                 "tests/test_merge_pr.py::"
                 "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
                 "main is the base the checks ran on, at every merge attempt",
@@ -1234,8 +1223,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: no head re-check before a merge attempt",
-                '[ "$now_head" = "$final_sha" ] ||',
-                "true ||",
+                '  remote_ref_is "$head_ref" "$final_sha" ||',
+                "  true ||",
                 "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
                 "the head is the commit that was checked, at every merge attempt",
             ),
@@ -1333,13 +1322,6 @@ MUTATIONS: list[Mutation] = [
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
             (
-                "merge_pr: the retail figures test is not a freshness test",
-                '  tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures\n',
-                '',
-                'tests/test_merge_pr.py::test_the_freshness_tests_are_real_tests_of_the_golden_files',
-                'a stale golden is regenerated once, on a green second run (#440)',
-            ),
-            (
                 "merge_pr: the drift test is not a freshness test",
                 '  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation\n',
                 '',
@@ -1382,37 +1364,6 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_merge_pr.py::"
                 "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
                 "the rebuild commits only the generated files",
-            ),
-            (
-                "merge_pr: the retail totals are not rebuilt",
-                "RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)",
-                "RETAIL_REBUILD=(true)",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                    "tests/test_merge_pr.py::"
-                    "test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed",
-                ),
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: a failed retail rebuild is ignored",
-                '[ "$retail_rc" -eq 0 ] ||',
-                "true ||",
-                "tests/test_merge_pr.py::test_a_retail_rebuild_that_fails_refuses_the_merge",
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: the retail stats are not generated",
-                "  golden-retail/stats.json\n",
-                "",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_the_generated_files_are_exactly_what_the_build_writes",
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                ),
-                "a conflict only in the retail totals is resolved by the rebuild (gen#343)",
             ),
             (
                 "merge_pr: a check run in which no test passed is green",
@@ -1874,8 +1825,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "measure dispersion per SKU document again",
         "prism/derive.py",
-        "return self.cardinality / self.product_values if self.product_values else 0.0",
-        "return self.cardinality / self.present if self.present else 0.0",
+        "return (self.magnitudes or 0) / self.product_magnitudes",
+        "return (self.magnitudes or 0) / self.present",
         "tests/test_facet_control_rule.py -k products_not_sku_variants",
         "",
         "dispersion counts products, not SKU variants",
@@ -1883,8 +1834,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "count every SKU's copy of a product-scope value",
         "prism/derive.py",
-        '            product_values[key].update((row["product_id"], value) for value in vals)',
-        '            product_values[key].update((row["sku"], value) for value in vals)',
+        '                product_magnitudes[key].add((row["product_id"], magnitude))',
+        '                product_magnitudes[key].add((row["sku"], magnitude))',
         "tests/test_prism_field_map_drift.py",
         "",
         "dispersion counts products, not SKU variants",
@@ -2341,9 +2292,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "domains/industrial/compat.py",
-        '    "M12x1.5": 10.5,',
-        '    "M12x1.5": 10.2,',
+        "core/standards_library/tables/metric_tap_drills.json",
+        '"thread": "M12x1.5",\n   "drill_mm": 10.5',
+        '"thread": "M12x1.5",\n   "drill_mm": 10.2',
         (
             "tests/test_compatibility_text.py -k diameter_less_the_pitch",
             "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -2723,7 +2674,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "domains/industrial/data/fastener_standards.json",
+        "core/standards_library/tables/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",
@@ -4114,136 +4065,6 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    *(
-        Mutation(f"no wrong kind: {name}", file, old, new, tests, "", prop)
-        for name, file, old, new, tests, prop in mutation_rows_no_wrong_kind.ROWS
-    ),
-    # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
-    *(
-        Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
-        for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
-    ),
-    # ---- retail: jewellery and watches (gen#423); the rows are in their own file ----
-    *(
-        Mutation(f"jewellery 423: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_jewellery_423.ROWS
-    ),
-    # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
-    *(
-        Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_ceiling_forms.ROWS
-    ),
-    *(
-        Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_lighting.ROWS
-    ),
-    # ---- retail: a color temperature as a kelvin entry (gen#232); the rows are in their own file ----
-    *(
-        Mutation(f"kelvin entry: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_kelvin_232.ROWS
-    ),
-    # ---- retail: appliance colors (gen#243); the rows are in their own file ----
-    *(
-        Mutation(f"appliance colors: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_appliance_colors.ROWS
-    ),
-    # ---- retail: one pack_size vocabulary for a count (gen#246); the rows are in their own file ----
-    *(
-        Mutation(f"pack size: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
-    ),
-    *(
-        Mutation(f"sofa bed: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
-    ),
-    *(
-        Mutation(f"letter case: {name}", file, old, new, tests, "", prop, root=root)
-        for name, root, file, old, new, tests, prop in mutation_rows_letter_case_499.ROWS
-    ),
-    *(
-        Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
-    ),
-    *(
-        Mutation(f"lower-body params: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
-    ),
-    *(
-        Mutation(f"brand owner: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_brand_owner_236.ROWS
-    ),
-    *(
-        Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
-    ),
-    *(
-        Mutation(f"footwear styles: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_footwear_216.ROWS
-    ),
-    *(
-        Mutation(f"truthful decoys: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_truthful_449.ROWS
-    ),
-    *(
-        Mutation(f"red wine decoys: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_red_wine_500.ROWS
-    ),
-    *(
-        Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
-    ),
-    # ---- retail: one attribute key per concept (gen#227); the rows are in their own file ----
-    *(Mutation(f"attribute keys: {r[0]}", *r[1:5], "", r[5], root=r[6])
-      for r in mutation_rows_attribute_keys.ROWS),
-    *(
-        Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
-        for n, o, w, t, pr in mutation_rows_audit_order.ROWS
-    ),
-    *(Mutation(f"text agrees: {n}", f, o, nw, t, "", p) for n, f, o, nw, t, p in mutation_rows_text_agrees.ROWS),
-    # ---- the customer-name check (#393); the rows are in their own file ----
-    *(
-        Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
-    ),
-    # ---- industrial: one key per concept, none repeats the type (#497); the rows are in their own file ----
-    *(
-        Mutation(f"attribute clean-up: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_attribute_cleanup_497.ROWS
-    ),
-    # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
-    *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
-    *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
-    *(Mutation(f"plate grid clones: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_plate_grid_clones.ROWS),
-    *(Mutation(f"repeated pair: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_repeated_pair.ROWS),
-    *(Mutation(f"seating agreement: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_seating_agreement.ROWS),
-    *(Mutation(f"tableware features: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_tableware_features.ROWS),
-    # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
-    *(
-        Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
-    ),
-    *(
-        Mutation(f"plus sizes: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_plus_sizes.ROWS
-    ),
-    # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
-    *(
-        Mutation(f"bolt page pack: {name}", file, old, new, test, direction, prop, root=root)
-        for name, file, old, new, test, direction, prop, root in mutation_rows_bolt_pack.ROWS
-    ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
         Mutation(f"product-word decoys: {name}", file, old, new, test, "", prop,
@@ -4692,19 +4513,6 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    # ---- retail: a description's closure and a style's pattern agree with its attributes (gen#250) ----
-    *(
-        Mutation(
-            f"attribute text: {name}",
-            "attribute_text.py",
-            old,
-            new,
-            f"tests/test_retail_attribute_text_250.py -k {test}",
-            prop,
-            root="prototypes/retail_drawings",
-        )
-        for name, old, new, test, prop in mutation_rows_attribute_text.ROWS
-    ),
     # ---- retail: a drawing param may be named shape (gen#259) ----
     *(
         Mutation(f"drawing params: {name}", "variants.py", old, new, tests, "", prop,
@@ -4792,6 +4600,22 @@ MUTATIONS: list[Mutation] = [
         ]
     ),
 ]
+
+# The rows of every ``scripts/mutation_rows_*.py`` are read here by glob (``mutation_row.discover``),
+# so no rows file is named in this module and a pull request that adds one edits no line of it (#506).
+MUTATIONS.extend(
+    Mutation(
+        f"{prefix}: {row.name}",
+        row.file,
+        row.old,
+        row.new,
+        row.tests,
+        row.direction,
+        row.property_name,
+        row.root,
+    )
+    for prefix, row in mutation_row.discover()
+)
 
 
 def _drop_bytecode() -> None:
