@@ -3,8 +3,10 @@
     python scripts/fit_price_model.py           # print the fit, every price row and the literals
     python scripts/fit_price_model.py --write   # and write them between the fit markers
 
-A kit is priced from its parts' fitted models: when one run also refits a part
-type a kit holds, run the fit again so the kit factor is fitted on the new parts.
+A kit is priced from its parts' fitted models, and one run fits it last: its
+contents are read again on the part models this run has just fitted
+(:func:`rekey_contents`), so the kit factor is fitted on the new parts and no
+second run is needed.
 
 The census gives each type a slope, an endings mix, a p50, a p90/p10, a
 larger-costs-more share and, for some, a length slope and share and a
@@ -87,7 +89,7 @@ import itertools
 import math
 import re
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -95,7 +97,7 @@ import numpy as np
 
 from synthetic_ecommerce_data.core import brands, price
 from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
-from synthetic_ecommerce_data.core.model import Catalog
+from synthetic_ecommerce_data.core.model import Attribute, Catalog
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
@@ -156,6 +158,17 @@ class Recorded:
     log_length: float
     tier: float
     material: float
+    #: A contents-priced SKU's attributes, to read its key again on refitted
+    #: parts (:func:`rekey_contents`); None for any other.
+    facts: Mapping[str, Attribute] | None = None
+    #: The ``log_key`` the draw's structure holds, where ``log_key`` was read
+    #: again; None while it is the one the draw was made with.
+    drawn_log_key: float | None = None
+
+    @property
+    def baked_log_key(self) -> float:
+        """The key term inside ``draw.struct``."""
+        return self.log_key if self.drawn_log_key is None else self.drawn_log_key
 
 
 def record_draws(config: GeneratorConfig) -> tuple[Catalog, dict[str, Recorded]]:
@@ -176,6 +189,7 @@ def record_draws(config: GeneratorConfig) -> tuple[Catalog, dict[str, Recorded]]
             math.log(length / model.anchor_length) if length else 0.0,
             math.log(model.tiers[brands.tier_of(brand, type_key)]),
             math.log(price.MATERIAL_FACTORS.get(material, 1.0)),
+            facts if type_key in price.CONTENTS_PRICED else None,
         )
         return draw
 
@@ -303,7 +317,7 @@ def type_build(type_key: str, collected: Collected, recorded: dict[str, Recorded
     rest = np.array(
         [
             r.draw.struct
-            - r.draw.model.slope * r.log_key
+            - r.draw.model.slope * r.baked_log_key
             - r.draw.model.length_slope * r.log_length
             for r in rec
         ]
@@ -689,7 +703,8 @@ def _shown_prices(
             continue
         struct = (
             rec.draw.struct
-            + (new.slope - old.slope) * rec.log_key
+            + new.slope * rec.log_key
+            - old.slope * rec.baked_log_key
             + (new.length_slope - old.length_slope) * rec.log_length
         )
         prices[sku] = price.shown_price(replace(rec.draw, model=new, struct=struct))
@@ -699,19 +714,44 @@ def _shown_prices(
 def rekey_contents(
     recorded: dict[str, Recorded], fitted: dict[str, price.PriceModel]
 ) -> dict[str, Recorded]:
-    """``recorded`` with each contents-priced SKU's key read on the ``fitted`` part models."""
-    return recorded
+    """``recorded`` with each contents-priced SKU's key read on the ``fitted`` part models.
+
+    The draw keeps the structure it was made with, so the key it held is kept
+    (:attr:`Recorded.baked_log_key`) for the terms taken out of it. Any other
+    SKU is the same record.
+    """
+    models = {**price.MODELS, **fitted}
+    out: dict[str, Recorded] = {}
+    for sku, rec in recorded.items():
+        key = price.kit_contents(rec.facts, models) if rec.facts is not None else None
+        if key is None:
+            out[sku] = rec
+            continue
+        out[sku] = replace(
+            rec,
+            log_key=math.log(key / rec.draw.model.anchor_key),
+            drawn_log_key=rec.baked_log_key,
+        )
+    return out
 
 
 def fit_all(
     made: dict[str, tuple[Collected, dict[str, Recorded]]],
     announce: Callable[[str, TypeFit], None] = lambda type_key, fit: None,
-) -> tuple[dict[str, price.PriceModel], set[str]]:
-    """Every census type's fitted model over the builds in ``made``, and the
-    rows no noise brings into band."""
+) -> tuple[dict[str, price.PriceModel], set[str], dict[str, tuple[Collected, dict[str, Recorded]]]]:
+    """Every census type's fitted model over the builds in ``made``, the rows
+    no noise brings into band, and ``made`` with each contents-priced SKU's
+    key read on the parts as fitted (what the fitted rows are scored on)."""
     fitted: dict[str, price.PriceModel] = {}
     unreachable: set[str] = set()
-    for type_key in price.CENSUS:
+    # A type priced from its contents is fitted last, on the parts as just fitted.
+    order = sorted(price.CENSUS, key=lambda type_key: type_key in price.CONTENTS_PRICED)
+    for type_key in order:
+        if type_key in price.CONTENTS_PRICED:
+            made = {
+                name: (collected, rekey_contents(recorded, fitted))
+                for name, (collected, recorded) in made.items()
+            }
         fit = fit_type(
             type_key,
             [type_build(type_key, collected, recorded) for collected, recorded in made.values()],
@@ -728,7 +768,7 @@ def fit_all(
             price_step=round(fit.step, 3),
             size_sigma=round(fit.size, 3),
         )
-    return fitted, unreachable
+    return {type_key: fitted[type_key] for type_key in price.CENSUS}, unreachable, made
 
 
 def main() -> int:
@@ -743,7 +783,7 @@ def main() -> int:
     columns = ("key", "length", "tier", "material", "pack", "group", "sku", "size")
     columns += tuple(f"all {name}" for name in BUILDS) + ("census",)
     print(f"{'p90/p10 of each term alone':<26}" + "".join(f"{k:>12}" for k in columns))
-    fitted, unreachable = fit_all(
+    fitted, unreachable, made = fit_all(
         made,
         lambda type_key, fit: print(
             f"{type_key:<26}" + "".join(f"{v:>12.2f}" for v in fit.spreads.values())

@@ -309,9 +309,14 @@ PER_PIECE: dict[str, tuple[float, float]] = {
 KIT_PARTS: dict[str, str] = {kit.item: kit.part_type for kit in KITS}
 
 
-def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
+def kit_contents(
+    attributes: Mapping[str, Attribute], models: Mapping[str, PriceModel] | None = None
+) -> float | None:
     """The summed price (USD) of the pieces a kit holds, or None where its
     kind, sizes or piece count cannot be read.
+
+    The parts are priced on :data:`MODELS`, or on ``models`` where a fit
+    reads them as it has just fitted them (``scripts/fit_price_model.py``).
 
     Each size in ``Sizes Included`` is priced on its part type's curve at
     that size (standard tier, a material of 1.0, no noise: the price the
@@ -327,7 +332,8 @@ def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
     part = KIT_PARTS.get(kind.value)
     if part is None:
         return None
-    model = model_for(part)
+    source = MODELS if models is None else models
+    model = source[BORROWS.get(part, part)]
     values = sizes.values or (sizes.value,)
     each, shown = PER_PIECE[part]
     total = 0.0
