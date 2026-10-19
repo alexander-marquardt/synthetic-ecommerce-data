@@ -489,8 +489,7 @@ def test_every_type_carries_its_text_match_decoys(ptype: str) -> None:
 
 
 def test_the_decoy_table_lists_the_new_types() -> None:
-    doc = Path(__file__).resolve().parent.parent / "docs" / "retail-apparel-decoys.md"
-    table = doc.read_text()
+    table = decoy_apparel.doc_text()  # the docs table as the build writes it; not in git
     assert [p for p in TYPES if p not in table] == []
 
 

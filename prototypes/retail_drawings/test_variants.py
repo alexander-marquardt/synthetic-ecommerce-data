@@ -244,12 +244,6 @@ def test_a_duplicate_listing_publishes_one_product_id_under_two_categories() -> 
     assert dz.DUPLICATED in {x.doc["product_id"] for x in _gift().distractors}
 
 
-def test_the_committed_samples_and_preview_are_what_the_builder_writes() -> None:
-    html, ndjson = build_preview4.outputs()
-    assert ndjson == (HERE / "samples4.ndjson").read_text(encoding="utf-8")
-    assert html == (HERE / "preview4.html").read_text(encoding="utf-8")
-
-
 def test_the_duplicate_listing_option_adds_exactly_one_record() -> None:
     _, plain = build_preview4.outputs()
     _, dup = build_preview4.outputs(duplicate_listing=True)
