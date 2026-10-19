@@ -5,7 +5,8 @@ build had 50 range names, and a family gave up after ``ATTEMPTS`` misses once it
 pairs were used. The tier draws from more range names (``grocery_rows.TIER_LINES``) and from new
 invented brands per family group (``grocery_rows.TIER_BRANDS``, each a ``house_styles`` row), in a
 stream of its own, so ``grocery.build()`` (the 10K build the main build uses as templates) does not
-move. The tier's counts are read from ``golden-retail/stats.json``, never typed here (gen#162).
+move. The tier's counts are read from ``retail_figures.figures()``, never typed here (gen#162,
+gen#536).
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ import grocery  # noqa: E402
 import grocery_rows as gr  # noqa: E402
 import house_styles as hs  # noqa: E402
 import real_brands  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
 TIER = 50_000
 
@@ -120,9 +121,9 @@ def test_the_nested_and_flat_files_meet_the_output_standard() -> None:
     assert all(r["category_path"] and r["title"] for r in rows)
 
 
-def test_the_committed_figures_pin_the_tiers_counts() -> None:
-    """``golden-retail/stats.json`` holds the tier's totals (gen#162): the build equals them."""
-    tier = committed().get("grocery_tier_50k", {})
+def test_the_figures_pin_the_tiers_counts() -> None:
+    """The measured figures hold the tier's totals (gen#162, gen#536): the build equals them."""
+    tier = figures().get("grocery_tier_50k", {})
     skus = sum(r["sku_count"] for r in recs())
     assert (tier.get("styles"), tier.get("skus")) == (len(recs()), skus)
     held: Counter[str] = Counter()
