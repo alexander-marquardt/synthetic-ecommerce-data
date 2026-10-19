@@ -50,6 +50,18 @@ def _print(motif: str, placement: str, scale: float, spacing: float = 0, count: 
 # --------------------------------------------------------------------------
 
 
+def test_the_sweep_runs_with_every_shape_module_loaded_whatever_ran_before_it() -> None:
+    """``kit.SHAPES`` holds what the imports before it registered, so a sweep over it covers
+    a different set run alone, after another test file, or in the whole directory (gen#370):
+    a frying pan drawn off its sheet failed only in the run that had imported its module."""
+    registering = sorted(
+        p.stem for p in HERE.glob("kit_*.py") if "register(" in p.read_text(encoding="utf-8")
+    )
+    assert len(registering) > 30, registering
+    assert [m for m in registering if m not in sys.modules] == []
+    assert "frying_pan" in SHAPES
+
+
 def test_the_registry_is_every_kit_shape_and_every_motif_has_a_known_category() -> None:
     reg = motifs.registry()
     assert list(reg) == list(SHAPES)
