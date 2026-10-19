@@ -35,6 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import feature_decoys
 import kit_goods  # noqa: F401 -- registers the shapes below
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
@@ -351,6 +352,12 @@ _SEED_KINDS_461 = {
 }  # fmt: skip
 NEW_KINDS.update(_SEED_KINDS_461)
 NEW_KINDS.update(_SEED_KINDS)
+for _key in NEW_KINDS:
+    if _key in BASE_KINDS:
+        raise ValueError(
+            f"kind {_key!r} is in decoy_rows.KINDS (or a feature_decoys module) and in "
+            "decoy_product_words.NEW_KINDS: one key, two meanings"
+        )
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 
@@ -1025,6 +1032,13 @@ _GIFTS = (
     _g(86, "hat_box", "Wicker Storage Hamper",
        "A lidded wicker hamper for blankets, toys and spare bedding.", "Brown", "hamper",
        "Gift Hamper"),
+    # -- gift card (gen#437): a holder for a gift card, paper to wrap one
+    _g(104, "case", "Gift Card Holder Case",
+       "A slim zip case with a window and slots that hold a gift card and a few notes.", "Black",
+       "card", "Gift Card", "gift card"),
+    _g(105, "s_wrap", "Gift Card Wrapping Sheets",
+       "Folded sheets of paper sized to wrap around a small gift card.", "Red", "card",
+       "Gift Card", "gift card", policy="category"),
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
 
@@ -1225,6 +1239,9 @@ _SEEDS = (
        "A pump bottle of hand wash scented with an olive tree grove.", "Green", _DEP),
 )  # fmt: skip
 TABLE = (*TABLE, *_SEEDS)
+#: A feature's rows are a module in ``feature_decoys/``, found by walking it (gen#513).
+TABLE = (*TABLE, *feature_decoys.word_rows(_d))
+feature_decoys.check_unique((r.code for r in TABLE), "decoy_product_words.TABLE")
 
 #: The seed queries of gen#461 and the rows that serve them.
 SEED_ROWS = tuple(r for r in TABLE if r.seed)
