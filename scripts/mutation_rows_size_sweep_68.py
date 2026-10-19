@@ -31,10 +31,12 @@ ROWS: list[tuple[str, str, str, str, str]] = [
         GENERATOR,
     ),
     (
-        "drop the 1-12 inch fine row from the lock nut table",
+        "drop the 1-12 row from the lock nut's unified threads (_UNF) selection",
         LOCK_NUT,
-        '"3/4-16", "7/8-14", "1-12",\n)  # fmt: skip',
-        '"3/4-16", "7/8-14",\n)  # fmt: skip',
+        '["#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4", "7/8", "1"]'
+        "\n    )\n)\n#: The thin",
+        '["#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4", "7/8"]'
+        "\n    )\n)\n#: The thin",
         GENERATOR,
     ),
     (
