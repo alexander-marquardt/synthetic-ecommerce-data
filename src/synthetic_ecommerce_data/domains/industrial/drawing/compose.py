@@ -127,6 +127,8 @@ def evaluate(value: object, values: Mapping[str, float]) -> Any:
         return left - right
     if value.op == "*":
         return left * right
+    if right == 0:
+        raise CompositionError("an expression divides by zero")
     return left / right
 
 
@@ -212,6 +214,9 @@ def check(spec: Spec) -> None:
             )
         _check_refs(dim.nominal, earlier)
         earlier.add(dim.name)
+    for name, expr in spec.derived:
+        _check_refs(expr, earlier)
+        earlier.add(name)
     for p in spec.parts:
         fn = PRIMITIVES.get(p.primitive)
         if fn is None:
