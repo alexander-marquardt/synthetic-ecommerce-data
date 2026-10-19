@@ -675,10 +675,13 @@
     "5/32",
     "3/16",
     "1/4",
+    "5/16",
     "3/8",
     "7/16",
     "1/2",
+    "5/8",
     "3/4",
+    "7/8",
     "1",
     "1.25",
     "1.375",
@@ -702,9 +705,10 @@
     "5.5",
     "6"
    ],
-   "nominal_lengths_source": "FreeCAD_FastenersWB FsData/inch_fs_length.csv, the list asmeb18.3.5def.csv ranges filter",
-   "nominal_lengths_gap": "the source list has no 5/16, 5/8 or 7/8 (it runs 1/4, 3/8, 7/16, 1/2, 3/4, 1), and its 1/4 range row starts at 3/8; both are the source's, at the pinned commit and on its master, and B18.3 fixes neither, so they are carried as published rather than filled in",
-   "left_out": "sizes over 1\""
+   "nominal_lengths_source": "FreeCAD_FastenersWB FsData/inch_fs_length.csv, the list asmeb18.3.5def.csv ranges filter, with 5/16, 5/8 and 7/8 added from ASME B18.3 (nominal_lengths_fill_source)",
+   "nominal_lengths_fill_source": "ASME B18.3-1998 Table 5A note 3, Standard Length Increments for Set Screws (0.06 in. from 0.13 through 0.50, 0.13 in. from 0.50 through 1.00, 0.25 in. from 1.00 through 2.00, 0.50 in. from 2.00 through 6.00): 5/16, 5/8 and 7/8 are on that grid and FastenersWB's list omits them, so they are added here; no other length of the FastenersWB list is changed",
+   "length_range_note": "the 1/4 range row starts at 3/8, as FastenersWB's asmeb18.3.5def.csv has it at the pinned commit and on its master; B18.3 fixes no range, so it is carried as published rather than filled in",
+"left_out": "sizes over 1\""
   },
   "rows": [
    {
