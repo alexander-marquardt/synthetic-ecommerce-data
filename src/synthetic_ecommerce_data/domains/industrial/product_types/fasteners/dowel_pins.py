@@ -6,7 +6,7 @@ Three standards, every row read from a table a reviewer can open:
   the diameters, chamfers, nominal lengths and per-diameter length ranges
   are FreeCAD_FastenersWB's ``FsData/iso2338def.csv`` and
   ``FsData/iso8734def.csv`` at commit ``fddd07af``, the commit
-  ``data/fastener_standards.json`` pins. Their Table 1 matches the ISO
+  ``core/standards_library/tables/fastener_standards.json`` pins. Their Table 1 matches the ISO
   2338:1997 and ISO 8734:1997 preview PDFs; the materials, hardness and
   finishes are those previews' Table 2.
 * ASME B18.8.2 hardened ground machine dowel pins: the Engineers Edge
