@@ -59,8 +59,8 @@ _ROWS: list[tuple[str, str, str, str, str, str]] = [
         "retail_figures.py",
         "TIER_SKUS = 50_000",
         "TIER_SKUS = 40_000",
-        "tests/test_retail_figures_162.py -k committed_figures_are_what_the_build_measures",
-        "the committed figures are what the build measures, the 50K tier's included",
+        f"{_T} -k figures_pin_the_tiers_counts",
+        "the measured figures hold the 50K tier's totals",
     ),
     (
         "a new brand reuses another brand's mark",

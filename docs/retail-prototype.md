@@ -113,7 +113,8 @@ with its own mark, in `grocery_brand_styles.py`), shares the target over every f
 families too, so the total is the target) and draws from a stream of its own, so
 `grocery.build()` and any build of the target or fewer read none of it and no 10K style, id or
 draw moves. The tier's styles, SKUs, brands and each family's share are `grocery_tier_50k` in
-`golden-retail/stats.json`; `tests/test_grocery_50k_tier_376.py` holds them.
+`retail_figures.figures()` (and in the derived `golden-retail/stats.json`);
+`tests/test_grocery_50k_tier_376.py` holds them.
 
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
 order, never in conflict with `contains`, which names the allergens the list holds a source
