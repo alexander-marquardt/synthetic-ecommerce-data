@@ -10,7 +10,6 @@ the catalog records.
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import json
 import shutil
@@ -45,11 +44,15 @@ from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 REPO = Path(__file__).resolve().parents[1]
 GOLDEN = REPO / "golden-catalog"
 
+sys.path.insert(0, str(REPO / "scripts"))
+import golden_pins  # noqa: E402  (scripts/ is not a package)
 
-@functools.cache
-def _facets() -> bundle.SkuFacets:
-    """``{sku: facets}``: a nested entry carries no spelling, so a drawing reads it here (#42)."""
-    return bundle.flat_facets(GOLDEN)
+#: The facets, the type scale, the drawn size and the SKU walk are ``scripts/golden_pins.py``'s: the
+#: script that measures the pins below walks the catalog the same way these tests do.
+_facets = golden_pins.facets
+_type_scale = golden_pins.type_scale
+_drawn_size = golden_pins.drawn_size
+_golden_skus = golden_pins.golden_skus
 
 
 CATALOG = generate(SMALL)
@@ -420,12 +423,6 @@ def _circle_radii(elements) -> list[float]:
     return sorted(float(e.attrib["r"]) for e in elements if e.tag.endswith("circle"))
 
 
-def _type_scale(type_key: str) -> float:
-    from synthetic_ecommerce_data.core.drawing.sheet import type_scale
-
-    return type_scale(FIGURES[type_key][1])
-
-
 def test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion():
     """The ruling's own example: an M4 washer vs an M16 washer must LOOK different.
 
@@ -550,12 +547,6 @@ def _has_lens(svg: bytes) -> bool:
     )
 
 
-def _drawn_size(type_key: str, record) -> tuple[float, float]:
-    x0, y0, x1, y1 = FIGURES[type_key][0](dict(record)).figure.bounds()
-    scale = _type_scale(type_key)
-    return (x1 - x0) * scale, (y1 - y0) * scale
-
-
 def _too_small(width: float, height: float) -> bool:
     """The ruling, written out independently of :func:`sheet.magnifier`:
     drawn at most 1/5 of the sheet's width AND at most 1/6 of its height."""
@@ -576,18 +567,6 @@ def _handled_k(width: float, height: float) -> float:
     return 0.92 * 2 * radius / math.hypot(width, height)
 
 
-def _golden_skus():
-    for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
-        parent = json.loads(line)
-        for variant in parent["variants"]:
-            yield parent, variant, bundle._record(
-                parent,
-                variant,
-                _facets()[variant["sku"]],
-                _facets().authored.get(parent["product_type"]),
-            )
-
-
 def test_the_lens_appears_exactly_when_the_rule_says():
     """Over every committed SKU: a lens iff the part is drawn w <= 1/5 AND h <= 1/6 of the sheet."""
     wrong, lensed, plain = [], 0, 0
@@ -604,54 +583,17 @@ def test_the_lens_appears_exactly_when_the_rule_says():
     assert lensed > 1000 and plain > 5000, (lensed, plain)
 
 
-#: The smallest enlargement any committed lens gives, measured and rounded
-#: down to 0.01: the handled glass is used only at x2.5 or more. The floor is
-#: a hex socket set screw (1/4-20 x 3/4" flat point), drawn at an extent no
-#: wider than its 1" size needs; widening the extent to lift it would draw
-#: every set screw smaller.
-#: Measured again for the brand plate (#132): the figure area above the 56-unit
-#: plate is 236 units tall, not 300, so the tallest lenses are height-bound
-#: and the floor is now a 5/16" screw pin chain shackle (x2.12).
-CATALOG_MIN_ENLARGEMENT = 2.12
-
+#: The smallest enlargement any committed lens gives, the SKUs the handle-less lens must serve and
+#: the hairline drill the stroke test draws are not typed here: ``scripts/measure_pins.py`` measures
+#: them, by the rules in ``golden_pins.SKU_RULES``, into ``tests/data/golden_pins.json`` (the
+#: ``lens`` figures), and the test below holds the fixture to a fresh measurement. A regeneration
+#: restates them with one command, and the fixture's diff is what a reviewer reads.
 #: What the handle-less lens gives at the rule's extreme, a part drawn a full
 #: 40 x 50 (1/5 x 1/6 of the sheet). BELOW x2.5, and stated rather than hidden:
 #: the lens was width-bound at the 8-unit margin that clears the brand frame
 #: (~x2.41); since the plate (#132) it is height-bound in the 236-unit figure
 #: area, so no larger lens fits.
 EXTREME_ENLARGEMENT = 2.05
-
-#: Two committed SKUs the handle-less lens must serve: an in-between screw (a
-#: 1/4-20 x 1/2" socket head) and a hairline drill (a 1/16" jobber). Re-picked on
-#: every regeneration; the test fails if either is gone. Re-picked for
-#: alexander-marquardt/synthetic-ecommerce-data#39 (Corner Radius/Neck
-#: Length applied once instead of twice, which moved every SKU code): the
-#: drill happened to keep its sku, ``3BF24``; the screw did not, so
-#: ``19DG33`` became ``45HC83``. Re-picked for
-#: alexander-marquardt/synthetic-ecommerce-data#48, which made every SKU
-#: a ten-digit part number from its type's own block: each is the first
-#: committed SKU, in catalog order, that matches the description and is drawn
-#: under the handle-less lens. Re-picked for #132: the smaller figure area
-#: draws the 1/16" jobber (``HAIRLINE_DRILL``) under the handled glass now,
-#: so the drill pinned here is a jobber still drawn handle-less (a 5/64").
-#: The 56-unit plate moved the M6x1 x 10mm screw (``2334357307``) under the
-#: handled glass too; the screw is now the first socket head still drawn
-#: handle-less (measured over the golden catalog with ``sheet.magnifier``).
-#: Re-picked for alexander-marquardt/synthetic-ecommerce-data#65: the socket
-#: screws' ``Units per Pack`` row takes a presence draw from their stream,
-#: so ``2334468134`` is drawn under the handled glass now and the screw is
-#: ``2334249296``.
-#: Re-picked for alexander-marquardt/synthetic-ecommerce-data#404 (the
-#: inch-length-under-an-angle-key corruption is removed, so one draw fewer per
-#: record moved the random stream and renumbered the drills): ``3818077553`` is
-#: now a 10.65-unit-wide drill under the handled glass; the first 5/64" jobber
-#: in catalog order drawn handle-less is ``3818060916`` and the first 1/16"
-#: jobber (a 1.42-unit-wide hairline) is ``3818542871`` (both measured over the
-#: golden catalog with ``sheet.magnifier``). The screw kept its sku and is still
-#: the first socket head drawn handle-less.
-PINNED_HANDLE_LESS = ("2334249296", "3818060916")
-#: A hairline drill (a 1/16" jobber), by name, for the stroke test below.
-HAIRLINE_DRILL = "3818542871"
 
 
 def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only_when_it_must_be():
@@ -662,25 +604,33 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
     """
     from synthetic_ecommerce_data.core.drawing.sheet import magnifier
 
+    pins = golden_pins.load()["lens"]
+    handle_less_pins = {pins["skus"]["screw"], pins["skus"]["drill"]}
     counts = {True: 0, False: 0}
     lowest = 99.0
     pinned: set[str] = set()
+    candidates = []
     for parent, variant, record in _golden_skus():
         width, height = _drawn_size(parent["product_type"], record)
         mag = magnifier(width, height)
+        candidates.append((parent, variant, mag is not None and not mag.handle))
         if mag is None:
             continue
         lowest = min(lowest, mag.k)
         assert mag.handle == (_handled_k(width, height) >= 2.5), variant["sku"]
         counts[mag.handle] += 1
-        if variant["sku"] in PINNED_HANDLE_LESS:
+        if variant["sku"] in handle_less_pins:
             assert not mag.handle, variant["sku"]
             pinned.add(variant["sku"])
     # Asserted, not assumed: a regeneration renumbers SKUs, and a pinned id
     # that no longer exists used to leave this check asserting nothing.
-    assert pinned == set(PINNED_HANDLE_LESS), sorted(set(PINNED_HANDLE_LESS) - pinned)
+    assert pinned == handle_less_pins, sorted(handle_less_pins - pinned)
     assert counts[True] > 100 and counts[False] > 500, counts
-    assert CATALOG_MIN_ENLARGEMENT <= lowest < CATALOG_MIN_ENLARGEMENT + 0.01, lowest
+    # The fixture is what the rules pick today, and its floor is the measured one.
+    fresh = {rule.key: golden_pins.pick_sku(rule, candidates) for rule in golden_pins.SKU_RULES}
+    assert fresh == pins["skus"], f"the pinned SKUs moved; run {golden_pins.REGENERATE}"
+    floor = pins["min_enlargement"]
+    assert floor <= lowest < floor + 0.01, f"{lowest}: run {golden_pins.REGENERATE}"
     extreme = magnifier(200 / 5 - 1e-9, 300 / 6 - 1e-9)
     assert extreme is not None and not extreme.handle
     assert EXTREME_ENLARGEMENT <= extreme.k < 2.5, extreme.k
@@ -862,9 +812,10 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
 
 
 def test_a_hairline_drill_is_drawn_with_a_visible_outline():
-    """Planted: HAIRLINE_DRILL (a 1/16" jobber) is drawn under 2.3 units wide at its scale."""
+    """Planted: the pinned 1/16" jobber is drawn under 2.3 units wide at its scale."""
+    hairline = golden_pins.load()["lens"]["skus"]["hairline_drill"]
     for parent, variant, record in _golden_skus():
-        if variant["sku"] == HAIRLINE_DRILL:
+        if variant["sku"] == hairline:
             width, _ = _drawn_size(parent["product_type"], record)
             assert width < 2.3
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
@@ -873,7 +824,7 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
             ]
             assert outlines and all(float(e.attrib["stroke-width"]) >= 2.3 for e in outlines)
             return
-    raise AssertionError(f"{HAIRLINE_DRILL} is not in the committed catalog")
+    raise AssertionError(f"{hairline} is not in the committed catalog")
 
 
 # --- the archive layout and its pinnable digest ----------------------------------
