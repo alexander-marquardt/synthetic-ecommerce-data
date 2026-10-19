@@ -198,6 +198,7 @@ TABLE = TableType(
     extent=(3.95, 5.3),
     share=0.020,
     series="RL",
+    compat=False,
     unit="in",
     use_lines=(
         "Fits roller chain of the same ANSI chain number.",

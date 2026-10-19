@@ -182,6 +182,7 @@ TABLE = TableType(
     extent=(6.25, 6.25),
     share=0.026,
     series="SP",
+    compat=False,
     unit="in",
     use_lines=(
         "Drives or is driven by ANSI roller chain of the same chain number.",
