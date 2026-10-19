@@ -26,6 +26,7 @@ is checked over. Every brand, line and style name is invented.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import distractors as dz
 from class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
@@ -154,6 +155,46 @@ def sh(name: str, hex_: str, family: str, material: str, pattern: str = "solid",
 # ==========================================================================
 
 
+def axes_from(kind: str, e: dict[str, Any], heel: Any) -> dict[str, str]:
+    """The drawing params of a shoe kind's variant axes (:data:`kit_footwear.AXES`), from the
+    values of the attributes ``e`` (key -> value) and the heel height in millimetres.
+
+    The one place an attribute's wording becomes the kit's word ("Back strap" is ``back``): a
+    style's drawing is built with it and :func:`fit_axes` redraws a derived style with it."""
+    if kind == "wedge":
+        return {"heel": str(heel)}
+    if kind == "espadrille":
+        return {"heel": str(e["heel_type"]).lower()}
+    if kind == "mule":
+        return {"heel": str(e["heel_type"]).lower(), "toe": str(e["toe_style"]).lower()}
+    if kind == "platform_trainer":
+        return {"platform": str(e["platform_height"])}
+    if kind == "clog":
+        strap = "back" if e["strap"] == "Back strap" else "none"
+        return {"strap": strap, "body": str(e["material"]).lower()}
+    if kind == "jelly":
+        return {"style": str(e["jelly_style"]).lower(), "glitter": str(e["glitter"]).lower()}
+    if kind == "barefoot":
+        return {"sole": str(e["sole_thickness"])}
+    return {}
+
+
+def fit_axes(rec: dict) -> None:
+    """Redraw a derived shoe's variant axes from the attributes it ended up with (gen#512).
+
+    :func:`scale.derive` swaps a changed attribute value into the drawing's params as the
+    attribute spells it, which is the kit's word only when the two are spelled alike: a clog
+    derived to "Back strap" drew ``strap='back strap'``, which the kit refuses, and one derived
+    to "None" kept ``strap='back'``.
+    """
+    drawing_ = rec["drawing"]
+    params = drawing_.get("params") or {}
+    if drawing_.get("shape") != "shoe" or "kind" not in params:
+        return
+    e = {a["key"]: a["value"] for a in rec["attributes"]}
+    params |= axes_from(params["kind"], e, e.get("heel_height"))
+
+
 @dataclass(frozen=True)
 class FootwearStyle:
     code: str
@@ -215,25 +256,9 @@ class FootwearStyle:
         return self.junior_price if "Junior" in size and self.junior_price else self.price
 
     def axes(self, heel: int) -> dict[str, str]:
-        """The drawing params of the kind's variant axes (:data:`kit_footwear.AXES`), read from
-        the attributes the record states, so the picture and the attribute are one fact."""
-        e = {k: v for k, _, v, *_ in self.extra}
-        kind = self.kind
-        if kind == "wedge":
-            return {"heel": str(heel)}
-        if kind == "espadrille":
-            return {"heel": e["heel_type"].lower()}
-        if kind == "mule":
-            return {"heel": e["heel_type"].lower(), "toe": e["toe_style"].lower()}
-        if kind == "platform_trainer":
-            return {"platform": str(e["platform_height"])}
-        if kind == "clog":
-            return {"strap": "back" if e["strap"] == "Back strap" else "none", "body": e["material"].lower()}
-        if kind == "jelly":
-            return {"style": e["jelly_style"].lower(), "glitter": e["glitter"].lower()}
-        if kind == "barefoot":
-            return {"sole": str(e["sole_thickness"])}
-        return {}
+        """The drawing params of the kind's variant axes, read from the attributes the record
+        states, so the picture and the attribute are one fact (:func:`axes_from`)."""
+        return axes_from(self.kind, {k: v for k, _, v, *_ in self.extra}, heel)
 
     def skus(self) -> list[dict]:
         """Color x width x size; a later width only in :attr:`wide` (when named)."""

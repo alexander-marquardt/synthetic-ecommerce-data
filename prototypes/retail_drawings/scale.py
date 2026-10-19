@@ -112,6 +112,7 @@ import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import footwear_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
@@ -644,6 +645,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
     lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
+    footwear_rows.fit_axes(rec)  # a clog's "Back strap" is drawn as `back` (gen#512)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
