@@ -41,6 +41,13 @@ def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") ->
     return (plain(name), pattern, base, accent)
 
 
+def shade(name: str, base: str) -> Color:
+    """A complexion shade sold under its own name ("Porcelain"): never folded into a plain colour
+    word (:func:`cw` would make it "Cream"), because the export writes it to ``shade``
+    (:mod:`shades`, gen#345). Its depth and undertone are in ``shades.NAMED``."""
+    return (name, "solid", base, "#333333")
+
+
 def attr(key: str, name: str, value, unit_code: str | None = None, canonical=None) -> dict:
     """One ``{key, name, value[, unit_code, value_canonical]}`` attribute, as round 3."""
     a = {"key": key, "name": name, "value": str(value)}
