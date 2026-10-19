@@ -815,7 +815,7 @@ def _brand_tag(brand: str) -> list[str]:
 
 
 def _shrunk(drawn: list[str], body: str, shrink: float) -> str:
-    """``body`` scaled by ``shrink`` about the pack's bottom centre (:mod:`pack_scale`, gen#543)."""
+    """``body`` scaled by ``shrink`` about the pack's bottom center (:mod:`pack_scale`, gen#543)."""
     if shrink >= 1:
         return body
     import pack_scale  # deferred: pack_scale measures with sheet_extent
@@ -889,7 +889,7 @@ def render(
     passed to a parametric shape (a trouser's fit and rise, a top's neckline).
     ``style`` is the brand's :class:`house_styles.HouseStyle`: its paper,
     frame, outline hand and logo replace the plain sheet and tag. ``shrink`` (below 1) scales the
-    pack about its bottom centre on the same sheet (:mod:`pack_scale`, gen#543).
+    pack about its bottom center on the same sheet (:mod:`pack_scale`, gen#543).
     """
     draw = SHAPES[shape]
     pid = f"fill-{uid}"

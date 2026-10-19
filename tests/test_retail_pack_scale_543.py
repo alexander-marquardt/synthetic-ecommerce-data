@@ -86,12 +86,12 @@ def test_the_largest_size_is_the_drawing_unchanged() -> None:
         )
 
 
-def test_the_packs_stand_on_one_baseline_and_one_centre_line() -> None:
+def test_the_packs_stand_on_one_baseline_and_one_center_line() -> None:
     rec = line_30_50_100()
     boxes = [_pack_box(rec, _sku(rec, ml)) for ml in (30.0, 50.0, 100.0)]
     bottoms = {round(b[3], 1) for b in boxes}
-    centres = {round((b[0] + b[2]) / 2, 1) for b in boxes}
-    assert len(bottoms) == len(centres) == 1
+    centers = {round((b[0] + b[2]) / 2, 1) for b in boxes}
+    assert len(bottoms) == len(centers) == 1
 
 
 @pytest.mark.parametrize("styled", [True, False])
@@ -157,7 +157,7 @@ def test_a_total_content_wins_over_the_count() -> None:
 
 def test_every_smaller_size_of_every_authored_line_renders_inside_its_sheet() -> None:
     """The sweep: each image a scaled SKU names is drawn once, carries the pack group, and stays
-    on the sheet (a shrink about the bottom centre can only pull a pack in)."""
+    on the sheet (a shrink about the bottom center can only pull a pack in)."""
     seen: set[str] = set()
     for rec in scale.templates():
         for sku in rec["skus"]:
