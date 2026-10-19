@@ -69,8 +69,8 @@ ROWS = (
          "Cotton", _clothing(20.0)),
     _row("PTCUSH", "Patchwork Cushion", "Hearth & Table", _H, _CUSHION, "Cushion", "cushion", 20.0,
          "A square cushion pieced from squares of cotton, with a feather pad. Zip opening.",
-         (cw("Multi Patchwork", "#c46a4a", "gingham", "#26365c"),
-          cw("Blue Patchwork", "#5b84b8", "gingham", "#f3ecd9")),
+         (cw("Multi Patchwork", "#c46a4a", "patchwork", "#26365c"),
+          cw("Blue Patchwork", "#5b84b8", "patchwork", "#f3ecd9")),
          "Cotton", (("45 x 45cm", 20.0), ("55 x 55cm", 26.0))),
 )
 
