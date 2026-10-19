@@ -65,6 +65,27 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the release build defaults to the ceiling (gen#536) ----
+    Mutation(
+        "release default: the export step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'scale.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'scale.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and export'",
+        "",
+        "the tag build asks for the ceiling",
+        root=".",
+    ),
+    Mutation(
+        "release default: the image step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'image_release.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'image_release.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and image'",
+        "",
+        "the image build asks for the ceiling",
+        root=".",
+    ),
     # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
     Mutation(
         "commit msg: the file name is no longer masked before matching",

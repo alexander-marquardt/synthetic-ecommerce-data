@@ -36,13 +36,13 @@ jobs:
       - name: Build the ceiling export
         run: |
           mkdir -p build/release
-          uv run --locked python prototypes/retail_drawings/scale.py --skus "${RELEASE_SKUS:-10000000}" \
+          uv run --locked python prototypes/retail_drawings/scale.py --skus "${RELEASE_SKUS:-ceiling}" \
             --flat build/release/catalog.ndjson --report build/release/report.json
           gzip -n -9 -c build/release/catalog.ndjson > build/release/catalog.ndjson.gz
           echo "$(sha256sum build/release/catalog.ndjson | cut -d' ' -f1)  $(wc -l < build/release/catalog.ndjson)" > build/release/catalog.ndjson.gz.content-sha256
       - name: Build the image bundle
         run: |
-          uv run --locked python prototypes/retail_drawings/image_release.py --skus "${RELEASE_SKUS:-10000000}" \
+          uv run --locked python prototypes/retail_drawings/image_release.py --skus "${RELEASE_SKUS:-ceiling}" \
             --out build/release/retail-images --archive build/release/retail-images.tar.gz
       - name: The pin-bump pull request body (printed on a dry run, opened otherwise)
         env:
