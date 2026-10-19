@@ -87,6 +87,7 @@ import itertools
 import math
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -695,19 +696,20 @@ def _shown_prices(
     return prices
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--write", action="store_true", help="write the literals into the source")
-    args = parser.parse_args()
+def rekey_contents(
+    recorded: dict[str, Recorded], fitted: dict[str, price.PriceModel]
+) -> dict[str, Recorded]:
+    """``recorded`` with each contents-priced SKU's key read on the ``fitted`` part models."""
+    return recorded
 
-    made = {}
-    for name, config in BUILDS.items():
-        catalog, recorded = record_draws(config)
-        made[name] = (collect(catalog), recorded)
+
+def fit_all(
+    made: dict[str, tuple[Collected, dict[str, Recorded]]],
+    announce: Callable[[str, TypeFit], None] = lambda type_key, fit: None,
+) -> tuple[dict[str, price.PriceModel], set[str]]:
+    """Every census type's fitted model over the builds in ``made``, and the
+    rows no noise brings into band."""
     fitted: dict[str, price.PriceModel] = {}
-    columns = ("key", "length", "tier", "material", "pack", "group", "sku", "size")
-    columns += tuple(f"all {name}" for name in BUILDS) + ("census",)
-    print(f"{'p90/p10 of each term alone':<26}" + "".join(f"{k:>12}" for k in columns))
     unreachable: set[str] = set()
     for type_key in price.CENSUS:
         fit = fit_type(
@@ -715,7 +717,7 @@ def main() -> int:
             [type_build(type_key, collected, recorded) for collected, recorded in made.values()],
         )
         unreachable |= fit.unreachable
-        print(f"{type_key:<26}" + "".join(f"{v:>12.2f}" for v in fit.spreads.values()))
+        announce(type_key, fit)
         fitted[type_key] = replace(
             price.MODELS[type_key],
             anchor=float(f"{fit.anchor:.4g}"),
@@ -726,6 +728,27 @@ def main() -> int:
             price_step=round(fit.step, 3),
             size_sigma=round(fit.size, 3),
         )
+    return fitted, unreachable
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--write", action="store_true", help="write the literals into the source")
+    args = parser.parse_args()
+
+    made = {}
+    for name, config in BUILDS.items():
+        catalog, recorded = record_draws(config)
+        made[name] = (collect(catalog), recorded)
+    columns = ("key", "length", "tier", "material", "pack", "group", "sku", "size")
+    columns += tuple(f"all {name}" for name in BUILDS) + ("census",)
+    print(f"{'p90/p10 of each term alone':<26}" + "".join(f"{k:>12}" for k in columns))
+    fitted, unreachable = fit_all(
+        made,
+        lambda type_key, fit: print(
+            f"{type_key:<26}" + "".join(f"{v:>12.2f}" for v in fit.spreads.values())
+        ),
+    )
     for type_key, reason in price.SLOPE_CUTS.items():
         print(f"slope cut, {type_key}: {fitted[type_key].slope} ({reason})")
 
