@@ -87,6 +87,7 @@ def test_this_repository_tracks_no_derived_file() -> None:
 # -- the build side: what the check holds out of git, the build writes (gen#536) ----------------
 
 import hashlib  # noqa: E402
+import os  # noqa: E402
 
 import build_derived  # noqa: E402
 import local_ci_jobs  # noqa: E402
@@ -183,3 +184,33 @@ def test_a_malformed_image_sidecar_is_refused(tmp_path) -> None:
     bad.write_text("nothex 3\n", encoding="utf-8")
     with pytest.raises(SystemExit):
         pins.images_pin(bad, "o/r", "v1")
+
+
+def _release_run(name: str) -> str:
+    steps = RELEASE["jobs"]["release"]["steps"]
+    return next(s["run"] for s in steps if s.get("name", "").startswith(name))
+
+
+def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) -> None:
+    """Run the workflow's own build and dry-run steps (gen#536 review): a build that asks for
+    more SKUs than the frozen catalogue holds exits 2 under ``bash -e`` and fails every ``v*``
+    tag, which a read of the workflow text never showed. ``RELEASE_SKUS`` shrinks the build."""
+    out = tmp_path / "release"
+    script = "\n".join(
+        _release_run(n)
+        for n in ("Build the ceiling export", "Build the image bundle", "The pin-bump")
+    ).replace("build/release", str(out))  # fmt: skip
+    env = {**os.environ, "RELEASE_SKUS": "300", "TAG": "v0.0.0-test", "DRY_RUN": "true"}
+    done = subprocess.run(
+        ["bash", "-e", "-o", "pipefail", "-c", script],
+        cwd=ROOT, env=env, capture_output=True, text=True,
+    )  # fmt: skip
+    assert done.returncode == 0, done.stderr[-800:]
+    for asset in (
+        "catalog.ndjson.gz",
+        "catalog.ndjson.gz.content-sha256",
+        "retail-images.tar.gz",
+        "retail-images.tar.gz.content-sha256",
+        "pin-bump-body.txt",
+    ):
+        assert (out / asset).stat().st_size > 0, asset
