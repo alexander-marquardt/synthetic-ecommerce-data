@@ -2,8 +2,8 @@
 in day, night and SPF lines of 30, 50 and 100 ml.
 
 The checks hold what the issue asked for: five or more brands and twenty or more products, a price
-per ml that falls with the volume in every line of the type, and brand names that are existing beauty
-brands, each with a house style of its own.
+per ml that falls with the volume in every line of the type, and brand names that are existing
+beauty brands, each with a house style of its own.
 """
 
 from __future__ import annotations
