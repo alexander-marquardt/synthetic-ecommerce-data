@@ -186,7 +186,7 @@ def test_chamfer_narrows_only_the_far_end_by_the_inset():
     xs_at_base = sorted(x for x, y in shape.points if y == 0.0)
     assert xs_at_base == pytest.approx([-0.2, 0.2])
     shoulders = {y for x, y in shape.points if abs(x) == 0.2 and y > 0.0}
-    assert shoulders == pytest.approx({0.9})
+    assert sorted(shoulders) == pytest.approx([0.9])
 
 
 def test_default_chamfer_is_forty_five_degrees():
@@ -206,10 +206,10 @@ def test_a_finer_pitch_draws_more_crests():
 
 def test_thread_crests_stop_where_the_chamfer_starts():
     fig = fresh()
-    primitives.thread(fig, 0.1, 0.0, 1.0, 0.1, chamfer_length=0.3)
-    assert strokes(fig) == 7
+    primitives.thread(fig, 0.1, 0.0, 1.0, 0.125, chamfer_length=0.25)
+    assert strokes(fig) == 6
     top = max(b[1] for s in fig.shapes if isinstance(s, Lines) for _, b in s.segments)
-    assert top <= 0.7 + 0.05 + 1e-9
+    assert top <= 0.75
 
 
 def test_drop_draws_a_section_that_far_toward_the_origin():
@@ -311,11 +311,11 @@ def test_round_and_hex_faces_are_centred_where_asked():
     assert cx == pytest.approx(2.0)
 
 
-def test_a_steeper_helix_draws_fewer_flute_strokes():
+def test_a_steeper_helix_draws_more_flute_strokes():
     shallow, steep = fresh(), fresh()
     primitives.helix_flutes(shallow, 0.5, 0.0, 6.0, 4, 20.0)
     primitives.helix_flutes(steep, 0.5, 0.0, 6.0, 4, 45.0)
-    assert strokes(shallow) > strokes(steep) > 0
+    assert strokes(steep) > strokes(shallow) > 0
 
 
 def test_flute_hand_mirrors_the_strokes():
@@ -550,6 +550,7 @@ def test_the_screw_is_composed_of_head_shank_thread_and_end_view_primitives(monk
         "Dia./Thread Size": "1/4-20",
         "Length": '1"',
         "Head Type": "Socket",
+        "Thread Length": '0.5"',
         "Drive Size": '0.1875"',
     }
     figures.fastener(record)

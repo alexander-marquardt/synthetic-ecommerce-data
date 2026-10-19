@@ -384,7 +384,9 @@ keep their floor of 300, as they keep their share.
 ### Figure and extent
 
 **Figure.** Reuse the family's figure when it draws the part (the lock nut
-uses `hex_nut`). Otherwise write one in `domains/industrial/drawing/figures.py`, following
+uses `hex_nut`). Otherwise compose one from the shared primitives
+([Composing a figure from primitives](drawings.md#composing-a-figure-from-primitives)),
+in your type module or in `domains/industrial/drawing/figures.py`, following
 [Adding a drawing for a new type](drawings.md#adding-a-drawing-for-a-new-type):
 the signature is `figure(record: dict[str, str]) -> Drawn`, where `record`
 maps each published attribute name of the SKU to its value. A breadth shape
