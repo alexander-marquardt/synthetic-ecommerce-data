@@ -73,3 +73,8 @@ def discover() -> list[tuple[str, Row]]:
                 raise ValueError(f"{path.name}: rows() yielded a {type(row).__name__}, not a Row")
             found.append((prefix, row))
     return found
+
+
+def discover_mutations() -> list:
+    """Every mutation of every ``scripts/mutations/*.py`` file (not built yet)."""
+    return []
