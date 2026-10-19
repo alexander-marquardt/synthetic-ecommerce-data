@@ -1998,8 +1998,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         'sports decoys: a live type is exempted with no decoys',
         'prototypes/retail_drawings/decoy_product_words.py',
-        '"Dumbbell", "Kettlebell",\n              "Foam Roller")',
-        '"Dumbbell", "Kettlebell",\n              "Foam Roller", "Football")',
+        'SPORTS_EXEMPT: dict[str, str] = {}',
+        'SPORTS_EXEMPT: dict[str, str] = {"Football": "no decoys yet, tracked in #375"}',
         'tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt',
         "",
         'a sports type is planned or exempt, never silently both',
@@ -2008,8 +2008,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         'sports decoys: an exemption names no follow-up issue',
         'prototypes/retail_drawings/decoy_product_words.py',
-        '"decoys are tracked in #375"',
-        '"decoys are tracked later"',
+        'SPORTS_EXEMPT: dict[str, str] = {}',
+        'SPORTS_EXEMPT: dict[str, str] = {"Football": "decoys are tracked later"}',
         'tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt',
         "",
         'an exemption names its issue',
@@ -2018,11 +2018,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         'sports decoys: a later type is added to the exempt set',
         'prototypes/retail_drawings/decoy_product_words.py',
-        '"Dumbbell", "Kettlebell",\n              "Foam Roller")',
-        '"Dumbbell", "Kettlebell",\n              "Foam Roller", "Kickboard")',
-        'tests/test_retail_sports_decoys_368.py::test_the_exempt_set_is_the_seven_first_increment_types',
+        'SPORTS_EXEMPT: dict[str, str] = {}',
+        'SPORTS_EXEMPT: dict[str, str] = {"Kickboard": "decoys are tracked in #375"}',
+        'tests/test_retail_sports_decoys_368.py::test_the_exempt_set_is_empty',
         "",
-        'the exempt set is the seven first-increment types, nothing else',
+        'the exempt set stays empty',
         root=".",
     ),
     Mutation(
