@@ -821,7 +821,7 @@ def test_a_name_two_types_declare_differently_is_left_to_the_ratio() -> None:
         "a": (
             AttrSpec("Span", "sku", kind="length", source="drawn"),
             AttrSpec("Thread Length", "sku", kind="length", source="drawn"),
-            AttrSpec("Tag", "line"),
+            AttrSpec("Tag", "line", source="drawn"),
         ),
         "b": (
             AttrSpec("Span", "sku", kind="length"),

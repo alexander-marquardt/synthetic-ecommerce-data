@@ -1137,6 +1137,15 @@ the documents publishing it carry a parsed number in `facets_num`, and **terms**
 otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
 
+A numeric attribute is offered as a **range** or as a **list** by what the
+generator declares about it, not by a tuned floor (gen#95). Each `AttrSpec` in
+`domains/industrial/vocab.py` says whether its values are `tabled` (a standard's
+list of sizes, the default) or `drawn` (from a continuous range: an end mill's
+Neck Length is the one), and `prism/derive.py` reads that word the way it reads
+the identifier declaration, so the control does not move with `--lines`. Only a
+quantity no vocabulary here names falls back to the dispersion ratio and the
+250-product floor. A test holds each declaration to the default build.
+
 **An attribute whose key is a column's name is namespaced, never dropped.**
 Real feeds publish attributes named like a catalog's own columns -- the census
 carries `Series` (25 records), `Product Type` (15) and `Brand` (1) as
