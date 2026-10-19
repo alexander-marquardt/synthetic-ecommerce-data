@@ -5,9 +5,8 @@ rinse aid that go in one (and, through their text, the mugs, lunch boxes and cut
 descriptions say "Dishwasher safe", which are already in the catalog). "washing machine" meets its
 cleaner, a descaler and pods for it. "fridge" meets storage boxes, a lunch cooler and cheese
 crisps. Each is a real product of a type the catalog already has, drawn as that product; the
-category policy (Home > Large Appliances) or the department policy drops it. No title or
-description names a color. Fridge magnets, a fridge thermometer, a washing machine
-anti-vibration mat and a cooler bag need product types the catalog lacks (a spec each, #334).
+category policy (Home > Large Appliances) or the department policy drops it. No title
+or description names a color. The "mini fridge" cooler is the lunch cooler below.
 """
 
 # ruff: noqa: E501 -- data tables and descriptions read better whole than wrapped.
