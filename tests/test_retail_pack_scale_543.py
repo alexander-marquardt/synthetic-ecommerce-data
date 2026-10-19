@@ -8,6 +8,7 @@ canvas and the same baseline. The bounding box of the rendered pack is the measu
 
 from __future__ import annotations
 
+import re
 import sys
 import xml.etree.ElementTree as ET
 from functools import cache
@@ -202,8 +203,19 @@ def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(ml: f
     )
 
 
-def test_the_docs_before_and_after_strip_is_the_one_the_drawings_make_now() -> None:
-    assert STRIP.read_text(encoding="utf-8") == pack_scale_strip.strip(), (
+def _strip_facts(text: str) -> tuple[list[str], list[str]]:
+    """What the strip states and applies, not the bytes of the whole sheets it embeds (those move
+    with any sibling PR that touches the line's drawing): its captions and its pack scales."""
+    captions = re.findall(r"<text [^>]*>([^<]*)</text>", text)
+    scales = re.findall(r'class="pack" transform="translate\([^)]*\) scale\(([0-9.]+)\)"', text)
+    return captions, scales
+
+
+def test_the_docs_before_and_after_strip_states_the_scales_the_drawings_apply_now() -> None:
+    """Compares the strip's captions and the scale factors it applies with a fresh strip's; a
+    byte-exact comparison would red in the merge queue whenever a sibling PR moves the tree."""
+    shipped = _strip_facts(STRIP.read_text(encoding="utf-8"))
+    assert shipped == _strip_facts(pack_scale_strip.strip()), (
         "docs/images/pack-scale.svg is stale: uv run python prototypes/retail_drawings/"
         "pack_scale_strip.py --out docs/images/pack-scale.svg"
     )
