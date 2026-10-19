@@ -31,7 +31,7 @@ SPEC = TypeSpec(
             (cw("Black", "#2d2d33"),),
             (
                 a("material", "Material", "Rubber"),
-                a("pack_size", "Pack size", "4"),
+                a("pack_size", "Pack size", "4 pack"),
             ),
             colorless=True,
         ),
