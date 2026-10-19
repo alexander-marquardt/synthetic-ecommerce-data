@@ -44,7 +44,7 @@ from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, _length_or
-from synthetic_ecommerce_data.domains.industrial.newtypes import _weighted, _window
+from synthetic_ecommerce_data.domains.industrial.newtypes import _weighted, _window, feed_style
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 if TYPE_CHECKING:
@@ -100,13 +100,6 @@ ANSI: tuple[tuple[str, Fraction, Fraction | None, Fraction], ...] = (
 
 STRANDS = {1: "Single Strand", 2: "Double Strand", 3: "Triple Strand"}
 
-#: Every brand spells a chain's dimensions as B29.1's table does, an inch
-#: fraction, rather than in its own feed's style. The facet derivation counts
-#: distinct spellings, not magnitudes (#77): four brand spellings of 13 sizes
-#: over the default build's 68 chains read as a range, which no dimension of
-#: this catalog may be.
-SPELLING = LengthStyle("in", '"', "fraction")
-
 #: A length, in feet, and the inches the price model scales it by.
 FEET_PER_LENGTH = {10: 120.0, 50: 600.0, 100: 1200.0}
 
@@ -161,6 +154,26 @@ PROVENANCE = (
 )
 
 
+#: The most decimal places a feed writes a chain dimension in.
+MAX_PLACES = 5
+
+
+def publish(gen: Any, inches: float, style: LengthStyle) -> str:
+    """A chain dimension in a brand's feed style, never rounded to reach it.
+
+    A feed that writes three decimals would round B29.1's 3/16 to 0.188, a
+    dimension the chain does not have, and the facet would then offer a second
+    magnitude beside the real one (gen#77). Such a feed writes the places the
+    size needs (B29.1's finest is 1-13/32 = 1.40625).
+    """
+    if style.shape == "decimal":
+        places = style.places
+        while places < MAX_PLACES and abs(round(inches, places) - inches) > 1e-9:
+            places += 1
+        style = dataclasses.replace(style, places=places)
+    return gen._publish(inches, style)
+
+
 def ansi_number(number: str, strands: int) -> str:
     return number if strands == 1 else f"{number}-{strands}"
 
@@ -168,7 +181,7 @@ def ansi_number(number: str, strands: int) -> str:
 def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     """One line: an offer, and a window of its chain numbers."""
     # Imported here: generate imports the type tables, which discover this module.
-    from synthetic_ecommerce_data.core.brands import pick_brand
+    from synthetic_ecommerce_data.core.brands import BRANDS, pick_brand
     from synthetic_ecommerce_data.domains.industrial.generate import ChildDraft, LineDraft
 
     rng = gen.rng
@@ -191,20 +204,20 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         numeric_attribute("Length", f"{offer.feet} ft", FEET_PER_LENGTH[offer.feet]),
     ]
     draft.descriptors = [("Style", style_name), ("Material", offer.material)]
-    style = SPELLING
+    style = feed_style(brand, "in", BRANDS)
     key = f"roller-chain:{offer.strands}:{offer.material}:{offer.finish}:{offer.feet}"
     for number, pitch, roller, width in _window(gen, key, offer.rows(), gen._variant_count()):
         child = ChildDraft(system="in")
         child.primary = dataclasses.replace(
-            length_attribute("Pitch", gen._publish(float(pitch), style)), key=PITCH_KEY
+            length_attribute("Pitch", publish(gen, float(pitch), style)), key=PITCH_KEY
         )
         child.attrs = [
             child.primary,
             keyword_attribute("ANSI Number", ansi_number(number, offer.strands)),
         ]
         if roller is not None:
-            child.attrs.append(length_attribute("Roller Dia.", gen._publish(float(roller), style)))
-        child.attrs.append(length_attribute("Inside Width", gen._publish(float(width), style)))
+            child.attrs.append(length_attribute("Roller Dia.", publish(gen, float(roller), style)))
+        child.attrs.append(length_attribute("Inside Width", publish(gen, float(width), style)))
         draft.children.append(child)
     return draft
 

@@ -12,8 +12,9 @@ because no link listing was seen for them.
 * ``Pitch`` and ``Inside Width`` are the chart's pitch and roller width, read
   from ``roller_chain.ANSI`` and not restated, so a link and the chain it
   joins can never disagree. ``ANSI Number`` is the chain number. All three
-  carry the name, the machine key and the spelling the roller chain type
-  gives them, so one filter finds a chain and its links.
+  carry the name and the machine key the roller chain type gives them, and
+  the two dimensions are written in the brand's feed style as a chain's are
+  (gen#77), so one filter finds a chain and its links.
 * ``Style`` is ``Single Strand``, as a single strand chain publishes it. The
   chart's multiple strand tables give a link no dimension of its own beyond
   the chain's, and a double strand link is left out.
@@ -47,10 +48,12 @@ import dataclasses
 from collections.abc import Callable, Mapping
 from typing import Any
 
+from synthetic_ecommerce_data.core.brands import BRANDS
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure, arc
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.domains.industrial.newtypes import feed_style
 from synthetic_ecommerce_data.domains.industrial.product_types.motion import roller_chain
 from synthetic_ecommerce_data.domains.industrial.tabletype import TableType, Variant, lengths, spec
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
@@ -231,16 +234,17 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
         draft.line_attrs.insert(1, keyword_attribute(STYLE, SINGLE))
         draft.descriptors = [(STYLE, SINGLE), ("Material", material)]
         draft.provenance = PROVENANCE
+        style = feed_style(draft.brand, "in", BRANDS)
         for child in draft.children:
             number, pitch, _, width = SIZES[_index(parse_length(child.primary.value).inches)]
             child.primary = dataclasses.replace(
-                length_attribute(PITCH, gen._publish(float(pitch), roller_chain.SPELLING)),
+                length_attribute(PITCH, roller_chain.publish(gen, float(pitch), style)),
                 key=roller_chain.PITCH_KEY,
             )
             child.attrs = [
                 child.primary,
                 keyword_attribute(NUMBER, number),
-                length_attribute(WIDTH, gen._publish(float(width), roller_chain.SPELLING)),
+                length_attribute(WIDTH, roller_chain.publish(gen, float(width), style)),
             ]
         return draft
 
