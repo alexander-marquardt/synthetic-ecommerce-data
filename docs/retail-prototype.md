@@ -101,7 +101,7 @@ proof corpus.
 whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. Its styles, SKUs and each family's share are `templates.grocery` and
-`grocery_families` in `golden-retail/stats.json` (below); it covers the food leaves, plus a
+`grocery_families` in `retail_figures.figures()` (below); it covers the food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 `contains` and `may_contain` over seven allergens (peanuts, tree nuts,
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
@@ -183,18 +183,18 @@ chutney, ...) stay, since the failure classes and the proof corpus pin them; no 
 product id repeats between them and the grocery styles. The main build's one honey jar
 (`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling's styles, SKUs and images, Food & Drink's
 share of them (by category tree) and the grid-clone and near-duplicate rates are
-`ceiling` and `near_duplicates` in `golden-retail/stats.json`. The 15% grid-clone gate
+`ceiling` and `near_duplicates` in `retail_figures.figures()`. The 15% grid-clone gate
 (`scale.grid_clones`) is held over the non-grocery styles only: grocery has its own cap
 (`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own since gen#160.
 `tests/test_retail_grocery_in_scale_154.py` pins it.
 
-**The retail totals are build output (gen#162).** The build's measured totals (styles, SKUs,
-per-department and per-grocery-family counts, the grocery attribute-value counts and the
-near-duplicate rate) are in `golden-retail/stats.json`, which
-`python3 prototypes/retail_drawings/retail_figures.py` rewrites (seed 0, every template
-exhausted). The tests read them there and `tests/test_retail_figures_162.py` refuses a test,
-this README or a docstring that restates one, so a grocery or type PR changes them only in that
-file: after merging `main`, rebuild it, never keep either side of a conflict in it. The
+**The retail totals are build output (gen#162, gen#536).** The build's measured totals (styles,
+SKUs, per-department and per-grocery-family counts, the grocery attribute-value counts and the
+near-duplicate rate) are measured from the tree by `retail_figures.figures()` (seed 0, every
+template exhausted, once per test run) and not committed: `scripts/build_derived.py` writes them
+to `golden-retail/stats.json` and `docs/figures.md` in the `derived` CI artifact. The tests read
+them with `figures()` and `tests/test_retail_figures_162.py` refuses a test, this README or a
+docstring that restates one, so a grocery or type PR has no file of totals to conflict on. The
 invariants keep their own asserts: no twins in a family, every allergen derived from the
 ingredients, the near-duplicate and grid-clone caps.
 
@@ -288,7 +288,8 @@ policy top 3 is all targets, and that this table is the proof's.
 The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
-drawing is not indexed and does not count).
+drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
+an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 follow-up).
 
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
 |---|---|---|---|---|---|
@@ -519,7 +520,7 @@ records: (a) no node has a sibling whose label is a word-suffix of another's (`S
 title names a more specific node of its own department sits in that node. Two siblings (`Bath Towels`,
 `Beach Towels`) need no parent. A product still sits in exactly one place.
 `tests/test_retail_departments_281.py` holds the root list at every layer, and
-`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+`retail_figures.figures()` records the ceiling's styles and SKUs per top level
 (`ceiling.top_levels`).
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
@@ -567,7 +568,7 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The templates (`templates` in `golden-retail/stats.json`) come first: the authored
+The templates (`templates` in `retail_figures.figures()`) come first: the authored
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
@@ -621,7 +622,7 @@ re-drawn inside its leaf's band, as a function of the values it changed (a
 premium material costs more; a plate's material is not drawn, so its price, bone china above porcelain above stoneware above enamel above melamine, is what keeps two plates of one finish off one grid tile, gen#229, `PLATES_GRID_CLONES`). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](retail-attribute-text.md)). Today's templates run out at `ceiling` in
-`golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+`retail_figures.figures()` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
 `--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
 food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
