@@ -384,14 +384,19 @@ def _weighted(rng: random.Random, options: tuple[tuple[int, str], ...]) -> str:
     return rng.choices([o for _, o in options], [w for w, _ in options])[0]
 
 
+def budgets(skus: int) -> dict[str, int]:
+    """Each family's SKU budget for a build of ``skus``."""
+    # A depth family is sized against the core families' weight and drawn from its own stream,
+    # so adding one never moves a core family's budget, ids or draws (gen#154).
+    total = sum(f.weight for f in FAMILIES if not f.depth)
+    return {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
+
+
 def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     """The grocery records: the anchors, then each family's share of ``skus``."""
     rng = random.Random(f"grocery:{seed}")
     fams = {f.code: f for f in FAMILIES}
-    # A depth family is sized against the core families' weight and drawn from its own stream,
-    # so adding one never moves a core family's budget, ids or draws (gen#154).
-    total = sum(f.weight for f in FAMILIES if not f.depth)
-    budget = {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
+    budget = budgets(skus)
     held: Counter[str] = Counter()
     titles: set[str] = set()
     recs: list[dict] = []

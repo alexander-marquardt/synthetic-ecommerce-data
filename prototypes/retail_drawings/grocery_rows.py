@@ -110,6 +110,11 @@ LINES = (
     "Alderley", "Birchfield", "Cranmore", "Dovedale", "Edgecote",
 )  # fmt: skip
 
+#: The 50K tier's extra range names (gen#376): empty until the tier lands.
+TIER_LINES: tuple[str, ...] = ()
+#: The 50K tier's extra brands by family brand tuple (gen#376): empty until the tier lands.
+TIER_BRANDS: dict[tuple[str, ...], tuple[str, ...]] = {}
+
 _CHOC = ("Crunchworth", "Pantry Mill", "Hearth & Table", "Barrowby Kitchen")
 _SNACK = ("Crunchworth", "Pantry Mill", "Wheatsheaf Lane", "Crofter's Bakehouse")
 _BREAK = ("Wheatsheaf Lane", "Pantry Mill", "Goldfield Farms")
