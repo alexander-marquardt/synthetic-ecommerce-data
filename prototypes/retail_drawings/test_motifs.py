@@ -7,6 +7,7 @@ Run: ``uv run pytest prototypes/retail_drawings/test_motifs.py``.
 from __future__ import annotations
 
 import dataclasses
+import importlib
 import re
 import subprocess
 import sys
@@ -30,6 +31,11 @@ from kit import PLACEMENTS, SHAPES, Fill, render  # noqa: E402
 from kit_produce import FRUIT, fruit_count, jitter  # noqa: E402
 from real_classes import class_docs  # noqa: E402
 from variants import cw  # noqa: E402
+
+# Every module that registers kit shapes, whatever ran before this file: the shape sweep reads
+# ``SHAPES`` as the imports left it, and run alone or in the directory's order it saw different sets.
+for _module in sorted(HERE.glob("kit_*.py")):
+    importlib.import_module(_module.stem)
 
 CORPUS = dz.corpus()
 MOTIFS = sorted(kit_motifs.CATEGORY)
