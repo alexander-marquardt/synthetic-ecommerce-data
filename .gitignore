@@ -26,3 +26,11 @@ __pycache__/
 .v/
 .DS_Store
 .agent/
+
+# Build output (gen#536): scripts/build_derived.py writes these, CI uploads them as an artifact.
+build/
+golden-retail/stats.json
+docs/figures.md
+docs/retail-apparel-decoys.md
+prototypes/retail_drawings/samples*.ndjson
+prototypes/retail_drawings/preview*.html
