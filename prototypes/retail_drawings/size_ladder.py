@@ -17,8 +17,8 @@ scale: symbolic, not true to dimension, so S is visibly smaller than M and M tha
   pack sizes keep one image per color.
 - ANCHORING. The drawing is scaled about its own bottom center (:func:`stand`), so a ladder reads
   as items standing on one floor. The largest rung is the drawing as it was (``TOP`` is the
-  fraction the full-size drawing fills), and a smaller rung is that drawing times
-  ``scale / TOP``.
+  scale the full-size drawing stands for, not a measured share of the sheet), and a smaller
+  rung is that drawing times ``scale / TOP``.
 """
 
 from __future__ import annotations
@@ -26,7 +26,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
-#: The fraction of the sheet the largest and the smallest rung fill.
+#: The scale factors of the largest and the smallest rung; a smaller rung draws at
+#: ``scale / TOP`` of the full-size drawing (a ratio, not a share of the sheet).
 TOP = 0.90
 BOTTOM = 0.55
 #: The departments whose sizes scale (``audience.WORN_DEPARTMENTS``).

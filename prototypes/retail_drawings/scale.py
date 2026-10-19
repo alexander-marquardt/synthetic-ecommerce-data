@@ -77,8 +77,8 @@ above all.
 Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
-``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,348 for the 20,002
+``images.image_ids`` is one per product, colorway and size rung, and
+``image_release.py --skus N`` renders this build's images (7,489 for the 20,074
 SKUs of ``--skus 20000``).
 """
 

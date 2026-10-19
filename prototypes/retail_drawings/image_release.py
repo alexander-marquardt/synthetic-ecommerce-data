@@ -13,10 +13,12 @@ The retail counterpart of ``ecom-generate images`` (:mod:`synthetic_ecommerce_da
 in the same package shape, so the installer that fetches the industrial
 release installs this one unchanged:
 
-- ONE IMAGE PER STYLE AND COLORWAY, never per SKU. A SKU's ``image_id``
-  (:func:`export.image_id`) is a digest of its product's drawing and its color
-  swatch, so every size of one color shares an image; a style sold in no
-  color has one image. The 328-style build is 629 images for 6,861 SKUs.
+- ONE IMAGE PER STYLE, COLORWAY AND SIZE RUNG, never per SKU. A SKU's ``image_id``
+  (:func:`export.image_id`) is a digest of its product's drawing, its color
+  swatch and, for clothing and footwear, its rung of the size ladder
+  (``size_ladder.py``), so SKUs of one color and rung share an image; any other
+  size shares one image per color, and a style sold in no color has one image.
+  The 352-style build is 3,603 images for 7,736 SKUs.
 - LAYOUT. Every member is ``retail/<image_id>.svg`` (``retail`` is
   :data:`export.IMAGE_ROOT`), and every ``image_url`` is ``/images/`` plus that
   member, so the demo serving the unpacked folder at ``/images`` resolves it.
