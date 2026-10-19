@@ -35,6 +35,30 @@ sys.path.insert(0, str(VENDOR / "scripts"))
 import check_file_size as core  # noqa: E402  (the vendored path is set up just above)
 
 core.SCOPE = SCOPE
+_core_merge_base = core.merge_base
+
+
+def merge_base(root: Path, base: str) -> str:
+    """The commit a change is measured from; a merge in progress is measured as it will be.
+
+    A merge of main that stops before its commit (a conflict, ``--no-commit``) runs
+    the pre-commit hook while ``HEAD`` is still the branch's old tip. Core's merge
+    base of ``base`` and ``HEAD`` is then the commit the branch left, and every
+    line main added since looks like the branch's growth (#398). The push gate
+    judges the merge commit, whose merge base with ``base`` is the later of the two
+    below, so the hook measures from it: the merge base of ``base`` and ``HEAD``,
+    and that of ``base`` and ``MERGE_HEAD``. With no merge in progress this is core's.
+    """
+    left = _core_merge_base(root, base)
+    try:
+        merge_head = core._git(root, "rev-parse", "-q", "--verify", "MERGE_HEAD").strip()
+        right = core._git(root, "merge-base", base, merge_head).strip()
+        return core._git(root, "merge-base", "--independent", left, right).split()[0]
+    except (core.CouldNotJudge, IndexError):
+        return left
+
+
+core.merge_base = merge_base
 
 
 def pinned_files(pin: Path = PIN) -> dict[str, tuple[str, str]]:
