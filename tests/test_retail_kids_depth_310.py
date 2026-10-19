@@ -138,3 +138,17 @@ def test_a_coat_leaf_holds_the_spellings_a_shopper_types(templates):
     titles = " | ".join(r["title"] for r in _new_rows(templates))
     for word in ("Trench Coat", "Pea Coat", "Parka", "Rain Mac", "Padded Coat"):
         assert word in titles, word
+
+
+def test_the_new_rows_take_no_text_match_decoys_with_them(templates):
+    """A type's decoys clone the first exemplars of its pool in product-id order, so a batch of
+    new rows that sorts early would take every Dress and Coat decoy into the Kids leaves. The Womens
+    dresses keep theirs, and the Kids leaves hold only the decoys they held before (the boys'
+    bomber jackets)."""
+    for leaf in (("Kids", "Girls", "Dresses"), ("Kids", "Girls", "Coats & Jackets")):
+        held = [r["title"] for r in templates
+                if tuple(r["category_path"]) == leaf and r["product_id"] in _DECOYS]
+        assert not held, (leaf, held[:3])
+    womens = [r for r in templates
+              if r["category_path"][:2] == ["Womens", "Dresses"] and r["product_id"] in _DECOYS]
+    assert len(womens) >= 20, len(womens)
