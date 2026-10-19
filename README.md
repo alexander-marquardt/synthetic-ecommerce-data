@@ -313,7 +313,7 @@ type from `skus_by_type` in its `stats.json`:
 | screw_button_head | 3,439 | | hex_key | 6,466 |
 | screw_low_head | 2,692 | | bolt_hex | 5,934 |
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
-| set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
+| set_screws_hex_socket | 7,045 | | dowel_pins | 1,004 |
 | cotter_pins | 803 | | retaining_rings_external | 694 |
 | roller_chain | 509 | | turnbuckles | 385 |
 | shackles | 373 | | pillow_block_bearings | 269 |
@@ -328,13 +328,18 @@ SKUs its makers have not already made, so it grows less. It was about 28 thousan
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
-4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
+4,513 of them lock nuts over 2,714 products, 7,045 set screws over 3,801,
 1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
 463 and 694 external retaining rings over 413 (the last two are the first
 table types, #101). The next five table types add 1,996 SKUs over 1,237
 products and moved no other type: 385 turnbuckles over 244, 373 shackles over
 246, 269 pillow block bearings over 168, 200 roller chain sprockets over 129
-and 769 roller chain links over 450. O-rings are 1,040 over 565:
+and 769 roller chain links over 450. The set screw figures are re-measured on #67, which filled the inch lengths
+5/16, 5/8 and 7/8 from ASME B18.3's length grid: the 100K build gave 6,965 set screws over
+3,777 products (124,896 SKUs over 72,874 products in all) on the commit before it and gives
+7,045 over 3,801 (124,976 over 72,898) with it; the default build is unchanged at
+11,909 SKUs. The other figures in this paragraph and the table are from their earlier
+measurements. O-rings are 1,040 over 565:
 `o_rings` was a breadth category of 2 SKUs; deepened from the AS568 table
 (#53), it took no SKU from any other type. Key stock is 965 bars over 560
 (#108, a new type with its own share), and moved none either. Bearings widened from 27 numbers to 75 (#64), so fewer bearing
