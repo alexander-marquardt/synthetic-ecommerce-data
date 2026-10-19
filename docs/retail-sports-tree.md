@@ -2,7 +2,9 @@
 
 The department is built by `prototypes/retail_drawings/sports_rows.py` (gen#265, first increment,
 PR #288; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
-roll mats, bike pumps, baseball, swimming, team and racket sports). This note records, per leaf,
+roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
+helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
+helmets, Water Sports and Wheeled Sports). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -48,9 +50,18 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Team & Racket Sports > Footballs | ball_size, cover, construction, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Tennis Rackets | grip_size, head_size, material, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Badminton Sets | players, net_included, material, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Road Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Mountain Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Electric Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Kids Bikes | bike_type, frame_material, gears, brake_type, wheel_size, color | none | none |
+| Sports & Outdoors > Cycling > Bike Helmets | helmet_type, impact_protection, visor, size, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
+| Sports & Outdoors > Wheeled Sports > Skateboards | board_type, material, deck_width, color | none | none |
 
 Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Yoga Blocks, Yoga
-Straps, Dumbbells, Kettlebells sit under a group (four levels); the other leaves sit directly under
+Straps, Dumbbells, Kettlebells, the four Bikes leaves and the two Kayaks leaves sit under a group (four levels); the other leaves sit directly under
 their family (three). The Yoga group now holds three leaves (mats, blocks and straps). The tree
 guard's rules hold on the subtree either way.
 
@@ -62,13 +73,8 @@ carries a reason.
 
 | Type | Family | Disposition |
 | --- | --- | --- |
-| Bicycles | Cycling | #352 |
-| Bike helmets | Cycling | #352 |
-| Bike lights | Cycling | #352 |
-| Bike locks | Cycling | #352 |
-| Camping stoves | Camping | #352 |
-| Kayaks | Water sports | #352 |
-| Kick scooters | Wheeled sports | #352 |
-| Skateboards | Wheeled sports | #352 |
+| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
+| Bike locks | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
+| Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Swimsuits and trunks | Swimming | Clothing already has them: reused, not duplicated (gen#265) |
 | Balance bikes | Cycling | Stay in Toys (gen#265) |
