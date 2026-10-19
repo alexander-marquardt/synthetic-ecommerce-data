@@ -1687,8 +1687,7 @@ its material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
 a type whose specs hold no material. `price.SPEC_ATTRIBUTES` adds a wheel's
 `Grit`, a bearing's `Closure Type` and a ball end mill's and a tap's
 `Number of Flutes`. Sparsity drops the `Material` or the `Number of Flutes`
-from some SKUs (on the default build 128 of 1,182 bearing SKUs and 155 of 329
-tap SKUs): such a SKU can say which spec it is in no more than a stranger can,
+from some SKUs (on the default build 128 bearing SKUs and 155 tap SKUs): such a SKU can say which spec it is in no more than a stranger can,
 so it is in none, and the type's brand-spread row says how many in its note
 (`price_report.unspecced_note`; it used to fall in a spec with an empty
 material, which mixed every material). Each row has a band
@@ -1708,7 +1707,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `72 rows, 70 in band`; the other two are the pins.
+It prints `72 rows, 71 in band`; the other is the kit pin.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
