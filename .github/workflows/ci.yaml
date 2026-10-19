@@ -130,10 +130,6 @@ jobs:
             exit 0
           fi
           export CI_SHARDS="${plan[0]#shards=}"
-          # The golden stats files are rolled at the merge, not committed by a PR (gen#373): the
-          # tests read the figures of THIS tree's build. A push to main reads the committed
-          # files as they are, which is what holds them to a fresh build (main-merged-tree).
-          [ "${GITHUB_EVENT_NAME:-}" = push ] || uv run --locked python scripts/roll_stats.py
           uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
       - uses: actions/upload-artifact@v4
@@ -186,15 +182,17 @@ jobs:
           python3 scripts/check_commit_msg.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
 
-  stats-roll:
-    # A feature PR never commits golden-retail/stats.json or golden-catalog/stats.json
-    # (gen#373): on 2026-10-18, 16 of the 21 open PRs edited the first, so every merge
-    # conflicted the rest. CI rewrites both before the tests read them (the Tests step
-    # above), scripts/merge_pr.sh commits them when the PR merges, with a Rolled-By
-    # trailer, and this job refuses a PR whose range edits either without that trailer
-    # on its tip. It names the command that puts them back.
+  no-derived-files:
+    # No file under git is build output (gen#536). The retail totals, the sneak-peek samples
+    # and previews and the two generated docs were committed, so each retail PR moved them and
+    # conflicted the rest, and main went red whenever a merge did not roll them (gen#373 guarded
+    # the roll with 532 lines). This job refuses a tree that tracks one and names the command
+    # that takes it out of git, then builds them (scripts/build_derived.py) and uploads them as
+    # the `derived` artifact of the run. A test reads a figure with retail_figures.figures(),
+    # never a committed number.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -202,11 +200,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: No rolled stats file edited by hand
-        run: >-
-          python3 scripts/check_no_stats_edit.py
-          --base "${{ github.event.pull_request.base.sha || inputs.base }}"
-          --head "${{ github.event.pull_request.head.sha || inputs.head }}"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: No build output tracked in git
+        run: python3 scripts/check_no_derived_files.py
       # gen#513: the other file a feature PR shares with every other one is a registry it
       # appends a line to. The table in the script maps each registry to the shape of an
       # appended line and names the new-file form that replaces it.
@@ -215,6 +213,13 @@ jobs:
           python3 scripts/check_no_registry_append.py
           --base "${{ github.event.pull_request.base.sha || inputs.base }}"
           --head "${{ github.event.pull_request.head.sha || inputs.head }}"
+      - name: Build the derived files
+        run: uv run --locked python scripts/build_derived.py --out build/derived
+      - uses: actions/upload-artifact@v4
+        with:
+          name: derived
+          path: build/derived
+          if-no-files-found: error
 
   file-size:
     # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
