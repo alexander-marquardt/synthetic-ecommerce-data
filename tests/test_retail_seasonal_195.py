@@ -95,3 +95,19 @@ def test_each_character_type_has_an_invented_line_and_every_range_has_a_cake_or_
 def test_a_half_word_alone_is_not_a_plain_color_but_its_two_word_color_is():
     assert not any(colorwords.is_plain(w) for w in ("Duck", "Egg", "Quartz"))
     assert colorwords.is_plain("Duck Egg") and colorwords.is_plain("Rose Quartz")
+
+
+def test_the_ornamental_pumpkin_is_a_home_ornament_and_not_a_gift_plant_565():
+    """A pumpkin for a porch or a table is a seasonal decoration (the maintainer's report, #565)."""
+    pumpkin = [r for r in _records() if r["product_id"] == "BRD-SEAPMP"]
+    assert len(pumpkin) == 1
+    (rec,) = pumpkin
+    assert rec["category_path"] == ["Home", "Home Accessories", "Ornaments"]
+    assert rec["product_type"] == "Ornament"
+    assert rec["department"] == ["Home"]
+    doc = export.standard_document(rec)
+    assert doc["category_path"][:2] == ["Home", "Home Accessories"]
+    assert doc["category_leaf"].lower() == "ornaments"
+    assert doc["product_type"] == "Ornament"
+    gift_plants = [r["title"] for r in _records() if r["category_leaf"] == "Gift Plants"]
+    assert "Ornamental Pumpkin" not in gift_plants, gift_plants
