@@ -6,7 +6,8 @@ scale: symbolic, not true to dimension, so S is visibly smaller than M and M tha
 
 - THE SCALE is the size's rank in the product's OWN ladder (the distinct primary sizes of its
   SKUs, smallest first), stepped evenly from :data:`BOTTOM` (the smallest) to :data:`TOP` (the
-  largest), the fraction of the sheet the drawing fills. A product with one size has no ladder
+  largest), the scale the full-size drawing stands for (the largest keeps the style's size, the
+  smallest draws at ``BOTTOM / TOP`` of it). A product with one size has no ladder
   and is not scaled (:func:`size_scale` is ``None``).
 - THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): a footwear
   chart row (its UK, EU and US sizes are one rung), a letter size, a kids' age size or a
@@ -94,12 +95,12 @@ def _order(rec: dict, key: str, value: str) -> float:
 
 
 def scale_at(rank: int, rungs: int) -> float:
-    """The fraction of the sheet rung ``rank`` (0 = smallest) of ``rungs`` fills."""
+    """The scale rung ``rank`` (0 = smallest) of ``rungs`` stands for, ``BOTTOM`` to ``TOP``."""
     return round(BOTTOM + (TOP - BOTTOM) * rank / (rungs - 1), 4)
 
 
 def size_scale(rec: dict, sku: dict) -> float | None:
-    """The fraction of the sheet the SKU's drawing fills, or ``None`` when it is not scaled."""
+    """The scale the SKU's drawing stands for on its ladder, or ``None`` when it is not scaled."""
     own = primary(rec, sku)
     if own is None:
         return None

@@ -5,7 +5,7 @@ Usage::
     uv run python prototypes/retail_drawings/image_release.py \\
         --out out/retail-images --archive out/retail-images.tar.gz [--skus 20000]
 
-Without ``--skus`` it releases the 328 authored styles; with it, the scaled
+Without ``--skus`` it releases the 352 authored styles; with it, the scaled
 build that reaches that SKU count (:func:`scale.build`, the 20K catalog's input),
 whose derived styles each name their own images.
 
@@ -91,7 +91,7 @@ def render(rec: dict, sku: dict, styled: bool = True) -> bytes:
 
 
 def records(skus: int | None = None) -> list[dict]:
-    """Every build record, in the export's order: the 328 authored styles, or with ``skus``
+    """Every build record, in the export's order: the 352 authored styles, or with ``skus``
     the scaled build that reaches that SKU count (:func:`scale.build`, e.g. the 20K catalog)."""
     if skus is not None:
         return scale.build(skus).records
