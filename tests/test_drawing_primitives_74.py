@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+import drawing_pins
 from drawing_pins import pin_digests
 from synthetic_ecommerce_data.core.drawing.model import ROLES, Disc, Dots, Figure, Lines, Poly
 from synthetic_ecommerce_data.domains.industrial.drawing import compose, figures, primitives
@@ -581,6 +582,32 @@ PINNED = {
     "washer_flat": "25:591f3ece432799789834037f99a33a566f18696896c84025381d6ee6e8ea2649",
     "nut_hex": "65:c5fcf14fd19e4b2fec365984ff6795812217a6a4f94e09a2d51460ce419c56ce",
 }
+
+
+def test_the_pin_draws_committed_records_so_a_generator_change_cannot_move_it():
+    """The input is a committed file, not generate(SMALL): only the drawing code moves the bytes."""
+    assert drawing_pins.RECORDS.is_file()
+    assert not hasattr(drawing_pins, "generate")
+    assert not hasattr(drawing_pins, "SMALL")
+
+
+def test_every_pinned_type_still_draws_from_the_generated_catalog():
+    """Digest-free smoke: the live catalog's SKUs of these types draw to an SVG."""
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.core.config import SMALL
+    from synthetic_ecommerce_data.core.drawing import draw_sku
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
+
+    catalog = generate(SMALL)
+    drawn = set()
+    for line in catalog.lines:
+        if line.type_key in drawing_pins.PINNED_TYPES:
+            for child in line.children:
+                record = emit.drawing_record(catalog, line, child)
+                data, _ = draw_sku(line.type_key, line.brand, record)
+                assert b"<svg" in data
+                drawn.add(line.type_key)
+    assert drawn == set(drawing_pins.PINNED_TYPES)
 
 
 def test_the_moved_figures_draw_the_same_svg_bytes_as_before():
