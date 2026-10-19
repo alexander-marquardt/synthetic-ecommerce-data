@@ -64,6 +64,12 @@ def test_a_record_that_publishes_no_number_of_ends_is_drawn_with_one():
     assert cutting_ends("end_mill_square", dict(BASE)) == 1
 
 
+def test_a_number_of_ends_that_is_not_one_is_not_drawn_as_a_form():
+    """A published value naming no number of ends is never carried into the fallback."""
+    record = {**BASE, "Milling Dia.": "about a quarter", ENDS: "Triple End"}
+    assert cutting_ends("end_mill_square", record) == 1
+
+
 def test_every_end_mill_in_the_committed_catalog_is_drawn_with_the_ends_it_publishes():
     facets = bundle.flat_facets(GOLDEN)
     drawn = {"Single End": 0, "Double End": 0}
