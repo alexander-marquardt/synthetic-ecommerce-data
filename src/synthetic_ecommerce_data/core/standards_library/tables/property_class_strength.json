@@ -1,0 +1,25 @@
+{
+ "_library": {
+  "standards": [
+   "ISO 898-1",
+   "SAE J429"
+  ],
+  "edition": "as carried by core/noise.py in the repository at commit 68fd9933",
+  "source": "Property classes and grades, each with one it is stronger than by minimum tensile strength",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "class": "Class 10.9",
+   "stronger_than": "Class 8.8"
+  },
+  {
+   "class": "Grade 8",
+   "stronger_than": "Grade 5"
+  },
+  {
+   "class": "Class 10",
+   "stronger_than": "Class 8"
+  }
+ ]
+}
