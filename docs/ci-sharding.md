@@ -32,6 +32,19 @@ shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest
 balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
 `tests/xdist_groups.py`), so one module is the floor of a shard's time.
 
+## The order the files are listed in
+
+`--dist loadgroup` gives a free worker the next module in the order pytest collected them, so
+the order of the file list is the schedule. `ci_shards.py --plan` (the tests step's source of
+files, in every shard and in the local run) prints the files heaviest first by the weights,
+with the files whose tests xdist spreads (`XDIST_SPREAD = True`, `SPLIT_FILES`) last: they are
+many small tests, the filler that levels the workers' ends. Alphabetical order left the
+late-sorting heavy modules (`test_retail_scale.py` and two other retail modules, which start
+at about 910-1020 s in the 13-worker replay) starting when the other workers were nearly done.
+`tests/test_ci_run_order_348.py` replays xdist's rule over the committed weights (no timing):
+at 8, 12, 13 and 24 workers the run ends within a tenth of perfect balance and under the
+alphabetical order. `--shard` stays alphabetical.
+
 ## A pull request runs the tests its change reaches (#495)
 
 The runner cap is about 20 concurrent jobs and one full run of this workflow is 22 jobs, about
@@ -89,3 +102,16 @@ The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
 Wall minutes from the start of `merge_pr.sh <N>` to the squash merge, printed as
 `gen-merge-minutes: <m.d> (#N, <mode>, <start> to <end>)`. Before #348 a `--local-ci` merge
 took about 55 minutes on the loaded VM. The target is under 15 for `--github-ci`.
+
+The issue's target, a typical merge under 10 minutes, is for `--local-ci` on the agent VM; the
+15 above is for `--github-ci`, whose shards queue behind the runner cap. They are two modes
+with two targets, not two readings of one. Measured on the VM (2026-10-19, 5 of the heaviest
+modules, 674 tests, `-n 2 --dist loadgroup`, one run): 358 s of wall for 696 s of test time,
+which is 0.295 of the same modules' weights in `scripts/ci_shard_weights.json` (the hosted
+runners' seconds; per module 0.19 to 0.57). Applying that ratio to the whole weight table, a
+simulation of xdist's rule (each unit to the worker that frees first) gives a whole-suite run
+of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 268 s against
+207 s on 24. That is a projection from a five-module sample, not a measured whole-suite run,
+and it assumes the merge tests cost the same ratio; the last measured whole-suite runs
+(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
+with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
