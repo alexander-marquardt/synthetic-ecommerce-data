@@ -84,8 +84,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the merge script does not list the file as generated",
         "scripts/merge_pr.sh",
-        "  src/synthetic_ecommerce_data/core/data/measured_builds.json\n",
-        "",
+        f"  docs/retail-apparel-decoys.md\n  {_FILE}\n",
+        "  docs/retail-apparel-decoys.md\n",
         f"{_MERGE} -k generated_files_are_exactly_what_the_build_writes",
         "a conflict in the file is resolved by the rebuild",
         _ROOT,
