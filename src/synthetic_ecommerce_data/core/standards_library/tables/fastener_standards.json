@@ -1,4 +1,27 @@
 {
+  "_library": {
+    "standards": [
+      "ISO 4762",
+      "DIN 912",
+      "ISO 10642",
+      "ASME B18.3",
+      "ASME B18.3.2",
+      "ISO 7380-1",
+      "ASME B18.3.3A",
+      "DIN 7984",
+      "ASME B18.3.1G",
+      "ISO 4014",
+      "ISO 4017",
+      "DIN 933",
+      "ASME B18.2.1",
+      "ISO 7089",
+      "DIN 125 A",
+      "ISO 262 (metric coarse thread pitches)"
+    ],
+    "edition": "FreeCAD_FastenersWB at commit fddd07af422b7d3a69098b32333711c5eeae184c (primary), boltsparts at commit 5c83300a57761f70db87f50c9a1f647c7278a4c2 (corroboration only)",
+    "source": "The extraction of the fastener dimension tables this catalog offers; _provenance names each upstream repository, its licence and the commit it was read at",
+    "kind": "extraction"
+  },
   "_provenance": {
     "generated_by": "bounded extraction of published dimension tables; no value was invented, interpolated or corrected",
     "requested_sizes": {

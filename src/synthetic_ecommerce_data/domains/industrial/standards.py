@@ -18,7 +18,8 @@ in :mod:`.noncopy` actually checks.
 
 Provenance
 ----------
-:file:`../data/fastener_standards.json` is the extraction, unmodified, and
+:file:`../../../core/standards_library/tables/fastener_standards.json` is the
+extraction, unmodified (the standards library's ``_library`` citation block aside), and
 carries its own ``_provenance`` block naming every upstream repository, its
 licence and the commit it was read at:
 
@@ -37,49 +38,35 @@ are not redistributed.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 from dataclasses import dataclass
-from functools import lru_cache
-from importlib import resources
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import parse_length
 
 MM_PER_INCH = 25.4
 
-#: Unified fine-thread pitches, transcribed by hand for the sizes this catalog
-#: offers. The coarse (UNC) pitches come out of the ASME B18.3 extraction --
-#: its derived threads-per-inch lands on 32 / 32 / 24 / 20 / 18 / 16 / 13 / 11
-#: across the eight inch sizes, which is the published coarse series exactly --
-#: but the FINE series appears in no open dimensional dataset. These few rows
-#: are transcribed from the Unified Thread Standard table on Wikipedia
-#: (CC BY-SA 4.0); the standard itself is ASME B1.1. Each entry is really just
-#: its own designation: "#10-32" states 32 threads per inch in the name.
+#: The inch sizes this catalog offers fasteners in.
+_FASTENER_INCH_SIZES = ("#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8")
+
+#: Unified fine-thread (UNF) threads per inch of those sizes, read from the library's
+#: ``asme_b1_1_unified_threads`` table (ASME B1.1; its ``_library`` block says where each
+#: figure was transcribed from). The coarse (UNC) pitches come out of the ASME B18.3
+#: extraction -- its derived threads-per-inch lands on 32 / 32 / 24 / 20 / 18 / 16 / 13 /
+#: 11 across the eight inch sizes -- but the FINE series appears in no open dimensional
+#: dataset. Each entry is really just its own designation: "#10-32" states 32 threads per
+#: inch in the name.
 UNF_THREADS_PER_INCH: dict[str, int] = {
-    "#6": 40,
-    "#8": 36,
-    "#10": 32,
-    "1/4": 28,
-    "5/16": 24,
-    "3/8": 24,
-    "7/16": 20,
-    "1/2": 20,
-    "5/8": 18,
+    row["size"]: row["unf_tpi"]
+    for row in library.table("asme_b1_1_unified_threads").select(list(_FASTENER_INCH_SIZES))
 }
 
-#: Nominal major diameter of the inch sizes, in inches. The numbered sizes
-#: follow the ANSI rule already encoded in :mod:`..dimensions`
+#: Nominal major diameter of those inch sizes, in inches: the same table's column. The
+#: numbered sizes follow the ANSI rule already encoded in :mod:`..dimensions`
 #: (0.060 + 0.013 N); the fractional sizes are their own names.
 INCH_MAJOR_DIA: dict[str, float] = {
-    "#6": 0.138,
-    "#8": 0.164,
-    "#10": 0.190,
-    "1/4": 0.250,
-    "5/16": 0.3125,
-    "3/8": 0.375,
-    "7/16": 0.4375,
-    "1/2": 0.500,
-    "5/8": 0.625,
+    row["size"]: row["major_dia_in"]
+    for row in library.table("asme_b1_1_unified_threads").select(list(_FASTENER_INCH_SIZES))
 }
 
 
@@ -87,21 +74,12 @@ class StandardsDataError(KeyError):
     """The standards extraction does not carry the row that was asked for."""
 
 
-@lru_cache(maxsize=1)
-def _load(name: str = "fastener_standards.json") -> dict:
-    data = resources.files("synthetic_ecommerce_data.domains.industrial.data")
-    text = data.joinpath(name).read_text("utf-8")
-    return json.loads(text)
+def _load() -> dict:
+    return library.table("fastener_standards").data
 
 
-@lru_cache(maxsize=1)
 def _load_lengths() -> dict:
-    text = (
-        resources.files("synthetic_ecommerce_data.domains.industrial.data")
-        .joinpath("fastener_offered_lengths.json")
-        .read_text("utf-8")
-    )
-    return json.loads(text)
+    return library.table("fastener_offered_lengths").data
 
 
 def provenance() -> dict:
