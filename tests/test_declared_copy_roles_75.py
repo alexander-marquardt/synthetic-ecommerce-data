@@ -87,6 +87,25 @@ def test_a_set_screw_carries_the_near_miss_thread_sentence(fresh):
     assert len(negatives) > 40, len(negatives)
 
 
+def test_a_set_screw_reads_its_declared_period_for_the_fine_pitch_near_miss(fresh):
+    """An inch size with a fine series is built to UNF on every Nth line, N being the
+    period the spec declares. At period 3 the default build holds 26 UNF lines; a
+    period of 5 (the bolt's) leaves 10, so a set screw reading another type's period
+    falls under the floor."""
+    assert compat.NEAR_MISS_PERIOD[SET_SCREW] == 3
+    fine, coarse = 0, 0
+    for doc in _of(fresh, SET_SCREW):
+        values = _published(doc)
+        size = values["Dia./Thread Size"]
+        if values.get("Thread Type") not in ("UNC", "UNF") or size[:2] == "#0":
+            continue
+        if values["Thread Type"] == "UNF":
+            fine += 1
+        else:
+            coarse += 1
+    assert fine >= 20, (fine, coarse)
+
+
 # --- the declarations, from the spec -------------------------------------------
 
 
@@ -103,6 +122,28 @@ def test_a_modelled_type_that_declares_no_compat_is_refused():
         registration._unregister(registration.TOY)
     assert refused is not None
     assert "tests.toy" in refused and "compat" in refused
+
+
+@pytest.mark.parametrize(
+    ("fields", "named"),
+    [
+        ({"compat": ("sprocket", "Size")}, "compat=('sprocket', 'Size')"),
+        ({"compat": ("nut",)}, "compat=('nut',)"),
+        ({"compat": False, "near_miss_period": 1}, "near_miss_period=1"),
+    ],
+)
+def test_a_malformed_declaration_is_refused_naming_it(fields, named):
+    """An unknown kind, a relation without an attribute, and a period of one (every
+    line a near miss, none the product itself) are refused where they are declared."""
+    typespec.ensure_registered()
+    refused = None
+    try:
+        typespec.register(registration._toy_spec(**fields))
+    except typespec.TypeModuleError as error:
+        refused = str(error)
+    finally:
+        registration._unregister(registration.TOY)
+    assert refused is not None and named in refused
 
 
 def test_compat_false_states_there_is_none_and_registers(planted_none):
@@ -128,9 +169,7 @@ def planted_none(monkeypatch):
 
 @pytest.fixture
 def planted_nut(monkeypatch):
-    yield from _plant(
-        monkeypatch, compat=("nut", "Thread Size"), near_miss_period=4, cutting=True
-    )
+    yield from _plant(monkeypatch, compat=("nut", "Thread Size"), near_miss_period=4, cutting=True)
 
 
 def _plant(monkeypatch, **fields):
