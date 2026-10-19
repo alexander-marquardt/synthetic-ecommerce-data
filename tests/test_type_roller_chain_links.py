@@ -285,23 +285,40 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
 
 def test_a_link_publishes_what_it_shares_with_its_chain_exactly_as_the_chain_does(large_docs):
     """Key, name, value, unit and canonical value: a facet value is all five,
-    so a link that spelled its pitch 0.5" would sit beside the chain's 1/2"."""
+    so a link of a brand that writes its pitch 0.500" would sit beside that
+    brand's chain, which writes it so too. A brand writes a size one way (gen#77),
+    so the entry is one per brand and chain number; across brands the size is
+    still one magnitude."""
     chains = table_gates.docs(table_gates.catalog(CHAIN, LARGE_LINES))
 
-    def shared(docs: list[dict]) -> dict[str, set[str]]:
-        found: dict[str, set[str]] = {}
+    def shared(docs: list[dict]) -> dict[tuple[str, str], set[str]]:
+        found: dict[tuple[str, str], set[str]] = {}
         for doc in docs:
             published = table_gates.values(doc)
             if published["Style"]["value"] != "Single Strand" or set(SHARED) - set(published):
                 continue
             entry = json.dumps([published[name] for name in SHARED], sort_keys=True)
-            found.setdefault(published["ANSI Number"]["value"], set()).add(entry)
+            key = (doc["brand"], published["ANSI Number"]["value"])
+            found.setdefault(key, set()).add(entry)
         return found
 
+    def magnitudes(found: dict[tuple[str, str], set[str]]) -> dict[str, set[tuple]]:
+        sizes: dict[str, set[tuple]] = {}
+        for (_, number), entries in found.items():
+            for entry in entries:
+                for item in json.loads(entry):
+                    sizes.setdefault(number, set()).add(
+                        (item["name"], item.get("unit_code"), item.get("value_canonical"))
+                    )
+        return sizes
+
     of_chains, of_links = shared(chains), shared(large_docs)
-    assert sorted(of_links) == sorted(CHART)
-    assert {number: of_chains[number] for number in of_links} == of_links
-    assert [len(entries) for entries in of_links.values()] == [1] * len(CHART)
+    assert sorted({number for _, number in of_links}) == sorted(CHART)
+    both = of_links.keys() & of_chains.keys()
+    assert len(both) > len(CHART), "too few brand and number pairs are on both types to compare"
+    assert {key: of_chains[key] for key in both} == {key: of_links[key] for key in both}
+    assert [len(entries) for entries in of_links.values()] == [1] * len(of_links)
+    assert {len(sizes) for sizes in magnitudes(of_links).values()} == {len(SHARED)}
 
 
 # --- the declared price keeps its orders --------------------------------------------
