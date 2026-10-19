@@ -35,6 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import feature_decoys
 import kit_goods  # noqa: F401 -- registers the shapes below
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
@@ -1225,6 +1226,9 @@ _SEEDS = (
        "A pump bottle of hand wash scented with an olive tree grove.", "Green", _DEP),
 )  # fmt: skip
 TABLE = (*TABLE, *_SEEDS)
+#: A feature's rows are a module in ``feature_decoys/``, found by walking it (gen#513).
+TABLE = (*TABLE, *feature_decoys.word_rows(_d))
+feature_decoys.check_unique((r.code for r in TABLE), "decoy_product_words.TABLE")
 
 #: The seed queries of gen#461 and the rows that serve them.
 SEED_ROWS = tuple(r for r in TABLE if r.seed)

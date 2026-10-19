@@ -22,7 +22,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 
-PROBE = '''
+PROBE = """
 from decoy_kind import Kind
 
 KINDS = {
@@ -43,7 +43,7 @@ def word_rows(d):
         d(901, "zz_cushion", "Probe Dress Cushion", "A cushion.", "Blue", "red dress", "dress",
           "category"),
     )
-'''
+"""
 
 REPORT = """
 import json, sys

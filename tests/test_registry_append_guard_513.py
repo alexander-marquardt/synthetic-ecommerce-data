@@ -58,6 +58,11 @@ APPENDS = {
     ),
     "word-table": (WORDS, "TABLE = (*TABLE, *_PROBE)", "feature_decoys"),
     "word-kinds": (WORDS, "NEW_KINDS.update(_PROBE_KINDS)", "feature_decoys"),
+    "word-kind": (
+        WORDS,
+        '    "probe": Kind("Home", ("Home",), "Cushion", "cushion", "B", 1.0),',
+        "feature_decoys",
+    ),
     "word-d-open": (WORDS, "    _d(", "feature_decoys"),
 }
 
