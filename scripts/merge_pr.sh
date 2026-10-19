@@ -136,6 +136,12 @@ ROLLED_BY="Rolled-By: scripts/merge_pr.sh"
 #: pins. The retail build is the slower half, about 40 s.
 RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 
+#: The GENERATED files the code reads at import, so a conflicted copy (markers in it) stops the
+#: very build that would rewrite it. The merge drops such a file before the rebuild.
+READ_AT_IMPORT=(
+  src/synthetic_ecommerce_data/core/data/measured_builds.json
+)
+
 #: The command that rewrites the pinned price figures and the 100K build's sizes
 #: (gen#85), the one measured_builds.py names as REBUILD, which
 #: tests/test_merge_pr.py pins. It builds the default and the 100K catalog,
@@ -298,9 +304,19 @@ rebuild_generated() {
 }
 
 # 2. Rebuild the committed catalog on the merged tree.
+# A generated file the code reads at import (core/price.py reads the measured builds)
+# holds conflict markers after a conflicted merge, and the build that would rewrite it
+# cannot import them: drop it, so the build starts without it and writes it (gen#85).
+if [ -n "$conflicted" ]; then
+  while IFS= read -r path; do
+    listed "$path" "${READ_AT_IMPORT[@]}" && rm -f "$work/$path"
+  done <<<"$conflicted"
+fi
 rebuild_generated
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
+    [ -e "$work/$path" ] ||
+      die "$path was dropped for the rebuild and the rebuild did not write it back; NOT pushed, NOT merged"
     if grep -q '^<<<<<<< ' "$work/$path"; then
       die "$path still holds conflict markers after the rebuild, so the rebuild did not write it; NOT pushed, NOT merged"
     fi

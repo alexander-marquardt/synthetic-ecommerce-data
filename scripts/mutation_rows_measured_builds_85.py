@@ -100,6 +100,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _ROOT,
     ),
     (
+        "the merge script keeps the conflicted file for the build to import",
+        "scripts/merge_pr.sh",
+        "READ_AT_IMPORT=(\n  src/synthetic_ecommerce_data/core/data/measured_builds.json\n)",
+        "READ_AT_IMPORT=(\n)",
+        f"{_MERGE} -k conflict_in_the_measured_builds_is_resolved_by_the_rebuild",
+        "a conflicted file the build imports is dropped before the rebuild",
+        _ROOT,
+    ),
+    (
         "the breadth-type count may be typed in a doc again",
         "tests/test_measured_figures.py",
         "\\s+\\[?breadth\\s+(?:categor|types)",
