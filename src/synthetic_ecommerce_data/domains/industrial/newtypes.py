@@ -47,6 +47,7 @@ from synthetic_ecommerce_data.core.model import (
     multi_attribute,
     numeric_attribute,
 )
+from synthetic_ecommerce_data.domains.industrial import series as thread_series
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 
 if TYPE_CHECKING:
@@ -781,6 +782,26 @@ class Kit:
     designations: tuple[str, ...] = ()
 
 
+def _key_mm_kit(keys: list[float]) -> tuple[float, ...]:
+    """A metric key set's sizes in inches, each key a value of the ISO 2936 series."""
+    return tuple(k / MM_PER_INCH for k in library.table("iso_2936_hex_key_mm").pick(keys))
+
+
+def _key_in_kit(keys: list[str]) -> tuple[float, ...]:
+    """An inch key set's sizes, each key a value of the ASME B18.3 series."""
+    return tuple(float(Fraction(k)) for k in library.table("asme_b18_3_hex_key_in").pick(keys))
+
+
+def _metric_kit(sizes: list[str]) -> tuple[str, ...]:
+    """Coarse metric thread designations from ISO 262 (``M6x1``)."""
+    return tuple(name for name, _ in thread_series.metric_designations(tuple(sizes)))
+
+
+def _unc_kit(sizes: list[str]) -> tuple[str, ...]:
+    """Unified coarse thread designations from ASME B1.1 (``1/4-20``)."""
+    return tuple(name for name, _ in thread_series.unified_designations("unc_tpi", tuple(sizes)))
+
+
 KITS: tuple[Kit, ...] = (
     # ISO 2936 metric key sets. The 12-piece precision set starts below the
     # smallest key the catalog sells singly (1.5mm): 0.7, 0.9 and 1.3mm.
@@ -788,14 +809,14 @@ KITS: tuple[Kit, ...] = (
         "Hex Key Set",
         "hex_key",
         "mm",
-        tuple(k / MM_PER_INCH for k in (1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+        _key_mm_kit([1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]),
     ),
-    Kit("Hex Key Set", "hex_key", "mm", tuple(k / MM_PER_INCH for k in (2, 2.5, 3, 4, 5, 6, 8))),
+    Kit("Hex Key Set", "hex_key", "mm", _key_mm_kit([2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0])),
     Kit(
         "Hex Key Set",
         "hex_key",
         "mm",
-        tuple(k / MM_PER_INCH for k in (0.7, 0.9, 1.3, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+        _key_mm_kit([0.7, 0.9, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]),
     ),
     # ASME B18.3 inch key sets; the 15-piece set starts at 0.028" and 0.035",
     # which the catalog does not sell singly.
@@ -803,29 +824,16 @@ KITS: tuple[Kit, ...] = (
         "Hex Key Set",
         "hex_key",
         "in",
-        (
-            0.028,
-            0.035,
-            0.050,
-            1 / 16,
-            5 / 64,
-            3 / 32,
-            7 / 64,
-            1 / 8,
-            9 / 64,
-            5 / 32,
-            3 / 16,
-            7 / 32,
-            1 / 4,
-            5 / 16,
-            3 / 8,
+        _key_in_kit(
+            ["0.028", "0.035", "0.050", "1/16", "5/64", "3/32", "7/64", "1/8", "9/64", "5/32"]
+            + ["3/16", "7/32", "1/4", "5/16", "3/8"]
         ),
     ),
     Kit(
         "Hex Key Set",
         "hex_key",
         "in",
-        (5 / 64, 3 / 32, 1 / 8, 5 / 32, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8),
+        _key_in_kit(["5/64", "3/32", "1/8", "5/32", "3/16", "7/32", "1/4", "5/16", "3/8"]),
     ),
     # Fractional jobber drill indexes: the classic 29-, 21- and 13-piece sets.
     Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 32)),
@@ -840,7 +848,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=50,
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8"]),
     ),
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -848,7 +856,7 @@ KITS: tuple[Kit, ...] = (
         "in",
         (),
         per_size=40,
-        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16"),
+        designations=_unc_kit(["#6", "#8", "#10", "1/4", "5/16", "3/8"]),
     ),
     # Tap sets: one tap of each coarse size.
     Kit(
@@ -856,14 +864,14 @@ KITS: tuple[Kit, ...] = (
         "tap_spiral_point",
         "mm",
         (),
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25", "M10x1.5", "M12x1.75"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8", "M10", "M12"]),
     ),
     Kit(
         "Tap Set",
         "tap_spiral_point",
         "in",
         (),
-        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "1/2-13"),
+        designations=_unc_kit(["#6", "#8", "#10", "1/4", "5/16", "3/8", "1/2"]),
     ),
 )
 

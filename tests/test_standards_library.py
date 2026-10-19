@@ -337,19 +337,23 @@ def _kit_calls(tree: ast.AST):
     ]
 
 
+def _designations_written_in(node: ast.AST) -> list[str]:
+    return [
+        n.value
+        for n in ast.walk(node)
+        if isinstance(n, ast.Constant) and isinstance(n.value, str) and _DESIGNATION.match(n.value)
+    ]
+
+
 def test_no_thread_designation_or_hex_key_size_is_written_out_beside_the_library():
+    # The metric nut tables stay per standard (ISO 4032 dimensions are theirs, and the
+    # designations are checked against ISO 262 by a test above); the tap series and the
+    # kits are the figures the library holds.
     root = Path(series.__file__).parent
-    for name in ("series.py", "newtypes.py"):
-        tree = ast.parse((root / name).read_text("utf-8"))
-        written = [
-            n.value
-            for n in ast.walk(tree)
-            if isinstance(n, ast.Constant)
-            and isinstance(n.value, str)
-            and _DESIGNATION.match(n.value)
-        ]
-        assert written == [], f"{name} writes out thread designations the library holds"
+    assert _designations_written_in(ast.parse((root / "series.py").read_text("utf-8"))) == []
     kits = _kit_calls(ast.parse((root / "newtypes.py").read_text("utf-8")))
+    for kit in kits:
+        assert _designations_written_in(kit) == []
     keys = [k for k in kits if ast.literal_eval(k.args[1]) == "hex_key"]
     assert len(keys) == 5
     for kit in keys:
