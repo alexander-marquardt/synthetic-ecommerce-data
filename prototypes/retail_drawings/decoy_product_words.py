@@ -1032,6 +1032,13 @@ _GIFTS = (
     _g(86, "hat_box", "Wicker Storage Hamper",
        "A lidded wicker hamper for blankets, toys and spare bedding.", "Brown", "hamper",
        "Gift Hamper"),
+    # -- gift card (gen#437): a holder for a gift card, paper to wrap one
+    _g(104, "case", "Gift Card Holder Case",
+       "A slim zip case with a window and slots that hold a gift card and a few notes.", "Black",
+       "card", "Gift Card", "gift card"),
+    _g(105, "s_wrap", "Gift Card Wrapping Sheets",
+       "Folded sheets of paper sized to wrap around a small gift card.", "Red", "card",
+       "Gift Card", "gift card", policy="category"),
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
 
