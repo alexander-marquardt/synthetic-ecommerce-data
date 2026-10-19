@@ -46,8 +46,14 @@ def retail_figures_measured() -> dict:
     return retail_figures.figures()
 
 
+@pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(items):
-    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise."""
+    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise.
+
+    ``tryfirst``: xdist's worker-side hook (``xdist/remote.py``) suffixes each node id with
+    ``@<group>`` from the markers it sees, and it runs before a plain conftest hook, so without
+    this the mark was added too late and a module's tests spread over the workers (#442).
+    """
     for item in items:
         module = getattr(item, "module", None)
         group = group_for(module) if module is not None else None
