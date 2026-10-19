@@ -93,3 +93,9 @@ def test_no_built_sample_color_holds_a_slash_or_an_ampersand(module: str) -> Non
     } | {s["color"] for r in records for s in r.get("skus", []) if isinstance(s.get("color"), str)}
     assert values
     assert sorted(v for v in values if "/" in v or "&" in v) == []
+
+
+def test_a_dangling_and_is_not_a_plain_color() -> None:
+    """``and`` is a qualifier of a two-color value, so it cannot end one."""
+    assert colorwords.is_plain("Blue and White")
+    assert not colorwords.is_plain("Blue and")
