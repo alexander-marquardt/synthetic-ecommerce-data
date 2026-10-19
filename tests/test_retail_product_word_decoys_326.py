@@ -81,6 +81,12 @@ TRUE_NODE = {
     "cap": "Caps",
     # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
     "block": "Yoga Blocks",
+    # the nouns of the #352 rows
+    "bicycle": "Bikes",
+    "helmet": "Bike Helmets",
+    "kayak": "Kayaks",
+    "scooter": "Kick Scooters",
+    "skateboard": "Skateboards",
     "strap": "Yoga Straps",
     "band": "Resistance Bands",
     "resistance": "Resistance Bands",

@@ -126,12 +126,12 @@ def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
 
 
 # Every type gen#265 lists that neither increment shipped (the second, gen#368, built seventeen;
-# kayaks, scooters, skateboards and the bike types are scheduled in #352). Building one moves
+# gen#352 built bikes, bike helmets, kayaks, scooters and skateboards; its optional lights,
+# locks and stoves are left out). Building one moves
 # its name to the Leaves table, which test_a_type_the_rows_build_is_not_listed_as_not_built forces.
 EXPECTED_NOT_BUILT = frozenset(
     {
-        "Bicycles", "Bike helmets", "Bike lights", "Bike locks", "Camping stoves", "Kayaks",
-        "Kick scooters", "Skateboards", "Swimsuits and trunks", "Balance bikes",
+        "Bike lights", "Bike locks", "Camping stoves", "Swimsuits and trunks", "Balance bikes",
     }
 )  # fmt: skip
 
