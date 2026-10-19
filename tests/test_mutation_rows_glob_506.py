@@ -10,6 +10,7 @@ conflicted with the next. The row shape is now one :class:`mutation_row.Row`, a 
 from __future__ import annotations
 
 import ast
+import fnmatch
 import importlib.util
 import re
 import sys
@@ -102,6 +103,9 @@ def test_every_rows_file_is_found_by_the_glob() -> None:
     files = [p.stem for p in SCRIPTS.glob("mutation_rows_*.py")]
     assert len(files) > 40
     found = mutation_row.discover()
+    assert {"garden hose", "suits", "type specs", "bolt page pack", "pack size"} <= {
+        prefix for prefix, _ in found
+    }, "long-lived rows files yielded no rows: the glob lost them"
     assert len({prefix for prefix, _ in found}) == len(files), (
         "each rows file has its own prefix and every one of them yielded rows"
     )
@@ -115,6 +119,7 @@ def test_the_harness_plants_exactly_the_rows_the_glob_finds() -> None:
     }
     found = mutation_row.discover()
     assert len(found) > 400
+    assert {"garden hose", "lighting drawings", "bolt page pack"} <= {p for p, _ in found}
     missing = [
         f"{prefix}: {row.name}"
         for prefix, row in found
@@ -198,8 +203,35 @@ _NOT_ROWS_FILES = {"mutation_check.py", "mutation_row.py"}
 
 
 def _misnamed_rows_files(scripts: Path) -> list[str]:
-    """Files in ``scripts`` that look like a rows file but that the glob does not find."""
-    return []
+    """Files in ``scripts`` that look like a rows file but that the glob does not find.
+
+    A rows file is one that imports ``mutation_row`` or binds a module-level ``PREFIX`` next to a
+    ``rows`` function. One that is not ``mutation_check.py``, ``mutation_row.py`` or a
+    ``mutation_rows_*.py`` is a rows file the glob skips without an error."""
+    skipped = []
+    for path in sorted(scripts.glob("*.py")):
+        if path.name in _NOT_ROWS_FILES or fnmatch.fnmatch(path.name, "mutation_rows_*.py"):
+            continue
+        body = ast.parse(path.read_text("utf-8")).body
+        imports_row = any(
+            (isinstance(n, ast.Import) and any(a.name == "mutation_row" for a in n.names))
+            or (isinstance(n, ast.ImportFrom) and n.module == "mutation_row")
+            for n in ast.walk(ast.Module(body=body, type_ignores=[]))
+        )
+        binds_prefix = any(
+            isinstance(n, (ast.Assign, ast.AnnAssign))
+            and "PREFIX"
+            in {
+                t.id
+                for t in (n.targets if isinstance(n, ast.Assign) else [n.target])
+                if isinstance(t, ast.Name)
+            }
+            for n in body
+        )
+        has_rows = any(isinstance(n, ast.FunctionDef) and n.name == "rows" for n in body)
+        if imports_row or (binds_prefix and has_rows):
+            skipped.append(path.name)
+    return skipped
 
 
 def test_no_script_is_a_rows_file_the_glob_skips() -> None:
