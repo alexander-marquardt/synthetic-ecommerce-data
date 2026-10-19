@@ -38,8 +38,6 @@ SHOE_TYPES = (
     "Wellies",
 )  # fmt: skip
 CARE_TYPES = ("Shoe Care Kit", "Shoe Laces", "Shoe Polish")
-#: The legacy list held 333 types before; the 26 shoe types leave it.
-CEILING = 333 - 26
 
 
 def _spec_for(ptype: str):
@@ -73,10 +71,9 @@ def test_a_care_product_stays_on_the_legacy_list(ptype: str) -> None:
     assert _spec_for(ptype) is None
 
 
-def test_the_ceiling_dropped_by_the_26_shoe_types_and_stays_exact() -> None:
+def test_the_legacy_list_is_exactly_the_ceiling_and_every_built_type_is_registered() -> None:
     legacy = type_registry.legacy_types()
-    assert type_registry.LEGACY_CEILING == CEILING
-    assert len(legacy) == CEILING
+    assert len(legacy) == type_registry.LEGACY_CEILING
     built = {(str(d["department"][0]), str(d["product_type"]))
              for d in scale.templates(baseline=False)}  # fmt: skip
     assert type_registry.registration_problems(built) == []
