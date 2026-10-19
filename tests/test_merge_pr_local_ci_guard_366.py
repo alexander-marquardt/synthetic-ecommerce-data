@@ -134,3 +134,17 @@ def test_the_step_3_checks_past_the_ceiling_refuse_the_merge(world: dict) -> Non
     assert "memory ceiling exceeded" in done.stderr, done.stderr[-800:]
     assert "NOT merged" in done.stderr, done.stderr[-800:]
     assert not _merged(world)
+
+
+def test_a_local_job_runs_in_the_merged_tree_not_where_the_guard_lives(world: dict) -> None:
+    """The guard is started by ``uv run`` and the job runs where the script put it (``$work``).
+
+    ``tests/test_planted_green.py`` is the PR's: only the merged tree holds it, the checkout
+    that carries ``merge_pr.sh`` does not. A guard that moved the job into that checkout would
+    pass a stale tree green (a red freshness test passed, and no golden was regenerated).
+    """
+    head = _open_pr(world, _plant("test -f tests/test_planted_green.py"))
+    done = _run(world, head, _GREEN_CHECK, "--local-ci", "--label", "lbl")
+    assert done.returncode == 0, done.stdout[-800:] + done.stderr[-800:]
+    assert "local CI tests: PASS" in done.stdout, done.stdout[-800:]
+    assert _merged(world)
