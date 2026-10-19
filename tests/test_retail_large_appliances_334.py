@@ -63,3 +63,25 @@ def test_each_appliance_word_has_at_least_three_class_8_decoys(query):
     assert len(rows) >= 3, [r.title for r in rows]
     assert all(query in r.title.lower() for r in rows)
     assert all(r.ptype not in {"Dishwasher", "Fridge & Freezer", "Laundry Appliance"} for r in rows)
+
+
+#: title -> (the appliance word it holds, its own product type, its top-level node)
+SPEC_DECOYS = {
+    "Fridge Magnets, Set of 6": ("fridge", "Fridge Magnets", "Home"),
+    "Fridge Thermometer": ("fridge", "Fridge Thermometer", "Home"),
+    "Washing Machine Anti-Vibration Mat": ("washing machine", "Anti-Vibration Mat", "Cleaning"),
+}
+
+
+@pytest.mark.parametrize("title", sorted(SPEC_DECOYS))
+def test_a_magnet_a_thermometer_and_a_mat_are_types_of_their_own_outside_the_appliances(title):
+    word, ptype, top = SPEC_DECOYS[title]
+    records = scale.templates()
+    row = next((r for r in records if r["title"] == title), None)
+    assert row is not None, title
+    assert word in row["title"].lower()
+    assert row["product_type"] == ptype and row["category_path"][0] == top
+    assert row["category_path"][:2] != ROOT
+    others = [r for r in records if r["product_type"] == ptype and r["title"] != title]
+    assert others, f"{ptype} holds only its decoy"
+    assert all(word not in r["title"].lower() for r in others), [r["title"] for r in others]

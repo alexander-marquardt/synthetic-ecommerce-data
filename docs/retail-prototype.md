@@ -12,7 +12,10 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md)).
+not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md))
+and the household brands of the Electronics department (Apple, iPhone and iPad; gen#332). The large
+appliance brands are not an exception: Frostholm, Brimwell, Tavorne, Hollinmere, Cleavewick and
+Lunden & Voss are invented, as the maintainer ruled for gen#334, and no real appliance maker is named.
 
 Every product is drawn as its own kind: a bouquet as roses in a paper cone,
 socks as socks, a bed as a bed. A generic shape (`box`, `box_wide`,
@@ -654,3 +657,27 @@ Each new SKU copies the largest-size SKU of its color; the new SKUs are appended
 moves, and a derived style inherits the longer run. Decoys of `decoy_rows.py` and
 `decoy_product_words.py` keep their run. `tests/test_retail_plus_sizes_434.py` pins at least 30
 Womens dresses at UK 22 and the chart.
+
+### Large appliances (gen#334)
+
+Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
+colour or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
+under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
+integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
+dryers, washer dryers). Three specs (`type_specs/fridge_freezer.py`, `dishwasher.py`,
+`laundry_appliance.py`) read `large_appliance_rows.py`; `kit_large_appliances.py` draws them.
+Capacity, width, energy rating, place settings, noise and load are structured entries.
+Dishwashers and laundry are white, black or silver (`type_colors.py`); the retro 50/50 fridges
+carry the six main colours.
+
+The word decoys of the dishwasher, the washing machine and the fridge are in
+`feature_decoys/large_appliances.py` and listed in
+[retail-product-word-decoys.md](retail-product-word-decoys.md): "dishwasher" meets tablets, salt
+and rinse aid, "washing machine" its cleaner, descaler and pods, and "fridge" storage boxes, a
+lunch cooler and cheese crisps. The mugs, lunch boxes and cutlery whose descriptions say
+"dishwasher safe" were already in the catalog and stay reachable through text. Three more words
+need a product type the catalog lacked, so each is a spec with one ordinary product and its decoy
+(`type_specs/fridge_magnets.py`, `fridge_thermometer.py`, `anti_vibration_mat.py`; ids `DT32` to
+`DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
+stainless steel and a washing machine with a "Red Spot" dial that is white.
+`tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
