@@ -1,4 +1,12 @@
 {
+ "_library": {
+  "standards": [
+   "SAE AS568"
+  ],
+  "edition": "SAE AS568, the dash-number table, read from the Apple Rubber AS568 Standard O-Rings Quick Reference Chart retrieved 2026-10-07",
+  "source": "https://www.applerubber.com/src/pdf/as568-standard-size-o-rings.pdf (standard: https://www.sae.org/standards/content/as568f/)",
+  "kind": "rows"
+ },
  "_provenance": {
   "standard": "SAE AS568",
   "standard_url": "https://www.sae.org/standards/content/as568f/",
