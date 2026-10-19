@@ -7,6 +7,7 @@ wanted values are written out here on purpose: the test does not read the module
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -94,3 +95,33 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
                     bad.add(c)
     assert seen > 10
     assert sorted(bad) == []
+
+
+def test_a_pattern_row_draws_a_motif_the_kit_has() -> None:
+    """A flower print names a kit shape (``daisy``), never the category ``flowers``: the drawing
+    kit raises on a name it has no shape for."""
+    import motifs
+    import pattern_rows
+
+    named = {d["drawing"]["motif"] for d in pattern_rows.docs() if "motif" in d["drawing"]}
+    assert named
+    for name in named:
+        assert motifs.registry().get(name) is not None, name
+
+
+def test_the_pattern_rows_open_no_tree_node_of_their_own() -> None:
+    """A skirt sits in ``Womens > Skirts``: a ``Mini Skirts`` node would pull every other
+    "Mini Skirt" title into it (the gen#283 tree-nesting rule)."""
+    import pattern_rows
+
+    paths = {tuple(d["category_path"]) for d in pattern_rows.docs() if "Skirt" in d["title"]}
+    assert paths == {("Womens", "Skirts")}
+
+
+def test_a_pattern_row_description_does_not_name_a_neckline() -> None:
+    """gen#181: a boat or slash top names its neckline in the title on some tops only, and
+    never in the description."""
+    import pattern_rows
+
+    for d in pattern_rows.docs():
+        assert not re.search(r"\b(boat|slash)", d["description"].lower()), d["product_id"]
