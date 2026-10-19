@@ -26,6 +26,7 @@ from decor_rows import (
     YELLOW,
     row,
 )
+from seasonal_rows import AUTUMN, HALLOWEEN, ORANGE, SRow
 from type_registry import TypeSpec, a
 
 ROWS = (
@@ -53,6 +54,10 @@ ROWS = (
          (a("material", "Material", "Ceramic"), a("occasion", "Occasion", "Spring"),
           a("form", "Form", "Bird")),
          params=(("form", "bird"),)),
+    # the Halloween and autumn pumpkin (#565): a seasonal row, so it carries collections
+    SRow("SEAPMP", "Ornamental Pumpkin", "Thistle & Wren", "Home", ORNAMENTS, "Ornament", 7.0, "pumpkin",
+         "A small ornamental pumpkin, for a porch or a table.",
+         (ORANGE,), collections=(HALLOWEEN, AUTUMN), colorless=True),
 )
 
 
