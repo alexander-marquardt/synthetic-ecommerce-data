@@ -5,7 +5,7 @@ The issue's Done-when, one test group each:
 * the house-style space supports at least the brand count #53's build needs
   (``test_the_space_supports_the_brands_the_deepened_catalog_needs``);
 * the distinguishability rule is a test (the rule table, the book's pairs, the
-  ink-to-paper contrast and the colour-vision-deficiency checks);
+  ink-to-paper contrast and the color-vision-deficiency checks);
 * the levers are drawn, text-free, and a brand that names none draws as before.
 """
 
@@ -144,7 +144,7 @@ def test_the_rule_is_not_vacuous_on_the_book():
     assert strong_or_weak > 0.9 * pairs
 
 
-# --- colours --------------------------------------------------------------------
+# --- colors --------------------------------------------------------------------
 
 
 def _luminance(hex_color: str) -> float:
