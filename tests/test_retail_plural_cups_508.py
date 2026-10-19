@@ -75,7 +75,7 @@ def test_every_title_with_removable_padded_or_moulded_cups_states_them_as_an_att
 
 def test_a_bra_whose_title_does_not_name_removable_cups_does_not_state_them():
     states = facet_leaves.stated_bra_facets("Padded Balcony Bra with Removable Straps")
-    assert ("padding", "Removable Cups") not in states
+    assert not [v for k, v in states if k == "padding" and "Removable" in v], states
     assert ("padding", "Padded") in states
 
 
