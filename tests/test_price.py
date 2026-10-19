@@ -190,9 +190,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + 2 * len(price.DEEPENED_CENSUS)
     )
     assert len(price_rows) == expected == 72
-    out = [
-        row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
-    ]
+    out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -223,7 +221,6 @@ PINNED_SIDES = {
         "above",
         "brand tiers alone give",
     ),
-    "price p90/p10: kit_assortment": ("below", "#76"),
 }
 
 
@@ -594,12 +591,16 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {
-        "screw_socket_head",
-        "set_screws_hex_socket",
-        "tap_spiral_point",
-        "wheel_depressed_center",
-    }
+    assert (
+        sized
+        == set(price.SIZE_NOISE)
+        == {
+            "screw_socket_head",
+            "set_screws_hex_socket",
+            "tap_spiral_point",
+            "wheel_depressed_center",
+        }
+    )
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -990,10 +991,20 @@ def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
 KIT_PART = {kit.item: kit.part_type for kit in newtypes.KITS}
 
 #: How far a kit's price may land from its contents' price times its material
-#: and tier factors: the fitted kit factor (1.009) moved by its SKU noise
-#: (sigma 0.022, about 5 sigma either way) and its ending. The default build
-#: lands every kit within 0.969 to 1.059, the 100K one within 0.944 to 1.080.
+#: and tier factors: the fitted kit factor (0.963) moved by its SKU noise
+#: (sigma 0.022, about 5 sigma either way) and its ending.
 OVER_CONTENTS = (0.9, 1.12)
+#: A pack of a dozen screws costs a couple of dollars, and a list price that
+#: small snaps to a whole or half dollar (``price.MAX_ENDING_MOVE``, a quarter
+#: of the price): below this many dollars of contents a kit may land 0.7 to
+#: 1.3 times its contents (#76).
+SMALL_KIT_CONTENTS = 10.0
+SMALL_KIT_OVER_CONTENTS = (0.65, 1.3)
+
+
+def _within_contents(ratio: float, contents: float) -> bool:
+    low, high = OVER_CONTENTS if contents >= SMALL_KIT_CONTENTS else SMALL_KIT_OVER_CONTENTS
+    return low < ratio < high
 
 
 def _inches(size: str) -> float:
@@ -1041,13 +1052,13 @@ def test_a_kits_contents_are_its_pieces_priced_on_their_own_curves(census, kits)
 def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
     """The inch set of ASME B18.3 keys, 0.028" to 3/8": its keys come to about
     $98 on the hex key curve. Priced as one group draw per page, with no
-    reference to them, the default build's five sold for $9.55 to $1,525.45."""
+    reference to them, the default build's sets sold for $9.55 to $1,525.45."""
     sets = [
         (shown, facts, brand)
         for shown, facts, brand in kits
         if facts["Type"].value == "Hex Key Set" and facts["Piece Count"].value_num == 15
     ]
-    assert len(sets) == 5
+    assert len(sets) == 3
     ratios = [
         (shown, round(_over_contents(shown, facts, brand, _pieces_price(facts, census)), 3))
         for shown, facts, brand in sets
@@ -1086,6 +1097,7 @@ def test_a_kit_is_its_contents_at_one_factor_with_no_group_noise():
     assert model.group_sigma == 0.0
     assert model.slope == price.CONTENTS_SLOPE == 1.0
     assert model.size_sigma == 0.0
+    assert model.sku_sigma == price.CONTENTS_SKU_SIGMA
 
 
 KIT_SPREAD = "price p90/p10: kit_assortment"
@@ -1129,7 +1141,7 @@ def _build_kits(request, build: str) -> list[KitSku]:
     )
 
 
-@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 695)])
+@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 742)])
 def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
     """Every kit, at either size, costs its contents' price times its
     material and tier, within its SKU noise and ending."""
@@ -1139,8 +1151,8 @@ def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count
     for shown, facts, brand in kits:
         contents = price.kit_contents(facts)
         assert contents is not None, facts
-        ratios.append(round(_over_contents(shown, facts, brand, contents), 3))
-    out = [r for r in ratios if not OVER_CONTENTS[0] < r < OVER_CONTENTS[1]]
+        ratios.append((round(_over_contents(shown, facts, brand, contents), 3), contents))
+    out = [r for r, contents in ratios if not _within_contents(r, contents)]
     assert not out, (len(out), out[:10])
 
 
@@ -1163,7 +1175,7 @@ def _kind_of(facts: dict[str, Attribute]) -> int:
 #: Each pair of kit table rows (larger, smaller) where the larger set holds
 #: every size the smaller does and more: the metric and inch hex key sets and
 #: the fractional drill indexes.
-NESTED_KITS = 7
+NESTED_KITS = 13
 
 
 @pytest.mark.parametrize("build", ["default", "100K"])

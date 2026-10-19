@@ -761,6 +761,23 @@ def _sixty_fourths(lo: int, hi: int) -> tuple[float, ...]:
     return tuple(float(Fraction(n, 64)) for n in range(lo, hi + 1))
 
 
+#: Number drills #60 to #1 and letter drills A to Z, the decimal inch diameters
+#: of ASME B94.11M, smallest first within each series.
+_NUMBER_DRILLS = (
+    0.0400, 0.0410, 0.0420, 0.0430, 0.0465, 0.0520, 0.0550, 0.0595, 0.0635, 0.0670,
+    0.0700, 0.0730, 0.0760, 0.0785, 0.0810, 0.0820, 0.0860, 0.0890, 0.0935, 0.0960,
+    0.0980, 0.0995, 0.1015, 0.1040, 0.1065, 0.1100, 0.1110, 0.1130, 0.1160, 0.1200,
+    0.1285, 0.1360, 0.1405, 0.1440, 0.1470, 0.1495, 0.1520, 0.1540, 0.1570, 0.1590,
+    0.1610, 0.1660, 0.1695, 0.1730, 0.1770, 0.1800, 0.1820, 0.1850, 0.1890, 0.1910,
+    0.1935, 0.1960, 0.1990, 0.2010, 0.2040, 0.2055, 0.2090, 0.2130, 0.2210, 0.2280,
+)  # fmt: skip
+_LETTER_DRILLS = (
+    0.2340, 0.2380, 0.2420, 0.2460, 0.2500, 0.2570, 0.2610, 0.2660, 0.2720, 0.2770,
+    0.2810, 0.2900, 0.2950, 0.3020, 0.3160, 0.3230, 0.3320, 0.3390, 0.3480, 0.3580,
+    0.3680, 0.3770, 0.3860, 0.3970, 0.4040, 0.4130,
+)  # fmt: skip
+
+
 @dataclass(frozen=True)
 class Kit:
     """One assortment: its kind, the part type it holds, and the sizes, in inches.
@@ -867,6 +884,97 @@ KITS: tuple[Kit, ...] = (
         "in",
         (),
         designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "1/2-13"),
+    ),
+    # The small and large ends of the range (#76): the census kits run from
+    # packs of 12 and 15 to sets worth $629, where the kinds above hold $36 to
+    # $130 of parts. Small assortments are a few of each of the common sizes.
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "in",
+        (),
+        per_size=2,
+        designations=("#4-40", "#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18"),
+    ),
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "mm",
+        (),
+        per_size=3,
+        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25"),
+    ),
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "mm",
+        (),
+        per_size=4,
+        designations=("M2.5x0.45", "M3x0.5", "M4x0.7", "M5x0.8", "M6x1"),
+    ),
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "mm",
+        (),
+        per_size=2,
+        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1"),
+    ),
+    # A 1,000-piece screw assortment: 100 of each of ten inch diameters.
+    Kit(
+        "Socket Head Cap Screw Assortment",
+        "screw_socket_head",
+        "in",
+        (),
+        per_size=100,
+        designations=(
+            "#4-40",
+            "#6-32",
+            "#8-32",
+            "#10-24",
+            "#10-32",
+            "1/4-20",
+            "1/4-28",
+            "5/16-18",
+            "3/8-16",
+            "1/2-13",
+        ),
+    ),
+    # The 115-piece drill index: number drills 60 to 1, letter drills A to Z
+    # and the fractionals from 1/16" to 1/2" by 64ths (ASME B94.11M sizes).
+    Kit(
+        "Jobber Drill Set",
+        "drill_jobber",
+        "in",
+        _NUMBER_DRILLS + _LETTER_DRILLS + _sixty_fourths(4, 32),
+    ),
+    # The 61-piece index, 1/16" to 1" by 64ths, and the 91-piece metric index,
+    # 1.0 to 10.0mm by tenths.
+    Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 64)),
+    Kit(
+        "Jobber Drill Set",
+        "drill_jobber",
+        "mm",
+        tuple(round(1.0 + 0.1 * k, 1) / MM_PER_INCH for k in range(91)),
+    ),
+    # Two taps of each coarse metric size, M3 to M16 (a taper and a plug).
+    Kit(
+        "Tap Set",
+        "tap_spiral_point",
+        "mm",
+        (),
+        per_size=2,
+        designations=(
+            "M3x0.5",
+            "M4x0.7",
+            "M5x0.8",
+            "M6x1",
+            "M8x1.25",
+            "M10x1.5",
+            "M12x1.75",
+            "M14x2",
+            "M16x2",
+        ),
     ),
 )
 
