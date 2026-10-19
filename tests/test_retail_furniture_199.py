@@ -23,7 +23,7 @@ import furniture_rows  # noqa: E402
 import image_release  # noqa: E402
 import kit  # noqa: E402
 import scale  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
 #: product type -> its leaf and the keys a shopper narrows it on (each a product attribute).
 KEYS = {
@@ -210,7 +210,7 @@ def test_every_style_and_colorway_renders_its_image() -> None:
 
 def test_the_furniture_is_in_the_scaled_build_and_no_style_derives_from_it() -> None:
     ids = {f"BRD-{r.code}" for r in furniture_rows.ROWS}
-    built = scale.build(committed()["ceiling"]["skus"])
+    built = scale.build(figures()["ceiling"]["skus"])
     assert ids <= {r["product_id"] for r in built.records}
     assert not ids & {r["product_id"] for r in scale.derivable(built.records)}
     furniture = {r.path for r in furniture_rows.ROWS}
