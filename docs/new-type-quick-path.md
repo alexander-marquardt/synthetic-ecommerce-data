@@ -99,7 +99,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `prototypes/retail_drawings/main_color_hex.py` | Read only: the six main colors (gen#275) every color-bearing type offers across its styles, as plain swatches. |
 | `prototypes/retail_drawings/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
 | `prototypes/retail_drawings/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
-| `prototypes/retail_drawings/decoy_product_words.py` | Class 8 (gen#326): a product of another department whose title holds the shopper's word, one `_s(...)` row per decoy and a `KINDS` entry when its product is not there yet. |
+| `prototypes/retail_drawings/feature_decoys/<topic>.py` | New file, class 8 (gen#326): a product of another department whose title holds the shopper's word. It exposes `word_rows(d)` (one `d(...)` row per decoy) and `KINDS` when its product is not there yet; `decoy_product_words.py` finds it by walking the package and is not edited (gen#513). |
 | `prototypes/retail_drawings/garden_rows.py` | Where the Garden department keeps its decoys (gen#294): add the new type's `_QUERY` and `_ABSENT` entries (its query words and the absent word its decoys carry); another department keeps them in its own `*_rows.py`. |
 | `prototypes/retail_drawings/retail_figures.py` | Run it, never edit it: it rewrites the two generated files below. |
 | `golden-retail/stats.json` | The measured figures of the build; generated, and NOT committed by a PR: `scripts/merge_pr.sh` rolls it at the merge and CI rewrites it before the tests (gen#373). |
@@ -114,8 +114,9 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
 | `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red. The file exposes `PREFIX` (the text before `: ` in each row's name) and `rows()` (a list of `mutation_row.Row`); `scripts/mutation_row.py` finds it by glob, so nothing is imported or listed in `scripts/mutation_check.py` and `tests/test_mutation_rows_glob_506.py` fails if a script names a rows file. |
 
-Not touched: `scale.py`, the registry and `type_specs/legacy_types.txt`. The registry finds the
-module and feeds the scaled build; nothing is added to the legacy list.
+Not touched: `scale.py`, the registry, `type_specs/legacy_types.txt`, `decoy_rows.py` and
+`decoy_product_words.py`. The registry finds the module and feeds the scaled build; nothing is
+added to the legacy list; the decoy tables find `feature_decoys/<topic>.py` by walking the package.
 
 ### In order
 
@@ -142,10 +143,14 @@ module and feeds the scaled build; nothing is added to the legacy list.
    * the same department and type, classes 1 to 7 (`DECOY_CLASSES` in `type_registry.py`): a
      `Decoy(cls, query, policy, row)` in the spec's `decoys=`; its fields tell the truth and only
      the title or description misleads;
-   * another department, class 8: an `_s(n, kind, title, desc, color, noun, target)` row in
-     `decoy_product_words.py` with the next free `DY` number, a title that holds the shopper's
-     word, no color word in its title or description, and `target` set to your product type. Then
-     paste `decoy_product_words.table_markdown()` into `docs/retail-product-word-decoys.md`.
+   * another department, class 8: a new file `feature_decoys/<topic>.py` (gen#513) with
+     `def word_rows(d): return (d(n, kind, title, desc, color, noun, noun, "department",
+     cross=True, target="<your product type>"), ...)`: a free `DY` number `n` (a number a table
+     or another module holds is refused), a title that holds the shopper's word, and no color
+     word in its title or description. A `KINDS = {key: decoy_kind.Kind(...)}` in the same file
+     declares a true type no table has. Never append a row or a kind to `decoy_product_words.py`
+     or `decoy_rows.py`: `scripts/check_no_registry_append.py` refuses it. Then paste
+     `decoy_product_words.table_markdown()` into `docs/retail-product-word-decoys.md`.
    How many: Sports & Outdoors at least two per type (`SPORTS_EXEMPT` only with an issue named);
    Garden at least three of each of five classes (`garden_rows.py`); Clothing, Footwear and
    Lingerie by their `ApparelPlan`. Elsewhere no test counts them: say in the PR how many you
@@ -171,6 +176,26 @@ on this page is renamed or removed: fix the page in the same pull request.
 
 At most three types per issue. Split a bigger one: an agent that adds more than three types in
 one run has stopped at its context ceiling before (#351: 10 beauty types, no PR).
+
+## Shared files: add a file, never a line
+
+Every feature PR once appended to the same files, so two PRs branched from one `main` conflicted
+(16 of 21 open PRs on 2026-10-18, gen#513). The `stats-roll` job runs
+`scripts/check_no_registry_append.py`, which fails a diff that adds a line of these shapes and
+names the file that replaces it:
+
+| Shared file | The line a feature used to add | What a feature adds instead |
+|---|---|---|
+| `scripts/mutation_check.py` | an import or a wrapper per rows file | `scripts/mutation_rows_<topic>.py` with `PREFIX` and `rows()` |
+| `prototypes/retail_drawings/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
+| `type_specs/legacy_types.txt` | a type's line | `scripts/new_type.py <key>` (the list only shrinks) |
+| `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
+| `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
+
+A change that is no feature (a helper module the scaled build needs) puts
+`Registry-Append: <why no new file will do>` on its tip commit. A shared file that has no
+new-file form yet is not in the table (`details.PARTS`, the pasted doc tables); it is added to
+the table in the PR that gives it one.
 
 ## Metric
 
