@@ -53,8 +53,9 @@ def member_path(image_id: str) -> str:
     return f"{export.IMAGE_ROOT}/{image_id}.svg"
 
 
-#: The drawing keys only a ``print`` fill carries (``kit.Fill``).
-MOTIF_KEYS = ("motif", "placement", "scale", "spacing", "count", "detail")
+#: The drawing keys only a ``print`` fill carries (``kit.Fill``). Not ``detail``: a named part
+#: (an apparel decoy's blue hem) is drawn on a solid garment too (gen#311).
+MOTIF_KEYS = ("motif", "placement", "scale", "spacing", "count")
 
 
 def colorway_drawing(rec: dict, sku: dict) -> dict:
