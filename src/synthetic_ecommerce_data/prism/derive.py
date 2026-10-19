@@ -139,10 +139,14 @@ IDENTIFIER_DISPERSION = 0.5
 #: is shared by many products. A continuous quantity does not saturate: very
 #: nearly every document contributes a value no other document has.
 #:
-#: The statistic is therefore ``cardinality / product_values`` -- distinct
+#: The statistic is therefore ``magnitudes / product_magnitudes`` -- distinct
 #: values per distinct ``(product, value)`` pair publishing the attribute,
-#: called DISPERSION below. Its limits are the two cases: dispersion -> 0 for
-#: a saturated ladder, dispersion -> 1 when every measurement is unique.
+#: called DISPERSION below. A value is its MAGNITUDE, the parsed number, and
+#: not a spelling of it: four brand feeds write a 1/2" pitch as ``1/2"``,
+#: ``1/2 in``, ``0.500"`` and ``1/2 in.``, and counting those as four values
+#: read a 13-size standard series over 68 chains as a continuum (gen#77).
+#: Its limits are the two cases: dispersion -> 0 for a saturated ladder,
+#: dispersion -> 1 when every measurement is unique.
 #: **0.5 is the midpoint, and it means something rather than being tuned:
 #: below it the average value is carried by more than one product -- values
 #: REPEAT, which is what makes a list of them something a shopper can pick
@@ -248,6 +252,19 @@ class AttributeStats:
     #: evidence floor :data:`RANGE_MIN_DOCS` counts, because both rules ask
     #: whether values repeat ACROSS products.
     products: int
+    #: Distinct MAGNITUDES, and distinct ``(product_id, magnitude)`` pairs (gen#77):
+    #: what :attr:`dispersion` counts. A magnitude is the ``facets_num`` value of a
+    #: document that publishes a single value, so ``1/2"``, ``1/2 in`` and ``0.500"``
+    #: are one; a document that publishes no parsed number contributes its spellings.
+    #: Left unset, each is the spelling count it stands in for.
+    magnitudes: int | None = None
+    product_magnitudes: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.magnitudes is None:
+            object.__setattr__(self, "magnitudes", self.cardinality)
+        if self.product_magnitudes is None:
+            object.__setattr__(self, "product_magnitudes", self.product_values)
 
     @property
     def numeric_share(self) -> float:
@@ -269,13 +286,17 @@ class AttributeStats:
 
     @property
     def dispersion(self) -> float:
-        """Distinct values per distinct ``(product, value)`` pair.
+        """Distinct magnitudes per distinct ``(product, magnitude)`` pair.
 
-        The saturation statistic :data:`RANGE_DISPERSION` documents. Measured
-        over the distinct values as PUBLISHED, which is the same set the facet
-        would offer, and per product rather than per SKU document (#28).
+        The saturation statistic :data:`RANGE_DISPERSION` documents. A value is
+        its MAGNITUDE, not a spelling of it (gen#77): a brand writes the 1/2"
+        pitch four ways, and counting those as four values read a 13-size
+        standard series over 68 chains as a continuum. It is per product
+        rather than per SKU document (#28).
         """
-        return self.cardinality / self.product_values if self.product_values else 0.0
+        if not self.product_magnitudes:
+            return 0.0
+        return (self.magnitudes or 0) / self.product_magnitudes
 
     @property
     def is_continuous(self) -> bool:
@@ -314,6 +335,20 @@ class Decision:
     reason: str
 
 
+def _magnitudes(row: dict[str, Any], key: str, spellings: list[str]) -> list[Any]:
+    """What a document's value for ``key`` IS, apart from how it is written (gen#77).
+
+    The parsed number when the document publishes one value and parsed it; the
+    spellings otherwise, which is all a terms attribute has. A tag keeps a number
+    from equalling a string, and the rounding keeps float noise from splitting a
+    magnitude two feeds spell differently.
+    """
+    number = row["facets_num"].get(key)
+    if number is not None and len(spellings) == 1:
+        return [("number", round(float(number), 9))]
+    return [("text", spelling) for spelling in spellings]
+
+
 def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     """Collect per-attribute statistics from emitted flat documents.
 
@@ -326,6 +361,8 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
     product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
+    magnitudes: dict[str, set[Any]] = collections.defaultdict(set)
+    product_magnitudes: dict[str, set[tuple[str, Any]]] = collections.defaultdict(set)
     products: dict[str, set[str]] = collections.defaultdict(set)
     types: dict[str, set[str]] = collections.defaultdict(set)
     published_name: dict[str, str] = {}
@@ -338,6 +375,9 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             present[key] += 1
             values[key].update(vals)
             product_values[key].update((row["product_id"], value) for value in vals)
+            for magnitude in _magnitudes(row, key, vals):
+                magnitudes[key].add(magnitude)
+                product_magnitudes[key].add((row["product_id"], magnitude))
             products[key].add(row["product_id"])
             types[key].add(product_type)
         for key in row["facets_num"]:
@@ -358,6 +398,8 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             product_types=tuple(sorted(types[key])),
             type_denominator=sum(type_sizes[t] for t in types[key]),
             product_values=len(product_values[key]),
+            magnitudes=len(magnitudes[key]),
+            product_magnitudes=len(product_magnitudes[key]),
             products=len(products[key]),
         )
         for key, count in sorted(present.items())
@@ -389,7 +431,7 @@ def decide(stats: AttributeStats) -> Decision:
             f"(floor {MIN_PRESENCE:.0%})",
         )
     over = (
-        f"{stats.cardinality} distinct values over {stats.product_values} "
+        f"{stats.magnitudes} distinct values over {stats.product_magnitudes} "
         f"product-value pairs is {stats.dispersion:.2f} per product"
     )
     if stats.is_identifier:
