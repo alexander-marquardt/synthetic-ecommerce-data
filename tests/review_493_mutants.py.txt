@@ -1,0 +1,39 @@
+TESTS = ["tests/test_retail_outerwear_211.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "--tb=line"]
+R = "prototypes/retail_drawings/"
+ROWS = R + "outerwear_rows.py"
+KIT = R + "kit_coats.py"
+MUTANTS = [
+    # The reviewer's nine survivors (gen#493 verdict, finding 3).
+    (ROWS, '{"Double-Breasted": "double", "Single-Breasted": "single"}[breast])\n    title = _t(length, breast, "Wool Peacoat")', '{"Double-Breasted": "single", "Single-Breasted": "double"}[breast])\n    title = _t(length, breast, "Wool Peacoat")', "peacoat breasting drawn swapped"),
+    (ROWS, '(("pockets", pockets), ("collar", collar.lower()))', '(("pockets", "4"), ("collar", collar.lower()))', "utility jacket always drawn with four pockets"),
+    (ROWS, '"Long": "long", "Cropped"', '"Long": "mid", "Cropped"', "Long drawn as mid in LEN"),
+    (ROWS, '"Waterproof" if waterproof == "Yes" else ""', '"Waterproof" if waterproof == "No" else ""', "parka title Waterproof flipped"),
+    (ROWS, '"a hood" if hood == "Yes" else "", "an elastic hem"', '"", "an elastic hem"', "windbreaker description loses its hood clause"),
+    (ROWS, '"Hooded" if hood == "Yes" else "", zipped if zipped == "Half-Zip"', '"", zipped if zipped == "Half-Zip"', "windbreaker title loses Hooded"),
+    (ROWS, '"Hoodie": ("Hoodies",)', '"Hoodie": ("Sweatshirts",)', "Hoodies leaf renamed Sweatshirts"),
+    (ROWS, 'for s in (ADULT_M if mens else ADULT)', 'for s in ADULT', "Mens rows given womens sizes"),
+    (ROWS, '"Check Flannel" if fabric == "Flannel" else fabric', 'fabric', "Check Flannel dropped from the shacket title"),
+    # Fixes 1 and 2: a clause built from the title's own value, and sentences a shop would write.
+    (ROWS, '{"Fixed": "a fixed hood", "Packaway": "a packaway hood"}.get(hood, "")', '""', "raincoat description loses its hood"),
+    (ROWS, '"a soft mesh lining" if lining == "Lined" else ""', '""', "raincoat description loses its lining"),
+    (ROWS, 'hood_clause = "a faux-fur trimmed hood" if hood == "Faux-Fur Trim" else "a hood"', 'hood_clause = ""', "parka description loses its hood"),
+    (ROWS, '"a faux-fur trimmed hood"', '"a trimmed hood"', "parka description loses its faux fur"),
+    (ROWS, "'waterproof ' if waterproof == 'Yes' else ''", "''", "parka description loses waterproof"),
+    (ROWS, '"hooded" if hood == "Yes" else ""', '""', "puffer description loses its hood"),
+    (ROWS, "length.lower() if length != \"Regular\" else \"\"", "length.lower()", "a regular puffer jacket"),
+    (ROWS, '"Synthetic": "synthetic insulation"', '"Synthetic": "synthetic"', "filled with synthetic, no noun"),
+    (ROWS, '"Very Warm": "very cold weather"', '"Very Warm": "very warm"', "parka rated very warm, no noun"),
+    (ROWS, "{'It packs into a stuff pocket. ' if packable == 'Yes' else ''}{note}\"\n    return _row(code, title, brand, \"Windbreaker\"", "{note}\"\n    return _row(code, title, brand, \"Windbreaker\"", "windbreaker description loses packable"),
+    (ROWS, '"Packable" if packable == "Yes" else ""', '""', "windbreaker title loses Packable"),
+    (ROWS, '"a tie belt at the waist" if belt == "Yes" else ""', '""', "trench description loses its belt"),
+    (ROWS, 'return got[0] if len(got) < 2 else ", ".join(got[:-1]) + " and " + got[-1]', 'return ", ".join(got)', "clauses joined by commas, a dangling last one"),
+    (ROWS, 'cut = f"in {_a_an(fit).lower()} {fit.lower()} cut"', 'cut = f"cut {fit.lower()}"', "hoodie fit as cut slim"),
+    (ROWS, '{"2": "two", "4": "four"}', '{"2": "two", "4": "two"}', "utility description states two pockets for four"),
+    (ROWS, 'fabric.lower() if fabric != fill else ""', 'fabric.lower()', "a fleece fleece gilet"),
+    (ROWS, '("Red Check", "Black Check", "Green Check")', '("Red Check", "Black Check", "Stone")', "check flannel shacket offered in plain Stone"),
+    # The drawing marks the collar, the zip and the sleeve length.
+    (KIT, 'return _g(f"collar-{kind}", [', 'return _g("collar-stand", [', "every collar drawn as a stand collar"),
+    (KIT, '_g("zip zip-full", [', '_g("zip zip-half", [', "full zip drawn as a half zip"),
+    (KIT, '_g(f"sleeve sleeve-{sleeve}", [_path(d, paint)])', '_g("sleeve sleeve-long", [_path(d, paint)])', "bolero sleeve length always drawn long"),
+]

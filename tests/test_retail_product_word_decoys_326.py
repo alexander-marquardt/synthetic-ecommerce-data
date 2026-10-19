@@ -96,6 +96,7 @@ TRUE_NODE = {
     "football": "Footballs",
     "tenni": "Tennis Rackets",
     "badminton": "Badminton Sets",
+    "picnic": "Picnic Blankets",  # gen#217
     # the Gifts nouns of the #425 rows: the node of the gift
     "mug": "Mugs & Drinkware",
     "card": "Greeting Cards",
@@ -192,6 +193,7 @@ def test_the_detail_is_the_only_color_the_title_names() -> None:
         assert named == {row.detail.lower()}, (row.code, row.title)
 
 
+@pytest.mark.timeout(900)  # three standard checks over the 10**6 ceiling: 172 s on a light shard
 def test_a_detail_color_is_exempt_by_decoy_id_and_an_ordinary_product_is_not(
     ceiling: list[dict],
 ) -> None:

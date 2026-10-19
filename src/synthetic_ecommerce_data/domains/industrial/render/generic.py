@@ -69,6 +69,7 @@ from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     UnsupportedFeatureError,
     require_any,
 )
+from synthetic_ecommerce_data.domains.industrial.render.endmill import STYLE_OF_TYPE
 from synthetic_ecommerce_data.domains.industrial.render.fastener import dome_profile
 from synthetic_ecommerce_data.domains.industrial.render.kinds import (
     DRILL,
@@ -958,8 +959,15 @@ def drawing_for_record(record: dict) -> str:
     if kind in _BY_KIND:
         return _BY_KIND[kind]
     attribute = _STYLE_ATTRIBUTE[kind]
+    stated = (
+        STYLE_OF_TYPE.get(str(record.get("product_type")))
+        if kind == END_MILL and attribute not in record
+        else None
+    )
     published = (
-        str(require_any(record, attribute, *_OBSERVED_SPELLINGS.get(attribute, ()))).strip().lower()
+        str(stated or require_any(record, attribute, *_OBSERVED_SPELLINGS.get(attribute, ())))
+        .strip()
+        .lower()
     )
     try:
         return _BY_STYLE[kind][published]

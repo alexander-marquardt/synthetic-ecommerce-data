@@ -105,23 +105,29 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
+import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import footwear_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import knitwear_rows  # noqa: E402
+import leaf_shapes  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
+import plus_sizes  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -131,6 +137,7 @@ import sports_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
+import womens_depth_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from variants import product  # noqa: E402
@@ -239,6 +246,9 @@ SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
 #: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
 #: templates only: the Garden department grows by authored rows.
 GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
+#: The text-match decoys of the decor types (:mod:`decor_rows`, gen#217): templates only. The
+#: types themselves are specs and the registry leaves them out of the derivation.
+DECOR_IDS = decor_rows.decoy_ids()
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
 #: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
@@ -265,12 +275,18 @@ TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 #: The near-white apparel and main-color bras (:mod:`colorgroup_rows`, gen#302): templates only.
 COLORGROUP_IDS = colorgroup_rows.product_ids()
+#: The color-word brand rows (:mod:`color_word_brand_rows`, gen#312): templates only.
+COLORWORD_IDS = color_word_brand_rows.product_ids()
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
 LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 #: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
+#: The Womens clothing depth (:mod:`womens_depth_rows`, gen#310): templates only.
+WOMENS_DEPTH_IDS = womens_depth_rows.product_ids()
 #: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
 KNITWEAR_IDS = knitwear_rows.product_ids()
+#: The neckline depth (:mod:`neckline_rows`, gen#181): templates only.
+NECKLINE_IDS = neckline_rows.product_ids()
 #: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
 NIKE_IDS = nike_rows.product_ids()
 #: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
@@ -282,18 +298,38 @@ SPEC_IDS = type_registry.left_out_ids()
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
-DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
+             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
-# The Toys spec decoys of classes 4, 6 and 7 (gen#424) name a color or a feature they lack.
-# PLT-RQHOOP (a rose gold decoy) sits in the Hoop Earrings node since gen#423: its metals are
-# its text pool, and "Gold Plated" names the plating while its color is Yellow Gold.
-TEXT_EXEMPT = (
-    DECOY_IDS
-    | decoy_product_words.TEXT_EXEMPT
-    | type_registry.text_match_decoy_ids("Toys")
-    | {"PLT-RQHOOP"}
-)
+# Every registered type's text-match decoys, of every department, join by registering
+# (:func:`type_registry.text_match_decoy_ids`, gen#452); an id no spec owns is declared with its
+# reason in :data:`type_registry.ONE_OFF_TEXT_EXEMPT`. :func:`exempt_problems` finds a stale one.
+def text_exempt() -> frozenset[str]:
+    """The ids the output standard's text check leaves out, computed from the registry."""
+    return (
+        DECOY_IDS
+        | decoy_product_words.TEXT_EXEMPT
+        | type_registry.text_match_decoy_ids()
+        | frozenset(type_registry.ONE_OFF_TEXT_EXEMPT)
+    )
+
+
+TEXT_EXEMPT = text_exempt()
+
+
+def exempt_problems() -> list[str]:
+    """What is wrong with the exemption: an id the catalog no longer builds, a declared one-off
+    with no reason, and a one-off the registry already knows."""
+    built = {d["product_id"] for d in templates(baseline=False)}
+    known = type_registry.text_match_decoy_ids()
+    out = [f"{i}: exempt but not in the catalog" for i in sorted(text_exempt() - built)]
+    for pid, reason in sorted(type_registry.ONE_OFF_TEXT_EXEMPT.items()):
+        if not reason.strip():
+            out.append(f"{pid}: a declared one-off with no reason")
+        if pid in known:
+            out.append(f"{pid}: a declared one-off the registry already knows as a decoy")
+    return out
 
 
 def templates(baseline: bool = True) -> list[dict]:
@@ -323,18 +359,23 @@ def templates(baseline: bool = True) -> list[dict]:
         *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *garden_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
+        *womens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
+        *color_word_brand_rows.docs(), *neckline_rows.docs(),
     ]  # fmt: skip
+    body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
+    body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
+    body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | garden_rows.decoy_ids() | NIKE_IDS
-            | type_registry.decoy_ids() | needs_rows.decoy_ids()
-            | knitwear_rows.decoy_ids())
+    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
+            | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
     return main_colors.complete(tpls, skip) if baseline else tpls
 
 
@@ -348,10 +389,13 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (KNITWEAR_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS | APPLIANCE_IDS
-                | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | GARDEN_IDS | NIKE_IDS | NEEDS_IDS
-                | SPEC_IDS | decoy_rows.IDS
+    left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
+                | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
+                | SCHOOL_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
+                | GARDEN_IDS | DECOR_IDS | NIKE_IDS
+                | NEEDS_IDS
+                | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
             and r["product_id"] not in left_out
@@ -441,15 +485,20 @@ def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -
         for key, swap in swaps.items():
             if key in s:
                 s[key] = swap.get(str(s[key]).lower(), s[key])
-    for a in rec["attributes"]:
-        held = {str(s[a["key"]]).lower() for s in skus if a["key"] in s}
-        if held:
-            parts = _parts(str(a["value"]))
-            kept = [p for p in parts if p.lower() in held]
-            a["value"] = ", ".join(kept)
-            for dropped in (p for p in parts if kept and p.lower() not in held):
-                for field in ("title", "description"):
-                    rec[field] = _swap(rec[field], dropped, kept[0])
+    for key in dict.fromkeys(a["key"] for a in rec["attributes"]):
+        held = {str(s[key]).lower() for s in skus if key in s}
+        if not held:
+            continue
+        entries = [a for a in rec["attributes"] if a["key"] == key]
+        kept = [p for a in entries for p in _parts(str(a["value"])) if p.lower() in held]
+        dropped = [p for a in entries for p in _parts(str(a["value"])) if p.lower() not in held]
+        for a in entries:
+            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
+        if kept:  # an entry for a material no kept SKU holds goes (a style lists the ones it sells)
+            rec["attributes"] = [a for a in rec["attributes"] if a["key"] != key or a["value"]]
+        for part in dropped if kept else ():
+            for text in ("title", "description"):
+                rec[text] = _swap(rec[text], part, kept[0])
 
 
 def _swap(text: str, old: str, new: str) -> str:
@@ -596,6 +645,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
     lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
+    footwear_rows.fit_axes(rec)  # a clog's "Back strap" is drawn as `back` (gen#512)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
@@ -683,7 +733,9 @@ def build(skus: int, seed: int = 0) -> Scaled:
     rng = random.Random(seed)
     base = derivable(tpls)
     pools = value_pools(base)
-    owners = {r["brand"]: r["brand_owner"] for r in base if "brand_owner" in r}
+    # Every template, grocery too: a derived style that draws a grocery brand (EXTRA_BRANDS)
+    # keeps that brand's owner, not the third-party default (gen#236).
+    owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
     brands = brand_pools(base)
     plan = _plan(base, rng)
     weights = _department_weights(plan)
@@ -890,6 +942,7 @@ PREMIUM = {
     "linen": 1.15, "organic": 1.1, "canvas": 0.9, "faux": 0.85, "rubber": 0.85,
     "nylon": 0.85, "microfibre": 0.85, "synthetic": 0.8, "polyester": 0.8,
     "acrylic": 0.8, "hollowfibre": 0.8, "plastic": 0.8,
+    "bone": 2.0, "porcelain": 1.4, "enamel": 0.75, "melamine": 0.5,
 }  # fmt: skip
 
 
@@ -1010,7 +1063,14 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return grocery.flat(docs)
 
 
+#: ``--skus ceiling``: every SKU the build can make, whatever that count is (gen#536). A release
+#: asks for this rather than a number, so it never asks for more than the frozen build holds.
+CEILING = "ceiling"
+
+
 def _target(text: str) -> int:
+    if text == CEILING:
+        return sys.maxsize
     value = int(text)
     if value < 1:
         raise argparse.ArgumentTypeError("--skus must be at least 1")
@@ -1025,7 +1085,8 @@ def main(argv: list[str] | None = None) -> int:
         "--skus",
         type=_target,
         required=True,
-        help="target SKU count; the build stops at the first style past it",
+        help="target SKU count; the build stops at the first style past it. "
+        f"'{CEILING}' builds every SKU the templates can make and is never short",
     )
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument(
@@ -1047,9 +1108,10 @@ def main(argv: list[str] | None = None) -> int:
         with args.flat.open("w", encoding="utf-8") as handle:
             for row in flat(docs):
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    ceiling = args.skus == sys.maxsize  # --skus ceiling: the target is what the build made
     report = {
-        "target_skus": args.skus,
-        "reached_target": scaled.skus >= args.skus,
+        "target_skus": scaled.skus if ceiling else args.skus,
+        "reached_target": ceiling or scaled.skus >= args.skus,
         "seed": args.seed,
         "coverage": coverage(scaled.records),
         "distinctness": distinctness(scaled.records, seed=args.seed),

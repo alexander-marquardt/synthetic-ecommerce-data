@@ -43,7 +43,7 @@ PRICE = PriceModel(
     size_sigma=0.562,
     # @fit-end
     endings=ENDINGS["screw_socket_head"],
-    pack_attribute="Package Quantity",
+    pack_attribute="Units per Pack",
     pack_slope=PACK_SLOPES["screw_socket_head"],
     pack_ref=100.0,
     length_slope=LENGTH_CENSUS["screw_socket_head"].slope,

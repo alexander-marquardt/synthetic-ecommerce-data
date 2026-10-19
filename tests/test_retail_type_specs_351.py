@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import decoy_product_words  # noqa: E402
+import distractors  # noqa: E402
 import export  # noqa: E402
 import nike_rows  # noqa: E402
 import scale  # noqa: E402
@@ -90,9 +91,18 @@ def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
     assert type_registry.registration_problems(built) == []
 
 
+#: Class rows whose type became a spec's (gen#214, Sun Cream) and whose id the committed ES proof
+#: (``real_classes_proof.json``) pins: the "face cream" near-type distractor. Moving it to the spec
+#: would change its id and make the proof a record of a document that no longer exists, and the
+#: proof is rebuilt only by an Elasticsearch run (``es_proof.py``). The set only shrinks.
+PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}
+
+
 def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]]:
     """Per spec key the rows registered outside it, and the decoy rows that sit outside one."""
     decoys = {f"PLT-{r.code}" for r in decoy_product_words.TABLE}  # the decoy rows, not the floor
+    # the jeans belt (gen#422): a distractor that is a Belt on purpose, beside the Belt spec
+    jeans = {d.doc["product_id"] for d in distractors.JEANS}
     stray: dict[str, list[str]] = {}
     out_of_spec: set[str] = set()
     for spec in type_registry.specs().values():
@@ -107,15 +117,27 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)
         out_of_spec |= {i for i in mine if i in decoys}
-        stray[spec.key] = [i for i in mine if i not in decoys]
+        stray[spec.key] = [
+            i for i in mine if i not in decoys | PROOF_PINNED_CLASS_ROWS and i not in jeans
+        ]
     return stray, out_of_spec
 
 
 def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     stray, out_of_spec = _outside_spec(scale.templates(baseline=False))
     assert not any(stray.values()), f"rows registered outside their spec: {stray}"
-    # the one decoy that shares a spec type's name: the black bike pump stands in for "black pumps"
-    assert out_of_spec == {"PLT-DY37"}, out_of_spec
+    # the decoys that share a spec type's name: the black bike pump stands in for "black pumps"
+    # (DY37); two belts stand in for the seed phrases of gen#460 (DY460 jeans, DY485 brogues)
+    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485"}, out_of_spec
+
+
+def test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build() -> None:
+    """The exemption above holds only for a row the proof names; one the proof dropped is stray."""
+    proof = (RETAIL / "real_classes_proof.json").read_text(encoding="utf-8")
+    built = {r["product_id"] for r in scale.templates(baseline=False)}
+    for pid in PROOF_PINNED_CLASS_ROWS:
+        assert f'"{pid}"' in proof, pid
+        assert pid in built, pid
 
 
 def test_a_floor_row_added_to_a_spec_type_is_a_stray_row() -> None:
@@ -208,7 +230,9 @@ def test_the_scaffold_writes_a_spec_that_validates_and_builds(tmp_path: Path, ki
     type_registry.validate(spec)
     docs = spec.docs()
     assert docs
-    assert check_catalog([export.standard_document(d) for d in docs], one_class_per_key=True) == []
+    exempt = type_registry.decoy_ids_of(spec)  # a decoy names a value of its own filter
+    standard = [export.standard_document(d) for d in docs]
+    assert check_catalog(standard, one_class_per_key=True, text_exempt=exempt) == []
     again = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "new_type.py"), spec.key, "--kind", kind,
          "--product-type", "Sample Thing", "--out", str(path.parent)],
@@ -420,12 +444,24 @@ def test_the_scaffold_output_is_formatted(tmp_path: Path, kind: str) -> None:
 
 
 _PLAN = type_registry.ApparelPlan
+_C = (("vest", "Vest Kaftan"),)  # a real-looking compound, so each case fails on one rule only
 _APPAREL_BAD = {  # name -> (the department of the base spec, the fields it declares)
-    "a plan and an exemption": ("Clothing", dict(apparel=_PLAN(), apparel_exempt="a costume")),
-    "a plan on a beauty type": ("Beauty", dict(apparel=_PLAN())),
+    "a plan and an exemption": (
+        "Clothing",
+        dict(apparel=_PLAN(compounds=_C), apparel_exempt="a costume"),
+    ),
+    "a plan on a beauty type": ("Beauty", dict(apparel=_PLAN(compounds=_C))),
     "an exemption on a beauty type": ("Beauty", dict(apparel_exempt="why")),
-    "fewer than three decoys per class": ("Clothing", dict(apparel=_PLAN(per_class=2))),
-    "an unknown word family": ("Clothing", dict(apparel=_PLAN(family="z"))),
+    "fewer than three decoys per class": (
+        "Clothing",
+        dict(apparel=_PLAN(per_class=2, compounds=_C)),
+    ),
+    "an unknown word family": ("Clothing", dict(apparel=_PLAN(family="z", compounds=_C))),
+    "no class 2 compound (#444)": ("Clothing", dict(apparel=_PLAN())),
+    "a compound word its phrase lacks (#444)": (
+        "Clothing",
+        dict(apparel=_PLAN(compounds=(("vest", "Cami Kaftan"),))),
+    ),
 }
 
 

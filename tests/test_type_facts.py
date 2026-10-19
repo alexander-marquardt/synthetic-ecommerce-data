@@ -20,6 +20,7 @@ from pathlib import Path
 import pytest
 
 import type_facts
+from published import authored_entries
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.domains.industrial import conformance
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
@@ -61,7 +62,7 @@ def _socket_screw_docs(count: int) -> list[dict]:
                 continue
             doc = json.loads(line)
             if doc["product_type"] == "screw_socket_head" and any(
-                a["name"] == "Standards" for a in doc["attributes"]
+                a["name"] == "Standards" for a in authored_entries(doc)
             ):
                 docs.append(doc)
                 if len(docs) == count:
@@ -76,17 +77,21 @@ def test_a_planted_type_is_held_to_the_facts_it_declares(monkeypatch: pytest.Mon
     assert type_facts.may_claim().get(PLANTED) == _planted().may_claim
     assert type_facts.title_key().get(PLANTED) == ("Dia./Thread Size",)
 
-    docs = [dict(doc, product_type=PLANTED) for doc in _socket_screw_docs(80)]
+    # The planted type has no authored-name map, so the names are mapped back before the rename.
+    docs = [
+        dict(doc, product_type=PLANTED, attributes=authored_entries(doc))
+        for doc in _socket_screw_docs(80)
+    ]
     assert len(docs) == 80
     outside = sorted(
         (doc["sku"], PLANTED, a["value"])
         for doc in docs
-        for a in doc["attributes"]
+        for a in authored_entries(doc)
         if a["name"] == "Standards" and a["value"] not in _planted().may_claim
     )
     # The sample claims standards both inside and outside the planted set, so
     # the check is seen to pass the one and refuse the other.
-    claimed = sum(1 for doc in docs for a in doc["attributes"] if a["name"] == "Standards")
+    claimed = sum(1 for doc in docs for a in authored_entries(doc) if a["name"] == "Standards")
     assert 0 < len(outside) < claimed, (len(outside), claimed)
     assert sorted(wrong_claims(docs)) == outside
 

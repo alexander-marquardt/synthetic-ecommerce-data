@@ -61,6 +61,11 @@ def _line(name: str) -> tuple[str, str, str]:
     return _a("line", "Line", name)
 
 
+#: The drawing fields of a flower print, scattered all over the garment (gen#408).
+_FLOWERS = (("motif", "daisy"), ("placement", "all-over"), ("scale", 0.1), ("spacing", 96),
+            ("count", 2))  # fmt: skip
+
+
 def _mark(name: str) -> tuple[tuple[str, object], ...]:
     """The drawing fields of the range's motif, scattered small (as :mod:`prints` does)."""
     return (("motif", RANGES[name][1]), ("placement", "all-over"), ("scale", 0.1),
@@ -82,6 +87,8 @@ OLIVE = cw("Olive", "#6b6b2f")
 AMBER = cw("Amber", "#e0a030")
 TORTOISESHELL = cw("Tortoiseshell", "#8a5a2b", "solid", "#2a1a0e")
 ROSE_QUARTZ = cw("Rose Quartz", "#f0c8cf")
+#: The jersey midi dress's first colorway: a flower print, so "floral dress" finds it (gen#408).
+PINK_FLORAL = cw("Pink Floral", "#f3c6cf", "print", "#c8312e")
 NATURAL = cw("Natural", "#d9b98a")
 RED = cw("Red", "#c8312e")
 GREEN = cw("Green", "#3f7d4a")
@@ -128,7 +135,8 @@ COLORS = (
          (CHAMPAGNE, NAVY_BLUE, BLACK), _mat("Satin"), _sz(38.0), collections=(GOING_OUT, WEDDING)),
     SRow("CLRWRP", "Jersey Midi Dress", "Harbour & Pine", _C, _MIDI, "Dress", 34.0, "dress",
          "A soft jersey midi dress with fine straps and a flared skirt.",
-         (NAVY_BLUE, ROSE_QUARTZ, OLIVE), _mat("Jersey"), _sz(34.0), collections=(WEDDING,)),
+         (PINK_FLORAL, NAVY_BLUE, OLIVE), _mat("Jersey"), _sz(34.0), collections=(WEDDING,),
+         motif_print=_FLOWERS),
     SRow("CLRSHD", "Linen Blend Midi Dress", "Harbour & Pine", _C, _MIDI, "Dress", 36.0, "dress",
          "A light midi dress in a linen blend with fine straps and a flared skirt, easy for hot days.",
          (MINT, STONE, DUCK_EGG), _mat("Linen blend"), _sz(36.0), collections=(SUMMER,)),

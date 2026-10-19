@@ -13,11 +13,14 @@ a facet-extraction test bed:
   WHICH attributes they carry -- a hammer and a hex bolt share almost nothing --
   and facet discovery scoped to one type still returns that type's names.
 
-* **Inconsistent spelling of one idea.** The measured corpus names the
-  measurement-system attribute three ways -- ``Dimension Type`` (141),
-  ``Measurement System`` (49), ``System of Measurement`` (22) -- with one
-  shared value vocabulary. A field map has to absorb that, so the catalog has
-  to contain it.
+* **One name for one idea.** The measured corpus names the measurement-system
+  attribute three ways -- ``Dimension Type`` (141), ``Measurement System``
+  (49), ``System of Measurement`` (22) -- with one shared value vocabulary.
+  The catalog publishes it as ``Measurement System`` alone (#497): a shopper
+  filters inch against metric on one facet, and the same-concept merges of the
+  attribute review (``Standards`` for ``Meets/Exceeds``, ``Hardness`` for
+  ``Rockwell Hardness``, ``Length`` for ``Length under Head``, ...) hold the
+  same rule for every other attribute.
 
 The one attribute that spans every type is ``Standards``, and it is
 multi-valued. That shape -- several values under one name on one product -- is
@@ -32,15 +35,13 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
-#: The three verbatim spellings of the measurement-system attribute, with the
-#: weights measured in 08_measurement_system.json (141 / 49 / 22 of 212).
-MEASUREMENT_SYSTEM_NAMES: tuple[tuple[str, float], ...] = (
-    ("Dimension Type", 0.665),
-    ("Measurement System", 0.231),
-    ("System of Measurement", 0.104),
-)
+#: The one name of the measurement-system attribute. The census spells it three
+#: ways (141 / 49 / 22 of 212, 08_measurement_system.json); the catalog keeps the
+#: middle one and drops the draw between spellings (#497). The tuple form stays
+#: so the one draw per line that picks the name keeps the random stream.
+MEASUREMENT_SYSTEM_NAMES: tuple[tuple[str, float], ...] = (("Measurement System", 1.0),)
 
-#: Its value vocabulary, shared across all three spellings. Weights from the
+#: Its value vocabulary. Weights from the
 #: same file: 151 / 35 / 19 / 5 of 212 (the two "Wire" values are a different
 #: product family and are not reproduced here).
 MEASUREMENT_SYSTEM_VALUES: tuple[tuple[str, float], ...] = (
@@ -90,8 +91,6 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
 #: End mills. The richest vocabulary in the corpus: end_mill records average
 #: 16.98 attributes against a corpus mean of 13.12.
 _END_MILL = (
-    _spec("Item", "line"),
-    _spec("End Mill Style", "line"),
     # On EVERY end mill, not at the 0.62 the reference corpus measured. That
     # corpus's end mills could leave material unstated because their category
     # trail named it; this catalog's trail no longer does (material is not a
@@ -109,7 +108,7 @@ _END_MILL = (
     _spec("Cutting Direction", "line", 0.90),
     _spec("Single End/Double End", "line", 0.74),
     _spec("Cutting Type", "line", 0.66),
-    _spec("End Mill Application", "line", 0.38),
+    _spec("Application", "line", 0.38),
     _spec("Material Grade - Machining", "line", 0.42),
     _spec("Coolant Fed", "line", 0.24),
     _spec("List Number", "line", 0.58),
@@ -130,7 +129,6 @@ _END_MILL = (
 #: Drill Size and a Flute Length where a mill has a Milling Dia. and a Length
 #: of Cut, and the corpus keeps them apart.
 _DRILL = (
-    _spec("Item", "line"),
     _spec("Material", "line"),
     _spec("Point Type", "line", 0.78),
     _spec("Point Angle", "line", 0.82, kind="angle"),
@@ -147,8 +145,6 @@ _DRILL = (
 
 #: Spiral point taps.
 _TAP = (
-    _spec("Item", "line"),
-    _spec("Tap Style", "line"),
     _spec("Material", "line", 0.80),
     _spec("Finish", "line", 0.66),
     _spec("Thread Direction", "line", 0.84),
@@ -171,44 +167,27 @@ _TAP = (
 #: Head Dia. and Head Height, so those are unconditional here: a record that
 #: cannot be drawn is a record whose image would have to be faked.
 #:
-#: ``Length Under Head`` is a THIRD length beside the other two, and the three
-#: are genuinely three measurements:
-#:
-#: * ``Length`` is the screw's nominal length, which a countersunk screw
-#:   measures OVER its head and every other style measures under it;
-#: * ``Thread Length`` is how much of the shank carries thread;
-#: * ``Length Under Head`` is the whole shank, head excluded.
-#:
-#: A shopper's ``5/16-18 x 3/4`` names the last of those on a socket, button
-#: or low head. Binding it to ``Thread Length`` would return confidently wrong
-#: results -- so the attribute exists rather than being approximated by a
-#: neighbour.
-#:
-#: The COUNTERSUNK line does not carry it (:data:`_FLAT_HEAD_SCREW`). A flat
-#: head is sold by its length OVER the head -- ISO 10642 and ASME B18.3 both
-#: measure it that way -- so its "x 3/4" is its ``Length``, and the shank under
-#: a toleranced cone is not a length any distributor lists. Publishing it as
-#: length-less-head-height put 12.56mm and 1.3910" in the facet beside the
-#: stocked lengths.
+#: ``Length`` is the screw's nominal length, which a countersunk screw measures
+#: OVER its head and every other style measures under it (ISO 10642, ASME
+#: B18.3), so a shopper's ``5/16-18 x 3/4`` names it. ``Thread Length`` is how
+#: much of the shank carries thread. There is no separate under-head length
+#: (#497): on every style but the countersunk one it would repeat ``Length``.
 _SOCKET_SCREW = (
-    _spec("Item", "line"),
-    _spec("Type", "line"),
     _spec("Head Type", "line"),
     _spec("Drive Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
     _spec("Thread Direction", "line", 0.64),
     _spec("Thread Type", "line", 0.70),
-    _spec("Rockwell Hardness", "line", 0.48),
-    _spec("Meets/Exceeds", "line", 0.40),
+    _spec("Hardness", "line", 0.48),
+    _spec("Standards", "line", 0.40),
     # Unconditional, as on the hex bolt: the shown price is a pack's (every
     # census socket screw is pack-sold, ``price.PACK_COUNTS``), so a record
     # that left the pack unstated would show a price for a quantity it does
     # not name (#65).
-    _spec("Package Quantity", "line", kind="count"),
+    _spec("Units per Pack", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Head Dia.", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -226,9 +205,6 @@ _SOCKET_SCREW = (
     _spec("Drive Size", "sku", kind="length"),
 )
 
-#: The countersunk line: every socket-screw attribute but ``Length under Head``.
-_FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length under Head")
-
 #: Hex bolts. Shares Dia./Thread Size and Length with the socket screw -- they
 #: are both threaded fasteners and the corpus does share those -- but the head
 #: is described by width across flats, not a head diameter.
@@ -242,13 +218,12 @@ _FLAT_HEAD_SCREW = tuple(spec for spec in _SOCKET_SCREW if spec.name != "Length 
 #: one line that carried the grade and the finish the query names lost the
 #: finish to that roll, and the query resolved to nothing.
 #:
-#: This is the precedent issue #8 set for ``Length Under Head``: an attribute a
+#: This is the precedent issue #8 set: an attribute a
 #: reference query BINDS to is published rather than approximated by a
 #: neighbour or left to chance. It is also what the source does -- a
 #: distributor's hex cap screw listing states the grade and the finish on
 #: every row, because they are what the category is selected on.
 _HEX_BOLT = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Head Type", "line"),
     _spec("Material", "line"),
@@ -259,10 +234,9 @@ _HEX_BOLT = (
     # Unconditional: the shown price is a pack's (98.8% of census bolts are
     # pack-sold, ``price.PACK_COUNTS``), so every record states the pack it
     # prices (#65).
-    _spec("Package Quantity", "line", kind="count"),
+    _spec("Units per Pack", "line", kind="count"),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
-    _spec("Length under Head", "sku", kind="length"),
     _spec("Thread Length", "sku", kind="length"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Head Height", "sku", kind="length"),
@@ -272,7 +246,6 @@ _HEX_BOLT = (
 #: Flat washers. No thread, no head, no drive: four measurements and a
 #: material. Nothing here appears on a cutting tool.
 _WASHER = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.74),
@@ -284,7 +257,6 @@ _WASHER = (
 
 #: Every hammer kind (hammers.py). Deliberately the most distant vocabulary in the catalog.
 HAMMER_VOCAB = (
-    _spec("Item", "line"),
     _spec("Material", "line"),
     _spec("Handle Material", "line"),
     _spec("Handle Grip Material", "line", 0.62),
@@ -297,7 +269,6 @@ HAMMER_VOCAB = (
 
 #: Flap discs.
 _FLAP_DISC = (
-    _spec("Item", "line"),
     _spec("Abrasive Material", "line"),
     _spec("Backing Material", "line", 0.76),
     _spec("Shape", "line", 0.68),
@@ -312,14 +283,13 @@ _FLAP_DISC = (
 #: a nut's height is ``Height`` and its style is ``Type`` -- the census has no
 #: ``Nut Height`` worth following (2 records) and the gate refuses ``Nut ...``.
 _NUT = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.9),
     _spec("Grade", "line", 0.9),
     _spec("Thread Type", "line", 0.8),
     _spec("Thread Direction", "line", 0.55),
-    _spec("Package Quantity", "line", 0.85, kind="count"),
+    _spec("Units per Pack", "line", 0.85, kind="count"),
     _spec("Thread Size", "sku"),
     _spec("Width Across Flats", "sku", kind="length"),
     _spec("Height", "sku", 0.9, kind="length"),
@@ -328,7 +298,6 @@ _NUT = (
 #: Radial ball bearings. A product is one bearing number; its variants are the
 #: closures, which is how the type really varies (6204, 6204-ZZ, 6204-2RS).
 _BEARING = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Bearing Number", "line"),
     _spec("Series", "line", 0.8),
@@ -350,25 +319,23 @@ _BEARING = (
 #: abrasive; its variants are the grits. Grit is a sizing-system value, not a
 #: unit (ruling 2026-09-25: one vocabulary per sizing system).
 _WHEEL = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
-    _spec("Wheel Dia.", "line", kind="length"),
+    _spec("Diameter", "line", kind="length"),
     _spec("Thickness", "line", kind="length"),
     _spec("Arbor Hole", "line", 0.95, kind="length"),
-    _spec("Connector Type", "line", 0.6),
+    _spec("Mounting Type", "line", 0.6),
     _spec("Abrasive Material", "line"),
     _spec("Bond Type", "line", 0.7),
     _spec("Max. RPM", "line", 0.9, kind="count"),
     _spec("Application", "line", 0.6),
-    _spec("Package Quantity", "line", 0.8, kind="count"),
+    _spec("Units per Pack", "line", 0.8, kind="count"),
     _spec("Grit", "sku", kind="count"),
-    _spec("Grade", "line", 0.7),
+    _spec("Wheel Grade", "line", 0.7),
 )
 
 #: Hex keys. A product is one brand's arm length, tip and finish; its variants
 #: are sizes.
 _HEX_KEY = (
-    _spec("Item", "line"),
     _spec("Type", "line", 0.8),
     _spec("Tip Style", "line"),
     _spec("Material", "line", 0.85),
@@ -382,13 +349,12 @@ _HEX_KEY = (
 #: own (``Sizes Included``) and its piece count a real number (``Number of
 #: Pieces``, so pack wording may name it). Census names throughout.
 _KIT = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Material", "line", 0.85),
     _spec("Finish", "line", 0.8),
     _spec("Container Type", "line", 0.8),
     _spec("Tip Style", "line"),
-    _spec("Number of Pieces", "sku"),
+    _spec("Piece Count", "sku"),
     _spec("Sizes Included", "sku"),
 )
 
@@ -397,7 +363,7 @@ _VOCAB: dict[str, tuple[AttrSpec, ...]] = {
     "end_mill_ball": _END_MILL,
     "drill_jobber": _DRILL,
     "tap_spiral_point": _TAP,
-    "screw_flat_head": _FLAT_HEAD_SCREW,
+    "screw_flat_head": _SOCKET_SCREW,
     "screw_button_head": _SOCKET_SCREW,
     "screw_low_head": _SOCKET_SCREW,
     "bolt_hex": _HEX_BOLT,
@@ -441,10 +407,9 @@ def names_for(type_key: str) -> frozenset[str]:
     return frozenset(spec.name for spec in VOCAB[type_key])
 
 
-#: The measurement-system fact is one attribute under three spellings
-#: (:data:`MEASUREMENT_SYSTEM_NAMES`). It is product-constant in every type, which also
-#: settles ``dimension_type``, the facet key of the commonest spelling: a product is
-#: metric or inch, never both, and a builder fixes one system per line.
+#: The measurement-system fact is one attribute (:data:`MEASUREMENT_SYSTEM_NAMES`). It is
+#: product-constant in every type, which also settles ``measurement_system``, its facet key:
+#: a product is metric or inch, never both, and a builder fixes one system per line.
 MEASUREMENT_SYSTEM_SPELLINGS: frozenset[str] = frozenset(
     name for name, _ in MEASUREMENT_SYSTEM_NAMES
 )

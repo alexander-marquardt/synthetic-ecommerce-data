@@ -144,11 +144,15 @@ def test_a_hammer_that_is_no_decoy_is_still_checked(golden) -> None:
     plain = next(
         d for d in golden if d["category_leaf"] == "Hammers" and d["product_id"] not in decoys
     )
-    planted = {**plain, "title": f"{plain['title']}, Hickory-Look"}
+    # A claim, not "Hickory-Look": a value before a hyphen is no claim (gen#187).
+    planted = {**plain, "title": f"{plain['title']}, Hickory Handle"}
     handle = next(e["value"] for e in plain["attributes"] if e["key"] == "handle_material")
     assert handle != "Hickory"
     problems = standard.check_catalog([*golden, planted], text_exempt=decoys)
     assert any("'Hickory'" in p for p in problems), problems[:3]
+    hyphen = {**plain, "title": f"{plain['title']}, Hickory-Look"}
+    again = standard.check_catalog([*golden, hyphen], text_exempt=decoys)
+    assert not any("'Hickory'" in p for p in again), again[:3]
 
 
 @pytest.mark.parametrize(

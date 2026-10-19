@@ -19,6 +19,8 @@ from typing import Any
 
 import pytest
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case
+
 RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -33,19 +35,19 @@ DEPARTMENTS = frozenset(
         "Womens",
         "Mens",
         "Kids",
-        "Food & Drink",
+        "Food & drink",
         "Home",
         "Beauty",
         "Cleaning",
         "Toys",
         "Gifts",
         "Garden",
-        "Sports & Outdoors",
+        "Sports & outdoors",
     }
 )
 #: The roots the build once had -> the first two nodes their subtree now starts with.
 FOLDED_ROOTS = {
-    "Food": ["Food & Drink", "Fruit & Vegetables"],
+    "Food": ["Food & drink", "Fruit & vegetables"],
     "Baby": ["Kids", "Baby"],
     "Electricals": ["Home", "Electricals"],
 }
@@ -63,7 +65,9 @@ def nested(built: scale.Scaled) -> list[dict[str, Any]]:
 
 
 def _top_levels(docs: list[dict[str, Any]]) -> collections.Counter[str]:
-    return collections.Counter(d["category_path"][0] for d in docs)
+    # Records are authored (Title Case); documents are published (gen#499): both count by the
+    # published spelling of the department.
+    return collections.Counter(sentence_case(d["category_path"][0]) for d in docs)
 
 
 def test_the_build_records_sit_under_exactly_the_declared_departments(built: scale.Scaled) -> None:
@@ -97,7 +101,7 @@ def test_a_folded_root_keeps_its_subtree_under_its_new_parent(
 ) -> None:
     paths = [r["category_path"] for r in built.records]
     assert [p for p in paths if p[0] == old] == []
-    assert any(p[:2] == prefix for p in paths)
+    assert any([sentence_case(node) for node in p[:2]] == prefix for p in paths)
 
 
 def test_a_baby_style_is_still_sold_to_babies() -> None:
@@ -128,13 +132,13 @@ def test_the_exported_field_list_has_no_department_entry() -> None:
     assert "department" not in {key for key, _, _ in export.FACTS.values()}
 
 
-def test_the_committed_ceiling_figures_name_exactly_the_declared_departments() -> None:
-    """The 110K export's per-top-level counts (``golden-retail/stats.json``, rebuilt by
+def test_the_measured_ceiling_figures_name_exactly_the_declared_departments() -> None:
+    """The 110K export's per-top-level counts (``retail_figures.figures()``, measured by
     ``retail_figures.py``) cover every declared department and no other."""
-    from retail_figures import committed
+    from retail_figures import figures as measured
 
-    figures = committed()["ceiling"]
-    assert set(figures["top_levels"]) == DEPARTMENTS
+    figures = measured()["ceiling"]
+    assert {sentence_case(name) for name in figures["top_levels"]} == DEPARTMENTS
     assert sum(t["skus"] for t in figures["top_levels"].values()) == figures["skus"]
 
 

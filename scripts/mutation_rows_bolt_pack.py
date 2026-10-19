@@ -8,13 +8,15 @@ and names the test that must go red. ``mutation_check.py`` turns them into ``Mut
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 SRC = "src/synthetic_ecommerce_data"
 
 ROWS: list[tuple[str, str, str, str, str, str, str, str]] = [
     (
         "a page's lines draw a pack each",
         "core/price.py",
-        'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{sorted(held)}")',
+        'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{hashed}")',
         'random.Random(f"{seed}:pack-page:{type_key}:{brand}:{random.random()}")',
         "tests/test_bolt_page_pack.py -k every_line_of_a_page_shares_one_pack",
         "A",
@@ -52,3 +54,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str, str]] = [
         "scripts",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "bolt page pack"
+
+
+def rows() -> list[Row]:
+    return [Row(n, f, o, w, t, p, root, d) for n, f, o, w, t, d, p, root in ROWS]

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import kit_outdoor  # noqa: F401 -- registers garden_furniture
 from outdoor_helpers import BLACK, BLUE, GREEN, RED, WHITE, YELLOW, H, L, M, V, W, a, axis, row
-from type_registry import TypeSpec
+from type_registry import Option, TypeSpec
 
 _ROOT = ("Garden", "Garden Furniture")
 _PT = "Garden Furniture Set"
@@ -30,6 +30,7 @@ SPEC = TypeSpec(
     key="garden_furniture_set",
     department="Garden",
     product_type=_PT,
+    options=(Option("seats", "seats", "Seats", "C62"),),
     rows=(
         row("GFSBIS", "Steel Bistro Garden Furniture Set", W, (*_ROOT, "Garden Furniture Sets"), _PT, 79.0,
             "garden_furniture", "A round table and two folding chairs in powder-coated steel, "

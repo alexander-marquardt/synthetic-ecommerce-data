@@ -26,6 +26,7 @@ is checked over. Every brand, line and style name is invented.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import distractors as dz
 from class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
@@ -154,6 +155,45 @@ def sh(name: str, hex_: str, family: str, material: str, pattern: str = "solid",
 # ==========================================================================
 
 
+def axes_from(kind: str, e: dict[str, Any], heel: Any) -> dict[str, str]:
+    """The drawing params of a shoe kind's variant axes (:data:`kit_footwear.AXES`), from the
+    values of the attributes ``e`` (key -> value) and the heel height in millimetres.
+
+    The one place an attribute's wording becomes the kit's word ("Back strap" is ``back``): a
+    style's drawing is built with it and :func:`fit_axes` redraws a derived style with it."""
+    if kind == "wedge":
+        return {"heel": str(heel)}
+    if kind == "espadrille":
+        return {"heel": e["heel_type"].lower()}
+    if kind == "mule":
+        return {"heel": e["heel_type"].lower(), "toe": e["toe_style"].lower()}
+    if kind == "platform_trainer":
+        return {"platform": str(e["platform_height"])}
+    if kind == "clog":
+        return {"strap": "back" if e["strap"] == "Back strap" else "none", "body": e["material"].lower()}
+    if kind == "jelly":
+        return {"style": e["jelly_style"].lower(), "glitter": e["glitter"].lower()}
+    if kind == "barefoot":
+        return {"sole": str(e["sole_thickness"])}
+    return {}
+
+
+def fit_axes(rec: dict) -> None:
+    """Redraw a derived shoe's variant axes from the attributes it ended up with (gen#512).
+
+    :func:`scale.derive` swaps a changed attribute value into the drawing's params as the
+    attribute spells it, which is the kit's word only when the two are spelled alike: a clog
+    derived to "Back strap" drew ``strap='back strap'``, which the kit refuses, and one derived
+    to "None" kept ``strap='back'``.
+    """
+    drawing_ = rec["drawing"]
+    params = drawing_.get("params") or {}
+    if drawing_.get("shape") != "shoe" or "kind" not in params:
+        return
+    e = {a["key"]: a["value"] for a in rec["attributes"]}
+    params |= axes_from(params["kind"], e, e.get("heel_height"))
+
+
 @dataclass(frozen=True)
 class FootwearStyle:
     code: str
@@ -215,25 +255,9 @@ class FootwearStyle:
         return self.junior_price if "Junior" in size and self.junior_price else self.price
 
     def axes(self, heel: int) -> dict[str, str]:
-        """The drawing params of the kind's variant axes (:data:`kit_footwear.AXES`), read from
-        the attributes the record states, so the picture and the attribute are one fact."""
-        e = {k: v for k, _, v, *_ in self.extra}
-        kind = self.kind
-        if kind == "wedge":
-            return {"heel": str(heel)}
-        if kind == "espadrille":
-            return {"heel": e["heel_type"].lower()}
-        if kind == "mule":
-            return {"heel": e["heel_type"].lower(), "toe": e["toe_style"].lower()}
-        if kind == "platform_trainer":
-            return {"platform": str(e["platform_height"])}
-        if kind == "clog":
-            return {"strap": "back" if e["strap"] == "Back strap" else "none", "body": e["material"].lower()}
-        if kind == "jelly":
-            return {"style": e["jelly_style"].lower(), "glitter": e["glitter"].lower()}
-        if kind == "barefoot":
-            return {"sole": str(e["sole_thickness"])}
-        return {}
+        """The drawing params of the kind's variant axes, read from the attributes the record
+        states, so the picture and the attribute are one fact (:func:`axes_from`)."""
+        return axes_from(self.kind, {k: v for k, _, v, *_ in self.extra}, heel)
 
     def skus(self) -> list[dict]:
         """Color x width x size; a later width only in :attr:`wide` (when named)."""
@@ -245,7 +269,7 @@ class FootwearStyle:
                     if width != self.widths[0] and self.wide and s not in self.wide:
                         continue
                     uk, eu, us = chart[s]
-                    row = {"color": color[0], "upper_material": material}
+                    row = {"color": color[0], "upper_material": material.title()}
                     row |= {"size": s} if self.kind == "slipper" else {}
                     row |= {"size_uk": uk, "size_eu": eu, "size_us": us, "width": width,
                             "price": self._price(s),
@@ -265,7 +289,9 @@ class FootwearStyle:
         materials = list(dict.fromkeys(m for _, _, m in self.colors))
         attrs = [
             attr("closure", "Closure", self.closure),
-            attr("upper_material", "Upper material", ", ".join(materials)),
+            # One entry per material, Title Case: a facet lists each as a value of its own
+            # (gen#472), as the SKUs' own ``upper_material`` does.
+            *(attr("upper_material", "Upper material", m.title()) for m in materials),
             attr("sole", "Sole", self.sole),
             attr("toe", "Toe", self.toe),
             # MMT is UN/CEFACT's millimetre.
@@ -326,7 +352,8 @@ WOMENS = (
     FootwearStyle("WTRCNV", "Canvas Lace-Up Trainers", "Larkmoor", _W, "trainer", 26.0,
                   "Low canvas trainers with a cushioned insole and a vulcanised rubber sole.",
                   (sh("White", "#f7f5ef", "white", "canvas"), sh("Navy", "#26365c", "navy", "canvas"),
-                   sh("Black", "#2a2a2e", "black", "canvas"), sh("Sage", "#9bae8f", "green", "canvas")),
+                   sh("Black", "#2a2a2e", "black", "canvas"), sh("Sage", "#9bae8f", "green", "canvas"),
+                   sh("Orange", "#e8742a", "orange", "canvas")),
                   W_WHOLE, "Lace-Up", "Rubber"),
     FootwearStyle("WTRLTH", "Leather Chunky Trainers", "Larkmoor", _W, "trainer", 45.0,
                   "Smooth leather trainers on a deep, lightweight sole with a padded collar.",
@@ -338,7 +365,7 @@ WOMENS = (
                   "upper. Reflective heel tab.",
                   (sh("Lilac Haze", "#b9a3d6", "pink", "mesh"), sh("Black Ice", "#24262b", "black", "mesh"),
                    sh("Coral Glow", "#f07d5e", "orange", "mesh"),
-                   sh("Glacier Blue", "#8fc1e3", "blue", "mesh")),
+                   sh("Glacier Blue", "#8fc1e3", "blue", "mesh"), sh("Orange", "#e8742a", "orange", "mesh")),
                   W_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("4", "8", 7.5),
                   product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("WANKBL", "Suede Block Heel Ankle Boots", "Calderby & Lune", _W, "ankle_boot",
@@ -429,7 +456,8 @@ MENS = (
                   "Neutral road running shoes with a soft foam midsole and a breathable mesh "
                   "upper. Reflective heel tab.",
                   (sh("Black Ice", "#24262b", "black", "mesh"), sh("Citrus Lime", "#b7cf3a", "green", "mesh"),
-                   sh("Storm Grey", "#70757c", "grey", "mesh"), sh("Cobalt", "#2b56b5", "blue", "mesh")),
+                   sh("Storm Grey", "#70757c", "grey", "mesh"), sh("Cobalt", "#2b56b5", "blue", "mesh"),
+                   sh("Orange", "#e8742a", "orange", "mesh")),
                   M_RUN, "Lace-Up", "EVA foam", widths=STD_WIDE, wide=run("7", "12", 11.5, "men"),
                   product_line="Cloudrise", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("MCHLSD", "Suede Chelsea Boots", "Harbour & Pine", _M, "chelsea", 69.0,
@@ -485,12 +513,14 @@ KIDS_STYLES = (
     FootwearStyle("KTRHLT", "Kids' Hook & Loop Trainers", "Little Fernby", _K, "trainer", 18.0,
                   "Easy-on trainers with two hook and loop straps and a bendy rubber sole.",
                   (sh("Navy", "#26365c", "navy", "synthetic"), sh("Pink", "#e88aa8", "pink", "synthetic"),
-                   sh("Black", "#2a2a2e", "black", "synthetic"), sh("White", "#fbfaf6", "white", "synthetic")),
+                   sh("Black", "#2a2a2e", "black", "synthetic"), sh("White", "#fbfaf6", "white", "synthetic"),
+                   sh("Orange", "#e8742a", "orange", "synthetic")),
                   INFANT_JUNIOR, "Hook & Loop", "Rubber", junior_price=22.0),
     FootwearStyle("KRUNCR", "Kids' Cloudrise Running Shoes", "Stridewell", _K, "running", 45.0,
                   "Lightweight running shoes for kids with a foam midsole and a mesh upper.",
                   (sh("Cobalt", "#2b56b5", "blue", "mesh"), sh("Black Ice", "#24262b", "black", "mesh"),
-                   sh("Lilac Haze", "#b9a3d6", "pink", "mesh")),
+                   sh("Lilac Haze", "#b9a3d6", "pink", "mesh"),
+                   sh("Orange", "#e8742a", "orange", "mesh")),
                   run("10 Infant", "6 Junior", chart="kids"), "Lace-Up", "EVA foam",
                   junior_price=50.0, product_line="Cloudrise"),
     FootwearStyle("KSCHLL", "Kids' Leather School Shoes", "Little Fernby", _K, "school", 32.0,
@@ -683,7 +713,7 @@ BOOTS = dz.Row(
         ), "category intent: Boots (a Home item never answers a footwear word)"),
         dz.Distractor(dz.product(
             "BOOTPOL", "Boot Polish & Brush Kit", "Calderby & Lune", "Footwear",
-            ("Mens", "Shoes", "Shoe Care"), 12.0,
+            ("Mens", "Accessories", "Shoe Care"), 12.0,
             "Wax boot polish in black, brown and neutral with a horsehair brush. Feeds leather "
             "boots and keeps boots supple.",
             drawing("tin", cw("Black", "#2a2a2e", "solid", "#c9a24a"), "Polish"),

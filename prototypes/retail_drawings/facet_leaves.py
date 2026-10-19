@@ -20,7 +20,11 @@ so :func:`export.standard_document` collapses those leaves here:
 - on every other type, ``fabric`` is the fibre or weave a shopper names (Cotton, Linen,
   Denim, Oxford); a grade or blend becomes the document's ``fibre_content``, a detail and
   no facet (:data:`FABRIC_MOVES`, gen#187; :data:`TYPED_FABRIC_MOVES` for a move that
-  reads one type's text, gen#291).
+  reads one type's text, gen#291). A garment with no ``fabric`` also carries the fibres its
+  ``material`` names (:data:`MATERIAL_FABRICS`, exact rows) and its title names
+  (:func:`stated_fabrics`), unless the title says "-Look", "-Feel", "-Free" or "-Lined"; a
+  brushed cotton flannel is both (:data:`FABRIC_ALSO`). A bag, a belt, a watch, a shoe and
+  homeware keep their own ``material`` (:data:`NON_TEXTILE_TYPES`, gen#187).
 
 Only the document changes. The build record, its drawing and so its image id keep the old
 leaf, so the seeded derivation and every image id are what they were. Titles keep their
@@ -29,15 +33,16 @@ words ("Skinny Jeans", "Lace Balcony Bra"), so a text search still finds them.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
-from synthetic_ecommerce_data.core.standard import words
+from synthetic_ecommerce_data.core.standard import UNHYPHENATED, words
 
 #: The kind nodes whose fit leaves collapse into them, by product type.
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
 #: The bra node, and the purpose nodes that stay under it.
 BRA_NODE = "Bras"
-PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras")
+PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras", "Mastectomy Bras")
 
 #: ``leg_style`` (the failure-class rows' lower-case fit) -> its ``leg_fit`` value.
 LEG_STYLE_FITS = {
@@ -121,6 +126,7 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Nursing Bras": ("Full Cup", None, None, None),
     "Sleep Bras": ("Bralette", "Unlined", None, None),
     "Post-Surgery Bras": ("Full Cup", None, None, None),
+    "Mastectomy Bras": ("Full Cup", None, None, None),
 }
 
 #: Every ``fabric`` value that is not the fibre or weave a shopper names -> (fabric, the blend
@@ -147,11 +153,178 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
     "Cotton, Elastane": ("Cotton", "Cotton, Elastane"),
     "Modal, Elastane": ("Modal", "Modal, Elastane"),
     "Recycled Polyamide, Elastane": ("Nylon", "Recycled Polyamide, Elastane"),
     "Recycled Polyester, Elastane": ("Polyester", "Recycled Polyester, Elastane"),
 }
+
+#: A garment's free-text ``material`` -> the shopper fibres it names (gen#187). A dress, a polo
+#: shirt, a coat or a pair of Mens trousers states a ``material`` ("Linen blend", "Stretch
+#: Cotton", "Wool Cashmere blend", "Merino wool") and no ``fabric``; the fibre a shopper types
+#: ("linen dress", "wool coat") is also the document's ``fabric``, so the fabric marker reads
+#: it. Each row is explicit and exact, and the tests pin the table both ways: a new garment
+#: ``material`` that names a closed-list fibre is a row here or a reason in
+#: :data:`MATERIAL_NOT_FABRIC`, and a row names every fibre its material does. The ``material``
+#: itself stays, as the detail the product states.
+MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
+    "Bamboo": ("Bamboo",),
+    "Boucle": ("Boucle",),
+    "Brushed Cotton": ("Brushed Cotton",),
+    "Brushed Cotton Flannel": ("Brushed Cotton", "Flannel"),
+    "Brushed Oxford": ("Oxford",),
+    "Brushed Twill": ("Twill",),
+    "Camp Collar Cotton": ("Cotton",),
+    "Cashmere": ("Cashmere",),
+    "Coated Cotton": ("Cotton",),
+    "Combed Cotton": ("Cotton",),
+    "Corduroy": ("Corduroy",),
+    "Cotton": ("Cotton",),
+    "Cotton Flannel": ("Cotton", "Flannel"),
+    "Cotton Gabardine": ("Cotton",),
+    "Cotton Jersey": ("Cotton", "Jersey"),
+    "Cotton Lawn": ("Cotton",),
+    "Cotton Linen": ("Cotton", "Linen"),
+    "Cotton Oxford": ("Cotton", "Oxford"),
+    "Cotton Poplin": ("Cotton",),
+    "Cotton Rich": ("Cotton",),
+    "Cotton Stretch": ("Cotton",),
+    "Cotton Twill": ("Cotton", "Twill"),
+    "Cotton blend": ("Cotton",),
+    "Cotton Voile": ("Cotton", "Voile"),
+    "Crinkle Cotton": ("Cotton",),
+    "Denim": ("Denim",),
+    "Easy Iron Cotton": ("Cotton",),
+    "Embroidered Cotton": ("Cotton",),
+    "Faux Leather": ("Faux Leather",),
+    "Felted Wool": ("Wool",),
+    "Flannel": ("Flannel",),
+    "Fleece Back": ("Fleece",),
+    "Garment Dyed Oxford": ("Oxford",),
+    "Glossy Nylon": ("Nylon",),
+    "Heavy Flannel": ("Flannel",),
+    "Heavy Wool": ("Wool",),
+    "Heavyweight Flannel": ("Flannel",),
+    "Jersey": ("Jersey",),
+    "Knitted": ("Knitted",),
+    "Lace": ("Lace",),
+    "Lace Trim Jersey": ("Jersey", "Lace Trim"),
+    "Lace Trim Satin": ("Lace Trim", "Satin"),
+    "Lambswool": ("Wool",),
+    "Light Wash Denim": ("Denim",),
+    "Lightweight Cotton": ("Cotton",),
+    "Lightweight Nylon": ("Nylon",),
+    "Linen Cotton": ("Linen", "Cotton"),
+    "Linen Viscose": ("Linen", "Viscose"),
+    "Linen blend": ("Linen",),
+    "Matte Nylon": ("Nylon",),
+    "Melton Wool": ("Wool",),
+    "Merino blend": ("Wool",),
+    "Merino wool": ("Wool",),
+    "Microfibre": ("Microfiber",),
+    "Mid Weight Denim": ("Denim",),
+    "Modal": ("Modal",),
+    "Nylon": ("Nylon",),
+    "Organic Cotton": ("Cotton",),
+    "Organic Flannel": ("Flannel",),
+    "Pinpoint Oxford": ("Oxford",),
+    "Pique Cotton": ("Cotton",),
+    "Polyester": ("Polyester",),
+    "Polyester blend": ("Polyester",),
+    "Printed Viscose": ("Viscose",),
+    "Pure Linen": ("Linen",),
+    "Pure Wool": ("Wool",),
+    "Quilted Nylon": ("Nylon",),
+    "Recycled Nylon": ("Nylon",),
+    "Recycled Polyester": ("Polyester",),
+    "Recycled wool": ("Wool",),
+    "Ribbed Cotton": ("Cotton",),
+    "Ribbed Jersey": ("Jersey",),
+    "Ripstop Nylon": ("Nylon",),
+    "Royal Oxford": ("Oxford",),
+    "Ruched Jersey": ("Jersey",),
+    "Satin": ("Satin",),
+    "Seamless Knit": ("Seamless",),
+    "Silk": ("Silk",),
+    "Silk blend": ("Silk",),
+    "Slub Cotton": ("Cotton",),
+    "Soft Denim": ("Denim",),
+    "Soft Flannel": ("Flannel",),
+    "Stonewashed Denim": ("Denim",),
+    "Stretch Cotton": ("Cotton",),
+    "Stretch Denim": ("Denim",),
+    "Stretch Jersey": ("Jersey",),
+    "Stretch Oxford": ("Oxford",),
+    "Stretch Suiting": ("Suiting",),
+    "Stretch Twill": ("Twill",),
+    "Stretch Wool": ("Wool",),
+    "Taped Seam Nylon": ("Nylon",),
+    "Textured Cotton": ("Cotton",),
+    "Twill": ("Twill",),
+    "Velvet": ("Velvet",),
+    "Viscose": ("Viscose",),
+    "Waffle Knit": ("Waffle",),
+    "Washed Cotton": ("Cotton",),
+    "Washed Linen": ("Linen",),
+    "Washed Oxford": ("Oxford",),
+    "Water Repellent Cotton": ("Cotton",),
+    "Waterproof Nylon": ("Nylon",),
+    "Wool": ("Wool",),
+    "Wool Cashmere blend": ("Wool", "Cashmere"),
+    "Wool Crepe": ("Wool",),
+    "Wool blend": ("Wool",),
+    "Wool Felt": ("Wool", "Felt"),
+    "Woven Cotton": ("Cotton",),
+}
+
+#: A ``fabric`` value that is also another fabric: a brushed cotton flannel is found by "brushed
+#: cotton" as well as by "flannel" (the review of 2026-10-15). Its blend stays the detail.
+FABRIC_ALSO: dict[str, tuple[str, ...]] = {"Brushed Cotton Flannel": ("Brushed Cotton",)}
+
+#: The closed list a ``fabric`` value comes from: the fibre or weave a shopper names (gen#187).
+#: The single source: the document builder reads it, and the tests guard what it holds.
+SHOPPER_FABRICS = frozenset({
+    "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Felt", "Flannel", "Fleece", "Jersey",
+    "Knitted",
+    "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
+    "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
+    "Teddy", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Viscose", "Voile",
+    "Waffle", "Wool",
+})  # fmt: skip
+
+#: The departments whose products are worn, and the types inside them that are not textile
+#: garments (a watch, a bag, a belt, jewellery, a shoe-care product): a fibre is a ``fabric``
+#: of a garment only. A bag or a belt keeps its own ``material``, as homeware does (gen#187).
+TEXTILE_DEPARTMENTS = frozenset({"Clothing", "Lingerie & Nightwear"})
+NON_TEXTILE_TYPES = frozenset({
+    "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Bracelet", "Digital Watch",
+    "Drop Earrings", "Earrings", "Fitness Band", "Handbag", "Hoop Earrings", "Key Clips",
+    "Necklace", "Purse", "Ring", "Shoe Care Kit", "Shoe Laces", "Shoe Polish", "Tote Bag",
+    "Travel Cases", "Umbrella", "Waist Bags", "Watch",
+})  # fmt: skip
+
+
+def is_textile(rec: dict[str, Any]) -> bool:
+    """Whether ``rec`` is a garment, whose fibre is its ``fabric``."""
+    return bool(TEXTILE_DEPARTMENTS & set(rec["department"])) and (
+        rec["product_type"] not in NON_TEXTILE_TYPES
+    )
+
+
+#: A closed-list fibre in a text: whole words, the longest name first ("Brushed Cotton" before
+#: "Cotton", "Faux Leather" before "Leather"), and never before a hyphen: "Leather-Look",
+#: "Cashmere-Feel", "Wool-Free" and "Fleece-Lined" say what a garment is not made of.
+_FIBRES = "|".join(sorted(map(re.escape, SHOPPER_FABRICS), key=len, reverse=True))
+_FIBRE = re.compile(rf"\b({_FIBRES})\b{UNHYPHENATED}", re.IGNORECASE)
+_FIBRE_NAMES = {name.lower(): name for name in SHOPPER_FABRICS}
+
+
+def stated_fabrics(text: str) -> tuple[str, ...]:
+    """The closed-list fibres ``text`` names, in the order it names them, each once."""
+    return tuple(dict.fromkeys(_FIBRE_NAMES[m.lower()] for m in _FIBRE.findall(text)))
+
 
 #: A move that reads one product type's text, not the value alone: (product type, fabric) ->
 #: (fabric, blend). A value here on another type is moved by no one and stays as it is, so the
@@ -161,11 +334,16 @@ TYPED_FABRIC_MOVES: dict[tuple[str, str], tuple[str, str | None]] = {
 }
 
 
+#: A garment ``material`` that names a closed-list fibre and is still no ``fabric`` -> why. A
+#: finish is not what the garment is made of.
+MATERIAL_NOT_FABRIC: dict[str, str] = {
+    "Satin Finish": "a finish on a jacket's shell, which the jacket's own text calls a finish",
+}
+
 def fabric_move(product_type: str, value: str) -> tuple[str, str | None] | None:
     """The (fabric, blend) a ``fabric`` value of a ``product_type`` becomes, or ``None`` when
     it is already a shopper's fabric. The typed move wins over the value's own."""
     return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)
-
 
 def _vocabulary() -> dict[str, set[str]]:
     """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
@@ -229,6 +407,25 @@ def _fabric_facets(
     return ([("fabric", "Fabric", move[0])], {"fabric"}) if move else ([], set())
 
 
+def _garment_fabrics(
+    rec: dict[str, Any], have: dict[str, str]
+) -> tuple[list[tuple[str, str, str]], set[str]]:
+    """The ``fabric`` facets of a jean or a garment that is not a bra, as (key, name, value), and
+    the key they replace. A fibre-content ``fabric`` moves to its shopper fabric, and a
+    :data:`FABRIC_ALSO` fabric adds the other it is found by. A garment with no ``fabric`` takes
+    the fibres its ``material`` row (:data:`MATERIAL_FABRICS`) and its title name
+    (:func:`stated_fabrics`): "cotton top" finds a top whose title says cotton. Only a garment:
+    a bag, a watch, a shoe and homeware keep their own ``material`` (:data:`NON_TEXTILE_TYPES`)."""
+    moved, keys = _fabric_facets(have, rec["product_type"])
+    if moved:
+        also = FABRIC_ALSO.get(have["fabric"], ())
+        return moved + [("fabric", "Fabric", fibre) for fibre in also], keys
+    if "fabric" in have or not is_textile(rec):
+        return [], keys
+    named = (*MATERIAL_FABRICS.get(have.get("material", ""), ()), *stated_fabrics(rec["title"]))
+    return [("fabric", "Fabric", fibre) for fibre in dict.fromkeys(named)], keys
+
+
 def leaf_facets(
     rec: dict[str, Any], entries: list[dict[str, Any]]
 ) -> tuple[list[tuple[str, str, str]], set[str]]:
@@ -244,7 +441,7 @@ def leaf_facets(
         text = words(f"{rec['title']} {rec.get('description', '')}")
         if fits and CROPPED not in fits and f" {CROPPED.lower()} " in text:
             fits.append(CROPPED)
-        moved, keys = _fabric_facets(have, ptype)
+        moved, keys = _garment_fabrics(rec, have)
         return [("leg_fit", "Leg fit", f) for f in fits] + moved, {"leg_fit", "leg_style"} | keys
     if ptype == "Bra":
         out = [
@@ -261,4 +458,4 @@ def leaf_facets(
         moved, _ = _fabric_facets(have, ptype)
         out += [m for m in moved if (m[0], m[2]) not in implied]
         return out, {"bra_style", "fabric"}
-    return _fabric_facets(have, ptype)
+    return _garment_fabrics(rec, have)

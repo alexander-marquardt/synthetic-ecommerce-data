@@ -120,7 +120,7 @@ def test_a_record_that_contradicts_itself_is_refused_not_repaired(module, sku, c
 
 
 def test_an_angle_attribute_carrying_a_length_unit_is_refused():
-    """A measured defect class: Point Angle published as 42 inches.
+    """A hand-built record, since the generator writes none (#404): Point Angle as 42 inches.
 
     The drill renderer must not read it as 42 degrees, which is what a lenient
     number parser would do.
@@ -132,9 +132,8 @@ def test_an_angle_attribute_carrying_a_length_unit_is_refused():
 def test_a_helix_angle_and_an_included_angle_have_different_admissible_ranges():
     """One parser for both would stop rejecting a helix angle published as a point.
 
-    118 is a normal point angle and an impossible helix angle; the catalog
-    publishes angle attributes carrying the wrong thing at a measured rate, so
-    that rejection is load-bearing.
+    118 is a normal point angle and an impossible helix angle, so that
+    rejection is load-bearing for a record that swaps the two.
     """
     with pytest.raises(DimensionParseError):
         endmill.geometry_from_record({**BUNDLED["26VW40"], "Helix Angle": "118 Degrees"})

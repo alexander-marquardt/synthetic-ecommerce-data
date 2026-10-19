@@ -8,6 +8,8 @@ every file is under ``prototypes/retail_drawings``.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _VOCAB = "tests/test_pack_size_values_246.py -k one_vocabulary_or_a_measure"
 _USE = "tests/test_pack_size_values_246.py -k all_use"
 _UNITS = "tests/test_pack_size_values_246.py -k units_per_pack"
@@ -70,3 +72,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a pack label states the SKU's units_per_pack",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "pack size"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

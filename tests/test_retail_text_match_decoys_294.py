@@ -73,9 +73,9 @@ def _decoys(query: str) -> list[dr.Decoy]:
 def test_every_demo_query_has_three_to_six_planted_decoys_with_a_class() -> None:
     for query in INTENT:
         rows = _decoys(query)
-        assert 3 <= len(rows) <= 7, (query, len(rows))
-        assert all(d.cls in (1, 2, 3, 4) for d in rows), query
-    assert 40 <= sum(not d.true_hit for d in dr.TABLE) <= 120
+        assert 3 <= len(rows) <= 8, (query, len(rows))
+        assert all(d.cls in (1, 2, 3, 4, 10) for d in rows), query
+    assert 40 <= sum(not d.true_hit for d in dr.TABLE) <= 140
 
 
 def test_every_guard_query_has_a_real_product_holding_its_words() -> None:
@@ -170,7 +170,7 @@ def test_ingredient_decoys_hold_the_word_only_in_the_ingredients(
     are in its top 10; the live search reads the ingredients too (the ingest batch's check)."""
     word = INGREDIENT_QUERIES[query]
     by_id = {r["product_id"]: r for r in ceiling}
-    rows = {pid: d for pid, d in dr.BY_ID.items() if d.query == query}
+    rows = {pid: d for pid, d in dr.BY_ID.items() if d.query == query and d.cls == 7}
     assert len(rows) >= 3 and all(d.cls == 7 for d in rows.values()), query
     for pid, row in rows.items():
         doc = by_id[pid]

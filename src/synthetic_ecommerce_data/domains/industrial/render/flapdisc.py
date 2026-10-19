@@ -28,6 +28,7 @@ from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 from synthetic_ecommerce_data.domains.industrial.render.attrs import (
     ImpossibleGeometryError,
     MissingAttributeError,
+    drawing_title,
     provenance_note,
     require,
     spec_table,
@@ -176,7 +177,7 @@ def _render_detail(record: dict, geom: FlapDiscGeometry, profile: Profile):
     fig.text(
         0.04,
         0.955,
-        str(record.get("Item", "Flap Disc")),
+        drawing_title(record, "Flap Disc"),
         fontsize=cv.FS_TITLE,
         fontweight="bold",
         color=cv.INK,

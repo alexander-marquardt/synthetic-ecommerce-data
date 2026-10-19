@@ -9,6 +9,8 @@ named ``seating agreement: ...`` (``--only "seating agreement:"`` re-runs them).
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_seating_225.py"
 _ROOT = "prototypes/retail_drawings"
 
@@ -81,8 +83,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a sofa bed's depth is free text again",
         "sofa_rows.py",
-        '_cm("depth", "Depth", depth)),',
-        '("depth", "Depth", f"{depth} cm")),',
+        '_cm("mattress_depth", "Mattress depth", depth)),',
+        '("mattress_depth", "Mattress depth", f"{depth} cm")),',
         f'{_T} -k "sofa_beds_mattress_depth"',
         "a sofa bed's mattress depth is a measured centimeter entry",
         _ROOT,
@@ -99,8 +101,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a topper's canonical depth is in centimeters",
         "variants.py",
-        '(("depth", "Depth", "5", "CMT", 50.0),)',
-        '(("depth", "Depth", "5", "CMT", 5.0),)',
+        '(("mattress_depth", "Mattress depth", "5", "CMT", 50.0),)',
+        '(("mattress_depth", "Mattress depth", "5", "CMT", 5.0),)',
         f'{_T} -k "toppers_depth"',
         "a topper's depth has a millimeter canonical value",
         _ROOT,
@@ -108,10 +110,17 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the round-two topper's canonical depth is in centimeters",
         "samples_round2.py",
-        'attr("depth", "Depth", 5, "CMT", 50.0)',
-        'attr("depth", "Depth", 5, "CMT")',
+        'attr("mattress_depth", "Mattress depth", 5, "CMT", 50.0)',
+        'attr("mattress_depth", "Mattress depth", 5, "CMT")',
         f'{_T} -k "toppers_depth"',
         "the round-two topper's depth has a millimeter canonical value",
         _ROOT,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "seating agreement"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

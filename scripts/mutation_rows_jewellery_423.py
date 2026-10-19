@@ -7,6 +7,8 @@ red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``jewellery 4
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_jewellery_watches_423.py"
 _S = "tests/test_retail_type_specs_351.py"
 
@@ -45,9 +47,9 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the case diameter option is unknown to the export",
-        "export.py",
-        '"case_mm": ("case_diameter", "Case diameter", "MMT"),',
-        '"case_mmx": ("case_diameter", "Case diameter", "MMT"),',
+        "jewellery_rows.py",
+        'size_key="case_mm"',
+        'size_key="case_mmx"',
         f'{_S} -k "meet_the_standard and fitness_band"',
         "every SKU option the build writes has an export entry",
     ),
@@ -67,4 +69,19 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         f'{_T} -k "text_match_decoys and Digital"',
         "each decoy carries its type's word",
     ),
+    (
+        "a text-only rank still multiplies by popularity",
+        "baseline_rank.py",
+        "(popularity(index.catalog[i]) if popular else 1.0)",
+        "popularity(index.catalog[i])",
+        f'{_T} -k "ranks_its_type_first and silver"',
+        "a query-shape test ranks by text score alone, so a seeded sales draw cannot move it",
+    ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "jewellery 423"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

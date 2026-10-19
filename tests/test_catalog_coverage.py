@@ -32,11 +32,14 @@ build -- see ``SOURCES`` below for why neither alone is enough.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
 
+from published import authored_name
 from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial import compat, series, standards
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -187,6 +190,11 @@ def test_a_25_mm_cutting_diameter_has_exactly_one_spelling(
         if "milling_dia" in doc.get("facets_num", {})
         and abs(doc["facets_num"]["milling_dia"] * MM_PER_INCH - 25.0) < MM_TOLERANCE
         for value in doc["facets"].get("milling_dia", [])
+        # Unit mixing (a separate measured defect class) restates a dimension in the
+        # OTHER system's one canonical spelling (``0.9843"``): a second system, not
+        # a second spelling of the metric value. Whether a 25 mm row is hit is a
+        # draw, so it moves with any change to the generator's random stream (#404).
+        if value.endswith("mm")
     }
     assert spellings == {"25mm"}, (
         f"a 25 mm cutting diameter is published as {sorted(spellings)}. Exactly "
@@ -204,13 +212,15 @@ def _line_standard(doc: dict) -> str:
 
     A type whose provenance is a sentence declares how to read the standard
     from the record's own attributes. No document field carries it: the
-    ``Meets/Exceeds`` attribute is drawn at a presence of 0.40, so keying on
+    ``Standards`` attribute is drawn at a presence of 0.40, so keying on
     it would leave most lines out of the sweep.
     """
     spec = SPECS.get(doc["product_type"])
     if spec is None or spec.line_standard is None:
         return doc["dimension_provenance"]
-    return spec.line_standard({a["name"]: a["value"] for a in doc["attributes"]})
+    return spec.line_standard(
+        {authored_name(doc["product_type"], a["name"]): a["value"] for a in doc["attributes"]}
+    )
 
 
 def _offered_sizes(standard: str) -> tuple[str, ...] | None:
@@ -262,8 +272,7 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0]
-            in ("M24", "1")
+            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0] in ("M24", "1")
         )
     ]
     assert _coverage_problems(dropped) == [
@@ -285,7 +294,7 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and ("Point Type", "Dog Point")
+            and (sentence_case("Point Type"), "Dog Point")
             in [(a["name"], a["value"]) for a in doc["attributes"]]
         )
     ]
@@ -387,13 +396,14 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
 def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> None:
     """All four attribute-value pairs on ONE record, not four counts.
 
-        hex head cap screw: 7/16-14, 1-3/4" length under head,
+        hex head cap screw: 7/16-14, 1-3/4" length,
         grade 8 steel, zinc finish
 
     A parametric query ANDs its terms, so a catalog carrying 116 Grade 8
     records and 547 Zinc Plated ones answers nothing unless some record
-    carries both -- beside the thread size, beside a length under head, on a
-    hex head. The length is asserted as "publishes one at all" rather than as
+    carries both -- beside the thread size, beside a length, on a
+    hex head (``Length under Head`` is not published: it repeated ``Length``, #497).
+    The length is asserted as "publishes one at all" rather than as
     1-3/4" exactly, because which lengths a line stocks is a property of the
     line; that the four attributes CO-OCCUR is the property this checks.
     """
@@ -404,11 +414,11 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
         and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
         and "Zinc Plated" in doc["facets"].get("finish", [])
-        and doc["facets"].get("length_under_head")
+        and doc["facets"].get("length")
         and "Hex" in doc["facets"].get("head_type", [])
     ]
     assert answers, (
-        "no record carries 7/16-14, Grade 8, Zinc Plated and a length under head "
+        "no record carries 7/16-14, Grade 8, Zinc Plated and a length "
         "together on a hex head, so the reference distributor's parametric example resolves to "
         "an empty set however good the rewriting is"
     )
@@ -475,30 +485,94 @@ def test_one_thread_size_is_not_locked_to_one_grading_or_one_finish(
     )
 
 
-def test_a_bolt_never_carries_a_grading_from_the_other_measurement_system(
+#: An ISO 898-1 property class as a shopper reads it: ``Class 10.9``, ``Grade
+#: 12.9 Alloy Steel``. Anchored on the word, so a 12.9 mm length is not one.
+ISO_PROPERTY_CLASS = re.compile(r"\b(?:Class|Grade)\s+(?:8\.8|10\.9|12\.9)(?![\d])")
+
+#: An SAE J429 grade: ``Grade 5``, ``Grade 8``. ``(?!\.\d)`` keeps ``Grade 8.8``
+#: out, which is the ISO class and not this.
+SAE_GRADE = re.compile(r"\bGrade\s+(?:2|5|8)(?![\d]|\.\d)")
+
+#: A thread designation: ``M8x1.25`` is metric, ``5/16-18`` and ``#10-32`` are not.
+#: Read off the facet every fastener family publishes it under, so the families
+#: are found by their data and a new one is covered the day it is added.
+THREAD_SIZE_FACETS = ("thread_size", "dia_thread_size")
+
+
+def _published_strings(value: object) -> list[str]:
+    """Every string a document publishes, whatever field it sits in."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [text for item in value.values() for text in _published_strings(item)]
+    if isinstance(value, list):
+        return [text for item in value for text in _published_strings(item)]
+    return []
+
+
+def _thread_system(doc: dict) -> str | None:
+    """``"metric"`` or ``"inch"`` from the thread designations the document publishes.
+
+    ``None`` when it publishes none or both (an assortment kit lists sizes of
+    each system and belongs to neither).
+    """
+    systems = {
+        "metric" if size.startswith("M") else "inch"
+        for facet in THREAD_SIZE_FACETS
+        for size in doc["facets"].get(facet, [])
+    }
+    return systems.pop() if len(systems) == 1 else None
+
+
+def test_no_document_carries_a_grading_from_the_other_measurement_system(
     flat_docs: list[dict],
 ) -> None:
-    """``Class 10.9`` is a metric property class and ``Grade 8`` an SAE one.
+    """``Class 10.9`` and ``Grade 12.9`` are metric property classes, ``Grade 8`` an SAE one.
 
     A ``7/16-14`` bolt graded ``Class 10.9`` is a designation that does not
     exist, and the catalog published them: the grade was drawn from one pool
     of four regardless of which standard the line was built to. The reference distributor's
     own query lands on exactly this pair of fields, which is how it surfaced.
-    """
-    from synthetic_ecommerce_data.domains.industrial.generate import INCH_GRADES, METRIC_GRADES
 
-    wrong: list[tuple[str, str, str]] = []
+    The same mistake survived that fix in a neighbouring family, in a different
+    field: the inch socket, flat, button and low head cap screws published
+    ``Grade 12.9 Alloy Steel`` as their ``Material`` (#17). So the check is over
+    the WHOLE catalog and EVERY published string, and which documents are inch
+    and which metric is read from their own thread designation, not from a list
+    of the families that happen to have a grading.
+    """
+    inch = metric = own_iso = own_sae = 0
+    iso_on_inch: list[tuple[str, str]] = []
+    sae_on_metric: list[tuple[str, str]] = []
     for doc in flat_docs:
-        if doc["product_type"] != HEX_BOLT_TYPE:
+        system = _thread_system(doc)
+        if system is None:
             continue
-        grades = doc["facets"].get("grade", [])
-        if not grades:
-            continue
-        metric = doc["dimension_provenance"] != "ASME B18.2.1"
-        allowed = METRIC_GRADES if metric else INCH_GRADES
-        for grade in grades:
-            if grade not in allowed:
-                wrong.append((doc["sku"], doc["dimension_provenance"], grade))
-    assert wrong == [], (
-        f"{len(wrong)} hex bolt(s) carry a grading from the other measurement system: {wrong[:5]}"
+        inch += system == "inch"
+        metric += system == "metric"
+        texts = _published_strings(doc)
+        has_iso = any(ISO_PROPERTY_CLASS.search(text) for text in texts)
+        has_sae = any(SAE_GRADE.search(text) for text in texts)
+        own_iso += system == "metric" and has_iso
+        own_sae += system == "inch" and has_sae
+        if system == "inch" and has_iso:
+            iso_on_inch.append((doc["product_type"], doc["sku"]))
+        if system == "metric" and has_sae:
+            sae_on_metric.append((doc["product_type"], doc["sku"]))
+    assert inch > 1000 and metric > 1000, (
+        f"only {inch} inch and {metric} metric documents were classified by thread size; "
+        f"the check is proving little"
+    )
+    # Each grading must be published on its OWN system somewhere, or a typo in
+    # either pattern would pass the two checks below on every catalog.
+    assert own_iso > 0, "no metric document publishes an ISO property class"
+    assert own_sae > 0, "no inch document publishes an SAE grade"
+    assert iso_on_inch == [], (
+        f"{len(iso_on_inch)} inch-thread document(s) publish an ISO 898-1 property class, "
+        f"which cannot apply to them: {sorted(set(t for t, _ in iso_on_inch))}, "
+        f"first {iso_on_inch[:3]}"
+    )
+    assert sae_on_metric == [], (
+        f"{len(sae_on_metric)} metric-thread document(s) publish an SAE grade: "
+        f"{sorted(set(t for t, _ in sae_on_metric))}, first {sae_on_metric[:3]}"
     )

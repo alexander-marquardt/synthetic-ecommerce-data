@@ -30,6 +30,8 @@ from variants import cw
 
 CREAM, IVORY, OFF_WHITE = cw("Cream", "#efe4cf"), cw("Ivory", "#f3ecd9"), cw("Off White", "#f4f1ea")
 WHITE, BLACK = cw("White", "#ffffff"), cw("Black", "#2a2a2e")
+#: The ribbed top's first colorway: a breton stripe, so "breton stripe top" finds it (gen#408).
+BRETON = cw("Navy Breton Stripe", "#ffffff", "stripe", "#26365c")
 RED, BLUE = cw("Red", MAIN_COLORS["Red"]), cw("Blue", MAIN_COLORS["Blue"])
 ALMOND = cw("Almond", "#d9b79a")  # the plain color word is Beige
 NAVY, GREEN = cw("Navy", "#26365c"), cw("Green", MAIN_COLORS["Green"])
@@ -96,15 +98,15 @@ APPAREL = (
          "A jersey midi dress that wraps at the waist, with a flared skirt.",
          (OFF_WHITE, CREAM, NAVY, BLACK), "Jersey"),
     _row("NWD2", "Broderie Midi Dress", "Larkmoor", _DRESS, "Dress", "dress", 44.0,
-         "A cotton midi dress with eyelet embroidery and a tiered skirt, for a warm day.",
-         (IVORY, WHITE, BLUE, ROSE), "Cotton"),
+         "A midi dress in broderie with eyelet embroidery and a tiered skirt, for a warm day.",
+         (IVORY, WHITE, BLUE, ROSE), "Broderie"),
     _row("NWD3", "Textured Smock Midi Dress", "Harbour & Pine", _DRESS, "Dress", "dress", 40.0,
          "A loose smock dress with a gathered neck and long sleeves.",
          (CREAM, IVORY, OFF_WHITE, GREEN), "Viscose"),
     # Tops and blouses.
     _row("NWT1", "Ribbed Long Sleeve Top", "Harbour & Pine", _TOP, "Top", "top", 18.0,
          "A ribbed top with a fitted body and long sleeves, to layer or wear alone.",
-         (CREAM, OFF_WHITE, BLACK, RED), "Cotton"),
+         (BRETON, CREAM, OFF_WHITE, BLACK), "Cotton"),
     _row("NWT2", "Boat Neck Long Sleeve Top", "Larkmoor", _TOP, "Top", "top", 22.0,
          "A soft long sleeve top with a wide neckline and a relaxed fit.",
          (IVORY, CREAM, NAVY, WHITE), "Cotton blend"),

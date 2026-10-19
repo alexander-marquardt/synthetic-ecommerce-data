@@ -25,7 +25,7 @@ from dataclasses import replace
 from fractions import Fraction
 from typing import Literal, TypeVar
 
-from synthetic_ecommerce_data.core import brands, price, typespec
+from synthetic_ecommerce_data.core import brands, ids, price, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.formats import (
     LengthStyle,
@@ -59,7 +59,9 @@ from synthetic_ecommerce_data.domains.industrial.drafts import (  # noqa: F401 -
     UNIT_SPLIT_KEYS,
     ChildDraft,
     LineDraft,
+    RetiredAttribute,
     _weighted,
+    retired,
 )
 from synthetic_ecommerce_data.domains.industrial.finishing import FinishMixin
 from synthetic_ecommerce_data.domains.industrial.muststock import (
@@ -69,8 +71,14 @@ from synthetic_ecommerce_data.domains.industrial.muststock import (
 )
 from synthetic_ecommerce_data.domains.industrial.newtypes import NEW_TYPES
 from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
+from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
 MM_PER_INCH = 25.4
+
+#: The prefix the industrial domain mints its ids behind. Empty, so its SKUs
+#: and product ids are the ones it issued before core minted them (#128).
+ID_PREFIX = ""
+ids.claim_prefix("industrial", ID_PREFIX)
 
 #: The manufacturers, their ranges, shares, house styles and voices live in
 #: ONE table, :mod:`.brands`. Re-exported here, where the builders and older
@@ -142,10 +150,23 @@ BOLT_MATERIAL: dict[str, str] = {
     "Class 10.9": "Alloy Steel",
 }
 
-#: A socket screw's finishes and Rockwell hardness, by material.
+#: A socket screw's material, by the system its standard publishes in. The
+#: top strength grade is graded on that system's own scale: ISO 898-1 class
+#: 12.9 on a metric screw, SAE J429 Grade 8 on an inch one. Each scale belongs
+#: to one system, so ``Grade 12.9`` on a ``1/4-20`` screw names a designation
+#: that does not exist (#17). Both pools hold three entries, so choosing from
+#: either draws the same random bits and nothing else in the catalog moves.
+SOCKET_SCREW_MATERIALS: dict[str, tuple[str, ...]] = {
+    "metric": ("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"),
+    "inch": ("Alloy Steel", "18-8 Stainless Steel", "Grade 8 Alloy Steel"),
+}
+
+#: A socket screw's finishes and Rockwell hardness, by material. SAE J429
+#: Grade 8 is Rockwell C33-39; ISO 898-1 class 12.9 is HRC 39-44.
 SOCKET_SCREW_FINISH: dict[str, tuple[tuple[str, ...], str]] = {
     "Alloy Steel": (("Black Oxide", "Zinc Plated"), "C38"),
     "Grade 12.9 Alloy Steel": (("Black Oxide", "Plain"), "C39"),
+    "Grade 8 Alloy Steel": (("Black Oxide", "Zinc Plated"), "C36"),
     "18-8 Stainless Steel": (("Plain",), "B80"),
 }
 
@@ -216,12 +237,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self.config = config or GeneratorConfig()
         self.type_key = type_key
         self.rng = typespec.type_rng(self.config.seed, type_key)
-        #: The type's part-number block, which leads every SKU and product id.
-        self._block = typespec.block_of(type_key)
-        #: How many SKUs and how many product drafts this type has issued.
-        self._sequence = 0
-        self._index = 0
-        self._used_skus: set[str] = set()
+        #: The type's product ids and SKUs, minted by core (#128) behind the
+        #: industrial prefix, which is empty.
+        self.minter = ids.IdMinter(ID_PREFIX, type_key, typespec.block_of(type_key))
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         self._drawn_specs: set[tuple] = set()
         self._title_styles: dict[tuple[str, str], str] = {}
@@ -290,7 +308,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
     def _pack(
         self, type_key: str, line: str, diameter_in: float, diameters: Iterable[float]
     ) -> Attribute:
-        """A pack-sold line's ``Package Quantity`` (:func:`.price.pack_quantity`):
+        """A pack-sold line's ``Units per Pack`` (:func:`.price.pack_quantity`):
         ranked by its diameter among every diameter its type offers, so the
         pack falls as the size grows, and placed by its own draw, so no other
         draw moves."""
@@ -301,10 +319,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             len(offered),
             price.pack_draw(self.config.seed, type_key, line),
         )
-        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
+        return numeric_attribute("Units per Pack", str(quantity), float(quantity))
 
     def _page_pack(self, type_key: str, brand: str, line_attributes: list[Attribute]) -> Attribute:
-        """A line's ``Package Quantity`` when the pack belongs to its group
+        """A line's ``Units per Pack`` when the pack belongs to its group
         page (:func:`.price.page_pack`): drawn from the brand and the line
         attributes every line of the type publishes and a census cell holds
         equal, as :func:`.price.group_draw` reads them, so every size of a
@@ -313,36 +331,13 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         held = [
             (a.name, a.value)
             for a in line_attributes
-            if a.name in always and price.holds_equal(type_key, a)
+            if (a.name in always or (isinstance(a, RetiredAttribute) and a.always))
+            and price.holds_equal(type_key, a)
         ]
         quantity = price.page_pack(
             type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
         )
-        return numeric_attribute("Package Quantity", str(quantity), float(quantity))
-
-    def _new_sku(self) -> str:
-        """The type's next part number: its block, then a scrambled sequence.
-
-        Unique by construction rather than by retrying a random draw: a draw
-        checked against every SKU issued so far couples each type to all the
-        others. All digits, so it can never wear a reference SKU's code, every
-        one of which carries letters (``tests/test_catalog_noncopy.py``).
-        """
-        self._sequence += 1
-        sku = typespec.part_number(self._block, self._sequence)
-        if sku in self._used_skus:  # pragma: no cover - the stride is coprime to 10**6
-            raise RuntimeError(f"{self.type_key} issued part number {sku} twice")
-        self._used_skus.add(sku)
-        return sku
-
-    def _next_index(self) -> int:
-        """The type's next product index; every draft takes one, made or not."""
-        self._index += 1
-        return self._index
-
-    def _product_id(self, brand: str, series: str, index: int) -> str:
-        """``<brand code>-<series>-<block>-<index>``: unique because the block is."""
-        return f"{brands.BY_NAME[brand].code}-{series}-{self._block:04d}-{index:04d}"
+        return numeric_attribute("Units per Pack", str(quantity), float(quantity))
 
     def _variant_count(self) -> int:
         """How many variants the next product offers, from the ONE distribution knob."""
@@ -423,8 +418,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             ),
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("End Mill Style", style_name),
+            # Retired (#497), listed where it stood so its sparsity draw keeps
+            # the random stream stable: nothing after it moves.
+            retired(keyword_attribute("Item", item)),
+            retired(keyword_attribute("End Mill Style", style_name)),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", coating),
             numeric_attribute("Number of Flutes", str(flutes), float(flutes)),
@@ -440,7 +437,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 "Center Cutting" if rng.random() < 0.8 else "Non-Center Cutting",
             ),
             keyword_attribute(
-                "End Mill Application", rng.choice(("Roughing", "Finishing", "Roughing/Finishing"))
+                "Application", rng.choice(("Roughing", "Finishing", "Roughing/Finishing"))
             ),
             keyword_attribute(
                 "Material Grade - Machining", rng.choice(("General Purpose", "High Performance"))
@@ -576,7 +573,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated from the conventional drill series",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Material", material),
             keyword_attribute("Point Type", rng.choice(("Split Point", "Standard Point"))),
             Attribute("Point Angle", format_angle(point), point),
@@ -644,8 +641,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         )
         flutes = rng.choice((2, 3))
         draft.line_attrs = [
-            keyword_attribute("Item", item),
-            keyword_attribute("Tap Style", "Spiral Point"),
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
+            retired(keyword_attribute("Tap Style", "Spiral Point")),  # likewise
             keyword_attribute("Material", rng.choice(("High Speed Steel", "Powdered Metal"))),
             keyword_attribute("Finish", rng.choice(("Bright", "TiN", "Steam Oxide"))),
             keyword_attribute("Thread Direction", "Right Hand"),
@@ -759,7 +756,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         head_of = line.head
 
         brand = brands.pick_brand(rng, type_key, self._exhausted)
-        material = rng.choice(("Alloy Steel", "18-8 Stainless Steel", "Grade 12.9 Alloy Steel"))
+        material = rng.choice(SOCKET_SCREW_MATERIALS["metric" if metric else "inch"])
         # Finish and hardness follow the material, as a distributor lists them
         # (SOCKET_SCREW_FINISH): alloy steel through-hardened to Rockwell C,
         # black oxide or zinc; 18-8 stainless, cold-worked to Rockwell B and
@@ -774,16 +771,16 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", style_name),
-            keyword_attribute("Type", style_name),
+            retired(keyword_attribute("Item", style_name)),  # keeps the stream stable for #497
+            retired(keyword_attribute("Type", style_name)),  # likewise
             keyword_attribute("Head Type", head_style),
             keyword_attribute("Drive Type", "Hex Socket"),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", finish),
             keyword_attribute("Thread Direction", "Right Hand"),
             keyword_attribute("Thread Type", "Metric Coarse" if metric else "UNC"),
-            keyword_attribute("Rockwell Hardness", hardness),
-            keyword_attribute("Meets/Exceeds", standard),
+            keyword_attribute("Hardness", hardness),
+            keyword_attribute(STANDARDS_NAME, standard),
         ]
         draft.descriptors = [("Material", material)]
 
@@ -812,7 +809,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 # ISO 4762 and its three siblings are COARSE-thread standards;
                 # a fine-pitch screw keeps their head dimensions but does not
                 # meet them, so it claims none.
-                draft.line_attrs = [a for a in draft.line_attrs if a.name != "Meets/Exceeds"]
+                draft.line_attrs = [a for a in draft.line_attrs if a.name != STANDARDS_NAME]
                 draft.provenance = f"{standard} head dimensions; ISO 262 fine-pitch thread"
             _retype(draft, "Metric Fine" if metric else "UNF")
 
@@ -835,13 +832,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.attrs = [
                 child.primary,
                 length_attr,
-                # Not on the countersunk line. Its nominal length is measured
-                # OVER the head (ISO 10642, ASME B18.3), so its catalog length
-                # is ``Length``; what lies under the head is that length less a
-                # toleranced cone height, and publishing it put 12.56mm and
-                # 1.3910" beside the stocked lengths -- values no distributor
-                # lists and no shopper types.
-                *([] if flat else [self._length("Length under Head", length_in, style)]),
+                # Retired (#497); the countersunk line never carried it.
+                *([] if flat else [retired(self._length("Length under Head", length_in, style))]),
                 thread_attr,
                 self._length("Head Dia.", head.head_dia_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -947,7 +939,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance=standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Type", "Hex Head"),
             keyword_attribute("Head Type", "Hex"),
             keyword_attribute("Material", BOLT_MATERIAL[grade]),
@@ -988,12 +980,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.attrs = [
                 child.primary,
                 length_attr,
-                # A hex head does not sink into the work, so the bolt's length
-                # is already measured under the head and the two attributes
-                # state the same span. They are still two attributes: the
-                # shopper's "1-3/4 length under head" has to bind to one, and
-                # binding it to Thread Length would be silently wrong.
-                self._length("Length under Head", length_in, style),
+                # A hex head does not sink into the work, so the bolt's Length
+                # is already measured under the head (#497: no second attribute);
+                # the retired one stays in the draft to keep the stream stable.
+                retired(self._length("Length under Head", length_in, style)),
                 thread_attr,
                 self._length("Width Across Flats", head.width_across_flats_in, style),
                 self._length("Head Height", head.head_height_in, style),
@@ -1025,7 +1015,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="ISO 7089",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Type", "Plain"),
             keyword_attribute("Material", material),
             keyword_attribute("Finish", finish),
@@ -1068,7 +1058,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             provenance="generated; no dimensional standard applies",
         )
         draft.line_attrs = [
-            keyword_attribute("Item", item),
+            retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
             keyword_attribute("Abrasive Material", abrasive),
             keyword_attribute("Backing Material", rng.choice(("Fiberglass", "Plastic"))),
             keyword_attribute("Shape", rng.choice(("Type 27 Flat", "Type 29 Conical"))),
@@ -1125,14 +1115,13 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             weight = cfg.type_weights.get(key, own.share if own else None)
             count = 0 if weight is None else max(1, round(cfg.lines * weight))
             for _ in range(count):
-                self._keep(
-                    lines, self._finish_line(key, builder(self, key, category), self._next_index())
-                )
+                draft = builder(self, key, category)
+                self._keep(lines, self._finish_line(key, draft, self.minter.next_index()))
         elif kind == "new":
             for _ in range(cfg.new_type_products.get(key, 0)):
                 self._keep(lines, self._new_type_line(key))
         else:
-            lines.append(breadth.build_line(self, breadth.row_for(key), self._next_index()))
+            lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         return lines
@@ -1159,7 +1148,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             only.attrs = []
             only.zero_axis = True
             self._bump("zero_axis_products")
-        return self._finish_line(type_key, draft, self._next_index())
+        return self._finish_line(type_key, draft, self.minter.next_index())
 
     def _must_stock(self, lines: list[ProductLine]) -> list[ProductLine]:
         """A line for every must-stock entry this type owns and does not yet carry.
@@ -1191,7 +1180,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 builder = self._builder()
                 (category,) = taxonomy.LEAVES[key]
                 for _ in range(MAX_ATTEMPTS):
-                    line = self._finish_line(key, builder(self, key, category), self._next_index())
+                    draft = builder(self, key, category)
+                    line = self._finish_line(key, draft, self.minter.next_index())
                     if line is not None and stocked(entry, [line]):
                         added.append(line)
                         self._bump("must_stock_lines")

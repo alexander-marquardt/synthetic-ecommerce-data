@@ -1,0 +1,80 @@
+{
+ "_library": {
+  "standards": [
+   "ISO 262"
+  ],
+  "edition": "as carried by domains/industrial/compat.py in the repository at commit 68fd9933",
+  "source": "The metric tap-drill chart: the nominal diameter less the pitch, taken to the stocked tenth of a millimetre, for a 6H internal thread",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "thread": "M3x0.5",
+   "drill_mm": 2.5
+  },
+  {
+   "thread": "M4x0.7",
+   "drill_mm": 3.3
+  },
+  {
+   "thread": "M5x0.8",
+   "drill_mm": 4.2
+  },
+  {
+   "thread": "M6x1",
+   "drill_mm": 5.0
+  },
+  {
+   "thread": "M8x1.25",
+   "drill_mm": 6.8
+  },
+  {
+   "thread": "M8x1",
+   "drill_mm": 7.0
+  },
+  {
+   "thread": "M10x1.5",
+   "drill_mm": 8.5
+  },
+  {
+   "thread": "M10x1.25",
+   "drill_mm": 8.8
+  },
+  {
+   "thread": "M10x1",
+   "drill_mm": 9.0
+  },
+  {
+   "thread": "M12x1.75",
+   "drill_mm": 10.2
+  },
+  {
+   "thread": "M12x1.5",
+   "drill_mm": 10.5
+  },
+  {
+   "thread": "M12x1.25",
+   "drill_mm": 10.8
+  },
+  {
+   "thread": "M16x2",
+   "drill_mm": 14.0
+  },
+  {
+   "thread": "M16x1.5",
+   "drill_mm": 14.5
+  },
+  {
+   "thread": "M20x2.5",
+   "drill_mm": 17.5
+  },
+  {
+   "thread": "M20x2",
+   "drill_mm": 18.0
+  },
+  {
+   "thread": "M20x1.5",
+   "drill_mm": 18.5
+  }
+ ]
+}
