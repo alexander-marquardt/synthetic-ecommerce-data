@@ -210,3 +210,13 @@ prototype's baseline; the live number is read on the next loaded index.
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
+| bicycle | bicycle | PLT-DY3521 | Bicycle Print T-Shirt | T-Shirt | department |
+| bicycle | bicycle | PLT-DY3522 | Bicycle Print Tote Bag | Tote Bag | department |
+| bike helmet | helmet | PLT-DY3523 | Bike Helmet Print Pyjamas | Pyjamas | department |
+| bike helmet | helmet | PLT-DY3524 | Bike Helmet Print Sweatshirt | Sweatshirt | department |
+| kayak | kayak | PLT-DY3525 | Kayak Print Beach Towel | Towel | department |
+| kayak | kayak | PLT-DY3526 | Kayak Print Cushion | Cushion | department |
+| kick scooter | scooter | PLT-DY3527 | Kick Scooter Print T-Shirt | T-Shirt | department |
+| kick scooter | scooter | PLT-DY3528 | Kick Scooter Print Sweatshirt | Sweatshirt | department |
+| skateboard | skateboard | PLT-DY3529 | Skateboard Print T-Shirt | T-Shirt | department |
+| skateboard | skateboard | PLT-DY3530 | Skateboard Print Tote Bag | Tote Bag | department |

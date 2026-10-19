@@ -162,7 +162,7 @@ def test_every_type_not_built_has_an_open_issue_or_a_reason() -> None:
     assert _not_built_problems(_table("Not built")) == []
 
 
-@pytest.mark.parametrize("dropped", ["Bicycles", "Camping stoves", "Balance bikes"])
+@pytest.mark.parametrize("dropped", ["Bike lights", "Camping stoves", "Balance bikes"])
 def test_a_dropped_not_built_row_is_seen(dropped: str) -> None:
     rows = [r for r in _table("Not built") if r[0] != dropped]
     assert any(dropped in p for p in _not_built_problems(rows))
