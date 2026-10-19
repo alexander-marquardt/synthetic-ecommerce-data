@@ -40,7 +40,7 @@ TOUCHED = (
     "prototypes/retail_drawings/export.py",
     "prototypes/retail_drawings/main_color_hex.py",
     "prototypes/retail_drawings/main_colors.py",
-    "prototypes/retail_drawings/decoy_product_words.py",
+    "prototypes/retail_drawings/feature_decoys/<topic>.py",
     "prototypes/retail_drawings/garden_rows.py",
     "prototypes/retail_drawings/tree_guard.py",
     "tests/test_retail_type_specs_351.py",
