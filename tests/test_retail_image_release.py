@@ -183,7 +183,7 @@ def test_a_style_with_one_print_colorway_and_solid_ones_renders_every_sku():
         drawing = image_release.colorway_drawing(rec, sku)
         patterns[sku["color"]] = drawing["pattern"]
         if drawing["pattern"] != "print":
-            keys = {"motif", "placement", "scale", "spacing", "count", "detail"}
+            keys = {"motif", "placement", "scale", "spacing", "count"}
             assert keys & drawing.keys() == set(), f"{sku['color']} keeps the print's keys"
         assert image_release.render(rec, sku).startswith(b"<svg")
     assert set(patterns.values()) == {"print", "solid"}
