@@ -125,3 +125,14 @@ def test_a_pattern_row_description_does_not_name_a_neckline() -> None:
 
     for d in pattern_rows.docs():
         assert not re.search(r"\b(boat|slash)", d["description"].lower()), d["product_id"]
+
+
+def test_the_patchwork_cushion_is_drawn_with_a_patchwork_fill_not_a_gingham_one() -> None:
+    """A patchwork cushion drawn as gingham shows a check to a shopper who typed patchwork."""
+    import pattern_rows
+
+    cushion = [d for d in pattern_rows.docs() if d["product_type"] == "Cushion"]
+    assert cushion
+    for d in cushion:
+        assert d["drawing"]["pattern"] == "patchwork", d["drawing"]
+        assert {o["pattern"] for o in d["color_options"]} == {"patchwork"}
