@@ -10,15 +10,23 @@ shades), #181 (neckline) and #275 (main colors).
 
 ## What a knitwear product carries
 
-- **Style** (`knit_style` attribute): Women have 12 (crew, V, roll, turtle, cable, half zip, boat
-  neck jumpers; button front, longline, cropped cardigans; tank top and slipover), Men have 10
+- **Style** (`knit_style` attribute): Women have 16 (crew, V, roll, turtle, cable, half zip, boat
+  neck, cowl neck and three quarter sleeve jumpers; button front, longline, cropped and three
+  quarter sleeve cardigans; tank top, slipover and short sleeve knit top), Men have 10
   (crew, V, roll, cable, half zip, quarter zip jumpers; button front, zip through, shawl collar
   cardigans; slipover).
 - **Material**: cashmere, merino wool, lambswool, cotton, wool blend, recycled wool, acrylic
   blend, shown in the title ("Womens Pure Cashmere Relaxed Crew Neck Jumper"). Every style exists
   in every material.
 - **Neckline**: the existing facet's words (`crew`, `high`, `boat`, `collared`, `round`) plus
-  `v-neck`. Roll neck, turtle neck, half zip and quarter zip are `high`.
+  `v-neck` and `cowl`. Roll neck, turtle neck, half zip and quarter zip are `high`.
+- **Sleeve length** (`sleeve_length` attribute, gen#434): `Long`, `Three quarter`, `Short` or
+  `Sleeveless`, spelled as the tops spell them. Every Womens jumper, cardigan and knitted top states
+  one: the grid's styles carry theirs, and `knit_sleeves.complete` gives the twenty older styles
+  (the first rows, the color-group rows and the decoys cloned from them) the one their drawing
+  shows, else `Long`. `tests/test_retail_knitwear_sleeves_434.py` pins a floor of five products
+  for each sleeve length and for the cowl neck, that a title naming a sleeve states it, and that
+  the drawing shows the stored sleeve.
 - **Colors**: two to four per product. Four products in five carry one of the white group:
   White, Cream, Ivory, Off White, Ecru, each its own color value. There is no color-group
   attribute; the group "white" is the consumer's vocabulary (gen#186). `main_colors.complete`
