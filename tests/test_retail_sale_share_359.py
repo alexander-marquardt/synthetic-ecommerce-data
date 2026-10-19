@@ -120,6 +120,31 @@ def test_a_reduced_document_is_marked_the_same_way_whoever_made_it(
     assert bad == []
 
 
+def test_every_sku_of_a_reduced_style_is_priced_under_its_was_price(
+    nested: list[dict[str, Any]],
+) -> None:
+    """The sale filter is ``price < was_price`` (gen#359): the was-price states the dearest size's
+    price, not only the cheapest's, so no SKU of a reduced style is at or over it."""
+    bad = [
+        (d["product_id"], v["sku"])
+        for d in nested
+        if (was := _values(d, "was_price"))
+        for v in d["variants"]
+        if v["price"] >= float(was[0])
+    ]
+    assert bad == [], len(bad)
+
+
+def test_no_planted_row_carries_a_was_price() -> None:
+    """A failure-class or planted-distractor row keeps its price (gen#359)."""
+    sections = scale.samples()
+    planted = {d["product_id"] for k in scale.PLANTED_SECTIONS for d in sections[k]}
+    reduced = {t["product_id"] for t in scale.templates() if "was_price" in t}
+    authored = {d["product_id"] for k in scale.PLANTED_SECTIONS for d in sections[k]
+                if "was_price" in d}
+    assert (planted & reduced) <= authored
+
+
 @pytest.mark.parametrize(
     ("size_range", "title"),
     [
