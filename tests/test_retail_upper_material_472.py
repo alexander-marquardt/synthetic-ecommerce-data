@@ -48,10 +48,12 @@ def documents() -> list[dict]:
 
 def test_the_derived_part_of_the_build_holds_shoes(documents):
     """A floor, so a build that shrinks back into the templates fails loudly instead of
-    leaving the derived half of the checks above with nothing to check."""
+    leaving the derived half of the checks above with nothing to check. Which templates the seeded
+    leaf shuffle derives from moves with every leaf the catalog gains (27 shoes with Stud Earrings
+    added, 30 or more before), so the floor is a fraction of the usual count, not the count."""
     authored = {d["product_id"] for d in export.documents()}
     derived_shoes = [d for d in documents if d["product_id"] not in authored and _style_values(d)]
-    assert len(derived_shoes) >= 30
+    assert len(derived_shoes) >= 20
 
 
 def _style_values(doc: dict) -> list[str]:
