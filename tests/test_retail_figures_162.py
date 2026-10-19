@@ -5,14 +5,16 @@ counts and the near-duplicate rate move with every grocery or type pull request.
 a test, the README or a docstring, each such PR restated them in about ten places and
 conflicted with its siblings on every one.
 
-``prototypes/retail_drawings/retail_figures.py`` writes them to ``golden-retail/stats.json``.
-These tests hold the two ends: the committed file is what the build measures, and no test,
-doc or source comment restates a total in it. Invariants keep their own asserts elsewhere:
-no twins in a family, every allergen derived from the ingredients, and the caps.
+``prototypes/retail_drawings/retail_figures.py`` measures them from the tree (gen#536: nothing
+is committed, ``figures()`` is measured once per test run). These tests hold the two ends: the
+measurement is shared by a run's workers, and no test, doc or source comment restates a total in
+it. Invariants keep their own asserts elsewhere: no twins in a family, every allergen derived
+from the ingredients, and the caps.
 """
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -25,8 +27,6 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import retail_figures  # noqa: E402
-
-REBUILD = retail_figures.REBUILD
 
 #: Where the totals used to be typed. A file that quotes one again conflicts with every
 #: grocery or type PR again. This module and ``retail_figures.py`` are the only places a
@@ -75,8 +75,8 @@ def _scoped(path: str, text: str) -> str:
 
 
 @pytest.fixture(scope="module")
-def stats() -> dict:
-    return retail_figures.committed()
+def stats(retail_figures_measured: dict) -> dict:
+    return retail_figures_measured
 
 
 def _numbers(node: object, path: str = "") -> dict[str, int | float]:
@@ -109,8 +109,9 @@ def _quotations(stats: dict) -> dict[str, str]:
                 text = f"{value * 100:.{places}f}"
                 patterns[f"{name}@{places}"] = rf"(?<![\d.]){re.escape(text)}\s*%"
         elif value >= 1000:
-            # A standard's number is not a total: "ISO 4014" is a bolt standard (the README).
-            plain = rf"(?<!ISO )(?<!DIN )(?<![\d.,_]){value}(?![\d,_])"
+            # A standard's number is not a total: "ISO 4014" is a bolt standard (the README),
+            # and so is "ASTM F2329" (a total of 2329 styles collided with it, gen#510).
+            plain = rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_]){value}(?![\d,_])"
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
             patterns[name] = f"{plain}|{grouped}"
         else:
@@ -128,11 +129,28 @@ def test_the_per_type_spec_aggregate_is_not_a_quoted_total(stats: dict) -> None:
     assert not [n for n in _quotations(stats) if n.startswith("templates.type_specs")]
 
 
-def test_the_committed_figures_are_what_the_build_measures(stats: dict) -> None:
-    fresh = retail_figures.render(retail_figures.measure())
-    assert retail_figures.STATS.read_text("utf-8") == fresh, (
-        f"golden-retail/stats.json is stale; run {REBUILD} and commit it"
-    )
+def test_one_measurement_is_shared_through_the_cache_directory(tmp_path, monkeypatch) -> None:
+    """A worker that finds the run's ``figures.json`` reads it; the first one writes it."""
+    calls = []
+
+    def measured() -> dict:
+        calls.append(1)
+        return {"ceiling": {"skus": 7}}
+
+    monkeypatch.setenv(retail_figures.CACHE_ENV, str(tmp_path))
+    monkeypatch.setattr(retail_figures, "measure", measured)
+    for _ in range(2):
+        monkeypatch.setattr(retail_figures, "_MEMO", {})
+        assert retail_figures.figures() == {"ceiling": {"skus": 7}}
+    assert len(calls) == 1
+    assert json.loads((tmp_path / "figures.json").read_text("utf-8")) == {"ceiling": {"skus": 7}}
+
+
+def test_without_a_cache_directory_the_figures_are_measured_in_process(monkeypatch) -> None:
+    monkeypatch.delenv(retail_figures.CACHE_ENV, raising=False)
+    monkeypatch.setattr(retail_figures, "_MEMO", {})
+    monkeypatch.setattr(retail_figures, "measure", lambda: {"ceiling": {"skus": 3}})
+    assert retail_figures.figures() == {"ceiling": {"skus": 3}}
 
 
 def test_the_per_family_counts_add_up(stats: dict) -> None:
@@ -154,8 +172,8 @@ def test_no_test_or_doc_restates_a_total_the_build_measures(stats: dict, path: s
         for match in re.finditer(pattern, text, re.MULTILINE)
     )
     assert quoted == [], (
-        f"{path} restates totals the retail build measures: {quoted}. Read them from "
-        f"golden-retail/stats.json (retail_figures.committed()) instead; {REBUILD} rewrites them"
+        f"{path} restates totals the retail build measures: {quoted}. Read them with "
+        f"retail_figures.figures() (or the retail_figures_measured fixture) instead"
     )
 
 
@@ -192,3 +210,12 @@ def test_an_industrial_section_is_not_read_but_a_retail_figure_still_is(stats: d
     assert hits(doc) and hits(scoped) == []
     assert scoped.count("\n") == doc.count("\n")
     assert hits(_scoped("README.md", doc + f"The ceiling is {total} SKUs.")) != []
+
+
+def test_an_astm_standard_number_is_not_a_quoted_total(stats: dict) -> None:
+    """``ASTM F2329`` is a galvanizing standard, not the count of styles that once equalled it
+    (gen#510); the same number typed on its own is still refused."""
+    number = stats["ceiling"]["styles"]
+    pattern = _quotations(stats)["ceiling.styles"]
+    assert re.search(pattern, f"hot-dip galvanizing (ASTM F{number})", re.MULTILINE) is None
+    assert re.search(pattern, f"the ceiling is {number} styles", re.MULTILINE)

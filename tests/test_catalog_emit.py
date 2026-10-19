@@ -15,6 +15,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.render import UnknownProductError, renderer_for
 from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
@@ -86,10 +87,13 @@ def test_a_metric_tap_publishes_pitch_in_mm_and_an_inch_tap_threads_per_inch_in_
     for doc in emit.iter_nested(CATALOG):
         for variant in doc["variants"]:
             entries = {e["name"]: e for e in variant["attributes"]}
-            if "Thread Size" not in entries or doc["product_type"] != "tap_spiral_point":
+            if (
+                sentence_case("Thread Size") not in entries
+                or doc["product_type"] != "tap_spiral_point"
+            ):
                 continue
-            metric = entries["Thread Size"]["value"].startswith("M")
-            names = ("Thread Pitch", "Threads per Inch")
+            metric = entries[sentence_case("Thread Size")]["value"].startswith("M")
+            names = (sentence_case("Thread Pitch"), sentence_case("Threads per Inch"))
             ours, theirs = names if metric else names[::-1]
             assert theirs not in entries, entries
             if ours in entries:
@@ -119,18 +123,18 @@ def test_sanitize_produces_a_legal_field_name():
             assert key and not key.startswith("_")
 
 
-def test_the_three_measurement_system_spellings_stay_three_facet_keys():
-    """Folding them here would hide the problem a field map exists to solve."""
+def test_the_measurement_system_is_one_facet_key():
+    """#497 merged the three spellings into ``Measurement System``: one key, and no other."""
     keys = set()
     for doc in emit.iter_flat(CATALOG):
         keys |= {k for k in doc["facets"] if "measurement" in k or "dimension_type" in k}
-    assert len(keys) >= 2, keys
+    assert keys == {"measurement_system"}, keys
 
 
 def test_the_searchable_text_reaches_attribute_values():
     """The demo case needs a shank's value to be findable by full text."""
     for doc in emit.iter_flat(CATALOG):
-        shank = [e for e in doc["attributes"] if e["name"] == "Shank Dia."]
+        shank = [e for e in doc["attributes"] if e["name"] == sentence_case("Shank Dia.")]
         if shank:
             assert shank[0]["value"] in doc["text"]
             return

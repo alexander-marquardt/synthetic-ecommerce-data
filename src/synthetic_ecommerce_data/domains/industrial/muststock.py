@@ -63,7 +63,7 @@ def _em(example: str, types=END_MILLS, multiple: float | None = None, **values: 
 def _screw(example: str, types, thread: str, length: str | None = None, **extra: str) -> MustStock:
     values = {"Dia./Thread Size": thread}
     if length is not None:
-        values["Length under Head"] = length
+        values["Length"] = length
     values.update(extra)
     return MustStock(example, types, values)
 

@@ -9,6 +9,8 @@ off, relative to the repository.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 GUARD = "tests/test_shared_builds_140.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
@@ -76,3 +78,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         ".",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "shared builds"
+
+
+def rows() -> list[Row]:
+    return [Row(n, f, o, w, t, p, root) for n, f, o, w, t, p, root in ROWS]

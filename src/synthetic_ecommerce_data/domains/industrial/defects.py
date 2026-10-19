@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from synthetic_ecommerce_data.core.entry import split
 from synthetic_ecommerce_data.core.formats import (
     canonical_style,
 )
@@ -30,7 +29,9 @@ from synthetic_ecommerce_data.domains.industrial.vocab import (
 class DefectMixin:
     """The post-pass defects, mixed into :class:`~.generate.Generator`."""
 
-    def _inject_defects(self, child: ChildDraft, attrs: list[Attribute]) -> list[Attribute]:
+    def _inject_defects(
+        self, child: ChildDraft, attrs: list[Attribute], retired: tuple[Attribute, ...] = ()
+    ) -> list[Attribute]:
         """Reproduce the measured internal contradictions.
 
         Each class is drawn against its own denominator: only a record that
@@ -77,11 +78,9 @@ class DefectMixin:
                     out[loc_index] = length_attribute(loc.name, self._publish(inflated, style))
                     self._bump("defect_loc_exceeds_oal")
 
-        # Class 2 (the angular attribute carrying a length unit) is NOT applied
-        # here. Helix Angle and Point Angle are line-constant, so a child-scoped
-        # injection would never find one -- and measured exactly 0.0000 against
-        # a target of 0.0469 until that was noticed. It is applied in
-        # _corrupt_angle, at line scope, where the attribute actually lives.
+        # Class 2 (the angular attribute carrying a length unit) is declined: a
+        # length under an angle key is a value of the wrong kind, which this
+        # generator does not write (#404, ``measured_angle_carries_length_unit``).
 
         # Class 3: unit mixing inside one record -- one dimension published in
         # the other system.
@@ -98,10 +97,17 @@ class DefectMixin:
         dimension_indexes = [
             i for i, a in enumerate(out) if a.value_num is not None and a.name in length_names
         ]
+        # A retired length (#497) still stands in the pick, so the draw has the
+        # range it had and the random stream is stable; it is never restated.
+        dimension_indexes += [
+            len(out) + i for i, a in enumerate(retired) if a.value_num is not None
+        ]
         if len(dimension_indexes) >= 2:
             self._bump("eligible_unit_mixing")
             if rng.random() < cfg.scaled_defect(cfg.unit_mixing_within_record):
                 index = rng.choice(dimension_indexes)
+                if index >= len(out):
+                    return out
                 other = "mm" if child.system == "in" else "in"
                 # The OTHER system, in that system's one canonical spelling.
                 # The defect is that this row is in the wrong unit for its
@@ -119,42 +125,6 @@ class DefectMixin:
                         key=attribute.key,
                     )
                     self._bump("defect_unit_mixing")
-        return out
-
-    def _corrupt_angle(self, line_attrs: list[Attribute]) -> list[Attribute]:
-        """An angular attribute published with the inch mark: Helix Angle = 42".
-
-        A unit-type error rather than a magnitude error, and measured at 4.7%
-        of the records carrying an angle. The angle is a property of the line,
-        so the bad value is too -- one wrong row in a supplier's line data
-        reaches every SKU under it, which is how these arrive in a real
-        catalog. The flat facet publishes the messy spelling. The nested entry
-        reads a value within the attribute's series span as degrees, the
-        inch mark keyed for the degree mark (``42"`` on Helix Angle); every
-        other draw is a length in an angle field and stays text
-        (``entry.SPAN_FOR_NAME``, #79).
-        """
-        index = next(
-            (i for i, a in enumerate(line_attrs) if a.name in ("Helix Angle", "Point Angle")),
-            None,
-        )
-        if index is None:
-            return line_attrs
-        self._bump("eligible_angle_lines")
-        if self.rng.random() >= self.config.scaled_defect(
-            self.config.defect_angle_carries_length_unit
-        ):
-            return line_attrs
-        bogus = self.rng.choice(('42"', '1"', '1-1/4"', '2"', '1-5/8"'))
-        out = list(line_attrs)
-        # The number is whatever the nested entry reads the spelling as: the
-        # one rule (``entry.split``) decides, so the flat ``facets_num`` and the
-        # entry's ``value_canonical`` cannot disagree (#120). A draw the entry
-        # keeps as text (a length in an angle field) has no angle, so no number.
-        parts = split(out[index].name, bogus)
-        value_num = float(parts["value_canonical"]) if parts.get("unit_code") == "DD" else None
-        out[index] = Attribute(out[index].name, bogus, value_num)
-        self._bump("defect_angle_length_unit_lines")
         return out
 
     #: Attributes that identify a SKU rather than describe it, left out of the

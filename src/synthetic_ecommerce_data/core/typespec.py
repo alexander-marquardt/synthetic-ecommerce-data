@@ -148,7 +148,7 @@ class TypeSpec:
     #: read mid-registration), so it names the type instead.
     borrows: str = ""
     #: The sizes each standard the type builds to offers, for a standard with
-    #: no extraction in ``data/fastener_standards.json``. Declared apart from
+    #: no extraction in the standards library's ``fastener_standards`` table. Declared apart from
     #: the type's own table on purpose: the coverage sweep holds every size
     #: here to reaching a document, so a row dropped from the table reds it.
     sizes: Mapping[str, tuple[str, ...]] = field(default_factory=dict)

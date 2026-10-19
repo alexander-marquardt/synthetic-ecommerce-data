@@ -17,13 +17,14 @@ claimed by a row nor named in `LEFT_TO_CI` in `scripts/prepush.py`.
 |---|---|---|
 | `commit-messages` | `commit-messages` | no AI or bot attribution in the commits since the merge base with `origin/main` |
 | `customer-names` | `customer-name-check` | no customer name in the tree (every file's path and content), in the commit messages since the merge base, or in the draft PR body (`--pr-body-file`); [customer-name-check.md](customer-name-check.md) |
-| `lint` | `tests` (Lint step) | `uv run --locked ruff check .` |
+| `lint` | `lint` | `uv run --locked ruff check .` |
 | `file-size` | `file-size` | no file over the cap grew; a growth needs the PR body (`--pr-body-file`), else the row is a `WARN` and the review packet says it was not judged |
-| `tree-scans` | `tests` (Tests step) | the tests that read every tracked file: US spelling, the `.ignore` patterns, the vendored core pin (`python3 scripts/prepush.py --list-scans`) |
+| `tree-scans` | `tests` (Tests step, without its shard files) | the tests that read every tracked file: US spelling, the `.ignore` patterns, the vendored core pin (`python3 scripts/prepush.py --list-scans`) |
 
 Left to CI, by name: the whole suite (about 27 minutes), and the golden catalog and the
 merged-tree checks (the `main-merged-tree` job), which `scripts/merge_pr.sh` runs on the
-merged tree. The review packet repeats this list.
+merged tree, and the `red-commit-proof` job, which needs the pull request's base and head
+(`docs/red-commit-and-mutants.md`). The review packet repeats this list.
 
 ## Running it
 

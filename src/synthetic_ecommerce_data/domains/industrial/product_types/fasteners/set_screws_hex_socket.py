@@ -3,7 +3,7 @@
 The spec space is the standards' own: ISO 4026 (flat), 4027 (cone), 4028 (dog)
 and 4029 (cup point) for metric, ASME B18.3 for inch. Every size, pitch, socket
 key, point diameter and metric length range is read from
-``data/set_screw_standards.json``, which cites the table and row of each
+the library's ``set_screw_standards`` table, which cites the table and row of each
 value: ISO 4026-4029:2003 Table 1 and the B18.3 hexagon socket set screw
 table. Nothing is interpolated. Left out on purpose: ISO's non-preferred
 bracketed sizes (M1.8, M14, M18, M22), inch sizes over 1", and inch lengths
@@ -29,19 +29,19 @@ price is the measured model of #52, fitted to the price census (#69).
 
 from __future__ import annotations
 
-import json
 import math
 from collections.abc import Mapping
 from fractions import Fraction
 from functools import cache
-from importlib import resources
 from typing import Any, NamedTuple
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length, parse_thread
 from synthetic_ecommerce_data.core.drawing.model import Figure, regular_polygon
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial import compat
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import table_provenance
 from synthetic_ecommerce_data.domains.industrial.standards import UNF_THREADS_PER_INCH
@@ -71,10 +71,7 @@ class Row(NamedTuple):
 
 @cache
 def _data() -> dict:
-    text = resources.files("synthetic_ecommerce_data.domains.industrial.data").joinpath(
-        "set_screw_standards.json"
-    )
-    return json.loads(text.read_text("utf-8"))
+    return library.table("set_screw_standards").data
 
 
 def _inch(value: str) -> float:
@@ -190,16 +187,14 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
 
 
 VOCAB = (
-    _spec("Item", "line"),
-    _spec("Type", "line"),
     _spec("Point Type", "line"),
     _spec("Drive Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
     _spec("Thread Direction", "line", 0.64),
     _spec("Thread Type", "line", 0.70),
-    _spec("Rockwell Hardness", "line", 0.48),
-    _spec("Meets/Exceeds", "line", 0.40),
+    _spec("Hardness", "line", 0.48),
+    _spec("Standards", "line", 0.40),
     _spec("Dia./Thread Size", "sku"),
     _spec("Length", "sku", kind="length"),
     # Entailed by ``Drive Type`` (see the socket screw vocabulary), so unconditional.
@@ -247,16 +242,16 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
-        keyword_attribute("Type", "Set Screw"),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
+        retired(keyword_attribute("Type", "Set Screw")),  # likewise
         keyword_attribute("Point Type", point),
         keyword_attribute("Drive Type", "Hex Socket"),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Direction", "Right Hand"),
         keyword_attribute("Thread Type", thread_type),
-        *([keyword_attribute("Rockwell Hardness", hardness)] if hardness else []),
-        keyword_attribute("Meets/Exceeds", meets),
+        *([keyword_attribute("Hardness", hardness)] if hardness else []),
+        keyword_attribute("Standards", meets),
     ]
 
     count = min(gen._variant_count(), len(lengths))

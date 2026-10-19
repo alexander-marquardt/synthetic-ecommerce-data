@@ -67,6 +67,8 @@ from grocery_rows import (  # noqa: E402
     CUT_NOTES,
     DECOY_ANCHORS,
     FAMILIES,
+    INTRO,
+    INTRO_MULTI,
     LINES,
     OWNERS,
     PACKS_PER_STYLE,
@@ -78,6 +80,7 @@ from variants import attr, drawing, product  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
 from synthetic_ecommerce_data.core.emit import write_jsonl  # noqa: E402
+from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
@@ -108,10 +111,22 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Large Blackberries": "blackberry",
          "Red Seedless Grapes": "grape", "Green Seedless Grapes": "grape",
          "Black Seedless Grapes": "grape", "Sweet Red Grapes": "grape",
-         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape"}  # fmt: skip
+         "Crisp Green Grapes": "grape", "Midnight Black Grapes": "grape",
+         "Vine Ripened Tomatoes": "tomato", "Baby Plum Tomatoes": "tomato",
+         "Large Beef Tomatoes": "tomato", "Sweet Salad Tomatoes": "tomato",
+         "Large Brown Onions": "onion", "Sweet Red Onions": "onion", "Crisp White Onions": "onion",
+         "Mild Spanish Onions": "onion", "Maris Piper Potatoes": "potato",
+         "Baby New Potatoes": "potato", "King Edward Potatoes": "potato",
+         "Large Baking Potatoes": "potato", "Large Loose Carrots": "carrot",
+         "Sweet Baby Carrots": "carrot", "Washed Chantenay Carrots": "carrot",
+         "Crunchy Rainbow Carrots": "carrot", "Ripe Fairtrade Bananas": "banana",
+         "Large Ripe Bananas": "banana", "Sweet Baby Bananas": "banana",
+         "Loose Ripe Bananas": "banana", "Sweet Red Cherries": "cherry",
+         "Large Dark Cherries": "cherry", "Ripe British Cherries": "cherry",
+         "Juicy Morello Cherries": "cherry"}  # fmt: skip
 #: A pack word -> how a fruit pile shows it.
 PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "250g": "bag",
-             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag"}  # fmt: skip
+             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag", "2kg": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
@@ -126,6 +141,10 @@ SHAPES = {
     ("BUT", "Spreadable Butter"): "lidded_tub",
     ("BUT", "Plant Spread"): "lidded_tub",
 }
+#: What a punnet holds, by the VEG variety (``kit.PRODUCE``).
+PUNNET = {"Cherry Tomatoes": "tomato", "Baby Carrots": "carrot", "Mint": "herb",
+          "Button Mushrooms": "mushroom", "Green Beans": "bean",
+          "Sweet Peppers": "pepper", "Baby Spinach": "herb"}
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -222,25 +241,35 @@ def _common(lists) -> list[str]:
     return [v for v in lists[0] if all(v in lst for lst in lists[1:])]
 
 
+def _available(packs: list[dict]) -> str:
+    """"Available as 100g, 4 x 35g and 200g.": the pack sizes in a sentence, never a field list."""
+    sizes = [p["pack_size"].replace("Single", "single") for p in packs]
+    if len(sizes) == 1:
+        return f"Sold as {sizes[0]}."
+    return f"Available as {', '.join(sizes[:-1])} and {sizes[-1]}."
+
+
 def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[dict]) -> str:
+    """One sentence of copy for the product, then its pack sizes, then the storage and allergen
+    lines (gen#449: the old text was the fields read back, "Pineapple, in 1L, 330ml.")."""
     names = [f.name for f in flavors]
-    sizes = ", ".join(p["pack_size"] for p in packs)
     if not fam.food:
         noun = fam.noun or (
             "multi-surface spray that cuts through grease"
             if fam.axis == "scent" and fam.department.startswith("Cleaning")
             else "light body milk that absorbs quickly"
         )
-        if fam.fits:
-            return f"A {noun}, in {sizes}. {fam.fits.format(x=names[0].lower())}"
-        return f"A {noun}, in {sizes}. Scented with {names[0].lower()}."
+        scent = names[0].lower()
+        closing = fam.fits.format(x=scent) if fam.fits else f"Scented with {scent}."
+        return f"A {noun}. {closing} {_available(packs)}"
     if len(names) > 1:
-        head = f"{fam.product_type} in {len(names)} flavors: {', '.join(names)}. In {sizes}."
+        head = f"{INTRO_MULTI[fam.product_type]} Includes {', '.join(names[:-1])} and {names[-1]}."
     else:
-        head = f"{names[0]}, in {sizes}."
+        head = INTRO[fam.product_type].format(name=names[0])
     out = [head]
     if len(names) == 1 and (fam.code, names[0]) in CUT_NOTES:
         out.append(CUT_NOTES[fam.code, names[0]])
+    out.append(_available(packs))
     out.append(STORAGE_TEXT[fam.storage])
     contains = _union(s.get("contains", []) for s in skus)
     may = [a for a in _union(s.get("may_contain", []) for s in skus) if a not in contains]
@@ -279,6 +308,8 @@ def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, he
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
         return drawing(shape, color, pack_label(title, head), **params)
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, head)
+    if shape == "punnet":
+        marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)
 
 
@@ -489,7 +520,8 @@ def report(recs: list[dict]) -> dict[str, Any]:
 
 def coverage_report(recs: list[dict]) -> dict[str, Any]:
     """The share of the food rows (one per SKU) with ``facets.contains`` filled (gen#296)."""
-    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == "Food & Drink"]
+    food = sentence_case("Food & Drink")  # the published (sentence case) root, gen#499
+    rows = [r for r in flat(documents(recs)) if r["category_path"][0] == food]
     filled = sum(bool(r["facets"].get("contains")) for r in rows)
     return {"food_rows": len(rows), "contains_filled": filled,
             "contains_share": round(filled / len(rows), 4) if rows else 0.0}

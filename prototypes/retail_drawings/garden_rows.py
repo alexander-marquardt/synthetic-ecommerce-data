@@ -32,11 +32,10 @@ import re
 from dataclasses import replace
 
 import kit_garden  # registers lawn_mower, robot_mower, grass_trimmer, bbq
+import outdoor_helpers
 from breadth_rows import Row
-from type_specs import garden_hose
+from type_specs import garden_furniture_set, garden_hose, hedge_trimmer, parasol
 from variants import cw
-
-from synthetic_ecommerce_data.core.entry import canonical
 
 DEPARTMENT = "Garden"
 _V, _M = "Thistle & Wren", "Fenwold Nursery"
@@ -47,34 +46,11 @@ _MOW = (*_LAWN, "Lawn Mowers")
 _TRIM = (*_LAWN, "Grass Trimmers")
 _BBQ = (DEPARTMENT, "Barbecues & Grills")
 
-_HEX = kit_garden.ACCENT_HEX
-RED = cw("Red", _HEX["red"])
-BLUE = cw("Blue", _HEX["blue"])
-GREEN = cw("Green", _HEX["green"])
-YELLOW = cw("Yellow", _HEX["yellow"])
-BLACK = cw("Black", _HEX["black"])
-WHITE = cw("White", _HEX["white"], "solid", "#9a9ca0")
-
-
-def _a(key: str, name: str, v: str) -> tuple[str, str, str]:
-    return (key, name, v)
-
-
-def _u(key: str, name: str, v: int, unit: str) -> tuple[str, str, str, str, float]:
-    """A measured attribute with its unit: the canonical value is the core's."""
-    return (key, name, str(v), unit, float(canonical(str(v), unit)))
-
-
-def _axis(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
-    """SKU values of a measured axis and the price at each."""
-    return tuple((f"{v:g}", p) for v, p in pairs)
-
-
-def _row(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
-         shape: str, description: str, colors: tuple, attrs: tuple, sizes: tuple = (),
-         size_key: str = "size", params: tuple = ()) -> Row:  # fmt: skip
-    return Row(code, title, brand, DEPARTMENT, path, ptype, price, shape, description, colors,
-               attrs, sizes, size_key=size_key, params=params)  # fmt: skip
+_a, _u, _axis, _row = outdoor_helpers.a, outdoor_helpers.u, outdoor_helpers.axis, outdoor_helpers.row
+RED, BLUE, GREEN, YELLOW, BLACK, WHITE = (
+    outdoor_helpers.RED, outdoor_helpers.BLUE, outdoor_helpers.GREEN,
+    outdoor_helpers.YELLOW, outdoor_helpers.BLACK, outdoor_helpers.WHITE,
+)  # fmt: skip
 
 
 def _mower(power: str, drive: str, box_l: int, heights: int, volts: int = 0) -> tuple:
@@ -266,6 +242,9 @@ DECOY_TABLE = {
     "DCBAPR": ("type", "bbq", "BBQ"), "DCBCHR": ("absent", "gas bbq", "BBQ"),
     "DCBCND": ("incidental", "bbq", "BBQ"),
     "DCHCSH": ("type", "garden hose", "Garden Hose"), "DCHCND": ("incidental", "garden hose", "Garden Hose"),
+    "DCGCSH": ("type", "hedge trimmer", "Hedge Trimmer"), "DCGCND": ("incidental", "hedge trimmer", "Hedge Trimmer"),
+    "DCFCSH": ("type", "garden furniture set", "Garden Furniture Set"), "DCFCND": ("incidental", "garden furniture set", "Garden Furniture Set"),
+    "DCPCSH": ("type", "parasol", "Parasol"), "DCPCND": ("incidental", "parasol", "Parasol"),
 }  # fmt: skip
 
 DECOYS = (
@@ -293,6 +272,12 @@ DECOYS = (
     _candle("DCBCND", "Smoky Garden BBQ Candle", "A smoky wood scent in a glass jar, as the barbecue dies down.", "Wood Smoke"),
     _cushion("DCHCSH", "Garden Hose Print Cushion", "A cotton cushion printed with a coiled garden hose on a striped lawn."),
     _candle("DCHCND", "Garden Rain Mist Candle", "A damp paving scent in a glass jar, as the hose is turned off after dusk.", "Rain on Stone"),
+    _cushion("DCGCSH", "Hedge Trimmer Print Cushion", "A cotton cushion printed with a hedge trimmer and a neatly clipped hedge."),
+    _candle("DCGCND", "Freshly Clipped Hedge Candle", "A cut privet scent in a glass jar, as a hedge smells after the trimmer has been round.", "Cut Privet"),
+    _cushion("DCFCSH", "Garden Furniture Set Print Cushion", "A cotton cushion printed with a dining table and chairs on a striped lawn."),
+    _candle("DCFCND", "Summer Garden Furniture Candle", "A warm cedar scent in a glass jar, for a shelf by the patio door.", "Cedar"),
+    _cushion("DCPCSH", "Parasol Print Cushion", "A cotton cushion printed with a striped parasol over a deck chair."),
+    _candle("DCPCND", "Seaside Parasol Candle", "A sea salt scent in a glass jar, for a shelf by the patio door.", "Sea Salt"),
 )
 
 
@@ -300,10 +285,13 @@ DECOYS = (
 # type are copies of one of its styles with one main color, a title or a description that
 # misleads, and the first size only.
 _MAIN = ("red", "blue", "green", "yellow", "black", "white")
-_BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows)}
+_BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows,
+                                  *hedge_trimmer.SPEC.rows, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
-_QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose"}
-_ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex"}
+_QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose",
+          "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol"}
+_ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex",
+           "Hedge Trimmer": "cordless", "Garden Furniture Set": "rattan", "Parasol": "cantilever"}
 
 
 _NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
@@ -362,7 +350,7 @@ _REAL = {
     ),
     "Grass Trimmer": (
         ("DCTA01", "absent", "Not Cordless: Petrol Grass Trimmer", "TRMPET", "yellow", "A two-stroke trimmer with a metal blade, which starts on a pull cord."),
-        ("DCTA02", "absent", "Mains Grass Trimmer, Never Cordless", "TRMELC", "red", "A trimmer on a long cable, with a telescopic shaft."),
+        ("DCTA02", "absent", "Corded Grass Trimmer, 10 m Cable", "TRMELC", "red", "A mains trimmer on a 10 m cable, with a telescopic shaft: not a cordless model, so there is no battery to charge."),
         ("DCTI01", "incidental", "Red Kite Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Kite range."),
         ("DCTI02", "incidental", "Blue Moon Grass Trimmer", "TRMCRD", "yellow", "A battery trimmer with a line head that feeds as you tap it."),
         ("DCTS01", "secondary", "Green Cordless Grass Trimmer with Black Handle", "TRMCRD", "green", "A battery trimmer for edging a lawn and tidying round beds."),
@@ -397,6 +385,45 @@ _REAL = {
         ("DCHH02", "shade", "Lightweight Garden Hose", "GHSEXPN", "green", "A light hose that grows under water pressure, supplied with a yellow spray gun."),
         ("DCHH03", "shade", "Compact Garden Hose", "GHSEXPN", "white", "A hose that shrinks back to store in a small space, sold in a bag with a black carry handle."),
     ),
+    "Hedge Trimmer": (
+        ("DCGA01", "absent", "Not Cordless: Petrol Hedge Trimmer", "HDGPET", "yellow", "A two-stroke hedge trimmer with a pull-start and a wide tooth gap, for thick growth."),
+        ("DCGA02", "absent", "Corded Hedge Trimmer, 10 m Cable", "HDGELC", "red", "A mains hedge trimmer on a 10 m cable, with a double-sided blade and a hand guard: not a cordless model, so there is no battery to charge."),
+        ("DCGA03", "absent", "Corded Hedge Trimmer, Not Cordless", "HDGELC", "black", "A mains trimmer for a garden hedge, with no battery to charge."),
+        ("DCGI01", "incidental", "Red Kite Hedge Trimmer", "HDGELC", "black", "A mains hedge trimmer from the Kite range, with a hand guard."),
+        ("DCGI02", "incidental", "Blue Moon Hedge Trimmer", "HDGPET", "yellow", "A petrol hedge trimmer for long hedges, from the Moon range."),
+        ("DCGS01", "secondary", "Green Hedge Trimmer with Red Handle", "HDGELC", "green", "A mains hedge trimmer with a ten metre cable and a hand guard."),
+        ("DCGS02", "secondary", "Yellow Cordless Hedge Trimmer with Black Blade", "HDGCRD", "yellow", "A battery hedge trimmer with a dual-action blade and a rear handle."),
+        ("DCGS03", "secondary", "Blue Petrol Hedge Trimmer with White Guard", "HDGPET", "blue", "A two-stroke hedge trimmer for thick growth and long hedges."),
+        ("DCGH01", "shade", "Light Cordless Hedge Trimmer", "HDGCRD", "black", "A battery trimmer with a bright red trigger and a dual-action blade."),
+        ("DCGH02", "shade", "Heavy Duty Hedge Trimmer", "HDGPET", "white", "A petrol trimmer with a yellow hand guard on the blade and a wide tooth gap."),
+        ("DCGH03", "shade", "Compact Electric Hedge Trimmer", "HDGELC", "red", "A mains trimmer with a green cable clip and a short blade."),
+    ),
+    "Garden Furniture Set": (
+        ("DCFA01", "absent", "Rattan Free Aluminum Garden Furniture Set", "GFSDIN", "blue", "A rust-proof aluminum table with chairs that tuck under it, with no wicker to fray."),
+        ("DCFA02", "absent", "Garden Furniture Set, No Rattan Effect", "GFSWDN", "green", "A treated hardwood table and chairs with a slatted seat."),
+        ("DCFA03", "absent", "Steel Bistro Garden Furniture Set, Not Rattan", "GFSBIS", "white", "A round steel table and two folding chairs for a balcony."),
+        ("DCFI01", "incidental", "Red Kite Garden Furniture Set", "GFSBIS", "black", "A round steel table and two folding chairs, from the Kite range."),
+        ("DCFI02", "incidental", "Blue Moon Garden Furniture Set", "GFSWDN", "yellow", "A hardwood table and chairs, from the Moon range."),
+        ("DCFS01", "secondary", "Black Dining Garden Furniture Set with Red Legs", "GFSDIN", "black", "An aluminum table with chairs that tuck under it, with padded seats."),
+        ("DCFS02", "secondary", "Green Sun Lounger Garden Furniture Set with Yellow Cushions", "GFSLNG", "green", "A reclining sun lounger in treated wood with a padded cushion."),
+        ("DCFS03", "secondary", "Blue Corner Garden Furniture Set with White Legs", "GFSCRN", "blue", "A weatherproof corner sofa with a low table and deep seat cushions."),
+        ("DCFH01", "shade", "Family Dining Garden Furniture Set", "GFSDIN", "white", "An aluminum table with a red cap for the parasol hole and padded chairs."),
+        ("DCFH02", "shade", "Folding Bistro Garden Furniture Set", "GFSBIS", "black", "A steel table and two folding chairs, with a bright yellow carry strap."),
+        ("DCFH03", "shade", "Hardwood Garden Furniture Set", "GFSWDN", "red", "A hardwood table and chairs, supplied with a green storage cover."),
+    ),
+    "Parasol": (
+        ("DCPA01", "absent", "Center Pole Parasol, Not Cantilever", "PRSCTR", "blue", "A polyester parasol on a center pole that pushes up with a slide."),
+        ("DCPA02", "absent", "Center Pole Parasol with Tilt", "PRSTLT", "white", "A crank-lift parasol on a center pole, not a cantilever (side-arm) design, with a filled base that needs no fixing to the ground."),
+        ("DCPA03", "absent", "Parasol with Center Pole, No Cantilever", "PRSTLT", "yellow", "A tilting parasol on a center pole, for a table with a hole in the middle."),
+        ("DCPI01", "incidental", "Red Kite Parasol", "PRSCTR", "black", "A center pole parasol from the Kite range, with a push-up slide."),
+        ("DCPI02", "incidental", "Blue Moon Parasol", "PRSCNT", "yellow", "A side-arm parasol from the Moon range, with a cross base."),
+        ("DCPS01", "secondary", "Green Center Pole Parasol with Red Pole", "PRSCTR", "green", "A polyester parasol that pushes up with a slide."),
+        ("DCPS02", "secondary", "Blue Tilting Parasol with White Base", "PRSTLT", "blue", "A crank-lift parasol whose canopy tilts to follow the sun."),
+        ("DCPS03", "secondary", "Black Cantilever Parasol with Red Valance", "PRSCNT", "black", "A side-arm parasol that shades a whole table, on a cross base."),
+        ("DCPH01", "shade", "Light Garden Parasol", "PRSCTR", "white", "A polyester parasol on a center pole, sold with a red carry bag."),
+        ("DCPH02", "shade", "Wide Canopy Tilting Parasol", "PRSTLT", "black", "A crank-lift parasol with a yellow crank handle and a filled base."),
+        ("DCPH03", "shade", "Heavy Duty Cantilever Parasol", "PRSCNT", "white", "A side-arm parasol with a cross base and a green winter cover."),
+    ),
 }
 def _hose_candle(code: str, title: str, desc: str) -> Row:
     return _candle(code, title, desc, "Fresh Grass")
@@ -413,6 +440,12 @@ _SIBLINGS = (
     ("DCBT02", "BBQ", _apron, "BBQ Grill Pro Apron", "A cotton apron with a pocket and a bottle opener loop."),
     ("DCHT01", "Garden Hose", _apron, "Garden Hose Pro Apron", "A cotton apron with a pocket, printed with a coiled hose and a joke about the lawn."),
     ("DCHT02", "Garden Hose", _hose_candle, "Garden Hose Fresh Candle", "A fresh-cut grass scent in a glass jar, for a shelf by the garden door."),
+    ("DCGT01", "Hedge Trimmer", _apron, "Hedge Trimmer Gardener Apron", "A cotton apron with a pocket, printed with a hedge trimmer and a joke about topiary."),
+    ("DCGT02", "Hedge Trimmer", _cushion, "Hedge Trimmer Joke Cushion", "A cotton cushion printed with a hedge trimmer and a joke about privet."),
+    ("DCFT01", "Garden Furniture Set", _apron, "Garden Furniture Set Builder Apron", "A cotton apron with two pockets, for the one who puts the flat pack together."),
+    ("DCFT02", "Garden Furniture Set", _cushion, "Garden Furniture Set Joke Cushion", "A cotton cushion printed with a patio table and a joke about the weather."),
+    ("DCPT01", "Parasol", _apron, "Parasol Picnic Apron", "A cotton apron with a pocket, printed with a striped parasol."),
+    ("DCPT02", "Parasol", _cushion, "Parasol Garden Cushion", "A cotton cushion printed with a striped parasol over a deck chair."),
 )
 _CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
 _COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)

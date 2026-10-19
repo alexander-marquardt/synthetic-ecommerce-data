@@ -118,10 +118,10 @@ The record, as the drawing receives it:
 ```
 Head Type          Socket            Dia./Thread Size   5/16-18
 Drive Type         Hex Socket        Length             1/2"
-Material           Grade 12.9 Alloy Steel               Length under Head  1/2"
-Finish             Black Oxide       Thread Length      1/2"
-Head Dia.          0.4690"           Head Height        0.3090"
-Drive Size         1/4"              (plus Item, Type, Thread Type, Meets/Exceeds)
+Material           Grade 8 Alloy Steel                  Thread Length      1/2"
+Finish             Black Oxide       Head Dia.          0.4690"
+Head Height        0.3090"           Drive Size         1/4"
+(plus Thread Type, Standards)
 ```
 
 `FIGURES["screw_socket_head"]` is `_broken(2.75, 5.95)`, so `fastener(record,
@@ -137,8 +137,7 @@ which reads the record into a `FastenerGeometry`:
 | `Head Dia.` = 0.4690" | `head_dia` | head width; also the end-view disc's diameter |
 | `Head Height` = 0.3090" | `head_height` | head height |
 | `Drive Size` = 1/4" | `drive_size` | a hexagon of that size across the flats, in the `dark` role, inside the end view |
-| `Length under Head` = 1/2" | `length_under_head` | not drawn. It is checked: if it differs from total height minus head height by more than 0.01 in, `ImpossibleGeometryError` is raised and the record falls down the [provenance ladder](#provenance-record-partial-nominal) |
-| `Material` = Grade 12.9 Alloy Steel | | section hatch, from `style.MATERIAL_HATCH` |
+| `Material` = Grade 8 Alloy Steel | | section hatch, from `style.MATERIAL_HATCH` |
 | `Finish` = Black Oxide | | part fill, from `FINISH_TINT` |
 
 The figure has the head at y = 0 and the threaded shank below it, with the end

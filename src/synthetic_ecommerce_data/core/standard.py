@@ -75,6 +75,10 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
     "in_stock": (_BOOL, True),
     "price_usd": (_NUM, False),
     "stock": (_INT, False),
+    #: How the shown price is quoted and the multiple it is ordered in (gen#14): two plain
+    #: fields on every industrial SKU, never variants.
+    "pricing_unit": (_STR, False),
+    "order_multiple": (_INT, False),
     "image_id": (_STR, True),
     "image_url": (_STR, True),
     "image_detail_url": (_STR, True),
@@ -199,6 +203,28 @@ def _names(padded: str, value: str) -> bool:
     return bool(phrase) and f" {phrase} " in padded
 
 
+#: Ends a pattern that finds a value a text claims: a value before a hyphen says what a product
+#: is not made of or is only like ("Linen-Look", "Wool-Free", "fleece-back"), so it is no claim.
+#: One rule for the standard's text check and for ``facet_leaves.stated_fabrics`` (gen#187).
+UNHYPHENATED = r"(?!-)"
+
+
+def claims(text: str, value: str) -> bool:
+    """Whether ``text`` names ``value`` at least once not before a hyphen."""
+    phrase = r"[^a-z0-9]+".join(re.escape(w) for w in words(value).split())
+    pattern = rf"(?<![a-z0-9]){phrase}(?![a-z0-9]){UNHYPHENATED}"
+    return bool(phrase) and re.search(pattern, text.lower().replace("&", " and ")) is not None
+
+
+#: A phrase that names a value without claiming it: a comparison ("Higher strength than Grade
+#: 5."), an equivalence ("Equivalent to DIN 912 / ISO 4762.") and a tolerance class in
+#: parentheses ("(ISO 492 Normal class)"). A comparison or an equivalence runs to the end of its
+#: sentence (a full stop before a digit is a decimal point: "Class 8.8").
+_REFERENCE = re.compile(
+    r"\b(?:than|equivalent to)\b(?:[^.;]|\.(?=\d))*|\([^()]*\bclass\)", re.IGNORECASE
+)
+
+
 def value_pools(docs: Iterable[Mapping[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(leaf, key) -> the worded values the leaf's product attributes carry: the values a
     title or description can contradict. A number or a measured value is never one."""
@@ -218,7 +244,11 @@ def text_contradictions(
 ) -> list[str]:
     """Each attribute the title or a description contradicts: the text names another value
     of the key's leaf pool and none of the document's own. A word inside another of the
-    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing."""
+    document's values ("Leather" on a rubber-soled leather loafer) contradicts nothing, and
+    neither does a pool value whose words sit inside one of the document's own values
+    ("Steel" on 18-8 Stainless Steel, "Grinding" on Cutting & Grinding), nor a value the text
+    only compares or refers to (:data:`_REFERENCE`), nor one before a hyphen
+    (:data:`UNHYPHENATED`)."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -228,18 +258,24 @@ def text_contradictions(
     if doc.get("brand"):
         values.add(str(doc["brand"]))
     every = sorted(values, key=len, reverse=True)
+    padded_own = [words(v) for v in values]
     texts = [str(doc.get("title") or "")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
     for key, mine in own.items():
-        pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
+        pool = {
+            v
+            for v in pools.get((str(doc.get("category_leaf")), key), set()) - mine
+            if not any(_names(own_value, v) for own_value in padded_own)
+        }
         for text in dict.fromkeys(texts):
-            padded = words(text)
+            claimed = _REFERENCE.sub(" | ", text)
+            padded = words(claimed)
             if not pool or any(_names(padded, v) for v in mine):
                 continue
             for v in every:
                 padded = padded.replace(words(v), " | ") if re.search(r"[A-Za-z]", v) else padded
-            named = sorted(v for v in pool if _names(padded, v))
+            named = sorted(v for v in pool if _names(padded, v) and claims(claimed, v))
             if named:
                 out.append(f"{doc.get('product_id')}: its text names {named[0]!r} but {key} is "
                            f"{sorted(mine)}: {text[:80]!r}")  # fmt: skip
@@ -402,6 +438,8 @@ _FLAT_VARIANT_FIELDS = (
     "in_stock",
     "price_usd",
     "stock",
+    "pricing_unit",
+    "order_multiple",
     "image_id",
     "image_url",
     "image_detail_url",

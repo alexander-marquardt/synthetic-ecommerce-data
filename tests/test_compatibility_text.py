@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 from compat_text import compatibility_sentences, without_compatibility
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
@@ -157,7 +157,7 @@ def test_the_fine_pitches_are_iso_262s_and_the_unified_fine_series():
 
 def _published(doc: dict) -> dict[str, str]:
     """Name to published spelling, from flat ``facets`` (a nested entry carries none, #42)."""
-    return {a["name"]: a["value"] for a in published_attributes(doc)}
+    return {a["name"]: a["value"] for a in authored_attributes(doc)}
 
 
 def _same_length(a: str, b: str) -> bool:
@@ -378,10 +378,12 @@ def test_a_fine_pitch_metric_screw_claims_no_coarse_thread_standard(docs):
 # --- lengths and drives are catalog values -------------------------------------
 
 
-def test_a_countersunk_screw_publishes_no_length_under_head(docs):
-    flat = [d for d in docs if d["product_type"] == "screw_flat_head"]
-    assert flat
-    assert all("Length under Head" not in _published(d) for d in flat)
+def test_no_screw_publishes_a_length_under_head(docs):
+    """Merged into ``Length`` (#497): the countersunk screw never had one, and on the
+    others it repeated the nominal length."""
+    screws = [d for d in docs if d["product_type"].startswith("screw_")]
+    assert screws
+    assert all("Length under Head" not in _published(d) for d in screws)
 
 
 def test_every_drive_size_is_a_nominal_key(docs):

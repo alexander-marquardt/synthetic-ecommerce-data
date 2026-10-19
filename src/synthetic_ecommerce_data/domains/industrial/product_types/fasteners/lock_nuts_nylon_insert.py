@@ -4,7 +4,7 @@ The spec space is six series a distributor stocks, each a standard's table or,
 for inch, a conventional size ladder:
 
 * metric rows are read from FreeCAD_FastenersWB at the commit
-  ``data/fastener_standards.json`` records: ``iso7040def.csv`` (regular),
+  ``core/standards_library/tables/fastener_standards.json`` records: ``iso7040def.csv`` (regular),
   ``iso10512def.csv`` (regular, fine pitch), ``iso10511def.csv`` (thin) and
   ``nyloc_def.csv`` (DIN 985, thin). Width Across Flats is the table's
   ``s_max`` (``s_nom`` for DIN 985) and Height its ``h_max`` (``h``), the
@@ -26,14 +26,16 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hex_nut
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
-    _NUT_UNC,
     MM_PER_INCH,
     _nominal,
     _weighted,
@@ -117,20 +119,29 @@ _DIN_985 = (
 
 _INCH_FLATS_STANDARD = "ASME B18.2.2"
 
-#: The finished hex nut's widths, plus the sizes that table does not carry.
-_FLATS_IN = {_nominal(thread): flats for thread, flats, _ in _NUT_UNC} | {
-    "#4": 1 / 4,
-    "9/16": 7 / 8,
-    "7/8": 1 + 5 / 16,
+#: The finished hex nut's widths (ASME B18.2.2), from the standards library: the sizes
+#: ``nut_hex`` stocks, then the sizes that table does not carry.
+_FLATS_IN = {
+    row["size"]: float(Fraction(row["flats_in"]))
+    for row in library.table("asme_b18_2_2_hex_nuts_in").select(
+        ["#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1"]
+        + ["#4", "9/16", "7/8"]
+    )
 }
-_UNC = (
-    "#4-40", "#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "7/16-14",
-    "1/2-13", "9/16-12", "5/8-11", "3/4-10", "7/8-9", "1-8",
-)  # fmt: skip
-_UNF = (
-    "#10-32", "1/4-28", "5/16-24", "3/8-24", "7/16-20", "1/2-20", "9/16-18", "5/8-18",
-    "3/4-16", "7/8-14", "1-12",
-)  # fmt: skip
+_THREADS = library.table("asme_b1_1_unified_threads")
+_UNC = tuple(
+    f"{row['size']}-{row['unc_tpi']}"
+    for row in _THREADS.select(
+        ["#4", "#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2"]
+        + ["9/16", "5/8", "3/4", "7/8", "1"]
+    )
+)
+_UNF = tuple(
+    f"{row['size']}-{row['unf_tpi']}"
+    for row in _THREADS.select(
+        ["#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4", "7/8", "1"]
+    )
+)
 #: The thin inch series starts at 1/4".
 _THIN_FROM = "1/4"
 
@@ -244,10 +255,7 @@ ITEM = "Nylon Insert Lock Nut"
 #: Generic names, as for the hex nut: ``Type`` for the style (``Nut Style``
 #: is refused by the own-noun rule) and ``Height`` for the height.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Type", "line"),
-    AttrSpec("Lock Type", "line", 0.8),
-    AttrSpec("Insert Material", "line", 0.7),
     AttrSpec("Material", "line"),
     AttrSpec("Finish", "line", 0.9),
     AttrSpec("Grade", "line", 0.9),
@@ -278,10 +286,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=series.standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
+        # Retired (#497), listed where they stood so their sparsity draws keep
+        # the random stream stable.
+        retired(keyword_attribute("Item", ITEM)),
         keyword_attribute("Type", series.style),
-        keyword_attribute("Lock Type", "Nylon Insert"),
-        keyword_attribute("Insert Material", "Nylon"),
+        retired(keyword_attribute("Lock Type", "Nylon Insert"), presence=0.8),
+        retired(keyword_attribute("Insert Material", "Nylon"), presence=0.7),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
         keyword_attribute("Thread Type", series.thread_type),

@@ -329,6 +329,21 @@ def m_slanted_blades(c: str) -> list[str]:
     ]
 
 
+def m_twin_arcs(c: str) -> list[str]:
+    return [_stroke("M-.85,.2 A.85,.85 0 0 1 .05,-.65", 0.15, c),
+            _stroke("M-.05,.65 A.85,.85 0 0 0 .85,-.2", 0.15, c), _dot(0, 0, 0.14, c)]
+
+
+def m_notched_square(c: str) -> list[str]:
+    return [f'<path d="M-.75,-.75 L.75,-.75 L.75,.75 L-.75,.75 Z M-.25,-.75 L-.25,-.25 L.25,-.25 '
+            f'L.25,-.75 Z" fill="{c}" fill-rule="evenodd"/>']
+
+
+def m_comet(c: str) -> list[str]:
+    return [_dot(.45, -.35, .3, c), _stroke("M.2,-.1 L-.8,.7", 0.14, c),
+            _stroke("M.05,-.35 L-.7,.2", 0.1, c)]
+
+
 def m_rainbow(c: str) -> list[str]:
     return [
         _stroke(f"M{_n(-r)},.5 A{_n(r)},{_n(r)} 0 0 1 {_n(r)},.5", 0.16, c) for r in (0.9, 0.6, 0.3)
@@ -619,7 +634,163 @@ def m_bull_horns(c: str) -> list[str]:
     ]
 
 
+# The beauty depth marks (gen#214): one per invented beauty brand, so no two brands share one.
+
+
+def m_lash_fan(c: str) -> list[str]:
+    lashes = " ".join(
+        f"M{_n(0.5 * math.sin(math.radians(a)))},.7 "
+        f"L{_n(0.95 * math.sin(math.radians(a)))},{_n(0.7 - 1.5 * math.cos(math.radians(a)))}"
+        for a in (-50, -25, 0, 25, 50)
+    )
+    return [
+        _stroke(lashes, 0.1, c),
+        f'<rect x="-.4" y=".65" width=".8" height=".2" rx=".08" fill="{c}"/>',
+    ]
+
+
+def m_dropper(c: str) -> list[str]:
+    return [
+        f'<path d="M-.22,-.3 L.22,-.3 L.22,.1 Q.22,.2 0,.2 Q-.22,.2 -.22,.1 Z" fill="{c}"/>',
+        f'<ellipse cx="0" cy="-.62" rx=".26" ry=".3" fill="{c}"/>',
+        f'<path d="M0,.35 Q.28,.7 0,.9 Q-.28,.7 0,.35 Z" fill="{c}"/>',
+    ]
+
+
+def m_compact(c: str) -> list[str]:
+    return [
+        _ring(0, 0, 0.8, 0.14, c),
+        f'<path d="M-.8,.05 L.8,.05" stroke="{c}" stroke-width=".1"/>',
+        _dot(0, -0.35, 0.18, c),
+        _dot(0, 0.45, 0.18, c),
+    ]
+
+
+def m_jar(c: str) -> list[str]:
+    return [
+        f'<rect x="-.55" y="-.75" width="1.1" height=".3" rx=".08" fill="{c}"/>',
+        f'<rect x="-.7" y="-.35" width="1.4" height="1.1" rx=".25" fill="{c}"/>',
+        _stroke("M-.35,.0 L-.35,.5", 0.1, "#ffffff"),
+    ]
+
+
+def m_tube(c: str) -> list[str]:
+    return [
+        f'<path d="M-.3,-.3 L.3,-.3 L.4,.8 L-.4,.8 Z" fill="{c}"/>',
+        f'<rect x="-.18" y="-.8" width=".36" height=".45" rx=".06" fill="{c}"/>',
+        _stroke("M-.4,.75 L.4,.75", 0.12, "#ffffff"),
+    ]
+
+
+def m_mist_cloud(c: str) -> list[str]:
+    return [
+        f'<path d="M-.7,.2 Q-.7,-.2 -.3,-.2 Q-.2,-.65 .25,-.5 Q.7,-.5 .65,.2 Z" fill="{c}"/>',
+        _dot(-0.45, 0.55, 0.08, c),
+        _dot(0, 0.6, 0.08, c),
+        _dot(0.45, 0.55, 0.08, c),
+        _dot(-0.2, 0.85, 0.06, c),
+        _dot(0.25, 0.85, 0.06, c),
+    ]
+
+
+def m_sparkle(c: str) -> list[str]:
+    four = "M0,-.9 Q.1,-.1 .9,0 Q.1,.1 0,.9 Q-.1,.1 -.9,0 Q-.1,-.1 0,-.9 Z"
+    return [f'<path d="{four}" fill="{c}"/>', _dot(0.6, -0.6, 0.12, c), _dot(-0.6, 0.6, 0.09, c)]
+
+
+def m_feather(c: str) -> list[str]:
+    veins = " ".join(
+        f"M{_n(x)},{_n(y)} L{_n(x + 0.3)},{_n(y - 0.1)}"
+        for x, y in ((-0.3, 0.45), (-0.1, 0.15), (0.1, -0.15))
+    )
+    return [
+        f'<path d="M-.5,.8 Q-.9,-.4 .6,-.8 Q.9,.3 -.5,.8 Z" fill="{c}"/>',
+        _stroke("M-.6,.9 L.5,-.7", 0.08, "#ffffff"),
+        _stroke(veins, 0.06, "#ffffff"),
+    ]
+
+
+def m_shell(c: str) -> list[str]:
+    ribs = " ".join(f"M0,.7 L{_n(x)},-.5" for x in (-0.5, -0.17, 0.17, 0.5))
+    return [
+        f'<path d="M-.85,.2 Q-.85,-.85 0,-.85 Q.85,-.85 .85,.2 Z" fill="{c}"/>',
+        _stroke(ribs, 0.07, "#ffffff"),
+        f'<rect x="-.3" y=".3" width=".6" height=".3" rx=".1" fill="{c}"/>',
+    ]
+
+
+def m_lip_swipe(c: str) -> list[str]:
+    return [
+        f'<path d="M-.35,.8 L-.35,.0 L.35,.0 L.35,.8 Z" fill="{c}"/>',
+        f'<path d="M-.3,-.05 L-.3,-.5 L.3,-.9 L.3,-.05 Z" fill="{c}"/>',
+        _stroke("M-.35,.4 L.35,.4", 0.1, "#ffffff"),
+    ]
+
+
+def m_flask(c: str) -> list[str]:
+    return [
+        f'<path d="M-.2,-.85 L.2,-.85 L.2,-.3 L.75,.7 Q.8,.85 .6,.85 L-.6,.85 Q-.8,.85 -.75,.7 L-.2,-.3 Z" fill="{c}"/>',
+        _stroke("M-.4,.5 L.4,.5", 0.1, "#ffffff"),
+    ]
+
+
+def m_moon_stars(c: str) -> list[str]:
+    return [
+        f'<path d="M.3,-.8 A.85,.85 0 1 0 .3,.8 A.65,.65 0 1 1 .3,-.8 Z" fill="{c}"/>',
+        _star(0.5, -0.1, 0.28, c),
+    ]
+
+
+def m_pearl_row(c: str) -> list[str]:
+    return [
+        _dot(x, y, r, c)
+        for x, y, r in ((-0.6, 0.2, 0.28), (0, -0.1, 0.34), (0.6, 0.2, 0.28), (0, 0.6, 0.2))
+    ]
+
+
+def m_rose_bud(c: str) -> list[str]:
+    return [
+        f'<path d="M0,-.8 Q.7,-.6 .55,.05 Q.35,.45 0,.45 Q-.35,.45 -.55,.05 Q-.7,-.6 0,-.8 Z" fill="{c}"/>',
+        _stroke("M0,-.5 Q.25,-.3 0,-.05 Q-.2,-.3 0,-.5", 0.07, "#ffffff"),
+        _stroke("M0,.45 L0,.9", 0.1, c),
+    ]
+
+
+def m_coconut_palm(c: str) -> list[str]:
+    return [
+        _stroke("M0,.85 Q.12,.25 -.05,-.3", 0.14, c),
+        _stroke("M-.05,-.3 Q-.4,-.8 -.85,-.45", 0.1, c),
+        _stroke("M-.05,-.3 Q.35,-.85 .85,-.4", 0.1, c),
+        _stroke("M-.05,-.3 Q-.05,-.7 -.1,-.9", 0.1, c),
+        _dot(0.14, -0.12, 0.12, c),
+    ]
+
+
 #: Mark name -> drawing in unit space (-1..1), painted in the brand color.
+def m_toy_pair_dots(c: str) -> list[str]:
+    return [_dot(-0.4, 0, 0.3, c), _dot(0.4, 0, 0.3, c)]
+
+
+def m_toy_ring_dot(c: str) -> list[str]:
+    return [_ring(0, 0, 0.5, 0.12, c), _dot(0, 0, 0.18, c)]
+
+
+def m_toy_star(c: str) -> list[str]:
+    return [_star(0, 0, 0.7, c)]
+
+
+def m_toy_three_rings(c: str) -> list[str]:
+    return [_ring(x, 0, 0.3, 0.09, c) for x in (-0.6, 0, 0.6)]
+
+
+def m_toy_diag_dots(c: str) -> list[str]:
+    return [_dot(-0.5, 0.5, 0.2, c), _dot(0, 0, 0.25, c), _dot(0.5, -0.5, 0.3, c)]
+
+
+def m_toy_stack_rings(c: str) -> list[str]:
+    return [_ring(0, y, 0.3, 0.09, c) for y in (-0.5, 0, 0.5)]
+
+
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
 }
@@ -1088,6 +1259,11 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Yellow Plover":        H("#fffbe6", "lines",    "ticks",   "#d9a400", "#3a3000", 0.85, True,  "round", "half_disc",         "badge",       "bottom_center", "none",     "humanist", 400, "caps",      0.5, True),
     "Blue Bull":            H("#eef2f8", "hatch",    "double",  "#1f4e9c", "#14284a", 1.1,  False, "round", "bull_horns",        "mark_right",  "top_right",     "none",     "serif",    700, "caps",      1.2),
     "Jacket Wren":          H("#eef3ee", "grid",     "double",  "#3f6b4f", "#1e3327", 1.05, False, "round", "slanted_blades",    "mark_only",   "top_right",     "stamp",    "mono",     400, "title",     1.0),
+    # Invented brands of the knitwear depth (gen#309): a color or category word in the name, each a
+    # full lockup so the drawing's logo text is the brand.
+    "White Heron":          H("#f1f4f8", "dots",     "rounded", "#3d5a80", "#1b2a40", 0.95, False, "round", "twin_arcs",         "mark_above",  "top_center",    "none",     "serif",    700, "title",     2.3),
+    "Red Kite":             H("#fbf1ee", "hatch",    "heavy",   "#b3382c", "#401410", 1.1,  True,  "sharp", "comet",             "pill",        "bottom_right",  "none",     "sans",     400, "lower",     0.8),
+    "Cardigan Finch":       H("#f5f1e6", "none",     "ticks",   "#7a5c2e", "#33260f", 1.0,  False, "round", "notched_square",    "mark_right",  "top_left",      "none",     "humanist", 700, "caps",      1.7),
     # The invented brands of the apparel decoys (decoy_apparel, gen#311, class 7).
     "Red Plover":           H("#fbf1ee", "lines",    "thin",    "#b5382c", "#3a1a16", 1.0,  False, "round", "bell",              "mark_left",   "bottom_left",   "none",     "serif",    400, "title",     1.0),
     "Blue Otter":           H("#eef3fa", "dots",     "double",  "#2f5d9a", "#182b48", 1.1,  False, "sharp", "fold",              "mark_above",  "top_left",      "none",     "sans",     700, "caps",      2.0),
@@ -1099,6 +1275,31 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "comb",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
+    # The beauty depth brands (type_specs, gen#214): invented, text only.
+    "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "mist_cloud", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),
+    "Citrus Heron":        H("#f1f5f8", "lines", "rounded", "#4a8a52", "#1e3a22", 0.90, False, "round", "sparkle", "mark_only", "top_right", "flag", "serif", 400, "smallcaps", 1.5),
+    "Clay Wren":           H("#f4f1fa", "grid", "heavy", "#9a3a78", "#38183a", 0.95, False, "sharp", "jar", "mark_only", "bottom_left", "underline", "humanist", 400, "lower", 2.0),
+    "Cloth Wren":          H("#f2f7ef", "diagonal", "ticks", "#6a4fa0", "#2a1c3e", 1.00, False, "round", "feather", "mark_only", "bottom_right", "tab", "serif", 700, "title", 2.5),
+    "Dewy Finch":          H("#faf3e6", "hatch", "none", "#2f7f7a", "#123a38", 1.05, False, "sharp", "dropper", "mark_only", "top_left", "rect", "humanist", 400, "caps", 1.0),
+    "Fenmere":             H("#eef3f3", "none", "thin", "#3a6f8f", "#16303e", 0.85, True, "round", "flask", "mark_only", "top_right", "plain", "serif", 400, "smallcaps", 1.5),
+    "Pearlbrook":          H("#f8f0f6", "dots", "double", "#b9803a", "#3e2a12", 0.90, False, "sharp", "pearl_row", "mark_only", "bottom_left", "stamp", "humanist", 700, "lower", 2.0),
+    "Red Kestrel":         H("#fbf1f1", "lines", "rounded", "#b0486a", "#3a1a28", 0.95, False, "round", "lip_swipe", "mark_only", "bottom_right", "outline", "serif", 400, "title", 2.5),
+    "Rose Kestrel":        H("#f1f5f8", "grid", "heavy", "#4a8a52", "#1e3a22", 1.00, False, "sharp", "rose_bud", "mark_only", "top_left", "flag", "humanist", 400, "caps", 1.0),
+    "Sorrel & Salt":       H("#f4f1fa", "diagonal", "ticks", "#9a3a78", "#38183a", 1.05, False, "round", "shell", "mark_only", "top_right", "underline", "serif", 700, "smallcaps", 1.5),
+    "Thornlea Skin":       H("#f2f7ef", "hatch", "none", "#6a4fa0", "#2a1c3e", 0.85, False, "sharp", "tube", "mark_only", "bottom_left", "tab", "serif", 400, "lower", 2.0),
+    "Coconut Plover":      H("#fbf4e4", "dots", "thin", "#2f7f7a", "#123a38", 0.95, False, "round", "coconut_palm", "mark_only", "bottom_left", "rect", "humanist", 700, "title", 1.5),
+    "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "compact", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
+    "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "moon_stars", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
+    "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "lash_fan", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
+    # Invented brands of the toy text-match decoys (gen#424): a toy type word in the name.
+    "Marble Run Co":        H("#f4f6fb", "dots",     "thin",    "#3b5bdb", "#1b2a5c", 1.0,  False, "round", "toy_pair_dots",     "mark_left",   "bottom_left",   "none",     "sans",     700, "caps",      1.5),
+    "Card Game Row":        H("#fbf3f3", "lines",    "double",  "#c0392b", "#4a1a16", 1.1,  False, "sharp", "toy_ring_dot",      "mark_only",   "top_left",      "underline", "serif",   400, "title",     2.0),
+    "Kite Lane Toys":       H("#f1f9f4", "none",     "rounded", "#2e8b57", "#16392a", 0.95, True,  "round", "toy_star",          "mark_right",  "top_right",     "none",     "humanist", 700, "smallcaps", 1.0),
+    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),
+    "Play Kitchen Co":      H("#fff7ea", "hatch",    "heavy",   "#d9822b", "#4a2e12", 1.2,  False, "sharp", "toy_diag_dots",     "mark_only",   "bottom_right",  "stamp",    "mono",     700, "title",     0.5),
+    "Dolls House Row":      H("#fbf1f7", "diagonal", "thin",    "#c2539a", "#4a1c3a", 0.9,  True,  "round", "toy_stack_rings",   "badge",       "bottom_left",   "none",     "serif",    400, "smallcaps", 1.5, True),
+    "Tidewell":             H("#eef6f7", "none",     "thin",    "#1c7c7d", "#0f3b3c", 1.0,  False, "round", "wave_arcs",         "mark_left",   "bottom_right",  "none",     "sans",     400, "caps",      1.5),
+    "Skerry & Cole":        H("#f6f1ea", "dots",     "double",  "#7a2e3a", "#2b1a1d", 1.05, False, "sharp", "diamond_grid",      "badge",       "top_left",      "none",     "serif",    700, "smallcaps", 1.0),
 }
 # fmt: on
 
@@ -1123,3 +1324,7 @@ def field_names() -> list[str]:
 
 def differing(a: HouseStyle, b: HouseStyle) -> int:
     return sum(x != y for x, y in zip(astuple(a), astuple(b), strict=True))
+
+
+import color_word_brand_styles  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
+import luggage_brand_styles  # noqa: E402,F401 -- gen#209: three marks and styles join the tables

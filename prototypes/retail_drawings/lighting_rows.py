@@ -27,6 +27,16 @@ Each drawing param that a style attribute names (``style``, ``fixture_type`` as 
 style that changes the value redraws it (:func:`scale.derive`). ``usb_port``, ``dimmable`` and
 ``wireless_charging`` are only ever "Yes", so a derived style never flips one; a wall light's
 ``ip_rating`` and a shade's ``fitting`` are in :data:`scale.FROZEN_KEYS`.
+
+A light's color temperature is a measured entry (gen#232): ``color_temperature`` holds the
+kelvin count with unit code ``KEL``, so a facet ranges over it and no value holds a unit. One fact
+has one key (gen#498): a tunable lamp holds the two ends of its range as two entries under that
+same key (2700 and 6500), so a filter for 2700-3300K finds it by its warm end and one for
+6000-6500K by its cool end, and no "Minimum color temperature" key exists. The bulbs that
+state a temperature are the Light Bulb type (``type_specs/light_bulb.py``). A light states a
+temperature only where the light source comes with the product: a bulb, or a lamp with an
+Integrated LED. A fitting that takes a replaceable bulb (E27, E14, GU10, B22) states none, as the
+color depends on the bulb put in.
 """
 
 from __future__ import annotations
@@ -54,6 +64,20 @@ def _a(key: str, name: str, value: str) -> tuple[str, str, str]:
 def _cm(key: str, name: str, cm: int) -> tuple[str, str, str, str, float]:
     """A length in centimetres (unit code CMT; the canonical value is in millimetres)."""
     return (key, name, str(cm), "CMT", cm * 10.0)
+
+
+def _kelvin(key: str, name: str, kelvin: int) -> tuple[str, str, str, str, float]:
+    """A light's color temperature in kelvin (unit code KEL; the canonical value is the count)."""
+    return (key, name, str(kelvin), "KEL", float(kelvin))
+
+
+def _temp(kelvin: int) -> tuple[str, str, str, str, float]:
+    return _kelvin("color_temperature", "Color temperature", kelvin)
+
+
+def _temp_range(low: int, high: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A tunable lamp's range: its two ends, two entries under the one color temperature key."""
+    return (_temp(low), _temp(high))
 
 
 def _lights(n: int) -> tuple[str, str, str, str]:
@@ -100,7 +124,7 @@ FLOOR_LAMPS = (
         "An arc floor lamp with a metal shade. It takes an E27 bulb and a foot switch turns "
         "it on.",
         (BLACK, WHITE, FOREST),
-        (_a("style", "Style", "Arc"), _cm("height", "Height", 190),
+        (_a("style", "Style", "Arc"), _cm("item_height", "Item height", 190),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Foot"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         (("Brass", 149.0), ("Chrome", 149.0), ("Matte Black", 139.0)),
@@ -109,19 +133,19 @@ FLOOR_LAMPS = (
         "Floor Lamp", 99.0, "floor_lamp",
         "A tripod floor lamp with a linen drum shade and an inline switch on the cable.",
         (NATURAL, WHITE, GREY),
-        (_a("style", "Style", "Tripod"), _cm("height", "Height", 155),
+        (_a("style", "Style", "Tripod"), _cm("item_height", "Item height", 155),
          _a("shade_material", "Shade material", "Linen"), _a("switch", "Switch", "Inline"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         _each(99.0, "Oak", "Walnut", "Matte Black"),
         params=_p(style="tripod", finish="oak"), size_key="finish"),
     Row("LTFUPL", "Dimmable Uplighter Floor Lamp", "Calderby & Lune", "Home", FLOOR,
         "Floor Lamp", 89.0, "floor_lamp",
-        "An uplighter with a glass bowl shade. It takes an integrated LED bulb and is "
+        "An uplighter with a glass bowl shade. It has an integrated 3000K LED light and is "
         "dimmable, with a dimmer switch on the cable.",
         (WHITE, CREAM),
-        (_a("style", "Style", "Uplighter"), _cm("height", "Height", 180),
+        (_a("style", "Style", "Uplighter"), _cm("item_height", "Item height", 180),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Dimmer"),
-         _a("bulb_fitting", "Bulb fitting", "Integrated LED"),
+         _a("bulb_fitting", "Bulb fitting", "Integrated LED"), _temp(3000),
          _yes("dimmable", "Dimmable")),
         _each(89.0, "Satin Nickel", "Antique Brass"),
         params=_p(style="uplighter", finish="satin nickel"), size_key="finish"),
@@ -130,7 +154,7 @@ FLOOR_LAMPS = (
         "A task floor lamp with a metal shade. An inline switch sits on the cable; it takes "
         "an E14 bulb.",
         (BLACK, WHITE, MUSTARD),
-        (_a("style", "Style", "Task"), _cm("height", "Height", 140),
+        (_a("style", "Style", "Task"), _cm("item_height", "Item height", 140),
          _a("shade_material", "Shade material", "Metal"), _a("switch", "Switch", "Inline"),
          _a("bulb_fitting", "Bulb fitting", "E14")),
         _each(69.0, "Chrome", "Matte Black"),
@@ -139,7 +163,7 @@ FLOOR_LAMPS = (
         "Floor Lamp", 119.0, "floor_lamp",
         "A mother-and-child floor lamp with glass shades and a foot switch.",
         (WHITE, BLACK),
-        (_a("style", "Style", "Mother-and-Child"), _cm("height", "Height", 178),
+        (_a("style", "Style", "Mother-and-Child"), _cm("item_height", "Item height", 178),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Foot"),
          _a("bulb_fitting", "Bulb fitting", "E27")),
         (("Brass", 129.0), ("Copper", 129.0), ("Satin Nickel", 119.0)),
@@ -156,7 +180,7 @@ TABLE_LAMPS = (
         "A bedside table lamp on a metal base, with a drum shade that softens the bulb. It is "
         "plug-in.",
         (BRASS, BLACK, WHITE),
-        (_a("style", "Style", "Bedside"), _cm("height", "Height", 40),
+        (_a("style", "Style", "Bedside"), _cm("item_height", "Item height", 40),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In")),
         _each(39.0, "White", "Natural", "Navy"),
         params=_p(style="bedside", shade_color="white", power="plug-in"),
@@ -165,7 +189,7 @@ TABLE_LAMPS = (
         "Table Lamp", 65.0, "table_lamp",
         "A table lamp with a linen drum shade. It is plug-in.",
         (SAGE, TEAL, CREAM),
-        (_a("style", "Style", "Ceramic"), _cm("height", "Height", 56),
+        (_a("style", "Style", "Ceramic"), _cm("item_height", "Item height", 56),
          _a("base_material", "Base material", "Ceramic"), _a("power", "Power", "Plug-In")),
         _each(65.0, "White", "Natural"),
         params=_p(style="ceramic", shade_color="white", power="plug-in"),
@@ -174,7 +198,7 @@ TABLE_LAMPS = (
         "Table Lamp", 45.0, "table_lamp",
         "A touch table lamp that dims. A USB port in the base charges a phone overnight.",
         (COPPER, BRASS, SILVER),
-        (_a("style", "Style", "Touch"), _cm("height", "Height", 38),
+        (_a("style", "Style", "Touch"), _cm("item_height", "Item height", 38),
          _a("base_material", "Base material", "Metal"), _a("power", "Power", "Plug-In"),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes")),
         _each(45.0, "White", "Grey", "Black"),
@@ -184,7 +208,7 @@ TABLE_LAMPS = (
         "Table Lamp", 49.0, "table_lamp",
         "A mushroom table lamp with a glass base. It is rechargeable. Dimmable.",
         (BLUSH, SAGE, AMBER, WHITE),
-        (_a("style", "Style", "Mushroom"), _cm("height", "Height", 30),
+        (_a("style", "Style", "Mushroom"), _cm("item_height", "Item height", 30),
          _a("base_material", "Base material", "Glass"), _a("power", "Power", "Rechargeable"),
          _yes("dimmable", "Dimmable")),
         _each(49.0, "White", "Cream"),
@@ -202,20 +226,20 @@ DESK_LAMPS = (
         "An adjustable desk lamp with a 2700-6500K LED light and a USB port that charges a "
         "phone.",
         (BLACK, WHITE, SAGE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes")),
         params=_p(arm="adjustable", base="round")),
     Row("LTDGNK", "Gooseneck LED Desk Lamp", "Lanternby", "Home", DESK,
         "Desk Lamp", 25.0, "desk_lamp",
         "A gooseneck desk lamp with a 3000K LED light.",
         (BLACK, SILVER, NAVY),
-        (_a("arm", "Arm", "Gooseneck"), _a("color_temperature", "Color temperature", "3000K")),
+        (_a("arm", "Arm", "Gooseneck"), _temp(3000)),
         params=_p(arm="gooseneck", base="round")),
     Row("LTDCLP", "Clamp-On LED Desk Lamp", "Calderby & Lune", "Home", DESK,
         "Desk Lamp", 29.0, "desk_lamp",
         "A clamp-on desk lamp with a 5000K LED light.",
         (WHITE, BLACK, MUSTARD),
-        (_a("arm", "Arm", "Clamp-On"), _a("color_temperature", "Color temperature", "5000K"),
+        (_a("arm", "Arm", "Clamp-On"), _temp(5000),
          _yes("dimmable", "Dimmable")),
         params=_p(arm="clamp-on", base="round")),
     Row("LTDWCP", "LED Desk Lamp with Wireless Charging Pad", "Harbour & Pine", "Home", DESK,
@@ -223,7 +247,7 @@ DESK_LAMPS = (
         "A desk lamp whose wide base is a wireless charging pad for a phone, with a USB port "
         "beside it and a 2700-6500K LED light.",
         (BLACK, WHITE),
-        (_a("arm", "Arm", "Adjustable"), _a("color_temperature", "Color temperature", "2700-6500K"),
+        (_a("arm", "Arm", "Adjustable"), *_temp_range(2700, 6500),
          _yes("dimmable", "Dimmable"), ("usb_port", "USB port", "yes"),
          _yes("wireless_charging", "Wireless charging")),
         params=_p(arm="adjustable", base="pad")),
@@ -276,7 +300,8 @@ CEILING_LIGHTS = (
         "A chandelier, 5 light, with fabric shades. Takes an E14 bulb in each.",
         (WHITE, BLACK),
         (_a("fixture_type", "Fixture type", "Chandelier"), _lights(5),
-         _cm("diameter", "Diameter", 60), _a("shade_material", "Shade material", "Fabric"),
+         _cm("diameter", "Diameter", 60), _cm("drop_length", "Drop length", 80),
+         _a("shade_material", "Shade material", "Fabric"),
          _a("bulb_fitting", "Bulb fitting", "E14")),
         (("Antique Brass", 199.0), ("Chrome", 189.0), ("Matte Black", 189.0)),
         params=_p(kind="chandelier", lights="5", finish="antique brass"), size_key="finish"),
@@ -382,6 +407,51 @@ LAMPSHADES = (
          _a("fabric", "Fabric", "Silk Dupion"), _a("pattern", "Pattern", "Plain")),
         (("30", 32.0), ("40", 39.0)),
         params=_p(form="pleated", diameter_cm="30"), size_key="diameter_cm"),
+    # gen#329: the two-word spelling a shopper types ("lamp shade") and sells under, one row
+    # per form.
+    Row("LTSLDR", "Cotton Drum Lamp Shade", "Lanternby", "Home", SHADES,
+        "Lampshade", 19.0, "lampshade",
+        "A straight-sided lamp shade in a plain cotton, with a ring that fits a ceiling "
+        "pendant or a lamp.",
+        (WHITE, GREY, NAVY, MUSTARD),
+        (_a("shape", "Shape", "Drum"), _a("fitting", "Fitting", "Ceiling or Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("25", 19.0), ("30", 23.0), ("40", 29.0), ("45", 34.0)),
+        params=_p(form="drum", diameter_cm="30"), size_key="diameter_cm"),
+    Row("LTSLEM", "Linen Empire Lamp Shade", "Harbour & Pine", "Home", SHADES,
+        "Lampshade", 21.0, "lampshade",
+        "A linen lamp shade, narrow at the top and flared at the hem, for a table or "
+        "floor lamp.",
+        (NATURAL, SAGE, BLUSH),
+        (_a("shape", "Shape", "Empire"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Linen"), _a("pattern", "Pattern", "Plain")),
+        (("20", 21.0), ("25", 24.0), ("30", 28.0)),
+        params=_p(form="empire", diameter_cm="25"), size_key="diameter_cm"),
+    Row("LTSLTP", "Velvet Tapered Lamp Shade", "Calderby & Lune", "Home", SHADES,
+        "Lampshade", 26.0, "lampshade",
+        "A tapered lamp shade in soft velvet with a plain lining. It fits a table lamp.",
+        (CREAM, TEAL, FOREST),
+        (_a("shape", "Shape", "Tapered"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Velvet"), _a("pattern", "Pattern", "Plain")),
+        (("25", 26.0), ("30", 30.0), ("35", 35.0)),
+        params=_p(form="tapered", diameter_cm="30"), size_key="diameter_cm"),
+    Row("LTSLSC", "Scalloped Cotton Lamp Shade", "Brackenmere Home", "Home", SHADES,
+        "Lampshade", 22.0, "lampshade",
+        "A cotton lamp shade with a scalloped hem, for a bedside table lamp.",
+        (WHITE, BLUSH, MUSTARD),
+        (_a("shape", "Shape", "Scalloped"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("20", 22.0), ("25", 25.0)),
+        params=_p(form="scalloped", diameter_cm="20"), size_key="diameter_cm"),
+    Row("LTSLPL", "Pleated Lamp Shade", "Lanternby", "Home", SHADES,
+        "Lampshade", 24.0, "lampshade",
+        "A pleated lamp shade in crisp cotton, gathered at the top, for a ceiling pendant "
+        "or a lamp.",
+        (CREAM, NAVY, BLACK),
+        (_a("shape", "Shape", "Pleated"), _a("fitting", "Fitting", "Ceiling or Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("30", 24.0), ("40", 31.0)),
+        params=_p(form="pleated", diameter_cm="30"), size_key="diameter_cm"),
 )
 
 #: Every lighting row, by type, in build order.
@@ -393,8 +463,14 @@ def docs() -> list[dict]:
     return [r.doc() for r in ROWS]
 
 
-#: The forms that hang, and the only ones with a ``drop_length`` (gen#237).
+#: The forms that hang, and the only ones with a ``drop_length`` (gen#237, gen#401).
 HANGING_FORMS = frozenset({"Pendant", "Chandelier"})
+
+#: The drop a hanging form gets when the template it derives from had none, in centimetres.
+_DEFAULT_DROP_CM = {"Pendant": 100, "Chandelier": 80}
+
+#: A derived drop follows the first of these the template lists (an authored one follows the size).
+_DROP_AFTER = ("diameter", "light_count", "fixture_type")
 
 #: Title words that belong to the pendant template's own form (a dome shade, a cluster of lights).
 _PENDANT_QUALIFIERS = re.compile(r"\s+(?:Dome|Cluster)\b")
@@ -405,13 +481,26 @@ def fit_ceiling_form(rec: dict) -> None:
 
     :func:`scale.derive` copies a template's attributes and swaps only the values that changed,
     so a pendant derived to a flush fitting kept its ``drop_length`` and its "Dome" beside the
-    new form word. A form that does not hang loses ``drop_length``; a form other than a pendant
-    loses the pendant's qualifier words.
+    new form word. A form that does not hang loses ``drop_length``; a form that hangs gains one
+    when its template had none (a pendant or chandelier derived from a flush template, gen#401);
+    a form other than a pendant loses the pendant's qualifier words.
     """
     if rec["product_type"] != "Ceiling Light":
         return
     form = next((a["value"] for a in rec["attributes"] if a["key"] == "fixture_type"), None)
     if form not in HANGING_FORMS:
         rec["attributes"] = [a for a in rec["attributes"] if a["key"] != "drop_length"]
+    elif not any(a["key"] == "drop_length" for a in rec["attributes"]):
+        _add_drop(rec["attributes"], _DEFAULT_DROP_CM[form])
     if form != "Pendant":
         rec["title"] = _PENDANT_QUALIFIERS.sub("", rec["title"])
+
+
+def _add_drop(attributes: list[dict], cm: int) -> None:
+    """Insert a ``drop_length`` of ``cm`` after the fixture's size, as :func:`_cm` writes one."""
+    key, name, value, unit, canonical = _cm("drop_length", "Drop length", cm)
+    entry = {"key": key, "name": name, "value": value, "unit_code": unit,
+             "value_canonical": canonical}  # fmt: skip
+    keys = [a["key"] for a in attributes]
+    after = next((keys.index(k) for k in _DROP_AFTER if k in keys), len(keys) - 1)
+    attributes.insert(after + 1, entry)

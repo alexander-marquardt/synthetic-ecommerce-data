@@ -24,7 +24,7 @@ product floors count decoys; the tests also hold a floor without them.
 | 3 audience word | a sibling cut | "Mens Boyfriend Fit Chinos" |
 | 4 feature absent | a feature named and missing | "Mens Wool-Free Coat" |
 | 5 shade in the description | a fancy title, the shade in the text | "Mens Moonbeam Chinos" are Ivory |
-| 6 incidental word | a range name, carried as a `range` attribute | "Mens Red Tarn Chinos" are not red |
+| 6 incidental word | a range name, carried as a `range` attribute | "Mens Kettle Hill Chinos" are not kettles; a range is a place, never a color (#446) |
 | 7 invented brand | a brand holding a color or category word | "Black Curlew", "Yellow Plover", "Jacket Wren" |
 
 The three class 7 brands each have a house style whose lockup text is the brand name. The text
@@ -55,7 +55,7 @@ one-size accessory states no `size` (the accessory convention, gen#207), so a Fo
 SKU carries none.
 
 A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
-cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). Not yet here:
-the women's trouser suit and the boys' suit (age sizes, two or three pieces), which need the
-Womens and Kids roots and their own decoy plan (`decoy_apparel.TYPES`), and the jacket length and
-trouser leg as SKU axes (the leg length is a style attribute for now).
+cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). The women's
+trouser suit and the boys' suit (age sizes, two or three pieces) are in
+[retail-suit-sets.md](retail-suit-sets.md). The jacket length and trouser leg are not SKU axes:
+the leg length is a style attribute and a drawing param, because it changes the picture.

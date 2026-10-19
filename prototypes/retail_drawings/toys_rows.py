@@ -307,7 +307,7 @@ _DOL = (_T, "Dolls & Accessories", "Dolls")
 
 def _doll(kind: str, cm: int, accessories: int, age: str, line: str | None = None,
           brand: str = _P) -> tuple:  # fmt: skip
-    return (_kind(kind), ("height_cm", "Height", str(cm), "CMT", cm * 10.0),
+    return (_kind(kind), ("item_height", "Item height", str(cm), "CMT", cm * 10.0),
             _count("accessory_count", "Accessory count", accessories), _age(age),
             *(_line(line, brand) if line else ()))  # fmt: skip
 

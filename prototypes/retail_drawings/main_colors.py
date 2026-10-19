@@ -22,6 +22,7 @@ import re
 import decoy_apparel
 import decoy_product_words
 import decoy_rows
+import type_colors
 from main_color_hex import MAIN_COLORS
 
 #: product_type -> why its color is its material or natural finish (the only way out).
@@ -34,10 +35,13 @@ EXCEPTIONS = {
     "Lipstick": "cosmetic: shades, not paint colors",
     "Lip Balm": "cosmetic: sheer tints of the balm",
     "Eyeliner": "cosmetic: a small range of liner shades",
+    "Mascara": "cosmetic: black, brown and a few tinted shades",
     "Highlighter": "cosmetic: a glow shade of the pigment",
     "Perfume": "cosmetic: the color is the fragrance liquid's tint",
     "Watch": "metal case and strap finish: gold, silver, rose gold",
     "Earrings": "precious metal: the color is the metal",
+    "Hoop Earrings": "precious metal: the color is the metal",
+    "Drop Earrings": "precious metal: the color is the metal",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
@@ -121,7 +125,8 @@ def colored_types(tpls: list[dict]) -> dict[str, list[dict]]:
 
 
 def offered(styles: list[dict]) -> set[str]:
-    return {c["color"] for r in styles for c in r["color_options"]}
+    """The colors the styles offer: "Black Leather" is the color Black (gen#448)."""
+    return {type_colors.base_color(c["color"]) for r in styles for c in r["color_options"]}
 
 
 def audience(rec: dict) -> str:
@@ -133,12 +138,13 @@ def audience(rec: dict) -> str:
         return path
     return "Baby" if path[:2] == ["Kids", "Baby"] else path[0]
 
-_PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
-
 
 def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
     """(product_type, audience) -> its styles, for every type with a color selector. A type
     sold to men and to women is two groups: "red shirt" has to find one for each."""
+    # read here, not at import: a spec file (type_specs/knitted_top.py) imports knitwear_rows, which
+    # imports this module, and the registry the apparel ids come from loads the spec files
+    _PLANTED = decoy_rows.IDS | decoy_apparel.IDS | decoy_product_words.IDS
     out: dict[tuple[str, str], list[dict]] = {}
     for r in tpls:
         if r.get("color_options") and r["product_id"] not in _PLANTED:
@@ -147,10 +153,13 @@ def groups(tpls: list[dict]) -> dict[tuple[str, str], list[dict]]:
 
 
 def missing(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
-    """(product_type, audience) -> the main colors it lacks (an excepted type is left out)."""
+    """(product_type, audience) -> the main colors it lacks (an excepted type is left out). A
+    main color no style of the group comes in (``type_colors``) is not asked for."""
     out = {}
     for (ptype, aud), styles in groups(tpls).items():
-        lacks = [c for c in MAIN_COLORS if c not in offered(styles)]
+        have = offered(styles)
+        lacks = [c for c in MAIN_COLORS if c not in have
+                 and any(type_colors.permits(r["category_path"], c) for r in styles)]
         if lacks and ptype not in EXCEPTIONS:
             out[(ptype, aud)] = lacks
     return out
@@ -221,9 +230,9 @@ def _add(rec: dict, colors: list[str]) -> dict:
         swatches[color] = {"color": color, "hex": MAIN_COLORS[color], "pattern": "solid",
                            "family": color.lower()}
         skus += [{**s, "color": color} for s in seed]
-        # A style whose SKUs carry an upper material in more than one (a compound attribute
-        # such as "leather, patent"): the new color keeps them all, one per size in turn, so
-        # a derived style that keeps it does not drop a part of the attribute.
+        # A style whose SKUs carry an upper material in more than one (a style with an
+        # "upper_material" entry per material): the new color keeps them all, one per size in
+        # turn, so a derived style that keeps it does not drop an entry.
         mats = list(dict.fromkeys(s["upper_material"] for s in skus if "upper_material" in s))
         if len(mats) > 1:
             added = [s for s in skus if s["color"] == color]
@@ -259,10 +268,12 @@ def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]
         if not styles:
             raise ValueError(f"{ptype} ({aud}): no style takes a plain color; author one")
         tier = lambda r: (_material_skus(r), _names_main_color(r), _names_own_color(r))  # noqa: E731
-        best = [r for r in styles if tier(r) == min(tier(x) for x in styles)]
         picks: dict[str, list[str]] = {}
         for i, color in enumerate(lacks):
-            naming = [r for r in styles if _names(r, color)]
+            # only a style whose type comes in the color takes it (type_colors, gen#448)
+            fit = [r for r in styles if type_colors.permits(r["category_path"], color)]
+            best = [r for r in fit if tier(r) == min(tier(x) for x in fit)]
+            naming = [r for r in fit if _names(r, color)]
             pick = naming[0] if naming else best[i % len(best)]
             picks.setdefault(pick["product_id"], []).append(color)
         for pid, colors in picks.items():

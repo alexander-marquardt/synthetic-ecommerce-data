@@ -36,13 +36,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from synthetic_ecommerce_data.core import emit, noncopy, typespec
+from synthetic_ecommerce_data.core import emit, letter_case, noncopy, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
@@ -210,7 +211,14 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
         )
     if not target.parent.exists():
         return f"{target}  NOT rewritten -- the customization package is not present"
-    target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+    # Replaced, not truncated and rewritten: a reader that has the file open (a test of
+    # another xdist worker, an editor) sees the old file whole or the new one whole (#440).
+    staged = target.with_name(f"{target.name}.{os.getpid()}.tmp")
+    try:
+        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+        os.replace(staged, target)
+    finally:
+        staged.unlink(missing_ok=True)
     return f"{target}  field map regenerated from this catalog"
 
 
@@ -373,6 +381,10 @@ def main(argv: list[str] | None = None) -> int:
     payload["figures"] = _measured_figures(out)
     (out / "stats.json").write_text(
         json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
+    )
+    (out / letter_case.AUTHORED_NAMES_FILE).write_text(
+        json.dumps(emit.authored_name_map(catalog), indent=1, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"

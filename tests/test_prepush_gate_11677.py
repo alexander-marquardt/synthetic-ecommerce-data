@@ -526,12 +526,16 @@ def test_every_row_runs_the_command_its_ci_job_runs() -> None:
         "file-size",
         "tree-scans",
         "(left to CI)",
+        "(left to CI)",
+        "(left to CI)",
+        "(left to CI)",
     ]
     jobs = _ci()["jobs"]
-    for name, job, command in rows[:-1]:
+    for name, job, command in rows[:4]:
         assert job in jobs, f"{name}: no CI job {job!r}"
         assert command.split()[0] in _job_runs(job), f"{name}: {command!r} is not CI's command"
-    assert rows[-1][1] in jobs, "a job the list says is left to CI does not exist"
+    for row in rows[4:]:
+        assert row[1].split("/")[0] in jobs, "a job the list says is left to CI does not exist"
 
 
 def test_the_workflow_has_no_job_or_step_the_gate_neither_runs_nor_names() -> None:
@@ -554,7 +558,7 @@ def test_a_new_step_in_a_job_a_row_mirrors_is_reported(tmp_path: Path) -> None:
             "      - name: Types\n        run: uv run --locked mypy .\n      - name: Lint\n",
         ),
     )
-    assert _prepush().unaccounted(workflows) == ["tests/Types"]
+    assert _prepush().unaccounted(workflows) == ["lint/Types"]
 
 
 def test_a_stricter_ci_lint_is_the_command_the_gate_runs(repo: Path) -> None:

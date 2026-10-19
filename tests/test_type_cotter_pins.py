@@ -24,7 +24,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
@@ -110,7 +110,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -185,7 +185,7 @@ def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
 
 def test_no_length_is_published(large_docs):
     """The chart gives no lengths, and a length nobody read is not a fact."""
-    published = {a["name"] for doc in large_docs for a in doc["attributes"]}
+    published = {a["name"] for doc in large_docs for a in authored_entries(doc)}
     assert sorted(name for name in published if "Length" in name) == []
 
 

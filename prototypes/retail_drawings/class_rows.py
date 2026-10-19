@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+import kit_suits  # noqa: F401 -- registers suit_jacket, which the check suit jacket is drawn as
 from class_model import (
     BED_SIZE_DIMS,
     INSIDE_LEGS,
@@ -247,10 +248,11 @@ BOMBER = (
     (Style("SUITCK", "Check Suit Jacket", "Calderby & Lune", "Clothing",
            (*COATS, "Blazers"), 80.0,
            "A single breasted check suit jacket, the check jacket that matches our trousers.",
-           "Suit Jacket", "coat", one(cw("Grey Check", "#9a9a9a", "gingham", BLACK), 650),
-           pattern="check", size_range="regular"), _TYPE),
+           "Suit Jacket", "suit_jacket", one(cw("Grey Check", "#9a9a9a", "gingham", BLACK), 650),
+           pattern="check", size_range="regular",
+           params=(("fit", "regular"), ("lapel", "notch"), ("buttons", "2"))), _TYPE),
     (Style("CARCHK", "Checked Car Coat", "Bramblewood", "Clothing",
-           (*COATS, "Coats"), 99.0,
+           (*COATS, "Coats", "Car Coats"), 99.0,
            "A checked car coat, jacket length, with a contrast collar.",
            "Coat", "coat", one(cw("Camel Check", CAMEL, "gingham", NAVY), 500),
            pattern="check", size_range="regular"), _TYPE),
@@ -734,7 +736,7 @@ NOT_ROSE_GOLD = (
            "Bouquet", "bouquet", one(cw("White", WHITE), 410),
            params=(("foliage", GOLD_LEAF),)), _COLOR),
     (Style("RQHOOP", "Gold Plated Rose Quartz Hoop Earrings", "Wrenfield", "Clothing",
-           JEWELLERY, 24.0,
+           (*JEWELLERY, "Hoop Earrings"), 24.0,  # its title names the node (gen#423, gen#283)
            "Rose quartz drops on gold plated hoops.",
            "Earrings", "earrings", one(cw("Yellow Gold", "#d4af37"), 300), metal=True,
            params=(("kind", "hoop"), ("stone", "#f3c6cf")),

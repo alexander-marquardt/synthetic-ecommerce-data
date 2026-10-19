@@ -34,11 +34,16 @@ class TypeFactsError(Exception):
     """A type's facts are missing, or declared in two places."""
 
 
-#: The standards a record of each shared-table type may claim.
+#: The standards a record of each shared-table type may claim. The ASME B18.3 parts (.2, .3A,
+#: .1G) were published as ``Meets/Exceeds`` before #497 folded that name into ``Standards``,
+#: and no claim test read it; they are listed now that one does.
 SHARED_MAY_CLAIM: dict[str, frozenset[str]] = {
-    "screw_flat_head": frozenset({"ISO 10642", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
-    "screw_button_head": frozenset({"ISO 7380-1", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
-    "screw_low_head": frozenset({"DIN 7984", "ASME B18.3", "ISO 898-1", "ISO 3506-1"}),
+    "screw_flat_head": frozenset({"ISO 10642", "ASME B18.3", "ASME B18.3.2", "ISO 898-1",
+                                  "ISO 3506-1"}),
+    "screw_button_head": frozenset({"ISO 7380-1", "ASME B18.3", "ASME B18.3.3A", "ISO 898-1",
+                                    "ISO 3506-1"}),
+    "screw_low_head": frozenset({"DIN 7984", "ASME B18.3", "ASME B18.3.1G", "ISO 898-1",
+                                 "ISO 3506-1"}),
     "bolt_hex": frozenset({"ASME B18.2.1", "ISO 4014", "ISO 4017", "DIN 933", "ISO 8765",
                            "ISO 8676", "DIN 961", "SAE J429", "ISO 898-1"}),
     "nut_hex": frozenset({"ISO 4032", "ISO 4035", "ISO 8673", "ISO 8675", "ASME B18.2.2",
@@ -64,8 +69,8 @@ SHARED_TITLE_KEY: dict[str, tuple[str, ...]] = {
     "screw_low_head": ("Dia./Thread Size",), "bolt_hex": ("Dia./Thread Size",),
     "washer_flat": ("Size",), "nut_hex": ("Thread Size",),
     "hex_key": ("Size",), "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Wheel Dia.",), "abrasive_flap_disc": ("Diameter",),
-    "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Number of Pieces",),
+    "wheel_depressed_center": ("Diameter",), "abrasive_flap_disc": ("Diameter",),
+    "hammer_ball_pein": ("Head Weight",), "kit_assortment": ("Piece Count",),
 }  # fmt: skip
 
 def _merged(

@@ -22,6 +22,14 @@ as round produce). A style that uses one anywhere else fails that test, and the
 failure names the row. A new kind gets its own shape in `kit_more.py`, whose
 docstring lists every shape and its params.
 
+A garment is drawn as the garment its leaf names (gen#447): `leaf_shapes.RULES` lists the leaves
+(bomber, puffer, polo, long sleeve, shirt dress, cargo trousers, pyjama shorts, knee boots) with
+the shape and parameters that draw them, `leaf_shapes.apply` sets them in `scale.templates()`
+before the decoys clone their exemplars, and `test_shape_honesty.py` fails a template of a listed
+leaf drawn another way. A "Checked" or "Striped" title carries a gingham or stripe swatch, and a
+"Boxers" decoy never clones a brief exemplar. The parts a title names (a bra band, a blouse
+collar, a bow, "with Blue Collar") are the next slice.
+
 `tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
 the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
 for a twin pack, shapes in `kit_cleaning.py`), a `tub` only holds a tub of something,
@@ -57,19 +65,30 @@ unless it collapses on `product_id`.
 
 ### Footwear
 
-`footwear_rows.py` holds thirty-one shoe styles (sixteen women's, ten men's,
-five kids'), one document per style with its color x width x size SKUs
+`footwear_rows.py` holds fifty-five shoe styles (thirty-three women's, fourteen men's,
+eight kids'), one document per style with its color x width x size SKUs
 nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
 one chart row of the audience, so they never disagree; half sizes exist only
 where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each
 color names its upper material, which both the `upper_material` facet and the
-drawing read. `kit_footwear.py` draws the shoe from the side in seventeen
+drawing read. The style lists each material once, in its own Title Case `upper_material`
+entry (`Leather`, `Suede`, `Patent`; gen#472), never one joined string, and each SKU names its
+own material in the same case. The key stays a shoe's own: it does not join the `fabric`
+facet, whose marker reads `fabric` only (gen#187). `kit_footwear.py` draws the shoe from the side in twenty-five
 kinds (court, kitten and block heels, ballet pumps, loafers, brogues,
 trainers, running shoes, slippers, sandals, ankle, Chelsea, chukka, knee-high,
-walking and safety boots, wellies), with the material's texture and the
-closure. The boots row above is checked over the round 4 corpus plus
+walking and safety boots, wellies, and since gen#216 plimsolls, clogs, wedges,
+espadrilles, platform trainers, mules, jelly shoes and barefoot shoes), with the
+material's texture and the closure. Each of the eight newer kinds has variant
+axes that are drawing params read from the attribute they draw (`kit_footwear.AXES`:
+a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
+`body`, a mule's `heel` and `toe`, an espadrille's `heel`, a jelly shoe's `style`
+and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
+differently. The platform trainer's product type is `Platform Trainers` but its category
+leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
+and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -79,7 +98,7 @@ proof corpus.
 whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. Its styles, SKUs and each family's share are `templates.grocery` and
-`grocery_families` in `golden-retail/stats.json` (below); it covers the food leaves, plus a
+`grocery_families` in `retail_figures.figures()` (below); it covers the food leaves, plus a
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 `contains` and `may_contain` over seven allergens (peanuts, tree nuts,
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
@@ -161,18 +180,18 @@ chutney, ...) stay, since the failure classes and the proof corpus pin them; no 
 product id repeats between them and the grocery styles. The main build's one honey jar
 (`PLT-HONBLS`) stays and is derived from no further; grocery plants the other honeys. The ceiling's styles, SKUs and images, Food & Drink's
 share of them (by category tree) and the grid-clone and near-duplicate rates are
-`ceiling` and `near_duplicates` in `golden-retail/stats.json`. The 15% grid-clone gate
+`ceiling` and `near_duplicates` in `retail_figures.figures()`. The 15% grid-clone gate
 (`scale.grid_clones`) is held over the non-grocery styles only: grocery has its own cap
 (`GROCERY_GRID_CLONES`, 2%): its styles draw a tile of their own since gen#160.
 `tests/test_retail_grocery_in_scale_154.py` pins it.
 
-**The retail totals are build output (gen#162).** The build's measured totals (styles, SKUs,
-per-department and per-grocery-family counts, the grocery attribute-value counts and the
-near-duplicate rate) are in `golden-retail/stats.json`, which
-`python3 prototypes/retail_drawings/retail_figures.py` rewrites (seed 0, every template
-exhausted). The tests read them there and `tests/test_retail_figures_162.py` refuses a test,
-this README or a docstring that restates one, so a grocery or type PR changes them only in that
-file: after merging `main`, rebuild it, never keep either side of a conflict in it. The
+**The retail totals are build output (gen#162, gen#536).** The build's measured totals (styles,
+SKUs, per-department and per-grocery-family counts, the grocery attribute-value counts and the
+near-duplicate rate) are measured from the tree by `retail_figures.figures()` (seed 0, every
+template exhausted, once per test run) and not committed: `scripts/build_derived.py` writes them
+to `golden-retail/stats.json` and `docs/figures.md` in the `derived` CI artifact. The tests read
+them with `figures()` and `tests/test_retail_figures_162.py` refuses a test, this README or a
+docstring that restates one, so a grocery or type PR has no file of totals to conflict on. The
 invariants keep their own asserts: no twins in a family, every allergen derived from the
 ingredients, the near-duplicate and grid-clone caps.
 
@@ -215,7 +234,10 @@ SKU. `size_range` is a list; for legwear it is derived from the in-stock lengths
 
 Every class doc also carries the tile signals: `promotion` (a was-price gives
 "On sale"; see below), `discount_pct` (derived, sale docs only),
-`trending`, `online_only`, a `brand_owner` (own or third party; third-party
+`trending`, `online_only`, a `brand_owner` (own or third party; a brand has one
+owner in every row, an own-label name `own` and an independent maker's name
+`third_party`, pinned by
+`test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling`; third-party
 brands lead the offers, some with a `sub_collection` label such as "The
 Active Edit"), and `badges` in one order (Bestseller for the top 15,
 Trending, Online Only). Every doc has a full `category_path` of clean shopper
@@ -259,6 +281,12 @@ mimics the live site. The policy column is the fix approximated in raw
 Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
+
+The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+holds the proof's fingerprint and its claim to the records the build makes now. A change to an
+indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
+drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
+an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 follow-up).
 
 | # | Class | Query | Baseline top 5 (BM25 x popularity) | With the policy: top 5 | Policy (raw ES) |
 |---|---|---|---|---|---|
@@ -309,18 +337,37 @@ build, `golden-catalog/nested.jsonl` and the retail export, and over planted
 defects. One attribute key has one class: `check_catalog(..., one_class_per_key=True)`
 (on for retail, in `scale.py` and the test) refuses a key that carries a `unit_code` on
 some entries and none on others, which the Engine refuses to start on. A measured value
-(`5 ft`, which the core reads as a length) goes under its own key (a tree's `height`),
-never under `size`. A variant's `price` is in its `currency` (ISO 4217), never converted:
+(`5 ft`, which the core reads as a length) goes under its own key (a tree's `item_height`),
+never under `size`. One concept has one key (gen#227): a measured height is `item_height`
+(beside `item_width`, `item_depth` and `item_length`) on a sofa, a lamp, a doll, an olive tree and a
+Christmas tree alike, and a furniture piece's storage is `storage_feature` (`Lift-Top`, `Shelf`,
+`Drawer`, or `None` for no storage). `prototypes/retail_drawings/key_guard.py` names each concept, its
+winning key and the keys that are another concept by design (`heel_height`, a grocery's `storage`),
+and `tests/test_retail_attribute_keys_227.py` refuses a second key for a concept. The metric,
+`key_guard.keys_per_concept`, is 1 for every concept. A new concept that two types could name
+differently is added to `CONCEPTS`, with its winner and why. The text agreement check (`text_contradictions`, on by default) runs
+on industrial too (gen#139). It reads a title or description as contradicting a value only when
+the text names another value of the key's leaf pool and none of the document's own, and it
+leaves out: a pool value whose words sit inside one of the document's own values ("Steel" on
+18-8 Stainless Steel), a comparison or an equivalence to the end of its sentence ("Higher
+strength than Grade 5.", "Equivalent to DIN 912 / ISO 4762.") and a parenthesised tolerance
+class ("(ISO 492 Normal class)"). Industrial's hammer text-match decoys (gen#294) name a handle
+or kind their attributes do not hold, by design: `hammers.decoy_ids(docs)` is their
+`text_exempt`, by id, never a looser rule. A variant's `price` is in its `currency` (ISO 4217), never converted:
 industrial writes `USD` and keeps `price_usd` beside it for its loader, retail
 writes `GBP`. Availability is the `in_stock` yes/no; `stock`, the count, is
-written only by a domain that models one (industrial). A field marked optional
-(`series`, `ingredients`, `description`, `price_usd`, `stock`) is absent, never null,
+written only by a domain that models one (industrial). Industrial also writes two
+plain fields on every SKU (gen#14), `pricing_unit` (`Each`, or `Per Pack` when the SKU
+publishes a `Units per Pack` above 1) and `order_multiple` (a whole number, 1 today):
+they are fields beside `price_usd`, never variants or facets. A field marked optional
+(`series`, `ingredients`, `description`, `price_usd`, `stock`, `pricing_unit`,
+`order_multiple`) is absent, never null,
 on a document that has none; the grocery's food-only `ingredients` is one. A domain
 may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
 dietary claims).
 
-`prototypes/retail_drawings/export.py` turns the 328-style build into that
+`prototypes/retail_drawings/export.py` turns the 352-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
@@ -355,7 +402,7 @@ it: the SKU's own attributes replace the product's under the same key, and
 numbers (retail's rating, bestseller rank, was price, ABV and discount), so
 those can be range-filtered. The keys and types are industrial's except that
 retail has `price`, `currency` and `in_stock` where industrial has
-`price_usd` and `stock`, and no `dimension_provenance` or `spec_quality`
+`price_usd`, `stock`, `pricing_unit` and `order_multiple`, and no `dimension_provenance` or `spec_quality`
 (`tests/test_output_standard.py` pins that list). To write both files:
 
     uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
@@ -431,6 +478,21 @@ unisex goods (backpack, tote, umbrella) stay one product in one place, under the
 shoppers the generator targets for bags; the `audience` facet says `Unisex`, the path does not.
 `tests/test_retail_accessories_under_departments_248.py` guards it.
 
+**Worn accessories (gen#422)**: the issue lists belts, hats and caps, scarves, gloves, sunglasses
+and wallets under `Accessories > ...`; with no root they sit under `Womens > Accessories` (a belt
+or a wallet for men under `Mens > Accessories`), each a spec under `type_specs/` with its own
+drawing shape registered in the spec module. Done: sunglasses (`type_specs/sunglasses.py`: five
+frames, three lenses, UV400, the six main colors; its decoys are a UV400 name on a pair with no
+UV protection, a blue tint in the text of a black frame, a color word and a category noun in a range name
+and another brand's name in the text).
+Belts (`type_specs/belt.py`, shape `belt_buckled`: four materials, three buckles, the waist in
+inches as a measured SKU axis), hats and caps (`type_specs/hat_cap.py`: five kinds in one size,
+S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL, whose SKU axis is `glove_size_letter`: the baseball glove's `glove_size` is in inches) follow
+the same way, each with the six main colors, two brands and decoys of classes 4, 5, 6 (two: a color
+word and another category's noun in a range name) and 7. Every spec decoy is exempt from the output
+standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are. Belt left the
+legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still to do.
+
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
@@ -455,20 +517,36 @@ records: (a) no node has a sibling whose label is a word-suffix of another's (`S
 title names a more specific node of its own department sits in that node. Two siblings (`Bath Towels`,
 `Beach Towels`) need no parent. A product still sits in exactly one place.
 `tests/test_retail_departments_281.py` holds the root list at every layer, and
-`golden-retail/stats.json` records the ceiling's styles and SKUs per top level
+`retail_figures.figures()` records the ceiling's styles and SKUs per top level
 (`ceiling.top_levels`).
 
 **A fit or a bra style is a filter, not a leaf**. A jean sits at `<Root>/Jeans` and a pair of
 trousers at `<Root>/Trousers`, its fit in `leg_fit` alone (the failure-class rows' `leg_style`
-is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep
-or Post-Surgery bra, whose node stays; its old style leaf is split into `bra_shape`,
+is folded into it). A bra sits at `Womens/Lingerie/Bras`, unless it is a Sports, Nursing, Sleep,
+Post-Surgery or Mastectomy bra, whose node stays; its old style leaf is split into `bra_shape`,
 `padding`, `back_style` and `fabric` (`facet_leaves.BRA_LEAVES`). `fabric` is the fibre or weave a
 shopper names (Cotton, Linen, Denim, Oxford, Silk, Nylon), from one closed list. A grade or blend
 ("98% Cotton, 2% Elastane") leaves its fibre as the fabric and becomes the document's
 `fibre_content`, a detail in no facet (`facet_leaves.FABRIC_MOVES`, gen#187; no `composition`). A blend names fibres:
 "Cotton Blend" leaves Cotton as the fabric and "Cotton Jersey" leaves Jersey (gen#258); the tailored shorts' "Polyester Blend" is Suiting by their text, a move keyed by (product type, value) in `facet_leaves.TYPED_FABRIC_MOVES` (gen#291). A fabric has one name (Faux Leather, not also Leather-Look or Leather Look), and a use, a pocket style or a fit is never a
 fabric: sports leggings are Knitted with a Compression `leg_fit`, cargo joggers are Twill with
-cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. Only the document changes (`export.standard_document`):
+cargo pockets, and cycling shorts carry the Compression `leg_fit` and no fabric. The list also holds the fibres a
+shopper types before a garment (Leather, Suede, Faux Suede, Wool, Cashmere, Crochet, Muslin, Voile,
+Brushed Cotton; gen#187's coverage review): skirts carry the first seven. Any other garment with no
+`fabric` of its own also carries the fibres its `material` names (`facet_leaves.MATERIAL_FABRICS`, exact rows,
+the `material` kept: a Dress "Linen blend" is Linen, a Polo Shirt "Cotton" is Cotton, a coat "Wool Cashmere
+blend" is Wool and Cashmere) and its title names (`facet_leaves.stated_fabrics`: "Cotton Crew Neck Tee",
+"Wool Check Bomber Jacket", "Boat Neck Jersey Top"). A fibre followed by a hyphen is no claim ("Leather-Look",
+"Cashmere-Feel", "Wool-Free", "Fleece-Lined"): those titles are the text-match decoys. A brushed cotton
+flannel is Flannel and Brushed Cotton (`facet_leaves.FABRIC_ALSO`). Viscose joined the list. A new garment
+`material` that names a listed fibre is a row in the table or a reason in `MATERIAL_NOT_FABRIC`, and the
+tests fail until it is. Only a garment gets this: a bag, a belt, a watch, jewellery, a shoe and homeware
+(`facet_leaves.NON_TEXTILE_TYPES`, and every department but Clothing and Lingerie & Nightwear) keep their own
+`material` or `upper_material` ("leather", "suede", Leather, Faux Leather), so one concept has one facet and
+the fabric marker reads `fabric` alone; a retailer who wants "leather boots" or "leather sofa" to match adds
+`upper_material` and `material` as marker sources on the catalogue side. Homeware keeps its own `material`
+facet (Seagrass, Bone China, Melamine, Stainless Steel, Cast Iron). A skirt that only names a fibre in a
+trim, a lining or a belt is a text-match decoy for it (gen#294). Only the document changes (`export.standard_document`):
 the build record keeps its leaf, so the derivation and every image id are what they were, and a
 title keeps its words ("Skinny Jeans"). `tests/test_retail_facet_leaves.py` refuses a node
 under Jeans, Trousers or Bras that names one of those values, a `fabric` holding a percentage,
@@ -487,11 +565,11 @@ report:
   15%), and the distinct prices per leaf (min and median);
 - the `check_catalog` problem count, the build time and the peak memory.
 
-The templates (`templates` in `golden-retail/stats.json`) come first: the authored
+The templates (`templates` in `retail_figures.figures()`) come first: the authored
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, cherries, oven cleaners; every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count and top outline with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range), then the styles that
+at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, oven cleaners (cherries moved to the grocery `CHY` family, gen#445); every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count, top outline and top material (a glass top draws translucent, a marble-effect top veined, gen#226) with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range and `tests/test_retail_furniture_drawings_226.py` that a White piece draws white), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling
@@ -501,7 +579,10 @@ Flannel, Linen and Denim, for Mens and Womens, under `Tops/Shirts`, typed `Shirt
 no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#196:
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
 modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
-shape in `kit_seating.py`; no derived style copies one, and
+shape in `kit_seating.py`; a sofa, corner sofa and chaise sofa is drawn with exactly the whole seat
+cushions its `seat_count` states (a corner sofa's return and corner seats are counted in it), a chaise has its
+back along the whole rear, and a sofa bed's and a topper's `depth` is a bare number in `CMT` with a millimeter
+canonical value (gen#225, `tests/test_retail_seating_225.py`); no derived style copies one, and
 `tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:
 saucepans, frying pans, casserole dishes, kitchen bins, storage boxes, laundry baskets,
 clothes airers and mops, each drawn by `kit_household.py` with the count its record states
@@ -513,12 +594,15 @@ style copies one, and `tests/test_retail_lowerbody_206.py` holds them), then the
 desk, pedestal, tower, ceiling and handheld fans, heaters, kettles
 and toasters, each drawn by `kit_appliances.py`; none is derived from), then the underwear and nightwear (`underwear_rows.py`, gen#208: knickers,
 tights, vests, slips, shapewear, dressing gowns and boxers with a pack axis,
-drawn by `kit_underwear.py`; none is derived), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, a jigsaw's finished size is its `item_length` and `item_width` in `CMT` (canonical value in millimeters) beside the `finished_size` text (gen#261), four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; a toy vehicle or ride-on whose paint is a free choice is sold in ten colors, one SKU and drawing each, a bike or trike in wheel sizes (the `wheel_size` axis, drawn to scale), and a style whose color is its identity (a police car, a taxi, a fire engine, bare wood) keeps one and says why in its `fixed_color`, `tests/test_retail_toy_vehicle_colors_271.py`; no derived style copies one), then the lighting (`lighting_rows.py`, gen#197: floor,
+drawn by `kit_underwear.py`; none is derived), then the swimwear (nine specs under `type_specs/`, rows in `swimwear_rows.py`, gen#212: swimsuits (cut, tummy control, padded cups, leg cut, a cup axis), bikini tops and bottoms sold as separates (top shape, rise, tie side), tankinis, swim shorts, kids' and baby swimsuits (UPF, sleeve, nappy friendly), period swimwear (absorbency), cover-ups and kaftans and changing robes under the `Swimwear` node of Womens, Mens and Kids, each its own shape in `kit_swimwear.py` with the marks its record states, the six main colors and apparel text-match decoys; copied by no derived style, `tests/test_retail_swimwear_212.py`), then the toys (`toys_rows.py`, gen#201: building sets, jigsaws, board games, dolls, wooden toys, role play toys, arts and crafts kits and ride-ons, drawn by `kit_toys.py`; every style carries an `age_range` and most a `toy_type`, a jigsaw's finished size is its `item_length` and `item_width` in `CMT` (canonical value in millimeters) beside the `finished_size` text (gen#261), four invented character ranges (`line`) each span several kinds, and a counted mark in the drawing equals the count the record states, `tests/test_retail_toys_201.py`; a toy vehicle or ride-on whose paint is a free choice is sold in ten colors, one SKU and drawing each, a bike or trike in wheel sizes (the `wheel_size` axis, drawn to scale), and a style whose color is its identity (a police car, a taxi, a fire engine, bare wood) keeps one and says why in its `fixed_color`, `tests/test_retail_toy_vehicle_colors_271.py`; no derived style copies one; kites, play kitchens, dolls' houses, card games, marble runs and water guns have their own specs and drawings, [retail-toys-depth.md](retail-toys-depth.md), gen#424; babywear and nursery types, sleepsuits to nursery storage, have their own specs and shapes too, [retail-babywear.md](retail-babywear.md), gen#213), then the lighting (`lighting_rows.py`, gen#197: floor,
 table, desk, ceiling and wall lights and lampshades under `Home/Lighting` (`Lamps`, `Lights`), each typed by
 its name; a SKU is a color times a finish, a shade color or a diameter, and its image draws
-that SKU's own value), then the bags, umbrellas and jewelry (`accessory_rows.py`,
-gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](retail-garden.md); copied by no derived style), then the garden hoses (`type_specs/garden_hose.py`, gen#292: a reinforced and an expandable hose under `Garden/Watering/Garden Hoses`, drawn by `kit_garden.py`, a SKU axis in metres (`item_length`) and the six main colors, with 15 text-match decoys in `garden_rows.py`, copied by no derived style, `tests/test_retail_garden_292.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
+that SKU's own value; a light's color temperature is a kelvin count with unit code `KEL` under the one key `color_temperature`, never `3000K` in the value, gen#232; a tunable desk lamp holds its two ends as two entries under that same key, 2700 and 6500, and no minimum or maximum key exists, gen#498; only a light whose source comes with it states one, a bulb or a lamp with an `Integrated LED` fitting, and a fitting that takes a replaceable bulb (E27, E14, GU10, B22) states none; `Home/Lighting/Light Bulbs` (`type_specs/light_bulb.py`, gen#498) holds 32 LED bulbs, a GLS, candle or spotlight in each of the four fittings, two wattages each, a listing for each of 2700K Warm White, 3000K Soft White, 4000K Cool White and 6500K Daylight, with the box name and the kelvin in the title, drawn by `kit_lighting.light_bulb` in the glow of its temperature, and 12 text-match decoys (paints, scented candles, towels, face cloths, a cushion, a shirt and skin creams), `tests/test_retail_light_bulbs_498.py`), then the bags, umbrellas and jewelry (`accessory_rows.py`,
+gen#207; likewise copied by no derived style), then the Sports & Outdoors styles (`sports_rows.py`, gen#265 and gen#368: camping, yoga & fitness, cycling pumps, baseball, swimming, team and racket sports, drawn by `kit_sports.py`, copied by no derived style; leaves, filters and types not built in [docs/retail-sports-tree.md](retail-sports-tree.md), `tests/test_retail_sports_265.py`), then the school uniform styles (`school_rows.py`, gen#205, first increment: school trousers, skirts, pinafores and shirts under `Kids/School Uniform`; drawn by `kit_school.py`, school-age sizes `3-4 Yrs` to `15-16 Yrs`, fit, adjustable waist, style, sleeve and pack as structured attributes, decoys from `decoy_apparel.py`, copied by no derived style, `tests/test_retail_school_205.py`), then the garden machines (`garden_rows.py`, gen#203, first increment: lawn mowers, robot mowers, grass trimmers and barbecues under `Garden`, drawn by `kit_garden.py`, with text-match decoys, [docs/retail-garden.md](retail-garden.md); copied by no derived style), then the garden hoses (`type_specs/garden_hose.py`, gen#292: a reinforced and an expandable hose under `Garden/Watering/Garden Hoses`, drawn by `kit_garden.py`, a SKU axis in metres (`item_length`) and the six main colors, with 15 text-match decoys in `garden_rows.py`, copied by no derived style, `tests/test_retail_garden_292.py`), then the gifts (`gifts_rows.py` and `type_specs/gift_mug.py`, `greeting_card.py`, `notebook.py`, `money_box.py`, `gift_hamper.py`, gen#425: 26 styles and 180 SKUs of mugs, greeting cards, notebooks, money boxes and pamper hampers under `Gifts`, each drawn by its own shape in `kit_gifts.py`, the six main colors, ten text-match decoys in `decoy_product_words.py` ([docs/retail-product-word-decoys.md](retail-product-word-decoys.md)), copied by no derived style, `tests/test_retail_gifts_425.py`), then the home accessories and decor (`type_specs/clock.py`, `ornament.py`, `artificial_flowers.py`, `decorative_tray.py`, `door_stop.py`, `wallpaper.py`, `diary.py` and `picnic_blanket.py`, gen#217: clocks (wall, mantel and alarm), ornaments, artificial flowers and stems (loose or in a vase), decorative and trinket trays, door stops, wallpaper, diaries and picnic blankets under `Home`, `Gifts` and `Sports & Outdoors`, each drawn by its own shape in `kit_decor.py` (the picnic blanket in `kit_sports.py`, with the Sports & Outdoors types, its two decoys in `decoy_product_words.py`) with the variant axis as a drawing param, a SKU axis in centimetres or metres (`export.OPTIONS` gains `roll_length_m`) and the six main colors, with 18 text-match decoys of other departments in `decor_rows.py` and a digital watch that names an alarm clock in `type_specs/digital_watch.py`; greeting cards are gen#425's; copied by no derived style, `tests/test_retail_decor_217.py`), then jewellery and watches (`type_specs/hoop_earrings.py`, `drop_earrings.py`, `analog_watch.py`, `digital_watch.py`, `fitness_band.py`, gen#423: five new types beside the legacy `Earrings` and `Watch`, drawn by `kit_jewellery.py`; earrings vary by metal, a watch or band by strap color times a case diameter in millimetres (`case_diameter`), with a strap, water resistance in metres and an audience as attributes, and two text-match decoys per type; copied by no derived style, `tests/test_retail_jewellery_watches_423.py`), then the near-white apparel and main-color bras (`colorgroup_rows.py`, gen#302, [docs/retail-color-group.md](retail-color-group.md); copied by no derived style), then the grocery styles (below, `grocery.py`, gen#154). Further styles are
 derived from them, deterministically by `--seed`, and a smaller build is a prefix of a larger one.
+The ten beauty depth types (mascara to sun cream, gen#214) are specs under `type_specs/` and are not derived from; see [retail-beauty-depth.md](retail-beauty-depth.md).
+Every top, dress and knit states a `neckline`, and boat and slash tops are held in depth with the neighbouring necklines (`neckline_rows.py`, gen#181; none is derived); see [retail-neckline-depth.md](retail-neckline-depth.md).
+The seven luggage and travel types (suitcase to neck pillow, gen#209) are specs under `type_specs/` too, likewise not derived from; see [retail-luggage-209.md](retail-luggage-209.md).
 Each derived style gets a new range name and a brand from its type's pool. It
 also differs from its template and from every sibling in a value its title shows
 or in its hero color family: a rename alone is not a style. When only the hero
@@ -530,12 +614,12 @@ of the template's colorways and keeps the template's size run, and a count of
 colorways its text states ("in 12 washes") is its own: "in one wash" for a
 colorway alone. A changed value its SKUs also carry (a shoe's `upper_material`)
 is rewritten on every SKU, and the style lists only the values its kept SKUs
-hold. Its price is
+hold (a shoe drops the `upper_material` entry of a material no kept SKU holds). Its price is
 re-drawn inside its leaf's band, as a function of the values it changed (a
-premium material costs more). A draw whose title or description contradicts an
+premium material costs more; a plate's material is not drawn, so its price, bone china above porcelain above stoneware above enamel above melamine, is what keeps two plates of one finish off one grid tile, gen#229, `PLATES_GRID_CLONES`). A draw whose title or description contradicts an
 attribute is refused, and `check_catalog` refuses such text too. The module
 docstring has the rules. A description's closure and a style's pattern are held to its attributes ([gen#250](retail-attribute-text.md)). Today's templates run out at `ceiling` in
-`golden-retail/stats.json` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
+`retail_figures.figures()` (with and without the grocery styles), and the CLI exits 2 past that. Raise the ceiling with data: more title-visible
 values per leaf, more colorways, and more templates.
 `--flat PATH` also writes the flat file (one document per SKU, `ingredients` top-level on a
 food SKU). `tests/test_retail_scale.py` holds it at the templates' SKUs plus 4,500 (its
@@ -559,3 +643,15 @@ another department's standing: do not add rows to an unrelated department to pas
 `test_growing_one_department_never_starves_another` builds the ceiling with 200 more Home
 templates and holds every other department at its floor. A batch that removes or narrows a
 department's own rows below the floor still fails: raise that department with rows of its own.
+
+### Womens sizes above UK 16 (gen#434)
+
+The Womens UK size run stopped at 16 (some styles at 18 or 20), so a query for a dress in size 22
+read the size and found no dress that carried it. `plus_sizes.py` runs over `scale.templates()`:
+three in five of the Womens styles whose SKUs carry a bare number `size` (dresses, tops) or
+`size_uk` (jeans, with its EU and US sizes at UK + 28 and UK - 4) are carried on to UK 24.
+Trousers measure by `waist` and knitwear is letter-sized, so neither is changed.
+Each new SKU copies the largest-size SKU of its color; the new SKUs are appended, so no SKU id
+moves, and a derived style inherits the longer run. Decoys of `decoy_rows.py` and
+`decoy_product_words.py` keep their run. `tests/test_retail_plus_sizes_434.py` pins at least 30
+Womens dresses at UK 22 and the chart.
