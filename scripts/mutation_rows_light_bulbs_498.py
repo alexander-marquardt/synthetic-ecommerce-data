@@ -9,6 +9,8 @@ of one test after ``-k``.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 RETAIL = "prototypes/retail_drawings"
 SRC = "src/synthetic_ecommerce_data"
 BULBS = "tests/test_retail_light_bulbs_498.py"
@@ -106,3 +108,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         SRC,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "light bulbs"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

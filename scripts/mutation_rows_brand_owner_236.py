@@ -9,6 +9,8 @@ the root is ``prototypes/retail_drawings``.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _TEST = (
     "tests/test_retail_scale.py "
     "-k test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling"
@@ -58,3 +60,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "at least four of the ten sale rows are third-party brands",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "brand owner"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

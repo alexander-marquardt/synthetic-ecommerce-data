@@ -50,10 +50,26 @@ def rows_files() -> list[Path]:
 
 
 def discover() -> list[tuple[str, Row]]:
-    """``(prefix, row)`` for every row of every mutant-row file that exposes ``rows()``."""
+    """``(prefix, row)`` for every row of every mutant-row file.
+
+    A file that lacks ``PREFIX`` or ``rows()``, whose prefix another file already uses, or whose
+    ``rows()`` yields something that is not a :class:`Row`, raises ``ValueError`` naming the
+    file: a row that is skipped is a defect nobody plants.
+    """
     found: list[tuple[str, Row]] = []
+    owner: dict[str, str] = {}
     for path in rows_files():
         module = importlib.import_module(path.stem)
-        if hasattr(module, "rows"):
-            found += [(module.PREFIX, row) for row in module.rows()]
+        prefix = getattr(module, "PREFIX", None)
+        if not isinstance(prefix, str) or not prefix:
+            raise ValueError(f"{path.name} has no PREFIX string")
+        if not callable(getattr(module, "rows", None)):
+            raise ValueError(f"{path.name} has no rows() function")
+        if prefix in owner:
+            raise ValueError(f"{path.name} and {owner[prefix]} share the prefix {prefix!r}")
+        owner[prefix] = path.name
+        for row in module.rows():
+            if not isinstance(row, Row):
+                raise ValueError(f"{path.name}: rows() yielded a {type(row).__name__}, not a Row")
+            found.append((prefix, row))
     return found
