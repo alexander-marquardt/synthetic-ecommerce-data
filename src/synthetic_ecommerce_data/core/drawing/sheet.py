@@ -221,6 +221,10 @@ def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
     return key
 
 
+def chamfer_points(margin: float) -> list[tuple[float, float]]:
+    return []
+
+
 def _frame(page: svg.Svg, house: HouseStyle) -> None:
     ink = house.ink
     if house.frame == "rule":
