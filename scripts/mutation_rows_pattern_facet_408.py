@@ -9,6 +9,8 @@ names the test that must go red. ``mutation_check.py`` turns them into ``Mutatio
 # ruff: noqa: E501  -- an anchor is the exact source line, so it cannot be wrapped
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_pattern_facet_408.py"
 _WORDS = '    "Polka Dot", "Gingham", "Breton Stripe", "Stripe", "Check", "Spot", "Print", "Leopard", "Marl",\n    "Lace", "Tartan", "Floral", "Patchwork",\n'
 
@@ -54,3 +56,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "the build sells the tartan, floral, breton stripe and patchwork styles",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "pattern facet"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
