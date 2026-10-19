@@ -9,6 +9,8 @@ old key. ``mutation_check.py`` turns them into ``Mutation`` rows named ``attribu
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_attribute_keys_227.py"
 _R = "prototypes/retail_drawings"
 _LAMP = (
@@ -166,3 +168,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "attribute keys"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

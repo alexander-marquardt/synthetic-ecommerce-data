@@ -2,12 +2,14 @@
 ``mutation_check.py``.
 
 Each row plants one defect in ``scale.py`` or ``type_registry.py`` and names the test that must go
-red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as rows named
+red. ``mutation_row.discover`` finds this file by glob and the harness names them as rows named
 ``text exempt: ...`` (``--only "text exempt:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 
@@ -76,3 +78,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "text exempt"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

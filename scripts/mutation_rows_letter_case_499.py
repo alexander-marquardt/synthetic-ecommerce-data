@@ -9,6 +9,8 @@ tests that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows 
 # ruff: noqa: E501  -- an anchor is the exact source line, so it cannot be wrapped
 from __future__ import annotations
 
+from mutation_row import Row
+
 _SRC = "src/synthetic_ecommerce_data"
 _RETAIL = "prototypes/retail_drawings"
 _T = "tests/test_letter_case_499.py"
@@ -151,3 +153,10 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "the coverage report counts the food rows",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "letter case"
+
+
+def rows() -> list[Row]:
+    return [Row(n, f, o, w, t, p, root) for n, root, f, o, w, t, p in ROWS]

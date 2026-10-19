@@ -1,13 +1,15 @@
 """Mutation rows for the nine babywear and nursery types of gen#213, in their own file.
 
 Each row plants one defect in a spec, a drawing or a shared row builder of gen#213 and names the
-test that must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as
+test that must go red. ``mutation_row.discover`` finds this file by glob and the harness names them as
 rows named ``babywear: ...`` (``--only "babywear:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 # ruff: noqa: E501  (a row quotes the whole line it breaks)
 from __future__ import annotations
+
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_babywear_213.py"
@@ -185,3 +187,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "babywear"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

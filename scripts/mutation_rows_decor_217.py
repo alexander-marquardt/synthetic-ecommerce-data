@@ -9,6 +9,8 @@ names the test that must go red. ``mutation_check.py`` turns them into rows name
 # ruff: noqa: E501  (a removal row quotes the whole decoy call it takes out)
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_decor_217.py"
 
 ROWS: list[tuple[str, str, str, str, str, str]] = [
@@ -69,3 +71,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a clock search can meet a watch whose text names a clock",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "decor 217"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

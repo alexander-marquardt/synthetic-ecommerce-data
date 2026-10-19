@@ -9,6 +9,8 @@ re-runs them). A row is ``(name, file, old, new, tests, property)``.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_furniture_drawings_226.py"
 
 ROWS: list[tuple[str, str, str, str, str, str]] = [
@@ -85,3 +87,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "an unknown top material is refused",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "furniture drawings"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
