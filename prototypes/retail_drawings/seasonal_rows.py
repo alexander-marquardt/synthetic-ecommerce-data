@@ -152,7 +152,7 @@ COLORS = (
     SRow("CLRXMP", "Festive Crew Neck Jumper", "Harbour & Pine", _C, _JUMP, "Jumper", 28.0, "sweatshirt",
          "A cosy crew neck jumper for the festive season, for the office party and the day itself.",
          (BERRY, OLIVE, NAVY_BLUE), _mat("Acrylic blend"), _sz(28.0), collections=(XMAS,)),
-    SRow("CLREAR", "Resin Stud Earrings", "Wrenfield", _C, (*_EAR, "Stud Earrings"), "Earrings", 12.0, "earrings",
+    SRow("CLREAR", "Resin Stud Earrings", "Wrenfield", _C, _EAR, "Earrings", 12.0, "earrings",
          "Round stud earrings in a mottled resin, light enough to wear all night.",
          (TORTOISESHELL, CHAMPAGNE), _mat("Resin"), collections=(GOING_OUT,)),
     SRow("CLRFRM", "Resin Photo Frame, 5 x 7", "Lanternby", _H, _FRAME, "Photo Frame", 14.0, "photo_frame",
