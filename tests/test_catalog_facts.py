@@ -186,13 +186,22 @@ NUT_DIMENSIONS = {
 #: three times its cutter -- 43 of the 46 differing records in
 #: reference-statistics/04 are at or under 3.0, the 2.667 and 3.0 ratios
 #: included -- or the smallest stocked shank above the cutter when that is
-#: more. A metric cutter below 6 mm may also sit on the 6 mm DIN 6535 shank:
-#: a catalog convention the #33 review proposed, not yet confirmed against a
-#: standard's diameter table (#87).
+#: more. A metric cutter below 6 mm on an oversize shank follows the table
+#: below instead, and every pair in it is within the 3.0 cap.
 SHANKS_IN = (1 / 8, 3 / 16, 1 / 4, 5 / 16, 3 / 8, 1 / 2, 5 / 8, 3 / 4, 1.0)
 SHANKS_MM = (3.0, 3.175, 4.0, 6.0, 6.35, 8.0, 10.0, 12.0, 12.7, 16.0, 20.0, 25.0)
 MAX_SHANK_RATIO = 3.0
-SMALL_METRIC_SHANK_MM = 6.0
+#: The shank (d2, mm) a metric cutter below 6 mm sits on when it is not on its
+#: own diameter (d1, mm), written out here apart from the generator (#87).
+#: 2, 2.5, 3, 4 and 5 mm are DIN 6527 table 1 (solid carbide end mills with a
+#: stepped shank), read as reproduced at https://www.fasten.it/en/norms/norm/din_6527
+#: ("source DIN 6527"): d1 2 and 2.5 -> d2 3, and d1 3, 4 and 5 -> d2 6 for the
+#: long cutting part, the short one being on its own diameter. DIN 6527:2002-01
+#: page 1 (change b) confirms d1 3 / d2 6 for the long cutting part. DIN 6527
+#: starts at d1 2 mm, so 1 and 1.5 mm are not in it: they take 3 mm, the
+#: smallest DIN 6535 shank, as the FORUM mini end mill table does (1 and 1.5 mm
+#: on 3 mm, 2 to 5.5 mm on 6 mm), https://www.bachgmbh.de/VHM-Mini-Schaftfraeser-extrakurz-DIN-6535-HB-NH-3-Schneiden-FORUM-15-mm
+SMALL_METRIC_SHANK_FOR = {1.0: 3.0, 1.5: 3.0, 2.0: 3.0, 2.5: 3.0, 3.0: 6.0, 4.0: 6.0, 5.0: 6.0}
 #: Standards that describe METRIC radial bearings only (ABMA 20 is "... --
 #: Metric Design"). A bearing number with a letter is the inch R series.
 METRIC_BEARING_ONLY = {"ISO 15", "ISO 492", "ABMA 20"}
@@ -508,8 +517,6 @@ def oversize_shanks(docs: list[dict]) -> tuple[list, int]:
         stocked = [s / 25.4 for s in SHANKS_MM] if metric else list(SHANKS_IN)
         above = [s for s in stocked if s > cut + 1e-6]
         ceiling = max(MAX_SHANK_RATIO * cut, min(above)) if above else cut
-        if metric and cut < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6:
-            ceiling = max(ceiling, SMALL_METRIC_SHANK_MM / 25.4)
         if shank > ceiling + 0.002:
             fat.append((doc["sku"], v["Milling Dia."], v["Shank Dia."]))
     return fat, checked
@@ -531,15 +538,20 @@ def _oversize_pairs(docs: list[dict], unit: str) -> list[tuple[str, float, float
     return pairs
 
 
-def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_6mm(docs):
-    """The catalog puts a 1-5 mm cutter on the 6 mm DIN 6535 shank, a
-    convention the #33 review proposed and no standard's table has yet
-    confirmed (#87). A cap that turned a 1-2.5 mm cutter's
-    oversize shank into a 3 mm one made the common metric product the rare
-    one (31 SKUs on 29f's golden)."""
-    small = [p for p in _oversize_pairs(docs, "mm") if p[1] < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6]
-    off = [p for p in small if abs(p[2] * 25.4 - SMALL_METRIC_SHANK_MM) > 1e-3]
-    assert off == [], f"{len(off)} of {len(small)} not on 6 mm: {off[:10]}"
+def test_a_small_metric_cutter_on_an_oversize_shank_follows_the_din_6527_table(docs):
+    """A 1-5 mm cutter on an oversize shank sits on the shank its row of
+    ``SMALL_METRIC_SHANK_FOR`` gives (DIN 6527 table 1, #87): 3 mm shanks are
+    back under 1-2.5 mm cutters, which a flat 6 mm rule had put on 6 mm (54 of
+    54 on PR #84's golden), and no pair is past the 3.0x cap."""
+    small = [p for p in _oversize_pairs(docs, "mm") if p[1] * 25.4 < 5.5]
+    off = [
+        (sku, round(cut * 25.4, 3), round(shank * 25.4, 3))
+        for sku, cut, shank in small
+        if abs(shank * 25.4 - SMALL_METRIC_SHANK_FOR[round(cut * 25.4, 1)]) > 1e-3
+    ]
+    assert off == [], f"{len(off)} of {len(small)} off the table: {off[:10]}"
+    seen = collections.Counter(round(p[1] * 25.4, 1) for p in small)
+    assert set(seen) == set(SMALL_METRIC_SHANK_FOR), seen
     assert len(small) > 20
 
 
