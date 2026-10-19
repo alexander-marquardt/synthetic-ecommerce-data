@@ -254,7 +254,7 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
 #: Measured on the seed-0 ceiling build of main d63322d: 8 of 145 (5.5%) with the
 #: ``PREMIUM`` plate weights of 2.0 / 1.4 / 1.0 / 0.75 / 0.5; the cap is 14 plates, a
 #: margin of 6. The weights were widened, not the cap, when new templates from main took
-#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 (12.4%) on this seed. Seeds 0 to
+#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 plates on this seed. Seeds 0 to
 #: 5 of the same build give 8, 4, 6, 0, 11 and 8 plates.
 PLATES_GRID_CLONES = 0.10
 

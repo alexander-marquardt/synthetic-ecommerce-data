@@ -362,6 +362,13 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
     assert _merged(world)
 
 
+def _true_retail_stats() -> str:
+    """The retail stats the build of this tree writes. CI rolls this tree's file before the
+    tests run (gen#373), so it is read from the tree under test; the world's checkout is the
+    HEAD commit, whose committed file is stale in any PR that moves the retail build."""
+    return (REPO / _RETAIL_STATS).read_text()
+
+
 _IMAGES = re.compile(r'"images": \d+')
 
 
@@ -373,7 +380,7 @@ def _with_images(stats: str, count: int) -> str:
 
 def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
     """A PR and main that edit one total of the retail stats two ways; and the true file."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _true_retail_stats()
     head = _open_pr(
         world,
         {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)},
@@ -397,7 +404,7 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _true_retail_stats()
     head = _open_pr(
         world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
     )
