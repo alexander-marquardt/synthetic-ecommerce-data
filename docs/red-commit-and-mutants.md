@@ -102,6 +102,16 @@ right interpreter against another root, stays tested.
 defects planted in this generator's rules, guarded by
 `tests/test_mutation_bed.py`. It is not a run over what a change touched.
 
+The bed is not a list in that file (#539). A defect that is one entry of its own
+goes in `scripts/mutations/<area>.py` (`MUTATIONS`, a list of
+`mutation_row.Mutation`, one file per area of the code the defects plant in); a
+batch of defects for one feature goes in `scripts/mutation_rows_<topic>.py`
+(`PREFIX` and `rows()`). `scripts/mutation_row.py` finds both by glob
+(`discover_mutations`, `discover`), so a pull request that adds a defect edits
+a file of its own and `mutation_check.py` names no mutation.
+`tests/test_mutations_split_539.py` refuses a file with no `MUTATIONS` list, an
+element that is not a `Mutation` and a name two files share.
+
 ## Resync
 
 Both checks use files of the vendored copy: `mutant_run.py`,

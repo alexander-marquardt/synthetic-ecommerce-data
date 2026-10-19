@@ -1,0 +1,238 @@
+"""Mutations that plant a defect in industrial titles, type labels, names and vocabulary and name the test that must go red.
+
+``mutation_row.discover_mutations`` finds this file by glob and the harness plants each
+entry of ``MUTATIONS`` in turn (``--only`` filters by a substring of the name). Moved out of
+``scripts/mutation_check.py`` unchanged (gen#539).
+"""
+
+# ruff: noqa: E501  (a mutation quotes the whole line it plants in)
+from __future__ import annotations
+
+from mutation_row import Mutation
+
+MUTATIONS: list[Mutation] = [
+    # ---- every product carries a readable product_type_label (gen#331) ----
+    Mutation(
+        "label: the hammer kind loses its label",
+        "domains/industrial/type_labels.py",
+        '    "hammer_claw": "Claw Hammer",\n',
+        "",
+        "tests/test_product_type_label_331.py -k every_emitted_type_has_a_label",
+        "",
+        "every emitted type has a label",
+    ),
+    Mutation(
+        "label: a label keeps its id's underscore",
+        "domains/industrial/type_labels.py",
+        '"nut_hex": "Hex Nut"',
+        '"nut_hex": "Hex_Nut"',
+        "tests/test_product_type_label_331.py -k no_label_is_an_id",
+        "",
+        "no label reads as a field name",
+    ),
+    Mutation(
+        "label: a label starts in lower case",
+        "domains/industrial/type_labels.py",
+        '"nut_hex": "Hex Nut"',
+        '"nut_hex": "hex Nut"',
+        "tests/test_product_type_label_331.py -k starts_with_a_capital",
+        "",
+        "every label starts with a capital letter",
+    ),
+    Mutation(
+        "label: two types share one label",
+        "domains/industrial/type_labels.py",
+        '"hammer_club": "Club Hammer"',
+        '"hammer_club": "Claw Hammer"',
+        "tests/test_product_type_label_331.py -k a_label_names_one_type",
+        "",
+        "a label names one type",
+    ),
+    Mutation(
+        "publish a URL for a drawing nothing renders",
+        "domains/industrial/taxonomy.py",
+        '    "washer_flat": "washer_flat",',
+        '    "washer_flat": "washer_flat_plain",',
+        "tests/test_catalog_emit.py tests/test_generic.py",
+        "B",
+        "every product and every variant carries an image that resolves",
+    ),
+    # ---- vocab: disjointness, both directions ----------------------------
+    Mutation(
+        "leak a hammer attribute into the screw vocabulary",
+        "domains/industrial/vocab.py",
+        '    _spec("Hardness", "line", 0.48),',
+        '    _spec("Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
+        "tests/test_catalog_vocab.py tests/test_catalog_generate.py",
+        "A",
+        "unrelated product types share no vocabulary",
+    ),
+    Mutation(
+        "remove the one name a screw and a hammer legitimately share",
+        "domains/industrial/vocab.py",
+        'HAMMER_VOCAB = (\n    _spec("Material", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Material ", "line"),',
+        "tests/test_catalog_vocab.py",
+        "B",
+        "unrelated product types share no vocabulary",
+    ),
+    # ---- labels on the type's own spec: two type PRs share no line (#103) ----
+    Mutation(
+        "labels: a label in the table and on the spec is accepted",
+        "domains/industrial/type_labels.py",
+        "    if dict.__contains__(PRODUCT_TYPE_LABELS, spec.key):",
+        "    if False:",
+        "tests/test_type_registration.py::test_a_label_in_the_table_and_on_the_spec_is_refused",
+        "",
+        "a label is declared once",
+    ),
+    Mutation(
+        "labels: register drops the label a spec declares",
+        "domains/industrial/type_labels.py",
+        "    PRODUCT_TYPE_LABELS[spec.key] = spec.label",
+        "    pass",
+        "tests/test_type_registration.py::test_a_label_on_the_spec_joins_the_label_table",
+        "",
+        "a type's label on its spec reaches every product",
+    ),
+    Mutation(
+        "never leave a title dimension token unlabelled",
+        "domains/industrial/titles.py",
+        "                if middle < cfg.title_token_unlabelled:",
+        "                if False:",
+        "tests/test_catalog_generate.py",
+        "A",
+        "the title token hazards occur at their measured rates",
+    ),
+    Mutation(
+        "always leave a title dimension token unlabelled",
+        "domains/industrial/titles.py",
+        "                if middle < cfg.title_token_unlabelled:",
+        "                if True:",
+        "tests/test_catalog_generate.py",
+        "B",
+        "the title token hazards occur at their measured rates",
+    ),
+    Mutation(
+        "re-draw the title style per SKU",
+        "domains/industrial/titles.py",
+        "        return style\n\n    def _dimension_segments",
+        "        return self.TITLE_STYLES[int(self.rng.random() * 3)]\n\n    def _dimension_segments",
+        "tests/test_catalog_facts.py -k titles_a_type_one_way",
+        "A",
+        "a brand titles a type one way, naming its key size",
+    ),
+    Mutation(
+        "drop the key dimension from secondary-style titles",
+        "domains/industrial/titles.py",
+        '        if style == "secondary":\n            # The pair\'s secondary dimension',
+        '        if style == "secondary":\n            segments = []\n            # The pair\'s secondary dimension',
+        "tests/test_catalog_facts.py -k names_its_key_dimension",
+        "B",
+        "a brand titles a type one way, naming its key size",
+    ),
+    Mutation(
+        "title every end mill Sq End, ball nose included",
+        "domains/industrial/titles.py",
+        '                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",',
+        '                        value=f"{abbreviate_value(end.value)} Sq End",',
+        "tests/test_catalog_facts.py -k mills_own_end_shape",
+        "A",
+        "a title names the end mill's own end shape",
+    ),
+    Mutation(
+        "stop writing a glued size's parts in the spec clause",
+        "domains/industrial/titles.py",
+        "        details.extend(thread_parts(f\"{title.text} {', '.join(details)}\"))\n",
+        "",
+        "tests/test_glued_thread_sizes.py -k also_written_in_parts",
+        "",
+        "a glued metric size is also written in its parts",
+    ),
+    Mutation(
+        "choose labelled or secondary per SKU inside a labelled-or-secondary pair",
+        "domains/industrial/titles.py",
+        '        if style == "secondary":\n            # The pair\'s secondary dimension',
+        '        if style != "unlabelled" and self.rng.random() < 0.5:\n'
+        "            # The pair's secondary dimension",
+        "tests/test_catalog_facts.py -k secondary_dimension_on_every_title_or_none",
+        "A",
+        "a brand titles a type one way, naming its key size",
+    ),
+    Mutation(
+        "drop a secondary pair's secondary on some SKUs that publish it",
+        "domains/industrial/titles.py",
+        '            if attribute is not None:\n                self._bump("title_token_not_primary")',
+        "            if attribute is not None and self.rng.random() < 0.7:\n"
+        '                self._bump("title_token_not_primary")',
+        "tests/test_catalog_facts.py -k secondary_dimension_on_every_title_or_none",
+        "B",
+        "a brand titles a type one way, naming its key size",
+    ),
+    # ---- no two SKUs of a line share a title, both directions -------------
+    Mutation(
+        "stop repairing the titles that tell a shopper nothing",
+        "domains/industrial/titles.py",
+        "        if identifying is None or len(published) < 2:\n            return titles",
+        "        return titles",
+        "tests/test_catalog_titles.py",
+        "A",
+        "no two SKUs of one line share a title",
+    ),
+    Mutation(
+        "repair only exact duplicates, the way the first version did",
+        "domains/industrial/titles.py",
+        "            alone = [\n                value\n                for name, value in mine.items()",
+        "            alone = [\n                value\n                for name, value in [*mine.items(), (None, title.text)]",
+        "tests/test_catalog_titles.py",
+        "B",
+        "no two SKUs of one line share a title",
+    ),
+    # ---- the description is a tier of its own, both directions ------------
+    Mutation(
+        "put the line title back in the description field",
+        "domains/industrial/titles.py",
+        "        return f\"{title.text} - {', '.join(details)}. {middle}{tail}\"",
+        '        return f"{draft.brand} {draft.series} -- {draft.item}"',
+        "tests/test_catalog_titles.py",
+        "A",
+        "the description names what distinguishes the SKU",
+    ),
+    Mutation(
+        "leave the SKU's own attributes out of the description",
+        "domains/industrial/titles.py",
+        "        named = title.attribute_names()\n        details: list[str] = []",
+        "        named = {a.name for a in attributes}\n        details: list[str] = []",
+        "tests/test_catalog_titles.py",
+        "B",
+        "the description names what distinguishes the SKU",
+    ),
+    # ---- elastic/prism-industrial-products#103: the census name gate ------
+    Mutation(
+        "let a product noun qualify a generic concept",
+        "domains/industrial/names.py",
+        "        if noun is not None and name not in TYPE_SPECIFIC:",
+        "        if False and noun is not None and name not in TYPE_SPECIFIC:",
+        "tests/test_attribute_names.py -k planted",
+        "A",
+        "no emitted name is a type-qualified spelling of a generic concept",
+    ),
+    Mutation(
+        "publish a name the census and the reference list never saw",
+        "domains/industrial/vocab.py",
+        '    _spec("Tip Style", "line"),\n    _spec("Material", "line", 0.85),',
+        '    _spec("Widget Material", "line"),\n    _spec("Material", "line", 0.85),',
+        "tests/test_attribute_names.py -k declared",
+        "B",
+        "no emitted name is a type-qualified spelling of a generic concept",
+    ),
+    Mutation(
+        "accept a census name in another casing",
+        "domains/industrial/names.py",
+        "        if canonical is not None and canonical != name:",
+        "        if False and canonical is not None and canonical != name:",
+        "tests/test_attribute_names.py -k another_casing",
+        "A",
+        "no emitted name is a casing twin of a census name",
+    ),
+]

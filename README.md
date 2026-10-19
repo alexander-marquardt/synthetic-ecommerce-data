@@ -1126,7 +1126,7 @@ So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
 the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
-planted in `scripts/mutation_check.py`.
+planted in `scripts/mutations/` (run by `scripts/mutation_check.py`).
 
 ### Which attributes become facets
 
