@@ -25,4 +25,4 @@ is a vocabulary on the consumer's side.
 `tests/test_retail_color_group_302.py` pins at least 20 SKUs per shade across 3 or more apparel
 types, at least 150 women's jumper SKUs, and each of the 25 shape x main color cells. It counts the
 templates, and a derived style only adds, so a count met there is met by the ceiling build. The
-styles are counted by `golden-retail/stats.json` under `templates.colorgroup_rows`.
+styles are counted by `retail_figures.figures()` under `templates.colorgroup_rows`.

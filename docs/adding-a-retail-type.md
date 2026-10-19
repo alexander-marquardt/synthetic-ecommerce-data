@@ -100,11 +100,12 @@ that names two drawings.
 
 ## 9. Rebuild the figures and run the tests
 
-Rebuild the figures with `uv run python prototypes/retail_drawings/retail_figures.py`; it
-writes `golden-retail/stats.json` and `docs/retail-apparel-decoys.md` (never edit either), and you
-commit neither: both are rolled when the PR merges, and the `stats-roll` job refuses a PR that
-commits them (README, gen#373). Put them back with
-`git checkout origin/main -- golden-retail/stats.json docs/retail-apparel-decoys.md`
+There are no figures to rebuild or commit (gen#536). A test reads a total with
+`retail_figures.figures()` (`retail_figures.py`), which measures your tree once per test run. To see the figures, the
+apparel decoy table and the samples your build makes, run
+`uv run python scripts/build_derived.py --out build/derived`: it writes `golden-retail/stats.json`,
+`docs/figures.md` and `docs/retail-apparel-decoys.md` under `build/derived` (CI uploads the same as
+the `derived` artifact). Never commit them: the `no-derived-files` job refuses a PR that does.
 
 Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_output_standard.py`, `tests/test_retail_scale.py`, `tests/test_retail_breadth_34.py`,
@@ -112,7 +113,12 @@ Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_retail_color_words.py`, `tests/test_retail_main_colors_275.py`,
 `tests/test_us_spelling.py`, `prototypes/retail_drawings/test_shape_honesty.py` and
 `prototypes/retail_drawings/test_house_styles.py`. Name them in the command: a bare `pytest` runs
-the whole suite.
+the whole suite. The pre-merge run runs every `test_*.py` under `prototypes/` too, each in its own
+process, through `tests/test_prototype_tests_collected_486.py` (`pytest` collects only `tests/`),
+so a prototype test your change reddens fails the PR; a new brand takes a mark no other brand
+uses, a section of the sneak-peek samples is counted from the build (`build_preview4.py`), not
+from a committed file, and a reported product is named by its hand-set id (`PLT-DXH05`), never
+by a `PLT-DA` decoy id, which moves when rows are added.
 
 ## 10. Looking at the SVGs
 
@@ -128,4 +134,4 @@ modules of `feature_decoys/`, the scaled build reads `type_specs/`, and the muta
 `scripts/mutation_rows_*.py`, each by walking or globbing: add a file there. The table of the
 shared files and of what replaces a line in each is in
 [new-type-quick-path.md](new-type-quick-path.md#shared-files-add-a-file-never-a-line), and the
-`stats-roll` job's `scripts/check_no_registry_append.py` fails a diff that appends one.
+`no-derived-files` job's `scripts/check_no_registry_append.py` fails a diff that appends one.
