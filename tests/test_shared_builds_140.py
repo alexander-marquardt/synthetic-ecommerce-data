@@ -125,6 +125,18 @@ def test_a_changed_source_is_never_served_the_old_file(tmp_path):
     assert counter.read_text().splitlines() == ["built", "built"]
 
 
+def test_a_cache_directory_made_before_pytests_own_is_still_ignored_by_git(tmp_path):
+    """pytest writes the ``.gitignore`` of ``.pytest_cache`` only when it makes the directory
+    itself: one made first (by a build, before pytest's first cache write) left the whole
+    directory showing as untracked in ``git status``."""
+    import shared_builds
+
+    directory = tmp_path / ".pytest_cache" / "shared_builds"
+    assert shared_builds.cached("toy", lambda: 1, roots=[tmp_path], cache_dir=directory) == 1
+    ignore = tmp_path / ".pytest_cache" / ".gitignore"
+    assert ignore.is_file() and ignore.read_text(encoding="utf-8").strip().endswith("*")
+
+
 #: Modules that may name the 100K size: the shared builds and this guard.
 _MAY_ASK = {"shared_builds.py", Path(__file__).name}
 
