@@ -107,7 +107,7 @@ The issue's target, a typical merge under 10 minutes, is for `--local-ci` on the
 with two targets, not two readings of one. Measured on the VM (2026-10-19, 5 of the heaviest
 modules, 674 tests, `-n 2 --dist loadgroup`, one run): 358 s of wall for 696 s of test time,
 which is 0.295 of the same modules' weights in `scripts/ci_shard_weights.json` (the hosted
-runners' seconds; per module 0.21 to 0.57). Applying that ratio to the whole weight table, a
+runners' seconds; per module 0.19 to 0.57). Applying that ratio to the whole weight table, a
 simulation of xdist's rule (each unit to the worker that frees first) gives a whole-suite run
 of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 268 s against
 207 s on 24. That is a projection from a five-module sample, not a measured whole-suite run,
