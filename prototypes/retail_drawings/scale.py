@@ -126,6 +126,7 @@ import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
+import pattern_rows  # noqa: E402
 import plus_sizes  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
@@ -274,6 +275,9 @@ TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
 SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
 #: The near-white apparel and main-color bras (:mod:`colorgroup_rows`, gen#302): templates only.
 COLORGROUP_IDS = colorgroup_rows.product_ids()
+#: The tartan, floral, breton stripe and patchwork styles (:mod:`pattern_rows`, gen#408): templates
+#: only.
+PATTERN_IDS = pattern_rows.product_ids()
 #: The color-word brand rows (:mod:`color_word_brand_rows`, gen#312): templates only.
 COLORWORD_IDS = color_word_brand_rows.product_ids()
 #: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
@@ -361,7 +365,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *womens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
-        *color_word_brand_rows.docs(), *neckline_rows.docs(),
+        *color_word_brand_rows.docs(), *neckline_rows.docs(), *pattern_rows.docs(),
     ]  # fmt: skip
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
@@ -391,7 +395,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
     left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
+                | SEASONAL_IDS | COLORGROUP_IDS | PATTERN_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
                 | GARDEN_IDS | DECOR_IDS | NIKE_IDS
                 | NEEDS_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
