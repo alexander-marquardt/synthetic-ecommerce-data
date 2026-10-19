@@ -8,7 +8,7 @@ documents split them:
 
 | Authored | `color` | `pattern` |
 |---|---|---|
-| Navy Stripe, Grey Check, Black Polka Dot, Red Gingham, Pink Spot, Cream Print, Brown Leopard, Grey Marl, Ivory Lace | the word before the pattern | the pattern word |
+| Navy Stripe, Grey Check, Black Polka Dot, Red Gingham, Pink Spot, Cream Print, Brown Leopard, Grey Marl, Ivory Lace, Red Tartan, Pink Floral, Navy Breton Stripe, Multi Patchwork | the word before the pattern | the pattern word |
 | Light Wash, Mid Wash, Bleach Wash, Rinse | Blue (denim) | the wash |
 | Grey Wash | Grey | Grey Wash |
 | Washed Black | Black | Washed |
@@ -31,8 +31,20 @@ SKUs); derived styles are redrawn from a seed, so the departments shift by hundr
 A document holding a color, a pattern or a wash reads three places: the variant attribute
 `color`, the variant attribute `pattern`, and the product-level `pattern` values.
 
+## The four patterns a shopper types before a category (gen#408)
+
+The coverage review of this change asked for tartan, floral, breton stripe and patchwork beside
+leopard and polka dot, and the build held none of the four. The product count is frozen, so no
+style is added: one colorway of a style main already sold carries each word. "Red Tartan" is the
+first colorway of the wool pleated midi skirt (`lowerbody_rows.py`), "Pink Floral" of the jersey
+midi dress (`seasonal_rows.py`, drawn with a daisy print), "Navy Breton Stripe" of the ribbed long
+sleeve top (`colorgroup_rows.py`) and "Multi Patchwork" of the linen fringed cushion
+(`breadth_rows.py`, drawn with the patchwork fill). `colorwords.PATTERN_WORDS` lists the four;
+"Breton Stripe" is one pattern, so a breton colorway is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
+plain color yet, and `main_colors.complete` refuses a type with none.
+
 ## Guard
 
-`tests/test_retail_color_pattern_188.py` asserts the splitter cases, that no nested or flat
+`tests/test_retail_pattern_facet_408.py` asserts the facet holds the six wanted values (the four above, leopard and polka dot), on a product where a shopper types each, with a plain color. `tests/test_retail_color_pattern_188.py` asserts the splitter cases, that no nested or flat
 `color` value holds a pattern word, that every split SKU carries its pattern, that every flat SKU of a splitting style states its own pattern, and that a split
 color is still a plain color word (the main-color policies of gen#275 keep working).

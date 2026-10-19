@@ -38,7 +38,7 @@ Dresses had none or few real products and now carry rows of their own.
 The new rows add no decoys of their own. Their product types (Dress, Blouse, Shirt, Coat,
 Suit Jacket, Skirt, Top) are planned in `decoy_apparel` (gen#311), which clones a real style of
 each type into three decoys of each of seven classes, so the decoy table
-([retail-apparel-decoys.md](retail-apparel-decoys.md)) lists them and
+(`retail-apparel-decoys.md`, a generated page that is not in git) lists them and
 `tests/test_retail_apparel_decoys_311.py` pins them. A decoy keeps the structured fields of the
 style it clones, so a policy that reads the fields still answers right.
 

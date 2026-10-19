@@ -327,4 +327,4 @@ audience word of a sibling version, a material the product does not hold, a shad
 description, a range name holding a color or category word, an invented brand holding one). The
 structured fields stay true, so a plain text search is misled and the color, category and audience
 policies, which read the fields, are right. The generated table of every row, with its policy, is
-[retail-apparel-decoys.md](retail-apparel-decoys.md).
+`retail-apparel-decoys.md` (a generated page, not in git).
