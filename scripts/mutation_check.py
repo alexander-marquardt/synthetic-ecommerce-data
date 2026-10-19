@@ -2067,8 +2067,6 @@ MUTATIONS: list[Mutation] = [
         root=".",
     ),
     # ---- the headline invariants, mutated in the COMMITTED DATA ----------
-    # The five golden-catalog rows are ``scripts/mutation_rows_golden_anchors_50.py``'s: they quote
-    # a line the fixture's anchor names, so a regeneration re-anchors them with one command (#50).
     # ---- the head style decides the SHAPE, both directions ---------------
     Mutation(
         "draw a button head as the cylinder a socket head cap screw has",
