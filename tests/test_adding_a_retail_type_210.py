@@ -19,6 +19,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import build_derived  # noqa: E402
+
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -40,7 +43,7 @@ TOPICS = {
     "owners_house_styles": ("breadth_rows.OWNERS", "house_styles.HOUSE_STYLES"),
     "templates_smaller_builds": ("scale.templates", "scale.build"),
     "image_per_colorway": ("image_id",),
-    "stats_rebuild": ("retail_figures.py", "golden-retail/stats.json"),
+    "stats_rebuild": ("retail_figures.py", "build_derived.py"),
     "tests_to_run": ("tests/test_retail_scale.py", "tests/test_output_standard.py"),
     "render_svgs": ("qlmanage", "ImageMagick"),
 }
@@ -58,6 +61,8 @@ def _text() -> str:
 
 def _exists(name: str) -> bool:
     """A named file exists under the repo root or a directory the page abbreviates."""
+    if name in build_derived.OUTPUTS:  # built into the `derived` artifact, never in git (gen#536)
+        return True
     pattern = re.sub(r"<[a-z_]+>", "*", name)
     bases = (ROOT, RETAIL, ROOT / "tests", ROOT / "docs", ROOT / "scripts")
     return any(next(base.glob(pattern), None) is not None for base in bases)

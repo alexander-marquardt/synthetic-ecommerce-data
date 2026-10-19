@@ -37,7 +37,7 @@ MODIFIERS = frozenset({
     "Bright", "Brushed", "Burnt", "Dark", "Dusky", "Dusty", "Hot", "Light", "Pale", "Sheer",
     "Soft", "Heather", "Vintage", "Warm", "Velvet", "Washed", "Marl",
     "Leather", "Suede", "Patent", "Lace", "Check", "Gingham", "Polka", "Dot", "Spot",
-    "Print", "Stripe", "Leopard", "/",
+    "Print", "Stripe", "Leopard", "Tartan", "Floral", "Patchwork", "Breton", "/",
 })  # fmt: skip
 #: The denim washes of a jeans style: a wash is a color word of its own there.
 DENIM_WASHES = frozenset({"Rinse", "Light Wash", "Mid Wash", "Bleach Wash", "Grey Wash",
@@ -112,7 +112,8 @@ HALF_WORDS = frozenset({"Duck", "Egg", "Quartz", "Off"})
 #: The pattern words an authored shade may carry after, or in place of, its color (gen#188).
 #: They are a ``pattern`` value, never part of the ``color`` a shopper filters on.
 PATTERN_WORDS = (
-    "Polka Dot", "Gingham", "Stripe", "Check", "Spot", "Print", "Leopard", "Marl", "Lace",
+    "Polka Dot", "Gingham", "Breton Stripe", "Stripe", "Check", "Spot", "Print", "Leopard", "Marl",
+    "Lace", "Tartan", "Floral", "Patchwork",
 )  # fmt: skip
 _PATTERN = re.compile(r"\b(" + "|".join(PATTERN_WORDS) + r")\b")
 #: A denim wash: "Light Wash", "Mid Wash", "Bleach Wash", "Grey Wash", "Rinse" or a "Washed" tone.

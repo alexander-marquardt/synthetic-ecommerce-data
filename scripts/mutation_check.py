@@ -65,6 +65,27 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the release build defaults to the ceiling (gen#536) ----
+    Mutation(
+        "release default: the export step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'scale.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'scale.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and export'",
+        "",
+        "the tag build asks for the ceiling",
+        root=".",
+    ),
+    Mutation(
+        "release default: the image step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'image_release.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'image_release.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and image'",
+        "",
+        "the image build asks for the ceiling",
+        root=".",
+    ),
     # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
     Mutation(
         "commit msg: the file name is no longer masked before matching",
@@ -1147,8 +1168,8 @@ MUTATIONS: list[Mutation] = [
         for name, old, new, tests, prop in (
             (
                 "merge_pr: no base re-check before a merge attempt",
-                '[ "$now_base" = "$base_sha" ] ||\n    die',
-                "true ||\n    die",
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                "  true ||",
                 (
                     "tests/test_merge_pr.py::"
                     "test_main_that_moves_during_the_checks_is_not_merged_onto",
@@ -1186,8 +1207,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: base re-checked once, not before every attempt",
-                '  [ "$now_base" = "$base_sha" ] ||',
-                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                '  [ "$attempt" -gt 1 ] || remote_ref_is "$base_ref" "$base_sha" ||',
                 "tests/test_merge_pr.py::"
                 "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
                 "main is the base the checks ran on, at every merge attempt",
@@ -1202,8 +1223,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: no head re-check before a merge attempt",
-                '[ "$now_head" = "$final_sha" ] ||',
-                "true ||",
+                '  remote_ref_is "$head_ref" "$final_sha" ||',
+                "  true ||",
                 "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
                 "the head is the commit that was checked, at every merge attempt",
             ),
@@ -1301,13 +1322,6 @@ MUTATIONS: list[Mutation] = [
                 'a stale golden is regenerated once, on a green second run (#440)',
             ),
             (
-                "merge_pr: the retail figures test is not a freshness test",
-                '  tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures\n',
-                '',
-                'tests/test_merge_pr.py::test_the_freshness_tests_are_real_tests_of_the_golden_files',
-                'a stale golden is regenerated once, on a green second run (#440)',
-            ),
-            (
                 "merge_pr: the drift test is not a freshness test",
                 '  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation\n',
                 '',
@@ -1350,37 +1364,6 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_merge_pr.py::"
                 "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
                 "the rebuild commits only the generated files",
-            ),
-            (
-                "merge_pr: the retail totals are not rebuilt",
-                "RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)",
-                "RETAIL_REBUILD=(true)",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                    "tests/test_merge_pr.py::"
-                    "test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed",
-                ),
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: a failed retail rebuild is ignored",
-                '[ "$retail_rc" -eq 0 ] ||',
-                "true ||",
-                "tests/test_merge_pr.py::test_a_retail_rebuild_that_fails_refuses_the_merge",
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: the retail stats are not generated",
-                "  golden-retail/stats.json\n",
-                "",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_the_generated_files_are_exactly_what_the_build_writes",
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                ),
-                "a conflict only in the retail totals is resolved by the rebuild (gen#343)",
             ),
             (
                 "merge_pr: a check run in which no test passed is green",
@@ -2309,9 +2292,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "domains/industrial/compat.py",
-        '    "M12x1.5": 10.5,',
-        '    "M12x1.5": 10.2,',
+        "core/standards_library/tables/metric_tap_drills.json",
+        '"thread": "M12x1.5",\n   "drill_mm": 10.5',
+        '"thread": "M12x1.5",\n   "drill_mm": 10.2',
         (
             "tests/test_compatibility_text.py -k diameter_less_the_pitch",
             "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -2691,7 +2674,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "domains/industrial/data/fastener_standards.json",
+        "core/standards_library/tables/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",

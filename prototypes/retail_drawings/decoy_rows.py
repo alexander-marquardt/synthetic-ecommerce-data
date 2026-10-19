@@ -36,9 +36,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import feature_decoys
 import fruit_word_brand_styles  # noqa: F401 -- registers the five house styles
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
+from decoy_kind import Kind
 from decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
 from decoy_plural_nonfood_rows import ROWS as PLURAL_NONFOOD_ROWS
 from decoy_plural_rows import ROWS as PLURAL_ROWS
@@ -56,27 +58,6 @@ COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY
           "Cream": CREAM, "Gold": GOLD, "Green": GREEN, "Brown": BROWN, "Pink": PINK,
           "Nude": NUDE, "Yellow": YELLOW, "Purple": PURPLE, "Clear": CLEAR,
           "Orange": ORANGE}  # fmt: skip
-
-
-@dataclass(frozen=True)
-class Kind:
-    """What a product type needs to be a :class:`Style`: its place, shape and defaults."""
-
-    department: str
-    path: tuple[str, ...]
-    product_type: str
-    shape: str
-    brand: str
-    price: float
-    audience: str = "adult"
-    params: tuple[tuple[str, str], ...] = ()
-    extra: tuple[tuple[str, str, str], ...] = ()
-    sizes: tuple[str, ...] = ()
-    size_range: str | None = None
-    colorless: bool = False
-    units_per_pack: int | None = None
-    pattern: str | None = None
-
 
 
 def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float) -> Kind:
@@ -251,6 +232,8 @@ KINDS = {
                           "Scented Candle", "jar", "Lanternby", 16.0,
                           extra=(("fragrance", "Fragrance", "Citrus"),)),
 }
+#: The kinds of the modules in ``feature_decoys/`` join the base table (gen#513).
+KINDS = feature_decoys.kinds(KINDS)
 
 
 @dataclass(frozen=True)
@@ -515,6 +498,9 @@ TABLE = (
     *(_d(code, kind, title, desc, color, 9, plural, sold, brand=brand, scent=scent)
       for code, kind, title, desc, color, plural, sold, brand, scent in PLURAL_NONFOOD_ROWS),
 )
+#: A feature's rows are a module in ``feature_decoys/``, found by walking it (gen#513).
+TABLE = (*TABLE, *feature_decoys.decoy_rows(_d))
+feature_decoys.check_unique((d.code for d in TABLE), "decoy_rows.TABLE")
 
 STYLES = tuple(d.style() for d in TABLE)
 #: The product ids left out of the derivation and of the color completion.
