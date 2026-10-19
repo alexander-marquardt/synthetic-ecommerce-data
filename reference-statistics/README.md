@@ -52,3 +52,11 @@ tier figure. Every lock nut is one label, and the only specs two set-screw brand
 ones. Each entry's `brand_spread_same_spec` says why. `MANIFEST.json`
 (`P2_price_census.extension_69`) records the run and the rules the census `method` block leaves
 open.
+
+Every priced entry carries `price_basis` (#92). #57's 33 entries are
+`shown_price_clearance_unmeasured`: they are priced at the price the page shows, which on a clearance
+row is the clearance price, and #57's parser was never committed, so their handling cannot be shown.
+Their 2015 figures carry the clearance-price signature (`washer_flat` has p10/p25 of exactly
+1.0/2.0). The two #69 entries are `regular_price`. Do not compare or pool price levels across the two
+values until #57's entries are re-measured under the regular-price rule; `method.price_basis` and
+`MANIFEST.json` (`P2_price_census.price_basis_92`) say what clears the flag.

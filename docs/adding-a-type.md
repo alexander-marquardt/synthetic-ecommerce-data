@@ -99,7 +99,7 @@ builder's type-keyed tables and conditions (for example
 `type_key == "end_mill_ball"`).
 
 A type built to a standard that has no extraction yet also needs that
-standard's rows in `data/fastener_standards.json`; until then the build stops
+standard's rows in `core/standards_library/tables/fastener_standards.json`; until then the build stops
 with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
@@ -452,12 +452,17 @@ M10x1.5`; the slice has 8, 11, 9, 7, 9, 15 and 14 SKUs of them.
 
 ### Sources and provenance
 
+A size table several types need (a thread series, a key series, a nut width) is a file in the
+standards library, `core/standards_library/tables/` (README, "The standards library"): add the
+file, never an edit to a shared list, and read the sizes the type stocks with
+`library.table(name).select([...])`.
+
 Every published dimension is read from a table a reviewer can open: a
-standard's rows extracted into `data/fastener_standards.json`, or a table in
+standard's rows extracted into `core/standards_library/tables/fastener_standards.json`, or a table in
 the module whose comment names the source file and the commit it was read
 from (the lock nut's metric rows: FastenersWB `iso7040def.csv`,
 `iso10512def.csv`, `iso10511def.csv` and `nyloc_def.csv`, at the commit that
-`data/fastener_standards.json` records, and the column each value is, such
+`core/standards_library/tables/fastener_standards.json` records, and the column each value is, such
 as `s_max` or `h_max`). A conventional size ladder with no dimensional table
 is allowed (the inch lock nuts), but:
 
@@ -834,8 +839,20 @@ the generated files, and runs the drift, golden and seam tests
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge
-attempt it re-reads `main` and the PR head, and refuses if either moved.
-`--dry-run` does all of it except the push, the CI wait and the merge.
+attempt it re-reads `main` and the PR head, and refuses if either moved; a
+read that is not the expected sha is repeated, up to 3 reads 10 s apart
+(`MERGE_PR_HEAD_SLEEP`), because `git ls-remote` right after a push can answer
+from before it. `--dry-run` does all of it except the push, the CI wait and the merge.
+
+**One merge at a time (#383).** A merge takes a lock before it reads the PR and `main`
+and keeps it to the squash merge, so a second `merge_pr.sh` started during the first's
+CI run waits instead of landing on `main` underneath it and forcing a full rerun. The
+lock is a directory (`MERGE_PR_LOCK`, default `/tmp/merge-pr-<repo>.lock`) whose `owner`
+file holds the pid and PR number. A waiting run says so, polls every
+`MERGE_PR_LOCK_POLL` seconds (10) and refuses after `MERGE_PR_LOCK_WAIT` (14400, 4 h)
+naming the holder. A lock whose holder's pid is gone (a killed run) is taken over. The
+lock is per machine: two checkouts on one host share it, two hosts do not.
+`--dry-run` pushes and merges nothing, so it takes no lock.
 
 **CI runs locally (`--local-ci`).** GitHub Actions on this repository is
 billing-blocked and stays so, so nobody waits for or reads GitHub CI. With
@@ -913,7 +930,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   diameter).
 * The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
-  standards extraction in `data/fastener_standards.json`.
+  standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
   `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
