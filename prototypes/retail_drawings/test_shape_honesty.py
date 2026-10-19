@@ -274,3 +274,60 @@ def test_a_new_garment_part_is_drawn_by_its_kit_function() -> None:
     assert dress.count("<circle") == 6, "six buttons"
     assert "M200,100 L200,364" in dress, "the center placket"
     assert "M200,100 L200,364" not in _svg(kit.SHAPES["dress"]("#7a8fb5", fill, None))
+
+
+# --- gen#447 part 2: a title that names a part draws that part --------------------------------
+
+import details  # noqa: E402
+import named_parts  # noqa: E402
+
+#: The reported products: id -> (the part its title names, the shape that shows it).
+NAMED_EXAMPLES: dict[str, tuple[str, str]] = {
+    "PLT-DXB04": ("band", "bra"),
+    "PLT-DXH03": ("pocket", "blouse"),
+    "BRD-KDW012": ("hem", "top"),
+    "BRD-MDST611": ("cuffs", "suit_trousers"),
+    "BRD-NXMET012": ("waistband", "trousers"),
+}
+
+
+def test_every_apparel_title_that_names_a_part_draws_it(tpls: list[dict]) -> None:
+    bad = named_parts.violations(tpls)
+    assert not bad, f"{len(bad)} titles name a part that is not drawn:\n" + "\n".join(bad[:12])
+
+
+@pytest.mark.parametrize("pid", sorted(NAMED_EXAMPLES))
+def test_a_reported_title_names_a_part_its_drawing_shows(tpls: list[dict], pid: str) -> None:
+    part, shape = NAMED_EXAMPLES[pid]
+    tpl = next(t for t in tpls if t["product_id"] == pid)
+    color, named_part = named_parts.named(tpl["title"]) or ("", "")
+    assert named_part == part, tpl["title"]
+    assert tpl["drawing"]["shape"] == shape, tpl["title"]
+    assert tpl["drawing"].get("detail") == {"part": part, "color": named_parts.DETAIL_HEX[color]}
+    svg = image_release.render(tpl, tpl["skus"][0], styled=False).decode()
+    assert f'data-part="{part}"' in svg, f"{tpl['title']}: the {part} is not in the image"
+
+
+#: Parts a garment's kit has to draw for the rows that name them (shape -> parts).
+NEW_PARTS = {
+    "bra": ("band", "cups"),
+    "blouse": ("collar", "buttons", "pocket"),
+    "dinner_suit": ("cuffs",),
+}
+
+
+@pytest.mark.parametrize(("shape", "part"), [(s, p) for s, ps in NEW_PARTS.items() for p in ps])
+def test_a_new_part_is_one_the_shape_shows(shape: str, part: str) -> None:
+    assert part in details.parts_of(shape)
+    fill = kit.Fill(detail=(part, "#c8322b"))
+    drawn = kit.SHAPES[shape]("#7a8fb5", fill, None)
+    svg = details.overlay(shape, fill, drawn, "#7a8fb5", "t")
+    assert f'data-part="{part}"' in svg and "#c8322b" in svg
+
+
+def test_a_trim_part_is_one_the_shape_shows() -> None:
+    """A row's trim is picked from the parts its (leaf-rule) shape draws, never one it cannot."""
+    for ptype, shape in (("Polo Shirt", "tshirt"), ("Chinos", "trousers"), ("Socks", "socks")):
+        part = named_parts.trim_part(ptype, shape, 1).lower()
+        assert part in details.parts_of(leaf_shapes.shape_of(ptype, shape)), (ptype, part)
+    assert leaf_shapes.shape_of("Polo Shirt", "tshirt") == "top"
