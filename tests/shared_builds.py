@@ -108,6 +108,14 @@ def cached(
     directory = cache_dir or default_cache_dir()
     directory.mkdir(parents=True, exist_ok=True)
     (directory / ".gitignore").write_text("*\n", encoding="utf-8")
+    # pytest writes the ``.gitignore`` of ``.pytest_cache`` only when it makes the directory
+    # itself; one made here first would show as untracked in ``git status``.
+    if directory.parent.name == ".pytest_cache":
+        ignore = directory.parent / ".gitignore"
+        if not ignore.exists():
+            ignore.write_text(
+                "# Created by shared_builds.py, as pytest would.\n*\n", encoding="utf-8"
+            )
     digest = hashlib.sha256(
         (inputs_digest(roots) + _code_of(build) + Path(__file__).read_text("utf-8")).encode()
     ).hexdigest()[:20]
