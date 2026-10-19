@@ -18,7 +18,7 @@ RUNS_ON = (
 def test_every_job_runs_on_the_one_expression():
     jobs = yaml.safe_load(CI.read_text())["jobs"]
     assert jobs
-    wrong = {name: job.get("runs-on") for name, job in jobs.items() if job.get("runs-on") != RUNS_ON}
+    wrong = {n: job.get("runs-on") for n, job in jobs.items() if job.get("runs-on") != RUNS_ON}
     assert wrong == {}
 
 
