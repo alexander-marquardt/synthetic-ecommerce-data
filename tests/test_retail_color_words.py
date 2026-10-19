@@ -72,7 +72,13 @@ def _facet_colors(records) -> collections.Counter:
 
 
 def _denied(values) -> list[str]:
-    return sorted(v for v in values if DENYLIST & set(v.lower().replace("/", " ").split()))
+    """The values holding a denied word; "breton stripe" is a pattern's name (gen#408), so it is
+    taken out first: "Breton Blue" is still a fashion name."""
+    return sorted(
+        v
+        for v in values
+        if DENYLIST & set(v.lower().replace("breton stripe", "").replace("/", " ").split())
+    )
 
 
 def test_no_color_value_names_an_object_or_a_food(ceiling):

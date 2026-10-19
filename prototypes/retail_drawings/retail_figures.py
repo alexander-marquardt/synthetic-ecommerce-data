@@ -52,6 +52,7 @@ import mens_depth_rows  # noqa: E402
 import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import nike_rows  # noqa: E402
+import pattern_rows  # noqa: E402
 import scale  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
@@ -143,6 +144,7 @@ def measure() -> dict[str, Any]:
         "toys_rows": toys_rows.docs(),
         "seasonal_rows": seasonal_rows.docs(),
         "colorgroup_rows": colorgroup_rows.docs(),
+        "pattern_rows": pattern_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
         "womens_depth_rows": womens_depth_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
