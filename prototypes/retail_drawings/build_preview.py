@@ -189,6 +189,12 @@ def page(recs: list[dict]) -> str:
     )
 
 
+def outputs() -> tuple[str, str]:
+    """(the preview page, the sample NDJSON) exactly as :func:`main` writes them."""
+    recs = records()
+    return page(recs), "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--html", type=Path, action="append", default=[])
@@ -199,8 +205,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     recs = records()
-    html = page(recs)
-    ndjson = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs)
+    html, ndjson = outputs()
     for path in [HERE / "preview.html", *args.html]:
         path.write_text(html, encoding="utf-8")
     for path in [HERE / "samples.ndjson", *args.ndjson]:
