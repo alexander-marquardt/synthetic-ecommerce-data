@@ -444,8 +444,10 @@ def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
 
 
 #: Where the kit's word for a drawing param is not the attribute's wording (gen#512): a clog's
-#: strap attribute "Back strap" is drawn as ``back``. Spelled out here, not read from the code.
+#: "Back strap" is drawn as ``back``, so a template's ``back`` stands for "Back strap". Spelled
+#: out here, not read from the code.
 KIT_WORD = {("strap", "back strap"): "back"}
+ATTRIBUTE_WORD = {(p, drawn): attr for (p, attr), drawn in KIT_WORD.items()}
 
 
 def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
@@ -461,10 +463,12 @@ def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
         for p, v in _string_fields(t["drawing"]).items():
             if p in ("base", "accent", "third", "pattern", "label") or p not in mine:
                 continue  # the hero swatch, the motif's ink and a duvet's tog: see their tests
-            was = next(iter(motif)) if p == "motif" else v.lower()
+            name = p[1] if isinstance(p, tuple) else p
+            was = ATTRIBUTE_WORD.get((name, v.lower()), v.lower())
+            was = next(iter(motif)) if p == "motif" else was
             if was in changed:
                 want = drawn[changed[was]] if p == "motif" else changed[was]
-                want = KIT_WORD.get((p[1] if isinstance(p, tuple) else p, want.lower()), want)
+                want = KIT_WORD.get((name, want.lower()), want)
                 assert mine[p].lower() == want.lower(), (r["product_id"], p)
                 redrawn += 1
                 top_level += not isinstance(p, tuple)
