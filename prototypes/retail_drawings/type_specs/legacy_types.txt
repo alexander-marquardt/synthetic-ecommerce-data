@@ -231,7 +231,6 @@ Home|Clothes Airer
 Home|Clothes Hangers
 Home|Coffee Table
 Home|Colander
-Home|Cordless Drill
 Home|Corner Sofa
 Home|Cup
 Home|Cup Holder

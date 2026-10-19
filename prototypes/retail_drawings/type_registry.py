@@ -58,8 +58,9 @@ APPAREL_FAMILIES = "abusk"
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
 #: leaves room to append the difference. Eight footwear styles (gen#216) are the one rise: a
 #: shoe is a ``FootwearStyle`` (size charts, an upper per color), which a spec's ``Row`` cannot
-#: carry; the footwear types leave the list when footwear moves to specs (gen#427).
-LEGACY_CEILING = 333
+#: carry; the footwear types leave the list when footwear moves to specs (gen#427). The nine
+#: drill-family specs (gen#191) took "Cordless Drill" out of it.
+LEGACY_CEILING = 332
 
 
 class SpecError(ValueError):
