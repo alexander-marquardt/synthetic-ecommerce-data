@@ -82,10 +82,14 @@ class AttrSpec:
     presence: float = 1.0
     #: "keyword", "length", "count", "angle", "weight", "multi".
     kind: str = "keyword"
+    #: How a quantity's values come to be: "tabled" or "drawn".
+    source: str = "tabled"
 
 
-def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -> AttrSpec:
-    return AttrSpec(name=name, scope=scope, presence=presence, kind=kind)
+def _spec(
+    name: str, scope: str, presence: float = 1.0, kind: str = "keyword", source: str = "tabled"
+) -> AttrSpec:
+    return AttrSpec(name=name, scope=scope, presence=presence, kind=kind, source=source)
 
 
 #: End mills. The richest vocabulary in the corpus: end_mill records average
