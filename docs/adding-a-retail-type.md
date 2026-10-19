@@ -112,7 +112,12 @@ Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_retail_color_words.py`, `tests/test_retail_main_colors_275.py`,
 `tests/test_us_spelling.py`, `prototypes/retail_drawings/test_shape_honesty.py` and
 `prototypes/retail_drawings/test_house_styles.py`. Name them in the command: a bare `pytest` runs
-the whole suite.
+the whole suite. The pre-merge run runs every `test_*.py` under `prototypes/` too, each in its own
+process, through `tests/test_prototype_tests_collected_486.py` (`pytest` collects only `tests/`),
+so a prototype test your change reddens fails the PR; a new brand takes a mark no other brand
+uses, a new committed sample file is rebuilt by `build_preview4.py`, and a reported product is
+named by its hand-set id (`PLT-DXH05`), never by a `PLT-DA` decoy id, which moves when rows are
+added.
 
 ## 10. Looking at the SVGs
 
