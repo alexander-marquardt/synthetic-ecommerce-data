@@ -16,6 +16,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from mutation_row import Row
+
 _GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "nested.jsonl"
 _FILE = "nested.jsonl"
 _TEST = "tests/test_attribute_cleanup_497.py"
@@ -151,3 +153,10 @@ def _rows() -> list[tuple[str, str, str, str, str, str, str]]:
 
 
 ROWS = _rows()
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "attribute clean-up"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

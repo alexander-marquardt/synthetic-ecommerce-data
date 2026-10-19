@@ -1,13 +1,14 @@
 """Mutation rows for the non-food plural decoys of gen#445, in their own file.
 
 Each row plants one defect in a non-food class 9 decoy row and names the test of
-``tests/test_grocery_plural_nonfood_decoys_445.py`` that must go red. ``mutation_rows_garden_hose.ALL``
-carries them to ``mutation_check.py`` as rows named ``plural nonfood: ...`` (``--only "plural
+``tests/test_grocery_plural_nonfood_decoys_445.py`` that must go red. ``mutation_row.discover`` finds this file by glob and the harness names them as rows named ``plural nonfood: ...`` (``--only "plural
 nonfood:"`` re-runs them). A row is ``(name, file, old, new, test, property, root)``.
 """
 
 # ruff: noqa: E501  (a row quotes the whole line it changes)
 from __future__ import annotations
+
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 _F = "decoy_plural_nonfood_rows.py"
@@ -78,3 +79,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "plural nonfood"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

@@ -2,12 +2,14 @@
 
 Each row plants one defect in the seed table, a decoy module or the guard's term matcher and names
 the test of ``tests/test_industrial_seed_decoys_462.py`` that must go red.
-``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as rows named
+``mutation_row.discover`` finds this file by glob and the harness names them as rows named
 ``industrial seed decoys: ...`` (``--only "industrial seed decoys:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 _I = "domains/industrial"
 _T = "tests/test_industrial_seed_decoys_462.py"
@@ -108,3 +110,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "tests",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "industrial seed decoys"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]
