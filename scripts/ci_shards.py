@@ -65,6 +65,18 @@ def load_weights(path: Path = WEIGHTS) -> dict[str, float]:
     return {name: float(seconds) for name, seconds in json.loads(path.read_text()).items()}
 
 
+def spread_files(files: list[str], root: Path = REPO) -> frozenset[str]:
+    """The files whose tests xdist spreads over the workers (STUB)."""
+    return SPLIT_FILES
+
+
+def run_order(
+    files: list[str], weights: dict[str, float], spread: frozenset[str] | None = None
+) -> list[str]:
+    """The order pytest is given the files in (STUB: alphabetical)."""
+    return sorted(files)
+
+
 def deal(
     files: list[str],
     count: int,
