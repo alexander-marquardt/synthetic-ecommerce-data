@@ -47,8 +47,16 @@ case and card-making paper for "card", a notebook computer sleeve and tote for "
 storage box and chocolate coins in a box for "money box", a laundry hamper and a wicker storage hamper
 for "hamper". A row names its Gifts type in `gift_type`, holds no color word in its title or
 description, and is fixed by the department policy (the paper row sits in Gifts, so the category
-policy fixes it). `tests/test_retail_gifts_425.py` holds the census. Memory cards and gift cards
-(the issue's other "card" examples) need a type this build lacks and are not planted; gen#437 files them.
+policy fixes it). `tests/test_retail_gifts_425.py` holds the census.
+
+**Gift card (gen#437).** The gift card has a home since gen#424 (Gifts > Cards > Gift Cards), so it
+carries two decoys of its own: a gift card holder case (Travel Cases) and gift card wrapping sheets
+(Wrapping Paper, in Gifts, so the category policy fixes it). Both name `Gift Card` in `gift_type`,
+hold "gift card" in the title, and a "gift card" search and a "greeting card" search each rank the
+intended Gifts type first once the policy applies. `tests/test_retail_gift_card_decoys_437.py` holds
+the checks. The memory card, the other "card" example of gen#425, needs a storage or memory-card type
+of the Electronics department (gen#332), which this build lacks; gen#437 stays open for it, with the
+card reader and the card-slot phone case as its incidental-word decoys.
 
 **Seed phrases (gen#460).** The homepage seed queries are two or three words ("leather boots", "skinny
 jeans", "tea dress") and the Best tier requires every term, so a decoy with the bare noun never meets
@@ -152,6 +160,8 @@ prototype's baseline; the live number is read on the next loaded index.
 | money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
 | hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
 | hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
+| gift card | card | PLT-DY104 | Gift Card Holder Case | Travel Cases | department |
+| gift card | card | PLT-DY105 | Gift Card Wrapping Sheets | Wrapping Paper | category |
 | cream jumper | jumper | PLT-DY494 | Jumper and Knitwear Softening Cream | Fabric Softener | category |
 | high rise jeans | seed phrase | PLT-DY460 | High Rise Jeans Slim Belt | Belt | category |
 | high rise jeans | seed phrase | PLT-DY461 | Skinny Jeans Jeggings | Leggings | category |
