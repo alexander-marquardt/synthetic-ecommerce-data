@@ -77,6 +77,7 @@ WOMENS_DEPTH_ROWS = FIGURES["templates"]["womens_depth_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
+THIN_LEAF_ROWS = FIGURES["templates"]["thin_leaf_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -111,6 +112,7 @@ TEMPLATES = (
     + WOMENS_DEPTH_ROWS
     + KNITWEAR_ROWS
     + NECKLINE_ROWS
+    + THIN_LEAF_ROWS
     + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS

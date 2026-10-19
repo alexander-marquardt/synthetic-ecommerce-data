@@ -60,6 +60,7 @@ import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
+import thin_leaf_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
@@ -168,6 +169,7 @@ def measure() -> dict[str, Any]:
         "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
+        "thin_leaf_rows": thin_leaf_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),

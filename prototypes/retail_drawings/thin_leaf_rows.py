@@ -59,7 +59,7 @@ _CHIPS = (
     ("CHHASH", "Golden Hash Browns", 0, 2.0, "Shaped hash browns of grated potato, shallow fried or baked from frozen.", "Hash Browns", 700, "#d49b3c"),
     ("CHROST", "Crispy Roast Potatoes", 1, 2.8, "Roast potatoes par-cooked in sunflower oil, crisp outside and fluffy within.", "Roast Potatoes", 800, "#c98a3a"),
     ("CHWAFL", "Potato Waffles", 2, 2.1, "Seasoned mashed potato in a waffle shape, grilled or baked from frozen.", "Waffles", 600, "#dcb257"),
-    ("CHSEAS", "Sea Salt and Black Pepper Fries", 0, 2.3, "Straight fries tossed in sea salt and cracked black pepper.", "Fries", 700, "#d3b04c"),
+    ("CHSEAS", "Sea Salt and Pepper Fries", 0, 2.3, "Straight fries tossed in sea salt and cracked pepper.", "Fries", 700, "#d3b04c"),
     ("CHTRPL", "Triple Cooked Chunky Chips", 1, 3.2, "Chunky chips boiled, dried and fried before freezing, so they bake up crisp.", "Chips", 800, "#bf8f40"),
     ("CHROSI", "Mini Potato Rosti", 2, 2.5, "Small round rosti of grated potato and onion, baked from frozen.", "Rosti", 500, "#cf9a47"),
     ("CHCROQ", "Crispy Potato Croquettes", 0, 2.2, "Mashed potato croquettes in a golden crumb, oven baked from frozen.", "Croquettes", 650, "#d6a548"),
@@ -111,10 +111,10 @@ _CHECKS = {
     "Blue": ("#4a6a94", "#e8dfcc"), "Camel": ("#b5835a", "#5a3426"),
 }  # fmt: skip
 _BOMBERS = (
-    ("CKQUIL", "Quilted Check Bomber Jacket", 0, 64.0, "Polyester", "A quilted bomber in a small check, with ribbed cuffs and hem.", "Brown"),
+    ("CKQUIL", "Small Check Bomber Jacket", 0, 64.0, "Polyester", "A bomber in a small check, with ribbed cuffs and hem.", "Brown"),
     ("CKCROP", "Cropped Check Bomber Jacket", 1, 55.0, "Cotton blend", "A short, boxy bomber in a bold check with a zip front.", "Grey"),
     ("CKOVRS", "Oversized Check Bomber Jacket", 2, 72.0, "Wool blend", "A relaxed oversized bomber in a woolly check, with deep pockets.", "Navy"),
-    ("CKREVS", "Reversible Check Bomber Jacket", 3, 79.0, "Polyester", "A bomber that wears check on one side and plain on the other.", "Green"),
+    ("CKREVS", "Two Sided Check Bomber Jacket", 3, 79.0, "Polyester", "A bomber that wears check on one side and plain on the other.", "Green"),
     ("CKHOOD", "Hooded Check Bomber Jacket", 4, 68.0, "Cotton blend", "A hooded bomber in a brushed check, with a zip front and ribbed cuffs.", "Red"),
     ("CKFLCE", "Fleece Lined Check Bomber Jacket", 0, 82.0, "Polyester", "A check bomber with a soft fleece lining for the colder months.", "Black"),
     ("CKTWDE", "Tweed Check Bomber Jacket", 1, 89.0, "Wool blend", "A bomber in a textured tweed check with a contrast rib collar.", "Camel"),
@@ -123,7 +123,7 @@ _BOMBERS = (
     ("CKSATN", "Satin Trim Check Bomber Jacket", 4, 76.0, "Wool blend", "A check bomber with satin trim at the collar, cuffs and hem.", "Navy"),
     ("CKBCLE", "Boucle Check Bomber Jacket", 0, 85.0, "Boucle", "A bomber in a soft boucle check, with a zip front and ribbed hem.", "Camel"),
     ("CKTWIL", "Cotton Twill Check Bomber Jacket", 1, 62.0, "Cotton", "A cotton twill bomber in a classic check with a snap pocket.", "Green"),
-    ("CKPADD", "Padded Gingham Check Bomber Jacket", 2, 70.0, "Polyester", "A padded bomber in a small gingham check, zip front, contrast lining.", "Red"),
+    ("CKPADD", "Gingham Check Bomber Jacket", 2, 70.0, "Polyester", "A bomber in a small gingham check, with a zip front and a contrast lining.", "Red"),
 )  # fmt: skip
 _COAT_SIZES = ("XS", "S", "M", "L", "XL")
 
