@@ -135,6 +135,7 @@ import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
+import thin_leaf_rows  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
@@ -363,7 +364,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *womens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
-        *color_word_brand_rows.docs(), *neckline_rows.docs(),
+        *color_word_brand_rows.docs(), *neckline_rows.docs(), *thin_leaf_rows.docs(),
     ]  # fmt: skip
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
@@ -391,7 +392,8 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
+    left_out = (KNITWEAR_IDS | NECKLINE_IDS | thin_leaf_rows.IDS | SHIRT_IDS | SOFA_IDS
+                | FURNITURE_IDS | HOUSEHOLD_IDS
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
