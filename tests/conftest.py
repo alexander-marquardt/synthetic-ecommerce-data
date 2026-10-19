@@ -12,7 +12,6 @@ import pytest
 import ci_shard_split
 from xdist_groups import group_for
 
-
 RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 
 

@@ -1512,6 +1512,10 @@ different drawings instead. `tests/test_retail_image_release.py` pins the
 keying, that every document's image URL resolves to a packaged file, and the
 package shape.
 
+A `v*` tag builds the ceiling export and this bundle, uploads them to a release with their
+`.content-sha256`, and opens the pin-bump pull request in the catalogue repository
+([docs/releasing.md](docs/releasing.md), gen#536); a manual run of the workflow is the dry run.
+
 ### The older renderers in `domains/industrial/render/`
 
 `domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the

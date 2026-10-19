@@ -857,7 +857,7 @@ the default; `--dry-run` runs the local jobs too.
 is red and the only red is a golden freshness test, the script does not send
 the PR back for a fixer round. "Only" means: every red job printed pytest
 `FAILED`/`ERROR` lines, every one of them names a test of `--print-freshness`
-(the golden-catalog, golden-retail, field-map and golden-stats freshness
+(the golden-catalog, field-map and golden-stats freshness
 tests), and no other job is red. It then rebuilds the generated files on that tree (the step-2 build),
 commits them as `regenerate golden on main`, runs every job again, and pushes
 and merges only if that second run is green. It does this once. Any other red,

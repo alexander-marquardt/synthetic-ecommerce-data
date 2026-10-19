@@ -26,7 +26,7 @@ import export  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import figures  # noqa: E402
 
-#: Today's ceiling SKUs, as ``golden-retail/stats.json`` measures it (gen#162).
+#: Today's ceiling SKUs, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 CEILING_SKUS = figures()["ceiling"]["skus"]
 #: Words of an object, a food or a plant that are not a color. A color value holding one
 #: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a

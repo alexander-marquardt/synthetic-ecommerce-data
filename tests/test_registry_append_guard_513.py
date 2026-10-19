@@ -233,8 +233,9 @@ def test_no_current_registry_line_is_a_dead_shape():
             assert any(shape.search(line) for line in planted), f"{reg.path}: {shape.pattern}"
 
 
-def test_the_stats_roll_job_runs_the_registry_guard():
-    steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["no-derived-files"]["steps"]
+def test_the_no_derived_files_job_runs_the_registry_guard():
+    jobs = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]
+    steps = jobs["no-derived-files"]["steps"]
     runs = " ".join(str(step.get("run", "")) for step in steps)
     assert "scripts/check_no_registry_append.py" in runs
     assert "--base" in runs and "--head" in runs

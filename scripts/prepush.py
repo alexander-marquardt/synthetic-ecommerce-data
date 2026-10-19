@@ -96,8 +96,9 @@ LEFT_TO_CI: dict[str, str] = {
     " which a push does not have yet; tests/test_ci_select_495.py runs the emitted step",
     "red-commit-proof": "it runs each declared red test in a worktree of its commit, and its"
     " range is the pull request's base and head, which a push does not have yet",
-    "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does, which a"
-    " push does not have yet; tests/test_stats_rolled_not_edited_373.py runs its command",
+    "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does,"
+    " which a"
+    " push does not have yet; tests/test_no_derived_files_536.py runs its command",
 }
 
 

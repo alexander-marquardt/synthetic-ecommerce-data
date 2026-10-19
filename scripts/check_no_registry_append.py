@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Refuse a pull request that appends a line to a shared registry (gen#513).
 
-    python3 scripts/check_no_registry_append.py --base <sha> --head <sha>   # CI, the no-derived-files job
+    python3 scripts/check_no_registry_append.py --base <sha> --head <sha>   # CI: no-derived-files
 
-On 2026-10-18, 16 of the 21 open PRs conflicted with main. With the rolled stats files out of the
-way (``check_no_stats_edit.py``, gen#373), what conflicted was a set of registries that each
+On 2026-10-18, 16 of the 21 open PRs conflicted with main. With the derived files out of git
+(``check_no_derived_files.py``, gen#536), what conflicted was a set of registries that each
 feature appended one entry to: an import and an id set in ``scale.py``, a row and a kind in the
 decoy tables, a line in ``legacy_types.txt``. :data:`REGISTRIES` maps each such file to the shapes
 of an appended line and to the new-file form that replaces the line. The check counts, per

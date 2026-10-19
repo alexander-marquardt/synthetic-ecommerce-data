@@ -33,7 +33,7 @@ from build_preview4 import samples  # noqa: E402
 from retail_figures import figures  # noqa: E402
 from variants import FAMILIES  # noqa: E402
 
-#: The authored-styles build, as ``golden-retail/stats.json`` measures it (gen#162).
+#: The authored-styles build, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 RETAIL_SKUS = figures()["templates"]["authored"]["skus"]
 #: One image per style and colorway, plus one image for each style sold in no color.
 RETAIL_IMAGES = figures()["templates"]["authored_images"]
