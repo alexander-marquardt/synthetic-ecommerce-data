@@ -99,7 +99,7 @@ builder's type-keyed tables and conditions (for example
 `type_key == "end_mill_ball"`).
 
 A type built to a standard that has no extraction yet also needs that
-standard's rows in `data/fastener_standards.json`; until then the build stops
+standard's rows in `core/standards_library/tables/fastener_standards.json`; until then the build stops
 with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
@@ -148,10 +148,9 @@ its published attributes. `set_screws_hex_socket` does both.
    a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
-   records and the field-weights YAML should change; `golden-catalog/stats.json`
-   moves too but is never committed by a PR (`git checkout origin/main --
-   golden-catalog/stats.json`): `scripts/merge_pr.sh` rolls it when the PR merges
-   and CI rewrites it before the tests (README, Contributing, gen#373). The
+   records and the field-weights YAML should change, and `golden-catalog/stats.json`
+   with them: it is a golden file like the others, committed with the PR that moves
+   it (gen#536 removed the roll that used to rewrite it at the merge). The
    independence tests below enforce this.
 - **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
@@ -297,10 +296,9 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand. The retail totals are not here: nothing under `golden-retail/` is committed (gen#536), and a test measures them with `retail_figures.figures()`:
 
 * `golden-catalog/*`
-* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -454,12 +452,17 @@ M10x1.5`; the slice has 8, 11, 9, 7, 9, 15 and 14 SKUs of them.
 
 ### Sources and provenance
 
+A size table several types need (a thread series, a key series, a nut width) is a file in the
+standards library, `core/standards_library/tables/` (README, "The standards library"): add the
+file, never an edit to a shared list, and read the sizes the type stocks with
+`library.table(name).select([...])`.
+
 Every published dimension is read from a table a reviewer can open: a
-standard's rows extracted into `data/fastener_standards.json`, or a table in
+standard's rows extracted into `core/standards_library/tables/fastener_standards.json`, or a table in
 the module whose comment names the source file and the commit it was read
 from (the lock nut's metric rows: FastenersWB `iso7040def.csv`,
 `iso10512def.csv`, `iso10511def.csv` and `nyloc_def.csv`, at the commit that
-`data/fastener_standards.json` records, and the column each value is, such
+`core/standards_library/tables/fastener_standards.json` records, and the column each value is, such
 as `s_max` or `h_max`). A conventional size ladder with no dimensional table
 is allowed (the inch lock nuts), but:
 
@@ -829,8 +832,7 @@ It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 --print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` and
-`golden-retail/stats.json` (about 40 s more) with
+write, is handed back to you. It then rebuilds `golden-catalog/` with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It
@@ -882,7 +884,7 @@ runs the same jobs, and by a run on another checkout.
 is red and the only red is a golden freshness test, the script does not send
 the PR back for a fixer round. "Only" means: every red job printed pytest
 `FAILED`/`ERROR` lines, every one of them names a test of `--print-freshness`
-(the golden-catalog, golden-retail, field-map and golden-stats freshness
+(the golden-catalog, field-map and golden-stats freshness
 tests), and no other job is red. It then rebuilds the generated files on that tree (the step-2 build),
 commits them as `regenerate golden on main`, runs every job again, and pushes
 and merges only if that second run is green. It does this once. Any other red,
@@ -938,7 +940,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   diameter).
 * The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
-  standards extraction in `data/fastener_standards.json`.
+  standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
   `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
