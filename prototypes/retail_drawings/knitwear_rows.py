@@ -126,7 +126,7 @@ STYLES = {
     # gen#434: the other sleeve lengths and the cowl neck the grid did not knit.
     "Cowl Neck": Style("Cowl Neck", "Cowl Neck Jumper", _JUMP, "cowl", "cowl", "Long", "a draped cowl neck that folds at the collarbone"),
     "Three Quarter Sleeve": Style("Three Quarter Sleeve", "Three Quarter Sleeve Jumper", _JUMP, "crew", "crew", "Three quarter", "a crew neck and sleeves that end below the elbow"),
-    "Three Quarter Cardigan": Style("Three Quarter Cardigan", "Three Quarter Sleeve Cardigan", _CARDI, "v-neck", "v_neck", "Three quarter", "a V neck, buttons down the centre and sleeves that end below the elbow"),
+    "Three Quarter Cardigan": Style("Three Quarter Cardigan", "Three Quarter Sleeve Cardigan", _CARDI, "v-neck", "v_neck", "Three quarter", "a V neck, buttons down the center and sleeves that end below the elbow"),
     "Short Sleeve": Style("Short Sleeve", "Short Sleeve Knit Top", _TOP, "crew", "crew", "Short", "a crew neck and short sleeves in a fine knit"),
 }  # fmt: skip
 #: The drawing kit's sleeve key for each stored sleeve length.
