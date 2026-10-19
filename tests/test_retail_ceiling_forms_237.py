@@ -131,3 +131,63 @@ def test_every_authored_ceiling_light_has_a_drop_length_only_if_it_hangs() -> No
         keys = {a[0] for a in row.attrs}
         form = next(a[2] for a in row.attrs if a[0] == "fixture_type")
         assert "drop_length" not in keys or form in HANGING, row.code
+
+
+# --- the reverse of #237 (gen#401): a form that hangs carries a drop_length ----------------------
+
+#: Every ceiling-light template: each one is derived to both hanging forms.
+CEILING_TEMPLATES = tuple(
+    t["product_id"] for t in scale.templates() if t["product_type"] == "Ceiling Light"
+)
+HANGING_FORMS_TO_DERIVE = ("Pendant", "Chandelier")
+
+
+def _drop(rec: dict) -> dict:
+    drops = [a for a in rec["attributes"] if a["key"] == "drop_length"]
+    assert len(drops) == 1, f"{rec['title']}: {len(drops)} drop_length entries"
+    return drops[0]
+
+
+@pytest.mark.parametrize("pid", CEILING_TEMPLATES)
+@pytest.mark.parametrize("form", HANGING_FORMS_TO_DERIVE)
+def test_a_hanging_form_derived_from_any_template_carries_a_drop_length(
+    pid: str, form: str
+) -> None:
+    """One assertion per (template, hanging form): a pendant or chandelier derived from a flush,
+    semi-flush or spotlight template has a ``drop_length``, in centimetres as the authored ones."""
+    rec = _derive(pid, form)
+    assert _attrs(rec)["fixture_type"] == form
+    drop = _drop(rec)
+    assert drop["unit_code"] == "CMT", rec["title"]
+    assert float(drop["value"]) > 0, rec["title"]
+    assert drop["value_canonical"] == float(drop["value"]) * 10, rec["title"]
+
+
+@pytest.mark.parametrize("pid", CEILING_TEMPLATES)
+def test_a_derived_hanging_drop_sits_among_the_templates_own_keys(pid: str) -> None:
+    """The added entry follows the fixture's size, ahead of its shade, as the authored ones do."""
+    keys = [a["key"] for a in _derive(pid, "Chandelier")["attributes"]]
+    assert "drop_length" in keys, f"{pid}: a derived Chandelier has no drop_length: {keys}"
+    assert keys.index("drop_length") < keys.index("shade_material"), keys
+
+
+def test_every_derived_hanging_style_has_a_drop_length(
+    derived_ceiling_lights: list[dict],
+) -> None:
+    """Guard: the converse of the one above. Metric: how many hanging styles lack one."""
+    wrong = [
+        (r["product_id"], r["title"])
+        for r in derived_ceiling_lights
+        if _attrs(r)["fixture_type"] in HANGING and "drop_length" not in _attrs(r)
+    ]
+    assert not wrong, f"{len(wrong)} of {len(derived_ceiling_lights)}: {wrong[:5]}"
+
+
+def test_every_authored_hanging_ceiling_light_has_a_drop_length() -> None:
+    lacking = [
+        row.code
+        for row in lighting_rows.CEILING_LIGHTS
+        if next(a[2] for a in row.attrs if a[0] == "fixture_type") in HANGING
+        and "drop_length" not in {a[0] for a in row.attrs}
+    ]
+    assert not lacking, lacking

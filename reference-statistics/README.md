@@ -19,7 +19,10 @@ and the priority ordering the collection ran under.
 **Why they are checked in:** the generator's targets are meaningless without the
 measurements behind them, and a number whose source lives only in a temporary directory
 cannot be re-derived or challenged. `00_attribute_name_census.json` carries all 585
-observed attribute names; that breadth is the point and is not capped.
+observed attribute names; that breadth is the point and is not capped. Its `n_records` is
+per-record presence, the same count as `n` in `06_attribute_sparsity.json`: a name repeated on
+several rows of one specification table counts once per record (#367), and
+`tests/test_census_agrees_with_sparsity_367.py` holds the two files to one figure per name.
 
 **`R1_reference_spec_table_names.json` is a different kind of file.** It is not derived
 from the archived corpus: it lists attribute NAMES read off the reference distributor's
