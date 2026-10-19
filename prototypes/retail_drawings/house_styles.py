@@ -1326,5 +1326,6 @@ def differing(a: HouseStyle, b: HouseStyle) -> int:
     return sum(x != y for x, y in zip(astuple(a), astuple(b), strict=True))
 
 
+import appliance_brand_styles  # noqa: E402,F401 -- gen#334: six marks and styles join the tables
 import color_word_brand_styles  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
 import luggage_brand_styles  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
