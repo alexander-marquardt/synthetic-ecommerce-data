@@ -34,7 +34,7 @@ The gate that replaces it has two parts, and both are needed:
    3 records, beside ``Material`` on 160. The census also carries
    ``Cap Screw Type``, ``Toggle Bolt Type`` and ``Machine Screw Head Type`` (1
    record each) and ``Drill Bit Size`` (4); each is a single-feed spelling
-   beside a generic census name (``Type`` 52, ``Head Type`` 12, ``Size`` 109),
+   beside a generic census name (``Type`` 52, ``Head Type`` 12, ``Size`` 62),
    so they are REFUSED, not allow-listed.
 3. **No casing twin.** Keyword fields are case-sensitive, so ``Length Under
    Head`` and ``Length under Head`` are two facets. A name that differs from a
