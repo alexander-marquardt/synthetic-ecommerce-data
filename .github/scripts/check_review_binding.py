@@ -40,6 +40,11 @@ What it does not do
 It stops a FORGOTTEN review, not a forged one: every comment comes from the same account. The tier
 mapping is only as good as the routes. It does not read the findings.
 
+Git paths are read with ``-z`` and ``--literal-pathspecs`` and without rename detection, so a
+file named in a non-ASCII script, with a glob character, or moved out of a deep directory is seen
+as the file it is; a diff that differs while no path accounts for it is a changed diff, never a
+generated-only one.
+
 Exit status: 0 pass, 1 fail (the reason is printed), 3 could not judge (a read failed), which is
 never reported as a pass.
 """
@@ -120,7 +125,7 @@ def _is_bot(login: str) -> bool:
 def newest_verdict(entries: Sequence[Mapping[str, str]]) -> Verdict | None:
     """The newest verdict by a non-bot author; ``entries`` carry body, created_at, login."""
     parsed = [
-        (entry["created_at"], n, verdict)
+        (entry["created_at"] or "", n, verdict)
         for n, entry in enumerate(entries)
         if not _is_bot(entry["login"]) and (verdict := parse_verdict(entry["body"]))
     ]
@@ -220,14 +225,30 @@ def judge(
 
 
 def _git(git_dir: Path, *args: str, stdin: str | None = None) -> tuple[int, str]:
+    # ``--literal-pathspecs``: a changed file named ``a[1].py`` or ``*.md`` is that file, not a
+    # glob. UTF-8 with ``surrogateescape``: a name that is not valid text still round-trips.
     done = subprocess.run(  # noqa: S603  # `git` and `args` built here from shas and paths, no shell
-        ["git", "-C", str(git_dir), *args],  # noqa: S607  # `git` resolved on PATH
+        ["git", "--literal-pathspecs", "-C", str(git_dir), *args],  # noqa: S607  # `git` resolved on PATH
         input=stdin,
         capture_output=True,
-        text=True,
+        encoding="utf-8",
+        errors="surrogateescape",
         check=False,
     )
     return done.returncode, done.stdout
+
+
+def changed_paths(git_dir: Path, first: str, second: str) -> list[str] | None:
+    """The paths that differ between two commits, or ``None`` if git could not say.
+
+    ``-z`` keeps every name verbatim: without it git quotes a name with a non-ASCII byte
+    (``"tests/caf\\303\\251.py"``), the quoted text names no file, and the file would pass as
+    unchanged. ``--no-renames``: a rename is two paths, so a move out of a deep tier is seen.
+    """
+    code, out = _git(
+        git_dir, "diff", "--name-only", "--no-renames", "-z", first, second
+    )
+    return [name for name in out.split("\0") if name] if code == 0 else None
 
 
 def _patch_id(git_dir: Path, base: str, tip: str, *path: str) -> str | None:
@@ -282,15 +303,19 @@ def delta_state(
         return Delta("same-diff", "")
     names: set[str] = set()
     for first, second in ((base_old, old), (base_new, head)):
-        names.update(
-            _git(git_dir, "diff", "--name-only", first, second)[1].splitlines()
-        )
+        listed = changed_paths(git_dir, first, second)
+        if listed is None:
+            return Delta("unreadable", "git could not list the changed paths")
+        names.update(listed)
     differing = sorted(
         path
         for path in names
         if _patch_id(git_dir, base_old, old, path)
         != _patch_id(git_dir, base_new, head, path)
     )
+    if not differing:
+        # The whole diff differs and no path shows it: never read that as "generated only".
+        return Delta("changed", "the diff differs but no path accounts for it")
     hand = [p for p in differing if not is_generated(git_dir, base_new, p, generated)]
     if hand:
         return Delta("changed", ", ".join(hand[:5]) + (" ..." if len(hand) > 5 else ""))
@@ -336,7 +361,9 @@ def load_facts(repo: str, number: int, root: Path) -> Facts:
     reviews = _gh_lines(
         f"repos/{repo}/pulls/{number}/reviews",
         "--jq",
-        '.[] | {body: (.body // ""), created_at: .submitted_at, login: (.user.login // "")}',
+        '.[] | select(.state != "PENDING")'
+        ' | {body: (.body // ""), created_at: (.submitted_at // ""),'
+        ' login: (.user.login // "")}',
     )
     base = f"origin/{pull['base']}"
     for ref in (pull["base"], pull["head"]):
@@ -345,10 +372,9 @@ def load_facts(repo: str, number: int, root: Path) -> Facts:
     code, merge_base = _git(root, "merge-base", base, pull["head"])
     if code != 0:
         raise CannotJudge(f"no merge base of {base} and {pull['head']}")
-    # `--no-renames`: a rename is two paths, so a move out of a deep tier is still seen.
-    paths = _git(
-        root, "diff", "--name-only", "--no-renames", merge_base.strip(), pull["head"]
-    )[1].splitlines()
+    paths = changed_paths(root, merge_base.strip(), pull["head"])
+    if paths is None:
+        raise CannotJudge(f"git could not list the paths changed by {pull['head']}")
     return Facts(pull["author"], pull["head"], paths, comments + reviews, base)
 
 
