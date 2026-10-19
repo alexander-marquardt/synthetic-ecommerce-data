@@ -228,3 +228,11 @@ def test_skus_ceiling_is_never_short_and_reports_what_the_build_made(tmp_path, m
     data = json.loads(report.read_text("utf-8"))
     assert data["reached_target"] is True and 300 <= data["target_skus"] < 10_000
     assert scale.main(["--skus", "10000000"]) == 2, "a number past the ceiling is still refused"
+
+
+@pytest.mark.parametrize("step", ["Build the ceiling export", "Build the image bundle"])
+def test_the_release_build_defaults_to_the_ceiling_not_a_number(step) -> None:
+    """With no ``RELEASE_SKUS`` the tag build asks for ``ceiling`` (gen#536 review): a number past
+    the frozen catalogue is refused with exit 2, so a default of 10000000 fails every ``v*`` tag
+    while the test above, which always sets ``RELEASE_SKUS``, stays green."""
+    assert '--skus "${RELEASE_SKUS:-ceiling}"' in _release_run(step)
