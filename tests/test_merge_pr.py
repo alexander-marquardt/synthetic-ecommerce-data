@@ -35,6 +35,7 @@ from synthetic_ecommerce_data import generate_cli as cli
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
 JOBS_SCRIPT = REPO / "scripts" / "local_ci_jobs.py"
+GUARD_SCRIPT = REPO / "scripts" / "local_ci_guard.py"
 WORKFLOWS = REPO / ".github" / "workflows"
 
 #: Moves ``refs/heads/$1`` on the origin by one empty commit: another PR
@@ -219,6 +220,7 @@ def world(tmp_path: Path) -> dict:
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
+    shutil.copy2(GUARD_SCRIPT, checkout / "scripts" / "local_ci_guard.py")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     for name, text in (("gh", _FAKE_GH), ("uv", _FAKE_UV)):
@@ -237,6 +239,8 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_RETRY_SLEEP="0",
         # The narrowed checks are one test: two workers, not one per core (#348).
         LOCAL_CI_WORKERS="2",
+        # Each world has its own local CI lock: the machine's is shared with real merges (#366).
+        LOCAL_CI_LOCK=str(tmp_path / "local-ci.lock"),
         MERGE_PR_LOG_DIR=str(tmp_path),
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).
@@ -398,9 +402,7 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
     true = (world["checkout"] / _RETAIL_STATS).read_text()
-    head = _open_pr(
-        world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
-    )
+    head = _open_pr(world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)})
     result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
@@ -501,9 +503,9 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
     # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
-    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
-        result.stderr[-800:]
-    )
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), result.stderr[
+        -800:
+    ]
     assert not _merged(world)
 
 
