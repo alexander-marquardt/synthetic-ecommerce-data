@@ -2039,7 +2039,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "sports note: a Not built row is deleted",
         "docs/retail-sports-tree.md",
-        "| Camping stoves | Camping | #352 |\n",
+        '| Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |\n',
         "",
         "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
         "",
@@ -2059,8 +2059,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "sports note: a disposition is a placeholder",
         "docs/retail-sports-tree.md",
-        "| Bicycles | Cycling | #352 |",
-        "| Bicycles | Cycling | not reached |",
+        '| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |',
+        '| Bike lights | Cycling | not reached |',
         "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
         "",
         "a Not built disposition is an issue or a reason",
