@@ -19,6 +19,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import names, series
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.render import CARD, tap
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 
 MM_PER_INCH = 25.4
@@ -125,6 +126,24 @@ def test_a_square_always_fits_on_its_shank(tap_skus):
     assert too_big == []
 
 
+def test_a_generated_tap_with_a_square_is_drawn_with_that_square(tap_skus, tmp_path):
+    """The renderer's square path, dead while no record carried the attribute (#3)."""
+    drawable = [
+        sku
+        for sku in tap_skus
+        if all(k in sku for k in ("Square Size", "Shank Dia.", "Thread Length", "Overall Length"))
+        # The build plants a few thread-longer-than-tap records on purpose (the
+        # ``loc_exceeds_oal`` defect); the renderer refuses those, rightly.
+        and _inches(sku["Thread Length"]) < _inches(sku["Overall Length"])
+    ]
+    assert len(drawable) > 10
+    for sku in drawable:
+        geom = tap.geometry_from_record(sku)
+        assert geom.square is not None
+        assert abs(geom.square.inches - _inches(sku["Square Size"])) < 1e-9
+    assert tap.render(drawable[0], tmp_path / "tap.png", CARD).stat().st_size > 0
+
+
 def test_the_table_has_a_row_for_every_thread_size_the_catalog_taps_offer():
     sizes = {row["size"] for row in lib.table("tap_shank_squares").rows}
     offered = {
@@ -138,6 +157,26 @@ def test_the_table_has_a_row_for_every_thread_size_the_catalog_taps_offer():
         for designation, _ in table
     }
     assert offered <= sizes, sorted(offered - sizes)
+
+
+#: The pairs as the sources print them, written out again so a slip in the table's own
+#: transcription is red: inches from ICS Cutting Tools' spiral point tap table, millimetres
+#: from the ISO 529-1975 table of Enco's technical sheet.
+PUBLISHED_PAIRS = {
+    "#6": (0.141, 0.110), "#8": (0.168, 0.131), "#10": (0.194, 0.152),
+    "1/4": (0.255, 0.191), "5/16": (0.318, 0.238), "3/8": (0.381, 0.286),
+    "7/16": (0.323, 0.242), "1/2": (0.367, 0.275),
+    "M3": (3.15, 2.5), "M4": (3.15, 2.5), "M5": (4.0, 3.15), "M6": (4.5, 3.55),
+    "M8": (6.3, 5.0), "M10": (8.0, 6.3), "M12": (9.0, 7.1),
+}  # fmt: skip
+
+
+def test_the_table_is_the_published_shank_and_square_pairs():
+    rows = {row["size"]: row for row in lib.table("tap_shank_squares").rows}
+    assert set(rows) == set(PUBLISHED_PAIRS)
+    for size, pair in PUBLISHED_PAIRS.items():
+        unit = "mm" if size.startswith("M") else "in"
+        assert (rows[size][f"shank_{unit}"], rows[size][f"square_{unit}"]) == pair, size
 
 
 def test_the_tables_squares_are_smaller_than_their_shanks():
