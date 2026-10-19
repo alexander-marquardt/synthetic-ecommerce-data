@@ -207,6 +207,14 @@ jobs:
           python3 scripts/check_no_stats_edit.py
           --base "${{ github.event.pull_request.base.sha || inputs.base }}"
           --head "${{ github.event.pull_request.head.sha || inputs.head }}"
+      # gen#513: the other file a feature PR shares with every other one is a registry it
+      # appends a line to. The table in the script maps each registry to the shape of an
+      # appended line and names the new-file form that replaces it.
+      - name: No line appended to a shared registry
+        run: >-
+          python3 scripts/check_no_registry_append.py
+          --base "${{ github.event.pull_request.base.sha || inputs.base }}"
+          --head "${{ github.event.pull_request.head.sha || inputs.head }}"
 
   file-size:
     # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
