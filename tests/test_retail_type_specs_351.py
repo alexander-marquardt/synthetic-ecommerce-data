@@ -25,7 +25,9 @@ if str(RETAIL) not in sys.path:
 import decoy_product_words  # noqa: E402
 import distractors  # noqa: E402
 import export  # noqa: E402
+import nike_rows  # noqa: E402
 import scale  # noqa: E402
+import scale_rows  # noqa: E402
 import type_registry  # noqa: E402
 from breadth_rows import Row  # noqa: E402
 from variants import cw  # noqa: E402
@@ -96,6 +98,19 @@ def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
 #: proof is rebuilt only by an Elasticsearch run (``es_proof.py``). The set only shrinks.
 PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}
 
+#: The shoe styles the footwear specs (gen#427) do not hold: the growth round 4 shoes
+#: (``scale_rows.FOOTWEAR``) and the Nike shoes (``nike_rows.STYLES``) are built by their own
+#: modules, in their own places in the build, with their own ranks. They are shoes of a footwear
+#: spec's type, so the stray check passes them by id; a style added anywhere else is still stray.
+SHOES_BUILT_ELSEWHERE = {f"FTW-{s.code}" for s in (*scale_rows.FOOTWEAR, *nike_rows.STYLES)}
+
+#: The class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose: the type
+#: stands in another word's results ("Blue Bull Trainers" for "bull").
+SHOE_DECOYS = {
+    "PLT-DY01", "PLT-DY02", "PLT-DY40", "PLT-DY41", "PLT-DY42", "PLT-DY43", "PLT-DY46",
+    "PLT-DY54", "PLT-DY58", "PLT-DY66", "PLT-DY73",
+}  # fmt: skip
+
 
 def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]]:
     """Per spec key the rows registered outside it, and the decoy rows that sit outside one."""
@@ -110,6 +125,7 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
             r["product_id"] for r in templates
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
+            and r["product_id"] not in SHOES_BUILT_ELSEWHERE
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
         ]  # fmt: skip
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
@@ -126,7 +142,9 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     assert not any(stray.values()), f"rows registered outside their spec: {stray}"
     # the decoys that share a spec type's name: the black bike pump stands in for "black pumps"
     # (DY37); two belts stand in for the seed phrases of gen#460 (DY460 jeans, DY485 brogues)
-    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485"}, out_of_spec
+    # and the class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose, such as
+    # "Blue Bull Trainers" for the query "bull" (gen#427 made the shoe types specs)
+    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485", *SHOE_DECOYS}, out_of_spec
 
 
 def test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build() -> None:

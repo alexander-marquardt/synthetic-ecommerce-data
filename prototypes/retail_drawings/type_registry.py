@@ -25,7 +25,7 @@ import functools
 import importlib
 import pkgutil
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple
@@ -56,10 +56,10 @@ APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 APPAREL_FAMILIES = "abusk"
 #: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
-#: leaves room to append the difference. Eight footwear styles (gen#216) are the one rise: a
-#: shoe is a ``FootwearStyle`` (size charts, an upper per color), which a spec's ``Row`` cannot
-#: carry; the footwear types leave the list when footwear moves to specs (gen#427).
-LEGACY_CEILING = 333
+#: leaves room to append the difference. The 26 footwear types left it in gen#427: a shoe is a
+#: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
+#: as a spec row. The three shoe-care products stay on it.
+LEGACY_CEILING = 307
 
 
 class SpecError(ValueError):
@@ -197,7 +197,7 @@ def sizes(price: float, names: tuple[str, ...]) -> tuple[tuple[str, float], ...]
 
 
 def _ids(rows: list[Row]) -> frozenset[str]:
-    return frozenset(f"BRD-{r.code}" for r in rows)
+    return frozenset(r.product_id for r in rows)
 
 
 def ids_of(spec: TypeSpec) -> frozenset[str]:
@@ -303,9 +303,13 @@ def check_unique_ids(docs: list[dict]) -> None:
         seen[pid] = d["product_type"]
 
 
-def docs() -> list[dict]:
-    """Every spec's documents, spec by spec in key order."""
-    return [d for spec in specs().values() for d in spec.docs()]
+def docs(skip: Collection[str] = ()) -> list[dict]:
+    """Every spec's documents, spec by spec in key order, but those of the ids in ``skip``.
+
+    The footwear styles are also the preview's authored samples, which come first in the build: the
+    caller that has them already skips them here, so each is built once and the seeded derivation
+    sees them where it always did (gen#427)."""
+    return [d for spec in specs().values() for d in spec.docs() if d["product_id"] not in skip]
 
 
 def left_out_ids() -> frozenset[str]:

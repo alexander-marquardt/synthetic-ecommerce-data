@@ -170,7 +170,7 @@ def measure() -> dict[str, Any]:
         "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "nike_rows": nike_rows.docs(),
-        "type_specs": type_registry.docs(),
+        "type_specs": type_registry.docs(skip={r["product_id"] for r in authored}),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
                           if r["product_id"] in decoy_apparel.IDS],
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
