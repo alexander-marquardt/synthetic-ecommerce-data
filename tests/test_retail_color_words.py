@@ -32,11 +32,13 @@ CEILING_SKUS = committed()["ceiling"]["skus"]
 #: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a
 #: food, a stone or a fabric are a plain color value of their own now (see
 #: ``tests/test_retail_seasonal_195.py``), so they are not here.
+# "sage" left the list in gen#509: a shopper types "sage cushion" for the color, as for "olive"
+# (gen#195), so it is a color value of its own; "Sage Leaf" is still caught by "leaf".
 DENYLIST = frozenset({
     "lemon", "lime", "cherry", "peach", "chocolate", "coffee", "plum",
     "mustard", "cocoa", "honey", "toffee", "latte", "mocha", "espresso",
     "hazelnut", "walnut", "oak", "oat", "almond", "ginger", "apple", "melba",
-    "watermelon", "wine", "fig", "jam", "damson", "mulberry", "bramble", "sage", "leaf",
+    "watermelon", "wine", "fig", "jam", "damson", "mulberry", "bramble", "leaf",
     "moss", "forest", "ochre", "brick", "terracotta", "tobacco", "pearl",
     "oyster", "slate", "pewter", "smoke", "ice", "brass", "mink", "fawn", "sand",
     "kraft", "calico", "tabby", "cognac", "chestnut", "claret", "poppy",

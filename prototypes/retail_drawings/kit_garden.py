@@ -19,6 +19,9 @@ bbq             a charcoal kettle, barrel, kamado egg or    kind (kettle, barrel
 garden_hose     a coiled hose of three loops with a brass   style (coiled,
                 connector, or an expandable one laid in     expandable)
                 an S with a connector at each end
+potted_herb     a clump of upright stems in a pot, a        leaves (foliage hex), bloom
+                flower spike on each stem when it blooms    (flower hex, none: no flower)
+                (gen#509)
 ==============  ==========================================  ==========================
 
 A decoy's title may name a part in a color the product lacks ("Red Wheels", "White Shelves"): its
@@ -36,7 +39,7 @@ source is drawn as what feeds it (a battery pack, a fuel cap and pull cord, or a
 
 from __future__ import annotations
 
-from kit import INK, Fill, _highlight, _line, _panel, _path, _shade, _tint, register
+from kit import INK, LW_DETAIL, Fill, _highlight, _line, _panel, _path, _shade, _tint, register
 from kit_sports import POLE, _ell, _label, _rect
 
 #: The knob classes a drawing marks: one group each, so a test counts them against the record.
@@ -338,5 +341,35 @@ def garden_hose(paint: str, fill: Fill, label: str | None, style: str = "coiled"
     return out
 
 
-SHAPES = {"garden_hose": garden_hose, "lawn_mower": lawn_mower, "robot_mower": robot_mower, "grass_trimmer": grass_trimmer, "bbq": bbq}
+#: The stems of a potted herb: the tip each one reaches, from the soil at the pot's center.
+HERB_TIPS = ((124, 150), (154, 104), (184, 78), (216, 78), (246, 104), (276, 150), (200, 96))
+
+
+def potted_herb(paint: str, fill: Fill, label: str | None, leaves: str = "#7f9a6b", bloom: str = "") -> list[str]:
+    """A herb in a pot: a clump of upright stems with narrow leaves. ``leaves`` is the foliage's
+    hex; ``bloom`` (a hex) puts a flower spike at the tip of each stem (lavender), and none draws
+    foliage only (sage, rosemary, thyme). The pot is the record's fill."""
+    stem = _shade(leaves, 0.35)
+    out = []
+    for x, y in HERB_TIPS:
+        out.append(_line(f"M200,246 Q{(200 + x) / 2:g},{(246 + y) / 2 - 14:g} {x},{y}", 3.2, stroke=stem))
+    for x, y in HERB_TIPS:
+        cx, cy = (200 + x) / 2, (246 + y) / 2 - 14
+        for t, side in ((0.45, -1), (0.6, 1), (0.75, -1), (0.9, 1)):
+            px = (1 - t) ** 2 * 200 + 2 * t * (1 - t) * cx + t**2 * x
+            py = (1 - t) ** 2 * 246 + 2 * t * (1 - t) * cy + t**2 * y
+            out.append(f'<ellipse cx="{px + 6 * side:.1f}" cy="{py:.1f}" rx="4.5" ry="11" fill="{leaves}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>')
+        if bloom:
+            out.append(f'<ellipse cx="{x}" cy="{y - 8}" rx="7" ry="22" fill="{bloom}" stroke="{INK}" stroke-width="{LW_DETAIL}" class="bloom"/>')
+    out += [
+        _path("M120,236 Q116,300 132,352 Q200,368 268,352 Q284,300 280,236 Q240,250 200,246 Q160,250 120,236 Z", paint),
+        _line("M120,238 Q200,254 280,238", 4.5, stroke=_shade(fill.accent, 0.05)),
+        _highlight("M136,262 Q132,300 146,336", 5, 0.4),
+    ]
+    if label:
+        out += [_line("M226,272 L240,282", 1.4), *_panel(226, 280, 76, 32, label, 18)]
+    return out
+
+
+SHAPES = {"garden_hose": garden_hose, "lawn_mower": lawn_mower, "robot_mower": robot_mower, "grass_trimmer": grass_trimmer, "bbq": bbq, "potted_herb": potted_herb}
 register(SHAPES)

@@ -330,6 +330,42 @@ _MUSH_DRAWN = cw("Natural", "#e6dcc8", "solid", "#7a5a3a")
 _HEIGHTS = (("60 cm", 25.0), ("90 cm", 40.0), ("1.2 m", 65.0))
 _XMAS_FT = (("5 ft", 45.0), ("6 ft", 55.0), ("7 ft", 70.0))
 
+# gen#509: plants named after a color and a scent, one leaf each (the shopper's word), so the
+# category-node policy has a node to route a bare "lavender" or "sage" to. A leaf holds at least
+# eight styles at the ceiling (tests/test_retail_plant_nodes_509.py).
+_PLANTS = ("Garden", "Plants")
+_LAVENDER = (*_PLANTS, "Lavender")
+_SAGE = (*_PLANTS, "Herbs", "Sage")
+_ROSEMARY = (*_PLANTS, "Herbs", "Rosemary")
+_THYME = (*_PLANTS, "Herbs", "Thyme")
+_EUCALYPTUS = (*_PLANTS, "Eucalyptus")
+_PTERRA = cw("Terracotta", "#b5603a", "solid", "#4f7a3a")
+_PZINC = cw("Zinc", "#9aa3a8", "solid", "#4f7a3a")
+_PSTONE = cw("Stone", "#c9c1b3", "solid", "#4f7a3a")
+_PBLACK = cw("Black", "#2a2a2e", "solid", "#4f7a3a")
+_TW, _FN = "Thistle & Wren", "Fenwold Nursery"
+_BLOOM, _SAGE_LEAF, _ROSE_LEAF, _THYME_LEAF = "#8c6bb1", "#8fa88a", "#6f8f6a", "#7a9a62"
+
+
+def _heights(price: float, names: tuple[str, ...]) -> tuple[tuple[str, float], ...]:
+    """A plant's height run: the price grows with the height."""
+    return tuple((n, round(price * (1 + i * 0.45), 2)) for i, n in enumerate(names))
+
+
+def _herb(code, title, brand, path, price, text, pot, value, leaves, bloom=""):
+    """A potted herb (lavender, sage, rosemary, thyme): a variety, in flower when ``bloom``."""
+    return Row(code, title, brand, "Garden", path, "Plant", price, "potted_herb", text, (pot,),
+               _var(value), _heights(price, ("15 cm", "25 cm")), path[-1], colorless=True,
+               params=(("leaves", leaves), *((("bloom", bloom),) * bool(bloom))))
+
+
+def _tree(code, title, brand, path, price, text, pot, attrs, leaves):
+    """A potted tree (olive, eucalyptus): a form or a species, in three heights."""
+    return Row(code, title, brand, "Garden", path, "Plant", price, "potted_tree", text, (pot,),
+               attrs, _heights(price, ("60 cm", "90 cm", "1.2 m")), path[-1].split()[0],
+               colorless=True, params=(("leaves", leaves),))
+
+
 GARDEN = (
     Row("BAYSTD", "Standard Bay Tree in Terracotta Pot", "Thistle & Wren", "Garden", _TREES,
         "Plant", 25.0, "potted_tree",
@@ -498,6 +534,81 @@ GARDEN = (
         24.0, "potted_tree", "Lifted in winter and sent bare root, to plant before spring.",
         (cw("Green", "#457a35", "solid", "#c8312e"),), _var("Fiesta"), label="Apple",
         colorless=True),
+    # gen#509 plants. Lavender: a flowering shrub, four varieties.
+    _herb("LAVENG", "English Lavender Plant in Terracotta Pot", _TW, _LAVENDER, 9.0,
+          "A hardy, scented lavender for a sunny border or a pot, flowering from midsummer. "
+          "Water sparingly.", _PTERRA, "English", "#9aab8f", _BLOOM),
+    _herb("LAVHID", "Hidcote Lavender Plant for Low Hedges", _FN, _LAVENDER, 8.0,
+          "A compact lavender with dense flower spikes, clipped after flowering to keep a tidy "
+          "low hedge.", _PSTONE, "Hidcote", "#9aab8f", _BLOOM),
+    _herb("LAVFRN", "French Lavender Plant with Tufted Flowers", _TW, _LAVENDER, 10.0,
+          "A tender lavender with tufted flower heads that flowers from spring, best on a warm "
+          "patio.", _PZINC, "French", "#8fa384", "#7a52a3"),
+    _herb("LAVMUN", "Munstead Dwarf Lavender Plant", _FN, _LAVENDER, 7.5,
+          "A small, early lavender for the front of a border, a path edge or a window box.",
+          _PTERRA, "Munstead", "#9aab8f", _BLOOM),
+    # Sage, rosemary and thyme: the kitchen herbs, under Herbs.
+    _herb("SAGCMN", "Common Sage Plant in Terracotta Pot", _TW, _SAGE, 4.0,
+          "A kitchen sage with soft downy leaves for stuffing and roasts. Pick little and often.",
+          _PTERRA, "Common", _SAGE_LEAF),
+    _herb("SAGBRG", "Berggarten Sage Plant with Broad Leaves", _FN, _SAGE, 4.5,
+          "A sage with large, rounded leaves that rarely flowers, so it keeps its leaves for "
+          "the kitchen.", _PZINC, "Berggarten", _SAGE_LEAF),
+    _herb("SAGVAR", "Variegated Sage Plant for Containers", _TW, _SAGE, 5.0,
+          "A sage with marked leaves, as good in a mixed pot by the back door as in the herb "
+          "bed.", _PSTONE, "Variegated", "#a3b59a"),
+    _herb("SAGNAR", "Narrow-Leaved Sage Plant, Hardy Perennial", _FN, _SAGE, 4.0,
+          "A narrow-leaved sage that comes back every year and takes a dry spot in full sun.",
+          _PTERRA, "Narrow-Leaved", _SAGE_LEAF),
+    _herb("ROSUPR", "Upright Rosemary Plant in Terracotta Pot", _TW, _ROSEMARY, 5.0,
+          "An upright rosemary with needle leaves for lamb, potatoes and a barbecue. Needs sun "
+          "and good drainage.", _PTERRA, "Upright", _ROSE_LEAF),
+    _herb("ROSPRO", "Prostrate Rosemary Plant for Walls and Banks", _FN, _ROSEMARY, 5.5,
+          "A trailing rosemary that spills over a wall or a raised bed and flowers early.",
+          _PSTONE, "Prostrate", _ROSE_LEAF),
+    _herb("ROSJES", "Miss Jessopp Rosemary Plant for Hedging", _TW, _ROSEMARY, 6.0,
+          "A tall, straight rosemary that clips into a scented hedge along a sunny path.",
+          _PZINC, "Miss Jessopp", "#6a8a64"),
+    _herb("ROSBEN", "Benenden Rosemary Plant, Fine Leaves", _FN, _ROSEMARY, 5.5,
+          "A fine-leaved rosemary with a neat habit and plenty of flowers for bees.",
+          _PTERRA, "Benenden", "#6a8a64"),
+    _herb("THYCRP", "Creeping Thyme Plant for Paths and Paving", _TW, _THYME, 3.5,
+          "A mat-forming thyme that scents the air when trodden, for gaps in paving and "
+          "rockeries.", _PSTONE, "Creeping", _THYME_LEAF, "#d98fb0"),
+    _herb("THYCMN", "Common Thyme Plant in Terracotta Pot", _FN, _THYME, 3.5,
+          "A kitchen thyme with tiny leaves for stews, stocks and roast vegetables. Keep it on "
+          "the dry side.", _PTERRA, "Common", _THYME_LEAF),
+    _herb("THYDVY", "Doone Valley Thyme Plant, Mat-Forming", _TW, _THYME, 4.0,
+          "A low thyme that scents the air when brushed, for a pot by the kitchen door.",
+          _PZINC, "Doone Valley", "#8aa862"),
+    _herb("THYWLY", "Woolly Thyme Plant for Rock Gardens", _FN, _THYME, 4.0,
+          "A soft, hairy-leaved thyme that makes a low carpet in a gravel bed or a sink garden.",
+          _PSTONE, "Woolly", "#a3b59a"),
+    # Olive trees (the first, OLVSTD, is above) and eucalyptus: small trees in pots.
+    _tree("OLVBSH", "Bush Olive Tree in Zinc Planter", _FN, _OLIVES, 28.0,
+          "A bushy olive tree with a rounded crown for a sunny patio, hardy in a sheltered "
+          "spot.", _PZINC, _form("Bush"), "#9aa88c"),
+    _tree("OLVMLT", "Multi-Stem Olive Tree for a Patio", _TW, _OLIVES, 45.0,
+          "An olive tree grown with several stems for a more natural shape. Water sparingly "
+          "and feed in spring.", _PTERRA, _form("Multi-Stem"), "#9aa88c"),
+    _tree("OLVHST", "Half-Standard Olive Tree in Stone Pot", _FN, _OLIVES, 40.0,
+          "A half-standard olive tree with a clear trunk and a clipped head, for a doorstep "
+          "pair.", _PSTONE, _form("Half-Standard"), "#a3b093"),
+    _tree("OLVPLT", "Pleached Olive Tree, Flat Screen", _TW, _OLIVES, 60.0,
+          "A flat-trained olive tree for a screen against a sunny wall or a fence, with a "
+          "clear stem below.", _PBLACK, _form("Pleached"), "#9aa88c"),
+    _tree("EUCGUN", "Eucalyptus Gunnii Plant, Cider Gum", _TW, _EUCALYPTUS, 14.0,
+          "A fast-growing eucalyptus with round juvenile leaves that cut well for a vase. "
+          "Hardy once established.", _PTERRA, _var("Gunnii"), "#8fb0aa"),
+    _tree("EUCPAU", "Eucalyptus Pauciflora Snow Gum Plant", _FN, _EUCALYPTUS, 16.0,
+          "A slow-growing eucalyptus with a mottled trunk, one of the hardiest in the garden.",
+          _PSTONE, _var("Pauciflora"), "#86a89f"),
+    _tree("EUCPAR", "Eucalyptus Parvula Plant, Small-Leaved Gum", _TW, _EUCALYPTUS, 15.0,
+          "A slender eucalyptus with a graceful habit for a large pot, scented when "
+          "crushed.", _PZINC, _var("Parvula"), "#8fb0aa"),
+    _tree("EUCNIC", "Eucalyptus Nicholii Plant, Willow-Leaved", _FN, _EUCALYPTUS, 17.0,
+          "A willow-leaved eucalyptus with a weeping habit and a fragrant crown.",
+          _PTERRA, _var("Nicholii"), "#86a89f"),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -656,6 +767,21 @@ GIFTS = (
         "Scented Candle", 16.0, "jar",
         "A hand-poured pillar on a glass dish, about 30 hours of burn time.",
         (cw("Honey", "#e0a030"),), _scent("Amber Woods"), label="Candle"),
+    # gen#509: the scents of the plants a shopper names by a scent word (lavender, sage,
+    # eucalyptus), so the word keeps its scent sense beside the plant node.
+    Row("CNDLAV", "Lavender Soy Wax Candle in Glass Jar", "Lanternby", "Gifts", _CANDLE,
+        "Scented Candle", 17.0, "jar",
+        "A soy wax candle in a reusable glass jar, about 40 hours of burn time, for a bedroom.",
+        (cw("Lilac", "#c8b6d8"),), _scent("Lavender"), (("Medium", 17.0), ("Large", 27.0)),
+        "Candle"),
+    Row("CNDSAG", "Sage Travel Tin Candle", "Calderby & Lune", "Gifts", _CANDLE,
+        "Scented Candle", 8.0, "tin",
+        "A small candle in a lidded tin, about 15 hours of burn time, with a fresh herbal scent.",
+        (cw("Sage", "#9bb08f"),), _scent("Sage"), label="Candle"),
+    Row("CNDEUC", "Eucalyptus Three-Wick Candle", "Lanternby", "Gifts", _CANDLE,
+        "Scented Candle", 30.0, "jar",
+        "A wide candle with three cotton wicks and a clean, minty scent, about 50 hours of "
+        "burn time.", (cw("Teal", "#2a7f80"),), _scent("Eucalyptus"), label="Candle"),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------

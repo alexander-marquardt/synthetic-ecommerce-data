@@ -28,7 +28,7 @@ COLOR_WORDS = frozenset({
     # The shopper color words typed before a category (gen#195): each is a color value of
     # its own, never folded into a plainer one. A two-word color is one value.
     "Amber", "Aubergine", "Berry", "Caramel", "Champagne", "Duck", "Egg", "Mint", "Oatmeal",
-    "Olive", "Quartz", "Raspberry", "Rust", "Stone", "Tortoiseshell",
+    "Olive", "Quartz", "Raspberry", "Rust", "Sage", "Stone", "Tortoiseshell",
     # The near-white shade typed before a garment (gen#302): "Off White" is one value.
     "Off",
 })  # fmt: skip
@@ -70,7 +70,7 @@ PLAIN = {
     "Pastel Spot": "Blue Spot",
     # green
     "Lime": "Green", "Citrus Lime": "Bright Green",
-    "Celadon": "Light Green", "Sage": "Green", "Sage Leaf": "Green Stripe",
+    "Celadon": "Light Green", "Sage Leaf": "Green Stripe",
     "Leaf": "Green", "Moss": "Dark Green", "Moss Green": "Green",
     "Olive Suede": "Dark Green Suede", "Sea Green": "Light Green",
     "Holly Sprig": "Cream Print",

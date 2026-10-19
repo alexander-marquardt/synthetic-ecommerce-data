@@ -64,3 +64,17 @@ and a `drive-arrow` group. A test reads each against the row.
 Hedge trimmers, garden furniture sets and parasols are done (gen#203) and sit in the table above.
 Garden hoses (`Garden/Watering/Garden Hoses`, gen#292) are a spec, `type_specs/garden_hose.py`, drawn by `kit_garden.py`: two styles, a length axis in metres, and the fifteen decoys above.
 The barbecue cooking area and pizza ovens are also open.
+
+## Plants named after a color and a scent (gen#509)
+
+A bare "lavender" read as a color (lavender clothing) and a scent (lavender cleaners) and had no
+plant, so the category-node policy had no node to route it to. `breadth_rows.py` now carries
+twenty-four plant styles in six leaves under Garden > Plants, each named for the word a shopper
+types: Lavender, Herbs > Sage, Herbs > Rosemary, Herbs > Thyme, Olive Trees and Eucalyptus. Each leaf
+holds at least eight styles at the ceiling (`tests/test_retail_plant_nodes_509.py`). A herb is drawn
+by `kit_garden.potted_herb` (`leaves`, and `bloom` for a flowering lavender); an olive tree and a
+eucalyptus by `potted_tree`. The other senses stay true: Sage is a color value of its own
+(`colorwords.COLOR_WORDS`, beside Olive), so a sage cushion exists, and the scented candles carry
+Lavender, Sage and Eucalyptus fragrances. Not done here: reed diffusers and bath products in those
+scents, and the measured policies-off and policies-on pages of the issue, which need the next
+Combined load.
