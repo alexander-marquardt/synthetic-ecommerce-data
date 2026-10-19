@@ -827,6 +827,112 @@ def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog
     assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
 
 
+#: Each brand-census type's spec attribute beyond its material, as the census
+#: names it ("material, flutes, grit, closure...", ``method.brand_spread``).
+CENSUS_SPEC_ATTRIBUTE = {
+    "bearing_radial_ball": "Closure Type",
+    "end_mill_ball": "Number of Flutes",
+    "tap_spiral_point": "Number of Flutes",
+    WHEEL: "Grit",
+}
+
+
+def _modelled_skus(catalog, type_key):
+    """Each SKU of a type the price report reads, as its merged attributes."""
+    return [
+        {a.name: a for a in catalog.merged_attributes(line, child)}
+        for line in catalog.lines
+        if line.type_key == type_key and line.spec_quality != "fast_and_cheap"
+        for child in line.children
+    ]
+
+
+@pytest.mark.parametrize("type_key", sorted(CENSUS_SPEC_ATTRIBUTE))
+def test_a_brand_census_spec_holds_the_attribute_the_census_names_for_its_type(
+    catalog, scored, type_key
+):
+    """#80: the census spec is the key plus material, flutes, grit, closure.
+    The catalog's held only the key and the material, so a wheel's 60 grit and
+    its 120 grit, and a bearing's open and sealed forms, were one spec."""
+    name = CENSUS_SPEC_ATTRIBUTE[type_key]
+    collected, _ = scored
+    published = {facts[name].value for facts in _modelled_skus(catalog, type_key) if name in facts}
+    held = {spec[3] for spec in collected.specs if spec[0] == type_key if len(spec) > 3}
+    assert held == published, (held, published)
+    assert all(len(spec) == 4 for spec in collected.specs if spec[0] == type_key)
+
+
+def test_no_brand_census_spec_mixes_materials_because_sparsity_dropped_one(scored):
+    """#80: sparsity drops the published Material from some SKUs, and those
+    fell into a spec with an empty material that mixes every material (14 of
+    42 bearing specs, 15 of 45 tap specs on the default build)."""
+    collected, _ = scored
+    empty = [spec for spec in collected.specs if spec[0] in price.BRAND_CENSUS and not spec[2]]
+    assert empty == []
+
+
+@pytest.mark.parametrize("type_key", sorted(price.BRAND_CENSUS))
+def test_a_sku_missing_a_spec_attribute_is_counted_not_filed_under_a_spec(
+    catalog, scored, type_key
+):
+    """#80: a SKU whose record lacks the material or another attribute its
+    spec holds is in no spec; the report says how many, per type."""
+    collected, _ = scored
+    names = [price.MATERIAL_ATTRIBUTES.get(type_key, "Material")]
+    names += [CENSUS_SPEC_ATTRIBUTE[type_key]] if type_key in CENSUS_SPEC_ATTRIBUTE else []
+    expected = sum(
+        any(name not in facts for name in names) for facts in _modelled_skus(catalog, type_key)
+    )
+    assert len(collected.unspecced.get(type_key, [])) == expected
+    in_specs = sum(
+        len(skus)
+        for spec, by in collected.specs.items()
+        if spec[0] == type_key
+        for skus in by.values()
+    )
+    assert in_specs + expected == len(_modelled_skus(catalog, type_key))
+
+
+def test_the_wheel_has_one_economy_maker_as_the_census_has_one_house_label():
+    """#80: the census's economy figure for the wheel is its distributor's
+    house label (0.5387 of the others), found on 4 of 12 shared specs. Three
+    economy makers put one on half the sampled specs or more."""
+    makers = {
+        b.name for b in brands.brands_for(WHEEL) if brands.tier_of(b.name, WHEEL) == "economy"
+    }
+    assert makers == {"Tervasko"}
+
+
+def test_the_wheels_sampled_specs_meet_an_economy_maker_about_as_often_as_the_census(scored):
+    """#80: the census finds its house label on 4 of the wheel's 12 shared
+    specs (a third); the row's sampled brands met an economy maker on half."""
+    collected, _ = scored
+    fig = price.BRAND_CENSUS[WHEEL]
+    specs = [(s, by) for s, by in collected.specs.items() if s[0] == WHEEL and len(by) > 1]
+    met = sum(
+        any(
+            brands.tier_of(b, WHEEL) == "economy"
+            for b in price_report.sampled_brands(s, by, price_report.brand_sample(fig))
+        )
+        for s, by in specs
+    )
+    assert 0.2 <= met / len(specs) <= 0.4, (met, len(specs))
+
+
+def test_the_wheel_brand_spread_is_in_band_at_both_builds_and_not_pinned(
+    price_rows, hundred_k_rows
+):
+    """#80: the wheel row lands in band on the default build and at 100K, so
+    it needs no pin."""
+    name = BRAND_ROW.format(WHEEL)
+    assert name not in price.PINNED_SHORTFALLS
+    assert name not in price.PINNED_FIGURES
+    (row,) = [row for row in price_rows if row.name == name]
+    assert row.within, (row.achieved, row.band)
+    big = hundred_k_rows[name]
+    assert big.within, (big.achieved, big.band)
+
+
 def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch):
     """The wheel's pinned cause is measured, not asserted: at 100K, with its
     noise off, the brand tiers alone spread a spec's sampled brands past the

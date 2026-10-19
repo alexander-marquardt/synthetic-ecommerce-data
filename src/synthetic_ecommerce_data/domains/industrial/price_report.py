@@ -146,6 +146,9 @@ class Collected:
     specs: dict[tuple, dict[str, list[str]]] = field(
         default_factory=lambda: defaultdict(lambda: defaultdict(list))
     )
+    #: Per brand-census type, the SKUs that fall in no spec because sparsity
+    #: dropped one of the attributes the spec holds.
+    unspecced: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
 
 
 def _cell_names(lines: list) -> dict[str, frozenset[str]]:
