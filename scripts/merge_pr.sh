@@ -171,7 +171,8 @@ label=""
 here=$(cd "$(dirname "$0")/.." && pwd)
 # Every command the local CI runs goes through this (#366): one local CI run at a time on
 # the machine, and the run's whole process tree held to workers x 4,500 MB.
-guarded() { uv run -q --locked --directory "$here" python "$here/scripts/local_ci_guard.py" "$@"; }
+# --project, not --directory: the latter moves the job out of the merged tree ($work) into this checkout.
+guarded() { uv run -q --locked --project "$here" python "$here/scripts/local_ci_guard.py" "$@"; }
 case "${1:-}" in
   --print-checks)
     printf '%s\n' "${CHECKS[@]}"
