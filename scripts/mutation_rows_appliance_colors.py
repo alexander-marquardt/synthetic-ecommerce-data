@@ -7,6 +7,8 @@ Each row sells a stainless steel appliance in Copper again and names the test th
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _TEST = (
     "tests/test_retail_appliances_202.py "
     "-k no_stainless_steel_row_is_sold_in_the_color_of_another_metal"
@@ -30,3 +32,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a stainless steel toaster is not sold in the color of another metal",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "appliance colors"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
