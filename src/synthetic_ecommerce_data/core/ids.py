@@ -69,9 +69,9 @@ class IdMinter:
     SKU sequence and the product index each start at one.
     """
 
-    def __init__(self, prefix: str, type_key: str, block: int) -> None:
-        check_prefix(prefix)
-        self.prefix = prefix
+    def __init__(self, domain: str, type_key: str, block: int) -> None:
+        self.domain = domain
+        self.prefix = ""
         self.type_key = type_key
         self.block = block
         self._sequence = 0
