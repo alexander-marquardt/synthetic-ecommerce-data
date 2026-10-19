@@ -85,6 +85,7 @@ from synthetic_ecommerce_data.core.price import (
     ending_class,
     holds_equal,
     material_of,
+    spec_values,
 )
 
 if TYPE_CHECKING:
@@ -142,10 +143,14 @@ class Collected:
     product_pairs: dict[str, list[tuple[str, str, float]]] = field(
         default_factory=lambda: defaultdict(list)
     )
-    #: Per (type, key, material) spec, the SKUs each brand makes of it.
+    #: Per (type, key, material, ...) spec, the SKUs each brand makes of it:
+    #: a brand-census type's spec also holds its :data:`.price.SPEC_ATTRIBUTES`.
     specs: dict[tuple, dict[str, list[str]]] = field(
         default_factory=lambda: defaultdict(lambda: defaultdict(list))
     )
+    #: Per brand-census type, the SKUs that fall in no spec because sparsity
+    #: dropped one of the attributes the spec holds.
+    unspecced: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
 
 
 def _cell_names(lines: list) -> dict[str, frozenset[str]]:
@@ -192,8 +197,17 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = material_of(line.type_key, attrs) or ""
-            out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
+            if line.type_key in BRAND_CENSUS:
+                held_values = spec_values(line.type_key, attrs)
+                if held_values is None:
+                    out.unspecced[line.type_key].append(child.sku)
+                else:
+                    out.specs[(line.type_key, round(key, 4), *held_values)][line.brand].append(
+                        child.sku
+                    )
+            else:
+                material = material_of(line.type_key, attrs) or ""
+                out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
             )
@@ -418,7 +432,7 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
     spec). A family whose tiers price in order has the first below 1 and the
     second above it."""
     ratios: dict[str, tuple[list[float], list[float]]] = defaultdict(lambda: ([], []))
-    for (type_key, _, _), by_brand in collected.specs.items():
+    for (type_key, *_), by_brand in collected.specs.items():
         if len(by_brand) < 2:
             continue
         by_tier: dict[str, list[float]] = defaultdict(list)
