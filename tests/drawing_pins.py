@@ -17,11 +17,15 @@ main before the first figure moved. Print the current ones with
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.drawing import draw_sku
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+
+#: The committed records the pin draws.
+RECORDS = Path(__file__).parent / "drawing_pin_records.json"
 
 #: The figures this issue moves onto the primitives, and the ones that share a helper
 #: with them.
