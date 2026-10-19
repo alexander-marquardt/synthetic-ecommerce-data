@@ -213,8 +213,8 @@ MUTATIONS: list[Mutation] = [
         for name, old, new, tests, prop in (
             (
                 "merge_pr: no base re-check before a merge attempt",
-                '[ "$now_base" = "$base_sha" ] ||\n    die',
-                "true ||\n    die",
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                "  true ||",
                 (
                     "tests/test_merge_pr.py::"
                     "test_main_that_moves_during_the_checks_is_not_merged_onto",
@@ -252,8 +252,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: base re-checked once, not before every attempt",
-                '  [ "$now_base" = "$base_sha" ] ||',
-                '  [ "$attempt" -gt 1 ] || [ "$now_base" = "$base_sha" ] ||',
+                '  remote_ref_is "$base_ref" "$base_sha" ||',
+                '  [ "$attempt" -gt 1 ] || remote_ref_is "$base_ref" "$base_sha" ||',
                 "tests/test_merge_pr.py::"
                 "test_main_that_moves_between_merge_attempts_is_not_merged_onto",
                 "main is the base the checks ran on, at every merge attempt",
@@ -268,8 +268,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: no head re-check before a merge attempt",
-                '[ "$now_head" = "$final_sha" ] ||',
-                "true ||",
+                '  remote_ref_is "$head_ref" "$final_sha" ||',
+                "  true ||",
                 "tests/test_merge_pr.py::test_a_head_that_moves_with_nothing_to_push_is_not_merged",
                 "the head is the commit that was checked, at every merge attempt",
             ),
