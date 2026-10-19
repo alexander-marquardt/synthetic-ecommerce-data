@@ -31,7 +31,7 @@ ON_SALE = "On sale"
 FEW_HUNDRED = 300
 THREE_TYPES = 3
 #: A share, not a clearance: no department puts more than this fraction of its SKUs on sale.
-MOST_ON_SALE = 0.25
+MOST_ON_SALE = 0.4
 GROUPS = ("Womens", "Mens", "Kids", "Baby")
 
 
@@ -83,6 +83,17 @@ def test_a_department_is_not_mostly_on_sale(group: str, rows: list[dict[str, Any
     own = [r for r in rows if _group(r) == group]
     reduced = [r for r in own if ON_SALE in r["facets"].get("promotion", [])]
     assert len(reduced) / len(own) < MOST_ON_SALE
+
+
+def test_derived_styles_are_reduced_too_not_only_the_authored_ones(
+    nested: list[dict[str, Any]],
+) -> None:
+    """A derived style drops its template's was-price; a share of them is reduced again."""
+    authored = {t["product_id"] for t in scale.templates()}
+    derived = [d for d in nested if d["product_id"] not in authored]
+    reduced = [d for d in derived if ON_SALE in _values(d, "promotion")]
+    assert len(derived) > 1000
+    assert len(reduced) >= 100, len(reduced)
 
 
 def test_a_reduced_document_is_marked_the_same_way_whoever_made_it(
