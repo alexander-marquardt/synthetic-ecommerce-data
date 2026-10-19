@@ -229,6 +229,17 @@ RANGE_DISPERSION = 0.5
 RANGE_MIN_DOCS = 250
 
 
+def declared_sources(table: Any) -> dict[str, str]:
+    """Stub: the declaration is not read yet."""
+    return {}
+
+
+def quantity_sources() -> dict[str, str]:
+    from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB  # noqa: PLC0415
+
+    return declared_sources(VOCAB)
+
+
 @dataclass(frozen=True)
 class AttributeStats:
     """What the emitted documents say about one attribute key."""
