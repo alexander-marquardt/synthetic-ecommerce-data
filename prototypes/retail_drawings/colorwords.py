@@ -152,6 +152,8 @@ def is_plain(value: str) -> bool:
     words = value.split()
     if len(words) == 1 and words[0] in HALF_WORDS:
         return False
+    if words and words[-1] == "and":
+        return False
     return bool(words) and all(w in COLOR_WORDS or w in MODIFIERS for w in words) and any(
         w in COLOR_WORDS for w in words
     )
