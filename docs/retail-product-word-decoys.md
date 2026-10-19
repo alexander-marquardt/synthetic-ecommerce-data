@@ -32,8 +32,12 @@ crystal tennis bracelet for "tennis racket"). A row names its sports type in `ta
 color word in its title or description, and is fixed by the department policy (the `Sports & Outdoors`
 department drops it). `tests/test_retail_sports_decoys_368.py` walks the live catalog's Sports &
 Outdoors types, so a new type reds until it has two decoys or an entry in `SPORTS_EXEMPT` that names
-its follow-up issue. The seven first-increment types (tents, sleeping bags, camping chairs, yoga mats,
-dumbbells, kettlebells, foam rollers) are exempt until #375. The prototype's plural strip reads
+its follow-up issue. `SPORTS_EXEMPT` has been empty since gen#375 gave the seven first-increment types
+(tents, sleeping bags, camping chairs, yoga mats, dumbbells, kettlebells, foam rollers) their two
+decoys each, in `feature_decoys/sports_first_increment.py` (a tent dress and a tent stitch cushion,
+a sleeping cat cushion and a sleeping beauty doll, camping club and camping trip rows, yoga leggings
+and a yoga candle, dumbbell and kettlebell prints, a foam hand wash and foam sole sandals), and a test
+pins it empty. The prototype's plural strip reads
 "tennis" as "tenni", so the noun of those two rows is `tenni`. The picnic blanket of gen#217 (Camping)
 carries two rows of its own (`picnic`), beside the two decoys of `decor_rows.py`.
 
@@ -200,3 +204,17 @@ prototype's baseline; the live number is read on the next loaded index.
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
+| tent | tent | PLT-DY540 | Tent Dress, Swing Fit | Dress | department |
+| tent | tent | PLT-DY541 | Tent Stitch Cushion | Cushion | department |
+| sleeping | sleeping | PLT-DY542 | Sleeping Cat Cushion | Cushion | department |
+| sleeping | sleeping | PLT-DY543 | Sleeping Beauty Doll | Doll | department |
+| camping | camping | PLT-DY544 | Camping Club Kids T-Shirt | T-Shirt | department |
+| camping | camping | PLT-DY545 | Camping Trip Scented Candle | Scented Candle | department |
+| yoga | yoga | PLT-DY546 | Yoga Waist Leggings | Leggings | department |
+| yoga | yoga | PLT-DY547 | Yoga Calm Scented Candle | Scented Candle | department |
+| dumbbell | dumbbell | PLT-DY548 | Dumbbell Print Tee | Tee | department |
+| dumbbell | dumbbell | PLT-DY549 | Dumbbell Charm Bracelet | Bracelet | department |
+| kettlebell | kettlebell | PLT-DY550 | Kettlebell Class Tee | Tee | department |
+| kettlebell | kettlebell | PLT-DY551 | Kettlebell Class Tote Bag | Tote Bag | department |
+| foam | foam | PLT-DY552 | Foam Hand Wash | Hand Wash | department |
+| foam | foam | PLT-DY553 | Foam Sole Sandals | Sandals | department |
