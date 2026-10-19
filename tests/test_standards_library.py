@@ -9,6 +9,7 @@ series), and each consumer is held to the library's figures, so a copy cannot dr
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from fractions import Fraction
@@ -18,7 +19,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import noise
 from synthetic_ecommerce_data.core import standards_library as lib
-from synthetic_ecommerce_data.domains.industrial import compat, newtypes, standards
+from synthetic_ecommerce_data.domains.industrial import compat, newtypes, series, standards
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import (
     lock_nuts_nylon_insert as lock_nuts,
 )
@@ -305,3 +306,56 @@ def test_the_tap_drills_the_sentences_cite_are_the_library_tables():
 def test_the_stronger_than_pairs_are_the_library_table():
     rows = lib.table("property_class_strength").rows
     assert {r["class"]: r["stronger_than"] for r in rows} == noise.STRONGER_THAN
+
+
+#: A thread designation written out: ``1/4-20``, ``#10-32``, ``M6x1``.
+_DESIGNATION = re.compile(r"^(#\d+|\d+/\d+)-\d+$|^M\d+(\.\d+)?x[\d.]+$")
+
+
+def test_the_tap_sizes_are_the_library_threads():
+    unified = {r["size"]: r for r in lib.table("asme_b1_1_unified_threads").rows}
+    metric = {r["size"]: r for r in lib.table("iso_262_metric_threads").rows}
+    for designation, tpi in series.TAP_SIZES_UNC:
+        size, _ = designation.rsplit("-", 1)
+        assert unified[size]["unc_tpi"] == tpi and designation == f"{size}-{tpi}"
+    for designation, tpi in series.TAP_SIZES_UNF:
+        size, _ = designation.rsplit("-", 1)
+        assert unified[size]["unf_tpi"] == tpi and designation == f"{size}-{tpi}"
+    for designation, pitch in series.TAP_SIZES_METRIC:
+        size = designation.split("x")[0]
+        assert metric[size]["coarse_pitch_mm"] == pitch and designation == f"{size}x{pitch:g}"
+    for designation, pitch in series.TAP_SIZES_METRIC_FINE:
+        size = designation.split("x")[0]
+        assert pitch in metric[size]["fine_pitches_mm"] and designation == f"{size}x{pitch:g}"
+
+
+def _kit_calls(tree: ast.AST):
+    return [
+        n
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "Kit"
+    ]
+
+
+def test_no_thread_designation_or_hex_key_size_is_written_out_beside_the_library():
+    root = Path(series.__file__).parent
+    for name in ("series.py", "newtypes.py"):
+        tree = ast.parse((root / name).read_text("utf-8"))
+        written = [
+            n.value
+            for n in ast.walk(tree)
+            if isinstance(n, ast.Constant)
+            and isinstance(n.value, str)
+            and _DESIGNATION.match(n.value)
+        ]
+        assert written == [], f"{name} writes out thread designations the library holds"
+    kits = _kit_calls(ast.parse((root / "newtypes.py").read_text("utf-8")))
+    keys = [k for k in kits if ast.literal_eval(k.args[1]) == "hex_key"]
+    assert len(keys) == 5
+    for kit in keys:
+        sizes = kit.args[3]
+        assert isinstance(sizes, ast.Call) and sizes.func.id in ("_key_mm_kit", "_key_in_kit")
+    for kit in kits:
+        for kw in kit.keywords:
+            if kw.arg == "designations":
+                assert isinstance(kw.value, ast.Call), "a kit's designations are read, not typed"
