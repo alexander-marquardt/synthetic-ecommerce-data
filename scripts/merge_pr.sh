@@ -75,7 +75,18 @@
 #      GitHub that is down or out of minutes. Either way the end prints the merge's
 #      wall time (gen-merge-minutes).
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
-#      since step 1 and that the PR head is still the checked commit.
+#      since step 1 and that the PR head is still the checked commit. A read
+#      that is not the expected sha is repeated, up to 3 reads 10 s apart
+#      (MERGE_PR_HEAD_SLEEP), before the ref is called moved: ls-remote right after
+#      a push can answer from before it (#383).
+#
+# One merge at a time (#383): a run takes a lock (a directory, MERGE_PR_LOCK, default
+# /tmp/merge-pr-<repo>.lock) before it reads the PR and main, and keeps it to its last
+# step, so a merge that lands during another's 11 to 47 minute CI run no longer moves
+# main under it and forces a rerun. A second run prints that it is waiting, polls every
+# MERGE_PR_LOCK_POLL seconds (default 10) and gives up after MERGE_PR_LOCK_WAIT
+# (default 14400, 4 h). A lock whose holder's pid is gone (a killed run) is taken over.
+# --dry-run pushes and merges nothing, so it takes no lock.
 #
 # Step 6 narrows the window but cannot close it: GitHub has no compare-and-swap
 # on the base. The CI job "main-merged-tree" runs CHECKS on every push to main,
@@ -205,6 +216,47 @@ pr=$1
 origin_url=$(git -C "$here" remote get-url origin)
 slug=$(printf '%s\n' "$origin_url" | sed -E 's#^(https://[^/]+/|git@[^:]+:)##; s#\.git$##')
 
+#: One merge at a time (#383). mkdir is the atomic step; the owner file names the holder's
+#: pid, so a lock left by a killed run is told from a live one. Taking over a dead holder's
+#: lock is a rename then a delete, and two waiters doing it at once can still delete a
+#: lock a third has just taken: a window of microseconds, on a lock held for an hour.
+lock_dir=${MERGE_PR_LOCK:-/tmp/merge-pr-$(printf '%s' "$slug" | tr -c 'A-Za-z0-9._-' _).lock}
+lock_held=0
+release_merge_lock() {
+  if [ "$lock_held" -eq 1 ]; then
+    lock_held=0
+    rm -rf "$lock_dir"
+  fi
+}
+acquire_merge_lock() {
+  local waited_for=$SECONDS deadline owner_pid owner_pr announced=0
+  deadline=$((SECONDS + ${MERGE_PR_LOCK_WAIT:-14400}))
+  until mkdir "$lock_dir" 2>/dev/null; do
+    owner_pid="" owner_pr=""
+    read -r owner_pid owner_pr 2>/dev/null <"$lock_dir/owner" || true
+    if [ -n "$owner_pid" ] && ! kill -0 "$owner_pid" 2>/dev/null; then
+      echo "merge_pr.sh: the merge lock's holder (pid $owner_pid, #$owner_pr) is gone; taking the lock over"
+      if mv "$lock_dir" "$lock_dir.gone.$$" 2>/dev/null; then
+        rm -rf "$lock_dir.gone.$$"
+        continue
+      fi
+    fi
+    [ "$SECONDS" -lt "$deadline" ] ||
+      die "the merge lock $lock_dir is still held by pid ${owner_pid:-unknown} (#${owner_pr:-?}) after $((SECONDS - waited_for))s; NOT merged. Re-run when it is done"
+    if [ "$announced" -eq 0 ]; then
+      echo "waiting for the merge lock held by pid ${owner_pid:-unknown} (#${owner_pr:-?}); one merge runs at a time"
+      announced=1
+    fi
+    sleep "${MERGE_PR_LOCK_POLL:-10}"
+  done
+  lock_held=1
+  trap release_merge_lock EXIT
+  printf '%s %s\n' "$$" "$pr" >"$lock_dir/owner"
+  if [ "$announced" -eq 1 ]; then echo "took the merge lock after $((SECONDS - waited_for))s"; fi
+}
+# The lock comes before the PR is read: a run that waited merges the main that run left.
+if [ "$dry_run" -eq 0 ]; then acquire_merge_lock; fi
+
 fields=$(gh pr view "$pr" -R "$slug" \
   --json state,isCrossRepository,headRefName,headRefOid,baseRefName \
   --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName] | @tsv')
@@ -226,6 +278,7 @@ cleanup() {
       echo "merge_pr.sh: could not delete the throwaway branch $ci_branch; delete it by hand" >&2
   fi
   if [ "$keep_work" -eq 0 ]; then rm -rf "$work"; else echo "merge_pr.sh: left $work for inspection" >&2; fi
+  release_merge_lock
 }
 trap cleanup EXIT
 
@@ -575,13 +628,24 @@ fi
 # 6. Merge only the tree that was checked, against the main it was checked
 #    on. GitHub recomputes mergeability after a push and refuses until it
 #    has, so the merge is retried; main and the head are re-read before each.
+#    A read is repeated (3 reads, MERGE_PR_HEAD_SLEEP s apart) before it counts
+#    as a move: ls-remote right after a push can answer from before it (#383).
+#    Sets seen_sha to the last read.
+remote_ref_is() {
+  local ref=$1 want=$2 try
+  for try in 1 2 3; do
+    seen_sha=$(git -C "$work" ls-remote origin "refs/heads/$ref" | cut -f1) || seen_sha=""
+    [ "$seen_sha" = "$want" ] && return 0
+    if [ "$try" -lt 3 ]; then sleep "${MERGE_PR_HEAD_SLEEP:-10}"; fi
+  done
+  return 1
+}
+seen_sha=""
 for attempt in 1 2 3 4 5 6; do
-  now_base=$(git -C "$work" ls-remote origin "refs/heads/$base_ref" | cut -f1)
-  [ "$now_base" = "$base_sha" ] ||
-    die "$base_ref moved to $now_base since it was merged in; NOT merged. Re-run to check against it"
-  now_head=$(git -C "$work" ls-remote origin "refs/heads/$head_ref" | cut -f1)
-  [ "$now_head" = "$final_sha" ] ||
-    die "$head_ref moved to $now_head since it was checked; NOT merged. Re-run to check it"
+  remote_ref_is "$base_ref" "$base_sha" ||
+    die "$base_ref moved to $seen_sha since it was merged in; NOT merged. Re-run to check against it"
+  remote_ref_is "$head_ref" "$final_sha" ||
+    die "$head_ref moved to $seen_sha since it was checked; NOT merged. Re-run to check it"
   if gh pr merge "$pr" -R "$slug" --squash --match-head-commit "$final_sha"; then
     keep_work=0
     echo "6. squash-merged #$pr at $final_sha"
