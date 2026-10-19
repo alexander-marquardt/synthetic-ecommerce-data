@@ -54,11 +54,23 @@ def named(title: str) -> tuple[str, str] | None:
 
 
 def _apparel(tpl: dict) -> bool:
-    return tpl["category_path"][0] in ROOTS and tpl["department"][0] in DEPARTMENTS
+    """Clothing and footwear: the travel goods filed under a women's root (a holdall, a cabin
+    case) have handles and zips, not the garment parts of :mod:`details`."""
+    return (tpl["category_path"][0] in ROOTS and tpl["department"][0] in DEPARTMENTS
+            and tpl["category_path"][1:3] != ["Accessories", "Travel"])
 
 
 def apply(tpls: list[dict]) -> list[dict]:
     """``tpls`` with the named part of every apparel title that can show it drawn."""
+    for tpl in tpls:
+        got = named(tpl["title"]) if _apparel(tpl) else None
+        if not got:
+            continue
+        drawing, hex_ = tpl["drawing"], DETAIL_HEX[got[0]]
+        if got[1] == "laces" and drawing["shape"] == "shoe":
+            drawing["params"] = {**(drawing.get("params") or {}), "lace": hex_}
+        elif not drawing.get("detail") and got[1] in details.parts_of(drawing["shape"]):
+            drawing["detail"] = {"part": got[1], "color": hex_}
     return tpls
 
 

@@ -169,12 +169,12 @@ EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "PLT-DA02102": ("bomber_jacket", {}),
     "PLT-DA13202": ("puffer", {}),
     "PLT-DXP05": ("puffer", {}),
-    "PLT-DA08701": ("shirt_dress", {}),
+    "PLT-SDSHRT": ("shirt_dress", {}),
     "PLT-DA22501": ("top", {"sleeve": "long"}),
     "PLT-DSL029": ("top", {"sleeve": "long"}),
     "BRD-MDPS240": ("top", {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
     "BRD-NXMET041": ("trousers", {"cargo": "yes"}),
-    "PLT-DA50603": ("shorts", {"style": "sweat", "pocket": "no"}),
+    "PLT-OFRPJS": ("shorts", {"style": "sweat", "pocket": "no"}),
     "PLT-DA36301": ("shoe", {"kind": "knee_boot"}),
 }
 
@@ -304,7 +304,7 @@ def test_a_reported_title_names_a_part_its_drawing_shows(tpls: list[dict], pid: 
 NEW_PARTS = {
     "bra": ("band", "cups"),
     "blouse": ("collar", "buttons", "pocket"),
-    "dinner_suit": ("hem",),
+    "dinner_suit": ("cuffs",),
 }
 
 
