@@ -3688,7 +3688,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a title's own bra facet is dropped",
                 "facet_leaves.py",
-                "for key, value in stated_bra_facets(rec[\"title\"])",
+                "for key, value in stated_bra_facets(title_without_line(rec))",
                 "for key, value in []",
                 "tests/test_retail_facet_leaves.py -k every_value_its_title_names",
                 "a bra carries what its title says",

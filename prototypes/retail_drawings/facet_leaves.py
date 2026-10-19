@@ -14,7 +14,8 @@ so :func:`export.standard_document` collapses those leaves here:
   and ``fabric``, each the value the old leaf implied (:data:`BRA_LEAVES`). Every bra has a
   ``bra_shape``: a leaf that named none (Cotton, Racerback) takes the shape that kind of bra
   is cut in. A value the bra's title names that its leaf did not ("Lace Demi Cup Bra",
-  "Padded Balcony Bra") is added too (:func:`stated_bra_facets`).
+  "Padded Balcony Bra") is added too (:func:`stated_bra_facets`), the title read apart from the
+  bra's ``product_line`` (:func:`title_without_line`: "Plunge Lane" is a name, not a shape).
   The fibre content that ``fabric`` held on a bra ("Recycled Polyamide,
   Elastane") becomes the fibre a shopper names (Nylon) and its blend a detail.
 - on every other type, ``fabric`` is the fibre or weave a shopper names (Cotton, Linen,
@@ -374,6 +375,13 @@ def stated_bra_facets(text: str) -> list[tuple[str, str]]:
     return out
 
 
+def title_without_line(rec: dict[str, Any]) -> str:
+    """``rec``'s title with its ``product_line`` taken out: a line's name ("Plunge Lane") is not
+    the bra's shape, so a bra reads the title it has apart from the line (gen#434)."""
+    line = rec.get("product_line")
+    return rec["title"].replace(line, " ", 1) if line else rec["title"]
+
+
 def collapsed_path(path: list[str], product_type: str) -> list[str]:
     """``path`` with a jean's or trousers' fit leaf, or a bra's non-purpose leaf, dropped."""
     if len(path) >= 2 and path[-2] == FIT_NODES.get(product_type):
@@ -452,7 +460,7 @@ def leaf_facets(
         implied = {(key, value) for key, _, value in out}
         out += [
             (key, BRA_KEYS[key], value)
-            for key, value in stated_bra_facets(rec["title"])
+            for key, value in stated_bra_facets(title_without_line(rec))
             if (key, value) not in implied
         ]
         moved, _ = _fabric_facets(have, ptype)
