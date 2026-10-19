@@ -10,6 +10,7 @@ it, and ``mattress_topper(depth="5cm")`` dimensions its depth.
 
 from __future__ import annotations
 
+import re
 from html import escape
 
 from kit import (
@@ -73,24 +74,45 @@ def _down(p: tuple[float, float], t: float) -> tuple[float, float]:
     return (p[0], p[1] + t)
 
 
-def _slab(paint: str, depth: float, top_dy: float = 0) -> tuple[list[str], list]:
+def _slab(paint: str, depth: float, top_dy: float = 0, part: str = "") -> tuple[list[str], list]:
+    """The slab's faces; ``part`` marks them ``data-part="<part>-left"`` and so on, for a test to measure."""
     A, B, C, D = (_down(p, top_dy) for p in (_A, _B, _C, _D))
     left = [A, D, _down(D, depth), _down(A, depth)]
     right = [D, C, _down(C, depth), _down(D, depth)]
+    mark = (lambda side: f' data-part="{part}-{side}"') if part else (lambda side: "")
     parts = [
-        _path(_poly(left), paint),
+        _path(_poly(left), paint, extra=mark("left")),
         _dark(_poly(left), 0.12),
-        _path(_poly(right), paint),
+        _path(_poly(right), paint, extra=mark("right")),
         _dark(_poly(right), 0.24),
-        _path(_poly([A, B, C, D]), paint),
+        _path(_poly([A, B, C, D]), paint, extra=mark("top")),
     ]
     return parts, [A, B, C, D]
 
 
+#: One scale for the bedding drawings: a mattress is 25 cm deep, a topper 5 cm, so the topper
+#: is a fifth of it (a real double topper is about 135 cm wide and 5 cm deep).
+PX_PER_CM = 2.5
+MATTRESS_CM = 25.0
+
+
+def _cm(depth: str, default: float = 5.0) -> float:
+    """The centimetres in a stated depth (``"5cm"``, ``"5 cm"``, ``"7.5"``)."""
+    found = re.search(r"\d+(?:\.\d+)?", depth)
+    return float(found.group()) if found else default
+
+
 def mattress_topper(paint: str, fill: Fill, label: str | None, depth: str = "5cm") -> list[str]:
-    """A thick quilted slab with dimpled stitching, its depth dimensioned."""
-    t = 38
-    out, (A, B, C, D) = _slab(paint, t, 10)
+    """A thin quilted layer with dimpled stitching on a faint mattress, its depth dimensioned.
+
+    The thickness is the stated ``depth`` at :data:`PX_PER_CM`, the scale the mattress under it
+    is drawn at, so a 5 cm and a 10 cm topper differ and a topper is a fifth of its mattress.
+    """
+    t = _cm(depth) * PX_PER_CM
+    under, _ = _slab("#ffffff", MATTRESS_CM * PX_PER_CM, 0, "mattress")
+    out = ['<g opacity=".4" data-part="mattress">', *under, "</g>"]
+    layer, (A, B, C, D) = _slab(paint, t, -t, "topper")
+    out += ['<g data-part="topper">', *layer]
     grid, dots = [], []
     for k in range(1, 6):
         grid.append(f"M{_f(_lerp(A, B, k / 6))} L{_f(_lerp(D, C, k / 6))}")
@@ -108,6 +130,7 @@ def mattress_topper(paint: str, fill: Fill, label: str | None, depth: str = "5cm
         for k in range(1, 6)
     )
     out.append(_line(sides, 1.0, ' stroke-dasharray="4 4" stroke-opacity=".5"'))
+    out.append("</g>")
     out += _dim(C[0] + 18, C[1], C[0] + 18, C[1] + t, depth)
     return out
 
