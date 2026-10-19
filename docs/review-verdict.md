@@ -32,7 +32,14 @@ The newest verdict by a non-bot author decides. `FIX` and `BLOCK` fail the check
 patterns of each (`*` crosses `/`). A path takes the deepest tier of any pattern
 naming it. A path no pattern names is charged the deepest tier, so a new source
 directory needs no edit to be safe. The file's `generated` list names the files a
-build writes.
+build writes: only those, never a lock file, a combined file or a whole data directory.
+
+Changed paths are read with `git diff --name-only --no-renames -z` and
+`--literal-pathspecs`. A name with a non-ASCII byte or a glob character is therefore
+the file it is, and a rename counts as both of its paths. A diff that differs while no
+path accounts for it is a changed diff, never a generated-only one; a path list git
+cannot produce is "could not judge". A review with no submit time is the oldest entry,
+and a pending review is not a verdict.
 
 ## The workflow
 
@@ -56,4 +63,6 @@ check reports on every pull request and blocks none.
 
 `tests/test_review_verdict_check.py` covers the comment grammar, the judge rules,
 the tier routes of this repository, the delta against a temporary git repository,
-the exit codes, and the shape of the workflow (triggers, token scopes, pinned actions).
+the exit codes, `load_facts` against a fake `gh` and a local origin, and the shape of the
+workflow (triggers, token scopes, pinned actions). `tests/test_review_verdict_tiers_pin.py`
+pins this repository's routes and its `generated` list.
