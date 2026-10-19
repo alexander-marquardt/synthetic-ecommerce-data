@@ -136,3 +136,15 @@ def test_the_patchwork_cushion_is_drawn_with_a_patchwork_fill_not_a_gingham_one(
     for d in cushion:
         assert d["drawing"]["pattern"] == "patchwork", d["drawing"]
         assert {o["pattern"] for o in d["color_options"]} == {"patchwork"}
+
+
+def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
+    """The patchwork tile holds four differently colored squares; gingham holds two."""
+    import kit
+
+    def fills(pattern: str) -> set[str]:
+        svg = kit.pattern_defs(kit.Fill(pattern, "#c46a4a", "#26365c"), "p")
+        return set(re.findall(r'fill="(#[0-9a-f]{6})"', svg))
+
+    assert len(fills("patchwork")) == 4
+    assert len(fills("gingham")) == 2
