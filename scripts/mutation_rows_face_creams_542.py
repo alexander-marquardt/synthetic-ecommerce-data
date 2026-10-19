@@ -37,8 +37,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "an SPF line loses its SPF option, so its two SPFs share one SKU series",
         "type_specs/face_cream.py",
-        'PACK_SKY, spf=("30", "50")),\n    _line("FCPLSN"',
-        'PACK_SKY, spf=("30", "30")),\n    _line("FCPLSN"',
+        'PACK, spf=("30", "50")),\n    _line("FCPLSN"',
+        'PACK, spf=("30", "30")),\n    _line("FCPLSN"',
         f"{_T} -k price_per_ml_falls_as_volume_rises",
         "two SKUs of one series at one volume are not a price that falls",
         _R,
