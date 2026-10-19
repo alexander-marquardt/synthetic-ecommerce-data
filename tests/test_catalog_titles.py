@@ -44,7 +44,7 @@ from __future__ import annotations
 import collections
 import json
 import re
-import string
+import sys
 from pathlib import Path
 
 import pytest
@@ -52,9 +52,13 @@ import pytest
 from catalog_size import DEPTH_SKUS
 from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
-from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
+from synthetic_ecommerce_data.core.naming import DELIMITER
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
+
+sys.path.insert(0, str(GOLDEN_DIR.parent / "scripts"))
+import golden_pins  # noqa: E402  (scripts/ is not a package)
+
 REBUILD = "uv run ecom-generate build --out golden-catalog"
 
 #: A character that could be part of the same value as the one either side of
@@ -368,8 +372,9 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **73
-      of 10,548** titles (76 of 10,548 before the inch socket screws were graded
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **the
+      ``mid_word`` of ``documents`` titles in ``tests/data/golden_pins.json``**
+      (76 of 10,548 before the inch socket screws were graded
       on the SAE scale, alexander-marquardt/synthetic-ecommerce-data#17;
       69 of 10,548 before the angle-key corruption was
       removed, alexander-marquardt/synthetic-ecommerce-data#404, which moved
@@ -451,7 +456,6 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
     assertion a ``build_title`` that dropped everything would also pass.
     """
     from synthetic_ecommerce_data.core.naming import (
-        DELIMITER,
         Segment,
         build_title,
     )
@@ -533,59 +537,13 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     grammar: the segments and the delimiters are the production ones, and only
     the trimming rule is the old one.
     """
-    from synthetic_ecommerce_data.domains.industrial import generate as generate_module
-    from synthetic_ecommerce_data.domains.industrial import titles as titles_module
-
-    # ``build_title`` is called from ``titles`` (split out of ``generate``, #266).
-    real = titles_module.build_title
-    assembled: dict[str, tuple[str, int]] = {}
-
-    def spy(item, segments, *, cap=100, tight_delimiter_at=None):
-        pieces = [item]
-        for index, segment in enumerate(segments):
-            delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
-            pieces.append(delimiter + segment.text())
-        title = real(item, segments, cap=cap, tight_delimiter_at=tight_delimiter_at)
-        assembled.setdefault(title.text, ("".join(pieces), cap))
-        return title
-
-    titles_module.build_title = spy
-    try:
-        catalog = generate_module.generate()
-    finally:
-        titles_module.build_title = real
-
-    # The breadth categories (:mod:`.catalog.breadth`,
-    # alexander-marquardt/synthetic-ecommerce-data#34) build their titles
-    # directly with ``naming.build_title`` (imported into ``breadth``'s own
-    # namespace), never through the ``generate`` module's binding this spy
-    # patches -- and they use a deliberately different, simpler grammar
-    # (``<descriptor> <item>, <size>``, no segment list to cut), so they are
-    # not part of what this reconstruction is measuring.
-    documents = [
-        child
-        for line in catalog.lines
-        for child in line.children
-        if line.spec_quality != "fast_and_cheap"
-    ]
-    assert len(documents) == DEPTH_SKUS
-    assert len(assembled) > 100, "the spy recorded nothing; the reconstruction is broken"
-
-    word = set(string.ascii_letters + string.digits + './"-')
-    over_cap = mid_word = 0
-    for document in documents:
-        full, cap = assembled[document.title]
-        if len(full) <= cap:
-            continue
-        over_cap += 1
-        if full[cap - 1] in word and full[cap] in word:
-            mid_word += 1
-
-    # 126 -> 114 over the cap and 76 -> 73 mid-word with #17: twelve inch socket,
-    # flat, button and low head screws lost "Grade 12.9" for the shorter "Grade 8".
-    assert over_cap == 114, f"{over_cap} titles exceed the cap, not 114"
-    assert mid_word == 73, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 73. "
-        "If the catalog moved, restate the figure in build_title's docstring "
-        "and in test_no_title_is_cut_mid_word with it."
+    measured = golden_pins.measure_title_cut()
+    pins = golden_pins.load()["titles"]
+    assert measured["documents"] == DEPTH_SKUS
+    # The figures are ``tests/data/golden_pins.json``'s (``scripts/measure_pins.py`` writes
+    # them), so a moved catalog restates them with one command instead of an edit here.
+    assert measured == pins, (
+        f"the cap cut would land inside a word on {measured['mid_word']} titles "
+        f"({measured['over_cap']} over the cap) of {measured['documents']}, "
+        f"the fixture holds {pins}; run {golden_pins.REGENERATE}"
     )
