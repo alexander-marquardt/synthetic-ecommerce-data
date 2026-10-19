@@ -2691,7 +2691,6 @@
    "Standards",
    "Thickness",
    "Type",
-   "Units per Pack",
    "Wheel Grade"
   ],
   "wheel_mandrels": [
@@ -2708,7 +2707,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 125612,
+ "total_attribute_entries": 124703,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -2812,8 +2811,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5477,
-   "numerator": 125612,
+   "achieved": 10.4713,
+   "numerator": 124703,
    "denominator": 11909,
    "note": "count, not a rate",
    "band": null
