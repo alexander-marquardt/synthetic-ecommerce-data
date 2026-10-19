@@ -131,6 +131,83 @@ def test_this_tree_is_judged(capsys) -> None:
     assert "scripts/mutation_check.py" in out
 
 
+# -- the commit-time hook on a merge in progress (#398) ------------------------
+#
+# ``git merge main`` stops before the commit when it conflicts, and the pre-commit
+# hook then runs while HEAD is still the branch's old tip. Measured from the merge
+# base of main and HEAD, that base is the one the branch left, and main's growth
+# looked like the branch's own.
+
+
+def _hook(repo: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch):
+    """The pre-commit hook as an agent commit runs it: no PR body exists yet."""
+    monkeypatch.setenv("AGENT_TMP", str(repo / ".agent"))
+    monkeypatch.delenv("PRISM_PR_BODY_FILE", raising=False)
+    status = _gate().main(["--base", "main", "--warn-at-commit"], root=repo)
+    return status, capsys.readouterr().out
+
+
+def _rev(repo: Path, rev: str) -> str:
+    done = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", rev], check=True, capture_output=True, text=True
+    )
+    return done.stdout.strip()
+
+
+@pytest.fixture
+def merging(repo: Path) -> tuple[Path, str, str]:
+    """A merge of main in progress: the branch shrank README, main grew it.
+
+    Returns the repo, the merge base the branch left, and main's tip. The merged
+    README holds one line more than the merge base and two fewer than main.
+    """
+    lines = (repo / "README.md").read_text(encoding="utf-8").splitlines(keepends=True)
+    stale = _rev(repo, "main")
+    (repo / "README.md").write_text("".join(lines[1:]), encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "the branch shrinks README")
+    _git(repo, "switch", "-q", "main")
+    (repo / "README.md").write_text("".join(lines) + "y = 1\ny = 2\n", encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "main grows README")
+    _git(repo, "switch", "-q", "change")
+    _git(repo, "merge", "-q", "--no-commit", "--no-ff", "main")
+    return repo, stale, _rev(repo, "main")
+
+
+def test_a_merge_of_main_is_not_charged_main_growth(merging, capsys, monkeypatch) -> None:
+    repo, _stale, _main = merging
+    status, out = _hook(repo, capsys, monkeypatch)
+    assert status == 0, out
+    assert "README.md" not in out
+
+
+def test_a_growth_the_pr_adds_inside_a_merge_is_still_refused(merging, capsys, monkeypatch) -> None:
+    repo, _stale, _main = merging
+    _write(repo, "src/pkg/big.py", CAP + 1)
+    _git(repo, "add", "-A")
+    status, out = _hook(repo, capsys, monkeypatch)
+    assert status == 1, out
+    assert "src/pkg/big.py" in out
+    assert "README.md" not in out
+
+
+def test_a_refusal_in_a_merge_names_main_as_the_base(merging, capsys, monkeypatch) -> None:
+    repo, stale, main_tip = merging
+    _write(repo, "src/pkg/big.py", CAP + 1)
+    _git(repo, "add", "-A")
+    _status, out = _hook(repo, capsys, monkeypatch)
+    assert f"from {main_tip[:12]} (main)" in out, out
+    assert stale[:12] not in out
+
+
+def test_a_refusal_with_no_merge_names_the_merge_base(repo, capsys, monkeypatch) -> None:
+    base = _rev(repo, "main")
+    _write(repo, "src/pkg/big.py", CAP + 1)
+    _git(repo, "add", "-A")
+    status, out = _hook(repo, capsys, monkeypatch)
+    assert status == 1, out
+    assert f"from {base[:12]} (main)" in out, out
+
+
 # -- the CI job: merge_pr.sh --local-ci runs it with gh signed in -------------
 #
 # The job runs the gate once with no body, and reads the PR body only when the
