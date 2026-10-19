@@ -21,8 +21,10 @@ HEX = Contents((10, "hex shank bits"), (1, "case"))
 
 
 def _row(code, name, brand, price, c, drills, shank, bits, text):
+    """``drills`` is one material or a tuple: a multi-purpose set states each material it drills into."""
+    into = (drills,) if isinstance(drills, str) else drills
     return (code, c.title(name), brand, price, c.text(text),
-            (a("drills_into", "Drills into", drills), a("shank", "Shank", shank), a("case", "Case", "Hard case"), *c.attrs),
+            (*(a("drills_into", "Drills into", m) for m in into), a("shank", "Shank", shank), a("case", "Case", "Hard case"), *c.attrs),
             (("shank", shank.lower()), ("bits", str(bits))))  # fmt: skip
 
 
@@ -67,7 +69,7 @@ ROWS = d.styles(
             d.HAR,
             24.0,
             MULTI,
-            "Multi-purpose",
+            ("Multi-purpose", "Wood", "Masonry", "Metal"),
             "Round",
             13,
             "Bits for wood, masonry and metal, in a hard case.",

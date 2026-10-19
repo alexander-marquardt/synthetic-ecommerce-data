@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import color_word_brand_rows
 import diy_tools as d
 from type_registry import TypeSpec
 
@@ -55,7 +56,7 @@ SPEC = TypeSpec(
     key="combi_drill",
     department=d.HOME,
     product_type="Combi Drill",
-    rows=ROWS,
+    rows=ROWS + color_word_brand_rows.spec_rows("Combi Drill"),
     decoys=d.decoys(
         ROWS[0], "combi drill", ("DCCBCD", "Combi Drill, Corded Free", "corded combi drill")
     ),

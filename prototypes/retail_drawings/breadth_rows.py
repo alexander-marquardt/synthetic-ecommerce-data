@@ -1191,6 +1191,11 @@ def _a1(key: str, name: str, v: str) -> tuple[tuple[str, str, str], ...]:
     return ((key, name, v),)
 
 
+def _volts(v: int) -> tuple[tuple[str, str, str, str, float], ...]:
+    """A tool's battery voltage: the unit is in the key (``_v``), the canonical value in volts."""
+    return (("voltage_v", "Voltage", str(v), "VLT", float(v)),)
+
+
 def _pieces(n: int) -> tuple[tuple[str, str, str, str], ...]:
     """How many pieces a set holds: a count (unit code C62), so a facet can range over it."""
     return (("piece_count", "Piece count", str(n), "C62"),)
