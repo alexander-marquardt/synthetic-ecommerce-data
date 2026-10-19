@@ -90,7 +90,7 @@ def test_the_anchor_is_the_first_line_with_more_than_one_variant() -> None:
                 "product_id": "A-1",
                 "product_type": "t",
                 "variant_count": 1,
-                "variants": [{"sku": "11"}],
+                "variants": [{"sku": "11", "order_multiple": 1}],
             }
         ),
         json.dumps(
@@ -98,7 +98,10 @@ def test_the_anchor_is_the_first_line_with_more_than_one_variant() -> None:
                 "product_id": "B-2",
                 "product_type": "t",
                 "variant_count": 2,
-                "variants": [{"sku": "21"}, {"sku": "22"}],
+                "variants": [
+                    {"sku": "21", "order_multiple": 1},
+                    {"sku": "22", "order_multiple": 1},
+                ],
             }
         ),
         json.dumps(
@@ -106,7 +109,10 @@ def test_the_anchor_is_the_first_line_with_more_than_one_variant() -> None:
                 "product_id": "C-3",
                 "product_type": "t",
                 "variant_count": 2,
-                "variants": [{"sku": "31"}, {"sku": "32"}],
+                "variants": [
+                    {"sku": "31", "order_multiple": 1},
+                    {"sku": "32", "order_multiple": 1},
+                ],
             }
         ),
     ]
@@ -136,6 +142,7 @@ def test_an_anchor_text_that_occurs_twice_or_not_at_all_is_refused() -> None:
         "variant_count": 2,
         "first_sku": "21",
         "second_sku": "22",
+        "order_multiple": 1,
     }
     texts = _texts(anchor)
     assert len(golden_pins.anchor_needles(anchor)) == 4
