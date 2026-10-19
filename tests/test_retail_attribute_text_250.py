@@ -22,10 +22,10 @@ if str(RETAIL) not in sys.path:
 
 import attribute_text  # noqa: E402
 import scale  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
 #: The ceiling build, as ``test_retail_scale.py`` builds it.
-CEILING_SKUS = committed()["ceiling"]["skus"] * 2
+CEILING_SKUS = figures()["ceiling"]["skus"] * 2
 #: The rows the check must read, so a check that sees none cannot pass: the templates hold 31
 #: styles with a closure attribute that names a closure word and 66 with a pattern attribute.
 MIN_CLOSURE_ROWS = 25

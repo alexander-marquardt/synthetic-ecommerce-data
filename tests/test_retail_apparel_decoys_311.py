@@ -42,7 +42,12 @@ DEPARTMENTS = {"Clothing", "Footwear", "Lingerie & Nightwear"}
 ROOTS = {"Womens", "Mens", "Kids"}
 MAIN = {"red", "blue", "green", "yellow", "black", "white"}
 AUDIENCE_ROOT = {"mens": "Mens", "womens": "Womens", "boys": "Kids", "girls": "Kids"}
-TABLE_DOC = ROOT / "docs" / "retail-apparel-decoys.md"
+
+
+@pytest.fixture(scope="module")
+def table_doc() -> str:
+    """The docs table as the build writes it (``docs/retail-apparel-decoys.md``, not in git)."""
+    return da.doc_text()
 
 
 @pytest.fixture(scope="module")
@@ -387,7 +392,7 @@ def test_no_class_2_phrase_is_a_live_title_reworded(ceiling: list[dict]) -> None
     assert not bad, bad
 
 
-def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
+def test_every_type_has_three_real_compounds_or_a_declared_reason(table_doc: str) -> None:
     """#444: a type with fewer than three real compounds is a declared exception, with its
     reason, and the generator text of the docs says so; an exception that no longer applies reds.
     Only a phrase some exemplar of the type can carry counts: ``_in_path`` blocks Shirt Blouse,
@@ -403,7 +408,7 @@ def test_every_type_has_three_real_compounds_or_a_declared_reason() -> None:
     assert short == set(da.SHORT_COMPOUNDS), short ^ set(da.SHORT_COMPOUNDS)
     assert all(len(reason.split()) >= 4 for reason in da.SHORT_COMPOUNDS.values())
     for ptype in short:
-        assert ptype in TABLE_DOC.read_text(), ptype
+        assert ptype in table_doc, ptype
 
 
 def test_large_types_carry_ten_percent_decoys(rows: list[da.Row], ceiling: list[dict]) -> None:
@@ -425,10 +430,10 @@ def test_policy_is_marked_generic_or_special_on_every_row(rows: list[da.Row]) ->
     assert {r.policy for r in rows if r.cls != 4} == {"generic"}
 
 
-def test_docs_table_is_generated_and_lists_every_row(rows: list[da.Row]) -> None:
+def test_docs_table_is_generated_and_lists_every_row(rows: list[da.Row], table_doc: str) -> None:
     table = da.table_markdown(rows)
     assert len(table.splitlines()) == len(rows) + 2 and len(rows) > 500
-    assert table in TABLE_DOC.read_text()
+    assert table in table_doc
     for r in rows:
         assert r.pid in table
 
