@@ -3439,7 +3439,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel's brand noise is the per-brand 0.70 and its size noise none",
                 "core/price.py",
-                "            0.190,\n            0.139,\n            size_sigma=0.736,",
+                "            0.153,\n            0.000,\n            size_sigma=0.877,",
                 "            0.702,\n            0.306,\n            size_sigma=0.0,",
                 "wheel_brand_spread_lands_in_band",
                 "the wheel brand spread is in band on the default build",
