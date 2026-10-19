@@ -99,7 +99,7 @@ builder's type-keyed tables and conditions (for example
 `type_key == "end_mill_ball"`).
 
 A type built to a standard that has no extraction yet also needs that
-standard's rows in `data/fastener_standards.json`; until then the build stops
+standard's rows in `core/standards_library/tables/fastener_standards.json`; until then the build stops
 with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
@@ -454,12 +454,17 @@ M10x1.5`; the slice has 8, 11, 9, 7, 9, 15 and 14 SKUs of them.
 
 ### Sources and provenance
 
+A size table several types need (a thread series, a key series, a nut width) is a file in the
+standards library, `core/standards_library/tables/` (README, "The standards library"): add the
+file, never an edit to a shared list, and read the sizes the type stocks with
+`library.table(name).select([...])`.
+
 Every published dimension is read from a table a reviewer can open: a
-standard's rows extracted into `data/fastener_standards.json`, or a table in
+standard's rows extracted into `core/standards_library/tables/fastener_standards.json`, or a table in
 the module whose comment names the source file and the commit it was read
 from (the lock nut's metric rows: FastenersWB `iso7040def.csv`,
 `iso10512def.csv`, `iso10511def.csv` and `nyloc_def.csv`, at the commit that
-`data/fastener_standards.json` records, and the column each value is, such
+`core/standards_library/tables/fastener_standards.json` records, and the column each value is, such
 as `s_max` or `h_max`). A conventional size ladder with no dimensional table
 is allowed (the inch lock nuts), but:
 
@@ -916,7 +921,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   diameter).
 * The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
-  standards extraction in `data/fastener_standards.json`.
+  standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
   `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
