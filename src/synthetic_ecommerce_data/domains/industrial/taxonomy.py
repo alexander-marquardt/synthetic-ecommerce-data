@@ -17,8 +17,13 @@ THE RULE, read off the real distributor's own breadcrumbs and category facet
 * **Specifications are never path levels.** Material, coating/finish, drive,
   size and standard are attributes. An earlier version of this tree ended the
   end mills at a MATERIAL (``... / Square End Mills / Cobalt``), which the
-  real catalog never does; ``tests/test_catalog_vocab.py`` now reds if any
-  path segment equals a value its own products publish as an attribute.
+  real catalog never does. Two gates in ``tests/test_catalog_generate.py`` red
+  on it: ``test_no_category_level_is_a_value_the_line_publishes_as_an_attribute``
+  (a segment spelled exactly like a value its own products publish) and
+  ``test_no_category_level_is_part_of_a_value_the_catalog_publishes`` (a
+  segment that is a run of words of any published value, ``Carbide`` for
+  ``Solid Carbide``). A level in another notation than its value (``1/2"``
+  for ``0.5 in``) passes both.
 * **Depth varies, 3 to 5 levels**, because it varies in the real catalog:
   drill bits sit one grouping deeper than taps.
 * **Root names are the real catalog's** (``Holemaking``, not ``Drilling``).

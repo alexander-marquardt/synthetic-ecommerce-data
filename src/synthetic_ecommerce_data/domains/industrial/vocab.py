@@ -94,11 +94,14 @@ _END_MILL = (
     # On EVERY end mill, not at the 0.62 the reference corpus measured. That
     # corpus's end mills could leave material unstated because their category
     # trail named it; this catalog's trail no longer does (material is not a
-    # path level -- see ``taxonomy``), so a line without this attribute would
-    # carry its material nowhere. The real catalog's own ``End Mill Material``
-    # facet covers practically every end mill (59,358 values against 56,178
-    # ``Square End Mills`` in its ``square end mill`` listing,
-    # elastic/prism-industrial-products ``data/facet_vocabulary.json``).
+    # path level -- see ``taxonomy``), so a line without this attribute could
+    # not be reached through the ``End Mill Material`` facet. Most such lines
+    # still name the material in their title (the review of #20 measured 424 of
+    # the 465 that lacked it); only 41 carried it solely in the path. The
+    # real catalog's own ``End Mill Material`` facet covers practically every
+    # end mill (59,358 values against 56,178 ``Square End Mills`` in its
+    # ``square end mill`` listing, elastic/prism-industrial-products
+    # ``data/facet_vocabulary.json``).
     # Presence 1.0 still draws its sparsity roll, so the random stream is
     # unchanged by this.
     _spec("Material", "line"),
