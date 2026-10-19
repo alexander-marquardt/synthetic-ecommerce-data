@@ -133,8 +133,8 @@ def test_every_pair_of_brands_in_the_book_is_visibly_different():
 
 
 def test_the_rule_is_not_vacuous_on_the_book():
-    """Strip each brand's mark and the rule still holds for the pairs it should: the
-    book is not distinct only because every brand owns a mark."""
+    """Strip each brand's mark and 936 of the book's 990 pairs (94.5%, measured) still
+    differ: the book is not distinct only because every brand owns a mark."""
     styles = [dist.style_of(name)._replace(mark=None) for name in brands.BRANDS]
     strong_or_weak = sum(
         1 for a, b in itertools.combinations(styles, 2) if dist.visibly_different(a, b)
@@ -193,6 +193,16 @@ def test_olive_and_orange_collapse_under_protanopia_and_are_not_a_safe_pair():
     assert dist.ink_delta_e(olive, orange, vision=("none",)) > 50
     assert dist.ink_delta_e(olive, orange, vision=("prot",)) < 1
     assert not dist.inks_are_safe(olive, orange)
+
+
+def test_red_and_green_are_confusable_to_a_protanope_alone():
+    """#c0392b and #1e7a3c are 95 apart for a normal eye and 21 for a deuteranope, so
+    only protanopia (10.8) takes them under the floor: the pair a rule that left out
+    one kind of vision would call safe."""
+    red, green = brands.INKS[2], brands.INKS[3]
+    assert dist.ink_delta_e(red, green, vision=("none", "deut", "trit")) >= dist.MIN_INK_DELTA_E
+    assert dist.ink_delta_e(red, green, vision=("prot",)) < dist.MIN_INK_DELTA_E
+    assert not dist.inks_are_safe(red, green)
 
 
 # --- the levers are drawn -------------------------------------------------------
