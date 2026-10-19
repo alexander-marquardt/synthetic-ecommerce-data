@@ -122,13 +122,22 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
-extraction, unmodified, and carries its own provenance block naming each
+`src/synthetic_ecommerce_data/core/standards_library/tables/fastener_standards.json` is that
+extraction, unmodified apart from the library's `_library` citation block, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+**The standards library (#73).** Every size table the catalog reads from a standard is one
+JSON file in `src/synthetic_ecommerce_data/core/standards_library/tables/`, with a `_library`
+block naming its `standards`, `edition`, `source` and `kind`, and a rule of its own in
+`tests/test_standards_library.py`. A type reads a table by name
+(`standards_library.table("asme_b1_1_unified_threads").select(["#10", "1/4"])`) and takes only
+the sizes it stocks; `select` refuses a size the table lacks. A new table is a new file, never
+an edit to a shared list, so two type PRs that each add one do not collide. The library moves
+SIZE tables; what a type claims to conform to stays in `conformance.py` (#61).
 
 The sizes taken are listed in the extraction's own `requested_sizes` block:
 `M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.
@@ -190,7 +199,7 @@ To add a product type, or move one into its own module, see
 Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
-in, rebuilds `golden-catalog/` and `golden-retail/stats.json` and merges only when the drift, golden and seam
+in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree.
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
@@ -198,21 +207,18 @@ checkout) but not the network. When a real merge's build fails on a dropped
 lookup, the script says "the build failed on the network" apart from the build
 refusing the tree; rerun it.
 
-**What a feature PR commits, and what it never commits (gen#373).** A PR commits its
+**What a feature PR commits, and what it never commits (gen#536).** A PR commits its
 sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
-(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, the mappings). It never commits
-`golden-retail/stats.json`, `golden-catalog/stats.json` or the apparel decoy table
-`docs/retail-apparel-decoys.md`: those three are build output that moves with every type or
-grocery PR, and 16 of the 21 open PRs on 2026-10-18 edited the first, so each merge conflicted
-the rest. CI rewrites them from the PR's own build before the tests read them
-(`scripts/roll_stats.py`; run it yourself, `uv run python scripts/roll_stats.py`, to see your
-figures and your table), `scripts/merge_pr.sh` is the release step that commits the rebuilt files
-when the PR merges (its commit carries `Rolled-By: scripts/merge_pr.sh`), and the `stats-roll` job
-(`scripts/check_no_stats_edit.py`) refuses a PR that edits any of them, naming
-`git checkout <base> -- <file>` to put it back. That trailer is the one escape: it is a plain line
-anyone could type, so only `scripts/merge_pr.sh` writes it, and a review reads any tip that has it
-outside a merge. After `ecom-generate build --out golden-catalog` or `retail_figures.py`, put the
-three files back before you commit.
+(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, `stats.json`, the mappings). It
+never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
+`docs/figures.md`, the apparel decoy table `docs/retail-apparel-decoys.md` and the sneak-peek
+samples and previews. They moved with every type or grocery PR, so every merge conflicted the
+rest, and a merge that did not roll them left `main` red. CI builds them once per run and uploads
+them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
+scripts/build_derived.py --out build/derived`, to see yours), a test reads a total with
+`retail_figures.figures()` and never compares against a committed number, and the
+`no-derived-files` job (`scripts/check_no_derived_files.py`) fails a PR whose tree tracks one,
+naming `git rm --cached <file>`. The figures page is the `derived` artifact's `docs/figures.md`.
 
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
@@ -1506,7 +1512,7 @@ the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, never per SKU:
 every size of one color shares an image, drawn in that color's swatch (base,
 pattern and accent). The authored-styles build is `templates.authored_images` images for
-`templates.authored` SKUs (`golden-retail/stats.json`).
+`templates.authored` SKUs (`retail_figures.figures()`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
 input): `--skus 20000` is 1,348 images for 20,002 SKUs.
 There is no committed manifest to check against (the retail build is code, not
@@ -1514,6 +1520,10 @@ a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
 keying, that every document's image URL resolves to a packaged file, and the
 package shape.
+
+A `v*` tag builds the ceiling export and this bundle, uploads them to a release with their
+`.content-sha256`, and opens the pin-bump pull request in the catalogue repository
+([docs/releasing.md](docs/releasing.md), gen#536); a manual run of the workflow is the dry run.
 
 ### The older renderers in `domains/industrial/render/`
 

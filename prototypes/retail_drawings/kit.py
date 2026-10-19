@@ -6,7 +6,7 @@ figures (a paper tint, a thin frame, one ink color, round joins).
 
 * ``shape`` names an entry of :data:`SHAPES` (clothing, footwear or food).
 * ``fill`` is a :class:`Fill`: a solid color or an SVG pattern
-  (stripe, gingham, tartan, leopard, polka dot). It paints the product's
+  (stripe, gingham, tartan, patchwork, leopard, polka dot). It paints the product's
   main surface, so the color and pattern facets can be checked by eye.
 * ``label`` is the large product word a food pack carries ("Milk").
 * ``brand`` is printed on a small tag in the bottom-left corner.
@@ -30,7 +30,7 @@ PAPER = "#fbfaf6"
 LW = 3.0  # outline width
 LW_DETAIL = 1.6  # seams, slots, lace marks
 FONT = "Helvetica, Arial, sans-serif"
-PATTERNS = ("solid", "stripe", "gingham", "tartan", "leopard", "polka", "print")
+PATTERNS = ("solid", "stripe", "gingham", "tartan", "patchwork", "leopard", "polka", "print")
 #: How a ``print`` fill lays its motif out (gen#125, see :mod:`motifs`).
 PLACEMENTS = ("all-over", "placement", "scatter")
 #: The largest motif a repeat tile holds, as a share of its edge: an all-over
@@ -257,6 +257,18 @@ def pattern_defs(fill: Fill, pid: str) -> str:
                 f'<rect x="40" width="3" height="56" fill="{t}" opacity=".9"/>'
                 f'<rect y="16" width="56" height="2" fill="#000000" opacity=".35"/>'
                 f'<rect x="16" width="2" height="56" fill="#000000" opacity=".35"/>'
+            ),
+        )
+    elif fill.pattern == "patchwork":
+        tile, body = (
+            48,
+            (
+                f'<rect width="48" height="48" fill="{b}"/>'
+                f'<rect x="24" width="24" height="24" fill="{a}" opacity=".85"/>'
+                f'<rect y="24" width="24" height="24" fill="{t}" opacity=".7"/>'
+                f'<rect x="24" y="24" width="24" height="24" fill="{_shade(b, 0.25)}"/>'
+                f'<path d="M0 24H48M24 0V48" stroke="#ffffff" stroke-width="1.6" '
+                f'stroke-dasharray="4 3" opacity=".8"/>'
             ),
         )
     elif fill.pattern == "leopard":
