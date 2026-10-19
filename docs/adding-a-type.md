@@ -765,11 +765,12 @@ in each of these hooks and refusals and checks that the named test goes red.
 ## Minting ids for a second domain (#128)
 
 A domain mints product ids and SKUs through `core/ids.py`, not through a
-generator method. It builds one `IdMinter(prefix, type_key, block)` per type
-(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
-`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
-once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
-prefix another domain holds.
+generator method. It claims its prefix once at import, `ids.claim_prefix("<domain>", "<prefix>")`,
+which refuses a prefix another domain holds. It then builds one
+`IdMinter("<domain>", type_key, block)` per type (`block` is
+`typespec.block_of(type_key)`); the minter reads the prefix the domain claimed,
+and refuses to be built for a domain that claimed none. It calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`.
 
 A prefix is empty or one or two capital letters. The industrial domain's is
 empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not

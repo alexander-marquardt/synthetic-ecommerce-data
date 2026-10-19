@@ -52,8 +52,7 @@ def claim_prefix(domain: str, prefix: str) -> None:
     for other, held in PREFIXES.items():
         if held == prefix and other != domain:
             raise ValueError(
-                f"id prefix {prefix!r} is held by domain {other!r}; "
-                f"domain {domain!r} needs its own"
+                f"id prefix {prefix!r} is held by domain {other!r}; domain {domain!r} needs its own"
             )
     if PREFIXES.setdefault(domain, prefix) != prefix:
         raise ValueError(
@@ -62,7 +61,11 @@ def claim_prefix(domain: str, prefix: str) -> None:
 
 
 class IdMinter:
-    """One type's product ids and SKUs, behind a per-domain prefix.
+    """One type's product ids and SKUs, behind the prefix its domain claimed.
+
+    The minter is built from the domain, not from a prefix string, and reads the
+    prefix :func:`claim_prefix` recorded for it: a domain that never claimed one
+    gets no minter, so no minter can wear an unclaimed or another domain's prefix.
 
     ``block`` is the type's part-number block (:func:`.typespec.block_of`), which
     leads every SKU and product id the type issues. State is per minter: the
@@ -70,8 +73,13 @@ class IdMinter:
     """
 
     def __init__(self, domain: str, type_key: str, block: int) -> None:
+        if domain not in PREFIXES:
+            raise ValueError(
+                f"domain {domain!r} has not claimed an id prefix: call "
+                f"claim_prefix({domain!r}, <prefix>) before building a minter for it"
+            )
         self.domain = domain
-        self.prefix = ""
+        self.prefix = PREFIXES[domain]
         self.type_key = type_key
         self.block = block
         self._sequence = 0
