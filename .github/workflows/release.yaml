@@ -1,0 +1,71 @@
+name: Release
+
+# A merged decoy or product reached the catalogue only by hand, and the generator had no
+# releases (gen#536). A `v*` tag builds the ceiling export and the retail image bundle, uploads
+# them to the tag's release with their `.content-sha256`, and opens the pin-bump pull request in
+# the catalogue repository (scripts/open_pin_bump_pr.py). A manual run (workflow_dispatch) builds
+# the same assets and prints the pin-bump body, and uploads and opens nothing: that is the dry
+# run, and it works on a fork. This file is not a pull-request check: scripts/local_ci_jobs.py
+# (NOT_A_CHECK) does not run it in `merge_pr.sh --local-ci`.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag the dry run names in the pin-bump body"
+        required: false
+        default: "v0.0.0-dryrun"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag }}
+      DRY_RUN: ${{ github.event_name != 'push' && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Build the ceiling export
+        run: |
+          mkdir -p build/release
+          uv run --locked python prototypes/retail_drawings/scale.py --skus "${RELEASE_SKUS:-ceiling}" \
+            --flat build/release/catalog.ndjson --report build/release/report.json
+          gzip -n -9 -c build/release/catalog.ndjson > build/release/catalog.ndjson.gz
+          echo "$(sha256sum build/release/catalog.ndjson | cut -d' ' -f1)  $(wc -l < build/release/catalog.ndjson)" > build/release/catalog.ndjson.gz.content-sha256
+      - name: Build the image bundle
+        run: |
+          uv run --locked python prototypes/retail_drawings/image_release.py --skus "${RELEASE_SKUS:-ceiling}" \
+            --out build/release/retail-images --archive build/release/retail-images.tar.gz
+      - name: The pin-bump pull request body (printed on a dry run, opened otherwise)
+        env:
+          PIN_BUMP_TOKEN: ${{ secrets.PIN_BUMP_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=(--tag "$TAG" --catalog build/release/catalog.ndjson
+                 --images-sidecar build/release/retail-images.tar.gz.content-sha256)
+          python3 scripts/open_pin_bump_pr.py "${flags[@]}" --dry-run | tee build/release/pin-bump-body.txt
+          if [ "$DRY_RUN" = true ]; then exit 0; fi
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes "Generator release $TAG." \
+            build/release/catalog.ndjson.gz build/release/catalog.ndjson.gz.content-sha256 \
+            build/release/retail-images.tar.gz build/release/retail-images.tar.gz.content-sha256 \
+            build/release/retail-images.tar.gz.sha256
+          python3 scripts/open_pin_bump_pr.py "${flags[@]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-dry-run
+          path: |
+            build/release/*.content-sha256
+            build/release/*.sha256
+            build/release/pin-bump-body.txt
+            build/release/report.json
+            build/release/catalog.ndjson.gz
+            build/release/retail-images.tar.gz
+          if-no-files-found: error
