@@ -88,12 +88,15 @@ and its decoys are too. A spec needs no edit to `templates()`; a module of the o
 added to the list by hand, and the later it sits the fewer small builds hold it. To see a build, run
 `uv run python prototypes/retail_drawings/scale.py --skus 2000`.
 
-## 8. Images: one per style and colorway
+## 8. Images: one per style, colorway and size rung
 
 `export.image_id` is `<type>/<product id>/<digest of the drawing spec>`, and
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
-by SKU (a lamp's `finish`) yields one per value. Sizes alone add none. If two things must look
+by SKU (a lamp's `finish`) yields one per value. A clothing or footwear style with more than one
+size adds `size_scale` (`size_ladder.py`, gen#339), so it yields one image per rung of its size
+ladder, drawn smaller the lower the rung (55 % of the sheet for the smallest, 90 % for the
+largest, about the drawing's bottom centre); any other size adds none. If two things must look
 different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.

@@ -71,6 +71,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
     spec = export.drawing_spec(rec, sku)
     if "params" in spec:  # the SKU's own finish, shade color or diameter (gen#197)
         drawing["params"] = drawing.get("params", {}) | spec["params"]
+    if "size_scale" in spec:  # the SKU's rung on its size ladder (gen#339)
+        drawing["size_scale"] = spec["size_scale"]
     swatch = spec["swatch"]
     if swatch is None:
         return drawing
