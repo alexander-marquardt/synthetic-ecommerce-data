@@ -50,7 +50,6 @@ from __future__ import annotations
 import zlib
 from dataclasses import dataclass
 
-import named_parts
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
 from lowerbody_rows import LRow
@@ -127,7 +126,7 @@ STYLES = {
     # gen#434: the other sleeve lengths and the cowl neck the grid did not knit.
     "Cowl Neck": Style("Cowl Neck", "Cowl Neck Jumper", _JUMP, "cowl", "cowl", "Long", "a draped cowl neck that folds at the collarbone"),
     "Three Quarter Sleeve": Style("Three Quarter Sleeve", "Three Quarter Sleeve Jumper", _JUMP, "crew", "crew", "Three quarter", "a crew neck and sleeves that end below the elbow"),
-    "Three Quarter Cardigan": Style("Three Quarter Cardigan", "Three Quarter Sleeve Cardigan", _CARDI, "v-neck", "v_neck", "Three quarter", "a button front and sleeves that end below the elbow"),
+    "Three Quarter Cardigan": Style("Three Quarter Cardigan", "Three Quarter Sleeve Cardigan", _CARDI, "v-neck", "v_neck", "Three quarter", "a V neck, buttons down the center and sleeves that end below the elbow"),
     "Short Sleeve": Style("Short Sleeve", "Short Sleeve Knit Top", _TOP, "crew", "crew", "Short", "a crew neck and short sleeves in a fine knit"),
 }  # fmt: skip
 #: The drawing kit's sleeve key for each stored sleeve length.
@@ -264,6 +263,7 @@ class Decoy:
     policy: str  # which kind of policy repairs it
 
 
+_TRIMS = ("Stripes", "Piping", "Contrast Stitching")
 _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Oatmeal")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
@@ -317,10 +317,9 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 if true == w:
                     true = "Navy"
                 # 1: a trim, a stripe or a print names the other color.
-                trim = named_parts.trim_part(ptype, "top", i)  # gen#447: a part the shape draws
-                add(1, i, f"{root} {true} {noun} with {w} {trim}",
-                    f"{_an(true).capitalize()} {low} {_TAIL[ptype]}, finished with "
-                    f"{named_parts.with_part(w, trim)}.", true, w, f"{w.lower()} {low}")  # fmt: skip
+                add(1, i, f"{root} {true} {noun} with {w} {_TRIMS[i]}",
+                    f"{_an(true).capitalize()} {low} {_TAIL[ptype]}, finished with {w.lower()} "
+                    f"{_TRIMS[i].lower()}.", true, w, f"{w.lower()} {low}")  # fmt: skip
                 # 2: another category's noun used as a modifier.
                 b, mod = _BORROW[ptype][i]
                 add(2, i, f"{root} {mod} {noun}",
