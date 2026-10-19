@@ -8,6 +8,8 @@ names the tests that must go red. ``mutation_check.py`` turns them into ``Mutati
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _GUARD = (
     'tests/test_no_wrong_kind_values_404.py -k "angle_key_holds_angles_only and measured"',
     'tests/test_no_wrong_kind_values_404.py -k "nested_angle_entry and measured"',
@@ -32,3 +34,10 @@ ROWS: list[tuple[str, str, str, str, tuple[str, ...], str]] = [
         "an angle key holds angles only",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "no wrong kind"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

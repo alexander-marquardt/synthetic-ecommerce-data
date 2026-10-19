@@ -8,6 +8,8 @@ must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _OLD = '"bone": 2.0, "porcelain": 1.4, "enamel": 0.75, "melamine": 0.5,'
 _PLATES = "tests/test_retail_scale.py -k test_plates_mostly_draw_a_tile_of_their_own"
 _ORDER = "tests/test_retail_scale.py -k test_a_plate_material_has_its_own_price"
@@ -51,3 +53,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "prototypes/retail_drawings",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "plate grid clones"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

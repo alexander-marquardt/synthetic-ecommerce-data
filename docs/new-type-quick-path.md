@@ -112,7 +112,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_figures_162.py` | Run, do not edit: it holds `golden-retail/stats.json` to a fresh measurement. |
 | `tests/test_retail_sports_265.py` | Add the new type to `KEYS` and `AXES` in this file (a copied type reds two ids until it is there): the Sports department's checks (every type has its range, draws its own shape, carries the six main colors, reaches the scaled build). |
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
-| `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red; import it where `scripts/mutation_check.py` imports its siblings. |
+| `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red. The file exposes `PREFIX` (the text before `: ` in each row's name) and `rows()` (a list of `mutation_row.Row`); `scripts/mutation_row.py` finds it by glob, so nothing is imported or listed in `scripts/mutation_check.py` and `tests/test_mutation_rows_glob_506.py` fails if a script names a rows file. |
 
 Not touched: `scale.py`, the registry and `type_specs/legacy_types.txt`. The registry finds the
 module and feeds the scaled build; nothing is added to the legacy list.
