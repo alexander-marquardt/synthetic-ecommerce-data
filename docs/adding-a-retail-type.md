@@ -96,7 +96,7 @@ of each drawing param. So a style yields one image per colorway, and a drawing p
 by SKU (a lamp's `finish`) yields one per value. A clothing or footwear style with more than one
 size adds `size_scale` (`size_ladder.py`, gen#339), so it yields one image per rung of its size
 ladder, drawn smaller the lower the rung (55 % of the sheet for the smallest, 90 % for the
-largest, about the drawing's bottom centre); any other size adds none. If two things must look
+largest, about the drawing's bottom center); any other size adds none. If two things must look
 different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.

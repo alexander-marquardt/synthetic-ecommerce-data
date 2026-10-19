@@ -885,7 +885,7 @@ def render(
     ``style`` is the brand's :class:`house_styles.HouseStyle`: its paper,
     frame, outline hand and logo replace the plain sheet and tag. ``size_scale`` is the fraction
     of the sheet the drawing fills on its product's size ladder (:mod:`size_ladder`, gen#339):
-    a smaller one shrinks the drawing about its own bottom centre, ``None`` leaves it as drawn.
+    a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it as drawn.
     """
     import size_ladder  # deferred: the size ladder is an optional layer over the kit (gen#339)
 
