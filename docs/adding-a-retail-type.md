@@ -61,8 +61,9 @@ optional `colorwords.MODIFIERS` (`Dark` is a modifier, so `Dark Brown` is a modi
 word, not a `COLOR_WORDS` member). `variants.cw` maps an authored shade through `colorwords.PLAIN`
 first: `cw("Oak", ...)` gives `Brown` and `cw("Walnut", ...)` gives `Dark Brown`, so authoring those
 does not red. A shade `PLAIN` does not map (`Hazelwood`) stays as written, is not plain, and
-`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_a_qualifier_or_a_shade_code`
-refuses it: add it to `colorwords.PLAIN` or use a plain word. The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
+`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_or_a_qualifier`
+refuses it: add it to `colorwords.PLAIN` or use a plain word. A foundation, a concealer or a tinted
+moisturiser is sold by shade, not by color: see [retail-shades.md](retail-shades.md). The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
 Every color-bearing type also carries red, blue, green, yellow, black and white somewhere, or a
 reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py`).
 
