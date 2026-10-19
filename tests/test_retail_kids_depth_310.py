@@ -60,8 +60,13 @@ def _attr(rec: dict, key: str) -> str:
 
 @pytest.mark.parametrize("leaf", FLOORS, ids=lambda p: " > ".join(p[1:]))
 def test_every_kids_leaf_meets_its_floor_without_decoys(templates, leaf):
-    n = len({r["product_id"] for r in templates
-             if tuple(r["category_path"]) == leaf and r["product_id"] not in _DECOYS})
+    n = len(
+        {
+            r["product_id"]
+            for r in templates
+            if tuple(r["category_path"]) == leaf and r["product_id"] not in _DECOYS
+        }
+    )
     name = " > ".join(leaf)
     assert n >= FLOORS[leaf], f"{name}: {n} products besides decoys, floor {FLOORS[leaf]}"
 
@@ -99,6 +104,20 @@ def test_a_new_dress_states_its_neckline(templates):
     assert not [r["product_id"] for r in dresses if not r.get("neckline")]
 
 
+def test_a_new_dress_states_the_neckline_its_description_names(templates):
+    """The row states the neckline itself; ``neckline_rows.complete`` would only guess one."""
+    import kids_depth_rows
+
+    said = {phrase: fact for fact, phrase in kids_depth_rows.NECKS.values()}
+    dresses = [r for r in _new_rows(templates) if r["product_type"] == "Dress"]
+    wrong = []
+    for r in dresses:
+        named = [fact for phrase, fact in said.items() if f"with {phrase}," in r["description"]]
+        if named != [r["neckline"]]:
+            wrong.append((r["product_id"], named, r["neckline"]))
+    assert not wrong, wrong[:5]
+
+
 def test_a_sleeve_the_title_names_is_the_sleeve_attribute(templates):
     said = {"Sleeveless": "Sleeveless", "Short Sleeve": "Short", "Long Sleeve": "Long"}
     seen = set()
@@ -134,7 +153,7 @@ def test_the_new_rows_are_left_out_of_the_derivation(templates):
 
 
 def test_a_coat_leaf_holds_the_spellings_a_shopper_types(templates):
-    """"trench" and "pea coat" (the issue) are real coats in the Kids leaves."""
+    """ "trench" and "pea coat" (the issue) are real coats in the Kids leaves."""
     titles = " | ".join(r["title"] for r in _new_rows(templates))
     for word in ("Trench Coat", "Pea Coat", "Parka", "Rain Mac", "Padded Coat"):
         assert word in titles, word
@@ -146,9 +165,15 @@ def test_the_new_rows_take_no_text_match_decoys_with_them(templates):
     dresses keep theirs, and the Kids leaves hold only the decoys they held before (the boys'
     bomber jackets)."""
     for leaf in (("Kids", "Girls", "Dresses"), ("Kids", "Girls", "Coats & Jackets")):
-        held = [r["title"] for r in templates
-                if tuple(r["category_path"]) == leaf and r["product_id"] in _DECOYS]
+        held = [
+            r["title"]
+            for r in templates
+            if tuple(r["category_path"]) == leaf and r["product_id"] in _DECOYS
+        ]
         assert not held, (leaf, held[:3])
-    womens = [r for r in templates
-              if r["category_path"][:2] == ["Womens", "Dresses"] and r["product_id"] in _DECOYS]
+    womens = [
+        r
+        for r in templates
+        if r["category_path"][:2] == ["Womens", "Dresses"] and r["product_id"] in _DECOYS
+    ]
     assert len(womens) >= 20, len(womens)
