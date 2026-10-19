@@ -16,7 +16,7 @@ import pytest
 from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import price_report
-from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 
 WHEEL = "wheel_depressed_center"
@@ -61,3 +61,25 @@ def test_no_wheel_publishes_a_pack(wheel_skus):
 
 def test_every_wheel_is_priced_each(wheel_skus):
     assert {c.pricing_unit for c, _ in wheel_skus} == {"Each"}
+
+
+def test_no_two_wheels_of_a_brand_publish_the_same_spec(wheel_skus):
+    """With the pack gone, two wheels that differed only by it are one product: the
+    generator makes the first and not the second, so none reaches the catalog."""
+    seen: dict[tuple, str] = {}
+    twins = []
+    for sku, facts in wheel_skus:
+        spec = (
+            sku.title.split(",")[0],
+            tuple(
+                sorted(
+                    (name, a.value)
+                    for name, a in facts.items()
+                    if name not in Generator.NOT_SUBSTANCE
+                )
+            ),
+        )
+        if spec in seen:
+            twins.append((seen[spec], sku.sku))
+        seen[spec] = sku.sku
+    assert twins == []
