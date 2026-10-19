@@ -50,6 +50,22 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         _MARKED_PROP,
     ),
     (
+        "the was-price is taken off the cheapest SKU, so a dearer size sits at or over it",
+        "sale_share.py",
+        'price = max(s["price"] for s in rec["skus"])',
+        'price = min(s["price"] for s in rec["skus"])',
+        f"{_SHARE} -k test_every_sku_of_a_reduced_style_is_priced_under_its_was_price",
+        "every SKU of a reduced style is priced under its was-price",
+    ),
+    (
+        "a planted row is reduced (the planted ids are left out of the exemption)",
+        "scale.py",
+        "DECOY_IDS | skip | planted)",
+        "DECOY_IDS | skip)",
+        f"{_SHARE} -k test_no_planted_row_carries_a_was_price",
+        "a failure-class or planted-distractor row keeps its price",
+    ),
+    (
         "a petite style may be reduced (the size range and the text guards both gone)",
         "sale_share.py",
         '        and "petite" not in rec.get("size_range", ())\n        and "petite" not in text\n',

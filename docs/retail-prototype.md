@@ -404,7 +404,9 @@ chosen by a hash of the style id and not by the build's random generator, so no
 other style moves. A petite style, a planted decoy and a failure-class row are
 never reduced, which keeps "petite sale" a pair only a policy may honour.
 `tests/test_retail_sale_share_359.py` checks the counts and that a reduced
-document is marked the same way whoever made it.
+document is marked the same way whoever made it. The was-price is taken off the
+dearest SKU, so every size of a reduced style is under it (`price < was_price`);
+`discount_pct` states the cheapest SKU's discount.
 
 The retail build also writes industrial's **flat** shape, one document per
 SKU, which is what elastic/prism-industrial-products loads (as its
