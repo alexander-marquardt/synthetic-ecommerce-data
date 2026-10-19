@@ -45,6 +45,7 @@ from dataclasses import dataclass, replace
 import details
 import facet_leaves
 import real_brands
+import style_table
 import type_colors
 import type_registry
 from class_model import SHADE_FAMILY
@@ -635,6 +636,49 @@ def _names_its_drawing(ex: dict) -> bool:
     return not (ex["product_type"] == "Boxers" and fit == "brief")
 
 
+def _fit_view(ex: dict) -> dict:
+    """The exemplar as the catalog states it once its neckline is completed
+    (:func:`neckline_rows.complete`): a decoy is built from the templates before that step, and
+    the style check must give the same answer on either (gen#511)."""
+    import neckline_rows
+
+    return neckline_rows.complete([style_table.complete_lengths([ex])[0]])[0]
+
+
+def _fits(title: str, ex: dict) -> bool:
+    return style_table.title_fits(title, _fit_view(ex))
+
+
+def _candidates(cls: int, spec: Spec, ex: dict, used: set, words: set, *, styled: bool = False):
+    """The options of class ``cls`` the exemplar can carry: its colors permit them, a class 6 or 7
+    title is short, none repeats a title or (class 4, 5) a word. ``styled`` also leaves out an
+    option whose title names a style the exemplar's attributes contradict (gen#511)."""
+    return [o for o in _options(cls, spec, ex)
+            if type_colors.permits(ex["category_path"], o["color"])  # gen#448
+            and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
+            and (o["title"], ex["category_path"][0]) not in used
+            and (cls not in (4, 5) or (cls, o["word"]) not in words)
+            and (not styled or _fits(_title(ex, spec, cls, o), ex))]  # fmt: skip
+
+
+def _restyle(cls, spec, exemplars, step, o, used, words, rnd):
+    """The next exemplar after ``step`` that carries the option ``o`` (its word and color) inside
+    its style table, with that option; else the first that carries any option, and one of those."""
+    n = len(exemplars)
+    fallback = None
+    for k in range(n):
+        ex = exemplars[(step + k) % n]
+        opts = _candidates(cls, spec, ex, used, words, styled=True)
+        same = [c for c in opts if (c["word"], c["color"]) == (o["word"], o["color"])]
+        if same:
+            return ex, same[0]
+        if opts and fallback is None:
+            fallback = (ex, opts)
+    if fallback is None:
+        raise ValueError(f"{spec.product_type} class {cls}: no exemplar inside the style table")
+    return fallback[0], rnd.choice(fallback[1])
+
+
 def build(body: list[dict]) -> list[Row]:
     """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
     pool: dict[str, list[dict]] = {}
@@ -660,18 +704,19 @@ def build(body: list[dict]) -> list[Row]:
             for i in range(n):
                 ex = exemplars[step % len(exemplars)]
                 step += 1
-                opts = [o for o in _options(cls, spec, ex)
-                        if type_colors.permits(ex["category_path"], o["color"])  # gen#448
-                        and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
-                        and (o["title"], ex["category_path"][0]) not in used
-                        and (cls not in (4, 5) or (cls, o["word"]) not in words)]  # fmt: skip
+                opts = _candidates(cls, spec, ex, used, words)
                 if not opts:
                     raise ValueError(f"{spec.product_type} class {cls}: no option left")
                 if cls in (4, 5):  # the common words first: leather, suede, cashmere; ivory
                     first = opts[0]["word"]
                     opts = [o for o in opts if o["word"] == first]
-                code = _code(spec, cls, i)
                 o = rnd.choice(opts)
+                if not _fits(_title(ex, spec, cls, o), ex):
+                    # gen#511: the title names a style the exemplar's neckline, length or material
+                    # contradicts ("Coat Dress" on a boat-neck mini): the same word and color, on
+                    # the next exemplar that carries it
+                    ex, o = _restyle(cls, spec, exemplars, step, o, used, words, rnd)
+                code = _code(spec, cls, i)
                 color = o["color"]
                 hexv = o.get("hex") or COLORS[color]
                 family = o.get("family") or SHADE_FAMILY.get(color, color.lower())
