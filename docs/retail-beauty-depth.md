@@ -37,17 +37,17 @@ row outside the spec.
 
 ## Face creams: five brands (gen#542)
 
-`type_specs/face_cream.py` adds five invented brands to the Face Creams leaf (Skincare > Creams >
+`type_specs/face_cream.py` adds five brands the generator already sells for other beauty products to the Face Creams leaf (Skincare > Creams >
 Face Creams), beside Velling Apothecary, whose three class rows and the "Daylight" decoy stay
 where they are (the proof pins them, as for `PLT-SPFFCE`; `PROOF_PINNED_CLASS_ROWS` and
 `DECOY_ROWS_BESIDE_A_SPEC` in `tests/test_retail_type_specs_351.py` exempt those ids). Each new
 brand sells a day, a night and an SPF line and a fourth line (barrier, sensitive, anti-ageing or
-rich), 20 products in all, in 30, 50 and 100 ml: pharmacy (Cleary Dew, Pellam Labs), mid (Wyncombe
-Skin, Lorimer & Vale) and premium (Sorrene Atelier). The attributes are skin type and skin
+rich), 20 products in all, in 30, 50 and 100 ml: pharmacy (Sorrel & Salt, Aldermist), mid (Thornlea
+Skin, Pearlbrook) and premium (Fenmere). The attributes are skin type and skin
 concern, the volume is a SKU option (`net_volume`, ml) and an SPF line is also sold by SPF, the
 option `sun_cream` declares. The price rises with the volume and falls per ml in every series of
 the type; `tests/test_retail_face_creams_542.py` holds that, five brands, 20 products and the
-three sizes. The five names have marks and house styles in `face_cream_brand_styles.py`. The
+three sizes. The five names keep the marks and house styles they already have; no brand, mark or style is new. The
 decoys of the type stay in `decoy_rows.py`.
 
 ## Text-match decoys (gen#294)
