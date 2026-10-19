@@ -109,13 +109,28 @@ def test_every_rows_file_is_found_by_the_glob() -> None:
 
 def test_the_harness_plants_exactly_the_rows_the_glob_finds() -> None:
     harness = _harness()
-    planted = {m.name for m in harness.MUTATIONS}
+    planted = {
+        (m.name, m.file, m.old, m.new, m.selectors, m.direction, m.property_name, m.root)
+        for m in harness.MUTATIONS
+    }
     found = mutation_row.discover()
     assert len(found) > 400
     missing = [
-        f"{prefix}: {row.name}" for prefix, row in found if f"{prefix}: {row.name}" not in planted
+        f"{prefix}: {row.name}"
+        for prefix, row in found
+        if (
+            f"{prefix}: {row.name}",
+            row.file,
+            row.old,
+            row.new,
+            (row.tests,) if isinstance(row.tests, str) else tuple(row.tests),
+            row.direction,
+            row.property_name,
+            row.root,
+        )
+        not in planted
     ]
-    assert not missing, f"the harness leaves out rows the glob finds: {missing[:5]}"
+    assert not missing, f"the harness plants these differently from the glob's rows: {missing[:5]}"
 
 
 def _rows_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **files: str) -> None:
