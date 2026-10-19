@@ -151,8 +151,6 @@ def test_a_plain_color_stays_a_main_color(nested: list[dict[str, Any]]) -> None:
     for doc in nested:
         for v in doc["variants"]:
             for c in _values(v["attributes"], "color"):
-                if colorwords.SHADE_CODE.match(c):
-                    continue
                 if not colorwords.is_plain(c) or not any(w in words for w in c.split()):
                     bad.add(c)
     assert sorted(bad) == []

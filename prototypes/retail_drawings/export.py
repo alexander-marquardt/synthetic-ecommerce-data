@@ -33,6 +33,7 @@ from typing import Any
 
 import colorwords
 import facet_leaves
+import shades
 import type_registry
 from audience import audience_of
 from build_preview4 import samples
@@ -66,6 +67,10 @@ PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 #: and a unit may split it (a hose's ``item_length`` is in metres, a knife's in centimetres).
 SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
+    # A complexion product's shade, sold instead of a color (shades.py, gen#345).
+    "shade": ("shade", "Shade", None),
+    "shade_depth": ("shade_depth", "Shade depth", None),
+    "undertone": ("undertone", "Undertone", None),
     "size": ("size", "Size", None),
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
@@ -261,6 +266,26 @@ def _color_entries(authored: str) -> list[dict[str, Any]]:
     return out
 
 
+def _shade_entries(authored: str) -> list[dict[str, Any]]:
+    """The ``shade``, ``shade_depth`` and ``undertone`` entries of a complexion shade (gen#345).
+
+    A foundation is asked for by the skin it matches, never by a color, so the authored swatch
+    key is written here and not to ``color``, which clothing queries read."""
+    depth, undertone = shades.classify(authored)
+    return [
+        _entry("shade", "Shade", None, authored),
+        _entry("shade_depth", "Shade depth", None, depth),
+        _entry("undertone", "Undertone", None, undertone),
+    ]
+
+
+def _swatch_entries(rec: dict, authored: str) -> list[dict[str, Any]]:
+    """An authored swatch key as entries: a shade for a complexion type, else a color."""
+    if rec["product_type"] in shades.SOLD_BY_SHADE:
+        return _shade_entries(authored)
+    return _color_entries(authored)
+
+
 def _product_attributes(rec: dict) -> list[dict[str, Any]]:
     out = list(rec["attributes"])
     have = {(e["key"], e["value"]) for e in out}
@@ -269,7 +294,7 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
     for c in rec.get("color_options", ()):
-        facts += _color_entries(c["color"])
+        facts += _swatch_entries(rec, c["color"])
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
@@ -335,7 +360,7 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "attributes": [
             e
             for k in options
-            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+            for e in (_swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
             if not (own and e["key"] == "pattern")
         ]
         + _one_case(own),
