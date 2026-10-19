@@ -3337,7 +3337,7 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 8.65955,
+   "achieved": 9.18395,
    "numerator": 1175,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -3349,8 +3349,8 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.824615,
-   "numerator": 9916,
+   "achieved": 0.822952,
+   "numerator": 9896,
    "denominator": 12025,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -3541,10 +3541,10 @@
   {
    "name": "price brand spread, same spec (median max/min): bearing_radial_ball",
    "target": 1.3825,
-   "achieved": 1.57114,
-   "numerator": 80,
+   "achieved": 1.54206,
+   "numerator": 155,
    "denominator": 49,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, closure type) two or more brands make; 3 brands sampled per spec; 128 of 1182 SKUs are in no spec: sparsity dropped an attribute the spec holds",
    "band": [
     1.03687,
     1.83873
@@ -3565,10 +3565,10 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.42631,
-   "numerator": 55,
+   "achieved": 1.39166,
+   "numerator": 109,
    "denominator": 5,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec",
    "band": [
     0.919531,
     2.01857
@@ -3601,10 +3601,10 @@
   {
    "name": "price brand spread, same spec (median max/min): tap_spiral_point",
    "target": 2.2238,
-   "achieved": 2.36202,
-   "numerator": 43,
+   "achieved": 2.13958,
+   "numerator": 45,
    "denominator": 31,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec; 155 of 329 SKUs are in no spec: sparsity dropped an attribute the spec holds",
    "band": [
     1.66785,
     2.95765
@@ -3613,10 +3613,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 1.70414,
-   "numerator": 24,
+   "achieved": 1.38379,
+   "numerator": 191,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band at 100K only, the default build is in band: with every noise off, the brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The p90/p10 is carried by noise one spec shares across its brands (size_sigma), so the group noise left, drawn per brand, spreads the sampled brands of one spec only to 1.75x apart at 100K (#272)",
+   "note": "over specs (key dimension, material, grit) two or more brands make; 3 brands sampled per spec",
    "band": [
     0.96285,
     1.70745
@@ -3661,8 +3661,8 @@
   {
    "name": "price ending .50",
    "target": 0.0569473,
-   "achieved": 0.0543199,
-   "numerator": 635,
+   "achieved": 0.0544055,
+   "numerator": 636,
    "denominator": 11690,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
