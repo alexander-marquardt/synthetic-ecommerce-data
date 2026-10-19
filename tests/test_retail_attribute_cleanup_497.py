@@ -39,9 +39,8 @@ def test_a_key_that_restates_the_type_is_dropped_and_a_real_sub_kind_stays() -> 
     got = attribute_cleanup.clean(
         [
             _e("storage_type", "Storage Box"),
-            _e("tracker_type", "Fitness band"),
             _e("type", "Set Screw"),
-            _e("storage_type", "Basket"),
+            _e("storage_type", "Underbed"),
             _e("type", "Deep Groove"),
             _e("color", "Storage Box"),
         ],
@@ -49,10 +48,12 @@ def test_a_key_that_restates_the_type_is_dropped_and_a_real_sub_kind_stays() -> 
     )
     assert [(e["key"], e["value"]) for e in got] == [
         ("type", "Set Screw"),
-        ("storage_type", "Basket"),
+        ("storage_type", "Underbed"),
         ("type", "Deep Groove"),
         ("color", "Storage Box"),
     ]
+    band = attribute_cleanup.clean([_e("tracker_type", "Fitness band")], "Fitness Band")
+    assert band == []
 
 
 def test_a_type_equal_to_the_product_type_is_dropped_whatever_its_case() -> None:

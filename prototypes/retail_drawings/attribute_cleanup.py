@@ -27,9 +27,14 @@ RESTATING = frozenset({"storage_type", "tracker_type", "type"})
 
 def restates_the_type(entry: dict[str, Any], product_type: str) -> bool:
     """Whether ``entry`` says only what the product type already says."""
-    return False
+    value = entry["value"]
+    return (
+        entry["key"] in RESTATING
+        and isinstance(value, str)
+        and value.casefold() == product_type.casefold()
+    )
 
 
 def clean(entries: list[dict[str, Any]], product_type: str) -> list[dict[str, Any]]:
-    """``entries`` as published."""
-    return entries
+    """``entries`` without the ones that restate the product type."""
+    return [e for e in entries if not restates_the_type(e, product_type)]
