@@ -1137,7 +1137,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46106 | Bra | 1 color names a part | Bra with White Bow | white | white bra | generic |
 | PLT-DA46107 | Bra | 1 color names a part | Bra with Black Straps | black | black bra | generic |
 | PLT-DA46108 | Bra | 1 color names a part | Bra with Green Bow | green | green bra | generic |
-| PLT-DA46109 | Bra | 1 color names a part | Bra with White Straps | white | white bra | generic |
 | PLT-DA46200 | Bra | 2 another category's noun as a modifier | Black Cami Bra | cami | cami | generic |
 | PLT-DA46201 | Bra | 2 another category's noun as a modifier | Cream Corset Bra | corset | corset | generic |
 | PLT-DA46202 | Bra | 2 another category's noun as a modifier | Brown Corset Bra | corset | corset | generic |
@@ -1147,7 +1146,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46206 | Bra | 2 another category's noun as a modifier | Pink Corset Bra | corset | corset | generic |
 | PLT-DA46207 | Bra | 2 another category's noun as a modifier | Brown Cami Bra | cami | cami | generic |
 | PLT-DA46208 | Bra | 2 another category's noun as a modifier | White Corset Bra | corset | corset | generic |
-| PLT-DA46209 | Bra | 2 another category's noun as a modifier | Red Corset Bra | corset | corset | generic |
 | PLT-DA46300 | Bra | 3 audience word of a sibling version | Navy Boys Fit Bra | boys | boys bra | generic |
 | PLT-DA46301 | Bra | 3 audience word of a sibling version | Pink Mens Fit Bra | mens | mens bra | generic |
 | PLT-DA46302 | Bra | 3 audience word of a sibling version | Green Mens Fit Bra | mens | mens bra | generic |
@@ -1157,7 +1155,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46306 | Bra | 3 audience word of a sibling version | Cream Mens Fit Bra | mens | mens bra | generic |
 | PLT-DA46307 | Bra | 3 audience word of a sibling version | Red Mens-Style Bra | mens | mens bra | generic |
 | PLT-DA46308 | Bra | 3 audience word of a sibling version | Brown Mens Fit Bra | mens | mens bra | generic |
-| PLT-DA46309 | Bra | 3 audience word of a sibling version | Cream Mens-Style Bra | mens | mens bra | generic |
 | PLT-DA46400 | Bra | 4 material or feature named but absent | Grey Leather-Look Bra | leather | leather bra | special: material claim |
 | PLT-DA46401 | Bra | 4 material or feature named but absent | Red Suede-Look Bra | suede | suede bra | special: material claim |
 | PLT-DA46402 | Bra | 4 material or feature named but absent | Blue Cashmere-Feel Bra | cashmere | cashmere bra | special: material claim |
@@ -1167,7 +1164,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46406 | Bra | 4 material or feature named but absent | Green Lace-Free Bra | lace | lace bra | special: material claim |
 | PLT-DA46407 | Bra | 4 material or feature named but absent | Brown Velvet-Feel Bra | velvet | velvet bra | special: material claim |
 | PLT-DA46408 | Bra | 4 material or feature named but absent | Grey Denim-Look Bra | denim | denim bra | special: material claim |
-| PLT-DA46409 | Bra | 4 material or feature named but absent | Red Satin-Look Bra | satin | satin bra | special: material claim |
 | PLT-DA46500 | Bra | 5 shade spelled in the description only | Moonbeam Bra | ivory | ivory bra | generic |
 | PLT-DA46501 | Bra | 5 shade spelled in the description only | Driftwood Bra | taupe | taupe bra | generic |
 | PLT-DA46502 | Bra | 5 shade spelled in the description only | Dune Bra | beige | beige bra | generic |
@@ -1177,7 +1173,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46506 | Bra | 5 shade spelled in the description only | Pebble Bra | ecru | ecru bra | generic |
 | PLT-DA46507 | Bra | 5 shade spelled in the description only | Meadow Bra | mint | mint bra | generic |
 | PLT-DA46508 | Bra | 5 shade spelled in the description only | Harvest Bra | rust | rust bra | generic |
-| PLT-DA46509 | Bra | 5 shade spelled in the description only | Seashell Bra | coral | coral bra | generic |
 | PLT-DA46600 | Bra | 6 incidental word in a range name | Pump Lane Bra | pump | pump | generic |
 | PLT-DA46601 | Bra | 6 incidental word in a range name | Sock Hop Bra | sock | sock | generic |
 | PLT-DA46602 | Bra | 6 incidental word in a range name | Coat Hook Bra | coat | coat | generic |
@@ -1187,7 +1182,6 @@ Types with fewer than three real class 2 compounds (a third is never invented; #
 | PLT-DA46606 | Bra | 6 incidental word in a range name | Blazer Court Bra | blazer | blazer | generic |
 | PLT-DA46607 | Bra | 6 incidental word in a range name | Boot Hill Bra | boot | boot | generic |
 | PLT-DA46608 | Bra | 6 incidental word in a range name | Cardigan Bay Bra | cardigan | cardigan | generic |
-| PLT-DA46609 | Bra | 6 incidental word in a range name | Slipper Brook Bra | slipper | slipper | generic |
 | PLT-DA46700 | Bra | 7 invented brand holding a color or category word | Blue Otter Bra | blue | blue bra | generic |
 | PLT-DA46701 | Bra | 7 invented brand holding a color or category word | White Dormouse Bra | white | white bra | generic |
 | PLT-DA46702 | Bra | 7 invented brand holding a color or category word | Coat Crake Bra | coat | coat bra | generic |
