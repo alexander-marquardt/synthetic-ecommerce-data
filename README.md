@@ -1037,6 +1037,19 @@ That is the whole command — the default configuration, the default seed. Then
 commit whatever changed, `src/prism_synthetic_industrial/data/field_weights/`
 included, since the same build regenerates the PRISM field map.
 
+The tests also pin SKUs and counts measured on the committed catalog (the SKUs the
+handle-less lens tests name, the title-cap counts, the SKU the mutation bed plants its
+defects in). Those are not typed in the tests: after a regeneration run
+
+```sh
+uv run python scripts/measure_pins.py
+```
+
+which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrites
+`tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
+that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
+the script and names the rule. `--check` compares the committed file without writing.
+
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
 assignment, a renamed field, a new emitted file. `tests/test_catalog_golden.py`
@@ -1423,7 +1436,7 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
     and 1/6 of its height, over every committed SKU;
   * the handle-less lens is used exactly where the handled glass cannot reach
-    x2.5; the committed catalog's lowest enlargement is pinned at x2.12 (its
+    x2.5; the committed catalog's lowest enlargement is the `lens.min_enlargement` of `tests/data/golden_pins.json` (its
     measured minimum, rounded down), and the rule's extreme (40 x 50) at
     x2.05 to x2.5 -- below x2.5 because the lens is height-bound in the
     236-unit figure area above the brand plate (#132);
