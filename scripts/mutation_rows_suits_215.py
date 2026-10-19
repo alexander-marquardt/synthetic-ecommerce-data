@@ -1,12 +1,14 @@
 """Mutation rows for the Mens suits and tailoring types (gen#215), in their own file.
 
 Each row plants one defect in a rule of ``kit_suits.py`` or ``mens_depth_rows.py`` and names the
-test that must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as
-rows named ``suits: ...`` (``--only "suits:"`` re-runs them). A row is
+test that must go red. ``mutation_row.discover`` finds this file by glob and the harness names
+them as rows named ``suits: ...`` (``--only "suits:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -118,3 +120,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'prototypes/retail_drawings',
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "suits"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]
