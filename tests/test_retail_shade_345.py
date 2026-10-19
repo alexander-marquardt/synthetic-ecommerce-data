@@ -176,3 +176,21 @@ def test_lip_products_keep_their_color(docs: list[dict[str, Any]]) -> None:
     for d in lips:
         assert _values(_entries(d), "color"), d["product_id"]
         assert _values(_entries(d), "shade_depth") == [], d["product_id"]
+
+
+@pytest.mark.parametrize("depth", sorted(DEPTHS))
+def test_a_complexion_text_names_no_depth_a_one_shade_style_lacks(
+    docs: list[dict[str, Any]], depth: str
+) -> None:
+    """A style derived with one shade states that shade's depth alone; a description that says
+    "a light, even glow" would then contradict a deep shade, the derived draw is rejected and
+    the 10**6 build's records shift (the grocery decoy ranks moved with them)."""
+    bad = []
+    for d in _by_shade(docs):
+        pools = {(d["category_leaf"], "shade_depth"): set(DEPTHS)}
+        one = dict(d)
+        one["attributes"] = [
+            {**a, "value": depth} if a["key"] == "shade_depth" else a for a in d["attributes"]
+        ]
+        bad += standard.text_contradictions(one, pools)
+    assert bad == []
