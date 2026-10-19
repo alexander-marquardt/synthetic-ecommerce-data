@@ -596,7 +596,11 @@ def test_no_category_level_is_a_value_the_line_publishes_as_an_attribute(catalog
 
 def _exact_offenders(lines) -> set[tuple[str, str]]:
     """``(product_id, level)`` for each level spelled like a value its own line publishes."""
-    return set()
+    return {
+        (line.product_id, segment)
+        for line in lines
+        for segment in _exact_value_levels(line.category, _published_values(line))
+    }
 
 
 def _exact_value_levels(category, values) -> set[str]:
@@ -684,7 +688,14 @@ def test_no_category_level_is_part_of_a_value_the_catalog_publishes(catalog):
 
 def _fragment_offenders(lines) -> set[tuple[str, str]]:
     """``(product_id, level)`` for each level that is part of a value any line publishes."""
-    return set()
+    published = set().union(*(_published_values(line) for line in lines))
+    found = _fragment_levels({s for line in lines for s in line.category}, published)
+    return {
+        (line.product_id, segment)
+        for line in lines
+        for segment in line.category
+        if segment in found
+    }
 
 
 def _with_planted_level(catalog, level):
