@@ -40,6 +40,7 @@ import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import diy_decoy_rows  # noqa: E402
 import export  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
@@ -149,6 +150,7 @@ def measure() -> dict[str, Any]:
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
+        "diy_decoy_rows": diy_decoy_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
