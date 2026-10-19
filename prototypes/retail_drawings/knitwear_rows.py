@@ -9,8 +9,9 @@ audience:
 =========  ==================================================================  ===========
 audience   styles                                                              floor rows
 =========  ==================================================================  ===========
-Women      jumpers: crew, V, roll, turtle, cable, half zip, boat neck;                 130
-           cardigans: button front, longline, cropped; knitted tops: tank, slipover
+Women      jumpers: crew, V, roll, turtle, cable, half zip, boat neck, cowl neck,      158
+           three quarter sleeve; cardigans: button front, longline, cropped, three
+           quarter sleeve; knitted tops: tank, slipover, short sleeve (gen#434)
 Men        jumpers: crew, V, roll, cable, half zip, quarter zip;                        95
            cardigans: button front, zip through, shawl collar; knitted top: slipover
 =========  ==================================================================  ===========
@@ -122,10 +123,19 @@ STYLES = {
     "Shawl Collar": Style("Shawl Collar", "Shawl Collar Cardigan", _CARDI, "collared", "crew", "Long", "a shawl collar, a button front and deep pockets"),
     "Tank Top": Style("Tank Top", "Knit Tank Top", _TOP, "round", "crew", "Sleeveless", "a round neck and wide straps"),
     "Slipover": Style("Slipover", "Knitted Slipover", _TOP, "v-neck", "v_neck", "Sleeveless", "a V neck and no sleeves, to wear over a shirt"),
+    # gen#434: the other sleeve lengths and the cowl neck the grid did not knit.
+    "Cowl Neck": Style("Cowl Neck", "Cowl Neck Jumper", _JUMP, "cowl", "cowl", "Long", "a draped cowl neck that folds at the collarbone"),
+    "Three Quarter Sleeve": Style("Three Quarter Sleeve", "Three Quarter Sleeve Jumper", _JUMP, "crew", "crew", "Three quarter", "a crew neck and sleeves that end below the elbow"),
+    "Three Quarter Cardigan": Style("Three Quarter Cardigan", "Three Quarter Sleeve Cardigan", _CARDI, "v-neck", "v_neck", "Three quarter", "a button front and sleeves that end below the elbow"),
+    "Short Sleeve": Style("Short Sleeve", "Short Sleeve Knit Top", _TOP, "crew", "crew", "Short", "a crew neck and short sleeves in a fine knit"),
 }  # fmt: skip
+#: The drawing kit's sleeve key for each stored sleeve length.
+DRAWN_SLEEVE = {"Long": "long", "Three quarter": "three_quarter", "Short": "short",
+                "Sleeveless": "sleeveless"}  # fmt: skip
 GRID = {
     "Womens": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
-              "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover"),
+              "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover",
+              "Cowl Neck", "Three Quarter Sleeve", "Three Quarter Cardigan", "Short Sleeve"),
     "Mens": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
             "Button Front", "Zip Through", "Shawl Collar", "Slipover"),
 }  # fmt: skip
@@ -177,7 +187,7 @@ def _row(code, title, brand, root, st: Style, desc, colors, material, fit, *, pr
     return LRow(
         code, title, brand, _C, (root, "Knitwear", _LEAF[st.ptype]), st.ptype, price, "top", desc,
         colors, attrs=attrs, sizes=tuple((s, price) for s in SIZES[root]),
-        params=(("neckline", st.draw_neck), ("sleeve", "sleeveless" if st.sleeve == "Sleeveless" else "long"),
+        params=(("neckline", st.draw_neck), ("sleeve", DRAWN_SLEEVE[st.sleeve]),
                 ("kind", _SHAPE_KIND[st.ptype])),
         size_key="size", facts=(("neckline", st.neck), ("size_range", ["regular"])),
     )  # fmt: skip
