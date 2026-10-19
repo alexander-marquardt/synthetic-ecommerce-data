@@ -103,6 +103,11 @@ TRUE_NODE = {
     "notebook": "Notebooks",
     "box": "Money Boxes",
     "hamper": "Pamper Hampers",
+    # the large appliances of gen#334; the washing machine's leaf is "Laundry", a node the
+    # Cleaning tree has too, so its decoys are kept out of the department node instead
+    "fridge": "Fridges & Freezers",
+    "dishwasher": "Dishwashers",
+    "washing": "Large Appliances",
 }
 POLICIES = ("category", "department", "color")
 
