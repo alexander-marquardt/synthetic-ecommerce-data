@@ -39,6 +39,7 @@ EXPECTED = (
     "fastener_offered_lengths",
     "set_screw_standards",
     "as568_sizes",
+    "tap_shank_squares",
 )
 
 PACKAGE = Path(lib.__file__).resolve().parent
