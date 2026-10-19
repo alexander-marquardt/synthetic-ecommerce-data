@@ -38,8 +38,9 @@ balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`
 the order of the file list is the schedule. `ci_shards.py --plan` (the tests step's source of
 files, in every shard and in the local run) prints the files heaviest first by the weights,
 with the files whose tests xdist spreads (`XDIST_SPREAD = True`, `SPLIT_FILES`) last: they are
-many small tests, the filler that levels the workers' ends. Alphabetical order left a
-late-sorting 670 s module starting when the other workers were nearly done.
+many small tests, the filler that levels the workers' ends. Alphabetical order left the
+late-sorting heavy modules (`test_retail_scale.py` and two other retail modules, which start
+at about 910-1020 s in the 13-worker replay) starting when the other workers were nearly done.
 `tests/test_ci_run_order_348.py` replays xdist's rule over the committed weights (no timing):
 at 8, 12, 13 and 24 workers the run ends within a tenth of perfect balance and under the
 alphabetical order. `--shard` stays alphabetical.

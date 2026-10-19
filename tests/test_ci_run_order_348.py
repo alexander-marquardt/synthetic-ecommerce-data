@@ -1,10 +1,11 @@
 """The local run hands pytest the heaviest module first and the spread files last (#348).
 
 ``--dist loadgroup`` gives each worker the next module as it frees up, in the order pytest
-collected them. The files were listed alphabetically, so a 670 s module that sorts late
-started when the other workers were nearly done and was the tail of the run. Listing the
-modules longest-first (and the files whose tests xdist spreads, which are many small
-units, last, as the filler that closes the gaps) is the classic longest-first schedule.
+collected them. The files were listed alphabetically, so the heavy modules that sort late
+(``test_retail_scale.py`` and two other retail modules, starting at about 910-1020 s in the
+13-worker replay) started when the other workers were nearly done and were the tail of the
+run. Listing the modules longest-first (and the files whose tests xdist spreads, which are
+many small units, last, as the filler that closes the gaps) is the classic longest-first schedule.
 
 The guard times nothing: it replays xdist's rule (each unit goes to the worker that frees
 first) over the committed weights of ``scripts/ci_shard_weights.json``, so it is red or
