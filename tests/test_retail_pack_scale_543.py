@@ -170,6 +170,38 @@ def test_every_smaller_size_of_every_authored_line_renders_inside_its_sheet() ->
     assert len(seen) > 1000
 
 
+def _styled_pack_box(rec: dict, sku: dict) -> tuple[float, float, float, float]:
+    """The bounding box of the pack in the STYLED render (the one the image release ships): the
+    sheet's paper and the brand overlay are left out, only the ``product`` group is measured."""
+    root = ET.fromstring(image_release.render(rec, sku, styled=True))
+    only = ET.Element(root.tag, root.attrib)
+    only.extend(el for el in root if el.tag == f"{SVG}defs" or el.get("class") == "product")
+    box = sheet_extent.reach(ET.tostring(only))
+    assert box is not None
+    return box
+
+
+@pytest.mark.parametrize("ml", [30.0, 50.0])
+def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(ml: float) -> None:
+    """The shipped drawings are the styled ones: a 30 ml and a 50 ml pack measure smaller than the
+    100 ml pack at the cube-root rule, and the canvas is the same 400 x 400."""
+    rec = line_30_50_100()
+    small = _styled_pack_box(rec, _sku(rec, ml))
+    big = _styled_pack_box(rec, _sku(rec, 100.0))
+    want = pack_scale.factor(rec, _sku(rec, ml))
+    assert want is not None and want < 1
+    for lo, hi in ((0, 2), (1, 3)):  # width, then height
+        got = (small[hi] - small[lo]) / (big[hi] - big[lo])
+        assert got == pytest.approx(want, rel=TOLERANCE)
+    assert small[3] == pytest.approx(big[3], abs=1.0)  # same baseline
+    root = ET.fromstring(image_release.render(rec, _sku(rec, ml), styled=True))
+    assert (root.get("width"), root.get("height"), root.get("viewBox")) == (
+        "400",
+        "400",
+        "0 0 400 400",
+    )
+
+
 def test_the_docs_before_and_after_strip_is_the_one_the_drawings_make_now() -> None:
     assert STRIP.read_text(encoding="utf-8") == pack_scale_strip.strip(), (
         "docs/images/pack-scale.svg is stale: uv run python prototypes/retail_drawings/"
