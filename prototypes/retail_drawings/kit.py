@@ -828,7 +828,7 @@ def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, st
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
 
     drawn = _drawn(draw, paint, fill, label, params)
-    inner = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), 1.0)
+    inner = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
