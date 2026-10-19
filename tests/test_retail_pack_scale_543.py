@@ -22,9 +22,12 @@ if str(RETAIL) not in sys.path:
 import export  # noqa: E402
 import image_release  # noqa: E402
 import pack_scale  # noqa: E402
+import pack_scale_strip  # noqa: E402
 import scale  # noqa: E402
 import sheet_extent  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
+
+STRIP = Path(__file__).resolve().parent.parent / "docs" / "images" / "pack-scale.svg"
 
 SVG = "{http://www.w3.org/2000/svg}"
 #: A measured height may differ from the rule by this share: the shapes' own curves and strokes.
@@ -150,3 +153,25 @@ def test_a_total_content_wins_over_the_count() -> None:
         {"net_weight_g": 100, "units_per_pack": 1}, {"net_weight_g": 800, "units_per_pack": 8}
     )
     assert pack_scale.factor(rec, rec["skus"][0]) == pack_scale.FLOOR
+
+
+def test_every_smaller_size_of_every_authored_line_renders_inside_its_sheet() -> None:
+    """The sweep: each image a scaled SKU names is drawn once, carries the pack group, and stays
+    on the sheet (a shrink about the bottom centre can only pull a pack in)."""
+    seen: set[str] = set()
+    for rec in scale.templates():
+        for sku in rec["skus"]:
+            if pack_scale.factor(rec, sku) is None or (image := export.image_id(rec, sku)) in seen:
+                continue
+            seen.add(image)
+            svg = image_release.render(rec, sku, styled=False)
+            assert b'class="pack"' in svg, image
+            assert sheet_extent.overrun(svg) == 0, image
+    assert len(seen) > 1000
+
+
+def test_the_docs_before_and_after_strip_is_the_one_the_drawings_make_now() -> None:
+    assert STRIP.read_text(encoding="utf-8") == pack_scale_strip.strip(), (
+        "docs/images/pack-scale.svg is stale: uv run python prototypes/retail_drawings/"
+        "pack_scale_strip.py --out docs/images/pack-scale.svg"
+    )
