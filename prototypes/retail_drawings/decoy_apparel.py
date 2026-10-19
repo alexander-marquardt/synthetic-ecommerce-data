@@ -44,6 +44,7 @@ from dataclasses import dataclass, replace
 
 import details
 import facet_leaves
+import kids_depth_rows
 import real_brands
 import type_colors
 import type_registry
@@ -636,7 +637,12 @@ def _names_its_drawing(ex: dict) -> bool:
 
 
 def build(body: list[dict]) -> list[Row]:
-    """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
+    """Every decoy row for ``body`` (the templates without the decoys), in plan order.
+
+    A type's decoys clone the first exemplars of its pool in product-id order, so a batch of new
+    rows that sorts early takes every decoy of its type with it. The Kids dresses and coats
+    (:mod:`kids_depth_rows`, gen#310) are not exemplars: with them in the pool the Womens dress
+    decoys moved into the Kids leaves."""
     pool: dict[str, list[dict]] = {}
     for d in sorted(body, key=lambda r: r["product_id"]):
         if (
@@ -645,6 +651,7 @@ def build(body: list[dict]) -> list[Row]:
             and d.get("color_options")
             and d["product_id"] not in ids()
             and d["product_id"] not in PLURAL_NONFOOD_IDS  # a decoy is never a clone's source
+            and d["product_id"] not in kids_depth_rows.product_ids()  # gen#310: see ``build``
             and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
             and _names_its_drawing(d)
         ):
