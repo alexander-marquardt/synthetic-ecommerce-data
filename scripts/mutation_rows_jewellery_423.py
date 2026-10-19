@@ -7,6 +7,8 @@ red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``jewellery 4
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_jewellery_watches_423.py"
 _S = "tests/test_retail_type_specs_351.py"
 
@@ -76,3 +78,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a query-shape test ranks by text score alone, so a seeded sales draw cannot move it",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "jewellery 423"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

@@ -7,6 +7,8 @@ Each row plants one defect in ``attribute_text.py`` and names the test that must
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 ROWS: list[tuple[str, str, str, str, str]] = [
     (
         "a closure the text does not name goes unreported",
@@ -226,3 +228,21 @@ ROWS: list[tuple[str, str, str, str, str]] = [
         "a missing key is reported",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "attribute text"
+
+
+def rows() -> list[Row]:
+    return [
+        Row(
+            name,
+            "attribute_text.py",
+            old,
+            new,
+            f"tests/test_retail_attribute_text_250.py -k {test}",
+            prop,
+            "prototypes/retail_drawings",
+        )
+        for name, old, new, test, prop in ROWS
+    ]
