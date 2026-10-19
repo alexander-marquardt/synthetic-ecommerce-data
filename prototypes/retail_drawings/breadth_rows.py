@@ -79,6 +79,11 @@ class Row:
     #: Empty for a free-paint style, which :func:`paint_range` gives the full range.
     fixed_color: str = ""
 
+    @property
+    def product_id(self) -> str:
+        """The id of the row's document: ``BRD-`` and the code (a footwear row's is ``FTW-``)."""
+        return f"BRD-{self.code}"
+
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
         colors = self.colors[:1] if self.colorless else self.colors

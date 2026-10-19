@@ -25,15 +25,19 @@ is checked over. Every brand, line and style name is invented.
 
 from __future__ import annotations
 
+import copy
+import functools
 from dataclasses import dataclass
 from typing import Any
 
 import distractors as dz
+from breadth_rows import Row
 from class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
 from colorwords import plain
 from departments import check as check_departments
 from promotion import values as promotion_values
 from real_classes import badges
+from type_registry import TypeSpec
 from variants import Color, attr, cw, drawing, product, swatch
 
 # ==========================================================================
@@ -685,13 +689,76 @@ NEW_STYLES: tuple[FootwearStyle, ...] = (
 FOOTWEAR: tuple[FootwearStyle, ...] = (*WOMENS, *MENS, *KIDS_STYLES, *NEW_STYLES)
 
 
-def docs() -> list[dict]:
+@functools.cache
+def _ranked() -> tuple[dict, ...]:
     """Every footwear style's document, ranked by sales among footwear and badged."""
     out = [s.doc() for s in FOOTWEAR]
     ranked = sorted(out, key=lambda d: (-d["sold_last_5_days"], d["product_id"]))
     rank = {d["product_id"]: n for n, d in enumerate(ranked, 1)}
     out = [{**d, "bestseller_rank": rank[d["product_id"]]} for d in out]
-    return [{**d, "badges": badges(d)} for d in out]
+    return tuple({**d, "badges": badges(d)} for d in out)
+
+
+def docs() -> list[dict]:
+    """Every footwear style's document, ranked by sales among footwear and badged. The caller
+    owns the copies: the build edits a document in place."""
+    return copy.deepcopy(list(_ranked()))
+
+
+# ==========================================================================
+# The spec row (gen#427)
+# ==========================================================================
+
+
+@dataclass(frozen=True)
+class FootwearRow(Row):
+    """A footwear style as a type spec's row, the way ``LRow`` carries a third SKU axis.
+
+    A shoe is not a plain ``Row``: its sizes are three systems read from one chart per audience
+    and its upper is a material per color, so :class:`FootwearStyle` stays the one place a style
+    is stated. The row holds it, takes the :class:`~breadth_rows.Row` fields the registry reads
+    (code, department, type, brand, colors) from it, and overrides :meth:`skus` and :meth:`doc`
+    to be the style's own. Its id is ``FTW-`` and the code, not ``BRD-``.
+    """
+
+    style: FootwearStyle | None = None
+
+    def __post_init__(self) -> None:
+        if self.style is None:
+            raise ValueError(f"{self.code}: a footwear row holds its FootwearStyle")
+
+    @classmethod
+    def of(cls, style: FootwearStyle) -> FootwearRow:
+        ptype, nodes, _, _ = TYPES[style.kind]
+        return cls(
+            style.code, style.title, style.brand, "Footwear", (ROOTS[style.gender], *nodes),
+            ptype, style.price, "shoe", style.description, tuple(c for c, _, _ in style.colors),
+            audience="kids" if style.gender == "kids" else "adult", style=style,
+        )  # fmt: skip
+
+    @property
+    def product_id(self) -> str:
+        return f"FTW-{self.code}"
+
+    def skus(self) -> list[dict]:
+        assert self.style is not None
+        return self.style.skus()
+
+    def doc(self) -> dict:
+        """The style's document as :func:`docs` builds it (its rank among all footwear)."""
+        return next(copy.deepcopy(d) for d in _ranked() if d["product_id"] == self.product_id)
+
+
+def footwear_spec(key: str, product_type: str) -> TypeSpec:
+    """The :class:`~type_registry.TypeSpec` of one shoe type: its styles of :data:`FOOTWEAR`, which
+    the scaled build may derive from (as it did when they were authored samples). The apparel
+    decoys of the type stay planned in :mod:`decoy_apparel`."""
+    rows = tuple(FootwearRow.of(s) for s in FOOTWEAR if TYPES[s.kind][0] == product_type)
+    brands = dict.fromkeys(r.brand for r in rows)
+    return TypeSpec(
+        key=key, department="Footwear", product_type=product_type, rows=rows, derivable=True,
+        owners=tuple((b, BRAND_OWNER[b]) for b in brands),
+    )
 
 
 # ==========================================================================

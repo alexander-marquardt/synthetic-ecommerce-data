@@ -88,7 +88,13 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
+and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are type specs
+(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of the
+legacy list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
+`skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
+the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
+Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
+shoes are built by their own modules. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
