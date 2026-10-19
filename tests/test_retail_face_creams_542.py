@@ -8,6 +8,7 @@ carry a house style of their own.
 
 from __future__ import annotations
 
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -88,7 +89,7 @@ def test_each_new_brand_sells_a_day_a_night_and_an_spf_line_in_30_50_and_100_ml(
     full = {
         b: docs
         for b, docs in by_brand.items()
-        if all(any(word in d["title"] for d in docs) for word in LINES.values())
+        if all(any(re.search(rf"\b{word}\b", d["title"]) for d in docs) for word in LINES.values())
     }
     assert len(full) >= 5, sorted(full)
     for brand, docs in full.items():
