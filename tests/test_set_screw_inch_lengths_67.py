@@ -32,7 +32,7 @@ B18_3_LENGTH_INCREMENTS = (
 
 
 def _meta() -> dict:
-    path = resources.files("synthetic_ecommerce_data.domains.industrial.data")
+    path = resources.files("synthetic_ecommerce_data.core.standards_library").joinpath("tables")
     text = path.joinpath("set_screw_standards.json").read_text("utf-8")
     return json.loads(text)[INCH_TABLE]["_meta"]
 
@@ -97,7 +97,7 @@ def test_the_build_makes_every_size_that_admits_the_length(inch_lengths_by_size,
 
 
 def _meta_rows() -> list[dict]:
-    path = resources.files("synthetic_ecommerce_data.domains.industrial.data")
+    path = resources.files("synthetic_ecommerce_data.core.standards_library").joinpath("tables")
     return json.loads(path.joinpath("set_screw_standards.json").read_text("utf-8"))[INCH_TABLE][
         "rows"
     ]
