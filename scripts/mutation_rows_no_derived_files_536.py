@@ -67,7 +67,7 @@ def rows() -> list[Row]:
             "build_derived.py",
             '    "docs/figures.md",\n    "docs/retail-apparel-decoys.md",',
             '    "docs/retail-apparel-decoys.md",',
-            f"{_T}::test_every_file_the_build_writes_is_one_the_check_keeps_out_of_git",
+            f"{_T}::test_every_planted_path_but_the_globs_own_example_is_a_build_output",
             "every planted derived path is one the build writes",
         ),
         _row(
