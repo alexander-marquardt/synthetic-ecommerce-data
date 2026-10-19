@@ -30,6 +30,7 @@ from functools import cache
 from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.naming import thread_gloss
+from synthetic_ecommerce_data.core.typespec import RegistryTable
 from synthetic_ecommerce_data.domains.industrial import standards
 from synthetic_ecommerce_data.domains.industrial.standards import MM_PER_INCH
 
@@ -262,3 +263,7 @@ def sentence_for(type_key: str, published: dict[str, str]) -> str | None:
     if type_key == "washer_flat":
         return washer_sentence(published.get("Size"))
     return None
+
+
+RELATIONS: RegistryTable[str, tuple[str, str]] = RegistryTable({})
+NEAR_MISS_PERIOD: RegistryTable[str, int] = RegistryTable({})
