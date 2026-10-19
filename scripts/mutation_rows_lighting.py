@@ -8,6 +8,8 @@ Each row plants one defect in ``kit_lighting.py`` and names the test that must g
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the task lamp's pole is lowered while its joints stay put",
@@ -26,3 +28,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a task floor lamp's pole ends at its head joint",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "lighting drawings"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

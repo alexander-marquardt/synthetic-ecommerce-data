@@ -10,6 +10,8 @@ A row is ``(name, file, old, new, test, property, root)``.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 SRC = "src/synthetic_ecommerce_data"
 TESTS = "tests/test_repeated_pair_1.py"
 
@@ -45,3 +47,10 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str, str]] = [
         SRC,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "repeated pair"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]
