@@ -50,13 +50,12 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         _MARKED_PROP,
     ),
     (
-        "a petite style may be reduced",
+        "a petite style may be reduced (the size range and the text guards both gone)",
         "sale_share.py",
-        '        and "petite" not in rec.get("size_range", ())\n',
+        '        and "petite" not in rec.get("size_range", ())\n        and "petite" not in text\n',
         "",
-        "tests/test_retail_distractors.py "
-        "-k test_petite_is_a_substantial_set_with_a_minority_on_sale",
-        "petite stays a pair only a policy may honour: a minority of petite styles is on sale",
+        f"{_SHARE} -k test_a_petite_style_is_never_in_the_share_a_regular_one_may_be",
+        "petite stays a pair only a policy may honour: a petite style is not eligible",
     ),
 ]
 
