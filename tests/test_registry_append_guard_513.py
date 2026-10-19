@@ -56,6 +56,14 @@ APPENDS = {
         '    _s(99, "s_probe", "Title", "Desc", "Brown", "block", "Yoga Block"),',
         "feature_decoys",
     ),
+    "decoy-import": (
+        DECOY_ROWS, "from decoy_plural_rows import ROWS as PLURAL_ROWS", "feature_decoys"
+    ),
+    "decoy-splat": (
+        DECOY_ROWS,
+        "    *(_d(code, kind, title, desc, color, 9, plural, sold, ingredients=ing)",
+        "feature_decoys",
+    ),
     "word-table": (WORDS, "TABLE = (*TABLE, *_PROBE)", "feature_decoys"),
     "word-kinds": (WORDS, "NEW_KINDS.update(_PROBE_KINDS)", "feature_decoys"),
     "word-kind": (
@@ -134,6 +142,21 @@ def test_a_new_file_and_no_shared_line_is_let_by(repo, capsys):
     _commit(root, "feature", {f"{RD}/type_specs/probe.py": "SPEC = 1\n",
                               "scripts/mutation_rows_probe_513.py": "PREFIX = 'p'\n"})  # fmt: skip
     assert _run(root, base, capsys)[0] == 0
+
+
+def test_the_hook_lines_of_the_new_file_form_are_not_an_append(repo, capsys):
+    root, base = repo
+    hooks = {
+        DECOY_ROWS: [
+            "KINDS = feature_decoys.kinds(KINDS)",
+            "TABLE = (*TABLE, *feature_decoys.decoy_rows(_d))",
+        ],
+        WORDS: ["TABLE = (*TABLE, *feature_decoys.word_rows(_d))"],
+    }
+    _commit(root, "feature", {path: BASE[path] + "\n".join(lines) + "\n"
+                              for path, lines in hooks.items()})  # fmt: skip
+    code, out = _run(root, base, capsys)
+    assert code == 0, out
 
 
 def test_a_row_edited_in_place_is_not_an_append(repo, capsys):

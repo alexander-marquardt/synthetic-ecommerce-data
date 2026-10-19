@@ -156,3 +156,10 @@ def test_the_module_rows_are_built_with_the_maker_the_table_passes(package):
     _write(where, "zz_b", "def word_rows(d):\n    return (d(3),)\n")
     assert feature_decoys.word_rows(lambda n: n) == (1, 2, 3)
     assert feature_decoys.decoy_rows(lambda n: n) == ()
+
+
+def test_a_module_kind_that_the_word_table_already_holds_is_refused_naming_it(tmp_path):
+    clash = PROBE.replace("zz_cushion", "s_blockheel")
+    done = _report(tmp_path, {"zz_probe": clash})
+    assert done.returncode != 0
+    assert "s_blockheel" in done.stderr and "NEW_KINDS" in done.stderr
