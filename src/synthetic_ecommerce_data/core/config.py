@@ -124,8 +124,22 @@ class GeneratorConfig:
     #: 09_defect_rate.json, each against its own denominator -- the records
     #: that actually carry the attribute pair the class tests.
     defect_loc_exceeds_oal: float = 0.0829
-    defect_angle_carries_length_unit: float = 0.0469
+    #: 09_defect_rate.json measures 0.0469 of angle-carrying records with a
+    #: length keyed into the angle field (``Point Angle = 2"``). **Measured and
+    #: deliberately not reproduced**: the generator writes no value of the wrong
+    #: kind for its key, and a real retailer would fix that row (#404). The
+    #: reproduction is declined, the measurement stands.
+    measured_angle_carries_length_unit: float = 0.0469
     defect_system_contradicts_units: float = 0.0323
+
+    #: The share of parents carrying ``Standards`` that publish one of its
+    #: values twice (``Standards = [ISO, ISO]``): a repeated (name, value) PAIR
+    #: on one parent, the shape that makes a nested count over-report without
+    #: ``reverse_nested`` (#1). Measured on a live retail catalog: 87 of 20,000
+    #: sampled documents (0.00435) repeat a pair. Over parents carrying
+    #: ``Standards`` (about 51% of this catalog's parents) 0.0085 lands at the
+    #: same share of ALL parents, about 0.43%. Scaled by ``defect_scale``.
+    defect_repeated_pair: float = 0.0085
 
     #: 07_value_format_variation.json: 11 of 496 records mix imperial and
     #: metric units across their own dimension fields.

@@ -1,0 +1,11 @@
+TESTS = [
+    "tests/test_retail_womens_depth_310.py",
+]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+R = "prototypes/retail_drawings/"
+MUTANTS = [
+    (R + "womens_depth_rows.py", 'tail="a mesh lining", styles=("Hooded",),', 'tail="a mesh lining",', "rain mac description loses its hood"),
+    (R + "womens_depth_rows.py", '"Hooded": "an attached hood"', '"Hooded": "a drawcord"', "hooded coat describes no hood"),
+    (R + "womens_depth_rows.py", 'wool="" if "Wool" in f else "Wool ", neck', 'wool="Wool ", neck', "wool coat title repeats the fabric word"),
+    (R + "womens_depth_rows.py", '"Lace Trim Jersey": "a soft, stretchy feel"', '"Lace Trim Jersey": "a stretchy jersey body and a lace trim"', "camisole says lace trim twice"),
+]

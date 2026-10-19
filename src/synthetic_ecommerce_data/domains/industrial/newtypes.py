@@ -39,13 +39,16 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
-from synthetic_ecommerce_data.core.formats import LengthStyle
+from synthetic_ecommerce_data.core import standards_library as library
+from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style
 from synthetic_ecommerce_data.core.model import (
     keyword_attribute,
     length_attribute,
     multi_attribute,
     numeric_attribute,
 )
+from synthetic_ecommerce_data.domains.industrial import series as thread_series
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 
 if TYPE_CHECKING:
     from synthetic_ecommerce_data.domains.industrial.generate import Generator, LineDraft
@@ -110,27 +113,27 @@ class NewType:
 
 # --- hex nuts ------------------------------------------------------------------
 
-#: (thread, width across flats in, height in) -- finished hex nuts, inch.
-_NUT_UNC = (
-    ("#6-32", 5 / 16, 7 / 64),
-    ("#8-32", 11 / 32, 1 / 8),
-    ("#10-24", 3 / 8, 1 / 8),
-    ("1/4-20", 7 / 16, 7 / 32),
-    ("5/16-18", 1 / 2, 17 / 64),
-    ("3/8-16", 9 / 16, 21 / 64),
-    ("7/16-14", 11 / 16, 3 / 8),
-    ("1/2-13", 3 / 4, 7 / 16),
-    ("5/8-11", 15 / 16, 35 / 64),
-    ("3/4-10", 1 + 1 / 8, 41 / 64),
-    ("1-8", 1 + 1 / 2, 55 / 64),
+
+def _nut_rows(sizes: tuple[str, ...], series: str) -> tuple[tuple[str, float, float], ...]:
+    """``(thread, width across flats in, height in)`` for finished hex nuts, inch: the
+    thread series' pitch from ASME B1.1 and the nut's two dimensions from ASME B18.2.2,
+    both read from the standards library."""
+    threads = library.table("asme_b1_1_unified_threads").select(list(sizes))
+    nuts = library.table("asme_b18_2_2_hex_nuts_in").select(list(sizes))
+    return tuple(
+        (
+            f"{thread['size']}-{thread[series]}",
+            float(Fraction(nut["flats_in"])),
+            float(Fraction(nut["height_in"])),
+        )
+        for thread, nut in zip(threads, nuts, strict=True)
+    )
+
+
+_NUT_UNC = _nut_rows(
+    ("#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1"), "unc_tpi"
 )
-_NUT_UNF = (
-    ("#10-32", 3 / 8, 1 / 8),
-    ("1/4-28", 7 / 16, 7 / 32),
-    ("5/16-24", 1 / 2, 17 / 64),
-    ("3/8-24", 9 / 16, 21 / 64),
-    ("1/2-20", 3 / 4, 7 / 16),
-)
+_NUT_UNF = _nut_rows(("#10", "1/4", "5/16", "3/8", "1/2"), "unf_tpi")
 #: (thread, width across flats mm, height mm) -- metric.
 _NUT_METRIC = (
     ("M3x0.5", 5.5, 2.4),
@@ -172,7 +175,7 @@ _NUT_METRIC_FINE = (
 
 #: The dimensional standard each FINISHED-hex table above reproduces, row for
 #: row (checked against FreeCAD_FastenersWB at the commit
-#: ``data/fastener_standards.json`` records: ``iso4032def.csv``,
+#: ``core/standards_library/tables/fastener_standards.json`` records: ``iso4032def.csv``,
 #: ``iso8673def.csv``, and ``asmeb18.2.2.4def.csv`` / ``asmeb18.2.2.1def.csv``
 #: -- ASME B18.2.2 carries the #6-#10 hex machine screw nuts too).
 _FINISHED_STANDARD = {
@@ -193,9 +196,10 @@ _JAM_HEIGHT_MM = {
     "M12": 6.0, "M16": 8.0, "M20": 10.0, "M24": 12.0,
 }  # fmt: skip
 _JAM_HEIGHT_IN = {
-    "1/4": 5 / 32, "5/16": 3 / 16, "3/8": 7 / 32, "7/16": 1 / 4, "1/2": 5 / 16,
-    "5/8": 3 / 8, "3/4": 27 / 64, "1": 35 / 64,
-}  # fmt: skip
+    row["size"]: float(Fraction(row["jam_height_in"]))
+    for row in library.table("asme_b18_2_2_hex_nuts_in").rows
+    if "jam_height_in" in row
+}
 _JAM_STANDARD = {
     ("mm", False): "ISO 4035",
     ("mm", True): "ISO 8675",
@@ -308,7 +312,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         category=category,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", style_name),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
@@ -317,7 +321,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
             ("Metric Fine" if fine else "Metric Coarse") if metric else ("UNF" if fine else "UNC"),
         ),
         keyword_attribute("Thread Direction", "Right Hand"),
-        numeric_attribute("Package Quantity", str(qty := rng.choice((25, 50, 100))), float(qty)),
+        numeric_attribute("Units per Pack", str(qty := rng.choice((25, 50, 100))), float(qty)),
     ]
     if grade is not None:
         draft.line_attrs.append(keyword_attribute("Grade", grade))
@@ -576,7 +580,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", "Deep Groove"),
         keyword_attribute("Bearing Number", number),
         # The bearing series (60/62/63, or R for the inch series). It shares a
@@ -659,18 +663,19 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", shape),
-        length_attribute("Wheel Dia.", gen._publish(dia, style)),
+        length_attribute("Diameter", gen._publish(dia, style)),
         length_attribute("Thickness", gen._publish(thickness, style)),
-        length_attribute("Arbor Hole", gen._publish(arbor, style)),
-        keyword_attribute("Connector Type", "5/8-11 Hub" if hub else "Arbor"),
+        # One spelling of the arbor (7/8, never 0.875) whatever the feed's style (#497).
+        length_attribute("Arbor Hole", gen._publish(arbor, canonical_style("in"))),
+        keyword_attribute("Mounting Type", "5/8-11 Hub" if hub else "Arbor"),
         keyword_attribute("Abrasive Material", abrasive),
         keyword_attribute("Bond Type", "Resinoid" if rng.random() < 0.9 else "Vitrified"),
         numeric_attribute("Max. RPM", f"{rpm:,}", float(rpm)),
         keyword_attribute("Application", "Cutting & Grinding" if cutting else "Grinding"),
-        numeric_attribute("Package Quantity", str(qty := rng.choice((10, 25))), float(qty)),
-        keyword_attribute("Grade", grade),
+        numeric_attribute("Units per Pack", str(qty := rng.choice((10, 25))), float(qty)),
+        keyword_attribute("Wheel Grade", grade),
     ]
     draft.descriptors = [("Abrasive Material", abrasive)]
     offered = _window(gen, f"wheel:grit:{dia}:{grade}", list(grits), gen._variant_count())
@@ -684,23 +689,18 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
 
 # --- hex keys ----------------------------------------------------------------------
 
-_KEY_INCH = (
-    0.050,
-    1 / 16,
-    5 / 64,
-    3 / 32,
-    7 / 64,
-    1 / 8,
-    9 / 64,
-    5 / 32,
-    3 / 16,
-    7 / 32,
-    1 / 4,
-    5 / 16,
-    3 / 8,
-    1 / 2,
+#: The stocked hex key sizes: a subset of the ASME B18.3 and ISO 2936 series, which the
+#: standards library refuses to let a name drift from.
+_KEY_INCH = tuple(
+    float(Fraction(size))
+    for size in library.table("asme_b18_3_hex_key_in").pick(
+        ["0.050", "1/16", "5/64", "3/32", "7/64", "1/8", "9/64", "5/32", "3/16", "7/32"]
+        + ["1/4", "5/16", "3/8", "1/2"]
+    )
 )
-_KEY_MM = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0)
+_KEY_MM = tuple(
+    library.table("iso_2936_hex_key_mm").pick([1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0])
+)
 
 
 def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -728,7 +728,7 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", "L-Key"),
         keyword_attribute("Tip Style", "Ball End" if ball else "Hex End"),
         keyword_attribute("Material", material),
@@ -764,7 +764,7 @@ class Kit:
     """One assortment: its kind, the part type it holds, and the sizes, in inches.
 
     A kit is ONE SKU. What it holds is its own ``Sizes Included`` field (a
-    multi-valued attribute listing every size) and its own ``Number of Pieces`` --
+    multi-valued attribute listing every size) and its own ``Piece Count`` --
     a real field, so pack wording is allowed on it. It never shares a
     product id with the individual parts, and is not a grouping of them: a
     grouped product offers its sizes as separately purchasable variants, a kit
@@ -782,6 +782,26 @@ class Kit:
     designations: tuple[str, ...] = ()
 
 
+def _key_mm_kit(keys: list[float]) -> tuple[float, ...]:
+    """A metric key set's sizes in inches, each key a value of the ISO 2936 series."""
+    return tuple(k / MM_PER_INCH for k in library.table("iso_2936_hex_key_mm").pick(keys))
+
+
+def _key_in_kit(keys: list[str]) -> tuple[float, ...]:
+    """An inch key set's sizes, each key a value of the ASME B18.3 series."""
+    return tuple(float(Fraction(k)) for k in library.table("asme_b18_3_hex_key_in").pick(keys))
+
+
+def _metric_kit(sizes: list[str]) -> tuple[str, ...]:
+    """Coarse metric thread designations from ISO 262 (``M6x1``)."""
+    return tuple(name for name, _ in thread_series.metric_designations(tuple(sizes)))
+
+
+def _unc_kit(sizes: list[str]) -> tuple[str, ...]:
+    """Unified coarse thread designations from ASME B1.1 (``1/4-20``)."""
+    return tuple(name for name, _ in thread_series.unified_designations("unc_tpi", tuple(sizes)))
+
+
 KITS: tuple[Kit, ...] = (
     # ISO 2936 metric key sets. The 12-piece precision set starts below the
     # smallest key the catalog sells singly (1.5mm): 0.7, 0.9 and 1.3mm.
@@ -789,14 +809,14 @@ KITS: tuple[Kit, ...] = (
         "Hex Key Set",
         "hex_key",
         "mm",
-        tuple(k / MM_PER_INCH for k in (1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+        _key_mm_kit([1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]),
     ),
-    Kit("Hex Key Set", "hex_key", "mm", tuple(k / MM_PER_INCH for k in (2, 2.5, 3, 4, 5, 6, 8))),
+    Kit("Hex Key Set", "hex_key", "mm", _key_mm_kit([2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0])),
     Kit(
         "Hex Key Set",
         "hex_key",
         "mm",
-        tuple(k / MM_PER_INCH for k in (0.7, 0.9, 1.3, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10)),
+        _key_mm_kit([0.7, 0.9, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]),
     ),
     # ASME B18.3 inch key sets; the 15-piece set starts at 0.028" and 0.035",
     # which the catalog does not sell singly.
@@ -804,29 +824,16 @@ KITS: tuple[Kit, ...] = (
         "Hex Key Set",
         "hex_key",
         "in",
-        (
-            0.028,
-            0.035,
-            0.050,
-            1 / 16,
-            5 / 64,
-            3 / 32,
-            7 / 64,
-            1 / 8,
-            9 / 64,
-            5 / 32,
-            3 / 16,
-            7 / 32,
-            1 / 4,
-            5 / 16,
-            3 / 8,
+        _key_in_kit(
+            ["0.028", "0.035", "0.050", "1/16", "5/64", "3/32", "7/64", "1/8", "9/64", "5/32"]
+            + ["3/16", "7/32", "1/4", "5/16", "3/8"]
         ),
     ),
     Kit(
         "Hex Key Set",
         "hex_key",
         "in",
-        (5 / 64, 3 / 32, 1 / 8, 5 / 32, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8),
+        _key_in_kit(["5/64", "3/32", "1/8", "5/32", "3/16", "7/32", "1/4", "5/16", "3/8"]),
     ),
     # Fractional jobber drill indexes: the classic 29-, 21- and 13-piece sets.
     Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 32)),
@@ -841,7 +848,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=50,
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8"]),
     ),
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -849,7 +856,7 @@ KITS: tuple[Kit, ...] = (
         "in",
         (),
         per_size=40,
-        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16"),
+        designations=_unc_kit(["#6", "#8", "#10", "1/4", "5/16", "3/8"]),
     ),
     # Tap sets: one tap of each coarse size.
     Kit(
@@ -857,14 +864,14 @@ KITS: tuple[Kit, ...] = (
         "tap_spiral_point",
         "mm",
         (),
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25", "M10x1.5", "M12x1.75"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8", "M10", "M12"]),
     ),
     Kit(
         "Tap Set",
         "tap_spiral_point",
         "in",
         (),
-        designations=("#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "1/2-13"),
+        designations=_unc_kit(["#6", "#8", "#10", "1/4", "5/16", "3/8", "1/2"]),
     ),
 )
 
@@ -888,7 +895,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     """One assortment kit: one SKU, its sizes a field of its own.
 
     The attribute names are the census's: ``Sizes Included`` (the contents,
-    multi-valued), ``Number of Pieces`` (a real count, which is why pack
+    multi-valued), ``Piece Count`` (a real count, which is why pack
     wording may name it) and ``Container Type``.
     """
     from synthetic_ecommerce_data.core.brands import brands_for
@@ -919,7 +926,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         # ONE item name for every kit, the kind in ``Type``: four kit names
         # would take ``Item`` past the 25-value facet cap, and ``Item`` is a
         # policy target a shopper must be able to see and reverse.
-        keyword_attribute("Item", "Assortment Kit"),
+        retired(keyword_attribute("Item", "Assortment Kit")),  # keeps the stream stable for #497
         keyword_attribute("Type", kit.item),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
@@ -930,7 +937,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         draft.line_attrs.append(keyword_attribute("Tip Style", tip))
     draft.descriptors = [("Container Type", container)]
     child = ChildDraft(system=kit.system)
-    child.primary = numeric_attribute("Number of Pieces", str(pieces), float(pieces))
+    child.primary = numeric_attribute("Piece Count", str(pieces), float(pieces))
     child.attrs = [child.primary, multi_attribute("Sizes Included", contents)]
     draft.children.append(child)
     return draft

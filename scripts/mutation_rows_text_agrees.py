@@ -10,6 +10,8 @@ predicate, and names the tests that must go red. ``mutation_check.py`` turns the
 # ruff: noqa: E501  (a row's old and new text are source lines, as written)
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_text_agrees_139.py"
 _SILENT = f"{_T}::test_the_false_positive_is_silent"
 _PLANTED = f"{_T}::test_a_true_incoherence_planted_on_the_same_doc_is_still_reported"
@@ -20,16 +22,16 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "a comparison is a claim again",
         _STANDARD,
-        'padded = words(_REFERENCE.sub(" | ", text))',
-        "padded = words(text)",
+        'claimed = _REFERENCE.sub(" | ", text)',
+        "claimed = text",
         (f"{_SILENT} -k comparison", f"{_SILENT} -k equivalence", f"{_SILENT} -k tolerance"),
         "a comparison, an equivalence and a tolerance class name a value without claiming it",
     ),
     (
         "every sentence is a reference",
         _STANDARD,
-        'padded = words(_REFERENCE.sub(" | ", text))',
-        'padded = words(" | ")',
+        'claimed = _REFERENCE.sub(" | ", text)',
+        'claimed = " | "',
         f"{_PLANTED} -k comparison",
         "a true incoherence beside a comparison is still reported",
     ),
@@ -139,3 +141,10 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         "a smooth-faced framing hammer is not described as milled",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "text agrees"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

@@ -24,7 +24,7 @@ KEY_DIMENSIONS: dict[str, tuple[str, ...]] = {
     # A bearing is named by its number AND its bore: the bore is what a
     # shopper fits it to (the review of the 100K catalog, 2026-09-29).
     "bearing_radial_ball": ("Bearing Number", "Bore Dia."),
-    "wheel_depressed_center": ("Wheel Dia.",),
+    "wheel_depressed_center": ("Diameter",),
     "abrasive_flap_disc": ("Diameter",),
     # Not a dimension, but it names what the screw IS, so it leads. Last in
     # the title, the value's trailing "Point" reads as a cut "Point Type".
@@ -46,7 +46,43 @@ def _weighted(rng: random.Random, table) -> object:
 
 #: Keys that hold ONE unit each: a restated value would put the other unit
 #: under them, so the unit-mixing defect leaves them alone.
-UNIT_SPLIT_KEYS = frozenset({"diameter", "dowel_dia_in", "dowel_dia_mm"})
+UNIT_SPLIT_KEYS = frozenset({"diameter"})
+
+
+@dataclass(frozen=True)
+class RetiredAttribute(Attribute):
+    """An attribute #497 no longer publishes, kept in a draft for its draws.
+
+    Each attribute a builder lists takes one sparsity draw, and the price
+    groups and the "already made" check read the unsparsified list. Dropping
+    ``Item`` (and the others retired in #497) from the builders moved every
+    later draw and so every price. A builder lists the retired attribute where
+    the published one stood: sparsity takes its draw and then drops it, so the
+    random stream, the dedupe key and the price groups are what they were.
+    It is never published.
+    """
+
+    #: The presence it was published at. At 1.0 it stood among the attributes
+    #: sparsity never dropped, which is what the price group and the dedupe
+    #: bucket read; below it, the draw decides whether the "already made"
+    #: check still counts it, as it counted the published one.
+    presence: float = 1.0
+
+    @property
+    def always(self) -> bool:
+        """Whether sparsity never dropped it."""
+        return self.presence >= 1.0
+
+
+def retired(attribute: Attribute, *, presence: float = 1.0) -> RetiredAttribute:
+    """``attribute`` as a retired one: same name and value, never published."""
+    return RetiredAttribute(
+        name=attribute.name,
+        value=attribute.value,
+        value_num=attribute.value_num,
+        values=attribute.values,
+        presence=presence,
+    )
 
 
 @dataclass
@@ -99,3 +135,6 @@ class LineDraft:
 #: The word a terse title uses for an end mill's end shape, by its
 #: ``End Mill Style``: ``SGL Sq End`` / ``SGL Ball End``.
 END_SHAPE_WORD: dict[str, str] = {"Square": "Sq", "Ball Nose": "Ball"}
+#: The cutting end of each end mill type. ``End Mill Style`` said the same thing and is
+#: no longer published (#497), so the type key decides.
+END_SHAPE_OF_TYPE: dict[str, str] = {"end_mill_square": "Square", "end_mill_ball": "Ball Nose"}

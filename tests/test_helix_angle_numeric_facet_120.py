@@ -1,9 +1,10 @@
 """Every displayed Helix Angle on an end mill has its numeric facet (#120).
 
-The modelled angle defect publishes ``Helix Angle = 42"`` (the inch mark keyed
-for the degree mark). The nested entry reads that as 42 degrees (``DD``, canonical
-42.0), but the flat document's ``facets_num`` once carried no ``helix_angle`` for
-it: the two numeric shapes disagreed on every such row. Walks the generated
+The angle defect once published ``Helix Angle = 42"`` (the inch mark keyed for
+the degree mark), which the nested entry read as 42 degrees while the flat
+document's ``facets_num`` carried no ``helix_angle`` for it: the two numeric
+shapes disagreed on every such row. The generator writes no such value now
+(#404); the parity stays pinned. Walks the generated
 end-mill set, fresh and committed, and asserts each displayed angle has its
 number, and that it is the number the nested entry carries.
 """
@@ -54,10 +55,8 @@ def test_every_displayed_helix_angle_has_its_numeric_facet(end_mills):
     wrong = []
     for doc in end_mills:
         for attribute in doc["attributes"]:
-            if attribute["name"] != "Helix Angle":
+            if attribute["name"] != "Helix angle":
                 continue
-            # A length keyed into the angle field (``1"``, ``1-5/8"``) stays text
-            # in the entry and has no angle to range over: no number either.
             coded = attribute.get("unit_code") == "DD"
             if coded:
                 shown += 1
@@ -71,7 +70,7 @@ def test_the_numeric_facet_is_the_degrees_the_entry_carries(end_mills):
     compared = 0
     for doc in end_mills:
         for attribute in doc["attributes"]:
-            if attribute["name"] == "Helix Angle" and "value_canonical" in attribute:
+            if attribute["name"] == "Helix angle" and "value_canonical" in attribute:
                 compared += 1
                 assert doc["facets_num"].get("helix_angle") == attribute["value_canonical"]
     assert compared > 0

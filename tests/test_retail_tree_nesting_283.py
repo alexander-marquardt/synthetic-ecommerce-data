@@ -73,15 +73,15 @@ def test_lights_keep_their_specific_children(paths: set[tuple[str, ...]]) -> Non
 
 
 def test_bit_sets_sit_in_tool_sets(paths: set[tuple[str, ...]]) -> None:
-    assert ("Home", "DIY & Tools", "Tool Sets", "Bit Sets") in paths
+    assert ("Home", "DIY & tools", "Tool sets", "Bit sets") in paths
 
 
 def test_sofa_beds_sit_in_sofas(paths: set[tuple[str, ...]]) -> None:
-    assert ("Home", "Furniture", "Sofas", "Sofa Beds") in paths
+    assert ("Home", "Furniture", "Sofas", "Sofa beds") in paths
 
 
 def test_crisps_sit_in_biscuits_and_snacks(paths: set[tuple[str, ...]]) -> None:
-    assert ("Food & Drink", "Biscuits & Snacks", "Crisps") in paths
+    assert ("Food & drink", "Biscuits & snacks", "Crisps") in paths
 
 
 def test_three_siblings_with_one_head_noun_sit_under_a_parent_that_names_it(
@@ -253,5 +253,5 @@ def test_every_product_titled_corner_sofa_shares_the_corner_sofa_leaf_and_type(
     corner = [r for r in records if "Corner Sofa" in r["title"]]
     assert corner, "no corner sofa was built"
     assert {(r["product_type"], r["category_leaf"]) for r in corner} == {
-        ("Corner Sofa", "Corner Sofas")
+        ("Corner Sofa", "Corner sofas")
     }

@@ -321,33 +321,34 @@ def main(argv: list[str] | None = None) -> int:
     # facet keys keep name and value together, but the raw ``attributes`` array
     # does not. This measures how much over-matching the array would cause.
     # Both sides ask the SAME question -- "which documents publish
-    # Shank Dia. = 3/8\"" -- and differ only in how they match it.
+    # Shank dia. = 3/8\"" -- and differ only in how they match it.
     #
     #   naive:   the ``attributes`` array is a plain object, so ``name`` and
     #            ``value`` are two independent multi-valued fields. A filter
-    #            for name=Shank Dia. AND value=3/8" matches any document
+    #            for name=Shank dia. AND value=3/8" matches any document
     #            carrying a shank diameter ANYWHERE and a 3/8" ANYWHERE --
     #            the 3/8" may belong to a different attribute entirely.
     #   precise: the pairing held together, which is what the sanitised
     #            per-attribute ``facets.shank_dia`` field preserves.
     # An entry carries the token split (elastic/prism#9935): magnitude plus unit code.
     split_token = ("3/8", "INH")
+    shank = "Shank dia."  # the name as published, not as authored
     naive = sum(
         1
         for row in flat
-        if "Shank Dia." in {a["name"] for a in row["attributes"]}
+        if shank in {a["name"] for a in row["attributes"]}
         and split_token in {(a.get("value"), a.get("unit_code")) for a in row["attributes"]}
     )
     precise = sum(
         1
         for row in flat
         if any(
-            a["name"] == "Shank Dia." and (a.get("value"), a.get("unit_code")) == split_token
+            a["name"] == shank and (a.get("value"), a.get("unit_code")) == split_token
             for a in row["attributes"]
         )
     )
     checks.record(
-        naive >= precise,
+        naive > 0 and naive >= precise,  # naive == 0 measures a name no document carries
         "object-array filtering over-matches, which is why the field map uses facets.*",
         f"name+value over the flat object array matches {naive} documents; "
         f"the pairing held together matches {precise}; "

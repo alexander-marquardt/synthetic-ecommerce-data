@@ -57,14 +57,15 @@ def test_ancestors_are_the_prefixes():
 def test_a_screw_and_a_hammer_share_only_generic_concepts():
     screw = names_for("screw_socket_head")
     hammer = names_for("hammer_ball_pein")
-    # What a threaded fastener and a striking tool have in common is the item
-    # name and what they are made of -- and they say "Material" alike.
-    assert screw & hammer == {"Item", "Material"}, screw & hammer
+    # What a threaded fastener and a striking tool have in common is what they
+    # are made of -- and they say "Material" alike. The item name is gone (#497):
+    # it repeated the product type.
+    assert screw & hammer == {"Material"}, screw & hammer
 
 
 def test_an_end_mill_and_a_flap_disc_share_almost_nothing():
     overlap = names_for("end_mill_square") & names_for("abrasive_flap_disc")
-    assert overlap == {"Item"}, overlap
+    assert overlap == set(), overlap
 
 
 def test_one_concept_is_one_name_across_types():
@@ -83,10 +84,10 @@ def test_one_concept_is_one_name_across_types():
     assert {"end_mill_square", "drill_jobber", "tap_spiral_point", "bolt_hex"} <= carrying_finish
 
 
-def test_the_measurement_system_attribute_has_three_spellings():
+def test_the_measurement_system_attribute_has_one_name():
+    """Dimension Type and System of Measurement were two more names for it (#497)."""
     names = [name for name, _ in MEASUREMENT_SYSTEM_NAMES]
-    assert names == ["Dimension Type", "Measurement System", "System of Measurement"]
-    assert len(set(names)) == 3
+    assert names == ["Measurement System"]
 
 
 def test_measurement_system_weights_are_distributions():

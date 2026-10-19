@@ -27,7 +27,6 @@ Beauty|Moisturiser
 Beauty|Perfume
 Beauty|Shower Gel
 Beauty|Skin Tint
-Beauty|Sun Cream
 Beauty|Travel Set
 Beauty|Wash Bag
 Cleaning & Janitorial|Air Freshener
@@ -45,7 +44,6 @@ Cleaning & Janitorial|Surface Cleaner
 Cleaning & Janitorial|Surface Spray
 Cleaning & Janitorial|Toilet Cleaner
 Clothing|Backpack
-Clothing|Belt
 Clothing|Blouse
 Clothing|Bodysuit
 Clothing|Bomber Jacket
@@ -69,7 +67,6 @@ Clothing|Mens Trousers
 Clothing|Necklace
 Clothing|Outfit Set
 Clothing|Polo Shirt
-Clothing|Puffer Jacket
 Clothing|Purse
 Clothing|Ring
 Clothing|School Pinafore
@@ -187,6 +184,8 @@ Footwear|Safety Boots
 Footwear|Sandals
 Footwear|School Shoes
 Footwear|Shoe Care Kit
+Footwear|Shoe Laces
+Footwear|Shoe Polish
 Footwear|Slippers
 Footwear|Trainers
 Footwear|Walking Boots
@@ -283,8 +282,6 @@ Home|Plate
 Home|Recliner Sofa
 Home|Saucepan
 Home|Screwdriver Set
-Home|Shoe Laces
-Home|Shoe Polish
 Home|Side Table
 Home|Socket Set
 Home|Sofa

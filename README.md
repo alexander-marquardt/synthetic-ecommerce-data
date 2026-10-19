@@ -17,7 +17,7 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100,000 SKUs
+brands -- and, with one flag, about 100K SKUs
 ([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
@@ -122,13 +122,22 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
-extraction, unmodified, and carries its own provenance block naming each
+`src/synthetic_ecommerce_data/core/standards_library/tables/fastener_standards.json` is that
+extraction, unmodified apart from the library's `_library` citation block, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+**The standards library (#73).** Every size table the catalog reads from a standard is one
+JSON file in `src/synthetic_ecommerce_data/core/standards_library/tables/`, with a `_library`
+block naming its `standards`, `edition`, `source` and `kind`, and a rule of its own in
+`tests/test_standards_library.py`. A type reads a table by name
+(`standards_library.table("asme_b1_1_unified_threads").select(["#10", "1/4"])`) and takes only
+the sizes it stocks; `select` refuses a size the table lacks. A new table is a new file, never
+an edit to a shared list, so two type PRs that each add one do not collide. The library moves
+SIZE tables; what a type claims to conform to stays in `conformance.py` (#61).
 
 The sizes taken are listed in the extraction's own `requested_sizes` block:
 `M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.
@@ -158,16 +167,16 @@ each system, its own category leaf and its own drawing:
 | `screw_button_head` | `ISO 7380-1` | `ASME B18.3.3A` | shallow dome |
 | `screw_low_head` | `DIN 7984` | `ASME B18.3.1G` | squat cylinder |
 
-**The length.** A screw publishes three of them and they are three different
-measurements:
+**The length.** A screw publishes two of them and they are two different
+measurements (`Length under Head` was a third until #497: on every screw but a
+countersunk one it repeated `Length` to the digit, so it was folded into it):
 
 | attribute | what it measures |
 |---|---|
 | `Length` | the nominal length — measured **over** the head on a countersunk screw and under it on every other style |
-| `Length under Head` | the whole shank, head excluded (the census's casing) |
 | `Thread Length` | how much of that shank carries thread |
 
-`x 3/4` in the reference distributor's pattern is the second of those. Binding it to
+`x 3/4` in the reference distributor's pattern is the first of those. Binding it to
 `Thread Length` would return confidently wrong results — a 3/4" screw and a
 screw with 3/4" of thread on it are different products — and on a countersunk
 screw binding it to `Length` is wrong by a head height. So the attribute is
@@ -190,17 +199,34 @@ To add a product type, or move one into its own module, see
 Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
-in, rebuilds `golden-catalog/` and `golden-retail/stats.json` and merges only when the drift, golden and seam
+in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree.
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
 checkout) but not the network. When a real merge's build fails on a dropped
 lookup, the script says "the build failed on the network" apart from the build
 refusing the tree; rerun it.
+
+**What a feature PR commits, and what it never commits (gen#536).** A PR commits its
+sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
+(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, `stats.json`, the mappings). It
+never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
+`docs/figures.md`, the apparel decoy table `docs/retail-apparel-decoys.md` and the sneak-peek
+samples and previews. They moved with every type or grocery PR, so every merge conflicted the
+rest, and a merge that did not roll them left `main` red. CI builds them once per run and uploads
+them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
+scripts/build_derived.py --out build/derived`, to see yours), a test reads a total with
+`retail_figures.figures()` and never compares against a committed number, and the
+`no-derived-files` job (`scripts/check_no_derived_files.py`) fails a PR whose tree tracks one,
+naming `git rm --cached <file>`. The figures page is the `derived` artifact's `docs/figures.md`.
+
 GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 --local-ci <PR number>` (the default when `GEN_LOCAL_CI=1`) runs every job of
 `.github/workflows/*.yml` on that merged tree, prints each job's verdict and
-log path, and refuses the merge unless all pass; no GitHub check is read.
+log path, and refuses the merge unless all pass; no GitHub check is read. A red job
+prints its FAILED/ERROR lines (up to 20) and its log is copied to
+`<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
+without a re-run.
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -351,7 +377,7 @@ report`), with the default catalog beside it:
 |---|--:|--:|
 | shank == cutting diameter | 0.6489 | 0.6895 |
 | length of cut > overall length | 0.0829 | 0.0829 |
-| angle carries a length unit | 0.0469 | 0.0451 |
+| angle carries a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared system contradicts units | 0.0323 | 0.0331 |
 | unit mixing within one record | 0.0222 | 0.0185 |
 | title dimension token unlabelled | 0.4667 | 0.4598 |
@@ -465,7 +491,11 @@ shared tables):
   source, so none is claimed.
 * **Finish and hardness follow material and grade**: an 18-8 stainless socket
   screw is plain at Rockwell B80, alloy steel is black oxide or zinc at C38
-  (12.9 at C39); a graded hex bolt's material follows its grade, and hot-dip
+  (12.9 at C39); the top strength grade is named on its own system's scale --
+  `Grade 12.9` (ISO 898-1) on a metric socket, flat, button or low head
+  screw, `Grade 8` (SAE J429, C36) on an inch one, never the reverse, which
+  a whole-catalog test over every published string of every document holds
+  (#17); a graded hex bolt's material follows its grade, and hot-dip
   galvanizing is kept off Grade 8 / Class 10.9 (ASTM F2329); nACo and AlTiN
   are carbide coatings, black oxide an HSS treatment.
 * **An end mill's shank is never thinner than its cutter, and never more than
@@ -538,9 +568,14 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Package Quantity` exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
+* **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
+  (`Each`, or `Per Pack` when the record publishes a `Units per Pack` above 1) and
+  `order_multiple` (1: a pack is ordered whole). They are not variants and not facets. The second
+  variant axis (a sparse set of packs per size, a SKU and an image for each existing pair) is the
+  rest of gen#14 and is not built yet.
 * **Descriptions** keep the spec clause and add the brand's template: a use
   line true of every product of the type, a family line naming the brand, its
   range and series, a generic benefit of a material or finish the record
@@ -648,7 +683,7 @@ mutation rows prove the checks bite.
 
 `kit_assortment` is a seventeenth product type: ONE SKU per kit, its
 contents a multi-valued field of its own (`Sizes Included`), its piece count
-a real number (`Number of Pieces`, so pack wording may name it), never
+a real number (`Piece Count`, the census's `Number of Pieces`, so pack wording may name it), never
 sharing a product id with the individual parts. The sets are the
 conventional ones -- ISO 2936 and ASME B18.3 hex key sets, fractional
 (29/21/13-piece) and metric jobber drill indexes, socket head cap screw
@@ -664,7 +699,7 @@ one fitted factor, its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
-(`10.07mm`), and the countersunk screw publishes no `Length under Head` -- it
+(`10.07mm`), and the countersunk screw publishes no length under the head -- it
 is sold by its length over the head, and length-less-head-height put 12.56mm
 and 1.3910" beside the stocked lengths.
 
@@ -726,7 +761,7 @@ than separate keyword and numeric arrays. Each entry follows the data contract
 of elastic/prism#9935:
 
 ```json
-{"key": "milling_dia", "name": "Milling Dia.", "value": "3/8", "unit_code": "INH", "value_canonical": 9.525}
+{"key": "milling_dia", "name": "Milling dia.", "value": "3/8", "unit_code": "INH", "value_canonical": 9.525}
 ```
 
 * `key` is required: the machine name the Engine discovers an attribute by,
@@ -762,21 +797,16 @@ of elastic/prism#9935:
 The split is **read back out of** the published string, never computed from
 the generator's magnitude, so the two can never disagree: `3/8"` has no exact
 two-decimal millimetre spelling, and a number computed from the original
-magnitude would quietly differ from the string actually published. A defective
-spelling never changes what an attribute measures: `Helix Angle = 42"`, the
-modelled defect of an inch mark keyed for a degree mark, becomes `42` `DD`
-(`catalog.entry.UNIT_FOR_NAME`). The flat facet keeps the messy `42"`; the
-entry keeps the magnitude and drops the bad mark (elastic/prism#9284, #79). The
-flat `facets_num` carries that same number, taken from the same rule
-(`entry.split`), so the two numeric shapes agree (#120). Read
-as an inch, it put a length under an angle key. The same defect also writes
-`1"`, `1-1/4"`, `2"` and `1-5/8"`: lengths keyed into an angle field, a
-unit-type error rather than a mis-keyed degree mark. An attribute fixed to `DD`
-therefore parses only when its number lies within the angles its generator
-draws (`catalog.entry.SPAN_FOR_NAME`, read from `catalog.series`), and a
-fraction never parses as an angle; anything else stays text, with no
-`unit_code` and no `value_canonical`. In the default build that leaves 8 of the
-78 defect rows as angles (`Helix Angle = 42"`) and 70 as text. An attribute that
+magnitude would quietly differ from the string actually published. The mark
+decides the unit and nothing repairs it, so a value of the wrong kind for its
+key would show: the generator writes none (#404). It used to write inch lengths
+(`2"`, `1-5/8"`, `42"`) under `point_angle` and `helix_angle`, 963 rows on one
+load, where a facet offered them beside `118` and `135`; a real retailer would
+fix that row, so the step is gone and `tests/test_no_wrong_kind_values_404.py`
+holds every angle key to angles, in the flat spelling and in the nested entry,
+over a sample of every product type at the measured defect rates and at their
+ceiling. The flat `facets_num` carries the same number as the nested entry,
+taken from the same rule (`entry.split`) (#120). An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
 
@@ -813,7 +843,7 @@ deliberately overlapping content:
 sku          7159421039
 title        Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
 description  Druvanholm Hex Head Bolt, 1/2-13 Dia./Thread Size, 1-1/4" L, Grade 5
-             - 1-1/4" Length under Head, 1-1/4" Thread Length, 3/4" Width
+             - 1-1/4" Thread Length, 3/4" Width
              Across Flats, 11/32" Head Height, 3/4" Head Dia., Druvanholm
              ASMEB18.2.1-78. ...
 ```
@@ -851,7 +881,7 @@ why the distinction is worth a rule rather than a remark: on the first pass at
 this work the whole-string and substring counts had both reached zero while the
 standalone-token count was still **10**. One of the ten was
 `Button Head Socket Cap Screw, 1/4-20, Alloy Steel`, credited with naming a
-`Length under Head` of `1/4` — which is the first half of a thread designation
+length of `1/4` (then published as `Length under Head`) — which is the first half of a thread designation
 and says nothing about how long the screw is. On the committed catalog all
 three counts are zero.
 
@@ -881,7 +911,7 @@ Both shapes publish a SKU's own `description` beside its `title`. The line's
 title ships too, as `parent_title` — it is what a grouped card will be headed
 with — but it is no longer what renders under a SKU's title.
 
-The flat shape also carries a sanitised `facets` object, because `Milling Dia.`
+The flat shape also carries a sanitised `facets` object, because `Milling dia.`
 cannot be an Elasticsearch field name — the trailing dot makes it an invalid
 path. The three spellings of the measurement-system attribute deliberately
 sanitise to three different keys rather than being folded into one: folding
@@ -960,6 +990,7 @@ The retail prototype's reference (planted distractors, footwear, grocery, the fa
 | `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
+| `authored_names.json` | 16 KB — per product type, each attribute's published sentence-case name beside the name its type authored; the image bundle rebuild reads it ([One letter case](#one-letter-case-for-names)) |
 | `stats.json` | the measured defect rates, and the config that produced them |
 
 About 45 MiB in the working tree. **Plain NDJSON — deliberately not gzipped
@@ -974,6 +1005,27 @@ catalog](#the-100k-catalog) is built on demand.
 It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
 looks like, opens a file rather than running a build.
+
+### One letter case for names
+
+Every category node and every attribute display name is **sentence case**, industrial and
+retail alike (gen#499): `Handle material`, `Bore dia.`, `Hose, tube, fittings & valves > Seals &
+gaskets > O-ring seals`. One normaliser, `core/letter_case.py`, runs at export on the finished
+document (`emit.nested_document`, `emit.flat_documents`, retail's `export.standard_document`);
+the authored literals are not edited. A machine `key` is never touched, and neither is a value.
+
+A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
+(`AS568`), has a capital inside it (`iPhone`), is a lone capital letter (`T-slot`, `V-belts`),
+or is on the exception list, `letter_case.PROPER_NOUNS` (a trade name or a brand: `Torx`, `Nike`,
+`Apple`). Add a word there with its reason. `tests/test_letter_case_499.py` fails when a category
+node or a display name in either build or in `golden-catalog/` is not its own sentence-case
+form, or when one key carries two display names.
+
+The drawing code looks an attribute up by the name its type authored (`r["Milling Dia."]`), so
+`ecom-generate build` also writes `authored_names.json` and `core/bundle.py` reads the drawing
+input back through it: a drawing is the same bytes, and `images.jsonl` keeps its digests. A
+consumer that matches on a display name or a category path (a policy, a vocabulary seed) reads
+the sentence-case form.
 
 ### Regenerating it
 
@@ -1022,7 +1074,7 @@ carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer rul
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
-with `Length under Head` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
+with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
 
 It runs after the main generation and changes nothing the main generation
 drew. For each entry no SKU already satisfies, it builds lines with that
@@ -1148,7 +1200,7 @@ agrees with itself proves nothing.
 
 The flat shape's `attributes` array is a plain object, so `name` and `value`
 become two independent multi-valued fields. Filtering it for
-*name = Shank Dia. AND value = 3/8"* matches **236** documents; only **141**
+*name = Shank dia. AND value = 3/8"* matches **236** documents; only **141**
 actually publish a 3/8" shank. The other 95 carry a 3/8" belonging to a
 different attribute (counted from `golden-catalog/flat.jsonl`).
 
@@ -1196,7 +1248,7 @@ removed; a mutation that reds nothing is the point of running them.
 **The harness cannot find the defect the line drawings exist to prevent, and
 that is why the tests do not rely on it.** An attribute published on every
 record and read by nothing has no code path to plant a defect in, which is how
-`End Mill Style` drew 473 ball nose mills square through 39 mutations with no
+`End Mill Style` (removed in #497: the category leaf says it) drew 473 ball nose mills square through 39 mutations with no
 zeros. What the harness *can* plant is the other half — a channel that reads
 its attribute, validates it, and then draws something else — so every marking
 mutation is that shape, and the coverage question is answered from the data
@@ -1460,7 +1512,7 @@ the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, never per SKU:
 every size of one color shares an image, drawn in that color's swatch (base,
 pattern and accent). The authored-styles build is `templates.authored_images` images for
-`templates.authored` SKUs (`golden-retail/stats.json`).
+`templates.authored` SKUs (`retail_figures.figures()`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
 input): `--skus 20000` is 1,348 images for 20,002 SKUs.
 There is no committed manifest to check against (the retail build is code, not
@@ -1468,6 +1520,10 @@ a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
 keying, that every document's image URL resolves to a packaged file, and the
 package shape.
+
+A `v*` tag builds the ceiling export and this bundle, uploads them to a release with their
+`.content-sha256`, and opens the pin-bump pull request in the catalogue repository
+([docs/releasing.md](docs/releasing.md), gen#536); a manual run of the workflow is the dry run.
 
 ### The older renderers in `domains/industrial/render/`
 
@@ -1495,9 +1551,10 @@ than asserted.
 |---|---|---|
 | shank diameter == cutting diameter | 0.6489 | 0.6992 |
 | length of cut > overall length | 0.0829 | 0.0805 |
-| an angle attribute carrying a length unit | 0.0469 | 0.0448 |
+| an angle attribute carrying a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
 | unit mixing within one record | 0.0222 | 0.0166 |
+| a parent repeating a (name, value) pair, over parents carrying `Standards` | 0.0085 | 0.0082 |
 | title dimension token carries no label | 0.4667 | 0.4648 |
 | title dimension token is not the primary dimension | 0.1714 | 0.1179 |
 | title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
@@ -1508,12 +1565,22 @@ than asserted.
 Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
 identical to `golden-catalog/`).
 
-Two notes on reading that table honestly. The angle defect is **clustered**:
-the attribute is line-constant, so one bad row reaches every SKU under that
-line — which is how these arrive in a real catalog, and is visible in the
-source corpus too, where the same wrong value repeats across a whole series.
-Its per-record rate therefore swings much more between seeds than the others.
-And attributes per record sits about 6% below its target because the
+The repeated-pair row is the shape the `reverse_nested` trap needs (#1): a
+repeated attribute NAME with distinct values (`Standards = [ISO, DIN]`) makes
+every bucket agree with or without `reverse_nested`, while the same value twice
+on one parent (`Standards = [ISO, ISO]`) over-reports it. The multi-valued
+`Standards` stays; on 27 of the 3,307 golden parents that carry it, one value
+is published twice (`parent repeats a (name, value) pair` in `stats.json`).
+The target, `GeneratorConfig.defect_repeated_pair`, is set so the share of ALL
+parents (about 0.43%) matches the 87 in 20,000 documents measured on a live
+retail catalog. It is a defect class, so `--defects 0.0` removes it and
+`--defects N` scales it; the draw has its own stream per product, so changing
+it moves no other value in the catalog.
+
+Two notes on reading that table honestly. The angle row is **deliberately zero**:
+the corpus measures 0.0469, and the generator declines to write a length under an
+angle key (#404; `GeneratorConfig.measured_angle_carries_length_unit` keeps the
+measurement). And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
 same one. It moved when the newer types arrived (hex nuts and hex keys publish
@@ -1558,7 +1625,7 @@ figure against the file.
 | pack quantity (hex bolts) | a group page's pack, independent of the size, so a size comes in several packs (`price.page_pack`); priced within a size on the elasticity the census's same-spec larger-pack ratio gives (`price.PACK_ELASTICITY`, 0.659: a 5x pack costs 0.5778 per piece). Because the pack adds its own spread, the bolt's slopes are cut to `price.SLOPE_CUT_AIMS` (shown p90/p10 10.0, inside the row's band) rather than to the census's 8.21, which would leave no size slope. Prices exist to show range filters, sorting and facets, not to match the census exactly (#86) |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
 | SKU noise, one draw per SKU | fitted sigma |
-| size noise, one draw per spec that every brand shares (taps, socket screws and set screws only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
+| size noise, one draw per spec that every brand shares (taps, socket screws, set screws and depressed-center wheels only, `price.SIZE_NOISE`, each with its reason) | fitted sigma |
 
 **A kit is priced from what it holds** (`price.CONTENTS_PRICED`). Its key is
 not one dimension but its contents' price (`price.kit_contents`): each size
@@ -1652,7 +1719,7 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band | the brand tiers alone, every noise off, put it above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the per-brand group noise then spreads one spec's brands further (#66) | no further above than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
+| wheel brand spread | pin, above band at 100K only (the default build is in band, its record `None`) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at 100K no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE`; on the default build in band |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries

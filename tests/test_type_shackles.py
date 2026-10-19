@@ -26,7 +26,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
@@ -163,7 +163,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -229,10 +229,6 @@ def test_each_body_is_built_at_its_own_tables_length(large_docs):
             wrong.append((doc["sku"], published["Type"]["value"]))
     assert wrong == []
     assert {table_gates.values(doc)["Type"]["value"] for doc in large_docs} == {"Anchor", "Chain"}
-    assert {table_gates.values(doc)["Item"]["value"] for doc in large_docs} == {
-        "Screw Pin Anchor Shackle",
-        "Screw Pin Chain Shackle",
-    }
 
 
 def test_each_size_carries_the_grade_a_working_load_limit(large_docs):
@@ -255,18 +251,17 @@ def test_the_one_material_finish_and_pack_are_built_and_nothing_else(large_docs)
 def test_one_product_publishes_exactly_these_attributes():
     """The first SKU of the default build: a 1/4 in anchor shackle."""
     doc = _default_docs()[0]
-    assert {a["name"]: a["value"] for a in doc["attributes"]} == {
-        "Item": "Screw Pin Anchor Shackle",
+    assert {a["name"]: a["value"] for a in authored_entries(doc)} == {
         "Type": "Anchor",
         "Material": "Forged Steel",
         "Finish": "Hot Dip Galvanized",
-        "Package Quantity": "1",
+        "Units per Pack": "1",
         "Standards": "RR-C-271",
         "Size": "1/4",
         "Inside Width": "0.4690",
         "Inside Length": "1-1/8",
         "Load Capacity": "1000",
-        "Dimension Type": "Fractional Inch",
+        "Measurement System": "Fractional Inch",
     }
     assert doc["price_usd"] == 11.01
     assert doc["dimension_provenance"] == (
@@ -276,21 +271,18 @@ def test_one_product_publishes_exactly_these_attributes():
 
 def test_no_dimension_the_census_cannot_name_is_published(large_docs):
     """The pin, body, bow and eye diameters are drawn, not published."""
-    published = {a["name"] for doc in large_docs for a in doc["attributes"]}
+    published = {a["name"] for doc in large_docs for a in authored_entries(doc)}
     assert sorted(published) == [
-        "Dimension Type",
         "Finish",
         "Inside Length",
         "Inside Width",
-        "Item",
         "Load Capacity",
         "Material",
         "Measurement System",
-        "Package Quantity",
         "Size",
         "Standards",
-        "System of Measurement",
         "Type",
+        "Units per Pack",
     ]
 
 

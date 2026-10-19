@@ -35,6 +35,9 @@ from synthetic_ecommerce_data import generate_cli as cli
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
 JOBS_SCRIPT = REPO / "scripts" / "local_ci_jobs.py"
+sys.path.insert(0, str(REPO / "scripts"))
+import local_ci_jobs  # noqa: E402 -- the parser the test reads NOT_A_CHECK from
+
 WORKFLOWS = REPO / ".github" / "workflows"
 
 #: Moves ``refs/heads/$1`` on the origin by one empty commit: another PR
@@ -67,16 +70,18 @@ case "$1 $2" in
       mode=green
     fi
     case "$mode" in
-      green) printf 'tests\tcompleted\tsuccess\n' ;;
-      red) printf 'tests\tcompleted\tfailure\n' ;;
-      skipped) printf 'tests\tcompleted\tskipped\n' ;;
-      pending) printf 'tests\tin_progress\t\n' ;;
+      green) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tsuccess\n' ;;
+      red) printf 'tests (1)\tcompleted\tsuccess\ntests (2)\tcompleted\tfailure\n' ;;
+      skipped) printf 'tests (1)\tcompleted\tskipped\n' ;;
+      pending) printf 'tests (1)\tin_progress\t\n' ;;
       missing) ;;
     esac
+    printf 'lint\tcompleted\tsuccess\n'
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
     printf 'customer-name-check\tcompleted\tsuccess\n'
+    printf 'no-derived-files\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     ;;
   "pr merge")
@@ -140,11 +145,6 @@ MSG
     exit 0
   fi
 fi
-if [[ " $* " == *retail_figures.py* ]]; then
-  # The retail rebuild takes about 40 s: only a case about it runs the real one.
-  if [ -n "${FAKE_UV_RETAIL_FAIL:-}" ]; then echo "retail build: boom" >&2; exit 3; fi
-  if [ -z "${FAKE_UV_RETAIL:-}" ]; then exit 0; fi
-fi
 exec "$REAL_UV" "$@"
 """
 )
@@ -164,7 +164,6 @@ _IDENTITY = {
 }
 
 _STATS = "golden-catalog/stats.json"
-_RETAIL_STATS = "golden-retail/stats.json"
 
 #: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
 #: stops a build that is not offline with the error uv printed then
@@ -204,10 +203,16 @@ def world(tmp_path: Path) -> dict:
     subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
     # This checkout's HEAD as the origin's main; CI checks out full history so
     # the fetch never starts from a shallow repository.
-    _git(origin, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false"]
+    quiet += ["-c", "fetch.writeCommitGraph=false"]
+    _git(origin, *quiet, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
-    subprocess.run(["git", "clone", "-q", str(origin), str(checkout)], check=True)
+    # --no-local: the objects are transferred, not hardlinked or copied from the origin's
+    # directory; on a hosted runner the copy raced with git's own commit-graph writes
+    # ("hardlink different from source", "failed to copy file ... commit-graph-chain.lock").
+    clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
+    subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
@@ -353,69 +358,11 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
     assert _merged(world)
 
 
-_IMAGES = re.compile(r'"images": \d+')
 
 
-def _with_images(stats: str, count: int) -> str:
-    """The stats text with its first images total set to ``count``, whatever the true total is."""
-    assert _IMAGES.search(stats), "the retail stats carry no images total"
-    return _IMAGES.sub(f'"images": {count}', stats, count=1)
 
 
-def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
-    """A PR and main that edit one total of the retail stats two ways; and the true file."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
-    head = _open_pr(
-        world,
-        {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)},
-        on_main={_RETAIL_STATS: _with_images(true, 910031)},
-    )
-    return head, true
 
-
-def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) -> None:
-    """gen#343: gen#323, #328 and #335 each stopped here and needed a hand merge."""
-    head, true = _conflicting_retail_stats(world)
-    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
-    assert result.returncode == 0, result.stdout + result.stderr
-    pushed = _branch(world)
-    assert _git(world["origin"], "merge-base", "--is-ancestor", "main", pushed) == ""
-    # Neither side's total: the retail rebuild's.
-    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
-    assert _merged(world)
-
-
-def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
-    """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
-    head = _open_pr(
-        world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
-    )
-    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
-    assert result.returncode == 0, result.stdout + result.stderr
-    pushed = _branch(world)
-    assert pushed != head, "the merged and rebuilt tree was not pushed"
-    assert _git(world["origin"], "show", f"{pushed}:{_RETAIL_STATS}") + "\n" == true
-    assert _merged(world)
-
-
-def test_a_retail_stats_the_rebuild_left_conflicted_is_refused(world: dict) -> None:
-    head, _ = _conflicting_retail_stats(world)
-    result = _run(world, head, _GREEN_CHECK)
-    assert result.returncode != 0
-    assert "still holds conflict markers" in result.stderr, result.stderr[-800:]
-    assert _RETAIL_STATS in result.stderr
-    assert _branch(world) == head
-    assert not _merged(world)
-
-
-def test_a_retail_rebuild_that_fails_refuses_the_merge(world: dict) -> None:
-    head = _open_pr(world, _GREEN)
-    result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL_FAIL="1")
-    assert result.returncode != 0
-    assert "the retail rebuild refuses the merged tree" in result.stderr, result.stderr[-800:]
-    assert _branch(world) == head
-    assert not _merged(world)
 
 
 # -- a check run that is not a green run ------------------------------------
@@ -444,14 +391,15 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
     "ci, refusal",
     [
         # A test outside the script's checks is red in the PR's own CI.
-        ("red", "check tests on {sha} is failure"),
-        ("skipped", "check tests on {sha} was skipped"),
+        ("red", "check tests (2) on {sha} is failure"),
+        ("skipped", "check tests (1) on {sha} was skipped"),
         ("missing", "missing: tests"),
         ("pending", "still running: tests"),
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: tests commit-messages file-size red-commit-proof customer-name-check",
+            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check"
+            " no-derived-files",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -489,7 +437,10 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     head = _open_pr(world, _GREEN, main_moves=False)
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
-    assert f"check tests on {head} is failure" in result.stderr, result.stderr[-800:]
+    # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
+        result.stderr[-800:]
+    )
     assert not _merged(world)
 
 
@@ -653,13 +604,35 @@ def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
     return head
 
 
+#: The keys the test below adds as new types. A key's block is derived from the key, so each
+#: of these takes a fixed block, and a real type that declares one of them collides with it.
+_ADDED_TYPES = ("ball_stock_ptfe", "ball_stock_quartz")
+
+
+def test_no_real_type_takes_a_block_the_merge_test_s_added_types_derive() -> None:
+    """The two-PR merge test adds keys whose derived blocks must stay free of real types.
+
+    chain_lubricants (#462) declared block 7423, the block ball_stock_quartz derives, and the
+    merge test's build stopped on the collision."""
+    from synthetic_ecommerce_data.core import typespec
+    from synthetic_ecommerce_data.domains.industrial import generate as industrial
+
+    real = {key: typespec.block_of(key) for key in industrial.all_type_keys()}
+    for key in _ADDED_TYPES:
+        owners = [k for k, block in real.items() if block == typespec.part_number_block(key)]
+        assert owners == [], (
+            f"{key} derives block {typespec.part_number_block(key)}, held by {owners}"
+        )
+
+
+@pytest.mark.timeout(900)  # two full merges; 300 s is tight in a heavy shard
 def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
     world: dict,
 ) -> None:
     """The done-when of #103: no hand merge for the second PR."""
     heads = {
-        "pr-a": _add_a_type(world, "pr-a", "ball_stock_ptfe", "Ptfe Ball"),
-        "pr-b": _add_a_type(world, "pr-b", "ball_stock_quartz", "Quartz Ball"),
+        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball"),
+        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball"),
     }
     for branch, head in heads.items():
         result = _run(
@@ -681,12 +654,39 @@ def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
 # -- what the rebuild commits ------------------------------------------------
 
 
-def test_a_stale_lock_is_refused_not_relocked_and_committed(world: dict) -> None:
-    """``uv run`` would re-lock it, and the rebuild commit would carry ``uv.lock``."""
+def _without_dependencies(pyproject: str) -> str:
+    """The same project with no dependency at all, so ``uv.lock`` is stale.
+
+    ``uv run --locked`` has to re-resolve before it can call a lock stale, and
+    offline that resolve reads registry metadata only from uv's cache. With no
+    package left to look up, the resolve needs no registry and the refusal does
+    not depend on what the cache holds (#338). Adding a dependency would.
+    """
+    emptied = re.sub(r"^dependencies = \[.*?^\]", "dependencies = []", pyproject, flags=re.S | re.M)
+    emptied = re.sub(r"^dev = \[.*?^\]", "dev = []", emptied, flags=re.S | re.M)
+    assert emptied != pyproject and "matplotlib" not in emptied.split("[build-system]")[0]
+    return emptied
+
+
+@pytest.mark.parametrize("cache", ["inherited", "empty"])
+def test_a_stale_lock_is_refused_not_relocked_and_committed(
+    world: dict, tmp_path: Path, cache: str
+) -> None:
+    """``uv run`` would re-lock it, and the rebuild commit would carry ``uv.lock``.
+
+    ``empty`` runs the script on a cold uv cache, as a new machine or a CI runner
+    has one: the refusal must not depend on what the cache holds (#338).
+    """
     pyproject = (world["checkout"] / "pyproject.toml").read_text()
-    stale_lock = pyproject.replace('"numpy>=1.26",', '"numpy>=1.26",\n    "pyyaml>=6.0.3",', 1)
+    stale_lock = _without_dependencies(pyproject)
     head = _open_pr(world, {"pyproject.toml": stale_lock})
-    result = _run(world, head, _GREEN_CHECK)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        # Deciding that the lock is stale re-resolves it, which needs the index; a hosted
+        # runner has the network and a cold cache, a developer's machine the warm cache.
+        for name in ("UV_OFFLINE", "FAKE_UV_DNS_DOWN", *_NO_NAME_RESOLUTION):
+            world["env"].pop(name, None)
+    env = {"UV_CACHE_DIR": str(tmp_path / "cold-uv-cache")} if cache == "empty" else {}
+    result = _run(world, head, _GREEN_CHECK, **env)
     assert result.returncode != 0
     assert "--locked" in result.stderr, result.stderr[-800:]
     assert _branch(world) == head
@@ -715,17 +715,9 @@ def _printed(flag: str) -> list[str]:
 def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     """Only a file the rebuild rewrites may have a conflict resolved by it."""
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
-    retail = _git(REPO, "ls-files", "golden-retail").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, *retail, field_map])
+    assert sorted(_printed("--print-generated")) == sorted([*golden, field_map])
 
-
-def test_the_retail_rebuild_is_the_command_the_retail_figures_name() -> None:
-    """One command writes golden-retail/stats.json; the script runs that file, not a copy."""
-    figures = (REPO / "prototypes" / "retail_drawings" / "retail_figures.py").read_text()
-    named = re.search(r'^REBUILD = "python3 (\S+)"$', figures, re.MULTILINE)
-    assert named, "retail_figures.py no longer names its rebuild command"
-    assert named.group(1) in SCRIPT.read_text()
 
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
@@ -791,11 +783,13 @@ def _workflow(**commands: str) -> dict[str, str]:
 
 _ALL_GREEN = _workflow(
     tests="echo suite",
+    lint="echo lint",
     **{
         "commit-messages": "echo msgs",
         "file-size": "echo size",
         "red-commit-proof": "echo red",
         "customer-name-check": "echo names",
+        "no-derived-files": "echo roll",
         "main-merged-tree": "echo drift",
     },
 )
@@ -811,6 +805,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
         "file-size",
         "red-commit-proof",
         "customer-name-check",
+        "no-derived-files",
         "main-merged-tree",
     ):
         assert f"local CI {job}: PASS" in done.stdout
@@ -824,10 +819,12 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
     plant = _workflow(
         tests="echo suite",
         **{
+            "lint": "true",
             "commit-messages": "echo bad >&2; exit 3",
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "no-derived-files": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -844,10 +841,12 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
     plant = _workflow(
         tests="exit 1",
         **{
+            "lint": "true",
             "commit-messages": "true",
             "file-size": "true",
             "red-commit-proof": "true",
             "customer-name-check": "true",
+            "no-derived-files": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -858,7 +857,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
 
 
 def test_a_required_check_missing_from_the_workflows_refuses(world: dict) -> None:
-    head = _open_pr(world, {**_GREEN, **_workflow(tests="true")})
+    head = _open_pr(world, {**_GREEN, **_workflow(tests="true", lint="true")})
     done = _run(world, head, _GREEN_CHECK, "--local-ci")
     assert done.returncode != 0
     assert "commit-messages is not a job" in done.stderr
@@ -899,14 +898,11 @@ _FRESH = "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_buil
 _EXACTLY_FRESH = (
     "tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output"
 )
-_RETAIL_FRESH = (
-    "tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures"
-)
 _FIELD_MAP_FRESH = (
     "tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation"
 )
 _STATS_FRESH = "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed"
-_ALL_FRESH = [_FRESH, _EXACTLY_FRESH, _RETAIL_FRESH, _FIELD_MAP_FRESH, _STATS_FRESH]
+_ALL_FRESH = [_FRESH, _EXACTLY_FRESH, _FIELD_MAP_FRESH, _STATS_FRESH]
 
 #: A ``tests`` job that is red the way the golden freshness test is: it prints the
 #: pytest summary line of that test unless golden-catalog/stats.json is main's.
@@ -915,10 +911,12 @@ _STALE_UNLESS_MAINS = (
     f' || {{ echo "FAILED {_FRESH}[stats.json] - differs"; exit 1; }}'
 )
 _OTHER_JOBS = {
+    "lint": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",
     "customer-name-check": "true",
+    "no-derived-files": "true",
 }
 
 
@@ -1156,6 +1154,8 @@ def _jobs_cli(*args: str, workflows: Path = WORKFLOWS) -> subprocess.CompletedPr
 def test_every_job_of_the_real_workflows_has_a_local_equivalent() -> None:
     declared = []
     for path in sorted(WORKFLOWS.glob("*.y*ml")):
+        if path.name in local_ci_jobs.NOT_A_CHECK:  # a tag-triggered release (gen#536)
+            continue
         declared += list(yaml.safe_load(path.read_text())["jobs"])
     listed = _jobs_cli("--list")
     assert listed.returncode == 0, listed.stderr

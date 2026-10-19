@@ -30,7 +30,7 @@ if str(RETAIL) not in sys.path:
 import scale  # noqa: E402
 
 #: The one node every hammer lives under: the combined tree reads ``Tools > Hand Tools > Hammers``.
-HAMMERS = ["Hand Tools", "Hammers"]
+HAMMERS = ["Hand tools", "Hammers"]
 
 KINDS = frozenset({
     "hammer_ball_pein",
@@ -92,9 +92,9 @@ def test_each_kind_has_several_brands_and_sizes_and_the_hammer_attributes(tools,
     for d in docs:
         for a in d["attributes"]:
             by_name[a["name"]].add(a["value"])
-    for name in ("Head Weight", "Handle Material", "Face Dia.", "Overall Length"):
+    for name in ("Head weight", "Handle material", "Face dia.", "Overall length"):
         assert name in by_name, (kind, name)
-    assert len(by_name["Head Weight"]) >= 3
+    assert len(by_name["Head weight"]) >= 3
 
 
 def test_every_hammer_product_type_is_a_snake_case_id(tools, retail) -> None:
@@ -141,7 +141,7 @@ def _lines(tools: list[dict], kind: str) -> dict[str, dict]:
     out: dict[str, dict] = {}
     for d in tools:
         if d["product_type"] == kind:
-            handle = next(a["value"] for a in d["attributes"] if a["name"] == "Handle Material")
+            handle = next(a["value"] for a in d["attributes"] if a["name"] == "Handle material")
             out.setdefault(d["product_id"], {"title": d["parent_title"], "handle": handle})
     return out
 

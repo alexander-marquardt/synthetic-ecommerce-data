@@ -29,11 +29,11 @@ import grocery  # noqa: E402
 import kit  # noqa: E402
 from grocery_ingredients import allergen_value, facet_value  # noqa: E402
 from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
-STYLES = committed()["templates"]["grocery"]["styles"]
-SKUS = committed()["templates"]["grocery"]["skus"]
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
+STYLES = figures()["templates"]["grocery"]["styles"]
+SKUS = figures()["templates"]["grocery"]["skus"]
 ALL = set(ALLERGENS.values())
 
 
@@ -57,7 +57,7 @@ def values(entries: list[dict], key: str) -> set[str]:
 
 
 def food(doc: dict) -> bool:
-    return doc["category_path"][0] == "Food & Drink"
+    return doc["category_path"][0] == "Food & drink"
 
 
 def test_the_build_holds_its_exact_counts() -> None:
@@ -104,7 +104,7 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     bad = []
     for row in grocery.flat(list(docs())):
-        if row["category_path"][0] != "Food & Drink":
+        if row["category_path"][0] != "Food & drink":
             continue
         for key in ("contains", "may_contain"):
             stated = values(nested[row["sku"]]["attributes"], key)
@@ -259,27 +259,27 @@ def find(leaf: str, **want: str) -> list[dict]:
 
 
 def test_chocolate_with_and_without_peanuts() -> None:
-    assert find("Chocolate Bars", contains="Peanuts")
-    assert find("Chocolate Bars", may_contain="Peanuts")
+    assert find("Chocolate bars", contains="Peanuts")
+    assert find("Chocolate bars", may_contain="Peanuts")
 
 
 def test_nut_free_and_vegan_chocolate() -> None:
-    assert find("Chocolate Bars", dietary="Nut Free")
-    assert find("Chocolate Bars", dietary="Vegan")
+    assert find("Chocolate bars", dietary="Nut Free")
+    assert find("Chocolate bars", dietary="Vegan")
 
 
 @pytest.mark.parametrize(
     ("food_leaf", "food_want", "other_leaf", "other_want"),
     [
-        ("Lemons", {"variety": "Unwaxed Lemons"}, "Kitchen Cleaners", {"scent": "Lemon"}),
-        ("Jam", {"flavor": "Lemon Curd"}, "Kitchen Cleaners", {"scent": "Lemon"}),
-        ("Oranges", {"variety": "Oranges"}, "Kitchen Cleaners", {"scent": "Orange"}),
-        ("Juice", {"flavor": "Smooth Orange"}, "Kitchen Cleaners", {"scent": "Orange"}),
-        ("Honey", {"flavor": "Clear Honey"}, "Body Lotion", {"scent": "Honey"}),
-        ("Tinned", {"flavor": "Coconut Milk"}, "Body Lotion", {"scent": "Coconut"}),
-        ("Chocolate Bars", {"flavor": "Mint Dark"}, "Kitchen Cleaners", {"scent": "Mint"}),
-        ("Milk", {"flavor": "Whole"}, "Body Lotion", {"scent": "Coconut"}),
-        ("Chocolate Bars", {"flavor": "Milk"}, "Body Lotion", {"scent": "Honey"}),
+        ("Lemons", {"variety": "Unwaxed Lemons"}, "Kitchen cleaners", {"scent": "Lemon"}),
+        ("Jam", {"flavor": "Lemon Curd"}, "Kitchen cleaners", {"scent": "Lemon"}),
+        ("Oranges", {"variety": "Oranges"}, "Kitchen cleaners", {"scent": "Orange"}),
+        ("Juice", {"flavor": "Smooth Orange"}, "Kitchen cleaners", {"scent": "Orange"}),
+        ("Honey", {"flavor": "Clear Honey"}, "Body lotion", {"scent": "Honey"}),
+        ("Tinned", {"flavor": "Coconut Milk"}, "Body lotion", {"scent": "Coconut"}),
+        ("Chocolate bars", {"flavor": "Mint Dark"}, "Kitchen cleaners", {"scent": "Mint"}),
+        ("Milk", {"flavor": "Whole"}, "Body lotion", {"scent": "Coconut"}),
+        ("Chocolate bars", {"flavor": "Milk"}, "Body lotion", {"scent": "Honey"}),
     ],
 )
 def test_a_word_a_food_shares_with_another_department(
@@ -309,7 +309,7 @@ def test_a_honey_jar_is_labelled_honey() -> None:
 def test_milk_names_a_dairy_milk_a_milk_chocolate_and_a_body_milk() -> None:
     titles = [d["title"] for d in docs()]
     assert any(d["title"].endswith(" Milk") for d in docs() if d["category_leaf"] == "Milk")
-    assert find("Chocolate Bars", flavor="Milk", contains="Milk")
+    assert find("Chocolate bars", flavor="Milk", contains="Milk")
     assert any(t.endswith("Body Milk") for t in titles)
 
 

@@ -56,6 +56,7 @@ GOLDEN_FILES = (
     "mapping.flat.json",
     "mapping.nested.json",
     "stats.json",
+    "authored_names.json",
 )
 
 #: The default build's size: the modelled types' measured part plus one
@@ -164,7 +165,8 @@ def test_committed_file_matches_a_fresh_build(name: str, fresh_build: Path) -> N
         f"\n"
         f"  1. YOU CHANGED THE GENERATOR. Expected, and the fix is one command:\n"
         f"         {REBUILD}\n"
-        f"     then commit the changed files. The diff is the review artifact --\n"
+        f"     then commit the changed files, golden-catalog/stats.json among them.\n"
+        f"     The diff is the review artifact --\n"
         f"     that is why these are plain NDJSON. Issue #5 (a distinct drawing\n"
         f"     per product line) will move every image_id and is exactly this\n"
         f"     case: regenerate, commit, and the diff shows what moved.\n"

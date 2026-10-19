@@ -21,6 +21,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import build_derived  # noqa: E402
+
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -40,7 +43,7 @@ TOUCHED = (
     "prototypes/retail_drawings/export.py",
     "prototypes/retail_drawings/main_color_hex.py",
     "prototypes/retail_drawings/main_colors.py",
-    "prototypes/retail_drawings/decoy_product_words.py",
+    "prototypes/retail_drawings/feature_decoys/<topic>.py",
     "prototypes/retail_drawings/garden_rows.py",
     "prototypes/retail_drawings/tree_guard.py",
     "tests/test_retail_type_specs_351.py",
@@ -49,7 +52,7 @@ TOUCHED = (
     "tests/test_retail_sports_265.py",
     "tests/test_retail_sports_decoys_368.py",
     "tests/test_retail_figures_162.py",
-    "golden-retail/stats.json",
+    "scripts/build_derived.py",
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys.md",
     "docs/retail-sports-tree.md",
@@ -74,6 +77,8 @@ def _section() -> str:
 
 def _exists(name: str) -> bool:
     """A named file exists under the repo root or one of the directories the page abbreviates."""
+    if name in build_derived.OUTPUTS:  # built into the `derived` artifact, never in git (gen#536)
+        return True
     pattern = re.sub(r"<[a-z_]+>", "*", name)
     bases = (ROOT, RETAIL, ROOT / "scripts", ROOT / "docs")
     return any(next(base.glob(pattern), None) is not None for base in bases)

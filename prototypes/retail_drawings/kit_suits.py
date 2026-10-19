@@ -61,6 +61,9 @@ def _button(x: float, y: float, r: float = 4.5, fill: str = "#d9d4c4") -> str:
 
 def _lapel_paths(lapel: str, y0: float = 52.0) -> tuple[str, str]:
     """The left and right lapel of a jacket whose neck is at ``y0``, opening down to y0 + 120."""
+    if lapel == "none":  # a collarless jacket (kit_suit_sets): a neck facing, no lapel
+        left = f"M176,{y0} Q188,{y0 + 26} 200,{y0 + 30} L200,{y0 + 20} Q186,{y0 + 14} 176,{y0} Z"
+        return left, _mirror(left)
     if lapel == "notch":
         left = f"M176,{y0} L200,{y0 + 124} L184,{y0 + 126} L168,{y0 + 78} L146,{y0 + 70} L154,{y0 + 32} Z"
     elif lapel == "peak":

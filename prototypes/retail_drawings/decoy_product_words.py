@@ -35,6 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import feature_decoys
 import kit_goods  # noqa: F401 -- registers the shapes below
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER, Style, one
@@ -48,7 +49,7 @@ OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 BRAND_OWNER.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _BR = (("kind", "brogue"), ("material", "leather"), ("closure", "Lace-Up"))
-_CARE = ("Mens", "Accessories", "Shoe Care")
+_CARE = ("Mens", "Accessories", "Shoe Care")  # one node, one department: Footwear (gen#448)
 _STORE = ("Home", "Storage")
 _DIY = ("Home", "DIY & Car")
 _SOFT = ("Home", "Soft Furnishings")
@@ -60,7 +61,7 @@ NEW_KINDS = {
         "Footwear", ("Mens", "Shoes", "Brogues"), "Brogues", "shoe", "Stridewell", 54.0, params=_BR
     ),
     "polish": Kind(
-        "Home",
+        "Footwear",
         (*_CARE, "Shoe Polish"),
         "Shoe Polish",
         "tin",
@@ -69,7 +70,7 @@ NEW_KINDS = {
         colorless=True,
     ),
     "laces": Kind(
-        "Home", (*_CARE, "Shoe Laces"), "Shoe Laces", "shoe_laces", "Calderby & Lune", 2.5
+        "Footwear", (*_CARE, "Shoe Laces"), "Shoe Laces", "shoe_laces", "Calderby & Lune", 2.5
     ),
     "cover": Kind(
         "Home", (*_SOFT, "Sofa Covers"), "Sofa Covers", "sofa_cover", "Hearth & Table", 34.0
@@ -119,6 +120,14 @@ NEW_KINDS = {
     ),
     "wash_bag": Kind(
         "Home", ("Home", "Laundry", "Wash Bags"), "Wash Bags", "mesh_bag", "Brackenmere Home", 4.0
+    ),
+    "knit_care": Kind(
+        "Cleaning & Janitorial",
+        ("Cleaning", "Laundry", "Fabric Softener"),
+        "Fabric Softener",
+        "tin",
+        "Calderby & Lune",
+        4.0,
     ),
     "case": Kind(
         "Clothing",
@@ -276,7 +285,7 @@ _SPORTS_KINDS = {
                      "Harbour & Pine", 45.0, **_UKW,
                      params=(("neckline", "crew"), ("sleeve", "long"), ("kind", "jumper"))),
     "s_bomber": Kind("Clothing", ("Womens", "Coats & Jackets", "Bomber Jackets"), "Bomber Jacket",
-                     "coat", "Calderby & Lune", 69.0, **_UKW),
+                     "bomber_jacket", "Calderby & Lune", 69.0, **_UKW),
     "s_tee": Kind("Clothing", ("Womens", "Tops", "T-Shirts"), "Tee", "tshirt", "Larkmoor", 14.0,
                   **_UKW),
     "s_tote": Kind("Clothing", ("Womens", "Accessories", "Bags", "Tote Bags"), "Tote Bag",
@@ -295,6 +304,9 @@ _SPORTS_KINDS = {
                      "jar", "Lanternby", 18.0, extra=(("fragrance", "Fragrance", "Vanilla"),)),
     "s_wrap": Kind("Gifts", ("Gifts", "Gift Wrap", "Wrapping Paper"), "Wrapping Paper",
                    "wrapping_paper", "Lanternby", 4.0),
+    # A boxed mix is a food box, never the celebration cake the "cake" shape draws (gen#449).
+    "cake_mix": Kind("Food & Drink", ("Food & Drink", "Bakery", "Cakes"), "Cake", "box",
+                     "Crofter's Bakehouse", 4.5, colorless=True),
     "s_handwash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
                        "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
     "s_organizer": Kind("Home", ("Home", "Storage", "Car Boot Organisers"), "Car Boot Organiser",
@@ -308,6 +320,44 @@ _SPORTS_KINDS = {
                     "Calderby & Lune", 14.0),
 }
 NEW_KINDS.update(_SPORTS_KINDS)
+# -- the clothing and shoe seed-phrase decoys (gen#460): two kinds the build lacks, the rest reused
+_SEED_KINDS = {
+    "seed_belt": Kind("Clothing", ("Womens", "Accessories", "Belts"), "Belt", "belt", "Larkmoor",
+                      14.0, extra=(*_WOMENS, ("material", "Material", "Leather"))),
+    "seed_jeggings": Kind("Clothing", ("Womens", "Leggings"), "Leggings", "leggings", "Larkmoor",
+                          16.0, sizes=UK, size_range="regular",
+                          params=(("length", "full"), ("rise", "high"))),
+}
+
+#: The kinds of the seed decoys (gen#461): another type's product whose name holds a seed phrase.
+_KIDS_AUD = "kids"
+_SEED_KINDS_461 = {
+    "makeup_bag": Kind("Beauty", ("Beauty", "Accessories", "Make-Up Bags"), "Make-Up Bag", "pouch",
+                       "Kestlewood Cosmetics", 7.0),
+    "house_plant": Kind("Garden", ("Garden", "Plants", "House Plants"), "Plant", "potted_tree",
+                        "Thistle & Wren", 9.0, colorless=True),
+    "basket": Kind("Home", ("Home", "Storage", "Storage Baskets"), "Storage Basket", "storage_box",
+                   "Lanternby", 16.0),
+    "ld_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                      "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lemon"),)),
+    "olive_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                         "jar", "Lanternby", 16.0,
+                         extra=(("fragrance", "Fragrance", "Olive Leaf"),)),
+    "dino_soft": Kind("Toys", ("Toys", "Soft Toys", "Cuddly Animals"), "Soft Toy", "dinosaur",
+                      "Little Fernby", 14.0, _KIDS_AUD),
+    "dino_bath": Kind("Toys", ("Toys", "Baby & Toddler", "Bath Toys"), "Bath Toy", "dinosaur",
+                      "Little Fernby", 5.0, _KIDS_AUD),
+    "dino_light": Kind("Toys", ("Toys", "Nursery", "Night Lights"), "Night Light", "dinosaur",
+                       "Little Fernby", 14.0, _KIDS_AUD),
+}  # fmt: skip
+NEW_KINDS.update(_SEED_KINDS_461)
+NEW_KINDS.update(_SEED_KINDS)
+for _key in NEW_KINDS:
+    if _key in BASE_KINDS:
+        raise ValueError(
+            f"kind {_key!r} is in decoy_rows.KINDS (or a feature_decoys module) and in "
+            "decoy_product_words.NEW_KINDS: one key, two meanings"
+        )
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 
@@ -332,6 +382,9 @@ class Row:
     sibling: str = ""  # a special policy is proved on this sibling query
     target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
     gift_type: str = ""  # the Gifts product type whose word the title holds (gen#425)
+    seeds: tuple[str, ...] = ()  # the homepage seed phrases the title or text holds whole (gen#460)
+    seed: str = ""  # the two-word seed query the title holds whole (gen#461)
+    pack: str = ""  # the pack_size the title names, when it differs from the Kind's (gen#461)
     sold: int = 2000
 
     @property
@@ -341,6 +394,12 @@ class Row:
     @property
     def ptype(self) -> str:
         return KINDS[self.kind].product_type
+
+    def _extra(self, k: Kind) -> tuple[tuple[str, str, str], ...]:
+        """The Kind's extra attributes, with the row's own pack size where its title names one."""
+        if not self.pack:
+            return k.extra
+        return tuple((a, b, self.pack if a == "pack_size" else c) for a, b, c in k.extra)
 
     def style(self) -> Style:
         k = KINDS[self.kind]
@@ -359,7 +418,7 @@ class Row:
             one(color, self.sold),
             audience=k.audience,
             params=params,
-            extra=k.extra,
+            extra=self._extra(k),
             sizes=k.sizes,
             size_range=k.size_range,
             colorless=k.colorless,
@@ -879,7 +938,8 @@ _SPORTS = (
        "A duvet cover and pillowcase set for a fan's bedroom.", "Blue", "baseball", "Baseball"),
     _s(61, "s_duvet", "Soft Batting Duvet", "A warm duvet filled with soft polyester batting.",
        "White", "batting", "Batting Helmet"),
-    _s(62, "throw", "Quilted Batting Throw", "A light quilted throw with a soft batting layer.",
+    _s(62, "throw", "Quilted Throw with Batting",
+       "A light quilted throw with a soft batting layer.",
        "Grey", "batting", "Batting Helmet"),
     _s(63, "s_towel", "Quick-Dry Swim Towel",
        "A compact towel that dries fast, with a pocket for your goggles.", "Blue", "swim",
@@ -917,6 +977,13 @@ _SPORTS = (
     _s(76, "s_tote", "Badminton Club Tote Bag",
        "A canvas tote with a wide gusset, for the sports hall.", "Navy", "badminton",
        "Badminton Set"),
+    # the picnic blanket (gen#217): it sits in Camping, so it carries its two decoys here too
+    _s(87, "cushion", "Picnic Check Cushion",
+       "A soft cushion in the classic picnic check, a gingham weave, with a zip cover.", "Red",
+       "picnic", "Picnic Blanket"),
+    _s(88, "s_tote", "Insulated Picnic Tote Bag",
+       "An insulated tote bag with a zip lid, built to carry a picnic.", "Navy", "picnic",
+       "Picnic Blanket"),
 )
 TABLE = (*TABLE, *_SPORTS)
 
@@ -934,7 +1001,7 @@ _GIFTS = (
     _g(77, "hooks", "Wall Mug Rack, Five Hooks",
        "A wall rack with five hooks to hang mugs and keep the worktop clear.", "Grey", "mug",
        "Mug"),
-    _g(78, "cake", "Microwave Mug Cake",
+    _g(78, "cake_mix", "Microwave Mug Cake",
        "A ready-to-bake sponge in a box, cooked in a mug in ninety seconds.", "Brown", "mug",
        "Mug"),
     # -- card: a holder for bank cards, paper for making cards
@@ -965,8 +1032,219 @@ _GIFTS = (
     _g(86, "hat_box", "Wicker Storage Hamper",
        "A lidded wicker hamper for blankets, toys and spare bedding.", "Brown", "hamper",
        "Gift Hamper"),
+    # -- gift card (gen#437): a holder for a gift card, paper to wrap one
+    _g(104, "case", "Gift Card Holder Case",
+       "A slim zip case with a window and slots that hold a gift card and a few notes.", "Black",
+       "card", "Gift Card", "gift card"),
+    _g(105, "s_wrap", "Gift Card Wrapping Sheets",
+       "Folded sheets of paper sized to wrap around a small gift card.", "Red", "card",
+       "Gift Card", "gift card", policy="category"),
 )  # fmt: skip
 TABLE = (*TABLE, *_GIFTS)
+
+#: A "cream" that is the product, not a shade, on the knitwear page (gen#309): the category
+#: policy (Jumpers) and the department policy (Cleaning & Janitorial) drop it.
+_KNIT = (
+    _d(494, "knit_care", "Jumper and Knitwear Softening Cream",
+       "A light white cream that softens jumpers, cardigans and other knitwear after washing.",
+       "White", "cream jumper", "jumper", _CAT, cross=True),
+)  # fmt: skip
+TABLE = (*TABLE, *_KNIT)
+
+def _p(n, kind, title, desc, color, *seeds) -> Row:
+    """A seed-phrase decoy: another type's product whose title or text holds every word of each
+    seed phrase it serves (#460). A cross-department row is dropped by the department policy,
+    a Womens one by the category policy."""
+    cross = KINDS[kind].path[0] not in _CLOTHES
+    return _d(n, kind, title, desc, color, seeds[0], "", "department" if cross else "category",
+              cross=cross, seeds=seeds)
+
+
+_J3 = ("high rise jeans", "skinny jeans", "jeans")
+_SEED_ROWS = (
+    # -- jeans: a belt, a jersey legging, hangers
+    _p(460, "seed_belt", "High Rise Jeans Slim Belt",
+       "A slim 4 cm belt with a pin buckle, cut to sit at the waist of high rise jeans, skinny "
+       "jeans and straight jeans.", "Brown", *_J3),
+    _p(461, "seed_jeggings", "Skinny Jeans Jeggings",
+       "High rise jersey jeggings with a denim print: the skinny jeans look in soft stretch "
+       "jersey.", "Blue", *_J3),
+    _p(462, "hanger", "Jeans Clip Hangers, 10 Pack",
+       "Non-slip clip hangers that hold high rise jeans and skinny jeans by the waistband.",
+       "Grey", *_J3),
+    _p(463, "hangers", "Skinny Jeans Trouser Hanger",
+       "A slim bar hanger that keeps skinny jeans and other narrow jeans flat.", "Black",
+       "skinny jeans", "jeans"),
+    # -- barrel trousers
+    _p(464, "doll", "Barrel Trousers Fashion Doll",
+       "A fashion doll in barrel trousers and a cropped top, with four small accessories.",
+       "Grey", "barrel trousers"),
+    _p(465, "hanger", "Barrel Trousers Clip Hangers",
+       "Wide clip hangers for barrel trousers and other full-leg trousers, pack of 10.", "White",
+       "barrel trousers"),
+    _p(466, "carrier", "Barrel Trousers Garment Bag",
+       "A breathable garment bag that holds barrel trousers on a hanger, with a hanging hook.",
+       "Grey", "barrel trousers"),
+    # -- womens boat neck top
+    _p(467, "hangers", "Boat Neck Top Hanger",
+       "A wide shoulder hanger that stops a womens boat neck top slipping off.", "Black",
+       "womens boat neck top"),
+    _p(468, "doll", "Boat Neck Top Fashion Doll",
+       "A fashion doll whose outfit copies a womens boat neck top with a pencil skirt.", "Cream",
+       "womens boat neck top"),
+    _p(469, "carrier", "Boat Neck Top Garment Bag",
+       "A breathable bag that keeps a womens boat neck top crease free while you travel.",
+       "White", "womens boat neck top"),
+    # -- tea dress
+    _p(470, "doll", "Tea Dress Fashion Doll",
+       "A fashion doll in a floral tea dress, with a hat and three small accessories.", "Pink",
+       "tea dress"),
+    _p(471, "hangers", "Tea Dress Padded Hangers",
+       "Soft padded hangers with slim shoulders for a tea dress or a light summer dress.",
+       "Cream", "tea dress"),
+    _p(472, "carrier", "Tea Dress Garment Bag",
+       "A breathable bag that holds a tea dress on its hanger, with a hanging hook.", "White",
+       "tea dress"),
+    # -- denim jacket
+    _p(473, "hangers", "Denim Jacket Wide Hanger",
+       "A wide shaped hanger that keeps a denim jacket from losing its shoulders.", "Black",
+       "denim jacket"),
+    _p(474, "doll", "Denim Jacket Fashion Doll",
+       "A fashion doll in a denim jacket and a skirt, with four small accessories.", "Blue",
+       "denim jacket"),
+    _p(475, "carrier", "Denim Jacket Garment Bag",
+       "A breathable bag that holds a denim jacket on its hanger, with a hanging hook.", "Grey",
+       "denim jacket"),
+    # -- pyjamas
+    _p(476, "case", "Pyjama Case, Embroidered",
+       "A zip case with an embroidered front, to keep pyjamas under the pillow.", "Pink",
+       "pyjamas"),
+    _p(477, "doll", "Pyjama Party Doll",
+       "A soft doll in pyjamas with a sleep mask, for pyjama parties and sleepovers.", "Pink",
+       "pyjamas"),
+    _p(478, "s_tote", "Pyjamas Overnight Tote Bag",
+       "A canvas tote with a wide gusset, big enough for pyjamas, a book and a toothbrush.",
+       "Grey", "pyjamas"),
+    # -- leather boots
+    _p(479, "shoe_care", "Leather Boots Care Kit",
+       "A brush, a cloth and a tin of polish to clean and feed leather boots.", "Brown",
+       "leather boots"),
+    _p(480, "polish", "Leather Boot Cream",
+       "A neutral cream that feeds and protects leather boots and keeps the leather supple.",
+       "Cream", "leather boots"),
+    _p(481, "laces", "Leather Boots Waxed Laces",
+       "Round waxed laces, 120 cm long, to relace leather boots.", "Brown", "leather boots"),
+    # -- running shoes
+    _p(482, "laces", "Running Shoes Flat Laces",
+       "Flat stretch laces, 100 cm long, to relace running shoes.", "Grey", "running shoes"),
+    _p(483, "wash_bag", "Running Shoe Mesh Bag",
+       "A ventilated drawstring mesh bag that carries running shoes to the gym or the track.",
+       "Grey", "running shoes"),
+    _p(484, "shoe_care", "Running Shoes Cleaning Kit",
+       "A brush, a cloth and a cleaning gel to wash mud from running shoes.", "White",
+       "running shoes"),
+    # -- brogues
+    _p(485, "seed_belt", "Brogue Detail Leather Belt",
+       "A leather belt with brogue punching along the edge, to wear with brogues.", "Brown",
+       "brogues"),
+    _p(486, "polish", "Brogues Shoe Cream",
+       "A neutral cream polish with a small brush, for brogues and other smart leather shoes.",
+       "Cream", "brogues"),
+    _p(487, "laces", "Brogues Waxed Laces",
+       "Flat waxed laces, 75 cm long, to relace brogues.", "Brown", "brogues"),
+    # -- navy dresses
+    _p(488, "carrier", "Navy Garment Bag for Dresses",
+       "A breathable navy garment bag that holds navy dresses and other long dresses on hangers.",
+       "Navy", "navy dresses"),
+    _p(489, "hangers", "Navy Velvet Hangers for Dresses",
+       "Non-slip navy velvet hangers with slim shoulders, for navy dresses and other dresses.",
+       "Navy", "navy dresses"),
+    _p(490, "doll", "Navy Dresses Fashion Doll Set",
+       "A fashion doll with a wardrobe of navy dresses and four small accessories.", "Navy",
+       "navy dresses"),
+    # -- large dresses
+    _p(491, "carrier", "Large Garment Bag for Dresses",
+       "A large breathable bag, 150 cm long, that holds long and large dresses on hangers.",
+       "Grey", "large dresses"),
+    _p(492, "hat_box", "Large Dresses Storage Box",
+       "A large lidded box that stores large dresses and coats flat under the bed.", "Grey",
+       "large dresses"),
+    _p(493, "hangers", "Large Dresses Padded Hangers",
+       "Wide padded hangers that carry large dresses without marking the shoulders.", "Cream",
+       "large dresses"),
+)  # fmt: skip
+TABLE = (*TABLE, *_SEED_ROWS)
+
+def _h(n, kind, seed, title, desc, color, policy, **kw) -> Row:
+    """A seed decoy (gen#461): a product of its own type whose title holds a whole seed phrase."""
+    return _d(n, kind, title, desc, color, seed, "", policy, cross=policy == _DEP, seed=seed, **kw)
+
+
+_SEEDS = (
+    # -- duvet cover: a bag to keep one in, a mesh bag to wash one in
+    _h(495, "carrier", "duvet cover", "Duvet Cover Storage Bag",
+       "A zip bag that keeps a spare duvet cover clean and dust free on the wardrobe shelf.",
+       "Grey", _CAT),
+    _h(496, "wash_bag", "duvet cover", "Duvet Cover Mesh Wash Bag",
+       "A large zipped mesh bag that protects a duvet cover in the washing machine.", "White",
+       _CAT),
+    # -- bed frame: the valance that hides the space under one, a cushion that props against one
+    _h(89, "valance", "bed frame", "Bed Frame Valance",
+       "A pleated valance that hides the legs and the storage boxes under a bed frame.", "Grey",
+       _CAT),
+    _h(90, "cushion", "bed frame", "Bed Frame Headboard Cushion",
+       "A padded cushion that props against a bed frame as a soft headboard for reading.",
+       "Grey", _CAT),
+    # -- tea towels: the rail that dries them, a hanger that holds them
+    _h(91, "hooks", "tea towels", "Tea Towel Hook Rail",
+       "A wall rail with five hooks where tea towels dry within reach of the cooker.", "Grey",
+       _CAT),
+    _h(92, "hanger", "tea towels", "Tea Towel Hanger, 4 Pack",
+       "Grip hangers that clip tea towels to the oven door or a cupboard handle.", "White",
+       _CAT, pack="4 pack"),
+    # -- lipstick: a pouch to carry one, a houseplant named for its flowers
+    _h(93, "makeup_bag", "lipstick", "Lipstick Case, Mini Zip",
+       "A mini zip pouch with room for a lipstick and a compact mirror in a handbag.", "Pink",
+       _CAT),
+    _h(94, "house_plant", "lipstick", "Lipstick Plant, Trailing",
+       "A trailing houseplant (Aeschynanthus) with waxy leaves for a bright windowsill.",
+       "Green", _DEP),
+    # -- foundation: the cloth that wipes it off, the bag that carries its brushes
+    _h(95, "face_cloth", "foundation", "Foundation Remover Face Cloth",
+       "A soft microfibre cloth that wipes foundation and eye make-up off with water alone.",
+       "Pink", _CAT),
+    _h(96, "makeup_bag", "foundation", "Foundation Brush Make-Up Bag",
+       "A zip pouch with a brush roll inside, sized for foundation brushes and sponges.", "Pink",
+       _CAT),
+    # -- lemon drizzle cake: a candle, a tea and a hand wash that smell of one
+    _h(97, "ld_candle", "lemon drizzle cake", "Lemon Drizzle Cake Candle",
+       "A candle in a glass jar that fills a room with the smell of a warm lemon drizzle cake.",
+       "Cream", _DEP),
+    _h(98, "tea", "lemon drizzle cake", "Lemon Drizzle Cake Flavour Tea",
+       "A tea scented with lemon peel and sweet icing, in a box of twenty bags; "
+       "it tastes of lemon drizzle cake.", "Yellow", _DEP),
+    _h(99, "s_handwash", "lemon drizzle cake", "Lemon Drizzle Cake Hand Wash",
+       "A pump bottle of hand wash that smells of a lemon drizzle cake fresh from the oven.",
+       "Yellow", _DEP),
+    # -- gift hamper: the basket that holds one, the wrap that covers one
+    _h(100, "basket", "gift hamper", "Empty Gift Hamper Basket, Wicker",
+       "A lidded wicker basket, sold empty, to fill and give as a gift hamper.", "Brown", _DEP),
+    _h(101, "s_wrap", "gift hamper", "Gift Hamper Cellophane Wrap",
+       "A roll of cellophane that wraps a gift hamper, with a ribbon to tie it at the top.",
+       "Cream", _DEP),
+    # -- olive tree: a candle and a hand wash named for the grove
+    _h(102, "olive_candle", "olive tree", "Olive Tree Scented Candle",
+       "A candle in a glass jar with the fresh scent of an olive tree grove.", "Cream", _DEP),
+    _h(103, "s_handwash", "olive tree", "Olive Tree Hand Wash",
+       "A pump bottle of hand wash scented with an olive tree grove.", "Green", _DEP),
+)  # fmt: skip
+TABLE = (*TABLE, *_SEEDS)
+#: A feature's rows are a module in ``feature_decoys/``, found by walking it (gen#513).
+TABLE = (*TABLE, *feature_decoys.word_rows(_d))
+feature_decoys.check_unique((r.code for r in TABLE), "decoy_product_words.TABLE")
+
+#: The seed queries of gen#461 and the rows that serve them.
+SEED_ROWS = tuple(r for r in TABLE if r.seed)
 
 #: kind -> the ordinary products of the type: (title, color, description).
 _F = {
@@ -1092,7 +1370,18 @@ FLOOR = tuple(
     for i, (title, color, desc) in enumerate(rows)
 )
 NEW_TYPES = tuple(sorted({KINDS[k].product_type for k in _F}))
-ROWS = (*TABLE, *FLOOR)
+
+#: The dinosaur toys of gen#461: ordinary products of existing toy types, titled with the word first
+#: so "dinosaur" meets toys before the graphic tees. Not decoys.
+SEED_TOYS = (
+    Row("DNO01", "dino_soft", "Dinosaur Soft Toy",
+        "A soft dinosaur with a long tail, made for hugging.", "Green", decoy=False),
+    Row("DNO02", "dino_bath", "Dinosaur Bath Squirter",
+        "A squeezy dinosaur that squirts from its mouth in the bath.", "Green", decoy=False),
+    Row("DNO03", "dino_light", "Dinosaur Night Light",
+        "A dinosaur lamp with a touch base and a soft glow.", "Green", decoy=False),
+)  # fmt: skip
+ROWS = (*TABLE, *FLOOR, *SEED_TOYS)
 #: The decoys whose title names a detail color that is not their color: left out of the standard's
 #: text-agrees check (a title and a color field that disagree are the point of the row).
 TEXT_EXEMPT = frozenset(f"PLT-{r.code}" for r in TABLE if r.detail)
@@ -1122,7 +1411,8 @@ def table_markdown() -> str:
     ]
     for r in TABLE:
         lines.append(
-            f"| {r.query} | {r.noun or 'brand'} | PLT-{r.code} | {r.title} | {r.ptype} "
+            f"| {r.query} | {r.noun or ('seed phrase' if r.seeds else r.seed or 'brand')} "
+            f"| PLT-{r.code} | {r.title} | {r.ptype} "
             f"| {r.policy} |"
         )
     return "\n".join(lines)

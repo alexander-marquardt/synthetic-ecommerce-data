@@ -32,9 +32,9 @@ import shirt_rows  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
 
-SHIRT_LEAVES = {"Oxford Shirts", "Flannel Shirts", "Linen Shirts", "Denim Shirts"}
+SHIRT_LEAVES = {"Oxford shirts", "Flannel shirts", "Linen shirts", "Denim shirts"}
 #: Mens shirts also have the formal, check and short sleeve leaves (gen#310).
-MENS_SHIRT_LEAVES = SHIRT_LEAVES | {"Formal Shirts", "Check Shirts", "Short Sleeve Shirts"}
+MENS_SHIRT_LEAVES = SHIRT_LEAVES | {"Formal shirts", "Check shirts", "Short sleeve shirts"}
 #: Product types folded into another (:data:`export.PRODUCT_TYPE_FOLDS`).
 FOLDED = {"Tee": "T-Shirt"}
 
@@ -127,7 +127,7 @@ def test_a_product_type_synonym_is_folded_into_its_category_node(rows, built):
 def test_a_t_shirt_has_the_t_shirt_node_for_its_category(rows):
     for r in rows:
         if r["product_type"] == "T-Shirt":
-            assert "T-Shirts" in r["category_path"] or "Sports Tees" in r["category_path"]
+            assert "T-shirts" in r["category_path"] or "Sports tees" in r["category_path"]
 
 
 def test_shirts_sit_under_tops_for_mens_and_womens(rows):

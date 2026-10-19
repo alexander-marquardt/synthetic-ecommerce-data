@@ -31,6 +31,7 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Foam Rollers | item_length, surface, material, color | none | none |
 | Sports & Outdoors > Camping > Lanterns | power, brightness, material, color | none | none |
+| Sports & Outdoors > Camping > Picnic Blankets | waterproof_backing, dimensions, material, color | none | none |
 | Sports & Outdoors > Camping > Roll Mats | thickness, fold, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Blocks | item_height, sold_as, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Straps | item_length, closure, material, color | none | none |

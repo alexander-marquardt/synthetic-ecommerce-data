@@ -27,7 +27,7 @@ from jewellery_rows import (
     a,
     watch_row,
 )
-from type_registry import Decoy, TypeSpec
+from type_registry import Decoy, Option, TypeSpec
 
 PTYPE = "Digital Watch"
 WOMENS_MM = ((34, 0.0), (38, 2.0))
@@ -47,6 +47,7 @@ SPEC = TypeSpec(
     key="digital_watch",
     department="Clothing",
     product_type=PTYPE,
+    options=(Option("case_mm", "case_diameter", "Case diameter", "MMT"),),
     owners=OWNED,
     apparel_exempt="a watch: the color is the strap, not a printed or dyed garment color; it carries its own decoys (gen#423)",
     rows=(
@@ -72,5 +73,9 @@ SPEC = TypeSpec(
               _row("DGWDBS", "Basic Time Watch", HARBOUR, WOMENS, 14.0,
                    "A simple digital watch that shows the time and the date, with no alarm, no timer and no backlight.",
                    (WHITE,), "2")),
+        Decoy(2, "alarm clock", "category",
+              _row("DGWACK", "Digital Watch with Alarm Clock", SKERRY, MENS, 20.0,
+                   "A digital wristwatch with an alarm clock mode that wakes you at a set time, a stopwatch and a silicone strap, worn on the wrist.",
+                   (BLACK,), "2")),
     ),
 )  # fmt: skip

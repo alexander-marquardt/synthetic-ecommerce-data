@@ -1,13 +1,15 @@
 """Mutation rows for the six toy types of gen#424, in their own file.
 
 Each row plants one defect in a spec, a drawing or a decoy row of gen#424 and names the test that
-must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as rows
+must go red. ``mutation_row.discover`` finds this file by glob and the harness names them as rows
 named ``toys depth: ...`` (``--only "toys depth:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 # ruff: noqa: E501  (a removal row quotes the whole decoy call it takes out)
 from __future__ import annotations
+
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_toys_depth_424.py"
@@ -51,8 +53,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the dolls' house SKU axis is not exported",
-        "export.py",
-        '    "house_style": ("style", "Style", None),\n',
+        "type_specs/dolls_house.py",
+        '    options=(Option("house_style", "style", "Style"),),\n',
         "",
         f"{_T} -k sku_axis",
         "a dolls' house is sold by its style",
@@ -122,10 +124,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the kite's class-6 color decoy loses its range word",
+        "the kite's water-gun range decoy loses a word of its query",
         "type_specs/kite.py",
-        '"Red Tarn Kite"',
-        '"Tarn Kite"',
+        '"Water Gun Point Kite"',
+        '"Gun Point Kite"',
         f'{_T} -k "toy_decoy_is_a_row and kite-DT08"',
         "a class-6 decoy holds the words of its query",
         _R,
@@ -167,15 +169,6 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the Toys spec decoys lose the text exemption",
-        "scale.py",
-        ' | type_registry.text_match_decoy_ids("Toys")',
-        "",
-        "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
-        "a toy decoy may name a color its structured fields lack",
-        _R,
-    ),
-    (
         "a toy decoy brand has no house style",
         "house_styles.py",
         '    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),\n',
@@ -185,3 +178,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "toys depth"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

@@ -25,7 +25,8 @@ import zlib
 #: Families whose products are sold loose or whole, or are wine and cider (no label list), and carry no ingredients list.
 NO_LIST = frozenset({"ORA", "LEM", "APP", "VEG", "LIM", "STR", "WRD", "WWH", "WRS", "WSP", "WCH", "CDR",
                      "SWH", "SGN", "SVD", "SRM", "STQ", "FPT", "FSY", "FVM", "PRY", "MED",
-                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP"})
+                     "GRF", "MAN", "CLM", "SAT", "RSP", "BLU", "BLK", "GRP",
+                     "TOM", "ONI", "POT", "CAR", "BAN", "CHY"})
 
 _MARK = re.compile(r"\{(\d+)-(\d+)\}")
 _VAT = "vitamin d3, vitamin a, calcium, riboflavin"
@@ -432,13 +433,13 @@ hazelnuts: hazelnut; hazelnut paste; hazelnut praline
 peanuts: peanut; peanut paste; peanut piece; roasted peanut
 walnuts: walnut
 coconut: coconut; coconut chip; coconut extract; coconut milk; coconut oil; coconut water; coconut water concentrate; desiccated coconut
-oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice; orange zest
-lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring; lemon extract
+oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice; orange zest; candied orange; mandarin orange; pressed orange
+lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring; lemon extract; lemon
 limes: kaffir lime peel; lime juice
 lime leaves: lime leaf
 honey: acacia honey; clover honey; heather honey; honey; honey granule; honeycomb piece; orange blossom honey; wildflower honey
 cocoa: cocoa butter; cocoa mass; cocoa mass (70% cocoa solids); cocoa powder
-chocolate: chocolate chip; dark chocolate chip; milk chocolate; milk chocolate chip
+chocolate: chocolate chip; dark chocolate chip; milk chocolate; milk chocolate chip; dark chocolate
 milk: milk; whole milk; condensed skimmed milk; skimmed milk powder; whole milk powder; milk protein concentrate; pasteurised cows' milk; pasteurised semi-skimmed cows' milk; pasteurised skimmed cows' milk; pasteurised whole cows' milk
 cream: cream; double cream; pasteurised cream; cream powder; sour cream powder
 cheese: cheddar cheese; cheese powder; edam cheese; emmental cheese; mozzarella cheese
@@ -460,8 +461,8 @@ quinoa: cooked quinoa
 soya: soya bean; soya flour; hulled soya bean; edamame soya bean; emulsifier (soya lecithin)
 sunflower: emulsifier (sunflower lecithin)
 sunflower seeds: sunflower seed
-tomatoes: tomato; tomatoe; tomato juice; tomato puree
-potatoes: potatoe; potato starch
+tomatoes: tomato; tomatoe; tomato juice; tomato puree; roasted tomatoe; sun-dried tomatoe
+potatoes: potatoe; potato starch; new potatoe
 sweet potatoes: sweet potato
 peppers: red pepper
 black pepper: black pepper
@@ -469,19 +470,19 @@ paprika: paprika extract; smoked paprika
 chillies: chilli; chilli extract; chilli powder; red chilli
 sugar: sugar; icing sugar; caramelised sugar; sugar crystal
 glucose: dextrose; glucose syrup
-syrup: golden syrup
+syrup: golden syrup; sugar syrup
 treacle: treacle
 molasses: molasses
 fudge: fudge piece
 tapioca: tapioca starch
 caramel: caramel color; caramel piece; caramel sauce; salted caramel piece; color (caramel); color (caramel e150d)
-apples: apple juice; apple juice concentrate; apple juice from concentrate; apple puree; dried apple
+apples: apple juice; apple juice concentrate; apple juice from concentrate; apple puree; dried apple; apple; pressed apple
 apricots: apricot puree
-bananas: banana puree
+bananas: banana puree; dried banana
 blackcurrants: blackcurrant juice
 blueberries: blueberry piece
 cranberries: cranberry; dried cranberry
-cherries: cherry juice; glace cherry
+cherries: cherry juice; glace cherry; black cherry; cherry; morello cherry
 damsons: damson puree
 dates: date
 gooseberries: gooseberry puree
@@ -492,27 +493,27 @@ peaches: peache; peach puree
 pears: pear juice; pear puree
 pineapples: pineapple; pineapple juice; pineapple juice from concentrate; pineapple puree
 plums: plum puree
-raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry
-strawberries: strawberry; strawberry jam; strawberry juice; strawberry piece; strawberry puree
+raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry; dried raspberry; raspberry jam
+strawberries: strawberry; strawberry jam; strawberry juice; strawberry piece; strawberry puree; dried strawberry; freeze-dried strawberry
 raisins: raisin
 vine fruit: vine fruit
 lychees: lychee juice
 rhubarb: rhubarb juice
-fruit juice: fruit juice from concentrate
+fruit juice: fruit juice from concentrate; dried lemon juice; dried lime juice; mandarin juice
 elderflower: elderflower cordial; elderflower extract
 cornflower: cornflower petal
 jasmine: jasmine petal
 olives: olive extract
 aubergines: aubergine
 broccoli: broccoli floret
-carrots: carrot
+carrots: carrot; roasted carrot
 chickpeas: chickpea
 courgettes: courgette
 peas: garden pea
 green beans: green bean
 haricot beans: haricot bean
 kidney beans: kidney bean
-onions: onion; onion powder
+onions: onion; onion powder; caramelised onion; pickled onion
 shallots: shallot
 pumpkin seeds: pumpkin seed
 poppy seeds: poppy seed
@@ -530,7 +531,7 @@ coriander: coriander; coriander seed; ground coriander
 cumin: cumin
 galangal: galangal
 garlic: garlic
-ginger: ginger; ginger extract; ginger root; ground ginger
+ginger: ginger; ginger extract; ginger root; ground ginger; stem ginger
 nutmeg: nutmeg
 oregano: oregano
 parsley: parsley
@@ -561,7 +562,7 @@ coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica c
 black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda); black tea
 green tea: green tea (gunpowder); green tea (sencha)
 hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; goldings hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
-water: water; spring water; carbonated water
+water: water; spring water; carbonated water; carbonated mineral water; carbonated spring water
 salt: salt; sea salt
 yeast: yeast; yeast extract
 sourdough: sourdough culture
@@ -570,8 +571,8 @@ starter culture: starter culture; lactic culture
 koji: koji
 rennet: vegetable rennet
 suet: vegetable suet
-vinegar: cider vinegar; unfiltered cider vinegar; spirit vinegar; white wine vinegar; white wine vinegar powder; wine vinegar
-wine: wine flavoring
+vinegar: cider vinegar; unfiltered cider vinegar; spirit vinegar; white wine vinegar; white wine vinegar powder; wine vinegar; malt vinegar; vinegar
+wine: wine flavoring; red wine; red wine powder
 cola: cola flavoring
 smoke: oak smoke; smoke flavoring
 natural flavoring: natural flavoring
@@ -627,7 +628,13 @@ thiamin: thiamin
 iron: iron
 calcium: calcium; calcium carbonate
 caffeine: caffeine
-"""
+acidity regulator: acidity regulator
+goose fat: goose fat
+leeks: leek
+milk powder: milk powder
+tahini: tahini
+vegetable stock: vegetable stock
+yogurt: yogurt"""
 
 
 def _rows() -> dict[str, str]:

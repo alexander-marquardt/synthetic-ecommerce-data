@@ -1,7 +1,7 @@
 """O-rings: the SAE AS568 inch sizes, deepened from breadth (#53).
 
 Every size is a row of the AS568 dash-number table, read from
-``data/as568_sizes.json``, which says where the rows were transcribed from:
+the library's ``as568_sizes`` table, which says where the rows were transcribed from:
 the actual inside diameter and cross-section (published as ``Width``), each
 with its tolerance, and the nominal inside diameter (published as ``Size``).
 Left out: the -001 1/2 row, the -9xx straight-thread boss series and the
@@ -15,17 +15,17 @@ its generic name. No pack quantity is published (#14): one ring per SKU.
 
 from __future__ import annotations
 
-import json
 from fractions import Fraction
 from functools import cache
-from importlib import resources
 from typing import TYPE_CHECKING, Any, NamedTuple
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure
-from synthetic_ecommerce_data.core.formats import LengthStyle, format_length_best
+from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style, format_length_best
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     _window,
@@ -59,9 +59,7 @@ class Row(NamedTuple):
 @cache
 def rows() -> tuple[Row, ...]:
     """Every AS568 row the type offers, in dash order."""
-    data = resources.files("synthetic_ecommerce_data.domains.industrial.data")
-    text = data.joinpath("as568_sizes.json")
-    return tuple(Row(*row) for row in json.loads(text.read_text("utf-8"))["rows"])
+    return tuple(Row(*row) for row in library.table("as568_sizes").rows)
 
 
 def series() -> dict[str, tuple[Row, ...]]:
@@ -91,7 +89,6 @@ PROVENANCE = table_provenance(
 #: ``Width`` is the census's name for a ring's cross-section; ``Dash Number``
 #: and ``Width Tolerance`` are excepted in ``names.NAME_EXCEPTIONS``.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Hardness", "line", 0.9),
     AttrSpec("Size", "sku", kind="length"),
@@ -109,7 +106,9 @@ def _decimal(inches: float, style: LengthStyle) -> str:
 
 
 def _tolerance(inches: float, style: LengthStyle) -> str:
-    return f"+/-{_decimal(inches, style)}"
+    # The unit is spelled one way (canonical: 0.003", never "in" or "in."), whatever
+    # the feed's own suffix: a tolerance's unit is not a feed's quirk to keep (#497).
+    return f"+/-{_decimal(inches, canonical_style(style.system))}"
 
 
 def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -134,7 +133,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
+        retired(keyword_attribute("Item", ITEM)),  # keeps the stream stable for #497
         keyword_attribute("Material", material),
         keyword_attribute("Hardness", hardness),
     ]

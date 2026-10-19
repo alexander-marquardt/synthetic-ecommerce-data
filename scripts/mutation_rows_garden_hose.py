@@ -1,18 +1,15 @@
 """Mutation rows for the garden hose's text-match decoys (gen#292, gen#294).
 
 They are kept out of ``mutation_check.py``. Each row plants one defect in the hose's decoys, their
-drawing or the guard that owes them, and names the test that must go red. ``mutation_check.py``
-turns them into ``Mutation`` rows named ``garden hose: ...`` (``--only "garden hose:"`` re-runs
-them). A row is ``(name, file, old, new, test, property, root)``; :data:`ALL` holds these, the
-type-spec rows and the Mens suits rows (``mutation_rows_suits_215``, gen#215), each with its
-prefix, so ``mutation_check.py`` reads one list.
+drawing or the guard that owes them, and names the test that must go red. ``mutation_row.discover``
+finds this file by glob and the harness names the rows ``garden hose: ...`` (``--only "garden
+hose:"`` re-runs them). A row is ``(name, file, old, new, test, property, root)``. The rows of
+each later issue are in a file of their own, found the same way.
 """
 
 from __future__ import annotations
 
-import mutation_rows_suits_215
-import mutation_rows_toys_424
-import mutation_rows_type_specs
+from mutation_row import Row
 
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_garden_203.py"
@@ -85,9 +82,9 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
 ]
 
-ALL: list[tuple[str, ...]] = [
-    *(("type specs", *row) for row in mutation_rows_type_specs.ROWS),
-    *(("garden hose", *row) for row in ROWS),
-    *(("suits", *row) for row in mutation_rows_suits_215.ROWS),
-    *(("toys depth", *row) for row in mutation_rows_toys_424.ROWS),
-]
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "garden hose"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

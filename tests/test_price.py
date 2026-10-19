@@ -238,7 +238,9 @@ def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
     assert cause in reason, reason
     (row,) = [row for row in price_rows if row.name == name]
     assert "PINNED SHORTFALL" in row.note
-    if side == "below":
+    if _recorded(name)[0] is None:
+        assert row.within, (row.achieved, row.band)
+    elif side == "below":
         assert row.achieved < row.band[0], (row.achieved, row.band)
     else:
         assert row.achieved > row.band[1], (row.achieved, row.band)
@@ -252,11 +254,28 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     retyped (it read 6.8 once the figure was 3.24)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    assert quoted == [f"{f:.2f}" for f in _recorded(name)] == ["4.30", "2.84"]
+    figures = [f for f in _recorded(name) if f is not None]
+    assert quoted == [f"{f:.2f}" for f in figures] == ["1.75"]
 
 
-def _recorded(name: str) -> tuple[float, float]:
-    """A pinned row's recorded (default, 100K) figures."""
+def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
+    """#272: the wheel's group noise (0.70, drawn per brand) spread one spec's
+    sampled brands 4.3x apart against a band top of 1.71, and the figure moved
+    each time the wheel product ids did. The p90/p10 is carried by noise one
+    spec shares across its brands instead, so the default build lands in band
+    and only the 100K build stays pinned."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    (row,) = [row for row in price_rows if row.name == name]
+    assert row.within, (row.achieved, row.band)
+    assert _recorded(name)[0] is None
+    assert _recorded(name)[1] is not None
+    model = price.MODELS["wheel_depressed_center"]
+    assert model.size_sigma > model.group_sigma, (model.size_sigma, model.group_sigma)
+
+
+def _recorded(name: str) -> tuple[float | None, float | None]:
+    """A pinned row's recorded (default, 100K) figures; ``None`` for a build
+    the row lands in band on (#272)."""
     recorded = price.PINNED_FIGURES[name]
     assert isinstance(recorded, tuple), f"{name}: {recorded!r} is one figure for two builds"
     return recorded
@@ -270,6 +289,12 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
     100K let the wheel spread rise 19% and the bearing p90/p10 fall 8%."""
     (row,) = [row for row in price_rows if row.name == name]
     edge = _recorded(name)[build]
+    if edge is None:
+        assert row.within
+        assert price_report.pin_holds(row, build)
+        assert not price_report.pin_holds(replace(row, achieved=row.band[1] * 1.001), build)
+        assert not price_report.pin_holds(replace(row, achieved=row.band[0] * 0.999), build)
+        return
     if PINNED_SIDES[name][0] == "below":
         edge /= 1 + price.PIN_TOLERANCE
         inside, outside = edge * 1.0001, edge * 0.9999
@@ -280,20 +305,34 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
     assert not price_report.pin_holds(replace(row, achieved=outside), build)
 
 
+@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+@pytest.mark.parametrize("build", [0, 1])
+def test_a_pin_five_percent_further_out_than_its_record_fails(price_rows, name, build):
+    """The tolerance is 2%, written out here: a figure 5% past its record on
+    the pin's side is a worse shortfall than the record, whatever the tolerance
+    is set to. A build recorded ``None`` has no figure to be past."""
+    (row,) = [row for row in price_rows if row.name == name]
+    recorded = _recorded(name)[build]
+    if recorded is None:
+        return
+    outward = recorded / 1.05 if PINNED_SIDES[name][0] == "below" else recorded * 1.05
+    assert price_report.pin_holds(replace(row, achieved=recorded), build)
+    assert not price_report.pin_holds(replace(row, achieved=outward), build)
+
+
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
-    """The wheel's group noise 10% louder spreads one spec's brands from
-    4.38x to 4.90x apart: further above the band but still on its side, so
-    only the recorded figure can catch it."""
+    """The wheel's default build lands in band (its record is ``None``), so
+    group noise three times louder spreads one spec's brands out of it, and
+    the pin, which holds a recorded-``None`` build in band, fails (#272)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     model = price.MODELS["wheel_depressed_center"]
-    louder = replace(model, group_sigma=model.group_sigma * 1.1)
+    louder = replace(model, group_sigma=model.group_sigma * 3)
     monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
     (row,) = [
         row
         for row in price_report.price_comparisons(generate(GeneratorConfig()))
         if row.name == name
     ]
-    assert round(row.achieved, 2) == 4.83
     assert row.achieved > row.band[1]
     assert not price_report.pin_holds(row, 0)
 
@@ -559,6 +598,7 @@ def test_only_the_size_noise_types_draw_a_size_noise():
         "screw_socket_head",
         "set_screws_hex_socket",
         "tap_spiral_point",
+        "wheel_depressed_center",
     }
 
 
@@ -788,12 +828,13 @@ def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog
 
 
 def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch):
-    """The wheel's pinned cause is measured, not asserted: with its noise
-    off, the brand tiers alone spread a spec's sampled brands past the band
-    top, because the row samples an economy brand on most specs."""
+    """The wheel's pinned cause is measured, not asserted: at 100K, with its
+    noise off, the brand tiers alone spread a spec's sampled brands past the
+    band top, because the row samples an economy brand on most specs (the
+    default build, 1.49 the same way, is in band)."""
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     monkeypatch.setitem(price.MODELS, WHEEL, quiet)
-    catalog = generate(GeneratorConfig())
+    catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
     (row,) = [
         row
         for row in price_report.price_comparisons(catalog)
@@ -813,7 +854,7 @@ def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch
     ]
     makers = {b for by in specs.values() for b in by}
     reason = price.PINNED_SHORTFALLS[row.name]
-    assert f"brand tiers alone give {row.achieved:.2f}" in reason, reason
+    assert f"brand tiers alone give {row.achieved:.2f} at 100K" in reason, reason
     assert f"band top of {row.band[1]:.2f}" in reason, reason
     assert f"{len(economy)} of the {len(makers)} wheel brands are economy" in reason, reason
     assert f"on {len(sampling)} of its {len(specs)} specs" in reason, reason
@@ -973,7 +1014,7 @@ def _pieces_price(facts: dict[str, Attribute], census: dict) -> float:
     row = census["deep_types"][part]
     share = row["per_piece_quantiles_usd"]["p50"] / row["price_quantiles_usd"]["p50"]
     sizes = facts["Sizes Included"].values or (facts["Sizes Included"].value,)
-    pieces = facts["Number of Pieces"].value_num
+    pieces = facts["Piece Count"].value_num
     assert pieces is not None
     curve = sum(
         model.anchor * math.exp(price.structure(model, _inches(size), None, "standard"))
@@ -1004,7 +1045,7 @@ def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
     sets = [
         (shown, facts, brand)
         for shown, facts, brand in kits
-        if facts["Type"].value == "Hex Key Set" and facts["Number of Pieces"].value_num == 15
+        if facts["Type"].value == "Hex Key Set" and facts["Piece Count"].value_num == 15
     ]
     assert len(sets) == 5
     ratios = [
@@ -1078,7 +1119,7 @@ def _kind_of(facts: dict[str, Attribute]) -> int:
         i
         for i, kit in enumerate(newtypes.KITS)
         if kit.item == facts["Type"].value
-        and kit.per_size * len(kit.designations or kit.sizes) == facts["Number of Pieces"].value_num
+        and kit.per_size * len(kit.designations or kit.sizes) == facts["Piece Count"].value_num
         and math.isclose(
             _inches(kit.designations[0]) if kit.designations else kit.sizes[0], first, rel_tol=0.01
         )
@@ -1182,7 +1223,7 @@ def test_each_recorded_figure_is_the_figure_its_build_produces(
     or left loose after the row improves, is red here."""
     row = {r.name: r for r in price_rows}[name] if build == 0 else hundred_k_rows[name]
     recorded = _recorded(name)[build]
-    built = round(row.achieved, price_report.recorded_digits(name))
+    built = None if row.within else round(row.achieved, price_report.recorded_digits(name))
     assert recorded == built, f"{name}: recorded {recorded} at build {build}, built {built}"
 
 

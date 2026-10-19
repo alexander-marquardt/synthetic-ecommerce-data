@@ -35,7 +35,11 @@ KINDS = {
         "colors": '(cw("Navy", "#26365c"), cw("Black", "#2f2f35"))',
         "attrs": '(a("fabric", "Fabric", "Cotton"), a("fit", "Fit", "Regular"))',
         "colorless": "",
-        "apparel": "    apparel=ApparelPlan(),\n",
+        "apparel": (
+            "    # EDIT the class 2 compounds (#444): real names a shopper reads as a product,\n"
+            '    # each (the word it targets, the phrase), such as ("vest", "Vest {ptype}").\n'
+            '    apparel=ApparelPlan(compounds=(("shirt", "Shirt {ptype}"),)),\n'
+        ),
         "imports": "ApparelPlan, LRow, TypeSpec, a, cw, sizes",
     },
     "beauty": {
@@ -121,7 +125,7 @@ def render(key: str, kind: str, ptype: str, code: str | None = None) -> str:
         department=spec["department"], path=spec["path"].format(leaf=leaf),
         code=code or pick_code(key, set()), brand=spec["brand"],
         shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
-        imports=spec["imports"], apparel=spec["apparel"],
+        imports=spec["imports"], apparel=spec["apparel"].format(ptype=ptype),
         colorless=spec["colorless"], extra=spec["extra"],
         derivable="True" if kind == "beauty" else "False",
     )  # fmt: skip

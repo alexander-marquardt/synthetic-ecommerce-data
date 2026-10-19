@@ -23,10 +23,10 @@ if str(RETAIL) not in sys.path:
 import grocery  # noqa: E402
 import image_release  # noqa: E402
 import scale  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
-FIGURES = committed()["templates"]
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
+FIGURES = figures()["templates"]
 #: The grocery styles and SKUs (``tests/test_grocery_154.py``'s 10K build).
 GROCERY_STYLES = FIGURES["grocery"]["styles"]
 GROCERY_SKUS = FIGURES["grocery"]["skus"]
@@ -102,7 +102,7 @@ def test_the_flat_export_carries_food_and_drink_with_ingredients_top_level(built
     docs = scale.documents(built)
     rows = scale.flat(docs)
     assert len(rows) == built.skus
-    food = [r for r in rows if r["category_path"][0] == "Food & Drink"]
+    food = [r for r in rows if r["category_path"][0] == "Food & drink"]
     assert len(food) == sum(
         r["sku_count"] for r in built.records if r["category_path"][0] == "Food & Drink"
     )

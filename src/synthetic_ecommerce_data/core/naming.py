@@ -79,7 +79,7 @@ LABEL_FORMS: dict[str, tuple[tuple[str, float], ...]] = {
     "Grit": (("Grit", 1.0),),
     "Head Weight": (("Head Weight", 0.5), ("Wt", 0.5)),
     # A kit's piece count, as a set is listed: "240 pcs", "9 Pc".
-    "Number of Pieces": (("pcs", 0.6), ("Pc", 0.4)),
+    "Piece Count": (("pcs", 0.6), ("Pc", 0.4)),
     "Diameter": (("Dia.", 0.6), ("dia.", 0.4)),
     "Outside Dia.": (("Outside Dia.", 0.5), ("Outside Dia", 0.5)),
     "Width Across Flats": (("Width Across Flats", 0.5), ("A/F", 0.5)),
@@ -252,8 +252,12 @@ def build_title(
     The cap is real -- a title has a budget and the reference corpus shows
     titles written to one. What changed with the ruling on elastic/prism#9284
     is WHERE the budget is taken from. This used to cut the assembled string
-    at the cap, which lands mid-word: **69 of the default catalog's 10,548
-    titles** (25 of 9,611 before the socket screws published a pack, whose
+    at the cap, which lands mid-word: **73 of the default catalog's 10,548
+    titles** (76 before the inch socket screws were graded
+    on the SAE scale, alexander-marquardt/synthetic-ecommerce-data#17;
+    69 of 10,548 before the inch lengths under angle keys were no
+    longer drawn, alexander-marquardt/synthetic-ecommerce-data#404, which moved
+    the stream; 25 of 9,611 before the socket screws published a pack, whose
     segment comes last, alexander-marquardt/synthetic-ecommerce-data#65;
     43 of 9,576 before every product type drew from its own
     stream, alexander-marquardt/synthetic-ecommerce-data#48; 49 of 9,690
