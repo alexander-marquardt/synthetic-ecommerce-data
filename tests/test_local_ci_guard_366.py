@@ -125,8 +125,8 @@ def test_an_unset_worker_count_is_handed_to_the_command(env: dict[str, str]) -> 
     script = "import os; print(os.environ.get('LOCAL_CI_WORKERS', 'unset'))"
     kept = _guard(env, sys.executable, "-c", script, LOCAL_CI_WORKERS="3")
     assert kept.stdout.strip() == "3"
-    given = _guard(env, sys.executable, "-c", script)
-    assert given.stdout.strip().isdigit(), given.stdout + given.stderr
+    given = _guard(env, sys.executable, "-c", script, "-n", "7")
+    assert given.stdout.strip() == "7", given.stdout + given.stderr
 
 
 # -- the lock ------------------------------------------------------------------
