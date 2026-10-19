@@ -390,6 +390,17 @@ def test_a_spec_that_refers_to_an_undeclared_dimension_is_refused():
         compose.check(bad)
 
 
+def test_a_derived_quantity_may_only_refer_to_what_is_declared_before_it():
+    bad = Spec(dims=(), derived=(("a", Ref("b")), ("b", 1.0)), parts=(), size=1.0)
+    with pytest.raises(CompositionError, match="b"):
+        compose.check(bad)
+
+
+def test_an_expression_that_divides_by_zero_is_refused_as_a_composition_error():
+    with pytest.raises(CompositionError, match="zero"):
+        compose.evaluate(Ref("x") / Ref("y"), {"x": 1.0, "y": 0.0})
+
+
 def test_a_dimension_may_only_exceed_one_declared_before_it():
     bad = Spec(
         dims=(Dim("od", "Outside Dia.", 1.0, above="bore"), Dim("bore", "Bore Dia.", 0.5)),

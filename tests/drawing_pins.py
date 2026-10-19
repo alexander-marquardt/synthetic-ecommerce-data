@@ -1,8 +1,9 @@
 """The digests that hold a re-expressed figure to its old bytes (#74).
 
 A figure that moves onto the shared primitives must draw the same SVG for the
-same record. ``pin_digests()`` draws, for each type below, every SKU of the
-small catalog plus five variants of the first SKU's record: its length set
+same record. ``pin_digests()`` draws, for each type below, every record of
+``drawing_pin_records.json`` (committed, taken once from the small catalog, so a
+generator change cannot move the bytes) plus five variants of the first SKU's record: its length set
 past the type's extent (a broken screw), the same with the thread run the whole
 length, the optional attributes removed (a partial read), every inch value
 unreadable, and an empty record. A record the figure refuses is pinned as the
@@ -17,12 +18,10 @@ main before the first figure moved. Print the current ones with
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
-from synthetic_ecommerce_data.core import emit
-from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.drawing import draw_sku
-from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 #: The committed records the pin draws.
 RECORDS = Path(__file__).parent / "drawing_pin_records.json"
@@ -74,22 +73,15 @@ def variants(record: dict[str, str]) -> list[dict[str, str]]:
 
 
 def pin_digests() -> dict[str, str]:
-    catalog = generate(SMALL)
-    records: dict[str, list[dict[str, str]]] = {t: [] for t in PINNED_TYPES}
-    brands: dict[str, str] = {}
-    for line in catalog.lines:
-        if line.type_key in records:
-            brands.setdefault(line.type_key, line.brand)
-            records[line.type_key].extend(
-                emit.drawing_record(catalog, line, child) for child in line.children
-            )
+    committed = json.loads(RECORDS.read_text())
     digests = {}
     for key in PINNED_TYPES:
+        brand, records = committed[key]["brand"], committed[key]["records"]
         digest = hashlib.sha256()
-        drawn = [*records[key], *variants(records[key][0])]
+        drawn = [*records, *variants(records[0])]
         for record in drawn:
             try:
-                data, source = draw_sku(key, brands[key], record)
+                data, source = draw_sku(key, brand, record)
             except Exception as exc:  # noqa: BLE001  (a refusal is part of the pinned behaviour)
                 data, source = type(exc).__name__.encode(), "refused"
             digest.update(data + source.encode())

@@ -119,6 +119,22 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         f'{T} "same_svg_bytes"',
         "the moved screw draws the bytes it drew before",
     ),
+    (
+        "an expression divides by zero unguarded",
+        COMP,
+        "    if right == 0:\n        raise CompositionError(\"an expression divides by zero\")\n",
+        "",
+        f'{T} "divides_by_zero"',
+        "a zero divisor is a composition error",
+    ),
+    (
+        "a derived quantity's references go unchecked",
+        COMP,
+        "        _check_refs(expr, earlier)\n        earlier.add(name)",
+        "        earlier.add(name)",
+        f'{T} "derived_quantity_may_only"',
+        "a derived quantity may refer only to what is declared before it",
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
