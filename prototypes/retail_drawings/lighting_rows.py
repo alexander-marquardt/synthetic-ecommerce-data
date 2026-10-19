@@ -300,7 +300,8 @@ CEILING_LIGHTS = (
         "A chandelier, 5 light, with fabric shades. Takes an E14 bulb in each.",
         (WHITE, BLACK),
         (_a("fixture_type", "Fixture type", "Chandelier"), _lights(5),
-         _cm("diameter", "Diameter", 60), _a("shade_material", "Shade material", "Fabric"),
+         _cm("diameter", "Diameter", 60), _cm("drop_length", "Drop length", 80),
+         _a("shade_material", "Shade material", "Fabric"),
          _a("bulb_fitting", "Bulb fitting", "E14")),
         (("Antique Brass", 199.0), ("Chrome", 189.0), ("Matte Black", 189.0)),
         params=_p(kind="chandelier", lights="5", finish="antique brass"), size_key="finish"),
@@ -462,8 +463,14 @@ def docs() -> list[dict]:
     return [r.doc() for r in ROWS]
 
 
-#: The forms that hang, and the only ones with a ``drop_length`` (gen#237).
+#: The forms that hang, and the only ones with a ``drop_length`` (gen#237, gen#401).
 HANGING_FORMS = frozenset({"Pendant", "Chandelier"})
+
+#: The drop a hanging form gets when the template it derives from had none, in centimetres.
+_DEFAULT_DROP_CM = {"Pendant": 100, "Chandelier": 80}
+
+#: A derived drop follows the first of these the template lists (an authored one follows the size).
+_DROP_AFTER = ("diameter", "light_count", "fixture_type")
 
 #: Title words that belong to the pendant template's own form (a dome shade, a cluster of lights).
 _PENDANT_QUALIFIERS = re.compile(r"\s+(?:Dome|Cluster)\b")
@@ -474,13 +481,26 @@ def fit_ceiling_form(rec: dict) -> None:
 
     :func:`scale.derive` copies a template's attributes and swaps only the values that changed,
     so a pendant derived to a flush fitting kept its ``drop_length`` and its "Dome" beside the
-    new form word. A form that does not hang loses ``drop_length``; a form other than a pendant
-    loses the pendant's qualifier words.
+    new form word. A form that does not hang loses ``drop_length``; a form that hangs gains one
+    when its template had none (a pendant or chandelier derived from a flush template, gen#401);
+    a form other than a pendant loses the pendant's qualifier words.
     """
     if rec["product_type"] != "Ceiling Light":
         return
     form = next((a["value"] for a in rec["attributes"] if a["key"] == "fixture_type"), None)
     if form not in HANGING_FORMS:
         rec["attributes"] = [a for a in rec["attributes"] if a["key"] != "drop_length"]
+    elif not any(a["key"] == "drop_length" for a in rec["attributes"]):
+        _add_drop(rec["attributes"], _DEFAULT_DROP_CM[form])
     if form != "Pendant":
         rec["title"] = _PENDANT_QUALIFIERS.sub("", rec["title"])
+
+
+def _add_drop(attributes: list[dict], cm: int) -> None:
+    """Insert a ``drop_length`` of ``cm`` after the fixture's size, as :func:`_cm` writes one."""
+    key, name, value, unit, canonical = _cm("drop_length", "Drop length", cm)
+    entry = {"key": key, "name": name, "value": value, "unit_code": unit,
+             "value_canonical": canonical}  # fmt: skip
+    keys = [a["key"] for a in attributes]
+    after = next((keys.index(k) for k in _DROP_AFTER if k in keys), len(keys) - 1)
+    attributes.insert(after + 1, entry)
