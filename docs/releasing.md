@@ -8,9 +8,9 @@ digest (gen#536). A release is a `v*` tag.
 
 `.github/workflows/release.yaml` runs on a pushed `v*` tag and:
 
-1. builds the ceiling export (`prototypes/retail_drawings/scale.py --skus 10000000 --flat ...`,
+1. builds the ceiling export (`prototypes/retail_drawings/scale.py --skus ceiling --flat ...`,
    the build run to its ceiling) and gzips it as `catalog.ndjson.gz`;
-2. builds the retail image bundle (`image_release.py --skus 10000000`) as `retail-images.tar.gz`;
+2. builds the retail image bundle (`image_release.py --skus ceiling`) as `retail-images.tar.gz`;
 3. uploads both to the tag's release with their sidecars: `catalog.ndjson.gz.content-sha256` and
    `retail-images.tar.gz.content-sha256` (`<sha256>  <count>`), and `retail-images.tar.gz.sha256`;
 4. runs `scripts/open_pin_bump_pr.py`, which writes the two pin files with the new digests and

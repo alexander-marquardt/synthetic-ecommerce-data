@@ -87,6 +87,7 @@ def test_this_repository_tracks_no_derived_file() -> None:
 # -- the build side: what the check holds out of git, the build writes (gen#536) ----------------
 
 import hashlib  # noqa: E402
+import json  # noqa: E402
 import os  # noqa: E402
 
 import build_derived  # noqa: E402
@@ -214,3 +215,16 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
         "pin-bump-body.txt",
     ):
         assert (out / asset).stat().st_size > 0, asset
+
+
+def test_skus_ceiling_is_never_short_and_reports_what_the_build_made(tmp_path, monkeypatch) -> None:
+    sys.path.insert(0, str(ROOT / RD))
+    import scale  # noqa: PLC0415
+
+    real = scale.build
+    monkeypatch.setattr(scale, "build", lambda skus, seed=0: real(300, seed))
+    report = tmp_path / "report.json"
+    assert scale.main(["--skus", "ceiling", "--report", str(report)]) == 0
+    data = json.loads(report.read_text("utf-8"))
+    assert data["reached_target"] is True and 300 <= data["target_skus"] < 10_000
+    assert scale.main(["--skus", "10000000"]) == 2, "a number past the ceiling is still refused"
