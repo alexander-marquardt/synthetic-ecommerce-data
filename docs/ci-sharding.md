@@ -8,8 +8,8 @@ on one core; this repository is public, so GitHub-hosted runners cost nothing.
 
 `.github/workflows/ci.yaml` job `tests` runs `shard: [1 .. N]` on `ubuntu-latest` (or, for this repository's own branches once the repository variable `SYNTH_CI_SELF_HOSTED` is `true`, on the self-hosted `synth-ci` runner of #596, below). Each
 shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the files
-`scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files
-longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
+`scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files (`tests/` and `prototypes/retail_drawings/`:
+`testpaths` of `pyproject.toml`, `TEST_DIRS` in the script) longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
 a file with no entry weighs 20 s, so a new test file needs no edit anywhere.
 
 | Change | Where |
@@ -26,6 +26,11 @@ position in the file's collection order is the shard's (`CI_SHARD`/`CI_SHARDS`, 
 workflow's tests step; unset or `CI_SHARDS=1` keeps all). Each test id runs in exactly one
 shard. The junit path is added to `PYTEST_ADDOPTS` in the Tests step's own `env`: the `runner`
 context is not available in a job-level `env`.
+
+A test file outside `testpaths` is never run (the drawing tests were not, until gen#362);
+`tests/test_test_files_collected_362.py` fails on a tracked `test_*.py` or `*_test.py` file
+outside it. A new directory of tests goes in `testpaths`, `TEST_DIRS` and `_TEST_ROOTS` in
+`scripts/ci_select.py`.
 
 `tests/test_ci_shards_348.py` is the guard: every collected test file is in exactly one
 shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest on one worker, and the shards stay
