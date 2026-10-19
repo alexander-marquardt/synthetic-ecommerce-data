@@ -396,6 +396,31 @@ def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
     return facts[name].value if name in facts else None
 
 
+#: The attributes besides the material a brand-census type's spec holds. The
+#: census spec is "the key dimension plus the type's spec-defining attributes
+#: (material, flutes, grit, closure...)" (``method.brand_spread``): a bearing's
+#: closure, a ball end mill's and a tap's flutes, a wheel's grit. A type the
+#: table leaves out has the material alone: the census names nothing else for
+#: it, and the catalog publishes nothing else that sets one maker's price off
+#: another's.
+SPEC_ATTRIBUTES: dict[str, tuple[str, ...]] = {
+    "bearing_radial_ball": ("Closure Type",),
+    "end_mill_ball": ("Number of Flutes",),
+    "tap_spiral_point": ("Number of Flutes",),
+    "wheel_depressed_center": ("Grit",),
+}
+
+
+def spec_values(type_key: str, facts: Mapping[str, Attribute]) -> tuple[str, ...] | None:
+    """A brand-census type's spec beyond its key: the material
+    (:func:`material_of`) then each of :data:`SPEC_ATTRIBUTES`, or None where
+    the record omits one. Sparsity drops an attribute from some SKUs; such a
+    SKU cannot say which spec it is in, and the report counts it apart."""
+    values = [material_of(type_key, facts)]
+    values += [facts[name].value if name in facts else None for name in SPEC_ATTRIBUTES.get(type_key, ())]
+    return None if None in values else tuple(str(v) for v in values)
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 15 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
