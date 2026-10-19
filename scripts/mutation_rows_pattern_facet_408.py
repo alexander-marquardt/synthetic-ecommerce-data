@@ -79,6 +79,14 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         f"{_T} -k patchwork_cushion",
         "a patchwork cushion is drawn with the patchwork fill",
     ),
+    (
+        "a solid colorway keeps the style's motif keys",
+        "image_release.py",
+        'if swatch["pattern"] != "print":',
+        'if swatch["pattern"] != "print" and False:',
+        "tests/test_retail_image_release.py -k print_colorway_and_solid",
+        "a solid colorway of a printed style draws without the print's motif keys",
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
