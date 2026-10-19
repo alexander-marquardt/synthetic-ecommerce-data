@@ -17,8 +17,17 @@ from synthetic_ecommerce_data.core import config
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "src" / "synthetic_ecommerce_data" / "core" / "config.py"
 #: The prose that described the large build by a SKU total.
-PROMISE = re.compile(r"about\s+(?:100K|100,000)\s+SKUs")
+PROMISE = re.compile(
+    r"(?:about|roughly|around|approximately|nearly|almost|~)\s*(?:100K|100,000)\s+SKUs", re.I
+)
+#: A SKU total typed with thousands separators.
+TYPED_TOTAL = re.compile(r"\d{1,3}(?:,\d{3})+\s+SKUs")
 OLD_NAME = "HUNDRED_K_LINES"
+
+
+def squash(text: str) -> str:
+    """One line of words: a sentence wrapped across comment lines reads as it was written."""
+    return " ".join(re.sub(r"^\s*#+", " ", text, flags=re.M).split())
 
 
 def test_the_large_build_setting_is_named_for_the_lines_it_holds() -> None:
@@ -33,11 +42,23 @@ def test_no_doc_names_the_setting_by_a_sku_total() -> None:
 
 def test_the_config_types_no_sku_total_of_a_build() -> None:
     """A SKU total in a comment is the figure that was 99,929 and is no longer."""
-    typed = re.findall(r"\d{1,3}(?:,\d{3})+\s+SKUs", CONFIG.read_text("utf-8"))
+    typed = TYPED_TOTAL.findall(squash(CONFIG.read_text("utf-8")))
     assert typed == [], f"config.py types SKU totals {typed}; read `skus` in stats.json"
 
 
 def test_the_readme_does_not_promise_the_large_build_lands_at_a_sku_total() -> None:
-    text = " ".join((ROOT / "README.md").read_text("utf-8").split())
+    text = squash((ROOT / "README.md").read_text("utf-8"))
     promised = [match.group(0) for match in PROMISE.finditer(text)]
     assert promised == [], f"README.md promises a SKU total for the large build: {promised}"
+
+
+def test_the_prose_patterns_catch_a_wrapped_comment_and_a_rough_figure() -> None:
+    wrapped = "# the build lands at\n# 99,929 SKUs today"
+    assert TYPED_TOTAL.findall(squash("# lands at 99,\n# 929 SKUs")) == []
+    assert TYPED_TOTAL.findall(squash(wrapped)) == ["99,929 SKUs"]
+    wrapped_promise = "# about\n# 100K SKUs"
+    assert [m.group(0) for m in PROMISE.finditer(squash(wrapped_promise))] == ["about 100K SKUs"]
+    assert PROMISE.search(squash("lands at roughly 100K SKUs"))
+    assert PROMISE.search(squash("lands at about 100,000 SKUs"))
+    assert PROMISE.search(squash("about 100K SKUs"))
+    assert not PROMISE.search(squash("39000 lines"))
