@@ -4277,8 +4277,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the derivation copies the needs rows as styles",
                 "scale.py",
-                "| DECOR_IDS | NIKE_IDS\n                | NEEDS_IDS | CUPS_PLURAL_IDS\n",
-                "| DECOR_IDS | NIKE_IDS\n                | CUPS_PLURAL_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n                | NEEDS_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n",
                 "tests/test_retail_elasticated_waist_329.py -k every_row_is_a_template",
                 "the needs rows stay templates",
             ),

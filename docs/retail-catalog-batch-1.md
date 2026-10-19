@@ -148,7 +148,7 @@ class 7 rows for oranges, lemons, strawberries, coconut and lavender (the word i
 
 Queries covered by rows that already exist (`class_rows.py`, no new row): cups (class 6: bras whose
 titles say "Cup" lead a bare "cups", the drinkware node keeps none; since gen#508 bras and swimwear
-titles also carry the plural, "with Removable Cups", in `cups_plural_rows.py`; "d cup bra" stays in
+titles also carry the plural, "with Removable Cups", by retitling existing rows (`plural_cups` on `variants.BraStyle`, and `swimwear_rows.py`); "d cup bra" stays in
 lingerie both ways) and oranges (the orange flavour of a bake, a biscuit or a drink leads the
 fruit). `tests/test_retail_text_match_decoys_294.py` holds, on the 10**6-SKU build: without
 interpretation at least three decoys in the baseline top 10 and one in the top 3 for every color,
