@@ -46,7 +46,7 @@ def a(key: str, name: str, value: str) -> tuple[str, str, str]:
 
 
 def _cm(v: int) -> tuple[str, str, str, str, float]:
-    return ("width", "Width", str(v), "CMT", float(v * 10))
+    return ("item_width", "Item width", str(v), "CMT", float(v * 10))
 
 
 def _litres(v: int) -> tuple[str, str, str, str, float]:
