@@ -28,7 +28,7 @@ SPEC = TypeSpec(
             5.0,
             (
                 a("material", "Material", "Ceramic"),
-                a("pack_size", "Pack size", "8"),
+                a("pack_size", "Pack size", "8 pack"),
             ),
         ),
     ),
