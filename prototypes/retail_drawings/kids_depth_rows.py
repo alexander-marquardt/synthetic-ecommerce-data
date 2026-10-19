@@ -160,9 +160,10 @@ def _coats(who: str, code: str, palette: tuple[str, ...], n: int, base: float) -
         st = next(s for s in _COATS if s.name == name)
         fit = ("Regular", "Relaxed")[i % 2]
         title = " ".join(w for w in (who, feat, f, name) if w)
-        has = [_FEATURES[feat]] if feat else []
-        desc = (f"{_an(f).capitalize()} {name.lower()} cut to {_an(fit)} fit, with long sleeves, "
-                f"{', '.join([*has, st.tail])}.")  # fmt: skip
+        items = ["long sleeves", *([_FEATURES[feat]] if feat else [])]
+        # a tail that holds its own "and" already closes the list; any other needs one before it
+        rest = ", ".join([*items, st.tail]) if " and " in st.tail else f"{', '.join(items)} and {st.tail}"
+        desc = f"{_an(f).capitalize()} {name.lower()} cut to {_an(fit)} fit, with {rest}."
         attrs = (("fit", "Fit", fit), ("material", "Material", f.replace(" Blend", " blend")), ("sleeve_length", "Sleeve length", "Long"))
         out.append(_row(f"{code}{i:03d}", title, _BRANDS[(i + 1) % 4], path, "Coat", "coat",
                         _price(base, i), desc, _colors(i, palette), attrs, ()))
