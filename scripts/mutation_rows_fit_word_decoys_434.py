@@ -37,7 +37,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _D,
         'WORD_SYNONYMS = {"barrel": "balloon"}',
         "WORD_SYNONYMS = {}",
-        f"{_T} -k 'its_attribute_is_another'",
+        f"{_T} -k 'read_as_one_word'",
         "neither of barrel and balloon is planted on the other",
         _ROOT,
     ),
