@@ -8,11 +8,12 @@ What is drawn and what is not
   whose designation cannot be read is refused.
 * The **drive square** is not drawn on the elevation. A machine tap has one,
   but neither its across-flats nor its length follows from any attribute on the
-  record -- ``Square Size`` exists in the vocabulary and no record generated so
-  far carries it -- and a square drawn to a guessed width is a dimension the
-  data cannot defend. Where the record *does* publish ``Square Size``, it
-  appears in the end view at its true across-flats, which is exactly how the
-  cap-screw renderer treats a socket drive whose depth is unpublished.
+  record unless it publishes ``Square Size`` (a SKU carries it at the vocabulary's
+  presence, 0.46, from the ASME B94.9 / ISO 529 row of its thread size), and a
+  square drawn to a guessed width is a dimension the data cannot defend. Where
+  the record *does* publish ``Square Size``, it appears in the end view at its
+  true across-flats, which is exactly how the cap-screw renderer treats a socket
+  drive whose depth is unpublished.
 * The **chamfer** at the entering end is not drawn. ``Chamfer Style`` says
   plug, bottoming or taper; how many threads that is, is a table this record
   does not carry.
