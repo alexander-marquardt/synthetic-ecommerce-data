@@ -47,6 +47,7 @@ import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own fi
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
+import mutation_rows_pattern_facet_408  # noqa: E402  (gen#408 rows, kept in their own file)
 import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
 import mutation_rows_plus_sizes  # noqa: E402  (gen#434 rows, kept in their own file)
 import mutation_rows_red_wine_500  # noqa: E402  (gen#500 rows, kept in their own file)
@@ -4151,6 +4152,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_appliance_colors.ROWS
     ),
     # ---- retail: one pack_size vocabulary for a count (gen#246); the rows are in their own file ----
+    *(
+        Mutation(f"pattern facet: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_pattern_facet_408.ROWS
+    ),
     *(
         Mutation(f"pack size: {name}", file, old, new, test, "", prop,
                  root="prototypes/retail_drawings")
