@@ -352,6 +352,12 @@ _SEED_KINDS_461 = {
 }  # fmt: skip
 NEW_KINDS.update(_SEED_KINDS_461)
 NEW_KINDS.update(_SEED_KINDS)
+for _key in NEW_KINDS:
+    if _key in BASE_KINDS:
+        raise ValueError(
+            f"kind {_key!r} is in decoy_rows.KINDS (or a feature_decoys module) and in "
+            "decoy_product_words.NEW_KINDS: one key, two meanings"
+        )
 KINDS = {**BASE_KINDS, **NEW_KINDS}
 #: The product types this module adds: each carries a floor of ordinary products (:data:`FLOOR`).
 

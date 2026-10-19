@@ -95,6 +95,13 @@ def test_two_modules_with_one_row_code_are_refused_naming_the_code(tmp_path):
     assert "ZZ01" in done.stderr and "twice" in done.stderr
 
 
+def test_a_module_whose_word_row_reuses_a_code_of_the_word_table_is_refused(tmp_path):
+    clash = PROBE.replace("d(901,", "d(43,")
+    done = _report(tmp_path, {"zz_probe": clash})
+    assert done.returncode != 0
+    assert "DY43" in done.stderr and "twice" in done.stderr
+
+
 def test_a_module_whose_decoy_reuses_a_code_of_the_table_is_refused(tmp_path):
     clash = PROBE.replace('"ZZ01"', '"XS01"')
     done = _report(tmp_path, {"zz_probe": clash})

@@ -84,7 +84,7 @@ REGISTRIES: tuple[Registry, ...] = (
     ),
     Registry(
         f"{RD}/decoy_rows.py",
-        _shapes(r"^\s+_d\(", _KIND_ENTRY),
+        _shapes(r"^\s+_d\(", _KIND_ENTRY, r"^from decoy_\w+_rows import", r"^\s+\*\(_d\("),
         '    _d("XZ01", "sofa", "Title", "Desc", "Red", 1, "red sofa", 720),',
         _DECOY_FORM,
         _DECOY_FILES,
@@ -94,7 +94,7 @@ REGISTRIES: tuple[Registry, ...] = (
         _shapes(
             r"^\s+_[a-z]\(\s*\d+,",
             r"^\s+_[a-z]\($",
-            r"^TABLE = \(\*TABLE",
+            r"^TABLE = \(\*TABLE, \*(?!feature_decoys\.)",
             r"^NEW_KINDS\.update\(",
             _KIND_ENTRY,
         ),
