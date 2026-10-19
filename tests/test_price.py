@@ -1088,6 +1088,39 @@ def test_a_kit_is_its_contents_at_one_factor_with_no_group_noise():
     assert model.size_sigma == 0.0
 
 
+KIT_SPREAD = "price p90/p10: kit_assortment"
+
+
+def test_the_kit_p90_p10_is_in_band_on_the_default_build(price_rows):
+    """#76: the 13 original kinds hold $36 to $130 of parts and span 4x
+    against the census's 114x (band 85.7 to 152)."""
+    (row,) = [row for row in price_rows if row.name == KIT_SPREAD]
+    assert row.within, (row.achieved, row.band)
+
+
+def test_the_kit_p90_p10_is_in_band_at_100k(hundred_k_rows):
+    row = hundred_k_rows[KIT_SPREAD]
+    assert row.within, (row.achieved, row.band)
+
+
+def test_the_kit_p90_p10_carries_no_pin():
+    """The pin named #76 as its reason; once the kinds are there it goes."""
+    assert KIT_SPREAD not in price.PINNED_SHORTFALLS
+    assert KIT_SPREAD not in price.PINNED_FIGURES
+
+
+def test_the_kit_table_spans_a_pack_to_a_large_index():
+    """The census kits run from packs of 12 and 15 to sets worth $629: the
+    table holds a screw pack of 15 or fewer, a 1,000-piece screw assortment
+    and a drill index of 100 pieces or more."""
+    counts = [
+        (kit.item, kit.per_size * len(kit.designations or kit.sizes)) for kit in newtypes.KITS
+    ]
+    assert min(n for item, n in counts if item.startswith("Socket")) <= 15
+    assert max(n for item, n in counts if item.startswith("Socket")) >= 1000
+    assert max(n for item, n in counts if item.startswith("Jobber")) >= 100
+
+
 def _build_kits(request, build: str) -> list[KitSku]:
     return (
         request.getfixturevalue("kits")
