@@ -27,6 +27,7 @@ from __future__ import annotations
 from fractions import Fraction
 from functools import cache
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.naming import thread_gloss
 from synthetic_ecommerce_data.domains.industrial import standards
@@ -39,23 +40,13 @@ from synthetic_ecommerce_data.domains.industrial.standards import MM_PER_INCH
 #: figure (10.07 for the M12 socket); the key that drives it is the nominal
 #: member of this series. The keys under 1.5mm drive the smallest set screw
 #: sockets this catalog carries (ISO 4026-4029, M1.6-M2.5).
-KEY_SERIES_MM: tuple[float, ...] = (
-    0.7, 0.9, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 10.0, 12.0, 14.0, 17.0, 19.0, 22.0,
-)  # fmt: skip
+KEY_SERIES_MM: tuple[float, ...] = tuple(library.table("iso_2936_hex_key_mm").values)
 
 #: The inch hexagon key series (ASME B18.3), in inches. The keys under 0.050"
 #: drive the smallest set screw sockets this catalog carries (#0-#2).
 KEY_SERIES_IN: tuple[float, ...] = tuple(
-    float(f)
-    for f in (
-        Fraction(28, 1000), Fraction(35, 1000),
-        Fraction(50, 1000), Fraction(1, 16), Fraction(5, 64), Fraction(3, 32),
-        Fraction(7, 64), Fraction(1, 8), Fraction(9, 64), Fraction(5, 32),
-        Fraction(3, 16), Fraction(7, 32), Fraction(1, 4), Fraction(5, 16),
-        Fraction(3, 8), Fraction(7, 16), Fraction(1, 2), Fraction(9, 16),
-        Fraction(5, 8),
-    )
-)  # fmt: skip
+    float(Fraction(size)) for size in library.table("asme_b18_3_hex_key_in").values
+)
 
 #: How far a socket's toleranced across-flats may sit from its nominal key.
 #: Measured over the extracted rows: the largest metric offset is 0.10mm (the
@@ -104,11 +95,8 @@ def socket_head_keys() -> dict[str, tuple[float, str]]:
 #: standards carry. Coarse is each standard's own row; these are the near-miss
 #: alternatives a shopper typing ``m12 socket cap screws`` has to choose among.
 METRIC_FINE_PITCHES: dict[str, tuple[float, ...]] = {
-    "M8": (1.0,),
-    "M10": (1.25, 1.0),
-    "M12": (1.5, 1.25),
-    "M16": (1.5,),
-    "M20": (1.5, 2.0),
+    row["size"]: tuple(row["fine_pitches_mm"])
+    for row in library.table("iso_262_metric_threads").select(["M8", "M10", "M12", "M16", "M20"])
 }
 
 #: Metric tap drills (mm), for a 6H internal thread, as the metric tap-drill
@@ -117,23 +105,7 @@ METRIC_FINE_PITCHES: dict[str, tuple[float, ...]] = {
 #: drilled 10.2). Written out rather than computed so the sentence cites a
 #: table; ``test_compatibility_text`` checks every row is within 0.05mm of D-P.
 TAP_DRILLS_METRIC: dict[str, float] = {
-    "M3x0.5": 2.5,
-    "M4x0.7": 3.3,
-    "M5x0.8": 4.2,
-    "M6x1": 5.0,
-    "M8x1.25": 6.8,
-    "M8x1": 7.0,
-    "M10x1.5": 8.5,
-    "M10x1.25": 8.8,
-    "M10x1": 9.0,
-    "M12x1.75": 10.2,
-    "M12x1.5": 10.5,
-    "M12x1.25": 10.8,
-    "M16x2": 14.0,
-    "M16x1.5": 14.5,
-    "M20x2.5": 17.5,
-    "M20x2": 18.0,
-    "M20x1.5": 18.5,
+    row["thread"]: row["drill_mm"] for row in library.table("metric_tap_drills").rows
 }
 
 #: Unified tap drills for 75% thread engagement -- the chart every machinist's
@@ -141,20 +113,7 @@ TAP_DRILLS_METRIC: dict[str, float] = {
 #: named as the chart names it: a number, a letter or a fraction; the decimal
 #: is the drill's own size.
 TAP_DRILLS_INCH: dict[str, tuple[str, float]] = {
-    "#6-32": ("#36", 0.1065),
-    "#8-32": ("#29", 0.1360),
-    "#10-24": ("#25", 0.1495),
-    "#10-32": ("#21", 0.1590),
-    "1/4-20": ("#7", 0.2010),
-    "1/4-28": ("#3", 0.2130),
-    "5/16-18": ("F", 0.2570),
-    "5/16-24": ("I", 0.2720),
-    "3/8-16": ('5/16"', 0.3125),
-    "3/8-24": ("Q", 0.3320),
-    "7/16-14": ("U", 0.3680),
-    "7/16-20": ('25/64"', 0.390625),
-    "1/2-13": ('27/64"', 0.421875),
-    "1/2-20": ('29/64"', 0.453125),
+    row["thread"]: (row["drill"], row["dia_in"]) for row in library.table("inch_tap_drills").rows
 }
 
 

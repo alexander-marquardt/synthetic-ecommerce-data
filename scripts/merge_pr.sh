@@ -24,13 +24,10 @@
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
-#      and the retail totals (prototypes/retail_drawings/retail_figures.py,
-#      golden-retail/stats.json, gen#343), and commits only GENERATED. A file
-#      still conflicted, or any other change in the tree, is refused. uv runs
-#      --locked, so a stale uv.lock is refused rather than re-locked into the
-#      commit. The commit carries "Rolled-By: scripts/merge_pr.sh" (ROLLED_BY): a
-#      feature PR never commits the two stats.json files (gen#373), this commit
-#      does, and the stats-roll job (scripts/check_no_stats_edit.py) lets only it by.
+#      and commits only GENERATED. A file still conflicted, or any other change
+#      in the tree, is refused. uv runs --locked, so a stale uv.lock is refused
+#      rather than re-locked into the commit. The retail totals are not here:
+#      nothing under golden-retail/ is committed (gen#536), a test measures them.
 #   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
 #      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
@@ -75,7 +72,18 @@
 #      GitHub that is down or out of minutes. Either way the end prints the merge's
 #      wall time (gen-merge-minutes).
 #   6. squash-merges, re-checking before EVERY attempt that main has not moved
-#      since step 1 and that the PR head is still the checked commit.
+#      since step 1 and that the PR head is still the checked commit. A read
+#      that is not the expected sha is repeated, up to 3 reads 10 s apart
+#      (MERGE_PR_HEAD_SLEEP), before the ref is called moved: ls-remote right after
+#      a push can answer from before it (#383).
+#
+# One merge at a time (#383): a run takes a lock (a directory, MERGE_PR_LOCK, default
+# /tmp/merge-pr-<repo>.lock) before it reads the PR and main, and keeps it to its last
+# step, so a merge that lands during another's 11 to 47 minute CI run no longer moves
+# main under it and forces a rerun. A second run prints that it is waiting, polls every
+# MERGE_PR_LOCK_POLL seconds (default 10) and gives up after MERGE_PR_LOCK_WAIT
+# (default 14400, 4 h). A lock whose holder's pid is gone (a killed run) is taken over.
+# --dry-run pushes and merges nothing, so it takes no lock.
 #
 # Step 6 narrows the window but cannot close it: GitHub has no compare-and-swap
 # on the base. The CI job "main-merged-tree" runs CHECKS on every push to main,
@@ -95,9 +103,8 @@ if [ -n "${MERGE_PR_CHECKS:-}" ]; then
   read -r -a CHECKS <<<"$MERGE_PR_CHECKS"
 fi
 
-#: Exactly the files `ecom-generate build --out golden-catalog` and the retail
-#: rebuild (RETAIL_REBUILD) rewrite, so a conflict in one is resolved by a
-#: rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
+#: Exactly the files `ecom-generate build --out golden-catalog` rewrites, so a
+#: conflict in one is resolved by a rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
 #: builder. Pinned to the builds by tests/test_merge_pr.py.
 GENERATED=(
   golden-catalog/authored_names.json
@@ -108,8 +115,6 @@ GENERATED=(
   golden-catalog/nested.jsonl
   golden-catalog/render.jsonl
   golden-catalog/stats.json
-  golden-retail/stats.json
-  docs/retail-apparel-decoys.md
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
 
@@ -119,27 +124,16 @@ GENERATED=(
 FRESHNESS_TESTS=(
   tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build
   tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output
-  tests/test_retail_figures_162.py::test_the_committed_figures_are_what_the_build_measures
   tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation
   tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed
 )
-
-#: The trailer on every commit this script makes of rebuilt files. It is what lets the
-#: stats-roll job (scripts/check_no_stats_edit.py, gen#373) tell the release step's
-#: golden-retail/stats.json and golden-catalog/stats.json from a PR's hand edit.
-ROLLED_BY="Rolled-By: scripts/merge_pr.sh"
-
-#: The command that rewrites golden-retail/stats.json (gen#162, gen#343). It
-#: is the one retail_figures.py names as REBUILD, which tests/test_merge_pr.py
-#: pins. The retail build is the slower half, about 40 s.
-RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them (a matrix job's name carries its shard: ``tests (3)``, and a required name
 #: stands for every ``<name> (...)``). A pull request's commit must carry each
 #: REQUIRED_CI check, green; a SKIPPED_BY_DESIGN_CI check (a push-only job) may
 #: also be skipped. Pinned to the workflow by tests/test_merge_pr.py.
-REQUIRED_CI=(lint tests commit-messages file-size red-commit-proof customer-name-check stats-roll)
+REQUIRED_CI=(lint tests commit-messages file-size red-commit-proof customer-name-check no-derived-files)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree)
 
 die() {
@@ -205,6 +199,47 @@ pr=$1
 origin_url=$(git -C "$here" remote get-url origin)
 slug=$(printf '%s\n' "$origin_url" | sed -E 's#^(https://[^/]+/|git@[^:]+:)##; s#\.git$##')
 
+#: One merge at a time (#383). mkdir is the atomic step; the owner file names the holder's
+#: pid, so a lock left by a killed run is told from a live one. Taking over a dead holder's
+#: lock is a rename then a delete, and two waiters doing it at once can still delete a
+#: lock a third has just taken: a window of microseconds, on a lock held for an hour.
+lock_dir=${MERGE_PR_LOCK:-/tmp/merge-pr-$(printf '%s' "$slug" | tr -c 'A-Za-z0-9._-' _).lock}
+lock_held=0
+release_merge_lock() {
+  if [ "$lock_held" -eq 1 ]; then
+    lock_held=0
+    rm -rf "$lock_dir"
+  fi
+}
+acquire_merge_lock() {
+  local waited_for=$SECONDS deadline owner_pid owner_pr announced=0
+  deadline=$((SECONDS + ${MERGE_PR_LOCK_WAIT:-14400}))
+  until mkdir "$lock_dir" 2>/dev/null; do
+    owner_pid="" owner_pr=""
+    read -r owner_pid owner_pr 2>/dev/null <"$lock_dir/owner" || true
+    if [ -n "$owner_pid" ] && ! kill -0 "$owner_pid" 2>/dev/null; then
+      echo "merge_pr.sh: the merge lock's holder (pid $owner_pid, #$owner_pr) is gone; taking the lock over"
+      if mv "$lock_dir" "$lock_dir.gone.$$" 2>/dev/null; then
+        rm -rf "$lock_dir.gone.$$"
+        continue
+      fi
+    fi
+    [ "$SECONDS" -lt "$deadline" ] ||
+      die "the merge lock $lock_dir is still held by pid ${owner_pid:-unknown} (#${owner_pr:-?}) after $((SECONDS - waited_for))s; NOT merged. Re-run when it is done"
+    if [ "$announced" -eq 0 ]; then
+      echo "waiting for the merge lock held by pid ${owner_pid:-unknown} (#${owner_pr:-?}); one merge runs at a time"
+      announced=1
+    fi
+    sleep "${MERGE_PR_LOCK_POLL:-10}"
+  done
+  lock_held=1
+  trap release_merge_lock EXIT
+  printf '%s %s\n' "$$" "$pr" >"$lock_dir/owner"
+  if [ "$announced" -eq 1 ]; then echo "took the merge lock after $((SECONDS - waited_for))s"; fi
+}
+# The lock comes before the PR is read: a run that waited merges the main that run left.
+if [ "$dry_run" -eq 0 ]; then acquire_merge_lock; fi
+
 fields=$(gh pr view "$pr" -R "$slug" \
   --json state,isCrossRepository,headRefName,headRefOid,baseRefName \
   --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName] | @tsv')
@@ -226,6 +261,7 @@ cleanup() {
       echo "merge_pr.sh: could not delete the throwaway branch $ci_branch; delete it by hand" >&2
   fi
   if [ "$keep_work" -eq 0 ]; then rm -rf "$work"; else echo "merge_pr.sh: left $work for inspection" >&2; fi
+  release_merge_lock
 }
 trap cleanup EXIT
 
@@ -262,7 +298,7 @@ fi
 # Rebuild every generated file on the tree at $work. Two types on one
 # part-number block are refused here, naming both.
 rebuild_generated() {
-  local build_rc=0 retail_rc=0
+  local build_rc=0
   uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
     >/dev/null 2>"$build_log" || build_rc=$?
   cat "$build_log" >&2
@@ -273,13 +309,6 @@ rebuild_generated() {
     fi
     die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
   fi
-  # The retail totals (golden-retail/stats.json) move with every retail PR as the
-  # catalog's do, and conflict the same way; rebuild them on the same merged tree.
-  uv run -q --locked --directory "$work" "${RETAIL_REBUILD[@]}" \
-    >/dev/null 2>"$build_log" || retail_rc=$?
-  cat "$build_log" >&2
-  [ "$retail_rc" -eq 0 ] ||
-    die "the retail rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 }
 
 # 2. Rebuild the committed catalog on the merged tree.
@@ -302,10 +331,10 @@ $stray"
 }
 stage_generated
 if [ -n "$conflicted" ]; then
-  git -C "$work" commit -q -m "Merge $base_ref into $head_ref before merging #$pr; generated files rebuilt" -m "$ROLLED_BY"
+  git -C "$work" commit -q -m "Merge $base_ref into $head_ref before merging #$pr; generated files rebuilt"
   echo "2. the merge commit holds the rebuilt generated files"
 elif ! git -C "$work" diff --cached --quiet; then
-  git -C "$work" commit -q -m "Rebuild golden-catalog on the merge of $base_ref into $head_ref (#$pr)" -m "$ROLLED_BY"
+  git -C "$work" commit -q -m "Rebuild golden-catalog on the merge of $base_ref into $head_ref (#$pr)"
   echo "2. the rebuild changed: $(git -C "$work" show --stat --format= HEAD | tail -1)"
 else
   echo "2. the rebuild changed nothing"
@@ -486,7 +515,7 @@ run_local_ci_regenerating() {
   if git -C "$work" diff --cached --quiet; then
     die "a golden freshness test is red but a rebuild changes nothing (a nondeterministic generator, or the test is red for another reason); NOT merged"
   fi
-  git -C "$work" commit -q -m "regenerate golden on main" -m "$ROLLED_BY"
+  git -C "$work" commit -q -m "regenerate golden on main"
   final_sha=$(git -C "$work" rev-parse HEAD)
   echo "5a. regenerated the golden files on the merged tree: $(git -C "$work" show --stat --format= HEAD | tail -1)"
   $run_ci ||
@@ -575,13 +604,24 @@ fi
 # 6. Merge only the tree that was checked, against the main it was checked
 #    on. GitHub recomputes mergeability after a push and refuses until it
 #    has, so the merge is retried; main and the head are re-read before each.
+#    A read is repeated (3 reads, MERGE_PR_HEAD_SLEEP s apart) before it counts
+#    as a move: ls-remote right after a push can answer from before it (#383).
+#    Sets seen_sha to the last read.
+remote_ref_is() {
+  local ref=$1 want=$2 try
+  for try in 1 2 3; do
+    seen_sha=$(git -C "$work" ls-remote origin "refs/heads/$ref" | cut -f1) || seen_sha=""
+    [ "$seen_sha" = "$want" ] && return 0
+    if [ "$try" -lt 3 ]; then sleep "${MERGE_PR_HEAD_SLEEP:-10}"; fi
+  done
+  return 1
+}
+seen_sha=""
 for attempt in 1 2 3 4 5 6; do
-  now_base=$(git -C "$work" ls-remote origin "refs/heads/$base_ref" | cut -f1)
-  [ "$now_base" = "$base_sha" ] ||
-    die "$base_ref moved to $now_base since it was merged in; NOT merged. Re-run to check against it"
-  now_head=$(git -C "$work" ls-remote origin "refs/heads/$head_ref" | cut -f1)
-  [ "$now_head" = "$final_sha" ] ||
-    die "$head_ref moved to $now_head since it was checked; NOT merged. Re-run to check it"
+  remote_ref_is "$base_ref" "$base_sha" ||
+    die "$base_ref moved to $seen_sha since it was merged in; NOT merged. Re-run to check against it"
+  remote_ref_is "$head_ref" "$final_sha" ||
+    die "$head_ref moved to $seen_sha since it was checked; NOT merged. Re-run to check it"
   if gh pr merge "$pr" -R "$slug" --squash --match-head-commit "$final_sha"; then
     keep_work=0
     echo "6. squash-merged #$pr at $final_sha"
