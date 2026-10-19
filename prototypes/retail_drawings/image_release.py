@@ -53,6 +53,10 @@ def member_path(image_id: str) -> str:
     return f"{export.IMAGE_ROOT}/{image_id}.svg"
 
 
+#: The drawing keys only a ``print`` fill carries (``kit.Fill``).
+MOTIF_KEYS = ("motif", "placement", "scale", "spacing", "count", "detail")
+
+
 def colorway_drawing(rec: dict, sku: dict) -> dict:
     """The product's drawing in the SKU's color: the swatch's base and pattern, the color's accent.
 
@@ -70,6 +74,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
     if swatch is None:
         return drawing
     accent = rec["drawing"].get("accents", {}).get(swatch["color"], drawing["accent"])
+    if swatch["pattern"] != "print":  # a solid fill carries no motif (kit.Fill refuses one)
+        drawing = {k: v for k, v in drawing.items() if k not in MOTIF_KEYS}
     return drawing | {"base": swatch["hex"], "pattern": swatch["pattern"], "accent": accent}
 
 
