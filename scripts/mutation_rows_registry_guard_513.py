@@ -75,9 +75,9 @@ def rows() -> list[Row]:
             ".",
             ".github/workflows/ci.yaml",
             "python3 scripts/check_no_registry_append.py",
-            "python3 scripts/check_no_stats_edit.py",
-            f"{_G}::test_the_stats_roll_job_runs_the_registry_guard",
-            "the stats-roll job runs the registry guard",
+            "python3 scripts/check_no_derived_files.py",
+            f"{_G}::test_the_no_derived_files_job_runs_the_registry_guard",
+            "the no-derived-files job runs the registry guard",
         ),
         _row(
             "a kind declared twice is merged",
