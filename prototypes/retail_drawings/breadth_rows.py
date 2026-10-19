@@ -355,14 +355,15 @@ def _heights(price: float, names: tuple[str, ...]) -> tuple[tuple[str, float], .
 def _herb(code, title, brand, path, price, text, pot, value, leaves, bloom=""):
     """A potted herb (lavender, sage, rosemary, thyme): a variety, in flower when ``bloom``."""
     return Row(code, title, brand, "Garden", path, "Plant", price, "potted_herb", text, (pot,),
-               _var(value), _heights(price, ("15 cm", "25 cm")), path[-1], colorless=True,
+               _var(value), _heights(price, ("15 cm", "25 cm")), "Plant", colorless=True,
                params=(("leaves", leaves), *((("bloom", bloom),) * bool(bloom))))
 
 
 def _tree(code, title, brand, path, price, text, pot, attrs, leaves):
     """A potted tree (olive, eucalyptus): a form or a species, in three heights."""
     return Row(code, title, brand, "Garden", path, "Plant", price, "potted_tree", text, (pot,),
-               attrs, _heights(price, ("60 cm", "90 cm", "1.2 m")), path[-1].split()[0],
+               attrs, _heights(price, ("60 cm", "90 cm", "1.2 m")),
+               "Plant" if path is _EUCALYPTUS else path[-1].split()[0],
                colorless=True, params=(("leaves", leaves),))
 
 
