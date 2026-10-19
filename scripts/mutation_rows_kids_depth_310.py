@@ -6,6 +6,8 @@ names the rows ``kids_depth: ...`` (``--only "kids_depth:"`` re-runs them). A ro
 ``(name, file, old, new, test, property, root)``.
 """
 
+# ruff: noqa: E501 -- mutation text is a whole source line.
+
 from __future__ import annotations
 
 from mutation_row import Row
@@ -76,6 +78,51 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         f"{_T} -k take_no_text_match_decoys",
         "the Womens dresses keep the Dress decoys, the Kids leaves take none",
+        _R,
+    ),
+    (
+        "every coat states Cotton as its material",
+        "kids_depth_rows.py",
+        '("material", "Material", f.replace(" Blend", " blend")), ("sleeve_length", "Sleeve length", "Long"))',
+        '("material", "Material", "Cotton"), ("sleeve_length", "Sleeve length", "Long"))',
+        f"{_T} -k material_a_product_states",
+        "the material a product states is in its title",
+        _R,
+    ),
+    (
+        "every coat states a Regular fit whatever its description says",
+        "kids_depth_rows.py",
+        'attrs = (("fit", "Fit", fit), ("material", "Material", f.replace(" Blend", " blend")), ("sleeve_length", "Sleeve length", "Long"))',
+        'attrs = (("fit", "Fit", "Regular"), ("material", "Material", f.replace(" Blend", " blend")), ("sleeve_length", "Sleeve length", "Long"))',
+        f"{_T} -k fit_a_product_states",
+        "the fit a product states is the fit its description names",
+        _R,
+    ),
+    (
+        "every coat description says short sleeves while the attribute says Long",
+        "kids_depth_rows.py",
+        'items = ["long sleeves",',
+        'items = ["short sleeves",',
+        f"{_T} -k sleeve_a_description_names",
+        "the sleeve a description names is the sleeve_length value",
+        _R,
+    ),
+    (
+        "a coat description drops the closing and before a pea coat's last item",
+        "kids_depth_rows.py",
+        'rest = ", ".join([*items, st.tail]) if " and " in st.tail else f"{\', \'.join(items)} and {st.tail}"',
+        'rest = ", ".join([*items, st.tail])',
+        f"{_T} -k list_ends_it_with_and",
+        "a coat description with a list closes it with and",
+        _R,
+    ),
+    (
+        "the boys' coats lose two rows, still above the leaf floor",
+        "kids_depth_rows.py",
+        '*_coats("Boys", "KDB", _BOYS_COAT, 30, 24.0),',
+        '*_coats("Boys", "KDB", _BOYS_COAT, 28, 24.0),',
+        f"{_T} -k adds_thirty_rows",
+        "the module adds thirty rows to each leaf",
         _R,
     ),
 ]
