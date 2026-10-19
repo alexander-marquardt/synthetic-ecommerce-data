@@ -38,8 +38,8 @@ leopard and polka dot, and the build held none of the four. `prototypes/retail_d
 sells them: a tartan mini skirt, a floral dress and a floral blouse, a breton stripe top and a
 patchwork cushion, each in colorways that carry the pattern ("Red Tartan"). They are templates only
 (`scale.derivable` leaves them out) and are counted by `golden-retail/stats.json` under
-`templates.pattern_rows`. `colorwords.PATTERN_WORDS` lists the four, "Breton Stripe" ahead of "Stripe"
-so a breton colorway is one pattern, not a stripe. A patchwork throw is not sold: the Throw type has no
+`templates.pattern_rows`. `colorwords.PATTERN_WORDS` lists the four; "Breton Stripe" is one pattern, so a breton colorway
+is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
 plain color yet, and `main_colors.complete` refuses a type with none.
 
 ## Guard
