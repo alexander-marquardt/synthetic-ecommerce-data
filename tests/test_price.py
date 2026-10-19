@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
@@ -834,7 +834,7 @@ def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch
     default build, 1.49 the same way, is in band)."""
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     monkeypatch.setitem(price.MODELS, WHEEL, quiet)
-    catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
     (row,) = [
         row
         for row in price_report.price_comparisons(catalog)
@@ -1184,7 +1184,7 @@ ROW_NAMES = sorted(
 @pytest.fixture(scope="module")
 def hundred_k() -> tuple[Catalog, list[KitSku]]:
     """The 100K build and its kits (about 35 s)."""
-    return _recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+    return _recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
 
 
 @pytest.fixture(scope="module")
