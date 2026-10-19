@@ -341,6 +341,15 @@ def main(argv: list[str] | None = None) -> int:
         for problem in problems:
             print(f"image audit FAILED: {problem}", file=sys.stderr)
         return 1
+    # The id's own form (``<type>/<product>/<sku>``) and a product pointing at its first
+    # variant's drawing: an id can pass the check above and fail this one. The writers run it
+    # too, but on their first ``next()`` inside ``write_jsonl``, after ``--out`` was truncated
+    # (gen#387).
+    try:
+        emit.check_image_ids(catalog)
+    except emit.UnresolvedImageError as error:
+        print(f"image audit FAILED: {error}", file=sys.stderr)
+        return 1
     # A product's SKUs agree on its product-constant attributes, and the SKUs per product
     # follow ``variants_per_product`` (gen#63); a catalog that breaks either is not written.
     split_problems = distribution_problems(stats["skus_per_product_by_type"], config)
