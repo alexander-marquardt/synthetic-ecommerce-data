@@ -2292,9 +2292,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "domains/industrial/compat.py",
-        '    "M12x1.5": 10.5,',
-        '    "M12x1.5": 10.2,',
+        "core/standards_library/tables/metric_tap_drills.json",
+        '"thread": "M12x1.5",\n   "drill_mm": 10.5',
+        '"thread": "M12x1.5",\n   "drill_mm": 10.2',
         (
             "tests/test_compatibility_text.py -k diameter_less_the_pitch",
             "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -2674,7 +2674,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "domains/industrial/data/fastener_standards.json",
+        "core/standards_library/tables/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",

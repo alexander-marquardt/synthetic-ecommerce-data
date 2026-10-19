@@ -28,6 +28,7 @@ import random
 from collections.abc import Mapping, Sequence
 from fractions import Fraction
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.naming import thread_gloss
 from synthetic_ecommerce_data.core.typespec import RegistryTable
@@ -53,8 +54,18 @@ UNIT_EQUIVALENT_SHARE = (0.15, 0.20)
 # --- tables --------------------------------------------------------------------
 
 #: The diameter series a "not for" names its neighbours from.
-METRIC_DIAMETERS = ("M3", "M4", "M5", "M6", "M8", "M10", "M12", "M16", "M20", "M24")
-INCH_DIAMETERS = ("#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1")
+METRIC_DIAMETERS = tuple(
+    row["size"]
+    for row in library.table("iso_262_metric_threads").select(
+        ["M3", "M4", "M5", "M6", "M8", "M10", "M12", "M16", "M20", "M24"]
+    )
+)
+INCH_DIAMETERS = tuple(
+    row["size"]
+    for row in library.table("asme_b1_1_unified_threads").select(
+        ["#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1"]
+    )
+)
 
 #: What a cutting tool of each material cuts, from common machining practice:
 #: high speed steel the soft and mild metals, cobalt adds stainless, carbide
@@ -80,18 +91,13 @@ EQUIVALENT_STANDARDS: dict[str, str] = conformance.EQUIVALENTS
 #: Property classes and grades, each with one it is stronger than (minimum
 #: tensile strength, ISO 898-1 and SAE J429).
 STRONGER_THAN: dict[str, str] = {
-    "Class 10.9": "Class 8.8",
-    "Grade 8": "Grade 5",
-    "Class 10": "Class 8",
+    row["class"]: row["stronger_than"] for row in library.table("property_class_strength").rows
 }
 
 #: ISO 492 Normal tolerance class, bore deviation (upper 0, lower -value mm),
 #: by bore size range (over, up to) in mm.
-BORE_TOLERANCE_MM: tuple[tuple[float, float, float], ...] = (
-    (2.5, 10.0, 0.008),
-    (10.0, 18.0, 0.008),
-    (18.0, 30.0, 0.010),
-    (30.0, 50.0, 0.012),
+BORE_TOLERANCE_MM: tuple[tuple[float, float, float], ...] = tuple(
+    (low, high, tol) for low, high, tol in library.table("iso_492_normal_bore_tolerance").rows
 )
 
 #: The family tables below hold the types still declared in shared tables; a

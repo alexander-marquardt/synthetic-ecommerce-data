@@ -22,6 +22,7 @@ import pytest
 import type_gates
 from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import price, typespec
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import length_attribute
 from synthetic_ecommerce_data.domains.industrial import names, standards, taxonomy
@@ -121,8 +122,7 @@ def test_the_provenance_names_where_each_published_dimension_came_from():
 
 def test_the_size_table_cites_the_chart_it_was_read_from():
     """A reviewer can open the chart the 349 rows were transcribed from."""
-    text = (Path(standards.__file__).parent / "data" / "as568_sizes.json").read_text("utf-8")
-    cited = json.loads(text)["_provenance"]
+    cited = library.table("as568_sizes").data["_provenance"]
     assert cited["chart_url"] == (
         "https://www.applerubber.com/src/pdf/as568-standard-size-o-rings.pdf"
     )

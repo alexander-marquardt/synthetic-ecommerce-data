@@ -1,4 +1,23 @@
 {
+  "_library": {
+    "standards": [
+      "ISO 4762",
+      "ISO 10642",
+      "ASME B18.3",
+      "ASME B18.3.2",
+      "ISO 7380-1",
+      "ASME B18.3.3A",
+      "DIN 7984",
+      "ASME B18.3.1G",
+      "ISO 4014",
+      "ISO 4017",
+      "DIN 933",
+      "ASME B18.2.1"
+    ],
+    "edition": "FreeCAD_FastenersWB at commit fddd07af422b7d3a69098b32333711c5eeae184c: the nominal lengths each standard offers, inside the per-size Min_L and Max_L of the same commit",
+    "source": "FreeCAD_FastenersWB FsData '<STD>length' and '<STD>range' sections, combined as ScrewMaker.GetAllLengths() combines them",
+    "kind": "extraction"
+  },
   "_provenance": {
     "answer_to_does_the_source_carry_offered_lengths": "YES for every screw/bolt standard extracted, and NO for ISO 7089 (a washer has no length). FreeCAD_FastenersWB does NOT store an explicit per-size list. It stores two real tables and the workbench combines them at runtime: a '<STD>length' section holding the nominal lengths the standard offers, and a '<STD>range' section holding per-size Min_L and Max_L. ScrewMaker.GetAllLengths() emits exactly the nominals that fall inside [Min_L, Max_L]. The lists below are that computation reproduced verbatim - they are the lists the workbench itself offers, NOT an invented arithmetic series. Both inputs are also published per size (range_min_max_as_published_*) so the derivation can be checked.",
     "no_offered_lengths_for": [
