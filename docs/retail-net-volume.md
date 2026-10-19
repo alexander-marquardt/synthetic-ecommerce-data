@@ -17,5 +17,12 @@ path over `scale.templates()` (a derived style keeps its template's volume) and 
 three unless the path is in its `EXCEPTIONS` with a reason. An exception the catalogue outgrows
 is refused, so the list cannot rot. It also fails a title whose volume the record does not carry.
 
+Shampoo, conditioner, perfume and olive oil (gen#356) are `breadth_rows.Row`s with
+`size_key="net_volume_ml"`: every product of the four leaves sells three volumes, shampoo and
+conditioner at 250/400/500 ml, perfume at 30/50/100 ml and olive oil at 500/750/1000 ml. Their
+volume used to be a free-text `size` (`"250ml"`, `"30 ml"`) or absent, which the Net volume facet
+cannot read. `tests/test_retail_net_volume_347.py` pins the four leaves: each product carries at
+least three `net_volume`s, none as a `size`, and the leaf offers the volumes above.
+
 A new volume-sized type: author it with three sizes across its products or SKUs, and the title
 states the size only when the product is sold in that size alone.
