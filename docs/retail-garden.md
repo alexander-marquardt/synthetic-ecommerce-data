@@ -59,6 +59,17 @@ A barbecue draws a `shelf` group per side when `side_shelves` is Yes (the gas st
 states No), a `side-burner` group when `side_burner` is Yes, and a self-drive mower a `drive-lever`
 and a `drive-arrow` group. A test reads each against the row.
 
+## Trees (gen#566)
+
+The trees sit under one category, `Garden > Trees`, with a child per kind: `Bay Trees`, `Olive
+Trees`, `Apple Trees` and `Christmas Trees` (`breadth_rows.py`, `_TREES`, `_OLIVES`, `_APPLE`,
+`_XMAS`). They had been spread over `Garden > Plants` (bay, olive), `Garden > Fruit Trees > Apple
+Trees` and `Garden > Christmas Trees > Real Christmas Trees`. The two single-child levels are gone:
+apple is the only fruit tree and every Christmas tree is real. `Fruit Trees` comes back only with a
+second fruit tree. The "Olive Tree in Hessian Gift Bag" decoy (`GTOLIV`, `distractors.py`) stays in
+`Garden > Plants > Gift Plants`, since it is a gift item. `tests/test_retail_trees_566.py` holds the
+paths.
+
 ## Not done yet
 
 Hedge trimmers, garden furniture sets and parasols are done (gen#203) and sit in the table above.
