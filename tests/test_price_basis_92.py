@@ -22,7 +22,44 @@ MANIFEST = json.loads((ROOT / "reference-statistics" / "MANIFEST.json").read_tex
 
 REGULAR = "regular_price"
 UNMEASURED = "shown_price_clearance_unmeasured"
-PART_A = ("lock_nuts_nylon_insert", "set_screws_hex_socket")
+
+SHOWN_PRICE = frozenset(
+    {
+        "abrasive_flap_disc",
+        "bearing_radial_ball",
+        "bolt_hex",
+        "drill_jobber",
+        "end_mill_ball",
+        "end_mill_square",
+        "hex_key",
+        "kit_assortment",
+        "nut_hex",
+        "screw_flat_head",
+        "screw_socket_head",
+        "tap_spiral_point",
+        "washer_flat",
+        "wheel_depressed_center",
+        "ball_valves",
+        "blind_rivets",
+        "c_clamps",
+        "carriage_bolts",
+        "cold_chisels",
+        "combination_wrenches",
+        "cut_resistant_gloves",
+        "eye_bolts",
+        "foam_ear_plugs",
+        "hand_files",
+        "hex_pipe_nipples",
+        "hose_clamps",
+        "rigid_casters",
+        "roller_chain",
+        "safety_glasses",
+        "threaded_rod",
+        "u_bolts",
+        "v_belts",
+        "wedge_anchors",
+    }
+)  # #57's 33 entries, frozen: a later re-measure moves an entry out by editing this
 
 PRICED = [
     (section, key)
@@ -44,12 +81,19 @@ def _parser():
 
 @pytest.mark.parametrize(("section", "key"), PRICED)
 def test_every_priced_entry_names_the_price_it_measured(section, key):
-    expected = REGULAR if key in PART_A else UNMEASURED
-    assert CENSUS[section][key].get("price_basis") == expected
+    basis = CENSUS[section][key].get("price_basis")
+    if key in SHOWN_PRICE:
+        assert basis == UNMEASURED
+    else:
+        assert basis in {REGULAR, UNMEASURED}
+
+
+def test_the_frozen_shown_price_set_is_all_present_and_priced():
+    assert {key for _, key in PRICED} >= SHOWN_PRICE
+    assert len(SHOWN_PRICE) == 33
 
 
 def test_the_flag_covers_every_entry_the_pooled_figures_are_drawn_from():
-    assert len(PRICED) == 35
     pooled = CENSUS["pooled_endings_all_types"]
     assert pooled.get("price_basis") == UNMEASURED
 

@@ -8,7 +8,7 @@ cannot drift apart.
 
 What a price row compares is the price a shopper is SHOWN (the census's
 ``price_quantiles_usd``), because the catalog publishes one price per SKU and
-no sale unit beside it. Those quantiles are on the price #57's pages SHOW, which on
+no sale unit beside it. Most of those quantiles are on the price #57's pages SHOW, which on
 a clearance row is the clearance price; every census entry's ``price_basis`` says
 which entries are on the regular price and which are unmeasured (#92).
 
