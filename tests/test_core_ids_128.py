@@ -18,27 +18,43 @@ from synthetic_ecommerce_data.domains.industrial.generate import Generator
 BLOCK = 1234
 
 
+@pytest.fixture(autouse=True)
+def prefixes_restored():
+    """Leave ``ids.PREFIXES`` as the test found it, so a claim made here does not outlive it."""
+    saved = dict(ids.PREFIXES)
+    yield
+    ids.PREFIXES.clear()
+    ids.PREFIXES.update(saved)
+
+
+def minter_for(prefix, type_key="bolt"):
+    """A minter whose domain has claimed ``prefix``; the empty prefix is industrial's."""
+    domain = "industrial" if prefix == "" else f"test_domain_{prefix}"
+    ids.claim_prefix(domain, prefix)
+    return ids.IdMinter(domain, type_key, BLOCK)
+
+
 def test_an_unprefixed_minter_issues_the_industrial_part_numbers():
-    minter = ids.IdMinter("", "bolt", BLOCK)
+    minter = minter_for("")
     issued = [minter.new_sku() for _ in range(5)]
     assert issued == [typespec.part_number(BLOCK, n) for n in range(1, 6)]
 
 
 def test_an_unprefixed_product_id_keeps_the_industrial_shape():
-    minter = ids.IdMinter("", "bolt", BLOCK)
+    minter = minter_for("")
     assert minter.product_id("ABC", "S1", 7) == "ABC-S1-1234-0007"
 
 
 def test_a_prefixed_minter_leads_its_sku_and_product_id_with_the_prefix():
-    minter = ids.IdMinter("R", "bolt", BLOCK)
+    minter = minter_for("R")
     assert re.fullmatch(r"R\d{10}", minter.new_sku())
     assert minter.product_id("ABC", "S1", 7) == "R-ABC-S1-1234-0007"
 
 
 def test_two_domains_never_issue_the_same_sku_or_product_id():
-    a = ids.IdMinter("", "bolt", BLOCK)
-    b = ids.IdMinter("R", "bolt", BLOCK)
-    c = ids.IdMinter("RX", "bolt", BLOCK)
+    a = minter_for("")
+    b = minter_for("R")
+    c = minter_for("RX")
     skus = [m.new_sku() for m in (a, b, c) for _ in range(200)]
     assert len(set(skus)) == len(skus)
     product_ids = {m.product_id("ABC", "S1", 7) for m in (a, b, c)}
@@ -46,38 +62,55 @@ def test_two_domains_never_issue_the_same_sku_or_product_id():
 
 
 def test_the_product_index_counts_up_from_one_per_minter():
-    minter = ids.IdMinter("", "bolt", BLOCK)
+    minter = minter_for("")
     assert [minter.next_index() for _ in range(3)] == [1, 2, 3]
-    assert ids.IdMinter("R", "bolt", BLOCK).next_index() == 1
+    assert minter_for("R").next_index() == 1
 
 
 def test_an_exhausted_sequence_is_refused():
-    minter = ids.IdMinter("", "bolt", BLOCK)
+    minter = minter_for("")
     minter._sequence = typespec.SEQUENCE_SPACE  # noqa: SLF001
     with pytest.raises(ValueError, match="used all"):
         minter.new_sku()
 
 
-@pytest.mark.parametrize("prefix", ["r", "1", "ABC", "R-", "R1", " ", "Ä"])
+@pytest.mark.parametrize(
+    "prefix",
+    ["r", "1", "ABC", "R-", "R1", " ", "Ä"],
+    ids=["lowercase", "digit", "three-letters", "hyphen", "letter-digit", "space", "non-ascii"],
+)
 def test_a_prefix_that_could_pass_for_a_digit_or_a_brand_code_is_refused(prefix):
     with pytest.raises(ValueError, match="prefix"):
         ids.check_prefix(prefix)
     with pytest.raises(ValueError, match="prefix"):
-        ids.IdMinter(prefix, "bolt", BLOCK)
+        ids.claim_prefix("test_domain_bad", prefix)
+    with pytest.raises(ValueError, match="not claimed"):
+        ids.IdMinter("test_domain_bad", "bolt", BLOCK)
+
+
+def test_a_minter_for_a_domain_that_claimed_no_prefix_cannot_be_built():
+    with pytest.raises(ValueError, match="test_domain_unclaimed.*not claimed"):
+        ids.IdMinter("test_domain_unclaimed", "bolt", BLOCK)
+
+
+def test_a_minter_takes_the_prefix_its_domain_claimed_and_no_other():
+    ids.claim_prefix("test_domain_q", "ZQ")
+    ids.claim_prefix("test_domain_w", "ZW")
+    minter = ids.IdMinter("test_domain_q", "bolt", BLOCK)
+    assert minter.prefix == "ZQ"
+    assert minter.product_id("ABC", "S1", 7) == "ZQ-ABC-S1-1234-0007"
+    assert ids.IdMinter("test_domain_w", "bolt", BLOCK).prefix == "ZW"
+
+
+def test_a_bare_prefix_is_not_a_domain():
+    """The prefix a minter is built from must be a claimed domain, never a prefix string."""
+    with pytest.raises(ValueError, match="not claimed"):
+        ids.IdMinter("ZY", "bolt", BLOCK)
 
 
 @pytest.mark.parametrize("prefix", ["", "R", "RX"])
 def test_the_empty_prefix_and_one_or_two_capitals_are_accepted(prefix):
     ids.check_prefix(prefix)
-
-
-@pytest.fixture
-def prefixes_restored():
-    """Leave ``ids.PREFIXES`` as the test found it, so a claim made here does not outlive it."""
-    saved = dict(ids.PREFIXES)
-    yield
-    ids.PREFIXES.clear()
-    ids.PREFIXES.update(saved)
 
 
 def test_two_domains_cannot_hold_one_prefix(prefixes_restored):
