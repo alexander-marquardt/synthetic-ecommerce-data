@@ -75,6 +75,14 @@ def rows() -> list[Row]:
             "every job of the local CI is held to the ceiling",
         ),
         _row(
+            "the guard moves the job out of the merged tree",
+            _MERGE,
+            'guarded() { uv run -q --locked --project "$here"',
+            'guarded() { uv run -q --locked --directory "$here"',
+            f"{_M}::test_a_local_job_runs_in_the_merged_tree_not_where_the_guard_lives",
+            "a local CI job runs in the tree it is judging",
+        ),
+        _row(
             "the step-3 checks run outside the guard",
             _MERGE,
             'if ! guarded -- uv run -q --locked --directory "$work" pytest',
