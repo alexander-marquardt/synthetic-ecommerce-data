@@ -31,7 +31,7 @@ from grocery_ingredients import allergen_value, facet_value  # noqa: E402
 from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
 from retail_figures import figures  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 STYLES = figures()["templates"]["grocery"]["styles"]
 SKUS = figures()["templates"]["grocery"]["skus"]
 ALL = set(ALLERGENS.values())

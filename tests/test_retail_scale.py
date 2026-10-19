@@ -38,7 +38,7 @@ from retail_figures import (  # noqa: E402
 )
 from retail_figures import held as values_held  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:

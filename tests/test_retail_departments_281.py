@@ -133,7 +133,7 @@ def test_the_exported_field_list_has_no_department_entry() -> None:
 
 
 def test_the_measured_ceiling_figures_name_exactly_the_declared_departments() -> None:
-    """The 110K export's per-top-level counts (``golden-retail/stats.json``, rebuilt by
+    """The 110K export's per-top-level counts (``retail_figures.figures()``, measured by
     ``retail_figures.py``) cover every declared department and no other."""
     from retail_figures import figures as measured
 

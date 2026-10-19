@@ -390,7 +390,10 @@ def test_the_real_workflow_s_pr_jobs_can_be_dispatched_with_the_range_as_inputs(
     document = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())
     inputs = document[True]["workflow_dispatch"]["inputs"]  # YAML reads `on` as True
     assert set(inputs) == {"base", "head", "pr"}
-    jobs = ("commit-messages", "file-size", "red-commit-proof", "customer-name-check", "no-derived-files")
+    jobs = (
+        "commit-messages", "file-size", "red-commit-proof", "customer-name-check",
+        "no-derived-files",
+    )  # fmt: skip
     for job in jobs:
         condition = document["jobs"][job]["if"]
         assert "workflow_dispatch" in condition and "inputs.head" in condition, job

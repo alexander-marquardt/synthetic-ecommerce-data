@@ -101,7 +101,7 @@ that names two drawings.
 ## 9. Rebuild the figures and run the tests
 
 There are no figures to rebuild or commit (gen#536). A test reads a total with
-`retail_figures.figures()`, which measures your tree once per test run. To see the figures, the
+`retail_figures.figures()` (`retail_figures.py`), which measures your tree once per test run. To see the figures, the
 apparel decoy table and the samples your build makes, run
 `uv run python scripts/build_derived.py --out build/derived`: it writes `golden-retail/stats.json`,
 `docs/figures.md` and `docs/retail-apparel-decoys.md` under `build/derived` (CI uploads the same as

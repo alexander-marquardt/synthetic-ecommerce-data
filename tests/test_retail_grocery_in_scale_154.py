@@ -25,7 +25,7 @@ import image_release  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import figures  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()["templates"]
 #: The grocery styles and SKUs (``tests/test_grocery_154.py``'s 10K build).
 GROCERY_STYLES = FIGURES["grocery"]["styles"]

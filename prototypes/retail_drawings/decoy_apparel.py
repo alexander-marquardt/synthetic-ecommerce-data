@@ -777,7 +777,7 @@ def render_doc(rows: list[Row]) -> str:
 
 
 def doc_text() -> str:
-    """The text of the docs table of :data:`DOC`, built from the registry (gen#536: not committed)."""
+    """The text of the docs table of :data:`DOC`, built from the registry (not committed)."""
     import scale
 
     base = [d for d in scale.templates(baseline=False) if d["product_id"] not in ids()]

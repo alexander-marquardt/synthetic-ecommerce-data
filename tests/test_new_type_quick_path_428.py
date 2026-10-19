@@ -21,6 +21,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import build_derived  # noqa: E402
+
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
@@ -74,6 +77,8 @@ def _section() -> str:
 
 def _exists(name: str) -> bool:
     """A named file exists under the repo root or one of the directories the page abbreviates."""
+    if name in build_derived.OUTPUTS:  # built into the `derived` artifact, never in git (gen#536)
+        return True
     pattern = re.sub(r"<[a-z_]+>", "*", name)
     bases = (ROOT, RETAIL, ROOT / "scripts", ROOT / "docs")
     return any(next(base.glob(pattern), None) is not None for base in bases)
