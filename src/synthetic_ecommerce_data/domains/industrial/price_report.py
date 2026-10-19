@@ -79,12 +79,14 @@ from synthetic_ecommerce_data.core.price import (
     PINNED_SHORTFALLS,
     POOLED_ENDINGS,
     POOLED_ENDINGS_N,
+    SPEC_ATTRIBUTES,
     BrandCensus,
     PriceCensus,
     _magnitude,
     ending_class,
     holds_equal,
     material_of,
+    spec_values,
 )
 
 if TYPE_CHECKING:
@@ -142,7 +144,8 @@ class Collected:
     product_pairs: dict[str, list[tuple[str, str, float]]] = field(
         default_factory=lambda: defaultdict(list)
     )
-    #: Per (type, key, material) spec, the SKUs each brand makes of it.
+    #: Per (type, key, material, ...) spec, the SKUs each brand makes of it:
+    #: a brand-census type's spec also holds its :data:`.price.SPEC_ATTRIBUTES`.
     specs: dict[tuple, dict[str, list[str]]] = field(
         default_factory=lambda: defaultdict(lambda: defaultdict(list))
     )
@@ -195,8 +198,17 @@ def collect(catalog: Catalog) -> Collected:
                 by_length[(line.type_key, line.brand, line_cell, round(key, 4))].append(
                     (_magnitude(attrs["Length"]) or 0.0, child.sku)
                 )
-            material = material_of(line.type_key, attrs) or ""
-            out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
+            if line.type_key in BRAND_CENSUS:
+                held_values = spec_values(line.type_key, attrs)
+                if held_values is None:
+                    out.unspecced[line.type_key].append(child.sku)
+                else:
+                    out.specs[(line.type_key, round(key, 4), *held_values)][line.brand].append(
+                        child.sku
+                    )
+            else:
+                material = material_of(line.type_key, attrs) or ""
+                out.specs[(line.type_key, round(key, 4), material)][line.brand].append(child.sku)
             in_line.append(
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
             )
@@ -220,6 +232,32 @@ def types_without_material(collected: Collected) -> set[str]:
     (:data:`.price.MATERIAL_ATTRIBUTES`)."""
     held = {spec[0] for spec in collected.specs if spec[2]}
     return set(BRAND_CENSUS) - held
+
+
+def spec_description(type_key: str) -> str:
+    """The attributes a brand-census type's spec holds, for a row's note."""
+    return ", ".join(
+        ("key dimension", "material", *(n.lower() for n in SPEC_ATTRIBUTES.get(type_key, ())))
+    )
+
+
+def unspecced_note(collected: Collected, type_key: str) -> str:
+    """What a row's note says of the SKUs in no spec: sparsity dropped the
+    material or another attribute the spec holds from them, so they cannot
+    say which spec they are in (``""`` where there are none)."""
+    left_out = len(collected.unspecced.get(type_key, ()))
+    if not left_out:
+        return ""
+    held = sum(
+        len(skus)
+        for spec, by in collected.specs.items()
+        if spec[0] == type_key
+        for skus in by.values()
+    )
+    return (
+        f"; {left_out} of {held + left_out} SKUs are in no spec: sparsity dropped an "
+        f"attribute the spec holds"
+    )
 
 
 def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, float, str]]) -> None:
@@ -421,7 +459,7 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
     spec). A family whose tiers price in order has the first below 1 and the
     second above it."""
     ratios: dict[str, tuple[list[float], list[float]]] = defaultdict(lambda: ([], []))
-    for (type_key, _, _), by_brand in collected.specs.items():
+    for (type_key, *_), by_brand in collected.specs.items():
         if len(by_brand) < 2:
             continue
         by_tier: dict[str, list[float]] = defaultdict(list)
@@ -594,8 +632,9 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
                 statistics.median(spreads) if spreads else 0.0,
                 len(spreads),
                 figure.n_specs,
-                f"over specs (key dimension, material) two or more brands make; "
-                f"{brand_sample(figure)} brands sampled per spec",
+                f"over specs ({spec_description(type_key)}) two or more brands make; "
+                f"{brand_sample(figure)} brands sampled per spec"
+                f"{unspecced_note(collected, type_key)}",
                 brand_spread_band(figure),
             )
         )

@@ -196,7 +196,9 @@ its published attributes. `set_screws_hex_socket` does both.
    type that publishes its material under another name than `Material` names
    it in `MATERIAL_ATTRIBUTES` in `core/price.py` (a wheel's is its
    `Abrasive Material`), since the census spec is the key in one material. A
-   type the census has no prices
+   brand-census type also names the attribute the census puts in its spec
+   (flutes, grit, closure) in `SPEC_ATTRIBUTES`; a SKU sparsity leaves
+   without one is in no spec and the row's note counts it. A type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
 - **Figures.** Restate the published figures the type moves
@@ -555,14 +557,15 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread at 100K, #66; the kit
-  p90/p10, #76). A size a pin records `None` for is one the row lands in
-  band on: the pin holds there while the row stays in band (the wheel brand
-  spread on the default build, #272). A figure a reason quotes is read from `PINNED_FIGURES` in
+  side (the kit p90/p10, #76). A size a pin records `None` for is one the
+  row lands in band on: the pin holds there while the row stays in band
+  (`test_a_pin_recorded_none_for_a_build_holds_while_the_row_stays_in_band`
+  plants one). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that
-  states the cause, such as what the wheel's brand tiers alone give, is held
-  by a test that measures it
-  (`test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give`).
+  states the cause is held by a test that measures it: the wheel's pin
+  (retired by #80) named what its brand tiers alone gave, and
+  `test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k` now holds
+  that the tiers alone no longer put it out of band.
   There is no looser declaration: a row that lands on either side of its
   band from one build to the other has a model to fix, as the kit p50 did
   (#71: a kit was one group draw per page, so its few pages moved its median

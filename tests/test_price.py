@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import math
 import random
-import re
 import statistics
 from collections import defaultdict
 from dataclasses import replace
@@ -219,10 +218,6 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
 #: Each pinned shortfall: the side of its band it falls on, and what its
 #: reason must name (the cause, or the issue that fixes it).
 PINNED_SIDES = {
-    "price brand spread, same spec (median max/min): wheel_depressed_center": (
-        "above",
-        "brand tiers alone give",
-    ),
     "price p90/p10: kit_assortment": ("below", "#76"),
 }
 
@@ -248,27 +243,16 @@ def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
     assert price_report.pin_holds(row, 0), (row.achieved, price.PINNED_FIGURES[name])
 
 
-def test_a_pin_reason_quotes_the_figures_the_pin_records():
-    """The wheel reason states how far apart a spec's brands land at each
-    build; those are the pinned figures themselves, so they are read, not
-    retyped (it read 6.8 once the figure was 3.24)."""
-    name = BRAND_ROW.format("wheel_depressed_center")
-    quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
-    figures = [f for f in _recorded(name) if f is not None]
-    assert quoted == [f"{f:.2f}" for f in figures] == ["1.75"]
-
-
 def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
     """#272: the wheel's group noise (0.70, drawn per brand) spread one spec's
     sampled brands 4.3x apart against a band top of 1.71, and the figure moved
     each time the wheel product ids did. The p90/p10 is carried by noise one
     spec shares across its brands instead, so the default build lands in band
-    and only the 100K build stays pinned."""
+    and, since #80 cut the economy makers to the census's one, the 100K build
+    does too (``test_the_wheel_brand_spread_is_in_band_at_both_builds_and_not_pinned``)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     (row,) = [row for row in price_rows if row.name == name]
     assert row.within, (row.achieved, row.band)
-    assert _recorded(name)[0] is None
-    assert _recorded(name)[1] is not None
     model = price.MODELS["wheel_depressed_center"]
     assert model.size_sigma > model.group_sigma, (model.size_sigma, model.group_sigma)
 
@@ -320,21 +304,29 @@ def test_a_pin_five_percent_further_out_than_its_record_fails(price_rows, name, 
     assert not price_report.pin_holds(replace(row, achieved=outward), build)
 
 
-def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
-    """The wheel's default build lands in band (its record is ``None``), so
-    group noise three times louder spreads one spec's brands out of it, and
-    the pin, which holds a recorded-``None`` build in band, fails (#272)."""
+def test_a_pin_recorded_none_for_a_build_holds_while_the_row_stays_in_band(monkeypatch):
+    """A plant: the wheel row pinned with no record for the default build (as
+    it was pinned at 100K only until #80) holds while the row is in band, and
+    group noise three times louder spreads one spec's brands out of it (#272),
+    which fails the pin."""
     name = BRAND_ROW.format("wheel_depressed_center")
+    monkeypatch.setitem(price.PINNED_FIGURES, name, (None, 2.0))
+    monkeypatch.setitem(price.PINNED_SHORTFALLS, name, "above band: planted")
     model = price.MODELS["wheel_depressed_center"]
-    louder = replace(model, group_sigma=model.group_sigma * 3)
-    monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
-    (row,) = [
-        row
-        for row in price_report.price_comparisons(generate(GeneratorConfig()))
-        if row.name == name
-    ]
-    assert row.achieved > row.band[1]
-    assert not price_report.pin_holds(row, 0)
+
+    def row_of(models):
+        monkeypatch.setitem(price.MODELS, "wheel_depressed_center", models)
+        (row,) = [
+            row
+            for row in price_report.price_comparisons(generate(GeneratorConfig()))
+            if row.name == name
+        ]
+        return row
+
+    assert price_report.pin_holds(row_of(model), 0)
+    louder = row_of(replace(model, group_sigma=model.group_sigma * 3))
+    assert louder.achieved > louder.band[1]
+    assert not price_report.pin_holds(louder, 0)
 
 
 def test_a_pin_whose_shortfall_worsens_below_its_band_fails(monkeypatch, price_rows):
@@ -612,7 +604,11 @@ def test_each_familys_tiers_price_in_order(scored):
 
 
 def test_the_tier_exception_is_the_bearing_value_label():
-    assert brands.TIER_EXCEPTIONS == {("Tervasko", "bearing_radial_ball"): "standard"}
+    assert brands.TIER_EXCEPTIONS == {
+        ("Tervasko", "bearing_radial_ball"): "standard",
+        ("Salt Meadow Works", "wheel_depressed_center"): "standard",
+        ("Stone Wicket", "wheel_depressed_center"): "standard",
+    }
     assert brands.tier_of("Tervasko", "bearing_radial_ball") == "standard"
     assert brands.tier_of("Tervasko", "drill_jobber") == "economy"
     assert brands.tier_of("Salt Meadow Works", "abrasive_flap_disc") == "economy"
@@ -933,11 +929,12 @@ def test_the_wheel_brand_spread_is_in_band_at_both_builds_and_not_pinned(
     assert big.within, (big.achieved, big.band)
 
 
-def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch):
-    """The wheel's pinned cause is measured, not asserted: at 100K, with its
-    noise off, the brand tiers alone spread a spec's sampled brands past the
-    band top, because the row samples an economy brand on most specs (the
-    default build, 1.49 the same way, is in band)."""
+def test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k(monkeypatch):
+    """#80: the wheel's cause was measured, not asserted. With every wheel
+    noise off the brand tiers alone gave 1.86 at 100K against a band top of
+    1.71, because three of the 12 wheel brands were economy. With the
+    census's one economy maker the tiers alone are in band, so the row does
+    not rest on how the noise happens to fall."""
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     monkeypatch.setitem(price.MODELS, WHEEL, quiet)
     catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
@@ -946,26 +943,7 @@ def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch
         for row in price_report.price_comparisons(catalog)
         if row.name == BRAND_ROW.format(WHEEL)
     ]
-    specs = {
-        spec: by
-        for spec, by in price_report.collect(catalog).specs.items()
-        if spec[0] == WHEEL and len(by) > 1
-    }
-    k = price_report.brand_sample(price.BRAND_CENSUS[WHEEL])
-    economy = {b for by in specs.values() for b in by if brands.tier_of(b, WHEEL) == "economy"}
-    sampling = [
-        spec
-        for spec, by in specs.items()
-        if economy & set(price_report.sampled_brands(spec, by, k))
-    ]
-    makers = {b for by in specs.values() for b in by}
-    reason = price.PINNED_SHORTFALLS[row.name]
-    assert f"brand tiers alone give {row.achieved:.2f} at 100K" in reason, reason
-    assert f"band top of {row.band[1]:.2f}" in reason, reason
-    assert f"{len(economy)} of the {len(makers)} wheel brands are economy" in reason, reason
-    assert f"on {len(sampling)} of its {len(specs)} specs" in reason, reason
-    k = price_report.BRAND_SAMPLE_CAP
-    assert f"row's {k} sampled brands" in reason, reason
+    assert row.within, (row.achieved, row.band)
 
 
 def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored):
@@ -973,7 +951,7 @@ def test_economy_brands_priced_as_dear_as_the_rest_breaks_the_economy_row(scored
     spec; doubled, an economy drill costs about what the rest do."""
     collected, base = scored
     prices = dict(base)
-    for (type_key, _, _), by_brand in collected.specs.items():
+    for (type_key, *_), by_brand in collected.specs.items():
         if type_key != price.BRAND_SPREAD_TYPE:
             continue
         for brand, skus in by_brand.items():

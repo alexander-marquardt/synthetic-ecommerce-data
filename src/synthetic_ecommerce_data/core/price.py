@@ -396,6 +396,33 @@ def material_of(type_key: str, facts: Mapping[str, Attribute]) -> str | None:
     return facts[name].value if name in facts else None
 
 
+#: The attributes besides the material a brand-census type's spec holds. The
+#: census spec is "the key dimension plus the type's spec-defining attributes
+#: (material, flutes, grit, closure...)" (``method.brand_spread``): a bearing's
+#: closure, a ball end mill's and a tap's flutes, a wheel's grit. A type the
+#: table leaves out has the material alone: the census names nothing else for
+#: it, and the catalog publishes nothing else that sets one maker's price off
+#: another's.
+SPEC_ATTRIBUTES: dict[str, tuple[str, ...]] = {
+    "bearing_radial_ball": ("Closure Type",),
+    "end_mill_ball": ("Number of Flutes",),
+    "tap_spiral_point": ("Number of Flutes",),
+    "wheel_depressed_center": ("Grit",),
+}
+
+
+def spec_values(type_key: str, facts: Mapping[str, Attribute]) -> tuple[str, ...] | None:
+    """A brand-census type's spec beyond its key: the material
+    (:func:`material_of`) then each of :data:`SPEC_ATTRIBUTES`, or None where
+    the record omits one. Sparsity drops an attribute from some SKUs; such a
+    SKU cannot say which spec it is in, and the report counts it apart."""
+    values = [material_of(type_key, facts)]
+    values += [
+        facts[name].value if name in facts else None for name in SPEC_ATTRIBUTES.get(type_key, ())
+    ]
+    return None if None in values else tuple(str(v) for v in values)
+
+
 #: Price endings per type (``deep_types.<type>.endings.class_share``), for the
 #: 15 types :data:`CENSUS` restates.
 ENDINGS: dict[str, dict[str, float]] = {
@@ -943,12 +970,6 @@ SIZE_NOISE: dict[str, str] = {
     ),
 }
 
-#: Each pinned row's figure on the default and on the 100K build, as the
-#: fit last measured them. A pin discloses a shortfall; it does not license
-#: a worse one: ``price_report.pin_holds`` fails a row that lands further
-#: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
-#: ``tests/test_price.py`` holds each figure equal to what its build produces
-#: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
 #: The most brands a brand-spread row takes from one spec
 #: (:func:`.price_report.brand_sample`). Max/min is an order statistic: over more brands it
 #: is wider, whatever the model. The default build puts 2 to 7 brands on a
@@ -959,17 +980,20 @@ SIZE_NOISE: dict[str, str] = {
 #: tap); 3 is the median the default build's drill specs hold, so on most of
 #: its specs the sample is a true sample and not every brand there is.
 BRAND_SAMPLE_CAP = 3
-_WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
+#: Each pinned row's figure on the default and on the 100K build, as the
+#: fit last measured them. A pin discloses a shortfall; it does not license
+#: a worse one: ``price_report.pin_holds`` fails a row that lands further
+#: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
+#: ``tests/test_price.py`` holds each figure equal to what its build produces
+#: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
 PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
-    _WHEEL_SPREAD_ROW: (None, 1.75),
     _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
 #: build is one seed, so the figure is exact on it; the tolerance is room for
-#: the fit rounding its literals, well under the 6% the wheel's group noise
-#: made 10% louder moves its pin (3.24 to 3.43, ``tests/test_price.py``).
+#: the fit rounding its literals.
 PIN_TOLERANCE = 0.02
 
 #: Rows that land outside their band, and why: disclosed, and pinned by
@@ -977,16 +1001,6 @@ PIN_TOLERANCE = 0.02
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
-    _WHEEL_SPREAD_ROW: (
-        "above band at 100K only, the default build is in band: with every noise off, the "
-        "brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 "
-        f"wheel brands are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled "
-        "brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where "
-        "the census measures its house label on 4 of its 12. The p90/p10 is carried by noise "
-        "one spec shares across its brands (size_sigma), so the group noise left, drawn per "
-        "brand, spreads the sampled brands of one spec only to "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272)"
-    ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
         "between about $36 and $130 of parts, so with material and tier its prices span "
@@ -1063,11 +1077,11 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
         "washer_flat": _model("washer_flat", 5.243, 0.375, 0.500, 0.701),
         "wheel_depressed_center": _model(
             "wheel_depressed_center",
-            7.481,
+            6.828,
             4.5,
-            0.190,
-            0.139,
-            size_sigma=0.736,
+            0.153,
+            0.000,
+            size_sigma=0.877,
         ),
         # @fit-end
         # No census prices: the ball-pein hammer's archived pages are script
