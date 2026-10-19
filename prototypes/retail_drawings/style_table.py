@@ -148,9 +148,33 @@ def mismatch(style: Style, doc: dict) -> list[str]:
     return out
 
 
-def allows(word: str, doc: dict) -> bool:
-    """Whether a document the generator would give the style ``word`` stays inside its table."""
-    return all(not mismatch(s, doc) for s in STYLES if s.word == word)
+def title_fits(title: str, doc: dict) -> bool:
+    """Whether ``doc``, retitled ``title``, stays inside the table of each style the title names.
+    The decoy generator asks it of each exemplar before it clones one under a style word."""
+    return not any(mismatch(s, doc) for s in styles_of(title, doc["product_type"]))
+
+
+def necklines_for(title: str, product_type: str) -> frozenset[str] | None:
+    """The necklines every style word of the title allows together, or ``None`` when no style
+    of the title limits the neckline."""
+    sets = [s.necklines for s in styles_of(title, product_type) if s.necklines is not None]
+    return frozenset.intersection(*sets) if sets else None
+
+
+def complete_lengths(body: list[dict]) -> list[dict]:
+    """Give each dress whose title names a length ("Midi Dress") that length when it states
+    none, so a filter on Garment length finds it. Nothing already stated is changed, and a
+    record is copied, never edited in place (the authored samples share the records)."""
+    from variants import attr as make_attr
+
+    out = []
+    for d in body:
+        low = d["title"].lower()
+        word = next((w for w in LENGTH_WORDS if re.search(rf"\b{w} dress\b", low)), None)
+        if d["product_type"] in DRESS_TYPES and word and length_of(d) is None:
+            d = {**d, "attributes": [*d["attributes"], make_attr("length", "Length", word.title())]}
+        out.append(d)
+    return out
 
 
 def violations(doc: dict) -> list[str]:
