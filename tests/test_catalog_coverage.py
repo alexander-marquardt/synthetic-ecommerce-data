@@ -306,6 +306,68 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
     ]
 
 
+LOCK_NUT = "lock_nuts_nylon_insert"
+
+
+def _lock_nuts(docs: list[dict], *, built_to: str = "", sizes: tuple[str, ...] = ()) -> list[dict]:
+    """The lock nut lines, optionally those built to ``built_to`` or of ``sizes``.
+
+    A lock nut publishes its size as ``thread_size``, not ``dia_thread_size``.
+    """
+    return [
+        doc
+        for doc in docs
+        if doc["product_type"] == LOCK_NUT
+        and built_to in doc["dimension_provenance"]
+        and (not sizes or any(v in sizes for v in doc["facets"]["thread_size"]))
+    ]
+
+
+def test_a_type_that_publishes_thread_size_declares_the_sizes_it_builds_to() -> None:
+    """The lock nut's lines claim these five tables; each is declared apart from its rows."""
+    assert set(SPECS[LOCK_NUT].sizes) == {
+        "ASME B18.2.2",
+        "DIN 985",
+        "ISO 10511",
+        "ISO 10512",
+        "ISO 7040",
+    }
+
+
+def test_a_lock_nut_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """The plant is a size dropped from one table: ISO 7040 loses M24 only.
+
+    DIN 985 also has an M24 row and must not answer for it.
+    """
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 7040", sizes=("M24x3",))}
+    assert gone, "the plant found no ISO 7040 M24 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ISO 7040: ['M24']"]
+
+
+def test_a_fine_pitch_lock_nut_row_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """A fine row is its own size: ISO 10512 M10x1 is not answered by M10x1.25."""
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 10512", sizes=("M10x1",))}
+    assert gone, "the plant found no ISO 10512 M10x1 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ISO 10512: ['M10x1']"]
+
+
+def test_an_inch_lock_nut_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """The inch lines are built to the ASME B18.2.2 hex nut's flats: drop the 1" rows."""
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, sizes=("1-8", "1-12"))}
+    assert gone, "the plant found no 1 inch lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ASME B18.2.2: ['1', '1-12']"]
+
+
+def test_a_lock_nut_standard_no_line_was_built_to_is_swept_whole(flat_docs: list[dict]) -> None:
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 10511")}
+    assert gone, "the plant found no ISO 10511 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert [p.split(":")[0] for p in _coverage_problems(dropped)] == ["ISO 10511"]
+
+
 def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     """Which thread sizes each standard's lines actually published.
 
