@@ -949,15 +949,14 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
         seen.add((r["category_leaf"], value))
 
 
-#: The ``scale_rows.FOOTWEAR`` rows (growth round 4).
-FOOTWEAR_ROWS = 13
-
-
 def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
     """A derived shoe rewrites its style's material but not its SKUs' (#145), so a new
     footwear row keeps to a material its leaf's authored styles carry."""
     rows = getattr(scale.scale_rows, "FOOTWEAR", ())
-    assert len(rows) == FOOTWEAR_ROWS
+    # The ``scale_rows.FOOTWEAR`` rows (growth round 4). A lowercase local: a constant of 13
+    # collided with a measured total (``templates.cups_plural_rows.styles``, gen#508).
+    footwear_rows = 13
+    assert len(rows) == footwear_rows
     sold: dict[str, set[str]] = collections.defaultdict(set)
     for t in scale.templates()[:AUTHORED]:
         sold[t["category_leaf"]] |= {
