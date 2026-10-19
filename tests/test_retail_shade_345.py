@@ -102,9 +102,14 @@ def test_the_product_lists_the_shades_its_variants_sell(docs: list[dict[str, Any
     [
         ("1C", "fair", "cool"),
         ("2W", "fair", "warm"),
+        ("3C", "light", "cool"),
         ("4N", "light", "neutral"),
+        ("5N", "light", "neutral"),
         ("6N", "medium", "neutral"),
+        ("8C", "medium", "cool"),
         ("9W", "tan", "warm"),
+        ("11N", "tan", "neutral"),
+        ("12W", "deep", "warm"),
         ("13C", "deep", "cool"),
         ("14N", "deep", "neutral"),
     ],
@@ -122,6 +127,33 @@ def test_a_code_derives_its_depth_and_undertone(
     for v in variants:
         assert _values(v["attributes"], "shade_depth") == [depth], (v["sku"], code)
         assert _values(v["attributes"], "undertone") == [undertone], (v["sku"], code)
+
+
+@pytest.mark.parametrize(
+    ("name", "depth", "undertone"),
+    [
+        ("Porcelain", "fair", "neutral"),
+        ("Caramel", "tan", "warm"),
+        ("Toffee", "tan", "warm"),
+        ("Espresso", "deep", "neutral"),
+    ],
+)
+def test_a_named_shade_states_its_depth_and_undertone(
+    docs: list[dict[str, Any]], name: str, depth: str, undertone: str
+) -> None:
+    soft_veil = next(d for d in docs if d["title"] == "Soft Veil Foundation")
+    rows = [v for v in soft_veil["variants"] if _values(v["attributes"], "shade") == [name]]
+    assert rows, name
+    for v in rows:
+        assert _values(v["attributes"], "shade_depth") == [depth], name
+        assert _values(v["attributes"], "undertone") == [undertone], name
+
+
+def test_an_unknown_shade_name_is_refused() -> None:
+    import shades  # noqa: PLC0415 -- the prototype's own directory is its import root
+
+    with pytest.raises(KeyError, match="Mocha"):
+        shades.classify("Mocha")
 
 
 def test_a_named_shade_is_kept_as_authored(docs: list[dict[str, Any]]) -> None:
