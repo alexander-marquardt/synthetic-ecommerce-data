@@ -10,6 +10,8 @@ the local-CI value its CI job needs or the job itself, and names the test file t
 # ruff: noqa: E501  (a row's old and new text are source lines, as written)
 from __future__ import annotations
 
+from mutation_row import Row
+
 CHECK = "check_customer_names.py"
 TEST = "tests/test_customer_name_check_393.py"
 GATE = "tests/test_prepush_gate_11677.py"
@@ -196,3 +198,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         ".github/workflows",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "customer names"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

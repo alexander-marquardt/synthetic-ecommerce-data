@@ -8,6 +8,8 @@ and names the test that must go red. ``mutation_check.py`` turns them into ``Mut
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_ceiling_forms_237.py"
 _ROOT = "prototypes/retail_drawings"
 
@@ -67,3 +69,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _ROOT,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "ceiling forms"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

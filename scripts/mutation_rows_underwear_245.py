@@ -9,6 +9,8 @@ length or a denier draw out of order, and names the tests that must go red.
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_underwear_drawn_values_245.py"
 _SAME = f"{_T}::test_each_value_of_a_drawn_attribute_draws_differently"
 
@@ -94,3 +96,10 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         "each boxer fit draws its own outline",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "underwear drawn values"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
