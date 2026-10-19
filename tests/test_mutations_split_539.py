@@ -101,3 +101,12 @@ def test_the_harness_lists_no_mutation_itself() -> None:
 def test_the_harness_is_small_enough_to_read() -> None:
     lines = (SCRIPTS / "mutation_check.py").read_text("utf-8").count("\n")
     assert lines < 400, f"mutation_check.py is {lines} lines; the mutations belong in mutations/"
+
+
+def test_the_whole_bed_is_the_mutations_files_then_the_rows_files() -> None:
+    whole = mutation_row.all_mutations()
+    own = mutation_row.discover_mutations()
+    rows = mutation_row.discover()
+    assert len(whole) == len(own) + len(rows)
+    assert [m.name for m in whole[: len(own)]] == [m.name for m in own]
+    assert whole[len(own)].name == f"{rows[0][0]}: {rows[0][1].name}"
