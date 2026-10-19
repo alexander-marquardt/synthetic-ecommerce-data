@@ -27,7 +27,8 @@ reproduces them:
   priced at the clearance value give 1.0/2.0 (.00 ending share 0.51) and at
   the regular price 5.867/11.66 (0.06), a p50 of 4.83 against 22.14 USD.
   #57's parser was never committed, so this cannot be proven; the re-measure
-  is tracked in ISSUE_PLACEHOLDER.
+  is tracked in #92, and until it lands every entry carries ``price_basis``
+  (``regular_price`` here, ``shown_price_clearance_unmeasured`` on #57's).
 * Quantiles are linear-interpolated (type 7), rounded to 4 decimals; slopes
   and shares to 3, as #57's figures are.
 * ``brand_price_index`` is per brand: the median, over the specs it shares,
@@ -63,6 +64,10 @@ COLLECTED_BY = (
     "scripts/price_census_collect.py and scripts/price_census_parse.py (#69); "
     "MANIFEST.json P2_price_census.extension_69 holds the run's constraints and accounting"
 )
+#: The ``price_basis`` of an entry this script writes (#92): a clearance row is
+#: priced at its regular price. #57's entries carry
+#: ``shown_price_clearance_unmeasured`` until they are re-measured.
+PRICE_BASIS = "regular_price"
 #: The distributor's own labels, for ``house_label_over_other_brands``.
 HOUSE_LABELS = frozenset({"GRAINGER APPROVED"})
 #: Group-page attributes that name the size, so a cell does not hold them
@@ -411,6 +416,7 @@ def entry(rows: Sequence[Row], pages: dict[str, int], key_attribute: str, *,
     return {
         "n": len(rows),
         "low_confidence": len(rows) < 30,
+        "price_basis": PRICE_BASIS,
         "n_brands": len({r.brand for r in rows}),
         "capture_years": dict(sorted(Counter(r.captured[:4] for r in rows).items())),
         "price_quantiles_usd": quantiles([r.price for r in rows]),
