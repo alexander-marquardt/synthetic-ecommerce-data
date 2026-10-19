@@ -191,7 +191,8 @@ Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and `golden-retail/stats.json` and merges only when the drift, golden and seam
-tests pass on that tree.
+tests pass on that tree. A draft is refused at once ("mark it ready first"), before
+anything is cloned or built.
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
 checkout) but not the network. When a real merge's build fails on a dropped
