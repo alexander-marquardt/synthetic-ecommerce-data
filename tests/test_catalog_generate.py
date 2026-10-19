@@ -589,8 +589,79 @@ def test_no_category_level_is_a_value_the_line_publishes_as_an_attribute(catalog
     offenders = {
         (line.product_id, segment)
         for line in catalog.lines
+        for segment in _exact_value_levels(line.category, _published_values(line))
+    }
+    assert not offenders, sorted(offenders)[:10]
+
+
+def _exact_value_levels(category, values) -> set[str]:
+    """The levels of ``category`` spelled exactly like one of ``values``."""
+    return {segment for segment in category if segment in values}
+
+
+def _fragment_levels(category, values) -> set[str]:
+    """The levels of ``category`` whose words are a run of words of one of ``values``.
+
+    STUB for the red commit: finds nothing.
+    """
+    return set()
+
+
+@pytest.mark.parametrize(
+    ("category", "values"),
+    [
+        (("Cutting Tools", "Carbide"), {"Solid Carbide"}),
+        (("Cutting Tools", "carbide"), {"Solid Carbide"}),
+        (("Fasteners", "Metric"), {"Metric Coarse", "Imperial"}),
+        (("Fasteners", "Cobalt"), {"Cobalt"}),
+    ],
+)
+def test_a_level_that_is_part_of_a_published_value_is_found(category, values):
+    """The planted level the exact-match gate cannot see (generator#21).
+
+    ``Carbide`` under ``Material: Solid Carbide`` is a specification filed as
+    a category, spelled differently from its value, so the exact-match gate
+    stays green on it and the fragment gate must not.
+    """
+    assert _fragment_levels(category, values) == {category[1]}
+
+
+def test_exact_match_gate_misses_a_level_spelled_as_part_of_a_value():
+    category, values = ("Cutting Tools", "Carbide"), {"Solid Carbide"}
+    assert _exact_value_levels(category, values) == set()
+    assert _fragment_levels(category, values) == {"Carbide"}
+
+
+@pytest.mark.parametrize(
+    ("category", "values"),
+    [
+        (("Fasteners", "Hex Head Bolts"), {"Hex Head", "Hex"}),
+        (("Fasteners", "Socket Cap Screws"), {"Socket"}),
+        (("Holemaking", "Square End Mills"), {"Square"}),
+        (("Holemaking", "Drills"), {"Solid Carbide"}),
+    ],
+)
+def test_a_type_name_that_contains_a_published_value_is_not_a_specification_level(category, values):
+    """A type may use a word its attributes also use; only a level inside a value is a spec."""
+    assert _fragment_levels(category, values) == set()
+
+
+def test_no_category_level_is_part_of_a_value_the_catalog_publishes(catalog):
+    """No level is a fragment of any value published anywhere in the catalog.
+
+    Wider than the exact-match gate above in two ways: ``Carbide`` against
+    ``Solid Carbide`` is found, and so is a level whose value this line does not
+    publish but another line does (``Metric`` on a line with no ``System of
+    Measurement``). What neither can find is a level spelled in another
+    notation than its value (``1/2"`` against ``0.5 in``).
+    """
+    published = set().union(*(_published_values(line) for line in catalog.lines))
+    found = _fragment_levels({s for line in catalog.lines for s in line.category}, published)
+    offenders = {
+        (line.product_id, segment)
+        for line in catalog.lines
         for segment in line.category
-        if segment in _published_values(line)
+        if segment in found
     }
     assert not offenders, sorted(offenders)[:10]
 
