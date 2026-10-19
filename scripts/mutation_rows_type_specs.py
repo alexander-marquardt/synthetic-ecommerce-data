@@ -182,8 +182,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the ceiling is raised above the list",
         "type_registry.py",
-        "LEGACY_CEILING = 334",
-        "LEGACY_CEILING = 434",
+        "LEGACY_CEILING = 333",
+        "LEGACY_CEILING = 433",
         "tests/test_retail_type_specs_351.py -k registered_through_a_spec_or_the_legacy_list",
         "the ceiling is the exact length of the list",
         "prototypes/retail_drawings",

@@ -37,6 +37,7 @@ from typing import Any, NamedTuple
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import table_provenance
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import screw_socket_head
@@ -186,31 +187,25 @@ def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -
     return AttrSpec(name=name, scope=scope, presence=presence, kind=kind)
 
 
-#: One label, so one machine key, per unit system: the unit is in BOTH labels,
-#: so neither reads as the default (``dowel_dia_in`` / ``dowel_dia_mm``).
-DIA_IN = "Dowel Dia. (in)"
-DIA_MM = "Dowel Dia. (mm)"
+#: One label and one machine key (``dowel_dia``) for the diameter in either unit
+#: system (#497): each value states its own unit, as a length does everywhere else.
+DIA = "Dowel Dia."
 
 VOCAB = (
-    _spec("Item", "line"),
     _spec("Type", "line"),
     _spec("Material", "line"),
     _spec("Finish", "line", 0.82),
     # Always published: it is what tells a standard pin from an oversize one.
     _spec("Dia. Tolerance", "line"),
     _spec("Hardness", "line", 0.6),
-    _spec("Rockwell Hardness", "line", 0.6),
-    _spec(DIA_IN, "sku", kind="length"),
-    _spec(DIA_MM, "sku", kind="length"),
+    _spec(DIA, "sku", kind="length"),
     _spec("Length", "sku", kind="length"),
 )
 
 
 def provenance(standard: str) -> str:
     """Every published dimension of a line is its standard's table's."""
-    return table_provenance(
-        *((name, standard) for name in (DIA_IN, DIA_MM, "Length", "Dia. Tolerance"))
-    )
+    return table_provenance(*((name, standard) for name in (DIA, "Length", "Dia. Tolerance")))
 
 
 def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
@@ -223,12 +218,10 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     standard = SERIES[gen._rotate(f"series:{type_key}", len(SERIES))]
     metric = standard != B18_8_2
     finish = ""
-    hardness_name = "Hardness"
     if standard == B18_8_2:
         row = B18_8_2_ROWS[gen._rotate(f"size:{type_key}:{standard}", len(B18_8_2_ROWS))]
         oversize = gen._rotate(f"oversize:{type_key}:{row.size}", OVERSIZE_PERIOD) == 2
         kind, material, hardness = "Hardened Ground", INCH_MATERIAL, INCH_HARDNESS
-        hardness_name = "Rockwell Hardness"
         tolerance = inch_tolerance(row, oversize)
         diameter_in = float(Fraction(row.size))
         lengths_in = [float(v) for v in inch_lengths(row)]
@@ -259,12 +252,12 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         standard=standard,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", kind),
         keyword_attribute("Material", material),
         *([keyword_attribute("Finish", finish)] if finish else []),
         keyword_attribute("Dia. Tolerance", tolerance),
-        keyword_attribute(hardness_name, hardness),
+        keyword_attribute("Hardness", hardness),
     ]
 
     count = min(gen._variant_count(), len(lengths_in))
@@ -273,7 +266,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     for length_in in offered:
         style = gen._style(system)
         child = ChildDraft(system=system)
-        child.primary = gen._length(DIA_MM if metric else DIA_IN, diameter_in, style)
+        child.primary = gen._length(DIA, diameter_in, style)
         length_attr = gen._length("Length", length_in, style)
         child.attrs = [child.primary, length_attr]
         child.secondary = {"other_length": length_attr}
@@ -290,7 +283,7 @@ def _value(record: Mapping[str, str], name: str) -> float | None:
 
 def figure(record: dict[str, str]) -> Drawn:
     """A side view with chamfered ends, and an end view of the pin's face."""
-    diameter = _value(record, DIA_MM if DIA_MM in record else DIA_IN)
+    diameter = _value(record, DIA)
     length = _value(record, "Length")
     d = diameter or 0.25
     length = length or 4 * d
@@ -344,8 +337,8 @@ SPEC = TypeSpec(
     price=screw_socket_head.PRICE,
     claims=claims,
     may_claim=frozenset({"ISO 2338", "ISO 8734", "ASME B18.8.2", "ISO 3506-1"}),
-    key_attributes=(DIA_IN, DIA_MM),
-    unit_primary=DIA_IN,
+    key_attributes=(DIA,),
+    unit_primary=DIA,
     use_lines=(
         "Locates two mating parts in reamed holes so they reassemble in the same place.",
         "Pressed into a hole as a pivot, stop or alignment pin.",

@@ -37,7 +37,9 @@ from pathlib import Path
 
 import pytest
 
+from published import authored_name
 from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial import compat, series, standards
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -210,13 +212,15 @@ def _line_standard(doc: dict) -> str:
 
     A type whose provenance is a sentence declares how to read the standard
     from the record's own attributes. No document field carries it: the
-    ``Meets/Exceeds`` attribute is drawn at a presence of 0.40, so keying on
+    ``Standards`` attribute is drawn at a presence of 0.40, so keying on
     it would leave most lines out of the sweep.
     """
     spec = SPECS.get(doc["product_type"])
     if spec is None or spec.line_standard is None:
         return doc["dimension_provenance"]
-    return spec.line_standard({a["name"]: a["value"] for a in doc["attributes"]})
+    return spec.line_standard(
+        {authored_name(doc["product_type"], a["name"]): a["value"] for a in doc["attributes"]}
+    )
 
 
 def _offered_sizes(standard: str) -> tuple[str, ...] | None:
@@ -268,8 +272,7 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0]
-            in ("M24", "1")
+            and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0] in ("M24", "1")
         )
     ]
     assert _coverage_problems(dropped) == [
@@ -291,7 +294,7 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
         for doc in flat_docs
         if not (
             doc["product_type"] == "set_screws_hex_socket"
-            and ("Point Type", "Dog Point")
+            and (sentence_case("Point Type"), "Dog Point")
             in [(a["name"], a["value"]) for a in doc["attributes"]]
         )
     ]
@@ -393,13 +396,14 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
 def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> None:
     """All four attribute-value pairs on ONE record, not four counts.
 
-        hex head cap screw: 7/16-14, 1-3/4" length under head,
+        hex head cap screw: 7/16-14, 1-3/4" length,
         grade 8 steel, zinc finish
 
     A parametric query ANDs its terms, so a catalog carrying 116 Grade 8
     records and 547 Zinc Plated ones answers nothing unless some record
-    carries both -- beside the thread size, beside a length under head, on a
-    hex head. The length is asserted as "publishes one at all" rather than as
+    carries both -- beside the thread size, beside a length, on a
+    hex head (``Length under Head`` is not published: it repeated ``Length``, #497).
+    The length is asserted as "publishes one at all" rather than as
     1-3/4" exactly, because which lengths a line stocks is a property of the
     line; that the four attributes CO-OCCUR is the property this checks.
     """
@@ -410,11 +414,11 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
         and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
         and "Zinc Plated" in doc["facets"].get("finish", [])
-        and doc["facets"].get("length_under_head")
+        and doc["facets"].get("length")
         and "Hex" in doc["facets"].get("head_type", [])
     ]
     assert answers, (
-        "no record carries 7/16-14, Grade 8, Zinc Plated and a length under head "
+        "no record carries 7/16-14, Grade 8, Zinc Plated and a length "
         "together on a hex head, so the reference distributor's parametric example resolves to "
         "an empty set however good the rewriting is"
     )

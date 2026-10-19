@@ -92,11 +92,11 @@ def test_a_sibling_that_drops_a_product_constant_attribute_reds(catalog: Catalog
 
 
 def test_a_product_constant_on_the_line_cannot_vary(catalog: Catalog) -> None:
-    """Grade of a wheel is the product's: a wheel product holds one."""
+    """Wheel Grade (#497 renamed the wheel's Grade) is the product's: a wheel product holds one."""
     wheels = [x for x in catalog.lines if x.type_key == "wheel_depressed_center"]
     assert wheels
-    assert "Grade" in product_constant_names("wheel_depressed_center")
-    assert "Grade" not in variant_names("wheel_depressed_center")
+    assert "Wheel Grade" in product_constant_names("wheel_depressed_center")
+    assert "Wheel Grade" not in variant_names("wheel_depressed_center")
     assert all(not disagreements(w, catalog) for w in wheels)
 
 

@@ -39,13 +39,14 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
-from synthetic_ecommerce_data.core.formats import LengthStyle
+from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style
 from synthetic_ecommerce_data.core.model import (
     keyword_attribute,
     length_attribute,
     multi_attribute,
     numeric_attribute,
 )
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 
 if TYPE_CHECKING:
     from synthetic_ecommerce_data.domains.industrial.generate import Generator, LineDraft
@@ -308,7 +309,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         category=category,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", style_name),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
@@ -317,7 +318,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
             ("Metric Fine" if fine else "Metric Coarse") if metric else ("UNF" if fine else "UNC"),
         ),
         keyword_attribute("Thread Direction", "Right Hand"),
-        numeric_attribute("Package Quantity", str(qty := rng.choice((25, 50, 100))), float(qty)),
+        numeric_attribute("Units per Pack", str(qty := rng.choice((25, 50, 100))), float(qty)),
     ]
     if grade is not None:
         draft.line_attrs.append(keyword_attribute("Grade", grade))
@@ -576,7 +577,7 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", "Deep Groove"),
         keyword_attribute("Bearing Number", number),
         # The bearing series (60/62/63, or R for the inch series). It shares a
@@ -659,18 +660,19 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", shape),
-        length_attribute("Wheel Dia.", gen._publish(dia, style)),
+        length_attribute("Diameter", gen._publish(dia, style)),
         length_attribute("Thickness", gen._publish(thickness, style)),
-        length_attribute("Arbor Hole", gen._publish(arbor, style)),
-        keyword_attribute("Connector Type", "5/8-11 Hub" if hub else "Arbor"),
+        # One spelling of the arbor (7/8, never 0.875) whatever the feed's style (#497).
+        length_attribute("Arbor Hole", gen._publish(arbor, canonical_style("in"))),
+        keyword_attribute("Mounting Type", "5/8-11 Hub" if hub else "Arbor"),
         keyword_attribute("Abrasive Material", abrasive),
         keyword_attribute("Bond Type", "Resinoid" if rng.random() < 0.9 else "Vitrified"),
         numeric_attribute("Max. RPM", f"{rpm:,}", float(rpm)),
         keyword_attribute("Application", "Cutting & Grinding" if cutting else "Grinding"),
-        numeric_attribute("Package Quantity", str(qty := rng.choice((10, 25))), float(qty)),
-        keyword_attribute("Grade", grade),
+        numeric_attribute("Units per Pack", str(qty := rng.choice((10, 25))), float(qty)),
+        keyword_attribute("Wheel Grade", grade),
     ]
     draft.descriptors = [("Abrasive Material", abrasive)]
     offered = _window(gen, f"wheel:grit:{dia}:{grade}", list(grits), gen._variant_count())
@@ -728,7 +730,7 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
         provenance=GENERATED_PROVENANCE,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", item),
+        retired(keyword_attribute("Item", item)),  # keeps the stream stable for #497
         keyword_attribute("Type", "L-Key"),
         keyword_attribute("Tip Style", "Ball End" if ball else "Hex End"),
         keyword_attribute("Material", material),
@@ -764,7 +766,7 @@ class Kit:
     """One assortment: its kind, the part type it holds, and the sizes, in inches.
 
     A kit is ONE SKU. What it holds is its own ``Sizes Included`` field (a
-    multi-valued attribute listing every size) and its own ``Number of Pieces`` --
+    multi-valued attribute listing every size) and its own ``Piece Count`` --
     a real field, so pack wording is allowed on it. It never shares a
     product id with the individual parts, and is not a grouping of them: a
     grouped product offers its sizes as separately purchasable variants, a kit
@@ -888,7 +890,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     """One assortment kit: one SKU, its sizes a field of its own.
 
     The attribute names are the census's: ``Sizes Included`` (the contents,
-    multi-valued), ``Number of Pieces`` (a real count, which is why pack
+    multi-valued), ``Piece Count`` (a real count, which is why pack
     wording may name it) and ``Container Type``.
     """
     from synthetic_ecommerce_data.core.brands import brands_for
@@ -919,7 +921,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         # ONE item name for every kit, the kind in ``Type``: four kit names
         # would take ``Item`` past the 25-value facet cap, and ``Item`` is a
         # policy target a shopper must be able to see and reverse.
-        keyword_attribute("Item", "Assortment Kit"),
+        retired(keyword_attribute("Item", "Assortment Kit")),  # keeps the stream stable for #497
         keyword_attribute("Type", kit.item),
         keyword_attribute("Material", material),
         keyword_attribute("Finish", finish),
@@ -930,7 +932,7 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
         draft.line_attrs.append(keyword_attribute("Tip Style", tip))
     draft.descriptors = [("Container Type", container)]
     child = ChildDraft(system=kit.system)
-    child.primary = numeric_attribute("Number of Pieces", str(pieces), float(pieces))
+    child.primary = numeric_attribute("Piece Count", str(pieces), float(pieces))
     child.attrs = [child.primary, multi_attribute("Sizes Included", contents)]
     draft.children.append(child)
     return draft

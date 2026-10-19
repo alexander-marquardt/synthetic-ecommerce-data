@@ -18,7 +18,11 @@ The classes (the numbers follow the issue):
 5. **guard**: no decoy; a real product whose name holds a color word ("green tea"), so a color
    filter that wrongly fires shows as an empty or wrong page.
 9. **plural**: the title names a fresh plural as the ingredient or source of another product
-   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`).
+   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`),
+   or, in a non-food department, as a brand shown on it ("Lucky Lemons Kids' Pyjamas") or the
+   scent it carries ("Sicilian Lemons Hand Wash"; :mod:`decoy_plural_nonfood_rows`).
+10. **ingredient phrase**: the query's phrase is an ingredient of another food: red wine
+   vinegar, red wine gravy and a beef in red wine casserole are groceries, not wine (gen#500).
 
 Every decoy's structured fields tell the truth: its color, category path and audience are its
 own, and only the title and description carry the misleading word. Titles are short and the
@@ -32,9 +36,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from class_model import Style, one
+import fruit_word_brand_styles  # noqa: F401 -- registers the five house styles
+from breadth_rows import OWNERS
+from class_model import BRAND_OWNER, Style, one
+from decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
+from decoy_plural_nonfood_rows import ROWS as PLURAL_NONFOOD_ROWS
 from decoy_plural_rows import ROWS as PLURAL_ROWS
 from variants import cw
+
+# The invented fruit-word brands of the class 9 non-food rows (gen#445), third party.
+OWNERS.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
+BRAND_OWNER.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
 NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
@@ -75,6 +87,7 @@ def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, pric
 
 _SOFAS = ("Home", "Furniture", "Sofas")
 UK = ("6", "8", "10", "12", "14", "16")
+KIDS_SIZES = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs")
 KINDS = {
     "sofa": Kind("Home", _SOFAS, "Sofa", "sofa_seats", "Brackenmere Home", 549.0,
                  params=(("seats", "3"), ("arms", "rolled"), ("legs", "walnut")),
@@ -162,6 +175,9 @@ KINDS = {
                     "box", "Pantry Mill", 2.4, colorless=True),
     "sauce": Kind("Food & Drink", ("Food & Drink", "Food Cupboard", "Sauces & Condiments"),
                   "Sauce", "bottle", "Copper Hill Preserves", 2.1, colorless=True),
+    # The red wine groceries (class 10, gen#500): real products, none of them wine.
+    "vinegar": _food(("Food Cupboard", "Vinegar"), "Vinegar", "bottle", "Olivar Grove", 1.6),
+    "gravy": _food(("Food Cupboard", "Sauces & Condiments"), "Sauce", "jar", "Pantry Mill", 1.9),
     # The kinds of the class 9 plural decoys (gen#445), each in a leaf the grocery build has.
     "juice": _food(("Drinks", "Juice"), "Juice", "carton",
              "Vine & Valley", 2.1),
@@ -197,9 +213,43 @@ KINDS = {
                    "Velling Apothecary", 8.0, colorless=True),
     "bath_salts": Kind("Beauty", ("Beauty", "Bath & Body", "Bath Salts"), "Bath Salts", "jar",
                        "Velling Apothecary", 6.0, colorless=True),
+    # The kinds of the class 9 non-food rows (gen#445): a fruit-word brand or a fruit scent.
+    "fruit_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
+                         "jar", "Lanternby", 16.0),
+    "dish_soap": Kind("Cleaning & Janitorial", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"),
+                      "Dish Soap", "bottle", "Calderby & Lune", 1.5,
+                      params=(("label", "Washing-Up Liquid"),), colorless=True),
+    "hand_wash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
+                      "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
+    "shower_gel": Kind("Beauty", ("Beauty", "Bath & Body", "Shower Gel"), "Shower Gel", "bottle",
+                       "Velling Apothecary", 4.0, params=(("label", "Shower Gel"),),
+                       colorless=True),
+    "air_freshener": Kind("Cleaning & Janitorial", ("Cleaning", "Air Care", "Air Fresheners"),
+                          "Air Freshener", "trigger_spray", "Calderby & Lune", 3.0, colorless=True),
+    "kids_tee": Kind("Clothing", ("Kids", "Tops", "T-Shirts"), "T-Shirt", "tshirt",
+                     "Little Fernby", 8.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
+    "kids_pj": Kind("Lingerie & Nightwear", ("Kids", "Nightwear", "Pyjamas"), "Pyjamas", "pyjamas",
+                    "Little Fernby", 12.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
+    "kids_sweat": Kind("Clothing", ("Kids", "Tops", "Sweatshirts"), "Sweatshirt", "sweatshirt",
+                       "Little Fernby", 14.0, "kids", sizes=KIDS_SIZES, size_range="regular"),
     "surface_spray": Kind("Cleaning & Janitorial",
                           ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Surface Sprays"),
                           "Surface Spray", "bottle", "Calderby & Lune", 3.0, colorless=True),
+    # Light bulb box names (gen#498): a paint shade, a candle scent, a towel and a cushion hold
+    # the words soft white, warm white, cool white and daylight without being a light.
+    "wall_paint": Kind("Home", ("Home", "DIY & Car", "Paint"), "Paint", "tin", "Brackenmere Home",
+                       14.0, colorless=True),
+    "bath_towel": Kind("Home", ("Home", "Bathroom", "Bath Towels"), "Towel", "bath_towel",
+                       "Hearth & Table", 14.0),
+    "candle_gardenia": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
+                          "Scented Candle", "jar", "Lanternby", 16.0,
+                          extra=(("fragrance", "Fragrance", "Gardenia"),)),
+    "candle_vanilla": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
+                           "Scented Candle", "jar", "Lanternby", 16.0,
+                           extra=(("fragrance", "Fragrance", "Vanilla"),)),
+    "candle_citrus": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
+                          "Scented Candle", "jar", "Lanternby", 16.0,
+                          extra=(("fragrance", "Fragrance", "Citrus"),)),
 }
 
 
@@ -218,6 +268,12 @@ class Decoy:
     true_hit: bool = False
     #: Class 7: the label list, where the query word appears and the title does not name it.
     ingredients: tuple[str, ...] = ()
+    #: Class 9 non-food: the fruit the product is scented with (its ``fragrance`` attribute).
+    scent: str | None = None
+
+    def _extra(self, k: Kind) -> tuple[tuple[str, str, str], ...]:
+        """The kind's extra attributes, then the fragrance a scented row names."""
+        return (*k.extra, ("fragrance", "Fragrance", self.scent)) if self.scent else k.extra
 
     def style(self) -> Style:
         k = KINDS[self.kind]
@@ -226,7 +282,7 @@ class Decoy:
         return Style(
             f"D{self.code}", self.title, self.brand or k.brand, k.department, k.path, k.price,
             self.description, k.product_type, k.shape, one(color, self.sold), audience=k.audience,
-            params=k.params, extra=k.extra, sizes=k.sizes, size_range=k.size_range,
+            params=k.params, extra=self._extra(k), sizes=k.sizes, size_range=k.size_range,
             colorless=k.colorless, units_per_pack=k.units_per_pack, pattern=k.pattern,
             reviews=900 + self.sold,
         )
@@ -344,6 +400,20 @@ TABLE = (
     _d("XW04", "carafe", "Glass Wine Carafe",
        "A clear glass carafe for red wine, with a narrow neck for pouring.", "Clear", 2,
        "red wine", 800),
+    _d("XW05", "vinegar", "Red Wine Vinegar, 500ml",
+       "A red wine vinegar for dressings, marinades and sauces, in a 500ml bottle.", "Red", 10,
+       "red wine", 930, brand="Olivar Grove"),
+    _d("XW06", "vinegar", "Red Wine Vinegar, 250ml",
+       "A red wine vinegar for dressings and cooking, in a 250ml bottle.", "Red", 10,
+       "red wine", 910, brand="Copper Hill Preserves"),
+    _d("XW07", "gravy", "Red Wine Gravy Granules, 170g",
+       "Gravy granules with a red wine flavor, for roast beef and sausages. Makes 600ml.", "Red",
+       10, "red wine", 890, ingredients=("potato starch", "salt", "red wine powder (4%)",
+                                         "palm oil", "onion powder", "yeast extract")),
+    _d("XW08", "curry", "Beef in Red Wine Casserole, 400g",
+       "Slow cooked beef in a red wine and shallot sauce, a ready meal for two.", "Red", 10,
+       "red wine", 870, ingredients=("beef (35%)", "water", "red wine (12%)", "shallots",
+                                     "carrots", "wheat flour", "tomato puree")),
     # -- guards: a real product whose name holds a color word (5)
     _d("XU01", "tea", "Green Tea, 40 Bags", "Sencha green tea in round bags, 40 to a box.",
        "Green", 5, "green tea", 900, true_hit=True),
@@ -405,9 +475,45 @@ TABLE = (
     _d("XI16", "lav_candle", "Soy Wax Candle",
        "A soy wax candle poured with lavender essential oil, a calming lavender scent.", "Cream", 7,
        "lavender", 880, ingredients=("soy wax", "lavender essential oil")),
+    # -- light bulb box names (gen#498): the words name a paint shade, a scent or a skin cream
+    _d("XL01", "wall_paint", "Soft White Matt Emulsion Paint, 2.5L",
+       "A washable matt emulsion for walls and ceilings, in the shade Soft White.", "White", 4,
+       "soft white", 700),
+    _d("XL02", "candle_gardenia", "Soft White Gardenia Scented Candle",
+       "A scented candle in a glass jar, poured in a soft white wax with a gardenia scent.",
+       "White", 4, "soft white", 650),
+    _d("XL03", "bath_towel", "Soft White Cotton Bath Towel",
+       "A thick bath towel in soft white combed cotton.", "White", 4, "soft white", 640),
+    _d("XL04", "wall_paint", "Warm White Gloss Paint, 750ml",
+       "A hard-wearing gloss for wood and metal, in the shade Warm White.", "White", 4,
+       "warm white", 690),
+    _d("XL05", "cushion", "Warm White Velvet Cushion",
+       "A velvet cushion in a warm white shade, with a hidden zip.", "White", 4, "warm white", 660),
+    _d("XL06", "candle_vanilla", "Warm White Vanilla Scented Candle",
+       "A scented candle in a glass jar, poured in warm white wax with a vanilla scent.",
+       "White", 4, "warm white", 620),
+    _d("XL07", "wall_paint", "Cool White Ceiling Paint, 5L",
+       "A bright matt ceiling paint that covers in two coats, in the shade Cool White.", "White", 4,
+       "cool white", 680),
+    _d("XL08", "shirt", "Cool White Cotton Shirt",
+       "A crisp cotton shirt in a cool white poplin, with a button-down collar.", "White", 4,
+       "cool white", 640),
+    _d("XL09", "face_cloth", "Cool White Cotton Face Cloths, Pack of 4",
+       "Four cotton face cloths in cool white.", "White", 4, "cool white", 600),
+    _d("XL10", "face_cream", "Daylight Face Cream SPF 30",
+       "A light day cream with SPF 30 for the face, to wear under make-up.", "White", 4,
+       "daylight", 720),
+    _d("XL11", "lotion", "Daylight Body Lotion SPF 15",
+       "A fast-absorbing body lotion with SPF 15 for daily use.", "White", 4, "daylight", 640),
+    _d("XL12", "candle_citrus", "Daylight Citrus Scented Candle",
+       "A scented candle in a glass jar with a fresh citrus scent, named for a morning room.",
+       "Cream", 4, "daylight", 610),
     # -- class 9: the fresh plural is in the title as an ingredient or source (gen#445)
     *(_d(code, kind, title, desc, color, 9, plural, sold, ingredients=ing)
       for code, kind, title, desc, color, plural, sold, ing in PLURAL_ROWS),
+    # -- class 9, non-food: the plural is a brand shown on the product or the scent (gen#445)
+    *(_d(code, kind, title, desc, color, 9, plural, sold, brand=brand, scent=scent)
+      for code, kind, title, desc, color, plural, sold, brand, scent in PLURAL_NONFOOD_ROWS),
 )
 
 STYLES = tuple(d.style() for d in TABLE)
@@ -436,7 +542,8 @@ CLASSES = {
     4: "color word is also a product or a shade",
     5: "guard: a real product whose name holds a color word",
     7: "word only in the ingredients",
-    9: "the fresh plural is in the title as an ingredient or source",
+    9: "the fresh plural is in the title as an ingredient, a source, a brand or a scent",
+    10: "the phrase names an ingredient of another food (vinegar, gravy, a casserole)",
 }
 
 

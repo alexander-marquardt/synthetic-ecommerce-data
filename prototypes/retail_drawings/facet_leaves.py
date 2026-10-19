@@ -42,7 +42,7 @@ from synthetic_ecommerce_data.core.standard import UNHYPHENATED, words
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
 #: The bra node, and the purpose nodes that stay under it.
 BRA_NODE = "Bras"
-PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras")
+PURPOSE_BRAS = ("Sports Bras", "Nursing Bras", "Sleep Bras", "Post-Surgery Bras", "Mastectomy Bras")
 
 #: ``leg_style`` (the failure-class rows' lower-case fit) -> its ``leg_fit`` value.
 LEG_STYLE_FITS = {
@@ -126,6 +126,7 @@ BRA_LEAVES: dict[str, tuple[str, Facet, Facet, Facet]] = {
     "Nursing Bras": ("Full Cup", None, None, None),
     "Sleep Bras": ("Bralette", "Unlined", None, None),
     "Post-Surgery Bras": ("Full Cup", None, None, None),
+    "Mastectomy Bras": ("Full Cup", None, None, None),
 }
 
 #: Every ``fabric`` value that is not the fibre or weave a shopper names -> (fabric, the blend
@@ -152,6 +153,7 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
     "Cotton, Elastane": ("Cotton", "Cotton, Elastane"),
     "Modal, Elastane": ("Modal", "Modal, Elastane"),
     "Recycled Polyamide, Elastane": ("Nylon", "Recycled Polyamide, Elastane"),
@@ -168,15 +170,21 @@ FABRIC_MOVES: dict[str, tuple[str, str | None]] = {
 #: itself stays, as the detail the product states.
 MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Bamboo": ("Bamboo",),
+    "Boucle": ("Boucle",),
     "Brushed Cotton": ("Brushed Cotton",),
+    "Brushed Cotton Flannel": ("Brushed Cotton", "Flannel"),
     "Brushed Oxford": ("Oxford",),
     "Brushed Twill": ("Twill",),
     "Camp Collar Cotton": ("Cotton",),
     "Cashmere": ("Cashmere",),
+    "Coated Cotton": ("Cotton",),
     "Combed Cotton": ("Cotton",),
+    "Corduroy": ("Corduroy",),
     "Cotton": ("Cotton",),
+    "Cotton Flannel": ("Cotton", "Flannel"),
     "Cotton Gabardine": ("Cotton",),
     "Cotton Jersey": ("Cotton", "Jersey"),
+    "Cotton Lawn": ("Cotton",),
     "Cotton Linen": ("Cotton", "Linen"),
     "Cotton Oxford": ("Cotton", "Oxford"),
     "Cotton Poplin": ("Cotton",),
@@ -184,14 +192,25 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Cotton Stretch": ("Cotton",),
     "Cotton Twill": ("Cotton", "Twill"),
     "Cotton blend": ("Cotton",),
+    "Cotton Voile": ("Cotton", "Voile"),
+    "Crinkle Cotton": ("Cotton",),
+    "Denim": ("Denim",),
     "Easy Iron Cotton": ("Cotton",),
+    "Embroidered Cotton": ("Cotton",),
+    "Faux Leather": ("Faux Leather",),
+    "Felted Wool": ("Wool",),
     "Flannel": ("Flannel",),
     "Fleece Back": ("Fleece",),
     "Garment Dyed Oxford": ("Oxford",),
+    "Glossy Nylon": ("Nylon",),
     "Heavy Flannel": ("Flannel",),
     "Heavy Wool": ("Wool",),
+    "Heavyweight Flannel": ("Flannel",),
     "Jersey": ("Jersey",),
     "Knitted": ("Knitted",),
+    "Lace": ("Lace",),
+    "Lace Trim Jersey": ("Jersey", "Lace Trim"),
+    "Lace Trim Satin": ("Lace Trim", "Satin"),
     "Lambswool": ("Wool",),
     "Light Wash Denim": ("Denim",),
     "Lightweight Cotton": ("Cotton",),
@@ -199,6 +218,7 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Linen Cotton": ("Linen", "Cotton"),
     "Linen Viscose": ("Linen", "Viscose"),
     "Linen blend": ("Linen",),
+    "Matte Nylon": ("Nylon",),
     "Melton Wool": ("Wool",),
     "Merino blend": ("Wool",),
     "Merino wool": ("Wool",),
@@ -215,32 +235,46 @@ MATERIAL_FABRICS: dict[str, tuple[str, ...]] = {
     "Printed Viscose": ("Viscose",),
     "Pure Linen": ("Linen",),
     "Pure Wool": ("Wool",),
+    "Quilted Nylon": ("Nylon",),
+    "Recycled Nylon": ("Nylon",),
     "Recycled Polyester": ("Polyester",),
     "Recycled wool": ("Wool",),
     "Ribbed Cotton": ("Cotton",),
+    "Ribbed Jersey": ("Jersey",),
+    "Ripstop Nylon": ("Nylon",),
     "Royal Oxford": ("Oxford",),
+    "Ruched Jersey": ("Jersey",),
     "Satin": ("Satin",),
+    "Seamless Knit": ("Seamless",),
     "Silk": ("Silk",),
+    "Silk blend": ("Silk",),
+    "Slub Cotton": ("Cotton",),
+    "Soft Denim": ("Denim",),
     "Soft Flannel": ("Flannel",),
     "Stonewashed Denim": ("Denim",),
     "Stretch Cotton": ("Cotton",),
     "Stretch Denim": ("Denim",),
+    "Stretch Jersey": ("Jersey",),
     "Stretch Oxford": ("Oxford",),
     "Stretch Suiting": ("Suiting",),
     "Stretch Twill": ("Twill",),
     "Stretch Wool": ("Wool",),
+    "Taped Seam Nylon": ("Nylon",),
     "Textured Cotton": ("Cotton",),
     "Twill": ("Twill",),
     "Velvet": ("Velvet",),
     "Viscose": ("Viscose",),
+    "Waffle Knit": ("Waffle",),
     "Washed Cotton": ("Cotton",),
     "Washed Linen": ("Linen",),
     "Washed Oxford": ("Oxford",),
+    "Water Repellent Cotton": ("Cotton",),
+    "Waterproof Nylon": ("Nylon",),
     "Wool": ("Wool",),
     "Wool Cashmere blend": ("Wool", "Cashmere"),
     "Wool Crepe": ("Wool",),
     "Wool blend": ("Wool",),
-    "Wool Felt": ("Wool",),
+    "Wool Felt": ("Wool", "Felt"),
     "Woven Cotton": ("Cotton",),
 }
 
@@ -252,10 +286,12 @@ FABRIC_ALSO: dict[str, tuple[str, ...]] = {"Brushed Cotton Flannel": ("Brushed C
 #: The single source: the document builder reads it, and the tests guard what it holds.
 SHOPPER_FABRICS = frozenset({
     "Bamboo", "Boucle", "Brushed Cotton", "Cashmere", "Chenille", "Corduroy", "Cotton", "Crochet",
-    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Flannel", "Fleece", "Jersey", "Knitted",
+    "Denim", "Faux Fur", "Faux Leather", "Faux Suede", "Felt", "Flannel", "Fleece", "Jersey",
+    "Knitted",
     "Lace", "Lace Trim", "Leather", "Linen", "Mesh", "Microfiber", "Modal", "Muslin", "Nylon",
     "Oxford", "Plush", "Polyester", "Satin", "Seamless", "Shell", "Silk", "Suede", "Suiting",
-    "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Viscose", "Voile", "Waffle", "Wool",
+    "Teddy", "Towelling", "Tricot", "Twill", "Velour", "Velvet", "Viscose", "Voile",
+    "Waffle", "Wool",
 })  # fmt: skip
 
 #: The departments whose products are worn, and the types inside them that are not textile

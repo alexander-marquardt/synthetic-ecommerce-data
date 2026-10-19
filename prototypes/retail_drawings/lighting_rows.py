@@ -28,9 +28,15 @@ style that changes the value redraws it (:func:`scale.derive`). ``usb_port``, ``
 ``wireless_charging`` are only ever "Yes", so a derived style never flips one; a wall light's
 ``ip_rating`` and a shade's ``fitting`` are in :data:`scale.FROZEN_KEYS`.
 
-A desk lamp's color temperature is a measured entry (gen#232): ``color_temperature`` holds the
-kelvin count with unit code ``KEL``, and a tunable lamp holds ``color_temperature_min`` and
-``color_temperature_max`` instead, so a facet ranges over it and no value holds a unit.
+A light's color temperature is a measured entry (gen#232): ``color_temperature`` holds the
+kelvin count with unit code ``KEL``, so a facet ranges over it and no value holds a unit. One fact
+has one key (gen#498): a tunable lamp holds the two ends of its range as two entries under that
+same key (2700 and 6500), so a filter for 2700-3300K finds it by its warm end and one for
+6000-6500K by its cool end, and no "Minimum color temperature" key exists. The bulbs that
+state a temperature are the Light Bulb type (``type_specs/light_bulb.py``). A light states a
+temperature only where the light source comes with the product: a bulb, or a lamp with an
+Integrated LED. A fitting that takes a replaceable bulb (E27, E14, GU10, B22) states none, as the
+color depends on the bulb put in.
 """
 
 from __future__ import annotations
@@ -70,9 +76,8 @@ def _temp(kelvin: int) -> tuple[str, str, str, str, float]:
 
 
 def _temp_range(low: int, high: int) -> tuple[tuple[str, str, str, str, float], ...]:
-    """A tunable lamp's range: two entries, so a filter ranges over each end."""
-    return (_kelvin("color_temperature_min", "Minimum color temperature", low),
-            _kelvin("color_temperature_max", "Maximum color temperature", high))  # fmt: skip
+    """A tunable lamp's range: its two ends, two entries under the one color temperature key."""
+    return (_temp(low), _temp(high))
 
 
 def _lights(n: int) -> tuple[str, str, str, str]:
@@ -135,12 +140,12 @@ FLOOR_LAMPS = (
         params=_p(style="tripod", finish="oak"), size_key="finish"),
     Row("LTFUPL", "Dimmable Uplighter Floor Lamp", "Calderby & Lune", "Home", FLOOR,
         "Floor Lamp", 89.0, "floor_lamp",
-        "An uplighter with a glass bowl shade. It takes an integrated LED bulb and is "
+        "An uplighter with a glass bowl shade. It has an integrated 3000K LED light and is "
         "dimmable, with a dimmer switch on the cable.",
         (WHITE, CREAM),
         (_a("style", "Style", "Uplighter"), _cm("item_height", "Item height", 180),
          _a("shade_material", "Shade material", "Glass"), _a("switch", "Switch", "Dimmer"),
-         _a("bulb_fitting", "Bulb fitting", "Integrated LED"),
+         _a("bulb_fitting", "Bulb fitting", "Integrated LED"), _temp(3000),
          _yes("dimmable", "Dimmable")),
         _each(89.0, "Satin Nickel", "Antique Brass"),
         params=_p(style="uplighter", finish="satin nickel"), size_key="finish"),
@@ -400,6 +405,51 @@ LAMPSHADES = (
         (_a("shape", "Shape", "Pleated"), _a("fitting", "Fitting", "Ceiling"),
          _a("fabric", "Fabric", "Silk Dupion"), _a("pattern", "Pattern", "Plain")),
         (("30", 32.0), ("40", 39.0)),
+        params=_p(form="pleated", diameter_cm="30"), size_key="diameter_cm"),
+    # gen#329: the two-word spelling a shopper types ("lamp shade") and sells under, one row
+    # per form.
+    Row("LTSLDR", "Cotton Drum Lamp Shade", "Lanternby", "Home", SHADES,
+        "Lampshade", 19.0, "lampshade",
+        "A straight-sided lamp shade in a plain cotton, with a ring that fits a ceiling "
+        "pendant or a lamp.",
+        (WHITE, GREY, NAVY, MUSTARD),
+        (_a("shape", "Shape", "Drum"), _a("fitting", "Fitting", "Ceiling or Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("25", 19.0), ("30", 23.0), ("40", 29.0), ("45", 34.0)),
+        params=_p(form="drum", diameter_cm="30"), size_key="diameter_cm"),
+    Row("LTSLEM", "Linen Empire Lamp Shade", "Harbour & Pine", "Home", SHADES,
+        "Lampshade", 21.0, "lampshade",
+        "A linen lamp shade, narrow at the top and flared at the hem, for a table or "
+        "floor lamp.",
+        (NATURAL, SAGE, BLUSH),
+        (_a("shape", "Shape", "Empire"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Linen"), _a("pattern", "Pattern", "Plain")),
+        (("20", 21.0), ("25", 24.0), ("30", 28.0)),
+        params=_p(form="empire", diameter_cm="25"), size_key="diameter_cm"),
+    Row("LTSLTP", "Velvet Tapered Lamp Shade", "Calderby & Lune", "Home", SHADES,
+        "Lampshade", 26.0, "lampshade",
+        "A tapered lamp shade in soft velvet with a plain lining. It fits a table lamp.",
+        (CREAM, TEAL, FOREST),
+        (_a("shape", "Shape", "Tapered"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Velvet"), _a("pattern", "Pattern", "Plain")),
+        (("25", 26.0), ("30", 30.0), ("35", 35.0)),
+        params=_p(form="tapered", diameter_cm="30"), size_key="diameter_cm"),
+    Row("LTSLSC", "Scalloped Cotton Lamp Shade", "Brackenmere Home", "Home", SHADES,
+        "Lampshade", 22.0, "lampshade",
+        "A cotton lamp shade with a scalloped hem, for a bedside table lamp.",
+        (WHITE, BLUSH, MUSTARD),
+        (_a("shape", "Shape", "Scalloped"), _a("fitting", "Fitting", "Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("20", 22.0), ("25", 25.0)),
+        params=_p(form="scalloped", diameter_cm="20"), size_key="diameter_cm"),
+    Row("LTSLPL", "Pleated Lamp Shade", "Lanternby", "Home", SHADES,
+        "Lampshade", 24.0, "lampshade",
+        "A pleated lamp shade in crisp cotton, gathered at the top, for a ceiling pendant "
+        "or a lamp.",
+        (CREAM, NAVY, BLACK),
+        (_a("shape", "Shape", "Pleated"), _a("fitting", "Fitting", "Ceiling or Lamp"),
+         _a("fabric", "Fabric", "Cotton"), _a("pattern", "Pattern", "Plain")),
+        (("30", 24.0), ("40", 31.0)),
         params=_p(form="pleated", diameter_cm="30"), size_key="diameter_cm"),
 )
 

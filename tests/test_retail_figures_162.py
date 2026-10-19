@@ -109,8 +109,9 @@ def _quotations(stats: dict) -> dict[str, str]:
                 text = f"{value * 100:.{places}f}"
                 patterns[f"{name}@{places}"] = rf"(?<![\d.]){re.escape(text)}\s*%"
         elif value >= 1000:
-            # A standard's number is not a total: "ISO 4014" is a bolt standard (the README).
-            plain = rf"(?<!ISO )(?<!DIN )(?<![\d.,_]){value}(?![\d,_])"
+            # A standard's number is not a total: "ISO 4014" is a bolt standard (the README),
+            # and so is "ASTM F2329" (a total of 2329 styles collided with it, gen#510).
+            plain = rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_]){value}(?![\d,_])"
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
             patterns[name] = f"{plain}|{grouped}"
         else:
@@ -194,3 +195,12 @@ def test_an_industrial_section_is_not_read_but_a_retail_figure_still_is(stats: d
     assert hits(doc) and hits(scoped) == []
     assert scoped.count("\n") == doc.count("\n")
     assert hits(_scoped("README.md", doc + f"The ceiling is {total} SKUs.")) != []
+
+
+def test_an_astm_standard_number_is_not_a_quoted_total(stats: dict) -> None:
+    """``ASTM F2329`` is a galvanizing standard, not the count of styles that once equalled it
+    (gen#510); the same number typed on its own is still refused."""
+    number = stats["ceiling"]["styles"]
+    pattern = _quotations(stats)["ceiling.styles"]
+    assert re.search(pattern, f"hot-dip galvanizing (ASTM F{number})", re.MULTILINE) is None
+    assert re.search(pattern, f"the ceiling is {number} styles", re.MULTILINE)

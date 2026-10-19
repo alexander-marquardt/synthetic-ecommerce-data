@@ -23,9 +23,10 @@ from typing import TYPE_CHECKING, Any, NamedTuple
 
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure
-from synthetic_ecommerce_data.core.formats import LengthStyle, format_length_best
+from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style, format_length_best
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     _window,
@@ -91,7 +92,6 @@ PROVENANCE = table_provenance(
 #: ``Width`` is the census's name for a ring's cross-section; ``Dash Number``
 #: and ``Width Tolerance`` are excepted in ``names.NAME_EXCEPTIONS``.
 VOCAB = (
-    AttrSpec("Item", "line"),
     AttrSpec("Material", "line"),
     AttrSpec("Hardness", "line", 0.9),
     AttrSpec("Size", "sku", kind="length"),
@@ -109,7 +109,9 @@ def _decimal(inches: float, style: LengthStyle) -> str:
 
 
 def _tolerance(inches: float, style: LengthStyle) -> str:
-    return f"+/-{_decimal(inches, style)}"
+    # The unit is spelled one way (canonical: 0.003", never "in" or "in."), whatever
+    # the feed's own suffix: a tolerance's unit is not a feed's quirk to keep (#497).
+    return f"+/-{_decimal(inches, canonical_style(style.system))}"
 
 
 def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -134,7 +136,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         standard=STANDARD,
     )
     draft.line_attrs = [
-        keyword_attribute("Item", ITEM),
+        retired(keyword_attribute("Item", ITEM)),  # keeps the stream stable for #497
         keyword_attribute("Material", material),
         keyword_attribute("Hardness", hardness),
     ]

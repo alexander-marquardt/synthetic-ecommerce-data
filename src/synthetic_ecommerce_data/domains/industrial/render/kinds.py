@@ -35,8 +35,7 @@ SIGNATURES: dict[str, frozenset[str]] = {
     END_MILL: frozenset(
         {
             "Milling Dia.",
-            "End Mill Style",
-            "End Mill Application",
+            "Application",
             "Helix Angle",
             "Length of Cut",
         }
@@ -61,7 +60,6 @@ SIGNATURES: dict[str, frozenset[str]] = {
     ),
     TAP: frozenset(
         {
-            "Tap Style",
             "Tap Chamfer",
             "Thread Size",
             "Thread Pitch",

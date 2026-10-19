@@ -1014,7 +1014,7 @@ def _pieces_price(facts: dict[str, Attribute], census: dict) -> float:
     row = census["deep_types"][part]
     share = row["per_piece_quantiles_usd"]["p50"] / row["price_quantiles_usd"]["p50"]
     sizes = facts["Sizes Included"].values or (facts["Sizes Included"].value,)
-    pieces = facts["Number of Pieces"].value_num
+    pieces = facts["Piece Count"].value_num
     assert pieces is not None
     curve = sum(
         model.anchor * math.exp(price.structure(model, _inches(size), None, "standard"))
@@ -1045,7 +1045,7 @@ def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
     sets = [
         (shown, facts, brand)
         for shown, facts, brand in kits
-        if facts["Type"].value == "Hex Key Set" and facts["Number of Pieces"].value_num == 15
+        if facts["Type"].value == "Hex Key Set" and facts["Piece Count"].value_num == 15
     ]
     assert len(sets) == 5
     ratios = [
@@ -1119,7 +1119,7 @@ def _kind_of(facts: dict[str, Attribute]) -> int:
         i
         for i, kit in enumerate(newtypes.KITS)
         if kit.item == facts["Type"].value
-        and kit.per_size * len(kit.designations or kit.sizes) == facts["Number of Pieces"].value_num
+        and kit.per_size * len(kit.designations or kit.sizes) == facts["Piece Count"].value_num
         and math.isclose(
             _inches(kit.designations[0]) if kit.designations else kit.sizes[0], first, rel_tol=0.01
         )

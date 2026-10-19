@@ -25,7 +25,7 @@ from pathlib import Path
 import pytest
 
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
@@ -46,7 +46,7 @@ DEFAULT_SKU_FLOOR = 40
 
 #: The dimensional standards this type's lines claim, and the dimensions it publishes.
 DIMENSIONAL = {"ISO 2338", "ISO 8734", "ASME B18.8.2"}
-DIMENSIONS = ("Dowel Dia. (in)", "Dowel Dia. (mm)", "Length", "Dia. Tolerance")
+DIMENSIONS = ("Dowel Dia.", "Length", "Dia. Tolerance")
 
 #: A build large enough to reach every diameter of every table.
 LARGE_LINES = 39000
@@ -122,7 +122,7 @@ def _clean_docs(lines: int | None = None) -> list[dict]:
 
 
 def _values(doc: dict) -> dict[str, dict]:
-    return {a["name"]: a for a in doc["attributes"]}
+    return {a["name"]: a for a in authored_entries(doc)}
 
 
 def _mm(attribute: dict) -> float:
@@ -131,9 +131,8 @@ def _mm(attribute: dict) -> float:
 
 
 def _dia(values: dict[str, dict]) -> dict:
-    """The record's diameter, under its unit's label."""
-    (name,) = [n for n in ("Dowel Dia. (in)", "Dowel Dia. (mm)") if n in values]
-    return values[name]
+    """The record's diameter."""
+    return values["Dowel Dia."]
 
 
 def _inch_size(doc: dict) -> str:
@@ -179,7 +178,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -288,8 +287,9 @@ def test_each_lines_grade_tolerance_and_finish_are_its_standards(large_docs):
         if standard == "ASME B18.8.2":
             got = (values["Type"], values["Material"], values["Dia. Tolerance"])
             ok = got[:2] == ("Hardened Ground", "Steel") and got[2] in B18_8_2_TOLERANCES
-            ok = ok and "Finish" not in values and "Hardness" not in values
-            ok = ok and values.get("Rockwell Hardness", "Rockwell C60 min. (surface)") == (
+            ok = ok and "Finish" not in values
+            # One Hardness name since #497: the B18.8.2 pin's is the Rockwell figure.
+            ok = ok and values.get("Hardness", "Rockwell C60 min. (surface)") == (
                 "Rockwell C60 min. (surface)"
             )
         else:
@@ -300,14 +300,13 @@ def test_each_lines_grade_tolerance_and_finish_are_its_standards(large_docs):
             # Hardness and Finish are sparse: absent is not wrong, a wrong value is.
             ok = ok and values.get("Hardness", hardness) == hardness
             ok = ok and values.get("Finish", "Plain") in finishes
-            ok = ok and "Rockwell Hardness" not in values
         if not ok:
             wrong.append(f"{standard}: {values}")
     assert wrong == [], f"{len(wrong)} wrong, e.g. {wrong[:3]}"
 
 
 def test_no_pack_quantity_is_published(clean_docs):
-    names_published = {a["name"] for doc in clean_docs for a in doc["attributes"]}
+    names_published = {a["name"] for doc in clean_docs for a in authored_entries(doc)}
     assert {n for n in names_published if "Quantity" in n or "Pack" in n} == set()
 
 

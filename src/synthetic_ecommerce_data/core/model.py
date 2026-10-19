@@ -70,7 +70,7 @@ class Attribute:
 
     @property
     def multivalued(self) -> bool:
-        return self.values is not None and len(self.values) > 1
+        return self.values is not None and len(set(self.values)) > 1
 
     def as_entries(self) -> tuple[dict[str, Any], ...]:
         """The nested entries this attribute becomes, each split by :func:`.entry.entry`.
@@ -113,7 +113,7 @@ def multi_attribute(name: str, values: tuple[str, ...]) -> Attribute:
 
 
 def pricing_unit_for(quantity: str | None) -> str:
-    """How a SKU's price is quoted, from the ``Package Quantity`` it publishes (gen#14):
+    """How a SKU's price is quoted, from the ``Units per Pack`` it publishes (gen#14):
     ``"Per Pack"`` for a pack above 1, ``"Each"`` for anything else (no pack, or a pack
     of 1). A quantity that is not a number is no pack."""
     try:
@@ -147,7 +147,7 @@ class Sku:
     #: the description and the searchable text only -- never an attribute.
     noise: str = ""
     #: How the shown price is quoted: ``"Each"``, or ``"Per Pack"`` when the SKU
-    #: publishes a ``Package Quantity`` above 1 (gen#14). A plain field, not a variant.
+    #: publishes ``Units per Pack`` above 1 (gen#14). A plain field, not a variant.
     pricing_unit: str = "Each"
     #: The multiple a SKU is ordered in, in its pricing unit (gen#14). A plain field.
     order_multiple: int = 1

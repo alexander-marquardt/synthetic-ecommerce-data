@@ -28,6 +28,7 @@ import export  # noqa: E402
 import facet_leaves  # noqa: E402
 import scale  # noqa: E402
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
 from synthetic_ecommerce_data.core.standard import words  # noqa: E402
 
 #: The facet names the downstream attribute markers read, by the product type that has them.
@@ -104,7 +105,8 @@ def test_the_purpose_nodes_are_the_only_children_of_bras(rows):
     paths = {tuple(r["category_path"]) for r in rows if r["product_type"] == "Bra"}
     base = ("Womens", "Lingerie", "Bras")
     assert base in paths
-    assert {p[len(base):] for p in paths} == {()} | {(n,) for n in facet_leaves.PURPOSE_BRAS}
+    purpose = {(sentence_case(n),) for n in facet_leaves.PURPOSE_BRAS}  # published case (gen#499)
+    assert {p[len(base):] for p in paths} == {()} | purpose
     assert all(p[: len(base)] == base for p in paths)
 
 
@@ -203,7 +205,8 @@ def test_the_kind_node_is_the_product_type(rows):
     for r in rows:
         node = KIND_NODES.get(r["product_type"])
         if node:
-            assert r["category_path"][-1] in {node, *facet_leaves.PURPOSE_BRAS}
+            kinds = {sentence_case(n) for n in (node, *facet_leaves.PURPOSE_BRAS)}
+            assert r["category_path"][-1] in kinds
             assert r["category_leaf"] == r["category_path"][-1]
 
 
@@ -295,6 +298,7 @@ MOVED = {
     "Cotton Blend": ("Cotton", "Cotton Blend"),
     "Cotton Jersey": ("Jersey", "Cotton"),
     "Silk Dupion": ("Silk", "Silk Dupion"),
+    "Stretch Cotton": ("Cotton", "Stretch Cotton"),
 }
 
 
@@ -332,7 +336,8 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
             for v in [a["value"]] if r["product_type"] != "Bra"} >= (
         set(MOVED) | {value for _, value in TYPED_MOVED})
     assert {t for t, n in moved.items() if n} == {
-        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade"}
+        "Jeans", "Shirt", "Towel", "Soft Toy", "Leggings", "Vest", "Shorts", "Boxers", "Lampshade",
+        "Sleepsuit", "Baby Bodysuit"}
 
 
 def test_the_flat_document_carries_the_blend_and_never_facets_it(docs):

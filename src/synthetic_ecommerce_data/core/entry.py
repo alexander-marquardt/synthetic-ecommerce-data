@@ -76,8 +76,8 @@ UNIT_FOR_SUFFIX: dict[str, str] = {
 UNIT_FOR_BARE_NAME: dict[str, str] = {
     "Number of Flutes": "C62",
     "Grit": "C62",
-    "Package Quantity": "C62",
-    "Number of Pieces": "C62",
+    "Units per Pack": "C62",
+    "Piece Count": "C62",
     "Max. RPM": "RPM",
     "Decimal Equivalent": "INH",
 }
@@ -109,6 +109,8 @@ CANONICAL_PER_UNIT: dict[str, Fraction] = {
     "KGM": Fraction(1000),
     # Retail lighting (gen#232): a light's color temperature, in kelvin.
     "KEL": Fraction(1),
+    # Retail light bulbs (gen#498): a bulb's power and the incandescent power it replaces, in watts.
+    "WTT": Fraction(1),
 }
 
 #: Units that count something PER a size, so ``value_canonical = size / magnitude``.
