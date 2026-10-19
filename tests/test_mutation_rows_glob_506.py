@@ -192,3 +192,31 @@ def test_two_rows_files_cannot_share_a_prefix(
     )
     with pytest.raises(ValueError, match="share the prefix 'same'"):
         mutation_row.discover()
+
+
+_NOT_ROWS_FILES = {"mutation_check.py", "mutation_row.py"}
+
+
+def _misnamed_rows_files(scripts: Path) -> list[str]:
+    """Files in ``scripts`` that look like a rows file but that the glob does not find."""
+    return []
+
+
+def test_no_script_is_a_rows_file_the_glob_skips() -> None:
+    """The glob stays; this names the file it would silently skip (a typo such as
+    ``mutation_row_bolt_pack.py`` lost sixteen bed cases and every other gate stayed green)."""
+    skipped = _misnamed_rows_files(SCRIPTS)
+    assert not skipped, f"these look like rows files but do not match mutation_rows_*.py: {skipped}"
+
+
+def test_the_misnamed_file_detector_fires_on_a_fabricated_tree(tmp_path: Path) -> None:
+    for stem, body in {
+        "mutation_row_fake": _GOOD.format(prefix="fake"),
+        "mutation_rows_fake_ok": _GOOD.format(prefix="ok"),
+        "mutation_check": "from mutation_row import Row\n",
+        "mutation_row": "class Row: ...\n",
+        "unrelated": "PREFIX = 'x'\n",
+        "bare_prefix_and_rows": "PREFIX = 'x'\ndef rows():\n    return []\n",
+    }.items():
+        (tmp_path / f"{stem}.py").write_text(textwrap.dedent(body), encoding="utf-8")
+    assert _misnamed_rows_files(tmp_path) == ["bare_prefix_and_rows.py", "mutation_row_fake.py"]
