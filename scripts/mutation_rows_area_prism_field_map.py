@@ -167,8 +167,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "measure dispersion per SKU document again",
         "prism/derive.py",
-        "return self.cardinality / self.product_values if self.product_values else 0.0",
-        "return self.cardinality / self.present if self.present else 0.0",
+        "return (self.magnitudes or 0) / self.product_magnitudes",
+        "return (self.magnitudes or 0) / self.present",
         "tests/test_facet_control_rule.py -k products_not_sku_variants",
         "",
         "dispersion counts products, not SKU variants",
@@ -176,8 +176,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "count every SKU's copy of a product-scope value",
         "prism/derive.py",
-        '            product_values[key].update((row["product_id"], value) for value in vals)',
-        '            product_values[key].update((row["sku"], value) for value in vals)',
+        '                product_magnitudes[key].add((row["product_id"], magnitude))',
+        '                product_magnitudes[key].add((row["sku"], magnitude))',
         "tests/test_prism_field_map_drift.py",
         "",
         "dispersion counts products, not SKU variants",
