@@ -90,3 +90,13 @@ def test_a_title_naming_a_sleeve_states_it(knit: list[dict], words: str, value: 
     assert named, f"no Womens knitwear title names a {words}"
     wrong = [r["product_id"] for r in named if _sleeves(r) != [value]]
     assert not wrong, wrong
+
+
+@pytest.mark.parametrize(
+    "pid", ["PLT-JMPCBL", "BRD-NWJ1", "BRD-NWC2", "BRD-CLRCDG", "PLT-DA03100", "PLT-DA10100"]
+)
+def test_a_knit_that_stated_none_is_long_sleeved(knit: list[dict], pid: str) -> None:
+    """The first rows, a color-group row and the decoys cloned from them are long sleeved."""
+    held = [r for r in knit if r["product_id"] == pid]
+    assert held, f"{pid} is not a Womens knitwear template"
+    assert _sleeves(held[0]) == ["Long"]

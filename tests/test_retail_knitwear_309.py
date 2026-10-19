@@ -33,7 +33,8 @@ FLOORS = {"Womens": (150, 120), "Mens": (100, 80)}
 #: The styles a root's knitwear carries (the `knit_style` attribute) and the materials.
 STYLES = {
     "Womens": ("Crew Neck", "V Neck", "Roll Neck", "Turtle Neck", "Cable Knit", "Half Zip",
-              "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover"),
+              "Boat Neck", "Button Front", "Longline", "Cropped", "Tank Top", "Slipover",
+              "Cowl Neck", "Three Quarter Sleeve", "Three Quarter Cardigan", "Short Sleeve"),
     "Mens": ("Crew Neck", "V Neck", "Roll Neck", "Cable Knit", "Half Zip", "Quarter Zip",
             "Button Front", "Zip Through", "Shawl Collar", "Slipover"),
 }
@@ -46,7 +47,7 @@ BRANDS = ("White Heron", "Red Kite", "Cardigan Finch")
 CATEGORY_NOUNS = ("dress", "coat", "trouser", "shirt", "sock", "blazer", "skirt", "boot")
 AUDIENCE_WORDS = ("women", "men", "boyfriend", "kids", "boys", "girls", "mini-me")
 #: Necklines the knitwear carries (the existing facet's words, plus v-neck).
-NECKLINES = {"crew", "v-neck", "high", "boat", "collared", "round"}
+NECKLINES = {"crew", "v-neck", "high", "boat", "collared", "round", "cowl"}
 
 
 @pytest.fixture(scope="module")
