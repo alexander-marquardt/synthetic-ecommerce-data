@@ -371,9 +371,18 @@ def _with_images(stats: str, count: int) -> str:
     return _IMAGES.sub(f'"images": {count}', stats, count=1)
 
 
+def _rolled_retail_stats() -> str:
+    """The retail stats of this tree's build: what CI's roll_stats.py wrote before the tests.
+
+    Not the world checkout's copy: the world is cloned from HEAD's commits, where a PR that
+    moves the retail totals leaves the committed file stale (gen#373, the roll is not committed).
+    """
+    return (REPO / _RETAIL_STATS).read_text()
+
+
 def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
     """A PR and main that edit one total of the retail stats two ways; and the true file."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _rolled_retail_stats()
     head = _open_pr(
         world,
         {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)},
@@ -397,7 +406,7 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _rolled_retail_stats()
     head = _open_pr(
         world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
     )
