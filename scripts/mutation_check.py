@@ -2707,6 +2707,45 @@ MUTATIONS: list[Mutation] = [
         "B",
         "7/16-14 exists, in the standard's own offered lengths",
     ),
+    # ---- the thread-size sweep reads thread_size, so a dropped lock nut row reds (#68) ----
+    # Every name starts "size sweep:", so `--only "size sweep:"` re-runs them.
+    Mutation(
+        "size sweep: drop the ISO 7040 M24 row from the lock nut table",
+        "domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py",
+        "(\"M24x3\", 36.0, 27.1), (\"M30x3.5\", 46.0, 32.6), (\"M36x4\", 55.0, 38.9),",
+        "(\"M30x3.5\", 46.0, 32.6), (\"M36x4\", 55.0, 38.9),",
+        "tests/test_catalog_coverage.py -k \"every_size and generated\"",
+        "A",
+        "a lock nut size in a table reaches a document",
+    ),
+    Mutation(
+        "size sweep: drop the ISO 10512 M10x1 fine row from the lock nut table",
+        "domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py",
+        "((\"M10x1\", 16.0, 11.9), (\"M12x1.25\", 18.0, 14.9)),",
+        "((\"M12x1.25\", 18.0, 14.9),),",
+        "tests/test_catalog_coverage.py -k \"every_size and generated\"",
+        "A",
+        "a lock nut size in a table reaches a document",
+    ),
+    Mutation(
+        "size sweep: drop the 1-12 inch fine row from the lock nut table",
+        "domains/industrial/product_types/fasteners/lock_nuts_nylon_insert.py",
+        "\"3/4-16\", \"7/8-14\", \"1-12\",\n)  # fmt: skip",
+        "\"3/4-16\", \"7/8-14\",\n)  # fmt: skip",
+        "tests/test_catalog_coverage.py -k \"every_size and generated\"",
+        "A",
+        "a lock nut size in a table reaches a document",
+    ),
+    Mutation(
+        "size sweep: stop reading thread_size, so the lock nut is unswept again",
+        "tests/test_catalog_coverage.py",
+        "        values += facets.get(\"thread_size\", [])",
+        "        pass",
+        "tests/test_catalog_coverage.py -k \"every_size and generated\"",
+        "A",
+        "a lock nut size in a table reaches a document",
+        root=".",
+    ),
     # ---- a grading belongs to one measurement system, both directions ----
     Mutation(
         "grade every bolt on the inch scale, metric ones included",

@@ -329,6 +329,36 @@ PRICE = PriceModel(
 )
 
 
+#: The sizes each table offers, stated apart from the rows above: the coverage
+#: sweep (``tests/test_catalog_coverage.py``) holds every size here to reaching a
+#: document, so a row dropped from a table reds it. A coarse row is its diameter;
+#: a fine-pitch row is its whole designation, as it is a size of its own.
+SIZES = {
+    "ISO 7040": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M20", "M24", "M30", "M36",
+    ),
+    "ISO 10511": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M20", "M24", "M30", "M36",
+    ),
+    "ISO 10512": (
+        "M8x1", "M10x1", "M10x1.25", "M12x1.25", "M12x1.5", "M14x1.5", "M16x1.5", "M20x1.5",
+        "M24x2", "M30x2", "M36x2",
+    ),
+    "DIN 985": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M18", "M20", "M22", "M24",
+        "M27", "M30", "M33", "M36",
+    ),
+    # The inch lines claim the hex nut's flats table: the coarse rows by
+    # diameter, the fine ones (UNF) by designation.
+    _INCH_FLATS_STANDARD: (
+        "#4", "#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4",
+        "7/8", "1",
+        "#10-32", "1/4-28", "5/16-24", "3/8-24", "7/16-20", "1/2-20", "9/16-18", "5/8-18",
+        "3/4-16", "7/8-14", "1-12",
+    ),
+}  # fmt: skip
+
+
 def claims(facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str) -> list[str]:
     """A metric line's dimensional standard is its table's; an inch line's
     rows are no standard's, so ``standard`` is empty for it."""
@@ -360,6 +390,7 @@ SPEC = TypeSpec(
     share=0.1,
     price=PRICE,
     claims=claims,
+    sizes=SIZES,
     may_claim=frozenset(
         {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320", "ISO 898-2", "ISO 3506-2"}
         | {"SAE J995"}
