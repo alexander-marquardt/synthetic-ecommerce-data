@@ -657,7 +657,7 @@ fields:
   - name: attr_series
     type: terms
     source: facets.series
-  # Shank dia. -- a discrete standard set: 85 distinct values over 1845 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Shank dia. -- a discrete standard set: 85 distinct values over 1847 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
   #   present on 1931 documents across 4 product type(s); 85 distinct values
   - name: shank_dia
     type: terms
