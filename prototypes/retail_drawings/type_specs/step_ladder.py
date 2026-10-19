@@ -12,7 +12,7 @@ from type_registry import TypeSpec, a
 
 def _row(code, title, brand, price, steps, material, load, height, kind, text):
     return (code, title, brand, price, text,
-            (("steps", "Steps", str(steps), "C62"), a("material", "Material", material), ("max_load_kg", "Max load", str(load), "KGM", load * 1000.0),
+            (("steps", "Steps", str(steps), "C62"), a("material", "Material", material), ("max_load_kg", "Maximum load", str(load), "KGM", load * 1000.0),
              ("platform_height_m", "Platform height", f"{height:g}", "MTR", height * 1000.0), a("ladder_kind", "Kind", kind)),
             (("steps", str(steps)), ("kind", "stool" if kind == "Step stool" else "ladder")))  # fmt: skip
 

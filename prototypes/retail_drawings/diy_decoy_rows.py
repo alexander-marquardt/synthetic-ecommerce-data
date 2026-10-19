@@ -101,7 +101,7 @@ TABLE = (
         (
             "DCSLCN",
             "Step Lively Candle",
-            "A bright citrus scent, with a ladder of orange peel on the label.",
+            "A woody scent of a hayloft, with a ladder to the loft on the label.",
         ),
     ),
     (
@@ -117,7 +117,7 @@ TABLE = (
 
 
 def _sibling(words: str, code: str, title: str, kind: str) -> Row:
-    desc = f"A cotton {kind} printed with a {words} and a joke about the weekend."
+    desc = f"A cotton {kind} printed with the words '{words}' and a joke about the weekend."
     if kind == "cushion":
         return Row(
             code,

@@ -138,10 +138,10 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 
 
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
-    """The product count is frozen (166,990 SKUs, 16,359 styles at the ceiling): the four pattern
-    words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
-    101,460 template SKUs; a new style would raise both. This test pins 11324 templates and
-    101460 template SKUs: the PR that lifts the freeze must move them."""
+    """The pattern words add no style and no SKU: they ride on colorways of styles main already
+    sold. The templates are pinned (11,387 templates, 101,570 template SKUs, the ceiling at
+    167,954 SKUs and 16,422 styles); the PR that adds a style must move them. The drill family
+    (gen#191, 63 templates and 110 SKUs) was the last to."""
     tpls = scale.templates()
-    assert len(tpls) == 11324
-    assert sum(t["sku_count"] for t in tpls) == 101460
+    assert len(tpls) == 11387
+    assert sum(t["sku_count"] for t in tpls) == 101570

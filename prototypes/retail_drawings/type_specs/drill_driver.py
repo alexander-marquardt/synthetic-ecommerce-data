@@ -7,6 +7,7 @@ Five styles from four brands over the 12, 18 and 20 V packs; the drawing's batte
 
 from __future__ import annotations
 
+import color_word_brand_rows
 import diy_tools as d
 from type_registry import TypeSpec
 
@@ -67,7 +68,7 @@ SPEC = TypeSpec(
     key="drill_driver",
     department=d.HOME,
     product_type="Drill Driver",
-    rows=ROWS,
+    rows=ROWS + color_word_brand_rows.spec_rows("Drill Driver"),
     decoys=d.decoys(
         ROWS[0],
         "drill driver",

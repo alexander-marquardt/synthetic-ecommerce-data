@@ -39,7 +39,7 @@ PAIRS = ((RED, BLACK), (BLUE, WHITE), (GREEN, YELLOW))
 CAL, TOR, BRI, HAR, STO = (
     "Calderby & Lune",
     "Torvane Tools",
-    "Brindlecote",
+    "Marlowick",
     "Harkwell Power",
     "Stonemarsh",
 )
@@ -121,7 +121,7 @@ def decoys(base: Row, words: str, absent: tuple[str, str, str]) -> tuple[Decoy, 
         base,
         code=code,
         title=title,
-        description=f"A {words} sold on its own, with the fittings the title names.",
+        description=f"The {words}, sold on its own, with the fittings the title names.",
         colors=base.colors[:1],
     )
     return (Decoy(4, query, "category", real),)

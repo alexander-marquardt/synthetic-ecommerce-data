@@ -17,6 +17,7 @@ if str(RETAIL) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
+import diy_decoy_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import kit  # noqa: E402
 import scale  # noqa: E402
@@ -31,9 +32,9 @@ def _leaves() -> dict[tuple[str, ...], list[breadth_rows.Row]]:
     return out
 
 
-def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_twenty_leaves() -> None:
+def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_nineteen_leaves() -> None:
     leaves = _leaves()
-    assert len(leaves) >= 20
+    assert len(leaves) >= 19
     assert {p: len(r) for p, r in leaves.items() if not 1 <= len(r) <= 2} == {}
 
 
@@ -47,6 +48,8 @@ def test_no_other_template_uses_a_breadth_leaf() -> None:
         and d["product_id"] not in garden_rows.decoy_ids()
         # a color-word brand row sits in a breadth leaf on purpose (gen#312)
         and d["product_id"] not in color_word_brand_rows.product_ids()
+        # a drill-family decoy (an apron, a candle) sits in a breadth leaf on purpose (gen#191)
+        and d["product_id"] not in diy_decoy_rows.product_ids()
     }
     assert sorted(set(_leaves()) & other) == []
 
@@ -191,10 +194,16 @@ VOLTAGE_TYPES = frozenset(
 
 
 def _tool_rows() -> list[breadth_rows.Row]:
-    """The rows of every type spec (the drills left ``breadth_rows`` for specs in gen#191)."""
+    """The rows of every type spec (the drills left ``breadth_rows`` for specs in gen#191), but a
+    color-word brand row: its title is a brand and a tool, not a voltage (gen#312)."""
     import type_registry
 
-    return [r for s in type_registry.specs().values() for r in s.rows]
+    return [
+        r
+        for s in type_registry.specs().values()
+        for r in s.rows
+        if not isinstance(r, color_word_brand_rows.CRow)
+    ]
 
 
 def test_every_cordless_drill_carries_a_voltage_its_title_names() -> None:
