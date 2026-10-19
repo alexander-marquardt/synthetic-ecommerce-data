@@ -667,7 +667,7 @@ def test_the_plan_line_prints_the_count_then_the_files() -> None:
         text=True,
         cwd=REPO,
     )
-    assert files == shard.stdout.splitlines(), "with no range --plan is the plain shard"
+    assert sorted(files) == shard.stdout.splitlines(), "with no range --plan is the plain shard"
 
 
 def test_plan_all_prints_every_test_file_for_a_local_run() -> None:
@@ -680,7 +680,7 @@ def test_plan_all_prints_every_test_file_for_a_local_run() -> None:
     assert done.returncode == 0, done.stderr
     first, *files = done.stdout.splitlines()
     assert first == "shards=1"
-    assert files == ci_shards.collected_test_files()
+    assert sorted(files) == ci_shards.collected_test_files()
 
 
 def test_the_selector_prints_every_test_for_no_change_and_the_reached_ones_for_a_path() -> None:

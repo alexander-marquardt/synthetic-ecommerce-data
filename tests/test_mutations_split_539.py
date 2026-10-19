@@ -24,7 +24,8 @@ import mutation_row  # noqa: E402  (scripts/ is not a package)
 
 #: The mutations that were inline in ``mutation_check.py`` when it was split. The bed may grow
 #: and a row may be retired by editing its file; losing one in the move would drop this below it.
-INLINE_BEFORE_THE_SPLIT = 477
+#: 477 less the five golden-catalog rows main moved to mutation_rows_golden_anchors_50.py (#50).
+INLINE_BEFORE_THE_SPLIT = 472
 
 
 def _mutations_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **files: str) -> None:
