@@ -694,7 +694,8 @@ ROSE_GOLD = "Rose Gold"
 JEWELLERY = ("Womens", "Jewellery", "Earrings")
 BOUQUETS = ("Garden", "Flowers", "Bouquets")
 ROSE_GOLDS = (
-    Style("RGSTUD", "Cubic Zirconia Stud Earrings", "Wrenfield", "Clothing", JEWELLERY, 18.0,
+    Style("RGSTUD", "Cubic Zirconia Stud Earrings", "Wrenfield", "Clothing",
+          (*JEWELLERY, "Ear Studs"), 18.0,  # a leaf is never a parent
           "Sparkling cubic zirconia studs set in rose gold plated sterling silver.",
           "Earrings", "earrings", one(cw(ROSE_GOLD, "#d8a28f"), 40), metal=True,
           params=(("kind", "stud"),)),

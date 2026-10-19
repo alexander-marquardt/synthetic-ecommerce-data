@@ -9,6 +9,8 @@ that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named 
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _R = "prototypes/retail_drawings"
 _S = "type_specs/sunglasses.py"
 _T = "tests/test_retail_sunglasses_422.py"
@@ -555,3 +557,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "accessories"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

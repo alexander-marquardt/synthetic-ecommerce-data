@@ -112,6 +112,7 @@ import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import footwear_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
@@ -646,6 +647,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if a["key"] == "motif" and "motif" in rec["drawing"]:
                 _redraw_motif(rec, old, new)
     lighting_rows.fit_ceiling_form(rec)  # a flush light has no drop (gen#237)
+    footwear_rows.fit_axes(rec)  # a clog's "Back strap" is drawn as `back` (gen#512)
     if colors:  # "Shown in cream" names the color the picture shows: the hero
         names = "|".join(re.escape(c["color"]) for c in tpl.get("color_options", ()))
         rec["description"] = re.sub(
@@ -1063,7 +1065,14 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return grocery.flat(docs)
 
 
+#: ``--skus ceiling``: every SKU the build can make, whatever that count is (gen#536). A release
+#: asks for this rather than a number, so it never asks for more than the frozen build holds.
+CEILING = "ceiling"
+
+
 def _target(text: str) -> int:
+    if text == CEILING:
+        return sys.maxsize
     value = int(text)
     if value < 1:
         raise argparse.ArgumentTypeError("--skus must be at least 1")
@@ -1078,7 +1087,8 @@ def main(argv: list[str] | None = None) -> int:
         "--skus",
         type=_target,
         required=True,
-        help="target SKU count; the build stops at the first style past it",
+        help="target SKU count; the build stops at the first style past it. "
+        f"'{CEILING}' builds every SKU the templates can make and is never short",
     )
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument(
@@ -1100,9 +1110,10 @@ def main(argv: list[str] | None = None) -> int:
         with args.flat.open("w", encoding="utf-8") as handle:
             for row in flat(docs):
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    ceiling = args.skus == sys.maxsize  # --skus ceiling: the target is what the build made
     report = {
-        "target_skus": args.skus,
-        "reached_target": scaled.skus >= args.skus,
+        "target_skus": scaled.skus if ceiling else args.skus,
+        "reached_target": ceiling or scaled.skus >= args.skus,
         "seed": args.seed,
         "coverage": coverage(scaled.records),
         "distinctness": distinctness(scaled.records, seed=args.seed),
