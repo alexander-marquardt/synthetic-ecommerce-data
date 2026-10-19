@@ -73,15 +73,20 @@ def eligible(rec: dict[str, Any]) -> bool:
 
 
 def reduce(rec: dict[str, Any]) -> None:
-    """Give ``rec`` a was-price over its price, and the facts that follow, in place."""
-    price = min(s["price"] for s in rec["skus"])
+    """Give ``rec`` a was-price over its price, and the facts that follow, in place.
+
+    The was-price is taken off the dearest SKU, so every size sits under it (``price <
+    was_price`` is the sale filter); ``discount_pct`` states the cheapest SKU's, the price the
+    style is shown from, as :mod:`class_model` does."""
+    price = max(s["price"] for s in rec["skus"])
+    cheapest = min(s["price"] for s in rec["skus"])
     cut = CUTS[_hash(rec["product_id"], "cut") % len(CUTS)]
     step = 1.0 if price >= WHOLE_POUNDS_FROM else 0.5
     was = round(price / (1 - cut / 100) / step) * step
     if was <= price:
         was += step
     rec["was_price"] = was
-    rec["discount_pct"] = round(100 * (was - price) / was)
+    rec["discount_pct"] = round(100 * (was - cheapest) / was)
     rec["promotion"] = promotion.values(rec["product_id"])
 
 
