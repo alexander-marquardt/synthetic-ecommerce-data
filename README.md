@@ -327,7 +327,7 @@ washer's nine sizes; a hammer is its head weight and handle) runs out of
 SKUs its makers have not already made, so it grows less. It was about 28 thousand
 lines for 100K until uniqueness stopped counting metadata as a difference.
 
-**122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
+**124,976 SKUs over 72,898 products** (`skus` and `lines` in `stats.json`, as of #67),
 4,513 of them lock nuts over 2,714 products, 7,045 set screws over 3,801,
 1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
 463 and 694 external retaining rings over 413 (the last two are the first
