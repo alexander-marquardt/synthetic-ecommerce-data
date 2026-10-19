@@ -56,9 +56,12 @@ def test_every_plant_node_holds_at_least_eight_styles(records, node):
 def test_a_plant_node_is_named_for_the_word_a_shopper_types(records, node):
     """The leaf is the shopper's word (a plural for a tree), so a query naming it routes to it."""
     held = [r for r in records if tuple(r["category_path"]) == node]
-    leaf = node[-1].lower().rstrip("s")
+    leaf = node[-1].lower()
     assert held, f"{' > '.join(node)} holds no style"
-    assert all(leaf in r["title"].lower() for r in held)
+    # "Olive Trees" is named in the plural; a title says "Olive Tree". Test the singular
+    # by removing a trailing "s" only from the word "Trees", so "Eucalyptus" stays whole.
+    singular = leaf[: -len("s")] if leaf.endswith("trees") else leaf
+    assert all(singular in r["title"].lower() for r in held)
 
 
 def test_every_style_of_a_plant_node_is_a_plant(records):
@@ -67,8 +70,43 @@ def test_every_style_of_a_plant_node_is_a_plant(records):
     assert {r["product_type"] for r in held} == {"Plant"}
 
 
-def test_a_herb_and_a_lavender_plant_are_drawn_as_a_potted_herb():
-    assert "potted_herb" in kit.SHAPES
+HERB_NODES = tuple(n for n in NODES if n[-1] in {"Lavender", "Sage", "Rosemary", "Thyme"})
+
+
+def _held(records, node):
+    return [r for r in records if tuple(r["category_path"]) == node]
+
+
+@pytest.mark.parametrize("node", HERB_NODES, ids=lambda n: n[-1])
+def test_a_herb_and_a_lavender_plant_are_drawn_as_a_potted_herb(records, node):
+    held = _held(records, node)
+    assert held, f"{node[-1]} holds no style"
+    assert {r["drawing"]["shape"] for r in held} == {"potted_herb"}
+
+
+@pytest.mark.parametrize("node", HERB_NODES, ids=lambda n: n[-1])
+def test_a_herb_row_blooms_only_where_the_row_says_so(records, node):
+    """Every Lavender row carries a flower hex; Sage and Rosemary rows none. A Creeping Thyme
+    row carries one on purpose (creeping thyme flowers pink), and its restyled copies inherit
+    it, so the thyme rows that bloom are exactly the "Paths and Paving" ones."""
+    held = _held(records, node)
+    assert held, f"{node[-1]} holds no style"
+    bloomed = {r["title"] for r in held if r["drawing"]["params"].get("bloom")}
+    if node[-1] == "Lavender":
+        assert bloomed == {r["title"] for r in held}
+    elif node[-1] == "Thyme":
+        assert bloomed == {r["title"] for r in held if "Paths and Paving" in r["title"]}
+    else:
+        assert not bloomed
+
+
+def test_an_olive_tree_row_is_labelled_tree_like_its_title():
+    """The four olive rows added with the node take the title noun, so LABEL_DEBT stays."""
+    import breadth_rows
+
+    added = [r for r in breadth_rows.GARDEN if r.code.startswith("OLV") and r.code != "OLVSTD"]
+    assert len(added) == 4
+    assert {r.label for r in added} == {"Tree"}
 
 
 def test_the_potted_herb_blooms_only_when_the_row_says_so():
