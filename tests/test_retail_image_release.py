@@ -170,3 +170,20 @@ def test_the_command_writes_the_industrial_package_shape(tmp_path, files):
     assert unpacked == files
     again = bundle.write_archive(files, tmp_path / "again.tar.gz")
     assert again == hashlib.sha256(packed).hexdigest(), "the archive is not deterministic"
+
+
+def test_a_style_with_one_print_colorway_and_solid_ones_renders_every_sku():
+    """The floral dress draws its first colorway as a print; its solid colorways keep the style's
+    motif keys on the drawing, and a solid fill carries none (gen#408)."""
+    import scale  # noqa: PLC0415
+
+    rec = next(r for r in scale.templates() if r["product_id"] == "BRD-CLRWRP")
+    patterns = {}
+    for sku in rec["skus"]:
+        drawing = image_release.colorway_drawing(rec, sku)
+        patterns[sku["color"]] = drawing["pattern"]
+        if drawing["pattern"] != "print":
+            keys = {"motif", "placement", "scale", "spacing", "count", "detail"}
+            assert keys & drawing.keys() == set(), f"{sku['color']} keeps the print's keys"
+        assert image_release.render(rec, sku).startswith(b"<svg")
+    assert set(patterns.values()) == {"print", "solid"}
