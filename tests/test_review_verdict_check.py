@@ -9,6 +9,8 @@ checks out nothing). The file is the same in every repository that carries the c
 
 import importlib.util
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -100,6 +102,45 @@ def test_the_newest_non_bot_verdict_decides():
 
 def test_an_author_less_entry_is_a_bot():
     assert check.newest_verdict([comment(verdict(), login="")]) is None
+
+
+def test_the_newest_verdict_is_by_time_not_by_position_in_the_list():
+    # `load_facts` appends the reviews after the comments, so a review can sit last yet be older.
+    entries = [
+        comment(verdict("FIX"), at="2026-10-19T11:00:00Z"),
+        comment(verdict("ARM"), at="2026-10-19T10:00:00Z"),
+    ]
+    assert check.newest_verdict(entries).kind == "FIX"
+
+
+def test_two_verdicts_at_the_same_second_are_decided_by_position():
+    at = "2026-10-19T10:00:00Z"
+    assert (
+        check.newest_verdict(
+            [comment(verdict("ARM"), at=at), comment(verdict("FIX"), at=at)]
+        ).kind
+        == "FIX"
+    )
+    assert (
+        check.newest_verdict(
+            [comment(verdict("FIX"), at=at), comment(verdict("ARM"), at=at)]
+        ).kind
+        == "ARM"
+    )
+
+
+def test_an_entry_with_no_timestamp_is_the_oldest_not_a_crash():
+    entries = [
+        comment(verdict("ARM"), at=None),
+        comment(verdict("FIX"), at="2026-10-19T10:00:00Z"),
+    ]
+    assert check.newest_verdict(entries).kind == "FIX"
+    assert check.newest_verdict(entries[:1]).kind == "ARM"
+
+
+def test_the_field_names_are_read_in_any_case():
+    body = f"review-verdict: arm\nREVIEWED-HEAD: {A}\ntier: docs\n"
+    assert check.parse_verdict(body) == check.Verdict("ARM", A, "docs")
 
 
 # --- the pass rules ------------------------------------------------------------------------
@@ -231,7 +272,7 @@ def put(repo, name, text):
     path = repo / name
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
-    git(repo, "add", name)
+    git(repo, "--literal-pathspecs", "add", name)
 
 
 @pytest.fixture
@@ -310,6 +351,74 @@ def test_a_reviewed_head_that_is_not_in_the_repository_is_unreadable(repo):
     assert not moved.carries
 
 
+def second_commit(repo, files):
+    for path, text in files.items():
+        put(repo, path, text)
+    git(repo, "commit", "-q", "-m", "second")
+    return git(repo, "rev-parse", "HEAD")
+
+
+def test_a_hand_edit_to_a_non_ascii_named_file_is_a_changed_diff(repo):
+    # git quotes `caf\303\251` in `--name-only`; the quoted text names no file, so the edit used
+    # to vanish and an old ARM verdict passed as "generated only".
+    old = branch_commit(repo, "pr", {"src/x.py": "x = 1\n"})
+    head = second_commit(repo, {"src/caf\u00e9.py": "y = 1\n"})
+    moved = check.delta_state(repo, "main", old, head, ["uv.lock"])
+    assert (moved.kind, moved.detail) == ("changed", "src/caf\u00e9.py")
+    assert not moved.carries
+
+
+def test_a_hand_edit_to_a_file_named_like_a_pathspec_is_a_changed_diff(repo):
+    # Read as a pathspec, `:(top)notes.txt` means a file `notes.txt` that does not exist: the
+    # edit would show as an empty diff on both sides and pass as "generated only".
+    old = branch_commit(repo, "pr", {"src/x.py": "x = 1\n"})
+    head = second_commit(repo, {":(top)notes.txt": "n = 1\n"})
+    moved = check.delta_state(repo, "main", old, head, [])
+    assert (moved.kind, moved.detail) == ("changed", ":(top)notes.txt")
+
+
+def test_the_paths_of_a_diff_are_listed_verbatim_with_both_sides_of_a_rename(repo):
+    put(repo, "docs/a.md", "a\n" * 20)
+    git(repo, "commit", "-q", "-m", "docs at the base")
+    git(repo, "checkout", "-q", "-b", "pr", "main")
+    git(repo, "mv", "docs/a.md", "docs/b.md")
+    put(repo, "tests/caf\u00e9.py", "t = 1\n")
+    git(repo, "commit", "-q", "-m", "rename and add")
+    paths = check.changed_paths(repo, "main", "pr")
+    assert sorted(paths) == ["docs/a.md", "docs/b.md", "tests/caf\u00e9.py"]
+
+
+def test_a_move_out_of_a_deep_directory_is_charged_the_deep_tier(repo):
+    git(repo, "checkout", "-q", "-b", "pr", "main")
+    (repo / "docs").mkdir()
+    git(repo, "mv", "src/x.py", "docs/x.md")
+    git(repo, "commit", "-q", "-m", "move code into docs")
+    paths = check.changed_paths(repo, "main", "pr")
+    assert check.required_tier(paths, RULES) == "production-runtime"
+
+
+def test_changed_paths_is_none_when_git_cannot_say(repo):
+    assert check.changed_paths(repo, "main", "f" * 40) is None
+
+
+def test_a_diff_that_differs_with_no_path_to_show_for_it_is_changed_not_generated(
+    repo, monkeypatch
+):
+    old = branch_commit(repo, "pr", {"src/x.py": "x = 1\n"})
+    head = second_commit(repo, {"src/x.py": "x = 2\n"})
+    monkeypatch.setattr(check, "changed_paths", lambda *args: [])
+    moved = check.delta_state(repo, "main", old, head, ["src/*"])
+    assert (moved.kind, moved.carries) == ("changed", False)
+
+
+def test_a_path_list_git_could_not_produce_is_unreadable(repo, monkeypatch):
+    old = branch_commit(repo, "pr", {"src/x.py": "x = 1\n"})
+    head = second_commit(repo, {"src/x.py": "x = 2\n"})
+    monkeypatch.setattr(check, "changed_paths", lambda *args: None)
+    moved = check.delta_state(repo, "main", old, head, ["src/*"])
+    assert (moved.kind, moved.carries) == ("unreadable", False)
+
+
 # --- main ---------------------------------------------------------------------------------
 
 
@@ -350,6 +459,144 @@ def test_main_exits_3_and_never_passes_when_a_read_failed(tmp_path, capsys):
     assert code == 3
     assert "COULD NOT JUDGE #7" in out
     assert "PASS" not in out
+
+
+# --- load_facts: a fake `gh` that runs the real jq, and a local origin ----------------------
+
+GH = """#!/bin/sh
+# The two forms the check uses: gh api --paginate <endpoint> --jq <expression>
+[ "$1" = api ] && [ "$2" = --paginate ] && [ "$4" = --jq ] || { echo "unexpected: $*" >&2; exit 9; }
+file="$GH_FIXTURES/$(printf %s "$3" | tr / _).json"
+[ -f "$file" ] || { echo "gh: Not Found (HTTP 404)" >&2; exit 1; }
+exec jq -c "$5" "$file"
+"""
+needs_jq = pytest.mark.skipif(
+    shutil.which("jq") is None, reason="the fake gh runs the real jq"
+)
+
+
+@pytest.fixture
+def pr_world(tmp_path, monkeypatch):
+    """A bare origin with `main` and a PR branch, a clone of it, and a fake `gh` on PATH."""
+    work, bare, clone = tmp_path / "work", tmp_path / "origin.git", tmp_path / "clone"
+    work.mkdir()
+    git(work, "init", "-q", "-b", "main")
+    put(work, "src/x.py", "x = 0\n")
+    put(work, "docs/a.md", "a\n" * 20)
+    git(work, "commit", "-q", "-m", "base")
+    git(work, "checkout", "-q", "-b", "pr")
+    put(work, "src/x.py", "x = 1\n")
+    put(work, "tests/caf\u00e9.py", "t = 1\n")
+    git(work, "mv", "docs/a.md", "docs/b.md")
+    git(work, "commit", "-q", "-m", "pr")
+    head = git(work, "rev-parse", "HEAD")
+    git(tmp_path, "init", "-q", "--bare", str(bare))
+    git(work, "push", "-q", str(bare), "main", "pr")
+    git(tmp_path, "clone", "-q", str(bare), str(clone))
+    bin_dir, fixtures = tmp_path / "bin", tmp_path / "fixtures"
+    bin_dir.mkdir()
+    fixtures.mkdir()
+    (bin_dir / "gh").write_text(GH)
+    (bin_dir / "gh").chmod(0o755)
+    monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
+    monkeypatch.setenv("GH_FIXTURES", str(fixtures))
+
+    def serve(endpoint, doc):
+        (fixtures / (endpoint.replace("/", "_") + ".json")).write_text(json.dumps(doc))
+
+    serve(
+        "repos/o/r/pulls/7",
+        {"head": {"sha": head}, "user": {"login": "someone"}, "base": {"ref": "main"}},
+    )
+    serve(
+        "repos/o/r/issues/7/comments",
+        [
+            {
+                "body": "looks fine",
+                "created_at": "2026-10-19T09:00:00Z",
+                "user": {"login": "maintainer"},
+            },
+            {"body": None, "created_at": "2026-10-19T09:30:00Z", "user": None},
+        ],
+    )
+    serve(
+        "repos/o/r/pulls/7/reviews",
+        [
+            {
+                "body": verdict(head=head),
+                "submitted_at": "2026-10-19T10:00:00Z",
+                "user": {"login": "maintainer"},
+                "state": "COMMENTED",
+            },
+            {
+                "body": verdict("FIX", head=head),
+                "submitted_at": None,
+                "user": {"login": "maintainer"},
+                "state": "PENDING",
+            },
+            {
+                "body": "note",
+                "submitted_at": None,
+                "user": {"login": "maintainer"},
+                "state": "COMMENTED",
+            },
+        ],
+    )
+    return clone, head, serve
+
+
+@needs_jq
+def test_load_facts_reads_the_pr_the_paths_and_the_comments_and_reviews(pr_world):
+    clone, head, _ = pr_world
+    facts_ = check.load_facts("o/r", 7, clone)
+    assert (facts_.author, facts_.head, facts_.base) == ("someone", head, "origin/main")
+    assert sorted(facts_.paths) == [
+        "docs/a.md",
+        "docs/b.md",
+        "src/x.py",
+        "tests/caf\u00e9.py",
+    ]
+    assert (
+        [(e["login"], e["body"][:6]) for e in facts_.entries]
+        == [
+            ("maintainer", "looks "),
+            ("", ""),
+            ("maintainer", "Review"),
+            ("maintainer", "note"),
+        ]
+    )  # a deleted user reads as a bot, a null body as empty, a pending review is not a verdict
+    assert all(
+        isinstance(e["created_at"], str) for e in facts_.entries
+    )  # a null time is ""
+    assert check.newest_verdict(facts_.entries) == check.Verdict(
+        "ARM", head, "production-runtime"
+    )
+
+
+@needs_jq
+def test_load_facts_cannot_judge_when_gh_cannot_answer(pr_world):
+    clone, _, _ = pr_world
+    with pytest.raises(check.CannotJudge, match="gh api repos/o/r/pulls/8"):
+        check.load_facts("o/r", 8, clone)
+
+
+@needs_jq
+def test_load_facts_cannot_judge_when_the_base_cannot_be_fetched(pr_world):
+    clone, head, serve = pr_world
+    serve(
+        "repos/o/r/pulls/7",
+        {"head": {"sha": head}, "user": {"login": "someone"}, "base": {"ref": "gone"}},
+    )
+    with pytest.raises(check.CannotJudge, match="git fetch origin gone"):
+        check.load_facts("o/r", 7, clone)
+
+
+@needs_jq
+def test_load_facts_cannot_judge_when_the_paths_cannot_be_listed(pr_world, monkeypatch):
+    clone, _, _ = pr_world
+    monkeypatch.setattr(check, "changed_paths", lambda *args: None)
+    with pytest.raises(check.CannotJudge, match="could not list the paths"):
+        check.load_facts("o/r", 7, clone)
 
 
 # --- the workflow --------------------------------------------------------------------------
@@ -399,3 +646,16 @@ def test_every_action_is_pinned_to_a_full_sha():
     for line in uses:
         ref = line.split("@", 1)[1].split()[0]
         assert len(ref) == 40, line
+
+
+def test_two_different_pure_renames_are_a_changed_diff(repo):
+    git(repo, "checkout", "-q", "-b", "pr", "main")
+    git(repo, "mv", "src/x.py", "src/y.py")
+    git(repo, "commit", "-q", "-m", "rename to y")
+    old = git(repo, "rev-parse", "HEAD")
+    git(repo, "reset", "-q", "--hard", "main")
+    git(repo, "mv", "src/x.py", "src/z.py")
+    git(repo, "commit", "-q", "-m", "rename to z")
+    head = git(repo, "rev-parse", "HEAD")
+    moved = check.delta_state(repo, "main", old, head, ["uv.lock"])
+    assert moved.kind == "changed"
