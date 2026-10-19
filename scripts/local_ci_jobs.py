@@ -131,8 +131,14 @@ class NoLocalEquivalent(Exception):
     """A workflow job holds something that cannot be run locally as written."""
 
 
+#: Workflows that are not pull-request checks: ``release.yaml`` runs on a ``v*`` tag, uploads a
+#: release and opens a pull request elsewhere (gen#536), so ``--local-ci`` must never run it.
+NOT_A_CHECK = ("release.yaml", "release.yml")
+
+
 def workflow_files(directory: Path) -> list[Path]:
-    return sorted([*directory.glob("*.yml"), *directory.glob("*.yaml")])
+    found = [*directory.glob("*.yml"), *directory.glob("*.yaml")]
+    return sorted(path for path in found if path.name not in NOT_A_CHECK)
 
 
 def load_jobs(directory: Path) -> dict[str, dict]:

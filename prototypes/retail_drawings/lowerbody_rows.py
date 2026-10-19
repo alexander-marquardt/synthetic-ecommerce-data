@@ -117,6 +117,8 @@ BURGUNDY = cw("Burgundy", "#6e2433")
 PURPLE = cw("Purple", "#6b4a8f")
 BEIGE = cw("Beige", "#d8c9a8", "solid", "#b9b4a6")
 GREY_MARL = cw("Grey Marl", "#a9abb0")
+#: The wool pleated skirt's first colorway: a tartan, so "tartan skirt" finds it (gen#408).
+RED_TARTAN = cw("Red Tartan", "#a3262a", "tartan", "#1f4f3a")
 LIGHT_WASH = cw("Light Wash", "#8fb0cf", "solid", "#4a6a94")
 MID_WASH = cw("Mid Wash", "#4a6a94", "solid", "#25345a")
 BLACK_DENIM = cw("Black", "#3a3a40", "solid", "#8f989f")
@@ -419,7 +421,7 @@ SKIRTS = (
            (CREAM, BURGUNDY, GREEN), _sk("A-Line", "Midi", "Silk", "Elastic"), "a_line", "midi"),
     _skrow("SKTWOL", "Wool Pleated Midi Skirt", "Harbour & Pine", 44.0,
            "Knife pleats in a warm wool, lined in polyester and cut to mid calf.",
-           (CHARCOAL, NAVY, GREY_MARL), _sk("Pleated", "Midi", "Wool", "Zip", "Polyester"),
+           (RED_TARTAN, NAVY, GREY_MARL), _sk("Pleated", "Midi", "Wool", "Zip", "Polyester"),
            "pleated", "midi", was=60.0),
     _skrow("SKTDSU", "Cotton Midi Skirt with Suede Trim", "Harbour & Pine", 26.0,
            "A cotton A-line skirt with a suede trim on the waistband and a side zip.",

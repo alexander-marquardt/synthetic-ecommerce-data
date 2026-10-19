@@ -158,10 +158,20 @@ def test_storage_is_one_kind_where_none_means_no_storage(leaf: str, values: set[
     assert {e["name"] for e in entries} == {"Storage feature"}
 
 
+def _built_samples(name: str) -> list[dict]:
+    """The sneak-peek samples the builders write (``samples.ndjson``, ``samples4.ndjson``); the
+    files are build output and not in git (gen#536)."""
+    import build_preview  # noqa: PLC0415
+    import build_preview4  # noqa: PLC0415
+
+    builder = {"samples.ndjson": build_preview, "samples4.ndjson": build_preview4}[name]
+    return [json.loads(line) for line in builder.outputs()[1].splitlines()]
+
+
 @pytest.mark.parametrize("name", ["samples.ndjson", "samples4.ndjson"])
-def test_no_committed_sample_carries_a_second_key_for_a_concept(name: str) -> None:
+def test_no_built_sample_carries_a_second_key_for_a_concept(name: str) -> None:
     """The sneak-peek samples hold styles the templates do not (a round-2 table lamp)."""
-    records = [json.loads(line) for line in (RETAIL / name).read_text().splitlines()]
+    records = _built_samples(name)
     assert records
     found = key_guard.concept_findings(records)
     assert [f for f in found if "carried under" in f] == []
@@ -169,11 +179,11 @@ def test_no_committed_sample_carries_a_second_key_for_a_concept(name: str) -> No
 
 
 @pytest.mark.parametrize("name", ["samples.ndjson", "samples4.ndjson"])
-def test_a_committed_samples_item_height_in_centimetres_is_canonical_in_millimetres(
+def test_a_built_samples_item_height_in_centimetres_is_canonical_in_millimetres(
     name: str,
 ) -> None:
     """The table lamp of the round-2 samples carried its 46 cm as 46.0 mm."""
-    records = [json.loads(line) for line in (RETAIL / name).read_text().splitlines()]
+    records = _built_samples(name)
     heights = [
         e
         for r in records
