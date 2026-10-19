@@ -54,8 +54,9 @@ def files() -> list[tuple[str, bytes]]:
 
 
 def _color(variant: dict[str, Any]) -> str | None:
-    """The colorway: the color with its pattern, as a wash is a pattern of Blue (#188)."""
-    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "pattern")]
+    """The colorway: the color with its pattern, as a wash is a pattern of Blue (#188); a
+    complexion product's colorway is its shade (#345)."""
+    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "shade", "pattern")]
     return "/".join(pair) or None
 
 
