@@ -94,6 +94,12 @@ def test_a_class_8_decoy_names_the_word_and_its_attribute_is_another(
         assert doc["category_leaf"].lower() != f"{r.word} jeans", (r.pid, doc["category_leaf"])
 
 
+def test_barrel_and_balloon_read_as_one_word_and_other_fits_do_not() -> None:
+    assert da._same_word("barrel", "balloon") and da._same_word("balloon", "barrel")
+    assert da._same_word("super skinny", "skinny")
+    assert not da._same_word("barrel", "bootcut") and not da._same_word("balloon", "slim")
+
+
 @pytest.mark.parametrize("key", sorted(KINDS))
 def test_the_baseline_ranks_three_decoys_in_the_top_10_of_every_value(
     key: str, rows: list[da.Row], ceiling: list[dict], index: br.Index
