@@ -164,16 +164,15 @@ def axes_from(kind: str, e: dict[str, Any], heel: Any) -> dict[str, str]:
     if kind == "wedge":
         return {"heel": str(heel)}
     if kind == "espadrille":
-        return {"heel": str(e["heel_type"]).lower()}
+        return {"heel": e["heel_type"].lower()}
     if kind == "mule":
-        return {"heel": str(e["heel_type"]).lower(), "toe": str(e["toe_style"]).lower()}
+        return {"heel": e["heel_type"].lower(), "toe": e["toe_style"].lower()}
     if kind == "platform_trainer":
         return {"platform": str(e["platform_height"])}
     if kind == "clog":
-        strap = "back" if e["strap"] == "Back strap" else "none"
-        return {"strap": strap, "body": str(e["material"]).lower()}
+        return {"strap": "back" if e["strap"] == "Back strap" else "none", "body": e["material"].lower()}
     if kind == "jelly":
-        return {"style": str(e["jelly_style"]).lower(), "glitter": str(e["glitter"]).lower()}
+        return {"style": e["jelly_style"].lower(), "glitter": e["glitter"].lower()}
     if kind == "barefoot":
         return {"sole": str(e["sole_thickness"])}
     return {}
