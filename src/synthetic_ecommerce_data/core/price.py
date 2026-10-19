@@ -29,8 +29,8 @@ each size it holds, priced on its part type's own curve, times how many of
 that size it holds, at the census's per-piece share of that part's shown price
 (:data:`PER_PIECE`). The slope on that key is 1.0, so the kit's anchor over
 its ``anchor_key`` is the kit's price over its contents' (the fitted kit factor: a small
-premium fitted to the census median kit price, which moves when #76 widens
-the kit kinds), and its material and tier apply once, to the kit.
+discount or premium fitted to the census median kit price), and its material and tier
+apply once, to the kit.
 
 ``z_group`` is one draw per price group, what the census calls a cell: one
 brand, every line attribute a group page holds equal (:func:`group_draw`).
@@ -286,13 +286,20 @@ KEYS: RegistryTable[str, Callable[[Mapping[str, Attribute]], float | None]] = Re
 #: keys the report's size pairs and its order row, which the price meets as an
 #: outcome: more of the same pieces sum to more. ``scripts/fit_price_model.py``
 #: fits such a type no group noise: the census kit spread comes from kinds of
-#: kit the catalog does not build, and noise loud enough to stand in for them
-#: would spread a kit's price further than its contents do (the kit p90/p10
-#: pin, :data:`PINNED_SHORTFALLS`).
+#: kit (packs of 12 and 15 to a 1,000-piece screw assortment and a 115-piece
+#: drill index, :data:`.newtypes.KITS`, #76), and noise loud enough to stand
+#: in for them would spread a kit's price about 79x on its own.
 CONTENTS_PRICED = frozenset({"kit_assortment"})
 #: The slope of a contents-priced type's price on its contents' price: a kit
 #: is its contents at one fitted factor, whatever it holds.
 CONTENTS_SLOPE = 1.0
+#: The SKU noise (log sigma) of a contents-priced type, fixed and not fitted:
+#: just enough that two kits of near-equal contents do not tie. A kit's
+#: larger-costs-more share is an outcome of what it holds, and noise loud
+#: enough to meet the census share (0.419 once #76 widened the kinds, which
+#: left the spread out of band at the default build) takes the price off its
+#: contents.
+CONTENTS_SKU_SIGMA = 0.022
 
 #: Each kit part type's census per-piece p50 and shown-price p50 (USD). A
 #: shown price may be a pack (every census socket screw is, most of them 100
@@ -960,10 +967,8 @@ SIZE_NOISE: dict[str, str] = {
 #: its specs the sample is a true sample and not every brand there is.
 BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
-_KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
     _WHEEL_SPREAD_ROW: (None, 1.75),
-    _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
@@ -986,16 +991,6 @@ PINNED_SHORTFALLS: dict[str, str] = {
         "one spec shares across its brands (size_sigma), so the group noise left, drawn per "
         "brand, spreads the sampled brands of one spec only to "
         f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272)"
-    ),
-    _KIT_SPREAD_ROW: (
-        "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
-        "between about $36 and $130 of parts, so with material and tier its prices span "
-        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][0]:.1f}x on the default build and "
-        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][1]:.1f}x at 100K against the census's 114x, whose "
-        "kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud "
-        "enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, "
-        "so the price would follow the noise, not the contents, and a kit draws none "
-        "(widen the kit range: #76)"
     ),
 }
 
@@ -1040,7 +1035,7 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
         "end_mill_ball": _model("end_mill_ball", 45.33, 0.375, 0.108, 0.246, slope=0.952),
         "end_mill_square": _model("end_mill_square", 32.86, 0.375, 0.230, 0.308, slope=0.653),
         "hex_key": _model("hex_key", 17.71, 0.25, 0.658, 0.216),
-        "kit_assortment": _model("kit_assortment", 100.9, 100.0, 0.000, 0.022),
+        "kit_assortment": _model("kit_assortment", 96.3, 100.0, 0.000, 0.022),
         "nut_hex": _model(
             "nut_hex",
             16.7,

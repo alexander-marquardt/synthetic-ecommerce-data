@@ -40,7 +40,8 @@ they are. The brand spread is scored as the report scores it, over
   page, so a type with few pages has a median that moves with the build's
   size the louder the group noise is: the p50 row holds it down. A type
   priced from its contents (:data:`.price.CONTENTS_PRICED`, kits) is fitted
-  none: its spread is what its contents span;
+  none, and its SKU noise is the fixed :data:`.price.CONTENTS_SKU_SIGMA`, not
+  solved for its order row: its spread is what its contents span;
 * ``size_sigma`` (only a type :data:`.price.SIZE_NOISE` names), the noise
   one spec shares across brands, is fitted with ``group_sigma`` and
   ``sku_sigma`` together: the worst miss over p50, p90/p10, brand spread, the
@@ -477,10 +478,14 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
     slope, ls = price.model_slope(type_key), length.slope if length else 0.0
     wide = max(builds, key=lambda b: alone(b, slope, ls))
     widest = alone(wide, slope, ls)
-    if widest > target_spread and type_key not in price.SLOPE_CUTS:
+    # A type priced from its contents has no census slope to lower (its slope
+    # is :data:`.price.CONTENTS_SLOPE`, and its kinds are the table's): what its
+    # contents span is held to the row's band, which the row itself scores (#76).
+    limit = spread_band[1] if contents else target_spread
+    if widest > limit and type_key not in price.SLOPE_CUTS:
         sys.exit(
             f"{type_key}: the census slopes alone spread the shown price {widest:.2f}x, wider "
-            f"than the census p90/p10 {target_spread:.2f}x, and price.SLOPE_CUTS records no "
+            f"than the census p90/p10 {limit:.2f}x, and price.SLOPE_CUTS records no "
             "reason to lower them"
         )
     if type_key in price.SLOPE_CUTS:
@@ -569,7 +574,10 @@ def fit_type(type_key: str, builds: list[TypeBuild]) -> TypeFit:
     # figures, so a laddered type fits the step at the noise it has, then the
     # noise at that step, twice over.
     group = size = step = 0.0
-    fixed_sku: float | None = 0.0 if sized else None
+    # A kit's SKU noise is not solved: its order row is an outcome of what it
+    # holds, and noise loud enough to meet the census share would take the
+    # price off its contents (:data:`.price.CONTENTS_SKU_SIGMA`, #76).
+    fixed_sku: float | None = 0.0 if sized else (price.CONTENTS_SKU_SIGMA if contents else None)
     for _ in range(2 if laddered else 1):
         if laddered:
             step = _argmin(
