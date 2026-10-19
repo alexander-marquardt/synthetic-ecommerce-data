@@ -366,4 +366,5 @@ def test_the_decoys_name_exactly_the_gifts_types_of_the_live_catalog(
     live = {r["product_type"] for r in ceiling if r["category_path"][0] == ROOT}
     mine = {t[0] for t in TYPES.values()}
     assert mine <= live
-    assert {r.gift_type for r in dpw.TABLE if r.gift_type} == mine
+    # the gift card (gen#424) is the one Gifts type outside TYPES that carries decoys (gen#437)
+    assert {r.gift_type for r in dpw.TABLE if r.gift_type} == mine | {"Gift Card"}
