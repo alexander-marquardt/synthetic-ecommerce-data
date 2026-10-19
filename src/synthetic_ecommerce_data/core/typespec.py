@@ -182,6 +182,12 @@ class TypeSpec:
     #: The length attribute a unit equivalent is written for
     #: (:data:`.noise.UNIT_PRIMARY`).
     unit_primary: str | None = None
+    #: How the type's cross-reference sentence is written (#75).
+    compat: tuple[str, str] | bool | None = None
+    #: Every Nth line of a diameter is built to a fine pitch (#75).
+    near_miss_period: int | None = None
+    #: Whether the type is a cutting tool (#75).
+    cutting: bool = False
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
