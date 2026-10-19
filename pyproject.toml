@@ -92,3 +92,4 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # would stop them matching, and the harness would report "mutation did not
 # apply" for rules it is supposed to be testing.
 "scripts/mutation_check.py" = ["E501"]
+"scripts/mutation_rows_area_*.py" = ["E501"]

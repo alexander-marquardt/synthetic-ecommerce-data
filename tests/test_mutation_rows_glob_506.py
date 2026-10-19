@@ -121,10 +121,10 @@ def test_the_harness_plants_exactly_the_rows_the_glob_finds() -> None:
     assert len(found) > 400
     assert {"garden hose", "lighting drawings", "bolt page pack"} <= {p for p, _ in found}
     missing = [
-        f"{prefix}: {row.name}"
+        mutation_row.as_mutation(prefix, row).name
         for prefix, row in found
         if (
-            f"{prefix}: {row.name}",
+            mutation_row.as_mutation(prefix, row).name,
             row.file,
             row.old,
             row.new,

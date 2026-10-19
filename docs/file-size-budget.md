@@ -20,6 +20,9 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   `drafts.py` (the draft shapes and the tables they share). `Generator`
   inherits one mixin from each of the first three, so every method keeps its
   name and every importer keeps `from ...industrial.generate import ...`.
+  `scripts/mutation_check.py` is under it too: its table of planted defects moved
+  verbatim into the area files `scripts/mutation_rows_area_<area>.py` (#363), and
+  `tests/test_mutation_check_size_363.py` holds the harness and every rows file under the cap.
   `README.md` is now under the cap: its retail
   prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
   where a retail type batch adds its listing line.

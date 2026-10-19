@@ -128,7 +128,8 @@ def test_this_tree_is_judged(capsys) -> None:
     status = _gate().main(["--list"])
     out = capsys.readouterr().out
     assert status == 0, out
-    assert "scripts/mutation_check.py" in out
+    # It named scripts/mutation_check.py, the one file over the cap, until that was split (#363).
+    assert "against a cap of 1750 lines" in out
 
 
 # -- the commit-time hook on a merge in progress (#398) ------------------------

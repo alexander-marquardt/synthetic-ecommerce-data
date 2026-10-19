@@ -1126,7 +1126,7 @@ So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
 the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
-planted in `scripts/mutation_check.py`.
+planted in `scripts/mutation_rows_area_prism_field_map.py`.
 
 ### Which attributes become facets
 
@@ -1244,6 +1244,11 @@ gap — a generic drawing that could be swapped for another type's, an attribute
 that was validated but not drawn, and a control whose mutation text no longer
 matched the code it was supposed to break. All three are fixed rather than
 removed; a mutation that reds nothing is the point of running them.
+
+The harness is `scripts/mutation_check.py` and holds no row: the rows are in
+`scripts/mutation_rows_*.py`, found by glob (`scripts/mutation_row.py`).
+`python scripts/mutation_check.py --list` prints every row name, and
+`--only "<text>"` runs the rows whose name contains it.
 
 **The harness cannot find the defect the line drawings exist to prevent, and
 that is why the tests do not rely on it.** An attribute published on every
