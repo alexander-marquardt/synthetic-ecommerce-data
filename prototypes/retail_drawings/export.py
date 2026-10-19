@@ -360,7 +360,9 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "attributes": [
             e
             for k in options
-            for e in (_swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+            for e in (
+                _swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k])
+            )
             if not (own and e["key"] == "pattern")
         ]
         + _one_case(own),

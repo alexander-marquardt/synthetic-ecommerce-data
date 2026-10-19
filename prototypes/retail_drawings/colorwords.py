@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import re
 
-
 #: The words a color value is made of. A value is valid when every word is one of these
 #: (a shade code such as ``2N`` is no color: ``shades.SHADE_CODE``).
 COLOR_WORDS = frozenset({
