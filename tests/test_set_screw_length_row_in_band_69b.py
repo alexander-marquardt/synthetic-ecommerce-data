@@ -24,9 +24,8 @@ SET_SCREW = "set_screws_hex_socket"
 
 @pytest.fixture(scope="module", params=["default", "100K"])
 def rows(request) -> dict:
-    config = (
-        GeneratorConfig() if request.param == "default" else GeneratorConfig(lines=LARGE_BUILD_LINES)
-    )
+    lines = None if request.param == "default" else LARGE_BUILD_LINES
+    config = GeneratorConfig() if lines is None else GeneratorConfig(lines=lines)
     return {row.name: row for row in price_report.price_comparisons(generate(config))}
 
 
