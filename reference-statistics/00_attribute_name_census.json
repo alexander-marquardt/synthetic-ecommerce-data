@@ -1,5 +1,5 @@
 {
- "method": "Every attribute name observed, VERBATIM, with the number of records containing it. No normalisation applied to the reported strings.",
+ "method": "Every attribute name observed, VERBATIM, with the number of records containing it. A name repeated on several rows of one specification table counts once per record, not once per row, so n_records equals n in 06_attribute_sparsity.json for every name. No normalisation applied to the reported strings.",
  "n_records": 496,
  "names_by_frequency": [
   {
@@ -9,13 +9,13 @@
   },
   {
    "name_verbatim": "Overall Length",
-   "n_records": 281,
-   "presence_rate": 0.5665
+   "n_records": 256,
+   "presence_rate": 0.5161
   },
   {
    "name_verbatim": "Finish",
-   "n_records": 221,
-   "presence_rate": 0.4456
+   "n_records": 220,
+   "presence_rate": 0.4435
   },
   {
    "name_verbatim": "Shank Dia.",
@@ -54,8 +54,8 @@
   },
   {
    "name_verbatim": "Dimension Type",
-   "n_records": 143,
-   "presence_rate": 0.2883
+   "n_records": 141,
+   "presence_rate": 0.2843
   },
   {
    "name_verbatim": "Grade",
@@ -83,16 +83,6 @@
    "presence_rate": 0.2359
   },
   {
-   "name_verbatim": "Size",
-   "n_records": 109,
-   "presence_rate": 0.2198
-  },
-  {
-   "name_verbatim": "Decimal Equivalent",
-   "n_records": 78,
-   "presence_rate": 0.1573
-  },
-  {
    "name_verbatim": "Application",
    "n_records": 77,
    "presence_rate": 0.1552
@@ -108,9 +98,9 @@
    "presence_rate": 0.1351
   },
   {
-   "name_verbatim": "Flute Length",
-   "n_records": 55,
-   "presence_rate": 0.1109
+   "name_verbatim": "Size",
+   "n_records": 62,
+   "presence_rate": 0.125
   },
   {
    "name_verbatim": "Type",
@@ -124,8 +114,8 @@
   },
   {
    "name_verbatim": "Thread Type",
-   "n_records": 52,
-   "presence_rate": 0.1048
+   "n_records": 50,
+   "presence_rate": 0.1008
   },
   {
    "name_verbatim": "Material - Machining",
@@ -218,6 +208,11 @@
    "presence_rate": 0.0685
   },
   {
+   "name_verbatim": "Decimal Equivalent",
+   "n_records": 33,
+   "presence_rate": 0.0665
+  },
+  {
    "name_verbatim": "For Use With",
    "n_records": 33,
    "presence_rate": 0.0665
@@ -236,6 +231,11 @@
    "name_verbatim": "Thread Size",
    "n_records": 29,
    "presence_rate": 0.0585
+  },
+  {
+   "name_verbatim": "Flute Length",
+   "n_records": 27,
+   "presence_rate": 0.0544
   },
   {
    "name_verbatim": "End Style",
@@ -2946,7 +2946,7 @@
    ],
    "counts": {
     "Length of Cut": 158,
-    "Flute Length": 55
+    "Flute Length": 27
    }
   },
   "overall_length": {
@@ -2954,7 +2954,7 @@
     "Overall Length"
    ],
    "counts": {
-    "Overall Length": 281
+    "Overall Length": 256
    }
   },
   "shank_dia": {
@@ -2984,7 +2984,7 @@
     "System of Measurement"
    ],
    "counts": {
-    "Dimension Type": 143,
+    "Dimension Type": 141,
     "Measurement System": 49,
     "System of Measurement": 22
    }
