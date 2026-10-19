@@ -34,12 +34,13 @@ A document holding a color, a pattern or a wash reads three places: the variant 
 ## The four patterns a shopper types before a category (gen#408)
 
 The coverage review of this change asked for tartan, floral, breton stripe and patchwork beside
-leopard and polka dot, and the build held none of the four. `prototypes/retail_drawings/pattern_rows.py`
-sells them: a tartan mini skirt, a floral dress and a floral blouse, a breton stripe top and a
-patchwork cushion, each in colorways that carry the pattern ("Red Tartan"). They are templates only
-(`scale.derivable` leaves them out) and are counted by `golden-retail/stats.json` under
-`templates.pattern_rows`. `colorwords.PATTERN_WORDS` lists the four; "Breton Stripe" is one pattern, so a breton colorway
-is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
+leopard and polka dot, and the build held none of the four. The product count is frozen, so no
+style is added: one colorway of a style main already sold carries each word. "Red Tartan" is the
+first colorway of the wool pleated midi skirt (`lowerbody_rows.py`), "Pink Floral" of the jersey
+midi dress (`seasonal_rows.py`, drawn with a daisy print), "Navy Breton Stripe" of the ribbed long
+sleeve top (`colorgroup_rows.py`) and "Multi Patchwork" of the linen fringed cushion
+(`breadth_rows.py`, drawn with the patchwork fill). `colorwords.PATTERN_WORDS` lists the four;
+"Breton Stripe" is one pattern, so a breton colorway is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
 plain color yet, and `main_colors.complete` refuses a type with none.
 
 ## Guard

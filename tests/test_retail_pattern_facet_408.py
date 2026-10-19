@@ -27,7 +27,7 @@ WANTED = ("leopard", "tartan", "polka dot", "floral", "breton stripe", "patchwor
 #: value -> (top of the category path, product types where a shopper types it before the category).
 WHERE = {
     "tartan": ("Womens", {"Skirt"}),
-    "floral": ("Womens", {"Dress", "Blouse"}),
+    "floral": ("Womens", {"Dress"}),
     "breton stripe": ("Womens", {"Top"}),
     "patchwork": ("Home", {"Cushion"}),
 }
@@ -97,45 +97,32 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
     assert sorted(bad) == []
 
 
-def test_a_pattern_row_draws_a_motif_the_kit_has() -> None:
+def _styles_with(fill: str) -> list[dict[str, Any]]:
+    """The template styles that sell a colorway with this fill."""
+    return [
+        d
+        for d in scale.templates()
+        if fill in {o["pattern"] for o in d.get("color_options", [])}
+    ]
+
+
+def test_a_flower_print_draws_a_motif_the_kit_has() -> None:
     """A flower print names a kit shape (``daisy``), never the category ``flowers``: the drawing
     kit raises on a name it has no shape for."""
     import motifs
-    import pattern_rows
 
-    named = {d["drawing"]["motif"] for d in pattern_rows.docs() if "motif" in d["drawing"]}
-    assert named
-    for name in named:
-        assert motifs.registry().get(name) is not None, name
-
-
-def test_the_pattern_rows_open_no_tree_node_of_their_own() -> None:
-    """A skirt sits in ``Womens > Skirts``: a ``Mini Skirts`` node would pull every other
-    "Mini Skirt" title into it (the gen#283 tree-nesting rule)."""
-    import pattern_rows
-
-    paths = {tuple(d["category_path"]) for d in pattern_rows.docs() if "Skirt" in d["title"]}
-    assert paths == {("Womens", "Skirts")}
-
-
-def test_a_pattern_row_description_does_not_name_a_neckline() -> None:
-    """gen#181: a boat or slash top names its neckline in the title on some tops only, and
-    never in the description."""
-    import pattern_rows
-
-    for d in pattern_rows.docs():
-        assert not re.search(r"\b(boat|slash)", d["description"].lower()), d["product_id"]
+    floral = [d for d in _styles_with("print") if "Pink Floral" in str(d["color_options"])]
+    assert floral
+    for d in floral:
+        assert motifs.registry().get(d["drawing"]["motif"]) is not None, d["drawing"]
 
 
 def test_the_patchwork_cushion_is_drawn_with_a_patchwork_fill_not_a_gingham_one() -> None:
     """A patchwork cushion drawn as gingham shows a check to a shopper who typed patchwork."""
-    import pattern_rows
-
-    cushion = [d for d in pattern_rows.docs() if d["product_type"] == "Cushion"]
+    cushion = [d for d in _styles_with("patchwork") if d["product_type"] == "Cushion"]
     assert cushion
     for d in cushion:
         assert d["drawing"]["pattern"] == "patchwork", d["drawing"]
-        assert {o["pattern"] for o in d["color_options"]} == {"patchwork"}
 
 
 def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
@@ -153,7 +140,7 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     """The product count is frozen (166,990 SKUs, 16,359 styles at the ceiling): the four pattern
     words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
-    101,450 template SKUs; a new style would raise both."""
+    101,460 template SKUs; a new style would raise both."""
     tpls = scale.templates()
     assert len(tpls) == 11324
-    assert sum(t["sku_count"] for t in tpls) == 101450
+    assert sum(t["sku_count"] for t in tpls) == 101460

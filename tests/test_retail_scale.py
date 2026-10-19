@@ -72,7 +72,6 @@ APPLIANCE_ROWS = FIGURES["templates"]["appliance_rows"]["styles"]
 TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
-PATTERN_ROWS = FIGURES["templates"]["pattern_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
 WOMENS_DEPTH_ROWS = FIGURES["templates"]["womens_depth_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
@@ -108,7 +107,6 @@ TEMPLATES = (
     + LIGHTING_ROWS
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
-    + PATTERN_ROWS
     + MENS_DEPTH_ROWS
     + WOMENS_DEPTH_ROWS
     + KNITWEAR_ROWS
