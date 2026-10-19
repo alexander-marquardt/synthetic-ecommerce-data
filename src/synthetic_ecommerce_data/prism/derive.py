@@ -47,6 +47,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import flat_key
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import Generator
 
@@ -54,8 +55,10 @@ from synthetic_ecommerce_data.domains.industrial.generate import Generator
 #: so withheld from the sidebar whatever their values measure. Read from the
 #: generator rather than restated here: it is the one place that knows a value
 #: was drawn as a reference, and a measured ratio cannot see that once a
-#: finite code pool saturates (see :data:`IDENTIFIER_DISPERSION`).
-IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES
+#: finite code pool saturates (see :data:`IDENTIFIER_DISPERSION`). The sidebar reads the
+#: PUBLISHED names, which are sentence case (gen#499), so the declaration is published the
+#: same way: an authored ``List Number`` would otherwise never match ``List number``.
+IDENTIFIER_ATTRIBUTES = frozenset(sentence_case(n) for n in Generator.IDENTIFIER_ATTRIBUTES)
 
 #: An attribute is QUANTITATIVE if this share of the documents that publish it
 #: carry a parsed ``value_num``. The catalog deliberately emits values that do

@@ -43,7 +43,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from synthetic_ecommerce_data.core import emit, noncopy, typespec
+from synthetic_ecommerce_data.core import emit, letter_case, noncopy, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
@@ -381,6 +381,10 @@ def main(argv: list[str] | None = None) -> int:
     payload["figures"] = _measured_figures(out)
     (out / "stats.json").write_text(
         json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
+    )
+    (out / letter_case.AUTHORED_NAMES_FILE).write_text(
+        json.dumps(emit.authored_name_map(catalog), indent=1, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     (out / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"

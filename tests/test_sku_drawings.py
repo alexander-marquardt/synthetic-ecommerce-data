@@ -47,7 +47,7 @@ GOLDEN = REPO / "golden-catalog"
 
 
 @functools.cache
-def _facets() -> dict[str, dict]:
+def _facets() -> bundle.SkuFacets:
     """``{sku: facets}``: a nested entry carries no spelling, so a drawing reads it here (#42)."""
     return bundle.flat_facets(GOLDEN)
 
@@ -267,6 +267,9 @@ def test_rebuild_called_directly_draws_a_breadth_product(tmp_path):
 def test_a_drawing_that_moved_without_a_regeneration_refuses_the_bundle(tmp_path):
     shutil.copy(GOLDEN / "nested.jsonl", tmp_path / "nested.jsonl")
     shutil.copy(GOLDEN / "flat.jsonl", tmp_path / "flat.jsonl")
+    # The drawings look attributes up by the name a type authored; the build writes the map
+    # from the published (sentence case) names back to those beside the catalogue (gen#499).
+    shutil.copy(GOLDEN / "authored_names.json", tmp_path / "authored_names.json")
     lines = (GOLDEN / "images.jsonl").read_text().splitlines()
     row = json.loads(lines[0])
     row["sha256"] = hashlib.sha256(b"a different drawing").hexdigest()
@@ -308,7 +311,9 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
         "screw_socket_head": lambda r: fastener.geometry_from_record(r).total_height,
         "screw_flat_head": lambda r: fastener.geometry_from_record(r).total_height,
         "bolt_hex": lambda r: fastener.geometry_from_record(r).total_height,
-        "end_mill_square": lambda r: endmill.geometry_from_record(r).oal.inches,
+        "end_mill_square": lambda r: (
+            endmill.geometry_from_record({**r, "End Mill Style": "Square"}).oal.inches
+        ),  # noqa: E501
         "drill_jobber": lambda r: drill.geometry_from_record(r).oal.inches,
     }[type_key]
     figure_fn, _ = FIGURES[type_key]
@@ -343,7 +348,7 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
 NOT_DRAWN_BY_ANY_FIGURE = frozenset(
     {
         "Standards", "Dimension Type", "Measurement System", "System of Measurement",
-        "List Number", "Head Weight", "Package Quantity", "Max. RPM", "Grade",
+        "List Number", "Head Weight", "Units per Pack", "Max. RPM", "Grade",
         "Dynamic Load Capacity", "Static Load Capacity", "Decimal Equivalent", "Item",
     }
 )  # fmt: skip
@@ -372,7 +377,12 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
             continue
         drawn: dict[bytes, dict] = {}
         for variant in parent["variants"]:
-            record = bundle._record(parent, variant, _facets()[variant["sku"]])
+            record = bundle._record(
+                parent,
+                variant,
+                _facets()[variant["sku"]],
+                _facets().authored.get(parent["product_type"]),
+            )
             data, _ = draw_sku(parent["product_type"], parent["brand"], record)
             shown = {k: v for k, v in record.items() if k not in NOT_DRAWN_BY_ANY_FIGURE}
             if data in drawn and drawn[data] != shown:
@@ -535,9 +545,7 @@ LENS_COLOR = "#ffffff"
 
 def _has_lens(svg: bytes) -> bool:
     return any(
-        e.tag.endswith("circle")
-        and e.attrib.get("fill") == LENS_COLOR
-        and "stroke" not in e.attrib
+        e.tag.endswith("circle") and e.attrib.get("fill") == LENS_COLOR and "stroke" not in e.attrib
         for e in ET.fromstring(svg)
     )
 
@@ -572,7 +580,12 @@ def _golden_skus():
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
         for variant in parent["variants"]:
-            yield parent, variant, bundle._record(parent, variant, _facets()[variant["sku"]])
+            yield parent, variant, bundle._record(
+                parent,
+                variant,
+                _facets()[variant["sku"]],
+                _facets().authored.get(parent["product_type"]),
+            )
 
 
 def test_the_lens_appears_exactly_when_the_rule_says():
@@ -625,7 +638,7 @@ EXTREME_ENLARGEMENT = 2.05
 #: handled glass too; the screw is now the first socket head still drawn
 #: handle-less (measured over the golden catalog with ``sheet.magnifier``).
 #: Re-picked for alexander-marquardt/synthetic-ecommerce-data#65: the socket
-#: screws' ``Package Quantity`` row takes a presence draw from their stream,
+#: screws' ``Units per Pack`` row takes a presence draw from their stream,
 #: so ``2334468134`` is drawn under the handled glass now and the screw is
 #: ``2334249296``.
 #: Re-picked for alexander-marquardt/synthetic-ecommerce-data#404 (the

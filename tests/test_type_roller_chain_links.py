@@ -31,7 +31,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku, svg_problems
@@ -109,8 +109,14 @@ def _number(doc: dict) -> str:
     return table_gates.values(doc)["ANSI Number"]["value"]
 
 
+#: The link kind is the ``Type`` a line states, since ``Item`` repeated the product type (#497).
+LINK_TYPE = {CONNECTING: "Connecting", OFFSET: "Offset"}
+
+
 def _item(doc: dict) -> str:
-    return table_gates.values(doc)["Item"]["value"]
+    """The link kind, as the module names it, read back from the ``Type`` the record states."""
+    stated = table_gates.values(doc)["Type"]["value"]
+    return next(kind for kind, value in LINK_TYPE.items() if value == stated)
 
 
 @pytest.fixture(scope="module")
@@ -161,7 +167,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -229,14 +235,14 @@ def test_every_row_is_built_as_both_links_in_every_material_and_pack(large_docs)
     published = [table_gates.values(doc) for doc in large_docs]
     cells = {
         (
-            v["Item"]["value"],
+            v["Type"]["value"],
             v["Material"]["value"],
             int(v[table_gates.PACK]["value_canonical"]),
             v["ANSI Number"]["value"],
         )
         for v in published
     }
-    assert {cell[0] for cell in cells} == {CONNECTING, OFFSET}
+    assert {cell[0] for cell in cells} == set(LINK_TYPE.values())
     assert {cell[1] for cell in cells} == set(MATERIALS)
     assert {cell[2] for cell in cells} == PACKS
     assert len(cells) == 2 * len(MATERIALS) * len(PACKS) * len(CHART) == 120
@@ -258,12 +264,12 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
     everything it shares with the chain is stated here."""
     doc = min((d for d in large_docs if _is_plain_40(d)), key=lambda d: d["sku"])
     pack = table_gates.values(doc)[table_gates.PACK]["value"]
-    assert [(a["key"], a["name"], a["value"]) for a in doc["attributes"]] == [
-        ("item", "Item", _item(doc)),
+    assert [(a["key"], a["name"], a["value"]) for a in authored_entries(doc)] == [
+        ("type", "Type", LINK_TYPE[_item(doc)]),
         ("style", "Style", "Single Strand"),
         ("material", "Material", "Steel"),
         ("finish", "Finish", "Plain"),
-        ("package_quantity", "Package Quantity", pack),
+        ("units_per_pack", "Units per Pack", pack),
         ("standards", "Standards", "ASME B29.1"),
         ("chain_pitch", "Pitch", "1/2"),
         ("ansi_number", "ANSI Number", "40"),
@@ -271,9 +277,9 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
     ]
     assert (_item(doc) in (CONNECTING, OFFSET), int(pack) in PACKS) == (True, True)
     assert doc["category_path"] == [
-        "Motion Control & Fluid Power",
-        "Chain & Sprockets",
-        "Roller Chain Links",
+        "Motion control & fluid power",
+        "Chain & sprockets",
+        "Roller chain links",
     ]
 
 
@@ -334,7 +340,7 @@ def test_each_drawing_is_scaled_from_its_row(kind):
     figure, _ = FIGURES[KEY]
     for number, (pitch, width) in FRACTIONS.items():
         height, thick, _ = PLATE[number]
-        record = {"Item": kind, "Pitch": f'{pitch}"', "Inside Width": f'{width}"'}
+        record = {"Type": LINK_TYPE[kind], "Pitch": f'{pitch}"', "Inside Width": f'{width}"'}
         made = figure(record)
         assert made.source == "record", number
         x0, y0, x1, y1 = made.figure.bounds()
@@ -349,31 +355,32 @@ def test_the_two_links_are_drawn_apart():
     has two pins, and its plates are cranked."""
     figure, _ = FIGURES[KEY]
     record = {"Pitch": '1/2"', "Inside Width": '5/16"'}
-    connecting = figure({**record, "Item": CONNECTING}).figure
-    offset = figure({**record, "Item": OFFSET}).figure
+    connecting = figure({**record, "Type": LINK_TYPE[CONNECTING]}).figure
+    offset = figure({**record, "Type": LINK_TYPE[OFFSET]}).figure
 
     def discs(fig) -> list[tuple[float, str]]:
         return [(shape.centre[0], shape.role) for shape in fig.shapes if isinstance(shape, Disc)]
 
     assert discs(connecting) == [(0.0, "plain"), (0.5, "plain")]
     assert discs(offset) == [(0.0, "hole"), (0.5, "plain")]
-    first, _ = draw_sku(KEY, BRAND, {**record, "Item": CONNECTING})
-    second, _ = draw_sku(KEY, BRAND, {**record, "Item": OFFSET})
+    first, _ = draw_sku(KEY, BRAND, {**record, "Type": LINK_TYPE[CONNECTING]})
+    second, _ = draw_sku(KEY, BRAND, {**record, "Type": LINK_TYPE[OFFSET]})
     assert first != second
 
 
 def test_a_record_naming_no_link_is_drawn_as_a_connecting_link_and_says_so():
     figure, _ = FIGURES[KEY]
     record = {"Pitch": '1/2"', "Inside Width": '5/16"'}
-    made = figure({**record, "Item": "Roller Chain"})
+    made = figure({**record, "Type": "Roller Chain"})
     assert made.source == "partial"
-    assert made.figure.shapes == figure({**record, "Item": CONNECTING}).figure.shapes
+    assert made.figure.shapes == figure({**record, "Type": LINK_TYPE[CONNECTING]}).figure.shapes
 
 
 def test_no_drawing_carries_text_and_the_largest_is_small(drawn):
     svgs = [svg for _, svg in drawn.values()]
     for kind in (CONNECTING, OFFSET):
-        svg, _ = draw_sku(KEY, BRAND, {"Item": kind, "Pitch": '2"', "Inside Width": '1-1/4"'})
+        stated = {"Type": LINK_TYPE[kind], "Pitch": '2"', "Inside Width": '1-1/4"'}
+        svg, _ = draw_sku(KEY, BRAND, stated)
         svgs.append(svg)
     assert [problem for svg in svgs for problem in svg_problems(svg)] == []
     assert max(len(svg) for svg in svgs) < 8000

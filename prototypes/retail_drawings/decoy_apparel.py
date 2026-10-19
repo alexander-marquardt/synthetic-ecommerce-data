@@ -48,6 +48,7 @@ import real_brands
 import type_colors
 import type_registry
 from class_model import SHADE_FAMILY
+from decoy_plural_nonfood_rows import IDS as PLURAL_NONFOOD_IDS
 from decoy_rows import COLORS
 from variants import attr, cw, product, swatch
 
@@ -120,7 +121,7 @@ _PLANNED: tuple[Spec, ...] = (
 #: More decoys for the two types the neckline depth grew (gen#181): a large type carries a tenth.
 #: The extra ids are the later ones of each class (``i`` 3 and up): no id is renamed, but an
 #: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
-_MORE = {"Top": 6, "Dress": 4}
+_MORE = {"Top": 6, "Dress": 5}
 BASE_TYPES: tuple[Spec, ...] = tuple(
     replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
     for ti, s in enumerate(_PLANNED)
@@ -626,6 +627,14 @@ def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
     return title
 
 
+def _names_its_drawing(ex: dict) -> bool:
+    """A decoy's title names its type ("Boxers"), so its exemplar is drawn as that type: the
+    boxers leaf also holds briefs, and "Boxers with Green Waistband" drawn as briefs (gen#447)
+    is not a boxer."""
+    fit = (ex["drawing"].get("params") or {}).get("fit")
+    return not (ex["product_type"] == "Boxers" and fit == "brief")
+
+
 def build(body: list[dict]) -> list[Row]:
     """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
     pool: dict[str, list[dict]] = {}
@@ -635,7 +644,9 @@ def build(body: list[dict]) -> list[Row]:
             and d["department"][0] in DEPARTMENTS
             and d.get("color_options")
             and d["product_id"] not in ids()
+            and d["product_id"] not in PLURAL_NONFOOD_IDS  # a decoy is never a clone's source
             and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
+            and _names_its_drawing(d)
         ):
             pool.setdefault(d["product_type"], []).append(d)
     rows = []

@@ -27,6 +27,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
+import mutation_rows_attribute_cleanup_497  # noqa: E402  (#497 rows, kept in their own file)
 import mutation_rows_attribute_keys  # noqa: E402  (gen#227 rows, kept in their own file)
 import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
 import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
@@ -41,11 +42,15 @@ import mutation_rows_furniture_226  # noqa: E402  (gen#226 rows, kept in their o
 import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
 import mutation_rows_jewellery_423  # noqa: E402  (gen#423 rows)
 import mutation_rows_kelvin_232  # noqa: E402  (gen#232 rows, kept in their own file)
+import mutation_rows_letter_case_499  # noqa: E402  (gen#499 rows, kept in their own file)
 import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
 import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
 import mutation_rows_no_wrong_kind  # noqa: E402  (gen#404 rows, kept in their own file)
 import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
 import mutation_rows_plate_grid_clones  # noqa: E402  (gen#229 rows)
+import mutation_rows_plus_sizes  # noqa: E402  (gen#434 rows, kept in their own file)
+import mutation_rows_red_wine_500  # noqa: E402  (gen#500 rows, kept in their own file)
+import mutation_rows_repeated_pair  # noqa: E402  (gen#1 rows)
 import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
 import mutation_rows_seating_agreement  # noqa: E402  (gen#225 rows, kept in their own file)
 import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
@@ -380,11 +385,20 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw every end mill with a square end, whatever the record says",
         "domains/industrial/render/endmill.py",
-        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
-        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
+        '    published = str(stated if stated else require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
+        '    published = str(stated if stated else require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
         "tests/test_endmill.py tests/test_derivation.py",
         "A",
         "the cutting end comes from the record",
+    ),
+    Mutation(
+        "a generic end mill with no style attribute is refused instead of drawn from its type",
+        "domains/industrial/render/generic.py",
+        '        STYLE_OF_TYPE.get(str(record.get("product_type")))\n        if kind == END_MILL',
+        '        None\n        if kind == END_MILL',
+        "tests/test_derivation.py",
+        "A",
+        "the cutting end comes from the product type once the style attribute is gone (#497)",
     ),
     Mutation(
         "draw every GENERIC end mill with a ball nose, whatever it is of",
@@ -624,8 +638,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
         "domains/industrial/vocab.py",
-        '    _spec("Rockwell Hardness", "line", 0.48),',
-        '    _spec("Rockwell Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
+        '    _spec("Hardness", "line", 0.48),',
+        '    _spec("Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
         "tests/test_catalog_vocab.py tests/test_catalog_generate.py",
         "A",
         "unrelated product types share no vocabulary",
@@ -633,8 +647,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "remove the one name a screw and a hammer legitimately share",
         "domains/industrial/vocab.py",
-        'HAMMER_VOCAB = (\n    _spec("Item", "line"),',
-        'HAMMER_VOCAB = (\n    _spec("Item ", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Material", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Material ", "line"),',
         "tests/test_catalog_vocab.py",
         "B",
         "unrelated product types share no vocabulary",
@@ -1581,8 +1595,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let a child redefine a name its line already carries",
         "domains/industrial/generate.py",
-        '            keyword_attribute("Item", item),\n            keyword_attribute("End Mill Style", style_name),',
-        '            keyword_attribute("Item", item),\n            keyword_attribute("Milling Dia.", "0"),\n            keyword_attribute("End Mill Style", style_name),',
+        '            retired(keyword_attribute("End Mill Style", style_name)),\n            keyword_attribute("Material", material),',
+        '            retired(keyword_attribute("End Mill Style", style_name)),\n            keyword_attribute("Milling Dia.", "0"),\n            keyword_attribute("Material", material),',
         "tests/test_catalog_generate.py",
         "",
         "a child never redefines a line attribute",
@@ -1696,8 +1710,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop attribute values out of the searchable text",
         "core/emit.py",
-        "    parts = [child.title, line.brand, line.series, *line.category]",
-        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []',
+        "    parts = [\n        child.title,\n        line.brand,\n        line.series,\n"
+        "        *(letter_case.sentence_case(node) for node in line.category),\n    ]\n",
+        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []\n',
         "tests/test_catalog_emit.py",
         "",
         "attribute values are reachable by full text",
@@ -1841,7 +1856,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "restate the identifier declaration instead of reading the generator's",
         "prism/derive.py",
-        "IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES",
+        "IDENTIFIER_ATTRIBUTES = frozenset(sentence_case(n) for n in Generator.IDENTIFIER_ATTRIBUTES)",
         'IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})',
         "tests/test_facet_control_rule.py -k reads_the_generators",
         "",
@@ -2172,51 +2187,6 @@ MUTATIONS: list[Mutation] = [
         "the nested lines account for every sku",
         root="golden-catalog",
     ),
-    # ---- Length Under Head is DRAWN, both directions ---------------------
-    Mutation(
-        "draw the length-under-head dimension against the whole screw",
-        "domains/industrial/render/fastener.py",
-        "        span = geom.length_under_head.inches",
-        "        span = geom.total_height",
-        (
-            "tests/test_fastener.py -k length_under_head",
-            "tests/test_fastener.py -k three_published_lengths",
-        ),
-        "A",
-        "the length under head is a span on the drawing, to its published value",
-    ),
-    Mutation(
-        "print the value in the attribute table and draw no dimension for it",
-        "domains/industrial/render/fastener.py",
-        "    if geom.length_under_head is not None:\n        # The whole shank",
-        "    if False:\n        # The whole shank",
-        (
-            "tests/test_fastener.py -k length_under_head",
-            "tests/test_fastener.py -k three_published_lengths",
-            "tests/test_fastener.py -k inked_in_the_drawing",
-        ),
-        "B",
-        "the length under head is a span on the drawing, to its published value",
-    ),
-    # ---- a record whose lengths disagree is refused, both directions ------
-    Mutation(
-        "draw a screw whose published lengths contradict each other",
-        "domains/industrial/render/fastener.py",
-        "        if drift > UNDER_HEAD_TOLERANCE_IN:",
-        "        if False:",
-        "tests/test_fastener.py -k contradict",
-        "A",
-        "a length under head the other lengths contradict is refused",
-    ),
-    Mutation(
-        "tighten the tolerance past the precision the catalog publishes at",
-        "domains/industrial/render/fastener.py",
-        "UNDER_HEAD_TOLERANCE_IN = 0.01",
-        "UNDER_HEAD_TOLERANCE_IN = 0.0",
-        "tests/test_fastener.py -k rounding",
-        "B",
-        "a length under head the other lengths contradict is refused",
-    ),
     # ---- the head style decides the SHAPE, both directions ---------------
     Mutation(
         "draw a button head as the cylinder a socket head cap screw has",
@@ -2355,28 +2325,6 @@ MUTATIONS: list[Mutation] = [
         ),
         "B",
         "the new screw silhouettes are drawn to the proportions their standards give them",
-    ),
-    # ---- the catalog publishes the attribute at all, both directions ------
-    Mutation(
-        "publish the length under head on the countersunk line only",
-        "domains/industrial/generate.py",
-        '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
-        '                *([self._length("Length under Head", length_in, style)] if flat else []),',
-        "tests/test_catalog_generate.py -k length_under_head",
-        "A",
-        "every non-countersunk screw and bolt publishes its stocked length under head",
-    ),
-    Mutation(
-        "publish length-less-head-height under the countersunk head again",
-        "domains/industrial/generate.py",
-        '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
-        '                self._length("Length under Head", length_in - (head.head_height_in if flat else 0), style),',  # noqa: E501
-        (
-            "tests/test_catalog_generate.py -k stocked_length_and_a_countersunk",
-            "tests/test_compatibility_text.py -k countersunk",
-        ),
-        "B",
-        "every non-countersunk screw and bolt publishes its stocked length under head",
     ),
     # ---- cross-references and near-miss threads ----------------------------
     Mutation(
@@ -3345,8 +3293,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "group noise is drawn per SKU, not per group page",
                 "domains/industrial/finishing.py",
-                "            seed, type_key, brand, (a for a in line_attributes if a.name in always)",
-                "            seed, type_key, brand + sku, (a for a in line_attributes if a.name in always)",
+                "            brand,\n            (\n                a\n                for a in line_attributes\n                if a.name in always or",
+                "            brand + sku,\n            (\n                a\n                for a in line_attributes\n                if a.name in always or",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a group page shares one price level",
             ),
@@ -4214,6 +4162,10 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, test, prop in mutation_rows_sofa_bed_223.ROWS
     ),
     *(
+        Mutation(f"letter case: {name}", file, old, new, tests, "", prop, root=root)
+        for name, root, file, old, new, tests, prop in mutation_rows_letter_case_499.ROWS
+    ),
+    *(
         Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
@@ -4244,6 +4196,11 @@ MUTATIONS: list[Mutation] = [
         for name, file, old, new, tests, prop in mutation_rows_truthful_449.ROWS
     ),
     *(
+        Mutation(f"red wine decoys: {name}", file, old, new, tests, "", prop,
+                 root="prototypes/retail_drawings")
+        for name, file, old, new, tests, prop in mutation_rows_red_wine_500.ROWS
+    ),
+    *(
         Mutation(f"furniture drawings: {name}", file, old, new, tests, "", prop,
                  root="prototypes/retail_drawings")
         for name, file, old, new, tests, prop in mutation_rows_furniture_226.ROWS
@@ -4261,16 +4218,26 @@ MUTATIONS: list[Mutation] = [
         Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
     ),
+    # ---- industrial: one key per concept, none repeats the type (#497); the rows are in their own file ----
+    *(
+        Mutation(f"attribute clean-up: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_attribute_cleanup_497.ROWS
+    ),
     # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
     *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
     *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
     *(Mutation(f"plate grid clones: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_plate_grid_clones.ROWS),
+    *(Mutation(f"repeated pair: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_repeated_pair.ROWS),
     *(Mutation(f"seating agreement: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_seating_agreement.ROWS),
     *(Mutation(f"tableware features: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_tableware_features.ROWS),
     # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
     *(
         Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
         for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
+    ),
+    *(
+        Mutation(f"plus sizes: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in mutation_rows_plus_sizes.ROWS
     ),
     # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
     *(

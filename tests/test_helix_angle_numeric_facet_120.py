@@ -55,7 +55,7 @@ def test_every_displayed_helix_angle_has_its_numeric_facet(end_mills):
     wrong = []
     for doc in end_mills:
         for attribute in doc["attributes"]:
-            if attribute["name"] != "Helix Angle":
+            if attribute["name"] != "Helix angle":
                 continue
             coded = attribute.get("unit_code") == "DD"
             if coded:
@@ -70,7 +70,7 @@ def test_the_numeric_facet_is_the_degrees_the_entry_carries(end_mills):
     compared = 0
     for doc in end_mills:
         for attribute in doc["attributes"]:
-            if attribute["name"] == "Helix Angle" and "value_canonical" in attribute:
+            if attribute["name"] == "Helix angle" and "value_canonical" in attribute:
                 compared += 1
                 assert doc["facets_num"].get("helix_angle") == attribute["value_canonical"]
     assert compared > 0

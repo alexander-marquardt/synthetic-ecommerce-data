@@ -37,13 +37,16 @@ import tarfile
 from pathlib import Path
 
 from synthetic_ecommerce_data.core.entry import published
+from synthetic_ecommerce_data.core.letter_case import AUTHORED_NAMES_FILE
 
 
 class BundleMismatchError(Exception):
     """A drawing rebuilt from the catalog is not the one its manifest records."""
 
 
-def _record(parent: dict, variant: dict, facets: dict) -> dict[str, str]:
+def _record(
+    parent: dict, variant: dict, facets: dict, authored: dict[str, str] | None = None
+) -> dict[str, str]:
     """A variant's drawing input: name to PUBLISHED value.
 
     The names and their order come from the nested document; each value's
@@ -55,30 +58,45 @@ def _record(parent: dict, variant: dict, facets: dict) -> dict[str, str]:
     """
     record: dict[str, str] = {}
     for name, value in published([*parent["attributes"], *variant["attributes"]], facets):
+        name = (authored or {}).get(name, name)
         record[name] = f"{record[name]}, {value}" if name in record else value
     return record
 
 
-def flat_facets(catalog_dir: Path) -> dict[str, dict]:
+class SkuFacets(dict[str, dict]):
+    """``{sku: facets}`` plus the catalogue's authored-name map (gen#499).
+
+    ``authored`` is ``{product_type: {published name: authored name}}``, read from the file the
+    build writes beside ``flat.jsonl``: the drawing code looks attributes up by the name a type
+    authored, and the published names are sentence case."""
+
+    authored: dict[str, dict[str, str]]
+
+
+def flat_facets(catalog_dir: Path) -> SkuFacets:
     """``{sku: facets}`` from the catalog's ``flat.jsonl``: where the published spelling lives."""
-    return {
-        doc["sku"]: doc["facets"]
+    facets = SkuFacets(
+        (doc["sku"], doc["facets"])
         for doc in (
             json.loads(line)
             for line in (catalog_dir / "flat.jsonl").read_text("utf-8").splitlines()
             if line
         )
-    }
+    )
+    names = catalog_dir / AUTHORED_NAMES_FILE
+    facets.authored = json.loads(names.read_text("utf-8")) if names.exists() else {}
+    return facets
 
 
 def records(parent: dict, facets_by_sku: dict[str, dict]) -> list[dict[str, str]]:
     """Every variant's drawing input, joined to its flat document on ``sku``."""
+    authored = getattr(facets_by_sku, "authored", {}).get(parent["product_type"])
     out = []
     for variant in parent["variants"]:
         facets = facets_by_sku.get(variant["sku"])
         if facets is None:
             raise BundleMismatchError(f"{variant['sku']}: in nested.jsonl, not in flat.jsonl")
-        out.append(_record(parent, variant, facets))
+        out.append(_record(parent, variant, facets, authored))
     return out
 
 

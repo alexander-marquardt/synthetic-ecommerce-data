@@ -1327,3 +1327,4 @@ def differing(a: HouseStyle, b: HouseStyle) -> int:
 
 
 import color_word_brand_styles  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
+import luggage_brand_styles  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
