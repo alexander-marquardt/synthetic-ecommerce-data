@@ -240,7 +240,9 @@ def test_a_bra_carries_every_value_its_title_names(pairs, values):
         if rec["product_type"] != "Bra":
             continue
         # A description denies ("non padded") or lists fibres; a title's "Linen-Look" is no linen.
-        text = re.sub(r"\S+-(?:look|feel|free|lined)\b", "", rec["title"], flags=re.IGNORECASE)
+        # A line's name ("Plunge Lane", gen#434's class 8) is a name, not a shape (read apart).
+        title = facet_leaves.title_without_line(rec)
+        text = re.sub(r"\S+-(?:look|feel|free|lined)\b", "", title, flags=re.IGNORECASE)
         for key in facet_leaves.BRA_KEYS:
             have = {a["value"] for a in doc["attributes"] if a["key"] == key}
             named = _longest_named(text, values[key])

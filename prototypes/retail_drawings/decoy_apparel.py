@@ -23,6 +23,12 @@ The classes (the numbers follow the issue):
    color word (#444: "Red Harbour Dress" read as a red dress by a strange brand).
 7. **brand**: an invented brand holds a color or a category word ("Red Plover Bra", blue); the
    brand field holds the same words and the drawing colors no part (#444).
+8. **fit word**: a line named after a leg fit, a rise or a bra shape on a product that is another
+   ("Balloon Lane Straight Jeans": the line is "Balloon Lane", the leg fit the true one, #404).
+   Only Jeans and Bra hold the attributes (:data:`FIT_WORDS`); each value gets
+   :data:`WORD_DECOYS`, so the leg fit, rise and bra shape policies have a product to remove.
+   The word sits in the ``product_line`` (the export's ``series``), which the bra facets leave
+   out of the title they read (:func:`facet_leaves.leaf_facets`).
 
 Every type gets :attr:`Spec.per_class` decoys per class (three, more for Bra and Jeans, which
 are large, so a type holds at least a tenth of its size), and at most eight of class 7 (one per
@@ -71,6 +77,7 @@ CLASSES = {
     5: "shade spelled in the description only",
     6: "incidental word in a range name",
     7: "invented brand holding a color or category word",
+    8: "line named for a fit or shape the product is not",
 }
 POLICY = {4: "special: material claim"}
 
@@ -89,7 +96,37 @@ class Spec:
     @property
     def classes(self) -> dict[int, int]:
         n = self.per_class
-        return {1: n, 2: n, 3: n, 4: n, 5: n, 6: n, 7: min(n, len(BRANDS))}
+        out = {1: n, 2: n, 3: n, 4: n, 5: n, 6: n, 7: min(n, len(BRANDS))}
+        if self.product_type in FIT_WORDS:
+            out[8] = WORD_DECOYS * len(FIT_WORDS[self.product_type])
+        return out
+
+
+#: Decoys per word of class 8: three, so a value's query holds three in its top 10.
+WORD_DECOYS = 3
+#: The words class 8 plants, per type: (attribute key, value) of every value the live products
+#: hold (``tests/test_retail_fit_word_decoys_434.py`` reds when the catalog gains one). Cropped is
+#: left out: a jean whose text says "cropped" also carries the Cropped fit (``facet_leaves``),
+#: so a line named Cropped would be a right fit, not a decoy.
+FIT_WORDS: dict[str, tuple[tuple[str, str], ...]] = {
+    "Jeans": (
+        *(("leg_fit", v) for v in (
+            "Skinny", "Super Skinny", "Slim", "Straight", "Tapered", "Carrot", "Cigarette",
+            "Bootcut", "Flared", "Kick Flare", "Wide Leg", "Barrel", "Balloon", "Baggy",
+            "Relaxed", "Mom", "Boyfriend", "Jegging", "Culotte", "Athletic")),
+        *(("rise", v) for v in ("High", "Mid", "Low")),
+    ),
+    "Bra": tuple(("bra_shape", v) for v in (
+        "Balcony", "Plunge", "Full Cup", "T-Shirt", "Minimiser", "Demi", "Longline",
+        "Bralette", "Triangle", "Bandeau", "High Apex")),
+}  # fmt: skip
+#: The street a line is named for: three, so the three decoys of a word have three titles.
+STREETS = ("Lane", "Row", "Close")
+#: The query a value is looked for with: "balloon jeans", "high rise jeans", "plunge bra".
+WORD_QUERY = {"leg_fit": "{} {}", "rise": "{} rise {}", "bra_shape": "{} {}"}
+#: Words the baseline's synonyms treat as one (:mod:`baseline_rank`): a line named for one on a
+#: product of the other would be a right answer to the query, not a decoy.
+WORD_SYNONYMS = {"barrel": "balloon"}
 
 
 def _plan(family: str, *names: str) -> tuple[Spec, ...]:
@@ -444,6 +481,7 @@ def _clone(
     family: str,
     brand: str | None = None,
     detail: tuple[str, str] | None = None,
+    line: str | None = None,
 ) -> dict:
     """``ex`` re-run through :func:`variants.product` in one color with a new title, description
     and (class 7) brand; its popularity is above the typical so the text score competes."""
@@ -460,6 +498,8 @@ def _clone(
     if not any(s["in_stock"] for s in skus):
         skus[0]["in_stock"] = True
     sold = 500 + zlib.crc32(code.encode()) % 400
+    if line is not None:  # class 8: a word shared with the synonym rows must still reach the top
+        sold += 2000
     prices = [s["price"] for s in skus]
     keep["attributes"] = [a for a in keep["attributes"]
                           if a["key"] not in DROPPED_KEYS]  # fmt: skip
@@ -470,6 +510,8 @@ def _clone(
              "price_min": min(prices), "price_max": max(prices)}  # fmt: skip
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
+    if line is not None:  # class 8: the word is the line's name
+        keep["product_line"] = line
     keep["drawing"] = {k: v for k, v in keep["drawing"].items() if k != "accents"} | {
         "pattern": "solid", "base": hexv, "accent": "#333333",
         "motif": None, "placement": None}  # fmt: skip
@@ -574,6 +616,8 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                             desc=f"{c} {n} from the {name} range, named for {gloss}.",
                         )
                     )
+    elif cls == 8:
+        out = _fit_word_options(spec, ex)
     else:
         for brand, word in BRANDS:
             if word in MAIN_WORDS or not path_has(word):
@@ -589,6 +633,50 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                                 query=f"{word} {n}",
                             )
                         )
+    return out
+
+
+def _held_values(ex: dict) -> list[str]:
+    """Every fit, rise and shape the exemplar's record files, lowercased: its attributes, its leg
+    fit and the facets its leaf implies (:func:`facet_leaves.leaf_facets`)."""
+    held = [str(a["value"]) for a in ex["attributes"]]
+    held += [v for _, _, v in facet_leaves.leaf_facets(ex, ex["attributes"])[0]]
+    return [h.lower() for h in [*held, _fit(ex) or ""] if h]
+
+
+def _same_word(word: str, held: str) -> bool:
+    """Whether ``word`` and the value ``held`` share a word or a synonym: "super skinny" and
+    "skinny", "kick flare" and "flared", "balloon" and "barrel"."""
+    stem = lambda w: WORD_SYNONYMS.get(w, w).removesuffix("d")  # noqa: E731
+    return bool({stem(w) for w in word.split()} & {stem(w) for w in held.split()})
+
+
+def _fit_word_options(spec: Spec, ex: dict) -> list[dict]:
+    """Class 8: every word of the type this exemplar does not carry, each as a line ("Balloon
+    Lane", Row, Close; "High Rise Lane" for a rise) in every color. A word the exemplar's fields
+    or path hold, or share a word or synonym with, is left out."""
+    noun = spec.product_type
+    held = _held_values(ex)
+    out = []
+    for key, value in FIT_WORDS[noun]:
+        word = value.lower()
+        if _in_path(word, ex) or any(_same_word(word, h) for h in held):
+            continue
+        for street in STREETS:
+            line = f"{value} Rise {street}" if key == "rise" else f"{value} {street}"
+            for c in PRODUCT_COLORS:
+                out.append(
+                    dict(
+                        title=f"{line} {noun}",
+                        line=line,
+                        kind=key,
+                        word=word,
+                        color=c,
+                        desc=f"{c} {noun.lower()} from the {line} range. The {line} range is "
+                        f"named for a village {street.lower()}.",
+                        query=WORD_QUERY[key].format(word, noun.lower()),
+                    )
+                )
     return out
 
 
@@ -635,6 +723,22 @@ def _names_its_drawing(ex: dict) -> bool:
     return not (ex["product_type"] == "Boxers" and fit == "brief")
 
 
+def _viable(
+    cls: int, spec: Spec, ex: dict, used: set, words: set, want: str | None
+) -> list[dict]:
+    """The options of class ``cls`` on ``ex`` that are still free: a color its type takes
+    (gen#448), a title of five words or fewer (classes 6 and 7), a title not yet used under its
+    root (class 8 reads the title with the exemplar's fit, as two fits make two titles), a word
+    not yet planted (4, 5), and for class 8 the word ``want``."""
+    return [o for o in _options(cls, spec, ex)
+            if type_colors.permits(ex["category_path"], o["color"])  # gen#448
+            and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
+            and ((_title(ex, spec, cls, o) if cls == 8 else o["title"],
+                  ex["category_path"][0]) not in used)
+            and (cls not in (4, 5) or (cls, o["word"]) not in words)
+            and (cls != 8 or o["word"] == want)]  # fmt: skip
+
+
 def build(body: list[dict]) -> list[Row]:
     """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
     pool: dict[str, list[dict]] = {}
@@ -660,11 +764,14 @@ def build(body: list[dict]) -> list[Row]:
             for i in range(n):
                 ex = exemplars[step % len(exemplars)]
                 step += 1
-                opts = [o for o in _options(cls, spec, ex)
-                        if type_colors.permits(ex["category_path"], o["color"])  # gen#448
-                        and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
-                        and (o["title"], ex["category_path"][0]) not in used
-                        and (cls not in (4, 5) or (cls, o["word"]) not in words)]  # fmt: skip
+                if cls == 8:  # this decoy's word, on the next exemplar that can carry it
+                    want = FIT_WORDS[spec.product_type][i // WORD_DECOYS][1].lower()
+                    for _ in range(len(exemplars)):
+                        if _viable(cls, spec, ex, used, words, want):
+                            break
+                        ex = exemplars[step % len(exemplars)]
+                        step += 1
+                opts = _viable(cls, spec, ex, used, words, want if cls == 8 else None)
                 if not opts:
                     raise ValueError(f"{spec.product_type} class {cls}: no option left")
                 if cls in (4, 5):  # the common words first: leather, suede, cashmere; ivory
@@ -685,9 +792,11 @@ def build(body: list[dict]) -> list[Row]:
                     family,
                     o.get("brand"),
                     _detail(ex, cls, o),
+                    o.get("line"),
                 )
                 words.add((cls, o["word"]))
-                used.add((o["title"], ex["category_path"][0]))
+                used.add((_title(ex, spec, cls, o) if cls == 8 else o["title"],
+                          ex["category_path"][0]))  # fmt: skip
                 rows.append(
                     Row(
                         f"PLT-D{code}",
@@ -731,7 +840,8 @@ decoy is a clone of one real style of its type in one main color. The color, cat
 policies read the fields and drop it. The classes: 1 a color word names a trim or strap; 2 another
 category's noun in a real compound; 3 an audience word of a sibling version; 4 a material or
 feature named but absent; 5 the shade is in the description only; 6 a short range name, a place,
-holds a category word; 7 an invented brand holds a color or category word.
+holds a category word; 7 an invented brand holds a color or category word; 8 (jeans and bras
+only, gen#434) a line is named for a fit or a shape the product is not.
 
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), and one class 7 decoy per brand (at most eight).
@@ -739,6 +849,16 @@ Classes 6 and 7 have titles of five words or fewer. A title names the misleading
 (never the real one); the drawing shows the named part (class 1) in that color, and nothing else
 of it (`details.py`). A class 7 brand holds its color word in the brand field only, and its
 drawing colors no part: "Yellow Wagtail Co-ord Set" is a blue co-ord set with no yellow part.
+
+Class 8 (gen#434) gives every value of the leg fit, rise and bra shape attributes three decoys, so
+the policies for "balloon jeans", "high rise jeans" and "plunge bra" have text matches to remove.
+The word is the name of a product line ("Balloon Lane Straight Jeans"): it is in the title and the
+`product_line` field, and the product's own attribute stays the true one. A value the exemplar
+already holds (or reads the same, such as barrel for balloon) is never planted on it, and Cropped
+is not planted (a jean whose text says cropped is a cropped fit). The three attributes are the
+ones the catalog holds, so a new value gets its three by the same table (`FIT_WORDS`). A decoy is
+more popular than a class 1 to 7 one (about 2500 sold), because "barrel" and "balloon" read the
+same and the true barrel jeans already take the top of both queries.
 
 A decoy must read as a real product and describe what it is (#444). A color word sits in the
 title only as an invented brand that is the product's brand field and is shown as the brand

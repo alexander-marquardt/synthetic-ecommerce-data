@@ -28,6 +28,7 @@ PER_VALUE = 3
 #: A jean whose text says "cropped" also carries the Cropped fit (``facet_leaves.CROPPED``), so a
 #: line named Cropped would be a right fit, not a decoy.
 NOT_PLANTED = {"leg_fit": {"Cropped"}}
+SAME_READ = {"balloon", "barrel"}
 KINDS = {  # attribute key -> the query a value is looked for with, on the type that holds it
     "leg_fit": ("Jeans", "{} jeans"),
     "rise": ("Jeans", "{} rise jeans"),
@@ -88,6 +89,8 @@ def test_a_class_8_decoy_names_the_word_and_its_attribute_is_another(
         assert r.word in doc["title"].lower(), (r.pid, r.word, doc["title"])
         held = {str(a["value"]).lower() for a in doc["attributes"]}
         assert r.word not in held, (r.pid, r.word, held)
+        # "barrel" and "balloon" read the same (baseline_rank): neither is planted on the other
+        assert not (r.word in SAME_READ and held & SAME_READ), (r.pid, r.word, held)
         assert doc["category_leaf"].lower() != f"{r.word} jeans", (r.pid, doc["category_leaf"])
 
 
