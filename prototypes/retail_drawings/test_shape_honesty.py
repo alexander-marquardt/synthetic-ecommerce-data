@@ -12,6 +12,7 @@ own shape (``kit_more.py`` holds the ones the audit asked for).
 
 from __future__ import annotations
 
+import copy
 import re
 import sys
 from pathlib import Path
@@ -325,9 +326,30 @@ def test_a_new_part_is_one_the_shape_shows(shape: str, part: str) -> None:
     assert f'data-part="{part}"' in svg and "#c8322b" in svg
 
 
+def test_the_guard_refuses_a_part_not_drawn_and_a_trim_too_fine(tpls: list[dict]) -> None:
+    """The guard itself: the build holds no such title, so it is shown on edited copies."""
+    tpl = copy.deepcopy(_example(tpls, "PLT-DXH03"))
+    assert named_parts.violations([tpl]) == []
+    for title in ("Navy Blouse with Red Stitching", "Navy Blouse with Red Piping"):
+        assert "too fine" in "".join(named_parts.violations([{**tpl, "title": title}])), title
+    tpl["drawing"].pop("detail")
+    assert "not drawn" in "".join(named_parts.violations([tpl]))
+    tpl["drawing"]["detail"] = {"part": "pocket", "color": "#2a2a2e"}  # drawn, in the wrong color
+    assert "not drawn" in "".join(named_parts.violations([tpl]))
+
+
+def test_a_trim_is_picked_from_the_shape_a_leaf_rule_draws(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Today every rule's shape shows the parts its authored one did, so the rule is made to
+    differ: a trim is a part of the DRAWN shape."""
+    monkeypatch.setattr(leaf_shapes, "shape_of", lambda ptype, shape: "bra")
+    assert named_parts.trim_part("Polo Shirt", "tshirt", 0) in {"Straps", "Band", "Cups", "Bow"}
+
+
 def test_a_trim_part_is_one_the_shape_shows() -> None:
     """A row's trim is picked from the parts its (leaf-rule) shape draws, never one it cannot."""
     for ptype, shape in (("Polo Shirt", "tshirt"), ("Chinos", "trousers"), ("Socks", "socks")):
         part = named_parts.trim_part(ptype, shape, 1).lower()
         assert part in details.parts_of(leaf_shapes.shape_of(ptype, shape)), (ptype, part)
     assert leaf_shapes.shape_of("Polo Shirt", "tshirt") == "top"
+    assert [named_parts.trim_part("Polo Shirt", "tshirt", i) for i in (0, 1, 2)] == [
+        "Hem", "Collar", "Hem"]  # the i-th part of the shape, wrapping round

@@ -34,7 +34,7 @@ query it targets and the policy that repairs it. A decoy's structured fields are
 
 | Class | Decoy | Example |
 |---|---|---|
-| 1 color | a trim names another color | "Womens Navy Jumper with Red Stripes" is navy |
+| 1 color | a trim names another color | "Womens Navy Jumper with Red Hem" is navy |
 | 2 category word | another category's noun as a modifier | "Womens Dress Length Cardigan" |
 | 3 audience word | a sibling cut | "Mens Women's-Style Cut Jumper" |
 | 4 feature absent | a feature named and missing | "Womens Alpaca-Feel Jumper" has no alpaca |

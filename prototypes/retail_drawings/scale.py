@@ -123,6 +123,7 @@ import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
+import named_parts  # noqa: E402
 import neckline_rows  # noqa: E402
 import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
@@ -374,6 +375,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
     body = style_table.complete_lengths(body)  # gen#511: a Midi Dress states its length
+    body = named_parts.apply(body)  # gen#447: "with Red Collar" draws a red collar
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
