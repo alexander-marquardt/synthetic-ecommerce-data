@@ -62,6 +62,12 @@ STRAPS_TOP = band((0.0, 0.0, 1.0, 0.17))
 PARTS: dict[str, dict[str, dict]] = {
     "bra": {
         "straps": free(("M118,130 L140,48 M282,130 L260,48", 4.0)),
+        # The underband: the wings' lower edge, left and right of the cups.
+        "band": free(("M50,226 L140,231 M350,226 L260,231", 6.0)),
+        "cups": shapes(
+            "M200,182 C190,142 160,118 114,126 C98,164 104,210 142,230 C172,242 198,228 200,182 Z",
+            "M200,182 C210,142 240,118 286,126 C302,164 296,210 258,230 C228,242 202,228 200,182 Z",
+        ),
         "bow": shapes(
             "M200,200 L176,186 L176,214 Z",
             "M200,200 L224,186 L224,214 Z",
@@ -72,7 +78,16 @@ PARTS: dict[str, dict[str, dict]] = {
     "vest": {"straps": STRAPS_TOP},
     "slip": {"straps": STRAPS_TOP},
     "shapewear": {"straps": STRAPS_TOP},
-    "blouse": {"hem": TORSO_HEM},
+    "blouse": {
+        "hem": TORSO_HEM,
+        "collar": shapes(
+            "M166,62 L200,118 L176,112 L152,74 Z", "M234,62 L200,118 L224,112 L248,74 Z"
+        ),
+        "buttons": shapes(
+            *(f"M196,{y} a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" for y in (150, 195, 240, 285))
+        ),
+        "pocket": shapes("M224,150 L262,150 L262,188 L243,196 L224,188 Z"),
+    },
     "tshirt": {"hem": TORSO_HEM, "collar": COLLAR},
     "top": {"hem": TORSO_HEM, "collar": COLLAR},
     "sweatshirt": {"hem": TORSO_HEM, "collar": COLLAR},
@@ -84,6 +99,7 @@ PARTS: dict[str, dict[str, dict]] = {
     "suit_jacket": {"hem": TORSO_HEM},
     "waistcoat": {"hem": TORSO_HEM},
     "suit_trousers": {"waistband": WAIST, "cuffs": HEM},
+    "dinner_suit": {"cuffs": HEM},
     "bodysuit": {"hem": TORSO_HEM},
     "dressing_gown": {"hem": TORSO_HEM},
     "sleepsuit": {"hem": TORSO_HEM},
