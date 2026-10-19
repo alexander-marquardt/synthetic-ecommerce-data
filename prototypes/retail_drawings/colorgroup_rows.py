@@ -118,10 +118,10 @@ APPAREL = (
 
 
 def _bra(code: str, line: str, brand: str, kind: str, bands: tuple[int, int],
-         cups: tuple[str, str], price: float) -> Bra:
+         cups: tuple[str, str], price: float, plural_cups: str = "") -> Bra:
     """A bra style of one shape in all five main colors: White, Black, Beige, Red and Blue."""
     return Bra(code, line, brand, kind, bands, cups, (WHITE, BLACK, ALMOND, RED, BLUE), price,
-               wired=False)
+               wired=False, plural_cups=plural_cups)
 
 
 #: One style per shape, each in the five main colors a bra comes in, plus a second minimiser.
@@ -131,7 +131,7 @@ BRAS = (
     _bra("NWPLG1", "Tarrant", "Bramblewood", "Plunge", (30, 40), ("A", "E"), 22.0),
     _bra("NWBAL1", "Ouseburn", "Saltmarsh", "Balcony", (30, 40), ("A", "E"), 22.0),
     _bra("NWFUL1", "Kingsett", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"), 24.0),
-    _bra("NWTSH1", "Merrow", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0),
+    _bra("NWTSH1", "Merrow", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0, "Moulded Cups"),
 )
 
 

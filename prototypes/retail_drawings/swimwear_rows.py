@@ -103,9 +103,9 @@ def _swimsuit(code, title, brand, cut, tummy, padded, leg, coverage, price, desc
 SWIMSUIT_ROWS = (
     _swimsuit("SWSCTC", "Scoop Neck Swimsuit with Tummy Control", _HW, "Scoop", "Yes", "No", "Regular", "Full", 28.0,
               "A scoop neck swimsuit with a ruched front panel that smooths the tummy and a lined bust.", (BLACK, NAVY, RED, BLUE, GREEN, WHITE)),
-    _swimsuit("SWPLPD", "Plunge Padded Swimsuit", _TW, "Plunge", "No", "Yes", "High Leg", "Moderate", 32.0,
+    _swimsuit("SWPLPD", "Plunge Swimsuit with Padded Cups", _TW, "Plunge", "No", "Yes", "High Leg", "Moderate", 32.0,
               "A plunge swimsuit with soft padded cups and a high leg cut.", (BLACK, RED, YELLOW, WHITE)),
-    _swimsuit("SWHLTC", "Halter Neck Swimsuit with Tummy Control", _WF, "Halter", "Yes", "Yes", "Regular", "Full", 36.0,
+    _swimsuit("SWHLTC", "Halter Neck Swimsuit with Tummy Control and Padded Cups", _WF, "Halter", "Yes", "Yes", "Regular", "Full", 36.0,
               "A halter neck swimsuit with padded cups and a ruched tummy control front.", (BLACK, BLUE, GREEN, WHITE)),
     _swimsuit("SWOSHL", "One Shoulder Swimsuit", _LK, "One Shoulder", "No", "No", "High Leg", "Moderate", 30.0,
               "An asymmetric one shoulder swimsuit with a high leg.", (BLUE, RED, BLACK, YELLOW)),
@@ -113,15 +113,6 @@ SWIMSUIT_ROWS = (
               "A plain scoop neck swimsuit with a scoop back and a full seat.", (NAVY, BLACK, GREEN, RED, WHITE)),
     _swimsuit("SWHLPL", "Halter Swimsuit in Bright Colors", _HP, "Halter", "No", "No", "Regular", "Moderate", 26.0,
               "A halter swimsuit that ties at the neck, in bright colors.", (YELLOW, CORAL, BLUE, BLACK)),
-    # Titles that name their cups in the plural (gen#508): `padded` Yes, drawn with cups.
-    _swimsuit("SWCPPL", "Plunge Swimsuit with Padded Cups", _TW, "Plunge", "No", "Yes", "High Leg", "Moderate", 30.0,
-              "A plunge swimsuit with padded cups and a high leg cut.", (BLACK, NAVY, RED, WHITE)),
-    _swimsuit("SWCPHL", "Halter Swimsuit with Padded Cups", _WF, "Halter", "No", "Yes", "Regular", "Full", 34.0,
-              "A halter swimsuit with padded cups that ties at the neck.", (BLACK, BLUE, GREEN, YELLOW)),
-    _swimsuit("SWCPSC", "Scoop Neck Swimsuit with Padded Cups", _HW, "Scoop", "Yes", "Yes", "Regular", "Full", 32.0,
-              "A scoop neck swimsuit with padded cups and a ruched front panel that smooths the tummy.", (BLACK, NAVY, RED, GREEN)),
-    _swimsuit("SWCPOS", "One Shoulder Swimsuit with Padded Cups", _LK, "One Shoulder", "No", "Yes", "High Leg", "Moderate", 33.0,
-              "An asymmetric one shoulder swimsuit with padded cups and a high leg.", (RED, BLUE, BLACK, WHITE)),
 )
 
 # -- Bikini tops and bottoms (sold as separates) --------------------------------------------------
@@ -137,13 +128,8 @@ def _top(code, title, brand, shape, padded, price, desc, colors):
 TOP_ROWS = (
     _top("BKTTRI", "Triangle Bikini Top", _HW, "Triangle", "No", 10.0, "A triangle bikini top with sliding cups and neck and back ties.", (BLACK, RED, BLUE, GREEN, YELLOW, WHITE)),
     _top("BKTBAN", "Bandeau Bikini Top", _TW, "Bandeau", "No", 11.0, "A strapless bandeau bikini top with a removable tie.", (BLACK, WHITE, RED, BLUE)),
-    _top("BKTBAL", "Balcony Bikini Top", _WF, "Balcony", "Yes", 13.0, "A balcony bikini top with padded cups and adjustable straps.", (BLACK, NAVY, GREEN, YELLOW)),
-    _top("BKTWIR", "Underwired Bikini Top", _LK, "Underwired", "Yes", 16.0, "An underwired bikini top with molded cups for support.", (BLACK, RED, BLUE, WHITE)),
-    # Titles that name their cups in the plural (gen#508): `padded` Yes, drawn with cups.
-    _top("BKCPTR", "Triangle Bikini Top with Padded Cups", _TW, "Triangle", "Yes", 12.0, "A triangle bikini top with padded cups and neck and back ties.", (BLACK, RED, BLUE, WHITE)),
-    _top("BKCPSL", "Sliding Triangle Bikini Top with Padded Cups", _LK, "Triangle", "Yes", 13.0, "A sliding triangle bikini top with padded cups and neck and back ties.", (CORAL, TEAL, BLACK, WHITE)),
-    _top("BKCPBL", "Balcony Bikini Top with Padded Cups", _HW, "Balcony", "Yes", 14.0, "A balcony bikini top with padded cups and a clip fastening at the back.", (BLACK, NAVY, GREEN, YELLOW)),
-    _top("BKCPWR", "Underwired Bikini Top with Padded Cups", _DL, "Underwired", "Yes", 17.0, "An underwired bikini top with padded cups for support.", (BLACK, RED, BLUE, WHITE)),
+    _top("BKTBAL", "Balcony Bikini Top with Padded Cups", _WF, "Balcony", "Yes", 13.0, "A balcony bikini top with padded cups and adjustable straps.", (BLACK, NAVY, GREEN, YELLOW)),
+    _top("BKTWIR", "Underwired Bikini Top with Padded Cups", _LK, "Underwired", "Yes", 16.0, "An underwired bikini top with molded cups for support.", (BLACK, RED, BLUE, WHITE)),
 )
 
 

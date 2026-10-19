@@ -153,7 +153,8 @@ SPORTSWEAR = (
 )  # fmt: skip
 
 BRA = Bra("NKBRA1", "Nike Dri-FIT", BRAND, "Sports", (32, 38), ("A", "D"),
-          (BLACK, WHITE, RED, BLUE), 34.0, wired=False, fabric="Recycled Polyester, Elastane")
+          (BLACK, WHITE, RED, BLUE), 34.0, wired=False, fabric="Recycled Polyester, Elastane",
+          plural_cups="Removable Cups")
 
 
 # -- text-match decoys: another brand's product whose description names Nike -----------------------

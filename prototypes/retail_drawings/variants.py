@@ -353,6 +353,9 @@ class BraStyle:
     price: float
     wired: bool = True
     fabric: str = "Recycled Polyamide, Elastane"
+    #: The cups the title names in the plural ("Removable Cups"); a title states it as the
+    #: bra's ``padding`` (:data:`facet_leaves.STATED_ONLY`), so the row needs no further field.
+    plural_cups: str = ""
 
     family = "Bras"
     department = ("Lingerie & Nightwear",)
@@ -360,7 +363,11 @@ class BraStyle:
     @property
     def title(self) -> str:
         wire = "Underwired" if self.wired else "Non-Wired"
-        return f"{self.line} {wire} {self.kind} Bra"
+        if not self.plural_cups:
+            return f"{self.line} {wire} {self.kind} Bra"
+        if self.plural_cups.startswith(self.kind):  # "Moulded Cup" -> "Moulded Cups", no repeat
+            return f"{self.line} {wire} {self.plural_cups} Bra"
+        return f"{self.line} {wire} {self.kind} Bra with {self.plural_cups}"
 
     def size_rows(self) -> list[tuple[str, str, str]]:
         lo, hi = _cup(self.cups[0]), _cup(self.cups[1])
@@ -416,12 +423,12 @@ BRAS = (
     BraStyle("HALDEN", "Halden", "Saltmarsh", "T-Shirt", (30, 40), ("A", "GG"),
              (BLACK, WHITE, NUDE, cw("Mocha", "#7b5a45"), cw("Navy", "#26365c"),
               cw("Grey Marl", "#9a9ca0"), cw("Ivory", "#f3ecd9"),
-              cw("Breton", "#ffffff", "stripe", "#26365c")), 20.0),
+              cw("Breton", "#ffffff", "stripe", "#26365c")), 20.0, plural_cups="Moulded Cups"),
     BraStyle("THORNBY", "Thornby", "Bramblewood", "Soft Cup", (30, 42), ("A", "E"),
              (BLACK, NUDE), 16.0, wired=False),
     BraStyle("KINVER", "Kinver", "Saltmarsh", "Sports", (30, 44), ("A", "G"),
              (BLACK, cw("Teal", "#2e7d7a"), cw("Coral", "#ef7b62")), 30.0, wired=False,
-             fabric="Recycled Polyester, Elastane"),
+             fabric="Recycled Polyester, Elastane", plural_cups="Removable Cups"),
     BraStyle("ELSDON", "Elsdon", "Saltmarsh", "Minimiser", (34, 46), ("C", "H"),
              (BLACK, NUDE), 26.0),
     BraStyle("BRAYFORD", "Brayford", "Bramblewood", "Strapless", (28, 38), ("A", "F"),
