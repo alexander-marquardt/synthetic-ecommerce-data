@@ -8,7 +8,7 @@ already say it: a key in :data:`RESTATING` whose value is the product type itsel
 
 - ``storage_type`` "Storage Box" on a Storage Box;
 - ``tracker_type`` "Fitness band" on a Fitness Band;
-- a ``type`` equal to the type.
+- a ``type`` equal to the type (no retail document carries one today: a pre-emptive guard).
 
 A real sub-kind of the same key (a nursery storage's Basket, Cube or Hanging Organizer) stays.
 
