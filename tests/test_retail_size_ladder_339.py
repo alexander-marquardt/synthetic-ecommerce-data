@@ -1,10 +1,10 @@
 """Clothing and footwear are drawn once per size, scaled by its place in the ladder (gen#339).
 
-A product's sizes used to share one drawing per colour. Now a clothing or footwear product with
+A product's sizes used to share one drawing per color. Now a clothing or footwear product with
 more than one size draws each rung at its own scale, from ``size_ladder.BOTTOM`` (the smallest) to
 ``size_ladder.TOP`` (the largest), symbolic and not true to dimension. The ladder is the product's
 own; a two-dimensional size ranks by its first dimension and a fit that is not bigger or smaller
-changes nothing; bedding and pack sizes keep one image per colour.
+changes nothing; bedding and pack sizes keep one image per color.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ def _by_rung(rec: dict, key: str) -> dict[str, set]:
 
 
 def _ids(rec: dict, key: str) -> dict[tuple, set]:
-    """``(rung, colour) -> the image ids of its SKUs``."""
+    """``(rung, color) -> the image ids of its SKUs``."""
     out: dict[tuple, set] = {}
     for sku in rec["skus"]:
         out.setdefault((_rung(sku, key), sku.get("color")), set()).add(export.image_id(rec, sku))
@@ -98,51 +98,51 @@ def test_a_two_dimensional_size_scales_by_its_primary_dimension_only():
     assert {len(v) for v in _by_rung(bra, "size").values()} == {1}  # a band: one scale, any cup
     ids = _ids(bra, "size")
     assert {len(v) for v in ids.values()} == {1}, "the cups of one band should share one image"
-    colour = bra["skus"][0].get("color")
-    bands = {band for (band, c) in ids if c == colour}
+    color = bra["skus"][0].get("color")
+    bands = {band for (band, c) in ids if c == color}
     assert len(bands) == 4
-    assert len({next(iter(v)) for (_, c), v in ids.items() if c == colour}) == 4
+    assert len({next(iter(v)) for (_, c), v in ids.items() if c == color}) == 4
     trousers = BY_ID["PLT-WIDTRS"]
     legs = _ids(trousers, "waist")
     assert {len(v) for v in legs.values()} == {1}, "a waist's legs should share one image"
     assert len({next(iter(v)) for v in legs.values()}) == len(legs)
 
 
-def test_a_fit_only_difference_keeps_the_shared_per_colour_image():
+def test_a_fit_only_difference_keeps_the_shared_per_color_image():
     trousers = BY_ID["PLT-WIDTRS"]
     legs = [s for s in trousers["skus"] if s["waist"] == "10"]
     one_size = trousers | {"skus": legs}
     assert len({s["inside_leg"] for s in legs}) > 1
     assert {_scale(one_size, s) for s in legs} == {None}
-    per_colour: dict = {}
+    per_color: dict = {}
     for s in legs:
-        per_colour.setdefault(s.get("color"), set()).add(export.image_id(one_size, s))
-    assert {len(v) for v in per_colour.values()} == {1}
+        per_color.setdefault(s.get("color"), set()).add(export.image_id(one_size, s))
+    assert {len(v) for v in per_color.values()} == {1}
 
 
 @pytest.mark.parametrize("pid", ["BED-DUVHOL", "PLT-MTTMEM", "GFT-KRAFT"])
-def test_bedding_and_pack_sizes_keep_one_image_per_colour(pid):
+def test_bedding_and_pack_sizes_keep_one_image_per_color(pid):
     rec = BY_ID[pid]
-    per_colour: dict = {}
+    per_color: dict = {}
     for sku in rec["skus"]:
         assert _scale(rec, sku) is None
-        per_colour.setdefault(sku.get("color"), set()).add(export.image_id(rec, sku))
+        per_color.setdefault(sku.get("color"), set()).add(export.image_id(rec, sku))
     assert len({s.get("size") or s.get("bed_size") or s.get("size_uk") for s in rec["skus"]}) > 1
-    assert {len(v) for v in per_colour.values()} == {1}
+    assert {len(v) for v in per_color.values()} == {1}
 
 
-def test_each_size_of_a_colour_has_its_own_image():
+def test_each_size_of_a_color_has_its_own_image():
     rec = next(r for r in BY_ID.values() if r["product_type"] == "Tee"
                and {s.get("size") for s in r["skus"]} >= {"XS", "S", "M", "L", "XL"}
                and len({s.get("color") for s in r["skus"]}) > 1)  # fmt: skip
-    by_colour: dict = {}
+    by_color: dict = {}
     for sku in rec["skus"]:
-        by_colour.setdefault(sku["color"], []).append(export.image_id(rec, sku))
-    assert len(by_colour) > 1
-    for colour, ids in by_colour.items():
-        assert len(ids) == len(set(ids)) == 5, f"{colour}: one image per size"
-    every = [i for ids in by_colour.values() for i in ids]
-    assert len(every) == len(set(every)), "no image is shared between colours"
+        by_color.setdefault(sku["color"], []).append(export.image_id(rec, sku))
+    assert len(by_color) > 1
+    for color, ids in by_color.items():
+        assert len(ids) == len(set(ids)) == 5, f"{color}: one image per size"
+    every = [i for ids in by_color.values() for i in ids]
+    assert len(every) == len(set(every)), "no image is shared between colors"
 
 
 def _anchor(svg: bytes) -> tuple[float, float, float] | None:
@@ -154,14 +154,14 @@ def _anchor(svg: bytes) -> tuple[float, float, float] | None:
 
 def test_a_ladder_stands_on_one_floor_and_the_largest_is_the_drawing_as_it_was():
     rec = BY_ID["PLT-TEEW5"]
-    colour = rec["skus"][0]["color"]
-    skus = [s for s in rec["skus"] if s["color"] == colour]
+    color = rec["skus"][0]["color"]
+    skus = [s for s in rec["skus"] if s["color"] == color]
     for styled in (False, True):
         svgs = [image_release.render(rec, s, styled=styled) for s in skus]
         anchors = [_anchor(svg) for svg in svgs]
         assert anchors[-1] is None, "the largest rung is not wrapped"
         assert None not in anchors[:-1]
-        assert len({a[:2] for a in anchors[:-1]}) == 1, "the rungs share one bottom centre"
+        assert len({a[:2] for a in anchors[:-1]}) == 1, "the rungs share one bottom center"
         ratios = [a[2] for a in anchors[:-1]]
         assert ratios == sorted(set(ratios))
         assert ratios[0] == pytest.approx(size_ladder.BOTTOM / size_ladder.TOP, abs=1e-3)
@@ -172,7 +172,7 @@ def test_a_ladder_stands_on_one_floor_and_the_largest_is_the_drawing_as_it_was()
         assert svgs[-1] == drawing_svg(rec | {"drawing": bare}, styled).encode()
 
 
-def test_stand_scales_a_body_about_its_bottom_centre():
+def test_stand_scales_a_body_about_its_bottom_center():
     body = '<rect x="100" y="50" width="200" height="300" fill="#000"/>'
     scaled = size_ladder.stand(body, "", 0.45)
     box = sheet_extent.reach(f'<svg xmlns="http://www.w3.org/2000/svg">{scaled}</svg>')
@@ -188,7 +188,7 @@ def test_stand_scales_a_body_about_its_bottom_centre():
 
 
 def test_every_scaled_rung_stays_on_the_sheet():
-    """Scaling about the bottom centre only pulls a drawing in: no rung leaves the sheet."""
+    """Scaling about the bottom center only pulls a drawing in: no rung leaves the sheet."""
     for pid in ("PLT-TEEW5", "FTW-KSCHLL", "PLT-CUPBAL"):
         rec = BY_ID[pid]
         for sku in rec["skus"]:

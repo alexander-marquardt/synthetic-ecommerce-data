@@ -1,6 +1,6 @@
 """Size-scaled drawings: one image per rung of a product's size ladder (gen#339).
 
-Every size of a colour used to share one drawing, so a product's sizes showed the same image
+Every size of a color used to share one drawing, so a product's sizes showed the same image
 repeated. A clothing or footwear product with more than one size now draws each size at its own
 scale: symbolic, not true to dimension, so S is visibly smaller than M and M than L.
 
@@ -14,8 +14,8 @@ scale: symbolic, not true to dimension, so S is visibly smaller than M and M tha
   trouser's waist). A fit that is not bigger or smaller (petite, regular, tall, a bra's cup, a
   jean's inside leg) is not read, so it shares its rung's image.
 - WHAT IS SCALED is the worn departments (:data:`WORN`), clothing and footwear only; bedding and
-  pack sizes keep one image per colour.
-- ANCHORING. The drawing is scaled about its own bottom centre (:func:`stand`), so a ladder reads
+  pack sizes keep one image per color.
+- ANCHORING. The drawing is scaled about its own bottom center (:func:`stand`), so a ladder reads
   as items standing on one floor. The largest rung is the drawing as it was (``TOP`` is the
   fraction the full-size drawing fills), and a smaller rung is that drawing times
   ``scale / TOP``.
@@ -110,7 +110,7 @@ def size_scale(rec: dict, sku: dict) -> float | None:
 
 
 def stand(body: str, defs: str, size_scale: float | None) -> str:
-    """``body`` scaled to ``size_scale`` about its own bottom centre.
+    """``body`` scaled to ``size_scale`` about its own bottom center.
 
     The largest rung (and a drawing with no ladder) comes back as it is. ``defs`` holds what the
     body refers to (a pattern, a clip), so the body can be measured.
