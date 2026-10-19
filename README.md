@@ -122,13 +122,22 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
-extraction, unmodified, and carries its own provenance block naming each
+`src/synthetic_ecommerce_data/core/standards_library/tables/fastener_standards.json` is that
+extraction, unmodified apart from the library's `_library` citation block, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+**The standards library (#73).** Every size table the catalog reads from a standard is one
+JSON file in `src/synthetic_ecommerce_data/core/standards_library/tables/`, with a `_library`
+block naming its `standards`, `edition`, `source` and `kind`, and a rule of its own in
+`tests/test_standards_library.py`. A type reads a table by name
+(`standards_library.table("asme_b1_1_unified_threads").select(["#10", "1/4"])`) and takes only
+the sizes it stocks; `select` refuses a size the table lacks. A new table is a new file, never
+an edit to a shared list, so two type PRs that each add one do not collide. The library moves
+SIZE tables; what a type claims to conform to stays in `conformance.py` (#61).
 
 The sizes taken are listed in the extraction's own `requested_sizes` block:
 `M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.

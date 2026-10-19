@@ -39,6 +39,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style
 from synthetic_ecommerce_data.core.model import (
     keyword_attribute,
@@ -111,27 +112,27 @@ class NewType:
 
 # --- hex nuts ------------------------------------------------------------------
 
-#: (thread, width across flats in, height in) -- finished hex nuts, inch.
-_NUT_UNC = (
-    ("#6-32", 5 / 16, 7 / 64),
-    ("#8-32", 11 / 32, 1 / 8),
-    ("#10-24", 3 / 8, 1 / 8),
-    ("1/4-20", 7 / 16, 7 / 32),
-    ("5/16-18", 1 / 2, 17 / 64),
-    ("3/8-16", 9 / 16, 21 / 64),
-    ("7/16-14", 11 / 16, 3 / 8),
-    ("1/2-13", 3 / 4, 7 / 16),
-    ("5/8-11", 15 / 16, 35 / 64),
-    ("3/4-10", 1 + 1 / 8, 41 / 64),
-    ("1-8", 1 + 1 / 2, 55 / 64),
+
+def _nut_rows(sizes: tuple[str, ...], series: str) -> tuple[tuple[str, float, float], ...]:
+    """``(thread, width across flats in, height in)`` for finished hex nuts, inch: the
+    thread series' pitch from ASME B1.1 and the nut's two dimensions from ASME B18.2.2,
+    both read from the standards library."""
+    threads = library.table("asme_b1_1_unified_threads").select(list(sizes))
+    nuts = library.table("asme_b18_2_2_hex_nuts_in").select(list(sizes))
+    return tuple(
+        (
+            f"{thread['size']}-{thread[series]}",
+            float(Fraction(nut["flats_in"])),
+            float(Fraction(nut["height_in"])),
+        )
+        for thread, nut in zip(threads, nuts, strict=True)
+    )
+
+
+_NUT_UNC = _nut_rows(
+    ("#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1"), "unc_tpi"
 )
-_NUT_UNF = (
-    ("#10-32", 3 / 8, 1 / 8),
-    ("1/4-28", 7 / 16, 7 / 32),
-    ("5/16-24", 1 / 2, 17 / 64),
-    ("3/8-24", 9 / 16, 21 / 64),
-    ("1/2-20", 3 / 4, 7 / 16),
-)
+_NUT_UNF = _nut_rows(("#10", "1/4", "5/16", "3/8", "1/2"), "unf_tpi")
 #: (thread, width across flats mm, height mm) -- metric.
 _NUT_METRIC = (
     ("M3x0.5", 5.5, 2.4),
@@ -173,7 +174,7 @@ _NUT_METRIC_FINE = (
 
 #: The dimensional standard each FINISHED-hex table above reproduces, row for
 #: row (checked against FreeCAD_FastenersWB at the commit
-#: ``data/fastener_standards.json`` records: ``iso4032def.csv``,
+#: ``core/standards_library/tables/fastener_standards.json`` records: ``iso4032def.csv``,
 #: ``iso8673def.csv``, and ``asmeb18.2.2.4def.csv`` / ``asmeb18.2.2.1def.csv``
 #: -- ASME B18.2.2 carries the #6-#10 hex machine screw nuts too).
 _FINISHED_STANDARD = {
@@ -194,9 +195,10 @@ _JAM_HEIGHT_MM = {
     "M12": 6.0, "M16": 8.0, "M20": 10.0, "M24": 12.0,
 }  # fmt: skip
 _JAM_HEIGHT_IN = {
-    "1/4": 5 / 32, "5/16": 3 / 16, "3/8": 7 / 32, "7/16": 1 / 4, "1/2": 5 / 16,
-    "5/8": 3 / 8, "3/4": 27 / 64, "1": 35 / 64,
-}  # fmt: skip
+    row["size"]: float(Fraction(row["jam_height_in"]))
+    for row in library.table("asme_b18_2_2_hex_nuts_in").rows
+    if "jam_height_in" in row
+}
 _JAM_STANDARD = {
     ("mm", False): "ISO 4035",
     ("mm", True): "ISO 8675",
@@ -686,23 +688,18 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
 
 # --- hex keys ----------------------------------------------------------------------
 
-_KEY_INCH = (
-    0.050,
-    1 / 16,
-    5 / 64,
-    3 / 32,
-    7 / 64,
-    1 / 8,
-    9 / 64,
-    5 / 32,
-    3 / 16,
-    7 / 32,
-    1 / 4,
-    5 / 16,
-    3 / 8,
-    1 / 2,
+#: The stocked hex key sizes: a subset of the ASME B18.3 and ISO 2936 series, which the
+#: standards library refuses to let a name drift from.
+_KEY_INCH = tuple(
+    float(Fraction(size))
+    for size in library.table("asme_b18_3_hex_key_in").pick(
+        ["0.050", "1/16", "5/64", "3/32", "7/64", "1/8", "9/64", "5/32", "3/16", "7/32"]
+        + ["1/4", "5/16", "3/8", "1/2"]
+    )
 )
-_KEY_MM = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0)
+_KEY_MM = tuple(
+    library.table("iso_2936_hex_key_mm").pick([1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0])
+)
 
 
 def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineDraft:
