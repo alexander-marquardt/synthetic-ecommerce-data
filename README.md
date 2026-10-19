@@ -1633,8 +1633,9 @@ to 1.08x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
 The census has no kit-versus-parts price figure, so the factor claims neither a
 discount nor a premium: it is fitted to the census median kit price and moves
 when #76 widens the kit kinds. Kit contents are computed from the part types'
-fitted models, so a fit run that also refits a part type a kit holds must be
-run again before its result is kept.
+fitted models, and one fit run fits the kit last, on the part models that run
+just fitted (#94), so a run that also refits a part type a kit holds needs no
+second run.
 
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
