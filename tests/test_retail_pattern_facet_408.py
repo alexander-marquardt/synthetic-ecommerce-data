@@ -148,3 +148,12 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 
     assert len(fills("patchwork")) == 4
     assert len(fills("gingham")) == 2
+
+
+def test_the_pattern_values_add_no_style_and_no_sku() -> None:
+    """The product count is frozen (166,990 SKUs, 16,359 styles at the ceiling): the four pattern
+    words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
+    101,450 template SKUs; a new style would raise both."""
+    tpls = scale.templates()
+    assert len(tpls) == 11324
+    assert sum(t["sku_count"] for t in tpls) == 101450
