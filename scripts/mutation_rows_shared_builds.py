@@ -77,6 +77,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a plain -n 2 keeps a module on one worker",
         ".",
     ),
+    (
+        "the cache directory made first is left without a .gitignore",
+        "shared_builds.py",
+        "        if not ignore.exists():",
+        "        if False:",
+        f"{GUARD} -k test_a_cache_directory_made_before_pytests_own_is_still_ignored_by_git",
+        "a cache directory made before pytest's own is still ignored by git",
+        "tests",
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
