@@ -1,0 +1,8 @@
+{
+  "dependabot[bot]": [
+    "pyproject.toml",
+    "uv.lock",
+    ".github/workflows/*.yaml",
+    ".github/workflows/*.yml"
+  ]
+}
