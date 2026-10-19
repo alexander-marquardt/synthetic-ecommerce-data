@@ -161,6 +161,7 @@ TABLE = TableType(
     extent=(20.3, 3.1),
     share=0.018,
     series="TB",
+    compat=False,
     unit="in",
     use_lines=(
         "Takes up slack and sets the tension in a cable, rod or guy line.",

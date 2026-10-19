@@ -77,6 +77,8 @@ SPEC = TypeSpec(
     key_attributes=("Dia./Thread Size",),
     threaded="Dia./Thread Size",
     fastener=True,
+    compat=("drive", "Drive Size"),
+    near_miss_period=3,
     use_lines=(
         "Driven with a hex key.",
         "Fastens parts into a tapped hole or with a nut.",
