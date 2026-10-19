@@ -661,14 +661,14 @@ Womens dresses at UK 22 and the chart.
 ### Large appliances (gen#334)
 
 Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
-colour or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
+color or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
 under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
 integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
 dryers, washer dryers). Three specs (`type_specs/fridge_freezer.py`, `dishwasher.py`,
 `laundry_appliance.py`) read `large_appliance_rows.py`; `kit_large_appliances.py` draws them.
 Capacity, width, energy rating, place settings, noise and load are structured entries.
 Dishwashers and laundry are white, black or silver (`type_colors.py`); the retro 50/50 fridges
-carry the six main colours.
+carry the six main colors.
 
 The word decoys of the dishwasher, the washing machine and the fridge are in
 `feature_decoys/large_appliances.py` and listed in
