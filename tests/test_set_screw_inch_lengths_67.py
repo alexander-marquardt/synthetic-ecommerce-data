@@ -23,6 +23,7 @@ MISSING = ("5/16", "5/8", "7/8")
 #: (from, through, increment), inches, the decimals as the table prints them
 #: (0.06 is 1/16 and 0.13 is 1/8).
 B18_3_LENGTH_INCREMENTS = (
+    (Fraction(1, 8), Fraction(3, 16), Fraction(1, 32)),  # 0.03 in., sizes 0 to 3 only
     (Fraction(1, 8), Fraction(1, 2), Fraction(1, 16)),
     (Fraction(1, 2), Fraction(1), Fraction(1, 8)),
     (Fraction(1), Fraction(2), Fraction(1, 4)),
