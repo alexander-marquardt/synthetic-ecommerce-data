@@ -769,8 +769,8 @@ fields:
   - name: type
     type: terms
     source: facets.type
-  # Units per pack -- a discrete standard set: 10 distinct values over 2395 product-value pairs is 0.00 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 4459 documents across 17 product type(s); 10 distinct values
+  # Units per pack -- a discrete standard set: 10 distinct values over 1860 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  #   present on 3550 documents across 16 product type(s); 10 distinct values
   - name: units_per_pack
     type: terms
     source: facets.units_per_pack

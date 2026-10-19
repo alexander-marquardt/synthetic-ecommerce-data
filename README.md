@@ -568,7 +568,7 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
