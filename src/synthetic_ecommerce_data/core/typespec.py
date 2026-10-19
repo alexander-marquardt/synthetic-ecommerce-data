@@ -182,11 +182,16 @@ class TypeSpec:
     #: The length attribute a unit equivalent is written for
     #: (:data:`.noise.UNIT_PRIMARY`).
     unit_primary: str | None = None
-    #: How the type's cross-reference sentence is written (#75).
+    #: The type's cross-reference sentence (:data:`.compat.RELATIONS`): the
+    #: relation kind and the attribute it is written from, for example
+    #: ``("nut", "Thread Size")``. ``False`` states the type has none; unset
+    #: is refused, so a type cannot go without one by saying nothing (#75).
     compat: tuple[str, str] | bool | None = None
-    #: Every Nth line of a diameter is built to a fine pitch (#75).
+    #: A type whose builder offers a fine-pitch near miss of a diameter: every
+    #: Nth line of it is built to one (:data:`.compat.NEAR_MISS_PERIOD`).
     near_miss_period: int | None = None
-    #: Whether the type is a cutting tool (#75).
+    #: Whether the type is a cutting tool, for the "suitable for" sentence
+    #: (:data:`.noise.CUTTING`).
     cutting: bool = False
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
@@ -259,6 +264,7 @@ def register(spec: TypeSpec) -> None:
     from synthetic_ecommerce_data.core import noise, price, voice
     from synthetic_ecommerce_data.domains.industrial import (  # noqa: PLC0415
         breadth,
+        compat,
         conformance,
         taxonomy,
         vocab,
@@ -292,11 +298,25 @@ def register(spec: TypeSpec) -> None:
             ("price", spec.price is not None or bool(spec.borrows)),
             # Every modelled SKU is priced off its key dimension (``price.KEYS``).
             ("key_attributes", bool(spec.key_attributes)),
+            # A relation, or ``False`` for none: a gap the author must see (#75).
+            ("compat", spec.compat is not None),
         )
         if not declared
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
+    if isinstance(spec.compat, tuple) and (
+        len(spec.compat) != 2 or spec.compat[0] not in compat.KINDS
+    ):
+        raise TypeModuleError(
+            f"type module {spec.module} declares compat={spec.compat!r}; "
+            f"a relation is (kind, attribute) with kind one of {sorted(compat.KINDS)}"
+        )
+    if spec.near_miss_period is not None and spec.near_miss_period < 2:
+        raise TypeModuleError(
+            f"type module {spec.module} declares near_miss_period={spec.near_miss_period}; "
+            "every line would be a near miss, and none would be the product itself"
+        )
     if spec.price is not None and spec.borrows:
         raise TypeModuleError(
             f"type module {spec.module} declares both a price model and borrows "
@@ -311,6 +331,9 @@ def register(spec: TypeSpec) -> None:
         "noise.THREADED": (noise.THREADED, spec.threaded),
         "noise.FASTENERS": (noise.FASTENERS, spec.fastener or None),
         "noise.UNIT_PRIMARY": (noise.UNIT_PRIMARY, spec.unit_primary),
+        "noise.CUTTING": (noise.CUTTING, spec.cutting or None),
+        "compat.RELATIONS": (compat.RELATIONS, spec.compat or None),
+        "compat.NEAR_MISS_PERIOD": (compat.NEAR_MISS_PERIOD, spec.near_miss_period),
     }
     for name, (table, value) in own.items():
         if value is not None and dict.__contains__(table, spec.key):

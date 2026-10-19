@@ -256,11 +256,12 @@ The output must stay byte-identical.
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
    screw its `_SOCKET_SCREW_LINES` row. A modelled type also has entries in
    `conformance._shared_claims` (when it claims a standard),
-   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS` and
-   `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
+   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS`,
+   `noise.UNIT_PRIMARY`, `noise.CUTTING`, `compat.RELATIONS` and
+   `compat.NEAR_MISS_PERIOD`, and a row in each table of `tests/type_facts.py`
    (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   and `may_claim` (the Facts item of
+   `cutting`, `compat`, `near_miss_period` and `may_claim` (the Facts item of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -614,6 +615,19 @@ publishes:
 * `UNIT_PRIMARY` writes a unit equivalent of the type's primary length. A
   type whose primary attribute is a length (a `Size` or a `Diameter`) joins
   it, with `unit_primary=`; a thread designation is not a length.
+* `CUTTING` writes the "suitable for" sentence. A cutting tool joins it, with
+  `cutting=True`.
+* `compat.RELATIONS` writes the cross-reference sentence (`Takes a 5mm hex
+  key.`, `Fits M8x1.25 bolts and screws.`) from one published attribute. A
+  modelled type declares `compat=(kind, attribute)`, with kind one of
+  `hex_key`, `drive`, `tap`, `drill`, `nut` or `washer` and the attribute the
+  sentence reads, or `compat=False` when no sentence is true of it. Leaving
+  it unset is refused at registration, so a type cannot go without one by
+  saying nothing.
+* `compat.NEAR_MISS_PERIOD` is for a type whose builder offers a fine-pitch
+  near miss of a diameter: `near_miss_period=N` (at least 2) builds every Nth
+  line of a diameter to the fine pitch. A hand-kept list of types here meant a
+  new type never got one.
 
 Each record's sentences draw from its own stream (`noise.record_rng`), so
 joining moves only this type's records. `tests/test_noise_text.py` checks

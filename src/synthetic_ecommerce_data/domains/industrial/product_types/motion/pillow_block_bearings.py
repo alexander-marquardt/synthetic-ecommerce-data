@@ -111,6 +111,7 @@ TABLE = TableType(
     extent=(9.5, 5.45),
     share=0.02,
     series="PB",
+    compat=False,
     unit="in",
     use_lines=(
         "Bolts to a flat surface to carry a shaft parallel to it.",

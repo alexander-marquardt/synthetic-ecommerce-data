@@ -24,6 +24,7 @@ catalog by ``tests/test_compatibility_text.py``.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from fractions import Fraction
 from functools import cache
 
@@ -243,27 +244,56 @@ def washer_sentence(size: str | None) -> str | None:
     return f"For {size} bolts and screws."
 
 
+#: The socket-head family (the cap screw's flat, button and low heads too),
+#: which the pairing noise names a hex key and nuts for. Not the set of types
+#: that print a hex key: a set screw takes one, and pairs with no nut.
 SOCKET_SCREWS = frozenset(
     ("screw_socket_head", "screw_flat_head", "screw_button_head", "screw_low_head")
 )
 
+#: The kinds of cross-reference a type declares: the kind names how its
+#: sentence is written, from one published attribute.
+KINDS: dict[str, Callable[[str | None], str | None]] = {
+    "hex_key": hex_key_sentence,  # the screws a key drives
+    "drive": drive_sentence,  # the key a screw takes
+    "tap": tap_sentence,
+    "drill": drill_sentence,
+    "nut": nut_sentence,  # the bolts a nut fits
+    "washer": washer_sentence,
+}
+
+#: Type key to ``(kind, attribute)``. The types still declared in shared
+#: tables are here; a type with its own module declares ``compat=`` on its
+#: ``TypeSpec`` and joins this table when the modules register (#75).
+RELATIONS: RegistryTable[str, tuple[str, str]] = RegistryTable({
+    "hex_key": ("hex_key", "Size"),
+    "screw_flat_head": ("drive", "Drive Size"),
+    "screw_button_head": ("drive", "Drive Size"),
+    "screw_low_head": ("drive", "Drive Size"),
+    "tap_spiral_point": ("tap", "Thread Size"),
+    "drill_jobber": ("drill", "Size"),
+    "nut_hex": ("nut", "Thread Size"),
+    "washer_flat": ("washer", "Size"),
+})  # fmt: skip
+
+#: Type key to N: every Nth line of a diameter with a fine pitch is built to
+#: it, so a diameter query finds a pitch to choose between
+#: (``Generator._near_miss_thread``). A type with a module declares
+#: ``near_miss_period=`` on its ``TypeSpec``.
+NEAR_MISS_PERIOD: RegistryTable[str, int] = RegistryTable({
+    "screw_flat_head": 3,
+    "screw_button_head": 3,
+    "screw_low_head": 3,
+    # Five, not three: the hex bolt's finish wheel is three long and turns
+    # with the line counter, so every third line of a size would share one.
+    "bolt_hex": 5,
+})  # fmt: skip
+
 
 def sentence_for(type_key: str, published: dict[str, str]) -> str | None:
     """The one cross-reference sentence a record of ``type_key`` carries, if any."""
-    if type_key == "hex_key":
-        return hex_key_sentence(published.get("Size"))
-    if type_key in SOCKET_SCREWS:
-        return drive_sentence(published.get("Drive Size"))
-    if type_key == "tap_spiral_point":
-        return tap_sentence(published.get("Thread Size"))
-    if type_key == "drill_jobber":
-        return drill_sentence(published.get("Size"))
-    if type_key == "nut_hex":
-        return nut_sentence(published.get("Thread Size"))
-    if type_key == "washer_flat":
-        return washer_sentence(published.get("Size"))
-    return None
-
-
-RELATIONS: RegistryTable[str, tuple[str, str]] = RegistryTable({})
-NEAR_MISS_PERIOD: RegistryTable[str, int] = RegistryTable({})
+    relation = RELATIONS.get(type_key)
+    if relation is None:
+        return None
+    kind, attribute = relation
+    return KINDS[kind](published.get(attribute))

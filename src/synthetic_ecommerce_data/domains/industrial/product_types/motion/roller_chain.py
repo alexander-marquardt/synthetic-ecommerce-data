@@ -340,6 +340,7 @@ SPEC = TypeSpec(
     claims=claims,
     may_claim=frozenset({STANDARD}),
     key_attributes=("Pitch",),
+    compat=False,
     use_lines=(
         "Runs on sprockets of the same ANSI chain number.",
         "Joins end to end with a connecting link of the same ANSI chain number.",
