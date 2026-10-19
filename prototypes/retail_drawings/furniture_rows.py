@@ -11,8 +11,8 @@ table's top outline and seat count, a chair's style, a bookcase's shelves, a war
 mirror, a chest's drawers and a mirror's outline and kind are each a drawing param of the
 style, and a structured attribute beside it. What does not change the picture is a SKU axis:
 a table's or a mirror's size (with its ``width_cm``, ``length_cm`` or ``height_cm``), a
-bookcase's height (its ``size``, with its ``height_cm``: ``height`` holds the trees' feet, a
-measured value) and a chair's pack (with its ``units_per_pack``).
+bookcase's height (its ``size``, with its ``height_cm``; a tree's feet are the same
+``item_height``, :mod:`key_guard`) and a chair's pack (with its ``units_per_pack``).
 
 :func:`breadth_rows.docs` takes these rows after its own, so every scaled build carries them;
 :func:`scale.derivable` leaves them out, as it does the shirts, so the seeded derivation (and
@@ -125,7 +125,8 @@ def _table(code, title, brand, shape, seats, extending, top, colors, sizes, text
          ("extending", "Extending", _yes(extending)), ("top_material", "Top material", top),
          _room("Dining Room")),
         sizes, size_key="size",
-        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending))),
+        params=(("outline", shape), ("seats", str(seats)), ("extending", _yes(extending)),
+                ("top", top.lower().replace("-", "_"))),
     )  # fmt: skip
 
 
@@ -198,8 +199,7 @@ CHAIRS = (
 
 
 def _coffee(code, title, brand, shape, storage, mat, colors, price, text, pieces=1) -> FurnitureRow:
-    feature = (("storage_feature", "Storage feature", storage.replace("_", "-").title()),) \
-        if storage != "none" else ()  # fmt: skip
+    feature = (("storage_feature", "Storage feature", storage.replace("_", "-").title()),)
     count = (_count("piece_count", "Piece count", pieces),) if pieces > 1 else ()
     return FurnitureRow(
         code, title, brand, _HOME, COFFEE_TABLES, "Coffee Table", price, "coffee_table", text,

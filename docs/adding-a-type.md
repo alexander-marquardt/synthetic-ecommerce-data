@@ -99,7 +99,7 @@ builder's type-keyed tables and conditions (for example
 `type_key == "end_mill_ball"`).
 
 A type built to a standard that has no extraction yet also needs that
-standard's rows in `data/fastener_standards.json`; until then the build stops
+standard's rows in `core/standards_library/tables/fastener_standards.json`; until then the build stops
 with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
@@ -137,10 +137,21 @@ its published attributes. `set_screws_hex_socket` does both.
    `PRODUCT_TYPE_LABELS` in `domains/industrial/type_labels.py`: that table
    keeps the labels of the older types, `register` refuses a key in both, and
    a line added to it conflicts with the next type's (#103).
+- **Attribute keys (#497).** One concept is one key and one display name
+   catalogue-wide, and no attribute repeats the product type. Do not publish
+   `Item`, a `<Type> Style` or `Type` that equals the type's label, or a second
+   spelling of a name another type already uses (`Length`, `Standards`,
+   `Hardness`, `Diameter`, `Units per Pack`, `Piece Count`, `Measurement System`);
+   when two concepts share a word, split them (`Grade` is a bolt's strength,
+   `Wheel Grade` an abrasive's coarseness). `tests/test_attribute_cleanup_497.py`
+   reads the committed `golden-catalog/nested.jsonl` and fails on a removed key,
+   a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
-   records, the totals in `stats.json` and the field-weights YAML should
-   change. The independence tests below enforce this.
+   records and the field-weights YAML should change, and `golden-catalog/stats.json`
+   with them: it is a golden file like the others, committed with the PR that moves
+   it (gen#536 removed the roll that used to rewrite it at the merge). The
+   independence tests below enforce this.
 - **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
    shared table is edited. `register` writes each one into its table and
@@ -285,10 +296,9 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand. The retail totals are not here: nothing under `golden-retail/` is committed (gen#536), and a test measures them with `retail_figures.figures()`:
 
 * `golden-catalog/*`
-* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -421,7 +431,7 @@ fails until the measured one is set.
 | `key` | The same key: the module's file name and `SPEC`'s first argument. |
 | `category` | `category=`, unchanged. |
 | `family` | `standards_family=`, unchanged: it picks the type's brands and standards pool. |
-| `item` | The `Item` attribute and `LineDraft.item`, unchanged. |
+| `item` | `LineDraft.item`, the title's noun, unchanged. It is not published as an attribute: an `Item` row repeated the product type (#497). |
 | `size_attr` | The SKU's `primary` attribute, same name; it is the type's `key_attributes=` on its `TypeSpec`. |
 | `size_values`, `featured_sizes` | Every value must be offered by the spec space and appear at the default size. The row's `reason` names the reference queries they serve. |
 | `attributes` | Replaced by the type's own vocabulary. A value may become more specific (`Stainless Steel` became `18-8 Stainless Steel` and `316 Stainless Steel`). |
@@ -442,12 +452,17 @@ M10x1.5`; the slice has 8, 11, 9, 7, 9, 15 and 14 SKUs of them.
 
 ### Sources and provenance
 
+A size table several types need (a thread series, a key series, a nut width) is a file in the
+standards library, `core/standards_library/tables/` (README, "The standards library"): add the
+file, never an edit to a shared list, and read the sizes the type stocks with
+`library.table(name).select([...])`.
+
 Every published dimension is read from a table a reviewer can open: a
-standard's rows extracted into `data/fastener_standards.json`, or a table in
+standard's rows extracted into `core/standards_library/tables/fastener_standards.json`, or a table in
 the module whose comment names the source file and the commit it was read
 from (the lock nut's metric rows: FastenersWB `iso7040def.csv`,
 `iso10512def.csv`, `iso10511def.csv` and `nyloc_def.csv`, at the commit that
-`data/fastener_standards.json` records, and the column each value is, such
+`core/standards_library/tables/fastener_standards.json` records, and the column each value is, such
 as `s_max` or `h_max`). A conventional size ladder with no dimensional table
 is allowed (the inch lock nuts), but:
 
@@ -494,7 +509,7 @@ the O-rings borrow the flat washer's model, keyed on the cross-section
 that the borrowed price is generated, not measured.
 
 **A type sold as a set of other types' parts: price it from its contents.**
-A kit's census key (`Number of Pieces`) says how many pieces it holds, not
+A kit's census key (`Piece Count`) says how many pieces it holds, not
 what they are, so its price is keyed on what they cost instead: list it in
 `price.CONTENTS_PRICED`, and `price.price_key` reads `price.kit_contents`,
 each piece priced on its own type's curve at that type's census per-piece
@@ -543,8 +558,10 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread, #66; the kit
-  p90/p10, #76). A figure a reason quotes is read from `PINNED_FIGURES` in
+  side (the wheel brand spread at 100K, #66; the kit
+  p90/p10, #76). A size a pin records `None` for is one the row lands in
+  band on: the pin holds there while the row stays in band (the wheel brand
+  spread on the default build, #272). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that
   states the cause, such as what the wheel's brand tiers alone give, is held
   by a test that measures it
@@ -691,6 +708,26 @@ stays one per type, and their attributes stay true. The class names the word:
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
 handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
 
+## A decoy for an industrial seed query (#462)
+
+The Combined demo runs a category policy on the industrial half, and a policy has nothing visible to
+remove unless a real product merely mentions the queried noun. That product is a decoy: a breadth
+type (a module under `domains/industrial/product_types/decoys/`) whose SKU title holds the seed's
+words, such as `Hex Nut Driver`, `Roller Chain Breaker Tool` or `Square End Mill Storage Case`, and
+whose category path does not name the seed's own category. It is a real accessory, holder, tool,
+lubricant or storage item with true attributes, never a wrong product, and its leaf is its own
+(one type per leaf, no change to `SHARED_LEAVES`). To serve a seed, add or reuse such a module and
+list its key under the query in `domains/industrial/seed_decoys.py`:
+
+- `SEED_TERMS[query] = (terms, forbidden)`: the words one SKU title holds, and the plural-leaf
+  phrases the category path must not hold (`"hex nuts"`, not `"nut"`, which a `Nut Drivers` leaf
+  holds).
+- `SEED_DECOYS[query]` lists the type keys; `SECTIONS` groups the queries for the PR body.
+
+`tests/test_industrial_seed_decoys_462.py` pins at least two decoy lines per seed, that every listed
+type serves its seed, and that every module under `decoys/` serves one. A head noun a decoy adds
+(`Holder`, `Puller`) is registered in `domains/industrial/names.py` `PRODUCT_NOUNS`.
+
 ## The commands
 
 ```sh
@@ -728,7 +765,27 @@ scripts/merge_pr.sh --local-ci <PR number>         # same, CI run here (default 
 `uv run python scripts/mutation_check.py --only "type seam:"` plants a defect
 in each of these hooks and refusals and checks that the named test goes red.
 
+## Minting ids for a second domain (#128)
+
+A domain mints product ids and SKUs through `core/ids.py`, not through a
+generator method. It builds one `IdMinter(prefix, type_key, block)` per type
+(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
+once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
+prefix another domain holds.
+
+A prefix is empty or one or two capital letters. The industrial domain's is
+empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not
+change. A prefixed SKU is the prefix and the ten-digit part number
+(`R4127046271`); a prefixed product id is the prefix, a hyphen, then the usual
+id (`R-ABC-S1-1234-0007`). Industrial SKUs are all digits and industrial brand
+codes are three letters, so no prefixed id equals an industrial one.
+
 ## What is still shared
+
+The retail shared files (decoy tables, `scale.py`, the mutant harness) take a new file, never an
+appended line; `scripts/check_no_registry_append.py` refuses the line. The table is in
+[new-type-quick-path.md](new-type-quick-path.md#shared-files-add-a-file-never-a-line).
 
 **Breadth types can be built in parallel.** Two breadth-type pull requests
 share only these, and each has a mechanical resolution:
@@ -775,8 +832,7 @@ It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 --print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` and
-`golden-retail/stats.json` (about 40 s more) with
+write, is handed back to you. It then rebuilds `golden-catalog/` with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It
@@ -801,6 +857,24 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**A stale golden is regenerated, not handed back (#440).** When `--local-ci`
+is red and the only red is a golden freshness test, the script does not send
+the PR back for a fixer round. "Only" means: every red job printed pytest
+`FAILED`/`ERROR` lines, every one of them names a test of `--print-freshness`
+(the golden-catalog, field-map and golden-stats freshness
+tests), and no other job is red. It then rebuilds the generated files on that tree (the step-2 build),
+commits them as `regenerate golden on main`, runs every job again, and pushes
+and merges only if that second run is green. It does this once. Any other red,
+a red job with no `FAILED` line (lint, a crash), a freshness red a rebuild does
+not change, or a second red stops the merge as before. The first run's log
+stays next to the new one as `<label>-<job>.log.before-regenerate`. A test
+never writes a source-tree file: `ecom-generate build` writes the field map
+by replacement (a reader sees the old file or the new, never a cut-short one),
+and `tests/test_catalog_golden.py` sends the build's copy to a temporary path
+and compares it with the committed one (#440; the cause of a freshness red that
+no rebuild could change was a build in one test worker truncating the file
+another worker was reading).
 
 **The suite runs on several workers (#348).** The whole suite took 47 to 54
 minutes on one core, and merges are serial (each changes `main` and the
@@ -857,7 +931,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   diameter).
 * The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
-  standards extraction in `data/fastener_standards.json`.
+  standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
   `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,

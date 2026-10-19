@@ -78,11 +78,19 @@ PARTS: dict[str, dict[str, dict]] = {
     "sweatshirt": {"hem": TORSO_HEM, "collar": COLLAR},
     "cardigan": {"hem": TORSO_HEM},
     "coat": {"hem": TORSO_HEM},
+    "bomber_jacket": {"hem": TORSO_HEM},
+    "puffer_jacket": {"hem": TORSO_HEM},
+    "shirt_dress": {"collar": COLLAR, "hem": HEM},
     "suit_jacket": {"hem": TORSO_HEM},
     "waistcoat": {"hem": TORSO_HEM},
     "suit_trousers": {"waistband": WAIST, "cuffs": HEM},
     "bodysuit": {"hem": TORSO_HEM},
     "dressing_gown": {"hem": TORSO_HEM},
+    "sleepsuit": {"hem": TORSO_HEM},
+    "baby_bodysuit": {"hem": TORSO_HEM},
+    "snowsuit": {"hem": TORSO_HEM},
+    "puddlesuit": {"hem": TORSO_HEM},
+    "all_in_one": {"hem": TORSO_HEM},
     "pyjamas": {"cuffs": HEM},
     "trousers": {"waistband": WAIST, "cuffs": HEM},
     "joggers": {"waistband": WAIST, "cuffs": HEM},
@@ -95,6 +103,19 @@ PARTS: dict[str, dict[str, dict]] = {
     "school_pinafore": {"straps": STRAPS_TOP},
     "school_shirt": {"hem": TORSO_HEM, "collar": COLLAR},
     "tracksuit": {"cuffs": HEM},
+    "trouser_suit": {"cuffs": HEM},
+    "boys_suit": {"cuffs": HEM},
+    "trench_coat": {"hem": TORSO_HEM},
+    "raincoat": {"hem": TORSO_HEM},
+    "parka": {"hem": TORSO_HEM},
+    "puffer": {"hem": TORSO_HEM},
+    "gilet": {"hem": TORSO_HEM},
+    "peacoat": {"hem": TORSO_HEM},
+    "utility_jacket": {"hem": TORSO_HEM},
+    "shacket": {"hem": TORSO_HEM},
+    "bolero": {"hem": TORSO_HEM},
+    "windbreaker": {"hem": TORSO_HEM},
+    "hoodie": {"hem": TORSO_HEM},
     "outfit_set": {"waistband": band((0.55, 0.0, 1.0, 0.12))},
     "tights": {"waistband": WAIST},
     "boxers": {"waistband": WAIST},
@@ -106,6 +127,15 @@ PARTS: dict[str, dict[str, dict]] = {
         "heel": band((0.0, 0.78, 0.34, 1.0), "all"),
     },
     "shoe": {"sole": marked("sole")},
+    "swimsuit": {"straps": STRAPS_TOP, "hem": TORSO_HEM},
+    "bikini_top": {"straps": STRAPS_TOP},
+    "bikini_bottoms": {"waistband": WAIST},
+    "tankini": {"straps": STRAPS_TOP, "hem": TORSO_HEM},
+    "swim_shorts": {"waistband": WAIST, "cuffs": HEM},
+    "kids_swimsuit": {"hem": TORSO_HEM},
+    "period_swimwear": {"waistband": WAIST},
+    "cover_up": {"hem": TORSO_HEM},
+    "changing_robe": {"hem": TORSO_HEM},
 }
 
 
@@ -115,12 +145,14 @@ def parts_of(shape: str) -> tuple[str, ...]:
 
 
 def _coords(d: str) -> list[tuple[float, float]]:
-    """The absolute points of a path ``d`` (the kit writes absolute commands only)."""
+    """The absolute points of a path ``d``. The kit writes absolute commands, bar the lace trim's
+    relative scallops and dots: a relative command has no absolute point here and is skipped (read
+    as absolute, its small offsets pulled a lace knicker's box to the corner, #444)."""
     pts: list[tuple[float, float]] = []
     cmd, nums = "", []
     for tok in _NUM.findall(d) + ["Z"]:
         if tok.isalpha():
-            if cmd in "MLCQT" and cmd:
+            if cmd in "MLCQT" and cmd:  # a relative (lower-case) command matches no branch
                 pts += list(zip(nums[0::2], nums[1::2], strict=False))
             elif cmd == "A":
                 pts += [(nums[i + 5], nums[i + 6]) for i in range(0, len(nums) - 6, 7)]
@@ -128,7 +160,7 @@ def _coords(d: str) -> list[tuple[float, float]]:
                 pts += [(x, pts[-1][1] if pts else 0.0) for x in nums]
             elif cmd == "V":
                 pts += [(pts[-1][0] if pts else 0.0, y) for y in nums]
-            cmd, nums = tok.upper(), []
+            cmd, nums = tok, []
         else:
             nums.append(float(tok))
     return pts

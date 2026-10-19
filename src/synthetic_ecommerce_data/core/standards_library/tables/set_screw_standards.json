@@ -1,0 +1,976 @@
+{
+ "_library": {
+  "standards": [
+   "ISO 4026",
+   "ISO 4027",
+   "ISO 4028",
+   "ISO 4029",
+   "ASME B18.3 set screws"
+  ],
+  "edition": "ISO 4026, 4027, 4028 and 4029:2003 Table 1, and the ASME B18.3 hexagon socket set screw table, as transcribed in this file's _provenance",
+  "source": "Transcribed by hand from the standards' tables, one row per size; inch lengths are FreeCAD_FastenersWB's as B18.3 fixes none",
+  "kind": "extraction"
+ },
+ "_provenance": {
+  "transcribed_from": "ISO 4026, 4027, 4028 and 4029:2003 Table 1, and the ASME B18.3 hexagon socket set screw table, by hand, one row per size; no value was interpolated",
+  "replaces": "the FreeCAD_FastenersWB iso4026def.csv, iso4028def.csv and asmeb18.3.5def.csv values this type was first built from: they disagree with ISO 4026/4027/4029 Table 1 on 9 of 13 length ranges and ISO 4028 on M4, and their inch point diameter is the midpoint of C for every point, dog included",
+  "point_diameter_basis": "the table's maximum on both systems: dp max (ISO 4026, 4028), C max (flat) and P max (dog) for ASME B18.3"
+ },
+ "ISO 4026": {
+  "_meta": {
+   "title": "Hexagon socket set screws with flat point (ISO 4026:2003)",
+   "units": "mm",
+   "source_table": "ISO 4026:2003 Table 1",
+   "column_semantics": {
+    "pitch_mm": "P",
+    "socket_key_mm": "s nom",
+    "length_min_mm": "the shortest l the table defines for the size",
+    "length_max_mm": "the longest l the table defines for the size",
+    "point_dia_max_mm": "dp max"
+   },
+   "nominal_lengths_mm": [
+    2,
+    2.5,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60
+   ],
+   "nominal_lengths_source": "ISO 4026:2003 Table 1, column l",
+   "left_out": "the non-preferred sizes in brackets (M1.8, M14, M18, M22)"
+  },
+  "rows": [
+   {
+    "size": "M1.6",
+    "pitch_mm": 0.35,
+    "socket_key_mm": 0.7,
+    "point_dia_max_mm": 0.8,
+    "length_min_mm": 2,
+    "length_max_mm": 8,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M1.6"
+   },
+   {
+    "size": "M2",
+    "pitch_mm": 0.4,
+    "socket_key_mm": 0.9,
+    "point_dia_max_mm": 1.0,
+    "length_min_mm": 2,
+    "length_max_mm": 10,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M2"
+   },
+   {
+    "size": "M2.5",
+    "pitch_mm": 0.45,
+    "socket_key_mm": 1.3,
+    "point_dia_max_mm": 1.5,
+    "length_min_mm": 2.5,
+    "length_max_mm": 12,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M2.5"
+   },
+   {
+    "size": "M3",
+    "pitch_mm": 0.5,
+    "socket_key_mm": 1.5,
+    "point_dia_max_mm": 2.0,
+    "length_min_mm": 3,
+    "length_max_mm": 16,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M3"
+   },
+   {
+    "size": "M4",
+    "pitch_mm": 0.7,
+    "socket_key_mm": 2.0,
+    "point_dia_max_mm": 2.5,
+    "length_min_mm": 4,
+    "length_max_mm": 20,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M4"
+   },
+   {
+    "size": "M5",
+    "pitch_mm": 0.8,
+    "socket_key_mm": 2.5,
+    "point_dia_max_mm": 3.5,
+    "length_min_mm": 5,
+    "length_max_mm": 25,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M5"
+   },
+   {
+    "size": "M6",
+    "pitch_mm": 1.0,
+    "socket_key_mm": 3.0,
+    "point_dia_max_mm": 4.0,
+    "length_min_mm": 6,
+    "length_max_mm": 30,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M6"
+   },
+   {
+    "size": "M8",
+    "pitch_mm": 1.25,
+    "socket_key_mm": 4.0,
+    "point_dia_max_mm": 5.5,
+    "length_min_mm": 8,
+    "length_max_mm": 40,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M8"
+   },
+   {
+    "size": "M10",
+    "pitch_mm": 1.5,
+    "socket_key_mm": 5.0,
+    "point_dia_max_mm": 7.0,
+    "length_min_mm": 10,
+    "length_max_mm": 50,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M10"
+   },
+   {
+    "size": "M12",
+    "pitch_mm": 1.75,
+    "socket_key_mm": 6.0,
+    "point_dia_max_mm": 8.5,
+    "length_min_mm": 12,
+    "length_max_mm": 60,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M12"
+   },
+   {
+    "size": "M16",
+    "pitch_mm": 2.0,
+    "socket_key_mm": 8.0,
+    "point_dia_max_mm": 12.0,
+    "length_min_mm": 16,
+    "length_max_mm": 60,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M16"
+   },
+   {
+    "size": "M20",
+    "pitch_mm": 2.5,
+    "socket_key_mm": 10.0,
+    "point_dia_max_mm": 15.0,
+    "length_min_mm": 20,
+    "length_max_mm": 60,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M20"
+   },
+   {
+    "size": "M24",
+    "pitch_mm": 3.0,
+    "socket_key_mm": 12.0,
+    "point_dia_max_mm": 18.0,
+    "length_min_mm": 25,
+    "length_max_mm": 60,
+    "source_table": "ISO 4026:2003 Table 1",
+    "source_row": "M24"
+   }
+  ]
+ },
+ "ISO 4027": {
+  "_meta": {
+   "title": "Hexagon socket set screws with cone point (ISO 4027:2003)",
+   "units": "mm",
+   "source_table": "ISO 4027:2003 Table 1",
+   "column_semantics": {
+    "pitch_mm": "P",
+    "socket_key_mm": "s nom",
+    "length_min_mm": "the shortest l the table defines for the size",
+    "length_max_mm": "the longest l the table defines for the size"
+   },
+   "nominal_lengths_mm": [
+    2,
+    2.5,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60
+   ],
+   "nominal_lengths_source": "ISO 4027:2003 Table 1, column l",
+   "left_out": "the non-preferred sizes in brackets (M1.8, M14, M18, M22)"
+  },
+  "rows": [
+   {
+    "size": "M1.6",
+    "pitch_mm": 0.35,
+    "socket_key_mm": 0.7,
+    "length_min_mm": 2,
+    "length_max_mm": 8,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M1.6"
+   },
+   {
+    "size": "M2",
+    "pitch_mm": 0.4,
+    "socket_key_mm": 0.9,
+    "length_min_mm": 2,
+    "length_max_mm": 10,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M2"
+   },
+   {
+    "size": "M2.5",
+    "pitch_mm": 0.45,
+    "socket_key_mm": 1.3,
+    "length_min_mm": 2.5,
+    "length_max_mm": 12,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M2.5"
+   },
+   {
+    "size": "M3",
+    "pitch_mm": 0.5,
+    "socket_key_mm": 1.5,
+    "length_min_mm": 3,
+    "length_max_mm": 16,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M3"
+   },
+   {
+    "size": "M4",
+    "pitch_mm": 0.7,
+    "socket_key_mm": 2.0,
+    "length_min_mm": 4,
+    "length_max_mm": 20,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M4"
+   },
+   {
+    "size": "M5",
+    "pitch_mm": 0.8,
+    "socket_key_mm": 2.5,
+    "length_min_mm": 5,
+    "length_max_mm": 25,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M5"
+   },
+   {
+    "size": "M6",
+    "pitch_mm": 1.0,
+    "socket_key_mm": 3.0,
+    "length_min_mm": 6,
+    "length_max_mm": 30,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M6"
+   },
+   {
+    "size": "M8",
+    "pitch_mm": 1.25,
+    "socket_key_mm": 4.0,
+    "length_min_mm": 8,
+    "length_max_mm": 40,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M8"
+   },
+   {
+    "size": "M10",
+    "pitch_mm": 1.5,
+    "socket_key_mm": 5.0,
+    "length_min_mm": 10,
+    "length_max_mm": 50,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M10"
+   },
+   {
+    "size": "M12",
+    "pitch_mm": 1.75,
+    "socket_key_mm": 6.0,
+    "length_min_mm": 12,
+    "length_max_mm": 60,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M12"
+   },
+   {
+    "size": "M16",
+    "pitch_mm": 2.0,
+    "socket_key_mm": 8.0,
+    "length_min_mm": 16,
+    "length_max_mm": 60,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M16"
+   },
+   {
+    "size": "M20",
+    "pitch_mm": 2.5,
+    "socket_key_mm": 10.0,
+    "length_min_mm": 20,
+    "length_max_mm": 60,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M20"
+   },
+   {
+    "size": "M24",
+    "pitch_mm": 3.0,
+    "socket_key_mm": 12.0,
+    "length_min_mm": 25,
+    "length_max_mm": 60,
+    "source_table": "ISO 4027:2003 Table 1",
+    "source_row": "M24"
+   }
+  ]
+ },
+ "ISO 4028": {
+  "_meta": {
+   "title": "Hexagon socket set screws with dog point (ISO 4028:2003)",
+   "units": "mm",
+   "source_table": "ISO 4028:2003 Table 1",
+   "column_semantics": {
+    "pitch_mm": "P",
+    "socket_key_mm": "s nom",
+    "length_min_mm": "the shortest l the table defines for the size",
+    "length_max_mm": "the longest l the table defines for the size",
+    "point_dia_max_mm": "dp max"
+   },
+   "nominal_lengths_mm": [
+    2,
+    2.5,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60
+   ],
+   "nominal_lengths_source": "ISO 4028:2003 Table 1, column l",
+   "left_out": "the non-preferred sizes in brackets (M1.8, M14, M18, M22)"
+  },
+  "rows": [
+   {
+    "size": "M1.6",
+    "pitch_mm": 0.35,
+    "socket_key_mm": 0.7,
+    "point_dia_max_mm": 0.8,
+    "length_min_mm": 2,
+    "length_max_mm": 8,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M1.6"
+   },
+   {
+    "size": "M2",
+    "pitch_mm": 0.4,
+    "socket_key_mm": 0.9,
+    "point_dia_max_mm": 1.0,
+    "length_min_mm": 2.5,
+    "length_max_mm": 10,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M2"
+   },
+   {
+    "size": "M2.5",
+    "pitch_mm": 0.45,
+    "socket_key_mm": 1.3,
+    "point_dia_max_mm": 1.5,
+    "length_min_mm": 3,
+    "length_max_mm": 12,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M2.5"
+   },
+   {
+    "size": "M3",
+    "pitch_mm": 0.5,
+    "socket_key_mm": 1.5,
+    "point_dia_max_mm": 2.0,
+    "length_min_mm": 4,
+    "length_max_mm": 16,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M3"
+   },
+   {
+    "size": "M4",
+    "pitch_mm": 0.7,
+    "socket_key_mm": 2.0,
+    "point_dia_max_mm": 2.5,
+    "length_min_mm": 5,
+    "length_max_mm": 20,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M4"
+   },
+   {
+    "size": "M5",
+    "pitch_mm": 0.8,
+    "socket_key_mm": 2.5,
+    "point_dia_max_mm": 3.5,
+    "length_min_mm": 6,
+    "length_max_mm": 25,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M5"
+   },
+   {
+    "size": "M6",
+    "pitch_mm": 1.0,
+    "socket_key_mm": 3.0,
+    "point_dia_max_mm": 4.0,
+    "length_min_mm": 8,
+    "length_max_mm": 30,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M6"
+   },
+   {
+    "size": "M8",
+    "pitch_mm": 1.25,
+    "socket_key_mm": 4.0,
+    "point_dia_max_mm": 5.5,
+    "length_min_mm": 8,
+    "length_max_mm": 40,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M8"
+   },
+   {
+    "size": "M10",
+    "pitch_mm": 1.5,
+    "socket_key_mm": 5.0,
+    "point_dia_max_mm": 7.0,
+    "length_min_mm": 10,
+    "length_max_mm": 50,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M10"
+   },
+   {
+    "size": "M12",
+    "pitch_mm": 1.75,
+    "socket_key_mm": 6.0,
+    "point_dia_max_mm": 8.5,
+    "length_min_mm": 12,
+    "length_max_mm": 60,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M12"
+   },
+   {
+    "size": "M16",
+    "pitch_mm": 2.0,
+    "socket_key_mm": 8.0,
+    "point_dia_max_mm": 12.0,
+    "length_min_mm": 16,
+    "length_max_mm": 60,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M16"
+   },
+   {
+    "size": "M20",
+    "pitch_mm": 2.5,
+    "socket_key_mm": 10.0,
+    "point_dia_max_mm": 15.0,
+    "length_min_mm": 20,
+    "length_max_mm": 60,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M20"
+   },
+   {
+    "size": "M24",
+    "pitch_mm": 3.0,
+    "socket_key_mm": 12.0,
+    "point_dia_max_mm": 18.0,
+    "length_min_mm": 25,
+    "length_max_mm": 60,
+    "source_table": "ISO 4028:2003 Table 1",
+    "source_row": "M24"
+   }
+  ]
+ },
+ "ISO 4029": {
+  "_meta": {
+   "title": "Hexagon socket set screws with cup point (ISO 4029:2003)",
+   "units": "mm",
+   "source_table": "ISO 4029:2003 Table 1",
+   "column_semantics": {
+    "pitch_mm": "P",
+    "socket_key_mm": "s nom",
+    "length_min_mm": "the shortest l the table defines for the size",
+    "length_max_mm": "the longest l the table defines for the size"
+   },
+   "nominal_lengths_mm": [
+    2,
+    2.5,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60
+   ],
+   "nominal_lengths_source": "ISO 4029:2003 Table 1, column l",
+   "left_out": "the non-preferred sizes in brackets (M1.8, M14, M18, M22)"
+  },
+  "rows": [
+   {
+    "size": "M1.6",
+    "pitch_mm": 0.35,
+    "socket_key_mm": 0.7,
+    "length_min_mm": 2,
+    "length_max_mm": 8,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M1.6"
+   },
+   {
+    "size": "M2",
+    "pitch_mm": 0.4,
+    "socket_key_mm": 0.9,
+    "length_min_mm": 2,
+    "length_max_mm": 10,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M2"
+   },
+   {
+    "size": "M2.5",
+    "pitch_mm": 0.45,
+    "socket_key_mm": 1.3,
+    "length_min_mm": 2.5,
+    "length_max_mm": 12,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M2.5"
+   },
+   {
+    "size": "M3",
+    "pitch_mm": 0.5,
+    "socket_key_mm": 1.5,
+    "length_min_mm": 3,
+    "length_max_mm": 16,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M3"
+   },
+   {
+    "size": "M4",
+    "pitch_mm": 0.7,
+    "socket_key_mm": 2.0,
+    "length_min_mm": 4,
+    "length_max_mm": 20,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M4"
+   },
+   {
+    "size": "M5",
+    "pitch_mm": 0.8,
+    "socket_key_mm": 2.5,
+    "length_min_mm": 5,
+    "length_max_mm": 25,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M5"
+   },
+   {
+    "size": "M6",
+    "pitch_mm": 1.0,
+    "socket_key_mm": 3.0,
+    "length_min_mm": 6,
+    "length_max_mm": 30,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M6"
+   },
+   {
+    "size": "M8",
+    "pitch_mm": 1.25,
+    "socket_key_mm": 4.0,
+    "length_min_mm": 8,
+    "length_max_mm": 40,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M8"
+   },
+   {
+    "size": "M10",
+    "pitch_mm": 1.5,
+    "socket_key_mm": 5.0,
+    "length_min_mm": 10,
+    "length_max_mm": 50,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M10"
+   },
+   {
+    "size": "M12",
+    "pitch_mm": 1.75,
+    "socket_key_mm": 6.0,
+    "length_min_mm": 12,
+    "length_max_mm": 60,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M12"
+   },
+   {
+    "size": "M16",
+    "pitch_mm": 2.0,
+    "socket_key_mm": 8.0,
+    "length_min_mm": 16,
+    "length_max_mm": 60,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M16"
+   },
+   {
+    "size": "M20",
+    "pitch_mm": 2.5,
+    "socket_key_mm": 10.0,
+    "length_min_mm": 20,
+    "length_max_mm": 60,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M20"
+   },
+   {
+    "size": "M24",
+    "pitch_mm": 3.0,
+    "socket_key_mm": 12.0,
+    "length_min_mm": 25,
+    "length_max_mm": 60,
+    "source_table": "ISO 4029:2003 Table 1",
+    "source_row": "M24"
+   }
+  ]
+ },
+ "ASME B18.3 set screws": {
+  "_meta": {
+   "title": "Hexagon socket set screws (inch), ASME B18.3",
+   "units": "inches; fractions and decimals are written as the table writes them",
+   "source_table": "ASME B18.3, hexagon socket set screws",
+   "column_semantics": {
+    "threads_per_inch": "UNC threads per inch; #0 has no coarse series, so 80 (UNF)",
+    "socket_key_in": "J, the nominal hexagon socket size: the key that drives it",
+    "cup_flat_point_dia_max_in": "C max, cup and flat point diameter",
+    "cup_flat_point_dia_min_in": "C min",
+    "dog_point_dia_max_in": "P max, dog and half dog point diameter",
+    "dog_point_dia_min_in": "P min",
+    "length_min_in": "not B18.3's: it fixes no length range per size",
+    "length_max_in": "not B18.3's, as length_min_in"
+   },
+   "length_ranges_source": "FreeCAD_FastenersWB at the commit fastener_standards.json records, FsData/asmeb18.3.5def.csv, its length range table; B18.3 fixes no range",
+   "nominal_lengths_in": [
+    "1/16",
+    "3/32",
+    "1/8",
+    "5/32",
+    "3/16",
+    "1/4",
+    "3/8",
+    "7/16",
+    "1/2",
+    "3/4",
+    "1",
+    "1.25",
+    "1.375",
+    "1.5",
+    "1.625",
+    "1.75",
+    "2",
+    "2.25",
+    "2.5",
+    "2.75",
+    "3",
+    "3.25",
+    "3.5",
+    "3.75",
+    "4",
+    "4.25",
+    "4.5",
+    "4.75",
+    "5",
+    "5.25",
+    "5.5",
+    "6"
+   ],
+   "nominal_lengths_source": "FreeCAD_FastenersWB FsData/inch_fs_length.csv, the list asmeb18.3.5def.csv ranges filter",
+   "nominal_lengths_gap": "the source list has no 5/16, 5/8 or 7/8 (it runs 1/4, 3/8, 7/16, 1/2, 3/4, 1), and its 1/4 range row starts at 3/8; both are the source's, at the pinned commit and on its master, and B18.3 fixes neither, so they are carried as published rather than filled in",
+   "left_out": "sizes over 1\""
+  },
+  "rows": [
+   {
+    "size": "#0",
+    "threads_per_inch": 80,
+    "socket_key_in": "0.028",
+    "cup_flat_point_dia_max_in": "0.033",
+    "cup_flat_point_dia_min_in": "0.027",
+    "dog_point_dia_max_in": "0.040",
+    "dog_point_dia_min_in": "0.037",
+    "length_min_in": "1/16",
+    "length_max_in": "1.5",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#0",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #0"
+   },
+   {
+    "size": "#1",
+    "threads_per_inch": 64,
+    "socket_key_in": "0.035",
+    "cup_flat_point_dia_max_in": "0.040",
+    "cup_flat_point_dia_min_in": "0.033",
+    "dog_point_dia_max_in": "0.049",
+    "dog_point_dia_min_in": "0.045",
+    "length_min_in": "1/16",
+    "length_max_in": "1.5",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#1",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #1"
+   },
+   {
+    "size": "#2",
+    "threads_per_inch": 56,
+    "socket_key_in": "0.035",
+    "cup_flat_point_dia_max_in": "0.047",
+    "cup_flat_point_dia_min_in": "0.039",
+    "dog_point_dia_max_in": "0.057",
+    "dog_point_dia_min_in": "0.053",
+    "length_min_in": "1/16",
+    "length_max_in": "2.5",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#2",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #2"
+   },
+   {
+    "size": "#3",
+    "threads_per_inch": 48,
+    "socket_key_in": "0.050",
+    "cup_flat_point_dia_max_in": "0.054",
+    "cup_flat_point_dia_min_in": "0.045",
+    "dog_point_dia_max_in": "0.066",
+    "dog_point_dia_min_in": "0.062",
+    "length_min_in": "1/8",
+    "length_max_in": "2.5",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#3",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #3"
+   },
+   {
+    "size": "#4",
+    "threads_per_inch": 40,
+    "socket_key_in": "0.050",
+    "cup_flat_point_dia_max_in": "0.061",
+    "cup_flat_point_dia_min_in": "0.051",
+    "dog_point_dia_max_in": "0.075",
+    "dog_point_dia_min_in": "0.070",
+    "length_min_in": "1/8",
+    "length_max_in": "4",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#4",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #4"
+   },
+   {
+    "size": "#5",
+    "threads_per_inch": 40,
+    "socket_key_in": "1/16",
+    "cup_flat_point_dia_max_in": "0.067",
+    "cup_flat_point_dia_min_in": "0.057",
+    "dog_point_dia_max_in": "0.083",
+    "dog_point_dia_min_in": "0.078",
+    "length_min_in": "3/16",
+    "length_max_in": "4",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#5",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #5"
+   },
+   {
+    "size": "#6",
+    "threads_per_inch": 32,
+    "socket_key_in": "1/16",
+    "cup_flat_point_dia_max_in": "0.074",
+    "cup_flat_point_dia_min_in": "0.064",
+    "dog_point_dia_max_in": "0.092",
+    "dog_point_dia_min_in": "0.087",
+    "length_min_in": "1/8",
+    "length_max_in": "4",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#6",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #6"
+   },
+   {
+    "size": "#8",
+    "threads_per_inch": 32,
+    "socket_key_in": "5/64",
+    "cup_flat_point_dia_max_in": "0.087",
+    "cup_flat_point_dia_min_in": "0.076",
+    "dog_point_dia_max_in": "0.109",
+    "dog_point_dia_min_in": "0.103",
+    "length_min_in": "1/8",
+    "length_max_in": "5",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#8",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #8"
+   },
+   {
+    "size": "#10",
+    "threads_per_inch": 24,
+    "socket_key_in": "3/32",
+    "cup_flat_point_dia_max_in": "0.102",
+    "cup_flat_point_dia_min_in": "0.088",
+    "dog_point_dia_max_in": "0.127",
+    "dog_point_dia_min_in": "0.120",
+    "length_min_in": "3/16",
+    "length_max_in": "8",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "#10",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row #10"
+   },
+   {
+    "size": "1/4",
+    "threads_per_inch": 20,
+    "socket_key_in": "1/8",
+    "cup_flat_point_dia_max_in": "0.132",
+    "cup_flat_point_dia_min_in": "0.118",
+    "dog_point_dia_max_in": "0.156",
+    "dog_point_dia_min_in": "0.149",
+    "length_min_in": "3/8",
+    "length_max_in": "10",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "1/4",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 1/4"
+   },
+   {
+    "size": "5/16",
+    "threads_per_inch": 18,
+    "socket_key_in": "5/32",
+    "cup_flat_point_dia_max_in": "0.172",
+    "cup_flat_point_dia_min_in": "0.156",
+    "dog_point_dia_max_in": "0.203",
+    "dog_point_dia_min_in": "0.195",
+    "length_min_in": "1/2",
+    "length_max_in": "10",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "5/16",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 5/16"
+   },
+   {
+    "size": "3/8",
+    "threads_per_inch": 16,
+    "socket_key_in": "3/16",
+    "cup_flat_point_dia_max_in": "0.212",
+    "cup_flat_point_dia_min_in": "0.194",
+    "dog_point_dia_max_in": "0.250",
+    "dog_point_dia_min_in": "0.241",
+    "length_min_in": "1/2",
+    "length_max_in": "12",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "3/8",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 3/8"
+   },
+   {
+    "size": "7/16",
+    "threads_per_inch": 14,
+    "socket_key_in": "7/32",
+    "cup_flat_point_dia_max_in": "0.252",
+    "cup_flat_point_dia_min_in": "0.232",
+    "dog_point_dia_max_in": "0.297",
+    "dog_point_dia_min_in": "0.287",
+    "length_min_in": "3/4",
+    "length_max_in": "12",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "7/16",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 7/16"
+   },
+   {
+    "size": "1/2",
+    "threads_per_inch": 13,
+    "socket_key_in": "1/4",
+    "cup_flat_point_dia_max_in": "0.291",
+    "cup_flat_point_dia_min_in": "0.270",
+    "dog_point_dia_max_in": "0.344",
+    "dog_point_dia_min_in": "0.334",
+    "length_min_in": "3/4",
+    "length_max_in": "12",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "1/2",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 1/2"
+   },
+   {
+    "size": "5/8",
+    "threads_per_inch": 11,
+    "socket_key_in": "5/16",
+    "cup_flat_point_dia_max_in": "0.371",
+    "cup_flat_point_dia_min_in": "0.347",
+    "dog_point_dia_max_in": "0.469",
+    "dog_point_dia_min_in": "0.456",
+    "length_min_in": "3/4",
+    "length_max_in": "14",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "5/8",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 5/8"
+   },
+   {
+    "size": "3/4",
+    "threads_per_inch": 10,
+    "socket_key_in": "3/8",
+    "cup_flat_point_dia_max_in": "0.450",
+    "cup_flat_point_dia_min_in": "0.425",
+    "dog_point_dia_max_in": "0.562",
+    "dog_point_dia_min_in": "0.549",
+    "length_min_in": "1",
+    "length_max_in": "14",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "3/4",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 3/4"
+   },
+   {
+    "size": "7/8",
+    "threads_per_inch": 9,
+    "socket_key_in": "1/2",
+    "cup_flat_point_dia_max_in": "0.530",
+    "cup_flat_point_dia_min_in": "0.502",
+    "dog_point_dia_max_in": "0.656",
+    "dog_point_dia_min_in": "0.642",
+    "length_min_in": "1.5",
+    "length_max_in": "14",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "7/8",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 7/8"
+   },
+   {
+    "size": "1",
+    "threads_per_inch": 8,
+    "socket_key_in": "9/16",
+    "cup_flat_point_dia_max_in": "0.609",
+    "cup_flat_point_dia_min_in": "0.579",
+    "dog_point_dia_max_in": "0.750",
+    "dog_point_dia_min_in": "0.734",
+    "length_min_in": "1.5",
+    "length_max_in": "14",
+    "source_table": "ASME B18.3, hexagon socket set screws",
+    "source_row": "1",
+    "length_source": "FsData/asmeb18.3.5def.csv, its length range table, row 1"
+   }
+  ]
+ }
+}

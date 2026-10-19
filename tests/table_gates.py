@@ -13,6 +13,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
 
+from published import authored_entries
 from synthetic_ecommerce_data.core import brands, emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
@@ -21,7 +22,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 MM = 25.4
-PACK = "Package Quantity"
+PACK = "Units per Pack"
 
 
 def catalog(key: str, lines: int | None = None, defects: bool = False):
@@ -38,7 +39,7 @@ def docs(built) -> list[dict]:
 
 
 def values(doc: dict) -> dict[str, dict]:
-    return {a["name"]: a for a in doc["attributes"]}
+    return {a["name"]: a for a in authored_entries(doc)}
 
 
 def row(doc: dict, columns: Sequence[str]) -> tuple[float, ...]:

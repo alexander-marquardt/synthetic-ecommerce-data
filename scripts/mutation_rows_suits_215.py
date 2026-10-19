@@ -1,12 +1,14 @@
 """Mutation rows for the Mens suits and tailoring types (gen#215), in their own file.
 
 Each row plants one defect in a rule of ``kit_suits.py`` or ``mens_depth_rows.py`` and names the
-test that must go red. ``mutation_rows_garden_hose.ALL`` carries them to ``mutation_check.py`` as
-rows named ``suits: ...`` (``--only "suits:"`` re-runs them). A row is
+test that must go red. ``mutation_row.discover`` finds this file by glob and the harness names
+them as rows named ``suits: ...`` (``--only "suits:"`` re-runs them). A row is
 ``(name, file, old, new, test, property, root)``.
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -72,4 +74,56 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a jacket draws the button count its record states",
         "prototypes/retail_drawings",
     ),
+    (
+        'a wide trouser leg is drawn as a straight one',
+        'kit_suit_sets.py',
+        '"wide": 38,',
+        '"wide": 24,',
+        'tests/test_retail_suit_sets_215.py -k geometry_not_only_the_stamp',
+        'the trouser leg fit changes the width of a leg, not only the stamp',
+        'prototypes/retail_drawings',
+    ),
+    (
+        'a three piece boys suit is drawn as two pieces',
+        'kit_suit_sets.py',
+        'n = 3 if pieces == "3" else 2',
+        'n = 2 if pieces == "3" else 2',
+        'tests/test_retail_suit_sets_215.py -k its_pieces',
+        'the pieces param changes the number of pieces drawn',
+        'prototypes/retail_drawings',
+    ),
+    (
+        'a double breasted jacket loses its second column of buttons',
+        'kit_suit_sets.py',
+        'body += [_button(176, 202), _button(176, 250)]',
+        'body += []',
+        'tests/test_retail_suit_sets_215.py -k second_column_of_buttons',
+        'a double breasted jacket draws its second column of buttons',
+        'prototypes/retail_drawings',
+    ),
+    (
+        'a collarless jacket is drawn with a lapel',
+        'kit_suits.py',
+        'if lapel == "none":',
+        'if lapel == "never":',
+        'tests/test_retail_suit_sets_215.py -k neck_facing_and_no_lapel',
+        'a collarless jacket draws its neck facing and no lapel',
+        'prototypes/retail_drawings',
+    ),
+    (
+        'the check suit jacket is drawn as a coat again',
+        'class_rows.py',
+        '"Suit Jacket", "suit_jacket", one(',
+        '"Suit Jacket", "coat", one(',
+        'tests/test_retail_suit_sets_215.py -k old_suit_jacket_row',
+        'the one old Suit Jacket row is drawn as a suit jacket',
+        'prototypes/retail_drawings',
+    ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "suits"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

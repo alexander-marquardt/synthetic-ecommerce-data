@@ -16,16 +16,13 @@ from pathlib import Path
 import pytest
 
 from compat_text import NOISE, noise_sentences
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.dowel_pins import (
-    DIA_IN as DOWEL_DIA_IN,
-)
-from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.dowel_pins import (
-    DIA_MM as DOWEL_DIA_MM,
+    DIA as DOWEL_DIA,
 )
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
@@ -74,11 +71,11 @@ def docs(request) -> list[dict]:
 # The PUBLISHED spelling, from flat ``facets``: the text under test is checked
 # against what was published, and a nested entry carries no spelling (#42).
 def _values(doc: dict) -> dict[str, str]:
-    return {a["name"]: a["value"] for a in published_attributes(doc)}
+    return {a["name"]: a["value"] for a in authored_attributes(doc)}
 
 
 def _all_values(doc: dict) -> set[str]:
-    return {a["value"] for a in published_attributes(doc)}
+    return {a["value"] for a in authored_attributes(doc)}
 
 
 def _inches(value: str) -> float:
@@ -248,7 +245,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
         "bearing_radial_ball": "Bore Dia.",
         "wheel_depressed_center": "Diameter",
         "abrasive_flap_disc": "Diameter",
-        "dowel_pins": (DOWEL_DIA_IN, DOWEL_DIA_MM),
+        "dowel_pins": (DOWEL_DIA,),
     }
     seen: set[str] = set()
     eligible = carrying = 0
@@ -280,7 +277,7 @@ def _kits(docs):
 
 
 def _contents(doc: dict) -> list[str]:
-    return [a["value"] for a in published_attributes(doc) if a["name"] == "Sizes Included"]
+    return [a["value"] for a in authored_attributes(doc) if a["name"] == "Sizes Included"]
 
 
 def test_a_kit_is_one_sku_of_its_own_product(docs):
@@ -293,14 +290,14 @@ def test_a_kit_is_one_sku_of_its_own_product(docs):
 
 
 def test_a_kits_piece_count_is_its_contents(docs):
-    """``Number of Pieces`` is a real count: one per size in a set, a whole
+    """``Piece Count`` is a real count: one per size in a set, a whole
     number per size in an assortment; never a figure the contents cannot give."""
     counted = 0
     for doc in _kits(docs):
         values, contents = _values(doc), _contents(doc)
-        if "Number of Pieces" not in values or not contents:
+        if "Piece Count" not in values or not contents:
             continue
-        pieces = int(values["Number of Pieces"])
+        pieces = int(values["Piece Count"])
         assert pieces % len(contents) == 0, doc["sku"]
         if "Assortment" not in values.get("Type", ""):
             assert pieces == len(contents), doc["sku"]

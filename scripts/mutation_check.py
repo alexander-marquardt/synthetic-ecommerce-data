@@ -26,22 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import mutation_rows_appliance_colors  # noqa: E402  (gen#243 rows)
-import mutation_rows_attribute_text  # noqa: E402  (gen#250 rows, kept in their own file)
-import mutation_rows_audit_order  # noqa: E402  (gen#253 rows)
-import mutation_rows_bolt_pack  # noqa: E402  (gen#86 rows, kept in their own file)
-import mutation_rows_ceiling_forms  # noqa: E402  (gen#237 rows, kept in their own file)
-import mutation_rows_customer_names  # noqa: E402  (#393 rows, kept in their own file)
-import mutation_rows_cutlery_pack_count  # noqa: E402  (gen#228 rows)
-import mutation_rows_department_floor  # noqa: E402  (gen#234 rows)
-import mutation_rows_garden_hose  # noqa: E402  (gen#351 and gen#292 rows, in their own files)
-import mutation_rows_lighting  # noqa: E402  (gen#238 rows, kept in their own file)
-import mutation_rows_lowerbody_257  # noqa: E402  (gen#257 rows, kept in their own file)
-import mutation_rows_pack_size  # noqa: E402  (gen#246 rows, kept in their own file)
-import mutation_rows_ring_sizes_249  # noqa: E402  (gen#249 rows, kept in their own file)
-import mutation_rows_shared_builds  # noqa: E402  (gen#140 rows, kept in their own file)
-import mutation_rows_sheet_extent  # noqa: E402  (gen#242 rows, kept in their own file)
-import mutation_rows_underwear_245  # noqa: E402  (gen#245 rows, kept in their own file)
+import mutation_row  # noqa: E402  (the glob that finds the mutant-row files)
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
@@ -80,6 +65,27 @@ class Mutation:
 
 
 MUTATIONS: list[Mutation] = [
+    # ---- the release build defaults to the ceiling (gen#536) ----
+    Mutation(
+        "release default: the export step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'scale.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'scale.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and export'",
+        "",
+        "the tag build asks for the ceiling",
+        root=".",
+    ),
+    Mutation(
+        "release default: the image step asks for a number past the ceiling",
+        ".github/workflows/release.yaml",
+        'image_release.py --skus "${RELEASE_SKUS:-ceiling}"',
+        'image_release.py --skus "${RELEASE_SKUS:-10000000}"',
+        "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and image'",
+        "",
+        "the image build asks for the ceiling",
+        root=".",
+    ),
     # ---- the commit-message check masks the agent-instructions file name (gen#117) ----
     Mutation(
         "commit msg: the file name is no longer masked before matching",
@@ -368,11 +374,20 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw every end mill with a square end, whatever the record says",
         "domains/industrial/render/endmill.py",
-        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
-        '    published = str(require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
+        '    published = str(stated if stated else require(record, "End Mill Style")).strip().lower()\n    try:\n        return END_STYLES[published]',
+        '    published = str(stated if stated else require(record, "End Mill Style")).strip().lower()\n    try:\n        return "square" if published else END_STYLES[published]',
         "tests/test_endmill.py tests/test_derivation.py",
         "A",
         "the cutting end comes from the record",
+    ),
+    Mutation(
+        "a generic end mill with no style attribute is refused instead of drawn from its type",
+        "domains/industrial/render/generic.py",
+        '        STYLE_OF_TYPE.get(str(record.get("product_type")))\n        if kind == END_MILL',
+        '        None\n        if kind == END_MILL',
+        "tests/test_derivation.py",
+        "A",
+        "the cutting end comes from the product type once the style attribute is gone (#497)",
     ),
     Mutation(
         "draw every GENERIC end mill with a ball nose, whatever it is of",
@@ -612,8 +627,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
         "domains/industrial/vocab.py",
-        '    _spec("Rockwell Hardness", "line", 0.48),',
-        '    _spec("Rockwell Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
+        '    _spec("Hardness", "line", 0.48),',
+        '    _spec("Hardness", "line", 0.48),\n    _spec("Handle Material", "line", 0.5),',
         "tests/test_catalog_vocab.py tests/test_catalog_generate.py",
         "A",
         "unrelated product types share no vocabulary",
@@ -621,8 +636,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "remove the one name a screw and a hammer legitimately share",
         "domains/industrial/vocab.py",
-        'HAMMER_VOCAB = (\n    _spec("Item", "line"),',
-        'HAMMER_VOCAB = (\n    _spec("Item ", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Material", "line"),',
+        'HAMMER_VOCAB = (\n    _spec("Material ", "line"),',
         "tests/test_catalog_vocab.py",
         "B",
         "unrelated product types share no vocabulary",
@@ -1215,11 +1230,117 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: the push is forced",
-                'push -q origin "HEAD:',
-                'push -q -f origin "HEAD:',
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of $final_sha',
                 "tests/test_merge_pr.py::"
                 "test_a_head_that_moves_during_the_checks_is_neither_overwritten_nor_merged",
                 "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: the push of the regenerated commit is forced",
+                'push -q origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of the regenerated',
+                'push -q -f origin "HEAD:refs/heads/$head_ref" ||\n      die "the push of the regenerated',
+                "tests/test_merge_pr.py::"
+                "test_a_head_that_moves_during_the_second_run_is_neither_overwritten_nor_merged",
+                "the head is the commit that was checked, at every merge attempt",
+            ),
+            (
+                "merge_pr: any failed id counts as freshness",
+                'listed "$id" "${FRESHNESS_TESTS[@]}" || return 1',
+                'true || return 1',
+                'tests/test_merge_pr.py::test_a_local_ci_red_on_another_test_alone_is_not_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a red with no FAILED line counts as freshness",
+                '[ -n "$ids" ] || return 1',
+                'true || return 1',
+                'tests/test_merge_pr.py::test_a_red_with_no_pytest_failure_line_is_not_taken_for_a_stale_golden',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: every red is regenerated",
+                'only_stale_generated_files_red ||\n    die',
+                'true ||\n    die',
+                ('tests/test_merge_pr.py::test_a_local_ci_red_on_another_test_alone_is_not_regenerated', 'tests/test_merge_pr.py::test_a_red_with_no_pytest_failure_line_is_not_taken_for_a_stale_golden'),
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: only the first red job is read",
+                '  for job in $local_ci_failed; do\n    ids=',
+                '  for job in $(set -- $local_ci_failed; echo $1); do\n    ids=',
+                'tests/test_merge_pr.py::test_a_freshness_red_beside_a_red_job_that_is_not_pytest_is_not_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a second red does not stop the merge",
+                '$run_ci ||\n    die "$ci_name is red on $final_sha after the golden regeneration',
+                '$run_ci ||\n    echo "$ci_name is red on $final_sha after the golden regeneration',
+                'tests/test_merge_pr.py::test_a_golden_that_is_still_red_after_the_regeneration_is_regenerated_once_only',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: an empty regeneration is committed",
+                'if git -C "$work" diff --cached --quiet; then\n    die "a golden freshness',
+                'if false; then\n    die "a golden freshness',
+                'tests/test_merge_pr.py::test_a_freshness_red_a_rebuild_does_not_change_is_not_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regeneration commit message",
+                '-m "regenerate golden on main"',
+                '-m "wip"',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the checked sha is not moved to the regenerated commit",
+                '  final_sha=$(git -C "$work" rev-parse HEAD)\n  echo "5a.',
+                '  echo "5a.',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regenerated commit is not pushed",
+                'if [ "$final_sha" != "$pushed_sha" ]; then',
+                'if false; then',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: a dry run does not regenerate",
+                '    run_local_ci_regenerating\n    echo "5. every local CI job is green on $final_sha"\n  elif',
+                '    run_local_ci\n    echo "5. every local CI job is green on $final_sha"\n  elif',
+                'tests/test_merge_pr.py::test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the first run's log is not kept",
+                'mv -f "$(local_ci_log "$job")" "$(local_ci_log "$job").before-regenerate"',
+                'rm -f "$(local_ci_log "$job")"',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the drift test is not a freshness test",
+                '  tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation\n',
+                '',
+                'tests/test_merge_pr.py::test_the_stale_yaml_signature_of_the_incident_is_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the stats test is not a freshness test",
+                '  tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed\n',
+                '',
+                'tests/test_merge_pr.py::test_a_red_on_the_field_map_or_the_stats_freshness_test_is_regenerated',
+                'a stale golden is regenerated once, on a green second run (#440)',
+            ),
+            (
+                "merge_pr: the regeneration stages nothing",
+                '  rebuild_generated\n  stage_generated\n  if git',
+                '  rebuild_generated\n  if git',
+                'tests/test_merge_pr.py::test_a_local_ci_red_that_is_only_the_golden_freshness_test_is_regenerated_and_merged',
+                'a stale golden is regenerated once, on a green second run (#440)',
             ),
             (
                 "merge_pr: the rebuild runs unlocked",
@@ -1243,37 +1364,6 @@ MUTATIONS: list[Mutation] = [
                 "tests/test_merge_pr.py::"
                 "test_a_change_the_rebuild_makes_outside_the_generated_files_is_refused",
                 "the rebuild commits only the generated files",
-            ),
-            (
-                "merge_pr: the retail totals are not rebuilt",
-                "RETAIL_REBUILD=(python prototypes/retail_drawings/retail_figures.py)",
-                "RETAIL_REBUILD=(true)",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                    "tests/test_merge_pr.py::"
-                    "test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed",
-                ),
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: a failed retail rebuild is ignored",
-                '[ "$retail_rc" -eq 0 ] ||',
-                "true ||",
-                "tests/test_merge_pr.py::test_a_retail_rebuild_that_fails_refuses_the_merge",
-                "the retail totals are rebuilt on the merged tree (gen#343)",
-            ),
-            (
-                "merge_pr: the retail stats are not generated",
-                "  golden-retail/stats.json\n",
-                "",
-                (
-                    "tests/test_merge_pr.py::"
-                    "test_the_generated_files_are_exactly_what_the_build_writes",
-                    "tests/test_merge_pr.py::"
-                    "test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild",
-                ),
-                "a conflict only in the retail totals is resolved by the rebuild (gen#343)",
             ),
             (
                 "merge_pr: a check run in which no test passed is green",
@@ -1300,7 +1390,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: any skipped check is green",
-                'listed "$name" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
+                'listed "${name%% (*}" "${SKIPPED_BY_DESIGN_CI[@]}" ||',
                 "true ||",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[skipped]",
@@ -1308,8 +1398,8 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "merge_pr: a missing required check is not waited for",
-                'listed "$name" ${seen[@]+"${seen[@]}"} || missing+=',
-                "true || missing+=",
+                'listed "$name" ${seen[@]+"${seen[@]}"} || listed',
+                "true || listed",
                 "tests/test_merge_pr.py::"
                 "test_a_merge_waits_for_every_check_on_the_pushed_tree[missing]",
                 "every CI check on the commit that merges is green",
@@ -1342,24 +1432,6 @@ MUTATIONS: list[Mutation] = [
         "tests/test_catalog_generate.py",
         "B",
         "the shank == cutting diameter rate is the measured one",
-    ),
-    Mutation(
-        "stop injecting the angle-carries-a-length-unit defect",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if True:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "A",
-        "the angle defect occurs at its measured rate",
-    ),
-    Mutation(
-        "inject the angle defect into every line",
-        "domains/industrial/defects.py",
-        "        if self.rng.random() >= self.config.scaled_defect(\n            self.config.defect_angle_carries_length_unit\n        ):\n            return line_attrs",
-        "        if False:\n            return line_attrs",
-        "tests/test_catalog_generate.py",
-        "B",
-        "the angle defect occurs at its measured rate",
     ),
     # ---- no title label is truncated, both directions --------------------
     # The property inverted with the ruling on elastic/prism#9284: titles used
@@ -1474,8 +1546,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let a child redefine a name its line already carries",
         "domains/industrial/generate.py",
-        '            keyword_attribute("Item", item),\n            keyword_attribute("End Mill Style", style_name),',
-        '            keyword_attribute("Item", item),\n            keyword_attribute("Milling Dia.", "0"),\n            keyword_attribute("End Mill Style", style_name),',
+        '            retired(keyword_attribute("End Mill Style", style_name)),\n            keyword_attribute("Material", material),',
+        '            retired(keyword_attribute("End Mill Style", style_name)),\n            keyword_attribute("Milling Dia.", "0"),\n            keyword_attribute("Material", material),',
         "tests/test_catalog_generate.py",
         "",
         "a child never redefines a line attribute",
@@ -1542,42 +1614,6 @@ MUTATIONS: list[Mutation] = [
         "a TPI entry's canonical is the ruled reciprocal length",
     ),
     Mutation(
-        "read the angle defect's inch mark as an inch again",
-        "core/entry.py",
-        '        unit = UNIT_FOR_NAME.get(name) or UNIT_FOR_SUFFIX[match["suffix"]]',
-        '        unit = UNIT_FOR_SUFFIX[match["suffix"]]',
-        (
-            "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "fix the inch-marked Helix Angle but leave Point Angle an inch",
-        "core/entry.py",
-        '    "Point Angle": "DD",\n',
-        "",
-        "tests/test_nested_entry_contract.py -k share_one_unit_dimension",
-        "",
-        "an angle key's entries are angles however the value is spelled (#79)",
-    ),
-    Mutation(
-        "read a length keyed into an angle field as degrees",
-        "core/entry.py",
-        '        if UNIT_FOR_NAME.get(name) == "DD" and not _within_span(name, match["number"]):\n'
-        '            return {"value": published}\n',
-        "",
-        (
-            "tests/test_nested_entry_contract.py -k canonical_lies_within",
-            "tests/test_nested_entry_contract.py -k hand_worked",
-            "tests/test_nested_entry_contract.py -k published_spelling",
-        ),
-        "",
-        "an angle key's canonical lies within the angles its series offers (#79)",
-    ),
-    Mutation(
         "collapse a multi-valued attribute to a single entry",
         "core/model.py",
         "        values = self.values if self.values is not None else (self.value,)",
@@ -1625,8 +1661,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop attribute values out of the searchable text",
         "core/emit.py",
-        "    parts = [child.title, line.brand, line.series, *line.category]",
-        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []',
+        "    parts = [\n        child.title,\n        line.brand,\n        line.series,\n"
+        "        *(letter_case.sentence_case(node) for node in line.category),\n    ]\n",
+        '    parts = [child.title, line.brand, line.series]\n    return " ".join(part for part in parts if part)\n    parts = []\n',
         "tests/test_catalog_emit.py",
         "",
         "attribute values are reachable by full text",
@@ -1653,6 +1690,15 @@ MUTATIONS: list[Mutation] = [
         "tests/test_prism_field_map_drift.py",
         "B",
         "the committed field map matches a fresh derivation",
+    ),
+    Mutation(
+        "write the committed field map in place, not by replacement (#440)",
+        "generate_cli.py",
+        '        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")\n        os.replace(staged, target)',
+        '        target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")',
+        "tests/test_prism_field_map_drift.py::test_the_field_map_is_replaced_not_rewritten_in_place",
+        "",
+        "a reader never sees the committed field map cut short",
     ),
     # ---- PRISM field map: numeric vs terms classification ----------------
     Mutation(
@@ -1761,7 +1807,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "restate the identifier declaration instead of reading the generator's",
         "prism/derive.py",
-        "IDENTIFIER_ATTRIBUTES = Generator.IDENTIFIER_ATTRIBUTES",
+        "IDENTIFIER_ATTRIBUTES = frozenset(sentence_case(n) for n in Generator.IDENTIFIER_ATTRIBUTES)",
         'IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})',
         "tests/test_facet_control_rule.py -k reads_the_generators",
         "",
@@ -1911,9 +1957,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports rows: a football's ball size is stored without its unit",
-        "prototypes/retail_drawings/export.py",
-        '"ball_size": ("ball_size", "Ball size", "C62"),',
-        '"ball_size": ("ball_size", "Ball size", None),',
+        "prototypes/retail_drawings/type_specs/football.py",
+        'Option("ball_size", "ball_size", "Ball size", "C62")',
+        'Option("ball_size", "ball_size", "Ball size", None)',
         "tests/test_retail_sports_265.py::test_a_measured_axis_is_on_every_sku_with_its_unit[Football]",
         "",
         "the ball size carries its unit",
@@ -2024,9 +2070,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "blank one card image url in the committed catalog",
         "flat.jsonl",
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, "image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": ""',
         "tests/test_catalog_golden.py::test_every_flat_document_carries_an_image_url",
         "A",
@@ -2036,11 +2082,11 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the detail image url from one committed nested variant",
         "nested.jsonl",
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg", '
         '"image_detail_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
-        '"stock": 191, '
+        '"stock": 191, "pricing_unit": "Each", "order_multiple": 1, '
         '"image_id": "abrasive_flap_disc/TAN-FD580-1609-0003/1609171743", '
         '"image_url": "/images/industrial/abrasive_flap_disc/TAN-FD580-1609-0003/1609171743.svg"',
         "tests/test_catalog_golden.py::test_every_nested_line_and_variant_carries_an_image_url",
@@ -2091,51 +2137,6 @@ MUTATIONS: list[Mutation] = [
         "",
         "the nested lines account for every sku",
         root="golden-catalog",
-    ),
-    # ---- Length Under Head is DRAWN, both directions ---------------------
-    Mutation(
-        "draw the length-under-head dimension against the whole screw",
-        "domains/industrial/render/fastener.py",
-        "        span = geom.length_under_head.inches",
-        "        span = geom.total_height",
-        (
-            "tests/test_fastener.py -k length_under_head",
-            "tests/test_fastener.py -k three_published_lengths",
-        ),
-        "A",
-        "the length under head is a span on the drawing, to its published value",
-    ),
-    Mutation(
-        "print the value in the attribute table and draw no dimension for it",
-        "domains/industrial/render/fastener.py",
-        "    if geom.length_under_head is not None:\n        # The whole shank",
-        "    if False:\n        # The whole shank",
-        (
-            "tests/test_fastener.py -k length_under_head",
-            "tests/test_fastener.py -k three_published_lengths",
-            "tests/test_fastener.py -k inked_in_the_drawing",
-        ),
-        "B",
-        "the length under head is a span on the drawing, to its published value",
-    ),
-    # ---- a record whose lengths disagree is refused, both directions ------
-    Mutation(
-        "draw a screw whose published lengths contradict each other",
-        "domains/industrial/render/fastener.py",
-        "        if drift > UNDER_HEAD_TOLERANCE_IN:",
-        "        if False:",
-        "tests/test_fastener.py -k contradict",
-        "A",
-        "a length under head the other lengths contradict is refused",
-    ),
-    Mutation(
-        "tighten the tolerance past the precision the catalog publishes at",
-        "domains/industrial/render/fastener.py",
-        "UNDER_HEAD_TOLERANCE_IN = 0.01",
-        "UNDER_HEAD_TOLERANCE_IN = 0.0",
-        "tests/test_fastener.py -k rounding",
-        "B",
-        "a length under head the other lengths contradict is refused",
     ),
     # ---- the head style decides the SHAPE, both directions ---------------
     Mutation(
@@ -2276,28 +2277,6 @@ MUTATIONS: list[Mutation] = [
         "B",
         "the new screw silhouettes are drawn to the proportions their standards give them",
     ),
-    # ---- the catalog publishes the attribute at all, both directions ------
-    Mutation(
-        "publish the length under head on the countersunk line only",
-        "domains/industrial/generate.py",
-        '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
-        '                *([self._length("Length under Head", length_in, style)] if flat else []),',
-        "tests/test_catalog_generate.py -k length_under_head",
-        "A",
-        "every non-countersunk screw and bolt publishes its stocked length under head",
-    ),
-    Mutation(
-        "publish length-less-head-height under the countersunk head again",
-        "domains/industrial/generate.py",
-        '                *([] if flat else [self._length("Length under Head", length_in, style)]),',
-        '                self._length("Length under Head", length_in - (head.head_height_in if flat else 0), style),',  # noqa: E501
-        (
-            "tests/test_catalog_generate.py -k stocked_length_and_a_countersunk",
-            "tests/test_compatibility_text.py -k countersunk",
-        ),
-        "B",
-        "every non-countersunk screw and bolt publishes its stocked length under head",
-    ),
     # ---- cross-references and near-miss threads ----------------------------
     Mutation(
         "print the key-to-screw table one screw size off",
@@ -2313,9 +2292,9 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "name the coarse thread's drill on its fine sibling",
-        "domains/industrial/compat.py",
-        '    "M12x1.5": 10.5,',
-        '    "M12x1.5": 10.2,',
+        "core/standards_library/tables/metric_tap_drills.json",
+        '"thread": "M12x1.5",\n   "drill_mm": 10.5',
+        '"thread": "M12x1.5",\n   "drill_mm": 10.2',
         (
             "tests/test_compatibility_text.py -k diameter_less_the_pitch",
             "tests/test_compatibility_text.py -k every_compatibility_sentence_holds",
@@ -2695,7 +2674,7 @@ MUTATIONS: list[Mutation] = [
     # ---- 7/16 exists, and its lengths are the standard's, both ways -------
     Mutation(
         "record 7/16 as absent from the hex bolt standard",
-        "domains/industrial/data/fastener_standards.json",
+        "core/standards_library/tables/fastener_standards.json",
         '"size": "7/16",\n        "present_in_source": true,\n        "width_across_flats_in": 0.625,',
         '"size": "7/16",\n        "present_in_source": false,\n        "width_across_flats_in": 0.625,',
         "tests/test_catalog_coverage.py",
@@ -3265,8 +3244,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "group noise is drawn per SKU, not per group page",
                 "domains/industrial/finishing.py",
-                "            seed, type_key, brand, (a for a in line_attributes if a.name in always)",
-                "            seed, type_key, brand + sku, (a for a in line_attributes if a.name in always)",
+                "            brand,\n            (\n                a\n                for a in line_attributes\n                if a.name in always or",
+                "            brand + sku,\n            (\n                a\n                for a in line_attributes\n                if a.name in always or",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a group page shares one price level",
             ),
@@ -3363,7 +3342,7 @@ MUTATIONS: list[Mutation] = [
                 "core/price.py",
                 "PIN_TOLERANCE = 0.02",
                 "PIN_TOLERANCE = 0.5",
-                "a_pin_whose_shortfall_worsens",
+                "a_pin_five_percent_further_out",
                 "a pin may not worsen",
             ),
             (
@@ -3427,10 +3406,26 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (4.303, 2.842),",
-                "    _WHEEL_SPREAD_ROW: (4.303, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (None, 1.75),",
+                "    _WHEEL_SPREAD_ROW: (None, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
+            ),
+            (
+                "a pin recorded None holds a build out of band",
+                "domains/industrial/price_report.py",
+                "    if recorded is None:\n        return row.within",
+                "    if recorded is None:\n        return True",
+                "a_pin_may_land_no_further_out",
+                "a build the pin records None for stays in band",
+            ),
+            (
+                "the wheel's brand noise is the per-brand 0.70 and its size noise none",
+                "core/price.py",
+                "            0.190,\n            0.139,\n            size_sigma=0.736,",
+                "            0.702,\n            0.306,\n            size_sigma=0.0,",
+                "wheel_brand_spread_lands_in_band",
+                "the wheel brand spread is in band on the default build",
             ),
             (
                 "a pin reads its default figure at 100K",
@@ -3468,8 +3463,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin quotes a tier figure no build measures",
                 "core/price.py",
-                "the brand tiers alone give 1.49 on the default",
-                "the brand tiers alone give 1.39 on the default",
+                "brand tiers alone give 1.86 at 100K",
+                "brand tiers alone give 1.76 at 100K",
                 "tiers_alone_give",
                 "a pin's stated cause is measured",
             ),
@@ -3731,6 +3726,22 @@ MUTATIONS: list[Mutation] = [
                 "the blend is a detail",
             ),
             (
+                "a wool material is not also the wool fabric",
+                "facet_leaves.py",
+                "    if \"fabric\" in have or not is_textile(rec):",
+                "    if True:",
+                "tests/test_retail_facet_leaves.py -k material_that_names_wool",
+                "a named fibre is a fabric",
+            ),
+            (
+                "a leather skirt is faux leather",
+                "lowerbody_rows.py",
+                '_sk("Pencil", "Mini", "Leather", "Zip", "Polyester")',
+                '_sk("Pencil", "Mini", "Faux Leather", "Zip", "Polyester")',
+                "tests/test_retail_facet_leaves.py -k coverage_review_value",
+                "leather is a fabric value",
+            ),
+            (
                 "a fabric move ignores the product type",
                 "facet_leaves.py",
                 "    return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)",
@@ -3821,8 +3832,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a decoy is copied by the derivation",
                 "scale.py",
-                "| SPEC_IDS | decoy_rows.IDS\n",
-                "| SPEC_IDS\n",
+                "| SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS\n",
+                "| SPEC_IDS | COLORWORD_IDS\n",
                 "tests/test_retail_text_match_decoys_294.py -k never_copied_or_color_completed",
                 "a decoy stays a template",
             ),
@@ -3875,6 +3886,45 @@ MUTATIONS: list[Mutation] = [
                 "every label of the scale build has a base row",
             ),
         ]
+    ),
+    # ---- the red-commit proof judges the commits that declare (#11680) ------
+    # Every name starts "red_commit_proof:", so `--only "red_commit_proof:"` re-runs it.
+    Mutation(
+        "red_commit_proof: a merge commit's trailer is judged",
+        "scripts/red_commit_proof.py",
+        '"rev-list", "--reverse", "--no-merges", args.spec',
+        '"rev-list", "--reverse", args.spec',
+        "tests/test_red_commit_proof_11680.py::"
+        "test_a_merge_commit_is_never_judged_whatever_its_message_declares",
+        "",
+        "only the branch's own commits are judged, not a merge of main",
+        root=".",
+    ),
+    Mutation(
+        "red_commit_proof: the grandfather test is turned round",
+        "scripts/red_commit_proof.py",
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 1',
+        '"--is-ancestor", cutoff, sha, check=False).returncode == 0',
+        (
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_before_the_cutoff_may_fail_on_anything[StopIteration]",
+            "tests/test_red_commit_proof_11680.py::"
+            "test_a_red_commit_after_the_cutoff_that_fails_on_stop_iteration_is_refused",
+        ),
+        "",
+        "a commit before the cutoff is grandfathered and one after it is not",
+        root=".",
+    ),
+    Mutation(
+        "red_commit_proof: a cutoff the clone lacks grandfathers",
+        "scripts/red_commit_proof.py",
+        "        return False\n    return _git(repo, \"merge-base\"",
+        "        return True\n    return _git(repo, \"merge-base\"",
+        "tests/test_red_commit_proof_11680.py::"
+        "test_an_exception_that_is_not_an_assertion_is_refused",
+        "",
+        "a cutoff that is not in the clone grandfathers nothing",
+        root=".",
     ),
     # ---- retail: the steak plate, board and weight carry a material, never derived (gen#268) ----
     *(
@@ -3968,7 +4018,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption from the text check is removed",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())\n",
                 "DECOY_IDS = frozenset()\n",
                 "tests/test_retail_apparel_decoys_311.py -k misleading_color",
                 "a decoy naming only another color passes the standard by its id",
@@ -3976,7 +4026,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "the decoy exemption widens to every id",
                 "scale.py",
-                "DECOY_IDS = decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n",
+                "DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()\n             | decor_rows.decoy_ids() | neckline_rows.decoy_ids())\n",
                 'DECOY_IDS = type("All", (frozenset,), {"__contains__": lambda self, x: True})()\n',
                 "tests/test_retail_apparel_decoys_311.py -k two_tables",
                 "no real product is exempt from the text check",
@@ -4014,71 +4064,6 @@ MUTATIONS: list[Mutation] = [
                 "a sleeve's cuff is not part of the hem",
             ),
         ]
-    ),
-    # ---- retail: type specs (gen#351) and the garden hose decoys (gen#292); rows in their own files ----
-    *(
-        Mutation(f"{prefix}: {name}", file, old, new, test, "", prop, root=root)
-        for prefix, name, file, old, new, test, prop, root in mutation_rows_garden_hose.ALL
-    ),
-    # ---- retail: derived ceiling-light forms (gen#237); the rows are in their own file ----
-    *(
-        Mutation(f"ceiling forms: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_ceiling_forms.ROWS
-    ),
-    *(
-        Mutation(f"lighting drawings: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_lighting.ROWS
-    ),
-    # ---- retail: appliance colors (gen#243); the rows are in their own file ----
-    *(
-        Mutation(f"appliance colors: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_appliance_colors.ROWS
-    ),
-    # ---- retail: one pack_size vocabulary for a count (gen#246); the rows are in their own file ----
-    *(
-        Mutation(f"pack size: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_pack_size.ROWS
-    ),
-    *(
-        Mutation(f"ring sizes: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_ring_sizes_249.ROWS
-    ),
-    *(
-        Mutation(f"lower-body params: {name}", file, old, new, test, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, test, prop in mutation_rows_lowerbody_257.ROWS
-    ),
-    *(
-        Mutation(f"underwear drawn values: {name}", file, old, new, tests, "", prop,
-                 root="prototypes/retail_drawings")
-        for name, file, old, new, tests, prop in mutation_rows_underwear_245.ROWS
-    ),
-    *(
-        Mutation(f"audit order: {n}", "generate_cli.py", o, w, t, "", pr)
-        for n, o, w, t, pr in mutation_rows_audit_order.ROWS
-    ),
-    # ---- the customer-name check (#393); the rows are in their own file ----
-    *(
-        Mutation(f"customer names: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_customer_names.ROWS
-    ),
-    # ---- retail: the department floor is pinned (gen#234); the rows are in their own file ----
-    *(Mutation(f"department floor: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_department_floor.ROWS),
-    *(Mutation(f"cutlery pack count: {r[0]}", *r[1:5], "", r[5], root=r[6]) for r in mutation_rows_cutlery_pack_count.ROWS),
-    *(Mutation(f"shared builds: {n}", f, o, nw, t, "", p, root=r) for n, f, o, nw, t, p, r in mutation_rows_shared_builds.ROWS),
-    # ---- retail: no drawing extends past its sheet (gen#242); the rows are in their own file ----
-    *(
-        Mutation(f"sheet extent: {name}", file, old, new, test, "", prop, root=root)
-        for name, file, old, new, test, prop, root in mutation_rows_sheet_extent.ROWS
-    ),
-    # ---- pack: the bolt's pack is a page's and is priced within a size (gen#86); the rows are in their own file ----
-    *(
-        Mutation(f"bolt page pack: {name}", file, old, new, test, direction, prop, root=root)
-        for name, file, old, new, test, direction, prop, root in mutation_rows_bolt_pack.ROWS
     ),
     # ---- retail: product-word decoys (gen#326) ----
     *(
@@ -4139,8 +4124,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the detail-color rows lose their exemption",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "A",
         "a class-8 row that names a detail color on purpose passes the text check by its id",
@@ -4149,8 +4134,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "product-word decoys: the standard's retail catalog test loses the exempt ids",
         "scale.py",
-        "TEXT_EXEMPT = DECOY_IDS | decoy_product_words.TEXT_EXEMPT",
-        "TEXT_EXEMPT = DECOY_IDS",
+        "    | decoy_product_words.TEXT_EXEMPT",
+        "",
         "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
         "A",
         "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
@@ -4205,6 +4190,67 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
+    # ---- retail: color-word brands beyond clothing (gen#312) ----
+    # Every name starts "color-word brands:", so `--only "color-word brands:"` re-runs them.
+    *(
+        Mutation(f"color-word brands: {name}", file, old, new, test, "", prop, root=root)
+        for name, file, old, new, test, prop, root in [
+            (
+                "the black-named drill is really black",
+                "color_word_brand_rows.py",
+                '_in("#e8741e", "#2a2a2e", "Orange"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
+                "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
+                "the color attribute differs from the color word",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the completer is not told to skip the decoys",
+                "scale.py",
+                "| COLORWORD_IDS | garden_rows.decoy_ids()",
+                "| garden_rows.decoy_ids()",
+                "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
+                "a decoy offers more than its one true color",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a brand's wordmark is set in capitals, not as the brand field",
+                "color_word_brand_styles.py",
+                '"humanist", 700, "title",     0.5)',
+                '"humanist", 700, "caps",      0.5)',
+                "tests/test_color_word_brands_312.py -k test_a_drawing_lockup_text_equals_the_brand_field",
+                "the lockup text equals the brand",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "a title runs past five words",
+                "color_word_brand_rows.py",
+                '"Green Harrow Sweetcorn Kernels"',
+                '"Green Harrow Golden Sweetcorn Kernels in Water"',
+                "tests/test_color_word_brands_312.py -k test_the_color_word_sits_in_a_short_title",
+                "the color word sits in a short title",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the garden loses its bulbs",
+                "color_word_brand_rows.py",
+                '_TULIP = ("Garden", "Bulbs", "Tulip Bulbs")',
+                '_TULIP = ("Home", "Bulbs", "Tulip Bulbs")',
+                "tests/test_color_word_brands_312.py -k test_each_department_has_at_least_three_decoys",
+                "each department has three decoys",
+                "prototypes/retail_drawings",
+            ),
+            (
+                "the standard reads the brand as a claim",
+                "core/standard.py",
+                'values.add(str(doc["brand"]))',
+                "pass",
+                "tests/test_color_word_brands_312.py -k test_the_standard_reads_a_brand_as_a_name",
+                "a brand is a name, not a claim",
+                "src/synthetic_ecommerce_data",
+            ),
+        ]
+    ),
     # ---- retail: the product types the failure classes need (gen#329) ----
     # Every name starts "needs rows:", so `--only "needs rows:"` re-runs them.
     *(
@@ -4214,8 +4260,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the derivation copies the needs rows as styles",
                 "scale.py",
-                "| NIKE_IDS | NEEDS_IDS\n",
-                "| NIKE_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n                | NEEDS_IDS\n",
+                "| DECOR_IDS | NIKE_IDS\n",
                 "tests/test_retail_elasticated_waist_329.py -k every_row_is_a_template",
                 "the needs rows stay templates",
             ),
@@ -4309,8 +4355,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "a Nike style enters the seeded derivation",
                 "scale.py",
-                "| GARDEN_IDS | NIKE_IDS",
-                "| GARDEN_IDS",
+                "| GARDEN_IDS | DECOR_IDS | NIKE_IDS",
+                "| GARDEN_IDS | DECOR_IDS",
                 "tests/test_retail_nike_341.py -k leave_the_derivation",
                 "the Nike rows are templates only",
             ),
@@ -4467,19 +4513,6 @@ MUTATIONS: list[Mutation] = [
             ),
         ]
     ),
-    # ---- retail: a description's closure and a style's pattern agree with its attributes (gen#250) ----
-    *(
-        Mutation(
-            f"attribute text: {name}",
-            "attribute_text.py",
-            old,
-            new,
-            f"tests/test_retail_attribute_text_250.py -k {test}",
-            prop,
-            root="prototypes/retail_drawings",
-        )
-        for name, old, new, test, prop in mutation_rows_attribute_text.ROWS
-    ),
     # ---- retail: a drawing param may be named shape (gen#259) ----
     *(
         Mutation(f"drawing params: {name}", "variants.py", old, new, tests, "", prop,
@@ -4567,6 +4600,22 @@ MUTATIONS: list[Mutation] = [
         ]
     ),
 ]
+
+# The rows of every ``scripts/mutation_rows_*.py`` are read here by glob (``mutation_row.discover``),
+# so no rows file is named in this module and a pull request that adds one edits no line of it (#506).
+MUTATIONS.extend(
+    Mutation(
+        f"{prefix}: {row.name}",
+        row.file,
+        row.old,
+        row.new,
+        row.tests,
+        row.direction,
+        row.property_name,
+        row.root,
+    )
+    for prefix, row in mutation_row.discover()
+)
 
 
 def _drop_bytecode() -> None:

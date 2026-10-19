@@ -478,9 +478,12 @@ STEMMED = {"wine": (58, 130, 1.25), "champagne flute": (30, 175, 1.08), "gin": (
 TUMBLERS = {"highball": (52, 46, 250), "tumbler": (70, 60, 150), "beer": (64, 48, 262)}
 
 
-def drinking_glass(paint: str, fill: Fill, label: str | None, kind: str = "wine") -> list[str]:
+def drinking_glass(
+    paint: str, fill: Fill, label: str | None, kind: str = "wine", ribbed: str = ""
+) -> list[str]:
     """A glass in the record's tint, its outline in ink: a stemmed wine glass, a tall flute
-    or a balloon gin glass, or a highball, a heavy-based tumbler or a pint glass."""
+    or a balloon gin glass, or a highball, a heavy-based tumbler or a pint glass.
+    ``ribbed`` set draws vertical ribs down a tumbler's body (gen#230)."""
     cx = 200.0
     glaze = ' class="glass" fill-opacity=".55"'
     rim_tint = _tint(fill.base, 0.6)
@@ -503,6 +506,15 @@ def drinking_glass(paint: str, fill: Fill, label: str | None, kind: str = "wine"
                 0.75,
             ),
         ]
+    if kind == "carafe":  # a wine carafe: a wide base, a narrow neck and a flared lip (gen#449)
+        body = "M122,330 Q104,252 156,200 L176,128 L168,66 L232,66 L224,128 L244,200 Q296,252 278,330 Z"
+        return [
+            _shadow(cx, 340, 90),
+            _path(body, paint, extra=glaze),
+            _ellipse(cx, 66, 32, 6, rim_tint, LW_DETAIL),
+            _line("M150,262 Q200,276 250,262", 1.2, ' stroke-opacity=".5"'),
+            _highlight("M146,250 Q150,226 172,208", 6, 0.75),
+        ]
     w, base, height = TUMBLERS.get(kind, TUMBLERS["tumbler"])
     bottom = 330.0
     top = bottom - height
@@ -511,6 +523,19 @@ def drinking_glass(paint: str, fill: Fill, label: str | None, kind: str = "wine"
     else:
         body = f"M{cx - w:.1f},{top:.1f} L{cx - base:.1f},{bottom:.1f} L{cx + base:.1f},{bottom:.1f} L{cx + w:.1f},{top:.1f} Z"
     thick = 26 if kind == "tumbler" else 14
+    ribs = []
+    if ribbed:
+        ribs = [
+            _line(
+                " ".join(
+                    f"M{cx - w + 2 * w * t:.1f},{top + 14:.1f} "
+                    f"L{cx - base + 2 * base * t:.1f},{bottom - thick - 4:.1f}"
+                    for t in (0.2, 0.35, 0.5, 0.65, 0.8)
+                ),
+                1.4,
+                extra=' class="ribs" stroke-opacity=".6"',
+            )
+        ]
     return [
         _shadow(cx, bottom + 8, w + 6),
         _path(body, paint, extra=glaze),
@@ -521,6 +546,7 @@ def drinking_glass(paint: str, fill: Fill, label: str | None, kind: str = "wine"
             extra=' fill-opacity=".7"',
         ),
         _ellipse(cx, top, w, w * 0.18, rim_tint, LW_DETAIL),
+        *ribs,
         _highlight(
             f"M{cx - w * 0.6:.1f},{top + 20:.1f} L{cx - base * 0.6:.1f},{bottom - thick - 10:.1f}",
             7,
@@ -688,7 +714,8 @@ def _grater(paint: str, fill: Fill) -> list[str]:
 
 
 def _utensil_set(paint: str, fill: Fill) -> list[str]:
-    """A pot in the record's color holding a ladle, a turner, a spoon and a whisk."""
+    """A pot holding a ladle, a turner, a spoon and a whisk, their heads in the record's color
+    like the pot (a darkened head read as grey-taupe on a Cream set, gen#230)."""
     out = [_shadow(200, 344, 110)]
     for kind, x, top, tilt in (
         ("ladle", 156, 56, -10),
@@ -696,8 +723,8 @@ def _utensil_set(paint: str, fill: Fill) -> list[str]:
         ("whisk", 244, 70, 10),
         ("spoon", 222, 90, 5),
     ):
-        head, start = _utensil_head(kind, 0, top, _shade(fill.base, 0.3))
-        handle = _utensil_handle(0, start, 300, _shade(fill.base, 0.3))
+        head, start = _utensil_head(kind, 0, top, paint)
+        handle = _utensil_handle(0, start, 300, _shade(fill.base, 0.2))
         out.append(
             f'<g transform="translate({x} 0) rotate({tilt} 0 300)">{"".join(head + handle)}</g>'
         )
@@ -740,9 +767,12 @@ def kitchen_utensil(paint: str, fill: Fill, label: str | None, kind: str = "spat
 # --------------------------------------------------------------------------
 
 
-def chopping_board(paint: str, fill: Fill, label: str | None, material: str = "wood") -> list[str]:
+def chopping_board(
+    paint: str, fill: Fill, label: str | None, material: str = "wood", groove: str = ""
+) -> list[str]:
     """A board in three-quarter view with its edge showing and a hanging hole: wood has a
-    flowing grain, bamboo its glued strips, plastic a juice groove, glass a shine and feet."""
+    flowing grain, bamboo its glued strips, plastic a juice groove, glass a shine and feet.
+    ``groove`` set draws the juice groove round the edge on any material (gen#230)."""
     mat = material.lower()
     top = "M64,176 L272,106 L346,200 L136,284 Z"
     out = [
@@ -779,9 +809,15 @@ def chopping_board(paint: str, fill: Fill, label: str | None, material: str = "w
             *[_ellipse(x, y, 7, 4, BLACK, 1.0) for x, y in ((84, 196), (140, 296), (330, 220))],
         ]
     else:
+        groove = groove or "plastic"  # a plastic board always has its juice groove
+    if groove:
         out.append(
             _path(
-                "M92,178 L270,118 L326,198 L142,268 Z", "none", 2.2, stroke=_shade(fill.base, 0.35)
+                "M92,178 L270,118 L326,198 L142,268 Z",
+                "none",
+                2.2,
+                extra=' class="groove"' if groove != "plastic" else "",
+                stroke=_shade(fill.base, 0.35),
             )
         )
     return out

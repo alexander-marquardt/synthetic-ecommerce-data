@@ -19,22 +19,24 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit, standard
 from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.domains.industrial import hammers
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 GOLDEN_NESTED = ROOT / "golden-catalog" / "nested.jsonl"
 
+
 def _retail_figures() -> dict[str, Any]:
     if str(RETAIL) not in sys.path:
         sys.path.insert(0, str(RETAIL))
     import retail_figures  # noqa: PLC0415 -- the prototype's own directory is its import root
 
-    return retail_figures.committed()
+    return retail_figures.figures()
 
 
 #: The retail build's size: one document per style (``build_preview4.SAMPLES``), read from
-#: the measured totals (``golden-retail/stats.json``, gen#162).
+#: the measured totals (``retail_figures.figures()``, gen#162).
 RETAIL_DOCS = _retail_figures()["templates"]["authored"]["styles"]
 RETAIL_SKUS = _retail_figures()["templates"]["authored"]["skus"]
 
@@ -71,8 +73,12 @@ def retail() -> list[dict[str, Any]]:
 @pytest.mark.parametrize("source", sorted(SOURCES))
 def test_every_domain_meets_the_standard(source):
     retail = source.startswith("retail")
+    docs = SOURCES[source]()
+    # an industrial hammer decoy names a handle it lacks by design (gen#294): exempt by id
     problems = standard.check_catalog(
-        SOURCES[source](), text_agrees=retail, one_class_per_key=retail
+        docs,
+        one_class_per_key=retail,
+        text_exempt=() if retail else hammers.decoy_ids(docs),
     )
     assert problems == [], f"{len(problems)} problems, e.g. {problems[:8]}"
 
@@ -333,16 +339,36 @@ def test_a_value_named_inside_another_attribute_or_beside_its_own_is_no_contradi
     assert standard.check_catalog([*retail, shoe]) == []
 
 
+#: A text, whether it contradicts a Cotton fabric when the leaf's pool also holds Linen, Wool and
+#: Fleece (gen#187): a fibre before a hyphen says what the garment is not made of or is only
+#: like, and the same rule as ``facet_leaves.stated_fabrics``.
+FIBRE_TEXTS = {
+    "a look": ("Mens Linen-Look Chinos", False),
+    "a free-from": ("Mens Wool-Free Blazer", False),
+    "a lining": ("A cosy fleece-back kids sweatshirt", False),
+    "a plain claim": ("Mens Linen Chinos", True),
+    "a claim beside a look": ("Mens Wool-Free Linen Chinos", True),
+    "a claim after a hyphenated word": ("Mens Slim-Fit Linen Chinos", True),
+    "a claim after a look": ("Linen-Look Chinos in wool", True),
+}
+
+
+@pytest.mark.parametrize("plant", sorted(FIBRE_TEXTS))
+def test_a_fibre_before_a_hyphen_is_no_claim_and_one_after_a_space_is(plant):
+    text, contradicts = FIBRE_TEXTS[plant]
+    doc = {
+        "product_id": "T-1",
+        "category_leaf": "Chinos",
+        "title": text,
+        "attributes": [{"key": "fabric", "value": "Cotton"}],
+        "variants": [],
+    }
+    pools = {("Chinos", "fabric"): {"Cotton", "Linen", "Wool", "Fleece"}}
+    assert bool(standard.text_contradictions(doc, pools)) is contradicts
+
+
 def _values(doc: dict[str, Any], key: str) -> list[str]:
     return [e["value"] for e in doc["attributes"] if e["key"] == key]
-
-
-def test_industrial_text_is_exempt_from_the_contradiction_check():
-    """Its descriptions name a second standard or grade by design (a Grade 8 nut for a
-    Grade 5 bolt); the check guards the retail build's derived text."""
-    docs = _industrial()
-    assert standard.check_catalog(docs, text_agrees=False) == []
-    assert standard.check_catalog(docs) != []
 
 
 def test_a_repeated_sku_and_a_key_with_two_names_are_refused(retail):
@@ -412,7 +438,16 @@ GOLDEN_FLAT = ROOT / "golden-catalog" / "flat.jsonl"
 #: prism-industrial-products loads as ``catalog.ndjson``) but for these keys.
 #: Industrial keeps its USD amount and stock count and its provenance notes;
 #: retail states ``price`` in ``currency`` and only knows whether a SKU is in stock.
-INDUSTRIAL_ONLY_FLAT = frozenset({"price_usd", "stock", "dimension_provenance", "spec_quality"})
+INDUSTRIAL_ONLY_FLAT = frozenset(
+    {
+        "price_usd",
+        "stock",
+        "pricing_unit",
+        "order_multiple",
+        "dimension_provenance",
+        "spec_quality",
+    }
+)
 RETAIL_ONLY_FLAT = {"price": float, "currency": str, "in_stock": bool}
 #: Present only on a style with a product line (6 of 328), or with a blend (gen#187).
 RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content"})

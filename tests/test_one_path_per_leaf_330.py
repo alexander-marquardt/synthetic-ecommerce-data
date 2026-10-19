@@ -31,6 +31,7 @@ import scale  # noqa: E402
 AUDIENCE_SPLIT = frozenset({
     ("Gifts", "Wallet Gift Sets"),
     ("Kids", "Jeans"),
+    ("Kids", "Swimwear"),
     ("Kids", "Tracksuits"),
 })  # fmt: skip
 

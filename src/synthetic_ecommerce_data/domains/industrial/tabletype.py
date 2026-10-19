@@ -31,6 +31,7 @@ from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.model import keyword_attribute, numeric_attribute
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec, discover
+from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     MM_PER_INCH,
@@ -40,7 +41,7 @@ from synthetic_ecommerce_data.domains.industrial.newtypes import (
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 #: The attribute a pack is published under, as the census names it.
-PACK = "Package Quantity"
+PACK = "Units per Pack"
 #: A table price is shown as computed, to the cent: the census ending classes
 #: (.99, .00) move a price by up to a quarter, which would reorder a ladder.
 ENDINGS = {"other": 1.0}
@@ -194,7 +195,7 @@ def _make(table: TableType) -> Callable[..., Any]:
             standard=table.standard,
         )
         draft.line_attrs = [
-            keyword_attribute("Item", table.item),
+            retired(keyword_attribute("Item", table.item)),  # keeps the stream stable for #497
             keyword_attribute("Material", variant.material),
             keyword_attribute("Finish", variant.finish),
             numeric_attribute(PACK, str(pack), float(pack)),
@@ -233,7 +234,6 @@ def spec(table: TableType) -> TypeSpec:
         category=table.category,
         standards_family=table.standards_family,
         vocab=(
-            AttrSpec(name="Item", scope="line", presence=1.0, kind="keyword"),
             AttrSpec(name="Material", scope="line", presence=1.0, kind="keyword"),
             AttrSpec(name="Finish", scope="line", presence=0.85, kind="keyword"),
             AttrSpec(name=PACK, scope="line", presence=1.0, kind="count"),

@@ -42,10 +42,10 @@ def _attrs(doc: dict) -> dict[str, str]:
     return {a["key"]: a["value"] for a in doc["attributes"]}
 
 
-def test_thirty_one_styles_across_womens_mens_and_kids() -> None:
-    assert len(DOCS) == len(fw.FOOTWEAR) == 31
-    assert Counter(d["category_path"][0] for d in DOCS) == {"Womens": 16, "Mens": 10, "Kids": 5}
-    assert len(BY_ID) == 31
+def test_fifty_five_styles_across_womens_mens_and_kids() -> None:
+    assert len(DOCS) == len(fw.FOOTWEAR) == 55
+    assert Counter(d["category_path"][0] for d in DOCS) == {"Womens": 33, "Mens": 14, "Kids": 8}
+    assert len(BY_ID) == 55
     assert all(d["department"][0] == "Footwear" for d in DOCS)
 
 
@@ -56,7 +56,7 @@ def test_every_kind_of_shoe_the_range_needs_is_sold() -> None:
               "Ballet Pumps", "Loafers", "Brogues", "Slippers", "Wellies",
               "Safety Boots"):  # fmt: skip
         assert types[t] >= 1, t
-    assert sum(d["sku_count"] for d in DOCS) == 1154
+    assert sum(d["sku_count"] for d in DOCS) == 2005
 
 
 def test_each_size_system_is_its_own_field_read_from_the_audiences_chart() -> None:
@@ -112,11 +112,11 @@ def test_two_to_six_colors_each_with_one_material_and_family() -> None:
         n = len(d["color_options"])
         assert 2 <= n <= 6, d["product_id"]
         for k in d["skus"]:
-            assert k["upper_material"] in fw.MATERIALS
+            assert k["upper_material"].lower() in fw.MATERIALS
             assert "color_family" not in k
         assert {o["family"] for o in d["color_options"]} <= set(COLOR_FAMILIES)
     mats = {k["upper_material"] for d in DOCS for k in d["skus"]}
-    assert {"leather", "suede", "canvas", "synthetic"} <= mats
+    assert {"Leather", "Suede", "Canvas", "Synthetic"} <= mats
 
 
 def test_closures_and_materials_are_attributes_a_filter_reads() -> None:
@@ -147,7 +147,7 @@ def test_departments_paths_and_brands_hold_the_corpus_rules() -> None:
     assert rc.check_category_paths(DOCS) == []
     assert sorted({d["brand"] for d in DOCS} - set(hs.HOUSE_STYLES)) == []
     ranks = sorted(d["bestseller_rank"] for d in DOCS)
-    assert ranks == list(range(1, 32))
+    assert ranks == list(range(1, 56))
 
 
 def test_option_lists_are_the_sku_set() -> None:
@@ -200,12 +200,12 @@ def test_a_heel_kind_draws_a_heel_and_a_flat_does_not() -> None:
 
 
 def test_every_kind_draws_and_an_unknown_kind_is_refused() -> None:
-    assert len(kf.KINDS) == 17
+    assert len(kf.KINDS) == 25
     for kind in kf.KINDS:
         for mat in fw.MATERIALS:
             ET.fromstring(f"<g>{''.join(kf.shoe('#336699', kf.Fill(), None, kind, mat))}</g>")
     with pytest.raises(KeyError):
-        kf.shoe("#000000", kf.Fill(), None, kind="clog", material="leather")
+        kf.shoe("#000000", kf.Fill(), None, kind="clogs", material="leather")
 
 
 # --------------------------------------------------------------------------

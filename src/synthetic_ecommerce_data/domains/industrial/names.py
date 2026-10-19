@@ -34,7 +34,7 @@ The gate that replaces it has two parts, and both are needed:
    3 records, beside ``Material`` on 160. The census also carries
    ``Cap Screw Type``, ``Toggle Bolt Type`` and ``Machine Screw Head Type`` (1
    record each) and ``Drill Bit Size`` (4); each is a single-feed spelling
-   beside a generic census name (``Type`` 52, ``Head Type`` 12, ``Size`` 109),
+   beside a generic census name (``Type`` 52, ``Head Type`` 12, ``Size`` 62),
    so they are REFUSED, not allow-listed.
 3. **No casing twin.** Keyword fields are case-sensitive, so ``Length Under
    Head`` and ``Length under Head`` are two facets. A name that differs from a
@@ -113,28 +113,75 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Vise",
     "Gage",
     "Collet",
+    # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
+    # "Handle" stays unregistered: it is the negative control of
+    # ``test_the_head_noun_rule_bites``.
+    "Plier",
+    "Set",
+    "Driver",
+    "Splitter",
+    "Holder",
+    "Extractor",
+    "Puller",
+    "Breaker",
+    "Lubricant",
+    "Tensioner",
+    "Guard",
+    "Heater",
+    "Laser",
+    "Padlock",
+    "Fluted Dowel",
+    "Threadlocker",
+    "Counterbore",
+    "Fixture",
+    "Case",
+    "Rack",
+    "Sharpener",
+    "Fluid",
+    "Pad",
+    "Mandrel",
+    "Wedge",
+    "Holster",
+    "Organizer",
+    "Slide",
+    "Blade",
+    "Dispenser",
+    "Cutter",
+    "Tool",
+    "Compound",
+    "Grease",
+    "Chaser",
 )
 
 #: Type-qualified names that ARE type-specific in the evidence, with it.
 TYPE_SPECIFIC: dict[str, str] = {
-    "End Mill Style": "census 132 of 496 records, 75% of census end mills",
-    "End Mill Application": "census 67 records, all end mills",
-    "Tap Style": "census 18 records, 17 of the 24 census taps",
     "Tap Chamfer": "census 3; a tap's chamfer class (Plug, Bottoming, Taper)",
     "Bearing Number": "reference spec table (ball bearings): the designation",
-    "Wheel Dia.": "label ruling 2026-10-07: a diameter is named by what it measures",
     "Pin Dia.": "label ruling 2026-10-07: a cotter pin diameter is named by what it measures",
+    "Wheel Grade": (
+        "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade"
+    ),
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
 #: The census has no hammer and no abrasive family, so these are unknown there,
 #: not contradicted by it.
 NAME_EXCEPTIONS: dict[str, str] = {
-    "Wheel Dia.": "a grinding wheel face diameter; the census carries no abrasive family",
+    "Rated Load": (
+        "a storage rack's rated load in pounds; the census has Load Capacity, which the other"
+        " types publish as a force in newtons or lbf"
+    ),
+    "Maximum Size": (
+        "the largest nut, pin, bearing, gear or bit a hand tool takes, in inches; the census has"
+        " Capacity, which the rigid casters already publish in pounds as a load"
+    ),
+    "Maximum Workpiece Weight": (
+        "the heaviest bearing an induction heater lifts and heats; the census has Capacity, which"
+        " the rigid casters already publish in pounds as a load"
+    ),
     "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
     # Not in TYPE_SPECIFIC: "Dowel" is not a qualifying noun, so only the census gate applies.
-    "Dowel Dia. (in)": "a dowel pin diameter, inch; the census carries no dowel pin family",
-    "Dowel Dia. (mm)": "a dowel pin diameter, metric; the census carries no dowel pin family",
+    "Dowel Dia.": "a dowel pin diameter, either unit; the census carries no dowel pin family",
     "Backing Material": "component material: a flap disc's backing plate",
     "Handle Grip Material": "component material: a hammer's grip, beside Handle Material",
     "Face Type": "hammer striking-face form; the census carries no hammer family",
@@ -173,10 +220,18 @@ NAME_EXCEPTIONS: dict[str, str] = {
     ),
     "Hub Diameter": "a sprocket's hub, beside its Outside Dia.; no sprocket hub in the census",
     "Length Through Bore": "a sprocket's width along the shaft; no sprocket hub in the census",
-    "Fit": (
+    "Stock Fit": (
         "key stock's oversized or undersized bar, the name distributors facet it"
         " by; the census carries no key stock, and its Class is another concept"
     ),
+    "Wheel Grade": (
+        "a wheel's or flap disc's abrasive coarseness (Fine, Medium, Coarse); the census"
+        " carries no abrasive family, and Grade is a bolt's strength class"
+    ),
+    "Units per Pack": (
+        "how many units one listing sells (#497); the census states it as Package Quantity"
+    ),
+    "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
 }
 
 

@@ -38,6 +38,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Steel": "#dfe3e6",
     "Alloy Steel": "#c9ced2",
     "Grade 12.9 Alloy Steel": "#b8bec3",
+    "Grade 8 Alloy Steel": "#bdc2c7",
     "18-8 Stainless Steel": "#eef1f3",
     "Nylon": "#f4f0e2",
     "Forged Steel": "#c3c7cb",
@@ -69,12 +70,31 @@ MATERIAL_FILL: dict[str, str] = {
     "FKM": "#5a3e33",
     "EPDM": "#3b3f44",
     "Silicone": "#c4553f",
+    # The text-match decoys' materials (alexander-marquardt/synthetic-ecommerce-data#462):
+    # the tool, wood, plastic and lubricant words their records publish.
+    "Bi-Metal": "#c5cbd1",
+    "Birch": "#e2c9a0",
+    "Carbide": "#aeb2b6",
+    "Carbon Steel": "#b5babe",
+    "Diamond": "#cfd8dc",
+    "Fiberglass": "#cfd9c4",
+    "Laminated Steel": "#bfc5ca",
+    "Lithium Complex": "#c9a66b",
+    "Methacrylate Resin": "#5b6fb0",
+    "Nickel": "#d4d7d2",
+    "PTFE": "#f5f5f0",
+    "Plastic": "#9fb0c0",
+    "Sulfurized Oil": "#7a5a2e",
+    "Tool Steel": "#a9afb5",
 }
 
 #: Finishes the original twelve types never published, and their colors.
 EXTRA_FINISH_TINT: dict[str, str] = {
     "Chrome Plated": "#f0f3f6",
     "Painted": "#6f7f8a",
+    # The text-match decoys (#462): a zinc coat and a baked-on powder coat.
+    "Galvanized": "#c2cdc6",
+    "Powder Coated": "#4a6a8a",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -102,6 +122,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Steel": Hatch((0,), 5.0),
     "Alloy Steel": Hatch((90,), 5.0),
     "Grade 12.9 Alloy Steel": Hatch((0, 90), 5.0),
+    "Grade 8 Alloy Steel": Hatch((0, 30), 5.0),
     "18-8 Stainless Steel": Hatch((45,), 8.0, dots=True),
     "Nylon": Hatch((), 7.0, dots=True),
     "Forged Steel": Hatch((135,), 8.0, dots=True),
@@ -129,6 +150,21 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "FKM": Hatch((105,), 2.5, dots=True),
     "EPDM": Hatch((165,), 2.5, dots=True),
     "Silicone": Hatch((15,), 3.5, dots=True),
+    # The text-match decoys' materials (#462): each a pattern no other material uses.
+    "Bi-Metal": Hatch((20,), 4.0),
+    "Birch": Hatch((80,), 6.0, dots=True),
+    "Carbide": Hatch((50, 130), 4.0),
+    "Carbon Steel": Hatch((10,), 5.0),
+    "Diamond": Hatch((), 2.0, dots=True),
+    "Fiberglass": Hatch((25, 115), 6.0, dots=True),
+    "Laminated Steel": Hatch((0, 90), 3.0),
+    "Lithium Complex": Hatch((), 8.0, dots=True),
+    "Methacrylate Resin": Hatch((), 9.0, dots=True),
+    "Nickel": Hatch((70,), 4.0),
+    "PTFE": Hatch((), 10.0, dots=True),
+    "Plastic": Hatch((95,), 7.0, dots=True),
+    "Sulfurized Oil": Hatch((), 11.0, dots=True),
+    "Tool Steel": Hatch((100,), 5.0),
 }
 
 

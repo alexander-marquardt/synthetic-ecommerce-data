@@ -50,7 +50,7 @@ from pathlib import Path
 import pytest
 
 from catalog_size import DEPTH_SKUS
-from published import published_attributes
+from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
 
@@ -271,7 +271,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
         # this SKU's alone is the (attribute, value) PAIR.
         # The published spelling, from flat ``facets`` (#42): the title states
         # a value as published, so the pair it must own is the published one.
-        spelled = {doc["sku"]: published_attributes(doc) for doc in docs}
+        spelled = {doc["sku"]: authored_attributes(doc) for doc in docs}
         elsewhere: dict[str, set[str]] = {}
         for doc in docs:
             for entry in spelled[doc["sku"]]:
@@ -337,9 +337,10 @@ def test_the_description_is_derived_and_not_a_second_source_of_truth(
     """
     mismatched: list[tuple[str, str]] = []
     for doc in flat_docs:
-        published_values = {entry["value"] for entry in published_attributes(doc)}
+        published_values = {entry["value"] for entry in authored_attributes(doc)}
         tail = doc["description"][len(doc["title"]) + 3 :]
-        names = sorted({entry["name"] for entry in doc["attributes"]}, key=len, reverse=True)
+        # A description is prose built from the name each type authored.
+        names = sorted({entry["name"] for entry in authored_attributes(doc)}, key=len, reverse=True)
         for chunk in tail.split(", "):
             # LONGEST name first: "1/8 in Thread Length" ends with " Length"
             # as well as with " Thread Length", and taking the short one
@@ -367,8 +368,12 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
       removed by the ruling on elastic/prism#9284;
     * ``build_title`` cut the assembled string at the 100-character cap,
       which lands mid-word. Reconstructed on this catalog by
-      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **69
-      of 10,548** titles (25 of 9,611 before the socket screws published a
+      ``test_the_cap_cut_this_replaced_really_did_land_inside_words``: **73
+      of 10,548** titles (76 of 10,548 before the inch socket screws were graded
+      on the SAE scale, alexander-marquardt/synthetic-ecommerce-data#17;
+      69 of 10,548 before the angle-key corruption was
+      removed, alexander-marquardt/synthetic-ecommerce-data#404, which moved
+      the shared stream; 25 of 9,611 before the socket screws published a
       pack, alexander-marquardt/synthetic-ecommerce-data#65; 43 of 9,576
       before every product type drew from its
       own stream, alexander-marquardt/synthetic-ecommerce-data#48; 49 of
@@ -514,10 +519,13 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
     (alexander-marquardt/synthetic-ecommerce-data#48): the same item
     families run over the cap, ball-nose end mills and socket cap screws
     first, but fewer of their drawn variants do -- and 69 of 10,548 (116 over
-    the cap) once the bolts and socket screws publish a ``Package Quantity``
+    the cap) once the bolts and socket screws publish a ``Units per Pack``
     (alexander-marquardt/synthetic-ecommerce-data#65): the pack segment
     comes last, so a socket screw title the cap used to fit now runs over by
-    that segment alone, which the segment rule sheds whole. Stating it as a test rather
+    that segment alone, which the segment rule sheds whole -- and 76 of
+    10,548 (126 over the cap) once the inch lengths under angle keys are no
+    longer drawn (alexander-marquardt/synthetic-ecommerce-data#404), which
+    moves the shared stream. Stating it as a test rather
     than as prose is what stops the next regeneration inheriting a number
     nobody can re-derive.
 
@@ -573,9 +581,11 @@ def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:
         if full[cap - 1] in word and full[cap] in word:
             mid_word += 1
 
-    assert over_cap == 116, f"{over_cap} titles exceed the cap, not 116"
-    assert mid_word == 69, (
-        f"the cap cut would land inside a word on {mid_word} titles, not 69. "
+    # 126 -> 114 over the cap and 76 -> 73 mid-word with #17: twelve inch socket,
+    # flat, button and low head screws lost "Grade 12.9" for the shorter "Grade 8".
+    assert over_cap == 114, f"{over_cap} titles exceed the cap, not 114"
+    assert mid_word == 73, (
+        f"the cap cut would land inside a word on {mid_word} titles, not 73. "
         "If the catalog moved, restate the figure in build_title's docstring "
         "and in test_no_title_is_cut_mid_word with it."
     )

@@ -180,6 +180,38 @@ def hundred_k_prices() -> tuple[dict, list[KitSku]]:
     return cached("hundred_k_prices", _hundred_k_prices_build)
 
 
+WHEEL = "wheel_depressed_center"
+
+
+def _hundred_k_quiet_wheel_build() -> tuple[Any, dict[tuple, tuple[str, ...]]]:
+    from dataclasses import replace
+    from unittest import mock
+
+    from synthetic_ecommerce_data.core import price
+    from synthetic_ecommerce_data.domains.industrial import price_report
+
+    quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
+    with mock.patch.dict(price.MODELS, {WHEEL: quiet}):
+        catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+        (row,) = [
+            row
+            for row in price_report.price_comparisons(catalog)
+            if row.name == price_report.BRAND_ROW.format(WHEEL)
+        ]
+        specs = {
+            spec: tuple(sorted(by))
+            for spec, by in price_report.collect(catalog).specs.items()
+            if spec[0] == WHEEL and len(by) > 1
+        }
+    return row, specs
+
+
+def hundred_k_quiet_wheel() -> tuple[Any, dict[tuple, tuple[str, ...]]]:
+    """The wheel's brand-spread row of a 100K build whose wheel prices carry no noise, and the
+    brands of each wheel spec two or more brands make: all that the wheel pin test reads."""
+    return cached("hundred_k_quiet_wheel", _hundred_k_quiet_wheel_build)
+
+
 def _hundred_k_flat_build() -> list[dict]:
     from synthetic_ecommerce_data.core import emit
 

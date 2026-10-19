@@ -1,0 +1,25 @@
+TESTS = ["tests/test_ci_select_495.py"]
+PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
+S = "scripts/ci_select.py"
+H = "scripts/ci_shards.py"
+MUTANTS = [
+    (S, "            if path in (modified or ()) and path.startswith(CONTENT_INSENSITIVE.get(test, ())):", "            if False:", "a modified golden path selects the content-insensitive test"),
+    (S, '        if any(path == f or (f.endswith("/") and path.startswith(f)) for f in FULL_RUN):', "        if False:", "a workflow change no longer runs every test"),
+    (S, '            reasons[test] = "smoke"', "            pass", "the smoke tests are not selected"),
+    (S, '        if status == "M":', '        if status == "Z":', "no path is read as only modified"),
+    (S, "    if not found or not found[0]:", "    if not found:", "an empty diff selects nothing instead of everything"),
+    (S, "            if callee not in _EXEC_CALLEES:", "            if False:", "any call that names a script runs it"),
+    (S, "        if self._owner_module_in(members, changed):", "        if False:", "a package data file reaches no test"),
+    (S, '            if "." in value and _DOTTED.fullmatch(value.strip()):', "            if False:", "a package named whole in a string is not imported"),
+    (S, '                        if init.endswith("/__init__.py"):', "                        if False:", "a package-walk registry pulls in no package"),
+    (S, 'p.startswith(here + "/") and p.count("/") == here.count("/") + 1 and p != init', 'p.startswith(here + "/") and p.count("/") == here.count("/") + 1', "a data directory owns its own data"),
+    (S, '            patterns.append(rf"(?m)^{re.escape(parts[-2])}$")', "            pass", "a string that is a directory's name no longer reaches its files"),
+    (S, "                    leaves.update(named)", "                    pass", "a test file named in a string selects nothing"),
+    (S, "    if not changed:\n        # No range", "    if changed is None:\n        # No range", "an empty change list prints no test"),
+    (S, '    ".github/",\n', "", "the workflow is not a full-run path"),
+    (S, '    "tests/test_ci_select_495.py",\n', "", "the selector's own guard is not a smoke test"),
+    (H, "    return max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))", "    return of", "a small selection still takes every shard"),
+    (H, "    if number > active:\n        return active, []", "    if number > active:\n        return active, deal(files, active, weights)[0]", "a shard past the count is dealt files"),
+    (H, "    if files is None:", "    if files is not None:", "a scoped run deals every file"),
+    (H, '        print("\\n".join(["shards=1", *collected_test_files()]))', '        print("\\n".join(["shards=1"]))', "--plan all prints no file"),
+]

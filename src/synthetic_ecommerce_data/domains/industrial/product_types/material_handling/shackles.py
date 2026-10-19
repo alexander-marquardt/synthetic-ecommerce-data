@@ -242,7 +242,7 @@ def make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
 
 
 def figure(record: dict[str, str]) -> Drawn:
-    chain = record.get(BODY) == CHAIN or "Chain" in record.get("Item", "")
+    chain = record.get(BODY) == CHAIN
     return _BODIES[1 if chain else 0][1].figure(record)
 
 

@@ -20,8 +20,9 @@ from pathlib import Path
 import pytest
 
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import price, typespec
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import length_attribute
 from synthetic_ecommerce_data.domains.industrial import names, standards, taxonomy
@@ -81,7 +82,7 @@ def test_every_published_ring_is_its_dash_numbers_row():
     by_dash = {row.dash: row for row in _module().rows()}
     checked = 0
     for doc in _default_docs():
-        values = {a["name"]: a["value"] for a in doc["attributes"]}
+        values = {a["name"]: a["value"] for a in authored_entries(doc)}
         if "Dash Number" not in values:
             continue
         row = by_dash[values["Dash Number"].removeprefix("AS568-")]
@@ -108,7 +109,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -121,8 +122,7 @@ def test_the_provenance_names_where_each_published_dimension_came_from():
 
 def test_the_size_table_cites_the_chart_it_was_read_from():
     """A reviewer can open the chart the 349 rows were transcribed from."""
-    text = (Path(standards.__file__).parent / "data" / "as568_sizes.json").read_text("utf-8")
-    cited = json.loads(text)["_provenance"]
+    cited = library.table("as568_sizes").data["_provenance"]
     assert cited["chart_url"] == (
         "https://www.applerubber.com/src/pdf/as568-standard-size-o-rings.pdf"
     )

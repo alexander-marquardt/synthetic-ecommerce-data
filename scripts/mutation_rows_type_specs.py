@@ -7,6 +7,8 @@ that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named 
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a key may start with a capital",
@@ -59,7 +61,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if d.cls not in DECOY_CLASSES:",
         "if False:",
         'tests/test_retail_type_specs_351.py -k "malformed and unknown"',
-        "a decoy class is 1 to 7",
+        "a decoy class is 1 to 8",
         "prototypes/retail_drawings",
     ),
     (
@@ -182,8 +184,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the ceiling is raised above the list",
         "type_registry.py",
-        "LEGACY_CEILING = 328",
-        "LEGACY_CEILING = 428",
+        "LEGACY_CEILING = 333",
+        "LEGACY_CEILING = 433",
         "tests/test_retail_type_specs_351.py -k registered_through_a_spec_or_the_legacy_list",
         "the ceiling is the exact length of the list",
         "prototypes/retail_drawings",
@@ -204,6 +206,105 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a plan names a word family the decoys have",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a plan may name no class 2 compound",
+        "type_registry.py",
+        "if plan is not None and not plan.compounds:",
+        "if False:",
+        "tests/test_retail_type_specs_351.py -k malformed_apparel",
+        "a plan names the real compounds its class 2 decoys use (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a compound may name a word its phrase lacks",
+        "type_registry.py",
+        "if not word or word.lower() not in phrase.lower():",
+        "if False:",
+        "tests/test_retail_type_specs_351.py -k malformed_apparel",
+        "a compound's word is in its phrase (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 6 range name holds a color again",
+        "decoy_apparel.py",
+        '                            title=f"{name} {noun}",\n',
+        '                            title=f"{c} {name} {noun}",\n',
+        "tests/test_retail_apparel_decoys_311.py -k range_name_never_holds_a_color",
+        "a range name never holds a color: 'Red Harbour Dress' reads as a red dress (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 2 title is a compound no shopper says",
+        "decoy_apparel.py",
+        '                        title=f"{c} {phrase}",\n',
+        '                        title=f"{c} {word.title()} {noun}",\n',
+        "tests/test_retail_apparel_decoys_311.py -k outside_the_real_compounds",
+        "a class 2 title is one of the real compounds (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 7 drawing colors a part again",
+        "decoy_apparel.py",
+        '    if cls != 1 or o["word"] not in MAIN_WORDS:\n',
+        '    if cls not in (1, 7) or o["word"] not in MAIN_WORDS:\n',
+        "tests/test_retail_apparel_decoys_311.py -k range_name_never_holds_a_color",
+        "a class 7 brand is the brand field and its drawing colors no part (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 2 table holds an invented compound",
+        "decoy_apparel.py",
+        '("sandal", "Ballet Sandals")),',
+        '("sandal", "Ballet Sandals"), ("sneaker", "Ballet Sneakers")),',
+        "tests/test_retail_apparel_decoys_311.py -k no_invented_compound",
+        "the generator's class 2 table holds no phrase the reviewer named invented (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 2 table re-adds a live title reworded",
+        "decoy_apparel.py",
+        '"Wedges": (("sneaker", "Sneaker Wedges"),),',
+        '"Wedges": (("sneaker", "Sneaker Wedges"), ("sandal", "Sandal Wedges")),',
+        "tests/test_retail_apparel_decoys_311.py -k live_title_reworded",
+        "no class 2 phrase is a live title in another word order (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a type with two compounds is not declared short",
+        "decoy_apparel.py",
+        '    "Tights": "only running tights and cycling tights are names a shopper meets",\n',
+        "",
+        "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
+        "a type with fewer than three real compounds is a declared exception (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a type with a path-blocked phrase is not declared short",
+        "decoy_apparel.py",
+        '    "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",\n',
+        "",
+        "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
+        "a phrase _in_path blocks on every path of its type is no compound (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a relative lace command is read as a page point",
+        "details.py",
+        "            cmd, nums = tok, []\n",
+        "            cmd, nums = tok.upper(), []\n",
+        "tests/test_retail_apparel_decoys_311.py -k relative_path_command",
+        "a lace trim's offsets never move the box a part is placed on (#444)",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "a class 2 description uses the wrong article",
+        "decoy_apparel.py",
+        "Not {_a(word)} {word}.',",
+        "Not a {word}.',",
+        "tests/test_retail_scale.py -k every_article_agrees",
+        "a class 2 description says an before a vowel (#444)",
         "prototypes/retail_drawings",
     ),
     (
@@ -245,8 +346,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a spec type is numbered by its place in the plan",
         "decoy_apparel.py",
-        'Spec(ptype, plan.family, plan.per_class, f"S{key.upper()}")',
-        'Spec(ptype, plan.family, plan.per_class, f"S{len(types):03d}")',
+        'prefix = f"S{key.upper()}"',
+        'prefix = f"S{len(types):03d}"',
         "tests/test_retail_type_specs_351.py -k adding_a_spec_type_moves_no_other_decoy_id",
         "a decoy id does not move when a type is added",
         "prototypes/retail_drawings",
@@ -263,8 +364,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the scaffold writes a clothing spec with no apparel plan",
         "scripts/new_type.py",
-        '"apparel": "    apparel=ApparelPlan(),\\n",',
-        '"apparel": "",',
+        "'    apparel=ApparelPlan(compounds=",
+        "'    # apparel=ApparelPlan(compounds=",
         "tests/test_retail_type_specs_351.py -k real_scaffolded_clothing",
         "a scaffolded clothing type is planned for the apparel decoys",
         ".",
@@ -360,3 +461,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         ".",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "type specs"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

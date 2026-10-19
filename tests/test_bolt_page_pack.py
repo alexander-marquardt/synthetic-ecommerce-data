@@ -63,7 +63,7 @@ def test_the_bolt_pack_elasticity_is_the_census_ratio_over_the_median_pack_pair(
 
 def test_the_bolt_prices_its_pack_on_that_elasticity():
     model = price.MODELS["bolt_hex"]
-    assert model.pack_attribute == "Package Quantity"
+    assert model.pack_attribute == "Units per Pack"
     assert model.pack_slope == price.PACK_ELASTICITY["bolt_hex"]
     assert "bolt_hex" not in price.PACK_SLOPES
 
@@ -101,7 +101,7 @@ def bolt_lines():
     carried = set.intersection(
         *({a.name for a in line.attributes if price.holds_equal("bolt_hex", a)} for line in lines)
     )
-    carried.discard("Package Quantity")
+    carried.discard("Units per Pack")
     out = []
     for line in lines:
         values = {a.name: a.value for a in line.attributes}
@@ -109,7 +109,7 @@ def bolt_lines():
         child = line.children[0]
         facts = {a.name: a for a in catalog.merged_attributes(line, child)}
         key = price.KEYS["bolt_hex"](facts)
-        out.append((page, key, facts["Package Quantity"].value_num))
+        out.append((page, key, facts["Units per Pack"].value_num))
     return out
 
 

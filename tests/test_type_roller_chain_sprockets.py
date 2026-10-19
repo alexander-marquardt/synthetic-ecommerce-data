@@ -27,7 +27,7 @@ import pytest
 
 import table_gates
 import type_gates
-from published import published_attributes
+from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
@@ -165,7 +165,7 @@ def test_no_two_skus_of_one_brand_are_the_same_product():
 
 def test_every_published_name_passes_the_census_gate():
     (path,) = taxonomy.LEAVES[KEY]
-    emitted = {a["name"] for doc in _default_docs() for a in published_attributes(doc)}
+    emitted = {a["name"] for doc in _default_docs() for a in authored_attributes(doc)}
     assert emitted, f"{KEY} published no attribute"
     assert names.name_problems(emitted, OBSERVED, CENSUS, names.own_nouns(path)) == []
 
@@ -238,15 +238,14 @@ def test_every_sprocket_names_the_chain_number_and_tooth_count_of_its_row(large_
 
 def test_one_sprocket_publishes_exactly_its_row(large_docs):
     doc = next(d for d in large_docs if table_gates.row(d, COLUMNS)[0] == 67.361)
-    published = {a["name"]: a["value"] for a in doc["attributes"]}
+    published = {a["name"]: a["value"] for a in authored_entries(doc)}
     # A line may or may not state its finish, its standard and its measurement
     # system (the product's one draw, gen#63).
-    for sparse in ("Finish", "Standards", "Dimension Type"):
+    for sparse in ("Finish", "Standards", "Measurement System"):
         published.pop(sparse, None)
     assert published == {
-        "Item": "Roller Chain Sprocket",
         "Material": "Steel",
-        "Package Quantity": "1",
+        "Units per Pack": "1",
         "Outside Dia.": "2.6520",
         "Pitch": "1/2",
         "Bore Dia.": "3/4",

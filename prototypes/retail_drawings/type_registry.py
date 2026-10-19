@@ -25,8 +25,10 @@ import functools
 import importlib
 import pkgutil
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 import departments
 import type_specs
@@ -36,24 +38,28 @@ from lowerbody_rows import LRow
 from variants import cw
 
 __all__ = [
-    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Row", "SpecError", "TypeSpec", "a",
-    "check_unique_ids", "count", "cw", "decoy_ids", "docs", "left_out_ids", "legacy_types",
-    "registration_problems", "sizes", "specs", "validate",
+    "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Option", "Row", "SpecError", "TypeSpec", "a",
+    "check_unique_ids", "checked_options", "count", "cw", "decoy_ids", "docs", "left_out_ids",
+    "legacy_types",
+    "registration_problems", "sizes", "specs", "text_match_decoy_ids", "validate",
 ]  # fmt: skip
 
 LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
 KEY = re.compile(r"[a-z][a-z0-9_]*")
 #: The text-match decoy classes of gen#294 (``decoy_rows``): a color part, a category word, an
-#: audience word, an absent feature, a shade in the description, an incidental word, a brand.
-DECOY_CLASSES = range(1, 8)
+#: audience word, an absent feature, a shade in the description, an incidental word, a brand, and
+#: class 8 (gen#326), a product word in the title of another type's product.
+DECOY_CLASSES = range(1, 9)
 #: The departments whose Womens, Mens and Kids types carry the apparel decoys of gen#311
 #: (:mod:`decoy_apparel`), and the word families a plan may name there.
 APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 APPAREL_FAMILIES = "abusk"
 #: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
-#: leaves room to append the difference.
-LEGACY_CEILING = 328
+#: leaves room to append the difference. Eight footwear styles (gen#216) are the one rise: a
+#: shoe is a ``FootwearStyle`` (size charts, an upper per color), which a spec's ``Row`` cannot
+#: carry; the footwear types leave the list when footwear moves to specs (gen#427).
+LEGACY_CEILING = 333
 
 
 class SpecError(ValueError):
@@ -77,6 +83,20 @@ class ApparelPlan:
 
     family: str = "a"
     per_class: int = 3
+    #: Class 2 (#444): the type's real compounds as (the word it targets, the phrase), such as
+    #: ("vest", "Knitted Vest Top"): the phrase keeps the head noun and holds the word. An
+    #: invented compound is a decoy no shopper reads as a product.
+    compounds: tuple[tuple[str, str], ...] = ()
+
+
+class Option(NamedTuple):
+    """One SKU option a type's rows carry, and the attribute entry it exports as (gen#413):
+    the ``option`` field of the SKU, the entry's ``key`` and ``name``, and its ``unit`` code."""
+
+    option: str
+    key: str
+    name: str
+    unit: str | None = None
 
 
 @dataclass(frozen=True)
@@ -100,11 +120,65 @@ class TypeSpec:
     owners: tuple[tuple[str, str], ...] = ()
     apparel: ApparelPlan | None = None
     apparel_exempt: str = ""
+    options: tuple[Option, ...] = ()
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
         OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
         return [r.doc() for r in self.rows] + [d.row.doc() for d in self.decoys]
+
+
+def option_table(
+    shared: Mapping[str, tuple[str, str, str | None]], declared: Iterable[TypeSpec] | None = None
+) -> tuple[dict[str, tuple[str, str, str | None]], list[str]]:
+    """The export's option table (``option -> (key, name, unit)``): the ``shared`` options of
+    ``export.py`` and every option a spec declares, and what is wrong with it (gen#413).
+
+    A problem is an option a spec declares that the shared table already holds, an option two
+    specs declare differently, and a key that two entries name differently. Two specs may declare
+    one option the same way, and one key may carry two units (a hose is cut in metres, a knife's
+    blade is in centimetres: ``item_length``); a key has one name.
+    """
+    table = dict(shared)
+    problems: list[str] = []
+    seen: dict[str, tuple[str, Option]] = {}
+    for spec in specs().values() if declared is None else declared:
+        for o in spec.options:
+            if o.option in shared:
+                problems.append(
+                    f"{spec.key}: option {o.option!r} is already in the shared table of "
+                    "export.py: declare it once"
+                )
+                continue
+            first = seen.setdefault(o.option, (spec.key, o))
+            if first[1] != o:
+                problems.append(
+                    f"{first[0]} and {spec.key} declare option {o.option!r} differently: "
+                    f"{tuple(first[1][1:])} and {tuple(o[1:])}"
+                )
+                continue
+            table[o.option] = (o.key, o.name, o.unit)
+    names: dict[str, dict[str, str]] = {}
+    for option, (key, name, _unit) in sorted(table.items()):
+        names.setdefault(key, {}).setdefault(name, option)
+    for key, named in sorted(names.items()):
+        if len(named) > 1:
+            problems.append(
+                f"key {key!r} is named {sorted(named)} (options {sorted(named.values())}): "
+                "one key has one name"
+            )
+    return table, problems
+
+
+def checked_options(
+    shared: Mapping[str, tuple[str, str, str | None]], declared: Iterable[TypeSpec] | None = None
+) -> dict[str, tuple[str, str, str | None]]:
+    """:func:`option_table`'s table, or :class:`SpecError` naming every problem: the build never
+    runs on an option declared with two meanings."""
+    table, problems = option_table(shared, declared)
+    if problems:
+        raise SpecError("; ".join(problems))
+    return table
 
 
 def a(key: str, name: str, value: str) -> tuple[str, str, str]:
@@ -161,7 +235,10 @@ def validate(spec: TypeSpec) -> None:
             raise SpecError(f"{spec.key}: {r.code} sells {r.brand!r}, a brand with no owner")
     for d in spec.decoys:
         if d.cls not in DECOY_CLASSES:
-            raise SpecError(f"{spec.key}: {d.row.code} has decoy class {d.cls}, not 1 to 7")
+            raise SpecError(f"{spec.key}: {d.row.code} has decoy class {d.cls}, not 1 to 8")
+    named = [o.option for o in spec.options]
+    for option in sorted({n for n in named if named.count(n) > 1}):
+        raise SpecError(f"{spec.key}: option {option!r} is declared twice")
     _validate_apparel(spec)
 
 
@@ -177,6 +254,11 @@ def _validate_apparel(spec: TypeSpec) -> None:
         raise SpecError(f"{spec.key}: apparel family {plan.family!r} is not one of a, b, u, s, k")
     if plan is not None and plan.per_class < 3:
         raise SpecError(f"{spec.key}: an apparel plan holds at least 3 decoys per class")
+    if plan is not None and not plan.compounds:
+        raise SpecError(f"{spec.key}: an apparel plan names its class 2 compounds (#444)")
+    for word, phrase in plan.compounds if plan is not None else ():
+        if not word or word.lower() not in phrase.lower():
+            raise SpecError(f"{spec.key}: apparel compound word {word!r} is not in {phrase!r}")
 
 
 @functools.cache
@@ -238,6 +320,31 @@ def left_out_ids() -> frozenset[str]:
 def decoy_ids() -> frozenset[str]:
     """Every spec decoy's id."""
     return frozenset(i for spec in specs().values() for i in decoy_ids_of(spec))
+
+
+def text_match_decoy_ids(department: str | None = None) -> frozenset[str]:
+    """The ids of the spec decoys of classes 1 to 7, of one department or (``None``) of every
+    department: they name a color or a feature their structured fields lack on purpose, so the
+    output standard's text check leaves them out (the class-8 decoys of gen#326 are checked like
+    any product). :data:`scale.TEXT_EXEMPT` reads this, so a new type is exempt by registering."""
+    return frozenset(
+        i
+        for spec in specs().values()
+        if department is None or spec.department == department
+        for d in spec.decoys
+        if d.cls != 8
+        for i in _ids([d.row])
+    )
+
+
+#: Declared exemptions from the text check for an id no spec owns: id -> why (gen#452). The
+#: build checks each against the catalog, and refuses one the registry already knows.
+ONE_OFF_TEXT_EXEMPT: dict[str, str] = {
+    "PLT-RQHOOP": (
+        "a rose gold decoy in the Hoop Earrings node since gen#423: its metals are its text "
+        "pool, and Gold Plated names the plating while its color is Yellow Gold"
+    ),
+}
 
 
 def legacy_types() -> frozenset[tuple[str, str]]:

@@ -54,7 +54,7 @@ class Row:
     A ``colorless`` row's SKUs carry no color (a plant, a cleaner); its drawing still
     takes ``colors[0]``. A size is ``(name, price)``: a bigger size costs more. It is
     stored under ``size_key``: a measured one (``5 ft``, which the core classes as a length)
-    goes under its own key (``height``), so ``size`` never mixes classed and unclassed values.
+    goes under its own key (``item_height``), so ``size`` never mixes classed and unclassed values.
     """
 
     code: str
@@ -302,6 +302,7 @@ TOYS = (
 # --------------------------------------------------------------------------
 
 _TREES = ("Garden", "Plants", "Bay Trees")
+_OLIVES = ("Garden", "Plants", "Olive Trees")
 _TULIP = ("Garden", "Bulbs", "Tulip Bulbs")
 _BERRY = ("Garden", "Grow Your Own", "Strawberry Plants")
 _MUSH = ("Garden", "Grow Your Own", "Mushroom Kits")
@@ -334,6 +335,10 @@ GARDEN = (
         "Plant", 25.0, "potted_tree",
         "A clipped bay tree, hardy outdoors and handy in the kitchen. Water weekly in summer.",
         (_POT,), _form("Standard"), _HEIGHTS, "Bay", colorless=True),
+    Row("OLVSTD", "Olive Tree in Terracotta Pot", "Thistle & Wren", "Garden", _OLIVES, "Plant",
+        32.0, "potted_tree",
+        "A silver-leaved olive tree for a sunny patio, hardy in a sheltered spot. Water sparingly.",
+        (_POT,), _form("Standard"), _HEIGHTS, "Olive", colorless=True),
     Row("BAYZNC", "Pyramid Bay Tree in Zinc Planter", "Fenwold Nursery", "Garden", _TREES,
         "Plant", 30.0, "potted_tree",
         "A bay tree clipped to shape, in a galvanized planter with drainage holes.",
@@ -1117,7 +1122,8 @@ HOME = (
          cw("Navy", "#26365c")), _fab("Velvet"), (("45 x 45cm", 18.0), ("55 x 55cm", 24.0))),
     Row("CSHLIN", "Linen Fringed Cushion", "Lanternby", "Home", _CUSH, "Cushion", 22.0,
         "cushion", "A square cushion with a knotted fringe and a hollowfibre pad.",
-        (cw("Oat", "#d8c9a8"), cw("Sage", "#9bb08f"), cw("Rust", "#a4502a")), _fab("Linen"),
+        (cw("Multi Patchwork", "#c46a4a", "patchwork", "#26365c"), cw("Sage", "#9bb08f"),
+         cw("Rust", "#a4502a")), _fab("Linen"),
         (("45 x 45cm", 22.0), ("55 x 55cm", 28.0))),
     Row("CSHBOU", "Boucle Bolster Cushion", "Calderby & Lune", "Home", _CUSH, "Cushion", 26.0,
         "cushion", "A long round bolster with gathered ends, for a sofa arm or a bed.",
@@ -1380,11 +1386,6 @@ BREADTH_34 = (
         "A packet of about 500 seeds for sweet, blunt roots. Sow straight into the ground.",
         (cw("Orange", "#e07a1f", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Nantes"),
         colorless=True),
-    Row("CHERRY", "Fresh Morello Cherries", "Freshfold", _FD,
-        (*_FRUIT, "Stone Fruit", "Cherries"), "Fresh Fruit", 3.5, "cherries",
-        "Sharp, deep red cherries picked in summer, good for pies and compotes.",
-        (cw("Red", "#9e1b2a", "solid", "#4f7a3a"),), _a1("variety", "Variety", "Morello"),
-        (("250 g", 3.5), ("500 g", 6.0)), colorless=True),
     Row("DNUTSG", "Sugar Ring Doughnuts, Pack of 4", "Pantry Mill", _FD,
         ("Food & Drink", "Bakery", "Doughnuts"), "Doughnut", 2.0, "doughnut",
         "Light ring doughnuts rolled in sugar, baked in store each morning.",

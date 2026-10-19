@@ -32,23 +32,78 @@ from distractors import tokens  # noqa: E402
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: The nouns the issue names: each carries at least two class-8 decoys.
-MIN_NOUNS = ("dress", "shoe", "boot", "coat", "jacket", "jumper", "skirt", "suit", "bra",
-             "trainer", "hat", "belt", "tie", "sofa")
+MIN_NOUNS = (
+    "dress",
+    "shoe",
+    "boot",
+    "coat",
+    "jacket",
+    "jumper",
+    "skirt",
+    "suit",
+    "bra",
+    "trainer",
+    "hat",
+    "belt",
+    "tie",
+    "sofa",
+)
 #: The ten queries the PR body reports the prototype's top 10 for.
-QUERIES = ("red dress", "black dress", "blue sofa", "black boots", "white trainers", "red jumper",
-           "black ties", "navy suit", "white coat", "black shoes")
+QUERIES = (
+    "red dress",
+    "black dress",
+    "blue sofa",
+    "black boots",
+    "white trainers",
+    "red jumper",
+    "black ties",
+    "navy suit",
+    "white coat",
+    "black shoes",
+)
 #: noun -> the category node of the product the noun really names (a decoy never sits in it).
-TRUE_NODE = {"dress": "Dresses", "shoe": "Shoes", "boot": "Boots", "coat": "Coats & Jackets",
-             "jacket": "Coats & Jackets", "jumper": "Jumpers", "skirt": "Skirts",
-             "suit": "Suits & Tailoring", "bra": "Bras", "trainer": "Trainers", "hat": "Hats",
-             "belt": "Belts", "tie": "Ties", "sofa": "Sofas", "pump": "Pumps", "cap": "Caps",
-             # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
-             "block": "Yoga Blocks", "strap": "Yoga Straps", "band": "Resistance Bands",
-             "resistance": "Resistance Bands", "lantern": "Lanterns", "roll": "Roll Mats",
-             "bat": "Baseball Bats", "baseball": "Baseballs", "glove": "Baseball Gloves",
-             "batting": "Batting Helmets", "swim": "Swim Caps", "kickboard": "Kickboards",
-             "armband": "Swim Armbands", "football": "Footballs", "tenni": "Tennis Rackets",
-             "badminton": "Badminton Sets"}
+TRUE_NODE = {
+    "dress": "Dresses",
+    "shoe": "Shoes",
+    "boot": "Boots",
+    "coat": "Coats & Jackets",
+    "jacket": "Coats & Jackets",
+    "jumper": "Jumpers",
+    "skirt": "Skirts",
+    "suit": "Suits & Tailoring",
+    "bra": "Bras",
+    "trainer": "Trainers",
+    "hat": "Hats",
+    "belt": "Belts",
+    "tie": "Ties",
+    "sofa": "Sofas",
+    "pump": "Pumps",
+    "cap": "Caps",
+    # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
+    "block": "Yoga Blocks",
+    "strap": "Yoga Straps",
+    "band": "Resistance Bands",
+    "resistance": "Resistance Bands",
+    "lantern": "Lanterns",
+    "roll": "Roll Mats",
+    "bat": "Baseball Bats",
+    "baseball": "Baseballs",
+    "glove": "Baseball Gloves",
+    "batting": "Batting Helmets",
+    "swim": "Swim Caps",
+    "kickboard": "Kickboards",
+    "armband": "Swim Armbands",
+    "football": "Footballs",
+    "tenni": "Tennis Rackets",
+    "badminton": "Badminton Sets",
+    "picnic": "Picnic Blankets",  # gen#217
+    # the Gifts nouns of the #425 rows: the node of the gift
+    "mug": "Mugs & Drinkware",
+    "card": "Greeting Cards",
+    "notebook": "Notebooks",
+    "box": "Money Boxes",
+    "hamper": "Pamper Hampers",
+}
 POLICIES = ("category", "department", "color")
 
 
@@ -138,6 +193,7 @@ def test_the_detail_is_the_only_color_the_title_names() -> None:
         assert named == {row.detail.lower()}, (row.code, row.title)
 
 
+@pytest.mark.timeout(900)  # three standard checks over the 10**6 ceiling: 172 s on a light shard
 def test_a_detail_color_is_exempt_by_decoy_id_and_an_ordinary_product_is_not(
     ceiling: list[dict],
 ) -> None:

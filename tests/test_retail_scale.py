@@ -29,16 +29,17 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import breadth_rows  # noqa: E402
+import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
-    committed,
+    figures,
     unheld_named_values,
 )
 from retail_figures import held as values_held  # noqa: E402
 
-#: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
-FIGURES = committed()
+#: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
+FIGURES = figures()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating
@@ -62,6 +63,7 @@ SHIRT_ROWS = FIGURES["templates"]["shirt_rows"]["styles"]
 ACCESSORY_ROWS = FIGURES["templates"]["accessory_rows"]["styles"]
 SPORTS_ROWS = FIGURES["templates"]["sports_rows"]["styles"]
 GARDEN_ROWS = FIGURES["templates"]["garden_rows"]["styles"]
+DECOR_ROWS = FIGURES["templates"]["decor_rows"]["styles"]
 SCHOOL_ROWS = FIGURES["templates"]["school_rows"]["styles"]
 SOFA_ROWS = FIGURES["templates"]["sofa_rows"]["styles"]
 HOUSEHOLD_ROWS = FIGURES["templates"]["household_rows"]["styles"]
@@ -71,6 +73,10 @@ TOYS_ROWS = FIGURES["templates"]["toys_rows"]["styles"]
 SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
+WOMENS_DEPTH_ROWS = FIGURES["templates"]["womens_depth_rows"]["styles"]
+COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
+KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
+NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -90,6 +96,7 @@ TEMPLATES = (
     + ACCESSORY_ROWS
     + SPORTS_ROWS
     + GARDEN_ROWS
+    + DECOR_ROWS
     + SCHOOL_ROWS
     + SOFA_ROWS
     + HOUSEHOLD_ROWS
@@ -101,10 +108,14 @@ TEMPLATES = (
     + SEASONAL_ROWS
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
+    + WOMENS_DEPTH_ROWS
+    + KNITWEAR_ROWS
+    + NECKLINE_ROWS
     + NEEDS_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
+    + COLORWORD_ROWS
     + PLAIN_ROWS
     + GROCERY_ROWS
 )
@@ -117,7 +128,7 @@ MIN_DERIVED = 150
 #: The sample build: the templates, then derived styles to about 4.5K SKUs past them,
 #: under the ceiling (:data:`CAPACITY`). It moves with
 #: :data:`TEMPLATE_SKUS`, so new templates never empty it. Round 4's deep-SKU templates
-#: left 4K at 148 styles, so it went up by 500.
+#: left 4K too few styles, so it went up by 500.
 DERIVED_SKUS = 4_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
@@ -235,6 +246,32 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
     assert rate <= CEILING_GRID_CLONES, f"{shared} of {len(main)} styles ({rate:.1%})"
 
 
+#: The Plates leaf's own grid-clone share the ceiling build may reach (gen#229). A derived
+#: plate keeps its kind and diameter and varies in a material the picture does not show, so a
+#: template with one colorway drew the same tile at the same price: a "white dinner plate"
+#: grid showed identical tiles, a third of the leaf. The leaf has its own cap so the
+#: catalog-wide :data:`CEILING_GRID_CLONES` headroom is not spent on it again.
+#: Measured on the seed-0 ceiling build of main d63322d: 8 of 145 (5.5%) with the
+#: ``PREMIUM`` plate weights of 2.0 / 1.4 / 1.0 / 0.75 / 0.5; the cap is 14 plates, a
+#: margin of 6. The weights were widened, not the cap, when new templates from main took
+#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 (12.4%) on this seed. Seeds 0 to
+#: 5 of the same build give 8, 4, 6, 0, 11 and 8 plates.
+PLATES_GRID_CLONES = 0.10
+
+
+def test_plates_mostly_draw_a_tile_of_their_own(ceiling):
+    """A results grid of plates shows the leaf, the hero picture and the price; a style that
+    shares all three with another plate reads as a clone whatever its material.
+
+    Guard: this test. Metric: the Plates leaf's grid-clone share, in the failure message."""
+    plates = [r for r in scale.derivable(ceiling.records) if r["category_leaf"] == "Plates"]
+    assert plates, "the ceiling build holds no Plates styles"
+    tiles = collections.Counter(scale.grid_tile(r) for r in plates)
+    shared = sum(n for n in tiles.values() if n > 1)
+    rate = shared / len(plates)
+    assert rate <= PLATES_GRID_CLONES, f"{shared} of {len(plates)} plates ({rate:.1%})"
+
+
 #: The grocery grid-clone share the ceiling build may reach, with a 2-point margin over the
 #: measured count in the figures; it was 96.6% (gen#154).
 GROCERY_GRID_CLONES = 0.02
@@ -318,6 +355,16 @@ def test_a_premium_value_costs_more_and_a_cheaper_one_less():
     assert scale.price_factor({"wash": ("Rinse", "Stone")}) == 1.0
 
 
+def test_a_plate_material_has_its_own_price_so_plates_of_one_finish_draw_apart():
+    """The picture shows a plate's finish and color but not its material, so the material
+    alone tells two plates apart on a grid through their price (gen#229): bone china costs
+    most, then porcelain, stoneware, enamel and melamine."""
+    order = ["Bone China", "Porcelain", "Stoneware", "Enamel", "Melamine"]
+    factors = [scale.price_factor({"material": ("Stoneware", m)}) for m in order]
+    assert factors == sorted(factors, reverse=True)
+    assert len(set(factors)) == len(order)
+
+
 def test_a_price_point_is_a_retail_one():
     assert [scale.price_point(p) for p in (1.13, 7.3, 18.2, 41.6, 263.0)] == [
         1.15,
@@ -363,11 +410,15 @@ def test_a_swap_reads_the_and_spelling_of_an_ampersand():
 
 def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]:
     new = {a["key"]: str(a["value"]) for a in r["attributes"]}
+    many = {k for k, n in collections.Counter(a["key"] for a in t["attributes"]).items() if n > 1}
     # A derived style may drop an attribute its new form lacks (a flush light's drop, gen#237).
+    # A key the template lists in several entries (a shoe's materials, gen#472) is never swapped
+    # for another value: the style keeps the entries its SKUs hold.
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and a["key"] in new and new[a["key"]] != str(a["value"])
+        if a["key"] != "line" and a["key"] not in many
+        and a["key"] in new and new[a["key"]] != str(a["value"])
     }
 
 
@@ -392,10 +443,17 @@ def _string_fields(drawing: dict[str, Any]) -> dict[str, str]:
     return out
 
 
+#: Where the kit's word for a drawing param is not the attribute's wording (gen#512): a clog's
+#: "Back strap" is drawn as ``back``, so a template's ``back`` stands for "Back strap". Spelled
+#: out here, not read from the code.
+KIT_WORD = {("strap", "back strap"): "back"}
+ATTRIBUTE_WORD = {(p, drawn): attr for (p, attr), drawn in KIT_WORD.items()}
+
+
 def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
     """Every string field of the drawing, top level and ``params``, follows a changed value:
     a graphic tee carries its ``motif`` at the top level, not in ``params``. It reads the
-    ceiling, whose derived styles start with TARGET's: 88 motif styles to TARGET's 3."""
+    ceiling, whose derived styles start with TARGET's: some 80 motif styles to TARGET's 3."""
     redrawn = top_level = 0
     drawn = _motif_drawn()  # the drawn motif may not be the value: Cherry draws cherries
     for r, t in ceiling_pairs:
@@ -405,9 +463,12 @@ def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
         for p, v in _string_fields(t["drawing"]).items():
             if p in ("base", "accent", "third", "pattern", "label") or p not in mine:
                 continue  # the hero swatch, the motif's ink and a duvet's tog: see their tests
-            was = next(iter(motif)) if p == "motif" else v.lower()
+            name = p[1] if isinstance(p, tuple) else p
+            was = ATTRIBUTE_WORD.get((name, v.lower()), v.lower())
+            was = next(iter(motif)) if p == "motif" else was
             if was in changed:
                 want = drawn[changed[was]] if p == "motif" else changed[was]
+                want = KIT_WORD.get((name, want.lower()), want)
                 assert mine[p].lower() == want.lower(), (r["product_id"], p)
                 redrawn += 1
                 top_level += not isinstance(p, tuple)
@@ -437,7 +498,7 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     """The picture draws the motif, count and placement the attributes name, and the
     description never names the template's motif once the style changed it ("Cherry Graphic
     Mug" -> an orange one must not say "a big pair of cherries"). The ceiling build holds
-    88 derived motif styles (seed 0); :data:`TARGET` holds 3."""
+    some 80 derived motif styles (seed 0, the count re-rolls); :data:`TARGET` holds 3."""
     from build_preview import drawing_svg  # noqa: PLC0415
 
     drawn = _motif_drawn()
@@ -469,8 +530,12 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
         assert stale == [], (r["product_id"], r["description"])
         assert scale._has_word(r["description"], mine["motif"]), (r["product_id"], r["description"])
         assert not re.search(r"\b[Aa] [aeiou]", r["description"]), r["description"]
-    assert styles >= 80  # 88 at the ceiling, seed 0
-    assert changed >= 75  # 86
+    # The property is asserted for every style in the loop above. These floors only keep it from
+    # passing on an empty set. The counts move with every re-roll (a new type changes the
+    # template count that feeds the plan): 88 and 86 on main, 79 and 77 with the accessories,
+    # so a floor near either value reds on the next merge. Half of the lower reading holds.
+    assert styles >= 40, styles
+    assert changed >= 40, changed
 
 
 def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(
@@ -554,6 +619,42 @@ def test_the_cli_refuses_a_target_below_one():
     assert "--skus must be at least 1" in done.stderr
 
 
+def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may lose: a pendant derived into a form that does not hang
+    has no ``drop_length`` (``lighting_rows.fit_ceiling_form``, gen#237). Nothing else goes, and
+    a hanging form keeps it, so the exception is exactly the documented one."""
+    if t["product_type"] != "Ceiling Light":
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
+
+
+def _fitted_in(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may gain: a flush, semi-flush or spotlight template derived
+    to a form that hangs has no ``drop_length`` to copy, so it is given one (gen#401)."""
+    has_drop = any(a["key"] == "drop_length" for a in t["attributes"])
+    if t["product_type"] != "Ceiling Light" or has_drop:
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return {"drop_length"} if form in lighting_rows.HANGING_FORMS else set()
+
+
+def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
+    """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
+    gone = _fitted_out(r, t)
+    attrs = [a for a in t["attributes"] if a["key"] not in gone]
+    # A key the template lists in several entries (a shoe's materials, gen#472) keeps one entry
+    # per value its SKUs still hold (``scale._sku_values``): at least one, never a new key.
+    held = collections.Counter(a["key"] for a in r["attributes"])
+    seen: collections.Counter[str] = collections.Counter()
+    out = []
+    for a in attrs:
+        seen[a["key"]] += 1
+        if seen[a["key"]] <= max(held[a["key"]], 1):
+            out.append(a)
+    return out
+
+
 def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
     for r, t in pairs:
         assert [r[k] for k in ("category_path", "category_leaf", "product_type", "department")] == [
@@ -567,7 +668,10 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
             if a["key"] in frozen or scale._has_word(names, str(a["value"]))
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
-        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in t["attributes"]]
+        gained = _fitted_in(r, t)
+        assert [a["key"] for a in r["attributes"] if a["key"] not in gained] == [
+            a["key"] for a in _template_attributes(r, t)
+        ]
 
 
 def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
@@ -596,9 +700,13 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
     rewritten = 0
     for r, t in pairs:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
-        for a in t["attributes"]:
+        counts = collections.Counter(a["key"] for a in t["attributes"])
+        many = {k for k, n in counts.items() if n > 1}
+        for a in _template_attributes(r, t):
             old = str(a["value"])
-            if a["key"] == "line" or new[a["key"]] == old or not scale._has_word(t["title"], old):
+            if a["key"] == "line" or a["key"] in many:  # entries a style keeps or drops (gen#472)
+                continue
+            if new[a["key"]] == old or not scale._has_word(t["title"], old):
                 continue
             assert scale._has_word(r["title"], new[a["key"]]), (
                 r["product_id"],
@@ -994,7 +1102,11 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
             if not sku_values:
                 continue
             checked += 1
-            style_values = {v.strip().lower() for v in str(a["value"]).split(",")}
+            style_values = {
+                v.strip().lower()
+                for b in r["attributes"] if b["key"] == a["key"]
+                for v in str(b["value"]).split(",")
+            }
             if style_values != sku_values:
                 wrong.append((r["product_id"], a["key"], a["value"], sorted(sku_values)))
     assert checked >= 240
@@ -1172,15 +1284,6 @@ def test_no_drawn_style_reads_as_another_of_its_leaf(ceiling):
         seen[r["category_leaf"]].append(words)
 
 
-#: Grocery brands that already hold two owners on main (a derived non-grocery style takes
-#: the default third party; Goldfield Farms is own on its shirts). Not the lighting rows'
-#: doing; the list only shrinks.
-GROCERY_OWNER_SPLITS = frozenset({
-    "Barrowby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse", "Goldfield Farms",
-    "Velling Apothecary",
-})  # fmt: skip
-
-
 def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(ceiling):
     """A brand is own-label or it is not: two ``brand_owner`` values on one brand split it in
     the own-brand facet (``breadth_rows.OWNERS`` said "Harbour & Pine" was third party while
@@ -1194,5 +1297,31 @@ def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(
         if "brand_owner" in rec:
             owners[rec["brand"]].add(rec["brand_owner"])
     split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
-    assert {b: o for b, o in split.items() if b not in GROCERY_OWNER_SPLITS} == {}
-    assert set(split) <= GROCERY_OWNER_SPLITS  # a brand that is fixed leaves the list
+    assert split == {}
+
+
+def test_no_two_owner_tables_give_one_brand_two_owners():
+    """The tables a row's ``brand_owner`` is read from agree on every brand they share, also for
+    a brand no row carries yet (``Meadowgate Dairy`` was own in ``class_model`` and third party
+    in ``grocery_rows``, and split the moment a class row and a grocery row both used it).
+
+    Guard: every module-level ``OWNERS`` / ``BRAND_OWNER`` dict of the retail modules, not a
+    list of three. Metric: the brands with two values, in the failure message.
+    """
+    import class_model  # noqa: F401
+    import grocery_rows  # noqa: F401
+
+    owners: dict[str, dict[str, str]] = collections.defaultdict(dict)
+    tables = 0
+    for name, mod in sorted(sys.modules.items()):
+        if not str(getattr(mod, "__file__", "") or "").startswith(str(RETAIL)):
+            continue
+        for attr in ("OWNERS", "BRAND_OWNER"):
+            table = getattr(mod, attr, None)
+            if isinstance(table, dict):
+                tables += 1
+                for brand, owner in table.items():
+                    owners[brand].setdefault(owner, f"{name}.{attr}")
+    assert tables >= 3
+    split = {b: o for b, o in owners.items() if len(o) > 1}
+    assert split == {}

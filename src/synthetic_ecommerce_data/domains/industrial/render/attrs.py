@@ -14,6 +14,19 @@ from synthetic_ecommerce_data.core.dimensions import DimensionParseError
 from synthetic_ecommerce_data.domains.industrial.render import canvas as cv
 
 
+def drawing_title(record: dict, fallback: str) -> str:
+    """What a drawing is headed with: the label of the record's product type.
+
+    The record used to carry an ``Item`` attribute for this; it repeated the product
+    type and is no longer published (#497), so the type's own label heads the drawing.
+    """
+    from synthetic_ecommerce_data.domains.industrial.type_labels import (  # noqa: PLC0415
+        PRODUCT_TYPE_LABELS,
+    )
+
+    return str(PRODUCT_TYPE_LABELS.get(str(record.get("product_type", "")), fallback))
+
+
 class MissingAttributeError(KeyError):
     """The record does not carry an attribute the drawing needs."""
 
@@ -74,7 +87,23 @@ NOT_DRAWN: dict[str, str] = {
         "the supplier's own catalogue code for the line. An identifier, not a "
         "property of the object, and the drawing already carries the SKU"
     ),
-    "End Mill Application": (
+    "Item": (
+        "the product type's name in the supplier's words. It repeated the type, "
+        "so the generator no longer publishes it (#497); a drawing is headed "
+        "with the type's own label, and a record that still carries one adds "
+        "nothing to the picture"
+    ),
+    "Screw Style": (
+        "the product type again, spelled out on the observed cap screw. A "
+        "name for the whole object, not a dimension of it: the head and the "
+        "drive are drawn from their own attributes"
+    ),
+    "Tap Style": (
+        "the tap's point, which is also the product type's name; the "
+        "generator no longer publishes it (#497), so the drawing does not "
+        "read it"
+    ),
+    "Application": (
         "what the tool is FOR -- roughing, finishing, or both. A use, not a "
         "form: two mills that differ only in this are the same drawing"
     ),
@@ -82,7 +111,7 @@ NOT_DRAWN: dict[str, str] = {
         "a performance grade -- general purpose against high performance. "
         "Nothing about it is visible in an outline"
     ),
-    "Package Quantity": (
+    "Units per Pack": (
         "how many pieces the line is sold in. A commercial quantity: a pack "
         "of 25 bolts and a pack of 100 hold the same bolt, and the figure "
         "draws one piece"

@@ -37,10 +37,10 @@ IDS = {d["product_id"] for d in DOCS}
 #: the SKU axis beside color, or None)
 TYPES = {
     "Floor Lamp": ("Floor Lamps", "floor_lamp",
-                   {"style", "height", "shade_material", "switch", "bulb_fitting"}, "finish"),
+                   {"style", "item_height", "shade_material", "switch", "bulb_fitting"}, "finish"),
     "Table Lamp": ("Table Lamps", "table_lamp",
-                   {"style", "height", "base_material", "power"}, "shade_color"),
-    "Desk Lamp": ("Desk Lamps", "desk_lamp", {"arm", "color_temperature"}, None),
+                   {"style", "item_height", "base_material", "power"}, "shade_color"),
+    "Desk Lamp": ("Desk Lamps", "desk_lamp", {"arm"}, None),
     "Ceiling Light": ("Ceiling Lights", "ceiling_light",
                       {"fixture_type", "light_count", "shade_material", "bulb_fitting"},
                       "finish"),
@@ -322,3 +322,56 @@ def test_a_picture_light_offers_only_the_finishes_its_brass_hood_can_show() -> N
     pic = next(d for d in DOCS if d["product_id"] == "BRD-LTWPIC")
     finishes = {s["finish"] for s in pic["skus"]}
     assert finishes == {"Antique Brass", "Brass"}
+
+
+# --- gen#232: a color temperature is a Kelvin count, never "3000K" in the value ---------------
+
+_UNIT_IN_VALUE = re.compile(r"^[0-9][0-9.,/-]*\s*[A-Za-z%\u00b0]+$")
+
+
+def _temperature_entries(doc: dict) -> dict[str, dict]:
+    return {e["key"]: e for e in doc["attributes"] if e["key"].startswith("color_temperature")}
+
+
+def test_every_lighting_color_temperature_entry_is_kelvin_and_none_holds_a_unit_in_its_value():
+    from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT
+
+    assert "KEL" in CANONICAL_PER_UNIT
+    seen = 0
+    standard = [export.standard_document(d) for d in DOCS]
+    assert check_catalog(standard) == []
+    for doc in standard:
+        for entry in _temperature_entries(doc).values():
+            seen += 1
+            assert entry["unit_code"] == "KEL", (doc["product_id"], entry)
+            assert entry["value"].isdigit(), (doc["product_id"], entry)
+            assert entry["value_canonical"] == float(entry["value"]), (doc["product_id"], entry)
+        for entry in doc["attributes"] + [e for v in doc["variants"] for e in v["attributes"]]:
+            if "unit_code" not in entry:
+                assert not _UNIT_IN_VALUE.match(entry["value"]), (doc["product_id"], entry)
+    assert seen
+
+
+def test_a_desk_lamp_has_one_temperature_or_a_two_ended_range_under_the_one_key():
+    """gen#498: one fact has one key, so a tunable lamp holds both ends under color_temperature."""
+    shapes = {}
+    for doc in (export.standard_document(d) for d in DOCS if d["product_type"] == "Desk Lamp"):
+        entries = [e for e in doc["attributes"] if e["key"].startswith("color_temperature")]
+        assert {e["key"] for e in entries} == {"color_temperature"}, doc["product_id"]
+        shapes[doc["product_id"]] = sorted(int(e["value"]) for e in entries)
+    assert len({len(v) for v in shapes.values()}) == 2
+    assert {k: shapes[k] for k in ("BRD-LTDGNK", "BRD-LTDCLP")} == {
+        "BRD-LTDGNK": [3000],
+        "BRD-LTDCLP": [5000],
+    }
+    assert shapes["BRD-LTDADJ"] == shapes["BRD-LTDWCP"] == [2700, 6500]
+
+
+def test_the_preview_shows_a_kelvin_entry_with_its_unit() -> None:
+    """The unit is not in the stored value, so the page that shows the attribute adds it."""
+    import build_preview
+
+    desk = [d for d in DOCS if d["product_type"] == "Desk Lamp"]
+    shown = {d["product_id"]: build_preview._attr_rows(d) for d in desk}
+    assert "<td>3000 K</td>" in shown["BRD-LTDGNK"]
+    assert "<th>Color temperature</th><td>2700 K, 6500 K</td>" in shown["BRD-LTDADJ"]

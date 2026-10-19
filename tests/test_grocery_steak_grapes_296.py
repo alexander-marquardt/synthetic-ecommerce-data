@@ -121,7 +121,7 @@ def _traced(facets: dict) -> set[str]:
 
 def test_dairy_free_means_no_milk_contained_or_traced() -> None:
     rows = [r for r in grocery.flat(grocery.documents(list(_recs())))
-            if r["category_path"][0] == "Food & Drink"]
+            if r["category_path"][0] == "Food & drink"]
     with_milk, without_milk = 0, 0
     for r in rows:
         f = r["facets"]
@@ -144,7 +144,7 @@ def test_the_coverage_report_gives_the_share_of_rows_with_contains_filled() -> N
     report = grocery.coverage_report(list(_recs()))
     assert set(report) == {"food_rows", "contains_filled", "contains_share"}
     rows = [r for r in grocery.flat(grocery.documents(list(_recs())))
-            if r["category_path"][0] == "Food & Drink"]
+            if r["category_path"][0] == "Food & drink"]
     filled = sum(bool(r["facets"].get("contains")) for r in rows)
     assert report["food_rows"] == len(rows)
     assert report["contains_filled"] == filled

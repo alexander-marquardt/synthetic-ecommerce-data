@@ -23,12 +23,11 @@ makes that disagreement impossible by construction.
 
 An attribute that is not a measurement omits ``value_num`` entirely rather
 than carrying a null, and so does a measurement whose value is deliberately
-malformed: a record with ``Helix Angle = 42"`` publishes no degree mark to read
-an angle from, and inventing one would paper over the defect the flat document
-exists to exhibit. Its nested entry is still an angle (``42`` ``DD``): the entry
-takes an angle attribute's unit from its name, not its mark (#79). A value
-outside the angles the attribute's series offers, such as ``1-5/8"``, is a
-length in an angle field, and its entry stays text.
+malformed (a unit-mixing spelling the mark cannot read). The mark decides the
+unit: a value carrying a degree mark is an angle, one carrying an inch or
+millimetre mark is a length, and no unit is taken from the attribute's name.
+The generator writes no wrong-kind value (#404): an inch length is never
+written under an angle key, so there is no such value for an entry to repair.
 
 ``value_num`` is internal: generation and measurement read it, and the flat
 shape's ``facets_num`` publishes it. A nested ENTRY carries the split shape of
@@ -71,7 +70,7 @@ class Attribute:
 
     @property
     def multivalued(self) -> bool:
-        return self.values is not None and len(self.values) > 1
+        return self.values is not None and len(set(self.values)) > 1
 
     def as_entries(self) -> tuple[dict[str, Any], ...]:
         """The nested entries this attribute becomes, each split by :func:`.entry.entry`.
@@ -113,6 +112,16 @@ def multi_attribute(name: str, values: tuple[str, ...]) -> Attribute:
     return Attribute(name=name, value=values[0], values=tuple(values))
 
 
+def pricing_unit_for(quantity: str | None) -> str:
+    """How a SKU's price is quoted, from the ``Units per Pack`` it publishes (gen#14):
+    ``"Per Pack"`` for a pack above 1, ``"Each"`` for anything else (no pack, or a pack
+    of 1). A quantity that is not a number is no pack."""
+    try:
+        return "Per Pack" if quantity is not None and float(quantity) > 1 else "Each"
+    except ValueError:
+        return "Each"
+
+
 @dataclass(frozen=True)
 class Sku:
     """One purchasable item under a product line."""
@@ -137,6 +146,11 @@ class Sku:
     #: The copy's noise sentences (:mod:`.noise`): true, distracting, and in
     #: the description and the searchable text only -- never an attribute.
     noise: str = ""
+    #: How the shown price is quoted: ``"Each"``, or ``"Per Pack"`` when the SKU
+    #: publishes ``Units per Pack`` above 1 (gen#14). A plain field, not a variant.
+    pricing_unit: str = "Each"
+    #: The multiple a SKU is ordered in, in its pricing unit (gen#14). A plain field.
+    order_multiple: int = 1
 
     def attribute_names(self) -> frozenset[str]:
         return frozenset(a.name for a in self.attributes)

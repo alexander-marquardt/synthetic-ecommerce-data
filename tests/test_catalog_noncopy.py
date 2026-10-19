@@ -137,7 +137,7 @@ def test_a_part_number_can_never_wear_a_reference_code():
     assert noncopy.REFERENCE_SKUS
     assert all(not code.isdigit() for code in noncopy.REFERENCE_SKUS)
     generator = Generator(SMALL, "screw_socket_head")
-    issued = [generator._new_sku() for _ in range(50)]
+    issued = [generator.minter.new_sku() for _ in range(50)]
     assert all(code.isdigit() and len(code) == 10 for code in issued), issued[:3]
     assert len(set(issued)) == len(issued)
 

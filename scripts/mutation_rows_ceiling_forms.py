@@ -1,4 +1,4 @@
-"""Mutation rows for the derived ceiling-light forms (gen#237), kept out of ``mutation_check.py``.
+"""Mutation rows for the derived ceiling-light forms (gen#237, gen#401).
 
 Each row plants one defect in ``lighting_rows.fit_ceiling_form`` or its call in ``scale.derive``
 and names the test that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
@@ -7,6 +7,8 @@ and names the test that must go red. ``mutation_check.py`` turns them into ``Mut
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 _T = "tests/test_retail_ceiling_forms_237.py"
 _ROOT = "prototypes/retail_drawings"
@@ -66,4 +68,47 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a derived ceiling light is fitted to its form",
         _ROOT,
     ),
+    (
+        "a hanging form derived from a flush template gets no drop_length",
+        "lighting_rows.py",
+        "    elif not any(a[\"key\"] == \"drop_length\" for a in rec[\"attributes\"]):\n",
+        "    elif False:\n",
+        f'{_T} -k "carries_a_drop_length"',
+        "a pendant or chandelier carries a drop_length whatever template it derives from",
+        _ROOT,
+    ),
+    (
+        "a derived chandelier is given a drop of zero",
+        "lighting_rows.py",
+        '_DEFAULT_DROP_CM = {"Pendant": 100, "Chandelier": 80}',
+        '_DEFAULT_DROP_CM = {"Pendant": 100, "Chandelier": 0}',
+        f'{_T} -k "carries_a_drop_length"',
+        "a drop is a positive length",
+        _ROOT,
+    ),
+    (
+        "the authored chandelier drops its drop_length",
+        "lighting_rows.py",
+        '_cm("diameter", "Diameter", 60), _cm("drop_length", "Drop length", 80),',
+        '_cm("diameter", "Diameter", 60),',
+        f'{_T} -k "authored_hanging"',
+        "every authored hanging ceiling light has a drop_length",
+        _ROOT,
+    ),
+    (
+        "a derived drop is appended after the shade",
+        "lighting_rows.py",
+        "    attributes.insert(after + 1, entry)\n",
+        "    attributes.append(entry)\n",
+        f'{_T} -k "among_the_templates_own_keys"',
+        "the added drop follows the fixture's size, ahead of its shade",
+        _ROOT,
+    ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "ceiling forms"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

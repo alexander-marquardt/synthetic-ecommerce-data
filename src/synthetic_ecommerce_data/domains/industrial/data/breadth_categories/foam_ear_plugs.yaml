@@ -17,7 +17,7 @@ size_values:
 attributes:
   Material:
   - PU Foam
-  Package Quantity:
+  Units per Pack:
   - '10'
   - '50'
   - '100'

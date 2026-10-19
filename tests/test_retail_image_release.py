@@ -30,13 +30,13 @@ import export  # noqa: E402 -- the prototype's own directory is its import root
 import image_release  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
 from build_preview4 import samples  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 from variants import FAMILIES  # noqa: E402
 
-#: The authored-styles build, as ``golden-retail/stats.json`` measures it (gen#162).
-RETAIL_SKUS = committed()["templates"]["authored"]["skus"]
+#: The authored-styles build, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
+RETAIL_SKUS = figures()["templates"]["authored"]["skus"]
 #: One image per style and colorway, plus one image for each style sold in no color.
-RETAIL_IMAGES = committed()["templates"]["authored_images"]
+RETAIL_IMAGES = figures()["templates"]["authored_images"]
 #: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
 SCALED_SKUS = 19_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.
@@ -127,17 +127,18 @@ def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names()
 
 
 def test_the_command_takes_a_sku_target(tmp_path):
-    recs = image_release.records(7_000)
+    target = RETAIL_SKUS + 1_000  # above the authored range, so it grows with it
+    recs = image_release.records(target)
     skus = sum(len(r["skus"]) for r in recs)
     images = len(image_release.image_files(recs))
     run = subprocess.run(
-        [sys.executable, str(RETAIL / "image_release.py"), "--skus", "7000",
+        [sys.executable, str(RETAIL / "image_release.py"), "--skus", str(target),
          "--out", str(tmp_path / "out")],
         capture_output=True, text=True, check=False, cwd=ROOT,
     )  # fmt: skip
     assert run.returncode == 0, run.stderr
     assert f"{images} images for {skus} SKUs" in run.stdout
-    assert skus >= 7_000 > RETAIL_SKUS
+    assert skus >= target > RETAIL_SKUS
 
 
 def test_the_command_writes_the_industrial_package_shape(tmp_path, files):
@@ -169,3 +170,20 @@ def test_the_command_writes_the_industrial_package_shape(tmp_path, files):
     assert unpacked == files
     again = bundle.write_archive(files, tmp_path / "again.tar.gz")
     assert again == hashlib.sha256(packed).hexdigest(), "the archive is not deterministic"
+
+
+def test_a_style_with_one_print_colorway_and_solid_ones_renders_every_sku():
+    """The floral dress draws its first colorway as a print; its solid colorways keep the style's
+    motif keys on the drawing, and a solid fill carries none (gen#408)."""
+    import scale  # noqa: PLC0415
+
+    rec = next(r for r in scale.templates() if r["product_id"] == "BRD-CLRWRP")
+    patterns = {}
+    for sku in rec["skus"]:
+        drawing = image_release.colorway_drawing(rec, sku)
+        patterns[sku["color"]] = drawing["pattern"]
+        if drawing["pattern"] != "print":
+            keys = {"motif", "placement", "scale", "spacing", "count"}
+            assert keys & drawing.keys() == set(), f"{sku['color']} keeps the print's keys"
+        assert image_release.render(rec, sku).startswith(b"<svg")
+    assert set(patterns.values()) == {"print", "solid"}
