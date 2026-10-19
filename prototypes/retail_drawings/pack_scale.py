@@ -13,8 +13,8 @@ grow: half the content is a pack about 0.79 as tall.
   count (``units_per_pack``) stands in only where there is no content and only in
   :data:`COUNT_DEPARTMENTS`: a pack of six cans is bigger than a single can, but a pack of three
   bodysuits holds the same bodysuit, so a garment is never scaled by its count.
-- THE CANVAS is unchanged: :func:`wrap` scales the pack about the bottom centre of its bounding
-  box, so every size of a line stands on one baseline and one centre line of the same 400 x 400
+- THE CANVAS is unchanged: :func:`wrap` scales the pack about the bottom center of its bounding
+  box, so every size of a line stands on one baseline and one center line of the same 400 x 400
   sheet.
 
 Each size is its own image (``export.drawing_spec`` carries the factor), as a lamp's finish is.
@@ -59,7 +59,7 @@ def factor(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
 
 def wrap(pack: str, parts: list[str], shrink: float) -> str:
     """``pack`` (the SVG elements of the drawing) in a group that scales it by ``shrink`` about
-    the bottom centre of the box ``parts`` (the shape's own elements) cover."""
+    the bottom center of the box ``parts`` (the shape's own elements) cover."""
     import sheet_extent  # noqa: PLC0415 -- deferred: it is the guard's measure
 
     box = sheet_extent.reach(_SHEET.format("".join(parts)))

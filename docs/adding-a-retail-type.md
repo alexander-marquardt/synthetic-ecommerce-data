@@ -98,7 +98,7 @@ SKU that carries a `net_volume_ml` or `net_weight_g` (or, in Food & Drink and Be
 `units_per_pack`) is drawn at the cube root of that content against the largest size its style
 sells, floored at 0.6 (`pack_scale.factor`), so each smaller size is its own image and a style of
 one size is unchanged. The shape needs no param for it: `kit.render(shrink=)` scales the whole
-drawing about its bottom centre. If two things must look different on the sheet (a two-seat and a
+drawing about its bottom center. If two things must look different on the sheet (a two-seat and a
 three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.
