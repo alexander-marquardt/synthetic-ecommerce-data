@@ -35,10 +35,10 @@ for t, pairs in sorted(col.product_pairs.items()):
 print("brand pairs whose order is fixed on every shared spec")
 for t in sorted(price.BRAND_CENSUS):
     per_brand: dict[str, dict] = defaultdict(dict)
-    for (st, k, m), by in col.specs.items():
+    for (st, k, *m), by in col.specs.items():
         if st == t:
             for b, sk in by.items():
-                per_brand[b][(k, m)] = statistics.median(prices[s] for s in sk)
+                per_brand[b][(k, *m)] = statistics.median(prices[s] for s in sk)
     fixed = tot = 0
     for a, b in itertools.combinations(per_brand, 2):
         shared = set(per_brand[a]) & set(per_brand[b])
