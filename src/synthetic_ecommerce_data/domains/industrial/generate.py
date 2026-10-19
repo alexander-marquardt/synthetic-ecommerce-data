@@ -799,7 +799,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 ),
             )
         )
-        # Near-miss threads: every FINE_PERIOD-th line of a diameter that has a
+        # Near-miss threads: every Nth line (``near_miss_period``) of a diameter that has a
         # fine pitch is built to it, so ``m12 socket cap screws`` finds M12x1.5
         # and M12x1.25 beside M12x1.75 and the pitch facet has a real choice.
         # Rotated, not tossed, for the reason the system alternates above.
@@ -850,27 +850,19 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             draft.children.append(child)
         return draft
 
-    #: Every FINE_PERIOD-th line of a diameter with a fine pitch is built to
-    #: it -- one in three. Coarse stays the common case, as it is in any
-    #: distributor's fastener aisle, and each fine pitch still exists.
-    FINE_PERIOD = 3
-    #: The hex bolt's period is FIVE, not three, because its finish wheel is
-    #: three long and turns with the line counter: every third line of a size
-    #: landed on the same finish, so each UNF size offered one finish
-    #: (measured: 6 of 26 sizes locked). Five is prime to both wheels.
-    BOLT_FINE_PERIOD = 5
+    def _near_miss_thread(self, head: _Head, key: str, metric: bool) -> tuple[_Head, bool]:
+        """``head`` rebuilt to a fine pitch of its diameter on every Nth line, else as is.
 
-    def _near_miss_thread(
-        self, head: _Head, key: str, metric: bool, period: int = FINE_PERIOD
-    ) -> tuple[_Head, bool]:
-        """``head`` rebuilt to a fine pitch of its diameter on every third line, else as is.
+        N is the type's own ``near_miss_period`` (:data:`.compat.NEAR_MISS_PERIOD`);
+        a type that declares none is never rebuilt.
 
         The fine pitches are ISO 262's (metric) and the Unified fine series
         (inch) -- :func:`.compat.fine_threads`. The head dimensions do not
         change: they are a function of the diameter, not the pitch.
         """
+        period = compat.NEAR_MISS_PERIOD.get(self.type_key)
         fine = compat.fine_threads(head.size, metric)
-        if not fine or self._rotate(f"fine:{key}", period) != period - 1:
+        if not period or not fine or self._rotate(f"fine:{key}", period) != period - 1:
             return head, False
         designation = fine[self._rotate(f"fine-pitch:{key}", len(fine))]
         if metric:
@@ -956,9 +948,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         # ISO 4014, ISO 8676 beside ISO 4017, DIN 961 beside DIN 933. ASME
         # B18.2.1 covers the Unified fine series itself.
         metric = head.published_unit == "mm"
-        head, fine = self._near_miss_thread(
-            head, f"{type_key}:{standard}:{size}", metric, self.BOLT_FINE_PERIOD
-        )
+        head, fine = self._near_miss_thread(head, f"{type_key}:{standard}:{size}", metric)
         if fine:
             _retype(draft, "Metric Fine" if metric else "UNF")
             draft.provenance = FINE_PITCH_BOLT_STANDARD[standard]
