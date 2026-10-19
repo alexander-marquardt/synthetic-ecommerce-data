@@ -386,7 +386,7 @@ have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
 cutter's own size; and an oversize shank is at most three times its cutter,
-or 6 mm under a metric cutter below 6 mm (see
+and a metric cutter below 6 mm takes the shank its DIN 6527 row gives it (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -498,12 +498,18 @@ shared tables):
   `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
   3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
   5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
-  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
-  6.0x). That is a catalog convention the #33 review proposed, not yet
-  confirmed against a standard's diameter table (#87); it leaves the
-  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
-  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
-  shank, most of them on 3 mm. Above the largest stocked shank the shank is
+  shank takes the shank DIN 6527 table 1 gives it (`series.SMALL_METRIC_SHANKS_MM`,
+  #87): 2 and 2.5 mm on 3 mm, and 3, 4 and 5 mm on 6 mm (the long cutting part;
+  the short one is on its own diameter, so it is not an oversize shank). The
+  table is DIN 6527 as reproduced at <https://www.fasten.it/en/norms/norm/din_6527>,
+  and DIN 6527:2002-01 page 1 names the 3 mm / 6 mm pair. The standard starts at
+  2 mm, so a 1 and a 1.5 mm cutter take 3 mm, the smallest DIN 6535 shank, as a
+  maker's mini end mill table does (FORUM, 1 and 1.5 mm on 3 mm). Every pair is
+  at or under 3.0x. A flat 6 mm rule, a convention the #33 review proposed and
+  nobody had checked, sat here before: it put 54 of 54 such cutters on 6 mm
+  and gave 16 records a ratio past 3.0x (9 at 4.0x, 7 at 6.0x). Under the
+  earlier 2x cap, 48 of the 54 sat on another shank, most of them on 3 mm.
+  Above the largest stocked shank the shank is
   the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
@@ -688,7 +694,14 @@ sells them together as one item. So some hex key sizes are sold only in a set
 test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
 is the one facet value "Assortment Kit" and its kind is `Type`. 59 kits on
-the default build, 695 at 100K. A kit's price is its contents' price times
+the default build, 695 at 100K. A kit's description lists its sizes, in the
+spec clause after the title, glued sizes also written in parts
+(`naming.thread_parts`, `M6x1` beside `M6 thread, 1 mm pitch`), so `m6` finds the
+kit through text: 54 of the 56 kits on the default build do (#87). The other two
+do not, because sparsity left their description's spec clause no SKU attribute to
+list, so `Sizes Included` is their only mention (a hex key set and a socket head
+cap screw assortment; measured on `golden-catalog/`), which is a defect of that
+ordering, not an intent to keep sizes keyword-only. A kit's price is its contents' price times
 one fitted factor, its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the

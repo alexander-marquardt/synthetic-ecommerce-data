@@ -264,17 +264,34 @@ def nearest_shank_metric(target_mm: float) -> float:
 #: The largest an oversize shank gets, as a multiple of its cutter. 43 of the
 #: 46 differing records in 04_shank_dia_vs_milling_dia.json are at or under
 #: 3.0, the 2.667 and 3.0 ratios included, so an inch 5/32" cutter on a 5/8"
-#: shank (4.0) is not drawn. Two exceptions draw past it: the smallest stocked
-#: shank above the cutter when that is already more (see shank_ceiling), and a
-#: metric cutter below SMALL_METRIC_SHANK_MM, which sits on 6 mm whatever the
-#: ratio -- 1.5 mm on 6 mm is 4.0x and 1 mm on 6 mm is 6.0x.
+#: shank (4.0) is not drawn. One exception draws past it: the smallest stocked
+#: shank above the cutter when that is already more (see shank_ceiling). A
+#: metric cutter below 6 mm does not use the cap at all, it takes its row of
+#: :data:`SMALL_METRIC_SHANKS_MM`, and every row is within 3.0x.
 MAX_SHANK_RATIO = 3.0
 
-#: The shank a metric cutter below it sits on when its shank is oversize.
-#: This is a catalog convention the #33 review proposed, not yet confirmed
-#: against a standard's diameter table (#87); DIN 6535 also lists 3, 4
-#: and 5 mm shanks, which this rule leaves undrawn for an oversize cutter.
-SMALL_METRIC_SHANK_MM = 6.0
+#: The shank (d2, mm) a metric cutter below 6 mm sits on when it is not on its
+#: own diameter, by cutter diameter (d1, mm) (#87). The rows for 2, 2.5, 3, 4
+#: and 5 mm are DIN 6527 table 1, solid carbide end mills with a stepped
+#: shank, as reproduced at https://www.fasten.it/en/norms/norm/din_6527
+#: ("source DIN 6527"): d1 2 and 2.5 mm -> d2 3 mm; d1 3, 4 and 5 mm -> d2 6 mm
+#: for the long cutting part (the short one is on its own diameter, which is
+#: not an oversize shank). DIN 6527:2002-01 page 1 (change b) names the d1 3 /
+#: d2 6 pair. DIN 6527 starts at d1 2 mm, so 1 and 1.5 mm are outside it: they
+#: take 3 mm, the smallest DIN 6535 shank, as a maker's mini end mill table
+#: does (FORUM, 1 and 1.5 mm on 3 mm and 2 to 5.5 mm on 6 mm, see
+#: tests/test_catalog_facts.py). Earlier a flat 6 mm convention from the #33
+#: review sat here unconfirmed: it put 54 of 54 such cutters on 6 mm and gave
+#: 16 records a ratio past 3.0x.
+SMALL_METRIC_SHANKS_MM: dict[float, float] = {
+    1.0: 3.0,
+    1.5: 3.0,
+    2.0: 3.0,
+    2.5: 3.0,
+    3.0: 6.0,
+    4.0: 6.0,
+    5.0: 6.0,
+}
 
 
 def shank_ceiling(dia: float, larger: list[float]) -> float:
@@ -302,12 +319,12 @@ def larger_shank_imperial(dia_in: float, target_in: float) -> Fraction:
 
 def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
     """The metric twin of :func:`larger_shank_imperial`, except that a cutter
-    below :data:`SMALL_METRIC_SHANK_MM` sits on that shank."""
+    in :data:`SMALL_METRIC_SHANKS_MM` sits on its row's shank."""
     larger = [s for s in METRIC_SHANKS if s > dia_mm + 1e-9]
     if not larger:
         return dia_mm
-    if dia_mm < SMALL_METRIC_SHANK_MM - 1e-9:
-        return SMALL_METRIC_SHANK_MM
+    if dia_mm in SMALL_METRIC_SHANKS_MM:
+        return SMALL_METRIC_SHANKS_MM[dia_mm]
     ceiling = shank_ceiling(dia_mm, larger)
     allowed = [s for s in larger if s <= ceiling + 1e-9]
     return min(allowed, key=lambda s: abs(s - target_mm))
