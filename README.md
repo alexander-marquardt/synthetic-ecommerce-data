@@ -420,7 +420,7 @@ their product families, market weight, house style and title voice.
   an outline weight, a dash pattern, a frame margin, a background texture and a
   chamfered frame; all default to the original look, so the 6,885 drawings of the 45
   brands are byte-identical. Two brands are visibly different when a strong lever
-  (frame, mark, or an ink 15 CIELAB apart under normal vision and three colour-vision
+  (frame, mark, or an ink 15 CIELAB apart under normal vision and three color-vision
   deficiencies) differs, or three weak ones do. The space holds 570 such styles without
   the mark and 45 x 570 with it, against the 135 brands #53 needs
   ([detail](docs/house-style-levers.md)).

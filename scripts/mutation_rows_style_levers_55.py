@@ -59,7 +59,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "MIN_INK_DELTA_E = 15.0",
         "MIN_INK_DELTA_E = 0.0",
         f'{T} -k "the_distinguishability_rule and confusable and alone"',
-        "an ink pair a colour-blind reader cannot tell apart is no ink difference",
+        "an ink pair a color-blind reader cannot tell apart is no ink difference",
         "src/synthetic_ecommerce_data",
     ),
     (

@@ -46,7 +46,7 @@ WEAK_LEVERS_NEEDED = 3
 #: which :func:`confusable_ink_pairs` lists those under it.
 MIN_INK_DELTA_E = 15.0
 
-#: Colour-vision models: normal, protanopia, deuteranopia, tritanopia. The
+#: Color-vision models: normal, protanopia, deuteranopia, tritanopia. The
 #: matrices are Machado, Oliveira and Fernandes (2009) at severity 1.0, applied
 #: to linear sRGB.
 VISION: tuple[str, ...] = ("none", "prot", "deut", "trit")
