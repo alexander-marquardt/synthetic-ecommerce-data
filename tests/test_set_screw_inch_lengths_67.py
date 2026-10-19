@@ -100,3 +100,10 @@ def _meta_rows() -> list[dict]:
     return json.loads(path.joinpath("set_screw_standards.json").read_text("utf-8"))[INCH_TABLE][
         "rows"
     ]
+
+
+def test_the_citation_carries_the_fifth_increment_of_the_note():
+    """#557 quotes the note's 0.03 in. step (0.13 through 0.19, sizes 0 to 3 only)."""
+    cite = _meta().get("nominal_lengths_fill_source", "")
+    assert "0.03 in. from 0.13 through 0.19" in cite, cite
+    assert "sizes 0 to 3 only" in cite, cite
