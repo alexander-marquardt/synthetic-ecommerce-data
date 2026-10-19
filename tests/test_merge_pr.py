@@ -402,7 +402,9 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
     true = (world["checkout"] / _RETAIL_STATS).read_text()
-    head = _open_pr(world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)})
+    head = _open_pr(
+        world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
+    )
     result = _run(world, head, _GREEN_CHECK, FAKE_UV_RETAIL="1")
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
@@ -503,9 +505,9 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
     # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
-    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), result.stderr[
-        -800:
-    ]
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
+        result.stderr[-800:]
+    )
     assert not _merged(world)
 
 

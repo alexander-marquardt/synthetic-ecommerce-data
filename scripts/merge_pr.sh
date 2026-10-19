@@ -54,6 +54,11 @@
 #      pytest runs on several workers, grouped by file (local_ci_jobs.py adds
 #      -n and --dist loadgroup; LOCAL_CI_WORKERS sets the count): the suite
 #      took 47 to 54 minutes on one core, and merges are serial (#348).
+#      Each of those commands (the step-3 checks too) runs under
+#      scripts/local_ci_guard.py (#366): the process tree it starts is held to
+#      workers x 4,500 MB (LOCAL_CI_MEMORY_MB replaces the ceiling) and the job is
+#      stopped, and so red, when it passes it; and one local CI command runs at a time
+#      on the machine (LOCAL_CI_LOCK), a second waiting, a --dry-run included.
 #      A local CI that is red only on the golden freshness tests (FRESHNESS_TESTS:
 #      every FAILED or ERROR line of every red job names one of them, and no
 #      other job is red) is not handed back for a fixer round (#440): the
@@ -164,6 +169,9 @@ github_ci=0
 [ "${GEN_GITHUB_CI:-}" = 1 ] && github_ci=1
 label=""
 here=$(cd "$(dirname "$0")/.." && pwd)
+# Every command the local CI runs goes through this (#366): one local CI run at a time on
+# the machine, and the run's whole process tree held to workers x 4,500 MB.
+guarded() { uv run -q --locked --directory "$here" python "$here/scripts/local_ci_guard.py" "$@"; }
 case "${1:-}" in
   --print-checks)
     printf '%s\n' "${CHECKS[@]}"
@@ -319,7 +327,7 @@ if [ "$github_ci" -eq 0 ]; then
 read -r -a parallel <<<"$(uv run -q --locked --directory "$here" python \
   "$here/scripts/local_ci_jobs.py" --pytest-options)"
 [ "${#parallel[@]}" -gt 0 ] || die "scripts/local_ci_jobs.py --pytest-options printed nothing"
-if ! uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider "${parallel[@]}" \
+if ! guarded -- uv run -q --locked --directory "$work" pytest -q -p no:cacheprovider "${parallel[@]}" \
   --junitxml="$checks_log" "${CHECKS[@]}"; then
   die "#$pr is red on the merged tree; NOT pushed, NOT merged"
 fi
@@ -351,8 +359,11 @@ run_local_ci() {
       die "job $job has no local equivalent (the reason is above); NOT merged"
     log=$(local_ci_log "$job")
     started=$SECONDS
-    # GEN_LOCAL_CI is dropped so a test that runs this script does not recurse.
-    if (cd "$work" && env -u GEN_LOCAL_CI bash --noprofile --norc -eo pipefail -c "$script") >"$log" 2>&1; then
+    # GEN_LOCAL_CI is dropped so a test that runs this script does not recurse. The guard's
+    # own lines (a wait for the lock, a stop at the memory ceiling) go to fd 3, this script's
+    # stderr, and not into the job's log (#366).
+    if (cd "$work" && unset GEN_LOCAL_CI &&
+      guarded --notice-fd 3 -- bash --noprofile --norc -eo pipefail -c "$script") 3>&2 >"$log" 2>&1; then
       verdict=PASS
     else
       verdict=FAIL
