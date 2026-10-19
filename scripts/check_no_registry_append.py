@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Refuse a pull request that appends a line to a shared registry (gen#513).
 
-    python3 scripts/check_no_registry_append.py --base <sha> --head <sha>   # CI, the stats-roll job
+    python3 scripts/check_no_registry_append.py --base <sha> --head <sha>   # CI, the no-derived-files job
 
 On 2026-10-18, 16 of the 21 open PRs conflicted with main. With the rolled stats files out of the
 way (``check_no_stats_edit.py``, gen#373), what conflicted was a set of registries that each

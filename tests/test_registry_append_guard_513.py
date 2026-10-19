@@ -3,7 +3,7 @@
 On 2026-10-18, 16 of the 21 open PRs conflicted with main. Once the rolled stats files stopped
 being committed (#373), what conflicted was a set of registries that each feature appended one
 entry to: an import line and an id set in ``scale.py``, a row and a kind in the decoy tables, a
-line in ``legacy_types.txt``. ``scripts/check_no_registry_append.py`` (the ``stats-roll`` job)
+line in ``legacy_types.txt``. ``scripts/check_no_registry_append.py`` (the ``no-derived-files`` job)
 refuses a diff that nets a line of one of those shapes and names the new-file form that replaces
 it. A registry is in its table only while it has such a form, so the check never refuses what has
 no alternative. These tests plant the appended line in a throwaway repository, hold the table to
@@ -234,7 +234,7 @@ def test_no_current_registry_line_is_a_dead_shape():
 
 
 def test_the_stats_roll_job_runs_the_registry_guard():
-    steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["stats-roll"]["steps"]
+    steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["no-derived-files"]["steps"]
     runs = " ".join(str(step.get("run", "")) for step in steps)
     assert "scripts/check_no_registry_append.py" in runs
     assert "--base" in runs and "--head" in runs

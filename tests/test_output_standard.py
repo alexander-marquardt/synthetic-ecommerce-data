@@ -32,7 +32,7 @@ def _retail_figures() -> dict[str, Any]:
         sys.path.insert(0, str(RETAIL))
     import retail_figures  # noqa: PLC0415 -- the prototype's own directory is its import root
 
-    return retail_figures.committed()
+    return retail_figures.figures()
 
 
 #: The retail build's size: one document per style (``build_preview4.SAMPLES``), read from

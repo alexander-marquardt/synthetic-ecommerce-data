@@ -776,16 +776,23 @@ def render_doc(rows: list[Row]) -> str:
     return DOC_HEAD + short_compounds_text() + table_markdown(rows) + "\n"
 
 
-def write_doc() -> str:
-    """Write the docs table of :data:`DOC` from the registry; return its path."""
-    import pathlib
-
+def doc_text() -> str:
+    """The text of the docs table of :data:`DOC`, built from the registry (gen#536: not committed)."""
     import scale
 
-    root = pathlib.Path(__file__).resolve().parents[2]
     base = [d for d in scale.templates(baseline=False) if d["product_id"] not in ids()]
-    (root / DOC).write_text(render_doc(build(base)), "utf-8")
-    return str(root / DOC)
+    return render_doc(build(base))
+
+
+def write_doc(root: str | None = None) -> str:
+    """Write the docs table of :data:`DOC` under ``root`` (the repository); return its path."""
+    import pathlib
+
+    top = pathlib.Path(root) if root else pathlib.Path(__file__).resolve().parents[2]
+    target = top / DOC
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(doc_text(), "utf-8")
+    return str(target)
 
 
 if __name__ == "__main__":

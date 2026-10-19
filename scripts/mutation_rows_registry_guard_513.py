@@ -77,7 +77,7 @@ def rows() -> list[Row]:
             "python3 scripts/check_no_registry_append.py",
             "python3 scripts/check_no_stats_edit.py",
             f"{_G}::test_the_stats_roll_job_runs_the_registry_guard",
-            "the stats-roll job runs the registry guard",
+            "the no-derived-files job runs the registry guard",
         ),
         _row(
             "a kind declared twice is merged",
