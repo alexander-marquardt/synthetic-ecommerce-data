@@ -239,7 +239,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self.rng = typespec.type_rng(self.config.seed, type_key)
         #: The type's product ids and SKUs, minted by core (#128) behind the
         #: industrial prefix, which is empty.
-        self.minter = ids.IdMinter(ID_PREFIX, type_key, typespec.block_of(type_key))
+        self.minter = ids.IdMinter("industrial", type_key, typespec.block_of(type_key))
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         self._drawn_specs: set[tuple] = set()
         self._title_styles: dict[tuple[str, str], str] = {}
