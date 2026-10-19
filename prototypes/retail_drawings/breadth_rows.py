@@ -363,7 +363,7 @@ def _tree(code, title, brand, path, price, text, pot, attrs, leaves):
     """A potted tree (olive, eucalyptus): a form or a species, in three heights."""
     return Row(code, title, brand, "Garden", path, "Plant", price, "potted_tree", text, (pot,),
                attrs, _heights(price, ("60 cm", "90 cm", "1.2 m")),
-               "Plant" if path is _EUCALYPTUS else path[-1].split()[0],
+               "Plant" if path is _EUCALYPTUS else "Tree",
                colorless=True, params=(("leaves", leaves),))
 
 
