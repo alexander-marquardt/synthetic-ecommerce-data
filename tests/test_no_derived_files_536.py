@@ -64,7 +64,8 @@ def test_a_re_added_derived_file_fails_the_check_and_is_named(path, repo, capsys
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "re-add")
     assert guard.main(["--root", str(repo)]) == 1
-    assert path in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert f"\n  {path}\n" in out, "the refusal lists the offender on a line of its own"
 
 
 def test_a_tree_with_no_derived_file_passes(repo, capsys) -> None:
