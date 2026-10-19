@@ -58,10 +58,7 @@ def _entries(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 def test_no_color_value_is_a_shade_code(docs: list[dict[str, Any]]) -> None:
     bad = {
-        (d["product_id"], v)
-        for d in docs
-        for v in _values(_entries(d), "color")
-        if CODE.match(v)
+        (d["product_id"], v) for d in docs for v in _values(_entries(d), "color") if CODE.match(v)
     }
     assert sorted(bad) == []
 

@@ -21,7 +21,8 @@ def rows() -> list[Row]:
         row(
             "a complexion product writes its shade back to color",
             "export.py",
-            "    if rec[\"product_type\"] in shades.SOLD_BY_SHADE:\n        return _shade_entries(authored)",
+            '    if rec["product_type"] in shades.SOLD_BY_SHADE:\n'
+            "        return _shade_entries(authored)",
             "    if False:\n        return _shade_entries(authored)",
             (f"{_T} -k no_color_value_is_a_shade_code", f"{_T} -k has_no_color_at_all"),
             "no color value is a shade code",
@@ -65,7 +66,7 @@ def rows() -> list[Row]:
             "_BAND_START = (1, 3, 7, 9, 12)",
             f"{_T} -k a_code_derives",
             "6 is medium",
-            ),
+        ),
         row(
             "the light band starts a depth early",
             "shades.py",
