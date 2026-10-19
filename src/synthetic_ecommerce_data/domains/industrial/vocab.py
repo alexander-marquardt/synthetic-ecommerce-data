@@ -358,46 +358,12 @@ _KIT = (
     _spec("Sizes Included", "sku"),
 )
 
-_VOCAB: dict[str, tuple[AttrSpec, ...]] = {
-    "end_mill_square": _END_MILL,
-    "end_mill_ball": _END_MILL,
-    "drill_jobber": _DRILL,
-    "tap_spiral_point": _TAP,
-    "screw_flat_head": _SOCKET_SCREW,
-    "screw_button_head": _SOCKET_SCREW,
-    "screw_low_head": _SOCKET_SCREW,
-    "bolt_hex": _HEX_BOLT,
-    "washer_flat": _WASHER,
-    "hammer_ball_pein": HAMMER_VOCAB,
-    "abrasive_flap_disc": _FLAP_DISC,
-    "nut_hex": _NUT,
-    "bearing_radial_ball": _BEARING,
-    "wheel_depressed_center": _WHEEL,
-    "hex_key": _HEX_KEY,
-    "kit_assortment": _KIT,
-}
+_VOCAB: dict[str, tuple[AttrSpec, ...]] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 VOCAB: RegistryTable[str, tuple[AttrSpec, ...]] = RegistryTable(_VOCAB)
 
 #: Which pool of standards designations each type draws from.
-_STANDARDS_FAMILY: dict[str, str] = {
-    "end_mill_square": "cutting_tool",
-    "end_mill_ball": "cutting_tool",
-    "drill_jobber": "cutting_tool",
-    "tap_spiral_point": "cutting_tool",
-    "screw_flat_head": "fastener",
-    "screw_button_head": "fastener",
-    "screw_low_head": "fastener",
-    "bolt_hex": "fastener",
-    "washer_flat": "fastener",
-    "hammer_ball_pein": "hand_tool",
-    "abrasive_flap_disc": "abrasive",
-    "nut_hex": "fastener",
-    "bearing_radial_ball": "motion",
-    "wheel_depressed_center": "abrasive",
-    "hex_key": "hand_tool",
-    "kit_assortment": "hand_tool",
-}
+_STANDARDS_FAMILY: dict[str, str] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 STANDARDS_FAMILY: RegistryTable[str, str] = RegistryTable(_STANDARDS_FAMILY)
 

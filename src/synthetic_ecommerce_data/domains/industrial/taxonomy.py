@@ -51,53 +51,7 @@ class Category:
 
 
 #: Every product type's category path. One path per type: the leaf IS the type.
-_LEAVES: dict[str, tuple[CategoryPath, ...]] = {
-    "end_mill_square": (("Milling", "End Mills", "Square End Mills"),),
-    "end_mill_ball": (("Milling", "End Mills", "Ball End Mills"),),
-    "drill_jobber": (
-        (
-            "Holemaking",
-            "Drilling & Drill Bits",
-            "Metalworking & Multipurpose Drill Bits",
-            "Jobber Length Drill Bits",
-        ),
-    ),
-    "tap_spiral_point": (("Threading", "Taps", "Spiral Point Taps"),),
-    "screw_flat_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Flat Socket Cap Screws"),),
-    "screw_button_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Button Socket Cap Screws"),),
-    "screw_low_head": (("Fasteners", "Bolts, Screws & Cap Screws", "Low Socket Cap Screws"),),
-    "bolt_hex": (("Fasteners", "Bolts, Screws & Cap Screws", "Hex Head Bolts"),),
-    "washer_flat": (
-        ("Fasteners", "Washers & Shims", "Flat & Square Flat Washers", "Flat Washers"),
-    ),
-    "hammer_ball_pein": (
-        # One node for every hammer kind (#305); see SHARED_LEAVES.
-        ("Hand Tools", "Hammers"),
-    ),
-    "abrasive_flap_disc": (("Abrasives", "Coated & Non-Woven Abrasives", "Discs", "Flap Discs"),),
-    # elastic/prism-industrial-products#103, stage 1. Depth runs to five, as
-    # the reference distributor's own breadcrumbs do for hex keys.
-    "nut_hex": (("Fasteners", "Nuts", "Hex Nuts"),),
-    "bearing_radial_ball": (("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),),
-    "wheel_depressed_center": (
-        (
-            "Abrasives",
-            "Grinding & Cut-Off",
-            "Grinding & Cut-Off Wheels",
-            "Depressed-Center Wheels",
-        ),
-    ),
-    "hex_key": (
-        (
-            "Hand Tools",
-            "Screwdrivers & Hex Keys",
-            "Hex & Torx Keys",
-            "Hex Keys & Accessories",
-            "Hex Keys",
-        ),
-    ),
-    "kit_assortment": (("Hand Tools", "Tool Sets & Kits", "Assortment Kits"),),
-}
+_LEAVES: dict[str, tuple[CategoryPath, ...]] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 LEAVES: RegistryTable[str, tuple[CategoryPath, ...]] = RegistryTable(_LEAVES)
 
@@ -148,24 +102,7 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
 #: LINE, and a line's image id carries its own product type, so the published
 #: directory is the line's rather than something inferred from the shape it
 #: shares with four hundred others.
-_DRAWING: dict[str, str] = {
-    "end_mill_square": "end_mill_square",
-    "end_mill_ball": "end_mill_ball",
-    "drill_jobber": "drill_jobber",
-    "tap_spiral_point": "tap_spiral_point",
-    "screw_flat_head": "screw_flat_head",
-    "screw_button_head": "screw_button_head",
-    "screw_low_head": "screw_low_head",
-    "bolt_hex": "bolt_hex",
-    "washer_flat": "washer_flat",
-    "hammer_ball_pein": "hammer_ball_pein",
-    "abrasive_flap_disc": "abrasive_flap_disc",
-    "nut_hex": "nut_hex",
-    "bearing_radial_ball": "bearing_radial_ball",
-    "wheel_depressed_center": "wheel_depressed_center",
-    "hex_key": "hex_key",
-    "kit_assortment": "kit_assortment",
-}
+_DRAWING: dict[str, str] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 DRAWING: RegistryTable[str, str] = RegistryTable(_DRAWING)
 

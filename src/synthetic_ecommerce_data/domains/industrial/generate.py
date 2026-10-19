@@ -702,28 +702,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
     #: dimensions, and a row says so where a boolean would have had to grow a
     #: second and a third meaning.
     _SOCKET_SCREW_LINES: dict[str, standards.SocketScrewLine] = {
-        "screw_flat_head": standards.SocketScrewLine(
-            "ISO 10642",
-            "ASME B18.3.2",
-            "Flat",
-            "Socket Flat Head Cap Screw",
-            standards.flat_head,
-            length_over_head=True,
-        ),
-        "screw_button_head": standards.SocketScrewLine(
-            "ISO 7380-1",
-            "ASME B18.3.3A",
-            "Button",
-            "Button Head Socket Cap Screw",
-            standards.button_head,
-        ),
-        "screw_low_head": standards.SocketScrewLine(
-            "DIN 7984",
-            "ASME B18.3.1G",
-            "Low Socket",
-            "Low Head Socket Cap Screw",
-            standards.low_head,
-        ),
     }
 
     def _build_socket_screw(
@@ -1087,20 +1065,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             child.secondary = {"other_length": disc}
             draft.children.append(child)
         return draft
-
-    _BUILDERS = {
-        "end_mill_square": _build_end_mill,
-        "end_mill_ball": _build_end_mill,
-        "drill_jobber": _build_drill,
-        "tap_spiral_point": _build_tap,
-        "screw_flat_head": _build_socket_screw,
-        "screw_button_head": _build_socket_screw,
-        "screw_low_head": _build_socket_screw,
-        "bolt_hex": _build_hex_bolt,
-        "washer_flat": _build_washer,
-        "hammer_ball_pein": _build_hammer,
-        "abrasive_flap_disc": _build_flap_disc,
-    }
 
     def build(self) -> list[ProductLine]:
         """This type's lines: its own products, then its must-stock lines."""

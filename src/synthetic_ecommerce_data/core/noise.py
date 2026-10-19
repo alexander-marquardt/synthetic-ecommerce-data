@@ -94,38 +94,15 @@ BORE_TOLERANCE_MM: tuple[tuple[float, float, float], ...] = (
     (30.0, 50.0, 0.012),
 )
 
-#: The family tables below hold the types still declared in shared tables; a
-#: type with its own module joins them from its ``TypeSpec`` (``threaded``,
-#: ``fastener``, ``unit_primary``) when the modules register.
-THREADED: RegistryTable[str, str] = RegistryTable({
-    "screw_flat_head": "Dia./Thread Size",
-    "screw_button_head": "Dia./Thread Size",
-    "screw_low_head": "Dia./Thread Size",
-    "bolt_hex": "Dia./Thread Size",
-    "nut_hex": "Thread Size",
-    "tap_spiral_point": "Thread Size",
-})  # fmt: skip
-CUTTING = ("end_mill_square", "end_mill_ball", "drill_jobber", "tap_spiral_point")
-FASTENERS: RegistryTable[str, bool] = RegistryTable(
-    dict.fromkeys(
-        ("screw_flat_head", "screw_button_head", "screw_low_head", "bolt_hex", "nut_hex")
-        + ("washer_flat",),
-        True,
-    )
-)
+#: The family tables below are filled by each type module from its ``TypeSpec``
+#: (``threaded``, ``cutting``, ``fastener``, ``unit_primary``) when the modules
+#: register.
+THREADED: RegistryTable[str, str] = RegistryTable()
+CUTTING: RegistryTable[str, bool] = RegistryTable()
+FASTENERS: RegistryTable[str, bool] = RegistryTable()
 
 #: The attribute a type's unit equivalent is written for.
-UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable(
-    {
-        "end_mill_square": "Milling Dia.",
-        "end_mill_ball": "Milling Dia.",
-        "drill_jobber": "Size",
-        "hex_key": "Size",
-        "bearing_radial_ball": "Bore Dia.",
-        "wheel_depressed_center": "Diameter",
-        "abrasive_flap_disc": "Diameter",
-    }
-)
+UNIT_PRIMARY: RegistryTable[str, str] = RegistryTable()
 
 
 def record_rng(seed: int, sku: str) -> random.Random:
