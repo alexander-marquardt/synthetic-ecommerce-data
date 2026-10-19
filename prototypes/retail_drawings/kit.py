@@ -814,12 +814,21 @@ def _brand_tag(brand: str) -> list[str]:
     ]
 
 
-def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, style) -> str:
+def _shrunk(drawn: list[str], body: str, shrink: float) -> str:
+    """``body`` scaled by ``shrink`` about the pack's bottom centre (:mod:`pack_scale`, gen#543)."""
+    if shrink >= 1:
+        return body
+    import pack_scale  # deferred: pack_scale measures with sheet_extent
+
+    return pack_scale.wrap(body, drawn, shrink)
+
+
+def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink) -> str:
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
 
     drawn = _drawn(draw, paint, fill, label, params)
-    inner = "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid)
+    inner = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
@@ -871,6 +880,7 @@ def render(
     uid: str = "p",
     params: dict | None = None,
     style: object | None = None,
+    shrink: float = 1.0,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -878,7 +888,8 @@ def render(
     one HTML page without their ``<pattern>`` ids colliding. ``params`` are
     passed to a parametric shape (a trouser's fit and rise, a top's neckline).
     ``style`` is the brand's :class:`house_styles.HouseStyle`: its paper,
-    frame, outline hand and logo replace the plain sheet and tag.
+    frame, outline hand and logo replace the plain sheet and tag. ``shrink`` (below 1) scales the
+    pack about its bottom centre on the same sheet (:mod:`pack_scale`, gen#543).
     """
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
@@ -886,7 +897,7 @@ def render(
     paint = _paint(fill, pid)
     if style is not None:
         return _render_styled(
-            shape, draw, paint, defs, fill, label, brand or "", uid, params, style
+            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink
         )
     drawn = _drawn(draw, paint, fill, label, params)
     parts = [
@@ -895,8 +906,7 @@ def render(
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
         f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
-        *drawn,
-        _print_overlay(shape, fill, drawn, paint, uid),
+        _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink),
         "</g>" if shape in OFFSET_Y else "",
         *(_brand_tag(brand) if brand else []),
         "</svg>",
