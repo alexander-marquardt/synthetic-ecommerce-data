@@ -24,7 +24,8 @@ RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
-import scale  # noqa: E402 -- the prototype's own directory is its import root
+import sale_share  # noqa: E402 -- the prototype's own directory is its import root
+import scale  # noqa: E402
 
 ON_SALE = "On sale"
 #: "At least a few hundred products ... across at least three product types each" (the issue).
@@ -117,3 +118,27 @@ def test_a_reduced_document_is_marked_the_same_way_whoever_made_it(
         if not (was_price > cheapest and ON_SALE in promo) or [int(x) for x in discount] != want:
             bad.append(d["product_id"])
     assert bad == []
+
+
+@pytest.mark.parametrize(
+    ("size_range", "title"),
+    [
+        (["petite"], "Wrap Midi Dress"),
+        (["regular"], "Petite Wrap Midi Dress"),
+        (["regular"], "Wrap Midi Dress"),
+    ],
+)
+def test_a_petite_style_is_never_in_the_share_a_regular_one_may_be(
+    size_range: list[str], title: str
+) -> None:
+    """"Petite sale" stays a pair only a policy may honour (gen#125, gen#275): a style that is
+    petite by its size range, or says so in its title, is not eligible."""
+    rec = {
+        "product_id": "PLT-X",
+        "category_path": ["Womens", "Dresses", "Wrap dresses"],
+        "attributes": [],
+        "title": title,
+        "description": "A dress.",
+        "size_range": size_range,
+    }
+    assert sale_share.eligible(rec) is (title == "Wrap Midi Dress" and size_range == ["regular"])
