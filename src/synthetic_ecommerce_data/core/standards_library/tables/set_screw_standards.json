@@ -1,4 +1,16 @@
 {
+ "_library": {
+  "standards": [
+   "ISO 4026",
+   "ISO 4027",
+   "ISO 4028",
+   "ISO 4029",
+   "ASME B18.3 set screws"
+  ],
+  "edition": "ISO 4026, 4027, 4028 and 4029:2003 Table 1, and the ASME B18.3 hexagon socket set screw table, as transcribed in this file's _provenance",
+  "source": "Transcribed by hand from the standards' tables, one row per size; inch lengths are FreeCAD_FastenersWB's as B18.3 fixes none",
+  "kind": "extraction"
+ },
  "_provenance": {
   "transcribed_from": "ISO 4026, 4027, 4028 and 4029:2003 Table 1, and the ASME B18.3 hexagon socket set screw table, by hand, one row per size; no value was interpolated",
   "replaces": "the FreeCAD_FastenersWB iso4026def.csv, iso4028def.csv and asmeb18.3.5def.csv values this type was first built from: they disagree with ISO 4026/4027/4029 Table 1 on 9 of 13 length ranges and ISO 4028 on M4, and their inch point diameter is the midpoint of C for every point, dog included",

@@ -12,10 +12,6 @@ golden-catalog/
 # Golden slices of that build, one per type
 tests/data/golden_slices/
 
-# Prototype previews and their sample records, written by build_preview*.py
-prototypes/retail_drawings/*.html
-prototypes/retail_drawings/*.ndjson
-
 # Lock file, written by uv
 uv.lock
 

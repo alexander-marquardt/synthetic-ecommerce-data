@@ -1,0 +1,82 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B1.1"
+  ],
+  "edition": "as carried by domains/industrial/compat.py in the repository at commit 68fd9933",
+  "source": "Machinery's Handbook, Tap Drill Sizes: Unified tap drills for 75% thread engagement, named as the chart names them (a number, a letter or a fraction)",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "thread": "#6-32",
+   "drill": "#36",
+   "dia_in": 0.1065
+  },
+  {
+   "thread": "#8-32",
+   "drill": "#29",
+   "dia_in": 0.136
+  },
+  {
+   "thread": "#10-24",
+   "drill": "#25",
+   "dia_in": 0.1495
+  },
+  {
+   "thread": "#10-32",
+   "drill": "#21",
+   "dia_in": 0.159
+  },
+  {
+   "thread": "1/4-20",
+   "drill": "#7",
+   "dia_in": 0.201
+  },
+  {
+   "thread": "1/4-28",
+   "drill": "#3",
+   "dia_in": 0.213
+  },
+  {
+   "thread": "5/16-18",
+   "drill": "F",
+   "dia_in": 0.257
+  },
+  {
+   "thread": "5/16-24",
+   "drill": "I",
+   "dia_in": 0.272
+  },
+  {
+   "thread": "3/8-16",
+   "drill": "5/16\"",
+   "dia_in": 0.3125
+  },
+  {
+   "thread": "3/8-24",
+   "drill": "Q",
+   "dia_in": 0.332
+  },
+  {
+   "thread": "7/16-14",
+   "drill": "U",
+   "dia_in": 0.368
+  },
+  {
+   "thread": "7/16-20",
+   "drill": "25/64\"",
+   "dia_in": 0.390625
+  },
+  {
+   "thread": "1/2-13",
+   "drill": "27/64\"",
+   "dia_in": 0.421875
+  },
+  {
+   "thread": "1/2-20",
+   "drill": "29/64\"",
+   "dia_in": 0.453125
+  }
+ ]
+}
