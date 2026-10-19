@@ -36,11 +36,14 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 REBUILD = "uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds"
 
 
-def _pins(catalog: Catalog) -> dict[str, float]:
-    """Each pinned row's figure on ``catalog``, as it is recorded."""
+def _pins(catalog: Catalog) -> dict[str, float | None]:
+    """Each pinned row's figure on ``catalog``, as it is recorded: ``None`` for a
+    row that lands in band on this build (:func:`.price_report.pin_holds`)."""
     rows = {row.name: row for row in price_report.price_comparisons(catalog)}
     return {
-        name: round(rows[name].achieved, price_report.recorded_digits(name))
+        name: None
+        if rows[name].within
+        else round(rows[name].achieved, price_report.recorded_digits(name))
         for name in sorted(price.PINNED_SHORTFALLS)
     }
 
