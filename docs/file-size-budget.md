@@ -52,7 +52,13 @@ Where it runs:
   repository does not have, so they read as 0 lines; nothing is gated on them.
 - The `file-size-warning` pre-commit hook names, at commit time, each line the
   body will need. It refuses an agent commit (`AGENT_TMP` set) that grows an
-  over-cap file with no body named by `PRISM_PR_BODY_FILE`.
+  over-cap file with no body named by `PRISM_PR_BODY_FILE`. During a merge
+  that stops before its commit (a conflict, `--no-commit`) it measures from the
+  base the merge commit will have, the later of the merge bases of
+  `origin/main` with `HEAD` and with `MERGE_HEAD`, so main's growth is not the
+  branch's. Its refusal names that commit and `origin/main`
+  (`scripts/file_size_gate.py`, `merge_base`; core's own hook still measures
+  from the base the branch left).
 - The `file-size` job in `.github/workflows/ci.yaml`, which
   `scripts/merge_pr.sh --local-ci` runs before a merge. It reads the PR body
   (`gh pr view`) only when something grew, and is red when the gate cannot

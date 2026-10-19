@@ -199,6 +199,25 @@ def test_a_refusal_in_a_merge_names_main_as_the_base(merging, capsys, monkeypatc
     assert stale[:12] not in out
 
 
+def test_a_merge_of_a_side_branch_keeps_the_base_the_branch_already_holds(
+    repo, capsys, monkeypatch
+) -> None:
+    """The branch merged main long ago; a side branch forked from before that merge."""
+    _git(repo, "branch", "side")
+    _git(repo, "switch", "-q", "side")
+    _write(repo, "src/pkg/side.py", 2)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "side")
+    _git(repo, "switch", "-q", "main")
+    _write(repo, "README.md", CAP + 5)
+    _git(repo, "commit", "-q", "-am", "main grows README")
+    _git(repo, "switch", "-q", "change")
+    _git(repo, "merge", "-q", "--no-ff", "-m", "merge main", "main")
+    _git(repo, "merge", "-q", "--no-commit", "--no-ff", "side")
+    status, out = _hook(repo, capsys, monkeypatch)
+    assert status == 0, out
+
+
 def test_a_refusal_with_no_merge_names_the_merge_base(repo, capsys, monkeypatch) -> None:
     base = _rev(repo, "main")
     _write(repo, "src/pkg/big.py", CAP + 1)
