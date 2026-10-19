@@ -1,11 +1,13 @@
 """Mutation rows for the titles that carry the plural "cups" (gen#508), kept out of
 ``mutation_check.py``. Each row plants one defect on a changed line and names the test that must go
-red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``plural cups: ...``
+red. ``mutation_check.py`` finds this file by glob and names its rows ``plural cups: ...``
 (``--only "plural cups:"`` re-runs them). A row is ``(name, file, old, new, tests, property)``;
 the root is ``prototypes/retail_drawings``.
 """
 
 from __future__ import annotations
+
+from mutation_row import Row
 
 _T = "tests/test_retail_plural_cups_508.py"
 
@@ -83,3 +85,9 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
         "about 20 titles carry the plural, and each type the issue names has a floor",
     ),
 ]
+
+PREFIX = "plural cups"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

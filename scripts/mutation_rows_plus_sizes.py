@@ -7,6 +7,8 @@ Each row plants one defect in ``plus_sizes.py`` and names the test that must go 
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _T = "tests/test_retail_plus_sizes_434.py"
 _ROOT = "prototypes/retail_drawings"
 
@@ -84,3 +86,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _ROOT,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "plus sizes"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]

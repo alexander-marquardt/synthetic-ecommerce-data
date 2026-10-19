@@ -9,6 +9,8 @@ bed:"`` re-runs them). A row is ``(name, file, old, new, test, property)``; ever
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _SOFA = "tests/test_retail_seating_196.py -k a_click_clack_draws_a_sofa"
 _HINGE = "tests/test_retail_seating_196.py -k a_click_clack_is_a_sofa_deep"
 _FILE = "kit_seating.py"
@@ -55,3 +57,10 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "the hinge line is marked where the back meets the seat",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "sofa bed"
+
+
+def rows() -> list[Row]:
+    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]

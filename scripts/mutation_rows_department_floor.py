@@ -8,6 +8,8 @@ red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``department 
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the floor is switched off",
@@ -28,3 +30,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "prototypes/retail_drawings",
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "department floor"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]
