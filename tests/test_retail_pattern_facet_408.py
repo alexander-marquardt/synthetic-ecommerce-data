@@ -100,9 +100,7 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
 def _styles_with(fill: str) -> list[dict[str, Any]]:
     """The template styles that sell a colorway with this fill."""
     return [
-        d
-        for d in scale.templates()
-        if fill in {o["pattern"] for o in d.get("color_options", [])}
+        d for d in scale.templates() if fill in {o["pattern"] for o in d.get("color_options", [])}
     ]
 
 
@@ -142,7 +140,8 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     words ride on colorways of styles main already sold. Main's build holds 11,414 templates and
     103,140 template SKUs; a new style would raise both. This test pins 11414 templates and
     103140 template SKUs: the PR that adds styles must move them (the Kids dresses and coats of
-    gen#310 moved them from 11,324 and 101,460: 90 styles, 1,680 SKUs)."""
+    gen#310 moved them from 11,324 and 101,460: 90 styles, and a net 1,680 SKUs (the 90 rows
+    hold 1,686 of their own; the decoy clones account for the difference))."""
     tpls = scale.templates()
     assert len(tpls) == 11414
     assert sum(t["sku_count"] for t in tpls) == 103140

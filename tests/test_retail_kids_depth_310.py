@@ -15,7 +15,6 @@ gen#311), pinned by ``test_retail_apparel_decoys_311.py``.
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -126,8 +125,58 @@ def test_a_sleeve_the_title_names_is_the_sleeve_attribute(templates):
             if words in r["title"]:
                 assert _attr(r, "sleeve_length") == value, r["title"]
                 seen.add(words)
-        assert re.search(r"\bsleeve", r["description"]) or _attr(r, "sleeve_length"), r["title"]
     assert seen == set(said)
+
+
+def test_the_sleeve_a_description_names_is_the_sleeve_attribute(templates):
+    """Dresses and coats alike: the description says the sleeve the attribute states."""
+    said = {"Long": "long sleeves", "Short": "short sleeves", "Sleeveless": "no sleeves"}
+    kinds = set()
+    for r in _new_rows(templates):
+        named = [v for v, words in said.items() if words in r["description"]]
+        assert named == [_attr(r, "sleeve_length")], (r["product_id"], named, r["description"])
+        kinds.add(r["product_type"])
+    assert kinds == {"Dress", "Coat"}
+
+
+def test_the_material_a_product_states_is_in_its_title(templates):
+    rows = _new_rows(templates)
+    assert rows
+    wrong = [
+        (r["product_id"], _attr(r, "material"), r["title"])
+        for r in rows
+        if not _attr(r, "material") or _attr(r, "material").lower() not in r["title"].lower()
+    ]
+    assert not wrong, wrong[:5]
+
+
+def test_the_fit_a_product_states_is_the_fit_its_description_names(templates):
+    rows = _new_rows(templates)
+    assert rows
+    wrong = []
+    for r in rows:
+        named = [f for f in ("Regular", "Relaxed") if f"{f.lower()} fit" in r["description"]]
+        if named != [_attr(r, "fit")]:
+            wrong.append((r["product_id"], named, _attr(r, "fit")))
+    assert not wrong, wrong[:5]
+
+
+def test_a_coat_description_with_a_list_ends_it_with_and(templates):
+    """A coat's tails hold no comma, so the last comma of its list must be followed by "and".
+
+    "with long sleeves, a longline length, a double-breasted front" reads as a missing "and"."""
+    bad = []
+    for r in (r for r in _new_rows(templates) if r["product_type"] == "Coat"):
+        clause = r["description"].split(" with ", 1)[1].rstrip(".")
+        if "," in clause and " and " not in clause.rsplit(",", 1)[1]:
+            bad.append((r["product_id"], r["description"]))
+    assert not bad, bad[:3]
+
+
+@pytest.mark.parametrize("leaf", FLOORS, ids=lambda p: " > ".join(p[1:]))
+def test_the_module_adds_thirty_rows_to_each_leaf(templates, leaf):
+    n = len([r for r in _new_rows(templates) if tuple(r["category_path"]) == leaf])
+    assert n >= 30, (leaf, n)
 
 
 def test_a_new_product_sells_in_school_ages_and_at_least_two_colors(templates):
