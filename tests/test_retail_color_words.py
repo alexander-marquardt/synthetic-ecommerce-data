@@ -24,10 +24,10 @@ if str(RETAIL) not in sys.path:
 import colorwords  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
-from retail_figures import committed  # noqa: E402
+from retail_figures import figures  # noqa: E402
 
 #: Today's ceiling SKUs, as ``golden-retail/stats.json`` measures it (gen#162).
-CEILING_SKUS = committed()["ceiling"]["skus"]
+CEILING_SKUS = figures()["ceiling"]["skus"]
 #: Words of an object, a food or a plant that are not a color. A color value holding one
 #: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a
 #: food, a stone or a fabric are a plain color value of their own now (see

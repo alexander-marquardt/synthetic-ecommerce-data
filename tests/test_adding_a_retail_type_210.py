@@ -40,7 +40,7 @@ TOPICS = {
     "owners_house_styles": ("breadth_rows.OWNERS", "house_styles.HOUSE_STYLES"),
     "templates_smaller_builds": ("scale.templates", "scale.build"),
     "image_per_colorway": ("image_id",),
-    "stats_rebuild": ("retail_figures.py", "golden-retail/stats.json"),
+    "stats_rebuild": ("retail_figures.py", "build_derived.py"),
     "tests_to_run": ("tests/test_retail_scale.py", "tests/test_output_standard.py"),
     "render_svgs": ("qlmanage", "ImageMagick"),
 }

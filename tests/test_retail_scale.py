@@ -33,13 +33,13 @@ import lighting_rows  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
-    committed,
+    figures,
     unheld_named_values,
 )
 from retail_figures import held as values_held  # noqa: E402
 
 #: The measured totals (``golden-retail/stats.json``, gen#162): never typed here.
-FIGURES = committed()
+FIGURES = figures()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
 #: then the breadth rows (``breadth_rows``), then the distractor rows (``distractor_rows``:
 #: the failure classes' products), then the shirts (``shirt_rows``), then the seating

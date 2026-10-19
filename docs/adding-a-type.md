@@ -148,10 +148,9 @@ its published attributes. `set_screws_hex_socket` does both.
    a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
-   records and the field-weights YAML should change; `golden-catalog/stats.json`
-   moves too but is never committed by a PR (`git checkout origin/main --
-   golden-catalog/stats.json`): `scripts/merge_pr.sh` rolls it when the PR merges
-   and CI rewrites it before the tests (README, Contributing, gen#373). The
+   records and the field-weights YAML should change, and `golden-catalog/stats.json`
+   with them: it is a golden file like the others, committed with the PR that moves
+   it (gen#536 removed the roll that used to rewrite it at the merge). The
    independence tests below enforce this.
 - **Facts.** A modelled type only: declare the type's size and facts on its
    `TypeSpec` (#61). The tests read them from there, so no test file and no
@@ -297,10 +296,9 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
-Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog` and, for the retail totals, `python3 prototypes/retail_drawings/retail_figures.py`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand:
+Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand. The retail totals are not here: nothing under `golden-retail/` is committed (gen#536), and a test measures them with `retail_figures.figures()`:
 
 * `golden-catalog/*`
-* `golden-retail/stats.json` (the retail totals, gen#162; gen#343)
 * `src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml`
 
 Shared files, edited by hand:
@@ -829,8 +827,7 @@ It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 --print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
-write, is handed back to you. It then rebuilds `golden-catalog/` and
-`golden-retail/stats.json` (about 40 s more) with
+write, is handed back to you. It then rebuilds `golden-catalog/` with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
 the generated files, and runs the drift, golden and seam tests
 (`--print-checks` lists them), refusing a run in which no test passed. It

@@ -49,7 +49,7 @@ TOUCHED = (
     "tests/test_retail_sports_265.py",
     "tests/test_retail_sports_decoys_368.py",
     "tests/test_retail_figures_162.py",
-    "golden-retail/stats.json",
+    "scripts/build_derived.py",
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys.md",
     "docs/retail-sports-tree.md",
