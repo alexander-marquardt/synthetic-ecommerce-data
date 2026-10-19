@@ -21,14 +21,14 @@ from variants import cw
 
 _C, _H = "Clothing", "Home"
 _SIZES = ("XS", "S", "M", "L", "XL")
-_SKIRT = ("Womens", "Skirts", "Mini Skirts")
+_SKIRT = ("Womens", "Skirts")
 _DRESS = ("Womens", "Dresses", "Midi Dresses")
 _BLOUSE = ("Womens", "Shirts & Blouses", "Blouses")
 _TOP = ("Womens", "Tops", "Long Sleeve Tops")
 _CUSHION = ("Home", "Soft Furnishings", "Cushions")
 
 #: The drawing fields of a flower print, scattered all over the garment (as :mod:`seasonal_rows`).
-_FLOWERS = (("motif", "flowers"), ("placement", "all-over"), ("scale", 0.1), ("spacing", 96),
+_FLOWERS = (("motif", "daisy"), ("placement", "all-over"), ("scale", 0.1), ("spacing", 96),
             ("count", 2))  # fmt: skip
 
 
@@ -62,15 +62,15 @@ ROWS = (
           cw("Green Floral", "#cfe0cc", "print", "#2f6b3c")),
          "Polyester", _clothing(30.0), motif_print=_FLOWERS),
     _row("PTTOPB", "Breton Stripe Long Sleeve Top", "Harbour & Pine", _C, _TOP, "Top", "top", 20.0,
-         "A boat neck top in cotton jersey with long sleeves and a relaxed fit.",
+         "A top in cotton jersey with long sleeves and a relaxed fit.",
          (cw("Navy Breton Stripe", "#ffffff", "stripe", "#26365c"),
           cw("Red Breton Stripe", "#ffffff", "stripe", "#c8312e"),
           cw("Black Breton Stripe", "#ffffff", "stripe", "#2a2a2e")),
          "Cotton", _clothing(20.0)),
     _row("PTCUSH", "Patchwork Cushion", "Hearth & Table", _H, _CUSHION, "Cushion", "cushion", 20.0,
          "A square cushion pieced from squares of cotton, with a feather pad. Zip opening.",
-         (cw("Multi Patchwork", "#c46a4a", "print", "#26365c"),
-          cw("Blue Patchwork", "#5b84b8", "print", "#f3ecd9")),
+         (cw("Multi Patchwork", "#c46a4a", "gingham", "#26365c"),
+          cw("Blue Patchwork", "#5b84b8", "gingham", "#f3ecd9")),
          "Cotton", (("45 x 45cm", 20.0), ("55 x 55cm", 26.0))),
 )
 
