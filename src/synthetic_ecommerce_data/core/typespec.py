@@ -182,6 +182,16 @@ class TypeSpec:
     #: The length attribute a unit equivalent is written for
     #: (:data:`.noise.UNIT_PRIMARY`).
     unit_primary: str | None = None
+    #: Whether the type is a cutting tool, for the "suitable for" work-material
+    #: sentence (:data:`.noise.CUTTING`).
+    cutting: bool = False
+    #: Whether the type is one of the newer types: built by its ``make`` as
+    #: ``round(lines * share)`` products, a share of them with zero axes
+    #: (``config.new_type_share``), rather than as ``max(1, round(lines *
+    #: share))`` drafted lines (``config.type_weights``). A kind of its own so
+    #: each type's count and random draws, and so the golden catalog, are
+    #: what they were when the two kinds were built from different tables.
+    newer: bool = False
     #: A breadth type's row, in place of every modelled field above.
     breadth: BreadthRow | None = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
@@ -305,6 +315,7 @@ def register(spec: TypeSpec) -> None:
         "noise.THREADED": (noise.THREADED, spec.threaded),
         "noise.FASTENERS": (noise.FASTENERS, spec.fastener or None),
         "noise.UNIT_PRIMARY": (noise.UNIT_PRIMARY, spec.unit_primary),
+        "noise.CUTTING": (noise.CUTTING, spec.cutting or None),
     }
     for name, (table, value) in own.items():
         if value is not None and dict.__contains__(table, spec.key):

@@ -560,19 +560,7 @@ def _broken(width: float, height: float) -> Callable[[Record], Drawn]:
     return figure
 
 
-_FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {
-    "end_mill_square": (lambda record: end_mill(record, "Square"), (3.3, 9.8)),
-    "end_mill_ball": (lambda record: end_mill(record, "Ball Nose"), (3.3, 9.8)),
-    "drill_jobber": (drill, (0.52, 8.8)),
-    "tap_spiral_point": (tap, (0.52, 4.15)),
-    "screw_flat_head": (_broken(3.7, 3.25), (3.7, 3.25)),
-    "screw_button_head": (_broken(2.56, 2.8), (2.56, 2.8)),
-    "screw_low_head": (_broken(2.75, 3.3), (2.75, 3.3)),
-    "bolt_hex": (_broken(2.85, 5.35), (2.85, 5.35)),
-    "washer_flat": (washer, (1.5, 2.15)),
-    "hammer_ball_pein": (hammer, (5.8, 18.25)),
-    "abrasive_flap_disc": (flap_disc, (7.25, 7.25)),
-}
+_FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 FIGURES: RegistryTable[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = RegistryTable(
     _FIGURES
@@ -779,14 +767,3 @@ def kit(record: Record) -> Drawn:
         fig.rect(x + 0.06, floor - rise, x + 0.29, floor, "hole")
     fig.lines([((0.0, lid), (width, lid))])
     return Drawn(fig, "record" if record.get("Sizes Included") else "partial")
-
-
-FIGURES.update(
-    {
-        "kit_assortment": (kit, (5.65, 2.95)),
-        "nut_hex": (hex_nut, (1.95, 3.5)),
-        "bearing_radial_ball": (bearing, (8.75, 13.25)),
-        "wheel_depressed_center": (depressed_wheel, (9.3, 13.2)),
-        "hex_key": (hex_key, (2.95, 9.85)),
-    }
-)

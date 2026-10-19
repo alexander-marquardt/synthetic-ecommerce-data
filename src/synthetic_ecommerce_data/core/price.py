@@ -255,24 +255,7 @@ def key_reader(*names: str) -> Callable[[Mapping[str, Attribute]], float | None]
 #: Each type's key dimension: the catalog's names for the attribute the census
 #: keyed that type on (``key_dimension_attribute``), the first one carried wins.
 #: A type with its own module declares its key as ``TypeSpec.key_attributes``.
-KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable({
-    "abrasive_flap_disc": ("Diameter",),
-    "bearing_radial_ball": ("Bore Dia.",),
-    "bolt_hex": ("Dia./Thread Size",),
-    "drill_jobber": ("Decimal Equivalent", "Size"),
-    "end_mill_ball": ("Milling Dia.",),
-    "end_mill_square": ("Milling Dia.",),
-    "hammer_ball_pein": ("Head Weight",),
-    "hex_key": ("Size",),
-    "kit_assortment": ("Piece Count",),
-    "nut_hex": ("Thread Size",),
-    "screw_button_head": ("Dia./Thread Size",),
-    "screw_flat_head": ("Dia./Thread Size",),
-    "screw_low_head": ("Dia./Thread Size",),
-    "tap_spiral_point": ("Thread Size",),
-    "washer_flat": ("Inside Dia.",),
-    "wheel_depressed_center": ("Diameter",),
-})  # fmt: skip
+KEY_ATTRIBUTES: RegistryTable[str, tuple[str, ...]] = RegistryTable()
 
 #: Each type's key-dimension reader (:func:`key_reader`). Built from the
 #: literal rows without a read hook, which would register the type modules
@@ -1015,11 +998,11 @@ def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]
     return cut ^ {type_key for type_key, reason in cuts.items() if reason.strip()}
 
 
-#: Every modelled type's price model, by key. A type declared in its own module
-#: declares its model as ``TypeSpec.price`` and :func:`.typespec.register`
-#: writes it here; the types still built from the shared tables are listed
-#: below. Fitted by ``scripts/fit_price_model.py``.
-MODELS: RegistryTable[str, PriceModel] = RegistryTable(
+#: The fitted price models of the types whose modules take theirs from here
+#: (``TypeSpec.price=FITTED[key]``), written by ``scripts/fit_price_model.py``
+#: between the markers. A plain dict, because a type module reads it at import,
+#: which :data:`MODELS` refuses.
+FITTED: dict[str, PriceModel] = dict(
     {
         # @fit-begin
         "abrasive_flap_disc": _model("abrasive_flap_disc", 8.584, 5.0, 0.174, 0.086),
@@ -1079,6 +1062,10 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
     }
 )
 
+#: Every modelled type's price model, by key: :func:`.typespec.register` writes
+#: each type module's ``TypeSpec.price`` here.
+MODELS: RegistryTable[str, PriceModel] = RegistryTable()
+
 #: Types with no census prices of their own that price as a sibling does: the
 #: census has no button-head or low-head socket screws, and 4 flat-head ones.
 #: Nor has it any dowel pins: they price as the socket head screw, the closest
@@ -1088,9 +1075,6 @@ MODELS: RegistryTable[str, PriceModel] = RegistryTable(
 #: the flat washer's model).
 BORROWS: dict[str, str] = {
     "dowel_pins": "screw_socket_head",
-    "screw_button_head": "screw_socket_head",
-    "screw_flat_head": "screw_socket_head",
-    "screw_low_head": "screw_socket_head",
 }
 
 #: ISO 7089's M3 and M20 inside diameters (3.2 mm and 21 mm), the smallest and

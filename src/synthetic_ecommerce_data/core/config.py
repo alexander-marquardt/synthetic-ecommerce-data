@@ -17,6 +17,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 
 
+def _newer_shares() -> dict[str, float]:
+    """Every newer type's default share of ``lines``, from its type module.
+
+    Read when a config is made, not when this module is imported: the type
+    modules import the code that imports this one.
+    """
+    from synthetic_ecommerce_data.core import typespec  # noqa: PLC0415
+
+    return {key: spec.share for key, spec in typespec.modelled().items() if spec.newer}
+
+
 @dataclass(frozen=True)
 class GeneratorConfig:
     """How much catalog to make, and how ragged to make it."""
@@ -71,21 +82,13 @@ class GeneratorConfig:
     #: and hex keys, instead of the four newer types staying fixed while
     #: everything else grows (elastic/prism-industrial-products, 100K catalog,
     #: 2026-09-28). 700/2600 is the ratio the default catalog was built with,
-    #: so the default still carries exactly 700 of each.
+    #: so the default still carries exactly 700 of each. The default is each
+    #: newer type's ``TypeSpec.share`` (``newer=True``), declared in its own
+    #: module.
     #:
     #: Every type draws from its own random stream (:mod:`.typespec`), so
     #: adding, removing or resizing one moves no other type's products.
-    new_type_share: dict[str, float] = field(
-        default_factory=lambda: {
-            "nut_hex": 700 / 2600,
-            "bearing_radial_ball": 700 / 2600,
-            "wheel_depressed_center": 700 / 2600,
-            "hex_key": 700 / 2600,
-            # Assortment kits: one SKU each, a small share -- a distributor
-            # lists a few dozen sets beside thousands of single parts.
-            "kit_assortment": 60 / 2600,
-        }
-    )
+    new_type_share: dict[str, float] = field(default_factory=lambda: _newer_shares())
 
     #: Share of ``lines`` per original product type: a type with share ``s``
     #: drafts ``max(1, round(lines * s))`` lines. Cutting tools dominate the
@@ -94,25 +97,12 @@ class GeneratorConfig:
     #: Each share is that type's own and the others do not move with it, so
     #: resizing one type leaves every other type's products unchanged. A type
     #: declared in its own module carries its default share there
-    #: (``TypeSpec.share``), and an entry here overrides it. The original
+    #: (``TypeSpec.share``), and an entry here overrides it; the default is
+    #: empty, so a build uses the shares the modules declare. The original
     #: types' shares sum to 1.0. A deepened type adds its own share on top and
     #: takes no room from the others (taking it would move their output), so
     #: the catalog is that much larger (#53).
-    type_weights: dict[str, float] = field(
-        default_factory=lambda: {
-            "end_mill_square": 0.19,
-            "end_mill_ball": 0.11,
-            "drill_jobber": 0.11,
-            "tap_spiral_point": 0.07,
-            "screw_flat_head": 0.07,
-            "screw_button_head": 0.05,
-            "screw_low_head": 0.04,
-            "bolt_hex": 0.09,
-            "washer_flat": 0.06,
-            "hammer_ball_pein": 0.04,
-            "abrasive_flap_disc": 0.05,
-        }
-    )
+    type_weights: dict[str, float] = field(default_factory=dict)
 
     # ---- measured rates -------------------------------------------------
 

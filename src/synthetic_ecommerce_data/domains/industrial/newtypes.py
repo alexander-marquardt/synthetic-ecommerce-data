@@ -938,30 +938,4 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     return draft
 
 
-NEW_TYPES: dict[str, NewType] = {
-    "nut_hex": NewType(("Fasteners", "Nuts", "Hex Nuts"), build_nut, "fastener"),
-    "bearing_radial_ball": NewType(
-        ("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),
-        build_bearing,
-        "motion",
-    ),
-    "wheel_depressed_center": NewType(
-        ("Abrasives", "Grinding & Cut-Off", "Grinding & Cut-Off Wheels", "Depressed-Center Wheels"),
-        build_wheel,
-        "abrasive",
-    ),
-    "kit_assortment": NewType(
-        ("Hand Tools", "Tool Sets & Kits", "Assortment Kits"), build_kit, "hand_tool"
-    ),
-    "hex_key": NewType(
-        (
-            "Hand Tools",
-            "Screwdrivers & Hex Keys",
-            "Hex & Torx Keys",
-            "Hex Keys & Accessories",
-            "Hex Keys",
-        ),
-        build_hex_key,
-        "hand_tool",
-    ),
-}
+

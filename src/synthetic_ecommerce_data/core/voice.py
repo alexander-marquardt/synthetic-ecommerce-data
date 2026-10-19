@@ -35,72 +35,7 @@ from synthetic_ecommerce_data.core.typespec import RegistryTable
 
 #: What every product of a type is for. True of the TYPE, so true of every
 #: product of it, and naming no dimension, material, grade or rating.
-_USE_LINES: dict[str, tuple[str, ...]] = {
-    "end_mill_square": (
-        "For slotting, profiling and facing on milling machines.",
-        "Cuts slots, pockets and square shoulders.",
-    ),
-    "end_mill_ball": (
-        "For contouring and profiling curved surfaces.",
-        "Cuts radiused slots and contoured surfaces.",
-    ),
-    "drill_jobber": (
-        "For hole-making in the shop.",
-        "Drills holes in general shop work.",
-    ),
-    "tap_spiral_point": (
-        "Pushes chips ahead of the tap.",
-        "Cuts internal threads in through holes.",
-    ),
-    "screw_flat_head": (
-        "Sits flush in a countersunk hole.",
-        "For fastening where the head must not stand proud.",
-    ),
-    "screw_button_head": (
-        "A low, rounded head for fastening where clearance is tight.",
-        "Driven with a hex key; the rounded head leaves no sharp edge.",
-    ),
-    "screw_low_head": (
-        "A reduced-height head for tight clearances.",
-        "Driven with a hex key where a standard head would not fit.",
-    ),
-    "bolt_hex": (
-        "Tightened with a wrench, for machinery and structural assembly.",
-        "Fastens parts with a nut or into a tapped hole.",
-    ),
-    "washer_flat": (
-        "Spreads the load under a bolt head or nut.",
-        "Protects the surface under a fastener and spreads its load.",
-    ),
-    "hammer_ball_pein": (
-        "For peening, riveting and general metalwork.",
-        "Shapes metal and sets rivets.",
-    ),
-    "abrasive_flap_disc": (
-        "For blending, deburring and finishing.",
-        "Grinds and finishes in one step.",
-    ),
-    "nut_hex": (
-        "Mates with a bolt or threaded rod of the same thread.",
-        "Tightened with a wrench onto a bolt or threaded rod.",
-    ),
-    "bearing_radial_ball": (
-        "Supports a rotating shaft.",
-        "Carries a rotating shaft in its housing.",
-    ),
-    "wheel_depressed_center": (
-        "For grinding and surface preparation.",
-        "The depressed center keeps the hub clear of the work.",
-    ),
-    "hex_key": (
-        "Drives hex socket fasteners.",
-        "Turns hex socket screws.",
-    ),
-    "kit_assortment": (
-        "Every size in one case.",
-        "A set of the common sizes, kept together.",
-    ),
-}
+_USE_LINES: dict[str, tuple[str, ...]] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 USE_LINES: RegistryTable[str, tuple[str, ...]] = RegistryTable(_USE_LINES)
 
