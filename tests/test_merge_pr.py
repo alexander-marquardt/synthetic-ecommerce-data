@@ -371,9 +371,24 @@ def _with_images(stats: str, count: int) -> str:
     return _IMAGES.sub(f'"images": {count}', stats, count=1)
 
 
+def _true_retail_stats(world: dict) -> str:
+    """The retail stats the rebuild writes: this tree's rolled file, planted on the world's main.
+
+    A feature PR commits no stats (``scripts/roll_stats.py`` rolls them, CI before the tests),
+    so the HEAD commit the world starts from can carry a file older than this tree's build,
+    for instance without a block the PR adds (gen#376). The rebuild writes the new figures.
+    """
+    checkout = world["checkout"]
+    rolled = (REPO / _RETAIL_STATS).read_text()
+    if (checkout / _RETAIL_STATS).read_text() != rolled:
+        _commit(checkout, {_RETAIL_STATS: rolled}, "roll the retail stats")
+        _git(checkout, "push", "-q", "origin", "main")
+    return rolled
+
+
 def _conflicting_retail_stats(world: dict) -> tuple[str, str]:
     """A PR and main that edit one total of the retail stats two ways; and the true file."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _true_retail_stats(world)
     head = _open_pr(
         world,
         {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)},
@@ -397,7 +412,7 @@ def test_a_conflict_in_the_retail_stats_is_resolved_by_the_rebuild(world: dict) 
 
 def test_a_stale_retail_stats_is_rebuilt_on_the_merged_tree_and_pushed(world: dict) -> None:
     """No conflict, wrong totals: the auto-merge the script exists to catch, for retail."""
-    true = (world["checkout"] / _RETAIL_STATS).read_text()
+    true = _true_retail_stats(world)
     head = _open_pr(
         world, {**_GREEN, _RETAIL_STATS: _with_images(true, 910021)}
     )
