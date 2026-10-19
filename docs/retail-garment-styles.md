@@ -36,9 +36,13 @@ Dress"), so "T-Shirt Dress" is the t-shirt style and not the shirt style.
 
 ## Where the generator draws inside it
 
-- **Decoys** (`decoy_apparel`): a decoy is a clone of a real style under a new title. An option
-  whose title names a style the exemplar contradicts is not drawn; the same word and color is drawn
-  on the next exemplar that carries it (`_restyle`).
+- **Decoys** (`decoy_apparel`): a decoy is a clone of a real style under a new title. The clone's
+  neckline is drawn from its own title, so an exemplar's neckline never rules it out (a crew-neck
+  jumper carries "Polo Jumper" and is collared; a boat-neck dress carries "Coat Dress" and gets a
+  collar or V neck). An exemplar whose length or material the title's style contradicts (a Mini, a
+  jersey) is passed over: the same word and color is drawn on the next exemplar that carries it
+  (`_restyle`). The word and color are never changed; when no exemplar carries them the build
+  fails, so a decoy the plan names is not silently replaced by another.
 - **A dress that states no neckline** (`neckline_rows.complete`) was given one by its id alone. It
   now chooses among the necklines its title's style words allow, and a polo top is collared.
   "T-Shirt Dress" no longer reads as "Shirt Dress" (a collar).
