@@ -42,7 +42,7 @@ BRANDS_NEEDED = 135
 WEAK_LEVERS_NEEDED = 3
 #: The least CIELAB (CIE76) distance between two inks that count as an ink
 #: difference, across the four kinds of vision in :data:`VISION`. 15 is a
-#: clearly visible difference on a thin stroke; the 12 inks have 55 pairs, of
+#: clearly visible difference on a thin stroke; the 12 inks have 66 pairs, of
 #: which :func:`confusable_ink_pairs` lists those under it.
 MIN_INK_DELTA_E = 15.0
 
