@@ -645,7 +645,11 @@ def _fit_view(ex: dict) -> dict:
     return neckline_rows.complete([style_table.complete_lengths([ex])[0]])[0]
 
 
-def _fits(title: str, ex: dict) -> bool:
+def _retitled(doc: dict) -> dict:
+    return doc
+
+
+def _fits(o: dict, ex: dict, title: str) -> bool:
     return style_table.title_fits(title, _fit_view(ex))
 
 
@@ -658,10 +662,11 @@ def _candidates(cls: int, spec: Spec, ex: dict, used: set, words: set, *, styled
             and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
             and (o["title"], ex["category_path"][0]) not in used
             and (cls not in (4, 5) or (cls, o["word"]) not in words)
-            and (not styled or _fits(_title(ex, spec, cls, o), ex))]  # fmt: skip
+            and (not styled or _fits(o, ex, _title(ex, spec, cls, o)))]  # fmt: skip
 
 
-def _restyle(cls, spec, exemplars, step, o, used, words, rnd):
+def _restyle(cls, spec, exemplars, step, o, used, words, rnd=None):
+    rnd = rnd or random.Random(0)
     """The next exemplar after ``step`` that carries the option ``o`` (its word and color) inside
     its style table, with that option; else the first that carries any option, and one of those."""
     n = len(exemplars)
@@ -711,7 +716,7 @@ def build(body: list[dict]) -> list[Row]:
                     first = opts[0]["word"]
                     opts = [o for o in opts if o["word"] == first]
                 o = rnd.choice(opts)
-                if not _fits(_title(ex, spec, cls, o), ex):
+                if not _fits(o, ex, _title(ex, spec, cls, o)):
                     # gen#511: the title names a style the exemplar's neckline, length or material
                     # contradicts ("Coat Dress" on a boat-neck mini): the same word and color, on
                     # the next exemplar that carries it

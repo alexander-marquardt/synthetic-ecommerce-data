@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -68,6 +69,13 @@ IMPOSSIBLE = [
     ("Red Coat Dress", "boat", "Mini", "Crepe", "coat"),
     ("Red Coat Dress", "v-neck", "Mini", "Wool Blend", "coat"),
     ("Red Coat Dress", "v-neck", "Midi", "Satin", "coat"),
+    # one attribute outside the table at a time, the other three inside it
+    ("Red Coat Dress", "boat", "Midi", "Wool Blend", "coat"),
+    ("Red Coat Dress", "round", "Knee", "Ponte", "coat"),
+    ("Red Coat Dress", "v-neck", "Maxi", "Wool Blend", "coat"),
+    ("Cream Blazer Dress", "boat", "Midi", "Crepe", "blazer"),
+    ("Blue Shirt Dress", "round", "Midi", "Cotton Poplin", "shirt"),
+    ("Blue Shirt Dress", "v-neck", "Midi", "Cotton Poplin", "shirt"),
     ("Womens Maxi Dress", "round", "Mini", "Viscose", "maxi"),
     ("Womens Midi Dress", "round", "Maxi", "Viscose", "midi"),
     ("Womens Mini Dress", "round", "Midi", "Viscose", "mini"),
@@ -92,6 +100,16 @@ def test_a_real_garment_of_each_style_passes(title, neck, length, material):
 def test_an_impossible_pair_is_named(title, neck, length, material, word):
     found = style_table.violations(_doc(title, neckline=neck, length=length, material=material))
     assert any(v.startswith(f"{word}:") for v in found), (title, found)
+
+
+@pytest.mark.parametrize(
+    "neck", ["boat", "round", "square", "crew", "high", "halter", "cowl", "slash"]
+)
+def test_a_coat_dress_allows_only_a_collar_or_a_v_neck(neck):
+    """The issue's headline pair: "coat + boat", and every other neckline, with a knee length in a
+    coating fabric (the other attributes inside the table)."""
+    doc = _doc("Red Coat Dress", neckline=neck, length="Knee", material="Wool Blend")
+    assert any(v.startswith("coat:") for v in style_table.violations(doc)), neck
 
 
 def test_t_shirt_is_not_the_shirt_style():
@@ -180,3 +198,119 @@ def test_a_decoy_exemplar_is_chosen_inside_the_table(templates):
     base = [d for d in templates if d["product_id"] not in decoy_apparel.ids()]
     for row in decoy_apparel.build(base):
         assert style_table.violations(row.doc) == [], (row.pid, row.doc["title"])
+
+
+def _by_id(templates: list[dict], pid: str) -> dict:
+    return next(d for d in templates if d["product_id"] == pid)
+
+
+def test_the_issue_dress_is_a_tailored_coat_dress(templates):
+    """PLT-DA08203 was "Red Coat Dress", a boat-neck mini in cotton poplin (the issue). It keeps its
+    title, its word and its color, and is now a v-neck, Midi, Crepe dress."""
+    d = _by_id(templates, "PLT-DA08203")
+    assert d["title"] == "Red Coat Dress"
+    assert d["neckline"] == "v-neck"
+    assert style_table.length_of(d) == "Midi"
+    assert style_table.material_of(d) == "Crepe"
+    assert style_table.violations(d) == []
+
+
+@pytest.mark.parametrize(
+    ("pid", "title"),
+    [
+        ("PLT-DA10201", "Brown Polo Jumper"),
+        ("PLT-DA19201", "Cream Polo T-Shirt"),
+        ("PLT-DA22204", "Pink Polo Top"),
+        ("PLT-DA08204", "Cream Blazer Dress"),
+        ("PLT-DA20202", "Pink Shirt Dress"),
+    ],
+)
+def test_a_style_decoy_keeps_its_title_and_its_neckline_is_the_styles(templates, pid, title):
+    """The polo, blazer and shirt decoys are still in the catalog under their own words: the style
+    table moves the exemplar or the neckline, never the word or the color."""
+    d = _by_id(templates, pid)
+    assert d["title"] == title
+    assert d["neckline"] in {"collared", "v-neck"}, (pid, d["neckline"])
+    assert style_table.violations(d) == []
+
+
+def _top(title: str, ptype: str, shape: str) -> dict:
+    return {
+        "product_id": "BRD-TOP001",
+        "title": title,
+        "description": "",
+        "product_type": ptype,
+        "drawing": {"shape": shape, "params": {"neckline": "crew"}},
+        "attributes": [],
+    }
+
+
+@pytest.mark.parametrize(
+    ("title", "ptype", "shape"),
+    [
+        ("Red Polo Top", "Top", "top"),
+        ("Red Polo T-Shirt", "T-Shirt", "tshirt"),
+        ("Red Polo Jumper", "Jumper", "sweatshirt"),
+        ("Black Knitted Polo Top", "Knitted Top", "top"),
+    ],
+)
+def test_a_polo_top_is_collared_whatever_its_picture_draws(title, ptype, shape):
+    """The picture says crew; the title says polo, and the title's neckline is the shopper truth."""
+    done = neckline_rows.complete([_top(title, ptype, shape)])[0]
+    assert done["neckline"] == "collared"
+    plain = neckline_rows.complete([_top(title.replace("Polo ", ""), ptype, shape)])[0]
+    assert plain["neckline"] == "crew"
+
+
+def _exemplar(*, neckline: str, length: str, material: str) -> dict:
+    ex = _doc("Boat Dress", neckline=neckline, length=length, material=material)
+    return {**ex, "description": "", "drawing": {"shape": "dress"}}
+
+
+def test_an_exemplar_fits_a_title_by_its_length_and_material_not_its_old_neckline():
+    """A clone's neckline is drawn from its own title, so a boat-neck exemplar can carry "Coat
+    Dress"; its length and material are the clone's, so a Mini or a jersey one cannot."""
+    title = "Red Coat Dress"
+    fit = _exemplar(neckline="boat", length="Midi", material="Crepe")
+    assert decoy_apparel._fits({"desc": ""}, fit, title)
+    for bad in (
+        _exemplar(neckline="boat", length="Mini", material="Crepe"),
+        _exemplar(neckline="boat", length="Midi", material="Jersey"),
+    ):
+        assert not decoy_apparel._fits({"desc": ""}, bad, title)
+
+
+def test_a_crew_neck_exemplar_fits_a_polo_title():
+    ex = {**_top("Crew Jumper", "Jumper", "sweatshirt"), "neckline": "crew"}
+    assert decoy_apparel._fits({"desc": ""}, ex, "Brown Polo Jumper")
+
+
+def test_a_clone_drops_a_neckline_its_title_forbids_and_keeps_the_rest():
+    polo = {"title": "Red Polo Top", "product_type": "Top", "neckline": "crew"}
+    assert "neckline" not in decoy_apparel._retitled(polo)
+    assert decoy_apparel._retitled({**polo, "neckline": "collared"})["neckline"] == "collared"
+    plain = {**polo, "title": "Red Top"}
+    assert decoy_apparel._retitled(plain) == plain
+    coat = {"title": "Red Coat Dress", "product_type": "Dress", "neckline": "boat"}
+    assert "neckline" not in decoy_apparel._retitled(coat)
+
+
+def test_a_restyle_keeps_the_word_and_color_or_fails(monkeypatch):
+    """The next exemplar that carries the planned word and color; none is an error, never a
+    different word and color (the old fallback drew "White Tunic Dress" for "Red Coat Dress")."""
+    plan = {"title": "Red Coat Dress", "word": "coat", "color": "Red"}
+    tunic = {"title": "White Tunic Dress", "word": "tunic", "color": "White"}
+    carried = {"a": [tunic], "b": [tunic, plan], "c": [plan]}
+    monkeypatch.setattr(
+        decoy_apparel,
+        "_candidates",
+        lambda cls, spec, ex, used, words, *, styled=False: carried[ex],
+    )
+    spec = SimpleNamespace(product_type="Dress")
+    ex, o = decoy_apparel._restyle(2, spec, ["a", "b", "c"], 0, plan, set(), set())
+    assert (ex, o) == ("b", plan)
+    ex, o = decoy_apparel._restyle(2, spec, ["a", "b", "c"], 2, plan, set(), set())
+    assert (ex, o) == ("c", plan)
+    carried["b"], carried["c"] = [tunic], [tunic]
+    with pytest.raises(ValueError, match="Red Coat Dress"):
+        decoy_apparel._restyle(2, spec, ["a", "b", "c"], 0, plan, set(), set())
