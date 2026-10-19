@@ -631,6 +631,16 @@ def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
     return set() if form in lighting_rows.HANGING_FORMS else {"drop_length"}
 
 
+def _fitted_in(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
+    """The one key a derived style may gain: a flush, semi-flush or spotlight template derived
+    to a form that hangs has no ``drop_length`` to copy, so it is given one (gen#401)."""
+    has_drop = any(a["key"] == "drop_length" for a in t["attributes"])
+    if t["product_type"] != "Ceiling Light" or has_drop:
+        return set()
+    form = next((a["value"] for a in r["attributes"] if a["key"] == "fixture_type"), None)
+    return {"drop_length"} if form in lighting_rows.HANGING_FORMS else set()
+
+
 def _template_attributes(r: dict[str, Any], t: dict[str, Any]) -> list[dict[str, Any]]:
     """The template's attributes a derived style is expected to carry (less the fitted-out key)."""
     gone = _fitted_out(r, t)
@@ -660,7 +670,10 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
             if a["key"] in frozen or scale._has_word(names, str(a["value"]))
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
-        assert [a["key"] for a in r["attributes"]] == [a["key"] for a in _template_attributes(r, t)]
+        gained = _fitted_in(r, t)
+        assert [a["key"] for a in r["attributes"] if a["key"] not in gained] == [
+            a["key"] for a in _template_attributes(r, t)
+        ]
 
 
 def test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary():
