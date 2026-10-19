@@ -1,0 +1,37 @@
+{
+ "_library": {
+  "standards": [
+   "ISO 492"
+  ],
+  "edition": "Normal tolerance class as carried by core/noise.py in the repository at commit 68fd9933; no edition year was recorded when it was transcribed",
+  "source": "ISO 492 radial bearings, tolerances; bore deviation is upper 0, lower minus the value, by bore size range (over, up to) in mm",
+  "kind": "ranges"
+ },
+ "columns": [
+  "over_mm",
+  "up_to_mm",
+  "lower_deviation_mm"
+ ],
+ "rows": [
+  [
+   2.5,
+   10.0,
+   0.008
+  ],
+  [
+   10.0,
+   18.0,
+   0.008
+  ],
+  [
+   18.0,
+   30.0,
+   0.01
+  ],
+  [
+   30.0,
+   50.0,
+   0.012
+  ]
+ ]
+}

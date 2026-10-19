@@ -26,6 +26,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 
+from synthetic_ecommerce_data.core import standards_library as library
+
 MM_PER_INCH = 25.4
 
 #: Imperial cutting diameters, as exact fractions of an inch.
@@ -332,43 +334,45 @@ DRILL_METRIC_MM: tuple[float, ...] = (
 #: table per thread series -- a tap line is one series, and its ``Thread Type``
 #: says which. (One inch table used to mix the two, so a line whose Thread
 #: Type read UNC offered 1/4-28 and #10-32.) The Unified coarse and fine
-#: pitches are ASME B1.1's; see standards.py for where those came from.
-TAP_SIZES_UNC: tuple[tuple[str, int], ...] = (
-    ("#6-32", 32),
-    ("#8-32", 32),
-    ("#10-24", 24),
-    ("1/4-20", 20),
-    ("5/16-18", 18),
-    ("3/8-16", 16),
-    ("7/16-14", 14),
-    ("1/2-13", 13),
+#: pitches are ASME B1.1's and the metric ones ISO 262's, both read from the standards
+#: library; see standards.py for where those came from.
+def unified_designations(
+    tpi_column: str, sizes: tuple[str, ...]
+) -> tuple[tuple[str, int], ...]:
+    """``(designation, threads per inch)`` for the Unified sizes named, read from the
+    library's ``asme_b1_1_unified_threads`` table (``unc_tpi`` or ``unf_tpi``); the
+    library refuses a size it lacks."""
+    rows = library.table("asme_b1_1_unified_threads").select(list(sizes))
+    return tuple((f"{row['size']}-{row[tpi_column]}", row[tpi_column]) for row in rows)
+
+
+def metric_designations(
+    sizes: tuple[str, ...], *, fine: bool = False
+) -> tuple[tuple[str, float], ...]:
+    """``(designation, pitch)`` for the metric sizes named, read from the library's
+    ``iso_262_metric_threads`` table: each size's coarse pitch, or (``fine``) each of its
+    fine pitches in the table's order."""
+    out: list[tuple[str, float]] = []
+    for row in library.table("iso_262_metric_threads").select(list(sizes)):
+        pitches = row["fine_pitches_mm"] if fine else [row["coarse_pitch_mm"]]
+        out.extend((f"{row['size']}x{p:g}", p) for p in pitches)
+    return tuple(out)
+
+
+TAP_SIZES_UNC: tuple[tuple[str, int], ...] = unified_designations(
+    "unc_tpi", ("#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2")
 )
-TAP_SIZES_UNF: tuple[tuple[str, int], ...] = (
-    ("#10-32", 32),
-    ("1/4-28", 28),
-    ("5/16-24", 24),
-    ("3/8-24", 24),
-    ("7/16-20", 20),
-    ("1/2-20", 20),
+TAP_SIZES_UNF: tuple[tuple[str, int], ...] = unified_designations(
+    "unf_tpi", ("#10", "1/4", "5/16", "3/8", "7/16", "1/2")
 )
 
-TAP_SIZES_METRIC: tuple[tuple[str, float], ...] = (
-    ("M3x0.5", 0.5),
-    ("M4x0.7", 0.7),
-    ("M5x0.8", 0.8),
-    ("M6x1", 1.0),
-    ("M8x1.25", 1.25),
-    ("M10x1.5", 1.5),
-    ("M12x1.75", 1.75),
+TAP_SIZES_METRIC: tuple[tuple[str, float], ...] = metric_designations(
+    ("M3", "M4", "M5", "M6", "M8", "M10", "M12")
 )
 #: ISO 262's selected fine pitches over the same diameters
 #: (:data:`.compat.METRIC_FINE_PITCHES`).
-TAP_SIZES_METRIC_FINE: tuple[tuple[str, float], ...] = (
-    ("M8x1", 1.0),
-    ("M10x1.25", 1.25),
-    ("M10x1", 1.0),
-    ("M12x1.5", 1.5),
-    ("M12x1.25", 1.25),
+TAP_SIZES_METRIC_FINE: tuple[tuple[str, float], ...] = metric_designations(
+    ("M8", "M10", "M12"), fine=True
 )
 
 #: Ball pein hammer head weights, in ounces -- the sizes actually sold.
