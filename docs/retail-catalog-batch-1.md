@@ -264,7 +264,7 @@ with-persona run, is the ingest batch's check, not this PR's.
 | limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ11 | Marinade with Limes and Coriander | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ12 | Cloudy Juice from Apples | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ13 | Stewed Apples in Syrup | decoy |
-| apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ14 | Apples Cinnamon Oat Bars | decoy |
+| apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ14 | Apples & Cinnamon Oat Bars | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ15 | Spiced Apples Crumble Cake | decoy |
 | strawberries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ16 | Strawberries and Cream Biscuits | decoy |
 | strawberries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ17 | Strawberries & Cream Ice Cream | decoy |
