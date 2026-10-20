@@ -373,8 +373,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the per-type aggregate is quoted again",
         "tests/test_retail_figures_162.py",
-        '"grocery_families.", "templates.type_specs.")',
-        '"grocery_families.")',
+        '                "grocery_tier_50k.families.",\n                "templates.type_specs.",\n',
+        '                "grocery_tier_50k.families.",\n',
         "tests/test_retail_figures_162.py -k per_type_spec_aggregate",
         "the type specs' own total is not a quoted total",
         ".",

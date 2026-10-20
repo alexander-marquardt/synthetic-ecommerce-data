@@ -1,0 +1,31 @@
+{
+ "_library": {
+  "standards": [
+   "ISO 2936"
+  ],
+  "edition": "nominal across-flats series as carried by domains/industrial/compat.py in the repository at commit 68fd9933; no edition year was recorded when it was transcribed",
+  "source": "ISO 2936 hexagon socket screw keys; the keys under 1.5 mm drive the smallest set screw sockets this catalog carries (ISO 4026-4029, M1.6-M2.5)",
+  "kind": "series"
+ },
+ "unit": "mm",
+ "values": [
+  0.7,
+  0.9,
+  1.3,
+  1.5,
+  2.0,
+  2.5,
+  3.0,
+  4.0,
+  5.0,
+  6.0,
+  7.0,
+  8.0,
+  10.0,
+  12.0,
+  14.0,
+  17.0,
+  19.0,
+  22.0
+ ]
+}
