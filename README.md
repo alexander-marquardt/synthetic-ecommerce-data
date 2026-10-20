@@ -17,8 +17,8 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100K SKUs
-([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
+brands -- and, with one flag, a large build whose SKU total is measured
+([The 100K catalog](#the-100k-catalog), its historical name).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
@@ -302,10 +302,10 @@ uv run ecom-generate build --lines 39000 --out out/catalog-100k
 uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
-`--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Each deepened type adds its own share on top, so the build
-grows with every one; #62 renames it by what it holds and generates these
-figures. Measured with the first command above (about 45 s wall time), per
+`--lines 39000` (`config.LARGE_BUILD_LINES`) is the large build's line count,
+named for what it holds: it was first chosen to give 100,000 SKUs and no
+longer promises a total. Each deepened type adds its own share on top, so the build
+grows with every one. Measured with the first command above (about 45 s wall time), per
 type from `skus_by_type` in its `stats.json`:
 
 | type | SKUs | | type | SKUs |
@@ -568,7 +568,7 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
@@ -778,7 +778,12 @@ of elastic/prism#9935:
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
-  exactly and rounded to a float once.
+  exactly and rounded to a float once. The rule is PRISM's, not this repository's:
+  `measurement_values.py` in elastic/prism
+  (`packages/prism-engine/src/prism_engine/rewrite/`) takes the product with
+  `fractions.Fraction` and applies `float(...)` as the last step, and
+  `nested.py` in elastic/prism-industrial-products does the same for the
+  `value_canonical` it serves.
 * Thread spacing is published under two keys, as real catalogs publish it: a
   metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
@@ -1526,12 +1531,18 @@ industrial bundle's shape, so the same installer takes it: members
 `retail/<image_id>.svg` under the archive's own `retail/` folder, every
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
-`.content-sha256`. Images are keyed per style and colorway, never per SKU:
-every size of one color shares an image, drawn in that color's swatch (base,
-pattern and accent). The authored-styles build is `templates.authored_images` images for
+`.content-sha256`. Images are keyed per style and colorway, and per pack scale:
+a SKU's pack is drawn at about the cube root of its net volume (or weight, or
+count) against the largest size of its line, floored at 0.6, on the same
+400 x 400 sheet and baseline, so a 30 ml jar is visibly smaller than a 100 ml
+one (`pack_scale.py`). The largest size, and a line of one size, draw as they
+always did. Every size drawn at one scale shares its color's image, drawn in
+that color's swatch (base, pattern and accent).
+![A line's 30, 50 and 100 ml drawn before and after](docs/images/pack-scale.svg)
+The authored-styles build is `templates.authored_images` images for
 `templates.authored` SKUs (`retail_figures.figures()`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
-input): `--skus 20000` is 1,348 images for 20,002 SKUs.
+input): `--skus 20000` is 1,346 images for 20,074 SKUs.
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
@@ -1715,7 +1726,7 @@ a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
-(`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
+(`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
@@ -1737,7 +1748,7 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band at 100K only (the default build is in band, its record `None`) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at 100K no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE`; on the default build in band |
+| wheel brand spread | pin, above band at both builds (the default build was in band until #357 dropped the wheels that differed only by a pack and moved the ids) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at each build no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE` |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
