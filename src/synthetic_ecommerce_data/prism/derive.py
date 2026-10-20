@@ -42,14 +42,16 @@ decided separately, by different statistics, on the same measurement pass.
 from __future__ import annotations
 
 import collections
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from functools import cache
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import flat_key
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import Generator
+from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB, AttrSpec
 
 #: Attributes the generator itself mints as part codes (``List Number``), and
 #: so withheld from the sidebar whatever their values measure. Read from the
@@ -139,10 +141,14 @@ IDENTIFIER_DISPERSION = 0.5
 #: is shared by many products. A continuous quantity does not saturate: very
 #: nearly every document contributes a value no other document has.
 #:
-#: The statistic is therefore ``cardinality / product_values`` -- distinct
+#: The statistic is therefore ``magnitudes / product_magnitudes`` -- distinct
 #: values per distinct ``(product, value)`` pair publishing the attribute,
-#: called DISPERSION below. Its limits are the two cases: dispersion -> 0 for
-#: a saturated ladder, dispersion -> 1 when every measurement is unique.
+#: called DISPERSION below. A value is its MAGNITUDE, the parsed number, and
+#: not a spelling of it: four brand feeds write a 1/2" pitch as ``1/2"``,
+#: ``1/2 in``, ``0.500"`` and ``1/2 in.``, and counting those as four values
+#: read a 13-size standard series over 68 chains as a continuum (gen#77).
+#: Its limits are the two cases: dispersion -> 0 for a saturated ladder,
+#: dispersion -> 1 when every measurement is unique.
 #: **0.5 is the midpoint, and it means something rather than being tuned:
 #: below it the average value is carried by more than one product -- values
 #: REPEAT, which is what makes a list of them something a shopper can pick
@@ -192,6 +198,18 @@ IDENTIFIER_DISPERSION = 0.5
 #: catalogs differ in the property the rule measures.
 RANGE_DISPERSION = 0.5
 
+#: THE DECLARATION COMES FIRST (gen#95). The generator knows whether a quantity
+#: is read off a table or drawn from a range: ``AttrSpec.source``, read by
+#: :func:`quantity_sources` the way :data:`IDENTIFIER_ATTRIBUTES` is read. A
+#: declared quantity is a range or a list by that word, so the floor below
+#: decides nothing for it, at any ``--lines``, and a type with a longer ladder
+#: restates nothing. ``test_every_declaration_agrees_with_the_data_it_describes``
+#: holds the word to the data wherever the data is evidence.
+#:
+#: What is left for the floor is what nothing declares: a quantity no
+#: vocabulary here names (another catalog's) and every terms attribute, whose
+#: identifier test is the ratio.
+#:
 #: Dispersion cannot tell saturation from growth on too few products: a
 #: ladder of K rungs reads below 0.5 only once roughly 1.6K products have
 #: landed on it, so an undersampled ladder looks like a continuum or an
@@ -229,6 +247,31 @@ RANGE_DISPERSION = 0.5
 RANGE_MIN_DOCS = 250
 
 
+def declared_sources(table: Mapping[str, Iterable[AttrSpec]]) -> dict[str, str]:
+    """How the generator says each quantity's values come to be, by published name.
+
+    Read from the vocabulary the way :data:`IDENTIFIER_ATTRIBUTES` is read from
+    the generator: a type's :class:`AttrSpec` states ``source`` (``tabled``
+    unless the type draws the quantity from a range), and the sidebar reads
+    the PUBLISHED name, which is sentence case (gen#499). Only quantities
+    declare (a keyword spec is a word, not a number). A name two types declare
+    differently is left out: the generator cannot say how a mixed name is made,
+    so the ratio decides it.
+    """
+    seen: dict[str, set[str]] = collections.defaultdict(set)
+    for specs in table.values():
+        for spec in specs:
+            if spec.kind != "keyword":
+                seen[sentence_case(spec.name)].add(spec.source)
+    return {name: next(iter(sources)) for name, sources in seen.items() if len(sources) == 1}
+
+
+@cache
+def quantity_sources() -> dict[str, str]:
+    """:func:`declared_sources` over the registered vocabulary, read once."""
+    return declared_sources(VOCAB)
+
+
 @dataclass(frozen=True)
 class AttributeStats:
     """What the emitted documents say about one attribute key."""
@@ -248,6 +291,19 @@ class AttributeStats:
     #: evidence floor :data:`RANGE_MIN_DOCS` counts, because both rules ask
     #: whether values repeat ACROSS products.
     products: int
+    #: Distinct MAGNITUDES, and distinct ``(product_id, magnitude)`` pairs (gen#77):
+    #: what :attr:`dispersion` counts. A magnitude is the ``facets_num`` value of a
+    #: document that publishes a single value, so ``1/2"``, ``1/2 in`` and ``0.500"``
+    #: are one; a document that publishes no parsed number contributes its spellings.
+    #: Left unset, each is the spelling count it stands in for.
+    magnitudes: int | None = None
+    product_magnitudes: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.magnitudes is None:
+            object.__setattr__(self, "magnitudes", self.cardinality)
+        if self.product_magnitudes is None:
+            object.__setattr__(self, "product_magnitudes", self.product_values)
 
     @property
     def numeric_share(self) -> float:
@@ -269,22 +325,41 @@ class AttributeStats:
 
     @property
     def dispersion(self) -> float:
-        """Distinct values per distinct ``(product, value)`` pair.
+        """Distinct magnitudes per distinct ``(product, magnitude)`` pair.
 
-        The saturation statistic :data:`RANGE_DISPERSION` documents. Measured
-        over the distinct values as PUBLISHED, which is the same set the facet
-        would offer, and per product rather than per SKU document (#28).
+        The saturation statistic :data:`RANGE_DISPERSION` documents. A value is
+        its MAGNITUDE, not a spelling of it (gen#77): a brand writes the 1/2"
+        pitch four ways, and counting those as four values read a 13-size
+        standard series over 68 chains as a continuum. It is per product
+        rather than per SKU document (#28).
         """
-        return self.cardinality / self.product_values if self.product_values else 0.0
+        if not self.product_magnitudes:
+            return 0.0
+        return (self.magnitudes or 0) / self.product_magnitudes
+
+    @property
+    def declared_source(self) -> str | None:
+        """``tabled`` or ``drawn`` when the generator declares how this quantity is made.
+
+        ``None`` for a keyword attribute and for a name no vocabulary
+        declares (another catalog's): those are measured.
+        """
+        return quantity_sources().get(self.name) if self.is_numeric else None
 
     @property
     def is_continuous(self) -> bool:
         """Whether the values are a continuum, so a RANGE control is honest.
 
-        Three conditions, each of which can independently refuse a range:
-        the values must be numbers at all, there must be enough observations
-        for dispersion to mean anything, and the values must not saturate.
+        The generator's declaration decides when it makes one
+        (:attr:`declared_source`): a drawn quantity is a continuum and a
+        tabled one is a ladder, whatever size the catalog is built at. For
+        an undeclared quantity, three conditions, each of which can
+        independently refuse a range: the values must be numbers at all,
+        there must be enough observations for dispersion to mean anything,
+        and the values must not saturate.
         """
+        if self.declared_source is not None:
+            return self.declared_source == "drawn"
         return (
             self.is_numeric
             and self.products >= RANGE_MIN_DOCS
@@ -314,6 +389,20 @@ class Decision:
     reason: str
 
 
+def _magnitudes(row: dict[str, Any], key: str, spellings: list[str]) -> list[Any]:
+    """What a document's value for ``key`` IS, apart from how it is written (gen#77).
+
+    The parsed number when the document publishes one value and parsed it; the
+    spellings otherwise, which is all a terms attribute has. A tag keeps a number
+    from equalling a string, and the rounding keeps float noise from splitting a
+    magnitude two feeds spell differently.
+    """
+    number = row["facets_num"].get(key)
+    if number is not None and len(spellings) == 1:
+        return [("number", round(float(number), 9))]
+    return [("text", spelling) for spelling in spellings]
+
+
 def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     """Collect per-attribute statistics from emitted flat documents.
 
@@ -326,6 +415,8 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
     product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
+    magnitudes: dict[str, set[Any]] = collections.defaultdict(set)
+    product_magnitudes: dict[str, set[tuple[str, Any]]] = collections.defaultdict(set)
     products: dict[str, set[str]] = collections.defaultdict(set)
     types: dict[str, set[str]] = collections.defaultdict(set)
     published_name: dict[str, str] = {}
@@ -338,6 +429,9 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             present[key] += 1
             values[key].update(vals)
             product_values[key].update((row["product_id"], value) for value in vals)
+            for magnitude in _magnitudes(row, key, vals):
+                magnitudes[key].add(magnitude)
+                product_magnitudes[key].add((row["product_id"], magnitude))
             products[key].add(row["product_id"])
             types[key].add(product_type)
         for key in row["facets_num"]:
@@ -358,6 +452,8 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             product_types=tuple(sorted(types[key])),
             type_denominator=sum(type_sizes[t] for t in types[key]),
             product_values=len(product_values[key]),
+            magnitudes=len(magnitudes[key]),
+            product_magnitudes=len(product_magnitudes[key]),
             products=len(products[key]),
         )
         for key, count in sorted(present.items())
@@ -389,7 +485,7 @@ def decide(stats: AttributeStats) -> Decision:
             f"(floor {MIN_PRESENCE:.0%})",
         )
     over = (
-        f"{stats.cardinality} distinct values over {stats.product_values} "
+        f"{stats.magnitudes} distinct values over {stats.product_magnitudes} "
         f"product-value pairs is {stats.dispersion:.2f} per product"
     )
     if stats.is_identifier:
@@ -398,6 +494,21 @@ def decide(stats: AttributeStats) -> Decision:
             False,
             f"reads as an identifier, not a facet: {over}, at or above the "
             f"{IDENTIFIER_DISPERSION:.2f} identifier threshold, so the values do not repeat",
+        )
+    if stats.declared_source == "drawn":
+        return Decision(
+            stats,
+            True,
+            f"a range: the generator declares its values drawn from a continuous range, "
+            f"so no floor or ratio is consulted; {over}",
+        )
+    if stats.declared_source == "tabled":
+        return Decision(
+            stats,
+            True,
+            f"a discrete list: the generator declares its values tabled, a standard's list "
+            f"of sizes, so they are offered as a list rather than an interval whatever "
+            f"the ratio; {over}",
         )
     if stats.is_continuous:
         return Decision(

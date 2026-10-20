@@ -18,7 +18,7 @@ The classes (the numbers follow the issue):
 5. **guard**: no decoy; a real product whose name holds a color word ("green tea"), so a color
    filter that wrongly fires shows as an empty or wrong page.
 9. **plural**: the title names a fresh plural as the ingredient or source of another product
-   ("Dark Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`),
+   ("Chocolate with Candied Oranges", "Sun-Dried Tomatoes in Oil"; :mod:`decoy_plural_rows`),
    or, in a non-food department, as a brand shown on it ("Lucky Lemons Kids' Pyjamas") or the
    scent it carries ("Sicilian Lemons Hand Wash"; :mod:`decoy_plural_nonfood_rows`).
 10. **ingredient phrase**: the query's phrase is an ingredient of another food: red wine

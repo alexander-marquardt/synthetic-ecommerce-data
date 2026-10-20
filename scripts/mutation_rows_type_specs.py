@@ -184,8 +184,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the ceiling is raised above the list",
         "type_registry.py",
-        "LEGACY_CEILING = 333",
-        "LEGACY_CEILING = 433",
+        "LEGACY_CEILING = 332",
+        "LEGACY_CEILING = 432",
         "tests/test_retail_type_specs_351.py -k registered_through_a_spec_or_the_legacy_list",
         "the ceiling is the exact length of the list",
         "prototypes/retail_drawings",
@@ -373,8 +373,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the per-type aggregate is quoted again",
         "tests/test_retail_figures_162.py",
-        '"grocery_families.", "templates.type_specs.")',
-        '"grocery_families.")',
+        '                "grocery_tier_50k.families.",\n                "templates.type_specs.",\n',
+        '                "grocery_tier_50k.families.",\n',
         "tests/test_retail_figures_162.py -k per_type_spec_aggregate",
         "the type specs' own total is not a quoted total",
         ".",
