@@ -13,6 +13,8 @@ longest prefix wins):
 | Kids > School Uniform > School Skirts, School Pinafores | the trouser colors, Brown, Green, Burgundy | the dress code of a school |
 | Womens > Hosiery > Tights | Nude, Natural, Black, White, Navy, Grey, Charcoal, Brown, Burgundy, Teal, Beige, Cream | skin tones and dark opaque colors |
 | Home > Heating & Cooling > Fans > Ceiling Fans | White, Black, Silver, Brown, Gold, Copper, Bronze, Nickel | a ceiling fan's color is its metal or wood finish |
+| Home > Large Appliances > Dishwashers | White, Black, Silver | enamel white, black or stainless steel (gen#334) |
+| Home > Large Appliances > Laundry | White, Black, Silver | enamel white, black or silver (gen#334) |
 
 One table is read three times: `main_colors.complete` adds a missing main color only to a style
 whose type comes in it, `main_colors.missing` asks a restricted type for only the main colors it
