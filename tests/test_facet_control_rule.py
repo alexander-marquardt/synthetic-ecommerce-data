@@ -494,7 +494,7 @@ RETIRED_TERMS_CAP = 25
 
 #: What the default build gains under the relative rule: every one is a terms
 #: attribute the retired cap withheld for its count alone. Measured on the
-#: default build and on ``--lines 39000`` (122,324 SKUs): the same ten at both,
+#: default build and on ``--lines 39000``: the same ten at both,
 #: and the large build gains an eleventh, an O-ring's Inside Dia. Tolerance.
 #: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
 #: and Material, which their four compounds took from 23 values to 27.

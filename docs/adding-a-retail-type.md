@@ -96,8 +96,14 @@ of each drawing param. So a style yields one image per colorway, and a drawing p
 by SKU (a lamp's `finish`) yields one per value. A clothing or footwear style with more than one
 size adds `size_scale` (`size_ladder.py`, gen#339), so it yields one image per rung of its size
 ladder, drawn smaller the lower the rung (the smallest at 55/90 of the largest
-rung, which keeps the style's own size, all about the drawing's bottom center); any other size adds none. If two things must look
-different on the sheet (a two-seat and a three-seat sofa), they are two styles.
+rung, which keeps the style's own size, all about the drawing's bottom center). Any other size
+adds none, with one exception: a
+SKU that carries a `net_volume_ml` or `net_weight_g` (or, in Food & Drink and Beauty only, a
+`units_per_pack`) is drawn at the cube root of that content against the largest size its style
+sells, floored at 0.6 (`pack_scale.factor`), so each smaller size is its own image and a style of
+one size is unchanged. The shape needs no param for it: `kit.render(shrink=)` scales the whole
+drawing about its bottom center. If two things must look different on the sheet (a two-seat and a
+three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.
 

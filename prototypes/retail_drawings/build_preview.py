@@ -76,6 +76,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
         params=d.get("params"),
         size_scale=d.get("size_scale"),
         style=HOUSE_STYLES[rec["brand"]] if styled else None,
+        shrink=d.get("pack_scale", 1.0),  # the SKU's size within its line (gen#543)
     )
 
 
