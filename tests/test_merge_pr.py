@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -234,6 +235,11 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_CI_TIMEOUT="0",
         MERGE_PR_CI_POLL="0",
         MERGE_PR_RETRY_SLEEP="0",
+        # The head check's retries and the merge lock's wait are one look too (#383).
+        MERGE_PR_HEAD_SLEEP="0",
+        MERGE_PR_LOCK=str(tmp_path / "merge.lock"),
+        MERGE_PR_LOCK_WAIT="0",
+        MERGE_PR_LOCK_POLL="0",
         # The narrowed checks are one test: two workers, not one per core (#348).
         LOCAL_CI_WORKERS="2",
         # Each world has its own local CI lock: the machine's is shared with real merges (#366).
@@ -255,6 +261,8 @@ def world(tmp_path: Path) -> dict:
         "env": env,
         "log": tmp_path / "gh.log",
         "ci_log": tmp_path / "ci.log",
+        "lock": tmp_path / "merge.lock",
+        "bin": bin_dir,
     }
 
 
@@ -501,6 +509,105 @@ def test_a_head_that_moves_with_nothing_to_push_is_not_merged(world: dict) -> No
     assert result.returncode != 0
     assert "pr-branch moved to" in result.stderr, result.stderr[-800:]
     assert not _merged(world)
+
+
+# -- ls-remote lag, and the merge lock (#383) --------------------------------
+
+#: A ``git`` that answers the first ``FAKE_LSREMOTE_LAG`` ``ls-remote`` reads of
+#: ``refs/heads/$FAKE_LSREMOTE_REF`` with a sha that is not there (a read just after a
+#: push, served by a replica that has not caught up), counts them in ``FAKE_LSREMOTE_COUNT``,
+#: and is the real git for everything else.
+_FAKE_GIT = r"""#!/usr/bin/env bash
+if [[ " $* " == *" ls-remote "* && "$*" == *"refs/heads/$FAKE_LSREMOTE_REF"* ]]; then
+  n=$(cat "$FAKE_LSREMOTE_COUNT" 2>/dev/null || echo 0)
+  echo $((n + 1)) >"$FAKE_LSREMOTE_COUNT"
+  if [ "$n" -lt "$FAKE_LSREMOTE_LAG" ]; then
+    printf '0000000000000000000000000000000000000000\trefs/heads/%s\n' "$FAKE_LSREMOTE_REF"
+    exit 0
+  fi
+fi
+exec "$REAL_GIT" "$@"
+"""
+
+
+def _lagging(world: dict, ref: str, lag: int) -> dict[str, str]:
+    """The environment of a run whose ``ls-remote`` of ``ref`` is stale ``lag`` times."""
+    shim = world["bin"] / "lag"
+    shim.mkdir(exist_ok=True)
+    (shim / "git").write_text(_FAKE_GIT)
+    (shim / "git").chmod(0o755)
+    return {
+        "PATH": f"{shim}{os.pathsep}{world['env']['PATH']}",
+        "REAL_GIT": str(shutil.which("git")),
+        "FAKE_LSREMOTE_REF": ref,
+        "FAKE_LSREMOTE_LAG": str(lag),
+        "FAKE_LSREMOTE_COUNT": str(world["bin"] / "lsremote.count"),
+    }
+
+
+def _lsremote_reads(world: dict) -> int:
+    count = world["bin"] / "lsremote.count"
+    return int(count.read_text()) if count.exists() else 0
+
+
+@pytest.mark.parametrize("ref", ["main", "pr-branch"])
+def test_an_ls_remote_that_lags_twice_does_not_abort_the_merge(world: dict, ref: str) -> None:
+    """A read right after a push can be stale; the check looks again before it gives up."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, **_lagging(world, ref, 2))
+    assert result.returncode == 0, result.stdout + result.stderr[-800:]
+    assert _merged(world)
+    assert _lsremote_reads(world) == 3, "the lagging read was not repeated until it was right"
+
+
+def test_an_ls_remote_that_keeps_lagging_gives_up_after_three_reads(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, **_lagging(world, "main", 99))
+    assert result.returncode != 0
+    assert "main moved to" in result.stderr, result.stderr[-800:]
+    assert _lsremote_reads(world) == 3
+    assert not _merged(world)
+    assert not world["lock"].exists(), "a refused merge left the lock behind"
+
+
+def _hold(world: dict, pid: int, pr: str = "7") -> None:
+    world["lock"].mkdir()
+    (world["lock"] / "owner").write_text(f"{pid} {pr}\n")
+
+
+def test_a_merge_is_refused_while_another_holds_the_lock(world: dict) -> None:
+    """Two trains never interleave: the second waits, and gives up if the wait runs out."""
+    head = _open_pr(world, _GREEN)
+    _hold(world, os.getpid())
+    result = _run(world, head, _GREEN_CHECK)
+    assert result.returncode != 0
+    assert "merge lock" in result.stderr and f"pid {os.getpid()}" in result.stderr, result.stderr[
+        -800:
+    ]
+    assert not _merged(world)
+    assert (world["lock"] / "owner").exists(), "a run that never held the lock removed it"
+
+
+def test_a_merge_waits_for_the_lock_then_takes_it_and_frees_it(world: dict) -> None:
+    """A holder killed without freeing the lock is dead, so the lock is taken over."""
+    head = _open_pr(world, _GREEN)
+    holder = subprocess.Popen(["sleep", "3"])
+    # Reaped as soon as it ends: an unreaped child still answers ``kill -0``.
+    threading.Thread(target=holder.wait, daemon=True).start()
+    _hold(world, holder.pid)
+    result = _run(world, head, _GREEN_CHECK, MERGE_PR_LOCK_WAIT="120", MERGE_PR_LOCK_POLL="1")
+    assert result.returncode == 0, result.stdout + result.stderr[-800:]
+    assert "waiting for the merge lock" in result.stdout, result.stdout[-800:]
+    assert _merged(world)
+    assert not world["lock"].exists(), "the finished merge left the lock behind"
+
+
+def test_a_dry_run_does_not_take_the_lock(world: dict) -> None:
+    head = _open_pr(world, _GREEN)
+    _hold(world, os.getpid())
+    result = _run(world, head, _GREEN_CHECK, "--dry-run")
+    assert result.returncode == 0, result.stdout + result.stderr[-800:]
+    assert (world["lock"] / "owner").exists()
 
 
 # -- conflicts ----------------------------------------------------------------
