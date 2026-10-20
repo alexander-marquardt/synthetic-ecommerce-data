@@ -226,3 +226,16 @@ def test_the_new_rows_take_no_text_match_decoys_with_them(templates):
         if r["category_path"][:2] == ["Womens", "Dresses"] and r["product_id"] in _DECOYS
     ]
     assert len(womens) >= 20, len(womens)
+
+
+def test_the_new_rows_leave_every_other_template_as_it_was(templates, monkeypatch):
+    """The rows sit outside the seeded filler stream. Counted by the main-color pass and the sale
+    share, they took a Kids dress's added colors and seven Kids styles' sale, so the derivation
+    drew other fillers and a Kids tee pushed the "oranges" washing-up liquid out of the top
+    twelve (``test_grocery_plural_nonfood_decoys_445``)."""
+    import kids_depth_rows
+
+    ids = kids_depth_rows.product_ids()
+    monkeypatch.setattr(kids_depth_rows, "docs", lambda: [])
+    without = scale.templates()
+    assert [r for r in templates if r["product_id"] not in ids] == without
