@@ -416,14 +416,7 @@ their product families, market weight, house style and title voice.
   its paper is chosen independently of its ink, so brands that share an ink
   also differ in background. Every (ink, paper, frame) triple is unique and
   every ink is at least 3:1 against every paper (the lowest is 4.4:1).
-* **Style levers and capacity** (#55). Past the 48 (ink, frame) pairs a brand may set
-  an outline weight, a dash pattern, a frame margin, a background texture and a
-  chamfered frame; all default to the original look, so the 6,885 drawings of the 45
-  brands are byte-identical. Two brands are visibly different when a strong lever
-  (frame, mark, or an ink 15 CIELAB apart under normal vision and three color-vision
-  deficiencies) differs, or three weak ones do. The space holds 570 such styles without
-  the mark and 45 x 570 with it, against the 135 brands #53 needs
-  ([detail](docs/house-style-levers.md)).
+* **Style levers and capacity** (#55): [detail](docs/house-style-levers.md).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs
   (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in

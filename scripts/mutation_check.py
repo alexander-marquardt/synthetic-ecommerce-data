@@ -3008,7 +3008,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw outlines at the old hairline weight",
         "core/drawing/sheet.py",
-        "MIN_STROKE = 2.3",
+        "MIN_STROKE = brands.WEIGHTS[0]",
         "MIN_STROKE = 1.6",
         "tests/test_sku_drawings.py -k minimum_stroke",
         "A",
