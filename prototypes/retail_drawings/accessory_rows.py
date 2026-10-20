@@ -279,7 +279,7 @@ TOTES = (
     _trow("TTBSTR", "Striped Cotton Tote Bag", _M, 10.0,
           "A printed cotton tote with a bold stripe, a flat base and a zip top.",
           (STRIPE, RED_STRIPE),
-          _tb("Medium", "Cotton", "Zip", False, _a("pattern", "Pattern", "Striped")),
+          _tb("Medium", "Cotton", "Zip", False, _a("pattern", "Pattern", "Stripe")),
           "standard", False),
     _trow("TTBGNG", "Gingham Cotton Tote Bag", _P, 11.0,
           "A gingham cotton tote with a pocket on the front and long handles.",
@@ -392,7 +392,7 @@ UMBRELLAS = (
     _urow("UMBSTR", "Striped Windproof Stick Umbrella", _W, 24.0,
           "A striped stick umbrella with a vented canopy and sixteen ribs that hold in a "
           "gale.",
-          (STRIPE, RED_STRIPE), _um("Stick", False, True, False, 16, _a("pattern", "Pattern", "Striped")),
+          (STRIPE, RED_STRIPE), _um("Stick", False, True, False, 16, _a("pattern", "Pattern", "Stripe")),
           _num((105, 24.0),), "open", "curved", 16),
 )
 
