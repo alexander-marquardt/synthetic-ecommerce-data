@@ -104,17 +104,20 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
-A threaded type that publishes `dia_thread_size` and whose standard has no
-extraction declares the sizes that standard offers in its `SPEC`, as
-`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
-sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
-declared size to reaching a document, and it fails, rather than skips, a
-standard that has neither an extraction nor a declaration. A type that
-publishes `thread_size` instead, such as the lock nut, is not swept yet: see
-issue #68. When the
+A threaded type that publishes `dia_thread_size` or `thread_size` and whose
+standard has no extraction declares the sizes that standard offers in its
+`SPEC`, as `sizes={standard: (size, ...)}`, stated apart from its table. The
+thread-size sweep in `tests/test_catalog_coverage.py` holds every declared size
+to reaching a document, and it fails, rather than skips, a standard that has
+neither an extraction nor a declaration. It reads `dia_thread_size` from
+every type, and `thread_size` only from a type that declares `sizes`: the
+breadth rows publish `thread_size` too and are built to no standard. A coarse
+row is declared by its diameter (`M24`, `1/4`); a fine-pitch row by its whole
+designation (`M10x1`, `1/4-28`), because it is a size of its own. When the
 type's `dimension_provenance` is a sentence rather than a bare standard name,
-it also declares `line_standard`, which reads a record's standard back from
-its published attributes. `set_screws_hex_socket` does both.
+it either declares `line_standard`, which reads a record's standard back from
+its published attributes (`set_screws_hex_socket`), or names its one table as
+`read from the <standard> table`, which the sweep reads (the lock nut).
 
 ## The steps
 
@@ -871,6 +874,28 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**The local CI is held to a memory ceiling and runs one at a time (#366).** The
+worker count above is a plan made when the steps are emitted, and on the shared
+agent VM (10 to 30 agents starting their own test runs after that) nothing held it
+while the run went on. Every command the local CI runs (the step-3 checks, each
+job) therefore goes through `scripts/local_ci_guard.py`. It sums the resident
+memory of the command's whole process tree every half second and, past
+`workers x 4,500 MB`, kills the tree and exits 97: the job is red, the merge is
+refused, and the line `local_ci_guard: memory ceiling exceeded` names the figures,
+so an overrun fails one merge and not the machine. `LOCAL_CI_MEMORY_MB` replaces
+the ceiling. The worker count is the command's own (`LOCAL_CI_WORKERS`, else its
+`-n`, else the machine's now, which the guard then hands to the emitted script as
+`LOCAL_CI_WORKERS`). Resident memory counts a page two processes share twice, so
+the figure errs high; it is a poll, so a spike between two looks is for the kernel.
+The guard also takes an `flock` on `LOCAL_CI_LOCK` (default
+`<tmp>/gen-local-ci.lock`), so one local CI command runs at a time on the machine:
+a second run prints `waiting for another local CI run`, polls every
+`LOCAL_CI_LOCK_POLL` seconds (2) and refuses with 98 after `LOCAL_CI_LOCK_WAIT`
+(14400, 4 h), naming the holder. The kernel frees the lock when its holder ends,
+however it ends. This lock guards the machine's memory, and is not the merge lock
+that orders merges into `main` (#383): it is taken by a `--dry-run` too, which
+runs the same jobs, and by a run on another checkout.
 
 **A stale golden is regenerated, not handed back (#440).** When `--local-ci`
 is red and the only red is a golden freshness test, the script does not send
