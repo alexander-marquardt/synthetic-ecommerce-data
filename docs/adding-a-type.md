@@ -307,6 +307,8 @@ Shared files, edited by hand:
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50).
+
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
 ## The rules a deepened type follows
@@ -839,8 +841,20 @@ the generated files, and runs the drift, golden and seam tests
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge
-attempt it re-reads `main` and the PR head, and refuses if either moved.
-`--dry-run` does all of it except the push, the CI wait and the merge.
+attempt it re-reads `main` and the PR head, and refuses if either moved; a
+read that is not the expected sha is repeated, up to 3 reads 10 s apart
+(`MERGE_PR_HEAD_SLEEP`), because `git ls-remote` right after a push can answer
+from before it. `--dry-run` does all of it except the push, the CI wait and the merge.
+
+**One merge at a time (#383).** A merge takes a lock before it reads the PR and `main`
+and keeps it to the squash merge, so a second `merge_pr.sh` started during the first's
+CI run waits instead of landing on `main` underneath it and forcing a full rerun. The
+lock is a directory (`MERGE_PR_LOCK`, default `/tmp/merge-pr-<repo>.lock`) whose `owner`
+file holds the pid and PR number. A waiting run says so, polls every
+`MERGE_PR_LOCK_POLL` seconds (10) and refuses after `MERGE_PR_LOCK_WAIT` (14400, 4 h)
+naming the holder. A lock whose holder's pid is gone (a killed run) is taken over. The
+lock is per machine: two checkouts on one host share it, two hosts do not.
+`--dry-run` pushes and merges nothing, so it takes no lock.
 
 **CI runs locally (`--local-ci`).** GitHub Actions on this repository is
 billing-blocked and stays so, so nobody waits for or reads GitHub CI. With
