@@ -9,9 +9,11 @@ The rows are class 9 of :mod:`decoy_rows`; each is a believable retail title (ge
 
 from __future__ import annotations
 
+import math
 import re
 import statistics
 import sys
+from collections import Counter
 from functools import cache
 from pathlib import Path
 
@@ -91,9 +93,14 @@ def test_the_fresh_products_are_as_long_as_the_decoys(plural: str) -> None:
     assert abs(fresh_len - decoy_len) <= 2, (plural, fresh_len, decoy_len)
 
 
+@cache
+def _million() -> list[dict]:
+    return scale.build(10**6).records
+
+
 @pytest.fixture(scope="module")
 def index() -> br.Index:
-    return br.Index(scale.build(10**6).records)
+    return br.Index(_million())
 
 
 @pytest.mark.parametrize("plural", PLURALS)
@@ -101,3 +108,30 @@ def test_a_raw_search_shows_three_decoys_in_the_first_twelve(index: br.Index, pl
     ids = {f"PLT-D{d.code}" for d in _rows(plural)}
     top = [d["product_id"] for d in br.rank(index, plural, 12)]
     assert len([i for i in top if i in ids]) >= 3, (plural, top)
+
+
+def _title_scores(plural: str) -> dict[str, float]:
+    """The title-only BM25 of ``plural`` over the million-product build: exact spelling, no
+    stemming, no description and no popularity, Elasticsearch's defaults (k1 1.2, b 0.75). This is
+    the raw match a search with interpretation off makes, which :mod:`baseline_rank` hides (it
+    strips the plural, reads the description and weighs the sales)."""
+    counts = [Counter(re.findall(r"[a-z0-9]+", r["title"].lower())) for r in _million()]
+    mean = sum(sum(c.values()) for c in counts) / len(counts)
+    df = sum(1 for c in counts if c[plural])
+    idf = math.log(1 + (len(counts) - df + 0.5) / (df + 0.5))
+    return {
+        r["product_id"]: idf * c[plural] * 2.2
+        / (c[plural] + 1.2 * (0.25 + 0.75 * sum(c.values()) / mean))
+        for r, c in zip(_million(), counts, strict=True) if c[plural]
+    }
+
+
+@pytest.mark.parametrize("plural", PLURALS)
+def test_a_title_only_raw_match_shows_three_decoys_in_the_first_twelve(plural: str) -> None:
+    """Short titles score higher, so a decoy is surely in the first twelve only when no more than
+    twelve products (itself and every tie with it included) score as high."""
+    scores = _title_scores(plural)
+    ids = {f"PLT-D{d.code}" for d in _rows(plural)}
+    sure = [i for i in ids if sum(1 for v in scores.values() if v >= scores[i] - 1e-9) <= 12]
+    assert len(sure) >= 3, (plural, len(scores), sorted(
+        sum(1 for v in scores.values() if v >= scores[i] - 1e-9) for i in ids))
