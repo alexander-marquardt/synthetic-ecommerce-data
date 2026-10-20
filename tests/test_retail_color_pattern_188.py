@@ -50,7 +50,7 @@ PATTERN_WORD = re.compile(
         ("Grey Wash", "Grey", "Grey Wash"),
         ("Rinse", "Blue", "Rinse"),
         ("Washed Black", "Black", "Washed"),
-        ("Mid Wash / Yellow", "Blue / Yellow", "Mid Wash"),
+        ("Mid Wash and Yellow", "Blue and Yellow", "Mid Wash"),
         ("Navy", "Navy", None),
         ("Dark Red", "Dark Red", None),
         ("2N", "2N", None),
@@ -135,9 +135,7 @@ def test_a_style_lists_each_split_pattern_on_the_product(
     by_id = {d["product_id"]: d for d in nested}
     checked = 0
     for r in built.records:
-        patterns = {
-            colorwords.split(s["color"])[1] for s in r["skus"] if "color" in s
-        } - {None}
+        patterns = {colorwords.split(s["color"])[1] for s in r["skus"] if "color" in s} - {None}
         for p in patterns:
             checked += 1
             assert p.lower() in _values(by_id[r["product_id"]]["attributes"], "pattern")
