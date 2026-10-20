@@ -309,6 +309,14 @@ with-persona run, is the ingest batch's check, not this PR's.
 | carrots | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR14 | Little Carrots Kids' T-Shirt | decoy |
 | bananas | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR15 | Going Bananas Kids' Pyjamas | decoy |
 | cherries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR16 | Cherries and Almond Hand Wash, 250ml | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS01 | Denim Blue Linen Shorts with Drawstring Waist | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS02 | Denim-Look Jersey Shorts with Elastic Waist | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS03 | Chambray Cotton Shorts, Denim Wash, Knee Length | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS04 | Denim Blue Cotton Bermuda Shorts, Belted Waist | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS05 | Jersey Shorts with Denim Belt Bag | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS06 | Sweat Shorts, Wear with a Denim Jacket | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS07 | Denim Jacket to Wear with Shorts | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS08 | Denim Shorts Hanger, Set of 3 | decoy |
 
 ## Not done in this increment
 
