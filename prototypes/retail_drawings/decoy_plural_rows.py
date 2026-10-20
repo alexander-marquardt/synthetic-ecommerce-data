@@ -32,7 +32,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- apples
     ("XQ12", "juice", "Cloudy Juice from Apples", "A cloudy juice pressed from British apples, in a 1 litre carton.", "Green", "apples", 950, ("pressed apples (100%)",)),
     ("XQ13", "tinned", "Stewed Apples in Syrup", "Stewed apples in a light syrup, in a 385g tin. Warm for crumble or porridge.", "Green", "apples", 920, ("apples (62%)", "water", "sugar")),
-    ("XQ14", "cereal_bar", "Apples Cinnamon Oat Bars", "Chewy oat bars with dried apples and cinnamon, in a box of 5.", "Brown", "apples", 890, ("oats", "dried apples (14%)", "honey", "cinnamon")),
+    ("XQ14", "cereal_bar", "Apples & Cinnamon Oat Bars", "Chewy oat bars with dried apples and cinnamon, in a box of 5.", "Brown", "apples", 890, ("oats", "dried apples (14%)", "honey", "cinnamon")),
     ("XQ15", "cake", "Spiced Apples Crumble Cake", "A crumble-topped sponge baked with spiced apples. Serves 8.", "Brown", "apples", 860, ("wheat flour", "apples (20%)", "butter", "sugar")),
     # -- strawberries
     ("XQ16", "biscuit", "Strawberries and Cream Biscuits", "Sandwich biscuits with a strawberries and cream filling.", "Pink", "strawberries", 950, ("wheat flour", "dried strawberries (3%)", "cream powder", "sugar")),

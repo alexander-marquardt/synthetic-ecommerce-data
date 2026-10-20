@@ -135,3 +135,19 @@ def test_a_title_only_raw_match_shows_three_decoys_in_the_first_twelve(plural: s
     sure = [i for i in ids if sum(1 for v in scores.values() if v >= scores[i] - 1e-9) <= 12]
     assert len(sure) >= 3, (plural, len(scores), sorted(
         sum(1 for v in scores.values() if v >= scores[i] - 1e-9) for i in ids))
+
+
+def test_the_class_9_docstring_examples_are_titles_of_the_rows() -> None:
+    """The examples the class 9 docstring quotes are real rows, not stale titles."""
+    titles = {d.title for d in dr.TABLE}
+    section = (dr.__doc__ or "").split("9. **plural**", 1)[1].split("or, in a non-food", 1)[0]
+    quoted = re.findall(r'"([^"]+)"', section)
+    assert quoted
+    assert all(any(t.startswith(q) for t in titles) for q in quoted), quoted
+
+
+def test_the_apple_oat_bar_title_joins_its_words_with_an_ampersand() -> None:
+    """A retailer prints "Apples & Cinnamon Oat Bars", never the bare compound."""
+    titles = {d.title for d in dr.TABLE}
+    assert "Apples & Cinnamon Oat Bars" in titles
+    assert "Apples Cinnamon Oat Bars" not in titles
