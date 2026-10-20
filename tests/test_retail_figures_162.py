@@ -99,7 +99,14 @@ def _quotations(stats: dict) -> dict[str, str]:
     """
     patterns: dict[str, str] = {}
     for name, value in _numbers(stats).items():
-        if name.startswith(("departments.", "grocery_families.", "templates.type_specs.")):
+        if name.startswith(
+            (
+                "departments.",
+                "grocery_families.",
+                "grocery_tier_50k.families.",
+                "templates.type_specs.",
+            )
+        ):
             # Read at run time, never typed (see test_the_per_family_counts_add_up). The type
             # specs' own total (gen#351) moves with every type added, so a prose number that
             # happens to equal it is a collision, not a quotation.
