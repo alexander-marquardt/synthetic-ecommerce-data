@@ -927,7 +927,18 @@ share one worker so its module-scoped catalog is built once
 memory available allows fewer at 4,500 MB a worker, and never below two;
 `LOCAL_CI_WORKERS=<n>` sets it (`0` is one process). The count is capped by
 memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within three
-minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
+minutes, and an uncapped `-n auto` run took the host down. The grouping was not
+in effect until #442: xdist read the markers before the conftest hook added
+them, so a module's tests spread over the workers and its fixtures were built
+once per worker; the hook is now `tryfirst`, and
+`tests/test_xdist_group_honoured_442.py` runs a real `-n 2 --dist loadgroup`
+pytest to check it. The whole-suite figures above (637 s and 729 s on 12
+workers, up to 4.3 GB a worker, 4,500 MB a worker in the cap) were measured
+before it and are not re-measured: the shared host refuses a whole-suite run
+from an agent. On 14 modules with module-scoped fixtures (654 tests, `-n 12`,
+one run each, load average about 18) the wall time was 328 s before and 331 s
+after, the largest single process 2.0 GB before and 2.7 GB after, and after the
+change every one of the 14 modules ran on one worker. Run the merge chain on the agent VM, which has
 the cores and the memory, so it does not compete with a laptop's other work.
 
 That re-read narrows the race with another merge but cannot close it: GitHub
