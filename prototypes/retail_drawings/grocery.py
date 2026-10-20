@@ -311,6 +311,8 @@ def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, he
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
         return drawing(shape, color, pack_label(title, head), **params)
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, head)
+    if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
+        marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)

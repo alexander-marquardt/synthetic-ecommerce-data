@@ -442,7 +442,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Chicken Tikka Masala", "#d9822b", "Mx"), F("Beef Lasagne", "#a8502e", "GMx"), F("Vegetable Chilli", "#c8312e"),
             F("Macaroni Cheese", "#f2c14b", "GM"), F("Thai Green Curry", "#7ab648", "x"), F("Lemon Chicken", "#f2d14b", "x")),
            _MEAL, 0.03, axis="variety"),
-    Family("PIZ", _p("Chilled", "Pizza"), "{line} Pizza", "Pizza", "box", "Pizza", _C, "C", 3.0,
+    Family("PIZ", _p("Chilled", "Pizza"), "{line} Pizza", "Pizza", "pizza", "Pizza", _C, "C", 3.0,
            ("10 inch", "12 inch"),
            (F("Margherita", "#c8312e", "GM"), F("Pepperoni", "#8c3b2a", "GMx"), F("Vegan Garden", "#7ab648", "G"),
             F("Four Cheese", "#f2c14b", "GM"), F("Ham & Pineapple", "#d9a441", "GMx")),

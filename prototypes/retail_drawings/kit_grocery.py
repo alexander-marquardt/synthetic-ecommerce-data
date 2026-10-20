@@ -13,6 +13,8 @@ lidded_tub      a tapering tub with a snap-on lid and a thumb         --
                 tab (ice cream, a spread)
 steak_tray      a black tray under film holding one cut of meat:      --
                 a fat rim, marbling and a label on the tray (a steak)
+pizza           a round pizza on a card base under film, seen at a    flavor,
+                slight angle: toppings by flavour, diameter by inches  pack_size
 ==============  ===================================================  ======
 
 Each paints the record's fill on the pack's main surface and carries the product
@@ -23,7 +25,9 @@ word on a white label panel, as the kit's other packs do (``kit.box``, ``kit.jar
 
 from __future__ import annotations
 
-from kit import INK, LW, Fill, _line, _mix, _panel, _path, register
+import math
+
+from kit import INK, LW, LW_DETAIL, Fill, _line, _mix, _panel, _path, _shade, register
 
 
 def bar(paint: str, fill: Fill, label: str | None) -> list[str]:
@@ -99,9 +103,114 @@ def steak_tray(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "", pack_size: str = "") -> list[str]:
-    """Stub (red commit): the real pizza follows."""
-    return [_path("M60,60 L340,60 L340,340 L60,340 Z", paint)]
+# ---------------------------------------------------------------------------
+# The chilled pizza (gen#604)
+# ---------------------------------------------------------------------------
+
+#: The pie is seen from above at a slight angle: its depth is this share of its width.
+TILT = 0.6
+#: The drawn radius of a 12 inch pizza; a smaller one is in proportion (10 inch is 5/6 of it).
+PIZZA_RADIUS = 160.0
+PIZZA_BASE_Y = 262.0  # the card's lowest edge: every size sits on one baseline
+#: Each flavour's toppings, cycled over a spiral of positions, and how many of them.
+TOPPINGS = {
+    "Margherita": (("mozzarella", "basil"), 14),
+    "Pepperoni": (("pepperoni",), 13),
+    "Vegan Garden": (("green_pepper", "red_pepper", "aubergine", "courgette"), 16),
+    "Four Cheese": ((), 0),  # four wedges, drawn whole
+    "Ham & Pineapple": (("ham", "pineapple"), 16),
+}
+CHEESES = ("#f7edd2", "#f0a43c", "#f6d36a", "#d7dfec")  # mozzarella, cheddar, edam, blue-veined
+
+
+def _ell(cls: str, cx: float, cy: float, rx: float, ry: float, fill: str, width: float = LW,
+         extra: str = "") -> str:  # fmt: skip
+    return (f'<ellipse class="{cls}" cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" '
+            f'fill="{fill}" stroke="{INK}" stroke-width="{width}"{extra}/>')  # fmt: skip
+
+
+def _bit(kind: str, x: float, y: float, k: float) -> list[str]:
+    """One topping at (x, y), ``k`` times its 12 inch size, squashed by the view's tilt."""
+    r = 17 * k
+    flat = r * TILT
+    d = LW_DETAIL * 0.7
+    if kind == "pepperoni":
+        return [_ell("pep", x, y, r * 1.1, flat * 1.1, "#a8322b", d),
+                f'<circle cx="{x - r * .4:.1f}" cy="{y - flat * .2:.1f}" r="{1.6 * k:.1f}" fill="#7a2018"/>',
+                f'<circle cx="{x + r * .4:.1f}" cy="{y + flat * .3:.1f}" r="{1.4 * k:.1f}" fill="#7a2018"/>']  # fmt: skip
+    if kind == "mozzarella":
+        return [_ell("moz", x, y, r * 1.2, flat * 1.2, "#fbf6e6", d)]
+    if kind == "basil":
+        return [_ell("basil", x, y, r * 0.9, flat * 0.55, "#3f8a3a", d, f' transform="rotate(-25 {x:.1f} {y:.1f})"')]
+    if kind == "green_pepper":
+        return [_ell("gp", x, y, r, flat, "#6dae3c", d), _ell("gp", x, y, r * .45, flat * .45, "#f1cf6a", 0.8)]
+    if kind == "red_pepper":
+        return [_ell("rp", x, y, r * 1.1, flat * .5, "#d23a2c", d, f' transform="rotate(20 {x:.1f} {y:.1f})"')]
+    if kind == "aubergine":
+        return [_ell("aub", x, y, r, flat, "#6a3f7a", d), _ell("aub", x, y, r * .55, flat * .55, "#e8dcb4", 0.8)]
+    if kind == "courgette":
+        return [_ell("cou", x, y, r * .95, flat * .95, "#a9cf6a", d), _ell("cou", x, y, r * .6, flat * .6, "#d9efb0", 0.8)]
+    if kind == "ham":
+        return [_ell("ham", x, y, r * 1.15, flat * .85, "#e9a0a0", d, f' transform="rotate(-15 {x:.1f} {y:.1f})"')]
+    if kind == "pineapple":
+        w, h = r * .9, flat * .9
+        tri = f"M{x - w:.1f},{y + h:.1f} L{x:.1f},{y - h:.1f} L{x + w:.1f},{y + h:.1f} Z"
+        return [_path(tri, "#f4d03f", d)]
+    raise ValueError(f"no topping {kind!r}")  # pragma: no cover
+
+
+def _four_cheeses(cx: float, cy: float, rx: float, ry: float) -> list[str]:
+    """Four wedges of cheese, one per quarter: pale mozzarella, orange cheddar, yellow edam
+    with a red rind dot, and blue-veined emmental."""
+    out = []
+    for i, tone in enumerate(CHEESES):
+        pts = [(cx + rx, cy), (cx, cy + ry), (cx - rx, cy), (cx, cy - ry), (cx + rx, cy)]
+        (ax, ay), (bx, by) = pts[i], pts[i + 1]
+        out.append(_path(f"M{cx:.1f},{cy:.1f} L{ax:.1f},{ay:.1f} A{rx:.1f},{ry:.1f} 0 0 1 {bx:.1f},{by:.1f} Z", tone, LW_DETAIL * 0.7))
+        mx, my = (ax + bx) / 2 * 0.62 + cx * 0.38, (ay + by) / 2 * 0.62 + cy * 0.38
+        dot = ("#c23a2e", "#d98a1c", "#c23a2e", "#4a6fb0")[i]
+        out.append(f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="{rx * 0.05:.1f}" fill="{dot}"/>')
+    return out
+
+
+def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "Margherita",
+          pack_size: str = "12 inch") -> list[str]:  # fmt: skip
+    """A round pizza on a card base under film, seen from above at a slight angle.
+
+    ``flavor`` picks the toppings and ``pack_size`` ("10 inch", "12 inch") the diameter, both
+    the SKU's own values (per-SKU drawing params), so each flavour and size is its own picture.
+    The card is tinted by the record's fill and the label panel below carries the range name
+    and the band of the style's flavour colors."""
+    if flavor not in TOPPINGS:
+        raise ValueError(f"no pizza flavour {flavor!r}; known: {sorted(TOPPINGS)}")
+    inches = float(pack_size.split()[0])
+    if not 6 <= inches <= 12:
+        raise ValueError(f"a pizza of {pack_size!r} does not fit the sheet")
+    r = PIZZA_RADIUS * inches / 12
+    k = r / PIZZA_RADIUS
+    ry = r * TILT
+    cx, cy = 200.0, PIZZA_BASE_Y - 26 - ry  # the card's foot (26 below the crust's middle line) on the baseline
+    kinds, n = TOPPINGS[flavor]
+    bits: list[str] = []
+    for i in range(n):
+        rad = math.sqrt((i + 0.6) / n) * 0.72
+        ang = i * 2.39996
+        bits += _bit(kinds[i % len(kinds)], cx + rad * r * math.cos(ang), cy + rad * ry * math.sin(ang), k)
+    if flavor == "Four Cheese":
+        bits = _four_cheeses(cx, cy, r * 0.8, ry * 0.8)
+    card = _mix(paint, "#e8dcc0", 0.55)
+    return [
+        _ell("card", cx, cy + 12, r + 18, ry + 14, _shade(card, 0.15), LW),
+        _ell("card", cx, cy + 6, r + 18, ry + 14, card, LW),
+        _ell("crust", cx, cy, r, ry, "#d9a05b"),
+        _ell("sauce", cx, cy, r * 0.88, ry * 0.88, "#c4402e", LW_DETAIL),
+        _ell("cheese", cx, cy, r * 0.82, ry * 0.82, "#f3d27a", 0.8),
+        f'<g class="toppings">{"".join(bits)}</g>',
+        _ell("film", cx, cy + 2, r + 12, ry + 10, "#ffffff", 1.2, ' fill-opacity=".16" stroke-opacity=".55"'),
+        _line(f"M{cx - r * .7:.1f},{cy - ry * .55:.1f} Q{cx - r * .35:.1f},{cy - ry * .95:.1f} {cx + r * .1:.1f},{cy - ry * 1.02:.1f}",
+              3.0, ' stroke-opacity=".6"', "#ffffff"),
+        *_panel(100, 292, 200, 62, label, 36),
+    ]  # fmt: skip
 
 
 register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub,
