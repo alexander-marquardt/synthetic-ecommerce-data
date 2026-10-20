@@ -56,6 +56,8 @@ class LRow(Row):
         out.update(dict(self.facts))
         if "was_price" in out:  # every reduced product carries "On sale" (promotion.py, gen#189)
             out["promotion"] = promotion_values(f"BRD-{self.code}")
+            cheapest = min(s["price"] for s in self.skus())
+            out["discount_pct"] = round(100 * (out["was_price"] - cheapest) / out["was_price"])
         if self.axis_key in ("inside_leg", "fit_length"):
             served = {LENGTH_RANGE[v] for v, _ in self.axis}
             out["size_range"] = [r for r in SIZE_RANGES if r in served]
