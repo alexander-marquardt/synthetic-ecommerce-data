@@ -134,6 +134,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "the Kids rows leave every other template, and so the seeded fillers, as they were",
         _R,
     ),
+    (
+        "the Kids rows lose their own sale pass",
+        "scale.py",
+        'done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())',
+        "pass",
+        f"{_T} -k sale",
+        "the new rows go on sale in each leaf and hold the Kids share",
+        _R,
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
