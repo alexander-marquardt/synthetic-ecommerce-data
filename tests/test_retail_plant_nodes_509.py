@@ -32,7 +32,7 @@ NODES = (
     (*PLANTS, "Herbs", "Sage"),
     (*PLANTS, "Herbs", "Rosemary"),
     (*PLANTS, "Herbs", "Thyme"),
-    (*PLANTS, "Olive Trees"),
+    ("Garden", "Trees", "Olive Trees"),  # main moved the olive trees here (#569)
     (*PLANTS, "Eucalyptus"),
 )
 
