@@ -28,6 +28,8 @@ if str(RETAIL) not in sys.path:
 
 import export  # noqa: E402 -- the prototype's own directory is its import root
 import image_release  # noqa: E402
+import pack_scale  # noqa: E402
+import scale  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from retail_figures import figures  # noqa: E402
@@ -62,21 +64,24 @@ def _color(variant: dict[str, Any]) -> str | None:
     return "/".join(pair) or None
 
 
-def _rung(doc: dict[str, Any], variant: dict[str, Any]) -> float | None:
-    """The rung a variant stands on: its drawing's ``size_scale`` (``None``: no ladder)."""
+def _rung(doc: dict[str, Any], variant: dict[str, Any]) -> tuple[float | None, float | None]:
+    """The rung and pack factor a variant stands on: its drawing's ``size_scale`` and
+    ``pack_scale`` (``None``: neither applies)."""
     rec = next(r for r in RECORDS if r["product_id"] == doc["product_id"])
     sku = next(s for s in rec["skus"] if s["sku"] == variant["sku"])
-    return image_release.colorway_drawing(rec, sku).get("size_scale")
+    drawing = image_release.colorway_drawing(rec, sku)
+    assert drawing.get("pack_scale") == pack_scale.factor(rec, sku)
+    return drawing.get("size_scale"), drawing.get("pack_scale")
 
 
-def test_one_image_per_style_colorway_and_size_rung_never_per_sku(documents, files):
-    """A colorway has one image, or one per rung of its size ladder when the product's sizes
-    scale (gen#339); the sizes of a rung (a footwear row's UK, EU and US, a bra's cups) share it."""
+def test_one_image_per_style_colorway_pack_scale_and_size_rung_never_per_sku(documents, files):
+    """A colorway has one image, or one per pack factor (gen#543) and per rung of its size
+    ladder (gen#339); the sizes of a rung (a footwear row's UK, EU and US) share it."""
     by_key: dict[tuple, set[str]] = defaultdict(set)
     by_image: dict[str, set[tuple]] = defaultdict(set)
     for doc in documents:
         for variant in doc["variants"]:
-            key = (doc["product_id"], _color(variant), _rung(doc, variant))
+            key = (doc["product_id"], _color(variant), *_rung(doc, variant))
             by_key[key].add(variant["image_id"])
             by_image[variant["image_id"]].add(key)
     assert sum(len(d["variants"]) for d in documents) == RETAIL_SKUS
@@ -126,8 +131,6 @@ def test_an_image_id_naming_two_drawings_is_refused(monkeypatch):
 def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names():
     """``records(N)`` is ``scale.build(N)``: the 19K export names an ``image_id`` per derived
     style and colorway too, and every one of them is a packaged file."""
-    import scale  # noqa: PLC0415
-
     named = {v["image_id"] for d in scale.documents(scale.build(SCALED_SKUS))
              for v in d["variants"]}  # fmt: skip
     recs = image_release.records(SCALED_SKUS)

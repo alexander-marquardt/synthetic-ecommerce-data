@@ -13,12 +13,12 @@ The retail counterpart of ``ecom-generate images`` (:mod:`synthetic_ecommerce_da
 in the same package shape, so the installer that fetches the industrial
 release installs this one unchanged:
 
-- ONE IMAGE PER STYLE, COLORWAY AND SIZE RUNG, never per SKU. A SKU's ``image_id``
+- ONE IMAGE PER STYLE, COLORWAY, PACK SCALE AND SIZE RUNG, never per SKU. A SKU's ``image_id``
   (:func:`export.image_id`) is a digest of its product's drawing, its color
-  swatch and, for clothing and footwear, its rung of the size ladder
-  (``size_ladder.py``), so SKUs of one color and rung share an image; any other
-  size shares one image per color, and a style sold in no color has one image.
-  The 352-style build is 3,603 images for 7,736 SKUs.
+  swatch, the factor its pack is drawn at within its line (:mod:`pack_scale`, gen#543) and, for
+  clothing and footwear, its rung of the size ladder (``size_ladder.py``), so SKUs of one color,
+  factor and rung share an image; a style sold in no color has one image per factor and rung.
+  The 352-style build is 3,627 images for 7,736 SKUs.
 - LAYOUT. Every member is ``retail/<image_id>.svg`` (``retail`` is
   :data:`export.IMAGE_ROOT`), and every ``image_url`` is ``/images/`` plus that
   member, so the demo serving the unpacked folder at ``/images`` resolves it.
@@ -75,6 +75,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
         drawing["params"] = drawing.get("params", {}) | spec["params"]
     if "size_scale" in spec:  # the SKU's rung on its size ladder (gen#339)
         drawing["size_scale"] = spec["size_scale"]
+    if "pack_scale" in spec:  # a smaller size of the line draws a smaller pack (gen#543)
+        drawing["pack_scale"] = spec["pack_scale"]
     swatch = spec["swatch"]
     if swatch is None:
         return drawing
