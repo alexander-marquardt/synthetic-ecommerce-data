@@ -37,9 +37,15 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Where every job runs (synthetic-ecommerce-data#596): the self-hosted runner on the agent VM
+# (agent-ops vm/ci_runner: one throwaway container per job, no host mounts, no metadata server)
+# for a push, a dispatched run and a pull request from a branch of this repository, once the
+# repository variable SYNTH_CI_SELF_HOSTED is `true`; a fork's pull request, and every run while
+# the variable is unset, stays on GitHub-hosted ubuntu-latest. Every job carries the same
+# expression: tests/test_ci_runs_on_596.py.
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +64,7 @@ jobs:
 
   tests:
     # The suite is about 27 minutes of work on one core, and merges are serial
-    # (#348), so it runs as SHARDS on GitHub-hosted runners: the matrix below is
+    # (#348), so it runs as SHARDS on separate runners: the matrix below is
     # the shard count, scripts/ci_shards.py deals the test files out (every file
     # in exactly one shard: tests/test_ci_shards_348.py), and each shard runs
     # its files on every core of its runner. Raising the count is one edit here
@@ -73,7 +79,7 @@ jobs:
     # has no range, so it runs every test file: the whole suite runs once after
     # every merge.
     name: tests (${{ matrix.shard }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -149,7 +155,7 @@ jobs:
     # a merge that bypassed the script is red within minutes, not after the
     # whole suite.
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     env:
       PYTEST_ADDOPTS: "-n auto --dist loadgroup"
     steps:
@@ -169,7 +175,7 @@ jobs:
     # is checked with scripts/check_commit_msg.py (the vendored core
     # AI-attribution family plus this repository's additions).
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -191,7 +197,7 @@ jobs:
     # the `derived` artifact of the run. A test reads a figure with retail_figures.figures(),
     # never a committed number.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -234,7 +240,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -266,7 +272,7 @@ jobs:
     # ``Red-Test: none - <reason>``, runs nothing, so a PR without a declared
     # red commit costs this job a few seconds. docs/red-commit-and-mutants.md.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -297,7 +303,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:

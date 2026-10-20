@@ -42,14 +42,16 @@ decided separately, by different statistics, on the same measurement pass.
 from __future__ import annotations
 
 import collections
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from functools import cache
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import flat_key
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
 from synthetic_ecommerce_data.domains.industrial.generate import Generator
+from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB, AttrSpec
 
 #: Attributes the generator itself mints as part codes (``List Number``), and
 #: so withheld from the sidebar whatever their values measure. Read from the
@@ -196,6 +198,18 @@ IDENTIFIER_DISPERSION = 0.5
 #: catalogs differ in the property the rule measures.
 RANGE_DISPERSION = 0.5
 
+#: THE DECLARATION COMES FIRST (gen#95). The generator knows whether a quantity
+#: is read off a table or drawn from a range: ``AttrSpec.source``, read by
+#: :func:`quantity_sources` the way :data:`IDENTIFIER_ATTRIBUTES` is read. A
+#: declared quantity is a range or a list by that word, so the floor below
+#: decides nothing for it, at any ``--lines``, and a type with a longer ladder
+#: restates nothing. ``test_every_declaration_agrees_with_the_data_it_describes``
+#: holds the word to the data wherever the data is evidence.
+#:
+#: What is left for the floor is what nothing declares: a quantity no
+#: vocabulary here names (another catalog's) and every terms attribute, whose
+#: identifier test is the ratio.
+#:
 #: Dispersion cannot tell saturation from growth on too few products: a
 #: ladder of K rungs reads below 0.5 only once roughly 1.6K products have
 #: landed on it, so an undersampled ladder looks like a continuum or an
@@ -231,6 +245,31 @@ RANGE_DISPERSION = 0.5
 #: 2). ``Neck Length`` clears it and is kept off a slider by
 #: :data:`MIN_PRESENCE`.
 RANGE_MIN_DOCS = 250
+
+
+def declared_sources(table: Mapping[str, Iterable[AttrSpec]]) -> dict[str, str]:
+    """How the generator says each quantity's values come to be, by published name.
+
+    Read from the vocabulary the way :data:`IDENTIFIER_ATTRIBUTES` is read from
+    the generator: a type's :class:`AttrSpec` states ``source`` (``tabled``
+    unless the type draws the quantity from a range), and the sidebar reads
+    the PUBLISHED name, which is sentence case (gen#499). Only quantities
+    declare (a keyword spec is a word, not a number). A name two types declare
+    differently is left out: the generator cannot say how a mixed name is made,
+    so the ratio decides it.
+    """
+    seen: dict[str, set[str]] = collections.defaultdict(set)
+    for specs in table.values():
+        for spec in specs:
+            if spec.kind != "keyword":
+                seen[sentence_case(spec.name)].add(spec.source)
+    return {name: next(iter(sources)) for name, sources in seen.items() if len(sources) == 1}
+
+
+@cache
+def quantity_sources() -> dict[str, str]:
+    """:func:`declared_sources` over the registered vocabulary, read once."""
+    return declared_sources(VOCAB)
 
 
 @dataclass(frozen=True)
@@ -299,13 +338,28 @@ class AttributeStats:
         return (self.magnitudes or 0) / self.product_magnitudes
 
     @property
+    def declared_source(self) -> str | None:
+        """``tabled`` or ``drawn`` when the generator declares how this quantity is made.
+
+        ``None`` for a keyword attribute and for a name no vocabulary
+        declares (another catalog's): those are measured.
+        """
+        return quantity_sources().get(self.name) if self.is_numeric else None
+
+    @property
     def is_continuous(self) -> bool:
         """Whether the values are a continuum, so a RANGE control is honest.
 
-        Three conditions, each of which can independently refuse a range:
-        the values must be numbers at all, there must be enough observations
-        for dispersion to mean anything, and the values must not saturate.
+        The generator's declaration decides when it makes one
+        (:attr:`declared_source`): a drawn quantity is a continuum and a
+        tabled one is a ladder, whatever size the catalog is built at. For
+        an undeclared quantity, three conditions, each of which can
+        independently refuse a range: the values must be numbers at all,
+        there must be enough observations for dispersion to mean anything,
+        and the values must not saturate.
         """
+        if self.declared_source is not None:
+            return self.declared_source == "drawn"
         return (
             self.is_numeric
             and self.products >= RANGE_MIN_DOCS
@@ -440,6 +494,21 @@ def decide(stats: AttributeStats) -> Decision:
             False,
             f"reads as an identifier, not a facet: {over}, at or above the "
             f"{IDENTIFIER_DISPERSION:.2f} identifier threshold, so the values do not repeat",
+        )
+    if stats.declared_source == "drawn":
+        return Decision(
+            stats,
+            True,
+            f"a range: the generator declares its values drawn from a continuous range, "
+            f"so no floor or ratio is consulted; {over}",
+        )
+    if stats.declared_source == "tabled":
+        return Decision(
+            stats,
+            True,
+            f"a discrete list: the generator declares its values tabled, a standard's list "
+            f"of sizes, so they are offered as a list rather than an interval whatever "
+            f"the ratio; {over}",
         )
     if stats.is_continuous:
         return Decision(
