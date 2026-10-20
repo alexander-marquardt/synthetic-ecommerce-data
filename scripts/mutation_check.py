@@ -2566,7 +2566,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "build no fine-pitch line",
         "domains/industrial/generate.py",
-        '        if not fine or self._rotate(f"fine:{key}", period) != period - 1:',
+        '        if not period or not fine or self._rotate(f"fine:{key}", period) != period - 1:',
         "        if True:",
         "tests/test_compatibility_text.py -k pitch_to_choose",
         "A",

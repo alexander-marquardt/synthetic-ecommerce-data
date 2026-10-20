@@ -89,9 +89,9 @@ def test_a_set_screw_carries_the_near_miss_thread_sentence(fresh):
 
 def test_a_set_screw_reads_its_declared_period_for_the_fine_pitch_near_miss(fresh):
     """An inch size with a fine series is built to UNF on every Nth line, N being the
-    period the spec declares. At period 3 the default build holds 26 UNF lines; a
-    period of 5 (the bolt's) leaves 10, so a set screw reading another type's period
-    falls under the floor."""
+    period the spec declares. At period 3 the default build holds 19 UNF lines (the first
+    line a standard builds to a size is always coarse); a period of 5 (the bolt's)
+    leaves about 11, so a set screw reading another type's period falls under the floor."""
     assert compat.NEAR_MISS_PERIOD[SET_SCREW] == 3
     fine, coarse = 0, 0
     for doc in _of(fresh, SET_SCREW):
@@ -103,7 +103,7 @@ def test_a_set_screw_reads_its_declared_period_for_the_fine_pitch_near_miss(fres
             fine += 1
         else:
             coarse += 1
-    assert fine >= 20, (fine, coarse)
+    assert fine >= 15, (fine, coarse)
 
 
 # --- the declarations, from the spec -------------------------------------------
