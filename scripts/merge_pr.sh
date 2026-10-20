@@ -20,6 +20,8 @@
 # block. Only a tree holding both changes shows it, so this script builds that
 # tree before it merges:
 #
+#   0. refuses a PR that is not open, comes from a fork or is a draft (#70), before
+#      anything is cloned: GitHub refuses a draft's merge only at step 6.
 #   1. clones the PR head into a temporary directory and merges current main
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
@@ -250,10 +252,13 @@ acquire_merge_lock() {
 if [ "$dry_run" -eq 0 ]; then acquire_merge_lock; fi
 
 fields=$(gh pr view "$pr" -R "$slug" \
-  --json state,isCrossRepository,headRefName,headRefOid,baseRefName \
-  --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName] | @tsv')
-IFS=$'\t' read -r state cross head_ref head_sha base_ref <<<"$fields"
+  --json state,isCrossRepository,headRefName,headRefOid,baseRefName,isDraft \
+  --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName, (.isDraft|tostring)] | @tsv')
+IFS=$'\t' read -r state cross head_ref head_sha base_ref draft <<<"$fields"
 [ "$state" = OPEN ] || die "#$pr is $state, not OPEN"
+# GitHub refuses to merge a draft, and learns it only at step 6: after the clone, the build
+# and the CI wait (about 45 minutes, #70). Say so before any of that.
+[ "$draft" = false ] || die "#$pr is a draft; mark it ready first"
 [ "$cross" = false ] || die "#$pr comes from a fork; this script pushes to the PR branch"
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/merge-pr-$pr.XXXXXX")
