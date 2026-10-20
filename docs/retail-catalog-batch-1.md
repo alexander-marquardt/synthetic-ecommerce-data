@@ -309,6 +309,19 @@ with-persona run, is the ingest batch's check, not this PR's.
 | carrots | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR14 | Little Carrots Kids' T-Shirt | decoy |
 | bananas | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR15 | Going Bananas Kids' Pyjamas | decoy |
 | cherries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR16 | Cherries and Almond Hand Wash, 250ml | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC01 | Cream Baby Face Fabric Sofa | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC02 | Cream Baby Face Fabric Corner Sofa | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC03 | Cream Baby Face Fabric Armchair | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC04 | Cream Baby Face Fabric Footstool | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC05 | Textured Chenille Right-Hand Facing Corner Sofa, Cream | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC06 | Textured Chenille Left-Hand Facing Corner Sofa, Cream | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC07 | Textured Chenille 2 Seater Sofa, Cream | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC08 | Textured Chenille Snuggle Chair, Cream | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC09 | Textured Chenille Footstool, Cream | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC10 | Cream Boucle Three-Seater Sofa | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC11 | Cream Linen Armchair | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC12 | Cream Abstract Face Line-Art Cushion | decoy |
+| face cream | 4 color word is also a product or a shade | PLT-DXC13 | Cream Chunky Knit Throw | decoy |
 
 ## Not done in this increment
 
