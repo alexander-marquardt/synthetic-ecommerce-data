@@ -81,7 +81,7 @@ KINDS = {
 _ROWS = (
     # both words in the title
     ("XC01", "fc_bf_sofa", "Cream Baby Face Fabric Sofa", "A three seater sofa in Baby Face fabric, a soft, velvety blend in cream that resists pet hair and stains.", 950),
-    ("XC02", "fc_bf_corner", "Cream Baby Face Fabric Corner Sofa", "An L-shaped corner sofa in cream Baby Face fabric, a soft blend that wipes clean of pet hair.", 900),
+    ("XC02", "fc_bf_corner", "Cream Baby Face Fabric Corner Sofa", "A corner sofa with a long return in cream Baby Face fabric, a soft blend that wipes clean of pet hair.", 900),
     ("XC03", "fc_bf_chair", "Cream Baby Face Fabric Armchair", "An accent armchair upholstered in cream Baby Face fabric, velvety to the touch and stain resistant.", 880),
     ("XC04", "fc_bf_stool", "Cream Baby Face Fabric Footstool", "A padded footstool in cream Baby Face fabric to match the sofa and the armchair.", 860),
     # "Facing" is not "face": cream alone
