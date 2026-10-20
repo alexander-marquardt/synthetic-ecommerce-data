@@ -104,17 +104,20 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
-A threaded type that publishes `dia_thread_size` and whose standard has no
-extraction declares the sizes that standard offers in its `SPEC`, as
-`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
-sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
-declared size to reaching a document, and it fails, rather than skips, a
-standard that has neither an extraction nor a declaration. A type that
-publishes `thread_size` instead, such as the lock nut, is not swept yet: see
-issue #68. When the
+A threaded type that publishes `dia_thread_size` or `thread_size` and whose
+standard has no extraction declares the sizes that standard offers in its
+`SPEC`, as `sizes={standard: (size, ...)}`, stated apart from its table. The
+thread-size sweep in `tests/test_catalog_coverage.py` holds every declared size
+to reaching a document, and it fails, rather than skips, a standard that has
+neither an extraction nor a declaration. It reads `dia_thread_size` from
+every type, and `thread_size` only from a type that declares `sizes`: the
+breadth rows publish `thread_size` too and are built to no standard. A coarse
+row is declared by its diameter (`M24`, `1/4`); a fine-pitch row by its whole
+designation (`M10x1`, `1/4-28`), because it is a size of its own. When the
 type's `dimension_provenance` is a sentence rather than a bare standard name,
-it also declares `line_standard`, which reads a record's standard back from
-its published attributes. `set_screws_hex_socket` does both.
+it either declares `line_standard`, which reads a record's standard back from
+its published attributes (`set_screws_hex_socket`), or names its one table as
+`read from the <standard> table`, which the sweep reads (the lock nut).
 
 ## The steps
 
@@ -306,6 +309,8 @@ Shared files, edited by hand:
 * `src/synthetic_ecommerce_data/domains/industrial/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
+
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50).
 
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
@@ -839,8 +844,20 @@ the generated files, and runs the drift, golden and seam tests
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge
-attempt it re-reads `main` and the PR head, and refuses if either moved.
-`--dry-run` does all of it except the push, the CI wait and the merge.
+attempt it re-reads `main` and the PR head, and refuses if either moved; a
+read that is not the expected sha is repeated, up to 3 reads 10 s apart
+(`MERGE_PR_HEAD_SLEEP`), because `git ls-remote` right after a push can answer
+from before it. `--dry-run` does all of it except the push, the CI wait and the merge.
+
+**One merge at a time (#383).** A merge takes a lock before it reads the PR and `main`
+and keeps it to the squash merge, so a second `merge_pr.sh` started during the first's
+CI run waits instead of landing on `main` underneath it and forcing a full rerun. The
+lock is a directory (`MERGE_PR_LOCK`, default `/tmp/merge-pr-<repo>.lock`) whose `owner`
+file holds the pid and PR number. A waiting run says so, polls every
+`MERGE_PR_LOCK_POLL` seconds (10) and refuses after `MERGE_PR_LOCK_WAIT` (14400, 4 h)
+naming the holder. A lock whose holder's pid is gone (a killed run) is taken over. The
+lock is per machine: two checkouts on one host share it, two hosts do not.
+`--dry-run` pushes and merges nothing, so it takes no lock.
 
 **CI runs locally (`--local-ci`).** GitHub Actions on this repository is
 billing-blocked and stays so, so nobody waits for or reads GitHub CI. With
