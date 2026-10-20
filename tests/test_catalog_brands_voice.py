@@ -39,7 +39,7 @@ from synthetic_ecommerce_data.core.brands import (
     INKS,
     PRODUCT_WORDS,
 )
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import tabletype
 from synthetic_ecommerce_data.domains.industrial.generate import generate
@@ -79,7 +79,7 @@ def golden() -> list[dict]:
 @pytest.fixture(scope="module")
 def hundred_k() -> list[dict]:
     """The full 100K build, emitted in memory (about 30 s)."""
-    catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
     return _realistic_only(list(emit.iter_flat(catalog)))
 
 

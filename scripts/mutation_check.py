@@ -3335,8 +3335,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "the wheel pin's 100K record is loosened by hand",
                 "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (None, 1.75),",
-                "    _WHEEL_SPREAD_ROW: (None, 3.25),",
+                "    _WHEEL_SPREAD_ROW: (1.771, 1.769),",
+                "    _WHEEL_SPREAD_ROW: (1.771, 3.25),",
                 "figure_its_build_produces",
                 "a record is the build's figure",
             ),
@@ -3353,8 +3353,8 @@ MUTATIONS: list[Mutation] = [
                 "core/price.py",
                 "            0.190,\n            0.139,\n            size_sigma=0.736,",
                 "            0.702,\n            0.306,\n            size_sigma=0.0,",
-                "wheel_brand_spread_lands_in_band",
-                "the wheel brand spread is in band on the default build",
+                "wheel_brand_spread_is_carried_by_size_noise",
+                "the wheel brand spread is within a few percent of its band on the default build",
             ),
             (
                 "a pin reads its default figure at 100K",
