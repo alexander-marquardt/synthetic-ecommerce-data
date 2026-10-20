@@ -12,11 +12,16 @@ documents split them:
 | Light Wash, Mid Wash, Bleach Wash, Rinse | Blue (denim) | the wash: `light wash`, `mid wash`, `bleach wash`, `rinse` |
 | Grey Wash | Grey | `grey wash` |
 | Washed Black | Black | `washed` |
-| Mid Wash / Yellow | Blue / Yellow | `mid wash` |
+| Mid Wash and Yellow | Blue and Yellow | `mid wash` |
 | Navy, Dark Red, 2N | unchanged | none |
 
 A `pattern` value is lower case (`export.VALUE_CASE`, gen#255), so the table above shows the value
 the facet holds, not the authored word.
+
+A product of two colors carries ONE `color` value written in words, `Blue and White`, never
+`Blue / White` and never a list of both colors (a list would put a mostly blue product into a
+White filter) (gen#514). `tests/test_retail_two_color_514.py` holds it: no `color` value has a
+`/` or `&`, and a two-color value reads `<A> and <B>` in title case.
 
 `colorwords.split` is the one splitter; `export._color_entries` writes the two entries. The
 `pattern` entry sits on the variant (beside its `color`) and, deduplicated, on the product, where
@@ -49,6 +54,17 @@ sleeve top (`colorgroup_rows.py`) and "Multi Patchwork" of the linen fringed cus
 (`breadth_rows.py`, drawn with the patchwork fill). `colorwords.PATTERN_WORDS` lists the four;
 `breton stripe` is one pattern, so a breton colorway is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
 plain color yet, and `main_colors.complete` refuses a type with none.
+
+## One spelling per pattern (gen#324)
+
+The facet held `Stripe` (from the colorways) beside `Striped` (authored on the cotton tote bag, the
+windproof umbrella, the melamine side plate and the striped wallpaper), `Check` beside `Checked`
+and `Spot` beside `Spotted` (both on wallpapers): one pattern, two spellings, so a shopper who
+ticked one missed the other. The authored `Pattern` attributes now use the colorway spelling
+(`Stripe`, `Check`, `Spot`). Titles keep their words ("Striped Wallpaper"). The count of SKUs and
+styles does not move. `tests/test_retail_pattern_spelling_324.py` fails when two pattern values of
+any authored template, or of a built catalog, differ only by a plural `s`/`es` or a past `ed`
+ending.
 
 ## Guard
 

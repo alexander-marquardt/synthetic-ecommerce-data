@@ -104,17 +104,20 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
-A threaded type that publishes `dia_thread_size` and whose standard has no
-extraction declares the sizes that standard offers in its `SPEC`, as
-`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
-sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
-declared size to reaching a document, and it fails, rather than skips, a
-standard that has neither an extraction nor a declaration. A type that
-publishes `thread_size` instead, such as the lock nut, is not swept yet: see
-issue #68. When the
+A threaded type that publishes `dia_thread_size` or `thread_size` and whose
+standard has no extraction declares the sizes that standard offers in its
+`SPEC`, as `sizes={standard: (size, ...)}`, stated apart from its table. The
+thread-size sweep in `tests/test_catalog_coverage.py` holds every declared size
+to reaching a document, and it fails, rather than skips, a standard that has
+neither an extraction nor a declaration. It reads `dia_thread_size` from
+every type, and `thread_size` only from a type that declares `sizes`: the
+breadth rows publish `thread_size` too and are built to no standard. A coarse
+row is declared by its diameter (`M24`, `1/4`); a fine-pitch row by its whole
+designation (`M10x1`, `1/4-28`), because it is a size of its own. When the
 type's `dimension_provenance` is a sentence rather than a bare standard name,
-it also declares `line_standard`, which reads a record's standard back from
-its published attributes. `set_screws_hex_socket` does both.
+it either declares `line_standard`, which reads a record's standard back from
+its published attributes (`set_screws_hex_socket`), or names its one table as
+`read from the <standard> table`, which the sweep reads (the lock nut).
 
 ## The steps
 
@@ -306,6 +309,8 @@ Shared files, edited by hand:
 * `src/synthetic_ecommerce_data/domains/industrial/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
+
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50).
 
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
