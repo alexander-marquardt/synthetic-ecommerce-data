@@ -1,17 +1,17 @@
 {
   "default": {
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": null,
+      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.771,
       "price p90/p10: kit_assortment": 4.032
     }
   },
   "hundred_k": {
-    "lines": 72874,
+    "lines": 71512,
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.75,
+      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.769,
       "price p90/p10: kit_assortment": 3.917
     },
-    "skus": 124896,
+    "skus": 122610,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -162,7 +162,7 @@
       "v_belts": 2,
       "washer_flat": 978,
       "wedge_anchors": 2,
-      "wheel_depressed_center": 12435,
+      "wheel_depressed_center": 10149,
       "wheel_mandrels": 2,
       "wrench_organizers": 2,
       "zerk_grease_fittings": 2

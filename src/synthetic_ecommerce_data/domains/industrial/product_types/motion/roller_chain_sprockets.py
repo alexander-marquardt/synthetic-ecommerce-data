@@ -19,9 +19,10 @@ within 0.005" of it (40 chain, 12 teeth: 2.166 against 2.170; 50 chain, 15
 teeth: 3.315 against 3.320; 60 chain, 24 teeth: 6.147 against 6.150).
 
 **Shared with the roller chain.** ``ANSI Number`` and ``Pitch`` are the
-roller chain type's attributes, with its values (``40``) and its spelling
-(``1/2"``), and ``Pitch`` carries its machine key, so one filter value finds
-a chain and the sprockets it runs on. The pitch of each chain number is read
+roller chain type's attributes, with its values (``40``) and the catalog's
+one spelling of a length (``1/2"``; a chain is written in its brand's feed
+style), and ``Pitch`` carries its machine key, so one filter finds a chain and
+the sprockets it runs on. The pitch of each chain number is read
 from that type's table, not restated.
 
 Steel with a black oxide finish, as the pages describe them, sold singly.
@@ -207,8 +208,7 @@ def _make(base: Callable[..., Any]) -> Callable[..., Any]:
             outside = min(IDENTITY, key=lambda size: abs(size - child.primary.value_num))
             number, teeth = IDENTITY[outside]
             child.attrs = [
-                dataclasses.replace(a, key=PITCH_KEY) if a.name == PITCH else a
-                for a in child.attrs
+                dataclasses.replace(a, key=PITCH_KEY) if a.name == PITCH else a for a in child.attrs
             ]
             child.primary = child.attrs[0]
             # A brand whose titles name a second dimension names the pitch.
