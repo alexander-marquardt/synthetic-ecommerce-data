@@ -233,6 +233,11 @@ these in order and stops at the first that parses:
 5. **The nominal shape.** `nominal`. This is the only rung where the record's
    primary dimension itself could not be used.
 
+Rungs 4 and 5 take every extent from the nominal shape, but never a *form* the
+record publishes: `_read()`'s `form` argument carries those values (an end mill's
+`Single End/Double End`, #9) into both rungs, so a double-end mill whose
+dimensions cannot be drawn as published is still drawn with two cutting ends.
+
 A "contradiction" is any exception in `domains/industrial/render/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
 and `DimensionParseError`.
@@ -316,6 +321,7 @@ that matter most when you change a figure:
 | `test_a_part_longer_than_its_extent_is_drawn_broken_and_fits`, `test_no_fastener_is_drawn_smaller_because_of_an_outlier` | the break convention | planted |
 | `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
 | `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name's capitals at least 10 px tall at the tile; the four layouts, and a name no layout fits refused; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
+| `tests/test_end_mill_ends_drawn_9.py` | an end mill's cutting ends, counted off the figure's `part` polygons, equal its published `Single End/Double End` on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
 | `test_nominal_geometry_stays_rare` | at most 10% `nominal` per depth type | SMALL |
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
 

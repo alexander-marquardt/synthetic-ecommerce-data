@@ -352,7 +352,6 @@ _WHEEL = (
     _spec("Bond Type", "line", 0.7),
     _spec("Max. RPM", "line", 0.9, kind="count"),
     _spec("Application", "line", 0.6),
-    _spec("Units per Pack", "line", 0.8, kind="count"),
     _spec("Grit", "sku", kind="count"),
     _spec("Wheel Grade", "line", 0.7),
 )

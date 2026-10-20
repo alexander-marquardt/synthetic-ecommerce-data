@@ -59,7 +59,7 @@ def test_the_validator_refuses_a_key_that_mixes_classed_and_unclassed_entries():
 
 
 def test_a_christmas_trees_height_is_an_item_height_not_a_size():
-    docs = [d for d in _template_documents() if d["category_leaf"] == "Real christmas trees"]
+    docs = [d for d in _template_documents() if d["category_leaf"] == "Christmas trees"]
     assert docs
     keys = {
         d["product_id"]: {e["key"] for v in d["variants"] for e in v["attributes"]} for d in docs
