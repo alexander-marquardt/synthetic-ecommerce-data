@@ -1,7 +1,7 @@
 """Cream sofas and armchairs for the query "face cream" (gen#541).
 
-A well-known failure on public retail sites: ``face cream`` returns cream-coloured sofas, because
-the colour word is matched alone. The set in ``feature_decoys/face_cream_cream_sofa.py`` makes the
+A well-known failure on public retail sites: ``face cream`` returns cream-colored sofas, because
+the color word is matched alone. The set in ``feature_decoys/face_cream_cream_sofa.py`` makes the
 catalogue able to show it. It holds three families:
 
 * **Baby Face** furniture: "Baby Face" is a real upholstery fabric, so the title holds both words
@@ -92,7 +92,7 @@ def test_every_decoy_of_the_set_is_in_the_catalogue_as_a_single_cream_template(b
 def test_the_furniture_decoys_sit_in_home_furniture_under_their_own_leaf(by_title, family):
     for title, leaf in family.items():
         path = _doc(by_title, title)["category_path"]
-        assert path[:2] == ["Home", "Furniture"] and path[2] == leaf, (title, path)
+        assert path[:2] == ["Home", "Furniture"] and path[-1] == leaf, (title, path)
 
 
 def test_the_lead_title_and_its_baby_face_siblings_exist(by_title):
@@ -106,7 +106,7 @@ def test_the_facing_corner_sofas_exist_on_both_hands_with_their_siblings(by_titl
     corners = [t for t in FACING if "Facing" in t]
     assert {"Right-Hand" in t for t in corners} == {True, False}
     for title in corners:
-        assert _doc(by_title, title)["category_path"][2] == "Corner Sofas", title
+        assert _doc(by_title, title)["category_path"][-1] == "Corner Sofas", title
     assert any("Snuggle Chair" in t for t in FACING)
     assert any("Footstool" in t for t in FACING)
 

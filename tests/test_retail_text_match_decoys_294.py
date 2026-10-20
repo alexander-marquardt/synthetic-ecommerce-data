@@ -23,6 +23,7 @@ if str(RETAIL) not in sys.path:
 import baseline_rank as br  # noqa: E402
 import decoy_apparel as da  # noqa: E402
 import decoy_rows as dr  # noqa: E402
+import feature_decoys  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
 
@@ -66,16 +67,20 @@ def _intended(doc: dict, query: str) -> bool:
     )
 
 
+#: The codes a feature module plants (gen#513); each module holds its own count, in its own test.
+FEATURE_CODES = frozenset(feature_decoys.decoy_rows(lambda code, *_a, **_k: code))
+
+
 def _decoys(query: str) -> list[dr.Decoy]:
     return [d for d in dr.TABLE if d.query == query and not d.true_hit]
 
 
 def test_every_demo_query_has_three_to_six_planted_decoys_with_a_class() -> None:
     for query in INTENT:
-        rows = _decoys(query)
+        rows = [d for d in _decoys(query) if d.code not in FEATURE_CODES]
         assert 3 <= len(rows) <= 8, (query, len(rows))
         assert all(d.cls in (1, 2, 3, 4, 10) for d in rows), query
-    assert 40 <= sum(not d.true_hit for d in dr.TABLE) <= 140
+    assert 40 <= sum(not d.true_hit and d.code not in FEATURE_CODES for d in dr.TABLE) <= 140
 
 
 def test_every_guard_query_has_a_real_product_holding_its_words() -> None:
