@@ -142,10 +142,10 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
     101,460 template SKUs; the 21 plural-cups styles and 6 more bra decoys (gen#508), the 14
     templates (29 SKUs) of the sports text-match decoys (#375), the large appliances of
-    gen#334 (120 templates, 264 SKUs) and gen#352's 27 styles of bicycles, bike helmets,
-    kayaks, kick scooters and skateboards (196 SKUs) lift them to 11512 and 103078, and a
-    new style would raise both. This test pins 11512 templates and 103078 template SKUs:
-    the PR that lifts the freeze must move them."""
+    gen#334 (120 templates, 264 SKUs), the face creams (#542: 20 templates, 69 SKUs) and
+    gen#352's 27 styles of bicycles, bike helmets, kayaks, kick scooters and skateboards
+    (196 SKUs) lift them to 11532 and 103147, and a new style would raise both. This test
+    pins 11532 templates and 103147 template SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11512
-    assert sum(t["sku_count"] for t in tpls) == 103078
+    assert len(tpls) == 11532
+    assert sum(t["sku_count"] for t in tpls) == 103147
