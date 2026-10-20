@@ -128,6 +128,7 @@ import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
 import plus_sizes  # noqa: E402
+import sale_share  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
@@ -333,6 +334,10 @@ def exempt_problems() -> list[str]:
     return out
 
 
+#: The sections of :func:`samples` whose rows plant a failure the price is part of.
+PLANTED_SECTIONS = ("Observed failure classes", "Planted distractors", "Gift bag distractors")
+
+
 def templates(baseline: bool = True) -> list[dict]:
     """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
     :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
@@ -352,7 +357,8 @@ def templates(baseline: bool = True) -> list[dict]:
     ``test_grocery_tiles_are_measured_apart_from_the_clothing_gate``,
     ``test_grocery_style_attributes_list_the_values_of_their_skus``,
     ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
-    authored = (r for recs in samples().values() for r in recs)
+    sections = samples()
+    authored = (r for recs in sections.values() for r in recs)
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(), *decoy_product_words.docs(),
@@ -378,7 +384,10 @@ def templates(baseline: bool = True) -> list[dict]:
     skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
             | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
             | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
-    return main_colors.complete(tpls, skip) if baseline else tpls
+    # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
+    planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}
+    done = main_colors.complete(tpls, skip) if baseline else tpls
+    return sale_share.apply_all(done, DECOY_IDS | skip | planted)
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -619,6 +628,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     # policy may honour (gen#125, gen#275).
     rec.pop("was_price", None)
     rec.pop("promotion", None)  # it follows the was_price (promotion.py, gen#189)
+    rec.pop("discount_pct", None)  # so does the discount; sale_share.apply restates all three
     if "badges" in rec:
         rec["badges"] = [b for b in rec["badges"] if b != "Bestseller"]
     old_line = _line(tpl)
@@ -684,6 +694,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     if "price_min" in tpl:
         out["price_min"] = min(s["price"] for s in out["skus"])
         out["price_max"] = max(s["price"] for s in out["skus"])
+    sale_share.apply(out)  # a share of every people department is reduced (gen#359)
     return out
 
 
