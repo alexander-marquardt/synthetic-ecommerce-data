@@ -184,6 +184,15 @@ def test_no_test_or_doc_restates_a_total_the_build_measures(stats: dict, path: s
     )
 
 
+def test_an_iso_date_is_not_a_restated_total() -> None:
+    """A measured total that equals a year (2026) is not found in "2026-09-28", yet is still
+    found when typed as a count."""
+    pattern = _quotations({"ceiling": {"styles": 2026}})["ceiling.styles"]
+    assert not re.search(pattern, "(maintainer ruling, 2026-09-28) and 2026-10-07")
+    assert re.search(pattern, "The ceiling is 2026 styles")
+    assert re.search(pattern, "CAPACITY = 2026-")  # a bare figure is still a figure
+
+
 def test_the_guard_catches_a_restated_total(stats: dict) -> None:
     """Plants: each way a total was typed before is found by the patterns above."""
     plants = {
