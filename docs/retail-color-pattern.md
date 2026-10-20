@@ -55,6 +55,17 @@ sleeve top (`colorgroup_rows.py`) and "Multi Patchwork" of the linen fringed cus
 `breton stripe` is one pattern, so a breton colorway is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
 plain color yet, and `main_colors.complete` refuses a type with none.
 
+## One spelling per pattern (gen#324)
+
+The facet held `Stripe` (from the colorways) beside `Striped` (authored on the cotton tote bag, the
+windproof umbrella, the melamine side plate and the striped wallpaper), `Check` beside `Checked`
+and `Spot` beside `Spotted` (both on wallpapers): one pattern, two spellings, so a shopper who
+ticked one missed the other. The authored `Pattern` attributes now use the colorway spelling
+(`Stripe`, `Check`, `Spot`). Titles keep their words ("Striped Wallpaper"). The count of SKUs and
+styles does not move. `tests/test_retail_pattern_spelling_324.py` fails when two pattern values of
+any authored template, or of a built catalog, differ only by a plural `s`/`es` or a past `ed`
+ending.
+
 ## Guard
 
 `tests/test_retail_pattern_facet_408.py` asserts the facet holds the six wanted values (the four above, leopard and polka dot), on a product where a shopper types each, with a plain color. `tests/test_retail_color_pattern_188.py` asserts the splitter cases, that no nested or flat
