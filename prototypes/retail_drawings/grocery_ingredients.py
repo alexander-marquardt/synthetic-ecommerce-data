@@ -186,7 +186,7 @@ HEAD: dict[tuple[str, str], str] = {
     ("FRV", "Mixed Vegetables"): "carrots, sweetcorn, garden peas, green beans",
     ("FRV", "Broccoli Florets"): "broccoli florets ({88-94}%), water",
     ("FRV", "Edamame Beans"): "edamame soya beans ({88-94}%), water",
-    ("TIN", "Chopped Tomatoes"): "tomatoes ({90-95}%), tomato juice, firming agent (calcium chloride), acidity regulator (citric acid), basil",
+    ("TIN", "Chopped Tomatoes with Basil"): "tomatoes ({90-95}%), tomato juice, firming agent (calcium chloride), acidity regulator (citric acid), basil",
     ("TIN", "Baked Beans"): "haricot beans ({50-55}%), tomatoes, water, sugar, maize starch, salt, spirit vinegar, onion powder",
     ("TIN", "Coconut Milk"): "coconut extract ({55-60}%), water, guar gum, citric acid, sea salt",
     ("TIN", "Chickpeas"): "chickpeas ({55-60}%), water, salt, firming agent (calcium chloride), antioxidant (ascorbic acid)",
