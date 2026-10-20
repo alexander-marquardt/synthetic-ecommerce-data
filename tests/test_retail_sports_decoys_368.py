@@ -36,10 +36,12 @@ SECOND_INCREMENT = (
     "Kickboard", "Swim Armbands", "Football", "Tennis Racket", "Badminton Set",
     "Picnic Blanket",
 )  # fmt: skip
-#: The seven first-increment types that carry no decoys yet (gen#375 adds them).
-FIRST_INCREMENT = {
+#: The seven first-increment types (gen#265), whose decoys gen#375 adds.
+FIRST_INCREMENT = (
     "Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell", "Foam Roller",
-}
+)  # fmt: skip
+#: Every type this file holds to the two-decoy floor.
+SPORTS_TYPES = (*FIRST_INCREMENT, *SECOND_INCREMENT)
 COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}  # glass is clear, not a color
 
 
@@ -67,18 +69,18 @@ def test_every_sports_type_is_planned_or_exempt(ceiling: list[dict]) -> None:
     until it carries decoys (or is exempted with a reason that names its follow-up issue)."""
     live = {r["product_type"] for r in ceiling if r["category_path"][0] == ROOT_NAME}
     planned = {r.target for r in dpw.TABLE if r.target}
-    assert set(SECOND_INCREMENT) <= live, set(SECOND_INCREMENT) - live
+    assert set(SPORTS_TYPES) <= live, set(SPORTS_TYPES) - live
     assert planned, "no sports type is planned"
     assert live - set(dpw.SPORTS_EXEMPT) == planned, (live - set(dpw.SPORTS_EXEMPT)) ^ planned
     assert set(dpw.SPORTS_EXEMPT) <= live
     assert all("#" in reason for reason in dpw.SPORTS_EXEMPT.values())
 
 
-def test_the_exempt_set_is_the_seven_first_increment_types() -> None:
-    """The hatch is pinned: a later type cannot delete its decoys and add its name to the exempt
-    dict. Adding a name reds here, so its author edits this set on purpose (gen#375 empties it)."""
-    assert set(dpw.SPORTS_EXEMPT) == FIRST_INCREMENT, set(dpw.SPORTS_EXEMPT) ^ FIRST_INCREMENT
-    assert set(dpw.SPORTS_EXEMPT.values()) == {"decoys are tracked in #375"}
+def test_the_exempt_set_is_empty() -> None:
+    """The hatch is pinned shut (gen#375 emptied it): a later type cannot delete its decoys and
+    add its name to the exempt dict. Adding a name reds here, so its author edits this test on
+    purpose and names the issue that adds the decoys."""
+    assert dpw.SPORTS_EXEMPT == {}, set(dpw.SPORTS_EXEMPT)
 
 
 def test_every_live_non_exempt_sports_type_has_at_least_two_decoys(ceiling: list[dict]) -> None:
@@ -88,14 +90,14 @@ def test_every_live_non_exempt_sports_type_has_at_least_two_decoys(ceiling: list
     assert not short, short
 
 
-@pytest.mark.parametrize("ptype", SECOND_INCREMENT)
-def test_a_second_increment_type_has_at_least_two_decoys(ptype: str) -> None:
+@pytest.mark.parametrize("ptype", SPORTS_TYPES)
+def test_a_sports_type_has_at_least_two_decoys(ptype: str) -> None:
     rows = _rows(ptype)
     assert len(rows) >= 2, (ptype, len(rows))
     assert all(r.decoy and r.policy and r.query for r in rows), ptype
 
 
-@pytest.mark.parametrize("ptype", SECOND_INCREMENT)
+@pytest.mark.parametrize("ptype", SPORTS_TYPES)
 def test_each_decoy_holds_the_shoppers_word_and_is_another_product(
     by_id: dict[str, dict], ptype: str
 ) -> None:
@@ -106,14 +108,14 @@ def test_each_decoy_holds_the_shoppers_word_and_is_another_product(
         doc = by_id[f"PLT-{row.code}"]
         assert row.noun in tokens(doc["title"]), (row.code, doc["title"])
         assert row.noun in own, (row.code, row.noun, ptype)
-        assert set(tokens(row.query)) <= set(tokens(doc['title'] + ' ' + doc['description']))
+        assert set(tokens(row.query)) <= set(tokens(doc["title"] + " " + doc["description"]))
         assert doc["category_path"][0] != ROOT_NAME, row.code
         assert doc["product_type"] != ptype, row.code
         assert ptype not in doc["category_path"], row.code
         assert len(doc["title"].split()) <= 5, doc["title"]
 
 
-@pytest.mark.parametrize("ptype", SECOND_INCREMENT)
+@pytest.mark.parametrize("ptype", SPORTS_TYPES)
 def test_a_decoy_names_no_color_word_the_drawing_does_not_show(
     by_id: dict[str, dict], ptype: str
 ) -> None:
@@ -132,7 +134,7 @@ def test_every_sports_decoy_can_be_found_by_its_query_word(
 ) -> None:
     """Text match is the point: the plain text search meets each decoy on the word it holds."""
     rows = [r for r in dpw.TABLE if r.target]
-    assert len(rows) >= 2 * len(SECOND_INCREMENT)
+    assert len(rows) >= 2 * len(SPORTS_TYPES)
     missing = []
     for row in rows:
         found = {d["product_id"] for d in br.rank(index, row.query, 1000)}
