@@ -67,6 +67,29 @@ PAPERS: tuple[str, ...] = (
 #: square rule, a rounded border, or four corner marks.
 FRAMES: tuple[str, ...] = ("none", "rule", "rounded", "corners")
 
+#: Frames no brand in the book uses yet (#55): a rule with chamfered corners, the
+#: third corner treatment beside the square rule and the rounded border.
+#: Kept apart from :data:`FRAMES` so the four in use stay the four the book spans.
+EXTRA_FRAMES: tuple[str, ...] = ("chamfer",)
+ALL_FRAMES: tuple[str, ...] = FRAMES + EXTRA_FRAMES
+
+#: THE TEXT-FREE STYLE LEVERS (#55). Each is an index a brand declares; index 0
+#: is the look every brand drew before the levers existed, so a brand that
+#: names none draws byte for byte as it did.
+#:
+#: Outline weight, in sheet units: the 2.3 floor (``sheet.MIN_STROKE``) and two
+#: weights above it. 3.0 and 3.7 are 0.4 px apart at the 180 px tile.
+WEIGHTS: tuple[float, ...] = (2.3, 3.0, 3.7)
+#: Line style of the interior lines (flutes, threads, centre lines), as an SVG
+#: dash array: solid, dashed, and a long-short chain.
+DASHES: tuple[str, ...] = ("", "3 2", "6 2 1 2")
+#: Inset of the frame from the sheet edge. 6 is the original; a brand may sit
+#: closer, never further in: the handle-less lens (``sheet.LENS_MARGIN``) and
+#: the plate clear a frame drawn at 6 and no deeper.
+MARGINS: tuple[float, ...] = (6.0, 3.0)
+#: Background texture of the figure area, in the brand's ink: none, a grid, dots.
+TEXTURES: tuple[str, ...] = ("plain", "grid", "dot")
+
 #: Qualifiers a product NAME or title may carry before the item, by family.
 #: NON-FACTUAL on purpose: none names a material, finish, dimension, grade,
 #: rating, standard, process or compatibility, because anything factual
@@ -119,6 +142,12 @@ class Brand:
     #: premium makers, the rest standard. It holds in every family the brand
     #: makes, and it is no field on the record: it shows through price.
     tier: str = "standard"
+    #: The text-free levers (#55): indexes into ``WEIGHTS`` (``outline``), ``DASHES``,
+    #: ``MARGINS`` and ``TEXTURES``; 0 is the original look.
+    outline: int = 0
+    dash: int = 0
+    margin: int = 0
+    texture: int = 0
 
     def makes(self, type_key: str) -> bool:
         return STANDARDS_FAMILY[type_key] in self.families
@@ -265,7 +294,13 @@ def ink_of(brand: str) -> str:
 
 
 def frame_of(brand: str) -> str:
-    return FRAMES[BY_NAME[brand].frame]
+    return ALL_FRAMES[BY_NAME[brand].frame]
+
+
+def levers_of(brand: str) -> tuple[float, str, float, str]:
+    """``brand``'s (outline weight, dash array, frame margin, texture), resolved."""
+    book = BY_NAME[brand]
+    return WEIGHTS[book.outline], DASHES[book.dash], MARGINS[book.margin], TEXTURES[book.texture]
 
 
 def paper_of(brand: str) -> str:
