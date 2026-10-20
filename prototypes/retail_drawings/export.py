@@ -31,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import attribute_cleanup
 import colorwords
 import facet_leaves
 import pack_scale
@@ -286,7 +287,7 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _one_case(out)
+    return attribute_cleanup.clean(_one_case(out), rec["product_type"])
 
 
 def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
