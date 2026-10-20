@@ -8,7 +8,8 @@
   "slope": "Pooled within-cell OLS of log(per_piece) on log(key dimension). A cell is one group page (or one brand) with every non-dimension attribute equal; fasteners also hold length equal. Monotonicity counts every within-cell pair whose key dimension differs.",
   "brand_spread": "A 'spec' is the key dimension plus the type's spec-defining attributes (material, flutes, grit, closure...). For each spec offered by two or more brands: max/min of the per-brand median per-piece price. brand_price_index = a brand's median per-piece price relative to the spec's geometric mean, over the specs it shares. house_label_over_other_brands compares the distributor's own labels to the other brands on shared specs.",
   "endings": "Cents of the shown price.",
-  "low_confidence": "true when n < 30; read those figures as indicative only."
+  "low_confidence": "true when n < 30; read those figures as indicative only.",
+  "price_basis": "Which price an entry measured (#92). 'regular_price': a row that shows a clearance price beside its regular price is priced at the regular price (the two #69 entries, whose parser is scripts/price_census_parse.py). 'shown_price_clearance_unmeasured': #57's method, the price the page shows, which on a clearance row is the clearance price; #57's parser was never committed, so whether its rows are on the regular price cannot be shown, and its 2015 entries carry the clearance-price signature. Do not compare or pool price levels across the two values until the #57 entries are re-measured under the regular-price rule."
  },
  "capture_eras": {
   "records_by_capture_year": {
@@ -21,6 +22,7 @@
   "note": "Mostly 2015 group-page captures; some 2016, 2017 and 2020 group pages; end-mill item pages are 2020-2021 captures. Each type carries its own capture_years. Prices are nominal for their capture year and are not inflation-adjusted. Pages served as script shells with no item rows (all four ball-pein hammer group pages, two jobber-drill and two spiral-point-tap group pages among them) were discarded."
  },
  "pooled_endings_all_types": {
+  "price_basis": "shown_price_clearance_unmeasured",
   "n": 5975,
   "class_share": {
    "other": 0.5771,
@@ -39,6 +41,7 @@
   "abrasive_flap_disc": {
    "n": 135,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 7,
    "capture_years": {
     "2015": 46,
@@ -143,6 +146,7 @@
   "bearing_radial_ball": {
    "n": 390,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 390
@@ -242,6 +246,7 @@
   "bolt_hex": {
    "n": 347,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 347
@@ -378,6 +383,7 @@
   "drill_jobber": {
    "n": 885,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 9,
    "capture_years": {
     "2015": 885
@@ -516,6 +522,7 @@
   "end_mill_ball": {
    "n": 65,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 6,
    "capture_years": {
     "2020": 65
@@ -603,6 +610,7 @@
   "end_mill_square": {
    "n": 69,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2020": 62,
@@ -679,6 +687,7 @@
   "hex_key": {
    "n": 270,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 75,
@@ -796,6 +805,7 @@
   "kit_assortment": {
    "n": 46,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 46
@@ -898,6 +908,7 @@
   "nut_hex": {
    "n": 473,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 7,
    "capture_years": {
     "2015": 473
@@ -1059,6 +1070,7 @@
   "screw_flat_head": {
    "n": 4,
    "low_confidence": true,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 1,
    "capture_years": {
     "2015": 4
@@ -1164,6 +1176,7 @@
   "screw_socket_head": {
    "n": 308,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 4,
    "capture_years": {
     "2015": 308
@@ -1300,6 +1313,7 @@
   "tap_spiral_point": {
    "n": 487,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 487
@@ -1400,6 +1414,7 @@
   "washer_flat": {
    "n": 174,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 4,
    "capture_years": {
     "2015": 152,
@@ -1523,6 +1538,7 @@
   "wheel_depressed_center": {
    "n": 217,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 7,
    "capture_years": {
     "2015": 217
@@ -1663,6 +1679,7 @@
   "lock_nuts_nylon_insert": {
    "n": 100,
    "low_confidence": false,
+   "price_basis": "regular_price",
    "n_brands": 1,
    "capture_years": {
     "2015": 100
@@ -1771,6 +1788,7 @@
   "set_screws_hex_socket": {
    "n": 510,
    "low_confidence": false,
+   "price_basis": "regular_price",
    "n_brands": 5,
    "capture_years": {
     "2015": 485,
@@ -1892,6 +1910,7 @@
   "ball_valves": {
    "n": 42,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 4,
    "capture_years": {
     "2015": 42
@@ -1989,6 +2008,7 @@
   "blind_rivets": {
    "n": 8,
    "low_confidence": true,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 2,
    "capture_years": {
     "2015": 8
@@ -2079,6 +2099,7 @@
   "c_clamps": {
    "n": 127,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2015": 127
@@ -2170,6 +2191,7 @@
   "carriage_bolts": {
    "n": 110,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2015": 110
@@ -2288,6 +2310,7 @@
   "cold_chisels": {
    "n": 91,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 37,
@@ -2377,6 +2400,7 @@
   "combination_wrenches": {
    "n": 158,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 6,
    "capture_years": {
     "2015": 154,
@@ -2475,6 +2499,7 @@
   "cut_resistant_gloves": {
    "n": 22,
    "low_confidence": true,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 19,
@@ -2560,6 +2585,7 @@
   "eye_bolts": {
    "n": 142,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2015": 142
@@ -2696,6 +2722,7 @@
   "foam_ear_plugs": {
    "n": 130,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 4,
    "capture_years": {
     "2015": 75,
@@ -2807,6 +2834,7 @@
   "hand_files": {
    "n": 118,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 40,
@@ -2905,6 +2933,7 @@
   "hex_pipe_nipples": {
    "n": 81,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2015": 21,
@@ -3018,6 +3047,7 @@
   "hose_clamps": {
    "n": 99,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 2,
    "capture_years": {
     "2015": 75,
@@ -3113,6 +3143,7 @@
   "rigid_casters": {
    "n": 157,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 147,
@@ -3201,6 +3232,7 @@
   "roller_chain": {
    "n": 71,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 2,
    "capture_years": {
     "2015": 66,
@@ -3275,6 +3307,7 @@
   "safety_glasses": {
    "n": 74,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 6,
    "capture_years": {
     "2015": 74
@@ -3349,6 +3382,7 @@
   "threaded_rod": {
    "n": 248,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 1,
    "capture_years": {
     "2015": 248
@@ -3425,6 +3459,7 @@
   "u_bolts": {
    "n": 59,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 5,
    "capture_years": {
     "2015": 59
@@ -3525,6 +3560,7 @@
   "v_belts": {
    "n": 252,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 3,
    "capture_years": {
     "2015": 252
@@ -3600,6 +3636,7 @@
   "wedge_anchors": {
    "n": 116,
    "low_confidence": false,
+   "price_basis": "shown_price_clearance_unmeasured",
    "n_brands": 4,
    "capture_years": {
     "2015": 116

@@ -68,13 +68,21 @@ class RetiredAttribute(Attribute):
     #: check still counts it, as it counted the published one.
     presence: float = 1.0
 
+    #: Whether it still tells two SKUs apart in the "already made" check. ``False`` for an
+    #: attribute that was a FALSE difference (#357: a wheel's pack of 10 or 25, when every
+    #: wheel is sold each): two wheels that differed only by it are one product, so the
+    #: second is not made, where #497's retired attributes kept their twins.
+    distinguishes: bool = True
+
     @property
     def always(self) -> bool:
         """Whether sparsity never dropped it."""
         return self.presence >= 1.0
 
 
-def retired(attribute: Attribute, *, presence: float = 1.0) -> RetiredAttribute:
+def retired(
+    attribute: Attribute, *, presence: float = 1.0, distinguishes: bool = True
+) -> RetiredAttribute:
     """``attribute`` as a retired one: same name and value, never published."""
     return RetiredAttribute(
         name=attribute.name,
@@ -82,6 +90,7 @@ def retired(attribute: Attribute, *, presence: float = 1.0) -> RetiredAttribute:
         value_num=attribute.value_num,
         values=attribute.values,
         presence=presence,
+        distinguishes=distinguishes,
     )
 
 

@@ -20,6 +20,11 @@ weighs ``DEFAULT_SECONDS``, so adding a test file never means editing the weight
 weights only go stale slowly. ``tests/test_ci_shards_348.py`` checks that every file is in
 exactly one shard, that the workflow's matrix is the shard count, and that the shards stay
 balanced by the weights.
+
+``--plan`` prints the files in run order (``run_order``): heaviest first, the files whose
+tests xdist spreads last (``--dist loadgroup`` hands a free worker the next module in that
+order, so an alphabetical list left a late-sorting heavy module as the tail of the run).
+``--shard`` stays alphabetical.
 """
 
 from __future__ import annotations
@@ -27,6 +32,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -63,6 +69,40 @@ def load_weights(path: Path = WEIGHTS) -> dict[str, float]:
     if not path.exists():
         return {}
     return {name: float(seconds) for name, seconds in json.loads(path.read_text()).items()}
+
+
+_SPREAD = re.compile(r"^XDIST_SPREAD\s*=\s*True\b", re.MULTILINE)
+
+
+def spread_files(files: list[str], root: Path = REPO) -> frozenset[str]:
+    """The files whose tests xdist spreads over the workers: a module that sets
+    ``XDIST_SPREAD = True`` (tests/xdist_groups.py) and the ``SPLIT_FILES``."""
+    spread = set(SPLIT_FILES & set(files))
+    for name in files:
+        try:
+            text = (root / name).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if _SPREAD.search(text):
+            spread.add(name)
+    return frozenset(spread)
+
+
+def run_order(
+    files: list[str], weights: dict[str, float], spread: frozenset[str] | None = None
+) -> list[str]:
+    """The order pytest is given the files in: heaviest first, ties by name, spread files last.
+
+    ``--dist loadgroup`` gives a free worker the next module in collection order, so a heavy
+    module listed late starts when the others are nearly done and is the tail of the run.
+    Longest-first closes the gap; a spread file is many small units, so it goes last as the
+    filler that levels the workers' ends. Every file is listed once.
+    """
+    spread = SPLIT_FILES if spread is None else spread
+    whole = [name for name in files if name not in spread]
+    spreading = [name for name in files if name in spread]
+    whole.sort(key=lambda name: (-weights.get(name, DEFAULT_SECONDS), name))
+    return whole + sorted(spreading)
 
 
 def deal(
@@ -168,12 +208,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--head", default="", help="head of the change")
     args = parser.parse_args(argv)
     if args.plan == "all":  # a local run: every test file, one shard
-        print("\n".join(["shards=1", *collected_test_files()]))
+        every = collected_test_files()
+        ordered = run_order(every, load_weights(), spread_files(every))
+        print("\n".join(["shards=1", *ordered]))
         return 0
     if args.plan:
         if not args.plan.isdigit() or not 1 <= int(args.plan) <= max(args.of, 0):
             parser.error("give --plan K --of N with K in 1..N")
         shards, files = plan(int(args.plan), args.of, args.base, args.head)
+        files = run_order(files, load_weights(), spread_files(files))
         print("\n".join([f"shards={shards}", *files]))
         return 0
     if args.refresh:
