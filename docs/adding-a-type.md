@@ -284,10 +284,11 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
 * **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
 * **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
+* **A quantity drawn from a range.** Every quantity a type publishes is `tabled` unless its `AttrSpec` says `source="drawn"` (`vocab.py`): the facet rule reads that word, not the dispersion ratio, to offer a list or a range (gen#95). A table type's columns are tabled. Declare `drawn` only for a value the builder draws from an interval (an end mill's Neck Length is the one); `test_every_declaration_agrees_with_the_data_it_describes` reds if the data disagrees.
 * **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
 * **Share.** Two rules, both at the default build, where a type's product count is its `lines_by_type` and its SKU count its `skus_by_type` in `golden-catalog/stats.json`:
-  * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads as a continuum to the facet rule (at 13 products the sizes measured 0.44 to 0.48 against the 0.50 threshold).
+  * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads 0.44 to 0.48 at 13 products against the 0.50 threshold. Since gen#95 this no longer decides the control: a table column is declared `tabled` (below), so it is offered as a list at any share. The rule stays so that each size is carried by several products.
   * **At least 40 products.** `smallest_faceted` in `prism/derive.py` pins the faceted quantity on the fewest products (a roller chain's Roller Dia., on 30), with ties broken by attribute key order. A type at 40 or more never takes that pin, so it is one shared line fewer to edit.
   * A share of 0.016 gives 42 products and suits a table of up to about 13 rows. A 20-row table needs about 60 products, a share of about 0.023.
 * **Tests.** Copy `tests/test_type_cotter_pins.py`, restate the table in it, and write the slice with `uv run python tests/test_type_<key>.py`. `tests/table_gates.py` holds the shared size, price-order and drawing gates.
@@ -387,7 +388,9 @@ keep their floor of 300, as they keep their share.
 ### Figure and extent
 
 **Figure.** Reuse the family's figure when it draws the part (the lock nut
-uses `hex_nut`). Otherwise write one in `domains/industrial/drawing/figures.py`, following
+uses `hex_nut`). Otherwise compose one from the shared primitives
+([Composing a figure from primitives](drawings.md#composing-a-figure-from-primitives)),
+in your type module or in `domains/industrial/drawing/figures.py`, following
 [Adding a drawing for a new type](drawings.md#adding-a-drawing-for-a-new-type):
 the signature is `figure(record: dict[str, str]) -> Drawn`, where `record`
 maps each published attribute name of the SKU to its value. A breadth shape

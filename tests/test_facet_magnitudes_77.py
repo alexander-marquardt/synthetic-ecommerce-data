@@ -18,6 +18,7 @@ from synthetic_ecommerce_data.prism.derive import (
     RANGE_MIN_DOCS,
     decide,
     measure,
+    quantity_sources,
 )
 from synthetic_ecommerce_data.prism.field_map import render
 
@@ -32,6 +33,7 @@ def _series_rows(products: int, spellings: int) -> list[dict]:
 
     The size and the spelling advance independently, so every size is met in every spelling.
     """
+    assert "Probe" not in quantity_sources(), "the series must stay undeclared: the ratio decides"
     rows = []
     for p in range(products):
         size = p % SERIES
@@ -41,9 +43,9 @@ def _series_rows(products: int, spellings: int) -> list[dict]:
             {
                 "product_id": f"P{p}",
                 "product_type": "probe_type",
-                "facets": {"chain_pitch": [f"{magnitude:.4f} spelled {spelling}"]},
-                "facets_num": {"chain_pitch": magnitude},
-                "attributes": [{"name": "Pitch", "key": "chain_pitch", "value": "x"}],
+                "facets": {"probe_span": [f"{magnitude:.4f} spelled {spelling}"]},
+                "facets_num": {"probe_span": magnitude},
+                "attributes": [{"name": "Probe", "key": "probe_span", "value": "x"}],
             }
         )
     return rows
@@ -54,7 +56,7 @@ def test_a_thirteen_size_series_in_several_spellings_has_thirteen_values(
     products: int, spellings: int
 ) -> None:
     """The issue's own case: 13 sizes over a small type's products, several spellings each."""
-    stats = measure(_series_rows(products, spellings))["chain_pitch"]
+    stats = measure(_series_rows(products, spellings))["probe_span"]
     assert stats.cardinality > SERIES, "the probe must publish more spellings than sizes"
     assert stats.dispersion == pytest.approx(SERIES / products)
     assert stats.dispersion < RANGE_DISPERSION, (
@@ -65,7 +67,7 @@ def test_a_thirteen_size_series_in_several_spellings_has_thirteen_values(
 
 def test_a_standard_series_past_the_evidence_floor_is_a_discrete_list() -> None:
     """At the floor's product count, where the ratio decides, 20 spellings must not flip it."""
-    stats = measure(_series_rows(RANGE_MIN_DOCS + 10, 20))["chain_pitch"]
+    stats = measure(_series_rows(RANGE_MIN_DOCS + 10, 20))["probe_span"]
     assert stats.products >= RANGE_MIN_DOCS
     assert not stats.is_continuous
     assert "a discrete standard set" in decide(stats).reason
@@ -75,9 +77,9 @@ def test_a_true_continuum_is_still_a_continuum() -> None:
     """Counting magnitudes must not turn every quantity into a ladder: unique values stay unique."""
     rows = _series_rows(RANGE_MIN_DOCS + 10, 1)
     for index, row in enumerate(rows):
-        row["facets_num"]["chain_pitch"] = 1 + index / 7
-        row["facets"]["chain_pitch"] = [f"{1 + index / 7:.3f}"]
-    stats = measure(rows)["chain_pitch"]
+        row["facets_num"]["probe_span"] = 1 + index / 7
+        row["facets"]["probe_span"] = [f"{1 + index / 7:.3f}"]
+    stats = measure(rows)["probe_span"]
     assert stats.is_continuous
 
 

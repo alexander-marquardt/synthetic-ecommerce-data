@@ -214,6 +214,15 @@ prototype's baseline; the live number is read on the next loaded index.
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
+| fridge | fridge | PLT-DY309 | Mini Fridge Lunch Cooler | Lunch Box | category |
+| dishwasher | dishwasher | PLT-DY301 | Dishwasher Tablets, 60 Pack | Dish Soap | category |
+| dishwasher | dishwasher | PLT-DY302 | Dishwasher Salt, 2 kg | Dish Soap | category |
+| dishwasher | dishwasher | PLT-DY303 | Dishwasher Rinse Aid | Dish Soap | category |
+| washing machine | washing | PLT-DY304 | Washing Machine Cleaner | Laundry Detergent | category |
+| washing machine | washing | PLT-DY305 | Washing Machine Descaler | Laundry Detergent | category |
+| washing machine | washing | PLT-DY306 | Laundry Pods for Washing Machines | Laundry Detergent | category |
+| fridge | fridge | PLT-DY310 | Fridge Forager Cheese Crisps | Crisps | department |
+| fridge | fridge | PLT-DY311 | Fridge Storage Boxes | Storage Boxes | category |
 | tent | tent | PLT-DY540 | Tent Dress, Swing Fit | Dress | department |
 | tent | tent | PLT-DY541 | Tent Stitch Cushion | Cushion | department |
 | sleeping | sleeping | PLT-DY542 | Sleeping Cat Cushion | Cushion | department |
