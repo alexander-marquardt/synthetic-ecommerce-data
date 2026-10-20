@@ -173,7 +173,9 @@ LEGWEAR = [
         ["Womens", "Trousers", "Cigarette Trousers"],
         29.00,
         sizes(WOMENS, "6", "18"),
-        legs("Black / Grey", "Check", "Womens", "Polyester, Viscose", "Mid", "Cigarette", "Petite"),
+        legs(
+            "Black and Grey", "Check", "Womens", "Polyester, Viscose", "Mid", "Cigarette", "Petite"
+        ),
         trouser_drawing(
             "#9aa0a6", "cigarette", "mid", "tailored", pattern="tartan", accent="#2a2a2e"
         ),
@@ -246,7 +248,7 @@ TOPS = [
         19.00,
         sizes(WOMENS, "6", "20"),
         tops(
-            "White / Red",
+            "White and Red",
             "Stripe",
             "Regular",
             "Womens",
@@ -273,7 +275,7 @@ TOPS = [
         17.00,
         sizes(WOMENS, "6", "18"),
         tops(
-            "Tan / Black",
+            "Tan and Black",
             "Leopard",
             "Regular",
             "Womens",
@@ -289,7 +291,7 @@ TOPS = [
         ["Womens", "Tops", "Blouses & Shirts"],
         22.00,
         sizes(WOMENS, "6", "18"),
-        tops("Black / White", "Polka Dot", "Regular", "Womens", "Crepe", "Square", "Short"),
+        tops("Black and White", "Polka Dot", "Regular", "Womens", "Crepe", "Square", "Short"),
         top_drawing("#2a2a2e", "square", "short", pattern="polka", accent="#ffffff"),
         coll=("summer", "new"),
     ),
@@ -299,7 +301,7 @@ TOPS = [
         ["Kids", "Boys", "T-Shirts"],
         6.00,
         sizes(KIDS, "3-4Y", "13-14Y"),
-        tops("Green / White", "Stripe", "Regular", "Boys", "100% Cotton", "Crew", "Short"),
+        tops("Green and White", "Stripe", "Regular", "Boys", "100% Cotton", "Crew", "Short"),
         top_drawing("#ffffff", "crew", "short", pattern="stripe", accent="#2f6b3c"),
     ),
     wear(
@@ -336,7 +338,7 @@ TOPS = [
         ["Kids", "Girls", "Cardigans"],
         12.00,
         sizes(KIDS, "3-4Y", "11-12Y"),
-        tops("Pink / White", "Polka Dot", "Regular", "Girls", "100% Cotton", "Crew", "Long"),
+        tops("Pink and White", "Polka Dot", "Regular", "Girls", "100% Cotton", "Crew", "Long"),
         top_drawing("#e7a1b8", "crew", "long", "cardigan", "polka", "#ffffff"),
     ),
     wear(
@@ -404,7 +406,7 @@ HOME = [
         ["home"],
         ["Home", "Bedding", "Pillowcases"],
         12.00,
-        home_attrs("Sage / White", "Gingham", "100% Cotton", attr("pieces", "Pieces", 2, "C62")),
+        home_attrs("Sage and White", "Gingham", "100% Cotton", attr("pieces", "Pieces", 2, "C62")),
         drawing("pillow", "gingham", "#ffffff", "#8fae8b"),
     ),
     item(
@@ -438,7 +440,7 @@ HOME = [
         ["Home", "Bathroom", "Beach Towels"],
         18.00,
         home_attrs(
-            "Yellow / Navy",
+            "Yellow and Navy",
             "Stripe",
             "Cotton Velour",
             attr("towel_size", "Towel size", "Beach Towel"),
@@ -468,7 +470,7 @@ HOME = [
         ["Home", "Dining", "Cutlery"],
         30.00,
         home_attrs(
-            "Black / Silver", "Plain", "Stainless Steel", attr("pieces", "Pieces", 16, "C62")
+            "Black and Silver", "Plain", "Stainless Steel", attr("pieces", "Pieces", 16, "C62")
         ),
         drawing("cutlery_set", "solid", "#2a2a2e"),
     ),
@@ -479,7 +481,7 @@ HOME = [
         ["Home", "Lighting", "Lamps", "Table Lamps"],
         42.00,
         home_attrs(
-            "Ochre / Linen",
+            "Ochre and Linen",
             "Plain",
             "Ceramic, Linen Shade",
             attr("item_height", "Item height", 46, "CMT", 460.0),
