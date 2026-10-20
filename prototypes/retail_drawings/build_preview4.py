@@ -28,6 +28,7 @@ sys.path.insert(0, str(HERE))
 import footwear_rows  # noqa: E402
 import kit_cleaning  # noqa: E402,F401 -- registers rim_block, angled_bottle
 import kit_footwear  # noqa: E402,F401 -- registers shoe, boot_sock
+import kit_lowerbody  # noqa: E402,F401 -- registers shorts and skirt over the base kit's, as the export draws them (gen#370)
 import kit_more  # noqa: E402,F401 -- registers the own-kind shapes (bouquet, socks, bed_frame, ...)
 import kit_round4  # noqa: E402,F401 -- registers belt, hanger, outfit_set, trigger_spray
 import prints  # noqa: E402
