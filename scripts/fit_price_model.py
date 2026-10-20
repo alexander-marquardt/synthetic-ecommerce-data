@@ -16,7 +16,7 @@ solves the rest, holding the key, length, material, tier and pack terms the
 builds draw.
 
 **Every row is scored at the default build AND at 100K**
-(:data:`.config.HUNDRED_K_LINES`, the size the 100K band test builds), and a
+(:data:`.config.LARGE_BUILD_LINES`, the size the 100K band test builds), and a
 row's miss is the worse of the two: a model tuned to one build's draws holds
 its realism claim only by that build's luck. The anchor sits at the
 log-midpoint of the two builds' medians, so the p50 row scores how far apart
@@ -96,7 +96,7 @@ from pathlib import Path
 import numpy as np
 
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.model import Attribute, Catalog
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.price_report import (
@@ -144,7 +144,7 @@ STEPS = 30
 GRID = 61
 GRID_ND = 13
 #: The builds every row is scored at: the default, and the 100K band test's.
-BUILDS = {"default": GeneratorConfig(), "100K": GeneratorConfig(lines=HUNDRED_K_LINES)}
+BUILDS = {"default": GeneratorConfig(), "100K": GeneratorConfig(lines=LARGE_BUILD_LINES)}
 P50_ROW = "price p50 (USD): {}"
 
 
