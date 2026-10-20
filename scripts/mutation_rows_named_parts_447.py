@@ -144,6 +144,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "a class 6 or 7 clone colors no part",
         _R,
     ),
+    (
+        "a decoy clone keeps its exemplar's shoe laces",
+        "decoy_apparel.py",
+        'if (keep["drawing"].get("params") or {}).get("lace"):',
+        "if False:",
+        "tests/test_retail_apparel_decoys_311.py -k a_class_6_or_7_clone_carries_no_lace_or_detail",
+        "a class 6 or 7 clone colors no lace",
+        _R,
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
