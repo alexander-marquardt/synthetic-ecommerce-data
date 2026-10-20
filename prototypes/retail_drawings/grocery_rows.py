@@ -96,6 +96,29 @@ OWNERS = {
     "Orrin Skin": "third_party",
     "Hollowbrook Cellars": "third_party", "Stonepine Estate": "third_party",
     "Orchardgate Cider Co.": "third_party",
+    # The 50K tier's new brands (gen#376).
+    "Marlpit Growers": "third_party",
+    "Heronsgate Fresh": "third_party",
+    "Tamsworth Cellars": "third_party",
+    "Ovenden Vineyards": "third_party",
+    "Plumtree Larder": "third_party",
+    "Saltmarsh Preserves": "third_party",
+    "Hobsworth Kitchen": "third_party",
+    "Brindlemere Drinks": "third_party",
+    "Thistlemoor Snacks": "third_party",
+    "Pellam Crisps": "third_party",
+    "Dellwick Chocolatiers": "third_party",
+    "Honeysett Sweets": "third_party",
+    "Wetherly Creamery": "third_party",
+    "Larchfield Home Care": "third_party",
+    "Dunnock Bakehouse": "third_party",
+    "Cobbleby Kitchen": "third_party",
+    "Wyncote Skin": "third_party",
+    "Ledwick Botanics": "third_party",
+    "Oakenshaw Mills": "third_party",
+    "Pippinfold Cider Co.": "third_party",
+    "Marrowdale Tea Co.": "third_party",
+    "Fellbeck Roasters": "third_party",
 }  # fmt: skip
 
 #: Range names: invented place words, the head of a style's title.
@@ -108,6 +131,44 @@ LINES = (
     "Kingsmead", "Larkrise", "Millbrook", "Northcote", "Orchard Lane", "Priory",
     "Redbrook", "Silverdale", "Thornbury", "Underhill", "Wansford", "Whitmore",
     "Alderley", "Birchfield", "Cranmore", "Dovedale", "Edgecote",
+)  # fmt: skip
+
+#: The 50K tier's extra range names (gen#376): invented place words, drawn after :data:`LINES`.
+TIER_LINES: tuple[str, ...] = (
+    "Abbeyford", "Ainthorpe", "Aldwick", "Applegarth", "Arkholme", "Ashdown", "Aspley", "Astwood",
+    "Attleby", "Aysgarth", "Badsworth", "Balderton", "Bamford", "Barnoldby", "Barrowdale",
+    "Bathgate", "Beckwith", "Bellerby", "Bentham", "Bescar", "Bickerdale", "Birkdale",
+    "Blackmoor", "Bleasby", "Bowerchalke", "Bradbourne", "Braithby", "Bramhope", "Brandesby",
+    "Brayton", "Bridgemere", "Brindley", "Broadmead", "Brockhall", "Brockley", "Broxholme",
+    "Buckden", "Burnsall", "Butterwick", "Caldbeck", "Calderbrook", "Calverley", "Carlton",
+    "Castlerigg", "Catterick", "Chalford", "Charnwood", "Chelmsley", "Cheswold", "Chilcombe",
+    "Clanfield", "Claybrooke", "Cleeve", "Clifton", "Coldharbour", "Colwall", "Copthorne",
+    "Cornforth", "Cowdale", "Crakehall", "Cressbrook", "Crowle", "Croxdale", "Cuddesdon", "Dalby",
+    "Danesmoor", "Darrowby", "Daventry", "Denholme", "Dentdale", "Dewsbury", "Dinnington",
+    "Dowsby", "Drayton", "Duddon", "Dunsmore", "Dunstall", "Durrington", "Eastry", "Ebbesbourne",
+    "Eccleshall", "Edenbridge", "Elmstead", "Elvaston", "Embleton", "Eppleby", "Esholt",
+    "Etherow", "Evenwood", "Exford", "Fairfield", "Falstone", "Farndale", "Fenwick", "Fernilee",
+    "Finchale", "Flaxton", "Foxholes", "Framlingham", "Frensham", "Fulbeck", "Fylingdale",
+    "Gadbrook", "Gamblesby", "Garsdale", "Gaydon", "Gisburn", "Glaston", "Goathland",
+    "Goldsborough", "Grafton", "Grassington", "Greenhow", "Grinton", "Gunnerside", "Hackness",
+    "Haddenham", "Halsham", "Hambleton", "Hampsthwaite", "Hanbury", "Hardwick", "Harewood",
+    "Hartington", "Haxby", "Hazelwood", "Heathfield", "Helmsley", "Hepworth", "Hesketh",
+    "Highfold", "Hinderwell", "Holbeck", "Holmfirth", "Hornby", "Hovingham", "Hubberholme",
+    "Hunmanby", "Ingbirchworth", "Ingleton", "Ireby", "Jervaulx", "Kearby", "Kelbrook",
+    "Kettlewell", "Kexby", "Kilburn", "Knaresdale", "Lambley", "Langdale", "Lastingham",
+    "Lealholm", "Ledsham", "Levisham", "Lindley", "Litton", "Longtown", "Lothersdale", "Lowick",
+    "Lydgate", "Malham", "Mallerstang", "Marske", "Mickleby", "Middleham", "Milnthorpe",
+    "Monkton", "Moorsholm", "Morland", "Mossdale", "Muker", "Nettlebed", "Newbiggin",
+    "Nidderdale", "Norbury", "Nunnington", "Oakworth", "Offerton", "Oldstead", "Orgreave",
+    "Osmotherley", "Oswaldkirk", "Otterburn", "Oulton", "Pateley", "Peasholm", "Pilsley",
+    "Pinchbeck", "Pocklington", "Prestbury", "Quernmore", "Raskelf", "Ravenstonedale",
+    "Rawcliffe", "Reeth", "Ribblehead", "Rosedale", "Rothbury", "Rudston", "Rushton", "Ryedale",
+    "Saltaire", "Sawley", "Scarcroft", "Sedbergh", "Shap", "Sherburn", "Shipton", "Skelwith",
+    "Skidby", "Slaidburn", "Snaizeholme", "Sowerby", "Spofforth", "Staveley", "Stokesley",
+    "Swaledale", "Tanfield", "Thoralby", "Threshfield", "Thurlby", "Thwaite", "Tickhill",
+    "Tideswell", "Towton", "Ulverston", "Upsall", "Walkington", "Wasdale", "Wath", "Weardale",
+    "Wharram", "Wigglesworth", "Winster", "Wolsingham", "Woolley", "Wragby", "Wykeham", "Yealand",
+    "Yockenthwaite", "Youlgrave", "Zouch",
 )  # fmt: skip
 
 _CHOC = ("Crunchworth", "Pantry Mill", "Hearth & Table", "Barrowby Kitchen")
@@ -167,6 +228,31 @@ _BODY_SCENTS = (
     F("Lavender", "#9a7ab6"),
 )
 _BODY_BRANDS = ("Brightwater Botanics", "Velling Apothecary", "Orrin Skin")
+
+#: The 50K tier's new invented brands (gen#376), by the brand tuple of the family group they join.
+#: Every one is a :mod:`house_styles` row (``grocery_brand_styles.py``) and an :data:`OWNERS` entry.
+TIER_BRANDS: dict[tuple[str, ...], tuple[str, ...]] = {
+    _FRESH: ("Marlpit Growers", "Heronsgate Fresh"),
+    _CELLAR: ("Tamsworth Cellars", "Ovenden Vineyards"),
+    _CUP: ("Plumtree Larder", "Saltmarsh Preserves"),
+    ("Barrowby Kitchen", "Goldfield Farms"): ("Hobsworth Kitchen",),
+    _DRINK: ("Brindlemere Drinks",),
+    _SNACK: ("Thistlemoor Snacks", "Pellam Crisps"),
+    _CHOC: ("Dellwick Chocolatiers", "Honeysett Sweets"),
+    _DAIRY: ("Wetherly Creamery",),
+    _HOME_BRANDS: ("Larchfield Home Care",),
+    _BAKE: ("Dunnock Bakehouse",),
+    _MEAL: ("Cobbleby Kitchen",),
+    _SKIN_BRANDS: ("Wyncote Skin",),
+    _BODY_BRANDS: ("Ledwick Botanics",),
+    _BREAK: ("Oakenshaw Mills",),
+    ("Orchardgate Cider Co.", "Vine & Valley", "Freshfold"): ("Pippinfold Cider Co.",),
+    ("Kettleby Tea Co.", "Pantry Mill", "Hearth & Table"): ("Marrowdale Tea Co.",),
+    ("Brewhollow Roasters", "Pantry Mill"): ("Fellbeck Roasters",),
+    ("Pantry Mill", "Hearth & Table", "Brewhollow Roasters"): ("Fellbeck Roasters",),
+    ("Clearbrook Household", "Soapwell"): ("Larchfield Home Care",),
+    ("Hollowbrook Cellars", "Stonepine Estate"): ("Tamsworth Cellars",),
+}
 
 #: A beef cut's own description sentence, by (family code, flavor name): what the cut is and how
 #: it cooks, so the six cuts do not share one template (gen#269). Words the SKUs do not carry
