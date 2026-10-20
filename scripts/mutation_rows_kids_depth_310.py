@@ -125,6 +125,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "the module adds thirty rows to each leaf",
         _R,
     ),
+    (
+        "the main-color pass and the sale share count the Kids rows again",
+        "scale.py",
+        'seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]',
+        "seeded = tpls",
+        f"{_T} -k leave_every_other_template",
+        "the Kids rows leave every other template, and so the seeded fillers, as they were",
+        _R,
+    ),
 ]
 
 # Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
