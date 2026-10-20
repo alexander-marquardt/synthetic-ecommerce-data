@@ -2,7 +2,7 @@
 
 The PIZ family draws the ``pizza`` pack shape: a round pie on a card base under film, seen at a
 slight angle. The flavour attribute picks the toppings and the size attribute ("10 inch",
-"12 inch") the diameter, both as per-SKU drawing params. The range name and the flavour-colour
+"12 inch") the diameter, both as per-SKU drawing params. The range name and the flavour-color
 band (the brand band) stay.
 """
 

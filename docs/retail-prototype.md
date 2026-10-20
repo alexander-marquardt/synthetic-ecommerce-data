@@ -176,8 +176,12 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
-`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
+`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+one drawing per style, except the pizza: its `flavor` (the toppings) and
+`pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
+style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
+the before and after is `docs/images/pizza-drawn-604.svg`). A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
 name and a band of the style's flavor colors (`kit._panel` reads them from the
 drawing's `line` and `chips` params). The range-name text tells siblings of a family
