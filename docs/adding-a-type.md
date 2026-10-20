@@ -104,17 +104,20 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
-A threaded type that publishes `dia_thread_size` and whose standard has no
-extraction declares the sizes that standard offers in its `SPEC`, as
-`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
-sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
-declared size to reaching a document, and it fails, rather than skips, a
-standard that has neither an extraction nor a declaration. A type that
-publishes `thread_size` instead, such as the lock nut, is not swept yet: see
-issue #68. When the
+A threaded type that publishes `dia_thread_size` or `thread_size` and whose
+standard has no extraction declares the sizes that standard offers in its
+`SPEC`, as `sizes={standard: (size, ...)}`, stated apart from its table. The
+thread-size sweep in `tests/test_catalog_coverage.py` holds every declared size
+to reaching a document, and it fails, rather than skips, a standard that has
+neither an extraction nor a declaration. It reads `dia_thread_size` from
+every type, and `thread_size` only from a type that declares `sizes`: the
+breadth rows publish `thread_size` too and are built to no standard. A coarse
+row is declared by its diameter (`M24`, `1/4`); a fine-pitch row by its whole
+designation (`M10x1`, `1/4-28`), because it is a size of its own. When the
 type's `dimension_provenance` is a sentence rather than a bare standard name,
-it also declares `line_standard`, which reads a record's standard back from
-its published attributes. `set_screws_hex_socket` does both.
+it either declares `line_standard`, which reads a record's standard back from
+its published attributes (`set_screws_hex_socket`), or names its one table as
+`read from the <standard> table`, which the sweep reads (the lock nut).
 
 ## The steps
 
