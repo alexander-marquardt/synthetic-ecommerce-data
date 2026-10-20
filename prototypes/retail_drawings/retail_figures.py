@@ -36,6 +36,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import cups_plural_rows  # noqa: E402
 import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -70,6 +71,8 @@ from build_preview4 import samples  # noqa: E402
 CACHE_ENV = "RETAIL_FIGURES_CACHE"
 #: More SKUs than the templates can reach, so ``scale.build`` runs to its ceiling.
 EXHAUST = 10_000_000
+#: The grocery tier whose totals are pinned (``grocery.build`` past ``grocery.TARGET``, gen#376).
+TIER_SKUS = 50_000
 
 #: Grocery keys whose style attribute is the INTERSECTION of the SKUs' lists, not the union.
 GROCERY_INTERSECTION_KEYS = ("dietary", "may_contain")
@@ -138,6 +141,19 @@ def _count(records: list[dict]) -> dict[str, int]:
     return {"styles": len(records), "skus": sum(r["sku_count"] for r in records)}
 
 
+def tier_figures() -> dict[str, Any]:
+    """The grocery 50K tier's totals (gen#376): ``grocery.build(50_000)``, seed 0, by family."""
+    recs = grocery.build(TIER_SKUS)
+    families: dict[str, list[dict]] = collections.defaultdict(list)
+    for r in recs:
+        families[r["product_id"].split("-")[1]].append(r)
+    return {
+        **_count(recs),
+        "brands": len({r["brand"] for r in recs}),
+        "families": {code: _count(rs) for code, rs in sorted(families.items())},
+    }
+
+
 def measure() -> dict[str, Any]:
     """Every total, from the seed-0 build run to its ceiling."""
     authored = [r for recs in samples().values() for r in recs]
@@ -169,6 +185,7 @@ def measure() -> dict[str, Any]:
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
+        "cups_plural_rows": cups_plural_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
@@ -217,6 +234,7 @@ def measure() -> dict[str, Any]:
             "checked": checked,
             "named_but_not_carried": dict(sorted((k, n) for k, n in wrong.items() if n)),
         },
+        "grocery_tier_50k": tier_figures(),
         "near_duplicates": {
             "non_grocery": scale.distinctness(main, sample=len(main))["near_duplicate_rate"],
             "grocery": scale.distinctness(groc, sample=len(groc))["near_duplicate_rate"],
