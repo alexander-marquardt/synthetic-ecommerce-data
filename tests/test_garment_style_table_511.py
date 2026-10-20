@@ -304,7 +304,7 @@ def test_a_restyle_keeps_the_word_and_color_or_fails(monkeypatch):
     monkeypatch.setattr(
         decoy_apparel,
         "_candidates",
-        lambda cls, spec, ex, used, words, *, styled=False: carried[ex],
+        lambda cls, spec, ex, used, words, *, styled=False, want=None: carried[ex],
     )
     spec = SimpleNamespace(product_type="Dress")
     ex, o = decoy_apparel._restyle(2, spec, ["a", "b", "c"], 0, plan, set(), set())
