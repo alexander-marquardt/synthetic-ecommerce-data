@@ -1708,17 +1708,9 @@ whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
 against the rest, and the .99/.00/.50 endings. A spec is the census's: the
-key dimension, the material and the attribute the census names for the type
-("material, flutes, grit, closure", `method.brand_spread`). A wheel publishes
-its material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+key dimension, the material and the attribute the census names for the type (`price.SPEC_ATTRIBUTES`: a wheel's grit, a bearing's closure, a ball end mill's and a tap's flutes). A wheel publishes its material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
 `test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
-a type whose specs hold no material. `price.SPEC_ATTRIBUTES` adds a wheel's
-`Grit`, a bearing's `Closure Type` and a ball end mill's and a tap's
-`Number of Flutes`. Sparsity drops the `Material` or the `Number of Flutes`
-from some SKUs (on the default build 128 bearing SKUs and 155 tap SKUs): such a SKU can say which spec it is in no more than a stranger can,
-so it is in none, and the type's brand-spread row says how many in its note
-(`price_report.unspecced_note`; it used to fall in a spec with an empty
-material, which mixed every material). Each row has a band
+a type whose specs hold no material. A SKU that sparsity left without one of them is in no spec, and the type's brand-spread row says how many in its note. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1740,9 +1732,7 @@ It prints `72 rows, 71 in band`; the other is the kit pin.
 side by side (about 2 minutes).
 
 **Pins.** A row that no model of this shape holds is declared with its
-reason and the issue that fixes it, and stays bounded (the wheel brand spread
-needed one until #80: it has the census's one economy maker, `Tervasko`, in
-`brands.TIER_EXCEPTIONS`, and lands in band at both sizes):
+reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
