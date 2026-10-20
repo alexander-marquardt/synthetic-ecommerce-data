@@ -1,0 +1,87 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B18.2.2"
+  ],
+  "edition": "finished and jam hex nut rows as carried by newtypes.py in the repository at commit 68fd9933, checked against FreeCAD_FastenersWB asmeb18.2.2.4def.csv and asmeb18.2.2.1def.csv at the commit fastener_standards.json records",
+  "source": "ASME B18.2.2 square and hex nuts: width across flats, finished nut height and jam nut height, in inches. A size with no height here has a width and no readable height",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "size": "#4",
+   "flats_in": "1/4"
+  },
+  {
+   "size": "#6",
+   "flats_in": "5/16",
+   "height_in": "7/64"
+  },
+  {
+   "size": "#8",
+   "flats_in": "11/32",
+   "height_in": "1/8"
+  },
+  {
+   "size": "#10",
+   "flats_in": "3/8",
+   "height_in": "1/8"
+  },
+  {
+   "size": "1/4",
+   "flats_in": "7/16",
+   "height_in": "7/32",
+   "jam_height_in": "5/32"
+  },
+  {
+   "size": "5/16",
+   "flats_in": "1/2",
+   "height_in": "17/64",
+   "jam_height_in": "3/16"
+  },
+  {
+   "size": "3/8",
+   "flats_in": "9/16",
+   "height_in": "21/64",
+   "jam_height_in": "7/32"
+  },
+  {
+   "size": "7/16",
+   "flats_in": "11/16",
+   "height_in": "3/8",
+   "jam_height_in": "1/4"
+  },
+  {
+   "size": "1/2",
+   "flats_in": "3/4",
+   "height_in": "7/16",
+   "jam_height_in": "5/16"
+  },
+  {
+   "size": "9/16",
+   "flats_in": "7/8"
+  },
+  {
+   "size": "5/8",
+   "flats_in": "15/16",
+   "height_in": "35/64",
+   "jam_height_in": "3/8"
+  },
+  {
+   "size": "3/4",
+   "flats_in": "9/8",
+   "height_in": "41/64",
+   "jam_height_in": "27/64"
+  },
+  {
+   "size": "7/8",
+   "flats_in": "21/16"
+  },
+  {
+   "size": "1",
+   "flats_in": "3/2",
+   "height_in": "55/64",
+   "jam_height_in": "35/64"
+  }
+ ]
+}
