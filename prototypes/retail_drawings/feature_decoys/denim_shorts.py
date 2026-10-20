@@ -5,7 +5,7 @@ words and the products agree. These rows make them disagree, in three ways. Each
 structured fields true (category, product type, drawing, the ``fabric`` attribute), so only the
 text misleads and only an interpreting search can tell them from the real thing.
 
-(a) Shorts that are not denim. "denim" is their colour or their look, and the fabric is the
+(a) Shorts that are not denim. "denim" is their color or their look, and the fabric is the
     truth: Linen, Jersey, Cotton.
 (b) Shorts sold with a denim item, or worn with one: a denim belt bag, a denim jacket.
 (c) Denim items that are not shorts but say "shorts": a jacket to wear with shorts, and a hanger
@@ -58,7 +58,7 @@ KINDS = {
 
 #: Rows of (code, kind, title, description, color, class, sold).
 _ROWS = (
-    # (a) not denim: the colour or the look is denim, the fabric is not.
+    # (a) not denim: the color or the look is denim, the fabric is not.
     ("DS01", "dn_linen", "Denim Blue Linen Shorts with Drawstring Waist",
      "Light linen shorts in a denim blue, with an elastic back and a drawstring.", "Blue", 4, 700),
     ("DS02", "dn_jersey", "Denim-Look Jersey Shorts with Elastic Waist",

@@ -83,7 +83,7 @@ def test_the_table_holds_decoys_of_denim_shorts() -> None:
 
 def test_a_decoy_is_one_of_the_three_kinds() -> None:
     docs = _docs()
-    # (a) shorts that are not denim, with "denim" as a colour or a look in the title.
+    # (a) shorts that are not denim, with "denim" as a color or a look in the title.
     a = [
         c
         for c, doc in docs.items()
