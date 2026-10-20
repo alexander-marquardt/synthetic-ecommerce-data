@@ -88,7 +88,12 @@ def flat_index_body() -> dict[str, Any]:
 def project(row: dict[str, Any]) -> dict[str, Any]:
     """Add the fields the field map reads that ``emit`` does not write."""
     projected = dict(row)
-    projected[CATEGORY_PATH_FIELD] = cumulative_paths(row["category_path"])
+    # A product filed at several paths (``category_paths``, gen#602) is under every one of them:
+    # the union of their cumulative paths, each once, so a shared ancestor is counted once.
+    paths = row.get("category_paths") or [row["category_path"]]
+    projected[CATEGORY_PATH_FIELD] = list(
+        dict.fromkeys(joined for path in paths for joined in cumulative_paths(path))
+    )
     return projected
 
 

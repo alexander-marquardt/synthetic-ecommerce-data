@@ -259,7 +259,9 @@ Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
 `category_leaf`; the index adds `category_path_joined`, every ancestor joined
-with "/", so a policy can route to a node. Food and furniture are colorless
+with "/", so a policy can route to a node. A product filed at several paths (the mugs) also
+carries `category_paths`, all its paths with the primary first (see "A product at several
+category paths"). Food and furniture are colorless
 (no color facet, no swatches); beer carries `abv` as an attribute; beds carry
 nested SKUs from the shared five-size bed vocabulary with `width_cm` and
 `length_cm`. The SKUs of a metal good (jewellery, watches, lighting, tech)
@@ -527,13 +529,34 @@ legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still t
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
 Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
-...`), each with its subtree intact; a product still sits in one place. The documents carry no
+...`), each with its subtree intact; a product still sits in one place, unless it is filed at several
+(next paragraph). The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
 Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
 is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
 `category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
 closed list), an internal classification the ceiling build's brand pools, floors and share
 read; `export.DROPPED` keeps it out of every document.
+
+**A product at several category paths: the mugs** (gen#602). A mug is a piece of kitchen drinkware
+and a gift, so it is filed at `Home > Kitchen & dining > Drinkware > Mugs` and at
+`Gifts > Mugs & drinkware`. It stays one document (one `product_id`, one listing; the
+`duplicate_record` distractor is the only duplicate) and carries `category_paths`: its primary
+`category_path` first, then each further path, so a mug reads
+`"category_paths": [["Home", "Kitchen & dining", "Drinkware", "Mugs"], ["Gifts", "Mugs & drinkware"]]`.
+`category_path`, `category_leaf` and `category_depth` keep describing the primary path; a product
+with one path has no `category_paths`. This is the worked example for any later product filed twice
+(`multi_path.py` names the pair and the decoys it leaves alone). The rules: the standard
+(`core/standard.py`) takes `category_paths` as a non-empty list of node-name lists with the primary
+first and no path twice, and `real_classes.check_category_paths` holds every path to the tree rules
+(three levels, clean names, no bucket, no leaf that is also a parent, one depth per node name). The
+prism projection (`prism/index.py`) makes `category_path_joined` the union of the cumulative paths,
+each once, so both category facets count a mug once and a filter on either path finds all of them.
+The decoy mugs of `decor_rows.py` (an ornament, a thank-you card) keep their one Home path; other
+drinkware (travel cups, tumblers, cups and saucers, espresso sets) is not yet filed twice.
+`tests/test_retail_mug_paths_602.py` pins it. The retail loader in
+`elastic/prism-retail-and-industrial` builds `category_path_joined` from `category_path` alone, so it
+needs the same union (a follow-up there).
 
 **A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
 `Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa

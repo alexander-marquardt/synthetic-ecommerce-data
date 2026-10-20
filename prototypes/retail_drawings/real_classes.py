@@ -93,16 +93,47 @@ BUCKETS = frozenset({"Sale", "Offers", "Clearance", "New In", "Bestsellers", "Tr
 MIN_PATH_DEPTH = 3
 
 
-def check_category_paths(docs: list[dict]) -> list[str]:
-    """Every way the ``category_path`` of ``docs`` breaks the tree; empty when clean.
+def _filed_paths(doc: dict, out: list[str]) -> list[tuple[str, ...]]:
+    """Every path ``doc`` is filed at: its ``category_path``, then each further path of
+    ``category_paths`` (gen#602). A malformed ``category_paths`` adds a finding to ``out`` and
+    its bad entries are left out of the paths the tree rules read."""
+    pid, primary = doc["product_id"], list(doc["category_path"])
+    extra = doc.get("category_paths")
+    if extra is None:
+        return [tuple(primary)]
+    if not isinstance(extra, list) or not extra:
+        out.append(f"{pid}: category_paths {extra!r} is not a non-empty list of paths")
+        return [tuple(primary)]
+    if extra[0] != primary:
+        out.append(f"{pid}: category_paths must lead with the category_path {primary!r}")
+    paths, seen = [tuple(primary)], set()
+    for path in extra:
+        if not isinstance(path, list) or not path or not all(isinstance(s, str) for s in path):
+            out.append(f"{pid}: category_paths entry {path!r} is not a list of node names")
+            continue
+        if tuple(path) in seen:
+            out.append(f"{pid}: category_paths lists {' > '.join(path)} twice")
+        seen.add(tuple(path))
+        if tuple(path) not in paths:
+            paths.append(tuple(path))
+    return paths
 
-    A path has at least :data:`MIN_PATH_DEPTH` segments, each a clean shopper
-    term (no separator, no "/" or ">") and none a :data:`BUCKETS` label; no
-    product path is a strict prefix of another (a leaf is never a parent); and
-    within one root a node name sits at one depth only.
+
+def check_category_paths(docs: list[dict]) -> list[str]:
+    """Every way the category paths of ``docs`` break the tree; empty when clean.
+
+    A product is filed at its ``category_path`` and at each further path of its
+    ``category_paths`` (gen#602); every path is held to the same rules. A path has at
+    least :data:`MIN_PATH_DEPTH` segments, each a clean shopper term (no separator, no "/" or
+    ">") and none a :data:`BUCKETS` label; no product path is a strict prefix of another (a leaf
+    is never a parent); and within one root a node name sits at one depth only. The
+    ``category_paths`` of a product lead with its ``category_path`` and name no path twice.
     """
     out: list[str] = []
-    paths = {tuple(d["category_path"]): d["product_id"] for d in docs}
+    paths: dict[tuple[str, ...], str] = {}
+    for d in docs:
+        for path in _filed_paths(d, out):
+            paths.setdefault(path, d["product_id"])
     for path, pid in paths.items():
         if len(path) < MIN_PATH_DEPTH:
             out.append(f"{pid}: {' > '.join(path)} has fewer than {MIN_PATH_DEPTH} levels")
@@ -129,10 +160,12 @@ def check_category_paths(docs: list[dict]) -> list[str]:
 
 
 def index_doc(doc: dict) -> dict:
-    """The doc as indexed: ``category_path_joined`` holds every ancestor, joined."""
-    path = doc["category_path"]
-    joined = [PATH_SEPARATOR.join(path[:n]) for n in range(1, len(path) + 1)]
-    return {**doc, "category_path_joined": joined}
+    """The doc as indexed: ``category_path_joined`` holds every ancestor of every path the
+    product is filed at, joined, each once."""
+    joined: list[str] = []
+    for path in doc.get("category_paths") or [doc["category_path"]]:
+        joined += [PATH_SEPARATOR.join(path[:n]) for n in range(1, len(path) + 1)]
+    return {**doc, "category_path_joined": list(dict.fromkeys(joined))}
 
 
 def corpus() -> list[dict]:
