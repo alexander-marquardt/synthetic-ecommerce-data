@@ -17,8 +17,8 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100K SKUs
-([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
+brands -- and, with one flag, a large build whose SKU total is measured
+([The 100K catalog](#the-100k-catalog), its historical name).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
@@ -302,10 +302,10 @@ uv run ecom-generate build --lines 39000 --out out/catalog-100k
 uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
-`--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Each deepened type adds its own share on top, so the build
-grows with every one; #62 renames it by what it holds and generates these
-figures. Measured with the first command above (about 45 s wall time), per
+`--lines 39000` (`config.LARGE_BUILD_LINES`) is the large build's line count,
+named for what it holds: it was first chosen to give 100,000 SKUs and no
+longer promises a total. Each deepened type adds its own share on top, so the build
+grows with every one. Measured with the first command above (about 45 s wall time), per
 type from `skus_by_type` in its `stats.json`:
 
 | type | SKUs | | type | SKUs |
@@ -778,7 +778,12 @@ of elastic/prism#9935:
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
-  exactly and rounded to a float once.
+  exactly and rounded to a float once. The rule is PRISM's, not this repository's:
+  `measurement_values.py` in elastic/prism
+  (`packages/prism-engine/src/prism_engine/rewrite/`) takes the product with
+  `fractions.Fraction` and applies `float(...)` as the last step, and
+  `nested.py` in elastic/prism-industrial-products does the same for the
+  `value_canonical` it serves.
 * Thread spacing is published under two keys, as real catalogs publish it: a
   metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
@@ -1526,12 +1531,18 @@ industrial bundle's shape, so the same installer takes it: members
 `retail/<image_id>.svg` under the archive's own `retail/` folder, every
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
-`.content-sha256`. Images are keyed per style and colorway, never per SKU:
-every size of one color shares an image, drawn in that color's swatch (base,
-pattern and accent). The authored-styles build is `templates.authored_images` images for
+`.content-sha256`. Images are keyed per style and colorway, and per pack scale:
+a SKU's pack is drawn at about the cube root of its net volume (or weight, or
+count) against the largest size of its line, floored at 0.6, on the same
+400 x 400 sheet and baseline, so a 30 ml jar is visibly smaller than a 100 ml
+one (`pack_scale.py`). The largest size, and a line of one size, draw as they
+always did. Every size drawn at one scale shares its color's image, drawn in
+that color's swatch (base, pattern and accent).
+![A line's 30, 50 and 100 ml drawn before and after](docs/images/pack-scale.svg)
+The authored-styles build is `templates.authored_images` images for
 `templates.authored` SKUs (`retail_figures.figures()`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
-input): `--skus 20000` is 1,348 images for 20,002 SKUs.
+input): `--skus 20000` is 1,346 images for 20,074 SKUs.
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
@@ -1715,7 +1726,7 @@ a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
-(`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
+(`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
