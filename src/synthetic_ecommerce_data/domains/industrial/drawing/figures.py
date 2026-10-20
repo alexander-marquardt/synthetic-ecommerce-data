@@ -29,6 +29,8 @@ from dataclasses import dataclass
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure, arc, regular_polygon
 from synthetic_ecommerce_data.core.typespec import RegistryTable
+from synthetic_ecommerce_data.domains.industrial.drawing import primitives as P  # noqa: N812
+from synthetic_ecommerce_data.domains.industrial.drawing.compose import Ref, Spec, build, part
 from synthetic_ecommerce_data.domains.industrial.render import drill as drill_geom
 from synthetic_ecommerce_data.domains.industrial.render import endmill as endmill_geom
 from synthetic_ecommerce_data.domains.industrial.render import fastener as fastener_geom
@@ -116,35 +118,6 @@ def _len(record: Record, name: str) -> float:
 # --- rotary cutting tools --------------------------------------------------
 
 
-def _helix_lines(x_half, y_from, y_to, pitch, slant, hand):
-    """Flute edges across a body: slanted segments every ``pitch``, inside [y_from, y_to]."""
-    segments = []
-    if pitch <= 0:
-        return segments
-    y = y_from - slant
-    while y < y_to:
-        a = (-x_half * hand, y)
-        b = (x_half * hand, y + slant)
-        if a[1] >= y_from and b[1] <= y_to:
-            segments.append((a, b))
-        y += pitch
-    return segments
-
-
-def _end_view(fig: Figure, centre, radius, flutes, hand=1):
-    fig.disc(centre, radius, "plain")
-    cx, cy = centre
-    segments = []
-    for k in range(flutes):
-        angle = 2 * math.pi * k / flutes
-        tip = (cx + radius * math.cos(angle), cy + radius * math.sin(angle))
-        bend = angle + hand * 0.6
-        mid = (cx + 0.45 * radius * math.cos(bend), cy + 0.45 * radius * math.sin(bend))
-        segments.append(((cx, cy), mid))
-        segments.append((mid, tip))
-    fig.lines(segments)
-
-
 END_MILL_DEFAULTS = {
     "Shank Dia.": lambda r: r["Milling Dia."],
     "Length of Cut": lambda r: _inches(2.5 * _len(r, "Milling Dia.")),
@@ -180,9 +153,9 @@ def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) ->
     fig = Figure(size_in=oal)
     body_top = oal - loc
     shank_bottom = loc if geom.double_end else 0.0
-    fig.rect(-s / 2, shank_bottom, s / 2, body_top, "plain")
+    P.shank(fig, s / 2, shank_bottom, body_top)
     if geom.double_end:
-        fig.rect(-r, 0.0, r, loc, "part")
+        P.round_body(fig, d, 0.0, loc)
     # The cutting end.
     if geom.style == "ball":
         outline = [(-r, body_top), (r, body_top)] + arc((0, oal - r), r, 0, 180, 16)
@@ -196,14 +169,16 @@ def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) ->
     else:
         outline = [(-r, body_top), (r, body_top), (r, oal), (-r, oal)]
     fig.poly(outline, "part")
-    lead = math.pi * d / math.tan(math.radians(max(geom.helix_deg, 5.0)))
-    pitch = lead / geom.flutes
-    fig.lines(
-        _helix_lines(
-            r, body_top, oal - (r if geom.style == "ball" else 0), pitch, d * 0.55, geom.hand
-        )
+    P.helix_flutes(
+        fig,
+        d,
+        body_top,
+        oal - (r if geom.style == "ball" else 0),
+        geom.flutes,
+        geom.helix_deg,
+        geom.hand,
     )
-    _end_view(fig, (max(r, s / 2) + 1.3 * r, body_top * 0.25 + r), r, geom.flutes, geom.hand)
+    P.flute_end_view(fig, (max(r, s / 2) + 1.3 * r, body_top * 0.25 + r), r, geom.flutes, geom.hand)
     return Drawn(fig, source)
 
 
@@ -222,20 +197,46 @@ DRILL_NOMINAL = {
 }
 
 
+#: The drill as a declaration: a shank, a fluted body that ends in the point, and the
+#: flutes across it. The values are the drill geometry's (``d`` the flute diameter,
+#: ``s`` the shank, ``flute`` the flute length, ``oal``, ``point`` the point's height).
+DRILL_SPEC = Spec(
+    dims=(),
+    inputs=("d", "s", "flute", "oal", "point"),
+    size=Ref("oal"),
+    parts=(
+        part("shank", r=Ref("s") / 2, y0=0.0, y1=Ref("oal") - Ref("flute")),
+        part(
+            "conical_end",
+            r=Ref("d") / 2,
+            y0=Ref("oal") - Ref("flute"),
+            y_shoulder=Ref("oal") - Ref("point"),
+            y_tip=Ref("oal"),
+        ),
+        part(
+            "helix_flutes",
+            dia=Ref("d"),
+            y0=Ref("oal") - Ref("flute"),
+            y1=Ref("oal") - Ref("point"),
+            flutes=2,
+            helix_deg=30.0,
+        ),
+    ),
+)
+
+
 def drill(record: Record) -> Drawn:
     geom, source = _read(
         record, drill_geom.geometry_from_record, DRILL_DEFAULTS, DRILL_NOMINAL, "Size"
     )
-    d, s = geom.dia.inches, geom.shank_d.inches
-    flute, oal = geom.flute_len.inches, geom.oal.inches
-    r = d / 2
-    point = geom.point_height
-    fig = Figure(size_in=oal)
-    fig.rect(-s / 2, 0.0, s / 2, oal - flute, "plain")
-    fig.poly([(-r, oal - flute), (r, oal - flute), (r, oal - point), (0, oal), (-r, oal - point)])
-    lead = math.pi * d / math.tan(math.radians(30))
-    fig.lines(_helix_lines(r, oal - flute, oal - point, lead / 2, d * 0.55, 1))
-    return Drawn(fig, source)
+    values = {
+        "d": geom.dia.inches,
+        "s": geom.shank_d.inches,
+        "flute": geom.flute_len.inches,
+        "oal": geom.oal.inches,
+        "point": geom.point_height,
+    }
+    return Drawn(build(DRILL_SPEC, values), source)
 
 
 TAP_DEFAULTS = {
@@ -258,14 +259,6 @@ def _thread_major(record: Record) -> float:
         if name in record:
             return parse_thread(record[name]).major.inches
     raise DimensionParseError("no thread size")
-
-
-def _thread_crests(x_half, y_from, y_to, pitch):
-    count = int((y_to - y_from) / pitch)
-    return [
-        ((-x_half, y_from + k * pitch), (x_half, y_from + k * pitch + pitch / 2))
-        for k in range(count)
-    ]
 
 
 def tap(record: Record) -> Drawn:
@@ -291,7 +284,7 @@ def tap(record: Record) -> Drawn:
             (-r, oal - chamfer),
         ]
     )
-    fig.lines(_thread_crests(r, oal - tl, oal - chamfer, pitch))
+    fig.lines(P.thread_crests(r, oal - tl, oal - chamfer, pitch))
     return Drawn(fig, source)
 
 
@@ -317,13 +310,6 @@ FASTENER_NOMINAL = {
 BREAK_START = 0.9
 BREAK_VISIBLE = 0.97
 BREAK_GAP = 0.05
-
-
-def _break_lines(fig: Figure, r: float, y: float, amplitude: float) -> None:
-    """A drafting break across a shank of radius ``r`` at ``y``: a zigzag."""
-    xs = [-r * 1.15 + k * (2.3 * r / 6) for k in range(7)]
-    points = [(x, y + (amplitude if k % 2 else -amplitude)) for k, x in enumerate(xs)]
-    fig.lines(list(zip(points, points[1:], strict=False)))
 
 
 def fastener(record: Record, max_height: float | None = None) -> Drawn:
@@ -360,21 +346,13 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
     fig = Figure(size_in=visible if broken else total)
     # Head, top at y = 0.
     if geom.countersunk:
-        fig.poly([(-hd / 2, 0.0), (hd / 2, 0.0), (r, hh), (-r, hh)])
+        P.head_flat(fig, hd, r, hh)
     elif geom.domed:
-        dome = [(x, hh - y) for x, y in fastener_geom.dome_profile(hd / 2, hh, 0.0)]
-        fig.poly(dome + [(hd / 2, hh), (-hd / 2, hh)])
+        P.head_button(fig, hd, hh)
     elif geom.hex_headed:
-        across_corners = geom.across_flats * 2 / math.sqrt(3)
-        fig.rect(-across_corners / 2, 0.0, across_corners / 2, hh)
-        fig.lines(
-            [
-                ((-across_corners / 4, 0.0), (-across_corners / 4, hh)),
-                ((across_corners / 4, 0.0), (across_corners / 4, hh)),
-            ]
-        )
+        P.head_hex(fig, geom.across_flats, hh)
     else:
-        fig.rect(-hd / 2, 0.0, hd / 2, hh)
+        P.head_socket(fig, hd, hh)
     # Shank: plain above the thread, threaded below.
     shank_top = hh
     thread_top = total - geom.threaded_length
@@ -384,28 +362,18 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
         """The shank between ``a`` and ``b`` (true lengths), drawn ``shift`` up."""
         plain_to = min(b, thread_top)
         if plain_to > a:
-            fig.rect(-r, a - shift, r, plain_to - shift, "plain")
+            P.shank(fig, r, a - shift, plain_to - shift)
         start = max(a, thread_top)
         if b <= start:
             return
-        end_chamfer = chamfer if b >= total else 0.0
-        fig.poly(
-            [
-                (-r, start - shift),
-                (r, start - shift),
-                (r, b - end_chamfer - shift),
-                (r - end_chamfer, b - shift),
-                (-r + end_chamfer, b - shift),
-                (-r, b - end_chamfer - shift),
-            ]
-        )
-        fig.lines(
-            [
-                ((x0, y0 - shift), (x1, y1 - shift))
-                for (x0, y0), (x1, y1) in _thread_crests(
-                    r, start, b - end_chamfer, geom.thread.pitch_in
-                )
-            ]
+        P.thread(
+            fig,
+            r,
+            start,
+            b,
+            geom.thread.pitch_in,
+            chamfer if b >= total else 0.0,
+            drop=shift,
         )
 
     if not broken:
@@ -419,19 +387,17 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
         interval(shank_top, cut, 0.0)
         interval(resume, total, total - visible)
         amplitude = gap * 0.12
-        _break_lines(fig, r, cut, amplitude)
-        _break_lines(fig, r, cut + gap, amplitude)
+        P.break_mark(fig, r, cut, amplitude)
+        P.break_mark(fig, r, cut + gap, amplitude)
     # End view of the head, beside it: the drive a shopper would see.
     cx = max(hd, major) * 1.25
     cy = hd / 2
     if geom.hex_headed:
-        fig.poly(regular_polygon((cx, cy), geom.across_flats / math.sqrt(3), 6, 30))
+        P.hex_face(fig, (cx, cy), geom.across_flats / math.sqrt(3))
     else:
-        fig.disc((cx, cy), hd / 2)
+        P.round_face(fig, (cx, cy), hd / 2)
         if geom.drive_size is not None:
-            fig.poly(
-                regular_polygon((cx, cy), geom.drive_size.inches / math.sqrt(3), 6, 30), "dark"
-            )
+            P.drive_recess(fig, (cx, cy), geom.drive_size.inches)
     return Drawn(fig, source)
 
 
@@ -442,11 +408,9 @@ def washer(record: Record) -> Drawn:
     geom, source = _read(record, washer_geom.geometry_from_record, {}, WASHER_NOMINAL)
     od, i_d, t = geom.outside_d.inches, geom.inside_d.inches, geom.thickness.inches
     fig = Figure(size_in=od)
-    fig.disc((0.0, 0.0), od / 2)
-    fig.disc((0.0, 0.0), i_d / 2, "hole")
+    P.ring(fig, (0.0, 0.0), od / 2, i_d / 2)
     edge = od / 2 + 0.35 * od
-    fig.rect(-od / 2, edge, -i_d / 2, edge + t, "plain")
-    fig.rect(i_d / 2, edge, od / 2, edge + t, "plain")
+    P.tube(fig, od / 2, i_d / 2, edge, edge + t)
     return Drawn(fig, source)
 
 
@@ -603,7 +567,7 @@ def hex_nut(record: Record) -> Drawn:
     source = "record" if read and ok_f and ok_h else ("partial" if read else "nominal")
     corners = flats * 2 / math.sqrt(3)
     fig = Figure(size_in=flats)
-    fig.poly(regular_polygon((0.0, 0.0), corners / 2, 6, 30))
+    P.hex_face(fig, (0.0, 0.0), corners / 2)
     fig.disc((0.0, 0.0), major / 2, "hole")
     fig.lines(
         (
@@ -613,13 +577,7 @@ def hex_nut(record: Record) -> Drawn:
         for a in (2 * math.pi * k / 3 for k in range(3))
     )
     edge = corners / 2 + 0.3 * corners
-    fig.rect(-corners / 2, edge, corners / 2, edge + height, "plain")
-    fig.lines(
-        [
-            ((-corners / 4, edge), (-corners / 4, edge + height)),
-            ((corners / 4, edge), (corners / 4, edge + height)),
-        ]
-    )
+    P.hex_body(fig, flats, edge, edge + height, "plain")
     return Drawn(fig, source)
 
 

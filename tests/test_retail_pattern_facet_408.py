@@ -100,7 +100,9 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
 def _styles_with(fill: str) -> list[dict[str, Any]]:
     """The template styles that sell a colorway with this fill."""
     return [
-        d for d in scale.templates() if fill in {o["pattern"] for o in d.get("color_options", [])}
+        d
+        for d in scale.templates()
+        if fill in {o["pattern"] for o in d.get("color_options", [])}
     ]
 
 
@@ -137,12 +139,13 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     """The product count is frozen (166,990 SKUs, 16,359 styles at the ceiling): the four pattern
-    words ride on colorways of styles main already sold. Main's build holds 11,365 templates and
-    102,618 template SKUs (the 21 plural-cups styles and 6 more bra decoys of gen#508 and the 14
-    templates, 29 SKUs, of the sports text-match decoys of #375 included); a new style would
-    raise both. This test pins 11455 templates and 104298 template SKUs: the PR that adds styles
-    must move them. The Kids dresses and coats of gen#310 added 90 styles and a net 1,680 SKUs
-    (the 90 rows hold 1,686 of their own; the decoy clones account for the difference)."""
+    words ride on colorways of styles main already sold. Main's build holds 11,485 templates and
+    102,882 template SKUs (the 21 plural-cups styles and 6 more bra decoys of gen#508, the 14
+    templates, 29 SKUs, of the sports text-match decoys of #375 and the large appliances of
+    gen#334, 120 templates, 264 SKUs, included); a new style would raise both. This test pins
+    11575 templates and 104562 template SKUs: the PR that adds styles must move them. The Kids
+    dresses and coats of gen#310 added 90 styles and a net 1,680 SKUs (the 90 rows hold 1,686 of
+    their own; the decoy clones account for the difference)."""
     tpls = scale.templates()
-    assert len(tpls) == 11455
-    assert sum(t["sku_count"] for t in tpls) == 104298
+    assert len(tpls) == 11575
+    assert sum(t["sku_count"] for t in tpls) == 104562
