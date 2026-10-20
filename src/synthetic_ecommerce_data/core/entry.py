@@ -216,6 +216,10 @@ def canonical(magnitude: str, unit: str) -> float:
     The arithmetic is exact (:class:`~fractions.Fraction`) and rounded to a float
     once, at the end, for every unit alike: ``3/8"`` is 9.525 mm and ``13`` TPI is
     the nearest float to 127/65 mm.
+
+    The rule is PRISM's, not this module's: ``measurement_values.py`` in elastic/prism
+    (``float(conversion.to_canonical(number))``) and ``nested.py`` in
+    elastic/prism-industrial-products (``float(part.canonical)``) round the same way.
     """
     exact = _exact(magnitude)
     if unit in RECIPROCAL_PER_UNIT:

@@ -14,7 +14,7 @@ from __future__ import annotations
 import pytest
 
 from synthetic_ecommerce_data.core import price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import price_report
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.price_report import LENGTH_ROW, ORDER_ROW
@@ -24,9 +24,8 @@ SET_SCREW = "set_screws_hex_socket"
 
 @pytest.fixture(scope="module", params=["default", "100K"])
 def rows(request) -> dict:
-    config = (
-        GeneratorConfig() if request.param == "default" else GeneratorConfig(lines=HUNDRED_K_LINES)
-    )
+    lines = None if request.param == "default" else LARGE_BUILD_LINES
+    config = GeneratorConfig() if lines is None else GeneratorConfig(lines=lines)
     return {row.name: row for row in price_report.price_comparisons(generate(config))}
 
 
