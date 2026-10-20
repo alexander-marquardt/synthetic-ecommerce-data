@@ -59,7 +59,7 @@ APPAREL_FAMILIES = "abusk"
 #: leaves room to append the difference. The 26 footwear types left it in gen#427: a shoe is a
 #: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
 #: as a spec row. The three shoe-care products stay on it.
-LEGACY_CEILING = 307
+LEGACY_CEILING = 306
 
 
 class SpecError(ValueError):

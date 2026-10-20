@@ -46,6 +46,10 @@ RESTRICTED: dict[tuple[str, ...], tuple[tuple[str, ...], str]] = {
     ("Home", "Heating & Cooling", "Fans", "Ceiling Fans"): (
         ("White", "Black", "Silver", "Brown", "Gold", "Copper", "Bronze", "Nickel"),
         "a ceiling fan's color is its metal or wood finish"),
+    ("Home", "Large Appliances", "Dishwashers"): (
+        ("White", "Black", "Silver"), "enamel white, black or stainless steel (gen#334)"),
+    ("Home", "Large Appliances", "Laundry"): (
+        ("White", "Black", "Silver"), "enamel white, black or silver (gen#334)"),
 }  # fmt: skip
 
 _MATERIAL_WORDS = ("leather", "suede", "patent")

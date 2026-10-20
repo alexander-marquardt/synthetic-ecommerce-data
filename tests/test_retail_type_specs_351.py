@@ -95,8 +95,13 @@ def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
 #: Class rows whose type became a spec's (gen#214, Sun Cream) and whose id the committed ES proof
 #: (``real_classes_proof.json``) pins: the "face cream" near-type distractor. Moving it to the spec
 #: would change its id and make the proof a record of a document that no longer exists, and the
-#: proof is rebuilt only by an Elasticsearch run (``es_proof.py``). The set only shrinks.
-PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE"}
+#: proof is rebuilt only by an Elasticsearch run (``es_proof.py``). The set shrinks when the proof
+#: is rebuilt; it grew with the face creams (gen#542), whose spec keeps the demo's three class rows.
+PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE", "PLT-FCDAYC", "PLT-FCNGHT", "PLT-FCCALM"}
+#: The gen#294 text-match decoy of a spec type that stays in ``decoy_rows`` (gen#542, Face Cream):
+#: the "Daylight" face cream is the color-word decoy of the "face cream" demo, and the type's
+#: spec holds the real range. A later change may move it.
+DECOY_ROWS_BESIDE_A_SPEC = {"PLT-DXL10"}
 
 #: The shoe styles the footwear specs (gen#427) do not hold: the growth round 4 shoes
 #: (``scale_rows.FOOTWEAR``) and the Nike shoes (``nike_rows.STYLES``) are built by their own
@@ -132,7 +137,10 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)
         out_of_spec |= {i for i in mine if i in decoys}
         stray[spec.key] = [
-            i for i in mine if i not in decoys | PROOF_PINNED_CLASS_ROWS and i not in jeans
+            i
+            for i in mine
+            if i not in decoys | PROOF_PINNED_CLASS_ROWS | DECOY_ROWS_BESIDE_A_SPEC
+            and i not in jeans
         ]
     return stray, out_of_spec
 

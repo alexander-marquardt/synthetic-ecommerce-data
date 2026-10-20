@@ -306,13 +306,13 @@ TOYS = (
 # Garden: one plant per leaf, so its every variety fits every template.
 # --------------------------------------------------------------------------
 
-_TREES = ("Garden", "Plants", "Bay Trees")
-_OLIVES = ("Garden", "Plants", "Olive Trees")
+_TREES = ("Garden", "Trees", "Bay Trees")
+_OLIVES = ("Garden", "Trees", "Olive Trees")
 _TULIP = ("Garden", "Bulbs", "Tulip Bulbs")
 _BERRY = ("Garden", "Grow Your Own", "Strawberry Plants")
 _MUSH = ("Garden", "Grow Your Own", "Mushroom Kits")
-_XMAS = ("Garden", "Christmas Trees", "Real Christmas Trees")
-_APPLE = ("Garden", "Fruit Trees", "Apple Trees")
+_XMAS = ("Garden", "Trees", "Christmas Trees")
+_APPLE = ("Garden", "Trees", "Apple Trees")
 _POT = cw("Terracotta", "#b5603a", "solid", "#4f7a3a")
 
 
