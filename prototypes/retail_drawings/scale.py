@@ -389,8 +389,13 @@ def templates(baseline: bool = True) -> list[dict]:
             | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
     # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
     planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}
-    done = main_colors.complete(tpls, skip) if baseline else tpls
-    return sale_share.apply_all(done, DECOY_IDS | skip | planted)
+    # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
+    # another, so every other template, and the seeded fillers drawn from them, is as it was.
+    seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]
+    done = main_colors.complete(seeded, skip) if baseline else seeded
+    done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
+    by_id = {r["product_id"]: r for r in done}
+    return [by_id.get(r["product_id"], r) for r in tpls]
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
