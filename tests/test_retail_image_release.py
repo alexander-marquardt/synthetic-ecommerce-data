@@ -28,6 +28,8 @@ if str(RETAIL) not in sys.path:
 
 import export  # noqa: E402 -- the prototype's own directory is its import root
 import image_release  # noqa: E402
+import pack_scale  # noqa: E402
+import scale  # noqa: E402
 from build_preview import drawing_svg  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from retail_figures import figures  # noqa: E402
@@ -60,12 +62,20 @@ def _color(variant: dict[str, Any]) -> str | None:
     return "/".join(pair) or None
 
 
-def test_one_image_per_style_and_colorway_never_per_sku(documents, files):
-    by_colorway: dict[tuple[str, str | None], set[str]] = defaultdict(set)
-    by_image: dict[str, set[tuple[str, str | None]]] = defaultdict(set)
+def test_one_image_per_style_colorway_and_pack_scale_never_per_sku(documents, files):
+    """A size shares its colorway's image unless the line draws it smaller (gen#543): the
+    key is the style, the colorway and the factor :mod:`pack_scale` gives the SKU."""
+    factors = {
+        (r["product_id"], s["sku"]): pack_scale.factor(r, s)
+        for r in scale.templates()
+        for s in r["skus"]
+    }
+    by_colorway: dict[tuple[str, str | None, float | None], set[str]] = defaultdict(set)
+    by_image: dict[str, set[tuple[str, str | None, float | None]]] = defaultdict(set)
     for doc in documents:
         for variant in doc["variants"]:
-            colorway = (doc["product_id"], _color(variant))
+            shrink = factors[doc["product_id"], variant["sku"]]
+            colorway = (doc["product_id"], _color(variant), shrink)
             by_colorway[colorway].add(variant["image_id"])
             by_image[variant["image_id"]].add(colorway)
     assert sum(len(d["variants"]) for d in documents) == RETAIL_SKUS
@@ -115,8 +125,6 @@ def test_an_image_id_naming_two_drawings_is_refused(monkeypatch):
 def test_the_scaled_release_ships_an_image_for_every_image_id_its_export_names():
     """``records(N)`` is ``scale.build(N)``: the 19K export names an ``image_id`` per derived
     style and colorway too, and every one of them is a packaged file."""
-    import scale  # noqa: PLC0415
-
     named = {v["image_id"] for d in scale.documents(scale.build(SCALED_SKUS))
              for v in d["variants"]}  # fmt: skip
     recs = image_release.records(SCALED_SKUS)

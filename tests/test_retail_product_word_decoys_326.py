@@ -97,12 +97,25 @@ TRUE_NODE = {
     "tenni": "Tennis Rackets",
     "badminton": "Badminton Sets",
     "picnic": "Picnic Blankets",  # gen#217
+    # the first-increment Sports & Outdoors nouns of the #375 rows
+    "tent": "Tents",
+    "sleeping": "Sleeping Bags",
+    "camping": "Camping Chairs",
+    "yoga": "Yoga Mats",
+    "dumbbell": "Dumbbells",
+    "kettlebell": "Kettlebells",
+    "foam": "Foam Rollers",
     # the Gifts nouns of the #425 rows: the node of the gift
     "mug": "Mugs & Drinkware",
     "card": "Greeting Cards",
     "notebook": "Notebooks",
     "box": "Money Boxes",
     "hamper": "Pamper Hampers",
+    # the large appliances of gen#334; the washing machine's leaf is "Laundry", a node the
+    # Cleaning tree has too, so its decoys are kept out of the department node instead
+    "fridge": "Fridges & Freezers",
+    "dishwasher": "Dishwashers",
+    "washing": "Large Appliances",
 }
 POLICIES = ("category", "department", "color")
 

@@ -78,7 +78,7 @@ Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
 ``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,348 for the 20,002
+``image_release.py --skus N`` renders this build's images (1,346 for the 20,074
 SKUs of ``--skus 20000``).
 """
 
@@ -107,6 +107,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import cups_plural_rows  # noqa: E402
 import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -135,6 +136,7 @@ import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
+import style_table  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
 import underwear_rows  # noqa: E402
@@ -292,6 +294,8 @@ NECKLINE_IDS = neckline_rows.product_ids()
 NIKE_IDS = nike_rows.product_ids()
 #: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
 NEEDS_IDS = needs_rows.product_ids()
+#: Lingerie naming its cups in the plural (:mod:`cups_plural_rows`, gen#508): templates only.
+CUPS_PLURAL_IDS = cups_plural_rows.product_ids()
 #: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
 #: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
 SPEC_IDS = type_registry.left_out_ids()
@@ -368,10 +372,11 @@ def templates(baseline: bool = True) -> list[dict]:
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *womens_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
-        *color_word_brand_rows.docs(), *neckline_rows.docs(),
+        *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
     ]  # fmt: skip
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
+    body = style_table.complete_lengths(body)  # gen#511: a Midi Dress states its length
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
@@ -403,7 +408,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
                 | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
                 | GARDEN_IDS | DECOR_IDS | NIKE_IDS
-                | NEEDS_IDS
+                | NEEDS_IDS | CUPS_PLURAL_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)

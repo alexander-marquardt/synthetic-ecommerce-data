@@ -29,9 +29,10 @@ class GeneratorConfig:
     #: apportioned across those types by ``type_weights``. The newer types are
     #: sized from this same number, through ``new_type_share``.
     #:
-    #: 2,600 products at a mean of ~1.9 variants gives about 4,700 SKUs -- the
-    #: size of the catalog before variants were trimmed, spread over five times
-    #: as many products (elastic/prism-industrial-products#103, D1/D2).
+    #: 2,600 products at a mean of ~1.9 variants was the size of the catalog
+    #: before variants were trimmed, spread over five times as many products
+    #: (elastic/prism-industrial-products#103, D1/D2). The default build's SKU
+    #: total is `skus` in ``golden-catalog/stats.json``, not a figure here.
     lines: int = 2600
 
     #: How many variants (SKUs) a product has: ``((count, weight), ...)``.
@@ -235,20 +236,18 @@ class GeneratorConfig:
         return replace(self, **changes)  # type: ignore[arg-type]
 
 
-#: The ``--lines`` that lands the catalog at about 100,000 SKUs: measured,
-#: ``ecom-generate build --lines 39000`` gives 99,929 SKUs over 57,985
-#: products (README, "The 100K catalog"); 111,499 over 64,483 since the
-#: deepened ``lock_nuts_nylon_insert`` and ``set_screws_hex_socket`` each added
-#: their own share (#53); 119,363 over 68,979 since ``o_rings`` added its
-#: own, on a build the bearings' wider table and four more types had grown;
-#: 122,324 over 70,776 since five more table types (#101) and key stock
-#: (#108) added theirs.
-#: A named value of the one knob, not a second knob; built on demand, not
-#: published while the spec is iterated at the default size. (28,300 until
-#: uniqueness stopped counting metadata -- the standards claimed, the
-#: measurement-system spelling -- as a difference, which rejects more drafts
-#: per line.)
-HUNDRED_K_LINES = 39000
+#: The ``--lines`` of the large build. It holds a LINE count, not a SKU total:
+#: each deepened type adds its own share on top of the others', so the SKU
+#: total of this build grows with every one, which is why it is not named for
+#: a total. It is measured, never typed: ``skus`` and
+#: ``lines`` in the ``stats.json`` of ``ecom-generate build --lines 39000``
+#: (README, "The 100K catalog"). A named value of the one knob, not a second
+#: knob; built on demand, not published while the spec is iterated at the
+#: default size.
+LARGE_BUILD_LINES = 39000
+#: The retired name of :data:`LARGE_BUILD_LINES`, kept for the callers an open
+#: pull request still imports it in; new code uses the new name.
+HUNDRED_K_LINES = LARGE_BUILD_LINES
 
 
 def small() -> GeneratorConfig:
