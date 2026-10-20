@@ -176,6 +176,26 @@ def test_the_category_check_refuses_a_joined_name_a_bucket_and_a_leaf_that_is_a_
     assert len(rc.check_category_paths([base, deeper])) == 1
 
 
+def test_the_category_check_takes_a_two_path_product_and_refuses_a_malformed_second_path() -> None:
+    """A product at several paths (``category_paths``, gen#602) is held to the same tree rules on
+    every path: the mug is filed at a Home path and a Gifts path."""
+    home = ["Home", "Kitchen", "Mugs"]
+    gifts = ["Gifts", "Drinkware", "Mugs"]
+    mug = {"product_id": "M", "category_path": home, "category_paths": [home, gifts]}
+    assert rc.check_category_paths([mug]) == []
+    assert rc.check_category_paths([mug, {**mug, "product_id": "N"}]) == []
+    for second in (["Gifts", "Mugs"], ["Gifts", "Sale", "Mugs"], ["Gifts", "A/B", "Mugs"],
+                   ["Gifts", "", "Mugs"]):  # fmt: skip
+        bad = {**mug, "category_paths": [home, second]}
+        assert len(rc.check_category_paths([bad])) == 1, second
+    parent = {"product_id": "P", "category_path": ["Gifts", "Drinkware", "Mugs", "Travel"]}
+    assert len(rc.check_category_paths([mug, parent])) == 1  # the second path is now a parent
+    odd = {**mug, "category_paths": [home, "Gifts/Mugs"]}
+    assert len(rc.check_category_paths([odd])) == 1
+    off = {**mug, "category_paths": [gifts, home]}
+    assert len(rc.check_category_paths([off])) == 1  # the primary path leads
+
+
 # --------------------------------------------------------------------------
 # (3) Classes 10 to 13
 # --------------------------------------------------------------------------
