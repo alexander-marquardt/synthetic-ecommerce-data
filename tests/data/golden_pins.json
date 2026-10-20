@@ -1,0 +1,24 @@
+{
+  "anchor": {
+    "first_sku": "1609171743",
+    "order_multiple": 1,
+    "product_id": "TAN-FD580-1609-0003",
+    "product_type": "abrasive_flap_disc",
+    "rule": "the first product line in catalog order with more than one variant",
+    "second_sku": "1609562324",
+    "variant_count": 3
+  },
+  "lens": {
+    "min_enlargement": 2.12,
+    "skus": {
+      "drill": "3818060916",
+      "hairline_drill": "3818542871",
+      "screw": "2334249296"
+    }
+  },
+  "titles": {
+    "documents": 11677,
+    "mid_word": 73,
+    "over_cap": 114
+  }
+}

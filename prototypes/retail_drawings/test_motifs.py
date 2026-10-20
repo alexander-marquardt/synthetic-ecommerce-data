@@ -7,6 +7,7 @@ Run: ``uv run pytest prototypes/retail_drawings/test_motifs.py``.
 from __future__ import annotations
 
 import dataclasses
+import importlib
 import re
 import subprocess
 import sys
@@ -31,6 +32,11 @@ from kit_produce import FRUIT, fruit_count, jitter  # noqa: E402
 from real_classes import class_docs  # noqa: E402
 from variants import cw  # noqa: E402
 
+# Every module that registers kit shapes, whatever ran before this file: the shape sweep reads
+# ``SHAPES`` as the imports left it, and run alone or in the directory's order it saw different sets.
+for _module in sorted(HERE.glob("kit_*.py")):
+    importlib.import_module(_module.stem)
+
 CORPUS = dz.corpus()
 MOTIFS = sorted(kit_motifs.CATEGORY)
 NUM = r"(-?[\d.]+(?:e-?\d+)?)"
@@ -48,6 +54,18 @@ def _print(motif: str, placement: str, scale: float, spacing: float = 0, count: 
 # --------------------------------------------------------------------------
 # The registry and rendering
 # --------------------------------------------------------------------------
+
+
+def test_the_sweep_runs_with_every_shape_module_loaded_whatever_ran_before_it() -> None:
+    """``kit.SHAPES`` holds what the imports before it registered, so a sweep over it covers
+    a different set run alone, after another test file, or in the whole directory (gen#370):
+    a frying pan drawn off its sheet failed only in the run that had imported its module."""
+    registering = sorted(
+        p.stem for p in HERE.glob("kit_*.py") if "register(" in p.read_text(encoding="utf-8")
+    )
+    assert len(registering) > 30, registering
+    assert [m for m in registering if m not in sys.modules] == []
+    assert "frying_pan" in SHAPES
 
 
 def test_the_registry_is_every_kit_shape_and_every_motif_has_a_known_category() -> None:
