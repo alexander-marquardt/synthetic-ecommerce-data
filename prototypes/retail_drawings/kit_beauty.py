@@ -29,7 +29,8 @@ sun_cream       a squeeze bottle with a flip cap, a pump    form (tube, pump,
                 bottle or a trigger spray, a sun on each    spray)
 ==============  ==========================================  =====================
 
-A drawing never prints a size or a count: a style's SKUs share one image per colorway.
+A drawing never prints a size or a count. A smaller size of a style is the same shape drawn
+smaller (:mod:`pack_scale`, gen#543), so the SKUs of one size share one image per colorway.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
