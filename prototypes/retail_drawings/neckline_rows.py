@@ -33,6 +33,7 @@ import re
 import zlib
 from dataclasses import dataclass
 
+import style_table
 from breadth_rows import OWNERS
 from class_model import BRAND_OWNER
 from kit_garments import NECKLINES
@@ -253,11 +254,29 @@ TITLE_WORDS = (
     (r"\b(?:roll|turtle|funnel|high|polo) neck\b", "high"), (r"\b(?:shawl|band|revere) collar\b", "collared"),
 )  # fmt: skip
 #: Words that state a neckline on a dress only ("Wrap Dress", "Shirt Dress").
-DRESS_WORDS = ((r"\bshirt dress\b", "collared"), (r"\bwrap\b", "v-neck"))
+DRESS_WORDS = ((r"(?<![\w-])shirt dress\b", "collared"), (r"\bwrap\b", "v-neck"))
 #: A drawing shape with no neckline param -> the neckline it draws.
 _BY_SHAPE = {"sweatshirt": "crew", "tshirt": "crew", "blouse": "collared", "cardigan": "v-neck", "top": "crew"}
 #: A dress that states no neckline: one of these, by its id (and its picture is drawn to match).
 _DRESS_CHOICE = ("round", "v-neck", "square", "crew", "high", "round")
+
+
+def _dress_choice(rec: dict) -> str:
+    """The neckline a dress that states none is given: by its id, among those its title's style
+    words allow together (a tea dress has no high neck, a coat dress a collar or a V), else the
+    style's own (gen#511)."""
+    allowed = style_table.necklines_for(rec["title"], rec["product_type"])
+    pool = _DRESS_CHOICE
+    if allowed is not None:
+        pool = tuple(n for n in _DRESS_CHOICE if n in allowed) or tuple(sorted(allowed))
+    return pool[_digest(rec["product_id"], "neck") % len(pool)]
+
+
+def _inside_style(rec: dict, neckline: str) -> str:
+    """``neckline``, or the first one the title's style words allow where it is outside them (a
+    polo tee is collared, whatever its picture draws; gen#511)."""
+    allowed = style_table.necklines_for(rec["title"], rec["product_type"])
+    return neckline if allowed is None or neckline in allowed else sorted(allowed)[0]
 
 
 def stated(rec: dict) -> str | None:
@@ -328,12 +347,12 @@ def complete(tpls: list[dict]) -> list[dict]:
         r = {**r}
         d = r.get("drawing") or {}
         if r["product_type"] in DRESS_TYPES and d.get("shape") == "dress":
-            r["neckline"] = stated(r) or _DRESS_CHOICE[_digest(r["product_id"], "neck") % len(_DRESS_CHOICE)]
+            r["neckline"] = stated(r) or _dress_choice(r)
             key = next((k for k, v in DRAWN.items() if v == r["neckline"]), None)
             if key:  # the picture shows what the fact says (a tie neck has no drawing yet)
                 r["drawing"] = {**d, "params": {**(d.get("params") or {}), "neckline": key}}
         else:
-            r["neckline"] = stated(r) or pictured(r) or "crew"
+            r["neckline"] = _inside_style(r, stated(r) or pictured(r) or "crew")
             r = _drawn_to_match(r)
         out.append(r)
     return out

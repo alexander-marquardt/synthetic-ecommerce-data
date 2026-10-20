@@ -68,7 +68,8 @@ packages = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+# No ``addopts``: a ``-q`` here stacks with the caller's ``-q`` into ``-qq``, and pytest
+# at that level prints no ``N passed`` line (#49). Say ``-q`` on the command line.
 # Per-test limit in seconds (pytest-timeout), fixture setup included. The
 # slowest test measured runs 46 s locally and the 100k-catalog fixture builds
 # in 31 s, so 300 s leaves room for a slower CI runner and still stops a hang
