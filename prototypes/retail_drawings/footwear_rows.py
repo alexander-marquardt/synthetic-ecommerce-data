@@ -141,6 +141,23 @@ TYPES: dict[str, tuple[str, tuple[str, ...], int, str]] = {
     "barefoot": ("Barefoot Shoes", ("Shoes", "Barefoot Shoes"), 0, "barefoot"),
 }
 
+#: The kinds a men's retailer files under ``Formal Shoes`` (gen#606): "dress shoes" and "smart
+#: shoes" mean these, and no node grouped them. A kind is placed under the node by its gender
+#: (:func:`nodes_of`), not in :data:`TYPES`, so Womens keeps its own tree until the maintainer
+#: names the women's types that group.
+FORMAL_NODE = "Formal Shoes"
+FORMAL_KINDS = frozenset({"brogue", "loafer"})
+FORMAL_GENDERS = frozenset({"men"})
+
+
+def nodes_of(kind: str, gender: str) -> tuple[str, ...]:
+    """The category nodes under the audience root of a shoe ``kind`` sold to ``gender``."""
+    nodes = TYPES[kind][1]
+    if kind in FORMAL_KINDS and gender in FORMAL_GENDERS:
+        return (nodes[0], FORMAL_NODE, *nodes[1:])
+    return nodes
+
+
 #: (color, color family, upper material).
 Shade = tuple[Color, str, str]
 
@@ -280,7 +297,8 @@ class FootwearStyle:
 
     def doc(self) -> dict:
         """The style's one document, its SKUs nested (:func:`variants.product`)."""
-        ptype, nodes, heel, draw = TYPES[self.kind]
+        ptype, _, heel, draw = TYPES[self.kind]
+        nodes = nodes_of(self.kind, self.gender)
         heel = heel if self.heel_mm is None else self.heel_mm
         h = _digest(self.code)
         skus = self.skus()

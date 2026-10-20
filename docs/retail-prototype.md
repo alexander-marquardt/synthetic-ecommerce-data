@@ -91,7 +91,11 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
+and nested under `Trainers` it would make a leaf a parent. The men's brogues and loafers sit
+under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
+has one node to point at; product ids, titles and drawings do not move. The node is chosen by
+gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
+`Womens > Shoes` until the women's types it groups are named. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
