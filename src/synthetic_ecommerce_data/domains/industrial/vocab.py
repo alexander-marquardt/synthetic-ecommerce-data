@@ -65,6 +65,10 @@ STANDARDS_NAME = "Standards"
 STANDARDS_PRESENCE = 0.55
 
 
+#: The two ways a quantity's values come to be (:attr:`AttrSpec.source`).
+SOURCES = ("tabled", "drawn")
+
+
 @dataclass(frozen=True)
 class AttrSpec:
     """One attribute name a product type may publish.
@@ -82,10 +86,28 @@ class AttrSpec:
     presence: float = 1.0
     #: "keyword", "length", "count", "angle", "weight", "multi".
     kind: str = "keyword"
+    #: How a quantity's values come to be, which decides whether the sidebar
+    #: offers a range or a list (gen#95). "tabled": each value is a row of a
+    #: standard's table or a series ladder, so a shopper picks from a list.
+    #: "drawn": each value is drawn from a continuous range, so an interval
+    #: is honest. Read by ``prism.derive`` the way it reads
+    #: ``Generator.IDENTIFIER_ATTRIBUTES``; the data is held to it by
+    #: ``test_every_declaration_agrees_with_the_data_it_describes``. Ignored
+    #: for a keyword attribute.
+    source: str = "tabled"
+
+    def __post_init__(self) -> None:
+        if self.source not in SOURCES:
+            raise ValueError(
+                f"AttrSpec {self.name!r}: source must be one of {', '.join(SOURCES)} "
+                f"('tabled' or 'drawn'), not {self.source!r}"
+            )
 
 
-def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -> AttrSpec:
-    return AttrSpec(name=name, scope=scope, presence=presence, kind=kind)
+def _spec(
+    name: str, scope: str, presence: float = 1.0, kind: str = "keyword", source: str = "tabled"
+) -> AttrSpec:
+    return AttrSpec(name=name, scope=scope, presence=presence, kind=kind, source=source)
 
 
 #: End mills. The richest vocabulary in the corpus: end_mill records average
@@ -121,7 +143,9 @@ _END_MILL = (
     # 06_attribute_sparsity.json, rounded to two places as every other spec
     # in this table is. A second, builder-level gate at 0.18/0.22 used to
     # square this to ~3%/~5% (alexander-marquardt/synthetic-ecommerce-data#39).
-    _spec("Neck Length", "sku", 0.27, kind="length"),
+    # The one quantity DRAWN from a range rather than read off a table:
+    # ``length of cut * uniform(1.05, 1.4)`` in ``Generator._build_end_mill`` (gen#95).
+    _spec("Neck Length", "sku", 0.27, kind="length", source="drawn"),
     _spec("Corner Radius", "sku", 0.40, kind="length"),
 )
 
