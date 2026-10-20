@@ -568,7 +568,7 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
@@ -1737,7 +1737,7 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band at 100K only (the default build is in band, its record `None`) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at 100K no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE`; on the default build in band |
+| wheel brand spread | pin, above band at both builds (the default build was in band until #357 dropped the wheels that differed only by a pack and moved the ids) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at each build no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE` |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
