@@ -1522,13 +1522,12 @@ industrial bundle's shape, so the same installer takes it: members
 `retail/<image_id>.svg` under the archive's own `retail/` folder, every
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
-`.content-sha256`. Images are keyed per style, colorway and size rung, never per SKU: a
-clothing or footwear style with more than one size draws each rung of its size ladder at its own
-scale (`size_ladder.py`, gen#339: symbolic, not true to dimension), the smallest drawn at 55/90 of the
-largest rung's size (the largest keeps the style's own size), every rung standing on the largest one's bottom center. A footwear
-chart row (its UK, EU and US sizes), a bra band (any cup) and a trouser waist (any leg length)
-are one rung; bedding and pack sizes keep one image per color. Each image is drawn in its color's
-swatch (base, pattern and accent). The authored-styles build is `templates.authored_images` images for
+`.content-sha256`. Images are keyed per style, colorway and size rung, never per SKU: a clothing or footwear style with
+more than one size draws each rung of its size ladder at its own scale (`size_ladder.py`, gen#339: symbolic, not true to
+dimension), the smallest drawn at 55/90 of the largest rung's size (the largest keeps the style's own size), every rung
+standing on the largest one's bottom center. A footwear chart row (its UK, EU and US sizes), a bra band (any cup) and a
+trouser waist (any leg length) are one rung; bedding and pack sizes keep one image per color. Each image is drawn in its
+color's swatch (base, pattern and accent). The authored-styles build is `templates.authored_images` images for
 `templates.authored` SKUs (`retail_figures.figures()`).
 `--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
 input): `--skus 20000` is 7,489 images for 20,074 SKUs, 26.9 MB of SVG and a 558 KB archive
