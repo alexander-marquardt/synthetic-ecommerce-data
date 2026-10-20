@@ -271,7 +271,7 @@ def _attribute_entry(decision: Decision) -> str:
     lines = [
         f"  # {stats.name} -- {decision.reason}",
         f"  #   present on {stats.present} documents across "
-        f"{len(stats.product_types)} product type(s); {stats.cardinality} distinct values",
+        f"{len(stats.product_types)} product type(s); {stats.magnitudes} distinct values",
         f"  - name: {canonical_name(stats.key)}",
         f"    type: {kind}",
         f"    source: {source}",
