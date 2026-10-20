@@ -99,5 +99,10 @@ def steak_tray(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
+def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "", pack_size: str = "") -> list[str]:
+    """Stub (red commit): the real pizza follows."""
+    return [_path("M60,60 L340,60 L340,340 L60,340 Z", paint)]
+
+
 register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub,
-          "steak_tray": steak_tray})
+          "steak_tray": steak_tray, "pizza": pizza})
