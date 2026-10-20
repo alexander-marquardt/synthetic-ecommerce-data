@@ -6,7 +6,7 @@ on one core; this repository is public, so GitHub-hosted runners cost nothing.
 
 ## The tests job is a matrix of shards
 
-`.github/workflows/ci.yaml` job `tests` runs `shard: [1 .. N]` on `ubuntu-latest`. Each
+`.github/workflows/ci.yaml` job `tests` runs `shard: [1 .. N]` on `ubuntu-latest` (or, for this repository's own branches once the repository variable `SYNTH_CI_SELF_HOSTED` is `true`, on the self-hosted `synth-ci` runner of #596, below). Each
 shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the files
 `scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files
 longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
@@ -115,3 +115,13 @@ of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 2
 and it assumes the merge tests cost the same ratio; the last measured whole-suite runs
 (637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
 with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
+
+## Where the jobs run (#596)
+
+Every job's `runs-on` is one expression: `[self-hosted, synth-ci]` when the repository variable
+`SYNTH_CI_SELF_HOSTED` is `true` and the run is a push, a dispatched run or a pull request whose
+head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull request never runs
+on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
+throwaway container on the agent VM, `--cpus 8 --memory 16g`, one job at a time by default, so a
+full run's jobs queue behind each other there. Unsetting the variable sends every job back to
+hosted runners with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.

@@ -50,6 +50,7 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
+import grocery_rows  # noqa: E402
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
@@ -85,6 +86,8 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E40
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
 ATTEMPTS = 40
+#: The 50K tier (gen#376) has a larger pool of titles to miss on, so a family gives up later.
+TIER_ATTEMPTS = 400
 STORAGE_TEXT = {
     "ambient": "Store in a cool, dry place.",
     "chilled": "Keep refrigerated.",
@@ -384,14 +387,30 @@ def _weighted(rng: random.Random, options: tuple[tuple[int, str], ...]) -> str:
     return rng.choices([o for _, o in options], [w for w, _ in options])[0]
 
 
+def budgets(skus: int) -> dict[str, int]:
+    """Each family's SKU budget for a build of ``skus``."""
+    # A depth family is sized against the core families' weight and drawn from its own stream,
+    # so adding one never moves a core family's budget, ids or draws (gen#154). The tier
+    # (gen#376) shares ``skus`` over every family, so the total is the target.
+    total = sum(f.weight for f in FAMILIES if skus > TARGET or not f.depth)
+    return {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
+
+
 def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
-    """The grocery records: the anchors, then each family's share of ``skus``."""
+    """The grocery records: the anchors, then each family's share of ``skus``.
+
+    A build of more than :data:`TARGET` SKUs is the 50K tier (gen#376): it draws its range names
+    from :data:`LINES` plus ``grocery_rows.TIER_LINES``, its brands from the family's own plus
+    ``grocery_rows.TIER_BRANDS``, and gives every family its share of ``skus``, from a stream of
+    its own. ``build()`` and any build of ``TARGET`` or fewer read none of it, so no 10K style, id
+    or draw moves.
+    """
+    tier = skus > TARGET
+    lines = (*LINES, *grocery_rows.TIER_LINES) if tier else LINES
+    attempts = TIER_ATTEMPTS if tier else ATTEMPTS
     rng = random.Random(f"grocery:{seed}")
     fams = {f.code: f for f in FAMILIES}
-    # A depth family is sized against the core families' weight and drawn from its own stream,
-    # so adding one never moves a core family's budget, ids or draws (gen#154).
-    total = sum(f.weight for f in FAMILIES if not f.depth)
-    budget = {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
+    budget = budgets(skus)
     held: Counter[str] = Counter()
     titles: set[str] = set()
     recs: list[dict] = []
@@ -428,12 +447,16 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         add(fam, LINES[offset % len(LINES)], fam.brands[offset % len(fam.brands)],
             flavors, list(fam.packs), may, False)
     rng = core_rng
-    depth_rng = random.Random(f"grocery-depth:{seed}")
+    if tier:
+        rng = random.Random(f"grocery-tier:{seed}")
+    depth_rng = random.Random(f"grocery-tier-depth:{seed}" if tier else f"grocery-depth:{seed}")
     for fam in sorted(FAMILIES, key=lambda f: f.depth):
         misses = 0
         if fam.depth:
             rng = depth_rng
-        while held[fam.code] < budget[fam.code] and misses < ATTEMPTS:
+        extra = grocery_rows.TIER_BRANDS.get(fam.brands, ()) if tier else ()
+        brands = (*fam.brands, *extra)
+        while held[fam.code] < budget[fam.code] and misses < attempts:
             if _single(fam):
                 flavors = [rng.choice(fam.flavors)]
                 packs = list(fam.packs)
@@ -443,7 +466,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
                 flavors.sort(key=fam.flavors.index)
                 packs = list(fam.packs)
             organic = fam.food and rng.random() < ORGANIC_SHARE
-            ok = add(fam, rng.choice(LINES), rng.choice(fam.brands), flavors, packs,
+            ok = add(fam, rng.choice(lines), rng.choice(brands), flavors, packs,
                      _weighted(rng, fam.may), organic)  # fmt: skip
             misses = 0 if ok else misses + 1
     return recs

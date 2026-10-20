@@ -215,8 +215,8 @@ fields:
   - name: abec_rating
     type: terms
     source: facets.abec_rating
-  # Abrasive material -- 4 distinct values over 808 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 1407 documents across 2 product type(s); 4 distinct values
+  # Abrasive material -- 4 distinct values over 787 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 1394 documents across 2 product type(s); 4 distinct values
   - name: abrasive_material
     type: terms
     source: facets.abrasive_material
@@ -225,14 +225,14 @@ fields:
   - name: ansi_number
     type: terms
     source: facets.ansi_number
-  # Application -- present on 48% of its product types' documents (floor 50%)
-  #   present on 1266 documents across 3 product type(s); 5 distinct values
+  # Application -- present on 46% of its product types' documents (floor 50%)
+  #   present on 1218 documents across 3 product type(s); 5 distinct values
   - name: application
     type: terms
     source: facets.application
     facet: false
-  # Arbor hole -- a discrete standard set: 3 distinct values over 764 product-value pairs is 0.00 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1321 documents across 2 product type(s); 3 distinct values
+  # Arbor hole -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 3 distinct values over 741 product-value pairs is 0.00 per product
+  #   present on 1298 documents across 2 product type(s); 3 distinct values
   - name: arbor_hole
     type: terms
     source: facets.arbor_hole
@@ -241,7 +241,7 @@ fields:
   - name: backing_material
     type: terms
     source: facets.backing_material
-  # Base to center height -- a discrete standard set: 7 distinct values over 76 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Base to center height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 7 distinct values over 76 product-value pairs is 0.09 per product
   #   present on 90 documents across 1 product type(s); 7 distinct values
   - name: base_to_center_height
     type: terms
@@ -251,17 +251,17 @@ fields:
   - name: bearing_number
     type: terms
     source: facets.bearing_number
-  # Bolt hole center-to-center -- a discrete standard set: 7 distinct values over 77 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Bolt hole center-to-center -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 7 distinct values over 77 product-value pairs is 0.09 per product
   #   present on 90 documents across 1 product type(s); 7 distinct values
   - name: bolt_hole_center_to_center
     type: terms
     source: facets.bolt_hole_center_to_center
-  # Bond type -- 2 distinct values over 481 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 834 documents across 1 product type(s); 2 distinct values
+  # Bond type -- 2 distinct values over 462 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 824 documents across 1 product type(s); 2 distinct values
   - name: bond_type
     type: terms
     source: facets.bond_type
-  # Bore dia. -- a discrete standard set: 39 distinct values over 864 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Bore dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 39 distinct values over 864 product-value pairs is 0.05 per product
   #   present on 1382 documents across 7 product type(s); 39 distinct values
   - name: bore_dia
     type: terms
@@ -276,12 +276,12 @@ fields:
   - name: capacity
     type: terms
     source: facets.capacity
-  # Pitch -- a discrete standard set: 11 distinct values over 249 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Pitch -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 11 distinct values over 249 product-value pairs is 0.04 per product
   #   present on 264 documents across 3 product type(s); 11 distinct values
   - name: chain_pitch
     type: terms
     source: facets.chain_pitch
-  # Closed length -- a discrete standard set: 19 distinct values over 87 product-value pairs is 0.22 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Closed length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 19 distinct values over 87 product-value pairs is 0.22 per product
   #   present on 87 documents across 1 product type(s); 19 distinct values
   - name: closed_length
     type: terms
@@ -333,7 +333,7 @@ fields:
   - name: dash_number
     type: terms
     source: facets.dash_number
-  # Decimal equivalent -- a discrete standard set: 61 distinct values over 388 product-value pairs is 0.16 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Decimal equivalent -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 61 distinct values over 388 product-value pairs is 0.16 per product
   #   present on 388 documents across 1 product type(s); 61 distinct values
   - name: decimal_equivalent
     type: terms
@@ -348,17 +348,17 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete standard set: 24 distinct values over 845 product-value pairs is 0.03 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1444 documents across 21 product type(s); 24 distinct values
+  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 24 distinct values over 824 product-value pairs is 0.03 per product
+  #   present on 1431 documents across 21 product type(s); 24 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
-  # Dowel dia. -- a discrete list: 25 distinct values over 36 product-value pairs is 0.69 per product, at or above the 0.50 continuity threshold but on 36 products, fewer than the 250 the continuity test needs as evidence
+  # Dowel dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 25 distinct values over 36 product-value pairs is 0.69 per product
   #   present on 60 documents across 1 product type(s); 25 distinct values
   - name: dowel_dia
     type: terms
     source: facets.dowel_dia
-  # Drive size -- a discrete standard set: 40 distinct values over 994 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Drive size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 40 distinct values over 994 product-value pairs is 0.04 per product
   #   present on 1868 documents across 8 product type(s); 40 distinct values
   - name: drive_size
     type: terms
@@ -369,7 +369,7 @@ fields:
     type: terms
     source: facets.drive_type
     facet: false
-  # Dynamic load capacity -- a discrete standard set: 62 distinct values over 552 product-value pairs is 0.11 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Dynamic load capacity -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 62 distinct values over 552 product-value pairs is 0.11 per product
   #   present on 954 documents across 1 product type(s); 62 distinct values
   - name: dynamic_load_capacity
     type: terms
@@ -379,7 +379,7 @@ fields:
   - name: end_style
     type: terms
     source: facets.end_style
-  # Face dia. -- a discrete standard set: 43 distinct values over 291 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Face dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 43 distinct values over 291 product-value pairs is 0.15 per product
   #   present on 291 documents across 7 product type(s); 43 distinct values
   - name: face_dia
     type: terms
@@ -394,12 +394,12 @@ fields:
   - name: finish
     type: terms
     source: facets.finish
-  # Flute length -- a discrete standard set: 82 distinct values over 445 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Flute length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 82 distinct values over 445 product-value pairs is 0.18 per product
   #   present on 449 documents across 1 product type(s); 82 distinct values
   - name: flute_length
     type: terms
     source: facets.flute_length
-  # For shaft diameter -- a discrete standard set: 13 distinct values over 82 product-value pairs is 0.16 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # For shaft diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 13 distinct values over 82 product-value pairs is 0.16 per product
   #   present on 82 documents across 1 product type(s); 13 distinct values
   - name: for_shaft_diameter
     type: terms
@@ -409,17 +409,17 @@ fields:
   - name: grade
     type: terms
     source: facets.grade
-  # Grit -- a discrete standard set: 11 distinct values over 1407 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1407 documents across 2 product type(s); 11 distinct values
+  # Grit -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 11 distinct values over 1394 product-value pairs is 0.01 per product
+  #   present on 1394 documents across 2 product type(s); 11 distinct values
   - name: grit
     type: terms
     source: facets.grit
-  # Groove diameter -- a discrete standard set: 12 distinct values over 82 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Groove diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 12 distinct values over 82 product-value pairs is 0.15 per product
   #   present on 82 documents across 1 product type(s); 12 distinct values
   - name: groove_diameter
     type: terms
     source: facets.groove_diameter
-  # Groove width -- a discrete standard set: 8 distinct values over 63 product-value pairs is 0.13 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Groove width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 8 distinct values over 63 product-value pairs is 0.13 per product
   #   present on 82 documents across 1 product type(s); 8 distinct values
   - name: groove_width
     type: terms
@@ -429,7 +429,7 @@ fields:
   - name: handle_grip_material
     type: terms
     source: facets.handle_grip_material
-  # Handle length -- a discrete standard set: 41 distinct values over 269 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Handle length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 41 distinct values over 269 product-value pairs is 0.15 per product
   #   present on 269 documents across 7 product type(s); 41 distinct values
   - name: handle_length
     type: terms
@@ -445,12 +445,12 @@ fields:
     type: terms
     source: facets.hardness
     facet: false
-  # Head dia. -- a discrete standard set: 82 distinct values over 1029 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Head dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 82 distinct values over 1029 product-value pairs is 0.08 per product
   #   present on 1895 documents across 6 product type(s); 82 distinct values
   - name: head_dia
     type: terms
     source: facets.head_dia
-  # Head height -- a discrete standard set: 79 distinct values over 1026 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Head height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 79 distinct values over 1026 product-value pairs is 0.08 per product
   #   present on 1895 documents across 6 product type(s); 79 distinct values
   - name: head_height
     type: terms
@@ -460,27 +460,27 @@ fields:
   - name: head_type
     type: terms
     source: facets.head_type
-  # Head weight -- a discrete standard set: 20 distinct values over 424 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Head weight -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 20 distinct values over 424 product-value pairs is 0.05 per product
   #   present on 424 documents across 7 product type(s); 20 distinct values
   - name: head_weight
     type: terms
     source: facets.head_weight
-  # Height -- a discrete standard set: 129 distinct values over 1391 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 129 distinct values over 1391 product-value pairs is 0.09 per product
   #   present on 1412 documents across 3 product type(s); 129 distinct values
   - name: height
     type: terms
     source: facets.height
-  # Helix angle -- a discrete standard set: 4 distinct values over 692 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Helix angle -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 692 product-value pairs is 0.01 per product
   #   present on 1289 documents across 2 product type(s); 4 distinct values
   - name: helix_angle
     type: terms
     source: facets.helix_angle
-  # Hub diameter -- a discrete standard set: 17 distinct values over 96 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Hub diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 17 distinct values over 96 product-value pairs is 0.18 per product
   #   present on 102 documents across 1 product type(s); 17 distinct values
   - name: hub_diameter
     type: terms
     source: facets.hub_diameter
-  # Inside dia. -- a discrete standard set: 65 distinct values over 373 product-value pairs is 0.17 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Inside dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 65 distinct values over 373 product-value pairs is 0.17 per product
   #   present on 373 documents across 3 product type(s); 65 distinct values
   - name: inside_dia
     type: terms
@@ -490,27 +490,27 @@ fields:
   - name: inside_dia_tolerance
     type: terms
     source: facets.inside_dia_tolerance
-  # Inside length -- a discrete standard set: 18 distinct values over 132 product-value pairs is 0.14 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Inside length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 18 distinct values over 132 product-value pairs is 0.14 per product
   #   present on 132 documents across 1 product type(s); 18 distinct values
   - name: inside_length
     type: terms
     source: facets.inside_length
-  # Inside width -- a discrete standard set: 23 distinct values over 283 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Inside width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 23 distinct values over 283 product-value pairs is 0.08 per product
   #   present on 289 documents across 3 product type(s); 23 distinct values
   - name: inside_width
     type: terms
     source: facets.inside_width
-  # Length -- a discrete standard set: 90 distinct values over 2478 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 90 distinct values over 2478 product-value pairs is 0.04 per product
   #   present on 2546 documents across 27 product type(s); 90 distinct values
   - name: length
     type: terms
     source: facets.length
-  # Length of cut -- a discrete standard set: 179 distinct values over 1450 product-value pairs is 0.12 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Length of cut -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 179 distinct values over 1450 product-value pairs is 0.12 per product
   #   present on 1460 documents across 2 product type(s); 179 distinct values
   - name: length_of_cut
     type: terms
     source: facets.length_of_cut
-  # Length through bore -- a discrete standard set: 4 distinct values over 77 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Length through bore -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 77 product-value pairs is 0.05 per product
   #   present on 102 documents across 1 product type(s); 4 distinct values
   - name: length_through_bore
     type: terms
@@ -521,7 +521,7 @@ fields:
     type: terms
     source: facets.list_number
     facet: false
-  # Load capacity -- a discrete standard set: 24 distinct values over 219 product-value pairs is 0.11 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Load capacity -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 24 distinct values over 219 product-value pairs is 0.11 per product
   #   present on 219 documents across 2 product type(s); 24 distinct values
   - name: load_capacity
     type: terms
@@ -543,12 +543,12 @@ fields:
     type: terms
     source: facets.material_grade_machining
     facet: false
-  # Max. RPM -- a discrete standard set: 80 distinct values over 1588 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 2262 documents across 3 product type(s); 80 distinct values
+  # Max. RPM -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 80 distinct values over 1557 product-value pairs is 0.05 per product
+  #   present on 2229 documents across 3 product type(s); 80 distinct values
   - name: max_rpm
     type: terms
     source: facets.max_rpm
-  # Maximum size -- a discrete list: 7 distinct values over 11 product-value pairs is 0.64 per product, at or above the 0.50 continuity threshold but on 6 products, fewer than the 250 the continuity test needs as evidence
+  # Maximum size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 7 distinct values over 11 product-value pairs is 0.64 per product
   #   present on 11 documents across 6 product type(s); 7 distinct values
   - name: maximum_size
     type: terms
@@ -558,19 +558,19 @@ fields:
   - name: maximum_workpiece_weight
     type: terms
     source: facets.maximum_workpiece_weight
-  # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 4921 documents across 36 product type(s); 4 distinct values
+  # Measurement system -- present on 43% of its product types' documents (floor 50%)
+  #   present on 4975 documents across 36 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
     facet: false
-  # Milling dia. -- a discrete standard set: 38 distinct values over 1460 product-value pairs is 0.03 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Milling dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 38 distinct values over 1460 product-value pairs is 0.03 per product
   #   present on 1460 documents across 2 product type(s); 38 distinct values
   - name: milling_dia
     type: terms
     source: facets.milling_dia
-  # Mounting type -- 3 distinct values over 487 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 856 documents across 2 product type(s); 3 distinct values
+  # Mounting type -- 3 distinct values over 450 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 802 documents across 2 product type(s); 3 distinct values
   - name: mounting_type
     type: terms
     source: facets.mounting_type
@@ -580,7 +580,7 @@ fields:
     type: numeric
     source: facets_num.neck_length
     facet: false
-  # Number of flutes -- a discrete standard set: 4 distinct values over 920 product-value pairs is 0.00 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Number of flutes -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 920 product-value pairs is 0.00 per product
   #   present on 1696 documents across 3 product type(s); 4 distinct values
   - name: number_of_flutes
     type: terms
@@ -590,37 +590,37 @@ fields:
   - name: number_of_teeth
     type: terms
     source: facets.number_of_teeth
-  # Outside dia. -- a discrete standard set: 71 distinct values over 1008 product-value pairs is 0.07 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Outside dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 71 distinct values over 1008 product-value pairs is 0.07 per product
   #   present on 1511 documents across 4 product type(s); 71 distinct values
   - name: outside_dia
     type: terms
     source: facets.outside_dia
-  # Overall height -- a discrete standard set: 6 distinct values over 76 product-value pairs is 0.08 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Overall height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 6 distinct values over 76 product-value pairs is 0.08 per product
   #   present on 90 documents across 1 product type(s); 6 distinct values
   - name: overall_height
     type: terms
     source: facets.overall_height
-  # Overall length -- a discrete standard set: 233 distinct values over 3395 product-value pairs is 0.07 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Overall length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 233 distinct values over 3395 product-value pairs is 0.07 per product
   #   present on 3583 documents across 17 product type(s); 233 distinct values
   - name: overall_length
     type: terms
     source: facets.overall_length
-  # Overall width -- a discrete standard set: 42 distinct values over 678 product-value pairs is 0.06 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Overall width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 42 distinct values over 678 product-value pairs is 0.06 per product
   #   present on 688 documents across 1 product type(s); 42 distinct values
   - name: overall_width
     type: terms
     source: facets.overall_width
-  # Piece count -- a discrete standard set: 18 distinct values over 69 product-value pairs is 0.26 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Piece count -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 18 distinct values over 69 product-value pairs is 0.26 per product
   #   present on 69 documents across 6 product type(s); 18 distinct values
   - name: piece_count
     type: terms
     source: facets.piece_count
-  # Pin dia. -- a discrete standard set: 12 distinct values over 67 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Pin dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 12 distinct values over 67 product-value pairs is 0.18 per product
   #   present on 67 documents across 1 product type(s); 12 distinct values
   - name: pin_dia
     type: terms
     source: facets.pin_dia
-  # Point angle -- a discrete standard set: 2 distinct values over 219 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Point angle -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 2 distinct values over 219 product-value pairs is 0.01 per product
   #   present on 395 documents across 1 product type(s); 2 distinct values
   - name: point_angle
     type: terms
@@ -641,7 +641,7 @@ fields:
   - name: rated_load
     type: terms
     source: facets.rated_load
-  # Roller dia. -- a discrete standard set: 9 distinct values over 50 product-value pairs is 0.18 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Roller dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 9 distinct values over 50 product-value pairs is 0.18 per product
   #   present on 50 documents across 1 product type(s); 9 distinct values
   - name: roller_dia
     type: terms
@@ -657,12 +657,12 @@ fields:
   - name: attr_series
     type: terms
     source: facets.series
-  # Shank dia. -- a discrete standard set: 82 distinct values over 1845 product-value pairs is 0.04 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Shank dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 82 distinct values over 1845 product-value pairs is 0.04 per product
   #   present on 1931 documents across 4 product type(s); 82 distinct values
   - name: shank_dia
     type: terms
     source: facets.shank_dia
-  # Shank diameter -- a discrete list: 2 distinct values over 2 product-value pairs is 1.00 per product, at or above the 0.50 continuity threshold but on 1 products, fewer than the 250 the continuity test needs as evidence
+  # Shank diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 2 distinct values over 2 product-value pairs is 1.00 per product
   #   present on 2 documents across 1 product type(s); 2 distinct values
   - name: shank_diameter
     type: terms
@@ -682,7 +682,7 @@ fields:
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
-  # Size -- a discrete standard set: 122 distinct values over 2121 product-value pairs is 0.06 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 122 distinct values over 2121 product-value pairs is 0.06 per product
   #   present on 2121 documents across 37 product type(s); 122 distinct values
   - name: size
     type: terms
@@ -692,12 +692,12 @@ fields:
   - name: sizes_included
     type: terms
     source: facets.sizes_included
-  # Standards -- 70 distinct values over 4570 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 6447 documents across 28 product type(s); 70 distinct values
+  # Standards -- 70 distinct values over 4585 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 6467 documents across 28 product type(s); 70 distinct values
   - name: standards
     type: terms
     source: facets.standards
-  # Static load capacity -- a discrete standard set: 61 distinct values over 532 product-value pairs is 0.11 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Static load capacity -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 61 distinct values over 532 product-value pairs is 0.11 per product
   #   present on 921 documents across 1 product type(s); 61 distinct values
   - name: static_load_capacity
     type: terms
@@ -712,7 +712,7 @@ fields:
   - name: style
     type: terms
     source: facets.style
-  # Take up -- a discrete standard set: 3 distinct values over 61 product-value pairs is 0.05 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Take up -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 3 distinct values over 61 product-value pairs is 0.05 per product
   #   present on 87 documents across 1 product type(s); 3 distinct values
   - name: take_up
     type: terms
@@ -722,8 +722,8 @@ fields:
   - name: tap_chamfer
     type: terms
     source: facets.tap_chamfer
-  # Thickness -- a discrete standard set: 18 distinct values over 959 product-value pairs is 0.02 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 1483 documents across 4 product type(s); 18 distinct values
+  # Thickness -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 18 distinct values over 938 product-value pairs is 0.02 per product
+  #   present on 1470 documents across 4 product type(s); 18 distinct values
   - name: thickness
     type: terms
     source: facets.thickness
@@ -733,7 +733,7 @@ fields:
     type: terms
     source: facets.thread_direction
     facet: false
-  # Thread length -- a discrete standard set: 244 distinct values over 1619 product-value pairs is 0.15 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Thread length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 244 distinct values over 1619 product-value pairs is 0.15 per product
   #   present on 2053 documents across 6 product type(s); 244 distinct values
   - name: thread_length
     type: terms
@@ -764,27 +764,27 @@ fields:
   - name: tip_style
     type: terms
     source: facets.tip_style
-  # Type -- 39 distinct values over 3360 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 5985 documents across 28 product type(s); 39 distinct values
+  # Type -- 39 distinct values over 3339 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 5972 documents across 28 product type(s); 39 distinct values
   - name: type
     type: terms
     source: facets.type
-  # Units per pack -- a discrete standard set: 12 distinct values over 2395 product-value pairs is 0.01 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
-  #   present on 4459 documents across 17 product type(s); 12 distinct values
+  # Units per pack -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 12 distinct values over 1860 product-value pairs is 0.01 per product
+  #   present on 3550 documents across 16 product type(s); 12 distinct values
   - name: units_per_pack
     type: terms
     source: facets.units_per_pack
-  # Wheel grade -- 3 distinct values over 447 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 782 documents across 1 product type(s); 3 distinct values
+  # Wheel grade -- 3 distinct values over 429 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 766 documents across 1 product type(s); 3 distinct values
   - name: wheel_grade
     type: terms
     source: facets.wheel_grade
-  # Width -- a discrete standard set: 72 distinct values over 796 product-value pairs is 0.09 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 72 distinct values over 796 product-value pairs is 0.09 per product
   #   present on 1329 documents across 9 product type(s); 72 distinct values
   - name: width
     type: terms
     source: facets.width
-  # Width across flats -- a discrete standard set: 67 distinct values over 1969 product-value pairs is 0.03 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Width across flats -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 67 distinct values over 1969 product-value pairs is 0.03 per product
   #   present on 2184 documents across 3 product type(s); 67 distinct values
   - name: width_across_flats
     type: terms
