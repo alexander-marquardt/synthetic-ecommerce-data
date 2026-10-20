@@ -17,8 +17,8 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100K SKUs
-([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
+brands -- and, with one flag, a large build whose SKU total is measured
+([The 100K catalog](#the-100k-catalog), its historical name).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
@@ -303,10 +303,10 @@ uv run ecom-generate build --lines 39000 --out out/catalog-100k
 uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
-`--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Each deepened type adds its own share on top, so the build
-grows with every one; #62 renames it by what it holds and generates these
-figures. Measured with the first command above (about 45 s wall time), per
+`--lines 39000` (`config.LARGE_BUILD_LINES`) is the large build's line count,
+named for what it holds: it was first chosen to give 100,000 SKUs and no
+longer promises a total. Each deepened type adds its own share on top, so the build
+grows with every one. Measured with the first command above (about 45 s wall time), per
 type from `skus_by_type` in its `stats.json`:
 
 | type | SKUs | | type | SKUs |
@@ -1727,7 +1727,7 @@ a type whose specs hold no material. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
-(`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
+(`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
