@@ -12,6 +12,7 @@ own shape (``kit_more.py`` holds the ones the audit asked for).
 
 from __future__ import annotations
 
+import copy
 import re
 import sys
 from pathlib import Path
@@ -274,3 +275,81 @@ def test_a_new_garment_part_is_drawn_by_its_kit_function() -> None:
     assert dress.count("<circle") == 6, "six buttons"
     assert "M200,100 L200,364" in dress, "the center placket"
     assert "M200,100 L200,364" not in _svg(kit.SHAPES["dress"]("#7a8fb5", fill, None))
+
+
+# --- gen#447 part 2: a title that names a part draws that part --------------------------------
+
+import details  # noqa: E402
+import named_parts  # noqa: E402
+
+#: The reported products: id -> (the part its title names, the shape that shows it).
+NAMED_EXAMPLES: dict[str, tuple[str, str]] = {
+    "PLT-DXB04": ("band", "bra"),
+    "PLT-DXH03": ("pocket", "blouse"),
+    "BRD-KDW012": ("hem", "top"),
+    "BRD-MDST611": ("cuffs", "suit_trousers"),
+    "BRD-NXMET012": ("waistband", "trousers"),
+}
+
+
+def test_every_apparel_title_that_names_a_part_draws_it(tpls: list[dict]) -> None:
+    bad = named_parts.violations(tpls)
+    assert not bad, f"{len(bad)} titles name a part that is not drawn:\n" + "\n".join(bad[:12])
+
+
+@pytest.mark.parametrize("pid", sorted(NAMED_EXAMPLES))
+def test_a_reported_title_names_a_part_its_drawing_shows(tpls: list[dict], pid: str) -> None:
+    part, shape = NAMED_EXAMPLES[pid]
+    tpl = next(t for t in tpls if t["product_id"] == pid)
+    color, named_part = named_parts.named(tpl["title"]) or ("", "")
+    assert named_part == part, tpl["title"]
+    assert tpl["drawing"]["shape"] == shape, tpl["title"]
+    assert tpl["drawing"].get("detail") == {"part": part, "color": named_parts.DETAIL_HEX[color]}
+    svg = image_release.render(tpl, tpl["skus"][0], styled=False).decode()
+    assert f'data-part="{part}"' in svg, f"{tpl['title']}: the {part} is not in the image"
+
+
+#: Parts a garment's kit has to draw for the rows that name them (shape -> parts).
+NEW_PARTS = {
+    "bra": ("band", "cups"),
+    "blouse": ("collar", "buttons", "pocket"),
+    "dinner_suit": ("cuffs",),
+}
+
+
+@pytest.mark.parametrize(("shape", "part"), [(s, p) for s, ps in NEW_PARTS.items() for p in ps])
+def test_a_new_part_is_one_the_shape_shows(shape: str, part: str) -> None:
+    assert part in details.parts_of(shape)
+    fill = kit.Fill(detail=(part, "#c8322b"))
+    drawn = kit.SHAPES[shape]("#7a8fb5", fill, None)
+    svg = details.overlay(shape, fill, drawn, "#7a8fb5", "t")
+    assert f'data-part="{part}"' in svg and "#c8322b" in svg
+
+
+def test_the_guard_refuses_a_part_not_drawn_and_a_trim_too_fine(tpls: list[dict]) -> None:
+    """The guard itself: the build holds no such title, so it is shown on edited copies."""
+    tpl = copy.deepcopy(_example(tpls, "PLT-DXH03"))
+    assert named_parts.violations([tpl]) == []
+    for title in ("Navy Blouse with Red Stitching", "Navy Blouse with Red Piping"):
+        assert "too fine" in "".join(named_parts.violations([{**tpl, "title": title}])), title
+    tpl["drawing"].pop("detail")
+    assert "not drawn" in "".join(named_parts.violations([tpl]))
+    tpl["drawing"]["detail"] = {"part": "pocket", "color": "#2a2a2e"}  # drawn, in the wrong color
+    assert "not drawn" in "".join(named_parts.violations([tpl]))
+
+
+def test_a_trim_is_picked_from_the_shape_a_leaf_rule_draws(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Today every rule's shape shows the parts its authored one did, so the rule is made to
+    differ: a trim is a part of the DRAWN shape."""
+    monkeypatch.setattr(leaf_shapes, "shape_of", lambda ptype, shape: "bra")
+    assert named_parts.trim_part("Polo Shirt", "tshirt", 0) in {"Straps", "Band", "Cups", "Bow"}
+
+
+def test_a_trim_part_is_one_the_shape_shows() -> None:
+    """A row's trim is picked from the parts its (leaf-rule) shape draws, never one it cannot."""
+    for ptype, shape in (("Polo Shirt", "tshirt"), ("Chinos", "trousers"), ("Socks", "socks")):
+        part = named_parts.trim_part(ptype, shape, 1).lower()
+        assert part in details.parts_of(leaf_shapes.shape_of(ptype, shape)), (ptype, part)
+    assert leaf_shapes.shape_of("Polo Shirt", "tshirt") == "top"
+    assert [named_parts.trim_part("Polo Shirt", "tshirt", i) for i in (0, 1, 2)] == [
+        "Hem", "Collar", "Hem"]  # the i-th part of the shape, wrapping round
