@@ -48,14 +48,17 @@ def word_decoy(
     shape: str,
     price: float,
     noun: str,
+    policy: str = "department",
 ) -> Decoy:
     """A class-8 decoy (gen#326): a product of its own type whose title holds the toy word ``noun``.
 
     It sits in a leaf of a department other than Toys, so the department policy drops it. Coded
-    ``DT<n>``; its drawing takes its own color, as the type is sold without one.
+    ``DT<n>``; its drawing takes its own color, as the type is sold without one. A decoy that
+    sits in the department of the product it is mistaken for (a fridge magnet in Home, beside the
+    appliances) is repaired by the ``"category"`` policy instead (gen#334).
     """
     row = Row(
         f"DT{n:02d}", title, brand, dept, path, ptype, price, shape, desc,
         (cw(color, COLORS[color]),), (), colorless=True,
     )  # fmt: skip
-    return Decoy(8, noun, "department", row)
+    return Decoy(8, noun, policy, row)
