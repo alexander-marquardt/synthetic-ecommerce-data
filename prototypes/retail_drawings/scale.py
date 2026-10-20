@@ -394,6 +394,9 @@ def templates(baseline: bool = True) -> list[dict]:
     seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
+    # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
+    # Kids share holds its target, and nothing else moves.
+    done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 

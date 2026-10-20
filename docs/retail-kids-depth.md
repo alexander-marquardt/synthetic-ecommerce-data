@@ -40,3 +40,5 @@ and with the new ids in the pool the Womens dress decoys moved into the Kids lea
 * The rows are templates only, so `scale.derivable` leaves them out (`scale.KIDS_DEPTH_IDS`) and
   the seeded derivation is what it was. `scale.templates` also runs the main-color pass and the
   sale share without them, so every other template, and the fillers drawn from them, is as it was.
+  The new rows then take a sale pass of their own, so each of the three leaves holds products on
+  sale and the Kids department keeps its sale share.
