@@ -203,7 +203,7 @@ CLOTHING = [
         "price": 14.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
-            "Navy / Ecru",
+            "Navy and Ecru",
             "Stripe",
             "Regular",
             "Womens",
@@ -241,7 +241,7 @@ CLOTHING = [
         "price": 26.00,
         **sizes(WOMENS, "8", "18"),
         "attributes": clothing_attrs(
-            "Sky Blue / White",
+            "Sky Blue and White",
             "Stripe",
             "Regular",
             "Womens",
@@ -260,7 +260,7 @@ CLOTHING = [
         "price": 35.00,
         **sizes(WOMENS, "6", "20"),
         "attributes": clothing_attrs(
-            "Tan / Black",
+            "Tan and Black",
             "Leopard",
             "Fit and Flare",
             "Womens",
@@ -281,7 +281,7 @@ CLOTHING = [
         "price": 16.00,
         **sizes(WOMENS, "6", "18"),
         "attributes": clothing_attrs(
-            "Red / White",
+            "Red and White",
             "Gingham",
             "Relaxed",
             "Womens",
@@ -342,7 +342,7 @@ CLOTHING = [
         "price": 22.00,
         **sizes(WOMENS, "6", "16"),
         "attributes": clothing_attrs(
-            "Red / Green", "Tartan", "A-Line", "Womens", "Brushed Twill", waist="Standard"
+            "Red and Green", "Tartan", "A-Line", "Womens", "Brushed Twill", waist="Standard"
         ),
         "drawing": drawing("skirt", "tartan", C["Red"], C["Green"], third="#f2d14b"),
     },
@@ -406,7 +406,7 @@ CLOTHING = [
             BRA, "32A", "36E", only={f"{b}{c}" for b in (32, 34, 36) for c in ("B", "C", "D", "DD")}
         ),
         "attributes": clothing_attrs(
-            "Blush / Black", "Polka Dot", "Non-Wired", "Womens", "Recycled Polyester, Elastane"
+            "Blush and Black", "Polka Dot", "Non-Wired", "Womens", "Recycled Polyester, Elastane"
         ),
         "drawing": drawing("bra", "polka", C["Blush"], C["Black"]),
     },
