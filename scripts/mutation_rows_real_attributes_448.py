@@ -33,8 +33,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "a decoy clone is picked in a color the type never comes in",
         "decoy_apparel.py",
-        'if type_colors.permits(ex["category_path"], o["color"])  # gen#448\n',
-        "if True  # gen#448\n",
+        'if (type_colors.permits(ex["category_path"], o["color"])  # gen#448\n',
+        "if (True  # gen#448\n",
         f"{_T} -k decoy_clone_picker",
         "the decoy clone picker reads the allow-list",
     ),
