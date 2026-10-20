@@ -410,13 +410,12 @@ their product families, market weight, house style and title voice.
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
   Meadow Works`, `Wendlow Tool`, `Quillon Carbide`, ...): a brand filter has to
   tell a brand from a word, and a catalog without such a name never makes it.
-* **House style.** Twelve inks, six paper tints and four frame treatments in
-  use (a fifth, `chamfer`, is declared and unused). Each brand owns one
-  (ink, frame) pair, read back by `drawing.style.brand_for_house_style`, and
-  its paper is chosen independently of its ink, so brands that share an ink
-  also differ in background. Every (ink, paper, frame) triple is unique and
-  every ink is at least 3:1 against every paper (the lowest is 4.4:1).
-* **Style levers and capacity** (#55): [detail](docs/house-style-levers.md).
+* **House style.** Twelve inks, six paper tints and four frames in use (a
+  fifth, `chamfer`, is declared, unused). Each brand owns one (ink, frame)
+  pair, read back by `drawing.style.brand_for_house_style`; its paper is
+  independent of its ink, so brands sharing an ink also differ in background.
+  Every (ink, paper, frame) triple is unique and every ink is at least 3:1
+  against every paper (lowest 4.4:1). Levers, capacity (#55): [detail](docs/house-style-levers.md).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs
   (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in
@@ -1356,8 +1355,7 @@ every other drawing -- only the GEOMETRY is fixed.
   - every attribute must be one they use, and every attribute VALUE must fit
     its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
-  - every id is a hatch pattern's own or a texture's (`tgrid`, `tdot`), and
-    `stroke-dasharray` takes only the book's dash arrays;
+  - every id is a hatch's or texture's (`tgrid`, `tdot`); dasharray: book's only;
   - no element but `<text>` may carry character data;
   - no comment, processing instruction, doctype or entity reference may
     appear, but the `&amp;` of a name like `Lark & Lathe`.
