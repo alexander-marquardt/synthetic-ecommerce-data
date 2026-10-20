@@ -18,7 +18,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a depth family is sized against the whole weight, so every core budget moves",
                 "grocery.py",
-                "sum(f.weight for f in FAMILIES if not f.depth)",
+                "sum(f.weight for f in FAMILIES if skus > TARGET or not f.depth)",
                 "sum(f.weight for f in FAMILIES)",
                 "tests/test_grocery_scent_depth_154.py -k core_styles_do_not_move",
                 "adding a scent family leaves the core grocery styles as built",
