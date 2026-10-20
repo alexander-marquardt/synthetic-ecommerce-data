@@ -38,7 +38,9 @@ from synthetic_ecommerce_data.prism.derive import (
     RANGE_MIN_DOCS,
     AttributeStats,
     decide,
+    declared_sources,
     measure,
+    quantity_sources,
 )
 from synthetic_ecommerce_data.prism.field_map import render
 
@@ -781,3 +783,157 @@ def test_derive_reads_the_generators_identifier_declaration() -> None:
     assert {
         sentence_case(name) for name in Generator.IDENTIFIER_ATTRIBUTES
     } == derive.IDENTIFIER_ATTRIBUTES
+
+
+# --------------------------------------------------------------------------
+# The generator's declaration of how a quantity's values come to be (#95).
+# --------------------------------------------------------------------------
+
+
+def test_derive_reads_the_generators_quantity_declaration() -> None:
+    """One source for tabled-or-drawn: the vocabulary's own ``source``.
+
+    Neck Length is the one quantity the end-mill builder draws from a range
+    (``length of cut * uniform(1.05, 1.4)``); every other quantity lands on a
+    table row. The sidebar reads the published (sentence case) name.
+    """
+    from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
+
+    assert {spec.source for spec in VOCAB["end_mill_square"] if spec.name == "Neck Length"} == {
+        "drawn"
+    }
+    sources = quantity_sources()
+    assert sources == declared_sources(VOCAB)
+    assert sources["Neck length"] == "drawn"
+    assert sources["Drive size"] == "tabled"
+    assert {name for name, source in sources.items() if source == "drawn"} == {"Neck length"}
+
+
+def test_a_name_two_types_declare_differently_is_left_to_the_ratio() -> None:
+    """The generator cannot say how a mixed name is made, so it says nothing.
+
+    A keyword spec is not a quantity and declares nothing; the published name
+    is the sentence-case one.
+    """
+    from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
+
+    table = {
+        "a": (
+            AttrSpec("Span", "sku", kind="length", source="drawn"),
+            AttrSpec("Thread Length", "sku", kind="length", source="drawn"),
+            AttrSpec("Tag", "line", source="drawn"),
+        ),
+        "b": (
+            AttrSpec("Span", "sku", kind="length"),
+            AttrSpec("Thread Length", "sku", kind="length", source="drawn"),
+            AttrSpec("Tag", "line", source="drawn"),
+        ),
+    }
+    assert declared_sources(table) == {"Thread length": "drawn"}
+
+
+def test_a_source_other_than_tabled_or_drawn_is_refused() -> None:
+    from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
+
+    message = ""
+    try:
+        AttrSpec("Span", "sku", kind="length", source="measured")
+    except ValueError as exc:
+        message = str(exc)
+    assert "tabled" in message and "drawn" in message, message
+
+
+def test_a_declared_drawn_quantity_is_a_range_whatever_the_ratio_and_the_floor() -> None:
+    """Forty products with 40 values is under the floor; three values on 400 repeat.
+
+    Neither would be a range by the ratio. The declaration says the values are
+    drawn from a range, so the control is a range in both.
+    """
+    few = _stats(cardinality=40, present=40, name="Neck length")
+    assert few.products < RANGE_MIN_DOCS
+    repeating = _stats(cardinality=3, present=400, name="Neck length")
+    assert repeating.dispersion < RANGE_DISPERSION
+    for neck in (few, repeating):
+        assert neck.is_continuous
+        decision = decide(neck)
+        assert decision.facet
+        assert "a range" in decision.reason and "declares" in decision.reason, decision.reason
+
+
+def test_a_declared_tabled_quantity_is_a_list_whatever_the_ratio_and_the_floor() -> None:
+    """A ladder is a list on 36 products and on 5,200, with a value on each.
+
+    ``Dowel dia.`` reads 0.69 on 36 products, and a long ladder on a big
+    catalog reads 0.96 on 5,200: both are over the continuity threshold, and
+    both are standard sizes, because the generator says so.
+    """
+    for name, cardinality, present in (("Dowel dia.", 25, 36), ("Drive size", 5_000, 5_200)):
+        ladder = _stats(cardinality=cardinality, present=present, name=name)
+        assert ladder.dispersion >= RANGE_DISPERSION
+        assert not ladder.is_continuous, name
+        decision = decide(ladder)
+        assert decision.facet
+        assert "a discrete list" in decision.reason and "declares" in decision.reason, (
+            decision.reason
+        )
+
+
+def test_an_undeclared_quantity_is_still_read_by_the_ratio() -> None:
+    """A second catalog's quantity, which no vocabulary here names."""
+    assert "Probe" not in quantity_sources()
+    assert _stats(cardinality=6_800, present=7_173).is_continuous
+    assert not _stats(cardinality=40, present=40).is_continuous
+
+
+def test_every_quantity_this_catalog_publishes_is_declared(flat_rows: list[dict]) -> None:
+    """So the ratio decides nothing for it, and a new type's ladder needs no floor."""
+    sources = quantity_sources()
+    quantities = {s.name for s in measure(flat_rows).values() if s.is_numeric}
+    assert len(quantities) > 40
+    assert sorted(quantities - set(sources)) == []
+
+
+def test_every_declaration_agrees_with_the_data_it_describes(flat_rows: list[dict]) -> None:
+    """The guard on the declaration: where the data is evidence, the ratio agrees.
+
+    Over the floor a ladder reads under the continuity threshold and the drawn
+    quantity over it. A type that declares a continuous quantity tabled, or a
+    ladder drawn, reds here by name.
+    """
+    sources = quantity_sources()
+    evidenced = [
+        s
+        for s in measure(flat_rows).values()
+        if s.is_numeric and s.name in sources and s.products >= RANGE_MIN_DOCS
+    ]
+    drawn = {s.name for s in evidenced if sources[s.name] == "drawn"}
+    tabled = {s.name for s in evidenced if sources[s.name] == "tabled"}
+    assert drawn == {"Neck length"}
+    assert len(tabled) > 20
+    for s in evidenced:
+        assert (s.dispersion >= RANGE_DISPERSION) == (sources[s.name] == "drawn"), (
+            s.name,
+            s.dispersion,
+        )
+
+
+@pytest.mark.parametrize("floor", [1, 10**6])
+def test_a_declared_quantity_does_not_move_with_the_floor(
+    flat_rows: list[dict], monkeypatch: pytest.MonkeyPatch, floor: int
+) -> None:
+    from synthetic_ecommerce_data.prism import derive
+
+    sources = quantity_sources()
+
+    def controls() -> dict[str, bool]:
+        return {
+            key: s.is_continuous
+            for key, s in measure(flat_rows).items()
+            if s.is_numeric and s.name in sources
+        }
+
+    before = controls()
+    assert {"neck_length", "drive_size"} <= set(before)
+    assert before["neck_length"] and not before["drive_size"]
+    monkeypatch.setattr(derive, "RANGE_MIN_DOCS", floor)
+    assert controls() == before
