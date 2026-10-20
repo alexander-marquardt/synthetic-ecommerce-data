@@ -5,6 +5,9 @@ Run: ``uv run pytest prototypes/retail_drawings/test_variants.py``.
 
 from __future__ import annotations
 
+import importlib
+import json
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -244,6 +247,25 @@ def test_a_duplicate_listing_publishes_one_product_id_under_two_categories() -> 
     assert dz.DUPLICATED in {x.doc["product_id"] for x in _gift().distractors}
 
 
+def test_the_samples_do_not_depend_on_which_shape_modules_were_imported() -> None:
+    """A module that registers a name another registered (kit_lowerbody's ``shorts`` and
+    ``skirt`` over the base kit's) changes the drawing of every sample that uses it, so the
+    build held one answer run alone and another after test_motifs (gen#370). The build in a
+    fresh interpreter, which imports only what ``build_preview4`` itself imports, must equal
+    the build here with every kit module loaded."""
+    for path in sorted(HERE.glob("kit_*.py")):
+        importlib.import_module(path.stem)
+    html, ndjson = build_preview4.outputs()
+    code = (
+        "import json, sys; sys.path.insert(0, sys.argv[1]); import build_preview4 as b; "
+        "print(json.dumps(b.outputs()))"
+    )
+    done = subprocess.run(
+        [sys.executable, "-c", code, str(HERE)], capture_output=True, text=True, check=True
+    )
+    assert json.loads(done.stdout) == [html, ndjson]
+
+
 def test_the_duplicate_listing_option_adds_exactly_one_record() -> None:
     _, plain = build_preview4.outputs()
     _, dup = build_preview4.outputs(duplicate_listing=True)
@@ -319,7 +341,7 @@ def test_every_brand_has_a_house_style_and_every_sample_draws() -> None:
     assert {k: len(v) for k, v in sections.items()} == {
         "Jeans": 12, "Bras": 10, "Bedding": 8, "Beauty": 6, "Planted distractors": 25,
         "Print range": 91, "Gift wrap": 1, "Gift bag distractors": 18,
-        "Observed failure classes": 123, "Footwear": 31, "Footwear distractors": 3,
+        "Observed failure classes": 123, "Footwear": 55, "Footwear distractors": 3,
     }  # fmt: skip
     for r in recs:
         assert ET.fromstring(drawing_svg(r)).tag.endswith("svg")
