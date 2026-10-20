@@ -37,6 +37,13 @@ def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_twenty_leav
     assert {p: len(r) for p, r in leaves.items() if not 1 <= len(r) <= 2} == {}
 
 
+def _lunch_cooler_ids() -> set[str]:
+    """The ids of the class-8 decoys whose true type is a lunch box (``DY`` + the row number)."""
+    from feature_decoys import large_appliances
+
+    return {f"PLT-DY{r[0]:02d}" for r in large_appliances._ROWS if r[1] == "la_lunch"}
+
+
 def test_no_other_template_uses_a_breadth_leaf() -> None:
     mine = {r.code for r in ROWS}
     other = {
@@ -47,6 +54,8 @@ def test_no_other_template_uses_a_breadth_leaf() -> None:
         and d["product_id"] not in garden_rows.decoy_ids()
         # a color-word brand row sits in a breadth leaf on purpose (gen#312)
         and d["product_id"] not in color_word_brand_rows.product_ids()
+        # the lunch cooler named for a fridge is a real lunch box, so it sits in that leaf (gen#334)
+        and d["product_id"] not in _lunch_cooler_ids()
     }
     assert sorted(set(_leaves()) & other) == []
 

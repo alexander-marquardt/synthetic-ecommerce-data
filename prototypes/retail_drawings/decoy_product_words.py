@@ -1388,12 +1388,10 @@ TEXT_EXEMPT = frozenset(f"PLT-{r.code}" for r in TABLE if r.detail)
 STYLES = tuple(r.style() for r in ROWS)
 #: The product ids left out of the derivation and of the color completion.
 IDS = frozenset(f"PLT-{s.code}" for s in STYLES)
-#: The Sports & Outdoors types with no decoys yet, each with the issue that adds them (gen#368).
-SPORTS_EXEMPT = {
-    t: "decoys are tracked in #375"
-    for t in ("Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell",
-              "Foam Roller")
-}  # fmt: skip
+#: The Sports & Outdoors types allowed no decoys, each with the issue that adds them. Empty since
+#: gen#375 gave the seven first-increment types theirs; ``tests/test_retail_sports_decoys_368.py``
+#: pins it empty.
+SPORTS_EXEMPT: dict[str, str] = {}
 #: product id -> its row (decoy or floor).
 BY_ID = {f"PLT-{r.code}": r for r in ROWS}
 
