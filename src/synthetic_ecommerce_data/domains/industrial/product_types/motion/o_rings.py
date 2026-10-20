@@ -1,7 +1,7 @@
 """O-rings: the SAE AS568 inch sizes, deepened from breadth (#53).
 
 Every size is a row of the AS568 dash-number table, read from
-``data/as568_sizes.json``, which says where the rows were transcribed from:
+the library's ``as568_sizes`` table, which says where the rows were transcribed from:
 the actual inside diameter and cross-section (published as ``Width``), each
 with its tolerance, and the nominal inside diameter (published as ``Size``).
 Left out: the -001 1/2 row, the -9xx straight-thread boss series and the
@@ -15,12 +15,11 @@ its generic name. No pack quantity is published (#14): one ring per SKU.
 
 from __future__ import annotations
 
-import json
 from fractions import Fraction
 from functools import cache
-from importlib import resources
 from typing import TYPE_CHECKING, Any, NamedTuple
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.formats import LengthStyle, canonical_style, format_length_best
@@ -60,9 +59,7 @@ class Row(NamedTuple):
 @cache
 def rows() -> tuple[Row, ...]:
     """Every AS568 row the type offers, in dash order."""
-    data = resources.files("synthetic_ecommerce_data.domains.industrial.data")
-    text = data.joinpath("as568_sizes.json")
-    return tuple(Row(*row) for row in json.loads(text.read_text("utf-8"))["rows"])
+    return tuple(Row(*row) for row in library.table("as568_sizes").rows)
 
 
 def series() -> dict[str, tuple[Row, ...]]:

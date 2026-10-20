@@ -122,13 +122,22 @@ hand:
   is ASME B1.1, and each entry is really its own designation — `#10-32` states
   32 threads per inch in the name.
 
-`src/synthetic_ecommerce_data/domains/industrial/data/fastener_standards.json` is that
-extraction, unmodified, and carries its own provenance block naming each
+`src/synthetic_ecommerce_data/core/standards_library/tables/fastener_standards.json` is that
+extraction, unmodified apart from the library's `_library` citation block, and carries its own provenance block naming each
 repository, its licence and the commit it was read at. Only the sizes this
 catalog offers were taken; the upstream compilations are not redistributed.
 Values the sources do not carry are recorded as absent rather than filled in —
 there is no `#10` hex bolt here, because ASME B18.2.1 hex head screws begin at
 1/4", and no `M20` button head, because ISO 7380-1 in the source stops at M16.
+
+**The standards library (#73).** Every size table the catalog reads from a standard is one
+JSON file in `src/synthetic_ecommerce_data/core/standards_library/tables/`, with a `_library`
+block naming its `standards`, `edition`, `source` and `kind`, and a rule of its own in
+`tests/test_standards_library.py`. A type reads a table by name
+(`standards_library.table("asme_b1_1_unified_threads").select(["#10", "1/4"])`) and takes only
+the sizes it stocks; `select` refuses a size the table lacks. A new table is a new file, never
+an edit to a shared list, so two type PRs that each add one do not collide. The library moves
+SIZE tables; what a type claims to conform to stays in `conformance.py` (#61).
 
 The sizes taken are listed in the extraction's own `requested_sizes` block:
 `M3 M4 M5 M6 M8 M10 M12 M16 M20` and `#6 #8 #10 1/4 5/16 3/8 7/16 1/2 5/8`.
@@ -1028,6 +1037,19 @@ That is the whole command — the default configuration, the default seed. Then
 commit whatever changed, `src/prism_synthetic_industrial/data/field_weights/`
 included, since the same build regenerates the PRISM field map.
 
+The tests also pin SKUs and counts measured on the committed catalog (the SKUs the
+handle-less lens tests name, the title-cap counts, the SKU the mutation bed plants its
+defects in). Those are not typed in the tests: after a regeneration run
+
+```sh
+uv run python scripts/measure_pins.py
+```
+
+which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrites
+`tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
+that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
+the script and names the rule. `--check` compares the committed file without writing.
+
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
 assignment, a renamed field, a new emitted file. `tests/test_catalog_golden.py`
@@ -1133,6 +1155,10 @@ An attribute is **numeric** (a range facet over `facets_num.*`) when ≥50% of
 the documents publishing it carry a parsed number in `facets_num`, and **terms**
 otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
+
+A numeric attribute is a **range** or a **list** by what its `AttrSpec` declares
+(gen#95): `tabled` (default) or `drawn` (an end mill's Neck Length), read by
+`prism/derive.py` at any `--lines`; an undeclared one uses the ratio and floor.
 
 **An attribute whose key is a column's name is namespaced, never dropped.**
 Real feeds publish attributes named like a catalog's own columns -- the census
@@ -1414,7 +1440,7 @@ What `tests/test_sku_drawings.py` proves over the committed catalog:
   * a lens appears on exactly the SKUs drawn at most 1/5 of the sheet's width
     and 1/6 of its height, over every committed SKU;
   * the handle-less lens is used exactly where the handled glass cannot reach
-    x2.5; the committed catalog's lowest enlargement is pinned at x2.12 (its
+    x2.5; the committed catalog's lowest enlargement is the `lens.min_enlargement` of `tests/data/golden_pins.json` (its
     measured minimum, rounded down), and the rule's extreme (40 x 50) at
     x2.05 to x2.5 -- below x2.5 because the lens is height-bound in the
     236-unit figure area above the brand plate (#132);
@@ -1634,8 +1660,9 @@ to 1.08x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
 The census has no kit-versus-parts price figure, so the factor claims neither a
 discount nor a premium: it is fitted to the census median kit price and moves
 when #76 widens the kit kinds. Kit contents are computed from the part types'
-fitted models, so a fit run that also refits a part type a kit holds must be
-run again before its result is kept.
+fitted models, and one fit run fits the kit last, on the part models that run
+just fitted (#94), so a run that also refits a part type a kit holds needs no
+second run.
 
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.

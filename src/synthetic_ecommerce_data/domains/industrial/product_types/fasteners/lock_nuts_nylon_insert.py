@@ -4,7 +4,7 @@ The spec space is six series a distributor stocks, each a standard's table or,
 for inch, a conventional size ladder:
 
 * metric rows are read from FreeCAD_FastenersWB at the commit
-  ``data/fastener_standards.json`` records: ``iso7040def.csv`` (regular),
+  ``core/standards_library/tables/fastener_standards.json`` records: ``iso7040def.csv`` (regular),
   ``iso10512def.csv`` (regular, fine pitch), ``iso10511def.csv`` (thin) and
   ``nyloc_def.csv`` (DIN 985, thin). Width Across Flats is the table's
   ``s_max`` (``s_nom`` for DIN 985) and Height its ``h_max`` (``h``), the
@@ -26,15 +26,16 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
+from synthetic_ecommerce_data.core import standards_library as library
 from synthetic_ecommerce_data.core.model import keyword_attribute, length_attribute
 from synthetic_ecommerce_data.core.price import ENDINGS, PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hex_nut
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
-    _NUT_UNC,
     MM_PER_INCH,
     _nominal,
     _weighted,
@@ -118,20 +119,29 @@ _DIN_985 = (
 
 _INCH_FLATS_STANDARD = "ASME B18.2.2"
 
-#: The finished hex nut's widths, plus the sizes that table does not carry.
-_FLATS_IN = {_nominal(thread): flats for thread, flats, _ in _NUT_UNC} | {
-    "#4": 1 / 4,
-    "9/16": 7 / 8,
-    "7/8": 1 + 5 / 16,
+#: The finished hex nut's widths (ASME B18.2.2), from the standards library: the sizes
+#: ``nut_hex`` stocks, then the sizes that table does not carry.
+_FLATS_IN = {
+    row["size"]: float(Fraction(row["flats_in"]))
+    for row in library.table("asme_b18_2_2_hex_nuts_in").select(
+        ["#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "5/8", "3/4", "1"]
+        + ["#4", "9/16", "7/8"]
+    )
 }
-_UNC = (
-    "#4-40", "#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18", "3/8-16", "7/16-14",
-    "1/2-13", "9/16-12", "5/8-11", "3/4-10", "7/8-9", "1-8",
-)  # fmt: skip
-_UNF = (
-    "#10-32", "1/4-28", "5/16-24", "3/8-24", "7/16-20", "1/2-20", "9/16-18", "5/8-18",
-    "3/4-16", "7/8-14", "1-12",
-)  # fmt: skip
+_THREADS = library.table("asme_b1_1_unified_threads")
+_UNC = tuple(
+    f"{row['size']}-{row['unc_tpi']}"
+    for row in _THREADS.select(
+        ["#4", "#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2"]
+        + ["9/16", "5/8", "3/4", "7/8", "1"]
+    )
+)
+_UNF = tuple(
+    f"{row['size']}-{row['unf_tpi']}"
+    for row in _THREADS.select(
+        ["#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4", "7/8", "1"]
+    )
+)
 #: The thin inch series starts at 1/4".
 _THIN_FROM = "1/4"
 
@@ -329,6 +339,36 @@ PRICE = PriceModel(
 )
 
 
+#: The sizes each table offers, stated apart from the rows above: the coverage
+#: sweep (``tests/test_catalog_coverage.py``) holds every size here to reaching a
+#: document, so a row dropped from a table reds it. A coarse row is its diameter;
+#: a fine-pitch row is its whole designation, as it is a size of its own.
+SIZES = {
+    "ISO 7040": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M20", "M24", "M30", "M36",
+    ),
+    "ISO 10511": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M20", "M24", "M30", "M36",
+    ),
+    "ISO 10512": (
+        "M8x1", "M10x1", "M10x1.25", "M12x1.25", "M12x1.5", "M14x1.5", "M16x1.5", "M20x1.5",
+        "M24x2", "M30x2", "M36x2",
+    ),
+    "DIN 985": (
+        "M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16", "M18", "M20", "M22", "M24",
+        "M27", "M30", "M33", "M36",
+    ),
+    # The inch lines claim the hex nut's flats table: the coarse rows by
+    # diameter, the fine ones (UNF) by designation.
+    _INCH_FLATS_STANDARD: (
+        "#4", "#6", "#8", "#10", "1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4",
+        "7/8", "1",
+        "#10-32", "1/4-28", "5/16-24", "3/8-24", "7/16-20", "1/2-20", "9/16-18", "5/8-18",
+        "3/4-16", "7/8-14", "1-12",
+    ),
+}  # fmt: skip
+
+
 def claims(facts: Mapping[str, str], *, metric: bool, provenance: str, standard: str) -> list[str]:
     """A metric line's dimensional standard is its table's; an inch line's
     rows are no standard's, so ``standard`` is empty for it."""
@@ -360,6 +400,7 @@ SPEC = TypeSpec(
     share=0.1,
     price=PRICE,
     claims=claims,
+    sizes=SIZES,
     may_claim=frozenset(
         {"ISO 7040", "ISO 10511", "ISO 10512", "DIN 985", "ISO 2320", "ISO 898-2", "ISO 3506-2"}
         | {"SAE J995"}
