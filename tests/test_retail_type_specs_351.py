@@ -25,6 +25,7 @@ if str(RETAIL) not in sys.path:
 import decoy_product_words  # noqa: E402
 import distractors  # noqa: E402
 import export  # noqa: E402
+import nike_rows  # noqa: E402
 import scale  # noqa: E402
 import type_registry  # noqa: E402
 from breadth_rows import Row  # noqa: E402
@@ -111,6 +112,7 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
             and r["product_id"] not in own
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
+            and r["product_id"] not in nike_rows.decoy_ids()  # gen#341: stay in nike_rows (gen#455)
         ]  # fmt: skip
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)
