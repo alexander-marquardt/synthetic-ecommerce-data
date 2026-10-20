@@ -36,6 +36,7 @@ import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
+import cups_plural_rows  # noqa: E402
 import decor_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -184,6 +185,7 @@ def measure() -> dict[str, Any]:
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
+        "cups_plural_rows": cups_plural_rows.docs(),
         "nike_rows": nike_rows.docs(),
         "type_specs": type_registry.docs(),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
