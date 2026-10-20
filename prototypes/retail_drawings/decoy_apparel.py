@@ -51,6 +51,7 @@ from dataclasses import dataclass, replace
 import details
 import facet_leaves
 import real_brands
+import style_table
 import type_colors
 import type_registry
 from class_model import SHADE_FAMILY
@@ -508,6 +509,7 @@ def _clone(
     keep |= {"title": title, "description": desc, "sold_last_5_days": sold,
              "review_count": 900 + sold, "trending": False,
              "price_min": min(prices), "price_max": max(prices)}  # fmt: skip
+    keep = _retitled(keep)  # gen#511: a neckline the title's style forbids is drawn again
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
     if line is not None:  # class 8: the word is the line's name
@@ -723,20 +725,71 @@ def _names_its_drawing(ex: dict) -> bool:
     return not (ex["product_type"] == "Boxers" and fit == "brief")
 
 
-def _viable(
-    cls: int, spec: Spec, ex: dict, used: set, words: set, want: str | None
-) -> list[dict]:
-    """The options of class ``cls`` on ``ex`` that are still free: a color its type takes
-    (gen#448), a title of five words or fewer (classes 6 and 7), a title not yet used under its
-    root (class 8 reads the title with the exemplar's fit, as two fits make two titles), a word
-    not yet planted (4, 5), and for class 8 the word ``want``."""
-    return [o for o in _options(cls, spec, ex)
-            if type_colors.permits(ex["category_path"], o["color"])  # gen#448
-            and (cls not in (6, 7) or len(_title(ex, spec, cls, o).split()) <= 5)
-            and ((_title(ex, spec, cls, o) if cls == 8 else o["title"],
-                  ex["category_path"][0]) not in used)
-            and (cls not in (4, 5) or (cls, o["word"]) not in words)
-            and (cls != 8 or o["word"] == want)]  # fmt: skip
+def _retitled(doc: dict) -> dict:
+    """``doc`` as a clone under its new title states its neckline: a neckline the title's style
+    does not allow ("Polo Top" on a crew neck) is dropped, so :func:`neckline_rows.complete` draws
+    one the style allows (gen#511). Any other neckline stays."""
+    allowed = style_table.necklines_for(doc["title"], doc["product_type"])
+    if allowed is None or doc.get("neckline") in allowed:
+        return doc
+    return {k: v for k, v in doc.items() if k != "neckline"}
+
+
+def _fit_view(ex: dict, title: str, desc: str) -> dict:
+    """The clone of ``ex`` under ``title`` as the catalog will state it: the exemplar retitled and
+    its neckline completed (:func:`neckline_rows.complete`) from that title, as the clone's will
+    be, so a dress takes a neckline its style allows and a polo top a collar. The decoy build runs
+    before that step, and the style check must give the same answer on either (gen#511)."""
+    import neckline_rows
+
+    return neckline_rows.complete([_retitled({**ex, "title": title, "description": desc})])[0]
+
+
+def _fits(o: dict, ex: dict, title: str) -> bool:
+    return style_table.title_fits(title, _fit_view(ex, title, o["desc"]))
+
+
+def _candidates(
+    cls: int,
+    spec: Spec,
+    ex: dict,
+    used: set,
+    words: set,
+    *,
+    styled: bool = False,
+    want: str | None = None,
+):
+    """The options of class ``cls`` the exemplar can carry: its colors permit them, a class 6 or 7
+    title is short, none repeats a title under its root (class 8 reads the title with the
+    exemplar's fit, as two fits make two titles) or (class 4, 5) a word, and for class 8 the word
+    ``want`` (gen#434). ``styled`` also leaves out an option whose title names a style the
+    exemplar's attributes contradict (gen#511)."""
+    out = []
+    for o in _options(cls, spec, ex):
+        title = _title(ex, spec, cls, o)
+        if (type_colors.permits(ex["category_path"], o["color"])  # gen#448
+                and (cls not in (6, 7) or len(title.split()) <= 5)
+                and (title if cls == 8 else o["title"], ex["category_path"][0]) not in used
+                and (cls not in (4, 5) or (cls, o["word"]) not in words)
+                and (cls != 8 or o["word"] == want)
+                and (not styled or _fits(o, ex, title))):  # fmt: skip
+            out.append(o)
+    return out
+
+
+def _restyle(cls, spec, exemplars, step, o, used, words):
+    """The next exemplar after ``step`` that carries the option ``o`` (its word and color) inside
+    its style table, with that option. The word and color are the plan's: none carrying them is an
+    error, never a different word."""
+    n = len(exemplars)
+    for k in range(n):
+        ex = exemplars[(step + k) % n]
+        for c in _candidates(cls, spec, ex, used, words, styled=True, want=o["word"]):
+            if (c["word"], c["color"]) == (o["word"], o["color"]):
+                return ex, c
+    raise ValueError(
+        f"{spec.product_type} class {cls}: no exemplar carries {o['title']!r} in the style table"
+    )
 
 
 def build(body: list[dict]) -> list[Row]:
@@ -767,18 +820,23 @@ def build(body: list[dict]) -> list[Row]:
                 if cls == 8:  # this decoy's word, on the next exemplar that can carry it
                     want = FIT_WORDS[spec.product_type][i // WORD_DECOYS][1].lower()
                     for _ in range(len(exemplars)):
-                        if _viable(cls, spec, ex, used, words, want):
+                        if _candidates(cls, spec, ex, used, words, want=want):
                             break
                         ex = exemplars[step % len(exemplars)]
                         step += 1
-                opts = _viable(cls, spec, ex, used, words, want if cls == 8 else None)
+                opts = _candidates(cls, spec, ex, used, words, want=want if cls == 8 else None)
                 if not opts:
                     raise ValueError(f"{spec.product_type} class {cls}: no option left")
                 if cls in (4, 5):  # the common words first: leather, suede, cashmere; ivory
                     first = opts[0]["word"]
                     opts = [o for o in opts if o["word"] == first]
-                code = _code(spec, cls, i)
                 o = rnd.choice(opts)
+                if not _fits(o, ex, _title(ex, spec, cls, o)):
+                    # gen#511: the title names a style the exemplar's length or material
+                    # contradicts ("Coat Dress" on a mini in jersey): the same word and color, on
+                    # the next exemplar that carries it
+                    ex, o = _restyle(cls, spec, exemplars, step, o, used, words)
+                code = _code(spec, cls, i)
                 color = o["color"]
                 hexv = o.get("hex") or COLORS[color]
                 family = o.get("family") or SHADE_FAMILY.get(color, color.lower())

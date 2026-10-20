@@ -260,7 +260,7 @@ JEANS = (
         "A two-piece set: slim stretch jeans with an adjustable waist and a cotton tee. "
         "Jeans and tee sold together.",
         drawing("outfit_set", cw("Mid Wash", DENIM), tee="#f2d14b"),
-        (("color", "Color", "Mid Wash / Yellow"), ("audience", "Audience", "Boys")),
+        (("color", "Color", "Mid Wash and Yellow"), ("audience", "Audience", "Boys")),
     ), "product-type demotion: sets below single items"),
 )  # fmt: skip
 
@@ -278,7 +278,7 @@ DUVET = (
         ("Home", "Bedding", "Bedding Sets"), 32.0,
         "A duvet set: one duvet cover and two matching pillowcases. Duvet not included.",
         drawing("duvet", cw("Ticking Stripe", WHITE, "stripe", "#26365c")),
-        (("color", "Color", "Navy / White"), ("pattern", "Pattern", "Stripe")),
+        (("color", "Color", "Navy and White"), ("pattern", "Pattern", "Stripe")),
     ), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(prints.doc("PLT-DUVKID"), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(product(
@@ -287,7 +287,7 @@ DUVET = (
         "A puckered seersucker duvet cover in gingham check. Duvet cover only; duvet not "
         "included.",
         drawing("duvet", cw("Blue Gingham", WHITE, "gingham", "#5b84b8")),
-        (("color", "Color", "Blue / White"), ("pattern", "Pattern", "Gingham")),
+        (("color", "Color", "Blue and White"), ("pattern", "Pattern", "Gingham")),
     ), "type-exact intent: Duvets, not Duvet Covers"),
 )  # fmt: skip
 
