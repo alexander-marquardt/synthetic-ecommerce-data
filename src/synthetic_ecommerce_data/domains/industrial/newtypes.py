@@ -674,7 +674,15 @@ def build_wheel(gen: Generator, type_key: str, category: tuple[str, ...]) -> Lin
         keyword_attribute("Bond Type", "Resinoid" if rng.random() < 0.9 else "Vitrified"),
         numeric_attribute("Max. RPM", f"{rpm:,}", float(rpm)),
         keyword_attribute("Application", "Cutting & Grinding" if cutting else "Grinding"),
-        numeric_attribute("Units per Pack", str(qty := rng.choice((10, 25))), float(qty)),
+        # Retired (#357): 98.6% of census wheels are sold each and the price carries no
+        # pack, so the 10 or 25 named a quantity the price was not for. The draw and the
+        # 0.8 sparsity draw stay, so no later draw moves, but it no longer tells two wheels
+        # apart: two that differed only by it are one product, and the second is not made.
+        retired(
+            numeric_attribute("Units per Pack", str(qty := rng.choice((10, 25))), float(qty)),
+            presence=0.8,
+            distinguishes=False,
+        ),
         keyword_attribute("Wheel Grade", grade),
     ]
     draft.descriptors = [("Abrasive Material", abrasive)]
