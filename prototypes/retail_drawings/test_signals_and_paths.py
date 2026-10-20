@@ -187,7 +187,12 @@ def test_beer_carries_abv_as_an_attribute_and_only_some_titles_state_it() -> Non
     for d in beers:
         abv = [a for a in d["attributes"] if a["key"] == "abv"]
         assert abv == [{"key": "abv", "name": "ABV (%)", "value": str(d["abv"])}]
-        assert d["unit_measure"] == "ml" and d["unit_size"] > 0
+        # A volume is on the product (one size) or on every SKU (three or more, gen#347).
+        if "unit_size" in d:
+            assert d["unit_measure"] == "ml" and d["unit_size"] > 0
+            assert not any("net_volume_ml" in s for s in d["skus"])
+        else:
+            assert all(s["net_volume_ml"] > 0 for s in d["skus"])
     assert sum(f"{d['abv']}%" in d["title"] for d in beers) == 2
     targets, distractors = _codes(_row("beer"))
     types = {_one(c)["product_type"] for c in distractors}
