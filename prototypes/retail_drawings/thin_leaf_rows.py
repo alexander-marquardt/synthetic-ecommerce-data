@@ -18,6 +18,10 @@ Every bed already carries ``bed_size`` on each of its SKUs (the shared vocabular
 way; ``tests/test_retail_thin_leaves_434.py`` pins that for every bed. Face creams are
 gen#542's. The rows are templates only: :func:`scale.derivable` leaves them out, so the seeded
 derivation is what it was.
+
+No chip is named "steak cut": a ``steak`` query leads with a steak knife on purpose, the planted
+collision a policy redirects (``tests/test_retail_distractors.py``), and a steak cut chip
+out-ranked the knife.
 """
 
 # ruff: noqa: E501 -- data rows read better whole (prototype only).
@@ -53,7 +57,7 @@ _CHIPS = (
     ("CHSTRT", "Straight Cut Oven Chips", 0, 1.9, "Straight cut potato chips, oven baked from frozen.", "Chips", 900, "#e2b653"),
     ("CHCRNK", "Crinkle Cut Oven Chips", 1, 1.9, "Crinkle cut potato chips, golden and crisp from the oven.", "Chips", 900, "#d9a640"),
     ("CHSKNY", "Skinny Fries", 2, 1.7, "Thin, quick-cooking fries to bake or air fry from frozen.", "Fries", 750, "#e8c15f"),
-    ("CHSTKC", "Steak Cut Chunky Chips", 0, 2.4, "Thick steak cut chips with the skin left on, baked from frozen.", "Chips", 1000, "#c9964a"),
+    ("CHSTKC", "Thick Cut Chunky Chips", 0, 2.4, "Thick cut chips with the skin left on, baked from frozen.", "Chips", 1000, "#c9964a"),
     ("CHSWTP", "Sweet Potato Fries", 1, 2.6, "Sweet potato fries, baked in the oven until crisp at the edges.", "Fries", 600, "#e0803a"),
     ("CHWDGE", "Seasoned Potato Wedges", 2, 2.2, "Skin-on potato wedges in a paprika and garlic seasoning.", "Wedges", 750, "#b9763a"),
     ("CHHASH", "Golden Hash Browns", 0, 2.0, "Shaped hash browns of grated potato, shallow fried or baked from frozen.", "Hash Browns", 700, "#d49b3c"),
