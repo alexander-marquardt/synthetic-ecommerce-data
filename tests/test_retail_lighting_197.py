@@ -26,6 +26,7 @@ import export  # noqa: E402
 import image_release  # noqa: E402
 import kit  # noqa: E402
 import lighting_rows  # noqa: E402
+import pack_scale  # noqa: E402
 import scale  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
@@ -112,11 +113,13 @@ def test_each_sku_draws_its_own_second_axis_and_gets_its_own_image(pid: str) -> 
 
 
 def _legacy_image_id(rec: dict, sku: dict) -> str:
-    """The image id before SKU params existed: the digest of the drawing and swatch alone."""
+    """The image id before SKU params existed: the digest of the drawing and swatch alone, and
+    the pack scale of a SKU that is not its line's largest size (gen#543)."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
-    blob = json.dumps(
-        {"drawing": rec["drawing"], "swatch": swatch}, sort_keys=True, ensure_ascii=False
-    )
+    spec = {"drawing": rec["drawing"], "swatch": swatch}
+    if shrink := pack_scale.factor(rec, sku):
+        spec["pack_scale"] = shrink
+    blob = json.dumps(spec, sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha256(blob.encode()).hexdigest()[:12]
     return f"{export._slug(rec['product_type'])}/{rec['product_id']}/{digest}"
 

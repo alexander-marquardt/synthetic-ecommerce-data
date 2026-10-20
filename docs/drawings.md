@@ -233,6 +233,11 @@ these in order and stops at the first that parses:
 5. **The nominal shape.** `nominal`. This is the only rung where the record's
    primary dimension itself could not be used.
 
+Rungs 4 and 5 take every extent from the nominal shape, but never a *form* the
+record publishes: `_read()`'s `form` argument carries those values (an end mill's
+`Single End/Double End`, #9) into both rungs, so a double-end mill whose
+dimensions cannot be drawn as published is still drawn with two cutting ends.
+
 A "contradiction" is any exception in `domains/industrial/render/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
 and `DimensionParseError`.
@@ -312,10 +317,11 @@ that matter most when you change a figure:
 | `test_siblings_whose_drawn_values_differ_never_draw_alike` | variants whose drawn values differ never share bytes. Attributes in `NOT_DRAWN_BY_ANY_FIGURE` are ignored, and breadth is exempt | golden |
 | `test_no_product_exceeds_its_types_extent` / `test_every_drawing_fits_its_sheet` | the `FIGURES` extent really is the type's maximum, so its scale is a constant | golden |
 | `test_siblings_are_drawn_at_one_scale_...` / `test_within_a_type_every_part_is_drawn_in_true_proportion` / `test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion` | one scale per type, measured on the true-scale copy (an M3 washer is 7/30 of an M16) | golden + planted |
-| the `test_the_lens_*` and `test_*lens*` tests, `test_no_outline_is_thinner_than_the_minimum_stroke` | the magnifier rule, enlargement floor (pinned at the catalog's measured x2.12), balance, ink and minimum stroke | golden + planted |
+| the `test_the_lens_*` and `test_*lens*` tests, `test_no_outline_is_thinner_than_the_minimum_stroke` | the magnifier rule, enlargement floor (the catalog's measured minimum, `lens.min_enlargement` in `tests/data/golden_pins.json`), balance, ink and minimum stroke | golden + planted |
 | `test_a_part_longer_than_its_extent_is_drawn_broken_and_fits`, `test_no_fastener_is_drawn_smaller_because_of_an_outlier` | the break convention | planted |
 | `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
 | `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name's capitals at least 10 px tall at the tile; the four layouts, and a name no layout fits refused; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
+| `tests/test_end_mill_ends_drawn_9.py` | an end mill's cutting ends, counted off the figure's `part` polygons, equal its published `Single End/Double End` on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
 | `test_nominal_geometry_stays_rare` | at most 10% `nominal` per depth type | SMALL |
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
 
@@ -323,6 +329,63 @@ that matter most when you change a figure:
 No test draws two breadth records with different dimensions and compares the
 bytes. The fixed-shape property holds by construction (`del record`) and is not
 pinned by a test.
+
+## Composing a figure from primitives
+
+A sibling type's figure is composed from shared parts, not drawn from scratch (#74).
+The parts are the functions of `domains/industrial/drawing/primitives.py`; the
+declaration that strings them together is `domains/industrial/drawing/compose.py`.
+
+**The primitives.** Each adds shapes to a `Figure` in inches and takes plain
+dimensions. The axis of a long part is `x = 0` and `y` grows from a head's top toward
+the point.
+
+| Part | Primitives |
+|---|---|
+| Thread | `thread` (body, chamfered end, a crest per pitch), `thread_crests` (the strokes alone, a helper) |
+| Head | `head_hex`, `head_socket`, `head_button`, `head_flat`, `head_pan` |
+| Drive recess | `drive_recess` (a hex socket seen end on), with `hex_face` and `round_face` for the face itself |
+| Flute | `helix_flutes` (side), `flute_end_view` (end) |
+| Shank and bodies | `shank` (plain, round), `round_body`, `hex_body` (side view, width across corners), `conical_end` (a drill's point) |
+| Ring, tube, plate | `ring` (face), `tube` (cut through its axis), `plate` (with holes) |
+| Chamfer | `chamfer` (a bar with its end cut; `thread` uses it) |
+| Drafting break | `break_mark` |
+
+**Declaring a figure.** A `Spec` lists the dimensions the figure reads (`Dim`: the
+record attribute, how to read it, and its nominal value when the record omits it),
+quantities derived from them, and the parts (`part("thread", r=..., y0=..., ...)`).
+A parameter is a number, a role string or an expression over the named dimensions
+(`Ref("major") * 0.7`). A spec is frozen data with no code in it, so the declarative
+type spec (#72) can name a figure by its key and carry its parameters.
+`compose(spec, record)` returns `(figure, source)`; wrap it as `Drawn(*compose(spec, record))`.
+`check(spec)` refuses a primitive that does not exist, a wrong parameter, or a name no
+dimension declares, so a typo fails when the spec is checked and not on the one record
+that reaches it.
+
+**Provenance.** A `Dim` the record publishes is read (a published value always wins).
+One it omits takes its `nominal` expression, usually a proportion of a dimension that
+was read, and the figure's `source` says so: `record` when every dimension was read,
+`partial` when the first (the primary) was read and another was not, `nominal` when the
+primary was not. `Dim(..., above="bore")` makes a pair that contradicts itself fall back
+to the nominal value instead of drawing an impossible part.
+
+**Steps for a new figure.**
+
+1. Pick the primitives; if the part you need is a new shape that a sibling would also
+   draw, add it to `primitives.py` (not to your figure) with a test that pins its
+   geometry in `tests/test_drawing_primitives_74.py`.
+2. Write the `Spec` in your type module (or `build(spec, values)` when a kind's geometry
+   reader already supplies the numbers, as `DRILL_SPEC` in `figures.py` does).
+3. Add the proportion test: a longer published length draws longer by exactly that
+   much, a wider head draws wider, an omitted value is nominal and says so.
+   `PAN_SCREW` in `tests/test_drawing_primitives_74.py` is a worked example.
+4. A figure that moves onto the primitives must keep its SVG bytes: add its type to
+   `PINNED_TYPES` in `tests/drawing_pins.py` and pin the digest in the test.
+
+What is composed today: `fastener` (screws and bolts), `drill`, `washer` and `hex_nut`
+use the primitives, and `end_mill` and `tap` use the flute and thread ones. The
+older figures (`bearing`, `hex_key`, the set screw, key stock, O-ring and the rest)
+still draw their own shapes and move onto the primitives as their types are touched.
 
 ## Adding a drawing for a new type
 
