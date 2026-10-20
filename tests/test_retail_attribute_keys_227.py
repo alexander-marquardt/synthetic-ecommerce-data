@@ -122,7 +122,7 @@ def _entries(leaf: str) -> list[dict[str, Any]]:
 
 
 @pytest.mark.parametrize(
-    "leaf", ["Table lamps", "Floor lamps", "Gift plants", "Dolls", "Real christmas trees"]
+    "leaf", ["Table lamps", "Floor lamps", "Gift plants", "Dolls", "Christmas trees"]
 )
 def test_a_measured_height_is_an_item_height(leaf: str) -> None:
     keys = {e["key"] for e in _entries(leaf)}
@@ -139,7 +139,7 @@ def test_an_item_height_in_centimetres_is_a_length_in_millimetres(leaf: str) -> 
 
 
 def test_a_tree_in_feet_keeps_its_unit_under_item_height() -> None:
-    heights = [e for e in _entries("Real christmas trees") if e["key"] == "item_height"]
+    heights = [e for e in _entries("Christmas trees") if e["key"] == "item_height"]
     assert {e["unit_code"] for e in heights} == {"FOT"}
     assert all(e["name"] == "Item height" for e in heights)
 
