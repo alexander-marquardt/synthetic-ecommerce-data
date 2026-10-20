@@ -399,6 +399,21 @@ is out of scope and becomes its own field later. The values and the rule are in
 checks every layer. A loader that read `offer` (a facet config, a field map)
 reads `promotion` instead; the catalog is reloaded once with #186 to #189.
 
+**A share of every people department is reduced (gen#359).** Only Womens
+products were reduced, so "mens sale shirts" and "kids sale shoes" found nothing
+once `sale` became the exact filter `promotion` = "On sale". Now a share of each
+department's SKUs has a `was_price`, with `discount_pct` and `promotion`: Womens
+and Mens 8%, Kids 10% and Baby 25% (Baby has about 1,400 SKUs, and the ask is a
+few hundred reduced SKUs across at least three product types in each of the
+four). The shares and the rule are in `prototypes/retail_drawings/sale_share.py`,
+chosen by a hash of the style id and not by the build's random generator, so no
+other style moves. A petite style, a planted decoy and a failure-class row are
+never reduced, which keeps "petite sale" a pair only a policy may honour.
+`tests/test_retail_sale_share_359.py` checks the counts and that a reduced
+document is marked the same way whoever made it. The was-price is taken off the
+dearest SKU, so every size of a reduced style is under it (`price < was_price`);
+`discount_pct` states the cheapest SKU's discount.
+
 The retail build also writes industrial's **flat** shape, one document per
 SKU, which is what elastic/prism-industrial-products loads (as its
 `catalog.ndjson`, from `golden-catalog/flat.jsonl`); no loader reads the
