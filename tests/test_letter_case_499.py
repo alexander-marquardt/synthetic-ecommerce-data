@@ -231,6 +231,7 @@ _READERS = ("scripts/", "src/prism_synthetic_industrial/")
 #: Scripts under ``scripts/`` that quote an authored (Title Case) name on purpose, and why.
 #: Every other script is a reader and may not.
 _AUTHORED_NAME_SCRIPTS = {
+    "scripts/mutations/": "mutants edit the authored source text, which keeps its casing",
     "scripts/mutation_": "mutants edit the authored source text, which keeps its casing",
     "scripts/new_type.py": "scaffolds an authored category literal",
     "scripts/contact_sheet.py": "reads the distributor census's own column names",
