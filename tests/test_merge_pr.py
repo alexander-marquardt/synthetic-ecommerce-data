@@ -36,6 +36,7 @@ from synthetic_ecommerce_data import generate_cli as cli
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
 JOBS_SCRIPT = REPO / "scripts" / "local_ci_jobs.py"
+GUARD_SCRIPT = REPO / "scripts" / "local_ci_guard.py"
 sys.path.insert(0, str(REPO / "scripts"))
 import local_ci_jobs  # noqa: E402 -- the parser the test reads NOT_A_CHECK from
 
@@ -217,6 +218,7 @@ def world(tmp_path: Path) -> dict:
     # The script under test is this tree's, not the HEAD commit's.
     shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
+    shutil.copy2(GUARD_SCRIPT, checkout / "scripts" / "local_ci_guard.py")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     for name, text in (("gh", _FAKE_GH), ("uv", _FAKE_UV)):
@@ -240,6 +242,8 @@ def world(tmp_path: Path) -> dict:
         MERGE_PR_LOCK_POLL="0",
         # The narrowed checks are one test: two workers, not one per core (#348).
         LOCAL_CI_WORKERS="2",
+        # Each world has its own local CI lock: the machine's is shared with real merges (#366).
+        LOCAL_CI_LOCK=str(tmp_path / "local-ci.lock"),
         MERGE_PR_LOG_DIR=str(tmp_path),
         # The planted worlds run with name resolution blocked: a red here is
         # the script's, never the network's (#178).

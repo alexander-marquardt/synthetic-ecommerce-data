@@ -80,6 +80,7 @@ KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
+CUPS_PLURAL_ROWS = FIGURES["templates"]["cups_plural_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
@@ -114,6 +115,7 @@ TEMPLATES = (
     + KNITWEAR_ROWS
     + NECKLINE_ROWS
     + NEEDS_ROWS
+    + CUPS_PLURAL_ROWS
     + NIKE_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
@@ -972,15 +974,14 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
         seen.add((r["category_leaf"], value))
 
 
-#: The ``scale_rows.FOOTWEAR`` rows (growth round 4).
-FOOTWEAR_ROWS = 13
-
-
 def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
     """A derived shoe rewrites its style's material but not its SKUs' (#145), so a new
     footwear row keeps to a material its leaf's authored styles carry."""
     rows = getattr(scale.scale_rows, "FOOTWEAR", ())
-    assert len(rows) == FOOTWEAR_ROWS
+    # The ``scale_rows.FOOTWEAR`` rows (growth round 4). A lowercase local: a constant of 13
+    # collided with a measured total (``templates.cups_plural_rows.styles``, gen#508).
+    footwear_rows = 13
+    assert len(rows) == footwear_rows
     sold: dict[str, set[str]] = collections.defaultdict(set)
     for t in scale.templates()[:AUTHORED]:
         sold[t["category_leaf"]] |= {
