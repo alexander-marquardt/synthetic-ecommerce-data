@@ -970,7 +970,7 @@ BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
-    _WHEEL_SPREAD_ROW: (None, 1.75),
+    _WHEEL_SPREAD_ROW: (1.771, 1.769),
     _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
@@ -986,14 +986,17 @@ PIN_TOLERANCE = 0.02
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
     _WHEEL_SPREAD_ROW: (
-        "above band at 100K only, the default build is in band: with every noise off, the "
+        "above band at both builds (the default build was in band until #357 dropped the "
+        "wheels that differed only by a pack, which moved the product ids the noise is drawn "
+        "from): with every noise off, the "
         "brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 "
         f"wheel brands are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled "
         "brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where "
         "the census measures its house label on 4 of its 12. The p90/p10 is carried by noise "
         "one spec shares across its brands (size_sigma), so the group noise left, drawn per "
         "brand, spreads the sampled brands of one spec only to "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272, #357)"
     ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
