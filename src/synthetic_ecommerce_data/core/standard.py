@@ -45,6 +45,9 @@ PRODUCT_FIELDS: dict[str, tuple[str, bool]] = {
     "brand": (_STR, True),
     "series": (_STR, False),
     "category_path": (_LIST, True),
+    #: Every path the product is filed at, ``category_path`` first (a mug sits in Home and in
+    #: Gifts, gen#602). Absent for the product that has one path.
+    "category_paths": (_LIST, False),
     "category_leaf": (_STR, True),
     "category_depth": (_INT, True),
     "dimension_provenance": (_STR, False),
@@ -157,6 +160,25 @@ def _image(where: str, row: Mapping[str, Any]) -> list[str]:
     ]
 
 
+def _category_paths(where: str, primary: list[Any], paths: Any) -> list[str]:
+    """The findings about ``category_paths``: a non-empty list of node-name lists, the product's
+    ``category_path`` first, no path twice. Absent is fine; a wrong type is _fields' finding."""
+    if not isinstance(paths, list):
+        return []
+    bad = [
+        p for p in paths
+        if not isinstance(p, list) or not p or not all(_typed(seg, _STR) and seg for seg in p)
+    ]  # fmt: skip
+    if not paths or bad:
+        return [f"{where}: category_paths {paths!r} is not a non-empty list of node-name lists"]
+    out = []
+    if paths[0] != primary:
+        out.append(f"{where}: category_paths {paths!r} does not lead with category_path")
+    if len({tuple(p) for p in paths}) != len(paths):
+        out.append(f"{where}: category_paths {paths!r} names a path twice")
+    return out
+
+
 def check_document(doc: Mapping[str, Any]) -> list[str]:
     """Every way one nested product document breaks the standard; empty when it holds."""
     where = str(doc.get("product_id"))
@@ -167,6 +189,7 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
             out.append(f"{where}: category_path {path!r} is not a list of node names")
         elif doc.get("category_leaf") != path[-1] or doc.get("category_depth") != len(path):
             out.append(f"{where}: category_leaf/category_depth do not match {path!r}")
+        out += _category_paths(where, path, doc.get("category_paths"))
     out += _image(where, doc)
     score = doc.get("merchandising_score")
     if _typed(score, _INT) and not 0 <= score <= 100:
@@ -424,6 +447,7 @@ _FLAT_PRODUCT_FIELDS = (
     "brand",
     "series",
     "category_path",
+    "category_paths",
     "category_leaf",
     "dimension_provenance",
     "spec_quality",

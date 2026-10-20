@@ -449,8 +449,9 @@ INDUSTRIAL_ONLY_FLAT = frozenset(
     }
 )
 RETAIL_ONLY_FLAT = {"price": float, "currency": str, "in_stock": bool}
-#: Present only on a style with a product line (6 of 328), or with a blend (gen#187).
-RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content"})
+#: Present only on a style with a product line (6 of 328), or with a blend (gen#187), or filed at
+#: more than one category path (the mugs, gen#602).
+RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content", "category_paths"})
 
 
 def _shape(value: Any) -> Any:

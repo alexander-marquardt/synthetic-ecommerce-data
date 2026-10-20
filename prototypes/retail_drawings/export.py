@@ -33,6 +33,7 @@ from typing import Any
 
 import colorwords
 import facet_leaves
+import multi_path
 import type_registry
 from audience import audience_of
 from build_preview4 import samples
@@ -407,8 +408,11 @@ def standard_document(rec: dict) -> dict[str, Any]:
         doc["series"] = rec["product_line"]
     if blend:
         doc["fibre_content"] = blend
+    also = multi_path.other_paths(rec)
     return letter_case.apply(doc | {
         "category_path": path,
+        # Filed at more than one path (gen#602): the primary leads, then each other path.
+        **({"category_paths": [path, *map(list, also)]} if also else {}),
         "category_leaf": path[-1],
         "category_depth": len(path),
         "image_id": variants[0]["image_id"],
