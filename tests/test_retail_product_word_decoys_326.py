@@ -103,6 +103,14 @@ TRUE_NODE = {
     "tenni": "Tennis Rackets",
     "badminton": "Badminton Sets",
     "picnic": "Picnic Blankets",  # gen#217
+    # the first-increment Sports & Outdoors nouns of the #375 rows
+    "tent": "Tents",
+    "sleeping": "Sleeping Bags",
+    "camping": "Camping Chairs",
+    "yoga": "Yoga Mats",
+    "dumbbell": "Dumbbells",
+    "kettlebell": "Kettlebells",
+    "foam": "Foam Rollers",
     # the Gifts nouns of the #425 rows: the node of the gift
     "mug": "Mugs & Drinkware",
     "card": "Greeting Cards",
