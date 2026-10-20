@@ -10,7 +10,6 @@ Beauty|Conditioner
 Beauty|Eau de Parfum
 Beauty|Eye Cream
 Beauty|Eyeliner
-Beauty|Face Cream
 Beauty|Face Oil
 Beauty|Face Powder
 Beauty|Foot Cream

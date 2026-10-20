@@ -34,6 +34,7 @@ from typing import Any
 import colorwords
 import facet_leaves
 import multi_path
+import pack_scale
 import type_registry
 from audience import audience_of
 from build_preview4 import samples
@@ -231,12 +232,16 @@ def _slug(text: str) -> str:
 def drawing_spec(rec: dict, sku: dict) -> dict:
     """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
     SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
-    ``diameter_cm``: gen#197). A SKU that carries no param key adds nothing, so its image id
-    is what it was."""
+    ``diameter_cm``: gen#197), and the factor its pack is drawn at within its line when it is
+    not the line's largest size (``pack_scale``, gen#543). A SKU that carries neither adds
+    nothing, so its image id is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
-    return spec | {"params": own} if own else spec
+    if own:
+        spec["params"] = own
+    shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)
+    return spec | {"pack_scale": shrink} if shrink else spec
 
 
 def image_id(rec: dict, sku: dict) -> str:
