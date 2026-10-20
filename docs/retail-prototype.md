@@ -37,6 +37,11 @@ a mug or cup draws as a `mug`, and a label is the title's product noun. The labe
 pairs not yet fixed are `LABEL_DEBT` there: it may only shrink. A changed drawing is a
 new image digest, so the retail image bundle is re-released after the merge.
 
+A mattress topper is drawn thin, on a faint mattress outline (#581): its thickness is its stated
+`depth` at 2.5 px per cm, the scale of the 25 cm mattress under it, so a 5 cm topper is a fifth
+of its mattress and a 10 cm one is visibly thicker (`kit_home.py`, `test_mattress_topper.py`).
+The mattress protector still draws its deep mattress, which suits a fitted cover.
+
 | Class | Query → intended | Distractors that outrank without a policy | Fixed by |
 |---|---|---|---|
 | Print, flavour and scent words | *lemon* → fresh lemons | lemons-print dress, a lemon-colored tee, lemons-print duvet cover, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
