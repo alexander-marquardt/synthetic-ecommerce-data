@@ -324,6 +324,63 @@ No test draws two breadth records with different dimensions and compares the
 bytes. The fixed-shape property holds by construction (`del record`) and is not
 pinned by a test.
 
+## Composing a figure from primitives
+
+A sibling type's figure is composed from shared parts, not drawn from scratch (#74).
+The parts are the functions of `domains/industrial/drawing/primitives.py`; the
+declaration that strings them together is `domains/industrial/drawing/compose.py`.
+
+**The primitives.** Each adds shapes to a `Figure` in inches and takes plain
+dimensions. The axis of a long part is `x = 0` and `y` grows from a head's top toward
+the point.
+
+| Part | Primitives |
+|---|---|
+| Thread | `thread` (body, chamfered end, a crest per pitch), `thread_crests` (the strokes alone, a helper) |
+| Head | `head_hex`, `head_socket`, `head_button`, `head_flat`, `head_pan` |
+| Drive recess | `drive_recess` (a hex socket seen end on), with `hex_face` and `round_face` for the face itself |
+| Flute | `helix_flutes` (side), `flute_end_view` (end) |
+| Shank and bodies | `shank` (plain, round), `round_body`, `hex_body` (side view, width across corners), `conical_end` (a drill's point) |
+| Ring, tube, plate | `ring` (face), `tube` (cut through its axis), `plate` (with holes) |
+| Chamfer | `chamfer` (a bar with its end cut; `thread` uses it) |
+| Drafting break | `break_mark` |
+
+**Declaring a figure.** A `Spec` lists the dimensions the figure reads (`Dim`: the
+record attribute, how to read it, and its nominal value when the record omits it),
+quantities derived from them, and the parts (`part("thread", r=..., y0=..., ...)`).
+A parameter is a number, a role string or an expression over the named dimensions
+(`Ref("major") * 0.7`). A spec is frozen data with no code in it, so the declarative
+type spec (#72) can name a figure by its key and carry its parameters.
+`compose(spec, record)` returns `(figure, source)`; wrap it as `Drawn(*compose(spec, record))`.
+`check(spec)` refuses a primitive that does not exist, a wrong parameter, or a name no
+dimension declares, so a typo fails when the spec is checked and not on the one record
+that reaches it.
+
+**Provenance.** A `Dim` the record publishes is read (a published value always wins).
+One it omits takes its `nominal` expression, usually a proportion of a dimension that
+was read, and the figure's `source` says so: `record` when every dimension was read,
+`partial` when the first (the primary) was read and another was not, `nominal` when the
+primary was not. `Dim(..., above="bore")` makes a pair that contradicts itself fall back
+to the nominal value instead of drawing an impossible part.
+
+**Steps for a new figure.**
+
+1. Pick the primitives; if the part you need is a new shape that a sibling would also
+   draw, add it to `primitives.py` (not to your figure) with a test that pins its
+   geometry in `tests/test_drawing_primitives_74.py`.
+2. Write the `Spec` in your type module (or `build(spec, values)` when a kind's geometry
+   reader already supplies the numbers, as `DRILL_SPEC` in `figures.py` does).
+3. Add the proportion test: a longer published length draws longer by exactly that
+   much, a wider head draws wider, an omitted value is nominal and says so.
+   `PAN_SCREW` in `tests/test_drawing_primitives_74.py` is a worked example.
+4. A figure that moves onto the primitives must keep its SVG bytes: add its type to
+   `PINNED_TYPES` in `tests/drawing_pins.py` and pin the digest in the test.
+
+What is composed today: `fastener` (screws and bolts), `drill`, `washer` and `hex_nut`
+use the primitives, and `end_mill` and `tap` use the flute and thread ones. The
+older figures (`bearing`, `hex_key`, the set screw, key stock, O-ring and the rest)
+still draw their own shapes and move onto the primitives as their types are touched.
+
 ## Adding a drawing for a new type
 
 1. **Write the figure function** in `domains/industrial/drawing/figures.py`:
