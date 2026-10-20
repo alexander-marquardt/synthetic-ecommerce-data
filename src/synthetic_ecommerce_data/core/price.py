@@ -8,7 +8,9 @@ cannot drift apart.
 
 What a price row compares is the price a shopper is SHOWN (the census's
 ``price_quantiles_usd``), because the catalog publishes one price per SKU and
-no sale unit beside it.
+no sale unit beside it. Most of those quantiles are on the price #57's pages SHOW, which on
+a clearance row is the clearance price; every census entry's ``price_basis`` says
+which entries are on the regular price and which are unmeasured (#92).
 
 The model (:func:`shown_price`) is, in logs::
 
@@ -309,9 +311,14 @@ PER_PIECE: dict[str, tuple[float, float]] = {
 KIT_PARTS: dict[str, str] = {kit.item: kit.part_type for kit in KITS}
 
 
-def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
+def kit_contents(
+    attributes: Mapping[str, Attribute], models: Mapping[str, PriceModel] | None = None
+) -> float | None:
     """The summed price (USD) of the pieces a kit holds, or None where its
     kind, sizes or piece count cannot be read.
+
+    The parts are priced on :data:`MODELS`, or on ``models`` where a fit
+    reads them as it has just fitted them (``scripts/fit_price_model.py``).
 
     Each size in ``Sizes Included`` is priced on its part type's curve at
     that size (standard tier, a material of 1.0, no noise: the price the
@@ -327,7 +334,8 @@ def kit_contents(attributes: Mapping[str, Attribute]) -> float | None:
     part = KIT_PARTS.get(kind.value)
     if part is None:
         return None
-    model = model_for(part)
+    source = MODELS if models is None else models
+    model = source[BORROWS.get(part, part)]
     values = sizes.values or (sizes.value,)
     each, shown = PER_PIECE[part]
     total = 0.0
@@ -962,7 +970,7 @@ BRAND_SAMPLE_CAP = 3
 _WHEEL_SPREAD_ROW = "price brand spread, same spec (median max/min): wheel_depressed_center"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
 PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
-    _WHEEL_SPREAD_ROW: (None, 1.75),
+    _WHEEL_SPREAD_ROW: (1.771, 1.769),
     _KIT_SPREAD_ROW: (4.032, 3.917),
 }
 
@@ -978,14 +986,17 @@ PIN_TOLERANCE = 0.02
 #: re-records the figure cannot leave the reason quoting the old one.
 PINNED_SHORTFALLS: dict[str, str] = {
     _WHEEL_SPREAD_ROW: (
-        "above band at 100K only, the default build is in band: with every noise off, the "
+        "above band at both builds (the default build was in band until #357 dropped the "
+        "wheels that differed only by a pack, which moved the product ids the noise is drawn "
+        "from): with every noise off, the "
         "brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 "
         f"wheel brands are economy (0.54 of the rest) and the row's {BRAND_SAMPLE_CAP} sampled "
         "brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where "
         "the census measures its house label on 4 of its 12. The p90/p10 is carried by noise "
         "one spec shares across its brands (size_sigma), so the group noise left, drawn per "
         "brand, spreads the sampled brands of one spec only to "
-        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272)"
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][0]:.2f}x apart on the default build and "
+        f"{PINNED_FIGURES[_WHEEL_SPREAD_ROW][1]:.2f}x apart at 100K (#272, #357)"
     ),
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "

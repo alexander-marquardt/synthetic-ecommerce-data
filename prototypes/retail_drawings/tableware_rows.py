@@ -104,7 +104,7 @@ PLATES = (
         "and the garden. Dishwasher safe.",
         (cw("Blue Stripe", "#ffffff", "stripe", "#3f6fb5"),
          cw("Red Stripe", "#ffffff", "stripe", "#c8312e")),
-        (*_plate("Side", 20, "Melamine", "Gloss"), _a("pattern", "Pattern", "Striped")),
+        (*_plate("Side", 20, "Melamine", "Gloss"), _a("pattern", "Pattern", "Stripe")),
         _packs((4, 12.0), (6, 16.0)), _pp("side", 20, "Gloss")),
     _tw("PLTPAS", "Speckled Stoneware Pasta Plate", "Hearth & Table", "Plates", "Plate", "plate",
         "A 23 cm pasta plate with a deep well and a wide rim, in a speckled matte glaze. "
