@@ -104,17 +104,20 @@ with `StandardsDataError: no extraction for '<standard>'`. A module may
 instead carry the table itself, as the lock nut does (see
 [Sources](#sources-and-provenance)).
 
-A threaded type that publishes `dia_thread_size` and whose standard has no
-extraction declares the sizes that standard offers in its `SPEC`, as
-`sizes={standard: (size, ...)}`, stated apart from its table. The thread-size
-sweep in `tests/test_catalog_coverage.py` reads only that facet. It holds every
-declared size to reaching a document, and it fails, rather than skips, a
-standard that has neither an extraction nor a declaration. A type that
-publishes `thread_size` instead, such as the lock nut, is not swept yet: see
-issue #68. When the
+A threaded type that publishes `dia_thread_size` or `thread_size` and whose
+standard has no extraction declares the sizes that standard offers in its
+`SPEC`, as `sizes={standard: (size, ...)}`, stated apart from its table. The
+thread-size sweep in `tests/test_catalog_coverage.py` holds every declared size
+to reaching a document, and it fails, rather than skips, a standard that has
+neither an extraction nor a declaration. It reads `dia_thread_size` from
+every type, and `thread_size` only from a type that declares `sizes`: the
+breadth rows publish `thread_size` too and are built to no standard. A coarse
+row is declared by its diameter (`M24`, `1/4`); a fine-pitch row by its whole
+designation (`M10x1`, `1/4-28`), because it is a size of its own. When the
 type's `dimension_provenance` is a sentence rather than a bare standard name,
-it also declares `line_standard`, which reads a record's standard back from
-its published attributes. `set_screws_hex_socket` does both.
+it either declares `line_standard`, which reads a record's standard back from
+its published attributes (`set_screws_hex_socket`), or names its one table as
+`read from the <standard> table`, which the sweep reads (the lock nut).
 
 ## The steps
 
@@ -281,10 +284,11 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
 * **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
 * **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
+* **A quantity drawn from a range.** Every quantity a type publishes is `tabled` unless its `AttrSpec` says `source="drawn"` (`vocab.py`): the facet rule reads that word, not the dispersion ratio, to offer a list or a range (gen#95). A table type's columns are tabled. Declare `drawn` only for a value the builder draws from an interval (an end mill's Neck Length is the one); `test_every_declaration_agrees_with_the_data_it_describes` reds if the data disagrees.
 * **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
 * **Share.** Two rules, both at the default build, where a type's product count is its `lines_by_type` and its SKU count its `skus_by_type` in `golden-catalog/stats.json`:
-  * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads as a continuum to the facet rule (at 13 products the sizes measured 0.44 to 0.48 against the 0.50 threshold).
+  * **At least 5 SKUs per table row.** A size column no other type publishes has a dispersion of rows / SKUs, and a dozen sizes over too few SKUs reads 0.44 to 0.48 at 13 products against the 0.50 threshold. Since gen#95 this no longer decides the control: a table column is declared `tabled` (below), so it is offered as a list at any share. The rule stays so that each size is carried by several products.
   * **At least 40 products.** `smallest_faceted` in `prism/derive.py` pins the faceted quantity on the fewest products (a roller chain's Roller Dia., on 30), with ties broken by attribute key order. A type at 40 or more never takes that pin, so it is one shared line fewer to edit.
   * A share of 0.016 gives 42 products and suits a table of up to about 13 rows. A 20-row table needs about 60 products, a share of about 0.023.
 * **Tests.** Copy `tests/test_type_cotter_pins.py`, restate the table in it, and write the slice with `uv run python tests/test_type_<key>.py`. `tests/table_gates.py` holds the shared size, price-order and drawing gates.
@@ -306,6 +310,8 @@ Shared files, edited by hand:
 * `src/synthetic_ecommerce_data/domains/industrial/names.py`: a `NAME_EXCEPTIONS` row for each column name the census lacks. Use a census name and there is no edit.
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
+
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50).
 
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
@@ -382,7 +388,9 @@ keep their floor of 300, as they keep their share.
 ### Figure and extent
 
 **Figure.** Reuse the family's figure when it draws the part (the lock nut
-uses `hex_nut`). Otherwise write one in `domains/industrial/drawing/figures.py`, following
+uses `hex_nut`). Otherwise compose one from the shared primitives
+([Composing a figure from primitives](drawings.md#composing-a-figure-from-primitives)),
+in your type module or in `domains/industrial/drawing/figures.py`, following
 [Adding a drawing for a new type](drawings.md#adding-a-drawing-for-a-new-type):
 the signature is `figure(record: dict[str, str]) -> Drawn`, where `record`
 maps each published attribute name of the SKU to its value. A breadth shape
@@ -869,6 +877,28 @@ sets the label, default the checkout's directory name; `MERGE_PR_LOG_DIR`
 moves the directory). The merge is refused unless every job passed. Step 6
 needs no GitHub check. `GEN_LOCAL_CI=1` in the environment makes `--local-ci`
 the default; `--dry-run` runs the local jobs too.
+
+**The local CI is held to a memory ceiling and runs one at a time (#366).** The
+worker count above is a plan made when the steps are emitted, and on the shared
+agent VM (10 to 30 agents starting their own test runs after that) nothing held it
+while the run went on. Every command the local CI runs (the step-3 checks, each
+job) therefore goes through `scripts/local_ci_guard.py`. It sums the resident
+memory of the command's whole process tree every half second and, past
+`workers x 4,500 MB`, kills the tree and exits 97: the job is red, the merge is
+refused, and the line `local_ci_guard: memory ceiling exceeded` names the figures,
+so an overrun fails one merge and not the machine. `LOCAL_CI_MEMORY_MB` replaces
+the ceiling. The worker count is the command's own (`LOCAL_CI_WORKERS`, else its
+`-n`, else the machine's now, which the guard then hands to the emitted script as
+`LOCAL_CI_WORKERS`). Resident memory counts a page two processes share twice, so
+the figure errs high; it is a poll, so a spike between two looks is for the kernel.
+The guard also takes an `flock` on `LOCAL_CI_LOCK` (default
+`<tmp>/gen-local-ci.lock`), so one local CI command runs at a time on the machine:
+a second run prints `waiting for another local CI run`, polls every
+`LOCAL_CI_LOCK_POLL` seconds (2) and refuses with 98 after `LOCAL_CI_LOCK_WAIT`
+(14400, 4 h), naming the holder. The kernel frees the lock when its holder ends,
+however it ends. This lock guards the machine's memory, and is not the merge lock
+that orders merges into `main` (#383): it is taken by a `--dry-run` too, which
+runs the same jobs, and by a run on another checkout.
 
 **A stale golden is regenerated, not handed back (#440).** When `--local-ci`
 is red and the only red is a golden freshness test, the script does not send
