@@ -31,6 +31,7 @@ build -- see ``SOURCES`` below for why neither alone is enough.
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 from pathlib import Path
@@ -216,6 +217,13 @@ def _line_standard(doc: dict) -> str:
     it would leave most lines out of the sweep.
     """
     spec = SPECS.get(doc["product_type"])
+    if spec is not None and spec.sizes and spec.line_standard is None:
+        # Its provenance is a sentence naming the one table each dimension was
+        # read from (``... read from the ISO 7040 table``); two thin series
+        # share every attribute but that table, so the sentence is the source.
+        named = TABLE_NAMED.findall(doc["dimension_provenance"])
+        if len(set(named)) == 1:
+            return named[0]
     if spec is None or spec.line_standard is None:
         return doc["dimension_provenance"]
     return spec.line_standard(
@@ -223,6 +231,11 @@ def _line_standard(doc: dict) -> str:
     )
 
 
+#: The table a provenance sentence names: ``read from the ISO 7040 table``.
+TABLE_NAMED = re.compile(r"read from the (.+?) table")
+
+
+@functools.cache
 def _offered_sizes(standard: str) -> tuple[str, ...] | None:
     """What ``standard`` offers: its extraction, else a type's declaration."""
     if standards.has_extraction(standard):
@@ -306,6 +319,84 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
     ]
 
 
+LOCK_NUT = "lock_nuts_nylon_insert"
+
+
+def _lock_nuts(docs: list[dict], *, built_to: str = "", sizes: tuple[str, ...] = ()) -> list[dict]:
+    """The lock nut lines, optionally those built to ``built_to`` or of ``sizes``.
+
+    A lock nut publishes its size as ``thread_size``, not ``dia_thread_size``.
+    """
+    return [
+        doc
+        for doc in docs
+        if doc["product_type"] == LOCK_NUT
+        and built_to in doc["dimension_provenance"]
+        and (not sizes or any(v in sizes for v in doc["facets"]["thread_size"]))
+    ]
+
+
+def test_a_type_that_publishes_thread_size_declares_the_sizes_it_builds_to() -> None:
+    """The lock nut's lines claim these five tables; each is declared apart from its rows."""
+    assert set(SPECS[LOCK_NUT].sizes) == {
+        "ASME B18.2.2",
+        "DIN 985",
+        "ISO 10511",
+        "ISO 10512",
+        "ISO 7040",
+    }
+
+
+def test_a_lock_nut_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """The plant is a size dropped from one table: ISO 7040 loses M24 only.
+
+    DIN 985 also has an M24 row and must not answer for it.
+    """
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 7040", sizes=("M24x3",))}
+    assert gone, "the plant found no ISO 7040 M24 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ISO 7040: ['M24']"]
+
+
+def test_a_fine_pitch_lock_nut_row_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """A fine row is its own size: ISO 10512 M10x1 is not answered by M10x1.25."""
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 10512", sizes=("M10x1",))}
+    assert gone, "the plant found no ISO 10512 M10x1 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ISO 10512: ['M10x1']"]
+
+
+def test_an_inch_lock_nut_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> None:
+    """The inch lines are built to the ASME B18.2.2 hex nut's flats: drop the 1" rows."""
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, sizes=("1-8", "1-12"))}
+    assert gone, "the plant found no 1 inch lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert _coverage_problems(dropped) == ["ASME B18.2.2: ['1', '1-12']"]
+
+
+def test_a_lock_nut_standard_no_line_was_built_to_is_swept_whole(flat_docs: list[dict]) -> None:
+    gone = {id(doc) for doc in _lock_nuts(flat_docs, built_to="ISO 10511")}
+    assert gone, "the plant found no ISO 10511 lock nut"
+    dropped = [doc for doc in flat_docs if id(doc) not in gone]
+    assert [p.split(":")[0] for p in _coverage_problems(dropped)] == ["ISO 10511"]
+
+
+def _thread_sizes(doc: dict) -> list[str]:
+    """The thread designations ``doc`` publishes for the sweep to read.
+
+    ``dia_thread_size`` is read from every line. ``thread_size`` is read only
+    from a type that declares the sizes it builds to (``TypeSpec.sizes``): the
+    breadth rows and the conventional-series types publish it too, built to no
+    standard, and the sweep fails closed on a standard it cannot look up.
+    """
+    facets = doc["facets"]
+    values = list(facets.get("dia_thread_size", []))
+    spec = SPECS.get(doc["product_type"])
+    if spec is not None and spec.sizes:
+        values += facets.get("thread_size", [])
+    return values
+
+
 def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     """Which thread sizes each standard's lines actually published.
 
@@ -316,10 +407,17 @@ def _sizes_by_standard(docs: list[dict]) -> dict[str, set[str]]:
     seen: dict[str, set[str]] = {}
     for doc in docs:
         standard = _line_standard(doc)
-        for value in doc["facets"].get("dia_thread_size", []):
+        offered = _offered_sizes(standard) or ()
+        for value in _thread_sizes(doc):
+            # A standard that offers a fine-pitch row declares its whole
+            # designation (``M10x1``, ``1/4-28``): the row is its own size, and
+            # the coarse row of the same diameter must not answer for it.
+            if value in offered:
+                seen.setdefault(standard, set()).add(value)
+                continue
             size = value.split("x")[0] if value.startswith("M") else value.rsplit("-", 1)[0]
-            # A fine-pitch line is the near-miss sibling of a standard's size,
-            # not one of the sizes the (coarse-thread) standard offers; its
+            # Otherwise a fine-pitch line is the near-miss sibling of a standard's
+            # size, not one of the sizes the (coarse-thread) standard offers; its
             # provenance names the fine-pitch standard or says it claims none.
             if value in compat.fine_threads(size, value.startswith("M")):
                 continue
