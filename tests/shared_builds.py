@@ -36,7 +36,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.model import Attribute, Catalog
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 
@@ -179,7 +179,7 @@ def realistic_only(docs: list[dict]) -> list[dict]:
 def _hundred_k_prices_build() -> tuple[dict, list[KitSku]]:
     from synthetic_ecommerce_data.domains.industrial import price_report
 
-    catalog, kits = recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+    catalog, kits = recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
     return {row.name: row for row in price_report.price_comparisons(catalog)}, kits
 
 
@@ -200,7 +200,7 @@ def _hundred_k_quiet_wheel_build() -> tuple[Any, dict[tuple, tuple[str, ...]]]:
 
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     with mock.patch.dict(price.MODELS, {WHEEL: quiet}):
-        catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+        catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
         (row,) = [
             row
             for row in price_report.price_comparisons(catalog)
@@ -223,7 +223,7 @@ def hundred_k_quiet_wheel() -> tuple[Any, dict[tuple, tuple[str, ...]]]:
 def _hundred_k_flat_build() -> list[dict]:
     from synthetic_ecommerce_data.core import emit
 
-    return realistic_only(list(emit.iter_flat(generate(GeneratorConfig(lines=HUNDRED_K_LINES)))))
+    return realistic_only(list(emit.iter_flat(generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))))
 
 
 def hundred_k_flat() -> list[dict]:

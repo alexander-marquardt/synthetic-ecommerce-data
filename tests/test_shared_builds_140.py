@@ -137,8 +137,8 @@ def test_a_cache_directory_made_before_pytests_own_is_still_ignored_by_git(tmp_p
     assert ignore.is_file() and ignore.read_text(encoding="utf-8").strip().endswith("*")
 
 
-#: Modules that may name the 100K size: the shared builds and this guard.
-_MAY_ASK = {"shared_builds.py", Path(__file__).name}
+#: Modules that may name the large build size: the shared builds, the name census and this guard.
+_MAY_ASK = {"shared_builds.py", "test_large_build_name_62.py", Path(__file__).name}
 
 
 def test_no_test_module_builds_a_whole_100k_catalog_of_its_own():
@@ -147,7 +147,7 @@ def test_no_test_module_builds_a_whole_100k_catalog_of_its_own():
         path.name
         for path in TESTS.glob("*.py")
         if path.name not in _MAY_ASK
-        and re.search(r"HUNDRED_K_LINES", path.read_text(encoding="utf-8"))
+        and re.search(r"LARGE_BUILD_LINES", path.read_text(encoding="utf-8"))
     )
     assert asking == [], f"build through shared_builds instead: {asking}"
 
