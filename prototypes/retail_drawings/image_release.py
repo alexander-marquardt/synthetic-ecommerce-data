@@ -13,10 +13,11 @@ The retail counterpart of ``ecom-generate images`` (:mod:`synthetic_ecommerce_da
 in the same package shape, so the installer that fetches the industrial
 release installs this one unchanged:
 
-- ONE IMAGE PER STYLE AND COLORWAY, never per SKU. A SKU's ``image_id``
-  (:func:`export.image_id`) is a digest of its product's drawing and its color
-  swatch, so every size of one color shares an image; a style sold in no
-  color has one image. The 328-style build is 629 images for 6,861 SKUs.
+- ONE IMAGE PER STYLE, COLORWAY AND PACK SCALE, never per SKU. A SKU's ``image_id``
+  (:func:`export.image_id`) is a digest of its product's drawing, its color
+  swatch and the factor its pack is drawn at within its line (:mod:`pack_scale`, gen#543), so
+  every size of one color that is drawn at one factor shares an image; a style sold in no
+  color has one image per factor.
 - LAYOUT. Every member is ``retail/<image_id>.svg`` (``retail`` is
   :data:`export.IMAGE_ROOT`), and every ``image_url`` is ``/images/`` plus that
   member, so the demo serving the unpacked folder at ``/images`` resolves it.
@@ -71,6 +72,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
     spec = export.drawing_spec(rec, sku)
     if "params" in spec:  # the SKU's own finish, shade color or diameter (gen#197)
         drawing["params"] = drawing.get("params", {}) | spec["params"]
+    if "pack_scale" in spec:  # a smaller size of the line draws a smaller pack (gen#543)
+        drawing["pack_scale"] = spec["pack_scale"]
     swatch = spec["swatch"]
     if swatch is None:
         return drawing
