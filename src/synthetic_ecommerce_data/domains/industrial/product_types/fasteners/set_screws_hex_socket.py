@@ -15,9 +15,10 @@ Two choices the tables leave open:
   for ISO 4026 and 4028, C max (flat) and P max (dog) for B18.3. A dog point's
   diameter is P, not the cup and flat point's C.
 * B18.3 fixes no length range per size, so the inch ranges are FastenersWB's
-  (the file the JSON cites), and an inch line's provenance says so. That
-  list has no 5/16", 5/8" or 7/8" length and starts 1/4" screws at 3/8"; the
-  gap is the source's, recorded in the JSON, and is not filled in here.
+  (the file the JSON cites), and an inch line's provenance says so. Its
+  nominal length list has no 5/16", 5/8" or 7/8" length; those three are on
+  B18.3's own length grid (Table 5A note 3) and are added from it (#67), cited
+  in the JSON. It still starts 1/4" screws at 3/8", which the JSON records.
 
 The sizes each table offers are declared as ``SIZES`` beside the data file,
 and ``line_standard`` reads a record's standard back from its point and

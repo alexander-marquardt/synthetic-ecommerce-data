@@ -3229,7 +3229,7 @@
   {
    "name": "price p90/p10: set_screws_hex_socket",
    "target": 4.58691,
-   "achieved": 3.71005,
+   "achieved": 3.62538,
    "numerator": 485,
    "denominator": 510,
    "note": "shown price; denom is the census n",
@@ -3241,9 +3241,9 @@
   {
    "name": "price larger size costs more: set_screws_hex_socket",
    "target": 0.666,
-   "achieved": 0.666667,
-   "numerator": 16,
-   "denominator": 24,
+   "achieved": 0.652174,
+   "numerator": 15,
+   "denominator": 23,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.585767,
@@ -3409,8 +3409,8 @@
   {
    "name": "price longer costs more: set_screws_hex_socket",
    "target": 0.834,
-   "achieved": 0.86828,
-   "numerator": 323,
+   "achieved": 0.844086,
+   "numerator": 314,
    "denominator": 372,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -3504,7 +3504,7 @@
   },
   {
    "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
-   "target": 1.20562e-12,
+   "target": 1.22265e-14,
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 372,
@@ -3846,7 +3846,7 @@
   },
   "drawings": {
    "count": 11909,
-   "bytes": 30177048,
+   "bytes": 30172822,
    "geometry": {
     "nominal": 219,
     "partial": 2438,
