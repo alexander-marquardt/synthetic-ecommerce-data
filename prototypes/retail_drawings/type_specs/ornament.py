@@ -57,7 +57,10 @@ ROWS = (
     # the Halloween and autumn pumpkin (#565): a seasonal row, so it carries collections
     SRow("SEAPMP", "Ornamental Pumpkin", "Thistle & Wren", "Home", ORNAMENTS, "Ornament", 7.0, "pumpkin",
          "A small ornamental pumpkin, for a porch or a table.",
-         (ORANGE,), collections=(HALLOWEEN, AUTUMN), colorless=True),
+         (ORANGE,),
+         attrs=(a("material", "Material", "Ceramic"), a("occasion", "Occasion", "Autumn"),
+                a("form", "Form", "Pumpkin")),
+         collections=(HALLOWEEN, AUTUMN)),
 )
 
 

@@ -110,3 +110,7 @@ def test_the_ornamental_pumpkin_is_a_home_ornament_and_not_a_gift_plant_565():
     assert doc["product_type"] == "Ornament"
     gift_plants = [r["title"] for r in _records() if r["category_leaf"] == "Gift Plants"]
     assert "Ornamental Pumpkin" not in gift_plants, gift_plants
+    assert rec["collections"] == ["Halloween", "Autumn"], rec["collections"]
+    keys = {e["key"] for e in doc["attributes"]} | {
+        e["key"] for v in doc["variants"] for e in v["attributes"]}
+    assert {"material", "occasion", "form", "color"} <= keys, keys
