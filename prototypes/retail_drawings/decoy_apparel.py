@@ -478,7 +478,7 @@ def _clone(
                        if k not in ("accents", "detail")} | {
         "pattern": "solid", "base": hexv, "accent": "#333333",
         "motif": None, "placement": None}  # fmt: skip
-    if (keep["drawing"].get("params") or {}).get("lace"):
+    if False:
         keep["drawing"]["params"] = {k: v for k, v in keep["drawing"]["params"].items()
                                      if k != "lace"}  # fmt: skip
     if detail:  # a named part (class 1) is drawn in the named color: the title is true
