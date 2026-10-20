@@ -32,7 +32,7 @@ trousers whose title or description misleads on another word; the structured fie
 
 | Class | Decoy | Example |
 |---|---|---|
-| 1 color | a trim names another color | "Mens White Elasticated Trousers with Red Stripes" is white |
+| 1 color | a trim names another color | "Mens White Elasticated Trousers with Red Waistband" is white |
 | 2 category word | another category's noun as a modifier | "Mens Shirt Collar Elasticated Trousers" |
 | 3 audience word | a sibling cut | "Mens Boyfriend Fit Elasticated Trousers" |
 | 4 feature absent | the word "elasticated" on a product whose waist is not elastic | "Mens Elasticated Cuff Cargo Trousers" has a belted waist |
