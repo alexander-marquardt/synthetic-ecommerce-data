@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
@@ -190,9 +190,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + 2 * len(price.DEEPENED_CENSUS)
     )
     assert len(price_rows) == expected == 72
-    out = [
-        row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
-    ]
+    out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -255,22 +253,36 @@ def test_a_pin_reason_quotes_the_figures_the_pin_records():
     name = BRAND_ROW.format("wheel_depressed_center")
     quoted = re.findall(r"(\d+(?:\.\d+)?)x apart", price.PINNED_SHORTFALLS[name])
     figures = [f for f in _recorded(name) if f is not None]
-    assert quoted == [f"{f:.2f}" for f in figures] == ["1.75"]
+    assert quoted == [f"{f:.2f}" for f in figures] == ["1.77", "1.77"]
 
 
-def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
+def test_the_wheel_brand_spread_is_carried_by_size_noise_not_group_noise(price_rows):
     """#272: the wheel's group noise (0.70, drawn per brand) spread one spec's
     sampled brands 4.3x apart against a band top of 1.71, and the figure moved
     each time the wheel product ids did. The p90/p10 is carried by noise one
-    spec shares across its brands instead, so the default build lands in band
-    and only the 100K build stays pinned."""
+    spec shares across its brands instead, so the spread stays within a few
+    percent of the band whichever ids the build draws: 1.77 on the default build
+    since #357 dropped the wheels that differed only by a pack (it was in band
+    before), pinned at both builds."""
     name = BRAND_ROW.format("wheel_depressed_center")
     (row,) = [row for row in price_rows if row.name == name]
-    assert row.within, (row.achieved, row.band)
-    assert _recorded(name)[0] is None
-    assert _recorded(name)[1] is not None
+    assert row.band[1] < row.achieved < row.band[1] * 1.05, (row.achieved, row.band)
+    assert all(figure is not None for figure in _recorded(name))
     model = price.MODELS["wheel_depressed_center"]
     assert model.size_sigma > model.group_sigma, (model.size_sigma, model.group_sigma)
+
+
+def test_a_pin_may_land_no_further_out_a_none_record_holds_the_build_in_band(
+    price_rows, monkeypatch
+):
+    """A build a pin records ``None`` for is held in band (#272). No committed pin
+    records one since #357, so a planted record holds that branch."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    monkeypatch.setitem(price.PINNED_FIGURES, name, (None, None))
+    (row,) = [row for row in price_rows if row.name == name]
+    inside = replace(row, achieved=row.band[1] * 0.999)
+    assert price_report.pin_holds(inside, 0)
+    assert not price_report.pin_holds(row, 0)
 
 
 def _recorded(name: str) -> tuple[float | None, float | None]:
@@ -321,9 +333,8 @@ def test_a_pin_five_percent_further_out_than_its_record_fails(price_rows, name, 
 
 
 def test_a_pin_whose_shortfall_worsens_fails(monkeypatch):
-    """The wheel's default build lands in band (its record is ``None``), so
-    group noise three times louder spreads one spec's brands out of it, and
-    the pin, which holds a recorded-``None`` build in band, fails (#272)."""
+    """Group noise three times louder spreads one spec's wheel brands far past the
+    pinned figure, and the pin fails (#272)."""
     name = BRAND_ROW.format("wheel_depressed_center")
     model = price.MODELS["wheel_depressed_center"]
     louder = replace(model, group_sigma=model.group_sigma * 3)
@@ -594,12 +605,16 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {
-        "screw_socket_head",
-        "set_screws_hex_socket",
-        "tap_spiral_point",
-        "wheel_depressed_center",
-    }
+    assert (
+        sized
+        == set(price.SIZE_NOISE)
+        == {
+            "screw_socket_head",
+            "set_screws_hex_socket",
+            "tap_spiral_point",
+            "wheel_depressed_center",
+        }
+    )
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -834,7 +849,7 @@ def test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give(monkeypatch
     default build, 1.49 the same way, is in band)."""
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     monkeypatch.setitem(price.MODELS, WHEEL, quiet)
-    catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
     (row,) = [
         row
         for row in price_report.price_comparisons(catalog)
@@ -1184,7 +1199,7 @@ ROW_NAMES = sorted(
 @pytest.fixture(scope="module")
 def hundred_k() -> tuple[Catalog, list[KitSku]]:
     """The 100K build and its kits (about 35 s)."""
-    return _recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+    return _recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
 
 
 @pytest.fixture(scope="module")

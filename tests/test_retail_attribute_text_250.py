@@ -169,8 +169,8 @@ def test_a_polka_dot_style_that_sells_a_gingham_color_disagrees():
 
 
 def test_a_style_that_draws_another_pattern_disagrees():
-    rec = _rec(pattern="Striped", sold=("stripe",), drawn="solid")
-    assert attribute_text.pattern_lines(rec) == ["pattern Striped but the drawing is solid"]
+    rec = _rec(pattern="Stripe", sold=("stripe",), drawn="solid")
+    assert attribute_text.pattern_lines(rec) == ["pattern Stripe but the drawing is solid"]
 
 
 def test_a_style_whose_text_names_another_pattern_disagrees():
@@ -198,11 +198,11 @@ def test_an_unmapped_pattern_value_is_reported_not_skipped():
 
 def test_disagreements_names_the_row():
     closure = _rec(description="A bag with a magnetic flap.", closure="Zip")
-    pattern = _rec(pattern="Striped", sold=("stripe",), drawn="solid")
+    pattern = _rec(pattern="Stripe", sold=("stripe",), drawn="solid")
     pattern["product_id"] = "T-2"
     assert attribute_text.disagreements([copy.deepcopy(closure), pattern]) == [
         "T-1: closure Zip but the text names ['magnetic']",
-        "T-2: pattern Striped but the drawing is solid",
+        "T-2: pattern Stripe but the drawing is solid",
     ]
 
 

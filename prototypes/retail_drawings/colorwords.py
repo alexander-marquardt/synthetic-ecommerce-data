@@ -37,11 +37,11 @@ MODIFIERS = frozenset({
     "Bright", "Brushed", "Burnt", "Dark", "Dusky", "Dusty", "Hot", "Light", "Pale", "Sheer",
     "Soft", "Heather", "Vintage", "Warm", "Velvet", "Washed", "Marl",
     "Leather", "Suede", "Patent", "Lace", "Check", "Gingham", "Polka", "Dot", "Spot",
-    "Print", "Stripe", "Leopard", "Tartan", "Floral", "Patchwork", "Breton", "/",
+    "Print", "Stripe", "Leopard", "Tartan", "Floral", "Patchwork", "Breton", "and",
 })  # fmt: skip
 #: The denim washes of a jeans style: a wash is a color word of its own there.
 DENIM_WASHES = frozenset({"Rinse", "Light Wash", "Mid Wash", "Bleach Wash", "Grey Wash",
-                          "Mid Wash / Yellow"})
+                          "Mid Wash and Yellow"})
 #: A foundation or tint shade code: depth and undertone ("2N").
 SHADE_CODE = re.compile(r"^\d+[CNW]$")
 
@@ -140,7 +140,7 @@ def split(name: str) -> tuple[str, str | None]:
         return "Grey", pattern
     if not rest:
         return (DENIM_BASE if wash else "Multi"), pattern
-    if rest.startswith("/"):
+    if rest.startswith("and "):
         return f"{DENIM_BASE} {rest}", pattern
     return rest, pattern
 
@@ -151,6 +151,8 @@ def is_plain(value: str) -> bool:
         return True
     words = value.split()
     if len(words) == 1 and words[0] in HALF_WORDS:
+        return False
+    if words and words[-1] == "and":
         return False
     return bool(words) and all(w in COLOR_WORDS or w in MODIFIERS for w in words) and any(
         w in COLOR_WORDS for w in words
