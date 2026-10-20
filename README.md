@@ -1262,9 +1262,6 @@ that was validated but not drawn, and a control whose mutation text no longer
 matched the code it was supposed to break. All three are fixed rather than
 removed; a mutation that reds nothing is the point of running them.
 
-The harness `scripts/mutation_check.py` holds no row: they are in `scripts/mutation_rows_*.py`,
-found by glob. `--list` prints every row name; `--only "<text>"` runs the rows whose name has it.
-
 **The harness cannot find the defect the line drawings exist to prevent, and
 that is why the tests do not rely on it.** An attribute published on every
 record and read by nothing has no code path to plant a defect in, which is how
