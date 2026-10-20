@@ -239,3 +239,27 @@ def test_the_new_rows_leave_every_other_template_as_it_was(templates, monkeypatc
     monkeypatch.setattr(kids_depth_rows, "docs", lambda: [])
     without = scale.templates()
     assert [r for r in templates if r["product_id"] not in ids] == without
+
+
+def test_each_new_leaf_has_a_product_on_sale(templates):
+    """Left out of the shared sale pass, the rows need one of their own: without it a query such
+    as "girls coats sale" finds nothing in a leaf the rows fill (gen#359)."""
+    bare = [
+        " > ".join(leaf)
+        for leaf in FLOORS
+        if not any(
+            "was_price" in r for r in _new_rows(templates) if tuple(r["category_path"]) == leaf
+        )
+    ]
+    assert not bare, f"no new product on sale in {bare}"
+
+
+def test_the_kids_department_holds_its_sale_share(templates):
+    """``sale_share`` says the share holds whatever a later change adds: the new rows' SKUs count
+    toward the Kids total, so the rows must carry their part of the share."""
+    import sale_share
+
+    kids = [r for r in templates if sale_share.department(r) == "Kids"]
+    total = sum(r["sku_count"] for r in kids)
+    held = sum(r["sku_count"] for r in kids if "was_price" in r)
+    assert held >= sale_share.SHARE["Kids"] * total, f"Kids share {held / total:.4f}"
