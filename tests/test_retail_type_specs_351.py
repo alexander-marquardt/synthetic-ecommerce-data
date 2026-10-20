@@ -108,7 +108,7 @@ SHOES_BUILT_ELSEWHERE = {f"FTW-{s.code}" for s in (*scale_rows.FOOTWEAR, *nike_r
 #: stands in another word's results ("Blue Bull Trainers" for "bull").
 SHOE_DECOYS = {
     "PLT-DY01", "PLT-DY02", "PLT-DY40", "PLT-DY41", "PLT-DY42", "PLT-DY43", "PLT-DY46",
-    "PLT-DY54", "PLT-DY58", "PLT-DY66", "PLT-DY73",
+    "PLT-DY54", "PLT-DY58", "PLT-DY66", "PLT-DY73", "PLT-DY553",
 }  # fmt: skip
 
 
