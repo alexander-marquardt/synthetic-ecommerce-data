@@ -340,12 +340,7 @@ lines for 100K until uniqueness stopped counting metadata as a difference.
 table types, #101). The next five table types add 1,996 SKUs over 1,237
 products and moved no other type: 385 turnbuckles over 244, 373 shackles over
 246, 269 pillow block bearings over 168, 200 roller chain sprockets over 129
-and 769 roller chain links over 450. The set screw figures are re-measured on #67, which filled the inch lengths
-5/16, 5/8 and 7/8 from ASME B18.3's length grid: the 100K build gave 6,965 set screws over
-3,777 products (124,896 SKUs over 72,874 products in all) on the commit before it and gives
-7,045 over 3,801 (124,976 over 72,898) with it; the default build's SKU count is
-unchanged. The other figures in this paragraph and the table are from their earlier
-measurements. O-rings are 1,040 over 565:
+and 769 roller chain links over 450. O-rings are 1,040 over 565:
 `o_rings` was a breadth category of 2 SKUs; deepened from the AS568 table
 (#53), it took no SKU from any other type. Key stock is 965 bars over 560
 (#108, a new type with its own share), and moved none either. Bearings widened from 27 numbers to 75 (#64), so fewer bearing
