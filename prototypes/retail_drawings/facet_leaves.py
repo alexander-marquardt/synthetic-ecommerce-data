@@ -345,9 +345,14 @@ def fabric_move(product_type: str, value: str) -> tuple[str, str | None] | None:
     it is already a shopper's fabric. The typed move wins over the value's own."""
     return TYPED_FABRIC_MOVES.get((product_type, value)) or FABRIC_MOVES.get(value)
 
+#: Values a title can state that no leaf implies: a bra "with Removable Cups" (gen#508). The value
+#: is the whole phrase, so "Removable Straps" does not state it.
+STATED_ONLY: dict[str, tuple[str, ...]] = {"padding": ("Removable Cups",)}
+
+
 def _vocabulary() -> dict[str, set[str]]:
-    """Every value of each :data:`BRA_KEYS` key that some leaf implies."""
-    vocab: dict[str, set[str]] = {key: set() for key in BRA_KEYS}
+    """Every value of each :data:`BRA_KEYS` key that some leaf implies, or a title can state."""
+    vocab: dict[str, set[str]] = {key: set(STATED_ONLY.get(key, ())) for key in BRA_KEYS}
     for row in BRA_LEAVES.values():
         for key, facet in zip(BRA_KEYS, row, strict=True):
             vocab[key] |= {facet} if isinstance(facet, str) else set(facet or ())
