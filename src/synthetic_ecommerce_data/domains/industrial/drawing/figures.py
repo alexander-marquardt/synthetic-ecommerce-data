@@ -61,8 +61,16 @@ def _read(
     defaults: dict[str, Callable[[Record], str]],
     nominal: Record,
     primary: str | None = None,
+    form: Record | None = None,
 ):
-    """The geometry, from the record as published, else completed, else nominal."""
+    """The geometry, from the record as published, else completed, else nominal.
+
+    ``form`` is the published values that say HOW MANY or WHICH KIND of a part (a mill's
+    cutting ends), never how big. The last two fallbacks take every extent from the nominal
+    shape, and a form the record publishes goes with them: a nominal proportion may stand in
+    for a size the record cannot give, never for a form it does.
+    """
+    form = form or {}
     try:
         return geometry(record), "record"
     except REFUSALS:
@@ -95,7 +103,7 @@ def _read(
     # keep only the primary dimension, so siblings of different sizes still
     # draw different sizes, and take every other value from the nominal shape.
     if primary is not None and primary in record:
-        core = {k: v for k, v in nominal.items() if k not in defaults}
+        core = {k: v for k, v in nominal.items() if k not in defaults} | form
         core[primary] = record[primary]
         for name, default in defaults.items():
             try:
@@ -108,7 +116,7 @@ def _read(
                 return geometry(core), "partial"
             except REFUSALS:
                 pass
-    return geometry(nominal), "nominal"
+    return geometry(nominal | form), "nominal"
 
 
 def _len(record: Record, name: str) -> float:
@@ -138,14 +146,19 @@ END_MILL_NOMINAL = {
 }
 
 
+ENDS_ATTRIBUTE = "Single End/Double End"
+
+
 def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) -> Drawn:
     """The end mill figure. ``style`` is the product type's own cutting end, used when the
     record states none: ``End Mill Style`` repeated the type and is no longer published (#497)."""
     rec = dict(record)
     rec.setdefault("End Mill Style", style)
     nominal = {**END_MILL_NOMINAL, "End Mill Style": rec["End Mill Style"]}
+    ends = str(rec.get(ENDS_ATTRIBUTE, "")).strip()
+    form = {ENDS_ATTRIBUTE: ends} if ends.lower() in ("single end", "double end") else {}
     geom, source = _read(
-        rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal, "Milling Dia."
+        rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal, "Milling Dia.", form
     )
     d, s = geom.cut_d.inches, geom.shank_d.inches
     loc, oal = geom.loc.inches, geom.oal.inches

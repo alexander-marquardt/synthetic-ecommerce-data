@@ -335,15 +335,19 @@ class FinishMixin:
             # spec this brand has already made, or whose published spec differs
             # from one already made only by a dropped attribute, is not made.
             unsparsified = [
-                *draft.line_attrs,
-                *([standards_attr] if standards_attr is not None else []),
-                *child.attrs,
-                *([system_attr] if system_attr is not None else []),
+                a
+                for a in (
+                    *draft.line_attrs,
+                    *([standards_attr] if standards_attr is not None else []),
+                    *child.attrs,
+                    *([system_attr] if system_attr is not None else []),
+                )
+                if not (isinstance(a, RetiredAttribute) and not a.distinguishes)
             ]
             key = self._spec_key(type_key, draft.brand, unsparsified)
             # What #497 retired still tells two specs apart while its draw kept
             # it, as it did when it was published (see :class:`.RetiredAttribute`).
-            retired = [*line_ghosts, *sku_ghosts]
+            retired = [a for a in (*line_ghosts, *sku_ghosts) if a.distinguishes]
             if key in self._drawn_specs or self._differs_only_by_a_drop(
                 type_key,
                 draft.brand,
