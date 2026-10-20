@@ -141,9 +141,10 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     """The product count is frozen (the four pattern words ride on colorways of styles main
     already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
     plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
-    text-match decoys (#375) and the face creams (#542: 20 templates, 69 SKUs) lift them to
-    11385 and 102687, and a new style would raise both. This test pins 11385 templates and
-    102687 template SKUs: the PR that lifts the freeze must move them."""
+    text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
+    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951, and a new style
+    would raise both. This test pins 11505 templates and 102951 template SKUs: the PR that
+    lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11385
-    assert sum(t["sku_count"] for t in tpls) == 102687
+    assert len(tpls) == 11505
+    assert sum(t["sku_count"] for t in tpls) == 102951
