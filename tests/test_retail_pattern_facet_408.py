@@ -140,12 +140,12 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     """The product count is frozen except for the issues that lift the freeze: the four pattern
     words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
-    101,460 template SKUs; the 21 plural-cups styles and 6 more bra decoys (gen#508) and the 14
-    templates (29 SKUs) of the sports text-match decoys (#375) lift them to 11,365 and 102,618,
-    gen#352 adds the 27 styles of bicycles, bike helmets, kayaks, kick scooters and skateboards
-    (196 SKUs), which lifts them to 11,392 and 102,814, and a new style would raise both. This
-    test pins 11392 templates and 102814 template SKUs: the PR that lifts the freeze must move
-    them."""
+    101,460 template SKUs; the 21 plural-cups styles and 6 more bra decoys (gen#508), the 14
+    templates (29 SKUs) of the sports text-match decoys (#375), the large appliances of
+    gen#334 (120 templates, 264 SKUs) and gen#352's 27 styles of bicycles, bike helmets,
+    kayaks, kick scooters and skateboards (196 SKUs) lift them to 11512 and 103078, and a
+    new style would raise both. This test pins 11512 templates and 103078 template SKUs:
+    the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11392
-    assert sum(t["sku_count"] for t in tpls) == 102814
+    assert len(tpls) == 11512
+    assert sum(t["sku_count"] for t in tpls) == 103078
