@@ -52,6 +52,8 @@ PARAMS = {
     "picnic_blanket": (("backing", "plain", "waterproof"),),
     "door_stop": (("kind", "wedge", "weighted"),),
 }
+#: A shape a spec draws with no param: one fixed picture (the seasonal pumpkin ornament, #565).
+FIXED_SHAPES = {"pumpkin"}
 #: The word a shopper types for each product type, and the decoys' title must hold.
 TITLE_WORD = {
     "Clock": "clock", "Ornament": "ornament", "Artificial Flowers": "stems",
@@ -86,7 +88,7 @@ def test_every_type_is_a_spec_with_three_styles_from_three_brands() -> None:
 def test_every_style_draws_as_its_own_registered_shape() -> None:
     rows = _rows()
     assert {r.code: r.shape for r in rows if r.shape not in kit.SHAPES} == {}
-    assert {r.shape for r in rows} == set(PARAMS)
+    assert {r.shape for r in rows} == set(PARAMS) | FIXED_SHAPES
     assert {r.shape for r in rows} & {"box", "box_wide"} == set()
 
 
