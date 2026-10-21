@@ -26,7 +26,7 @@ import type_registry  # noqa: E402
 from type_registry import Option, SpecError  # noqa: E402
 
 #: The options only spec types carry, by the spec that declares each: spec key -> options.
-_STORAGE = Option("storage_gb", "storage", "Storage (GB)")
+_STORAGE = Option("storage_gb", "storage_capacity", "Storage (GB)")
 _RAM = Option("ram_gb", "ram", "Memory (GB)")
 _SCREEN = Option("screen_size_in", "screen_size", "Screen size", "INH")
 _LENGTH = Option("length_m", "item_length", "Item length", "MTR")

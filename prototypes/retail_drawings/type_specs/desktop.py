@@ -14,7 +14,7 @@ SPEC = TypeSpec(
     product_type="Desktop Computer",
     owners=ELECTRONICS_OWNERS,
     options=(
-        Option("storage_gb", "storage", "Storage (GB)"),
+        Option("storage_gb", "storage_capacity", "Storage (GB)"),
         Option("ram_gb", "ram", "Memory (GB)"),
     ),
     rows=DESKTOPS,

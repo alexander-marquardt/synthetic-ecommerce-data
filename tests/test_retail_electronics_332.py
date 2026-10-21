@@ -139,7 +139,7 @@ def test_the_apple_devices_have_apple_clashes_across_departments():
     queries = {r.query for r in rows.values()}
     assert "apple" in queries or any("apple" in q for q in queries)
     apple = [
-        r for r in rows.values() if "apple" in r.query and r.target in {"Smartphone", "Tablet"}
+        r for r in rows.values() if "apple" in r.query and r.device_type in {"Smartphone", "Tablet"}
     ]
     assert len(apple) >= 3, "fruit, tree and candle clash with the devices"
 
@@ -156,7 +156,7 @@ def test_the_apple_devices_have_apple_clashes_across_departments():
 )
 def test_each_cross_department_word_has_at_least_three_class_8_decoys(word, target):
     rows = [r for r in decoy_product_words.TABLE
-            if r.target == target and word in r.query and r.cross]  # fmt: skip
+            if r.device_type == target and word in r.query and r.cross]  # fmt: skip
     assert len(rows) >= 3, f"{word}: {len(rows)}"
 
 

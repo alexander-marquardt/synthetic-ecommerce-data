@@ -14,7 +14,7 @@ SPEC = TypeSpec(
     product_type="Laptop",
     owners=ELECTRONICS_OWNERS,
     options=(
-        Option("storage_gb", "storage", "Storage (GB)"),
+        Option("storage_gb", "storage_capacity", "Storage (GB)"),
         Option("ram_gb", "ram", "Memory (GB)"),
         Option("screen_size_in", "screen_size", "Screen size", "INH"),
     ),

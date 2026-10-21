@@ -13,6 +13,6 @@ SPEC = TypeSpec(
     department="Electronics",
     product_type="E-reader",
     owners=ELECTRONICS_OWNERS,
-    options=(Option("storage_gb", "storage", "Storage (GB)"),),
+    options=(Option("storage_gb", "storage_capacity", "Storage (GB)"),),
     rows=E_READERS,
 )
