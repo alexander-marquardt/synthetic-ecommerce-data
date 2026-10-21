@@ -321,3 +321,13 @@ def test_the_allow_list_refuses_a_dash_or_texture_it_does_not_declare(planted):
     _, _, clean = _sample()
     assert svg_problems(clean) == []
     assert svg_problems(clean.replace(b"</svg>", planted.encode() + b"</svg>"))
+
+
+def test_the_readme_states_the_capacity_the_code_computes():
+    """The README's Brands bullet carries the figures, so a changed space cannot leave it stale."""
+    import pathlib
+
+    readme = (pathlib.Path(__file__).resolve().parent.parent / "README.md").read_text()
+    assert f"{dist.capacity()} distinguishable styles" in readme
+    assert f"45 x {dist.capacity()}" in readme
+    assert f"the {dist.BRANDS_NEEDED} brands" in readme
