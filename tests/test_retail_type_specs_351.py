@@ -634,3 +634,19 @@ def test_the_scaffold_refuses_a_code_that_is_malformed_or_in_use(
     )  # fmt: skip
     assert run.returncode == 2 and "new_type:" in run.stdout, (why, run.stdout + run.stderr)
     assert not list(out.iterdir()), "the scaffold wrote a file for a refused code"
+
+
+@pytest.mark.parametrize(
+    ("key", "department", "ptype"),
+    [("chips", "Food & Drink", "Chips"), ("bed", "Home", "Bed"),
+     ("bomber_jacket", "Clothing", "Bomber Jacket")],
+)
+def test_a_chips_bed_or_bomber_row_outside_its_spec_is_refused(
+    key: str, department: str, ptype: str
+) -> None:
+    """#645: the three thin leaves are specs, so a new class row of the type is stray."""
+    templates = scale.templates(baseline=False)
+    fake = {**templates[0], "product_id": "PLT-ZZSTRAY", "department": [department],
+            "product_type": ptype}  # fmt: skip
+    stray, _ = _outside_spec([*templates, fake])
+    assert stray.get(key) == ["PLT-ZZSTRAY"], stray.get(key)
