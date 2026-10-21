@@ -189,7 +189,12 @@ The planted cases are:
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
-`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+`pizza` (a round pie on a card under film), in `kit_grocery.py`, and `chocolate_box`
+(a flat, wide, lidded selection box with a ribbon across the lid, in
+`kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
+scale still draws a 150g box smaller than a 400g one;
+`tests/test_chocolate_box_drawn_609.py`, the before and after is
+`docs/images/chocolate-box-drawn-609.svg`). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
