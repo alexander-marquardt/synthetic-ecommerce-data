@@ -10,7 +10,9 @@ file and nothing else: no per-issue test restates what is checked here.
 The clauses, for each row:
 
 ``id``
-    The product id of a row is unique across both tables.
+    The product id of a row is unique across both tables. The build refuses a second row with an
+    id (``type_registry.SpecError``) before a document is made, so this module holds no clause for
+    it; ``tests/test_feature_decoys_513.py`` plants the clash to show the file is refused.
 ``title``
     The title carries a word of the query (class 7, whose word is only in the text and the
     ingredients, holds it there instead).
@@ -64,5 +66,35 @@ def _rows() -> list[tuple[str, str, Any, bool]]:
 
 
 def violations(templates: list[dict[str, Any]] | None = None) -> list[str]:
-    """Red commit: the contract finds nothing (the implementation is the next commit)."""
-    return []
+    """One note per breach of the contract, over every row of both decoy tables."""
+    import image_release
+    import scale
+
+    docs = {d["product_id"]: d for d in templates or scale.templates(baseline=False)}
+    found: list[str] = []
+    for pid, table, row, exempt in _rows():
+        doc = docs.get(pid)
+        if doc is None:
+            found.append(f"{pid}: no document is built for the row")
+            continue
+        title = row.title
+        query = row.query
+        if table == "decoy_rows" and row.cls == 7:
+            text = f"{row.description} {' '.join(row.ingredients)}"
+            if not set(tokens(query)) & set(tokens(text)):
+                found.append(f"{pid}: the query word {query!r} is in no description or ingredient")
+        elif not set(tokens(query)) & set(tokens(title)):
+            found.append(f"{pid}: the title {title!r} lacks a word of the query {query!r}")
+        if not exempt and matches(query, doc):
+            found.append(f"{pid}: its fields say it is {query!r}, so it is no decoy of it")
+        if table == "word":
+            head, _, name = row.policy.partition(":")
+            if head not in POLICIES:
+                found.append(f"{pid}: the policy {row.policy!r} is not one of {POLICIES}")
+            if head == "special" and not (name.strip() and row.sibling):
+                found.append(f"{pid}: a special policy names itself and a sibling query")
+        try:
+            image_release.render(doc, doc["skus"][0])
+        except Exception as error:  # noqa: BLE001 -- any failure to draw is the finding
+            found.append(f"{pid}: the drawing does not render ({type(error).__name__}: {error})")
+    return found
