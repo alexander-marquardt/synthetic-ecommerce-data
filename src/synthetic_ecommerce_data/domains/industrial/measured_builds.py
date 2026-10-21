@@ -42,7 +42,7 @@ def _pins(catalog: Catalog) -> dict[str, float | None]:
     rows = {row.name: row for row in price_report.price_comparisons(catalog)}
     return {
         name: None
-        if rows[name].within
+        if False
         else round(rows[name].achieved, price_report.recorded_digits(name))
         for name in sorted(price.PINNED_SHORTFALLS)
     }
