@@ -184,10 +184,19 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the ceiling is raised above the list",
         "type_registry.py",
-        "LEGACY_CEILING = 306",
-        "LEGACY_CEILING = 406",
+        "LEGACY_CEILING = 299",
+        "LEGACY_CEILING = 399",
         "tests/test_retail_type_specs_351.py -k registered_through_a_spec_or_the_legacy_list",
         "the ceiling is the exact length of the list",
+        "prototypes/retail_drawings",
+    ),
+    (
+        "the shared Sports module lists the rows of every department",
+        "sports_rows.py",
+        "if spec.department == DEPARTMENT",
+        "if True",
+        "tests/test_retail_legacy_move_455.py -k shared_sports_module",
+        "the shared Sports module lists the department's rows and no other",
         "prototypes/retail_drawings",
     ),
     (
