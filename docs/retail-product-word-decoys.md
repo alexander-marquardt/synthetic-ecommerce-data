@@ -7,7 +7,10 @@ color, drawing). A title names at most the misleading color ("Sofa Cushion, Blue
 cream cushion piped in blue; "Dress for Success, Red Laces" are black shoes with red laces) and
 the drawing renders that detail. The rows are generated from
 `prototypes/retail_drawings/decoy_product_words.py` and pinned by
-`tests/test_retail_product_word_decoys_326.py`.
+`tests/test_retail_product_word_decoys_326.py`. A new decoy set is one file,
+`feature_decoys/<topic>.py`; `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`)
+checks every row of it: the id is unique, the title carries a word of the query, a structured
+field contradicts it, the policy exists, and the drawing renders.
 
 The fixing policy is the one that reads the structured fields: `category` (the noun's own node,
 for example Dresses, drops the row), `department` (a cross-department row sits in another root,

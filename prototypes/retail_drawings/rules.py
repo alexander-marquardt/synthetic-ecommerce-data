@@ -18,6 +18,7 @@ shape has, and skips (does not count) a document it does not apply to.
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 from collections import defaultdict
@@ -448,9 +449,16 @@ RULES: tuple[Rule, ...] = (
     Rule(
         sentence_case,
         "#499",
-        {"retail": 250, "retail_flat": 5000, "golden": 5000, "golden_flat": 8000},
+        {
+            "retail": 250,
+            "retail_flat": 5000,
+            "industrial": 400,
+            "industrial_flat": 800,
+            "golden": 5000,
+            "golden_flat": 8000,
+        },
     ),
-    Rule(one_key_per_concept, "#497", {"retail": 250, "golden": 5000}),
+    Rule(one_key_per_concept, "#497", {"retail": 250, "industrial": 400, "golden": 5000}),
     Rule(orange_shoes, "#420", {"templates": 9}),
     Rule(two_word_seeds, "#460, #461", {"templates": 40}),
 )  # fmt: skip
@@ -463,6 +471,17 @@ RULES: tuple[Rule, ...] = (
 
 def _golden(name: str) -> list[Doc]:
     return [json.loads(line) for line in (GOLDEN / name).read_text("utf-8").splitlines()]
+
+
+@functools.cache
+def _industrial() -> tuple[list[Doc], list[Doc]]:
+    """The small industrial build, nested and flat, as the exporter writes it."""
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.core.config import SMALL
+    from synthetic_ecommerce_data.domains.industrial.generate import generate
+
+    catalog = generate(SMALL)
+    return list(emit.iter_nested(catalog)), list(emit.iter_flat(catalog))
 
 
 def _templates() -> list[Doc]:
@@ -487,6 +506,8 @@ ROWSETS: dict[str, Callable[[], list[Doc]]] = {
     "templates": _templates,
     "retail": _retail,
     "retail_flat": _retail_flat,
+    "industrial": lambda: _industrial()[0],
+    "industrial_flat": lambda: _industrial()[1],
     "golden": lambda: _golden("nested.jsonl"),
     "golden_flat": lambda: _golden("flat.jsonl"),
 }
@@ -517,23 +538,3 @@ def run_all(rowsets: Iterable[str] | None = None) -> dict[tuple[str, str], Repor
                 loaded[name] = ROWSETS[name]()
             out[(rule.name, name)] = rule.check(loaded[name])
     return out
-
-
-# Red commit: every rule finds nothing (replaced by the implementation in the next commit).
-def _nothing(rule: Callable[[list[Doc]], Report]) -> Callable[[list[Doc]], Report]:
-    def check(docs: list[Doc]) -> Report:
-        return 0, []
-
-    check.__name__ = rule.__name__
-    check.__doc__ = rule.__doc__
-    return check
-
-
-color_in_range_name = _nothing(color_in_range_name)
-blue_and_white = _nothing(blue_and_white)
-dress_neckline_by_length = _nothing(dress_neckline_by_length)
-sentence_case = _nothing(sentence_case)
-one_key_per_concept = _nothing(one_key_per_concept)
-orange_shoes = _nothing(orange_shoes)
-two_word_seeds = _nothing(two_word_seeds)
-RULES = tuple(Rule(_nothing(r.check), r.issue, r.minimum) for r in RULES)

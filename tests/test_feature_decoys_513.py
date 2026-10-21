@@ -231,3 +231,14 @@ def test_a_planted_decoy_file_that_breaks_a_clause_fails_the_contract(tmp_path, 
     assert planted != PROBE, old
     found = _contract(tmp_path, planted)
     assert any(note in n for n in found), found
+
+
+def test_a_decoy_file_whose_product_id_is_a_row_of_the_other_table_is_refused(tmp_path):
+    """``PLT-D`` + code ``Y901`` is the id of the word row ``DY901``: the build refuses the pair."""
+    extra = tmp_path / "extra"
+    extra.mkdir()
+    (extra / "zz_probe.py").write_text(PROBE.replace('"ZZ01"', '"Y901"'), encoding="utf-8")
+    code = CONTRACT.format(retail=str(RETAIL), extra=str(extra))
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert done.returncode != 0
+    assert "PLT-DY901 is built twice" in done.stderr
