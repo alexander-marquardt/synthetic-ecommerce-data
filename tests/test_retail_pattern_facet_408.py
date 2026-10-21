@@ -145,9 +145,9 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
     and 160 SKUs of the gen#509 plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) make
     11540 and 103191; the range names dealt to one brand each (gen#623) let ten more grocery
-    styles keep a title of their own and drop two derived ones, making NT and NS. A new style
-    would raise both. This test pins NT templates and NS template SKUs: the PR that lifts the
-    freeze must move them."""
+    styles keep a title of their own and drop two derived ones, making 11550 and
+    103193. A new style would raise both. This test pins 11550 templates and 103193 template
+    SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == NT
-    assert sum(t["sku_count"] for t in tpls) == NS
+    assert len(tpls) == 11550
+    assert sum(t["sku_count"] for t in tpls) == 103193
