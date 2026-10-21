@@ -65,6 +65,11 @@ def _rows() -> list[tuple[str, str, Any, bool]]:
     return out
 
 
+def range_violations(specs: dict[str, Any] | None = None) -> list[str]:
+    """One note per breach of the ``range`` clause by a class-6 toy decoy (stub, gen#538)."""
+    return []
+
+
 def violations(templates: list[dict[str, Any]] | None = None) -> list[str]:
     """One note per breach of the contract, over every row of both decoy tables."""
     import image_release

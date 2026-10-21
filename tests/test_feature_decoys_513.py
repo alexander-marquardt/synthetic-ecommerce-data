@@ -15,7 +15,10 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -230,6 +233,59 @@ def test_a_planted_decoy_file_that_breaks_a_clause_fails_the_contract(tmp_path, 
     planted = PROBE.replace(old, new)
     assert planted != PROBE, old
     found = _contract(tmp_path, planted)
+    assert any(note in n for n in found), found
+
+
+def _toy_ranges(plant: Callable[[list[Any]], list[Any]] | None = None) -> list[str]:
+    """The notes of ``decoy_contract.range_violations`` over the shipped specs, with the class-6
+    decoys of the kite spec passed through ``plant`` (if any) first."""
+    sys.path.insert(0, str(RETAIL))
+    try:
+        import decoy_contract
+        import type_registry
+
+        specs = dict(type_registry.specs())
+        if plant is not None:
+            kite = specs["kite"]
+            sixes = [d for d in kite.decoys if d.cls == 6]
+            rest = [d for d in kite.decoys if d.cls != 6]
+            specs["kite"] = replace(kite, decoys=tuple(rest + plant(sixes)))
+        return decoy_contract.range_violations(specs)
+    finally:
+        sys.path.remove(str(RETAIL))
+
+
+def _retitle(sixes: list[Any]) -> list[Any]:
+    return [replace(sixes[0], row=replace(sixes[0].row, title="Plain Thing")), *sixes[1:]]
+
+
+def _leaf(sixes: list[Any]) -> list[Any]:
+    row = sixes[0].row
+    leaf = sixes[0].query.title()
+    return [replace(sixes[0], row=replace(row, path=(*row.path[:-1], leaf))), *sixes[1:]]
+
+
+def _repeat(sixes: list[Any]) -> list[Any]:
+    return [sixes[0], *(replace(d, query=sixes[0].query) for d in sixes[1:])]
+
+
+def test_every_toy_range_decoy_meets_the_range_clause():
+    """Each class-6 toy decoy is named for a place with another toy's words (gen#446): its title
+    holds every word of its query, its category leaf none, and each toy has two distinct ones."""
+    assert _toy_ranges() == []
+
+
+@pytest.mark.parametrize(
+    ("plant", "note"),
+    [
+        pytest.param(_retitle, "lacks a word of its query", id="range_title"),
+        pytest.param(_leaf, "its category leaf", id="range_leaf"),
+        pytest.param(_repeat, "is the query of another", id="range_unique"),
+        pytest.param(lambda sixes: sixes[:1], "fewer than 2", id="range_count"),
+    ],
+)
+def test_a_planted_toy_range_decoy_that_breaks_the_range_clause_fails_it(plant, note):
+    found = _toy_ranges(plant)
     assert any(note in n for n in found), found
 
 
