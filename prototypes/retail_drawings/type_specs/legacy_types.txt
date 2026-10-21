@@ -314,13 +314,6 @@ Lingerie & Nightwear|Shapewear
 Lingerie & Nightwear|Slip
 Lingerie & Nightwear|Tights
 Lingerie & Nightwear|Vest
-Sports & Outdoors|Camping Chair
-Sports & Outdoors|Dumbbell
-Sports & Outdoors|Foam Roller
-Sports & Outdoors|Kettlebell
-Sports & Outdoors|Sleeping Bag
-Sports & Outdoors|Tent
-Sports & Outdoors|Yoga Mat
 Toys|Arts and Crafts Kit
 Toys|Bath Toy
 Toys|Board Game
