@@ -19,6 +19,7 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import plus_sizes  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
 import variants  # noqa: E402
@@ -129,3 +130,55 @@ def test_the_department_rates_give_the_department_shares(templates):
     off = {d: (round(want[d], 3), round(got.get(d, 0), 3)) for d in want
            if abs(want[d] - got.get(d, 0)) > 0.03}
     assert not off, f"department shares drift from their targets (target, got): {off}"
+
+
+def test_a_repricing_keeps_the_sku_id():
+    """Price and stock are what a SKU has, not what it is: a repriced SKU is the same document."""
+    sku = {"size": "M", "color": "Blue", "price": 10.0, "in_stock": True}
+    again = {**sku, "price": 99.0, "in_stock": False}
+    other = {**sku, "size": "L"}
+    assert stable_ids.sku_id("BRD-X", sku) == stable_ids.sku_id("BRD-X", again)
+    assert stable_ids.sku_id("BRD-X", sku) != stable_ids.sku_id("BRD-X", other)
+    assert stable_ids.sku_id("BRD-X", sku).startswith("BRD-X-")
+
+
+def test_a_size_run_extension_raises_when_two_sizes_would_share_a_sku():
+    skus = [
+        {"sku": "X-3-001", "color": "Red", "size_uk": "16", "size_eu": "44", "size_us": "12",
+         "price": 20.0, "in_stock": True},
+        {"sku": "X-3-002", "color": "Red", "size_uk": "18", "size_eu": "46", "size_us": "14",
+         "price": 20.0, "in_stock": True},
+    ]
+    rec = {"product_id": "X-3", "category_path": ["Womens", "Jeans"], "sku_count": 2,
+           "skus": skus, "size_options": {"size_uk": ["16", "18"]}}
+    extended = plus_sizes.extend(rec)
+    assert len({s["sku"] for s in extended["skus"]}) == len(extended["skus"])
+    # A new size's id names its axes, not its place: the same whatever rows come before it.
+    added = extended["skus"][len(skus):]
+    assert added
+    assert all(s["sku"] == stable_ids.sku_id("X-3", s) for s in added)
+    # An earlier row already holds the id the extension would give a new size: two documents.
+    taken = {**skus[0], "sku": extended["skus"][-1]["sku"], "size_uk": "14"}
+    clash = {**rec, "skus": [*skus, taken]}
+    with pytest.raises(stable_ids.IdCollision):
+        plus_sizes.extend(clash)
+
+
+def test_a_derive_that_would_merge_two_skus_is_refused_and_drawn_again(monkeypatch, templates):
+    """A refused draw is redrawn from another signature: no id is bumped, no build fails."""
+    real, refused = scale.derive, []
+
+    def flaky(*args, **kwargs):
+        if not refused:
+            refused.append(1)
+            raise stable_ids.IdCollision("planted")
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(scale, "derive", flaky)
+    total = sum(t["sku_count"] for t in templates) + 400
+    try:
+        built = _build(monkeypatch, templates, total)
+    except stable_ids.IdCollision as err:
+        raise AssertionError(f"a refused draw failed the build: {err}") from err
+    assert refused
+    assert any(r["product_id"] in built.template_of for r in built.records)

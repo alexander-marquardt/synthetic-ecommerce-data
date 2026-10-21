@@ -1,0 +1,31 @@
+"""Mutants on the changed lines of gen#626: each fix reverted alone must fail a test."""
+
+TESTS = ["tests/test_retail_stable_ids_626.py"]
+
+V = "prototypes/retail_drawings/variants.py"
+P = "prototypes/retail_drawings/plus_sizes.py"
+S = "prototypes/retail_drawings/scale.py"
+I = "prototypes/retail_drawings/stable_ids.py"
+
+MUTANTS = [
+    (V, 'rows = [{"sku": sku_id(product_id, s), **s} for s in skus]',
+     'rows = [{"sku": f"{product_id}-{n:03d}", **s} for n, s in enumerate(skus, 1)]',
+     "variants-sku-by-position"),
+    (V, "    check_skus(product_id, rows)\n", "", "variants-no-collision-check"),
+    (P, 'rows = [*skus, *({"sku": sku_id(pid, s), **s} for s in added)]',
+     'rows = [*skus, *({"sku": f"{pid}-{n:03d}", **s} for n, s in enumerate(added, len(skus) + 1))]',
+     "plus-sizes-sku-by-position"),
+    (P, "    check_skus(pid, rows)\n", "", "plus-sizes-no-collision-check"),
+    (S, 'pid = style_id(tid.split("-")[0], seed, tid, sig)',
+     'pid = style_id(tid.split("-")[0], seed, tid, sig, len(used))',
+     "style-id-by-draw-position"),
+    (S, "    stable_ids.check_unique(records)\n", "", "build-no-unique-check"),
+    (S, "        except stable_ids.IdCollision:\n            continue",
+     "        except stable_ids.IdCollision:\n            raise",
+     "refused-draw-fails-the-build"),
+    (S, 'random.Random(number(seed, "gaps", r["product_id"]))',
+     'random.Random(number(seed, "gaps", r["product_id"]) + len(base))',
+     "clock-seed-by-template-count"),
+    (I, "digest(axes(sku))[:SKU_HEX]", "digest(sku)[:SKU_HEX]", "sku-id-hashes-the-price"),
+    (S, '"Clothing": 0.01227,', '"Clothing": 0.02227,', "department-rate-drift"),
+]
