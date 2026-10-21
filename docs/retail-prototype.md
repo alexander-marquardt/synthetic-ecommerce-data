@@ -99,7 +99,11 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
+and nested under `Trainers` it would make a leaf a parent. The men's brogues and loafers sit
+under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
+has one node to point at; product ids, titles and drawings do not move. The node is chosen by
+gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
+`Womens > Shoes` until the women's types it groups are named. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -184,8 +188,12 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
-`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
+`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+one drawing per style, except the pizza: its `flavor` (the toppings) and
+`pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
+style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
+the before and after is `docs/images/pizza-drawn-604.svg`). A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
 name and a band of the style's flavor colors (`kit._panel` reads them from the
 drawing's `line` and `chips` params). The range-name text tells siblings of a family
@@ -307,7 +315,7 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
-The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+The pre-merge run collects `prototypes/retail_drawings` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
 drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
