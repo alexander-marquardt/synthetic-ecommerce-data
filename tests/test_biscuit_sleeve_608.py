@@ -1,12 +1,13 @@
 """Biscuits are drawn as a wrapped sleeve (gen#608), not as the kit's upright cereal-style carton.
 
 The BIS and ORB families draw the ``sleeve`` pack shape: a flow-wrapped packet lying on its
-side, wider than tall, with crimped ends. The range name and the flavour-color band (the
+side, wider than tall, with crimped ends. The range name and the flavor-color band (the
 brand band) stay, and so does the pack's product word.
 """
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -62,9 +63,13 @@ def test_the_sleeve_is_wider_than_tall_and_not_the_carton() -> None:
 def test_the_sleeve_has_crimped_ends() -> None:
     svg = render()
     assert svg.count('class="crimp"') == 2
+    paths = re.findall(r'<path d="([^"]+)"[^>]*class="crimp"', svg)
+    left, right = ([float(x) for x in re.findall(r"[ML](-?[\d.]+),", d)] for d in paths)
+    assert min(left) < 64  # the teeth reach past the body edge at x=72
+    assert max(right) > 336  # and past the body edge at x=328
 
 
-def test_the_pack_label_range_name_and_flavour_band_stay() -> None:
+def test_the_pack_label_range_name_and_flavor_band_stay() -> None:
     svg = render(line="Fresh Hearth", chips="#c8312e,#8c3b2a")
     assert "Biscuits" in svg and "Fresh Hearth" in svg
     assert "#c8312e" in svg and "#8c3b2a" in svg
@@ -75,5 +80,5 @@ def test_the_built_style_draws_a_sleeve_with_the_label(code: str) -> None:
     prefix = f"GRC-{code}-"
     rec = next(r for r in grocery.build(grocery.TARGET) if r["product_id"].startswith(prefix))
     assert rec["drawing"]["shape"] == "sleeve"
-    assert rec["drawing"]["label"]  # the pack's product word, drawn on the label panel
+    assert rec["drawing"]["label"] == {"BIS": "Biscuits", "ORB": "Shortbread"}[code]  # the pack's product word, drawn on the label panel
     assert export.image_id(rec, rec["skus"][0])
