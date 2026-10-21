@@ -1,0 +1,13 @@
+TESTS = ["tests/test_catalog_generate.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "--tb=line"]
+T = "tests/test_catalog_generate.py"
+MUTANTS = [
+    # The reviewer's four survivors of the catalog gate (generator#573 verdict, finding 1).
+    (T, "        if segment in found\n", "        if segment in set()\n", "the fragment gate can never fail"),
+    (T, "    published = set().union(*(_published_values(line) for line in lines))\n", "    published = set()\n", "no value is ever published"),
+    (T, "found = _fragment_levels({s for line in lines for s in line.category}, published)", "found = _fragment_levels({line.category[0] for line in lines}, published)", "only the root level examined"),
+    (T, "set().union(*(_published_values(line) for line in lines))", "set().union(_published_values(lines[0]))", "only one line's values published"),
+    # The exact-match gate's wiring, moved into _exact_offenders by the same change.
+    (T, "        for segment in _exact_value_levels(line.category, _published_values(line))\n", "        for segment in _exact_value_levels(line.category, set())\n", "exact gate sees no published value"),
+    (T, "    return {segment for segment in category if segment in values}", "    return {segment for segment in category[:1] if segment in values}", "exact gate looks at the root only"),
+]
