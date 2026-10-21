@@ -108,7 +108,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the marble run drops its class-7 brand decoy",
         "type_specs/marble_run.py",
-        '        toy_decoy(7, "play kitchen", "generic", _ROWS[3], 27, "Play Kitchen Co Marble Run",\n                  "A marble run from Play Kitchen Co; the name is the maker\'s, not a "\n                  "kitchen.", brand=_BRAND, color=BLUE),\n',
+        '        toy_decoy(7, "play kitchen", "generic", _ROWS[3], 27, "Pennyfold Play Kitchen Marble Run",\n                  "A marble run from Pennyfold; the play kitchen is only in the title, "\n                  "not the box.", brand=_BRAND, color=BLUE),\n',
         "",
         f'{_T} -k "carries_its_pinned and marble_run"',
         "a toy spec carries a class 7 decoy",
@@ -171,7 +171,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a toy decoy brand has no house style",
         "house_styles.py",
-        '    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),\n',
+        '    "Dewhatch":             H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),\n',
         "",
         "tests/test_retail_scale.py -k every_brand_in_the_build_has_a_house_style",
         "every brand in the build, a decoy's included, has a house style",

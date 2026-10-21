@@ -71,14 +71,14 @@ _ROWS = (
     _game("CGMPA2", "Dare or Doodle Party Card Game", PIPWICK, "party", 3, 8, 25, "10+ years",
           "Draw it, mime it or hum it before the card runs out. A party card game for 3 to "
           "8 players in about 25 minutes. For ages 10 and up.", 12.0, 8.0),
-    _game("CGMST1", "Saltmarsh Gambit Strategy Card Game", PUDDLE, "strategy", 2, 4, 45,
+    _game("CGMST1", "Quayside Gambit Strategy Card Game", PUDDLE, "strategy", 2, 4, 45,
           "12+ years", "Build a trade route card by card and block your rivals. A strategy "
           "card game for 2 to 4 players in about 45 minutes. For ages 12 and up.", 16.0, 11.0),
     _game("CGMST2", "Lantern Court Strategy Card Game", FERNBY, "strategy", 2, 5, 60,
           "14+ years", "Draft, bluff and trade favours at court. A strategy card game for 2 "
           "to 5 players in about an hour. For ages 14 and up.", 18.0, 12.0),
 )  # fmt: skip
-_BRAND = "Water Gun Hill"
+_BRAND = "Dewhatch"
 
 SPEC = TypeSpec(
     key="card_game",
@@ -95,9 +95,9 @@ SPEC = TypeSpec(
         toy_decoy(4, "foil card game", MATERIAL_CLAIM, _ROWS[2], 22, "Foil-Look Card Game",
                   "A card game in a box printed to shine like foil; there is no foil on it.",
                   color=YELLOW),
-        toy_decoy(7, "water gun", "generic", _ROWS[3], 23, "Water Gun Hill Card Game",
-                  "A party card game from Water Gun Hill; the name is the maker's, not a toy "
-                  "that squirts.", brand=_BRAND, color=BLUE),
+        toy_decoy(7, "water gun", "generic", _ROWS[3], 23, "Dewhatch Water Gun Card Game",
+                  "A party card game from Dewhatch; the water gun is only in the title, "
+                  "nothing in the box squirts.", brand=_BRAND, color=BLUE),
     ),
     owners=((_BRAND, "own"),),
 )  # fmt: skip

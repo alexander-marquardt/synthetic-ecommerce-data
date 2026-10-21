@@ -30,7 +30,7 @@ COLLECTIONS = frozenset({"Christmas", "Halloween", "Advent", "Summer", "Autumn",
 #: Product types that carry a character range as their ``line``.
 CHARACTER_TYPES = frozenset({"Cake", "Sweets", "Pyjamas", "Soft Toy"})
 #: Never a licensed character: the ranges are invented.
-RANGES = frozenset({"Moonmoth Rangers", "Rumblesaur Ridge", "Bramblewood Owls",
+RANGES = frozenset({"Moonmoth Rangers", "Rumblesaur Ridge", "Hazelwren Owls",
                     "Driftwhistle Bay"})  # fmt: skip
 
 

@@ -205,41 +205,42 @@ SEASONS = (
          (WHITE,), collections=(WEDDING,), colorless=True, label="Cake"),
 )
 
-#: Character cakes, sweets, pyjamas and soft toys: the invented ranges as a ``line``.
+#: Character cakes, sweets, pyjamas and soft toys: the invented ranges as a ``line``, each sold by
+#: the one brand that owns the range (gen#623).
 _PJ_DESC = "A long sleeve top and bottoms in soft cotton, with the {line} mark all over."
 _PJ_FOR = {  # the ground, printed with the range's mark in a pale ink
     "Moonmoth Rangers": cw("Navy", "#26365c", "print", "#f2d14b"),
     "Rumblesaur Ridge": cw("Green", "#5f9a4a", "print", "#f4f1ea"),
-    "Bramblewood Owls": cw("Pink", "#f2a1b8", "print", "#7a4a5a"),
+    "Hazelwren Owls": cw("Pink", "#f2a1b8", "print", "#7a4a5a"),
     "Driftwhistle Bay": cw("Blue", "#3f6fb5", "print", "#f4f1ea"),
 }
 _PLUSH = {"Moonmoth Rangers": ("star", "Star Plush", "A soft, squashy star, the Moonmoth Rangers' mascot."),
           "Rumblesaur Ridge": ("dinosaur", "Dinosaur Soft Toy", "A floppy long necked dinosaur, the Rumblesaur Ridge favorite."),
-          "Bramblewood Owls": ("bird", "Owl Soft Toy", "A round little owl with felt wings, from the Bramblewood Owls."),
+          "Hazelwren Owls": ("bird", "Owl Soft Toy", "A round little owl with felt wings, from the Hazelwren Owls."),
           "Driftwhistle Bay": ("whale", "Whale Soft Toy", "A long squashy whale, the Driftwhistle Bay mascot.")}  # fmt: skip
 
 CHARACTERS = (
-    *(SRow(f"CHP{i}", f"{name} Kids' Pyjamas", "Little Fernby", _L, _PJ_K, "Pyjamas", 14.0, "pyjamas",
+    *(SRow(f"CHP{i}", f"{name} Kids' Pyjamas", RANGES[name][0], _L, _PJ_K, "Pyjamas", 14.0, "pyjamas",
            _PJ_DESC.format(line=name), (_PJ_FOR[name],), (_mat("Cotton")[0], _line(name)), _sz(14.0, _KID_AGES),
            audience="kids", motif_print=_mark(name),
            collections=(XMAS,) if name == "Moonmoth Rangers" else ())
       for i, name in enumerate(RANGES)),
-    *(SRow(f"CHT{i}", f"{name} {title}", "Little Fernby", "Toys", _SOFT, "Soft Toy", 12.0, shape, desc,
+    *(SRow(f"CHT{i}", f"{name} {title}", RANGES[name][0], "Toys", _SOFT, "Soft Toy", 12.0, shape, desc,
            (cw("Grey", "#9a9ca0"),), (_mat("Plush")[0], _line(name)), audience="kids")
       for i, (name, (shape, title, desc)) in enumerate(_PLUSH.items())),
-    SRow("CHKMOO", "Moonmoth Rangers Birthday Cake, 900g", "Hearth & Table", _FOOD, _CAKES, "Cake", 11.0, "cake",
+    SRow("CHKMOO", "Moonmoth Rangers Birthday Cake, 900g", RANGES["Moonmoth Rangers"][0], _FOOD, _CAKES, "Cake", 11.0, "cake",
          "A two tier vanilla sponge with blue buttercream, for a Moonmoth Rangers birthday.",
          (NAVY,), (_line("Moonmoth Rangers"),), colorless=True, label="Cake"),
-    SRow("CHKRUM", "Rumblesaur Ridge Dinosaur Cake, 900g", "Hearth & Table", _FOOD, _CAKES, "Cake", 11.0, "cake",
+    SRow("CHKRUM", "Rumblesaur Ridge Dinosaur Cake, 900g", RANGES["Rumblesaur Ridge"][0], _FOOD, _CAKES, "Cake", 11.0, "cake",
          "A two tier chocolate sponge with green buttercream, for a Rumblesaur Ridge birthday.",
          (GREEN,), (_line("Rumblesaur Ridge"),), colorless=True, label="Cake"),
-    SRow("CHKDRI", "Driftwhistle Bay Cupcakes", "Hearth & Table", _FOOD, _CAKES, "Cake", 5.0, "cupcake",
+    SRow("CHKDRI", "Driftwhistle Bay Cupcakes", RANGES["Driftwhistle Bay"][0], _FOOD, _CAKES, "Cake", 5.0, "cupcake",
          "Six vanilla cupcakes with swirled blue icing and a cherry on top, from Driftwhistle Bay.",
          (cw("Blue", "#3f6fb5"),), (_line("Driftwhistle Bay"),), colorless=True, label="Cupcakes"),
-    SRow("CHSOWL", "Bramblewood Owls Fruit Sweets, 180g", "Pantry Mill", _FOOD, _SWEETS, "Sweets", 2.0, "bag",
-         "Soft fruit chews in the shape of the Bramblewood Owls.",
-         (PINK,), (_line("Bramblewood Owls"),), colorless=True, label="Sweets"),
-    SRow("CHSMOO", "Moonmoth Rangers Star Sweets, 180g", "Pantry Mill", _FOOD, _SWEETS, "Sweets", 2.0, "bag",
+    SRow("CHSOWL", "Hazelwren Owls Fruit Sweets, 180g", RANGES["Hazelwren Owls"][0], _FOOD, _SWEETS, "Sweets", 2.0, "bag",
+         "Soft fruit chews in the shape of the Hazelwren Owls.",
+         (PINK,), (_line("Hazelwren Owls"),), colorless=True, label="Sweets"),
+    SRow("CHSMOO", "Moonmoth Rangers Star Sweets, 180g", RANGES["Moonmoth Rangers"][0], _FOOD, _SWEETS, "Sweets", 2.0, "bag",
          "Fizzy star shaped sweets from the Moonmoth Rangers.",
          (NAVY,), (_line("Moonmoth Rangers"),), colorless=True, label="Sweets"),
 )

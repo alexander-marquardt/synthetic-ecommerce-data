@@ -348,7 +348,8 @@ def _chair(code: str, title: str, brand: str, mat: str, style: str, legs: str, p
            dims: tuple[int, int, int], colors: tuple[Color, ...], text: str) -> Row:
     return Row(
         code, title, brand, "Home", ARMCHAIRS, "Armchair", price, "armchair", text, colors,
-        (("material", "Material", mat), ("style", "Style", style.title()),
+        (("line", "Line", title.split()[0]), ("material", "Material", mat),
+         ("style", "Style", style.title()),
          ("leg_finish", "Leg finish", LEGS[legs]), *_dims(*dims)),
         params=(("style", style), ("legs", legs)),
     )  # fmt: skip
@@ -380,7 +381,8 @@ def _stool(code: str, title: str, brand: str, mat: str, form: str, storage: bool
            price: float, dims: tuple[int, int, int], colors: tuple[Color, ...], text: str) -> Row:
     return Row(
         code, title, brand, "Home", FOOTSTOOLS, "Footstool", price, "footstool", text, colors,
-        (("material", "Material", mat), ("shape", "Shape", form.title()),
+        (("line", "Line", title.split()[0]), ("material", "Material", mat),
+         ("shape", "Shape", form.title()),
          ("storage_feature", "Storage feature", "Lift-Top" if storage else "None"),
          ("leg_finish", "Leg finish", LEGS[legs]), *_dims(*dims)),
         params=(("form", form), ("storage", _yes(storage)), ("legs", legs)),

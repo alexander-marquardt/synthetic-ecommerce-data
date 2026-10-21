@@ -65,7 +65,7 @@ _ROWS = (
          "A 2 litre backpack tank and a nozzle on a hose for a 12 m range. For ages 7 "
          "and up.", 18.0),
 )  # fmt: skip
-_BRAND = "Dolls House Row"
+_BRAND = "Hobbleby"
 
 SPEC = TypeSpec(
     key="water_gun",
@@ -82,9 +82,9 @@ SPEC = TypeSpec(
         toy_decoy(4, "neon water gun", MATERIAL_CLAIM, _ROWS[2], 30, "Neon-Look Water Gun",
                   "A blaster in a plain finish printed to look neon; it does not glow.",
                   color=YELLOW),
-        toy_decoy(7, "dolls house", "generic", _ROWS[3], 31, "Dolls House Row Water Gun",
-                  "A backpack tank gun from Dolls House Row; the name is the maker's, not a "
-                  "house.", brand=_BRAND, color=BLUE),
+        toy_decoy(7, "dolls house", "generic", _ROWS[3], 31, "Hobbleby Dolls House Water Gun",
+                  "A backpack tank gun from Hobbleby; the dolls house is only in the title, "
+                  "not the box.", brand=_BRAND, color=BLUE),
     ),
     owners=((_BRAND, "own"),),
 )  # fmt: skip

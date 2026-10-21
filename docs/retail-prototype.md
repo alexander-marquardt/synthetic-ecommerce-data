@@ -650,7 +650,12 @@ The ten beauty depth types (mascara to sun cream, gen#214) are specs under `type
 Lingerie and swimwear that name their cups in the plural (`cups_plural_rows.py` and `swimwear_rows.py`, gen#508): thirteen bras (bralettes, sports bras, T-shirt bras) titled "... with Removable Cups", "Padded Cups" or "Moulded Cups", and four swimsuits and four bikini tops "with Padded Cups", so a bare *cups* with the policy off meets lingerie as well as drinkware (class 15). Each title is true to its record (`padding` for a bra, `padded` Yes for swimwear), none names drinkware, and none is copied by a derived style; `tests/test_retail_plural_cups_508.py`. The eight swimwear rows are in type specs; the thirteen bras are not, because `Bra` is one product type whose rows sit in `class_rows.py`, `variants.py` and the lingerie rows, and `test_a_spec_type_has_no_row_outside_its_spec_file` refuses a spec for a type with a row outside it: a spec for the thirteen alone fails, and moving every bra into one spec is a migration of its own.
 Every top, dress and knit states a `neckline`, and boat and slash tops are held in depth with the neighbouring necklines (`neckline_rows.py`, gen#181; none is derived); see [retail-neckline-depth.md](retail-neckline-depth.md). A style word in a title (coat, shirt, maxi, polo) agrees with the neckline, length, sleeves and material; see [retail-garment-styles.md](retail-garment-styles.md).
 The seven luggage and travel types (suitcase to neck pillow, gen#209) are specs under `type_specs/` too, likewise not derived from; see [retail-luggage-209.md](retail-luggage-209.md).
-Each derived style gets a new range name and a brand from its type's pool. It
+Each derived style gets a new range name and a brand from its type's pool. A range name has one
+owner (gen#623, `range_ownership.py`): the pool of invented place words is dealt to the brands in a
+seeded shuffle, split into a `scale` and a `grocery` half so the two builders never share a word, and
+the row carries its name as a `Line` attribute. No title names another brand, and no brand is made of
+product nouns; `scripts/review_range_names.py` counts all three classes (shared range word, foreign
+brand in a title, product-phrase brand) plus the name-led titles that lack a Line, and reports 0. It
 also differs from its template and from every sibling in a value its title shows
 or in its hero color family: a rename alone is not a style. When only the hero
 color sets it apart, its title ends with that color ("..., Dark Indigo"), and

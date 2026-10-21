@@ -64,7 +64,7 @@ _ROWS = (
           "A small stunt kite on two short lines for beginners, with a pair of foam handles "
           "and a carry bag. For ages 8 and up.", 14.0),
 )  # fmt: skip
-_BRAND = "Marble Run Co"
+_BRAND = "Tumblewick"
 
 SPEC = TypeSpec(
     key="kite",
@@ -81,9 +81,9 @@ SPEC = TypeSpec(
         toy_decoy(4, "silk kite", MATERIAL_CLAIM, _ROWS[0], 10, "Silk-Look Kite",
                   "A diamond kite of ripstop nylon printed to look like silk; there is no silk "
                   "in it.", color=YELLOW),
-        toy_decoy(7, "marble run", "generic", _ROWS[3], 11, "Marble Run Co Stunt Kite",
-                  "A dual line stunt kite from Marble Run Co; the name is the maker's, not a "
-                  "toy.", brand=_BRAND, color=WHITE),
+        toy_decoy(7, "marble run", "generic", _ROWS[3], 11, "Tumblewick Marble Run Stunt Kite",
+                  "A dual line stunt kite from Tumblewick; the marble run is only in the title, "
+                  "not the box.", brand=_BRAND, color=WHITE),
     ),
     owners=((_BRAND, "own"),),
 )  # fmt: skip

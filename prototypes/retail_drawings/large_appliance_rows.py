@@ -34,10 +34,16 @@ GREEN = cw("Green", "#4f8a3a")
 YELLOW = cw("Yellow", "#f2c230")
 SIX = (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)
 _PALETTES = ((WHITE, BLACK, SILVER), (SILVER, BLACK), (WHITE, SILVER))
-_MODELS = ("Arden", "Bexley", "Calder", "Dunmore", "Elston", "Fenner", "Garrow", "Halden",
-           "Ingram", "Jessop", "Kessock", "Lawton", "Marlow", "Norbury", "Ormond", "Pelham",
-           "Quenby", "Rowan", "Selby", "Thorne", "Ulverston", "Vellacott", "Wexcombe",
-           "Yarrow", "Zennor", "Ashby", "Bramley", "Coniston", "Denby", "Eskdale")  # fmt: skip
+#: The model words each brand owns (gen#623): a model word leads a title, so it belongs to one brand
+#: and no other brand, family or drawn range carries it.
+_MODELS = {
+    "Frostholm": ("Arden", "Bexley", "Calder", "Dunmore", "Elston"),
+    "Brimwell": ("Fenner", "Garrow", "Ingram", "Jessop", "Kessock"),
+    "Tavorne": ("Lawton", "Ormond", "Pelham", "Rowan", "Selby"),
+    "Hollinmere": ("Thorne", "Vellacott", "Zennor", "Coniston", "Stainmore"),
+    "Cleavewick": ("Hardraw", "Corwen", "Cotterdale", "Fordham", "Gayle"),
+    "Lunden & Voss": ("Hawkshead", "Ilkley", "Arkle", "Kentmere", "Lazonby"),
+}
 _RATINGS = "ABCDE"
 
 
@@ -67,8 +73,9 @@ def _yn(key: str, name: str, on: bool) -> tuple[str, str, str]:
 
 def _row(pre: str, i: int, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
          shape: str, params: tuple[tuple[str, str], ...], desc: str, colors, attrs) -> Row:
+    line = a("line", "Line", title.split(" ", 1)[0])
     return Row(f"{pre}{i + 1:03d}", title, brand, HOME, path, ptype, price, shape, desc, colors,
-               attrs, params=params)  # fmt: skip
+               (line, *attrs), params=params)  # fmt: skip
 
 
 def _kind(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Row, ...]:
@@ -76,8 +83,8 @@ def _kind(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Ro
     out = []
     for i in range(n):
         price, desc, colors, attrs = make(i)
-        model = _MODELS[(sum(map(ord, pre)) + i * 5) % len(_MODELS)]
         brand = BRANDS[(sum(map(ord, pre)) + i) % len(BRANDS)]
+        model = _MODELS[brand][(sum(map(ord, pre)) + i) % len(_MODELS[brand])]
         out.append(_row(pre, i, f"{model} {title}", brand, path, ptype, price, shape, params, desc,
                         colors, attrs))
     return tuple(out)

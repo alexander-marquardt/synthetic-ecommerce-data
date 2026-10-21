@@ -30,6 +30,7 @@ if str(RETAIL) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
+import range_ownership  # noqa: E402
 import scale  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
@@ -669,6 +670,8 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
         gained = _fitted_in(r, t)
+        if not any(a["key"] == "line" for a in t["attributes"]):
+            gained = gained | {"line"}  # a derived style names its own Line (gen#623)
         assert [a["key"] for a in r["attributes"] if a["key"] not in gained] == [
             a["key"] for a in _template_attributes(r, t)
         ]
@@ -719,10 +722,10 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
 
 def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
     for r, _ in pairs:
-        assert r["product_line"] in scale.RANGE_NAMES
+        assert r["product_line"] in range_ownership.candidates()
         assert scale._has_word(r["title"], r["product_line"])
         lines = [a["value"] for a in r["attributes"] if a["key"] == "line"]
-        assert lines in ([], [r["product_line"]])
+        assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
 
 
 def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
@@ -1011,9 +1014,13 @@ def test_the_invented_names_are_new_and_never_repeat():
     extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
     assert len(extra) == len(set(extra))
     assert sorted(set(extra) & tpl_brands) == []
-    assert len(scale.RANGE_NAMES) == len(set(scale.RANGE_NAMES))
-    words = {w for b in tpl_brands | set(extra) for w in b.split()}
-    assert sorted(set(scale.RANGE_NAMES) & words) == []
+    pool = range_ownership.candidates()
+    assert len(pool) == len(set(pool))
+    halves = range_ownership.halves()
+    assert sorted(set(halves["scale"]) & set(halves["grocery"])) == []
+    # gen#623: an authored row's range is in no half, or a builder would deal it a second time
+    authored = {scale._line(t) for t in scale.templates() if not t["product_id"].startswith("GRC-")}
+    assert sorted(authored & set(pool)) == []
 
 
 def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):

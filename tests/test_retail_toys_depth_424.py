@@ -285,8 +285,9 @@ def test_a_toy_word_decoy_is_a_class_8_row_of_its_spec_outside_the_toys_departme
 
 #: spec key -> {decoy code: (class, the query it targets)}: the text-match decoys of gen#294 that
 #: each toy type carries. A class 4 names a material or feature the product lacks, a class 6 holds
-#: another toy's word as a range name, a class 7 holds another toy's word in its
-#: brand. Every toy type carries all three, as the gen#311 rule asks of every type.
+#: another toy's word as a range name, a class 7 holds another toy's word beside its
+#: invented brand (a brand is never a product phrase, #623). Every toy type carries all three, as
+#: the gen#311 rule asks of every type.
 DECOY_PINS = {
     "kite": {
         "DT08": (6, "water gun"), "DT09": (6, "card game"), "DT10": (4, "silk kite"),
@@ -346,7 +347,8 @@ def test_a_toy_decoy_is_a_row_of_its_type_in_the_toys_leaf_that_holds_its_word(k
     else:
         assert set(words) <= title and len(row.title.split()) <= 5, (row.title, d.query)
     if d.cls == 7:
-        assert row.brand in row.title and set(words) <= set(row.brand.lower().split()), row.brand
+        assert row.brand in row.title, row.brand
+        assert len(words) == 1 or not set(words) <= set(row.brand.lower().split()), row.brand
         assert dict(spec.owners).get(row.brand) == "own", spec.owners
 
 

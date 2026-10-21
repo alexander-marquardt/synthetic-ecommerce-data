@@ -15,7 +15,7 @@ the spec's two styles.
 **Text-match decoys (gen#294).** Each type carries at least three of each of five classes: a sibling
 product whose title holds the type word (a cushion, an apron), a real product of the type whose
 title names a power source or fuel it does not use ("Electric Lawn Mower, Petrol Free"), a short
-title or a scent with an incidental word ("Red Kite Lawn Mower", "Freshly Mown Lawn"), a title that
+title or a scent with an incidental word ("Red Harrier Lawn Mower", "Freshly Mown Lawn"), a title that
 names a part's color beside the product's own, and a description that names another color. Their
 fields tell the truth. :func:`decoy_ids` is what :func:`scale.derivable` and :mod:`main_colors`
 leave alone.
@@ -327,7 +327,7 @@ _REAL = {
     "Lawn Mower": (
         ("DCMA01", "absent", "Petrol Free Cordless Lawn Mower", "MWRCLP", "blue", "A battery mower with no fuel mix to buy and no pull cord, ready after a charge."),
         ("DCMA02", "absent", "Corded Lawn Mower, Not Petrol", "MWRELC", "yellow", "A mains mower on a long cable, quiet and light, with nothing to refuel."),
-        ("DCMI01", "incidental", "Red Kite Lawn Mower", "MWRELC", "black", "A mains mower with a rear grass bag, named for the kites over the lawn."),
+        ("DCMI01", "incidental", "Red Harrier Lawn Mower", "MWRELC", "black", "A mains mower with a rear grass bag, named for the harriers over the lawn."),
         ("DCMI02", "incidental", "Blue Moon Lawn Mower", "MWRPET", "green", "A four-stroke mower with a driven rear axle, for long grass."),
         ("DCMS01", "secondary", "Green Lawn Mower with Red Wheels", "MWRELC", "green", "A mains mower with a ten metre cable and a rear grass bag."),
         ("DCMS02", "secondary", "Yellow Cordless Lawn Mower with Black Handle", "MWRCLP", "yellow", "A battery mower with a folding handle and a rear grass bag."),
@@ -351,7 +351,7 @@ _REAL = {
     "Grass Trimmer": (
         ("DCTA01", "absent", "Not Cordless: Petrol Grass Trimmer", "TRMPET", "yellow", "A two-stroke trimmer with a metal blade, which starts on a pull cord."),
         ("DCTA02", "absent", "Corded Grass Trimmer, 10 m Cable", "TRMELC", "red", "A mains trimmer on a 10 m cable, with a telescopic shaft: not a cordless model, so there is no battery to charge."),
-        ("DCTI01", "incidental", "Red Kite Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Kite range."),
+        ("DCTI01", "incidental", "Red Harrier Grass Trimmer", "TRMELC", "black", "A mains trimmer with a pivoting head, from the Harrier range."),
         ("DCTI02", "incidental", "Blue Moon Grass Trimmer", "TRMCRD", "yellow", "A battery trimmer with a line head that feeds as you tap it."),
         ("DCTS01", "secondary", "Green Cordless Grass Trimmer with Black Handle", "TRMCRD", "green", "A battery trimmer for edging a lawn and tidying round beds."),
         ("DCTS02", "secondary", "Yellow Grass Trimmer with Red Shaft", "TRMELC", "yellow", "A mains trimmer for trimming along walls and borders."),
@@ -363,7 +363,7 @@ _REAL = {
     "BBQ": (
         ("DCBA01", "absent", "Gas Free Kettle BBQ", "BBQKET", "red", "A charcoal kettle with a vented lid, with no bottle or hose to fit."),
         ("DCBA02", "absent", "Kamado BBQ, No Gas Needed", "BBQKAM", "green", "A ceramic cooker that holds its heat on charcoal alone."),
-        ("DCBI01", "incidental", "Red Kite BBQ", "BBQKET", "black", "A charcoal kettle from the Kite range, with a vented lid."),
+        ("DCBI01", "incidental", "Red Harrier BBQ", "BBQKET", "black", "A charcoal kettle from the Harrier range, with a vented lid."),
         ("DCBI02", "incidental", "Blue Moon BBQ", "BBQPRT", "white", "A small bowl grill with a carry handle and folding legs."),
         ("DCBS01", "secondary", "Black Kettle BBQ with Red Lid Handle", "BBQKET", "black", "A charcoal kettle with a vented lid, on three legs."),
         ("DCBS02", "secondary", "Red Portable BBQ with Black Legs", "BBQPRT", "red", "A small bowl grill for a picnic or a camping trip."),
@@ -376,7 +376,7 @@ _REAL = {
         ("DCHA01", "absent", "Latex Free Garden Hose", "GHSREIN", "blue", "A four-layer PVC hose with no latex tube to perish in the sun, fitted to a standard outdoor tap."),
         ("DCHA02", "absent", "Garden Hose, Not Latex", "GHSREIN", "black", "A PVC hose that stays flexible in the cold, with nothing to stretch or shrink."),
         ("DCHA03", "absent", "Latex Free Reinforced Garden Hose", "GHSREIN", "green", "A reinforced PVC hose for a standard outdoor tap, with no latex to smell or split."),
-        ("DCHI01", "incidental", "Red Kite Garden Hose", "GHSREIN", "black", "A reinforced hose from the Kite range, coiled for storage."),
+        ("DCHI01", "incidental", "Red Harrier Garden Hose", "GHSREIN", "black", "A reinforced hose from the Harrier range, coiled for storage."),
         ("DCHI02", "incidental", "Blue Moon Garden Hose", "GHSEXPN", "yellow", "A light hose that shrinks to store, named for the moon over the lawn."),
         ("DCHS01", "secondary", "Black Garden Hose with Green Connectors", "GHSREIN", "black", "A four-layer hose that resists kinks, coiled for storage."),
         ("DCHS02", "secondary", "Red Expandable Garden Hose with Yellow Connectors", "GHSEXPN", "red", "A light hose that grows under water pressure and shrinks back to store."),
@@ -389,7 +389,7 @@ _REAL = {
         ("DCGA01", "absent", "Not Cordless: Petrol Hedge Trimmer", "HDGPET", "yellow", "A two-stroke hedge trimmer with a pull-start and a wide tooth gap, for thick growth."),
         ("DCGA02", "absent", "Corded Hedge Trimmer, 10 m Cable", "HDGELC", "red", "A mains hedge trimmer on a 10 m cable, with a double-sided blade and a hand guard: not a cordless model, so there is no battery to charge."),
         ("DCGA03", "absent", "Corded Hedge Trimmer, Not Cordless", "HDGELC", "black", "A mains trimmer for a garden hedge, with no battery to charge."),
-        ("DCGI01", "incidental", "Red Kite Hedge Trimmer", "HDGELC", "black", "A mains hedge trimmer from the Kite range, with a hand guard."),
+        ("DCGI01", "incidental", "Red Harrier Hedge Trimmer", "HDGELC", "black", "A mains hedge trimmer from the Harrier range, with a hand guard."),
         ("DCGI02", "incidental", "Blue Moon Hedge Trimmer", "HDGPET", "yellow", "A petrol hedge trimmer for long hedges, from the Moon range."),
         ("DCGS01", "secondary", "Green Hedge Trimmer with Red Handle", "HDGELC", "green", "A mains hedge trimmer with a ten metre cable and a hand guard."),
         ("DCGS02", "secondary", "Yellow Cordless Hedge Trimmer with Black Blade", "HDGCRD", "yellow", "A battery hedge trimmer with a dual-action blade and a rear handle."),
@@ -402,7 +402,7 @@ _REAL = {
         ("DCFA01", "absent", "Rattan Free Aluminum Garden Furniture Set", "GFSDIN", "blue", "A rust-proof aluminum table with chairs that tuck under it, with no wicker to fray."),
         ("DCFA02", "absent", "Garden Furniture Set, No Rattan Effect", "GFSWDN", "green", "A treated hardwood table and chairs with a slatted seat."),
         ("DCFA03", "absent", "Steel Bistro Garden Furniture Set, Not Rattan", "GFSBIS", "white", "A round steel table and two folding chairs for a balcony."),
-        ("DCFI01", "incidental", "Red Kite Garden Furniture Set", "GFSBIS", "black", "A round steel table and two folding chairs, from the Kite range."),
+        ("DCFI01", "incidental", "Red Harrier Garden Furniture Set", "GFSBIS", "black", "A round steel table and two folding chairs, from the Harrier range."),
         ("DCFI02", "incidental", "Blue Moon Garden Furniture Set", "GFSWDN", "yellow", "A hardwood table and chairs, from the Moon range."),
         ("DCFS01", "secondary", "Black Dining Garden Furniture Set with Red Legs", "GFSDIN", "black", "An aluminum table with chairs that tuck under it, with padded seats."),
         ("DCFS02", "secondary", "Green Sun Lounger Garden Furniture Set with Yellow Cushions", "GFSLNG", "green", "A reclining sun lounger in treated wood with a padded cushion."),
@@ -415,7 +415,7 @@ _REAL = {
         ("DCPA01", "absent", "Center Pole Parasol, Not Cantilever", "PRSCTR", "blue", "A polyester parasol on a center pole that pushes up with a slide."),
         ("DCPA02", "absent", "Center Pole Parasol with Tilt", "PRSTLT", "white", "A crank-lift parasol on a center pole, not a cantilever (side-arm) design, with a filled base that needs no fixing to the ground."),
         ("DCPA03", "absent", "Parasol with Center Pole, No Cantilever", "PRSTLT", "yellow", "A tilting parasol on a center pole, for a table with a hole in the middle."),
-        ("DCPI01", "incidental", "Red Kite Parasol", "PRSCTR", "black", "A center pole parasol from the Kite range, with a push-up slide."),
+        ("DCPI01", "incidental", "Red Harrier Parasol", "PRSCTR", "black", "A center pole parasol from the Harrier range, with a push-up slide."),
         ("DCPI02", "incidental", "Blue Moon Parasol", "PRSCNT", "yellow", "A side-arm parasol from the Moon range, with a cross base."),
         ("DCPS01", "secondary", "Green Center Pole Parasol with Red Pole", "PRSCTR", "green", "A polyester parasol that pushes up with a slide."),
         ("DCPS02", "secondary", "Blue Tilting Parasol with White Base", "PRSTLT", "blue", "A crank-lift parasol whose canopy tilts to follow the sun."),
