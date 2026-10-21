@@ -158,3 +158,16 @@ def test_each_series_and_generation_is_its_own_attribute(appliances):
         a = _attrs(r)
         assert re.fullmatch(r"[B-HJ-Z]", a.get("generation", "")), r["title"]
         assert "series" not in a, "the series is the top-level field; a key would shadow it"
+
+
+def test_each_exported_sku_states_the_model_number_of_its_own_color(appliances):
+    flat = scale.flat([scale.standard_document(r) for r in appliances])
+    seen: dict[str, str] = {}
+    for d in flat:
+        a = {e["key"]: e["value"] for e in d["attributes"]}
+        got = amn.decode(a.get("model_number", ""))
+        assert got is not None, (d["sku"], a.get("model_number"))
+        assert got["color"] == a["color"], (d["sku"], a["model_number"], a["color"])
+        assert a["model_number"].startswith(a["base_model"]), d["sku"]
+        assert seen.setdefault(a["model_number"], d["sku"]) == d["sku"], a["model_number"]
+    assert len(flat) > len(appliances), "colour variants are SKUs of their own"
