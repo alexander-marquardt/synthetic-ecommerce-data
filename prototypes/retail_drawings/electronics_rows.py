@@ -151,7 +151,7 @@ _LAPTOPS = (
     (TORVANE, "Torvane Book 15", "clamshell", 549, "15.6", (8, 16), (256, 512), (SILVER, BLACK, RED), "Integrated", "a full-size keyboard with a number pad and a bright screen"),
     (TORVANE, "Torvane Fury 16", "gaming", 1199, "16", (16, 32), (512, 1024), (BLACK, RED, BLUE), "Dedicated", "a fast graphics card, a high refresh screen and a cooled base"),
     (NIMBREL, "Nimbrel Air 13", "clamshell", 899, "13.3", (8, 16), (256, 512), (SILVER, WHITE, GOLD), "Integrated", "a light body that weighs just over a kilo and runs a full day"),
-    (NIMBREL, "Nimbrel Studio 15", "workstation", 1599, "15.6", (16, 32), (512, 1024), (GREY, BLACK), "Dedicated", "a colour-accurate screen and a graphics card for design and video"),
+    (NIMBREL, "Nimbrel Studio 15", "workstation", 1599, "15.6", (16, 32), (512, 1024), (GREY, BLACK), "Dedicated", "a color-accurate screen and a graphics card for design and video"),
     (QUORRIN, "Quorrin Raider 17", "gaming", 1399, "17.3", (16, 32), (512, 1024), (BLACK, GREEN, PURPLE), "Dedicated", "a large high refresh screen and per-key lighting"),
     (DASKEL, "Daskel Pro 15", "workstation", 1499, "15.6", (16, 32), (512, 1024), (GREY, BLACK, SILVER), "Dedicated", "a certified graphics card and a screen for engineering and simulation"),
     (MERVANE, "Mervane Flex 13", "two_in_one", 699, "13.3", (8, 16), (256, 512), (SILVER, TEAL, PINK, WHITE), "Integrated", "a touch screen that turns through three hundred and sixty degrees"),
@@ -269,7 +269,7 @@ _CASES = (
     (WEXMOOR, "Wallet Case", "wallet", "Pellimar P11", 21, (BLACK, RED, GREEN, WHITE)),
 )  # fmt: skip
 _CASE_TEXT = {
-    "clear": "A slim see-through case that shows the colour of the phone and guards the back and edges.",
+    "clear": "A slim see-through case that shows the color of the phone and guards the back and edges.",
     "rugged": "A two-layer case with raised corners that absorbs a drop from head height.",
     "wallet": "A folding case with slots for three cards and a stand fold for watching video.",
 }  # fmt: skip
@@ -431,7 +431,7 @@ _MONITORS = (
     (MARRICK, "Marrick Wide Ultrawide Monitor", "ultrawide", 399, ("29", "34"), (BLACK, SILVER), "a wide panel that holds two documents side by side"),
     (QUORRIN, "Quorrin Panorama Ultrawide Monitor", "ultrawide", 449, ("34",), (BLACK, GREY), "a wide 34 inch panel with a speed that suits games"),
     (TORVANE, "Torvane Arc Curved Monitor", "curved", 279, ("27", "32"), (BLACK, BLUE), "a deep curve that wraps the view around you"),
-    (DASKEL, "Daskel Studio Curved Monitor", "curved", 349, ("27", "32"), (BLACK, WHITE, GREY), "a curved panel with accurate colour for editing"),
+    (DASKEL, "Daskel Studio Curved Monitor", "curved", 349, ("27", "32"), (BLACK, WHITE, GREY), "a curved panel with accurate color for editing"),
 )  # fmt: skip
 MONITORS = tuple(
     _row(f"EMN{i + 1:03d}", n, b, (*_A, "Monitors"), "Monitor", p, "monitor",
