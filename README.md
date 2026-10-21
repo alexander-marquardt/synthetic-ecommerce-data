@@ -440,6 +440,20 @@ hand tools, Morrow Equipment, Maddox Industries). All 24 were replaced.
 | both clean, a similar real name exists | Kaldermark (Kalmark Integrated Systems), Wendlow Tool (Wendel tools), Tannerby (Tanner Fasteners), Grisenne (none exact; Grizzly Industrial nearest) |
 | **ONE search only** (the session's search budget ran out) | Caddernook, Pellwarren, Morvennick, Braddlestow, Quellmarsh, Stone Wicket, Tin Kestrel, Ivenhoft |
 
+**Real names (Apple, iPhone, iPad only).** The Electronics department (gen#332) is the second
+exception to "every name is invented", beside Nike (gen#341). The maintainer ruled on 2026-10-15,
+first: "I think I'm ok with iphone, apple, and samsung, Xiaomi, Nokia, and say the top 10 .. those
+are almost generic english words now, and need be represented .. people will definitely search for
+iphone .. and expect to see apple iphones", and then, replacing it: "maybe we should only allow
+apple and iphone as exceptions .. for other phones, can make-up brands .. but apple is so iconic
+(and gives good clashes) so is a great demo .. same with iphone, and ipad .. we can keep those".
+So the only real names are Apple, iPhone and iPad, as text: no logo and no trade dress is drawn.
+Every other brand, the phone, tablet and computer makers and every accessory brand, is invented
+(web-checked where a search could be run; the thirteen Electronics names were not, see
+[docs/retail-electronics.md](docs/retail-electronics.md)). A case "for iPhone 15" names the phone
+truthfully: that is the model-word decoy. `real_brands.check` refuses any other real brand, and
+`tests/test_retail_electronics_332.py` pins it.
+
 ## Facts a record states are real
 
 An independent review of the 100K catalog found facts the generator had

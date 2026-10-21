@@ -71,6 +71,14 @@ class-8 rows. `tests/test_retail_seed_phrase_decoys_460.py` holds the census: tw
 in the first 12 for each seed with policies off, every query word required, the rank of the
 prototype's baseline; the live number is read on the next loaded index.
 
+**Electronics (gen#332).** Five device words and `apple` meet products of other departments, in
+`feature_decoys/electronics.py` (rows DY700 to DY718): `mouse` (a trap, a cushion, a throw),
+`tablet` (dishwasher tablets, Scottish tablet), `monitor` (two baby monitors, a lizard cushion),
+`mobile` (two cot mobiles, a coat stand), `charger` (two battery chargers, a charger plate) and
+`apple` (the fruit, its juice, a candle, a tree). Each row carries `device_type`, the Electronics
+type whose word the title holds, and the department policy drops it. See
+[retail-electronics.md](retail-electronics.md).
+
 | Query | Noun | Product id | Title | True type | Fixing policy |
 |---|---|---|---|---|---|
 | red dress | dress | PLT-DY01 | Dress for Success, Red Laces | Brogues | category |
