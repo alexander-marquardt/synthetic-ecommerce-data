@@ -14,7 +14,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from shared_builds import KIT, KitSku, hundred_k_measured, hundred_k_prices, hundred_k_quiet_wheel, recorded_build
+from shared_builds import (
+    KIT,
+    KitSku,
+    hundred_k_measured,
+    hundred_k_prices,
+    hundred_k_quiet_wheel,
+    recorded_build,
+)
 from synthetic_ecommerce_data.core import brands, price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (

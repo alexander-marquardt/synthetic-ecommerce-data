@@ -195,7 +195,7 @@ def _hundred_k_measured_build() -> dict:
 
 
 def hundred_k_measured() -> dict:
-    """What ``measured_builds`` writes for the 100K build (#85): all that the staleness test reads."""
+    """What ``measured_builds`` writes for the 100K build (#85); all the staleness test reads."""
     return cached("hundred_k_measured", _hundred_k_measured_build)
 
 
