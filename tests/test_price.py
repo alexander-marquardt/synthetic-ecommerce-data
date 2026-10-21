@@ -10,6 +10,7 @@ import statistics
 from collections import defaultdict
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -1322,3 +1323,16 @@ def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(
     rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k[0])
     moved = measured_builds.render(rebuilt)
     assert moved != committed
+
+
+def test_a_row_in_band_is_recorded_none_and_one_out_of_band_is_its_figure(monkeypatch):
+    """The real pins are out of band on both builds, so the file holds no null:
+    drive the rebuild on a small fixture, one pinned row in band, the rest not."""
+    names = sorted(price.PINNED_SHORTFALLS)
+    in_band = names[0]
+    rows = [SimpleNamespace(name=name, within=name == in_band, achieved=1.23456) for name in names]
+    monkeypatch.setattr(price_report, "price_comparisons", lambda catalog: rows)
+    pins = measured_builds._pins(None)
+    assert pins[in_band] is None
+    for name in names[1:]:
+        assert pins[name] == round(1.23456, price_report.recorded_digits(name))
