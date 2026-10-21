@@ -341,7 +341,10 @@ The #294 decoys cover the demo queries. `prototypes/retail_drawings/decoy_appare
 same kind of decoy on every product type of the Womens, Mens and Kids clothing, footwear and
 lingerie, in seven classes (a color word naming a part, another category's noun as a modifier, an
 audience word of a sibling version, a material the product does not hold, a shade only in the
-description, a range name holding a color or category word, an invented brand holding one). The
-structured fields stay true, so a plain text search is misled and the color, category and audience
-policies, which read the fields, are right. The generated table of every row, with its policy, is
+description, a range name holding a color or category word, an invented brand holding one), and
+an eighth on Jeans and Bra (gen#434): a line named after a leg fit, a rise or a bra shape the
+product is not ("Balloon Lane Straight Jeans"), three per value, so the leg fit, rise and bra
+shape policies each have a product to remove. The structured fields stay true, so a plain text
+search is misled and the color, category, audience and fit policies, which read the fields, are
+right. The generated table of every row, with its policy, is
 `retail-apparel-decoys.md` (a generated page, not in git).
