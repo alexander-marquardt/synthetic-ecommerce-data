@@ -17,8 +17,8 @@ A generated product catalog for the industrial-supply vertical (cutting tools,
 fasteners, abrasives, hand tools, bearings), built to exercise structured facet
 extraction in search: modelled depth types plus
 [breadth categories](#catalog-breadth), one product each, from invented
-brands -- and, with one flag, about 100K SKUs
-([The 100K catalog](#the-100k-catalog); its name and figures are #62's).
+brands -- and, with one flag, a large build whose SKU total is measured
+([The 100K catalog](#the-100k-catalog), its historical name).
 
 The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
@@ -200,7 +200,7 @@ Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
-tests pass on that tree.
+tests pass on that tree. A draft is refused before any clone or build (#70).
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
 checkout) but not the network. When a real merge's build fails on a dropped
@@ -302,11 +302,10 @@ uv run ecom-generate build --lines 39000 --out out/catalog-100k
 uv run ecom-generate images --catalog out/catalog-100k --out out/images-100k --archive out/images-100k.tar.gz
 ```
 
-`--lines 39000` (`config.HUNDRED_K_LINES`) is the value that lands at about
-100,000 SKUs. Each deepened type adds its own share on top, so the build
-grows with every one; #62 renames it by what it holds and generates these
-figures. Measured with the first command above (about 45 s wall time), per
-type from `skus_by_type` in its `stats.json`:
+`--lines 39000` (`config.LARGE_BUILD_LINES`) is the large build's line count, named
+for what it holds: first chosen to give 100,000 SKUs, it promises no total, and each
+deepened type adds its own share on top. Measured with the first command above
+(about 45 s wall time), per type from `skus_by_type` in its `stats.json`:
 
 | type | SKUs | | type | SKUs |
 |---|--:|---|---|--:|
@@ -568,7 +567,7 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
-  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts and depressed-center wheels, and every
+  `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
   pack word in a title or description equals that field; no other type
   carries pack wording.
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
@@ -778,7 +777,9 @@ of elastic/prism#9935:
   `DD`, `ONZ`, `LBR`, `C78`, `RPM`, `TPI`, and `C62` for a count) is the only
   place the unit lives, and `value_canonical` is the magnitude in the kind's
   canonical unit (millimetres, grams, degrees, one, rpm, pound-force), computed
-  exactly and rounded to a float once.
+  exactly and rounded to a float once, as PRISM does it: elastic/prism's
+  `rewrite/measurement_values.py` and elastic/prism-industrial-products' `nested.py`
+  take the product with `fractions.Fraction` and apply `float(...)` last.
 * Thread spacing is published under two keys, as real catalogs publish it: a
   metric tap's `Thread Pitch` (`thread_pitch`, `MMT`, `0.5`) and an inch tap's `Threads per
   Inch` (`threads_per_inch`, `TPI`, `32`). `TPI` is a LENGTH written as a count
@@ -1139,7 +1140,7 @@ So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
 the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
-planted in `scripts/mutation_check.py`.
+planted in `scripts/mutations/` (run by `scripts/mutation_check.py`).
 
 ### Which attributes become facets
 
@@ -1526,12 +1527,11 @@ industrial bundle's shape, so the same installer takes it: members
 `retail/<image_id>.svg` under the archive's own `retail/` folder, every
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
-`.content-sha256`. Images are keyed per style and colorway, never per SKU:
-every size of one color shares an image, drawn in that color's swatch (base,
-pattern and accent). The authored-styles build is `templates.authored_images` images for
-`templates.authored` SKUs (`retail_figures.figures()`).
-`--skus N` releases the scaled build instead (`scale.py`'s, the 20K catalog's
-input): `--skus 20000` is 1,348 images for 20,002 SKUs.
+`.content-sha256`. Images are keyed per style and colorway, and per pack scale
+(a smaller size of a line draws smaller, gen#543; the keying and the figure are in
+[the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543)).
+The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
+(`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
 There is no committed manifest to check against (the retail build is code, not
 a committed catalog); the command refuses an `image_id` that names two
 different drawings instead. `tests/test_retail_image_release.py` pins the
@@ -1714,7 +1714,7 @@ a type whose specs hold no material. A SKU that sparsity left without one of the
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
-(`--lines 39000`, `config.HUNDRED_K_LINES`), and must land in band, or be
+(`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned below, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
