@@ -1,7 +1,7 @@
 """Biscuits are drawn as a wrapped sleeve (gen#608), not as the kit's upright cereal-style carton.
 
 The BIS and ORB families draw the ``sleeve`` pack shape: a flow-wrapped packet lying on its
-side, wider than tall, with crimped ends. The range name and the flavour-colour band (the
+side, wider than tall, with crimped ends. The range name and the flavour-color band (the
 brand band) stay, and so does the pack's product word.
 """
 
