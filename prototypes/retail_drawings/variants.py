@@ -29,6 +29,7 @@ from dataclasses import dataclass
 
 from colorwords import plain
 from departments import check as check_departments
+from stable_ids import check_skus, sku_id
 
 Color = tuple[str, str, str, str]  # (name, pattern, base hex, accent hex)
 
@@ -101,7 +102,9 @@ def _distinct(values) -> list:
 def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fields) -> dict:
     """One style's catalog document: ``fields``, its SKUs and the options derived from them.
 
-    ``skus`` get their ``sku`` ids here (``<product_id>-001`` on). The option
+    ``skus`` get their ``sku`` ids here: ``<product_id>-<hash of the SKU's axes>``
+    (:func:`stable_ids.sku_id`), so a SKU keeps its id when a row is added before it; two SKUs
+    with one set of axes raise :class:`stable_ids.IdCollision` (gen#626). The option
     lists are never authored: ``color_options`` is the swatch of each SKU color
     in first-SKU order, one per color (``swatches`` maps a color to it, so a
     swatch whose color no SKU has never shows); ``size_options`` holds, per
@@ -110,7 +113,8 @@ def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fiel
     """
     if not skus:
         raise ValueError(f"{product_id}: a product with no SKU")
-    rows = [{"sku": f"{product_id}-{n:03d}", **s} for n, s in enumerate(skus, 1)]
+    rows = [{"sku": sku_id(product_id, s), **s} for s in skus]
+    check_skus(product_id, rows)
     out = {"product_id": product_id, **fields, "price": min(s["price"] for s in rows)}
     out |= {"sku_count": len(rows), "skus": rows}
     colors = _distinct(s["color"] for s in rows if "color" in s)
