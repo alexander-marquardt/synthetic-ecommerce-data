@@ -21,6 +21,9 @@ if str(RETAIL) not in sys.path:
 import colorwords  # noqa: E402 -- the prototype's own directory is its import root
 import scale  # noqa: E402
 
+#: The ``measure()["templates"]`` keys that total or slice the sources instead of naming one.
+AGGREGATES = ("all", "before_grocery", "main_food")
+
 #: The six values the coverage review asked for, as the facet spells them (lower case).
 WANTED = ("leopard", "tartan", "polka dot", "floral", "breton stripe", "patchwork")
 
@@ -139,13 +142,21 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     """The product count is frozen (the four pattern words ride on colorways of styles main
-    already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
-    plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
-    text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
-    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
-    and 160 SKUs of the gen#509 plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) make
-    11540 and 103191, and a new style would raise both. This test pins 11540 templates and
-    103191 template SKUs: the PR that lifts the freeze must move them."""
+    already sold). Every template comes from a named source: the per-source style counts of
+    ``retail_figures.measure()`` sum to the templates, so a pattern word that added a style of its
+    own would be a template no source names. No fleet total is typed here (#644): a product PR
+    that adds rows to a source moves the measured count, not this test."""
+    from retail_figures import figures
+
+    measured = figures()["templates"]
     tpls = scale.templates()
-    assert len(tpls) == 11540
-    assert sum(t["sku_count"] for t in tpls) == 103191
+    sources = {
+        name: count
+        for name, count in measured.items()
+        if isinstance(count, dict) and name not in AGGREGATES
+    }
+    assert sum(c["styles"] for c in sources.values()) == len(tpls)
+    assert measured["all"] == {
+        "styles": len(tpls),
+        "skus": sum(t["sku_count"] for t in tpls),
+    }
