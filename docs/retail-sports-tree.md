@@ -1,7 +1,7 @@
 # Sports & Outdoors: the tree, its filters and what is not built (gen#290)
 
-The department is built by `prototypes/retail_drawings/sports_rows.py` (gen#265, first increment,
-PR #288; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
+The department is built from one spec file per type in `prototypes/retail_drawings/type_specs/`
+(gen#265, first increment, PR #288, moved there by gen#455; `sports_rows.py` lists their rows; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
 roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
 helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
 helmets, Water Sports and Wheeled Sports). This note records, per leaf,

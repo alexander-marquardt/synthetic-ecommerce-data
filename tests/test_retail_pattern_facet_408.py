@@ -138,15 +138,15 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
 
 
 def test_the_pattern_values_add_no_style_and_no_sku() -> None:
-    """The product count is frozen except for the issues that lift the freeze: the four pattern
-    words ride on colorways of styles main already sold. Main's build holds 11,324 templates and
-    101,460 template SKUs; the 21 plural-cups styles and 6 more bra decoys (gen#508), the 14
-    templates (29 SKUs) of the sports text-match decoys (#375), the large appliances of
-    gen#334 (120 templates, 264 SKUs) and the face creams (#542: 20 templates, 69 SKUs) lift
-    them to 11505 and 102951; the 27 templates and 160 SKUs of the gen#509 plant rows make
-    11532 and 103111; gen#352's 27 styles of bicycles, bike helmets, kayaks, kick scooters and
-    skateboards (196 SKUs) make 11559 and 103307, and a new style would raise both. This test
-    pins 11559 templates and 103307 template SKUs: the PR that lifts the freeze must move them."""
+    """The product count is frozen (the four pattern words ride on colorways of styles main
+    already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
+    plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
+    text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
+    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
+    and 160 SKUs of the gen#509 plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) make
+    11540 and 103191; gen#352's 27 styles of bicycles, bike helmets, kayaks, kick scooters and
+    skateboards (196 SKUs) make 11567 and 103387, and a new style would raise both. This test
+    pins 11567 templates and 103387 template SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11559
-    assert sum(t["sku_count"] for t in tpls) == 103307
+    assert len(tpls) == 11567
+    assert sum(t["sku_count"] for t in tpls) == 103387
