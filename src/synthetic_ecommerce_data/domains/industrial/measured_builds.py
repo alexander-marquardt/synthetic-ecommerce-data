@@ -48,18 +48,22 @@ def _pins(catalog: Catalog) -> dict[str, float | None]:
     }
 
 
-def figures(default: Catalog, hundred_k: Catalog) -> dict[str, Any]:
-    """What the file holds, measured on the default and on the 100K build."""
+def hundred_k_figures(hundred_k: Catalog) -> dict[str, Any]:
+    """What the file holds for the 100K build: its size and its pinned figures. This is all
+    that is read of the 1.9 GB catalog, so a cache can hold it in the catalog's place."""
     skus = Counter(line.type_key for line in hundred_k.lines for _ in line.children)
     return {
-        "default": {"price_pins": _pins(default)},
-        "hundred_k": {
-            "lines": len(hundred_k.lines),
-            "price_pins": _pins(hundred_k),
-            "skus": sum(skus.values()),
-            "skus_by_type": dict(sorted(skus.items())),
-        },
+        "lines": len(hundred_k.lines),
+        "price_pins": _pins(hundred_k),
+        "skus": sum(skus.values()),
+        "skus_by_type": dict(sorted(skus.items())),
     }
+
+
+def figures(default: Catalog, hundred_k: dict[str, Any]) -> dict[str, Any]:
+    """What the file holds: the default build measured here, the 100K build as
+    :func:`hundred_k_figures` measured it."""
+    return {"default": {"price_pins": _pins(default)}, "hundred_k": hundred_k}
 
 
 def render(built: dict[str, Any]) -> str:
@@ -67,7 +71,10 @@ def render(built: dict[str, Any]) -> str:
 
 
 def main() -> int:
-    built = figures(generate(GeneratorConfig()), generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))
+    built = figures(
+        generate(GeneratorConfig()),
+        hundred_k_figures(generate(GeneratorConfig(lines=LARGE_BUILD_LINES))),
+    )
     price.BUILDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     price.BUILDS_FILE.write_text(render(built), encoding="utf-8")
     print(f"wrote {price.BUILDS_FILE}")

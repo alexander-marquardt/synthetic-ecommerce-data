@@ -6,12 +6,12 @@
     }
   },
   "hundred_k": {
-    "lines": 71512,
+    "lines": 71597,
     "price_pins": {
       "price brand spread, same spec (median max/min): wheel_depressed_center": 1.769,
       "price p90/p10: kit_assortment": 3.917
     },
-    "skus": 122610,
+    "skus": 122803,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -146,7 +146,7 @@
       "swivel_casters": 2,
       "t_slot_nuts": 1,
       "tap_extractors": 2,
-      "tap_spiral_point": 3512,
+      "tap_spiral_point": 3705,
       "tap_wrenches": 1,
       "tapping_fluids": 2,
       "thread_chasers": 2,
