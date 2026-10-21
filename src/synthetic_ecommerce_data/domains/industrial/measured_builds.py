@@ -27,7 +27,7 @@ from collections import Counter
 from typing import Any
 
 from synthetic_ecommerce_data.core import price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.domains.industrial import price_report
 from synthetic_ecommerce_data.domains.industrial.generate import generate
@@ -67,7 +67,7 @@ def render(built: dict[str, Any]) -> str:
 
 
 def main() -> int:
-    built = figures(generate(GeneratorConfig()), generate(GeneratorConfig(lines=HUNDRED_K_LINES)))
+    built = figures(generate(GeneratorConfig()), generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))
     price.BUILDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     price.BUILDS_FILE.write_text(render(built), encoding="utf-8")
     print(f"wrote {price.BUILDS_FILE}")
