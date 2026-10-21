@@ -174,6 +174,20 @@ def _color_words(title: str) -> set[str]:
     return {w for w in COLOR_WORDS if re.search(rf"\b{w}\b", title.lower())}
 
 
+def test_a_class_6_or_7_clone_carries_no_lace_or_detail_its_title_does_not_name(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """gen#447: a class 6 or 7 title names no part, so its drawing carries neither the exemplar's
+    named detail nor its shoe laces' color (a black lace under a title that names none)."""
+    clones = [r for r in rows if r.cls in (6, 7)]
+    assert clones
+    for r in clones:
+        doc = by_id[r.pid]
+        drawing = doc["drawing"]
+        assert "detail" not in drawing, (r.pid, doc["title"], drawing.get("detail"))
+        assert "lace" not in (drawing.get("params") or {}), (r.pid, doc["title"])
+
+
 def test_a_range_name_never_holds_a_color_and_a_brand_color_is_the_brand_field(
     rows: list[da.Row], by_id: dict[str, dict]
 ) -> None:
