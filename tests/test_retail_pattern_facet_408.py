@@ -145,8 +145,9 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951. The Kids dresses
     and coats of gen#310 add 90 styles and a net 1,680 SKUs (the 90 rows hold 1,686 of their own;
     the decoy clones account for the difference). Seven more Dress decoys (one more per class, so
-    the type keeps a tenth after the Kids dresses) add 7 templates and 35 SKUs. This test pins
-    11602 templates and 104666 template SKUs: the PR that lifts the freeze must move them."""
+    the type keeps a tenth after the Kids dresses) add 7 templates and 35 SKUs. The 27 templates
+    and 160 SKUs of the gen#509 plant rows are added too. This test pins
+    11629 templates and 104826 template SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11602
-    assert sum(t["sku_count"] for t in tpls) == 104666
+    assert len(tpls) == 11629
+    assert sum(t["sku_count"] for t in tpls) == 104826
