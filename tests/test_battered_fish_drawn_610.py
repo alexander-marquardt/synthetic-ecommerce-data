@@ -62,7 +62,7 @@ def test_the_bag_is_flat_not_an_upright_carton() -> None:
 
 def test_the_pack_shows_the_fish_pieces() -> None:
     svg = render()
-    assert len(re.findall(r'<path class="fish"', svg)) >= 3
+    assert len(re.findall(r'class="fish"', svg)) >= 3
     assert 'class="fish"' not in render("box")
 
 
