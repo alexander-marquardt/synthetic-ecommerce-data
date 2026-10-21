@@ -92,15 +92,11 @@ by hand, later ones in fewer small builds. See one: `uv run python prototypes/re
 `export.image_id` is `<type>/<product id>/<digest of the drawing spec>`, and
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
-by SKU (a lamp's `finish`) yields one per value. A clothing or footwear style with more than one
-size adds `size_scale` (`size_ladder.py`, gen#339), so it yields one image per rung of its size
-ladder, drawn smaller the lower the rung (the smallest at 55/90 of the largest rung, which keeps
-the style's own size, all about the drawing's bottom center). Any other size adds none, with one
-exception: a SKU with a `net_volume_ml` or `net_weight_g` (or, in Food & Drink and Beauty only, a
-`units_per_pack`) is drawn at the cube root of that content against its style's largest size,
-floored at 0.6 (`pack_scale.factor`; `kit.render(shrink=)` scales the whole drawing about its
-bottom center, so the shape needs no param), so each smaller size is its own image and a style of
-one size is unchanged.
+by SKU (a lamp's `finish`) yields one per value. A multi-size clothing or footwear style adds `size_scale`
+(`size_ladder.py`, gen#339): one image per rung, the smallest at 55/90 of the largest (its own size).
+Any other size adds none, except a SKU with a `net_volume_ml` or `net_weight_g` (Food & Drink and Beauty also
+`units_per_pack`), drawn at the cube root of that content against its style's largest size, floored at 0.6
+(`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged.
 If two things must look different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.
