@@ -25,6 +25,10 @@ The clauses, for each row:
     ``special: <name>``), and a special one names the sibling query it is proved on.
 ``drawing``
     The product draws: its first SKU renders.
+``range``
+    The class-6 decoys of the toy specs (``rules.TOY_RANGE_KEYS``, gen#446) are not table rows,
+    so :func:`range_violations` checks them: the title holds every word of the query, the
+    category leaf holds none, no two decoys of a toy share a query, and each toy has at least 2.
 
 Decoys of :mod:`decoy_apparel` come from generated specs and carry their own contract.
 """
@@ -66,8 +70,29 @@ def _rows() -> list[tuple[str, str, Any, bool]]:
 
 
 def range_violations(specs: dict[str, Any] | None = None) -> list[str]:
-    """One note per breach of the ``range`` clause by a class-6 toy decoy (stub, gen#538)."""
-    return []
+    """One note per breach of the ``range`` clause by the class-6 decoys of the toy specs
+    (``rules.TOY_RANGE_KEYS``), which are in neither table :func:`violations` reads."""
+    import rules
+    import type_registry
+
+    specs = type_registry.specs() if specs is None else specs
+    found: list[str] = []
+    for key in rules.TOY_RANGE_KEYS:
+        sixes = [d for d in specs[key].decoys if d.cls == 6]
+        if len(sixes) < 2:
+            found.append(f"{key}: {len(sixes)} class-6 range decoys, fewer than 2")
+        seen: set[str] = set()
+        for d in sixes:
+            pid = f"BRD-{d.row.code}"
+            query = set(tokens(d.query))
+            if not query <= set(tokens(d.row.title)):
+                found.append(f"{pid}: the title {d.row.title!r} lacks a word of its query")
+            if query & set(tokens(d.row.path[-1])):
+                found.append(f"{pid}: the query {d.query!r} names its category leaf")
+            if d.query in seen:
+                found.append(f"{pid}: the query {d.query!r} is the query of another {key} decoy")
+            seen.add(d.query)
+    return found
 
 
 def violations(templates: list[dict[str, Any]] | None = None) -> list[str]:
@@ -102,4 +127,4 @@ def violations(templates: list[dict[str, Any]] | None = None) -> list[str]:
             image_release.render(doc, doc["skus"][0])
         except Exception as error:  # noqa: BLE001 -- any failure to draw is the finding
             found.append(f"{pid}: the drawing does not render ({type(error).__name__}: {error})")
-    return found
+    return found + range_violations()

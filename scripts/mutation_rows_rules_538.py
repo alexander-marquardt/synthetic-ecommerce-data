@@ -14,6 +14,7 @@ from mutation_row import Row
 _RETAIL = "prototypes/retail_drawings"
 _RULE = 'tests/test_rules_538.py -k "test_a_planted_breach_of_a_rule_is_found and {}"'
 _CLAUSE = 'tests/test_feature_decoys_513.py -k "test_a_planted_decoy_file and {}"'
+_RANGE = 'tests/test_feature_decoys_513.py -k "test_a_planted_toy_range_decoy and {}"'
 
 ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
     (
@@ -123,6 +124,42 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "            pass",
         _CLAUSE.format("drawing"),
         "a decoy whose drawing does not render fails the contract (#538)",
+    ),
+    (
+        "the range clause lets a toy title drop a query word",
+        _RETAIL,
+        "decoy_contract.py",
+        "            if not query <= set(tokens(d.row.title)):",
+        "            if False:",
+        _RANGE.format("range_title"),
+        "a toy range decoy whose title lacks a query word fails the contract (#446)",
+    ),
+    (
+        "the range clause lets a toy query name its category leaf",
+        _RETAIL,
+        "decoy_contract.py",
+        "            if query & set(tokens(d.row.path[-1])):",
+        "            if False:",
+        _RANGE.format("range_leaf"),
+        "a toy range decoy whose query names its leaf fails the contract (#446)",
+    ),
+    (
+        "the range clause lets two toy decoys share a query",
+        _RETAIL,
+        "decoy_contract.py",
+        "            if d.query in seen:",
+        "            if False:",
+        _RANGE.format("range_unique"),
+        "two toy range decoys with one query fail the contract (#446)",
+    ),
+    (
+        "the range clause accepts a toy with one range decoy",
+        _RETAIL,
+        "decoy_contract.py",
+        "        if len(sixes) < 2:",
+        "        if False:",
+        _RANGE.format("range_count"),
+        "a toy with fewer than 2 range decoys fails the contract (#446)",
     ),
 ]
 
