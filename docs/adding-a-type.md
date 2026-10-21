@@ -933,6 +933,19 @@ memory: measured on the 48-core agent VM, 16 workers had taken 38 GB within thre
 minutes, and an uncapped `-n auto` run took the host down. Run the merge chain on the agent VM, which has
 the cores and the memory, so it does not compete with a laptop's other work.
 
+**A 100K catalog is built once, not once per worker (#140).** A 100K build is
+about 1.9 GB resident, and the fixtures that held one were built in every worker
+that ran their module, so `-n 2` held two and the swap watchdog killed workers.
+`tests/shared_builds.py` now builds it in one process at a time, keeps only what
+the tests read (the price rows and kit SKUs; the realistic flat documents) and
+writes that to `.pytest_cache/shared_builds/`, named by a digest of `src/`,
+`uv.lock` and the code that reduces the build, so a changed generator never reads
+an old file. A test that needs a 100K build adds a function there; it does not
+name `LARGE_BUILD_LINES` itself (`tests/test_shared_builds_140.py` fails a module
+that does, and fails a worker that holds 500 MB or more for the price fixture).
+`SHARED_BUILDS_DIR=<dir>` moves the files; deleting the directory only costs one
+rebuild.
+
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
 same tests on every push to `main`, so a merge that raced, or skipped the
