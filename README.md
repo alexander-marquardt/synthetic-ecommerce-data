@@ -200,7 +200,7 @@ Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
-tests pass on that tree.
+tests pass on that tree. A draft is refused before any clone or build (#70).
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
 checkout) but not the network. When a real merge's build fails on a dropped
@@ -1105,7 +1105,7 @@ So `data/field_weights/synthetic_industrial_flat.yaml` is **generated** from
 the emitted documents, as a step of `ecom-generate build`, and
 `tests/test_prism_field_map_drift.py` fails if the committed file and a fresh
 derivation disagree. Editing either side alone reds it; both directions are
-planted in `scripts/mutation_check.py`.
+planted in `scripts/mutations/` (run by `scripts/mutation_check.py`).
 
 ### Which attributes become facets
 
