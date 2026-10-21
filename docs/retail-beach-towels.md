@@ -1,7 +1,7 @@
 # The real beach towels (gen#624)
 
 The catalog had one beach towel, "Cotton Velour Beach Towel", and the derivation copied it into
-thirteen rows (`<Name> Cotton Velour Beach Towel, <Colour>`): one material, one weave, four to seven
+thirteen rows (`<Name> Cotton Velour Beach Towel, <Color>`): one material, one weave, four to seven
 words. A real shop mixes them, and a short decoy title ("Beach Towel Stripe Top") beat every one of
 them on a text score. The twelve real towels are now authored rows in
 `prototypes/retail_drawings/beach_towel_rows.py`, under `Home > Bathroom > Beach Towels`.
@@ -17,9 +17,9 @@ them on a text score. The twelve real towels are now authored rows in
 
 Each of material, weave, feature and size is a structured attribute, and the first three are named
 in the title, so a filter and the title say the same thing. A title is 7 to 12 words. Six rows
-name the one colour or print the style comes in ("Extra Absorbent Organic Cotton Terry Beach
-Towel, Navy Stripe"); the others leave the colour to their SKUs. The colour and pattern split is
-the one in [retail-color-pattern.md](retail-color-pattern.md): "Navy Stripe" is the colour Navy
+name the one color or print the style comes in ("Extra Absorbent Organic Cotton Terry Beach
+Towel, Navy Stripe"); the others leave the color to their SKUs. The color and pattern split is
+the one in [retail-color-pattern.md](retail-color-pattern.md): "Navy Stripe" is the color Navy
 and the pattern stripe, so no separate pattern entry is authored. One row, "Sun Lounger Towel",
 holds no "beach": a shopper's other word for it.
 
@@ -45,7 +45,7 @@ description, `popular=False`), first real towel at rank 9, eight decoys above it
  8 decoy PLT-DY6053   Kids Hooded Beach Towel Poncho
  9 REAL  BRD-BCHXSV   Extra Soft Cotton Velour Beach Towel, Coral
 10 REAL  BRD-BCHDWF   Double Sided Cotton Polyester Blend Waffle Beach Towel
-11 REAL  BRD-BCHOPV   Oversized Quick Dry Polyester Velour Beach Towel, Pink Floral
+11 REAL  BRD-BCHOPV   Oversized Quick Dry Polyester Velour Beach Towel, Pink Stripe
 12 REAL  BRD-BCHSAM   Super Absorbent Microfibre Terry Beach Towel with Zip Pocket
 ```
 

@@ -1,7 +1,7 @@
 """The real beach towels (gen#624): material, weave and feature vary, and the titles are long.
 
 The catalog had one beach towel, "Cotton Velour Beach Towel", and the derivation copied it
-(``<Name> Cotton Velour Beach Towel, <Colour>``): thirteen rows with one material, one weave and
+(``<Name> Cotton Velour Beach Towel, <Color>``): thirteen rows with one material, one weave and
 four to seven words. A short decoy title ("Beach Towel Print Tote") outranked every one of them on
 a text score. These twelve are authored rows of Home > Bathroom > Beach Towels instead:
 
@@ -11,11 +11,11 @@ a text score. These twelve are authored rows of Home > Bathroom > Beach Towels i
 * a **size** in centimetres,
 
 each a structured attribute and each named in the title, so a filter on "microfibre" or "quick dry"
-finds the rows whose titles say so. A title is 7 to 12 words. Some name the one colour or print the
+finds the rows whose titles say so. A title is 7 to 12 words. Some name the one color or print the
 style comes in ("..., Navy Stripe"); the others leave the color to the SKUs, as real listings do.
 One reads "Sun Lounger Towel": a shopper's word for it that holds no "beach". The brands are the
-catalog's invented ones; the colour and pattern split is :mod:`colorwords` (a "Navy Stripe"
-colourway is the color Navy and the pattern stripe).
+catalog's invented ones; the color and pattern split is :mod:`colorwords` (a "Navy Stripe"
+colorway is the color Navy and the pattern stripe).
 
 The rows are templates only: the derivation leaves them out (``scale.derivable``) so each title
 stays the one authored here.
@@ -42,7 +42,7 @@ def _towel(code, title, brand, price, desc, colors, material, weave, feature, si
         ("material", "Material", material),
         ("weave", "Weave", weave),
         ("feature", "Feature", feature),
-        ("dimensions", "Size", size),
+        ("dimensions", "Dimensions", size),
     )
     return Row(code, title, brand, "Home", PATH, "Beach Towel", price, "beach_towel", desc, colors, attrs)
 
@@ -80,16 +80,16 @@ ROWS = (
            "A light organic cotton waffle towel that dries quickly in the sun, with a contrast band along each long edge.",
            (cw("Sage", "#9bb08f", "solid", WHITE), cw("Cream", "#efe6cf", "solid", "#9a9ca0"), cw("Grey", "#9a9ca0", "solid", WHITE)),
            "Organic Cotton", "Waffle", "Quick Dry", "90 x 170 cm"),
-    _towel("BCHOPV", "Oversized Quick Dry Polyester Velour Beach Towel, Pink Floral", LANTERNBY, 15.0,
-           "A big polyester velour towel with a printed floral face that dries fast and packs small.",
-           (cw("Pink Floral", "#e8a0b4", "floral", "#4f7a3a"),),
+    _towel("BCHOPV", "Oversized Quick Dry Polyester Velour Beach Towel, Pink Stripe", LANTERNBY, 15.0,
+           "A big polyester velour towel with a pink and white striped face that dries fast and packs small.",
+           (cw("Pink Stripe", "#ffffff", "stripe", "#e8a0b4"),),
            "Polyester", "Velour", "Oversized", "100 x 190 cm"),
     _towel("BCHOGC", "Oversized Cotton Terry Beach Towel with Hanging Loop, Green Check", THISTLE, 20.0,
            "A roomy cotton terry towel in green and white checks, with a sewn loop to hang it on a hook.",
-           (cw("Green Check", "#ffffff", "check", "#4f7a3a"),),
+           (cw("Green Check", "#ffffff", "gingham", "#4f7a3a"),),
            "Cotton", "Terry", "Oversized", "100 x 180 cm"),
     _towel("BCHSLV", "Oversized Cotton Velour Sun Lounger Towel with Pocket, Green Stripe", LARCHWOOD, 23.0,
-           "A cotton velour towel cut to fit a sun lounger, with a pocket sewn into the top for a phone or sun cream.",
+           "A cotton velour towel cut to fit a sun lounger, with a pocket sewn into the top for a phone or sun lotion.",
            (cw("Green Stripe", "#ffffff", "stripe", "#4f7a3a"),),
            "Cotton", "Velour", "Oversized", "75 x 200 cm"),
     _towel("BCHSAM", "Super Absorbent Microfibre Terry Beach Towel with Zip Pocket", BRACKENMERE, 14.0,

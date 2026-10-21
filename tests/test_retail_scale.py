@@ -73,6 +73,7 @@ SEASONAL_ROWS = FIGURES["templates"]["seasonal_rows"]["styles"]
 COLORGROUP_ROWS = FIGURES["templates"]["colorgroup_rows"]["styles"]
 MENS_DEPTH_ROWS = FIGURES["templates"]["mens_depth_rows"]["styles"]
 WOMENS_DEPTH_ROWS = FIGURES["templates"]["womens_depth_rows"]["styles"]
+BEACH_TOWEL_ROWS = FIGURES["templates"]["beach_towel_rows"]["styles"]
 COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
@@ -108,6 +109,7 @@ TEMPLATES = (
     + COLORGROUP_ROWS
     + MENS_DEPTH_ROWS
     + WOMENS_DEPTH_ROWS
+    + BEACH_TOWEL_ROWS
     + KNITWEAR_ROWS
     + NECKLINE_ROWS
     + NEEDS_ROWS
