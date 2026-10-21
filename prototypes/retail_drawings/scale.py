@@ -366,7 +366,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(), *decoy_product_words.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(), *sports_rows.docs(),
+        *shirt_rows.docs(), *accessory_rows.docs(),
         *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),

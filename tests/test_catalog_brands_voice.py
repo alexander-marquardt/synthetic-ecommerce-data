@@ -31,7 +31,7 @@ import pytest
 
 from compat_text import without_compatibility
 from published import authored_attributes
-from synthetic_ecommerce_data.core import emit
+from shared_builds import hundred_k_flat, realistic_only
 from synthetic_ecommerce_data.core.brands import (
     BRAND_BOOK,
     BRANDS,
@@ -39,10 +39,8 @@ from synthetic_ecommerce_data.core.brands import (
     INKS,
     PRODUCT_WORDS,
 )
-from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import tabletype
-from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.muststock import MUST_STOCK
 
@@ -67,20 +65,16 @@ def _read(path: Path) -> list[dict]:
 #: so there is no variety for these checks to find, and none to fail to find.
 #: Exempt, the same ruling as the realism truth tables
 #: (``tests/test_catalog_facts.py``).
-def _realistic_only(docs: list[dict]) -> list[dict]:
-    return [doc for doc in docs if doc.get("spec_quality") != "fast_and_cheap"]
-
-
 @pytest.fixture(scope="module")
 def golden() -> list[dict]:
-    return _realistic_only(_read(GOLDEN / "flat.jsonl"))
+    return realistic_only(_read(GOLDEN / "flat.jsonl"))
 
 
 @pytest.fixture(scope="module")
 def hundred_k() -> list[dict]:
-    """The full 100K build, emitted in memory (about 30 s)."""
-    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
-    return _realistic_only(list(emit.iter_flat(catalog)))
+    """The full 100K build's realistic documents, read from the file every worker shares
+    (#140): the build is made once, by one process."""
+    return hundred_k_flat()
 
 
 # --- every SKU is different ---------------------------------------------------
