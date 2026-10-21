@@ -96,7 +96,14 @@ def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
 #: would change its id and make the proof a record of a document that no longer exists, and the
 #: proof is rebuilt only by an Elasticsearch run (``es_proof.py``). The set shrinks when the proof
 #: is rebuilt; it grew with the face creams (gen#542), whose spec keeps the demo's three class rows.
-PROOF_PINNED_CLASS_ROWS = {"PLT-SPFFCE", "PLT-FCDAYC", "PLT-FCNGHT", "PLT-FCCALM"}
+PROOF_PINNED_CLASS_ROWS = {
+    "PLT-SPFFCE", "PLT-FCDAYC", "PLT-FCNGHT", "PLT-FCCALM",
+    # gen#434 gap 3 (#645): the chips, beds and Womens bomber jackets of the same demo proof
+    "PLT-BBCHIP",
+    "PLT-BDSHKR", "PLT-BDMETL", "PLT-BDUPHL", "PLT-BDOTTO", "PLT-BDSLGH", "PLT-BDPANL",
+    "PLT-CKBCON", "PLT-CKBWOL", "PLT-CKBPAD", "PLT-BMBCRD", "PLT-BMBWOL", "PLT-KIDBMB",
+    "PLT-BABBMB",
+}  # fmt: skip
 #: The gen#294 text-match decoy of a spec type that stays in ``decoy_rows`` (gen#542, Face Cream):
 #: the "Daylight" face cream is the color-word decoy of the "face cream" demo, and the type's
 #: spec holds the real range. A later change may move it.
@@ -136,7 +143,8 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     assert not any(stray.values()), f"rows registered outside their spec: {stray}"
     # the decoys that share a spec type's name: the black bike pump stands in for "black pumps"
     # (DY37); two belts stand in for the seed phrases of gen#460 (DY460 jeans, DY485 brogues)
-    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485"}, out_of_spec
+    # and a bomber jacket stands in for a "bomber" word query (DY56, gen#311)
+    assert out_of_spec == {"PLT-DY37", "PLT-DY460", "PLT-DY485", "PLT-DY56"}, out_of_spec
 
 
 def test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build() -> None:
