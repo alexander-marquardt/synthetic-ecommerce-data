@@ -49,8 +49,25 @@ The build makes no clone, nor any twin: a second style with the same leaf, brand
 and title without the range name (:func:`twin_key`), which reads as the same
 listing. A derived title never repeats one already made.
 Departments get styles by :data:`DEPARTMENT_SHARE`, and leaves within a
-department by a Zipf weight, so leaf sizes keep a long tail. A template whose
-draws keep colliding is exhausted and leaves the pool.
+department by a Zipf weight, so leaf sizes keep a long tail: each template draws on a clock of
+its own at :func:`rate` (its department's :data:`DEPARTMENT_RATE` times its leaf's
+:func:`leaf_weight`), and the styles come in the order of the clocks. A template whose
+draws keep colliding is exhausted and its clock stops.
+
+**Ids name the style (gen#626).** A derived style's ``product_id`` is the department prefix and a
+hash of the seed, the template and the signature (:func:`stable_ids.style_id`); its SKUs are
+the product id and a hash of the SKU's own axes (:func:`stable_ids.sku_id`). Every draw of a
+style (brand, range name, values, colors, price, rating) is a hash of the same and a retry
+count, never a shared random stream, and a template's clock and signature order are seeded from
+the template alone. So adding a template adds its styles, pushes the last styles out past the
+target SKU count, and moves no other id or document; ``tests/test_retail_stable_ids_626.py``
+guards it. A collision raises :class:`stable_ids.IdCollision` and no counter is bumped past it
+(a draw whose values merge two SKUs into one is refused, as a contradicting text is). What
+still moves a neighbour: a new value or brand in a pool (a pick that the new one wins), a
+template that takes a title or near-duplicate another style then cannot, and the rates when the
+templates change a department's share (the share test fails then; recompute
+:data:`DEPARTMENT_RATE`). The counter-numbered table generators (``WD…``, ``DPT…``) keep their
+positional ids within their table.
 
 **A style, not a rename.** A derived style takes a :func:`signature` (the values of
 the keys its title shows, and its hero color family) that neither its template nor
@@ -88,7 +105,9 @@ import argparse
 import collections
 import copy
 import functools
+import heapq
 import json
+import math
 import random
 import re
 import resource
@@ -137,6 +156,7 @@ import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
 import sports_rows  # noqa: E402
+import stable_ids  # noqa: E402
 import style_table  # noqa: E402
 import toys_rows  # noqa: E402
 import type_registry  # noqa: E402
@@ -144,6 +164,7 @@ import underwear_rows  # noqa: E402
 import womens_depth_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
+from stable_ids import number, pick, style_id, unit  # noqa: E402
 from variants import product  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import (  # noqa: E402
@@ -198,11 +219,32 @@ FROZEN_KEYS = frozenset(
      "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
 )  # fmt: skip
 
-#: Leaf weight within a department: 1 / rank ** ZIPF_S.
+#: Leaf weight within a department: 1 / rank ** ZIPF_S, where a leaf's rank is a hash of its
+#: name in 1..:data:`LEAF_RANKS` (:func:`leaf_weight`), not its place in a shuffled list: adding a
+#: leaf moves no other leaf's weight (gen#626).
 ZIPF_S = 1.0
+LEAF_RANKS = 40
+
+#: Department -> the rate at which each of its templates draws a derived style, before its leaf's
+#: weight. A template's rate depends on its department and leaf alone, never on how many
+#: templates there are, so adding one adds its styles and moves no other (gen#626). The figures
+#: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
+#: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
+#: the shares they give drift more than 3 points, which is the signal to recompute them.
+DEPARTMENT_RATE = {
+    "Clothing": 0.01227, "Lingerie & Nightwear": 0.003558, "Home": 0.01009,
+    "Beauty": 0.02503, "Food & Drink": 0.006468, "Toys": 0.005199,
+    "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
+    "Footwear": 0.01799,
+}  # fmt: skip
+#: The rate of a department the table does not hold yet.
+DEFAULT_RATE = 0.008
 
 #: Draws per template before it counts as exhausted.
 ATTEMPTS = 40
+
+#: Draws of one signature (each with its own seeded stream) before the signature is dropped.
+RETRIES = 4
 
 #: Fields :func:`variants.product` derives from the SKUs; never copied.
 DERIVED_FIELDS = ("product_id", "price", "sku_count", "skus", "color_options", "size_options")
@@ -707,18 +749,6 @@ def _department(rec: dict) -> str:
     return str(rec["department"][0])
 
 
-def _plan(tpls: list[dict], rng: random.Random) -> dict[str, dict[str, list[dict]]]:
-    """department -> leaf -> its templates, leaves in a seeded Zipf rank order."""
-    plan: dict[str, dict[str, list[dict]]] = collections.defaultdict(dict)
-    for r in tpls:
-        plan[_department(r)].setdefault(r["category_leaf"], []).append(r)
-    for dept, leaves in plan.items():
-        order = sorted(leaves)
-        rng.shuffle(order)
-        plan[dept] = {leaf: leaves[leaf] for leaf in order}
-    return plan
-
-
 def brand_pools(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
     """(department, product type) -> the brands its templates carry, then the department's
     :data:`EXTRA_BRANDS`: a denim label never sells a car coat."""
@@ -732,31 +762,70 @@ def brand_pools(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
     return dict(out)
 
 
-def _department_weights(plan: dict[str, dict[str, list[dict]]]) -> dict[str, float]:
-    rest = [d for d in plan if d not in DEPARTMENT_SHARE]
-    left = 1.0 - sum(DEPARTMENT_SHARE[d] for d in plan if d in DEPARTMENT_SHARE)
-    sizes = {d: sum(len(t) for t in plan[d].values()) for d in rest}
-    total = sum(sizes.values()) or 1
-    return {d: DEPARTMENT_SHARE.get(d, left * sizes.get(d, 0) / total) for d in plan}
+def leaf_weight(dept: str, leaf: str) -> float:
+    """1 / rank ** :data:`ZIPF_S` with the leaf's rank a hash of its name (gen#626)."""
+    return 1 / math.ceil(unit("leaf", dept, leaf) * LEAF_RANKS) ** ZIPF_S
+
+
+def rate(tpl: dict) -> float:
+    """How often ``tpl`` draws a derived style: a figure of its department and leaf alone."""
+    dept = _department(tpl)
+    return DEPARTMENT_RATE.get(dept, DEFAULT_RATE) * leaf_weight(dept, tpl["category_leaf"])
+
+
+def department_targets(tpls: list[dict]) -> dict[str, float]:
+    """The share of derived styles each department is meant to get: :data:`DEPARTMENT_SHARE`,
+    the rest split by template count."""
+    count = collections.Counter(_department(r) for r in tpls)
+    rest = {d: n for d, n in count.items() if d not in DEPARTMENT_SHARE}
+    left = 1.0 - sum(DEPARTMENT_SHARE[d] for d in count if d in DEPARTMENT_SHARE)
+    return {d: DEPARTMENT_SHARE.get(d, left * rest.get(d, 0) / (sum(rest.values()) or 1))
+            for d in count}  # fmt: skip
+
+
+def department_shares(tpls: list[dict]) -> dict[str, float]:
+    """The share of derived styles each department gets from :func:`rate`."""
+    mass: dict[str, float] = collections.defaultdict(float)
+    for r in tpls:
+        mass[_department(r)] += rate(r)
+    total = sum(mass.values()) or 1.0
+    return {d: m / total for d, m in mass.items()}
+
+
+@dataclass
+class _Lane:
+    """One template's arrivals: a Poisson process of its own, seeded from the template alone, so
+    a template added elsewhere changes none of its arrival times (gen#626)."""
+
+    tpl: dict
+    gaps: random.Random
+    rate: float
+    at: float = 0.0
+
+    def step(self) -> float:
+        self.at += self.gaps.expovariate(self.rate)
+        return self.at
 
 
 def build(skus: int, seed: int = 0) -> Scaled:
-    """Styles until their SKUs reach ``skus``: the templates first, then derived ones."""
+    """Styles until their SKUs reach ``skus``: the templates first, then derived ones.
+
+    Each template draws derived styles on its own clock (:class:`_Lane`), and the styles come in
+    the order of those clocks. A style's id and content are a function of its template, its
+    signature and the seed (:func:`_draw`), so adding a template adds its styles, pushes the last
+    ones out past the target, and moves nothing else (gen#626)."""
     tpls = templates()
     records: list[dict] = []
     for r in tpls:
         if sum(x["sku_count"] for x in records) >= skus:
             return Scaled(records, {})
         records.append(r)
-    rng = random.Random(seed)
     base = derivable(tpls)
     pools = value_pools(base)
     # Every template, grocery too: a derived style that draws a grocery brand (EXTRA_BRANDS)
     # keeps that brand's owner, not the third-party default (gen#236).
     owners = {r["brand"]: r["brand_owner"] for r in tpls if "brand_owner" in r}
     brands = brand_pools(base)
-    plan = _plan(base, rng)
-    weights = _department_weights(plan)
     used = {twin_key(r) for r in tpls}
     titles = {r["title"] for r in tpls}
     ctx = _Context(pools, text_pools(standard_document(r) for r in base), _bands(base), {})
@@ -764,26 +833,25 @@ def build(skus: int, seed: int = 0) -> Scaled:
         ctx.authored.setdefault(r["category_leaf"], []).append(r)
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
-    serial = 0
-    while total < skus and plan:
-        depts = list(plan)
-        dept = rng.choices(depts, [weights[d] for d in depts])[0]
-        leaves = list(plan[dept])
-        leaf = rng.choices(leaves, [1 / (i + 1) ** ZIPF_S for i in range(len(leaves))])[0]
-        tpl = rng.choice(plan[dept][leaf])
-        pool = brands[(dept, tpl["product_type"])]
-        made = _draw(tpl, serial, ctx, pool, owners, used, titles, rng)
-        if made is None:
-            plan[dept][leaf].remove(tpl)
-            if not plan[dept][leaf]:
-                del plan[dept][leaf]
-            if not plan[dept]:
-                del plan[dept]
+    lanes = {
+        r["product_id"]: _Lane(r, random.Random(number(seed, "gaps", r["product_id"])), rate(r))
+        for r in base
+    }
+    clock = [(lane.step(), pid) for pid, lane in lanes.items()]
+    heapq.heapify(clock)
+    while total < skus and clock:
+        _, pid = heapq.heappop(clock)
+        lane = lanes[pid]
+        tpl = lane.tpl
+        pool = brands[(_department(tpl), tpl["product_type"])]
+        made = _draw(tpl, ctx, pool, owners, used, titles, seed)
+        if made is None:  # the template is exhausted: its clock stops
             continue
-        serial += 1
         records.append(made)
-        template_of[made["product_id"]] = tpl["product_id"]
+        template_of[made["product_id"]] = pid
         total += made["sku_count"]
+        heapq.heappush(clock, (lane.step(), pid))
+    stable_ids.check_unique(records)
     return Scaled(records, template_of)
 
 
@@ -838,42 +906,61 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
     return [(c, f) for c in combos for f in families if (c, f) != mine]
 
 
-def _colors(tpl: dict, family: str | None, rng: random.Random) -> list[str]:
-    """A hero color of ``family``, then a seeded subset of the rest in template order."""
+def _colors(tpl: dict, family: str | None, *key: object) -> list[str]:
+    """A hero color of ``family``, then a seeded subset of the rest in template order. Each
+    choice is a hash of ``key`` and the color (:func:`stable_ids.pick`), so a template that gains
+    a colorway changes a style's colors only where the new one wins."""
     swatches = tpl.get("color_options", ())
     if not swatches:
         return []
-    hero = rng.choice([c["color"] for c in swatches if _family(c) == family])
+    hero = pick([c["color"] for c in swatches if _family(c) == family], *key, "hero")
     rest = [c["color"] for c in swatches if c["color"] != hero]
-    keep = set(rng.sample(rest, rng.randint(0, len(rest))))
+    count = int(unit(*key, "count") * (len(rest) + 1))
+    keep = set(sorted(rest, key=lambda c: number(*key, "keep", c))[:count])
     return [hero, *(c for c in rest if c in keep)]
 
 
-def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict[str, str],
-          used: set, titles: set, rng: random.Random) -> dict | None:  # fmt: skip
+def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
+          used: set, titles: set, seed: int) -> dict | None:  # fmt: skip
     """A new style from ``tpl`` with a signature no style of it has, or None when none is
     left or ATTEMPTS draws all repeat a title or contradict their text.
+
+    The signatures are taken in the order of a hash of each (gen#626), the best first. A style's
+    id is a hash of the seed, the template and the signature (:func:`stable_ids.style_id`), and
+    each draw (a brand, a range name, a value, a color, a price) comes from a stream seeded by
+    the same and the retry: the style is the same whenever it is drawn, and no draw made before
+    it matters.
 
     A style whose title-shown values the template or an earlier sibling already shows
     differs in its hero color alone, so its title names it: "…, Sage"."""
     leaf = tpl["category_leaf"]
+    tid = tpl["product_id"]
     keys = variable_keys(tpl, ctx.pools)
     shown = shown_keys(tpl, keys)
-    left = ctx.open.setdefault(tpl["product_id"], _signatures(tpl, shown, ctx.pools))
-    pid = f"{tpl['product_id'].split('-')[0]}-{serial + 1:06d}"
+    if tid not in ctx.open:
+        ranked = _signatures(tpl, shown, ctx.pools)
+        ctx.open[tid] = sorted(ranked, key=lambda s: number(seed, "signature", tid, s))
+    left = ctx.open[tid]
     old = {a["key"]: str(a["value"]) for a in tpl["attributes"]}
-    taken = ctx.shown.setdefault(tpl["product_id"], {tuple(old[k] for k in shown)})
+    taken = ctx.shown.setdefault(tid, {tuple(old[k] for k in shown)})
     lo, hi = ctx.bands[leaf]
-    for _ in range(ATTEMPTS):
+    for attempt in range(ATTEMPTS):
         if not left:
             return None
-        sig = rng.choice(left)
+        sig, retry = left[0], attempt % RETRIES
+        if attempt and not retry:
+            left.pop(0)  # RETRIES draws of this signature all failed: the next one
+            if not left:
+                return None
+            sig = left[0]
+        key = (seed, tid, sig, retry)
+        rng = random.Random(number(*key, "stream"))
         values = dict(zip(shown, sig[0], strict=True))
-        values |= {k: rng.choice(ctx.pools[(leaf, k)]) for k in keys if k not in shown}
-        colors = _colors(tpl, sig[1], rng)
+        values |= {k: pick(ctx.pools[(leaf, k)], *key, k) for k in keys if k not in shown}
+        colors = _colors(tpl, sig[1], *key)
         if sig[0] in taken:  # the title names the color: the style IS that color
             colors = colors[:1]
-        brand, name = rng.choice(brands), rng.choice(RANGE_NAMES)
+        brand, name = pick(brands, *key, "brand"), pick(RANGE_NAMES, *key, "name")
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
         target = price_point(min(max(price, lo), hi), lo, hi)
@@ -881,7 +968,11 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
             up = target + _step(target)
             target = up if up <= hi else price_point(target - _step(target), lo, hi)
         ratio = target / tpl["price"]
-        rec = derive(tpl, pid, name, brand, values, colors, owners, rng, ratio)
+        pid = style_id(tid.split("-")[0], seed, tid, sig)
+        try:
+            rec = derive(tpl, pid, name, brand, values, colors, owners, rng, ratio)
+        except stable_ids.IdCollision:
+            continue  # the drawn values merged two SKUs into one: not a product, so not drawn
         if sig[0] in taken and colors:
             rec["title"] = f"{rec['title']}, {colors[0]}"
         if twin_key(rec) in used or rec["title"] in titles:
@@ -895,7 +986,7 @@ def _draw(tpl: dict, serial: int, ctx: _Context, brands: list[str], owners: dict
         if any(len(words & o) / len(words | o) >= NEAR_DUPLICATE_JACCARD for o in seen):
             continue  # a listing a shopper reads as another style's
         seen.append(words)
-        left.remove(sig)
+        left.pop(0)
         taken.add(sig[0])
         used.add(twin_key(rec))
         titles.add(rec["title"])

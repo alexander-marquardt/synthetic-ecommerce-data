@@ -112,3 +112,20 @@ def test_two_products_with_one_sku_raise():
     two = {"product_id": "BRD-B", "skus": [{"sku": "SAME"}]}
     with pytest.raises(stable_ids.IdCollision):
         stable_ids.check_unique([one, two])
+
+
+def test_a_build_that_gives_two_styles_one_id_raises(monkeypatch, templates):
+    monkeypatch.setattr(scale, "style_id", lambda prefix, *identity: f"{prefix}-SAME")
+    total = sum(t["sku_count"] for t in templates) + 400
+    with pytest.raises(stable_ids.IdCollision):
+        _build(monkeypatch, templates, total)
+
+
+def test_the_department_rates_give_the_department_shares(templates):
+    """The rates are constants, so a template added to a department moves its share: this fails
+    then, and DEPARTMENT_RATE is recomputed (shares / summed leaf weights)."""
+    base = scale.derivable(templates)
+    want, got = scale.department_targets(base), scale.department_shares(base)
+    off = {d: (round(want[d], 3), round(got.get(d, 0), 3)) for d in want
+           if abs(want[d] - got.get(d, 0)) > 0.03}
+    assert not off, f"department shares drift from their targets (target, got): {off}"
