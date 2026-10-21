@@ -37,6 +37,7 @@ One drawing per style (``export.image_id``): a pack shape from the kit, or
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import random
 import re
@@ -77,6 +78,7 @@ from grocery_rows import (  # noqa: E402
     Family,
 )
 from kit_produce import pile_params  # noqa: E402
+from range_ownership import Deal  # noqa: E402
 from variants import attr, drawing, product  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
@@ -347,7 +349,8 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
     head = f"{line} Organic" if organic else line
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
-    attrs = [attr(fam.axis, fam.axis_name or fam.axis.capitalize(), f.name) for f in flavors]
+    attrs = [attr("line", "Line", line)]  # the range the title leads with (gen#623)
+    attrs += [attr(fam.axis, fam.axis_name or fam.axis.capitalize(), f.name) for f in flavors]
     attrs += [attr("pack_size", "Pack size", p) for p in packs]
     if flavors[0].abv is not None:  # a beer's strength: always an attribute, in some titles
         attrs.append(attr("abv", "ABV (%)", flavors[0].abv))
@@ -398,6 +401,16 @@ def budgets(skus: int) -> dict[str, int]:
     return {f.code: max(1, round(skus * f.weight / total)) for f in FAMILIES}
 
 
+@functools.cache
+def range_names() -> Deal:
+    """The grocery half of the range-name pool, dealt over every grocery brand (gen#623): the
+    range a brand's styles lead with is one it owns and no other brand carries."""
+    brands = {b for f in FAMILIES for b in f.brands}
+    brands |= {b for extra in grocery_rows.TIER_BRANDS.values() for b in extra}
+    reserved = {w for b in brands for w in re.findall(r"[A-Za-z]+", b)}
+    return Deal("grocery", brands, reserved)
+
+
 def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     """The grocery records: the anchors, then each family's share of ``skus``.
 
@@ -408,7 +421,8 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     or draw moves.
     """
     tier = skus > TARGET
-    lines = (*LINES, *grocery_rows.TIER_LINES) if tier else LINES
+    slots = len(LINES) + (len(grocery_rows.TIER_LINES) if tier else 0)
+    owned = range_names().owned
     attempts = TIER_ATTEMPTS if tier else ATTEMPTS
     rng = random.Random(f"grocery:{seed}")
     fams = {f.code: f for f in FAMILIES}
@@ -417,12 +431,12 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     titles: set[str] = set()
     recs: list[dict] = []
 
-    def add(fam: Family, line: str, brand: str, flavors: list[F], packs: list[str], may: str,
+    def add(fam: Family, slot: int, brand: str, flavors: list[F], packs: list[str], may: str,
             organic: bool) -> bool:  # fmt: skip
         grade = rng.choice(fam.grades) if fam.grades else ""
         packs = stocked(fam, packs, held[fam.code + "#"])
-        rec = style(fam, f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}", line, brand, flavors,
-                    packs, may, organic, grade)  # fmt: skip
+        pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
+        rec = style(fam, pid, owned(brand, slot), brand, flavors, packs, may, organic, grade)
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:
@@ -437,7 +451,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         fam = fams[code]
         flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
         packs = list(fam.packs)
-        add(fam, LINES[n % len(LINES)], fam.brands[n % len(fam.brands)], flavors, packs, may, False)
+        add(fam, n, fam.brands[n % len(fam.brands)], flavors, packs, may, False)
 
     # The text-match decoys (gen#294) draw from a stream of their own, so no other draw moves.
     core_rng, rng = rng, random.Random(f"grocery-decoys:{seed}")
@@ -446,7 +460,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
             continue
         fam = fams[code]
         flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
-        add(fam, LINES[offset % len(LINES)], fam.brands[offset % len(fam.brands)],
+        add(fam, offset, fam.brands[offset % len(fam.brands)],
             flavors, list(fam.packs), may, False)
     rng = core_rng
     if tier:
@@ -468,7 +482,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
                 flavors.sort(key=fam.flavors.index)
                 packs = list(fam.packs)
             organic = fam.food and rng.random() < ORGANIC_SHARE
-            ok = add(fam, rng.choice(lines), rng.choice(brands), flavors, packs,
+            ok = add(fam, rng.randrange(slots), rng.choice(brands), flavors, packs,
                      _weighted(rng, fam.may), organic)  # fmt: skip
             misses = 0 if ok else misses + 1
     return recs

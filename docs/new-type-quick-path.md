@@ -135,7 +135,7 @@ added to the legacy list; the decoy tables find `feature_decoys/<topic>.py` by w
    `tests/test_retail_main_colors_275.py` fails the type that lacks one). The `path` nests under
    the generic category (gen#283). `derivable=False` unless the scaled build should invent styles.
 3. **Write the decoys** (gen#294, gen#311, gen#326). Every type carries text-match decoys, and
-   among them the subtle ones whose words match by accident ("Red Kite Lawn Mower": a kite on a
+   among them the subtle ones whose words match by accident ("Red Harrier Lawn Mower": a harrier on a
    mower's title). Two homes, because a spec's decoys must share the spec's department and
    product type (`type_registry.validate`):
    * the same department and type, classes 1 to 7 (`DECOY_CLASSES` in `type_registry.py`): a

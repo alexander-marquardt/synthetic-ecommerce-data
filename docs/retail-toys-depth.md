@@ -45,7 +45,7 @@ incidental-word ones included. Each toy spec declares four in its own `decoys=`,
 |---|---|---|---|
 | 6, a toy word | another toy's word as a range name, never a color (#446) | Water Gun Point Kite (query "water gun"), Card Game Ridge Kite (query "card game") | generic |
 | 4, absent | a material or look the product does not have | Silk-Look Kite, ripstop nylon (query "silk kite") | special: material claim |
-| 7, brand | another toy's word in an invented brand | Marble Run Co Stunt Kite (query "marble run") | generic |
+| 7, brand | another toy's word beside an invented brand | Tumblewick Marble Run Stunt Kite (query "marble run") | generic |
 
 All of them stay in the Toys department and in their own leaf, so the department policy keeps
 them and the type policy has them to repair. Classes 1, 2, 3 and 5 (a trim names a color, a

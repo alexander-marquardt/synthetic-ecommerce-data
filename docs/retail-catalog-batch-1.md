@@ -252,16 +252,16 @@ with-persona run, is the ingest batch's check, not this PR's.
 | daylight | 4 color word is also a product or a shade | PLT-DXL11 | Daylight Body Lotion SPF 15 | decoy |
 | daylight | 4 color word is also a product or a shade | PLT-DXL12 | Daylight Citrus Scented Candle | decoy |
 | oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ01 | Juice from Oranges, 1L | decoy |
-| oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ02 | Chocolate with Candied Oranges | decoy |
-| oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ03 | Mandarin Oranges in Juice | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ02 | Chocolate & Candied Oranges | decoy |
+| oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ03 | Mandarin Oranges, 298g | decoy |
 | oranges | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ04 | Seville Oranges Marmalade | decoy |
 | lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ05 | Sicilian Lemons Sparkling Water | decoy |
-| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ06 | Preserved Lemons in Brine | decoy |
-| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ07 | Sherbet Lemons Boiled Sweets | decoy |
-| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ08 | Lemons and Ginger Shortbread | decoy |
-| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ09 | Sparkling Mineral Water with Limes | decoy |
-| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ10 | Lemons and Limes Boiled Sweets | decoy |
-| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ11 | Marinade with Limes and Coriander | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ06 | Preserved Lemons, 350g | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ07 | Sherbet Lemons, 200g | decoy |
+| lemons | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ08 | Lemons & Ginger Shortbread | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ09 | Sparkling Water & Limes | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ10 | Lemons & Limes Sweets | decoy |
+| limes | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ11 | Limes & Coriander Marinade | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ12 | Cloudy Juice from Apples | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ13 | Stewed Apples in Syrup | decoy |
 | apples | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXQ14 | Apples & Cinnamon Oat Bars | decoy |

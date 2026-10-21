@@ -69,7 +69,7 @@ _ROWS = (
          "A wooden coaster with a lift, a loop and a long finishing track. Sold as a 40, 80 "
          "or 120 piece set. For ages 5 and up.", ((40, 18.0), (80, 32.0), (120, 46.0))),
 )  # fmt: skip
-_BRAND = "Play Kitchen Co"
+_BRAND = "Pennyfold"
 
 SPEC = TypeSpec(
     key="marble_run",
@@ -77,8 +77,8 @@ SPEC = TypeSpec(
     product_type="Marble Run",
     rows=_ROWS,
     decoys=(
-        toy_decoy(6, "card game", "generic", _ROWS[0], 24, "Card Game Row Marble Run",
-                  "From the Card Game Row range, named after a terrace of cottages; it is a "
+        toy_decoy(6, "card game", "generic", _ROWS[0], 24, "Card Game Mews Marble Run",
+                  "From the Card Game Mews range, named after a terrace of cottages; it is a "
                   "marble run, not a game of cards.", color=GREEN),
         toy_decoy(6, "dolls house", "generic", _ROWS[1], 25, "Dolls House Lane Marble Run",
                   "From the Dolls House Lane range, named after a row of cottages; it is a "
@@ -86,9 +86,9 @@ SPEC = TypeSpec(
         toy_decoy(4, "wooden marble run", MATERIAL_CLAIM, _ROWS[2], 26, "Wooden-Look Marble Run",
                   "A plastic marble run printed with a wood grain; there is no wood in it.",
                   color=YELLOW),
-        toy_decoy(7, "play kitchen", "generic", _ROWS[3], 27, "Play Kitchen Co Marble Run",
-                  "A marble run from Play Kitchen Co; the name is the maker's, not a "
-                  "kitchen.", brand=_BRAND, color=BLUE),
+        toy_decoy(7, "play kitchen", "generic", _ROWS[3], 27, "Pennyfold Play Kitchen Marble Run",
+                  "A marble run from Pennyfold; the play kitchen is only in the title, "
+                  "not the box.", brand=_BRAND, color=BLUE),
     ),
     owners=((_BRAND, "own"),),
 )  # fmt: skip

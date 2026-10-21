@@ -638,7 +638,7 @@ without stating anything false (`domains/industrial/compat.py`):
   in the spec clause, and a size a sentence names for another product in
   brackets after it -- `Tap drill for M12x1.75 threads (M12 thread, 1.75 mm
   pitch).`, `Also available in M8x1.25 / M10x1.5 sizes (M8 thread, 1.25 mm
-  pitch; M10 thread, 1.5 mm pitch).` On the golden before this change, 1,930
+  pitch; M10 thread, 1.5 mm pitch).` On the golden before this change, about 1,900
   records glued a size their description never wrote in parts, and the
   jobber drills whose only M12 was the tap-drill sentence were not returned
   for `m12`. `tests/test_glued_thread_sizes.py` reads the description's

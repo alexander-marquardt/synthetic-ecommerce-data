@@ -70,12 +70,11 @@ def known_ranges() -> set[str]:
     """Every range name the generator draws from (its pools), read from the prototype."""
     _prototype()
     import grocery_rows  # noqa: PLC0415 -- the prototype's own directory is its import root
-    import scale  # noqa: PLC0415
+    import range_ownership  # noqa: PLC0415
 
-    names = set(scale.RANGE_NAMES) | set(grocery_rows.LINES) | set(grocery_rows.TIER_LINES)
-    pool = getattr(scale, "range_pool", None)
-    if pool is not None:
-        names |= set(pool())
+    names = set(grocery_rows.LINES) | set(grocery_rows.TIER_LINES)
+    names |= set(range_ownership.candidates())
+    names |= set(range_ownership.AUTHORED)
     return names
 
 
