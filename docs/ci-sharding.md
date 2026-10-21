@@ -10,7 +10,7 @@ on one core; this repository is public, so GitHub-hosted runners cost nothing.
 shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the files
 `scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files (`tests/` and `prototypes/retail_drawings/`:
 `testpaths` of `pyproject.toml`, `TEST_DIRS` in the script) longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
-a file with no entry weighs 20 s, so a new test file needs no edit anywhere.
+a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The drawing tests run once, in the shard that is dealt them: there is no second child-process run of the same files (gen#486's test was removed for gen#362), and a test file outside the collected directories fails `tests/test_test_files_collected_362.py`.
 
 | Change | Where |
 |---|---|
