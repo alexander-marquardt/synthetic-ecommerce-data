@@ -1,0 +1,95 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B94.9",
+   "ISO 529"
+  ],
+  "edition": "ASME B94.9 ground-thread tap shank and square dimensions, as a maker publishes them for spiral point taps (machine screw sizes #6 to #10, fractional sizes 1/4 to 1/2); ISO 529:1975 shank diameter x square table (M3 to M12)",
+  "source": "Inch rows: the diameter-of-shank and size-of-square columns of the ground-thread tap tables of ICS Cutting Tools, 'Tap-Dimensions.pdf' (www.icscuttingtools.com/pdfs/Tap-Dimensions.pdf), which carry the ASME B94.9 figures; the ANSI table of 'Tap Shank Dimensions' in Enco's technical information sheet gives the same pairs (0.141x0.110, 0.168x0.131, 0.194x0.152, 0.255x0.191, 0.318x0.238, 0.381x0.286, 0.323x0.242, 0.367x0.275). Metric rows: the 'Tap Shank Dimensions ISO 529 - 1975' table of that Enco sheet (www.sme.in/enco/Tap shank diameter & square sizes for DIN and other Taps.pdf), dia. x square in mm. Where ISO 529 lists a size in its plain metric column the row says series 'plain'; M3 appears only in the shank-diameter-enlarged column, so its row says series 'enlarged'. A fractional tap from 7/16 up has a shank smaller than its thread: that is the standard's own figure, not an error",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "size": "#6",
+   "shank_in": 0.141,
+   "square_in": 0.11
+  },
+  {
+   "size": "#8",
+   "shank_in": 0.168,
+   "square_in": 0.131
+  },
+  {
+   "size": "#10",
+   "shank_in": 0.194,
+   "square_in": 0.152
+  },
+  {
+   "size": "1/4",
+   "shank_in": 0.255,
+   "square_in": 0.191
+  },
+  {
+   "size": "5/16",
+   "shank_in": 0.318,
+   "square_in": 0.238
+  },
+  {
+   "size": "3/8",
+   "shank_in": 0.381,
+   "square_in": 0.286
+  },
+  {
+   "size": "7/16",
+   "shank_in": 0.323,
+   "square_in": 0.242
+  },
+  {
+   "size": "1/2",
+   "shank_in": 0.367,
+   "square_in": 0.275
+  },
+  {
+   "size": "M3",
+   "series": "enlarged",
+   "shank_mm": 3.15,
+   "square_mm": 2.5
+  },
+  {
+   "size": "M4",
+   "series": "plain",
+   "shank_mm": 3.15,
+   "square_mm": 2.5
+  },
+  {
+   "size": "M5",
+   "series": "plain",
+   "shank_mm": 4.0,
+   "square_mm": 3.15
+  },
+  {
+   "size": "M6",
+   "series": "plain",
+   "shank_mm": 4.5,
+   "square_mm": 3.55
+  },
+  {
+   "size": "M8",
+   "series": "plain",
+   "shank_mm": 6.3,
+   "square_mm": 5.0
+  },
+  {
+   "size": "M10",
+   "series": "plain",
+   "shank_mm": 8.0,
+   "square_mm": 6.3
+  },
+  {
+   "size": "M12",
+   "series": "plain",
+   "shank_mm": 9.0,
+   "square_mm": 7.1
+  }
+ ]
+}
