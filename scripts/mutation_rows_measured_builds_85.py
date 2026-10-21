@@ -8,6 +8,9 @@ this file by glob and turns the rows into ``Mutation`` rows named ``measured bui
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from mutation_row import Row
 
 _PRICE_TESTS = "tests/test_price.py"
@@ -16,6 +19,10 @@ _BUILDER = "src/synthetic_ecommerce_data/domains/industrial/measured_builds.py"
 _PRICE = "src/synthetic_ecommerce_data/core/price.py"
 _MERGE = "tests/test_merge_pr.py"
 _ROOT = "."
+_RECORDED = json.loads((Path(__file__).resolve().parent.parent / _FILE).read_text("utf-8"))
+_WHEEL = "price brand spread, same spec (median max/min): wheel_depressed_center"
+_WHEEL_100K = _RECORDED["hundred_k"]["price_pins"][_WHEEL]
+_WHEEL_SKUS = _RECORDED["hundred_k"]["skus_by_type"]["wheel_depressed_center"]
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -30,8 +37,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the wheel pin's 100K figure is loosened in the file",
         _FILE,
-        '"price brand spread, same spec (median max/min): wheel_depressed_center": 1.769',
-        '"price brand spread, same spec (median max/min): wheel_depressed_center": 3.25',
+        f'"{_WHEEL}": {_WHEEL_100K}',
+        f'"{_WHEEL}": 3.25',
         f"{_PRICE_TESTS} -k each_recorded_figure_is_the_figure_its_build_produces",
         "a pin holds the figure its build produces",
         _ROOT,
@@ -41,15 +48,15 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _BUILDER,
         "        name: None\n        if rows[name].within\n",
         "        name: None\n        if False\n",
-        f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
+        f"{_PRICE_TESTS} -k a_row_in_band_is_recorded_none",
         "a build a pin lands in band on is recorded None",
         _ROOT,
     ),
     (
         "a 100K size in the file is left stale",
         _FILE,
-        '"wheel_depressed_center": 10149',
-        '"wheel_depressed_center": 12000',
+        f'"wheel_depressed_center": {_WHEEL_SKUS}',
+        f'"wheel_depressed_center": {_WHEEL_SKUS + 1851}',
         f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
         "a stale size is red until the rebuild is committed",
         _ROOT,
