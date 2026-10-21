@@ -397,7 +397,9 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
                 "White Dormouse", "Jumper Jay", "Coat Crake",
                 # A real brand, text only (real_brands.ALLOWED, gen#341); another house's make.
-                "Nike")  # fmt: skip
+                "Nike",
+                # Real names, text only (gen#332): Apple sells its own iPhone and iPad.
+                "Apple")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home",
