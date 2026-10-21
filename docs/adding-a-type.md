@@ -566,8 +566,7 @@ that fixes it:
   `PINNED_SHORTFALLS` and its figures at both sizes, as the fit prints
   them, in `PINNED_FIGURES`. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread at 100K, #66; the kit
-  p90/p10, #76). A size a pin records `None` for is one the row lands in
+  side (the wheel brand spread at 100K, #66). A size a pin records `None` for is one the row lands in
   band on: the pin holds there while the row stays in band (the wheel brand
   spread on the default build, #272). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that

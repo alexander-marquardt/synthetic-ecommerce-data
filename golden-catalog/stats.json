@@ -2708,7 +2708,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 124626,
+ "total_attribute_entries": 124623,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -2767,8 +2767,8 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.465514,
-   "numerator": 5710,
+   "achieved": 0.46527,
+   "numerator": 5707,
    "denominator": 12266,
    "note": "over title dimension tokens",
    "band": null
@@ -2812,8 +2812,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.4825,
-   "numerator": 124626,
+   "achieved": 10.4822,
+   "numerator": 124623,
    "denominator": 11889,
    "note": "count, not a rate",
    "band": null
@@ -3073,7 +3073,7 @@
   {
    "name": "price p50 (USD): kit_assortment",
    "target": 80.575,
-   "achieved": 79.05,
+   "achieved": 72.05,
    "numerator": 59,
    "denominator": 46,
    "note": "shown price; denom is the census n",
@@ -3085,10 +3085,10 @@
   {
    "name": "price p90/p10: kit_assortment",
    "target": 114.26,
-   "achieved": 4.03158,
+   "achieved": 106.744,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n; PINNED SHORTFALL, below band: a kit is priced from its contents, and the catalog's kit kinds hold between about $36 and $130 of parts, so with material and tier its prices span 4.0x on the default build and 3.9x at 100K against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, so the price would follow the noise, not the contents, and a kit draws none (widen the kit range: #76)",
+   "note": "shown price; denom is the census n",
    "band": [
     85.6948,
     151.965
@@ -3097,9 +3097,9 @@
   {
    "name": "price larger size costs more: kit_assortment",
    "target": 0.797,
-   "achieved": 0.733333,
-   "numerator": 22,
-   "denominator": 30,
+   "achieved": 0.826087,
+   "numerator": 19,
+   "denominator": 23,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.661236,
@@ -3649,8 +3649,8 @@
   {
    "name": "price ending .00",
    "target": 0.0854111,
-   "achieved": 0.0813196,
-   "numerator": 949,
+   "achieved": 0.0812339,
+   "numerator": 948,
    "denominator": 11670,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
@@ -3846,7 +3846,7 @@
   },
   "drawings": {
    "count": 11889,
-   "bytes": 30134547,
+   "bytes": 30125417,
    "geometry": {
     "nominal": 219,
     "partial": 2440,
@@ -3866,7 +3866,8 @@
    "drive_size_cardinality": 40,
    "drive_size_present": 1862,
    "held_by_floor": [
-    "Dash number"
+    "Dash number",
+    "Sizes included"
    ],
    "min_presence_arm": "Neck length",
    "min_presence_arm_dispersion": 0.9947,

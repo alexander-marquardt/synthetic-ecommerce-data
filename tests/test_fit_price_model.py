@@ -112,3 +112,18 @@ def test_one_run_fits_the_kit_on_the_parts_it_just_fitted(fit, default_build, mo
     fit.fit_all({"default": (collected, recorded)})
     old = fit.type_build("kit_assortment", collected, recorded).log_key
     assert seen["kit_assortment"] - old == pytest.approx(math.log(2), abs=0.01)
+
+
+def test_a_kit_is_fitted_at_the_fixed_sku_noise_and_the_widened_kinds_do_not_stop_the_fit(
+    fit, default_build, monkeypatch
+):
+    """A kit's SKU noise is :data:`.price.CONTENTS_SKU_SIGMA`, not solved for its
+    order row, and the fit runs on the kinds as the table stands: the widest
+    kit span is held to the row's band, not to the census figure the model
+    cannot be asked to meet (#76)."""
+    collected, recorded = default_build
+    monkeypatch.setattr(fit, "BUILDS", {"default": fit.BUILDS["default"]})
+    build = fit.type_build("kit_assortment", collected, recorded)
+    fitted = fit.fit_type("kit_assortment", [build])
+    assert fitted.sku == price.CONTENTS_SKU_SIGMA
+    assert fitted.group == 0.0
