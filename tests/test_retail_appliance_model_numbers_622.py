@@ -137,7 +137,6 @@ def test_every_large_appliance_has_a_model_number_that_decodes_to_its_own_attrib
 def test_the_base_model_is_the_model_number_without_its_color_letter(appliances):
     for r in appliances:
         a = _attrs(r)
-        assert "base_model" in a and "model_number" in a, r["title"]
         assert a["model_number"].startswith(a["base_model"]), r["title"]
         assert len(a["model_number"]) == len(a["base_model"]) + 1, r["title"]
 
@@ -147,7 +146,6 @@ def test_one_model_number_is_one_product_and_no_number_repeats_across_brands(app
     bases = defaultdict(set)
     for r in appliances:
         a = _attrs(r)
-        assert "base_model" in a and "model_number" in a, r["title"]
         owners[a["model_number"]].add(r["brand"])
         bases[a["base_model"]].add(r["product_id"])
     assert all(len(b) == 1 for b in owners.values()), owners
@@ -158,5 +156,5 @@ def test_one_model_number_is_one_product_and_no_number_repeats_across_brands(app
 def test_each_series_and_generation_is_its_own_attribute(appliances):
     for r in appliances:
         a = _attrs(r)
-        assert a.get("series") == r.get("product_line"), r["title"]
-        assert re.fullmatch(r"[A-Z]", a.get("generation", "")), r["title"]
+        assert re.fullmatch(r"[B-HJ-Z]", a.get("generation", "")), r["title"]
+        assert "series" not in a, "the series is the top-level field; a key would shadow it"

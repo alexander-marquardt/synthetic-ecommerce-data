@@ -78,6 +78,9 @@ class Row:
     #: the color is what the product is (a police livery, a taxi, a fire engine, bare wood).
     #: Empty for a free-paint style, which :func:`paint_range` gives the full range.
     fixed_color: str = ""
+    #: The series the brand sells this style in (gen#622); empty when it has none. It is the
+    #: document's ``product_line``, which export reads as the ``series`` field.
+    product_line: str = ""
 
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
@@ -105,6 +108,7 @@ class Row:
             sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
             review_count=3 + (h >> 16) % 400,
             price_min=min(s["price"] for s in skus), price_max=max(s["price"] for s in skus),
+            **({"product_line": self.product_line} if self.product_line else {}),
         )  # fmt: skip
 
 

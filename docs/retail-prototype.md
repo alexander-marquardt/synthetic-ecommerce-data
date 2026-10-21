@@ -719,6 +719,23 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
 
+Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
+(`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
+`product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
+field (an attribute keyed `series` would shadow it, which the output standard refuses). A large
+appliance's title reads brand, series, model number, spec, then the kind: "Frostholm Arden
+FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
+(its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
+or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
+`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. It is a product-level code
+named for the product's first color, and the `base_model` attribute is the same code without its
+color letter, which names the product in every color. Model number, generation, capacity
+and spin speed are each their own attribute. Two washing machines carry the second title form,
+"Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
+or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
+carry generation "H", which no authored model takes.
+`tests/test_retail_appliance_model_numbers_622.py` holds it.
+
 ### Pack scale (gen#543)
 
 Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
