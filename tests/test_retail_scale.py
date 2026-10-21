@@ -1324,3 +1324,40 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
     assert tables >= 3
     split = {b: o for b, o in owners.items() if len(o) > 1}
     assert split == {}
+
+
+@pytest.fixture(scope="module")
+def range_review(ceiling) -> dict[str, Any]:
+    """``scripts/review_range_names.py`` over the ceiling build's styles (gen#623)."""
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import review_range_names  # noqa: PLC0415 -- scripts/ is not a package
+
+    return review_range_names.review(ceiling.records)
+
+
+def test_a_range_word_belongs_to_one_brand(range_review):
+    """Guard (gen#623): a model word under many brands ("Larkrise Chocolate Bar" by one brand,
+    "Larkrise" jam by 17 more) reads as a brand. Metric: range words under two or more brands."""
+    shared = {name: len(brands) for name, brands in range_review["shared"].items()}
+    assert shared == {}
+
+
+def test_a_title_names_no_brand_but_its_own(range_review):
+    """Guard (gen#623): "Red Kite Lawn Mower" by another brand reads as that brand's mower.
+    Metric: the (title, row brand, brand named) triples."""
+    assert range_review["foreign"] == []
+
+
+def test_no_brand_is_made_of_a_product_phrase(range_review):
+    """Guard (gen#623): the brand "Card Game Row" reads as a product, not a maker. Metric: the
+    brands holding a product phrase of two or more words, with the phrase."""
+    assert range_review["phrase"] == {}
+
+
+def test_a_name_led_title_carries_its_line_attribute(range_review):
+    """Guard (gen#623): a title led by a range name says it is a range in a ``Line`` attribute.
+    Metric: the styles whose leading range name no Line attribute repeats."""
+    assert [(t, b) for t, b, _ in range_review["unlabeled"][:10]] == []
+    assert len(range_review["unlabeled"]) == 0
