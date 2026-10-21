@@ -41,6 +41,16 @@ pins it empty. The prototype's plural strip reads
 "tennis" as "tenni", so the noun of those two rows is `tenni`. The picnic blanket of gen#217 (Camping)
 carries two rows of its own (`picnic`), beside the two decoys of `decor_rows.py`.
 
+**Cups (gen#620).** A bare `cup` meets drinkware and the cup of a bra. The real cups carry realistic
+titles of six to ten words (material, size, use) and a drawing of their own, so a short bra title
+outscores them in the baseline: seven rows, `PLT-DY620` to `PLT-DY626`, are bras named for their cup
+("Full Cup Bra", "Demi Cup Bra", "Moulded Cup Bra", "Quarter Cup Bra", "Soft Cup Bra", "Spacer Cup
+Bra", "Cotton Full Cup Bra"), in `feature_decoys/cups_620.py`. Each sits under the Bras leaf its title
+names (gen#165: bra styles are facets, so a Full Cup Bra is in Full Cup Bras), and the fields tell the
+truth (a bra by department, path, product type and drawing); only the title holds `cup`. The category
+policy of the cups (gen#125 class 15) drops them. Related: gen#520 and gen#508, the plural-cups bras.
+`tests/test_retail_cups_620.py` holds the rule and the ranking.
+
 **Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
 hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
 case and card-making paper for "card", a notebook computer sleeve and tote for "notebook", a lockable
@@ -214,6 +224,13 @@ prototype's baseline; the live number is read on the next loaded index.
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
+| cup | cup | PLT-DY620 | Full Cup Bra | Bra | category |
+| cup | cup | PLT-DY621 | Demi Cup Bra | Bra | category |
+| cup | cup | PLT-DY622 | Moulded Cup Bra | Bra | category |
+| cup | cup | PLT-DY623 | Quarter Cup Bra | Bra | category |
+| cup | cup | PLT-DY624 | Soft Cup Bra | Bra | category |
+| cup | cup | PLT-DY625 | Spacer Cup Bra | Bra | category |
+| cup | cup | PLT-DY626 | Cotton Full Cup Bra | Bra | category |
 | fridge | fridge | PLT-DY309 | Mini Fridge Lunch Cooler | Lunch Box | category |
 | dishwasher | dishwasher | PLT-DY301 | Dishwasher Tablets, 60 Pack | Dish Soap | category |
 | dishwasher | dishwasher | PLT-DY302 | Dishwasher Salt, 2 kg | Dish Soap | category |

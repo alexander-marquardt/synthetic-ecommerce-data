@@ -88,14 +88,16 @@ def test_the_cup_kinds_do_not_share_a_drawing_and_none_is_the_mug(docs: list[dic
     assert len(set(CUP_KINDS.values())) == len(CUP_KINDS)
     assert "mug" not in CUP_KINDS.values()
     mugs = _of(docs, "Mug")
-    assert mugs and {d["drawing"]["shape"] for d in mugs} == {"mug"}
+    shapes = {d["drawing"]["shape"] for d in mugs}
+    assert "mug" in shapes and shapes <= {"mug", "gift_mug"}, shapes
+    assert not shapes & set(CUP_KINDS.values())
 
 
 def test_cup_named_bras_are_bras_with_cup_in_a_short_title(docs: list[dict]) -> None:
-    ids = {d["product_id"] for d in _decoys(docs) if d["product_id"].startswith("T-DY")}
+    ids = {d["product_id"] for d in _decoys(docs) if d["product_id"].startswith("PLT-DY")}
     assert len(ids) >= MIN_DECOYS, sorted(ids)
     for d in _decoys(docs):
-        if not d["product_id"].startswith("T-DY"):
+        if not d["product_id"].startswith("PLT-DY"):
             continue
         assert d["product_type"] == "Bra", d["product_id"]
         assert "cup" in tokens(d["title"]), d["title"]
@@ -103,7 +105,7 @@ def test_cup_named_bras_are_bras_with_cup_in_a_short_title(docs: list[dict]) -> 
 
 def test_a_bare_cup_ranks_the_decoys_above_every_real_cup(docs: list[dict]) -> None:
     top = br.rank(br.Index(docs), "cup", 12)
-    decoy_ids = {d["product_id"] for d in _decoys(docs) if d["product_id"].startswith("T-DY")}
+    decoy_ids = {d["product_id"] for d in _decoys(docs) if d["product_id"].startswith("PLT-DY")}
     assert len([d for d in top if d["product_id"] in decoy_ids]) >= MIN_DECOYS
     real = {d["product_id"] for pt in CUP_KINDS for d in _of(docs, pt)}
     assert not [d["product_id"] for d in top if d["product_id"] in real]

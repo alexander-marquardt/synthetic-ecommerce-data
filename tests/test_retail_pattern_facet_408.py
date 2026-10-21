@@ -143,9 +143,10 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
     text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
     face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
-    and 160 SKUs of the gen#509 plant rows make 11532 and 103111, and a new style would raise
-    both. This test pins 11532 templates and 103111 template SKUs: the PR that lifts the
-    freeze must move them."""
+    and 160 SKUs of the gen#509 plant rows make 11532 and 103111; the cups of gen#620 (12
+    type-spec templates and 7 Cup-named bra decoys, 49 SKUs) make 11551 and 103160, and a new
+    style would raise both. This test pins 11551 templates and 103160 template SKUs: the PR
+    that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11532
-    assert sum(t["sku_count"] for t in tpls) == 103111
+    assert len(tpls) == 11551
+    assert sum(t["sku_count"] for t in tpls) == 103160
