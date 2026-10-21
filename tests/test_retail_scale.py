@@ -1368,3 +1368,10 @@ def test_a_name_led_title_carries_its_line_attribute(range_review):
     Metric: the styles whose leading range name no Line attribute repeats."""
     assert [(t, b) for t, b, _ in range_review["unlabeled"][:10]] == []
     assert len(range_review["unlabeled"]) == 0
+
+
+def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
+    """Guard (gen#623): a brand that sells in both builds must not own one word in each, and two
+    brands must not own it, so the halves of the pool are disjoint. Metric: words in both halves."""
+    halves = range_ownership.halves()
+    assert set(halves["scale"]) & set(halves["grocery"]) == set()
