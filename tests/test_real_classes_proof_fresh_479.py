@@ -2,8 +2,8 @@
 
 ``prototypes/retail_drawings/real_classes_proof.json`` is what Elasticsearch answered for the
 class rows over one corpus, and carries that corpus's fingerprint. ``prototypes/`` holds its
-own test files and the pre-merge run does not collect them, so a corpus change that moved the
-fingerprint left the proof stale and nothing was red: seven tests of
+own test files, which the pre-merge run did not collect until gen#362, so a corpus change
+that moved the fingerprint left the proof stale and nothing was red: seven tests of
 ``test_real_classes.py`` failed on main for a day before anyone ran them.
 
 This file is collected, so a pull request that changes an indexed field of the corpus fails

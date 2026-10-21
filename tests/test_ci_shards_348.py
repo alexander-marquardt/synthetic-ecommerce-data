@@ -119,11 +119,12 @@ def test_a_shard_outside_the_count_is_refused(args: list[str]) -> None:
 
 
 def test_the_files_the_script_deals_are_the_files_pytest_collects() -> None:
-    """The glob in ci_shards.py is pytest's collection rule, not a guess at it."""
+    """The glob in ci_shards.py is pytest's collection rule, not a guess at it: the run names
+    no path, so ``testpaths`` of ``pyproject.toml`` decides what it collects (gen#362)."""
     env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:cacheprovider", "-n", "0", "tests"],
+        + ["no:cacheprovider", "-n", "0"],
         cwd=REPO,
         env=env,
         capture_output=True,

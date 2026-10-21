@@ -53,6 +53,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
+#: The directories whose ``test_*.py`` files pytest collects (``testpaths`` of pyproject.toml,
+#: ``ci_shards.TEST_DIRS``).
+_TEST_ROOTS = ("tests/", "prototypes/retail_drawings/")
+
 #: Test files every pull request runs: the guards of this selection and of the sharding, which
 #: are cheap and fail the moment the CI wiring or the selection is wrong.
 SMOKE: tuple[str, ...] = (
@@ -483,7 +487,7 @@ _TEXT_SUFFIXES = {
 
 def is_test_file(path: str) -> bool:
     name = Path(path).name
-    return path.startswith("tests/") and (
+    return path.startswith(_TEST_ROOTS) and (
         (name.startswith("test_") and name.endswith(".py")) or name.endswith("_test.py")
     )
 
