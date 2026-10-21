@@ -242,7 +242,7 @@ def _highlight_line() -> str:
 
 
 def screen_protector(paint: str, fill: Fill, label: str | None, finish: str = "clear") -> list[str]:
-    """A phone under a glass sheet: ``clear`` a gloss line, ``matte`` a stipple, ``privacy`` louvre stripes."""
+    """A phone under a glass sheet: ``clear`` a gloss line, ``matte`` a stipple, ``privacy`` louver stripes."""
     out = [
         _rect(120, 50, 160, 300, "#2a2a2e", 28),
         _screen(130, 62, 140, 276, 16),
