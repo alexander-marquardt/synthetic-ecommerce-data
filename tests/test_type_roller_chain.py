@@ -15,6 +15,7 @@ derivation measures one ``pitch`` over both types and buckets a chain's
 from __future__ import annotations
 
 import json
+import math
 import statistics
 from pathlib import Path
 
@@ -31,7 +32,11 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate, gener
 from synthetic_ecommerce_data.domains.industrial.product_types.motion import roller_chain
 from synthetic_ecommerce_data.prism import derive
 from test_attribute_names import CENSUS, OBSERVED
-from test_catalog_brands_voice import same_product_duplicates
+from test_catalog_brands_voice import (
+    DISTINCT_SPEC_FLOOR,
+    IDENTIFIER_ATTRIBUTES,
+    same_product_duplicates,
+)
 from test_sku_drawings import MAX_DRAWING_BYTES
 from test_type_seam import _by_type, _moved_by_removing
 
@@ -178,7 +183,14 @@ B29_1 = {
     "160": (2.000, 1.125, 1.250), "180": (2.250, 1.406, 1.406), "200": (2.500, 1.562, 1.500),
     "240": (3.000, 1.875, 1.875),
 }  # fmt: skip
-STRAND_SUFFIX = {"Single Strand": "", "Double Strand": "-2", "Triple Strand": "-3"}
+STRAND_SUFFIX = {
+    "Single Strand": "",
+    "Double Strand": "-2",
+    "Triple Strand": "-3",
+    "Four Strand": "-4",
+    "Heavy Duty Single Strand": "H",
+    "Heavy Duty Double Strand": "-2H",
+}
 LARGE_LINES = 39000
 MM = 25.4
 
@@ -199,6 +211,11 @@ def _attrs(doc: dict) -> dict[str, dict]:
     return {a["name"]: a for a in authored_entries(doc)}
 
 
+def _chain_number(ansi_number: str) -> str:
+    """The standard series number of an ANSI Number: ``60-2H`` is chain 60."""
+    return ansi_number.partition("-")[0].removesuffix("H")
+
+
 def _inches(attribute: dict) -> float:
     """``value_canonical`` is millimetres whatever unit the value is written in."""
     return float(attribute["value_canonical"]) / MM
@@ -206,24 +223,25 @@ def _inches(attribute: dict) -> float:
 
 def test_a_chains_pitch_is_its_chain_numbers_leading_digits_in_eighths(clean_docs):
     """B29.1's numbering rule: the digits left of the last one count eighths
-    of an inch of pitch, and a multiple strand chain adds ``-2`` or ``-3``."""
+    of an inch of pitch, a multiple strand chain adds ``-2``, ``-3`` or ``-4``, and
+    a heavy series chain an ``H`` (``60H``, ``60-2H``)."""
     numbers = set()
     for doc in clean_docs:
         attrs = _attrs(doc)
-        number, _, strands = attrs["ANSI Number"]["value"].partition("-")
+        value = attrs["ANSI Number"]["value"]
+        number = _chain_number(value)
         numbers.add(number)
         assert _inches(attrs["Pitch"]) == pytest.approx(int(number[:-1]) / 8, abs=1e-6), number
-        suffix = f"-{strands}" if strands else ""
-        assert suffix == STRAND_SUFFIX[attrs["Style"]["value"]], attrs["ANSI Number"]["value"]
+        assert value.removeprefix(number) == STRAND_SUFFIX[attrs["Style"]["value"]], value
     assert numbers <= set(B29_1)
-    assert len(numbers) >= 11, sorted(numbers)
+    assert len(numbers) >= 10, sorted(numbers)
 
 
 def test_every_published_dimension_is_the_standards_own_row(clean_docs):
     checked = 0
     for doc in clean_docs:
         attrs = _attrs(doc)
-        number = attrs["ANSI Number"]["value"].partition("-")[0]
+        number = _chain_number(attrs["ANSI Number"]["value"])
         pitch, roller, width = B29_1[number]
         assert _inches(attrs["Pitch"]) == pytest.approx(pitch, abs=1e-6), number
         if roller is None:
@@ -299,20 +317,28 @@ def test_no_chain_any_brand_could_offer_draws_past_the_size_cap():
     style: the committed catalog shows only the chains one seed happened to
     stock, and the first three-link view was 14,267 bytes in it."""
     materials = sorted({offer.material for offer, _ in roller_chain.OFFERS})
-    largest, drawn = 0, 0
-    for _, pitch, roller, width in roller_chain.ANSI:
+    # Triple strand in every row; four strand in the rows an offer stocks (#98).
+    four = {
+        row[0] for offer, _ in roller_chain.OFFERS if offer.strands == 4 for row in offer.rows()
+    }
+    largest, drawn, expected = 0, 0, 0
+    for number, pitch, roller, width in roller_chain.ANSI:
         record = {"Pitch": f'{float(pitch)}"', "Inside Width": f'{float(width)}"'}
         if roller is not None:
             record["Roller Dia."] = f'{float(roller)}"'
-        for material in materials:
-            for brand in brands.BRANDS:
-                data, _ = draw_sku(
-                    KEY, brand, {**record, "Style": "Triple Strand", "Material": material}
-                )
-                assert svg_problems(data) == [], (brand, record)
-                largest = max(largest, len(data))
-                drawn += 1
-    assert drawn == len(roller_chain.ANSI) * len(materials) * len(brands.BRANDS)
+        styles = ["Triple Strand", *(["Four Strand"] if number in four else [])]
+        for style in styles:
+            for material in materials:
+                for brand in brands.BRANDS:
+                    data, _ = draw_sku(KEY, brand, {**record, "Style": style, "Material": material})
+                    assert svg_problems(data) == [], (brand, record)
+                    largest = max(largest, len(data))
+                    drawn += 1
+                    expected += 1
+    assert four, "no offer stocks a four-strand chain"
+    assert drawn == expected == (len(roller_chain.ANSI) + len(four)) * len(materials) * len(
+        brands.BRANDS
+    )
     assert largest < MAX_DRAWING_BYTES, largest
 
 
@@ -333,8 +359,10 @@ def _strand_sets(docs: list[dict]) -> dict[tuple, dict[str, list[float]]]:
     cells: dict[tuple, dict[str, list[float]]] = {}
     for doc in docs:
         attrs = _attrs(doc)
+        if attrs["Style"]["value"] not in STRANDS_IN_ORDER:
+            continue  # heavy and four strand chains are priced against a single strand one below
         spec = (
-            attrs["ANSI Number"]["value"].partition("-")[0],
+            _chain_number(attrs["ANSI Number"]["value"]),
             attrs["Material"]["value"],
             attrs["Length"]["value"],
         )
@@ -367,6 +395,93 @@ def test_the_provenance_says_where_the_dimensions_were_read():
         "Pitch and Roller Dia. and Inside Width are ASME B29.1 dimensions as "
         "published in the size chart at " + roller_chain.SOURCE_URL + " (retrieved 2026-10-07)"
     )
+
+
+# --- #98: the stocked offers are wider than B29.1's standard series alone -----
+
+
+def test_the_distinct_spec_floor_holds_at_100k():
+    """The floor ``test_catalog_brands_voice`` holds the type to, read here on
+    this type alone, so a collapse of its offers fails in seconds."""
+    catalog = generate(GeneratorConfig(lines=LARGE_LINES), types=[KEY])
+    docs = [doc for line in catalog.lines for doc in emit.flat_documents(catalog, line)]
+    specs = {
+        tuple(
+            sorted(
+                (a["name"], a["value"])
+                for a in authored_attributes(doc)
+                if a["name"] not in IDENTIFIER_ATTRIBUTES
+            )
+        )
+        for doc in docs
+    }
+    assert len(specs) / len(docs) >= DISTINCT_SPEC_FLOOR[KEY], (len(specs), len(docs))
+
+
+def test_the_heavy_series_the_four_strand_chain_and_the_zinc_finish_are_stocked():
+    """What the distributor's chart prints beyond the standard single, double
+    and triple strand series (the heavy series, the four-strand chart, the
+    zinc plated chain), at the large build."""
+    docs = _clean_docs(LARGE_LINES)
+    numbers = {_attrs(doc)["ANSI Number"]["value"] for doc in docs}
+    assert any(n.endswith("H") for n in numbers), sorted(numbers)
+    assert any(n.endswith("-4") for n in numbers), sorted(numbers)
+    finishes = {_attrs(doc)["Finish"]["value"] for doc in docs if "Finish" in _attrs(doc)}
+    assert "Zinc Plated" in finishes, sorted(finishes)
+
+
+def test_a_heavy_chain_costs_more_than_the_standard_chain_of_its_number():
+    """The distributor prints a heavy chain's weight per foot above the
+    standard chain's (1.15 times, the median over the eleven numbers both
+    print): within one brand, the heavy chain of a number, material and length
+    is the dearer one by about that much (the log of the mean ratio)."""
+    by_spec: dict[tuple, dict[bool, list[float]]] = {}
+    for doc in _clean_docs(LARGE_LINES):
+        attrs = _attrs(doc)
+        if attrs["Style"]["value"] not in ("Single Strand", "Heavy Duty Single Strand"):
+            continue
+        number = attrs["ANSI Number"]["value"]
+        spec = (
+            doc["brand"],
+            _chain_number(number),
+            attrs["Material"]["value"],
+            attrs["Length"]["value"],
+        )
+        by_spec.setdefault(spec, {}).setdefault(number.endswith("H"), []).append(doc["price_usd"])
+    paired = {spec: by for spec, by in by_spec.items() if len(by) == 2}
+    assert len(paired) >= 5, sorted(by_spec)
+    logs = [
+        math.log(statistics.mean(by[True]) / statistics.mean(by[False])) for by in paired.values()
+    ]
+    assert 0.05 < statistics.mean(logs) < 0.25, (statistics.mean(logs), len(paired))
+
+
+def test_a_four_strand_chain_costs_more_than_its_brands_single_strand_one():
+    """Four strands are four chains' plates and rollers on shared pins (3.7 times
+    the single chain). A brand's own pair shares its
+    price level; across brands the noise (p90/p10 of 12) hides the step, so it
+    is read within one brand, number, material and length."""
+    by_spec: dict[tuple, dict[str, list[float]]] = {}
+    for doc in _clean_docs(LARGE_LINES):
+        attrs = _attrs(doc)
+        style = attrs["Style"]["value"]
+        if style not in ("Single Strand", "Four Strand"):
+            continue
+        spec = (
+            doc["brand"],
+            _chain_number(attrs["ANSI Number"]["value"]),
+            attrs["Material"]["value"],
+            attrs["Length"]["value"],
+        )
+        by_spec.setdefault(spec, {}).setdefault(style, []).append(doc["price_usd"])
+    paired = {spec: by for spec, by in by_spec.items() if len(by) == 2}
+    assert len(paired) >= 2, sorted(by_spec)
+    falling = [
+        spec
+        for spec, by in paired.items()
+        if statistics.median(by["Four Strand"]) <= statistics.median(by["Single Strand"])
+    ]
+    assert falling == [], falling
 
 
 if __name__ == "__main__":

@@ -210,10 +210,14 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: sell the same one (0.15); hammers 0.72, bolts 0.76, flap discs 0.79, kits
 #: 0.84, hex keys 0.88, nuts 0.90, every other type 0.93 or more -- but dowel
 #: pins, 0.82: each standard fixes its sizes and lengths, so makers overlap.
-#: A roller chain is B29.1's 13 sizes in nine stocked offers, 63
+#: A roller chain is B29.1's 13 sizes in fourteen stocked offers, 94
 #: size-and-offer pairs (the sum of each ``roller_chain.OFFERS`` row's chain
-#: numbers); with sparsity and noise its 509 SKUs hold 171 distinct specs
-#: (0.34). Key stock is 14 sections in two fits, three material and finish
+#: numbers); its 609 SKUs at ``--lines 39000`` hold 439 distinct specs (0.72,
+#: rounded down to 0.70). #98 widened it from nine offers and 63 pairs (509 SKUs,
+#: 334 distinct, 0.66 once each brand spells a dimension in its own feed's style)
+#: by the heavy series, the four-strand chart and zinc plating the distributor's
+#: chart prints; the remaining overlap is makers selling the same standard part.
+#: Key stock is 14 sections in two fits, three material and finish
 #: pairs and two lengths, 168 bars in all, and every maker sells the same
 #: ones: its 965 SKUs hold 184 distinct specs (0.19; the 16 over 168 are
 #: unit-defect spellings of a size).
@@ -221,7 +225,7 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 DISTINCT_SPEC_FLOOR = {
     "key_stock": 0.15,
     "washer_flat": 0.15,
-    "roller_chain": 0.30,
+    "roller_chain": 0.70,
     "hammer_ball_pein": 0.70,
     # The six kinds added by #305, measured at 100K: claw 0.81, framing 0.78, ball pein 0.74,
     # dead blow 0.74, sledge 0.73, rubber mallet 0.70, club 0.69. A hammer is a handle, a
