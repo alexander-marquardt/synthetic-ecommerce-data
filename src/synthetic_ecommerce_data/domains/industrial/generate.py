@@ -671,6 +671,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             else:
                 major_in = standards.INCH_MAJOR_DIA.get(designation.split("-")[0], 0.25)
             oal_in = max(major_in * 8.0, 1.8)
+            # The shank and its drive square are one row of ASME B94.9 / ISO 529: a
+            # fractional tap from 7/16 up has a shank SMALLER than its thread, which
+            # a fixed ratio to the thread diameter cannot say (#3).
+            shank_in, square_in = series.tap_shank_and_square(designation)
             child.primary = keyword_attribute("Thread Size", designation)
             child.attrs = [
                 child.primary,
@@ -685,7 +689,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
-                self._length("Shank Dia.", major_in * 0.9, style),
+                self._length("Shank Dia.", shank_in, style),
+                self._length("Square Size", square_in, style),
             ]
             child.secondary = {"other_length": child.attrs[2], "length_of_cut": child.attrs[3]}
             draft.children.append(child)

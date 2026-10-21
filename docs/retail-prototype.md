@@ -30,8 +30,16 @@ A garment is drawn as the garment its leaf names (gen#447): `leaf_shapes.RULES` 
 the shape and parameters that draw them, `leaf_shapes.apply` sets them in `scale.templates()`
 before the decoys clone their exemplars, and `test_shape_honesty.py` fails a template of a listed
 leaf drawn another way. A "Checked" or "Striped" title carries a gingham or stripe swatch, and a
-"Boxers" decoy never clones a brief exemplar. The parts a title names (a bra band, a blouse
-collar, a bow, "with Blue Collar") are the next slice.
+"Boxers" decoy never clones a brief exemplar.
+
+A title that names a part in a color ("Navy Bra with Red Band", "Grey Shirt with Blue Pocket")
+draws that part in that color (gen#447): `named_parts.apply` reads "with <Color> <Part>" off an
+apparel title and sets `drawing.detail` (a shoe's laces are its `lace` parameter), the class-1
+decoy rows pick their part with `named_parts.trim_part` from `details.PARTS`, the parts the
+shape can show, and `named_parts.violations` is what `test_shape_honesty.py` runs over every
+apparel template. "Stitching" and "Piping" are too fine to see at thumbnail size, so no garment
+title names them. A part a shape cannot show is added to `details.PARTS` with its geometry before
+a title names it.
 
 `tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
 the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
@@ -91,7 +99,11 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
+and nested under `Trainers` it would make a leaf a parent. The men's brogues and loafers sit
+under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
+has one node to point at; product ids, titles and drawings do not move. The node is chosen by
+gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
+`Womens > Shoes` until the women's types it groups are named. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -176,8 +188,12 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
-`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
+`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+one drawing per style, except the pizza: its `flavor` (the toppings) and
+`pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
+style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
+the before and after is `docs/images/pizza-drawn-604.svg`). A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
 name and a band of the style's flavor colors (`kit._panel` reads them from the
 drawing's `line` and `chips` params). The range-name text tells siblings of a family
@@ -297,7 +313,7 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
-The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+The pre-merge run collects `prototypes/retail_drawings` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
 drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
@@ -710,3 +726,14 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+### Pack scale (gen#543)
+
+Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
+about the cube root of its net volume (or weight, or count) against the largest size of
+its line, floored at 0.6, on the same 400 x 400 sheet and baseline, so a 30 ml jar is
+visibly smaller than a 100 ml one (`pack_scale.py`). The largest size, and a line of one
+size, draw as they always did. Every size drawn at one scale shares its color's image,
+drawn in that color's swatch (base, pattern and accent).
+![A line's 30, 50 and 100 ml drawn before and after](images/pack-scale.svg)
+`image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.

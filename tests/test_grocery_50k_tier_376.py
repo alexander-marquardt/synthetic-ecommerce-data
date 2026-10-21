@@ -25,9 +25,11 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
+import export  # noqa: E402
 import grocery  # noqa: E402
 import grocery_rows as gr  # noqa: E402
 import house_styles as hs  # noqa: E402
+import pack_scale  # noqa: E402
 import real_brands  # noqa: E402
 from retail_figures import figures  # noqa: E402
 
@@ -109,9 +111,19 @@ def test_no_two_styles_are_twins() -> None:
     assert {t: n for t, n in titles.items() if n > 1} == {}
 
 
-def test_one_drawing_per_style() -> None:
+def test_one_drawing_per_style_and_pack_scale() -> None:
+    """A style's sizes share a drawing unless its line draws a size smaller (gen#543) or a SKU
+    draws its own params (a pizza's flavour and size, gen#604)."""
     images = {v["image_id"] for d in docs() for v in d["variants"]}
-    assert len(images) == len(docs())
+
+    def own(rec: dict, sku: dict) -> tuple:
+        return tuple(sorted(export.drawing_spec(rec, sku).get("params", {}).items()))
+
+    drawn = {
+        (r["product_id"], pack_scale.factor(r, s), own(r, s)) for r in recs() for s in r["skus"]
+    }
+    assert len(images) == len(drawn) >= len(docs())
+    assert len({img.rsplit("/", 1)[0] for img in images}) == len(docs())
 
 
 def test_the_nested_and_flat_files_meet_the_output_standard() -> None:
