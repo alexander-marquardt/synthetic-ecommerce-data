@@ -47,7 +47,8 @@ def literal_fleet_totals(source: str) -> list[tuple[int, str]]:
                 sides = [cmp_.left, *cmp_.comparators]
                 for side in sides:
                     others = [s for s in sides if s is not side]
-                    lits = [v for o in others for v in _int_literals(o) if isinstance(o, ast.Constant)]
+                    consts = [o for o in others if isinstance(o, ast.Constant)]
+                    lits = [v for o in consts for v in _int_literals(o)]
                     text = _text(side)
                     if any(v >= MIN_LEN_LITERAL for v in lits) and text.startswith("len("):
                         found.append((stmt.lineno, _text(stmt)))
