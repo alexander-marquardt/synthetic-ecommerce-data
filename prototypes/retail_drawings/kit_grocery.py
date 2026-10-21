@@ -216,7 +216,7 @@ def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "Margherita",
 
 
 def _fillet(cx: float, cy: float, k: float, batter: str, crumb: str) -> list[str]:
-    """One battered fish fillet (a rounded body with a tail at the right) centred on ``cx, cy``."""
+    """One battered fish fillet (a rounded body with a tail at the right) centered on ``cx, cy``."""
 
     def at(x: float, y: float) -> str:
         return f"{cx + x * k:.1f},{cy + y * k:.1f}"
