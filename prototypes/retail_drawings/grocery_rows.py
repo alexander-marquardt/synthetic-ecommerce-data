@@ -356,7 +356,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Raspberry Dark", "#a3214a")),
            _CHOC, 0.09, base="S", may=_NUTS, per_style=(3, 7)),
     Family("CHX", _p("Chocolate & Sweets", "Chocolate Boxes"), "{line} {flavor} Chocolate Selection",
-           "Chocolate Box", "box", "Chocolates", _A, "E", 6.0, ("150g", "250g", "400g"),
+           "Chocolate Box", "chocolate_box", "Chocolates", _A, "E", 6.0, ("150g", "250g", "400g"),
            (F("Classic Milk", "#8a5a3c", "M"), F("Praline", "#9a6a44", "MT"), F("Dark Truffle", "#3b2416", "M"),
             F("Mint Crisp", "#2f6b52", "M"), F("Orange Cream", "#d9822b", "M"), F("Vegan Dark", "#2a1a10")),
            _CHOC, 0.03, base="S", may=_NUTS),
