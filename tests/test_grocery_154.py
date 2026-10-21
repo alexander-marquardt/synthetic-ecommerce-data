@@ -27,6 +27,7 @@ if str(RETAIL) not in sys.path:
 import export  # noqa: E402
 import grocery  # noqa: E402
 import kit  # noqa: E402
+import pack_scale  # noqa: E402
 from grocery_ingredients import allergen_value, facet_value  # noqa: E402
 from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
 from retail_figures import figures  # noqa: E402
@@ -225,9 +226,13 @@ def test_the_build_is_deterministic_and_the_seed_changes_it() -> None:
     assert a != json.dumps(grocery.build(2000, seed=4), sort_keys=True)
 
 
-def test_one_drawing_per_style() -> None:
+def test_one_drawing_per_style_and_pack_scale() -> None:
+    """A style's sizes share a drawing unless its line draws a size smaller (gen#543)."""
     images = {v["image_id"] for d in docs() for v in d["variants"]}
-    assert len(images) == STYLES
+    recs = grocery.build(grocery.TARGET)
+    drawn = {(r["product_id"], pack_scale.factor(r, s)) for r in recs for s in r["skus"]}
+    assert len(images) == len(drawn) >= STYLES
+    assert len({img.rsplit("/", 1)[0] for img in images}) == STYLES
 
 
 @pytest.mark.parametrize("shape", ["bar", "bag"])

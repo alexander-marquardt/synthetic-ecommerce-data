@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import HUNDRED_K_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
@@ -189,9 +189,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + 2 * len(price.DEEPENED_CENSUS)
     )
     assert len(price_rows) == expected == 72
-    out = [
-        row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS
-    ]
+    out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
 
@@ -255,6 +253,19 @@ def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
     assert row.within, (row.achieved, row.band)
     model = price.MODELS["wheel_depressed_center"]
     assert model.size_sigma > model.group_sigma, (model.size_sigma, model.group_sigma)
+
+
+def test_a_pin_may_land_no_further_out_a_none_record_holds_the_build_in_band(
+    price_rows, monkeypatch
+):
+    """A build a pin records ``None`` for is held in band (#272). No committed pin
+    records one since #357, so a planted record holds that branch."""
+    name = BRAND_ROW.format("wheel_depressed_center")
+    monkeypatch.setitem(price.PINNED_FIGURES, name, (None, None))
+    (row,) = [row for row in price_rows if row.name == name]
+    inside = replace(row, achieved=row.band[1] * 0.999)
+    assert price_report.pin_holds(inside, 0)
+    assert not price_report.pin_holds(row, 0)
 
 
 def _recorded(name: str) -> tuple[float | None, float | None]:
@@ -586,12 +597,16 @@ def test_the_hex_nut_takes_the_drills_tiers_though_the_census_measures_its_sprea
 def test_only_the_size_noise_types_draw_a_size_noise():
     """A size noise is fitted only for a type SIZE_NOISE gives a reason for."""
     sized = {t for t in price.CENSUS if price.model_for(t).size_sigma}
-    assert sized == set(price.SIZE_NOISE) == {
-        "screw_socket_head",
-        "set_screws_hex_socket",
-        "tap_spiral_point",
-        "wheel_depressed_center",
-    }
+    assert (
+        sized
+        == set(price.SIZE_NOISE)
+        == {
+            "screw_socket_head",
+            "set_screws_hex_socket",
+            "tap_spiral_point",
+            "wheel_depressed_center",
+        }
+    )
 
 
 def test_each_familys_tiers_price_in_order(scored):
@@ -937,7 +952,7 @@ def test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k(monkeypatch):
     not rest on how the noise happens to fall."""
     quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
     monkeypatch.setitem(price.MODELS, WHEEL, quiet)
-    catalog = generate(GeneratorConfig(lines=HUNDRED_K_LINES))
+    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
     (row,) = [
         row
         for row in price_report.price_comparisons(catalog)
@@ -1268,7 +1283,7 @@ ROW_NAMES = sorted(
 @pytest.fixture(scope="module")
 def hundred_k() -> tuple[Catalog, list[KitSku]]:
     """The 100K build and its kits (about 35 s)."""
-    return _recorded_build(GeneratorConfig(lines=HUNDRED_K_LINES))
+    return _recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
 
 
 @pytest.fixture(scope="module")

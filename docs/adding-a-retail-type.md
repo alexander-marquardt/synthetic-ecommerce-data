@@ -84,17 +84,20 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 rows, the apparel decoys, and last the grocery styles. `scale.build(skus)` takes templates in
 that order until their SKUs reach the target, and only then derives more. A build smaller than
 the template list therefore stops partway: a type late in the list is absent from a small build,
-and its decoys are too. A spec needs no edit to `templates()`; a module of the older kind is
-added to the list by hand, and the later it sits the fewer small builds hold it. To see a build, run
-`uv run python prototypes/retail_drawings/scale.py --skus 2000`.
+and its decoys are too. A spec needs no edit to `templates()`; a module of the older kind is added
+by hand, later ones in fewer small builds. See one: `uv run python prototypes/retail_drawings/scale.py --skus 2000`.
 
 ## 8. Images: one per style and colorway
 
 `export.image_id` is `<type>/<product id>/<digest of the drawing spec>`, and
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
-by SKU (a lamp's `finish`) yields one per value. Sizes alone add none. If two things must look
-different on the sheet (a two-seat and a three-seat sofa), they are two styles.
+by SKU (a lamp's `finish`) yields one per value. Sizes alone add none, with one exception: a SKU
+with a `net_volume_ml` or `net_weight_g` (or, in Food & Drink and Beauty only, a `units_per_pack`)
+is drawn at the cube root of that content against its style's largest size, floored at 0.6
+(`pack_scale.factor`; `kit.render(shrink=)` scales the whole drawing about its bottom center, so the
+shape needs no param), so each smaller size is its own image and a style of one size is unchanged.
+If two things must look different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.
 
