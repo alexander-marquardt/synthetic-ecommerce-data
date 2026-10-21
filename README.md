@@ -391,7 +391,7 @@ have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
 cutter's own size; and an oversize shank is at most three times its cutter,
-or 6 mm under a metric cutter below 6 mm (see
+and a metric cutter below 6 mm takes its DIN 6527 shank (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -503,13 +503,11 @@ shared tables):
   `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
   3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
   5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
-  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
-  6.0x). That is a catalog convention the #33 review proposed, not yet
-  confirmed against a standard's diameter table (#87); it leaves the
-  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
-  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
-  shank, most of them on 3 mm. Above the largest stocked shank the shank is
-  the cutter's own size.
+  shank sits on the shank DIN 6527 (1/2012, [table](https://www.fasten.it/en/norms/norm/din_6527))
+  pairs with its diameter: 2 and 2.5 mm on 3 mm, 3-5 mm on 6 mm; 1 and 1.5 mm
+  are below its range and take 3 mm (3.0x), an extension. This replaced one
+  6 mm shank for all of them, which nothing had confirmed (#87). Above the
+  largest stocked shank the shank is the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
   mills said `Sq End`).
@@ -692,7 +690,9 @@ sells them together as one item. So some hex key sizes are sold only in a set
 (0.7, 0.9, 1.3mm; 0.028", 0.035"), some only singly (12mm), most both, and a
 test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
-is the one facet value "Assortment Kit" and its kind is `Type`. 59 kits on
+is the one facet value "Assortment Kit" and its kind is `Type`. A kit's
+description lists its sizes in the spec clause as well as `Sizes Included`
+(57 of 59 kits on the default build; 2 omit the clause). 59 kits on
 the default build, 695 at 100K. A kit's price is its contents' price times
 one fitted factor, its material and its tier ([Price](#price)).
 
