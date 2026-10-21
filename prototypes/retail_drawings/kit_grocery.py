@@ -15,6 +15,8 @@ steak_tray      a black tray under film holding one cut of meat:      --
                 a fat rim, marbling and a label on the tray (a steak)
 pizza           a round pizza on a card base under film, seen at a    flavor,
                 slight angle: toppings by flavour, diameter by inches  pack_size
+fish_bag        a flat frozen pillow bag, crimped top and foot, with  --
+                battered fish fillets on the front (battered fish)
 ==============  ===================================================  ======
 
 Each paints the record's fill on the pack's main surface and carries the product
@@ -213,9 +215,43 @@ def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "Margherita",
     ]  # fmt: skip
 
 
+def _fillet(cx: float, cy: float, k: float, batter: str, crumb: str) -> list[str]:
+    """One battered fish fillet (a rounded body with a tail at the right) centred on ``cx, cy``."""
+
+    def at(x: float, y: float) -> str:
+        return f"{cx + x * k:.1f},{cy + y * k:.1f}"
+
+    body = (
+        f"M{at(-46, 0)} C{at(-42, -24)} {at(14, -30)} {at(42, -9)} L{at(58, -19)} L{at(58, 19)} "
+        f"L{at(42, 9)} C{at(14, 30)} {at(-42, 24)} {at(-46, 0)} Z"
+    )
+    flecks = " ".join(f"M{at(x, y)} l{3 * k:.1f},{1.5 * k:.1f}" for x, y in
+                      ((-30, -8), (-12, 6), (4, -10), (20, 4), (-24, 10), (-2, 14), (24, -6)))  # fmt: skip
+    return [
+        _path(body, batter, 2.2, ' class="fish"'),
+        _line(flecks, 1.8, ' stroke-opacity=".7"', crumb),
+    ]
+
+
 def fish_bag(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """STUB (red commit): the upright stand-up bag."""
-    return bag(paint, fill, label)
+    """A flat frozen pillow bag, crimped top and foot, with battered fish pieces on the front.
+
+    The bag is the record's fill; the fillets are a lighter tone of it with a darker crumb
+    fleck, and the label panel sits across the lower front. It is wider than it is tall."""
+    batter = _mix(fill.base, "#fff0cf", 0.45)
+    crumb = _mix(fill.base, "#3b2416", 0.45)
+    top = " ".join(f"L{44 + i * 13:g},{112 if i % 2 else 120}" for i in range(1, 25))
+    foot = " ".join(f"L{356 - i * 13:g},{358 if i % 2 else 350}" for i in range(1, 25))
+    return [
+        _path("M44,128 Q200,114 356,128 L352,340 Q200,354 48,340 Z", paint),
+        _path(f"M44,120 {top} L356,128 L44,128 Z", paint, 1.8),
+        _path(f"M356,350 {foot} L44,340 L356,340 Z", paint, 1.8),
+        _line("M52,136 Q200,124 348,136", 1.2, ' stroke-opacity=".5"', "#ffffff"),
+        *_fillet(110, 176, 1.0, batter, crumb),
+        *_fillet(236, 172, 1.0, batter, crumb),
+        *_fillet(172, 228, 1.0, batter, crumb),
+        *_panel(104, 270, 192, 54, label, 34),
+    ]  # fmt: skip
 
 
 register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub,
