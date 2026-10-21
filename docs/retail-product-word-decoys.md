@@ -72,9 +72,9 @@ in the first 12 for each seed with policies off, every query word required, the 
 prototype's baseline; the live number is read on the next loaded index.
 
 **Electronics (gen#332).** Five device words and `apple` meet products of other departments, in
-`feature_decoys/electronics.py` (rows DY700 to DY718): `mouse` (a trap, a cushion, a throw),
-`tablet` (dishwasher tablets, Scottish tablet), `monitor` (two baby monitors, a lizard cushion),
-`mobile` (two cot mobiles, a coat stand), `charger` (two battery chargers, a charger plate) and
+`feature_decoys/electronics.py` (rows DY701 to DY725): `mouse` (a cushion, a throw, a basket),
+`tablet` (dishwasher tablets, Scottish tablet), `monitor` (a lizard cushion, throw and basket),
+`mobile` (a coat stand, a clothes rack, a basket on wheels), `charger` (three charger plates) and
 `apple` (the fruit, its juice, a candle, a tree). Each row carries `device_type`, the Electronics
 type whose word the title holds, and the department policy drops it. See
 [retail-electronics.md](retail-electronics.md).
@@ -222,25 +222,25 @@ type whose word the title holds, and the department policy drops it. See
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
-| mouse | mouse | PLT-DY700 | Mouse Trap, Twin Pack | Mouse Trap | department |
 | mouse | mouse | PLT-DY701 | Harvest Mouse Cushion | Cushion | department |
 | mouse | mouse | PLT-DY702 | Field Mouse Throw | Throws | department |
 | tablet | tablet | PLT-DY703 | All-in-One Dishwasher Tablets | Dish Soap | department |
 | tablet | tablet | PLT-DY704 | Scottish Tablet Sweets | Sweets | department |
 | tablet | tablet | PLT-DY705 | Scottish Tablet Gift Box | Chocolate Box | department |
-| monitor | monitor | PLT-DY706 | Baby Monitor, Audio Only | Baby Monitor | department |
-| monitor | monitor | PLT-DY707 | Video Baby Monitor | Baby Monitor | department |
 | monitor | monitor | PLT-DY708 | Monitor Lizard Cushion | Cushion | department |
-| mobile | mobile | PLT-DY709 | Musical Cot Mobile | Cot Mobile | department |
-| mobile | mobile | PLT-DY710 | Woodland Animals Cot Mobile | Cot Mobile | department |
 | mobile | mobile | PLT-DY711 | Mobile Coat Stand | Hallway Stands | department |
-| charger | charger | PLT-DY712 | Car Battery Charger | Battery Charger | department |
-| charger | charger | PLT-DY713 | Motorbike Battery Charger | Battery Charger | department |
 | charger | charger | PLT-DY714 | Charger Plate, 33 cm | Plate | department |
 | apple | apple | PLT-DY715 | Bramley Apples, 1 kg | Fruit | department |
 | apple | apple | PLT-DY716 | Pressed Apple Juice, 1 L | Juice | department |
 | apple | apple | PLT-DY717 | Apple Blossom Candle | Scented Candle | department |
 | apple | apple | PLT-DY718 | Crab Apple Tree, Potted | Plant | department |
+| mouse | mouse | PLT-DY719 | Field Mouse Storage Basket | Storage Basket | department |
+| monitor | monitor | PLT-DY720 | Monitor Lizard Throw | Throws | department |
+| monitor | monitor | PLT-DY721 | Monitor Lizard Toy Basket | Storage Basket | department |
+| mobile | mobile | PLT-DY722 | Mobile Clothes Rack | Drying Racks | department |
+| mobile | mobile | PLT-DY723 | Mobile Storage Basket on Wheels | Storage Basket | department |
+| charger | charger | PLT-DY724 | Beaded Charger Plate | Plate | department |
+| charger | charger | PLT-DY725 | Woven Rattan Charger Plate | Plate | department |
 | fridge | fridge | PLT-DY309 | Mini Fridge Lunch Cooler | Lunch Box | category |
 | dishwasher | dishwasher | PLT-DY301 | Dishwasher Tablets, 60 Pack | Dish Soap | category |
 | dishwasher | dishwasher | PLT-DY302 | Dishwasher Salt, 2 kg | Dish Soap | category |

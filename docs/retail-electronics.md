@@ -30,11 +30,11 @@ is still to do by hand before the names are relied on.
   (white, "blue" in a range name); class 5, a case whose text names red ("Trim Edge Case for
   iPhone 14"); class 4, the bare model-line query "iphone 15" (Pocket Wallet Case for iPhone 15);
   class 7, a charger that names Apple only as the brand it fits ("Compatible USB-C Wall Charger").
-- Class 8 (gen#326), `feature_decoys/electronics.py`, rows DY700 to DY718, each with
-  `device_type` (the Electronics type whose word the title holds): `mouse` (a trap, a cushion and a
-  throw), `tablet` (dishwasher tablets, Scottish tablet), `monitor` (baby monitors, a lizard
-  cushion), `mobile` (cot mobiles, a mobile coat stand), `charger` (battery chargers, the charger
-  plate) and `apple` (the fruit, its juice, a candle and the tree). The table is in
+- Class 8 (gen#326), `feature_decoys/electronics.py`, rows DY701 to DY725, each with
+  `device_type` (the Electronics type whose word the title holds): `mouse` (a cushion, a
+  throw and a basket), `tablet` (dishwasher tablets, Scottish tablet), `monitor` (a lizard cushion,
+  throw and basket), `mobile` (a coat stand, a clothes rack and a basket on wheels), `charger` (three
+  charger plates) and `apple` (the fruit, its juice, a candle and the tree). The table is in
   [retail-product-word-decoys.md](retail-product-word-decoys.md).
 
 ## Release

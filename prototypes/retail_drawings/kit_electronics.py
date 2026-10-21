@@ -25,11 +25,7 @@ laptop_sleeve       a padded sleeve with a zip                 (none)
 mouse               a computer mouse                           form (wireless, gaming, ergonomic)
 keyboard            a keyboard                                 layout (full, compact)
 monitor             a monitor on its stand                     form (standard, ultrawide, curved)
-mouse_trap          a wooden snap trap with its spring         (none)
 dishwasher_tablets  a tub of dishwasher tablets                (none)
-baby_monitor        a baby monitor unit with an antenna        (none)
-cot_mobile          a cot arm with hanging shapes              (none)
-battery_charger     a battery charger with clips               (none)
 ==================  =========================================  ==============================
 
 A drawing never prints a capacity, a size or a price. Every param is a string with a default.
@@ -414,18 +410,6 @@ def monitor(paint: str, fill: Fill, label: str | None, form: str = "standard") -
     return _label(out, label)
 
 
-def mouse_trap(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A wooden snap trap: a base, the sprung bar and its spring."""
-    out = [
-        _rect(110, 150, 180, 110, paint, 8),
-        _line("M130,170 L270,170", 5, "", "#b8c2cc"),
-        _path("M268,160 C300,180 300,236 268,250", "none", 3),
-        _ell(150, 215, 12, 12, _tint(paint, 0.3), 2),
-        _line("M162,215 L246,215", 2.4),
-    ]
-    return _label(out, label)
-
-
 def dishwasher_tablets(paint: str, fill: Fill, label: str | None) -> list[str]:
     """A tub of dishwasher tablets: a lidded tub and tablets stood beside it."""
     out = [_rect(110, 130, 160, 170, paint, 14), _rect(104, 114, 172, 28, _shade(paint, 0.25), 8)]
@@ -434,52 +418,12 @@ def dishwasher_tablets(paint: str, fill: Fill, label: str | None) -> list[str]:
     return _label(out, label)
 
 
-def baby_monitor(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A baby monitor: a small unit with a speaker grille, a light and an antenna."""
-    out = [
-        _line("M250,100 L250,40", 6),
-        _rect(130, 100, 140, 210, paint, 22),
-        _ell(200, 160, 40, 40, _shade(paint, 0.2), 2),
-    ]
-    out += [_line(f"M{176 + 12 * i},150 L{176 + 12 * i},172", 2) for i in range(5)]
-    out += [_ell(200, 260, 10, 10, "#2fbf71", 1.6)]
-    return _label(out, label)
-
-
-def cot_mobile(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A cot mobile: a swung arm with four soft shapes hanging on strings."""
-    out = [_line("M70,70 L330,70", 8), _line("M70,70 L70,360", 8)]
-    for i, x in enumerate((130, 190, 250, 310)):
-        out += [
-            _line(f"M{x},70 L{x},{150 + 24 * (i % 2)}", 2.4),
-            _ell(x, 170 + 24 * (i % 2), 26, 26, paint if i % 2 == 0 else _tint(paint, 0.4)),
-        ]
-    return _label(out, label)
-
-
-def battery_charger(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A battery charger: a box with status lights and two leads with clips."""
-    out = [
-        _rect(120, 130, 160, 130, paint, 14),
-        _ell(160, 170, 8, 8, "#2fbf71", 1.6),
-        _ell(200, 170, 8, 8, "#f2c230", 1.6),
-        _ell(240, 170, 8, 8, "#c8312e", 1.6),
-    ]
-    out += [
-        _line("M140,260 C120,300 90,300 80,340", 5),
-        _path("M64,336 L96,336 L88,360 L72,360 Z", "#c8312e", 1.6),
-        _line("M260,260 C280,300 310,300 320,340", 5),
-        _path("M304,336 L336,336 L328,360 L312,360 Z", INK, 1.6),
-    ]
-    return _label(out, label)
-
-
 SHAPES = {
     "smartphone": smartphone, "basic_phone": basic_phone, "laptop": laptop, "desktop": desktop,
     "tablet": tablet, "e_reader": e_reader, "phone_case": phone_case,
     "screen_protector": screen_protector, "charger": charger, "cable": cable,
     "earbuds": earbuds, "laptop_sleeve": laptop_sleeve, "mouse": mouse, "keyboard": keyboard,
-    "monitor": monitor, "mouse_trap": mouse_trap, "dishwasher_tablets": dishwasher_tablets,
-    "baby_monitor": baby_monitor, "cot_mobile": cot_mobile, "battery_charger": battery_charger,
+    "monitor": monitor, "dishwasher_tablets": dishwasher_tablets,
+
 }  # fmt: skip
 register(SHAPES)
