@@ -58,7 +58,12 @@ _FAKE_GH = (
     + r"""
 case "$1 $2" in
   "pr view")
-    printf 'OPEN\tfalse\t%s\t%s\tmain\n' "${FAKE_GH_BRANCH:-pr-branch}" "$FAKE_GH_HEAD"
+    # isDraft is the sixth field, and printed only when the script asks for it (#70).
+    draft=""
+    is_draft=false
+    if [ -n "${FAKE_GH_DRAFT:-}" ]; then is_draft=true; fi
+    case "$*" in *isDraft*) draft=$(printf '\t%s' "$is_draft") ;; esac
+    printf 'OPEN\tfalse\t%s\t%s\tmain%s\n' "${FAKE_GH_BRANCH:-pr-branch}" "$FAKE_GH_HEAD" "$draft"
     if [ -n "${FAKE_GH_MOVE_ON_VIEW:-}" ]; then move "$FAKE_GH_MOVE_ON_VIEW"; fi
     ;;
   "api "*)
@@ -480,6 +485,18 @@ def test_main_that_moves_between_merge_attempts_is_not_merged_onto(world: dict) 
     assert result.returncode != 0
     assert "main moved to" in result.stderr, result.stderr[-800:]
     assert not _merged(world), "merged after main moved past the base the checks ran on"
+
+
+def test_a_draft_is_refused_before_anything_is_cloned_or_waited_for(world: dict) -> None:
+    """#70: a draft cannot be merged, so the script learns it from the first look at the PR,
+    not from six refused merges after the build and the CI wait."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_DRAFT="1")
+    assert result.returncode != 0
+    assert "#54 is a draft; mark it ready first" in result.stderr, result.stderr[-800:]
+    assert not list(world["log"].parent.glob("merge-pr-54.*")), "cloned a draft PR"
+    assert not _ci_reads(world), "waited for CI on a draft PR"
+    assert not _merged(world)
 
 
 def test_a_head_that_moves_while_cloning_is_refused(world: dict) -> None:
