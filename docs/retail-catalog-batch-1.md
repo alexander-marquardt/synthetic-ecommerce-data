@@ -181,18 +181,18 @@ with-persona run, is the ingest batch's check, not this PR's.
 | blue sofa | 1 color names a part | PLT-DXS13 | Grey Corner Sofa, Contrast Blue Stitching | decoy |
 | blue sofa | 2 type names an accessory or a toy | PLT-DXS14 | Blue Sofa Cushion | decoy |
 | blue sofa | 2 type names an accessory or a toy | PLT-DXS15 | Dolls House Blue Sofa | decoy |
-| red bra | 1 color names a part | PLT-DXB01 | Black Bra with Red Lace Trim | decoy |
+| red bra | 1 color names a part | PLT-DXB01 | Black Bra with Red Cups | decoy |
 | red bra | 1 color names a part | PLT-DXB02 | White Bra with Red Bow | decoy |
 | red bra | 1 color names a part | PLT-DXB03 | Pink Bra with Red Straps | decoy |
-| red bra | 1 color names a part | PLT-DXB04 | Navy Bra with Red Stitching | decoy |
-| blue shirt | 1 color names a part | PLT-DXH01 | White Shirt with Blue Collar and Cuffs | decoy |
+| red bra | 1 color names a part | PLT-DXB04 | Navy Bra with Red Band | decoy |
+| blue shirt | 1 color names a part | PLT-DXH01 | White Shirt with Blue Collar | decoy |
 | blue shirt | 1 color names a part | PLT-DXH02 | Black Shirt with Blue Buttons | decoy |
-| blue shirt | 1 color names a part | PLT-DXH03 | Grey Shirt with Blue Check Pocket | decoy |
+| blue shirt | 1 color names a part | PLT-DXH03 | Grey Shirt with Blue Pocket | decoy |
 | blue shirt | 2 type names an accessory or a toy | PLT-DXH04 | Blue Shirt Hangers, Pack of 10 | decoy |
 | blue shirt | 2 type names an accessory or a toy | PLT-DXH05 | Blue Shirt Dress | decoy |
 | black trainers | 1 color names a part | PLT-DXT01 | White Trainers with Black Sole | decoy |
 | black trainers | 1 color names a part | PLT-DXT02 | Grey Trainers with Black Laces | decoy |
-| black trainers | 1 color names a part | PLT-DXT03 | Red Trainers with Black Stripe | decoy |
+| black trainers | 1 color names a part | PLT-DXT03 | Red Trainers with Black Sole | decoy |
 | black trainers | 2 type names an accessory or a toy | PLT-DXT04 | Black Trainer Cleaning Kit | decoy |
 | mens puffer jacket | 0 a true hit, kept for the proof | PLT-DXP01 | Mens Puffer Jacket | true hit |
 | mens puffer jacket | 0 a true hit, kept for the proof | PLT-DXP02 | Mens Hooded Puffer Jacket | true hit |
@@ -309,6 +309,14 @@ with-persona run, is the ingest batch's check, not this PR's.
 | carrots | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR14 | Little Carrots Kids' T-Shirt | decoy |
 | bananas | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR15 | Going Bananas Kids' Pyjamas | decoy |
 | cherries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR16 | Cherries and Almond Hand Wash, 250ml | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS01 | Denim Blue Linen Shorts with Drawstring Waist | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS02 | Denim-Look Jersey Shorts with Elastic Waist | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS03 | Chambray Cotton Shorts, Denim Wash, Knee Length | decoy |
+| denim shorts | 4 color word is also a product or a shade | PLT-DDS04 | Denim Blue Cotton Bermuda Shorts, Belted Waist | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS05 | Jersey Shorts with Denim Belt Bag | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS06 | Sweat Shorts, Wear with a Denim Jacket | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS07 | Denim Jacket to Wear with Shorts | decoy |
+| denim shorts | 2 type names an accessory or a toy | PLT-DDS08 | Denim Shorts Hanger, Set of 3 | decoy |
 
 ## Not done in this increment
 
