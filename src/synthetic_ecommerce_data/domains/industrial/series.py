@@ -375,6 +375,22 @@ TAP_SIZES_METRIC_FINE: tuple[tuple[str, float], ...] = metric_designations(
     ("M8", "M10", "M12"), fine=True
 )
 
+def tap_shank_and_square(designation: str) -> tuple[float, float]:
+    """``(shank diameter, square size)`` in inches for a tap's ``Thread Size`` value.
+
+    One row of the library's ``tap_shank_squares`` table serves both, because the
+    standards state them as one pair (ASME B94.9 for the inch sizes, ISO 529 for the
+    metric ones): a square drawn on another row's shank would be a tap no maker sells.
+    The library refuses a size it lacks.
+    """
+    metric = designation.startswith("M")
+    key = designation.split("x")[0] if metric else designation.split("-")[0]
+    (row,) = library.table("tap_shank_squares").select([key])
+    if metric:
+        return row["shank_mm"] / MM_PER_INCH, row["square_mm"] / MM_PER_INCH
+    return row["shank_in"], row["square_in"]
+
+
 #: Ball pein hammer head weights, in ounces -- the sizes actually sold.
 #: The head weights ball pein hammers are sold in. 2, 6, 10 and 20 oz were
 #: added for the 100K catalog's headroom; each is a size makers list.
