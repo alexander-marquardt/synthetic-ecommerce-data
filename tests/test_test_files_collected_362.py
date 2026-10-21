@@ -2,7 +2,7 @@
 
 ``prototypes/retail_drawings/test_*.py`` sat outside ``testpaths = ["tests"]``, so neither the
 CI shards nor ``merge_pr.sh --local-ci`` ran them, and they went red on main without anyone
-seeing it (eight brands shared a mark; seven tests failed). This guard fails when a tracked
+seeing it (history: the red tests were fixed on main by #548). This guard fails when a tracked
 ``test_*.py`` or ``*_test.py`` file is outside the paths pytest collects (``pyproject.toml``),
 and when the planner, the selection or the shard plan does not reach a collected one.
 """
@@ -70,3 +70,14 @@ def test_a_change_to_a_drawing_module_selects_the_drawing_test_that_imports_it()
 def test_a_drawing_test_file_is_a_test_file_of_the_selection() -> None:
     assert ci_select.is_test_file(f"{DRAWINGS}/test_house_styles.py")
     assert not ci_select.is_test_file(f"{DRAWINGS}/house_styles.py")
+
+
+def test_no_doc_says_pytest_collects_only_tests_and_no_second_drawing_runner_exists() -> None:
+    stale = [
+        p.relative_to(REPO).as_posix()
+        for p in sorted((REPO / "docs").glob("*.md"))
+        if "collects only `tests/`" in p.read_text(encoding="utf-8")
+        or "does not collect `prototypes/`" in p.read_text(encoding="utf-8")
+    ]
+    assert not stale, stale
+    assert not (REPO / "tests" / "test_prototype_tests_collected_486.py").exists()
