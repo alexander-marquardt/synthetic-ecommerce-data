@@ -11,11 +11,15 @@ from mutation_row import Row
 PREFIX = "main runner"
 
 _T = "tests/test_ci_runs_on_596.py::test_every_job_runs_on_the_one_expression"
-_HEAD = "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && "
+_HEAD = (
+    "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || "
+    "github.event.pull_request.head.repo.full_name == github.repository) && "
+)
 _PICK = "fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
 _MAIN = '\'["self-hosted","synth-ci-main"]\''
 _POOL = '\'["self-hosted","synth-ci"]\''
 # `lint:` is the first job and `runs-on:` follows it directly, so its line is unique in the file.
+_TESTS = "    name: tests (${{ matrix.shard }})\n    runs-on: " + _HEAD
 _LINT = "  lint:\n    runs-on: " + _HEAD
 
 
@@ -40,7 +44,7 @@ def rows() -> list[Row]:
         _row(
             "the main label is misspelt",
             _LINT + _PICK + _MAIN,
-            _LINT + _PICK + '\'["self-hosted","synth-ci-mian"]\'',
+            _LINT + _PICK + _MAIN.replace("main", "mian"),
             "the label names the runners the VM registers",
         ),
         _row(
@@ -51,8 +55,8 @@ def rows() -> list[Row]:
         ),
         _row(
             "one job never asks for the reserved runners",
-            "    name: tests (${{ matrix.shard }})\n    runs-on: " + _HEAD + _PICK,
-            "    name: tests (${{ matrix.shard }})\n    runs-on: " + _HEAD + "fromJSON(" + "false && ",
+            _TESTS + _PICK,
+            _TESTS + "fromJSON(false && ",
             "every job of a main run asks for the reserved runners",
         ),
     ]

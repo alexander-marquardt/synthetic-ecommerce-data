@@ -21,7 +21,8 @@ RUNS_ON = (
     "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || "
     "github.event.pull_request.head.repo.full_name == github.repository) && "
     "fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
-    "'[\"self-hosted\",\"synth-ci-main\"]' || '[\"self-hosted\",\"synth-ci\"]') || 'ubuntu-latest' }}"
+    "'[\"self-hosted\",\"synth-ci-main\"]' || '[\"self-hosted\",\"synth-ci\"]') "
+    "|| 'ubuntu-latest' }}"
 )
 
 
@@ -39,7 +40,8 @@ def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r"):
         (r"\|\|", " or "),
     ]:
         body = re.sub(gh, py, body)
-    return eval(body, {"json": json, "SELF_HOSTED": self_hosted, "MAIN": main, "HEAD": head, "REPO": repo, "EVENT": event})
+    names = {"json": json, "SELF_HOSTED": self_hosted, "MAIN": main, "HEAD": head, "REPO": repo}
+    return eval(body, {**names, "EVENT": event})
 
 
 def test_every_job_runs_on_the_one_expression():
