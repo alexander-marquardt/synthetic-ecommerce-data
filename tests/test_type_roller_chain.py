@@ -345,16 +345,18 @@ def test_no_chain_any_brand_could_offer_draws_past_the_size_cap():
 # --- the strand count moves the price -----------------------------------------
 
 STRANDS_IN_ORDER = ("Single Strand", "Double Strand", "Triple Strand")
-#: The same-spec sets each build holds: one chain number in one material and
+#: The same-spec sets each build holds: one brand's chain number in one material and
 #: length, offered in two or three strand counts.
-STRAND_SETS = {None: 10, LARGE_LINES: 13}
+STRAND_SETS = {None: 13, LARGE_LINES: 105}
 
 
 def _strand_sets(docs: list[dict]) -> dict[tuple, dict[str, list[float]]]:
-    """Same-spec sets: (chain number, material, length) -> strand count -> prices.
+    """Same-spec sets: (brand, chain number, material, length) -> strand count -> prices.
 
     The finish is left out: it is not published on every line, and no finish
-    moves a price.
+    moves a price. A set is one brand's: a brand's strand counts of a spec
+    share one price draw, so their order is the strand factor's, while the
+    medians of different brands' chains are noise on noise at a few lines.
     """
     cells: dict[tuple, dict[str, list[float]]] = {}
     for doc in docs:
@@ -362,6 +364,7 @@ def _strand_sets(docs: list[dict]) -> dict[tuple, dict[str, list[float]]]:
         if attrs["Style"]["value"] not in STRANDS_IN_ORDER:
             continue  # heavy and four strand chains are priced against a single strand one below
         spec = (
+            doc["brand"],
             _chain_number(attrs["ANSI Number"]["value"]),
             attrs["Material"]["value"],
             attrs["Length"]["value"],

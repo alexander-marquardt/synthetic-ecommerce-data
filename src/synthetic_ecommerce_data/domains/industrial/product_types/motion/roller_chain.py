@@ -20,6 +20,19 @@ material and finish each chain number is stocked in are a distributor's
 offer, not a table; they choose which rows a line offers and fix no
 published dimension.
 
+The offer is wider than the three strand counts of the standard series (#98),
+from the same chart at ``SOURCE_URL``: its single-strand heavy-duty table
+prints the heavy series, chains 25H to 240H (180H included), whose pitch,
+roller diameter and roller width are those of the chain number without the H
+(a thicker side plate is the difference), and whose weight per foot is the
+standard chain's times 1.15 (the median over the eleven numbers both tables
+print, 40 to 240 without 41); its four-strand table prints chains 25-4 to
+240-4 (no 180-4); and its menu lists zinc plated roller chain beside the
+nickel plated. The heavy series stocked here starts at 40H: 25H and 35H are
+the chart's own rows, not the standard's heavy series. The 41 chain is left
+out: its row was not checked against the second table, and the table above
+is the 13 sizes both tables print.
+
 The display name is ``Pitch``, as real catalogs print it, but the machine key
 is ``chain_pitch``: a metric tap publishes ``Pitch`` too, for its thread
 pitch, and the two are different concepts (#36).
@@ -98,7 +111,12 @@ ANSI: tuple[tuple[str, Fraction, Fraction | None, Fraction], ...] = (
     ("240", Fraction(3), Fraction(15, 8), Fraction(15, 8)),
 )
 
-STRANDS = {1: "Single Strand", 2: "Double Strand", 3: "Triple Strand"}
+STRANDS = {1: "Single Strand", 2: "Double Strand", 3: "Triple Strand", 4: "Four Strand"}
+
+#: The ``Style`` of a heavy series chain: its strand count, with the thicker
+#: side plates of the heavy series. Its ``ANSI Number`` is the chain number and
+#: an ``H``, after the strand count of a multiple strand chain (``60H``, ``60-2H``).
+HEAVY_STYLES = {count: f"Heavy Duty {name}" for count, name in STRANDS.items()}
 
 #: A length, in feet, and the inches the price model scales it by.
 FEET_PER_LENGTH = {10: 120.0, 50: 600.0, 100: 1200.0}
@@ -114,6 +132,11 @@ class Offer:
     feet: int
     first: str
     last: str
+    heavy: bool = False
+
+    @property
+    def style(self) -> str:
+        return (HEAVY_STYLES if self.heavy else STRANDS)[self.strands]
 
     def rows(self) -> list[tuple[str, Fraction, Fraction | None, Fraction]]:
         numbers = [row[0] for row in ANSI]
@@ -131,6 +154,16 @@ OFFERS: tuple[tuple[Offer, float], ...] = (
     (Offer(2, "Steel", "Nickel Plated", 10, "40", "60"), 0.04),
     (Offer(1, "18-8 Stainless Steel", "Plain", 10, "25", "100"), 0.12),
     (Offer(1, "316 Stainless Steel", "Plain", 10, "40", "60"), 0.04),
+    # #98: what the chart prints beyond the standard single, double and triple strand series.
+    # The four-strand chain is stocked from 60 to 120, at a small weight: the drawing of a
+    # 25-4 to 50-4 is over the 8,000-byte cap (their pitch is small, so the figure is drawn in
+    # more digits), and a 140-4 or 160-4 puts the 100K build's p90/p10 (14.98 with them) over
+    # the census band's 13.87.
+    (Offer(1, "Steel", "Plain", 10, "40", "240", heavy=True), 0.07),
+    (Offer(2, "Steel", "Plain", 10, "60", "160", heavy=True), 0.03),
+    (Offer(4, "Steel", "Plain", 10, "60", "120"), 0.03),
+    (Offer(1, "Steel", "Zinc Plated", 10, "35", "100"), 0.05),
+    (Offer(2, "Steel", "Zinc Plated", 10, "40", "80"), 0.02),
 )
 
 ITEM = "Roller Chain"
@@ -174,8 +207,9 @@ def publish(gen: Any, inches: float, style: LengthStyle) -> str:
     return gen._publish(inches, style)
 
 
-def ansi_number(number: str, strands: int) -> str:
-    return number if strands == 1 else f"{number}-{strands}"
+def ansi_number(number: str, strands: int, heavy: bool = False) -> str:
+    base = number if strands == 1 else f"{number}-{strands}"
+    return f"{base}H" if heavy else base
 
 
 def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -187,7 +221,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     rng = gen.rng
     brand = pick_brand(rng, type_key, gen._exhausted)
     offer = _weighted(rng, OFFERS)
-    style_name = STRANDS[offer.strands]
+    style_name = offer.style
     draft = LineDraft(
         item=ITEM,
         brand=brand,
@@ -205,7 +239,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     ]
     draft.descriptors = [("Style", style_name), ("Material", offer.material)]
     style = feed_style(brand, "in", BRANDS)
-    key = f"roller-chain:{offer.strands}:{offer.material}:{offer.finish}:{offer.feet}"
+    key = f"roller-chain:{style_name}:{offer.material}:{offer.finish}:{offer.feet}"
     for number, pitch, roller, width in _window(gen, key, offer.rows(), gen._variant_count()):
         child = ChildDraft(system="in")
         child.primary = dataclasses.replace(
@@ -213,7 +247,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
         )
         child.attrs = [
             child.primary,
-            keyword_attribute("ANSI Number", ansi_number(number, offer.strands)),
+            keyword_attribute("ANSI Number", ansi_number(number, offer.strands, offer.heavy)),
         ]
         if roller is not None:
             child.attrs.append(length_attribute("Roller Dia.", publish(gen, float(roller), style)))
@@ -224,7 +258,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 
 # --- the drawing ------------------------------------------------------------------
 
-_STRAND_COUNT = {name: count for count, name in STRANDS.items()}
+_STRAND_COUNT = {name: count for table in (STRANDS, HEAVY_STYLES) for count, name in table.items()}
 #: Proportions of pitch the drawing uses for what no record publishes: the
 #: roller link (inner) plate's height, the pin link (outer) plate's, drawn
 #: lower so the roller link plates behind it show, the plate's thickness and
@@ -303,8 +337,16 @@ def chain(record: dict[str, str]) -> Drawn:
 #: pitch, material, length and brand. GENERATED, not measured: the census's 71
 #: prices are not split by strand count. A double strand chain is two single
 #: chains' plates and rollers on shared pins, a triple strand chain three, and
-#: each sells a little under that multiple of the single chain.
-STRAND_FACTORS = {STRANDS[1]: 1.0, STRANDS[2]: 1.9, STRANDS[3]: 2.8}
+#: each sells a little under that multiple of the single chain. A four-strand
+#: chain follows the same step (3.7). A heavy series chain has thicker side
+#: plates and sells at the chart's weight per foot over the standard chain's
+#: (1.15, the median of the eleven numbers both print).
+_BY_STRANDS = {1: 1.0, 2: 1.9, 3: 2.8, 4: 3.7}
+HEAVY_FACTOR = 1.15
+STRAND_FACTORS = {
+    **{STRANDS[count]: factor for count, factor in _BY_STRANDS.items()},
+    **{HEAVY_STYLES[count]: HEAVY_FACTOR * _BY_STRANDS[count] for count in (1, 2)},
+}
 
 #: The census's roller-chain endings (``breadth_categories.roller_chain.endings``).
 ENDINGS = {"other .x5": 0.3239, ".00": 0.2958, ".50": 0.2676, "other": 0.0986, ".95": 0.0141}

@@ -320,7 +320,7 @@ deepened type adds its own share on top. Measured with the first command above
 | kit_assortment | 695 | | lock_nuts_nylon_insert | 4,513 |
 | set_screws_hex_socket | 7,061 | | dowel_pins | 1,004 |
 | cotter_pins | 803 | | retaining_rings_external | 694 |
-| roller_chain | 509 | | turnbuckles | 385 |
+| roller_chain | 609 | | turnbuckles | 385 |
 | shackles | 373 | | pillow_block_bearings | 269 |
 | roller_chain_sprockets | 200 | | roller_chain_links | 769 |
 | o_rings | 1,040 | | key_stock | 965 |
@@ -334,7 +334,7 @@ lines for 100K until uniqueness stopped counting metadata as a difference.
 
 **122,324 SKUs over 70,776 products** (`skus` and `lines` in `stats.json`),
 4,513 of them lock nuts over 2,714 products, 7,061 set screws over 3,786,
-1,004 dowel pins over 535, 509 roller chains over 328, 803 cotter pins over
+1,004 dowel pins over 535, 609 roller chains over 369, 803 cotter pins over
 463 and 694 external retaining rings over 413 (the last two are the first
 table types, #101). The next five table types add 1,996 SKUs over 1,237
 products and moved no other type: 385 turnbuckles over 244, 373 shackles over
@@ -1693,14 +1693,14 @@ category deepened into a modelled type keeps its census row
 model is held to that row's p50 and p90/p10 bands at both sizes. The census
 has no within-page pairs for it, so its slopes are GENERATED, not measured:
 the roller chain's on pitch (1.2) and on length (0.93). So is what its strand
-count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x and
-triple 2.8x the single strand chain; the census's 71 prices are not split by
+count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x,
+triple 2.8x, four strand 3.7x the single strand chain; a heavy series chain
+1.15x the standard one of its number; the census's 71 prices are not split by
 strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
-separates them: in every chain number offered in more than one strand count
-in one material and length, the median price rises with the strand count (10
-such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
-chain's medians there are 162.00, 341.25 and 502.00 USD).
+separates them: in every brand's chain number offered in more than one strand
+count in one material and length, the median price rises with the strand count
+(13 such sets on the golden catalog, 105 at `--lines 39000`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
