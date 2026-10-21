@@ -132,6 +132,7 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
             and r["product_id"] not in own
             and r["product_id"] not in SHOES_BUILT_ELSEWHERE
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
+            and r["product_id"] not in nike_rows.decoy_ids()  # gen#341: stay in nike_rows (gen#455)
         ]  # fmt: skip
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)
