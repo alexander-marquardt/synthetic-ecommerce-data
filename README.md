@@ -412,9 +412,9 @@ their product families, market weight, house style and title voice.
 * **House style.** Twelve inks, six paper tints and four frames in use (a
   fifth, `chamfer`, is declared, unused). Each brand owns one (ink, frame)
   pair, read back by `drawing.style.brand_for_house_style`; its paper is
-  independent of its ink, so brands sharing an ink also differ in background.
-  Every (ink, paper, frame) triple is unique and every ink is at least 3:1
-  against every paper (lowest 4.4:1). Levers, capacity (#55): [detail](docs/house-style-levers.md).
+  independent of its ink. Every (ink, paper, frame) triple is unique, every ink
+  at least 3:1 against every paper (lowest 4.4:1). Capacity (#55): 570 distinguishable styles, 45 x 570
+  with the mark, against the 135 brands #53 needs ([detail](docs/house-style-levers.md)).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs
   (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in
