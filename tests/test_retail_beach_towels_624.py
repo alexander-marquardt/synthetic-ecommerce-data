@@ -63,7 +63,7 @@ def test_every_named_component_is_an_attribute_and_every_attribute_is_named() ->
     assert off == []
 
 
-def test_some_titles_name_the_colour_or_print_and_others_leave_it_out() -> None:
+def test_some_titles_name_the_color_or_print_and_others_leave_it_out() -> None:
     rows = _rows()
     named = [r for r in rows if len(r.colors) == 1 and r.colors[0][0].lower() in r.title.lower()]
     assert 2 <= len(named) < len(rows) - 2

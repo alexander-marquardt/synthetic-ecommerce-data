@@ -33,6 +33,7 @@ if str(HERE) not in sys.path:
 
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
+import beach_towel_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
@@ -179,6 +180,7 @@ def measure() -> dict[str, Any]:
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
         "womens_depth_rows": womens_depth_rows.docs(),
+        "beach_towel_rows": beach_towel_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
