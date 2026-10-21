@@ -11,6 +11,7 @@ zero, or to one, because the mechanism stopped working.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 
 import pytest
@@ -579,20 +580,150 @@ def _published_values(line) -> set[str]:
 
 
 def test_no_category_level_is_a_value_the_line_publishes_as_an_attribute(catalog):
-    """A specification is an attribute, never a path level.
+    """No path level is spelled exactly like a value its own line publishes.
+
+    Exact spelling only: a level that is part of a value, or of a value another
+    line publishes, is found by the fragment gate below.
 
     Measured on the lines, not on the taxonomy table: a path segment that
     equals a value the same line publishes (``Cobalt`` under ``End Mill
     Material: Cobalt``) is a specification filed as a category, whichever
     table it came from.
     """
-    offenders = {
-        (line.product_id, segment)
-        for line in catalog.lines
-        for segment in line.category
-        if segment in _published_values(line)
-    }
+    offenders = _exact_offenders(catalog.lines)
     assert not offenders, sorted(offenders)[:10]
+
+
+def _exact_offenders(lines) -> set[tuple[str, str]]:
+    """``(product_id, level)`` for each level spelled like a value its own line publishes."""
+    return {
+        (line.product_id, segment)
+        for line in lines
+        for segment in _exact_value_levels(line.category, _published_values(line))
+    }
+
+
+def _exact_value_levels(category, values) -> set[str]:
+    """The levels of ``category`` spelled exactly like one of ``values``."""
+    return {segment for segment in category if segment in values}
+
+
+def _words(text: str) -> tuple[str, ...]:
+    """``text`` as lower-case words, keeping ``0.5`` and ``1/2`` whole."""
+    return tuple(re.findall(r"[a-z0-9]+(?:[./][a-z0-9]+)*", text.lower()))
+
+
+def _fragment_levels(category, values) -> set[str]:
+    """The levels of ``category`` whose words are a run of words of one of ``values``.
+
+    ``Carbide`` is a run of ``Solid Carbide``; ``Solid Carbide End Mills`` is
+    not, since a type may be named with a word its attributes also use. The
+    reverse containment is left alone for that reason. A level of no words
+    (``&``) is never a fragment.
+    """
+    runs = set()
+    for value in values:
+        words = _words(value)
+        runs.update(
+            words[start:stop]
+            for start in range(len(words))
+            for stop in range(start + 1, len(words) + 1)
+        )
+    return {segment for segment in category if _words(segment) in runs}
+
+
+@pytest.mark.parametrize(
+    ("category", "values"),
+    [
+        (("Cutting Tools", "Carbide"), {"Solid Carbide"}),
+        (("Cutting Tools", "carbide"), {"Solid Carbide"}),
+        (("Fasteners", "Metric"), {"Metric Coarse", "Imperial"}),
+        (("Fasteners", "Cobalt"), {"Cobalt"}),
+        (("Fasteners", "Coarse Thread"), {"UNC Coarse Thread Series"}),
+    ],
+)
+def test_a_level_that_is_part_of_a_published_value_is_found(category, values):
+    """The planted level the exact-match gate cannot see (generator#21).
+
+    ``Carbide`` under ``Material: Solid Carbide`` is a specification filed as
+    a category, spelled differently from its value, so the exact-match gate
+    stays green on it and the fragment gate must not.
+    """
+    assert _fragment_levels(category, values) == {category[1]}
+
+
+def test_exact_match_gate_misses_a_level_spelled_as_part_of_a_value():
+    category, values = ("Cutting Tools", "Carbide"), {"Solid Carbide"}
+    assert _exact_value_levels(category, values) == set()
+    assert _fragment_levels(category, values) == {"Carbide"}
+
+
+@pytest.mark.parametrize(
+    ("category", "values"),
+    [
+        (("Fasteners", "Hex Head Bolts"), {"Hex Head", "Hex"}),
+        (("Fasteners", "Socket Cap Screws"), {"Socket"}),
+        (("Holemaking", "Square End Mills"), {"Square"}),
+        (("Holemaking", "Drills"), {"Solid Carbide"}),
+        (("Holemaking", "&"), {"Solid Carbide"}),
+    ],
+)
+def test_a_type_name_that_contains_a_published_value_is_not_a_specification_level(category, values):
+    """A type may use a word its attributes also use; only a level inside a value is a spec."""
+    assert _fragment_levels(category, values) == set()
+
+
+def test_no_category_level_is_part_of_a_value_the_catalog_publishes(catalog):
+    """No level is a fragment of any value published anywhere in the catalog.
+
+    Wider than the exact-match gate above in two ways: ``Carbide`` against
+    ``Solid Carbide`` is found, and so is a level whose value this line does not
+    publish but another line does (``Metric`` on a line with no ``System of
+    Measurement``). What neither can find is a level spelled in another
+    notation than its value (``1/2"`` against ``0.5 in``).
+    """
+    offenders = _fragment_offenders(catalog.lines)
+    assert not offenders, sorted(offenders)[:10]
+
+
+def _fragment_offenders(lines) -> set[tuple[str, str]]:
+    """``(product_id, level)`` for each level that is part of a value any line publishes."""
+    published = set().union(*(_published_values(line) for line in lines))
+    found = _fragment_levels({s for line in lines for s in line.category}, published)
+    return {
+        (line.product_id, segment)
+        for line in lines
+        for segment in line.category
+        if segment in found
+    }
+
+
+def _with_planted_level(catalog, level):
+    """A copy of the catalog whose first line has ``level`` appended to its path."""
+    first = catalog.lines[0]
+    planted = replace(first, category=(*first.category, level))
+    return replace(catalog, lines=[planted, *catalog.lines[1:]]), first.product_id
+
+
+def test_a_planted_carbide_level_is_named_by_the_catalog_gate(catalog):
+    """The gate, run on a catalog with ``Carbide`` planted, names that line and level.
+
+    The first line does not publish ``Solid Carbide``; another line does, so
+    only the union over every line can find it (generator#21's second case).
+    """
+    assert "Solid Carbide" not in _published_values(catalog.lines[0])
+    assert any("Solid Carbide" in _published_values(line) for line in catalog.lines[1:])
+    assert _fragment_offenders(catalog.lines) == set()
+    planted, product_id = _with_planted_level(catalog, "Carbide")
+    assert _fragment_offenders(planted.lines) == {(product_id, "Carbide")}
+
+
+def test_a_planted_exact_level_is_named_by_the_exact_gate(catalog):
+    """A level spelled like a value its own line publishes is named with its line."""
+    value = sorted(_published_values(catalog.lines[0]))[0]
+    assert _exact_offenders(catalog.lines) == set()
+    planted, product_id = _with_planted_level(catalog, value)
+    assert _exact_offenders(planted.lines) == {(product_id, value)}
 
 
 def test_every_root_is_one_of_the_real_catalogs_roots():
@@ -629,8 +760,9 @@ def test_every_leaf_is_its_types_own_self_describing_plural(catalog):
 def test_every_end_mill_publishes_its_material(catalog):
     """Material left the path, so the attribute must carry it on every end mill.
 
-    Otherwise the lines whose material the path used to state would carry it
-    nowhere -- the information the restructure was not allowed to lose.
+    Otherwise the lines whose material the path used to state could not be
+    reached through the ``End Mill Material`` facet -- the information the
+    restructure was not allowed to lose.
     """
     missing = [
         line.product_id
