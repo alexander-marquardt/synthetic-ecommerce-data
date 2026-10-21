@@ -213,5 +213,10 @@ def pizza(paint: str, fill: Fill, label: str | None, flavor: str = "Margherita",
     ]  # fmt: skip
 
 
+def fish_bag(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """STUB (red commit): the upright stand-up bag."""
+    return bag(paint, fill, label)
+
+
 register({"bar": bar, "bag": bag, "butter_block": butter_block, "lidded_tub": lidded_tub,
-          "steak_tray": steak_tray, "pizza": pizza})
+          "steak_tray": steak_tray, "pizza": pizza, "fish_bag": fish_bag})
