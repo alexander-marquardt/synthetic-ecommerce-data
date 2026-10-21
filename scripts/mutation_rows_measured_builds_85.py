@@ -30,7 +30,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the wheel pin's 100K figure is loosened in the file",
         _FILE,
-        '"price brand spread, same spec (median max/min): wheel_depressed_center": 1.75',
+        '"price brand spread, same spec (median max/min): wheel_depressed_center": 1.769',
         '"price brand spread, same spec (median max/min): wheel_depressed_center": 3.25',
         f"{_PRICE_TESTS} -k each_recorded_figure_is_the_figure_its_build_produces",
         "a pin holds the figure its build produces",
@@ -48,7 +48,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a 100K size in the file is left stale",
         _FILE,
-        '"wheel_depressed_center": 12435',
+        '"wheel_depressed_center": 10149',
         '"wheel_depressed_center": 12000',
         f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
         "a stale size is red until the rebuild is committed",
