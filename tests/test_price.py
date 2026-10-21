@@ -14,7 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from shared_builds import KIT, KitSku, hundred_k_prices, hundred_k_quiet_wheel, recorded_build
+from shared_builds import KIT, KitSku, hundred_k_measured, hundred_k_prices, hundred_k_quiet_wheel, recorded_build
 from synthetic_ecommerce_data.core import brands, price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
@@ -1264,23 +1264,21 @@ def test_the_pinned_figures_are_the_committed_files_not_typed_in_price_py():
     assert not re.search(r"PINNED_FIGURES[^=\n]*=\s*\{", Path(price.__file__).read_text("utf-8"))
 
 
-def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog, hundred_k):
+def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog):
     """A figure that moves unexpectedly reds here, naming the rebuild: the
     file is compared with the two builds the suite already holds."""
     assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
-    built = measured_builds.render(measured_builds.figures(catalog, hundred_k[0]))
+    built = measured_builds.render(measured_builds.figures(catalog, hundred_k_measured()))
     assert price.BUILDS_FILE.read_text("utf-8") == built, f"stale; run {REBUILD_BUILDS}"
 
 
-def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(
-    hundred_k, monkeypatch
-):
+def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(monkeypatch):
     assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
     committed = price.BUILDS_FILE.read_text("utf-8")
     model = price.MODELS["wheel_depressed_center"]
     louder = replace(model, group_sigma=model.group_sigma * 1.1)
     monkeypatch.setitem(price.MODELS, "wheel_depressed_center", louder)
-    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k[0])
+    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k_measured())
     moved = measured_builds.render(rebuilt)
     assert moved != committed
 
