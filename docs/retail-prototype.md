@@ -30,8 +30,16 @@ A garment is drawn as the garment its leaf names (gen#447): `leaf_shapes.RULES` 
 the shape and parameters that draw them, `leaf_shapes.apply` sets them in `scale.templates()`
 before the decoys clone their exemplars, and `test_shape_honesty.py` fails a template of a listed
 leaf drawn another way. A "Checked" or "Striped" title carries a gingham or stripe swatch, and a
-"Boxers" decoy never clones a brief exemplar. The parts a title names (a bra band, a blouse
-collar, a bow, "with Blue Collar") are the next slice.
+"Boxers" decoy never clones a brief exemplar.
+
+A title that names a part in a color ("Navy Bra with Red Band", "Grey Shirt with Blue Pocket")
+draws that part in that color (gen#447): `named_parts.apply` reads "with <Color> <Part>" off an
+apparel title and sets `drawing.detail` (a shoe's laces are its `lace` parameter), the class-1
+decoy rows pick their part with `named_parts.trim_part` from `details.PARTS`, the parts the
+shape can show, and `named_parts.violations` is what `test_shape_honesty.py` runs over every
+apparel template. "Stitching" and "Piping" are too fine to see at thumbnail size, so no garment
+title names them. A part a shape cannot show is added to `details.PARTS` with its geometry before
+a title names it.
 
 `tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
 the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
@@ -710,3 +718,14 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+### Pack scale (gen#543)
+
+Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
+about the cube root of its net volume (or weight, or count) against the largest size of
+its line, floored at 0.6, on the same 400 x 400 sheet and baseline, so a 30 ml jar is
+visibly smaller than a 100 ml one (`pack_scale.py`). The largest size, and a line of one
+size, draw as they always did. Every size drawn at one scale shares its color's image,
+drawn in that color's swatch (base, pattern and accent).
+![A line's 30, 50 and 100 ml drawn before and after](images/pack-scale.svg)
+`image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.
