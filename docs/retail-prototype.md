@@ -13,7 +13,7 @@ fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
 not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md))
-and the household brands of the Electronics department (Apple, iPhone and iPad; gen#332). The large
+and the household brands of the Electronics department (Apple, iPhone and iPad; gen#332, [docs/retail-electronics.md](retail-electronics.md)). The large
 appliance brands are not an exception: Frostholm, Brimwell, Tavorne, Hollinmere, Cleavewick and
 Lunden & Voss are invented, as the maintainer ruled for gen#334, and no real appliance maker is named.
 
