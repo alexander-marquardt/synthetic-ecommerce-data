@@ -12,16 +12,24 @@ panel, as the kit's other packs do (``kit.box``); the panel also carries the ran
 the band of flavor colors (``kit._panel`` reads them from the drawing's marks).
 """
 
+# ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
+
 from __future__ import annotations
 
-from kit import Fill, _panel, _path, register
+from kit import Fill, _mix, _panel, _path, register
 
 
 def sleeve(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """STUB (red commit): the upright carton, until the sleeve is drawn."""
+    """A flow-wrapped sleeve lying on its side: crimped ends, a fin seal, a label panel."""
+    crimp_l = " ".join(f"L{58 if i % 2 else 70},{140 + i * 10}" for i in range(15))
+    crimp_r = " ".join(f"L{342 if i % 2 else 330},{290 - i * 10}" for i in range(15))
+    body = "M72,148 Q200,130 328,148 L328,282 Q200,300 72,282 Z"
     return [
-        _path("M110,74 L270,74 L270,362 L110,362 Z", paint),
-        *_panel(118, 120, 144, 96, label, 50),
+        _path(f"M72,140 {crimp_l} L72,290 Z", paint, 1.6, ' class="crimp"'),
+        _path(f"M328,290 {crimp_r} L328,140 Z", paint, 1.6, ' class="crimp"'),
+        _path(body, paint),
+        _path("M72,148 Q200,130 328,148 L328,160 Q200,142 72,160 Z", _mix(fill.base, "#ffffff", 0.35), 1.6),
+        *_panel(104, 176, 192, 80, label, 44),
     ]
 
 
