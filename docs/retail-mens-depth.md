@@ -19,7 +19,7 @@ product floors count decoys; the tests also hold a floor without them.
 
 | Class | Decoy | Example |
 |---|---|---|
-| 1 color | a trim names another color | "Mens White Chinos with Red Stripes" is white |
+| 1 color | a trim names another color | "Mens White Chinos with Red Waistband" is white |
 | 2 category word | another category's noun as a modifier | "Mens Shirt Collar Blazer" |
 | 3 audience word | a sibling cut | "Mens Boyfriend Fit Chinos" |
 | 4 feature absent | a feature named and missing | "Mens Wool-Free Coat" |
