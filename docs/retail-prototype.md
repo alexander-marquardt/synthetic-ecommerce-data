@@ -313,7 +313,7 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
-The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+The pre-merge run collects `prototypes/retail_drawings` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
 drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
