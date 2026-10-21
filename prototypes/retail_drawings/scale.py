@@ -104,6 +104,7 @@ if str(HERE) not in sys.path:
 
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
+import beach_towel_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
@@ -253,6 +254,9 @@ GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
 #: The text-match decoys of the decor types (:mod:`decor_rows`, gen#217): templates only. The
 #: types themselves are specs and the registry leaves them out of the derivation.
 DECOR_IDS = decor_rows.decoy_ids()
+#: The real beach towels (:mod:`beach_towel_rows`, gen#624): templates only, so each long title
+#: stays the one authored (a derived copy would put a range name in front of it).
+BEACH_TOWEL_IDS = beach_towel_rows.product_ids()
 #: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
 SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
 #: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
@@ -371,7 +375,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
-        *womens_depth_rows.docs(),
+        *womens_depth_rows.docs(), *beach_towel_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
     ]  # fmt: skip
@@ -409,7 +413,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
-                | GARDEN_IDS | DECOR_IDS | NIKE_IDS
+                | GARDEN_IDS | DECOR_IDS | BEACH_TOWEL_IDS | NIKE_IDS
                 | NEEDS_IDS | CUPS_PLURAL_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
