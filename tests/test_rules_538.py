@@ -203,6 +203,13 @@ def test_a_planted_breach_of_a_rule_is_found(name, plant, note):
     assert any(note in f[1] for f in found), found
 
 
+def test_every_key_a_merge_kept_is_published_in_the_golden_catalog():
+    """The merged-away keys are gone because their values moved: the keys they moved to exist
+    (anti-vacuity for ``one_key_per_concept``, #497)."""
+    published = {e["key"] for d in rowset("golden") for e in rules.entries(d) if "key" in e}
+    assert set(rules.MERGED_AWAY.values()) <= published
+
+
 def test_a_seed_with_too_few_rows_is_found(monkeypatch):
     monkeypatch.setattr(rules, "MIN_ROWS_PER_SEED", 99)
     _, found = rules.two_word_seeds(rowset("templates"))
