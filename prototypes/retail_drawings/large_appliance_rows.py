@@ -68,9 +68,9 @@ def _yn(key: str, name: str, on: bool) -> tuple[str, str, str]:
 
 def _row(pre: str, i: int, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
          shape: str, params: tuple[tuple[str, str], ...], desc: str, colors, attrs,
-         series: str = "") -> Row:
+         series: str = "", codes: tuple[tuple[str, str], ...] = ()) -> Row:
     return Row(f"{pre}{i + 1:03d}", title, brand, HOME, path, ptype, price, shape, desc, colors,
-               attrs, params=params, product_line=series)  # fmt: skip
+               attrs, params=params, product_line=series, color_codes=codes)  # fmt: skip
 
 
 _CAPACITY_KEYS = ("load", "capacity", "place_settings")
@@ -94,6 +94,12 @@ def identify(brand: str, attrs, color: str, generation: str) -> tuple[str, str, 
     return series, base + amn.COLORS[color], extra, amn.spec(kind, capacity, spin)
 
 
+def color_codes(extra, colors) -> tuple[tuple[str, str], ...]:
+    """Each color's model number: the base model of ``extra`` and that color's letter."""
+    base = next(x[2] for x in extra if x[0] == "base_model")
+    return tuple((c[0], base + amn.COLORS[c[0]]) for c in colors)
+
+
 def _kind(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Row, ...]:
     """Six models of one kind: ``make(i)`` gives each model's (price, description, colors, attrs).
 
@@ -106,7 +112,8 @@ def _kind(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Ro
         generation = GENERATIONS[(sum(map(ord, pre)) + i) % 5]
         series, code, extra, spec = identify(brand, attrs, colors[0][0], generation)
         out.append(_row(pre, i, f"{brand} {series} {code} {spec} {title}", brand, path, ptype, price,
-                        shape, params, desc, colors, (*attrs, *extra), series))
+                        shape, params, desc, colors, (*attrs, *extra), series,
+                        color_codes(extra, colors)))
     return tuple(out)
 
 
@@ -119,7 +126,8 @@ def decoy_row(code: str, name: str, brand: str, path, ptype: str, price: float, 
     """
     series, number, extra, spec = identify(brand, attrs, colors[0][0], DECOY_GENERATION)
     return Row(code, f"{brand} {series} {number} {spec} {name}", brand, HOME, path, ptype, price,
-               shape, desc, colors, (*attrs, *extra), params=params, product_line=series)
+               shape, desc, colors, (*attrs, *extra), params=params, product_line=series,
+               color_codes=color_codes(extra, colors))
 
 
 # -- fridges and freezers: (capacity L, width cm, price, frost free) per model

@@ -735,9 +735,10 @@ appliance's title reads brand, series, model number, spec, then the kind: "Frost
 FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
 (its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
 or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
-`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. It is a product-level code
-named for the product's first color, and the `base_model` attribute is the same code without its
-color letter, which names the product in every color. Model number, generation, capacity
+`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. Each SKU states
+the code of its own color as its `model_number` option, so a query for `FW712BB` finds the black
+one; the product-level code (the title's) is the first color's, and the `base_model` attribute is
+the same code without its color letter, which names the product in every color. Model number, generation, capacity
 and spin speed are each their own attribute. Two washing machines carry the second title form,
 "Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
 or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys

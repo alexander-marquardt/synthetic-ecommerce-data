@@ -68,6 +68,9 @@ PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
     "size": ("size", "Size", None),
+    # A large appliance's model number differs by color letter (large_appliance_rows.py,
+    # gen#622): each SKU states its own, the base model joins the colors.
+    "model_number": ("model_number", "Model number", None),
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),

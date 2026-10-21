@@ -81,12 +81,17 @@ class Row:
     #: The series the brand sells this style in (gen#622); empty when it has none. It is the
     #: document's ``product_line``, which export reads as the ``series`` field.
     product_line: str = ""
+    #: Each color's own model number, ``(color, code)`` (gen#622): the SKU of that color states
+    #: it as its ``model_number`` option, so the code on the box is found by a query for it.
+    color_codes: tuple[tuple[str, str], ...] = ()
 
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
         colors = self.colors[:1] if self.colorless else self.colors
+        codes = dict(self.color_codes)
         return [
-            {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True}
+            {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True,
+             **({"model_number": codes[c[0]]} if c[0] in codes else {})}
             for c in colors
             for s in sizes
         ]
