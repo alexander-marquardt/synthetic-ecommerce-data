@@ -80,5 +80,7 @@ def test_the_built_style_draws_a_sleeve_with_the_label(code: str) -> None:
     prefix = f"GRC-{code}-"
     rec = next(r for r in grocery.build(grocery.TARGET) if r["product_id"].startswith(prefix))
     assert rec["drawing"]["shape"] == "sleeve"
-    assert rec["drawing"]["label"] == {"BIS": "Biscuits", "ORB": "Shortbread"}[code]  # the pack's product word, drawn on the label panel
+    # the pack's product word, drawn on the label panel
+    word = {"BIS": "Biscuits", "ORB": "Shortbread"}[code]
+    assert rec["drawing"]["label"] == word
     assert export.image_id(rec, rec["skus"][0])
