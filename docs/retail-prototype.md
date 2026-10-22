@@ -48,6 +48,11 @@ a mug or cup draws as a `mug`, and a label is the title's product noun. The labe
 pairs not yet fixed are `LABEL_DEBT` there: it may only shrink. A changed drawing is a
 new image digest, so the retail image bundle is re-released after the merge.
 
+A mattress topper is drawn thin, on a faint mattress outline (#581): its thickness is its stated
+`depth` at 2.5 px per cm, the scale of the 25 cm mattress under it, so a 5 cm topper is a fifth
+of its mattress and a 10 cm one is visibly thicker (`kit_home.py`, `test_mattress_topper.py`).
+The mattress protector still draws its deep mattress, which suits a fitted cover.
+
 | Class | Query → intended | Distractors that outrank without a policy | Fixed by |
 |---|---|---|---|
 | Print, flavour and scent words | *lemon* → fresh lemons | lemons-print dress, a lemon-colored tee, lemons-print duvet cover, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
@@ -99,7 +104,17 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The boots row above is checked over the round 4 corpus plus
+and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are type specs
+(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of the
+legacy list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
+`skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
+the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
+Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
+shoes are built by their own modules. The men's brogues and loafers sit
+under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
+has one node to point at; product ids, titles and drawings do not move. The node is chosen by
+gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
+`Womens > Shoes` until the women's types it groups are named. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -184,8 +199,14 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block) and `lidded_tub` (ice cream, a spread), in
-`kit_grocery.py`. The build makes one drawing per style. A pack's label is the
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
+`pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
+pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
+`kit_grocery.py`. The build makes
+one drawing per style, except the pizza: its `flavor` (the toppings) and
+`pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
+style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
+the before and after is `docs/images/pizza-drawn-604.svg`). A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
 name and a band of the style's flavor colors (`kit._panel` reads them from the
 drawing's `line` and `chips` params). The range-name text tells siblings of a family
@@ -267,7 +288,9 @@ Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
 `category_leaf`; the index adds `category_path_joined`, every ancestor joined
-with "/", so a policy can route to a node. Food and furniture are colorless
+with "/", so a policy can route to a node. A product filed at several paths (the mugs) also
+carries `category_paths`, all its paths with the primary first (see "A product at several
+category paths"). Food and furniture are colorless
 (no color facet, no swatches); beer carries `abv` as an attribute; beds carry
 nested SKUs from the shared five-size bed vocabulary with `width_cm` and
 `length_cm`. The SKUs of a metal good (jewellery, watches, lighting, tech)
@@ -305,7 +328,7 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
-The pre-merge run does not collect `prototypes/`, so `tests/test_real_classes_proof_fresh_479.py`
+The pre-merge run collects `prototypes/retail_drawings` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
 drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
@@ -325,8 +348,8 @@ an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 fo
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
-| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
-| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
+| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. Car Cup Holder Organiser `PLT-CUPHLD`<br>5. Engraved Trophy Cup `PLT-CUPTRO` | 1. **Leakproof Reusable Travel Cup with Lid for Car Holders `PLT-DRKTRV`**<br>2. **Set of 4 Porcelain Espresso Cups in Gift Box `PLT-DRKSET`**<br>3. **Fine Bone China Tea Cup and Saucer for Afternoon Tea `PLT-DRKSAU`**<br>4. **Apple Graphic Mug `PLT-MUG-APPLE`**<br>5. **Travel Mug `PLT-MUG11`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
 
 Class 15 is a word with a sense in two departments: a bare *cups* is
 drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
@@ -535,13 +558,34 @@ legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still t
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
 Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
-...`), each with its subtree intact; a product still sits in one place. The documents carry no
+...`), each with its subtree intact; a product still sits in one place, unless it is filed at several
+(next paragraph). The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
 Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
 is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
 `category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
 closed list), an internal classification the ceiling build's brand pools, floors and share
 read; `export.DROPPED` keeps it out of every document.
+
+**A product at several category paths: the mugs** (gen#602). A mug is a piece of kitchen drinkware
+and a gift, so it is filed at `Home > Kitchen & dining > Drinkware > Mugs` and at
+`Gifts > Mugs & drinkware`. It stays one document (one `product_id`, one listing; the
+`duplicate_record` distractor is the only duplicate) and carries `category_paths`: its primary
+`category_path` first, then each further path, so a mug reads
+`"category_paths": [["Home", "Kitchen & dining", "Drinkware", "Mugs"], ["Gifts", "Mugs & drinkware"]]`.
+`category_path`, `category_leaf` and `category_depth` keep describing the primary path; a product
+with one path has no `category_paths`. This is the worked example for any later product filed twice
+(`multi_path.py` names the pair and the decoys it leaves alone). The rules: the standard
+(`core/standard.py`) takes `category_paths` as a non-empty list of node-name lists with the primary
+first and no path twice, and `real_classes.check_category_paths` holds every path to the tree rules
+(three levels, clean names, no bucket, no leaf that is also a parent, one depth per node name). The
+prism projection (`prism/index.py`) makes `category_path_joined` the union of the cumulative paths,
+each once, so both category facets count a mug once and a filter on either path finds all of them.
+The decoy mugs of `decor_rows.py` (an ornament, a thank-you card) keep their one Home path; other
+drinkware (travel cups, tumblers, cups and saucers, espresso sets) is not yet filed twice.
+`tests/test_retail_mug_paths_602.py` pins it. The retail loader in
+`elastic/prism-retail-and-industrial` builds `category_path_joined` from `category_path` alone, so it
+needs the same union (a follow-up there).
 
 **A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
 `Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa
@@ -668,7 +712,7 @@ derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 **One `pack_size` vocabulary for a count** (gen#246). A pack of identical or different items is
 `Single` or `N pack` (`2 pack`, `4 pack`, `10 pack`) in every department: underwear, school,
 home (dining chairs, tableware), grocery and the planted distractors alike, so the `pack_size`
-facet lists one spelling. A title keeps natural wording ("Set of 4 Espresso Cups"); the value
+facet lists one spelling. A title keeps natural wording ("Set of 4 Porcelain Espresso Cups in Gift Box"); the value
 does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a measure and
 stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
 
@@ -718,6 +762,11 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
+derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
+to 12 words so the beach towel decoys compete. Design and the measured top 12 are in
+[retail-beach-towels.md](retail-beach-towels.md); `tests/test_retail_beach_towels_624.py` holds them.
 
 ### Pack scale (gen#543)
 

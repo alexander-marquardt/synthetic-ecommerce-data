@@ -5,13 +5,22 @@ from __future__ import annotations
 import json
 import math
 import random
+import re
 import statistics
 from collections import defaultdict
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from shared_builds import (
+    KIT,
+    KitSku,
+    hundred_k_measured,
+    hundred_k_prices,
+    recorded_build,
+)
 from synthetic_ecommerce_data.core import brands, price
 from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
@@ -23,11 +32,12 @@ from synthetic_ecommerce_data.core.model import Attribute, Catalog
 from synthetic_ecommerce_data.domains.industrial import (
     breadth,
     hammers,
+    measured_builds,
     newtypes,
     price_report,
     tabletype,
 )
-from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.price_report import (
     BRAND_ROW,
@@ -47,39 +57,9 @@ def census() -> dict:
     return json.loads(CENSUS_FILE.read_text())
 
 
-KIT = "kit_assortment"
-
-#: One kit SKU as its price was drawn: its shown price, the facts it was
-#: drawn from, and its brand.
-KitSku = tuple[float, dict[str, Attribute], str]
-
-
-def _recorded_build(config: GeneratorConfig) -> tuple[Catalog, list[KitSku]]:
-    """A build, and each kit SKU with the facts its price was drawn from.
-    Those are read as the draw reads them, not off the published record:
-    sparsity may drop a kit's ``Material`` or ``Sizes Included``, and never
-    moves its price."""
-    drawn: dict[str, tuple[dict[str, Attribute], str]] = {}
-    original = Generator._price_draw
-
-    def recording(self, type_key, brand, attributes, line_attributes, sku, sku_u):
-        if type_key == KIT:
-            drawn[sku] = ({a.name: a for a in attributes}, brand)
-        return original(self, type_key, brand, attributes, line_attributes, sku, sku_u)
-
-    Generator._price_draw = recording  # type: ignore[method-assign]
-    try:
-        catalog = generate(config)
-    finally:
-        Generator._price_draw = original  # type: ignore[method-assign]
-    shown = {child.sku: child.price_usd for _, child in catalog.all_skus()}
-    kits = [(shown[sku], *drawn[sku]) for sku in sorted(drawn) if sku in shown]
-    return catalog, kits
-
-
 @pytest.fixture(scope="module")
 def recorded() -> tuple[Catalog, list[KitSku]]:
-    return _recorded_build(GeneratorConfig())
+    return recorded_build(GeneratorConfig())
 
 
 @pytest.fixture(scope="module")
@@ -1270,15 +1250,16 @@ ROW_NAMES = sorted(
 
 
 @pytest.fixture(scope="module")
-def hundred_k() -> tuple[Catalog, list[KitSku]]:
-    """The 100K build and its kits (about 35 s)."""
-    return _recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
+def hundred_k() -> tuple[dict, list[KitSku]]:
+    """The 100K build's price rows by name, and its kits: read from the file every worker
+    shares, so the 1.9 GB catalog is built once and never held here (#140)."""
+    return hundred_k_prices()
 
 
 @pytest.fixture(scope="module")
 def hundred_k_rows(hundred_k) -> dict:
     """Every price row of the 100K build, by name."""
-    return {row.name: row for row in price_report.price_comparisons(hundred_k[0])}
+    return hundred_k[0]
 
 
 def test_the_row_names_are_the_rows_the_default_build_scores(price_rows):
@@ -1349,3 +1330,59 @@ def test_a_measured_breadth_skus_tier_scales_its_price_by_the_tier_factor(tier):
             row, size, "standard", 0.5, 0.0
         )
         assert abs(ratio / price.TIER_FACTORS[tier] - 1) < 0.01, (key, ratio)
+
+
+# --- the measured builds are generated, not typed (#85, #103) ----------------
+
+REBUILD_BUILDS = "uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds"
+
+
+def test_the_measured_builds_file_is_committed():
+    """The pinned figures and the 100K build's sizes are build output: one
+    committed file that ``scripts/merge_pr.sh`` rebuilds, so two type PRs that
+    move them never meet on a typed line."""
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
+    assert sorted(figures) == ["default", "hundred_k"]
+    assert sorted(figures["hundred_k"]) == ["lines", "price_pins", "skus", "skus_by_type"]
+
+
+def test_the_pinned_figures_are_the_committed_files_not_typed_in_price_py():
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
+    default, hundred_k = figures["default"]["price_pins"], figures["hundred_k"]["price_pins"]
+    assert sorted(default) == sorted(hundred_k) == sorted(price.PINNED_SHORTFALLS)
+    assert {name: (default[name], hundred_k[name]) for name in default} == price.PINNED_FIGURES
+    assert not re.search(r"PINNED_FIGURES[^=\n]*=\s*\{", Path(price.__file__).read_text("utf-8"))
+
+
+def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog):
+    """A figure that moves unexpectedly reds here, naming the rebuild: the
+    file is compared with the two builds the suite already holds."""
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    built = measured_builds.render(measured_builds.figures(catalog, hundred_k_measured()))
+    assert price.BUILDS_FILE.read_text("utf-8") == built, f"stale; run {REBUILD_BUILDS}"
+
+
+def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(monkeypatch):
+    assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
+    committed = price.BUILDS_FILE.read_text("utf-8")
+    model = price.MODELS[KIT]
+    louder = replace(model, sku_sigma=model.sku_sigma * 10)
+    monkeypatch.setitem(price.MODELS, KIT, louder)
+    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k_measured())
+    moved = measured_builds.render(rebuilt)
+    assert moved != committed
+
+
+def test_a_row_in_band_is_recorded_none_and_one_out_of_band_is_its_figure(monkeypatch):
+    """The real pins are out of band on both builds, so the file holds no null:
+    drive the rebuild on a small fixture, one pinned row in band, the rest not."""
+    names = sorted(price.PINNED_SHORTFALLS)
+    in_band = names[0]
+    rows = [SimpleNamespace(name=name, within=name == in_band, achieved=1.23456) for name in names]
+    monkeypatch.setattr(price_report, "price_comparisons", lambda catalog: rows)
+    pins = measured_builds._pins(None)
+    assert pins[in_band] is None
+    for name in names[1:]:
+        assert pins[name] == round(1.23456, price_report.recorded_digits(name))

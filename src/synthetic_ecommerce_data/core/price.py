@@ -70,10 +70,12 @@ so census and catalog are compared on the same mix.
 
 from __future__ import annotations
 
+import json
 import math
 import random
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Literal
 
@@ -988,16 +990,37 @@ SIZE_NOISE: dict[str, str] = {
 #: tap); 3 is the median the default build's drill specs hold, so on most of
 #: its specs the sample is a true sample and not every brand there is.
 BRAND_SAMPLE_CAP = 3
+BUILDS_FILE = Path(__file__).parent / "data" / "measured_builds.json"
 _KIT_SPREAD_ROW = "price p90/p10: kit_assortment"
-#: Each pinned row's figure on the default and on the 100K build, as the
-#: fit last measured them. A pin discloses a shortfall; it does not license
-#: a worse one: ``price_report.pin_holds`` fails a row that lands further
-#: from its band than its build's figure by more than :data:`PIN_TOLERANCE`.
-#: ``tests/test_price.py`` holds each figure equal to what its build produces
-#: (``price_report.recorded_digits``), so a record cannot be loosened by hand.
-PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = {
-    _KIT_SPREAD_ROW: (4.032, 3.917),
-}
+
+
+def _read_pinned_figures() -> dict[str, tuple[float | None, float | None]]:
+    """The committed file's pins: (default build, 100K build) by row name. A
+    checkout without the file reads none, so the rebuild that writes it can
+    import this module; ``tests/test_price.py`` refuses that state."""
+    if not BUILDS_FILE.is_file():
+        return {}
+    built = json.loads(BUILDS_FILE.read_text("utf-8"))
+    default, hundred_k = built["default"]["price_pins"], built["hundred_k"]["price_pins"]
+    return {name: (default[name], hundred_k[name]) for name in default}
+
+
+#: Each pinned row's figure on the default and on the 100K build, as the last
+#: rebuild measured them: generated into :data:`BUILDS_FILE` by
+#: ``domains/industrial/measured_builds.py`` (``scripts/merge_pr.sh`` reruns it
+#: on the merged tree), never typed. A pin discloses a shortfall; it does not
+#: license a worse one: ``price_report.pin_holds`` fails a row that lands
+#: further from its band than its build's figure by more than
+#: :data:`PIN_TOLERANCE`. ``tests/test_price.py`` holds the file equal to what
+#: the two builds produce, so a figure that moves is red until it is rebuilt.
+PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = _read_pinned_figures()
+
+
+def _quoted(row: str, build: int) -> float:
+    """A pinned figure for a reason to quote; NaN before the file exists."""
+    figure = PINNED_FIGURES.get(row, (math.nan, math.nan))[build]
+    return math.nan if figure is None else figure
+
 
 #: How far past its recorded figure a pinned row may move, as a ratio. The
 #: build is one seed, so the figure is exact on it; the tolerance is room for
@@ -1012,8 +1035,8 @@ PINNED_SHORTFALLS: dict[str, str] = {
     _KIT_SPREAD_ROW: (
         "below band: a kit is priced from its contents, and the catalog's kit kinds hold "
         "between about $36 and $130 of parts, so with material and tier its prices span "
-        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][0]:.1f}x on the default build and "
-        f"{PINNED_FIGURES[_KIT_SPREAD_ROW][1]:.1f}x at 100K against the census's 114x, whose "
+        f"{_quoted(_KIT_SPREAD_ROW, 0):.1f}x on the default build and "
+        f"{_quoted(_KIT_SPREAD_ROW, 1):.1f}x at 100K against the census's 114x, whose "
         "kits run from packs of 12 and 15 at about $4.50 to a p90 of $629. Group noise loud "
         "enough to make up the rest (about 2.2) spreads a kit's price about 79x on its own, "
         "so the price would follow the noise, not the contents, and a kit draws none "
