@@ -7,7 +7,10 @@ color, drawing). A title names at most the misleading color ("Sofa Cushion, Blue
 cream cushion piped in blue; "Dress for Success, Red Laces" are black shoes with red laces) and
 the drawing renders that detail. The rows are generated from
 `prototypes/retail_drawings/decoy_product_words.py` and pinned by
-`tests/test_retail_product_word_decoys_326.py`.
+`tests/test_retail_product_word_decoys_326.py`. A new decoy set is one file,
+`feature_decoys/<topic>.py`; `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`)
+checks every row of it: the id is unique, the title carries a word of the query, a structured
+field contradicts it, the policy exists, and the drawing renders.
 
 The fixing policy is the one that reads the structured fields: `category` (the noun's own node,
 for example Dresses, drops the row), `department` (a cross-department row sits in another root,
@@ -40,6 +43,22 @@ and a yoga candle, dumbbell and kettlebell prints, a foam hand wash and foam sol
 pins it empty. The prototype's plural strip reads
 "tennis" as "tenni", so the noun of those two rows is `tenni`. The picnic blanket of gen#217 (Camping)
 carries two rows of its own (`picnic`), beside the two decoys of `decor_rows.py`.
+
+**Cups (gen#620).** A bare `cup` meets drinkware and the cup of a bra. The real cups carry realistic
+titles of six to ten words (material, size, use) and a drawing of their own, so a short bra title
+outscores them in the baseline: seven rows, `PLT-DY620` to `PLT-DY626`, are bras named for their cup
+("Full Cup Bra", "Demi Cup Bra", "Moulded Cup Bra", "Quarter Cup Bra", "Soft Cup Bra", "Spacer Cup
+Bra", "Cotton Full Cup Bra"), in `feature_decoys/cups_620.py`. Each sits under the Bras leaf its title
+names (gen#165: bra styles are facets, so a Full Cup Bra is in Full Cup Bras), and the fields tell the
+truth (a bra by department, path, product type and drawing); only the title holds `cup`. The category
+policy of the cups (gen#125 class 15) drops them. Related: gen#520 and gen#508, the plural-cups bras.
+`tests/test_retail_cups_620.py` holds the rule and the ranking.
+
+**Cycling accessories (gen#625).** The chain lube, bike bottles, saddles and pedals of gen#625 are
+true types of their own Cycling leaves, short-titled so that a bare `bicycle` or `bike` ranks them
+above the bikes. Each also gets two print decoys of another department, `PLT-DY6251` to
+`PLT-DY6258` in `feature_decoys/cycling_accessories.py`, the rule of gen#352's
+`feature_decoys/cycling_wheeled.py`.
 
 **Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
 hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
@@ -214,6 +233,31 @@ prototype's baseline; the live number is read on the next loaded index.
 | gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
 | olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
 | olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
+| cup | cup | PLT-DY620 | Full Cup Bra | Bra | category |
+| cup | cup | PLT-DY621 | Demi Cup Bra | Bra | category |
+| cup | cup | PLT-DY622 | Moulded Cup Bra | Bra | category |
+| cup | cup | PLT-DY623 | Quarter Cup Bra | Bra | category |
+| cup | cup | PLT-DY624 | Soft Cup Bra | Bra | category |
+| cup | cup | PLT-DY625 | Spacer Cup Bra | Bra | category |
+| cup | cup | PLT-DY626 | Cotton Full Cup Bra | Bra | category |
+| chain lube | lube | PLT-DY6251 | Chain Lube Print T-Shirt | T-Shirt | department |
+| chain lube | lube | PLT-DY6252 | Chain Lube Print Tote Bag | Tote Bag | department |
+| bike bottle | bottle | PLT-DY6253 | Bike Bottle Print T-Shirt | T-Shirt | department |
+| bike bottle | bottle | PLT-DY6254 | Bike Bottle Print Pyjamas | Pyjamas | department |
+| bike saddle | saddle | PLT-DY6255 | Bike Saddle Print Tote Bag | Tote Bag | department |
+| bike saddle | saddle | PLT-DY6256 | Bike Saddle Print Cushion | Cushion | department |
+| bike pedals | pedal | PLT-DY6257 | Bike Pedals Print Sweatshirt | Sweatshirt | department |
+| bike pedals | pedal | PLT-DY6258 | Bike Pedals Print Beach Towel | Towel | department |
+| bicycle | bicycle | PLT-DY3521 | Bicycle Print T-Shirt | T-Shirt | department |
+| bicycle | bicycle | PLT-DY3522 | Bicycle Print Tote Bag | Tote Bag | department |
+| bike helmet | helmet | PLT-DY3523 | Bike Helmet Print Pyjamas | Pyjamas | department |
+| bike helmet | helmet | PLT-DY3524 | Bike Helmet Print Sweatshirt | Sweatshirt | department |
+| kayak | kayak | PLT-DY3525 | Kayak Print Beach Towel | Towel | department |
+| kayak | kayak | PLT-DY3526 | Kayak Print Cushion | Cushion | department |
+| kick scooter | scooter | PLT-DY3527 | Kick Scooter Print T-Shirt | T-Shirt | department |
+| kick scooter | scooter | PLT-DY3528 | Kick Scooter Print Sweatshirt | Sweatshirt | department |
+| skateboard | skateboard | PLT-DY3529 | Skateboard Print T-Shirt | T-Shirt | department |
+| skateboard | skateboard | PLT-DY3530 | Skateboard Print Tote Bag | Tote Bag | department |
 | fridge | fridge | PLT-DY309 | Mini Fridge Lunch Cooler | Lunch Box | category |
 | dishwasher | dishwasher | PLT-DY301 | Dishwasher Tablets, 60 Pack | Dish Soap | category |
 | dishwasher | dishwasher | PLT-DY302 | Dishwasher Salt, 2 kg | Dish Soap | category |

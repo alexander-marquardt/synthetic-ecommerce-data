@@ -12,7 +12,6 @@ build; the live number is read on the next loaded index.
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -48,18 +47,11 @@ SEEDS = {
     "large dresses": {"Dress", "Tea Dress"},
 }  # fmt: skip
 FIRST = 12
-POLICIES = ("category", "department")
-COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}
 
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
     return scale.build(10**6).records
-
-
-@pytest.fixture(scope="module")
-def by_id(ceiling: list[dict]) -> dict[str, dict]:
-    return {r["product_id"]: r for r in ceiling}
 
 
 @pytest.fixture(scope="module")
@@ -91,43 +83,10 @@ def test_the_bare_noun_seed_boot_keeps_its_class_8_rows() -> None:
 
 
 @pytest.mark.parametrize("seed", sorted(SEEDS))
-def test_a_seed_has_at_least_two_decoy_products(seed: str) -> None:
-    rows = _rows(seed)
-    assert len(rows) >= 2, (seed, len(rows))
-    assert len({r.title for r in rows}) == len(rows), seed
-    assert all(r.decoy and r.query and r.policy.split(":")[0] in POLICIES for r in rows), seed
-
-
-@pytest.mark.parametrize("seed", sorted(SEEDS))
 def test_a_seed_meets_two_decoy_products_in_the_first_12(index: br.Index, seed: str) -> None:
     mine = {f"PLT-{r.code}" for r in _rows(seed)}
     met = {d["product_id"] for d in _first(index, seed)} & mine
     assert len(met) >= 2, (seed, sorted(met), [d["title"] for d in _first(index, seed)])
-
-
-@pytest.mark.parametrize("seed", sorted(SEEDS))
-def test_each_decoy_holds_every_word_of_its_seed_and_is_another_type(
-    by_id: dict[str, dict], seed: str
-) -> None:
-    rows = _rows(seed)
-    assert rows, seed
-    for row in rows:
-        doc = by_id[f"PLT-{row.code}"]
-        text = set(tokens(doc["title"] + " " + doc["description"]))
-        assert set(tokens(seed)) <= text, (row.code, seed, doc["title"])
-        assert doc["product_type"] not in SEEDS[seed], (row.code, doc["product_type"])
-        assert len(doc["title"].split()) <= 5, doc["title"]
-
-
-@pytest.mark.parametrize("seed", sorted(SEEDS))
-def test_a_decoy_names_only_the_color_it_shows(by_id: dict[str, dict], seed: str) -> None:
-    """A color word in a title or text is the product's own color (#444): never a stray one."""
-    rows = _rows(seed)
-    assert rows, seed
-    for row in rows:
-        doc = by_id[f"PLT-{row.code}"]
-        words = set(re.findall(r"[a-z]+", f"{doc['title']} {doc['description']}".lower()))
-        assert words & COLOR_WORDS <= {row.color.lower()}, (row.code, words & COLOR_WORDS)
 
 
 def test_no_real_class_of_the_seed_pool_is_planted() -> None:

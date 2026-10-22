@@ -53,6 +53,9 @@ def plant_shard_script(root: Path) -> None:
         (REPO / "scripts" / "ci_shards.py").read_text(encoding="utf-8"), encoding="utf-8"
     )
     (root / "tests" / "test_stub.py").write_text("", encoding="utf-8")
+    (root / "scripts" / "ci_run_pytest.py").write_text(
+        (REPO / "scripts" / "ci_run_pytest.py").read_text(encoding="utf-8"), encoding="utf-8"
+    )
 
 
 def pytest_invocations(job_id: str, workflows: Path, tmp_path: Path) -> list[list[str]]:

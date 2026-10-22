@@ -15,11 +15,12 @@ form.
 A registry is in the table in the same PR that gives it a new-file form, so the check never refuses
 what has no alternative yet: ``tests/test_registry_append_guard_513.py`` holds every entry to a
 form that exists. The one escape, for a change that is not a feature (a helper module the scaled
-build needs), is a ``Registry-Append: <reason>`` trailer on the tip commit; a trailer with no
-reason does not count.
+build needs), is a ``Registry-Append: <reason>`` trailer on a commit of the branch (any non-merge
+commit in ``base..head``, so a later commit or a merge of main does not drop it); a trailer with
+no reason does not count.
 
-Exit 0: no registry nets an appended line, or the tip carries the trailer. Exit 1: the registries,
-the lines and the files that replace them.
+Exit 0: no registry nets an appended line, or a commit of the branch carries the trailer.
+Exit 1: the registries, the lines and the files that replace them.
 """
 
 from __future__ import annotations
@@ -145,10 +146,16 @@ def appended(root: Path, base: str, head: str) -> list[tuple[Registry, list[str]
     return out
 
 
-def escaped(root: Path, head: str) -> bool:
-    """Whether the tip commit carries ``Registry-Append: <a reason>``."""
+def escaped(root: Path, base: str, head: str) -> bool:
+    """Whether a non-merge commit in ``base..head`` carries ``Registry-Append: <a reason>``.
+
+    The reason is typed once, on the commit that makes the append; a merge of main or a later
+    commit on top of it leaves the trailer where ``git log`` keeps it (gen#646). A merge commit's
+    own message does not count: it is not where the append is made.
+    """
     fmt = f"--format=%(trailers:key={TRAILER_KEY},valueonly)"
-    return any(value.strip() for value in _git(root, "log", "-1", fmt, head).split("\n"))
+    out = _git(root, "log", "--no-merges", fmt, f"{base}..{head}")
+    return any(value.strip() for value in out.split("\n"))
 
 
 def refusal(found: list[tuple[Registry, list[str]]]) -> str:
@@ -163,7 +170,8 @@ def refusal(found: list[tuple[Registry, list[str]]]) -> str:
         lines.append(f"    instead: {reg.form}")
     lines += [
         "",
-        "A change that is not a feature (a helper the build needs) says so on its tip commit:",
+        "A change that is not a feature (a helper the build needs) says so on a commit",
+        "of the branch, the tip or an earlier one (a merge of main does not drop it):",
         f"  {TRAILER_KEY}: <why no new file will do>",
     ]
     return "\n".join(lines)
@@ -176,7 +184,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", type=Path, default=Path.cwd())
     args = parser.parse_args(argv)
     found = appended(args.root, args.base, args.head)
-    if not found or escaped(args.root, args.head):
+    if not found or escaped(args.root, args.base, args.head):
         return 0
     print(refusal(found))
     return 1

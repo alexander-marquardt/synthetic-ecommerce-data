@@ -29,6 +29,7 @@ from dataclasses import dataclass
 
 from colorwords import plain
 from departments import check as check_departments
+from stable_ids import check_skus, sku_id
 
 Color = tuple[str, str, str, str]  # (name, pattern, base hex, accent hex)
 
@@ -39,6 +40,13 @@ def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") ->
     ``name`` is the authored fashion shade ("Lemon"); the color is "Yellow".
     """
     return (plain(name), pattern, base, accent)
+
+
+def shade(name: str, base: str) -> Color:
+    """A complexion shade sold under its own name ("Porcelain"): never folded into a plain color
+    word (:func:`cw` would make it "Cream"), because the export writes it to ``shade``
+    (:mod:`shades`, gen#345). Its depth and undertone are in ``shades.NAMED``."""
+    return (name, "solid", base, "#333333")
 
 
 def attr(key: str, name: str, value, unit_code: str | None = None, canonical=None) -> dict:
@@ -101,7 +109,9 @@ def _distinct(values) -> list:
 def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fields) -> dict:
     """One style's catalog document: ``fields``, its SKUs and the options derived from them.
 
-    ``skus`` get their ``sku`` ids here (``<product_id>-001`` on). The option
+    ``skus`` get their ``sku`` ids here: ``<product_id>-<hash of the SKU's axes>``
+    (:func:`stable_ids.sku_id`), so a SKU keeps its id when a row is added before it; two SKUs
+    with one set of axes raise :class:`stable_ids.IdCollision` (gen#626). The option
     lists are never authored: ``color_options`` is the swatch of each SKU color
     in first-SKU order, one per color (``swatches`` maps a color to it, so a
     swatch whose color no SKU has never shows); ``size_options`` holds, per
@@ -110,7 +120,8 @@ def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fiel
     """
     if not skus:
         raise ValueError(f"{product_id}: a product with no SKU")
-    rows = [{"sku": f"{product_id}-{n:03d}", **s} for n, s in enumerate(skus, 1)]
+    rows = [{"sku": sku_id(product_id, s), **s} for s in skus]
+    check_skus(product_id, rows)
     out = {"product_id": product_id, **fields, "price": min(s["price"] for s in rows)}
     out |= {"sku_count": len(rows), "skus": rows}
     colors = _distinct(s["color"] for s in rows if "color" in s)
@@ -620,12 +631,12 @@ BEAUTY = (
                extra=(("coverage", "Coverage", "Medium"),)),
     ShallowRow("FNDSRM", "Beauty", "Skin Serum Foundation 50ml", "Velling Apothecary",
                ("Beauty", "Make-Up", "Face", "Foundation"), 42.0, "bottle",
-               "A serum-light foundation with hyaluronic acid for a dewy, sheer finish.",
+               "A serum-thin foundation with hyaluronic acid for a dewy, sheer finish.",
                _tones("1N 1W 2C 2N 3N 3W 4C 4N 5N 5W 6C 6N 7N 7W 8N 9N 10N 11W 12N 13N"),
                label="Serum", extra=(("coverage", "Coverage", "Sheer"),)),
     ShallowRow("TNTMST", "Beauty", "Tinted Moisturiser SPF 20", "Velling Apothecary",
                ("Beauty", "Skincare", "Moisturisers"), 22.0, "moisturiser_jar",
-               "A tinted daily moisturiser with SPF 20 and a light, even glow.",
+               "A tinted daily moisturiser with SPF 20 and a soft, even glow.",
                _tones("1N 2N 3N 5N 7N 9N 11N 13N"), label="SPF 20",
                extra=(("spf", "SPF", "20"),)),
 )  # fmt: skip

@@ -37,7 +37,8 @@ KEYS = {
     "Frying Pan": {"pan_type", "material", "coating", "hob_type", "oven_safe", "diameter"},
     "Casserole Dish": {"material", "shape", "oven_safe", "hob_type", "capacity"},
     "Kitchen Bin": {"bin_type", "capacity", "compartments", "material"},
-    "Storage Box": {"storage_type", "material", "lid_type", "transparent", "stackable", "capacity"},
+    # No ``storage_type``: its one value, Storage Box, restates the type (gen#497).
+    "Storage Box": {"material", "lid_type", "transparent", "stackable", "capacity"},
     "Laundry Basket": {"laundry_basket_type", "capacity", "compartments", "material"},
     "Clothes Airer": {"airer_type", "drying_length", "tiers"},
     # A flat or sponge mop has no bucket, so only the bucket styles state a capacity.

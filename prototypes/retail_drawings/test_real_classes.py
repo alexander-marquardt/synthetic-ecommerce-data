@@ -21,6 +21,7 @@ import kit_home  # noqa: E402,F401 -- registers table_lamp
 import kit_more  # noqa: E402,F401 -- registers chairbed
 import prints  # noqa: E402
 import real_classes as rc  # noqa: E402
+import stable_ids  # noqa: E402
 from class_model import SHADE_FAMILY  # noqa: E402
 
 CLASS_DOCS = rc.class_docs()
@@ -201,7 +202,11 @@ def test_legwear_skus_are_waist_by_inside_leg_with_stock_per_color() -> None:
     assert {tuple(sorted(s)) for s in mid["skus"]} == {
         ("color", "in_stock", "inside_leg", "price", "sku", "waist")
     }
-    assert [s["sku"] for s in mid["skus"]] == [f"PLT-BRLMID-{n:03d}" for n in range(1, 251)]
+    # A SKU is named by its own axes (gen#626), not its place in the run: 250 distinct ids.
+    assert [s["sku"] for s in mid["skus"]] == [
+        stable_ids.sku_id("PLT-BRLMID", s) for s in mid["skus"]
+    ]
+    assert len({s["sku"] for s in mid["skus"]}) == 250
     per_color = {c: [s for s in mid["skus"] if s["color"] == c] for c in _colors(mid)}
     for skus in per_color.values():
         assert len(skus) == 10 * 5
@@ -247,13 +252,15 @@ def test_bedding_skus_are_bed_sizes_labelled_with_their_dimension_and_priced_eac
     topper = _style("PLT-MTTMEM")
     white = {"color": "White"}
     stock = {"in_stock": True}
-    assert topper["skus"] == [
-        {"sku": "PLT-MTTMEM-001", **white, "bed_size": "Single (3 ft)", "price": 60.0, **stock},
-        {"sku": "PLT-MTTMEM-002", **white, "bed_size": "Double (4 ft 6)", "price": 75.0, **stock},
-        {"sku": "PLT-MTTMEM-003", **white, "bed_size": "King Size (5 ft)", "price": 90.0, **stock},
-        {"sku": "PLT-MTTMEM-004", **white, "bed_size": "Super King Size (6 ft)", "price": 105.0,
-         **stock},
+    assert [{k: v for k, v in s.items() if k != "sku"} for s in topper["skus"]] == [
+        {**white, "bed_size": "Single (3 ft)", "price": 60.0, **stock},
+        {**white, "bed_size": "Double (4 ft 6)", "price": 75.0, **stock},
+        {**white, "bed_size": "King Size (5 ft)", "price": 90.0, **stock},
+        {**white, "bed_size": "Super King Size (6 ft)", "price": 105.0, **stock},
     ]  # fmt: skip
+    assert [s["sku"] for s in topper["skus"]] == [
+        stable_ids.sku_id("PLT-MTTMEM", s) for s in topper["skus"]
+    ]
     assert topper["size_options"] == {"bed_size": list(rc.BED_SIZES)}
     assert (topper["price"], topper["price_min"], topper["price_max"]) == (60.0, 60.0, 105.0)
     bedded = [d for d in CLASS_DOCS if d["skus"] and "bed_size" in d["skus"][0]]
