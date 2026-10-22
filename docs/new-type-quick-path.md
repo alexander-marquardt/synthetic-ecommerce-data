@@ -192,7 +192,8 @@ names the file that replaces it:
 | `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
 
 A change that is no feature (a helper module the scaled build needs) puts
-`Registry-Append: <why no new file will do>` on its tip commit. A shared file that has no
+`Registry-Append: <why no new file will do>` on a commit of the branch (a later commit or a merge
+of main does not drop it). A shared file that has no
 new-file form yet is not in the table (`details.PARTS`, the pasted doc tables); it is added to
 the table in the PR that gives it one.
 
