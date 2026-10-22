@@ -155,10 +155,11 @@ fields:
     searchable: true
     boost: 40
   # Category is a ``/``-joined root-to-leaf path, built at load time from the
-  # ``category_path`` array (see ``prism/index.py``). Every product line sits
-  # on exactly one chain -- the generator builds the path from a single
-  # taxonomy node -- so ``paths_form_tree`` is true, and the engine re-checks
-  # that against the live catalog at every boot.
+  # ``category_path`` array, plus each further path of ``category_paths`` for a
+  # product filed twice (see ``prism/index.py``). Every path is a chain from
+  # one taxonomy node, and a node name keeps one parent whichever product
+  # reaches it, so ``paths_form_tree`` is true, and the engine re-checks that
+  # against the live catalog at every boot.
   - name: categories
     type: hierarchy
     source: category_path_joined
@@ -657,7 +658,7 @@ fields:
   - name: attr_series
     type: terms
     source: facets.series
-  # Shank dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 84 distinct values over 1848 product-value pairs is 0.05 per product
+  # Shank dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 84 distinct values over 1850 product-value pairs is 0.05 per product
   #   present on 1935 documents across 4 product type(s); 84 distinct values
   - name: shank_dia
     type: terms

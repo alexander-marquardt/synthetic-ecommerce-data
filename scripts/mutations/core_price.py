@@ -311,14 +311,6 @@ MUTATIONS: list[Mutation] = [
                 "a kit holding more of the same sizes costs more",
             ),
             (
-                "the wheel pin's 100K record is loosened by hand",
-                "core/price.py",
-                "    _WHEEL_SPREAD_ROW: (1.771, 1.769),",
-                "    _WHEEL_SPREAD_ROW: (1.771, 3.25),",
-                "figure_its_build_produces",
-                "a record is the build's figure",
-            ),
-            (
                 "a pin recorded None holds a build out of band",
                 "domains/industrial/price_report.py",
                 "    if recorded is None:\n        return row.within",
