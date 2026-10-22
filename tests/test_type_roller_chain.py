@@ -487,6 +487,18 @@ def test_a_four_strand_chain_costs_more_than_its_brands_single_strand_one():
     assert falling == [], falling
 
 
+def test_the_readme_states_the_strand_factors_and_set_counts_the_code_holds():
+    """The README's roller chain price paragraph quotes the factors and set counts."""
+    text = " ".join(Path(__file__).resolve().parents[1].joinpath("README.md").read_text().split())
+    start = text.index("`roller_chain.STRAND_FACTORS`")
+    paragraph = text[start : start + 900]
+    for factor in ("double 1.9x", "triple 2.8x", "four strand 3.7x"):
+        assert factor in paragraph, factor
+    assert f"{roller_chain.HEAVY_FACTOR}x the standard one" in paragraph
+    assert f"({STRAND_SETS[None]} such sets on the golden catalog" in paragraph
+    assert f"{STRAND_SETS[LARGE_LINES]} at `--lines 39000`" in paragraph
+
+
 if __name__ == "__main__":
     SLICE.parent.mkdir(parents=True, exist_ok=True)
     SLICE.write_text(
