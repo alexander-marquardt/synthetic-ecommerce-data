@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import zlib
 
+from stable_ids import check_skus, sku_id
+
 #: The Womens leaves (second path node) whose styles may gain the larger sizes.
 LEAVES = frozenset({"Dresses", "Tops", "Trousers", "Jeans", "Knitwear"})
 #: The largest UK size the extended run reaches, and the smallest run end that is extended.
@@ -68,7 +70,8 @@ def extend(rec: dict) -> dict:
             if key == "size_uk":
                 sizes |= {"size_eu": str(uk + 28), "size_us": str(uk - 4)}
             added.append({**{k: v for k, v in base.items() if k != "sku"}, **sizes})
-    rows = [*skus, *({"sku": f"{pid}-{n:03d}", **s} for n, s in enumerate(added, len(skus) + 1))]
+    rows = [*skus, *({"sku": sku_id(pid, s), **s} for s in added)]
+    check_skus(pid, rows)
     options = dict(rec.get("size_options", {}))
     for key in ("size_uk", "size_eu", "size_us", "size"):
         if any(key in s for s in added):
