@@ -76,6 +76,9 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "shade_depth": ("shade_depth", "Shade depth", None),
     "undertone": ("undertone", "Undertone", None),
     "size": ("size", "Size", None),
+    # A large appliance's model number differs by color letter (large_appliance_rows.py,
+    # gen#622): each SKU states its own, the base model joins the colors.
+    "model_number": ("model_number", "Model number", None),
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),
