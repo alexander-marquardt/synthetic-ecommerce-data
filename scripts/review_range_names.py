@@ -147,6 +147,10 @@ def review(rows: Iterable[dict[str, Any]], ranges: Iterable[str] | None = None) 
     by_range: dict[str, set[str]] = collections.defaultdict(set)
     unlabeled: list[tuple[str, str, str]] = []
     for s in styles:
+        # A range stated as an attribute counts under its brand wherever the title puts it
+        # ("Mens Kettle Hill Chinos" leads with a department word, not the range).
+        if stated := line_of(s):
+            by_range[stated].add(s["brand"])
         name = lead_range(s["title"], names)
         if name is None:
             continue
