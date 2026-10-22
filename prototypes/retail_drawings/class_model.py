@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from colorwords import plain
 from departments import check as check_departments
 from promotion import values as promotion_values
+from shades import NAMED as NAMED_SHADES
 from variants import Color, attr, drawing, product, swatch
 
 AUDIENCES = ("adult", "kids", "baby")
@@ -67,6 +68,9 @@ _AUTHORED_SHADE_FAMILY = {
 }  # fmt: skip
 #: Keyed by the plain word ``cw`` gives a shade ("Lemon" is "Yellow"), as ``color[0]`` reads.
 SHADE_FAMILY = {plain(shade): family for shade, family in _AUTHORED_SHADE_FAMILY.items()}
+#: A complexion shade sold under its own name ("Porcelain", gen#345) is no plain word, so it is
+#: keyed by the name; it rolls up to the family its plain word did.
+SHADE_FAMILY |= {name: SHADE_FAMILY[plain(name)] for name in NAMED_SHADES}
 #: The inside-leg axis of a legwear product page, and the size range each serves.
 INSIDE_LEGS = ("Extra Short", "Short/Petite", "Regular", "Long", "Extra Long")
 LENGTH_RANGE = {"Extra Short": "petite", "Short/Petite": "petite", "Regular": "regular",

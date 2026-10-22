@@ -144,10 +144,12 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
     face creams (#542: 20 templates, 69 SKUs) and the cream furniture decoys of "face cream"
     (#541: 13 templates, 13 SKUs) lift them, and the 27 templates and 160 SKUs of the gen#509
-    plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again, and the Electronics
-    department (gen#332: 173 templates, 892 SKUs) lifts them to 11726 and 104096; a new style
-    would raise both. This test pins 11726 templates and 104096 template SKUs: the PR that lifts
+    plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again, to 11553 and
+    103204; the twelve authored beach towels replace the one "Cotton Velour Beach Towel"
+    template (#624: 11 more templates, 18 more SKUs), and the Electronics department
+    (gen#332: 173 templates, 892 SKUs) lifts them to 11737 and 104114; a new style
+    would raise both. This test pins 11737 templates and 104114 template SKUs: the PR that lifts
     the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11726
-    assert sum(t["sku_count"] for t in tpls) == 104096
+    assert len(tpls) == 11737
+    assert sum(t["sku_count"] for t in tpls) == 104114
