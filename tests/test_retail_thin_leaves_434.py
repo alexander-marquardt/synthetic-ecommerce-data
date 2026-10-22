@@ -72,9 +72,7 @@ def test_every_bed_states_its_sizes_from_the_shared_vocabulary(templates: list[d
 
 
 @pytest.mark.parametrize("size", BED_SIZES)
-def test_at_least_six_beds_are_made_in_each_named_size(
-    templates: list[dict], size: str
-) -> None:
+def test_at_least_six_beds_are_made_in_each_named_size(templates: list[dict], size: str) -> None:
     made = [r for r in _leaf(templates, BEDS) if any(s.get("bed_size") == size for s in r["skus"])]
     assert len(made) >= 6, f"{len(made)} beds are made in {size}"
 
@@ -90,8 +88,8 @@ def test_the_chips_leaf_holds_chips_and_potato_products(templates: list[dict]) -
 #: The spec key, department and product type of each leaf, and the rows the spec adds to it.
 SPECS = {
     "chips": ("Food & Drink", "Chips", CHIPS, 14),
-    "bed": ("Home", "Bed", BEDS, 9),
-    "bomber_jacket": ("Clothing", "Bomber Jacket", BOMBERS, 12),
+    "bed": ("Home", "Bed", BEDS, 10),
+    "bomber_jacket": ("Clothing", "Bomber Jacket", BOMBERS, 13),
 }
 
 
