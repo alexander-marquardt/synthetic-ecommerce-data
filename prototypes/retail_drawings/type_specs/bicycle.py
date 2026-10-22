@@ -4,12 +4,22 @@ Each style is a template (``derivable`` False): the range is authored, four styl
 is sold by frame size (centimeters); a kids' bike by wheel size (inches), as the toy bikes are
 (gen#271). The wheel size of an adult bike is a fixed attribute. A balance bike stays in Toys.
 :mod:`kit_sports` draws them.
+
+Each bike is sold under its brand's series and model number (gen#625, :mod:`bicycle_model_numbers`):
+the title reads brand, series, model number, spec, then the bike, "Wrenfield Swiftline RD28-18-26
+28in 18 Speed Aluminum Road Bike", and each part is an attribute too. The long title is on purpose:
+the short-titled accessories (``bike_saddle``, ``bike_pedals``, ...) outrank it on a plain text
+match for ``bicycle`` or ``bike``.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
 
 from __future__ import annotations
 
+import dataclasses
+
+import bicycle_model_numbers as bmn
+from breadth_rows import Row
 from cycling_helpers import BIKES, _count, _inch
 from sports_helpers import (
     _H,
@@ -28,12 +38,28 @@ from sports_helpers import (
 )
 from type_registry import Option, TypeSpec
 
+
+def _numbered(row: Row) -> Row:
+    """The row under its series and model number, read from its own attributes (gen#625)."""
+    got = {x[0]: x[2] for x in row.attrs}
+    kind, gears = got["bike_type"], int(got["gears"])
+    wheel = int(got["wheel_size"]) if "wheel_size" in got else None
+    code = bmn.encode(row.brand, kind, wheel, gears)
+    series = bmn.series_for(row.brand, kind)
+    extra = (_a("model_number", "Model number", code), _a("model_year", "Model year", str(bmn.MODEL_YEAR)))
+    return dataclasses.replace(
+        row, title=f"{row.brand} {series} {code} {bmn.spec(gears, wheel)} {row.title}",
+        attrs=(*row.attrs, *extra), product_line=series,
+        color_codes=tuple((c[0], code) for c in row.colors),
+    )  # fmt: skip
+
+
 SPEC = TypeSpec(
     key="bicycle",
     department="Sports & Outdoors",
     product_type="Bicycle",
     options=(Option("frame_cm", "frame_size", "Frame size", "CMT"),),
-    rows=(
+    rows=tuple(map(_numbered, (
         _row("BIKRDR", "Aluminum Road Bike", _W, (*BIKES, "Road Bikes"), "Bicycle", 449.0, "bicycle",
              "A light aluminum road bicycle with drop bars, a carbon fork and eighteen gears for fast rides on tarmac.",
              (RED, BLACK, WHITE, BLUE),
@@ -58,5 +84,5 @@ SPEC = TypeSpec(
              (_a("bike_type", "Bike type", "Kids"), _a("frame_material", "Frame material", "Steel"),
               _count("gears", "Gears", 1), _a("brake_type", "Brake type", "Coaster")),
              _axis((16, 119.0), (20, 139.0), (24, 159.0)), "wheel_size_in", (("style", "kids"),)),
-    ),
+    ))),
 )  # fmt: skip

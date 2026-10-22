@@ -1,4 +1,7 @@
-"""Bike Helmet (gen#352): road, mountain and kids helmets in a Sports & Outdoors leaf.
+"""Bike Helmet (gen#352): road, mountain, kids and commuter helmets in a Sports & Outdoors leaf.
+
+The commuter helmet's short title, ``Bicycle Helmet``, is one of the accessory decoys of gen#625:
+on a plain text match for ``bicycle`` it outranks the bikes, whose titles carry a model number.
 
 Sold in S, M and L. The styles are templates only (``derivable`` False). :mod:`kit_sports` draws
 them. A baseball batting helmet is its own type (``batting_helmet``) in Baseball.
@@ -37,5 +40,10 @@ SPEC = TypeSpec(
              (RED, BLUE, YELLOW, GREEN),
              (_a("helmet_type", "Helmet type", "Kids"), _a("impact_protection", "Impact protection", "Standard"), _a("visor", "Visor", "No")),
              _sizes(25.0), "size", (("style", "kids"),)),
+        _row("HLMCTY", "Bicycle Helmet", _H, (*CYCLING, "Bike Helmets"), "Bike Helmet", 35.0, "bike_helmet",
+             "An everyday bicycle helmet with a smooth shell, a rear light clip and a magnetic buckle, for the commute.",
+             (BLACK, WHITE, BLUE, RED),
+             (_a("helmet_type", "Helmet type", "Commuter"), _a("impact_protection", "Impact protection", "Standard"), _a("visor", "Visor", "No")),
+             _sizes(35.0), "size", (("style", "road"),)),
     ),
 )  # fmt: skip
