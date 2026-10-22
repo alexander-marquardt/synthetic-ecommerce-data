@@ -89,11 +89,12 @@ def test_the_options_and_the_sku_count_follow_the_larger_skus(ceiling: list[dict
     for r in _carrying(_womens(ceiling, "Dresses"), "22"):
         ids = [s["sku"] for s in r["skus"]]
         assert len(set(ids)) == len(ids) == r["sku_count"], r["product_id"]
+        key = "size_uk" if "size_uk" in r["skus"][0] else "size"
         seen: list[str] = []
         for s in r["skus"]:
-            if s["size"] not in seen:
-                seen.append(s["size"])
-        assert r["size_options"]["size"] == seen, r["product_id"]
+            if s[key] not in seen:
+                seen.append(s[key])
+        assert r["size_options"][key] == seen, r["product_id"]
 
 
 def test_extend_appends_the_chart_rows_per_color_and_leaves_ids_alone() -> None:
