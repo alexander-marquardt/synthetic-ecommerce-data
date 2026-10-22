@@ -2,8 +2,8 @@
 
 Pinned from the issue and the maintainer's two rulings (2026-10-15): the only real names are Apple,
 iPhone and iPad (text only, no logo); every other brand is invented; the accessories keep invented
-brands and name the phone they fit, which is true and is the model-word decoy; a bare model-line
-query is routed to Smartphones by a policy; the department ships cross-department word decoys
+brands and name the phone they fit, which is true and is the model-word decoy; the department
+ships cross-department word decoys
 ("mouse", "tablet", "monitor", "mobile", "charger", "apple") as class 8 rows.
 """
 
@@ -25,7 +25,9 @@ import kit  # noqa: E402
 import real_brands  # noqa: E402
 import scale  # noqa: E402
 
-README = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
+NOTE = (Path(__file__).resolve().parents[1] / "docs" / "retail-electronics.md").read_text(
+    encoding="utf-8"
+)
 DEVICE_NODES = {
     ("Electronics", "Phones", "Smartphones"),
     ("Electronics", "Phones", "Basic Phones"),
@@ -173,7 +175,6 @@ def test_the_devices_have_drawings_and_the_brand_is_text_only(electronics):
     assert "Apple" not in str(apple["drawing"]), "no mark, no wordmark"
 
 
-def test_the_readme_records_the_rulings_and_the_doc_exists():
-    assert "Real names (Apple, iPhone, iPad only)" in README
-    note = Path(__file__).resolve().parents[1] / "docs" / "retail-electronics.md"
-    assert note.is_file()
+def test_the_doc_records_the_rulings():
+    assert "## Real names (Apple, iPhone, iPad only)" in NOTE
+    assert "maybe we should only allow apple and iphone as exceptions" in NOTE

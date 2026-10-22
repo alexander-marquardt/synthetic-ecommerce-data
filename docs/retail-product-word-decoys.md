@@ -72,7 +72,7 @@ in the first 12 for each seed with policies off, every query word required, the 
 prototype's baseline; the live number is read on the next loaded index.
 
 **Electronics (gen#332).** Five device words and `apple` meet products of other departments, in
-`feature_decoys/electronics.py` (rows DY701 to DY725): `mouse` (a cushion, a throw, a basket),
+`feature_decoys/electronics.py` (19 rows: DY701 to DY705, DY708, DY711, DY714 to DY725): `mouse` (a cushion, a throw, a basket),
 `tablet` (dishwasher tablets, Scottish tablet), `monitor` (a lizard cushion, throw and basket),
 `mobile` (a coat stand, a clothes rack, a basket on wheels), `charger` (three charger plates) and
 `apple` (the fruit, its juice, a candle, a tree). Each row carries `device_type`, the Electronics
