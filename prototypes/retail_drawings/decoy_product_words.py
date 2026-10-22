@@ -58,7 +58,13 @@ _WOMENS = (("audience", "Audience", "Womens"),)
 #: Kinds this module adds (a decoy's true type), then the kinds of :mod:`decoy_rows` it reuses.
 NEW_KINDS = {
     "brogue": Kind(
-        "Footwear", ("Mens", "Shoes", "Brogues"), "Brogues", "shoe", "Stridewell", 54.0, params=_BR
+        "Footwear",
+        ("Mens", "Shoes", "Formal Shoes", "Brogues"),
+        "Brogues",
+        "shoe",
+        "Stridewell",
+        54.0,
+        params=_BR,
     ),
     "polish": Kind(
         "Footwear",
