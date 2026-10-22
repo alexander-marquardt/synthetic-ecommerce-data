@@ -124,6 +124,11 @@ TRUE_NODE = {
     "washing": "Large Appliances",
     # the cups of gen#620: the bras named for their cup sit in no drinkware
     "cup": "Drinkware",
+    # the cycling accessories of gen#625: the print decoys sit in no Cycling leaf
+    "lube": "Chain Lube",
+    "bottle": "Bike Bottles",
+    "saddle": "Bike Saddles",
+    "pedal": "Bike Pedals",
 }
 
 
