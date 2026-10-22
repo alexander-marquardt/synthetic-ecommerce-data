@@ -29,9 +29,11 @@ from pathlib import Path
 EXIT_INFRA = 75
 
 #: What xdist and pytest print when workers die, from the logs of the three red runs.
+#: Anchored to what xdist prints, so a traceback, an ``E`` line or a quoted repr that carries the
+#: same words (a test that parses these logs) is not read as a lost worker.
 LOST_SIGNATURES = (
-    re.compile(r"node down: Not properly terminated"),
-    re.compile(r"INTERNALERROR> KeyError: <WorkerController "),
+    re.compile(r"^[.sxXFE]*\[gw\d+\] node down: Not properly terminated\s*$", re.MULTILINE),
+    re.compile(r"^INTERNALERROR> KeyError: <WorkerController ", re.MULTILINE),
 )
 CRASHED_TEST = re.compile(r"worker '(gw\d+)' crashed while running '([^']+)'")
 MB = 1024 * 1024
@@ -123,10 +125,10 @@ def main(argv: list[str]) -> int:
     while True:
         attempt += 1
         code, lost, crashed = run_once(command)
-        for line in evidence():
-            print(f"ci_run_pytest: attempt {attempt}: {line}", flush=True)
         if not lost:
             return code
+        for line in evidence():
+            print(f"ci_run_pytest: attempt {attempt}: {line}", flush=True)
         total = args.reruns + 1
         print(f"::warning::infra: worker lost on attempt {attempt} of {total}", flush=True)
         for line in [*crashed, *_kernel_oom_lines()]:
