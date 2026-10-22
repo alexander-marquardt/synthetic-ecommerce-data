@@ -3,9 +3,9 @@
 Six words of the department's shoppers meet products that are not the device. "mouse" meets
 two soft furnishings with a field mouse on them. "tablet" meets dishwasher tablets and Scottish
 tablet, the sweet. "monitor" meets a monitor lizard cushion. "mobile" meets a mobile coat stand.
-"charger" meets the charger plate that sits under a dinner plate. "apple" meets the fruit, its
-juice, a candle and the tree: the brand is a real name the catalog keeps (README: Real names), so the fruit is the
-clash. Each decoy is a real product of a type the catalog already has, or of a plain kit
+"charger" meets the charger plate that sits under a dinner plate. "apple" meets its
+juice, a candle and the tree: the brand is a real name the catalog keeps (README: Real names), so
+the word clashes. The fruit itself is no decoy: an apple is an apple, a true hit. Each decoy is a real product of a type the catalog already has, or of a plain kit
 shape, drawn as that product; the department policy drops it from an Electronics query. No
 title or description names a color.
 """
@@ -32,7 +32,6 @@ _ROWS = (
     (708, "cushion", "Monitor Lizard Cushion", "A soft cushion shaped like a monitor lizard with a striped tail.", "Green", "monitor", "monitor", "Monitor"),
     (711, "stand", "Mobile Coat Stand", "A coat stand on wheels, easy to move from the hall to the bedroom.", "Black", "mobile", "mobile", "Smartphone"),
     (714, "el_plate", "Charger Plate, 33 cm", "A wide plate that sits under the dinner plate and sets the table.", "Gold", "charger", "charger", "Charger"),
-    (715, "apples", "Bramley Apples, 1 kg", "Large cooking apples, sold loose by the kilo.", "Green", "apple", "apple", "Smartphone"),
     (716, "juice", "Pressed Apple Juice, 1 L", "Cloudy juice from pressed apples, in a carton.", "Yellow", "apple", "apple", "Smartphone"),
     (717, "candle", "Apple Blossom Candle", "A scented candle in a jar, with the smell of apple blossom in spring.", "Pink", "apple", "apple", "Smartphone"),
     (718, "house_plant", "Crab Apple Tree, Potted", "A small crab apple tree in a pot, with blossom in spring and fruit in autumn.", "Green", "apple", "apple", "Tablet"),
