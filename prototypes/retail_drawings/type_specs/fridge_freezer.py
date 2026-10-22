@@ -14,7 +14,7 @@ Every brand name is invented. Not derivable: the range is authored.
 from __future__ import annotations
 
 import large_appliance_rows as rows
-from type_registry import Decoy, Row, TypeSpec, a
+from type_registry import Decoy, TypeSpec, a
 
 _PTYPE = "Fridge & Freezer"
 
@@ -25,16 +25,17 @@ SPEC = TypeSpec(
     owners=rows.OWNERS,
     rows=rows.fridge_rows(),
     decoys=(
-        Decoy(4, "black fridge", "color", Row(
-            "FDB001", "Black Edition Fridge Freezer", rows.BRANDS[0], "Home", rows.FRIDGES, _PTYPE,
+        Decoy(4, "black fridge", "color", rows.decoy_row(
+            "FDB001", "Black Edition Fridge Freezer", rows.BRANDS[0], rows.FRIDGES, _PTYPE,
             449.0, "fridge", "The Black Edition range in brushed stainless steel, a 70/30 fridge "
             "freezer with frost free cooling.", (rows.SILVER,),
-            (a("appliance_type", "Type", "Fridge Freezer 70/30"), a("finish", "Finish", "Stainless Steel")),
+            (a("appliance_type", "Type", "Fridge Freezer 70/30"), rows._litres(310),
+             a("finish", "Finish", "Stainless Steel")),
             params=(("kind", "fridge_freezer_7030"),))),
-        Decoy(1, "red fridge", "color", Row(
-            "FDB002", "Red Line Larder Fridge", rows.BRANDS[1], "Home", rows.FRIDGES, _PTYPE, 329.0,
+        Decoy(1, "red fridge", "color", rows.decoy_row(
+            "FDB002", "Red Line Larder Fridge", rows.BRANDS[1], rows.FRIDGES, _PTYPE, 329.0,
             "fridge", "A larder fridge from the Red Line range, finished in white, with glass shelves.",
-            (rows.WHITE,), (a("appliance_type", "Type", "Larder Fridge"),),
+            (rows.WHITE,), (a("appliance_type", "Type", "Larder Fridge"), rows._litres(300)),
             params=(("kind", "larder"),))),
     ),
 )

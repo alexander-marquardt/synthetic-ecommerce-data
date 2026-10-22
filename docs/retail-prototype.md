@@ -202,7 +202,9 @@ The planted cases are:
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
 `pizza` (a round pie on a card under film), `fish_bag` (frozen battered fish: a flat
 pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
-`kit_grocery.py`, and `chocolate_box`
+`kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
+packet on its side, crimped at both ends), in `kit_biscuits.py`
+(`tests/test_biscuit_sleeve_608.py`); and `chocolate_box`
 (a flat, wide, lidded selection box with a ribbon across the lid, in
 `kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
 scale still draws a 150g box smaller than a 400g one;
@@ -353,8 +355,8 @@ an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 fo
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
-| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
-| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
+| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. Car Cup Holder Organiser `PLT-CUPHLD`<br>5. Engraved Trophy Cup `PLT-CUPTRO` | 1. **Leakproof Reusable Travel Cup with Lid for Car Holders `PLT-DRKTRV`**<br>2. **Set of 4 Porcelain Espresso Cups in Gift Box `PLT-DRKSET`**<br>3. **Fine Bone China Tea Cup and Saucer for Afternoon Tea `PLT-DRKSAU`**<br>4. **Apple Graphic Mug `PLT-MUG-APPLE`**<br>5. **Travel Mug `PLT-MUG11`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
 
 Class 15 is a word with a sense in two departments: a bare *cups* is
 drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
@@ -717,7 +719,7 @@ derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 **One `pack_size` vocabulary for a count** (gen#246). A pack of identical or different items is
 `Single` or `N pack` (`2 pack`, `4 pack`, `10 pack`) in every department: underwear, school,
 home (dining chairs, tableware), grocery and the planted distractors alike, so the `pack_size`
-facet lists one spelling. A title keeps natural wording ("Set of 4 Espresso Cups"); the value
+facet lists one spelling. A title keeps natural wording ("Set of 4 Porcelain Espresso Cups in Gift Box"); the value
 does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a measure and
 stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
 
@@ -767,6 +769,24 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
+(`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
+`product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
+field (an attribute keyed `series` would shadow it, which the output standard refuses). A large
+appliance's title reads brand, series, model number, spec, then the kind: "Frostholm Arden
+FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
+(its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
+or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
+`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. Each SKU states
+the code of its own color as its `model_number` option, so a query for `FW712BB` finds the black
+one; the product-level code (the title's) is the first color's, and the `base_model` attribute is
+the same code without its color letter, which names the product in every color. Model number, generation, capacity
+and spin speed are each their own attribute. Two washing machines carry the second title form,
+"Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
+or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
+carry generation "H", which no authored model takes.
+`tests/test_retail_appliance_model_numbers_622.py` holds it.
 
 The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
 derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
