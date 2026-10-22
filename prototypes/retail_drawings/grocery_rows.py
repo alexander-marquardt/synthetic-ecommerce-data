@@ -611,7 +611,7 @@ FAMILIES: tuple[Family, ...] = (
            1.1, ("330ml", "6 x 330ml", "1L"),
            (F("Ginger Beer", "#d9b97a"), F("Fiery Ginger Beer", "#c98b2b"), F("Root Beer", "#5a3020")),
            _DRINK, 0.004),
-    Family("BBF", _p("Frozen", "Battered Fish"), "{line} {flavor}", "Battered Fish", "box", "Battered Fish", _Z,
+    Family("BBF", _p("Frozen", "Battered Fish"), "{line} {flavor}", "Battered Fish", "fish_bag", "Battered Fish", _Z,
            "CD", 3.8, ("280g", "4 x 140g"),
            (F("Beer Battered Scottish Haddock", "#d8a548", "GxF"), F("Beer Battered Cod Fillets", "#e0b058", "GxF"),
             F("Crispy Battered Haddock", "#d8a548", "GxF")),
