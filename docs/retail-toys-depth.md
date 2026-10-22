@@ -52,3 +52,5 @@ them and the type policy has them to repair. Classes 1, 2, 3 and 5 (a trim names
 garment noun as a modifier, an audience cut of a sibling, a shade written in the description
 only) are the garment classes of gen#311 and are not authored for the toys. The test file
 holds each decoy by code, class and query, and ranks each for its query.
+`decoy_contract.range_violations` checks the class 6 decoys of every toy: the title holds every
+word of the query, the category leaf holds none, no two share a query, and each toy has two.

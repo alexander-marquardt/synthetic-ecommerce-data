@@ -200,12 +200,47 @@ def test_a_trailer_with_no_reason_does_not_let_an_append_by(repo, capsys):
     assert _run(root, base, capsys)[0] == 1
 
 
-def test_a_trailer_on_an_earlier_commit_does_not_let_the_tip_by(repo, capsys):
+def test_a_trailer_on_an_earlier_commit_of_the_branch_lets_the_append_by(repo, capsys):
     root, base = repo
     _append(root, SCALE, "import probe_rows  # noqa: E402",
             "feature\n\nRegistry-Append: first")  # fmt: skip
-    _append(root, LEGACY, "Beauty|Probe Cream", "later")
-    assert _run(root, base, capsys)[0] == 1
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    assert _run(root, base, capsys)[0] == 0
+
+
+def _merge_main_into_feature(root: Path, message: str = "Merge main into feature") -> str:
+    """Advance main by a commit and merge it into ``feature``; return main's new tip."""
+    _git(root, "switch", "-q", "main")
+    tip = _commit(root, "main moves on", {"elsewhere.txt": "y\n"})
+    _git(root, "switch", "-q", "feature")
+    _git(root, "merge", "-q", "--no-ff", "-m", message, "main")
+    assert len(_git(root, "rev-list", "--parents", "-n1", "HEAD").split()) == 3
+    return tip
+
+
+def test_a_trailer_survives_a_merge_of_main_at_the_tip(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402",
+            "feature\n\nRegistry-Append: a helper module, not a feature")  # fmt: skip
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    main_tip = _merge_main_into_feature(root)
+    assert _run(root, main_tip, capsys)[0] == 0
+
+
+def test_the_same_branch_with_no_trailer_anywhere_is_refused(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402")
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    main_tip = _merge_main_into_feature(root)
+    code, out = _run(root, main_tip, capsys)
+    assert code == 1 and SCALE in out
+
+
+def test_a_trailer_in_the_message_of_the_merge_alone_does_not_let_an_append_by(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402")
+    main_tip = _merge_main_into_feature(root, "Merge main\n\nRegistry-Append: on the merge")
+    assert _run(root, main_tip, capsys)[0] == 1
 
 
 def test_the_table_holds_exactly_the_registries_that_have_a_new_file_form():
