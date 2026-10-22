@@ -356,7 +356,7 @@ have none to name. The shank rate sits above its target because a shank is
 never thinner than its cutter any more: the census's 0.833 and 0.75 ratios
 become the next shank up, and above the largest stocked shank it is the
 cutter's own size; and an oversize shank is at most three times its cutter,
-or 6 mm under a metric cutter below 6 mm (see
+and a metric cutter below 6 mm takes its DIN 6527 shank (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
@@ -374,12 +374,12 @@ their product families, market weight, house style and title voice.
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
   Meadow Works`, `Wendlow Tool`, `Quillon Carbide`, ...): a brand filter has to
   tell a brand from a word, and a catalog without such a name never makes it.
-* **House style.** Twelve inks, six paper tints and four frame treatments. Each
-  brand owns one (ink, frame) pair, read back by
-  `drawing.style.brand_for_house_style`, and its paper is chosen independently
-  of its ink, so brands that share an ink also differ in background. Every
-  (ink, paper, frame) triple is unique and every ink is at least 3:1 against
-  its paper (the lowest is 4.4:1).
+* **House style.** Twelve inks, six paper tints and four frames in use (a
+  fifth, `chamfer`, is declared, unused). Each brand owns one (ink, frame)
+  pair, read back by `drawing.style.brand_for_house_style`; its paper is
+  independent of its ink. Every (ink, paper, frame) triple is unique, every ink
+  at least 3:1 against every paper (lowest 4.4:1). Capacity (#55): 570 distinguishable styles, 45 x 570
+  with the mark, against the 135 brands #53 needs ([detail](docs/house-style-levers.md)).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs
   (`domains/industrial/drawing/brand_marks.py`) in three enclosures (bare, in
@@ -468,13 +468,11 @@ shared tables):
   `reference-statistics/04_shank_dia_vs_milling_dia.json` are at or under
   3.0x, the 2.667x and 3.0x ones included; the census's 4.0 ratio had put a
   5/32" cutter on a 5/8" shank. A metric cutter below 6 mm with an oversize
-  shank sits on the 6 mm DIN 6535 shank, whatever the ratio (1 mm on 6 mm is
-  6.0x). That is a catalog convention the #33 review proposed, not yet
-  confirmed against a standard's diameter table (#87); it leaves the
-  3, 4 and 5 mm DIN 6535 shanks undrawn for an oversize cutter. Under the
-  earlier 2x cap, 48 of the 54 such cutters on a2a55cc's golden sat on another
-  shank, most of them on 3 mm. Above the largest stocked shank the shank is
-  the cutter's own size.
+  shank sits on the shank DIN 6527 (1/2012, [table](https://www.fasten.it/en/norms/norm/din_6527))
+  pairs with its diameter: 2 and 2.5 mm on 3 mm, 3-5 mm on 6 mm; 1 and 1.5 mm
+  are below its range and take 3 mm (3.0x), an extension. This replaced one
+  6 mm shank for all of them, which nothing had confirmed (#87). Above the
+  largest stocked shank the shank is the cutter's own size.
 * **A terse end mill title names the mill's own end**: `SGL Sq End` on a
   square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
   mills said `Sq End`).
@@ -657,7 +655,9 @@ sells them together as one item. So some hex key sizes are sold only in a set
 (0.7, 0.9, 1.3mm; 0.028", 0.035"), some only singly (12mm), most both, and a
 test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
-is the one facet value "Assortment Kit" and its kind is `Type`. 59 kits on
+is the one facet value "Assortment Kit" and its kind is `Type`. A kit's
+description lists its sizes in the spec clause as well as `Sizes Included`
+(57 of 59 kits on the default build; 2 omit the clause). 59 kits on
 the default build, 695 at 100K. A kit's price is its contents' price times
 one fitted factor, its material and its tier ([Price](#price)).
 
@@ -983,9 +983,9 @@ the authored literals are not edited. A machine `key` is never touched, and neit
 A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
 (`AS568`), has a capital inside it (`iPhone`), is a lone capital letter (`T-slot`, `V-belts`),
 or is on the exception list, `letter_case.PROPER_NOUNS` (a trade name or a brand: `Torx`, `Nike`,
-`Apple`). Add a word there with its reason. `tests/test_letter_case_499.py` fails when a category
-node or a display name in either build or in `golden-catalog/` is not its own sentence-case
-form, or when one key carries two display names.
+`Apple`). Add a word there with its reason. The `sentence_case` and `one_key_per_concept` rules (`prototypes/retail_drawings/rules.py`, run by
+`tests/test_rules_538.py`) fail when a category node or display name in either build or in
+`golden-catalog/` is not its own sentence-case form, or when one key has two display names.
 
 The drawing code looks an attribute up by the name its type authored (`r["Milling Dia."]`), so
 `ecom-generate build` also writes `authored_names.json` and `core/bundle.py` reads the drawing
@@ -1316,7 +1316,7 @@ every other drawing -- only the GEOMETRY is fixed.
   - every attribute must be one they use, and every attribute VALUE must fit
     its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
-  - every id is a hatch pattern's own;
+  - every id is a hatch's or texture's (`tgrid`, `tdot`); dasharray: book's only;
   - no element but `<text>` may carry character data;
   - no comment, processing instruction, doctype or entity reference may
     appear, but the `&amp;` of a name like `Lark & Lathe`.
@@ -1328,7 +1328,7 @@ every other drawing -- only the GEOMETRY is fixed.
   font -- each red `tests/test_sku_drawings.py`.
 * **Brands visibly different**, by house style and by mark: each brand owns
   one (ink, frame) pair and an independent paper tint -- twelve inks, six
-  papers, four frames -- and one mark, consistent within a brand, never
+  papers, four frames in use -- and one mark, consistent within a brand, never
   random per product ([Brands](#brands)). Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
   (`tests/test_brand_marks.py`; the closest pair measures 25).
@@ -1493,8 +1493,8 @@ industrial bundle's shape, so the same installer takes it: members
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, and per pack scale
-(a smaller size of a line draws smaller, gen#543; the keying and the figure are in
-[the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543)).
+(a smaller size of a line draws smaller, gen#543; see [the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543));
+clothing and footwear draw one per size-ladder rung (`size_ladder.py`, gen#339).
 The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
 (`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
 There is no committed manifest to check against (the retail build is code, not

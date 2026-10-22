@@ -7,7 +7,7 @@ hides an overrun of that size in the shipped image, so the guard measures the pl
 shape is drawn on (`kit.render` without a style).
 
 The guard is `tests/test_retail_sheet_242.py`. It renders every SKU image of every authored row
-(`scale.templates()`, one image per style and colorway as the release draws them) on the plain
+(`scale.templates()`, one image per style, colorway and size rung as the release draws them) on the plain
 sheet (`image_release.render(rec, sku, styled=False)`) and fails when a drawing's geometry
 reaches past it. The failure names the count of rows that overrun and each row with its shape
 and how far it reaches. A derived style keeps its template's drawing, so the templates are the
