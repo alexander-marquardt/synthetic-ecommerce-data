@@ -202,7 +202,9 @@ The planted cases are:
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
 `pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
 pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
-`kit_grocery.py`. The build makes
+`kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
+packet on its side, crimped at both ends), in `kit_biscuits.py`
+(`tests/test_biscuit_sleeve_608.py`). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -762,6 +764,24 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
+(`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
+`product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
+field (an attribute keyed `series` would shadow it, which the output standard refuses). A large
+appliance's title reads brand, series, model number, spec, then the kind: "Frostholm Arden
+FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
+(its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
+or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
+`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. Each SKU states
+the code of its own color as its `model_number` option, so a query for `FW712BB` finds the black
+one; the product-level code (the title's) is the first color's, and the `base_model` attribute is
+the same code without its color letter, which names the product in every color. Model number, generation, capacity
+and spin speed are each their own attribute. Two washing machines carry the second title form,
+"Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
+or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
+carry generation "H", which no authored model takes.
+`tests/test_retail_appliance_model_numbers_622.py` holds it.
 
 The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
 derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
