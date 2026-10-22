@@ -2,7 +2,7 @@
 
 One "Cotton Velour Beach Towel" repeated 13 times gave the shopper no choice and let a short
 decoy title outrank every real towel. The real towels are authored rows
-(``beach_towel_rows.ROWS``): each title has 7 to 12 words and names its material, weave and
+(``type_specs/beach_towel.py``): each title has 7 to 12 words and names its material, weave and
 feature, and each named component is an attribute a filter can use.
 """
 
@@ -16,9 +16,9 @@ RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawing
 if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
-import beach_towel_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import scale  # noqa: E402
+from type_specs import beach_towel as beach_towel_rows  # noqa: E402
 
 LEAF = "Beach Towels"
 
@@ -80,3 +80,16 @@ def test_the_towels_are_templates_and_not_derived() -> None:
     tpls = scale.templates()
     assert {d["product_id"] for d in tpls if d["category_leaf"] == LEAF} == ids
     assert not ids & {d["product_id"] for d in scale.derivable(tpls)}
+
+
+def test_every_towel_keeps_its_product_type_and_category_path() -> None:
+    docs = beach_towel_rows.SPEC.docs()
+    assert len(docs) == len(_rows())
+    path = ["Home", "Bathroom", "Beach Towels"]
+    off = [
+        (d["product_id"], d["product_type"], d["category_path"])
+        for d in docs
+        if d["product_type"] != "Beach Towel" or d["category_path"] != path
+    ]
+    assert off == []
+    assert {r.product_type for r in _rows()} == {"Beach Towel"}

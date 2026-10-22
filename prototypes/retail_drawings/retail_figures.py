@@ -33,7 +33,6 @@ if str(HERE) not in sys.path:
 
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
-import beach_towel_rows  # noqa: E402
 import breadth_rows  # noqa: E402
 import color_word_brand_rows  # noqa: E402
 import colorgroup_rows  # noqa: E402
@@ -180,14 +179,13 @@ def measure() -> dict[str, Any]:
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
         "womens_depth_rows": womens_depth_rows.docs(),
-        "beach_towel_rows": beach_towel_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),
         "needs_rows": needs_rows.docs(),
         "cups_plural_rows": cups_plural_rows.docs(),
         "nike_rows": nike_rows.docs(),
-        "type_specs": type_registry.docs(),
+        "type_specs": type_registry.docs(skip={r["product_id"] for r in authored}),
         "decoy_apparel": [r for r in scale.templates(baseline=False)
                           if r["product_id"] in decoy_apparel.IDS],
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))
