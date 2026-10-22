@@ -100,9 +100,7 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
 def _styles_with(fill: str) -> list[dict[str, Any]]:
     """The template styles that sell a colorway with this fill."""
     return [
-        d
-        for d in scale.templates()
-        if fill in {o["pattern"] for o in d.get("color_options", [])}
+        d for d in scale.templates() if fill in {o["pattern"] for o in d.get("color_options", [])}
     ]
 
 
@@ -142,11 +140,14 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
     plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
     text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
-    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
-    and 160 SKUs of the gen#509 plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) make
-    11540 and 103191; the knit sleeve styles and fit-word decoys of gen#434 (130 templates,
-    3570 SKUs) make 11670 and 106761, and a new style would raise both. This test pins 11670
-    templates and 106761 template SKUs: the PR that lifts the freeze must move them."""
+    face creams (#542: 20 templates, 69 SKUs) and the cream furniture decoys of "face cream"
+    (#541: 13 templates, 13 SKUs) lift them, and the 27 templates and 160 SKUs of the gen#509
+    plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again, to 11553 and
+    103204; the twelve authored beach towels replace the one "Cotton Velour Beach Towel"
+    template (#624: 11 more templates, 18 more SKUs) and make 11564 and 103222; the knit sleeve
+    styles and fit-word decoys of gen#434 (130 templates, 3570 SKUs) make 11694 and 106792,
+    and a new style would raise both. This test pins 11694 templates and 106792 template SKUs:
+    the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11670
-    assert sum(t["sku_count"] for t in tpls) == 106761
+    assert len(tpls) == 11694
+    assert sum(t["sku_count"] for t in tpls) == 106792
