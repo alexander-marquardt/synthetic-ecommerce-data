@@ -977,7 +977,7 @@ KIT_PART = {kit.item: kit.part_type for kit in newtypes.KITS}
 OVER_CONTENTS = (0.86, 1.12)
 #: A pack of a dozen screws costs a couple of dollars, and a list price that
 #: small snaps to a whole or half dollar (``price.MAX_ENDING_MOVE``, a quarter
-#: of the price): below this many dollars of contents a kit may land 0.7 to
+#: of the price): below this many dollars of contents a kit may land 0.65 to
 #: 1.3 times its contents (#76).
 SMALL_KIT_CONTENTS = 10.0
 SMALL_KIT_OVER_CONTENTS = (0.65, 1.3)

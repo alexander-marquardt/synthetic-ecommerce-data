@@ -273,8 +273,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "kit: the 1,000-piece screw assortment holds 5 of each size",
                 "domains/industrial/newtypes.py",
-                '        per_size=100,\n        designations=(\n            "#4-40",',
-                '        per_size=5,\n        designations=(\n            "#4-40",',
+                '        per_size=100,\n        designations=_unified_kit(',
+                '        per_size=5,\n        designations=_unified_kit(',
                 "kit_table_spans_a_pack_to_a_large_index",
                 "the kit table reaches a 1,000-piece assortment (#76)",
             ),
