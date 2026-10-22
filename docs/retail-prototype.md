@@ -257,7 +257,7 @@ them.
 Every record, round 4's included, is one document per STYLE (the gen#125
 ruling, built by `variants.product`): a product with a color selector and a
 size selector. Every color x size combination the style is sold in is a SKU
-nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color`,
+nested in `skus`, with its own `sku` id (`<product_id>-<8 hex of its axes>`, gen#626: [stable ids](retail-sku-ids-626.md)), `color`,
 size per size system, `price` and `in_stock`. No document carries a color
 family (gen#186): it listed the same products as `color` under a second
 facet, and grouping shades ("navy" covering Navy and Navy Check) is a PRISM
