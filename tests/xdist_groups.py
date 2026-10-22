@@ -5,7 +5,9 @@ Left alone, xdist scatters one module's tests over every worker, and each worker
 rebuilds the module's fixtures: a 100K catalog is 45 to 60 s, and the suite has 137
 module-scoped fixtures. Measured on the 48-core agent VM (load average 20 to 33 from other
 agents), the whole suite grouped by module took 637 s and 729 s on 12 workers; a worker
-ends at up to 4.3 GB because it keeps what each module it ran built.
+ends at up to 4.3 GB because it keeps what each module it ran built. Those figures were taken
+before #442: the group mark was added after xdist read the markers, so no module was grouped
+(``tests/test_xdist_group_honoured_442.py`` checks it through a real ``--dist loadgroup`` run).
 
 A module whose tests build their own world (no shared fixture, minutes in total) sets
 ``XDIST_SPREAD = True`` so its tests spread over the workers: ``tests/test_merge_pr.py``
