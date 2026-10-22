@@ -1,6 +1,7 @@
 """No test types the retail template fleet total as a literal (#644).
 
-``test_the_pattern_values_add_no_style_and_no_sku`` (gen#408) once asserted
+``test_the_measured_sources_account_for_every_template`` (once
+``test_the_pattern_values_add_no_style_and_no_sku``, gen#408) asserted
 ``len(scale.templates()) == 11540`` and a template SKU sum of ``103191``. Every PR that added a
 product row moved those two lines, so every pair of product PRs conflicted there and only there,
 and the literal went stale the moment main moved. The total is derived from the per-source
@@ -8,6 +9,10 @@ counts in ``retail_figures.measure()``; this scan keeps a literal from coming ba
 
 A function that calls ``templates()`` may not compare ``len(...)`` with an integer of four or
 more digits, nor a ``sku_count`` sum with an integer of five or more digits, in one assertion.
+
+The scan is a tripwire for that shape only. It does not see a total bound to a name first
+(``n = len(t); assert n == 11540``), a split literal (``11000 + 540``), a literal held in a
+constant, a module-level ``scale.templates()`` or a fixture or helper that returns the templates.
 """
 
 from __future__ import annotations
@@ -57,11 +62,16 @@ def literal_fleet_totals(source: str) -> list[tuple[int, str]]:
     return sorted(set(found))
 
 
+#: A floor, not an exact count, so a sibling PR cannot move it: the scan must read real files.
+MIN_FILES_SCANNED = 20
+
+
 def test_no_test_asserts_a_literal_template_total() -> None:
+    scanned = [p for p in sorted(TESTS.glob("test_*.py")) if p != Path(__file__).resolve()]
+    assert len(scanned) >= MIN_FILES_SCANNED, f"the scan read {len(scanned)} files"
     bad = {
         path.name: hits
-        for path in sorted(TESTS.glob("test_*.py"))
-        if path != Path(__file__).resolve()
+        for path in scanned
         for hits in [literal_fleet_totals(path.read_text())]
         if hits
     }
