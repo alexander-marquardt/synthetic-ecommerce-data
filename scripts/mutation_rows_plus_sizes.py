@@ -34,10 +34,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a new SKU gets a reused id",
         "plus_sizes.py",
-        "enumerate(added, len(skus) + 1)",
-        "enumerate(added, 1)",
-        f"{_T} -k options_and_the_sku_count",
-        "no existing SKU id is reused",
+        '{"sku": sku_id(pid, s), **s} for s in added',
+        '{"sku": f"{pid}-{n:03d}", **s} for n, s in enumerate(added, 1)',
+        "tests/test_retail_stable_ids_626.py -k size_run_extension",
+        "a new size's id names its axes, not its place",
         _ROOT,
     ),
     (

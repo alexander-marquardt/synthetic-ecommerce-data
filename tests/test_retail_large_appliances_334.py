@@ -48,10 +48,14 @@ def test_there_are_at_least_sixty_large_appliance_products(appliances):
 
 
 def test_a_black_edition_fridge_is_stainless_and_a_red_spot_machine_is_white(appliances):
-    by_title = {r["title"]: r for r in appliances}
-    fridge = by_title.get("Black Edition Fridge Freezer")
-    washer = by_title.get("Washing Machine with Red Spot Dial")
-    assert fridge and washer, sorted(by_title)
+    # the title leads with the brand, series and model number (gen#622), so match its tail
+    fridge = next(
+        (r for r in appliances if r["title"].endswith(" Black Edition Fridge Freezer")), None
+    )
+    washer = next(
+        (r for r in appliances if r["title"].endswith(" Washing Machine with Red Spot Dial")), None
+    )
+    assert fridge and washer, sorted(r["title"] for r in appliances)
     assert {c["color"] for c in fridge["color_options"]} == {"Silver"}
     assert ("finish", "Stainless Steel") in {(a["key"], a["value"]) for a in fridge["attributes"]}
     assert {c["color"] for c in washer["color_options"]} == {"White"}

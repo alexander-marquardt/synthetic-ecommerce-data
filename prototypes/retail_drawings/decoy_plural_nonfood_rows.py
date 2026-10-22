@@ -28,7 +28,7 @@ BRANDS = ("Lucky Lemons", "Going Bananas", "Couch Potatoes", "Little Carrots", "
 ROWS: tuple[tuple[str, str, str, str, str, str, int, str | None, str | None], ...] = (
     # -- oranges
     ("XR01", "fruit_candle", "Oranges and Cloves Scented Candle", "A soy wax candle scented with oranges and cloves, in a glass jar. Burns for about 30 hours.", "Orange", "oranges", 960, None, "Orange & Clove"),
-    ("XR02", "dish_soap", "Sweet Oranges Washing-Up Liquid, 500ml", "A washing-up liquid scented with sweet oranges, in a 500ml bottle.", "Orange", "oranges", 940, None, "Sweet Orange"),
+    ("XR02", "dish_soap", "Sweet Oranges Washing-Up Liquid, 500ml", "A washing-up liquid scented with oranges.", "Orange", "oranges", 940, None, "Sweet Orange"),
     # -- lemons
     ("XR03", "kids_pj", "Lucky Lemons Kids' Pyjamas", "Long-sleeve cotton pyjamas for kids, from the Lucky Lemons children's label.", "Navy", "lemons", 960, "Lucky Lemons", None),
     ("XR04", "kids_tee", "Lucky Lemons Kids' T-Shirt", "A plain cotton crew neck t-shirt for kids, from the Lucky Lemons children's label.", "White", "lemons", 940, "Lucky Lemons", None),
