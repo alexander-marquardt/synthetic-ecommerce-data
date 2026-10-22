@@ -229,7 +229,14 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     else:
         tpi, thread_type = pitch, "UNF" if size == "#0" else "UNC"
         fine = UNF_THREADS_PER_INCH.get(size)
-        if fine and gen._rotate(f"fine:{type_key}:{standard}:{size}", FINE_PERIOD) == 2:
+        # The wheel turns per size, not per (point, size): a point type draws a size a
+        # line or two, so a wheel kept per point never reached its third line and no
+        # set screw was ever built to UNF (#75).
+        period = compat.NEAR_MISS_PERIOD[type_key]  # declared on the SPEC below
+        # The first line a standard builds to a size is always coarse: a size whose only
+        # line landed on the fine turn would leave the standard's own size unreached.
+        first = gen._rotation_step(f"visit:{standard}:{size}") == 0
+        if fine and not first and gen._rotate(f"fine:{type_key}:{size}", period) == period - 1:
             tpi, thread_type = fine, "UNF"
         thread = f"{size}-{tpi:g}"
     meets = "ASME B18.3" if not metric else standard
@@ -376,6 +383,10 @@ SPEC = TypeSpec(
         | {"ASTM F912", "ASTM F880"}
     ),
     key_attributes=("Dia./Thread Size",),
+    threaded="Dia./Thread Size",
+    fastener=True,
+    compat=("drive", "Drive Size"),
+    near_miss_period=FINE_PERIOD,
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",

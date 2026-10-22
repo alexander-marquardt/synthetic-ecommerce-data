@@ -80,6 +80,7 @@ def repo(tmp_path: Path) -> Path:
         "prepush.py",
         "check_commit_msg.py",
         "check_customer_names.py",
+        "ci_run_pytest.py",
         "file_size_gate.py",
         "local_ci_jobs.py",
     ):
