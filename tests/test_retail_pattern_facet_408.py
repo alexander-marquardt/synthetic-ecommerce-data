@@ -145,8 +145,9 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     face creams (#542: 20 templates, 69 SKUs) and the cream furniture decoys of "face cream"
     (#541: 13 templates, 13 SKUs) lift them, and the 27 templates and 160 SKUs of the gen#509
     plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again, to 11553 and
-    103204; a new style would raise both. This test pins 11553 templates and 103204 template
+    103204, and the two more UK sizes (18, 20) of the discounted dresses (#621: 12 SKUs) to
+    103216; a new style would raise both. This test pins 11553 templates and 103216 template
     SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
     assert len(tpls) == 11553
-    assert sum(t["sku_count"] for t in tpls) == 103204
+    assert sum(t["sku_count"] for t in tpls) == 103216
