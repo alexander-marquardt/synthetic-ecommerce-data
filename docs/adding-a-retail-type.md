@@ -61,8 +61,8 @@ optional `colorwords.MODIFIERS` (`Dark` is a modifier, so `Dark Brown` is a modi
 word, not a `COLOR_WORDS` member). `variants.cw` maps an authored shade through `colorwords.PLAIN`
 first: `cw("Oak", ...)` gives `Brown` and `cw("Walnut", ...)` gives `Dark Brown`, so authoring those
 does not red. A shade `PLAIN` does not map (`Hazelwood`) stays as written, is not plain, and
-`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_a_qualifier_or_a_shade_code`
-refuses it: add it to `colorwords.PLAIN` or use a plain word. The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
+`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_or_a_qualifier`
+refuses it: add it to `colorwords.PLAIN` or use a plain word. A foundation, a concealer or a tinted moisturiser is sold by shade, not by color: see [retail-shades.md](retail-shades.md). The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
 Every color-bearing type also carries red, blue, green, yellow, black and white somewhere, or a
 reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py`).
 
@@ -87,16 +87,16 @@ the template list therefore stops partway: a type late in the list is absent fro
 and its decoys are too. A spec needs no edit to `templates()`; a module of the older kind is added
 by hand, later ones in fewer small builds. See one: `uv run python prototypes/retail_drawings/scale.py --skus 2000`.
 
-## 8. Images: one per style and colorway
+## 8. Images: one per style, colorway and size rung
 
 `export.image_id` is `<type>/<product id>/<digest of the drawing spec>`, and
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
-by SKU (a lamp's `finish`) yields one per value. Sizes alone add none, with one exception: a SKU
-with a `net_volume_ml` or `net_weight_g` (or, in Food & Drink and Beauty only, a `units_per_pack`)
-is drawn at the cube root of that content against its style's largest size, floored at 0.6
-(`pack_scale.factor`; `kit.render(shrink=)` scales the whole drawing about its bottom center, so the
-shape needs no param), so each smaller size is its own image and a style of one size is unchanged.
+by SKU (a lamp's `finish`) yields one per value. A multi-size clothing or footwear style adds `size_scale`
+(`size_ladder.py`, gen#339): one image per rung, the smallest at 55/90 of the largest (its own size).
+Any other size adds none, except a SKU with a `net_volume_ml` or `net_weight_g` (Food & Drink and Beauty also
+`units_per_pack`), drawn at the cube root of that content against its style's largest size, floored at 0.6
+(`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged.
 If two things must look different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.
