@@ -51,7 +51,7 @@ Dress"), so "T-Shirt Dress" is the t-shirt style and not the shirt style.
 
 ## The guard
 
-`tests/test_garment_style_table_511.py` runs `style_table.violations` over every document of
+`tests/test_garment_style_table_511.py` (and the `dress_neckline_length` rule of `rules.py`) runs `style_table.violations` over every document of
 `scale.templates()`, decoys included, and fails on any style word outside its table (coat with a
 boat neck, maxi with a Mini length). The impossible pairs are written out in the test, not read
 from the table. Adding a style word is a row in `STYLES` and, where the generator names it, a
