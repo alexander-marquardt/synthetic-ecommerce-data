@@ -31,6 +31,7 @@ if str(RETAIL) not in sys.path:
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import scale  # noqa: E402
+import stable_ids  # noqa: E402
 from retail_figures import (  # noqa: E402
     GROCERY_INTERSECTION_KEYS,
     figures,
@@ -742,8 +743,9 @@ def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
         mine, theirs = runs(r, changed), runs(t, changed)
         assert mine and set(mine) <= set(theirs)
         assert all(mine[c] == theirs[c] for c in mine), r["product_id"]
+        # A SKU id is the product id and a hash of the SKU's own axes (gen#626).
         assert [s["sku"] for s in r["skus"]] == [
-            f"{r['product_id']}-{n:03d}" for n in range(1, len(r["skus"]) + 1)
+            stable_ids.sku_id(r["product_id"], s) for s in r["skus"]
         ]
 
 
@@ -930,7 +932,10 @@ def test_growing_one_department_never_starves_another(ceiling, monkeypatch):
     extra = []
     for i in range(SYNTHETIC_HOME):
         r = copy.deepcopy(home[i % len(home)])
+        old_id = r["product_id"]
         r["product_id"] += f"-SYN{i}"
+        for s in r["skus"]:
+            s["sku"] = r["product_id"] + s["sku"][len(old_id):]
         r["title"] += f" Set {i + 2}"
         extra.append(r)
     grocery = [r for r in tpls if r["product_id"].startswith(scale.GROCERY_PREFIX)]
