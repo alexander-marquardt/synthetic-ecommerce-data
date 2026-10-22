@@ -48,6 +48,11 @@ a mug or cup draws as a `mug`, and a label is the title's product noun. The labe
 pairs not yet fixed are `LABEL_DEBT` there: it may only shrink. A changed drawing is a
 new image digest, so the retail image bundle is re-released after the merge.
 
+A mattress topper is drawn thin, on a faint mattress outline (#581): its thickness is its stated
+`depth` at 2.5 px per cm, the scale of the 25 cm mattress under it, so a 5 cm topper is a fifth
+of its mattress and a 10 cm one is visibly thicker (`kit_home.py`, `test_mattress_topper.py`).
+The mattress protector still draws its deep mattress, which suits a fitted cover.
+
 | Class | Query → intended | Distractors that outrank without a policy | Fixed by |
 |---|---|---|---|
 | Print, flavour and scent words | *lemon* → fresh lemons | lemons-print dress, a lemon-colored tee, lemons-print duvet cover, lemon cake, lemon shower gel, lemon cleaners | department or persona boost |
@@ -99,7 +104,13 @@ a wedge's `heel` in mm, a platform trainer's `platform`, a clog's `strap` and
 and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
-and nested under `Trainers` it would make a leaf a parent. The men's brogues and loafers sit
+and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are type specs
+(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of the
+legacy list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
+`skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
+the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
+Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
+shoes are built by their own modules. The men's brogues and loafers sit
 under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
 has one node to point at; product ids, titles and drawings do not move. The node is chosen by
 gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
@@ -188,8 +199,10 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
-`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
+`pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
+pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
+`kit_grocery.py`. The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -275,7 +288,9 @@ Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
 `category_leaf`; the index adds `category_path_joined`, every ancestor joined
-with "/", so a policy can route to a node. Food and furniture are colorless
+with "/", so a policy can route to a node. A product filed at several paths (the mugs) also
+carries `category_paths`, all its paths with the primary first (see "A product at several
+category paths"). Food and furniture are colorless
 (no color facet, no swatches); beer carries `abv` as an attribute; beds carry
 nested SKUs from the shared five-size bed vocabulary with `width_cm` and
 `length_cm`. The SKUs of a metal good (jewellery, watches, lighting, tech)
@@ -543,13 +558,34 @@ legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still t
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
 Beauty, Cleaning, Toys, Gifts, Garden and Sports & Outdoors (gen#265). Food sits under Food &
 Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
-...`), each with its subtree intact; a product still sits in one place. The documents carry no
+...`), each with its subtree intact; a product still sits in one place, unless it is filed at several
+(next paragraph). The documents carry no
 `department` attribute or flat column (its values mixed audience, Clothing, with product kind,
 Footwear): the one fact it held that no other attribute does, the safety boot's Workwear & PPE,
 is carried by its `safety_rating` and `toe_cap`. A consumer reads the department from
 `category_path[0]`. The build records keep a `department` of their own (`departments.py`'s
 closed list), an internal classification the ceiling build's brand pools, floors and share
 read; `export.DROPPED` keeps it out of every document.
+
+**A product at several category paths: the mugs** (gen#602). A mug is a piece of kitchen drinkware
+and a gift, so it is filed at `Home > Kitchen & dining > Drinkware > Mugs` and at
+`Gifts > Mugs & drinkware`. It stays one document (one `product_id`, one listing; the
+`duplicate_record` distractor is the only duplicate) and carries `category_paths`: its primary
+`category_path` first, then each further path, so a mug reads
+`"category_paths": [["Home", "Kitchen & dining", "Drinkware", "Mugs"], ["Gifts", "Mugs & drinkware"]]`.
+`category_path`, `category_leaf` and `category_depth` keep describing the primary path; a product
+with one path has no `category_paths`. This is the worked example for any later product filed twice
+(`multi_path.py` names the pair and the decoys it leaves alone). The rules: the standard
+(`core/standard.py`) takes `category_paths` as a non-empty list of node-name lists with the primary
+first and no path twice, and `real_classes.check_category_paths` holds every path to the tree rules
+(three levels, clean names, no bucket, no leaf that is also a parent, one depth per node name). The
+prism projection (`prism/index.py`) makes `category_path_joined` the union of the cumulative paths,
+each once, so both category facets count a mug once and a filter on either path finds all of them.
+The decoy mugs of `decor_rows.py` (an ornament, a thank-you card) keep their one Home path; other
+drinkware (travel cups, tumblers, cups and saucers, espresso sets) is not yet filed twice.
+`tests/test_retail_mug_paths_602.py` pins it. The retail loader in
+`elastic/prism-retail-and-industrial` builds `category_path_joined` from `category_path` alone, so it
+needs the same union (a follow-up there).
 
 **A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
 `Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa
@@ -726,6 +762,11 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
+derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
+to 12 words so the beach towel decoys compete. Design and the measured top 12 are in
+[retail-beach-towels.md](retail-beach-towels.md); `tests/test_retail_beach_towels_624.py` holds them.
 
 ### Pack scale (gen#543)
 

@@ -79,6 +79,11 @@ class Row:
     #: Empty for a free-paint style, which :func:`paint_range` gives the full range.
     fixed_color: str = ""
 
+    @property
+    def product_id(self) -> str:
+        """The id of the row's document: ``BRD-`` and the code (a footwear row's is ``FTW-``)."""
+        return f"BRD-{self.code}"
+
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
         colors = self.colors[:1] if self.colorless else self.colors
@@ -1428,11 +1433,6 @@ BREADTH_34 = (
         (*_KD, "Aprons"), "Apron", 12.0, "apron",
         "An adjustable neck strap, a wide front pocket and ties that wrap around twice.",
         (cw("Sage", "#9bb08f"), cw("Navy", "#26365c"), cw("Rust", "#a4502a")),
-        _fab("Cotton")),
-    Row("BCHTWL", "Cotton Velour Beach Towel", "Calderby & Lune", _HW,
-        ("Home", "Bathroom", "Beach Towels"), "Beach Towel", 14.0, "beach_towel",
-        "A large plain towel with a soft velour face and a looped terry back.",
-        (cw("Blue", "#3f6fb5", "solid", "#ffffff"), cw("Coral", "#ef7b62", "solid", "#ffffff")),
         _fab("Cotton")),
     Row("SCRDSET", _SCR6.title("Slotted and Phillips Screwdriver Set"), "Calderby & Lune", _HW,
         (*_DIY, "Tool Sets", "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
