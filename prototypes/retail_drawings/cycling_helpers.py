@@ -11,7 +11,7 @@ from sports_helpers import _SO
 
 from synthetic_ecommerce_data.core.entry import canonical
 
-__all__ = ["BIKES", "CYCLING", "KAYAKS", "WHEELED", "_count", "_inch"]
+__all__ = ["BIKES", "CYCLING", "KAYAKS", "WHEELED", "_count", "_inch", "_ml"]
 
 CYCLING = (_SO, "Cycling")
 #: The group holding the four kinds of bike; the helmets sit beside it, not under it.
@@ -29,3 +29,8 @@ def _inch(key: str, name: str, inches: float) -> tuple[str, str, str, str, float
     """A length in inches (a wheel, a deck): the canonical value is in millimetres (``INH``)."""
     text = f"{inches:g}"
     return (key, name, text, "INH", float(canonical(text, "INH")))
+
+
+def _ml(key: str, name: str, ml: int) -> tuple[str, str, str, str, float]:
+    """A volume in millilitres (a bottle, a lube): the unit is ``MLT``."""
+    return (key, name, str(ml), "MLT", float(ml))
