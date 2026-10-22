@@ -129,7 +129,14 @@ head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull r
 on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
 throwaway container on the agent VM, `--cpus 8 --memory 16g`, one job at a time by default, so a
 full run's jobs queue behind each other there. Unsetting the variable sends every job back to
-hosted runners with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
+`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead; pull requests and
+dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
+registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
+`vm/ci_runner/README.md`), so a merge's main run no longer waits behind pull-request runs. A
+full run is 23 jobs of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
+to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
 
 ## A lost xdist worker is an infra failure, rerun once (#629)
 
