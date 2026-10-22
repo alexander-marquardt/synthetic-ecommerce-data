@@ -761,6 +761,11 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
 
+The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
+derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
+to 12 words so the beach towel decoys compete. Design and the measured top 12 are in
+[retail-beach-towels.md](retail-beach-towels.md); `tests/test_retail_beach_towels_624.py` holds them.
+
 ### Pack scale (gen#543)
 
 Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
