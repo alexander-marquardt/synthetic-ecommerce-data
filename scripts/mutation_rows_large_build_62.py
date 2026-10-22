@@ -45,8 +45,8 @@ def rows() -> list[Row]:
         Row(
             "the README promises a total in the large build's section",
             "README.md",
-            "first chosen to give 100,000 SKUs, it promises no total,",
-            "it lands at about 100,000 SKUs, it promises no total,",
+            "named for what it holds: it was first chosen to give 100,000 SKUs and no",
+            "named for what it holds: it lands at about 100,000 SKUs and no",
             f"{_T}::test_the_readme_does_not_promise_the_large_build_lands_at_a_sku_total",
             "a promised total in the section is refused",
             _ROOT,
