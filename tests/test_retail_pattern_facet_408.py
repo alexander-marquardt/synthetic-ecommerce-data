@@ -140,12 +140,17 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
     assert len(fills("gingham")) == 2
 
 
-def test_the_pattern_values_add_no_style_and_no_sku() -> None:
-    """The product count is frozen (the four pattern words ride on colorways of styles main
-    already sold). Every template comes from a named source: the per-source style counts of
-    ``retail_figures.measure()`` sum to the templates, so a pattern word that added a style of its
-    own would be a template no source names. No fleet total is typed here (#644): a product PR
-    that adds rows to a source moves the measured count, not this test."""
+def test_the_measured_sources_account_for_every_template() -> None:
+    """The measured sources account for every template, and the measured total equals them.
+
+    The per-source style counts of ``retail_figures.measure()`` sum to ``len(scale.templates())``,
+    and the measured ``all`` entry equals the templates' own styles and SKU sum. This replaces
+    the gen#408 freeze (the four pattern words ride on colorways of styles main already sold),
+    which typed the fleet totals: a style added to a source that already exists moves the
+    per-source count and ``len(templates())`` together, so this test no longer catches it. It
+    catches a source list that disagrees with ``scale.templates()``, or a stale figures cache.
+    No fleet total is typed here (#644): a product PR that adds rows to a source moves the
+    measured count, not this test."""
     from retail_figures import figures
 
     measured = figures()["templates"]
