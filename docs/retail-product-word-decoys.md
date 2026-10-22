@@ -85,10 +85,10 @@ in the first 12 for each seed with policies off, every query word required, the 
 prototype's baseline; the live number is read on the next loaded index.
 
 **Electronics (gen#332).** Five device words and `apple` meet products of other departments, in
-`feature_decoys/electronics.py` (19 rows: DY701 to DY705, DY708, DY711, DY714 to DY725): `mouse` (a cushion, a throw, a basket),
+`feature_decoys/electronics.py` (18 rows: DY701 to DY705, DY708, DY711, DY714, DY716 to DY725): `mouse` (a cushion, a throw, a basket),
 `tablet` (dishwasher tablets, Scottish tablet), `monitor` (a lizard cushion, throw and basket),
 `mobile` (a coat stand, a clothes rack, a basket on wheels), `charger` (three charger plates) and
-`apple` (the fruit, its juice, a candle, a tree). Each row carries `device_type`, the Electronics
+`apple` (its juice, a candle, a tree). Each row carries `device_type`, the Electronics
 type whose word the title holds, and the department policy drops it. See
 [retail-electronics.md](retail-electronics.md).
 
@@ -250,7 +250,6 @@ type whose word the title holds, and the department policy drops it. See
 | monitor | monitor | PLT-DY708 | Monitor Lizard Cushion | Cushion | department |
 | mobile | mobile | PLT-DY711 | Mobile Coat Stand | Hallway Stands | department |
 | charger | charger | PLT-DY714 | Charger Plate, 33 cm | Plate | department |
-| apple | apple | PLT-DY715 | Bramley Apples, 1 kg | Fruit | department |
 | apple | apple | PLT-DY716 | Pressed Apple Juice, 1 L | Juice | department |
 | apple | apple | PLT-DY717 | Apple Blossom Candle | Scented Candle | department |
 | apple | apple | PLT-DY718 | Crab Apple Tree, Potted | Plant | department |
