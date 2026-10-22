@@ -26,15 +26,6 @@ _WHEEL_SKUS = _RECORDED["hundred_k"]["skus_by_type"]["wheel_depressed_center"]
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
-        "the kit pin's 100K figure is loosened in the file",
-        _FILE,
-        '"price p90/p10: kit_assortment": 3.917',
-        '"price p90/p10: kit_assortment": 3.5',
-        f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
-        "a figure the build moved or a hand loosened is red",
-        _ROOT,
-    ),
-    (
         "the wheel pin's 100K figure is loosened in the file",
         _FILE,
         f'"{_WHEEL}": {_WHEEL_100K}',

@@ -827,6 +827,14 @@ def _unc_kit(sizes: list[str]) -> tuple[str, ...]:
     return tuple(name for name, _ in thread_series.unified_designations("unc_tpi", tuple(sizes)))
 
 
+def _unified_kit(picks: list[tuple[str, str]]) -> tuple[str, ...]:
+    """Unified designations in the order given, each size paired with the series
+    (``unc_tpi`` or ``unf_tpi``) it is sold in, all read from ASME B1.1."""
+    return tuple(
+        thread_series.unified_designations(column, (size,))[0][0] for size, column in picks
+    )
+
+
 KITS: tuple[Kit, ...] = (
     # ISO 2936 metric key sets. The 12-piece precision set starts below the
     # smallest key the catalog sells singly (1.5mm): 0.7, 0.9 and 1.3mm.
@@ -907,7 +915,7 @@ KITS: tuple[Kit, ...] = (
         "in",
         (),
         per_size=2,
-        designations=("#4-40", "#6-32", "#8-32", "#10-24", "1/4-20", "5/16-18"),
+        designations=_unc_kit(["#4", "#6", "#8", "#10", "1/4", "5/16"]),
     ),
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -915,7 +923,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=3,
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1", "M8x1.25"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8"]),
     ),
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -923,7 +931,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=4,
-        designations=("M2.5x0.45", "M3x0.5", "M4x0.7", "M5x0.8", "M6x1"),
+        designations=_metric_kit(["M2.5", "M3", "M4", "M5", "M6"]),
     ),
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -931,7 +939,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=2,
-        designations=("M3x0.5", "M4x0.7", "M5x0.8", "M6x1"),
+        designations=_metric_kit(["M3", "M4", "M5", "M6"]),
     ),
     # A 1,000-piece screw assortment: 100 of each of ten inch diameters.
     Kit(
@@ -940,17 +948,19 @@ KITS: tuple[Kit, ...] = (
         "in",
         (),
         per_size=100,
-        designations=(
-            "#4-40",
-            "#6-32",
-            "#8-32",
-            "#10-24",
-            "#10-32",
-            "1/4-20",
-            "1/4-28",
-            "5/16-18",
-            "3/8-16",
-            "1/2-13",
+        designations=_unified_kit(
+            [
+                ("#4", "unc_tpi"),
+                ("#6", "unc_tpi"),
+                ("#8", "unc_tpi"),
+                ("#10", "unc_tpi"),
+                ("#10", "unf_tpi"),
+                ("1/4", "unc_tpi"),
+                ("1/4", "unf_tpi"),
+                ("5/16", "unc_tpi"),
+                ("3/8", "unc_tpi"),
+                ("1/2", "unc_tpi"),
+            ]
         ),
     ),
     # The 115-piece drill index: number drills 60 to 1, letter drills A to Z
@@ -977,17 +987,7 @@ KITS: tuple[Kit, ...] = (
         "mm",
         (),
         per_size=2,
-        designations=(
-            "M3x0.5",
-            "M4x0.7",
-            "M5x0.8",
-            "M6x1",
-            "M8x1.25",
-            "M10x1.5",
-            "M12x1.75",
-            "M14x2",
-            "M16x2",
-        ),
+        designations=_metric_kit(["M3", "M4", "M5", "M6", "M8", "M10", "M12", "M14", "M16"]),
     ),
 )
 
