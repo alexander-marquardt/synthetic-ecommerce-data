@@ -62,7 +62,7 @@ BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"
 PRODUCT_COLORS = ("Black", "White", "Navy", "Cream", "Grey", "Brown", "Pink", "Red", "Blue",
                   "Green")  # fmt: skip
 DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}  # the hex a named part's color is drawn in
-DROPPED_KEYS = ("line", "pattern", "print", "color", "motif")  # a clone is plain, one color
+DROPPED_KEYS = ("line", "range", "pattern", "print", "color", "motif")  # plain, one color
 MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
     1: "color names a part",

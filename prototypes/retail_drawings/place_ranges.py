@@ -19,7 +19,14 @@ PLACE_RANGES = (
 )
 
 
-def place_range(index: int) -> tuple[str, str, str]:
-    """The range, what it is named for and its first word (lower case), by cycling ``index``."""
-    name, gloss = PLACE_RANGES[index % len(PLACE_RANGES)]
+#: The shop brands that sell the class 6 decoys, one per range (gen#623): a range name has one
+#: brand, so the range is chosen by the brand and never by the row's index.
+PLACE_BRANDS = (
+    "Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune", "Bramblewood", "Hollinwray Knits",
+)
+
+
+def place_range(brand: str) -> tuple[str, str, str]:
+    """The range ``brand`` owns, what it is named for and its first word (lower case)."""
+    name, gloss = PLACE_RANGES[PLACE_BRANDS.index(brand)]
     return name, gloss, name.split()[0].lower()

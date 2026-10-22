@@ -338,7 +338,7 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                     f"A {low} in soft {s.lower()}, {_TAIL[ptype]}.", s,
                     _FANCY[(kk + i) % 6], f"{s.lower()} {low}")  # fmt: skip
                 # 6: an incidental word in a short title: a range name.
-                rg, gloss, word = place_range(kk + i * 2)
+                rg, gloss, word = place_range(_BRANDS[(i + 6) % len(_BRANDS)])
                 add(6, i, f"{root} {rg} {noun}",
                     f"From the {rg} range, named for {gloss}; the {low} itself is "
                     f"{_TRUE[(kk + i + 4) % 6].lower()}.", _TRUE[(kk + i + 4) % 6], word, word,
