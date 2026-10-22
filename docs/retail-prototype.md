@@ -202,7 +202,9 @@ The planted cases are:
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
 `pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
 pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
-`kit_grocery.py`. The build makes
+`kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
+packet on its side, crimped at both ends), in `kit_biscuits.py`
+(`tests/test_biscuit_sleeve_608.py`). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
