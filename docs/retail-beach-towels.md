@@ -4,7 +4,7 @@ The catalog had one beach towel, "Cotton Velour Beach Towel", and the derivation
 thirteen rows (`<Name> Cotton Velour Beach Towel, <Color>`): one material, one weave, four to seven
 words. A real shop mixes them, and a short decoy title ("Beach Towel Stripe Top") beat every one of
 them on a text score. The twelve real towels are now authored rows in
-`prototypes/retail_drawings/beach_towel_rows.py`, under `Home > Bathroom > Beach Towels`.
+`prototypes/retail_drawings/type_specs/beach_towel.py`, under `Home > Bathroom > Beach Towels`.
 
 ## What varies
 

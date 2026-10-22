@@ -17,8 +17,8 @@ One reads "Sun Lounger Towel": a shopper's word for it that holds no "beach". Th
 catalog's invented ones; the color and pattern split is :mod:`colorwords` (a "Navy Stripe"
 colorway is the color Navy and the pattern stripe).
 
-The rows are templates only: the derivation leaves them out (``scale.derivable``) so each title
-stays the one authored here.
+The rows are templates only: a spec is left out of the derivation (``derivable`` is false), so each
+title stays the one authored here. The registry feeds the scaled build and the figures.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import kit_home  # noqa: F401 -- registers the beach_towel drawing
 from breadth_rows import Row
+from type_registry import TypeSpec
 from variants import cw
 
 PATH = ("Home", "Bathroom", "Beach Towels")
@@ -99,11 +100,10 @@ ROWS = (
 )  # fmt: skip
 
 
-def docs() -> list[dict]:
-    """Every row's catalog document."""
-    return [r.doc() for r in ROWS]
-
-
-def product_ids() -> frozenset[str]:
-    """The towels' product ids: the derivation leaves them as authored."""
-    return frozenset(f"BRD-{r.code}" for r in ROWS)
+SPEC = TypeSpec(
+    key="beach_towel",
+    department="Home",
+    product_type="Beach Towel",
+    rows=ROWS,
+    owners=tuple((b, "third_party") for b in (CALDERBY, HARBOUR, THISTLE, LARCHWOOD, BRACKENMERE, EMBERLY, COBBLE, LANTERNBY)),
+)  # fmt: skip
