@@ -170,4 +170,4 @@ def test_each_exported_sku_states_the_model_number_of_its_own_color(appliances):
         assert got["color"] == a["color"], (d["sku"], a["model_number"], a["color"])
         assert a["model_number"].startswith(a["base_model"]), d["sku"]
         assert seen.setdefault(a["model_number"], d["sku"]) == d["sku"], a["model_number"]
-    assert len(flat) > len(appliances), "colour variants are SKUs of their own"
+    assert len(flat) > len(appliances), "color variants are SKUs of their own"
