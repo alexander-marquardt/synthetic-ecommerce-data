@@ -122,16 +122,6 @@ def _names(doc: dict[str, Any]) -> list[tuple[str, str]]:
     return [(row["key"], row["name"]) for row in rows]
 
 
-def _findings(docs: list[dict[str, Any]]) -> list[str]:
-    """Each category node and display name that is not its own sentence-case form."""
-    found: set[str] = set()
-    for doc in docs:
-        strings = [*doc["category_path"], doc["category_leaf"]]
-        strings += [name for _, name in _names(doc)] + list(doc.get("attribute_names", ()))
-        found.update(s for s in strings if sentence_case(s) != s)
-    return sorted(found)
-
-
 def _one_name_per_key(docs: list[dict[str, Any]]) -> dict[str, set[str]]:
     names: dict[str, set[str]] = defaultdict(set)
     for doc in docs:
@@ -158,25 +148,6 @@ def industrial_flat() -> list[dict[str, Any]]:
 @pytest.fixture(scope="module")
 def retail_nested() -> list[dict[str, Any]]:
     return export.documents()
-
-
-def test_no_industrial_category_node_or_name_breaks_the_rule(
-    industrial_nested: list[dict[str, Any]], industrial_flat: list[dict[str, Any]]
-) -> None:
-    assert _findings(industrial_nested) == []
-    assert _findings(industrial_flat) == []
-
-
-def test_no_retail_category_node_or_name_breaks_the_rule(
-    retail_nested: list[dict[str, Any]],
-) -> None:
-    assert _findings(retail_nested) == []
-    assert _findings(export.flat_documents()) == []
-
-
-@pytest.mark.parametrize("name", ["nested.jsonl", "flat.jsonl"])
-def test_the_committed_golden_catalog_keeps_the_rule(name: str) -> None:
-    assert _findings(_golden(name)) == []
 
 
 def test_one_key_has_one_display_name_across_both_catalogues(
@@ -220,6 +191,7 @@ _OUTPUTS = ("golden-catalog/", "golden-retail/", "tests/data/", "reference-stati
 #: Files that may name an old name as a ``"name"`` value, and why.
 _AUTHORED_NAME_FIXTURES = {
     "tests/test_letter_case_499.py": "this guard: the rule's own before/after rows",
+    "tests/test_rules_538.py": "a planted defect of the sentence_case rule, never read back",
     "tests/test_nested_entry_contract.py": "a planted defect built by hand, never read back",
     "prototypes/retail_drawings/test_signals_and_paths.py": "reads the unexported class build",
 }
