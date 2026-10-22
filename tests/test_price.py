@@ -19,10 +19,11 @@ from shared_builds import (
     KitSku,
     hundred_k_measured,
     hundred_k_prices,
+    hundred_k_quiet_wheel,
     recorded_build,
 )
 from synthetic_ecommerce_data.core import brands, price
-from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import (
     DimensionParseError,
     parse_length,
@@ -913,20 +914,13 @@ def test_the_wheel_brand_spread_is_in_band_at_both_builds_and_not_pinned(
     assert big.within, (big.achieved, big.band)
 
 
-def test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k(monkeypatch):
+def test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k():
     """#80: the wheel's cause was measured, not asserted. With every wheel
     noise off the brand tiers alone gave 1.86 at 100K against a band top of
     1.71, because three of the 12 wheel brands were economy. With the
     census's one economy maker the tiers alone are in band, so the row does
     not rest on how the noise happens to fall."""
-    quiet = replace(price.MODELS[WHEEL], group_sigma=0.0, sku_sigma=0.0, size_sigma=0.0)
-    monkeypatch.setitem(price.MODELS, WHEEL, quiet)
-    catalog = generate(GeneratorConfig(lines=LARGE_BUILD_LINES))
-    (row,) = [
-        row
-        for row in price_report.price_comparisons(catalog)
-        if row.name == BRAND_ROW.format(WHEEL)
-    ]
+    row, _ = hundred_k_quiet_wheel()
     assert row.within, (row.achieved, row.band)
 
 
