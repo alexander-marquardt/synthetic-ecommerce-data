@@ -8,6 +8,9 @@ borrows or is, so the decoy fools a plain text match on that word and nothing el
 
 from __future__ import annotations
 
+#: The attribute keys that name a range on a row: the one list the review and the plain decoys read.
+LINE_KEYS = ("line", "range")
+
 #: (the range name, what it is named for); the first word is the word the decoy targets.
 PLACE_RANGES = (
     ("Kettle Hill", "a hill above the old mill"),
