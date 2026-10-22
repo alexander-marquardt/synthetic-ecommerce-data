@@ -23,7 +23,7 @@ from class_model import (
     on_sale,
     one,
 )
-from variants import Color, cw
+from variants import Color, cw, shade
 
 DENIM, MID, LIGHT, ECRU, BLACK = "#4a6a94", "#5b7aa6", "#9fb4cf", "#e8dfcc", "#2a2a2e"
 WHITE, NAVY, CAMEL, OLIVE, RUST = "#ffffff", "#26365c", "#c19a6b", "#6b6b3a", "#a8502e"
@@ -436,10 +436,10 @@ BEAUTY = (
            (cw("Cherry Pop", "#b0182f"), 1)), unit=(1.9, "g")),
     Style("BTYFND", "Soft Veil Foundation", "Kestlewood Cosmetics", "Beauty",
           (*MAKEUP, "Face", "Foundation"), 32.0,
-          "A light, buildable foundation with a natural finish.",
+          "A soft, buildable foundation with a natural finish.",
           "Foundation", "bottle",
-          ((cw("Porcelain", "#f1dcc8"), 1), (cw("Caramel", "#c48a5c"), 2),
-           (cw("Toffee", "#9a6440"), 1), (cw("Espresso", "#5a3a28"), 1)),
+          ((shade("Porcelain", "#f1dcc8"), 1), (shade("Caramel", "#c48a5c"), 2),
+           (shade("Toffee", "#9a6440"), 1), (shade("Espresso", "#5a3a28"), 1)),
           volumes=((15.0, 20.0), (30.0, 32.0), (50.0, 46.0))),
 )  # fmt: skip
 
