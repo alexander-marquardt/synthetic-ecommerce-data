@@ -165,7 +165,11 @@ import image_release  # noqa: E402
 import leaf_shapes  # noqa: E402
 import scale  # noqa: E402
 
-#: The reported products: id -> (shape, the parameters its drawing must carry).
+#: The reported products: id -> (shape, the parameters its drawing must carry). An id of a
+#: generated decoy (``PLT-DA...``) can change content when a type gains decoys
+#: (``decoy_apparel._MORE``): ``PLT-DA08701`` and ``PLT-DA50603`` became a White Dormouse dress
+#: and a pair of pyjama shorts and this table went red unseen (gen#362). The two now pinned by
+#: a hand-written id (``PLT-DXH05``, ``PLT-OFRPJS``) keep the shape they were reported for.
 EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "PLT-DA02102": ("bomber_jacket", {}),
     "PLT-DA13202": ("puffer", {}),
