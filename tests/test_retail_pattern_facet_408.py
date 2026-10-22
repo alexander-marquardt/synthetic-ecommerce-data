@@ -149,9 +149,10 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     template (#624: 11 more templates, 18 more SKUs) and make 11564 and 103222; gen#352's 27
     styles of bicycles, bike helmets, kayaks, kick scooters and skateboards (196 SKUs) make
     11591 and 103418; the cups of gen#620 (12 type-spec templates and 7 Cup-named bra decoys,
-    49 SKUs) make 11610 and 103467; gen#625's 9 cycling accessory styles and their 8 print
-    decoys (67 SKUs) make 11627 and 103534, and a new style would raise both. This test pins 11627
-    templates and 103534 template SKUs: the PR that lifts the freeze must move them."""
+    49 SKUs) make 11610 and 103467; the two more UK sizes (18, 20) of the discounted dresses
+    (#621: 12 SKUs) make 103479; gen#625's 9 cycling accessory styles and their 8 print
+    decoys (67 SKUs) make 11627 and 103546, and a new style would raise both. This test pins 11627
+    templates and 103546 template SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
     assert len(tpls) == 11627
-    assert sum(t["sku_count"] for t in tpls) == 103534
+    assert sum(t["sku_count"] for t in tpls) == 103546
