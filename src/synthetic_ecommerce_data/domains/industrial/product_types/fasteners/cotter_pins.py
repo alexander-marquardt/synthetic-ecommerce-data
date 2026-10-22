@@ -86,6 +86,7 @@ TABLE = TableType(
     extent=(1.1, 4.2),
     share=0.015,
     series="CP",
+    compat=False,
     use_lines=(
         "Passed through a cross-drilled hole and spread to hold a castle nut or clevis pin.",
         "Locks a slotted nut on a drilled bolt or stud so it cannot back off.",

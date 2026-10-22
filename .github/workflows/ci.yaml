@@ -136,7 +136,8 @@ jobs:
             exit 0
           fi
           export CI_SHARDS="${plan[0]#shards=}"
-          uv run --locked pytest "${files[@]}"
+          # A lost xdist worker is an infra failure, rerun once (#629): docs/ci-sharding.md.
+          python3 scripts/ci_run_pytest.py -- uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
       - uses: actions/upload-artifact@v4
         if: always()
