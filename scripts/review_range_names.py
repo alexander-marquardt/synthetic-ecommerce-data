@@ -37,7 +37,10 @@ ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 #: The attribute keys that name a range on a row.
-LINE_KEYS = ("line", "range")
+if str(RETAIL) not in sys.path:
+    sys.path.insert(0, str(RETAIL))
+from place_ranges import LINE_KEYS  # noqa: E402
+
 _WORD = re.compile(r"[a-z0-9&]+")
 
 

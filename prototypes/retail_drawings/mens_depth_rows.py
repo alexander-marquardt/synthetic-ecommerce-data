@@ -609,9 +609,9 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
         tag = "".join(w[0] for w in ptype.split()) + str(k)
 
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
-                ptype=ptype, material=None, extra=(), colors=None):  # noqa: PLR0913
+                ptype=ptype, material=None, extra=(), colors=None, brand=None):  # noqa: PLR0913
             code = f"{prefix}{tag}{klass}{i}"
-            brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
+            brand = brand or (word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)])
             attrs = ()
             if kind.fitted:
                 attrs += (_a("fit", "Fit", "Regular"),)
@@ -680,13 +680,14 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 f"{_np('', noun)} in soft {s.lower()}, {tails[ptype]}.", s,
                 _FANCY[(k + i) % 6], f"{s.lower()} {noun.lower()}")  # fmt: skip
             # 6: an incidental word in a short title: a range name.
-            r, gloss, word = place_range(_BRANDS[(i + 6) % len(_BRANDS)])
+            b6 = _BRANDS[(k + i + 6) % len(_BRANDS)]  # gen#623: the brand owns the range
+            r, gloss, word = place_range(b6)
             true6 = _TRUE[(k + i + 4) % 6]
             add(6, i, f"Mens {r} {noun}",
                 f"From the {r} range, named for {gloss}; the {noun.lower()} "
                 f"{'themselves are' if _plural(noun) else 'itself is'} {true6.lower()}.",
                 true6, word, word,
-                extra=(_a("range", "Range", r),))  # fmt: skip
+                extra=(_a("range", "Range", r),), brand=b6)  # fmt: skip
             # 7: an invented brand holding a color or category word.
             brand = NEW_BRANDS[i]
             add(7, i, f"Mens {brand} {noun}",

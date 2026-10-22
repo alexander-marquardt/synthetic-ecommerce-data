@@ -51,6 +51,7 @@ import type_registry
 from class_model import SHADE_FAMILY
 from decoy_plural_nonfood_rows import IDS as PLURAL_NONFOOD_IDS
 from decoy_rows import COLORS
+from place_ranges import LINE_KEYS
 from variants import attr, cw, product, swatch
 
 ROOTS = ("Womens", "Mens", "Kids")
@@ -62,7 +63,7 @@ BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"
 PRODUCT_COLORS = ("Black", "White", "Navy", "Cream", "Grey", "Brown", "Pink", "Red", "Blue",
                   "Green")  # fmt: skip
 DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}  # the hex a named part's color is drawn in
-DROPPED_KEYS = ("line", "range", "pattern", "print", "color", "motif")  # plain, one color
+DROPPED_KEYS = (*LINE_KEYS, "pattern", "print", "color", "motif")  # plain, one color
 MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
     1: "color names a part",
