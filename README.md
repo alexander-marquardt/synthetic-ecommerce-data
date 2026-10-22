@@ -226,7 +226,7 @@ GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 log path, and refuses the merge unless all pass; no GitHub check is read. A red job
 prints its FAILED/ERROR lines (up to 20) and its log is copied to
 `<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
-without a re-run.
+without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md).
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
