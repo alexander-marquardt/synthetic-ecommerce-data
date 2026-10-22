@@ -148,8 +148,9 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     103204; the twelve authored beach towels replace the one "Cotton Velour Beach Towel"
     template (#624: 11 more templates, 18 more SKUs) and make 11564 and 103222; the cups of
     gen#620 (12 type-spec templates and 7 Cup-named bra decoys, 49 SKUs) make 11583 and 103271,
-    and a new style would raise both. This test pins 11583 templates and 103271 template SKUs:
-    the PR that lifts the freeze must move them."""
+    and the two more UK sizes (18, 20) of the discounted dresses (#621: 12 SKUs) 103283; a new
+    style would raise both. This test pins 11583 templates and 103283 template SKUs: the PR
+    that lifts the freeze must move them."""
     tpls = scale.templates()
     assert len(tpls) == 11583
-    assert sum(t["sku_count"] for t in tpls) == 103271
+    assert sum(t["sku_count"] for t in tpls) == 103283
