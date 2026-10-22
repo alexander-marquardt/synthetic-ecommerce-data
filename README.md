@@ -1602,7 +1602,7 @@ figure against the file.
 | anchor: the price at a reference key dimension | fitted |
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
-| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
+| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure. The wheel's economy figure is that house label's, found on 4 of 12 shared specs, so the wheel has one economy maker, `Tervasko` (`brands.TIER_EXCEPTIONS`, #80) |
 | pack quantity (hex nuts, socket screws) | census pooled pack slope (`price.PACK_SLOPES`); the socket screw's pack falls as its size grows (`price.pack_quantity`) |
 | pack quantity (hex bolts) | a group page's pack, independent of the size, so a size comes in several packs (`price.page_pack`); priced within a size on the elasticity the census's same-spec larger-pack ratio gives (`price.PACK_ELASTICITY`, 0.659: a 5x pack costs 0.5778 per piece). Because the pack adds its own spread, the bolt's slopes are cut to `price.SLOPE_CUT_AIMS` (shown p90/p10 10.0, inside the row's band) rather than to the census's 8.21, which would leave no size slope. Prices exist to show range filters, sorting and facets, not to match the census exactly (#86) |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
@@ -1673,10 +1673,9 @@ whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
 against the rest, and the .99/.00/.50 endings. A spec is the census's: the
-key dimension in one material (`price.material_of`). A wheel publishes its
-material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+key dimension, the material and the attribute the census names for the type (`price.SPEC_ATTRIBUTES`: a wheel's grit, a bearing's closure, a ball end mill's and a tap's flutes). A wheel publishes its material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
 `test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
-a type whose specs hold no material. Each row has a band
+a type whose specs hold no material. A SKU that sparsity left without one of them is in no spec, and the type's brand-spread row says how many in its note. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1693,7 +1692,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `72 rows, 70 in band`; the other two are the pins.
+It prints `72 rows, 71 in band`; the other is the kit pin.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
@@ -1702,7 +1701,6 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band at both builds (the default build was in band until #357 dropped the wheels that differed only by a pack and moved the ids) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at each build no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE` |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
