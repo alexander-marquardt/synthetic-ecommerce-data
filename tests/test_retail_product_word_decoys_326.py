@@ -116,6 +116,8 @@ TRUE_NODE = {
     "fridge": "Fridges & Freezers",
     "dishwasher": "Dishwashers",
     "washing": "Large Appliances",
+    # the cups of gen#620: the bras named for their cup sit in no drinkware
+    "cup": "Drinkware",
 }
 POLICIES = ("category", "department", "color")
 
