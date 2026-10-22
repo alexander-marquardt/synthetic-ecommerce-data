@@ -139,12 +139,15 @@ def test_an_image_id_is_the_drawing_specs_and_stable(retail):
     assert [d["image_id"] for d in again] == [d["image_id"] for d in retail]
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
     ids = {v["image_id"] for v in jeans["variants"]}
-    # one drawing per color-and-wash pair: a size changes no picture
+    # one drawing per color-and-wash pair and size rung (gen#339): the sizes are a ladder of 12
     washes = {
         tuple(e["value"] for e in v["attributes"] if e["key"] in ("color", "pattern"))
         for v in jeans["variants"]
     }
-    assert len(ids) == len(washes)
+    rungs = {a["value"] for v in jeans["variants"] for a in v["attributes"]
+             if a["key"] == "size_uk"}  # fmt: skip
+    assert len(rungs) == 12
+    assert len(ids) == len(washes) * len(rungs)
     assert jeans["image_id"].startswith("jeans/JEA-HARROW/")
     assert jeans["image_url"] == f"/images/retail/{jeans['image_id']}.svg"
 

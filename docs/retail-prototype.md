@@ -199,8 +199,10 @@ The planted cases are:
   (`tests/test_one_path_per_leaf_330.py`; Open Food Facts names the nodes, no tag is copied).
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
-`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread) and
-`pizza` (a round pie on a card under film), in `kit_grocery.py`. The build makes
+`butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
+`pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
+pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
+`kit_grocery.py`. The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -346,8 +348,8 @@ an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 fo
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
-| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
-| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
+| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. Car Cup Holder Organiser `PLT-CUPHLD`<br>5. Engraved Trophy Cup `PLT-CUPTRO` | 1. **Leakproof Reusable Travel Cup with Lid for Car Holders `PLT-DRKTRV`**<br>2. **Set of 4 Porcelain Espresso Cups in Gift Box `PLT-DRKSET`**<br>3. **Fine Bone China Tea Cup and Saucer for Afternoon Tea `PLT-DRKSAU`**<br>4. **Apple Graphic Mug `PLT-MUG-APPLE`**<br>5. **Travel Mug `PLT-MUG11`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
 
 Class 15 is a word with a sense in two departments: a bare *cups* is
 drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
@@ -710,7 +712,7 @@ derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 **One `pack_size` vocabulary for a count** (gen#246). A pack of identical or different items is
 `Single` or `N pack` (`2 pack`, `4 pack`, `10 pack`) in every department: underwear, school,
 home (dining chairs, tableware), grocery and the planted distractors alike, so the `pack_size`
-facet lists one spelling. A title keeps natural wording ("Set of 4 Espresso Cups"); the value
+facet lists one spelling. A title keeps natural wording ("Set of 4 Porcelain Espresso Cups in Gift Box"); the value
 does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a measure and
 stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
 
