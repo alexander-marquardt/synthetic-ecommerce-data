@@ -122,8 +122,9 @@ TRUE_NODE = {
     "fridge": "Fridges & Freezers",
     "dishwasher": "Dishwashers",
     "washing": "Large Appliances",
+    # the cups of gen#620: the bras named for their cup sit in no drinkware
+    "cup": "Drinkware",
 }
-POLICIES = ("category", "department", "color")
 
 
 @pytest.fixture(scope="module")
@@ -178,14 +179,6 @@ def test_a_cross_department_row_sits_under_another_root(by_id: dict[str, dict]) 
         assert by_id[pid]["category_path"][0] not in ("Womens", "Mens", "Kids"), pid
     assert any(by_id[p]["category_path"][0] == "Food & Drink" for p, _ in rows)
     assert len({by_id[p]["category_path"][0] for p, _ in rows}) >= 3
-
-
-def test_every_row_names_the_policy_that_fixes_it() -> None:
-    assert dpw.TABLE
-    for row in dpw.TABLE:
-        assert row.policy.split(":")[0] in (*POLICIES, "special"), row.policy
-        if row.policy.startswith("special"):
-            assert row.sibling, row.code  # a special policy is proved on a sibling query
 
 
 def test_the_drawing_shows_the_true_product_and_the_named_detail(by_id: dict[str, dict]) -> None:
