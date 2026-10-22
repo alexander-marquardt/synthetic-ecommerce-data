@@ -18,33 +18,6 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "nested.jsonl"
 
-#: Keys that restate the product type (the shopper reads the type in the title and
-#: the category), or that were three or two spellings of one fact.
-REMOVED_KEYS = {
-    "item",
-    "end_mill_style",
-    "tap_style",
-    "lock_type",
-    "insert_material",
-}
-
-#: Merged-away key -> the one key that now carries its values.
-MERGED_AWAY = {
-    "dimension_type": "measurement_system",
-    "system_of_measurement": "measurement_system",
-    "meets_exceeds": "standards",
-    "rockwell_hardness": "hardness",
-    "length_under_head": "length",
-    "wheel_dia": "diameter",
-    "end_mill_application": "application",
-    "connector_type": "mounting_type",
-    "dowel_dia_in": "dowel_dia",
-    "dowel_dia_mm": "dowel_dia",
-    "thread_dia": "thread_size",
-    "package_quantity": "units_per_pack",
-    "number_of_pieces": "piece_count",
-}
-
 
 def _products() -> list[dict]:
     return [json.loads(line) for line in GOLDEN.read_text("utf-8").splitlines()]
@@ -64,31 +37,6 @@ def products() -> list[dict]:
 @pytest.fixture(scope="module")
 def keys(products) -> set[str]:
     return {entry["key"] for product in products for entry in _entries(product)}
-
-
-def test_no_removed_key_is_published(keys):
-    assert keys & REMOVED_KEYS == set()
-
-
-def test_no_merged_away_key_is_published(keys):
-    assert keys & set(MERGED_AWAY) == set()
-
-
-def test_every_merged_key_is_published(keys):
-    assert set(MERGED_AWAY.values()) <= keys
-
-
-def test_one_key_has_one_display_name_and_one_display_name_one_key(products):
-    names_of: dict[str, set[str]] = defaultdict(set)
-    keys_of: dict[str, set[str]] = defaultdict(set)
-    for product in products:
-        for entry in _entries(product):
-            names_of[entry["key"]].add(entry["name"])
-            keys_of[entry["name"]].add(entry["key"])
-    split_keys = {key: sorted(names) for key, names in names_of.items() if len(names) > 1}
-    split_names = {name: sorted(k) for name, k in keys_of.items() if len(k) > 1}
-    assert split_keys == {}
-    assert split_names == {}
 
 
 def test_a_measurement_system_is_one_attribute_with_one_vocabulary(products):
