@@ -86,6 +86,8 @@ def apply(doc: dict[str, Any]) -> dict[str, Any]:
     if "category_path" in doc:
         out["category_path"] = [sentence_case(node) for node in doc["category_path"]]
         out["category_leaf"] = out["category_path"][-1]
+    if "category_paths" in doc:
+        out["category_paths"] = [[sentence_case(node) for node in p] for p in doc["category_paths"]]
     if "attributes" in doc:
         out["attributes"] = _renamed(doc["attributes"])
     if "variants" in doc:
