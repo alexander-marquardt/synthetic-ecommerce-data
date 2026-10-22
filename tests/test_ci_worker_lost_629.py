@@ -64,6 +64,11 @@ if mode == "ok" or (mode == "lose-once" and runs > 1):
 elif mode == "fail":
     print("FAILED tests/test_a.py::test_one - assert 1 == 2")
     sys.exit(1)
+elif mode == "fail-quoting-the-signature":
+    print("E   AssertionError: assert 'expected' in '[gw0] node down: Not properly terminated'")
+    print("E   INTERNALERROR> KeyError: <WorkerController gw2>")
+    print("AssertionError: assert 'x' in '[gw0] node down: Not properly terminated\\n'")
+    sys.exit(1)
 else:
     print(lost, end="")
     sys.exit(3)
@@ -113,6 +118,30 @@ def test_a_failing_test_is_not_rerun(tmp_path: Path) -> None:
     done, runs = run_wrapper(tmp_path, "fail")
     assert (done.returncode, runs) == (1, 1), done.stdout
     assert "infra: worker lost" not in done.stdout
+
+
+def test_a_failure_that_quotes_the_signature_is_still_a_failure(tmp_path: Path) -> None:
+    done, runs = run_wrapper(tmp_path, "fail-quoting-the-signature")
+    assert (done.returncode, runs) == (1, 1), done.stdout
+    assert "infra:" not in done.stdout
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "E   assert 'a' in '[gw0] node down: Not properly terminated'",
+        "AssertionError: assert 'x' in '[gw0] node down: Not properly terminated\\n'",
+        "    LOG = \"[gw0] node down: Not properly terminated\"",
+        "E   INTERNALERROR> KeyError: <WorkerController gw2>",
+    ],
+)
+def test_a_line_that_only_quotes_a_signature_is_not_a_lost_worker(line: str) -> None:
+    assert not ci_run_pytest.worker_lost(line)
+
+
+def test_a_green_run_prints_no_memory_evidence(tmp_path: Path) -> None:
+    done, _ = run_wrapper(tmp_path, "ok")
+    assert "ci_run_pytest: attempt" not in done.stdout
 
 
 def test_a_green_run_runs_once(tmp_path: Path) -> None:
