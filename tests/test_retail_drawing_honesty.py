@@ -143,7 +143,10 @@ def test_a_tub_is_only_a_tub_of_something(records):
 
 
 #: The home mug and the Gifts mug (gen#425: a tapered body with a design on its side).
-MUG_SHAPES = {"mug", "gift_mug"}
+#: A drinking vessel is a mug, or (gen#620) the cup kind of its own: each has a drawing function.
+MUG_SHAPES = {
+    "mug", "gift_mug", "tumbler", "tea_cup", "travel_cup", "espresso_cup",
+}
 
 
 def test_a_drinking_vessel_is_drawn_as_a_mug(records):
@@ -163,7 +166,10 @@ def test_a_label_is_the_titles_product_noun_not_a_category_fragment(records):
 
 
 #: Shapes that draw something to drink from, never a bottle of cleaner.
-DRINKWARE = frozenset({"mug", "tumbler", "cup", "travel_cup", "glass"})
+DRINKWARE = frozenset(
+    {"mug", "tumbler", "cup", "travel_cup", "glass", "tea_cup", "espresso_cup", "party_cup",
+     "paper_cup", "sippy_cup", "measuring_cup"}
+)
 
 
 def test_a_cleaner_is_not_drawn_as_drinkware_and_no_label_is_a_path_segment(records):
