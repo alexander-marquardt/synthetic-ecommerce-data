@@ -1351,6 +1351,21 @@ def test_a_range_word_belongs_to_one_brand(range_review):
     assert shared == {}
 
 
+def test_every_place_range_appears_under_exactly_one_brand(ceiling):
+    """Guard (gen#623): a range that no row draws is a class 6 decoy word that vanished ("kettle",
+    "candle"). Metric: the brands per place-range name in the titles of the ceiling build."""
+    import place_ranges  # noqa: PLC0415
+
+    owners: dict[str, set[str]] = {name: set() for name, _ in place_ranges.PLACE_RANGES}
+    for rec in ceiling.records:
+        for name in owners:
+            if name in rec["title"]:
+                owners[name].add(rec["brand"])
+    assert {n: len(b) for n, b in owners.items() if len(b) != 1} == {}
+    assert {n: b.pop() for n, b in owners.items()} == dict(
+        zip((n for n, _ in place_ranges.PLACE_RANGES), place_ranges.PLACE_BRANDS, strict=True))
+
+
 def test_a_title_names_no_brand_but_its_own(range_review):
     """Guard (gen#623): "Red Kite Lawn Mower" by another brand reads as that brand's mower.
     Metric: the (title, row brand, brand named) triples."""
