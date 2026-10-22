@@ -14,7 +14,13 @@ and no sibling label is a word-suffix of another (`tree_guard`).
 
 ## Real names (Apple, iPhone, iPad only)
 
-The maintainer's two rulings (2026-10-15) are quoted in the README. Apple devices are iPhone and
+The maintainer's two rulings (2026-10-15), the second replacing the first. First: "I think I'm ok
+with iphone, apple, and samsung, Xiaomi, Nokia, and say the top 10 .. those are almost generic
+english words now, and need be represented .. people will definitely search for iphone .. and
+expect to see apple iphones". Then: "maybe we should only allow apple and iphone as exceptions ..
+for other phones, can make-up brands .. but apple is so iconic (and gives good clashes) so is a
+great demo .. same with iphone, and ipad .. we can keep those". This is the second exception to
+"every name is invented", beside Nike (gen#341). Apple devices are iPhone and
 iPad models with their public line names (`iPhone 15`, `iPad Air`); the Apple house style has the
 mark `none`, so no drawing carries a logo or a trade dress. Every other brand is invented: 13 in
 `electronics_brand_styles.py`, each with its own mark. `real_brands.ALLOWED` is Nike, Apple, iPhone
@@ -30,7 +36,7 @@ is still to do by hand before the names are relied on.
   (white, "blue" in a range name); class 5, a case whose text names red ("Trim Edge Case for
   iPhone 14"); class 4, the bare model-line query "iphone 15" (Pocket Wallet Case for iPhone 15);
   class 7, a charger that names Apple only as the brand it fits ("Compatible USB-C Wall Charger").
-- Class 8 (gen#326), `feature_decoys/electronics.py`, rows DY701 to DY725, each with
+- Class 8 (gen#326), `feature_decoys/electronics.py`, 19 rows (DY701 to DY705, DY708, DY711, DY714 to DY725), each with
   `device_type` (the Electronics type whose word the title holds): `mouse` (a cushion, a
   throw and a basket), `tablet` (dishwasher tablets, Scottish tablet), `monitor` (a lizard cushion,
   throw and basket), `mobile` (a coat stand, a clothes rack and a basket on wheels), `charger` (three
