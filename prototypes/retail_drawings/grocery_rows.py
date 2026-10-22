@@ -366,7 +366,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Fizzy Cola", "#5a3a26", "h"), F("Toffee", "#b07a3c", "M"), F("Vegan Jellies", "#7ab648")),
            _SNACK, 0.04, may=((3, ""), (1, "M")), per_style=(2, 5)),
     # Biscuits & Snacks
-    Family("BIS", _p("Biscuits & Snacks", "Biscuits"), "{line} Biscuits", "Biscuits", "box",
+    Family("BIS", _p("Biscuits & Snacks", "Biscuits"), "{line} Biscuits", "Biscuits", "sleeve",
            "Biscuits", _A, "DE", 1.2, ("200g", "300g", "3 x 150g"),
            (F("Chocolate Chip", "#7a4a2a", "GMS"), F("Ginger Snap", "#c48a3a", "G"), F("Shortbread", "#efd9a8", "GM"),
             F("Oat & Coconut", "#d8c9a8", "G"), F("Lemon Puff", "#f2d14b", "GME"), F("Milk Chocolate Digestive", "#8a5a3c", "GMS")),
@@ -636,7 +636,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Cranberry & Orange Panettone", "#d9a441", "GME"), F("Lemon & Orange Panettone", "#f2c14b", "GME"),
             F("Cherry & Orange Christmas Pudding", "#4a2a1a", "GE"), F("Chocolate Panettone", "#7a4a2a", "GME")),
            _BAKE, 0.006, may=((2, ""), (1, "T"))),
-    Family("ORB", _p("Biscuits & Snacks", "Biscuits"), "{line} {flavor}", "Biscuits", "box", "Biscuits", _A, "DE",
+    Family("ORB", _p("Biscuits & Snacks", "Biscuits"), "{line} {flavor}", "Biscuits", "sleeve", "Biscuits", _A, "DE",
            1.5, ("150g", "250g"),
            (F("Orange Shortbread", "#efd9a8", "GM"), F("Chocolate & Orange Cookies", "#7a4a2a", "GME"),
             F("Orange Cream Sandwich Biscuits", "#f2a14b", "GMS")),
