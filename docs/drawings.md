@@ -95,7 +95,7 @@ drawn bounding box, in inches, with a little headroom.
   `typespec.register` writes the pair into `FIGURES`. `screw_socket_head`
   (the twelfth original type) and `lock_nuts_nylon_insert` (which reuses
   `hex_nut`) are declared this way.
-* The 43 breadth types are not written in `figures.py` either.
+* The breadth types (`figures.catalog.breadth_categories` in `golden-catalog/stats.json`) are not written in `figures.py` either.
   `domains/industrial/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
   pointing at one of the six fixed shapes in `domains/industrial/drawing/breadth_shapes.py`. It
   also fills `taxonomy.LEAVES`, `taxonomy.DRAWING`, `STANDARDS_FAMILY` and
