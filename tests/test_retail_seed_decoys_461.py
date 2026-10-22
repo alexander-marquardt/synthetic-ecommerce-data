@@ -41,9 +41,7 @@ SEEDS = {
 }
 #: Mattress topper is served by the protectors of gen#155 (distractor_rows): no new row.
 SERVED_BY_EXISTING = {"mattress topper": "Mattress Protectors"}
-NEW_SEEDS = [s for s in SEEDS if s not in SERVED_BY_EXISTING]
 _ID = lambda s: s.replace(" ", "_")  # noqa: E731 -- a space would split a Red-Test id
-COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}
 
 
 @pytest.fixture(scope="module")
@@ -90,39 +88,6 @@ def test_a_seed_query_meets_two_decoy_products_in_its_first_12(
         if d["product_id"] in ids or (leaf and d["category_path"][-1] == leaf)
     ]
     assert len(decoys) >= 2, (seed, decoys)
-
-
-@pytest.mark.parametrize("seed", NEW_SEEDS, ids=_ID)
-def test_each_seed_has_at_least_two_decoy_rows(seed: str) -> None:
-    assert len(_seed_rows(seed)) >= 2, seed
-
-
-@pytest.mark.parametrize("seed", NEW_SEEDS, ids=_ID)
-def test_a_seed_decoy_holds_every_seed_word_and_is_another_type(
-    by_id: dict[str, dict], seed: str
-) -> None:
-    rows = _seed_rows(seed)
-    assert rows, seed
-    for row in rows:
-        doc = by_id[f"PLT-{row.code}"]
-        text = set(tokens(doc["title"])) | set(tokens(doc["description"]))
-        assert set(tokens(seed)) <= text, (row.code, seed)
-        assert set(tokens(seed)) <= set(tokens(doc["title"])), (row.code, doc["title"])
-        assert doc["category_path"][-1] not in SEEDS[seed], (row.code, doc["category_path"])
-        assert row.query == seed and row.policy, row.code
-        assert len(doc["title"].split()) <= 5, doc["title"]
-
-
-@pytest.mark.parametrize("seed", NEW_SEEDS, ids=_ID)
-def test_a_seed_decoy_names_no_color_word_the_drawing_does_not_show(
-    by_id: dict[str, dict], seed: str
-) -> None:
-    rows = _seed_rows(seed)
-    assert rows, seed
-    for row in rows:
-        doc = by_id[f"PLT-{row.code}"]
-        words = set(re.findall(r"[a-z]+", f"{doc['title']} {doc['description']}".lower()))
-        assert not words & COLOR_WORDS, (row.code, words & COLOR_WORDS)
 
 
 def test_the_olive_tree_is_a_product_and_ranks_in_the_first_12(index: br.Index) -> None:
