@@ -142,12 +142,12 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
     plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
     text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
-    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951; the 27 templates
-    and 160 SKUs of the gen#509 plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) make
-    11540 and 103191; the range names dealt to one brand each (gen#623) let ten more grocery
-    styles keep a title of their own and drop two derived ones, making 11550 and
-    103193. A new style would raise both. This test pins 11550 templates and 103193 template
-    SKUs: the PR that lifts the freeze must move them."""
+    face creams (#542: 20 templates, 69 SKUs) and the cream furniture decoys of "face cream"
+    (#541: 13 templates, 13 SKUs) lift them, and the 27 templates and 160 SKUs of the gen#509
+    plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again; the range names
+    dealt to one brand each (gen#623) move them to 11563 and 103206. A new style would raise both.
+    This test pins 11563 templates and 103206 template SKUs: the PR that lifts the freeze must
+    move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11550
-    assert sum(t["sku_count"] for t in tpls) == 103193
+    assert len(tpls) == 11563
+    assert sum(t["sku_count"] for t in tpls) == 103206
