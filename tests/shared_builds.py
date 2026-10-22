@@ -188,6 +188,17 @@ def hundred_k_prices() -> tuple[dict, list[KitSku]]:
     return cached("hundred_k_prices", _hundred_k_prices_build)
 
 
+def _hundred_k_measured_build() -> dict:
+    from synthetic_ecommerce_data.domains.industrial import measured_builds
+
+    return measured_builds.hundred_k_figures(generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))
+
+
+def hundred_k_measured() -> dict:
+    """What ``measured_builds`` writes for the 100K build (#85); all the staleness test reads."""
+    return cached("hundred_k_measured", _hundred_k_measured_build)
+
+
 WHEEL = "wheel_depressed_center"
 
 
