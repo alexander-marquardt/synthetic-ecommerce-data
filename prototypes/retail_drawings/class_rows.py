@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+import kit_cups  # noqa: F401 -- registers the cup drawings (tumbler, tea_cup, travel_cup, ...)
 import kit_suits  # noqa: F401 -- registers suit_jacket, which the check suit jacket is drawn as
 from class_model import (
     BED_SIZE_DIMS,
@@ -775,22 +776,23 @@ CUPS = (
     Style("DRKLAT", "Large Latte Mug", "Pewley Table", "Home", (*DRINKWARE, "Mugs"), 10.0,
           "A wide, tall porcelain mug for lattes and hot chocolate.",
           "Mug", "mug", one(cw("White", WHITE), 45)),
-    Style("DRKTMB", "Double Walled Tumbler", "Pewley Table", "Home",
-          (*DRINKWARE, "Tumblers"), 14.0,
+    Style("DRKTMB", "Double Walled Insulated Steel Tumbler with Sliding Lid", "Pewley Table",
+          "Home", (*DRINKWARE, "Tumblers"), 14.0,
           "An insulated steel tumbler with a sliding lid. Keeps drinks hot for 6 hours.",
-          "Tumbler", "mug", ((cw("Black", BLACK), 50), (cw("Navy", NAVY), 30))),
-    Style("DRKSAU", "Fine Bone China Cup and Saucer", "Pewley Table", "Home",
+          "Tumbler", "tumbler", ((cw("Black", BLACK), 50), (cw("Navy", NAVY), 30))),
+    Style("DRKSAU", "Fine Bone China Tea Cup and Saucer for Afternoon Tea", "Pewley Table", "Home",
           (*DRINKWARE, "Cups & Saucers"), 12.0,
           "A fine bone china tea cup with a matching saucer.",
-          "Cup", "mug", one(cw("White", WHITE), 35)),
-    Style("DRKTRV", "Leakproof Travel Cup", "Brackenmere Home", "Home",
-          (*DRINKWARE, "Travel Cups"), 16.0,
+          "Cup", "tea_cup", one(cw("White", WHITE), 35)),
+    Style("DRKTRV", "Leakproof Reusable Travel Cup with Lid for Car Holders", "Brackenmere Home",
+          "Home", (*DRINKWARE, "Travel Cups"), 16.0,
           "A reusable travel cup with a leakproof lid that fits most car holders.",
-          "Travel Cup", "mug", ((cw("Charcoal", "#4a4a4a"), 60), (cw("Pink", "#f3c6cf"), 20))),
-    Style("DRKSET", "Set of 4 Espresso Cups", "Brackenmere Home", "Home",
-          (*DRINKWARE, "Cups & Saucers"), 18.0,
+          "Travel Cup", "travel_cup",
+          ((cw("Charcoal", "#4a4a4a"), 60), (cw("Pink", "#f3c6cf"), 20))),
+    Style("DRKSET", "Set of 4 Porcelain Espresso Cups in Gift Box", "Brackenmere Home",
+          "Home", (*DRINKWARE, "Cups & Saucers"), 18.0,
           "Four small porcelain espresso cups in a gift box.",
-          "Cup Set", "mug", one(cw("Stone", "#c8bfae"), 30)),
+          "Cup Set", "espresso_cup", one(cw("Stone", "#c8bfae"), 30)),
 )  # fmt: skip
 
 _BRA = "route: a bare cup goes to Drinkware; a bra word in the query switches the route off"

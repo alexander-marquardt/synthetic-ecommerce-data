@@ -146,8 +146,9 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
    spelling of a name another type already uses (`Length`, `Standards`,
    `Hardness`, `Diameter`, `Units per Pack`, `Piece Count`, `Measurement System`);
    when two concepts share a word, split them (`Grade` is a bolt's strength,
-   `Wheel Grade` an abrasive's coarseness). `tests/test_attribute_cleanup_497.py`
-   reads the committed `golden-catalog/nested.jsonl` and fails on a removed key,
+   `Wheel Grade` an abrasive's coarseness). The `one_key_per_concept` rule
+   (`prototypes/retail_drawings/rules.py`, run by `tests/test_rules_538.py`) reads the
+   committed `golden-catalog/nested.jsonl` and fails on a removed key,
    a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
@@ -775,11 +776,12 @@ in each of these hooks and refusals and checks that the named test goes red.
 ## Minting ids for a second domain (#128)
 
 A domain mints product ids and SKUs through `core/ids.py`, not through a
-generator method. It builds one `IdMinter(prefix, type_key, block)` per type
-(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
-`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
-once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
-prefix another domain holds.
+generator method. It claims its prefix once at import, `ids.claim_prefix("<domain>", "<prefix>")`,
+which refuses a prefix another domain holds. It then builds one
+`IdMinter("<domain>", type_key, block)` per type (`block` is
+`typespec.block_of(type_key)`); the minter reads the prefix the domain claimed,
+and refuses to be built for a domain that claimed none. It calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`.
 
 A prefix is empty or one or two capital letters. The industrial domain's is
 empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not
