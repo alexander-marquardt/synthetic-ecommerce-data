@@ -85,3 +85,15 @@ def test_a_line_the_data_names_counts_as_a_range_without_a_pool():
         _row("b", "Zorbik Chair", "Two", "Zorbik"),
     ]
     assert list(rr.review(rows, [])["shared"]) == ["Zorbik"]
+
+
+def test_a_range_stated_as_an_attribute_counts_when_the_title_does_not_lead_with_it():
+    """The class 6 decoys lead with a department word ("Mens Kettle Hill Chinos")."""
+    rows = [
+        _row("a", "Mens Kettle Hill Chinos", "Larkmoor", "Kettle Hill"),
+        _row("b", "Womens Kettle Hill Jumper", "Wrenfield", "Kettle Hill"),
+        _row("c", "Mens Kettle Hill Polo Shirt", "Larkmoor", "Kettle Hill"),
+    ]
+    found = rr.review(rows, RANGES)
+    assert found["shared"] == {"Kettle Hill": ["Larkmoor", "Wrenfield"]}
+    assert rr.counts(found) == CLEAN | {"shared": 1}
