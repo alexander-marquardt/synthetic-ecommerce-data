@@ -484,6 +484,7 @@ def test_every_file_a_mutation_row_plants_in_selects_the_mutation_bed(real: ci_s
     harness = [
         "scripts/mutation_check.py",
         *sorted(p for p in real.py if Path(p).name.startswith("mutation_rows_")),
+        *sorted(p for p in real.py if p.startswith("scripts/mutations/")),
     ]
     unselected = [p for p in harness if bed not in ci_select.select([p], real)[0]]
     assert not unselected, f"a change to these does not select {bed}: {unselected}"

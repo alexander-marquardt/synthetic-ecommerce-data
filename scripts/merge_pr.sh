@@ -20,11 +20,14 @@
 # block. Only a tree holding both changes shows it, so this script builds that
 # tree before it merges:
 #
+#   0. refuses a PR that is not open, comes from a fork or is a draft (#70), before
+#      anything is cloned: GitHub refuses a draft's merge only at step 6.
 #   1. clones the PR head into a temporary directory and merges current main
 #      into it. A conflict in a file the rebuild rewrites (GENERATED) is left
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
-#      and commits only GENERATED. A file still conflicted, or any other change
+#      and the pinned price figures and the 100K build's sizes (measured_builds.py,
+#      gen#85), and commits only GENERATED. A file still conflicted, or any other change
 #      in the tree, is refused. uv runs --locked, so a stale uv.lock is refused
 #      rather than re-locked into the commit. The retail totals are not here:
 #      nothing under golden-retail/ is committed (gen#536), a test measures them.
@@ -120,6 +123,7 @@ GENERATED=(
   golden-catalog/nested.jsonl
   golden-catalog/render.jsonl
   golden-catalog/stats.json
+  src/synthetic_ecommerce_data/core/data/measured_builds.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
 )
 
@@ -132,6 +136,18 @@ FRESHNESS_TESTS=(
   tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation
   tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed
 )
+
+#: The GENERATED files the code reads at import, so a conflicted copy (markers in it) stops the
+#: very build that would rewrite it. The merge drops such a file before the rebuild.
+READ_AT_IMPORT=(
+  src/synthetic_ecommerce_data/core/data/measured_builds.json
+)
+
+#: The command that rewrites the pinned price figures and the 100K build's sizes
+#: (gen#85), the one measured_builds.py names as REBUILD, which
+#: tests/test_merge_pr.py pins. It builds the default and the 100K catalog,
+#: about a minute.
+BUILDS_REBUILD=(python -m synthetic_ecommerce_data.domains.industrial.measured_builds)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them (a matrix job's name carries its shard: ``tests (3)``, and a required name
@@ -250,10 +266,13 @@ acquire_merge_lock() {
 if [ "$dry_run" -eq 0 ]; then acquire_merge_lock; fi
 
 fields=$(gh pr view "$pr" -R "$slug" \
-  --json state,isCrossRepository,headRefName,headRefOid,baseRefName \
-  --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName] | @tsv')
-IFS=$'\t' read -r state cross head_ref head_sha base_ref <<<"$fields"
+  --json state,isCrossRepository,headRefName,headRefOid,baseRefName,isDraft \
+  --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName, (.isDraft|tostring)] | @tsv')
+IFS=$'\t' read -r state cross head_ref head_sha base_ref draft <<<"$fields"
 [ "$state" = OPEN ] || die "#$pr is $state, not OPEN"
+# GitHub refuses to merge a draft, and learns it only at step 6: after the clone, the build
+# and the CI wait (about 45 minutes, #70). Say so before any of that.
+[ "$draft" = false ] || die "#$pr is a draft; mark it ready first"
 [ "$cross" = false ] || die "#$pr comes from a fork; this script pushes to the PR branch"
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/merge-pr-$pr.XXXXXX")
@@ -307,7 +326,7 @@ fi
 # Rebuild every generated file on the tree at $work. Two types on one
 # part-number block are refused here, naming both.
 rebuild_generated() {
-  local build_rc=0
+  local build_rc=0 builds_rc=0
   uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
     >/dev/null 2>"$build_log" || build_rc=$?
   cat "$build_log" >&2
@@ -318,12 +337,29 @@ rebuild_generated() {
     fi
     die "the build refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
   fi
+  # The pinned price figures and the 100K build's sizes move with every type PR too
+  # (gen#85): rebuild them on the same merged tree.
+  uv run -q --locked --directory "$work" "${BUILDS_REBUILD[@]}" \
+    >/dev/null 2>"$build_log" || builds_rc=$?
+  cat "$build_log" >&2
+  [ "$builds_rc" -eq 0 ] ||
+    die "the measured-builds rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 }
 
 # 2. Rebuild the committed catalog on the merged tree.
+# A generated file the code reads at import (core/price.py reads the measured builds)
+# holds conflict markers after a conflicted merge, and the build that would rewrite it
+# cannot import them: drop it, so the build starts without it and writes it (gen#85).
+if [ -n "$conflicted" ]; then
+  while IFS= read -r path; do
+    listed "$path" "${READ_AT_IMPORT[@]}" && rm -f "$work/$path"
+  done <<<"$conflicted"
+fi
 rebuild_generated
 if [ -n "$conflicted" ]; then
   while IFS= read -r path; do
+    [ -e "$work/$path" ] ||
+      die "$path was dropped for the rebuild and the rebuild did not write it back; NOT pushed, NOT merged"
     if grep -q '^<<<<<<< ' "$work/$path"; then
       die "$path still holds conflict markers after the rebuild, so the rebuild did not write it; NOT pushed, NOT merged"
     fi

@@ -223,6 +223,7 @@ SPEC = TypeSpec(
     may_claim=frozenset(),
     key_attributes=("Width",),
     unit_primary="Width",
+    compat=False,
     use_lines=(
         "Cut to length to make a machine key for a shaft and hub keyway.",
         "An oversized bar is fitted to the keyway; an undersized bar slips in.",
