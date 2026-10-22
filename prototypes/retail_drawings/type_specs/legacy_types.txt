@@ -186,7 +186,6 @@ Gifts|Wrapping Paper
 Home|Apron
 Home|Armchair
 Home|Baby Beakers
-Home|Beach Towel
 Home|Bed
 Home|Bit Set
 Home|Bookcase
