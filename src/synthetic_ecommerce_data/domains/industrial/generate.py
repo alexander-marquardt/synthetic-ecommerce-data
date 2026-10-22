@@ -78,7 +78,8 @@ MM_PER_INCH = 25.4
 #: The prefix the industrial domain mints its ids behind. Empty, so its SKUs
 #: and product ids are the ones it issued before core minted them (#128).
 ID_PREFIX = ""
-ids.claim_prefix("industrial", ID_PREFIX)
+ID_DOMAIN = "industrial"
+ids.claim_prefix(ID_DOMAIN, ID_PREFIX)
 
 #: The manufacturers, their ranges, shares, house styles and voices live in
 #: ONE table, :mod:`.brands`. Re-exported here, where the builders and older
@@ -239,7 +240,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self.rng = typespec.type_rng(self.config.seed, type_key)
         #: The type's product ids and SKUs, minted by core (#128) behind the
         #: industrial prefix, which is empty.
-        self.minter = ids.IdMinter(ID_PREFIX, type_key, typespec.block_of(type_key))
+        self.minter = ids.IdMinter(ID_DOMAIN, type_key, typespec.block_of(type_key))
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         self._drawn_specs: set[tuple] = set()
         self._title_styles: dict[tuple[str, str], str] = {}
@@ -671,6 +672,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             else:
                 major_in = standards.INCH_MAJOR_DIA.get(designation.split("-")[0], 0.25)
             oal_in = max(major_in * 8.0, 1.8)
+            # The shank and its drive square are one row of ASME B94.9 / ISO 529: a
+            # fractional tap from 7/16 up has a shank SMALLER than its thread, which
+            # a fixed ratio to the thread diameter cannot say (#3).
+            shank_in, square_in = series.tap_shank_and_square(designation)
             child.primary = keyword_attribute("Thread Size", designation)
             child.attrs = [
                 child.primary,
@@ -685,7 +690,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 ),
                 self._length("Overall Length", oal_in, style),
                 self._length("Thread Length", oal_in * 0.45, style),
-                self._length("Shank Dia.", major_in * 0.9, style),
+                self._length("Shank Dia.", shank_in, style),
+                self._length("Square Size", square_in, style),
             ]
             child.secondary = {"other_length": child.attrs[2], "length_of_cut": child.attrs[3]}
             draft.children.append(child)
