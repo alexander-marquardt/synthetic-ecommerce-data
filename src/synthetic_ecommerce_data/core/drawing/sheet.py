@@ -52,6 +52,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing import brand_mark, svg
 from synthetic_ecommerce_data.core.drawing.model import Bars, Disc, Dots, Figure, Lines, Poly
 from synthetic_ecommerce_data.core.drawing.style import Hatch, HouseStyle, _mix
@@ -61,7 +62,7 @@ MARGIN = 18.0
 
 #: The thinnest outline any drawing strokes, in sheet units: 2.3 units is
 #: 2.07 px on a 180 px-wide thumbnail (the sheet is 200 units wide).
-MIN_STROKE = 2.3
+MIN_STROKE = brands.WEIGHTS[0]
 LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
@@ -221,27 +222,74 @@ def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
     return key
 
 
+#: How far a chamfered frame cuts each corner. 7 keeps the plate's bottom corners
+#: (14 units in, 8 above the edge) 2.1 units inside the cut at the default margin.
+CHAMFER = 7.0
+#: The texture's cell, in sheet units, and its strength. Faint, so the figure and
+#: its hatch still read; drawn in the brand's ink over the figure area only, so the
+#: wordmark's plate stays plain.
+TEXTURE_CELL = 10.0
+TEXTURE_OPACITY = {"grid": ".14", "dot": ".28"}
+
+
+def chamfer_points(margin: float) -> list[tuple[float, float]]:
+    """The chamfered frame's eight corners, clockwise from the top edge's left end."""
+    w, h, m, c = svg.WIDTH, svg.HEIGHT, margin, CHAMFER
+    return [
+        (m + c, m),
+        (w - m - c, m),
+        (w - m, m + c),
+        (w - m, h - m - c),
+        (w - m - c, h - m),
+        (m + c, h - m),
+        (m, h - m - c),
+        (m, m + c),
+    ]
+
+
+def _texture(page: svg.Svg, house: HouseStyle) -> None:
+    """The background texture, behind everything, over the figure area."""
+    if house.texture == "plain":
+        return
+    key = f"t{house.texture}{house.ink[1:]}"
+    c = svg.num(TEXTURE_CELL)
+    if house.texture == "grid":
+        mark = f'<path d="M0 0H{c}M0 0V{c}" fill="none" stroke="{house.ink}" stroke-width=".5"/>'
+    else:
+        mid = svg.num(TEXTURE_CELL / 2)
+        mark = f'<circle cx="{mid}" cy="{mid}" r=".9" fill="{house.ink}"/>'
+    page.define(
+        key,
+        f'<pattern id="{key}" width="{c}" height="{c}" patternUnits="userSpaceOnUse">'
+        f'<g opacity="{TEXTURE_OPACITY[house.texture]}">{mark}</g></pattern>',
+    )
+    page.rect(0, 0, svg.WIDTH, FIGURE_HEIGHT, fill=f"url(#{key})")
+
+
 def _frame(page: svg.Svg, house: HouseStyle) -> None:
-    ink = house.ink
+    ink, m = house.ink, house.margin
+    w, h = svg.WIDTH, svg.HEIGHT
     if house.frame == "rule":
-        page.rect(6, 6, svg.WIDTH - 12, svg.HEIGHT - 12, fill="none", stroke=ink, stroke_width="1")
+        page.rect(m, m, w - 2 * m, h - 2 * m, fill="none", stroke=ink, stroke_width="1")
     elif house.frame == "rounded":
         page.add(
-            f'<rect x="6" y="6" width="{svg.WIDTH - 12}" height="{svg.HEIGHT - 12}" rx="14" '
-            f'fill="none" stroke="{ink}" stroke-width="1.4"/>'
+            f'<rect x="{svg.num(m)}" y="{svg.num(m)}" width="{svg.num(w - 2 * m)}" '
+            f'height="{svg.num(h - 2 * m)}" rx="14" fill="none" stroke="{ink}" stroke-width="1.4"/>'
         )
+    elif house.frame == "chamfer":
+        page.polygon(chamfer_points(m), fill="none", stroke=ink, stroke_width="1")
     elif house.frame == "corners":
-        w, h, a = svg.WIDTH, svg.HEIGHT, 18
+        a = 18
         page.lines(
             [
-                ((6, 6 + a), (6, 6)),
-                ((6, 6), (6 + a, 6)),
-                ((w - 6 - a, 6), (w - 6, 6)),
-                ((w - 6, 6), (w - 6, 6 + a)),
-                ((6, h - 6 - a), (6, h - 6)),
-                ((6, h - 6), (6 + a, h - 6)),
-                ((w - 6 - a, h - 6), (w - 6, h - 6)),
-                ((w - 6, h - 6), (w - 6, h - 6 - a)),
+                ((m, m + a), (m, m)),
+                ((m, m), (m + a, m)),
+                ((w - m - a, m), (w - m, m)),
+                ((w - m, m), (w - m, m + a)),
+                ((m, h - m - a), (m, h - m)),
+                ((m, h - m), (m + a, h - m)),
+                ((w - m - a, h - m), (w - m, h - m)),
+                ((w - m, h - m), (w - m, h - m - a)),
             ],
             stroke=ink,
             stroke_width="2",
@@ -270,11 +318,13 @@ def _figure_at(
     ink = house.ink
     for shape in figure.shapes:
         if isinstance(shape, Lines):
+            dash = {"stroke_dasharray": house.dash} if house.dash else {}
             page.lines(
                 [(at(a), at(b)) for a, b in shape.segments],
                 stroke=ink,
                 stroke_width=LW_LINE,
                 stroke_opacity=".8",
+                **dash,
             )
             continue
         if isinstance(shape, Dots):
@@ -296,7 +346,12 @@ def _figure_at(
             color, hatched = _mix(ink, "#ffffff", 0.55), False
         else:  # handle, grip
             color, hatched = getattr(shape, "fill", None) or pale, False
-        style = {"fill": color, "stroke": ink, "stroke_width": LW_PART, "stroke_linejoin": "round"}
+        style = {
+            "fill": color,
+            "stroke": ink,
+            "stroke_width": svg.num(house.stroke),
+            "stroke_linejoin": "round",
+        }
         if isinstance(shape, Bars):
             d = svg.bars_d([(*at((x0, y0)), *at((x1, y1))) for x0, y0, x1, y1 in shape.rects])
             page.path(d, **style)
@@ -354,6 +409,7 @@ def paint(
     then the brand plate (:func:`plate_lockup`) in the strip below.
     """
     page = svg.Svg(background=house.paper)
+    _texture(page, house)
     _frame(page, house)
     hatch_id = _hatch_pattern(page, hatch, house.ink) if hatch is not None else None
     x0, y0, x1, y1 = figure.bounds()
@@ -392,12 +448,14 @@ def wordmark_of(name: str) -> str:
     return " ".join(plate_lockup(name).lines)
 
 
-def figure_boxes(figure: Figure, scale: float) -> list[tuple[float, float, float, float]]:
+def figure_boxes(
+    figure: Figure, scale: float, stroke: float = MIN_STROKE
+) -> list[tuple[float, float, float, float]]:
     """The boxes :func:`paint` draws the figure in, strokes included: the part,
     and -- when lensed -- the whole glyph. None of them reaches :data:`PLATE_BOX`."""
     x0, y0, x1, y1 = figure.bounds()
     w, h = (x1 - x0) * scale, (y1 - y0) * scale
-    half = MIN_STROKE / 2
+    half = stroke / 2
     mag = magnifier(w, h)
     centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2) if mag is None else mag.part
     dx, dy = w / 2 + half, h / 2 + half
