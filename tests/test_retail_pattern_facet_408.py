@@ -100,9 +100,7 @@ def test_the_color_of_a_product_with_a_new_pattern_stays_a_plain_color(
 def _styles_with(fill: str) -> list[dict[str, Any]]:
     """The template styles that sell a colorway with this fill."""
     return [
-        d
-        for d in scale.templates()
-        if fill in {o["pattern"] for o in d.get("color_options", [])}
+        d for d in scale.templates() if fill in {o["pattern"] for o in d.get("color_options", [])}
     ]
 
 
@@ -147,8 +145,9 @@ def test_the_pattern_values_add_no_style_and_no_sku() -> None:
     plant rows and the 8 denim-shorts decoys (#603: 80 SKUs) lift them again, to 11553 and
     103204; the twelve authored beach towels replace the one "Cotton Velour Beach Towel"
     template (#624: 11 more templates, 18 more SKUs) and make 11564 and 103222, and a new style
-    would raise both. This test pins 11564 templates and 103222 template SKUs: the PR that lifts
-    the freeze must move them."""
+    would raise both; the three type specs of gen#645 (chips 14, beds 10, bomber jackets 13: 37
+    templates and 161 SKUs) make 11601 and 103383. This test pins 11601 templates and 103383
+    template SKUs: the PR that lifts the freeze must move them."""
     tpls = scale.templates()
-    assert len(tpls) == 11564
-    assert sum(t["sku_count"] for t in tpls) == 103222
+    assert len(tpls) == 11601
+    assert sum(t["sku_count"] for t in tpls) == 103383
