@@ -24,6 +24,7 @@ if str(RETAIL) not in sys.path:
 import colorwords  # noqa: E402
 import export  # noqa: E402
 import scale  # noqa: E402
+import shades  # noqa: E402
 from retail_figures import figures  # noqa: E402
 
 #: Today's ceiling SKUs, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
@@ -32,11 +33,13 @@ CEILING_SKUS = figures()["ceiling"]["skus"]
 #: is a fashion name where a color word belongs. Shopper color words (gen#195) that are also a
 #: food, a stone or a fabric are a plain color value of their own now (see
 #: ``tests/test_retail_seasonal_195.py``), so they are not here.
+# "sage" left the list in gen#509: a shopper types "sage cushion" for the color, as for "olive"
+# (gen#195), so it is a color value of its own; "Sage Leaf" is still caught by "leaf".
 DENYLIST = frozenset({
     "lemon", "lime", "cherry", "peach", "chocolate", "coffee", "plum",
     "mustard", "cocoa", "honey", "toffee", "latte", "mocha", "espresso",
     "hazelnut", "walnut", "oak", "oat", "almond", "ginger", "apple", "melba",
-    "watermelon", "wine", "fig", "jam", "damson", "mulberry", "bramble", "sage", "leaf",
+    "watermelon", "wine", "fig", "jam", "damson", "mulberry", "bramble", "leaf",
     "moss", "forest", "ochre", "brick", "terracotta", "tobacco", "pearl",
     "oyster", "slate", "pewter", "smoke", "ice", "brass", "mink", "fawn", "sand",
     "kraft", "calico", "tabby", "cognac", "chestnut", "claret", "poppy",
@@ -52,12 +55,22 @@ def ceiling() -> scale.Scaled:
     return scale.build(CEILING_SKUS * 2)
 
 
+def _colored(records):
+    """The records sold by color: a complexion product's ``color`` key is its shade, which the
+    export writes to ``shade`` and never to ``color`` (gen#345, ``test_retail_shade_345.py``)."""
+    return (r for r in records if r["product_type"] not in shades.SOLD_BY_SHADE)
+
+
 def _swatch_names(records) -> collections.Counter:
-    return collections.Counter(c["color"] for r in records for c in r.get("color_options", ()))
+    return collections.Counter(
+        c["color"] for r in _colored(records) for c in r.get("color_options", ())
+    )
 
 
 def _sku_colors(records) -> collections.Counter:
-    return collections.Counter(s["color"] for r in records for s in r["skus"] if "color" in s)
+    return collections.Counter(
+        s["color"] for r in _colored(records) for s in r["skus"] if "color" in s
+    )
 
 
 def _facet_colors(records) -> collections.Counter:
@@ -86,7 +99,7 @@ def test_no_color_value_names_an_object_or_a_food(ceiling):
         assert _denied(where(ceiling.records)) == [], where.__name__
 
 
-def test_every_color_value_is_a_color_word_a_qualifier_or_a_shade_code(ceiling):
+def test_every_color_value_is_a_color_word_or_a_qualifier(ceiling):
     for where in (_swatch_names, _sku_colors, _facet_colors):
         values = where(ceiling.records)
         assert values, where.__name__

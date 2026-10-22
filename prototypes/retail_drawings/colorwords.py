@@ -18,7 +18,7 @@ from __future__ import annotations
 import re
 
 #: The words a color value is made of. A value is valid when every word is one of these
-#: (or it is a foundation shade code such as ``2N``).
+#: (a shade code such as ``2N`` is no color: ``shades.SHADE_CODE``).
 COLOR_WORDS = frozenset({
     "Aqua", "Beige", "Black", "Blue", "Brown", "Burgundy", "Camel", "Charcoal", "Clear",
     "Cobalt", "Copper", "Coral", "Cream", "Ecru", "Emerald", "Fuchsia", "Gold", "Green",
@@ -28,7 +28,7 @@ COLOR_WORDS = frozenset({
     # The shopper color words typed before a category (gen#195): each is a color value of
     # its own, never folded into a plainer one. A two-word color is one value.
     "Amber", "Aubergine", "Berry", "Caramel", "Champagne", "Duck", "Egg", "Mint", "Oatmeal",
-    "Olive", "Quartz", "Raspberry", "Rust", "Stone", "Tortoiseshell",
+    "Olive", "Quartz", "Raspberry", "Rust", "Sage", "Stone", "Tortoiseshell",
     # The near-white shade typed before a garment (gen#302): "Off White" is one value.
     "Off",
 })  # fmt: skip
@@ -42,8 +42,6 @@ MODIFIERS = frozenset({
 #: The denim washes of a jeans style: a wash is a color word of its own there.
 DENIM_WASHES = frozenset({"Rinse", "Light Wash", "Mid Wash", "Bleach Wash", "Grey Wash",
                           "Mid Wash and Yellow"})
-#: A foundation or tint shade code: depth and undertone ("2N").
-SHADE_CODE = re.compile(r"^\d+[CNW]$")
 
 #: Authored shade -> plain color. A shade not here is already a plain word.
 PLAIN = {
@@ -70,7 +68,7 @@ PLAIN = {
     "Pastel Spot": "Blue Spot",
     # green
     "Lime": "Green", "Citrus Lime": "Bright Green",
-    "Celadon": "Light Green", "Sage": "Green", "Sage Leaf": "Green Stripe",
+    "Celadon": "Light Green", "Sage Leaf": "Green Stripe",
     "Leaf": "Green", "Moss": "Dark Green", "Moss Green": "Green",
     "Olive Suede": "Dark Green Suede", "Sea Green": "Light Green",
     "Holly Sprig": "Cream Print",
@@ -146,8 +144,9 @@ def split(name: str) -> tuple[str, str | None]:
 
 
 def is_plain(value: str) -> bool:
-    """Whether ``value`` is a shade code, a denim wash or only color words and qualifiers."""
-    if SHADE_CODE.match(value) or value in DENIM_WASHES:
+    """Whether ``value`` is a denim wash or only color words and qualifiers. A shade code is
+    never a color (gen#345)."""
+    if value in DENIM_WASHES:
         return True
     words = value.split()
     if len(words) == 1 and words[0] in HALF_WORDS:

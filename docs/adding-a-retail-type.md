@@ -61,8 +61,8 @@ optional `colorwords.MODIFIERS` (`Dark` is a modifier, so `Dark Brown` is a modi
 word, not a `COLOR_WORDS` member). `variants.cw` maps an authored shade through `colorwords.PLAIN`
 first: `cw("Oak", ...)` gives `Brown` and `cw("Walnut", ...)` gives `Dark Brown`, so authoring those
 does not red. A shade `PLAIN` does not map (`Hazelwood`) stays as written, is not plain, and
-`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_a_qualifier_or_a_shade_code`
-refuses it: add it to `colorwords.PLAIN` or use a plain word. The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
+`tests/test_retail_color_words.py::test_every_color_value_is_a_color_word_or_a_qualifier`
+refuses it: add it to `colorwords.PLAIN` or use a plain word. A foundation, a concealer or a tinted moisturiser is sold by shade, not by color: see [retail-shades.md](retail-shades.md). The material goes in its own `material` attribute (`a("material", "Material", "Oak")`).
 Every color-bearing type also carries red, blue, green, yellow, black and white somewhere, or a
 reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py`).
 
@@ -116,9 +116,9 @@ Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_retail_color_words.py`, `tests/test_retail_main_colors_275.py`,
 `tests/test_us_spelling.py`, `prototypes/retail_drawings/test_shape_honesty.py` and
 `prototypes/retail_drawings/test_house_styles.py`. Name them in the command: a bare `pytest` runs
-the whole suite. The pre-merge run runs every `test_*.py` under `prototypes/` too, each in its own
-process, through `tests/test_prototype_tests_collected_486.py` (`pytest` collects only `tests/`),
-so a prototype test your change reddens fails the PR; a new brand takes a mark no other brand
+the whole suite. The pre-merge run collects `prototypes/retail_drawings` directly (`testpaths` in
+`pyproject.toml`), and `tests/test_test_files_collected_362.py` fails a test file outside the
+collected directories, so a prototype test your change reddens fails the PR; a new brand takes a mark no other brand
 uses, a section of the sneak-peek samples is counted from the build (`build_preview4.py`), not
 from a committed file, and a reported product is named by its hand-set id (`PLT-DXH05`), never
 by a `PLT-DA` decoy id, which moves when rows are added.
