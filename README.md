@@ -983,9 +983,9 @@ the authored literals are not edited. A machine `key` is never touched, and neit
 A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
 (`AS568`), has a capital inside it (`iPhone`), is a lone capital letter (`T-slot`, `V-belts`),
 or is on the exception list, `letter_case.PROPER_NOUNS` (a trade name or a brand: `Torx`, `Nike`,
-`Apple`). Add a word there with its reason. `tests/test_letter_case_499.py` fails when a category
-node or a display name in either build or in `golden-catalog/` is not its own sentence-case
-form, or when one key carries two display names.
+`Apple`). Add a word there with its reason. The `sentence_case` and `one_key_per_concept` rules (`prototypes/retail_drawings/rules.py`, run by
+`tests/test_rules_538.py`) fail when a category node or display name in either build or in
+`golden-catalog/` is not its own sentence-case form, or when one key has two display names.
 
 The drawing code looks an attribute up by the name its type authored (`r["Milling Dia."]`), so
 `ecom-generate build` also writes `authored_names.json` and `core/bundle.py` reads the drawing

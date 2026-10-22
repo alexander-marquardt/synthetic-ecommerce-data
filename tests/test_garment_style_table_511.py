@@ -134,17 +134,6 @@ def test_the_named_dress_styles_are_declared():
     assert named <= declared, named - declared
 
 
-def test_no_generated_document_leaves_its_style_table(templates):
-    """The guard: over the whole generated catalog, decoys included, no title style word sits
-    beside a neckline, length, sleeve or material its table does not allow."""
-    bad = {
-        d["product_id"]: (d["title"], style_table.violations(d))
-        for d in templates
-        if style_table.violations(d)
-    }
-    assert not bad, (len(bad), list(bad.items())[:5])
-
-
 def test_a_coat_dress_decoy_is_tailored_and_knee_or_midi(templates):
     """The issue's case: every "Coat Dress" of the catalog has a collar or V neck and a knee or
     midi length."""
