@@ -20,8 +20,8 @@ _PRICE = "src/synthetic_ecommerce_data/core/price.py"
 _MERGE = "tests/test_merge_pr.py"
 _ROOT = "."
 _RECORDED = json.loads((Path(__file__).resolve().parent.parent / _FILE).read_text("utf-8"))
-_WHEEL = "price brand spread, same spec (median max/min): wheel_depressed_center"
-_WHEEL_100K = _RECORDED["hundred_k"]["price_pins"][_WHEEL]
+_KIT = "price p90/p10: kit_assortment"
+_KIT_100K = _RECORDED["hundred_k"]["price_pins"][_KIT]
 _WHEEL_SKUS = _RECORDED["hundred_k"]["skus_by_type"]["wheel_depressed_center"]
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
@@ -35,10 +35,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _ROOT,
     ),
     (
-        "the wheel pin's 100K figure is loosened in the file",
+        "the kit pin's 100K figure is loosened, read against the build",
         _FILE,
-        f'"{_WHEEL}": {_WHEEL_100K}',
-        f'"{_WHEEL}": 3.25',
+        f'"{_KIT}": {_KIT_100K}',
+        f'"{_KIT}": 3.25',
         f"{_PRICE_TESTS} -k each_recorded_figure_is_the_figure_its_build_produces",
         "a pin holds the figure its build produces",
         _ROOT,
