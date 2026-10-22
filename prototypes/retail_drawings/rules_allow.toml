@@ -1,0 +1,9 @@
+# The findings a rule of rules.py is excused (gen#538). An entry is `[[<rule name>.allow]]` with
+# `id` (the row id, key or display name the rule reports) and `why`. An entry that no finding
+# matches fails tests/test_rules_538.py, so this list cannot go stale.
+
+[[one_key_per_concept.allow]]
+id = "Style"
+why = """The retail jelly shoes publish `jelly_style` under the display name "Style", which `style`
+also carries. Found by the rule when it first ran over the retail documents (the 497 test read
+only the golden catalogue); renaming the key moves the retail golden files, so it is a follow-on."""
