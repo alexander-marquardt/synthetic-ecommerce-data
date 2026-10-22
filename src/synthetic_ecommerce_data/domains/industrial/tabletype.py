@@ -91,6 +91,10 @@ class TableType:
     series: str
     use_lines: tuple[str, ...] = ()
     unit: str = "mm"
+    #: The cross-reference sentence the type's records carry, as
+    #: ``TypeSpec.compat`` states it: ``(kind, attribute)``, or ``False`` for
+    #: none. Required: left unset the spec is refused at registration (#75).
+    compat: tuple[str, str] | bool | None = None
 
     @property
     def per_inch(self) -> float:
@@ -251,6 +255,7 @@ def spec(table: TableType) -> TypeSpec:
         may_claim=frozenset({table.standard}),
         key_attributes=(table.columns[0],),
         use_lines=table.use_lines,
+        compat=table.compat,
     )
 
 

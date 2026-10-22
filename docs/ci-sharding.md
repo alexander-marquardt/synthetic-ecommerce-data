@@ -137,3 +137,24 @@ registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-o
 full run is 23 jobs of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
 to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+
+## A lost xdist worker is an infra failure, rerun once (#629)
+
+Three pull requests had a `tests` shard end red with no test id: both workers went down within a
+tenth of a second (`node down: Not properly terminated`), and the controller then raised
+`INTERNALERROR> KeyError: <WorkerController gw2>` replacing them. The two worker crashes read
+back were at 94 % and 98 % of the shard's items, on two different shards; main's same shards were
+green. The runner's kernel log cannot be read from inside a job, so this change does not name the
+cause: an out-of-memory kill (the container has `--memory 16g` while the VM was swapping) is the
+first hypothesis and is not confirmed.
+
+The Tests step runs `python3 scripts/ci_run_pytest.py -- uv run --locked pytest ...`. When the
+output shows a lost worker the script prints `infra: worker lost` (a `::warning::` annotation),
+then what a job can read: the job cgroup's `memory.events` OOM counts, `memory.peak` and
+`memory.max`, the largest process's peak RSS, the host's MemAvailable and SwapFree, and the
+kernel OOM lines when `dmesg` is readable. It then runs the shard once more (`--reruns N`, default
+1). A shard that loses a worker on every attempt ends with exit code 75 and an `::error::infra:
+worker lost` annotation, not a test's exit code. A run whose tests failed with every worker alive
+is never rerun. The next occurrence therefore names its cause in the job log, and a first
+occurrence no longer reds a pull request. If the evidence shows memory, lower `-n` for that shard
+or split it (the matrix list in `ci.yaml`). `tests/test_ci_worker_lost_629.py` is the guard.
