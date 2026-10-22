@@ -1366,6 +1366,20 @@ def test_every_place_range_appears_under_exactly_one_brand(ceiling):
         zip((n for n, _ in place_ranges.PLACE_RANGES), place_ranges.PLACE_BRANDS, strict=True))
 
 
+@pytest.mark.parametrize("module", ["knitwear_rows", "mens_depth_rows"])
+def test_a_family_class_6_rows_reach_every_brand_of_the_family(module):
+    """Guard (gen#623): a family that deals its class 6 range from ``(i + 6)`` reaches three of its
+    five brands, so two place ranges never appear in its titles. Metric: the place ranges named in
+    the family's titles against the brands the family owns."""
+    import importlib  # noqa: PLC0415
+
+    import place_ranges  # noqa: PLC0415
+
+    mod = importlib.import_module(module)
+    named = {n for n, _ in place_ranges.PLACE_RANGES for r in mod.docs() if n in r["title"]}
+    assert len(named) == len(mod._BRANDS)
+
+
 def test_a_title_names_no_brand_but_its_own(range_review):
     """Guard (gen#623): "Red Kite Lawn Mower" by another brand reads as that brand's mower.
     Metric: the (title, row brand, brand named) triples."""
