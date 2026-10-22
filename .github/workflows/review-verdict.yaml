@@ -1,0 +1,98 @@
+---
+# A pull request merges only on an independent review verdict bound to its head
+# commit (agent-ops#111; the same check elastic/prism runs, prism#10107).
+#
+# The job named ``review-verdict`` runs ``.github/scripts/check_review_binding.py``
+# on ``pull_request`` and ``merge_group``. It passes when the newest verdict
+# comment says ARM, names the PR head (or a head whose diff is unchanged), and
+# carries a tier at least the changed paths require (``.github/review_verdict_tiers.json``).
+# The rule and the comment format are in that script's docstring.
+#
+# A verdict is a COMMENT, and a comment does not start a ``pull_request`` run, so
+# the second job re-runs this workflow's latest run on the PR head when a
+# verdict is posted. It holds ``actions: write``, checks out nothing and runs
+# nothing the pull request wrote.
+#
+# Making ``review-verdict`` a REQUIRED context is a branch-protection (or ruleset)
+# edit made after the check has run on main once; this file does not make it.
+name: review-verdict
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  merge_group:
+  issue_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  review-verdict:
+    name: review-verdict
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    # Reads the pull request, its comments and reviews, and the git history: no
+    # write scope.
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Judge the newest verdict against the head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          # A merge group has no pull request in its payload; its ref names it:
+          # refs/heads/gh-readonly-queue/main/pr-<N>-<sha>.
+          GROUP_REF: ${{ github.event.merge_group.head_ref }}
+        run: |
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(printf '%s' "$GROUP_REF" | sed -n 's|.*/pr-\([0-9][0-9]*\)-.*|\1|p')
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "review-verdict: COULD NOT JUDGE: no pull request number in this event"
+            exit 3
+          fi
+          python .github/scripts/check_review_binding.py --repo "$REPO" --pr "$PR_NUMBER"
+  rerun-on-verdict:
+    name: review-verdict-rerun
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request
+      && contains(github.event.comment.body, 'Review-Verdict:'))
+      || (github.event_name == 'pull_request_review'
+      && contains(github.event.review.body, 'Review-Verdict:'))
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    # ``actions: write`` for the one ``gh run rerun`` below, and nothing else: no
+    # contents write, no checks write, and no checkout, so the job runs nothing the
+    # pull request wrote.
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: write
+    steps:
+      - name: Re-run the review-verdict run on the PR head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          head=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq .head.sha)
+          run=$(gh run list -R "$REPO" --workflow review-verdict.yaml --event pull_request \
+            --commit "$head" --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -z "$run" ]; then
+            echo "no review-verdict run on $head yet: the run that starts will read this verdict"
+            exit 0
+          fi
+          gh run watch "$run" -R "$REPO" >/dev/null || true
+          gh run rerun "$run" -R "$REPO"
