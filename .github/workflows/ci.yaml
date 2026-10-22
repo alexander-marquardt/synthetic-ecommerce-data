@@ -45,7 +45,7 @@ concurrency:
 # expression: tests/test_ci_runs_on_596.py.
 jobs:
   lint:
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +79,7 @@ jobs:
     # has no range, so it runs every test file: the whole suite runs once after
     # every merge.
     name: tests (${{ matrix.shard }})
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -155,7 +155,7 @@ jobs:
     # a merge that bypassed the script is red within minutes, not after the
     # whole suite.
     if: github.event_name == 'push'
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     env:
       PYTEST_ADDOPTS: "-n auto --dist loadgroup"
     steps:
@@ -175,7 +175,7 @@ jobs:
     # is checked with scripts/check_commit_msg.py (the vendored core
     # AI-attribution family plus this repository's additions).
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -197,7 +197,7 @@ jobs:
     # the `derived` artifact of the run. A test reads a figure with retail_figures.figures(),
     # never a committed number.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -240,7 +240,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -272,7 +272,7 @@ jobs:
     # ``Red-Test: none - <reason>``, runs nothing, so a PR without a declared
     # red commit costs this job a few seconds. docs/red-commit-and-mutants.md.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -303,7 +303,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:

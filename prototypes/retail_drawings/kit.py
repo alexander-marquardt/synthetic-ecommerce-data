@@ -823,14 +823,18 @@ def _shrunk(drawn: list[str], body: str, shrink: float) -> str:
     return pack_scale.wrap(body, drawn, shrink)
 
 
-def _render_styled(shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink) -> str:
+def _render_styled(
+    shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None
+) -> str:
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     import house_styles as hs  # deferred: house_styles is an optional layer over the kit
+    import size_ladder  # deferred: the size ladder is another (gen#339)
 
     drawn = _drawn(draw, paint, fill, label, params)
     inner = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
     if shape in OFFSET_Y:
         inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
+    inner = size_ladder.stand(inner, defs, size_scale)
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     all_defs = defs + "".join(sheet_defs)
     parts = [
@@ -881,6 +885,7 @@ def render(
     params: dict | None = None,
     style: object | None = None,
     shrink: float = 1.0,
+    size_scale: float | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -889,25 +894,30 @@ def render(
     passed to a parametric shape (a trouser's fit and rise, a top's neckline).
     ``style`` is the brand's :class:`house_styles.HouseStyle`: its paper,
     frame, outline hand and logo replace the plain sheet and tag. ``shrink`` (below 1) scales the
-    pack about its bottom center on the same sheet (:mod:`pack_scale`, gen#543).
+    pack about its bottom center on the same sheet (:mod:`pack_scale`, gen#543). ``size_scale`` is
+    the scale the full-size drawing stands for on its product's size ladder (:mod:`size_ladder`,
+    gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
     """
+    import size_ladder  # deferred: the size ladder is an optional layer over the kit (gen#339)
+
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = _paint(fill, pid)
     if style is not None:
         return _render_styled(
-            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink
+            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink, size_scale
         )
     drawn = _drawn(draw, paint, fill, label, params)
+    body = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
+    if shape in OFFSET_Y:
+        body = f'<g transform="translate(0 {OFFSET_Y[shape]})">{body}</g>'
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{defs}</defs>" if defs else "",
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
-        f'<g transform="translate(0 {OFFSET_Y[shape]})">' if shape in OFFSET_Y else "",
-        _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink),
-        "</g>" if shape in OFFSET_Y else "",
+        size_ladder.stand(body, defs, size_scale),
         *(_brand_tag(brand) if brand else []),
         "</svg>",
     ]

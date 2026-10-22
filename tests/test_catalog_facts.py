@@ -186,13 +186,16 @@ NUT_DIMENSIONS = {
 #: three times its cutter -- 43 of the 46 differing records in
 #: reference-statistics/04 are at or under 3.0, the 2.667 and 3.0 ratios
 #: included -- or the smallest stocked shank above the cutter when that is
-#: more. A metric cutter below 6 mm may also sit on the 6 mm DIN 6535 shank:
-#: a catalog convention the #33 review proposed, not yet confirmed against a
-#: standard's diameter table (#87).
+#: more. A metric cutter below 6 mm sits on the shank DIN 6527 (end mills,
+#: short and long cutting part; 1/2012, which replaced 02/1992) pairs with its
+#: diameter d1, https://www.fasten.it/en/norms/norm/din_6527, retrieved
+#: 2026-10-21: d1 2-2.5 mm on d2 3 mm, d1 3-5 mm on d2 6 mm. 1 and 1.5 mm are
+#: below the standard's range and take the 3 mm shank, an extension (#87).
 SHANKS_IN = (1 / 8, 3 / 16, 1 / 4, 5 / 16, 3 / 8, 1 / 2, 5 / 8, 3 / 4, 1.0)
 SHANKS_MM = (3.0, 3.175, 4.0, 6.0, 6.35, 8.0, 10.0, 12.0, 12.7, 16.0, 20.0, 25.0)
 MAX_SHANK_RATIO = 3.0
-SMALL_METRIC_SHANK_MM = 6.0
+DIN_6527_SHANK_MM = {1.0: 3.0, 1.5: 3.0, 2.0: 3.0, 2.5: 3.0, 3.0: 6.0, 4.0: 6.0, 5.0: 6.0}
+SMALL_METRIC_MM = 6.0
 #: Standards that describe METRIC radial bearings only (ABMA 20 is "... --
 #: Metric Design"). A bearing number with a letter is the inch R series.
 METRIC_BEARING_ONLY = {"ISO 15", "ISO 492", "ABMA 20"}
@@ -489,8 +492,8 @@ def test_a_title_names_the_mills_own_end_shape(docs):
 def test_no_end_mill_shank_is_oversize(docs):
     """A 5/32" cutter on a 5/8" shank (4x) is not an end mill a maker sells:
     an oversize shank is at most three times the cutter, unless nothing
-    smaller than that is stocked above the cutter, or the cutter is a metric
-    one below 6 mm on the 6 mm shank."""
+    smaller than that is stocked above the cutter. A small metric cutter's
+    DIN 6527 shank is within that ceiling (1 mm on 3 mm is exactly 3.0x)."""
     fat, checked = oversize_shanks(docs)
     assert fat == [], fat[:10]
     assert checked > 1000
@@ -508,8 +511,6 @@ def oversize_shanks(docs: list[dict]) -> tuple[list, int]:
         stocked = [s / 25.4 for s in SHANKS_MM] if metric else list(SHANKS_IN)
         above = [s for s in stocked if s > cut + 1e-6]
         ceiling = max(MAX_SHANK_RATIO * cut, min(above)) if above else cut
-        if metric and cut < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6:
-            ceiling = max(ceiling, SMALL_METRIC_SHANK_MM / 25.4)
         if shank > ceiling + 0.002:
             fat.append((doc["sku"], v["Milling Dia."], v["Shank Dia."]))
     return fat, checked
@@ -531,16 +532,20 @@ def _oversize_pairs(docs: list[dict], unit: str) -> list[tuple[str, float, float
     return pairs
 
 
-def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_6mm(docs):
-    """The catalog puts a 1-5 mm cutter on the 6 mm DIN 6535 shank, a
-    convention the #33 review proposed and no standard's table has yet
-    confirmed (#87). A cap that turned a 1-2.5 mm cutter's
-    oversize shank into a 3 mm one made the common metric product the rare
-    one (31 SKUs on 29f's golden)."""
-    small = [p for p in _oversize_pairs(docs, "mm") if p[1] < SMALL_METRIC_SHANK_MM / 25.4 - 1e-6]
-    off = [p for p in small if abs(p[2] * 25.4 - SMALL_METRIC_SHANK_MM) > 1e-3]
-    assert off == [], f"{len(off)} of {len(small)} not on 6 mm: {off[:10]}"
+def test_a_small_metric_cutter_on_an_oversize_shank_sits_on_its_din_6527_shank(docs):
+    """A metric cutter below 6 mm on an oversize shank sits on the d2 DIN 6527
+    pairs with its d1: 2 and 2.5 mm on 3 mm, 3-5 mm on 6 mm (1 and 1.5 mm on
+    3 mm, an extension). It was one 6 mm shank for all of them until a table
+    confirmed it (#87)."""
+    small = [p for p in _oversize_pairs(docs, "mm") if p[1] < SMALL_METRIC_MM / 25.4 - 1e-6]
+    off = [
+        p for p in small
+        if abs(p[2] * 25.4 - DIN_6527_SHANK_MM.get(round(p[1] * 25.4, 2), -1.0)) > 1e-3
+    ]  # fmt: skip
+    assert off == [], f"{len(off)} of {len(small)} off the DIN 6527 shank: {off[:10]}"
     assert len(small) > 20
+    on_3mm = {round(p[1] * 25.4, 2) for p in small if abs(p[2] * 25.4 - 3.0) < 1e-3}
+    assert {2.0, 2.5} <= on_3mm, f"3 mm shanks under cutters of {sorted(on_3mm)} mm"
 
 
 def test_the_census_wide_shank_ratios_still_occur(docs):

@@ -41,6 +41,13 @@ def cw(name: str, base: str, pattern: str = "solid", accent: str = "#333333") ->
     return (plain(name), pattern, base, accent)
 
 
+def shade(name: str, base: str) -> Color:
+    """A complexion shade sold under its own name ("Porcelain"): never folded into a plain color
+    word (:func:`cw` would make it "Cream"), because the export writes it to ``shade``
+    (:mod:`shades`, gen#345). Its depth and undertone are in ``shades.NAMED``."""
+    return (name, "solid", base, "#333333")
+
+
 def attr(key: str, name: str, value, unit_code: str | None = None, canonical=None) -> dict:
     """One ``{key, name, value[, unit_code, value_canonical]}`` attribute, as round 3."""
     a = {"key": key, "name": name, "value": str(value)}
@@ -620,12 +627,12 @@ BEAUTY = (
                extra=(("coverage", "Coverage", "Medium"),)),
     ShallowRow("FNDSRM", "Beauty", "Skin Serum Foundation 50ml", "Velling Apothecary",
                ("Beauty", "Make-Up", "Face", "Foundation"), 42.0, "bottle",
-               "A serum-light foundation with hyaluronic acid for a dewy, sheer finish.",
+               "A serum-thin foundation with hyaluronic acid for a dewy, sheer finish.",
                _tones("1N 1W 2C 2N 3N 3W 4C 4N 5N 5W 6C 6N 7N 7W 8N 9N 10N 11W 12N 13N"),
                label="Serum", extra=(("coverage", "Coverage", "Sheer"),)),
     ShallowRow("TNTMST", "Beauty", "Tinted Moisturiser SPF 20", "Velling Apothecary",
                ("Beauty", "Skincare", "Moisturisers"), 22.0, "moisturiser_jar",
-               "A tinted daily moisturiser with SPF 20 and a light, even glow.",
+               "A tinted daily moisturiser with SPF 20 and a soft, even glow.",
                _tones("1N 2N 3N 5N 7N 9N 11N 13N"), label="SPF 20",
                extra=(("spf", "SPF", "20"),)),
 )  # fmt: skip
