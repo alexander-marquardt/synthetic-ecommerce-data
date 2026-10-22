@@ -146,8 +146,9 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
    spelling of a name another type already uses (`Length`, `Standards`,
    `Hardness`, `Diameter`, `Units per Pack`, `Piece Count`, `Measurement System`);
    when two concepts share a word, split them (`Grade` is a bolt's strength,
-   `Wheel Grade` an abrasive's coarseness). `tests/test_attribute_cleanup_497.py`
-   reads the committed `golden-catalog/nested.jsonl` and fails on a removed key,
+   `Wheel Grade` an abrasive's coarseness). The `one_key_per_concept` rule
+   (`prototypes/retail_drawings/rules.py`, run by `tests/test_rules_538.py`) reads the
+   committed `golden-catalog/nested.jsonl` and fails on a removed key,
    a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:
    `uv run ecom-generate build --out golden-catalog`. Only the new type's
@@ -259,11 +260,12 @@ The output must stay byte-identical.
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
    screw its `_SOCKET_SCREW_LINES` row. A modelled type also has entries in
    `conformance._shared_claims` (when it claims a standard),
-   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS` and
-   `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
+   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS`,
+   `noise.UNIT_PRIMARY`, `noise.CUTTING`, `compat.RELATIONS` and
+   `compat.NEAR_MISS_PERIOD`, and a row in each table of `tests/type_facts.py`
    (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   and `may_claim` (the Facts item of
+   `cutting`, `compat`, `near_miss_period` and `may_claim` (the Facts item of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -624,6 +626,19 @@ publishes:
 * `UNIT_PRIMARY` writes a unit equivalent of the type's primary length. A
   type whose primary attribute is a length (a `Size` or a `Diameter`) joins
   it, with `unit_primary=`; a thread designation is not a length.
+* `CUTTING` writes the "suitable for" sentence. A cutting tool joins it, with
+  `cutting=True`.
+* `compat.RELATIONS` writes the cross-reference sentence (`Takes a 5mm hex
+  key.`, `Fits M8x1.25 bolts and screws.`) from one published attribute. A
+  modelled type declares `compat=(kind, attribute)`, with kind one of
+  `hex_key`, `drive`, `tap`, `drill`, `nut` or `washer` and the attribute the
+  sentence reads, or `compat=False` when no sentence is true of it. Leaving
+  it unset is refused at registration, so a type cannot go without one by
+  saying nothing.
+* `compat.NEAR_MISS_PERIOD` is for a type whose builder offers a fine-pitch
+  near miss of a diameter: `near_miss_period=N` (at least 2) builds every Nth
+  line of a diameter to the fine pitch. A hand-kept list of types here meant a
+  new type never got one.
 
 Each record's sentences draw from its own stream (`noise.record_rng`), so
 joining moves only this type's records. `tests/test_noise_text.py` checks
@@ -776,11 +791,12 @@ in each of these hooks and refusals and checks that the named test goes red.
 ## Minting ids for a second domain (#128)
 
 A domain mints product ids and SKUs through `core/ids.py`, not through a
-generator method. It builds one `IdMinter(prefix, type_key, block)` per type
-(`block` is `typespec.block_of(type_key)`) and calls `next_index()`,
-`new_sku()` and `product_id(brand_code, series, index)`. It claims its prefix
-once at import, `ids.claim_prefix("<domain>", "<prefix>")`, which refuses a
-prefix another domain holds.
+generator method. It claims its prefix once at import, `ids.claim_prefix("<domain>", "<prefix>")`,
+which refuses a prefix another domain holds. It then builds one
+`IdMinter("<domain>", type_key, block)` per type (`block` is
+`typespec.block_of(type_key)`); the minter reads the prefix the domain claimed,
+and refuses to be built for a domain that claimed none. It calls `next_index()`,
+`new_sku()` and `product_id(brand_code, series, index)`.
 
 A prefix is empty or one or two capital letters. The industrial domain's is
 empty (`ID_PREFIX` in `domains/industrial/generate.py`), so its ids did not

@@ -15,7 +15,10 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -170,3 +173,128 @@ def test_a_module_kind_that_the_word_table_already_holds_is_refused_naming_it(tm
     done = _report(tmp_path, {"zz_probe": clash})
     assert done.returncode != 0
     assert "s_blockheel" in done.stderr and "NEW_KINDS" in done.stderr
+
+
+# --- The contract every decoy row meets, in one place (gen#538) ---------------------------------
+
+CONTRACT = """
+import json, sys
+sys.path.insert(0, {retail!r})
+import feature_decoys
+feature_decoys.__path__.append({extra!r})
+import decoy_contract
+print(json.dumps(decoy_contract.violations()))
+"""
+
+
+def _contract(tmp_path: Path, probe: str | None) -> list[str]:
+    """The notes of ``decoy_contract.violations()`` with ``probe`` (if any) as a decoy file."""
+    extra = tmp_path / "extra"
+    extra.mkdir()
+    if probe is not None:
+        (extra / "zz_probe.py").write_text(probe, encoding="utf-8")
+    code = CONTRACT.format(retail=str(RETAIL), extra=str(extra))
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_every_authored_decoy_row_meets_the_contract():
+    """ids unique, the title carries the query word, a structured field contradicts it, the
+    policy is one the proofs know, and the drawing renders: for every row of both tables."""
+    sys.path.insert(0, str(RETAIL))
+    try:
+        import decoy_contract
+
+        assert decoy_contract.violations() == []
+    finally:
+        sys.path.remove(str(RETAIL))
+
+
+def test_a_new_decoy_set_is_one_file_and_meets_the_contract_with_nothing_else(tmp_path):
+    assert _contract(tmp_path, PROBE) == []
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "note"),
+    [
+        pytest.param(
+            '"Red Probe Sofa Cushion"', '"Sofa Cushion"', "lacks a word of the query", id="title"
+        ),
+        pytest.param('"red probe", 500', '"cushion", 500', "so it is no decoy of it", id="field"),
+        pytest.param('"category"),', '"sideways"),', "is not one of", id="policy"),
+        pytest.param('"category"),', '"special: zz"),', "names itself and a sibling", id="special"),
+        pytest.param(
+            '"Cushion", "cushion",', '"Cushion", "no_such_shape",', "does not render", id="drawing"
+        ),
+    ],
+)
+def test_a_planted_decoy_file_that_breaks_a_clause_fails_the_contract(tmp_path, old, new, note):
+    planted = PROBE.replace(old, new)
+    assert planted != PROBE, old
+    found = _contract(tmp_path, planted)
+    assert any(note in n for n in found), found
+
+
+def _toy_ranges(plant: Callable[[list[Any]], list[Any]] | None = None) -> list[str]:
+    """The notes of ``decoy_contract.range_violations`` over the shipped specs, with the class-6
+    decoys of the kite spec passed through ``plant`` (if any) first."""
+    sys.path.insert(0, str(RETAIL))
+    try:
+        import decoy_contract
+        import type_registry
+
+        specs = dict(type_registry.specs())
+        if plant is not None:
+            kite = specs["kite"]
+            sixes = [d for d in kite.decoys if d.cls == 6]
+            rest = [d for d in kite.decoys if d.cls != 6]
+            specs["kite"] = replace(kite, decoys=tuple(rest + plant(sixes)))
+        return decoy_contract.range_violations(specs)
+    finally:
+        sys.path.remove(str(RETAIL))
+
+
+def _retitle(sixes: list[Any]) -> list[Any]:
+    return [replace(sixes[0], row=replace(sixes[0].row, title="Plain Thing")), *sixes[1:]]
+
+
+def _leaf(sixes: list[Any]) -> list[Any]:
+    row = sixes[0].row
+    leaf = sixes[0].query.title()
+    return [replace(sixes[0], row=replace(row, path=(*row.path[:-1], leaf))), *sixes[1:]]
+
+
+def _repeat(sixes: list[Any]) -> list[Any]:
+    return [sixes[0], *(replace(d, query=sixes[0].query) for d in sixes[1:])]
+
+
+def test_every_toy_range_decoy_meets_the_range_clause():
+    """Each class-6 toy decoy is named for a place with another toy's words (gen#446): its title
+    holds every word of its query, its category leaf none, and each toy has two distinct ones."""
+    assert _toy_ranges() == []
+
+
+@pytest.mark.parametrize(
+    ("plant", "note"),
+    [
+        pytest.param(_retitle, "lacks a word of its query", id="range_title"),
+        pytest.param(_leaf, "its category leaf", id="range_leaf"),
+        pytest.param(_repeat, "is the query of another", id="range_unique"),
+        pytest.param(lambda sixes: sixes[:1], "fewer than 2", id="range_count"),
+    ],
+)
+def test_a_planted_toy_range_decoy_that_breaks_the_range_clause_fails_it(plant, note):
+    found = _toy_ranges(plant)
+    assert any(note in n for n in found), found
+
+
+def test_a_decoy_file_whose_product_id_is_a_row_of_the_other_table_is_refused(tmp_path):
+    """``PLT-D`` + code ``Y901`` is the id of the word row ``DY901``: the build refuses the pair."""
+    extra = tmp_path / "extra"
+    extra.mkdir()
+    (extra / "zz_probe.py").write_text(PROBE.replace('"ZZ01"', '"Y901"'), encoding="utf-8")
+    code = CONTRACT.format(retail=str(RETAIL), extra=str(extra))
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert done.returncode != 0
+    assert "PLT-DY901 is built twice" in done.stderr

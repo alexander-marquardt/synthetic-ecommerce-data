@@ -78,6 +78,12 @@ class Row:
     #: the color is what the product is (a police livery, a taxi, a fire engine, bare wood).
     #: Empty for a free-paint style, which :func:`paint_range` gives the full range.
     fixed_color: str = ""
+    #: The series the brand sells this style in (gen#622); empty when it has none. It is the
+    #: document's ``product_line``, which export reads as the ``series`` field.
+    product_line: str = ""
+    #: Each color's own model number, ``(color, code)`` (gen#622): the SKU of that color states
+    #: it as its ``model_number`` option, so the code on the box is found by a query for it.
+    color_codes: tuple[tuple[str, str], ...] = ()
 
     @property
     def product_id(self) -> str:
@@ -87,8 +93,10 @@ class Row:
     def skus(self) -> list[dict]:
         sizes = [{self.size_key: s, "price": p} for s, p in self.sizes] or [{"price": self.price}]
         colors = self.colors[:1] if self.colorless else self.colors
+        codes = dict(self.color_codes)
         return [
-            {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True}
+            {**({} if self.colorless else {"color": c[0]}), **s, "in_stock": True,
+             **({"model_number": codes[c[0]]} if c[0] in codes else {})}
             for c in colors
             for s in sizes
         ]
@@ -110,6 +118,7 @@ class Row:
             sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
             review_count=3 + (h >> 16) % 400,
             price_min=min(s["price"] for s in skus), price_max=max(s["price"] for s in skus),
+            **({"product_line": self.product_line} if self.product_line else {}),
         )  # fmt: skip
 
 
