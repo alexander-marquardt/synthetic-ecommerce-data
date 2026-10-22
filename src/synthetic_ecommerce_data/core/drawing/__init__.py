@@ -74,15 +74,15 @@ ALLOWED_ATTRIBUTES: frozenset[str] = frozenset(
     {
         "viewBox", "width", "height", "x", "y", "rx", "cx", "cy", "r", "d",
         "fill", "stroke", "stroke-width", "stroke-opacity", "stroke-linejoin",
-        "opacity", "transform", "id", "patternUnits", "stroke-linecap",
+        "opacity", "transform", "id", "patternUnits", "stroke-linecap", "stroke-dasharray",
         "font-family", "font-size", "font-weight", "textLength", "lengthAdjust",
     }
 )  # fmt: skip
 #: Attributes only the wordmark's ``<text>`` may carry.
 _TEXT_ONLY = frozenset({"font-family", "font-size", "font-weight", "textLength", "lengthAdjust"})
-#: Ids are the hatch patterns' own (``h45s5<ink>``): a font's glyph ids
-#: (``DejaVuSans-31``) and anything else are refused.
-_ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
+#: Ids are the hatch patterns' own (``h45s5<ink>``) and the textures' (``tgrid<ink>``,
+#: ``tdot<ink>``): a font's glyph ids (``DejaVuSans-31``) and anything else are refused.
+_ID = re.compile(r"^(?:h[0-9-]*s[0-9.]+d?|tgrid|tdot)[0-9a-f]{6}$")
 
 #: Attribute VALUES, as the figures write them. A value grammar closes the
 #: paint-server route: ``fill="url(data:...)"`` or ``url(https://...#p)`` would
@@ -95,7 +95,13 @@ _ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
 _NUMBER = r"-?(?:\d+\.?\d*|\.\d+)"
 _COLOR = r"#[0-9a-f]{6}"
 _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
-    "fill": re.compile(rf"^(?:{_COLOR}|none|url\(#h[0-9-]*s[0-9.]+d?[0-9a-f]{{6}}\))$"),
+    "fill": re.compile(
+        rf"^(?:{_COLOR}|none|url\(#(?:h[0-9-]*s[0-9.]+d?|tgrid|tdot)[0-9a-f]{{6}}\))$"
+    ),
+    # The brand book's dash arrays (``brands.DASHES``), nothing else.
+    "stroke-dasharray": re.compile(
+        "^(?:" + "|".join(re.escape(d) for d in brands.DASHES if d) + ")$"
+    ),
     "stroke": re.compile(rf"^{_COLOR}$"),
     "d": re.compile(r"^[MLHVZlhvz0-9 .\-]+$"),
     "transform": re.compile(rf"^rotate\({_NUMBER} {_NUMBER} {_NUMBER}\)$"),
