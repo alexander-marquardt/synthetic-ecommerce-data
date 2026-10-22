@@ -35,6 +35,9 @@
    "category_path": {
     "type": "keyword"
    },
+   "category_paths": {
+    "type": "keyword"
+   },
    "category_leaf": {
     "type": "keyword"
    },

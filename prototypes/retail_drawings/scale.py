@@ -77,8 +77,8 @@ above all.
 Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
-``images.image_ids`` is one per product and colorway, and
-``image_release.py --skus N`` renders this build's images (1,346 for the 20,074
+``images.image_ids`` is one per product, colorway and size rung, and
+``image_release.py --skus N`` renders this build's images (7,513 for the 20,074
 SKUs of ``--skus 20000``).
 """
 
@@ -363,7 +363,8 @@ def templates(baseline: bool = True) -> list[dict]:
     ``test_grocery_style_attributes_list_the_values_of_their_skus``,
     ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
     sections = samples()
-    authored = (r for recs in sections.values() for r in recs)
+    authored = [r for recs in sections.values() for r in recs]
+    sampled = {r["product_id"] for r in authored}  # the footwear specs' styles are among them
     body = [
         *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
         *decoy_rows.docs(), *decoy_product_words.docs(),
@@ -373,7 +374,8 @@ def templates(baseline: bool = True) -> list[dict]:
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *womens_depth_rows.docs(),
-        *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(), *needs_rows.docs(),
+        *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
+        *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
     ]  # fmt: skip
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
