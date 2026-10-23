@@ -26,6 +26,7 @@ PLANTED = (
     "golden-retail/stats.json",
     "docs/figures.md",
     "docs/retail-apparel-decoys.md",
+    "docs/retail-product-word-decoys-table.md",
     f"{RD}/samples.ndjson",
     f"{RD}/samples4.ndjson",
     f"{RD}/preview.html",
