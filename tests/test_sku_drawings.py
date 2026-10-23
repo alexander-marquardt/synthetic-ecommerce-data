@@ -33,7 +33,7 @@ from synthetic_ecommerce_data.core.drawing.style import (
     house_style,
 )
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, all_type_keys, generate
-from synthetic_ecommerce_data.domains.industrial.render.marking import (
+from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     BRAND_INK,
     FINISH_ATTRIBUTES,
     FINISH_TINT,
@@ -304,11 +304,11 @@ def test_rendered_drawings_are_never_committable():
 def test_elongated_parts_are_drawn_to_their_published_length(type_key):
     """The drawn length IS the record's: extent in inches equals the geometry's.
 
-    Read against the dimensioned renderer's own geometry, so a figure that
+    Read against the geometry module's own parse of the record, so a figure that
     stopped reading a length -- and drew a nominal one -- reds here even though
     its bytes would still change with the size cue.
     """
-    from synthetic_ecommerce_data.domains.industrial.render import drill, endmill, fastener
+    from synthetic_ecommerce_data.domains.industrial.geometry import drill, endmill, fastener
 
     geometry = {
         "screw_socket_head": lambda r: fastener.geometry_from_record(r).total_height,

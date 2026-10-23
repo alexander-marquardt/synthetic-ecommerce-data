@@ -17,7 +17,6 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
-from synthetic_ecommerce_data.domains.industrial.render import UnknownProductError, renderer_for
 from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
@@ -164,18 +163,6 @@ def test_the_nested_mapping_nests_what_has_to_be_nested():
 def test_the_flat_mapping_deliberately_does_not_nest_its_attributes():
     """That limitation is the thing the flat shape exists to exhibit."""
     assert emit.FLAT_MAPPING["mappings"]["properties"]["attributes"]["type"] == "object"
-
-
-def test_render_records_are_in_the_shape_the_existing_renderer_reads():
-    drawable = 0
-    for record in emit.render_records(CATALOG):
-        assert "sku" in record
-        try:
-            renderer_for(record)
-        except UnknownProductError:
-            continue
-        drawable += 1
-    assert drawable > 0, "no generated record could be dispatched to a renderer"
 
 
 def test_write_jsonl_round_trips(tmp_path):

@@ -11,25 +11,6 @@ from __future__ import annotations
 from mutation_row import Mutation
 
 MUTATIONS: list[Mutation] = [
-    # ---- the batch driver keeps going (issue #2) -------------------------
-    Mutation(
-        "abort the batch on the first record it cannot draw",
-        "cli.py",
-        "                if not keep_going:\n                    raise",
-        "                raise",
-        "tests/test_cli.py",
-        "",
-        "a batch skips what it cannot draw and reports it",
-    ),
-    Mutation(
-        "count a refusal as a failure, so a normal catalog run reports failure",
-        "cli.py",
-        "                bucket = report.refused if isinstance(exc, DECLINED) else report.failed",
-        "                bucket = report.failed",
-        "tests/test_cli.py",
-        "",
-        "a refusal is not a failure",
-    ),
     Mutation(
         "type seam: ecom-generate block finds no owner of a taken block",
         "generate_cli.py",

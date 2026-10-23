@@ -26,8 +26,9 @@ import mutation_row  # noqa: E402  (scripts/ is not a package)
 #: and a row may be retired by editing its file; losing one in the move would drop this below it.
 #: 477 less the five golden-catalog rows main moved to mutation_rows_golden_anchors_50.py
 #: (#50), less the two core_price pin rows retired by #85, replaced in
-#: mutation_rows_measured_builds_85.py.
-INLINE_BEFORE_THE_SPLIT = 470
+#: mutation_rows_measured_builds_85.py, less the net render-package rows retired with
+#: ``render/`` (#27), measured on the merged tree.
+INLINE_BEFORE_THE_SPLIT = 438
 
 
 def _mutations_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **files: str) -> None:
