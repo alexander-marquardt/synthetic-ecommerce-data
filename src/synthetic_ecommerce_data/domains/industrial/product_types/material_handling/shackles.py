@@ -209,6 +209,7 @@ ANCHOR_TABLE = TableType(
     extent=(6.55, 8.3),
     share=0.034,
     series="SK",
+    compat=False,
     use_lines=(
         "Joins a sling, hook or wire rope eye to a lifting point; the pin unscrews by hand.",
         "A removable link in a rigging, towing or tie-down assembly.",

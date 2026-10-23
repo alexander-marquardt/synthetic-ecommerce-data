@@ -22,6 +22,7 @@ if str(RETAIL) not in sys.path:
 
 import export  # noqa: E402
 import kit  # noqa: E402
+import kit_cycling  # noqa: E402
 import kit_sports  # noqa: E402
 import main_colors  # noqa: E402
 import scale  # noqa: E402
@@ -63,6 +64,17 @@ KEYS = {
     "Badminton Set": {"material", "net_included", "players", "color"},
     # The picnic blanket (gen#217), a spec of the home accessories and decor issue.
     "Picnic Blanket": {"waterproof_backing", "material", "dimensions", "color"},
+    # gen#352: the five types of the cycling, water and wheeled families
+    "Bicycle": {"bike_type", "frame_material", "gears", "brake_type", "color"},
+    "Bike Helmet": {"helmet_type", "impact_protection", "visor", "size", "color"},
+    "Kayak": {"kayak_type", "seats", "max_load_kg", "material", "item_length", "color"},
+    "Kick Scooter": {"scooter_type", "wheel_size", "max_load_kg", "folds", "color"},
+    "Skateboard": {"board_type", "material", "deck_width", "color"},
+    # gen#625: the cycling accessories with short titles, drawn by kit_cycling
+    "Chain Lube": {"lube_type", "application", "volume", "color"},
+    "Bike Bottle": {"bottle_type", "insulated", "capacity", "color"},
+    "Bike Saddle": {"saddle_type", "padding", "color"},
+    "Bike Pedals": {"pedal_type", "material", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -125,7 +137,8 @@ def test_every_type_has_two_styles_from_two_brands() -> None:
 
 
 def test_every_style_draws_as_its_own_sports_shape() -> None:
-    assert {r.code: r.shape for r in ROWS if r.shape not in kit_sports.SHAPES} == {}
+    shapes = kit_sports.SHAPES | kit_cycling.SHAPES  # gen#625 draws the cycling accessories
+    assert {r.code: r.shape for r in ROWS if r.shape not in shapes} == {}
     assert len({r.shape for r in ROWS}) == len(KEYS)
 
 
@@ -294,7 +307,8 @@ def test_the_department_sits_in_the_tree_under_the_guards_rules() -> None:
 def test_the_tree_has_camping_and_yoga_and_fitness_under_the_root() -> None:
     families = {p[1] for p in _paths()}
     assert families == {
-        "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports"
+        "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports",
+        "Water Sports", "Wheeled Sports",
     }
     assert {p[-1] for p in _paths()} >= {"Dome Tents", "Tunnel Tents", "Sleeping Bags", "Dumbbells"}
     assert all(len(p) >= 3 for p in _paths())

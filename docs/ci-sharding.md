@@ -8,9 +8,9 @@ on one core; this repository is public, so GitHub-hosted runners cost nothing.
 
 `.github/workflows/ci.yaml` job `tests` runs `shard: [1 .. N]` on `ubuntu-latest` (or, for this repository's own branches once the repository variable `SYNTH_CI_SELF_HOSTED` is `true`, on the self-hosted `synth-ci` runner of #596, below). Each
 shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the files
-`scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files
-longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
-a file with no entry weighs 20 s, so a new test file needs no edit anywhere.
+`scripts/ci_shards.py --plan K --of N` prints (a pull request's files are the selected ones, below). That script deals the collected test files (`tests/` and `prototypes/retail_drawings/`:
+`testpaths` of `pyproject.toml`, `TEST_DIRS` in the script) longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
+a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The drawing tests run once, in the shard that is dealt them: there is no second child-process run of the same files (gen#486's test was removed for gen#362), and a test file outside the collected directories fails `tests/test_test_files_collected_362.py`.
 
 | Change | Where |
 |---|---|
@@ -26,6 +26,11 @@ position in the file's collection order is the shard's (`CI_SHARD`/`CI_SHARDS`, 
 workflow's tests step; unset or `CI_SHARDS=1` keeps all). Each test id runs in exactly one
 shard. The junit path is added to `PYTEST_ADDOPTS` in the Tests step's own `env`: the `runner`
 context is not available in a job-level `env`.
+
+A test file outside `testpaths` is never run (the drawing tests were not, until gen#362);
+`tests/test_test_files_collected_362.py` fails on a tracked `test_*.py` or `*_test.py` file
+outside it. A new directory of tests goes in `testpaths`, `TEST_DIRS` and `_TEST_ROOTS` in
+`scripts/ci_select.py`.
 
 `tests/test_ci_shards_348.py` is the guard: every collected test file is in exactly one
 shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest on one worker, and the shards stay
@@ -124,4 +129,32 @@ head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull r
 on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
 throwaway container on the agent VM, `--cpus 8 --memory 16g`, one job at a time by default, so a
 full run's jobs queue behind each other there. Unsetting the variable sends every job back to
-hosted runners with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
+`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead; pull requests and
+dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
+registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
+`vm/ci_runner/README.md`), so a merge's main run no longer waits behind pull-request runs. A
+full run is 23 jobs of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
+to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+
+## A lost xdist worker is an infra failure, rerun once (#629)
+
+Three pull requests had a `tests` shard end red with no test id: both workers went down within a
+tenth of a second (`node down: Not properly terminated`), and the controller then raised
+`INTERNALERROR> KeyError: <WorkerController gw2>` replacing them. The two worker crashes read
+back were at 94 % and 98 % of the shard's items, on two different shards; main's same shards were
+green. The runner's kernel log cannot be read from inside a job, so this change does not name the
+cause: an out-of-memory kill (the container has `--memory 16g` while the VM was swapping) is the
+first hypothesis and is not confirmed.
+
+The Tests step runs `python3 scripts/ci_run_pytest.py -- uv run --locked pytest ...`. When the
+output shows a lost worker the script prints `infra: worker lost` (a `::warning::` annotation),
+then what a job can read: the job cgroup's `memory.events` OOM counts, `memory.peak` and
+`memory.max`, the largest process's peak RSS, the host's MemAvailable and SwapFree, and the
+kernel OOM lines when `dmesg` is readable. It then runs the shard once more (`--reruns N`, default
+1). A shard that loses a worker on every attempt ends with exit code 75 and an `::error::infra:
+worker lost` annotation, not a test's exit code. A run whose tests failed with every worker alive
+is never rerun. The next occurrence therefore names its cause in the job log, and a first
+occurrence no longer reds a pull request. If the evidence shows memory, lower `-n` for that shard
+or split it (the matrix list in `ci.yaml`). `tests/test_ci_worker_lost_629.py` is the guard.

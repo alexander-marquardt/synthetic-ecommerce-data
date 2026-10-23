@@ -115,14 +115,19 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
 
 
 def test_a_flat_sku_states_its_own_variants_allergens() -> None:
-    """Fruit Gums (GRC-SWT-0002-001) hold no milk: the Toffee next to it does."""
+    """Fruit Gums (the 150g SKU of GRC-SWT-0002) hold no milk: the Toffee next to it does."""
     rows = {r["sku"]: r for r in grocery.flat(list(docs()))}
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
             stated = values(nested[sku]["attributes"], key)
             assert set(row["facets"].get(key, [])) == canon(stated), sku
-    assert "milk" not in rows["GRC-SWT-0002-001"]["facets"].get("contains", [])
+    gums = next(
+        v["sku"] for d in docs() if d["product_id"] == "GRC-SWT-0002" for v in d["variants"]
+        if {"flavor": "Fruit Gums", "pack_size": "150g"}.items() <= {
+            a["key"]: a["value"] for a in v["attributes"]}.items()
+    )
+    assert "milk" not in rows[gums]["facets"].get("contains", [])
 
 
 def test_an_allergen_warning_is_a_facet_only_never_a_flat_attribute() -> None:
@@ -227,10 +232,15 @@ def test_the_build_is_deterministic_and_the_seed_changes_it() -> None:
 
 
 def test_one_drawing_per_style_and_pack_scale() -> None:
-    """A style's sizes share a drawing unless its line draws a size smaller (gen#543)."""
+    """A style's sizes share a drawing unless its line draws a size smaller (gen#543) or a SKU
+    draws its own params (a pizza's flavour and size, gen#604)."""
     images = {v["image_id"] for d in docs() for v in d["variants"]}
     recs = grocery.build(grocery.TARGET)
-    drawn = {(r["product_id"], pack_scale.factor(r, s)) for r in recs for s in r["skus"]}
+
+    def own(rec: dict, sku: dict) -> tuple:
+        return tuple(sorted(export.drawing_spec(rec, sku).get("params", {}).items()))
+
+    drawn = {(r["product_id"], pack_scale.factor(r, s), own(r, s)) for r in recs for s in r["skus"]}
     assert len(images) == len(drawn) >= STYLES
     assert len({img.rsplit("/", 1)[0] for img in images}) == STYLES
 

@@ -31,9 +31,13 @@ import re
 from pathlib import Path
 from typing import Any
 
+import attribute_cleanup
 import colorwords
 import facet_leaves
+import multi_path
 import pack_scale
+import shades
+import size_ladder
 import type_registry
 from audience import audience_of
 from build_preview4 import samples
@@ -67,7 +71,14 @@ PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 #: and a unit may split it (a hose's ``item_length`` is in metres, a knife's in centimetres).
 SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
+    # A complexion product's shade, sold instead of a color (shades.py, gen#345).
+    "shade": ("shade", "Shade", None),
+    "shade_depth": ("shade_depth", "Shade depth", None),
+    "undertone": ("undertone", "Undertone", None),
     "size": ("size", "Size", None),
+    # A large appliance's model number differs by color letter (large_appliance_rows.py,
+    # gen#622): each SKU states its own, the base model joins the colors.
+    "model_number": ("model_number", "Model number", None),
     "size_uk": ("size_uk", "Size (UK)", None),
     "size_eu": ("size_eu", "Size (EU)", None),
     "size_us": ("size_us", "Size (US)", None),
@@ -231,16 +242,18 @@ def _slug(text: str) -> str:
 def drawing_spec(rec: dict, sku: dict) -> dict:
     """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
     SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
-    ``diameter_cm``: gen#197), and the factor its pack is drawn at within its line when it is
-    not the line's largest size (``pack_scale``, gen#543). A SKU that carries neither adds
-    nothing, so its image id is what it was."""
+    ``diameter_cm``: gen#197), the factor its pack is drawn at within its line when it is
+    not the line's largest size (``pack_scale``, gen#543), and, for a clothing or footwear SKU
+    on a size ladder, its ``size_scale`` (gen#339), so each size has its own image. A SKU that
+    carries none of these adds nothing, so its image id is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
     if own:
         spec["params"] = own
     shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)
-    return spec | {"pack_scale": shrink} if shrink else spec
+    spec = spec | {"pack_scale": shrink} if shrink else spec
+    return spec | size_ladder.spec(rec, sku)
 
 
 def image_id(rec: dict, sku: dict) -> str:
@@ -266,6 +279,26 @@ def _color_entries(authored: str) -> list[dict[str, Any]]:
     return out
 
 
+def _shade_entries(authored: str) -> list[dict[str, Any]]:
+    """The ``shade``, ``shade_depth`` and ``undertone`` entries of a complexion shade (gen#345).
+
+    A foundation is asked for by the skin it matches, never by a color, so the authored swatch
+    key is written here and not to ``color``, which clothing queries read."""
+    depth, undertone = shades.classify(authored)
+    return [
+        _entry("shade", "Shade", None, authored),
+        _entry("shade_depth", "Shade depth", None, depth),
+        _entry("undertone", "Undertone", None, undertone),
+    ]
+
+
+def _swatch_entries(rec: dict, authored: str) -> list[dict[str, Any]]:
+    """An authored swatch key as entries: a shade for a complexion type, else a color."""
+    if rec["product_type"] in shades.SOLD_BY_SHADE:
+        return _shade_entries(authored)
+    return _color_entries(authored)
+
+
 def _product_attributes(rec: dict) -> list[dict[str, Any]]:
     out = list(rec["attributes"])
     have = {(e["key"], e["value"]) for e in out}
@@ -274,7 +307,7 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
             raise KeyError(f"{rec['product_id']}: no standard home for {field!r}")
     facts = [e for f, spec in FACTS.items() if f in rec for e in _entries(spec, rec[f])]
     for c in rec.get("color_options", ()):
-        facts += _color_entries(c["color"])
+        facts += _swatch_entries(rec, c["color"])
     for option, values in rec.get("size_options", {}).items():
         facts += _entries(OPTIONS[option], values)
     if "unit_size" in rec:
@@ -286,7 +319,7 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return _one_case(out)
+    return attribute_cleanup.clean(_one_case(out), rec["product_type"])
 
 
 def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -340,7 +373,9 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "attributes": [
             e
             for k in options
-            for e in (_color_entries(sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k]))
+            for e in (
+                _swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k])
+            )
             if not (own and e["key"] == "pattern")
         ]
         + _one_case(own),
@@ -412,8 +447,11 @@ def standard_document(rec: dict) -> dict[str, Any]:
         doc["series"] = rec["product_line"]
     if blend:
         doc["fibre_content"] = blend
+    also = multi_path.other_paths(rec)
     return letter_case.apply(doc | {
         "category_path": path,
+        # Filed at more than one path (gen#602): the primary leads, then each other path.
+        **({"category_paths": [path, *map(list, also)]} if also else {}),
         "category_leaf": path[-1],
         "category_depth": len(path),
         "image_id": variants[0]["image_id"],
