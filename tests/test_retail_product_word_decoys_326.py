@@ -64,6 +64,7 @@ QUERIES = (
 #: noun -> the category node of the product the noun really names (a decoy never sits in it).
 TRUE_NODE = {
     "dress": "Dresses",
+    "towel": "Beach Towels",
     "shoe": "Shoes",
     "boot": "Boots",
     "coat": "Coats & Jackets",
