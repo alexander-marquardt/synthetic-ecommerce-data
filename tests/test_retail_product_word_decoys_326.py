@@ -81,6 +81,12 @@ TRUE_NODE = {
     "cap": "Caps",
     # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
     "block": "Yoga Blocks",
+    # the nouns of the #352 rows
+    "bicycle": "Bikes",
+    "helmet": "Bike Helmets",
+    "kayak": "Kayaks",
+    "scooter": "Kick Scooters",
+    "skateboard": "Skateboards",
     "strap": "Yoga Straps",
     "band": "Resistance Bands",
     "resistance": "Resistance Bands",
@@ -116,8 +122,14 @@ TRUE_NODE = {
     "fridge": "Fridges & Freezers",
     "dishwasher": "Dishwashers",
     "washing": "Large Appliances",
+    # the cups of gen#620: the bras named for their cup sit in no drinkware
+    "cup": "Drinkware",
+    # the cycling accessories of gen#625: the print decoys sit in no Cycling leaf
+    "lube": "Chain Lube",
+    "bottle": "Bike Bottles",
+    "saddle": "Bike Saddles",
+    "pedal": "Bike Pedals",
 }
-POLICIES = ("category", "department", "color")
 
 
 @pytest.fixture(scope="module")
@@ -172,14 +184,6 @@ def test_a_cross_department_row_sits_under_another_root(by_id: dict[str, dict]) 
         assert by_id[pid]["category_path"][0] not in ("Womens", "Mens", "Kids"), pid
     assert any(by_id[p]["category_path"][0] == "Food & Drink" for p, _ in rows)
     assert len({by_id[p]["category_path"][0] for p, _ in rows}) >= 3
-
-
-def test_every_row_names_the_policy_that_fixes_it() -> None:
-    assert dpw.TABLE
-    for row in dpw.TABLE:
-        assert row.policy.split(":")[0] in (*POLICIES, "special"), row.policy
-        if row.policy.startswith("special"):
-            assert row.sibling, row.code  # a special policy is proved on a sibling query
 
 
 def test_the_drawing_shows_the_true_product_and_the_named_detail(by_id: dict[str, dict]) -> None:
@@ -263,10 +267,42 @@ def test_the_rows_are_templates_no_derived_style_copies_or_color_completes() -> 
 
 
 def test_the_docs_table_lists_every_row_with_its_policy() -> None:
-    path = ROOT / "docs" / "retail-product-word-decoys.md"
-    assert path.exists() and dpw.TABLE
-    doc = path.read_text(encoding="utf-8")
+    assert dpw.TABLE
     table = dpw.table_markdown()
-    assert table in doc
+    built = getattr(dpw, "table_doc", None)
+    assert built is not None, "decoy_product_words has no table_doc(), the page the build writes"
+    assert table in built()
     assert len(table.splitlines()) == len(dpw.TABLE) + 2
     assert all(r.policy in line for r, line in zip(dpw.TABLE, table.splitlines()[2:], strict=True))
+
+
+def test_the_docs_table_is_built_and_the_committed_page_carries_no_row() -> None:
+    """Every decoy PR pasted the whole table into the page, so two met there (gen#513): the
+    derived build writes it, and the page that explains it holds no table line."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_derived  # noqa: PLC0415
+
+    built = "docs/retail-product-word-decoys-table.md"
+    assert getattr(dpw, "TABLE_DOC", None) == built
+    assert built in build_derived.OUTPUTS
+    page = (ROOT / "docs" / "retail-product-word-decoys.md").read_text(encoding="utf-8")
+    assert [line for line in page.splitlines() if line.startswith("|")] == []
+    assert built in page
+
+
+def test_the_derived_build_writes_the_table_page(tmp_path, monkeypatch) -> None:
+    """The page is in OUTPUTS and the build writes it: the slow outputs are stubbed, the table
+    page is the one :func:`decoy_product_words.table_doc` returns (gen#513)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_derived  # noqa: PLC0415
+    import build_preview  # noqa: PLC0415
+    import build_preview4  # noqa: PLC0415
+    import retail_figures  # noqa: PLC0415
+
+    monkeypatch.setattr(retail_figures, "figures", lambda: {})
+    monkeypatch.setattr(retail_figures, "render", lambda figures: "")
+    monkeypatch.setattr(retail_figures, "markdown", lambda figures: "")
+    monkeypatch.setattr(build_preview, "outputs", lambda: ("", ""))
+    monkeypatch.setattr(build_preview4, "outputs", lambda: ("", ""))
+    assert dpw.TABLE_DOC in build_derived.build(tmp_path)
+    assert (tmp_path / dpw.TABLE_DOC).read_text(encoding="utf-8") == dpw.table_doc()

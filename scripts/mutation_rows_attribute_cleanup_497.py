@@ -2,9 +2,10 @@
 
 ``tests/test_attribute_cleanup_497.py`` reads the committed ``golden-catalog/nested.jsonl``, so a
 row plants the defect IN that file (``root="golden-catalog"``): a removed key back on a product, a
-merged-away key, one key under two names, a restated type, a repeated standard, a length in an
-angle, 0.875 for 7/8, "Countersunk Head" for Flat. Each must turn the named guard red. The source
-side of the same change is held by ``tests/test_catalog_golden.py``, which holds the golden equal to
+merged-away key, one key under two names (these three are held by the ``one_key_per_concept`` rule
+of ``tests/test_rules_538.py``), a restated type, a repeated standard, a length in an angle,
+0.875 for 7/8, "Countersunk Head" for Flat. Each must turn the named guard red. The source side of
+the same change is held by ``tests/test_catalog_golden.py``, which holds the golden equal to
 a fresh build.
 
 The golden file is one long line per product, so a planted text must match exactly once: each row
@@ -21,6 +22,8 @@ from mutation_row import Row
 _GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "nested.jsonl"
 _FILE = "nested.jsonl"
 _TEST = "tests/test_attribute_cleanup_497.py"
+#: A removed or merged-away key, and one key under two names, are the ``one_key_per_concept`` rule.
+_RULE = "tests/test_rules_538.py -k one_key_per_concept-golden"
 
 _TEXT: str | None = None
 
@@ -61,7 +64,8 @@ def _row(
     name: str, old: str, new: str, prop: str, test: str
 ) -> tuple[str, str, str, str, str, str, str]:
     old, new = _unique(old, new)
-    return (name, _FILE, old, new, f"{_TEST} -k {test}", prop, "golden-catalog")
+    target = test if " -k " in test else f"{_TEST} -k {test}"
+    return (name, _FILE, old, new, target, prop, "golden-catalog")
 
 
 def _rows() -> list[tuple[str, str, str, str, str, str, str]]:
@@ -84,21 +88,21 @@ def _rows() -> list[tuple[str, str, str, str, str, str, str]]:
             grade,
             swap(key="item", name="Item", value="Flap Disc"),
             "no product carries an Item, End Mill Style, Tap Style, Lock Type or Insert Material",
-            "no_removed_key",
+            _RULE,
         ),
         _row(
             "Dimension Type is back beside Measurement System",
             grade,
             swap(key="dimension_type", name="Dimension Type", value="Metric"),
             "a merged-away key is never published",
-            "no_merged_away_key",
+            _RULE,
         ),
         _row(
             "one key is shown under two display names",
             grade,
             swap(name="Grade of Wheel"),
             "one key has one display name",
-            "one_key_has_one_display_name",
+            _RULE,
         ),
         _row(
             "Wheel Grade is spelled as the bolt's Grade on one product",

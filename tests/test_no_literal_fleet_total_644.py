@@ -1,0 +1,100 @@
+"""No test types the retail template fleet total as a literal (#644).
+
+``test_the_measured_sources_account_for_every_template`` (once
+``test_the_pattern_values_add_no_style_and_no_sku``, gen#408) asserted
+``len(scale.templates()) == 11540`` and a template SKU sum of ``103191``. Every PR that added a
+product row moved those two lines, so every pair of product PRs conflicted there and only there,
+and the literal went stale the moment main moved. The total is derived from the per-source
+counts in ``retail_figures.measure()``; this scan keeps a literal from coming back.
+
+A function that calls ``templates()`` may not compare ``len(...)`` with an integer of four or
+more digits, nor a ``sku_count`` sum with an integer of five or more digits, in one assertion.
+
+The scan is a tripwire for that shape only. It does not see a total bound to a name first
+(``n = len(t); assert n == 11540``), a split literal (``11000 + 540``), a literal held in a
+constant, a module-level ``scale.templates()`` or a fixture or helper that returns the templates.
+"""
+
+from __future__ import annotations
+
+import ast
+from pathlib import Path
+
+TESTS = Path(__file__).resolve().parent
+
+#: ``len(...) == 1000`` and up is a fleet total; a ``sku_count`` sum of ``10000`` and up is.
+MIN_LEN_LITERAL = 1000
+MIN_SKU_LITERAL = 10000
+
+
+def _int_literals(node: ast.expr) -> list[int]:
+    return [n.value for n in ast.walk(node) if isinstance(n, ast.Constant) and type(n.value) is int]
+
+
+def _text(node: ast.AST) -> str:
+    return ast.unparse(node)
+
+
+def literal_fleet_totals(source: str) -> list[tuple[int, str]]:
+    """The (line, statement) of every assertion of a literal fleet total against ``templates()``."""
+    found: list[tuple[int, str]] = []
+    for fn in ast.walk(ast.parse(source)):
+        if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if "templates(" not in _text(fn):
+            continue
+        for stmt in ast.walk(fn):
+            if not isinstance(stmt, ast.Assert):
+                continue
+            for cmp_ in (n for n in ast.walk(stmt.test) if isinstance(n, ast.Compare)):
+                if not all(isinstance(op, ast.Eq) for op in cmp_.ops):
+                    continue
+                sides = [cmp_.left, *cmp_.comparators]
+                for side in sides:
+                    others = [s for s in sides if s is not side]
+                    consts = [o for o in others if isinstance(o, ast.Constant)]
+                    lits = [v for o in consts for v in _int_literals(o)]
+                    text = _text(side)
+                    if any(v >= MIN_LEN_LITERAL for v in lits) and text.startswith("len("):
+                        found.append((stmt.lineno, _text(stmt)))
+                    if any(v >= MIN_SKU_LITERAL for v in lits) and "sku_count" in text:
+                        found.append((stmt.lineno, _text(stmt)))
+    return sorted(set(found))
+
+
+#: A floor, not an exact count, so a sibling PR cannot move it: the scan must read real files.
+MIN_FILES_SCANNED = 20
+
+
+def test_no_test_asserts_a_literal_template_total() -> None:
+    scanned = [p for p in sorted(TESTS.glob("test_*.py")) if p != Path(__file__).resolve()]
+    assert len(scanned) >= MIN_FILES_SCANNED, f"the scan read {len(scanned)} files"
+    bad = {
+        path.name: hits
+        for path in scanned
+        for hits in [literal_fleet_totals(path.read_text())]
+        if hits
+    }
+    assert not bad, (
+        "a literal fleet total goes stale with every product PR: derive it from "
+        f"retail_figures.measure()['templates'] instead: {bad}"
+    )
+
+
+def test_the_scan_sees_both_old_pins_and_passes_a_derived_one() -> None:
+    pinned = (
+        "def test_x():\n"
+        "    tpls = scale.templates()\n"
+        "    assert len(tpls) == 11540\n"
+        "    assert sum(t['sku_count'] for t in tpls) == 103191\n"
+    )
+    assert [line for line, _ in literal_fleet_totals(pinned)] == [3, 4]
+    derived = (
+        "def test_x():\n"
+        "    tpls = scale.templates()\n"
+        "    assert len(tpls) == sum(p['styles'] for p in parts)\n"
+        "    assert len(tpls[:5]) == 5\n"
+    )
+    assert literal_fleet_totals(derived) == []
+    other = "def test_x():\n    assert len(rows) == 11540\n"
+    assert literal_fleet_totals(other) == []

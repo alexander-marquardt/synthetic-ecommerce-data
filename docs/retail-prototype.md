@@ -200,9 +200,16 @@ The planted cases are:
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
-`pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
+`pizza` (a round pie on a card under film), `fish_bag` (frozen battered fish: a flat
 pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
-`kit_grocery.py`. The build makes
+`kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
+packet on its side, crimped at both ends), in `kit_biscuits.py`
+(`tests/test_biscuit_sleeve_608.py`); and `chocolate_box`
+(a flat, wide, lidded selection box with a ribbon across the lid, in
+`kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
+scale still draws a 150g box smaller than a 400g one;
+`tests/test_chocolate_box_drawn_609.py`, the before and after is
+`docs/images/chocolate-box-drawn-609.svg`). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -255,7 +262,7 @@ them.
 Every record, round 4's included, is one document per STYLE (the gen#125
 ruling, built by `variants.product`): a product with a color selector and a
 size selector. Every color x size combination the style is sold in is a SKU
-nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color`,
+nested in `skus`, with its own `sku` id (`<product_id>-<8 hex of its axes>`, gen#626: [stable ids](retail-sku-ids-626.md)), `color`,
 size per size system, `price` and `in_stock`. No document carries a color
 family (gen#186): it listed the same products as `color` under a second
 facet, and grouping shades ("navy" covering Navy and Navy Check) is a PRISM
@@ -348,8 +355,8 @@ an Elasticsearch recording and CI has no Elasticsearch to rebuild it (gen#536 fo
 | 12 | A type word that is also a color and a line name | *face cream* | 1. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>2. Nourishing Face Oil `PLT-FCEOIL`<br>3. Loose Face Powder `PLT-PWDLSE`<br>4. Tinted Face Gel `PLT-TNTGEL`<br>5. Velvetmere Cream Body Oil Spray `PLT-VLCOIL` | 1. **Daily Hydrating Face Cream `PLT-FCDAYC`**<br>2. **Calming Face Cream `PLT-FCCALM`**<br>3. **Rich Night Cream `PLT-FCNGHT`**<br>4. SPF 50 Face Sun Cream `PLT-SPFFCE`<br>5. Nourishing Face Oil `PLT-FCEOIL` | route to Beauty/Skincare/Creams/Face Creams (recalled, boosted) |
 | 13 | A size word not applied (mild) | *single bed* | 1. Single Cube Chairbed `PLT-CHRCUB`<br>2. Ottoman Storage Bed `PLT-BDOTTO`<br>3. Upholstered Sleigh Bed `PLT-BDSLGH`<br>4. Panelled Wooden Bed `PLT-BDPANL`<br>5. Two Seater Sofa Bed `PLT-SOFBED` | 1. **Metal Spindle Bed `PLT-BDMETL`**<br>2. **Shaker Wooden Bed Frame `PLT-BDSHKR`**<br>3. **Upholstered Bed Frame `PLT-BDUPHL`**<br>4. Single Cube Chairbed `PLT-CHRCUB`<br>5. Memory Foam Mattress Topper `PLT-MTTMEM` | filter an in-stock SKU with bed_size = Single (3 ft); product_type = Bed x10 |
 | 14 | A two-word color split into words | *rose gold* | 1. Blush Rose & Gold Eucalyptus Bouquet `PLT-BQBLSH`<br>2. White Rose Bouquet with Gold Foliage `PLT-BQWHGF`<br>3. Gold Plated Rose Quartz Hoop Earrings `PLT-RQHOOP`<br>4. Classic Red Rose Bouquet `PLT-BQREDR`<br>5. Orange Rose Bouquet `PLT-BQORNG` | 1. **Cubic Zirconia Stud Earrings `PLT-RGSTUD`**<br>2. **Slim Mesh Strap Watch `PLT-RGMESH`**<br>3. **Wireless Charging Pad `PLT-RGCHRG`**<br>4. **Glow Powder Highlighter `PLT-RGHLIT`**<br>5. **Touch Dimmable Table Lamp `PLT-RGLAMP`** | filter an in-stock SKU with color = Rose Gold |
-| 15 | One word, a sense in two departments | *cups* | 1. **Espresso Cup `PLT-MUG7`**<br>2. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>3. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>4. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>5. **Leakproof Travel Cup `PLT-DRKTRV`** | 1. **Espresso Cup `PLT-MUG7`**<br>2. **Leakproof Travel Cup `PLT-DRKTRV`**<br>3. **Set of 4 Espresso Cups `PLT-DRKSET`**<br>4. **Fine Bone China Cup and Saucer `PLT-DRKSAU`**<br>5. **Apple Graphic Mug `PLT-MUG-APPLE`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
-| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. Espresso Cup `PLT-MUG7` | the same policy, off for this query |
+| 15 | One word, a sense in two departments | *cups* | 1. Moulded Cup T-Shirt Bra `PLT-CUPMLD`<br>2. Lace Demi Cup Bra A-E `PLT-CUPDEM`<br>3. Smooth Full Cup Bra B-G `PLT-CUPFUL`<br>4. Car Cup Holder Organiser `PLT-CUPHLD`<br>5. Engraved Trophy Cup `PLT-CUPTRO` | 1. **Leakproof Reusable Travel Cup with Lid for Car Holders `PLT-DRKTRV`**<br>2. **Set of 4 Porcelain Espresso Cups in Gift Box `PLT-DRKSET`**<br>3. **Fine Bone China Tea Cup and Saucer for Afternoon Tea `PLT-DRKSAU`**<br>4. **Apple Graphic Mug `PLT-MUG-APPLE`**<br>5. **Travel Mug `PLT-MUG11`** | route to Home/Kitchen & Dining/Drinkware (recalled, boosted); off when the query says bra, demi, balcony or a cup size |
+| 15 (control) | The other sense stays reachable: a bra | *d cup bra* | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | 1. **Moulded Cup T-Shirt Bra `PLT-CUPMLD`**<br>2. **Lace Demi Cup Bra A-E `PLT-CUPDEM`**<br>3. **Smooth Full Cup Bra B-G `PLT-CUPFUL`**<br>4. **Padded Balcony Bra `PLT-CUPBAL`**<br>5. **Seamless Smoothing Bra `PLT-OFRBRA`** | the same policy, off for this query |
 
 Class 15 is a word with a sense in two departments: a bare *cups* is
 drinkware in Home, and the cup of a bra (or a cup size) in Lingerie. Bras
@@ -712,7 +719,7 @@ derived-style sample), and holds the ceiling's grid clones at 15% or under too.
 **One `pack_size` vocabulary for a count** (gen#246). A pack of identical or different items is
 `Single` or `N pack` (`2 pack`, `4 pack`, `10 pack`) in every department: underwear, school,
 home (dining chairs, tableware), grocery and the planted distractors alike, so the `pack_size`
-facet lists one spelling. A title keeps natural wording ("Set of 4 Espresso Cups"); the value
+facet lists one spelling. A title keeps natural wording ("Set of 4 Porcelain Espresso Cups in Gift Box"); the value
 does not. A net weight or volume (`400g`, `4 x 35g`, `2 pint`, `12 inch`) is a measure and
 stays. `tests/test_pack_size_values_246.py` reads every `pack_size` of the authored build.
 
@@ -727,54 +734,11 @@ another department's standing: do not add rows to an unrelated department to pas
 templates and holds every other department at its floor. A batch that removes or narrows a
 department's own rows below the floor still fails: raise that department with rows of its own.
 
-### Womens sizes above UK 16 (gen#434)
+### A feature's own section: `docs/retail-prototype/`
 
-The Womens UK size run stopped at 16 (some styles at 18 or 20), so a query for a dress in size 22
-read the size and found no dress that carried it. `plus_sizes.py` runs over `scale.templates()`:
-three in five of the Womens styles whose SKUs carry a bare number `size` (dresses, tops) or
-`size_uk` (jeans, with its EU and US sizes at UK + 28 and UK - 4) are carried on to UK 24.
-Trousers measure by `waist` and knitwear is letter-sized, so neither is changed.
-Each new SKU copies the largest-size SKU of its color; the new SKUs are appended, so no SKU id
-moves, and a derived style inherits the longer run. Decoys of `decoy_rows.py` and
-`decoy_product_words.py` keep their run. `tests/test_retail_plus_sizes_434.py` pins at least 30
-Womens dresses at UK 22 and the chart.
-
-### Large appliances (gen#334)
-
-Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
-color or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
-under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
-integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
-dryers, washer dryers). Three specs (`type_specs/fridge_freezer.py`, `dishwasher.py`,
-`laundry_appliance.py`) read `large_appliance_rows.py`; `kit_large_appliances.py` draws them.
-Capacity, `item_width`, energy rating, place settings, noise and load are structured entries.
-Dishwashers and laundry are white, black or silver (`type_colors.py`); the retro 50/50 fridges
-carry the six main colors.
-
-The word decoys of the dishwasher, the washing machine and the fridge are in
-`feature_decoys/large_appliances.py` and listed in
-[retail-product-word-decoys.md](retail-product-word-decoys.md): "dishwasher" meets tablets, salt
-and rinse aid, "washing machine" its cleaner, descaler and pods, and "fridge" storage boxes, a
-lunch cooler and cheese crisps. The mugs, lunch boxes and cutlery whose descriptions say
-"dishwasher safe" were already in the catalog and stay reachable through text. Three more words
-need a product type the catalog lacked, so each is a spec with one ordinary product and its decoy
-(`type_specs/fridge_magnets.py`, `fridge_thermometer.py`, `anti_vibration_mat.py`; ids `DT32` to
-`DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
-stainless steel and a washing machine with a "Red Spot" dial that is white.
-`tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
-
-The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
-derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
-to 12 words so the beach towel decoys compete. Design and the measured top 12 are in
-[retail-beach-towels.md](retail-beach-towels.md); `tests/test_retail_beach_towels_624.py` holds them.
-
-### Pack scale (gen#543)
-
-Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
-about the cube root of its net volume (or weight, or count) against the largest size of
-its line, floored at 0.6, on the same 400 x 400 sheet and baseline, so a 30 ml jar is
-visibly smaller than a 100 ml one (`pack_scale.py`). The largest size, and a line of one
-size, draw as they always did. Every size drawn at one scale shares its color's image,
-drawn in that color's swatch (base, pattern and accent).
-![A line's 30, 50 and 100 ml drawn before and after](images/pack-scale.svg)
-`image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.
+A feature that needs a reference section of its own writes it as a page in
+[docs/retail-prototype/](retail-prototype/), one file per feature, named for its topic and issue
+(Womens sizes above UK 16, Womens dresses in UK numeric sizes, large appliances and pack scale
+are there). Every feature appended its section to the end of this page, so two features branched
+from one `main` conflicted here; this page now gains no heading, and `scripts/check_no_registry_append.py` refuses a diff that adds one
+(gen#513).

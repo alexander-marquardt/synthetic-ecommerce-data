@@ -45,6 +45,8 @@ MOVED = {
     "resistance_band": [Option("resistance", "resistance_level", "Resistance level")],
     "camping_lantern": [Option("brightness_lm", "brightness", "Brightness (lm)")],
     "tennis_racket": [Option("grip", "grip_size", "Grip size")],
+    "skateboard": [Option("deck_width_in", "deck_width", "Deck width", "INH")],
+    "bicycle": [Option("frame_cm", "frame_size", "Frame size", "CMT")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 

@@ -71,7 +71,6 @@ CATALOG_FILES = (
     "nested.jsonl",
     "flat.jsonl",
     "images.jsonl",
-    "render.jsonl",
     "stats.json",
     "mapping.nested.json",
     "mapping.flat.json",

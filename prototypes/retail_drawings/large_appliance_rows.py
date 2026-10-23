@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+import appliance_model_numbers as amn
 import kit_large_appliances  # noqa: F401 -- registers fridge, dishwasher, washing_machine, ...
 from breadth_rows import Row
 from variants import cw
@@ -34,11 +35,11 @@ GREEN = cw("Green", "#4f8a3a")
 YELLOW = cw("Yellow", "#f2c230")
 SIX = (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)
 _PALETTES = ((WHITE, BLACK, SILVER), (SILVER, BLACK), (WHITE, SILVER))
-_MODELS = ("Arden", "Bexley", "Calder", "Dunmore", "Elston", "Fenner", "Garrow", "Halden",
-           "Ingram", "Jessop", "Kessock", "Lawton", "Marlow", "Norbury", "Ormond", "Pelham",
-           "Quenby", "Rowan", "Selby", "Thorne", "Ulverston", "Vellacott", "Wexcombe",
-           "Yarrow", "Zennor", "Ashby", "Bramley", "Coniston", "Denby", "Eskdale")  # fmt: skip
 _RATINGS = "ABCDE"
+#: The generation letters of a model number. Never "A" or "I": those are English words, and a
+#: generation value that reads as a word is "contradicted" by any description that starts "A ...".
+GENERATIONS = "BCDEF"
+DECOY_GENERATION = "H"
 
 
 def a(key: str, name: str, value: str) -> tuple[str, str, str]:
@@ -66,21 +67,67 @@ def _yn(key: str, name: str, on: bool) -> tuple[str, str, str]:
 
 
 def _row(pre: str, i: int, title: str, brand: str, path: tuple[str, ...], ptype: str, price: float,
-         shape: str, params: tuple[tuple[str, str], ...], desc: str, colors, attrs) -> Row:
+         shape: str, params: tuple[tuple[str, str], ...], desc: str, colors, attrs,
+         series: str = "", codes: tuple[tuple[str, str], ...] = ()) -> Row:
     return Row(f"{pre}{i + 1:03d}", title, brand, HOME, path, ptype, price, shape, desc, colors,
-               attrs, params=params)  # fmt: skip
+               attrs, params=params, product_line=series, color_codes=codes)  # fmt: skip
+
+
+_CAPACITY_KEYS = ("load", "capacity", "place_settings")
+
+
+def identify(brand: str, attrs, color: str, generation: str) -> tuple[str, str, tuple, str]:
+    """A model's series, model number, the attributes that state them, and the title's spec.
+
+    Read from the model's own attributes (its kind, capacity and spin speed), so the number and
+    the structured entries cannot disagree (gen#622). ``color`` is the color the number names:
+    the model's first, which the drawing and the first SKU carry.
+    """
+    got = {x[0]: x[2] for x in attrs}
+    kind, spin = got["appliance_type"], int(got.get("spin_rpm", 0))
+    capacity = int(next(got[k] for k in _CAPACITY_KEYS if k in got))
+    series = amn.series_for(brand, kind)
+    base = amn.base_model(brand, kind, capacity, spin, generation)
+    extra = (a("generation", "Generation", generation),
+             a("model_number", "Model number", base + amn.COLORS[color]),
+             a("base_model", "Base model", base))  # fmt: skip
+    return series, base + amn.COLORS[color], extra, amn.spec(kind, capacity, spin)
+
+
+def color_codes(extra, colors) -> tuple[tuple[str, str], ...]:
+    """Each color's model number: the base model of ``extra`` and that color's letter."""
+    base = next(x[2] for x in extra if x[0] == "base_model")
+    return tuple((c[0], base + amn.COLORS[c[0]]) for c in colors)
 
 
 def _kind(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Row, ...]:
-    """Six models of one kind: ``make(i)`` gives each model's (price, description, colors, attrs)."""
+    """Six models of one kind: ``make(i)`` gives each model's (price, description, colors, attrs).
+
+    The title reads brand, series, model number, spec, then the kind (gen#622).
+    """
     out = []
     for i in range(n):
         price, desc, colors, attrs = make(i)
-        model = _MODELS[(sum(map(ord, pre)) + i * 5) % len(_MODELS)]
         brand = BRANDS[(sum(map(ord, pre)) + i) % len(BRANDS)]
-        out.append(_row(pre, i, f"{model} {title}", brand, path, ptype, price, shape, params, desc,
-                        colors, attrs))
+        generation = GENERATIONS[(sum(map(ord, pre)) + i) % 5]
+        series, code, extra, spec = identify(brand, attrs, colors[0][0], generation)
+        out.append(_row(pre, i, f"{brand} {series} {code} {spec} {title}", brand, path, ptype, price,
+                        shape, params, desc, colors, (*attrs, *extra), series,
+                        color_codes(extra, colors)))
     return tuple(out)
+
+
+def decoy_row(code: str, name: str, brand: str, path, ptype: str, price: float, shape: str,
+              desc: str, colors, attrs, params=()) -> Row:
+    """A decoy with a series and a model number like every large appliance (gen#622).
+
+    ``name`` is the title's tail, carrying the word that misleads ("Black Edition Fridge Freezer").
+    Its generation is :data:`DECOY_GENERATION`, which no authored model takes, so its number is its own product's.
+    """
+    series, number, extra, spec = identify(brand, attrs, colors[0][0], DECOY_GENERATION)
+    return Row(code, f"{brand} {series} {number} {spec} {name}", brand, HOME, path, ptype, price,
+               shape, desc, colors, (*attrs, *extra), params=params, product_line=series,
+               color_codes=color_codes(extra, colors))
 
 
 # -- fridges and freezers: (capacity L, width cm, price, frost free) per model
@@ -180,6 +227,15 @@ _LAUNDRY_KINDS = (
 )  # fmt: skip
 
 
+#: The washing machines titled "Washing Machine from <brand>, Model <code>", the second form.
+_FROM_FORM = (2, 5)
+
+
+def _from_form(r: Row) -> Row:
+    code = next(x[2] for x in r.attrs if x[0] == "model_number")
+    return replace(r, title=f"Washing Machine from {r.brand}, Model {code}")
+
+
 def laundry_rows() -> tuple[Row, ...]:
     out: list[Row] = []
     for pre, shape, kind, title, kind_name, lead, models in _LAUNDRY_KINDS:
@@ -194,7 +250,10 @@ def laundry_rows() -> tuple[Row, ...]:
             attrs.append(a("energy_rating", "Energy rating", rating))
             return float(price), desc, _PALETTES[i % 3], tuple(attrs)
         params = (("kind", kind),) if kind else ()
-        out += _kind(pre, 6, LAUNDRY, "Laundry Appliance", shape, params, title, make)
+        rows = _kind(pre, 6, LAUNDRY, "Laundry Appliance", shape, params, title, make)
+        if pre == "LWM":
+            rows = tuple(_from_form(r) if i in _FROM_FORM else r for i, r in enumerate(rows))
+        out += rows
     return tuple(out)
 
 

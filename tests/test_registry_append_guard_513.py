@@ -33,6 +33,8 @@ DECOY_ROWS = f"{RD}/decoy_rows.py"
 WORDS = f"{RD}/decoy_product_words.py"
 LEGACY = f"{RD}/type_specs/legacy_types.txt"
 HARNESS = "scripts/mutation_check.py"
+PROTO = "docs/retail-prototype.md"
+WORD_DOC = "docs/retail-product-word-decoys.md"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -72,6 +74,11 @@ APPENDS = {
         "feature_decoys",
     ),
     "word-d-open": (WORDS, "    _d(", "feature_decoys"),
+    "prototype-section": (PROTO, "### Probe feature (gen#999)", "docs/retail-prototype/"),
+    "prototype-subsection": (PROTO, "#### A probe detail", "docs/retail-prototype/"),
+    "word-doc-row": (
+        WORD_DOC, "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |", "build_derived"
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -81,6 +88,8 @@ BASE = {
     LEGACY: "# header\nBeauty|Body Cream\n",
     DECOY_ROWS: 'TABLE = (\n    _d("XS01", "sofa", "Sofa", "Desc", "Blue", 1, "red sofa"),\n)\n',
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
+    PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
+    WORD_DOC: "# Decoys\n\nThe table is built.\n",
 }
 
 
@@ -200,12 +209,47 @@ def test_a_trailer_with_no_reason_does_not_let_an_append_by(repo, capsys):
     assert _run(root, base, capsys)[0] == 1
 
 
-def test_a_trailer_on_an_earlier_commit_does_not_let_the_tip_by(repo, capsys):
+def test_a_trailer_on_an_earlier_commit_of_the_branch_lets_the_append_by(repo, capsys):
     root, base = repo
     _append(root, SCALE, "import probe_rows  # noqa: E402",
             "feature\n\nRegistry-Append: first")  # fmt: skip
-    _append(root, LEGACY, "Beauty|Probe Cream", "later")
-    assert _run(root, base, capsys)[0] == 1
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    assert _run(root, base, capsys)[0] == 0
+
+
+def _merge_main_into_feature(root: Path, message: str = "Merge main into feature") -> str:
+    """Advance main by a commit and merge it into ``feature``; return main's new tip."""
+    _git(root, "switch", "-q", "main")
+    tip = _commit(root, "main moves on", {"elsewhere.txt": "y\n"})
+    _git(root, "switch", "-q", "feature")
+    _git(root, "merge", "-q", "--no-ff", "-m", message, "main")
+    assert len(_git(root, "rev-list", "--parents", "-n1", "HEAD").split()) == 3
+    return tip
+
+
+def test_a_trailer_survives_a_merge_of_main_at_the_tip(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402",
+            "feature\n\nRegistry-Append: a helper module, not a feature")  # fmt: skip
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    main_tip = _merge_main_into_feature(root)
+    assert _run(root, main_tip, capsys)[0] == 0
+
+
+def test_the_same_branch_with_no_trailer_anywhere_is_refused(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402")
+    _commit(root, "a second commit", {"notes.txt": "x\n"})
+    main_tip = _merge_main_into_feature(root)
+    code, out = _run(root, main_tip, capsys)
+    assert code == 1 and SCALE in out
+
+
+def test_a_trailer_in_the_message_of_the_merge_alone_does_not_let_an_append_by(repo, capsys):
+    root, _ = repo
+    _append(root, SCALE, "import probe_rows  # noqa: E402")
+    main_tip = _merge_main_into_feature(root, "Merge main\n\nRegistry-Append: on the merge")
+    assert _run(root, main_tip, capsys)[0] == 1
 
 
 def test_the_table_holds_exactly_the_registries_that_have_a_new_file_form():
@@ -247,3 +291,9 @@ def test_the_no_derived_files_job_runs_the_registry_guard():
 def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc):
     text = (ROOT / doc).read_text(encoding="utf-8")
     assert "feature_decoys" in text or "check_no_registry_append" in text, doc
+
+
+def test_the_quick_path_does_not_tell_a_contributor_to_paste_the_decoy_table():
+    text = (ROOT / "docs" / "new-type-quick-path.md").read_text(encoding="utf-8")
+    assert "table_markdown" not in text
+    assert "retail-product-word-decoys-table.md" in text

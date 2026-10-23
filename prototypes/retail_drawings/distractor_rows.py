@@ -178,6 +178,9 @@ _GARMENTS = (("Wrap Midi Dress", ("Womens", "Dresses", "Wrap Dresses"), "dress")
              ("Jersey Top", ("Womens", "Tops", "Jersey Tops"), "top"),
              ("Long Sleeve Top", ("Womens", "Tops", "Long Sleeve Tops"), "top"))
 UK_SIZES = ("6", "8", "10", "12", "14", "16")
+#: The discounted regular-range dresses run on to UK 20, stored as ``size_uk`` with the chart's EU
+#: and US sizes (gen#621): "size 20 dress" finds them by ``facets.size_uk``.
+UK_DRESS_SIZES = (*UK_SIZES, "18", "20")
 
 
 def _petite(n: int) -> Style:
@@ -219,8 +222,10 @@ def _sale(n: int) -> Style:
         noun, path, shape = _GARMENTS[n % len(_GARMENTS)]
         return Style(f"DSL{n:03d}", f"Womens {fabric} {noun}", _BRANDS[n % 4], "Clothing", path,
                      price, f"{fabric} {noun.lower()} for women.",
-                     noun.split()[-1], shape, one(color, 60 + n * 3), sizes=UK_SIZES,
-                     size_range="regular", pattern="plain", was_price=was)
+                     noun.split()[-1], shape, one(color, 60 + n * 3),
+                     sizes=UK_DRESS_SIZES if path[1] == "Dresses" else UK_SIZES,
+                     uk_chart=path[1] == "Dresses", size_range="regular", pattern="plain",
+                     was_price=was)
     noun, path, leg, fit = _LEGWEAR[n % len(_LEGWEAR)]
     return Style(f"DSL{n:03d}", f"{fabric} {noun}", _BRANDS[n % 4], "Clothing", path, price,
                  f"{fabric} {noun.lower()} in a regular and long length.",

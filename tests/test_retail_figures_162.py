@@ -28,12 +28,19 @@ if str(RETAIL) not in sys.path:
 
 import retail_figures  # noqa: E402
 
+#: A retail feature's own reference page (gen#513), read like the page it left.
+PROTOTYPE_PAGES = tuple(
+    f"docs/retail-prototype/{page.name}"
+    for page in sorted((ROOT / "docs" / "retail-prototype").glob("*.md"))
+)
+
 #: Where the totals used to be typed. A file that quotes one again conflicts with every
 #: grocery or type PR again. This module and ``retail_figures.py`` are the only places a
 #: total may be named, and they name none.
 QUOTING = (
     "README.md",
     "docs/retail-prototype.md",
+    *PROTOTYPE_PAGES,
     "prototypes/retail_drawings/scale.py",
     "prototypes/retail_drawings/grocery.py",
     "tests/test_grocery_154.py",
@@ -49,8 +56,9 @@ QUOTING = (
 )
 
 #: Constants that tune the build, not totals it measures: a small total that happens to equal
-#: one (gen#200's 40 household styles and ``ATTEMPTS = 40``) is a collision, not a quotation.
-TUNING = ("ATTEMPTS",)
+#: one (gen#200's 40 household styles and ``ATTEMPTS = 40``, gen#626's ``LEAF_RANKS = 40`` and
+#: ``RETRIES = 4``) is a collision, not a quotation.
+TUNING = ("ATTEMPTS", "LEAF_RANKS", "RETRIES")
 
 
 #: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
