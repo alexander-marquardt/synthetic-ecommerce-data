@@ -34,6 +34,7 @@ WORDS = f"{RD}/decoy_product_words.py"
 LEGACY = f"{RD}/type_specs/legacy_types.txt"
 HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
+WORD_DOC = "docs/retail-product-word-decoys.md"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -75,6 +76,9 @@ APPENDS = {
     "word-d-open": (WORDS, "    _d(", "feature_decoys"),
     "prototype-section": (PROTO, "### Probe feature (gen#999)", "docs/retail-prototype/"),
     "prototype-subsection": (PROTO, "#### A probe detail", "docs/retail-prototype/"),
+    "word-doc-row": (
+        WORD_DOC, "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |", "build_derived"
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -85,6 +89,7 @@ BASE = {
     DECOY_ROWS: 'TABLE = (\n    _d("XS01", "sofa", "Sofa", "Desc", "Blue", 1, "red sofa"),\n)\n',
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
+    WORD_DOC: "# Decoys\n\nThe table is built.\n",
 }
 
 
