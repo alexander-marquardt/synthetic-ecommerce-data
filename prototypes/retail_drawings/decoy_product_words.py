@@ -410,7 +410,12 @@ class Row:
     def style(self) -> Style:
         k = KINDS[self.kind]
         params = k.params + (((self.detail_param, COLORS[self.detail]),) if self.detail else ())
-        color = cw(self.color, COLORS.get(self.color, COLORS["Grey"]))
+        base = COLORS.get(self.color, COLORS["Grey"])
+        if k.pattern == "stripe":  # the record's pattern is the one the drawing shows (gen#605)
+            light = self.color in ("Cream", "White", "Yellow", "Pink", "Clear")
+            color = cw(self.color, base, "stripe", COLORS["Navy" if light else "White"])
+        else:
+            color = cw(self.color, base)
         return Style(
             self.code,
             self.title,
