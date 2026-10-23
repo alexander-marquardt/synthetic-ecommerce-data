@@ -267,10 +267,42 @@ def test_the_rows_are_templates_no_derived_style_copies_or_color_completes() -> 
 
 
 def test_the_docs_table_lists_every_row_with_its_policy() -> None:
-    path = ROOT / "docs" / "retail-product-word-decoys.md"
-    assert path.exists() and dpw.TABLE
-    doc = path.read_text(encoding="utf-8")
+    assert dpw.TABLE
     table = dpw.table_markdown()
-    assert table in doc
+    built = getattr(dpw, "table_doc", None)
+    assert built is not None, "decoy_product_words has no table_doc(), the page the build writes"
+    assert table in built()
     assert len(table.splitlines()) == len(dpw.TABLE) + 2
     assert all(r.policy in line for r, line in zip(dpw.TABLE, table.splitlines()[2:], strict=True))
+
+
+def test_the_docs_table_is_built_and_the_committed_page_carries_no_row() -> None:
+    """Every decoy PR pasted the whole table into the page, so two met there (gen#513): the
+    derived build writes it, and the page that explains it holds no table line."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_derived  # noqa: PLC0415
+
+    built = "docs/retail-product-word-decoys-table.md"
+    assert getattr(dpw, "TABLE_DOC", None) == built
+    assert built in build_derived.OUTPUTS
+    page = (ROOT / "docs" / "retail-product-word-decoys.md").read_text(encoding="utf-8")
+    assert [line for line in page.splitlines() if line.startswith("|")] == []
+    assert built in page
+
+
+def test_the_derived_build_writes_the_table_page(tmp_path, monkeypatch) -> None:
+    """The page is in OUTPUTS and the build writes it: the slow outputs are stubbed, the table
+    page is the one :func:`decoy_product_words.table_doc` returns (gen#513)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_derived  # noqa: PLC0415
+    import build_preview  # noqa: PLC0415
+    import build_preview4  # noqa: PLC0415
+    import retail_figures  # noqa: PLC0415
+
+    monkeypatch.setattr(retail_figures, "figures", lambda: {})
+    monkeypatch.setattr(retail_figures, "render", lambda figures: "")
+    monkeypatch.setattr(retail_figures, "markdown", lambda figures: "")
+    monkeypatch.setattr(build_preview, "outputs", lambda: ("", ""))
+    monkeypatch.setattr(build_preview4, "outputs", lambda: ("", ""))
+    assert dpw.TABLE_DOC in build_derived.build(tmp_path)
+    assert (tmp_path / dpw.TABLE_DOC).read_text(encoding="utf-8") == dpw.table_doc()
