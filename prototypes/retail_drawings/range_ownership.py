@@ -17,6 +17,8 @@ from __future__ import annotations
 import random
 from collections.abc import Iterable
 
+import appliance_model_numbers as amn
+
 #: The stems of the invented place words: no color, no product word, no brand's own word.
 STEMS = (
     "Ash", "Aln", "Ark", "Bar", "Beck", "Bel", "Birk", "Bolt", "Bram", "Brack", "Brad", "Brock",
@@ -56,7 +58,10 @@ AUTHORED = frozenset({
     "Mardale", "Oldstead", "Penley", "Thornby", "Winscar",
 })  # fmt: skip
 
-EXCLUDED = PRODUCT_WORDS | AUTHORED
+#: #622's appliance series: a series is its brand's word, so the pool never deals it.
+SERIES_WORDS = frozenset(w for names in amn.SERIES.values() for w in names)
+
+EXCLUDED = PRODUCT_WORDS | AUTHORED | SERIES_WORDS
 
 
 def _everything() -> list[str]:
