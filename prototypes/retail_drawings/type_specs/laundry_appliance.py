@@ -13,7 +13,7 @@ decoy. Every brand is invented. Not derivable: the range is authored.
 from __future__ import annotations
 
 import large_appliance_rows as rows
-from type_registry import Decoy, Row, TypeSpec, a
+from type_registry import Decoy, TypeSpec, a
 
 SPEC = TypeSpec(
     key="laundry_appliance",
@@ -22,11 +22,12 @@ SPEC = TypeSpec(
     owners=rows.OWNERS,
     rows=rows.laundry_rows(),
     decoys=(
-        Decoy(1, "red washing machine", "color", Row(
-            "LRS001", "Washing Machine with Red Spot Dial", rows.BRANDS[2], "Home", rows.LAUNDRY,
+        Decoy(1, "red washing machine", "color", rows.decoy_row(
+            "LRS001", "Washing Machine with Red Spot Dial", rows.BRANDS[2], rows.LAUNDRY,
             "Laundry Appliance", 349.0, "washing_machine",
             "A front-loading washing machine in white. The Red Spot dial on its panel picks the "
             "programme.", (rows.WHITE,),
-            (a("appliance_type", "Type", "Washing Machine"), rows.a("energy_rating", "Energy rating", "B")))),
+            (a("appliance_type", "Type", "Washing Machine"), rows._kg("load", "Load capacity", 8),
+             a("spin_rpm", "Spin speed (rpm)", "1200"), rows.a("energy_rating", "Energy rating", "B")))),
     ),
 )
