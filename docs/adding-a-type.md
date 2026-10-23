@@ -199,7 +199,9 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
    type that publishes its material under another name than `Material` names
    it in `MATERIAL_ATTRIBUTES` in `core/price.py` (a wheel's is its
    `Abrasive Material`), since the census spec is the key in one material. A
-   type the census has no prices
+   brand-census type also names the attribute the census puts in its spec
+   (flutes, grit, closure) in `SPEC_ATTRIBUTES`; a SKU sparsity leaves
+   without one is in no spec and the row's note counts it. A type the census has no prices
    for declares `measured=False`; one it has prices for restates its census
    rows and is fitted ([Price](#price)).
 - **Figures.** Restate the published figures the type moves
@@ -260,11 +262,12 @@ The output must stay byte-identical.
    `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
    screw its `_SOCKET_SCREW_LINES` row. A modelled type also has entries in
    `conformance._shared_claims` (when it claims a standard),
-   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS` and
-   `noise.UNIT_PRIMARY`, and a row in each table of `tests/type_facts.py`
+   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS`,
+   `noise.UNIT_PRIMARY`, `noise.CUTTING`, `compat.RELATIONS` and
+   `compat.NEAR_MISS_PERIOD`, and a row in each table of `tests/type_facts.py`
    (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
    `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   and `may_claim` (the Facts item of
+   `cutting`, `compat`, `near_miss_period` and `may_claim` (the Facts item of
    [A new type](#a-new-type)). For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
@@ -569,14 +572,15 @@ that fixes it:
   `uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds`
   and they appear in `PINNED_FIGURES`, read from the generated file. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the wheel brand spread at 100K, #66; the kit
-  p90/p10, #76). A size a pin records `None` for is one the row lands in
-  band on: the pin holds there while the row stays in band (the wheel brand
-  spread on the default build, #272). A figure a reason quotes is read from `PINNED_FIGURES` in
+  side (the kit p90/p10, #76). A size a pin records `None` for is one the
+  row lands in band on: the pin holds there while the row stays in band
+  (`test_a_pin_recorded_none_for_a_build_holds_while_the_row_stays_in_band`
+  plants one). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that
-  states the cause, such as what the wheel's brand tiers alone give, is held
-  by a test that measures it
-  (`test_the_wheel_pin_reason_quotes_what_the_brand_tiers_alone_give`).
+  states the cause is held by a test that measures it: the wheel's pin
+  (retired by #80) named what its brand tiers alone gave, and
+  `test_the_wheel_brand_tiers_alone_leave_the_row_in_band_at_100k` now holds
+  that the tiers alone no longer put it out of band.
   There is no looser declaration: a row that lands on either side of its
   band from one build to the other has a model to fix, as the kit p50 did
   (#71: a kit was one group draw per page, so its few pages moved its median
@@ -625,6 +629,19 @@ publishes:
 * `UNIT_PRIMARY` writes a unit equivalent of the type's primary length. A
   type whose primary attribute is a length (a `Size` or a `Diameter`) joins
   it, with `unit_primary=`; a thread designation is not a length.
+* `CUTTING` writes the "suitable for" sentence. A cutting tool joins it, with
+  `cutting=True`.
+* `compat.RELATIONS` writes the cross-reference sentence (`Takes a 5mm hex
+  key.`, `Fits M8x1.25 bolts and screws.`) from one published attribute. A
+  modelled type declares `compat=(kind, attribute)`, with kind one of
+  `hex_key`, `drive`, `tap`, `drill`, `nut` or `washer` and the attribute the
+  sentence reads, or `compat=False` when no sentence is true of it. Leaving
+  it unset is refused at registration, so a type cannot go without one by
+  saying nothing.
+* `compat.NEAR_MISS_PERIOD` is for a type whose builder offers a fine-pitch
+  near miss of a diameter: `near_miss_period=N` (at least 2) builds every Nth
+  line of a diameter to the fine pitch. A hand-kept list of types here meant a
+  new type never got one.
 
 Each record's sentences draw from its own stream (`noise.record_rng`), so
 joining moves only this type's records. `tests/test_noise_text.py` checks
@@ -649,7 +666,7 @@ from collections import defaultdict
 from pathlib import Path
 base, head = Path(sys.argv[1]), Path(sys.argv[2])
 moved = set()
-for name in ("flat.jsonl", "nested.jsonl", "images.jsonl", "render.jsonl"):
+for name in ("flat.jsonl", "nested.jsonl", "images.jsonl"):
     sides = []
     for root in (base, head):
         by_type = defaultdict(hashlib.sha256)
@@ -989,7 +1006,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
-  `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
+  `domains/industrial/drawing/figures.py` (`FIGURES`), `domains/industrial/compat.py`,
   `domains/industrial/muststock.py`, `domains/industrial/newtypes.py` (`_KIT_MATERIAL`,
   `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
   family `test_the_catalog_offers_all_four_socket_screw_styles` in

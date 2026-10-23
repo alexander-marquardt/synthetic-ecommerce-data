@@ -31,10 +31,11 @@ type changes them only in the file the merge script rebuilds (#103).
 **Renamed from `synthetic-industrial-products`** (#125), so that one generator
 can build catalogs beyond industrial supply. The distribution is
 `synthetic-ecommerce-data`, the package `synthetic_ecommerce_data`, and the
-commands `ecom-generate` and `ecom-render`. For one release cycle the old names
+command `ecom-generate`. For one release cycle the old names
 still work and are deprecated: `import synthetic_industrial_products...`
 resolves to the same modules with a `DeprecationWarning`, and `sip-generate`
-and `sip-render` run the new commands after a note on stderr. The output is
+runs the new command after a note on stderr. `sip-render` and `ecom-render` are gone
+with the text renderer they ran (#27). The output is
 byte-identical under either name.
 
 **Layout** (#125 step 2). `src/synthetic_ecommerce_data/core/` holds the
@@ -43,10 +44,9 @@ and dimensions, brands, copy noise, titles and voice, price, emit, the image
 bundle, the non-copying check, the breadth row table and the drawing
 framework. `src/synthetic_ecommerce_data/domains/industrial/` holds
 everything industrial: the generator, the types, vocabularies, standards,
-taxonomy, figures, renderers, census measurement and data. The commands
+taxonomy, figures, geometry, census measurement and data. The commands
 compose a domain with core, so they stay at the top level beside `prism/`:
-`generate_cli.py` (`ecom-generate`) and the per-record `cli.py`
-(`ecom-render`). Some core modules still hold industrial tables next to their
+`generate_cli.py` (`ecom-generate`). Some core modules still hold industrial tables next to their
 machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
@@ -209,7 +209,7 @@ refusing the tree; rerun it.
 
 **What a feature PR commits, and what it never commits (gen#536).** A PR commits its
 sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
-(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, `stats.json`, the mappings). It
+(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `stats.json`, the mappings). It
 never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
 `docs/figures.md`, the apparel decoy table `docs/retail-apparel-decoys.md` and the sneak-peek
 samples and previews. They moved with every type or grocery PR, so every merge conflicted the
@@ -226,7 +226,7 @@ GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 log path, and refuses the merge unless all pass; no GitHub check is read. A red job
 prints its FAILED/ERROR lines (up to 20) and its log is copied to
 `<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
-without a re-run.
+without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md).
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -869,7 +869,6 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `ecom-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
@@ -953,7 +952,6 @@ The retail prototype's reference (planted distractors, footwear, grocery, the fa
 |---|---|
 | `flat.jsonl` | about 30 MB — one document per SKU |
 | `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
-| `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `authored_names.json` | 16 KB — per product type, each attribute's published sentence-case name beside the name its type authored; the image bundle rebuild reads it ([One letter case](#one-letter-case-for-names)) |
@@ -1235,8 +1233,7 @@ record and read by nothing has no code path to plant a defect in, which is how
 zeros. What the harness *can* plant is the other half — a channel that reads
 its attribute, validates it, and then draws something else — so every marking
 mutation is that shape, and the coverage question is answered from the data
-side instead, in `tests/test_derivation.py` (the dimensioned renderer) and
-`tests/test_sku_drawings.py` (the catalog's own drawings).
+side instead, in `tests/test_sku_drawings.py` (the catalog's own drawings).
 
 Two of the harness's own defects surfaced while the marking mutations were
 added, both of which manufacture a false "not caught": a selector's `-k` filter
@@ -1349,11 +1346,10 @@ every other drawing -- only the GEOMETRY is fixed.
   viewBox-only SVG at 0 x 0.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
-(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds the
-dimensioned renderer in `domains/industrial/render/` also draws (end mills, drills, taps, screws
-and bolts, washers, flap discs) it reads the SKU's geometry through the same
-`geometry_from_record` functions, so the two cannot disagree about what a
-record says; the other depth types read their few values inline, and the breadth
+(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds
+with a module in `domains/industrial/geometry/` (end mills, drills, taps, screws
+and bolts, washers, flap discs) it reads the SKU's geometry through that module's
+`geometry_from_record`, which parses and checks a record and draws nothing; the other depth types read their few values inline, and the breadth
 shapes read none.
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
@@ -1507,13 +1503,13 @@ A `v*` tag builds the ceiling export and this bundle, uploads them to a release 
 `.content-sha256`, and opens the pin-bump pull request in the catalogue repository
 ([docs/releasing.md](docs/releasing.md), gen#536); a manual run of the workflow is the dry run.
 
-### The older renderers in `domains/industrial/render/`
+### One renderer
 
-`domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the
-per-line marking, and the per-record **dimensioned** drawings (`ecom-render`).
-They carry text -- callouts and stamps -- and the catalog no longer uses any of
-them; their geometry parsing is what the catalog's drawings read. Retiring them
--- extracting the shared geometry first -- is #27.
+`domains/industrial/drawing/` is the only way a product is drawn, and its drawings carry no
+text. The matplotlib renderers that put tables, stamps and callouts into a picture
+(`domains/industrial/render/`, and the `sip-render` and `ecom-render` commands) were
+retired in #27. What they shared with `drawing/` -- reading a record into measurements --
+lives in `domains/industrial/geometry/`.
 
 ## Realism
 
@@ -1602,7 +1598,7 @@ figure against the file.
 | anchor: the price at a reference key dimension | fitted |
 | slope on the key dimension (a bore, a diameter, a thread size), and on length for hex bolts and socket screws | census, cut only for a reason `price.SLOPE_CUTS` records |
 | material | **not measured**: general-knowledge ratios in `price.MATERIAL_FACTORS`, since the census holds material equal on a page |
-| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure |
+| brand tier (economy, standard, premium) | census: the bearing, jobber drill, ball end mill, socket head screw, spiral point tap and depressed-center wheel use their own figures (`price.TYPE_TIER_CENSUS`); every other type uses the jobber drill's. That includes the hex nut, though the census measures its same-spec brand spread: on its 6 shared specs the house label is the dearer brand (5.58x the others, p50), so it gives no economy figure. The wheel's economy figure is that house label's, found on 4 of 12 shared specs, so the wheel has one economy maker, `Tervasko` (`brands.TIER_EXCEPTIONS`, #80) |
 | pack quantity (hex nuts, socket screws) | census pooled pack slope (`price.PACK_SLOPES`); the socket screw's pack falls as its size grows (`price.pack_quantity`) |
 | pack quantity (hex bolts) | a group page's pack, independent of the size, so a size comes in several packs (`price.page_pack`); priced within a size on the elasticity the census's same-spec larger-pack ratio gives (`price.PACK_ELASTICITY`, 0.659: a 5x pack costs 0.5778 per piece). Because the pack adds its own spread, the bolt's slopes are cut to `price.SLOPE_CUT_AIMS` (shown p90/p10 10.0, inside the row's band) rather than to the census's 8.21, which would leave no size slope. Prices exist to show range filters, sorting and facets, not to match the census exactly (#86) |
 | group noise, one draw per census-style page (one brand, the line attributes a page holds equal) | fitted sigma |
@@ -1673,10 +1669,9 @@ whose larger size costs more, longer costs more (bolts and socket screws),
 equal prices across a size pair (taps), how often a smaller SKU of one
 product costs twice the larger, the same-spec brand spread, economy brands
 against the rest, and the .99/.00/.50 endings. A spec is the census's: the
-key dimension in one material (`price.material_of`). A wheel publishes its
-material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
+key dimension, the material and the attribute the census names for the type (`price.SPEC_ATTRIBUTES`: a wheel's grit, a bearing's closure, a ball end mill's and a tap's flutes). A wheel publishes its material as its abrasive (`price.MATERIAL_ATTRIBUTES`), and
 `test_every_brand_census_types_spec_holds_a_material_or_names_why_not` fails
-a type whose specs hold no material. Each row has a band
+a type whose specs hold no material. A SKU that sparsity left without one of them is in no spec, and the type's brand-spread row says how many in its note. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
@@ -1693,7 +1688,7 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `72 rows, 70 in band`; the other two are the pins.
+It prints `72 rows, 71 in band`; the other is the kit pin.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
@@ -1702,7 +1697,6 @@ reason and the issue that fixes it, and stays bounded:
 
 | row | kind | why | bound |
 |---|---|---|---|
-| wheel brand spread | pin, above band at both builds (the default build was in band until #357 dropped the wheels that differed only by a pack and moved the ids) | the brand tiers alone, every noise off, put the 100K build above band: 3 of the 12 wheel brands are economy, and the row's sampled brands take one on more than half its specs, where the census measures its house label on 4 of its 12; the wheel's p90/p10 is carried by noise one spec shares across its brands (`size_sigma`), so no per-brand group noise adds to it (#66, #272) | at each build no further above than the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE` |
 | kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
 
 The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
