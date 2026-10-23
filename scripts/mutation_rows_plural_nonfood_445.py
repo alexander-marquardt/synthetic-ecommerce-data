@@ -45,8 +45,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "an oranges washing-up liquid claims fresh oranges",
         _F,
-        '"A washing-up liquid scented with sweet oranges, in a 500ml bottle."',
-        '"A washing-up liquid scented with fresh sweet oranges, in a 500ml bottle."',
+        '"A washing-up liquid scented with oranges."',
+        '"A washing-up liquid scented with fresh oranges."',
         f'{_T} -k "brand_or_a_scent and oranges"',
         "no decoy title or description claims the product is fresh",
         _R,
