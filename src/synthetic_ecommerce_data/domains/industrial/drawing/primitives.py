@@ -31,7 +31,7 @@ import math
 from collections.abc import Sequence
 
 from synthetic_ecommerce_data.core.drawing.model import Figure, Point, regular_polygon
-from synthetic_ecommerce_data.domains.industrial.render import fastener as fastener_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import fastener as fastener_geom
 
 #: The share of a pan head's height that is its domed crown; the rest is the
 #: straight wall.

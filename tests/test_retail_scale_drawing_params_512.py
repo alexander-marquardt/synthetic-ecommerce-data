@@ -21,6 +21,7 @@ if str(RETAIL) not in sys.path:
 
 import image_release  # noqa: E402
 import scale  # noqa: E402
+import stable_ids  # noqa: E402
 
 #: The kit's word for each strap attribute value: written here, not read from the source.
 STRAP_DRAWN = {"Back strap": "back", "None": "none"}
@@ -69,7 +70,10 @@ def test_every_value_the_scale_can_derive_to_is_one_the_kit_draws(templates):
             for value in pools[(tpl["category_leaf"], key)]:
                 if value == own:
                     continue
-                rec = _derive(tpl, {key: value})
+                try:
+                    rec = _derive(tpl, {key: value})
+                except stable_ids.IdCollision:
+                    continue  # the value merges two SKUs: the build refuses this draw (gen#626)
                 try:
                     image_release.image_files([rec])
                 except ValueError as err:

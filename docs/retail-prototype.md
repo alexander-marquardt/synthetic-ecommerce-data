@@ -200,9 +200,16 @@ The planted cases are:
 
 `tests/test_grocery_154.py` pins each case. The new pack shapes are `bar`, `bag`,
 `butter_block` (a foil-wrapped block), `lidded_tub` (ice cream, a spread),
-`pizza` (a round pie on a card under film) and `fish_bag` (frozen battered fish: a flat
+`pizza` (a round pie on a card under film), `fish_bag` (frozen battered fish: a flat
 pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), in
-`kit_grocery.py`. The build makes
+`kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
+packet on its side, crimped at both ends), in `kit_biscuits.py`
+(`tests/test_biscuit_sleeve_608.py`); and `chocolate_box`
+(a flat, wide, lidded selection box with a ribbon across the lid, in
+`kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
+scale still draws a 150g box smaller than a 400g one;
+`tests/test_chocolate_box_drawn_609.py`, the before and after is
+`docs/images/chocolate-box-drawn-609.svg`). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -255,7 +262,7 @@ them.
 Every record, round 4's included, is one document per STYLE (the gen#125
 ruling, built by `variants.product`): a product with a color selector and a
 size selector. Every color x size combination the style is sold in is a SKU
-nested in `skus`, with its own `sku` id (`<product_id>-001` on), `color`,
+nested in `skus`, with its own `sku` id (`<product_id>-<8 hex of its axes>`, gen#626: [stable ids](retail-sku-ids-626.md)), `color`,
 size per size system, `price` and `in_stock`. No document carries a color
 family (gen#186): it listed the same products as `color` under a second
 facet, and grouping shades ("navy" covering Navy and Navy Check) is a PRISM
@@ -739,6 +746,17 @@ moves, and a derived style inherits the longer run. Decoys of `decoy_rows.py` an
 `decoy_product_words.py` keep their run. `tests/test_retail_plus_sizes_434.py` pins at least 30
 Womens dresses at UK 22 and the chart.
 
+### Womens dresses in UK numeric sizes 6 to 20 (gen#621)
+
+"size 20 dress" filters the dresses by `facets.size_uk: 20`, but the dresses sized by number stored
+a bare `size`, so none carried `size_uk`. The discounted regular-range dresses of
+`distractor_rows.py` (`DSL`, the Wrap Midi, Shirt and Maxi dresses) now run UK 6 to 20 with
+`Style(uk_chart=True)`: each SKU stores `size_uk`, `size_eu` and `size_us` from the Womens chart
+(`variants.WOMENS_WAIST`, UK 20 = EU 48 = US 16) the way the jeans do, one variant per color and
+size, and `size_options` lists the three. `plus_sizes.py` carries three in five of them on to
+UK 24 in the same keys. The petite dresses and the tops keep a bare `size`.
+`tests/test_retail_dress_uk_sizes_621.py` pins the dresses, the 6 to 20 run and the UK 20 row.
+
 ### Large appliances (gen#334)
 
 Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
@@ -762,6 +780,24 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 `DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
+
+Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
+(`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
+`product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
+field (an attribute keyed `series` would shadow it, which the output standard refuses). A large
+appliance's title reads brand, series, model number, spec, then the kind: "Frostholm Arden
+FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
+(its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
+or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
+`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. Each SKU states
+the code of its own color as its `model_number` option, so a query for `FW712BB` finds the black
+one; the product-level code (the title's) is the first color's, and the `base_model` attribute is
+the same code without its color letter, which names the product in every color. Model number, generation, capacity
+and spin speed are each their own attribute. Two washing machines carry the second title form,
+"Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
+or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
+carry generation "H", which no authored model takes.
+`tests/test_retail_appliance_model_numbers_622.py` holds it.
 
 The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
 derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7

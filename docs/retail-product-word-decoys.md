@@ -54,6 +54,12 @@ truth (a bra by department, path, product type and drawing); only the title hold
 policy of the cups (gen#125 class 15) drops them. Related: gen#520 and gen#508, the plural-cups bras.
 `tests/test_retail_cups_620.py` holds the rule and the ranking.
 
+**Cycling accessories (gen#625).** The chain lube, bike bottles, saddles and pedals of gen#625 are
+true types of their own Cycling leaves, short-titled so that a bare `bicycle` or `bike` ranks them
+above the bikes. Each also gets two print decoys of another department, `PLT-DY6251` to
+`PLT-DY6258` in `feature_decoys/cycling_accessories.py`, the rule of gen#352's
+`feature_decoys/cycling_wheeled.py`.
+
 **Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
 hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
 case and card-making paper for "card", a notebook computer sleeve and tote for "notebook", a lockable
@@ -242,6 +248,24 @@ type whose word the title holds, and the department policy drops it. See
 | cup | cup | PLT-DY624 | Soft Cup Bra | Bra | category |
 | cup | cup | PLT-DY625 | Spacer Cup Bra | Bra | category |
 | cup | cup | PLT-DY626 | Cotton Full Cup Bra | Bra | category |
+| chain lube | lube | PLT-DY6251 | Chain Lube Print T-Shirt | T-Shirt | department |
+| chain lube | lube | PLT-DY6252 | Chain Lube Print Tote Bag | Tote Bag | department |
+| bike bottle | bottle | PLT-DY6253 | Bike Bottle Print T-Shirt | T-Shirt | department |
+| bike bottle | bottle | PLT-DY6254 | Bike Bottle Print Pyjamas | Pyjamas | department |
+| bike saddle | saddle | PLT-DY6255 | Bike Saddle Print Tote Bag | Tote Bag | department |
+| bike saddle | saddle | PLT-DY6256 | Bike Saddle Print Cushion | Cushion | department |
+| bike pedals | pedal | PLT-DY6257 | Bike Pedals Print Sweatshirt | Sweatshirt | department |
+| bike pedals | pedal | PLT-DY6258 | Bike Pedals Print Beach Towel | Towel | department |
+| bicycle | bicycle | PLT-DY3521 | Bicycle Print T-Shirt | T-Shirt | department |
+| bicycle | bicycle | PLT-DY3522 | Bicycle Print Tote Bag | Tote Bag | department |
+| bike helmet | helmet | PLT-DY3523 | Bike Helmet Print Pyjamas | Pyjamas | department |
+| bike helmet | helmet | PLT-DY3524 | Bike Helmet Print Sweatshirt | Sweatshirt | department |
+| kayak | kayak | PLT-DY3525 | Kayak Print Beach Towel | Towel | department |
+| kayak | kayak | PLT-DY3526 | Kayak Print Cushion | Cushion | department |
+| kick scooter | scooter | PLT-DY3527 | Kick Scooter Print T-Shirt | T-Shirt | department |
+| kick scooter | scooter | PLT-DY3528 | Kick Scooter Print Sweatshirt | Sweatshirt | department |
+| skateboard | skateboard | PLT-DY3529 | Skateboard Print T-Shirt | T-Shirt | department |
+| skateboard | skateboard | PLT-DY3530 | Skateboard Print Tote Bag | Tote Bag | department |
 | mouse | mouse | PLT-DY701 | Harvest Mouse Cushion | Cushion | department |
 | mouse | mouse | PLT-DY702 | Field Mouse Throw | Throws | department |
 | tablet | tablet | PLT-DY703 | All-in-One Dishwasher Tablets | Dish Soap | department |

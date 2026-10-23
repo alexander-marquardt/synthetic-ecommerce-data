@@ -1,14 +1,12 @@
 {
   "default": {
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.771,
       "price p90/p10: kit_assortment": 4.032
     }
   },
   "hundred_k": {
     "lines": 71621,
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.769,
       "price p90/p10: kit_assortment": 3.917
     },
     "skus": 122883,

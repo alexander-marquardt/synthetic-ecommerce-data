@@ -143,7 +143,7 @@ def test_the_apple_devices_have_apple_clashes_across_departments():
     apple = [
         r for r in rows.values() if "apple" in r.query and r.device_type in {"Smartphone", "Tablet"}
     ]
-    assert len(apple) >= 3, "fruit, tree and candle clash with the devices"
+    assert len(apple) >= 3, "juice, tree and candle clash with the devices"
 
 
 @pytest.mark.parametrize(
