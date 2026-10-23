@@ -1151,7 +1151,7 @@ def test_the_stale_yaml_signature_of_the_incident_is_regenerated(world: dict) ->
     ids = [
         f"FAILED {_FIELD_MAP_FRESH}",
         f"ERROR {_EXACTLY_FRESH}",
-        *(f"ERROR {_FRESH}[{name}]" for name in ("flat.jsonl", "stats.json", "render.jsonl")),
+        *(f"ERROR {_FRESH}[{name}]" for name in ("flat.jsonl", "stats.json", "nested.jsonl")),
     ]
     head = _stale_golden_pr(world, _red_on(*ids))
     done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")

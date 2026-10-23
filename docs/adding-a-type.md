@@ -666,7 +666,7 @@ from collections import defaultdict
 from pathlib import Path
 base, head = Path(sys.argv[1]), Path(sys.argv[2])
 moved = set()
-for name in ("flat.jsonl", "nested.jsonl", "images.jsonl", "render.jsonl"):
+for name in ("flat.jsonl", "nested.jsonl", "images.jsonl"):
     sides = []
     for root in (base, head):
         by_type = defaultdict(hashlib.sha256)
@@ -1006,7 +1006,7 @@ What a modelled type can still edit in a shared file, and so conflict on:
   standards extraction in `core/standards_library/tables/fastener_standards.json`.
 * Type-keyed tables a family may need. Find them with
   `grep -rn "'<sibling_key>'\|\"<sibling_key>\"" src scripts tests --include=*.py | grep -v domains/industrial/product_types/`:
-  `domains/industrial/render/kinds.py` (`TYPE_KIND`), `domains/industrial/render/generic.py`, `domains/industrial/compat.py`,
+  `domains/industrial/drawing/figures.py` (`FIGURES`), `domains/industrial/compat.py`,
   `domains/industrial/muststock.py`, `domains/industrial/newtypes.py` (`_KIT_MATERIAL`,
   `_KIT_FINISH`), `scripts/verify_elasticsearch.py`, and for the socket-screw
   family `test_the_catalog_offers_all_four_socket_screw_styles` in

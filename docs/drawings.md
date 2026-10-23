@@ -17,7 +17,7 @@ start with `tests/` or `scripts/`.
 SKU record (attribute name -> published string)
   -> FIGURES[product_type]                       domains/industrial/drawing/figures.py
        -> figure function, e.g. fastener()
-            -> domains/industrial/render/<kind>.geometry_from_record()   (six kinds, see below)
+            -> domains/industrial/geometry/<kind>.geometry_from_record()   (six kinds, see below)
             -> Figure: polygons, discs, lines, dots, in INCHES   core/drawing/model.py
   -> type_scale(extent)                          core/drawing/sheet.py
   -> paint(figure, house_style, fill, hatch, scale)
@@ -40,12 +40,12 @@ Step by step:
    `core/drawing/__init__.py`.
 3. **Geometry.** The figure function reads the dimensions it draws. For six
    kinds it does not parse anything itself. It calls the
-   `geometry_from_record()` of the matching module in `domains/industrial/render/` (`endmill`,
-   `drill`, `tap`, `fastener`, `washer` and `flapdisc`), the same function the
-   older dimensioned renderer uses, so the two cannot read one record two ways.
+   `geometry_from_record()` of the matching module in `domains/industrial/geometry/` (`endmill`,
+   `drill`, `tap`, `fastener`, `washer` and `flapdisc`). That package parses
+   and checks a record and draws nothing; `drawing/` is the only renderer.
    The hammer, the five types added under #103 (`hex_nut`, `bearing`,
    `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
-   `domains/industrial/render/` geometry. The nut, bearing, wheel and hex key read their lengths
+   `domains/industrial/geometry/` module. The nut, bearing, wheel and hex key read their lengths
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
    wrapper). The hammer parses its face and handle lengths with its own
    helper, the kit draws one slot per size it counts, and the breadth shapes
@@ -125,7 +125,7 @@ Head Height        0.3090"           Drive Size         1/4"
 ```
 
 `FIGURES["screw_socket_head"]` is `_broken(2.75, 5.95)`, so `fastener(record,
-max_height=5.95)` runs. It calls `domains/industrial/render/fastener.geometry_from_record()`,
+max_height=5.95)` runs. It calls `domains/industrial/geometry/fastener.geometry_from_record()`,
 which reads the record into a `FastenerGeometry`:
 
 | attribute | geometry | what it becomes in the drawing |
@@ -215,7 +215,7 @@ it per SKU as `geometry`. A drawing has no text but its brand's, so a nominal pr
 prints a number that contradicts the record. The source field is there so the
 share of guessed geometry is visible.
 
-For the six kinds that use `domains/industrial/render/` geometry, `_read()` in `figures.py` tries
+For the six kinds that use `domains/industrial/geometry/` geometry, `_read()` in `figures.py` tries
 these in order and stops at the first that parses:
 
 1. **The record as published.** `record`.
@@ -238,11 +238,11 @@ record publishes: `_read()`'s `form` argument carries those values (an end mill'
 `Single End/Double End`, #9) into both rungs, so a double-end mill whose
 dimensions cannot be drawn as published is still drawn with two cutting ends.
 
-A "contradiction" is any exception in `domains/industrial/render/attrs.py` `REFUSALS`:
+A "contradiction" is any exception in `domains/industrial/geometry/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
 and `DimensionParseError`.
 
-The figures without `domains/industrial/render/` geometry decide per attribute. `_length_or()`
+The figures without `domains/industrial/geometry/` geometry decide per attribute. `_length_or()`
 returns the parsed value or a proportional fallback. The result is `record` if
 every drawn value parsed, `partial` if the primary parsed, and `nominal` if it
 did not. The hammer is never `nominal`: a missing face or length makes it
@@ -312,7 +312,7 @@ that matter most when you change a figure:
 
 | test | what it holds | corpus |
 |---|---|---|
-| `test_elongated_parts_are_drawn_to_their_published_length` | for socket and flat screws, hex bolts, square end mills and drills drawn from the `record`, the on-axis extent equals the `domains/industrial/render/` geometry's length to 1e-6 | SMALL |
+| `test_elongated_parts_are_drawn_to_their_published_length` | for socket and flat screws, hex bolts, square end mills and drills drawn from the `record`, the on-axis extent equals the `domains/industrial/geometry/` geometry's length to 1e-6 | SMALL |
 | `test_a_drawn_dimension_changes_the_drawing` / `test_an_attribute_no_drawing_shows_does_not_change_it` | a 9" screw draws differently; adding `Standards` changes no byte | SMALL |
 | `test_siblings_whose_drawn_values_differ_never_draw_alike` | variants whose drawn values differ never share bytes. Attributes in `NOT_DRAWN_BY_ANY_FIGURE` are ignored, and breadth is exempt | golden |
 | `test_no_product_exceeds_its_types_extent` / `test_every_drawing_fits_its_sheet` | the `FIGURES` extent really is the type's maximum, so its scale is a constant | golden |
@@ -391,7 +391,7 @@ still draw their own shapes and move onto the primitives as their types are touc
 
 1. **Write the figure function** in `domains/industrial/drawing/figures.py`:
    `def my_type(record: Record) -> Drawn`. Draw in inches with `Figure`'s
-   `poly`, `rect`, `disc`, `lines` and `dots`, and set `size_in`. If `domains/industrial/render/`
+   `poly`, `rect`, `disc`, `lines` and `dots`, and set `size_in`. If `domains/industrial/geometry/`
    already has a `geometry_from_record` for the kind, call it through `_read()`
    with a `*_DEFAULTS`, a `*_NOMINAL` and the primary attribute. Otherwise
    parse with `_length_or()`. Return `record`, `partial` or `nominal`
@@ -416,7 +416,7 @@ still draw their own shapes and move onto the primitives as their types are touc
    drawing only; the type's generator comes first.
 4. **Give every published `Material` and `Finish` a color and a hatch**
    (`core/drawing/style.py` `MATERIAL_FILL`, `MATERIAL_HATCH`, `EXTRA_FINISH_TINT`,
-   and `domains/industrial/render/marking.py` `FINISH_TINT`), or
+   and `domains/industrial/geometry/palette.py` `FINISH_TINT`), or
    drawing raises `UnknownStyleError`.
    `test_every_published_finish_and_material_has_a_color_and_a_hatch` sweeps
    the data.
