@@ -38,11 +38,11 @@ SCHEMES = {
 #: Five series a brand, thirty in all, and no name in two lists.
 SERIES = {
     "Frostholm": ("Arden", "Bexley", "Calder", "Dunmore", "Elston"),
-    "Brimwell": ("Fenner", "Garrow", "Halden", "Ingram", "Jessop"),
+    "Brimwell": ("Fenner", "Garrow", "Heywood", "Ingram", "Jessop"),
     "Tavorne": ("Kessock", "Lawton", "Marlow", "Norbury", "Ormond"),
-    "Hollinmere": ("Pelham", "Quenby", "Rowan", "Selby", "Thorne"),
-    "Cleavewick": ("Ulverston", "Vellacott", "Wexcombe", "Yarrow", "Zennor"),
-    "Lunden & Voss": ("Ashby", "Bramley", "Coniston", "Denby", "Eskdale"),
+    "Hollinmere": ("Pelham", "Quarrington", "Rowan", "Selby", "Thorne"),
+    "Cleavewick": ("Ulverston", "Vellacott", "Wendover", "Yarrow", "Zennor"),
+    "Lunden & Voss": ("Alnwick", "Burwash", "Coniston", "Denby", "Eskdale"),
 }  # fmt: skip
 
 #: The ``appliance_type`` value of each kind: (its base letter, what its digits hold).
