@@ -24,7 +24,7 @@ MUTATIONS: list[Mutation] = [
         "core/drawing/style.py",
         "        if brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
         "        if lowered or brands.ink_of(brand).lower() == lowered and brands.frame_of(brand) == frame:\n            return brand",
-        "tests/test_marking.py -k brand",
+        "tests/test_catalog_brands_voice.py -k every_brand_has_exactly_one_house_style",
         "B",
         "the outline color is the brand, and reads back as the brand",
     ),

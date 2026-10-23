@@ -34,6 +34,12 @@ football        a ball, classic or modern panels            panels
 tennis_racket   a frame and handle, open or dense strings   strings
 badminton_set   two or four rackets over a shuttlecock      players
 picnic_blanket  a blanket laid flat, a corner lifted        backing
+bicycle         a road, mountain, kids or electric bike     style
+bike_helmet     a road, mountain or kids shell              style
+kayak           a sit-on-top hull or inflatable tubes,      style, seats
+                one seat or two
+kick_scooter    a folding, stunt or commuter scooter        style
+skateboard      a street deck, a cruiser or a longboard     style
 ==============  ==========================================  =====================
 
 A drawing never prints a size, a berth, a thickness or a weight: a style's SKUs share one image
@@ -493,6 +499,166 @@ def picnic_blanket(paint: str, fill: Fill, label: str | None, backing: str = "pl
     return _label(out, label)
 
 
+# --------------------------------------------------------------------------
+# Cycling and wheeled sports, water sports (gen#352): bicycles, bike helmets, kayaks, kick
+# scooters and skateboards. Each is a flat side view in the house style.
+# --------------------------------------------------------------------------
+
+
+def _wheel(cx: float, cy: float, r: float, tire: float) -> list[str]:
+    return [
+        _ell(cx, cy, r, r, "none", tire),
+        _line(f"M{cx - r + 6:g},{cy:g} L{cx + r - 6:g},{cy:g} M{cx:g},{cy - r + 6:g} L{cx:g},{cy + r - 6:g}", 1.2, ' stroke-opacity=".35"'),
+        _ell(cx, cy, 5, 5, INK),
+    ]
+
+
+def bicycle(paint: str, fill: Fill, label: str | None, style: str = "road") -> list[str]:
+    """A bicycle: ``road`` (drop bars, thin tires), ``mountain`` (flat bar, fat tires, a fork spring),
+    ``kids`` (small wheels, stabilisers and a basket) or ``electric`` (a battery on the down tube)."""
+    kind = style.lower()
+    dark = _shade(fill.base, 0.35)
+    # rear axle, front axle, bottom bracket, seat top, head top, wheel radius, tire width
+    r, tire, rx, fx, by, sy, hy = {
+        "mountain": (68, 9, 98, 302, 272, 172, 170),
+        "kids": (46, 6, 120, 280, 300, 220, 218),
+        "electric": (62, 5, 106, 294, 274, 168, 164),
+    }.get(kind, (64, 4, 105, 295, 275, 168, 168))
+    cy = by
+    bx, sx, hx = 198, 168, 262
+    out = [*_wheel(rx, cy, r, tire), *_wheel(fx, cy, r, tire)]
+    frame = fill.base
+    out += [
+        _line(f"M{bx},{by} L{sx},{sy} L{hx},{hy} L{bx},{by} L{rx},{cy} L{sx},{sy}", 8, stroke=frame),
+        _line(f"M{hx},{hy} L{fx},{cy}", 7 if kind != "mountain" else 11, stroke=POLE if kind == "mountain" else frame),
+        _line(f"M{sx},{sy} L{sx - 6},{sy - 22}", 5),
+        _path(f"M{sx - 28},{sy - 24} Q{sx - 6},{sy - 36} {sx + 20},{sy - 26} L{sx + 18},{sy - 18} L{sx - 28},{sy - 17} Z", INK),
+        _line(f"M{bx - 16},{by + 8} L{bx + 16},{by - 8}", 5),
+        _ell(bx, by, 11, 11, dark),
+    ]
+    if kind == "road":
+        out += [_line(f"M{hx},{hy} L{hx + 4},{hy - 22}", 5), _line(f"M{hx + 4},{hy - 22} Q{hx + 34},{hy - 30} {hx + 30},{hy + 6}", 5)]
+    elif kind == "kids":
+        out += [
+            _line(f"M{hx},{hy} L{hx + 2},{hy - 30} M{hx - 14},{hy - 30} L{hx + 18},{hy - 30}", 5),
+            _rect(hx + 8, hy - 26, 44, 28, paint, 5, 2.4),
+            _ell(rx + 28, cy + 32, 13, 13, dark, 2.4),
+            _ell(rx - 30, cy + 32, 13, 13, dark, 2.4),
+        ]
+    elif kind == "electric":
+        out += [
+            _line(f"M{hx},{hy} L{hx - 6},{hy - 30} L{hx + 12},{hy - 34}", 5),
+            _path(f"M{bx - 8},{by - 70} L{hx - 30},{hy + 38} L{hx - 18},{hy + 48} L{bx + 4},{by - 58} Z", dark, 2.4),
+            _ell(rx, cy, 15, 15, dark, 2.4),
+        ]
+    else:
+        out += [_line(f"M{hx - 4},{hy - 24} L{hx + 6},{hy} M{hx - 20},{hy - 26} L{hx + 28},{hy - 26}", 5), _line(f"M{hx + 6},{hy + 12} L{fx - 8},{cy - 34}", 4, stroke=INK)]
+    return _label(out, label)
+
+
+def bike_helmet(paint: str, fill: Fill, label: str | None, style: str = "road") -> list[str]:
+    """A bike helmet: ``road`` (a sleek shell with long vents), ``mountain`` (a peak at the front)
+    or ``kids`` (a rounder shell with a dial at the back)."""
+    kind = style.lower()
+    dark = _shade(fill.base, 0.4)
+    if kind == "kids":
+        shell = "M70,262 Q58,120 200,104 Q342,120 330,262 Q330,284 306,284 L94,284 Q70,284 70,262 Z"
+    elif kind == "mountain":
+        shell = "M64,262 Q70,116 200,104 Q324,112 336,240 L336,262 Q336,284 312,284 L88,284 Q64,284 64,262 Z"
+    else:
+        shell = "M52,276 Q58,128 186,108 Q310,102 352,222 L360,268 Q360,284 336,284 L76,284 Q52,284 52,276 Z"
+    out = [_path(shell, paint)]
+    vent = [(110, 154), (170, 140), (230, 140), (290, 154)] if kind != "kids" else [(130, 150), (200, 138), (270, 150)]
+    for x, y in vent:
+        out.append(_path(f"M{x - 16},{y + 40} Q{x},{y - 6} {x + 16},{y + 40} Z" if kind != "road" else f"M{x - 22},{y + 46} Q{x},{y} {x + 22},{y + 46} Z", dark, 2))
+    out.append(_path("M64,262 L336,262 L336,284 Q336,292 322,292 L78,292 Q64,292 64,284 Z", dark, 2.4))
+    out.append(_line("M150,292 Q150,330 190,346 M250,292 Q250,330 210,346", 5))
+    out.append(_rect(186, 338, 28, 18, POLE, 4, 2.4))
+    if kind == "mountain":
+        out.append(_path("M300,214 L384,236 Q392,250 372,254 L296,246 Z", dark))
+    if kind == "kids":
+        out.append(_ell(84, 238, 14, 14, dark, 2.4))
+    out.append(_highlight("M96,196 Q112,150 160,128", 5, 0.5))
+    return _label(out, label)
+
+
+def kayak(paint: str, fill: Fill, label: str | None, style: str = "sit_on_top", seats: str = "1") -> list[str]:
+    """A kayak from the side: a ``sit_on_top`` hull with a seat (and a footwell) for each of its
+    ``seats``, or an ``inflatable`` one drawn in tubes with a valve and a seat for each."""
+    count = 2 if str(seats) == "2" else 1
+    dark = _shade(fill.base, 0.35)
+    seat_x = (200,) if count == 1 else (150, 250)
+    if style.lower() == "inflatable":
+        out = [
+            _path("M22,236 Q40,200 120,200 L280,200 Q360,200 378,236 Q360,290 280,292 L120,292 Q40,290 22,236 Z", paint),
+            _path("M60,226 Q72,212 120,212 L280,212 Q328,212 340,226 Q330,262 280,262 L120,262 Q70,262 60,226 Z", _tint(fill.base, 0.5), 2.4),
+            _line("M100,204 L100,290 M160,200 L160,292 M240,200 L240,292 M300,204 L300,290", 2, ' stroke-opacity=".5"'),
+            _ell(352, 224, 7, 7, POLE, 2.4),
+        ]
+    else:
+        out = [
+            _path("M16,232 Q70,196 130,206 L270,206 Q330,196 384,232 Q330,284 200,286 Q70,284 16,232 Z", paint),
+            _line("M52,238 Q200,254 348,238", 2.4, ' stroke-opacity=".5"'),
+            _line("M130,206 Q200,196 270,206", 2.4),
+        ]
+        for x in seat_x:
+            out.append(_ell(x, 232, 36, 12, dark, 2.4))
+    for x in seat_x:
+        out.append(_path(f"M{x - 24},{200} Q{x - 24},{176} {x - 8},{172} L{x + 6},{172} Q{x + 18},{176} {x + 18},{200} Z", dark, 2.4))
+    out.append(_line("M70,150 L330,100", 5, stroke=POLE))
+    out.append(_path("M52,158 Q40,138 64,134 L84,146 Q78,162 52,158 Z", INK, 2))
+    out.append(_path("M316,100 Q330,76 350,92 L340,112 Q326,116 316,100 Z", INK, 2))
+    out.append(_highlight("M70,222 Q120,208 170,210", 4, 0.5))
+    return _label(out, label)
+
+
+def kick_scooter(paint: str, fill: Fill, label: str | None, style: str = "folding") -> list[str]:
+    """A kick scooter: ``folding`` (a hinge and a rear brake), ``stunt`` (small hard wheels, a
+    wide bar) or ``commuter`` (large air-filled wheels)."""
+    kind = style.lower()
+    dark = _shade(fill.base, 0.35)
+    r, rx, fx = {"commuter": (58, 100, 304), "stunt": (30, 116, 288)}.get(kind, (40, 112, 292))
+    cy = 306 - r
+    out = [*_wheel(rx, cy, r, 6 if kind != "commuter" else 9), *_wheel(fx, cy, r, 6 if kind != "commuter" else 9)]
+    out += [
+        _rect(rx + 6, 286, fx - rx - 12, 18, paint, 8),
+        _line(f"M{fx - 4},{cy} L{fx + 8},58", 8, stroke=fill.base),
+        _line(f"M{fx - 28},58 L{fx + 40},58", 7),
+        _ell(fx - 28, 58, 8, 8, dark, 2.4),
+        _ell(fx + 40, 58, 8, 8, dark, 2.4),
+    ]
+    if kind == "folding":
+        out += [_rect(fx - 6, 168, 22, 16, POLE, 4, 2.4), _path(f"M{rx - 20},{cy - 32} Q{rx},{cy - 52} {rx + 22},{cy - 32} Z", dark, 2.4)]
+    elif kind == "stunt":
+        out += [_line(f"M{fx - 4},120 L{fx + 4},120", 12, stroke=POLE), _line(f"M{fx - 44},58 L{fx + 52},58", 7)]
+    else:
+        out += [_line(f"M{fx + 8},58 L{fx + 24},40", 6), _path(f"M{rx - 34},{cy - 46} Q{rx},{cy - 70} {rx + 34},{cy - 46} Z", dark, 2.4)]
+    out.append(_highlight(f"M{rx + 20},292 L{fx - 30},292", 3, 0.5))
+    return _label(out, label)
+
+
+def skateboard(paint: str, fill: Fill, label: str | None, style: str = "street") -> list[str]:
+    """A skateboard from the side: a ``street`` deck with a kicktail at each end, a ``cruiser``
+    (a wide deck with one tail and big soft wheels) or a ``longboard`` (a long flat deck)."""
+    kind = style.lower()
+    x0, x1 = (30, 370) if kind == "longboard" else (50, 350)
+    r = 14 if kind == "street" else 22
+    cy = 296 - r + 4
+    out = []
+    if kind == "cruiser":
+        deck = f"M{x0},238 L{x1 - 50},256 Q{x1 - 10},258 {x1},226 L{x1},238 Q{x1 - 10},272 {x1 - 50},272 L{x0 + 40},262 Q{x0 + 10},258 {x0},238 Z"
+    elif kind == "longboard":
+        deck = f"M{x0},252 Q{x0},242 {x0 + 16},246 L{x1 - 16},246 Q{x1},242 {x1},252 L{x1},262 Q{x1},270 {x1 - 16},270 L{x0 + 16},270 Q{x0},270 {x0},262 Z"
+    else:
+        deck = f"M{x0},226 Q{x0 + 6},250 {x0 + 40},256 L{x1 - 40},256 Q{x1 - 6},250 {x1},226 L{x1},238 Q{x1 - 6},268 {x1 - 40},272 L{x0 + 40},272 Q{x0 + 6},268 {x0},238 Z"
+    out.append(_path(deck, paint))
+    out.append(_line(f"M{x0 + 30},252 L{x1 - 30},252", 4, ' stroke-opacity=".6"', stroke=INK))
+    for tx in (x0 + 70, x1 - 70):
+        out += [_rect(tx - 20, 270, 40, 10, POLE, 3, 2.4), _ell(tx, cy + 14, r, r, "none", 4), _ell(tx, cy + 14, 4, 4, INK)]
+    out.append(_highlight(f"M{x0 + 40},246 L{x1 - 60},246", 3, 0.5))
+    return _label(out, label)
+
+
 SHAPES = {
     "tent": tent, "sleeping_bag": sleeping_bag, "camp_chair": camp_chair, "yoga_mat": yoga_mat,
     "dumbbell": dumbbell, "kettlebell": kettlebell, "foam_roller": foam_roller,
@@ -502,5 +668,7 @@ SHAPES = {
     "swim_goggles": swim_goggles, "swim_cap": swim_cap, "kickboard": kickboard,
     "swim_armbands": swim_armbands, "football": football, "tennis_racket": tennis_racket,
     "badminton_set": badminton_set, "picnic_blanket": picnic_blanket,
+    "bicycle": bicycle, "bike_helmet": bike_helmet, "kayak": kayak, "kick_scooter": kick_scooter,
+    "skateboard": skateboard,
 }  # fmt: skip
 register(SHAPES)

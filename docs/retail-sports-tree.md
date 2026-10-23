@@ -2,7 +2,10 @@
 
 The department is built from one spec file per type in `prototypes/retail_drawings/type_specs/`
 (gen#265, first increment, PR #288, moved there by gen#455; `sports_rows.py` lists their rows; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
-roll mats, bike pumps, baseball, swimming, team and racket sports). This note records, per leaf,
+roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
+helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
+helmets, Water Sports and Wheeled Sports; gen#625 numbers the bikes and adds four cycling
+accessories: chain lube, bike bottles, bike saddles and bike pedals). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -48,11 +51,40 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Team & Racket Sports > Footballs | ball_size, cover, construction, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Tennis Rackets | grip_size, head_size, material, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Badminton Sets | players, net_included, material, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Road Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Mountain Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Electric Bikes | bike_type, frame_material, gears, wheel_size, brake_type, frame_size, color | none | none |
+| Sports & Outdoors > Cycling > Bikes > Kids Bikes | bike_type, frame_material, gears, brake_type, wheel_size, color | none | none |
+| Sports & Outdoors > Cycling > Bike Helmets | helmet_type, impact_protection, visor, size, color | none | none |
+| Sports & Outdoors > Cycling > Chain Lube | lube_type, application, volume, color | none | none |
+| Sports & Outdoors > Cycling > Bike Bottles | bottle_type, insulated, capacity, color | none | none |
+| Sports & Outdoors > Cycling > Bike Saddles | saddle_type, padding, color | none | none |
+| Sports & Outdoors > Cycling > Bike Pedals | pedal_type, material, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
+| Sports & Outdoors > Wheeled Sports > Skateboards | board_type, material, deck_width, color | none | none |
 
 Leaf depth is mixed on purpose for now: Dome Tents, Tunnel Tents, Yoga Mats, Yoga Blocks, Yoga
-Straps, Dumbbells, Kettlebells sit under a group (four levels); the other leaves sit directly under
+Straps, Dumbbells, Kettlebells, the four Bikes leaves and the two Kayaks leaves sit under a group (four levels); the other leaves sit directly under
 their family (three). The Yoga group now holds three leaves (mats, blocks and straps). The tree
 guard's rules hold on the subtree either way.
+
+## Bicycle model numbers and accessory decoys (gen#625)
+
+Each bicycle title leads with its brand, its series and its model number, then the spec and the
+bike: `Wrenfield Swiftline RD28-18-26 28in 18 Speed Aluminum Road Bike`, the title order of the
+large appliances (gen#622). `prototypes/retail_drawings/bicycle_model_numbers.py` holds each
+brand's scheme and series. A code is built from the kind, the wheel inches, the gears and the
+model year, and `decode` reads it back. The model number and the model year are attributes, the
+series is exported as `series`, and every SKU carries its bike's code. The frame size (a kids'
+bike's wheel size) is the SKU axis, so it is not part of the code: one code is one product.
+
+The bike titles are long, so a plain text match for `bicycle` or `bike` ranks short accessory
+titles above them: Bicycle Helmet, Bicycle Seat, Bicycle Water Bottle, Bicycle Chain Lube, Bike
+Pedals and so on. Each is a real product of its own type in its own Cycling leaf, and
+`kit_cycling.py` draws it. `tests/test_retail_bicycle_model_numbers_625.py` holds the scheme, the
+rows and that ranking.
 
 ## Not built
 
@@ -62,13 +94,8 @@ carries a reason.
 
 | Type | Family | Disposition |
 | --- | --- | --- |
-| Bicycles | Cycling | #352 |
-| Bike helmets | Cycling | #352 |
-| Bike lights | Cycling | #352 |
-| Bike locks | Cycling | #352 |
-| Camping stoves | Camping | #352 |
-| Kayaks | Water sports | #352 |
-| Kick scooters | Wheeled sports | #352 |
-| Skateboards | Wheeled sports | #352 |
+| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
+| Bike locks | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
+| Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Swimsuits and trunks | Swimming | Clothing already has them: reused, not duplicated (gen#265) |
 | Balance bikes | Cycling | Stay in Toys (gen#265) |
