@@ -123,6 +123,45 @@ def _events(report: Path) -> list[dict[str, str]]:
     return events
 
 
+COLLECTING = re.compile(r"^_+ ERROR collecting (\S+) _+$")
+CAUSE_LINES = 3
+
+
+def collection_causes(output: str) -> dict[str, str]:
+    """``{path: cause}``: the first ``E`` lines pytest printed under each file's
+    ``ERROR collecting <path>`` header, so a refusal names why the file did not collect.
+    """
+    causes: dict[str, list[str]] = {}
+    current: list[str] | None = None
+    for line in output.splitlines():
+        header = COLLECTING.match(line)
+        if header:
+            current = causes.setdefault(header.group(1), [])
+        elif line.startswith("="):
+            current = None
+        elif current is not None and line.startswith("E ") and len(current) < CAUSE_LINES:
+            current.append(line[1:].strip())
+    return {path: "; ".join(lines) for path, lines in causes.items() if lines}
+
+
+def python_for(tree: Path) -> list[str]:
+    """The command that runs Python for ``tree``: this interpreter, or the tree's own locked one.
+
+    This checkout's environment is installed from this checkout's ``uv.lock``. A red commit
+    locked differently (one older than a dependency's removal, #660) may import a module that
+    environment no longer holds, and would fail to collect for a reason outside its tests;
+    it runs in the environment its own ``uv.lock`` describes instead.
+    """
+    lock = tree / "uv.lock"
+    uv = shutil.which("uv")
+    ours = REPO_ROOT / "uv.lock"
+    if not lock.is_file() or uv is None:
+        return [sys.executable]
+    if ours.is_file() and lock.read_bytes() == ours.read_bytes():
+        return [sys.executable]
+    return [uv, "run", "--frozen", "--project", str(tree), "python"]
+
+
 def run_named(
     tree: Path, ids: list[str], scratch: Path
 ) -> tuple[int | None, list[dict[str, str]], str]:
@@ -134,6 +173,9 @@ def run_named(
     # The caller's pytest options (the local CI sets ``-n N --dist loadgroup``) must not
     # reach this run: under xdist a name that selects nothing exits 5, not 4, with no outcomes.
     env.pop("PYTEST_ADDOPTS", None)
+    # A tree run in its own environment must not be pointed at this checkout's.
+    env.pop("VIRTUAL_ENV", None)
+    env.pop("UV_PROJECT_ENVIRONMENT", None)
     # The tree's own packages first: the editable install points at the checkout
     # that started this script, not at the commit being judged.
     path = [str(scratch)]
@@ -143,7 +185,7 @@ def run_named(
     try:
         done = subprocess.run(
             [
-                sys.executable,
+                *python_for(tree),
                 "-m",
                 "pytest",
                 "-p",
@@ -234,6 +276,11 @@ def judge_commit(
         return "refused", [f"{line} (matches no test)" for line in missing]
     if not events:
         return "not-judged", [f"pytest exited {status} and wrote no outcomes"]
+    causes = collection_causes(output)
+    for event in events:
+        cause = causes.get(event["nodeid"])
+        if event["outcome"] == "error" and event["detail"] == runner.COLLECTION and cause:
+            event["detail"] = f"{runner.COLLECTION}: {cause}"
     old = is_grandfathered(repo, sha, cutoff)
     excused: list[str] = []
     problems = refusals(ids, events, excused if old else None)
