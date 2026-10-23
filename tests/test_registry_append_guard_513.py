@@ -291,3 +291,9 @@ def test_the_no_derived_files_job_runs_the_registry_guard():
 def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc):
     text = (ROOT / doc).read_text(encoding="utf-8")
     assert "feature_decoys" in text or "check_no_registry_append" in text, doc
+
+
+def test_the_quick_path_does_not_tell_a_contributor_to_paste_the_decoy_table():
+    text = (ROOT / "docs" / "new-type-quick-path.md").read_text(encoding="utf-8")
+    assert "table_markdown" not in text
+    assert "retail-product-word-decoys-table.md" in text
