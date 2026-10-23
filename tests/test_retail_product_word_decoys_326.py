@@ -81,6 +81,12 @@ TRUE_NODE = {
     "cap": "Caps",
     # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
     "block": "Yoga Blocks",
+    # the nouns of the #352 rows
+    "bicycle": "Bikes",
+    "helmet": "Bike Helmets",
+    "kayak": "Kayaks",
+    "scooter": "Kick Scooters",
+    "skateboard": "Skateboards",
     "strap": "Yoga Straps",
     "band": "Resistance Bands",
     "resistance": "Resistance Bands",
@@ -118,6 +124,11 @@ TRUE_NODE = {
     "washing": "Large Appliances",
     # the cups of gen#620: the bras named for their cup sit in no drinkware
     "cup": "Drinkware",
+    # the cycling accessories of gen#625: the print decoys sit in no Cycling leaf
+    "lube": "Chain Lube",
+    "bottle": "Bike Bottles",
+    "saddle": "Bike Saddles",
+    "pedal": "Bike Pedals",
 }
 
 
