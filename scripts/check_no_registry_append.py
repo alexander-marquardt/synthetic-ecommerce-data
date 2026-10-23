@@ -103,6 +103,22 @@ REGISTRIES: tuple[Registry, ...] = (
         _DECOY_FORM,
         _DECOY_FILES,
     ),
+    Registry(
+        "docs/retail-prototype.md",
+        _shapes(r"^#{1,6}\s"),
+        "### Probe feature (gen#999)",
+        "write the feature's section as its own page, docs/retail-prototype/<topic>-<issue>.md;"
+        " this page gains no heading",
+        ("docs/retail-prototype/pack-scale-543.md",),
+    ),
+    Registry(
+        "docs/retail-product-word-decoys.md",
+        _shapes(r"^\|"),
+        "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |",
+        "the table is built, not pasted: scripts/build_derived.py writes"
+        " docs/retail-product-word-decoys-table.md from decoy_product_words.TABLE",
+        ("scripts/build_derived.py",),
+    ),
 )
 
 

@@ -211,8 +211,9 @@ refusing the tree; rerun it.
 sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
 (`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `stats.json`, the mappings). It
 never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
-`docs/figures.md`, the apparel decoy table `docs/retail-apparel-decoys.md` and the sneak-peek
-samples and previews. They moved with every type or grocery PR, so every merge conflicted the
+`docs/figures.md`, the decoy tables `docs/retail-apparel-decoys.md` and
+`docs/retail-product-word-decoys-table.md`, and the sneak-peek samples and previews. They
+moved with every type or grocery PR, so every merge conflicted the
 rest, and a merge that did not roll them left `main` red. CI builds them once per run and uploads
 them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
 scripts/build_derived.py --out build/derived`, to see yours), a test reads a total with
@@ -1489,7 +1490,7 @@ industrial bundle's shape, so the same installer takes it: members
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, and per pack scale
-(a smaller size of a line draws smaller, gen#543; see [the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543));
+(a smaller size of a line draws smaller, gen#543; see [the pack scale page](docs/retail-prototype/pack-scale-543.md));
 clothing and footwear draw one per size-ladder rung (`size_ladder.py`, gen#339).
 The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
 (`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
