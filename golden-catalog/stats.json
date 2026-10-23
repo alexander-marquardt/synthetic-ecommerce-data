@@ -3230,7 +3230,7 @@
   {
    "name": "price p90/p10: set_screws_hex_socket",
    "target": 4.58691,
-   "achieved": 3.71005,
+   "achieved": 3.62538,
    "numerator": 485,
    "denominator": 510,
    "note": "shown price; denom is the census n",
@@ -3242,9 +3242,9 @@
   {
    "name": "price larger size costs more: set_screws_hex_socket",
    "target": 0.666,
-   "achieved": 0.666667,
-   "numerator": 16,
-   "denominator": 24,
+   "achieved": 0.652174,
+   "numerator": 15,
+   "denominator": 23,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.585767,
@@ -3326,7 +3326,7 @@
   {
    "name": "price p50 (USD): wheel_depressed_center",
    "target": 9.51,
-   "achieved": 9.71,
+   "achieved": 9.87,
    "numerator": 1162,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -3338,7 +3338,7 @@
   {
    "name": "price p90/p10: wheel_depressed_center",
    "target": 9.99656,
-   "achieved": 8.1887,
+   "achieved": 9.65125,
    "numerator": 1162,
    "denominator": 217,
    "note": "shown price; denom is the census n",
@@ -3350,8 +3350,8 @@
   {
    "name": "price larger size costs more: wheel_depressed_center",
    "target": 0.808,
-   "achieved": 0.79514,
-   "numerator": 9195,
+   "achieved": 0.797994,
+   "numerator": 9228,
    "denominator": 11564,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
@@ -3410,8 +3410,8 @@
   {
    "name": "price longer costs more: set_screws_hex_socket",
    "target": 0.834,
-   "achieved": 0.86828,
-   "numerator": 323,
+   "achieved": 0.844086,
+   "numerator": 314,
    "denominator": 372,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -3505,7 +3505,7 @@
   },
   {
    "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
-   "target": 1.20562e-12,
+   "target": 1.22265e-14,
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 372,
@@ -3542,10 +3542,10 @@
   {
    "name": "price brand spread, same spec (median max/min): bearing_radial_ball",
    "target": 1.3825,
-   "achieved": 1.57114,
-   "numerator": 80,
+   "achieved": 1.54206,
+   "numerator": 155,
    "denominator": 49,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, closure type) two or more brands make; 3 brands sampled per spec; 128 of 1182 SKUs are in no spec: sparsity dropped an attribute the spec holds",
    "band": [
     1.03687,
     1.83873
@@ -3566,10 +3566,10 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.42631,
-   "numerator": 55,
+   "achieved": 1.39166,
+   "numerator": 109,
    "denominator": 5,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec",
    "band": [
     0.919531,
     2.01857
@@ -3602,10 +3602,10 @@
   {
    "name": "price brand spread, same spec (median max/min): tap_spiral_point",
    "target": 2.2238,
-   "achieved": 2.14079,
-   "numerator": 42,
+   "achieved": 2.14035,
+   "numerator": 47,
    "denominator": 31,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec",
+   "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec; 129 of 322 SKUs are in no spec: sparsity dropped an attribute the spec holds",
    "band": [
     1.66785,
     2.95765
@@ -3614,10 +3614,10 @@
   {
    "name": "price brand spread, same spec (median max/min): wheel_depressed_center",
    "target": 1.2838,
-   "achieved": 1.77126,
-   "numerator": 24,
+   "achieved": 1.32703,
+   "numerator": 210,
    "denominator": 12,
-   "note": "over specs (key dimension, material) two or more brands make; 3 brands sampled per spec; PINNED SHORTFALL, above band at both builds (the default build was in band until #357 dropped the wheels that differed only by a pack, which moved the product ids the noise is drawn from): with every noise off, the brand tiers alone give 1.86 at 100K, past the band top of 1.71, because 3 of the 12 wheel brands are economy (0.54 of the rest) and the row's 3 sampled brands take one on 15 of its 24 specs (a spec is a diameter in one abrasive), where the census measures its house label on 4 of its 12. The p90/p10 is carried by noise one spec shares across its brands (size_sigma), so the group noise left, drawn per brand, spreads the sampled brands of one spec only to 1.77x apart on the default build and 1.77x apart at 100K (#272, #357)",
+   "note": "over specs (key dimension, material, grit) two or more brands make; 3 brands sampled per spec",
    "band": [
     0.96285,
     1.70745
@@ -3650,8 +3650,8 @@
   {
    "name": "price ending .00",
    "target": 0.0854022,
-   "achieved": 0.0812848,
-   "numerator": 949,
+   "achieved": 0.0813704,
+   "numerator": 950,
    "denominator": 11675,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
@@ -3662,8 +3662,8 @@
   {
    "name": "price ending .50",
    "target": 0.0569903,
-   "achieved": 0.0550749,
-   "numerator": 643,
+   "achieved": 0.0549893,
+   "numerator": 642,
    "denominator": 11675,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
@@ -3847,7 +3847,7 @@
   },
   "drawings": {
    "count": 11894,
-   "bytes": 30146441,
+   "bytes": 30143910,
    "geometry": {
     "nominal": 219,
     "partial": 2440,

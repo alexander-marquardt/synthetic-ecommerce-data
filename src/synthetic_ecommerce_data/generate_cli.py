@@ -13,8 +13,6 @@ if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
     parent documents with nested SKUs and nested key-value attributes
 ``flat.jsonl``
     one document per SKU with the line's attributes denormalised onto it
-``render.jsonl``
-    the same SKUs in the shape ``ecom-render batch`` reads
 ``images.jsonl``
     one row per SKU image: its path in the bundle, its URL, and the sha256 of
     its bytes -- the drawings themselves are never written by ``build`` and
@@ -374,8 +372,6 @@ def main(argv: list[str] | None = None) -> int:
     nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
     flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
     images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
-    # render.jsonl is every SKU in the shape ``ecom-render batch`` reads.
-    render = emit.write_jsonl(emit.render_records(catalog), out / "render.jsonl")
 
     payload = _serialisable(stats)
     payload["noncopy_audit"] = audit
@@ -406,7 +402,6 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"{out}/nested.jsonl  {nested} parent documents")
     print(f"{out}/flat.jsonl    {flat} sku documents")
-    print(f"{out}/render.jsonl  {render} records for the per-record dimensioned renderer")
     print(f"{out}/images.jsonl  {images} SKU drawings, served under {base_url}")
     print(f"{out}/stats.json    measured against target")
     print(field_map)

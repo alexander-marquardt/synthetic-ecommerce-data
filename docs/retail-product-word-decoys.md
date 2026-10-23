@@ -7,7 +7,10 @@ color, drawing). A title names at most the misleading color ("Sofa Cushion, Blue
 cream cushion piped in blue; "Dress for Success, Red Laces" are black shoes with red laces) and
 the drawing renders that detail. The rows are generated from
 `prototypes/retail_drawings/decoy_product_words.py` and pinned by
-`tests/test_retail_product_word_decoys_326.py`.
+`tests/test_retail_product_word_decoys_326.py`. A new decoy set is one file,
+`feature_decoys/<topic>.py`; `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`)
+checks every row of it: the id is unique, the title carries a word of the query, a structured
+field contradicts it, the policy exists, and the drawing renders.
 
 The fixing policy is the one that reads the structured fields: `category` (the noun's own node,
 for example Dresses, drops the row), `department` (a cross-department row sits in another root,
@@ -41,6 +44,22 @@ pins it empty. The prototype's plural strip reads
 "tennis" as "tenni", so the noun of those two rows is `tenni`. The picnic blanket of gen#217 (Camping)
 carries two rows of its own (`picnic`), beside the two decoys of `decor_rows.py`.
 
+**Cups (gen#620).** A bare `cup` meets drinkware and the cup of a bra. The real cups carry realistic
+titles of six to ten words (material, size, use) and a drawing of their own, so a short bra title
+outscores them in the baseline: seven rows, `PLT-DY620` to `PLT-DY626`, are bras named for their cup
+("Full Cup Bra", "Demi Cup Bra", "Moulded Cup Bra", "Quarter Cup Bra", "Soft Cup Bra", "Spacer Cup
+Bra", "Cotton Full Cup Bra"), in `feature_decoys/cups_620.py`. Each sits under the Bras leaf its title
+names (gen#165: bra styles are facets, so a Full Cup Bra is in Full Cup Bras), and the fields tell the
+truth (a bra by department, path, product type and drawing); only the title holds `cup`. The category
+policy of the cups (gen#125 class 15) drops them. Related: gen#520 and gen#508, the plural-cups bras.
+`tests/test_retail_cups_620.py` holds the rule and the ranking.
+
+**Cycling accessories (gen#625).** The chain lube, bike bottles, saddles and pedals of gen#625 are
+true types of their own Cycling leaves, short-titled so that a bare `bicycle` or `bike` ranks them
+above the bikes. Each also gets two print decoys of another department, `PLT-DY6251` to
+`PLT-DY6258` in `feature_decoys/cycling_accessories.py`, the rule of gen#352's
+`feature_decoys/cycling_wheeled.py`.
+
 **Gifts (gen#425).** The five Gifts types of the mug, greeting card, notebook, money box and pamper
 hamper issue carry two decoys each: a wall mug rack and a microwave mug cake for "mug", a card holder
 case and card-making paper for "card", a notebook computer sleeve and tote for "notebook", a lockable
@@ -71,169 +90,8 @@ class-8 rows. `tests/test_retail_seed_phrase_decoys_460.py` holds the census: tw
 in the first 12 for each seed with policies off, every query word required, the rank of the
 prototype's baseline; the live number is read on the next loaded index.
 
-| Query | Noun | Product id | Title | True type | Fixing policy |
-|---|---|---|---|---|---|
-| red dress | dress | PLT-DY01 | Dress for Success, Red Laces | Brogues | category |
-| black dress | dress | PLT-DY02 | Dress for Success Black Oxford | Brogues | category |
-| red dress | dress | PLT-DY03 | Party Dress Doll | Doll | category |
-| black dress | dress | PLT-DY04 | Little Black Dress Parfum | Eau de Parfum | category |
-| black shoes | shoe | PLT-DY05 | Black Shoe Polish | Shoe Polish | category |
-| red shoes | shoe | PLT-DY06 | Red Shoe Laces | Shoe Laces | category |
-| black boots | boot | PLT-DY07 | Black Boot Polish | Shoe Polish | category |
-| black boots | boot | PLT-DY08 | Black Boot Socks | Boot Socks | category |
-| white trainers | trainer | PLT-DY09 | White Trainer Socks | Socks | category |
-| blue trainers | trainer | PLT-DY10 | Trainer Cup, Blue | Baby Beakers | department |
-| white trainers | trainer | PLT-DY11 | White Trainer Laces | Shoe Laces | category |
-| black coat | coat | PLT-DY12 | Black Coat Hooks | Wall Hooks | category |
-| black coat | coat | PLT-DY13 | Black Coat Stand | Hallway Stands | category |
-| black coat | coat | PLT-DY14 | Black Coat Hangers, 6 Pack | Clothes Hangers | category |
-| white coat | coat | PLT-DY15 | White Top Coat Paint | Paint | department |
-| jacket | jacket | PLT-DY16 | Jacket Potatoes | Potatoes | department |
-| red jacket | jacket | PLT-DY17 | Red Jacket Potato Crisps | Crisps | department |
-| red jumper | jumper | PLT-DY18 | Red Jumper Cables | Jump Leads | department |
-| white jumper | jumper | PLT-DY19 | White Jumper Drying Rack | Drying Racks | category |
-| white skirt | skirt | PLT-DY20 | White Bed Skirt | Valances | category |
-| white skirt | skirt | PLT-DY22 | White Skirt Hangers, 4 Pack | Clothes Hangers | category |
-| navy suit | suit | PLT-DY23 | Navy Suit Carrier | Garment Bags | category |
-| navy suit | suit | PLT-DY24 | Navy Suit Cover, Breathable | Garment Bags | category |
-| white bra | bra | PLT-DY25 | White Bra Wash Bag | Wash Bags | category |
-| white bra | bra | PLT-DY26 | White Bra Travel Case | Travel Cases | category |
-| pink hat | hat | PLT-DY27 | Pink Hat Box | Storage Boxes | category |
-| pink hat | hat | PLT-DY28 | Pink Hat Stand | Hallway Stands | category |
-| brown leather belt | belt | PLT-DY29 | Brown Leather Belt Bag | Waist Bags | category |
-| brown leather belt | belt | PLT-DY30 | Leather Belt Keyring, Brown | Key Clips | category |
-| black ties | tie | PLT-DY31 | Black Cable Ties | Cable Ties | department |
-| black ties | tie | PLT-DY32 | Black Bow Tie Pasta | Pasta | department |
-| black ties | tie | PLT-DY33 | Black Tie Rack | Wall Hooks | category |
-| blue sofa | sofa | PLT-DY34 | Blue Sofa Cover | Sofa Covers | category |
-| blue sofa | sofa | PLT-DY35 | Sofa Cushion, Blue Trim | Cushion | category |
-| blue sofa | sofa | PLT-DY36 | Blue Sofa Throw | Throws | category |
-| black pumps | pump | PLT-DY37 | Black Bike Pump | Bike Pump | department |
-| black pumps | pump | PLT-DY38 | Black Foot Pump | Foot Pumps | department |
-| black shoes | shoe | PLT-DY39 | Black Shoe String Pasta | Pasta | department |
-| blue trainers | brand | PLT-DY40 | Blue Bull Trainers | Trainers | color |
-| blue boots | brand | PLT-DY41 | Blue Bull Chelsea Boots | Chelsea Boots | color |
-| blue shoes | brand | PLT-DY42 | Blue Bull Court Shoes | Court Shoes | color |
-| block | block | PLT-DY43 | Suede Block Heel Shoes | Block Heels | department |
-| block | block | PLT-DY44 | Building Blocks Set | Building Set | department |
-| strap | strap | PLT-DY45 | Shoulder Bag with Long Strap | Handbag | department |
-| strap | strap | PLT-DY46 | Buckle Strap Sandals | Sandals | department |
-| band | band | PLT-DY47 | Band Collar Cotton Shirt | Shirt | department |
-| resistance | resistance | PLT-DY48 | Mesh Watch, 50m Water Resistance | Watch | department |
-| lantern | lantern | PLT-DY49 | Lantern Sleeve Blouse | Blouse | department |
-| lantern | lantern | PLT-DY50 | Lantern Glow Scented Candle | Scented Candle | department |
-| roll | roll | PLT-DY51 | Roll Top Rucksack | Backpack | department |
-| roll | roll | PLT-DY52 | Gift Wrapping Paper Roll | Wrapping Paper | department |
-| pump | pump | PLT-DY53 | Pump Bottle Hand Wash | Hand Wash | department |
-| pump | pump | PLT-DY54 | Cushioned Ballet Pumps | Ballet Pumps | department |
-| bat | bat | PLT-DY55 | Bat Wing Sleeve Jumper | Jumper | department |
-| baseball | baseball | PLT-DY56 | Baseball Bomber Jacket | Bomber Jacket | department |
-| glove | glove | PLT-DY57 | Glove Box Organizer | Car Boot Organiser | department |
-| glove | glove | PLT-DY58 | Glove Leather Loafers | Loafers | department |
-| baseball | baseball | PLT-DY59 | Baseball Fan Cushion | Cushion | department |
-| baseball | baseball | PLT-DY60 | Baseball Fan Duvet Set | Duvet Set | department |
-| batting | batting | PLT-DY61 | Soft Batting Duvet | Duvet | department |
-| batting | batting | PLT-DY62 | Quilted Throw with Batting | Throws | department |
-| swim | swim | PLT-DY63 | Quick-Dry Swim Towel | Towel | department |
-| swim | swim | PLT-DY64 | Mesh Swim Tote Bag | Tote Bag | department |
-| cap | cap | PLT-DY65 | Cap Sleeve Wrap Dress | Dress | department |
-| cap | cap | PLT-DY66 | Cap Toe Leather Brogues | Brogues | department |
-| kickboard | kickboard | PLT-DY67 | Kickboard Scooter, Two Wheels | Ride-On Toy | department |
-| kickboard | kickboard | PLT-DY68 | Kickboard Scooter, Three Wheels | Ride-On Toy | department |
-| armband | armband | PLT-DY69 | Running Armband Phone Pouch | Waist Bags | department |
-| armband | armband | PLT-DY70 | Upper Armband Cuff Bracelet | Bracelet | department |
-| football | football | PLT-DY71 | Football Fan T-Shirt | Tee | department |
-| football | football | PLT-DY72 | Football Socks, 5 Pack | Socks | department |
-| tennis | tenni | PLT-DY73 | Tennis Court Trainers | Trainers | department |
-| tennis | tenni | PLT-DY74 | Crystal Tennis Bracelet | Bracelet | department |
-| badminton | badminton | PLT-DY75 | Badminton Club T-Shirt | Tee | department |
-| badminton | badminton | PLT-DY76 | Badminton Club Tote Bag | Tote Bag | department |
-| picnic | picnic | PLT-DY87 | Picnic Check Cushion | Cushion | department |
-| picnic | picnic | PLT-DY88 | Insulated Picnic Tote Bag | Tote Bag | department |
-| mug | mug | PLT-DY77 | Wall Mug Rack, Five Hooks | Wall Hooks | department |
-| mug | mug | PLT-DY78 | Microwave Mug Cake | Cake | department |
-| card | card | PLT-DY79 | Travel Card Holder Case | Travel Cases | department |
-| card | card | PLT-DY80 | Card Making Craft Paper | Wrapping Paper | category |
-| notebook | notebook | PLT-DY81 | Notebook Computer Sleeve | Travel Cases | department |
-| notebook | notebook | PLT-DY82 | Notebook Carry Tote Bag | Tote Bag | department |
-| money box | box | PLT-DY83 | Lockable Storage Box | Storage Boxes | department |
-| money box | box | PLT-DY84 | Chocolate Money Box | Biscuit | department |
-| hamper | hamper | PLT-DY85 | Folding Laundry Hamper | Wash Bags | department |
-| hamper | hamper | PLT-DY86 | Wicker Storage Hamper | Storage Boxes | department |
-| gift card | card | PLT-DY104 | Gift Card Holder Case | Travel Cases | department |
-| gift card | card | PLT-DY105 | Gift Card Wrapping Sheets | Wrapping Paper | category |
-| cream jumper | jumper | PLT-DY494 | Jumper and Knitwear Softening Cream | Fabric Softener | category |
-| high rise jeans | seed phrase | PLT-DY460 | High Rise Jeans Slim Belt | Belt | category |
-| high rise jeans | seed phrase | PLT-DY461 | Skinny Jeans Jeggings | Leggings | category |
-| high rise jeans | seed phrase | PLT-DY462 | Jeans Clip Hangers, 10 Pack | Hanger | department |
-| skinny jeans | seed phrase | PLT-DY463 | Skinny Jeans Trouser Hanger | Clothes Hangers | department |
-| barrel trousers | seed phrase | PLT-DY464 | Barrel Trousers Fashion Doll | Doll | department |
-| barrel trousers | seed phrase | PLT-DY465 | Barrel Trousers Clip Hangers | Hanger | department |
-| barrel trousers | seed phrase | PLT-DY466 | Barrel Trousers Garment Bag | Garment Bags | department |
-| womens boat neck top | seed phrase | PLT-DY467 | Boat Neck Top Hanger | Clothes Hangers | department |
-| womens boat neck top | seed phrase | PLT-DY468 | Boat Neck Top Fashion Doll | Doll | department |
-| womens boat neck top | seed phrase | PLT-DY469 | Boat Neck Top Garment Bag | Garment Bags | department |
-| tea dress | seed phrase | PLT-DY470 | Tea Dress Fashion Doll | Doll | department |
-| tea dress | seed phrase | PLT-DY471 | Tea Dress Padded Hangers | Clothes Hangers | department |
-| tea dress | seed phrase | PLT-DY472 | Tea Dress Garment Bag | Garment Bags | department |
-| denim jacket | seed phrase | PLT-DY473 | Denim Jacket Wide Hanger | Clothes Hangers | department |
-| denim jacket | seed phrase | PLT-DY474 | Denim Jacket Fashion Doll | Doll | department |
-| denim jacket | seed phrase | PLT-DY475 | Denim Jacket Garment Bag | Garment Bags | department |
-| pyjamas | seed phrase | PLT-DY476 | Pyjama Case, Embroidered | Travel Cases | category |
-| pyjamas | seed phrase | PLT-DY477 | Pyjama Party Doll | Doll | department |
-| pyjamas | seed phrase | PLT-DY478 | Pyjamas Overnight Tote Bag | Tote Bag | category |
-| leather boots | seed phrase | PLT-DY479 | Leather Boots Care Kit | Shoe Care Kit | category |
-| leather boots | seed phrase | PLT-DY480 | Leather Boot Cream | Shoe Polish | category |
-| leather boots | seed phrase | PLT-DY481 | Leather Boots Waxed Laces | Shoe Laces | category |
-| running shoes | seed phrase | PLT-DY482 | Running Shoes Flat Laces | Shoe Laces | category |
-| running shoes | seed phrase | PLT-DY483 | Running Shoe Mesh Bag | Wash Bags | department |
-| running shoes | seed phrase | PLT-DY484 | Running Shoes Cleaning Kit | Shoe Care Kit | category |
-| brogues | seed phrase | PLT-DY485 | Brogue Detail Leather Belt | Belt | category |
-| brogues | seed phrase | PLT-DY486 | Brogues Shoe Cream | Shoe Polish | category |
-| brogues | seed phrase | PLT-DY487 | Brogues Waxed Laces | Shoe Laces | category |
-| navy dresses | seed phrase | PLT-DY488 | Navy Garment Bag for Dresses | Garment Bags | department |
-| navy dresses | seed phrase | PLT-DY489 | Navy Velvet Hangers for Dresses | Clothes Hangers | department |
-| navy dresses | seed phrase | PLT-DY490 | Navy Dresses Fashion Doll Set | Doll | department |
-| large dresses | seed phrase | PLT-DY491 | Large Garment Bag for Dresses | Garment Bags | department |
-| large dresses | seed phrase | PLT-DY492 | Large Dresses Storage Box | Storage Boxes | department |
-| large dresses | seed phrase | PLT-DY493 | Large Dresses Padded Hangers | Clothes Hangers | department |
-| duvet cover | duvet cover | PLT-DY495 | Duvet Cover Storage Bag | Garment Bags | category |
-| duvet cover | duvet cover | PLT-DY496 | Duvet Cover Mesh Wash Bag | Wash Bags | category |
-| bed frame | bed frame | PLT-DY89 | Bed Frame Valance | Valances | category |
-| bed frame | bed frame | PLT-DY90 | Bed Frame Headboard Cushion | Cushion | category |
-| tea towels | tea towels | PLT-DY91 | Tea Towel Hook Rail | Wall Hooks | category |
-| tea towels | tea towels | PLT-DY92 | Tea Towel Hanger, 4 Pack | Hanger | category |
-| lipstick | lipstick | PLT-DY93 | Lipstick Case, Mini Zip | Make-Up Bag | category |
-| lipstick | lipstick | PLT-DY94 | Lipstick Plant, Trailing | Plant | department |
-| foundation | foundation | PLT-DY95 | Foundation Remover Face Cloth | Towel | category |
-| foundation | foundation | PLT-DY96 | Foundation Brush Make-Up Bag | Make-Up Bag | category |
-| lemon drizzle cake | lemon drizzle cake | PLT-DY97 | Lemon Drizzle Cake Candle | Scented Candle | department |
-| lemon drizzle cake | lemon drizzle cake | PLT-DY98 | Lemon Drizzle Cake Flavour Tea | Tea | department |
-| lemon drizzle cake | lemon drizzle cake | PLT-DY99 | Lemon Drizzle Cake Hand Wash | Hand Wash | department |
-| gift hamper | gift hamper | PLT-DY100 | Empty Gift Hamper Basket, Wicker | Storage Basket | department |
-| gift hamper | gift hamper | PLT-DY101 | Gift Hamper Cellophane Wrap | Wrapping Paper | department |
-| olive tree | olive tree | PLT-DY102 | Olive Tree Scented Candle | Scented Candle | department |
-| olive tree | olive tree | PLT-DY103 | Olive Tree Hand Wash | Hand Wash | department |
-| fridge | fridge | PLT-DY309 | Mini Fridge Lunch Cooler | Lunch Box | category |
-| dishwasher | dishwasher | PLT-DY301 | Dishwasher Tablets, 60 Pack | Dish Soap | category |
-| dishwasher | dishwasher | PLT-DY302 | Dishwasher Salt, 2 kg | Dish Soap | category |
-| dishwasher | dishwasher | PLT-DY303 | Dishwasher Rinse Aid | Dish Soap | category |
-| washing machine | washing | PLT-DY304 | Washing Machine Cleaner | Laundry Detergent | category |
-| washing machine | washing | PLT-DY305 | Washing Machine Descaler | Laundry Detergent | category |
-| washing machine | washing | PLT-DY306 | Laundry Pods for Washing Machines | Laundry Detergent | category |
-| fridge | fridge | PLT-DY310 | Fridge Forager Cheese Crisps | Crisps | department |
-| fridge | fridge | PLT-DY311 | Fridge Storage Boxes | Storage Boxes | category |
-| tent | tent | PLT-DY540 | Tent Dress, Swing Fit | Dress | department |
-| tent | tent | PLT-DY541 | Tent Stitch Cushion | Cushion | department |
-| sleeping | sleeping | PLT-DY542 | Sleeping Cat Cushion | Cushion | department |
-| sleeping | sleeping | PLT-DY543 | Sleeping Beauty Doll | Doll | department |
-| camping | camping | PLT-DY544 | Camping Club Kids T-Shirt | T-Shirt | department |
-| camping | camping | PLT-DY545 | Camping Trip Scented Candle | Scented Candle | department |
-| yoga | yoga | PLT-DY546 | Yoga Waist Leggings | Leggings | department |
-| yoga | yoga | PLT-DY547 | Yoga Calm Scented Candle | Scented Candle | department |
-| dumbbell | dumbbell | PLT-DY548 | Dumbbell Print Tee | Tee | department |
-| dumbbell | dumbbell | PLT-DY549 | Dumbbell Charm Bracelet | Bracelet | department |
-| kettlebell | kettlebell | PLT-DY550 | Kettlebell Class Tee | Tee | department |
-| kettlebell | kettlebell | PLT-DY551 | Kettlebell Class Tote Bag | Tote Bag | department |
-| foam | foam | PLT-DY552 | Foam Hand Wash | Hand Wash | department |
-| foam | foam | PLT-DY553 | Foam Sole Sandals | Sandals | department |
+**The table of every decoy** (query, noun, product id, title, true type and fixing policy) is
+built, not committed: `uv run python scripts/build_derived.py --out build/derived` writes
+`docs/retail-product-word-decoys-table.md` from `decoy_product_words.TABLE`, and CI uploads it in
+the `derived` artifact. Every decoy PR pasted the whole table here, so any two conflicted (gen#513);
+`scripts/check_no_registry_append.py` refuses a table line added to this page.

@@ -14,6 +14,7 @@ from mutation_row import Row
 _SRC = "src/synthetic_ecommerce_data"
 _RETAIL = "prototypes/retail_drawings"
 _T = "tests/test_letter_case_499.py"
+_R = "tests/test_rules_538.py"  # the sentence_case rule over every row set (#538)
 _LC = "core/letter_case.py"
 
 ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
@@ -23,7 +24,7 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "core/emit.py",
         "    return letter_case.apply(_nested_document(catalog, line, base_url))",
         "    return _nested_document(catalog, line, base_url)",
-        f"{_T} -k test_no_industrial",
+        f"{_R} -k sentence_case-industrial",
         "the nested export is in sentence case",
     ),
     (
@@ -32,7 +33,7 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "core/emit.py",
         "        yield letter_case.apply({\n            \"sku\": child.sku,",
         "        yield ({\n            \"sku\": child.sku,",
-        f"{_T} -k test_no_industrial",
+        f"{_R} -k sentence_case-industrial_flat",
         "the flat export is in sentence case",
     ),
     (
@@ -41,7 +42,7 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "export.py",
         "    return letter_case.apply(doc | {",
         "    return (doc | {",
-        f"{_T} -k test_no_retail",
+        f"{_R} -k sentence_case-retail",
         "the retail export is in sentence case",
     ),
     (

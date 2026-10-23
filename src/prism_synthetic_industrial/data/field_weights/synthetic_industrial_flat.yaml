@@ -501,8 +501,8 @@ fields:
   - name: inside_width
     type: terms
     source: facets.inside_width
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 88 distinct values over 2478 product-value pairs is 0.04 per product
-  #   present on 2551 documents across 27 product type(s); 88 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 89 distinct values over 2478 product-value pairs is 0.04 per product
+  #   present on 2551 documents across 27 product type(s); 89 distinct values
   - name: length
     type: terms
     source: facets.length

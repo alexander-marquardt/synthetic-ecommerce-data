@@ -35,7 +35,7 @@ ALL = frozenset(FAMILIES)
 
 #: Outline inks. Twelve hues dark enough to read as line work at thumbnail
 #: size, pairwise far enough apart that an antialiased stroke in one never
-#: passes through another (``render.marking.MIN_INK_SEPARATION``). The first
+#: passes through another (``geometry.palette.MIN_INK_SEPARATION``). The first
 #: ten are the original ten brands' inks, unchanged.
 INKS: tuple[str, ...] = (
     "#1f6fb0",
@@ -192,8 +192,17 @@ PREMIUM = frozenset(
 #: label on three specs in four it alone spreads one spec's brands 1.88x
 #: apart at the census bearing tiers and no other noise, against the census
 #: 1.38 (measured on the default build, #58).
+#:
+#: The depressed-center wheel has one economy maker, Tervasko. Its census
+#: economy figure (0.5387) is the distributor's house label, found on 4 of 12
+#: shared specs; with Salt Meadow Works and Stone Wicket economy as well, the
+#: row's sampled brands met an economy maker on 49% of the default build's
+#: specs and 62% of the 100K build's, and the same-spec brand spread rose to
+#: 1.69 and 1.74 against a band top of 1.71 (#80).
 TIER_EXCEPTIONS: dict[tuple[str, str], str] = {
     ("Tervasko", "bearing_radial_ball"): "standard",
+    ("Salt Meadow Works", "wheel_depressed_center"): "standard",
+    ("Stone Wicket", "wheel_depressed_center"): "standard",
 }
 
 
