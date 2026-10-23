@@ -1407,6 +1407,20 @@ def docs() -> list[dict]:
     return [s.doc() for s in STYLES]
 
 
+#: The built page of :func:`table_doc` (``scripts/build_derived.py``; not in git, gen#513).
+TABLE_DOC = "docs/retail-product-word-decoys-table.md"
+
+
+def table_doc() -> str:
+    """The page :data:`TABLE_DOC`: a title, where it comes from, and :func:`table_markdown`."""
+    return (
+        "# Retail class-8 decoys: every row (built)\n\n"
+        "Built by `scripts/build_derived.py` from `decoy_product_words.TABLE`; what the rows are"
+        " and why is in `docs/retail-product-word-decoys.md`.\n\n"
+        f"{table_markdown()}\n"
+    )
+
+
 def table_markdown() -> str:
     """The docs table: one line per decoy with its query, noun, product id, title and policy."""
     lines = [
