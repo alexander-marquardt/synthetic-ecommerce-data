@@ -1,0 +1,10 @@
+{
+  "comment": "Tier routes of the review-verdict check (.github/scripts/check_review_binding.py), the same five tiers elastic/prism uses, shallow to deep. A path takes the deepest tier of any route naming it; a path no route names (src/, golden-catalog/, prototypes/, reference-statistics/) is charged the deepest tier. `*` crosses a `/`. `generated` lists the files a build writes: a delta that touches only those carries an ARM verdict to the new head.",
+  "tiers": ["docs", "ui", "gate-or-test", "rulebook", "production-runtime"],
+  "routes": [
+    {"tier": "docs", "paths": ["docs/*", "README.md"]},
+    {"tier": "gate-or-test", "paths": ["tests/*", "scripts/*", ".github/*", ".pre-commit-config.yaml", "pyproject.toml", "uv.lock", "vendor/*"]},
+    {"tier": "rulebook", "paths": ["CLAUDE.md", "CONTRIBUTING.md"]}
+  ],
+  "generated": ["src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml"]
+}

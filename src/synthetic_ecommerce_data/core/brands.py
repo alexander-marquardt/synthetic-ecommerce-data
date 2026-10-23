@@ -35,7 +35,7 @@ ALL = frozenset(FAMILIES)
 
 #: Outline inks. Twelve hues dark enough to read as line work at thumbnail
 #: size, pairwise far enough apart that an antialiased stroke in one never
-#: passes through another (``render.marking.MIN_INK_SEPARATION``). The first
+#: passes through another (``geometry.palette.MIN_INK_SEPARATION``). The first
 #: ten are the original ten brands' inks, unchanged.
 INKS: tuple[str, ...] = (
     "#1f6fb0",
