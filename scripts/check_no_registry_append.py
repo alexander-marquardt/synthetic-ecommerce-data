@@ -111,6 +111,14 @@ REGISTRIES: tuple[Registry, ...] = (
         " this page gains no heading",
         ("docs/retail-prototype/pack-scale-543.md",),
     ),
+    Registry(
+        "docs/retail-product-word-decoys.md",
+        _shapes(r"^\|"),
+        "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |",
+        "the table is built, not pasted: scripts/build_derived.py writes"
+        " docs/retail-product-word-decoys-table.md from decoy_product_words.TABLE",
+        ("scripts/build_derived.py",),
+    ),
 )
 
 
