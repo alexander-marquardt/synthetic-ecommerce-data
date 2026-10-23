@@ -31,10 +31,11 @@ type changes them only in the file the merge script rebuilds (#103).
 **Renamed from `synthetic-industrial-products`** (#125), so that one generator
 can build catalogs beyond industrial supply. The distribution is
 `synthetic-ecommerce-data`, the package `synthetic_ecommerce_data`, and the
-commands `ecom-generate` and `ecom-render`. For one release cycle the old names
+command `ecom-generate`. For one release cycle the old names
 still work and are deprecated: `import synthetic_industrial_products...`
 resolves to the same modules with a `DeprecationWarning`, and `sip-generate`
-and `sip-render` run the new commands after a note on stderr. The output is
+runs the new command after a note on stderr. `sip-render` and `ecom-render` are gone
+with the text renderer they ran (#27). The output is
 byte-identical under either name.
 
 **Layout** (#125 step 2). `src/synthetic_ecommerce_data/core/` holds the
@@ -43,10 +44,9 @@ and dimensions, brands, copy noise, titles and voice, price, emit, the image
 bundle, the non-copying check, the breadth row table and the drawing
 framework. `src/synthetic_ecommerce_data/domains/industrial/` holds
 everything industrial: the generator, the types, vocabularies, standards,
-taxonomy, figures, renderers, census measurement and data. The commands
+taxonomy, figures, geometry, census measurement and data. The commands
 compose a domain with core, so they stay at the top level beside `prism/`:
-`generate_cli.py` (`ecom-generate`) and the per-record `cli.py`
-(`ecom-render`). Some core modules still hold industrial tables next to their
+`generate_cli.py` (`ecom-generate`). Some core modules still hold industrial tables next to their
 machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
@@ -209,10 +209,11 @@ refusing the tree; rerun it.
 
 **What a feature PR commits, and what it never commits (gen#536).** A PR commits its
 sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
-(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `render.jsonl`, `stats.json`, the mappings). It
+(`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `stats.json`, the mappings). It
 never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
-`docs/figures.md`, the apparel decoy table `docs/retail-apparel-decoys.md` and the sneak-peek
-samples and previews. They moved with every type or grocery PR, so every merge conflicted the
+`docs/figures.md`, the decoy tables `docs/retail-apparel-decoys.md` and
+`docs/retail-product-word-decoys-table.md`, and the sneak-peek samples and previews. They
+moved with every type or grocery PR, so every merge conflicted the
 rest, and a merge that did not roll them left `main` red. CI builds them once per run and uploads
 them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
 scripts/build_derived.py --out build/derived`, to see yours), a test reads a total with
@@ -226,7 +227,7 @@ GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 log path, and refuses the merge unless all pass; no GitHub check is read. A red job
 prints its FAILED/ERROR lines (up to 20) and its log is copied to
 `<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
-without a re-run.
+without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md).
 
 Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -869,7 +870,6 @@ and not of the data.
 |---|---|
 | `nested.jsonl` | parent + nested SKUs + nested key-value attributes. The target shape: the only one in which "how many *products* have this value" is answerable, via `reverse_nested`. |
 | `flat.jsonl` | one document per SKU, attributes denormalised. Loadable today. Its attribute array is a plain `object`, so `name` and `value` become two independent multi-valued fields and the correlation between them is lost. |
-| `render.jsonl` | the same SKUs in the shape `ecom-render batch` already reads, for the per-record dimensioned renderer. The catalog's cards do not use it: every product and variant carries an `image_id` naming its own product line's drawing. |
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
@@ -953,7 +953,6 @@ The retail prototype's reference (planted distractors, footwear, grocery, the fa
 |---|---|
 | `flat.jsonl` | about 30 MB — one document per SKU |
 | `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
-| `render.jsonl` | 2.1 MB — the original twelve types' SKUs, for the per-record dimensioned renderer |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
 | `authored_names.json` | 16 KB — per product type, each attribute's published sentence-case name beside the name its type authored; the image bundle rebuild reads it ([One letter case](#one-letter-case-for-names)) |
@@ -1235,8 +1234,7 @@ record and read by nothing has no code path to plant a defect in, which is how
 zeros. What the harness *can* plant is the other half — a channel that reads
 its attribute, validates it, and then draws something else — so every marking
 mutation is that shape, and the coverage question is answered from the data
-side instead, in `tests/test_derivation.py` (the dimensioned renderer) and
-`tests/test_sku_drawings.py` (the catalog's own drawings).
+side instead, in `tests/test_sku_drawings.py` (the catalog's own drawings).
 
 Two of the harness's own defects surfaced while the marking mutations were
 added, both of which manufacture a false "not caught": a selector's `-k` filter
@@ -1349,11 +1347,10 @@ every other drawing -- only the GEOMETRY is fixed.
   viewBox-only SVG at 0 x 0.
 
 The drawing is a pure function of `(product type, brand, published attributes)`
-(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds the
-dimensioned renderer in `domains/industrial/render/` also draws (end mills, drills, taps, screws
-and bolts, washers, flap discs) it reads the SKU's geometry through the same
-`geometry_from_record` functions, so the two cannot disagree about what a
-record says; the other depth types read their few values inline, and the breadth
+(`src/synthetic_ecommerce_data/core/drawing/`). For the six kinds
+with a module in `domains/industrial/geometry/` (end mills, drills, taps, screws
+and bolts, washers, flap discs) it reads the SKU's geometry through that module's
+`geometry_from_record`, which parses and checks a record and draws nothing; the other depth types read their few values inline, and the breadth
 shapes read none.
 
 **Sizes are visible.** The scale is one constant per product type: sheet units
@@ -1493,7 +1490,7 @@ industrial bundle's shape, so the same installer takes it: members
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, and per pack scale
-(a smaller size of a line draws smaller, gen#543; see [the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543));
+(a smaller size of a line draws smaller, gen#543; see [the pack scale page](docs/retail-prototype/pack-scale-543.md));
 clothing and footwear draw one per size-ladder rung (`size_ladder.py`, gen#339).
 The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
 (`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
@@ -1507,13 +1504,13 @@ A `v*` tag builds the ceiling export and this bundle, uploads them to a release 
 `.content-sha256`, and opens the pin-bump pull request in the catalogue repository
 ([docs/releasing.md](docs/releasing.md), gen#536); a manual run of the workflow is the dry run.
 
-### The older renderers in `domains/industrial/render/`
+### One renderer
 
-`domains/industrial/render/` still holds the matplotlib renderers: the twelve type drawings, the
-per-line marking, and the per-record **dimensioned** drawings (`ecom-render`).
-They carry text -- callouts and stamps -- and the catalog no longer uses any of
-them; their geometry parsing is what the catalog's drawings read. Retiring them
--- extracting the shared geometry first -- is #27.
+`domains/industrial/drawing/` is the only way a product is drawn, and its drawings carry no
+text. The matplotlib renderers that put tables, stamps and callouts into a picture
+(`domains/industrial/render/`, and the `sip-render` and `ecom-render` commands) were
+retired in #27. What they shared with `drawing/` -- reading a record into measurements --
+lives in `domains/industrial/geometry/`.
 
 ## Realism
 

@@ -33,6 +33,8 @@ DECOY_ROWS = f"{RD}/decoy_rows.py"
 WORDS = f"{RD}/decoy_product_words.py"
 LEGACY = f"{RD}/type_specs/legacy_types.txt"
 HARNESS = "scripts/mutation_check.py"
+PROTO = "docs/retail-prototype.md"
+WORD_DOC = "docs/retail-product-word-decoys.md"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -72,6 +74,11 @@ APPENDS = {
         "feature_decoys",
     ),
     "word-d-open": (WORDS, "    _d(", "feature_decoys"),
+    "prototype-section": (PROTO, "### Probe feature (gen#999)", "docs/retail-prototype/"),
+    "prototype-subsection": (PROTO, "#### A probe detail", "docs/retail-prototype/"),
+    "word-doc-row": (
+        WORD_DOC, "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |", "build_derived"
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -81,6 +88,8 @@ BASE = {
     LEGACY: "# header\nBeauty|Body Cream\n",
     DECOY_ROWS: 'TABLE = (\n    _d("XS01", "sofa", "Sofa", "Desc", "Blue", 1, "red sofa"),\n)\n',
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
+    PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
+    WORD_DOC: "# Decoys\n\nThe table is built.\n",
 }
 
 
@@ -282,3 +291,9 @@ def test_the_no_derived_files_job_runs_the_registry_guard():
 def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc):
     text = (ROOT / doc).read_text(encoding="utf-8")
     assert "feature_decoys" in text or "check_no_registry_append" in text, doc
+
+
+def test_the_quick_path_does_not_tell_a_contributor_to_paste_the_decoy_table():
+    text = (ROOT / "docs" / "new-type-quick-path.md").read_text(encoding="utf-8")
+    assert "table_markdown" not in text
+    assert "retail-product-word-decoys-table.md" in text
