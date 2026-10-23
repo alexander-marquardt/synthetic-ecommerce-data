@@ -28,12 +28,19 @@ if str(RETAIL) not in sys.path:
 
 import retail_figures  # noqa: E402
 
+#: A retail feature's own reference page (gen#513), read like the page it left.
+PROTOTYPE_PAGES = tuple(
+    f"docs/retail-prototype/{page.name}"
+    for page in sorted((ROOT / "docs" / "retail-prototype").glob("*.md"))
+)
+
 #: Where the totals used to be typed. A file that quotes one again conflicts with every
 #: grocery or type PR again. This module and ``retail_figures.py`` are the only places a
 #: total may be named, and they name none.
 QUOTING = (
     "README.md",
     "docs/retail-prototype.md",
+    *PROTOTYPE_PAGES,
     "prototypes/retail_drawings/scale.py",
     "prototypes/retail_drawings/grocery.py",
     "tests/test_grocery_154.py",
