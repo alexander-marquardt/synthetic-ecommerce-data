@@ -54,6 +54,7 @@ INDUSTRIAL_MODULES = (
     "drawing.breadth_shapes",
     "drawing.figures",
     "generate",
+    "geometry.palette",
     "measure",
     "muststock",
     "names",
@@ -61,7 +62,6 @@ INDUSTRIAL_MODULES = (
     "price_report",
     "product_types",
     "records",
-    "render",
     "series",
     "standards",
     "tabletype",
@@ -73,16 +73,15 @@ _I = "domains.industrial"
 
 #: ``(core module, what it reaches outside core)``, relative to the package:
 #: the seams the move-only step could not cut without a redesign. Shrinks
-#: only. 19 edges: 17 imports, and 2 module paths named in a string. The
+#: only. 18 edges: 16 imports, and 2 module paths named in a string. The
 #: ``ecom-generate`` command's 3 imports (breadth, generate, measure) and its
 #: prism imports left core with it, to ``generate_cli``.
 CORE_EDGES = frozenset(
     {
         ("brands", f"{_I}.vocab"),
         ("drawing", f"{_I}.drawing.figures"),
-        ("drawing", f"{_I}.render.marking"),
-        ("drawing.style", f"{_I}.render.marking"),
-        ("emit", f"{_I}.render.kinds"),
+        ("drawing", f"{_I}.geometry.palette"),
+        ("drawing.style", f"{_I}.geometry.palette"),
         ("emit", f"{_I}.taxonomy"),
         ("noise", f"{_I}.compat"),
         ("noise", f"{_I}.conformance"),

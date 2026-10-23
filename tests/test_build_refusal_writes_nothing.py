@@ -102,7 +102,7 @@ def test_a_refused_build_does_not_overwrite_the_existing_catalog(
     """The ``--out golden-catalog`` case: the tracked files must survive a refusal."""
     out = tmp_path / "golden"
     out.mkdir()
-    for name in ("flat.jsonl", "nested.jsonl", "images.jsonl", "render.jsonl", "stats.json"):
+    for name in ("flat.jsonl", "nested.jsonl", "images.jsonl", "stats.json"):
         (out / name).write_text(f"previous {name}\n", encoding="utf-8")
     before = _digest(out)
     arrange, _ = REFUSALS[refusal]

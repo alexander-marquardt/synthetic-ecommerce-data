@@ -25,7 +25,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing.brand_mark import Mark, mark_for
-from synthetic_ecommerce_data.domains.industrial.render.marking import FINISH_TINT
+from synthetic_ecommerce_data.domains.industrial.geometry.palette import FINISH_TINT
 
 #: What a part is colored when the record publishes no finish: the color of
 #: the bare material. Brass is yellow and nylon is off-white whether or not a

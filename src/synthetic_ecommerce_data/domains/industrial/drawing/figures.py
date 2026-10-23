@@ -7,8 +7,8 @@ length of cut is drawn longer, a finer thread is drawn with more crests, a
 flat head is a cone and a button head a dome. There is no text on any of it.
 
 Parsing and the consistency checks are not re-implemented: each kind reads its
-geometry through the same ``geometry_from_record`` the dimensioned renderers in
-:mod:`..render` use, so the two can never disagree about what a record says.
+geometry through ``geometry_from_record`` in :mod:`..geometry`, the one place a
+record's attributes are turned into measurements.
 
 A record the geometry cannot be read from as published -- an attribute absent,
 a value that does not parse, a pair that contradicts itself -- is drawn with
@@ -31,13 +31,13 @@ from synthetic_ecommerce_data.core.drawing.model import Figure, arc, regular_pol
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 from synthetic_ecommerce_data.domains.industrial.drawing import primitives as P  # noqa: N812
 from synthetic_ecommerce_data.domains.industrial.drawing.compose import Ref, Spec, build, part
-from synthetic_ecommerce_data.domains.industrial.render import drill as drill_geom
-from synthetic_ecommerce_data.domains.industrial.render import endmill as endmill_geom
-from synthetic_ecommerce_data.domains.industrial.render import fastener as fastener_geom
-from synthetic_ecommerce_data.domains.industrial.render import flapdisc as flapdisc_geom
-from synthetic_ecommerce_data.domains.industrial.render import tap as tap_geom
-from synthetic_ecommerce_data.domains.industrial.render import washer as washer_geom
-from synthetic_ecommerce_data.domains.industrial.render.attrs import REFUSALS
+from synthetic_ecommerce_data.domains.industrial.geometry import drill as drill_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import endmill as endmill_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import fastener as fastener_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import flapdisc as flapdisc_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import tap as tap_geom
+from synthetic_ecommerce_data.domains.industrial.geometry import washer as washer_geom
+from synthetic_ecommerce_data.domains.industrial.geometry.attrs import REFUSALS
 
 Record = dict[str, str]
 
