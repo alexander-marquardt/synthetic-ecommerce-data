@@ -51,6 +51,8 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import grocery_rows  # noqa: E402
+import kit_biscuits  # noqa: E402,F401 -- registers sleeve
+import kit_chocolate  # noqa: E402,F401 -- registers chocolate_box
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
@@ -311,6 +313,8 @@ def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, he
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
         return drawing(shape, color, pack_label(title, head), **params)
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, head)
+    if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
+        marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)

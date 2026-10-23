@@ -47,12 +47,14 @@ METRIC_COARSE = {
     "M3": 0.5, "M4": 0.7, "M5": 0.8, "M6": 1.0, "M8": 1.25, "M10": 1.5, "M12": 1.75,
     "M14": 2.0, "M16": 2.0, "M18": 2.5, "M20": 2.5, "M22": 2.5, "M24": 3.0, "M27": 3.0,
     "M30": 3.5, "M33": 3.5, "M36": 4.0,
+    "M1.6": 0.35, "M2": 0.4, "M2.5": 0.45,
 }  # fmt: skip
 METRIC_FINE = {"M8": {1.0}, "M10": {1.25, 1.0}, "M12": {1.5, 1.25}, "M16": {1.5}, "M20": {1.5, 2.0}}
 #: ASME B1.1 threads per inch.
 UNC = {
     "#4": 40, "#6": 32, "#8": 32, "#10": 24, "1/4": 20, "5/16": 18, "3/8": 16, "7/16": 14,
     "1/2": 13, "9/16": 12, "5/8": 11, "3/4": 10, "7/8": 9, "1": 8,
+    "#1": 64, "#2": 56, "#3": 48, "#5": 40,
 }  # fmt: skip
 UNF = {
     "#6": 40,
@@ -67,10 +69,11 @@ UNF = {
 }  # noqa: E501
 #: Fine pitches a threaded type sells that the near-miss sentences do not
 #: offer (``compat.fine_threads``, held to the two tables above): ISO 261's
-#: metric fine pitches and ASME B1.1's UNF, for the lock nut's larger sizes.
+#: metric fine pitches and ASME B1.1's UNF, for the lock nut's larger sizes and
+#: the set screw's #0-80.
 SOLD_FINE = {
     "M14": {1.5}, "M24": {2.0}, "M30": {2.0}, "M36": {2.0},
-    "9/16": {18}, "3/4": {16}, "7/8": {14}, "1": {12},
+    "#0": {80}, "9/16": {18}, "3/4": {16}, "7/8": {14}, "1": {12},
 }  # fmt: skip
 #: Number and letter drill sizes (ASME B94.11M), inches.
 LETTER_NUMBER_DRILLS = {
@@ -222,7 +225,10 @@ def _sentence_holds(match: re.Match[str], type_key: str, values: dict[str, str])
                 return False
         return True
     if g["nut"] is not None:
-        return type_key == "nut_hex" and values.get("Thread Size") == g["nut"]
+        return (
+            type_key in ("nut_hex", "lock_nuts_nylon_insert")
+            and values.get("Thread Size") == g["nut"]
+        )
     return type_key == "washer_flat" and values.get("Size") == g["washer"]
 
 
@@ -348,6 +354,12 @@ def test_every_thread_is_a_real_designation_and_its_thread_type_says_which(docs)
             )
 
 
+#: Threaded types that sell no fine pitch in a system: the set screw builds
+#: its inch fine pitch (UNF) beside the coarse, and its metric sizes in ISO
+#: 261's coarse pitch only (no ISO 4026 to 4029 row names a fine one).
+NO_FINE_PITCH = {"set_screws_hex_socket": {"Metric Fine"}}
+
+
 def test_a_diameter_query_has_a_pitch_to_choose(docs):
     """``m12 socket cap screws`` finds M12x1.75 AND a fine pitch, and so on for
     every threaded type -- the near-miss the pitch facet exists to separate."""
@@ -357,7 +369,8 @@ def test_a_diameter_query_has_a_pitch_to_choose(docs):
             for d in docs
             if d["product_type"] == type_key and name in _published(d)
         }  # noqa: E501
-        assert {"Metric Coarse", "Metric Fine", "UNC", "UNF"} <= series, (type_key, series)
+        wanted = {"Metric Coarse", "Metric Fine", "UNC", "UNF"} - NO_FINE_PITCH.get(type_key, set())
+        assert wanted <= series, (type_key, series)
     m12 = {
         _published(d)["Dia./Thread Size"]
         for d in docs

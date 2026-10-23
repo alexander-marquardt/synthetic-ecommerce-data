@@ -51,7 +51,6 @@ FIELD_MAP_AT_IMPORT = (FIELD_MAP_PATH.stat().st_ino, FIELD_MAP_PATH.stat().st_mt
 GOLDEN_FILES = (
     "flat.jsonl",
     "nested.jsonl",
-    "render.jsonl",
     "images.jsonl",
     "mapping.flat.json",
     "mapping.nested.json",

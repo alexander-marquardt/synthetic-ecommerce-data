@@ -32,6 +32,7 @@ import pytest
 import yaml
 
 from synthetic_ecommerce_data import generate_cli as cli
+from synthetic_ecommerce_data.core import price
 
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
@@ -152,6 +153,10 @@ MSG
     exit 0
   fi
 fi
+if [[ " $* " == *measured_builds* ]]; then
+  # The 100K build takes about a minute: only a case about it runs the real one.
+  if [ -z "${FAKE_UV_BUILDS:-}" ]; then exit 0; fi
+fi
 exec "$REAL_UV" "$@"
 """
 )
@@ -171,6 +176,7 @@ _IDENTITY = {
 }
 
 _STATS = "golden-catalog/stats.json"
+_BUILDS = price.BUILDS_FILE.relative_to(Path(__file__).resolve().parent.parent).as_posix()
 
 #: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
 #: stops a build that is not offline with the error uv printed then
@@ -379,6 +385,24 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
 
 
 
+
+
+def test_a_conflict_in_the_measured_builds_is_resolved_by_the_rebuild(world: dict) -> None:
+    """gen#85: two type PRs move the 100K sizes and the pinned figures; no hand merge."""
+    path = world["checkout"] / _BUILDS
+    assert path.is_file(), f"{_BUILDS} is missing"
+    true = path.read_text()
+    assert '"lines": ' in true
+    head = _open_pr(
+        world,
+        {**_GREEN, _BUILDS: re.sub(r'"lines": \d+', '"lines": 1', true, count=1)},
+        on_main={_BUILDS: re.sub(r'"lines": \d+', '"lines": 2', true, count=1)},
+    )
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_BUILDS="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    pushed = _branch(world)
+    assert _git(world["origin"], "show", f"{pushed}:{_BUILDS}") + "\n" == true
+    assert _merged(world)
 
 
 
@@ -844,7 +868,18 @@ def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     """Only a file the rebuild rewrites may have a conflict resolved by it."""
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    assert sorted(_printed("--print-generated")) == sorted([*golden, field_map])
+    builds = price.BUILDS_FILE.relative_to(REPO).as_posix()
+    want = sorted([*golden, field_map, builds])
+    assert sorted(_printed("--print-generated")) == want
+
+
+def test_the_builds_rebuild_is_the_command_the_builds_module_names() -> None:
+    """One module writes the pinned figures and the 100K sizes; the script runs it (#85)."""
+    from synthetic_ecommerce_data.domains.industrial import measured_builds  # noqa: PLC0415
+
+    assert price.BUILDS_FILE.is_file()
+    assert f"python -m {measured_builds.__name__}" in measured_builds.REBUILD
+    assert measured_builds.__name__ in SCRIPT.read_text()
 
 
 
@@ -1116,7 +1151,7 @@ def test_the_stale_yaml_signature_of_the_incident_is_regenerated(world: dict) ->
     ids = [
         f"FAILED {_FIELD_MAP_FRESH}",
         f"ERROR {_EXACTLY_FRESH}",
-        *(f"ERROR {_FRESH}[{name}]" for name in ("flat.jsonl", "stats.json", "render.jsonl")),
+        *(f"ERROR {_FRESH}[{name}]" for name in ("flat.jsonl", "stats.json", "nested.jsonl")),
     ]
     head = _stale_golden_pr(world, _red_on(*ids))
     done = _run(world, head, _GREEN_CHECK, "--local-ci", FAKE_UV_SKIP_BUILD_ONCE="1")

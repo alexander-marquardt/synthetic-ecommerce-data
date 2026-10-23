@@ -24,7 +24,13 @@ import pytest
 import yaml
 
 from synthetic_ecommerce_data.core import noise, price, typespec, voice
-from synthetic_ecommerce_data.domains.industrial import breadth, conformance, taxonomy, vocab
+from synthetic_ecommerce_data.domains.industrial import (
+    breadth,
+    compat,
+    conformance,
+    taxonomy,
+    vocab,
+)
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import cylinder
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.type_labels import PRODUCT_TYPE_LABELS
@@ -55,6 +61,9 @@ TABLES = {
     "noise.THREADED": lambda: noise.THREADED,
     "noise.FASTENERS": lambda: noise.FASTENERS,
     "noise.UNIT_PRIMARY": lambda: noise.UNIT_PRIMARY,
+    "noise.CUTTING": lambda: noise.CUTTING,
+    "compat.RELATIONS": lambda: compat.RELATIONS,
+    "compat.NEAR_MISS_PERIOD": lambda: compat.NEAR_MISS_PERIOD,
 }
 
 TOY = "toy_registration_widget"
@@ -81,6 +90,9 @@ def _toy_spec(**overrides) -> typespec.TypeSpec:
         "threaded": "Thread Size",
         "fastener": True,
         "unit_primary": "Size",
+        "compat": ("nut", "Thread Size"),
+        "near_miss_period": 4,
+        "cutting": True,
         "module": "tests.toy",
     }
     return typespec.TypeSpec(TOY, **{**fields, **overrides})
@@ -155,6 +167,9 @@ def test_a_planted_type_reaches_every_per_type_table_from_its_spec(planted) -> N
         "threaded": noise.THREADED.get(TOY),
         "fastener": TOY in noise.FASTENERS,
         "unit primary": noise.UNIT_PRIMARY.get(TOY),
+        "cutting": TOY in noise.CUTTING,
+        "compat": compat.RELATIONS.get(TOY),
+        "near miss": compat.NEAR_MISS_PERIOD.get(TOY),
     }
     assert reached == {
         "claims": ("ISO 0001", "ISO 0002"),
@@ -165,6 +180,9 @@ def test_a_planted_type_reaches_every_per_type_table_from_its_spec(planted) -> N
         "threaded": "Thread Size",
         "fastener": True,
         "unit primary": "Size",
+        "cutting": True,
+        "compat": ("nut", "Thread Size"),
+        "near miss": 4,
     }
 
 
@@ -182,6 +200,9 @@ _OWN_TABLES = [
     (noise, "THREADED", "threaded", "Thread Size"),
     (noise, "FASTENERS", "fastener", True),
     (noise, "UNIT_PRIMARY", "unit_primary", "Size"),
+    (noise, "CUTTING", "cutting", True),
+    (compat, "RELATIONS", "compat", ("nut", "Thread Size")),
+    (compat, "NEAR_MISS_PERIOD", "near_miss_period", 4),
 ]
 
 
