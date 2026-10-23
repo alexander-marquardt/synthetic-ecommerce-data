@@ -15,7 +15,8 @@ from dataclasses import dataclass
 from colorwords import plain
 from departments import check as check_departments
 from promotion import values as promotion_values
-from variants import Color, attr, drawing, product, swatch
+from shades import NAMED as NAMED_SHADES
+from variants import WOMENS_WAIST, Color, attr, drawing, product, swatch
 
 AUDIENCES = ("adult", "kids", "baby")
 SIZE_RANGES = ("regular", "petite", "tall", "plus")
@@ -67,6 +68,9 @@ _AUTHORED_SHADE_FAMILY = {
 }  # fmt: skip
 #: Keyed by the plain word ``cw`` gives a shade ("Lemon" is "Yellow"), as ``color[0]`` reads.
 SHADE_FAMILY = {plain(shade): family for shade, family in _AUTHORED_SHADE_FAMILY.items()}
+#: A complexion shade sold under its own name ("Porcelain", gen#345) is no plain word, so it is
+#: keyed by the name; it rolls up to the family its plain word did.
+SHADE_FAMILY |= {name: SHADE_FAMILY[plain(name)] for name in NAMED_SHADES}
 #: The inside-leg axis of a legwear product page, and the size range each serves.
 INSIDE_LEGS = ("Extra Short", "Short/Petite", "Regular", "Long", "Extra Long")
 LENGTH_RANGE = {"Extra Short": "petite", "Short/Petite": "petite", "Regular": "regular",
@@ -167,6 +171,9 @@ class Style:
     extra: tuple[tuple[str, str, str], ...] = ()
     #: Letter sizes (S, M, L, XL), one SKU per color x size ...
     sizes: tuple[str, ...] = ()
+    #: ``sizes`` are Womens UK numbers stored the way the jeans store them: ``size_uk`` with the
+    #: chart's ``size_eu`` and ``size_us`` beside it, not a bare ``size`` (gen#621).
+    uk_chart: bool = False
     #: ... except these (color, size) pairs, which are not made.
     not_made: tuple[tuple[str, str], ...] = ()
     #: A motif print's drawing fields (motif, placement, scale, spacing), see :mod:`prints`.
@@ -180,6 +187,8 @@ class Style:
             raise ValueError(f"{self.code}: a legwear size_range is derived from its SKUs")
         if self.volumes and self.unit is not None:
             raise ValueError(f"{self.code}: a style states one unit or several volumes, not both")
+        if self.uk_chart and not all(s.isdigit() and int(s) in WOMENS_WAIST for s in self.sizes):
+            raise ValueError(f"{self.code}: a uk_chart size outside the Womens chart")
         if self.bed_frame and not set(self.bed_frame) <= set(BED_SIZE_DIMS):
             raise ValueError(f"{self.code}: a bed size outside the shared vocabulary")
         if self.metal and not {c[0] for c, _ in self.colors} <= set(FINISHES):
@@ -188,6 +197,10 @@ class Style:
     def _sizes(self, color: Color) -> list[dict]:
         """The sizes ``color`` is sold in: waist x inside leg, bed sizes, letter
         sizes, or one sizeless row."""
+        if self.sizes and self.uk_chart:
+            return [{"size_uk": s, "size_eu": WOMENS_WAIST[int(s)][1],
+                     "size_us": WOMENS_WAIST[int(s)][2], "price": self.price, "in_stock": True}
+                    for s in self.sizes if (color[0], s) not in self.not_made]  # fmt: skip
         if self.sizes:
             return [{"size": s, "price": self.price, "in_stock": True}
                     for s in self.sizes if (color[0], s) not in self.not_made]  # fmt: skip

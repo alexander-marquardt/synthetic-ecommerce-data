@@ -1,4 +1,4 @@
-"""Synthetic industrial-supply catalog records, and drawings rendered from them."""
+"""Synthetic industrial-supply catalog records, and the text-free drawings of them."""
 
 from __future__ import annotations
 
@@ -10,17 +10,12 @@ from synthetic_ecommerce_data.core.dimensions import (
     parse_thread,
 )
 from synthetic_ecommerce_data.domains.industrial.records import FIXTURES
-from synthetic_ecommerce_data.domains.industrial.render import CARD, DETAIL, PROFILES, render_record
 
 __all__ = [
-    "CARD",
-    "DETAIL",
     "FIXTURES",
-    "PROFILES",
     "DimensionParseError",
     "Length",
     "Thread",
     "parse_length",
     "parse_thread",
-    "render_record",
 ]

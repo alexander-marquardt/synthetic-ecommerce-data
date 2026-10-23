@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "15704338018bc4a46fa00718d0b44e8221c22228fed59f80a4b3d633f80db1ed",
+ "fingerprint": "8334bc7c09a9b170403be06cc6a1f3e3026a860803fc4221edcf2942e1c739b1",
  "rows": [
   {
    "query": "mattress topper",
@@ -551,10 +551,6 @@
    "query": "cups",
    "baseline": [
     {
-     "product_id": "PLT-MUG7",
-     "title": "Espresso Cup"
-    },
-    {
      "product_id": "PLT-CUPMLD",
      "title": "Moulded Cup T-Shirt Bra"
     },
@@ -567,30 +563,34 @@
      "title": "Smooth Full Cup Bra B-G"
     },
     {
-     "product_id": "PLT-DRKTRV",
-     "title": "Leakproof Travel Cup"
+     "product_id": "PLT-CUPHLD",
+     "title": "Car Cup Holder Organiser"
+    },
+    {
+     "product_id": "PLT-CUPTRO",
+     "title": "Engraved Trophy Cup"
     }
    ],
    "policy": [
     {
-     "product_id": "PLT-MUG7",
-     "title": "Espresso Cup"
-    },
-    {
      "product_id": "PLT-DRKTRV",
-     "title": "Leakproof Travel Cup"
+     "title": "Leakproof Reusable Travel Cup with Lid for Car Holders"
     },
     {
      "product_id": "PLT-DRKSET",
-     "title": "Set of 4 Espresso Cups"
+     "title": "Set of 4 Porcelain Espresso Cups in Gift Box"
     },
     {
      "product_id": "PLT-DRKSAU",
-     "title": "Fine Bone China Cup and Saucer"
+     "title": "Fine Bone China Tea Cup and Saucer for Afternoon Tea"
     },
     {
      "product_id": "PLT-MUG-APPLE",
      "title": "Apple Graphic Mug"
+    },
+    {
+     "product_id": "PLT-MUG11",
+     "title": "Travel Mug"
     }
    ]
   }
@@ -617,8 +617,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-MUG7",
-     "title": "Espresso Cup"
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
     }
    ],
    "policy": [
@@ -639,8 +639,8 @@
      "title": "Padded Balcony Bra"
     },
     {
-     "product_id": "PLT-MUG7",
-     "title": "Espresso Cup"
+     "product_id": "PLT-OFRBRA",
+     "title": "Seamless Smoothing Bra"
     }
    ]
   }
@@ -681,27 +681,27 @@
     "title": "Performance Tee",
     "matched_skus": [
      {
-      "sku": "PLT-TEEM14-001",
+      "sku": "PLT-TEEM14-50463BC4",
       "color": "Navy",
       "size": "XS"
      },
      {
-      "sku": "PLT-TEEM14-002",
+      "sku": "PLT-TEEM14-40869122",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-TEEM14-003",
+      "sku": "PLT-TEEM14-E20DB29A",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-TEEM14-004",
+      "sku": "PLT-TEEM14-E566DEAC",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-TEEM14-005",
+      "sku": "PLT-TEEM14-F4E72750",
       "color": "Navy",
       "size": "XL"
      }
@@ -712,27 +712,27 @@
     "title": "Tipped Tee",
     "matched_skus": [
      {
-      "sku": "PLT-TEEMP2-001",
+      "sku": "PLT-TEEMP2-50463BC4",
       "color": "Navy",
       "size": "XS"
      },
      {
-      "sku": "PLT-TEEMP2-002",
+      "sku": "PLT-TEEMP2-40869122",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-TEEMP2-003",
+      "sku": "PLT-TEEMP2-E20DB29A",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-TEEMP2-004",
+      "sku": "PLT-TEEMP2-E566DEAC",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-TEEMP2-005",
+      "sku": "PLT-TEEMP2-F4E72750",
       "color": "Navy",
       "size": "XL"
      }
@@ -743,27 +743,27 @@
     "title": "Wrenches Print Tee",
     "matched_skus": [
      {
-      "sku": "PLT-TEEMP-WRENCH-001",
+      "sku": "PLT-TEEMP-WRENCH-50463BC4",
       "color": "Navy",
       "size": "XS"
      },
      {
-      "sku": "PLT-TEEMP-WRENCH-002",
+      "sku": "PLT-TEEMP-WRENCH-40869122",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-TEEMP-WRENCH-003",
+      "sku": "PLT-TEEMP-WRENCH-E20DB29A",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-TEEMP-WRENCH-004",
+      "sku": "PLT-TEEMP-WRENCH-E566DEAC",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-TEEMP-WRENCH-005",
+      "sku": "PLT-TEEMP-WRENCH-F4E72750",
       "color": "Navy",
       "size": "XL"
      }
@@ -774,27 +774,27 @@
     "title": "Orange Graphic Tee",
     "matched_skus": [
      {
-      "sku": "PLT-TEEW-ORANGE-006",
+      "sku": "PLT-TEEW-ORANGE-50463BC4",
       "color": "Navy",
       "size": "XS"
      },
      {
-      "sku": "PLT-TEEW-ORANGE-007",
+      "sku": "PLT-TEEW-ORANGE-40869122",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-TEEW-ORANGE-008",
+      "sku": "PLT-TEEW-ORANGE-E20DB29A",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-TEEW-ORANGE-009",
+      "sku": "PLT-TEEW-ORANGE-E566DEAC",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-TEEW-ORANGE-010",
+      "sku": "PLT-TEEW-ORANGE-F4E72750",
       "color": "Navy",
       "size": "XL"
      }
@@ -805,27 +805,27 @@
     "title": "Henley Tee",
     "matched_skus": [
      {
-      "sku": "PLT-TEEM4-001",
+      "sku": "PLT-TEEM4-50463BC4",
       "color": "Navy",
       "size": "XS"
      },
      {
-      "sku": "PLT-TEEM4-002",
+      "sku": "PLT-TEEM4-40869122",
       "color": "Navy",
       "size": "S"
      },
      {
-      "sku": "PLT-TEEM4-003",
+      "sku": "PLT-TEEM4-E20DB29A",
       "color": "Navy",
       "size": "M"
      },
      {
-      "sku": "PLT-TEEM4-004",
+      "sku": "PLT-TEEM4-E566DEAC",
       "color": "Navy",
       "size": "L"
      },
      {
-      "sku": "PLT-TEEM4-005",
+      "sku": "PLT-TEEM4-F4E72750",
       "color": "Navy",
       "size": "XL"
      }

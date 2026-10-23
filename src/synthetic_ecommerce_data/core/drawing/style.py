@@ -25,7 +25,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing.brand_mark import Mark, mark_for
-from synthetic_ecommerce_data.domains.industrial.render.marking import FINISH_TINT
+from synthetic_ecommerce_data.domains.industrial.geometry.palette import FINISH_TINT
 
 #: What a part is colored when the record publishes no finish: the color of
 #: the bare material. Brass is yellow and nylon is off-white whether or not a
@@ -176,6 +176,12 @@ class HouseStyle:
     #: The brand's name and mark, set in the plate under the figure (#132).
     name: str = ""
     mark: Mark = ()
+    #: The text-free levers (#55), resolved from the brand book; the defaults
+    #: are the look every brand drew before they existed.
+    stroke: float = brands.WEIGHTS[0]
+    dash: str = brands.DASHES[0]
+    margin: float = brands.MARGINS[0]
+    texture: str = brands.TEXTURES[0]
 
 
 def _mix(hex_color: str, towards: str, share: float) -> str:
@@ -202,12 +208,17 @@ def house_style(brand: str) -> HouseStyle:
     if brand not in brands.BY_NAME:
         raise UnknownStyleError(f"no house style for brand {brand!r}")
     ink = brands.ink_of(brand)
+    stroke, dash, margin, texture = brands.levers_of(brand)
     return HouseStyle(
         ink=ink,
         paper=brands.paper_of(brand),
         frame=brands.frame_of(brand),
         name=brand,
         mark=mark_for(brand),
+        stroke=stroke,
+        dash=dash,
+        margin=margin,
+        texture=texture,
     )
 
 

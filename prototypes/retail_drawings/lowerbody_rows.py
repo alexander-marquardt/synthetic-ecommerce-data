@@ -252,11 +252,13 @@ def _shp(length: str, style: str, pocket: str = "yes") -> tuple[tuple[str, str],
 
 _WS, _MS = ("Womens", "Shorts"), ("Mens", "Shorts")
 SHORTS = (
-    LRow("SHTDNW", "Denim Shorts", "Wrenfield", CL_, _WS, "Shorts", 22.0, "shorts",
+    LRow("SHTDNW", "High Rise Frayed Hem Denim Shorts, Mid Length", "Wrenfield", CL_, _WS,
+         "Shorts", 22.0, "shorts",
          "Frayed-hem denim shorts with a zip fly and five pockets.", (LIGHT_WASH, MID_WASH),
          _sh("Denim", "Mid Length", "Denim", _waist("Zip")), _sizes(22.0),
          params=_shp("mid", "denim"), facts=_facts("High", "plain")),
-    LRow("SHTDNM", "Mini Denim Shorts", "Larkmoor", CL_, _WS, "Shorts", 20.0, "shorts",
+    LRow("SHTDNM", "Mini Length Cut-Off Denim Shorts with High Rise", "Larkmoor", CL_, _WS,
+         "Shorts", 20.0, "shorts",
          "Short cut-off denim shorts with a high rise.", (LIGHT_WASH, BLACK_DENIM),
          _sh("Denim", "Mini", "Denim", _waist("Zip")), _sizes(20.0),
          params=_shp("mini", "denim"), facts=_facts("High", "plain")),

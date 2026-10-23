@@ -15,9 +15,10 @@ Two choices the tables leave open:
   for ISO 4026 and 4028, C max (flat) and P max (dog) for B18.3. A dog point's
   diameter is P, not the cup and flat point's C.
 * B18.3 fixes no length range per size, so the inch ranges are FastenersWB's
-  (the file the JSON cites), and an inch line's provenance says so. That
-  list has no 5/16", 5/8" or 7/8" length and starts 1/4" screws at 3/8"; the
-  gap is the source's, recorded in the JSON, and is not filled in here.
+  (the file the JSON cites), and an inch line's provenance says so. Its
+  nominal length list has no 5/16", 5/8" or 7/8" length; those three are on
+  B18.3's own length grid (Table 5A note 3) and are added from it (#67), cited
+  in the JSON. It still starts 1/4" screws at 3/8", which the JSON records.
 
 The sizes each table offers are declared as ``SIZES`` beside the data file,
 and ``line_standard`` reads a record's standard back from its point and
@@ -228,7 +229,14 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     else:
         tpi, thread_type = pitch, "UNF" if size == "#0" else "UNC"
         fine = UNF_THREADS_PER_INCH.get(size)
-        if fine and gen._rotate(f"fine:{type_key}:{standard}:{size}", FINE_PERIOD) == 2:
+        # The wheel turns per size, not per (point, size): a point type draws a size a
+        # line or two, so a wheel kept per point never reached its third line and no
+        # set screw was ever built to UNF (#75).
+        period = compat.NEAR_MISS_PERIOD[type_key]  # declared on the SPEC below
+        # The first line a standard builds to a size is always coarse: a size whose only
+        # line landed on the fine turn would leave the standard's own size unreached.
+        first = gen._rotation_step(f"visit:{standard}:{size}") == 0
+        if fine and not first and gen._rotate(f"fine:{type_key}:{size}", period) == period - 1:
             tpi, thread_type = fine, "UNF"
         thread = f"{size}-{tpi:g}"
     meets = "ASME B18.3" if not metric else standard
@@ -375,6 +383,10 @@ SPEC = TypeSpec(
         | {"ASTM F912", "ASTM F880"}
     ),
     key_attributes=("Dia./Thread Size",),
+    threaded="Dia./Thread Size",
+    fastener=True,
+    compat=("drive", "Drive Size"),
+    near_miss_period=FINE_PERIOD,
     use_lines=(
         "Driven with a hex key.",
         "Holds a collar, pulley or gear on its shaft from inside a tapped hole.",

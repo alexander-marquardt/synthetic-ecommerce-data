@@ -21,6 +21,9 @@ if str(RETAIL) not in sys.path:
 import colorwords  # noqa: E402 -- the prototype's own directory is its import root
 import scale  # noqa: E402
 
+#: The ``measure()["templates"]`` keys that total or slice the sources instead of naming one.
+AGGREGATES = ("all", "before_grocery", "main_food")
+
 #: The six values the coverage review asked for, as the facet spells them (lower case).
 WANTED = ("leopard", "tartan", "polka dot", "floral", "breton stripe", "patchwork")
 
@@ -137,17 +140,28 @@ def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
     assert len(fills("gingham")) == 2
 
 
-def test_the_pattern_values_add_no_style_and_no_sku() -> None:
-    """The product count is frozen (the four pattern words ride on colorways of styles main
-    already sold). Main's build holds 11,324 templates and 101,460 template SKUs; the 21
-    plural-cups styles and 6 more bra decoys (gen#508), the 14 templates (29 SKUs) of the sports
-    text-match decoys (#375), the large appliances of gen#334 (120 templates, 264 SKUs) and the
-    face creams (#542: 20 templates, 69 SKUs) lift them to 11505 and 102951. The Kids dresses
-    and coats of gen#310 add 90 styles and a net 1,680 SKUs (the 90 rows hold 1,686 of their own;
-    the decoy clones account for the difference). Seven more Dress decoys (one more per class, so
-    the type keeps a tenth after the Kids dresses) add 7 templates and 35 SKUs. The 27 templates
-    and 160 SKUs of the gen#509 plant rows are added too. This test pins
-    11629 templates and 104826 template SKUs: the PR that lifts the freeze must move them."""
+def test_the_measured_sources_account_for_every_template() -> None:
+    """The measured sources account for every template, and the measured total equals them.
+
+    The per-source style counts of ``retail_figures.measure()`` sum to ``len(scale.templates())``,
+    and the measured ``all`` entry equals the templates' own styles and SKU sum. This replaces
+    the gen#408 freeze (the four pattern words ride on colorways of styles main already sold),
+    which typed the fleet totals: a style added to a source that already exists moves the
+    per-source count and ``len(templates())`` together, so this test no longer catches it. It
+    catches a source list that disagrees with ``scale.templates()``, or a stale figures cache.
+    No fleet total is typed here (#644): a product PR that adds rows to a source moves the
+    measured count, not this test."""
+    from retail_figures import figures
+
+    measured = figures()["templates"]
     tpls = scale.templates()
-    assert len(tpls) == 11629
-    assert sum(t["sku_count"] for t in tpls) == 104826
+    sources = {
+        name: count
+        for name, count in measured.items()
+        if isinstance(count, dict) and name not in AGGREGATES
+    }
+    assert sum(c["styles"] for c in sources.values()) == len(tpls)
+    assert measured["all"] == {
+        "styles": len(tpls),
+        "skus": sum(t["sku_count"] for t in tpls),
+    }

@@ -415,6 +415,7 @@ NESTED_MAPPING: dict[str, Any] = {
             "brand": {"type": "keyword"},
             "series": {"type": "keyword"},
             "category_path": {"type": "keyword"},
+            "category_paths": {"type": "keyword"},
             "category_leaf": {"type": "keyword"},
             "category_depth": {"type": "integer"},
             "dimension_provenance": {"type": "keyword"},
@@ -499,6 +500,7 @@ FLAT_MAPPING: dict[str, Any] = {
             "brand": {"type": "keyword"},
             "series": {"type": "keyword"},
             "category_path": {"type": "keyword"},
+            "category_paths": {"type": "keyword"},
             "category_leaf": {"type": "keyword"},
             "dimension_provenance": {"type": "keyword"},
             "spec_quality": {"type": "keyword"},
@@ -545,33 +547,6 @@ def authored_name_map(catalog: Catalog) -> dict[str, dict[str, str]]:
         for type_key, held in sorted(names.items())
         if (mapped := letter_case.authored_names(held))
     }
-
-
-def render_records(catalog: Catalog) -> Iterator[dict[str, Any]]:
-    """Records in the shape the existing renderer already reads.
-
-    Values are read out of a flat mapping keyed by the published name -- the
-    shape :mod:`..records` uses -- plus two reserved keys that are not
-    attributes: ``sku`` and ``product_type``. The type is what
-    :func:`..render.kinds.classify` dispatches on; attribute names stopped
-    identifying a type when one concept became one generic name across types
-    (elastic/prism-industrial-products#103).
-    """
-    from synthetic_ecommerce_data.domains.industrial.render.kinds import TYPE_KIND  # noqa: PLC0415
-
-    for line in catalog.lines:
-        # Only the types that renderer draws: the newer ones exist only as
-        # the catalog's own text-free drawings (:mod:`..drawing`).
-        if line.type_key not in TYPE_KIND:
-            continue
-        for child in line.children:
-            record: dict[str, Any] = {"sku": child.sku, "product_type": line.type_key}
-            for attribute in catalog.merged_attributes(line, child):
-                if attribute.values is not None:
-                    record[attribute.name] = ", ".join(attribute.values)
-                else:
-                    record[attribute.name] = attribute.value
-            yield record
 
 
 def referenced_image_ids(catalog: Catalog) -> set[str]:
