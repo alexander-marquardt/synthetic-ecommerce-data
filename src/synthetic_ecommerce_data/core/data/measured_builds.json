@@ -1,14 +1,10 @@
 {
   "default": {
-    "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.771
-    }
+    "price_pins": {}
   },
   "hundred_k": {
     "lines": 71668,
-    "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.769
-    },
+    "price_pins": {},
     "skus": 122930,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,

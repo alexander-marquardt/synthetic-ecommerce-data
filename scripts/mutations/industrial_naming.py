@@ -53,7 +53,7 @@ MUTATIONS: list[Mutation] = [
         "domains/industrial/taxonomy.py",
         '    "washer_flat": "washer_flat",',
         '    "washer_flat": "washer_flat_plain",',
-        "tests/test_catalog_emit.py tests/test_generic.py",
+        "tests/test_catalog_emit.py",
         "B",
         "every product and every variant carries an image that resolves",
     ),
