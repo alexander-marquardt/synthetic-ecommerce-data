@@ -103,6 +103,14 @@ REGISTRIES: tuple[Registry, ...] = (
         _DECOY_FORM,
         _DECOY_FILES,
     ),
+    Registry(
+        "docs/retail-prototype.md",
+        _shapes(r"^#{1,6}\s"),
+        "### Probe feature (gen#999)",
+        "write the feature's section as its own page, docs/retail-prototype/<topic>-<issue>.md;"
+        " this page gains no heading",
+        ("docs/retail-prototype/pack-scale-543.md",),
+    ),
 )
 
 

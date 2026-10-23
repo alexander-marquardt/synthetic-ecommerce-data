@@ -1489,7 +1489,7 @@ industrial bundle's shape, so the same installer takes it: members
 `image_url` that member under `/images/`, the same deterministic archive, and
 the content digest and file count printed and written beside it as
 `.content-sha256`. Images are keyed per style and colorway, and per pack scale
-(a smaller size of a line draws smaller, gen#543; see [the retail prototype reference](docs/retail-prototype.md#pack-scale-gen543));
+(a smaller size of a line draws smaller, gen#543; see [the pack scale page](docs/retail-prototype/pack-scale-543.md));
 clothing and footwear draw one per size-ladder rung (`size_ladder.py`, gen#339).
 The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
 (`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
