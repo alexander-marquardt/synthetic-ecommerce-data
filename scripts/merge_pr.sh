@@ -121,7 +121,6 @@ GENERATED=(
   golden-catalog/mapping.flat.json
   golden-catalog/mapping.nested.json
   golden-catalog/nested.jsonl
-  golden-catalog/render.jsonl
   golden-catalog/stats.json
   src/synthetic_ecommerce_data/core/data/measured_builds.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml

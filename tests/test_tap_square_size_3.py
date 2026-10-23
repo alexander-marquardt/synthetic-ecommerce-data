@@ -2,7 +2,7 @@
 
 ``vocab._TAP`` declared ``Square Size`` at a presence of 0.46 and no record ever
 carried it, so the declared rate was a number nothing could reach and the tap
-drawing's square (``render/tap.py``) was dead code. These tests hold the data
+drawing's square (``drawing/figures.py``) was dead code. These tests hold the data
 side: the attribute is emitted at its declared presence, its value is the
 ``ASME B94.9`` / ``ISO 529`` square for the tap's own thread size, and it pairs
 with the shank diameter of the SAME row of that standard.
@@ -18,8 +18,9 @@ from synthetic_ecommerce_data.core import standards_library as lib
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import names, series
+from synthetic_ecommerce_data.domains.industrial.drawing import figures
 from synthetic_ecommerce_data.domains.industrial.generate import generate
-from synthetic_ecommerce_data.domains.industrial.render import CARD, tap
+from synthetic_ecommerce_data.domains.industrial.geometry import tap
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 
 MM_PER_INCH = 25.4
@@ -126,7 +127,7 @@ def test_a_square_always_fits_on_its_shank(tap_skus):
     assert too_big == []
 
 
-def test_a_generated_tap_with_a_square_is_drawn_with_that_square(tap_skus, tmp_path):
+def test_a_generated_tap_with_a_square_is_drawn_with_that_square(tap_skus):
     """The renderer's square path, dead while no record carried the attribute (#3)."""
     drawable = [
         sku
@@ -141,7 +142,7 @@ def test_a_generated_tap_with_a_square_is_drawn_with_that_square(tap_skus, tmp_p
         geom = tap.geometry_from_record(sku)
         assert geom.square is not None
         assert abs(geom.square.inches - _inches(sku["Square Size"])) < 1e-9
-    assert tap.render(drawable[0], tmp_path / "tap.png", CARD).stat().st_size > 0
+    assert figures.tap(drawable[0]).source == "record"
 
 
 def test_the_table_has_a_row_for_every_thread_size_the_catalog_taps_offer():

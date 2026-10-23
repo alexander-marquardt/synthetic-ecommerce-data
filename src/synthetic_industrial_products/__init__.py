@@ -11,9 +11,9 @@ the same.
 through either name is seen through both. Importing this package warns once
 with a :class:`DeprecationWarning`.
 
-``sip_generate`` and ``sip_render`` are the old ``sip-generate`` and
-``sip-render`` commands: each prints a deprecation note on stderr and then
-runs ``ecom-generate`` or ``ecom-render`` with the same arguments.
+``sip_generate`` is the old ``sip-generate`` command: it prints a deprecation
+note on stderr and then runs ``ecom-generate`` with the same arguments. There is
+no ``sip_render``: the text renderer it ran is gone (#27).
 """
 
 from __future__ import annotations
@@ -58,7 +58,6 @@ MOVED: dict[str, str] = {
     "catalog.cli": "generate_cli",
     "dimensions": "core.dimensions",
     "records": "domains.industrial.records",
-    "render": "domains.industrial.render",
     "product_types": "domains.industrial.product_types",
     "data": "domains.industrial.data",
     "drawing.figures": "domains.industrial.drawing.figures",
@@ -141,12 +140,4 @@ def sip_generate(argv: list[str] | None = None) -> int:
     from synthetic_ecommerce_data.generate_cli import main  # noqa: PLC0415
 
     _deprecated_command("sip-generate", "ecom-generate")
-    return main(argv)
-
-
-def sip_render(argv: list[str] | None = None) -> int:
-    """The pre-rename ``sip-render``: ``ecom-render`` with a deprecation note."""
-    from synthetic_ecommerce_data.cli import main  # noqa: PLC0415
-
-    _deprecated_command("sip-render", "ecom-render")
     return main(argv)
