@@ -52,6 +52,8 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import grocery_rows  # noqa: E402
+import kit_biscuits  # noqa: E402,F401 -- registers sleeve
+import kit_chocolate  # noqa: E402,F401 -- registers chocolate_box
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402

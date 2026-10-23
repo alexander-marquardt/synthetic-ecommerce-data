@@ -1,17 +1,15 @@
 {
   "default": {
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.771,
       "price p90/p10: kit_assortment": 4.032
     }
   },
   "hundred_k": {
-    "lines": 71597,
+    "lines": 71621,
     "price_pins": {
-      "price brand spread, same spec (median max/min): wheel_depressed_center": 1.769,
       "price p90/p10: kit_assortment": 3.917
     },
-    "skus": 122803,
+    "skus": 122883,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -132,7 +130,7 @@
       "seal_pick_sets": 2,
       "sems_bolts": 2,
       "serrated_flange_nuts": 2,
-      "set_screws_hex_socket": 6965,
+      "set_screws_hex_socket": 7045,
       "shackles": 373,
       "shaft_alignment_lasers": 2,
       "shaft_collars": 2,

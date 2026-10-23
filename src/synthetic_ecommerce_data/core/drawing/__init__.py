@@ -36,7 +36,7 @@ from synthetic_ecommerce_data.core.drawing import brand_mark
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
-from synthetic_ecommerce_data.domains.industrial.render.marking import (
+from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
     MATERIAL_ATTRIBUTES,
 )
