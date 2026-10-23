@@ -238,6 +238,8 @@ def spec(kind: HammerKind) -> TypeSpec:
         may_claim=frozenset(),
         key_attributes=("Head Weight",),
         use_lines=kind.use_lines,
+        # A hammer is not sold to fit a part: no cross-reference to write.
+        compat=False,
     )
 
 

@@ -1,21 +1,19 @@
 [project]
 name = "synthetic-ecommerce-data"
 version = "0.1.0"
-description = "Generated industrial-supply catalog records, and dimensioned technical drawings rendered from them"
+description = "Generated industrial-supply catalog records, and the text-free drawings of them"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "matplotlib>=3.8",
     "numpy>=1.26",
 ]
 
 [project.scripts]
-ecom-render = "synthetic_ecommerce_data.cli:main"
 ecom-generate = "synthetic_ecommerce_data.generate_cli:main"
 # The pre-rename commands, kept for one release cycle so a script or a
 # downstream pin does not have to move at once (#125). Each runs its ecom-*
 # replacement after a deprecation note on stderr; no output byte differs.
-sip-render = "synthetic_industrial_products:sip_render"
+# ``sip-render`` is gone with the text renderer it ran (#27).
 sip-generate = "synthetic_industrial_products:sip_generate"
 
 [dependency-groups]
@@ -67,9 +65,17 @@ packages = [
 # duplicate, so the editable path can no longer be the only one exercised.
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-# No ``addopts``: a ``-q`` here stacks with the caller's ``-q`` into ``-qq``, and pytest
-# at that level prints no ``N passed`` line (#49). Say ``-q`` on the command line.
+# ``prototypes/retail_drawings`` holds its own test files (house styles, shapes, variants):
+# left out, CI never ran them and they went red on main unseen (gen#362). Every directory
+# here is in ``ci_shards.TEST_DIRS`` and ``ci_select._TEST_ROOTS``;
+# ``tests/test_test_files_collected_362.py`` fails when a test file sits outside them.
+testpaths = ["tests", "prototypes/retail_drawings"]
+# ``--dist loadgroup`` keeps a module's tests on one worker (``tests/conftest.py`` marks the
+# group): a plain ``-n 2`` would scatter a module over both workers, and each would load the
+# module's fixture (#140). Without ``-n`` it does nothing.
+addopts = "--dist loadgroup"
+# No ``-q`` here: it stacks with the caller's ``-q`` into ``-qq``, and pytest at that level
+# prints no ``N passed`` line (#49). Say ``-q`` on the command line.
 # Per-test limit in seconds (pytest-timeout), fixture setup included. The
 # slowest test measured runs 46 s locally and the 100k-catalog fixture builds
 # in 31 s, so 300 s leaves room for a slower CI runner and still stops a hang

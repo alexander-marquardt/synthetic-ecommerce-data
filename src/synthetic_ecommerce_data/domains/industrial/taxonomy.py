@@ -143,10 +143,10 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
 #:
 #: Written out rather than derived, even though every pair is currently an
 #: identity. The two sides mean different things -- the left is a catalog
-#: product type, the right is a drawing in :mod:`..render.generic` -- and a
+#: product type, the right is a drawing in :mod:`..drawing.figures` -- and a
 #: product type that gained a second style, or two types that turned out to be
 #: the same shape, would show up here as a pair that no longer matches instead
-#: of as nothing at all. ``tests/test_generic.py`` asserts that the right-hand
+#: of as nothing at all. ``tests/test_sku_drawings.py`` asserts that the right-hand
 #: side is exactly the set of drawings that exist.
 #:
 #: This does NOT decide where an image is published. Images are one per product

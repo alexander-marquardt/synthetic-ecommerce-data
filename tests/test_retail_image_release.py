@@ -1,4 +1,4 @@
-"""The retail image release: one image per style and colorway, every reference packaged (gen#125).
+"""The retail image release: one image per style, colorway and size rung (gen#125, gen#339).
 
 ``prototypes/retail_drawings/image_release.py`` renders every image the retail
 export (``export.py``) references and packages it as the industrial bundle is
@@ -37,12 +37,15 @@ from variants import FAMILIES  # noqa: E402
 
 #: The authored-styles build, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 RETAIL_SKUS = figures()["templates"]["authored"]["skus"]
-#: One image per style and colorway, plus one image for each style sold in no color.
+#: One image per style, colorway and size rung, plus one for each style sold in no color.
 RETAIL_IMAGES = figures()["templates"]["authored_images"]
 #: The scaled build ``image_release.py --skus`` releases (``tests/test_retail_scale.py``'s target).
 SCALED_SKUS = 19_000
 #: The demo serves the images folder at this prefix; a URL less it is the member.
 URL_PREFIX = "/images/"
+
+
+RECORDS = image_release.records()
 
 
 @pytest.fixture(scope="module")
@@ -56,30 +59,35 @@ def files() -> list[tuple[str, bytes]]:
 
 
 def _color(variant: dict[str, Any]) -> str | None:
-    """The colorway: the color with its pattern, as a wash is a pattern of Blue (#188)."""
-    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "pattern")]
+    """The colorway: the color with its pattern, as a wash is a pattern of Blue (#188); a
+    complexion product's colorway is its shade (#345)."""
+    pair = [a["value"] for a in variant["attributes"] if a["key"] in ("color", "shade", "pattern")]
     return "/".join(pair) or None
 
 
-def test_one_image_per_style_colorway_and_pack_scale_never_per_sku(documents, files):
-    """A size shares its colorway's image unless the line draws it smaller (gen#543): the
-    key is the style, the colorway and the factor :mod:`pack_scale` gives the SKU."""
-    factors = {
-        (r["product_id"], s["sku"]): pack_scale.factor(r, s)
-        for r in scale.templates()
-        for s in r["skus"]
-    }
-    by_colorway: dict[tuple[str, str | None, float | None], set[str]] = defaultdict(set)
-    by_image: dict[str, set[tuple[str, str | None, float | None]]] = defaultdict(set)
+def _rung(doc: dict[str, Any], variant: dict[str, Any]) -> tuple[float | None, float | None]:
+    """The rung and pack factor a variant stands on: its drawing's ``size_scale`` and
+    ``pack_scale`` (``None``: neither applies)."""
+    rec = next(r for r in RECORDS if r["product_id"] == doc["product_id"])
+    sku = next(s for s in rec["skus"] if s["sku"] == variant["sku"])
+    drawing = image_release.colorway_drawing(rec, sku)
+    assert drawing.get("pack_scale") == pack_scale.factor(rec, sku)
+    return drawing.get("size_scale"), drawing.get("pack_scale")
+
+
+def test_one_image_per_style_colorway_pack_scale_and_size_rung_never_per_sku(documents, files):
+    """A colorway has one image, or one per pack factor (gen#543) and per rung of its size
+    ladder (gen#339); the sizes of a rung (a footwear row's UK, EU and US) share it."""
+    by_key: dict[tuple, set[str]] = defaultdict(set)
+    by_image: dict[str, set[tuple]] = defaultdict(set)
     for doc in documents:
         for variant in doc["variants"]:
-            shrink = factors[doc["product_id"], variant["sku"]]
-            colorway = (doc["product_id"], _color(variant), shrink)
-            by_colorway[colorway].add(variant["image_id"])
-            by_image[variant["image_id"]].add(colorway)
+            key = (doc["product_id"], _color(variant), *_rung(doc, variant))
+            by_key[key].add(variant["image_id"])
+            by_image[variant["image_id"]].add(key)
     assert sum(len(d["variants"]) for d in documents) == RETAIL_SKUS
-    assert [c for c, ids in by_colorway.items() if len(ids) != 1] == []
-    assert [i for i, cws in by_image.items() if len(cws) != 1] == []
+    assert [k for k, ids in by_key.items() if len(ids) != 1] == []
+    assert [i for i, keys in by_image.items() if len(keys) != 1] == []
     assert len(by_image) == RETAIL_IMAGES
     assert len(files) == RETAIL_IMAGES
 

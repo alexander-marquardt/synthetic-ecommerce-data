@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import struct
 import sys
 import tempfile
 from pathlib import Path
@@ -46,27 +45,16 @@ def retail_figures_measured() -> dict:
     return retail_figures.figures()
 
 
+@pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(items):
-    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise."""
+    """Keep a module's tests on one worker under ``--dist loadgroup`` (#348); inert otherwise.
+
+    ``tryfirst``: xdist's worker-side hook (``xdist/remote.py``) suffixes each node id with
+    ``@<group>`` from the markers it sees, and it runs before a plain conftest hook, so without
+    this the mark was added too late and a module's tests spread over the workers (#442).
+    """
     for item in items:
         module = getattr(item, "module", None)
         group = group_for(module) if module is not None else None
         if group is not None:
             item.add_marker(pytest.mark.xdist_group(group))
-
-
-@pytest.fixture
-def png_size():
-    """Width and height read out of the PNG's own IHDR chunk.
-
-    Deliberately independent of the production helper and of the figure size:
-    the question is what the file says, not what the renderer intended.
-    """
-
-    def _read(path: Path) -> tuple[int, int]:
-        raw = Path(path).read_bytes()
-        assert raw[:8] == b"\x89PNG\r\n\x1a\n", f"{path} is not a PNG"
-        assert raw[12:16] == b"IHDR", f"{path} has no IHDR where one must be"
-        return struct.unpack(">II", raw[16:24])
-
-    return _read
