@@ -77,13 +77,13 @@ _DECOYS = (
      "A creamy satin lipstick in the shade Blood Red, in a slim bullet.", "Red", 2, 780),
     ("BLR11", "fruit_candle", "Blood Orange Scented Candle",
      "A soy wax candle scented with blood orange, in a glass jar. Burns for about 30 hours.",
-     "Orange", 4, 740),
+     "Orange", 4, 80),
     ("BLR12", "shower_gel", "Blood Orange Shower Gel, 250ml",
      "A shower gel scented with blood orange, in a 250ml bottle.", "Orange", 4, 700),
     ("BLR13", "jam", "Blood Orange Marmalade, 340g",
-     "A thin cut marmalade made with blood oranges, in a 340g jar.", "Orange", 2, 660),
+     "A thin cut marmalade made with the blood orange fruit, in a 340g jar.", "Orange", 2, 80),
     ("BLR14", "juice", "Blood Orange Juice, 1L",
-     "A juice pressed from blood oranges, in a 1 litre carton. Keep chilled.", "Orange", 2, 640),
+     "A juice pressed from blood orange fruit, in a 1 litre carton. Keep cold.", "Orange", 2, 80),
 )  # fmt: skip
 
 
