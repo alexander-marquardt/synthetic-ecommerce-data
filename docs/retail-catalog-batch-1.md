@@ -167,6 +167,12 @@ not the ingredients, so for class 7 only the rows that win on the description (l
 top 10; the live search reads the ingredients too, and that run on a loaded catalogue, like the
 with-persona run, is the ingest batch's check, not this PR's.
 
+"blood red dress" (gen#540, `feature_decoys/blood_red.py`) is the one query whose true hits lead:
+five dresses titled "Blood Red ..." (color Red) rank first, and nine products that hold "blood
+red" or "blood orange" in the title (a black dress with blood red roses, a dress shirt, dress
+socks, dress hangers, a lipstick, a candle, a shower gel, a marmalade, a juice) follow, each with
+fields that say it is not a red dress.
+
 | Query | Class | Product id | Title | Kind |
 |---|---|---|---|---|
 | red sofa | 1 color names a part | PLT-DXS01 | Blue 3 Seater Sofa with Red Piping | decoy |
@@ -309,6 +315,20 @@ with-persona run, is the ingest batch's check, not this PR's.
 | carrots | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR14 | Little Carrots Kids' T-Shirt | decoy |
 | bananas | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR15 | Going Bananas Kids' Pyjamas | decoy |
 | cherries | 9 the fresh plural is in the title as an ingredient, a source, a brand or a scent | PLT-DXR16 | Cherries and Almond Hand Wash, 250ml | decoy |
+| blood red dress | 0 a true hit, kept for the proof | PLT-DBLR01 | Blood Red Boat Neck Midi Dress | true hit |
+| blood red dress | 0 a true hit, kept for the proof | PLT-DBLR02 | Blood Red Satin Slip Dress | true hit |
+| blood red dress | 0 a true hit, kept for the proof | PLT-DBLR03 | Blood Red Jersey Wrap Dress | true hit |
+| blood red dress | 0 a true hit, kept for the proof | PLT-DBLR04 | Blood Red Halter Neck Maxi Dress | true hit |
+| blood red dress | 0 a true hit, kept for the proof | PLT-DBLR05 | Blood Red Belted Shirt Dress | true hit |
+| blood red dress | 1 color names a part | PLT-DBLR06 | Black Midi Dress with Blood Red Roses | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR07 | Blood Red Dress Shirt, Slim Fit | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR08 | Blood Red Dress Socks, 5 Pack | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR09 | Blood Red Dress Hangers, Pack of 10 | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR10 | Blood Red Satin Lipstick | decoy |
+| blood red dress | 4 color word is also a product or a shade | PLT-DBLR11 | Blood Orange Scented Candle | decoy |
+| blood red dress | 4 color word is also a product or a shade | PLT-DBLR12 | Blood Orange Shower Gel, 250ml | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR13 | Blood Orange Marmalade, 340g | decoy |
+| blood red dress | 2 type names an accessory or a toy | PLT-DBLR14 | Blood Orange Juice, 1L | decoy |
 | denim shorts | 4 color word is also a product or a shade | PLT-DDS01 | Denim Blue Linen Shorts with Drawstring Waist | decoy |
 | denim shorts | 4 color word is also a product or a shade | PLT-DDS02 | Denim-Look Jersey Shorts with Elastic Waist | decoy |
 | denim shorts | 4 color word is also a product or a shade | PLT-DDS03 | Chambray Cotton Shorts, Denim Wash, Knee Length | decoy |
