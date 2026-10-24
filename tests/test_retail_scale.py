@@ -557,7 +557,8 @@ def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title
         shown = _signature(r, t)[0]
         if shown in taken[t["product_id"]]:
             hero = (r.get("color_options") or [{}])[0].get("color")
-            assert hero and r["title"].endswith(f", {hero}"), (r["product_id"], r["title"])
+            named = hero and r["title"].endswith(line_grammar.color_suffix(r, hero))
+            assert named, (r["product_id"], r["title"])
             colored.append(r["product_id"])
         taken[t["product_id"]].add(shown)
     assert len(colored) >= 1_000
@@ -726,7 +727,11 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
 
 def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
     for r, _ in pairs:
-        assert r["product_line"] in range_ownership.candidates()
+        fam = line_grammar.family(r)  # gen#662: a grammar family's model, from its own words
+        if fam:
+            assert line_grammar.is_model(fam, r["brand"], r["product_line"]), r["product_line"]
+        else:
+            assert r["product_line"] in range_ownership.candidates()
         assert scale._has_word(r["title"], r["product_line"])
         lines = [a["value"] for a in r["attributes"] if a["key"] == "line"]
         assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
@@ -1037,7 +1042,7 @@ def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_
     seen = 0
     for r, t in ceiling_pairs:
         hero = (r.get("color_options") or [{}])[0].get("color")
-        if not (hero and r["title"].endswith(f", {hero}")):
+        if not (hero and r["title"].endswith(line_grammar.color_suffix(r, hero))):
             continue
         seen += 1
         assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]

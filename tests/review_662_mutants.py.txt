@@ -1,0 +1,28 @@
+"""Mutants of the gen#662 line grammar: each undoes one part of it and a guard must go red.
+
+    uv run python vendor/prism/scripts/mutant_run.py tests/review_662_mutants.py.txt
+"""
+
+SC_T = "tests/test_retail_scale.py::"
+VOCAB = SC_T + "test_a_family_model_name_is_built_from_its_family_vocabulary"
+AFTER = SC_T + "test_a_name_like_model_word_comes_directly_after_the_brand"
+SHARED = SC_T + "test_a_range_word_belongs_to_one_brand"
+
+TESTS = [VOCAB, AFTER, SHARED]
+
+LG = "prototypes/retail_drawings/line_grammar.py"
+SC = "prototypes/retail_drawings/scale.py"
+FW = "prototypes/retail_drawings/footwear_rows.py"
+
+MUTANTS = [
+    (SC, "name = deal.owned(brand, slot) if deal else ctx.names.owned(brand, slot)",
+     "name = ctx.names.owned(brand, slot)",
+     "a family style takes a coined range name again", [VOCAB]),
+    (LG, "tuple([w for w, o in authored.items() if o == b] + pool[i::count])",
+     "tuple([w for w, o in authored.items() if o == b] + pool)",
+     "every brand owns every model word", [SHARED]),
+    (LG, 'title = f"{brand} {line} {rest}"', 'title = f"{line} {rest}"',
+     "a dress title leads with the name word, not its brand", [AFTER]),
+    (FW, 'junior_price=50.0, product_line="Speed 4"', 'junior_price=50.0, product_line="Cloudrise"',
+     "an authored running shoe keeps its coined model name", [VOCAB]),
+]
