@@ -32,11 +32,18 @@ GOLDEN = ROOT / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
 BUILDS_FILE = price.BUILDS_FILE
 
+#: A retail feature's own reference page (gen#513), read like the page it left.
+PROTOTYPE_PAGES = tuple(
+    f"docs/retail-prototype/{page.name}"
+    for page in sorted((ROOT / "docs" / "retail-prototype").glob("*.md"))
+)
+
 #: Where the figures used to be typed. A file that quotes one again conflicts
 #: with every type PR again.
 QUOTING = (
     "README.md",
     "docs/retail-prototype.md",
+    *PROTOTYPE_PAGES,
     "docs/drawings.md",
     "docs/adding-a-type.md",
     "src/synthetic_ecommerce_data/prism/derive.py",

@@ -6,10 +6,11 @@
 
 Each path is the one the file used to have in git, under ``--out``: ``golden-retail/stats.json``
 (the retail build's measured totals), ``docs/figures.md`` (the same totals as a page),
-``docs/retail-apparel-decoys.md`` (the apparel decoy table) and the sneak-peek samples and
-previews under ``prototypes/retail_drawings/``. The ``derived`` CI job runs this once per run and
-uploads ``--out`` as a workflow artifact; ``scripts/check_no_derived_files.py`` keeps them out of
-git, and a test reads a figure with ``retail_figures.figures()``, never from a file.
+``docs/retail-apparel-decoys.md`` (the apparel decoy table), the sneak-peek samples and previews
+under ``prototypes/retail_drawings/``, and ``docs/retail-product-word-decoys-table.md`` (the
+product-word decoy table, cut out of its page in gen#513). The ``derived`` CI job runs this once
+per run and uploads ``--out`` as a workflow artifact; ``scripts/check_no_derived_files.py`` keeps
+them out of git, and a test reads a figure with ``retail_figures.figures()``, never from a file.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ OUTPUTS: tuple[str, ...] = (
     "golden-retail/stats.json",
     "docs/figures.md",
     "docs/retail-apparel-decoys.md",
+    "docs/retail-product-word-decoys-table.md",
     "prototypes/retail_drawings/samples.ndjson",
     "prototypes/retail_drawings/preview.html",
     "prototypes/retail_drawings/samples4.ndjson",
@@ -41,6 +43,7 @@ def build(out: Path) -> list[str]:
     import build_preview  # noqa: PLC0415 -- the prototype's own directory is its import root
     import build_preview4  # noqa: PLC0415
     import decoy_apparel  # noqa: PLC0415
+    import decoy_product_words  # noqa: PLC0415
     import retail_figures  # noqa: PLC0415
 
     figures = retail_figures.figures()
@@ -50,6 +53,7 @@ def build(out: Path) -> list[str]:
         "golden-retail/stats.json": retail_figures.render(figures),
         "docs/figures.md": retail_figures.markdown(figures),
         "docs/retail-apparel-decoys.md": decoy_apparel.doc_text(),
+        decoy_product_words.TABLE_DOC: decoy_product_words.table_doc(),
         "prototypes/retail_drawings/samples.ndjson": ndjson,
         "prototypes/retail_drawings/preview.html": html,
         "prototypes/retail_drawings/samples4.ndjson": ndjson4,

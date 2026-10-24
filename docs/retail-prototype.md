@@ -734,83 +734,11 @@ another department's standing: do not add rows to an unrelated department to pas
 templates and holds every other department at its floor. A batch that removes or narrows a
 department's own rows below the floor still fails: raise that department with rows of its own.
 
-### Womens sizes above UK 16 (gen#434)
+### A feature's own section: `docs/retail-prototype/`
 
-The Womens UK size run stopped at 16 (some styles at 18 or 20), so a query for a dress in size 22
-read the size and found no dress that carried it. `plus_sizes.py` runs over `scale.templates()`:
-three in five of the Womens styles whose SKUs carry a bare number `size` (dresses, tops) or
-`size_uk` (jeans, with its EU and US sizes at UK + 28 and UK - 4) are carried on to UK 24.
-Trousers measure by `waist` and knitwear is letter-sized, so neither is changed.
-Each new SKU copies the largest-size SKU of its color; the new SKUs are appended, so no SKU id
-moves, and a derived style inherits the longer run. Decoys of `decoy_rows.py` and
-`decoy_product_words.py` keep their run. `tests/test_retail_plus_sizes_434.py` pins at least 30
-Womens dresses at UK 22 and the chart.
-
-### Womens dresses in UK numeric sizes 6 to 20 (gen#621)
-
-"size 20 dress" filters the dresses by `facets.size_uk: 20`, but the dresses sized by number stored
-a bare `size`, so none carried `size_uk`. The discounted regular-range dresses of
-`distractor_rows.py` (`DSL`, the Wrap Midi, Shirt and Maxi dresses) now run UK 6 to 20 with
-`Style(uk_chart=True)`: each SKU stores `size_uk`, `size_eu` and `size_us` from the Womens chart
-(`variants.WOMENS_WAIST`, UK 20 = EU 48 = US 16) the way the jeans do, one variant per color and
-size, and `size_options` lists the three. `plus_sizes.py` carries three in five of them on to
-UK 24 in the same keys. The petite dresses and the tops keep a bare `size`.
-`tests/test_retail_dress_uk_sizes_621.py` pins the dresses, the 6 to 20 run and the UK 20 row.
-
-### Large appliances (gen#334)
-
-Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
-color or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
-under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
-integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
-dryers, washer dryers). Three specs (`type_specs/fridge_freezer.py`, `dishwasher.py`,
-`laundry_appliance.py`) read `large_appliance_rows.py`; `kit_large_appliances.py` draws them.
-Capacity, `item_width`, energy rating, place settings, noise and load are structured entries.
-Dishwashers and laundry are white, black or silver (`type_colors.py`); the retro 50/50 fridges
-carry the six main colors.
-
-The word decoys of the dishwasher, the washing machine and the fridge are in
-`feature_decoys/large_appliances.py` and listed in
-[retail-product-word-decoys.md](retail-product-word-decoys.md): "dishwasher" meets tablets, salt
-and rinse aid, "washing machine" its cleaner, descaler and pods, and "fridge" storage boxes, a
-lunch cooler and cheese crisps. The mugs, lunch boxes and cutlery whose descriptions say
-"dishwasher safe" were already in the catalog and stay reachable through text. Three more words
-need a product type the catalog lacked, so each is a spec with one ordinary product and its decoy
-(`type_specs/fridge_magnets.py`, `fridge_thermometer.py`, `anti_vibration_mat.py`; ids `DT32` to
-`DT34`, the `category` policy). The color decoys are a "Black Edition" fridge freezer that is
-stainless steel and a washing machine with a "Red Spot" dial that is white.
-`tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
-
-Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
-(`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
-`product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
-field (an attribute keyed `series` would shadow it, which the output standard refuses). A large
-appliance's title reads brand, series, model number, spec, then the kind: "Frostholm Arden
-FW712BW 7kg 1200 Spin Washing Machine". The model number is built by the brand's own scheme
-(its lead letters, a kind letter moved along the alphabet, a separator, and the generation before
-or after the digits) from the kind, the capacity, the spin speed, the generation and the color, so
-`FW` + `7` + `12` + `D` + `W` is `FW712DW`; `decode` reads it back. Each SKU states
-the code of its own color as its `model_number` option, so a query for `FW712BB` finds the black
-one; the product-level code (the title's) is the first color's, and the `base_model` attribute is
-the same code without its color letter, which names the product in every color. Model number, generation, capacity
-and spin speed are each their own attribute. Two washing machines carry the second title form,
-"Washing Machine from Tavorne, Model TVD-914CW". The generation letters are B to F, never "A"
-or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
-carry generation "H", which no authored model takes.
-`tests/test_retail_appliance_model_numbers_622.py` holds it.
-
-The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
-derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7
-to 12 words so the beach towel decoys compete. Design and the measured top 12 are in
-[retail-beach-towels.md](retail-beach-towels.md); `tests/test_retail_beach_towels_624.py` holds them.
-
-### Pack scale (gen#543)
-
-Images are keyed per style and colorway, and per pack scale: a SKU's pack is drawn at
-about the cube root of its net volume (or weight, or count) against the largest size of
-its line, floored at 0.6, on the same 400 x 400 sheet and baseline, so a 30 ml jar is
-visibly smaller than a 100 ml one (`pack_scale.py`). The largest size, and a line of one
-size, draw as they always did. Every size drawn at one scale shares its color's image,
-drawn in that color's swatch (base, pattern and accent).
-![A line's 30, 50 and 100 ml drawn before and after](images/pack-scale.svg)
-`image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.
+A feature that needs a reference section of its own writes it as a page in
+[docs/retail-prototype/](retail-prototype/), one file per feature, named for its topic and issue
+(Womens sizes above UK 16, Womens dresses in UK numeric sizes, large appliances and pack scale
+are there). Every feature appended its section to the end of this page, so two features branched
+from one `main` conflicted here; this page now gains no heading, and `scripts/check_no_registry_append.py` refuses a diff that adds one
+(gen#513).
