@@ -30,6 +30,7 @@ if str(RETAIL) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
+import line_grammar  # noqa: E402
 import range_ownership  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
@@ -556,7 +557,8 @@ def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title
         shown = _signature(r, t)[0]
         if shown in taken[t["product_id"]]:
             hero = (r.get("color_options") or [{}])[0].get("color")
-            assert hero and r["title"].endswith(f", {hero}"), (r["product_id"], r["title"])
+            named = hero and r["title"].endswith(line_grammar.color_suffix(r, hero))
+            assert named, (r["product_id"], r["title"])
             colored.append(r["product_id"])
         taken[t["product_id"]].add(shown)
     assert len(colored) >= 1_000
@@ -725,7 +727,11 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
 
 def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
     for r, _ in pairs:
-        assert r["product_line"] in range_ownership.candidates()
+        fam = line_grammar.family(r)  # gen#662: a grammar family's model, from its own words
+        if fam:
+            assert line_grammar.is_model(fam, r["brand"], r["product_line"]), r["product_line"]
+        else:
+            assert r["product_line"] in range_ownership.candidates()
         assert scale._has_word(r["title"], r["product_line"])
         lines = [a["value"] for a in r["attributes"] if a["key"] == "line"]
         assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
@@ -1036,7 +1042,7 @@ def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_
     seen = 0
     for r, t in ceiling_pairs:
         hero = (r.get("color_options") or [{}])[0].get("color")
-        if not (hero and r["title"].endswith(f", {hero}")):
+        if not (hero and r["title"].endswith(line_grammar.color_suffix(r, hero))):
             continue
         seen += 1
         assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]
@@ -1411,3 +1417,46 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
     brands must not own it, so the halves of the pool are disjoint. Metric: words in both halves."""
     halves = range_ownership.halves()
     assert set(halves["scale"]) & set(halves["grocery"]) == set()
+
+
+def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
+    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+
+
+def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
+    """Guard (gen#662): "Cloudrise" and "Swiftline" read as brands of their own. A model name
+    of a sport, dress or appliance style is made of its family's words, numbers and codes only.
+    Metric: the styles whose model name is not, with the name."""
+    off = [
+        (r["product_id"], r["brand"], line)
+        for r in _family_records(ceiling.records)
+        if (line := scale._line(r))
+        and not line_grammar.is_model(line_grammar.family(r), r["brand"], line)
+    ]
+    assert off[:10] == [], len(off)
+
+
+def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
+    """Guard (gen#662): a first name such as "Merlin" reads as a brand unless its brand stands
+    directly before it, so the dress styles that carry one say "Larkmoor Merlin Leather ...".
+    Metric: the name words elsewhere in a title, and the dress styles that carry one."""
+    family = _family_records(ceiling.records)
+    misplaced = [(r["title"], w) for r in family for w in line_grammar.name_word_misplaced(r)]
+    assert misplaced[:10] == []
+    named = [r for r in family if scale._line(r) in line_grammar.NAME_WORDS]
+    assert named and all(r["title"].startswith(f"{r['brand']} {scale._line(r)} ") for r in named)
+
+
+def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
+    """Guard (gen#662): no title starts with a model or range name its brand does not precede,
+    or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes"). A title
+    leads with its brand, after an optional "Kids' ". Metric: the model-named titles that do not."""
+    off = [
+        (r["product_id"], r["title"])
+        for r in _family_records(ceiling.records)
+        if line_grammar.family(r) in ("sport", "dress")
+        and scale._line(r)  # a style that names a model; a plain authored title has none
+        and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
+    ]
+    assert off[:10] == [], len(off)

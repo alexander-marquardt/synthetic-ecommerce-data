@@ -73,7 +73,7 @@ guard's rules hold on the subtree either way.
 ## Bicycle model numbers and accessory decoys (gen#625)
 
 Each bicycle title leads with its brand, its series and its model number, then the spec and the
-bike: `Wrenfield Swiftline RD28-18-26 28in 18 Speed Aluminum Road Bike`, the title order of the
+bike: `Wrenfield Aero Elite RD28-18-26 28in 18 Speed Aluminum Road Bike`, the title order of the
 large appliances (gen#622). `prototypes/retail_drawings/bicycle_model_numbers.py` holds each
 brand's scheme and series. A code is built from the kind, the wheel inches, the gears and the
 model year, and `decode` reads it back. The model number and the model year are attributes, the

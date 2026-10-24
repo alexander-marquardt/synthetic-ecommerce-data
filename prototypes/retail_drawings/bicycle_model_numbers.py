@@ -32,9 +32,9 @@ SCHEMES = {
 
 #: A series a kind, in the order of :data:`KINDS`, and no name in two lists.
 SERIES = {
-    "Wrenfield": ("Swiftline", "Fellgate", "Voltmere", "Pipit"),
-    "Harbour & Pine": ("Seaward", "Ridgeway", "Quayside", "Minnow"),
-    "Larkmoor": ("Brookside", "Crestfield", "Townsend", "Linnet"),
+    "Wrenfield": ("Aero Elite", "Aero Max", "Aero Plus", "Aero Lite"),
+    "Harbour & Pine": ("Velocity Elite", "Velocity Max", "Velocity Plus", "Velocity Lite"),
+    "Larkmoor": ("Rapid Elite", "Rapid Max", "Rapid Plus", "Rapid Lite"),
 }
 
 #: The model year every bike of the range is sold as.

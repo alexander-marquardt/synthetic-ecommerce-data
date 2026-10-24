@@ -6,7 +6,7 @@ is sold by frame size (centimeters); a kids' bike by wheel size (inches), as the
 :mod:`kit_sports` draws them.
 
 Each bike is sold under its brand's series and model number (gen#625, :mod:`bicycle_model_numbers`):
-the title reads brand, series, model number, spec, then the bike, "Wrenfield Swiftline RD28-18-26
+the title reads brand, series, model number, spec, then the bike, "Wrenfield Aero Elite RD28-18-26
 28in 18 Speed Aluminum Road Bike", and each part is an attribute too. The long title is on purpose:
 the short-titled accessories (``bike_saddle``, ``bike_pedals``, ...) outrank it on a plain text
 match for ``bicycle`` or ``bike``.
