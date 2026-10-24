@@ -194,32 +194,18 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
     assert scored == set(TWICE_SCORED)
 
 
-#: Each pinned shortfall: the side of its band it falls on, and what its
-#: reason must name (the cause, or the issue that fixes it).
-PINNED_SIDES = {
-    "price p90/p10: kit_assortment": ("below", "#76"),
-}
-
-
-@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
-def test_each_pinned_shortfall_stays_out_of_band_on_its_side(price_rows, name):
-    """A pin discloses a row the model cannot land; it must not drift to the
-    other side, nor quietly come into band (the fit then calls the pin stale)."""
-    assert set(price.PINNED_SHORTFALLS) == set(PINNED_SIDES)
-    side, cause = PINNED_SIDES[name]
-    reason = price.PINNED_SHORTFALLS[name]
-    assert reason.startswith(f"{side} band"), reason
-    assert cause in reason, reason
-    (row,) = [row for row in price_rows if row.name == name]
-    assert "PINNED SHORTFALL" in row.note
-    if _recorded(name)[0] is None:
-        assert row.within, (row.achieved, row.band)
-    elif side == "below":
-        assert row.achieved < row.band[0], (row.achieved, row.band)
-    else:
-        assert row.achieved > row.band[1], (row.achieved, row.band)
-    assert set(price.PINNED_FIGURES) == set(price.PINNED_SHORTFALLS)
-    assert price_report.pin_holds(row, 0), (row.achieved, price.PINNED_FIGURES[name])
+def test_no_row_is_pinned_and_the_pin_machinery_is_held_empty():
+    """#76 took the last pin (the kit p90/p10) and #80 the one before it
+    (the wheel brand spread): every row lands in band at both builds, so a
+    row that falls out is red here and in the every-row-in-band tests
+    rather than silently disclosed. The machinery (``PINNED_SHORTFALLS``,
+    ``pin_holds``, the file's ``price_pins``) stays, held empty; the plants
+    below exercise it."""
+    assert price.PINNED_SHORTFALLS == {}
+    assert price.PINNED_FIGURES == {}
+    figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
+    assert figures["default"]["price_pins"] == {}
+    assert figures["hundred_k"]["price_pins"] == {}
 
 
 def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
@@ -236,29 +222,30 @@ def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
     assert model.size_sigma > model.group_sigma, (model.size_sigma, model.group_sigma)
 
 
-def _recorded(name: str) -> tuple[float | None, float | None]:
-    """A pinned row's recorded (default, 100K) figures; ``None`` for a build
-    the row lands in band on (#272)."""
-    recorded = price.PINNED_FIGURES[name]
-    assert isinstance(recorded, tuple), f"{name}: {recorded!r} is one figure for two builds"
-    return recorded
+PLANTED_ROW = SPREAD_ROW.format("bearing_radial_ball")
 
 
-@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+def _plant_pin(monkeypatch, row, side: str, build: int) -> float:
+    """Pin ``row`` on ``side`` of its band with a record 50% past the band edge
+    at both builds (no committed pin exists to read one from); returns the
+    record for ``build``."""
+    record = row.band[0] * 0.5 if side == "below" else row.band[1] * 1.5
+    monkeypatch.setitem(price.PINNED_FIGURES, row.name, (record, record))
+    monkeypatch.setitem(price.PINNED_SHORTFALLS, row.name, f"{side} band: planted")
+    return record
+
+
+@pytest.mark.parametrize("side", ["below", "above"])
 @pytest.mark.parametrize("build", [0, 1])
-def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows, name, build):
+def test_a_planted_pin_may_land_no_further_out_than_its_figure_for_that_build(
+    monkeypatch, price_rows, side, build
+):
     """Each build is held to its own recorded figure, within the tolerance:
     exactly there, on the pin's side. A pin that read the default figure at
-    100K let the wheel spread rise 19% and the bearing p90/p10 fall 8%."""
-    (row,) = [row for row in price_rows if row.name == name]
-    edge = _recorded(name)[build]
-    if edge is None:
-        assert row.within
-        assert price_report.pin_holds(row, build)
-        assert not price_report.pin_holds(replace(row, achieved=row.band[1] * 1.001), build)
-        assert not price_report.pin_holds(replace(row, achieved=row.band[0] * 0.999), build)
-        return
-    if PINNED_SIDES[name][0] == "below":
+    100K let a spread rise 19% and another fall 8%."""
+    (row,) = [row for row in price_rows if row.name == PLANTED_ROW]
+    edge = _plant_pin(monkeypatch, row, side, build)
+    if side == "below":
         edge /= 1 + price.PIN_TOLERANCE
         inside, outside = edge * 1.0001, edge * 0.9999
     else:
@@ -268,17 +255,17 @@ def test_a_pin_may_land_no_further_out_than_its_figure_for_that_build(price_rows
     assert not price_report.pin_holds(replace(row, achieved=outside), build)
 
 
-@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
+@pytest.mark.parametrize("side", ["below", "above"])
 @pytest.mark.parametrize("build", [0, 1])
-def test_a_pin_five_percent_further_out_than_its_record_fails(price_rows, name, build):
+def test_a_planted_pin_five_percent_further_out_than_its_record_fails(
+    monkeypatch, price_rows, side, build
+):
     """The tolerance is 2%, written out here: a figure 5% past its record on
     the pin's side is a worse shortfall than the record, whatever the tolerance
-    is set to. A build recorded ``None`` has no figure to be past."""
-    (row,) = [row for row in price_rows if row.name == name]
-    recorded = _recorded(name)[build]
-    if recorded is None:
-        return
-    outward = recorded / 1.05 if PINNED_SIDES[name][0] == "below" else recorded * 1.05
+    is set to."""
+    (row,) = [row for row in price_rows if row.name == PLANTED_ROW]
+    recorded = _plant_pin(monkeypatch, row, side, build)
+    outward = recorded / 1.05 if side == "below" else recorded * 1.05
     assert price_report.pin_holds(replace(row, achieved=recorded), build)
     assert not price_report.pin_holds(replace(row, achieved=outward), build)
 
@@ -1052,10 +1039,20 @@ def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
 KIT_PART = {kit.item: kit.part_type for kit in newtypes.KITS}
 
 #: How far a kit's price may land from its contents' price times its material
-#: and tier factors: the fitted kit factor (1.009) moved by its SKU noise
-#: (sigma 0.022, about 5 sigma either way) and its ending. The default build
-#: lands every kit within 0.969 to 1.059, the 100K one within 0.944 to 1.080.
-OVER_CONTENTS = (0.9, 1.12)
+#: and tier factors: the fitted kit factor (0.963) moved by its SKU noise
+#: (sigma 0.022, about 5 sigma either way: 0.86 to 1.07) and its ending.
+OVER_CONTENTS = (0.86, 1.12)
+#: A pack of a dozen screws costs a couple of dollars, and a list price that
+#: small snaps to a whole or half dollar (``price.MAX_ENDING_MOVE``, a quarter
+#: of the price): below this many dollars of contents a kit may land 0.65 to
+#: 1.3 times its contents (#76).
+SMALL_KIT_CONTENTS = 10.0
+SMALL_KIT_OVER_CONTENTS = (0.65, 1.3)
+
+
+def _within_contents(ratio: float, contents: float) -> bool:
+    low, high = OVER_CONTENTS if contents >= SMALL_KIT_CONTENTS else SMALL_KIT_OVER_CONTENTS
+    return low < ratio < high
 
 
 def _inches(size: str) -> float:
@@ -1103,13 +1100,13 @@ def test_a_kits_contents_are_its_pieces_priced_on_their_own_curves(census, kits)
 def test_a_15_piece_hex_key_set_costs_what_its_keys_do(census, kits):
     """The inch set of ASME B18.3 keys, 0.028" to 3/8": its keys come to about
     $98 on the hex key curve. Priced as one group draw per page, with no
-    reference to them, the default build's five sold for $9.55 to $1,525.45."""
+    reference to them, the default build's sets sold for $9.55 to $1,525.45."""
     sets = [
         (shown, facts, brand)
         for shown, facts, brand in kits
         if facts["Type"].value == "Hex Key Set" and facts["Piece Count"].value_num == 15
     ]
-    assert len(sets) == 5
+    assert len(sets) == 3
     ratios = [
         (shown, round(_over_contents(shown, facts, brand, _pieces_price(facts, census)), 3))
         for shown, facts, brand in sets
@@ -1148,6 +1145,40 @@ def test_a_kit_is_its_contents_at_one_factor_with_no_group_noise():
     assert model.group_sigma == 0.0
     assert model.slope == price.CONTENTS_SLOPE == 1.0
     assert model.size_sigma == 0.0
+    assert model.sku_sigma == price.CONTENTS_SKU_SIGMA
+
+
+KIT_SPREAD = "price p90/p10: kit_assortment"
+
+
+def test_the_kit_p90_p10_is_in_band_on_the_default_build(price_rows):
+    """#76: the 13 original kinds hold $36 to $130 of parts and span 4x
+    against the census's 114x (band 85.7 to 152)."""
+    (row,) = [row for row in price_rows if row.name == KIT_SPREAD]
+    assert row.within, (row.achieved, row.band)
+
+
+def test_the_kit_p90_p10_is_in_band_at_100k(hundred_k_rows):
+    row = hundred_k_rows[KIT_SPREAD]
+    assert row.within, (row.achieved, row.band)
+
+
+def test_the_kit_p90_p10_carries_no_pin():
+    """The pin named #76 as its reason; once the kinds are there it goes."""
+    assert KIT_SPREAD not in price.PINNED_SHORTFALLS
+    assert KIT_SPREAD not in price.PINNED_FIGURES
+
+
+def test_the_kit_table_spans_a_pack_to_a_large_index():
+    """The census kits run from packs of 12 and 15 to sets worth $629: the
+    table holds a screw pack of 15 or fewer, a 1,000-piece screw assortment
+    and a drill index of 100 pieces or more."""
+    counts = [
+        (kit.item, kit.per_size * len(kit.designations or kit.sizes)) for kit in newtypes.KITS
+    ]
+    assert min(n for item, n in counts if item.startswith("Socket")) <= 15
+    assert max(n for item, n in counts if item.startswith("Socket")) >= 1000
+    assert max(n for item, n in counts if item.startswith("Jobber")) >= 100
 
 
 def _build_kits(request, build: str) -> list[KitSku]:
@@ -1158,7 +1189,7 @@ def _build_kits(request, build: str) -> list[KitSku]:
     )
 
 
-@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 695)])
+@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 742)])
 def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
     """Every kit, at either size, costs its contents' price times its
     material and tier, within its SKU noise and ending."""
@@ -1168,8 +1199,8 @@ def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count
     for shown, facts, brand in kits:
         contents = price.kit_contents(facts)
         assert contents is not None, facts
-        ratios.append(round(_over_contents(shown, facts, brand, contents), 3))
-    out = [r for r in ratios if not OVER_CONTENTS[0] < r < OVER_CONTENTS[1]]
+        ratios.append((round(_over_contents(shown, facts, brand, contents), 3), contents))
+    out = [r for r, contents in ratios if not _within_contents(r, contents)]
     assert not out, (len(out), out[:10])
 
 
@@ -1192,7 +1223,7 @@ def _kind_of(facts: dict[str, Attribute]) -> int:
 #: Each pair of kit table rows (larger, smaller) where the larger set holds
 #: every size the smaller does and more: the metric and inch hex key sets and
 #: the fractional drill indexes.
-NESTED_KITS = 7
+NESTED_KITS = 13
 
 
 @pytest.mark.parametrize("build", ["default", "100K"])
@@ -1275,21 +1306,6 @@ def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_ro
         assert row.within, f"{row.achieved:.4f} outside {row.band[0]:.4f}-{row.band[1]:.4f}"
 
 
-@pytest.mark.parametrize("name", sorted(PINNED_SIDES))
-@pytest.mark.parametrize("build", [0, 1])
-def test_each_recorded_figure_is_the_figure_its_build_produces(
-    price_rows, hundred_k_rows, name, build
-):
-    """A pin bound is only as tight as its record, so each
-    record is the build's own figure, to the precision it is written at
-    (each build is one seed, so this is exact). A record loosened by hand,
-    or left loose after the row improves, is red here."""
-    row = {r.name: r for r in price_rows}[name] if build == 0 else hundred_k_rows[name]
-    recorded = _recorded(name)[build]
-    built = None if row.within else round(row.achieved, price_report.recorded_digits(name))
-    assert recorded == built, f"{name}: recorded {recorded} at build {build}, built {built}"
-
-
 # --- the measured breadth categories ----------------------------------------
 
 #: Where a breadth draw's ``u`` lands: the middle of twenty equal slices.
@@ -1364,19 +1380,39 @@ def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(mon
     model = price.MODELS[KIT]
     louder = replace(model, sku_sigma=model.sku_sigma * 10)
     monkeypatch.setitem(price.MODELS, KIT, louder)
+    # no row is pinned, so the file holds no figure to move: plant one
+    monkeypatch.setitem(price.PINNED_SHORTFALLS, KIT_SPREAD, "above band: planted")
     rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k_measured())
     moved = measured_builds.render(rebuilt)
     assert moved != committed
 
 
 def test_a_row_in_band_is_recorded_none_and_one_out_of_band_is_its_figure(monkeypatch):
-    """The real pins are out of band on both builds, so the file holds no null:
-    drive the rebuild on a small fixture, one pinned row in band, the rest not."""
-    names = sorted(price.PINNED_SHORTFALLS)
+    """No row is pinned, so the file holds no figure: drive the rebuild on a
+    small fixture of planted pins, one row in band, the rest not (a dollar p50
+    is recorded to the cent, a ratio to three places)."""
+    names = [
+        SPREAD_ROW.format("bearing_radial_ball"),
+        SPREAD_ROW.format(KIT),
+        "price p50 (USD): bearing_radial_ball",
+    ]
     in_band = names[0]
+    monkeypatch.setattr(price, "PINNED_SHORTFALLS", {name: "above band: planted" for name in names})
     rows = [SimpleNamespace(name=name, within=name == in_band, achieved=1.23456) for name in names]
     monkeypatch.setattr(price_report, "price_comparisons", lambda catalog: rows)
     pins = measured_builds._pins(None)
+    assert sorted(pins) == sorted(names)
     assert pins[in_band] is None
-    for name in names[1:]:
-        assert pins[name] == round(1.23456, price_report.recorded_digits(name))
+    assert pins[names[1]] == 1.235
+    assert pins[names[2]] == 1.23
+
+
+def test_a_pin_in_the_file_is_read_as_its_default_and_its_100k_figures(monkeypatch, tmp_path):
+    """No committed file holds a pin, so plant one with a different figure per
+    build: each build reads its own, and a row the 100K build lacks is not read."""
+    name = SPREAD_ROW.format(KIT)
+    planted = tmp_path / "measured_builds.json"
+    built = {"default": {"price_pins": {name: 4.0}}, "hundred_k": {"price_pins": {name: None}}}
+    planted.write_text(json.dumps(built), "utf-8")
+    monkeypatch.setattr(price, "BUILDS_FILE", planted)
+    assert price._read_pinned_figures() == {name: (4.0, None)}
