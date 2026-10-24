@@ -528,8 +528,8 @@ def clone_key(rec: dict) -> tuple:
     title, name = rec["title"], _line(rec)
     if name:
         title = re.sub(rf"\b{re.escape(name)}\b ?", "", title)
-    if line_grammar.family(rec) and title.startswith(f"{rec['brand']} "):
-        title = title[len(rec["brand"]) + 1 :]  # a brand-led model is its plain twin (gen#662)
+    if line_grammar.family(rec):  # a brand-led model is its plain twin (gen#662)
+        title = re.sub(rf"^(Kids' )?{re.escape(rec['brand'])} ", r"\1", title)
     attrs = tuple(
         sorted((a["key"], str(a["value"])) for a in rec["attributes"] if a["key"] != "line")
     )

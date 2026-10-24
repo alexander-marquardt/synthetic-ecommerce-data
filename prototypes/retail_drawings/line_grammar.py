@@ -173,16 +173,16 @@ def _strip(title: str, word: str) -> str:
 def retitle(rec: dict, tpl: dict, draw: int) -> None:
     """``rec``'s title in its family's grammar, once :func:`scale.derive` has put its model in.
 
-    The template's brand leaves the title. A sport style then leads with its own brand in one
-    draw of three where the model leads the title ("Stridewell Speed 5 Neutral Road Running
-    Shoes"), and with the model otherwise. A dress style always leads with its brand and the
-    name, and a style word follows the material in four draws of five: "Larkmoor Merlin Leather
-    Smart Penny Loafers". ``draw`` is the style's seeded number for these choices."""
+    The template's brand leaves the title. A sport style then leads with its own brand, after a
+    "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress style
+    always leads with its brand and the name, and a style word follows the material in four
+    draws of five: "Larkmoor Merlin Leather Smart Penny Loafers".
+    ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     title = _strip(rec["title"], tpl["brand"])
     if fam == "sport":
-        if draw % 3 == 0 and title.startswith(f"{line} "):
-            title = f"{brand} {title}"
+        kids = "Kids' " if title.startswith("Kids' ") else ""
+        title = f"{kids}{brand} {title.removeprefix(kids)}"
     elif fam == "dress":
         rest = _strip(title, line)
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
