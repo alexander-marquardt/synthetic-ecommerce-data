@@ -21,6 +21,7 @@ model word belongs to one brand (gen#642).
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 
 import appliance_model_numbers as amn
 
@@ -106,3 +107,92 @@ def name_word_misplaced(rec: dict) -> list[str]:
     lead = len(brand.split()) if title.startswith(f"{brand} ") else None
     words = re.findall(r"[\w'&]+", title)
     return [w for i, w in enumerate(words) if w in NAME_WORDS and i != lead]
+
+
+def _lead(fam: str, line: str) -> str:
+    """The word of a model that a brand owns: a sport model's lead word, a dress model's name."""
+    return line.split()[0] if fam == "sport" else line
+
+
+class Deal:
+    """A family's model words dealt over the brands that sell it, so each belongs to one brand
+    (gen#642). An authored row's model word stays its brand's (``authored``: word -> brand), and
+    the rest are dealt in turn over the brands in name order.
+
+    A sport brand builds its models from its lead words, a generation and, past the first eight
+    generations, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a model with
+    one of its name words."""
+
+    def __init__(self, fam: str, brands: Iterable[str], authored: dict[str, str]) -> None:
+        self.fam = fam
+        self.brands = sorted(set(brands))
+        words = SPORT_LEADS if fam == "sport" else NAME_WORDS
+        pool = [w for w in words if w not in authored]
+        count = len(self.brands) or 1
+        self._owned = {
+            b: tuple([w for w, o in authored.items() if o == b] + pool[i::count])
+            for i, b in enumerate(self.brands)
+        }
+
+    def of(self, brand: str) -> tuple[str, ...]:
+        return self._owned[brand]
+
+    def owned(self, brand: str, slot: int) -> str:
+        """The model ``brand`` sells at ``slot``."""
+        mine = self._owned[brand]
+        word, k = mine[slot % len(mine)], slot // len(mine)
+        if self.fam != "sport":
+            return word
+        sub = (None, *SPORT_SUBS)[(k // len(GENERATIONS)) % (len(SPORT_SUBS) + 1)]
+        gen = GENERATIONS[k % len(GENERATIONS)]
+        return " ".join(str(p) for p in (word, sub, gen) if p)
+
+
+def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[str, Deal]:
+    """family -> its :class:`Deal` over every brand a derived style of the family may carry.
+
+    ``brands`` is the scale build's (department, product type) -> brand pool. An authored model
+    that is not the family's own (a real brand's) reserves nothing."""
+    out = {}
+    for fam in ("sport", "dress"):
+        authored = {
+            _lead(fam, line): r["brand"]
+            for r in tpls
+            if family(r) == fam and (line := r.get("product_line"))
+            and is_model(fam, r["brand"], str(line))
+        }  # fmt: skip
+        mine = [pool for (_, kind), pool in brands.items() if FAMILIES.get(kind) == fam]
+        out[fam] = Deal(fam, [b for pool in mine for b in pool], authored)
+    return out
+
+
+def _strip(title: str, word: str) -> str:
+    return title[len(word) + 1 :] if title.startswith(f"{word} ") else title
+
+
+def retitle(rec: dict, tpl: dict, draw: int) -> None:
+    """``rec``'s title in its family's grammar, once :func:`scale.derive` has put its model in.
+
+    The template's brand leaves the title. A sport style then leads with its own brand in one
+    draw of three where the model leads the title ("Stridewell Speed 5 Neutral Road Running
+    Shoes"), and with the model otherwise. A dress style always leads with its brand and the
+    name, and a style word follows the material in four draws of five: "Larkmoor Merlin Leather
+    Smart Penny Loafers". ``draw`` is the style's seeded number for these choices."""
+    fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
+    title = _strip(rec["title"], tpl["brand"])
+    if fam == "sport":
+        if draw % 3 == 0 and title.startswith(f"{line} "):
+            title = f"{brand} {title}"
+    elif fam == "dress":
+        rest = _strip(title, line)
+        style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
+        if style:
+            lead = max((m for m in DRESS_MATERIAL if rest.startswith(f"{m} ")), key=len, default="")
+            rest = f"{lead} {style} {rest[len(lead) :].strip()}".strip()
+        title = f"{brand} {line} {rest}"
+    rec["title"] = title
+
+
+def color_suffix(rec: dict, color: str) -> str:
+    """How a title names its color: "... in Tan" for a dress shoe, "..., Tan" otherwise."""
+    return f" in {color}" if family(rec) == "dress" else f", {color}"
