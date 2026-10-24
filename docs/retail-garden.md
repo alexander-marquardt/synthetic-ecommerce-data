@@ -33,7 +33,7 @@ carries the misleading word. Each is exempt from the text check and left out of 
 |---|---|---|
 | type | "Vintage Lawn Mower Cushion", "BBQ Master Apron", "Robot Mower Chef Apron" | a sibling product holds the type word |
 | absent | "Petrol Free Electric Lawn Mower", "Charcoal BBQ, Not Gas", "Latex Free Garden Hose" | a real product of the type names a power source or fuel it lacks, in its title or, when a title would read as a negation ("Never Cordless"), only in its copy: "Corded Grass Trimmer, 10 m Cable" says "not a cordless model" (gen#449) |
-| incidental | "Freshly Mown Lawn Candle" (a scent), "Red Kite Lawn Mower" (a black mower with red handle), "Red Kite Garden Hose" (red connectors only) | a word of the query sits in a short title or a scent, not in the product's color |
+| incidental | "Freshly Mown Lawn Candle" (a scent), "Red Harrier Lawn Mower" (a black mower with red handle), "Red Harrier Garden Hose" (red connectors only) | a word of the query sits in a short title or a scent, not in the product's color |
 | secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs", "Black Garden Hose with Green Connectors" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
 | shade | "Light Corded Lawn Mower" (a blue mower with "a bright red start switch"), "Family Kettle BBQ" | the description alone names another main color |
 
@@ -42,7 +42,7 @@ secondary decoys and the sixteen short-title incidental decoys on a real product
 passes `part` and `part_color` to its shape (`kit_garden.PARTS` lists the parts), and the shape draws
 that part, and only that part, in the color, each element marked `data-part`. A secondary title
 names its part ("with Red Wheels", "with White Engine", "with Green Connectors"); a short title
-("Red Kite Lawn Mower") colors the shape's first part (a handle, a bumper, a handle, the legs, the
+("Red Harrier Lawn Mower") colors the shape's first part (a handle, a bumper, a handle, the legs, the
 hose's connectors, which are brass unless a decoy names their color; a hedge trimmer's handle, a
 furniture set's legs, a parasol's pole). A test reads each rendered drawing:
 the named color on the marked part and on nothing else of it.

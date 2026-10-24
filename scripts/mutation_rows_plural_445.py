@@ -18,7 +18,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a lime decoy names the singular",
         _F,
-        '"Sparkling Mineral Water with Limes"',
+        '"Sparkling Water & Limes"',
         '"Sparkling Mineral Water with Lime"',
         f'{_T} -k "three_decoys_from_two_categories and limes"',
         "every decoy title carries the exact plural token it targets",
@@ -27,7 +27,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a lime decoy no longer matches the raw search",
         _F,
-        '"Lemons and Limes Boiled Sweets"',
+        '"Lemons & Limes Sweets"',
         '"Fruit Boiled Sweets"',
         f'{_T} -k "first_twelve and limes"',
         "a raw search for limes shows three decoys in its first twelve",
@@ -36,7 +36,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "limes keep two decoys",
         _F,
-        '    ("XQ11", "marinade", "Marinade with Limes and Coriander", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),\n',
+        '    ("XQ11", "marinade", "Limes & Coriander Marinade", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),\n',
         "",
         f'{_T} -k "three_decoys_from_two_categories and limes"',
         "each plural has at least three decoys",

@@ -1,0 +1,60 @@
+"""Mutants of the gen#623 fix: each undoes one part of it and a guard must go red.
+
+    .venv/bin/python scripts/mutant_run.py tests/review_623_mutants.py.txt
+"""
+
+SHARED = "tests/test_retail_scale.py::test_a_range_word_belongs_to_one_brand"
+FOREIGN = "tests/test_retail_scale.py::test_a_title_names_no_brand_but_its_own"
+PHRASE = "tests/test_retail_scale.py::test_no_brand_is_made_of_a_product_phrase"
+HALVES = "tests/test_retail_scale.py::test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name"
+RANGES = "tests/test_retail_scale.py::test_every_place_range_appears_under_exactly_one_brand"
+FAMILY = "tests/test_retail_scale.py::test_a_family_class_6_rows_reach_every_brand_of_the_family"
+LINE = "tests/test_retail_scale.py::test_a_name_led_title_carries_its_line_attribute"
+
+RV = "tests/test_review_range_names_623.py::"
+APPLE = RV + "test_a_word_brand_in_another_departments_title_is_not_foreign_but_a_maker_still_is"
+COMPAT = RV + "test_a_compatibility_reference_is_not_foreign_but_a_second_naming_is"
+OWNLED = RV + "test_a_title_led_by_its_own_brand_word_is_not_a_range_led_title"
+
+TESTS = [RANGES, FAMILY, SHARED, FOREIGN, PHRASE, LINE, HALVES, APPLE, COMPAT, OWNLED]
+
+RO = "prototypes/retail_drawings/range_ownership.py"
+SC = "prototypes/retail_drawings/scale.py"
+GR = "prototypes/retail_drawings/grocery.py"
+
+MUTANTS = [
+    (RO, "tuple(pool[i::count])", "tuple(pool)", "every brand owns every name", [SHARED]),
+    (RO, "names[1::2] if n not in EXCLUDED", "names[0::2] if n not in EXCLUDED",
+     "the scale and grocery halves overlap", [HALVES]),
+    (SC, "ctx.names.owned(brand, rng.randrange(RANGE_SLOTS))",
+     "ctx.names.owned(ctx.names.brands[0], rng.randrange(RANGE_SLOTS))",
+     "a derived style takes a name from the first brand", [SHARED]),
+    (SC, '        if line and not any(a["key"] == "line" for a in rec["attributes"]):',
+     '        if False and line:', "a product_line row states no Line", [LINE]),
+    (SC, '    if not any(a["key"] == "line" for a in rec["attributes"]):\n'
+         '        rec["attributes"].append(attr("line", "Line", name))  # gen#623\n',
+     '', "a derived style appends no Line", [LINE]),
+    (GR, 'attrs = [attr("line", "Line", line)]', 'attrs = []', "a grocery row carries no Line", [LINE]),
+    ("prototypes/retail_drawings/place_ranges.py", "PLACE_RANGES[PLACE_BRANDS.index(brand)]",
+     "PLACE_RANGES[len(brand) % len(PLACE_RANGES)]",
+     "a place range cycles over brands", [SHARED]),
+    ("prototypes/retail_drawings/mens_depth_rows.py", "_BRANDS[(k + i + 6) % len(_BRANDS)]",
+     "_BRANDS[(i + 6) % len(_BRANDS)]", "a mens family draws class 6 from three brands", [RANGES]),
+    ("prototypes/retail_drawings/knitwear_rows.py", "_BRANDS[(kk + i + 6) % len(_BRANDS)]",
+     "_BRANDS[(i + 6) % len(_BRANDS)]", "a knitwear family draws class 6 from three brands", [FAMILY]),
+    ("prototypes/retail_drawings/type_specs/card_game.py", '_BRAND = "Dewhatch"',
+     '_BRAND = "Water Gun Hill"', "a toy brand built from a product phrase", [PHRASE]),
+    ("prototypes/retail_drawings/garden_rows.py",
+     '"Red Harrier Parasol", "PRSCTR", "black", "A center pole parasol from the Harrier range',
+     '"Red Kite Parasol", "PRSCTR", "black", "A center pole parasol from the Kite range',
+     "a garden row names another brand", [FOREIGN]),
+    ("prototypes/retail_drawings/decoy_apparel.py",
+     "and (cls != 8 or not _line_held_elsewhere(o[\"line\"], ex[\"brand\"], words))\n", "\n",
+     "a class 8 fit-word line is dealt to a second brand", [SHARED]),
+    ("scripts/review_range_names.py", "other in WORD_BRANDS and _root(s)", "False and _root(s)",
+     "the review counts a fruit named Apple as a foreign brand", [APPLE]),
+    ("scripts/review_range_names.py", "if _compatibility(title, other) or (", "if (",
+     "the review counts a case for another brand's phone as foreign", [COMPAT]),
+    ("scripts/review_range_names.py", "name.lower() in _words(s[\"brand\"])", "False",
+     "the review counts a brand-led title as unlabeled", [OWNLED]),
+]

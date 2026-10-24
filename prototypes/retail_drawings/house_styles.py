@@ -1352,13 +1352,13 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Vanilla Wren":        H("#faf3e6", "none", "thin", "#2f7f7a", "#123a38", 0.90, True, "round", "compact", "mark_only", "bottom_right", "rect", "serif", 400, "title", 2.5),
     "Veilmoor":            H("#eef3f3", "dots", "double", "#3a6f8f", "#16303e", 0.95, False, "sharp", "moon_stars", "mark_only", "top_left", "plain", "humanist", 700, "caps", 1.0),
     "Vitamin C Orchard":   H("#f8f0f6", "lines", "rounded", "#b9803a", "#3e2a12", 1.00, False, "round", "lash_fan", "mark_only", "top_right", "stamp", "serif", 400, "smallcaps", 1.5),
-    # Invented brands of the toy text-match decoys (gen#424): a toy type word in the name.
-    "Marble Run Co":        H("#f4f6fb", "dots",     "thin",    "#3b5bdb", "#1b2a5c", 1.0,  False, "round", "toy_pair_dots",     "mark_left",   "bottom_left",   "none",     "sans",     700, "caps",      1.5),
-    "Card Game Row":        H("#fbf3f3", "lines",    "double",  "#c0392b", "#4a1a16", 1.1,  False, "sharp", "toy_ring_dot",      "mark_only",   "top_left",      "underline", "serif",   400, "title",     2.0),
+    # Invented brands of the toy text-match decoys (gen#424): a toy type word beside the name.
+    "Tumblewick":           H("#f4f6fb", "dots",     "thin",    "#3b5bdb", "#1b2a5c", 1.0,  False, "round", "toy_pair_dots",     "mark_left",   "bottom_left",   "none",     "sans",     700, "caps",      1.5),
+    "Quillbury":            H("#fbf3f3", "lines",    "double",  "#c0392b", "#4a1a16", 1.1,  False, "sharp", "toy_ring_dot",      "mark_only",   "top_left",      "underline", "serif",   400, "title",     2.0),
     "Kite Lane Toys":       H("#f1f9f4", "none",     "rounded", "#2e8b57", "#16392a", 0.95, True,  "round", "toy_star",          "mark_right",  "top_right",     "none",     "humanist", 700, "smallcaps", 1.0),
-    "Water Gun Hill":       H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),
-    "Play Kitchen Co":      H("#fff7ea", "hatch",    "heavy",   "#d9822b", "#4a2e12", 1.2,  False, "sharp", "toy_diag_dots",     "mark_only",   "bottom_right",  "stamp",    "mono",     700, "title",     0.5),
-    "Dolls House Row":      H("#fbf1f7", "diagonal", "thin",    "#c2539a", "#4a1c3a", 0.9,  True,  "round", "toy_stack_rings",   "badge",       "bottom_left",   "none",     "serif",    400, "smallcaps", 1.5, True),
+    "Dewhatch":             H("#eef7fb", "grid",     "ticks",   "#1c8ec7", "#12394f", 1.05, False, "round", "toy_three_rings",   "mark_above",  "bottom_center", "none",     "sans",     400, "caps",      2.5),
+    "Pennyfold":            H("#fff7ea", "hatch",    "heavy",   "#d9822b", "#4a2e12", 1.2,  False, "sharp", "toy_diag_dots",     "mark_only",   "bottom_right",  "stamp",    "mono",     700, "title",     0.5),
+    "Hobbleby":             H("#fbf1f7", "diagonal", "thin",    "#c2539a", "#4a1c3a", 0.9,  True,  "round", "toy_stack_rings",   "badge",       "bottom_left",   "none",     "serif",    400, "smallcaps", 1.5, True),
     "Tidewell":             H("#eef6f7", "none",     "thin",    "#1c7c7d", "#0f3b3c", 1.0,  False, "round", "well",         "mark_left",   "bottom_right",  "none",     "sans",     400, "caps",      1.5),
     "Skerry & Cole":        H("#f6f1ea", "dots",     "double",  "#7a2e3a", "#2b1a1d", 1.05, False, "sharp", "saltire",      "badge",       "top_left",      "none",     "serif",    700, "smallcaps", 1.0),
 }

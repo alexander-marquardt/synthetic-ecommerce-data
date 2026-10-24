@@ -16,7 +16,7 @@ cleaning, food, beauty and home styles that give every department its share
 It derives further styles until the SKUs reach the target.
 A derived style copies one template and changes, deterministically from the seed:
 
-- its **range name** (:data:`RANGE_NAMES`): the ``product_line``, the template's
+- its **range name** (:data:`RANGE_SLOTS`, owned by its brand): the ``product_line``, the template's
   ``line`` attribute and the title head ("The Harrow ..." -> "The Ashcombe ...");
 - its **brand**, from the brands of the same type's templates plus the department's
   :data:`EXTRA_BRANDS` (:func:`brand_pools`);
@@ -151,6 +151,7 @@ import needs_rows  # noqa: E402
 import net_volume  # noqa: E402
 import nike_rows  # noqa: E402
 import plus_sizes  # noqa: E402
+import range_ownership  # noqa: E402
 import sale_share  # noqa: E402
 import scale_rows  # noqa: E402
 import school_rows  # noqa: E402
@@ -167,7 +168,7 @@ import womens_depth_rows  # noqa: E402
 from build_preview4 import samples  # noqa: E402
 from export import drawing_spec, image_id, standard_document  # noqa: E402
 from stable_ids import number, pick, style_id, unit  # noqa: E402
-from variants import product  # noqa: E402
+from variants import attr, product  # noqa: E402
 
 from synthetic_ecommerce_data.core.standard import (  # noqa: E402
     text_contradictions,
@@ -175,18 +176,9 @@ from synthetic_ecommerce_data.core.standard import (  # noqa: E402
 )
 from synthetic_ecommerce_data.core.standard import value_pools as text_pools  # noqa: E402
 
-#: Invented range names; a derived style's ``product_line`` and title head.
-RANGE_NAMES = (
-    "Abberley", "Alnmoor", "Ardley", "Ashcombe", "Barrowden", "Belstone", "Brisley",
-    "Caddon", "Calver", "Corrow", "Dalesby", "Dellow", "Dunsop", "Elmsett", "Elvet",
-    "Eskerby", "Fenmoss", "Fothery", "Gorran", "Greyholt", "Haskett", "Hurlow",
-    "Ilsley", "Kelderby", "Kittow", "Lathom", "Lowick", "Marden", "Morwick",
-    "Nettlebed", "Norley", "Ockley", "Orrell", "Pellow", "Penwith", "Quarley",
-    "Rathby", "Redesdale", "Rillaton", "Selwood", "Sorrel", "Stennis", "Tarrow",
-    "Thurlby", "Torrin", "Ulverby", "Vellan", "Wenlow", "Whitsby", "Yarrowby",
-    "Yelden", "Zennor", "Brantham", "Copley", "Cawdell", "Feltwick", "Holmbury",
-    "Kimble", "Langrick", "Merrow",
-)  # fmt: skip
+#: The range-name slots a derived style draws from: the slot picks one of the names its brand
+#: owns (:mod:`range_ownership`), so a range name is never under a second brand (gen#623).
+RANGE_SLOTS = 60
 
 #: Invented brands a department's derived styles may carry, beside its template brands.
 EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
@@ -431,6 +423,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
+    body = _state_lines(body)  # gen#623: a range a row carries is also its Line
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
@@ -450,6 +443,16 @@ def templates(baseline: bool = True) -> list[dict]:
     done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
+
+
+def _state_lines(recs: list[dict]) -> list[dict]:
+    """A row with a ``product_line`` states it as a ``Line`` attribute too (gen#623): the
+    export keeps the first as ``series``, and a shopper filters on the second."""
+    for rec in recs:
+        line = rec.get("product_line")
+        if line and not any(a["key"] == "line" for a in rec["attributes"]):
+            rec["attributes"].append(attr("line", "Line", str(line)))
+    return recs
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -699,6 +702,8 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     if old_line:
         rec["description"] = _swap(rec["description"], old_line, name)
     rec["product_line"] = name
+    if not any(a["key"] == "line" for a in rec["attributes"]):
+        rec["attributes"].append(attr("line", "Line", name))  # gen#623
     sku_swaps: dict[str, dict[str, str]] = {}  # a changed key the SKUs carry: see _sku_values
     for a in rec["attributes"]:
         if a["key"] == "line":
@@ -847,6 +852,7 @@ def build(skus: int, seed: int = 0) -> Scaled:
     ctx = _Context(pools, text_pools(standard_document(r) for r in base), _bands(base), {})
     for r in tpls:
         ctx.authored.setdefault(r["category_leaf"], []).append(r)
+    ctx.names = _range_deal(tpls, brands)
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     lanes = {
@@ -871,6 +877,15 @@ def build(skus: int, seed: int = 0) -> Scaled:
     return Scaled(records, template_of)
 
 
+def _range_deal(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> range_ownership.Deal:
+    """The scale half of the range-name pool dealt over every brand a derived style may carry,
+    less the words an authored row already uses as a range or inside a brand."""
+    reserved = {x for r in tpls if (x := _line(r))}
+    reserved |= {w for r in tpls for w in re.findall(r"[A-Za-z]+", r["brand"])}
+    names = {b for pool in brands.values() for b in pool}
+    return range_ownership.Deal("scale", names, reserved)
+
+
 @dataclass
 class _Context:
     pools: dict[tuple[str, str], tuple[str, ...]]
@@ -884,6 +899,8 @@ class _Context:
     listed: dict[str, list[frozenset[str]]] = field(default_factory=dict)
     #: leaf -> the authored styles there, which a drawn style must also differ from
     authored: dict[str, list[dict]] = field(default_factory=dict)
+    #: the range names each brand owns (gen#623)
+    names: range_ownership.Deal = field(default_factory=lambda: range_ownership.Deal("scale", ()))
 
 
 def _bands(tpls: list[dict]) -> dict[str, tuple[float, float]]:
@@ -976,7 +993,8 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         colors = _colors(tpl, sig[1], *key)
         if sig[0] in taken:  # the title names the color: the style IS that color
             colors = colors[:1]
-        brand, name = pick(brands, *key, "brand"), pick(RANGE_NAMES, *key, "name")
+        brand = pick(brands, *key, "brand")
+        name = ctx.names.owned(brand, number(*key, "name") % RANGE_SLOTS)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
         target = price_point(min(max(price, lo), hi), lo, hi)

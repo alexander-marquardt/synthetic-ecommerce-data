@@ -119,10 +119,12 @@ _MJ, _WJ = ("Mens", "Joggers"), ("Womens", "Joggers")
 _SW, _TEE = "Sweatshirts", "T-Shirts"
 
 
-def _top(code, title, root, leaf, ptype, shape, price, desc, colors, fabric, kids=False) -> LRow:
+def _top(code, title, root, leaf, ptype, shape, price, desc, colors, fabric, kids=False,
+         line=None) -> LRow:
     sizes = _sizes(price, KIDS_SIZES) if kids else _sizes(price)
     return LRow(f"NK{code}", title, BRAND, _C, (root, "Tops", leaf), ptype, price, shape, desc,
-                colors, (("fabric", "Fabric", fabric),), sizes,
+                colors, (*((("line", "Line", line),) if line else ()), ("fabric", "Fabric", fabric)),
+                sizes,
                 audience="kids" if kids else "adult", facts=_PLAIN)  # fmt: skip
 
 
@@ -143,7 +145,7 @@ SPORTSWEAR = (
          (BLACK, BLUE, RED, WHITE), "Cotton", kids=True),
     _top("TEM1", "Nike Dri-FIT Training T-Shirt", "Mens", _TEE, "Tee", "tshirt", 27.0,
          "A sweat-wicking training t-shirt in a light stretch knit.",
-         (BLACK, WHITE, BLUE, RED, GREEN), "Polyester"),
+         (BLACK, WHITE, BLUE, RED, GREEN), "Polyester", line="Nike Dri-FIT"),
     _top("TEM2", "Nike Essentials Cotton T-Shirt", "Mens", _TEE, "Tee", "tshirt", 22.0,
          "A soft cotton jersey t-shirt with a ribbed crew neck.",
          (WHITE, BLACK, YELLOW, BLUE), "Cotton"),

@@ -58,6 +58,7 @@ import type_registry
 from class_model import SHADE_FAMILY
 from decoy_plural_nonfood_rows import IDS as PLURAL_NONFOOD_IDS
 from decoy_rows import COLORS
+from place_ranges import LINE_KEYS
 from variants import attr, cw, product, swatch
 
 ROOTS = ("Womens", "Mens", "Kids")
@@ -69,7 +70,7 @@ BRANDS = (("Red Plover", "red"), ("Blue Otter", "blue"), ("Green Stoat", "green"
 PRODUCT_COLORS = ("Black", "White", "Navy", "Cream", "Grey", "Brown", "Pink", "Red", "Blue",
                   "Green")  # fmt: skip
 DETAIL_HEX = COLORS | {"Yellow": "#f2d14b"}  # the hex a named part's color is drawn in
-DROPPED_KEYS = ("line", "pattern", "print", "color", "motif")  # a clone is plain, one color
+DROPPED_KEYS = (*LINE_KEYS, "pattern", "print", "color", "motif")  # plain, one color
 MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
     1: "color names a part",
@@ -756,6 +757,13 @@ def _fits(o: dict, ex: dict, title: str) -> bool:
     return style_table.title_fits(title, _fit_view(ex, title, o["desc"]))
 
 
+def _line_held_elsewhere(line: str, brand: str, words: set) -> bool:
+    """Whether a class 8 line is already a line of another brand: a range name has one brand
+    (gen#623), so "Balloon Lane" on a second brand's jeans would read as a brand's word. The claims
+    sit in ``words`` as ``(8, "<line>|<brand>")`` beside the planned words."""
+    return any(c.startswith(line + "|") and c != f"{line}|{brand}" for k, c in words if k == 8)
+
+
 def _candidates(cls: int, spec: Spec, ex: dict, used: set, words: set, *, styled: bool = False,
                 want: str | None = None):
     """The options of class ``cls`` the exemplar can carry: its colors permit them, a class 6 or 7
@@ -771,6 +779,7 @@ def _candidates(cls: int, spec: Spec, ex: dict, used: set, words: set, *, styled
                 and (title if cls == 8 else o["title"], ex["category_path"][0]) not in used
                 and (cls not in (4, 5) or (cls, o["word"]) not in words)
                 and (cls != 8 or o["word"] == want)
+                and (cls != 8 or not _line_held_elsewhere(o["line"], ex["brand"], words))
                 and (not styled or _fits(o, ex, title))):  # fmt: skip
             out.append(o)
     return out
@@ -860,6 +869,8 @@ def build(body: list[dict]) -> list[Row]:
                     o.get("line"),
                 )
                 words.add((cls, o["word"]))
+                if cls == 8:
+                    words.add((8, f"{o['line']}|{ex['brand']}"))
                 used.add((_title(ex, spec, cls, o) if cls == 8 else o["title"],
                           ex["category_path"][0]))  # fmt: skip
                 rows.append(

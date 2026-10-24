@@ -137,7 +137,7 @@ def _quotations(stats: dict) -> dict[str, str]:
         else:
             noun = r"(?:authored\s+|deep-SKU\s+|grocery\s+)?(?:styles?|SKUs?|images?)\b"
             patterns[name] = (
-                rf"^(?!(?:{'|'.join(TUNING)})\b)[A-Z][A-Z_]+\s*=\s*{value}\b"
+                rf"^(?!(?:{'|'.join(TUNING)})\b)[A-Z][A-Z_]+\s*=\s*{value}\b(?!\.\d)"
                 rf"|(?<![\d.,_]){value}\s+{noun}"
             )
     return patterns

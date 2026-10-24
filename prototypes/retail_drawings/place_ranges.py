@@ -8,6 +8,9 @@ borrows or is, so the decoy fools a plain text match on that word and nothing el
 
 from __future__ import annotations
 
+#: The attribute keys that name a range on a row: the one list the review and the plain decoys read.
+LINE_KEYS = ("line", "range")
+
 #: (the range name, what it is named for); the first word is the word the decoy targets.
 PLACE_RANGES = (
     ("Kettle Hill", "a hill above the old mill"),
@@ -19,7 +22,14 @@ PLACE_RANGES = (
 )
 
 
-def place_range(index: int) -> tuple[str, str, str]:
-    """The range, what it is named for and its first word (lower case), by cycling ``index``."""
-    name, gloss = PLACE_RANGES[index % len(PLACE_RANGES)]
+#: The shop brands that sell the class 6 decoys, one per range (gen#623): a range name has one
+#: brand, so the range is chosen by the brand and never by the row's index.
+PLACE_BRANDS = (
+    "Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune", "Bramblewood", "Hollinwray Knits",
+)
+
+
+def place_range(brand: str) -> tuple[str, str, str]:
+    """The range ``brand`` owns, what it is named for and its first word (lower case)."""
+    name, gloss = PLACE_RANGES[PLACE_BRANDS.index(brand)]
     return name, gloss, name.split()[0].lower()

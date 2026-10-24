@@ -6,8 +6,9 @@ or vegetable as its ingredient or source: a juice pressed from oranges, sun-drie
 a strawberries and cream biscuit. The category, the ingredients and the drawing (a carton, a bar,
 a tin) say what it is; no title or description claims it is the fresh fruit. The fixing policy is
 the category-node reading of the fresh word (the Oranges node keeps the fresh leaf and drops the
-rest). Titles are five or six tokens, so the title field's length does not put every fresh product
-above them. Data only: :mod:`decoy_rows` turns each tuple into a :class:`decoy_rows.Decoy`.
+rest). Oranges, lemons and limes keep three titles of three or four tokens, as short as the plain
+"<Range> Oranges, Class 1" rows of the grocery build, so a title-only match does not put every fresh
+row above them (gen#623: the range names left more plain rows). Data only: :mod:`decoy_rows` turns each tuple into a :class:`decoy_rows.Decoy`.
 
 A row is (code, kind, title, description, color, plural, sold, ingredients).
 """
@@ -17,18 +18,18 @@ A row is (code, kind, title, description, color, plural, sold, ingredients).
 ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- oranges
     ("XQ01", "juice", "Juice from Oranges, 1L", "Not-from-concentrate juice pressed from oranges, in a 1 litre carton. Keep chilled.", "Orange", "oranges", 950, ("pressed oranges (100%)",)),
-    ("XQ02", "chocolate", "Chocolate with Candied Oranges", "A 70% dark chocolate bar studded with pieces of candied oranges.", "Brown", "oranges", 930, ("cocoa mass", "sugar", "candied oranges (12%)", "cocoa butter")),
-    ("XQ03", "tinned", "Mandarin Oranges in Juice", "Segments of mandarin oranges in a light juice, in a 298g tin.", "Orange", "oranges", 910, ("mandarin oranges (60%)", "mandarin juice")),
+    ("XQ02", "chocolate", "Chocolate & Candied Oranges", "A 70% dark chocolate bar studded with pieces of candied oranges.", "Brown", "oranges", 930, ("cocoa mass", "sugar", "candied oranges (12%)", "cocoa butter")),
+    ("XQ03", "tinned", "Mandarin Oranges, 298g", "Segments of mandarin oranges in a light juice, in a 298g tin.", "Orange", "oranges", 910, ("mandarin oranges (60%)", "mandarin juice")),
     ("XQ04", "jam", "Seville Oranges Marmalade", "A thick cut marmalade made with bitter Seville oranges, in a 340g jar.", "Orange", "oranges", 890, ("seville oranges (45%)", "sugar", "lemon juice")),
     # -- lemons
     ("XQ05", "water", "Sicilian Lemons Sparkling Water", "Sparkling spring water flavored with the juice of Sicilian lemons. No sugar.", "Yellow", "lemons", 950, ("carbonated spring water", "lemon juice (1%)", "natural flavoring")),
-    ("XQ06", "pickle", "Preserved Lemons in Brine", "Whole lemons preserved in salt and brine, for tagines and dressings. A 350g jar.", "Yellow", "lemons", 920, ("lemons", "salt", "water")),
-    ("XQ07", "sweets", "Sherbet Lemons Boiled Sweets", "Boiled sweets with a fizzing sherbet center, in a 200g bag.", "Yellow", "lemons", 900, ("sugar", "glucose syrup", "dried lemon juice", "citric acid")),
-    ("XQ08", "biscuit", "Lemons and Ginger Shortbread", "All butter shortbread baked with lemon zest and stem ginger.", "Cream", "lemons", 870, ("wheat flour", "butter", "lemon zest", "stem ginger")),
+    ("XQ06", "pickle", "Preserved Lemons, 350g", "Whole lemons preserved in salt and brine, for tagines and dressings. A 350g jar.", "Yellow", "lemons", 920, ("lemons", "salt", "water")),
+    ("XQ07", "sweets", "Sherbet Lemons, 200g", "Boiled sweets with a fizzing sherbet center, in a 200g bag.", "Yellow", "lemons", 900, ("sugar", "glucose syrup", "dried lemon juice", "citric acid")),
+    ("XQ08", "biscuit", "Lemons & Ginger Shortbread", "All butter shortbread baked with lemon zest and stem ginger.", "Cream", "lemons", 870, ("wheat flour", "butter", "lemon zest", "stem ginger")),
     # -- limes
-    ("XQ09", "water", "Sparkling Mineral Water with Limes", "Sparkling mineral water with a squeeze of limes. No sugar, no sweeteners.", "Green", "limes", 940, ("carbonated mineral water", "lime juice (1%)", "natural flavoring")),
-    ("XQ10", "sweets", "Lemons and Limes Boiled Sweets", "Boiled sweets in lemon and lime flavors, in a 200g bag.", "Green", "limes", 910, ("sugar", "glucose syrup", "dried lime juice", "dried lemon juice")),
-    ("XQ11", "marinade", "Marinade with Limes and Coriander", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),
+    ("XQ09", "water", "Sparkling Water & Limes", "Sparkling mineral water with a squeeze of limes. No sugar, no sweeteners.", "Green", "limes", 940, ("carbonated mineral water", "lime juice (1%)", "natural flavoring")),
+    ("XQ10", "sweets", "Lemons & Limes Sweets", "Boiled sweets in lemon and lime flavors, in a 200g bag.", "Green", "limes", 910, ("sugar", "glucose syrup", "dried lime juice", "dried lemon juice")),
+    ("XQ11", "marinade", "Limes & Coriander Marinade", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),
     # -- apples
     ("XQ12", "juice", "Cloudy Juice from Apples", "A cloudy juice pressed from British apples, in a 1 litre carton.", "Green", "apples", 950, ("pressed apples (100%)",)),
     ("XQ13", "tinned", "Stewed Apples in Syrup", "Stewed apples in a light syrup, in a 385g tin. Warm for crumble or porridge.", "Green", "apples", 920, ("apples (62%)", "water", "sugar")),
