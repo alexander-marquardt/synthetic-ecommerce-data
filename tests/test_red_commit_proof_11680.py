@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -88,8 +89,11 @@ def _commit(repo: Path, test_source: str | None, message: str) -> str:
     return _git(repo, "rev-parse", "HEAD")
 
 
-def _prove(repo: Path, base: str) -> subprocess.CompletedProcess[str]:
+def _prove(
+    repo: Path, base: str, extra_env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    env.update(extra_env or {})
     return subprocess.run(
         [sys.executable, str(PROOF), "--repo", str(repo), "--range", f"{base}..HEAD"],
         capture_output=True,
@@ -495,3 +499,101 @@ def test_the_cutoff_constant_is_a_full_sha_and_the_docs_name_it() -> None:
     assert len(cutoff) == 40 and set(cutoff) <= set("0123456789abcdef"), cutoff
     doc = (ROOT / "docs" / "red-commit-and-mutants.md").read_text(encoding="utf-8")
     assert cutoff in doc
+
+
+# A red commit judged in an environment it was not locked for (#660). The check runs
+# under this checkout's environment; a red commit older than a lockfile change (the
+# matplotlib removal, #637) imports a module that environment no longer holds, so its
+# test file never collects and the commit was refused for a reason outside the PR.
+
+
+def test_a_collection_error_names_its_cause_on_the_log(repo: Path) -> None:
+    """The refusal carries pytest's own error line, so the cause is on the log (#660)."""
+    base = _base(repo)
+    _commit(repo, BROKEN_IMPORT, "broken\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    done = _prove(repo, base)
+    assert done.returncode == 1, done.stdout + done.stderr
+    cause = "ModuleNotFoundError: No module named 'not_a_real_module_11680'"
+    assert f"collection failed: {cause}" in done.stdout, done.stdout
+
+
+def test_the_cause_is_read_from_the_section_of_the_file_that_failed() -> None:
+    output = (
+        "____ ERROR collecting tests/test_a.py ____\n"
+        "Traceback:\n"
+        "tests/test_a.py:1: in <module>\n"
+        "E   ModuleNotFoundError: No module named 'a'\n"
+        "==== warnings summary ====\n"
+        "E   not a cause of test_a\n"
+        "____ ERROR collecting tests/test_b.py ____\n"
+        "E   SyntaxError: invalid syntax\n"
+        "E   second line\n"
+        "E   third line\n"
+        "E   fourth line\n"
+        "==== short test summary info ====\n"
+        "E   not a cause\n"
+    )
+    causes = _proof().collection_causes(output)
+    assert causes == {
+        "tests/test_a.py": "ModuleNotFoundError: No module named 'a'",
+        "tests/test_b.py": "SyntaxError: invalid syntax; second line; third line",
+    }
+
+
+def test_a_tree_locked_like_this_checkout_runs_on_this_interpreter(tmp_path: Path) -> None:
+    proof = _proof()
+    assert proof.python_for(tmp_path) == [sys.executable]
+    (tmp_path / "uv.lock").write_bytes((ROOT / "uv.lock").read_bytes())
+    assert proof.python_for(tmp_path) == [sys.executable]
+
+
+def test_a_tree_locked_differently_runs_in_its_own_locked_environment(tmp_path: Path) -> None:
+    (tmp_path / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    command = _proof().python_for(tmp_path)
+    assert command[0].endswith("uv") and command[-1] == "python", command
+    assert ["--frozen", "--project", str(tmp_path)] == command[2:5], command
+
+
+ONLY_IN_ITS_OWN_ENV = (
+    "import pathlib\nimport sys\n\n"
+    "OWN = pathlib.Path(__file__).resolve().parents[1] / '.venv'\n"
+    "if pathlib.Path(sys.prefix).resolve() != OWN:\n"
+    "    raise ModuleNotFoundError(\"No module named 'only_in_the_commits_lock_660'\")\n\n\n"
+    "def test_red():\n    assert 1 == 2\n"
+)
+
+
+def test_a_red_commit_locked_differently_from_this_checkout_is_proven(
+    repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Its test file collects only in the environment its own uv.lock describes (#660),
+    even when the caller's uv is pointed at another project environment.
+    """
+    monkeypatch.setenv("UV_PROJECT_ENVIRONMENT", str(tmp_path / "elsewhere"))
+    uv = shutil.which("uv")
+    assert uv, "uv is on PATH wherever this suite runs (the CI job runs it under uv run)"
+    (repo / "pyproject.toml").write_text(
+        '[project]\nname = "proof-660"\nversion = "0"\n'
+        f'requires-python = ">={sys.version_info.major}.{sys.version_info.minor}"\n'
+        "dependencies = []\n\n[tool.uv]\npackage = false\n",
+        encoding="utf-8",
+    )
+    # No dependency to resolve: an offline lock of pytest needs it in uv's cache, which a
+    # CI runner's is not (the first run of this test failed there). The locked environment
+    # is empty; this interpreter's packages reach it by symlink, without their dist-info,
+    # so none of this suite's pytest plugins (entry points) load there.
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    home = Path(pytest.__file__).resolve().parent.parent
+    for entry in home.iterdir():
+        if not entry.name.endswith((".dist-info", ".egg-info", ".pth", "__pycache__")):
+            (shared / entry.name).symlink_to(entry)
+    locked = subprocess.run(
+        [uv, "lock", "--offline", "--project", str(repo)], capture_output=True, text=True
+    )
+    assert locked.returncode == 0, locked.stderr
+    base = _base(repo)
+    _commit(repo, ONLY_IN_ITS_OWN_ENV, "red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
+    done = _prove(repo, base, {"PYTHONPATH": str(shared)})
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "PROVEN" in done.stdout
