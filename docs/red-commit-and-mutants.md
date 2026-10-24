@@ -34,7 +34,12 @@ names the id of a test that:
   under test rather than by the test;
 - matches no test that ran (a typo, a skip, a missing file);
 
-and a token that is not a `path.py::name` id (prose, a sha). A commit with no
+and a token that is not a `path.py::name` id (prose, a sha). A file that does
+not collect is named with the first lines of pytest's own error. A commit
+whose `uv.lock` differs from the checkout's runs in the environment its own
+lockfile describes (`uv run --frozen --project <tree>`), so a red commit older
+than a dependency's removal (matplotlib, #637) is judged on its tests, not
+refused because the newer environment cannot import it (#660). A commit with no
 trailer runs nothing, so a pull request that declares no red commit costs the
 job a few seconds. Run it before you push:
 

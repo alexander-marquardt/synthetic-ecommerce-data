@@ -100,3 +100,54 @@ def test_aftershave_and_body_mist_offer_the_common_small_size_too() -> None:
     held = per_type()
     assert 30.0 in held[("Beauty", "Fragrance", "Aftershave")]
     assert 50.0 in held[("Beauty", "Fragrance", "Body mists")]
+
+
+#: Leaf -> the volumes (ml) a shopper expects it in (gen#356). A volume-sold product carries
+#: ``net_volume`` on every SKU, never a free-text ``size``, so the Net volume facet finds it.
+VOLUME_SOLD = {
+    "Shampoo": {250.0, 400.0, 500.0},
+    "Conditioner": {250.0, 400.0, 500.0},
+    "Perfume": {30.0, 50.0, 100.0},
+    "Olive oil": {500.0, 750.0, 1000.0},
+}
+
+#: A size spelled as a volume: "250ml", "30 ml", "1L".
+SIZE_AS_VOLUME = re.compile(r"\d+(?:\.\d+)? ?(?:ml|L)", re.IGNORECASE)
+
+
+def volume_sold(leaf: str) -> list[dict]:
+    return [d for d in docs() if d["category_path"][-1].lower() == leaf.lower()]
+
+
+def test_the_volume_sold_leaves_are_in_the_catalogue() -> None:
+    for leaf in VOLUME_SOLD:
+        assert volume_sold(leaf), f"{leaf}: no template, so the guards below check nothing"
+
+
+def test_every_product_of_a_volume_sold_leaf_offers_at_least_three_volumes() -> None:
+    thin = {
+        d["product_id"]: sorted(volumes(d))
+        for leaf in VOLUME_SOLD
+        for d in volume_sold(leaf)
+        if len(volumes(d)) < MINIMUM
+    }
+    assert not thin, f"{len(thin)} products offer fewer than {MINIMUM} net volumes: {thin}"
+
+
+def test_a_volume_sold_leaf_never_carries_its_volume_as_a_free_text_size() -> None:
+    wrong = [
+        f"{d['product_id']} size={e['value']!r}"
+        for leaf in VOLUME_SOLD
+        for d in volume_sold(leaf)
+        for e in [*d["attributes"], *(e for v in d["variants"] for e in v["attributes"])]
+        if e["key"] == "size" and SIZE_AS_VOLUME.fullmatch(str(e["value"]))
+    ]
+    assert not wrong, f"{len(wrong)} volumes sit under size, not net_volume: {wrong[:6]}"
+
+
+def test_a_volume_sold_leaf_offers_its_usual_volumes() -> None:
+    missing = {
+        leaf: sorted(want - {v for d in volume_sold(leaf) for v in volumes(d)})
+        for leaf, want in VOLUME_SOLD.items()
+    }
+    assert not any(missing.values()), f"volumes no product of the leaf offers: {missing}"
