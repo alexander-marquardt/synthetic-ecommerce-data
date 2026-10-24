@@ -46,6 +46,7 @@ import export  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import kids_depth_rows  # noqa: E402
 import knitwear_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import lowerbody_rows  # noqa: E402
@@ -179,6 +180,7 @@ def measure() -> dict[str, Any]:
         "colorgroup_rows": colorgroup_rows.docs(),
         "mens_depth_rows": mens_depth_rows.docs(),
         "womens_depth_rows": womens_depth_rows.docs(),
+        "kids_depth_rows": kids_depth_rows.docs(),
         "color_word_brand_rows": color_word_brand_rows.docs(),
         "knitwear_rows": knitwear_rows.docs(),
         "neckline_rows": neckline_rows.docs(),

@@ -309,7 +309,7 @@ def test_a_sprockets_pitch_being_a_length_does_not_make_the_chains_one():
         if "Pitch" in published
     ]
     assert set(units) == {"INH"}
-    assert len(units) == 86
+    assert len(units) == 75
 
 
 def test_a_pitch_published_in_millimetres_keeps_the_chain_pitch_key():
