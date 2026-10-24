@@ -303,9 +303,9 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
             kk = k + 3 * r_i
 
             def add(klass, i, title, desc, true, word, query, policy="generic", tag=tag,
-                    st=st, ptype=ptype, root=root, extra=()):  # noqa: PLR0913
+                    st=st, ptype=ptype, root=root, extra=(), brand=None):  # noqa: PLR0913
                 code = f"KD{tag}{klass}{i}"
-                brand = word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)]
+                brand = brand or (word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)])
                 rows.append(_row(code, title, brand, root, st, desc, (_col(true),),
                                  "Acrylic blend", "Regular", price=round(22.0 + 1.5 * i + klass, 2),
                                  extra=extra))
@@ -348,11 +348,12 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                     f"A {low} in soft {s.lower()}, {_TAIL[ptype]}.", s,
                     _FANCY[(kk + i) % 6], f"{s.lower()} {low}")  # fmt: skip
                 # 6: an incidental word in a short title: a range name.
-                rg, gloss, word = place_range(kk + i * 2)
+                b6 = _BRANDS[(kk + i + 6) % len(_BRANDS)]  # gen#623: the brand owns the range
+                rg, gloss, word = place_range(b6)
                 add(6, i, f"{root} {rg} {noun}",
                     f"From the {rg} range, named for {gloss}; the {low} itself is "
                     f"{_TRUE[(kk + i + 4) % 6].lower()}.", _TRUE[(kk + i + 4) % 6], word, word,
-                    extra=(_a("range", "Range", rg),))  # fmt: skip
+                    extra=(_a("range", "Range", rg),), brand=b6)  # fmt: skip
                 # 7: an invented brand holding a color or category word.
                 brand = NEW_BRANDS[i]
                 add(7, i, f"{root} {brand} {noun}",

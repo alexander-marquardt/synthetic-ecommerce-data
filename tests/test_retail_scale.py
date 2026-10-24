@@ -30,6 +30,7 @@ if str(RETAIL) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
+import range_ownership  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
 from retail_figures import (  # noqa: E402
@@ -257,7 +258,7 @@ def test_few_styles_share_a_results_grid_tile_at_the_ceiling(ceiling):
 #: Measured on the seed-0 ceiling build of main d63322d: 8 of 145 (5.5%) with the
 #: ``PREMIUM`` plate weights of 2.0 / 1.4 / 1.0 / 0.75 / 0.5; the cap is 14 plates, a
 #: margin of 6. The weights were widened, not the cap, when new templates from main took
-#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 (12.4%) on this seed. Seeds 0 to
+#: the earlier 1.6 / 1.2 / 0.8 / 0.6 weights to 18 of 145 plates on this seed. Seeds 0 to
 #: 5 of the same build give 8, 4, 6, 0, 11 and 8 plates.
 PLATES_GRID_CLONES = 0.10
 
@@ -672,6 +673,8 @@ def test_a_derived_style_keeps_its_place_and_every_value_that_names_it(pairs):
         }
         assert kept <= {(a["key"], str(a["value"])) for a in r["attributes"]}, r["product_id"]
         gained = _fitted_in(r, t)
+        if not any(a["key"] == "line" for a in t["attributes"]):
+            gained = gained | {"line"}  # a derived style names its own Line (gen#623)
         assert [a["key"] for a in r["attributes"] if a["key"] not in gained] == [
             a["key"] for a in _template_attributes(r, t)
         ]
@@ -722,10 +725,10 @@ def test_a_changed_value_is_rewritten_in_the_title(pairs):
 
 def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
     for r, _ in pairs:
-        assert r["product_line"] in scale.RANGE_NAMES
+        assert r["product_line"] in range_ownership.candidates()
         assert scale._has_word(r["title"], r["product_line"])
         lines = [a["value"] for a in r["attributes"] if a["key"] == "line"]
-        assert lines in ([], [r["product_line"]])
+        assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
 
 
 def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
@@ -1018,9 +1021,13 @@ def test_the_invented_names_are_new_and_never_repeat():
     extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
     assert len(extra) == len(set(extra))
     assert sorted(set(extra) & tpl_brands) == []
-    assert len(scale.RANGE_NAMES) == len(set(scale.RANGE_NAMES))
-    words = {w for b in tpl_brands | set(extra) for w in b.split()}
-    assert sorted(set(scale.RANGE_NAMES) & words) == []
+    pool = range_ownership.candidates()
+    assert len(pool) == len(set(pool))
+    halves = range_ownership.halves()
+    assert sorted(set(halves["scale"]) & set(halves["grocery"])) == []
+    # gen#623: an authored row's range is in no half, or a builder would deal it a second time
+    authored = {scale._line(t) for t in scale.templates() if not t["product_id"].startswith("GRC-")}
+    assert sorted(authored & set(pool)) == []
 
 
 def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
@@ -1331,3 +1338,76 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
     assert tables >= 3
     split = {b: o for b, o in owners.items() if len(o) > 1}
     assert split == {}
+
+
+@pytest.fixture(scope="module")
+def range_review(ceiling) -> dict[str, Any]:
+    """``scripts/review_range_names.py`` over the ceiling build's styles (gen#623)."""
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import review_range_names  # noqa: PLC0415 -- scripts/ is not a package
+
+    return review_range_names.review(ceiling.records)
+
+
+def test_a_range_word_belongs_to_one_brand(range_review):
+    """Guard (gen#623): a model word under many brands ("Larkrise Chocolate Bar" by one brand,
+    "Larkrise" jam by 17 more) reads as a brand. Metric: range words under two or more brands."""
+    shared = {name: len(brands) for name, brands in range_review["shared"].items()}
+    assert shared == {}
+
+
+def test_every_place_range_appears_under_exactly_one_brand(ceiling):
+    """Guard (gen#623): a range that no row draws is a class 6 decoy word that vanished ("kettle",
+    "candle"). Metric: the brands per place-range name in the titles of the ceiling build."""
+    import place_ranges  # noqa: PLC0415
+
+    owners: dict[str, set[str]] = {name: set() for name, _ in place_ranges.PLACE_RANGES}
+    for rec in ceiling.records:
+        for name in owners:
+            if name in rec["title"]:
+                owners[name].add(rec["brand"])
+    assert {n: len(b) for n, b in owners.items() if len(b) != 1} == {}
+    assert {n: b.pop() for n, b in owners.items()} == dict(
+        zip((n for n, _ in place_ranges.PLACE_RANGES), place_ranges.PLACE_BRANDS, strict=True))
+
+
+@pytest.mark.parametrize("module", ["knitwear_rows", "mens_depth_rows"])
+def test_a_family_class_6_rows_reach_every_brand_of_the_family(module):
+    """Guard (gen#623): a family that deals its class 6 range from ``(i + 6)`` reaches three of its
+    five brands, so two place ranges never appear in its titles. Metric: the place ranges named in
+    the family's titles against the brands the family owns."""
+    import importlib  # noqa: PLC0415
+
+    import place_ranges  # noqa: PLC0415
+
+    mod = importlib.import_module(module)
+    named = {n for n, _ in place_ranges.PLACE_RANGES for r in mod.docs() if n in r["title"]}
+    assert len(named) == len(mod._BRANDS)
+
+
+def test_a_title_names_no_brand_but_its_own(range_review):
+    """Guard (gen#623): "Red Kite Lawn Mower" by another brand reads as that brand's mower.
+    Metric: the (title, row brand, brand named) triples."""
+    assert range_review["foreign"] == []
+
+
+def test_no_brand_is_made_of_a_product_phrase(range_review):
+    """Guard (gen#623): the brand "Card Game Row" reads as a product, not a maker. Metric: the
+    brands holding a product phrase of two or more words, with the phrase."""
+    assert range_review["phrase"] == {}
+
+
+def test_a_name_led_title_carries_its_line_attribute(range_review):
+    """Guard (gen#623): a title led by a range name says it is a range in a ``Line`` attribute.
+    Metric: the styles whose leading range name no Line attribute repeats."""
+    assert [(t, b) for t, b, _ in range_review["unlabeled"][:10]] == []
+    assert len(range_review["unlabeled"]) == 0
+
+
+def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
+    """Guard (gen#623): a brand that sells in both builds must not own one word in each, and two
+    brands must not own it, so the halves of the pool are disjoint. Metric: words in both halves."""
+    halves = range_ownership.halves()
+    assert set(halves["scale"]) & set(halves["grocery"]) == set()

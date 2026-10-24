@@ -70,7 +70,7 @@ _ROWS = (
          "2+ years", "A small kitchen for a toddler, with a hob that lights up and a "
          "microwave. For ages 2 and up.", 35.0),
 )  # fmt: skip
-_BRAND = "Card Game Row"
+_BRAND = "Quillbury"
 
 SPEC = TypeSpec(
     key="play_kitchen",
@@ -88,8 +88,9 @@ SPEC = TypeSpec(
                   "Wooden-Look Play Kitchen",
                   "A plastic kitchen with a printed wood grain finish; there is no wood in it.",
                   color=WHITE),
-        toy_decoy(7, "card game", "generic", _ROWS[3], 15, "Card Game Row Play Kitchen",
-                  "A compact kitchen from Card Game Row; the name is the maker's, not a game.",
+        toy_decoy(7, "card game", "generic", _ROWS[3], 15, "Quillbury Card Game Play Kitchen",
+                  "A compact kitchen from Quillbury; the card game is only in the title, "
+                  "not the box.",
                   brand=_BRAND, color=GREEN),
     ),
     owners=((_BRAND, "own"),),

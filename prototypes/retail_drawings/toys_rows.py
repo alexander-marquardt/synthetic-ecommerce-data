@@ -45,7 +45,7 @@ BABY, TODDLER, KIDS, ADULT = "baby", "toddler", "kids", "adult"
 RANGES = {
     "Moonmoth Rangers": (_P, "star"),
     "Rumblesaur Ridge": (_P, "dinosaur"),
-    "Bramblewood Owls": (_L, "bird"),
+    "Hazelwren Owls": (_L, "bird"),
     "Driftwhistle Bay": (_K, "whale"),
 }
 
@@ -156,13 +156,13 @@ BUILDING_SETS = (
          "turns. Fits every standard brick. For ages 5 and up. In 190 and 410 pieces.",
          (RED,), _bld("City", "5+ years", STANDARD), _pcs((190, 18.0), (410, 38.0)),
          audience=KIDS, colorless=True, params=(("theme", "city"),), size_key="piece_count"),
-    TRow("BLDOWL", "Bramblewood Owls Treehouse Building Set", _L, _T, _BLD, "Building Set",
+    TRow("BLDOWL", "Hazelwren Owls Treehouse Building Set", _L, _T, _BLD, "Building Set",
          12.0, "building_set", "A treehouse with a rope swing, a nest box and three owl "
          "friends from the Bramblewood stories. Fits every standard brick. For ages 4 and up. "
          "In 120 and 300 pieces.",
-         (GREEN,), _bld("Animals", "4+ years", STANDARD, "Bramblewood Owls", _L),
+         (GREEN,), _bld("Animals", "4+ years", STANDARD, "Hazelwren Owls", _L),
          _pcs((120, 12.0), (300, 28.0)), audience=KIDS, colorless=True,
-         params=(("theme", "animals"), *_char("Bramblewood Owls")), size_key="piece_count"),
+         params=(("theme", "animals"), *_char("Hazelwren Owls")), size_key="piece_count"),
     TRow("BLDFRM", "Farmyard Animals Large Brick Set", _K, _T, _BLD, "Building Set", 15.0,
          "building_set", "Big, easy-grip bricks for little hands, with a barn, a tractor and "
          "farm animals to build. For ages 18 months and up. In 40 and 85 pieces.",
@@ -265,7 +265,7 @@ BOARD_GAMES = (
          (RED,), _game("Family Game", 2, 6, 30, "6+ years"),
          _ed(("Standard", 18.0), ("Travel", 10.0)), audience=KIDS, colorless=True,
          params=(("kind", "family"),), size_key="edition"),
-    TRow("GAMSTR", "Saltmarsh Traders Strategy Board Game", _K, _T, _GAM, "Board Game", 35.0,
+    TRow("GAMSTR", "Quayside Traders Strategy Board Game", _K, _T, _GAM, "Board Game", 35.0,
          "board_game", "Build ports, trade salt and silk, and outwit your rivals across a "
          "board of hex tiles. A strategy game for 2 to 4 players, about 90 minutes. For ages "
          "10 and up. The deluxe edition has wooden pieces.",
@@ -290,12 +290,12 @@ BOARD_GAMES = (
          (NAVY,), _game("Family Game", 2, 4, 25, "5+ years", "Moonmoth Rangers"),
          _ed(("Standard", 15.0), ("Travel", 9.0)), audience=KIDS, colorless=True,
          params=(("kind", "family"), *_char("Moonmoth Rangers")), size_key="edition"),
-    TRow("GAMOWL", "Bramblewood Owls Memory Card Game", _L, _T, _GAM, "Board Game", 7.0,
+    TRow("GAMOWL", "Hazelwren Owls Memory Card Game", _L, _T, _GAM, "Board Game", 7.0,
          "board_game", "Turn two cards and find the matching owls. A first card game for 1 to "
          "4 players in about 15 minutes. For ages 3 and up.",
-         (GREEN,), _game("Card Game", 1, 4, 15, "3+ years", "Bramblewood Owls", _L),
+         (GREEN,), _game("Card Game", 1, 4, 15, "3+ years", "Hazelwren Owls", _L),
          _ed(("Standard", 7.0),), audience=KIDS, colorless=True,
-         params=(("kind", "card"), *_char("Bramblewood Owls")), size_key="edition"),
+         params=(("kind", "card"), *_char("Hazelwren Owls")), size_key="edition"),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -334,11 +334,11 @@ DOLLS = (
          "and a duck. For ages 2 and up.",
          (PINK, BLUE), _doll("Baby Doll", 30, 3, "2+ years"), audience=TODDLER,
          params=_dp("baby", 3)),
-    TRow("DOLRAG", "Bramblewood Owls Rag Doll", _L, _T, _DOL, "Doll", 18.0, "doll",
+    TRow("DOLRAG", "Hazelwren Owls Rag Doll", _L, _T, _DOL, "Doll", 18.0, "doll",
          "A soft rag doll with yarn hair, stitched eyes and an owl patch on her dress, safe "
          "from birth. Machine washable at 30 degrees.",
-         (GREEN, RED), _doll("Rag Doll", 40, 0, "0+ months", "Bramblewood Owls", _L),
-         audience=BABY, params=_dp("rag", 0, "Bramblewood Owls")),
+         (GREEN, RED), _doll("Rag Doll", 40, 0, "0+ months", "Hazelwren Owls", _L),
+         audience=BABY, params=_dp("rag", 0, "Hazelwren Owls")),
     TRow("DOLDWB", "Driftwhistle Bay Sailor Rag Doll", _K, _T, _DOL, "Doll", 16.0, "doll",
          "A rag doll in a striped sailor's top, from the harbour town of Driftwhistle Bay. "
          "Comes with a sailor's hat. For ages 3 and up.",
@@ -492,14 +492,14 @@ CRAFT_KITS = (
          (BLUE,), (*_craft("Painting Set", "5+ years"), *_PAINT15.attrs),
          _themes(12.0, "Unicorns", "Dinosaurs", "Space"), audience=KIDS, colorless=True,
          params=_cp("painting", _PAINT15), size_key="theme"),
-    TRow("CRFOWL", _PAINT9.title("Bramblewood Owls First Painting Set"), _L, _T, _CRF,
+    TRow("CRFOWL", _PAINT9.title("Hazelwren Owls First Painting Set"), _L, _T, _CRF,
          "Arts and Crafts Kit", 8.0, "craft_kit",
          _PAINT9.text("Chunky brushes and washable paints, with owl pictures to fill in. For "
                       "ages 3 and up."),
-         (GREEN,), (*_craft("Painting Set", "3+ years", "Bramblewood Owls", _L),
+         (GREEN,), (*_craft("Painting Set", "3+ years", "Hazelwren Owls", _L),
                     *_PAINT9.attrs),
          _themes(8.0, "Animals"), audience=KIDS, colorless=True,
-         params=_cp("painting", _PAINT9, "Bramblewood Owls"), size_key="theme"),
+         params=_cp("painting", _PAINT9, "Hazelwren Owls"), size_key="theme"),
     TRow("CRFBED", _BEADS.title("Bead Jewelry Making Kit"), _P, _T, _CRF, "Arts and Crafts Kit",
          14.0, "craft_kit",
          _BEADS.text("Over 600 beads sorted by color, to thread bracelets and necklaces. "

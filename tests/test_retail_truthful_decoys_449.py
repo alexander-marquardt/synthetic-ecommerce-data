@@ -172,11 +172,11 @@ def test_a_grocery_description_is_a_sentence_then_the_pack_and_storage_line(
 
 
 def test_a_named_dish_or_pasta_is_a_variety_not_a_flavor(by_id: dict[str, dict]) -> None:
-    penne = by_id["GRC-PAS-0065"]
+    penne = next(r for r in by_id.values() if _attr(r, "variety") == ["Gluten Free Penne"])
     assert "flavor" not in {a["key"] for a in penne["attributes"]}
-    assert _attr(penne, "variety") == ["Gluten Free Penne"]
-    juice = by_id["GRC-JUI-0048"]
-    assert _attr(juice, "flavor") == ["Pineapple"], "a juice has a flavor"
+    assert penne["product_id"].startswith("GRC-PAS-")
+    juices = [r for r in by_id.values() if r["product_id"].startswith("GRC-JUI-")]
+    assert "Pineapple" in {v for r in juices for v in _attr(r, "flavor")}, "a juice has a flavor"
 
 
 def test_every_food_product_type_has_a_sentence_of_its_own() -> None:

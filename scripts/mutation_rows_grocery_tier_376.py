@@ -33,8 +33,8 @@ _ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the tier draws no extra range names",
         "grocery.py",
-        "lines = (*LINES, *grocery_rows.TIER_LINES) if tier else LINES",
-        "lines = LINES",
+        "slots = len(LINES) + (len(grocery_rows.TIER_LINES) if tier else 0)",
+        "slots = len(LINES)",
         f"{_T} -k holds_its_budget_share",
         "the extra range names let every family reach its budget",
     ),
