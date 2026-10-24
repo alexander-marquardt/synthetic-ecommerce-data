@@ -17,10 +17,13 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
-#: Real brands the maintainer has ruled in, text only. Apple, iPhone and iPad join with gen#332.
-ALLOWED: tuple[str, ...] = ("Nike",)
+#: Real brands the maintainer has ruled in, text only: Nike (gen#341) and Apple, iPhone and iPad
+#: (gen#332). "Apple" is the brand; "iPhone" and "iPad" are the product lines it sells, named in a
+#: title or a description.
+ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")
 
-#: Real brand names the catalogue refuses (unambiguous ones: no "gap", "apple" or "orange").
+#: Real brand names the catalogue refuses (unambiguous ones: no "gap" or "orange"; "apple" is the
+#: ruled-in brand, and its fruit, tree and candle clashes are class 8 rows).
 KNOWN_REAL: tuple[str, ...] = (
     "Adidas", "Puma", "Reebok", "Asics", "New Balance", "Under Armour", "Converse", "Vans",
     "Skechers", "Fila", "Umbro", "Hoka", "Brooks", "Mizuno", "Saucony", "Lululemon", "Gymshark",
@@ -28,6 +31,8 @@ KNOWN_REAL: tuple[str, ...] = (
     "Marks & Spencer",
     "Dr Martens", "Clarks", "Timberland", "North Face", "Patagonia", "Columbia", "Barbour",
     "Samsung", "Sony", "Huawei", "Nokia", "Google Pixel", "Dell", "Lenovo", "Microsoft", "Bosch",
+    "Xiaomi", "Motorola", "OnePlus", "Oppo", "Vivo", "Realme", "Asus", "Acer", "Logitech", "Anker",
+    "Belkin", "JBL", "Bose", "Garmin", "Fitbit", "Kindle", "Amazon Fire", "Razer", "Corsair",
     "Dyson", "Hoover", "Siemens", "Whirlpool", "Miele", "Ikea", "Nestle", "Cadbury", "Heinz",
     "Coca-Cola", "Pepsi", "Tesco", "Asda", "Sainsbury's", "Waitrose",
 )  # fmt: skip

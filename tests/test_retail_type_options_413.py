@@ -26,6 +26,10 @@ import type_registry  # noqa: E402
 from type_registry import Option, SpecError  # noqa: E402
 
 #: The options only spec types carry, by the spec that declares each: spec key -> options.
+_STORAGE = Option("storage_gb", "storage_capacity", "Storage (GB)")
+_RAM = Option("ram_gb", "ram", "Memory (GB)")
+_SCREEN = Option("screen_size_in", "screen_size", "Screen size", "INH")
+_LENGTH = Option("length_m", "item_length", "Item length", "MTR")
 MOVED = {
     "parasol": [Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR")],
     "garden_furniture_set": [Option("seats", "seats", "Seats", "C62")],
@@ -37,6 +41,14 @@ MOVED = {
     "body_mist": [Option("fragrance", "fragrance", "Fragrance")],
     "sun_cream": [Option("spf", "spf", "SPF")],
     "garden_hose": [Option("length_m", "item_length", "Item length", "MTR")],
+    "smartphone": [_STORAGE],
+    "tablet": [_STORAGE],
+    "e_reader": [_STORAGE],
+    "laptop": [_STORAGE, _RAM, _SCREEN],
+    "desktop": [_STORAGE, _RAM],
+    "cable": [_LENGTH],
+    "laptop_sleeve": [_SCREEN],
+    "monitor": [_SCREEN],
     "baseball_glove": [Option("glove_size_in", "glove_size", "Glove size", "INH")],
     "batting_helmet": [Option("head_cm", "head_circumference", "Head circumference", "CMT")],
     "swim_armbands": [Option("max_load_kg", "max_load_kg", "Maximum load", "KGM")],
