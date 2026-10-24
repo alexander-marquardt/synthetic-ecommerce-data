@@ -35,6 +35,7 @@ LEGACY = f"{RD}/type_specs/legacy_types.txt"
 HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
 WORD_DOC = "docs/retail-product-word-decoys.md"
+CLASS8 = "tests/test_retail_product_word_decoys_326.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -79,6 +80,12 @@ APPENDS = {
     "word-doc-row": (
         WORD_DOC, "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |", "build_derived"
     ),
+    "word-doc-section": (
+        WORD_DOC,
+        "**A probe feature (gen#999).** Text of the section.",
+        "retail-product-word-decoys/<topic>",
+    ),
+    "true-node-row": (CLASS8, '    "probe": "Probes",', "decoy_true_nodes"),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -90,6 +97,7 @@ BASE = {
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
     WORD_DOC: "# Decoys\n\nThe table is built.\n",
+    CLASS8: "from decoy_true_nodes import TRUE_NODE\n\n\ndef test_x():\n    assert TRUE_NODE\n",
 }
 
 
