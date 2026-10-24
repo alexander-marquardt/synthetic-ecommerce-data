@@ -520,6 +520,8 @@ def test_the_cause_is_read_from_the_section_of_the_file_that_failed() -> None:
         "Traceback:\n"
         "tests/test_a.py:1: in <module>\n"
         "E   ModuleNotFoundError: No module named 'a'\n"
+        "==== warnings summary ====\n"
+        "E   not a cause of test_a\n"
         "____ ERROR collecting tests/test_b.py ____\n"
         "E   SyntaxError: invalid syntax\n"
         "E   second line\n"
@@ -558,8 +560,13 @@ ONLY_IN_ITS_OWN_ENV = (
 )
 
 
-def test_a_red_commit_locked_differently_from_this_checkout_is_proven(repo: Path) -> None:
-    """Its test file collects only in the environment its own uv.lock describes (#660)."""
+def test_a_red_commit_locked_differently_from_this_checkout_is_proven(
+    repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Its test file collects only in the environment its own uv.lock describes (#660),
+    even when the caller's uv is pointed at another project environment.
+    """
+    monkeypatch.setenv("UV_PROJECT_ENVIRONMENT", str(tmp_path / "elsewhere"))
     uv = shutil.which("uv")
     assert uv, "uv is on PATH wherever this suite runs (the CI job runs it under uv run)"
     (repo / "pyproject.toml").write_text(
