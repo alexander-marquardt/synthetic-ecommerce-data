@@ -1656,14 +1656,14 @@ category deepened into a modelled type keeps its census row
 model is held to that row's p50 and p90/p10 bands at both sizes. The census
 has no within-page pairs for it, so its slopes are GENERATED, not measured:
 the roller chain's on pitch (1.2) and on length (0.93). So is what its strand
-count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x and
-triple 2.8x the single strand chain; the census's 71 prices are not split by
+count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x,
+triple 2.8x, four strand 3.7x the single strand chain; a heavy series chain
+1.15x the standard one of its number; the census's 71 prices are not split by
 strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
-separates them: in every chain number offered in more than one strand count
-in one material and length, the median price rises with the strand count (10
-such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
-chain's medians there are 162.00, 341.25 and 502.00 USD).
+separates them: in every brand's chain number offered in more than one strand
+count in one material and length, the median price rises with the strand count
+(13 such sets on the golden catalog, 105 at `--lines 39000`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
