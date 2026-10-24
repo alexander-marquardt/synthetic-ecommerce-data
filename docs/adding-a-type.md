@@ -572,8 +572,9 @@ that fixes it:
   `uv run python -m synthetic_ecommerce_data.domains.industrial.measured_builds`
   and they appear in `PINNED_FIGURES`, read from the generated file. At each size the row may then move no further
   out than that size's figure, within `PIN_TOLERANCE`, and must stay on its
-  side (the kit p90/p10, #76). A size a pin records `None` for is one the
-  row lands in band on: the pin holds there while the row stays in band
+  side (the kit p90/p10 was one, #76, until the kit range widened). A size a pin
+  records `None` for is one the row lands in band on: the pin holds there
+  while the row stays in band
   (`test_a_pin_recorded_none_for_a_build_holds_while_the_row_stays_in_band`
   plants one). A figure a reason quotes is read from `PINNED_FIGURES` in
   an f-string, never typed, so a refit cannot leave it stale. A figure that

@@ -291,7 +291,8 @@ def test_a_kit_is_one_sku_of_its_own_product(docs):
 
 def test_a_kits_piece_count_is_its_contents(docs):
     """``Piece Count`` is a real count: one per size in a set, a whole
-    number per size in an assortment; never a figure the contents cannot give."""
+    number per size in an assortment (a tap set holds a taper and a plug of
+    each size); never a figure the contents cannot give."""
     counted = 0
     for doc in _kits(docs):
         values, contents = _values(doc), _contents(doc)
@@ -300,7 +301,9 @@ def test_a_kits_piece_count_is_its_contents(docs):
         pieces = int(values["Piece Count"])
         assert pieces % len(contents) == 0, doc["sku"]
         if "Assortment" not in values.get("Type", ""):
-            assert pieces == len(contents), doc["sku"]
+            # A set holds one of each size; a tap set holds a taper and a plug.
+            held = (1, 2) if "Tap Set" in doc["title"] else (1,)
+            assert pieces // len(contents) in held, doc["sku"]
         counted += 1
     assert counted >= 30, counted
 

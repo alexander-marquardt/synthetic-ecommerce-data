@@ -56,6 +56,7 @@ CONCEPTS: dict[str, Concept] = {
         {
             "storage": "how a food is kept (grocery: keep chilled), not a feature of a thing",
             "storage_type": "the kind of a storage box, a label of the product itself",
+            "storage_capacity": "the memory of a device (GB), not a feature of furniture",
         },
     ),
 }
