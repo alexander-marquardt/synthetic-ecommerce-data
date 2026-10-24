@@ -65,3 +65,39 @@ def test_a_family_table_is_in_its_spec_and_not_in_the_shared_module(table: str, 
     own = (RD / "type_specs" / f"{spec}.py").read_text(encoding="utf-8")
     assert table not in shared
     assert table in own
+
+
+def _topic_package(tmp_path: Path, name: str, **modules: dict[str, str]) -> Path:
+    folder = tmp_path / name
+    folder.mkdir()
+    (folder / "__init__.py").write_text("", encoding="utf-8")
+    for module, nodes in modules.items():
+        (folder / f"{module}.py").write_text(f"NODES = {nodes!r}\n", encoding="utf-8")
+    return folder
+
+
+def test_the_nodes_of_two_topics_merge_and_a_repeated_agreeing_noun_is_one_row(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import decoy_true_nodes
+
+    folder = _topic_package(
+        tmp_path,
+        "planted_merge",
+        a={"cup": "Cups", "boot": "Boots"},
+        b={"cup": "Cups", "sock": "Socks"},
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+    merged = decoy_true_nodes._load(folder, "planted_merge")
+    assert merged == {"cup": "Cups", "boot": "Boots", "sock": "Socks"}
+
+
+def test_a_noun_two_topics_map_differently_raises_and_names_both(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import decoy_true_nodes
+
+    folder = _topic_package(tmp_path, "planted_conflict", a={"cup": "Cups"}, b={"cup": "Mugs"})
+    monkeypatch.syspath_prepend(str(tmp_path))
+    with pytest.raises(ValueError, match=r"'cup': a says 'Cups', b says 'Mugs'"):
+        decoy_true_nodes._load(folder, "planted_conflict")

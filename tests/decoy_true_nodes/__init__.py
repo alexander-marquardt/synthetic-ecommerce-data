@@ -14,11 +14,11 @@ import pkgutil
 from pathlib import Path
 
 
-def _load() -> dict[str, str]:
+def _load(folder: Path = Path(__file__).parent, package: str = __name__) -> dict[str, str]:
     merged: dict[str, str] = {}
     owner: dict[str, str] = {}
-    for info in sorted(pkgutil.iter_modules([str(Path(__file__).parent)]), key=lambda i: i.name):
-        nodes = importlib.import_module(f"{__name__}.{info.name}").NODES
+    for info in sorted(pkgutil.iter_modules([str(folder)]), key=lambda i: i.name):
+        nodes = importlib.import_module(f"{package}.{info.name}").NODES
         for noun, node in nodes.items():
             if merged.setdefault(noun, node) != node:
                 raise ValueError(
