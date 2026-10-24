@@ -89,8 +89,11 @@ def _commit(repo: Path, test_source: str | None, message: str) -> str:
     return _git(repo, "rev-parse", "HEAD")
 
 
-def _prove(repo: Path, base: str) -> subprocess.CompletedProcess[str]:
+def _prove(
+    repo: Path, base: str, extra_env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    env.update(extra_env or {})
     return subprocess.run(
         [sys.executable, str(PROOF), "--repo", str(repo), "--range", f"{base}..HEAD"],
         capture_output=True,
@@ -572,15 +575,25 @@ def test_a_red_commit_locked_differently_from_this_checkout_is_proven(
     (repo / "pyproject.toml").write_text(
         '[project]\nname = "proof-660"\nversion = "0"\n'
         f'requires-python = ">={sys.version_info.major}.{sys.version_info.minor}"\n'
-        f'dependencies = ["pytest=={pytest.__version__}"]\n\n[tool.uv]\npackage = false\n',
+        "dependencies = []\n\n[tool.uv]\npackage = false\n",
         encoding="utf-8",
     )
+    # No dependency to resolve: an offline lock of pytest needs it in uv's cache, which a
+    # CI runner's is not (the first run of this test failed there). The locked environment
+    # is empty; this interpreter's packages reach it by symlink, without their dist-info,
+    # so none of this suite's pytest plugins (entry points) load there.
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    home = Path(pytest.__file__).resolve().parent.parent
+    for entry in home.iterdir():
+        if not entry.name.endswith((".dist-info", ".egg-info", ".pth", "__pycache__")):
+            (shared / entry.name).symlink_to(entry)
     locked = subprocess.run(
         [uv, "lock", "--offline", "--project", str(repo)], capture_output=True, text=True
     )
     assert locked.returncode == 0, locked.stderr
     base = _base(repo)
     _commit(repo, ONLY_IN_ITS_OWN_ENV, "red\n\nRefs #1\n\nRed-Test: tests/test_x.py::test_red")
-    done = _prove(repo, base)
+    done = _prove(repo, base, {"PYTHONPATH": str(shared)})
     assert done.returncode == 0, done.stdout + done.stderr
     assert "PROVEN" in done.stdout
