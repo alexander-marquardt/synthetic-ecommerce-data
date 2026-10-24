@@ -97,3 +97,41 @@ def test_a_range_stated_as_an_attribute_counts_when_the_title_does_not_lead_with
     found = rr.review(rows, RANGES)
     assert found["shared"] == {"Kettle Hill": ["Larkmoor", "Wrenfield"]}
     assert rr.counts(found) == CLEAN | {"shared": 1}
+
+
+def test_a_word_brand_in_another_departments_title_is_not_foreign_but_a_maker_still_is():
+    """Apple is a real brand and a fruit: "Gala Apple Tree" is no phone. An invented brand is
+    never exempt, and Apple named in an Electronics title by another maker is still foreign."""
+    phone = ["Electronics", "Phones", "Smartphones"]
+    tree = ["Garden", "Trees"]
+    rows = [
+        _row("a", "Apple iPhone", "Apple", category_path=phone),
+        _row("b", "Gala Apple Tree", "Fenwold Nursery", category_path=tree),
+        _row("c", "Apple Style Phone", "Cindrel", category_path=phone),
+        _row("d", "Red Kite Hat", "Red Kite", category_path=tree),
+        _row("e", "Red Kite Tree", "Fenwold Nursery", category_path=tree),
+        _row("f", "Apple Pie", "Fenwold Nursery"),
+    ]
+    assert rr.review(rows, RANGES)["foreign"] == [
+        ("Apple Style Phone", "Cindrel", "Apple"),
+        ("Red Kite Tree", "Fenwold Nursery", "Red Kite"),
+        ("Apple Pie", "Fenwold Nursery", "Apple"),
+    ]
+
+
+def test_a_compatibility_reference_is_not_foreign_but_a_second_naming_is():
+    rows = [
+        _row("a", "Halvern Arc 5", "Halvern"),
+        _row("b", "Clear Case for Halvern Arc 5", "Cindrel"),
+        _row("c", "Halvern Case for Halvern Arc 5", "Cindrel"),
+        _row("d", "Halvern Case", "Cindrel"),
+    ]
+    found = rr.review(rows, RANGES)["foreign"]
+    assert [t for t, _, _ in found] == ["Halvern Case for Halvern Arc 5", "Halvern Case"]
+
+
+def test_a_title_led_by_its_own_brand_word_is_not_a_range_led_title():
+    own = [_row("a", "Boltwick Ridge Tab Tablet", "Boltwick")]
+    assert rr.review(own, ["Boltwick"])["unlabeled"] == []
+    other = [_row("b", "Boltwick Ridge Tab Tablet", "Other Maker")]
+    assert len(rr.review(other, ["Boltwick"])["unlabeled"]) == 1
