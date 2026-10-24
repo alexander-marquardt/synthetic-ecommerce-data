@@ -50,6 +50,7 @@ from dataclasses import dataclass, replace
 
 import details
 import facet_leaves
+import kids_depth_rows
 import real_brands
 import style_table
 import type_colors
@@ -159,7 +160,7 @@ _PLANNED: tuple[Spec, ...] = (
 #: More decoys for the two types the neckline depth grew (gen#181): a large type carries a tenth.
 #: The extra ids are the later ones of each class (``i`` 3 and up): no id is renamed, but an
 #: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
-_MORE = {"Top": 6, "Dress": 5}
+_MORE = {"Top": 6, "Dress": 6}
 BASE_TYPES: tuple[Spec, ...] = tuple(
     replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
     for ti, s in enumerate(_PLANNED)
@@ -792,7 +793,12 @@ def _restyle(cls, spec, exemplars, step, o, used, words):
 
 
 def build(body: list[dict]) -> list[Row]:
-    """Every decoy row for ``body`` (the templates without the decoys), in plan order."""
+    """Every decoy row for ``body`` (the templates without the decoys), in plan order.
+
+    A type's decoys clone the first exemplars of its pool in product-id order, so a batch of new
+    rows that sorts early takes every decoy of its type with it. The Kids dresses and coats
+    (:mod:`kids_depth_rows`, gen#310) are not exemplars: with them in the pool the Womens dress
+    decoys moved into the Kids leaves."""
     pool: dict[str, list[dict]] = {}
     for d in sorted(body, key=lambda r: r["product_id"]):
         if (
@@ -801,6 +807,7 @@ def build(body: list[dict]) -> list[Row]:
             and d.get("color_options")
             and d["product_id"] not in ids()
             and d["product_id"] not in PLURAL_NONFOOD_IDS  # a decoy is never a clone's source
+            and d["product_id"] not in kids_depth_rows.product_ids()  # gen#310: see ``build``
             and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
             and _names_its_drawing(d)
         ):
