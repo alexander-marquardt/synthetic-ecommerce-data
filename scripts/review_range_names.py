@@ -10,10 +10,14 @@ under many brands, or a brand's name inside another brand's title, reads as the 
 review counts four classes and exits 1 when any is not 0:
 
 * ``shared``: a range word that leads the titles of two or more brands (class A).
-* ``foreign``: a title that names a brand other than the row's own (class B).
+* ``foreign``: a title that names a brand other than the row's own (class B). Two namings are no
+  claim of a maker: a compatibility reference ("Clear Case for Halvern Arc 5") and a real brand that
+  is also a plain word (:data:`WORD_BRANDS`, "Apple") on a row outside the departments the brand
+  sells in ("Gala Apple Tree"). A title naming another maker in any other way is still foreign.
 * ``phrase``: a brand made of a product phrase of two or more words, "Card Game Row" (class C).
 * ``unlabeled``: a title led by a range word whose row carries no ``Line`` (or ``Range``)
-  attribute naming it (class D).
+  attribute naming it (class D). A title led by its own brand's word leads with the maker, not a
+  range, and is not counted.
 
 A single-word brand that is also a product word ("Cardigan Finch", "Red Kite") is a deliberate decoy
 of the failure classes and is not a phrase brand.
@@ -41,6 +45,10 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 from place_ranges import LINE_KEYS  # noqa: E402
 
+#: Real brands that are also a plain product word; their name in another department's title is
+#: that word ("Apple Graphic Mug"), not the maker. An invented brand never belongs here.
+WORD_BRANDS = frozenset({"Apple"})
+
 _WORD = re.compile(r"[a-z0-9&]+")
 
 
@@ -67,6 +75,20 @@ def _singular(word: str) -> str:
 def _prototype() -> None:
     if str(RETAIL) not in sys.path:
         sys.path.insert(0, str(RETAIL))
+
+
+def _root(row: dict[str, Any]) -> str:
+    """The row's top department ("" when the row states no category path)."""
+    path = row.get("category_path") or ()
+    return str(path[0]) if path else ""
+
+
+def _compatibility(title: str, brand: str) -> bool:
+    """Whether every naming of ``brand`` in the lowered ``title`` follows "for": a case "for
+    Halvern Arc 5" names the phone it fits, not its own maker."""
+    b = re.escape(brand.lower())
+    found = re.findall(r"(?<![\w&])(\bfor\s+)?" + b + r"(?![\w&])", title)
+    return bool(found) and all(found)
 
 
 def known_ranges() -> set[str]:
@@ -155,20 +177,28 @@ def review(rows: Iterable[dict[str, Any]], ranges: Iterable[str] | None = None) 
         if stated := line_of(s):
             by_range[stated].add(s["brand"])
         name = lead_range(s["title"], names)
-        if name is None:
-            continue
+        if name is None or name.lower() in _words(s["brand"]):
+            continue  # a title led by its own brand's word leads with the maker
         by_range[name].add(s["brand"])
         if (line_of(s) or "").lower() != name.lower():
             unlabeled.append((s["title"], s["brand"], name))
     shared = {n: sorted(b) for n, b in sorted(by_range.items()) if len(b) >= 2}
 
     pattern = {b: re.compile(r"(?<![\w&])" + re.escape(b.lower()) + r"(?![\w&])") for b in brands}
+    roots: dict[str, set[str]] = collections.defaultdict(set)
+    for s in styles:
+        roots[s["brand"]].add(_root(s))
     foreign: list[tuple[str, str, str]] = []
     for s in styles:
         title, own = s["title"].lower(), s["brand"]
         for other, rx in pattern.items():
-            if other != own and other.lower() not in own.lower() and rx.search(title):
-                foreign.append((s["title"], own, other))
+            if other == own or other.lower() in own.lower() or not rx.search(title):
+                continue
+            if _compatibility(title, other) or (
+                other in WORD_BRANDS and _root(s) and _root(s) not in roots[other]
+            ):
+                continue
+            foreign.append((s["title"], own, other))
 
     return {
         "styles": len(styles),
