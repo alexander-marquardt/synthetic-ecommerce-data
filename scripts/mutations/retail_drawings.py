@@ -90,7 +90,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a title's own bra facet is dropped",
                 "facet_leaves.py",
-                'for key, value in stated_bra_facets(rec["title"])',
+                "for key, value in stated_bra_facets(title_without_line(rec))",
                 "for key, value in []",
                 "tests/test_retail_facet_leaves.py -k every_value_its_title_names",
                 "a bra carries what its title says",
@@ -676,7 +676,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "Nike leaves the allow-list",
                 "real_brands.py",
-                'ALLOWED: tuple[str, ...] = ("Nike",)',
+                'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")',
                 "ALLOWED: tuple[str, ...] = ()",
                 "tests/test_retail_nike_341.py -k guard_allows_nike",
                 "the guard allows the ruled-in brand",
@@ -716,8 +716,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "Nike leaves the owner table",
                 "class_model.py",
-                '"Nike")  # fmt: skip',
-                '"Coat Crake")  # fmt: skip',
+                '"Nike",\n                # Real names, text only (gen#332)',
+                '"Coat Crake",\n                # Real names, text only (gen#332)',
                 "tests/test_retail_nike_341.py -k third_party_brand",
                 "Nike is another house's make",
             ),

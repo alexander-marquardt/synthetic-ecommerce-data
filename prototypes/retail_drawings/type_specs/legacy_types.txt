@@ -45,7 +45,6 @@ Cleaning & Janitorial|Toilet Cleaner
 Clothing|Backpack
 Clothing|Blouse
 Clothing|Bodysuit
-Clothing|Bomber Jacket
 Clothing|Boot Socks
 Clothing|Bracelet
 Clothing|Cardigan
@@ -100,7 +99,6 @@ Food & Drink|Cereal
 Food & Drink|Cereal Bar
 Food & Drink|Champagne
 Food & Drink|Cheese
-Food & Drink|Chips
 Food & Drink|Chocolate Bar
 Food & Drink|Chocolate Box
 Food & Drink|Christmas Pudding
@@ -186,7 +184,6 @@ Gifts|Wrapping Paper
 Home|Apron
 Home|Armchair
 Home|Baby Beakers
-Home|Bed
 Home|Bit Set
 Home|Bookcase
 Home|Bowl

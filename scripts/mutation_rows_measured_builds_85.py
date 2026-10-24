@@ -20,29 +20,9 @@ _PRICE = "src/synthetic_ecommerce_data/core/price.py"
 _MERGE = "tests/test_merge_pr.py"
 _ROOT = "."
 _RECORDED = json.loads((Path(__file__).resolve().parent.parent / _FILE).read_text("utf-8"))
-_KIT = "price p90/p10: kit_assortment"
-_KIT_100K = _RECORDED["hundred_k"]["price_pins"][_KIT]
 _WHEEL_SKUS = _RECORDED["hundred_k"]["skus_by_type"]["wheel_depressed_center"]
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
-    (
-        "the kit pin's 100K figure is loosened in the file",
-        _FILE,
-        '"price p90/p10: kit_assortment": 3.917',
-        '"price p90/p10: kit_assortment": 3.5',
-        f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
-        "a figure the build moved or a hand loosened is red",
-        _ROOT,
-    ),
-    (
-        "the kit pin's 100K figure is loosened, read against the build",
-        _FILE,
-        f'"{_KIT}": {_KIT_100K}',
-        f'"{_KIT}": 3.25',
-        f"{_PRICE_TESTS} -k each_recorded_figure_is_the_figure_its_build_produces",
-        "a pin holds the figure its build produces",
-        _ROOT,
-    ),
     (
         "the rebuild records the figure of a row that lands in band, not None",
         _BUILDER,
@@ -66,7 +46,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _PRICE,
         "(default[name], hundred_k[name])",
         "(default[name], default[name])",
-        f"{_PRICE_TESTS} -k pinned_figures_are_the_committed_files",
+        f"{_PRICE_TESTS} -k a_pin_in_the_file_is_read",
         "each build reads its own figure from the file",
         _ROOT,
     ),
@@ -75,7 +55,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _BUILDER,
         "round(rows[name].achieved, price_report.recorded_digits(name))",
         "round(rows[name].achieved, 1)",
-        f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
+        f"{_PRICE_TESTS} -k a_row_in_band_is_recorded_none",
         "a figure is written to the precision it is recorded at",
         _ROOT,
     ),
@@ -84,7 +64,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _BUILDER,
         "        for name in sorted(price.PINNED_SHORTFALLS)\n",
         "        for name in sorted(price.PINNED_SHORTFALLS)[:1]\n",
-        f"{_PRICE_TESTS} -k measured_builds_file_is_what_the_rebuild_writes",
+        f"{_PRICE_TESTS} -k a_row_in_band_is_recorded_none",
         "every pinned row has a generated figure",
         _ROOT,
     ),

@@ -138,6 +138,7 @@ import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
 import kids_depth_rows  # noqa: E402
+import knit_sleeves  # noqa: E402
 import knitwear_rows  # noqa: E402
 import leaf_shapes  # noqa: E402
 import lighting_rows  # noqa: E402
@@ -426,6 +427,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
     body = style_table.complete_lengths(body)  # gen#511: a Midi Dress states its length
     body = named_parts.apply(body)  # gen#447: "with Red Collar" draws a red collar
+    body = knit_sleeves.complete(body)  # gen#434: a sleeve on every knit, before decoys
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
