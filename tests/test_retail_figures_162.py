@@ -126,7 +126,12 @@ def _quotations(stats: dict) -> dict[str, str]:
         elif value >= 1000:
             # A standard's number is not a total: "ISO 4014" is a bolt standard (the README),
             # and so is "ASTM F2329" (a total of 2329 styles collided with it, gen#510).
-            plain = rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_]){value}(?![\d,_])"
+            # A date is not a total either: a count that reaches 2026 collided with every
+            # ISO date of the README ("2026-09-28"), so a figure followed by "-MM-DD" is skipped.
+            plain = (
+                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_]){value}(?![\d,_])"
+                r"(?!-\d{2}-\d{2})"
+            )
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
             patterns[name] = f"{plain}|{grouped}"
         else:
@@ -190,6 +195,15 @@ def test_no_test_or_doc_restates_a_total_the_build_measures(stats: dict, path: s
         f"{path} restates totals the retail build measures: {quoted}. Read them with "
         f"retail_figures.figures() (or the retail_figures_measured fixture) instead"
     )
+
+
+def test_an_iso_date_is_not_a_restated_total() -> None:
+    """A measured total that equals a year (2026) is not found in "2026-09-28", yet is still
+    found when typed as a count."""
+    pattern = _quotations({"ceiling": {"styles": 2026}})["ceiling.styles"]
+    assert not re.search(pattern, "(maintainer ruling, 2026-09-28) and 2026-10-07")
+    assert re.search(pattern, "The ceiling is 2026 styles")
+    assert re.search(pattern, "CAPACITY = 2026-")  # a bare figure is still a figure
 
 
 def test_the_guard_catches_a_restated_total(stats: dict) -> None:
