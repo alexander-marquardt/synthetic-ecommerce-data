@@ -659,8 +659,9 @@ Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
 is the one facet value "Assortment Kit" and its kind is `Type`. A kit's
 description lists its sizes in the spec clause as well as `Sizes Included`
 (57 of 59 kits on the default build; 2 omit the clause). 59 kits on
-the default build, 695 at 100K. A kit's price is its contents' price times
-one fitted factor, its material and its tier ([Price](#price)).
+the default build, 742 at 100K, from a 12-piece pack to a 1,000-piece
+assortment (#76). A kit's price is its contents' price times one fitted factor,
+its material and its tier ([Price](#price)).
 
 Two derivation artefacts went with it: the drive size is published as the
 nominal key (`10mm`), not the extracted socket's toleranced across-flats
@@ -1613,18 +1614,18 @@ material, no noise), at the census per-piece share of that part's shown price
 (`price.PER_PIECE`: per-piece p50 over shown p50, since a census socket screw
 is always sold by the pack and a third of hex keys are), times how many of
 each size the kit holds. The slope on that key is 1.0, so a kit costs its
-contents times one fitted factor (1.009 on the current fit), its material and
+contents times one fitted factor (0.963 on the current fit), its material and
 its tier, with SKU noise and no group noise: the default build's 15-piece inch
 hex key sets, about $98 of keys, sold for $9.55 to $1,525.45 when a kit was
-one group draw per page. Every kit now lands within 0.97x to 1.06x of its
-contents' price times its material and tier on the default build, and 0.94x
-to 1.08x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
+one group draw per page. Every kit now lands within 0.91x to 1.04x of its
+contents' price times its material and tier on the default build, and 0.73x to
+1.21x at 100K (`test_each_kit_price_tracks_its_contents_at_both_builds`).
 The census has no kit-versus-parts price figure, so the factor claims neither a
-discount nor a premium: it is fitted to the census median kit price and moves
-when #76 widens the kit kinds. Kit contents are computed from the part types'
-fitted models, and one fit run fits the kit last, on the part models that run
-just fitted (#94), so a run that also refits a part type a kit holds needs no
-second run.
+discount nor a premium: it is fitted to the census median kit price, and the
+kit p90/p10 lands in band at both sizes with no pin (#76). Kit contents are
+computed from the part types' fitted models, and one fit run fits the kit last,
+on the part models that run just fitted (#94), so a run that also refits a part
+type a kit holds needs no second run.
 
 The price is then rounded to an ending (.99, .00, .50 ...) drawn from the
 type's census endings mix; taps also snap to a fitted list-price ladder.
@@ -1655,14 +1656,14 @@ category deepened into a modelled type keeps its census row
 model is held to that row's p50 and p90/p10 bands at both sizes. The census
 has no within-page pairs for it, so its slopes are GENERATED, not measured:
 the roller chain's on pitch (1.2) and on length (0.93). So is what its strand
-count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x and
-triple 2.8x the single strand chain; the census's 71 prices are not split by
+count multiplies the price by (`roller_chain.STRAND_FACTORS`: double 1.9x,
+triple 2.8x, four strand 3.7x the single strand chain; a heavy series chain
+1.15x the standard one of its number; the census's 71 prices are not split by
 strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
-separates them: in every chain number offered in more than one strand count
-in one material and length, the median price rises with the strand count (10
-such sets on the golden catalog, 13 at `--lines 39000`; a #40 steel 10 ft
-chain's medians there are 162.00, 341.25 and 502.00 USD).
+separates them: in every brand's chain number offered in more than one strand
+count in one material and length, the median price rises with the strand count
+(13 such sets on the golden catalog, 105 at `--lines 39000`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
@@ -1677,7 +1678,7 @@ a type whose specs hold no material. A SKU that sparsity left without one of the
 standard errors where the census sample is small: `share_band`,
 `brand_spread_band`). Every row is scored at the default size and at 100K
 (`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
-pinned below, at both:
+pinned, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
 `test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k`.
 
@@ -1689,19 +1690,20 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `72 rows, 71 in band`; the other is the kit pin.
+It prints `72 rows, 72 in band`: no row is pinned.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
-**Pins.** A row that no model of this shape holds is declared with its
-reason and the issue that fixes it, and stays bounded:
+**Pins.** No row is pinned: the last two went when the wheel brand spread
+(#80) and the kit p90/p10 (#76) landed in band at both sizes, and
+`test_no_row_is_pinned_and_the_pin_machinery_is_held_empty` holds
+`price.PINNED_SHORTFALLS` empty. The machinery stays for a row that no model
+of this shape holds: it is declared with its reason and the issue that fixes
+it, and bounded at each size by the figure `price.PINNED_FIGURES` records,
+within `PIN_TOLERANCE`; the plants in `tests/test_price.py` exercise it.
 
-| row | kind | why | bound |
-|---|---|---|---|
-| kit p90/p10 | pin, below band | a kit is priced from its contents, and the catalog's kit kinds hold about $36 to $130 of parts, so with material and tier its prices span about 4x against the census's 114x, whose kits run from packs of 12 and 15 at about $4.50 to a p90 of $629; group noise loud enough to make up the rest would spread a kit's price about 79x on its own, so a kit draws none (widen the kit range: #76) | no further below than the figure `price.PINNED_FIGURES` records for each size, within `PIN_TOLERANCE` |
-
-The full reasons are `price.PINNED_SHORTFALLS`, and `stats.json` carries
-them in each row's `note`. A pin is never a wider band: a row that leaves its
+A declared reason lives in `price.PINNED_SHORTFALLS`, and `stats.json` carries
+it in the row's `note`. A pin is never a wider band: a row that leaves its
 band is declared, with a cause, or the model is fixed.
 `scripts/fit_price_model.py` refuses to write a fit that leaves a row out of
 band undeclared, or a pin that no longer holds. The tests hold the same two at

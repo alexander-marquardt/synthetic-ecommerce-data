@@ -1,15 +1,11 @@
 {
   "default": {
-    "price_pins": {
-      "price p90/p10: kit_assortment": 4.032
-    }
+    "price_pins": {}
   },
   "hundred_k": {
-    "lines": 71621,
-    "price_pins": {
-      "price p90/p10: kit_assortment": 3.917
-    },
-    "skus": 122883,
+    "lines": 71709,
+    "price_pins": {},
+    "skus": 123030,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -93,7 +89,7 @@
       "induction_heaters": 2,
       "key_stock": 965,
       "keyed_padlocks": 2,
-      "kit_assortment": 695,
+      "kit_assortment": 742,
       "lag_screws": 2,
       "lock_nuts_nylon_insert": 4513,
       "magnetic_bit_holders": 2,
@@ -118,7 +114,7 @@
       "rigid_casters": 2,
       "rigid_shaft_couplings": 2,
       "roll_pins": 2,
-      "roller_chain": 509,
+      "roller_chain": 609,
       "roller_chain_links": 769,
       "roller_chain_sprockets": 200,
       "safety_glasses": 1,

@@ -388,6 +388,7 @@ class Row:
     sibling: str = ""  # a special policy is proved on this sibling query
     target: str = ""  # the Sports & Outdoors product type whose word the title holds (gen#368)
     gift_type: str = ""  # the Gifts product type whose word the title holds (gen#425)
+    device_type: str = ""  # the Electronics product type whose word the title holds (gen#332)
     seeds: tuple[str, ...] = ()  # the homepage seed phrases the title or text holds whole (gen#460)
     seed: str = ""  # the two-word seed query the title holds whole (gen#461)
     pack: str = ""  # the pack_size the title names, when it differs from the Kind's (gen#461)
@@ -410,7 +411,12 @@ class Row:
     def style(self) -> Style:
         k = KINDS[self.kind]
         params = k.params + (((self.detail_param, COLORS[self.detail]),) if self.detail else ())
-        color = cw(self.color, COLORS.get(self.color, COLORS["Grey"]))
+        base = COLORS.get(self.color, COLORS["Grey"])
+        if k.pattern == "stripe":  # the record's pattern is the one the drawing shows (gen#605)
+            light = self.color in ("Cream", "White", "Yellow", "Pink", "Clear")
+            color = cw(self.color, base, "stripe", COLORS["Navy" if light else "White"])
+        else:
+            color = cw(self.color, base)
         return Style(
             self.code,
             self.title,

@@ -58,8 +58,9 @@ APPAREL_FAMILIES = "abusk"
 #: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
 #: leaves room to append the difference. The 26 footwear types left it in gen#427: a shoe is a
 #: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
-#: as a spec row. The three shoe-care products stay on it.
-LEGACY_CEILING = 298
+#: as a spec row. The three shoe-care products stay on it. Chips, beds and bomber jackets left it
+#: in gen#645 (three more types are specs).
+LEGACY_CEILING = 295
 
 
 class SpecError(ValueError):
