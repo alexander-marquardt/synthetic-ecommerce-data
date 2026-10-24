@@ -514,6 +514,8 @@ def _clone(
     keep = _retitled(keep)  # gen#511: a neckline the title's style forbids is drawn again
     if brand is not None:
         keep |= {"brand": brand, "brand_owner": BRAND_OWNER[brand]}
+    if line is not None:  # class 8: the word is the line's name
+        keep["product_line"] = line
     # gen#447: the exemplar's own named part (its "Red Collar", its black laces) is not the
     # clone's: only a class 1 title names one, and `detail` below draws it
     keep["drawing"] = {k: v for k, v in keep["drawing"].items()
@@ -782,9 +784,10 @@ def _restyle(cls, spec, exemplars, step, o, used, words):
     its style table, with that option. The word and color are the plan's: none carrying them is an
     error, never a different word."""
     n = len(exemplars)
+    want = o["word"] if cls == 8 else None
     for k in range(n):
         ex = exemplars[(step + k) % n]
-        for c in _candidates(cls, spec, ex, used, words, styled=True):
+        for c in _candidates(cls, spec, ex, used, words, styled=True, want=want):
             if (c["word"], c["color"]) == (o["word"], o["color"]):
                 return ex, c
     raise ValueError(
