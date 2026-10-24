@@ -173,8 +173,8 @@ def run_named(
     # The caller's pytest options (the local CI sets ``-n N --dist loadgroup``) must not
     # reach this run: under xdist a name that selects nothing exits 5, not 4, with no outcomes.
     env.pop("PYTEST_ADDOPTS", None)
-    # A tree run in its own environment must not be pointed at this checkout's.
-    env.pop("VIRTUAL_ENV", None)
+    # A tree run in its own environment must not be pointed at another one (uv run
+    # --project already ignores a VIRTUAL_ENV that is not the tree's).
     env.pop("UV_PROJECT_ENVIRONMENT", None)
     # The tree's own packages first: the editable install points at the checkout
     # that started this script, not at the commit being judged.
