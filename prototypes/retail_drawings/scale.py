@@ -142,6 +142,7 @@ import knit_sleeves  # noqa: E402
 import knitwear_rows  # noqa: E402
 import leaf_shapes  # noqa: E402
 import lighting_rows  # noqa: E402
+import line_grammar  # noqa: E402
 import lowerbody_rows  # noqa: E402
 import main_colors  # noqa: E402
 import mens_depth_rows  # noqa: E402
@@ -527,6 +528,8 @@ def clone_key(rec: dict) -> tuple:
     title, name = rec["title"], _line(rec)
     if name:
         title = re.sub(rf"\b{re.escape(name)}\b ?", "", title)
+    if line_grammar.family(rec):  # a brand-led model is its plain twin (gen#662)
+        title = re.sub(rf"^(Kids' )?{re.escape(rec['brand'])} ", r"\1", title)
     attrs = tuple(
         sorted((a["key"], str(a["value"])) for a in rec["attributes"] if a["key"] != "line")
     )
@@ -853,6 +856,7 @@ def build(skus: int, seed: int = 0) -> Scaled:
     for r in tpls:
         ctx.authored.setdefault(r["category_leaf"], []).append(r)
     ctx.names = _range_deal(tpls, brands)
+    ctx.grammar = line_grammar.deals(tpls, brands)
     template_of: dict[str, str] = {}
     total = sum(r["sku_count"] for r in records)
     lanes = {
@@ -901,6 +905,8 @@ class _Context:
     authored: dict[str, list[dict]] = field(default_factory=dict)
     #: the range names each brand owns (gen#623)
     names: range_ownership.Deal = field(default_factory=lambda: range_ownership.Deal("scale", ()))
+    #: family -> the model words each brand of a grammar family owns (gen#662)
+    grammar: dict[str, line_grammar.Deal] = field(default_factory=dict)
 
 
 def _bands(tpls: list[dict]) -> dict[str, tuple[float, float]]:
@@ -965,7 +971,9 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
     it matters.
 
     A style whose title-shown values the template or an earlier sibling already shows
-    differs in its hero color alone, so its title names it: "…, Sage"."""
+    differs in its hero color alone, so its title names it: "…, Sage", or "… in Tan" for a
+    dress shoe. A style of a :mod:`line_grammar` family takes a model its brand owns there and
+    the family's title shape (gen#662)."""
     leaf = tpl["category_leaf"]
     tid = tpl["product_id"]
     keys = variable_keys(tpl, ctx.pools)
@@ -994,7 +1002,9 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         if sig[0] in taken:  # the title names the color: the style IS that color
             colors = colors[:1]
         brand = pick(brands, *key, "brand")
-        name = ctx.names.owned(brand, number(*key, "name") % RANGE_SLOTS)
+        deal = ctx.grammar.get(line_grammar.family(tpl) or "")
+        slot = number(*key, "name") % RANGE_SLOTS
+        name = deal.owned(brand, slot) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
         target = price_point(min(max(price, lo), hi), lo, hi)
@@ -1007,8 +1017,10 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
             rec = derive(tpl, pid, name, brand, values, colors, owners, rng, ratio)
         except stable_ids.IdCollision:
             continue  # the drawn values merged two SKUs into one: not a product, so not drawn
+        if deal:
+            line_grammar.retitle(rec, tpl, number(*key, "grammar"))
         if sig[0] in taken and colors:
-            rec["title"] = f"{rec['title']}, {colors[0]}"
+            rec["title"] += line_grammar.color_suffix(rec, colors[0])
         if twin_key(rec) in used or rec["title"] in titles:
             continue
         if text_contradictions(standard_document(rec), ctx.text_pools):

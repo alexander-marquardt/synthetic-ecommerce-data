@@ -1,7 +1,7 @@
 """Bicycle model numbers and short-titled accessory decoys (gen#625, in the scheme of gen#622).
 
 Every bicycle leads its title with its brand, then the series, then the brand's model number,
-then the spec and the bike: "Wrenfield Swiftline RD28-18-26 28in 18 Speed Aluminum Road Bike". The
+then the spec and the bike: "Wrenfield Aero Elite RD28-18-26 28in 18 Speed Aluminum Road Bike". The
 model number is built from the kind, the wheel inches, the gears and the model year, and decodes
 back to the bike's own attributes. Next to the bikes sit accessories with short titles holding
 ``bicycle`` or ``bike``, each in its own Cycling leaf: on a plain BM25 match over the titles they
