@@ -5,7 +5,8 @@ color or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, Amer
 under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
 integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
 dryers, washer dryers). Three specs (`type_specs/fridge_freezer.py`, `dishwasher.py`,
-`laundry_appliance.py`) read `large_appliance_rows.py`; `kit_large_appliances.py` draws them.
+`laundry_appliance.py`) each hold their own family's kinds and row builder and share the helpers of
+`large_appliance_rows.py` (gen#659); `kit_large_appliances.py` draws them.
 Capacity, `item_width`, energy rating, place settings, noise and load are structured entries.
 Dishwashers and laundry are white, black or silver (`type_colors.py`); the retro 50/50 fridges
 carry the six main colors.
