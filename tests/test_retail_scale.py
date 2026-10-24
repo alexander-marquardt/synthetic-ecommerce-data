@@ -30,6 +30,7 @@ if str(RETAIL) not in sys.path:
 
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
+import line_grammar  # noqa: E402
 import range_ownership  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
@@ -1411,3 +1412,32 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
     brands must not own it, so the halves of the pool are disjoint. Metric: words in both halves."""
     halves = range_ownership.halves()
     assert set(halves["scale"]) & set(halves["grocery"]) == set()
+
+
+def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
+    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+
+
+def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
+    """Guard (gen#662): "Cloudrise" and "Swiftline" read as brands of their own. A model name
+    of a sport, dress or appliance style is made of its family's words, numbers and codes only.
+    Metric: the styles whose model name is not, with the name."""
+    off = [
+        (r["product_id"], r["brand"], line)
+        for r in _family_records(ceiling.records)
+        if (line := scale._line(r))
+        and not line_grammar.is_model(line_grammar.family(r), r["brand"], line)
+    ]
+    assert off[:10] == [], len(off)
+
+
+def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
+    """Guard (gen#662): a first name such as "Merlin" reads as a brand unless its brand stands
+    directly before it, so the dress styles that carry one say "Larkmoor Merlin Leather ...".
+    Metric: the name words elsewhere in a title, and the dress styles that carry one."""
+    family = _family_records(ceiling.records)
+    misplaced = [(r["title"], w) for r in family for w in line_grammar.name_word_misplaced(r)]
+    assert misplaced[:10] == []
+    named = [r for r in family if scale._line(r) in line_grammar.NAME_WORDS]
+    assert named and all(r["title"].startswith(f"{r['brand']} {scale._line(r)} ") for r in named)
