@@ -158,14 +158,16 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     assert not any(stray.values()), f"rows registered outside their spec: {stray}"
     # the decoys that share a spec type's name: the black bike pump stands in for "black pumps"
     # (DY37); two belts stand in for the seed phrases of gen#460 (DY460 jeans, DY485 brogues)
-    # the class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose, such as
-    # "Blue Bull Trainers" for the query "bull" (gen#427 made the shoe types specs), and a bomber
-    # jacket that stands in for a "bomber" word query (DY56, gen#311)
+    # and the class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose, such as
+    # "Blue Bull Trainers" for the query "bull" (gen#427 made the shoe types specs); a bomber
+    # jacket that stands in for a "bomber" word query (DY56, gen#311); and the swim shorts and
+    # towel set is the "beach towel" decoy in the swim shorts (DY6056, gen#605)
     assert out_of_spec == {
         "PLT-DY37",
         "PLT-DY460",
         "PLT-DY485",
         "PLT-DY56",
+        "PLT-DY6056",
         *SHOE_DECOYS,
     }, out_of_spec
 
