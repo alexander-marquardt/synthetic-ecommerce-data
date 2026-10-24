@@ -30,6 +30,7 @@ import scale  # noqa: E402
 #: named here that repeats is a defect.
 AUDIENCE_SPLIT = frozenset({
     ("Gifts", "Wallet Gift Sets"),
+    ("Kids", "Coats & Jackets"),
     ("Kids", "Jeans"),
     ("Kids", "Swimwear"),
     ("Kids", "Tracksuits"),

@@ -4,7 +4,7 @@
 and jackets, skirts and tops (camisoles, vest tops, tunics) as distinct products, each with fit,
 material and, where it applies, neckline and sleeve length. The floors are pinned by
 `tests/test_retail_womens_depth_310.py` over `scale.templates()`. The Mens slice is
-[retail-mens-depth.md](retail-mens-depth.md); knitwear is gen#309; Kids is a later slice.
+[retail-mens-depth.md](retail-mens-depth.md); knitwear is gen#309; the Kids slice is [retail-kids-depth.md](retail-kids-depth.md).
 
 | Group | Leaves | Floor |
 |---|---|---|
@@ -44,7 +44,7 @@ style it clones, so a policy that reads the fields still answers right.
 
 ## Not in this slice
 
-* Kids dresses and coats (the school uniform already holds about 100 products).
+* Kids dresses and coats: see [retail-kids-depth.md](retail-kids-depth.md).
 * Roots are still Womens, Mens and Kids as the tree names them; the rows are templates only, so
   `scale.derivable` leaves them out (`scale.WOMENS_DEPTH_IDS`) and the seeded derivation is what
   it was.

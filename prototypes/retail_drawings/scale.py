@@ -137,6 +137,7 @@ import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
+import kids_depth_rows  # noqa: E402
 import knit_sleeves  # noqa: E402
 import knitwear_rows  # noqa: E402
 import leaf_shapes  # noqa: E402
@@ -330,6 +331,8 @@ LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
 MENS_DEPTH_IDS = mens_depth_rows.product_ids()
 #: The Womens clothing depth (:mod:`womens_depth_rows`, gen#310): templates only.
 WOMENS_DEPTH_IDS = womens_depth_rows.product_ids()
+#: The Kids dresses and coats (:mod:`kids_depth_rows`, gen#310): templates only.
+KIDS_DEPTH_IDS = kids_depth_rows.product_ids()
 #: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
 KNITWEAR_IDS = knitwear_rows.product_ids()
 #: The neckline depth (:mod:`neckline_rows`, gen#181): templates only.
@@ -415,7 +418,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
-        *womens_depth_rows.docs(),
+        *womens_depth_rows.docs(), *kids_depth_rows.docs(),
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
         *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
@@ -437,8 +440,16 @@ def templates(baseline: bool = True) -> list[dict]:
             | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
     # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
     planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}
-    done = main_colors.complete(tpls, skip) if baseline else tpls
-    return sale_share.apply_all(done, DECOY_IDS | skip | planted)
+    # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
+    # another, so every other template, and the seeded fillers drawn from them, is as it was.
+    seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]
+    done = main_colors.complete(seeded, skip) if baseline else seeded
+    done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
+    # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
+    # Kids share holds its target, and nothing else moves.
+    done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())
+    by_id = {r["product_id"]: r for r in done}
+    return [by_id.get(r["product_id"], r) for r in tpls]
 
 
 def derivable(tpls: list[dict]) -> list[dict]:
@@ -455,6 +466,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
                 | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
                 | SCHOOL_IDS
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
+                | KIDS_DEPTH_IDS
                 | GARDEN_IDS | DECOR_IDS | NIKE_IDS
                 | NEEDS_IDS | CUPS_PLURAL_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
