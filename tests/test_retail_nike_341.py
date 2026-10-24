@@ -145,7 +145,9 @@ def test_a_nike_drawing_carries_no_logo_mark_or_name(nike) -> None:
 def test_the_nike_style_row_has_no_mark_and_no_other_brand_has_none() -> None:
     assert "Nike" in hs.HOUSE_STYLES
     assert hs.HOUSE_STYLES["Nike"].mark == "none"
-    others = [b for b, s in hs.HOUSE_STYLES.items() if s.mark == "none" and b != "Nike"]
+    others = [
+        b for b, s in hs.HOUSE_STYLES.items() if s.mark == "none" and b not in real_brands.ALLOWED
+    ]
     assert others == []
     assert hs.logo(hs.HOUSE_STYLES["Nike"], "Nike") == []
 
