@@ -88,8 +88,11 @@ def test_the_nodes_of_two_topics_merge_and_a_repeated_agreeing_noun_is_one_row(
         b={"cup": "Cups", "sock": "Socks"},
     )
     monkeypatch.syspath_prepend(str(tmp_path))
-    merged = decoy_true_nodes._load(folder, "planted_merge")
-    assert merged == {"cup": "Cups", "boot": "Boots", "sock": "Socks"}
+    try:
+        merged: object = decoy_true_nodes._load(folder, "planted_merge")
+    except ValueError as err:
+        merged = str(err)
+    assert merged =={"cup": "Cups", "boot": "Boots", "sock": "Socks"}
 
 
 def test_a_noun_two_topics_map_differently_raises_and_names_both(
