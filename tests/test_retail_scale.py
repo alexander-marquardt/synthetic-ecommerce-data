@@ -1451,11 +1451,12 @@ def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
 def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
     """Guard (gen#662): no title starts with a model or range name its brand does not precede,
     or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes"). A title
-    leads with its brand, after an optional "Kids' ". Metric: the titles that do not."""
+    leads with its brand, after an optional "Kids' ". Metric: the model-named titles that do not."""
     off = [
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
         if line_grammar.family(r) in ("sport", "dress")
+        and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)

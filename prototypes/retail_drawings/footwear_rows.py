@@ -382,7 +382,7 @@ WOMENS = (
                   (sh("White", "#fbfaf6", "white", "leather"), sh("Blush", "#e8b9b3", "pink", "leather"),
                    sh("Black", "#2a2a2e", "black", "leather")),
                   run("3", "8", 7.5), "Lace-Up", "Rubber", heel_mm=40, trending=True),
-    FootwearStyle("WRUNCR", "Speed 4 Neutral Road Running Shoes", "Stridewell", _W, "running", 95.0,
+    FootwearStyle("WRUNCR", "Stridewell Speed 4 Neutral Road Running Shoes", "Stridewell", _W, "running", 95.0,
                   "Neutral road running shoes with a soft foam midsole and a breathable mesh "
                   "upper. Reflective heel tab.",
                   (sh("Lilac Haze", "#b9a3d6", "pink", "mesh"), sh("Black Ice", "#24262b", "black", "mesh"),
@@ -538,7 +538,7 @@ KIDS_STYLES = (
                    sh("Black", "#2a2a2e", "black", "synthetic"), sh("White", "#fbfaf6", "white", "synthetic"),
                    sh("Orange", "#e8742a", "orange", "synthetic")),
                   INFANT_JUNIOR, "Hook & Loop", "Rubber", junior_price=22.0),
-    FootwearStyle("KRUNCR", "Kids' Speed 4 Road Running Shoes", "Stridewell", _K, "running", 45.0,
+    FootwearStyle("KRUNCR", "Kids' Stridewell Speed 4 Road Running Shoes", "Stridewell", _K, "running", 45.0,
                   "Lightweight running shoes for kids with a foam midsole and a mesh upper.",
                   (sh("Cobalt", "#2b56b5", "blue", "mesh"), sh("Black Ice", "#24262b", "black", "mesh"),
                    sh("Lilac Haze", "#b9a3d6", "pink", "mesh"),
