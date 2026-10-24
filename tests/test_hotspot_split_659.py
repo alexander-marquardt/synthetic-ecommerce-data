@@ -64,7 +64,7 @@ def test_a_family_table_is_in_its_spec_and_not_in_the_shared_module(table: str, 
     shared = (RD / "large_appliance_rows.py").read_text(encoding="utf-8")
     own = (RD / "type_specs" / f"{spec}.py").read_text(encoding="utf-8")
     assert table not in shared
-    assert table in own
+    assert re.search(rf"^{table} = \(", own, re.M), f"{spec}.py defines {table}"
 
 
 def _topic_package(tmp_path: Path, name: str, **modules: dict[str, str]) -> Path:
