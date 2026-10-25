@@ -350,3 +350,67 @@ def test_a_row_may_still_author_a_stainless_plating_deliberately():
     chosen = {"Material": "Stainless Steel", "Finish": "Zinc Plated"}
     breadth._apply_finish_follows_material(chosen, row, __import__("random").Random(0))
     assert chosen["Finish"] == "Zinc Plated"
+
+
+# -- a breadth row joins the node that already names its kind (#658) ----------
+
+
+def _node_names(node: str) -> set[str]:
+    """The kinds a grouping node names: ``Bolts, Screws & Cap Screws`` names
+    Bolts, Screws and Cap Screws."""
+    return {part.strip() for part in re.split(r",|&", node) if part.strip()}
+
+
+def _rows_opening_a_sibling_of_a_named_kind() -> dict[str, tuple[str, ...]]:
+    """Each breadth row whose grouping node is spelled like one kind a sibling
+    node (another type's) names, without being that node: the row opened a
+    second ``Screws`` beside ``Bolts, Screws & Cap Screws``."""
+    paths = [(key, path) for key, paths_ in taxonomy.LEAVES.items() for path in paths_]
+    found: dict[str, tuple[str, ...]] = {}
+    for row in breadth.rows():
+        for other_key, other in paths:
+            if other_key == row.key:
+                continue
+            for depth in range(1, len(row.category)):
+                if (
+                    len(other) > depth
+                    and other[:depth] == row.category[:depth]
+                    and other[depth] != row.category[depth]
+                    and row.category[depth] in _node_names(other[depth])
+                ):
+                    found[row.key] = row.category
+    return found
+
+
+#: Rows that still open such a sibling node, tracked apart from #658 (which is
+#: lag screws alone). The test below fails when a row on this list stops
+#: opening one, so the list only shrinks.
+STILL_OPENING_A_SIBLING = frozenset(
+    {
+        "carriage_bolts",
+        "sems_bolts",
+        "combination_wrenches",
+        "spanner_wrenches",
+        "fastener_extractors",
+    }
+)
+
+
+def test_a_breadth_row_never_opens_a_sibling_node_for_a_kind_a_node_already_names():
+    opened = _rows_opening_a_sibling_of_a_named_kind()
+    assert set(opened) == STILL_OPENING_A_SIBLING, {
+        "new": {key: opened[key] for key in set(opened) - STILL_OPENING_A_SIBLING},
+        "fixed, drop from the list": sorted(STILL_OPENING_A_SIBLING - set(opened)),
+    }
+
+
+def test_lag_screws_sit_with_the_other_screws_and_no_screws_node_is_emitted():
+    by_key = {row.key: row for row in breadth.rows()}
+    assert by_key["lag_screws"].category == (
+        "Fasteners",
+        "Bolts, Screws & Cap Screws",
+        "Lag Screws",
+    )
+    nodes = {path[:2] for paths in taxonomy.LEAVES.values() for path in paths}
+    assert ("Fasteners", "Screws") not in nodes
+    assert ("Fasteners", "Set Screws") in nodes, "Set Screws stays a sibling node (#658)"
