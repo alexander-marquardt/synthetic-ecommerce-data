@@ -1426,7 +1426,8 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
-    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+    skip = scale.NIKE_IDS | scale.SEASONAL_IDS | scale.COLORWORD_IDS  # real brands and decoy rows
+    return [r for r in records if line_grammar.family(r) and r["product_id"] not in skip]
 
 
 def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
@@ -1470,6 +1471,7 @@ def test_a_family_title_leads_with_its_brand(ceiling):
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
         if line_grammar.family(r) in (*line_grammar.NUMBERED, "dress")
+        and not getattr(line_grammar._NUMBERED.get(line_grammar.family(r)), "mixed_brand", False)
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
@@ -1511,7 +1513,7 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     (``NAME_WORDS``), no coined range word (:mod:`range_ownership`), no word of a brand and no word
     of another family's models. Each kind names one family. Metric: the words and kinds that are
     not."""
-    leads = {n: f.leads for n, f in _PLAIN.items()}
+    leads = {n: (*f.leads, *f.grocery_leads) for n, f in _PLAIN.items()}
     sport = line_grammar_families.families()["sport"]
     words = [w for fam in leads.values() for w in fam]
     assert len(words) == len(set(words))  # a word is one family's
@@ -1524,7 +1526,8 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     kinds = [k for f in _PLAIN.values() for k in f.kinds]
     assert len(kinds) == len(set(kinds))
     assert set(leads) == set(_PLAIN)
-    assert all(len(ws) >= 20 for ws in leads.values())  # a brand of a family needs a few
+    # a brand of a family needs a few: a bare food family deals two halves of about a dozen
+    assert all(len(ws) >= (10 if _PLAIN[n].bare else 20) for n, ws in leads.items())
 
 
 def test_a_numbered_family_model_has_a_number_after_its_lead_word():
