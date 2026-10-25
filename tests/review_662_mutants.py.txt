@@ -5,7 +5,7 @@
 
 SC_T = "tests/test_retail_scale.py::"
 VOCAB = SC_T + "test_a_family_model_name_is_built_from_its_family_vocabulary"
-LEAD = SC_T + "test_a_sport_or_dress_title_leads_with_its_brand"
+LEAD = SC_T + "test_a_family_title_leads_with_its_brand"
 AFTER = SC_T + "test_a_name_like_model_word_comes_directly_after_the_brand"
 SHARED = SC_T + "test_a_range_word_belongs_to_one_brand"
 
