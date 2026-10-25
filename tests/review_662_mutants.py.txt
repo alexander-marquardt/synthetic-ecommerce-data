@@ -11,8 +11,9 @@ SHARED = SC_T + "test_a_range_word_belongs_to_one_brand"
 CARE_LEAD = SC_T + "test_a_cleaning_or_beauty_title_leads_with_its_brand"
 CARE_ONE = SC_T + "test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand"
 CARE_WORDS = SC_T + "test_the_family_vocabularies_share_no_word_with_each_other_or_a_name"
+NEAR = SC_T + "test_the_grocery_styles_hold_their_own_near_duplicate_cap"
 
-TESTS = [VOCAB, AFTER, SHARED, LEAD, CARE_LEAD, CARE_ONE, CARE_WORDS]
+TESTS = [VOCAB, AFTER, SHARED, LEAD, CARE_LEAD, CARE_ONE, CARE_WORDS, NEAR]
 
 LG = "prototypes/retail_drawings/line_grammar.py"
 SC = "prototypes/retail_drawings/scale.py"
@@ -42,4 +43,6 @@ MUTANTS = [
      "the scale and grocery builds deal the same lead words to different brands", [CARE_ONE]),
     (LG, '    "Lasting", "Perfect",', '    "Gentle", "Perfect",',
      "a lead word sits in two families", [CARE_WORDS]),
+    (LG, "        if self.fam in CARE:\n            # A care model", "        if False:\n            # A care model",
+     "a care brand's models differ in one token again, so the grocery near-duplicates pass 4%", [NEAR]),
 ]

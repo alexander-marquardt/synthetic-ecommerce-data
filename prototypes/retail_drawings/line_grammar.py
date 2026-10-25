@@ -202,9 +202,17 @@ class Deal:
         word, k = mine[slot % len(mine)], slot // len(mine)
         if self.fam not in LEADS:
             return word
-        subs = SUBS[self.fam]
-        sub = (None, *subs)[(k // len(GENERATIONS)) % (len(subs) + 1)]
-        gen = GENERATIONS[k % len(GENERATIONS)]
+        subs = (None, *SUBS[self.fam])
+        if self.fam in CARE:
+            # A care model sits in a short title, so two of one brand's models that differ in a
+            # single token read as one listing (Jaccard 0.8). The sub-model and the generation
+            # both move with each reuse of a word and with the word's place in the brand's list.
+            shift = slot % len(mine) + k
+            sub = subs[shift % len(subs)]
+            gen = GENERATIONS[(shift + k // (len(subs) * 4)) % len(GENERATIONS)]
+        else:
+            sub = subs[(k // len(GENERATIONS)) % len(subs)]
+            gen = GENERATIONS[k % len(GENERATIONS)]
         return " ".join(str(p) for p in (word, sub, gen) if p)
 
 
