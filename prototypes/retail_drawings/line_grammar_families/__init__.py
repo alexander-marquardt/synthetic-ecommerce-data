@@ -17,6 +17,13 @@ lead word, an optional sub-model and a number or a code ("Tempo Pro 3") is now a
     The sub-model words that may follow the lead (optional).
 ``NUMBERS``
     The generations a model is in: a model ends in one of them, or in a code.
+``GROCERY_LEADS``
+    A second lead half (optional): the grocery build deals it, the scale build deals ``LEADS``,
+    so one word belongs to one brand across both builds (gen#642, gen#665). Checked like ``LEADS``.
+``BARE``
+    True when the lead word alone is a model (optional, gen#665).
+``MIXED_BRAND``
+    True when a title leads with its brand in two of three draws, not always (optional, gen#665).
 
 The module name is the family's name. Modules are read in the order of their names; a file here
 that lacks ``KINDS``, ``LEADS`` or ``NUMBERS`` is refused, because a file the grammar would skip is
@@ -70,7 +77,8 @@ def families(core_kinds: Iterable[str] = (), reserved: Iterable[str] = ()) -> di
                     f"kind {kind!r} of {module.__name__} is also in {taken_kinds[kind]}"
                 )
             taken_kinds[kind] = module.__name__
-        for lead in module.LEADS:
+        grocery_leads = tuple(getattr(module, "GROCERY_LEADS", ()))
+        for lead in (*module.LEADS, *grocery_leads):
             if lead in banned:
                 raise ValueError(
                     f"lead word {lead!r} of {module.__name__} is a name-like word: it reads as a"
@@ -87,5 +95,8 @@ def families(core_kinds: Iterable[str] = (), reserved: Iterable[str] = ()) -> di
             tuple(module.LEADS),
             tuple(getattr(module, "SUBS", ())),
             tuple(getattr(module, "NUMBERS", ())),
+            grocery_leads,
+            bool(getattr(module, "BARE", False)),
+            bool(getattr(module, "MIXED_BRAND", False)),
         )
     return found

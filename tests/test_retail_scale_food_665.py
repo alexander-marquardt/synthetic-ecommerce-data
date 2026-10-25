@@ -72,9 +72,10 @@ def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceili
     """Guard (gen#665, #642): the lead words of the food families are no sub-model, name, sport
     lead or brand, no word is in two families or in both builds' halves, and in the catalogue
     one brand holds a lead word. Metric: the shared words, and the lead words of two brands."""
-    halves = [w for fam in line_grammar.FOOD_LEADS.values() for half in fam.values() for w in half]
+    specs = [line_grammar._NUMBERED[f] for f in ("pantry", "drink", "alcohol")]
+    halves = [w for s in specs for w in (*s.leads, *s.grocery_leads)]
     assert len(halves) == len(set(halves))
-    subs = {w for words in line_grammar.FOOD_SUBS.values() for w in words}
+    subs = {w for s in specs for w in s.subs}
     sport = line_grammar_families.families()["sport"].leads
     others = subs | set(line_grammar.NAME_WORDS) | set(sport)
     brands = {r["brand"] for r in ceiling.records}
@@ -91,12 +92,13 @@ def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceili
 
 
 def test_the_documented_food_example_words_are_real_lead_words():
-    """Guard (gen#665): the model word in the line_grammar docstring's food example is one of the
-    FOOD_LEADS words, so the docs do not teach a word the build never draws. Metric: the example
+    """Guard (gen#665): the model word in the pantry module's docstring example is one of the
+    food lead words, so the docs do not teach a word the build never draws. Metric: the example
     words ("Basics", "Finest") and the docstring title's model word that are in no lead list."""
-    doc = line_grammar.__doc__ or ""
-    leads = {w for fam in line_grammar.FOOD_LEADS.values() for half in fam.values() for w in half}
-    quoted = re.search(r"food and drink[^\n]*\n\s*\(``(\w+)``, ``(\w+)``\)", doc)
+    doc = line_grammar_families.pantry.__doc__ or ""
+    spec = line_grammar._NUMBERED["pantry"]
+    leads = {*spec.leads, *spec.grocery_leads}
+    quoted = re.search(r"own-label word \(``(\w+)``, ``(\w+)``\)", doc)
     title = re.search(r'"Hollin (\w+) Reserve 2 Strawberry Jam', doc)
     assert quoted and title
     missing = [w for w in (*quoted.groups(), title.group(1)) if w not in leads]

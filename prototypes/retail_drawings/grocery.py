@@ -155,9 +155,15 @@ SHAPES = {
     ("BUT", "Plant Spread"): "lidded_tub",
 }
 #: What a punnet holds, by the VEG variety (``kit.PRODUCE``).
-PUNNET = {"Cherry Tomatoes": "tomato", "Baby Carrots": "carrot", "Mint": "herb",
-          "Button Mushrooms": "mushroom", "Green Beans": "bean",
-          "Sweet Peppers": "pepper", "Baby Spinach": "herb"}
+PUNNET = {
+    "Cherry Tomatoes": "tomato",
+    "Baby Carrots": "carrot",
+    "Mint": "herb",
+    "Button Mushrooms": "mushroom",
+    "Green Beans": "bean",
+    "Sweet Peppers": "pepper",
+    "Baby Spinach": "herb",
+}
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -255,7 +261,7 @@ def _common(lists) -> list[str]:
 
 
 def _available(packs: list[dict]) -> str:
-    """"Available as 100g, 4 x 35g and 200g.": the pack sizes in a sentence, never a field list."""
+    """ "Available as 100g, 4 x 35g and 200g.": the pack sizes in a sentence, never a field list."""
     sizes = [p["pack_size"].replace("Single", "single") for p in packs]
     if len(sizes) == 1:
         return f"Sold as {sizes[0]}."
@@ -463,7 +469,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
             # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1";
             # the tier needs the numbers to reach its budget (gen#376), so it keeps them.
-            reach = len(deal.of(brand)) * (1 + len(line_grammar.FOOD_SUBS[deal.fam]))
+            reach = len(deal.of(brand)) * (1 + len(deal.spec.subs))
             short = fam.path[1] == PRODUCE and not tier
             model = deal.owned(brand, slot % reach if short else slot)
         else:
@@ -500,8 +506,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
             continue
         fam = fams[code]
         flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
-        add(fam, offset, fam.brands[offset % len(fam.brands)],
-            flavors, list(fam.packs), may, False)
+        add(fam, offset, fam.brands[offset % len(fam.brands)], flavors, list(fam.packs), may, False)
     rng = core_rng
     if tier:
         rng = random.Random(f"grocery-tier:{seed}")
@@ -602,8 +607,11 @@ def coverage_report(recs: list[dict]) -> dict[str, Any]:
     food = sentence_case("Food & Drink")  # the published (sentence case) root, gen#499
     rows = [r for r in flat(documents(recs)) if r["category_path"][0] == food]
     filled = sum(bool(r["facets"].get("contains")) for r in rows)
-    return {"food_rows": len(rows), "contains_filled": filled,
-            "contains_share": round(filled / len(rows), 4) if rows else 0.0}
+    return {
+        "food_rows": len(rows),
+        "contains_filled": filled,
+        "contains_share": round(filled / len(rows), 4) if rows else 0.0,
+    }
 
 
 def ingredient_report(recs: list[dict]) -> dict[str, Any]:
@@ -628,8 +636,17 @@ def main(argv: list[str] | None = None) -> int:
     recs = build(args.skus, args.seed)
     docs = documents(recs)
     problems = standard.check_catalog(docs)
-    print(json.dumps({**report(recs), **ingredient_report(recs),
-                      **coverage_report(recs), "standard_problems": len(problems)}, indent=1))
+    print(
+        json.dumps(
+            {
+                **report(recs),
+                **ingredient_report(recs),
+                **coverage_report(recs),
+                "standard_problems": len(problems),
+            },
+            indent=1,
+        )
+    )
     if args.out:
         args.out.mkdir(parents=True, exist_ok=True)
         write_jsonl(iter(docs), args.out / "nested.jsonl")
