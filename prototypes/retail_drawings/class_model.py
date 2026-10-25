@@ -410,7 +410,7 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Red Plover", "Blue Otter", "Green Stoat", "Yellow Wagtail", "Black Lapwing",
                 "White Dormouse", "Jumper Jay", "Coat Crake",
                 # Place names that hold a garment word; each is its class 6 decoy's brand (gen#663).
-                "Jumper Lane", "Coat Hook", "Shirt Row", "Dress Circle", "Boot Hill",
+                "Jumper Lane", "Coat Hook", "Shirt Mews", "Dress Circle", "Boot Hill",
                 "Skirt Point", "Jacket Quay", "Sock Hop", "Shoe Lane", "Cardigan Bay",
                 "Blazer Court", "Slipper Brook", "Sandal Wood", "Pump Lane", "Slip Road",
                 # A real brand, text only (real_brands.ALLOWED, gen#341); another house's make.

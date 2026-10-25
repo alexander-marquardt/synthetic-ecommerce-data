@@ -427,7 +427,7 @@ ABSENT = (("Leather-Look", "leather", "A finish made to look like leather; it ho
 #: holds it as a model name and "Cardigan Bay Running Shoes" does not read as a brand-led model.
 #: At least twelve, for Jeans (twelve per class).
 CATEGORY_RANGES = (("Jumper Lane", "a village lane"), ("Coat Hook", "a headland"),
-                   ("Shirt Row", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
+                   ("Shirt Mews", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
                    ("Boot Hill", "a wooded hill"), ("Skirt Point", "a rocky point"),
                    ("Jacket Quay", "a harbour quay"), ("Sock Hop", "a village dance"),
                    ("Shoe Lane", "a lane by the old market"), ("Cardigan Bay", "a wide bay"),

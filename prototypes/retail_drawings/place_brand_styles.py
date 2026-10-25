@@ -114,7 +114,7 @@ hs.MARKS.update(NEW_MARKS)
 STYLES = {
     "Jumper Lane":   H("#f4f1ea", "none",     "thin",    "#8a5a2b", "#3a2a18", 1.0,  False, "round", "pl_lane",   "mark_left",  "top_left",      "none", "humanist", 700, "title",     0.15),
     "Coat Hook":     H("#eef2f5", "lines",    "double",  "#3b5b78", "#1f2f3f", 1.1,  False, "sharp", "pl_hook",   "mark_above", "top_center",    "none", "serif",    700, "title",     0.25),
-    "Shirt Row":     H("#fbf3e6", "dots",     "none",    "#b5651d", "#4a2b10", 0.9,  False, "round", "pl_row",    "mark_right", "bottom_left",   "none", "sans",     400, "title",     0.35),
+    "Shirt Mews":    H("#fbf3e6", "dots",     "none",    "#b5651d", "#4a2b10", 0.9,  False, "round", "pl_row",    "mark_right", "bottom_left",   "none", "sans",     400, "title",     0.35),
     "Dress Circle":  H("#f6eef3", "none",     "rounded", "#8e3b6e", "#3d1a30", 0.8,  False, "round", "pl_seats",  "badge",      "bottom_center", "none", "serif",    400, "smallcaps", 0.45),
     "Boot Hill":     H("#eef3ea", "hatch",    "heavy",   "#4c7a34", "#22361a", 1.3,  False, "sharp", "pl_hill",   "band_bottom","bottom_center", "none", "mono",     700, "title",     0.55),
     "Skirt Point":   H("#fdf0ee", "diagonal", "thin",    "#c04a3a", "#4a1d17", 1.0,  True,  "sharp", "pl_point",  "pill",       "top_right",     "none", "sans",     700, "smallcaps", 0.65),
