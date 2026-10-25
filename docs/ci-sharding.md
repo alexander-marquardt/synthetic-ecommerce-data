@@ -98,6 +98,19 @@ tests) is skipped: the same files run in the shards. `GEN_GITHUB_CI=1` makes it 
 `--local-ci` stays as the fallback when GitHub is down or out of minutes; both print
 `gen-merge-minutes` at the end.
 
+## Superseded runs are cancelled (#614)
+
+`ci.yaml` has a `concurrency` block, so a merge batch queues one main run, not one per merge:
+
+| Run | Group | Cancelled by a newer run of the group |
+| --- | --- | --- |
+| push to `main` | `ci-refs/heads/main` | yes: the newest main commit is the one that answers "is main green" |
+| pull request | `ci-pr-<number>` | yes: only the newest head of a pull request matters |
+| dispatched (`--github-ci`) | `ci-run-<run id>` | no: the group is the run's own, so a merge check is never cancelled |
+
+A cancelled main run is a superseded run, not a red one. `tests/test_ci_runs_on_596.py` reads the
+block and evaluates the group and `cancel-in-progress` for each kind of run.
+
 The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
 `bash scripts/merge_pr.sh --local-ci $n`; switching it is replacing `--local-ci` with
 `--github-ci` on that line.
