@@ -118,7 +118,7 @@ def test_every_type_has_three_decoys_per_class_in_the_built_catalog(
     assert grouped and set(grouped) == {t.product_type for t in da.TYPES}
     assert {r.pid for r in rows} == da.IDS == {p for p in by_id if p in da.IDS}
     for ptype, rs in grouped.items():
-        for cls in (1, 2, 3, 4, 5, 6, 7):
+        for cls in (1, 2, 3, 4, 6, 7):  # class 5 is retired (#663)
             n = sum(r.cls == cls for r in rs)
             assert n >= 3, (ptype, cls, n)
         assert all(by_id[r.pid]["product_type"] == ptype for r in rs), ptype
@@ -143,9 +143,6 @@ def test_each_decoys_fields_contradict_its_misleading_word(
             assert AUDIENCE_ROOT[r.word] != doc["category_path"][0], (r.pid, r.word)
         elif r.cls == 4:
             assert r.word not in _text(doc), (r.pid, r.word)
-        elif r.cls == 5:
-            assert r.word not in doc["title"].lower(), (r.pid, r.word)
-            assert colors == {r.word.title()}, (r.pid, r.word, colors)
 
 
 def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(

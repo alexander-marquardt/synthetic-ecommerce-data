@@ -30,7 +30,7 @@ no value to it. Sizes are the school ages ("3-4 Yrs" to "15-16 Yrs"), six of the
 ## Text-match decoys (gen#294)
 
 The new rows add no decoys of their own. Dress and Coat are planned in `decoy_apparel` (gen#311),
-three per class for each of seven classes. The new rows are not exemplars for those decoys
+three per class for each of six classes. The new rows are not exemplars for those decoys
 (`decoy_apparel.build`): a type's decoys clone the first exemplars of its pool in product-id order,
 and with the new ids in the pool the Womens dress decoys moved into the Kids leaves.
 
