@@ -31,6 +31,7 @@ if str(RETAIL) not in sys.path:
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import line_grammar  # noqa: E402
+import plain_models  # noqa: E402
 import range_ownership  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
@@ -1427,12 +1428,20 @@ def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
     """Guard (gen#662): "Cloudrise" and "Swiftline" read as brands of their own. A model name
     of a sport, dress or appliance style is made of its family's words, numbers and codes only.
-    Metric: the styles whose model name is not, with the name."""
+    A home, gifts, garden or toys style a brand authored keeps its own range name, which stands
+    directly after the brand (gen#664). Metric: the styles whose model name is not, with the
+    name."""
+    authored = {line for r in scale.templates() if (line := scale._line(r))}
     off = [
         (r["product_id"], r["brand"], line)
         for r in _family_records(ceiling.records)
         if (line := scale._line(r))
         and not line_grammar.is_model(line_grammar.family(r), r["brand"], line)
+        and not (
+            line_grammar.family(r) in plain_models.KINDS
+            and line in authored
+            and r["title"].startswith(f"{r['brand']} {line} ")
+        )
     ]
     assert off[:10] == [], len(off)
 
@@ -1448,14 +1457,15 @@ def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
     assert named and all(r["title"].startswith(f"{r['brand']} {scale._line(r)} ") for r in named)
 
 
-def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
-    """Guard (gen#662): no title starts with a model or range name its brand does not precede,
-    or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes"). A title
-    leads with its brand, after an optional "Kids' ". Metric: the model-named titles that do not."""
+def test_a_family_title_leads_with_its_brand(ceiling):
+    """Guard (gen#662, gen#664): no title starts with a model or range name its brand does not
+    precede, or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes",
+    "Beam 300 Fabric Shade Floor Lamp"). A title leads with its brand, after an optional "Kids' ".
+    Metric: the model-named titles of a numbered or dress family that do not."""
     off = [
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
-        if line_grammar.family(r) in ("sport", "dress")
+        if line_grammar.family(r) in (*line_grammar.NUMBERED, "dress")
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
@@ -1487,3 +1497,37 @@ def test_a_home_gifts_garden_or_toys_title_does_not_lead_with_a_range_name(ceili
         and r["title"].startswith(f"{line} ")
     )
     assert dict(led) == {}
+
+
+def test_the_plain_model_words_are_plain_and_belong_to_one_family():
+    """Guard (gen#664): a lead word is a plain English word, so it is no first name or place word
+    (``NAME_WORDS``), no coined range word (:mod:`range_ownership`), no word of a brand and no word
+    of another family's models. Each kind names one family. Metric: the words and kinds that are
+    not."""
+    leads = plain_models.LEADS
+    words = [w for fam in leads.values() for w in fam]
+    assert len(words) == len(set(words))  # a word is one family's
+    brand_words = {w for r in scale.templates() for w in re.findall(r"[A-Za-z]+", r["brand"])}
+    named = {*line_grammar.NAME_WORDS, *line_grammar.SPORT_LEADS, *plain_models.SUBS, *brand_words}
+    assert sorted(set(words) & named) == []
+    assert sorted(set(words) & set(range_ownership.candidates())) == []
+    assert all(w.isalpha() and w.istitle() for w in words)
+    kinds = [k for ks in plain_models.KINDS.values() for k in ks]
+    assert len(kinds) == len(set(kinds))
+    assert set(leads) == set(plain_models.KINDS)
+    assert all(len(ws) >= 20 for ws in leads.values())  # a brand of a family needs a few
+
+
+def test_a_numbered_family_model_has_a_number_after_its_lead_word():
+    """Guard (gen#664): "Beam" alone is a word, "Beam 300" a model, so a model is a lead word then
+    a sub-model or a number, at least one, and its number is one the family carries. Metric: the
+    models of the cases below that ``is_model`` judges wrong."""
+    assert line_grammar.is_model("lighting", "B", "Beam 300")
+    assert line_grammar.is_model("soft", "B", "Cloud Plus 3")
+    assert not line_grammar.is_model("lighting", "B", "Beam")
+    assert not line_grammar.is_model("lighting", "B", "Cloud 3")  # a soft lead word
+    assert not line_grammar.is_model("lighting", "B", "Beam Esk")
+    deal = line_grammar.Deal("toys", ["A", "B"], {})
+    models = {deal.owned(b, slot) for b in ("A", "B") for slot in range(scale.RANGE_SLOTS)}
+    assert len(models) == 2 * scale.RANGE_SLOTS  # no model is two brands' or twice one brand's
+    assert all(line_grammar.is_model("toys", "A", m) for m in models)
