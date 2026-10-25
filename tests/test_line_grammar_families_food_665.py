@@ -79,9 +79,9 @@ def test_a_probe_module_with_the_three_attributes_yields_a_family_with_those_fie
     got = json.loads(done.stdout)
     assert got["fields"] == [["Zzshop", "Zzbasket"], True, True]
     assert got["bare_model"] is True, "BARE: the lead word alone is a model"
-    assert got["grocery_word"] is False, "is_model reads the scale half"
+    assert got["grocery_word"] is True, "is_model accepts both lead halves"
     assert got["shop"] == ["Zzbasket", "Zzshop"] and got["scale"] == ["Zzother", "Zzscale"]
-    assert got["owned"][0] in ("Zzshop", "Zzbasket") and got["owned"][2].split()[-1] == "Pro"
+    assert got["owned"][0] in ("Zzshop", "Zzbasket") and got["owned"][1].split()[-1] == "Pro"
     assert 0 < sum(got["led"]) < 30
     for led, title in zip(got["led"], got["titles"], strict=True):
         assert title == ("Acme Zzscale Probe Jam" if led else "Zzscale Probe Jam"), title
