@@ -175,9 +175,7 @@ class TitleMixin:
         descriptive = voice.descriptive
         segments: list[Segment] = []
         if draft.bare_title:
-            return build_title(
-                draft.item, (), cap=self.config.title_length_cap, tight_delimiter_at=None
-            )
+            return build_title(draft.item, (), cap=self.config.title_length_cap)
 
         # The type's KEY dimension, when the variant axis is something else
         # (a bearing's closure, a wheel's grit): the census core of a title
@@ -250,18 +248,12 @@ class TitleMixin:
                 Segment(value=quantity, label=voice.pack_label, attribute="Units per Pack")
             )
 
-        tight = (
-            min(int(voice.tight_at * len(segments)), len(segments) - 1)
-            if segments and voice.tight_at is not None
-            else None
-        )
         qualifier = voice.qualifier[STANDARDS_FAMILY[draft.type_key]]
         item = f"{qualifier} {draft.item}" if qualifier else draft.item
         return build_title(
             f"{draft.brand} {item}" if voice.brand_first else item,
             tuple(segments),
             cap=self.config.title_length_cap,
-            tight_delimiter_at=tight,
         )
 
     def _identifying_attribute(self, published: list[list[Attribute]]) -> str | None:
@@ -406,14 +398,8 @@ class TitleMixin:
                 )
                 at = min(1, len(title.segments))
                 segments = (*title.segments[:at], segment, *title.segments[at:])
-                tight = title.tight_delimiter_at
-                if tight is not None and tight >= at:
-                    tight += 1
                 titles[index] = build_title(
-                    title.item,
-                    segments,
-                    cap=self.config.title_length_cap,
-                    tight_delimiter_at=tight,
+                    title.item, segments, cap=self.config.title_length_cap
                 )
                 self._bump("title_disambiguated")
         return titles

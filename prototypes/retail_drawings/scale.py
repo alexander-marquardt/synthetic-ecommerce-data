@@ -425,6 +425,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     body = _state_lines(body)  # gen#623: a range a row carries is also its Line
+    body = line_grammar.lead_with_brand(body, _line)  # gen#664: a model follows its brand
     if baseline:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]

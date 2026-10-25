@@ -1,6 +1,7 @@
 """Prove the new tests bite, by breaking the code they guard.
 
     python scripts/mutation_check.py
+    python scripts/mutation_check.py --list [--only SUBSTRING]
 
 A test that passes tells you nothing on its own: it might be asserting
 something that cannot fail. So each mutation below plants a specific, plausible
@@ -32,8 +33,9 @@ REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "src" / "synthetic_ecommerce_data"
 
 
-#: Every mutation of the bed: ``scripts/mutations/*.py`` and the rows of ``scripts/mutation_rows_*.py``,
-#: both found by glob (``mutation_row.all_mutations``), so no mutation is listed in this module (#539).
+#: Every mutation of the bed: ``scripts/mutations/*.py`` and the rows of
+#: ``scripts/mutation_rows_*.py``, both found by glob (``mutation_row.all_mutations``), so no
+#: mutation is listed in this module (#539).
 MUTATIONS: list[Mutation] = mutation_row.all_mutations()
 
 
@@ -139,9 +141,19 @@ def _mutation_is_live(path: Path, mutation: Mutation) -> bool:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--only", help="substring filter on the mutation name")
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="print the mutation names, one per line in bed order; run nothing",
+    )
     args = parser.parse_args(argv)
 
     mutations = [m for m in MUTATIONS if not args.only or args.only in m.name]
+
+    if args.list:
+        for mutation in mutations:
+            print(mutation.name)
+        return 0
 
     print("checking the suite is green before mutating ...")
     for selector in sorted({s for m in mutations for s in m.selectors}):
