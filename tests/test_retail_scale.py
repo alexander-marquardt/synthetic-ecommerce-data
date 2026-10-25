@@ -1448,14 +1448,14 @@ def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
     assert named and all(r["title"].startswith(f"{r['brand']} {scale._line(r)} ") for r in named)
 
 
-def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
-    """Guard (gen#662): no title starts with a model or range name its brand does not precede,
+def test_a_sport_dress_cleaning_or_beauty_title_leads_with_its_brand(ceiling):
+    """Guard (gen#662, #666): no title starts with a model or range name its brand does not precede,
     or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes"). A title
     leads with its brand, after an optional "Kids' ". Metric: the model-named titles that do not."""
     off = [
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
-        if line_grammar.family(r) in ("sport", "dress")
+        if line_grammar.family(r) in ("sport", "dress", *line_grammar.CARE)
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
@@ -1519,3 +1519,32 @@ def test_a_cleaning_or_beauty_model_is_built_from_its_family_vocabulary(ceiling)
         )
     ]
     assert off[:10] == [], len(off)
+
+
+def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
+    """Guard (gen#666): a lead word in two families is one word under two kinds of product, and
+    a first name reads as a brand. Metric: the words in two vocabularies, and the lead words that
+    are also name words or that fall in both halves a build deals."""
+    leads = line_grammar.LEADS
+    seen: dict[str, str] = {}
+    twice = {
+        w: (seen[w], fam)
+        for fam, words in leads.items()
+        for w in words
+        if seen.setdefault(w, fam) != fam
+    }
+    assert twice == {}
+    assert {w for words in leads.values() for w in words} & set(line_grammar.NAME_WORDS) == set()
+    for fam in line_grammar.CARE:
+        scale_half = set(leads[fam][line_grammar.HALVES["scale"] :: 2])
+        grocery_half = set(leads[fam][line_grammar.HALVES["grocery"] :: 2])
+        assert scale_half and grocery_half and not scale_half & grocery_half
+
+
+def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):
+    """Guard (gen#666, gen#642): a lead word under two brands reads as a range of neither.
+    Metric: the lead words of cleaning and beauty styles with the brands that carry them."""
+    brands: dict[str, set[str]] = {}
+    for r in _care_records(ceiling.records):
+        brands.setdefault(scale._line(r).split()[0], set()).add(r["brand"])
+    assert {w: sorted(b) for w, b in brands.items() if len(b) > 1} == {}
