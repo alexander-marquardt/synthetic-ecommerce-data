@@ -9,6 +9,7 @@ through ``self``.
 from __future__ import annotations
 
 import functools
+import hashlib
 import random
 from dataclasses import replace
 
@@ -23,7 +24,10 @@ from synthetic_ecommerce_data.core.model import (
 )
 from synthetic_ecommerce_data.core.naming import (
     Title,
+    build_title,
+    states_value,
 )
+from synthetic_ecommerce_data.core.variant_axes import variant_axes
 from synthetic_ecommerce_data.core.voice import product_name, voice_for
 from synthetic_ecommerce_data.domains.industrial import (
     compat,
@@ -47,9 +51,71 @@ from synthetic_ecommerce_data.domains.industrial.vocab import (
     VOCAB,
 )
 
+#: The share of a product's SKU titles (of a line with variant axes) that name one of their
+#: axis values. A SKU title MAY carry the axis value and is not required to (#657): the rest
+#: leave it to the axis field (``variant_axes`` / ``facets``) that a selector reads, the way a
+#: distributor's listing is uneven. Held by ``tests/test_sku_title_axis_657.py`` inside a band
+#: around this figure. A product NAME never carries one, whatever this is.
+AXIS_IN_TITLE = 0.70
+
 
 class FinishMixin:
     """Attribute assembly and line finishing, mixed into :class:`~.generate.Generator`."""
+
+    def _leaves_the_axis_to_its_field(self, product_id: str, sku: str) -> bool:
+        """Whether this SKU's title leaves its axis value to the axis field.
+
+        A hash of the seed and the SKU, not a draw from ``self.rng``: the shared stream does
+        not shift, so every later draw of the build is the draw it was.
+        """
+        digest = hashlib.sha256(f"{self.config.seed}:axis-in-title:{product_id}:{sku}".encode())
+        return int(digest.hexdigest()[:8], 16) / 0x100000000 >= AXIS_IN_TITLE
+
+    def _thin_axis_titles(
+        self,
+        product_id: str,
+        titles: list[Title],
+        line_attrs: list[Attribute],
+        built: list[tuple[str, list[Attribute], float, int]],
+    ) -> list[Title]:
+        """Take the axis value out of the titles of the SKUs that are to leave it to the field.
+
+        The line's variant axes are derived the way the emitter derives them
+        (:func:`~synthetic_ecommerce_data.core.emit.line_variant_axes`): the facet keys whose
+        values vary across the SKUs. A chosen SKU's title is rebuilt from the segments it
+        already had, less any that names one of its axis values; a segment with no attribute
+        (the end shape) stays, so nothing else in the title is re-rolled. A title that has no
+        axis value to lose is left as it was, and so is a one-SKU line.
+        """
+        if len(built) < 2:
+            return titles
+        profiles = [
+            {
+                a.facet_key: tuple(sorted(set(a.values or (a.value,))))
+                for a in (*line_attrs, *attrs)
+            }
+            for _, attrs, _, _ in built
+        ]
+        axes = set(variant_axes(profiles))
+        if not axes:
+            return titles
+        thinned = list(titles)
+        for index, ((sku, attrs, _, _), title) in enumerate(zip(built, titles, strict=True)):
+            if not self._leaves_the_axis_to_its_field(product_id, sku):
+                continue
+            mine = [a for a in (*line_attrs, *attrs) if a.facet_key in axes]
+            names = {a.name for a in mine}
+            values = [v for a in mine for v in (a.values or (a.value,))]
+            kept = tuple(
+                segment
+                for segment in title.segments
+                if segment.attribute not in names
+                and not any(states_value(segment.text(), value) for value in values)
+            )
+            if len(kept) != len(title.segments):
+                thinned[index] = build_title(title.item, kept, cap=self.config.title_length_cap)
+                self._bump("title_axis_left_to_field")
+        return thinned
 
     # -- the shared post-pass --------------------------------------------
 
@@ -388,6 +454,7 @@ class FinishMixin:
         titles = self._disambiguate_titles(
             titles, published, self._identifying_attribute(published)
         )
+        titles = self._thin_axis_titles(product_id, titles, line_attrs, built)
 
         # The variant axis: what "also available in" names the siblings by.
         axis = draft.children[0].primary.name if draft.children else None

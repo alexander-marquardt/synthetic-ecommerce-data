@@ -39,10 +39,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-#: The delimiter between segments. The corpus writes ", " most of the time and
-#: occasionally elides the space (``3/8,4 FL``).
+#: The delimiter between segments: always a comma and a space. The corpus occasionally elides
+#: the space (``3/8,4 FL``); the catalog does not reproduce that, so a title's separators are
+#: uniform and a search on ``Alloy Steel`` is not a search on a token glued to the comma (#657).
 DELIMITER = ", "
-TIGHT_DELIMITER = ","
 
 #: How a label may be written, per attribute, with the weights the measured
 #: lexicon gives. The first entry of each list is the unabbreviated form.
@@ -138,10 +138,6 @@ class Title:
     segments: tuple[Segment, ...]
     text: str
     truncated: bool
-    #: Which delimiter was written tight (``3/8,4 FL``), if any. Kept so a
-    #: title can be REASSEMBLED with one more segment without re-rolling it
-    #: and without silently losing the tight comma.
-    tight_delimiter_at: int | None = None
 
     @property
     def segment_count(self) -> int:
@@ -245,7 +241,6 @@ def build_title(
     segments: tuple[Segment, ...],
     *,
     cap: int = 100,
-    tight_delimiter_at: int | None = None,
 ) -> Title:
     """Join the segments, dropping whole trailing ones to stay under the cap.
 
@@ -293,9 +288,8 @@ def build_title(
 
     def assemble(keep: int) -> str:
         pieces = [item]
-        for index, segment in enumerate(segments[:keep]):
-            delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
-            pieces.append(delimiter + segment.text())
+        for segment in segments[:keep]:
+            pieces.append(DELIMITER + segment.text())
         return "".join(pieces)
 
     kept = len(segments)
@@ -315,7 +309,6 @@ def build_title(
         segments=segments,
         text=text,
         truncated=truncated,
-        tight_delimiter_at=tight_delimiter_at,
     )
 
 
