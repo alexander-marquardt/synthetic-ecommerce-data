@@ -170,12 +170,13 @@ import scale  # noqa: E402
 #: (``decoy_apparel._MORE``): ``PLT-DA08701`` and ``PLT-DA50603`` became a White Dormouse dress
 #: and a pair of pyjama shorts and this table went red unseen (gen#362). The two now pinned by
 #: a hand-written id (``PLT-DXH05``, ``PLT-OFRPJS``) keep the shape they were reported for.
+#: ``PLT-DA22501`` was a class 5 decoy; class 5 is retired (gen#663). ``PLT-DSL029`` keeps its
+#: shape.
 EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "PLT-DA02102": ("bomber_jacket", {}),
     "PLT-DA13202": ("puffer", {}),
     "PLT-DXP05": ("puffer", {}),
     "PLT-DXH05": ("shirt_dress", {}),
-    "PLT-DA22501": ("top", {"sleeve": "long"}),
     "PLT-DSL029": ("top", {"sleeve": "long"}),
     "BRD-MDPS240": ("top", {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
     "BRD-NXMET041": ("trousers", {"cargo": "yes"}),

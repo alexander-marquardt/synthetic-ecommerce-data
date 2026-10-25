@@ -8,7 +8,8 @@ of the Womens, Mens and Kids clothing, footwear and lingerie, generated from the
 carries its own plan in its spec, so a new clothing type edits no file but its spec.
 
 A decoy is a clone of one real style of its type (the exemplar: its category leaf, sizes,
-attributes and drawing), in one main color, with a new title, description and, for class 7, brand.
+attributes and drawing), in one main color, with a new title, description and, for classes 6 and 7,
+brand.
 The classes (the numbers follow the issue):
 
 1. **part**: the color word names a strap, a sole, a waistband ("Bra with Red Straps": the title
@@ -18,9 +19,11 @@ The classes (the numbers follow the issue):
    :data:`COMPOUNDS`, never an invented one such as "Dress Pyjamas").
 3. **audience**: an audience word of a sibling version ("Black Mens-Style Jeans", a women's style).
 4. **absent**: a material or feature named but absent ("Black Leather-Look Jacket").
-5. **shade**: the shade is spelled in the description only ("Moonbeam Dress", "in soft ivory").
-6. **incidental**: a range name, a place, holds a category word ("Jumper Lane Dress"). Never a
-   color word (#444: "Red Harbour Dress" read as a red dress by a strange brand).
+5. (retired in #663: a shade spelled in the description only, "Moonbeam Dress" in soft ivory, is
+   a trap no shopper meets in a title; the number is not reused.)
+6. **incidental**: a place holds a category word ("Jumper Lane Dress"). The place is the decoy's
+   brand (#663), kept short, and no other brand holds it. Never a color word (#444: "Red Harbour
+   Dress" read as a red dress by a strange brand).
 7. **brand**: an invented brand holds a color or a category word ("Red Plover Bra", blue); the
    brand field holds the same words and the drawing colors no part (#444).
 8. **fit word**: a line named after a leg fit, a rise or a bra shape on a product that is another
@@ -77,7 +80,6 @@ CLASSES = {
     2: "another category's noun as a modifier",
     3: "audience word of a sibling version",
     4: "material or feature named but absent",
-    5: "shade spelled in the description only",
     6: "incidental word in a range name",
     7: "invented brand holding a color or category word",
     8: "line named for a fit or shape the product is not",
@@ -99,7 +101,7 @@ class Spec:
     @property
     def classes(self) -> dict[int, int]:
         n = self.per_class
-        out = {1: n, 2: n, 3: n, 4: n, 5: n, 6: n, 7: min(n, len(BRANDS))}
+        out = {1: n, 2: n, 3: n, 4: n, 6: n, 7: min(n, len(BRANDS))}
         if self.product_type in FIT_WORDS:
             out[8] = WORD_DECOYS * len(FIT_WORDS[self.product_type])
         return out
@@ -161,7 +163,9 @@ _PLANNED: tuple[Spec, ...] = (
 #: More decoys for the two types the neckline depth grew (gen#181): a large type carries a tenth.
 #: The extra ids are the later ones of each class (``i`` 3 and up): no id is renamed, but an
 #: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
-_MORE = {"Top": 6, "Dress": 6}
+#: Retiring class 5 (#663) took Top and Dress (6 classes of 6), Jumper and Shirt (6 of 3) under a
+#: tenth of 376, 361, 202 and 184 styles: Top and Dress carry 7 a class, Jumper and Shirt 4.
+_MORE = {"Top": 7, "Dress": 7, "Jumper": 4, "Shirt": 4}
 BASE_TYPES: tuple[Spec, ...] = tuple(
     replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
     for ti, s in enumerate(_PLANNED)
@@ -417,19 +421,13 @@ ABSENT = (("Leather-Look", "leather", "A finish made to look like leather; it ho
           ("Mesh-Free", "mesh", "Made without mesh."), ("Silk-Free", "silk", "Made without silk."),
           ("Canvas-Look", "canvas", "A weave that resembles canvas; it holds no canvas."),
           ("Rubber-Free", "rubber", "Made without rubber."))  # fmt: skip
-SHADES = (("Moonbeam", "Ivory", "#f6f1e1", "cream"), ("Driftwood", "Taupe", "#8b7d6b", "brown"),
-          ("Dune", "Beige", "#d9c6a5", "cream"), ("Ember", "Burgundy", "#6d1a2e", "red"),
-          ("Lagoon", "Teal", "#2a7f80", "blue"), ("Willow", "Olive", "#7a7a3c", "green"),
-          ("Pebble", "Ecru", "#e6dcc4", "cream"), ("Meadow", "Mint", "#a9d6b5", "green"),
-          ("Harvest", "Rust", "#b5522b", "orange"), ("Seashell", "Coral", "#f26b5a", "orange"),
-          ("Biscuit", "Champagne", "#f1e0c0", "cream"), ("Hearth", "Khaki", "#b5a57a", "green"),
-          ("Cobble", "Camel", "#c19a6b", "brown"), ("Silt", "Stone", "#cfc6b8", "cream"),
-          ("Tallow", "Oatmeal", "#d8cdb4", "cream"), ("Quill", "Aubergine", "#4b2a45", "brown"))  # fmt: skip  # noqa: E501
 #: Class 6: a range name is a place, never a color (#444: "Red Harbour Dress" read as a red dress
 #: by a strange brand, and a title may not claim a color the product lacks), so the first word is a
-#: category word and the name is a place. At least twelve, for Jeans (twelve per class).
+#: category word and the name is a place. The place is the decoy's BRAND (#663), so no other brand
+#: holds it as a model name and "Cardigan Bay Running Shoes" does not read as a brand-led model.
+#: At least twelve, for Jeans (twelve per class).
 CATEGORY_RANGES = (("Jumper Lane", "a village lane"), ("Coat Hook", "a headland"),
-                   ("Shirt Row", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
+                   ("Shirt Mews", "a terrace of cottages"), ("Dress Circle", "a theatre tier"),
                    ("Boot Hill", "a wooded hill"), ("Skirt Point", "a rocky point"),
                    ("Jacket Quay", "a harbour quay"), ("Sock Hop", "a village dance"),
                    ("Shoe Lane", "a lane by the old market"), ("Cardigan Bay", "a wide bay"),
@@ -600,19 +598,6 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                             query=f"{word} {n}",
                         )
                     )
-    elif cls == 5:
-        for fancy, shade, hexv, family in SHADES:
-            out.append(
-                dict(
-                    title=f"{fancy} {noun}",
-                    word=shade.lower(),
-                    color=shade,
-                    hex=hexv,
-                    family=family,
-                    desc=f"{fancy} {n} in soft {shade.lower()}.",
-                    query=f"{shade.lower()} {n}",
-                )
-            )
     elif cls == 6:
         for name, gloss in CATEGORY_RANGES:
             if not path_has(name.split()[0].lower()):
@@ -621,6 +606,7 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                         dict(
                             title=f"{name} {noun}",
                             word=name.split()[0].lower(),
+                            brand=name,
                             color=c,
                             query=name.split()[0].lower(),
                             desc=f"{c} {n} from the {name} range, named for {gloss}.",
@@ -651,7 +637,8 @@ def _held_values(ex: dict) -> list[str]:
     fit and the facets its leaf implies (:func:`facet_leaves.leaf_facets`)."""
     held = [str(a["value"]) for a in ex["attributes"]]
     held += [v for _, _, v in facet_leaves.leaf_facets(ex, ex["attributes"])[0]]
-    return [h.lower() for h in [*held, _fit(ex) or ""] if h]
+    rise = ex.get("rise") or ""  # a field of the record, not always among its attributes
+    return [h.lower() for h in [*held, _fit(ex) or "", rise] if h]
 
 
 def _same_word(word: str, held: str) -> bool:
@@ -710,6 +697,11 @@ def _fit(ex: dict) -> str | None:
             ex["category_path"][-1], facet_leaves.FIT_NODES[ex["product_type"]]
         )
     return fit or None
+
+
+def _asks_fit_word(spec: Spec, ex: dict) -> bool:
+    """Whether the exemplar's true fit is a word class 8 asks for on this type."""
+    return (_fit(ex) or "").lower() in {w.lower() for _, w in FIT_WORDS.get(spec.product_type, ())}
 
 
 def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
@@ -777,7 +769,7 @@ def _candidates(cls: int, spec: Spec, ex: dict, used: set, words: set, *, styled
         if (type_colors.permits(ex["category_path"], o["color"])  # gen#448
                 and (cls not in (6, 7) or len(title.split()) <= 5)
                 and (title if cls == 8 else o["title"], ex["category_path"][0]) not in used
-                and (cls not in (4, 5) or (cls, o["word"]) not in words)
+                and (cls != 4 or (cls, o["word"]) not in words)
                 and (cls != 8 or o["word"] == want)
                 and (cls != 8 or not _line_held_elsewhere(o["line"], ex["brand"], words))
                 and (not styled or _fits(o, ex, title))):  # fmt: skip
@@ -835,15 +827,33 @@ def build(body: list[dict]) -> list[Row]:
                 want = None
                 if cls == 8:  # this decoy's word, on the next exemplar that can carry it
                     want = FIT_WORDS[spec.product_type][i // WORD_DECOYS][1].lower()
-                    for _ in range(len(exemplars)):
-                        if _candidates(cls, spec, ex, used, words, want=want):
+                # the next exemplar that can carry an option: a dress whose shape names one part
+                # (a mini dress: straps) runs out of class 1 titles before a seventh decoy (#663)
+                for _ in range(len(exemplars)):
+                    if _candidates(cls, spec, ex, used, words, want=want):
+                        break
+                    ex = exemplars[step % len(exemplars)]
+                    step += 1
+                # a place-brand title names the exemplar's true fit ("Shoe Lane Barrel Jeans"),
+                # which outranks the class 8 decoys of that word; and a class 8 title behind a
+                # two-word brand is too long to reach the top 10 of its query. The next exemplar
+                # without either; ``step`` is left alone so the other classes keep theirs (#663).
+                if (cls == 6 and _asks_fit_word(spec, ex)) or (
+                    cls == 8 and len(ex["brand"].split()) > 1
+                ):
+                    for k in range(len(exemplars)):
+                        alt = exemplars[(step + k) % len(exemplars)]
+                        if cls == 6 and _asks_fit_word(spec, alt):
+                            continue
+                        if cls == 8 and len(alt["brand"].split()) > 1:
+                            continue
+                        if _candidates(cls, spec, alt, used, words, want=want):
+                            ex = alt
                             break
-                        ex = exemplars[step % len(exemplars)]
-                        step += 1
                 opts = _candidates(cls, spec, ex, used, words, want=want)
                 if not opts:
                     raise ValueError(f"{spec.product_type} class {cls}: no option left")
-                if cls in (4, 5):  # the common words first: leather, suede, cashmere; ivory
+                if cls == 4:  # the common words first: leather, suede, cashmere
                     first = opts[0]["word"]
                     opts = [o for o in opts if o["word"] == first]
                 o = rnd.choice(opts)
@@ -854,8 +864,8 @@ def build(body: list[dict]) -> list[Row]:
                     ex, o = _restyle(cls, spec, exemplars, step, o, used, words)
                 code = _code(spec, cls, i)
                 color = o["color"]
-                hexv = o.get("hex") or COLORS[color]
-                family = o.get("family") or SHADE_FAMILY.get(color, color.lower())
+                hexv = COLORS[color]
+                family = SHADE_FAMILY.get(color, color.lower())
                 doc = _clone(
                     ex,
                     code,
@@ -915,9 +925,10 @@ structured fields tell the truth (gen#294's rule; `decoy_rows.py` holds the demo
 decoy is a clone of one real style of its type in one main color. The color, category and audience
 policies read the fields and drop it. The classes: 1 a color word names a trim or strap; 2 another
 category's noun in a real compound; 3 an audience word of a sibling version; 4 a material or
-feature named but absent; 5 the shade is in the description only; 6 a short range name, a place,
-holds a category word; 7 an invented brand holds a color or category word; 8 (jeans and bras
-only, gen#434) a line is named for a fit or a shape the product is not.
+feature named but absent; 6 a place, which is the decoy's brand, holds a category word ("Cardigan
+Bay Running Shoes"); 7 an invented brand holds a color or category word; 8 (jeans and bras only,
+gen#434) a line is named for a fit or a shape the product is not. Class 5 (a shade spelled in the
+description only) is retired (#663) and its number is not reused.
 
 Each type holds at least three decoys per class (nine and twelve for bras and jeans, so a type
 holds a tenth of its size), and one class 7 decoy per brand (at most eight).
@@ -942,7 +953,9 @@ title only as an invented brand that is the product's brand field and is shown a
 (class 1: "Bra with Red Straps"). So class 6 has no color variant: a range name such as "Red
 Harbour" read as a red dress by a strange brand, with only the straps drawn red, and a range that
 is a visible line of the product's brand would only repeat class 7. Class 6 keeps its category
-word variant, a range named for a place ("Jumper Lane Dress"). Class 2 uses the compounds of
+word variant, a place ("Jumper Lane Dress"). The place is the decoy's brand (#663), and a place
+brand sells its decoys alone: no other brand holds the name as a model, so a shopper never meets
+"Cardigan Bay" as a second brand in front of a model. Class 2 uses the compounds of
 `decoy_apparel.COMPOUNDS` (dress shirt, shirt dress, slipper socks), each a real retail name,
 never an invented one ("Dress Pyjamas"); a compound drops a type's own modifier only where the
 shorter name still describes the product (Sandal Boots for Ankle Boots).

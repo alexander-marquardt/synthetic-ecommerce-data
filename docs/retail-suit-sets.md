@@ -19,7 +19,7 @@ A drawing states what the record states: the jacket style is the `jacket` param,
 reads each choice back from the drawing (`class="jacket-double"`, `class="legfit-wide"`,
 `class="pieces-3"`) and holds the geometry apart from the stamp.
 
-Each type carries the gen#311 apparel decoys (three of each of seven classes), generated from its
+Each type carries the gen#311 apparel decoys (three of each of six classes), generated from its
 first row by `decoy_apparel`; the class 2 compounds are real retail names (Tuxedo, Waistcoat and
 Culotte Trouser Suit; Sailor, Tuxedo and Page Boy Suit), also named in the reviewed list of
 `tests/test_retail_apparel_decoys_311.py`. A decoy's colored part is its trouser cuffs

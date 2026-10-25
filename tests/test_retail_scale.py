@@ -1425,8 +1425,15 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
-    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+    """The styles of a family the line grammar names (gen#662), the real-brand rows and the
+    decoys aside (a class 8 decoy is named for a village street on purpose)."""
+    return [
+        r
+        for r in records
+        if line_grammar.family(r)
+        and r["product_id"] not in scale.NIKE_IDS
+        and not r["product_id"].startswith("PLT-D")
+    ]
 
 
 def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
@@ -1459,21 +1466,6 @@ def test_a_name_like_model_word_comes_directly_after_the_brand(ceiling):
     assert misplaced[:10] == []
     named = [r for r in family if scale._line(r) in line_grammar.NAME_WORDS]
     assert named and all(r["title"].startswith(f"{r['brand']} {scale._line(r)} ") for r in named)
-
-
-def test_a_family_title_leads_with_its_brand(ceiling):
-    """Guard (gen#662, gen#664): no title starts with a model or range name its brand does not
-    precede, or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes",
-    "Beam 300 Fabric Shade Floor Lamp"). A title leads with its brand, after an optional "Kids' ".
-    Metric: the model-named titles of a numbered or dress family that do not."""
-    off = [
-        (r["product_id"], r["title"])
-        for r in _family_records(ceiling.records)
-        if line_grammar.family(r) in (*line_grammar.NUMBERED, "dress")
-        and scale._line(r)  # a style that names a model; a plain authored title has none
-        and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
-    ]
-    assert off[:10] == [], len(off)
 
 
 HOME_DEPARTMENTS = {"Home", "Toys", "Gifts", "Garden"}

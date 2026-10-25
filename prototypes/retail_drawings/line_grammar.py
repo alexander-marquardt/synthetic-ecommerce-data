@@ -152,6 +152,14 @@ class Deal:
         return " ".join(str(p) for p in (word, sub, gen) if p)
 
 
+def _stated(rec: dict) -> str | None:
+    """The model a row states: its ``product_line``, or the ``Line`` attribute an authored
+    bra or jeans style carries."""
+    if rec.get("product_line"):
+        return str(rec["product_line"])
+    return next((str(a["value"]) for a in rec.get("attributes", ()) if a["key"] == "line"), None)
+
+
 def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[str, Deal]:
     """family -> its :class:`Deal` over every brand a derived style of the family may carry.
 
@@ -162,7 +170,7 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
         authored = {
             _lead(fam, line): r["brand"]
             for r in tpls
-            if family(r) == fam and (line := r.get("product_line"))
+            if family(r) == fam and (line := _stated(r))
             and is_model(fam, r["brand"], str(line))
         }  # fmt: skip
         mine = [pool for (_, kind), pool in brands.items() if FAMILIES.get(kind) == fam]
@@ -174,25 +182,38 @@ def _strip(title: str, word: str) -> str:
     return title[len(word) + 1 :] if title.startswith(f"{word} ") else title
 
 
+def _peel(title: str, words: Iterable[str]) -> str:
+    """``title`` without any of ``words`` leading it, however many times and in any order."""
+    done = False
+    while not done:
+        done = True
+        for w in words:
+            if title.startswith(f"{w} "):
+                title, done = title[len(w) + 1 :], False
+    return title
+
+
 def retitle(rec: dict, tpl: dict, draw: int) -> None:
     """``rec``'s title in its family's grammar, once :func:`scale.derive` has put its model in.
 
-    The template's brand leaves the title. A numbered-family style then leads with its own
-    brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress
-    style always leads with its brand and the name, and a style word follows the material in four
-    draws of five: "Larkmoor Merlin Leather Smart Penny Loafers".
+    The template's brand and the drawn brand leave the title first (the template's, or a doubled
+    one, would read "Treadmoor Treadmoor Pace Max 3"). A numbered-family style then leads with
+    its own brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running
+    Shoes". A dress style always leads with its brand and the name, and a style word follows the
+    material in four draws of five: "Larkmoor Merlin Leather Smart Penny Loafers".
     ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
-    title = _strip(rec["title"], tpl["brand"])
+    brands = (tpl["brand"], brand)
+    title = _peel(rec["title"], brands)
     if fam in _NUMBERED:
         kids = "Kids' " if title.startswith("Kids' ") else ""
-        title = title.removeprefix(kids)
+        title = _peel(title.removeprefix(kids), brands)
         title = _strip(title, "The") if title.startswith(f"The {line} ") else title
         if title.startswith(f"{line} {brand} "):  # a template that led with its brand
             title = f"{line} {title[len(line) + len(brand) + 2 :]}"
         title = f"{kids}{brand} {title}"
     elif fam == "dress":
-        rest = _strip(title, line)
+        rest = _peel(title, (*brands, line))
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
         if style:
             lead = max((m for m in DRESS_MATERIAL if rest.startswith(f"{m} ")), key=len, default="")
@@ -207,7 +228,8 @@ def lead_with_brand(recs: list[dict], line_of: Callable[[dict], str | None]) -> 
     Sofa". ``line_of`` gives a row's model name."""
     for rec in recs:
         line = line_of(rec)
-        if family(rec) in NUMBERED and line and rec["title"].startswith(f"{line} "):
+        if (family(rec) in NUMBERED and line and rec["title"].startswith(f"{line} ")
+                and not rec["title"].startswith(f"{rec['brand']} ")):  # fmt: skip
             rec["title"] = f"{rec['brand']} {rec['title']}"
     return recs
 
