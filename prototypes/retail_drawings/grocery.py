@@ -425,7 +425,7 @@ def range_names() -> Deal:
 @functools.cache
 def care_names(kind: str) -> line_grammar.Deal:
     """The grocery half of a cleaning or beauty family's model words, dealt over the grocery
-    brands that sell it (gen#666): "Soapwell Gentle Plus 4". The scale build deals the other
+    brands that sell it (gen#666): "Soapwell Keen Plus 4". The scale build deals the other
     half, so a word belongs to one brand across both."""
     brands = {
         b

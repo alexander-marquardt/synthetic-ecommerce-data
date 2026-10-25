@@ -84,8 +84,12 @@ def records() -> list[dict[str, Any]]:
     return scale.build(CEILING_SKUS).records
 
 
+#: The model number after the lead word ("Bloom 5 Olive Tree"): not a cut.
+MODEL_NUMBER = re.compile(r"(?<=[A-Za-z]) \d+ (?=[A-Z])")
+
+
 def _noun(title: str) -> str:
-    head = CUT.split(title)[0].split()
+    head = CUT.split(MODEL_NUMBER.sub(" ", title, count=1))[0].split()
     return head[-1].lower().rstrip("s") if head else ""
 
 

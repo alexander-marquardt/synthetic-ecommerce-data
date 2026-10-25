@@ -26,6 +26,7 @@ from published import authored_attributes
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.core.naming import states_value
 from synthetic_ecommerce_data.domains.industrial import newtypes
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
@@ -591,9 +592,24 @@ def test_every_title_names_its_key_dimension(docs):
     assert missing == [], missing[:10]
 
 
+def _axis_values(doc: dict) -> set[str]:
+    """The published values of each variant axis of the SKU's product line."""
+    return {value for axis in doc["variant_axes"] for value in doc["facets"].get(axis, [])}
+
+
+def leaves_axis_to_field(doc: dict) -> bool:
+    """A SKU title that states none of its axis values: it leaves them to the axis field (#657)."""
+    axis = _axis_values(doc)
+    return bool(axis) and not any(states_value(doc["title"], value) for value in axis)
+
+
 def untitled_keys(docs: list[dict]) -> list[tuple[str, str, str, str]]:
     """(SKU, attribute, value, title) for each declared title key attribute
-    (``type_facts``) a record publishes and its title does not name."""
+    (``type_facts``) a record publishes and its title does not name.
+
+    A key attribute that is a value of the line's variant axis may be left to the axis field
+    (#657): about three in ten SKU titles do, and ``test_sku_title_axis_657`` holds the share.
+    """
     keys = type_facts.title_key()
     missing = []
     for doc in docs:
@@ -601,8 +617,9 @@ def untitled_keys(docs: list[dict]) -> list[tuple[str, str, str, str]]:
         if is_incidental_decoy_title(doc["title"]):
             continue
         v = _values(doc)
+        left = _axis_values(doc) if leaves_axis_to_field(doc) else set()
         for name in keys[doc["product_type"]]:
-            if name in v and not _in_title(v[name], doc["title"]):
+            if name in v and v[name] not in left and not _in_title(v[name], doc["title"]):
                 missing.append((doc["sku"], name, v[name], doc["title"]))
     return missing
 
@@ -622,6 +639,8 @@ def test_a_brand_titles_a_type_one_way(docs):
             "wheel_depressed_center",
             "abrasive_flap_disc",
         ):
+            continue
+        if leaves_axis_to_field(doc):
             continue
         parts = doc["title"].split(",")
         if len(parts) < 2:

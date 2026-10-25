@@ -9,7 +9,7 @@ description said so::
 
     3RX99   Length 12.00mm   "Socket Head Cap Screw, M6x1, Alloy Steel"
     99JZ63  Length 16.00mm   "Socket Head Cap Screw, M6x1, Alloy Steel"
-    15NV56  Length 30.00mm   "Socket Head Cap Screw, M6x1,Alloy Steel"
+    15NV56  Length 30.00mm   "Socket Head Cap Screw, M6x1, Alloy Steel"
     15HA54  Length 45.00mm   "Socket Head Cap Screw, M6x1, Alloy Steel"
 
 Measured on the committed catalog before the fix: **176 of 500 product lines
@@ -18,6 +18,13 @@ published a title two of their SKUs shared, over 1,214 SKUs**, and **500 of
 description was the LINE's title, ``Ingleward ISO4762-64 -- Socket Head
 Cap Screw``, which restates the brand, the series and the product type and
 says nothing about the SKU.
+
+Since #657 a title is not required to carry the variant axis value: about three
+SKUs in ten leave it to the axis field (``tests/test_sku_title_axis_657.py`` holds the
+share). Those SKUs are told apart by that field and by their description, and they
+never share a title with a sibling of the line: the title-uniqueness check below holds
+for every SKU, while the check that a title names a value of its own skips those that
+state no axis value.
 
 Three tiers, each read at a different moment, and this file is about the first
 two:
@@ -171,6 +178,15 @@ def _duplicates(by_line: dict[str, list[dict]], field: str) -> list[tuple[str, s
     return out
 
 
+def _axis_values(doc: dict) -> list[str]:
+    """Every published value of each of the SKU's variant axes."""
+    return [value for axis in doc["variant_axes"] for value in doc["facets"].get(axis, [])]
+
+
+def _states_an_axis_value(doc: dict) -> bool:
+    return any(_states(doc["title"], value) for value in _axis_values(doc))
+
+
 @pytest.mark.parametrize("field", ["title", "description"])
 def test_no_two_skus_in_one_product_line_share_a_title_or_a_description(
     by_line: dict[str, list[dict]], field: str
@@ -179,7 +195,9 @@ def test_no_two_skus_in_one_product_line_share_a_title_or_a_description(
 
     Within a LINE rather than over the whole catalog: two unrelated lines of
     one brand may legitimately publish the same title, and they never sit
-    beside each other on a card grid. Two SKUs of one line always do.
+    beside each other on a card grid. Two SKUs of one line always do. Holds
+    since #657 too: a SKU title may leave its axis value to the axis field,
+    but never at the price of the same title on two sizes of one line.
     """
     duplicates = _duplicates(by_line, field)
     lines = {product_id for product_id, _, _ in duplicates}
@@ -257,7 +275,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
     """Uniqueness stated as the PROPERTY rather than as an absence of collisions.
 
     A line's titles could be pairwise distinct for an accident -- a truncation
-    that landed differently, a delimiter written tight on one of them -- and
+    that landed differently -- and
     that would satisfy the duplicate check while telling the shopper nothing.
     What has to be true is that the title carries a VALUE this SKU publishes
     and its siblings do not, and that it carries it as a VALUE: a substring
@@ -281,6 +299,8 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
             for entry in spelled[doc["sku"]]:
                 elsewhere.setdefault(entry["name"], set())
         for doc in docs:
+            if not _states_an_axis_value(doc):
+                continue  # told apart by its axis field, not its title (#657)
             own = {entry["name"]: entry["value"] for entry in spelled[doc["sku"]]}
             identifying = {
                 name

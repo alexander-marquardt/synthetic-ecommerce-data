@@ -190,6 +190,8 @@ names the file that replaces it:
 | `type_specs/legacy_types.txt` | a type's line | `scripts/new_type.py <key>` (the list only shrinks) |
 | `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
 | `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
+| `prototypes/retail_drawings/line_grammar.py` | a `FAMILIES` row, a vocabulary constant, a `fam == ...` branch, a docstring bullet for a numbered family | `line_grammar_families/<family>.py` with `KINDS`, `LEADS`, `NUMBERS` and `SUBS` (gen#513); the walk refuses a kind, a lead word or a name-like word another family holds |
+| `tests/test_retail_scale.py` | a test function over the ceiling build | `tests/test_retail_scale_<topic>_<issue>.py` taking the build from `tests/retail_ceiling.py` (`ceiling_build()`) |
 | `tests/test_retail_pattern_facet_408.py` | the template and SKU counts, rewritten in two asserts | nothing: the pin is derived from the per-source counts of `retail_figures.measure()` (#648), and `tests/test_no_literal_fleet_total_644.py` refuses a typed count |
 | `docs/retail-prototype.md` | a section heading for the feature, at the end of the page | its own page, `docs/retail-prototype/<topic>-<issue>.md` |
 | `docs/retail-product-word-decoys.md` | the regenerated decoy table, pasted whole; a bold section lead for the feature | the table: nothing, `scripts/build_derived.py` builds `docs/retail-product-word-decoys-table.md`; the section: its own page, `docs/retail-product-word-decoys/<topic>-<issue>.md` |

@@ -36,6 +36,8 @@ HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
 WORD_DOC = "docs/retail-product-word-decoys.md"
 CLASS8 = "tests/test_retail_product_word_decoys_326.py"
+GRAMMAR = f"{RD}/line_grammar.py"
+SCALE_TESTS = "tests/test_retail_scale.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -60,7 +62,9 @@ APPENDS = {
         "feature_decoys",
     ),
     "decoy-import": (
-        DECOY_ROWS, "from decoy_plural_rows import ROWS as PLURAL_ROWS", "feature_decoys"
+        DECOY_ROWS,
+        "from decoy_plural_rows import ROWS as PLURAL_ROWS",
+        "feature_decoys",
     ),
     "decoy-splat": (
         DECOY_ROWS,
@@ -78,7 +82,9 @@ APPENDS = {
     "prototype-section": (PROTO, "### Probe feature (gen#999)", "docs/retail-prototype/"),
     "prototype-subsection": (PROTO, "#### A probe detail", "docs/retail-prototype/"),
     "word-doc-row": (
-        WORD_DOC, "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |", "build_derived"
+        WORD_DOC,
+        "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |",
+        "build_derived",
     ),
     "word-doc-section": (
         WORD_DOC,
@@ -86,6 +92,20 @@ APPENDS = {
         "retail-product-word-decoys/<topic>",
     ),
     "true-node-row": (CLASS8, '    "probe": "Probes",', "decoy_true_nodes"),
+    "grammar-family-row": (GRAMMAR, '    "Kettle": "appliance",', "line_grammar_families"),
+    "grammar-family-group": (GRAMMAR, "    **dict.fromkeys(", "line_grammar_families"),
+    "grammar-vocabulary": (GRAMMAR, 'CLEAN_LEADS = ("Gentle", "Total")', "line_grammar_families"),
+    "grammar-branch": (GRAMMAR, '    elif fam == "cleaning":', "line_grammar_families"),
+    "grammar-doc-bullet": (
+        GRAMMAR,
+        "- cleaning (floor cleaner): the brand, a plain word and a number.",
+        "line_grammar_families",
+    ),
+    "scale-test": (
+        SCALE_TESTS,
+        "def test_a_cleaning_model_is_numbered(ceiling):",
+        "test_retail_scale_",
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -98,6 +118,8 @@ BASE = {
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
     WORD_DOC: "# Decoys\n\nThe table is built.\n",
     CLASS8: "from decoy_true_nodes import TRUE_NODE\n\n\ndef test_x():\n    assert TRUE_NODE\n",
+    GRAMMAR: 'FAMILIES = {\n    "Dishwasher": "appliance",\n}\n\n- sport: a lead word.\n',
+    SCALE_TESTS: "def test_x(ceiling):\n    assert ceiling\n",
 }
 
 
@@ -261,6 +283,8 @@ def test_a_trailer_in_the_message_of_the_merge_alone_does_not_let_an_append_by(r
 
 
 def test_the_table_holds_exactly_the_registries_that_have_a_new_file_form():
+    # A PR that adds a Registry entry adds its planted append to APPENDS in this file too: two
+    # such PRs conflict here, by design, so the second one sees the first's row.
     assert {r.path for r in guard.REGISTRIES} == {path for path, _, _ in APPENDS.values()}
 
 
@@ -294,11 +318,16 @@ def test_the_no_derived_files_job_runs_the_registry_guard():
 
 
 @pytest.mark.parametrize(
-    "doc", ["docs/new-type-quick-path.md", "docs/adding-a-retail-type.md", "docs/adding-a-type.md"]
+    ("doc", "named"),
+    [
+        ("docs/new-type-quick-path.md", ("line_grammar_families", "retail_ceiling")),
+        ("docs/adding-a-retail-type.md", ("line_grammar_families", "check_no_registry_append")),
+        ("docs/adding-a-type.md", ("line_grammar.py", "check_no_registry_append")),
+    ],
 )
-def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc):
+def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc, named):
     text = (ROOT / doc).read_text(encoding="utf-8")
-    assert "feature_decoys" in text or "check_no_registry_append" in text, doc
+    assert [n for n in named if n not in text] == [], doc
 
 
 def test_the_quick_path_does_not_tell_a_contributor_to_paste_the_decoy_table():
