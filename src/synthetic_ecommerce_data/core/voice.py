@@ -10,10 +10,9 @@ series and their description facts, not from shuffled wording.
 The title keeps the census structure as its core (``<Item>, <key dim>
 <role>, <material>, <coating>, <flutes>``, :func:`.naming.build_title`). The
 voice only chooses among census-observed variants -- descriptive or terse,
-the brand name first or not, the label spelling of each attribute, where a
-tight delimiter falls -- and adds words AROUND the core: a qualifier before
-the item and, where the record publishes ``Units per Pack``, a pack
-segment at the end.
+the brand name first or not, the label spelling of each attribute -- and adds
+words AROUND the core: a qualifier before the item and, where the record
+publishes ``Units per Pack``, a pack segment at the end.
 
 Nothing a voice adds may state a fact the record does not carry. The
 qualifiers are words true of every product in their family
@@ -163,8 +162,6 @@ class Voice:
     range_word: str | None
     #: One label spelling per attribute, from the census's observed forms.
     labels: dict[str, str]
-    #: Where a tight delimiter falls, as a share of the segments; None for never.
-    tight_at: float | None
     #: The label of the trailing pack segment; None for no pack segment.
     pack_label: str | None
     use_style: int
@@ -214,7 +211,10 @@ def voice_for(brand: str) -> Voice:
         for family, words in brands.PRODUCT_WORDS.items()
     }
     labels = {name: _stratified(forms, brand, name) for name, forms in LABEL_FORMS.items()}
-    tight_at = rng.random() if rng.random() < 0.18 else None
+    # The two draws that once placed a comma with no space after it (``3/8,4 FL``) stay, unused,
+    # so every later draw of this brand's voice is the draw it was (#657).
+    if rng.random() < 0.18:
+        rng.random()
     return Voice(
         brand=brand,
         descriptive=book.descriptive,
@@ -222,7 +222,6 @@ def voice_for(brand: str) -> Voice:
         qualifier=qualifier,
         range_word=rng.choice(brands.RANGE_WORDS) if rng.random() < 0.6 else None,
         labels=labels,
-        tight_at=tight_at,
         pack_label=rng.choice(PACK_LABELS) if rng.random() < 0.5 else None,
         use_style=rng.randrange(2),
         family_style=rng.randrange(len(FAMILY_PHRASES)),
