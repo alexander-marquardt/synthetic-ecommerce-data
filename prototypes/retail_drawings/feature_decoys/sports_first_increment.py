@@ -34,7 +34,7 @@ def word_rows(d):
             540,
             "s_dress",
             "Tent Dress, Swing Fit",
-            "A loose swing dress cut like a tent, with short sleeves and a round neck.",
+            "A loose swing dress cut like a tent, with short sleeves and a crew neck.",
             "Pink",
             "tent",
             "Tent",

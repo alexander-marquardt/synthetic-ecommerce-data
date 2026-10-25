@@ -118,7 +118,7 @@ def test_every_type_has_three_decoys_per_class_in_the_built_catalog(
     assert grouped and set(grouped) == {t.product_type for t in da.TYPES}
     assert {r.pid for r in rows} == da.IDS == {p for p in by_id if p in da.IDS}
     for ptype, rs in grouped.items():
-        for cls in (1, 2, 3, 4, 5, 6, 7):
+        for cls in (1, 2, 3, 4, 6, 7):  # class 5 is retired (#663)
             n = sum(r.cls == cls for r in rs)
             assert n >= 3, (ptype, cls, n)
         assert all(by_id[r.pid]["product_type"] == ptype for r in rs), ptype
@@ -143,9 +143,6 @@ def test_each_decoys_fields_contradict_its_misleading_word(
             assert AUDIENCE_ROOT[r.word] != doc["category_path"][0], (r.pid, r.word)
         elif r.cls == 4:
             assert r.word not in _text(doc), (r.pid, r.word)
-        elif r.cls == 5:
-            assert r.word not in doc["title"].lower(), (r.pid, r.word)
-            assert colors == {r.word.title()}, (r.pid, r.word, colors)
 
 
 def test_class_6_and_7_name_a_short_title_and_class_7_names_a_brand(
@@ -570,8 +567,13 @@ def test_decoy_ids_are_the_two_tables_and_no_real_product_is_in_them(
 ) -> None:
     """The exemption is keyed on the decoy tables: a real catalog id is outside it. Membership
     is read with ``in``, the way ``check_catalog`` reads it."""
-    tables = (decoy_rows.IDS | da.IDS | garden_rows.decoy_ids() | decor_rows.decoy_ids()
-              | neckline_rows.decoy_ids())
+    tables = (
+        decoy_rows.IDS
+        | da.IDS
+        | garden_rows.decoy_ids()
+        | decor_rows.decoy_ids()
+        | neckline_rows.decoy_ids()
+    )
     assert tables == scale.DECOY_IDS
     real = [r["product_id"] for r in ceiling if r["product_id"] not in scale.DECOY_IDS]
     assert len(real) > 5 * len(scale.DECOY_IDS)
@@ -702,3 +704,74 @@ def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
             assert b and b[0] <= mid <= b[2], (r.pid, doc["title"], b, mid)
         n += 1
     assert n >= 5
+
+
+def test_a_class_6_decoys_brand_is_its_place_name(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#663: "Cardigan Bay Running Shoes" read as a brand "Cardigan Bay" would (the place is the
+    range's brand), so the brand field of every class 6 decoy is the place name; the title stays
+    short and keeps the trap word (the place name's first word); the range names it."""
+    sixes = [r for r in rows if r.cls == 6]
+    assert sixes
+    places = {name for name, _ in da.CATEGORY_RANGES}
+    off = []
+    for r in sixes:
+        doc = by_id[r.pid]
+        brand = doc["brand"]
+        ok = (
+            brand in places
+            and r.word == brand.split()[0].lower()
+            and doc["title"].startswith(f"{brand} ")
+            and len(doc["title"].split()) <= 5
+            and f"from the {brand} range" in doc["description"]
+        )
+        if not ok:
+            off.append((r.pid, brand, doc["title"]))
+    assert off[:10] == [], len(off)
+
+
+def test_a_place_brand_belongs_to_its_class_6_decoys_alone(
+    rows: list[da.Row], by_id: dict[str, dict], ceiling: list[dict]
+) -> None:
+    """#663 (#642): a place name is never a model name under another brand, and each place brand
+    sells its decoys only. Metric: the styles that hold a place name and are not its decoy."""
+    places = {name for name, _ in da.CATEGORY_RANGES}
+    own = {r.pid for r in rows if r.cls == 6}
+    off = [
+        (r["product_id"], r["brand"], r["title"])
+        for r in ceiling
+        if r["product_id"] not in own
+        and (
+            r["brand"] in places
+            or scale._line(r) in places
+            or any(re.search(rf"(?<![\w-]){p}\b", r["title"]) for p in places)
+        )
+    ]
+    assert off[:10] == [], len(off)
+
+
+def test_decoy_class_5_is_retired(rows: list[da.Row]) -> None:
+    """#663: a spelled-in-the-description-only shade ("Moonbeam Dress" in ivory) is a trap no
+    shopper meets in a title; the class, its table and its rows are gone."""
+    assert 5 not in da.CLASSES
+    assert not hasattr(da, "SHADES")
+    assert all(5 not in t.classes for t in da.TYPES)
+    assert not [r.pid for r in rows if r.cls == 5]
+
+
+def test_a_class_6_place_brand_decoy_does_not_carry_a_fit_word_class_8_asks_for(
+    rows: list[da.Row],
+) -> None:
+    """#663: "Shoe Lane Barrel Jeans" is a short title that names the true Barrel fit, so it
+    outranks a class 8 "Barrel Row" decoy for "barrel jeans" and leaves the fit-word query
+    fewer than three class 8 decoys in its top 10. Metric: the class 6 Jeans and Bra rows whose
+    fit is a word a class 8 query asks for."""
+    clash = [
+        (r.pid, r.doc["title"])
+        for kind in ("Jeans", "Bra")  # the two kinds a class 8 query asks a fit word of
+        for asked in [{w.lower() for _, w in da.FIT_WORDS.get(kind, ())}]
+        for r in rows
+        if r.cls == 6 and r.doc["product_type"] == kind and (da._fit(r.doc) or "").lower() in asked
+    ]
+    assert clash == []

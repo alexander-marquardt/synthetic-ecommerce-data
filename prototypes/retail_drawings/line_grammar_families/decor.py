@@ -15,7 +15,7 @@ KINDS = (
 #: The lead word of a model.
 LEADS = (
     "Accent", "Display", "Treasure", "Memory", "Moment", "Charm", "Trinket", "Keepsake", "Festive",
-    "Sparkle", "Merry", "Jolly", "Cheer", "Glee", "Fable", "Delight", "Tidings", "Yule", "Decor",
+    "Sparkle", "Merry", "Mirth", "Cheer", "Glee", "Fable", "Gladness", "Tidings", "Yule", "Decor",
     "Showcase",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.

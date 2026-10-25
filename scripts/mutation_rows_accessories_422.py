@@ -307,8 +307,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "belt: the class 6 category decoy loses its range word",
         "type_specs/belt.py",
-        '"DCBLT5", "Boot Hill Belt"',
-        '"DCBLT5", "Hill Belt"',
+        '"DCBLT5", "Boot Camp Belt"',
+        '"DCBLT5", "Camp Belt"',
         'tests/test_retail_belt_422.py -k "text_match_decoys"',
         "a class 6 decoy leads its title with a category noun",
         _R,
