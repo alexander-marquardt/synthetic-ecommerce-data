@@ -1421,7 +1421,8 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
-    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+    skip = scale.NIKE_IDS | scale.SEASONAL_IDS | scale.COLORWORD_IDS  # real brands and decoy rows
+    return [r for r in records if line_grammar.family(r) and r["product_id"] not in skip]
 
 
 def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
@@ -1458,5 +1459,35 @@ def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
         if line_grammar.family(r) in ("sport", "dress")
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
+    ]
+    assert off[:10] == [], len(off)
+
+
+def _food(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The Food & Drink styles."""
+    return [r for r in records if r["category_path"][0] == "Food & Drink"]
+
+
+def test_every_food_and_drink_kind_is_mapped_to_a_line_grammar_family(ceiling):
+    """Guard (gen#665): a food or drink kind outside ``line_grammar.FAMILIES`` keeps the coined
+    range names of :mod:`range_ownership` ("Larkrise Jam"). Metric: the Food & Drink kinds
+    with no family."""
+    kinds = {r["product_type"] for r in _food(ceiling.records)}
+    assert len(kinds) >= 70
+    assert sorted(k for k in kinds if k not in line_grammar.FAMILIES) == []
+
+
+def test_a_food_or_drink_title_leads_with_its_brand(ceiling):
+    """Guard (gen#665): a food title that names a range leads with its brand, so the range
+    reads as the brand's model ("Hollin Basic Reserve 2 Strawberry Jam"), not as a second brand
+    ("Larkrise Jam"). The decoy rows, whose Line is a seasonal or a color-word attribute, keep
+    their authored titles. Metric: the range-named food titles that do not lead with the brand."""
+    decoys = scale.SEASONAL_IDS | scale.COLORWORD_IDS
+    off = [
+        (r["product_id"], r["title"])
+        for r in _food(ceiling.records)
+        if scale._line(r)  # a style that names a range; a plain authored title has none
+        and r["product_id"] not in decoys
+        and not r["title"].startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)
