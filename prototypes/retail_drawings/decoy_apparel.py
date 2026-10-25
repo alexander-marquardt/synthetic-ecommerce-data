@@ -637,7 +637,8 @@ def _held_values(ex: dict) -> list[str]:
     fit and the facets its leaf implies (:func:`facet_leaves.leaf_facets`)."""
     held = [str(a["value"]) for a in ex["attributes"]]
     held += [v for _, _, v in facet_leaves.leaf_facets(ex, ex["attributes"])[0]]
-    return [h.lower() for h in [*held, _fit(ex) or ""] if h]
+    rise = ex.get("rise") or ""  # a field of the record, not always among its attributes
+    return [h.lower() for h in [*held, _fit(ex) or "", rise] if h]
 
 
 def _same_word(word: str, held: str) -> bool:
@@ -696,6 +697,11 @@ def _fit(ex: dict) -> str | None:
             ex["category_path"][-1], facet_leaves.FIT_NODES[ex["product_type"]]
         )
     return fit or None
+
+
+def _asks_fit_word(spec: Spec, ex: dict) -> bool:
+    """Whether the exemplar's true fit is a word class 8 asks for on this type."""
+    return (_fit(ex) or "").lower() in {w.lower() for _, w in FIT_WORDS.get(spec.product_type, ())}
 
 
 def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
@@ -828,6 +834,22 @@ def build(body: list[dict]) -> list[Row]:
                         break
                     ex = exemplars[step % len(exemplars)]
                     step += 1
+                # a place-brand title names the exemplar's true fit ("Shoe Lane Barrel Jeans"),
+                # which outranks the class 8 decoys of that word; and a class 8 title behind a
+                # two-word brand is too long to reach the top 10 of its query. The next exemplar
+                # without either; ``step`` is left alone so the other classes keep theirs (#663).
+                if (cls == 6 and _asks_fit_word(spec, ex)) or (
+                    cls == 8 and len(ex["brand"].split()) > 1
+                ):
+                    for k in range(len(exemplars)):
+                        alt = exemplars[(step + k) % len(exemplars)]
+                        if cls == 6 and _asks_fit_word(spec, alt):
+                            continue
+                        if cls == 8 and len(alt["brand"].split()) > 1:
+                            continue
+                        if _candidates(cls, spec, alt, used, words, want=want):
+                            ex = alt
+                            break
                 opts = _candidates(cls, spec, ex, used, words, want=want)
                 if not opts:
                     raise ValueError(f"{spec.product_type} class {cls}: no option left")

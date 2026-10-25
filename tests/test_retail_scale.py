@@ -1524,6 +1524,7 @@ def test_each_family_vocabulary_has_a_lead_for_every_brand_and_no_lead_is_shared
     assert short == {}
     held = [w for v in line_grammar.VOCAB.values() for w in v.leads]
     held += [*line_grammar.SPORT_LEADS, *line_grammar.NAME_WORDS]
+    held += [w for fam in plain_models.LEADS.values() for w in fam]  # the plain-model leads too
     assert [w for w, n in collections.Counter(held).items() if n > 1] == []
 
 

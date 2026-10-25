@@ -110,7 +110,7 @@ LEADS = {
     ),
     "decor": (
         "Accent", "Display", "Treasure", "Memory", "Moment", "Charm", "Trinket", "Keepsake",
-        "Festive", "Sparkle", "Merry", "Jolly", "Cheer", "Glee", "Fable", "Delight", "Tidings",
+        "Festive", "Sparkle", "Merry", "Mirth", "Cheer", "Glee", "Fable", "Gladness", "Tidings",
         "Yule", "Decor", "Showcase",
     ),
     "gifts": (
