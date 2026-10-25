@@ -32,6 +32,7 @@ from synthetic_ecommerce_data.core.voice import product_name, voice_for
 from synthetic_ecommerce_data.domains.industrial import (
     compat,
     conformance,
+    hammers,
 )
 from synthetic_ecommerce_data.domains.industrial.drafts import (
     MAX_MISSES,
@@ -55,7 +56,9 @@ from synthetic_ecommerce_data.domains.industrial.vocab import (
 #: axis values. A SKU title MAY carry the axis value and is not required to (#657): the rest
 #: leave it to the axis field (``variant_axes`` / ``facets``) that a selector reads, the way a
 #: distributor's listing is uneven. Held by ``tests/test_sku_title_axis_657.py`` inside a band
-#: around this figure. A product NAME never carries one, whatever this is.
+#: around this figure. A product NAME never carries one, whatever this is. The hammer kinds
+#: are the exception: their incidental-word decoys (#320) outrank a real hit only while the real
+#: hit's title is the longer, so a hammer SKU title keeps its axis value.
 AXIS_IN_TITLE = 0.70
 
 
@@ -454,7 +457,8 @@ class FinishMixin:
         titles = self._disambiguate_titles(
             titles, published, self._identifying_attribute(published)
         )
-        titles = self._thin_axis_titles(product_id, titles, line_attrs, built)
+        if type_key not in hammers.KINDS:
+            titles = self._thin_axis_titles(product_id, titles, line_attrs, built)
 
         # The variant axis: what "also available in" names the siblings by.
         axis = draft.children[0].primary.name if draft.children else None
