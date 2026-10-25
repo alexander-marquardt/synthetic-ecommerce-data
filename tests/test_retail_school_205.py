@@ -4,7 +4,7 @@
 issue asked for: each type has its range (three styles from three brands), each style draws as its
 own school shape with the variant params the record states, each key attribute is a structured
 entry in the export, the sizes are school ages, every type offers the six main colors, carries
-text-match decoys of all seven classes, sits in the tree under the tree guard's rules, and
+text-match decoys of all six classes, sits in the tree under the tree guard's rules, and
 reaches the scaled build.
 """
 
@@ -271,14 +271,14 @@ def test_every_type_offers_the_six_main_colors_with_no_exception(ptype: str) -> 
 
 
 @pytest.mark.parametrize("ptype", sorted(TYPES))
-def test_every_type_carries_decoys_of_all_seven_classes(ptype: str) -> None:
+def test_every_type_carries_decoys_of_all_six_classes(ptype: str) -> None:
     planned = {s.product_type for s in decoy_apparel.TYPES}
     assert ptype in planned and ptype not in decoy_apparel.EXEMPT
     docs = [d for d in scale.templates(baseline=False) if d["product_id"] in decoy_apparel.IDS]
     mine = [d for d in docs if d["product_type"] == ptype]
     classes = collections.Counter(d["product_id"].split("-D")[1][3] for d in mine)
-    assert len(mine) >= 21, (ptype, len(mine))
-    assert len(classes) == 7 and min(classes.values()) >= 3, classes
+    assert len(mine) >= 18, (ptype, len(mine))
+    assert len(classes) == 6 and min(classes.values()) >= 3, classes
 
 
 def _paths() -> list[tuple[str, ...]]:

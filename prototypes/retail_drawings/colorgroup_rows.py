@@ -128,12 +128,12 @@ def _bra(code: str, line: str, brand: str, kind: str, bands: tuple[int, int],
 
 #: One style per shape, each in the five main colors a bra comes in, plus a second minimiser.
 BRAS = (
-    _bra("NWMIN1", "Alderley", "Saltmarsh", "Minimiser", (34, 46), ("C", "G"), 24.0),
-    _bra("NWMIN2", "Ravenscar", "Bramblewood", "Minimiser", (32, 44), ("B", "F"), 26.0),
-    _bra("NWPLG1", "Tarrant", "Bramblewood", "Plunge", (30, 40), ("A", "E"), 22.0),
-    _bra("NWBAL1", "Ouseburn", "Saltmarsh", "Balcony", (30, 40), ("A", "E"), 22.0),
-    _bra("NWFUL1", "Kingsett", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"), 24.0),
-    _bra("NWTSH1", "Merrow", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0),
+    _bra("NWMIN1", "Support Plus 5", "Saltmarsh", "Minimiser", (34, 46), ("C", "G"), 24.0),
+    _bra("NWMIN2", "Comfort Plus 4", "Bramblewood", "Minimiser", (32, 44), ("B", "F"), 26.0),
+    _bra("NWPLG1", "Comfort Plus 5", "Bramblewood", "Plunge", (30, 40), ("A", "E"), 22.0),
+    _bra("NWBAL1", "Support Plus 6", "Saltmarsh", "Balcony", (30, 40), ("A", "E"), 22.0),
+    _bra("NWFUL1", "Support Plus 7", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"), 24.0),
+    _bra("NWTSH1", "Comfort Plus 6", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0),
 )
 
 

@@ -195,12 +195,13 @@ def _by_id(templates: list[dict], pid: str) -> dict:
 
 def test_the_issue_dress_is_a_tailored_coat_dress(templates):
     """PLT-DA08203 was "Red Coat Dress", a boat-neck mini in cotton poplin (the issue). It keeps its
-    title, its word and its color, and is now a v-neck, Midi, Crepe dress."""
+    title, its word and its color, and is now a v-neck, Midi dress. Its material is what the draw
+    gives (none, or one a coat dress allows: the table check below holds it); the draw moved when
+    decoy class 5 was retired (gen#663)."""
     d = _by_id(templates, "PLT-DA08203")
     assert d["title"] == "Red Coat Dress"
     assert d["neckline"] == "v-neck"
     assert style_table.length_of(d) == "Midi"
-    assert style_table.material_of(d) == "Crepe"
     assert style_table.violations(d) == []
 
 
