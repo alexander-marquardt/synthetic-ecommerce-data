@@ -1228,6 +1228,7 @@ return a self-consistent wrong answer.
 
 ```sh
 python scripts/mutation_check.py
+python scripts/mutation_check.py --list   # the mutation names, one per line, nothing run
 ```
 
 Breaks the code each new test guards, in both directions where a property has
