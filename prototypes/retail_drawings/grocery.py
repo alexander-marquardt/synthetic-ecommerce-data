@@ -55,6 +55,7 @@ import grocery_rows  # noqa: E402
 import kit_biscuits  # noqa: E402,F401 -- registers sleeve
 import kit_chocolate  # noqa: E402,F401 -- registers chocolate_box
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
+import line_grammar  # noqa: E402
 from departments import check as check_departments  # noqa: E402
 from export import NUMERIC_FACTS, standard_document  # noqa: E402
 from grocery_ingredients import (  # noqa: E402
@@ -349,7 +350,9 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             if listed := ingredients(fam.code, flavor.name, pid) if fam.food else None:
                 sku["ingredients"] = listed
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
-    head = f"{line} Organic" if organic else line
+    # A food style leads with its brand, then its model (gen#665); the rest keep the range alone.
+    head = f"{brand} {line}" if fam.food else line
+    head = f"{head} Organic" if organic else head
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
     attrs = [attr("line", "Line", line)]  # the range the title leads with (gen#623)
     attrs += [attr(fam.axis, fam.axis_name or fam.axis.capitalize(), f.name) for f in flavors]
@@ -413,6 +416,17 @@ def range_names() -> Deal:
     return Deal("grocery", brands, reserved)
 
 
+@functools.cache
+def food_names(food: str) -> line_grammar.Deal:
+    """The grocery half of a food family's model words (gen#665), dealt over the brands of the
+    family's grocery kinds (the tier's too), so a model word is one brand's."""
+    brands: set[str] = set()
+    for f in FAMILIES:
+        if f.food and line_grammar.FAMILIES[f.product_type] == food:
+            brands |= {*f.brands, *grocery_rows.TIER_BRANDS.get(f.brands, ())}
+    return line_grammar.Deal(food, brands, {}, "grocery")
+
+
 def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     """The grocery records: the anchors, then each family's share of ``skus``.
 
@@ -438,7 +452,8 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         grade = rng.choice(fam.grades) if fam.grades else ""
         packs = stocked(fam, packs, held[fam.code + "#"])
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
-        rec = style(fam, pid, owned(brand, slot), brand, flavors, packs, may, organic, grade)
+        named = food_names(line_grammar.FAMILIES[fam.product_type]).owned if fam.food else owned
+        rec = style(fam, pid, named(brand, slot), brand, flavors, packs, may, organic, grade)
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:
