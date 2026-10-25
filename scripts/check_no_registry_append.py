@@ -126,8 +126,8 @@ REGISTRIES: tuple[Registry, ...] = (
         _shapes(r'^\s+"[a-z]+": "[^"]+",'),
         '    "probe": "Probes",',
         "add tests/decoy_true_nodes/<topic>.py with a NODES dict (noun -> the node the noun"
-        " really names); tests/decoy_true_nodes/__init__.py finds it by glob and nothing is"
-        " listed here",
+        " really names); tests/decoy_true_nodes/__init__.py finds it by walking the package and"
+        " nothing is listed here",
         ("tests/decoy_true_nodes/__init__.py",),
     ),
 )
