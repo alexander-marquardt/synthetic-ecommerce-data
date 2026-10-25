@@ -29,6 +29,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
+from test_catalog_facts import leaves_axis_to_field
 from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "key_stock"
@@ -201,11 +202,17 @@ def test_the_large_build_offers_every_section_in_every_combination(large_docs):
 def test_a_rectangular_bars_title_names_its_height_and_a_square_bars_does_not(large_docs):
     """A line can hold the square bar and the rectangular bar of one width, and
     a title that names only the width reads the two as one SKU listed twice."""
-    rectangular = [doc for doc in large_docs if _section(doc)[0] != _section(doc)[1]]
-    named = [doc for doc in large_docs if "Height" in doc["title"]]
+    # A title may leave its axis values to the axis field (#657); the rule is for the titles
+    # that state one.
+    stating = [doc for doc in large_docs if not leaves_axis_to_field(doc)]
+    assert len(stating) > len(large_docs) / 2
+    rectangular = [doc for doc in stating if _section(doc)[0] != _section(doc)[1]]
+    named = [doc for doc in stating if "Height" in doc["title"]]
     assert [doc["sku"] for doc in named] == [doc["sku"] for doc in rectangular]
-    titles = {(doc["product_id"], doc["title"]) for doc in large_docs}
-    assert len(titles) == len(large_docs)
+    square = [doc for doc in large_docs if _section(doc)[0] == _section(doc)[1]]
+    assert not [doc for doc in square if "Height" in doc["title"]]
+    titles = {(doc["product_id"], doc["title"]) for doc in stating}
+    assert len(titles) == len(stating)
 
 
 def test_a_record_publishes_the_fits_name_and_no_tolerance_or_standard(large_docs):

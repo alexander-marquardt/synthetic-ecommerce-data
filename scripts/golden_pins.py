@@ -180,27 +180,28 @@ def measure_title_cut() -> dict:
     Spies on ``build_title`` rather than reimplementing the grammar: the segments and delimiters
     are the production ones and only the trimming rule is the old one.
     """
-    from synthetic_ecommerce_data.core.naming import DELIMITER, TIGHT_DELIMITER
+    from synthetic_ecommerce_data.core.naming import DELIMITER
+    from synthetic_ecommerce_data.domains.industrial import finishing as finishing_module
     from synthetic_ecommerce_data.domains.industrial import generate as generate_module
     from synthetic_ecommerce_data.domains.industrial import titles as titles_module
 
     real = titles_module.build_title
     assembled: dict[str, tuple[str, int]] = {}
 
-    def spy(item, segments, *, cap=100, tight_delimiter_at=None):
+    def spy(item, segments, *, cap=100):
         pieces = [item]
-        for index, segment in enumerate(segments):
-            delimiter = TIGHT_DELIMITER if index == tight_delimiter_at else DELIMITER
-            pieces.append(delimiter + segment.text())
-        title = real(item, segments, cap=cap, tight_delimiter_at=tight_delimiter_at)
+        for segment in segments:
+            pieces.append(DELIMITER + segment.text())
+        title = real(item, segments, cap=cap)
         assembled.setdefault(title.text, ("".join(pieces), cap))
         return title
 
-    titles_module.build_title = spy
+    # Both modules build titles: the thinning pass rebuilds a title the titles module made.
+    titles_module.build_title = finishing_module.build_title = spy
     try:
         catalog = generate_module.generate()
     finally:
-        titles_module.build_title = real
+        titles_module.build_title = finishing_module.build_title = real
 
     # The breadth categories build their titles with ``naming.build_title`` directly and a simpler
     # grammar with no segment list to cut, so they are not part of what this measures.
