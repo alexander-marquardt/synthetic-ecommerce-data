@@ -1512,3 +1512,16 @@ def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceili
         if line := scale._line(r):
             owner[line.split()[0]].add(r["brand"])
     assert owner and sorted(w for w, b in owner.items() if len(b) > 1) == []
+
+
+def test_the_documented_food_example_words_are_real_lead_words():
+    """Guard (gen#665): the model word in the line_grammar docstring's food example is one of the
+    FOOD_LEADS words, so the docs do not teach a word the build never draws. Metric: the example
+    words ("Basics", "Finest") and the docstring title's model word that are in no lead list."""
+    doc = line_grammar.__doc__ or ""
+    leads = {w for fam in line_grammar.FOOD_LEADS.values() for half in fam.values() for w in half}
+    quoted = re.search(r"food and drink[^\n]*\n\s*\(``(\w+)``, ``(\w+)``\)", doc)
+    title = re.search(r'"Hollin (\w+) Reserve 2 Strawberry Jam', doc)
+    assert quoted and title
+    missing = [w for w in (*quoted.groups(), title.group(1)) if w not in leads]
+    assert missing == []
