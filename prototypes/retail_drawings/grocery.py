@@ -90,6 +90,11 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E40
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
+#: The top category of fresh produce, whose titles stay short (fresh against decoy length, gen#445).
+PRODUCE = "Fruit & Vegetables"
+#: The word overlap (Jaccard, over brand and title) at which two same-leaf food listings read as
+#: one; ``scale.NEAR_DUPLICATE_JACCARD`` is this value (gen#665).
+NEAR_DUPLICATE_JACCARD = 0.8
 ATTEMPTS = 40
 #: The 50K tier (gen#376) has a larger pool of titles to miss on, so a family gives up later.
 TIER_ATTEMPTS = 400
@@ -445,6 +450,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     budget = budgets(skus)
     held: Counter[str] = Counter()
     titles: set[str] = set()
+    listed: dict[str, list[frozenset[str]]] = {}
     recs: list[dict] = []
 
     def add(fam: Family, slot: int, brand: str, flavors: list[F], packs: list[str], may: str,
@@ -452,12 +458,24 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         grade = rng.choice(fam.grades) if fam.grades else ""
         packs = stocked(fam, packs, held[fam.code + "#"])
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
-        named = food_names(line_grammar.FAMILIES[fam.product_type]).owned if fam.food else owned
-        rec = style(fam, pid, named(brand, slot), brand, flavors, packs, may, organic, grade)
+        if fam.food:
+            deal = food_names(line_grammar.FAMILIES[fam.product_type])
+            # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1"
+            reach = len(deal.of(brand)) * (1 + len(line_grammar.FOOD_SUBS[deal.fam]))
+            model = deal.owned(brand, slot % reach if fam.path[1] == PRODUCE else slot)
+        else:
+            model = owned(brand, slot)
+        rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade)
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:
             return False
+        if fam.food:  # a brand's few model words must not give a listing another's twin (gen#665)
+            tokens = frozenset(standard.words(f"{rec['brand']} {rec['title']}").split())
+            seen = listed.setdefault(fam.path[-1], [])
+            if any(len(tokens & o) / len(tokens | o) >= NEAR_DUPLICATE_JACCARD for o in seen):
+                return False
+            seen.append(tokens)
         titles.add(key)
         held[fam.code + "#"] += 1
         held[fam.code] += rec["sku_count"]

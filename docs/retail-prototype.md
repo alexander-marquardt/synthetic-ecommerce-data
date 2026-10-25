@@ -142,6 +142,16 @@ draw moves. The tier's styles, SKUs, brands and each family's share are `grocery
 `retail_figures.figures()` (and in the derived `golden-retail/stats.json`);
 `tests/test_grocery_50k_tier_376.py` holds them.
 
+A food or drink title leads with its brand (#665), the way a supermarket listing does: "Hollin
+Finest Reserve 2 Strawberry Jam". Every food kind maps to a family in `line_grammar.FAMILIES`
+(`pantry`, `drink`, `alcohol`), and the range word is a plain model word (`FOOD_LEADS`: Finest,
+Heritage, Brisk, Cellar), then a sub-model (`FOOD_SUBS`) and a number, then the kind. No coined
+word and no place-like name stands in front. Each family's lead list is split in two, one half
+for the grocery build and one for the scale build, so one range word belongs to one brand (#642).
+Fresh produce stops at the sub-model ("Finest Batch Oranges, Class 1"). The grocery build also
+rejects a food style whose title is a near-twin (`grocery.NEAR_DUPLICATE_JACCARD`) of one it holds
+in the same leaf. `tests/test_retail_scale.py` holds the brand-first and one-brand guards.
+
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
 order, never in conflict with `contains`, which names the allergens the list holds a source
 of); the flat file carries each SKU's own list. A product's list is the base recipe all its flavors share, so it
