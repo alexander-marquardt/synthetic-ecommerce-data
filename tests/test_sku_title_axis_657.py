@@ -36,7 +36,9 @@ RETAIL = ROOT / "prototypes" / "retail_drawings"
 #: their axis values. The generator targets 0.70 (``finishing.AXIS_IN_TITLE``): most titles
 #: name the size, because a title that never did would read as a different product, and about
 #: three in ten leave it to the axis field, the way a distributor's listing is uneven. The
-#: band is wide enough that a re-seed (a spread of about one point over 8,500 SKUs) never
+#: realised share is 0.7726, over the 0.70 drawn, because the title-uniqueness guard keeps the
+#: value on SKUs that would otherwise share a title; the headroom to the top edge is 2.7 points.
+#: The band is wide enough that a re-seed (a spread of about one point over 8,500 SKUs) never
 #: leaves it, and narrow enough that "always" (0.987 before this) and "never" both fail.
 BAND = (0.60, 0.80)
 
