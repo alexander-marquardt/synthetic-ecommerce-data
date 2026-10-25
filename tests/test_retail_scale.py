@@ -1491,20 +1491,22 @@ def test_every_food_and_drink_kind_is_mapped_to_a_line_grammar_family(ceiling):
     assert sorted(k for k in kinds if k not in line_grammar.FAMILIES) == []
 
 
-def test_a_food_or_drink_title_leads_with_its_brand(ceiling):
-    """Guard (gen#665): a food title that names a range leads with its brand, so the range
-    reads as the brand's model ("Hollin Finest Reserve 2 Strawberry Jam"), not as a second brand
-    ("Larkrise Jam"). The decoy rows, whose Line is a seasonal or a color-word attribute, keep
-    their authored titles. Metric: the range-named food titles that do not lead with the brand."""
+def test_a_food_or_drink_title_leads_with_its_brand_in_a_mixture(ceiling):
+    """Guard (gen#665): of the food titles that name a range, most lead with the brand, so the
+    range reads as the brand's model ("Hollin Finest Reserve 2 Strawberry Jam"), not as a second
+    brand ("Larkrise Jam"), and some do not, as the maintainer ruled on #665: "we can always make
+    some of the real products not have their brand in their title .. they don't all need it ..
+    we can have a mixture". The decoy rows keep their authored titles. Metric: the share of
+    range-named food titles led by the brand (between a half and nine tenths), and the
+    brand-less ones that name another brand."""
     decoys = scale.SEASONAL_IDS | scale.COLORWORD_IDS
-    off = [
-        (r["product_id"], r["title"])
-        for r in _food(ceiling.records)
-        if scale._line(r)  # a style that names a range; a plain authored title has none
-        and r["product_id"] not in decoys
-        and not r["title"].startswith(f"{r['brand']} ")
-    ]
-    assert off[:10] == [], len(off)
+    rows = [r for r in _food(ceiling.records) if scale._line(r) and r["product_id"] not in decoys]
+    led = [r for r in rows if r["title"].startswith(f"{r['brand']} ")]
+    assert 0.5 <= len(led) / len(rows) <= 0.9, (len(led), len(rows))
+    brands = {r["brand"] for r in ceiling.records}
+    bare = [r for r in rows if r not in led]
+    assert [(r["product_id"], r["title"]) for r in bare
+            if any(r["title"].startswith(f"{b} ") for b in brands)][:10] == []  # fmt: skip
 
 
 def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceiling):
