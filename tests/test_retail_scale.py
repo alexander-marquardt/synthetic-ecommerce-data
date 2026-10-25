@@ -1460,3 +1460,62 @@ def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)
+
+
+#: The kinds whose styles led with a range name before gen#666, by department.
+CARE_KINDS = {
+    "Cleaning": (
+        "Laundry Detergent", "Floor Cleaner", "Bathroom Cleaner", "Dish Soap", "Glass Cleaner",
+        "Air Freshener", "Fabric Softener", "Kitchen Cleaner", "Toilet Cleaner",
+    ),
+    "Beauty": (
+        "Hand Wash", "Shower Gel", "Lipstick", "Foundation", "Hand Cream", "Body Cream",
+        "Eye Cream", "Foot Cream", "Body Lotion", "Moisturiser", "Conditioner", "Shampoo",
+        "Wash Bag", "Make-Up Bag", "Lip Balm", "Eyeliner", "Perfume",
+    ),
+}  # fmt: skip
+
+
+def _care_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The cleaning and beauty styles of :data:`CARE_KINDS` that name a model (gen#666)."""
+    return [
+        r for r in records
+        if r["category_path"][0] in CARE_KINDS
+        and r["product_type"] in CARE_KINDS[r["category_path"][0]]
+        and scale._line(r)
+    ]  # fmt: skip
+
+
+def test_every_cleaning_and_beauty_kind_is_in_a_family():
+    """Guard (gen#666): a kind outside ``line_grammar.FAMILIES`` keeps a range name that leads its
+    title like a second brand ("Foxmere Orange Laundry Liquid"). Metric: kinds with no family."""
+    kinds = [k for each in CARE_KINDS.values() for k in each]
+    off = [k for k in kinds if k not in line_grammar.FAMILIES]
+    assert off == []
+    assert {line_grammar.FAMILIES[k] for k in CARE_KINDS["Cleaning"]} == {"cleaning"}
+    assert {line_grammar.FAMILIES[k] for k in CARE_KINDS["Beauty"]} == {"beauty"}
+
+
+def test_a_cleaning_or_beauty_title_leads_with_its_brand(ceiling):
+    """Guard (gen#666): public listings lead with the brand ("Persil Bio Laundry Liquid"), so a
+    title that opens on a model word reads as a second brand. Metric: the model-named cleaning
+    and beauty titles that do not start with their brand, and the styles checked."""
+    care = _care_records(ceiling.records)
+    assert len(care) > 800
+    off = [
+        (r["product_id"], r["title"]) for r in care if not r["title"].startswith(f"{r['brand']} ")
+    ]
+    assert off[:10] == [], len(off)
+
+
+def test_a_cleaning_or_beauty_model_is_built_from_its_family_vocabulary(ceiling):
+    """Guard (gen#666): the model of a cleaning or beauty style is a plain word of its family, a
+    sub-model and a code, never a coined range name. Metric: the styles whose model is not."""
+    off = [
+        (r["product_id"], r["brand"], scale._line(r))
+        for r in _care_records(ceiling.records)
+        if not line_grammar.is_model(
+            line_grammar.FAMILIES.get(r["product_type"], ""), r["brand"], scale._line(r)
+        )
+    ]
+    assert off[:10] == [], len(off)
