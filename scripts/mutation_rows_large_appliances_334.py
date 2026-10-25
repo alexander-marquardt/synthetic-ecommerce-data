@@ -18,8 +18,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "large appliances: the Black Edition fridge is sold in black",
         "type_specs/fridge_freezer.py",
-        '"freezer with frost free cooling.", (rows.SILVER,),',
-        '"freezer with frost free cooling.", (rows.BLACK,),',
+        '"freezer with frost free cooling.", (lar.SILVER,),',
+        '"freezer with frost free cooling.", (lar.BLACK,),',
         f'{_T} -k "black_edition"',
         "the structured finish of the Black Edition fridge stays stainless steel",
         _R,
