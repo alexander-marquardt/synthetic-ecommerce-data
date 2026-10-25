@@ -41,6 +41,9 @@ class Family(NamedTuple):
     leads: tuple[str, ...]
     subs: tuple[str, ...]
     numbers: tuple[int, ...]
+    grocery_leads: tuple[str, ...] = ()
+    bare: bool = False
+    mixed_brand: bool = False
 
 
 def families(core_kinds: Iterable[str] = (), reserved: Iterable[str] = ()) -> dict[str, Family]:
