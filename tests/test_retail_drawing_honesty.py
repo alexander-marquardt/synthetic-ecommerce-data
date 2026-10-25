@@ -84,8 +84,12 @@ def records() -> list[dict[str, Any]]:
     return scale.build(CEILING_SKUS).records
 
 
+#: The bare model number a line title carries before its kind ("Batch 3 Ginger Beer", gen#665).
+MODEL_NUMBER = re.compile(r"(?<=[A-Za-z]) \d{1,2} (?=[A-Z])")
+
+
 def _noun(title: str) -> str:
-    head = CUT.split(title)[0].split()
+    head = CUT.split(MODEL_NUMBER.sub(" ", title))[0].split()
     return head[-1].lower().rstrip("s") if head else ""
 
 
