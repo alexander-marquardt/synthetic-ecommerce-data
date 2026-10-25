@@ -21,9 +21,10 @@ says nothing about the SKU.
 
 Since #657 a title is not required to carry the variant axis value: about three
 SKUs in ten leave it to the axis field (``tests/test_sku_title_axis_657.py`` holds the
-share). Those SKUs are told apart by that field and by their description, so the
-title-level checks below apply to the titles that DO state an axis value, and a
-shared title is only allowed where it states none.
+share). Those SKUs are told apart by that field and by their description, and they
+never share a title with a sibling of the line: the title-uniqueness check below holds
+for every SKU, while the check that a title names a value of its own skips those that
+state no axis value.
 
 Three tiers, each read at a different moment, and this file is about the first
 two:
@@ -186,55 +187,26 @@ def _states_an_axis_value(doc: dict) -> bool:
     return any(_states(doc["title"], value) for value in _axis_values(doc))
 
 
-def test_no_two_skus_in_one_product_line_share_a_description(
-    by_line: dict[str, list[dict]],
+@pytest.mark.parametrize("field", ["title", "description"])
+def test_no_two_skus_in_one_product_line_share_a_title_or_a_description(
+    by_line: dict[str, list[dict]], field: str
 ) -> None:
     """The headline acceptance, and the one that failed loudest before.
 
     Within a LINE rather than over the whole catalog: two unrelated lines of
-    one brand may legitimately publish the same description, and they never sit
-    beside each other on a card grid. Two SKUs of one line always do.
+    one brand may legitimately publish the same title, and they never sit
+    beside each other on a card grid. Two SKUs of one line always do. Holds
+    since #657 too: a SKU title may leave its axis value to the axis field,
+    but never at the price of the same title on two sizes of one line.
     """
-    duplicates = _duplicates(by_line, "description")
+    duplicates = _duplicates(by_line, field)
     lines = {product_id for product_id, _, _ in duplicates}
     skus = sum(count for _, _, count in duplicates)
     assert duplicates == [], (
-        f"{len(lines)} product line(s) publish a description that {skus} of their SKUs "
+        f"{len(lines)} product line(s) publish a {field} that {skus} of their SKUs "
         f"share, e.g. {duplicates[:3]}. A shopper reads those as duplicated data. "
         f"Regenerate with `{REBUILD}`."
     )
-
-
-def test_two_skus_in_one_product_line_share_a_title_only_if_it_states_no_axis_value(
-    by_line: dict[str, list[dict]],
-) -> None:
-    """The title half of the headline acceptance, as it stands since #657.
-
-    A SKU title may leave the axis value to the axis field, so two sizes can
-    read alike. That is allowed ONLY where the shared title names no axis value
-    at all: a title that names the size must not be the title of two sizes.
-    """
-    duplicates = _duplicates(by_line, "title")
-    naming = [
-        (product_id, title, count)
-        for product_id, title, count in duplicates
-        if any(
-            _states_an_axis_value(doc)
-            for doc in by_line[product_id]
-            if doc["title"] == title
-        )
-    ]
-    assert naming == [], (
-        f"{len(naming)} product line(s) publish a title that names an axis value and is "
-        f"also another SKU's title, e.g. {naming[:3]}. Regenerate with `{REBUILD}`."
-    )
-    # And the other direction: where the title says nothing of the axis, the axis field does.
-    unclear = [
-        product_id
-        for product_id, docs in sorted(by_line.items())
-        if len({tuple(_axis_values(doc)) for doc in docs}) != len(docs)
-    ]
-    assert unclear == [], f"{len(unclear)} line(s) have two SKUs with one axis value: {unclear[:3]}"
 
 
 def test_the_description_is_not_the_line_title_over_again(flat_docs: list[dict]) -> None:
