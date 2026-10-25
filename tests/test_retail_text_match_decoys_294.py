@@ -201,3 +201,28 @@ def test_a_guard_holds_every_word_of_its_query_and_ranks_first(
     words = set(query.split())
     assert words <= set(rows[0].title.lower().replace(",", " ").split()), (query, rows[0].title)
     assert br.rank(index, query, 1)[0]["product_id"] == f"PLT-D{rows[0].code}", query
+
+
+BLOOD_RED = "blood red dress"
+
+
+def test_blood_red_dress_true_matches_lead_and_the_decoys_follow_in_the_top_10(
+    index: br.Index, ceiling: list[dict]
+) -> None:
+    """gen#540: a "Blood Red" dress is a red dress and ranks first; a title with "blood red" or
+    "blood orange" on a candle, a lipstick or a jam is a text match that is not a red dress."""
+    rows = [d for d in dr.TABLE if d.query == BLOOD_RED]
+    hits = [d for d in rows if d.true_hit]
+    decoys = [d for d in rows if not d.true_hit]
+    assert 3 <= len(hits) <= 5 and 6 <= len(decoys) <= 10, (len(hits), len(decoys))
+    assert all(d.title.startswith("Blood Red ") and d.color == "Red" for d in hits)
+    assert all("blood red" in d.title.lower() or "blood orange" in d.title.lower() for d in decoys)
+    by_id = {r["product_id"]: r for r in ceiling}
+    for d in decoys:  # no decoy is a red dress, in any field
+        doc = by_id[f"PLT-D{d.code}"]
+        red = "Red" in {c["color"] for c in doc.get("color_options", [])}
+        assert not (red and doc["product_type"] == "Dress"), d.title
+    top = [r["product_id"] for r in br.rank(index, BLOOD_RED, 10)]
+    assert set(top[:len(hits)]) == {f"PLT-D{d.code}" for d in hits}, top
+    assert sum(i in dr.BY_ID and not dr.BY_ID[i].true_hit for i in top) >= 3, top
+    assert sum("blood red" in r["title"].lower() for r in ceiling) >= 10
