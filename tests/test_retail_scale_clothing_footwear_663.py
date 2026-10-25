@@ -185,3 +185,33 @@ def test_no_apparel_decoy_clones_a_petite_style(ceiling):
         if r["product_id"] in ids and petite(r) and r["product_type"] in has_other
     ]
     assert off[:10] == [], len(off)
+
+
+def test_a_petite_exemplar_is_replaced_in_its_own_place():
+    """#663: the walk keeps its positions, so the decoys drawn from the other exemplars do not
+    move (the Kids dress leaf and the "Straight" jeans of gen#434 pin theirs)."""
+    import decoy_apparel
+
+    a, b, c, d = (
+        {"product_id": "a", "size_range": ["regular"]},
+        {"product_id": "b", "size_range": ["petite"]},
+        {"product_id": "c", "size_range": ["petite"]},
+        {"product_id": "d", "size_range": ["regular"]},
+    )
+    assert [x["product_id"] for x in decoy_apparel._without_petite([a, b, c, d])] == [
+        "a",
+        "a",
+        "a",
+        "d",
+    ]
+    assert decoy_apparel._without_petite([b, c]) == [b, c]
+    # a petite first takes the last plain exemplar; a petite after two plain ones takes the
+    # nearest one before it, not the first
+    e = {"product_id": "e", "size_range": ["petite"]}
+    assert [x["product_id"] for x in decoy_apparel._without_petite([b, a, c, d, e])] == [
+        "d",
+        "a",
+        "a",
+        "d",
+        "d",
+    ]

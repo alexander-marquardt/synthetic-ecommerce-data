@@ -793,6 +793,24 @@ def _restyle(cls, spec, exemplars, step, o, used, words):
     )
 
 
+def _without_petite(pool: list[dict]) -> list[dict]:
+    """``pool`` with each petite exemplar replaced, in its own place, by the nearest one before it
+    that is not (the last one, for a petite exemplar that comes first).
+
+    A decoy is never on sale, so a petite clone dilutes the petite sale share (#663). The walk
+    keeps its positions, so the decoys of the other exemplars do not move (the "Straight" jeans
+    and the Kids dress leaf pin theirs). A type whose exemplars are all petite (the joggers) keeps
+    them."""
+    plain = [i for i, d in enumerate(pool) if "petite" not in d.get("size_range", ())]
+    if not plain:
+        return pool
+    out = list(pool)
+    for i, d in enumerate(pool):
+        if "petite" in d.get("size_range", ()):
+            out[i] = pool[max((j for j in plain if j < i), default=plain[-1])]
+    return out
+
+
 def build(body: list[dict]) -> list[Row]:
     """Every decoy row for ``body`` (the templates without the decoys), in plan order.
 
@@ -815,7 +833,7 @@ def build(body: list[dict]) -> list[Row]:
             pool.setdefault(d["product_type"], []).append(d)
     rows = []
     for spec in types():
-        exemplars = pool[spec.product_type]
+        exemplars = _without_petite(pool[spec.product_type])
         used: set[tuple[str, str]] = set()
         words: set[tuple[int, str]] = set()
         step = 0
