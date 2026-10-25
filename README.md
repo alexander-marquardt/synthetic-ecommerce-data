@@ -531,13 +531,14 @@ differently (`core/voice.py`).
   non-factual qualifier or the brand's name, and a trailing pack segment.
 * **A SKU title may carry its variant axis value; a product name never does** (#657). The
   product name (`parent_title`) heads the whole product, so it states no value of any of its
-  axes. A SKU title names an axis value on about 70% of SKUs (`finishing.AXIS_IN_TITLE`, a
-  per-SKU hash of the seed, so the build's random stream does not shift) and leaves it to the
+  axes. A SKU title names an axis value on about 77% of SKUs (measured 0.7726; `finishing.AXIS_IN_TITLE` draws
+  70% from a per-SKU hash of the seed, so the build's random stream does not shift, and the
+  uniqueness rule below raises the realised share) and leaves it to the
   axis field (`variant_axes`, `facets`) on the rest. A title's segments are always separated by
   a comma and a space (`L, Alloy Steel`). `tests/test_sku_title_axis_657.py` holds all three,
   with the share inside a 0.60-0.80 band. A SKU keeps its axis value when leaving it out would
   give it the title of a sibling in its line, so the title-uniqueness property below still
-  holds and the share is a little under the 70% drawn.
+  holds; that is why the realised share is about 7 points over the 70% drawn.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
   `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
