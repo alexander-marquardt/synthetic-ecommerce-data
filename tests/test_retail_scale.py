@@ -1460,3 +1460,30 @@ def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)
+
+
+HOME_DEPARTMENTS = {"Home", "Toys", "Gifts", "Garden"}
+
+
+def test_every_home_gifts_garden_and_toys_kind_has_a_family():
+    """Guard (gen#664): a kind outside ``line_grammar.FAMILIES`` keeps the invented range words of
+    :mod:`range_ownership`, which lead its titles like a second brand ("Eskshaw Scalloped Velvet
+    Lampshade"). Metric: the product types of the four departments that no family names."""
+    kinds = {
+        r["product_type"] for r in scale.templates() if HOME_DEPARTMENTS & set(r["department"])
+    }
+    assert sorted(k for k in kinds if k not in line_grammar.FAMILIES) == []
+
+
+def test_a_home_gifts_garden_or_toys_title_does_not_lead_with_a_range_name(ceiling):
+    """Guard (gen#664): "Elmfield 5 Light Flush Ceiling Light" with "Elmfield" a range word, not the
+    brand, reads as a second brand. A style of the four departments names its model after its
+    brand or not at all. Metric: the styles whose title starts with their range name, by kind."""
+    led = collections.Counter(
+        r["product_type"]
+        for r in ceiling.records
+        if HOME_DEPARTMENTS & set(r["department"])
+        and (line := scale._line(r))
+        and r["title"].startswith(f"{line} ")
+    )
+    assert dict(led) == {}
