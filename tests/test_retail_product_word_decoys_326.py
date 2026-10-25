@@ -29,6 +29,7 @@ import main_colors  # noqa: E402
 import scale  # noqa: E402
 from distractors import tokens  # noqa: E402
 
+from decoy_true_nodes import TRUE_NODE  # noqa: E402
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: The nouns the issue names: each carries at least two class-8 decoys.
@@ -61,83 +62,6 @@ QUERIES = (
     "white coat",
     "black shoes",
 )
-#: noun -> the category node of the product the noun really names (a decoy never sits in it).
-TRUE_NODE = {
-    "dress": "Dresses",
-    "towel": "Beach Towels",
-    "shoe": "Shoes",
-    "boot": "Boots",
-    "coat": "Coats & Jackets",
-    "jacket": "Coats & Jackets",
-    "jumper": "Jumpers",
-    "skirt": "Skirts",
-    "suit": "Suits & Tailoring",
-    "bra": "Bras",
-    "trainer": "Trainers",
-    "hat": "Hats",
-    "belt": "Belts",
-    "tie": "Ties",
-    "sofa": "Sofas",
-    "pump": "Pumps",
-    "cap": "Caps",
-    # the Sports & Outdoors nouns of the #368 rows: the node of the sports product
-    "block": "Yoga Blocks",
-    # the nouns of the #352 rows
-    "bicycle": "Bikes",
-    "helmet": "Bike Helmets",
-    "kayak": "Kayaks",
-    "scooter": "Kick Scooters",
-    "skateboard": "Skateboards",
-    "strap": "Yoga Straps",
-    "band": "Resistance Bands",
-    "resistance": "Resistance Bands",
-    "lantern": "Lanterns",
-    "roll": "Roll Mats",
-    "bat": "Baseball Bats",
-    "baseball": "Baseballs",
-    "glove": "Baseball Gloves",
-    "batting": "Batting Helmets",
-    "swim": "Swim Caps",
-    "kickboard": "Kickboards",
-    "armband": "Swim Armbands",
-    "football": "Footballs",
-    "tenni": "Tennis Rackets",
-    "badminton": "Badminton Sets",
-    "picnic": "Picnic Blankets",  # gen#217
-    # the Electronics nouns of the #332 rows: the node of the device the noun names
-    "mouse": "Mice",
-    "tablet": "Tablets",
-    "monitor": "Monitors",
-    "mobile": "Smartphones",
-    "charger": "Chargers",
-    "apple": "Smartphones",
-    # the first-increment Sports & Outdoors nouns of the #375 rows
-    "tent": "Tents",
-    "sleeping": "Sleeping Bags",
-    "camping": "Camping Chairs",
-    "yoga": "Yoga Mats",
-    "dumbbell": "Dumbbells",
-    "kettlebell": "Kettlebells",
-    "foam": "Foam Rollers",
-    # the Gifts nouns of the #425 rows: the node of the gift
-    "mug": "Mugs & Drinkware",
-    "card": "Greeting Cards",
-    "notebook": "Notebooks",
-    "box": "Money Boxes",
-    "hamper": "Pamper Hampers",
-    # the large appliances of gen#334; the washing machine's leaf is "Laundry", a node the
-    # Cleaning tree has too, so its decoys are kept out of the department node instead
-    "fridge": "Fridges & Freezers",
-    "dishwasher": "Dishwashers",
-    "washing": "Large Appliances",
-    # the cups of gen#620: the bras named for their cup sit in no drinkware
-    "cup": "Drinkware",
-    # the cycling accessories of gen#625: the print decoys sit in no Cycling leaf
-    "lube": "Chain Lube",
-    "bottle": "Bike Bottles",
-    "saddle": "Bike Saddles",
-    "pedal": "Bike Pedals",
-}
 
 
 @pytest.fixture(scope="module")

@@ -113,11 +113,22 @@ REGISTRIES: tuple[Registry, ...] = (
     ),
     Registry(
         "docs/retail-product-word-decoys.md",
-        _shapes(r"^\|"),
+        _shapes(r"^\|", r"^\*\*[^*\n]+\(gen#\d+\)\.\*\*"),
         "| red sofa | sofa | PLT-XZ01 | Sofa Throw | Throw | category |",
         "the table is built, not pasted: scripts/build_derived.py writes"
-        " docs/retail-product-word-decoys-table.md from decoy_product_words.TABLE",
-        ("scripts/build_derived.py",),
+        " docs/retail-product-word-decoys-table.md from decoy_product_words.TABLE;"
+        " write the feature's section as its own page,"
+        " docs/retail-product-word-decoys/<topic>-<issue>.md",
+        ("scripts/build_derived.py", "docs/retail-product-word-decoys/cups-620.md"),
+    ),
+    Registry(
+        "tests/test_retail_product_word_decoys_326.py",
+        _shapes(r'^\s+"[a-z]+": "[^"]+",'),
+        '    "probe": "Probes",',
+        "add tests/decoy_true_nodes/<topic>.py with a NODES dict (noun -> the node the noun"
+        " really names); tests/decoy_true_nodes/__init__.py finds it by walking the package and"
+        " nothing is listed here",
+        ("tests/decoy_true_nodes/__init__.py",),
     ),
 )
 
