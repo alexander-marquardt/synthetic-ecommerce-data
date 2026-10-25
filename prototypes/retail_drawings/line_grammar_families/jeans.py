@@ -12,7 +12,7 @@ from __future__ import annotations
 KINDS = ("Jeans",)
 #: The lead word of a model.
 LEADS = (
-    "Original", "Heritage", "Core", "Authentic", "Staple", "Standard", "Icon", "Legacy",
+    "Original", "Heritage", "Core", "Genuine", "Staple", "Standard", "Icon", "Legacy",
     "Rider", "Ranger", "Drover", "Workwear", "Frontier", "Rodeo", "Plain", "Practical", "Craft",
     "Origin", "Anchor", "Smithy", "Foundry", "Cadet",
 )  # fmt: skip

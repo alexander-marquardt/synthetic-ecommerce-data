@@ -450,7 +450,7 @@ lactase: lactase enzyme
 yoghurt: yoghurt; live yoghurt culture
 eggs: egg; egg white; egg yolk; pasteurised egg; pasteurised egg yolk
 wheat: wheat bran; wheat flour; wheat malt; wheat rusk; wholegrain wheat; wholemeal wheat flour; durum wheat semolina; cooked lasagne pasta (water, durum wheat semolina); cooked macaroni (water, durum wheat semolina)
-barley: barley malt; barley malt extract; barley malt vinegar; brown malt; chocolate malt; malted barley; malted barley flour; munich malt; caramalt; crystal malt; pale malt (barley); pilsner malt; pilsner malt (barley); roasted barley
+barley: barley malt; barley malt extract; barley malt vinegar; malted barley; malted barley flour; munich malt; caramalt; crystal malt; pale malt (barley); pilsner malt; pilsner malt (barley); roasted barley
 beer: beer (water, barley malt)
 oats: oat; oat bran; oat flour; rolled oat; wholegrain oat; gluten free oat; gluten free oat bran; gluten free rolled oat
 rice: rice; rice flour; brown rice flour; cooked basmati rice; cooked brown rice; cooked jasmine rice; cooked long grain rice; puffed rice
@@ -484,14 +484,14 @@ blueberries: blueberry piece
 cranberries: cranberry; dried cranberry
 cherries: cherry juice; glace cherry; black cherry; cherry; morello cherry
 dates: date
-gooseberries: gooseberry puree
 grapes: concentrated grape juice; grape must
 mangoes: mango; mango puree
+lychees: lychee juice
 passion fruit: passion fruit juice
-peaches: peache
-pears: pear juice; pear puree
+peaches: peache; peach puree
+pears: pear puree
 pineapples: pineapple; pineapple juice; pineapple juice from concentrate; pineapple puree
-plums: plum puree
+plums: plum puree; damson puree
 raspberries: raspberry; raspberry juice; raspberry puree; freeze-dried raspberry; dried raspberry; raspberry jam
 strawberries: strawberry; strawberry jam; strawberry juice; strawberry piece; strawberry puree; dried strawberry; freeze-dried strawberry
 raisins: raisin
@@ -559,7 +559,7 @@ tuna: yellowfin tuna
 coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica coffee (brazil); dark roasted arabica coffee (colombia); dark roasted robusta coffee (vietnam); decaffeinated arabica coffee; decaffeinated robusta coffee; freeze-dried arabica coffee; freeze-dried robusta coffee; roasted arabica coffee (brazil); roasted arabica coffee (cauca); roasted arabica coffee (colombia); roasted arabica coffee (huila); roasted arabica coffee (narino); roasted arabica coffee (santander); roasted arabica coffee (tolima); roasted coffee (honduras); roasted coffee (peru); roasted coffee granule; roasted robusta coffee (vietnam)
 black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda); black tea
 green tea: green tea (gunpowder); green tea (sencha)
-hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
+hops: cascade hop; centennial hop; citra hop; english hop; fuggle hop; goldings hop; hop; hop extract; hop pellet; mosaic hop; saaz hop
 water: water; spring water; carbonated water; carbonated mineral water; carbonated spring water
 salt: salt; sea salt
 yeast: yeast; yeast extract
