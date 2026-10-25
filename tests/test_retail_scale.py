@@ -737,6 +737,19 @@ def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
         assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
 
 
+def test_a_vocabulary_model_is_one_of_its_leads_then_a_number_and_nothing_else():
+    """#663: each new family's model reads "<lead> [<sub>] <number>"; a missing number, a lead
+    the family does not hold or a stray word is no model."""
+    for fam, vocab in line_grammar.VOCAB.items():
+        lead, number = vocab.leads[0], str(vocab.numbers[0])
+        assert line_grammar.is_model(fam, "Brand", f"{lead} {number}")
+        assert not line_grammar.is_model(fam, "Brand", lead)  # no number
+        sub = vocab.subs[0] if vocab.subs else "Pro"
+        assert not line_grammar.is_model(fam, "Brand", f"{lead} {sub}")  # a sub-model, no number
+        assert not line_grammar.is_model(fam, "Brand", f"Zephyr {number}")  # a lead no family holds
+        assert not line_grammar.is_model(fam, "Brand", f"{lead} Zephyr {number}")  # a stray word
+
+
 def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
     def runs(rec: dict, skip: set[str]) -> dict[Any, list[dict]]:
         out: dict[Any, list[dict]] = collections.defaultdict(list)
