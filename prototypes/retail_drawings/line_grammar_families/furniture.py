@@ -15,8 +15,8 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Comfort", "Classic", "Modern", "Heritage", "Essential", "Signature", "Premier", "Relax",
-    "Urban", "Core", "Form", "Simple", "Easy", "Style", "Daily", "Retreat", "Habit", "Ease",
+    "Settle", "Classic", "Modern", "Tradition", "Essential", "Signature", "Premier", "Relax",
+    "Urban", "Heart", "Form", "Simple", "Easy", "Style", "Daily", "Retreat", "Habit", "Ease",
     "Basic", "Select",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.

@@ -208,10 +208,10 @@ def test_a_type_offers_the_six_main_colors(ptype: str) -> None:
 
 
 @pytest.mark.parametrize("ptype", TYPES)
-def test_a_type_carries_three_decoys_of_each_of_the_seven_classes(ptype: str) -> None:
+def test_a_type_carries_three_decoys_of_each_of_the_six_classes(ptype: str) -> None:
     mine = [t for t in decoy_apparel.types() if t.product_type == ptype]
     assert len(mine) == 1, "the type has no apparel decoy plan"
-    assert mine[0].classes == {1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3, 7: 3}
+    assert mine[0].classes == {1: 3, 2: 3, 3: 3, 4: 3, 6: 3, 7: 3}  # class 5 is retired (#663)
 
 
 def test_the_one_old_suit_jacket_row_is_drawn_as_a_suit_jacket_not_a_coat() -> None:
