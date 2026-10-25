@@ -46,3 +46,6 @@ The place name of a class 6 decoy (Cardigan Bay, Jumper Lane) is the decoy's bra
 sells its decoys alone; the title stays short and keeps the trap word. Decoy class 5 (`SHADES`, a
 shade only in the description) is retired with its table, class entry and tests. Top, Dress, Jumper
 and Shirt carry more decoys a class (`decoy_apparel._MORE`), so each keeps a tenth of its styles.
+A class 6 decoy skips an exemplar whose true fit is a word class 8 asks for on the type (Barrel Jeans,
+Bra fits), and a class 8 decoy skips an exemplar with a two-word brand, so the exemplar that hosts a
+decoy row can differ from the one before.

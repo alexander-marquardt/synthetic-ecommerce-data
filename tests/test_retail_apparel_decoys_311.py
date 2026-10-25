@@ -760,13 +760,13 @@ def test_a_class_6_place_brand_decoy_does_not_carry_a_fit_word_class_8_asks_for(
 ) -> None:
     """#663: "Shoe Lane Barrel Jeans" is a short title that names the true Barrel fit, so it
     outranks a class 8 "Barrel Row" decoy for "barrel jeans" and leaves the fit-word query
-    fewer than three class 8 decoys in its top 10. Metric: the class 6 rows whose fit is a word
-    a class 8 query asks for."""
-    asked = {w.lower() for _, w in da.FIT_WORDS.get("Jeans", ())}
+    fewer than three class 8 decoys in its top 10. Metric: the class 6 rows (every type with fit
+    words) whose fit is a word a class 8 query asks for."""
     clash = [
         (r.pid, r.doc["title"])
         for r in rows
-        if r.cls == 6 and r.doc["product_type"] == "Jeans"
-        and (da._fit(r.doc) or "").lower() in asked
+        if r.cls == 6 and r.doc["product_type"] in da.FIT_WORDS
+        and (da._fit(r.doc) or "").lower()
+        in {w.lower() for _, w in da.FIT_WORDS[r.doc["product_type"]]}
     ]
     assert clash == []

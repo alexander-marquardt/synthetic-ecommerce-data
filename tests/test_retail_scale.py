@@ -31,7 +31,7 @@ if str(RETAIL) not in sys.path:
 import breadth_rows  # noqa: E402
 import lighting_rows  # noqa: E402
 import line_grammar  # noqa: E402
-import plain_models  # noqa: E402
+import line_grammar_families  # noqa: E402
 import range_ownership  # noqa: E402
 import scale  # noqa: E402
 import stable_ids  # noqa: E402
@@ -41,6 +41,8 @@ from retail_figures import (  # noqa: E402
     unheld_named_values,
 )
 from retail_figures import held as values_held  # noqa: E402
+
+from retail_ceiling import ceiling_build  # noqa: E402
 
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()
@@ -169,17 +171,15 @@ def pairs(built) -> list[tuple[dict[str, Any], dict[str, Any]]]:
 
 @pytest.fixture(scope="module")
 def ceiling() -> scale.Scaled:
-    """Every template exhausted: the build where most derived styles exist."""
-    return scale.build(CAPACITY[1] * 2)
+    """Every template exhausted: the build where most derived styles exist (gen#513: shared)."""
+    return ceiling_build()
 
 
 @pytest.fixture(scope="module")
 def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style of the ceiling build."""
     by_id = {t["product_id"]: t for t in scale.templates()}
-    return [
-        (r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]
-    ]
+    return [(r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]]
 
 
 def test_the_size_parameter_reaches_the_target_sku_count(built):
@@ -423,8 +423,10 @@ def _changed(r: dict[str, Any], t: dict[str, Any]) -> dict[str, tuple[str, str]]
     return {
         a["key"]: (str(a["value"]), new[a["key"]])
         for a in t["attributes"]
-        if a["key"] != "line" and a["key"] not in many
-        and a["key"] in new and new[a["key"]] != str(a["value"])
+        if a["key"] != "line"
+        and a["key"] not in many
+        and a["key"] in new
+        and new[a["key"]] != str(a["value"])
     }
 
 
@@ -738,10 +740,16 @@ def test_a_derived_style_carries_its_range_name_in_title_and_line(pairs):
         assert lines == [r["product_line"]]  # gen#623: the Line is stated on every derived style
 
 
+def _new_families() -> dict[str, Any]:
+    """The families gen#663 added to ``line_grammar_families/``, by name."""
+    every = line_grammar_families.families()
+    return {f: every[f] for f in ("bra", "jeans", "tee", "trainers", "boots", "casual")}
+
+
 def test_a_vocabulary_model_is_one_of_its_leads_then_a_number_and_nothing_else():
     """#663: each new family's model reads "<lead> [<sub>] <number>"; a missing number, a lead
     the family does not hold or a stray word is no model."""
-    for fam, vocab in line_grammar.VOCAB.items():
+    for fam, vocab in _new_families().items():
         lead, number = vocab.leads[0], str(vocab.numbers[0])
         assert line_grammar.is_model(fam, "Brand", f"{lead} {number}")
         assert not line_grammar.is_model(fam, "Brand", lead)  # no number
@@ -960,7 +968,7 @@ def test_growing_one_department_never_starves_another(ceiling, monkeypatch):
         old_id = r["product_id"]
         r["product_id"] += f"-SYN{i}"
         for s in r["skus"]:
-            s["sku"] = r["product_id"] + s["sku"][len(old_id):]
+            s["sku"] = r["product_id"] + s["sku"][len(old_id) :]
         r["title"] += f" Set {i + 2}"
         extra.append(r)
     grocery = [r for r in tpls if r["product_id"].startswith(scale.GROCERY_PREFIX)]
@@ -993,9 +1001,9 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
                      if a["key"] in ("rise", "wiring")}  # fmt: skip
         assert len(title) == 1, r["product_id"]
         ((key, value),) = title
-        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, (
-            r["product_id"]
-        )
+        assert r["category_leaf"] not in leaves or (r["category_leaf"], key, value) not in have, r[
+            "product_id"
+        ]
         assert (r["category_leaf"], value) not in seen, r["product_id"]
         seen.add((r["category_leaf"], value))
 
@@ -1137,7 +1145,8 @@ def test_every_style_attribute_its_skus_carry_lists_exactly_their_values(ceiling
             checked += 1
             style_values = {
                 v.strip().lower()
-                for b in r["attributes"] if b["key"] == a["key"]
+                for b in r["attributes"]
+                if b["key"] == a["key"]
                 for v in str(b["value"]).split(",")
             }
             if style_values != sku_values:
@@ -1252,7 +1261,7 @@ ARTICLE_EXCEPTIONS = {
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_no_title_or_description_counts_one_of_a_plural(build, request):
-    """"1 leg lengths": a template with a single length printed a plural after the 1."""
+    """ "1 leg lengths": a template with a single length printed a plural after the 1."""
     pattern = re.compile(rf"\b(?:1|one)\s+(?:\w+\s+)?(?:{'|'.join(SINGULAR_PLURALS)})\b", re.I)
     hits = [
         (r["product_id"], m.group(0))
@@ -1264,7 +1273,7 @@ def test_no_title_or_description_counts_one_of_a_plural(build, request):
 
 @pytest.mark.parametrize("build", ["built", "ceiling"])
 def test_every_article_agrees_with_the_word_after_it(build, request):
-    """"an pointed toe", "a almond toe": a swapped value left its old article behind."""
+    """ "an pointed toe", "a almond toe": a swapped value left its old article behind."""
     pattern = re.compile(r"\b(an?)\s+([a-z]+)", re.I)
     wrong = []
     for r in request.getfixturevalue(build).records:
@@ -1390,7 +1399,8 @@ def test_every_place_range_appears_under_exactly_one_brand(ceiling):
                 owners[name].add(rec["brand"])
     assert {n: len(b) for n, b in owners.items() if len(b) != 1} == {}
     assert {n: b.pop() for n, b in owners.items()} == dict(
-        zip((n for n, _ in place_ranges.PLACE_RANGES), place_ranges.PLACE_BRANDS, strict=True))
+        zip((n for n, _ in place_ranges.PLACE_RANGES), place_ranges.PLACE_BRANDS, strict=True)
+    )
 
 
 @pytest.mark.parametrize("module", ["knitwear_rows", "mens_depth_rows"])
@@ -1458,7 +1468,7 @@ def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
         if (line := scale._line(r))
         and not line_grammar.is_model(line_grammar.family(r), r["brand"], line)
         and not (
-            line_grammar.family(r) in plain_models.KINDS
+            line_grammar.family(r) in _PLAIN
             and line in authored
             and r["title"].startswith(f"{r['brand']} {line} ")
         )
@@ -1515,16 +1525,15 @@ def test_each_family_vocabulary_has_a_lead_for_every_brand_and_no_lead_is_shared
     (else the deal divides by zero), and a lead belongs to one brand across every family. Metric:
     the families short of leads, and the leads two families hold."""
     fams = {line_grammar.FAMILIES.get(k) for k in LINE_KINDS}
-    assert fams <= set(line_grammar.VOCAB), fams
+    assert fams <= set(_new_families()), fams
     brands: dict[str, set[str]] = collections.defaultdict(set)
     for r in _family_records(ceiling.records):
         brands[line_grammar.family(r)].add(r["brand"])
-    short = {f: (len(v.leads), len(brands[f])) for f, v in line_grammar.VOCAB.items()
+    short = {f: (len(v.leads), len(brands[f])) for f, v in _new_families().items()
              if len(v.leads) < len(brands[f])}  # fmt: skip
     assert short == {}
-    held = [w for v in line_grammar.VOCAB.values() for w in v.leads]
-    held += [*line_grammar.SPORT_LEADS, *line_grammar.NAME_WORDS]
-    held += [w for fam in plain_models.LEADS.values() for w in fam]  # the plain-model leads too
+    held = [w for v in line_grammar_families.families().values() for w in v.leads]
+    held += line_grammar.NAME_WORDS  # every family's leads, the sport and plain ones too
     assert [w for w, n in collections.Counter(held).items() if n > 1] == []
 
 
@@ -1536,7 +1545,7 @@ def test_no_family_lead_is_a_first_name():
         "Amber", "Pearl", "Violet", "Lily", "Stella", "Sienna", "Chloe", "Emma", "Mia", "Eva",
         "Ella", "Nora", "Iris", "Jade", "Luna", "Maya", "Hazel", "Sophie", "Sam",
     }  # fmt: skip
-    held = [w for v in line_grammar.VOCAB.values() for w in v.leads]
+    held = [w for v in _new_families().values() for w in v.leads]
     assert sorted(set(held) & names) == []
 
 
@@ -1599,22 +1608,34 @@ def test_a_home_gifts_garden_or_toys_title_does_not_lead_with_a_range_name(ceili
     assert dict(led) == {}
 
 
+# The plain home, gifts, garden and toys families: not the sport one and not the six clothing and
+# footwear ones (gen#663), whose leads (Court, Street) may also be a brand's word and are held to
+# their own uniqueness and vocabulary tests.
+_PLAIN = {
+    n: f
+    for n, f in line_grammar_families.families().items()
+    if n != "sport" and n not in _new_families()
+}
+
+
 def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     """Guard (gen#664): a lead word is a plain English word, so it is no first name or place word
     (``NAME_WORDS``), no coined range word (:mod:`range_ownership`), no word of a brand and no word
     of another family's models. Each kind names one family. Metric: the words and kinds that are
     not."""
-    leads = plain_models.LEADS
+    leads = {n: f.leads for n, f in _PLAIN.items()}
+    sport = line_grammar_families.families()["sport"]
     words = [w for fam in leads.values() for w in fam]
     assert len(words) == len(set(words))  # a word is one family's
     brand_words = {w for r in scale.templates() for w in re.findall(r"[A-Za-z]+", r["brand"])}
-    named = {*line_grammar.NAME_WORDS, *line_grammar.SPORT_LEADS, *plain_models.SUBS, *brand_words}
+    subs = {s for f in _PLAIN.values() for s in f.subs}
+    named = {*line_grammar.NAME_WORDS, *sport.leads, *subs, *brand_words}
     assert sorted(set(words) & named) == []
     assert sorted(set(words) & set(range_ownership.candidates())) == []
     assert all(w.isalpha() and w.istitle() for w in words)
-    kinds = [k for ks in plain_models.KINDS.values() for k in ks]
+    kinds = [k for f in _PLAIN.values() for k in f.kinds]
     assert len(kinds) == len(set(kinds))
-    assert set(leads) == set(plain_models.KINDS)
+    assert set(leads) == set(_PLAIN)
     assert all(len(ws) >= 20 for ws in leads.values())  # a brand of a family needs a few
 
 
