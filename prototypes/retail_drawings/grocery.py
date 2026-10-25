@@ -460,9 +460,11 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
         if fam.food:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
-            # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1"
+            # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1";
+            # the tier needs the numbers to reach its budget (gen#376), so it keeps them.
             reach = len(deal.of(brand)) * (1 + len(line_grammar.FOOD_SUBS[deal.fam]))
-            model = deal.owned(brand, slot % reach if fam.path[1] == PRODUCE else slot)
+            short = fam.path[1] == PRODUCE and not tier
+            model = deal.owned(brand, slot % reach if short else slot)
         else:
             model = owned(brand, slot)
         rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade)
@@ -470,7 +472,9 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:
             return False
-        if fam.food:  # a brand's few model words must not give a listing another's twin (gen#665)
+        # A brand's few model words must not give a listing another's twin (gen#665); the tier has
+        # families of three brands and four flavors that would run out of titles (gen#376).
+        if fam.food and not tier:
             tokens = frozenset(standard.words(f"{rec['brand']} {rec['title']}").split())
             seen = listed.setdefault(fam.path[-1], [])
             if any(len(tokens & o) / len(tokens | o) >= NEAR_DUPLICATE_JACCARD for o in seen):
