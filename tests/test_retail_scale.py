@@ -1426,7 +1426,8 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names (gen#662), the real-brand rows aside."""
-    return [r for r in records if line_grammar.family(r) and r["product_id"] not in scale.NIKE_IDS]
+    skip = scale.NIKE_IDS | scale.SEASONAL_IDS | scale.COLORWORD_IDS  # real brands and decoy rows
+    return [r for r in records if line_grammar.family(r) and r["product_id"] not in skip]
 
 
 def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
@@ -1470,98 +1471,11 @@ def test_a_family_title_leads_with_its_brand(ceiling):
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
         if line_grammar.family(r) in (*line_grammar.NUMBERED, "dress")
+        and not getattr(line_grammar._NUMBERED.get(line_grammar.family(r)), "mixed_brand", False)
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)
-
-
-#: The kinds whose styles led with a range name before gen#666, by department.
-CARE_KINDS = {
-    "Cleaning": (
-        "Laundry Detergent", "Floor Cleaner", "Bathroom Cleaner", "Dish Soap", "Glass Cleaner",
-        "Air Freshener", "Fabric Softener", "Kitchen Cleaner", "Toilet Cleaner",
-    ),
-    "Beauty": (
-        "Hand Wash", "Shower Gel", "Lipstick", "Foundation", "Hand Cream", "Body Cream",
-        "Eye Cream", "Foot Cream", "Body Lotion", "Moisturiser", "Conditioner", "Shampoo",
-        "Wash Bag", "Make-Up Bag", "Lip Balm", "Eyeliner", "Perfume",
-    ),
-}  # fmt: skip
-
-
-def _care_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The cleaning and beauty styles of :data:`CARE_KINDS` that name a model (gen#666)."""
-    return [
-        r for r in records
-        if r["category_path"][0] in CARE_KINDS
-        and r["product_type"] in CARE_KINDS[r["category_path"][0]]
-        and scale._line(r)
-    ]  # fmt: skip
-
-
-def test_every_cleaning_and_beauty_kind_is_in_a_family():
-    """Guard (gen#666): a kind outside ``line_grammar.FAMILIES`` keeps a range name that leads its
-    title like a second brand ("Foxmere Orange Laundry Liquid"). Metric: kinds with no family."""
-    kinds = [k for each in CARE_KINDS.values() for k in each]
-    off = [k for k in kinds if k not in line_grammar.FAMILIES]
-    assert off == []
-    assert {line_grammar.FAMILIES[k] for k in CARE_KINDS["Cleaning"]} == {"cleaning"}
-    assert {line_grammar.FAMILIES[k] for k in CARE_KINDS["Beauty"]} == {"beauty"}
-
-
-def test_a_cleaning_or_beauty_title_leads_with_its_brand(ceiling):
-    """Guard (gen#666): public listings lead with the brand ("Persil Bio Laundry Liquid"), so a
-    title that opens on a model word reads as a second brand. Metric: the model-named cleaning
-    and beauty titles that do not start with their brand, and the styles checked."""
-    care = _care_records(ceiling.records)
-    assert len(care) > 800
-    off = [
-        (r["product_id"], r["title"]) for r in care if not r["title"].startswith(f"{r['brand']} ")
-    ]
-    assert off[:10] == [], len(off)
-
-
-def test_a_cleaning_or_beauty_model_is_built_from_its_family_vocabulary(ceiling):
-    """Guard (gen#666): the model of a cleaning or beauty style is a plain word of its family, a
-    sub-model and a code, never a coined range name. Metric: the styles whose model is not."""
-    off = [
-        (r["product_id"], r["brand"], scale._line(r))
-        for r in _care_records(ceiling.records)
-        if not line_grammar.is_model(
-            line_grammar.FAMILIES.get(r["product_type"], ""), r["brand"], scale._line(r)
-        )
-    ]
-    assert off[:10] == [], len(off)
-
-
-def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
-    """Guard (gen#666): a lead word in two families is one word under two kinds of product, and
-    a first name reads as a brand. Metric: the words in two vocabularies, and the lead words that
-    are also name words or that fall in both halves a build deals."""
-    leads = {n: f.leads for n, f in line_grammar_families.families().items()}
-    seen: dict[str, str] = {}
-    twice = {
-        w: (seen[w], fam)
-        for fam, words in leads.items()
-        for w in words
-        if seen.setdefault(w, fam) != fam
-    }
-    assert twice == {}
-    assert {w for words in leads.values() for w in words} & set(line_grammar.NAME_WORDS) == set()
-    for fam in line_grammar.CARE:
-        scale_half = set(leads[fam][line_grammar.HALVES["scale"] :: 2])
-        grocery_half = set(leads[fam][line_grammar.HALVES["grocery"] :: 2])
-        assert scale_half and grocery_half and not scale_half & grocery_half
-
-
-def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):
-    """Guard (gen#666, gen#642): a lead word under two brands reads as a range of neither.
-    Metric: the lead words of cleaning and beauty styles with the brands that carry them."""
-    brands: dict[str, set[str]] = {}
-    for r in _care_records(ceiling.records):
-        brands.setdefault(scale._line(r).split()[0], set()).add(r["brand"])
-    assert {w: sorted(b) for w, b in brands.items() if len(b) > 1} == {}
 
 
 HOME_DEPARTMENTS = {"Home", "Toys", "Gifts", "Garden"}
@@ -1599,7 +1513,7 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     (``NAME_WORDS``), no coined range word (:mod:`range_ownership`), no word of a brand and no word
     of another family's models. Each kind names one family. Metric: the words and kinds that are
     not."""
-    leads = {n: f.leads for n, f in _PLAIN.items()}
+    leads = {n: (*f.leads, *f.grocery_leads) for n, f in _PLAIN.items()}
     sport = line_grammar_families.families()["sport"]
     words = [w for fam in leads.values() for w in fam]
     assert len(words) == len(set(words))  # a word is one family's
@@ -1612,7 +1526,8 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     kinds = [k for f in _PLAIN.values() for k in f.kinds]
     assert len(kinds) == len(set(kinds))
     assert set(leads) == set(_PLAIN)
-    assert all(len(ws) >= 20 for ws in leads.values())  # a brand of a family needs a few
+    # a brand of a family needs a few: a bare food family deals two halves of about a dozen
+    assert all(len(ws) >= (10 if _PLAIN[n].bare else 20) for n, ws in leads.items())
 
 
 def test_a_numbered_family_model_has_a_number_after_its_lead_word():

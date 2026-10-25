@@ -14,9 +14,9 @@ KINDS = (
 #: The lead word of a model: a plain word of household-care listings ("Keen", "Total").
 LEADS = (
     "Keen", "Total", "Intense", "Express", "Advanced", "Ultimate", "Strong", "Maximum", "Turbo",
-    "Mighty", "Dynamic", "Precision", "Optimum", "Prime", "Tough", "Crisp", "Spotless", "Nimble",
-    "Force", "Fusion", "Shield", "Defence", "Energy", "Aegis", "Focus", "Clarity", "Vital",
-    "Brisk", "Zenith", "Expert", "Ideal", "Swift",
+    "Mighty", "Dynamic", "Precision", "Optimum", "Elite", "Tough", "Solid", "Spotless", "Nimble",
+    "Force", "Fusion", "Shield", "Defence", "Energy", "Aegis", "Focus", "Clarity", "Resolute",
+    "Sturdy", "Zenith", "Expert", "Ideal", "Swift",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Plus", "Max", "Pro", "Ultra", "Extra")

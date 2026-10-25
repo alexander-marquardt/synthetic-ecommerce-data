@@ -14,12 +14,7 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
   <detail>`` and the color after "in", e.g. "Larkmoor Merlin Leather Smart Penny Loafers in Tan";
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
   (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
-- the home, gifts, garden and toys kinds (gen#664): the same shape with a plain word of the
-  family, e.g. "Stridewell Beam Plus 300 Fabric Shade Floor Lamp".
 
-- cleaning and beauty (modules ``cleaning`` and ``beauty``, gen#666): the brand, a plain word of
-  the category, a sub-model and a number, then the scent or shade and the kind, e.g.
-  "Soapwell Keen Plus 4 Lemon Floor Cleaner".
 
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
@@ -33,6 +28,7 @@ module, not a row, a constant and a branch here.
 from __future__ import annotations
 
 import re
+import zlib
 from collections.abc import Callable, Iterable
 
 import appliance_model_numbers as amn
@@ -80,7 +76,10 @@ HALVES = {"scale": 0, "grocery": 1}
 #: The families whose title leads with the brand and a model, then the scent or shade.
 CARE = ("cleaning", "beauty")
 #: product type -> its family. A kind not listed keeps the range names of :mod:`range_ownership`.
-FAMILIES = {kind: fam.name for fam in _NUMBERED.values() for kind in fam.kinds} | _CORE
+FAMILIES = (
+    {kind: fam.name for fam in _NUMBERED.values() for kind in fam.kinds}
+    | _CORE
+)
 
 
 def family(rec: dict) -> str | None:
@@ -98,12 +97,14 @@ def is_model(fam: str, brand: str, line: str) -> bool:
 
     A numbered model is a lead word of the family, then sub-model words, generation numbers or
     codes, at least one of them; a dress model is one name-like word; an appliance model is a
-    series its brand owns (gen#622)."""
+    series its brand owns (gen#622); a food model is a plain lead word of its family, then
+    optionally a sub-model and a number (gen#665)."""
     words = line.split()
     if fam in _NUMBERED:
         spec = _NUMBERED[fam]
         rest = words[1:]
-        return (len(words) >= 2 and words[0] in spec.leads
+        leads = (*spec.leads, *spec.grocery_leads)
+        return (len(words) >= (1 if spec.bare else 2) and words[0] in leads
                 and all(w in spec.subs or _code(w) for w in rest))  # fmt: skip
     if fam == "dress":
         return line in NAME_WORDS
@@ -121,7 +122,8 @@ def name_word_misplaced(rec: dict) -> list[str]:
 
 
 def _lead(fam: str, line: str) -> str:
-    """The word of a model that a brand owns: a numbered model's lead word, a dress model's name."""
+    """The word of a model that a brand owns: a numbered or food model's lead word, a dress
+    model's name."""
     return line.split()[0] if fam in _NUMBERED else line
 
 
@@ -132,21 +134,26 @@ class Deal:
 
     A numbered-family brand builds its models from its lead words, a generation and, past the
     first cycle of generations, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a
-    model with one of its name words.
-
-    ``half`` (0 or 1) deals only the even or the odd lead words of a cleaning or beauty family,
-    so a second build (the grocery one) can deal the other half to its own brands without
-    giving one word to two brands (gen#666)."""
+    model with one of its name words. A food brand builds a model from its lead words, the lead
+    alone first ("Finest"), then with a sub-model ("Finest Reserve") and then with a number ("Finest
+    Reserve 2"). ``half`` is the half of a food family's lead words this build deals from
+    (gen#665). A cleaning or beauty family has one lead list and splits it instead: the scale build
+    deals its even words and the grocery build its odd ones (:data:`HALVES`, gen#666)."""
 
     def __init__(
-        self, fam: str, brands: Iterable[str], authored: dict[str, str], half: int | None = None
+        self, fam: str, brands: Iterable[str], authored: dict[str, str], half: str = "scale"
     ) -> None:
         self.fam = fam
         self.brands = sorted(set(brands))
         self.spec = _NUMBERED.get(fam)
-        words = self.spec.leads if self.spec else NAME_WORDS
-        if half is not None:
-            words = words[half::2]
+        if self.spec:
+            if fam in CARE:
+                words = self.spec.leads[HALVES[half] :: 2]
+            else:
+                words = self.spec.grocery_leads if half == "grocery" else self.spec.leads
+            assert len(words) >= len(self.brands), f"{fam}/{half}: {len(self.brands)} brands"
+        else:
+            words = NAME_WORDS
         pool = [w for w in words if w not in authored]
         count = len(self.brands) or 1
         self._owned = {
@@ -164,6 +171,16 @@ class Deal:
         """The model ``brand`` sells at ``slot``."""
         mine = self._owned[brand]
         word, k = mine[slot % len(mine)], slot // len(mine)
+        if self.spec and self.spec.bare:
+            subs, numbers = self.spec.subs, self.spec.numbers
+            if k == 0:
+                return word
+            j = k - 1
+            if j < len(subs):
+                return f"{word} {subs[j]}"
+            j -= len(subs)
+            number = numbers[(j // len(subs)) % len(numbers)]
+            return f"{word} {subs[j % len(subs)]} {number}"
         if not self.spec:
             return word
         subs, numbers = self.spec.subs, self.spec.numbers
@@ -194,9 +211,16 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
             and is_model(fam, r["brand"], str(line))
         }  # fmt: skip
         mine = [pool for (_, kind), pool in brands.items() if FAMILIES.get(kind) == fam]
-        half = HALVES["scale"] if fam in CARE else None
-        out[fam] = Deal(fam, [b for pool in mine for b in pool], authored, half)
+        out[fam] = Deal(fam, [b for pool in mine for b in pool], authored)
     return out
+
+
+def brand_led(key: object) -> bool:
+    """Whether the food title seeded by ``key`` leads with its brand: two in three do (gen#665).
+
+    Real listings do not all name the brand, and the shorter ones are the demo's decoy-friendly
+    titles, so the rest keep the model alone."""
+    return zlib.crc32(str(key).encode()) % 3 != 0
 
 
 def _strip(title: str, word: str) -> str:
@@ -209,9 +233,11 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     The template's brand leaves the title. A numbered-family style then leads with its own
     brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress
     style always leads with its brand and the name, and a style word follows the material in four
-    draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A cleaning or beauty style
-    leads with its brand and its model, then the scent or shade and the kind: "Soapwell Gentle
-    Plus 4 Lemon Floor Cleaner". ``draw`` is the style's seeded number for these choices."""
+    draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style leads with its
+    brand, then the model, in two draws of three ("Hollin Finest Reserve 2 Strawberry Jam"); the
+    others keep the model alone (:func:`brand_led`). A cleaning or beauty style leads with its
+    brand and its model, then the scent or shade and the kind: "Soapwell Keen Plus 4 Lemon Floor
+    Cleaner". ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     title = _strip(rec["title"], tpl["brand"])
     if fam in CARE:
@@ -228,7 +254,10 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
         title = _strip(title, "The") if title.startswith(f"The {line} ") else title
         if title.startswith(f"{line} {brand} "):  # a template that led with its brand
             title = f"{line} {title[len(line) + len(brand) + 2 :]}"
-        title = f"{kids}{brand} {title}"
+        if not _NUMBERED[fam].mixed_brand or brand_led(draw):
+            title = f"{kids}{brand} {title}"
+        else:
+            title = f"{kids}{title}"
     elif fam == "dress":
         rest = _strip(title, line)
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
@@ -245,7 +274,10 @@ def lead_with_brand(recs: list[dict], line_of: Callable[[dict], str | None]) -> 
     Sofa". ``line_of`` gives a row's model name."""
     for rec in recs:
         line = line_of(rec)
-        if family(rec) in NUMBERED and line and rec["title"].startswith(f"{line} "):
+        fam = family(rec)
+        if fam in NUMBERED and not _NUMBERED[fam].mixed_brand and line:
+            if not rec["title"].startswith(f"{line} "):
+                continue
             rec["title"] = f"{rec['brand']} {rec['title']}"
     return recs
 
