@@ -383,7 +383,7 @@ def _rows_opening_a_sibling_of_a_named_kind() -> dict[str, tuple[str, ...]]:
 
 
 #: Rows that still open such a sibling node, tracked apart from #658 (which is
-#: lag screws alone). The test below fails when a row on this list stops
+#: lag screws alone) in #675. The test below fails when a row on this list stops
 #: opening one, so the list only shrinks.
 STILL_OPENING_A_SIBLING = frozenset(
     {
