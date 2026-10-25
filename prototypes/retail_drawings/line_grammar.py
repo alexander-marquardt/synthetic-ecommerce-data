@@ -13,7 +13,9 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
   (a first name such as "Merlin"), then the descriptors ``<fit> <material> <style> <type>
   <detail>`` and the color after "in", e.g. "Larkmoor Merlin Leather Smart Penny Loafers in Tan";
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
-  (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher".
+  (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
+- the home, gifts, garden and toys kinds (gen#664): the same shape with a plain word of the
+  family, e.g. "Stridewell Beam Plus 300 Fabric Shade Floor Lamp".
 
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
@@ -27,7 +29,7 @@ module, not a row, a constant and a branch here.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 import appliance_model_numbers as amn
 import line_grammar_families
@@ -184,7 +186,11 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     title = _strip(rec["title"], tpl["brand"])
     if fam in _NUMBERED:
         kids = "Kids' " if title.startswith("Kids' ") else ""
-        title = f"{kids}{brand} {title.removeprefix(kids)}"
+        title = title.removeprefix(kids)
+        title = _strip(title, "The") if title.startswith(f"The {line} ") else title
+        if title.startswith(f"{line} {brand} "):  # a template that led with its brand
+            title = f"{line} {title[len(line) + len(brand) + 2 :]}"
+        title = f"{kids}{brand} {title}"
     elif fam == "dress":
         rest = _strip(title, line)
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
@@ -193,6 +199,17 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
             rest = f"{lead} {style} {rest[len(lead) :].strip()}".strip()
         title = f"{brand} {line} {rest}"
     rec["title"] = title
+
+
+def lead_with_brand(recs: list[dict], line_of: Callable[[dict], str | None]) -> list[dict]:
+    """``recs`` with every authored title of a numbered family that opens on its model put after
+    its brand (gen#664): "Harwell Velvet Corner Sofa" is "Brackenmere Home Harwell Velvet Corner
+    Sofa". ``line_of`` gives a row's model name."""
+    for rec in recs:
+        line = line_of(rec)
+        if family(rec) in NUMBERED and line and rec["title"].startswith(f"{line} "):
+            rec["title"] = f"{rec['brand']} {rec['title']}"
+    return recs
 
 
 def color_suffix(rec: dict, color: str) -> str:

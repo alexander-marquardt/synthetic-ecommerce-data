@@ -16,5 +16,3 @@ LEADS = (
 SUBS = ("Pro", "Max", "Elite", "Edge", "Lite", "Plus")
 #: The generations a model is in.
 NUMBERS = tuple(range(2, 10))
-#: What a running shoe is for, between the model and the kind.
-USES = ("Road", "Trail", "Neutral Road", "Cushioned Road", "Stability Road", "Neutral Trail")
