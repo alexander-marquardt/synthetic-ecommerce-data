@@ -1479,7 +1479,7 @@ def test_every_food_and_drink_kind_is_mapped_to_a_line_grammar_family(ceiling):
 
 def test_a_food_or_drink_title_leads_with_its_brand(ceiling):
     """Guard (gen#665): a food title that names a range leads with its brand, so the range
-    reads as the brand's model ("Hollin Basic Reserve 2 Strawberry Jam"), not as a second brand
+    reads as the brand's model ("Hollin Finest Reserve 2 Strawberry Jam"), not as a second brand
     ("Larkrise Jam"). The decoy rows, whose Line is a seasonal or a color-word attribute, keep
     their authored titles. Metric: the range-named food titles that do not lead with the brand."""
     decoys = scale.SEASONAL_IDS | scale.COLORWORD_IDS

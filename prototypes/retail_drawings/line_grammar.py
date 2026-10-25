@@ -13,8 +13,8 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
   (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
 - food and drink (pantry, drink, alcohol): the brand always leads, then a plain model word
-  (``Basic``, ``Finest``), an optional sub-model and a number, then the product, e.g.
-  "Hollin Basic Reserve 2 Strawberry Jam 340g" (gen#665).
+  (``Basics``, ``Finest``), an optional sub-model and a number, then the product, e.g.
+  "Hollin Finest Reserve 2 Strawberry Jam 340g" (gen#665).
 
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
@@ -89,12 +89,14 @@ DRESS_TYPE = (
 DRESS_DETAIL = ("with Broguing Detail", "with Toe Cap", "with Apron Detail", "Two Strap")
 DRESS_COLORS = ("Black", "Tan", "Brown", "Navy", "Stone", "Camel", "Wine")
 
-#: The plain model words of a food family, from the own-label tiers of public grocery listings
-#: ("Finest", "Basics", "Value"). Each family has two halves, one for the grocery build and one
-#: for the scale build, so a word belongs to one brand across both (gen#642). A word is no name,
-#: no place and no brand-like coinage, and none is in a food title, a description, a flavor, a
-#: brand, another family's vocabulary or the first word of any other product's title (the range
-#: review of gen#623 would read it as a range shared by two brands).
+#: The plain model words of a food family. They are plain adjectives, kept disjoint from every
+#: other vocabulary on purpose, not a quoted list: only "Finest", "Basics", "Value", "Signature",
+#: "Select" and "Choice" are real own-label tiers of public grocery listings. Each family has two
+#: halves, one for the grocery build and one for the scale build, so a word belongs to one brand
+#: across both (gen#642). A word is no name, no place and no brand-like coinage, and none is in a
+#: food title, a description, a flavor, a brand, another family's vocabulary or the first word of
+#: any other product's title (the range review of gen#623 would read it as a range shared by two
+#: brands).
 FOOD_LEADS = {
     "pantry": {
         "grocery": (
