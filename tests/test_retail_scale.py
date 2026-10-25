@@ -1518,6 +1518,18 @@ def test_each_family_vocabulary_has_a_lead_for_every_brand_and_no_lead_is_shared
     assert [w for w, n in collections.Counter(held).items() if n > 1] == []
 
 
+def test_no_family_lead_is_a_first_name():
+    """#663: a model word must not sound like a brand, and a given name does (the maintainer ruling
+    of #663). Metric: the leads that are a common given name."""
+    names = {
+        "Grace", "Hope", "Faith", "Joy", "Ruby", "Daisy", "Rose", "Olive", "Willow", "Ivy",
+        "Amber", "Pearl", "Violet", "Lily", "Stella", "Sienna", "Chloe", "Emma", "Mia", "Eva",
+        "Ella", "Nora", "Iris", "Jade", "Luna", "Maya", "Hazel", "Sophie", "Sam",
+    }  # fmt: skip
+    held = [w for v in line_grammar.VOCAB.values() for w in v.leads]
+    assert sorted(set(held) & names) == []
+
+
 def test_a_style_of_a_new_kind_names_a_model_of_its_family_after_its_brand(ceiling):
     """#663: every authored or derived style of these kinds that names a model names one made of
     its family's words, with its brand directly before it. Metric: the styles that do not."""
