@@ -41,6 +41,8 @@ from retail_figures import (  # noqa: E402
 )
 from retail_figures import held as values_held  # noqa: E402
 
+from retail_ceiling import ceiling_build  # noqa: E402
+
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()
 #: The round 4 preview's authored styles, then the scale-only rows (``scale_rows``),
@@ -168,8 +170,8 @@ def pairs(built) -> list[tuple[dict[str, Any], dict[str, Any]]]:
 
 @pytest.fixture(scope="module")
 def ceiling() -> scale.Scaled:
-    """Every template exhausted: the build where most derived styles exist."""
-    return scale.build(CAPACITY[1] * 2)
+    """Every template exhausted: the build where most derived styles exist (gen#513: shared)."""
+    return ceiling_build()
 
 
 @pytest.fixture(scope="module")
@@ -1455,7 +1457,7 @@ def test_a_sport_or_dress_title_leads_with_its_brand(ceiling):
     off = [
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
-        if line_grammar.family(r) in ("sport", "dress")
+        if line_grammar.family(r) in (*line_grammar.NUMBERED, "dress")
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]

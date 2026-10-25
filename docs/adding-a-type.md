@@ -811,7 +811,7 @@ codes are three letters, so no prefixed id equals an industrial one.
 
 ## What is still shared
 
-The retail shared files (decoy tables, `scale.py`, the mutant harness) take a new file, never an
+The retail shared files (decoy tables, `scale.py`, `line_grammar.py`, the mutant harness) take a new file, never an
 appended line; `scripts/check_no_registry_append.py` refuses the line. The table is in
 [new-type-quick-path.md](new-type-quick-path.md#shared-files-add-a-file-never-a-line).
 
