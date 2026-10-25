@@ -100,7 +100,8 @@ def test_a_plain_search_for_steak_puts_a_decoy_in_the_top_ten(_top: dict) -> Non
 def test_steak_sauce_and_seasoning_stay_in_their_own_categories() -> None:
     by_title = {r["title"]: r for r in _recs()}
     sauces = [r for t, r in by_title.items() if "Steak Sauce" in t]
-    seasonings = [r for t, r in by_title.items() if "Steak Seasoning" in t]
+    # Both flavors of the seasoning family are steak seasonings (a rub is one), whatever the draw.
+    seasonings = [r for r in by_title.values() if r["product_id"].startswith("GRC-SSN-")]
     assert len(sauces) >= 3 and len(seasonings) >= 3
     for r in (*sauces, *seasonings):
         assert tuple(r["category_path"][:4]) != STEAK
