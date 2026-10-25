@@ -184,7 +184,7 @@ class Deal:
         if not self.spec:
             return word
         subs, numbers = self.spec.subs, self.spec.numbers
-        if self.fam in CARE:
+        if False:
             # A care model sits in a short title, so two of one brand's models that differ in a
             # single token read as one listing (Jaccard 0.8). The sub-model and the generation
             # both move with each reuse of a word and with the word's place in the brand's list.

@@ -115,3 +115,28 @@ def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):
     for r in _care_records(ceiling.records):
         brands.setdefault(scale._line(r).split()[0], set()).add(r["brand"])
     assert {w: sorted(b) for w, b in brands.items() if len(b) > 1} == {}
+
+
+#: Pairs of one brand's models that differ in a single token ("Defence 6", "Defence Ultra 6").
+#: The build holds 52; without the stepping of the sub-model and the generation (``Deal.owned``)
+#: it holds 153, and the grocery near-duplicate share leaves its 4.0% cap.
+CEILING_ONE_TOKEN_PAIRS = 100
+
+
+def test_a_care_brands_models_seldom_differ_in_one_token(ceiling):
+    """Guard (gen#666): two models of one brand that differ in a single token make titles that
+    read as one listing, which is what the grocery near-duplicate cap counts. Metric: the pairs
+    of one brand's models whose token sets differ in under two tokens, against
+    :data:`CEILING_ONE_TOKEN_PAIRS`."""
+    models: dict[str, set[str]] = {}
+    for r in _care_records(ceiling.records):
+        models.setdefault(r["brand"], set()).add(scale._line(r))
+    assert sum(len(m) for m in models.values()) > 300
+    close = [
+        (brand, a, b)
+        for brand, each in models.items()
+        for a in sorted(each)
+        for b in sorted(each)
+        if a < b and len(set(a.split()) ^ set(b.split())) < 2
+    ]
+    assert len(close) <= CEILING_ONE_TOKEN_PAIRS, close[:5]
