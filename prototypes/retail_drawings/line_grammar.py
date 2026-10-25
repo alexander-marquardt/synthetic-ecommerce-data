@@ -36,6 +36,9 @@ FAMILIES = {
     "Laundry Appliance": "appliance",
 }
 
+#: family -> its vocabulary (#663), for the families beyond sport, dress and appliance.
+VOCAB: dict = {}
+
 #: The lead word of a sport model: a performance word.
 SPORT_LEADS = (
     "Speed", "Ultra", "Fast", "Sport", "Performance", "Tempo", "Pace", "Race", "Aero", "Glide",

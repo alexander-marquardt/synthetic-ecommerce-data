@@ -702,3 +702,57 @@ def test_a_hem_is_the_torsos_and_does_not_color_the_sleeve_cuffs(
             assert b and b[0] <= mid <= b[2], (r.pid, doc["title"], b, mid)
         n += 1
     assert n >= 5
+
+
+def test_a_class_6_decoys_brand_is_its_place_name(
+    rows: list[da.Row], by_id: dict[str, dict]
+) -> None:
+    """#663: "Cardigan Bay Running Shoes" read as a brand "Cardigan Bay" would (the place is the
+    range's brand), so the brand field of every class 6 decoy is the place name; the title stays
+    short and keeps the trap word (the place name's first word); the range names it."""
+    sixes = [r for r in rows if r.cls == 6]
+    assert sixes
+    places = {name for name, _ in da.CATEGORY_RANGES}
+    off = []
+    for r in sixes:
+        doc = by_id[r.pid]
+        brand = doc["brand"]
+        ok = (
+            brand in places
+            and r.word == brand.split()[0].lower()
+            and doc["title"].startswith(f"{brand} ")
+            and len(doc["title"].split()) <= 5
+            and f"from the {brand} range" in doc["description"]
+        )
+        if not ok:
+            off.append((r.pid, brand, doc["title"]))
+    assert off[:10] == [], len(off)
+
+
+def test_a_place_brand_belongs_to_its_class_6_decoys_alone(
+    rows: list[da.Row], by_id: dict[str, dict], ceiling: list[dict]
+) -> None:
+    """#663 (#642): a place name is never a model name under another brand, and each place brand
+    sells its decoys only. Metric: the styles that hold a place name and are not its decoy."""
+    places = {name for name, _ in da.CATEGORY_RANGES}
+    own = {r.pid for r in rows if r.cls == 6}
+    off = [
+        (r["product_id"], r["brand"], r["title"])
+        for r in ceiling
+        if r["product_id"] not in own
+        and (
+            r["brand"] in places
+            or scale._line(r) in places
+            or any(re.search(rf"(?<![\w-]){p}\b", r["title"]) for p in places)
+        )
+    ]
+    assert off[:10] == [], len(off)
+
+
+def test_decoy_class_5_is_retired(rows: list[da.Row]) -> None:
+    """#663: a spelled-in-the-description-only shade ("Moonbeam Dress" in ivory) is a trap no
+    shopper meets in a title; the class, its table and its rows are gone."""
+    assert 5 not in da.CLASSES
+    assert not hasattr(da, "SHADES")
+    assert all(5 not in t.classes for t in da.TYPES)
+    assert not [r.pid for r in rows if r.cls == 5]
