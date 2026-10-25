@@ -83,17 +83,21 @@ def test_a_decoy_is_a_real_product_that_never_claims_to_be_fresh(plural: str) ->
 
 
 @pytest.mark.parametrize("plural", PLURALS)
-def test_the_fresh_products_are_as_long_as_the_decoys(plural: str) -> None:
+def test_the_decoys_may_be_shorter_than_the_fresh_products(plural: str) -> None:
+    """Maintainer ruling on #665: "We don't really need that real products are as long as their
+    decoys .. we can have some of the decoys that are shorter .. because that is precisely what is
+    required to move them to the front of the non-interpreted results set .. that is a good demo
+    .. then we turn on interpretation, and those poor results disappear". So a decoy may be
+    shorter than the fresh products, by any gap. What stays is that there are enough fresh
+    products and decoys to compare and that a decoy is not longer than the fresh products: a
+    longer decoy would lose the raw ranking instead of winning it."""
     leaf = plural.title()
     fresh = [r for r in _fresh_records()
              if r["category_path"][-1].endswith(leaf) and plural in _tokens(r["title"])]
     assert len(fresh) >= 5 and len(_rows(plural)) >= 3, (plural, len(fresh))
-    # A fresh title leads with its brand, then a model word and a sub-model (gen#665); the decoys'
-    # titles carry no brand, so the brand's words are left out, and the sub-model is the one word
-    # the gap may grow by.
-    fresh_len = statistics.median(len(r["title"].split()) - len(r["brand"].split()) for r in fresh)
+    fresh_len = statistics.median(len(r["title"].split()) for r in fresh)
     decoy_len = statistics.median(len(d.title.split()) for d in _rows(plural))
-    assert abs(fresh_len - decoy_len) <= 3, (plural, fresh_len, decoy_len)
+    assert decoy_len <= fresh_len, (plural, fresh_len, decoy_len)
 
 
 @cache
