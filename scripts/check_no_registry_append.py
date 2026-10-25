@@ -130,6 +130,29 @@ REGISTRIES: tuple[Registry, ...] = (
         " nothing is listed here",
         ("tests/decoy_true_nodes/__init__.py",),
     ),
+    Registry(
+        f"{RD}/line_grammar.py",
+        _shapes(
+            r'^\s+"[^"]+": "[a-z]+",',
+            r"^\s+\*\*dict\.fromkeys\(",
+            r"^[A-Z]+_[A-Z_]+\s*=",
+            r'^\s+(el)?if fam == "',
+            r"^- [a-z][^:]*:",
+        ),
+        '    "Kettle": "appliance",',
+        f"add {RD}/line_grammar_families/<family>.py exposing KINDS, LEADS, SUBS and NUMBERS (see"
+        f" {RD}/line_grammar_families/sport.py); line_grammar finds it by walking the package and"
+        " gains no FAMILIES row, vocabulary constant, branch or docstring bullet",
+        (f"{RD}/line_grammar_families/__init__.py", f"{RD}/line_grammar_families/sport.py"),
+    ),
+    Registry(
+        "tests/test_retail_scale.py",
+        _shapes(r"^def test_\w+\("),
+        "def test_a_probe_title_is_numbered(ceiling):",
+        "add tests/test_retail_scale_<topic>_<issue>.py, a file of its own that takes the ceiling"
+        " build from tests/retail_ceiling.py (ceiling_build()); this file gains no test",
+        ("tests/retail_ceiling.py", "tests/test_retail_scale_drawing_params_512.py"),
+    ),
 )
 
 
