@@ -1166,7 +1166,7 @@ def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
 
 
 #: The word overlap (Jaccard, over brand and title) at which two same-leaf listings read as one.
-NEAR_DUPLICATE_JACCARD = 0.8
+NEAR_DUPLICATE_JACCARD = grocery.NEAR_DUPLICATE_JACCARD
 
 
 def listing_tokens(rec: dict) -> frozenset[str]:

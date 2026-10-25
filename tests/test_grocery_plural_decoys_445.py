@@ -88,9 +88,12 @@ def test_the_fresh_products_are_as_long_as_the_decoys(plural: str) -> None:
     fresh = [r for r in _fresh_records()
              if r["category_path"][-1].endswith(leaf) and plural in _tokens(r["title"])]
     assert len(fresh) >= 5 and len(_rows(plural)) >= 3, (plural, len(fresh))
-    fresh_len = statistics.median(len(r["title"].split()) for r in fresh)
+    # A fresh title leads with its brand, then a model word and a sub-model (gen#665); the decoys'
+    # titles carry no brand, so the brand's words are left out, and the sub-model is the one word
+    # the gap may grow by.
+    fresh_len = statistics.median(len(r["title"].split()) - len(r["brand"].split()) for r in fresh)
     decoy_len = statistics.median(len(d.title.split()) for d in _rows(plural))
-    assert abs(fresh_len - decoy_len) <= 2, (plural, fresh_len, decoy_len)
+    assert abs(fresh_len - decoy_len) <= 3, (plural, fresh_len, decoy_len)
 
 
 @cache

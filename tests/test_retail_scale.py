@@ -1491,3 +1491,24 @@ def test_a_food_or_drink_title_leads_with_its_brand(ceiling):
         and not r["title"].startswith(f"{r['brand']} ")
     ]
     assert off[:10] == [], len(off)
+
+
+def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceiling):
+    """Guard (gen#665, #642): the lead words of the food families are no sub-model, name, sport
+    lead or brand, no word is in two families or in both builds' halves, and in the catalogue
+    one brand holds a lead word. Metric: the shared words, and the lead words of two brands."""
+    halves = [w for fam in line_grammar.FOOD_LEADS.values() for half in fam.values() for w in half]
+    assert len(halves) == len(set(halves))
+    subs = {w for words in line_grammar.FOOD_SUBS.values() for w in words}
+    others = subs | set(line_grammar.NAME_WORDS) | set(line_grammar.SPORT_LEADS)
+    brands = {r["brand"] for r in ceiling.records}
+    assert sorted(set(halves) & (others | brands)) == []
+    # A word that leads another product's title would read as a range two brands share (#623).
+    leads = {r["title"].removeprefix("The ").split()[0] for r in ceiling.records
+             if r["category_path"][0] != "Food & Drink"}  # fmt: skip
+    assert sorted(set(halves) & leads) == []
+    owner: dict[str, set[str]] = collections.defaultdict(set)
+    for r in _family_records(_food(ceiling.records)):
+        if line := scale._line(r):
+            owner[line.split()[0]].add(r["brand"])
+    assert owner and sorted(w for w, b in owner.items() if len(b) > 1) == []

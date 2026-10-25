@@ -90,37 +90,37 @@ DRESS_DETAIL = ("with Broguing Detail", "with Toe Cap", "with Apron Detail", "Tw
 DRESS_COLORS = ("Black", "Tan", "Brown", "Navy", "Stone", "Camel", "Wine")
 
 #: The plain model words of a food family, from the own-label tiers of public grocery listings
-#: ("Finest", "Basics", "Everyday Value"). Each family has two halves, one for the grocery build
-#: and one for the scale build, so a word belongs to one brand across both (gen#642). A word is
-#: no name, no place and no brand-like coinage, and none is in a food title, a flavor, a brand or
-#: another family's vocabulary.
+#: ("Finest", "Basics", "Value"). Each family has two halves, one for the grocery build and one
+#: for the scale build, so a word belongs to one brand across both (gen#642). A word is no name,
+#: no place and no brand-like coinage, and none is in a food title, a description, a flavor, a
+#: brand, another family's vocabulary or the first word of any other product's title (the range
+#: review of gen#623 would read it as a range shared by two brands).
 FOOD_LEADS = {
     "pantry": {
         "grocery": (
-            "Basic", "Standard", "Trusty", "Humble", "Generous", "Fair", "Honest", "Tasty",
-            "Savoury", "Hearty", "Proper", "Wholesome", "Simply", "Gourmet", "Deli", "Artisan",
-            "Rustic", "Supreme", "Daily", "Essential", "Signature", "Heritage", "Finest",
-            "Select", "Choice", "Family", "Homestyle", "Pure",
+            "Trusty", "Humble", "Generous", "Fair", "Honest", "Tasty", "Savoury", "Hearty",
+            "Proper", "Wholesome", "Simply", "Gourmet", "Deli", "Artisan", "Rustic", "Supreme",
+            "Signature", "Heritage", "Finest", "Select", "Choice", "Homestyle", "Reliable",
+            "Authentic", "Prime", "Dependable", "Cherished",
         ),
         "scale": (
-            "Sunday", "Weekday", "Harvest", "Basics", "Best", "Real", "Value", "Steady", "Plenty",
-            "Bountiful", "Kindly", "Comfort", "Staple", "Wholefood",
+            "Sunday", "Weekday", "Basics", "Value", "Steady", "Plenty", "Bountiful", "Kindly",
+            "Comfort", "Wholefood",
         ),
     },
     "drink": {
         "grocery": (
-            "Brisk", "Bright", "Lively", "Morning", "Evening", "Cosy", "Zesty", "Refresh", "Sunny",
-            "Cool", "Vital", "Balanced", "Gentle", "Lunchtime",
+            "Brisk", "Lively", "Evening", "Cosy", "Zesty", "Refresh", "Vital", "Balanced",
+            "Lunchtime", "Cheery", "Cheerful", "Splash", "Sparkle", "Quench",
         ),
         "scale": (
-            "Elevenses", "Teatime", "Poolside", "Picnic", "Winter", "Autumn", "Perky", "Breezy",
-            "Vivid",
+            "Elevenses", "Teatime", "Poolside", "Winter", "Autumn", "Perky", "Breezy", "Vivid",
         ),
     },
     "alcohol": {
         "grocery": (
-            "Cellar", "Barrel", "Grand", "Noble", "Master", "Imperial", "Royal", "Crown", "Tavern",
-            "Fireside", "Gantry", "Snug",
+            "Cellar", "Grand", "Master", "Imperial", "Royal", "Crown", "Tavern", "Fireside",
+            "Gantry", "Snug",
         ),
         "scale": (
             "Sovereign", "Merchant", "Vintner", "Landlord", "Hogshead", "Founders", "Taproom",
@@ -277,7 +277,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress style
     always leads with its brand and the name, and a style word follows the material in four
     draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style leads with its
-    brand, then the model: "Hollin Basic Reserve 2 Strawberry Jam".
+    brand, then the model: "Hollin Finest Reserve 2 Strawberry Jam".
     ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     title = _strip(rec["title"], tpl["brand"])
