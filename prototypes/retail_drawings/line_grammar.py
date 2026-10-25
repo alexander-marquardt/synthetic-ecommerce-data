@@ -15,7 +15,7 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
 - the home, gifts, garden and toys kinds (:mod:`plain_models`, gen#664): a plain word of the
   family, an optional sub-model and a number, then the descriptors and the kind, e.g.
   "Stridewell Beam Plus 300 Fabric Shade Floor Lamp".
-- food and drink (pantry, drink, alcohol): the brand always leads, then a plain model word
+- food and drink (pantry, drink, alcohol): the brand leads in 2 of 3 titles, then a plain model word
   (``Basics``, ``Finest``), an optional sub-model and a number, then the product, e.g.
   "Hollin Finest Reserve 2 Strawberry Jam 340g" (gen#665).
 
@@ -27,6 +27,7 @@ model word belongs to one brand (gen#642).
 from __future__ import annotations
 
 import re
+import zlib
 from collections.abc import Callable, Iterable
 
 import appliance_model_numbers as amn
@@ -285,6 +286,14 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
     return out
 
 
+def brand_led(key: object) -> bool:
+    """Whether the food title seeded by ``key`` leads with its brand: two in three do (gen#665).
+
+    Real listings do not all name the brand, and the shorter ones are the demo's decoy-friendly
+    titles, so the rest keep the model alone."""
+    return zlib.crc32(str(key).encode()) % 3 != 0
+
+
 def _strip(title: str, word: str) -> str:
     return title[len(word) + 1 :] if title.startswith(f"{word} ") else title
 
@@ -296,7 +305,8 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress style
     always leads with its brand and the name, and a style word follows the material in four
     draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style leads with its
-    brand, then the model: "Hollin Finest Reserve 2 Strawberry Jam".
+    brand, then the model, in two draws of three ("Hollin Finest Reserve 2 Strawberry Jam"); the
+    others keep the model alone (:func:`brand_led`).
     ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     title = _strip(rec["title"], tpl["brand"])
@@ -308,7 +318,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
             title = f"{line} {title[len(line) + len(brand) + 2 :]}"
         title = f"{kids}{brand} {title}"
     elif fam in FOOD_LEADS:
-        title = f"{brand} {title}"
+        title = f"{brand} {title}" if brand_led(draw) else title
     elif fam == "dress":
         rest = _strip(title, line)
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
