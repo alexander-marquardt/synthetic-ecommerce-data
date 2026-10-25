@@ -1516,7 +1516,8 @@ def test_a_food_range_word_belongs_to_one_brand_and_to_no_other_vocabulary(ceili
     halves = [w for fam in line_grammar.FOOD_LEADS.values() for half in fam.values() for w in half]
     assert len(halves) == len(set(halves))
     subs = {w for words in line_grammar.FOOD_SUBS.values() for w in words}
-    others = subs | set(line_grammar.NAME_WORDS) | set(line_grammar.SPORT_LEADS)
+    sport = line_grammar_families.families()["sport"].leads
+    others = subs | set(line_grammar.NAME_WORDS) | set(sport)
     brands = {r["brand"] for r in ceiling.records}
     assert sorted(set(halves) & (others | brands)) == []
     # A word that leads another product's title would read as a range two brands share (#623).

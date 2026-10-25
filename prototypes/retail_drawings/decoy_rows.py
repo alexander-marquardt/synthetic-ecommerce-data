@@ -450,7 +450,7 @@ TABLE = (
        "Lentils and chickpeas simmered in coconut milk with turmeric, coconut cream to finish.",
        "Yellow", 7, "coconut", 880, ingredients=("lentils", "coconut milk", "turmeric")),
     _d("XI14", "biscuit", "All Butter Shortbread",
-       "Lavender shortbread baked with dried lavender, lavender flowers and lavender sugar.",
+       "Crumbly shortbread baked with dried lavender, lavender flowers and lavender sugar.",
        "Cream", 7, "lavender", 950, ingredients=("wheat flour", "butter", "lavender flowers")),
     _d("XI15", "bath_salts", "Relaxing Bath Salts",
        "Mineral bath salts with lavender oil and dried lavender buds to soak in.", "Purple", 7,
