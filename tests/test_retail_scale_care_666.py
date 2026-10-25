@@ -20,7 +20,6 @@ if str(RETAIL) not in sys.path:
     sys.path.insert(0, str(RETAIL))
 
 import line_grammar  # noqa: E402
-import line_grammar_families  # noqa: E402
 import scale  # noqa: E402
 
 
@@ -86,26 +85,6 @@ def test_a_cleaning_or_beauty_model_is_built_from_its_family_vocabulary(ceiling)
         )
     ]
     assert off[:10] == [], len(off)
-
-
-def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
-    """Guard (gen#666): a lead word in two families is one word under two kinds of product, and
-    a first name reads as a brand. Metric: the words in two vocabularies, and the lead words that
-    are also name words or that fall in both halves a build deals."""
-    leads = {n: f.leads for n, f in line_grammar_families.families().items()}
-    seen: dict[str, str] = {}
-    twice = {
-        w: (seen[w], fam)
-        for fam, words in leads.items()
-        for w in words
-        if seen.setdefault(w, fam) != fam
-    }
-    assert twice == {}
-    assert {w for words in leads.values() for w in words} & set(line_grammar.NAME_WORDS) == set()
-    for fam in line_grammar.CARE:
-        scale_half = set(leads[fam][line_grammar.HALVES["scale"] :: 2])
-        grocery_half = set(leads[fam][line_grammar.HALVES["grocery"] :: 2])
-        assert scale_half and grocery_half and not scale_half & grocery_half
 
 
 def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):

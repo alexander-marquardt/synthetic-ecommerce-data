@@ -15,7 +15,6 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
   (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
 
-
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
 model word belongs to one brand (gen#642).
@@ -184,7 +183,7 @@ class Deal:
         if not self.spec:
             return word
         subs, numbers = self.spec.subs, self.spec.numbers
-        if False:
+        if self.fam in CARE:
             # A care model sits in a short title, so two of one brand's models that differ in a
             # single token read as one listing (Jaccard 0.8). The sub-model and the generation
             # both move with each reuse of a word and with the word's place in the brand's list.
