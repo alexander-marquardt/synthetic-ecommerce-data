@@ -164,3 +164,24 @@ def test_no_title_repeats_its_brand_back_to_back(ceiling):
         if re.search(rf"\b{re.escape(r['brand'])} {re.escape(r['brand'])}\b", r["title"])
     ]
     assert off[:10] == [], len(off)
+
+
+def test_no_apparel_decoy_clones_a_petite_style(ceiling):
+    """#663: the decoys are never on sale, so each one cloned from a petite style adds a petite
+    item that is not on sale, and the petite sale share (0.1 to 0.25, test_retail_distractors)
+    fell to 0.0997 once the class 5 retirement moved the exemplar walk. Metric: the apparel
+    decoys that are petite, of a type that has a style which is not (every jogger is petite, so
+    the joggers' decoys may be)."""
+    import decoy_apparel
+
+    ids = decoy_apparel.ids()
+    petite = lambda r: "petite" in r.get("size_range", ())  # noqa: E731
+    has_other = {
+        r["product_type"] for r in ceiling.records if r["product_id"] not in ids and not petite(r)
+    }
+    off = [
+        r["product_id"]
+        for r in ceiling.records
+        if r["product_id"] in ids and petite(r) and r["product_type"] in has_other
+    ]
+    assert off[:10] == [], len(off)
