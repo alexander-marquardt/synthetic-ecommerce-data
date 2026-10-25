@@ -14,7 +14,10 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
   (a first name such as "Merlin"), then the descriptors ``<fit> <material> <style> <type>
   <detail>`` and the color after "in", e.g. "Larkmoor Merlin Leather Smart Penny Loafers in Tan";
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
-  (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher".
+  (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
+- the home, gifts, garden and toys kinds (:mod:`plain_models`, gen#664): a plain word of the
+  family, an optional sub-model and a number, then the descriptors and the kind, e.g.
+  "Stridewell Beam Plus 300 Fabric Shade Floor Lamp".
 
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
@@ -24,10 +27,11 @@ model word belongs to one brand (gen#642).
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
 import appliance_model_numbers as amn
+import plain_models
 
 #: product type -> its family. A kind not listed keeps the range names of :mod:`range_ownership`.
 FAMILIES = {
@@ -61,6 +65,8 @@ FAMILIES = {
     "Clogs": "casual",
     "Jelly Shoes": "casual",
 }  # fmt: skip
+for _fam, _kinds in plain_models.KINDS.items():
+    FAMILIES.update(dict.fromkeys(_kinds, _fam))
 
 
 @dataclass(frozen=True)
@@ -83,41 +89,44 @@ GENERATIONS = tuple(range(2, 10))
 #: "Original"); no lead is a coined brand-sounding word, a place name or a first name.
 VOCAB = {
     "bra": Vocab(
-        ("Comfort", "Support", "Everyday", "Balance", "Form", "Lift", "Shape", "Soft", "Poise",
-         "Serene", "Haven", "Essence", "Harmony", "Bloom", "Charm", "Halo", "Aura", "Ease"),
+        ("Comfort", "Support", "Anytime", "Balance", "Contour", "Lift", "Shape", "Soft", "Poise",
+         "Serene", "Haven", "Essence", "Harmony", "Petal", "Delight", "Nimbus", "Mist", "Unwind"),
         GENERATIONS, SPORT_SUBS,
     ),
     "jeans": Vocab(
         ("Original", "Heritage", "Core", "Authentic", "Staple", "Standard", "Icon", "Legacy",
-         "Rider", "Ranger", "Drover", "Workwear", "Frontier", "Rodeo", "Basic", "Utility",
-         "Craft", "Origin", "Anchor", "Forge", "Foundry", "Cadet"),
+         "Rider", "Ranger", "Drover", "Workwear", "Frontier", "Rodeo", "Plain", "Practical",
+         "Craft", "Origin", "Anchor", "Smithy", "Foundry", "Cadet"),
         (101, 205, 312, 418, 520, 625, 731, 840), SPORT_SUBS,
     ),
     "tee": Vocab(
-        ("Daily", "Casual", "Weekend", "Easy", "Simple", "Fresh", "Breeze", "Sunday", "Saturday",
-         "Studio", "Campus", "Varsity", "Retro", "Street", "Urban", "Skate", "Surf", "Camp",
-         "Field", "Garage", "Social", "Club", "Lounge", "Basecamp"),
+        ("Regular", "Casual", "Weekend", "Laidback", "Relaxed", "Fresh", "Zephyr", "Sunday",
+         "Saturday", "Studio", "Campus", "Varsity", "Retro", "Street", "Downtown", "Skate",
+         "Surf", "Camp", "Field", "Garage", "Social", "Club", "Chill", "Basecamp"),
         GENERATIONS, SPORT_SUBS,
     ),
     "trainers": Vocab(
-        ("Dash", "Cruise", "Court", "Terrace", "Flex", "Sprint", "Bounce", "Rally", "Volley",
-         "Drift", "Orbit", "Pulse", "Spark", "Apex", "Vector", "Stealth", "Jump", "Hoop", "Lunge",
+        ("Dash", "Cruise", "Court", "Pitch", "Flex", "Sprint", "Rebound", "Rally", "Volley",
+         "Skim", "Orbit", "Pulse", "Blaze", "Apex", "Vector", "Stealth", "Jump", "Hoop", "Lunge",
          "Switch"),
         GENERATIONS, SPORT_SUBS,
     ),
     "boots": Vocab(
-        ("Summit", "Ascent", "Alpine", "Grit", "Rugged", "Anvil", "Timber", "Bedrock", "Granite",
+        ("Summit", "Ascent", "Alpine", "Grit", "Rugged", "Hammer", "Timber", "Bedrock", "Granite",
          "Puddle", "Drizzle", "Storm", "Gale", "Hardy", "Sturdy", "Trek", "Wander", "Roam",
          "Ramble", "Scout", "Pioneer", "Forager", "Stomp", "Boulder"),
         GENERATIONS, SPORT_SUBS,
     ),
     "casual": Vocab(
-        ("Siesta", "Fiesta", "Sorbet", "Mellow", "Cosy", "Snug", "Plush", "Lazy", "Sunset",
-         "Sunrise", "Poolside", "Lido", "Parasol", "Gelato", "Picnic", "Hammock", "Tropic",
-         "Carnival", "Flutter", "Twirl", "Swish", "Bliss", "Zest", "Cheer"),
+        ("Siesta", "Fiesta", "Sorbet", "Mellow", "Toasty", "Nestle", "Plush", "Lazy", "Sunset",
+         "Sunrise", "Poolside", "Lido", "Parasol", "Gelato", "Barbecue", "Hammock", "Tropic",
+         "Carnival", "Flutter", "Twirl", "Swish", "Bliss", "Tang", "Jolly"),
         GENERATIONS, SPORT_SUBS,
     ),
 }  # fmt: skip
+
+#: The families whose model is a lead word, an optional sub-model and a number (gen#663, gen#664).
+NUMBERED = ("sport", *VOCAB, *plain_models.KINDS)
 
 #: The lead word of a sport model: a performance word.
 SPORT_LEADS = (
@@ -162,23 +171,31 @@ def _code(token: str) -> bool:
     return any(c.isdigit() for c in token)
 
 
+def _spec(fam: str) -> tuple[tuple[str, ...], tuple[str, ...], tuple[int | str, ...]]:
+    """The lead words, the sub-model words and the numbers of a numbered family's models."""
+    if fam == "sport":
+        return SPORT_LEADS, SPORT_SUBS, GENERATIONS
+    if fam in VOCAB:
+        return VOCAB[fam].leads, VOCAB[fam].subs, VOCAB[fam].numbers
+    return plain_models.LEADS[fam], plain_models.SUBS, plain_models.numbers(fam)
+
+
 def is_model(fam: str, brand: str, line: str) -> bool:
     """Whether ``line`` is a model name of ``fam`` built from the family's words alone.
 
-    A sport model is a lead word, then sub-model words, generation numbers or codes, at least
-    one of them; a model of a :data:`VOCAB` family is one of its lead words, then its sub-model
-    words and numbers, at least one number; a dress model is one name-like word; an appliance
-    model is a series its brand owns (gen#622)."""
+    A numbered model (sport, the :data:`VOCAB` families and the home, gifts, garden and toys
+    families) is a lead word, then sub-model words, numbers or codes, at least one number; a
+    dress model is one name-like word; an appliance model is a series its brand owns (gen#622)."""
     words = line.split()
-    if fam == "sport":
-        rest = words[1:]
-        return (len(words) >= 2 and words[0] in SPORT_LEADS
-                and all(w in SPORT_SUBS or _code(w) for w in rest))  # fmt: skip
     if fam in VOCAB:
         vocab, rest = VOCAB[fam], words[1:]
         return (len(words) >= 2 and words[0] in vocab.leads
                 and all(w in vocab.subs or w in map(str, vocab.numbers) for w in rest)
                 and any(w in map(str, vocab.numbers) for w in rest))  # fmt: skip
+    if fam in NUMBERED:
+        leads, subs, _ = _spec(fam)
+        return (len(words) >= 2 and words[0] in leads
+                and all(w in subs or _code(w) for w in words[1:]))  # fmt: skip
     if fam == "dress":
         return line in NAME_WORDS
     if fam == "appliance":
@@ -195,16 +212,8 @@ def name_word_misplaced(rec: dict) -> list[str]:
 
 
 def _lead(fam: str, line: str) -> str:
-    """The word of a model that a brand owns: the lead word of a model that has more words, a
-    dress model's name."""
-    return line if fam == "dress" else line.split()[0]
-
-
-def _words(fam: str) -> tuple[str, ...]:
-    """The words a family deals over its brands."""
-    if fam == "sport":
-        return SPORT_LEADS
-    return VOCAB[fam].leads if fam in VOCAB else NAME_WORDS
+    """The word of a model that a brand owns: a numbered model's lead word, a dress model's name."""
+    return line.split()[0] if fam in NUMBERED else line
 
 
 class Deal:
@@ -212,14 +221,15 @@ class Deal:
     (gen#642). An authored row's model word stays its brand's (``authored``: word -> brand), and
     the rest are dealt in turn over the brands in name order.
 
-    A sport or :data:`VOCAB` brand builds its models from its lead words, a number and, past the
-    first run of numbers, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a model
-    with one of its name words."""
+    A brand of a numbered family builds its models from its lead words, a number and, past the
+    first round of numbers, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a
+    model with one of its name words."""
 
     def __init__(self, fam: str, brands: Iterable[str], authored: dict[str, str]) -> None:
         self.fam = fam
         self.brands = sorted(set(brands))
-        pool = [w for w in _words(fam) if w not in authored]
+        words = _spec(fam)[0] if fam in NUMBERED else NAME_WORDS
+        pool = [w for w in words if w not in authored]
         count = len(self.brands) or 1
         self._owned = {
             b: tuple([w for w, o in authored.items() if o == b] + pool[i::count])
@@ -236,11 +246,11 @@ class Deal:
         """The model ``brand`` sells at ``slot``."""
         mine = self._owned[brand]
         word, k = mine[slot % len(mine)], slot // len(mine)
-        if self.fam == "dress":
+        if self.fam not in NUMBERED:
             return word
-        sub = (None, *self._subs)[(k // len(self._numbers)) % (len(self._subs) + 1)]
-        number = self._numbers[k % len(self._numbers)]
-        return " ".join(str(p) for p in (word, sub, number) if p)
+        _, subs, numbers = _spec(self.fam)
+        sub = (None, *subs)[(k // len(numbers)) % (len(subs) + 1)]
+        return " ".join(str(p) for p in (word, sub, numbers[k % len(numbers)]) if p)
 
 
 def _stated(rec: dict) -> str | None:
@@ -257,7 +267,7 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
     ``brands`` is the scale build's (department, product type) -> brand pool. An authored model
     that is not the family's own (a real brand's) reserves nothing."""
     out = {}
-    for fam in ("sport", "dress", *VOCAB):
+    for fam in (*NUMBERED, "dress"):
         authored = {
             _lead(fam, line): r["brand"]
             for r in tpls
@@ -284,7 +294,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     """``rec``'s title in its family's grammar, once :func:`scale.derive` has put its model in.
 
     The template's brand and the drawn brand leave the title first (the template's, or a doubled
-    one, would read "Treadmoor Treadmoor Pace Max 3"). A sport style then leads with its own
+    one, would read "Treadmoor Treadmoor Pace Max 3"). A numbered style then leads with its own
     brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A
     dress style always leads with its brand and the name, and a style word follows the material in
     four draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A style of a
@@ -294,8 +304,14 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     kids = "Kids' " if rec["title"].startswith("Kids' ") else ""
     title = rec["title"].removeprefix(kids)
     brands = (tpl["brand"], brand)
-    if fam == "sport":
-        title = f"{kids}{brand} {_peel(title, brands)}"
+    if fam in VOCAB:
+        title = f"{kids}{brand} {line} {_peel(title, (*brands, line, 'The'))}"
+    elif fam in NUMBERED:
+        title = _peel(title, brands)
+        title = title.removeprefix("The ") if title.startswith(f"The {line} ") else title
+        if title.startswith(f"{line} {brand} "):  # a template that led with its brand
+            title = f"{line} {title[len(line) + len(brand) + 2 :]}"
+        title = f"{kids}{brand} {title}"
     elif fam == "dress":
         rest = _peel(title, (*brands, line))
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]
@@ -306,6 +322,18 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     else:
         title = f"{kids}{brand} {line} {_peel(title, (*brands, line, 'The'))}"
     rec["title"] = title
+
+
+def lead_with_brand(recs: list[dict], line_of: Callable[[dict], str | None]) -> list[dict]:
+    """``recs`` with every authored title of a numbered family that opens on its model put after
+    its brand (gen#664): "Harwell Velvet Corner Sofa" is "Brackenmere Home Harwell Velvet Corner
+    Sofa". ``line_of`` gives a row's model name."""
+    for rec in recs:
+        line = line_of(rec)
+        if (family(rec) in NUMBERED and line and rec["title"].startswith(f"{line} ")
+                and not rec["title"].startswith(f"{rec['brand']} ")):  # fmt: skip
+            rec["title"] = f"{rec['brand']} {rec['title']}"
+    return recs
 
 
 def color_suffix(rec: dict, color: str) -> str:

@@ -17,10 +17,10 @@ back.
 
 | Family | Kinds | Lead words (sample) | A real title from the 10K build |
 |---|---|---|---|
-| bra | Bra | Comfort, Support, Everyday, Balance, Form | Bramblewood Comfort 2 Underwired Balcony Bra |
+| bra | Bra | Comfort, Support, Anytime, Balance, Contour | Bramblewood Comfort 2 Underwired Balcony Bra |
 | jeans | Jeans | Original, Heritage, Core, Authentic, Rider | Ottery Denim Original 101 High Rise Skinny Jeans |
-| tee | Tee, T-Shirt | Daily, Casual, Weekend, Easy, Varsity | Little Fernby Varsity Max 2 Slim Fit Ribbed Tee, Green |
-| trainers | Trainers, Platform Trainers, Plimsolls, Barefoot Shoes | Dash, Cruise, Court, Terrace, Orbit | Treadmoor Spark 9 Leather Platform Trainers |
+| tee | Tee, T-Shirt | Regular, Casual, Weekend, Laidback, Varsity | Little Fernby Varsity Max 2 Slim Fit Ribbed Tee, Green |
+| trainers | Trainers, Platform Trainers, Plimsolls, Barefoot Shoes | Dash, Cruise, Court, Pitch, Orbit | Treadmoor Blaze 9 Leather Platform Trainers |
 | boots | Walking, Chelsea, Ankle, Chukka, Knee High, Safety Boots, Wellies | Summit, Ascent, Alpine, Grit, Puddle | Cobbleway Alpine Pro 5 Suede Chelsea Boots |
 | casual | Espadrilles, Slippers, Wedges, Mules, Sandals, Clogs, Jelly Shoes | Siesta, Fiesta, Sorbet, Mellow, Tropic | Cobbleway Fiesta Pro 5 Block Heel Mules |
 
