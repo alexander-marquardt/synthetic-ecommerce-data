@@ -84,12 +84,13 @@ def test_a_model_named_title_leads_with_its_brand(ceiling):
     """Guard (gen#662, #663): no title starts with a model or range name its brand does not
     precede, or the shopper reads the model as a brand ("Speed 4 Neutral Road Running Shoes").
     A title leads with its brand, after an optional "Kids' ", in every family but the appliances
-    (whose series follow the brand by their own guard). Metric: the model-named titles that do
-    not."""
+    (whose series follow the brand by their own guard) and the mixed-brand food ones. Metric: the
+    model-named titles that do not."""
     off = [
         (r["product_id"], r["title"])
         for r in _family_records(ceiling.records)
         if line_grammar.family(r) != "appliance"
+        and not getattr(line_grammar._NUMBERED.get(line_grammar.family(r)), "mixed_brand", False)
         and scale._line(r)  # a style that names a model; a plain authored title has none
         and not r["title"].removeprefix("Kids' ").startswith(f"{r['brand']} ")
     ]

@@ -12,7 +12,7 @@ KINDS = ("Espadrilles", "Slippers", "Wedges", "Mules", "Sandals", "Clogs", "Jell
 #: The lead word of a model.
 LEADS = (
     "Siesta", "Fiesta", "Sorbet", "Languid", "Toasty", "Nestle", "Plush", "Lazy", "Sunset",
-    "Sunrise", "Poolside", "Lido", "Parasol", "Gelato", "Barbecue", "Hammock", "Tropic",
+    "Sunrise", "Boardwalk", "Lido", "Parasol", "Gelato", "Barbecue", "Hammock", "Tropic",
     "Carnival", "Flutter", "Twirl", "Swish", "Bliss", "Tang", "Jolly",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.

@@ -12,7 +12,7 @@ from __future__ import annotations
 KINDS = ("Tee", "T-Shirt")
 #: The lead word of a model.
 LEADS = (
-    "Regular", "Casual", "Weekend", "Laidback", "Relaxed", "Fresh", "Zephyr", "Sunday",
+    "Regular", "Casual", "Weekend", "Laidback", "Relaxed", "Fresh", "Zephyr", "Dayoff",
     "Saturday", "Studio", "Campus", "Varsity", "Retro", "Hoodie", "Downtown", "Skate", "Surf",
     "Camp", "Field", "Garage", "Social", "Club", "Chill", "Basecamp",
 )  # fmt: skip
