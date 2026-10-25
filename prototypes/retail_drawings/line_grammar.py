@@ -14,11 +14,10 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
   <detail>`` and the color after "in", e.g. "Larkmoor Merlin Leather Smart Penny Loafers in Tan";
 - appliances (dishwashers, fridges, laundry): the brand, the series it owns and a model code
   (gen#622, gen#631), e.g. "Frostholm Arden FJ12EW 12 Place Integrated Dishwasher";
-- the home, gifts, garden and toys kinds (gen#664): the same shape with a plain word of the
-  family, e.g. "Stridewell Beam Plus 300 Fabric Shade Floor Lamp";
-- food and drink (pantry, drink, alcohol): the brand leads, then a plain model word (``Basics``,
-  ``Finest``), an optional sub-model and a number, then the product, e.g. "Hollin Finest Reserve
-  2 Strawberry Jam 340g" (gen#665).
+- food and drink (pantry, drink, alcohol): the brand in two of three titles, then a model word
+  (``Basics``, ``Finest``), an optional sub-model and a number, then the product, e.g.
+  "Hollin Finest Reserve 2 Strawberry Jam 340g"; the third title keeps the model alone
+  (:func:`brand_led`, gen#665).
 
 A name-like word reads as a brand without its brand in front, so it appears only directly after
 the brand (:func:`name_word_misplaced`). A family's model words are dealt to its brands, so a
@@ -32,6 +31,7 @@ module, not a row, a constant and a branch here.
 from __future__ import annotations
 
 import re
+import zlib
 from collections.abc import Callable, Iterable
 
 import appliance_model_numbers as amn
@@ -146,11 +146,15 @@ _NUMBERED = line_grammar_families.families(core_kinds=_CORE, reserved=NAME_WORDS
 #: The names of the numbered families.
 NUMBERED = tuple(_NUMBERED)
 #: product type -> its family. A kind not listed keeps the range names of :mod:`range_ownership`.
-FAMILIES = {kind: fam.name for fam in _NUMBERED.values() for kind in fam.kinds} | _CORE | {
-    **dict.fromkeys(PANTRY_KINDS, "pantry"),
-    **dict.fromkeys(DRINK_KINDS, "drink"),
-    **dict.fromkeys(ALCOHOL_KINDS, "alcohol"),
-}
+FAMILIES = (
+    {kind: fam.name for fam in _NUMBERED.values() for kind in fam.kinds}
+    | _CORE
+    | {
+        **dict.fromkeys(PANTRY_KINDS, "pantry"),
+        **dict.fromkeys(DRINK_KINDS, "drink"),
+        **dict.fromkeys(ALCOHOL_KINDS, "alcohol"),
+    }
+)
 
 
 def family(rec: dict) -> str | None:
@@ -276,6 +280,14 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
     return out
 
 
+def brand_led(key: object) -> bool:
+    """Whether the food title seeded by ``key`` leads with its brand: two in three do (gen#665).
+
+    Real listings do not all name the brand, and the shorter ones are the demo's decoy-friendly
+    titles, so the rest keep the model alone."""
+    return zlib.crc32(str(key).encode()) % 3 != 0
+
+
 def _strip(title: str, word: str) -> str:
     return title[len(word) + 1 :] if title.startswith(f"{word} ") else title
 
@@ -287,7 +299,8 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running Shoes". A dress
     style always leads with its brand and the name, and a style word follows the material in four
     draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style leads with its
-    brand, then the model: "Hollin Finest Reserve 2 Strawberry Jam".
+    brand, then the model, in two draws of three ("Hollin Finest Reserve 2 Strawberry Jam"); the
+    others keep the model alone (:func:`brand_led`).
     ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     title = _strip(rec["title"], tpl["brand"])
@@ -299,7 +312,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
             title = f"{line} {title[len(line) + len(brand) + 2 :]}"
         title = f"{kids}{brand} {title}"
     elif fam in FOOD_LEADS:
-        title = f"{brand} {title}"
+        title = f"{brand} {title}" if brand_led(draw) else title
     elif fam == "dress":
         rest = _strip(title, line)
         style = (None, *DRESS_STYLE)[draw % (len(DRESS_STYLE) + 1)]

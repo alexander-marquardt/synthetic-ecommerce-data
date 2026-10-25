@@ -355,8 +355,9 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
             if listed := ingredients(fam.code, flavor.name, pid) if fam.food else None:
                 sku["ingredients"] = listed
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
-    # A food style leads with its brand, then its model (gen#665); the rest keep the range alone.
-    head = f"{brand} {line}" if fam.food else line
+    # Two in three food styles lead with the brand, then the model (gen#665); the rest keep the
+    # range alone, as the other families do.
+    head = f"{brand} {line}" if fam.food and line_grammar.brand_led(pid) else line
     head = f"{head} Organic" if organic else head
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
     attrs = [attr("line", "Line", line)]  # the range the title leads with (gen#623)
