@@ -115,9 +115,20 @@ class FinishMixin:
                 if segment.attribute not in names
                 and not any(states_value(segment.text(), value) for value in values)
             )
-            if len(kept) != len(title.segments):
-                thinned[index] = build_title(title.item, kept, cap=self.config.title_length_cap)
-                self._bump("title_axis_left_to_field")
+            if len(kept) == len(title.segments):
+                continue
+            candidate = build_title(title.item, kept, cap=self.config.title_length_cap)
+            # No two SKUs of a line share a title (README, "Two properties are asserted over the
+            # whole catalog"): a SKU whose thinned title is a sibling's keeps its axis value.
+            if any(
+                candidate.text == other.text
+                for other_index, other in enumerate(thinned)
+                if other_index != index
+            ):
+                self._bump("title_axis_kept_for_uniqueness")
+                continue
+            thinned[index] = candidate
+            self._bump("title_axis_left_to_field")
         return thinned
 
     # -- the shared post-pass --------------------------------------------

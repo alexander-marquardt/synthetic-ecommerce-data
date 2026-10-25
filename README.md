@@ -535,7 +535,9 @@ differently (`core/voice.py`).
   per-SKU hash of the seed, so the build's random stream does not shift) and leaves it to the
   axis field (`variant_axes`, `facets`) on the rest. A title's segments are always separated by
   a comma and a space (`L, Alloy Steel`). `tests/test_sku_title_axis_657.py` holds all three,
-  with the share inside a 0.60-0.80 band.
+  with the share inside a 0.60-0.80 band. A SKU keeps its axis value when leaving it out would
+  give it the title of a sibling in its line, so the title-uniqueness property below still
+  holds and the share is a little under the 70% drawn.
 * **Pack wording is allowed only where a pack field exists.** The maintainer's
   ruling: pack wording is fine when the record actually carries a pack field.
   `Units per Pack` (the census's `Package Quantity`) exists on hex nuts but not on depressed-center wheels (sold each, #357), and every
