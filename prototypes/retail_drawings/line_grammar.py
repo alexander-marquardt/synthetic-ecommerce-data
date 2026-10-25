@@ -83,7 +83,7 @@ GENERATIONS = tuple(range(2, 10))
 #: "Original"); no lead is a coined brand-sounding word, a place name or a first name.
 VOCAB = {
     "bra": Vocab(
-        ("Comfort", "Support", "Everyday", "Balance", "Form", "Lift", "Shape", "Grace", "Poise",
+        ("Comfort", "Support", "Everyday", "Balance", "Form", "Lift", "Shape", "Soft", "Poise",
          "Serene", "Haven", "Essence", "Harmony", "Bloom", "Charm", "Halo", "Aura", "Ease"),
         GENERATIONS, SPORT_SUBS,
     ),
