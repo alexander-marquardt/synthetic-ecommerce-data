@@ -36,6 +36,8 @@ HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
 WORD_DOC = "docs/retail-product-word-decoys.md"
 CLASS8 = "tests/test_retail_product_word_decoys_326.py"
+GRAMMAR = f"{RD}/line_grammar.py"
+SCALE_TESTS = "tests/test_retail_scale.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -86,6 +88,17 @@ APPENDS = {
         "retail-product-word-decoys/<topic>",
     ),
     "true-node-row": (CLASS8, '    "probe": "Probes",', "decoy_true_nodes"),
+    "grammar-family-row": (GRAMMAR, '    "Kettle": "appliance",', "line_grammar_families"),
+    "grammar-family-group": (GRAMMAR, "    **dict.fromkeys(", "line_grammar_families"),
+    "grammar-vocabulary": (GRAMMAR, 'CLEAN_LEADS = ("Gentle", "Total")', "line_grammar_families"),
+    "grammar-branch": (GRAMMAR, '    elif fam == "cleaning":', "line_grammar_families"),
+    "grammar-doc-bullet": (
+        GRAMMAR, "- cleaning (floor cleaner): the brand, a plain word and a number.",
+        "line_grammar_families",
+    ),
+    "scale-test": (
+        SCALE_TESTS, "def test_a_cleaning_model_is_numbered(ceiling):", "test_retail_scale_"
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -98,6 +111,8 @@ BASE = {
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
     WORD_DOC: "# Decoys\n\nThe table is built.\n",
     CLASS8: "from decoy_true_nodes import TRUE_NODE\n\n\ndef test_x():\n    assert TRUE_NODE\n",
+    GRAMMAR: 'FAMILIES = {\n    "Dishwasher": "appliance",\n}\n\n- sport: a lead word.\n',
+    SCALE_TESTS: "def test_x(ceiling):\n    assert ceiling\n",
 }
 
 
