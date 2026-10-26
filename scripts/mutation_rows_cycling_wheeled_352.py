@@ -45,8 +45,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "cycling: a kids bike is sold by a size that is not its wheel",
         "type_specs/bicycle.py",
-        '"wheel_size_in", (("style", "kids"),)',
-        '"size", (("style", "kids"),)',
+        '"wheel_size_in", (16, 20, 24)',
+        '"size", (16, 20, 24)',
         f'{_T} -k "sold_in_the_sizes"',
         "a kids bike is sold by wheel size in inches",
         _R,
