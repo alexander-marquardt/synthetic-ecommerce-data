@@ -48,6 +48,7 @@ from synthetic_ecommerce_data.core.model import (
     numeric_attribute,
 )
 from synthetic_ecommerce_data.domains.industrial import series as thread_series
+from synthetic_ecommerce_data.domains.industrial.conformance import nominal_diameter
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 
 if TYPE_CHECKING:
@@ -213,6 +214,18 @@ def _nominal(thread: str) -> str:
     return thread.split("x")[0] if thread.startswith("M") else thread.split("-")[0]
 
 
+#: A heavy hex nut is made from 1/4" (ASME B18.2.2's heavy hex column starts
+#: there) and, as the structural series (ISO 7414 / EN 14399-4), from M12. No
+#: maker sells a #6 heavy hex nut or an M3 one (#33).
+_HEAVY_HEX_FROM = {False: Fraction(1, 4), True: Fraction(12)}
+
+
+def heavy_hex_sizes(table: tuple, *, metric: bool) -> list:
+    """The rows of ``table`` a heavy hex nut is made in: nominal diameter at or
+    above the series' smallest."""
+    return [row for row in table if nominal_diameter(row[0])[1] >= _HEAVY_HEX_FROM[metric]]
+
+
 def nut_row(
     style_name: str, thread: str, flats: float, height: float, *, metric: bool, fine: bool
 ) -> tuple[float, float, str]:
@@ -335,6 +348,9 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     else:
         table = _NUT_METRIC if metric else (_NUT_UNF if fine else _NUT_UNC)
         key = f"nut:{system}:{'fine' if fine else 'coarse'}"
+    if style_name == "Heavy Hex":
+        # Its own window key: the finished and jam nuts keep their rotation.
+        table, key = tuple(heavy_hex_sizes(table, metric=metric)), f"{key}:heavy"
     row_standards: set[str] = set()
     for thread, table_flats, table_height in _window(gen, key, list(table), gen._variant_count()):
         flats, height, row_standard = nut_row(
