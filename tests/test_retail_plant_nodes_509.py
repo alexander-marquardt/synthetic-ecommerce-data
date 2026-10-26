@@ -155,7 +155,7 @@ def test_the_scented_candles_carry_the_scent(records, scent):
     held = [
         r
         for r in candles
-        if any(a["key"] == "fragrance" and scent in str(a["value"]) for a in r["attributes"])
+        if any(a["key"] == "scent" and scent in str(a["value"]) for a in r["attributes"])
     ]
     assert held, f"no {scent} candle"
     assert any(scent.lower() in r["title"].lower() for r in held)

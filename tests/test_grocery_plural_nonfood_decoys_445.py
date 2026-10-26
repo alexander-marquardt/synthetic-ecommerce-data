@@ -73,8 +73,8 @@ def test_a_non_food_decoy_is_a_brand_or_a_scent_and_never_fresh(plural: str) -> 
         doc = _docs()[f"PLT-D{d.code}"]
         assert "fresh" not in _tokens(d.title + " " + doc["description"]), d.title
         branded = plural in _tokens(doc["brand"]) and doc["brand"].lower() in d.title.lower()
-        scented = STEM[plural] in _attr(doc, "fragrance").lower()
-        assert branded != scented, (d.title, doc["brand"], _attr(doc, "fragrance"))
+        scented = STEM[plural] in _attr(doc, "scent").lower()
+        assert branded != scented, (d.title, doc["brand"], _attr(doc, "scent"))
         # A brand row carries no fruit motif: the word is the label, not the picture.
         assert not branded or _attr(doc, "motif") == "", d.title
         assert not real_brands.check([doc]), d.title

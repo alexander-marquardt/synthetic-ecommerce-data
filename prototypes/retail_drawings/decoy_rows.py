@@ -128,7 +128,7 @@ KINDS = {
                    "drinking_glass", "Lanternby", 14.0, params=(("kind", "carafe"),),
                    colorless=True),
     "candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
-                   "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Wine"),)),
+                   "jar", "Lanternby", 16.0, extra=(("scent", "Scent", "Wine"),)),
     "cleaner": Kind("Cleaning & Janitorial",
                     ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners"),
                     "Glass Cleaner", "bottle", "Calderby & Lune", 4.0),
@@ -189,7 +189,7 @@ KINDS = {
     "frozen_veg": _food(("Frozen", "Frozen Vegetables"), "Frozen Vegetables", "bag",
                   "Goldfield Farms", 2.5),
     "lav_candle": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"), "Scented Candle",
-                       "jar", "Lanternby", 16.0, extra=(("fragrance", "Fragrance", "Lavender"),)),
+                       "jar", "Lanternby", 16.0, extra=(("scent", "Scent", "Lavender"),)),
     "lotion": Kind("Beauty", ("Beauty", "Body Care", "Body Lotion"), "Body Lotion", "bottle",
                    "Velling Apothecary", 8.0, colorless=True),
     "bath_salts": Kind("Beauty", ("Beauty", "Bath & Body", "Bath Salts"), "Bath Salts", "jar",
@@ -224,13 +224,13 @@ KINDS = {
                        "Hearth & Table", 14.0),
     "candle_gardenia": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
                           "Scented Candle", "jar", "Lanternby", 16.0,
-                          extra=(("fragrance", "Fragrance", "Gardenia"),)),
+                          extra=(("scent", "Scent", "Gardenia"),)),
     "candle_vanilla": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
                            "Scented Candle", "jar", "Lanternby", 16.0,
-                           extra=(("fragrance", "Fragrance", "Vanilla"),)),
+                           extra=(("scent", "Scent", "Vanilla"),)),
     "candle_citrus": Kind("Gifts", ("Gifts", "Home Fragrance", "Scented Candles"),
                           "Scented Candle", "jar", "Lanternby", 16.0,
-                          extra=(("fragrance", "Fragrance", "Citrus"),)),
+                          extra=(("scent", "Scent", "Citrus"),)),
 }
 #: The kinds of the modules in ``feature_decoys/`` join the base table (gen#513).
 KINDS = feature_decoys.kinds(KINDS)
@@ -256,7 +256,7 @@ class Decoy:
 
     def _extra(self, k: Kind) -> tuple[tuple[str, str, str], ...]:
         """The kind's extra attributes, then the fragrance a scented row names."""
-        return (*k.extra, ("fragrance", "Fragrance", self.scent)) if self.scent else k.extra
+        return (*k.extra, ("scent", "Scent", self.scent)) if self.scent else k.extra
 
     def style(self) -> Style:
         k = KINDS[self.kind]
