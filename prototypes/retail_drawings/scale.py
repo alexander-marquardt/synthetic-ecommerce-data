@@ -132,6 +132,7 @@ import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
 import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
+import diy_decoy_rows  # noqa: E402
 import footwear_rows  # noqa: E402
 import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
@@ -336,6 +337,9 @@ NIKE_IDS = nike_rows.product_ids()
 NEEDS_IDS = needs_rows.product_ids()
 #: Lingerie naming its cups in the plural (:mod:`cups_plural_rows`, gen#508): templates only.
 CUPS_PLURAL_IDS = cups_plural_rows.product_ids()
+#: The cross-department decoys of the DIY drill family (:mod:`diy_decoy_rows`, gen#191): templates
+#: only.
+DIY_DECOY_IDS = diy_decoy_rows.product_ids()
 #: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
 #: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
 SPEC_IDS = type_registry.left_out_ids()
@@ -415,6 +419,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
         *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
+        *diy_decoy_rows.docs(),
     ]  # fmt: skip
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
@@ -432,7 +437,7 @@ def templates(baseline: bool = True) -> list[dict]:
     type_registry.check_unique_ids(tpls)
     skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
             | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
-            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids())
+            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids() | DIY_DECOY_IDS)
     # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
     planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}
     # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
@@ -473,7 +478,7 @@ def derivable(tpls: list[dict]) -> list[dict]:
                 | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
                 | KIDS_DEPTH_IDS
                 | GARDEN_IDS | DECOR_IDS | NIKE_IDS
-                | NEEDS_IDS | CUPS_PLURAL_IDS
+                | NEEDS_IDS | CUPS_PLURAL_IDS | DIY_DECOY_IDS
                 | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
                 | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)

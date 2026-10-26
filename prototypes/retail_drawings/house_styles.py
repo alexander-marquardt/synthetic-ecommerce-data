@@ -1389,6 +1389,7 @@ def differing(a: HouseStyle, b: HouseStyle) -> int:
 
 import appliance_brand_styles  # noqa: E402,F401 -- gen#334: six marks and styles join the tables
 import color_word_brand_styles  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
+import diy_brand_styles  # noqa: E402,F401 -- gen#191: four marks and styles join the tables
 import electronics_brand_styles  # noqa: E402,F401 -- gen#332: 13 marks and styles of the Electronics department join the tables
 import grocery_brand_styles  # noqa: E402,F401 -- gen#376: 22 marks and styles of the 50K grocery tier join the tables
 import luggage_brand_styles  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
