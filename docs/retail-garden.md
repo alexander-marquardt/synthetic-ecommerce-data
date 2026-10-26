@@ -24,7 +24,7 @@ Each of the eight types (the seven above and the garden hose) carries fifteen de
 of five classes (gen#294), listed in `garden_rows.DECOY_TABLE` with their class and the query they
 target. The hose's are copies of its two styles from `type_specs/garden_hose.py`. The guard
 `test_each_type_carries_at_least_three_decoys_of_each_class` reads the Garden types from the
-registry (the spec files and the legacy list), so a Garden type added later owes its decoys or is
+registry (the spec files), so a Garden type added later owes its decoys or is
 listed in the test's `EXEMPT` with the reason; the plants and growing kits are listed that way. Their structured fields tell
 the truth: the color field holds the product's one main color, and only a title or description
 carries the misleading word. Each is exempt from the text check and left out of the derivation.

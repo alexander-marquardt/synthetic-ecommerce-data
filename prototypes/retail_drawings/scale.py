@@ -106,6 +106,7 @@ import collections
 import copy
 import functools
 import heapq
+import importlib
 import json
 import math
 import random
@@ -134,7 +135,6 @@ import decoy_rows  # noqa: E402
 import distractor_rows  # noqa: E402
 import diy_decoy_rows  # noqa: E402
 import footwear_rows  # noqa: E402
-import furniture_rows  # noqa: E402
 import garden_rows  # noqa: E402
 import grocery  # noqa: E402
 import household_rows  # noqa: E402
@@ -160,7 +160,6 @@ import school_rows  # noqa: E402
 import seasonal_rows  # noqa: E402
 import shirt_rows  # noqa: E402
 import sofa_rows  # noqa: E402
-import sports_rows  # noqa: E402
 import stable_ids  # noqa: E402
 import style_table  # noqa: E402
 import toys_rows  # noqa: E402
@@ -278,77 +277,54 @@ class Scaled:
 GROCERY_PREFIX = "GRC-"
 
 
-SHIRT_IDS = frozenset(f"PLT-{s.code}" for s in shirt_rows.STYLES)
-#: The bag, umbrella and jewelry styles (:mod:`accessory_rows`, gen#207), left out of the
-#: derivation as the shirts are.
-ACCESSORY_IDS = frozenset(f"BRD-{r.code}" for r in accessory_rows.ROWS)
-#: The camping and fitness styles (:mod:`sports_rows`, gen#265), left out of the derivation as
-#: the accessories are: the Sports & Outdoors department grows by authored rows.
-SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in sports_rows.ROWS)
-#: The lawn mower, trimmer and barbecue styles and their decoys (:mod:`garden_rows`, gen#203),
-#: templates only: the Garden department grows by authored rows.
-GARDEN_IDS = frozenset(f"BRD-{r.code}" for r in garden_rows.ROWS)
-#: The text-match decoys of the decor types (:mod:`decor_rows`, gen#217): templates only. The
-#: types themselves are specs and the registry leaves them out of the derivation.
-DECOR_IDS = decor_rows.decoy_ids()
-#: The school uniform styles (:mod:`school_rows`, gen#205): templates only, as the sports rows are.
-SCHOOL_IDS = frozenset(f"BRD-{r.code}" for r in school_rows.ROWS)
-#: The steak plate, board and weight (:mod:`distractor_rows`, gen#268). Each carries a material, so
-#: a derived copy would re-draw it ("Porcelain Steak Plate", "Nylon Steak Weight") and add steak
-#: rows the failure class does not count: they stay templates.
-STEAK_WARE_IDS = frozenset(f"PLT-{s.code}" for s in distractor_rows.STEAK_WARE)
-#: The underwear and nightwear styles (:mod:`underwear_rows`, gen#208), left out of the
-#: derivation as the shirts are.
-UNDERWEAR_IDS = frozenset(f"BRD-{r.code}" for r in underwear_rows.ROWS)
-#: The small appliance styles (:mod:`appliance_rows`, gen#202), left out of the derivation as
-#: the shirts are.
-APPLIANCE_IDS = frozenset(f"BRD-{r.code}" for r in appliance_rows.ROWS)
-#: The seating styles (:mod:`sofa_rows`, gen#196), left out of the derivation as the shirts are.
-SOFA_IDS = frozenset(f"BRD-{r.code}" for r in sofa_rows.ROWS)
-#: The furniture (gen#199): templates, never copied. Each draw would be a style the fairness
-#: floor counts against Food & Drink, which sits within two styles of it at the ceiling.
-FURNITURE_IDS = frozenset(f"BRD-{r.code}" for r in furniture_rows.ROWS)
-#: The household styles (:mod:`household_rows`, gen#200), left out of the derivation as the
-#: shirts are.
-HOUSEHOLD_IDS = frozenset(f"BRD-{r.code}" for r in household_rows.ROWS)
-#: The toy styles (:mod:`toys_rows`, gen#201), left out of the derivation as the shirts are.
-TOY_IDS = frozenset(f"BRD-{r.code}" for r in toys_rows.ROWS)
-#: The seasonal, color and character styles (:mod:`seasonal_rows`, gen#195): templates only.
-SEASONAL_IDS = frozenset(f"BRD-{r.code}" for r in seasonal_rows.ROWS)
-#: The near-white apparel and main-color bras (:mod:`colorgroup_rows`, gen#302): templates only.
-COLORGROUP_IDS = colorgroup_rows.product_ids()
-#: The color-word brand rows (:mod:`color_word_brand_rows`, gen#312): templates only.
-COLORWORD_IDS = color_word_brand_rows.product_ids()
-#: The lower-body styles (:mod:`lowerbody_rows`, gen#206), left out the same way.
-LOWER_IDS = frozenset(f"BRD-{r.code}" for r in lowerbody_rows.ROWS)
-#: The Mens clothing depth (:mod:`mens_depth_rows`, gen#310): templates only.
-MENS_DEPTH_IDS = mens_depth_rows.product_ids()
-#: The Womens clothing depth (:mod:`womens_depth_rows`, gen#310): templates only.
-WOMENS_DEPTH_IDS = womens_depth_rows.product_ids()
-#: The Kids dresses and coats (:mod:`kids_depth_rows`, gen#310): templates only.
-KIDS_DEPTH_IDS = kids_depth_rows.product_ids()
-#: The knitwear depth (:mod:`knitwear_rows`, gen#309): templates only.
-KNITWEAR_IDS = knitwear_rows.product_ids()
-#: The neckline depth (:mod:`neckline_rows`, gen#181): templates only.
-NECKLINE_IDS = neckline_rows.product_ids()
-#: The Nike styles and the decoys that name Nike (:mod:`nike_rows`, gen#341): templates only.
-NIKE_IDS = nike_rows.product_ids()
-#: The types the failure classes need (:mod:`needs_rows`, gen#329): templates only.
-NEEDS_IDS = needs_rows.product_ids()
-#: Lingerie naming its cups in the plural (:mod:`cups_plural_rows`, gen#508): templates only.
-CUPS_PLURAL_IDS = cups_plural_rows.product_ids()
-#: The cross-department decoys of the DIY drill family (:mod:`diy_decoy_rows`, gen#191): templates
-#: only.
-DIY_DECOY_IDS = diy_decoy_rows.product_ids()
-#: The ids the type specs (:mod:`type_registry`, gen#351) keep out of the derivation: a spec that
-#: is not ``derivable`` and every spec decoy. No type edits this line: the registry finds them.
-SPEC_IDS = type_registry.left_out_ids()
+def source_docs(name: str) -> list[dict]:
+    """The documents of one shared source a spec may name as a home
+    (:data:`type_registry.HOME_SOURCES`): a row module's ``docs()``, the authored ``samples``
+    (every section) or the ``grocery`` build. Fresh each call: the build transforms documents."""
+    if name == "samples":
+        return [d for recs in samples().values() for d in recs]
+    if name == "grocery":
+        return grocery.build()
+    return importlib.import_module(name).docs()
+
+
+@functools.cache
+def _source_keys(name: str) -> tuple[tuple[str, str, str], ...]:
+    """``(product id, department, product type)`` of every document of a source. Ids and types
+    only, never the documents: a cached document would be mutated by the build."""
+    return tuple(
+        (d["product_id"], str(d["department"][0]), str(d["product_type"]))
+        for d in source_docs(name)
+    )
+
+
+def source_ids(name: str) -> frozenset[str]:
+    """The product ids of one shared source (see :func:`source_docs`)."""
+    return frozenset(pid for pid, _dept, _ptype in _source_keys(name))
+
+
+@functools.cache
+def left_out() -> frozenset[str]:
+    """The ids :func:`derivable` never copies, read from the specs and nothing a person types
+    (gen#537): the rows of every spec that is not ``derivable``, every spec decoy, and the rows
+    that a spec's ``Home(source, derivable=False)`` names in a shared source (the shirts, the
+    furniture, the garden, the grocery, the Nike rows and the rest of the templates-only
+    rows), and the clones of :mod:`decoy_apparel`, which are in no source."""
+    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS
+    homed = collections.defaultdict(set)
+    for source, dept, ptype in type_registry.homed(derivable=False):
+        homed[source].add((dept, ptype))
+    for source, types in homed.items():
+        out |= {pid for pid, dept, ptype in _source_keys(source) if (dept, ptype) in types}
+    return frozenset(out)
 
 
 # Text-match decoys (gen#294, gen#311) are exempt from the output standard's text check: they
 # exist to confuse a plain text search (the maintainer ruling on #311).
 DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
              | decor_rows.decoy_ids() | neckline_rows.decoy_ids())
+
+
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
 # those rows join the exemption, by id, and the rest of the class is checked like any product.
 # Every registered type's text-match decoys, of every department, join by registering
@@ -435,19 +411,21 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    skip = (mens_depth_rows.decoy_ids() | COLORWORD_IDS | garden_rows.decoy_ids()
-            | decor_rows.decoy_ids() | NIKE_IDS | type_registry.decoy_ids() | needs_rows.decoy_ids()
-            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids() | DIY_DECOY_IDS)
+    colorword, nike = source_ids("color_word_brand_rows"), source_ids("nike_rows")
+    skip = (mens_depth_rows.decoy_ids() | colorword | garden_rows.decoy_ids()
+            | decor_rows.decoy_ids() | nike | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids() | source_ids("diy_decoy_rows"))
     # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
     planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}
     # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
     # another, so every other template, and the seeded fillers drawn from them, is as it was.
-    seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]
+    kids = source_ids("kids_depth_rows")
+    seeded = [r for r in tpls if r["product_id"] not in kids]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
     # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
     # Kids share holds its target, and nothing else moves.
-    done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())
+    done += sale_share.apply_all([r for r in tpls if r["product_id"] in kids], ())
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 
@@ -472,17 +450,9 @@ def derivable(tpls: list[dict]) -> list[dict]:
     style (:mod:`lowerbody_rows`), left out so the seeded derivation is what it was. A boat
     or slash neck top is a failure-class row too (gen#125): a derived copy of it would hand
     the no-policy baseline the neckline, so it stays a template."""
-    left_out = (KNITWEAR_IDS | NECKLINE_IDS | SHIRT_IDS | SOFA_IDS | FURNITURE_IDS | HOUSEHOLD_IDS
-                | APPLIANCE_IDS | UNDERWEAR_IDS | TOY_IDS | LOWER_IDS | ACCESSORY_IDS | SPORTS_IDS
-                | SCHOOL_IDS
-                | SEASONAL_IDS | COLORGROUP_IDS | MENS_DEPTH_IDS | WOMENS_DEPTH_IDS
-                | KIDS_DEPTH_IDS
-                | GARDEN_IDS | DECOR_IDS | NIKE_IDS
-                | NEEDS_IDS | CUPS_PLURAL_IDS | DIY_DECOY_IDS
-                | SPEC_IDS | decoy_rows.IDS | COLORWORD_IDS
-                | decoy_apparel.IDS | decoy_product_words.IDS | STEAK_WARE_IDS)
+    left = left_out()
     return [r for r in tpls if not r["product_id"].startswith(GROCERY_PREFIX)
-            and r["product_id"] not in left_out
+            and r["product_id"] not in left
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
 
 

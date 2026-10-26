@@ -3505,7 +3505,7 @@
   },
   {
    "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
-   "target": 4.03526e-14,
+   "target": 4.03348e-14,
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 372,
@@ -3847,7 +3847,7 @@
   },
   "drawings": {
    "count": 11894,
-   "bytes": 30143102,
+   "bytes": 30116304,
    "geometry": {
     "nominal": 219,
     "partial": 2440,

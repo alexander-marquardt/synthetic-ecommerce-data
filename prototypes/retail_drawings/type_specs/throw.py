@@ -23,7 +23,7 @@ from softfurn_rows import (
     row,
     yes,
 )
-from type_registry import TypeSpec
+from type_registry import Home, TypeSpec
 
 
 def _throw(code: str, title: str, brand: str, price: float, description: str, material: str, use: str,
@@ -82,6 +82,7 @@ ROWS = (
 
 SPEC = TypeSpec(
     key="throw",
+    homes=(Home("decoy_rows", False), Home("decoy_product_words", False)),
     department="Home",
     product_type="Throws",
     rows=ROWS,

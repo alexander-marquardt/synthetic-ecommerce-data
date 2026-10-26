@@ -14,7 +14,7 @@ from __future__ import annotations
 from fractions import Fraction
 
 import kit_garden  # noqa: F401 -- registers garden_hose
-from type_registry import Option, Row, TypeSpec, a, cw
+from type_registry import Home, Option, Row, TypeSpec, a, cw
 
 _PATH = ("Garden", "Watering", "Garden Hoses")
 _W, _F = "Wrenfield", "Fenwold Nursery"
@@ -40,6 +40,7 @@ def _lengths(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
 
 SPEC = TypeSpec(
     key="garden_hose",
+    homes=(Home("garden_rows", False),),
     department="Garden",
     product_type="Garden Hose",
     options=(Option("length_m", "item_length", "Item length", "MTR"),),
