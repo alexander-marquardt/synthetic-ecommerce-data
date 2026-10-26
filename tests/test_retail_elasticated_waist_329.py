@@ -161,5 +161,5 @@ def test_every_row_is_a_template_no_derived_style_copies(templates):
     ids = {r["product_id"] for r in needs_rows.docs()}
     assert ids
     assert ids <= {r["product_id"] for r in templates}
-    assert ids <= scale.NEEDS_IDS
+    assert ids <= scale.source_ids("needs_rows")
     assert not ids & {r["product_id"] for r in scale.derivable(templates)}

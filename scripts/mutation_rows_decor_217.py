@@ -57,8 +57,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the decor decoys are derived",
         "scale.py",
-        "| GARDEN_IDS | DECOR_IDS | NIKE_IDS",
-        "| GARDEN_IDS | NIKE_IDS",
+        "        out |= {pid for pid, dept, ptype in _source_keys(source) if (dept, ptype) in types}\n",
+        "        out |= set()\n",
         f"{_T} -k decoys_are_templates",
         "the derivation leaves the decor decoys alone",
     ),

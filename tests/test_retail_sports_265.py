@@ -32,6 +32,7 @@ import tree_guard  # noqa: E402
 from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 ROWS = sports_rows.ROWS
+SPORTS_IDS = frozenset(f"BRD-{r.code}" for r in ROWS)
 ROOT = "Sports & Outdoors"
 
 #: Each type and the key attributes every one of its styles states (the issue's attributes: a
@@ -122,7 +123,7 @@ def test_the_department_is_a_root_of_its_own() -> None:
     assert ROWS
     assert {r.path[0] for r in ROWS} == {ROOT}
     assert {r.department for r in ROWS} == {ROOT}
-    docs = [d for d in scale.templates() if d["product_id"] in scale.SPORTS_IDS]
+    docs = [d for d in scale.templates() if d["product_id"] in SPORTS_IDS]
     assert len(docs) == len(ROWS)
     assert {d["category_path"][0] for d in docs} == {ROOT}
 
@@ -286,7 +287,7 @@ def test_every_type_offers_the_six_main_colors_with_no_exception(ptype: str) -> 
 
 
 def test_a_main_color_is_a_plain_swatch_in_the_built_templates() -> None:
-    styles = [d for d in scale.templates() if d["product_id"] in scale.SPORTS_IDS]
+    styles = [d for d in scale.templates() if d["product_id"] in SPORTS_IDS]
     groups = main_colors.groups(styles)
     assert {t for t, _ in groups} == set(KEYS)
     assert {k: main_colors.missing(styles).get(k) for k in groups} == {k: None for k in groups}
@@ -332,7 +333,7 @@ def test_a_title_naming_a_deeper_node_must_sit_in_it() -> None:
 def test_the_sports_styles_are_left_out_of_the_derivation() -> None:
     tpls = scale.templates()
     kept = {r["product_id"] for r in scale.derivable(tpls)}
-    assert scale.SPORTS_IDS and not (scale.SPORTS_IDS & kept)
+    assert SPORTS_IDS and not (SPORTS_IDS & kept)
 
 
 @pytest.mark.timeout(300)
@@ -340,7 +341,7 @@ def test_every_sports_style_reaches_the_100k_build_and_meets_the_standard() -> N
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.SPORTS_IDS]
+    mine = [d for d in docs if d["product_id"] in SPORTS_IDS]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
     # published: sentence case

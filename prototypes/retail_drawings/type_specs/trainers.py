@@ -3,5 +3,14 @@
 """
 
 from footwear_rows import footwear_spec
+from type_registry import Home
 
-SPEC = footwear_spec("trainers", "Trainers")
+SPEC = footwear_spec(
+    "trainers",
+    "Trainers",
+    homes=(
+        Home("decoy_rows", False),
+        Home("decoy_product_words", False),
+        Home("nike_rows", False),
+    ),
+)

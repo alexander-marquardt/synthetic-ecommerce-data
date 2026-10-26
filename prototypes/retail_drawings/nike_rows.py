@@ -14,7 +14,7 @@ a wordmark or a trade dress (``house_styles.HOUSE_STYLES["Nike"]`` has the mark 
   DESCRIPTION names Nike ("for Nike and other trainers") while the title does not: a close call
   a ``nike`` query has to rank below a Nike product. They keep their own brands (all invented).
 
-The rows are templates only: :func:`scale.derivable` leaves them out (``scale.NIKE_IDS``) and
+The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("nike_rows")``) and
 :func:`main_colors.complete` gives none of them a color. Every other name is invented.
 """
 

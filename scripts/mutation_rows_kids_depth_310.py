@@ -63,9 +63,9 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the Kids rows join the seeded derivation",
-        "scale.py",
-        "                | KIDS_DEPTH_IDS\n",
-        "",
+        "type_specs/coat.py",
+        '        Home("kids_depth_rows", False),',
+        '        Home("kids_depth_rows", True),',
         f"{_T} -k left_out_of_the_derivation",
         "the template-only Kids rows stay out of scale.derivable",
         _R,
@@ -128,7 +128,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the main-color pass and the sale share count the Kids rows again",
         "scale.py",
-        'seeded = [r for r in tpls if r["product_id"] not in KIDS_DEPTH_IDS]',
+        'seeded = [r for r in tpls if r["product_id"] not in kids]',
         "seeded = tpls",
         f"{_T} -k leave_every_other_template",
         "the Kids rows leave every other template, and so the seeded fillers, as they were",
@@ -137,7 +137,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the Kids rows lose their own sale pass",
         "scale.py",
-        'done += sale_share.apply_all([r for r in tpls if r["product_id"] in KIDS_DEPTH_IDS], ())',
+        'done += sale_share.apply_all([r for r in tpls if r["product_id"] in kids], ())',
         "pass",
         f"{_T} -k sale",
         "the new rows go on sale in each leaf and hold the Kids share",

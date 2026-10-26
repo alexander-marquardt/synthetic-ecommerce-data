@@ -29,7 +29,7 @@ a derived "Wired Mastectomy Bra" would be false. Period pants are a type spec
 Chinos and the lamps that carry "shade" in a title already exist; women's elasticated trousers
 are not in the issue's done-when and stay out.
 
-The rows are templates only: :func:`scale.derivable` leaves them out (``scale.NEEDS_IDS``).
+The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("needs_rows")``).
 """
 
 # ruff: noqa: E501 -- data rows read better whole (prototype only).

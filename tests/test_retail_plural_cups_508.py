@@ -94,5 +94,5 @@ def test_no_title_or_description_with_cups_names_drinkware(rows):
 def test_the_rows_are_templates_the_derivation_leaves_out():
     ids = cups_plural_rows.product_ids()
     assert ids
-    assert ids <= scale.CUPS_PLURAL_IDS
+    assert ids <= scale.source_ids("cups_plural_rows")
     assert not ids & {r["product_id"] for r in scale.derivable(scale.templates())}

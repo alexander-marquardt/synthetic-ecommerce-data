@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from class_model import BED_SIZE_DIMS
-from type_registry import BRAND_OWNER, Row, TypeSpec, cw
+from type_registry import BRAND_OWNER, Home, Row, TypeSpec, cw
 
 #: The brands these rows sell, owned as the rest of the tree states.
 BRANDS = ("Brackenmere Home", "Quillon Sleep")
@@ -65,6 +65,7 @@ def _row(code, title, brand, price, desc, head, sizes, color) -> BedRow:
 
 SPEC = TypeSpec(
     key="bed",
+    homes=(Home("samples", True),),
     department="Home",
     product_type="Bed",
     owners=tuple((b, BRAND_OWNER[b]) for b in BRANDS),

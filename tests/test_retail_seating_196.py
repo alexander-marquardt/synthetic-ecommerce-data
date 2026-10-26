@@ -239,7 +239,7 @@ def test_every_seating_style_reaches_the_100k_build_and_meets_the_standard() -> 
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.SOFA_IDS]
+    mine = [d for d in docs if d["product_id"] in scale.source_ids("sofa_rows")]
     assert check_catalog(mine, one_class_per_key=True) == []
 
 
