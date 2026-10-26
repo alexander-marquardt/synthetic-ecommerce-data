@@ -39,7 +39,7 @@ SOURCE = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <g stroke-width=".2">
    <path fill="#b3b3b3" stroke="#000" d="M0 0h10v10h-10z"/>
    <path fill="gray" d="M20 0c0 5 10 5 10 0z"/>
-   <path fill="#b3b3b3" d="M0 40h10v10h-10zm20 0h10v10h-10z"/>
+   <path fill="#b3b3b3" d="M0 12h10v10h-10zm20 0h10v10h-10z"/>
   </g>
  </g>
 </svg>"""
@@ -65,7 +65,7 @@ def _paths(text: str) -> list[tuple[str, list[tuple[float, float]]]]:
 
 
 def _normalised() -> str:
-    out = _script().normalise(SOURCE, select="0/-1", roles=ROLES)
+    out = _script().normalise(SOURCE, select="-1/-1", roles=ROLES)
     assert out.startswith("<svg"), "the normaliser wrote no SVG"
     return out
 
@@ -104,17 +104,147 @@ def test_a_relative_move_after_close_starts_from_the_subpath_start():
     first, second = paths[2][1], paths[3][1]
     assert min(p[0] for p in first) == pytest.approx(0, abs=0.06)
     assert min(p[0] for p in second) == pytest.approx(20 * 1000 / 30, abs=0.1)
+    assert min(p[1] for p in second) == pytest.approx(min(p[1] for p in first), abs=0.06)
+
+
+def _wrap(body: str, *, svg: str = "", outer: str = "", inner: str = "", own: str = "") -> str:
+    """A ``10 x 5`` red rectangle under three optional transforms, selected as ``0/0``."""
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" {svg}>'
+        f'<g transform="{outer}"><g transform="{inner}">'
+        f'<path transform="{own}" fill="red" d="{body}"/></g></g></svg>'
+    )
+
+
+def _view(text: str) -> list[str]:
+    return ET.fromstring(text).get("viewBox", "").split()[2:]
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "view"),
+    [
+        ({}, ["1000", "500"]),
+        ({"outer": "scale(2 1)"}, ["1000", "250"]),
+        ({"inner": "scale(2 1)"}, ["1000", "250"]),
+        ({"own": "scale(2 1)"}, ["1000", "250"]),
+        ({"svg": 'transform="scale(2 1)"'}, ["1000", "250"]),
+        ({"outer": "rotate(90)"}, ["500", "1000"]),
+        ({"outer": "matrix(0 1 -1 0 0 0)"}, ["500", "1000"]),
+        ({"outer": "rotate(90) scale(2 1)"}, ["250", "1000"]),
+        ({"outer": "scale(2 1) rotate(90)"}, ["1000", "1000"]),
+        ({"outer": "rotate(90 5 5)"}, ["500", "1000"]),
+    ],
+)
+def test_every_transform_level_is_applied_in_order(kwargs, view):
+    out = _script().normalise(
+        _wrap("M0 0h10v5h-10z", **kwargs), select="0/0", roles={"red": "part"}
+    )
+    assert _view(out) == view
+
+
+def test_an_unsupported_transform_is_refused():
+    with pytest.raises(ValueError, match="transform"):
+        _script().normalise(
+            _wrap("M0 0h10v5h-10z", outer="skewX(10)"), select="0/0", roles={"red": "part"}
+        )
+
+
+@pytest.mark.parametrize(
+    "square",
+    [
+        "M0 0H10V10H0z",
+        "M0 0L10 0L10 10L0 10z",
+        "m0 0l10 0l0 10l-10 0z",
+        "M0 0 10 0 10 10 0 10z",
+        "m0 0 10 0 0 10-10 0z",
+        "M0 0h10v10h-10v-10z",
+    ],
+)
+def test_every_path_command_form_draws_the_same_square(square):
+    roles = {"red": "part"}
+    want = _script().normalise(_wrap("M0 0h10v10h-10z"), select="0/0", roles=roles)
+    assert _script().normalise(_wrap(square), select="0/0", roles=roles) == want
+
+
+def test_an_absolute_h_and_v_start_from_a_point_off_the_origin():
+    roles = {"red": "part"}
+    want = _script().normalise(_wrap("M3 5h10v10h-10z"), select="0/0", roles=roles)
+    got = _script().normalise(_wrap("M3 5H13V15H3z"), select="0/0", roles=roles)
+    assert got == want
+
+
+def test_an_absolute_and_a_relative_curve_agree():
+    roles = {"red": "part"}
+    a = _script().normalise(_wrap("M0 0C0 5 10 5 10 0z"), select="0/0", roles=roles)
+    b = _script().normalise(_wrap("M0 0c0 5 10 5 10 0z"), select="0/0", roles=roles)
+    c = _script().normalise(
+        _wrap("M0 0c0 5 10 5 10 0 0 -5 -10 -5 -10 0z"), select="0/0", roles=roles
+    )
+    assert a == b
+    assert len(_paths(c)[0][1]) == 16 and len(_paths(a)[0][1]) == 9
+
+
+def test_a_degenerate_subpath_and_a_repeated_closing_point_are_dropped():
+    body = "M0 0h10v10h-10zM0 0L10 0L10 10L0 0zM3 3L4 4z"
+    out = _script().normalise(_wrap(body), select="0/0", roles={"red": "part"})
+    paths = _paths(out)
+    assert [len(points) for _, points in paths] == [4, 3]
+
+
+def test_a_fill_is_inherited_from_the_nearest_group_and_a_missing_one_is_refused():
+    nested = (
+        '<svg xmlns="http://www.w3.org/2000/svg"><g><g fill="gray"><g fill="red">'
+        '<path d="M0 0h10v10h-10z"/></g></g></g></svg>'
+    )
+    out = _script().normalise(nested, select="0", roles={"red": "part", "gray": "plain"})
+    assert [role for role, _ in _paths(out)] == ["part"]
+    bare = nested.replace(' fill="gray"', "").replace(' fill="red"', "")
+    with pytest.raises(ValueError, match="no fill"):
+        _script().normalise(bare, select="0", roles={"red": "part"})
+
+
+def test_the_written_numbers_have_one_decimal_at_most():
+    assert not re.search(r"\.\d\d", _normalised())
+
+
+def test_the_command_line_writes_what_normalise_returns(tmp_path):
+    source, out = tmp_path / "in.svg", tmp_path / "out.svg"
+    source.write_text(SOURCE)
+    args = [
+        str(source),
+        str(out),
+        "--select=-1/-1",
+        "--role",
+        "#b3b3b3=part",
+        "--role",
+        "gray=plain",
+    ]
+    assert _script().main(args) == 0
+    assert out.read_text() == _normalised()
 
 
 def test_an_unmapped_fill_is_refused_not_defaulted():
     with pytest.raises(ValueError, match="fill"):
-        _script().normalise(SOURCE, select="0/-1", roles={"#b3b3b3": "part"})
+        _script().normalise(SOURCE, select="-1/-1", roles={"#b3b3b3": "part"})
 
 
 def test_an_arc_command_is_refused():
     arc = SOURCE.replace("M20 0c0 5 10 5 10 0z", "M20 0a5 5 0 0 1 10 0z")
     with pytest.raises(ValueError, match="arc"):
-        _script().normalise(arc, select="0/-1", roles=ROLES)
+        _script().normalise(arc, select="-1/-1", roles=ROLES)
+
+
+def test_an_element_that_is_not_a_group_or_path_is_refused():
+    rect = SOURCE.replace(
+        '<path fill="gray"', '<rect fill="gray" width="1" height="1"/><path fill="gray"'
+    )
+    with pytest.raises(ValueError, match="rect"):
+        _script().normalise(rect, select="-1/-1", roles=ROLES)
+
+
+def test_a_doctype_is_refused():
+    with pytest.raises(ValueError, match="DOCTYPE"):
+        _script().normalise("<!DOCTYPE svg>" + SOURCE, select="-1/-1", roles=ROLES)
 
 
 def _manifest() -> list[dict[str, str]]:
@@ -183,6 +313,27 @@ def test_the_found_clamp_does_not_read_the_record():
 def test_the_loader_refuses_a_shape_with_no_file():
     with pytest.raises(FileNotFoundError):
         found_shapes.load("no_such_shape", 1.0)
+
+
+def test_the_loader_refuses_a_path_with_a_role_outside_the_vocabulary(tmp_path, monkeypatch):
+    (tmp_path / "found_svg").mkdir()
+    (tmp_path / "found_svg" / "odd.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">'
+        '<path class="glow" d="M0 0 L10 0 L10 10 Z"/></svg>'
+    )
+    monkeypatch.setattr(found_shapes.resources, "files", lambda _package: tmp_path)
+    found_shapes._parsed.cache_clear()
+    try:
+        with pytest.raises(ValueError, match="role"):
+            found_shapes.load("odd", 1.0)
+    finally:
+        found_shapes._parsed.cache_clear()
+
+
+def test_the_loader_scales_the_longer_side_and_keeps_the_aspect():
+    assert found_shapes.extent("c_clamp", 2.0)[1] == pytest.approx(2.0)
+    width, height = found_shapes.extent("c_clamp", 2.0)
+    assert width / height == pytest.approx(985.8 / 1000)
 
 
 def test_a_c_clamps_sheet_passes_the_svg_gate():

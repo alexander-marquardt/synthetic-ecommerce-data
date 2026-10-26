@@ -937,7 +937,7 @@ handle, not something a shopper filters on. Emptying the breadth rows
 (`tests/test_breadth.py` proves it); nothing else in the generator
 constructs a `fast_and_cheap` line.
 
-**Drawings are six fixed plain shapes**, not dimensioned per SKU -- see
+**Drawings are fixed shapes** (six plain ones and a found C-clamp), not dimensioned per SKU -- see
 [Images](#images) for why and how.
 
 **Exempt from the realism truth tables and mutation rows**
@@ -1290,8 +1290,8 @@ How the code does it -- record to figure to SVG bytes, the registry, the
 provenance ladder, the publish gate, and a checklist for adding a type -- is in
 [docs/drawings.md](docs/drawings.md).
 
-**Exception: the [breadth categories](#catalog-breadth) draw one of six
-FIXED plain shapes** (sphere, cylinder, block, disc, tube, bracket --
+**Exception: the [breadth categories](#catalog-breadth) draw one of seven
+FIXED shapes** (sphere, cylinder, block, disc, tube, bracket, and a found C-clamp --
 `domains/industrial/drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
 published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a

@@ -75,9 +75,10 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 
 * **Breadth type.** One `BreadthRow`, with the same fields as a row file
   `data/breadth_categories/<type_key>.yaml`. The leaf, the drawing, the vocabulary and
-  the brand family all follow from the row. `shape` is one of the six plain
+  the brand family all follow from the row. `shape` is one of the
   shapes in `domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
-  `disc`, `tube` or `bracket`. Example:
+  `disc`, `tube` or `bracket` (plain), or `c_clamp` (found; a new found shape follows
+  [docs/drawings.md](drawings.md#a-found-drawing-for-a-hard-to-draw-shape-102)). Example:
   `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests

@@ -121,7 +121,14 @@ def test_records_hold_only_the_observed_records():
     assert len(assigned["FIXTURES"].keys) == 5
 
 
-DRAWING_MODULES = ["figures", "primitives", "compose", "brand_marks", "breadth_shapes"]
+DRAWING_MODULES = [
+    "figures",
+    "primitives",
+    "compose",
+    "brand_marks",
+    "breadth_shapes",
+    "found_shapes",
+]
 
 
 @pytest.mark.parametrize("module", DRAWING_MODULES)
