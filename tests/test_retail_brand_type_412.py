@@ -82,6 +82,29 @@ def test_a_real_brand_draws_no_logo(brand: str) -> None:
     assert hs.logo(style, brand) == []
 
 
+def test_a_real_brand_keeps_the_product_placement_it_had_before_412() -> None:
+    """A brand with no logo has no reach to clear: its product sits where main put it.
+
+    Main shifted a lockup layout's product 10 units from the middle (down for a
+    bottom logo, up for a top one) and scaled it 0.78 (0.86 for ``mark_only``);
+    #412 does not ask to move it.
+    """
+    moved = []
+    for brand, style in hs.HOUSE_STYLES.items():
+        if style.mark != hs.NO_MARK:
+            continue
+        s = 0.86 if style.layout == "mark_only" else 0.78
+        dy = 0.0 if style.layout == "mark_only" else (10.0 if style.top_logo else -10.0)
+        t = hs.SIZE / 2 * (1 - s)
+        pattern = r"translate\(([-\d.]+) ([-\d.]+)\) scale\(([\d.]+)\)"
+        m = re.fullmatch(pattern, hs.product_transform(style, brand))
+        assert m, brand
+        got = (float(m.group(1)), float(m.group(2)), float(m.group(3)))
+        if got != pytest.approx((t, t + dy, s), abs=1e-3):
+            moved.append((brand, got, (t, t + dy, s)))
+    assert moved == []
+
+
 def test_any_two_retail_logos_differ_in_geometry() -> None:
     """Two brands' logos are not the same drawing in other colors or other words."""
     seen: dict[str, str] = {}
