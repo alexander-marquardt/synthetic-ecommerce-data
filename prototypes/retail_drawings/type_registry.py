@@ -101,6 +101,17 @@ class Option(NamedTuple):
     unit: str | None = None
 
 
+#: The shared sources whose rows a spec may name as its home (gen#537); none yet.
+HOME_SOURCES: tuple[str, ...] = ()
+
+
+class Home(NamedTuple):
+    """A shared source that holds rows of a type, and whether ``scale.derivable`` draws them."""
+
+    source: str
+    derivable: bool
+
+
 @dataclass(frozen=True)
 class TypeSpec:
     """Everything one product type declares.
@@ -123,6 +134,7 @@ class TypeSpec:
     apparel: ApparelPlan | None = None
     apparel_exempt: str = ""
     options: tuple[Option, ...] = ()
+    homes: tuple[Home, ...] = ()
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
