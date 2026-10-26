@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "8334bc7c09a9b170403be06cc6a1f3e3026a860803fc4221edcf2942e1c739b1",
+ "fingerprint": "e8816152436bf117f640e5e88bc2481cf44a3930748108219dfbae49c2003b15",
  "rows": [
   {
    "query": "mattress topper",
@@ -479,12 +479,12 @@
    ],
    "policy": [
     {
-     "product_id": "PLT-BDMETL",
-     "title": "Metal Spindle Bed"
-    },
-    {
      "product_id": "PLT-BDSHKR",
      "title": "Shaker Wooden Bed Frame"
+    },
+    {
+     "product_id": "PLT-BDMETL",
+     "title": "Metal Spindle Bed"
     },
     {
      "product_id": "PLT-BDUPHL",

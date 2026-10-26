@@ -210,7 +210,7 @@ class JeanStyle:
 
     @property
     def title(self) -> str:
-        return f"The {self.line} {self.rise} Rise {self.leg_fit} Jeans"
+        return f"{self.brand} {self.line} {self.rise} Rise {self.leg_fit} Jeans"
 
     def chart(self) -> dict[int, tuple[str, str, str]]:
         return WOMENS_WAIST if self.audience == "Womens" else MENS_WAIST
@@ -247,7 +247,8 @@ class JeanStyle:
             "category_path": [who, "Jeans", f"{self.leg_fit} Jeans"],
             "category_leaf": f"{self.leg_fit} Jeans",
             "description": (
-                f"The {self.line} is our {self.rise.lower()} rise {self.leg_fit.lower()} fit, "
+                f"The {self.brand} {self.line} is our {self.rise.lower()} rise "
+                f"{self.leg_fit.lower()} fit, "
                 f"cut from {self.fabric.lower()} denim with five pockets and a zip fly, in "
                 f"{len(self.washes)} washes and "
                 f"{len(self.lengths)} leg {'length' if len(self.lengths) == 1 else 'lengths'}."
@@ -271,36 +272,36 @@ class JeanStyle:
 
 _W12 = tuple(WASHES)
 JEANS = (
-    JeanStyle("HARROW", "Harrow", "Ottery Denim", "Womens", "Skinny", "High", _W12,
+    JeanStyle("HARROW", "Original 101", "Ottery Denim", "Womens", "Skinny", "High", _W12,
               ("Petite", "Regular", "Long", "Extra Long"), 4, 26, 32.0),
-    JeanStyle("BRINDLE", "Brindle", "Ottery Denim", "Womens", "Straight", "High", _W12[:8],
+    JeanStyle("BRINDLE", "Original 205", "Ottery Denim", "Womens", "Straight", "High", _W12[:8],
               ("Petite", "Regular", "Long"), 6, 24, 35.0),
-    JeanStyle("CORVEY", "Corvey", "Ferrowick Denim", "Womens", "Wide Leg", "High",
+    JeanStyle("CORVEY", "Heritage 101", "Ferrowick Denim", "Womens", "Wide Leg", "High",
               ("Rinse", "Mid Wash", "Light Wash", "Ecru", "Black", "White"),
               ("Petite", "Regular", "Long"), 6, 22, 39.0),
-    JeanStyle("MARDALE", "Mardale", "Ottery Denim", "Womens", "Bootcut", "Mid",
+    JeanStyle("MARDALE", "Original 312", "Ottery Denim", "Womens", "Bootcut", "Mid",
               ("Indigo", "Mid Wash", "Vintage Blue", "Black", "Grey"),
               ("Petite", "Regular", "Long"), 6, 20, 30.0),
-    JeanStyle("PENHALLOW", "Penhallow", "Ferrowick Denim", "Womens", "Barrel", "High",
+    JeanStyle("PENHALLOW", "Heritage 205", "Ferrowick Denim", "Womens", "Barrel", "High",
               ("Rinse", "Light Wash", "Ecru", "Washed Black", "Vintage Blue"),
               ("Regular", "Long"), 6, 18, 45.0, "100% Cotton"),
-    JeanStyle("QUENBY", "Quenby", "Ottery Denim", "Womens", "Slim", "Mid",
+    JeanStyle("QUENBY", "Original 418", "Ottery Denim", "Womens", "Slim", "Mid",
               ("Dark Indigo", "Mid Wash", "Light Wash", "Black", "Grey", "White"),
               ("Petite", "Regular", "Long"), 6, 20, 28.0),
-    JeanStyle("ROOKLEY", "Rookley", "Ferrowick Denim", "Womens", "Flared", "High",
+    JeanStyle("ROOKLEY", "Heritage 312", "Ferrowick Denim", "Womens", "Flared", "High",
               ("Indigo", "Vintage Blue", "Black", "Ecru"),
               ("Regular", "Long", "Extra Long"), 8, 22, 42.0),
-    JeanStyle("TOLLAND", "Tolland", "Ferrowick Denim", "Mens", "Slim", "Mid", _W12[:10],
+    JeanStyle("TOLLAND", "Heritage 418", "Ferrowick Denim", "Mens", "Slim", "Mid", _W12[:10],
               ("Short", "Regular", "Long", "Extra Long"), 28, 42, 38.0),
-    JeanStyle("WEXCOMBE", "Wexcombe", "Ottery Denim", "Mens", "Straight", "Mid", _W12[:8],
+    JeanStyle("WEXCOMBE", "Original 520", "Ottery Denim", "Mens", "Straight", "Mid", _W12[:8],
               ("Short", "Regular", "Long"), 28, 42, 34.0),
-    JeanStyle("ASHLOW", "Ashlow", "Ferrowick Denim", "Mens", "Skinny", "Low",
+    JeanStyle("ASHLOW", "Heritage 520", "Ferrowick Denim", "Mens", "Skinny", "Low",
               ("Rinse", "Mid Wash", "Light Wash", "Black", "Washed Black", "Grey"),
               ("Regular", "Long"), 28, 42, 36.0),
-    JeanStyle("KELDEN", "Kelden", "Ottery Denim", "Mens", "Carrot", "Mid",
+    JeanStyle("KELDEN", "Original 625", "Ottery Denim", "Mens", "Carrot", "Mid",
               ("Dark Indigo", "Mid Wash", "Vintage Blue", "Black", "Ecru"),
               ("Short", "Regular", "Long"), 28, 42, 40.0, "100% Cotton"),
-    JeanStyle("FENNICK", "Fennick", "Ferrowick Denim", "Mens", "Bootcut", "Mid",
+    JeanStyle("FENNICK", "Heritage 625", "Ferrowick Denim", "Mens", "Bootcut", "Mid",
               ("Indigo", "Mid Wash", "Black"),
               ("Regular", "Long"), 28, 42, 32.0),
 )  # fmt: skip
@@ -369,9 +370,14 @@ class BraStyle:
     department = ("Lingerie & Nightwear",)
 
     @property
+    def name(self) -> str:
+        """The brand and its line; a line that already leads with the brand is not said twice."""
+        return self.line if self.line.startswith(self.brand) else f"{self.brand} {self.line}"
+
+    @property
     def title(self) -> str:
         wire = "Underwired" if self.wired else "Non-Wired"
-        return f"{self.line} {wire} {self.kind} Bra"
+        return f"{self.name} {wire} {self.kind} Bra"
 
     def size_rows(self) -> list[tuple[str, str, str]]:
         lo, hi = _cup(self.cups[0]), _cup(self.cups[1])
@@ -401,7 +407,8 @@ class BraStyle:
             "category_path": ["Womens", "Lingerie", "Bras", f"{self.kind} Bras"],
             "category_leaf": f"{self.kind} Bras",
             "description": (
-                f"The {self.line} {self.kind.lower()} bra: {wire}, with adjustable straps and a "
+                f"The {self.name} {self.kind.lower()} bra:{wire}, with adjustable "
+                f"straps and a "
                 f"three-row hook and eye back, in {self.fabric.lower()}."
             ),
             "attributes": [
@@ -417,29 +424,29 @@ class BraStyle:
 
 BLACK, WHITE, NUDE = cw("Black", "#2a2a2e"), cw("White", "#ffffff"), cw("Almond", "#d9b79a")
 BRAS = (
-    BraStyle("SORREL", "Sorrel", "Bramblewood", "Balcony", (30, 40), ("A", "G"),
+    BraStyle("SORREL", "Comfort 2", "Bramblewood", "Balcony", (30, 40), ("A", "G"),
              (BLACK, WHITE, NUDE, cw("Claret", "#7a1f35"), cw("Sage", "#9bb08f"),
               cw("Blush Spot", "#e8b4b0", "polka", "#2a2a2e")), 24.0),
-    BraStyle("LINNET", "Linnet", "Bramblewood", "Plunge", (28, 38), ("AA", "F"),
+    BraStyle("LINNET", "Comfort 3", "Bramblewood", "Plunge", (28, 38), ("AA", "F"),
              (BLACK, NUDE, cw("Cobalt", "#2b4fa8"), cw("Rose", "#d98a96")), 22.0),
-    BraStyle("FARNLEY", "Farnley", "Saltmarsh", "Full Cup", (32, 46), ("B", "J"),
+    BraStyle("FARNLEY", "Support 2", "Saltmarsh", "Full Cup", (32, 46), ("B", "J"),
              (BLACK, WHITE, NUDE), 28.0),
-    BraStyle("HALDEN", "Halden", "Saltmarsh", "T-Shirt", (30, 40), ("A", "GG"),
+    BraStyle("HALDEN", "Support 3", "Saltmarsh", "T-Shirt", (30, 40), ("A", "GG"),
              (BLACK, WHITE, NUDE, cw("Mocha", "#7b5a45"), cw("Navy", "#26365c"),
               cw("Grey Marl", "#9a9ca0"), cw("Ivory", "#f3ecd9"),
               cw("Breton", "#ffffff", "stripe", "#26365c")), 20.0),
-    BraStyle("THORNBY", "Thornby", "Bramblewood", "Soft Cup", (30, 42), ("A", "E"),
+    BraStyle("THORNBY", "Comfort 4", "Bramblewood", "Soft Cup", (30, 42), ("A", "E"),
              (BLACK, NUDE), 16.0, wired=False),
-    BraStyle("KINVER", "Kinver", "Saltmarsh", "Sports", (30, 44), ("A", "G"),
+    BraStyle("KINVER", "Support 4", "Saltmarsh", "Sports", (30, 44), ("A", "G"),
              (BLACK, cw("Teal", "#2e7d7a"), cw("Coral", "#ef7b62")), 30.0, wired=False,
              fabric="Recycled Polyester, Elastane"),
-    BraStyle("ELSDON", "Elsdon", "Saltmarsh", "Minimiser", (34, 46), ("C", "H"),
+    BraStyle("ELSDON", "Support 5", "Saltmarsh", "Minimiser", (34, 46), ("C", "H"),
              (BLACK, NUDE), 26.0),
-    BraStyle("BRAYFORD", "Brayford", "Bramblewood", "Strapless", (28, 38), ("A", "F"),
+    BraStyle("BRAYFORD", "Comfort 5", "Bramblewood", "Strapless", (28, 38), ("A", "F"),
              (NUDE,), 25.0),
-    BraStyle("PELLOW", "Pellow", "Saltmarsh", "Nursing", (32, 42), ("B", "G"),
+    BraStyle("PELLOW", "Support 6", "Saltmarsh", "Nursing", (32, 42), ("B", "G"),
              (BLACK, WHITE), 21.0, wired=False, fabric="Cotton, Elastane"),
-    BraStyle("ROSEDENE", "Rosedene", "Bramblewood", "Lace Balcony", (28, 36), ("AA", "GG"),
+    BraStyle("ROSEDENE", "Comfort 6", "Bramblewood", "Lace Balcony", (28, 36), ("AA", "GG"),
              (BLACK, WHITE, cw("Wine", "#5e1a2c"), cw("Lilac", "#b9a3d0"),
               cw("Leopard", "#d9a95b", "leopard", "#2a2a2e")), 27.0),
 )  # fmt: skip

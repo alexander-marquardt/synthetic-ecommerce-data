@@ -14,11 +14,12 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model: a plain word of beauty listings ("Lasting", "Perfect").
 LEADS = (
-    "Lasting", "Perfect", "Flawless", "Nurture", "Renew", "Revive", "Petal", "Longwear",
+    "Lasting", "Perfect", "Flawless", "Nurture", "Renew", "Revive", "Lustrous", "Longwear",
     "Infinite", "Absolute", "Elegance", "Allure", "Ritual", "Nourish", "Radiance", "Define",
     "Sculpt",
     "Enhance", "Devotion", "Silken", "Indulge", "Whisper", "Cherish", "Velvet", "Desire",
-    "Sublime", "Exquisite", "Divine", "Luxe", "Vitality", "Glamour", "Poise", "Refine", "Restore",
+    "Sublime", "Exquisite", "Divine", "Luxe", "Vitality", "Glamour", "Pristine", "Refine",
+    "Restore",
     "Replenish", "Hydrate", "Soothe", "Prestige", "Serenity", "Supple",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.

@@ -15,7 +15,7 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Fun", "Giggle", "Wonder", "Romp", "Skip", "Hop", "Whizz", "Zoom", "Tumble", "Frolic",
+    "Fun", "Giggle", "Wonder", "Romp", "Skip", "Leap", "Whizz", "Zoom", "Tumble", "Frolic",
     "Bounce", "Caper", "Wobble", "Squeak", "Splash", "Imagine", "Pretend", "Explore", "Discover",
     "Adventure",
 )  # fmt: skip

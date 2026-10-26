@@ -372,9 +372,9 @@ Curry at 6. These are true text matches, left in on purpose.
 
 The #294 decoys cover the demo queries. `prototypes/retail_drawings/decoy_apparel.py` plants the
 same kind of decoy on every product type of the Womens, Mens and Kids clothing, footwear and
-lingerie, in seven classes (a color word naming a part, another category's noun as a modifier, an
+lingerie, in classes (a color word naming a part, another category's noun as a modifier, an
 audience word of a sibling version, a material the product does not hold, a shade only in the
-description, a range name holding a color or category word, an invented brand holding one), and
+description (class 5, retired in #663), a range name holding a color or category word, an invented brand holding one), and
 an eighth on Jeans and Bra (gen#434): a line named after a leg fit, a rise or a bra shape the
 product is not ("Balloon Lane Straight Jeans"), three per value, so the leg fit, rise and bra
 shape policies each have a product to remove. The structured fields stay true, so a plain text
