@@ -1,19 +1,27 @@
-"""Mutants of the gen#662 line grammar: each undoes one part of it and a guard must go red.
+"""Mutants of the gen#662 and gen#666 line grammar: each undoes one part of it and a guard must go red.
 
     uv run python vendor/prism/scripts/mutant_run.py tests/review_662_mutants.py.txt
 """
 
 SC_T = "tests/test_retail_scale.py::"
+CARE_T = "tests/test_retail_scale_care_666.py::"
 VOCAB = SC_T + "test_a_family_model_name_is_built_from_its_family_vocabulary"
 LEAD = SC_T + "test_a_family_title_leads_with_its_brand"
 AFTER = SC_T + "test_a_name_like_model_word_comes_directly_after_the_brand"
 SHARED = SC_T + "test_a_range_word_belongs_to_one_brand"
+CARE_LEAD = CARE_T + "test_a_cleaning_or_beauty_title_leads_with_its_brand"
+CARE_ONE = CARE_T + "test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand"
+CARE_WORDS = "tests/test_care_words_666.py::test_the_family_vocabularies_share_no_word_with_each_other_or_a_name"
+CARE_DEALS = "tests/test_care_words_666.py::test_the_scale_and_grocery_deals_of_a_care_family_share_no_word"
+NEAR = CARE_T + "test_a_care_brands_models_seldom_differ_in_one_token"
 
-TESTS = [VOCAB, AFTER, SHARED, LEAD]
+TESTS = [VOCAB, AFTER, SHARED, LEAD, CARE_LEAD, CARE_ONE, CARE_WORDS, NEAR]
 
 LG = "prototypes/retail_drawings/line_grammar.py"
 SC = "prototypes/retail_drawings/scale.py"
 FW = "prototypes/retail_drawings/footwear_rows.py"
+BE = "prototypes/retail_drawings/line_grammar_families/beauty.py"
+GR = "prototypes/retail_drawings/grocery.py"
 
 MUTANTS = [
     (SC, "name = deal.owned(brand, slot) if deal else ctx.names.owned(brand, slot)",
@@ -26,8 +34,18 @@ MUTANTS = [
      "a dress title leads with the name word, not its brand", [AFTER]),
     (FW, 'junior_price=50.0, product_line="Speed 4"', 'junior_price=50.0, product_line="Cloudrise"',
      "an authored running shoe keeps its coined model name", [VOCAB]),
-    (LG, 'title = f"{kids}{brand} {title.removeprefix(kids)}"', "pass",
+    (LG, 'title = f"{kids}{brand} {title}"', "pass",
      "a sport title leads with its model, not its brand", [LEAD]),
     (FW, '"WRUNCR", "Stridewell Speed 4', '"WRUNCR", "Speed 4',
      "an authored running shoe leads with its model, not its brand", [LEAD]),
+    (LG, 'title = f"{brand} {line} {title}"', 'title = f"{line} {title}"',
+     "a cleaning or beauty title leads with its model, not its brand", [CARE_LEAD]),
+    (GR, 'title = f"{brand} {title}"', "pass",
+     "a grocery cleaning or beauty title leads with its range again", [CARE_LEAD]),
+    (LG, "words = self.spec.leads[HALVES[half] :: 2]", "words = self.spec.leads",
+     "the scale and grocery builds deal the same lead words to different brands", [CARE_ONE, CARE_DEALS]),
+    (BE, '    "Lasting", "Perfect",', '    "Keen", "Perfect",',
+     "a lead word sits in two families", [CARE_WORDS]),
+    (LG, "        if self.fam in CARE:\n            # A care model", "        if False:\n            # A care model",
+     "a care brand's models differ in one token again, so the grocery near-duplicates pass 4%", [NEAR]),
 ]
