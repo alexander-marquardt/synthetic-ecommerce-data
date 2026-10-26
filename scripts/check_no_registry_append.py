@@ -6,10 +6,11 @@
 On 2026-10-18, 16 of the 21 open PRs conflicted with main. With the derived files out of git
 (``check_no_derived_files.py``, gen#536), what conflicted was a set of registries that each
 feature appended one entry to: an import and an id set in ``scale.py``, a row and a kind in the
-decoy tables, a line in ``legacy_types.txt``. :data:`REGISTRIES` maps each such file to the shapes
-of an appended line and to the new-file form that replaces the line. The check counts, per
-registry, the lines of those shapes that ``base...head`` adds less the ones it removes, so an edit
-in place and a migration that shortens the list pass, and a diff that nets one fails and names the
+decoy tables, a line in a legacy type list (gone since gen#537).
+:data:`REGISTRIES` maps each such file to the shapes of an appended line and to the new-file
+form that replaces the line. The check counts, per registry, the lines of those shapes that
+``base...head`` adds less the ones it removes, so an edit in place and a migration that shortens
+the list pass, and a diff that nets one fails and names the
 form.
 
 A registry is in the table in the same PR that gives it a new-file form, so the check never refuses
@@ -74,14 +75,6 @@ REGISTRIES: tuple[Registry, ...] = (
         f"declare the type as a spec, {RD}/type_specs/<key>.py (uv run python scripts/new_type.py"
         " <key>); the registry feeds the scaled build, so scale.py gains no import and no id set",
         ("scripts/new_type.py", f"{RD}/type_registry.py"),
-    ),
-    Registry(
-        f"{RD}/type_specs/legacy_types.txt",
-        _shapes(r"^[^#\s]"),
-        "Beauty|Probe Cream",
-        "never add a line: the list only shrinks. scripts/new_type.py <key> writes the spec file"
-        " that registers the type",
-        ("scripts/new_type.py",),
     ),
     Registry(
         f"{RD}/decoy_rows.py",

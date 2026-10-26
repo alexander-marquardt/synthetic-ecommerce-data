@@ -233,10 +233,15 @@ these in order and stops at the first that parses:
 5. **The nominal shape.** `nominal`. This is the only rung where the record's
    primary dimension itself could not be used.
 
-Rungs 4 and 5 take every extent from the nominal shape, but never a *form* the
-record publishes: `_read()`'s `form` argument carries those values (an end mill's
-`Single End/Double End`, #9) into both rungs, so a double-end mill whose
-dimensions cannot be drawn as published is still drawn with two cutting ends.
+Rungs 3, 4 and 5 take every extent from the defaults or the nominal shape, but never
+a *form* the record publishes: `_read()`'s `form` argument carries those values (an end
+mill's `Single End/Double End`, #9, and its `Number of Flutes` and `Cutting Direction`,
+#10) into all three, so a double-end mill whose dimensions cannot be drawn as published
+is still drawn with two cutting ends, its published flute count and its published hand.
+A flute count that is not a count and a hand that is not `Right Hand` or `Left Hand`
+are not carried. The fasteners' `Thread Direction` and the drill's and tap's cutting
+direction have no drawing channel (only an end mill draws a hand), and
+`tests/test_sku_channels_10.py` names them in one exact set.
 
 A "contradiction" is any exception in `domains/industrial/geometry/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
@@ -351,6 +356,7 @@ that matter most when you change a figure:
 | `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
 | `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name's capitals at least 10 px tall at the tile; the four layouts, and a name no layout fits refused; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
 | `tests/test_end_mill_ends_drawn_9.py` | an end mill's cutting ends, counted off the figure's `part` polygons, equal its published `Single End/Double End` on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
+| `tests/test_sku_channels_10.py` | the end view shows as many flutes as the record states, on every rung of `_read()` and on every end mill of the small catalog; a published `Left Hand` is the mirror of a `Right Hand` drawing; the hatch of each material is the one its convention says | planted + SMALL |
 | `test_nominal_geometry_stays_rare` | at most 10% `nominal` per depth type | SMALL |
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
 

@@ -841,7 +841,7 @@ def _render_styled(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{all_defs}</defs>" if all_defs else "",
         *sheet,
-        f'<g class="product" transform="{hs.product_transform(style)}">{hs.restyle(inner, style)}</g>',
+        f'<g class="product" transform="{hs.product_transform(style, brand)}">{hs.restyle(inner, style)}</g>',
         f'<g class="brand">{"".join(overlay)}</g>',
         "</svg>",
     ]

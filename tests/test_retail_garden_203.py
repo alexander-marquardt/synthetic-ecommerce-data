@@ -276,12 +276,11 @@ def _own(row) -> set[str]:
     return {c[0].lower() for c in row.colors}
 
 
-#: Every product type the registry lists for the Garden department: the types in a spec file and the
-#: ones still on the legacy list. A type new to the department is here at once, so it cannot skip
-#: the decoys of gen#294 unless it is exempt below with the reason.
+#: Every product type the registry lists for the Garden department (every type is a spec). A type
+#: new to the department is here at once, so it cannot skip the decoys of gen#294 unless it is
+#: exempt below with the reason.
 GARDEN_TYPES = sorted(
     {s.product_type for s in type_registry.specs().values() if s.department == "Garden"}
-    | {t for d, t in type_registry.legacy_types() if d == "Garden"}
 )
 #: A Garden type that carries no decoys, and why. An entry is wrong as soon as its type holds a
 #: decoy (see ``test_an_exempt_garden_type_holds_no_decoy_and_states_its_reason``).
@@ -385,7 +384,8 @@ def test_the_decoys_are_exempt_from_the_text_check_and_left_out_of_the_derivatio
     assert garden_rows.decoy_ids() <= scale.DECOY_IDS
     assert len(garden_rows.decoy_ids()) == len(DECOY_CODES) >= 3 * len(CLASSES) * len(DECOY_TYPES)
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
-    assert {f"BRD-{r.code}" for r in ALL} == scale.GARDEN_IDS and not (scale.GARDEN_IDS & kept)
+    garden = scale.source_ids("garden_rows")
+    assert {f"BRD-{r.code}" for r in ALL} == garden and not (garden & kept)
 
 
 def test_a_decoy_keeps_the_one_color_it_was_authored_with() -> None:
@@ -402,7 +402,7 @@ def test_every_garden_style_reaches_the_100k_build_and_meets_the_standard() -> N
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ALL if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.GARDEN_IDS]
+    mine = [d for d in docs if d["product_id"] in scale.source_ids("garden_rows")]
     assert len(mine) == len(ALL)
     assert check_catalog(mine, one_class_per_key=True, text_exempt=scale.DECOY_IDS) == []
 
