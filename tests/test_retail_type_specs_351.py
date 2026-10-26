@@ -396,7 +396,7 @@ def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
     census.test_every_type_has_three_decoys_per_class_in_the_built_catalog(rows, by_id)
     census.test_each_decoys_fields_contradict_its_misleading_word(rows, by_id)
     mine = {r.pid for r in rows if r.product_type == "Specimen Kaftan"}
-    assert len(mine) >= 21 and mine <= da.IDS
+    assert len(mine) >= 18 and mine <= da.IDS  # six classes of three (class 5 is retired, #663)
     assert not any(r.product_type == SPECIMEN_SERUM[1] for r in rows)
     table = da.table_markdown(rows)
     assert all(pid in table for pid in mine)
