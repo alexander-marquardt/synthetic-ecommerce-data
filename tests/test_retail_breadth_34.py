@@ -32,9 +32,10 @@ def _leaves() -> dict[tuple[str, ...], list[breadth_rows.Row]]:
     return out
 
 
-def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_nineteen_leaves() -> None:
+def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_eighteen_leaves() -> None:
     leaves = _leaves()
-    assert len(leaves) >= 19
+    # the drill leaves (Cordless, Combi, Hammer) moved to type specs, three fewer (gen#191)
+    assert len(leaves) >= 18
     assert {p: len(r) for p, r in leaves.items() if not 1 <= len(r) <= 2} == {}
 
 

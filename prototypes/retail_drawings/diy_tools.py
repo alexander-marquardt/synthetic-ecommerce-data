@@ -40,7 +40,7 @@ CAL, TOR, BRI, HAR, STO = (
     "Calderby & Lune",
     "Torvane Tools",
     "Marlowick",
-    "Harkwell Power",
+    "Harkwell Works",
     "Stonemarsh",
 )
 #: Brands this family states: invented houses, text only.
