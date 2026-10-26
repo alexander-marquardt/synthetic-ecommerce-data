@@ -48,15 +48,9 @@ MUTATIONS: list[Mutation] = [
         "",
         "a label names one type",
     ),
-    Mutation(
-        "publish a URL for a drawing nothing renders",
-        "domains/industrial/taxonomy.py",
-        '    "washer_flat": "washer_flat",',
-        '    "washer_flat": "washer_flat_plain",',
-        "tests/test_catalog_emit.py",
-        "B",
-        "every product and every variant carries an image that resolves",
-    ),
+    # "publish a URL for a drawing nothing renders" is retired (#61): a type in its
+    # own module registers ``DRAWING[key] = key`` in core/typespec.py, so no
+    # per-type mapping exists to point at a drawing nothing renders.
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
         "leak a hammer attribute into the screw vocabulary",
