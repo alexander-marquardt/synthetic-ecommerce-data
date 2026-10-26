@@ -176,7 +176,7 @@ def test_every_accessory_style_reaches_the_100k_build_and_meets_the_standard() -
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.ACCESSORY_IDS]
+    mine = [d for d in docs if d["product_id"] in scale.source_ids("accessory_rows")]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
 
@@ -224,7 +224,7 @@ def test_every_accessory_type_declares_its_pinned_audience() -> None:
     built = scale.build(10_000_000)
     got: dict[str, set[str]] = collections.defaultdict(set)
     for doc in scale.documents(built):
-        if doc["product_id"] in scale.ACCESSORY_IDS:
+        if doc["product_id"] in scale.source_ids("accessory_rows"):
             for sku in scale.flat([doc]):
                 got[sku["product_type"]] |= set(sku["facets"]["audience"])
     assert {t: sorted(a) for t, a in got.items()} == {t: [a] for t, a in AUDIENCE.items()}

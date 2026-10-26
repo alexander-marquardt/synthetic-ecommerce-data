@@ -28,7 +28,7 @@ is declared by the three specs that use it as `Option("drop_cm", "drop_length", 
 `"117x137"` into its two fields.
 
 The throws leaf was already in the legacy list (`Home|Throws`, the product type the word decoys
-use). That line is removed and `LEGACY_CEILING` is 294. The three ordinary throws that the word-decoy
+use; the list is gone since gen#537). It is a spec now. The three ordinary throws that the word-decoy
 floor carried (`FY040` to `FY042`, in `decoy_product_words.py`) are removed with it, as the throw
 spec holds the type's ordinary products now. The four class-8 throws (`DY36`, `DY62`, `DY702`,
 `DY720`) stay where they are and are listed in `tests/test_retail_type_specs_351.py` as decoys that

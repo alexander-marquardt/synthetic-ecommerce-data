@@ -3,11 +3,12 @@
 On 2026-10-18, 16 of the 21 open PRs conflicted with main. Once the rolled stats files stopped
 being committed (#373), what conflicted was a set of registries that each feature appended one
 entry to: an import line and an id set in ``scale.py``, a row and a kind in the decoy tables, a
-line in ``legacy_types.txt``. ``scripts/check_no_registry_append.py`` (the ``no-derived-files`` job)
-refuses a diff that nets a line of one of those shapes and names the new-file form that replaces
-it. A registry is in its table only while it has such a form, so the check never refuses what has
-no alternative. These tests plant the appended line in a throwaway repository, hold the table to
-its own examples, and read the workflow and the guide that name the form.
+line in a legacy type list (gone since #537). ``scripts/check_no_registry_append.py`` (the
+``no-derived-files`` job) refuses a diff that nets a line of one of those shapes and names the
+new-file form that replaces it. A registry is in its table only while it has such a form, so the
+check never refuses what has no alternative. These tests plant the appended line in a throwaway
+repository, hold the table to its own examples, and read the workflow and the guide that name the
+form.
 """
 
 from __future__ import annotations
@@ -31,7 +32,6 @@ RD = "prototypes/retail_drawings"
 SCALE = f"{RD}/scale.py"
 DECOY_ROWS = f"{RD}/decoy_rows.py"
 WORDS = f"{RD}/decoy_product_words.py"
-LEGACY = f"{RD}/type_specs/legacy_types.txt"
 HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
 WORD_DOC = "docs/retail-product-word-decoys.md"
@@ -45,7 +45,6 @@ APPENDS = {
     "harness-wrapper": (HARNESS, "    *_wrap(mutation_rows_probe_513.ROWS),", "mutation_rows_"),
     "scale-import": (SCALE, "import probe_rows  # noqa: E402", "type_specs"),
     "scale-ids": (SCALE, "PROBE_IDS = frozenset(r.code for r in probe_rows.ROWS)", "type_specs"),
-    "legacy-line": (LEGACY, "Beauty|Probe Cream", "new_type.py"),
     "decoy-row": (
         DECOY_ROWS,
         '    _d("XZ01", "sofa", "Title", "Desc", "Red", 1, "red sofa", 720),',
@@ -112,7 +111,6 @@ APPENDS = {
 BASE = {
     HARNESS: "import argparse\n\nMUTATIONS = []\n",
     SCALE: "import json  # noqa: E402\nimport foo_rows  # noqa: E402\n",
-    LEGACY: "# header\nBeauty|Body Cream\n",
     DECOY_ROWS: 'TABLE = (\n    _d("XS01", "sofa", "Sofa", "Desc", "Blue", 1, "red sofa"),\n)\n',
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
@@ -207,23 +205,23 @@ def test_a_row_edited_in_place_is_not_an_append(repo, capsys):
 
 def test_a_line_removed_is_not_an_append(repo, capsys):
     root, base = repo
-    _commit(root, "migrate", {LEGACY: "# header\n"})
+    _commit(root, "migrate", {SCALE: "import json  # noqa: E402\n"})
     assert _run(root, base, capsys)[0] == 0
 
 
 def test_a_registry_line_replaced_by_another_is_not_an_append(repo, capsys):
     root, base = repo
-    _commit(root, "migrate", {LEGACY: "# header\nBeauty|Body Lotion\n"})
+    _commit(root, "migrate", {SCALE: "import json  # noqa: E402\nimport bar_rows  # noqa: E402\n"})
     assert _run(root, base, capsys)[0] == 0
 
 
 def test_every_append_in_one_diff_is_named(repo, capsys):
     root, base = repo
     _append(root, SCALE, "import probe_rows  # noqa: E402")
-    _append(root, LEGACY, "Beauty|Probe Cream")
+    _append(root, HARNESS, "import mutation_rows_probe_513  # noqa: E402")
     code, out = _run(root, base, capsys)
     assert code == 1
-    assert SCALE in out and LEGACY in out
+    assert SCALE in out and HARNESS in out
 
 
 def test_a_reasoned_trailer_on_the_tip_lets_an_append_by(repo, capsys):
