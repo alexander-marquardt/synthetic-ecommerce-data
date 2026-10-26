@@ -8,8 +8,16 @@ decoys, house styles or the guard that owes them, and names the test that must g
 
 from __future__ import annotations
 
+from mutation_row import Row
+
 _R = "prototypes/retail_drawings"
 _T = "tests/test_retail_drills_191.py"
+# The tool kit's third and fourth rows, two lines of which carry a brand.
+_KIT = (
+    "            d.{brand},\n            39.0,\n            K40,\n"
+    '            "A household kit with a deep socket range, in a hard case.",\n'
+    '            "case",\n        ),\n        _row(\n            "TKT061",\n            d.{next},'
+)
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -17,7 +25,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "type_specs/hammer_drill.py",
         'product_type="Hammer Drill",',
         'product_type="Drill",',
-        f"{_T} -k the_product_type_names_the_tool and hammer_drill",
+        f'{_T} -k "the_product_type_names_the_tool and hammer_drill"',
         "a drill type names its tool and is never a plain Drill",
         _R,
     ),
@@ -26,7 +34,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "type_specs/step_ladder.py",
         '    "step_ladder",\n',
         '    "box",\n',
-        f"{_T} -k a_type_draws_a_shape_of_its_own and step_ladder",
+        f'{_T} -k "a_type_draws_a_shape_of_its_own and step_ladder"',
         "each type draws a shape of its own, not a box",
         _R,
     ),
@@ -40,11 +48,11 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the corded drill's brands collapse to one",
-        "type_specs/corded_drill.py",
-        "            d.TOR,\n",
-        "            d.BRI,\n",
-        f"{_T} -k a_type_has_three_invented_brands and corded_drill",
+        "the tool kits collapse to two brands",
+        "type_specs/tool_kit.py",
+        _KIT.format(brand="HAR", next="CAL"),
+        _KIT.format(brand="BRI", next="TOR"),
+        f'{_T} -k "a_type_has_three_invented_brands and tool_kit"',
         "a type has at least three brands",
         _R,
     ),
@@ -53,7 +61,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "diy_brand_styles.py",
         '    "Stonemarsh":     H(',
         '    "Stonemarsh ":    H(',
-        f"{_T} -k every_image_id_of_a_type_resolves and sds_hammer_drill",
+        f'{_T} -k "every_image_id_of_a_type_resolves and sds_hammer_drill"',
         "every brand of the family draws its house style",
         _R,
     ),
@@ -76,3 +84,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
 ]
+
+# Found by ``mutation_row.discover``: the prefix of the rows' names and the rows in one shape.
+PREFIX = "drills"
+
+
+def rows() -> list[Row]:
+    return [Row(*r) for r in ROWS]
