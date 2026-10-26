@@ -1,5 +1,5 @@
 """Step ladders and step stools (gen#191, the issue's comment): the steps, the material, the maximum
-load in kilograms and the platform height in metres are structured entries; the title states the
+load in kilograms and the platform height in millimetres are structured entries; the title states the
 steps and the material. :func:`kit_drills.step_ladder` draws one tread per step."""
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -13,7 +13,7 @@ from type_registry import TypeSpec, a
 def _row(code, title, brand, price, steps, material, load, height, kind, text):
     return (code, title, brand, price, text,
             (("steps", "Steps", str(steps), "C62"), a("material", "Material", material), ("max_load_kg", "Maximum load", str(load), "KGM", load * 1000.0),
-             ("platform_height_m", "Platform height", f"{height:g}", "MTR", height * 1000.0), a("ladder_kind", "Kind", kind)),
+             ("platform_height", "Platform height", str(round(height * 1000)), "MMT", height * 1000.0), a("ladder_kind", "Kind", kind)),
             (("steps", str(steps)), ("kind", "stool" if kind == "Step stool" else "ladder")))  # fmt: skip
 
 

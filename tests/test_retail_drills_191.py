@@ -86,7 +86,7 @@ TYPES = {
         "Step Ladder",
         "step_ladder",
         ("steps", "2", "5"),
-        {"steps", "material", "max_load_kg", "platform_height_m", "ladder_kind"},
+        {"steps", "material", "max_load_kg", "platform_height", "ladder_kind"},
     ),
 }
 KEYS = sorted(TYPES)

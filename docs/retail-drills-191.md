@@ -13,7 +13,7 @@ never collides with the industrial drill bits and bushings on a merged index.
 | Corded Drill | Drills > Corded Drills | wattage 450-710 W; chuck | `corded_drill` | `handle` |
 | Impact Driver | Drills > Impact Drivers | voltage; torque (Nm); bit holder; battery kit | `impact_driver` | `batteries` |
 | SDS Hammer Drill | Drills > SDS Drills | power source; impact energy (J); modes | `sds_drill` | `power` |
-| Drill Bit Set | Tool Sets > Drill Bit Sets | material drilled; shank; piece count; case | `drill_bit_set` | `shank`, `bits` |
+| Drill Bit Set | Drill Accessories > Drill Bit Sets | material drilled; shank; piece count; case | `drill_bit_set` | `shank`, `bits` |
 | Tool Kit | Tool Sets > Tool Kits | piece count; contents; case | `tool_kit` | `case` |
 | Step Ladder | Ladders > Step Ladders | steps; material; max load (kg); platform height (m); kind | `step_ladder` | `steps`, `kind` |
 

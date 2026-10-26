@@ -59,7 +59,7 @@ def retail() -> list[dict]:
 
 def _is_hammer(doc: dict) -> bool:
     key = doc["product_type"].lower().replace(" ", "_")
-    return "hammer" in key or "mallet" in key
+    return ("hammer" in key and "drill" not in key) or "mallet" in key  # a hammer drill is a drill
 
 
 def test_every_hammer_is_under_the_one_hammers_node(tools, retail) -> None:
