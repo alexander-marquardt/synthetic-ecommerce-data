@@ -161,8 +161,14 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     # and the class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose, such as
     # "Blue Bull Trainers" for the query "bull" (gen#427 made the shoe types specs); a bomber
     # jacket that stands in for a "bomber" word query (DY56, gen#311); and the swim shorts and
-    # towel set is the "beach towel" decoy in the swim shorts (DY6056, gen#605)
+    # towel set is the "beach towel" decoy in the swim shorts (DY6056, gen#605); and the four
+    # class-8 throws (DY36, DY62, DY702, DY720) whose product type became a spec with the soft
+    # furnishings (gen#204): another noun's title on a throw, kept in decoy_product_words
     assert out_of_spec == {
+        "PLT-DY36",
+        "PLT-DY62",
+        "PLT-DY702",
+        "PLT-DY720",
         "PLT-DY37",
         "PLT-DY460",
         "PLT-DY485",

@@ -1275,11 +1275,6 @@ _F = {
         ("Quilted Sofa Cover", "Cream", "A quilted cream cover for a sofa."),
         ("Two Seater Sofa Cover", "Navy", "A navy cover for a two seater."),
     ),
-    "throw": (
-        ("Chunky Knit Throw", "Cream", "A thick cream knitted throw."),
-        ("Fleece Throw", "Grey", "A soft grey fleece throw."),
-        ("Velvet Throw", "Green", "A green velvet throw."),
-    ),
     "carrier": (
         ("Travel Garment Bag", "Black", "A black bag that folds for travel."),
         ("Breathable Garment Cover", "White", "A white cover that lets cloth breathe."),
