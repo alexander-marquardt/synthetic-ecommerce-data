@@ -75,15 +75,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
   `test_house_styles.py` refuses a duplicate mark or lockup, so choose a mark no other brand has.
-  Prefer a brand that already has a row.
-* A brand's name is set by the shared core, not by the prototype (#412):
-  `core/drawing/brand_type.py` scales the core's one advance table
-  (`brand_mark.text_width`) for the row's font, sizes the name to the lockup's room, breaks it
-  in two lines at its balancing space if one line is too small, and refuses (a `ValueError`)
-  a name that fits in neither. No retail wordmark is under `sheet.MIN_NAME_PX` (10 px) at the
-  180 px Studio tile: `tests/test_retail_brand_type_412.py`. A real brand (`NO_MARK`: Apple,
-  iPhone, iPad, Nike) draws no wordmark at all. There is no second width table to extend for a
-  new font: add a `brand_type.FAMILIES` row.
+  Prefer a brand that already has a row. The core sets the name (`brand_type.FAMILIES`, one width model and no second table; a new font is a row there), and `tests/test_retail_brand_type_412.py` refuses a wordmark under 10 px at the Studio tile (#412).
 
 ## 7. Where a row goes in `scale.templates()`, and smaller builds
 
