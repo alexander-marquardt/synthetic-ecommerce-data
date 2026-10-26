@@ -3879,6 +3879,12 @@
    "identifier_dispersion": 0.9653,
    "densest_terms_facet": "Bearing number",
    "densest_terms_facet_dispersion": 0.1105
+  },
+  "flat_overmatch": {
+   "attribute": "Shank dia.",
+   "value": "3/8",
+   "matching": 217,
+   "publishing": 125
   }
  }
 }
