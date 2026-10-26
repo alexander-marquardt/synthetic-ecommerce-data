@@ -717,6 +717,7 @@ def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[st
 #: within-page pairs for it, so no order row.
 DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
     "roller_chain": (71, 74.1, 358.0, 773.0),
+    "threaded_rod": (248, 6.511, 33.52, 140.855),
 }
 
 #: Each measured breadth category's shown-price (p10, p50, p90)
@@ -738,7 +739,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hose_clamps": (13.492, 34.95, 43.43),
     "rigid_casters": (20.744, 76.2, 351.85),
     "safety_glasses": (5.0, 8.605, 24.26),
-    "threaded_rod": (6.511, 33.52, 140.855),
     "u_bolts": (3.454, 10.68, 23.918),
     "v_belts": (7.707, 23.465, 103.945),
     "wedge_anchors": (41.05, 117.775, 251.625),

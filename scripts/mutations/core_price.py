@@ -20,6 +20,15 @@ MUTATIONS: list[Mutation] = [
         "more_strands_cost_more_in_every_same_spec_set",
         "more strands cost more in every same-spec set",
     ),
+    Mutation(
+        "threaded rod: a fine-pitch series is labelled coarse",
+        "domains/industrial/product_types/fasteners/threaded_rod.py",
+        'Series("metric-fine", "mm", "Metric Fine",',
+        'Series("metric-fine", "mm", "Metric Coarse",',
+        "tests/test_compatibility_text.py",
+        "every_thread_is_a_real_designation_and_its_thread_type_says_which",
+        "a rod's Thread Type says which pitch its designation carries",
+    ),
     # ---- price: the model and its census gate (#52) ------------------------
     # Every name starts "price:", so `--only "price:"` re-runs them. A model
     # row plants a defect in what prices a SKU and names the default-size
@@ -41,6 +50,14 @@ MUTATIONS: list[Mutation] = [
                 "domains/industrial/product_types/motion/roller_chain.py",
                 "    116.0,",
                 "    348.0,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "the threaded rod prices at three times its fitted anchor",
+                "domains/industrial/product_types/fasteners/threaded_rod.py",
+                "    44.0, 0.5, 0.583, 0.8, 0.15,",
+                "    132.0, 0.5, 0.583, 0.8, 0.15,",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a deepened breadth category keeps its census level",
             ),

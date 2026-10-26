@@ -169,7 +169,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price_report.ENDING_CLASSES)
         + 2 * len(price.DEEPENED_CENSUS)
     )
-    assert len(price_rows) == expected == 72
+    assert len(price_rows) == expected == 74
     out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
