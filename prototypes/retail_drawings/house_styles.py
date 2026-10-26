@@ -1206,7 +1206,7 @@ def product_transform(style: HouseStyle, brand: str) -> str:
     that reach and :data:`AIR` allow.
     """
     s0 = 0.86 if style.layout == "mark_only" else 0.78
-    if style.mark == NO_MARK:  # a real brand draws no logo: the product sits where it always did
+    if style.mark == NO_MARK:  # no logo to clear: the product sits where it always did
         dy = 0.0 if style.layout == "mark_only" else (10.0 if style.top_logo else -10.0)
         t = SIZE / 2 * (1 - s0)
         return f"translate({t:g} {t + dy:.1f}) scale({s0:.3f})"
