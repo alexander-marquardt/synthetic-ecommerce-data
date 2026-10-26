@@ -4,7 +4,7 @@ A hard-to-draw shape (a clamp, a hook, a bucket) is cheaper to find than to draw
 used only after ``scripts/normalise_found_svg.py`` has reduced it to ``<path class="part|plain">``
 polygons in ``data/found_svg/`` and ``MANIFEST.csv`` there names its source and licence
 (``tests/test_found_svg_102.py`` pins both). This module reads such a file back into a
-:class:`..Figure`, so the colour, the hatch and the sheet come from the same pipeline every other
+:class:`..Figure`, so the color, the hatch and the sheet come from the same pipeline every other
 drawing uses: ``part`` is the product's body and ``plain`` a secondary surface.
 
 Like the six shapes in :mod:`.breadth_shapes`, a found shape ignores the record: the geometry is
