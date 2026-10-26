@@ -87,7 +87,6 @@ _LABELS: dict[str, str] = {
     "screw_flat_head": "Flat Head Socket Cap Screw",
     "screw_low_head": "Low Head Socket Cap Screw",
     "screw_socket_head": "Socket Head Cap Screw",
-    "set_screws_hex_socket": "Hex Socket Set Screw",
     "shackles": "Rigging Shackle",
     "shaft_collars": "Set Screw Shaft Collar",
     "studs_double_end": "Double-End Stud",
