@@ -1,0 +1,37 @@
+"""Mutants on the lines #72 changed: the type-file loader and the discovery of a file.
+
+Run from the clone:  uv run python vendor/prism/scripts/mutant_run.py tests/review_72_mutants.py.txt --root .
+"""
+
+TESTS = ["tests/test_type_file_72.py", "tests/test_type_seam.py"]
+
+TS = "src/synthetic_ecommerce_data/core/typespec.py"
+HD = "src/synthetic_ecommerce_data/domains/industrial/drawing/headless.py"
+TF = "src/synthetic_ecommerce_data/domains/industrial/typefile.py"
+
+MUTANTS = [
+    (TS, "if suffix != TYPE_FILE_SUFFIX:", "if False:", "entries-reads-every-suffix", ["tests/test_type_file_72.py"]),
+    (TS, "            if stem in found:\n", "            if False:\n", "entries-no-collision"),
+    (TS, "return [found[name] for name in sorted(found)]", "return [found[name] for name in found]",
+     "entries-unsorted"),
+    (TF, "if key in seen:", "if False:", "loader-allows-duplicate-key"),
+    (TF, "if not isinstance(data, dict):", "if False:", "loader-accepts-non-mapping"),
+    (TF, 'if data.get("key") != path.stem:', "if False:", "loader-ignores-key-vs-name"),
+    (TF, "if field_name not in allowed:", "if False:", "loader-allows-unknown-field"),
+    (TF, "    if kind is None:\n        raise refuse(f\"names kind", "    if False:\n        raise refuse(f\"names kind",
+     "loader-allows-unknown-kind"),
+    (TF, "    if missing:\n", "    if False:\n", "loader-allows-missing-field"),
+    (TF, 'if data["figure"] not in geometries:', "if False:", "loader-allows-unknown-figure"),
+    (TF, "    if unknown:\n        raise ValueError(f\"price:", "    if False:\n        raise ValueError(f\"price:",
+     "price-allows-unknown-field"),
+    (TF, "if name not in ENDINGS:", "if False:", "price-allows-unknown-endings"),
+    (TF, "        if unknown:\n            raise ValueError(f\"vocab", "        if False:\n            raise ValueError(f\"vocab",
+     "vocab-allows-unknown-field"),
+    (TF, "except (KeyError, TypeError, ValueError) as exc:", "except (KeyError, TypeError) as exc:",
+     "build-error-not-named"),
+    (HD, "knee + 0.15 * height", "knee + 0.16 * height", "figure-knee-curve"),
+    (HD, "tip = min(drawn / 3, r)", "tip = max(drawn / 3, r)", "figure-tip", ["tests/test_catalog_golden.py"]),
+    (HD, "range(min(crests, 400))", "range(min(crests, 399))", "figure-crest-cap"),
+]
+
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-k", "not sibling"]
