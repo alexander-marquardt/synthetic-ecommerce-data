@@ -86,6 +86,7 @@ NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
 NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
 CUPS_PLURAL_ROWS = FIGURES["templates"]["cups_plural_rows"]["styles"]
+DIY_DECOY_ROWS = FIGURES["templates"]["diy_decoy_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
@@ -121,6 +122,7 @@ TEMPLATES = (
     + NEEDS_ROWS
     + CUPS_PLURAL_ROWS
     + NIKE_ROWS
+    + DIY_DECOY_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
     + COLORWORD_ROWS

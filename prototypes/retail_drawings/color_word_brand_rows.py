@@ -442,12 +442,13 @@ ROWS = (
         "Black Larch",
         "Home",
         (*_DIY, "Drills", "Cordless Drills"),
-        "Cordless Drill",
+        "Drill Driver",
         49.0,
-        "drill",
+        "drill_driver",
         "A two-speed 18 V drill driver with a keyless chuck, a work light and a fast charger.",
         _in("#e8741e", "#2a2a2e", "Orange"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),
+        params=(("pack", "standard"),),
         color_word="Black",
         true_color="Orange",
         bucket="tools",
@@ -458,12 +459,13 @@ ROWS = (
         "Black Larch",
         "Home",
         (*_DIY, "Drills", "Combi Drills"),
-        "Cordless Drill",
+        "Combi Drill",
         69.0,
-        "drill",
+        "combi_drill",
         "A three-mode 20 V drill driver with a hammer setting and two batteries.",
         _in("#e8741e", "#2a2a2e", "Orange"),
         (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(20)),
+        params=(("pack", "standard"),),
         color_word="Black",
         true_color="Orange",
         bucket="tools",
@@ -503,9 +505,11 @@ ROWS = (
 )
 
 
-#: The one type these rows introduce: it is registered through its spec file (gen#351), which
-#: takes its rows from here, so :func:`docs` leaves them out (the spec's documents carry them).
-SPEC_TYPES = frozenset({"Sugar"})
+#: The types these rows hold that a spec file registers: Sugar (introduced here) and the two drill
+#: types (gen#191), whose specs take their color-word rows from here. Each is registered through
+#: its spec file (gen#351), which takes its rows from here, so :func:`docs` leaves them out (the
+#: spec's documents carry them).
+SPEC_TYPES = frozenset({"Sugar", "Drill Driver", "Combi Drill"})
 
 
 def spec_rows(product_type: str) -> tuple[CRow, ...]:
