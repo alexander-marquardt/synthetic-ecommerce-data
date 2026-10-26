@@ -966,7 +966,7 @@ class Logo:
 
 
 def _cap(style: HouseStyle) -> float:
-    """The full capital's height per unit of font size: what a line is centred by."""
+    """The full capital's height per unit of font size: what a line is centered by."""
     return brand_type.FAMILIES[style.font].cap_height
 
 
@@ -979,12 +979,12 @@ def _lines(
     style: HouseStyle,
     block: brand_type.Block,
     x: float,
-    centre: float,
+    center: float,
     color: str,
     anchor: str = "start",
 ) -> list[str]:
-    """The block's lines, the capitals of the whole block centred on ``centre``."""
-    baselines = block.baselines(centre, _cap(style))
+    """The block's lines, the capitals of the whole block centered on ``center``."""
+    baselines = block.baselines(center, _cap(style))
     return [brand_type.text(style, t, x, b, block.size, color, anchor) for t, b in zip(block.lines, baselines, strict=True)]
 
 

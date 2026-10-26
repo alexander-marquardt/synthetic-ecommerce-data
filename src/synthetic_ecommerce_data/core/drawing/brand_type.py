@@ -136,10 +136,10 @@ class Block:
         """From the first line's capitals down past the last line's descenders."""
         return cap * self.size + (len(self.lines) - 1) * self.gap + DESCENDER * self.size
 
-    def baselines(self, centre: float, cap: float) -> list[float]:
-        """The baselines that centre the capitals' band of the whole block on ``centre``."""
+    def baselines(self, center: float, cap: float) -> list[float]:
+        """The baselines that center the capitals' band of the whole block on ``center``."""
         span = (len(self.lines) - 1) * self.gap
-        first = centre - span / 2 + cap * self.size / 2
+        first = center - span / 2 + cap * self.size / 2
         return [first + i * self.gap for i in range(len(self.lines))]
 
 
