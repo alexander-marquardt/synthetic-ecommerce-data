@@ -18,7 +18,7 @@ never collides with the industrial drill bits and bushings on a merged index.
 | Step Ladder | Ladders > Step Ladders | steps; material; max load (kg); platform height (m); kind | `step_ladder` | `steps`, `kind` |
 
 Every type has at least four styles from four or five invented brands (Calderby & Lune, Torvane
-Tools, Marlowick, Harkwell Power, Stonemarsh; text only, with a house style in
+Tools, Marlowick, Harkwell Works, Stonemarsh; text only, with a house style in
 `diy_brand_styles.py`), and offers the six main colors across its styles in three color pairs.
 Impact driver voltage and kit are carried as styles, so each image matches its SKUs.
 

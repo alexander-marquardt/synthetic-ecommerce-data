@@ -1,6 +1,6 @@
 """Marks and house styles of the four invented power-tool brands of the drill family (gen#191).
 
-Torvane Tools, Marlowick, Harkwell Power and Stonemarsh sell the drills, drivers, bit sets, tool kits and
+Torvane Tools, Marlowick, Harkwell Works and Stonemarsh sell the drills, drivers, bit sets, tool kits and
 step ladders of :mod:`diy_tools`. Each draws its own name on its product images: a lockup (the name
 beside, above or under the mark) with a mark and an arrangement no other brand uses.
 
@@ -58,7 +58,7 @@ hs.MARKS.update(
 STYLES = {
     "Torvane Tools":  H("#f2f4f0", "diagonal", "heavy",   "#d9541e", "#2b1a12", 1.3,  False, "sharp", "bitspiral", "mark_left",  "top_right",     "none", "sans",     700, "caps",      2.0),
     "Marlowick":      H("#f6f1ea", "dots",     "double",  "#8a5a2b", "#33241a", 0.9,  False, "round", "marlow",    "mark_above", "bottom_right",  "none", "serif",    700, "smallcaps", 1.0, True),
-    "Harkwell Power": H("#eef2f7", "grid",     "ticks",   "#1f4e8c", "#14243d", 1.1,  True,  "sharp", "hawkwing",  "band_bottom","bottom_center","none", "humanist", 700, "title",     0.5),
+    "Harkwell Works": H("#eef2f7", "grid",     "ticks",   "#1f4e8c", "#14243d", 1.1,  True,  "sharp", "hawkwing",  "band_bottom","bottom_center","none", "humanist", 700, "title",     0.5),
     "Stonemarsh":     H("#eff3ec", "hatch",    "rounded", "#4f6b3a", "#1f2d17", 1.0,  False, "round", "cairn",     "pill",       "top_left", "none", "mono",     400, "lower",     0.5),
 }
 # fmt: on
