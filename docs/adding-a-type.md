@@ -6,8 +6,9 @@ This page is the reference for the industrial catalog.
 A product type is one leaf of the category tree, such as `screw_socket_head` or
 `ball_stock_precision`. Each type is declared in a module of its own under
 `src/synthetic_ecommerce_data/domains/industrial/product_types/`. A breadth type is one new
-file plus the generated output; a modelled type still edits some shared files,
-listed under [What is still shared](#what-is-still-shared) (#48).
+file plus the generated output; a modelled type is one module too, and edits no
+shared table (#48, #61). The files that stay shared are listed under
+[What is still shared](#what-is-still-shared).
 
 The build finds the modules by walking the package
 (`core/typespec.py`, `discover`). The first read of any shared, type-keyed
@@ -94,8 +95,11 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 `part_number_block` is left unset unless `ecom-generate block` says otherwise
 (the Block item below).
 
-The types in `domains/industrial/newtypes.py` (`NEW_TYPES`) are a third kind that no
-module can declare yet. They stay where they are for now.
+The five newer types (`nut_hex`, `bearing_radial_ball`, `wheel_depressed_center`,
+`hex_key`, `kit_assortment`) are modelled types like the rest: each module declares
+`newer=True`, and its builder function lives in `domains/industrial/newtypes.py`. A
+newer type's `share` is its fraction of the lines (`config.new_type_share`, derived
+from the specs), not a weight, and its line count is `round(lines * share)`.
 
 ## Where a modelled type's builder lives
 
@@ -284,7 +288,7 @@ rule it follows; the rules are in
 4. Declare `claims`, `may_claim`, `key_attributes` and the family sentences
    it qualifies for on the `TypeSpec` (the Facts item of [A new type](#a-new-type));
    `key_attributes` is the breadth row's `size_attr`. Then add the type to the
-   family builder tables it needs ([What is still shared](#what-is-still-shared)).
+   shared tables it needs (none: the `TypeSpec` carries all of it).
 5. Do the Names, Golden, Facts, Gate test, Price, Figures and Checks items of
    [A new type](#a-new-type).
 6. Check that every other type is byte-identical, at both sizes, with the
@@ -303,17 +307,14 @@ The output must stay byte-identical.
 1. Find every entry for the key:
    `grep -rn '<type_key>' src/synthetic_ecommerce_data/core src/synthetic_ecommerce_data/domains/industrial`.
    For a modelled type, the entries are in `LEAVES`, `DRAWING` (identity
-   pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`,
-   `Generator._BUILDERS`, the `config.type_weights` share, and for a socket
-   screw its `_SOCKET_SCREW_LINES` row. A modelled type also has entries in
-   `conformance._shared_claims` (when it claims a standard),
-   `price.KEY_ATTRIBUTES`, `noise.THREADED`, `noise.FASTENERS`,
-   `noise.UNIT_PRIMARY`, `noise.CUTTING`, `compat.RELATIONS` and
-   `compat.NEAR_MISS_PERIOD`, and a row in each table of `tests/type_facts.py`
-   (`SHARED_MAY_CLAIM`, `SHARED_TITLE_KEY`). These become
-   `claims`, `key_attributes`, `threaded`, `fastener`, `unit_primary`,
-   `cutting`, `compat`, `near_miss_period` and `may_claim` (the Facts item of
-   [A new type](#a-new-type)). For a breadth type, the entry is its row file
+   pairs), `VOCAB`, `STANDARDS_FAMILY`, `FIGURES`, `USE_LINES`, `price.KEY_ATTRIBUTES`,
+   `noise.THREADED`, `noise.FASTENERS`, `noise.UNIT_PRIMARY`, `noise.CUTTING`,
+   `compat.RELATIONS` and `compat.NEAR_MISS_PERIOD`. These become the `TypeSpec`
+   fields `category`, `figure`, `vocab`, `standards_family`, `use_lines`,
+   `key_attributes`, `threaded`, `fastener`, `unit_primary`, `cutting`, `compat` and
+   `near_miss_period`, plus `make` (the builder), `share`, `claims`, `may_claim` and
+   `title_attributes` (the Facts item of [A new type](#a-new-type)). `tests/type_facts.py`
+   keeps no per-type table: it reads the spec. For a breadth type, the entry is its row file
    `data/breadth_categories/<type_key>.yaml`.
 2. Move each entry into the module's `SPEC`, and delete it from the shared
    table. A key that is declared in both places is refused.
