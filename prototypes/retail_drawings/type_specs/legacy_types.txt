@@ -262,7 +262,6 @@ Home|Storage Boxes
 Home|Storage Jar
 Home|Table Lamp
 Home|Tea Towels
-Home|Throws
 Home|Toaster
 Home|Towel
 Home|Tower Fan
