@@ -97,7 +97,7 @@ drawn bounding box, in inches, with a little headroom.
   `hex_nut`) are declared this way.
 * The breadth types (`figures.catalog.breadth_categories` in `golden-catalog/stats.json`) are not written in `figures.py` either.
   `domains/industrial/breadth.py` `register()` adds one `FIGURES` entry per breadth row,
-  pointing at one of the six fixed shapes in `domains/industrial/drawing/breadth_shapes.py`. It
+  pointing at one of the fixed shapes in `domains/industrial/drawing/breadth_shapes.py`. It
   also fills `taxonomy.LEAVES`, `taxonomy.DRAWING`, `STANDARDS_FAMILY` and
   `VOCAB`.
   `FIGURES` is a `RegistryTable`: its first read registers every type module
@@ -255,19 +255,48 @@ How many of the committed catalog's drawings take each rung is
 measures on `images.jsonl` (#103). Every `nominal` row is a breadth SKU; no
 depth SKU falls back to nominal geometry.
 
-## Breadth types: six fixed shapes
+## Breadth types: fixed shapes
 
 The breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
-`domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of six shapes from
+`domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of seven shapes from
 `domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
-and `bracket`. Each YAML row names its shape with `shape:`. A shape function
+and `bracket`, which are drawn in code, and `c_clamp`, which is a found drawing (next section).
+Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
 they come from `paint()` and not from the figure, so the outline is fixed but
 the colors are not. Two SKUs of one breadth product therefore draw
 identically, and `tests/test_sku_drawings.py` exempts breadth from the
 "siblings must differ" and "nominal stays rare" checks.
+
+### A found drawing for a hard-to-draw shape (#102)
+
+A clamp, a hook or a bucket is cheaper to find than to draw. A found SVG is never loaded as
+downloaded. It goes through three steps, and each is pinned by `tests/test_found_svg_102.py`:
+
+1. **Normalise.** `scripts/normalise_found_svg.py SOURCE.svg OUT.svg --select=<path> --role
+   '<fill>=<role>' ...` keeps the one group `--select` names (a `/`-separated list of child
+   indices, negative from the end) and writes only `<svg>` and `<path class="part|plain">`
+   polygons, scaled to a longer side of 1000 units. Logos, text, strokes, metadata, ids and
+   styles are dropped; every transform is applied; curves are flattened; each subpath is its own
+   polygon, because `Poly` has no holes. A fill with no `--role` is an error, and so are an arc,
+   a DOCTYPE or entity, and any element in the selection that is not a `g` or a `path`: a
+   downloaded file is untrusted. `part` is the product's body and `plain` a secondary surface;
+   the material and finish paint both as they paint every other drawing.
+2. **Record the source.** The result goes in `domains/industrial/data/found_svg/<name>.svg` with a
+   row in `MANIFEST.csv` there: `source_url`, `author`, `licence`, `tier`, `share_alike`, the
+   `source_sha256` of the download, the `sha256` of the committed file, the retrieval date and
+   the normaliser command. Tier 1 is `CC0-1.0` or `PD`; tier 2 is `CC-BY-4.0` or
+   `CC-BY-SA-4.0`, and only the latter sets `share_alike` to `yes`. A file with no row, a row
+   with no file, a licence outside its tier or a hand-edited file fails the tests.
+3. **Plug in.** `domains/industrial/drawing/found_shapes.py` `load(name, longest_in)` reads the
+   file back as a `Figure`, and a shape function in `breadth_shapes.py` returns it, as `c_clamp`
+   does for the `c_clamps` category (CC0, Andrea Baratella via Openclipart, on Wikimedia
+   Commons). Like the six coded shapes it ignores the record.
+
+Only tier 1 is in use. A tier 2 file also needs an attribution line in the shipped notices, which
+no file yet requires.
 
 ## Determinism and the publish gate
 
