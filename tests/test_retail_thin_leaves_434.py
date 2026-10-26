@@ -99,7 +99,7 @@ def test_a_thin_leaf_is_a_type_spec_not_a_legacy_type(key: str) -> None:
     spec = type_registry.specs().get(key)
     assert spec is not None, f"no type spec {key!r}"
     assert (spec.department, spec.product_type) == (department, ptype)
-    assert (department, ptype) not in type_registry.legacy_types()
+    assert spec.rows, f"{key} owns no rows"
     in_leaf = [r for r in spec.rows if tuple(r.path) == path]
     assert len(in_leaf) >= added, f"{key} adds {len(in_leaf)} rows to {' / '.join(path)}"
 

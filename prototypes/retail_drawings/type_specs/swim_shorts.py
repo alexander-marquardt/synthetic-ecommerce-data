@@ -6,10 +6,11 @@ so the seeded derivation is what it was. The rows are in :mod:`swimwear_rows`.
 from __future__ import annotations
 
 import swimwear_rows
-from type_registry import ApparelPlan, TypeSpec
+from type_registry import ApparelPlan, Home, TypeSpec
 
 SPEC = TypeSpec(
     key="swim_shorts",
+    homes=(Home("decoy_product_words", False),),
     department="Clothing",
     product_type="Swim Shorts",
     owners=swimwear_rows.OWNED,

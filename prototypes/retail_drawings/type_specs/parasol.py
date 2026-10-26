@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import kit_outdoor  # noqa: F401 -- registers parasol
 from outdoor_helpers import BLACK, BLUE, GREEN, RED, WHITE, YELLOW, H, V, W, a, axis, row
-from type_registry import Option, TypeSpec
+from type_registry import Home, Option, TypeSpec
 
 _ROOT = ("Garden", "Garden Furniture")
 _PT = "Parasol"
@@ -27,6 +27,7 @@ def _attrs(kind: str, tilt: bool, base: bool) -> tuple:
 
 SPEC = TypeSpec(
     key="parasol",
+    homes=(Home("garden_rows", False),),
     department="Garden",
     product_type=_PT,
     options=(Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR"),),

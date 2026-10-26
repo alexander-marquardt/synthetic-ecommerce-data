@@ -23,7 +23,7 @@ invented word ("Pumaleigh") is not a match. To rule another brand in, move its n
 ## What the catalogue holds
 
 `prototypes/retail_drawings/nike_rows.py` (templates only: `scale.derivable` leaves them out as
-`scale.NIKE_IDS`, and `main_colors.complete` gives none a color):
+`scale.source_ids("nike_rows")`, and `main_colors.complete` gives none a color):
 
 - 14 trainers and running shoes in the existing leaves of Mens, Womens and Kids, eight of them Air
   Max, each in three or more of the six main colors.

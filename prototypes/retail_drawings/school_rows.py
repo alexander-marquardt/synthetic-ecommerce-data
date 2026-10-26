@@ -17,7 +17,7 @@ School Shirt              sleeve length, fit, easy care, pack (1, 2 or 3)
 
 A pack is what a style is sold as (a "2 Pack" is its own product with its own price), so the pack
 count is a product attribute and the drawing of a multipack stacks that many pack items. The
-styles are templates only: :func:`scale.derivable` leaves them out (``scale.SCHOOL_IDS``), so the
+styles are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("school_rows")``), so the
 seeded derivation is what it was. The types carry text-match decoys from :mod:`decoy_apparel`
 like every other clothing type, and the six main colors come from :mod:`main_colors`. Not yet
 here: polo shirts, socks (one pack style exists in ``class_rows``), blazers, PE shorts and

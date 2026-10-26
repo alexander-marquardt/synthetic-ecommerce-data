@@ -7,10 +7,11 @@ leaf; they are decoys, not spec rows. Every name here is invented.
 
 from __future__ import annotations
 
-from type_registry import Row, TypeSpec, a, cw
+from type_registry import Home, Row, TypeSpec, a, cw
 
 SPEC = TypeSpec(
     key="pickle",
+    homes=(Home("decoy_rows", False),),
     department="Food & Drink",
     product_type="Pickle",
     derivable=False,
