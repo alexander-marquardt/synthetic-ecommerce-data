@@ -161,3 +161,82 @@ def test_a_wrong_type_file_is_refused_by_name(
     _plant(tmp_path, monkeypatch, "blue_widget.yaml", text)
     with pytest.raises(typespec.TypeModuleError, match=refusal):
         typespec.discover("planted_types")
+
+
+def _pilot_as_blue_widget(**changes: object) -> str:
+    """The pilot's fields under another key, with ``changes`` applied (``None`` drops one)."""
+    data = yaml.safe_load(PILOT_FILE.read_text(encoding="utf-8"))
+    data["key"] = "blue_widget"
+    for name, value in changes.items():
+        if value is None:
+            del data[name]
+        else:
+            data[name] = value
+    return yaml.safe_dump(data, sort_keys=False)
+
+
+@pytest.mark.parametrize(
+    ("changes", "refusal"),
+    [
+        pytest.param({"kind": "no_such_kind"}, r"blue_widget\.yaml names kind", id="unknown-kind"),
+        pytest.param({"table": None}, r"blue_widget\.yaml is missing \['table'\]", id="missing"),
+        pytest.param(
+            {"label": None}, r"blue_widget\.yaml is missing \['label'\]", id="missing-common"
+        ),
+        pytest.param({"figure": "no_such_figure"}, r"blue_widget\.yaml names figure", id="figure"),
+        pytest.param(
+            {"price": {"bogus": 1}}, r"blue_widget\.yaml is not a valid.*bogus", id="price"
+        ),
+        pytest.param(
+            {"price": {"endings": "no_such_table"}},
+            r"blue_widget\.yaml is not a valid.*no_such_table",
+            id="endings",
+        ),
+        pytest.param(
+            {"vocab": [{"name": "X", "scope": "line", "bogus": 1}]},
+            r"blue_widget\.yaml is not a valid.*bogus",
+            id="vocab",
+        ),
+        pytest.param(
+            {"points": {"Cup Point": {"metric": "ISO 4029"}}},
+            r"blue_widget\.yaml is not a valid.*Cup Point",
+            id="point",
+        ),
+    ],
+)
+def test_a_type_file_that_declares_a_wrong_value_is_refused_by_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, changes: dict[str, object], refusal: str
+) -> None:
+    _plant(tmp_path, monkeypatch, "blue_widget.yaml", _pilot_as_blue_widget(**changes))
+    with pytest.raises(typespec.TypeModuleError, match=refusal):
+        typespec.discover("planted_types")
+
+
+def test_a_field_given_twice_is_refused_rather_than_the_last_one_winning(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    text = _pilot_as_blue_widget() + "share: 0.5\n"
+    _plant(tmp_path, monkeypatch, "blue_widget.yaml", text)
+    with pytest.raises(
+        typespec.TypeModuleError, match=r"blue_widget\.yaml.*'share' is given twice"
+    ):
+        typespec.discover("planted_types")
+
+
+def test_a_data_file_and_a_code_module_of_one_key_are_a_collision(tmp_path: Path) -> None:
+    (tmp_path / "blue_widget.py").write_text("")
+    (tmp_path / "blue_widget.yaml").write_text("key: blue_widget\n")
+    with pytest.raises(typespec.TypeCollisionError, match=r"'blue_widget' is declared by both"):
+        typespec._entries("pkg", [str(tmp_path)])
+
+
+def test_a_directory_is_listed_in_one_order_whether_a_type_is_a_file_or_a_module(
+    tmp_path: Path,
+) -> None:
+    for name in ("b_two.py", "a_one.yaml", "c_three.py", "notes.txt"):
+        (tmp_path / name).write_text("")
+    assert [e[:2] for e in typespec._entries("pkg", [str(tmp_path)])] == [
+        ("a_one", "pkg.a_one"),
+        ("b_two", "pkg.b_two"),
+        ("c_three", "pkg.c_three"),
+    ]
