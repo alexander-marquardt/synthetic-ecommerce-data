@@ -71,7 +71,7 @@ ROWS = (
         "Light, loose woven curtains that hang from fabric tabs on a pole. Unlined, one panel.",
         "Tab Top",
         "Unlined",
-        "Linen-Look",
+        "Linen Look",
         "Single Panel",
         (*MAIN, CREAM),
     ),
