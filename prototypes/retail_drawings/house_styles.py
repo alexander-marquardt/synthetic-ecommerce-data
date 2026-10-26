@@ -25,25 +25,24 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import astuple, dataclass, fields
-from html import escape
+
+from synthetic_ecommerce_data.core.drawing import brand_type
 
 SIZE = 400
 DEFAULT_INK = "#2b3440"
 MARK_ONLY_SIZE = 60  # px across: 15% of the sheet's width, the cap
 LOCKUP_MARK_SIZE = 56
-NAME_SIZE = 21.0
-NAME_MIN = 15.0
-NAME_MAX_WIDTH = 250.0
+#: The sheet is 400 units; the Studio tile shows it 180 px tall, so a unit is 0.45 px.
+TILE_PX_PER_UNIT = 180 / SIZE
+NAME_MAX = 40.0  # the largest a wordmark is set; its least is brand_type.min_size
+#: The product drawings span y 28..362 of the sheet.
+PRODUCT_TOP, PRODUCT_SPAN = 28.0, 334.0
+#: The margin the product keeps from an edge no logo text reaches into.
+FREE_EDGE = 14.0
 EDGE = 16  # gap between the sheet's edge and a logo
+#: The room a one- or two-line name has beside a mark, between the sheet's margins.
+ROOM = SIZE - 2 * (EDGE + 4)
 
-FONTS = {
-    "sans": "Helvetica, Arial, sans-serif",
-    "serif": "Georgia, 'Times New Roman', serif",
-    "mono": "'Courier New', Courier, monospace",
-    "humanist": "'Trebuchet MS', Verdana, sans-serif",
-}
-#: Average glyph advance per font size, for laying out text without a font engine.
-ADVANCE = {"sans": 0.56, "serif": 0.55, "mono": 0.6, "humanist": 0.54}
 TEXTURES = ("none", "dots", "lines", "grid", "diagonal", "hatch")
 FRAMES = ("none", "thin", "double", "rounded", "heavy", "ticks")
 LAYOUTS = (
@@ -98,7 +97,7 @@ class HouseStyle:
             ("layout", LAYOUTS),
             ("place", PLACES),
             ("tag", TAGS),
-            ("font", tuple(FONTS)),
+            ("font", tuple(brand_type.FAMILIES)),
             ("weight", (400, 700)),
             ("case", CASES),
         )
@@ -868,52 +867,6 @@ def mark_svg(name: str, cx: float, cy: float, size: float, color: str) -> str:
 # --------------------------------------------------------------------------
 
 
-def _cased(style: HouseStyle, text: str) -> str:
-    return {"caps": text.upper(), "lower": text.lower()}.get(style.case, text)
-
-
-def text_width(style: HouseStyle, text: str, size: float) -> float:
-    """An estimate of ``text``'s width in ``style``'s wordmark treatment."""
-    f = ADVANCE[style.font] * {"caps": 1.22, "smallcaps": 1.1}.get(style.case, 1.0)
-    f *= 1.07 if style.weight == 700 else 1.0
-    return len(text) * (size * f + style.spacing)
-
-
-def name_size(style: HouseStyle, text: str, max_width: float = NAME_MAX_WIDTH) -> float:
-    """The largest wordmark size up to :data:`NAME_SIZE` that fits ``max_width``."""
-    size = NAME_SIZE
-    while size > NAME_MIN and text_width(style, text, size) > max_width:
-        size -= 0.5
-    return size
-
-
-def wordmark(
-    style: HouseStyle,
-    text: str,
-    x: float,
-    y: float,
-    size: float,
-    color: str,
-    anchor: str = "start",
-) -> str:
-    """``text`` set in ``style``'s treatment; (x, y) is the baseline anchor."""
-    attrs = [
-        f'x="{x:.1f}" y="{y:.1f}"',
-        f'font-family="{FONTS[style.font]}"',
-        f'font-size="{size:g}"',
-        f'font-weight="{style.weight}"',
-        f'fill="{color}"',
-        f'text-anchor="{anchor}"',
-    ]
-    if style.spacing:
-        attrs.append(f'letter-spacing="{style.spacing:g}"')
-    if style.case == "smallcaps":
-        attrs.append('font-variant="small-caps"')
-    if style.italic:
-        attrs.append('font-style="italic"')
-    return f"<text {' '.join(attrs)}>{escape(_cased(style, text))}</text>"
-
-
 # --------------------------------------------------------------------------
 # Sheet: paper, texture, frame
 # --------------------------------------------------------------------------
@@ -996,58 +949,89 @@ def _x_for(place: str, width: float) -> float:
     return (SIZE - width) / 2
 
 
-#: Layout -> the lockup's height in px (the mark plus, for mark_above, a line of type).
-LOCKUP_HEIGHT = {
-    "band_top": 64,
-    "band_bottom": 64,
-    "mark_left": LOCKUP_MARK_SIZE,
-    "mark_right": LOCKUP_MARK_SIZE,
-    "mark_above": LOCKUP_MARK_SIZE + 4 + NAME_SIZE,
-    "pill": 50,
-    "badge": 58,
-}
+#: Air between a logo and the product drawn clear of it.
+AIR = 6.0
+#: The most a mark and a tag can share one side of a corner-mark sheet: the tag sits in
+#: the opposite corner, so its box must clear the mark's corner and a gap.
+TAG_PAD = 12
 
 
-def _lockup(style: HouseStyle, brand: str) -> list[str]:
+@dataclass(frozen=True)
+class Logo:
+    """A brand's logo: its SVG parts and how far it reaches into the sheet."""
+
+    parts: list[str]
+    top: float = 0.0  # down from the sheet's top edge to the lowest part of a top logo
+    bottom: float = 0.0  # up from the sheet's bottom edge to the highest part of a bottom logo
+
+
+def _cap(style: HouseStyle) -> float:
+    """The full capital's height per unit of font size: what a line is centred by."""
+    return brand_type.FAMILIES[style.font].cap_height
+
+
+def _block(style: HouseStyle, brand: str, room: float) -> brand_type.Block:
+    """``brand`` set in ``room`` units: the core's fit, in this style's type."""
+    return brand_type.set_lines(style, brand, room, NAME_MAX, TILE_PX_PER_UNIT)
+
+
+def _lines(
+    style: HouseStyle,
+    block: brand_type.Block,
+    x: float,
+    centre: float,
+    color: str,
+    anchor: str = "start",
+) -> list[str]:
+    """The block's lines, the capitals of the whole block centred on ``centre``."""
+    baselines = block.baselines(centre, _cap(style))
+    return [brand_type.text(style, t, x, b, block.size, color, anchor) for t, b in zip(block.lines, baselines, strict=True)]
+
+
+def _lockup(style: HouseStyle, brand: str) -> Logo:
     c, m, lay = style.color, LOCKUP_MARK_SIZE, style.layout
-    top = style.top_logo
-    h = LOCKUP_HEIGHT[lay]
+    top, cap = style.top_logo, _cap(style)
     if lay in ("band_top", "band_bottom"):
+        block = _block(style, brand, SIZE - 2 * EDGE - m - 12)
+        h = max(64, math.ceil(block.height(cap) + 2 * 14))
         y0 = 0 if lay == "band_top" else SIZE - h
-        size = name_size(style, brand, 270)
-        w = m + 12 + text_width(style, brand, size)
-        x0 = (SIZE - w) / 2
-        return [
+        x0 = (SIZE - (m + 12 + block.width)) / 2
+        parts = [
             f'<rect x="0" y="{y0}" width="{SIZE}" height="{h}" fill="{c}"/>',
             mark_svg(style.mark, x0 + m / 2, y0 + h / 2, m - 6, "#ffffff"),
-            wordmark(style, brand, x0 + m + 12, y0 + h / 2 + size * 0.36, size, "#ffffff"),
+            *_lines(style, block, x0 + m + 12, y0 + h / 2, "#ffffff"),
         ]
+        return Logo(parts, top=h if lay == "band_top" else 0, bottom=0 if lay == "band_top" else h)
     if lay in ("mark_left", "mark_right"):
-        size = name_size(style, brand)
-        tw = text_width(style, brand, size)
-        w = m + 10 + tw
+        block = _block(style, brand, ROOM - m - 10)
+        h = max(m, math.ceil(block.height(cap)))
+        w = m + 10 + block.width
         x0 = _x_for(style.place, w)
-        cy = EDGE + m / 2 if top else SIZE - EDGE - m / 2
-        mx, tx = (x0 + m / 2, x0 + m + 10) if lay == "mark_left" else (x0 + tw + 10 + m / 2, x0)
-        return [
-            mark_svg(style.mark, mx, cy, m, c),
-            wordmark(style, brand, tx, cy + size * 0.36, size, style.ink),
-        ]
+        cy = EDGE + h / 2 if top else SIZE - EDGE - h / 2
+        mx, tx = (x0 + m / 2, x0 + m + 10) if lay == "mark_left" else (x0 + block.width + 10 + m / 2, x0)
+        parts = [mark_svg(style.mark, mx, cy, m, c), *_lines(style, block, tx, cy, style.ink)]
+        return Logo(parts, top=EDGE + h if top else 0, bottom=0 if top else EDGE + h)
     if lay == "mark_above":
-        size = name_size(style, brand)
-        tw = text_width(style, brand, size)
-        w = max(m, tw)
+        block = _block(style, brand, ROOM)
+        h = m + 4 + math.ceil(block.height(cap))
+        w = max(m, block.width)
         cx = _x_for(style.place, w) + w / 2
         y0 = EDGE if top else SIZE - EDGE - h
-        return [
+        base = y0 + m + 4 + cap * block.size
+        parts = [
             mark_svg(style.mark, cx, y0 + m / 2, m, c),
-            wordmark(style, brand, cx, y0 + m + 4 + size * 0.8, size, style.ink, "middle"),
+            *(
+                brand_type.text(style, t, cx, base + i * block.gap, block.size, style.ink, "middle")
+                for i, t in enumerate(block.lines)
+            ),
         ]
+        return Logo(parts, top=EDGE + h if top else 0, bottom=0 if top else EDGE + h)
     # pill (filled, white type) or badge (outlined, brand-color type)
-    size = name_size(style, brand, 230)
-    tw = text_width(style, brand, size)
-    mk = h - 14
-    w = 12 + mk + 10 + tw + 16
+    h0 = 50 if lay == "pill" else 58
+    mk = h0 - 14
+    block = _block(style, brand, ROOM - (12 + mk + 10 + 16))
+    h = max(h0, math.ceil(block.height(cap) + 2 * 10))
+    w = 12 + mk + 10 + block.width + 16
     x0 = _x_for(style.place, w)
     y0 = EDGE if top else SIZE - EDGE - h
     filled = lay == "pill"
@@ -1057,58 +1041,78 @@ def _lockup(style: HouseStyle, brand: str) -> list[str]:
         else f'<rect x="{x0:.1f}" y="{y0}" width="{w:.1f}" height="{h}" rx="6" fill="#ffffff" stroke="{c}" stroke-width="2"/>'
     )
     ink = "#ffffff" if filled else c
-    return [
+    parts = [
         box,
         mark_svg(style.mark, x0 + 12 + mk / 2, y0 + h / 2, mk, ink),
-        wordmark(style, brand, x0 + 12 + mk + 10, y0 + h / 2 + size * 0.36, size, ink),
+        *_lines(style, block, x0 + 12 + mk + 10, y0 + h / 2, ink),
     ]
+    return Logo(parts, top=EDGE + h if top else 0, bottom=0 if top else EDGE + h)
 
 
-TAG_SIZE = 16.0
-
-
-def _tag(style: HouseStyle, brand: str, place: str) -> list[str]:
-    """The small text tag a mark-only brand carries at ``place``."""
-    c, t, s = style.color, style.tag, TAG_SIZE
-    tw = text_width(style, brand, s)
-    pad = 9
-    w, h = tw + 2 * pad, 28
+def _tag(style: HouseStyle, brand: str, place: str) -> Logo:
+    """The text tag a mark-only brand carries at ``place``, with its reach."""
+    c, t, pad, cap = style.color, style.tag, TAG_PAD, _cap(style)
     top = place.startswith("top")
+    # The mark sits in a corner of the same side, the tag in the other corner: the
+    # tag's box must stop short of the mark's.
+    shares = style.top_logo == top
+    room = SIZE - 2 * (EDGE + 4) - 2 * pad - 8
+    lift = 0.0
+    try:
+        block = _block(style, brand, room - (MARK_ONLY_SIZE + 8 if shares else 0))
+    except ValueError:
+        if not shares or style.tag == "tab":
+            raise
+        # a long name: the tag takes the full width, raised clear of the corner mark
+        block, lift = _block(style, brand, room), MARK_ONLY_SIZE + 6
+    tw = block.width
+    w = tw + 2 * pad
+    h = math.ceil(cap * block.size + (len(block.lines) - 1) * block.gap + 0.7 * block.size)
     x0 = _x_for(place, w)
-    y0 = EDGE if top else SIZE - EDGE - h
-    base = y0 + h / 2 + s * 0.36
+    y0 = EDGE + lift if top else SIZE - EDGE - h - lift
+    mid = y0 + h / 2
+    reach = (EDGE + lift + h, 0.0) if top else (0.0, EDGE + lift + h)
     if t == "tab":  # a woven label hanging from the top edge
-        return [
-            f'<rect x="{x0:.1f}" y="0" width="{w:.1f}" height="{h + 12}" fill="{c}"/>',
-            wordmark(style, brand, x0 + pad, h / 2 + 12 + s * 0.36, s, "#ffffff"),
+        tab = h + 12
+        parts = [
+            f'<rect x="{x0:.1f}" y="0" width="{w:.1f}" height="{tab}" fill="{c}"/>',
+            *_lines(style, block, x0 + pad, 12 + h / 2, "#ffffff"),
         ]
+        return Logo(parts, top=tab)
     if t == "rect":
-        return [
+        parts = [
             f'<rect x="{x0:.1f}" y="{y0}" width="{w:.1f}" height="{h}" fill="{c}"/>',
-            wordmark(style, brand, x0 + pad, base, s, "#ffffff"),
+            *_lines(style, block, x0 + pad, mid, "#ffffff"),
         ]
-    if t == "flag":
+    elif t == "flag":
         n = 8
         d = f"M{x0:.1f},{y0} L{x0 + w + n:.1f},{y0} L{x0 + w:.1f},{y0 + h / 2:g} L{x0 + w + n:.1f},{y0 + h} L{x0:.1f},{y0 + h} Z"
-        return [f'<path d="{d}" fill="{c}"/>', wordmark(style, brand, x0 + pad, base, s, "#ffffff")]
-    if t == "outline":
-        return [
+        parts = [f'<path d="{d}" fill="{c}"/>', *_lines(style, block, x0 + pad, mid, "#ffffff")]
+    elif t == "outline":
+        parts = [
             f'<rect x="{x0:.1f}" y="{y0}" width="{w:.1f}" height="{h}" rx="{h / 2:g}" fill="#ffffff" stroke="{c}" stroke-width="1.4"/>',
-            wordmark(style, brand, x0 + pad, base, s, c),
+            *_lines(style, block, x0 + pad, mid, c),
         ]
-    if t == "stamp":
-        return [
-            f'<g transform="rotate(-4 {x0 + w / 2:.1f} {y0 + h / 2:g})">'
+    elif t == "stamp":
+        lift = w / 2 * math.sin(math.radians(4))  # the -4 degree turn swings the ends
+        reach = (reach[0] + lift, reach[1] + lift)
+        parts = [
+            f'<g transform="rotate(-4 {x0 + w / 2:.1f} {mid:g})">'
             f'<rect x="{x0:.1f}" y="{y0}" width="{w:.1f}" height="{h}" fill="none" stroke="{c}" stroke-width="1.6"/>'
             f'<rect x="{x0 + 3:.1f}" y="{y0 + 3}" width="{w - 6:.1f}" height="{h - 6}" fill="none" stroke="{c}" stroke-width=".7"/>'
-            f"{wordmark(style, brand, x0 + pad, base, s, c)}</g>"
+            f"{''.join(_lines(style, block, x0 + pad, mid, c))}</g>"
         ]
-    if t == "underline":
-        return [
-            wordmark(style, brand, x0 + pad, base - 2, s, c),
-            f'<rect x="{x0 + pad:.1f}" y="{base + 3:.1f}" width="{tw:.1f}" height="1.6" fill="{c}"/>',
+    elif t == "underline":
+        last = block.baselines(mid, cap)[-1]
+        last_w = brand_type.width(style, block.lines[-1], block.size)
+        rule = last + brand_type.DESCENDER * block.size + 1.5
+        parts = [
+            *_lines(style, block, x0 + pad, mid, c),
+            f'<rect x="{x0 + pad:.1f}" y="{rule:.1f}" width="{last_w:.1f}" height="1.6" fill="{c}"/>',
         ]
-    return [wordmark(style, brand, x0 + pad, base, s + 1, c)]  # plain
+    else:  # plain
+        parts = _lines(style, block, x0 + pad, mid, c)
+    return Logo(parts, top=reach[0], bottom=reach[1])
 
 
 def _opposite(corner: str) -> str:
@@ -1128,19 +1132,30 @@ def tag_place(style: HouseStyle) -> str:
     return f"bottom_{'right' if h == 'left' else 'left'}"
 
 
-def logo(style: HouseStyle, brand: str) -> list[str]:
+def _logo(style: HouseStyle, brand: str) -> Logo:
     if style.mark == NO_MARK:  # a real brand: text only, never a logo, wordmark or trade dress
-        return []
+        return Logo([])
     if style.layout != "mark_only":
         return _lockup(style, brand)
     v, h = style.place.split("_")
     r = MARK_ONLY_SIZE / 2
     cx = EDGE + r if h == "left" else SIZE - EDGE - r
     cy = EDGE + r if v == "top" else SIZE - EDGE - r
-    return [
-        mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.color),
-        *_tag(style, brand, tag_place(style)),
-    ]
+    tag = _tag(style, brand, tag_place(style))
+    return Logo([mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.color), *tag.parts], tag.top, tag.bottom)
+
+
+def logo(style: HouseStyle, brand: str) -> list[str]:
+    return _logo(style, brand).parts
+
+
+def reach(style: HouseStyle, brand: str) -> tuple[float, float]:
+    """How far the logo's text reaches down from the sheet's top and up from its bottom.
+
+    A corner mark is not counted: it sits in a corner, which the product leaves free.
+    """
+    lg = _logo(style, brand)
+    return lg.top, lg.bottom
 
 
 # --------------------------------------------------------------------------
@@ -1182,21 +1197,22 @@ def restyle(fragment: str, style: HouseStyle) -> str:
     )
 
 
-def product_transform(style: HouseStyle) -> str:
-    """Shrink the product a little and move it clear of a lockup.
+def product_transform(style: HouseStyle, brand: str) -> str:
+    """Shrink the product a little and move it clear of the logo's text.
 
-    Products span about y 28..362 of the sheet; at scale 0.78 that is 66..326
-    before the shift, so the shift is what the lockup's reach (edge gap plus
-    height plus 6 px of air) needs beyond that.
+    Products span y 28..362 of the sheet (334 tall). The scale is the style's
+    (0.86 for a corner mark, 0.78 for a lockup) or less, if the logo's reach top
+    and bottom leaves less room; the product then sits as near the middle as
+    that reach and :data:`AIR` allow.
     """
-    if style.layout == "mark_only":
-        s, dy = 0.86, 0.0
-    else:
-        s = 0.78
-        reach = (0 if style.layout.startswith("band_") else EDGE) + LOCKUP_HEIGHT[style.layout] + 6
-        dy = max(10.0, reach - 66.0) if style.top_logo else min(-10.0, (SIZE - 326.0) - reach)
+    top, bottom = reach(style, brand)
+    s0 = 0.86 if style.layout == "mark_only" else 0.78
+    lo = top + AIR if top else FREE_EDGE
+    hi = SIZE - (bottom + AIR if bottom else FREE_EDGE)
+    s = min(s0, (hi - lo) / PRODUCT_SPAN)
     t = SIZE / 2 * (1 - s)
-    return f"translate({t:g} {t + dy:g}) scale({s:g})"
+    y0 = min(max(t + PRODUCT_TOP * s, lo), hi - PRODUCT_SPAN * s)
+    return f"translate({t:g} {y0 - PRODUCT_TOP * s:.1f}) scale({s:.3f})"
 
 
 def dress(style: HouseStyle, brand: str, uid: str) -> tuple[list[str], list[str], list[str]]:
