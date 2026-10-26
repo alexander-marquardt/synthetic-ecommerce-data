@@ -1,0 +1,83 @@
+# Hex socket set screws: one declarative type file (#72), read by the generic
+# `pointed_screw` builder in domains/industrial/typefile.py. Adding a sibling
+# (a stainless one, a square-head one) is one more file like this, no code.
+key: set_screws_hex_socket
+kind: pointed_screw
+label: Hex Socket Set Screw
+category: [Fasteners, Set Screws, Hex Socket Set Screws]
+standards_family: fastener
+share: 0.10
+# The geometry the figure is drawn by (drawing/headless.py) and the sheet it is drawn on.
+figure: headless_screw
+extent: [2.5, 3.2]
+key_attributes: [Dia./Thread Size]
+threaded: Dia./Thread Size
+fastener: true
+# The relation a drive-size filter reaches this type through, and the fine-thread turn (#75).
+compat: [drive, Drive Size]
+near_miss_period: 3
+use_lines:
+  - Driven with a hex key.
+  - Holds a collar, pulley or gear on its shaft from inside a tapped hole.
+
+# What the builder reads, by name, from the standards library.
+item: Hex Socket Set Screw
+item_type: Set Screw
+drive_type: Hex Socket
+table: set_screw_standards
+inch_table: ASME B18.3 set screws
+inch_length_source: FreeCAD_FastenersWB's inch set screw ranges, as ASME B18.3 fixes none
+
+# A point type, the standard each system builds it to, and whether the point
+# publishes a diameter (flat: the cup/flat point's; dog: the dog point's).
+points:
+  Cup Point: {metric: ISO 4029, inch: ASME B18.3.5D, diameter: none}
+  Flat Point: {metric: ISO 4026, inch: ASME B18.3.5A, diameter: flat}
+  Cone Point: {metric: ISO 4027, inch: ASME B18.3.5B, diameter: none}
+  Dog Point: {metric: ISO 4028, inch: ASME B18.3.5C, diameter: dog}
+metric_sizes: [M1.6, M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20, M24]
+inch_sizes: ["#0", "#1", "#2", "#3", "#4", "#5", "#6", "#8", "#10", 1/4, 5/16, 3/8, 7/16, 1/2, 5/8, 3/4, 7/8, "1"]
+
+materials:
+  Alloy Steel:
+    finishes: [Black Oxide, Zinc Plated]
+    hardness: Rockwell C45-C53
+  18-8 Stainless Steel:
+    finishes: [Plain]
+  316 Stainless Steel:
+    finishes: [Plain]
+
+# The standards a published line may claim: the point's own, then the material's.
+claims:
+  stainless_marker: Stainless
+  metric: {plain: ISO 898-5, stainless: ISO 3506-3}
+  inch: {standard: ASME B18.3, plain: ASTM F912, stainless: ASTM F880}
+
+# The price basis of a SKU: base + per_length * length (in) + per_major * thread major (in).
+price_basis: {base: 0.15, per_length: 0.15, per_major: 0.6}
+
+vocab:
+  - {name: Point Type, scope: line}
+  - {name: Drive Type, scope: line}
+  - {name: Material, scope: line}
+  - {name: Finish, scope: line, presence: 0.82}
+  - {name: Thread Direction, scope: line, presence: 0.64}
+  - {name: Thread Type, scope: line, presence: 0.70}
+  - {name: Hardness, scope: line, presence: 0.48}
+  - {name: Standards, scope: line, presence: 0.40}
+  - {name: Dia./Thread Size, scope: sku}
+  - {name: Length, scope: sku, kind: length}
+  - {name: Drive Size, scope: sku, kind: length}
+  - {name: Point Dia., scope: sku, presence: 0.6, kind: length}
+
+price:
+  # @fit-begin set_screws_hex_socket
+  anchor: 17.69
+  anchor_key: 0.25
+  slope: 0.193
+  length_slope: 0.216
+  group_sigma: 0.083
+  sku_sigma: 0.037
+  size_sigma: 0.181
+  # @fit-end
+  endings: set_screws_hex_socket

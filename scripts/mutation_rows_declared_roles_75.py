@@ -68,8 +68,8 @@ def rows() -> list[Row]:
             "A",
         ),
         Row(
-            "the set screw reads another type's near-miss period",
-            f"{INDUSTRIAL}/product_types/fasteners/set_screws_hex_socket.py",
+            "a data-file type reads another type's near-miss period",
+            f"{INDUSTRIAL}/typefile.py",
             "period = compat.NEAR_MISS_PERIOD[type_key]",
             "period = compat.NEAR_MISS_PERIOD['bolt_hex']",
             f"{T} -k reads_its_declared_period_for_the_fine_pitch",
