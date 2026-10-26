@@ -78,7 +78,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "type seam: _type_kinds omits the type modules' modelled types",
         "domains/industrial/generate.py",
-        '        *((key, "modelled") for key in typespec.modelled()),\n',
+        '        *((key, "new" if spec.newer else "modelled") for key, spec in typespec.modelled().items()),\n',
         "",
         "tests/test_type_seam.py::test_every_type_is_built_once",
         "",
@@ -87,7 +87,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "type seam: a type module's share is not the fallback weight",
         "domains/industrial/generate.py",
-        "            weight = cfg.type_weights.get(key, own.share if own else None)",
+        "            weight = cfg.type_weights.get(key, typespec.modelled()[key].share)",
         "            weight = cfg.type_weights.get(key)",
         "tests/test_type_seam.py::test_a_type_modules_share_sizes_its_type[screw_socket_head]",
         "",
