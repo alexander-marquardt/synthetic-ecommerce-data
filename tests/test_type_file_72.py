@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -25,6 +27,8 @@ import yaml
 
 import type_gates
 from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core.drawing.model import Lines
+from synthetic_ecommerce_data.domains.industrial.drawing.headless import headless_screw
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
@@ -128,6 +132,15 @@ def test_a_sibling_type_added_as_one_data_file_builds_with_every_type_gate_green
     assert got["provenance_checked"] > 20
 
 
+def _refusal_of(call: Callable[[], object]) -> str:
+    """What ``call`` raised as ``Type: message``, or ``"no refusal"``, for an assert to check."""
+    try:
+        call()
+    except Exception as exc:  # noqa: BLE001 - the test asserts on the type and the text
+        return f"{type(exc).__name__}: {exc}"
+    return "no refusal"
+
+
 def _plant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str, text: str) -> None:
     """A throwaway type package ``planted_types`` with one family and one type file."""
     family = tmp_path / "planted_types" / "widgets"
@@ -159,8 +172,9 @@ def test_a_wrong_type_file_is_refused_by_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, text: str, refusal: str
 ) -> None:
     _plant(tmp_path, monkeypatch, "blue_widget.yaml", text)
-    with pytest.raises(typespec.TypeModuleError, match=refusal):
-        typespec.discover("planted_types")
+    got = _refusal_of(lambda: typespec.discover("planted_types"))
+    assert re.match(r"TypeModuleError: ", got), got
+    assert re.search(refusal, got), got
 
 
 def _pilot_as_blue_widget(**changes: object) -> str:
@@ -185,16 +199,19 @@ def _pilot_as_blue_widget(**changes: object) -> str:
         ),
         pytest.param({"figure": "no_such_figure"}, r"blue_widget\.yaml names figure", id="figure"),
         pytest.param(
-            {"price": {"bogus": 1}}, r"blue_widget\.yaml is not a valid.*bogus", id="price"
+            {"price": {"bogus": 1}},
+            r"blue_widget\.yaml is not a valid.*price: unknown field .bogus.",
+            id="price",
         ),
         pytest.param(
             {"price": {"endings": "no_such_table"}},
-            r"blue_widget\.yaml is not a valid.*no_such_table",
+            r"blue_widget\.yaml is not a valid.*endings .no_such_table. is not a table of "
+            r"price\.ENDINGS",
             id="endings",
         ),
         pytest.param(
             {"vocab": [{"name": "X", "scope": "line", "bogus": 1}]},
-            r"blue_widget\.yaml is not a valid.*bogus",
+            r"blue_widget\.yaml is not a valid.*vocab .X.: unknown field .bogus.",
             id="vocab",
         ),
         pytest.param(
@@ -208,8 +225,9 @@ def test_a_type_file_that_declares_a_wrong_value_is_refused_by_name(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, changes: dict[str, object], refusal: str
 ) -> None:
     _plant(tmp_path, monkeypatch, "blue_widget.yaml", _pilot_as_blue_widget(**changes))
-    with pytest.raises(typespec.TypeModuleError, match=refusal):
-        typespec.discover("planted_types")
+    got = _refusal_of(lambda: typespec.discover("planted_types"))
+    assert re.match(r"TypeModuleError: ", got), got
+    assert re.search(refusal, got), got
 
 
 def test_a_field_given_twice_is_refused_rather_than_the_last_one_winning(
@@ -217,17 +235,16 @@ def test_a_field_given_twice_is_refused_rather_than_the_last_one_winning(
 ) -> None:
     text = _pilot_as_blue_widget() + "share: 0.5\n"
     _plant(tmp_path, monkeypatch, "blue_widget.yaml", text)
-    with pytest.raises(
-        typespec.TypeModuleError, match=r"blue_widget\.yaml.*'share' is given twice"
-    ):
-        typespec.discover("planted_types")
+    got = _refusal_of(lambda: typespec.discover("planted_types"))
+    assert re.match(r"TypeModuleError: ", got), got
+    assert re.search(r"blue_widget\.yaml.*'share' is given twice", got), got
 
 
 def test_a_data_file_and_a_code_module_of_one_key_are_a_collision(tmp_path: Path) -> None:
     (tmp_path / "blue_widget.py").write_text("")
     (tmp_path / "blue_widget.yaml").write_text("key: blue_widget\n")
-    with pytest.raises(typespec.TypeCollisionError, match=r"'blue_widget' is declared by both"):
-        typespec._entries("pkg", [str(tmp_path)])
+    got = _refusal_of(lambda: typespec._entries("pkg", [str(tmp_path)]))
+    assert re.match(r"TypeCollisionError: .*'blue_widget' is declared by both", got), got
 
 
 def test_a_directory_is_listed_in_one_order_whether_a_type_is_a_file_or_a_module(
@@ -235,8 +252,33 @@ def test_a_directory_is_listed_in_one_order_whether_a_type_is_a_file_or_a_module
 ) -> None:
     for name in ("b_two.py", "a_one.yaml", "c_three.py", "notes.txt"):
         (tmp_path / name).write_text("")
-    assert [e[:2] for e in typespec._entries("pkg", [str(tmp_path)])] == [
+    listed: object
+    try:
+        listed = [e[:2] for e in typespec._entries("pkg", [str(tmp_path)])]
+    except typespec.TypeCollisionError as exc:
+        listed = f"collision: {exc}"
+    assert listed == [
         ("a_one", "pkg.a_one"),
         ("b_two", "pkg.b_two"),
         ("c_three", "pkg.c_three"),
     ]
+
+
+def _screw(length: str, extent: tuple[float, float]):
+    record = {
+        "Dia./Thread Size": '1/4"-20',
+        "Length": length,
+        "Drive Size": '1/8"',
+        "Point Type": "Flat Point",
+    }
+    return headless_screw(record, extent).figure
+
+
+def test_a_screw_longer_than_the_sheet_is_drawn_compressed_on_a_curve() -> None:
+    """6 in on a 3.2 in sheet: past the knee at 0.8 of the sheet, the rest is squeezed."""
+    assert _screw('6"', (2.5, 3.2)).size_in == pytest.approx(2.8751, abs=1e-3)
+
+
+def test_the_thread_of_a_very_long_screw_is_capped_at_400_crests() -> None:
+    lines = [s for s in _screw('30"', (2.5, 100.0)).shapes if isinstance(s, Lines)]
+    assert [len(s.segments) for s in lines] == [400]
