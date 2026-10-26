@@ -1057,8 +1057,17 @@ The planted cases are:
   and shower gel. Each carries `scent` as its own attribute (never a flavor) beside its
   product type, on the leaf the hand-written rows use, so a policy routes on the pair. These
   "depth" families are drawn from their own stream, so no core style moves
-  (`tests/test_grocery_scent_depth_154.py`). The hand-written breadth rows still key their
-  scent as `fragrance`, not `scent`;
+  (`tests/test_grocery_scent_depth_154.py`). The hand-written cleaning, candle and decoy rows
+  key their scent as `scent` too (gen#273, `tests/test_scent_one_key_273.py`; it was
+  `fragrance`), so one policy on (scent, product type) reaches all of them. A perfume's
+  `fragrance_family` (floral, citrus) is another concept and keeps its key;
+- the collision words (gen#273): lemon, orange, lime, mint, vanilla, honey, coconut, almond and
+  cherry are each a food (a title, `flavor` or `variety` in Food & Drink) and a scent (the
+  `scent` attribute outside it). `collision_words.count` measures the styles of each sense, the
+  figures are `collision_words` in `golden-retail/stats.json`, and each side holds
+  `collision_words.TARGET` (24) styles (`tests/test_collision_word_depth_273.py`). Mint, lime,
+  vanilla and cherry blossom are scents of the cleaner and body-care depth families, and the
+  Limes depth family is wider;
 - milk as dairy milk, milk chocolate and a body milk;
 - the failure class "oranges" (`tests/test_grocery_beer_oranges_161.py`): the leaf
   `Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges` holds oranges,

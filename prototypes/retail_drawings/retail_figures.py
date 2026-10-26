@@ -31,6 +31,7 @@ if str(HERE) not in sys.path:
 import accessory_rows  # noqa: E402
 import appliance_rows  # noqa: E402
 import breadth_rows  # noqa: E402
+import collision_words  # noqa: E402
 import colorgroup_rows  # noqa: E402
 import decoy_apparel  # noqa: E402
 import decoy_product_words  # noqa: E402
@@ -169,6 +170,8 @@ def measure() -> dict[str, Any]:
                 for root in sorted({r["category_path"][0] for r in ceiling.records})
             },
         },
+        # Styles per sense of each collision word, over the templates (gen#273).
+        "collision_words": collision_words.count(templates),
         "departments": dict(sorted(departments.items())),
         "grocery_families": {code: _count(recs) for code, recs in sorted(families.items())},
         "grocery_values": {

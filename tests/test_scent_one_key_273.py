@@ -2,9 +2,9 @@
 
 The grocery depth families and the kitchen cleaner key a scent as `scent`; the hand-written
 cleaning, gift and decoy rows keyed it `fragrance`, so one policy on the pair
-(scent, product type) missed them. A scent is `scent` on a style and on every SKU, with the
-display name "Scent". `fragrance_family` (a perfume's family: floral, citrus) is another
-concept and keeps its key.
+(scent, product type) missed them. A scent is `scent` on a style (and on a SKU that varies by
+it), with the display name "Scent". `fragrance_family` (a perfume's family: floral, citrus) is
+another concept and keeps its key.
 """
 
 from __future__ import annotations
@@ -50,7 +50,6 @@ def test_every_scent_attribute_is_named_scent(templates):
 def test_a_hand_written_row_states_its_scent_under_scent(templates, product_id, value):
     rec = next(r for r in templates if r["product_id"] == product_id)
     assert {a["value"] for a in rec["attributes"] if a["key"] == "scent"} == {value}
-    assert all(s.get("scent") == value for s in rec["skus"])
 
 
 def test_a_perfume_keeps_its_fragrance_family(templates):

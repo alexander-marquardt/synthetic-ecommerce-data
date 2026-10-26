@@ -2,32 +2,32 @@
  "ceiling": {
   "derived_styles": 4534,
   "food_and_drink": {
-   "skus": 11646,
-   "styles": 4248
+   "skus": 11709,
+   "styles": 4269
   },
   "grocery": {
-   "skus": 12409,
-   "styles": 4516
+   "skus": 12756,
+   "styles": 4679
   },
-  "images": 17772,
+  "images": 17935,
   "non_grocery": {
    "skus": 91901,
    "styles": 5592
   },
-  "skus": 129929,
-  "styles": 12568,
+  "skus": 130276,
+  "styles": 12731,
   "top_levels": {
    "Beauty": {
-    "skus": 894,
-    "styles": 484
+    "skus": 1178,
+    "styles": 626
    },
    "Cleaning": {
     "skus": 769,
     "styles": 491
    },
    "Food & Drink": {
-    "skus": 11646,
-    "styles": 4248
+    "skus": 11709,
+    "styles": 4269
    },
    "Garden": {
     "skus": 260,
@@ -61,6 +61,44 @@
     "skus": 82832,
     "styles": 2734
    }
+  }
+ },
+ "collision_words": {
+  "almond": {
+   "food": 59,
+   "scent": 51
+  },
+  "cherry": {
+   "food": 30,
+   "scent": 68
+  },
+  "coconut": {
+   "food": 246,
+   "scent": 32
+  },
+  "honey": {
+   "food": 176,
+   "scent": 32
+  },
+  "lemon": {
+   "food": 313,
+   "scent": 73
+  },
+  "lime": {
+   "food": 41,
+   "scent": 54
+  },
+  "mint": {
+   "food": 147,
+   "scent": 72
+  },
+  "orange": {
+   "food": 255,
+   "scent": 31
+  },
+  "vanilla": {
+   "food": 60,
+   "scent": 58
   }
  },
  "departments": {
@@ -265,8 +303,8 @@
    "styles": 18
   },
   "HWS": {
-   "skus": 144,
-   "styles": 72
+   "skus": 286,
+   "styles": 143
   },
   "ICE": {
    "skus": 226,
@@ -289,8 +327,8 @@
    "styles": 18
   },
   "LIM": {
-   "skus": 27,
-   "styles": 9
+   "skus": 90,
+   "styles": 30
   },
   "MAN": {
    "skus": 27,
@@ -381,8 +419,8 @@
    "styles": 27
   },
   "SGL": {
-   "skus": 144,
-   "styles": 72
+   "skus": 286,
+   "styles": 143
   },
   "SGN": {
    "skus": 46,
@@ -510,18 +548,18 @@
   }
  },
  "grocery_values": {
-  "checked": 15412,
+  "checked": 15759,
   "named_but_not_carried": {
    "contains": 578,
-   "flavor": 1964,
+   "flavor": 1970,
    "may_contain": 688,
-   "pack_size": 157,
-   "variety": 48
+   "pack_size": 153,
+   "variety": 62
   }
  },
  "near_duplicates": {
-  "grocery": 0.0323,
-  "grocery_grid_clones": 4,
+  "grocery": 0.0321,
+  "grocery_grid_clones": 6,
   "non_grocery": 0.0173,
   "non_grocery_grid_clone_rate": 0.137
  },
@@ -531,8 +569,8 @@
    "styles": 53
   },
   "all": {
-   "skus": 69277,
-   "styles": 8034
+   "skus": 69624,
+   "styles": 8197
   },
   "appliance_rows": {
    "skus": 124,
@@ -572,8 +610,8 @@
    "styles": 289
   },
   "grocery": {
-   "skus": 12409,
-   "styles": 4516
+   "skus": 12756,
+   "styles": 4679
   },
   "household_rows": {
    "skus": 147,
