@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import os
 import pkgutil
 import random
 import sys
@@ -43,6 +44,7 @@ from collections.abc import (
 )
 from dataclasses import dataclass, field, replace
 from functools import cache
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
@@ -199,42 +201,91 @@ class TypeSpec:
     module: str = ""
 
 
+#: The loader of a type FILE (#72), named as a string because core imports no domain:
+#: ``module:function``, called ``load(path, module)`` and returning the :class:`TypeSpec`
+#: the file declares. It raises :class:`TypeModuleError` naming the file.
+TYPE_FILE_LOADER = "synthetic_ecommerce_data.domains.industrial.typefile:load"
+TYPE_FILE_SUFFIX = ".yaml"
+
+
+def _entries(package: str, paths: Iterable[str]) -> list[tuple[str, str, str | None]]:
+    """What sits in one package directory: ``(short name, dotted name, file or None)``.
+
+    A module or subpackage has no file; a type file has its path. Sorted by short
+    name, as :func:`pkgutil.walk_packages` sorts a directory, so a data file and a
+    code module are found in one order.
+    """
+    found: dict[str, tuple[str, str, str | None]] = {}
+    for info in pkgutil.iter_modules(list(paths)):
+        found[info.name] = (info.name, f"{package}.{info.name}", None)
+    for directory in paths:
+        if not os.path.isdir(directory):
+            continue
+        for name in os.listdir(directory):
+            stem, suffix = os.path.splitext(name)
+            if suffix != TYPE_FILE_SUFFIX:
+                continue
+            if stem in found:
+                raise TypeCollisionError(
+                    f"type {stem!r} is declared by both {found[stem][1]} and "
+                    f"{os.path.join(directory, name)}"
+                )
+            found[stem] = (stem, f"{package}.{stem}", os.path.join(directory, name))
+    return [found[name] for name in sorted(found)]
+
+
 def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
-    """Every type module under ``package``, by type key.
+    """Every type under ``package``, by type key: a code module or a data file.
 
     A module that fails to import is reported by its dotted path, because the
     underlying error (a typo in a table, a bad import) rarely says which of
-    many type files it came from.
+    many type files it came from. A ``<key>.yaml`` data file is read by the
+    generic builder named in :data:`TYPE_FILE_LOADER` (#72); a file that is wrong
+    is refused naming the file.
     """
-
-    def refuse(name: str) -> None:
-        raise TypeModuleError(f"type package {name} failed to import")
-
     try:
         root = importlib.import_module(package)
     except Exception as exc:  # noqa: BLE001 - re-raised, naming the package
         raise TypeModuleError(f"type package {package} failed to import: {exc!r}") from exc
     specs: dict[str, TypeSpec] = {}
-    for found in pkgutil.walk_packages(root.__path__, prefix=f"{package}.", onerror=refuse):
-        if found.ispkg:
-            continue
+    loaders: list[Callable[[Path, str], TypeSpec]] = []
+
+    def read_file(file: str, dotted: str) -> TypeSpec:
+        if not loaders:
+            module_name, _, attr = TYPE_FILE_LOADER.partition(":")
+            loaders.append(getattr(importlib.import_module(module_name), attr))
+        return loaders[0](Path(file), dotted)
+
+    def read_module(short: str, dotted: str) -> TypeSpec | None:
         try:
-            module = importlib.import_module(found.name)
+            module = importlib.import_module(dotted)
         except Exception as exc:  # noqa: BLE001 - re-raised, naming the module
-            raise TypeModuleError(f"type module {found.name} failed to import: {exc!r}") from exc
+            raise TypeModuleError(f"type module {dotted} failed to import: {exc!r}") from exc
+        if hasattr(module, "__path__"):
+            walk(dotted, list(module.__path__))
+            return None
         spec = getattr(module, "SPEC", None)
         if not isinstance(spec, TypeSpec):
-            raise TypeModuleError(f"type module {found.name} declares no SPEC = TypeSpec(...)")
-        if found.name.rsplit(".", 1)[1] != spec.key:
+            raise TypeModuleError(f"type module {dotted} declares no SPEC = TypeSpec(...)")
+        if short != spec.key:
             raise TypeModuleError(
-                f"type module {found.name} declares {spec.key!r}; a type module is named "
+                f"type module {dotted} declares {spec.key!r}; a type module is named "
                 "after its type key, so the key can be found from the file and back"
             )
-        if spec.key in specs:
-            raise TypeCollisionError(
-                f"type {spec.key!r} is declared by both {specs[spec.key].module} and {found.name}"
-            )
-        specs[spec.key] = replace(spec, module=found.name)
+        return spec
+
+    def walk(name: str, paths: list[str]) -> None:
+        for short, dotted, file in _entries(name, paths):
+            spec = read_file(file, dotted) if file else read_module(short, dotted)
+            if spec is None:
+                continue
+            if spec.key in specs:
+                raise TypeCollisionError(
+                    f"type {spec.key!r} is declared by both {specs[spec.key].module} and {dotted}"
+                )
+            specs[spec.key] = replace(spec, module=dotted)
+
+    walk(package, list(root.__path__))
     return specs
 
 
