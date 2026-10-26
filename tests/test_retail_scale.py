@@ -1429,7 +1429,8 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names (gen#662), the real-brand rows and the
     decoys aside (a class 8 decoy is named for a village street on purpose)."""
-    skip = scale.NIKE_IDS | scale.SEASONAL_IDS | scale.COLORWORD_IDS  # real brands and decoy rows
+    skip = (scale.source_ids("nike_rows") | scale.source_ids("seasonal_rows")
+            | scale.source_ids("color_word_brand_rows"))  # real brands and decoy rows
     return [
         r
         for r in records

@@ -8,12 +8,13 @@ brands and helpers); this spec registers the type and reads its rows back. Templ
 from __future__ import annotations
 
 import outerwear_rows
-from type_registry import TypeSpec
+from type_registry import Home, TypeSpec
 
 PRODUCT_TYPE = "Puffer Jacket"
 
 SPEC = TypeSpec(
     key="puffer_jacket",
+    homes=(Home("decoy_rows", False),),
     department="Clothing",
     product_type=PRODUCT_TYPE,
     owners=outerwear_rows.owners_of(PRODUCT_TYPE),

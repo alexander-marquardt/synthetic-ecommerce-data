@@ -18,7 +18,7 @@ specs, with "Padded Cups" in the title. Every title is true to the product:
 
 No title or description here names a mug, a saucer or an espresso cup, so the sibling queries
 (``mugs``, ``espresso cups``) still lead with drinkware. The rows are templates only:
-:func:`scale.derivable` leaves them out (``scale.CUPS_PLURAL_IDS``).
+:func:`scale.derivable` leaves them out (``scale.source_ids("cups_plural_rows")``).
 """
 
 # ruff: noqa: E501 -- one style's row reads better whole than wrapped (data only).

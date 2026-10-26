@@ -105,8 +105,8 @@ and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
 and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are type specs
-(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of the
-legacy list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
+(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of a
+registry list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
 `skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
 the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
 Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
@@ -571,7 +571,7 @@ S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL,
 the same way, each with the six main colors, two brands and decoys of classes 4, 5, 6 (two: a color
 word and another category's noun in a range name) and 7. Every spec decoy is exempt from the output
 standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are. Belt left the
-legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still to do.
+legacy type list (deleted since, gen#537). Scarf and wallet are still to do.
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
