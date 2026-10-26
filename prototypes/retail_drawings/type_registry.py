@@ -59,8 +59,9 @@ APPAREL_FAMILIES = "abusk"
 #: leaves room to append the difference. The 26 footwear types left it in gen#427: a shoe is a
 #: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
 #: as a spec row. The three shoe-care products stay on it. Chips, beds and bomber jackets left it
-#: in gen#645 (three more types are specs).
-LEGACY_CEILING = 294
+#: in gen#645 (three more types are specs). The nine drill-family specs (gen#191) took
+#: "Cordless Drill" out of it, and the soft-furnishings spec (gen#684) took one more.
+LEGACY_CEILING = 293
 
 
 class SpecError(ValueError):
