@@ -224,9 +224,9 @@ SCALE = 24.0
 #: The most crests drawn along a rod.
 MAX_CRESTS = 60
 #: The drawing's extent, measured at the default and ``--lines 39000`` builds
-#: (docs/adding-a-type.md "Figure and extent"): the largest drawn is 1.63 x
-#: 3.574 in at both, an M36 rod's break marks across and a 72" rod compressed
-#: down the page.
+#: (docs/adding-a-type.md "Figure and extent"): the largest drawn is 1.358 x
+#: 3.574 in at the default build and 1.63 x 3.574 in at --lines 39000: an
+#: M36 rod's break marks across and a 72" rod compressed down the page.
 EXTENT = (1.75, 3.7)
 
 _NOMINAL_THREAD = "1/4-20"
@@ -321,6 +321,7 @@ SPEC = TypeSpec(
     share=0.0145,
     price=PRICE,
     claims=claims,
+    may_claim=frozenset(),
     key_attributes=("Thread Size",),
     threaded="Thread Size",
     fastener=True,
