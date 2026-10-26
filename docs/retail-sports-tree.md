@@ -73,7 +73,7 @@ guard's rules hold on the subtree either way.
 ## Bicycle model numbers and accessory decoys (gen#625)
 
 Each bicycle title leads with its brand, its series and its model number, then the spec and the
-bike: `Wrenfield Aero Elite RD28-18-26 28in 18 Speed Aluminum Road Bike`, the title order of the
+bike: `Wrenfield Aero Elite RD28-22-26 28in 22 Speed Carbon Road Bike`, the title order of the
 large appliances (gen#622). `prototypes/retail_drawings/bicycle_model_numbers.py` holds each
 brand's scheme and series. A code is built from the kind, the wheel inches, the gears and the
 model year, and `decode` reads it back. The model number and the model year are attributes, the
@@ -85,6 +85,21 @@ titles above them: Bicycle Helmet, Bicycle Seat, Bicycle Water Bottle, Bicycle C
 Pedals and so on. Each is a real product of its own type in its own Cycling leaf, and
 `kit_cycling.py` draws it. `tests/test_retail_bicycle_model_numbers_625.py` holds the scheme, the
 rows and that ranking.
+
+## A code-built bicycle range (gen#685)
+
+`type_specs/bicycle.py` builds the bikes from a table of axes rather than listing them. Each of
+the four kinds (Road, Mountain, Electric, Kids) has its trims: gears, wheel size, frame material
+and brake. Road, Mountain and Electric have two trims each, and Kids has one. All three brands sell
+every trim. For each trim, one brand in turn still sells last year's model (2025). That gives 21
+bikes, and no two share brand, kind, gears, wheel and year. The build raises if two bikes ever do,
+or if two share a code. Each bike keeps four colors times three frame sizes (three wheel sizes for a
+kids' bike), so it has twelve SKUs and four images.
+
+The price follows from the parts. The kind sets a base, and the frame material (steel, aluminum,
+carbon), the brake (coaster, rim, disc) and each extra gear add to it. Last year's model sells at
+85%, and the brand adds nothing. `tests/test_retail_bicycle_range_685.py` holds the count, the
+round trip of every code, the unique axes and the price rules.
 
 ## Not built
 
