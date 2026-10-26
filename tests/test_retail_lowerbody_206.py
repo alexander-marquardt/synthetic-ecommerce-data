@@ -35,7 +35,8 @@ from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 #: The tracksuits are a type spec (gen#351); the other five types are still in lowerbody_rows.
 ROWS = (*lowerbody_rows.ROWS, *type_registry.specs()["tracksuit"].rows)
 LOWER_DOCS = [*lowerbody_rows.docs(), *type_registry.specs()["tracksuit"].docs()]
-LOWER_IDS = scale.LOWER_IDS | type_registry.ids_of(type_registry.specs()["tracksuit"])
+LOWER_IDS = (scale.source_ids("lowerbody_rows")
+             | type_registry.ids_of(type_registry.specs()["tracksuit"]))
 
 #: Each type and every attribute a shopper filters or searches it on (the issue's table),
 #: the color and the size keys of its SKUs included. ``garment_length`` is the length the
