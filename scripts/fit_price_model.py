@@ -138,7 +138,7 @@ _FASTENERS = (
 MODULE_PY = {
     "screw_socket_head": _FASTENERS / "screw_socket_head.py",
     "lock_nuts_nylon_insert": _FASTENERS / "lock_nuts_nylon_insert.py",
-    "set_screws_hex_socket": _FASTENERS / "set_screws_hex_socket.py",
+    "set_screws_hex_socket": _FASTENERS / "set_screws_hex_socket.yaml",  # a data file (#72)
 }
 #: The largest sigma the fit tries.
 MAX_SIGMA = 3.0
@@ -691,6 +691,23 @@ def _module_body(type_key: str, model: price.PriceModel) -> str:
     )
 
 
+def _yaml_body(type_key: str, model: price.PriceModel) -> str:
+    """The same literals as :func:`_module_body`, as the ``name: value`` lines of a type
+    file's ``price:`` mapping (a data file cannot name ``CENSUS``, so the slope is a number)."""
+    census_length = price.LENGTH_CENSUS.get(type_key)
+    lines = [
+        f"anchor: {model.anchor:.4g}",
+        f"anchor_key: {model.anchor_key!r}",
+        f"slope: {model.slope!r}",
+    ]
+    if census_length and model.length_slope != census_length.slope:
+        lines.append(f"length_slope: {model.length_slope!r}")
+    lines += [f"group_sigma: {model.group_sigma:.3f}", f"sku_sigma: {model.sku_sigma:.3f}"]
+    if model.size_sigma:
+        lines.append(f"size_sigma: {model.size_sigma!r}")
+    return "\n".join(f"  {line}" for line in lines)
+
+
 def _between_markers(path: Path, begin: str, body: str) -> None:
     text = path.read_text()
     pattern = re.compile(rf"(?m)^(\s*# @fit-begin{begin}\n).*?(^\s*# @fit-end)", re.S)
@@ -844,7 +861,10 @@ def main() -> int:
         )
 
     table = "\n".join(_literal(k, m) for k, m in fitted.items() if k not in MODULE_PY)
-    bodies = {k: _module_body(k, fitted[k]) for k in MODULE_PY}
+    bodies = {
+        k: (_yaml_body if MODULE_PY[k].suffix == ".yaml" else _module_body)(k, fitted[k])
+        for k in MODULE_PY
+    }
     print("\n# price.py, between the fit markers:\n" + table)
     for k in MODULE_PY:
         print(f"\n# {MODULE_PY[k].name}, between its fit markers:\n" + bodies[k])

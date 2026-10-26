@@ -19,21 +19,24 @@ from fractions import Fraction
 from pathlib import Path
 
 import pytest
+import yaml
 
 import type_gates
 from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
-from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial import names, taxonomy, typefile
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
-from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import (
-    set_screws_hex_socket,
-)
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "set_screws_hex_socket"
+
+#: The type is one data file (#72); its spec is what discovery reads from it.
+FILE = Path(typefile.__file__).parent / "product_types" / "fasteners" / f"{KEY}.yaml"
+DECLARED = yaml.safe_load(FILE.read_text(encoding="utf-8"))
+SPEC = typespec.discover()[KEY]
 
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
@@ -201,16 +204,16 @@ def test_the_declared_sizes_are_the_data_files_rows():
     The sweep catches a row dropped from the file; this catches a row added to
     it that no declaration claims, which the sweep would never look for.
     """
-    module = set_screws_hex_socket
+    table, inch_table = DECLARED["table"], DECLARED["inch_table"]
     built: dict[str, tuple[str, ...]] = {}
-    for metric, inch in module.POINTS.values():
-        built[metric] = tuple(row.size for row in module.metric_rows(metric))
-        built[inch] = tuple(row.size for row in module.inch_rows())
-    assert dict(module.SPEC.sizes) == built
+    for point in DECLARED["points"].values():
+        built[point["metric"]] = tuple(r.size for r in typefile.metric_rows(table, point["metric"]))
+        built[point["inch"]] = tuple(r.size for r in typefile.inch_rows(table, inch_table))
+    assert dict(SPEC.sizes) == built
 
 
 def test_a_records_line_standard_is_its_points_in_its_system():
-    read = set_screws_hex_socket.SPEC.line_standard
+    read = SPEC.line_standard
     assert read is not None
     for point, (metric, inch) in {
         "Cup Point": ("ISO 4029", "ASME B18.3.5D"),
@@ -233,7 +236,7 @@ def test_a_records_line_standard_is_its_points_in_its_system():
     ids=["no-point-type", "unknown-point", "no-thread"],
 )
 def test_a_record_its_standard_cannot_be_derived_for_fails_rather_than_defaults(record):
-    read = set_screws_hex_socket.SPEC.line_standard
+    read = SPEC.line_standard
     assert read is not None
     with pytest.raises(KeyError):
         read(record)
@@ -249,7 +252,7 @@ def test_a_record_its_standard_cannot_be_derived_for_fails_rather_than_defaults(
     ],
 )
 def test_each_metric_length_range_is_the_iso_table_1_range(standard, table):
-    declared = {size: set_screws_hex_socket.length_range_mm(standard, size) for size in table}
+    declared = {size: typefile.length_range_mm(DECLARED["table"], standard, size) for size in table}
     wrong = {size: (declared[size], want) for size, want in table.items() if declared[size] != want}
     assert wrong == {}, f"{standard}: (declared, Table 1) per size: {wrong}"
 

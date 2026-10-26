@@ -17,6 +17,51 @@ into those tables, so no caller has to call a registration step before it
 reads them. A type module can also be the first thing a process imports, which
 is what a builder's own test does.
 
+## A type as one data file (#72)
+
+**Start here when the type is a kind of thing a builder already builds.** A hex
+socket set screw is
+`product_types/fasteners/set_screws_hex_socket.yaml`: 83 lines of data in
+place of the 394-line module it replaced, with a build byte-identical to
+`golden-catalog/` (`diff -rq` clean). The code it needs is written once, for the
+kind: `domains/industrial/typefile.py` (the loader and the `pointed_screw`
+builder) and `domains/industrial/drawing/headless.py` (the geometry). A second
+one (a stainless one, a square-head one) is one more file beside it and **no
+edit to any other file**: `tests/test_type_file_72.py` plants one in a copy of
+`src` and holds it to every per-type gate of `tests/type_gates.py`.
+
+The file is YAML, not a Python literal, because the breadth rows already are
+YAML, because a data file imports nothing (so it cannot make an import cycle), and because the fitted price numbers stay a block
+`scripts/fit_price_model.py` rewrites between its `# @fit-begin` and `# @fit-end`
+comment lines. It is named after the type key (`<key>.yaml`) and the key is its
+first field. It is refused at discovery, naming the file, when it is not YAML,
+is not a mapping, names another key, carries a field nobody owns, or lacks one.
+
+| Field | What it declares |
+|---|---|
+| `key`, `label`, `category`, `share`, `standards_family`, `key_attributes`, `threaded`, `fastener`, `use_lines` | The `TypeSpec` fields of the same name |
+| `vocab` | The attributes, each `name`, `scope` (`line` or `sku`), `presence`, `kind` |
+| `price` | The `PriceModel` fields; `endings` names a table of `price.ENDINGS` |
+| `compat`, `near_miss_period` | The compat and noise relations (#75) |
+| `extent`, `figure` | The sheet, and the geometry that draws it (`headless_screw`, in `drawing/headless.py`) |
+| `kind` | The builder: `pointed_screw` adds `item`, `table`, `inch_table`, `points`, `metric_sizes`, `inch_sizes`, `materials`, `claims` and `price_basis` |
+
+The standards tables are named, never copied: the builder reads `table` from
+`core/standards_library` (#73) for each size's pitch, key and lengths, so a row
+corrected there is corrected for every type that names the table.
+
+**Code is written only for a new kind of geometry or a new rule.** A new kind of
+builder is an entry in `typefile.KINDS`; a new geometry is a function in
+`drawing/` registered in `typefile._geometries`. Neither is written per type. The
+pilot's figure is not a `compose` spec (#74): its drawing needs `exp`, `min` and
+a loop, which the compose layer's `+ - * /` does not offer, so it is a geometry
+(`headless_screw`) every headless screw shares. A type whose figure fits
+`compose` states it as primitives and parameters.
+
+A type whose builder is its own kind of thing (the lock nut's series tables, a
+table type) stays a module, as the sections below describe. They apply to a type
+either way; read "module" as "data file" where they say where a field lives.
+
 ## The files
 
 | File | When |

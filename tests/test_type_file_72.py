@@ -53,7 +53,7 @@ def _sibling_text() -> str:
     data["key"] = SIBLING_KEY
     data["label"] = "Stainless Hex Socket Set Screws"
     data["category"] = [*data["category"][:-1], "Stainless Hex Socket Set Screws"]
-    data["share"] = 0.01
+    data["share"] = 0.05
     data["materials"] = {k: v for k, v in data["materials"].items() if "Stainless" in k}
     return yaml.safe_dump(data, sort_keys=False, allow_unicode=True)
 
@@ -101,8 +101,13 @@ def test_a_sibling_type_added_as_one_data_file_builds_with_every_type_gate_green
     )
     run = subprocess.run(
         [
-            sys.executable, "-c", _GATES, str(Path(type_gates.__file__).parent), SIBLING_KEY,
-            json.dumps(DIMENSIONAL), json.dumps(DIMENSIONS),
+            sys.executable,
+            "-c",
+            _GATES,
+            str(Path(type_gates.__file__).parent),
+            SIBLING_KEY,
+            json.dumps(DIMENSIONAL),
+            json.dumps(DIMENSIONS),
         ],  # fmt: skip
         env={**os.environ, "PYTHONPATH": str(copy), "PYTHONHASHSEED": "0"},
         capture_output=True,
