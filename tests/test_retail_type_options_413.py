@@ -30,6 +30,7 @@ _STORAGE = Option("storage_gb", "storage_capacity", "Storage (GB)")
 _RAM = Option("ram_gb", "ram", "Memory (GB)")
 _SCREEN = Option("screen_size_in", "screen_size", "Screen size", "INH")
 _LENGTH = Option("length_m", "item_length", "Item length", "MTR")
+_DROP = Option("drop_cm", "drop_length", "Drop length", "CMT")
 MOVED = {
     "parasol": [Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR")],
     "garden_furniture_set": [Option("seats", "seats", "Seats", "C62")],
@@ -59,6 +60,9 @@ MOVED = {
     "tennis_racket": [Option("grip", "grip_size", "Grip size")],
     "skateboard": [Option("deck_width_in", "deck_width", "Deck width", "INH")],
     "bicycle": [Option("frame_cm", "frame_size", "Frame size", "CMT")],
+    "curtains": [_DROP],
+    "blind": [_DROP],
+    "shower_curtain": [_DROP],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
