@@ -9,10 +9,11 @@ The styles are templates only (``derivable`` False): the department grows by aut
 from __future__ import annotations
 
 from sports_helpers import _H, _L, _YOGA, BLACK, BLUE, GREEN, RED, WHITE, YELLOW, _a, _axis, _row
-from type_registry import TypeSpec
+from type_registry import Home, TypeSpec
 
 SPEC = TypeSpec(
     key="yoga_mat",
+    homes=(Home("nike_rows", False),),
     department="Sports & Outdoors",
     product_type="Yoga Mat",
     rows=(

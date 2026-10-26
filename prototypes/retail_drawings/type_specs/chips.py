@@ -16,7 +16,7 @@ out-ranked the knife.
 
 from __future__ import annotations
 
-from type_registry import BRAND_OWNER, LRow, TypeSpec, cw
+from type_registry import BRAND_OWNER, Home, LRow, TypeSpec, cw
 
 #: The brands these rows sell, owned as the rest of the tree states.
 BRANDS = ("Hearth & Table", "Pantry Mill", "Goldfield Farms")
@@ -51,6 +51,7 @@ def _row(code, title, brand, price, desc, label, grams, color) -> LRow:
 
 SPEC = TypeSpec(
     key="chips",
+    homes=(Home("samples", True),),
     department="Food & Drink",
     product_type="Chips",
     owners=tuple((b, BRAND_OWNER[b]) for b in BRANDS),

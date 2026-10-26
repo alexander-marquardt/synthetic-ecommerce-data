@@ -62,12 +62,12 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "Face Cream is on the legacy list again, beside its spec",
-        "type_specs/legacy_types.txt",
-        "Beauty|Eye Cream\n",
-        "Beauty|Eye Cream\nBeauty|Face Cream\n",
-        "tests/test_retail_type_specs_351.py -k every_type_is_registered_through_a_spec_or_the_legacy_list",
-        "a type is registered through a spec or the legacy list, never both",
+        "a second spec claims Face Cream beside the first",
+        "type_specs/eye_cream.py",
+        'product_type="Eye Cream"',
+        'product_type="Face Cream"',
+        "tests/test_retail_type_specs_351.py -k every_built_type_is_registered_through_a_spec",
+        "a type is registered by exactly one spec",
         _R,
     ),
     (

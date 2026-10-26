@@ -14,7 +14,7 @@ The type's text-match decoys (gen#311) are planned in ``decoy_apparel``, which a
 
 from __future__ import annotations
 
-from type_registry import BRAND_OWNER, LRow, TypeSpec, cw
+from type_registry import BRAND_OWNER, Home, LRow, TypeSpec, cw
 
 #: The brands these rows sell, owned as the rest of the clothing tree states.
 BRANDS = ("Calderby & Lune", "Harbour & Pine", "Larkmoor", "Wrenfield", "Bramblewood")
@@ -59,6 +59,7 @@ def _row(code, title, brand, price, material, desc, check) -> LRow:
 
 SPEC = TypeSpec(
     key="bomber_jacket",
+    homes=(Home("samples", True), Home("decoy_product_words", False)),
     department="Clothing",
     product_type="Bomber Jacket",
     owners=tuple((b, BRAND_OWNER[b]) for b in BRANDS),

@@ -86,8 +86,8 @@ def test_a_spec_decides_whether_the_build_may_derive_from_its_rows() -> None:
     assert derivable >= SHAMPOO_IDS
 
 
-def test_every_type_is_registered_through_a_spec_or_the_legacy_list() -> None:
-    """The guard: a type in no spec file must be on the legacy list, which only shrinks."""
+def test_every_built_type_is_registered_through_a_spec() -> None:
+    """The guard: a type in no spec file is a problem (gen#537: there is no legacy list)."""
     built = _types(scale.templates(baseline=False))
     assert type_registry.registration_problems(built) == []
 
@@ -132,7 +132,13 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
     stray: dict[str, list[str]] = {}
     out_of_spec: set[str] = set()
     for spec in type_registry.specs().values():
-        own = type_registry.ids_of(spec)
+        # a row a spec's ``homes`` names is registered by the spec, in a shared source (gen#537)
+        own = type_registry.ids_of(spec) | {
+            pid
+            for h in spec.homes
+            for pid, dept, ptype in scale._source_keys(h.source)
+            if (dept, ptype) == (spec.department, spec.product_type)
+        }
         mine = [
             r["product_id"] for r in templates
             if (r["department"][0], r["product_type"]) == (spec.department, spec.product_type)
@@ -164,18 +170,22 @@ def test_a_spec_type_has_no_row_outside_its_spec_file() -> None:
     # towel set is the "beach towel" decoy in the swim shorts (DY6056, gen#605); and the four
     # class-8 throws (DY36, DY62, DY702, DY720) whose product type became a spec with the soft
     # furnishings (gen#204): another noun's title on a throw, kept in decoy_product_words
-    assert out_of_spec == {
-        "PLT-DY36",
-        "PLT-DY62",
-        "PLT-DY702",
-        "PLT-DY720",
-        "PLT-DY37",
-        "PLT-DY460",
-        "PLT-DY485",
-        "PLT-DY56",
-        "PLT-DY6056",
-        *SHOE_DECOYS,
-    }, out_of_spec
+    # They sit in shared sources, and since gen#537 a spec's ``homes`` declares them, so the
+    # strays above are empty and no decoy is left outside a spec: the ones named here are each
+    # declared by the spec of their type.
+    named = {
+        "PLT-DY36", "PLT-DY62", "PLT-DY702", "PLT-DY720", "PLT-DY37", "PLT-DY460", "PLT-DY485",
+        "PLT-DY56", "PLT-DY6056", *SHOE_DECOYS,
+    }  # fmt: skip
+    homed = {
+        pid
+        for spec in type_registry.specs().values()
+        for h in spec.homes
+        for pid, dept, ptype in scale._source_keys(h.source)
+        if (dept, ptype) == (spec.department, spec.product_type)
+    }
+    assert not out_of_spec, out_of_spec
+    assert named <= homed, sorted(named - homed)
 
 
 def test_every_proof_pinned_class_row_is_still_in_the_proof_and_the_build() -> None:
@@ -545,48 +555,17 @@ def test_no_specimen_type_name_is_a_registered_or_built_type() -> None:
 # -- the guard is pinned (the review of #358, blocking 3) ----------------------------------------
 
 
-def test_a_type_registered_outside_a_spec_file_is_a_problem(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_a_type_registered_outside_a_spec_file_is_a_problem() -> None:
     built = _types(scale.templates(baseline=False)) | {SPECIMEN_SERUM}
     problems = type_registry.registration_problems(built)
     assert len(problems) == 1 and SPECIMEN_SERUM[1] in problems[0], problems
+    assert "no spec" in problems[0], problems
 
 
-def test_a_legacy_line_appended_for_a_new_type_is_a_problem(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """The bypass of the review: the type is built and its line is appended to the legacy list."""
-    built = _types(scale.templates(baseline=False)) | {SPECIMEN_SERUM}
-    legacy = type_registry.legacy_types() | {SPECIMEN_SERUM}
-    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
-    problems = type_registry.registration_problems(built)
-    assert len(problems) == 1 and "ceiling" in problems[0], problems
-
-
-def test_a_migrated_type_left_on_the_legacy_list_is_a_problem(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    built = _types(scale.templates(baseline=False))
-    legacy = type_registry.legacy_types() | {("Beauty", "Shampoo")}
-    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
-    problems = type_registry.registration_problems(built)
-    assert any("Shampoo" in p and "both" in p for p in problems), problems
-
-
-def test_a_legacy_type_no_longer_built_is_a_problem() -> None:
-    built = _types(scale.templates(baseline=False)) - {sorted(type_registry.legacy_types())[0]}
-    problems = type_registry.registration_problems(built)
-    assert any("no longer built" in p for p in problems), problems
-
-
-def test_a_migration_lowers_the_ceiling(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The ceiling is exact: a list shorter than it leaves room to append the difference."""
-    built = _types(scale.templates(baseline=False))
-    legacy = type_registry.legacy_types() - {sorted(type_registry.legacy_types())[0]}
-    monkeypatch.setattr(type_registry, "legacy_types", lambda: legacy)
-    problems = type_registry.registration_problems(built)
-    assert any("lower LEGACY_CEILING" in p for p in problems), problems
+def test_a_spec_type_that_is_not_built_is_a_problem() -> None:
+    gone = sorted(_types(scale.templates(baseline=False)))[0]
+    problems = type_registry.registration_problems(_types(scale.templates(baseline=False)) - {gone})
+    assert len(problems) == 1 and "not built" in problems[0] and gone[1] in problems[0], problems
 
 
 # -- one product id belongs to one spec (the beauty half of the review of #358, blocking 1) ------
@@ -613,15 +592,15 @@ def test_the_registry_refuses_two_specs_that_build_one_product_id(
         _discover(tmp_path, monkeypatch, files)
 
 
-def test_the_build_refuses_a_spec_id_that_a_legacy_row_already_uses(
+def test_the_build_refuses_a_spec_id_that_a_shared_row_already_uses(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A spec cannot see the rows still outside the registry: the build names the clash."""
-    mine = {s.product_type for s in type_registry.specs().values()}
+    owned = {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}
     taken = next(
         d["product_id"]
         for d in scale.templates(baseline=False)
-        if d["product_type"] not in mine and d["product_id"].startswith("BRD-")
+        if d["product_id"] not in owned and d["product_id"].startswith("BRD-")
     )
     _, beauty = _scaffold(tmp_path, "beauty", "specimen_serum", "Specimen Serum")
     beauty = replace(beauty, rows=(replace(beauty.rows[0], code=taken.removeprefix("BRD-")),))
@@ -677,8 +656,11 @@ def test_the_scaffold_refuses_a_code_that_is_malformed_or_in_use(
 
 @pytest.mark.parametrize(
     ("key", "department", "ptype"),
-    [("chips", "Food & Drink", "Chips"), ("bed", "Home", "Bed"),
-     ("bomber_jacket", "Clothing", "Bomber Jacket")],
+    [
+        ("chips", "Food & Drink", "Chips"),
+        ("bed", "Home", "Bed"),
+        ("bomber_jacket", "Clothing", "Bomber Jacket"),
+    ],
 )
 def test_a_chips_bed_or_bomber_row_outside_its_spec_is_refused(
     key: str, department: str, ptype: str

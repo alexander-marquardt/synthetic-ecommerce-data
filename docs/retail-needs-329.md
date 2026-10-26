@@ -42,7 +42,7 @@ trousers whose title or description misleads on another word; the structured fie
 
 `needs_rows.TABLE` lists every decoy with its class, the misleading word, the query it targets and
 the policy that repairs it. The rows are templates: `scale.derivable` leaves them out
-(`scale.NEEDS_IDS`), so the seeded derivation is what it was.
+(`scale.source_ids("needs_rows")`), so the seeded derivation is what it was.
 
 ## Medical and nursing bras
 

@@ -60,12 +60,16 @@ module and feeds the scaled build, the figures and the apparel decoys, and
 puts a scaffolded Kaftan and a scaffolded beauty type into the registry and runs the census of
 gen#311 on them, so this claim is measured.
 
-`type_specs/legacy_types.txt` lists the types still registered the old way. It only shrinks:
-`type_registry.LEGACY_CEILING` is its exact length, so a line appended to it, or a type moved out
-of it without lowering the number, reds `registration_problems`. A migration deletes the type's
-line, lowers `LEGACY_CEILING` by one and removes the old row. A clothing type already planned
-in `decoy_apparel` (Tracksuit) keeps its plan there: its decoy ids are numbered by place in that
-plan, and moving it would renumber the 60 types after it. A new type is numbered by its key.
+Every built type is a spec (gen#537). The 293 types that were once registered by a line in a
+list are specs whose `rows` are empty and whose `homes` name the shared row modules that still
+hold their rows (`Home(source, derivable)`; `type_registry.HOME_SOURCES` lists the sources the
+build reads). `scale.left_out()` reads from those homes which rows the scaled build never copies,
+so `scale.py` holds no id set a person types. `registration_problems` names a built type that no
+spec declares and a spec type that is not built. Moving a type's rows into its own spec file
+(`rows=`) and dropping its `homes` is the way a legacy type leaves the shared modules; it is not
+needed to add a type. A clothing type already planned in `decoy_apparel` (Tracksuit) keeps its plan
+there: its decoy ids are numbered by place in that plan, and moving it would renumber the 60 types
+after it. A new type is numbered by its key.
 
 A type whose product no kit shape draws, or whose decoys sit in another department, follows
 [A type with its own drawing shape](#a-type-with-its-own-drawing-shape) below.
@@ -114,9 +118,8 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
 | `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red. The file exposes `PREFIX` (the text before `: ` in each row's name) and `rows()` (a list of `mutation_row.Row`); `scripts/mutation_row.py` finds it by glob, so nothing is imported or listed in `scripts/mutation_check.py` and `tests/test_mutation_rows_glob_506.py` fails if a script names a rows file. A single defect in code of an area that has a file goes in `scripts/mutations/<area>.py` instead (`MUTATIONS`, found by the same loader). |
 
-Not touched: `scale.py`, the registry, `type_specs/legacy_types.txt`, `decoy_rows.py` and
-`decoy_product_words.py`. The registry finds the module and feeds the scaled build; nothing is
-added to the legacy list; the decoy tables find `feature_decoys/<topic>.py` by walking the package.
+Not touched: `scale.py`, the registry, `decoy_rows.py` and `decoy_product_words.py`. The
+registry finds the module and feeds the scaled build; the decoy tables find `feature_decoys/<topic>.py` by walking the package.
 
 ### In order
 
@@ -187,7 +190,6 @@ names the file that replaces it:
 |---|---|---|
 | `scripts/mutation_check.py` | an import or a wrapper per rows file | `scripts/mutation_rows_<topic>.py` with `PREFIX` and `rows()` |
 | `prototypes/retail_drawings/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
-| `type_specs/legacy_types.txt` | a type's line | `scripts/new_type.py <key>` (the list only shrinks) |
 | `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
 | `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
 | `prototypes/retail_drawings/line_grammar.py` | a `FAMILIES` row, a vocabulary constant, a `fam == ...` branch, a docstring bullet for a numbered family | `line_grammar_families/<family>.py` with `KINDS`, `LEADS`, `NUMBERS` and `SUBS` (gen#513); the walk refuses a kind, a lead word or a name-like word another family holds |

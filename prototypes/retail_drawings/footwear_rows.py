@@ -37,7 +37,7 @@ from colorwords import plain
 from departments import check as check_departments
 from promotion import values as promotion_values
 from real_classes import badges
-from type_registry import TypeSpec
+from type_registry import Home, TypeSpec
 from variants import Color, attr, cw, drawing, product, swatch
 
 # ==========================================================================
@@ -767,15 +767,20 @@ class FootwearRow(Row):
         return next(copy.deepcopy(d) for d in _ranked() if d["product_id"] == self.product_id)
 
 
-def footwear_spec(key: str, product_type: str) -> TypeSpec:
+def footwear_spec(key: str, product_type: str, homes: tuple[Home, ...] = ()) -> TypeSpec:
     """The :class:`~type_registry.TypeSpec` of one shoe type: its styles of :data:`FOOTWEAR`, which
     the scaled build may derive from (as it did when they were authored samples). The apparel
     decoys of the type stay planned in :mod:`decoy_apparel`."""
     rows = tuple(FootwearRow.of(s) for s in FOOTWEAR if TYPES[s.kind][0] == product_type)
     brands = dict.fromkeys(r.brand for r in rows)
     return TypeSpec(
-        key=key, department="Footwear", product_type=product_type, rows=rows, derivable=True,
+        key=key,
+        department="Footwear",
+        product_type=product_type,
+        rows=rows,
+        derivable=True,
         owners=tuple((b, BRAND_OWNER[b]) for b in brands),
+        homes=homes,
     )
 
 
