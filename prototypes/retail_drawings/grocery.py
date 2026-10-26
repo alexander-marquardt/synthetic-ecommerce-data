@@ -314,9 +314,12 @@ def pack_label(title: str, head: str) -> str:
     return label
 
 
-def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str) -> dict:
+def _drawing(
+    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str, lead: str = ""
+) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
+    lead = lead or head  # what the title starts with: the range, or the brand and the range
     flavor = flavors[0]
     color = (flavor.name, "solid", flavor.hex, "#ffffff")
     marks = {"line": head, "chips": ",".join(f.hex for f in flavors)}
@@ -325,8 +328,8 @@ def _drawing(fam: Family, flavors: list[F], pid: str, pack: dict, title: str, he
         grams = pack.get("net_weight_g")
         count = None if grams else pack["units_per_pack"]
         params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
-        return drawing(shape, color, pack_label(title, head), **params)
-    label = LABELS.get((fam.code, flavor.name)) or pack_label(title, head)
+        return drawing(shape, color, pack_label(title, lead), **params)
+    label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "punnet":
@@ -366,6 +369,10 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
     head = f"{brand} {line}" if fam.food and line_grammar.brand_led(pid) else line
     head = f"{head} Organic" if organic else head
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
+    lead = head
+    if line_grammar.FAMILIES.get(fam.product_type) in line_grammar.CARE:
+        lead = f"{brand} {head}"  # a cleaning or beauty title leads with its brand (gen#666)
+        title = f"{brand} {title}"
     attrs = [attr("line", "Line", line)]  # the range the title leads with (gen#623)
     attrs += [attr(fam.axis, fam.axis_name or fam.axis.capitalize(), f.name) for f in flavors]
     attrs += [attr("pack_size", "Pack size", p) for p in packs]
@@ -394,7 +401,8 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
         product_type=fam.product_type, category_path=list(fam.path), category_leaf=fam.path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
-        drawing=_drawing(fam, flavors, pid, parsed[0], title, head), collections=[], currency="GBP",
+        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead),
+        collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
         review_count=3 + (h >> 16) % 400, price_min=min(prices), price_max=max(prices), **extra,
@@ -426,6 +434,20 @@ def range_names() -> Deal:
     brands |= {b for extra in grocery_rows.TIER_BRANDS.values() for b in extra}
     reserved = {w for b in brands for w in re.findall(r"[A-Za-z]+", b)}
     return Deal("grocery", brands, reserved)
+
+
+@functools.cache
+def care_names(kind: str) -> line_grammar.Deal:
+    """The grocery half of a cleaning or beauty family's model words, dealt over the grocery
+    brands that sell it (gen#666): "Soapwell Keen Plus 4". The scale build deals the other
+    half, so a word belongs to one brand across both."""
+    brands = {
+        b
+        for f in FAMILIES
+        if line_grammar.FAMILIES.get(f.product_type) == kind
+        for b in (*f.brands, *grocery_rows.TIER_BRANDS.get(f.brands, ()))
+    }
+    return line_grammar.Deal(kind, brands, {}, "grocery")
 
 
 @functools.cache
@@ -465,6 +487,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         grade = rng.choice(fam.grades) if fam.grades else ""
         packs = stocked(fam, packs, held[fam.code + "#"])
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
+        kind = line_grammar.FAMILIES.get(fam.product_type)
         if fam.food:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
             # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1";
@@ -472,6 +495,8 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
             reach = len(deal.of(brand)) * (1 + len(deal.spec.subs))
             short = fam.path[1] == PRODUCE and not tier
             model = deal.owned(brand, slot % reach if short else slot)
+        elif kind in line_grammar.CARE:
+            model = care_names(kind).owned(brand, slot)
         else:
             model = owned(brand, slot)
         rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade)

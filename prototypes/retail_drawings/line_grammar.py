@@ -69,6 +69,11 @@ _CORE = {
 _NUMBERED = line_grammar_families.families(core_kinds=_CORE, reserved=NAME_WORDS)
 #: The names of the numbered families.
 NUMBERED = tuple(_NUMBERED)
+#: The scale build deals the even lead words of a cleaning or beauty family and the grocery build
+#: the odd ones, so a lead word of a care model is one brand's across both builds (gen#666).
+HALVES = {"scale": 0, "grocery": 1}
+#: The families whose title leads with the brand and a model, then the scent or shade.
+CARE = ("cleaning", "beauty")
 #: product type -> its family. A kind not listed keeps the range names of :mod:`range_ownership`.
 FAMILIES = (
     {kind: fam.name for fam in _NUMBERED.values() for kind in fam.kinds}
@@ -131,7 +136,8 @@ class Deal:
     model with one of its name words. A food brand builds a model from its lead words, the lead
     alone first ("Finest"), then with a sub-model ("Finest Reserve") and then with a number ("Finest
     Reserve 2"). ``half`` is the half of a food family's lead words this build deals from
-    (gen#665)."""
+    (gen#665). A cleaning or beauty family has one lead list and splits it instead: the scale build
+    deals its even words and the grocery build its odd ones (:data:`HALVES`, gen#666)."""
 
     def __init__(
         self, fam: str, brands: Iterable[str], authored: dict[str, str], half: str = "scale"
@@ -140,7 +146,10 @@ class Deal:
         self.brands = sorted(set(brands))
         self.spec = _NUMBERED.get(fam)
         if self.spec:
-            words = self.spec.grocery_leads if half == "grocery" else self.spec.leads
+            if fam in CARE:
+                words = self.spec.leads[HALVES[half] :: 2]
+            else:
+                words = self.spec.grocery_leads if half == "grocery" else self.spec.leads
             assert len(words) >= len(self.brands), f"{fam}/{half}: {len(self.brands)} brands"
         else:
             words = NAME_WORDS
@@ -150,6 +159,9 @@ class Deal:
             b: tuple([w for w, o in authored.items() if o == b] + pool[i::count])
             for i, b in enumerate(self.brands)
         }
+        bare = [b for b, mine in self._owned.items() if not mine]
+        if bare:
+            raise ValueError(f"{fam}: {len(pool)} words for {len(self.brands)} brands: {bare}")
 
     def of(self, brand: str) -> tuple[str, ...]:
         return self._owned[brand]
@@ -171,8 +183,16 @@ class Deal:
         if not self.spec:
             return word
         subs, numbers = self.spec.subs, self.spec.numbers
-        sub = (None, *subs)[(k // len(numbers)) % (len(subs) + 1)]
-        gen = numbers[k % len(numbers)]
+        if self.fam in CARE:
+            # A care model sits in a short title, so two of one brand's models that differ in a
+            # single token read as one listing (Jaccard 0.8). The sub-model and the generation
+            # both move with each reuse of a word and with the word's place in the brand's list.
+            shift = slot % len(mine) + k
+            sub = (None, *subs)[shift % (len(subs) + 1)]
+            gen = numbers[(shift + k // ((len(subs) + 1) * 4)) % len(numbers)]
+        else:
+            sub = (None, *subs)[(k // len(numbers)) % (len(subs) + 1)]
+            gen = numbers[k % len(numbers)]
         return " ".join(str(p) for p in (word, sub, gen) if p)
 
 
@@ -234,12 +254,18 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     Shoes". A dress style always leads with its brand and the name, and a style word follows the
     material in four draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style
     leads with its brand, then the model, in two draws of three ("Hollin Finest Reserve 2
-    Strawberry Jam"); the others keep the model alone (:func:`brand_led`).
-    ``draw`` is the style's seeded number for these choices."""
+    Strawberry Jam"); the others keep the model alone (:func:`brand_led`). A cleaning or beauty
+    style leads with its brand and its model, then the scent or shade and the kind: "Soapwell Keen
+    Plus 4 Lemon Floor Cleaner". ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     brands = (tpl["brand"], brand)
     title = _peel(rec["title"], brands)
-    if fam in _NUMBERED:
+    if fam in CARE:
+        # The model and the brand may each lead the title (a template names its brand by its
+        # first word), so all of them leave it before they come back in order.
+        title = _peel(title, (*brands, line, tpl["brand"].split()[0]))
+        title = f"{brand} {line} {title}"
+    elif fam in _NUMBERED:
         kids = "Kids' " if title.startswith("Kids' ") else ""
         title = _peel(title.removeprefix(kids), brands)
         title = _strip(title, "The") if title.startswith(f"The {line} ") else title
