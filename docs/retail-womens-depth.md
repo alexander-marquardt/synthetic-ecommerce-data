@@ -46,5 +46,5 @@ style it clones, so a policy that reads the fields still answers right.
 
 * Kids dresses and coats: see [retail-kids-depth.md](retail-kids-depth.md).
 * Roots are still Womens, Mens and Kids as the tree names them; the rows are templates only, so
-  `scale.derivable` leaves them out (`scale.WOMENS_DEPTH_IDS`) and the seeded derivation is what
+  `scale.derivable` leaves them out (`scale.source_ids("womens_depth_rows")`) and the seeded derivation is what
   it was.

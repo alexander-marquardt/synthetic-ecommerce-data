@@ -14,9 +14,9 @@ _T = "tests/test_retail_plural_cups_508.py"
 ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "the derivation copies the plural-cups rows as styles",
-        "scale.py",
-        "| NEEDS_IDS | CUPS_PLURAL_IDS | DIY_DECOY_IDS\n",
-        "| NEEDS_IDS | DIY_DECOY_IDS\n",
+        "type_specs/bra.py",
+        '        Home("cups_plural_rows", False),',
+        '        Home("cups_plural_rows", True),',
         f"{_T} -k leaves_out",
         "the plural-cups rows stay templates",
     ),
