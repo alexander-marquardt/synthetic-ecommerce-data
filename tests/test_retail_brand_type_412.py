@@ -83,7 +83,7 @@ def test_a_real_brand_draws_no_logo(brand: str) -> None:
 
 
 def test_any_two_retail_logos_differ_in_geometry() -> None:
-    """Two brands' logos are not the same drawing in other colours or other words."""
+    """Two brands' logos are not the same drawing in other colors or other words."""
     seen: dict[str, str] = {}
     twins = []
     for brand, style in _marked().items():
