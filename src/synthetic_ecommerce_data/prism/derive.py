@@ -548,6 +548,40 @@ def decide(stats: AttributeStats) -> Decision:
     )
 
 
+#: The demo case the flat shape's cost is measured on: a shank of 3/8.
+OVERMATCH_ATTRIBUTE = "Shank dia."
+OVERMATCH_VALUE = "3/8"
+
+
+def flat_overmatch_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """What filtering the flat ``attributes`` array by name AND value costs (#24).
+
+    The array is a plain object, so ``name`` and ``value`` are two independent
+    multi-valued fields: *name = Shank dia. AND value = 3/8* matches every
+    document carrying a ``Shank dia.`` and a ``3/8`` anywhere, ``matching``;
+    only ``publishing`` of them carry the 3/8 on that attribute. The rest are
+    the over-match the nested shape with ``reverse_nested`` does not have.
+    The README points here instead of quoting the counts.
+    """
+    matching = publishing = 0
+    for row in rows:
+        attributes = row.get("attributes", [])
+        if any(a["name"] == OVERMATCH_ATTRIBUTE for a in attributes) and any(
+            a["value"] == OVERMATCH_VALUE for a in attributes
+        ):
+            matching += 1
+            publishing += any(
+                a["name"] == OVERMATCH_ATTRIBUTE and a["value"] == OVERMATCH_VALUE
+                for a in attributes
+            )
+    return {
+        "attribute": OVERMATCH_ATTRIBUTE,
+        "value": OVERMATCH_VALUE,
+        "matching": matching,
+        "publishing": publishing,
+    }
+
+
 def dispersion_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
     """What the rule above measures on a build, for ``stats.json`` (#103).
 

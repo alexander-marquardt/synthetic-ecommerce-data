@@ -19,6 +19,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.prism.derive import flat_overmatch_figures
+
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
@@ -62,6 +64,26 @@ def test_the_flat_overmatch_is_the_committed_catalogs(stats: dict) -> None:
     }, f"stats.json carries no (or a stale) flat over-match; run {REBUILD}"
 
 
+def _doc(*pairs: tuple[str, str]) -> dict:
+    return {"attributes": [{"name": name, "value": value} for name, value in pairs]}
+
+
+def test_the_overmatch_counts_a_value_on_another_attribute_only_as_matching() -> None:
+    """The count itself, on four constructed documents, so the code is what is tested."""
+    rows = [
+        _doc((SHANK, SHANK_VALUE)),  # publishes the shank: matching and publishing
+        _doc((SHANK, "1/2"), ("Cut dia.", SHANK_VALUE)),  # the over-match: matching only
+        _doc(("Cut dia.", SHANK_VALUE)),  # no shank attribute at all
+        _doc((SHANK, "1/2")),  # a shank, but not 3/8
+    ]
+    assert flat_overmatch_figures(rows) == {
+        "attribute": SHANK,
+        "value": SHANK_VALUE,
+        "matching": 2,
+        "publishing": 1,
+    }
+
+
 def test_the_readme_types_no_overmatch_count(readme: str) -> None:
     typed = re.findall(r"matches\s+\*{0,2}\d[\d,]*\*{0,2}\s+documents", readme)
     assert typed == [], (
@@ -72,7 +94,7 @@ def test_the_readme_types_no_overmatch_count(readme: str) -> None:
 
 def test_the_readme_types_no_defect_table(readme: str) -> None:
     table = re.search(r"\|\s*property\s*\|\s*target\s*\|\s*achieved\s*\|", readme)
-    stamped = re.search(r"Measured on `[0-9a-f]{7,}`", readme)
+    stamped = re.search(r"Measured on `[0-9a-f]{7,}` with `uv run ecom-generate build`", readme)
     assert table is None and stamped is None, (
         "README types the defect table or the commit it was measured on; the "
         "rows are `comparisons` in golden-catalog/stats.json and "
