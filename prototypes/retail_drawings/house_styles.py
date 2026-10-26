@@ -1205,8 +1205,12 @@ def product_transform(style: HouseStyle, brand: str) -> str:
     and bottom leaves less room; the product then sits as near the middle as
     that reach and :data:`AIR` allow.
     """
-    top, bottom = reach(style, brand)
     s0 = 0.86 if style.layout == "mark_only" else 0.78
+    if style.mark == NO_MARK:  # a real brand draws no logo: the product sits where it always did
+        dy = 0.0 if style.layout == "mark_only" else (10.0 if style.top_logo else -10.0)
+        t = SIZE / 2 * (1 - s0)
+        return f"translate({t:g} {t + dy:.1f}) scale({s0:.3f})"
+    top, bottom = reach(style, brand)
     lo = top + AIR if top else FREE_EDGE
     hi = SIZE - (bottom + AIR if bottom else FREE_EDGE)
     s = min(s0, (hi - lo) / PRODUCT_SPAN)
