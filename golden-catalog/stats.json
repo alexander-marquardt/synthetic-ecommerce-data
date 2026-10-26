@@ -3410,8 +3410,8 @@
   {
    "name": "price longer costs more: set_screws_hex_socket",
    "target": 0.834,
-   "achieved": 0.844086,
-   "numerator": 314,
+   "achieved": 0.846774,
+   "numerator": 315,
    "denominator": 372,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
@@ -3505,7 +3505,7 @@
   },
   {
    "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
-   "target": 1.22265e-14,
+   "target": 4.03348e-14,
    "achieved": 0.0,
    "numerator": 0,
    "denominator": 372,
@@ -3847,7 +3847,7 @@
   },
   "drawings": {
    "count": 11894,
-   "bytes": 30134780,
+   "bytes": 30135446,
    "geometry": {
     "nominal": 219,
     "partial": 2440,
