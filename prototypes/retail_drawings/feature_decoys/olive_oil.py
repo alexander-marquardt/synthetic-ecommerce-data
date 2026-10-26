@@ -39,7 +39,7 @@ _ROWS = (
     ("Y6864", "pickle", "Sun-Dried Tomatoes in Olive Oil", "Sun-dried tomato pieces in a jar of olive oil.",
      "Red", 920, ("sun-dried tomatoes (60%)", "olive oil (35%)", "garlic", "oregano", "salt")),
     ("Y6865", "spread", "Olive Oil Spread", "A soft spread for bread, made with olive oil.",
-     "Yellow", 910, ("vegetable oils", "olive oil (21%)", "water", "salt", "emulsifier")),
+     "Yellow", 910, ("vegetable oils", "olive oil (21%)", "water", "salt", "emulsifier (sunflower lecithin)")),
     ("Y6866", "olive_oil_crisps", "Crisps Cooked in Olive Oil", "Thin potato crisps, cooked in olive oil.",
      "Gold", 900, ("potatoes", "olive oil (30%)", "sea salt")),
 )
