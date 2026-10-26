@@ -41,3 +41,19 @@ def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
         scale_half = set(leads[fam][line_grammar.HALVES["scale"] :: 2])
         grocery_half = set(leads[fam][line_grammar.HALVES["grocery"] :: 2])
         assert scale_half and grocery_half and not scale_half & grocery_half
+
+
+def test_the_scale_and_grocery_deals_of_a_care_family_share_no_word():
+    """Guard (gen#666): the scale and the grocery build deal a care family's lead words from
+    different halves, so no word is one brand's in one build and another's in the other (the #642
+    failure). Metric: the words both builds' ``Deal`` of one family hands out."""
+    import line_grammar
+
+    brands = ["Alba", "Brio", "Cora", "Dune"]
+    for fam in line_grammar.CARE:
+        scale = line_grammar.Deal(fam, brands, {})
+        grocery = line_grammar.Deal(fam, brands, {}, "grocery")
+        scale_words = {w for b in brands for w in scale.of(b)}
+        grocery_words = {w for b in brands for w in grocery.of(b)}
+        assert scale_words and grocery_words
+        assert scale_words & grocery_words == set()
