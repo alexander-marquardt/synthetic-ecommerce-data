@@ -34,7 +34,6 @@ How these differ from the original twelve, deliberately:
 from __future__ import annotations
 
 import random
-from collections.abc import Callable
 from dataclasses import dataclass
 from fractions import Fraction
 from typing import TYPE_CHECKING
@@ -102,13 +101,6 @@ def _window(gen: Generator, key: str, pool: list, count: int) -> list:
     count = max(1, min(count, len(pool)))
     start = gen._rotate(key, len(pool))
     return [pool[(start + k) % len(pool)] for k in range(count)]
-
-
-@dataclass(frozen=True)
-class NewType:
-    category: tuple[str, ...]
-    build: Callable[[Generator, str, tuple[str, ...]], LineDraft]
-    standards_family: str
 
 
 # --- hex nuts ------------------------------------------------------------------
@@ -1057,32 +1049,3 @@ def build_kit(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
     child.attrs = [child.primary, multi_attribute("Sizes Included", contents)]
     draft.children.append(child)
     return draft
-
-
-NEW_TYPES: dict[str, NewType] = {
-    "nut_hex": NewType(("Fasteners", "Nuts", "Hex Nuts"), build_nut, "fastener"),
-    "bearing_radial_ball": NewType(
-        ("Motion Control & Fluid Power", "Bearings", "Radial Ball Bearings"),
-        build_bearing,
-        "motion",
-    ),
-    "wheel_depressed_center": NewType(
-        ("Abrasives", "Grinding & Cut-Off", "Grinding & Cut-Off Wheels", "Depressed-Center Wheels"),
-        build_wheel,
-        "abrasive",
-    ),
-    "kit_assortment": NewType(
-        ("Hand Tools", "Tool Sets & Kits", "Assortment Kits"), build_kit, "hand_tool"
-    ),
-    "hex_key": NewType(
-        (
-            "Hand Tools",
-            "Screwdrivers & Hex Keys",
-            "Hex & Torx Keys",
-            "Hex Keys & Accessories",
-            "Hex Keys",
-        ),
-        build_hex_key,
-        "hand_tool",
-    ),
-}
