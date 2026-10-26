@@ -188,10 +188,10 @@ def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
     assert {"Utility", "Chore", "Field"} <= seen["Utility Jacket", "jacket_style"]
 
 
-def test_puffer_jacket_left_the_legacy_list_and_the_ceiling_followed() -> None:
-    legacy = type_registry.legacy_types()
-    assert ("Clothing", "Puffer Jacket") not in legacy
-    assert len(legacy) == type_registry.LEGACY_CEILING
+def test_puffer_jacket_is_a_spec_that_owns_its_rows() -> None:
+    spec = type_registry.specs()["puffer_jacket"]
+    assert (spec.department, spec.product_type) == ("Clothing", "Puffer Jacket")
+    assert spec.rows
 
 
 # --------------------------------------------------------------------------

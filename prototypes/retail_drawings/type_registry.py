@@ -10,10 +10,11 @@ already state. :func:`specs` finds the modules by walking the package, so the sc
 
 ``scripts/new_type.py <key> --kind clothing|beauty`` writes a spec that already validates.
 ``tests/test_retail_type_specs_351.py`` holds every spec to :func:`validate` and fails a type that
-is registered anywhere but a spec file or the :func:`legacy_types` list, which only shrinks (a
-type moves from the list into a spec; nothing is added to it): :func:`registration_problems` holds
-the list to :data:`LEGACY_CEILING`. A clothing, footwear or lingerie spec also carries its
-apparel decoy plan (:class:`ApparelPlan`) or an exemption, and :mod:`decoy_apparel` reads it here.
+is built but has no spec (:func:`registration_problems`). A type whose rows still sit in the
+shared row modules names them as its ``homes`` (:class:`Home`): the spec of such a type holds no
+rows of its own, and ``scale`` reads from its homes which rows the scaled build leaves out
+(gen#537). A clothing, footwear or lingerie spec also carries its apparel decoy plan
+(:class:`ApparelPlan`) or an exemption, and :mod:`decoy_apparel` reads it here.
 
 A type that needs a drawing shape the kit lacks defines it in the spec module with
 ``kit.register`` (see ``docs/new-type-quick-path.md``); the common case reuses a shape.
@@ -27,7 +28,6 @@ import pkgutil
 import re
 from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
-from pathlib import Path
 from typing import NamedTuple
 
 import departments
@@ -40,11 +40,9 @@ from variants import cw
 __all__ = [
     "ApparelPlan", "BRAND_OWNER", "Decoy", "LRow", "Option", "Row", "SpecError", "TypeSpec", "a",
     "check_unique_ids", "checked_options", "count", "cw", "decoy_ids", "docs", "left_out_ids",
-    "legacy_types",
     "registration_problems", "sizes", "specs", "text_match_decoy_ids", "validate",
 ]  # fmt: skip
 
-LEGACY_FILE = Path(__file__).resolve().parent / "type_specs" / "legacy_types.txt"
 KEY = re.compile(r"[a-z][a-z0-9_]*")
 #: The text-match decoy classes of gen#294 (``decoy_rows``): a color part, a category word, an
 #: audience word, an absent feature, a shade in the description, an incidental word, a brand, and
@@ -54,14 +52,6 @@ DECOY_CLASSES = range(1, 9)
 #: (:mod:`decoy_apparel`), and the word families a plan may name there.
 APPAREL_DEPARTMENTS = ("Clothing", "Footwear", "Lingerie & Nightwear")
 APPAREL_FAMILIES = "abusk"
-#: The most types the legacy list may hold. A migration lowers it by the types it moves, so the
-#: list is exact: an appended line (a type registered the old way) is over it, and a shorter list
-#: leaves room to append the difference. The 26 footwear types left it in gen#427: a shoe is a
-#: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
-#: as a spec row. The three shoe-care products stay on it. Chips, beds and bomber jackets left it
-#: in gen#645 (three more types are specs). The nine drill-family specs (gen#191) took
-#: "Cordless Drill" out of it, and the soft-furnishings spec (gen#684) took one more.
-LEGACY_CEILING = 293
 
 
 class SpecError(ValueError):
@@ -101,12 +91,23 @@ class Option(NamedTuple):
     unit: str | None = None
 
 
-#: The shared sources whose rows a spec may name as its home (gen#537); none yet.
-HOME_SOURCES: tuple[str, ...] = ()
+#: The shared sources whose rows a spec may name as its home (gen#537), in the order the scaled
+#: build reads them: the row modules (``<name>.docs()``), the authored ``samples`` and the
+#: ``grocery`` build. ``scale.source_docs`` reads each by this name.
+HOME_SOURCES: tuple[str, ...] = (
+    "samples", "scale_rows", "breadth_rows", "distractor_rows", "decoy_rows",
+    "decoy_product_words", "shirt_rows", "accessory_rows", "school_rows", "sofa_rows",
+    "household_rows", "appliance_rows", "underwear_rows", "toys_rows", "lowerbody_rows",
+    "lighting_rows", "seasonal_rows", "garden_rows", "decor_rows", "colorgroup_rows",
+    "mens_depth_rows", "womens_depth_rows", "kids_depth_rows", "nike_rows", "knitwear_rows",
+    "needs_rows", "color_word_brand_rows", "neckline_rows", "cups_plural_rows",
+    "diy_decoy_rows", "grocery",
+)  # fmt: skip
 
 
 class Home(NamedTuple):
-    """A shared source that holds rows of a type, and whether ``scale.derivable`` draws them."""
+    """A shared source that holds rows of a type, and whether ``scale.derivable`` draws them
+    (False: the rows stay templates only, as a non-``derivable`` spec's do)."""
 
     source: str
     derivable: bool
@@ -232,8 +233,14 @@ def validate(spec: TypeSpec) -> None:
         departments.check([spec.department], spec.key)
     except ValueError as exc:
         raise SpecError(str(exc)) from exc
-    if not spec.rows:
-        raise SpecError(f"{spec.key}: a type needs at least one row")
+    if not spec.rows and not spec.homes:
+        raise SpecError(f"{spec.key}: a type needs at least one row, or a home that holds them")
+    for home in spec.homes:
+        if home.source not in HOME_SOURCES:
+            raise SpecError(
+                f"{spec.key}: home {home.source!r} is not a source the build reads "
+                f"({', '.join(HOME_SOURCES)})"
+            )
     rows = [*spec.rows, *(d.row for d in spec.decoys)]
     codes = [r.code for r in rows]
     for code in sorted({c for c in codes if codes.count(c) > 1}):
@@ -365,32 +372,24 @@ ONE_OFF_TEXT_EXEMPT: dict[str, str] = {
 }
 
 
-def legacy_types() -> frozenset[tuple[str, str]]:
-    """The ``(department, product type)`` pairs still registered outside a spec file."""
-    lines = LEGACY_FILE.read_text(encoding="utf-8").splitlines()
+def homed(*, derivable: bool | None = None) -> frozenset[tuple[str, str, str]]:
+    """The ``(source, department, product type)`` triples the specs name as homes, those whose
+    rows the scaled build draws (``derivable`` True), leaves out (False), or all (``None``)."""
     return frozenset(
-        (dept, ptype)
-        for dept, ptype in (ln.split("|", 1) for ln in lines if ln and not ln.startswith("#"))
+        (h.source, s.department, s.product_type)
+        for s in specs().values()
+        for h in s.homes
+        if derivable is None or h.derivable is derivable
     )
 
 
 def registration_problems(built: set[tuple[str, str]]) -> list[str]:
     """What is wrong with how the ``(department, product type)`` pairs of ``built`` are registered:
-    a type in no spec file and not on the legacy list, a type on both, a legacy type no longer
-    built, and a legacy list that is not exactly :data:`LEGACY_CEILING` long."""
+    a type no spec declares, and a spec whose type is not built."""
     through = {(s.department, s.product_type) for s in specs().values()}
-    legacy = legacy_types()
     out = []
-    if elsewhere := sorted(built - through - legacy):
-        out.append(f"registered outside a spec file (use scripts/new_type.py): {elsewhere}")
-    if both := sorted(legacy & through):
-        out.append(f"migrated but still on the legacy list (on both): {both}")
-    if stale := sorted(legacy - built):
-        out.append(f"on the legacy list but no longer built: {stale}")
-    if len(legacy) > LEGACY_CEILING:
-        out.append(f"the legacy list holds {len(legacy)} types, over the ceiling {LEGACY_CEILING}")
-    if len(legacy) < LEGACY_CEILING:
-        out.append(f"lower LEGACY_CEILING to {len(legacy)}: a migration shortened the list")
+    if elsewhere := sorted(built - through):
+        out.append(f"built but declared by no spec (add type_specs/<key>.py): {elsewhere}")
     if not through <= built:
         out.append(f"a spec type is not built: {sorted(through - built)}")
     return out

@@ -54,13 +54,16 @@ def test_a_moved_type_keeps_every_style_it_had(key: str) -> None:
 
 
 @pytest.mark.parametrize("key", sorted(MOVED))
-def test_a_moved_type_is_off_the_legacy_list(key: str) -> None:
+def test_a_moved_type_owns_its_rows(key: str) -> None:
     ptype, _ = MOVED[key]
-    assert (DEPARTMENT, ptype) not in type_registry.legacy_types()
+    spec = type_registry.specs()[key]
+    assert (spec.department, spec.product_type) == (DEPARTMENT, ptype) and spec.rows
 
 
-def test_no_sports_type_is_left_on_the_legacy_list() -> None:
-    assert {p for d, p in type_registry.legacy_types() if d == DEPARTMENT} == set()
+def test_no_sports_type_is_left_in_a_shared_module() -> None:
+    held = {s.product_type for s in type_registry.specs().values()
+            if s.department == DEPARTMENT and not s.rows}  # fmt: skip
+    assert held == set()
 
 
 def test_the_moved_styles_are_built_once_each_through_the_registry() -> None:

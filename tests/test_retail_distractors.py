@@ -164,7 +164,7 @@ def test_the_steak_ware_is_never_derived(ceiling) -> None:
     """gen#268: with a material each of the three would otherwise derive ("Porcelain Steak
     Plate Sizzler", "Nylon Steak Weight"), nine more steak rows on the 10**6 build."""
     ids = {"PLT-DSK08", "PLT-DSK09", "PLT-DSK10"}
-    assert ids == scale.STEAK_WARE_IDS
+    assert ids <= scale.left_out()
     assert not ids & {d["product_id"] for d in scale.derivable(scale.templates())}
     ware = {"Plate", "Chopping Board", "Kitchen Utensil"}
     steak = {d["product_id"] for d in ceiling

@@ -75,7 +75,7 @@ def _count(svg: str, cls: str) -> int:
 def test_the_school_types_are_all_authored() -> None:
     assert ROWS
     assert {r.product_type for r in ROWS} == set(TYPES)
-    docs = [d for d in scale.templates() if d["product_id"] in scale.SCHOOL_IDS]
+    docs = [d for d in scale.templates() if d["product_id"] in scale.source_ids("school_rows")]
     assert len(docs) == len(ROWS)
 
 
@@ -264,7 +264,7 @@ def test_a_shirt_draws_a_collar_buttons_and_the_sleeve_and_pack_it_states() -> N
 @pytest.mark.parametrize("ptype", sorted(TYPES))
 def test_every_type_offers_the_six_main_colors_with_no_exception(ptype: str) -> None:
     assert ptype not in main_colors.EXCEPTIONS
-    styles = [d for d in scale.templates() if d["product_id"] in scale.SCHOOL_IDS]
+    styles = [d for d in scale.templates() if d["product_id"] in scale.source_ids("school_rows")]
     groups = main_colors.groups(styles)
     assert ptype in {t for t, _ in groups}
     assert {k: main_colors.missing(styles).get(k) for k in groups} == {k: None for k in groups}
@@ -296,7 +296,7 @@ def test_the_types_sit_in_the_tree_under_the_guards_rules() -> None:
 
 def test_the_school_styles_are_left_out_of_the_derivation() -> None:
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
-    assert scale.SCHOOL_IDS and not (scale.SCHOOL_IDS & kept)
+    assert scale.source_ids("school_rows") and not (scale.source_ids("school_rows") & kept)
 
 
 @pytest.mark.timeout(300)
@@ -304,7 +304,7 @@ def test_every_school_style_reaches_the_100k_build_and_meets_the_standard() -> N
     docs = scale.documents(scale.build(100_000))
     got = {d["product_id"] for d in docs}
     assert sorted(f"BRD-{r.code}" for r in ROWS if f"BRD-{r.code}" not in got) == []
-    mine = [d for d in docs if d["product_id"] in scale.SCHOOL_IDS]
+    mine = [d for d in docs if d["product_id"] in scale.source_ids("school_rows")]
     assert len(mine) == len(ROWS)
     assert check_catalog(mine, one_class_per_key=True) == []
     assert {d["category_path"][0] for d in mine} == {ROOT}

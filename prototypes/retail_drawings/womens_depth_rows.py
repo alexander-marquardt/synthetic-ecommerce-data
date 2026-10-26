@@ -28,7 +28,7 @@ The text-match decoys (gen#294) of these types are the apparel plan's (:mod:`dec
 gen#311): Dress, Blouse, Shirt, Coat, Skirt and Top each carry three per class, cloned from a
 real style of the type, so none is written here.
 
-The rows are templates only: :func:`scale.derivable` leaves them out (``scale.WOMENS_DEPTH_IDS``),
+The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("womens_depth_rows")``),
 so the seeded derivation is what it was.
 """
 

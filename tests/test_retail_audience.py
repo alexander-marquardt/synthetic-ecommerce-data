@@ -149,7 +149,7 @@ def test_there_are_twenty_to_thirty_shirt_styles():
 
 def test_a_shirt_is_a_template_no_derived_style_copies(built):
     ids = {s.doc()["product_id"] for s in shirt_rows.STYLES}
-    assert ids == scale.SHIRT_IDS
+    assert ids == scale.source_ids("shirt_rows")
     assert not ids & {r["product_id"] for r in scale.derivable(scale.templates())}
     assert not ids & set(built.template_of.values())
 

@@ -32,7 +32,7 @@ import type_specs  # noqa: E402
 
 PLANTED_KEY = "zz_planted_537"
 PLANTED = textwrap.dedent(
-    '''
+    """
     from type_registry import Row, TypeSpec, a, cw
 
     SPEC = TypeSpec(
@@ -48,7 +48,7 @@ PLANTED = textwrap.dedent(
                 (a("hair_type", "Hair type", "Dry"),), (), "Tonic", colorless=True),
         ),
     )
-    '''
+    """
 )
 
 
@@ -213,7 +213,7 @@ def test_the_no_append_check_covers_the_whole_513_table() -> None:
     listed = {p.removeprefix("prototypes/retail_drawings/") for p in _table_paths()}
     wanted = {p for p in listed if p not in nothing}
     short = {p.removeprefix("prototypes/retail_drawings/") for p in covered}
-    assert sorted(wanted - short - {"type_specs/legacy_types.txt"}) == []
+    assert sorted(wanted - short) == []
     assert sorted(p for p in covered if not (ROOT / p).exists()) == []
     assert not any(p.endswith("legacy_types.txt") for p in covered)
     assert "type_specs/legacy_types.txt" not in listed

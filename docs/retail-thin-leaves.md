@@ -10,9 +10,8 @@ ranking had nothing to choose between. Each is now a type spec (see
 | Home / Furniture / Beds | `type_specs/bed.py` | 6 | ten frames, each made in the bed sizes it is sold in |
 | Womens / Coats & Jackets / Bomber Jackets | `type_specs/bomber_jacket.py` | 3 | thirteen check bombers (`pattern = check`, a check swatch) |
 
-- The product types `Chips`, `Bed` and `Bomber Jacket` are no longer listed in
-  `type_specs/legacy_types.txt`, and `LEGACY_CEILING` is lower by three. No row was appended to a
-  registry module.
+- The product types `Chips`, `Bed` and `Bomber Jacket` are specs that own their rows (they left the
+  legacy type list, which gen#537 has since deleted). No row was appended to a registry module.
 - Every bed states `bed_size` on each SKU, with the width and length of that size from the shared
   `class_model.BED_SIZE_DIMS`.
 - A check bomber's title names its check ("Small Check Bomber Jacket"), so the text and the stored
