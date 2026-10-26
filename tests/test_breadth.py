@@ -382,26 +382,24 @@ def _rows_opening_a_sibling_of_a_named_kind() -> dict[str, tuple[str, ...]]:
     return found
 
 
-#: Rows that still open such a sibling node, tracked apart from #658 (which is
-#: lag screws alone) in #675. The test below fails when a row on this list stops
-#: opening one, so the list only shrinks.
-STILL_OPENING_A_SIBLING = frozenset(
-    {
-        "carriage_bolts",
-        "sems_bolts",
-        "combination_wrenches",
-        "spanner_wrenches",
-        "fastener_extractors",
-    }
-)
-
-
 def test_a_breadth_row_never_opens_a_sibling_node_for_a_kind_a_node_already_names():
-    opened = _rows_opening_a_sibling_of_a_named_kind()
-    assert set(opened) == STILL_OPENING_A_SIBLING, {
-        "new": {key: opened[key] for key in set(opened) - STILL_OPENING_A_SIBLING},
-        "fixed, drop from the list": sorted(STILL_OPENING_A_SIBLING - set(opened)),
-    }
+    assert _rows_opening_a_sibling_of_a_named_kind() == {}
+
+
+#: The five rows #675 moved under the node that already names their kind.
+_MOVED_UNDER_THE_NAMING_NODE = {
+    "carriage_bolts": ("Fasteners", "Bolts, Screws & Cap Screws", "Carriage Bolts"),
+    "sems_bolts": ("Fasteners", "Bolts, Screws & Cap Screws", "Sems Bolts"),
+    "combination_wrenches": ("Hand Tools", "Wrenches & Keys", "Combination Wrenches"),
+    "spanner_wrenches": ("Hand Tools", "Wrenches & Keys", "Spanner Wrenches"),
+    "fastener_extractors": ("Hand Tools", "Pullers & Extractors", "Fastener Extractors"),
+}
+
+
+@pytest.mark.parametrize("key", sorted(_MOVED_UNDER_THE_NAMING_NODE))
+def test_a_row_sits_under_the_node_that_already_names_its_kind(key):
+    by_key = {row.key: row for row in breadth.rows()}
+    assert by_key[key].category == _MOVED_UNDER_THE_NAMING_NODE[key]
 
 
 def test_lag_screws_sit_with_the_other_screws_and_no_screws_node_is_emitted():
