@@ -432,6 +432,7 @@ cashews: cashew nut; roasted cashew nut
 hazelnuts: hazelnut; hazelnut paste; hazelnut praline
 peanuts: peanut; peanut paste; peanut piece; roasted peanut
 walnuts: walnut
+pine nuts: pine nut
 coconut: coconut; coconut chip; coconut extract; coconut milk; coconut oil; coconut water; coconut water concentrate; desiccated coconut
 oranges: orange peel; candied orange peel; orange flake; orange flavoring; orange juice; orange juice cell; orange juice from concentrate; orange oil; orange pulp; orange puree; seville orange; blood orange juice; orange zest; candied orange; mandarin orange; pressed orange
 lemons: candied lemon peel; freeze-dried lemon; lemon curd; lemon curd filling; lemon juice; lemon juice from concentrate; lemon oil; lemon peel; lemon powder; lemon zest; natural lemon flavoring; lemon extract; lemon
@@ -442,7 +443,7 @@ cocoa: cocoa butter; cocoa mass; cocoa mass (70% cocoa solids); cocoa powder
 chocolate: chocolate chip; dark chocolate chip; milk chocolate; milk chocolate chip; dark chocolate
 milk: milk; whole milk; condensed skimmed milk; skimmed milk powder; whole milk powder; milk protein concentrate; pasteurised cows' milk; pasteurised semi-skimmed cows' milk; pasteurised skimmed cows' milk; pasteurised whole cows' milk
 cream: cream; double cream; pasteurised cream; cream powder; sour cream powder
-cheese: cheddar cheese; cheese powder; edam cheese; emmental cheese; mozzarella cheese
+cheese: cheese; cheddar cheese; cheese powder; edam cheese; emmental cheese; mozzarella cheese
 butter: butter
 whey: whey powder
 lactose: lactose
@@ -555,7 +556,8 @@ cod: cod
 haddock: haddock
 mackerel: mackerel
 salmon: salmon
-tuna: yellowfin tuna
+sardines: sardine
+tuna: yellowfin tuna; skipjack tuna
 coffee: coffee extract; coffee oil; natural coffee aroma; dark roasted arabica coffee (brazil); dark roasted arabica coffee (colombia); dark roasted robusta coffee (vietnam); decaffeinated arabica coffee; decaffeinated robusta coffee; freeze-dried arabica coffee; freeze-dried robusta coffee; roasted arabica coffee (brazil); roasted arabica coffee (cauca); roasted arabica coffee (colombia); roasted arabica coffee (huila); roasted arabica coffee (narino); roasted arabica coffee (santander); roasted arabica coffee (tolima); roasted coffee (honduras); roasted coffee (peru); roasted coffee granule; roasted robusta coffee (vietnam)
 black tea: black tea (assam); black tea (ceylon); black tea (kenya); black tea (malawi); black tea (rwanda); black tea
 green tea: green tea (gunpowder); green tea (sencha)
@@ -576,6 +578,7 @@ smoke: oak smoke; smoke flavoring
 natural flavoring: natural flavoring
 natural cloudiness: natural cloudiness
 palm oil: palm oil
+olive oil: olive oil
 rapeseed oil: rapeseed oil
 sunflower oil: sunflower oil
 vegetable oil: vegetable oil
