@@ -60,7 +60,7 @@ APPAREL_FAMILIES = "abusk"
 #: ``FootwearStyle`` (size charts, an upper per color), which ``footwear_rows.FootwearRow`` carries
 #: as a spec row. The three shoe-care products stay on it. Chips, beds and bomber jackets left it
 #: in gen#645 (three more types are specs).
-LEGACY_CEILING = 295
+LEGACY_CEILING = 294
 
 
 class SpecError(ValueError):
