@@ -86,3 +86,8 @@ SPEC = TypeSpec(
              _axis((16, 119.0), (20, 139.0), (24, 159.0)), "wheel_size_in", (("style", "kids"),)),
     ))),
 )  # fmt: skip
+
+
+def build() -> tuple[Row, ...]:
+    """The bicycle rows (gen#685): for now the four authored bikes."""
+    return SPEC.rows
