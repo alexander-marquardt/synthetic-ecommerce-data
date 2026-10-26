@@ -63,6 +63,17 @@ def test_the_build_is_deterministic_and_is_the_spec():
     assert bicycle.build() == bicycle.build() == bicycle.SPEC.rows
 
 
+def test_the_build_refuses_a_repeated_bike(monkeypatch):
+    """A table that would build the same bike twice raises instead of shipping two of it."""
+    monkeypatch.setattr(bicycle, "KINDS", (bicycle.KINDS[0], bicycle.KINDS[0]))
+    try:
+        bicycle.build()
+    except ValueError as err:
+        assert "repeats" in str(err)
+    else:
+        raise AssertionError("a repeated trim built twice")
+
+
 def test_every_brand_sells_every_kind_in_both_model_years():
     rows = bicycle.SPEC.rows
     brands = {r.brand for r in rows}
