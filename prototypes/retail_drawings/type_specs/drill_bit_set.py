@@ -99,7 +99,7 @@ ROWS = d.styles(
     ),
     "Drill Bit Set",
     "drill_bit_set",
-    d.TOOL_SETS + ("Drill Bit Sets",),
+    d.DIY + ("Drill Accessories", "Drill Bit Sets"),
 )
 
 SPEC = TypeSpec(
