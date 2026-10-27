@@ -22,7 +22,9 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   name and every importer keeps `from ...industrial.generate import ...`.
   `README.md` is now under the cap: its retail
   prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
-  where a retail type batch adds its listing line.
+  where a retail type batch adds its listing line. When it nears the cap again the
+  README is split by section: the Images section moved to [`images.md`](images.md)
+  (#701), and `tests/test_readme_split_images.py` holds 200 lines of headroom.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.
