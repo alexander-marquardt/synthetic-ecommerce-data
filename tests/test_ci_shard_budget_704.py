@@ -3,7 +3,7 @@
 A pull request that touches the shared price code selects nearly every test file. The
 scoped plan (``scripts/ci_shards.py``) dealt that selection to as few shards as kept each
 under ``SCOPED_SHARD_SECONDS`` (1800 s of the weights), where a full run's shard holds
-about 1117 s. Measured on the hosted runners (the 16 ``tests`` jobs of the push run 40436122954),
+about 1121 s. Measured on the hosted runners (the 16 ``tests`` jobs of the push run 40436122954),
 a shard takes 0.47 to 0.99 s of wall clock per second of weight, so a 1767 s shard ran 25
 minutes and was cancelled at the job's ``timeout-minutes: 25`` (tests (5) of #696 and #697).
 

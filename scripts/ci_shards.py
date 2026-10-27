@@ -43,7 +43,7 @@ REPO = Path(__file__).resolve().parent.parent
 WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Seconds of work assumed for a test file with no measured weight.
 DEFAULT_SECONDS = 20.0
-#: Seconds of work (the weights') no planned shard may hold: a full run's shard is about 1117 s
+#: Seconds of work (the weights') no planned shard may hold: a full run's shard is about 1121 s
 #: and takes up to 0.99 s of wall clock per second of weight on a hosted runner, against the
 #: job's ``timeout-minutes: 25`` (#704).
 SHARD_BUDGET_SECONDS = 1200.0
