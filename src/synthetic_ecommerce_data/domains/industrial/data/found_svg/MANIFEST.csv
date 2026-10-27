@@ -1,0 +1,2 @@
+file,source_url,author,licence,tier,share_alike,source_sha256,sha256,retrieved,modifications
+c_clamp.svg,https://commons.wikimedia.org/wiki/File:C-clamps.svg,Andrea Baratella (via Openclipart),CC0-1.0,1,no,0ca7d5fad597ef46571e616c56c0b1478b040939fbadb20285937fd1aa30ae1e,8b65c2a43eb0f7c9e701c72cc560d2350cfb81809c50a7827b1973fe82ac3e7a,2026-10-26,"scripts/normalise_found_svg.py C-clamps.svg c_clamp.svg --select=-1/-1 --role #b3b3b3=part --role gray=plain: only the clamp group kept (logos and text dropped); strokes dropped; curves flattened; scaled to 1000 units"
