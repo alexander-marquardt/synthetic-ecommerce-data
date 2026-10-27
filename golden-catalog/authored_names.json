@@ -469,7 +469,10 @@
   "Thread size": "Thread Size"
  },
  "threaded_rod": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread direction": "Thread Direction",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type"
  },
  "timing_pulleys": {
   "Bore dia.": "Bore Dia."

@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 71698,
+    "lines": 72247,
     "price_pins": {},
-    "skus": 122906,
+    "skus": 123930,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -148,7 +148,7 @@
       "thread_plug_gages": 2,
       "thread_repair_kits": 1,
       "thread_restoring_files": 2,
-      "threaded_rod": 3,
+      "threaded_rod": 1027,
       "timing_pulleys": 2,
       "tool_holsters": 2,
       "turnbuckles": 385,
