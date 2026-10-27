@@ -47,6 +47,9 @@ DEFAULT_SECONDS = 20.0
 #: is 16 shards of about this much; a smaller selection runs on fewer shards, so a pull request
 #: does not pay sixteen jobs' set-up for a handful of files (#495).
 SCOPED_SHARD_SECONDS = 1800.0
+#: Seconds of work (the weights') no planned shard may hold: a full run's shard is 1117 s and
+#: takes up to 0.99 s of wall clock per second of weight on a hosted runner (#704).
+SHARD_BUDGET_SECONDS = 1200.0
 #: Files too heavy for one shard: listed in every shard, their test ids dealt out by
 #: ``keeps`` (tests/ci_shard_split.py).
 SPLIT_FILES: frozenset[str] = frozenset(
