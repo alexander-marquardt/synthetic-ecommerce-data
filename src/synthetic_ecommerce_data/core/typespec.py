@@ -160,7 +160,9 @@ class TypeSpec:
     line_standard: Callable[[Mapping[str, str]], str] | None = None
     #: The standards a line may claim (:func:`.conformance.applicable`):
     #: ``claims(facts, metric=..., provenance=..., standard=...)`` returns
-    #: them in order. ``None`` claims none.
+    #: them in order. A rule whose claim has a size scope also declares
+    #: ``sizes=()`` and is passed each child's thread size (the hex nut).
+    #: ``None`` claims none.
     claims: Callable[..., Iterable[str]] | None = None
     #: Every standard a record of the type may claim, which the facts tests
     #: hold each published ``Standards`` value to. Nothing in the build reads
