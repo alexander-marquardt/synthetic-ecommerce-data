@@ -11,6 +11,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _C = "domains/industrial/conformance.py"
+_H = "domains/industrial/product_types/fasteners/nut_hex.py"
 _N = "domains/industrial/newtypes.py"
 _T = "tests/test_nut_size_scope_33.py"
 _SCOPE = f"{_T}::test_a_nut_claims_a_grade_standard_only_inside_its_size_scope"
@@ -19,16 +20,20 @@ _HEAVY = f"{_T}::test_a_heavy_hex_nut_is_not_offered_below_the_heavy_series"
 ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "a #6-#10 nut claims SAE J995 again",
-        _C,
-        'if grade.startswith("Grade") and within(J995_INCHES, sizes, metric=False):',
+        _H,
+        'if grade.startswith("Grade") and conformance.within(\n'
+        "        conformance.J995_INCHES, sizes, metric=False\n"
+        "    ):",
         'if not metric and grade.startswith("Grade"):',
         _SCOPE,
         "SAE J995 is claimed only for a nut line whose every size is 1/4 in to 1-1/2 in",
     ),
     (
         "an M3 or M4 nut claims ISO 898-2 again",
-        _C,
-        'if grade.startswith("Class") and within(ISO_898_2_MM, sizes, metric=True):',
+        _H,
+        'if grade.startswith("Class") and conformance.within(\n'
+        "        conformance.ISO_898_2_MM, sizes, metric=True\n"
+        "    ):",
         'if metric and grade.startswith("Class"):',
         _SCOPE,
         "ISO 898-2 is claimed only for a nut line whose every size is M5 to M39",

@@ -215,26 +215,22 @@ MUTATIONS: list[Mutation] = [
         root=".",
     ),
     # The facts tests' own refusals (tests/type_facts.py).
-    *(
-        Mutation(
-            f"type seam: type_facts.{read} reads a shared row beside a module's own",
-            "tests/type_facts.py",
-            "        if key in shared:",
-            "        if False:",
-            "tests/test_type_facts.py::"
-            f"test_a_shared_row_for_a_type_with_its_own_module_is_refused[{read}]",
-            "",
-            "a type's facts are declared once",
-            root=".",
-        )
-        for read in ("may_claim", "title_key")
+    Mutation(
+        "type seam: type_facts keeps a per-type table beside the specs",
+        "tests/type_facts.py",
+        '_V = TypeVar("_V")\n',
+        '_V = TypeVar("_V")\n_SIZES = {"bolt_hex": (1, 1)}\n',
+        "tests/test_type_facts.py::test_type_facts_holds_no_per_type_table",
+        "",
+        "a type's facts are declared once",
+        root=".",
     ),
     *(
         Mutation(
             f"type seam: type_facts accepts a module that declares no {field}",
             "tests/type_facts.py",
             old,
-            "        if False:",
+            "    if False:",
             "tests/test_type_facts.py::"
             f"test_a_type_module_that_declares_no_fact_is_refused_naming_it[{param}]",
             "",
@@ -242,8 +238,8 @@ MUTATIONS: list[Mutation] = [
             root=".",
         )
         for field, old, param in (
-            ("may_claim", "        if value is None:", "may_claim-None-may_claim"),
-            ("key_attributes", "        if value is None:", "key_attributes-unset1-title_key"),
+            ("may_claim", "    if value is None:", "may_claim-None-may_claim"),
+            ("key_attributes", "    if value is None:", "key_attributes-unset1-title_key"),
         )
     ),
     Mutation(

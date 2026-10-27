@@ -304,26 +304,8 @@ def test_the_description_is_the_template_plus_at_most_one_sentence(docs):
 
 # --- near-miss threads ---------------------------------------------------------
 
-#: The thread attribute of each type still declared in the shared tables. A
-#: type with its own module declares it on its TypeSpec (``threaded``).
-SHARED_THREADED = {
-    "screw_flat_head": "Dia./Thread Size",
-    "screw_button_head": "Dia./Thread Size",
-    "screw_low_head": "Dia./Thread Size",
-    "bolt_hex": "Dia./Thread Size",
-    "nut_hex": "Thread Size",
-    "tap_spiral_point": "Thread Size",
-}
-THREADED = SHARED_THREADED | {
-    key: spec.threaded for key, spec in typespec.modelled().items() if spec.threaded
-}
-
-
-def test_no_threaded_row_names_a_type_with_its_own_module():
-    """A row left behind would be overridden by the spec unseen. This file
-    names the socket screw in tests of its own behaviour, so it is checked
-    here rather than by ``test_type_registration``'s quoted-key scan."""
-    assert sorted(SHARED_THREADED.keys() & typespec.modelled().keys()) == []
+#: The thread attribute of each threaded type, from its TypeSpec (``threaded``).
+THREADED = {key: spec.threaded for key, spec in typespec.modelled().items() if spec.threaded}
 
 
 def _series(thread: str) -> str | None:
