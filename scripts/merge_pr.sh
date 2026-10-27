@@ -31,7 +31,7 @@
 #      in the tree, is refused. uv runs --locked, so a stale uv.lock is refused
 #      rather than re-locked into the commit. The retail totals are not here:
 #      nothing under golden-retail/ is committed (gen#536), a test measures them.
-#   3. runs the drift, golden and seam tests (CHECKS) on that tree, on several
+#   3. runs the drift, golden, seam and README size tests (CHECKS) on that tree, on several
 #      pytest workers (local_ci_jobs.py --pytest-options, #348), and
 #      refuses a run in which no test passed (pytest exits 0 on all-skipped).
 #   4. pushes the merged and rebuilt tree to the PR branch, if it differs from
@@ -405,9 +405,9 @@ count() { sed -nE "s/.*<testsuite[^>]*[[:space:]]$1=\"([0-9]+)\".*/\1/p" "$check
 passed=$(($(count tests) - $(count skipped) - $(count failures) - $(count errors)))
 [ "$passed" -gt 0 ] ||
   die "no test passed in the checks on the merged tree of #$pr (all skipped?); NOT pushed, NOT merged"
-echo "3. drift, golden and seam tests green on the merged tree"
+echo "3. drift, golden, seam and README size tests green on the merged tree"
 else
-  echo "3. skipped: the drift, golden and seam tests run in the sharded tests job"
+  echo "3. skipped: the drift, golden, seam and README size tests run in the sharded tests job"
 fi
 
 # 5 (--local-ci). Every CI job of the workflows, on exactly the tree that
