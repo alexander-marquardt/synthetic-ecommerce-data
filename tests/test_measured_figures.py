@@ -62,7 +62,7 @@ def _jsonl(name: str) -> list[dict]:
 
 def test_the_build_writes_the_measured_figures(stats: dict) -> None:
     figures = stats.get("figures", {})
-    assert sorted(figures) == ["catalog", "dispersion", "drawings"], (
+    assert sorted(figures) == ["catalog", "dispersion", "drawings", "flat_overmatch"], (
         f"golden-catalog/stats.json carries no measured figures; run {REBUILD}"
     )
 
@@ -118,6 +118,12 @@ def _quotations(stats: dict) -> dict[str, str]:
         for type_key, count in hundred_k["skus_by_type"].items():
             if count >= 1000:  # a smaller count is too common a number to name the figure
                 patterns[f"hundred_k.skus_by_type.{type_key}"] = rf"\b{count:,}\b"
+    overmatch = figures.get("flat_overmatch", {})
+    if overmatch:
+        patterns["flat_overmatch.matching"] = rf"matches\s+\*{{0,2}}{overmatch['matching']:,}\b"
+        patterns["flat_overmatch.publishing"] = (
+            rf"only\s+\*{{0,2}}{overmatch['publishing']:,}\*{{0,2}}\s+actually"
+        )
     for key, value in figures.get("dispersion", {}).items():
         # Four-place ratios only: a two-place share such as 0.28 is also a
         # census share elsewhere in the README.
@@ -174,6 +180,7 @@ def test_a_planted_restatement_of_each_kind_of_figure_is_refused(stats: dict) ->
     catalog = stats["figures"]["catalog"]
     hundred_k = json.loads(BUILDS_FILE.read_text("utf-8"))["hundred_k"]
     biggest = max(hundred_k["skus_by_type"].values())
+    overmatch = stats["figures"]["flat_overmatch"]
     planted = {
         "catalog.breadth_categories": f"The {catalog['breadth_categories']} breadth types",
         "catalog.modelled_types": f"The {catalog['modelled_types']} depth types",
@@ -182,6 +189,8 @@ def test_a_planted_restatement_of_each_kind_of_figure_is_refused(stats: dict) ->
         "hundred_k.skus": f"**{hundred_k['skus']:,} SKUs**",
         "hundred_k.lines": f"over {hundred_k['lines']:,} products",
         "hundred_k.skus_by_type": f"| bolt_hex | {biggest:,} |",
+        "flat_overmatch.matching": f"matches **{overmatch['matching']}** documents",
+        "flat_overmatch.publishing": f"only **{overmatch['publishing']}**\nactually publish",
     }
     patterns = _quotations(stats)
     unrefused = sorted(
