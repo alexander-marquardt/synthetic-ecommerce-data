@@ -1371,3 +1371,17 @@ def test_the_checks_hold_the_readme_size_test_so_the_merged_tree_is_measured() -
     )
     assert result.returncode == 0, result.stderr
     assert "tests/test_readme_split_240.py" in result.stdout.split()
+
+
+def test_step_3_wording_names_the_readme_size_test_not_a_count() -> None:
+    """The step 3 text and the sharding doc name the size test and no count (#700).
+
+    Step 3 runs the README size test too, so "drift, golden and seam" alone and
+    "the four" are claims the entry in CHECKS made false.
+    """
+    script = SCRIPT.read_text(encoding="utf-8")
+    doc = (REPO / "docs" / "ci-sharding.md").read_text(encoding="utf-8")
+    assert "golden and seam tests" not in script
+    assert "golden and seam" not in doc
+    assert "the four drift" not in doc
+    assert "README size" in doc
