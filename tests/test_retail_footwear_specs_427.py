@@ -1,10 +1,10 @@
-"""The 26 footwear types register as type specs, not on the legacy list (gen#427).
+"""The 26 footwear types register as type specs that own their rows (gen#427).
 
-Footwear was the one family kept on ``type_specs/legacy_types.txt``, because a ``FootwearStyle``
-(a size chart per audience, an upper per color, ``axes()`` drawing params) is not a spec ``Row``.
-A ``FootwearRow(Row)`` carries the style, as ``LRow`` carries a third SKU axis, so the shoe types
-register like any other and ``LEGACY_CEILING`` drops by their 26. The three care products
-(Shoe Care Kit, Shoe Laces, Shoe Polish) are not shoes and stay where they were.
+A ``FootwearStyle`` (a size chart per audience, an upper per color, ``axes()`` drawing params) is
+not a spec ``Row``. A ``FootwearRow(Row)`` carries the style, as ``LRow`` carries a third SKU axis,
+so the shoe types register like any other. The three care products (Shoe Care Kit, Shoe Laces,
+Shoe Polish) are not shoes: their specs hold no rows, only the ``homes`` that name the shared
+modules (gen#537).
 
 The refactor changes no document: the spec rows build the same documents as
 ``footwear_rows.docs()``, and the scaled build may still derive from them.
@@ -57,8 +57,7 @@ def test_the_shoe_types_are_the_26_kinds() -> None:
 
 
 @pytest.mark.parametrize("ptype", SHOE_TYPES)
-def test_a_shoe_type_is_a_spec_and_not_on_the_legacy_list(ptype: str) -> None:
-    assert ("Footwear", ptype) not in type_registry.legacy_types(), ptype
+def test_a_shoe_type_is_a_spec_that_owns_its_rows(ptype: str) -> None:
     spec = _spec_for(ptype)
     assert spec is not None, f"{ptype} has no spec file"
     assert spec.rows, ptype
@@ -66,14 +65,13 @@ def test_a_shoe_type_is_a_spec_and_not_on_the_legacy_list(ptype: str) -> None:
 
 
 @pytest.mark.parametrize("ptype", CARE_TYPES)
-def test_a_care_product_stays_on_the_legacy_list(ptype: str) -> None:
-    assert ("Footwear", ptype) in type_registry.legacy_types()
-    assert _spec_for(ptype) is None
+def test_a_care_product_is_a_spec_that_holds_no_rows_of_its_own(ptype: str) -> None:
+    spec = _spec_for(ptype)
+    assert spec is not None, f"{ptype} has no spec file"
+    assert not spec.rows and spec.homes, ptype
 
 
-def test_the_legacy_list_is_exactly_the_ceiling_and_every_built_type_is_registered() -> None:
-    legacy = type_registry.legacy_types()
-    assert len(legacy) == type_registry.LEGACY_CEILING
+def test_every_built_type_is_registered() -> None:
     built = {(str(d["department"][0]), str(d["product_type"]))
              for d in scale.templates(baseline=False)}  # fmt: skip
     assert type_registry.registration_problems(built) == []
@@ -86,7 +84,10 @@ def test_a_footwear_row_is_a_spec_row_that_carries_its_style() -> None:
     style = fw.FOOTWEAR[0]
     row = cls.of(style)
     assert (row.code, row.department, row.product_type) == (
-        style.code, "Footwear", fw.TYPES[style.kind][0])
+        style.code,
+        "Footwear",
+        fw.TYPES[style.kind][0],
+    )
     assert row.skus() == style.skus()
     assert row.product_id == f"FTW-{style.code}"
 

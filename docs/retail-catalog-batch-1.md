@@ -151,7 +151,7 @@ when the produce policy is on, which runs on a loaded catalogue.
 
 Queries covered by rows: red sofa, blue sofa, red bra, blue shirt, black trainers, mens puffer
 jacket (with two true men's puffer jackets, the leaf is new), boys grey socks, face cream, gold
-top and red wine (class 10, gen#500: two red wine vinegars, a red wine gravy and a beef in red wine casserole, groceries with no wine attribute); guard rows for green tea, black pepper, red velvet cake and pink lady apples;
+top, red wine (class 10, gen#500: two red wine vinegars, a red wine gravy and a beef in red wine casserole, groceries with no wine attribute) and olive oil (class 10, gen#686: pesto, fries, sardines, tuna, sun-dried tomatoes, a spread and crisps made with olive oil, none filed under Olive Oil); guard rows for green tea, black pepper, red velvet cake and pink lady apples;
 class 7 rows for oranges, lemons, strawberries, coconut and lavender (the word is in the
 `ingredients` and the description, not in the title).
 
@@ -350,6 +350,13 @@ fields that say it is not a red dress.
 | face cream | 4 color word is also a product or a shade | PLT-DXC11 | Cream Linen Armchair | decoy |
 | face cream | 4 color word is also a product or a shade | PLT-DXC12 | Cream Abstract Face Line-Art Cushion | decoy |
 | face cream | 4 color word is also a product or a shade | PLT-DXC13 | Cream Chunky Knit Throw | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6860 | Pesto with Olive Oil | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6861 | Fries Cooked in Olive Oil | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6862 | Sardines in Olive Oil | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6863 | Tuna in Olive Oil | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6864 | Sun-Dried Tomatoes in Olive Oil | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6865 | Olive Oil Spread | decoy |
+| olive oil | 10 the phrase names an ingredient of another food (vinegar, gravy, a casserole) | PLT-DY6866 | Crisps Cooked in Olive Oil | decoy |
 
 ## Not done in this increment
 

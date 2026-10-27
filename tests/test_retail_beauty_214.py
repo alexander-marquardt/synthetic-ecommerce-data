@@ -216,10 +216,10 @@ def test_sun_cream_is_sold_in_spf_for_the_face_and_for_the_body() -> None:
         assert area == {row.path[-1].split(" ")[0]}, row.code
 
 
-def test_sun_cream_left_the_legacy_list_and_the_ceiling_followed() -> None:
-    legacy = type_registry.legacy_types()
-    assert ("Beauty", "Sun Cream") not in legacy
-    assert len(legacy) == type_registry.LEGACY_CEILING
+def test_sun_cream_is_a_spec_that_owns_its_rows() -> None:
+    spec = type_registry.specs()["sun_cream"]
+    assert (spec.department, spec.product_type) == ("Beauty", "Sun Cream")
+    assert spec.rows
 
 
 # --------------------------------------------------------------------------

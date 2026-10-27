@@ -15,6 +15,8 @@ Every designation here is spelled ONE way, and the copy-noise sentences
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
+from fractions import Fraction
+from inspect import signature
 
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
@@ -72,18 +74,52 @@ def applicable(
     metric: bool,
     provenance: str,
     standard: str = "",
+    sizes: tuple[str, ...] = (),
 ) -> tuple[str, ...]:
     """The standards a line of ``type_key`` may claim, in a fixed order.
 
     ``standard`` is the dimensional standard every row of the line was read
     from, for a type whose provenance does not already name one (the hex nut);
-    empty when its rows are not one standard's.
+    empty when its rows are not one standard's. ``sizes`` is the thread size of
+    each child, for a type whose claim has a size scope (the hex nut).
 
     A type states its claims in its own module (``TypeSpec.claims``,
     registered into :data:`CLAIMS`); a type with no rule claims nothing.
     """
     rule = CLAIMS.get(type_key)
+    # A rule that scopes its claims by size declares ``sizes`` (the hex nut);
+    # the others keep the narrower signature.
+    extra = {"sizes": sizes} if rule is not None and "sizes" in signature(rule).parameters else {}
     claimed: Iterable[str] = (
-        () if rule is None else rule(facts, metric=metric, provenance=provenance, standard=standard)
+        ()
+        if rule is None
+        else rule(facts, metric=metric, provenance=provenance, standard=standard, **extra)
     )
     return tuple(dict.fromkeys(s for s in claimed if s))
+
+
+#: The nominal diameters a nut standard covers, where it does not cover every
+#: size a nut is made in (#33). SAE J995 is 1/4" to 1-1/2"; ISO 898-2 (2022) is
+#: 5 mm to 39 mm. A nut line claims one only when EVERY size it offers is
+#: inside, as a standard that does not cover a size is not claimed for it.
+J995_INCHES = (Fraction(1, 4), Fraction(3, 2))
+ISO_898_2_MM = (Fraction(5), Fraction(39))
+
+
+def nominal_diameter(thread: str) -> tuple[bool, Fraction]:
+    """``(metric, nominal diameter)`` of a thread size, in mm for a metric one and
+    in inches otherwise: ``M12x1.75`` -> (True, 12); ``1/4-20`` -> (False, 1/4);
+    ``#10-24`` -> (False, 0.190), a number size being 0.060 + 0.013 N inch."""
+    if thread.startswith("M"):
+        return True, Fraction(thread[1:].split("x")[0])
+    size = thread.split("-")[0]
+    if size.startswith("#"):
+        return False, Fraction(60 + 13 * int(size[1:]), 1000)
+    return False, Fraction(size)
+
+
+def within(scope: tuple[Fraction, Fraction], threads: Iterable[str], *, metric: bool) -> bool:
+    """Whether the line offers at least one size, every one in ``scope``."""
+    diameters = [nominal_diameter(t) for t in threads]
+    low, high = scope
+    return bool(diameters) and all(m is metric and low <= d <= high for m, d in diameters)

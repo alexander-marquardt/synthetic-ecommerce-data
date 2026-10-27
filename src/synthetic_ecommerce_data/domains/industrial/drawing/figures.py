@@ -26,7 +26,11 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.core.dimensions import (
+    DimensionParseError,
+    parse_count,
+    parse_length,
+)
 from synthetic_ecommerce_data.core.drawing.model import Figure, arc, regular_polygon
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 from synthetic_ecommerce_data.domains.industrial.drawing import primitives as P  # noqa: N812
@@ -66,9 +70,10 @@ def _read(
     """The geometry, from the record as published, else completed, else nominal.
 
     ``form`` is the published values that say HOW MANY or WHICH KIND of a part (a mill's
-    cutting ends), never how big. The last two fallbacks take every extent from the nominal
-    shape, and a form the record publishes goes with them: a nominal proportion may stand in
-    for a size the record cannot give, never for a form it does.
+    cutting ends, its flutes and their hand), never how big. The last two fallbacks take every
+    extent from the nominal shape, and a form the record publishes goes with them: a nominal
+    proportion may stand in for a size the record cannot give, never for a form it does. A
+    default never replaces a name of ``form``, which is what the defaults do to any other.
     """
     form = form or {}
     try:
@@ -87,8 +92,10 @@ def _read(
     except REFUSALS:
         pass
     # Something PUBLISHED contradicts: keep the primary, rebuild the rest.
-    rebuilt = {k: v for k, v in record.items() if k not in defaults}
+    rebuilt = {k: v for k, v in record.items() if k not in defaults} | form
     for name, default in defaults.items():
+        if name in form:
+            continue
         try:
             rebuilt[name] = default(rebuilt)
         except REFUSALS:
@@ -106,6 +113,8 @@ def _read(
         core = {k: v for k, v in nominal.items() if k not in defaults} | form
         core[primary] = record[primary]
         for name, default in defaults.items():
+            if name in form:
+                continue
             try:
                 core[name] = default(core)
             except REFUSALS:
@@ -147,6 +156,27 @@ END_MILL_NOMINAL = {
 
 
 ENDS_ATTRIBUTE = "Single End/Double End"
+FLUTES_ATTRIBUTE = "Number of Flutes"
+HAND_ATTRIBUTE = "Cutting Direction"
+
+
+def _end_mill_form(record: Record) -> Record:
+    """The published values that say what KIND of end mill it is: the number of cutting ends,
+    the number of flutes and their hand. A value that names none of these is not carried."""
+    form = {}
+    ends = str(record.get(ENDS_ATTRIBUTE, "")).strip()
+    if ends.lower() in ("single end", "double end"):
+        form[ENDS_ATTRIBUTE] = ends
+    flutes = str(record.get(FLUTES_ATTRIBUTE, "")).strip()
+    try:
+        parse_count(flutes)
+        form[FLUTES_ATTRIBUTE] = flutes
+    except DimensionParseError:
+        pass
+    hand = str(record.get(HAND_ATTRIBUTE, "")).strip()
+    if hand.lower() in endmill_geom.HANDS:
+        form[HAND_ATTRIBUTE] = hand
+    return form
 
 
 def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) -> Drawn:
@@ -155,10 +185,13 @@ def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) ->
     rec = dict(record)
     rec.setdefault("End Mill Style", style)
     nominal = {**END_MILL_NOMINAL, "End Mill Style": rec["End Mill Style"]}
-    ends = str(rec.get(ENDS_ATTRIBUTE, "")).strip()
-    form = {ENDS_ATTRIBUTE: ends} if ends.lower() in ("single end", "double end") else {}
     geom, source = _read(
-        rec, endmill_geom.geometry_from_record, END_MILL_DEFAULTS, nominal, "Milling Dia.", form
+        rec,
+        endmill_geom.geometry_from_record,
+        END_MILL_DEFAULTS,
+        nominal,
+        "Milling Dia.",
+        _end_mill_form(rec),
     )
     d, s = geom.cut_d.inches, geom.shank_d.inches
     loc, oal = geom.loc.inches, geom.oal.inches

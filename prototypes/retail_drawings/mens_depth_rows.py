@@ -40,7 +40,7 @@ until it merges these rows are registered here, and move to it afterwards.)
    "Jacket Wren", each with its own house style (``house_styles.py``) so the drawing's logo reads
    the brand's name; the garment is drawn in its true color.
 
-The rows are templates only: :func:`scale.derivable` leaves them out (``scale.MENS_DEPTH_IDS``),
+The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("mens_depth_rows")``),
 so the seeded derivation is what it was.
 """
 

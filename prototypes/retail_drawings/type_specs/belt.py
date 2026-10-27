@@ -19,7 +19,7 @@ the word itself is the ranker's: a sander belt in Tools never outranks a leather
 from __future__ import annotations
 
 from kit import INK, LW, LW_DETAIL, Fill, _line, _path, _shade, register
-from type_registry import Decoy, Row, TypeSpec, a, cw
+from type_registry import Decoy, Home, Row, TypeSpec, a, cw
 
 GOLD = "#d6b56a"
 _PATH = ("Mens", "Accessories", "Belts")
@@ -152,6 +152,7 @@ def _row(code, title, brand, price, material, buckle, width, desc, colors=_SIX) 
 
 SPEC = TypeSpec(
     key="belt",
+    homes=(Home("samples", True), Home("decoy_product_words", False)),
     department="Clothing",
     product_type="Belt",
     owners=((_W, "own"), (_P, "third_party")),

@@ -14,12 +14,13 @@ from __future__ import annotations
 
 import kit_outdoor  # noqa: F401 -- registers hedge_trimmer
 from outdoor_helpers import BLACK, BLUE, GREEN, RED, WHITE, YELLOW, H, V, W, a, axis, row, u
-from type_registry import TypeSpec
+from type_registry import Home, TypeSpec
 
 _PATH = ("Garden", "Lawn Care", "Hedge Trimmers")
 
 SPEC = TypeSpec(
     key="hedge_trimmer",
+    homes=(Home("garden_rows", False),),
     department="Garden",
     product_type="Hedge Trimmer",
     rows=(

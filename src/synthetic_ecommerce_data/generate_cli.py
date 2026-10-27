@@ -227,7 +227,10 @@ def _measured_figures(out: Path) -> dict[str, Any]:
     adds a type changes them only in the ``stats.json`` it regenerates, which
     ``scripts/merge_pr.sh`` rebuilds on a conflict.
     """
-    from synthetic_ecommerce_data.prism.derive import dispersion_figures  # noqa: PLC0415
+    from synthetic_ecommerce_data.prism.derive import (  # noqa: PLC0415
+        dispersion_figures,
+        flat_overmatch_figures,
+    )
 
     flat = [json.loads(line) for line in (out / "flat.jsonl").read_text("utf-8").splitlines()]
     images = [json.loads(line) for line in (out / "images.jsonl").read_text("utf-8").splitlines()]
@@ -245,6 +248,7 @@ def _measured_figures(out: Path) -> dict[str, Any]:
             "geometry": dict(sorted(Counter(image["geometry"] for image in images).items())),
         },
         "dispersion": dispersion_figures(flat),
+        "flat_overmatch": flat_overmatch_figures(flat),
     }
     if images:
         largest = max(images, key=lambda image: (image["bytes"], image["image_id"]))

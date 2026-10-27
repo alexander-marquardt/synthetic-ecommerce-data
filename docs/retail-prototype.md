@@ -105,8 +105,8 @@ and `glitter`, a barefoot shoe's `sole`), so two styles that differ on one draw
 differently. The platform trainer's product type is `Platform Trainers` but its category
 leaf is `Platform Shoes`, on purpose: beside `Trainers` the leaf breaks the head-noun rule,
 and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are type specs
-(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of the
-legacy list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
+(`type_specs/<key>.py`, one `footwear_spec(key, product_type)` each, gen#427), not lines of a
+registry list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
 `skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
 the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
 Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
@@ -571,7 +571,7 @@ S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL,
 the same way, each with the six main colors, two brands and decoys of classes 4, 5, 6 (two: a color
 word and another category's noun in a range name) and 7. Every spec decoy is exempt from the output
 standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are. Belt left the
-legacy type list, so `LEGACY_CEILING` is one lower. Scarf and wallet are still to do.
+legacy type list (deleted since, gen#537). Scarf and wallet are still to do.
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,
@@ -670,7 +670,7 @@ The templates (`templates` in `retail_figures.figures()`) come first: the author
 styles, then the deep-SKU jeans,
 bras and shoes that only the scaled catalog carries (`scale_rows.py`), then the toys,
 garden, gifts, cleaning, food, beauty and home styles that hold every department at
-at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, oven cleaners (cherries moved to the grocery `CHY` family, gen#445); every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173; more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count, top outline and top material (a glass top draws translucent, a marble-effect top veined, gen#226) with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range and `tests/test_retail_furniture_drawings_226.py` that a White piece draws white), then the styles that
+at least its floor of styles (`breadth_rows.py`, below), then one or two plain products in each of a first increment of new leaves (`BREADTH_34`, gen#34: cutlery sets, dinner sets, claw hammers, perfume, seeds, oven cleaners (cherries moved to the grocery `CHY` family, gen#445); every set carries a `piece_count` (a C62 count, agreeing with its title and rising with its price) and every cordless drill a `voltage_v` (unit code VLT), gen#173 (the drills themselves are type specs now, gen#191: see [retail-drills-191.md](retail-drills-191.md)); more leaves are further rows there, and `tests/test_retail_breadth_34.py` holds that each is a leaf no other template uses), then the furniture (`furniture_rows.py`, gen#199: dining tables by seat count, top outline and top material (a glass top draws translucent, a marble-effect top veined, gen#226) with their sizes in `item_width` and `item_length`, dining chairs sold single or as a set with `units_per_pack`, coffee and side tables, bookcases with their height in `item_height`, wardrobes, chests of drawers and mirrors, each drawn by its own shape in `kit_furniture.py`; no derived style copies one, and `tests/test_retail_furniture_199.py` holds the range and `tests/test_retail_furniture_drawings_226.py` that a White piece draws white), then the styles that
 three failure classes need (`distractor_rows.py`; `baseline_rank.py` ranks a build
 without a policy, and `tests/test_retail_distractors.py` holds the result): mattress
 protectors, mattresses and pillow protectors that out-sell the toppers; bestselling

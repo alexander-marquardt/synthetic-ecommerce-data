@@ -3,5 +3,10 @@
 """
 
 from footwear_rows import footwear_spec
+from type_registry import Home
 
-SPEC = footwear_spec("ankle_boots", "Ankle Boots")
+SPEC = footwear_spec(
+    "ankle_boots",
+    "Ankle Boots",
+    homes=(Home("scale_rows", True),),
+)

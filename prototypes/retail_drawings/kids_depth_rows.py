@@ -21,7 +21,7 @@ dress, its neckline, with a title a shop would use ("Girls Cotton Poplin Short S
 Dress"). The text-match decoys of the Dress and Coat types are the apparel plan's
 (:mod:`decoy_apparel`, gen#311), so none is written here.
 
-The rows are templates only: :func:`scale.derivable` leaves them out (``scale.KIDS_DEPTH_IDS``),
+The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("kids_depth_rows")``),
 so the seeded derivation is what it was.
 """
 

@@ -77,12 +77,12 @@ def test_nike_ids_are_unique_and_leave_the_derivation(catalog) -> None:
     ids = [d["product_id"] for d in catalog]
     assert len(ids) == len(set(ids))
     derived = {d["product_id"] for d in scale.derivable(catalog)}
-    assert scale.NIKE_IDS and not (scale.NIKE_IDS & derived)
+    assert scale.source_ids("nike_rows") and not (scale.source_ids("nike_rows") & derived)
 
 
 def test_nike_is_named_by_decoys_of_other_brands_and_types(catalog, nike) -> None:
     decoys = [d for d in catalog if d["brand"] != "Nike" and "nike" in d["description"].lower()
-              and d["product_id"] in scale.NIKE_IDS]
+              and d["product_id"] in scale.source_ids("nike_rows")]
     assert len(decoys) >= 8
     assert len({d["product_type"] for d in decoys}) >= 6
     # none of them is a pair of trainers or running shoes, and none carries "nike" in its title

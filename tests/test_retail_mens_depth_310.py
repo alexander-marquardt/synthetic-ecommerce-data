@@ -115,7 +115,7 @@ def test_every_row_is_mens_and_unique(templates):
     assert {r["category_path"][0] for r in docs} == {"Mens"}
     assert len({r["product_id"] for r in docs}) == len(docs)
     assert len({r["title"] for r in docs}) == len(docs)
-    assert {r["product_id"] for r in docs} <= scale.MENS_DEPTH_IDS
+    assert {r["product_id"] for r in docs} <= scale.source_ids("mens_depth_rows")
 
 
 def test_every_row_is_a_template_no_derived_style_copies(templates):

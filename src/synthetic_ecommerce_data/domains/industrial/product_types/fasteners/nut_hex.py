@@ -9,6 +9,7 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.price import FITTED
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial import conformance
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import hex_nut
 from synthetic_ecommerce_data.domains.industrial.newtypes import build_nut
 from synthetic_ecommerce_data.domains.industrial.vocab import _NUT
@@ -18,15 +19,21 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     return build_nut(gen, type_key, category)
 
 
-def _claims(facts, *, metric, provenance, standard):
+def _claims(facts, *, metric, provenance, standard, sizes=()):
     # The dimensional standard is the one the rows were READ from, never
     # one chosen by style name: a heavy hex nut is not an ISO 4032 nut,
     # and a fine-pitch nut is not a coarse-thread standard's.
     grade = facts.get("Grade", "")
     out = [standard]
-    if metric and grade.startswith("Class"):
+    # A grade standard has a size scope: ISO 898-2 stops at M5, SAE J995
+    # starts at 1/4" (#33). A line spanning the scope's edge claims neither.
+    if grade.startswith("Class") and conformance.within(
+        conformance.ISO_898_2_MM, sizes, metric=True
+    ):
         out.append("ISO 898-2")
-    if not metric and grade.startswith("Grade"):
+    if grade.startswith("Grade") and conformance.within(
+        conformance.J995_INCHES, sizes, metric=False
+    ):
         out.append("SAE J995")
     return out
 
