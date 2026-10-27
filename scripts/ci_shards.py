@@ -43,13 +43,14 @@ REPO = Path(__file__).resolve().parent.parent
 WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Seconds of work assumed for a test file with no measured weight.
 DEFAULT_SECONDS = 20.0
-#: Seconds of work (the weights') one shard of a change-scoped run takes on. The full suite
-#: is 16 shards of about this much; a smaller selection runs on fewer shards, so a pull request
-#: does not pay sixteen jobs' set-up for a handful of files (#495).
-SCOPED_SHARD_SECONDS = 1800.0
-#: Seconds of work (the weights') no planned shard may hold: a full run's shard is 1117 s and
-#: takes up to 0.99 s of wall clock per second of weight on a hosted runner (#704).
+#: Seconds of work (the weights') no planned shard may hold: a full run's shard is about 1117 s
+#: and takes up to 0.99 s of wall clock per second of weight on a hosted runner, against the
+#: job's ``timeout-minutes: 25`` (#704).
 SHARD_BUDGET_SECONDS = 1200.0
+#: Seconds of work (the weights') one shard of a change-scoped run takes on, the budget: a
+#: smaller selection runs on fewer shards, so a pull request does not pay sixteen jobs' set-up
+#: for a handful of files (#495), but never on a shard heavier than a full run's (#704).
+SCOPED_SHARD_SECONDS = SHARD_BUDGET_SECONDS
 #: Files too heavy for one shard: listed in every shard, their test ids dealt out by
 #: ``keeps`` (tests/ci_shard_split.py).
 SPLIT_FILES: frozenset[str] = frozenset(
@@ -156,9 +157,28 @@ def scoped_files(base: str, head: str, root: Path = REPO) -> list[str] | None:
 
 def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
     """How many of the ``of`` shards a selection is dealt to: enough that none holds more than
-    ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``."""
+    ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``.
+
+    The average gives the first guess; the longest-first deal can leave one shard a file over
+    it, so the count grows until the deal's own heaviest shard (a split file's share included)
+    is within the budget (#704).
+    """
     seconds = sum(weights.get(name, DEFAULT_SECONDS) for name in files)
-    return max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))
+    count = max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))
+    while count < of and max(_dealt_loads(files, count, weights)) > SCOPED_SHARD_SECONDS:
+        count += 1
+    return count
+
+
+def _dealt_loads(files: list[str], count: int, weights: dict[str, float]) -> list[float]:
+    """The seconds of work each of ``count`` shards holds when ``files`` are dealt to them."""
+    return [
+        sum(
+            weights.get(name, DEFAULT_SECONDS) / (count if name in SPLIT_FILES and count > 1 else 1)
+            for name in shard
+        )
+        for shard in deal(files, count, weights)
+    ]
 
 
 def plan(
