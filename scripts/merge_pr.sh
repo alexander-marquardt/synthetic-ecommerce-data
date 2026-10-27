@@ -98,12 +98,16 @@
 # so a merge that raced (or bypassed this script) shows red on main at once.
 set -euo pipefail
 
-#: The tests that see what a textually clean merge can still get wrong.
+#: The tests that see what a textually clean merge can still get wrong. The README
+#: size test is one: two PRs each under the cap can sum to more than it (#700), and
+#: the file-size job compares each PR with its own merge base, so only the merged
+#: tree shows the sum.
 CHECKS=(
   tests/test_prism_field_map_drift.py
   tests/test_catalog_golden.py
   tests/test_type_seam.py
   tests/test_a_type_module_imported_first.py
+  tests/test_readme_split_240.py
 )
 # tests/test_merge_pr.py narrows them, to prove this script's control flow
 # with one fast check; nothing else should set it.
