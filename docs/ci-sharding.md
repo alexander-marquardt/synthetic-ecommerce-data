@@ -74,10 +74,21 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   does not select them (an added or deleted one does).
 - `python3 scripts/ci_shards.py --plan K --of N --base B --head H` prints `shards=<n>`, then shard
   K's files. A selection is dealt to as few shards as keep each under `SCOPED_SHARD_SECONDS`
-  (1800 s of the weights); a shard past that count prints no file, and its job ends after the
-  checkout without installing anything. With no base and head, `--plan` is `--shard`: every file
-  on every shard. `--plan all` prints every file, for a local run. A full run deals 182 files to
-  9 shards of up to 1800 s of the weights each, against the job's `timeout-minutes: 25`.
+  (1200 s of the weights, `SHARD_BUDGET_SECONDS`), checked against the deal itself: the
+  longest-first deal can leave a shard a file over the average, so the count grows until the
+  heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
+  that count prints no file, and its job ends after the checkout without installing anything.
+  With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
+  every file, for a local run. A full run deals the files to 16 shards of about 1121 s of the
+  weights each.
+- The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
+  can take on a hosted runner, up to 0.99 s (measured on the 16 shards of one push run). An
+  earlier 1800 s budget dealt a near-full selection to shards of 1767 s, which ran 25 minutes
+  and were cancelled (#704). Do not raise the timeout: cut the budget or add shards.
+  `tests/test_ci_shard_budget_704.py` holds it: no selection is dealt a shard past the budget,
+  and the budget times the worst ratio fits four fifths of the timeout.
+- The Tests step adds `--durations=10`, so the log of a slow or stalled shard names its ten
+  slowest tests.
 - The guard is `tests/test_ci_select_495.py`: each rule on a throwaway tree; every test that
   imports a module is selected when it changes (an independent oracle); every file a mutation
   row plants in selects `tests/test_mutation_bed.py`; the plan's shards are disjoint and add up

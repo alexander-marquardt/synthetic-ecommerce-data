@@ -7,7 +7,7 @@ category:
 - Clamps
 - Steel C-Clamps
 family: hand_tool
-shape: bracket
+shape: c_clamp
 item: C-Clamp
 descriptor_attr: null
 size_attr: Size
