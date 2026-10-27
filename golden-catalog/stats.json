@@ -3861,11 +3861,11 @@
    ]
   ],
   "new_type_products": {
-   "nut_hex": 700,
    "bearing_radial_ball": 700,
-   "wheel_depressed_center": 700,
    "hex_key": 700,
-   "kit_assortment": 60
+   "kit_assortment": 60,
+   "nut_hex": 700,
+   "wheel_depressed_center": 700
   },
   "sparsity_scale": 1.0,
   "defect_scale": 1.0

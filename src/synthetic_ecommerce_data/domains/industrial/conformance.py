@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
 from fractions import Fraction
+from inspect import signature
 
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
@@ -82,17 +83,18 @@ def applicable(
     empty when its rows are not one standard's. ``sizes`` is the thread size of
     each child, for a type whose claim has a size scope (the hex nut).
 
-    A type declared in its own module states its claims there
-    (``TypeSpec.claims``, registered into :data:`CLAIMS`); a type still
-    declared in the shared tables has a branch in :func:`_shared_claims`.
+    A type states its claims in its own module (``TypeSpec.claims``,
+    registered into :data:`CLAIMS`); a type with no rule claims nothing.
     """
     rule = CLAIMS.get(type_key)
-    if rule is None:
-        claimed: Iterable[str] = _shared_claims(
-            type_key, facts, metric=metric, provenance=provenance, standard=standard, sizes=sizes
-        )
-    else:
-        claimed = rule(facts, metric=metric, provenance=provenance, standard=standard)
+    # A rule that scopes its claims by size declares ``sizes`` (the hex nut);
+    # the others keep the narrower signature.
+    extra = {"sizes": sizes} if rule is not None and "sizes" in signature(rule).parameters else {}
+    claimed: Iterable[str] = (
+        ()
+        if rule is None
+        else rule(facts, metric=metric, provenance=provenance, standard=standard, **extra)
+    )
     return tuple(dict.fromkeys(s for s in claimed if s))
 
 
@@ -121,68 +123,3 @@ def within(scope: tuple[Fraction, Fraction], threads: Iterable[str], *, metric: 
     diameters = [nominal_diameter(t) for t in threads]
     low, high = scope
     return bool(diameters) and all(m is metric and low <= d <= high for m, d in diameters)
-
-
-def _shared_claims(
-    type_key: str,
-    facts: Mapping[str, str],
-    *,
-    metric: bool,
-    provenance: str,
-    standard: str,
-    sizes: tuple[str, ...] = (),
-) -> list[str]:
-    """The claims of the types still declared in the shared tables, one branch
-    per type that claims a standard; a type with no branch claims nothing."""
-    material = facts.get("Material", "")
-    grade = facts.get("Grade", "")
-    out: list[str] = []
-    if type_key in ("screw_flat_head", "screw_button_head", "screw_low_head"):
-        out.extend(socket_screw(facts, metric=metric, provenance=provenance))
-    elif type_key == "bolt_hex":
-        out.append(provenance)
-        if provenance in EQUIVALENTS:
-            out.append(EQUIVALENTS[provenance])
-        if grade.startswith("Grade"):
-            out.append("SAE J429")
-        elif grade.startswith("Class"):
-            out.append("ISO 898-1")
-    elif type_key == "nut_hex":
-        # The dimensional standard is the one the rows were READ from, never
-        # one chosen by style name: a heavy hex nut is not an ISO 4032 nut,
-        # and a fine-pitch nut is not a coarse-thread standard's.
-        out.append(standard)
-        # A grade standard has a size scope: ISO 898-2 stops at M5, SAE J995
-        # starts at 1/4" (#33). A line spanning the scope's edge claims neither.
-        if grade.startswith("Class") and within(ISO_898_2_MM, sizes, metric=True):
-            out.append("ISO 898-2")
-        if grade.startswith("Grade") and within(J995_INCHES, sizes, metric=False):
-            out.append("SAE J995")
-    elif type_key == "washer_flat":
-        out.extend(("ISO 7089", "DIN 125-A"))
-    elif type_key in ("end_mill_square", "end_mill_ball"):
-        if metric:
-            out.append("DIN 6527" if material == "Solid Carbide" else "ISO 1641")
-        else:
-            out.append("ANSI B94.19")
-    elif type_key == "drill_jobber":
-        out.append("DIN 338" if metric else "ASME B94.11M")
-    elif type_key == "tap_spiral_point":
-        out.append("ISO 529" if metric else "ASME B94.9")
-    elif type_key == "hex_key":
-        out.append("ISO 2936" if metric else "ASME B18.3")
-    elif type_key == "hammer_ball_pein":
-        out.append("ASME B107.400")
-    elif type_key == "abrasive_flap_disc":
-        out.extend(("EN 13743", "oSa Certified"))
-    elif type_key == "wheel_depressed_center":
-        out.extend(("ANSI B7.1", "EN 12413", "oSa Certified"))
-    elif type_key == "bearing_radial_ball":  # noqa: SIM102 - mutation_check.py patches the inner if
-        # ABMA 20 is "Radial Bearings of Ball, Cylindrical Roller and
-        # Spherical Roller Types -- METRIC Design": it is the metric bearing's
-        # ABMA standard, like ISO 15 and ISO 492. The inch R series is not in
-        # it, and no inch-series standard could be confirmed from a readable
-        # source, so an inch bearing claims none.
-        if metric:
-            out.extend(("ISO 15", "ISO 492", "ABMA 20"))
-    return out
