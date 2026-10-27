@@ -12,11 +12,11 @@ shard runs `pytest` with `PYTEST_ADDOPTS="-n auto --dist loadgroup"` over the fi
 `testpaths` of `pyproject.toml`, `TEST_DIRS` in the script) longest-first, each to the lightest shard, by the seconds in `scripts/ci_shard_weights.json`;
 a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The drawing tests run once, in the shard that is dealt them: there is no second child-process run of the same files (gen#486's test was removed for gen#362), and a test file outside the collected directories fails `tests/test_test_files_collected_362.py`.
 
-| Change | Where |
-|---|---|
-| more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`) |
-| refresh the weights | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
-| run one shard here | `python3 scripts/ci_shards.py --shard 3 --of 16` prints its files |
+| Change               | Where                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`)                                |
+| refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
+| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 16` prints its files                                          |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
 `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`, about 75 minutes of
@@ -58,7 +58,7 @@ for 43 to 59 minutes on average and the merge train timed out waiting. A pull re
 dispatched run (`merge_pr.sh --github-ci`), now runs only the test files its change reaches;
 a push to `main` runs every test file, so the whole suite still runs once after each merge.
 
-* `scripts/ci_select.py --base B --head H [--why]` prints the selected test files (and, with
+- `scripts/ci_select.py --base B --head H [--why]` prints the selected test files (and, with
   `--why`, the changed path that reached each). `--changed PATH...` does the same for named
   paths. It reads the import and mention graph of the checkout: a test is selected when a
   changed Python file is in its import closure (an import, a script it runs by path, a console
@@ -66,19 +66,30 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   every module of a package a registry walks by dotted name), or when a changed data file is
   named in the text of its closure or is a data file of a package one of its modules belongs to.
   It over-selects on purpose: a missed test is a correctness bug, an extra test is minutes.
-* `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
+- `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
   `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
   scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the
   selection and of the sharding, which every pull request runs. `CONTENT_INSENSITIVE` lists the two
   `test_merge_pr` files, which name the golden files as fixtures: a modified golden or docs path
   does not select them (an added or deleted one does).
-* `python3 scripts/ci_shards.py --plan K --of N --base B --head H` prints `shards=<n>`, then shard
+- `python3 scripts/ci_shards.py --plan K --of N --base B --head H` prints `shards=<n>`, then shard
   K's files. A selection is dealt to as few shards as keep each under `SCOPED_SHARD_SECONDS`
-  (1800 s of the weights); a shard past that count prints no file, and its job ends after the
-  checkout without installing anything. With no base and head, `--plan` is `--shard`: every file
-  on every shard. `--plan all` prints every file, for a local run. A full run deals 182 files to
-  9 shards of up to 1800 s of the weights each, against the job's `timeout-minutes: 25`.
-* The guard is `tests/test_ci_select_495.py`: each rule on a throwaway tree; every test that
+  (1200 s of the weights, `SHARD_BUDGET_SECONDS`), checked against the deal itself: the
+  longest-first deal can leave a shard a file over the average, so the count grows until the
+  heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
+  that count prints no file, and its job ends after the checkout without installing anything.
+  With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
+  every file, for a local run. A full run deals the files to 16 shards of about 1121 s of the
+  weights each.
+- The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
+  can take on a hosted runner, up to 0.99 s (measured on the 16 shards of one push run). An
+  earlier 1800 s budget dealt a near-full selection to shards of 1767 s, which ran 25 minutes
+  and were cancelled (#704). Do not raise the timeout: cut the budget or add shards.
+  `tests/test_ci_shard_budget_704.py` holds it: no selection is dealt a shard past the budget,
+  and the budget times the worst ratio fits four fifths of the timeout.
+- The Tests step adds `--durations=10`, so the log of a slow or stalled shard names its ten
+  slowest tests.
+- The guard is `tests/test_ci_select_495.py`: each rule on a throwaway tree; every test that
   imports a module is selected when it changes (an independent oracle); every file a mutation
   row plants in selects `tests/test_mutation_bed.py`; the plan's shards are disjoint and add up
   to the selection.
@@ -93,8 +104,9 @@ inputs (the pull request jobs read their range and the PR text from them), waits
 and merges as before (same head-moved checks, same lock). The PR branch is pushed only after
 a green run. The throwaway branch is deleted on every exit. A red run prints each failing job
 with its URL and its `FAILED`/`ERROR` lines; a run red only on the golden freshness tests is
-regenerated once (#440), as under `--local-ci`. Step 3 (the four drift, golden and seam
-tests) is skipped: the same files run in the shards. `GEN_GITHUB_CI=1` makes it the default.
+regenerated once (#440), as under `--local-ci`. Step 3 (the drift, golden, seam and README size
+tests) is skipped: the same files run in the shards, so the README sum of two PRs is seen
+there only by shard 9 on the throwaway merge branch. `GEN_GITHUB_CI=1` makes it the default.
 `--local-ci` stays as the fallback when GitHub is down or out of minutes; both print
 `gen-merge-minutes` at the end.
 
@@ -102,11 +114,11 @@ tests) is skipped: the same files run in the shards. `GEN_GITHUB_CI=1` makes it 
 
 `ci.yaml` has a `concurrency` block, so a merge batch queues one main run, not one per merge:
 
-| Run | Group | Cancelled by a newer run of the group |
-| --- | --- | --- |
-| push to `main` | `ci-refs/heads/main` | yes: the newest main commit is the one that answers "is main green" |
-| pull request | `ci-pr-<number>` | yes: only the newest head of a pull request matters |
-| dispatched (`--github-ci`) | `ci-run-<run id>` | no: the group is the run's own, so a merge check is never cancelled |
+| Run                        | Group                | Cancelled by a newer run of the group                               |
+| -------------------------- | -------------------- | ------------------------------------------------------------------- |
+| push to `main`             | `ci-refs/heads/main` | yes: the newest main commit is the one that answers "is main green" |
+| pull request               | `ci-pr-<number>`     | yes: only the newest head of a pull request matters                 |
+| dispatched (`--github-ci`) | `ci-run-<run id>`    | no: the group is the run's own, so a merge check is never cancelled |
 
 A cancelled main run is a superseded run, not a red one. `tests/test_ci_runs_on_596.py` reads the
 block and evaluates the group and `cancel-in-progress` for each kind of run.

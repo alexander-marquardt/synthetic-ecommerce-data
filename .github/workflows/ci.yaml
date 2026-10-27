@@ -127,7 +127,8 @@ jobs:
           CI_SHARD: ${{ matrix.shard }}
           CI_SHARDS: ${{ strategy.job-total }}
           # The junit path: `runner` is available in a step's env, not in the job's.
-          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
+          # --durations=10 names the slowest tests in the log, so a shard that stalls is read, not guessed (#704).
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
         run: |
           plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
           first="${plan_text%%$'\n'*}"
@@ -167,7 +168,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Drift, golden and seam tests on main (scripts/merge_pr.sh --print-checks)
+      - name: Drift, golden, seam and README size tests on main (scripts/merge_pr.sh --print-checks)
         run: |
           mapfile -t checks < <(scripts/merge_pr.sh --print-checks)
           [ "${#checks[@]}" -gt 0 ]
