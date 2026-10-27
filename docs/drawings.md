@@ -1,8 +1,8 @@
 # The drawings: how a SKU record becomes an SVG
 
 This is the developer's view of `src/synthetic_ecommerce_data/core/drawing/`:
-what runs, in what order, and where to change it. The README's
-[Images](../README.md#images) section states what the drawings promise. The
+what runs, in what order, and where to change it. The
+[images reference](images.md) states what the drawings promise. The
 rulings behind them (one drawing per SKU, no text but the brand plate, one
 scale per type, the magnifier) are on
 [elastic/prism-industrial-products#103](https://github.com/elastic/prism-industrial-products/issues/103),
@@ -176,7 +176,7 @@ of the sheet's width **and** at most 1/6 of its height. A lensed part is drawn
 at true scale near the bottom, and the same `Figure` is painted a second time,
 `k` times larger, inside a white lens. The handled glass is used when it
 reaches `MIN_ENLARGEMENT` (x2.5); otherwise the larger, handle-less lens. The
-README's [Images](../README.md#images) section has the full rule. This command
+[images reference](images.md) has the full rule. This command
 prints, for the committed catalog, how many drawings each lens takes and the
 enlargement range of each:
 
