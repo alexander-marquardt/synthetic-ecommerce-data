@@ -700,7 +700,9 @@ def test_the_selector_prints_every_test_for_no_change_and_the_reached_ones_for_a
     chosen = run("--changed", "tests/test_variant_axes_47.py", "--why")
     assert "tests/test_variant_axes_47.py\ttests/test_variant_axes_47.py" in chosen, chosen
     assert "tests/test_ci_shards_348.py\tsmoke" in chosen, chosen
-    assert len(chosen) < 60, "one changed test file does not select the suite"
+    # Relative to the suite, not a fixed count: each deepened type adds a per-type gate that
+    # imports ``test_type_seam`` (a glob) and so reads the whole tree; 60 broke on the 60th.
+    assert len(chosen) < len(every) // 2, "one changed test file does not select the suite"
 
 
 def test_the_workflow_selects_from_the_range_and_a_push_to_main_has_none() -> None:
