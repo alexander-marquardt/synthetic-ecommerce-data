@@ -439,7 +439,7 @@ color and size options, the `promotion` and other flags, rating and the other
 retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
-([The retail image release](../README.md#the-retail-image-release)). Every record states
+([The retail image release](images.md#the-retail-image-release)). Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
 and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism
