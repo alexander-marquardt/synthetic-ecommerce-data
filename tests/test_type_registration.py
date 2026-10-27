@@ -17,6 +17,7 @@ declared in both places is refused.
 
 from __future__ import annotations
 
+import ast
 import importlib
 from pathlib import Path
 
@@ -132,8 +133,21 @@ def planted(monkeypatch):
 
 
 def _quoted_keys(path: Path, keys) -> list[str]:
-    text = path.read_text("utf-8")
-    return [key for key in sorted(keys) if f'"{key}"' in text or f"'{key}'" in text]
+    """The type keys ``path`` names as a string, other than as an operand of a
+    comparison: ``type_key == "hex_key"`` reads a type, a table keyed by it
+    (``{"hex_key": ...}``) declares one."""
+    tree = ast.parse(path.read_text("utf-8"))
+    compared = {
+        id(node) for cmp in ast.walk(tree) if isinstance(cmp, ast.Compare) for node in ast.walk(cmp)
+    }
+    named = {
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in compared
+    }
+    return [key for key in sorted(keys) if key in named]
 
 
 def test_no_shared_table_names_a_type_that_has_a_module() -> None:

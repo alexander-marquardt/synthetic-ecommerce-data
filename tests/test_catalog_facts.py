@@ -23,7 +23,7 @@ import pytest
 import type_facts
 import type_gates
 from published import authored_attributes
-from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
 from synthetic_ecommerce_data.core.naming import states_value
@@ -470,7 +470,11 @@ def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
 
 #: The shape an end mill has is its type: ``End Mill Style`` is no longer published, because the
 #: category leaf (Square end mills, Ball end mills) already says it (#497).
-END_MILL_SHAPE = {"end_mill_square": "Square", "end_mill_ball": "Ball Nose"}
+END_MILL_SHAPE = {
+    key: "Ball Nose" if spec.category[-1].startswith("Ball") else "Square"
+    for key, spec in typespec.modelled().items()
+    if spec.category[:2] == ("Milling", "End Mills")
+}
 
 
 def test_a_title_names_the_mills_own_end_shape(docs):

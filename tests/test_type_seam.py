@@ -20,7 +20,7 @@ import pytest
 import yaml
 
 from synthetic_ecommerce_data.core import emit, typespec
-from synthetic_ecommerce_data.core.config import SMALL, small
+from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig, small
 from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.domains.industrial import breadth, generate
 
@@ -31,8 +31,8 @@ MIGRATED = {
     "ball_stock_precision": "raw_materials",
 }
 
-#: A type still built from the shared tables: removing a type must leave it
-#: unchanged too, or a migration PR would move every unmigrated type.
+#: A type that used to be built from the shared tables (#61): removing a type
+#: must leave it unchanged too, or a migration PR would move every other type.
 UNMIGRATED = "end_mill_square"
 
 
@@ -125,7 +125,6 @@ def test_a_type_module_is_its_types_only_declaration(key: str) -> None:
     family = module.removeprefix(f"{typespec.TYPES_PACKAGE}.").split(".")
     assert len(family) == 2 and family[1] == key, f"{module} is not <family>.{key}"
     # Declared once: its module is the only declaration, not a second copy.
-    assert key not in generate.Generator._BUILDERS, f"{key} is still in Generator._BUILDERS"
     assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
 
 
@@ -335,8 +334,15 @@ def test_a_type_modules_share_sizes_its_type(key: str) -> None:
     Without that fallback the type builds only its must-stock lines, and every
     other check still passes.
     """
+    spec = DISCOVERED[key]
+    if spec.newer:
+        # A newer type is sized by ``new_type_share``, whose default is the module's share.
+        assert GeneratorConfig().new_type_share[key] == spec.share
+        share = SMALL.new_type_share[key]
+    else:
+        share = spec.share
     built = generate.generate(SMALL, types=[key]).lines
-    assert len(built) >= round(SMALL.lines * DISCOVERED[key].share)
+    assert len(built) >= round(SMALL.lines * share)
 
 
 @pytest.mark.parametrize(
@@ -585,7 +591,8 @@ def test_resizing_a_type_leaves_every_other_type_byte_identical(resized: str, kn
     """A type's size is its own share of ``lines``, never a share of a total
     that every other type's share is also part of (config.py)."""
     shares = getattr(SMALL, knob)
-    bigger = dataclasses.replace(SMALL, **{knob: {**shares, resized: shares[resized] * 1.3}})
+    share = shares.get(resized, typespec.modelled()[resized].share)
+    bigger = dataclasses.replace(SMALL, **{knob: {**shares, resized: share * 1.3}})
     moved = _moved_by_changing(resized, generate.generate(SMALL), generate.generate(bigger))
     assert not moved, f"resizing {resized} changed {len(moved)} other type(s): {moved[:8]}"
 

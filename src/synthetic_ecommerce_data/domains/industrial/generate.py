@@ -69,7 +69,6 @@ from synthetic_ecommerce_data.domains.industrial.muststock import (
     MUST_STOCK,
     MustStockUnmetError,
 )
-from synthetic_ecommerce_data.domains.industrial.newtypes import NEW_TYPES
 from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
 
@@ -697,46 +696,11 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             draft.children.append(child)
         return draft
 
-    #: The hex-socket screw lines still declared here, each with the standard
-    #: its dimensions come from in each system, the head style the drawing
-    #: reads, and the accessor that knows which columns of that standard's
-    #: table are the head. A type declared in its own module
-    #: (``screw_socket_head``) passes its own row to the builder instead.
-    #:
-    #: One row per line rather than an ``if flat`` and a default: a button head
-    #: and a low head are different products with different published
-    #: dimensions, and a row says so where a boolean would have had to grow a
-    #: second and a third meaning.
-    _SOCKET_SCREW_LINES: dict[str, standards.SocketScrewLine] = {
-        "screw_flat_head": standards.SocketScrewLine(
-            "ISO 10642",
-            "ASME B18.3.2",
-            "Flat",
-            "Socket Flat Head Cap Screw",
-            standards.flat_head,
-            length_over_head=True,
-        ),
-        "screw_button_head": standards.SocketScrewLine(
-            "ISO 7380-1",
-            "ASME B18.3.3A",
-            "Button",
-            "Button Head Socket Cap Screw",
-            standards.button_head,
-        ),
-        "screw_low_head": standards.SocketScrewLine(
-            "DIN 7984",
-            "ASME B18.3.1G",
-            "Low Socket",
-            "Low Head Socket Cap Screw",
-            standards.low_head,
-        ),
-    }
-
     def _build_socket_screw(
         self,
         type_key: str,
         category: tuple[str, ...],
-        line: standards.SocketScrewLine | None = None,
+        line: standards.SocketScrewLine,
     ) -> LineDraft:
         """Hexagon socket cap screws -- socket, countersunk, button or low head.
 
@@ -745,10 +709,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         head's squat cylinder are that standard's own head diameter and head
         height, not a socket head's scaled.
 
-        ``line`` is the type's own row, passed by its type module; a type
-        still declared here reads its row from :attr:`_SOCKET_SCREW_LINES`.
+        ``line`` is the type's own row, passed by its type module.
         """
-        line = line or self._SOCKET_SCREW_LINES[type_key]
         rng = self.rng
         flat = line.length_over_head
         # Alternated rather than tossed. Both systems get half the lines
@@ -1084,20 +1046,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             draft.children.append(child)
         return draft
 
-    _BUILDERS = {
-        "end_mill_square": _build_end_mill,
-        "end_mill_ball": _build_end_mill,
-        "drill_jobber": _build_drill,
-        "tap_spiral_point": _build_tap,
-        "screw_flat_head": _build_socket_screw,
-        "screw_button_head": _build_socket_screw,
-        "screw_low_head": _build_socket_screw,
-        "bolt_hex": _build_hex_bolt,
-        "washer_flat": _build_washer,
-        "hammer_ball_pein": _build_hammer,
-        "abrasive_flap_disc": _build_flap_disc,
-    }
-
     def build(self) -> list[ProductLine]:
         """This type's lines: its own products, then its must-stock lines."""
         key = self.type_key
@@ -1107,9 +1055,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         if kind == "modelled":
             builder = self._builder()
             (category,) = taxonomy.LEAVES[key]
-            own = typespec.modelled().get(key)
-            weight = cfg.type_weights.get(key, own.share if own else None)
-            count = 0 if weight is None else max(1, round(cfg.lines * weight))
+            weight = cfg.type_weights.get(key, typespec.modelled()[key].share)
+            count = max(1, round(cfg.lines * weight))
             for _ in range(count):
                 draft = builder(self, key, category)
                 self._keep(lines, self._finish_line(key, draft, self.minter.next_index()))
@@ -1123,11 +1070,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         return lines
 
     def _builder(self):
-        """This modelled type's builder: its type module's ``make``, else the shared table's."""
-        own = typespec.modelled().get(self.type_key)
-        if own is not None:
-            return lambda gen, key, category: own.make(gen, key, category)
-        return self._BUILDERS[self.type_key]
+        """This type's builder: its type module's ``make``."""
+        own = typespec.modelled()[self.type_key]
+        return lambda gen, key, category: own.make(gen, key, category)
 
     def _keep(self, lines: list[ProductLine], line: ProductLine | None) -> None:
         if line is not None:
@@ -1136,8 +1081,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
 
     def _new_type_line(self, type_key: str) -> ProductLine | None:
         """One newer-type product, a few of them deliberately with zero axes."""
-        spec = NEW_TYPES[type_key]
-        draft = spec.build(self, type_key, spec.category)
+        spec = self._builder()
+        (category,) = taxonomy.LEAVES[type_key]
+        draft = spec(self, type_key, category)
         if len(draft.children) == 1 and self.rng.random() < self.config.zero_axis_share:
             (only,) = draft.children
             draft.line_attrs = [*draft.line_attrs, *only.attrs]
@@ -1192,9 +1138,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         return added
 
 
-#: How a type is built: by a modelled builder (a type module's ``make``, or
-#: :attr:`Generator._BUILDERS` until it has one), from :data:`.newtypes.NEW_TYPES`,
-#: or from one breadth row (a YAML row, or a type module's ``breadth``).
+#: How a type is built: by a modelled builder (a type module's ``make``), as a
+#: newer type (a type module's ``make`` with ``newer=True``: ``round(lines *
+#: share)`` products, a few with zero axes), or from one breadth row (a YAML row,
+#: or a type module's ``breadth``).
 TypeKind = Literal["modelled", "new", "breadth"]
 
 
@@ -1202,9 +1149,7 @@ def _type_kinds() -> dict[str, TypeKind]:
     """Every type's kind, from every place a type can be declared, refusing a key
     declared twice."""
     declared: list[tuple[str, TypeKind]] = [
-        *((key, "modelled") for key in Generator._BUILDERS),
-        *((key, "modelled") for key in typespec.modelled()),
-        *((key, "new") for key in NEW_TYPES),
+        *((key, "new" if spec.newer else "modelled") for key, spec in typespec.modelled().items()),
         *((row.key, "breadth") for row in breadth.rows()),
     ]
     keys = [key for key, _ in declared]
