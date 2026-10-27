@@ -34,12 +34,12 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "a limes shower gel loses the lime from its fragrance",
+        "a limes shower gel loses the lime from its scent",
         _F,
         '"limes", 960, None, "Persian Lime")',
         '"limes", 960, None, "Persian Citrus")',
         f'{_T} -k "brand_or_a_scent and limes"',
-        "a scented decoy names the fruit in its fragrance attribute",
+        "a scented decoy names the fruit in its scent attribute",
         _R,
     ),
     (
