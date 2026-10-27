@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 71701,
+    "lines": 71698,
     "price_pins": {},
-    "skus": 122950,
+    "skus": 122906,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -97,7 +97,7 @@
       "milling_collets": 2,
       "milling_tool_holders": 2,
       "nut_drivers_hex": 2,
-      "nut_hex": 12044,
+      "nut_hex": 12000,
       "nut_splitters": 2,
       "nylon_wall_anchors": 2,
       "o_rings": 1040,
