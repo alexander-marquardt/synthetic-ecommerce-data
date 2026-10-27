@@ -49,7 +49,7 @@ Step by step:
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
    wrapper). The hammer parses its face and handle lengths with its own
    helper, the kit draws one slot per size it counts, and the breadth shapes
-   read nothing (see [Breadth types](#breadth-types-six-fixed-shapes)).
+   read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
    rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
