@@ -76,9 +76,10 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
 
 * **Breadth type.** One `BreadthRow`, with the same fields as a row file
   `data/breadth_categories/<type_key>.yaml`. The leaf, the drawing, the vocabulary and
-  the brand family all follow from the row. `shape` is one of the six plain
+  the brand family all follow from the row. `shape` is one of the
   shapes in `domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
-  `disc`, `tube` or `bracket`. Example:
+  `disc`, `tube` or `bracket` (plain), or `c_clamp` (found; a new found shape follows
+  [docs/drawings.md](drawings.md#a-found-drawing-for-a-hard-to-draw-shape-102)). Example:
   `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests
@@ -908,8 +909,10 @@ into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
 write, is handed back to you. It then rebuilds `golden-catalog/` and `core/data/measured_builds.json` (about 80 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
-the generated files, and runs the drift, golden and seam tests
-(`--print-checks` lists them), refusing a run in which no test passed. It
+the generated files, and runs the drift, golden, seam and README
+size tests (`--print-checks` lists them; the README cap is measured on this
+merged tree, not only at the PR's merge base), refusing a run in which no test
+passed. It
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge

@@ -189,8 +189,14 @@ The planted cases are:
   and shower gel. Each carries `scent` as its own attribute (never a flavor) beside its
   product type, on the leaf the hand-written rows use, so a policy routes on the pair. These
   "depth" families are drawn from their own stream, so no core style moves
-  (`tests/test_grocery_scent_depth_154.py`). The hand-written breadth rows still key their
-  scent as `fragrance`, not `scent`;
+  (`tests/test_grocery_scent_depth_154.py`). Scent is the one key for it on every style
+  (hand-written rows, decoys, body mist and talc included), never `fragrance`; a perfume keeps
+  `fragrance_family`, a different fact (`tests/test_scent_one_key_273.py`);
+- each sense of lemon, orange, lime, mint, vanilla, honey, coconut, almond and cherry (a plural
+  counts: "Cherries") holds at least `collision_words.TARGET` styles, as a food (title, `flavor` or `variety`) and as
+  a scent outside Food & Drink. `collision_words.count` measures it and `retail_figures.py`
+  writes it to `golden-retail/stats.json` as `collision_words`
+  (`tests/test_collision_word_depth_273.py`);
 - milk as dairy milk, milk chocolate and a body milk;
 - the failure class "oranges" (`tests/test_grocery_beer_oranges_161.py`): the leaf
   `Food & Drink > Fruit & Vegetables > Fresh Fruit > Citrus Fruit > Oranges` holds oranges,
@@ -439,7 +445,7 @@ color and size options, the `promotion` and other flags, rating and the other
 retail-only fields become product-level entries (no `department`: see below); `image_id` is
 `<product type>/<product id>/<drawing spec digest>`, one per style and
 colorway, served under `/images/retail` from the image release
-([The retail image release](../README.md#the-retail-image-release)). Every record states
+([The retail image release](images.md#the-retail-image-release)). Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
 and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism
