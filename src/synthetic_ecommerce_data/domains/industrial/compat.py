@@ -262,32 +262,15 @@ KINDS: dict[str, Callable[[str | None], str | None]] = {
     "washer": washer_sentence,
 }
 
-#: Type key to ``(kind, attribute)``. The types still declared in shared
-#: tables are here; a type with its own module declares ``compat=`` on its
-#: ``TypeSpec`` and joins this table when the modules register (#75).
-RELATIONS: RegistryTable[str, tuple[str, str]] = RegistryTable({
-    "hex_key": ("hex_key", "Size"),
-    "screw_flat_head": ("drive", "Drive Size"),
-    "screw_button_head": ("drive", "Drive Size"),
-    "screw_low_head": ("drive", "Drive Size"),
-    "tap_spiral_point": ("tap", "Thread Size"),
-    "drill_jobber": ("drill", "Size"),
-    "nut_hex": ("nut", "Thread Size"),
-    "washer_flat": ("washer", "Size"),
-})  # fmt: skip
+#: Type key to ``(kind, attribute)``. Filled by each type module from the
+#: ``compat=`` of its ``TypeSpec`` when the modules register (#75).
+RELATIONS: RegistryTable[str, tuple[str, str]] = RegistryTable()
 
 #: Type key to N: every Nth line of a diameter with a fine pitch is built to
 #: it, so a diameter query finds a pitch to choose between
-#: (``Generator._near_miss_thread``). A type with a module declares
-#: ``near_miss_period=`` on its ``TypeSpec``.
-NEAR_MISS_PERIOD: RegistryTable[str, int] = RegistryTable({
-    "screw_flat_head": 3,
-    "screw_button_head": 3,
-    "screw_low_head": 3,
-    # Five, not three: the hex bolt's finish wheel is three long and turns
-    # with the line counter, so every third line of a size would share one.
-    "bolt_hex": 5,
-})  # fmt: skip
+#: (``Generator._near_miss_thread``). Filled by each type module from the
+#: ``near_miss_period=`` of its ``TypeSpec``.
+NEAR_MISS_PERIOD: RegistryTable[str, int] = RegistryTable()
 
 
 def sentence_for(type_key: str, published: dict[str, str]) -> str | None:
