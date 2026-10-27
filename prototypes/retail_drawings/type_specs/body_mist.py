@@ -11,7 +11,7 @@ from __future__ import annotations
 from functools import partial
 
 from beauty_depth import PACK_ROSE, PACK_SAND, PACK_SKY, decoy, row
-from type_registry import Decoy, Option, TypeSpec, a
+from type_registry import Decoy, TypeSpec, a
 
 _row = partial(row, path=("Beauty", "Fragrance", "Body Mists"), ptype="Body Mist")
 
@@ -19,22 +19,21 @@ ROWS = (
     _row("BMSFLR", "Peony Blossom Body Mist", "Fenmere", 7.0, "body_mist",
         "A light, floral veil of petals to spritz over skin and clothes.",
         (a("fragrance_family", "Fragrance family", "Floral"),),
-        (("50", 4.5), ("100", 7.0), ("250", 12.0)), "net_volume_ml", (("cap", "dome"),), (PACK_ROSE,), option=("fragrance", ("Peony", "Rose", "Jasmine"))),
+        (("50", 4.5), ("100", 7.0), ("250", 12.0)), "net_volume_ml", (("cap", "dome"),), (PACK_ROSE,), option=("scent", ("Peony", "Rose", "Jasmine"))),
     _row("BMSFRT", "Berry Burst Body Mist", "Sorrel & Salt", 6.0, "body_mist",
         "A juicy, sparkling mist of summer berries.",
         (a("fragrance_family", "Fragrance family", "Fruity"),),
-        (("50", 4.0), ("100", 6.0), ("250", 11.0)), "net_volume_ml", (("cap", "ring"),), (PACK_SKY,), option=("fragrance", ("Strawberry", "Peach", "Cherry"))),
+        (("50", 4.0), ("100", 6.0), ("250", 11.0)), "net_volume_ml", (("cap", "ring"),), (PACK_SKY,), option=("scent", ("Strawberry", "Peach", "Cherry"))),
     _row("BMSGRM", "Vanilla Sugar Body Mist", "Veilmoor", 7.5, "body_mist",
         "A warm, sweet mist that smells like fresh baking.",
         (a("fragrance_family", "Fragrance family", "Gourmand"),),
-        (("50", 5.0), ("100", 7.5), ("250", 13.0)), "net_volume_ml", (("cap", "dome"),), (PACK_SAND,), option=("fragrance", ("Vanilla", "Caramel", "Coconut"))),
+        (("50", 5.0), ("100", 7.5), ("250", 13.0)), "net_volume_ml", (("cap", "dome"),), (PACK_SAND,), option=("scent", ("Vanilla", "Caramel", "Coconut"))),
 )  # fmt: skip
 
 SPEC = TypeSpec(
     key="body_mist",
     department="Beauty",
     product_type="Body Mist",
-    options=(Option("fragrance", "fragrance", "Fragrance"),),
     rows=ROWS,
     decoys=(
         Decoy(4, "vanilla body mist", "vocabulary", decoy("BMD1", "Vanilla Cap Floral Body Mist", "A floral mist in a bottle with a vanilla-colored cap.", ROWS[0])),

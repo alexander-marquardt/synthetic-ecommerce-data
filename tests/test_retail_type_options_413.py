@@ -39,7 +39,6 @@ MOVED = {
     "fitness_band": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
     "dolls_house": [Option("house_style", "style", "Style")],
     "tracksuit": [Option("sold_as", "sold_as", "Sold as")],
-    "body_mist": [Option("fragrance", "fragrance", "Fragrance")],
     "sun_cream": [Option("spf", "spf", "SPF")],
     "garden_hose": [Option("length_m", "item_length", "Item length", "MTR")],
     "smartphone": [_STORAGE],

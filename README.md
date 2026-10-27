@@ -951,7 +951,7 @@ handle, not something a shopper filters on. Emptying the breadth rows
 (`tests/test_breadth.py` proves it); nothing else in the generator
 constructs a `fast_and_cheap` line.
 
-**Drawings are six fixed plain shapes**, not dimensioned per SKU -- see
+**Drawings are fixed shapes** (six plain ones and a found C-clamp), not dimensioned per SKU -- see
 [Images](docs/images.md) for why and how.
 
 **Exempt from the realism truth tables and mutation rows**

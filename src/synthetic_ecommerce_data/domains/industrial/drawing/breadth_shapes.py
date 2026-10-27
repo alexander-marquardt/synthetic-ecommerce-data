@@ -1,4 +1,4 @@
-"""Six plain, fixed geometric shapes for the breadth categories.
+"""Fixed shapes for the breadth categories: six plain geometric ones and a found C-clamp.
 
 alexander-marquardt/synthetic-ecommerce-data#34: the breadth categories
 exist to fill out category BREADTH cheaply -- "just something to fill up the
@@ -22,6 +22,7 @@ but does not compare two records' bytes.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.core.drawing.model import Figure
+from synthetic_ecommerce_data.domains.industrial.drawing import found_shapes
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, Record
 
 
@@ -98,9 +99,19 @@ def bracket(record: Record) -> Drawn:
     return Drawn(fig, "nominal")
 
 
+#: The longer side of the found C-clamp, in inches (the bracket it replaces was 1.6).
+C_CLAMP_IN = 2.0
+
+
+def c_clamp(record: Record) -> Drawn:
+    """A C-clamp: a found CC0 drawing (``data/found_svg/``), the same whatever the record."""
+    del record
+    return Drawn(found_shapes.load("c_clamp", C_CLAMP_IN), "nominal")
+
+
 #: One entry per fixed shape: its drawing function, and the extent
 #: (:func:`..drawing.product_scale_for`) it is scaled at. Not derived from
-#: any SKU's own dimensions -- these are the same six numbers whatever the
+#: any SKU's own dimensions -- these are the same numbers whatever the
 #: breadth row -- so every breadth product of one shape shares one scale by
 #: construction, the same guarantee :data:`..catalog.taxonomy.DRAWING` gives
 #: the twelve original types.
@@ -111,4 +122,5 @@ BREADTH_SHAPES: dict[str, tuple] = {
     "disc": (disc, (1.6, 1.6)),
     "tube": (tube, (2.2, 0.6)),
     "bracket": (bracket, (1.6, 1.6)),
+    "c_clamp": (c_clamp, found_shapes.extent("c_clamp", C_CLAMP_IN)),
 }
