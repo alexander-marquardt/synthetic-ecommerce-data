@@ -16,13 +16,13 @@ the range grows by authored rows. `tests/test_retail_beauty_214.py` holds the ta
 | Serum (`serum`) | Skincare > Serums | active, skin concern | size (ml) | `serum` form |
 | Face Mask (`face_mask`) | Skincare > Face Masks | mask type, skin concern | pack count | `face_mask` mask |
 | Eye Patches (`eye_patches`) | Skincare > Eye Patches | patch type, skin concern | pack count | `eye_patches` patch |
-| Body Mist (`body_mist`) | Fragrance > Body Mists | fragrance family | fragrance x size (ml) | `body_mist` cap |
+| Body Mist (`body_mist`) | Fragrance > Body Mists | fragrance family | scent x size (ml) | `body_mist` cap |
 | Aftershave (`aftershave`) | Fragrance > Aftershave | fragrance family, concentration | size (ml) | `aftershave` cap |
-| Talc (`talc`) | Bath & Body > Talc | fragrance | size (g) | `talc` lid |
+| Talc (`talc`) | Bath & Body > Talc | scent | size (g) | `talc` lid |
 | Sun Cream (`sun_cream`) | Suncare > Face Sun Cream, Suncare > Body Sun Cream | area (face, body) | SPF x size (ml) | `sun_cream` form |
 
-Every type has at least three styles from three or more invented brands. A body mist's fragrance
-is a third SKU axis (`LRow`), exported as the `fragrance` option beside the size. A mascara's
+Every type has at least three styles from three or more invented brands. A body mist's scent
+is a third SKU axis (`LRow`), exported as the `scent` option beside the size. A mascara's
 shades are a declared exception to the six main colors (`main_colors.EXCEPTIONS`); every other
 type is sold in one pack and carries no color. A drawing never prints a size or a count.
 

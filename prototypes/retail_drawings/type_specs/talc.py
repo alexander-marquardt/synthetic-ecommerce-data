@@ -18,15 +18,15 @@ _row = partial(row, path=("Beauty", "Bath & Body", "Talc"), ptype="Talc")
 ROWS = (
     _row("TLCLAV", "Lavender Body Talc", "Sorrel & Salt", 4.0, "talc",
         "A silky talc that leaves skin soft and dry, with a calming lavender scent.",
-        (a("fragrance", "Fragrance", "Lavender"),),
+        (a("scent", "Scent", "Lavender"),),
         (("100", 4.0), ("200", 6.5)), "net_weight_g", (("lid", "shaker"),), (PACK_SKY,)),
     _row("TLCPWD", "Rose Dusting Powder with Puff", "Fenmere", 9.0, "talc",
         "A luxurious dusting powder in a tin with a soft puff, scented with garden rose.",
-        (a("fragrance", "Fragrance", "Rose"),),
+        (a("scent", "Scent", "Rose"),),
         (("100", 9.0), ("150", 12.0)), "net_weight_g", (("lid", "puff"),), (PACK_ROSE,)),
     _row("TLCUNS", "Fragrance Free Body Talc", "Aldermist", 4.5, "talc",
         "A gentle, plain talc for sensitive skin.",
-        (a("fragrance", "Fragrance", "Unscented"),),
+        (a("scent", "Scent", "Unscented"),),
         (("100", 4.5), ("200", 7.0)), "net_weight_g", (("lid", "shaker"),), (PACK,)),
 )  # fmt: skip
 

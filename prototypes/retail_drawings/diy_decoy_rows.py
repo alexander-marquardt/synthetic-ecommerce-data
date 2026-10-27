@@ -150,7 +150,7 @@ def _candle(code: str, title: str, desc: str) -> Row:
         "jar",
         desc,
         (_SMOKE,),
-        (("fragrance", "Fragrance", "Woody"),),
+        (("scent", "Scent", "Woody"),),
         label="Candle",
     )
 
