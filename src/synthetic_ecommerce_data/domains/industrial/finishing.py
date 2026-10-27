@@ -173,6 +173,7 @@ class FinishMixin:
             metric=bool(draft.children) and draft.children[0].system == "mm",
             provenance=draft.provenance,
             standard=draft.standard,
+            sizes=tuple(c.primary.value for c in draft.children if c.primary is not None),
         )
         if not pool:
             return None
