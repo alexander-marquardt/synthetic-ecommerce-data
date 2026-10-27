@@ -80,15 +80,6 @@ def rows() -> list[Row]:
             "the refusal names the file that replaces the line",
         ),
         _row(
-            "a legacy list line is not a shape",
-            "scripts",
-            _GUARD,
-            '_shapes(r"^[^#\\s]"),',
-            '_shapes(r"^[^#\\s]{99}"),',
-            f"{_APPEND}[legacy-line]",
-            "a line appended to the legacy list is refused",
-        ),
-        _row(
             "the guard step names another script",
             ".",
             ".github/workflows/ci.yaml",

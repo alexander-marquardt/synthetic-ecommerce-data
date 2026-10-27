@@ -23,7 +23,7 @@ from __future__ import annotations
 from functools import partial
 
 from beauty_depth import PACK, PACK_INK, PACK_ROSE, PACK_SAGE, PACK_SAND, PACK_SKY, row
-from type_registry import Option, TypeSpec, a
+from type_registry import Home, Option, TypeSpec, a
 
 _PATH = ("Beauty", "Skincare", "Creams", "Face Creams")
 _FACE = partial(row, path=_PATH, ptype="Face Cream")
@@ -107,6 +107,7 @@ ROWS = (
 
 SPEC = TypeSpec(
     key="face_cream",
+    homes=(Home("samples", True), Home("decoy_rows", False)),
     department="Beauty",
     product_type="Face Cream",
     options=(Option("spf", "spf", "SPF"),),

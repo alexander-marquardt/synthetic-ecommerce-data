@@ -1,6 +1,6 @@
 """The helpers and constants the Sports & Outdoors rows share (gen#265, gen#368): data only.
 
-:mod:`sports_rows` (the first-increment styles, still on the legacy list) and the spec files of
+:mod:`sports_rows` (the first-increment styles, homed by their specs) and the spec files of
 ``type_specs/`` (the second increment, one per type, gen#351) both build their rows from these.
 """
 

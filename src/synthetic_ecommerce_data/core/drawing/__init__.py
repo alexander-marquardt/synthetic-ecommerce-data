@@ -13,6 +13,7 @@ Rulings this implements (elastic/prism-industrial-products#103, 2026-09-26 to
   without re-rendering. The one exception (#132) is the brand plate under
   the figure: the brand's mark and its full name, whose capitals render at
   least 10 px tall at the Studio tile (:data:`.sheet.MIN_NAME_PX`).
+  The retail prototype sets its names in :mod:`.brand_type` on the same width model (#412).
 * **Brands visibly different**, by house style (:mod:`.style`) and by the
   brand's mark (:mod:`...domains.industrial.drawing.brand_marks`), never by
   chance.

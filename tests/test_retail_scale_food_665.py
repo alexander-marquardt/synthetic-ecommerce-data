@@ -32,7 +32,8 @@ def ceiling():
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names, the real-brand and decoy rows aside."""
-    skip = scale.NIKE_IDS | scale.SEASONAL_IDS | scale.COLORWORD_IDS
+    skip = (scale.source_ids("nike_rows") | scale.source_ids("seasonal_rows")
+            | scale.source_ids("color_word_brand_rows"))
     return [r for r in records if line_grammar.family(r) and r["product_id"] not in skip]
 
 
@@ -58,7 +59,7 @@ def test_a_food_or_drink_title_leads_with_its_brand_in_a_mixture(ceiling):
     we can have a mixture". The decoy rows keep their authored titles. Metric: the share of
     range-named food titles led by the brand (between a half and nine tenths), and the
     brand-less ones that name another brand."""
-    decoys = scale.SEASONAL_IDS | scale.COLORWORD_IDS
+    decoys = scale.source_ids("seasonal_rows") | scale.source_ids("color_word_brand_rows")
     rows = [r for r in _food(ceiling.records) if scale._line(r) and r["product_id"] not in decoys]
     led = [r for r in rows if r["title"].startswith(f"{r['brand']} ")]
     assert 0.5 <= len(led) / len(rows) <= 0.9, (len(led), len(rows))
