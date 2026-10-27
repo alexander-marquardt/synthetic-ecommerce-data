@@ -62,7 +62,14 @@ Where it runs:
 - The `file-size` job in `.github/workflows/ci.yaml`, which
   `scripts/merge_pr.sh --local-ci` runs before a merge. It reads the PR body
   (`gh pr view`) only when something grew, and is red when the gate cannot
-  judge (exit 3), for example with the cap file missing.
+  judge (exit 3), for example with the cap file missing. It measures each file
+  against the merge base at the time it runs, so two PRs that each stay under
+  the cap can sum to more than it.
+- The README cap is also measured on the merged tree: `tests/test_readme_split_240.py`
+  is in `CHECKS` in `scripts/merge_pr.sh` (`--print-checks`), which step 3 runs
+  on the tree about to merge and the `main-merged-tree` job runs on every push
+  to `main` (#700). A merge whose README is over the cap is refused there, not
+  found fourteen minutes later in shard 9.
 
 ## Why a vendored copy
 
