@@ -453,22 +453,16 @@ shared tables):
   (the structural series, ISO 7414 / EN 14399-4), never at #6-#10 or M3-M10.
   The grade standards have a size scope too: SAE J995 covers 1/4" to 1-1/2"
   and ISO 898-2 covers M5 to M39, so a nut line claims one only when every
-  size it offers is inside (`conformance.within`); a line of #6-#10 nuts
-  claims no SAE J995, and an M3 or M4 line no ISO 898-2. A nut record whose
-  declared measurement system says Metric beside an inch thread (or the
-  reverse) is not a wrong standard: it is the deliberate "declared system
-  contradicts units" defect (rate 0.0323), which writes the opposite system
-  on the record and leaves the standards alone. The rows were checked
-  against FreeCAD_FastenersWB at the commit `fastener_standards.json`
+  size it offers is inside (`conformance.within`). A nut record whose declared
+  measurement system contradicts its thread is the deliberate "declared system
+  contradicts units" defect (rate 0.0323), not a wrong standard. The rows were
+  checked against FreeCAD_FastenersWB at the commit `fastener_standards.json`
   records (`iso4032def.csv`, `iso4035def.csv`, `iso8673def.csv`,
   `iso8675def.csv`, `asmeb18.2.2.1def.csv`, `asmeb18.2.2.4def.csv`).
   The review of 7dac659 found 29 metric heavy hex nuts claiming ISO 4032 and
   53 fine-pitch nuts claiming coarse-thread standards; the check that replaced
   it found 224 wrong claims on that golden, the inch heavy hex and every jam
   nut's derived height included.
-  The review of catalog-2026-09-29f found 70 nut records claiming a grade
-  standard outside its size scope (55 SAE J995 at #6-#10, 15 ISO 898-2 at M3
-  and M4) and 103 heavy hex nuts at #6-#10 and M3-M10 (#33).
 * **An inch R-series bearing claims no standard.** ABMA 20 is the METRIC
   design standard ("Radial Bearings of Ball, Cylindrical Roller and Spherical
   Roller Types -- Metric Design"), so the 112 inch bearings that claimed it
