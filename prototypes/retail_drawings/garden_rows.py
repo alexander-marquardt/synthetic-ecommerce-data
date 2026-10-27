@@ -225,7 +225,7 @@ def _apron(code: str, title: str, desc: str) -> Row:
 
 def _candle(code: str, title: str, desc: str, scent: str) -> Row:
     return Row(code, title, _LANTERN, "Gifts", _CANDLE, "Scented Candle", 12.0, "jar", desc, (_SMOKE,),
-               (("fragrance", "Fragrance", scent),), label="Candle")
+               (("scent", "Scent", scent),), label="Candle")
 
 
 #: code -> (the class, the query it targets, the type word it misleads on). The classes: ``type``

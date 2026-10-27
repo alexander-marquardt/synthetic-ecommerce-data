@@ -41,9 +41,9 @@ TYPES = {
     "Serum": ("serum", "serum", {"active", "skin_concern", "net_volume"}),
     "Face Mask": ("face_mask", "face_mask", {"mask_type", "skin_concern", "units_per_pack"}),
     "Eye Patches": ("eye_patches", "eye_patches", {"patch_type", "skin_concern", "units_per_pack"}),
-    "Body Mist": ("body_mist", "body_mist", {"fragrance_family", "fragrance", "net_volume"}),
+    "Body Mist": ("body_mist", "body_mist", {"fragrance_family", "scent", "net_volume"}),
     "Aftershave": ("aftershave", "aftershave", {"fragrance_family", "concentration", "net_volume"}),
-    "Talc": ("talc", "talc", {"fragrance", "net_weight"}),
+    "Talc": ("talc", "talc", {"scent", "net_weight"}),
     "Sun Cream": ("sun_cream", "sun_cream", {"area", "spf", "net_volume"}),
 }  # fmt: skip
 #: product type -> the SKU option keys it varies on and each one's unit code in the export.
@@ -54,7 +54,7 @@ AXES = {
     "Serum": {"net_volume": "MLT"},
     "Face Mask": {"units_per_pack": "C62"},
     "Eye Patches": {"units_per_pack": "C62"},
-    "Body Mist": {"fragrance": None, "net_volume": "MLT"},
+    "Body Mist": {"scent": None, "net_volume": "MLT"},
     "Aftershave": {"net_volume": "MLT"},
     "Talc": {"net_weight": "GRM"},
     "Sun Cream": {"spf": None, "net_volume": "MLT"},
