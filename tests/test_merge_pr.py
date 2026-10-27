@@ -1358,3 +1358,16 @@ def test_a_step_if_and_settings_the_parser_cannot_honour_refuse(tmp_path: Path) 
     for plant in plants:
         (tmp_path / "w.yml").write_text(plant)
         assert _jobs_cli("--list", workflows=tmp_path).returncode != 0, plant
+
+
+def test_the_checks_hold_the_readme_size_test_so_the_merged_tree_is_measured() -> None:
+    """Two PRs each under the README cap can sum to more than it (#700).
+
+    The size test is in CHECKS, which step 3 runs on the merged tree and the
+    ``main-merged-tree`` job runs on main, so the sum is seen before shard 9.
+    """
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "--print-checks"], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+    assert "tests/test_readme_split_240.py" in result.stdout.split()

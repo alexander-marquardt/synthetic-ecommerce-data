@@ -22,7 +22,9 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   name and every importer keeps `from ...industrial.generate import ...`.
   `README.md` is now under the cap: its retail
   prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
-  where a retail type batch adds its listing line.
+  where a retail type batch adds its listing line. When it nears the cap again the
+  README is split by section: the Images section moved to [`images.md`](images.md)
+  (#701), and `tests/test_readme_split_images.py` holds 200 lines of headroom.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.
@@ -62,7 +64,14 @@ Where it runs:
 - The `file-size` job in `.github/workflows/ci.yaml`, which
   `scripts/merge_pr.sh --local-ci` runs before a merge. It reads the PR body
   (`gh pr view`) only when something grew, and is red when the gate cannot
-  judge (exit 3), for example with the cap file missing.
+  judge (exit 3), for example with the cap file missing. It measures each file
+  against the merge base at the time it runs, so two PRs that each stay under
+  the cap can sum to more than it.
+- The README cap is also measured on the merged tree: `tests/test_readme_split_240.py`
+  is in `CHECKS` in `scripts/merge_pr.sh` (`--print-checks`), which step 3 runs
+  on the tree about to merge and the `main-merged-tree` job runs on every push
+  to `main` (#700). A merge whose README is over the cap is refused there, not
+  found fourteen minutes later in shard 9.
 
 ## Why a vendored copy
 
