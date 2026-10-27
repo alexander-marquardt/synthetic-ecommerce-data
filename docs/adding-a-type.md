@@ -907,8 +907,10 @@ into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 conflict, `names.py` or a file under `golden-catalog/` that the build does not
 write, is handed back to you. It then rebuilds `golden-catalog/` and `core/data/measured_builds.json` (about 80 s more) with
 `uv run --locked` (a stale `uv.lock` is refused, not re-locked), commits only
-the generated files, and runs the drift, golden and seam tests
-(`--print-checks` lists them), refusing a run in which no test passed. It
+the generated files, and runs the drift, golden, seam and README
+size tests (`--print-checks` lists them; the README cap is measured on this
+merged tree, not only at the PR's merge base), refusing a run in which no test
+passed. It
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
 unexpectedly skipped check refuses), and squash-merges. Before every merge
