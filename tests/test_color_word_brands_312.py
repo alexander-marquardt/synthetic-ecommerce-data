@@ -25,6 +25,7 @@ import house_styles  # noqa: E402
 import scale  # noqa: E402
 
 from synthetic_ecommerce_data.core import standard  # noqa: E402
+from synthetic_ecommerce_data.core.drawing import brand_type  # noqa: E402
 
 BRANDS = {
     "Green Harrow": "green", "Yellow Skerry": "yellow", "Black Larch": "black",
@@ -153,7 +154,8 @@ def test_every_brand_has_a_dedicated_lockup_house_style():
 def _lockup_text(rec: dict) -> str:
     svg = build_preview.drawing_svg(rec)
     overlay = svg.split('<g class="brand">', 1)[1]
-    return "".join(re.findall(r"<text[^>]*>([^<]*)</text>", overlay))
+    # a name set on two lines is two <text> elements, broken at its space
+    return " ".join(re.findall(r"<text[^>]*>([^<]*)</text>", overlay))
 
 
 def test_a_drawing_lockup_text_equals_the_brand_field(decoys):
@@ -161,7 +163,7 @@ def test_a_drawing_lockup_text_equals_the_brand_field(decoys):
         if r["brand"] not in BRANDS:
             continue
         style = house_styles.HOUSE_STYLES[r["brand"]]
-        assert _lockup_text(r) == house_styles._cased(style, r["brand"]), r["title"]
+        assert _lockup_text(r) == brand_type.cased(style, r["brand"]), r["title"]
         assert style.case in ("title", "smallcaps")
 
 

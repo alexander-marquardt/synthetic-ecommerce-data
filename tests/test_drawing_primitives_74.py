@@ -582,10 +582,12 @@ def test_the_drill_is_a_declared_spec_of_registered_primitives():
 
 
 PINNED = {
-    "end_mill_square": "75:19666fdf434d89778780a972c52d170bc15085e624ab62d7eb07446fcdeb305c",
+    # #10 re-took both end mill pins on purpose: a pinned record drawn from a fallback now
+    # keeps its published flute count and hand, where it was drawn with the nominal ones.
+    "end_mill_square": "75:211c453c77c6642f6aacaec186b339dc40cc1ea4b60a123efff193f277ec6448",
     # #9 moved exactly one pinned record here (a Double End ball nose, drawn with
-    # one end before, two now), so this pin was re-taken on purpose.
-    "end_mill_ball": "44:e1fcc1c343d91779c1f2cd7b4525c05ea514c087a00d4d160c0a000e0bd1ceaf",
+    # one end before, two now), so this pin was re-taken on purpose; #10 re-took it again.
+    "end_mill_ball": "44:788b7bf4527443726cb07aaffe4887b943d449d7b1dd2368092d7612cc0595ff",
     "drill_jobber": "37:314a201c0d810636d30d6d4e2ce313f227981de767fbd49a352869990f5c4249",
     "tap_spiral_point": "31:a573394f5f232dd76c86ec12176ecf893dcc4bf822ac060fd1578425d57a8b84",
     "screw_flat_head": "23:29052f7315ee8fe1f2d51f79658741b56de5351eed692aeff14f42ab08f51285",
