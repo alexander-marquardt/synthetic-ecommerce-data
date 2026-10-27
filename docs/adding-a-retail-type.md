@@ -75,7 +75,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
   `test_house_styles.py` refuses a duplicate mark or lockup, so choose a mark no other brand has.
-  Prefer a brand that already has a row.
+  Prefer a brand that already has a row. The core sets the name (`brand_type.FAMILIES`, one width model and no second table; a new font is a row there), and `tests/test_retail_brand_type_412.py` refuses a wordmark under 10 px at the Studio tile (#412).
 
 ## 7. Where a row goes in `scale.templates()`, and smaller builds
 
