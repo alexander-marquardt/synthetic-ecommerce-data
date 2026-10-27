@@ -240,7 +240,10 @@ DISTINCT_SPEC_FLOOR = {
     "abrasive_flap_disc": 0.75,
     "kit_assortment": 0.80,
     "hex_key": 0.85,
-    "nut_hex": 0.90,
+    # #33 dropped the heavy hex sizes below 1/4 in and M12 and the grade claims outside a
+    # standard's size scope, so fewer size and standard combinations remain: measured at
+    # 100K, 10773 distinct of 12000 (0.8978), rounded down to 0.85.
+    "nut_hex": 0.85,
     "dowel_pins": 0.80,
     # #497 stopped publishing the attributes that repeated the type (and the length under
     # the head), which had told some SKUs apart: measured on the 100K build after it, a

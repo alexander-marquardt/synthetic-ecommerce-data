@@ -15,6 +15,7 @@ Every designation here is spelled ONE way, and the copy-noise sentences
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
+from fractions import Fraction
 
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
@@ -72,12 +73,14 @@ def applicable(
     metric: bool,
     provenance: str,
     standard: str = "",
+    sizes: tuple[str, ...] = (),
 ) -> tuple[str, ...]:
     """The standards a line of ``type_key`` may claim, in a fixed order.
 
     ``standard`` is the dimensional standard every row of the line was read
     from, for a type whose provenance does not already name one (the hex nut);
-    empty when its rows are not one standard's.
+    empty when its rows are not one standard's. ``sizes`` is the thread size of
+    each child, for a type whose claim has a size scope (the hex nut).
 
     A type declared in its own module states its claims there
     (``TypeSpec.claims``, registered into :data:`CLAIMS`); a type still
@@ -86,11 +89,38 @@ def applicable(
     rule = CLAIMS.get(type_key)
     if rule is None:
         claimed: Iterable[str] = _shared_claims(
-            type_key, facts, metric=metric, provenance=provenance, standard=standard
+            type_key, facts, metric=metric, provenance=provenance, standard=standard, sizes=sizes
         )
     else:
         claimed = rule(facts, metric=metric, provenance=provenance, standard=standard)
     return tuple(dict.fromkeys(s for s in claimed if s))
+
+
+#: The nominal diameters a nut standard covers, where it does not cover every
+#: size a nut is made in (#33). SAE J995 is 1/4" to 1-1/2"; ISO 898-2 (2022) is
+#: 5 mm to 39 mm. A nut line claims one only when EVERY size it offers is
+#: inside, as a standard that does not cover a size is not claimed for it.
+J995_INCHES = (Fraction(1, 4), Fraction(3, 2))
+ISO_898_2_MM = (Fraction(5), Fraction(39))
+
+
+def nominal_diameter(thread: str) -> tuple[bool, Fraction]:
+    """``(metric, nominal diameter)`` of a thread size, in mm for a metric one and
+    in inches otherwise: ``M12x1.75`` -> (True, 12); ``1/4-20`` -> (False, 1/4);
+    ``#10-24`` -> (False, 0.190), a number size being 0.060 + 0.013 N inch."""
+    if thread.startswith("M"):
+        return True, Fraction(thread[1:].split("x")[0])
+    size = thread.split("-")[0]
+    if size.startswith("#"):
+        return False, Fraction(60 + 13 * int(size[1:]), 1000)
+    return False, Fraction(size)
+
+
+def within(scope: tuple[Fraction, Fraction], threads: Iterable[str], *, metric: bool) -> bool:
+    """Whether the line offers at least one size, every one in ``scope``."""
+    diameters = [nominal_diameter(t) for t in threads]
+    low, high = scope
+    return bool(diameters) and all(m is metric and low <= d <= high for m, d in diameters)
 
 
 def _shared_claims(
@@ -100,6 +130,7 @@ def _shared_claims(
     metric: bool,
     provenance: str,
     standard: str,
+    sizes: tuple[str, ...] = (),
 ) -> list[str]:
     """The claims of the types still declared in the shared tables, one branch
     per type that claims a standard; a type with no branch claims nothing."""
@@ -121,9 +152,11 @@ def _shared_claims(
         # one chosen by style name: a heavy hex nut is not an ISO 4032 nut,
         # and a fine-pitch nut is not a coarse-thread standard's.
         out.append(standard)
-        if metric and grade.startswith("Class"):
+        # A grade standard has a size scope: ISO 898-2 stops at M5, SAE J995
+        # starts at 1/4" (#33). A line spanning the scope's edge claims neither.
+        if grade.startswith("Class") and within(ISO_898_2_MM, sizes, metric=True):
             out.append("ISO 898-2")
-        if not metric and grade.startswith("Grade"):
+        if grade.startswith("Grade") and within(J995_INCHES, sizes, metric=False):
             out.append("SAE J995")
     elif type_key == "washer_flat":
         out.extend(("ISO 7089", "DIN 125-A"))

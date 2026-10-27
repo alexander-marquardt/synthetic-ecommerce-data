@@ -2,6 +2,12 @@
 
 Write-up: [Generating a synthetic industrial product catalog for search demos](https://alexmarquardt.com/data-generation/synthetic-industrial-product-catalog/).
 
+**That site hosts only a small sample of the drawings** (a few hundred), not the
+full set, and it is not somewhere to point a demo's image URLs. The full set is
+produced by the generator (`ecom-generate images`, see
+[Where a record points, and the bundle](#where-a-record-points-and-the-bundle))
+or distributed as the release bundle alongside the industrial repo.
+
 ![Four search results for "car" in a demo search UI: a checked car coat, a car boot organiser, and a wooden racing car in red and in blue. Every picture is a generated drawing.](docs/images/search-car-cards.png)
 
 **The pictures are drawn by code.** Each is written straight to SVG, from the
@@ -23,7 +29,8 @@ brands -- and, with one flag, a large build whose SKU total is measured
 The default build's figures are build output, in `golden-catalog/stats.json`:
 `skus` and `lines` (per type: `skus_by_type`, `lines_by_type`), and under
 `figures` the type and brand counts (`catalog`), the drawings' count and bytes
-(`drawings`) and the facet rule's figures (`dispersion`).
+(`drawings`), the facet rule's figures (`dispersion`) and what the flat shape's
+over-match costs (`flat_overmatch`); the defect rates are `comparisons`.
 `uv run ecom-generate build --out golden-catalog` rewrites them, and no doc
 restates one (`tests/test_measured_figures.py`), so a pull request that adds a
 type changes them only in the file the merge script rebuilds (#103).
@@ -441,7 +448,17 @@ shared tables):
   ISO 8675, and B18.2.2's jam column from 1/4" -- and claims it; a #6-#10 jam
   nut keeps a derived height and claims none. A heavy hex nut's sizes are
   derived from the finished nut's, match neither ISO 4033 nor the structural
-  heavy hex series, and claim no dimensional standard. The rows were checked
+  heavy hex series, and claim no dimensional standard. A heavy hex nut is
+  offered only where one is made: from 1/4" in inch and from M12 in metric
+  (the structural series, ISO 7414 / EN 14399-4), never at #6-#10 or M3-M10.
+  The grade standards have a size scope too: SAE J995 covers 1/4" to 1-1/2"
+  and ISO 898-2 covers M5 to M39, so a nut line claims one only when every
+  size it offers is inside (`conformance.within`); a line of #6-#10 nuts
+  claims no SAE J995, and an M3 or M4 line no ISO 898-2. A nut record whose
+  declared measurement system says Metric beside an inch thread (or the
+  reverse) is not a wrong standard: it is the deliberate "declared system
+  contradicts units" defect (rate 0.0323), which writes the opposite system
+  on the record and leaves the standards alone. The rows were checked
   against FreeCAD_FastenersWB at the commit `fastener_standards.json`
   records (`iso4032def.csv`, `iso4035def.csv`, `iso8673def.csv`,
   `iso8675def.csv`, `asmeb18.2.2.1def.csv`, `asmeb18.2.2.4def.csv`).
@@ -449,6 +466,9 @@ shared tables):
   53 fine-pitch nuts claiming coarse-thread standards; the check that replaced
   it found 224 wrong claims on that golden, the inch heavy hex and every jam
   nut's derived height included.
+  The review of catalog-2026-09-29f found 70 nut records claiming a grade
+  standard outside its size scope (55 SAE J995 at #6-#10, 15 ISO 898-2 at M3
+  and M4) and 103 heavy hex nuts at #6-#10 and M3-M10 (#33).
 * **An inch R-series bearing claims no standard.** ABMA 20 is the METRIC
   design standard ("Radial Bearings of Ball, Cylindrical Roller and Spherical
   Roller Types -- Metric Design"), so the 112 inch bearings that claimed it
@@ -1103,8 +1123,9 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
 
 ### The field map is derived, never written
 
-The catalog publishes **about 90 distinct attribute names** across its depth
-types and breadth categories. A hand-maintained list of that many
+The catalog publishes many distinct attribute names across its depth types
+and breadth categories (`attribute_names_by_type` in
+`golden-catalog/stats.json`). A hand-maintained list of that many
 declarations drifts from the generator the first time either side moves, and
 it drifts *silently*: a field map naming an
 attribute the catalog no longer publishes does not raise, it just stops
@@ -1119,7 +1140,7 @@ planted in `scripts/mutations/` (run by `scripts/mutation_check.py`).
 
 ### Which attributes become facets
 
-Not all 94. Three measured gates, applied to the emitted documents:
+Not every attribute becomes a facet. Three measured gates, applied to the emitted documents:
 
 | gate | rule | why |
 |---|---|---|
@@ -1150,16 +1171,16 @@ Attributes that fail a gate are still **declared**, with `facet: false` — they
 stay searchable and stay available as filter and policy targets, they are just
 not offered as sidebar controls.
 
-What that yields, measured:
+What that yields is in the generated file, not in this page: one entry per
+declared attribute, `facet: true` or `facet: false`, beside the structural
+fields, in `data/field_weights/synthetic_industrial_flat.yaml`. The leaf fields
+of the Elasticsearch index are the ones its mapping declares plus one per
+distinct `facets.*` and `facets_num.*` key the dynamic templates create, and
+`tests/test_prism_field_map_drift.py` holds the file to a fresh derivation, so
+a count typed here would be stale at the next type.
 
-| | |
-|---|---|
-| attributes declared | 94 |
-| **fields in the field map** | **112** (71 faceted attribute entries, 23 attribute entries declared with `facet: false`, and 18 structural ones) |
-| **leaf fields in the Elasticsearch index** | **141** — the 21 the mapping declares, plus one per distinct `facets.*` key (84) and `facets_num.*` key (36) the dynamic templates create |
-| facets in a category's sidebar | 8–15 |
-
-The per-category figure is above the five-to-eight a real sidebar carries.
+A category's sidebar carries more controls than the five-to-eight a real
+sidebar does.
 That is honest rather than tuned: a socket screw genuinely publishes five
 dimension ranges (head diameter, head height, length, length under head,
 thread length) beside material, finish and grade. Trimming to eight would mean dropping a control a shopper
@@ -1193,9 +1214,12 @@ agrees with itself proves nothing.
 
 The flat shape's `attributes` array is a plain object, so `name` and `value`
 become two independent multi-valued fields. Filtering it for
-*name = Shank dia. AND value = 3/8"* matches **236** documents; only **141**
-actually publish a 3/8" shank. The other 95 carry a 3/8" belonging to a
-different attribute (counted from `golden-catalog/flat.jsonl`).
+*name = Shank dia. AND value = 3/8* matches every document that carries a
+`Shank dia.` and a `3/8` anywhere, and only some of them publish a 3/8" shank:
+the rest carry a 3/8 belonging to a different attribute. The counts are
+`figures.flat_overmatch` (`matching` and `publishing`) in
+`golden-catalog/stats.json`, counted from `golden-catalog/flat.jsonl` by the
+build, so they move with the catalog and this page does not.
 
 That is why the field map facets the sanitised per-attribute `facets.*` /
 `facets_num.*` keys, where the pairing cannot come apart, rather than the
@@ -1454,7 +1478,10 @@ Every SKU's `image_id` is `<product type>/<product id>/<sku>`; its `image_url`
 is `/images/industrial/<image_id>.svg`, and `image_detail_url` names the same
 file (one SVG serves both views). A product shows its first variant's drawing.
 The URL is relative on purpose: the demo serves the bundle's folder itself
-(elastic/prism#9770), and nothing points at a third-party host.
+(elastic/prism#9770), and nothing points at a third-party host. That includes
+the personal site of the write-up: it hosts only a small sample of the
+drawings (a few hundred), so a demo takes the full set from the generator or
+the release bundle and serves it itself.
 
 ```sh
 uv run ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
@@ -1538,30 +1565,33 @@ which is how the source statistics measure them. `ecom-generate report` prints
 the achieved figures beside their targets, so the claim is checkable rather
 than asserted.
 
-| property | target | achieved |
-|---|---|---|
-| shank diameter == cutting diameter | 0.6489 | 0.6992 |
-| length of cut > overall length | 0.0829 | 0.0805 |
-| an angle attribute carrying a length unit | 0.0469 | **0.0000, deliberately** (#404) |
-| declared measurement system contradicts the value's units | 0.0323 | 0.0289 |
-| unit mixing within one record | 0.0222 | 0.0166 |
-| a parent repeating a (name, value) pair, over parents carrying `Standards` | 0.0085 | 0.0082 |
-| title dimension token carries no label | 0.4667 | 0.4648 |
-| title dimension token is not the primary dimension | 0.1714 | 0.1179 |
-| title label truncated at the length cap | 0.0323 | **0.0000, deliberately** |
-| image reference missing | 0.1089 | **0.0000, deliberately** |
-| image id is shared, not the product's own | 0.7353 | **0.0000, deliberately** |
-| attributes per record (mean) | 13.12 | 12.3887 |
+The defect classes, each with its own denominator:
 
-Measured on `95a9ed0` with `uv run ecom-generate build` (the default catalog,
-identical to `golden-catalog/`).
+* the shank diameter equal to the cutting diameter, and a length of cut longer
+  than the overall length;
+* an angle attribute carrying a length unit, a declared measurement system that
+  contradicts the value's units, and unit mixing within one record;
+* a parent repeating a (name, value) pair, over the parents carrying `Standards`;
+* a title dimension token with no label, one that is not the primary dimension,
+  and a title label truncated at the length cap;
+* an image reference missing, and an image id shared rather than the product's own;
+* attributes per record (a mean, not a rate).
+
+The target and the achieved figure of each, with the numerator and denominator
+behind it, are the `comparisons` in `golden-catalog/stats.json`, and
+`uv run ecom-generate report` prints them side by side. A row whose `note` says
+*deliberate* is a class the catalog leaves at zero on purpose (#404 for the
+angle unit); the note carries the corpus rate. Rebuilding with
+`uv run ecom-generate build --out golden-catalog` rewrites them, so no
+achieved figure is typed on this page to go stale.
 
 The repeated-pair row is the shape the `reverse_nested` trap needs (#1): a
 repeated attribute NAME with distinct values (`Standards = [ISO, DIN]`) makes
 every bucket agree with or without `reverse_nested`, while the same value twice
 on one parent (`Standards = [ISO, ISO]`) over-reports it. The multi-valued
-`Standards` stays; on 27 of the 3,307 golden parents that carry it, one value
-is published twice (`parent repeats a (name, value) pair` in `stats.json`).
+`Standards` stays; on some of the golden parents that carry it, one value
+is published twice (`parent repeats a (name, value) pair` in the `comparisons`
+of `stats.json`, with its numerator and denominator).
 The target, `GeneratorConfig.defect_repeated_pair`, is set so the share of ALL
 parents (about 0.43%) matches the 87 in 20,000 documents measured on a live
 retail catalog. It is a defect class, so `--defects 0.0` removes it and
