@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Lingerie & Nightwear",
     product_type="Knickers",
     rows=(),
-    homes=(Home("underwear_rows", False),),
+    homes=(Home("decoy_product_words", False), Home("underwear_rows", False)),
 )
