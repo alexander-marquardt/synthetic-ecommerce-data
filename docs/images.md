@@ -1,7 +1,7 @@
 # Images
 
 This is the README's images reference: what the drawings promise, where a record points, the
-bundle, the retail image release, and the one renderer (moved out of the README, #701).
+bundle, the image release, and the one renderer (moved out of the README, #701).
 
 The picture and the drawing speed are at the [top of the README](../README.md#synthetic-ecommerce-data).
 
@@ -215,29 +215,40 @@ writes an HTML contact sheet of real catalog SKUs -- one screw across its
 lengths for two brands, flat washers across sizes, materials and brands, and
 twenty SKUs of every type -- for judging the drawings by eye.
 
-### The retail image release
+### The image release: one set, one file per SKU
 
 ```sh
-uv run python prototypes/retail_drawings/image_release.py --out out/retail-images --archive out/retail-images.tar.gz
+uv run python prototypes/retail_drawings/image_release.py --out out/images --archive out/images.tar.gz \
+    [--skus ceiling] [--industrial-catalog out/catalog-100k]
 ```
 
-renders every image the retail export references and packages it in the
-industrial bundle's shape, so the same installer takes it: members
-`retail/<image_id>.svg` under the archive's own `retail/` folder, every
-`image_url` that member under `/images/`, the same deterministic archive, and
-the content digest and file count printed and written beside it as
-`.content-sha256`. Images are keyed per style and colorway, and per pack scale
-(a smaller size of a line draws smaller, gen#543; see [the pack scale page](retail-prototype/pack-scale-543.md));
-clothing and footwear draw one per size-ladder rung (`size_ladder.py`, gen#339).
-The authored-styles build is `templates.authored_images` images for `templates.authored` SKUs
-(`retail_figures.figures()`); `--skus N` releases the scaled build instead (`scale.py`'s).
-There is no committed manifest to check against (the retail build is code, not
-a committed catalog); the command refuses an `image_id` that names two
-different drawings instead. `tests/test_retail_image_release.py` pins the
-keying, that every document's image URL resolves to a packaged file, and the
+packages the combined catalog's drawings as ONE image set under ONE pin (gen#706): every retail
+SKU's image, and with `--industrial-catalog` every SKU of that industrial catalog directory
+(rebuilt and checked against its `images.jsonl`, as `ecom-generate images` does), in the
+industrial bundle's shape, so the same installer takes it. Members are `retail/<image_id>.svg`
+and `industrial/<image_id>.svg` in one archive, unpacked into one images folder; every
+`image_url` is its member under `/images/`. The deterministic archive, the content digest and
+the file count are printed and written beside it as `.content-sha256`.
+
+**Every SKU has its own file.** A retail `image_id` is `<type>/<product>/<sku>`, as an
+industrial one is. What the file draws is keyed separately (`export.drawing_id`): the style and
+colorway, the pack scale (a smaller size of a line draws smaller, gen#543; see
+[the pack scale page](retail-prototype/pack-scale-543.md)), and for clothing and footwear the
+size-ladder rung (`size_ladder.py`, gen#339). SKUs that draw the same picture each get their own
+copy of it, so one SKU's color, size or shape can change later without moving another's image.
+The authored-styles build is `templates.authored` SKUs and files over `templates.authored_drawings`
+distinct drawings (`retail_figures.figures()`); `--skus N` releases the scaled build instead
+(`scale.py`'s).
+
+**The release refuses a broken set** and writes nothing: a file two SKUs name, a SKU with no
+file, or a file no SKU names (`bundle.sku_file_problems`), and a `drawing_id` that names two
+different drawings. There is no committed manifest for the retail half (the retail build is
+code, not a committed catalog), so the render is its source.
+`tests/test_retail_image_release.py` and `tests/test_one_file_per_sku_706.py` pin the keying,
+the one-file-per-SKU rule, that every document's image URL resolves to a packaged file, and the
 package shape.
 
-A `v*` tag builds the ceiling export and this bundle, uploads them to a release with their
+A `v*` tag builds the ceiling export, the industrial large build and this bundle, uploads them to a release with their
 `.content-sha256`, and opens the pin-bump pull request in the catalogue repository
 ([docs/releasing.md](releasing.md), gen#536); a manual run of the workflow is the dry run.
 

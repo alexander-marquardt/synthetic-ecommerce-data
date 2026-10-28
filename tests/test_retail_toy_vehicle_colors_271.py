@@ -129,7 +129,7 @@ def test_a_trike_takes_a_wheel_size_too() -> None:
 def test_every_color_and_size_is_its_own_drawing() -> None:
     for row in vehicle_rows():
         rec = row.doc()
-        images = [export.image_id(rec, sku) for sku in rec["skus"]]
+        images = [export.drawing_id(rec, sku) for sku in rec["skus"]]
         assert len(images) == len(set(images)), row.code
 
 

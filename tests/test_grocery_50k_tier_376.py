@@ -114,7 +114,7 @@ def test_no_two_styles_are_twins() -> None:
 def test_one_drawing_per_style_and_pack_scale() -> None:
     """A style's sizes share a drawing unless its line draws a size smaller (gen#543) or a SKU
     draws its own params (a pizza's flavour and size, gen#604)."""
-    images = {v["image_id"] for d in docs() for v in d["variants"]}
+    images = {export.drawing_id(r, s) for r in recs() for s in r["skus"]}
 
     def own(rec: dict, sku: dict) -> tuple:
         return tuple(sorted(export.drawing_spec(rec, sku).get("params", {}).items()))

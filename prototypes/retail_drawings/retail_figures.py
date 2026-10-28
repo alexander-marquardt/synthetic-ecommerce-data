@@ -209,19 +209,21 @@ def measure() -> dict[str, Any]:
     before_grocery = templates[: len(templates) - len(parts["grocery"])]
     main_food = [r for r in before_grocery if r["department"][0] == "Food & Drink"]
     checked, wrong = unheld_named_values(groc)
-    images = {export.image_id(r, s) for r in ceiling.records for s in r["skus"]}
+    drawings = {export.drawing_id(r, s) for r in ceiling.records for s in r["skus"]}
     return {
         "templates": {
             **{name: _count(recs) for name, recs in parts.items()},
             "all": _count(templates),
-            "authored_images": len({export.image_id(r, s) for r in authored for s in r["skus"]}),
+            "authored_drawings": len(
+                {export.drawing_id(r, s) for r in authored for s in r["skus"]}
+            ),
             "before_grocery": _count(before_grocery),
             "main_food": _count(main_food),
         },
         "ceiling": {
             **_count(ceiling.records),
             "derived_styles": len(ceiling.template_of),
-            "images": len(images),
+            "drawings": len(drawings),
             "non_grocery": _count(main),
             "grocery": _count(groc),
             "food_and_drink": _count(food),
@@ -275,7 +277,8 @@ def markdown(data: dict[str, Any]) -> str:
         row("Grocery", ceiling["grocery"]),
         row("Food and drink", ceiling["food_and_drink"]),
         "",
-        f"Derived styles: {ceiling['derived_styles']:,}. Distinct images: {ceiling['images']:,}.",
+        f"Derived styles: {ceiling['derived_styles']:,}. "
+        f"Distinct drawings: {ceiling['drawings']:,}.",
         "",
         "## Top-level departments",
         "",

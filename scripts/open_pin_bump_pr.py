@@ -2,12 +2,13 @@
 """Open the pin-bump pull request a generator release asks of the catalogue repository (gen#536).
 
     python3 scripts/open_pin_bump_pr.py --tag v1.2.3 --catalog build/release/catalog.ndjson \\
-        --images-sidecar build/release/retail-images.tar.gz.content-sha256 --dry-run
+        --images-sidecar build/release/images.tar.gz.content-sha256 --dry-run
 
 The catalogue repository (``elastic/prism-retail-and-industrial``) pins the generator's output by
 digest in two files, ``catalog_release.json`` (the catalog asset: the sha256 of the UNCOMPRESSED
-documents and their count) and ``images_release_retail.json`` (the image archive: the content
-digest and file count ``image_release.py`` writes beside it). A merged decoy or product reached
+documents and their count) and ``images_release.json`` (the ONE image archive of the combined
+catalog, industrial and retail drawings together, gen#706: the content digest and file count
+``image_release.py`` writes beside it). A merged decoy or product reached
 the catalogue only by hand. ``.github/workflows/release.yaml`` builds both assets on a ``v*`` tag,
 uploads them to the release, and runs this script, which writes the two pin files with the new
 digests and opens a pull request that carries them.
@@ -31,11 +32,12 @@ from pathlib import Path
 
 #: Where the pins live in the catalogue repository.
 TARGET_REPO = "elastic/prism-retail-and-industrial"
-CATALOG_PIN = "src/prism_industrial_products/data/catalog_release.json"
-IMAGES_PIN = "src/prism_industrial_products/data/images_release_retail.json"
+#: One image pin for the combined catalog (gen#706): no separate retail and industrial sets.
+CATALOG_PIN = "src/prism_retail_and_industrial/data/catalog_release.json"
+IMAGES_PIN = "src/prism_retail_and_industrial/data/images_release.json"
 
 CATALOG_ASSET = "catalog.ndjson.gz"
-IMAGES_ASSET = "retail-images.tar.gz"
+IMAGES_ASSET = "images.tar.gz"
 TOKEN_ENV = "PIN_BUMP_TOKEN"
 
 

@@ -150,7 +150,7 @@ def test_the_release_builds_both_assets_and_opens_the_pin_bump() -> None:
 
 
 def _sidecar(tmp_path: Path) -> Path:
-    path = tmp_path / "retail-images.tar.gz.content-sha256"
+    path = tmp_path / "images.tar.gz.content-sha256"
     path.write_text("ab" * 32 + "  12\n", encoding="utf-8")
     return path
 
@@ -200,9 +200,15 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
     out = tmp_path / "release"
     script = "\n".join(
         _release_run(n)
-        for n in ("Build the ceiling export", "Build the image bundle", "The pin-bump")
+        for n in (
+            "Build the ceiling export",
+            "Build the industrial catalog",
+            "Build the image bundle",
+            "The pin-bump",
+        )
     ).replace("build/release", str(out))  # fmt: skip
-    env = {**os.environ, "RELEASE_SKUS": "300", "TAG": "v0.0.0-test", "DRY_RUN": "true"}
+    env = {**os.environ, "RELEASE_SKUS": "300", "RELEASE_INDUSTRIAL_LINES": "60",
+           "TAG": "v0.0.0-test", "DRY_RUN": "true"}  # fmt: skip
     done = subprocess.run(
         ["bash", "-e", "-o", "pipefail", "-c", script],
         cwd=ROOT, env=env, capture_output=True, text=True,
@@ -211,8 +217,8 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
     for asset in (
         "catalog.ndjson.gz",
         "catalog.ndjson.gz.content-sha256",
-        "retail-images.tar.gz",
-        "retail-images.tar.gz.content-sha256",
+        "images.tar.gz",
+        "images.tar.gz.content-sha256",
         "pin-bump-body.txt",
     ):
         assert (out / asset).stat().st_size > 0, asset
@@ -237,3 +243,13 @@ def test_the_release_build_defaults_to_the_ceiling_not_a_number(step) -> None:
     the frozen catalogue is refused with exit 2, so a default of 10000000 fails every ``v*`` tag
     while the test above, which always sets ``RELEASE_SKUS``, stays green."""
     assert '--skus "${RELEASE_SKUS:-ceiling}"' in _release_run(step)
+
+
+def test_the_release_draws_the_industrial_large_build() -> None:
+    """The one image set carries the industrial half too (gen#706), at the large build's line
+    count, named once in ``config``."""
+    from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES  # noqa: PLC0415
+
+    build = _release_run("Build the industrial catalog")
+    assert f'--lines "${{RELEASE_INDUSTRIAL_LINES:-{LARGE_BUILD_LINES}}}"' in build
+    assert "--industrial-catalog build/release/industrial" in _release_run("Build the image bundle")

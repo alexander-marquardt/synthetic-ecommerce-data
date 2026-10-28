@@ -443,9 +443,9 @@ standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
 retail-only fields become product-level entries (no `department`: see below); `image_id` is
-`<product type>/<product id>/<drawing spec digest>`, one per style and
-colorway, served under `/images/retail` from the image release
-([The retail image release](images.md#the-retail-image-release)). Every record states
+`<product type>/<product id>/<sku id>`, one file per SKU, and `drawing_id` is the drawing
+spec digest that file draws, served under `/images/retail` from the image release
+([The image release: one set, one file per SKU](images.md#the-image-release-one-set-one-file-per-sku)). Every record states
 its own `product_type` and `category_leaf` (the jeans, bra, bedding, beauty
 and planted single-SKU records gained theirs in the record builders). A
 percent (ABV, discount) is a plain number with `(%)` in its name: prism

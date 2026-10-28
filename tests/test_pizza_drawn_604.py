@@ -86,5 +86,5 @@ def test_the_style_carries_flavour_and_size_as_drawing_params() -> None:
     rec = next(r for r in grocery.build(grocery.TARGET) if r["product_id"].startswith("GRC-PIZ-"))
     assert rec["drawing"]["shape"] == "pizza"
     assert set(rec["drawing"]["params"]) >= {"flavor", "pack_size"}
-    images = {export.image_id(rec, s) for s in rec["skus"]}
+    images = {export.drawing_id(rec, s) for s in rec["skus"]}
     assert len(images) == len(rec["skus"])  # every flavour x size is its own picture
