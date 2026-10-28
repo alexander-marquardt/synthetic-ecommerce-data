@@ -257,15 +257,20 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
 
 
 def drawing_id(rec: dict, sku: dict) -> str:
-    """``<product type>/<product id>/<digest of the drawing spec>``: equal specs, one drawing."""
+    """``<product type>/<product id>/<digest of the drawing spec>``: equal specs, one drawing.
+
+    What a SKU's image DRAWS, not the file it is: SKUs of one colorway, pack factor and size
+    rung draw the same picture, and each still has its own file (:func:`image_id`)."""
     blob = json.dumps(drawing_spec(rec, sku), sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha256(blob.encode()).hexdigest()[:12]
     return f"{_slug(rec['product_type'])}/{rec['product_id']}/{digest}"
 
 
 def image_id(rec: dict, sku: dict) -> str:
-    """The id of the SKU's image file."""
-    return drawing_id(rec, sku)
+    """``<product type>/<product id>/<sku>``: the SKU's own image file, as industrial's is
+    (gen#706). Two SKUs that draw the same picture get two files, so one SKU's color, size or
+    shape can change later without moving another's image."""
+    return f"{_slug(rec['product_type'])}/{rec['product_id']}/{sku['sku']}"
 
 
 def _url(image: str) -> str:
