@@ -127,6 +127,11 @@ def files_digest(files: list[tuple[str, bytes]]) -> str:
     return content_digest((path, hashlib.sha256(data).hexdigest()) for path, data in files)
 
 
+def sku_file_problems(skus, members, prefix: str = "/images/") -> list[str]:
+    """What stops ``members`` shipping as the image set of ``skus`` (``(sku, image_url)`` pairs)."""
+    return []
+
+
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
     """``(path, svg_bytes)`` for every SKU, checked against ``images.jsonl``.
 

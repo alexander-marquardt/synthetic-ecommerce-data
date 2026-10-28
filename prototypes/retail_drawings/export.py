@@ -256,11 +256,16 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     return spec | size_ladder.spec(rec, sku)
 
 
-def image_id(rec: dict, sku: dict) -> str:
-    """``<product type>/<product id>/<digest of the drawing spec>``: equal specs, one image."""
+def drawing_id(rec: dict, sku: dict) -> str:
+    """``<product type>/<product id>/<digest of the drawing spec>``: equal specs, one drawing."""
     blob = json.dumps(drawing_spec(rec, sku), sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha256(blob.encode()).hexdigest()[:12]
     return f"{_slug(rec['product_type'])}/{rec['product_id']}/{digest}"
+
+
+def image_id(rec: dict, sku: dict) -> str:
+    """The id of the SKU's image file."""
+    return drawing_id(rec, sku)
 
 
 def _url(image: str) -> str:
