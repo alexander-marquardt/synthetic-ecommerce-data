@@ -907,12 +907,20 @@ def test_the_builds_rebuild_is_the_command_the_builds_module_names() -> None:
 
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
-    """Every job a pull request runs is required; a push-only job is skipped by design."""
+    """Every job a pull request runs is required; a push-only job is skipped by design, and so
+    is a review-verdict job whose condition never names a pull_request run (#708)."""
     jobs = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())["jobs"]
     push_only = {key for key, job in jobs.items() if job.get("if") == "github.event_name == 'push'"}
+    verdict = yaml.safe_load((REPO / ".github" / "workflows" / "review-verdict.yaml").read_text())
+    never_on_pr = {
+        job["name"]
+        for job in verdict["jobs"].values()
+        if "if" in job and "'pull_request'" not in job["if"]
+    }
     want = sorted(
         [f"required {key}" for key in jobs if key not in push_only]
         + [f"skipped-by-design {key}" for key in push_only]
+        + [f"skipped-by-design {name}" for name in never_on_pr]
     )
     assert sorted(_printed("--print-ci")) == want
 
