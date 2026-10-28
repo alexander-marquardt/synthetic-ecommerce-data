@@ -41,7 +41,7 @@ def overruns() -> dict[str, tuple[float, str]]:
     out: dict[str, tuple[float, str]] = {}
     for rec in scale.templates():
         for sku in rec["skus"]:
-            image = export.image_id(rec, sku)
+            image = export.drawing_id(rec, sku)
             if image in seen:
                 continue
             seen.add(image)

@@ -134,11 +134,19 @@ def test_options_promotions_and_ratings_are_product_attributes(retail):
     assert ("promotion", "On sale") in {(e["key"], e["value"]) for e in sale["attributes"]}
 
 
-def test_an_image_id_is_the_drawing_specs_and_stable(retail):
+def test_an_image_id_is_the_skus_own_file_and_stable(retail):
+    """Every SKU has its own image file (gen#706); what the file draws is the drawing spec."""
+    import export  # noqa: PLC0415 -- on sys.path since _retail()
+    import image_release  # noqa: PLC0415
+
     again = _retail()
     assert [d["image_id"] for d in again] == [d["image_id"] for d in retail]
     jeans = next(d for d in retail if d["product_id"] == "JEA-HARROW")
-    ids = {v["image_id"] for v in jeans["variants"]}
+    assert [v["image_id"].rsplit("/", 1)[1] for v in jeans["variants"]] == [
+        v["sku"] for v in jeans["variants"]
+    ]
+    rec = next(r for r in image_release.records() if r["product_id"] == "JEA-HARROW")
+    ids = {export.drawing_id(rec, s) for s in rec["skus"]}
     # one drawing per color-and-wash pair and size rung (gen#339): the sizes are a ladder of 12
     washes = {
         tuple(e["value"] for e in v["attributes"] if e["key"] in ("color", "pattern"))

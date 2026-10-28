@@ -109,7 +109,7 @@ def test_the_canvas_is_unchanged(styled: bool) -> None:
 
 def test_each_size_of_a_line_is_its_own_image() -> None:
     rec = line_30_50_100()
-    ids = {export.image_id(rec, _sku(rec, ml)) for ml in (30.0, 50.0, 100.0)}
+    ids = {export.drawing_id(rec, _sku(rec, ml)) for ml in (30.0, 50.0, 100.0)}
     assert len(ids) == 3
 
 
@@ -162,7 +162,8 @@ def test_every_smaller_size_of_every_authored_line_renders_inside_its_sheet() ->
     seen: set[str] = set()
     for rec in scale.templates():
         for sku in rec["skus"]:
-            if pack_scale.factor(rec, sku) is None or (image := export.image_id(rec, sku)) in seen:
+            image = export.drawing_id(rec, sku)
+            if pack_scale.factor(rec, sku) is None or image in seen:
                 continue
             seen.add(image)
             svg = image_release.render(rec, sku, styled=False)

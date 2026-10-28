@@ -155,7 +155,7 @@ def test_a_toasters_slots_and_a_radiators_fins_differ_between_its_skus() -> None
     fins = next(r for r in ROWS if r.shape == "heater" and any("fin_count" in s for s in r.skus()))
     for row in (toast, fins):
         first = row.skus()[0].get("color")
-        ids = {export.image_id(row.doc(), s) for s in row.skus() if s.get("color") == first}
+        ids = {export.drawing_id(row.doc(), s) for s in row.skus() if s.get("color") == first}
         assert len(ids) > 1
 
 

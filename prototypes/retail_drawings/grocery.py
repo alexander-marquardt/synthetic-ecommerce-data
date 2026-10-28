@@ -57,7 +57,7 @@ import kit_chocolate  # noqa: E402,F401 -- registers chocolate_box
 import kit_grocery  # noqa: E402,F401 -- registers bar and bag
 import line_grammar  # noqa: E402
 from departments import check as check_departments  # noqa: E402
-from export import NUMERIC_FACTS, standard_document  # noqa: E402
+from export import NUMERIC_FACTS, drawing_id, standard_document  # noqa: E402
 from grocery_ingredients import (  # noqa: E402
     allergen_value,
     base_value,
@@ -610,17 +610,17 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def report(recs: list[dict]) -> dict[str, Any]:
-    """Styles, SKUs and images, overall and per group (the path's second level)."""
+    """Styles, SKUs and drawings, overall and per group (the path's second level)."""
     groups: Counter[str] = Counter()
     styles: Counter[str] = Counter()
     for r in recs:
         groups[r["category_path"][1]] += r["sku_count"]
         styles[r["category_path"][1]] += 1
-    images = {v["image_id"] for d in documents(recs) for v in d["variants"]}
+    drawings = {drawing_id(r, s) for r in recs for s in r["skus"]}  # each SKU has its own file
     return {
         "styles": len(recs),
         "skus": sum(r["sku_count"] for r in recs),
-        "images": len(images),
+        "drawings": len(drawings),
         "leaves": len({tuple(r["category_path"]) for r in recs}),
         "skus_per_group": dict(groups.most_common()),
         "styles_per_group": dict(styles.most_common()),

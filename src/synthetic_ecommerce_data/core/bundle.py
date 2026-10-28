@@ -128,8 +128,34 @@ def files_digest(files: list[tuple[str, bytes]]) -> str:
 
 
 def sku_file_problems(skus, members, prefix: str = "/images/") -> list[str]:
-    """What stops ``members`` shipping as the image set of ``skus`` (``(sku, image_url)`` pairs)."""
-    return []
+    """What stops ``members`` shipping as the image set of ``skus`` (``(sku, image_url)`` pairs).
+
+    One SKU, one file (gen#706): a file two SKUs name, a SKU whose file is not a member, and a
+    member no SKU names are each a problem, so a release that passes holds exactly one file per
+    SKU. A URL is its member under ``prefix``, where the demo serves the unpacked folder.
+    """
+    held = set(members)
+    by_file: dict[str, list[str]] = {}
+    for sku, url in skus:
+        by_file.setdefault(url.removeprefix(prefix) if url.startswith(prefix) else url, []).append(
+            sku
+        )
+    problems = []
+    shared = {path: names for path, names in sorted(by_file.items()) if len(names) > 1}
+    if shared:
+        first, names = next(iter(shared.items()))
+        problems.append(
+            f"{sum(map(len, shared.values()))} SKUs share {len(shared)} file(s): "
+            f"{first} ({', '.join(names[:5])})"
+        )
+    missing = [(names[0], path) for path, names in sorted(by_file.items()) if path not in held]
+    if missing:
+        sample = ", ".join(f"{sku} ({path})" for sku, path in missing[:5])
+        problems.append(f"{len(missing)} SKU(s) have no file: {sample}")
+    orphans = sorted(held - set(by_file))
+    if orphans:
+        problems.append(f"{len(orphans)} file(s) name no SKU: {', '.join(orphans[:5])}")
+    return problems
 
 
 def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
@@ -204,14 +230,17 @@ def write_files(files: list[tuple[str, bytes]], out_dir: Path, root: str | None 
     """Write the drawings under ``out_dir``, replacing any previous set there.
 
     The bundle's own folder (``root``: the industrial :data:`..emit.IMAGE_ROOT`
-    unless a domain names its own, as the retail release does) is cleared
-    first, so a drawing a regeneration dropped does not linger beside the new set.
+    unless a domain names its own, as the retail release does) and every other
+    top-level folder ``files`` writes into (the combined release's ``industrial/``
+    and ``retail/``, gen#706) are cleared first, so a drawing a regeneration
+    dropped does not linger beside the new set.
     """
     import shutil  # noqa: PLC0415
 
     from synthetic_ecommerce_data.core.emit import IMAGE_ROOT  # noqa: PLC0415
 
-    shutil.rmtree(out_dir / (root or IMAGE_ROOT), ignore_errors=True)
+    for top in {root or IMAGE_ROOT} | {path.split("/", 1)[0] for path, _ in files}:
+        shutil.rmtree(out_dir / top, ignore_errors=True)
     for path, data in files:
         target = out_dir / path
         target.parent.mkdir(parents=True, exist_ok=True)

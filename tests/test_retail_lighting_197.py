@@ -108,7 +108,7 @@ def test_each_sku_draws_its_own_second_axis_and_gets_its_own_image(pid: str) -> 
         for key in params:
             if key in sku:
                 assert drawn[key] == str(sku[key]), (sku["sku"], key)
-    ids = {export.image_id(rec, s) for s in rec["skus"]}
+    ids = {export.drawing_id(rec, s) for s in rec["skus"]}
     assert len(ids) == len(rec["skus"]), pid
     assert len(image_release.image_files([rec])) == len(rec["skus"])
 
@@ -140,7 +140,7 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
                 continue
             checked += 1
             assert "params" not in export.drawing_spec(t, s), s["sku"]
-            assert export.image_id(t, s) == _legacy_image_id(t, s), s["sku"]
+            assert export.drawing_id(t, s) == _legacy_image_id(t, s), s["sku"]
     assert checked
 
 
@@ -149,7 +149,7 @@ def test_a_lighting_sku_stripped_of_its_param_values_keeps_the_legacy_image_id()
         declared = rec["drawing"].get("params") or {}
         for s in rec["skus"]:
             bare = {k: v for k, v in s.items() if k not in declared}
-            assert export.image_id(rec, bare) == _legacy_image_id(rec, bare), s["sku"]
+            assert export.drawing_id(rec, bare) == _legacy_image_id(rec, bare), s["sku"]
 
 
 def test_lighting_styles_are_templates_a_derived_style_may_come_from() -> None:

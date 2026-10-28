@@ -52,7 +52,7 @@ def _ids(rec: dict, key: str) -> dict[tuple, set]:
     """``(rung, color) -> the image ids of its SKUs``."""
     out: dict[tuple, set] = {}
     for sku in rec["skus"]:
-        out.setdefault((_rung(sku, key), sku.get("color")), set()).add(export.image_id(rec, sku))
+        out.setdefault((_rung(sku, key), sku.get("color")), set()).add(export.drawing_id(rec, sku))
     return out
 
 
@@ -116,7 +116,7 @@ def test_a_fit_only_difference_keeps_the_shared_per_color_image():
     assert {_scale(one_size, s) for s in legs} == {None}
     per_color: dict = {}
     for s in legs:
-        per_color.setdefault(s.get("color"), set()).add(export.image_id(one_size, s))
+        per_color.setdefault(s.get("color"), set()).add(export.drawing_id(one_size, s))
     assert {len(v) for v in per_color.values()} == {1}
 
 
@@ -126,7 +126,7 @@ def test_bedding_and_pack_sizes_keep_one_image_per_color(pid):
     per_color: dict = {}
     for sku in rec["skus"]:
         assert _scale(rec, sku) is None
-        per_color.setdefault(sku.get("color"), set()).add(export.image_id(rec, sku))
+        per_color.setdefault(sku.get("color"), set()).add(export.drawing_id(rec, sku))
     assert len({s.get("size") or s.get("bed_size") or s.get("size_uk") for s in rec["skus"]}) > 1
     assert {len(v) for v in per_color.values()} == {1}
 
@@ -137,7 +137,7 @@ def test_each_size_of_a_color_has_its_own_image():
                and len({s.get("color") for s in r["skus"]}) > 1)  # fmt: skip
     by_color: dict = {}
     for sku in rec["skus"]:
-        by_color.setdefault(sku["color"], []).append(export.image_id(rec, sku))
+        by_color.setdefault(sku["color"], []).append(export.drawing_id(rec, sku))
     assert len(by_color) > 1
     for color, ids in by_color.items():
         assert len(ids) == len(set(ids)) == 5, f"{color}: one image per size"

@@ -1,41 +1,48 @@
-"""The retail image release: every image the export references, rendered and packaged (gen#125).
+"""The image release: every SKU's own image file, retail and industrial, in one archive (gen#706).
 
 Usage::
 
     uv run python prototypes/retail_drawings/image_release.py \\
-        --out out/retail-images --archive out/retail-images.tar.gz [--skus 20000]
+        --out out/images --archive out/images.tar.gz [--skus 20000] \\
+        [--industrial-catalog out/catalog-100k]
 
 Without ``--skus`` it releases the 352 authored styles; with it, the scaled
 build that reaches that SKU count (:func:`scale.build`, the 20K catalog's input),
-whose derived styles each name their own images.
+whose derived styles each name their own images. ``--industrial-catalog`` adds
+the drawings of an industrial catalog directory (``ecom-generate build``'s
+output), rebuilt and checked by :func:`..core.bundle.rebuild`, so the combined
+catalog ships ONE image set under ONE pin rather than a retail and an industrial
+release side by side.
 
-The retail counterpart of ``ecom-generate images`` (:mod:`synthetic_ecommerce_data.core.bundle`),
-in the same package shape, so the installer that fetches the industrial
-release installs this one unchanged:
-
-- ONE IMAGE PER STYLE, COLORWAY, PACK SCALE AND SIZE RUNG, never per SKU. A SKU's ``image_id``
-  (:func:`export.image_id`) is a digest of its product's drawing, its color
-  swatch, the factor its pack is drawn at within its line (:mod:`pack_scale`, gen#543) and, for
-  clothing and footwear, its rung of the size ladder (``size_ladder.py``), so SKUs of one color,
-  factor and rung share an image; a style sold in no color has one image per factor and rung.
-  The 352-style build is 3,627 images for 7,736 SKUs.
+- ONE FILE PER SKU, never one shared by two. A SKU's ``image_id``
+  (:func:`export.image_id`) is ``<type>/<product>/<sku>``, as industrial's is.
+  What the file draws is its product's drawing in the SKU's color swatch, pack
+  factor (:mod:`pack_scale`, gen#543) and size rung (``size_ladder.py``): SKUs
+  of one colorway, factor and rung draw the same picture (one
+  :func:`export.drawing_id`), drawn once and written to each SKU's own file, so
+  one SKU's parameters can change later without touching another's.
 - LAYOUT. Every member is ``retail/<image_id>.svg`` (``retail`` is
-  :data:`export.IMAGE_ROOT`), and every ``image_url`` is ``/images/`` plus that
-  member, so the demo serving the unpacked folder at ``/images`` resolves it.
+  :data:`export.IMAGE_ROOT`) or ``industrial/<image_id>.svg``, and every
+  ``image_url`` is ``/images/`` plus that member, so the demo serving the
+  unpacked folder at ``/images`` resolves both halves from one folder.
+- THE GUARD. The release is refused, and nothing written, unless every SKU of
+  both halves names exactly one member, no member is named twice, and every
+  member is named (:func:`..core.bundle.sku_file_problems`).
 - THE PIN is the content digest (:func:`..core.bundle.files_digest`), printed
   and written beside the archive as ``<archive>.content-sha256`` with the file
   count; the archive's own sha256 goes in ``<archive>.sha256``. The archive is
   :func:`..core.bundle.write_archive`'s: sorted members, zeroed times and owners.
 
 Unlike the industrial bundle there is no committed ``images.jsonl`` to check
-the render against: the retail build is this folder's code, not a committed
-catalog, so the render is the source. What is checked instead is that one
-``image_id`` never names two different drawings (:func:`image_files`).
+the retail render against: the retail build is this folder's code, not a
+committed catalog, so the render is the source. What is checked instead is that
+one ``drawing_id`` never names two different drawings (:func:`image_files`).
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -51,7 +58,7 @@ from synthetic_ecommerce_data.core import bundle  # noqa: E402
 
 
 def member_path(image_id: str) -> str:
-    """``retail/<type>/<product>/<digest>.svg``: the file an ``image_url`` names."""
+    """``retail/<type>/<product>/<sku>.svg``: the file an ``image_url`` names."""
     return f"{export.IMAGE_ROOT}/{image_id}.svg"
 
 
@@ -101,39 +108,73 @@ def records(skus: int | None = None) -> list[dict]:
 
 
 def image_files(recs: list[dict] | None = None) -> list[tuple[str, bytes]]:
-    """``(member path, svg bytes)`` for every distinct image the export references, sorted.
+    """``(member path, svg bytes)`` for every SKU's own image file, sorted.
 
-    Each image is drawn once, from its first SKU. Raises ``ValueError`` when an
-    ``image_id`` names two different colorway drawings: the id would then show
-    one color's image on another color's SKU.
+    Each drawing is rendered once, from its first SKU, and written to the file
+    of every SKU that draws it. Raises ``ValueError`` when a ``drawing_id`` names
+    two different colorway drawings: the id would then show one color's image
+    on another color's SKU.
     """
-    drawings: dict[str, dict] = {}
+    drawings: dict[str, tuple[dict, bytes]] = {}
     files: list[tuple[str, bytes]] = []
     for rec in records() if recs is None else recs:
         for sku in rec["skus"]:
-            image = export.image_id(rec, sku)
+            key = export.drawing_id(rec, sku)
             drawing = colorway_drawing(rec, sku)
-            if image in drawings:
-                if drawings[image] != drawing:
-                    raise ValueError(f"{image} names 2 different drawings ({sku['sku']})")
-                continue
-            drawings[image] = drawing
-            files.append((member_path(image), render(rec, sku)))
+            if key not in drawings:
+                drawings[key] = (drawing, render(rec, sku))
+            elif drawings[key][0] != drawing:
+                raise ValueError(f"{key} names 2 different drawings ({sku['sku']})")
+            files.append((member_path(export.image_id(rec, sku)), drawings[key][1]))
     return sorted(files)
+
+
+def sku_urls(recs: list[dict]) -> list[tuple[str, str]]:
+    """``(sku, image_url)`` of every SKU, as the export's documents carry them."""
+    return [
+        (variant["sku"], variant["image_url"])
+        for doc in (export.standard_document(rec) for rec in recs)
+        for variant in doc["variants"]
+    ]
+
+
+def industrial(catalog: Path) -> tuple[list[tuple[str, bytes]], list[tuple[str, str]]]:
+    """An industrial catalog directory's drawings (checked against its ``images.jsonl``) and
+    the ``(sku, image_url)`` of every one of its flat documents."""
+    rows = (json.loads(line) for line in (catalog / "flat.jsonl").read_text("utf-8").splitlines()
+            if line)  # fmt: skip
+    return bundle.rebuild(catalog), [(row["sku"], row["image_url"]) for row in rows]
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="image_release.py", description=__doc__.split("\n")[0])
-    parser.add_argument("--out", type=Path, default=Path("out/retail-images"))
+    parser.add_argument("--out", type=Path, default=Path("out/images"))
     parser.add_argument("--archive", type=Path, default=None)
     parser.add_argument("--skus", type=scale._target, default=None)
+    parser.add_argument(
+        "--industrial-catalog",
+        type=Path,
+        default=None,
+        help="an `ecom-generate build` directory whose drawings ship in the same archive",
+    )
     args = parser.parse_args(argv)
     recs = records(args.skus)
     files = image_files(recs)
-    skus = sum(len(rec["skus"]) for rec in recs)
+    skus = sku_urls(recs)
+    try:
+        if args.industrial_catalog is not None:
+            drawn, named = industrial(args.industrial_catalog)
+            files, skus = sorted(files + drawn), skus + named
+    except bundle.BundleMismatchError as exc:
+        print(f"image release REFUSED: {exc}", file=sys.stderr)
+        return 1
+    problems = bundle.sku_file_problems(skus, [path for path, _ in files])
+    if problems:
+        print(f"image release REFUSED: {'; '.join(problems)}", file=sys.stderr)
+        return 1
     bundle.write_files(files, args.out, root=export.IMAGE_ROOT)
     total = sum(len(data) for _, data in files)
-    print(f"{args.out}  {len(files)} images for {skus} SKUs, {total:,} bytes")
+    print(f"{args.out}  {len(files)} files for {len(skus)} SKUs, {total:,} bytes")
     content = bundle.files_digest(files)
     print(f"content digest (pin this) {content}  over {len(files)} files")
     if args.archive is not None:
