@@ -915,7 +915,9 @@ merged tree, not only at the PR's merge base), refusing a run in which no test
 passed. It
 pushes the merged tree to the PR branch if it differs from the head, waits
 for every CI check on exactly that commit (`--print-ci`; a failed, missing or
-unexpectedly skipped check refuses), and squash-merges. Before every merge
+unexpectedly skipped check refuses; the push-only `main-merged-tree` and
+`review-verdict-rerun`, which runs only on a verdict comment or review, are
+skipped by design, #708), and squash-merges. Before every merge
 attempt it re-reads `main` and the PR head, and refuses if either moved; a
 read that is not the expected sha is repeated, up to 3 reads 10 s apart
 (`MERGE_PR_HEAD_SLEEP`), because `git ls-remote` right after a push can answer
