@@ -199,7 +199,9 @@ def test_every_appliance_drawing_stays_on_its_sheet() -> None:
     off = {}
     for row in ROWS:
         svg = image_release.render(row.doc(), row.skus()[0]).decode()
-        size = float(re.search(r'viewBox="0 0 (\d+) \d+"', svg).group(1))
+        box = re.search(r'viewBox="0 0 (\d+) \d+"', svg)
+        assert box is not None, row.code
+        size = float(box.group(1))
         body = re.sub(r"<(defs|clipPath)\b.*?</\1>", "", svg, flags=re.S)
         bad = [p for p in _points_drawn(body) if not (0 <= p[0] <= size and 0 <= p[1] <= size)]
         if bad:
