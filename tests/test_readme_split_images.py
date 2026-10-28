@@ -20,7 +20,7 @@ PAGE = ROOT / "docs" / "images.md"
 #: The three subsections of the README's old ``## Images`` section.
 MOVED_HEADINGS = (
     "### Where a record points, and the bundle",
-    "### The retail image release",
+    "### The image release: one set, one file per SKU",  # renamed by gen#706
     "### One renderer",
 )
 
