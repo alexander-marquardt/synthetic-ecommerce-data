@@ -91,6 +91,10 @@ case "$1 $2" in
     printf 'customer-name-check\tcompleted\tsuccess\n'
     printf 'no-derived-files\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
+    # A check the rollup also carries, skipped (#708): review-verdict-rerun on a real PR.
+    if [ -n "${FAKE_GH_ALSO_SKIPPED:-}" ]; then
+      printf '%s\tcompleted\tskipped\n' "$FAKE_GH_ALSO_SKIPPED"
+    fi
     ;;
   "pr merge")
     if [ -n "${FAKE_GH_REFUSE_FIRST_MERGE:-}" ] && [ ! -e "$FAKE_GH_LOG.refused" ]; then
@@ -457,6 +461,25 @@ def test_a_merge_waits_for_every_check_on_the_pushed_tree(
     assert "NOT merged" in result.stderr
     assert _ci_reads(world) == [pushed]
     assert not _merged(world)
+
+
+@pytest.mark.parametrize(
+    "skipped, merges",
+    [("review-verdict-rerun", True), ("review-verdict", False)],
+    ids=["verdict-rerun-by-design", "other-skip-refused"],
+)
+def test_review_verdict_rerun_skipped_is_by_design_and_any_other_skip_is_not(
+    world: dict, skipped: str, merges: bool
+) -> None:
+    """review-verdict-rerun runs only on a verdict comment or review, never on the PR's
+    own run, so every rollup carries it skipped (#708); another skipped check still refuses."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_GH_ALSO_SKIPPED=skipped)
+    assert (result.returncode == 0) is merges, result.stdout + result.stderr
+    assert _merged(world) is merges
+    if not merges:
+        refusal = f"check {skipped} on {_branch(world)} was skipped, and it is not skipped"
+        assert refusal in result.stderr, result.stderr[-800:]
 
 
 def test_a_build_the_network_stops_says_so_apart_from_the_build_refusing(world: dict) -> None:
