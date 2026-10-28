@@ -9,8 +9,9 @@ off and with it on, and the demo had nothing to show.
 Each row here is an accessory or a companion that a shop sells for the product and names after
 it. Its title holds every word of the query:
 
-* ``mens black jeans``: two men's black belts cut for jeans (Mens > Accessories > Belts) and
-  black hangers for men's jeans (Home > Storage > Hangers);
+* ``mens black jeans``: two men's black belts cut for jeans (Mens > Accessories > Belts),
+  black hangers for men's jeans (Home > Storage > Hangers) and a men's black denim shirt, a
+  "jeans shirt", cut to wear with black jeans (Mens > Tops > Shirts > Denim Shirts);
 * ``white minimiser bras``: a wash bag and a travel case for white minimiser bras (Home >
   Laundry, Womens > Accessories > Travel) and the white briefs that match the minimiser bra
   (Womens > Lingerie > Knickers).
@@ -51,6 +52,22 @@ def _belt(material: str, buckle: str, price: float) -> Kind:
 KINDS = {
     "aw_leather_belt": _belt("Leather", "Pin", 18.0),
     "aw_canvas_belt": _belt("Canvas", "Plate", 10.0),
+    "aw_denim_shirt": Kind(
+        "Clothing",
+        ("Mens", "Tops", "Shirts", "Denim Shirts"),
+        "Shirt",
+        "blouse",
+        "Wrenfield",
+        28.0,
+        extra=(
+            ("fit", "Fit", "Regular"),
+            ("material", "Material", "Stretch Denim"),
+            ("sleeve_length", "Sleeve length", "Long"),
+            ("collar", "Collar", "Western Yoke"),
+        ),
+        sizes=("S", "M", "L", "XL", "XXL"),
+        size_range="regular",
+    ),
     "aw_briefs": Kind(
         "Lingerie & Nightwear",
         ("Womens", "Lingerie", "Knickers"),
@@ -72,7 +89,7 @@ KINDS = {
 
 def word_rows(d):
     def jeans(n, kind, title, desc):
-        # Sold below the table's default: at 2000 the three rows took the top 3 of "black jeans"
+        # Sold below the table's default: at 2000 the rows took the top 3 of "black jeans"
         # from the sibling-color decoys of gen#311; at 600 they still lead "mens black jeans".
         return d(n, kind, title, desc, "Black", "mens black jeans", "jean", "category", sold=600)
 
@@ -88,6 +105,9 @@ def word_rows(d):
               "chinos."),
         jeans(7112, "hangers", "Black Hangers for Mens Jeans",
               "Five black clip hangers that hold a pair of men's jeans by the waistband."),
+        jeans(7116, "aw_denim_shirt", "Mens Black Jeans Shirt",
+              "A black stretch denim shirt with a western yoke and press studs, cut to wear "
+              "with black jeans."),
         bras(7113, "wash_bag", "White Minimiser Bra Wash Bag",
              "A white mesh bag with a zip that keeps a minimiser bra in shape in the wash."),
         bras(7114, "case", "White Minimiser Bra Travel Case",
