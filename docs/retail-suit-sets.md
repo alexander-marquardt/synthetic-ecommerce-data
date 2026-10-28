@@ -28,6 +28,14 @@ Culotte Trouser Suit; Sailor, Tuxedo and Page Boy Suit), also named in the revie
 The one old Suit Jacket row (`SUITCK`, Womens / Coats & Jackets / Blazers) is drawn with the
 `suit_jacket` shape of `kit_suits.py`, no longer the generic `coat`.
 
-Jacket length and trouser leg are not SKU axes: the leg length (and the jacket's cut) changes how
-a Mens suit looks, so it is a drawing param and a style attribute, as the issue asks of an axis
-that changes the picture; an inside-leg SKU axis would give one style three drawings.
+Trouser leg and jacket length are SKU axes, as a shop sells a suit (34/32, 40R). Mens Suit
+Trousers are color x waist x `inside_leg` (Short/Petite, Regular, Long), with `in_stock` per SKU
+and a `size_range` derived from the legs in stock, which is the legwear rule of
+[retail-prototype.md](retail-prototype.md) (gen#206) that jeans and joggers follow. Every fourth
+floor style has its short leg sold out and every fourth its long one, so a `petite` filter finds
+only the styles with a short leg in stock. A Mens Suit Jacket is color x chest x `length` (Short,
+Regular, Long). A leg or jacket length is a size, not a cut, so the drawing does not change with
+it: the `suit_trousers` shape takes no `leg` param, draws the hem where a regular leg ends, and no
+record states a `leg_length`. There is still one image per style and colorway, as for jeans
+(ruled on gen#215, 2026-10-28). The Womens Blazers, Waistcoat, Dinner Suit, Trouser Suit and Boys
+Suit are sold by one size and keep it.

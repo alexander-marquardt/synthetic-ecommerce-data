@@ -37,13 +37,13 @@ a brand such as "Black Curlew" is not read as naming a color.
 `prototypes/retail_drawings/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
 `dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same seven classes):
 
-| Type (`product_type`) | Leaf | Key attributes (structured) | Shape params |
-|---|---|---|---|
-| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel`, `buttons` (two or three) |
-| Suit Trousers | Suit Trousers | `fit`, `material`, `leg_length` | `fit`, `leg` |
-| Waistcoat | Waistcoats | `fit`, `material`, `buttons` | `fit`, `buttons` |
-| Dinner Suit | Dinner Suits | `fit`, `material`, `lapel` | `fit`, `lapel` |
-| Formal Accessories | Formal Accessories | `material`, `accessory_type` (tie, bow tie, braces, cummerbund, pocket square) | `item` |
+| Type (`product_type`) | Leaf | Key attributes (structured) | Shape params | SKUs |
+|---|---|---|---|---|
+| Suit Jacket | Suit Jackets, Blazers | `fit`, `material`, `lapel`, `buttons`, `occasion` | `fit`, `lapel`, `buttons` (two or three) | color x chest x `length` (Short, Regular, Long) |
+| Suit Trousers | Suit Trousers | `fit`, `material` | `fit` | color x waist x `inside_leg` (Short/Petite, Regular, Long) |
+| Waistcoat | Waistcoats | `fit`, `material`, `buttons` | `fit`, `buttons` | color x chest |
+| Dinner Suit | Dinner Suits | `fit`, `material`, `lapel` | `fit`, `lapel` | color x chest |
+| Formal Accessories | Formal Accessories | `material`, `accessory_type` (tie, bow tie, braces, cummerbund, pocket square) | `item` | color |
 
 The kit draws three cuts (slim, tailored, regular), so a record of fit `Relaxed` is drawn regular.
 
@@ -57,5 +57,6 @@ SKU carries none.
 A matching set is a jacket, trousers and waistcoat sharing one `suit_set` name, one brand, one
 cloth (`material`), one fit and the same colors (`mens_depth_rows.SETS`, ten sets). The women's
 trouser suit and the boys' suit (age sizes, two or three pieces) are in
-[retail-suit-sets.md](retail-suit-sets.md). The jacket length and trouser leg are not SKU axes:
-the leg length is a style attribute and a drawing param, because it changes the picture.
+[retail-suit-sets.md](retail-suit-sets.md). The trouser leg and the jacket length are SKU axes,
+not style attributes, under the legwear rule of [retail-prototype.md](retail-prototype.md)
+(gen#206): see the last paragraph of [retail-suit-sets.md](retail-suit-sets.md).

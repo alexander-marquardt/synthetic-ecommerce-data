@@ -57,7 +57,7 @@ import named_parts
 import type_colors
 import type_registry
 from breadth_rows import OWNERS
-from class_model import BRAND_OWNER
+from class_model import BRAND_OWNER, LEGS3
 from decoy_apparel import DETAIL_HEX
 from lowerbody_rows import LRow
 from main_color_hex import MAIN_COLORS
@@ -144,9 +144,16 @@ class Kind:
     absent_noun: str = ""  # class 4: the noun of the leaf it sits in, when it is not ``noun``
     absent_attrs: tuple = ()  # attributes a class 4 decoy carries instead of ``decoy_attrs``
     absent_text: str = ""  # class 4 description, "{f}" the feature named; "" for the default
+    axis_key: str = ""  # a third SKU axis, a size the drawing does not show: a leg, a jacket length
+    axis: tuple[tuple[str, float], ...] = ()  # its (value, price factor) pairs
 
 
 _SR = ("size_range", ["regular"])
+#: A suit is sold in a leg or a jacket length as well as a waist or chest (34/32, 40R), at one
+#: price: the gen#206 legwear rule, ruled for gen#215 on 2026-10-28. A size, so not drawn.
+_SUIT_LEGS = tuple((leg, 1.0) for leg in LEGS3)
+JACKET_LENGTHS = ("Short", "Regular", "Long")
+_JACKET_LENGTHS = tuple((n, 1.0) for n in JACKET_LENGTHS)
 KINDS = {
     "Mens Trousers": Kind("Mens Trousers", "Chinos", "trousers", WAIST, "waist", _C, 22.0, "Cotton",
                      params=(("fit", "straight"), ("rise", "mid")),
@@ -178,11 +185,13 @@ KINDS = {
                            ("Mens", "Coats & Jackets", "Waterproof Jackets"))),
     "Suit Jacket": Kind("Suit Jacket", "Blazer", "suit_jacket", CHEST, "size", _C, 60.0, "Polyester",
                         facts=(_SR,), params=(("fit", "regular"), ("lapel", "notch"), ("buttons", "2")),
+                        axis_key="length", axis=_JACKET_LENGTHS,
                         borrow=("jumper", "shirt", "coat"),
                         absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
                         path=("Mens", "Suits & Tailoring", "Blazers")),
     "Suit Trousers": Kind("Suit Trousers", "Suit Trousers", "suit_trousers", WAIST, "waist", _C,
-                          36.0, "Polyester", facts=(_SR,), params=(("fit", "regular"), ("leg", "regular")),
+                          36.0, "Polyester", params=(("fit", "regular"),),
+                          axis_key="inside_leg", axis=_SUIT_LEGS,
                           borrow=("shirt", "jumper", "coat"),
                           absent=("Wool-Free", "Silk-Feel", "Linen-Look"),
                           path=("Mens", "Suits & Tailoring", "Suit Trousers")),
@@ -216,12 +225,13 @@ KINDS = {
 
 
 def _row(code, title, brand, kind: Kind, path, desc, colors, attrs, *, price, params=None,
-         shape=None, facts=None) -> LRow:
+         shape=None, facts=None, sold_out=()) -> LRow:
     return LRow(
         code, title, brand, kind.dept, path, kind.ptype, price, shape or kind.shape, desc, colors,
         attrs=attrs, sizes=_sizes(price, kind.sizes),
         params=kind.params if params is None else params, size_key=kind.size_key,
-        facts=kind.facts if facts is None else facts,
+        facts=kind.facts if facts is None else facts, axis_key=kind.axis_key, axis=kind.axis,
+        sold_out=sold_out,
     )  # fmt: skip
 
 
@@ -312,9 +322,9 @@ _LEAVES = (
          ("Relaxed", "Tapered"), ("",), "{f} {fit} Fit Cargo Trousers", extra_price=4.0,
          noun="cargo trousers"),
     Leaf("ST", ("Mens", "Suits & Tailoring", "Suit Trousers"), "Suit Trousers", 24,
-         ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Flannel"),
-         ("Slim", "Tailored", "Regular"), ("Short", "Regular", "Long"),
-         "{f} {fit} Fit {d} Leg Suit Trousers", palette=_TAILORED, extra_price=14.0),
+         ("Wool Blend", "Birdseye", "Twill", "Stretch", "Herringbone", "Flannel", "Tonic",
+          "Linen Blend"), ("Slim", "Tailored", "Regular"), ("",),
+         "{f} {fit} Fit Suit Trousers", palette=_TAILORED, extra_price=14.0),
     Leaf("SF", ("Mens", "Tops", "Shirts", "Formal Shirts"), "Shirt", 24,
          ("Poplin", "Twill", "Herringbone", "Easy Iron Cotton", "Stretch Cotton", "Pinpoint",
           "Brushed Twill"), ("Slim", "Regular", "Tailored"),
@@ -437,7 +447,8 @@ _BUTTONS = {"Four Button": "4", "Five Button": "5", "Six Button": "6"}
 
 def _suit(ptype: str, fit: str, detail: str, i: int) -> tuple[tuple, tuple]:
     """The structured attributes (beyond fit and material) and the drawing params of a tailoring
-    product, each a choice the drawing shows: the lapel, the leg length, the buttons, the item."""
+    product, each a choice the drawing shows: the lapel, the buttons, the item. A trouser leg is a
+    size, sold as a SKU (:data:`_SUIT_LEGS`), so the trousers state only their fit."""
     f = _SUIT_FIT.get(fit, "regular")
     if ptype == "Suit Jacket":
         lapel = detail or "Notch"
@@ -446,7 +457,7 @@ def _suit(ptype: str, fit: str, detail: str, i: int) -> tuple[tuple, tuple]:
                  _a("occasion", "Occasion", _OCCASIONS[i % 4])),
                 (("fit", f), ("lapel", lapel.lower()), ("buttons", ("2", "3")[n])))  # fmt: skip
     if ptype == "Suit Trousers":
-        return (_a("leg_length", "Leg length", detail),), (("fit", f), ("leg", detail.lower()))
+        return (), (("fit", f),)
     if ptype == "Waistcoat":
         return (_a("buttons", "Buttons", detail),), (("fit", f), ("buttons", _BUTTONS[detail]))
     if ptype == "Dinner Suit":
@@ -455,6 +466,14 @@ def _suit(ptype: str, fit: str, detail: str, i: int) -> tuple[tuple, tuple]:
         return ((_a("accessory_type", "Accessory type", detail),),
                 (("item", detail.lower().replace(" ", "_")),))  # fmt: skip
     return (), ()
+
+
+def _sold_out(kind: Kind, i: int) -> tuple[str, ...]:
+    """The legs the ``i``-th floor style of ``kind`` has sold out of: every fourth style its short
+    leg and every fourth its long one, so a petite or tall filter tells the styles apart."""
+    if kind.axis_key != "inside_leg":
+        return ()
+    return {1: ("Long",), 3: ("Short/Petite",)}.get(i % 4, ())
 
 
 def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list[LRow]:
@@ -520,7 +539,8 @@ def _floor_rows(leaves=None, kinds=None, tails=None, prefix: str = "MF") -> list
             if pattern != "plain":
                 facts.append(("pattern", pattern))
             out.append(_row(f"{prefix}{leaf.abbr}{i:03d}", title, brand, kind, leaf.path, desc, colors,
-                            tuple(attrs), price=price, params=params, facts=tuple(facts)))
+                            tuple(attrs), price=price, params=params, facts=tuple(facts),
+                            sold_out=_sold_out(kind, i)))
     return out
 
 

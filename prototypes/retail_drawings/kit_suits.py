@@ -6,8 +6,7 @@ shape               draws                                                  param
 suit_jacket         a single-breasted jacket, cut closer to the body        fit, lapel, buttons
                     as the fit narrows, with a notch, peak or shawl lapel,
                     two or three buttons
-suit_trousers       tailored trousers with a pleat crease and belt loops,   fit, leg
-                    the hem set by the leg length
+suit_trousers       tailored trousers with a pleat crease and belt loops    fit
 waistcoat           a V-neck waistcoat with a buttoned front               fit, buttons
 dinner_suit         a dinner jacket (satin-faced peak or shawl lapel)       fit, lapel
                     over trousers with a satin side stripe, and a bow tie
@@ -15,10 +14,10 @@ formal_accessory    a tie, bow tie, braces, cummerbund or pocket square     item
 ==================  =====================================================  =================
 
 The fit is stamped on the body (``class="fit-slim"``), the lapel on the lapel group
-(``class="lapel-peak"``), the leg length on the hem (``class="leg-long"``), each button as a
-``class="button"`` mark and the accessory on its group (``class="item-bow_tie"``), so
-``tests/test_retail_suits_215.py`` reads the record's choice back from the drawing. A shape is
-painted in the record's fill and prints no size.
+(``class="lapel-peak"``), each button as a ``class="button"`` mark and the accessory on its
+group (``class="item-bow_tie"``), so ``tests/test_retail_suits_215.py`` reads the record's choice
+back from the drawing. A shape is painted in the record's fill and prints no size: a trouser leg
+and a jacket length are SKU sizes (gen#206), so the hem sits where a regular leg ends.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
@@ -29,7 +28,6 @@ from kit import INK, LW, LW_DETAIL, Fill, _line, _mirror, _path, _shade, registe
 
 FITS = ("slim", "tailored", "regular")
 LAPELS = ("notch", "peak", "shawl")
-LEGS = ("short", "regular", "long")
 ITEMS = ("tie", "bow_tie", "braces", "cummerbund", "pocket_square")
 BUTTON_COUNTS = ("4", "5", "6")
 JACKET_BUTTONS = ("2", "3")
@@ -38,8 +36,8 @@ JACKET_BUTTONS = ("2", "3")
 _JACKET = {"slim": (142, 136), "tailored": (134, 126), "regular": (122, 116)}
 #: fit -> the half-width of one trouser leg at the hem.
 _LEG_W = {"slim": 17, "tailored": 22, "regular": 28}
-#: leg -> hem y.
-_HEM = {"short": 316, "regular": 340, "long": 366}
+#: The hem y of a trouser leg.
+_HEM = 340
 SATIN = "#23262b"
 
 
@@ -148,11 +146,9 @@ def _trouser_legs(paint: str, fit: str, hem: float, top: float, belt: bool = Tru
     return out
 
 
-def suit_trousers(
-    paint: str, fill: Fill, label: str | None, fit: str = "regular", leg: str = "regular"
-) -> list[str]:
+def suit_trousers(paint: str, fill: Fill, label: str | None, fit: str = "regular") -> list[str]:
     fit = fit if fit in _LEG_W else "regular"
-    hem = _HEM.get(leg, 340)
+    hem = _HEM
     top = 70.0
     out = [_g(f"fit-{fit}", _trouser_legs(paint, fit, hem, top))]
     band = f"M{200 - 82},{top - 4} L{200 + 82},{top - 4} L{200 + 82},{top + 18} L{200 - 82},{top + 18} Z"
@@ -167,14 +163,9 @@ def suit_trousers(
         _line(f"M{200 + 70},{top + 26} Q{200 + 56},{top + 44} {200 + 60},{top + 70}", 1.6),
     ]
     out.append(
-        _g(
-            f"leg-{leg}",
-            [
-                _line(
-                    f"M{200 - 4 - 2 * _LEG_W[fit]},{hem} L{200 - 4},{hem} M{200 + 4},{hem} L{200 + 4 + 2 * _LEG_W[fit]},{hem}",
-                    4,
-                )
-            ],
+        _line(
+            f"M{200 - 4 - 2 * _LEG_W[fit]},{hem} L{200 - 4},{hem} M{200 + 4},{hem} L{200 + 4 + 2 * _LEG_W[fit]},{hem}",
+            4,
         )
     )
     return out
