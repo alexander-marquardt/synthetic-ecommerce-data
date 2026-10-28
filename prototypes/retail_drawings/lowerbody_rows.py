@@ -38,17 +38,21 @@ ADULT = ("XS", "S", "M", "L", "XL")
 @dataclass(frozen=True)
 class LRow(Row):
     """A row with a third SKU axis (``axis_key``: ``(value, price factor)`` pairs) and the
-    top-level facts ``facts`` (a rise, a pattern, a size range) the export turns into entries."""
+    top-level facts ``facts`` (a rise, a pattern, a size range) the export turns into entries.
+    A value of ``sold_out`` is out of stock in every color and size; a length axis's
+    ``size_range`` is derived from the values in stock (``class_model.derive_size_range``)."""
 
     axis_key: str = ""
     axis: tuple[tuple[str, float], ...] = ()
     facts: tuple[tuple[str, object], ...] = ()
+    sold_out: tuple[str, ...] = ()
 
     def skus(self) -> list[dict]:
         base = super().skus()
         if not self.axis:
             return base
-        return [{**s, self.axis_key: v, "price": round(s["price"] * f, 2)}
+        return [{**s, self.axis_key: v, "price": round(s["price"] * f, 2),
+                 "in_stock": s["in_stock"] and v not in self.sold_out}
                 for s in base for v, f in self.axis]  # fmt: skip
 
     def doc(self) -> dict:
@@ -59,7 +63,7 @@ class LRow(Row):
             cheapest = min(s["price"] for s in self.skus())
             out["discount_pct"] = round(100 * (out["was_price"] - cheapest) / out["was_price"])
         if self.axis_key in ("inside_leg", "fit_length"):
-            served = {LENGTH_RANGE[v] for v, _ in self.axis}
+            served = {LENGTH_RANGE[s[self.axis_key]] for s in self.skus() if s["in_stock"]}
             out["size_range"] = [r for r in SIZE_RANGES if r in served]
         return out
 
