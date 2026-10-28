@@ -2,7 +2,7 @@
 
 The retail image id was a digest of the drawing spec, so the SKUs of one colorway, pack factor and
 size rung shared a file: the 173,222-SKU release shipped 94,230 files and 105,752 SKUs shared one.
-Each SKU now has its own file, a copy when two SKUs draw the same picture, so one SKU's colour,
+Each SKU now has its own file, a copy when two SKUs draw the same picture, so one SKU's color,
 size or shape can change later without touching another's. The industrial and retail drawings ship
 as one archive under one pin, and the release refuses a set where two SKUs share a file, a SKU has
 no file, or a file names no SKU.
