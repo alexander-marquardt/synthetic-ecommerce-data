@@ -29,6 +29,10 @@ from distractors import tokens  # noqa: E402
 #: query -> the category node of the product it names: no decoy of the query sits in it.
 QUERIES = {"mens black jeans": "Jeans", "white minimiser bras": "Bras"}
 
+#: query -> how many all-words decoys it holds: the jeans query has the two belts, the hangers
+#: and the denim shirt; the bras query has the wash bag, the travel case and the briefs.
+FLOOR = {"mens black jeans": 4, "white minimiser bras": 3}
+
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
@@ -57,7 +61,7 @@ def _decoy_ids() -> set[str]:
 def test_each_query_has_three_decoys_whose_title_holds_every_word(query: str) -> None:
     """The guard: a query that loses its all-words decoys fails here."""
     rows = _rows(query)
-    assert len(rows) >= 3, (query, [r.title for r in rows])
+    assert len(rows) >= FLOOR[query], (query, [r.title for r in rows])
     for row in rows:
         assert set(tokens(query)) <= set(tokens(row.title)), (row.code, row.title)
         assert row.decoy and row.policy == "category", row.code
