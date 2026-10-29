@@ -1,6 +1,6 @@
 {
- "lines": 6607,
- "skus": 11951,
+ "lines": 6710,
+ "skus": 12873,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -22,7 +22,7 @@
   "bit_sharpeners": 1,
   "bit_socket_sets": 1,
   "blind_rivets": 1,
-  "bolt_hex": 235,
+  "bolt_hex": 247,
   "bronze_sleeve_bushings": 1,
   "c_clamps": 1,
   "cantilever_racks": 1,
@@ -53,8 +53,8 @@
   "drill_stop_collars": 1,
   "drive_guards": 1,
   "driver_bit_sets": 1,
-  "end_mill_ball": 286,
-  "end_mill_square": 498,
+  "end_mill_ball": 303,
+  "end_mill_square": 518,
   "er_collets": 1,
   "eye_bolts": 1,
   "fastener_dispensers": 1,
@@ -113,15 +113,15 @@
   "roller_chain_links": 52,
   "roller_chain_sprockets": 54,
   "safety_glasses": 1,
-  "screw_button_head": 130,
-  "screw_flat_head": 181,
-  "screw_low_head": 103,
-  "screw_socket_head": 310,
+  "screw_button_head": 139,
+  "screw_flat_head": 186,
+  "screw_low_head": 111,
+  "screw_socket_head": 331,
   "sds_drill_bits": 1,
   "seal_pick_sets": 1,
   "sems_bolts": 1,
   "serrated_flange_nuts": 1,
-  "set_screws_hex_socket": 260,
+  "set_screws_hex_socket": 271,
   "shackles": 74,
   "shaft_alignment_lasers": 1,
   "shaft_collars": 1,
@@ -177,7 +177,7 @@
   "bit_sharpeners": 2,
   "bit_socket_sets": 2,
   "blind_rivets": 2,
-  "bolt_hex": 451,
+  "bolt_hex": 559,
   "bronze_sleeve_bushings": 2,
   "c_clamps": 2,
   "cantilever_racks": 2,
@@ -208,8 +208,8 @@
   "drill_stop_collars": 2,
   "drive_guards": 2,
   "driver_bit_sets": 2,
-  "end_mill_ball": 524,
-  "end_mill_square": 936,
+  "end_mill_ball": 662,
+  "end_mill_square": 1106,
   "er_collets": 2,
   "eye_bolts": 2,
   "fastener_dispensers": 2,
@@ -268,15 +268,15 @@
   "roller_chain_links": 94,
   "roller_chain_sprockets": 102,
   "safety_glasses": 1,
-  "screw_button_head": 263,
-  "screw_flat_head": 327,
-  "screw_low_head": 189,
-  "screw_socket_head": 598,
+  "screw_button_head": 351,
+  "screw_flat_head": 377,
+  "screw_low_head": 267,
+  "screw_socket_head": 800,
   "sds_drill_bits": 2,
   "seal_pick_sets": 2,
   "sems_bolts": 2,
   "serrated_flange_nuts": 2,
-  "set_screws_hex_socket": 485,
+  "set_screws_hex_socket": 573,
   "shackles": 132,
   "shaft_alignment_lasers": 2,
   "shaft_collars": 2,
@@ -479,15 +479,22 @@
    }
   },
   "bolt_hex": {
-   "products": 235,
-   "median": 1,
-   "max": 5,
+   "products": 247,
+   "median": 2,
+   "max": 14,
    "histogram": {
     "1": 121,
     "2": 48,
     "3": 39,
     "4": 18,
-    "5": 9
+    "5": 9,
+    "6": 3,
+    "7": 2,
+    "9": 2,
+    "10": 2,
+    "11": 1,
+    "13": 1,
+    "14": 1
    }
   },
   "bronze_sleeve_bushings": {
@@ -742,27 +749,35 @@
    }
   },
   "end_mill_ball": {
-   "products": 286,
-   "median": 1.0,
-   "max": 5,
+   "products": 303,
+   "median": 2,
+   "max": 9,
    "histogram": {
     "1": 150,
     "2": 67,
     "3": 40,
     "4": 25,
-    "5": 4
+    "5": 4,
+    "6": 2,
+    "7": 3,
+    "8": 3,
+    "9": 9
    }
   },
   "end_mill_square": {
-   "products": 498,
+   "products": 518,
    "median": 2.0,
-   "max": 5,
+   "max": 9,
    "histogram": {
     "1": 248,
     "2": 124,
     "3": 79,
     "4": 32,
-    "5": 15
+    "5": 15,
+    "6": 1,
+    "7": 3,
+    "8": 1,
+    "9": 15
    }
   },
   "er_collets": {
@@ -1288,51 +1303,74 @@
    }
   },
   "screw_button_head": {
-   "products": 130,
-   "median": 2.0,
-   "max": 5,
+   "products": 139,
+   "median": 2,
+   "max": 13,
    "histogram": {
     "1": 55,
     "2": 35,
     "3": 29,
     "4": 4,
-    "5": 7
+    "5": 7,
+    "6": 2,
+    "7": 1,
+    "10": 2,
+    "12": 3,
+    "13": 1
    }
   },
   "screw_flat_head": {
-   "products": 181,
-   "median": 1,
-   "max": 5,
+   "products": 186,
+   "median": 1.0,
+   "max": 15,
    "histogram": {
     "1": 100,
     "2": 36,
     "3": 30,
     "4": 10,
-    "5": 5
+    "5": 5,
+    "7": 1,
+    "8": 2,
+    "12": 1,
+    "15": 1
    }
   },
   "screw_low_head": {
-   "products": 103,
-   "median": 1,
-   "max": 5,
+   "products": 111,
+   "median": 2,
+   "max": 13,
    "histogram": {
     "1": 55,
     "2": 25,
     "3": 12,
     "4": 7,
-    "5": 4
+    "5": 4,
+    "7": 2,
+    "8": 1,
+    "10": 2,
+    "11": 1,
+    "12": 1,
+    "13": 1
    }
   },
   "screw_socket_head": {
-   "products": 310,
-   "median": 2.0,
-   "max": 5,
+   "products": 331,
+   "median": 2,
+   "max": 13,
    "histogram": {
     "1": 153,
     "2": 83,
     "3": 34,
     "4": 23,
-    "5": 17
+    "5": 17,
+    "6": 2,
+    "7": 1,
+    "8": 3,
+    "9": 4,
+    "10": 4,
+    "11": 2,
+    "12": 4,
+    "13": 1
    }
   },
   "sds_drill_bits": {
@@ -1368,15 +1406,20 @@
    }
   },
   "set_screws_hex_socket": {
-   "products": 260,
-   "median": 1.0,
-   "max": 5,
+   "products": 271,
+   "median": 2,
+   "max": 11,
    "histogram": {
     "1": 134,
     "2": 64,
     "3": 36,
     "4": 15,
-    "5": 11
+    "5": 11,
+    "6": 2,
+    "7": 3,
+    "8": 3,
+    "9": 1,
+    "11": 2
    }
   },
   "shackles": {
@@ -2716,23 +2759,23 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 125000,
+ "total_attribute_entries": 137061,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
    "target": 0.6489,
-   "achieved": 0.686301,
-   "numerator": 1002,
-   "denominator": 1460,
+   "achieved": 0.665724,
+   "numerator": 1177,
+   "denominator": 1768,
    "note": "over records carrying both dimensions",
    "band": null
   },
   {
    "name": "length of cut > overall length",
    "target": 0.0829,
-   "achieved": 0.0783753,
-   "numerator": 137,
-   "denominator": 1748,
+   "achieved": 0.0812408,
+   "numerator": 165,
+   "denominator": 2031,
    "note": "over records carrying the pair",
    "band": null
   },
@@ -2741,52 +2784,52 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 1684,
+   "denominator": 1970,
    "note": "deliberate: the corpus measures 0.0469",
    "band": null
   },
   {
    "name": "declared system contradicts value units",
    "target": 0.0323,
-   "achieved": 0.0301314,
+   "achieved": 0.0282786,
    "numerator": 149,
-   "denominator": 4945,
+   "denominator": 5269,
    "note": "over records carrying both",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0148938,
-   "numerator": 176,
-   "denominator": 11817,
+   "achieved": 0.0154643,
+   "numerator": 197,
+   "denominator": 12739,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00800229,
-   "numerator": 28,
-   "denominator": 3499,
+   "achieved": 0.00811416,
+   "numerator": 29,
+   "denominator": 3574,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.464601,
-   "numerator": 5729,
-   "denominator": 12331,
+   "achieved": 0.462675,
+   "numerator": 6136,
+   "denominator": 13262,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.105669,
-   "numerator": 1303,
-   "denominator": 12331,
+   "achieved": 0.108355,
+   "numerator": 1437,
+   "denominator": 13262,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -2795,7 +2838,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11951,
+   "denominator": 12873,
    "note": "over titles",
    "band": null
   },
@@ -2804,7 +2847,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11951,
+   "denominator": 12873,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -2813,16 +2856,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 11951,
+   "denominator": 12873,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.4594,
-   "numerator": 125000,
-   "denominator": 11951,
+   "achieved": 10.6472,
+   "numerator": 137061,
+   "denominator": 12873,
    "note": "count, not a rate",
    "band": null
   },
@@ -2901,8 +2944,8 @@
   {
    "name": "price p50 (USD): bolt_hex",
    "target": 20.91,
-   "achieved": 18.41,
-   "numerator": 451,
+   "achieved": 15.65,
+   "numerator": 559,
    "denominator": 347,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2913,8 +2956,8 @@
   {
    "name": "price p90/p10: bolt_hex",
    "target": 8.20548,
-   "achieved": 10.2184,
-   "numerator": 451,
+   "achieved": 10.2791,
+   "numerator": 559,
    "denominator": 347,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2925,9 +2968,9 @@
   {
    "name": "price larger size costs more: bolt_hex",
    "target": 0.937,
-   "achieved": 0.870968,
-   "numerator": 27,
-   "denominator": 31,
+   "achieved": 0.92,
+   "numerator": 46,
+   "denominator": 50,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.857,
@@ -2973,8 +3016,8 @@
   {
    "name": "price p50 (USD): end_mill_ball",
    "target": 88.23,
-   "achieved": 95.07,
-   "numerator": 524,
+   "achieved": 94.855,
+   "numerator": 662,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2985,8 +3028,8 @@
   {
    "name": "price p90/p10: end_mill_ball",
    "target": 8.62933,
-   "achieved": 7.33161,
-   "numerator": 524,
+   "achieved": 7.66414,
+   "numerator": 662,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -2997,9 +3040,9 @@
   {
    "name": "price larger size costs more: end_mill_ball",
    "target": 0.909,
-   "achieved": 0.901444,
-   "numerator": 4994,
-   "denominator": 5540,
+   "achieved": 0.910301,
+   "numerator": 7662,
+   "denominator": 8417,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.648848,
@@ -3009,8 +3052,8 @@
   {
    "name": "price p50 (USD): end_mill_square",
    "target": 52.5,
-   "achieved": 49.925,
-   "numerator": 936,
+   "achieved": 51.925,
+   "numerator": 1106,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3021,8 +3064,8 @@
   {
    "name": "price p90/p10: end_mill_square",
    "target": 7.53715,
-   "achieved": 8.32444,
-   "numerator": 936,
+   "achieved": 8.21389,
+   "numerator": 1106,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3033,9 +3076,9 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.812549,
-   "numerator": 10464,
-   "denominator": 12878,
+   "achieved": 0.816046,
+   "numerator": 15349,
+   "denominator": 18809,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.569266,
@@ -3189,8 +3232,8 @@
   {
    "name": "price p50 (USD): screw_socket_head",
    "target": 21.535,
-   "achieved": 20.135,
-   "numerator": 598,
+   "achieved": 20.05,
+   "numerator": 800,
    "denominator": 308,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3201,8 +3244,8 @@
   {
    "name": "price p90/p10: screw_socket_head",
    "target": 6.86643,
-   "achieved": 6.13388,
-   "numerator": 598,
+   "achieved": 5.89133,
+   "numerator": 800,
    "denominator": 308,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3213,9 +3256,9 @@
   {
    "name": "price larger size costs more: screw_socket_head",
    "target": 0.575,
-   "achieved": 0.617021,
-   "numerator": 29,
-   "denominator": 47,
+   "achieved": 0.587302,
+   "numerator": 37,
+   "denominator": 63,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.340513,
@@ -3225,8 +3268,8 @@
   {
    "name": "price p50 (USD): set_screws_hex_socket",
    "target": 20.75,
-   "achieved": 17.45,
-   "numerator": 485,
+   "achieved": 17.95,
+   "numerator": 573,
    "denominator": 510,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3237,8 +3280,8 @@
   {
    "name": "price p90/p10: set_screws_hex_socket",
    "target": 4.58691,
-   "achieved": 3.62538,
-   "numerator": 485,
+   "achieved": 4.08397,
+   "numerator": 573,
    "denominator": 510,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3249,9 +3292,9 @@
   {
    "name": "price larger size costs more: set_screws_hex_socket",
    "target": 0.666,
-   "achieved": 0.652174,
-   "numerator": 15,
-   "denominator": 23,
+   "achieved": 0.666667,
+   "numerator": 16,
+   "denominator": 24,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.585767,
@@ -3417,9 +3460,9 @@
   {
    "name": "price longer costs more: bolt_hex",
    "target": 0.691,
-   "achieved": 0.616883,
-   "numerator": 285,
-   "denominator": 462,
+   "achieved": 0.683432,
+   "numerator": 693,
+   "denominator": 1014,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.611,
@@ -3429,9 +3472,9 @@
   {
    "name": "price longer costs more: screw_socket_head",
    "target": 0.662,
-   "achieved": 0.632504,
-   "numerator": 432,
-   "denominator": 683,
+   "achieved": 0.634975,
+   "numerator": 1122,
+   "denominator": 1767,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.582,
@@ -3441,9 +3484,9 @@
   {
    "name": "price longer costs more: set_screws_hex_socket",
    "target": 0.834,
-   "achieved": 0.846774,
-   "numerator": 315,
-   "denominator": 372,
+   "achieved": 0.883453,
+   "numerator": 614,
+   "denominator": 695,
    "note": "pairs of one brand and line cell, key dimension equal, length differs",
    "band": [
     0.754,
@@ -3464,14 +3507,14 @@
   },
   {
    "name": "price smaller costs 2x+, same product: bolt_hex",
-   "target": 4.06015e-05,
+   "target": 0.00685578,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 363,
+   "denominator": 836,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
-    0.0200406
+    0.0268558
    ]
   },
   {
@@ -3524,22 +3567,22 @@
   },
   {
    "name": "price smaller costs 2x+, same product: screw_socket_head",
-   "target": 1.05075e-09,
-   "achieved": 0.00797166,
-   "numerator": 9,
-   "denominator": 1129,
+   "target": 2.10969e-05,
+   "achieved": 0.00685379,
+   "numerator": 21,
+   "denominator": 3064,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
-    0.02
+    0.0200211
    ]
   },
   {
    "name": "price smaller costs 2x+, same product: set_screws_hex_socket",
-   "target": 4.03348e-14,
+   "target": 6.62041e-10,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 372,
+   "denominator": 695,
    "note": "pairs of one product, length at an equal key differs; target IMPLIED by the census slope and larger-costs-less share, not measured",
    "band": [
     0.0,
@@ -3597,8 +3640,8 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.39166,
-   "numerator": 109,
+   "achieved": 1.41446,
+   "numerator": 130,
    "denominator": 5,
    "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec",
    "band": [
@@ -3621,7 +3664,7 @@
   {
    "name": "price brand spread, same spec (median max/min): screw_socket_head",
    "target": 1.3372,
-   "achieved": 1.33955,
+   "achieved": 1.28381,
    "numerator": 54,
    "denominator": 7,
    "note": "over specs (key dimension, material) two or more brands make; 2 brands sampled per spec",
@@ -3668,75 +3711,75 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00604545,
-   "achieved": 0.0056242,
-   "numerator": 66,
-   "denominator": 11735,
+   "target": 0.00577414,
+   "achieved": 0.00545153,
+   "numerator": 69,
+   "denominator": 12657,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00220571,
-    0.00988519
+    0.00216401,
+    0.00938428
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0852986,
-   "achieved": 0.0811248,
-   "numerator": 952,
-   "denominator": 11735,
+   "target": 0.0908423,
+   "achieved": 0.0865924,
+   "numerator": 1096,
+   "denominator": 12657,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0684028,
-    0.102194
+    0.0726021,
+    0.109083
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0569132,
-   "achieved": 0.0548786,
-   "numerator": 644,
-   "denominator": 11735,
+   "target": 0.0596421,
+   "achieved": 0.0581496,
+   "numerator": 736,
+   "denominator": 12657,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0412027,
-    0.0726237
+    0.042681,
+    0.0766032
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.218983,
-   "achieved": 0.217554,
-   "numerator": 2553,
-   "denominator": 11735,
+   "target": 0.218648,
+   "achieved": 0.217587,
+   "numerator": 2754,
+   "denominator": 12657,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.197959,
-    0.240006
+    0.197179,
+    0.240117
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 4945
+  "Measurement System": 5269
  },
  "measurement_system_values": {
-  "Fractional Inch": 2692,
-  "Inch": 294,
-  "Metric": 1897,
+  "Fractional Inch": 2872,
+  "Inch": 311,
+  "Metric": 2024,
   "Decimal Inch": 62
  },
  "unit_suffix_distribution": {
-  "in": 23200,
-  "mm": 14542
+  "in": 25860,
+  "mm": 16155
  },
- "standards_present": 6437,
- "standards_multivalued": 1654,
- "standards_total_values": 8430,
+ "standards_present": 7103,
+ "standards_multivalued": 1840,
+ "standards_total_values": 9294,
  "multivalued_attribute_names": {
-  "Standards": 1654,
+  "Standards": 1840,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 11951,
+  "n_skus_checked": 12873,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -3765,6 +3808,16 @@
    "5198947014",
    "5198509338",
    "5198071662",
+   "5198398511",
+   "5198132578",
+   "5198866645",
+   "5198991293",
+   "5198725360",
+   "5198459427",
+   "5198536980",
+   "5198833371",
+   "5198692086",
+   "5198769639",
    "7038781162",
    "7038811620",
    "7038936268",
@@ -3830,7 +3883,13 @@
    "7038694643",
    "7038085224",
    "7038287425",
-   "7038068587"
+   "7038068587",
+   "7038932675",
+   "7038525457",
+   "7038087781",
+   "7038384172",
+   "7038195792",
+   "7038677747"
   ],
   "n_reference_tuples": 147,
   "n_reference_skus": 332
@@ -3877,12 +3936,12 @@
    "brands": 45
   },
   "drawings": {
-   "count": 11951,
-   "bytes": 30256903,
+   "count": 12873,
+   "bytes": 32658024,
    "geometry": {
     "nominal": 216,
-    "partial": 2431,
-    "record": 9304
+    "partial": 2574,
+    "record": 10083
    },
    "largest_bytes": 7789,
    "largest_product_type": "bearing_radial_ball"
@@ -3895,27 +3954,27 @@
    "densest_faceted": "Dowel dia.",
    "smallest_faceted": "Roller dia.",
    "smallest_faceted_products": 32,
-   "drive_size_cardinality": 40,
-   "drive_size_present": 1862,
+   "drive_size_cardinality": 41,
+   "drive_size_present": 2368,
    "held_by_floor": [
     "Dash number",
     "Sizes included"
    ],
    "min_presence_arm": "Neck length",
-   "min_presence_arm_dispersion": 0.9947,
-   "min_presence_arm_present": 377,
-   "min_presence_arm_type_denominator": 1460,
+   "min_presence_arm_dispersion": 0.9935,
+   "min_presence_arm_present": 463,
+   "min_presence_arm_type_denominator": 1768,
    "min_presence_arm_share": 0.26,
    "identifier": "List number",
-   "identifier_dispersion": 0.9653,
+   "identifier_dispersion": 0.9648,
    "densest_terms_facet": "Bearing number",
    "densest_terms_facet_dispersion": 0.1105
   },
   "flat_overmatch": {
    "attribute": "Shank dia.",
    "value": "3/8",
-   "matching": 217,
-   "publishing": 125
+   "matching": 256,
+   "publishing": 145
   }
  }
 }

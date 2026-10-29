@@ -1,5 +1,6 @@
 """What a product is held to (gen#63): its SKUs agree on every product-constant attribute,
-and the SKU count per product follows ``variants_per_product``.
+and the SKU count per product follows ``variants_per_product`` (or, for a grouped type, its
+own table too: :mod:`.grouped`).
 
 The declaration is :func:`.vocab.product_constant_names` (a type's ``line``-scope vocabulary
 and the measurement system). This module reads it back from a built catalog."""
@@ -12,6 +13,7 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog, ProductLine
+from synthetic_ecommerce_data.domains.industrial.grouped import VARIANTS
 from synthetic_ecommerce_data.domains.industrial.vocab import product_constant_names
 
 
@@ -72,7 +74,11 @@ def distribution_problems(
     count where the knob's cumulative weight reaches 75%: a product never offers more
     variants than its pool has, which only lowers a count, so the median of a type
     that draws the knob cannot pass it. The median is checked for types of at least
-    :data:`MEDIAN_MIN_PRODUCTS` products; the maximum for all."""
+    :data:`MEDIAN_MIN_PRODUCTS` products; the maximum for all.
+
+    A grouped type (:data:`.grouped.VARIANTS`) also draws its own table for the products the
+    grouped pass adds, so its maximum is that table's largest count. Its median is held to
+    the knob's all the same: the grouped products are a few beside the flat ones."""
     table = sorted(config.variants_per_product)
     ceiling = table[-1][0]
     total = sum(weight for _, weight in table)
@@ -85,10 +91,10 @@ def distribution_problems(
             break
     problems = []
     for key, row in distribution.items():
-        if row["max"] > ceiling:
-            problems.append(
-                f"{key}: a product has {row['max']} SKUs, the knob's maximum is {ceiling}"
-            )
+        own = VARIANTS.get(key, ()) if config.grouped else ()
+        most = max([ceiling, *(count for count, _ in own)])
+        if row["max"] > most:
+            problems.append(f"{key}: a product has {row['max']} SKUs, the knob's maximum is {most}")
         if row["products"] >= MEDIAN_MIN_PRODUCTS and row["median"] > median_ceiling:
             problems.append(
                 f"{key}: median {row['median']} SKUs per product, the knob allows {median_ceiling}"

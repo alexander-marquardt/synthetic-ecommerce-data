@@ -46,6 +46,7 @@ from synthetic_ecommerce_data.core.voice import Voice
 from synthetic_ecommerce_data.domains.industrial import (
     breadth,
     compat,
+    grouped,
     hammers,
     series,
     standards,
@@ -265,6 +266,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
         #: for the main generation.
         self._pins: dict[str, float] = {}
+        #: The ``(count, weight)`` table :meth:`_variant_count` draws from: the
+        #: global knob, or the type's own table during the grouped pass (#710).
+        self._variant_table = self.config.variants_per_product
 
     # -- bookkeeping ----------------------------------------------------
 
@@ -340,8 +344,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         return numeric_attribute("Units per Pack", str(quantity), float(quantity))
 
     def _variant_count(self) -> int:
-        """How many variants the next product offers, from the ONE distribution knob."""
-        return int(_weighted(self.rng, self.config.variants_per_product))  # type: ignore[arg-type]
+        """How many variants the next product offers: from the ONE distribution knob, or
+        from the type's own table while the grouped pass builds (:mod:`.grouped`)."""
+        return int(_weighted(self.rng, self._variant_table))  # type: ignore[arg-type]
 
     # -- shared value helpers -------------------------------------------
 
@@ -1047,7 +1052,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         return draft
 
     def build(self) -> list[ProductLine]:
-        """This type's lines: its own products, then its must-stock lines."""
+        """This type's lines: its own products, its must-stock lines, then its grouped ones."""
         key = self.type_key
         cfg = self.config
         lines: list[ProductLine] = []
@@ -1067,6 +1072,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
+        if cfg.grouped and key in grouped.VARIANTS:
+            lines.extend(self._grouped(lines))
         return lines
 
     def _builder(self):
@@ -1101,15 +1108,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         its own stream, so adding an entry moves none of the type's products.
         """
 
-        def stocked(entry, candidates) -> bool:
-            return any(
-                entry.matches(
-                    line.type_key, {a.name: a.value for a in (*line.attributes, *child.attributes)}
-                )
-                for line in candidates
-                for child in line.children
-            )
-
+        stocked = _stocks
         key = self.type_key
         added: list[ProductLine] = []
         for entry in MUST_STOCK:
@@ -1136,6 +1135,76 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             finally:
                 self.rng, self._pins = own_rng, own_pins
         return added
+
+    def _grouped(self, lines: list[ProductLine]) -> list[ProductLine]:
+        """This type's grouped products (:mod:`.grouped`): a run of variants each.
+
+        Built after every other line and from streams of their own, so no line built
+        before moves. First :data:`.grouped.SHARE` of the type's product count, then, for
+        each target the type owns, products until :func:`.grouped.wanted` of the pass's
+        products carry it.
+        """
+        key = self.type_key
+        builder = self._builder()
+        (category,) = taxonomy.LEAVES[key]
+        added: list[ProductLine] = []
+        own_rng, own_table = self.rng, self._variant_table
+        self._variant_table = grouped.VARIANTS[key]
+
+        try:
+            self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped")
+            for _ in range(round(len(lines) * grouped.SHARE)):
+                draft = builder(self, key, category)
+                line = self._finish_line(key, draft, self.minter.next_index())
+                if line is not None:
+                    added.append(line)
+            for entry in grouped.TARGETS:
+                if entry.types[0] != key:
+                    continue
+                self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped:{entry.example}")
+                have = sum(_stocks(entry, [line]) for line in added)
+                need = grouped.wanted(sum(_stocks(entry, [line]) for line in lines))
+                attempts = 0
+                while have < need:
+                    if attempts == grouped.MAX_ATTEMPTS:
+                        raise grouped.GroupedUnmetError(
+                            f"{have} of {need} {key} grouped lines in {attempts} tries carry "
+                            f"{dict(entry.values)} ({entry.example!r})"
+                        )
+                    attempts += 1
+                    draft = builder(self, key, category)
+                    # Finishing a line is most of its cost, and a draft with no SKU that
+                    # could carry the values never will: sparsity and defects only drop
+                    # or change a value.
+                    if not _drafts(entry, key, draft):
+                        continue
+                    line = self._finish_line(key, draft, self.minter.next_index())
+                    if line is not None and _stocks(entry, [line]):
+                        added.append(line)
+                        have += 1
+        finally:
+            self.rng, self._variant_table = own_rng, own_table
+        self._bump("grouped_lines", len(added))
+        return added
+
+
+def _stocks(entry, lines: Iterable[ProductLine]) -> bool:
+    """Whether any SKU of ``lines`` carries ``entry``'s values (a must-stock or grouped entry)."""
+    return any(
+        entry.matches(
+            line.type_key, {a.name: a.value for a in (*line.attributes, *child.attributes)}
+        )
+        for line in lines
+        for child in line.children
+    )
+
+
+def _drafts(entry, type_key: str, draft: LineDraft) -> bool:
+    """Whether any SKU of ``draft``, before it is finished, holds ``entry``'s values."""
+    return any(
+        entry.matches(type_key, {a.name: a.value for a in (*draft.line_attrs, *child.attrs)})
+        for child in draft.children
+    )
 
 
 #: How a type is built: by a modelled builder (a type module's ``make``), as a

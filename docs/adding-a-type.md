@@ -413,7 +413,9 @@ and `ecom-generate build` refuses a catalog that breaks it or leaves
 
 The two refusals on `variants_per_product`, with the default knob (`core/config.py`):
 
-- A product has at most 5 SKUs, the knob's largest count. This holds for every type.
+- A product has at most 5 SKUs, the knob's largest count. This holds for every type but a
+  grouped one (`domains/industrial/grouped.py`, #710), whose grouped products draw the type's
+  own table and may reach that table's largest count (15).
 - A type of 20 or more products has a median of at most 2 SKUs per product: 2 is the
   count where the knob's cumulative weight first reaches 75%. A type of fewer
   products is not checked: a median over so few says nothing about the distribution.
@@ -423,7 +425,9 @@ the knob, so a changed knob moves them; the floor of 20 is the fixed constant
 `MEDIAN_MIN_PRODUCTS` in the same file. The refusal names the type and the count
 (`<type>: a product has N SKUs, the knob's maximum is M`; `<type>: median N SKUs per
 product, the knob allows M`). A product draws its count from the knob
-(`domains/industrial/generate.py`), and a pool smaller than the draw lowers it.
+(`domains/industrial/generate.py`), and a pool smaller than the draw lowers it. A grouped
+type's median is held to the knob's all the same: its grouped products are a few beside
+the flat ones.
 `tests/test_variant_bounds_doc_252.py` holds these numbers to the code's.
 
 ### SKU floor
