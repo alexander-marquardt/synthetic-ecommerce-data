@@ -39,11 +39,11 @@ RANKED = ["screw_socket_head"]
 
 #: How many SKUs of each packed type the default build publishes a pack on.
 PUBLISHED = {
-    "bolt_hex": 451,
-    "screw_socket_head": 598,
-    "screw_button_head": 263,
-    "screw_flat_head": 327,
-    "screw_low_head": 189,
+    "bolt_hex": 559,
+    "screw_socket_head": 800,
+    "screw_button_head": 351,
+    "screw_flat_head": 377,
+    "screw_low_head": 267,
 }
 
 
@@ -140,9 +140,12 @@ def test_the_builds_socket_screw_pack_falls_as_the_diameter_grows(packs):
     rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
     assert len(rows) == len(packs["screw_socket_head"])
     third = len(rows) // 3
-    small = statistics.median(pack for _, pack in rows[:third])
-    large = statistics.median(pack for _, pack in rows[-third:])
-    assert (small, large) == (100.0, 50.0)
+    # The mean, not the median: a grouped product (#710) is ten or so SKUs of one pack, so
+    # the median of a third lands on whichever pack its runs hold (50 on the flat build,
+    # 100 with the M12x1.75 runs); the mean still falls, from 100 to 72.5 (66.2 flat).
+    small = statistics.mean(pack for _, pack in rows[:third])
+    large = statistics.mean(pack for _, pack in rows[-third:])
+    assert (round(small, 1), round(large, 1)) == (100.0, 72.5)
 
 
 def test_the_page_pack_leaves_the_bolt_slopes_cut_by_the_aim():

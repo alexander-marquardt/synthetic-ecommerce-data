@@ -1,5 +1,6 @@
 """What a product is held to (gen#63): its SKUs agree on every product-constant attribute,
-and the SKU count per product follows ``variants_per_product``.
+and the SKU count per product follows ``variants_per_product`` (or, for a grouped type, its
+own table too: :mod:`.grouped`).
 
 The declaration is :func:`.vocab.product_constant_names` (a type's ``line``-scope vocabulary
 and the measurement system). This module reads it back from a built catalog."""
@@ -12,6 +13,7 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog, ProductLine
+from synthetic_ecommerce_data.domains.industrial.grouped import VARIANTS
 from synthetic_ecommerce_data.domains.industrial.vocab import product_constant_names
 
 
@@ -63,6 +65,19 @@ def skus_per_product(catalog: Catalog) -> dict[str, dict[str, Any]]:
 MEDIAN_MIN_PRODUCTS = 20
 
 
+def _bounds(table: tuple[tuple[int, float], ...]) -> tuple[int, int]:
+    """A ``(count, weight)`` table's largest count, and the count where its cumulative weight
+    reaches 75%."""
+    ordered = sorted(table)
+    total = sum(weight for _, weight in ordered)
+    running = 0.0
+    for count, weight in ordered:
+        running += weight / total
+        if running >= 0.75:
+            return ordered[-1][0], count
+    return ordered[-1][0], ordered[-1][0]
+
+
 def distribution_problems(
     distribution: dict[str, dict[str, Any]], config: GeneratorConfig
 ) -> list[str]:
@@ -72,23 +87,21 @@ def distribution_problems(
     count where the knob's cumulative weight reaches 75%: a product never offers more
     variants than its pool has, which only lowers a count, so the median of a type
     that draws the knob cannot pass it. The median is checked for types of at least
-    :data:`MEDIAN_MIN_PRODUCTS` products; the maximum for all."""
-    table = sorted(config.variants_per_product)
-    ceiling = table[-1][0]
-    total = sum(weight for _, weight in table)
-    running = 0.0
-    median_ceiling = ceiling
-    for count, weight in table:
-        running += weight / total
-        if running >= 0.75:
-            median_ceiling = count
-            break
+    :data:`MEDIAN_MIN_PRODUCTS` products; the maximum for all.
+
+    A grouped type (:data:`.grouped.VARIANTS`) also draws its own table for the products the
+    grouped pass adds, so both bounds are the larger of the knob's and its table's. The
+    grouped products outnumber the flat ones in a small build, where the pass's targets are
+    most of a type, so the knob's median alone would refuse it."""
     problems = []
+    knob = _bounds(config.variants_per_product)
     for key, row in distribution.items():
-        if row["max"] > ceiling:
-            problems.append(
-                f"{key}: a product has {row['max']} SKUs, the knob's maximum is {ceiling}"
-            )
+        own = VARIANTS.get(key) if config.grouped else None
+        most, median_ceiling = (
+            knob if own is None else map(max, zip(knob, _bounds(own), strict=True))
+        )
+        if row["max"] > most:
+            problems.append(f"{key}: a product has {row['max']} SKUs, the knob's maximum is {most}")
         if row["products"] >= MEDIAN_MIN_PRODUCTS and row["median"] > median_ceiling:
             problems.append(
                 f"{key}: median {row['median']} SKUs per product, the knob allows {median_ceiling}"

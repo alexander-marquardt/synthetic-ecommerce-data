@@ -319,7 +319,9 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
         ),  # noqa: E501
         "drill_jobber": lambda r: drill.geometry_from_record(r).oal.inches,
     }[type_key]
-    figure_fn, _ = FIGURES[type_key]
+    from synthetic_ecommerce_data.domains.industrial.drawing.figures import BREAK_START
+
+    figure_fn, (_, extent_in) = FIGURES[type_key]
     checked = 0
     for line, child in CATALOG.all_skus():
         if line.type_key != type_key:
@@ -328,6 +330,11 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
         drawn = figure_fn(dict(record))
         if drawn.source != "record":
             continue
+        # A fastener past BREAK_START of its type's extent is drawn broken, its shank
+        # shortened (``figures.fastener``): a grouped run of lengths (#710) reaches one.
+        broken = type_key in ("screw_socket_head", "screw_flat_head", "bolt_hex") and (
+            geometry(record) > extent_in * BREAK_START
+        )
         # The part on the axis, top to tip; end views sit beside it.
         on_axis = [
             point
@@ -337,6 +344,9 @@ def test_elongated_parts_are_drawn_to_their_published_length(type_key):
             for point in shape.points
         ]
         extent = max(y for _, y in on_axis) - min(y for _, y in on_axis)
+        if broken:
+            assert extent < geometry(record), child.sku
+            continue
         assert extent == pytest.approx(geometry(record), rel=1e-6), child.sku
         checked += 1
     assert checked > 3, f"only {checked} {type_key} records drawn from the record"

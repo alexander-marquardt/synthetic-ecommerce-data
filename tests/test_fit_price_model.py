@@ -34,9 +34,10 @@ def test_the_census_slopes_and_the_page_pack_spread_the_default_bolt_build_30x(f
     slope = price.CENSUS["bolt_hex"].slope
     length = price.LENGTH_CENSUS["bolt_hex"].slope
     with_pack = fit.alone(build, slope, length)
-    assert round(with_pack, 2) == 30.47
-    # The pack term is in it: the slopes alone spread 22.84x.
-    assert round(fit._p90_p10(slope * build.log_key + length * build.log_length), 2) == 22.84  # noqa: SLF001
+    # With the grouped bolts (#710): 30.47x and 22.84x on the flat build alone.
+    assert round(with_pack, 2) == 36.15
+    # The pack term is in it: the slopes alone spread 20.6x.
+    assert round(fit._p90_p10(slope * build.log_key + length * build.log_length), 2) == 20.6  # noqa: SLF001
 
 
 @pytest.fixture(scope="module")

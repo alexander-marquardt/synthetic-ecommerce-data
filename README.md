@@ -723,7 +723,9 @@ children  the SKUs, varying: milling diameter, length of cut, overall
 **How many variants a product has** is ONE knob, `variants_per_product`: about
 half of products are single-SKU and the rest have 2 to 5, skewed small, as on a
 marketplace (maintainer, 2026-09-27). A product never offers more variants than
-its series has members. Two deliberately awkward cases are built in, so a
+its series has members. Threaded fasteners and end mills also carry grouped product
+families beside those, with 6 to 15 variants each: see
+[Grouped product families](#grouped-product-families). Two deliberately awkward cases are built in, so a
 grouped view is proven on more than the well-formed shapes: a single variant
 that carries **no** variant-scope attribute (`zero_axis_share`), and variants
 whose sparsity leaves one without an attribute its siblings carry.
@@ -1094,6 +1096,44 @@ On the committed catalog 19 of the 24 examples were already stocked and 5
 lines were added. `tests/test_catalog_must_stock.py` asserts every entry is
 stocked, that removing an entry unstocks its example, that the pass moves no
 earlier line, and that an entry no builder can reach fails the build.
+
+## Grouped product families
+
+The 1-5 knob fits marketplace-like types. A distributor, though, sells one cap screw or set
+screw (thread, material, finish, point) in a run of standard lengths, and one end-mill line
+in a run of diameters. Under the knob alone such a type's search page had almost nothing to
+group: `m6x1 set screws` returned 141 products for 260 SKUs, most tiles one variant (#710).
+
+So eight types also carry **grouped products**: hex socket set screws; socket, button, low
+and flat socket cap screws; hex head bolts; square and ball end mills. Each type declares
+its own `(count, weight)` table in `domains/industrial/grouped.py` (`VARIANTS`: 6 to 15,
+median 10). The pass is **additive**. It runs after the main generation and the must-stock
+pass, from streams of its own, so every SKU those two build keeps its id, title and
+attributes, and the catalog stays a mixture of grouped and flat products (maintainer,
+2026-10-28). Each grouped product is built by its type's own builder, with only its SKU
+count drawn from the type's table, so its title, naming and derived dimensions follow the
+same rules as every other line. A fastener takes a contiguous run of its thread's standard
+lengths, and an end mill a window of its system's diameters (at most 9 for an inch line on
+matching shanks, the size of that pool).
+
+The pass adds `SHARE` (3%) of the type's product count. It then adds more for each entry
+of `TARGETS`, until `wanted()` of its products carry the entry's values (at least 5, and
+10% of the type's products that already carry them). The targets are the thin rows of the
+reference query list: `5/16-18` button and low-head screws with a `3/4"` length, the R8
+`7/16-14` Grade 8 zinc hex bolt with `1-3/4"`, `1/4-20` and `M12x1.75` cap screws, `M6x1`
+set screws, ball end mills at `1/8"`, `1/16"` and 15 mm, and a 4 mm solid carbide line.
+On the default build it adds 103 products and 922 SKUs, about 8% of the catalog.
+
+One price row moves out of its band, and it is pinned in `PINNED_SHORTFALLS` (`core/price.py`)
+with its reason. That row is the hex bolt p50 at the default size. The bolt sizes that offer
+the most lengths are the small, cheap ones, so counted per SKU the grouped runs pull the p50
+below the census band. At 100K the row is in band, and no flat bolt's price moves.
+
+`GeneratorConfig(grouped=False)` builds the flat catalog alone. `tests/test_catalog_grouped.py`
+builds the eight types with the pass and without. It holds each type's grouped products to
+its table, the pass to its size, and every target to its products. It also checks that
+every flat SKU is in the grouped build unchanged, and that every reference query has at
+least 5 products in the committed catalog.
 
 ## Serving it with PRISM
 

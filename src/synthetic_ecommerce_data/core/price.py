@@ -1020,10 +1020,19 @@ PIN_TOLERANCE = 0.02
 #: ``tests/test_price.py`` to the side of the band the cause puts them. A
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
-#: Empty: every row is in its band at both builds (the last pin, the kit
-#: p90/p10, went with the wider kit range, #76). The machinery stays, held
-#: empty by ``tests/test_price.py``, for the next row that cannot be fitted.
-PINNED_SHORTFALLS: dict[str, str] = {}
+#: One row, at the default size only (#710): every other row is in its band at
+#: both builds (the last pin before it, the kit p90/p10, went with the wider kit
+#: range, #76).
+_BOLT_P50 = "price p50 (USD): bolt_hex"
+PINNED_SHORTFALLS: dict[str, str] = {
+    _BOLT_P50: (
+        "below band at the default size: the grouped hex bolts (#710) are runs of 6 to 15 "
+        "lengths, and the sizes that offer the most lengths are the small, cheap ones (the "
+        "R8 7/16-14 target among them), so counted per SKU they pull the default build's "
+        f"p50 from 18.41 to {_quoted(_BOLT_P50, 0):.2f}; the flat bolts are priced as "
+        "before, and the 100K build is in band"
+    ),
+}
 
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:
