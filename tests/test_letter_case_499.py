@@ -30,13 +30,10 @@ from synthetic_ecommerce_data.core import emit, letter_case
 from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
 from synthetic_ecommerce_data.core.letter_case import PROPER_NOUNS, apply, sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.retail import export
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import export  # noqa: E402  -- the prototype's own directory is its import root
 
 
 @pytest.mark.parametrize(
@@ -193,7 +190,7 @@ _AUTHORED_NAME_FIXTURES = {
     "tests/test_letter_case_499.py": "this guard: the rule's own before/after rows",
     "tests/test_rules_538.py": "a planted defect of the sentence_case rule, never read back",
     "tests/test_nested_entry_contract.py": "a planted defect built by hand, never read back",
-    "prototypes/retail_drawings/test_signals_and_paths.py": "reads the unexported class build",
+    "tests/test_signals_and_paths.py": "reads the unexported class build",
 }
 
 #: Scripts and shipped config that read published documents or Elasticsearch: a quoted

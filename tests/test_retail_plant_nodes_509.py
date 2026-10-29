@@ -9,20 +9,16 @@ already was, and the candle range carries lavender, sage and eucalyptus fragranc
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402
-import kit  # noqa: E402
-import kit_garden  # noqa: E402,F401 -- registers the shapes
-import scale  # noqa: E402
-import type_colors  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    kit,
+    kit_garden,  # noqa: E402,F401 -- registers the shapes
+    scale,
+    type_colors,
+)
 
 #: A plant node and the fewest styles it holds at the ceiling (the issue asks for about 10).
 FLOOR = 8
@@ -102,7 +98,7 @@ def test_a_herb_row_blooms_only_where_the_row_says_so(records, node):
 
 def test_an_olive_tree_row_is_labelled_tree_like_its_title():
     """The four olive rows added with the node take the title noun, so LABEL_DEBT stays."""
-    import breadth_rows
+    from synthetic_ecommerce_data.domains.retail import breadth_rows
 
     added = [r for r in breadth_rows.GARDEN if r.code.startswith("OLV") and r.code != "OLVSTD"]
     assert len(added) == 4

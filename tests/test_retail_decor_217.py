@@ -12,23 +12,18 @@ and the decoys are templates the derivation leaves alone. Greeting cards came wi
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    main_colors,
+    scale,
+    tree_guard,
+    type_registry,
+)
 
 #: Each spec key with the key attributes every one of its styles states (the issue's table).
 KEYS = {
@@ -133,7 +128,7 @@ def test_a_colored_type_offers_the_six_main_colors() -> None:
 
 def test_every_type_carries_text_match_decoys_that_tell_the_truth() -> None:
     """A decoy's title holds the type's word while its own type is another (gen#294)."""
-    import decor_rows
+    from synthetic_ecommerce_data.domains.retail import decor_rows
 
     decoys = collections.defaultdict(list)
     for d in decor_rows.DECOYS:
@@ -155,7 +150,7 @@ def test_a_watch_carries_the_word_clock_and_is_still_a_watch() -> None:
 
 
 def test_the_decoys_are_templates_and_exempt_from_the_text_check() -> None:
-    import decor_rows
+    from synthetic_ecommerce_data.domains.retail import decor_rows
 
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
     assert decor_rows.decoy_ids() and not (decor_rows.decoy_ids() & kept)

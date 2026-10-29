@@ -28,7 +28,7 @@ if str(SCRIPTS) not in sys.path:
 
 import check_no_registry_append as guard  # noqa: E402
 
-RD = "prototypes/retail_drawings"
+RD = "src/synthetic_ecommerce_data/domains/retail"
 SCALE = f"{RD}/scale.py"
 DECOY_ROWS = f"{RD}/decoy_rows.py"
 WORDS = f"{RD}/decoy_product_words.py"

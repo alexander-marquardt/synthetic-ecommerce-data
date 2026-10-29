@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-RD = ROOT / "prototypes" / "retail_drawings"
+RD = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 DOC = ROOT / "docs" / "retail-product-word-decoys.md"
 SECTIONS = ROOT / "docs" / "retail-product-word-decoys"
 NODES = ROOT / "tests" / "decoy_true_nodes"

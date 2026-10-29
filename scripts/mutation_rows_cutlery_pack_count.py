@@ -18,7 +18,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'return (("piece", piece.lower()), ("handle", handle.lower()), ("count", "4"))',
         'tests/test_retail_cutlery_pack_count_228.py -k "draws_no_count"',
         "a style's image shows no count that one of its pack sizes does not sell",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a cutlery row draws four pieces for every pack size, rendered",
@@ -27,7 +27,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'return (("piece", piece.lower()), ("handle", handle.lower()), ("count", "4"))',
         'tests/test_retail_cutlery_pack_count_228.py -k "renders_one_piece"',
         "a multi-pack cutlery style renders one piece",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a cutlery piece with no count fans four",
@@ -36,7 +36,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'handle: str = "plain", count: str = "4",',
         'tests/test_retail_cutlery_pack_count_228.py -k "renders_one_piece"',
         "no count means one piece drawn",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
 ]
 

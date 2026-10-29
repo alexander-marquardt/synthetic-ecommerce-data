@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 PROBE = """
 KINDS = ("Probe Jam",)
@@ -29,10 +28,9 @@ MIXED_BRAND = True
 
 REPORT = """
 import json, sys
-sys.path.insert(0, {retail!r})
-import line_grammar_families
+from synthetic_ecommerce_data.domains.retail import line_grammar_families
 line_grammar_families.__path__.append({extra!r})
-import line_grammar as lg
+from synthetic_ecommerce_data.domains.retail import line_grammar as lg
 fam = line_grammar_families.families()["zz_probe"]
 shop = lg.Deal("zz_probe", ["Acme", "Bolt"], {{}}, "grocery")
 scale = lg.Deal("zz_probe", ["Acme", "Bolt"], {{}})
@@ -57,10 +55,9 @@ print(json.dumps({{
 
 ERROR = """
 import sys
-sys.path.insert(0, {retail!r})
-import line_grammar_families
+from synthetic_ecommerce_data.domains.retail import line_grammar_families
 line_grammar_families.__path__.append({extra!r})
-import line_grammar
+from synthetic_ecommerce_data.domains.retail import line_grammar  # noqa: F401
 """
 
 
@@ -69,7 +66,7 @@ def _run(tmp_path: Path, template: str, modules: dict[str, str]) -> subprocess.C
     extra.mkdir()
     for name, text in modules.items():
         (extra / f"{name}.py").write_text(text, encoding="utf-8")
-    code = template.format(retail=str(RETAIL), extra=str(extra))
+    code = template.format(extra=str(extra))
     return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
 
 
@@ -101,13 +98,9 @@ def test_a_grocery_lead_that_repeats_its_own_lead_is_refused(tmp_path):
 
 
 def test_a_shipped_module_without_the_attributes_keeps_the_defaults():
-    sys.path.insert(0, str(RETAIL))
-    try:
-        import line_grammar_families as pkg
+    from synthetic_ecommerce_data.domains.retail import line_grammar_families as pkg
 
-        found = pkg.families()
-    finally:
-        sys.path.remove(str(RETAIL))
+    found = pkg.families()
     sport = found["sport"]
     assert (sport.grocery_leads, sport.bare, sport.mixed_brand) == ((), False, False)
     for name in ("pantry", "drink", "alcohol"):

@@ -1,7 +1,7 @@
 # Retail neckline depth (gen#181)
 
 "womens boat neck top" must filter or boost the stored `neckline` and bury the other neck types.
-The catalog could not show it: two tops were boat and one slash. `prototypes/retail_drawings/neckline_rows.py`
+The catalog could not show it: two tops were boat and one slash. `src/synthetic_ecommerce_data/domains/retail/neckline_rows.py`
 adds the products a ranking needs, and gives every top, dress and knit a neckline. The floors are
 pinned by `tests/test_retail_neckline_181.py` over `scale.templates()`, counting products (a style;
 its colors times its sizes are its SKUs), not SKUs, and leaving out the text-match decoys that copy

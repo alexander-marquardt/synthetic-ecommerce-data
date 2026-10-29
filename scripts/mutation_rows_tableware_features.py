@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_ROOT = "prototypes/retail_drawings"
+_ROOT = "src/synthetic_ecommerce_data/domains/retail"
 _TEST = "tests/test_retail_tableware_drawn_features_230.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [

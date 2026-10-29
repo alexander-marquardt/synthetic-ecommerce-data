@@ -10,17 +10,11 @@ built catalog (where the colorway split adds its own values).
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import scale  # noqa: E402 -- the prototype's own directory is its import root
+from synthetic_ecommerce_data.domains.retail import scale
 
 #: The spellings the authored rows used before this change, written out so the test does not read
 #: the module that fixes them.

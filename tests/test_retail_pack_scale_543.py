@@ -9,24 +9,21 @@ canvas and the same baseline. The bounding box of the rendered pack is the measu
 from __future__ import annotations
 
 import re
-import sys
 import xml.etree.ElementTree as ET
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import image_release  # noqa: E402
-import pack_scale  # noqa: E402
-import pack_scale_strip  # noqa: E402
-import scale  # noqa: E402
-import sheet_extent  # noqa: E402
-from build_preview import drawing_svg  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    pack_scale,
+    pack_scale_strip,
+    scale,
+    sheet_extent,
+)
+from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 
 STRIP = Path(__file__).resolve().parent.parent / "docs" / "images" / "pack-scale.svg"
 
@@ -217,6 +214,6 @@ def test_the_docs_before_and_after_strip_states_the_scales_the_drawings_apply_no
     byte-exact comparison would red in the merge queue whenever a sibling PR moves the tree."""
     shipped = _strip_facts(STRIP.read_text(encoding="utf-8"))
     assert shipped == _strip_facts(pack_scale_strip.strip()), (
-        "docs/images/pack-scale.svg is stale: uv run python prototypes/retail_drawings/"
-        "pack_scale_strip.py --out docs/images/pack-scale.svg"
+        "docs/images/pack-scale.svg is stale: uv run python -m "
+        "synthetic_ecommerce_data.domains.retail.pack_scale_strip --out docs/images/pack-scale.svg"
     )

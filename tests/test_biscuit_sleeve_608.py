@@ -8,20 +8,19 @@ brand band) stay, and so does the pack's product word.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    grocery,
+    kit,
+    sheet_extent,
+)
 
-import export  # noqa: E402
-import grocery  # noqa: E402
-import kit  # noqa: E402
-import sheet_extent  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 CODES = ("BIS", "ORB")
 FILL = kit.Fill("solid", "#c48a3a", "#ffffff")

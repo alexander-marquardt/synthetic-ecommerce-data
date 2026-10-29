@@ -8,22 +8,17 @@ is a bare number with a ``CMT`` ``unit_code`` and a millimetre canonical value.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_rows  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_seating  # noqa: E402
-import samples_round2  # noqa: E402
-import sofa_rows  # noqa: E402
-import variants  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_rows,
+    export,
+    kit,
+    kit_seating,
+    samples_round2,
+    sofa_rows,
+    variants,
+)
 
 SHAPES = ("sofa_seats", "corner_sofa", "chaise_sofa")
 

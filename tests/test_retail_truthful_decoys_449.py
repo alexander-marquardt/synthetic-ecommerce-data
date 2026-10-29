@@ -10,19 +10,15 @@ and grocery descriptions that were field dumps ("Pineapple, in 1L, 330ml."). One
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_rows as dr  # noqa: E402
-import image_release  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
+from synthetic_ecommerce_data.domains.retail import (
+    image_release,
+    scale,
+)
 
 
 @pytest.fixture(scope="module")
@@ -118,7 +114,7 @@ def test_a_punnet_holds_what_the_title_says(by_id: dict[str, dict]) -> None:
 
 
 def test_a_strawberry_punnet_keeps_its_berries(by_id: dict[str, dict]) -> None:
-    import kit  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import kit  # noqa: PLC0415
 
     svg = kit.render("punnet", kit.Fill("solid", "#2f6b3c", "#ffffff"), "Strawberries")
     assert "#d23a3a" in svg
@@ -181,7 +177,7 @@ def test_a_named_dish_or_pasta_is_a_variety_not_a_flavor(by_id: dict[str, dict])
 
 def test_every_food_product_type_has_a_sentence_of_its_own() -> None:
     """A new grocery family cannot reach the catalogue without the copy that says what it is."""
-    import grocery_rows as gr  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import grocery_rows as gr  # noqa: PLC0415
 
     food = [f for f in gr.FAMILIES if f.food]
     assert {f.product_type for f in food} <= set(gr.INTRO)

@@ -13,24 +13,19 @@ import hashlib
 import json
 import random
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import lighting_rows  # noqa: E402
-import pack_scale  # noqa: E402
-import scale  # noqa: E402
-import size_ladder  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    kit,
+    lighting_rows,
+    pack_scale,
+    scale,
+    size_ladder,
+)
 
 DOCS = lighting_rows.docs()
 IDS = {d["product_id"] for d in DOCS}
@@ -289,7 +284,7 @@ def test_a_description_its_attributes_support_passes() -> None:
 
 
 def _task_lamp_svg(style: str) -> str:
-    import kit_lighting
+    from synthetic_ecommerce_data.domains.retail import kit_lighting
 
     return "".join(kit_lighting.floor_lamp("#2f2f33", None, None, style=style))
 
@@ -375,7 +370,7 @@ def test_a_desk_lamp_has_one_temperature_or_a_two_ended_range_under_the_one_key(
 
 def test_the_preview_shows_a_kelvin_entry_with_its_unit() -> None:
     """The unit is not in the stored value, so the page that shows the attribute adds it."""
-    import build_preview
+    from synthetic_ecommerce_data.domains.retail import build_preview
 
     desk = [d for d in DOCS if d["product_type"] == "Desk Lamp"]
     shown = {d["product_id"]: build_preview._attr_rows(d) for d in desk}

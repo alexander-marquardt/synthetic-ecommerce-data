@@ -14,19 +14,15 @@ from __future__ import annotations
 
 import copy
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import house_styles  # noqa: E402
-import knitwear_rows  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    house_styles,
+    knitwear_rows,
+    main_colors,
+    scale,
+)
 
 #: root -> (floor of distinct knitwear products, floor without decoys), from the issue.
 FLOORS = {"Womens": (150, 120), "Mens": (100, 80)}

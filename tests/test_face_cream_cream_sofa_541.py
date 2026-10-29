@@ -15,20 +15,17 @@ catalogue able to show it. It holds three families:
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
+from synthetic_ecommerce_data.domains.retail import scale
+from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
-import baseline_rank as br  # noqa: E402
-import decoy_rows as dr  # noqa: E402
-import scale  # noqa: E402
-from distractors import tokens  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 QUERY = "face cream"
 
@@ -164,7 +161,7 @@ def test_best_for_face_cream_is_skincare_there_are_enough_real_face_creams(ceili
 
 
 def test_the_module_says_which_query_the_facing_sofas_answer_and_why_there_is_no_policy():
-    import feature_decoys.face_cream_cream_sofa as fc
+    from synthetic_ecommerce_data.domains.retail.feature_decoys import face_cream_cream_sofa as fc
 
     doc = fc.__doc__ or ""
     assert "face cream" in doc and "Facing" in doc and "no policy" in doc

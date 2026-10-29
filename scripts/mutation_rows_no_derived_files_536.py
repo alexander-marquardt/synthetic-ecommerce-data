@@ -33,9 +33,9 @@ def rows() -> list[Row]:
         _row(
             "a numbered samples file is not matched",
             _GUARD,
-            '"prototypes/retail_drawings/samples*.ndjson"',
-            '"prototypes/retail_drawings/samples.ndjson"',
-            f"{_RE_ADD}[prototypes/retail_drawings/samples4.ndjson]",
+            '"src/synthetic_ecommerce_data/domains/retail/samples*.ndjson"',
+            '"src/synthetic_ecommerce_data/domains/retail/samples.ndjson"',
+            f"{_RE_ADD}[src/synthetic_ecommerce_data/domains/retail/samples4.ndjson]",
             "a re-added samples4.ndjson fails the check",
         ),
         _row(
@@ -43,7 +43,7 @@ def rows() -> list[Row]:
             _GUARD,
             "fnmatch.fnmatchcase(p, glob)",
             "p == glob",
-            f"{_RE_ADD}[prototypes/retail_drawings/preview4.html]",
+            f"{_RE_ADD}[src/synthetic_ecommerce_data/domains/retail/preview4.html]",
             "a glob matches the paths it names",
         ),
         _row(

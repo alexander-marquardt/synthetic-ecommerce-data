@@ -57,7 +57,10 @@ compose a domain with core, so they stay at the top level beside `prism/`:
 machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
-import paths resolve to the moved modules.
+import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
+retail store (the former `prototypes/retail_drawings/`, #125 slice 1): its departments live
+inside it, it reaches core only, and the same test refuses an import from one domain into
+another. Its tests are under `tests/` with the rest.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
@@ -1009,7 +1012,7 @@ the authored literals are not edited. A machine `key` is never touched, and neit
 A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
 (`AS568`), has a capital inside it (`iPhone`), is a lone capital letter (`T-slot`, `V-belts`),
 or is on the exception list, `letter_case.PROPER_NOUNS` (a trade name or a brand: `Torx`, `Nike`,
-`Apple`). Add a word there with its reason. The `sentence_case` and `one_key_per_concept` rules (`prototypes/retail_drawings/rules.py`, run by
+`Apple`). Add a word there with its reason. The `sentence_case` and `one_key_per_concept` rules (`src/synthetic_ecommerce_data/domains/retail/rules.py`, run by
 `tests/test_rules_538.py`) fail when a category node or display name in either build or in
 `golden-catalog/` is not its own sentence-case form, or when one key has two display names.
 

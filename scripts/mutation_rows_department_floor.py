@@ -18,7 +18,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "DEPARTMENT_FLOOR = 0",
         "tests/test_retail_scale.py -k test_the_department_floor_is_not_lowered",
         "the department floor is not lowered below the pinned minimum",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the floor is lowered by one",
@@ -27,7 +27,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "DEPARTMENT_FLOOR = 149",
         "tests/test_retail_scale.py -k test_the_department_floor_is_not_lowered",
         "the department floor is not lowered below the pinned minimum",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
 ]
 

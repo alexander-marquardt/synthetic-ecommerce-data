@@ -8,18 +8,12 @@ word and whose structured fields say they are something else.
 
 from __future__ import annotations
 
-import sys
 from collections import Counter
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_product_words as dpw  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = ["Home", "Large Appliances"]
 LEAVES = {"Fridges & Freezers": 8, "Dishwashers": 4, "Laundry": 5}

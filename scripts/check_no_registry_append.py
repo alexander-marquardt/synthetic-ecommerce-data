@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 TRAILER_KEY = "Registry-Append"
-RD = "prototypes/retail_drawings"
+RD = "src/synthetic_ecommerce_data/domains/retail"
 
 
 class Registry(NamedTuple):

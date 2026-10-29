@@ -9,21 +9,20 @@ finds an id that no longer belongs.
 
 from __future__ import annotations
 
-import sys
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    scale,
+    type_registry,
+)
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
+from synthetic_ecommerce_data.domains.retail.variants import cw
 
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-from breadth_rows import Row  # noqa: E402
-from variants import cw  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
+
 
 
 def _planted(cls: int, department: str = "Planted Department") -> type_registry.TypeSpec:

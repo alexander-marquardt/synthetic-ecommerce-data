@@ -10,21 +10,20 @@ changes nothing; bedding and pack sizes keep one image per color.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    footwear_rows,
+    image_release,
+    sheet_extent,
+    size_ladder,
+)
 
-import export  # noqa: E402 -- the prototype's own directory is its import root
-import footwear_rows  # noqa: E402
-import image_release  # noqa: E402
-import sheet_extent  # noqa: E402
-import size_ladder  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 BY_ID = {r["product_id"]: r for r in image_release.records()}
 
@@ -167,7 +166,9 @@ def test_a_ladder_stands_on_one_floor_and_the_largest_is_the_drawing_as_it_was()
         assert ratios[0] == pytest.approx(size_ladder.BOTTOM / size_ladder.TOP, abs=1e-3)
         bare = {k: v for k, v in image_release.colorway_drawing(rec, skus[-1]).items()
                 if k != "size_scale"}  # fmt: skip
-        from build_preview import drawing_svg  # noqa: PLC0415
+        from synthetic_ecommerce_data.domains.retail.build_preview import (
+            drawing_svg,  # noqa: PLC0415
+        )
 
         assert svgs[-1] == drawing_svg(rec | {"drawing": bare}, styled).encode()
 

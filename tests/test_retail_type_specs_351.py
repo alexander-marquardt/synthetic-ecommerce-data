@@ -1,6 +1,6 @@
 """One declarative spec per retail product type (gen#351).
 
-A type is one file under ``prototypes/retail_drawings/type_specs/``; :mod:`type_registry`
+A type is one file under ``domains/retail/type_specs/``; :mod:`type_registry`
 discovers it, and the scaled build, the figures and the tests read the registry, so adding a type
 edits no wiring. These checks hold the registry's rules, the guard that no type is registered
 anywhere else, the two migrated types (``tracksuit``, ``shampoo``) and the scaffold
@@ -17,22 +17,22 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_product_words,
+    distractors,
+    export,
+    nike_rows,
+    scale,
+    scale_rows,
+    type_registry,
+)
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
+from synthetic_ecommerce_data.domains.retail.variants import cw
+
 ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
-import decoy_product_words  # noqa: E402
-import distractors  # noqa: E402
-import export  # noqa: E402
-import nike_rows  # noqa: E402
-import scale  # noqa: E402
-import scale_rows  # noqa: E402
-import type_registry  # noqa: E402
-from breadth_rows import Row  # noqa: E402
-from variants import cw  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 TRACKSUIT_IDS = {f"BRD-TST{c}" for c in ("MFL", "MSH", "MHZ", "WFL", "WVL", "W3P", "BHD", "G3P")}
 SHAMPOO_IDS = {"BRD-SHPARG", "BRD-SHPROS"}
@@ -314,12 +314,13 @@ def _discover(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, files: dict[str, 
         (tmp_path / f"{name}.py").write_text(source, encoding="utf-8")
     monkeypatch.setattr(type_registry.type_specs, "__path__", [str(tmp_path)])
     for name in files:
-        monkeypatch.delitem(sys.modules, f"type_specs.{name}", raising=False)
+        module = f"{type_registry.type_specs.__name__}.{name}"
+        monkeypatch.delitem(sys.modules, module, raising=False)
     try:
         return type_registry.specs.__wrapped__()
     finally:
         for name in files:
-            sys.modules.pop(f"type_specs.{name}", None)
+            sys.modules.pop(f"{type_registry.type_specs.__name__}.{name}", None)
 
 
 def _scaffold_source(key: str, product_type: str) -> str:
@@ -402,7 +403,7 @@ def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
     census = _census()
     added = _real_types(tmp_path)
     _register(monkeypatch, added)
-    import decoy_apparel as da
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
     plain = scale.templates(baseline=False)
     full = scale.templates()
@@ -425,7 +426,7 @@ def test_a_real_scaffolded_clothing_and_beauty_type_pass_the_apparel_census(
 def test_a_clothing_spec_with_no_apparel_plan_or_exemption_is_refused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import decoy_apparel as da
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
     _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
     bare = replace(kaftan, apparel=None, apparel_exempt="")
@@ -437,7 +438,7 @@ def test_a_clothing_spec_with_no_apparel_plan_or_exemption_is_refused(
 def test_an_exempt_clothing_spec_carries_a_reason_and_no_decoys(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    import decoy_apparel as da
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
     _, kaftan = _scaffold(tmp_path, "clothing", "specimen_kaftan", "Specimen Kaftan")
     exempt = replace(kaftan, apparel=None, apparel_exempt="a costume, not a garment")
@@ -451,7 +452,7 @@ def test_adding_a_spec_type_moves_no_other_decoy_id(
 ) -> None:
     """A spec type is numbered by its key, never by its place in the plan: adding one that sorts
     before another moves no decoy id."""
-    import decoy_apparel as da
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
     before = da.IDS
     added = _real_types(tmp_path)
@@ -470,7 +471,7 @@ def test_adding_a_spec_type_moves_no_other_decoy_id(
 
 def test_a_type_planned_twice_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tracksuit is planned in ``decoy_apparel``; its spec cannot plan it a second time."""
-    import decoy_apparel as da
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
     twice = replace(type_registry.specs()["tracksuit"], apparel=type_registry.ApparelPlan())
     _register(monkeypatch, {"tracksuit": twice})

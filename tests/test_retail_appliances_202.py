@@ -11,23 +11,18 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import appliance_rows  # noqa: E402
-import export  # noqa: E402
-import image_release  # noqa: E402
-import kit_appliances  # noqa: E402
-import motifs  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    appliance_rows,
+    export,
+    image_release,
+    kit_appliances,
+    motifs,
+    scale,
+)
 
 ROWS = appliance_rows.ROWS
 

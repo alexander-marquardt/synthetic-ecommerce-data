@@ -34,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 #: Where the file that a row plants in hangs off, for the generator package and for the retail
 #: drawing package. A row names its own ``root``; these are the two spellings in use.
 GENERATOR = "src/synthetic_ecommerce_data"
-RETAIL_DRAWINGS = "prototypes/retail_drawings"
+RETAIL_DRAWINGS = "src/synthetic_ecommerce_data/domains/retail"
 
 
 class Row(NamedTuple):

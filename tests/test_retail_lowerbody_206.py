@@ -11,26 +11,21 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402
-import export  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import kit_lowerbody  # noqa: E402
-import lowerbody_rows  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-import variants  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    export,
+    image_release,
+    kit,
+    kit_lowerbody,
+    lowerbody_rows,
+    scale,
+    type_registry,
+    variants,
+)
 
 #: The tracksuits are a type spec (gen#351); the other five types are still in lowerbody_rows.
 ROWS = (*lowerbody_rows.ROWS, *type_registry.specs()["tracksuit"].rows)
@@ -231,7 +226,7 @@ def test_drawing_takes_a_param_named_shape_beside_the_shape_it_draws() -> None:
 
 
 def test_a_skirt_row_builds_its_document_without_stripping_its_shape_param() -> None:
-    from breadth_rows import Row
+    from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 
     for row in (r for r in lowerbody_rows.ROWS if r.product_type == "Skirt"):
         out = _built(lambda row=row: Row.doc(row))

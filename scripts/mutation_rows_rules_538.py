@@ -1,6 +1,6 @@
 """Mutation rows for the rules module and the decoy contract (gen#538), one per rule and clause.
 
-Each row weakens one rule of ``prototypes/retail_drawings/rules.py`` (or one clause of
+Each row weakens one rule of ``src/synthetic_ecommerce_data/domains/retail/rules.py`` (or one clause of
 ``decoy_contract.py``) so that it no longer finds the breach it exists for, and names the planted
 breach that must then go unfound: the test that plants a breach of that rule fails. A row is
 ``(name, root, file, old, new, tests, property)``; ``root`` is relative to the repository.
@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_RETAIL = "prototypes/retail_drawings"
+_RETAIL = "src/synthetic_ecommerce_data/domains/retail"
 _RULE = 'tests/test_rules_538.py -k "test_a_planted_breach_of_a_rule_is_found and {}"'
 _CLAUSE = 'tests/test_feature_decoys_513.py -k "test_a_planted_decoy_file and {}"'
 _RANGE = 'tests/test_feature_decoys_513.py -k "test_a_planted_toy_range_decoy and {}"'

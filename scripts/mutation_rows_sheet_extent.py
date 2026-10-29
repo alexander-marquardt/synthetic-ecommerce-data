@@ -11,7 +11,7 @@ from mutation_row import Row
 
 _T = "tests/test_retail_sheet_242.py"
 _SWEEP = f"{_T}::test_no_retail_drawing_extends_past_its_sheet"
-_ROOT = "prototypes/retail_drawings"
+_ROOT = "src/synthetic_ecommerce_data/domains/retail"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (

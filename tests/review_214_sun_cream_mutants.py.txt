@@ -1,6 +1,6 @@
 TESTS = ["tests/test_retail_beauty_214.py"]
 PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
-R = "prototypes/retail_drawings/"
+R = "src/synthetic_ecommerce_data/domains/retail/"
 B = "tests/test_retail_beauty_214.py::"
 S = "tests/test_retail_type_specs_351.py::"
 MUTANTS = [

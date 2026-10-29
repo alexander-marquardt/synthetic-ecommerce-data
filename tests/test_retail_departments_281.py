@@ -13,21 +13,16 @@ records, the nested documents, the flat per-SKU documents and the authored expor
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
 from synthetic_ecommerce_data.core.letter_case import sentence_case
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import audience  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    audience,
+    export,
+    scale,
+)
 
 #: The store's departments, and the only values the top level of a retail ``category_path`` takes.
 DEPARTMENTS = frozenset(
@@ -136,7 +131,7 @@ def test_the_exported_field_list_has_no_department_entry() -> None:
 def test_the_measured_ceiling_figures_name_exactly_the_declared_departments() -> None:
     """The 110K export's per-top-level counts (``retail_figures.figures()``, measured by
     ``retail_figures.py``) cover every declared department and no other."""
-    from retail_figures import figures as measured
+    from synthetic_ecommerce_data.domains.retail.retail_figures import figures as measured
 
     figures = measured()["ceiling"]
     assert {sentence_case(name) for name in figures["top_levels"]} == DEPARTMENTS

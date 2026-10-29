@@ -9,16 +9,14 @@ feature, and each named component is an attribute a filter can use.
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import breadth_rows  # noqa: E402
-import scale  # noqa: E402
-from type_specs import beach_towel as beach_towel_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    breadth_rows,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.type_specs import (
+    beach_towel as beach_towel_rows,
+)
 
 LEAF = "Beach Towels"
 

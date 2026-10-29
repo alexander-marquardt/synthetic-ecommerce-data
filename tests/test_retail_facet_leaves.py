@@ -14,22 +14,20 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case
+from synthetic_ecommerce_data.core.standard import words
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    facet_leaves,
+    scale,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import export  # noqa: E402
-import facet_leaves  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
-from synthetic_ecommerce_data.core.standard import words  # noqa: E402
 
 #: The facet names the downstream attribute markers read, by the product type that has them.
 CONTRACT = {

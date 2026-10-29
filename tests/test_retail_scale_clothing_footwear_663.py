@@ -11,21 +11,16 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import line_grammar  # noqa: E402
-import line_grammar_families  # noqa: E402
-import scale  # noqa: E402
-
 from retail_ceiling import ceiling_build  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    line_grammar,
+    line_grammar_families,
+    scale,
+)
 
 #: The six families of this feature, by module name.
 NEW_FAMILIES = ("bra", "jeans", "tee", "trainers", "boots", "casual")
@@ -173,7 +168,7 @@ def test_no_apparel_decoy_clones_a_petite_style(ceiling):
     fell to 0.0997 once the class 5 retirement moved the exemplar walk. Metric: the apparel
     decoys that are petite, of a type that has a style which is not (every jogger is petite, so
     the joggers' decoys may be)."""
-    import decoy_apparel
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel
 
     ids = decoy_apparel.ids()
     petite = lambda r: "petite" in r.get("size_range", ())  # noqa: E731
@@ -191,7 +186,7 @@ def test_no_apparel_decoy_clones_a_petite_style(ceiling):
 def test_a_petite_exemplar_is_replaced_in_its_own_place():
     """#663: the walk keeps its positions, so the decoys drawn from the other exemplars do not
     move (the Kids dress leaf and the "Straight" jeans of gen#434 pin theirs)."""
-    import decoy_apparel
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel
 
     a, b, c, d = (
         {"product_id": "a", "size_range": ["regular"]},

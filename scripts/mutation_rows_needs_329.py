@@ -2,7 +2,7 @@
 
 Each row plants one defect and names the test that must go red. ``mutation_check.py`` turns them
 into rows named ``needs 329: ...`` (``--only "needs 329:"`` re-runs them). A row is
-``(name, file, old, new, test, property)``; every row's root is ``prototypes/retail_drawings``.
+``(name, file, old, new, test, property)``; every row's root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 # ruff: noqa: E501  (a row quotes the whole line it breaks)
@@ -83,4 +83,4 @@ PREFIX = "needs 329"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

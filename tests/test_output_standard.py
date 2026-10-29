@@ -2,7 +2,7 @@
 
 :func:`synthetic_ecommerce_data.core.standard.check_catalog` is the validator. It
 runs here over a fresh industrial build, the committed industrial golden and the
-retail export (``prototypes/retail_drawings/export.py``), and against planted
+retail export (``src/synthetic_ecommerce_data/domains/retail/export.py``), and against planted
 defects so that a validator that passes everything is red too.
 """
 
@@ -23,14 +23,12 @@ from synthetic_ecommerce_data.domains.industrial import hammers
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 GOLDEN_NESTED = ROOT / "golden-catalog" / "nested.jsonl"
 
 
 def _retail_figures() -> dict[str, Any]:
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import retail_figures  # noqa: PLC0415 -- the prototype's own directory is its import root
+    from synthetic_ecommerce_data.domains.retail import retail_figures  # noqa: PLC0415
 
     return retail_figures.figures()
 
@@ -42,9 +40,7 @@ RETAIL_SKUS = _retail_figures()["templates"]["authored"]["skus"]
 
 
 def _retail() -> list[dict[str, Any]]:
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import export  # noqa: PLC0415 -- the prototype's own directory is its import root
+    from synthetic_ecommerce_data.domains.retail import export  # noqa: PLC0415
 
     return export.documents()
 
@@ -136,8 +132,10 @@ def test_options_promotions_and_ratings_are_product_attributes(retail):
 
 def test_an_image_id_is_the_skus_own_file_and_stable(retail):
     """Every SKU has its own image file (gen#706); what the file draws is the drawing spec."""
-    import export  # noqa: PLC0415 -- on sys.path since _retail()
-    import image_release  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import (
+        export,  # noqa: PLC0415
+        image_release,  # noqa: PLC0415
+    )
 
     again = _retail()
     assert [d["image_id"] for d in again] == [d["image_id"] for d in retail]
@@ -502,7 +500,7 @@ def _first(rows: list[dict[str, Any]], field: str, value: str) -> dict[str, Any]
 @pytest.fixture(scope="module")
 def retail_flat() -> list[dict[str, Any]]:
     _retail()
-    import export  # noqa: PLC0415 -- on sys.path once _retail() ran
+    from synthetic_ecommerce_data.domains.retail import export  # noqa: PLC0415
 
     return export.flat_documents()
 

@@ -8,17 +8,16 @@ pieces on the front. The range name and the flavour-color band (the brand band) 
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    kit,
+    sheet_extent,
+)
 
-import grocery  # noqa: E402
-import kit  # noqa: E402
-import sheet_extent  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 BBF = next(f for f in grocery.FAMILIES if f.code == "BBF")
 FILL = kit.Fill("solid", "#d8a548", "#ffffff")

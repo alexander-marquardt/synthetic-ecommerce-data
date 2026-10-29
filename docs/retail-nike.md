@@ -14,7 +14,7 @@ Nike drawings and refuses a mark, a text element or the name in the SVG.
 
 ## The guard
 
-`prototypes/retail_drawings/real_brands.py` holds `ALLOWED` (the exceptions) and `KNOWN_REAL` (the
+`src/synthetic_ecommerce_data/domains/retail/real_brands.py` holds `ALLOWED` (the exceptions) and `KNOWN_REAL` (the
 real names the catalogue refuses: sportswear, electronics, retail). `check()` scans the brand,
 title and description of every product and returns a line per refused name; a name inside an
 invented word ("Pumaleigh") is not a match. To rule another brand in, move its name from
@@ -22,7 +22,7 @@ invented word ("Pumaleigh") is not a match. To rule another brand in, move its n
 
 ## What the catalogue holds
 
-`prototypes/retail_drawings/nike_rows.py` (templates only: `scale.derivable` leaves them out as
+`src/synthetic_ecommerce_data/domains/retail/nike_rows.py` (templates only: `scale.derivable` leaves them out as
 `scale.source_ids("nike_rows")`, and `main_colors.complete` gives none a color):
 
 - 14 trainers and running shoes in the existing leaves of Mens, Womens and Kids, eight of them Air

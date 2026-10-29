@@ -8,19 +8,16 @@ swoosh, a wordmark or a trade dress.
 from __future__ import annotations
 
 import re
-import sys
 from collections import Counter
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(RETAIL))
-
-import build_preview  # noqa: E402
-import house_styles as hs  # noqa: E402
-import real_brands  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    build_preview,
+    real_brands,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail import house_styles as hs
 
 MAIN = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
 

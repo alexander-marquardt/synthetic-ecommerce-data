@@ -1,6 +1,6 @@
 """The grocery build (gen#154): flavor x pack SKUs, allergens, dietary labels, demo cases.
 
-``prototypes/retail_drawings/grocery.py`` builds Food & Drink styles from
+``src/synthetic_ecommerce_data/domains/retail/grocery.py`` builds Food & Drink styles from
 ``grocery_rows.FAMILIES``. These tests hold it at its 10K target: the exact counts,
 the output standard (nested and flat), allergen facts that never contradict each
 other, titles that never claim a label their variants lack, determinism, one drawing
@@ -18,19 +18,22 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    grocery,
+    kit,
+    pack_scale,
+)
+from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
+    allergen_value,
+    facet_value,
+)
+from synthetic_ecommerce_data.domains.retail.grocery_rows import ALLERGENS, DIETARY
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
-import export  # noqa: E402
-import grocery  # noqa: E402
-import kit  # noqa: E402
-import pack_scale  # noqa: E402
-from grocery_ingredients import allergen_value, facet_value  # noqa: E402
-from grocery_rows import ALLERGENS, DIETARY  # noqa: E402
-from retail_figures import figures  # noqa: E402
 
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 STYLES = figures()["templates"]["grocery"]["styles"]

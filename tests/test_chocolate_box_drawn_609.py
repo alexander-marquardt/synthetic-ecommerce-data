@@ -8,20 +8,19 @@ one on the same sheet, and the range name and the flavour-color band (the brand 
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    image_release,
+    kit,
+    sheet_extent,
+)
 
-import grocery  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import sheet_extent  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 CHX = next(f for f in grocery.FAMILIES if f.code == "CHX")
 FILL = kit.Fill("solid", "#8a5a3c", "#ffffff")

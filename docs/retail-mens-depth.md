@@ -1,6 +1,6 @@
 # Retail clothing depth: the Mens slice (gen#310)
 
-`prototypes/retail_drawings/mens_depth_rows.py` adds Mens trousers and chinos, shirts, polo
+`src/synthetic_ecommerce_data/domains/retail/mens_depth_rows.py` adds Mens trousers and chinos, shirts, polo
 shirts, coats and jackets, suits and tailoring, underwear and socks as distinct products, each
 with fit, material and, where it applies, collar and sleeve length. The floors are pinned by
 `tests/test_retail_mens_depth_310.py` over `scale.templates()`. Knitwear is gen#309; Womens and
@@ -34,7 +34,7 @@ a brand such as "Black Curlew" is not read as naming a color.
 ## Suits and tailoring (gen#215)
 
 `Mens/Suits & Tailoring` holds five product types, each drawn as its own shape by
-`prototypes/retail_drawings/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
+`src/synthetic_ecommerce_data/domains/retail/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
 `dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same seven classes):
 
 | Type (`product_type`) | Leaf | Key attributes (structured) | Shape params | SKUs |

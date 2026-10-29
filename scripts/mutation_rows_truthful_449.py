@@ -4,7 +4,7 @@ found (a mushroom punnet of strawberries, a four pack drawn as one pot, a negati
 description that is a field dump) and names the test that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``truthful decoys: ...``
 (``--only "truthful decoys:"`` re-runs them). A row is ``(name, file, old, new, test, property)``;
-the root is ``prototypes/retail_drawings``.
+the root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -101,4 +101,4 @@ PREFIX = "truthful decoys"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

@@ -9,18 +9,17 @@ file restates a pattern value that the code computes.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    export,
+)
 
-import colorwords  # noqa: E402 -- the prototype's own directory is its import root
-import export  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 DOC = ROOT / "docs" / "retail-color-pattern.md"
 

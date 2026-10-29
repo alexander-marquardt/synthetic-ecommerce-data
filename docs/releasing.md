@@ -9,10 +9,11 @@ together, one file per SKU (gen#706). A release is a `v*` tag.
 
 `.github/workflows/release.yaml` runs on a pushed `v*` tag and:
 
-1. builds the ceiling export (`prototypes/retail_drawings/scale.py --skus ceiling --flat ...`,
-   the build run to its ceiling) and gzips it as `catalog.ndjson.gz`;
+1. builds the ceiling export (`python -m synthetic_ecommerce_data.domains.retail.scale --skus ceiling
+   --flat ...`, the build run to its ceiling) and gzips it as `catalog.ndjson.gz`;
 2. builds the industrial large catalog (`ecom-generate build --lines 39000`, `config.LARGE_BUILD_LINES`);
-3. builds the one image bundle (`image_release.py --skus ceiling --industrial-catalog ...`) as
+3. builds the one image bundle (`python -m synthetic_ecommerce_data.domains.retail.image_release
+   --skus ceiling --industrial-catalog ...`) as
    `images.tar.gz`: both halves' drawings, a file per SKU, refused if two SKUs share a file or a
    SKU has none;
 4. uploads the export and the bundle to the tag's release with their sidecars:

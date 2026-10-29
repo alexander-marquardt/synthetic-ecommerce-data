@@ -1,4 +1,4 @@
-"""Mutations that plant a defect in the retail prototype (``prototypes/retail_drawings``) and name the test that must go red.
+"""Mutations that plant a defect in the retail prototype (``src/synthetic_ecommerce_data/domains/retail``) and name the test that must go red.
 
 ``mutation_row.discover_mutations`` finds this file by glob and the harness plants each
 entry of ``MUTATIONS`` in turn (``--only`` filters by a substring of the name). Moved out of
@@ -21,7 +21,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -68,7 +68,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -205,7 +205,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -236,7 +236,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -315,7 +315,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new_, test, prop in [
             (
@@ -354,7 +354,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, old, new_, test, prop in [
             (
@@ -383,7 +383,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -478,7 +478,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -531,7 +531,7 @@ MUTATIONS: list[Mutation] = [
         "tests/test_retail_scale.py -k 20k_build_meets_the_output_standard",
         "A",
         "a class-8 row that names a detail color on purpose passes the text check by its id",
-        root="prototypes/retail_drawings",
+        root="src/synthetic_ecommerce_data/domains/retail",
     ),
     Mutation(
         "product-word decoys: the standard's retail catalog test loses the exempt ids",
@@ -541,7 +541,7 @@ MUTATIONS: list[Mutation] = [
         "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
         "A",
         "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
-        root="prototypes/retail_drawings",
+        root="src/synthetic_ecommerce_data/domains/retail",
     ),
     # ---- retail: color-word brands beyond clothing (gen#312) ----
     # Every name starts "color-word brands:", so `--only "color-word brands:"` re-runs them.
@@ -555,7 +555,7 @@ MUTATIONS: list[Mutation] = [
                 '_in("#2a2a2e", "#e8741e", "Black"),\n        (*_a1("battery_type", "Battery type", "Lithium-Ion"), *_volts(18)),',
                 "tests/test_color_word_brands_312.py -k test_no_attribute_states_the_color_word",
                 "the color attribute differs from the color word",
-                "prototypes/retail_drawings",
+                "src/synthetic_ecommerce_data/domains/retail",
             ),
             (
                 "the completer is not told to skip the decoys",
@@ -564,7 +564,7 @@ MUTATIONS: list[Mutation] = [
                 "decoy_ids() | garden_rows.decoy_ids()",
                 "tests/test_color_word_brands_312.py -k test_a_built_decoy_offers_exactly_its_one_true_color",
                 "a decoy offers more than its one true color",
-                "prototypes/retail_drawings",
+                "src/synthetic_ecommerce_data/domains/retail",
             ),
             (
                 "a brand's wordmark is set in capitals, not as the brand field",
@@ -573,7 +573,7 @@ MUTATIONS: list[Mutation] = [
                 '"humanist", 700, "caps",      0.5)',
                 "tests/test_color_word_brands_312.py -k test_a_drawing_lockup_text_equals_the_brand_field",
                 "the lockup text equals the brand",
-                "prototypes/retail_drawings",
+                "src/synthetic_ecommerce_data/domains/retail",
             ),
             (
                 "a title runs past five words",
@@ -582,7 +582,7 @@ MUTATIONS: list[Mutation] = [
                 '"Green Harrow Golden Sweetcorn Kernels in Water"',
                 "tests/test_color_word_brands_312.py -k test_the_color_word_sits_in_a_short_title",
                 "the color word sits in a short title",
-                "prototypes/retail_drawings",
+                "src/synthetic_ecommerce_data/domains/retail",
             ),
             (
                 "the garden loses its bulbs",
@@ -591,7 +591,7 @@ MUTATIONS: list[Mutation] = [
                 '_TULIP = ("Home", "Bulbs", "Tulip Bulbs")',
                 "tests/test_color_word_brands_312.py -k test_each_department_has_at_least_three_decoys",
                 "each department has three decoys",
-                "prototypes/retail_drawings",
+                "src/synthetic_ecommerce_data/domains/retail",
             ),
             (
                 "the standard reads the brand as a claim",
@@ -608,7 +608,7 @@ MUTATIONS: list[Mutation] = [
     # Every name starts "needs rows:", so `--only "needs rows:"` re-runs them.
     *(
         Mutation(
-            f"needs rows: {name}", file, old, new, test, "", prop, root="prototypes/retail_drawings"
+            f"needs rows: {name}", file, old, new, test, "", prop, root="src/synthetic_ecommerce_data/domains/retail"
         )
         for name, file, old, new, test, prop in [
             (
@@ -663,7 +663,7 @@ MUTATIONS: list[Mutation] = [
     ),
     # ---- retail: Nike is a real brand, text only (gen#341) ----
     *(
-        Mutation(f"nike: {name}", file, old, new, test, "", prop, root="prototypes/retail_drawings")
+        Mutation(f"nike: {name}", file, old, new, test, "", prop, root="src/synthetic_ecommerce_data/domains/retail")
         for name, file, old, new, test, prop in [
             (
                 "a real brand draws its logo",
@@ -734,7 +734,7 @@ MUTATIONS: list[Mutation] = [
             test,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, file, old, new, test, prop in [
             (
@@ -790,7 +790,7 @@ MUTATIONS: list[Mutation] = [
     # ---- retail: promotion replaces the boolean offer (gen#189) ----
     *(
         Mutation(
-            f"promotion: {name}", file, old, new, test, "", prop, root="prototypes/retail_drawings"
+            f"promotion: {name}", file, old, new, test, "", prop, root="src/synthetic_ecommerce_data/domains/retail"
         )
         for name, file, old, new, test, prop in [
             (
@@ -885,7 +885,7 @@ MUTATIONS: list[Mutation] = [
             tests,
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, old, new, tests, prop in [
             (
@@ -912,7 +912,7 @@ MUTATIONS: list[Mutation] = [
             "tests/test_retail_toys_201.py -k jigsaws_finished_size",
             "",
             prop,
-            root="prototypes/retail_drawings",
+            root="src/synthetic_ecommerce_data/domains/retail",
         )
         for name, old, new, prop in [
             (

@@ -3,7 +3,7 @@
 Each row plants one defect in a place that names a ring's size keys and names the tests that must
 go red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``ring sizes: ...``
 (``--only "ring sizes:"`` re-runs them). A row is ``(name, file, old, new, tests, property)``;
-the root is ``prototypes/retail_drawings``.
+the root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -69,4 +69,4 @@ PREFIX = "ring sizes"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

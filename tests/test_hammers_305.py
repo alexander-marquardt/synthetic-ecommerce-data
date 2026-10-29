@@ -1,7 +1,7 @@
 """One Hammers category with several kinds of hammer, and one ``product_type`` format (#305).
 
 Read off the COMMITTED catalogs (``golden-catalog/`` for the modelled tools,
-``prototypes/retail_drawings`` for the retail styles), so a regenerated catalog from a
+``domains/retail`` for the retail styles), so a regenerated catalog from a
 broken generator is still red: ``test_catalog_golden.py`` holds the committed files to the
 build.
 """
@@ -12,7 +12,6 @@ import collections
 import json
 import math
 import re
-import sys
 from pathlib import Path
 
 import pytest
@@ -21,13 +20,10 @@ from synthetic_ecommerce_data.domains.industrial.hammers import (
     INCIDENTAL_PHRASE,
     is_incidental_decoy_title,
 )
+from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import scale  # noqa: E402
 
 #: The one node every hammer lives under: the combined tree reads ``Tools > Hand Tools > Hammers``.
 HAMMERS = ["Hand tools", "Hammers"]

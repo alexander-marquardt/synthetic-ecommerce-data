@@ -9,20 +9,17 @@ grape, country, wine style or strength, and no path under Wine.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
+from synthetic_ecommerce_data.domains.retail import scale
 
-import baseline_rank as br  # noqa: E402
-import decoy_rows as dr  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 VINEGAR = ["Food & Drink", "Food Cupboard", "Vinegar"]
 WINE_ONLY = {"grape", "country", "wine_style", "abv"}

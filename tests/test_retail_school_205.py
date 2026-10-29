@@ -12,26 +12,21 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 import xml.dom.minidom
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_apparel  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_school  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import school_rows  # noqa: E402
-import tree_guard  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_apparel,
+    export,
+    kit,
+    kit_school,
+    main_colors,
+    scale,
+    school_rows,
+    tree_guard,
+)
 
 ROWS = school_rows.ROWS
 ROOT, FAMILY = "Kids", "School Uniform"

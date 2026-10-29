@@ -11,19 +11,15 @@ floors are written out here, not read from the rows, so dropping rows fails this
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import cups_plural_rows  # noqa: E402
-import export  # noqa: E402
-import facet_leaves  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    cups_plural_rows,
+    export,
+    facet_leaves,
+    scale,
+)
 
 #: The plural a bare "cups" matches in a lingerie title.
 CUPS_TITLE = re.compile(r"\b(Removable|Padded|Moulded) Cups\b")

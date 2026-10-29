@@ -4,7 +4,7 @@ Each row breaks one part of the click-clack branch of ``kit_seating.sofa_bed`` (
 seat, the upright back, one sofa's depth, the hinge line) and names the test that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``sofa bed: ...`` (``--only "sofa
 bed:"`` re-runs them). A row is ``(name, file, old, new, test, property)``; every file is under
-``prototypes/retail_drawings``.
+``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -63,4 +63,4 @@ PREFIX = "sofa bed"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

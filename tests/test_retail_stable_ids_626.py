@@ -9,20 +9,19 @@ Guard 2: the generator raises on a collision and does not bump a counter past it
 from __future__ import annotations
 
 import copy
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    plus_sizes,
+    scale,
+    stable_ids,
+    variants,
+)
 
-import plus_sizes  # noqa: E402
-import scale  # noqa: E402
-import stable_ids  # noqa: E402
-import variants  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: The derived SKUs the build draws past the templates: enough styles to read.
 DERIVED_SKUS = 2_000

@@ -9,16 +9,13 @@ style sells exactly one pack size, when the drawn count is that size.
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-HERE = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(HERE))
-
-import kit  # noqa: E402
-import tableware_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    tableware_rows,
+)
 
 CUTLERY = [d for d in tableware_rows.docs() if d["product_type"] == "Cutlery"]
 

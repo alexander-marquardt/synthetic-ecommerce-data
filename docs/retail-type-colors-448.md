@@ -2,7 +2,7 @@
 
 gen#275 gives every color-bearing type the six main colors, so "red shirt" finds a shirt. A type
 that is not sold in some of them declares it, with the colors it does come in and why, in
-`prototypes/retail_drawings/type_colors.py` (`RESTRICTED`, keyed by the category-path prefix; the
+`src/synthetic_ecommerce_data/domains/retail/type_colors.py` (`RESTRICTED`, keyed by the category-path prefix; the
 longest prefix wins):
 
 | Path | Comes in | Why |

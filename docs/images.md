@@ -218,7 +218,7 @@ twenty SKUs of every type -- for judging the drawings by eye.
 ### The image release: one set, one file per SKU
 
 ```sh
-uv run python prototypes/retail_drawings/image_release.py --out out/images --archive out/images.tar.gz \
+uv run python -m synthetic_ecommerce_data.domains.retail.image_release --out out/images --archive out/images.tar.gz \
     [--skus ceiling] [--industrial-catalog out/catalog-100k]
 ```
 

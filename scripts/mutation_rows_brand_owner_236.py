@@ -4,7 +4,7 @@ Each row gives a grocery brand a second owner again (the owners table says one t
 class table another, or a derived style takes the default) and names the test that must go
 red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``brand owner: ...``
 (``--only "brand owner:"`` re-runs them). A row is ``(name, file, old, new, test, property)``;
-the root is ``prototypes/retail_drawings``.
+the root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ _TEST = (
 _PROP = "a brand holds one owner across the templates and the ceiling build"
 _TABLES = "tests/test_retail_scale.py -k test_no_two_owner_tables_give_one_brand_two_owners"
 _SALES = (
-    "prototypes/retail_drawings/test_signals_and_paths.py "
+    "tests/test_signals_and_paths.py "
     "-k test_third_party_brands_are_over_represented_in_sales"
 )
 
@@ -66,4 +66,4 @@ PREFIX = "brand owner"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

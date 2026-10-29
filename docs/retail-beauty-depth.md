@@ -3,7 +3,7 @@
 The beauty range held lipstick, foundation, eyeliner, highlighter, a skin tint, a face powder, a
 perfume and a few creams, so a search for a mascara, a setting spray, a serum or an aftershave
 found an unrelated make-up item and finish, skin concern and size had nothing to filter. Each type
-below is its own spec under `prototypes/retail_drawings/type_specs/` (the quick path in
+below is its own spec under `src/synthetic_ecommerce_data/domains/retail/type_specs/` (the quick path in
 [new-type-quick-path.md](new-type-quick-path.md)), built from the shared pieces in
 `beauty_depth.py` and drawn by `kit_beauty.py`. The styles are templates only (`derivable` False):
 the range grows by authored rows. `tests/test_retail_beauty_214.py` holds the table below.

@@ -13,17 +13,15 @@ from __future__ import annotations
 
 import ast
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import sports_rows
 
-import sports_rows  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
+
 
 NOTE = ROOT / "docs" / "retail-sports-tree.md"
 SEP = " > "
@@ -112,7 +110,7 @@ def test_a_guidance_example_is_one_the_guidance_names_and_sits_on_its_own_leaf()
 
 
 def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
-    import export
+    from synthetic_ecommerce_data.domains.retail import export
 
     by_leaf: dict[str, set[str]] = {}
     for row in sports_rows.ROWS:

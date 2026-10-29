@@ -49,7 +49,7 @@ def test_no_tracked_file_spells_color_the_british_way() -> None:
 #: "center", in all of it (gen#291). The industrial engine's drawing code uses the engineering
 #: "centre" for a bolt circle or a shaft axis and writes no catalogue text, so it is outside
 #: this scope by name, not by omission.
-RETAIL_SOURCE = ROOT / "prototypes" / "retail_drawings"
+RETAIL_SOURCE = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 BRITISH_CENTER = re.compile("(?<![a-z])cent" + "(?:re|res|red|ring)(?![a-z])", re.IGNORECASE)
 
 

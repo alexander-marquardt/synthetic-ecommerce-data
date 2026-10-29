@@ -9,19 +9,14 @@ floors are written out here, not read from the rows, so dropping rows fails this
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_apparel  # noqa: E402
-import facet_leaves  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_apparel,
+    facet_leaves,
+    scale,
+    type_registry,
+)
 
 BRAS = ("Womens", "Lingerie", "Bras")
 PERIOD = ("Womens", "Lingerie", "Period Pants")

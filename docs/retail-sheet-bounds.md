@@ -13,7 +13,7 @@ reaches past it. The failure names the count of rows that overrun and each row w
 and how far it reaches. A derived style keeps its template's drawing, so the templates are the
 rows.
 
-`prototypes/retail_drawings/sheet_extent.py` measures:
+`src/synthetic_ecommerce_data/domains/retail/sheet_extent.py` measures:
 
 | It reads | How |
 | --- | --- |
@@ -35,5 +35,5 @@ When a shape fails: move or shorten the part the failure names. A pool of glow f
 a polygon whose corners `kit_lighting._glow` holds to the sheet. Do not widen the check or add
 an allow-list: the test has none, so the count only goes down.
 
-`prototypes/retail_drawings/motifs.drawn_box` is the older, coarser measure (the control-point
+`src/synthetic_ecommerce_data/domains/retail/motifs.drawn_box` is the older, coarser measure (the control-point
 hull of a shape's default drawing, for placing a print); it and this guard agree on the sheet.

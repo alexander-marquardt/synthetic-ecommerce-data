@@ -11,19 +11,15 @@ generated: the byte-identical build diff of the pull request shows it.
 from __future__ import annotations
 
 import importlib
-import sys
 from dataclasses import replace
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import type_registry  # noqa: E402
-from type_registry import Option, SpecError  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    type_registry,
+)
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, SpecError
 
 #: The options only spec types carry, by the spec that declares each: spec key -> options.
 _STORAGE = Option("storage_gb", "storage_capacity", "Storage (GB)")

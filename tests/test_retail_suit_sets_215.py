@@ -11,23 +11,19 @@ boys, the six main colors, a drawing that states what the record states, and the
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import class_rows  # noqa: E402
-import decoy_apparel  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_suit_sets  # noqa: E402,F401 -- registers trouser_suit and boys_suit
-import kit_suits  # noqa: E402
-import sheet_extent  # noqa: E402
-import type_registry  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    class_rows,
+    decoy_apparel,
+    export,
+    kit,
+    kit_suit_sets,  # noqa: E402,F401 -- registers trouser_suit and boys_suit
+    kit_suits,
+    sheet_extent,
+    type_registry,
+)
 
 #: type -> (spec key, its own shape, the category path, the key attributes every style states).
 TYPES = {
@@ -196,7 +192,7 @@ def test_a_trouser_suit_is_sold_in_adult_sizes_to_women() -> None:
 
 @pytest.mark.parametrize("ptype", TYPES)
 def test_a_type_offers_the_six_main_colors(ptype: str) -> None:
-    import scale
+    from synthetic_ecommerce_data.domains.retail import scale
 
     offered = {
         c["color"]

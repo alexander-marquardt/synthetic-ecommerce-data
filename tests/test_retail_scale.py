@@ -1,6 +1,6 @@
 """The retail size parameter (gen#125): a target SKU count, reached from the templates.
 
-``prototypes/retail_drawings/scale.py`` derives styles from the hand-authored
+``src/synthetic_ecommerce_data/domains/retail/scale.py`` derives styles from the hand-authored
 ones until the SKUs reach the target. These tests hold it at :data:`TARGET`, the
 templates plus about 4K SKUs of derived styles, and at the ceiling where every
 template is exhausted: it reaches the count, stays deterministic, meets the output
@@ -22,25 +22,24 @@ from typing import Any
 import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
-
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import breadth_rows  # noqa: E402
-import lighting_rows  # noqa: E402
-import line_grammar  # noqa: E402
-import line_grammar_families  # noqa: E402
-import range_ownership  # noqa: E402
-import scale  # noqa: E402
-import stable_ids  # noqa: E402
-from retail_figures import (  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    breadth_rows,
+    lighting_rows,
+    line_grammar,
+    line_grammar_families,
+    range_ownership,
+    scale,
+    stable_ids,
+)
+from synthetic_ecommerce_data.domains.retail.retail_figures import (
     GROCERY_INTERSECTION_KEYS,
     figures,
     unheld_named_values,
 )
-from retail_figures import held as values_held  # noqa: E402
+from synthetic_ecommerce_data.domains.retail.retail_figures import held as values_held
+
+ROOT = Path(__file__).resolve().parents[1]
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
 from retail_ceiling import ceiling_build  # noqa: E402
 
@@ -509,7 +508,7 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     description never names the template's motif once the style changed it ("Cherry Graphic
     Mug" -> an orange one must not say "a big pair of cherries"). The ceiling build holds
     some 80 derived motif styles (seed 0, the count re-rolls); :data:`TARGET` holds 3."""
-    from build_preview import drawing_svg  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg  # noqa: PLC0415
 
     drawn = _motif_drawn()
     styles = changed = 0
@@ -600,7 +599,7 @@ def test_a_shown_in_color_is_the_hero_the_picture_draws(ceiling_pairs):
 def test_every_brand_in_the_build_has_a_house_style(built):
     """A brand the build adds (:data:`scale.EXTRA_BRANDS`) draws in its own declared style:
     without a row, rendering its image raises ``KeyError``."""
-    import house_styles  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import house_styles  # noqa: PLC0415
 
     brands = {r["brand"] for r in built.records}
     brands |= {b for pool in scale.EXTRA_BRANDS.values() for b in pool}
@@ -1283,7 +1282,7 @@ def test_swap_makes_the_article_agree_with_the_new_word(text, old, new, swapped)
 
 
 def test_jeggings_are_drawn_apart_from_skinny_jeans():
-    from kit_garments import FITS  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail.kit_garments import FITS  # noqa: PLC0415
 
     assert FITS["jegging"] != FITS["skinny"]
 
@@ -1333,8 +1332,10 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
     Guard: every module-level ``OWNERS`` / ``BRAND_OWNER`` dict of the retail modules, not a
     list of three. Metric: the brands with two values, in the failure message.
     """
-    import class_model  # noqa: F401
-    import grocery_rows  # noqa: F401
+    from synthetic_ecommerce_data.domains.retail import (
+        class_model,  # noqa: F401
+        grocery_rows,  # noqa: F401
+    )
 
     owners: dict[str, dict[str, str]] = collections.defaultdict(dict)
     tables = 0
@@ -1373,7 +1374,7 @@ def test_a_range_word_belongs_to_one_brand(range_review):
 def test_every_place_range_appears_under_exactly_one_brand(ceiling):
     """Guard (gen#623): a range that no row draws is a class 6 decoy word that vanished ("kettle",
     "candle"). Metric: the brands per place-range name in the titles of the ceiling build."""
-    import place_ranges  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import place_ranges  # noqa: PLC0415
 
     owners: dict[str, set[str]] = {name: set() for name, _ in place_ranges.PLACE_RANGES}
     for rec in ceiling.records:
@@ -1393,9 +1394,9 @@ def test_a_family_class_6_rows_reach_every_brand_of_the_family(module):
     the family's titles against the brands the family owns."""
     import importlib  # noqa: PLC0415
 
-    import place_ranges  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import place_ranges  # noqa: PLC0415
 
-    mod = importlib.import_module(module)
+    mod = importlib.import_module(f"synthetic_ecommerce_data.domains.retail.{module}")
     named = {n for n, _ in place_ranges.PLACE_RANGES for r in mod.docs() if n in r["title"]}
     assert len(named) == len(mod._BRANDS)
 

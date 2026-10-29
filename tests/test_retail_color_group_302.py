@@ -13,18 +13,14 @@ style only adds to them, so a count met here is met by the ceiling build.
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402
-import facet_leaves  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    facet_leaves,
+    scale,
+)
 
 SHADES = ("Cream", "Ivory", "Off White")
 #: The product types a near-white shade sits on: knitwear, tops and dresses.

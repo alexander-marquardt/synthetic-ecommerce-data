@@ -13,19 +13,14 @@ tests hold the measure itself, with the pole drawn as the review found it.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import image_release  # noqa: E402
-import scale  # noqa: E402
-import sheet_extent  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    scale,
+    sheet_extent,
+)
 
 SHEET = 400.0
 
@@ -223,7 +218,7 @@ def test_text_is_not_measured() -> None:
 
 
 def test_a_glow_keeps_the_text_of_every_number_inside_the_sheet() -> None:
-    import kit_lighting
+    from synthetic_ecommerce_data.domains.retail import kit_lighting
 
     inside = "M246.0,216.0 L346.0,216.0 L300.5,399.5 Z"
     assert f'd="{inside}"' in kit_lighting._glow(inside)

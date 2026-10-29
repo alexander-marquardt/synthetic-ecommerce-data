@@ -14,23 +14,21 @@ from __future__ import annotations
 
 import collections
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.domains.retail import (
+    audience,
+    departments,
+    export,
+    scale,
+    shirt_rows,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import audience  # noqa: E402
-import departments  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
-import shirt_rows  # noqa: E402
-
-from synthetic_ecommerce_data.core import standard  # noqa: E402
 
 SHIRT_LEAVES = {"Oxford shirts", "Flannel shirts", "Linen shirts", "Denim shirts"}
 #: Mens shirts also have the formal, check and short sleeve leaves (gen#310).

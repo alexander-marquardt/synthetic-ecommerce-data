@@ -10,19 +10,15 @@ styles are what they were.
 
 from __future__ import annotations
 
-import sys
 from collections import Counter
 from functools import cache
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import grocery  # noqa: E402
-import grocery_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    grocery_rows,
+)
 
 #: Product types whose lemon scent a household shopper means (department, scented SKUs wanted).
 LEMON_SCENTED = {
@@ -90,7 +86,7 @@ def test_a_scented_sku_is_told_apart_by_attribute_not_by_title() -> None:
 def test_the_scent_leaves_are_the_breadth_rows_leaves() -> None:
     """A scent family sits on the leaf the hand-written rows already use, so a shopper
     finds one Dish Soap leaf and not two."""
-    import scale
+    from synthetic_ecommerce_data.domains.retail import scale
 
     paths = {
         tuple(r["category_path"])

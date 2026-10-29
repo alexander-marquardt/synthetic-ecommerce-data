@@ -65,11 +65,12 @@ packages = [
 # duplicate, so the editable path can no longer be the only one exercised.
 
 [tool.pytest.ini_options]
-# ``prototypes/retail_drawings`` holds its own test files (house styles, shapes, variants):
-# left out, CI never ran them and they went red on main unseen (gen#362). Every directory
-# here is in ``ci_shards.TEST_DIRS`` and ``ci_select._TEST_ROOTS``;
+# The retail tests once sat beside their code in ``prototypes/retail_drawings``; left out of
+# here, CI never ran them and they went red on main unseen (gen#362). They are under ``tests/``
+# since the prototype became the retail domain (#125, #539), so one path is collected. Every
+# directory here is in ``ci_shards.TEST_DIRS`` and ``ci_select._TEST_ROOTS``;
 # ``tests/test_test_files_collected_362.py`` fails when a test file sits outside them.
-testpaths = ["tests", "prototypes/retail_drawings"]
+testpaths = ["tests"]
 # ``--dist loadgroup`` keeps a module's tests on one worker (``tests/conftest.py`` marks the
 # group): a plain ``-n 2`` would scatter a module over both workers, and each would load the
 # module's fixture (#140). Without ``-n`` it does nothing.

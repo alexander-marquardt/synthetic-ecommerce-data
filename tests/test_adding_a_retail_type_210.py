@@ -22,9 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_derived  # noqa: E402
 
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
 DOC = ROOT / "docs" / "adding-a-retail-type.md"
 
@@ -90,8 +88,11 @@ def test_every_file_the_page_names_exists() -> None:
 
 def _resolve(dotted: str) -> bool:
     """``dotted`` is a module attribute (``scale.FROZEN_KEYS``) of a retail module or of the
-    package: import the longest module prefix, then walk the rest as attributes."""
+    package: import the longest module prefix, then walk the rest as attributes. A bare retail
+    module name is a module of ``synthetic_ecommerce_data.domains.retail`` (#125)."""
     parts = dotted.split(".")
+    if (RETAIL / f"{parts[0]}.py").exists():
+        parts = ["synthetic_ecommerce_data", "domains", "retail", *parts]
     for i in range(len(parts) - 1, 0, -1):
         try:
             obj = importlib.import_module(".".join(parts[:i]))

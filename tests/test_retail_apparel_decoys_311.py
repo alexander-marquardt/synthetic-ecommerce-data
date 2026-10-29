@@ -12,31 +12,29 @@ from __future__ import annotations
 import json
 import math
 import re
-import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import (
+    decor_rows,
+    decoy_rows,
+    details,
+    export,
+    garden_rows,
+    image_release,
+    main_colors,
+    mens_depth_rows,
+    neckline_rows,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import baseline_rank as br  # noqa: E402
-import decor_rows  # noqa: E402
-import decoy_apparel as da  # noqa: E402
-import decoy_rows  # noqa: E402
-import details  # noqa: E402
-import export  # noqa: E402
-import garden_rows  # noqa: E402
-import image_release  # noqa: E402
-import main_colors  # noqa: E402
-import mens_depth_rows  # noqa: E402
-import neckline_rows  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 DEPARTMENTS = {"Clothing", "Footwear", "Lingerie & Nightwear"}
 ROOTS = {"Womens", "Mens", "Kids"}

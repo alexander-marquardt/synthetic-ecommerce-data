@@ -1,6 +1,6 @@
 # Electronics: phones, computers, tablets and their accessories (gen#332)
 
-The department has 15 product types in `prototypes/retail_drawings/type_specs/` (one spec each) and
+The department has 15 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
 154 template styles: 66 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers)
 and 88 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
 mice, keyboards, monitors). The rows are in `electronics_rows.py`; the drawings are in

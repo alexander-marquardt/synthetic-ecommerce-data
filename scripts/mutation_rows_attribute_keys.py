@@ -12,7 +12,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _T = "tests/test_retail_attribute_keys_227.py"
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _LAMP = 'attr("item_height", "Item height", 46, "CMT", 460.0)'
 #: The coffee table's entry in furniture_rows.py, up to its closing parenthesis.
 _FEATURE = (

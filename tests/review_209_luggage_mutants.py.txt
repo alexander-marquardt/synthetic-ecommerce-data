@@ -1,6 +1,6 @@
 TESTS = ["tests/test_retail_luggage_209.py"]
 PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
-R = "prototypes/retail_drawings/"
+R = "src/synthetic_ecommerce_data/domains/retail/"
 L = "tests/test_retail_luggage_209.py::"
 S = "tests/test_retail_scale.py::"
 MUTANTS = [

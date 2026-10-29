@@ -1,7 +1,7 @@
 """Mutation rows for the olive oil decoys (gen#686), kept out of ``mutation_check.py``. Each row
 plants one defect on a changed line and names the test that must go red. Found by
 ``mutation_row.discover``; ``--only "olive oil:"`` re-runs them. The root is
-``prototypes/retail_drawings``.
+``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations

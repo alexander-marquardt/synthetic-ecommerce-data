@@ -9,17 +9,13 @@ ceiling build, nested and flat.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
-from pathlib import Path
 from typing import Any
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import name_guard  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    name_guard,
+    scale,
+)
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 

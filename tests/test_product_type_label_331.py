@@ -7,9 +7,6 @@ it is plain English from one table, and a retail product's label is its ``produc
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
 from synthetic_ecommerce_data.core import emit, standard
@@ -18,7 +15,6 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.taxonomy import LEAVES
 from synthetic_ecommerce_data.domains.industrial.type_labels import PRODUCT_TYPE_LABELS, label_for
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 CATALOG = generate(SMALL)
 
 
@@ -80,9 +76,7 @@ def test_the_standard_requires_the_label():
 
 
 def test_a_retail_product_is_labelled_by_its_type():
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import export  # noqa: PLC0415 -- the prototype's own directory is its import root
+    from synthetic_ecommerce_data.domains.retail import export  # noqa: PLC0415
 
     docs = export.documents()
     assert [d["product_id"] for d in docs if d.get("product_type_label") != d["product_type"]] == []

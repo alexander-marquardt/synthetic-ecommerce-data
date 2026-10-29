@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-RETAIL = "prototypes/retail_drawings"
+RETAIL = "src/synthetic_ecommerce_data/domains/retail"
 SRC = "src/synthetic_ecommerce_data"
 TESTS = "tests/test_retail_lighting_197.py"
 

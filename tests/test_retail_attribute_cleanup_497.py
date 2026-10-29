@@ -8,15 +8,13 @@ past the ceiling), not the helper alone.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
-from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"))
-
-import attribute_cleanup  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
+    scale,
+)
 
 
 def _e(key: str, value: Any) -> dict[str, Any]:
