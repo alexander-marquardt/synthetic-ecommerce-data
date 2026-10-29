@@ -52,7 +52,8 @@ class GeneratorConfig:
     #: THE one knob for the variant distribution (maintainer, 2026-09-27):
     #: about half of products are single-SKU, the rest 2-5, skewed small, as on
     #: a marketplace. A product never offers more variants than its series has
-    #: members, so a draw is capped by the pool it is taken from.
+    #: members, so a draw is capped by the pool it is taken from. The grouped
+    #: products of a few types draw their type's own table instead (``grouped``).
     variants_per_product: tuple[tuple[int, float], ...] = (
         (1, 0.50),
         (2, 0.25),
@@ -77,6 +78,11 @@ class GeneratorConfig:
     #: Stock a SKU for every requirement example (:mod:`.muststock`), after
     #: the main generation, whatever the random streams drew.
     must_stock: bool = True
+
+    #: Add the grouped products (:mod:`..domains.industrial.grouped`, #710) after the
+    #: must-stock pass: product families whose SKU count follows their type's own table
+    #: rather than ``variants_per_product``. Off, the catalog is exactly the flat one.
+    grouped: bool = True
 
     #: Products per NEWER product type, as a SHARE of ``lines``: a type with
     #: share ``s`` gets ``round(lines * s)`` products (:attr:`new_type_products`).
