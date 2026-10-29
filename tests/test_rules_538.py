@@ -5,7 +5,8 @@ style beside the neckline and length it allows, sentence case, one key per conce
 two-word seeds) were a test file per issue, each building its own catalogue. They are functions of
 ``domains/retail/rules.py`` now. This file runs each over each row set it is declared
 for, against the explicit allow-list ``rules_allow.toml``, a minimum count of rows examined, and
-a planted breach of each rule that the rule must find.
+a planted breach of each rule that the rule must find. The industrial row sets are handed in from
+``rule_rowsets``, above ``domains/``, since a domain never imports another (#716).
 """
 
 from __future__ import annotations
@@ -16,12 +17,13 @@ from typing import Any
 
 import pytest
 
+from synthetic_ecommerce_data import rule_rowsets
 from synthetic_ecommerce_data.domains.retail import (
     colorwords,
     rules,
 )
 
-CASES = [(r, name) for r in rules.RULES for name in r.minimum]
+CASES = rules.declared(rule_rowsets.ROWSETS)
 
 #: The seven rules the issue names, one function each.
 NAMED = {
@@ -42,10 +44,10 @@ def rowset(name: str) -> list[dict[str, Any]]:
 
 @pytest.fixture(scope="module")
 def reports() -> dict[tuple[str, str], rules.Report]:
-    return rules.run_all()
+    return rules.run_all(rule_rowsets.ROWSETS)
 
 
-def _id(case: tuple[rules.Rule, str]) -> str:
+def _id(case: tuple[rules.Rule, str, int]) -> str:
     return f"{case[0].name}-{case[1]}"
 
 
@@ -58,11 +60,22 @@ def test_every_row_set_a_rule_names_has_a_loader():
     assert {name for r in rules.RULES for name in r.minimum} <= set(rules.ROWSETS)
 
 
+def test_the_industrial_rows_are_handed_in_with_their_minima_and_name_rules_that_exist():
+    """The industrial row sets left ``rules.py`` (#716), and the rules still examine as many of
+    their rows as before."""
+    assert not set(rule_rowsets.ROWSETS) & set(rules.ROWSETS)
+    assert {(r.name, name): least for r, name, least in CASES if name.startswith("industrial")} == {
+        ("sentence_case", "industrial"): 400,
+        ("sentence_case", "industrial_flat"): 800,
+        ("one_key_per_concept", "industrial"): 400,
+    }
+
+
 @pytest.mark.parametrize("case", CASES, ids=_id)
 def test_a_rule_holds_over_every_row_it_applies_to(reports, case):
-    rule, name = case
+    rule, name, least = case
     seen, found = reports[(rule.name, name)]
-    assert seen >= rule.minimum[name], f"{rule.name} examined {seen} rows of {name}"
+    assert seen >= least, f"{rule.name} examined {seen} rows of {name}"
     excused = rules.allowed().get(rule.name, set())
     assert [f for f in found if f[0] not in excused] == []
 

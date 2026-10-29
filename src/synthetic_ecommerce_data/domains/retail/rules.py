@@ -9,6 +9,11 @@ minimum count of rows examined (a rule that examines nothing proves nothing) and
 of each rule that must be found. A new rule is a function and a line of :data:`RULES`; a new row
 set is a loader in :data:`ROWSETS`; no new test file holds either.
 
+A row set another domain builds is not loaded here: a domain reaches core only, never another
+domain (#125). The layer above ``domains/`` hands it in as a :class:`RowSet`, its loader beside
+the fewest rows each rule must examine in it, to :func:`run_all` (the industrial build's rows:
+``synthetic_ecommerce_data.rule_rowsets``, #716).
+
 The documents come in five shapes of one catalogue: ``templates`` (the retail products before
 they are scaled, with SKUs and color options), ``retail`` and ``retail_flat`` (the exported
 nested and per-SKU documents) and ``golden`` and ``golden_flat`` (the committed industrial and
@@ -18,11 +23,10 @@ shape has, and skips (does not count) a document it does not apply to.
 
 from __future__ import annotations
 
-import functools
 import json
 import re
 from collections import defaultdict
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -451,16 +455,9 @@ RULES: tuple[Rule, ...] = (
     Rule(
         sentence_case,
         "#499",
-        {
-            "retail": 250,
-            "retail_flat": 5000,
-            "industrial": 400,
-            "industrial_flat": 800,
-            "golden": 5000,
-            "golden_flat": 8000,
-        },
+        {"retail": 250, "retail_flat": 5000, "golden": 5000, "golden_flat": 8000},
     ),
-    Rule(one_key_per_concept, "#497", {"retail": 250, "industrial": 400, "golden": 5000}),
+    Rule(one_key_per_concept, "#497", {"retail": 250, "golden": 5000}),
     Rule(orange_shoes, "#420", {"templates": 9}),
     Rule(two_word_seeds, "#460, #461", {"templates": 40}),
 )  # fmt: skip
@@ -473,17 +470,6 @@ RULES: tuple[Rule, ...] = (
 
 def _golden(name: str) -> list[Doc]:
     return [json.loads(line) for line in (GOLDEN / name).read_text("utf-8").splitlines()]
-
-
-@functools.cache
-def _industrial() -> tuple[list[Doc], list[Doc]]:
-    """The small industrial build, nested and flat, as the exporter writes it."""
-    from synthetic_ecommerce_data.core import emit
-    from synthetic_ecommerce_data.core.config import SMALL
-    from synthetic_ecommerce_data.domains.industrial.generate import generate
-
-    catalog = generate(SMALL)
-    return list(emit.iter_nested(catalog)), list(emit.iter_flat(catalog))
 
 
 def _templates() -> list[Doc]:
@@ -508,8 +494,6 @@ ROWSETS: dict[str, Callable[[], list[Doc]]] = {
     "templates": _templates,
     "retail": _retail,
     "retail_flat": _retail_flat,
-    "industrial": lambda: _industrial()[0],
-    "industrial_flat": lambda: _industrial()[1],
     "golden": lambda: _golden("nested.jsonl"),
     "golden_flat": lambda: _golden("flat.jsonl"),
 }
@@ -528,15 +512,33 @@ def allowed() -> dict[str, set[str]]:
     return {rule: {e["id"] for e in body.get("allow", ())} for rule, body in allow_table().items()}
 
 
-def run_all(rowsets: Iterable[str] | None = None) -> dict[tuple[str, str], Report]:
-    """``{(rule, row set): report}`` for every rule over every row set it is declared for."""
+@dataclass(frozen=True)
+class RowSet:
+    """A row set the layer above ``domains/`` hands the rules: its loader and, by rule name, the
+    fewest rows each rule it is declared for must examine in it (#716)."""
+
+    load: Callable[[], list[Doc]]
+    minimum: dict[str, int]
+
+
+def declared(more: Mapping[str, RowSet] | None = None) -> list[tuple[Rule, str, int]]:
+    """``(rule, row set, fewest rows)`` for every rule over every row set it is declared for: by
+    the rule over :data:`ROWSETS`, and by each row set of ``more``."""
+    by_name = {rule.name: rule for rule in RULES}
+    out = [(rule, name, least) for rule in RULES for name, least in rule.minimum.items()]
+    for name, rowset in (more or {}).items():
+        out += [(by_name[rule], name, least) for rule, least in rowset.minimum.items()]
+    return out
+
+
+def run_all(more: Mapping[str, RowSet] | None = None) -> dict[tuple[str, str], Report]:
+    """``{(rule, row set): report}`` for every rule over every row set it is declared for, the
+    row sets of ``more`` too."""
+    loaders = {**ROWSETS, **{name: rowset.load for name, rowset in (more or {}).items()}}
     loaded: dict[str, list[Doc]] = {}
     out: dict[tuple[str, str], Report] = {}
-    for rule in RULES:
-        for name in rule.minimum:
-            if rowsets is not None and name not in rowsets:
-                continue
-            if name not in loaded:
-                loaded[name] = ROWSETS[name]()
-            out[(rule.name, name)] = rule.check(loaded[name])
+    for rule, name, _ in declared(more):
+        if name not in loaded:
+            loaded[name] = loaders[name]()
+        out[(rule.name, name)] = rule.check(loaded[name])
     return out
