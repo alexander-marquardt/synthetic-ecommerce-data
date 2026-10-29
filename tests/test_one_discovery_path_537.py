@@ -35,7 +35,7 @@ import check_no_registry_append as guard  # noqa: E402
 PLANTED_KEY = "zz_planted_537"
 PLANTED = textwrap.dedent(
     """
-    from type_registry import Row, TypeSpec, a, cw
+    from synthetic_ecommerce_data.domains.retail.type_registry import Row, TypeSpec, a, cw
 
     SPEC = TypeSpec(
         key="zz_planted_537",
@@ -162,7 +162,7 @@ def _plant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, derivable: bool) -> 
         PLANTED.format(derivable=derivable), encoding="utf-8"
     )
     monkeypatch.setattr(type_specs, "__path__", [*type_specs.__path__, str(tmp_path)])
-    monkeypatch.delitem(sys.modules, f"type_specs.{PLANTED_KEY}", raising=False)
+    monkeypatch.delitem(sys.modules, f"{type_specs.__name__}.{PLANTED_KEY}", raising=False)
     type_registry.specs.cache_clear()
     left_out = getattr(scale, "left_out", None)
     if left_out is not None:
@@ -172,7 +172,7 @@ def _plant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, derivable: bool) -> 
 @pytest.fixture(autouse=True)
 def _forget_the_planted_spec():
     yield
-    sys.modules.pop(f"type_specs.{PLANTED_KEY}", None)
+    sys.modules.pop(f"{type_specs.__name__}.{PLANTED_KEY}", None)
     type_registry.specs.cache_clear()
     left_out = getattr(scale, "left_out", None)
     if left_out is not None:

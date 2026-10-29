@@ -75,7 +75,9 @@ a shape the kit lacks is defined in this module and added with ``kit.register``.
 
 from __future__ import annotations
 
-from type_registry import {imports}
+from synthetic_ecommerce_data.domains.retail.type_registry import (
+{imports}
+)
 
 SPEC = TypeSpec(
     key="{key}",
@@ -132,7 +134,8 @@ def render(key: str, kind: str, ptype: str, code: str | None = None) -> str:
         department=spec["department"], path=spec["path"].format(leaf=leaf),
         code=code or pick_code(key, set()), brand=spec["brand"],
         shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
-        imports=spec["imports"], apparel=spec["apparel"].format(ptype=ptype),
+        imports="\n".join(f"    {n}," for n in spec["imports"].split(", ")),
+        apparel=spec["apparel"].format(ptype=ptype),
         colorless=spec["colorless"], extra=spec["extra"],
         derivable="True" if kind == "beauty" else "False",
     )  # fmt: skip

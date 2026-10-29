@@ -122,7 +122,8 @@ def test_the_worked_example_is_drawn_by_the_kit_module_the_section_names() -> No
     assert len(shapes) == 1, shapes
     (shape,) = shapes
     module = kit.SHAPES[shape].__module__
-    assert f"src/synthetic_ecommerce_data/domains/retail/{module}.py" in _section(), module
+    path = module.removeprefix("synthetic_ecommerce_data.domains.retail.").replace(".", "/")
+    assert f"src/synthetic_ecommerce_data/domains/retail/{path}.py" in _section(), module
 
 
 def test_the_section_says_a_retail_type_has_no_part_number_block() -> None:
