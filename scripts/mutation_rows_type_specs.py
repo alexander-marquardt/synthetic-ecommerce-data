@@ -17,7 +17,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'KEY = re.compile(r"[A-Za-z][A-Za-z0-9_]*")',
         'tests/test_retail_type_specs_351.py -k "malformed and capital"',
         "a spec key is lower-case words joined by underscores",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a spec with no rows is accepted",
@@ -26,7 +26,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "    if False:\n",
         'tests/test_retail_type_specs_351.py -k "malformed and rows"',
         "a type has at least one row",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a row code may be used twice",
@@ -35,7 +35,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "codes.count(c) > 2",
         'tests/test_retail_type_specs_351.py -k "malformed and duplicate"',
         "a row code is used once",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a row may belong to another product type",
@@ -44,7 +44,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if (r.department, r.product_type) != (r.department, r.product_type):",
         'tests/test_retail_type_specs_351.py -k "malformed and product"',
         "every row is the spec's own type",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a row may sell a brand with no owner",
@@ -53,7 +53,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         'tests/test_retail_type_specs_351.py -k "malformed and owner"',
         "every brand has an owner",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a decoy may carry an unknown class",
@@ -62,7 +62,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         'tests/test_retail_type_specs_351.py -k "malformed and unknown"',
         "a decoy class is 1 to 8",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a decoy is derived from",
@@ -71,7 +71,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "out |= ids_of(spec) if spec.derivable else ids_of(spec)",
         "tests/test_retail_type_specs_351.py -k a_spec_decides_whether",
         "a spec decoy is never derived from",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a non-derivable spec is derived from",
@@ -80,7 +80,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "out |= decoy_ids_of(spec)",
         "tests/test_retail_type_specs_351.py -k a_spec_decides_whether",
         "a spec says whether its rows are derived from",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the registry skips a spec file whose key is not its name",
@@ -89,7 +89,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k key_is_not_its_name",
         "a spec file is named for its key",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the registry accepts a module with no SPEC",
@@ -98,7 +98,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k module_without_a_spec",
         "a module of type_specs declares a SPEC",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "two specs may declare one product type",
@@ -107,7 +107,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k two_specs_for_one_product_type",
         "a type is declared by one spec",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the scaffold overwrites a spec",
@@ -134,7 +134,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if elsewhere := []:",
         "tests/test_retail_type_specs_351.py -k outside_a_spec_file_is_a_problem",
         "a built type is declared by a spec file",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the guard overlooks a spec type that is not built",
@@ -143,7 +143,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k spec_type_that_is_not_built",
         "a spec type is built",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the shared Sports module lists the rows of every department",
@@ -152,7 +152,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if True",
         "tests/test_retail_legacy_move_455.py -k shared_sports_module",
         "the shared Sports module lists the department's rows and no other",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a spec may carry a plan and an exemption",
@@ -161,7 +161,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a type is planned or exempt, never both",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a spec may name an unknown word family",
@@ -170,7 +170,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a plan names a word family the decoys have",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a plan may name no class 2 compound",
@@ -179,7 +179,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a plan names the real compounds its class 2 decoys use (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a compound may name a word its phrase lacks",
@@ -188,7 +188,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a compound's word is in its phrase (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 6 range name holds a color again",
@@ -197,7 +197,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '                            title=f"{c} {name} {noun}",\n',
         "tests/test_retail_apparel_decoys_311.py -k range_name_never_holds_a_color",
         "a range name never holds a color: 'Red Harbour Dress' reads as a red dress (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 2 title is a compound no shopper says",
@@ -206,7 +206,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '                        title=f"{c} {word.title()} {noun}",\n',
         "tests/test_retail_apparel_decoys_311.py -k outside_the_real_compounds",
         "a class 2 title is one of the real compounds (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 7 drawing colors a part again",
@@ -215,7 +215,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '    if cls not in (1, 7) or o["word"] not in MAIN_WORDS:\n',
         "tests/test_retail_apparel_decoys_311.py -k range_name_never_holds_a_color",
         "a class 7 brand is the brand field and its drawing colors no part (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 2 table holds an invented compound",
@@ -224,7 +224,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '("sandal", "Ballet Sandals"), ("sneaker", "Ballet Sneakers")),',
         "tests/test_retail_apparel_decoys_311.py -k no_invented_compound",
         "the generator's class 2 table holds no phrase the reviewer named invented (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 2 table re-adds a live title reworded",
@@ -233,7 +233,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"Wedges": (("sneaker", "Sneaker Wedges"), ("sandal", "Sandal Wedges")),',
         "tests/test_retail_apparel_decoys_311.py -k live_title_reworded",
         "no class 2 phrase is a live title in another word order (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a type with two compounds is not declared short",
@@ -242,7 +242,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
         "a type with fewer than three real compounds is a declared exception (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a type with a path-blocked phrase is not declared short",
@@ -251,7 +251,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
         "a phrase _in_path blocks on every path of its type is no compound (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a relative lace command is read as a page point",
@@ -260,7 +260,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "            cmd, nums = tok.upper(), []\n",
         "tests/test_retail_apparel_decoys_311.py -k relative_path_command",
         "a lace trim's offsets never move the box a part is placed on (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a class 2 description uses the wrong article",
@@ -269,7 +269,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "Not a {word}.',",
         "tests/test_retail_scale.py -k every_article_agrees",
         "a class 2 description says an before a vowel (#444)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a plan may hold fewer than three decoys per class",
@@ -278,7 +278,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "a class holds at least three decoys",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a beauty spec may carry an apparel plan",
@@ -287,7 +287,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k malformed_apparel",
         "only the apparel departments carry apparel decoys",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a clothing spec with no plan or exemption is accepted",
@@ -296,7 +296,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "        elif False:\n",
         "tests/test_retail_type_specs_351.py -k no_apparel_plan_or_exemption",
         "a clothing type is planned or exempt",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "an exempt spec is planned for decoys",
@@ -305,7 +305,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "            pass\n",
         "tests/test_retail_type_specs_351.py -k exempt_clothing_spec",
         "an exempt type carries no decoys",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a spec type is numbered by its place in the plan",
@@ -314,7 +314,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'prefix = f"S{len(types):03d}"',
         "tests/test_retail_type_specs_351.py -k adding_a_spec_type_moves_no_other_decoy_id",
         "a decoy id does not move when a type is added",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a spec type is planned twice, here and in the plan",
@@ -323,7 +323,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k planned_twice",
         "a type has one apparel plan",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the scaffold writes a clothing spec with no apparel plan",
@@ -350,7 +350,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "if False:",
         "tests/test_retail_type_specs_351.py -k build_one_product_id",
         "a product id belongs to one spec",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the build may hold one product id twice",
@@ -359,7 +359,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "        if False:\n",
         "tests/test_retail_type_specs_351.py -k shared_row_already",
         "a spec id is not a shared row's id",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the build does not check its ids",
@@ -368,7 +368,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         "tests/test_retail_type_specs_351.py -k shared_row_already",
         "the build checks every id it assembles",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the scaffold ignores the codes in use",

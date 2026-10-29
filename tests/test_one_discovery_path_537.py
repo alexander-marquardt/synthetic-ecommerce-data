@@ -19,16 +19,18 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.domains.retail import (
+    scale,
+    type_registry,
+    type_specs,
+)
+
 ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-for _p in (str(RETAIL), str(ROOT / "scripts")):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
 
 import check_no_registry_append as guard  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-import type_specs  # noqa: E402
 
 PLANTED_KEY = "zz_planted_537"
 PLANTED = textwrap.dedent(
@@ -126,7 +128,7 @@ def _source_docs(name: str) -> list[dict]:
         return [d for recs in scale.samples().values() for d in recs]
     if name == "grocery":
         return scale.grocery.build()
-    return importlib.import_module(name).docs()
+    return importlib.import_module(f"synthetic_ecommerce_data.domains.retail.{name}").docs()
 
 
 def test_every_row_of_a_shared_source_is_homed_by_a_spec() -> None:
@@ -210,9 +212,10 @@ def test_the_no_append_check_covers_the_whole_513_table() -> None:
         for ln in text.splitlines()
         if (m := re.match(r"\| `([^`]+)` \|.*\| nothing:", ln))
     }
-    listed = {p.removeprefix("prototypes/retail_drawings/") for p in _table_paths()}
+    retail = "src/synthetic_ecommerce_data/domains/retail/"
+    listed = {p.removeprefix(retail) for p in _table_paths()}
     wanted = {p for p in listed if p not in nothing}
-    short = {p.removeprefix("prototypes/retail_drawings/") for p in covered}
+    short = {p.removeprefix("src/synthetic_ecommerce_data/domains/retail/") for p in covered}
     assert sorted(wanted - short) == []
     assert sorted(p for p in covered if not (ROOT / p).exists()) == []
     assert not any(p.endswith("legacy_types.txt") for p in covered)

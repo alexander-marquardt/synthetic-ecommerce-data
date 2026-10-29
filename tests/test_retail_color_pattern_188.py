@@ -11,19 +11,15 @@ from __future__ import annotations
 
 import json
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402 -- the prototype's own directory is its import root
-import export  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    export,
+    scale,
+)
 
 #: Written out here on purpose: the test does not read the splitter's own word list.
 PATTERN_WORD = re.compile(

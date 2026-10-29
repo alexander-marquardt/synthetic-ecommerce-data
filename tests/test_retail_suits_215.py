@@ -11,21 +11,20 @@ legwear rule, ruled for gen#215 on 2026-10-28): a size, so the drawing does not 
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import mens_depth_rows  # noqa: E402
-import type_colors  # noqa: E402
-from class_model import LEGS3, derive_size_range  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    mens_depth_rows,
+    type_colors,
+)
+from synthetic_ecommerce_data.domains.retail.class_model import (
+    LEGS3,
+    derive_size_range,
+)
 
 #: type -> (its own shape, the key attributes each of its styles states as structured entries).
 TYPES = {
@@ -158,7 +157,7 @@ def test_styles_of_a_type_differ_on_what_a_shopper_filters(ptype: str) -> None:
 
 @pytest.mark.parametrize("ptype", TYPES)
 def test_a_type_offers_the_six_main_colors(ptype: str) -> None:
-    import scale
+    from synthetic_ecommerce_data.domains.retail import scale
 
     styles = [r for r in scale.templates() if r["product_type"] == ptype]
     offered = {type_colors.base_color(o["color"]) for r in styles for o in r["color_options"]}

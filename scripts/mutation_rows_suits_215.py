@@ -18,7 +18,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'axis_key="inside_leg", axis=_SUIT_LEGS[1:2],',
         "tests/test_retail_suits_215.py -k sell_each_leg",
         "suit trousers are sold in every leg as a SKU (gen#206)",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "no suit trousers style has a leg sold out",
@@ -27,7 +27,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "    return ()",
         "tests/test_retail_suits_215.py -k petite_filter",
         "a petite filter tells suit trousers styles apart",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a sold-out leg stays in stock",
@@ -36,7 +36,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"in_stock": s["in_stock"]}',
         "tests/test_retail_suits_215.py -k petite_filter",
         "a sold-out leg is out of stock on every SKU",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a size range counts the legs out of stock",
@@ -45,7 +45,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "served = {LENGTH_RANGE[s[self.axis_key]] for s in self.skus()}",
         "tests/test_retail_suits_215.py -k size_range_is_derived",
         "a size range is derived from the legs in stock",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a suit jacket is sold in one length",
@@ -54,7 +54,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'axis_key="length", axis=_JACKET_LENGTHS[:1],',
         "tests/test_retail_suits_215.py -k suit_jacket_sells_each_length",
         "a Mens suit jacket is sold in every length as a SKU",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "slim, tailored and regular jackets share one geometry",
@@ -63,7 +63,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '_JACKET = {"slim": (122, 116), "tailored": (122, 116), "regular": (122, 116)}',
         "tests/test_retail_suits_215.py -k cut_closer_to_the_body",
         "the fit changes the cut of a jacket, not only the stamp",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "slim, tailored and regular trousers share one leg width",
@@ -72,7 +72,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '_LEG_W = {"slim": 22, "tailored": 22, "regular": 22}',
         "tests/test_retail_suits_215.py -k geometry_not_only_the_stamp",
         "the fit changes the width of a trouser leg, not only the stamp",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "the notch lapel is drawn as the shawl",
@@ -81,7 +81,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '    if lapel == "notch" and False:',
         "tests/test_retail_suits_215.py -k geometry_not_only_the_stamp",
         "the lapel changes the path, not only the stamp",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a waistcoat record of four or six buttons is drawn with five",
@@ -90,7 +90,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '("buttons", "5")',
         "tests/test_retail_suits_215.py -k draws_what_its_record_states",
         "a waistcoat draws the button count its record states",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a decoy accessory drops its accessory type",
@@ -99,7 +99,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "            if False:",
         "tests/test_retail_suits_215.py -k decoy_accessory_states",
         "a decoy accessory states its accessory type",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "a three-button jacket is drawn with two buttons",
@@ -108,7 +108,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "        buttons=2,",
         "tests/test_retail_suits_215.py -k draws_as_many_buttons",
         "a jacket draws the button count its record states",
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         'a wide trouser leg is drawn as a straight one',
@@ -117,7 +117,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"wide": 24,',
         'tests/test_retail_suit_sets_215.py -k geometry_not_only_the_stamp',
         'the trouser leg fit changes the width of a leg, not only the stamp',
-        'prototypes/retail_drawings',
+        'src/synthetic_ecommerce_data/domains/retail',
     ),
     (
         'a three piece boys suit is drawn as two pieces',
@@ -126,7 +126,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'n = 2 if pieces == "3" else 2',
         'tests/test_retail_suit_sets_215.py -k its_pieces',
         'the pieces param changes the number of pieces drawn',
-        'prototypes/retail_drawings',
+        'src/synthetic_ecommerce_data/domains/retail',
     ),
     (
         'a double breasted jacket loses its second column of buttons',
@@ -135,7 +135,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'body += []',
         'tests/test_retail_suit_sets_215.py -k second_column_of_buttons',
         'a double breasted jacket draws its second column of buttons',
-        'prototypes/retail_drawings',
+        'src/synthetic_ecommerce_data/domains/retail',
     ),
     (
         'a collarless jacket is drawn with a lapel',
@@ -144,7 +144,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         'if lapel == "never":',
         'tests/test_retail_suit_sets_215.py -k neck_facing_and_no_lapel',
         'a collarless jacket draws its neck facing and no lapel',
-        'prototypes/retail_drawings',
+        'src/synthetic_ecommerce_data/domains/retail',
     ),
     (
         'the check suit jacket is drawn as a coat again',
@@ -153,7 +153,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"Suit Jacket", "coat", one(',
         'tests/test_retail_suit_sets_215.py -k old_suit_jacket_row',
         'the one old Suit Jacket row is drawn as a suit jacket',
-        'prototypes/retail_drawings',
+        'src/synthetic_ecommerce_data/domains/retail',
     ),
 ]
 

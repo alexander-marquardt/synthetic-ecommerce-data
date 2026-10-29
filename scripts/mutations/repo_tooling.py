@@ -15,8 +15,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "release default: the export step asks for a number past the ceiling",
         ".github/workflows/release.yaml",
-        'scale.py --skus "${RELEASE_SKUS:-ceiling}"',
-        'scale.py --skus "${RELEASE_SKUS:-10000000}"',
+        'retail.scale --skus "${RELEASE_SKUS:-ceiling}"',
+        'retail.scale --skus "${RELEASE_SKUS:-10000000}"',
         "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and export'",
         "",
         "the tag build asks for the ceiling",
@@ -25,8 +25,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "release default: the image step asks for a number past the ceiling",
         ".github/workflows/release.yaml",
-        'image_release.py --skus "${RELEASE_SKUS:-ceiling}"',
-        'image_release.py --skus "${RELEASE_SKUS:-10000000}"',
+        'retail.image_release --skus "${RELEASE_SKUS:-ceiling}"',
+        'retail.image_release --skus "${RELEASE_SKUS:-10000000}"',
         "tests/test_no_derived_files_536.py -k 'defaults_to_the_ceiling and image'",
         "",
         "the image build asks for the ceiling",
@@ -196,7 +196,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "label: a retail label drifts from its type",
-        "prototypes/retail_drawings/export.py",
+        "src/synthetic_ecommerce_data/domains/retail/export.py",
         '        "product_type_label": product_type,',
         '        "product_type_label": product_type.lower(),',
         "tests/test_product_type_label_331.py -k retail_product_is_labelled",
@@ -255,7 +255,7 @@ MUTATIONS: list[Mutation] = [
     # ---- the Sports & Outdoors second increment (gen#368) ----
     Mutation(
         "sports rows: a football style loses its yellow and its white",
-        "prototypes/retail_drawings/type_specs/football.py",
+        "src/synthetic_ecommerce_data/domains/retail/type_specs/football.py",
         '_PRIMARY, (_a("cover", "Cover", "Polyurethane")',
         '(RED, BLUE, GREEN, GREEN), (_a("cover", "Cover", "Polyurethane")',
         "tests/test_retail_sports_265.py::test_every_type_offers_the_six_main_colors_with_no_exception[Football]",
@@ -265,7 +265,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports rows: a football's ball size is stored without its unit",
-        "prototypes/retail_drawings/type_specs/football.py",
+        "src/synthetic_ecommerce_data/domains/retail/type_specs/football.py",
         'Option("ball_size", "ball_size", "Ball size", "C62")',
         'Option("ball_size", "ball_size", "Ball size", None)',
         "tests/test_retail_sports_265.py::test_a_measured_axis_is_on_every_sku_with_its_unit[Football]",
@@ -275,7 +275,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports drawing: a ringed yoga strap draws as a clipped one",
-        "prototypes/retail_drawings/kit_sports.py",
+        "src/synthetic_ecommerce_data/domains/retail/kit_sports.py",
         'if buckle.lower() == "clip":',
         "if True:",
         "tests/test_retail_sports_265.py::test_a_param_changes_the_drawing[yoga_strap]",
@@ -285,7 +285,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: a type loses one of its two decoys",
-        "prototypes/retail_drawings/decoy_product_words.py",
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
         '    _s(44, "s_blocks", "Building Blocks Set",\n       "A set of chunky building blocks for toddlers to stack, with a loose brick to start.",\n       "Blue", "block", "Yoga Block"),\n',
         "",
         "tests/test_retail_sports_decoys_368.py::test_a_sports_type_has_at_least_two_decoys",
@@ -295,7 +295,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: a decoy's target points at another type",
-        "prototypes/retail_drawings/decoy_product_words.py",
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
         '"badminton", "Badminton Set"),\n    _s(76',
         '"badminton", "Tennis Racket"),\n    _s(76',
         "tests/test_retail_sports_decoys_368.py::test_a_sports_type_has_at_least_two_decoys",
@@ -305,8 +305,8 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: a live type is exempted with no decoys",
-        "prototypes/retail_drawings/decoy_product_words.py",
-        'SPORTS_EXEMPT: dict[str, str] = {}',
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
+        "SPORTS_EXEMPT: dict[str, str] = {}",
         'SPORTS_EXEMPT: dict[str, str] = {"Football": "no decoys yet, tracked in #375"}',
         "tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt",
         "",
@@ -315,8 +315,8 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: an exemption names no follow-up issue",
-        "prototypes/retail_drawings/decoy_product_words.py",
-        'SPORTS_EXEMPT: dict[str, str] = {}',
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
+        "SPORTS_EXEMPT: dict[str, str] = {}",
         'SPORTS_EXEMPT: dict[str, str] = {"Football": "decoys are tracked later"}',
         "tests/test_retail_sports_decoys_368.py::test_every_sports_type_is_planned_or_exempt",
         "",
@@ -325,8 +325,8 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: a later type is added to the exempt set",
-        "prototypes/retail_drawings/decoy_product_words.py",
-        'SPORTS_EXEMPT: dict[str, str] = {}',
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
+        "SPORTS_EXEMPT: dict[str, str] = {}",
         'SPORTS_EXEMPT: dict[str, str] = {"Kickboard": "decoys are tracked in #375"}',
         "tests/test_retail_sports_decoys_368.py::test_the_exempt_set_is_empty",
         "",
@@ -335,7 +335,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "sports decoys: a live type outside the hand-written tuple has one decoy",
-        "prototypes/retail_drawings/decoy_product_words.py",
+        "src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py",
         '    _s(68, "s_scooter3", "Kickboard Scooter, Three Wheels",\n       "A kids\' scooter with three wheels and a wide kickboard deck.", "Blue", "kickboard",\n       "Kickboard"),\n',
         "",
         "tests/test_retail_sports_decoys_368.py::test_every_live_non_exempt_sports_type_has_at_least_two_decoys",

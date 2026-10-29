@@ -100,7 +100,7 @@ def repo(tmp_path: Path) -> Path:
     (root / "src" / "ok.py").write_text("VALUE = 1\n", encoding="utf-8")
     # test_us_spelling.py also scans the retail source and asserts the scope is not empty
     # (gen#291): the toy repository carries stand-in modules so that scan has a scope.
-    retail = root / "prototypes" / "retail_drawings"
+    retail = root / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
     retail.mkdir(parents=True)
     for i in range(21):
         (retail / f"stand_in_{i}.py").write_text(f"VALUE = {i}\n", encoding="utf-8")

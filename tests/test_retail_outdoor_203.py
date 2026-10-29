@@ -13,26 +13,21 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 import xml.dom.minidom
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import garden_rows  # noqa: E402
-import kit  # noqa: E402
-import kit_garden  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    garden_rows,
+    kit,
+    kit_garden,
+    main_colors,
+    scale,
+    tree_guard,
+    type_registry,
+)
 
 #: product type -> (spec key, shape, key attributes every style states, SKU axis (key, export
 #: key, unit code), the tree leaf's parent).

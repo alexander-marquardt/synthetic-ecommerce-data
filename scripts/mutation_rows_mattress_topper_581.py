@@ -10,7 +10,7 @@ from mutation_row import RETAIL_DRAWINGS, Row
 
 PREFIX = "mattress topper"
 
-_T = "prototypes/retail_drawings/test_mattress_topper.py"
+_T = "tests/test_mattress_topper.py"
 _FILE = "kit_home.py"
 
 

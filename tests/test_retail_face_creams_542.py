@@ -9,19 +9,15 @@ beauty brands, each with a house style of its own.
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import house_styles  # noqa: E402
-import real_brands  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    house_styles,
+    real_brands,
+    scale,
+)
 
 TYPE = "Face Cream"
 #: The line names the issue lists, as words of a title: every new brand sells day, night and SPF.

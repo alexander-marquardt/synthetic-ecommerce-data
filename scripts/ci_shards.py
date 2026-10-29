@@ -13,8 +13,8 @@ minutes of work on one core and merges are serial, so how fast a merge lands is 
 the slowest shard ends (``gen-merge-minutes``: docs/ci-sharding.md).
 
 Every test file lands in exactly one shard, by construction: the files pytest collects
-(``test_*.py`` and ``*_test.py`` under ``TEST_DIRS``: ``tests/`` and the retail drawing
-prototypes) are dealt out by the longest-first rule,
+(``test_*.py`` and ``*_test.py`` under ``TEST_DIRS``, which is ``tests/``) are dealt out by the
+longest-first rule,
 each to the shard with the least work so far, ties to the lower shard. A file's work is its
 measured seconds in ``scripts/ci_shard_weights.json``; a file with no entry (a new one)
 weighs ``DEFAULT_SECONDS``, so adding a test file never means editing the weights, and the
@@ -65,7 +65,7 @@ def keeps(index: int, shard: int, count: int) -> bool:
 
 #: The directories pytest collects: ``testpaths`` of ``pyproject.toml``, which
 #: ``tests/test_test_files_collected_362.py`` holds equal to this and to the tracked test files.
-TEST_DIRS: tuple[str, ...] = ("tests", "prototypes/retail_drawings")
+TEST_DIRS: tuple[str, ...] = ("tests",)
 
 
 def collected_test_files(root: Path = REPO) -> list[str]:

@@ -9,7 +9,7 @@ only when this page does not cover what you need.
 
 1. Scaffold the spec (about 10 s):
    `uv run python scripts/new_type.py <key> --kind clothing|beauty --product-type "<Type>"`
-   It writes `prototypes/retail_drawings/type_specs/<key>.py`: one `SPEC = TypeSpec(...)` with a
+   It writes `src/synthetic_ecommerce_data/domains/retail/type_specs/<key>.py`: one `SPEC = TypeSpec(...)` with a
    working example row. `<key>` is lower-case words joined by underscores and is the file name.
    The row code is the key cut to six letters, with a digit at the end when a registered spec
    already builds that id (two keys that start `specimen_` would build one `BRD-SPECIM`);
@@ -80,9 +80,9 @@ Use this when no shape in `kit.SHAPES` draws the product (a garden hose, a yoga 
 text-match decoys are products of other departments. Read this section and ONE worked example, not
 the repository:
 
-* `prototypes/retail_drawings/type_specs/garden_hose.py` (commit `bb49c3f`, PR #293): one spec,
+* `src/synthetic_ecommerce_data/domains/retail/type_specs/garden_hose.py` (commit `bb49c3f`, PR #293): one spec,
   its drawing `garden_hose` in `kit_garden.py`, a measured length axis, decoys in `garden_rows.py`;
-* `prototypes/retail_drawings/type_specs/yoga_block.py` (commit `49438fc`, PR #374): seventeen
+* `src/synthetic_ecommerce_data/domains/retail/type_specs/yoga_block.py` (commit `49438fc`, PR #374): seventeen
   Sports & Outdoors types, each a spec of two styles, its drawing in `kit_sports.py`, two
   cross-department decoys each in `decoy_product_words.py`.
 
@@ -94,17 +94,17 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 
 | File | Why |
 |---|---|
-| `prototypes/retail_drawings/type_specs/<key>.py` | The spec: the rows, the brands' owners, the in-department decoys. Start from a copy of the worked example; the file name is the key. |
-| `prototypes/retail_drawings/kit_garden.py` | The drawing function and its place in `SHAPES`, for a Garden type; the same job as the next row for another department (`kit_home.py`, `kit_toys.py`, `kit_household.py`). |
-| `prototypes/retail_drawings/kit_sports.py` | The same job for a Sports & Outdoors type; also exports the helpers (`_ell`, `_rect`, `_label`) the garden kit imports. A department with no kit file gets a new `kit_<department>.py`. |
-| `prototypes/retail_drawings/export.py` | Read only: `SHARED_OPTIONS` holds the options the types not yet moved into spec files share. A new SKU quantity is declared by the spec (`options=(Option("size_key", "id", "Name", "UNIT"),)`), and a key already in the table is reused. |
-| `prototypes/retail_drawings/main_color_hex.py` | Read only: the six main colors (gen#275) every color-bearing type offers across its styles, as plain swatches. |
-| `prototypes/retail_drawings/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
-| `prototypes/retail_drawings/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
-| `prototypes/retail_drawings/feature_decoys/<topic>.py` | New file, class 8 (gen#326): a product of another department whose title holds the shopper's word. It exposes `word_rows(d)` (one `d(...)` row per decoy) and `KINDS` when its product is not there yet; `decoy_product_words.py` finds it by walking the package and is not edited (gen#513). That file is the whole decoy set: no test is written for it, `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`) checks each row (unique id, a query word in the title, a field that contradicts it, a known policy, a drawing that renders) (gen#538). |
-| `prototypes/retail_drawings/rules.py` | Run, do not edit: one function per realism rule, run over every row of every build by `tests/test_rules_538.py`; a row the rule must not flag is a `[[rule.allow]]` entry with its reason in `rules_allow.toml`, never a skip in a test (gen#538). |
-| `prototypes/retail_drawings/garden_rows.py` | Where the Garden department keeps its decoys (gen#294): add the new type's `_QUERY` and `_ABSENT` entries (its query words and the absent word its decoys carry); another department keeps them in its own `*_rows.py`. |
-| `prototypes/retail_drawings/retail_figures.py` | Run it, never edit it: it rewrites the two generated files below. |
+| `src/synthetic_ecommerce_data/domains/retail/type_specs/<key>.py` | The spec: the rows, the brands' owners, the in-department decoys. Start from a copy of the worked example; the file name is the key. |
+| `src/synthetic_ecommerce_data/domains/retail/kit_garden.py` | The drawing function and its place in `SHAPES`, for a Garden type; the same job as the next row for another department (`kit_home.py`, `kit_toys.py`, `kit_household.py`). |
+| `src/synthetic_ecommerce_data/domains/retail/kit_sports.py` | The same job for a Sports & Outdoors type; also exports the helpers (`_ell`, `_rect`, `_label`) the garden kit imports. A department with no kit file gets a new `kit_<department>.py`. |
+| `src/synthetic_ecommerce_data/domains/retail/export.py` | Read only: `SHARED_OPTIONS` holds the options the types not yet moved into spec files share. A new SKU quantity is declared by the spec (`options=(Option("size_key", "id", "Name", "UNIT"),)`), and a key already in the table is reused. |
+| `src/synthetic_ecommerce_data/domains/retail/main_color_hex.py` | Read only: the six main colors (gen#275) every color-bearing type offers across its styles, as plain swatches. |
+| `src/synthetic_ecommerce_data/domains/retail/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
+| `src/synthetic_ecommerce_data/domains/retail/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
+| `src/synthetic_ecommerce_data/domains/retail/feature_decoys/<topic>.py` | New file, class 8 (gen#326): a product of another department whose title holds the shopper's word. It exposes `word_rows(d)` (one `d(...)` row per decoy) and `KINDS` when its product is not there yet; `decoy_product_words.py` finds it by walking the package and is not edited (gen#513). That file is the whole decoy set: no test is written for it, `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`) checks each row (unique id, a query word in the title, a field that contradicts it, a known policy, a drawing that renders) (gen#538). |
+| `src/synthetic_ecommerce_data/domains/retail/rules.py` | Run, do not edit: one function per realism rule, run over every row of every build by `tests/test_rules_538.py`; a row the rule must not flag is a `[[rule.allow]]` entry with its reason in `rules_allow.toml`, never a skip in a test (gen#538). |
+| `src/synthetic_ecommerce_data/domains/retail/garden_rows.py` | Where the Garden department keeps its decoys (gen#294): add the new type's `_QUERY` and `_ABSENT` entries (its query words and the absent word its decoys carry); another department keeps them in its own `*_rows.py`. |
+| `src/synthetic_ecommerce_data/domains/retail/retail_figures.py` | Run it, never edit it: it rewrites the two generated files below. |
 | `golden-retail/stats.json` | The measured figures of the build; generated by `scripts/build_derived.py` into the `derived` CI artifact, and NOT in git (gen#536): a test reads `retail_figures.figures()`. |
 | `docs/retail-apparel-decoys.md` | The apparel decoy table; generated into the `derived` CI artifact, and NOT in git (gen#536), whether or not your type is apparel. |
 | `docs/retail-product-word-decoys.md` | Holds no table and no feature section (the guard refuses both); the built page `docs/retail-product-word-decoys-table.md` is a derived file. A decoy feature's prose is a new page, `docs/retail-product-word-decoys/<topic>-<issue>.md` (gen#659). |
@@ -132,7 +132,7 @@ registry finds the module and feeds the scaled build; the decoy tables find `fea
    Add it to the file's `SHAPES` dict; the `register(SHAPES)` call at the foot of the file puts the
    dict into `kit.SHAPES`. The spec imports the kit module (`import kit_garden  # noqa: F401 --
    registers garden_hose`), so the shape exists before the row is built. Look at it (import the kit module first, with
-   `prototypes/retail_drawings` on `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"),
+   `src/synthetic_ecommerce_data/domains/retail` on `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"),
    params={...})`, write the SVG to a file and `rsvg-convert -o shape.png shape.svg`.
 2. **Write the rows** in the spec: each style is a `Row` of colors times a SKU axis (`sizes`, or
    the measured `size_key` axis with its unit in the spec's `options=`). The six main colors are spread
@@ -157,7 +157,7 @@ registry finds the module and feeds the scaled build; the decoy tables find `fea
    Garden at least three of each of five classes (`garden_rows.py`); Clothing, Footwear and
    Lingerie by their `ApparelPlan`. Elsewhere no test counts them: say in the PR how many you
    planted and why that suffices.
-4. **Regenerate** with `uv run python prototypes/retail_drawings/retail_figures.py`, and update
+4. **Regenerate** with `uv run python -m synthetic_ecommerce_data.domains.retail.retail_figures`, and update
    the department note.
 5. **Pin it** with a test file of its own, copied from `tests/test_retail_garden_292.py`: the
    title and department, two styles from two brands, the unit on every SKU, a param that changes
@@ -189,10 +189,10 @@ names the file that replaces it:
 | Shared file | The line a feature used to add | What a feature adds instead |
 |---|---|---|
 | `scripts/mutation_check.py` | an import or a wrapper per rows file | `scripts/mutation_rows_<topic>.py` with `PREFIX` and `rows()` |
-| `prototypes/retail_drawings/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
+| `src/synthetic_ecommerce_data/domains/retail/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
 | `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
 | `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
-| `prototypes/retail_drawings/line_grammar.py` | a `FAMILIES` row, a vocabulary constant, a `fam == ...` branch, a docstring bullet for a numbered family | `line_grammar_families/<family>.py` with `KINDS`, `LEADS`, `NUMBERS` and `SUBS` (gen#513); the walk refuses a kind, a lead word or a name-like word another family holds |
+| `src/synthetic_ecommerce_data/domains/retail/line_grammar.py` | a `FAMILIES` row, a vocabulary constant, a `fam == ...` branch, a docstring bullet for a numbered family | `line_grammar_families/<family>.py` with `KINDS`, `LEADS`, `NUMBERS` and `SUBS` (gen#513); the walk refuses a kind, a lead word or a name-like word another family holds |
 | `tests/test_retail_scale.py` | a test function over the ceiling build | `tests/test_retail_scale_<topic>_<issue>.py` taking the build from `tests/retail_ceiling.py` (`ceiling_build()`) |
 | `tests/test_retail_pattern_facet_408.py` | the template and SKU counts, rewritten in two asserts | nothing: the pin is derived from the per-source counts of `retail_figures.measure()` (#648), and `tests/test_no_literal_fleet_total_644.py` refuses a typed count |
 | `docs/retail-prototype.md` | a section heading for the feature, at the end of the page | its own page, `docs/retail-prototype/<topic>-<issue>.md` |

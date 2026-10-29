@@ -23,7 +23,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "",
         _PLATES,
         _PROP,
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "every plate material weighs the same",
@@ -32,7 +32,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"bone": 1.0, "porcelain": 1.0, "enamel": 1.0, "melamine": 1.0,',
         _ORDER,
         _PROP,
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "melamine costs more than stoneware",
@@ -41,7 +41,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"melamine": 1.4,',
         _ORDER,
         _PROP,
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
     (
         "bone china costs less than stoneware",
@@ -50,7 +50,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         '"bone": 0.9,',
         _ORDER,
         _PROP,
-        "prototypes/retail_drawings",
+        "src/synthetic_ecommerce_data/domains/retail",
     ),
 ]
 

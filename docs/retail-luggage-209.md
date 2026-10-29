@@ -3,7 +3,7 @@
 The catalog held a wash bag and a few "Travel Cases" decoys, so a search for a suitcase, a cabin
 bag, a holdall, a weekend bag, a luggage set, a packing cube or a neck pillow found a make-up bag
 or nothing, and size, shell and wheel filters could not be shown for a high-volume family. Each
-type below is its own spec under `prototypes/retail_drawings/type_specs/` (the quick path in
+type below is its own spec under `src/synthetic_ecommerce_data/domains/retail/type_specs/` (the quick path in
 [new-type-quick-path.md](new-type-quick-path.md)), built from the shared pieces in
 `luggage_common.py` and drawn by `kit_luggage.py`. The styles are templates only (`derivable`
 False): the range grows by authored rows. `tests/test_retail_luggage_209.py` holds the table below.

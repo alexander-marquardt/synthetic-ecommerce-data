@@ -14,18 +14,14 @@ loaded catalogue the issue measured.
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import sale_share  # noqa: E402 -- the prototype's own directory is its import root
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    sale_share,
+    scale,
+)
 
 ON_SALE = "On sale"
 #: "At least a few hundred products ... across at least three product types each" (the issue).

@@ -22,22 +22,20 @@ added here with it; a shape missing here only makes this check stricter than the
 from __future__ import annotations
 
 import re
-import sys
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import export  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core import standard  # noqa: E402
 
 #: The bare retail keys the projection renames, and what each becomes.
 RENAMED_KEYS = {"length": "garment_length", "width": "fit_width"}

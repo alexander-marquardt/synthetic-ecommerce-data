@@ -10,23 +10,21 @@ under that one key, not as a second "Minimum color temperature" key.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.letter_case import sentence_case
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_rows,
+    export,
+    scale,
+    type_registry,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import decoy_rows  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.letter_case import sentence_case  # noqa: E402
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: kelvin -> the name printed on a bulb box for it.
 BOX = {2700: "Warm White", 3000: "Soft White", 4000: "Cool White", 6500: "Daylight"}

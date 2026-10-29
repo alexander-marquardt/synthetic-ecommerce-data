@@ -8,17 +8,11 @@ Built at a small size: every depth family plants at least one style at any size.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import grocery  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import grocery
 
 DRINKS = ["Food & drink", "Beer, wine & spirits"]
 FRUIT = ["Food & drink", "Fruit & vegetables", "Fresh fruit"]

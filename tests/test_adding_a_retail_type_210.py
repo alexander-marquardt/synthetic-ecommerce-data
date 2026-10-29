@@ -22,9 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_derived  # noqa: E402
 
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
 DOC = ROOT / "docs" / "adding-a-retail-type.md"
 

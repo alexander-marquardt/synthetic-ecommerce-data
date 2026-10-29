@@ -10,20 +10,19 @@ ingredient facts are the grocery build's own and a re-drawn title would contradi
 from __future__ import annotations
 
 import collections
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    image_release,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
-import grocery  # noqa: E402
-import image_release  # noqa: E402
-import scale  # noqa: E402
-from retail_figures import figures  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()["templates"]

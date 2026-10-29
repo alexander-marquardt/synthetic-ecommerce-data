@@ -2,7 +2,7 @@
 
 ``decoy_rows.py`` (classes 1 to 7 and 9) and ``decoy_product_words.py`` (class 8) were registries:
 each feature appended a row to a ``TABLE`` tuple and a ``Kind`` to a ``KINDS`` dict, so 3 and 4 of
-the 18 open PRs on 2026-10-18 edited each. A module under ``prototypes/retail_drawings/
+the 18 open PRs on 2026-10-18 edited each. A module under ``domains/retail/
 feature_decoys/`` now exposes ``KINDS`` (new kinds), ``decoy_rows(d)`` and ``word_rows(d)`` (rows
 built with the table's own row maker) and the two tables read it. The first group of tests plants
 a probe module in a throwaway directory that is put on the package path and asserts that the
@@ -23,10 +23,9 @@ from typing import Any
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 PROBE = """
-from decoy_kind import Kind
+from synthetic_ecommerce_data.domains.retail.decoy_kind import Kind
 
 KINDS = {
     "zz_cushion": Kind("Home", ("Home", "Soft Furnishings", "Cushions"), "Cushion", "cushion",
@@ -50,10 +49,10 @@ def word_rows(d):
 
 REPORT = """
 import json, sys
-sys.path.insert(0, {retail!r})
-import feature_decoys
+from synthetic_ecommerce_data.domains.retail import feature_decoys
 feature_decoys.__path__.append({extra!r})
-import decoy_rows, decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import decoy_rows
 print(json.dumps({{
     "decoy_table": [d.code for d in decoy_rows.TABLE if d.code.startswith("ZZ")],
     "decoy_ids": sorted(i for i in decoy_rows.IDS if "ZZ" in i),
@@ -72,7 +71,7 @@ def _report(tmp_path: Path, modules: dict[str, str]) -> subprocess.CompletedProc
     extra.mkdir()
     for name, text in modules.items():
         (extra / f"{name}.py").write_text(text, encoding="utf-8")
-    code = REPORT.format(retail=str(RETAIL), extra=str(extra))
+    code = REPORT.format(extra=str(extra))
     return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
 
 
@@ -115,13 +114,12 @@ def test_a_module_whose_decoy_reuses_a_code_of_the_table_is_refused(tmp_path):
 @pytest.fixture
 def package(tmp_path, monkeypatch):
     """The package with its path replaced by an empty directory the test fills."""
-    monkeypatch.syspath_prepend(str(RETAIL))
-    import feature_decoys
+    from synthetic_ecommerce_data.domains.retail import feature_decoys
 
     where = tmp_path / "pkg"
     where.mkdir()
     monkeypatch.setattr(feature_decoys, "__path__", [str(where)])
-    for name in [n for n in sys.modules if n.startswith("feature_decoys.")]:
+    for name in [n for n in sys.modules if n.startswith(f"{feature_decoys.__name__}.")]:
         monkeypatch.delitem(sys.modules, name)
     return feature_decoys, where
 
@@ -179,10 +177,9 @@ def test_a_module_kind_that_the_word_table_already_holds_is_refused_naming_it(tm
 
 CONTRACT = """
 import json, sys
-sys.path.insert(0, {retail!r})
-import feature_decoys
+from synthetic_ecommerce_data.domains.retail import feature_decoys
 feature_decoys.__path__.append({extra!r})
-import decoy_contract
+from synthetic_ecommerce_data.domains.retail import decoy_contract
 print(json.dumps(decoy_contract.violations()))
 """
 
@@ -193,7 +190,7 @@ def _contract(tmp_path: Path, probe: str | None) -> list[str]:
     extra.mkdir()
     if probe is not None:
         (extra / "zz_probe.py").write_text(probe, encoding="utf-8")
-    code = CONTRACT.format(retail=str(RETAIL), extra=str(extra))
+    code = CONTRACT.format(extra=str(extra))
     done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
     assert done.returncode == 0, done.stderr
     return json.loads(done.stdout)
@@ -202,13 +199,9 @@ def _contract(tmp_path: Path, probe: str | None) -> list[str]:
 def test_every_authored_decoy_row_meets_the_contract():
     """ids unique, the title carries the query word, a structured field contradicts it, the
     policy is one the proofs know, and the drawing renders: for every row of both tables."""
-    sys.path.insert(0, str(RETAIL))
-    try:
-        import decoy_contract
+    from synthetic_ecommerce_data.domains.retail import decoy_contract
 
-        assert decoy_contract.violations() == []
-    finally:
-        sys.path.remove(str(RETAIL))
+    assert decoy_contract.violations() == []
 
 
 def test_a_new_decoy_set_is_one_file_and_meets_the_contract_with_nothing_else(tmp_path):
@@ -239,20 +232,15 @@ def test_a_planted_decoy_file_that_breaks_a_clause_fails_the_contract(tmp_path, 
 def _toy_ranges(plant: Callable[[list[Any]], list[Any]] | None = None) -> list[str]:
     """The notes of ``decoy_contract.range_violations`` over the shipped specs, with the class-6
     decoys of the kite spec passed through ``plant`` (if any) first."""
-    sys.path.insert(0, str(RETAIL))
-    try:
-        import decoy_contract
-        import type_registry
+    from synthetic_ecommerce_data.domains.retail import decoy_contract, type_registry
 
-        specs = dict(type_registry.specs())
-        if plant is not None:
-            kite = specs["kite"]
-            sixes = [d for d in kite.decoys if d.cls == 6]
-            rest = [d for d in kite.decoys if d.cls != 6]
-            specs["kite"] = replace(kite, decoys=tuple(rest + plant(sixes)))
-        return decoy_contract.range_violations(specs)
-    finally:
-        sys.path.remove(str(RETAIL))
+    specs = dict(type_registry.specs())
+    if plant is not None:
+        kite = specs["kite"]
+        sixes = [d for d in kite.decoys if d.cls == 6]
+        rest = [d for d in kite.decoys if d.cls != 6]
+        specs["kite"] = replace(kite, decoys=tuple(rest + plant(sixes)))
+    return decoy_contract.range_violations(specs)
 
 
 def _retitle(sixes: list[Any]) -> list[Any]:
@@ -294,7 +282,7 @@ def test_a_decoy_file_whose_product_id_is_a_row_of_the_other_table_is_refused(tm
     extra = tmp_path / "extra"
     extra.mkdir()
     (extra / "zz_probe.py").write_text(PROBE.replace('"ZZ01"', '"Y901"'), encoding="utf-8")
-    code = CONTRACT.format(retail=str(RETAIL), extra=str(extra))
+    code = CONTRACT.format(extra=str(extra))
     done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
     assert done.returncode != 0
     assert "PLT-DY901 is built twice" in done.stderr

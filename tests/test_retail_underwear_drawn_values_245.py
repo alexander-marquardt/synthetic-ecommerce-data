@@ -16,17 +16,13 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import kit  # noqa: E402
-import underwear_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    underwear_rows,
+)
 
 ROWS = underwear_rows.ROWS
 

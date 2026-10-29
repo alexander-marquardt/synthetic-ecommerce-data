@@ -2,7 +2,7 @@
 
 Text search ranks a product first because its brand or line name holds a color word that does
 not describe the product. #294 class 7 covers clothing; this batch carries the pattern into
-food, drink, home, garden and tools (`prototypes/retail_drawings/color_word_brand_rows.py`).
+food, drink, home, garden and tools (`src/synthetic_ecommerce_data/domains/retail/color_word_brand_rows.py`).
 Every structured attribute stays true: the SKU color, the wine style and the packaging
 color are what the product is. Each title is five words or fewer and holds the brand or line.
 

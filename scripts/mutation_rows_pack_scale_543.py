@@ -11,7 +11,7 @@ from mutation_row import Row
 
 _T = "tests/test_retail_pack_scale_543.py"
 _STYLED = f"{_T}::test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas"
-_ROOT = "prototypes/retail_drawings"
+_ROOT = "src/synthetic_ecommerce_data/domains/retail"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (

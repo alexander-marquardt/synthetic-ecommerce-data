@@ -1,7 +1,7 @@
 # Retail product types the failure classes need (gen#329)
 
 A demo probe found types that a general retailer's failure classes need and the catalogue lacked.
-`prototypes/retail_drawings/needs_rows.py` holds them, built on the floor and decoy builders of
+`src/synthetic_ecommerce_data/domains/retail/needs_rows.py` holds them, built on the floor and decoy builders of
 `mens_depth_rows.py` (see [retail-mens-depth.md](retail-mens-depth.md)); the floors and the decoys
 are pinned by `tests/test_retail_elasticated_waist_329.py`; the lingerie and lamp-shade slice by
 `tests/test_retail_needs_329.py`.

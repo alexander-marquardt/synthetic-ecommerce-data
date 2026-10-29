@@ -8,19 +8,15 @@ at all. These checks hold what makes a row breadth and not depth.
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import breadth_rows  # noqa: E402
-import color_word_brand_rows  # noqa: E402
-import diy_decoy_rows  # noqa: E402
-import garden_rows  # noqa: E402
-import kit  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    breadth_rows,
+    color_word_brand_rows,
+    diy_decoy_rows,
+    garden_rows,
+    kit,
+    scale,
+)
 
 ROWS = breadth_rows.BREADTH_34
 
@@ -41,7 +37,7 @@ def test_every_leaf_holds_one_or_two_products_and_there_are_at_least_eighteen_le
 
 def _lunch_cooler_ids() -> set[str]:
     """The ids of the class-8 decoys whose true type is a lunch box (``DY`` + the row number)."""
-    from feature_decoys import large_appliances
+    from synthetic_ecommerce_data.domains.retail.feature_decoys import large_appliances
 
     return {f"PLT-DY{r[0]:02d}" for r in large_appliances._ROWS if r[1] == "la_lunch"}
 
@@ -206,7 +202,7 @@ VOLTAGE_TYPES = frozenset(
 def _tool_rows() -> list[breadth_rows.Row]:
     """The rows of every type spec (the drills left ``breadth_rows`` for specs in gen#191), but a
     color-word brand row: its title is a brand and a tool, not a voltage (gen#312)."""
-    import type_registry
+    from synthetic_ecommerce_data.domains.retail import type_registry
 
     return [
         r

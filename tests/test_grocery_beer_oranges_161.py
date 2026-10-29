@@ -13,18 +13,15 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import grocery
 
-import grocery  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 ORANGES = ["Food & drink", "Fruit & vegetables", "Fresh fruit", "Citrus fruit", "Oranges"]
 BEER = ["Food & drink", "Beer, wine & spirits", "Beer"]

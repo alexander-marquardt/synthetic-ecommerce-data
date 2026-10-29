@@ -8,7 +8,7 @@ that pins it.
 
 Beside `facets.ingredients` (the label text, kept as it is) the flat grocery file
 carries `facets.ingredient_base`: the head ingredient of each label row, from the
-committed table `prototypes/retail_drawings/grocery_ingredients.py` (`BASE`, written
+committed table `src/synthetic_ecommerce_data/domains/retail/grocery_ingredients.py` (`BASE`, written
 as one line per base ingredient). It is never a heuristic. "orange peel" and "orange
 juice" are *oranges*, "sea salt" is *salt*, "emulsifier (soya lecithin)" is *soya*,
 "roasted peanut" is *peanuts*.
@@ -86,7 +86,7 @@ ceiling build (no finding).
 
 ## Text-match decoys for the color, category and audience queries (gen#294)
 
-`prototypes/retail_drawings/decoy_rows.py` holds `TABLE`: one row per planted product, with its
+`src/synthetic_ecommerce_data/domains/retail/decoy_rows.py` holds `TABLE`: one row per planted product, with its
 class (1 color names a part, 2 type names an accessory or a toy, 3 audience names a sibling
 version, 4 a color word that is also a product or a shade, 5 guard, 7 the word is only an
 ingredient, 9 the fresh plural is named in the title, 10 the phrase is an ingredient of another food) and the query it targets. The proof and the table below read that table, so no count
@@ -377,7 +377,7 @@ Curry at 6. These are true text matches, left in on purpose.
 
 ## Text-match decoys on every clothing, footwear and lingerie type (gen#311)
 
-The #294 decoys cover the demo queries. `prototypes/retail_drawings/decoy_apparel.py` plants the
+The #294 decoys cover the demo queries. `src/synthetic_ecommerce_data/domains/retail/decoy_apparel.py` plants the
 same kind of decoy on every product type of the Womens, Mens and Kids clothing, footwear and
 lingerie, in classes (a color word naming a part, another category's noun as a modifier, an
 audience word of a sibling version, a material the product does not hold, a shade only in the

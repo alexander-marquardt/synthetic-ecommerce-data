@@ -15,7 +15,20 @@ import tomllib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-DRAWINGS = "prototypes/retail_drawings"
+RETAIL = "src/synthetic_ecommerce_data/domains/retail"
+#: The drawing tests that sat beside the prototype, under ``tests/`` since the move (#125).
+DRAWING_TESTS = (
+    "tests/test_cups.py",
+    "tests/test_footwear.py",
+    "tests/test_house_styles.py",
+    "tests/test_mattress_topper.py",
+    "tests/test_motifs.py",
+    "tests/test_real_classes.py",
+    "tests/test_shape_honesty.py",
+    "tests/test_signals_and_paths.py",
+    "tests/test_styles.py",
+    "tests/test_variants.py",
+)
 
 
 def _load(name: str):
@@ -55,21 +68,18 @@ def test_no_test_file_sits_outside_the_paths_pytest_collects() -> None:
 
 
 def test_the_planner_deals_every_retail_drawing_test_file() -> None:
-    drawings = sorted(
-        p.relative_to(REPO).as_posix() for p in (REPO / DRAWINGS).glob("test_*.py")
-    )
-    assert drawings, "the retail drawing tests moved: update this guard"
-    assert set(drawings) <= set(ci_shards.collected_test_files())
+    assert not sorted((REPO / RETAIL).rglob("test_*.py")), "a test file sits in the package"
+    assert set(DRAWING_TESTS) <= set(ci_shards.collected_test_files())
 
 
 def test_a_change_to_a_drawing_module_selects_the_drawing_test_that_imports_it() -> None:
-    chosen, reasons = ci_select.select([f"{DRAWINGS}/house_styles.py"], ci_select.Tree(REPO))
-    assert f"{DRAWINGS}/test_house_styles.py" in chosen, reasons
+    chosen, reasons = ci_select.select([f"{RETAIL}/house_styles.py"], ci_select.Tree(REPO))
+    assert "tests/test_house_styles.py" in chosen, reasons
 
 
 def test_a_drawing_test_file_is_a_test_file_of_the_selection() -> None:
-    assert ci_select.is_test_file(f"{DRAWINGS}/test_house_styles.py")
-    assert not ci_select.is_test_file(f"{DRAWINGS}/house_styles.py")
+    assert ci_select.is_test_file("tests/test_house_styles.py")
+    assert not ci_select.is_test_file(f"{RETAIL}/house_styles.py")
 
 
 def test_no_doc_says_pytest_collects_only_tests_and_no_second_drawing_runner_exists() -> None:

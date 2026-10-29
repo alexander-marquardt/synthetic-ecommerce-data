@@ -12,21 +12,16 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    scale,
+    type_registry,
+)
 
 #: Each spec key, its product type, and every key attribute the issue lists for it, by the export
 #: key. Size, color and audience are pinned as well as the listed ones.

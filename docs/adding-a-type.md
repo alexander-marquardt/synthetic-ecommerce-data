@@ -197,7 +197,7 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
    `Hardness`, `Diameter`, `Units per Pack`, `Piece Count`, `Measurement System`);
    when two concepts share a word, split them (`Grade` is a bolt's strength,
    `Wheel Grade` an abrasive's coarseness). The `one_key_per_concept` rule
-   (`prototypes/retail_drawings/rules.py`, run by `tests/test_rules_538.py`) reads the
+   (`src/synthetic_ecommerce_data/domains/retail/rules.py`, run by `tests/test_rules_538.py`) reads the
    committed `golden-catalog/nested.jsonl` and fails on a removed key,
    a merged-away key, or one name on two keys.
 - **Golden.** Build the catalog and regenerate the committed one:

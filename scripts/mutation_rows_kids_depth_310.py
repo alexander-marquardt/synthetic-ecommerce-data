@@ -13,7 +13,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _T = "tests/test_retail_kids_depth_310.py"
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (

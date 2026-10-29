@@ -4,7 +4,7 @@ Each row plants one defect that makes a variant axis of a new shoe kind stop cha
 drawing, or lets a drawing param drift from the attribute it draws, and names the tests that
 must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
 ``footwear styles: ...`` (``--only "footwear styles:"`` re-runs them). A row is
-``(name, file, old, new, test, property)``; the root is ``prototypes/retail_drawings``.
+``(name, file, old, new, test, property)``; the root is ``domains/retail``.
 """
 
 from __future__ import annotations
@@ -143,4 +143,4 @@ PREFIX = "footwear styles"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

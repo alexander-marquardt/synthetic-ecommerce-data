@@ -8,18 +8,14 @@ wanted values are written out here on purpose: the test does not read the module
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402 -- the prototype's own directory is its import root
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    scale,
+)
 
 #: The ``measure()["templates"]`` keys that total or slice the sources instead of naming one.
 AGGREGATES = ("all", "before_grocery", "main_food")
@@ -112,7 +108,7 @@ def _styles_with(fill: str) -> list[dict[str, Any]]:
 def test_a_flower_print_draws_a_motif_the_kit_has() -> None:
     """A flower print names a kit shape (``daisy``), never the category ``flowers``: the drawing
     kit raises on a name it has no shape for."""
-    import motifs
+    from synthetic_ecommerce_data.domains.retail import motifs
 
     floral = [d for d in _styles_with("print") if "Pink Floral" in str(d["color_options"])]
     assert floral
@@ -130,7 +126,7 @@ def test_the_patchwork_cushion_is_drawn_with_a_patchwork_fill_not_a_gingham_one(
 
 def test_the_kit_patchwork_tile_is_pieced_squares_not_a_check() -> None:
     """The patchwork tile holds four differently colored squares; gingham holds two."""
-    import kit
+    from synthetic_ecommerce_data.domains.retail import kit
 
     def fills(pattern: str) -> set[str]:
         svg = kit.pattern_defs(kit.Fill(pattern, "#c46a4a", "#26365c"), "p")
@@ -151,7 +147,7 @@ def test_the_measured_sources_account_for_every_template() -> None:
     catches a source list that disagrees with ``scale.templates()``, or a stale figures cache.
     No fleet total is typed here (#644): a product PR that adds rows to a source moves the
     measured count, not this test."""
-    from retail_figures import figures
+    from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
     measured = figures()["templates"]
     tpls = scale.templates()

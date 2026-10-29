@@ -1,7 +1,7 @@
 """Mutation rows for the real cups and the Cup-named bras (gen#620), kept out of
 ``mutation_check.py``. Each row plants one defect on a changed line and names the test that must go
 red. Found by ``mutation_row.discover``; ``--only "cups:"`` re-runs them. The root is
-``prototypes/retail_drawings``.
+``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations

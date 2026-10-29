@@ -9,18 +9,14 @@ and reds when one lacks a main color without that exception.
 from __future__ import annotations
 
 import copy
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import type_colors  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    main_colors,
+    scale,
+    type_colors,
+)
 
 
 @pytest.fixture(scope="module")

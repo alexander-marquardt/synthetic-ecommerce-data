@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _ONE = "tests/test_scent_one_key_273.py"
 _DEPTH = "tests/test_collision_word_depth_273.py"
 

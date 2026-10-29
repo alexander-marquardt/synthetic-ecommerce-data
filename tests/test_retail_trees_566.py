@@ -10,16 +10,9 @@ tree sold as a gift stays a gift plant.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import scale
 
 #: Product-code prefix -> the kind of tree, which names its category under Garden > Trees.
 KINDS = {

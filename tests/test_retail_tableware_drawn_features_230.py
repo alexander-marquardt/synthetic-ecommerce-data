@@ -12,18 +12,15 @@ that differs from another only by a trailing grade fails here by key.
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
-HERE = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(HERE))
-
-import kit  # noqa: E402
-import scale  # noqa: E402
-import tableware_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    scale,
+    tableware_rows,
+)
 
 DOCS = tableware_rows.docs()
 

@@ -242,7 +242,7 @@ def rows() -> list[Row]:
             new,
             f"tests/test_retail_attribute_text_250.py -k {test}",
             prop,
-            "prototypes/retail_drawings",
+            "src/synthetic_ecommerce_data/domains/retail",
         )
         for name, old, new, test, prop in ROWS
     ]

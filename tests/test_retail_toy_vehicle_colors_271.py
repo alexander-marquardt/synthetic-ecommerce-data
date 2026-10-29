@@ -11,20 +11,16 @@ from __future__ import annotations
 
 import dataclasses
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import breadth_rows  # noqa: E402
-import colorwords  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import toys_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    breadth_rows,
+    colorwords,
+    export,
+    kit,
+    toys_rows,
+)
 
 #: The leaves the issue names: toy cars and every ride-on (bikes, scooters, trikes).
 LEAVES = {"Toy Vehicles", "Ride-On Toys"}

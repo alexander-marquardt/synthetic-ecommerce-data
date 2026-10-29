@@ -19,14 +19,17 @@ from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    kit_garments,
+    neckline_rows,
+    scale,
+)
 
-import kit  # noqa: E402
-import kit_garments  # noqa: E402
-import neckline_rows  # noqa: E402
-import scale  # noqa: E402
+RETAIL = (
+    Path(__file__).resolve().parents[1] / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
+)
+
 
 #: The types the issue names: a top, a dress, a knit (and the near-miss types it lists).
 CARRIERS = {

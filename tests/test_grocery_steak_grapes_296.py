@@ -11,22 +11,21 @@ label comes from one closed list.
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    grocery_rows,
+    scale,
+)
 
-import baseline_rank as br  # noqa: E402
-import grocery  # noqa: E402
-import grocery_rows  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 STEAK = ("Food & Drink", "Meat & Fish", "Fresh Meat", "Steak")
 GRAPES = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Grapes")

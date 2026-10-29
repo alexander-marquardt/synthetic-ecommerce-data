@@ -7,15 +7,15 @@ shelf, so it read as a jug in the air. The pot and the jug now stand on one shel
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
-DRAWINGS = REPO / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(DRAWINGS))
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    toys_rows,
+)
 
-import kit  # noqa: E402
-import toys_rows  # noqa: E402
+REPO = Path(__file__).resolve().parents[1]
+
 
 PAIR = re.compile(r"(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)")
 

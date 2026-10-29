@@ -2,16 +2,12 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 import tempfile
-from pathlib import Path
 
 import pytest
 
 import ci_shard_split
 from xdist_groups import group_for
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
 
 
 def pytest_configure(config):
@@ -38,9 +34,7 @@ def pytest_unconfigure(config):
 @pytest.fixture(scope="session")
 def retail_figures_measured() -> dict:
     """The retail build's measured totals for this tree, measured once for the run (gen#536)."""
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import retail_figures  # noqa: PLC0415 -- the prototype's own directory is its import root
+    from synthetic_ecommerce_data.domains.retail import retail_figures  # noqa: PLC0415
 
     return retail_figures.figures()
 

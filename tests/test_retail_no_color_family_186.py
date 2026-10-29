@@ -13,18 +13,14 @@ and the exported field list (:data:`export.OPTIONS`, :data:`export.FACTS`).
 from __future__ import annotations
 
 import json
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402 -- the prototype's own directory is its import root
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
 
 #: Both spellings the field took: its key and its display name.
 GONE = ("color_family", "Color family")

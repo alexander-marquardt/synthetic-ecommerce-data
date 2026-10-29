@@ -15,15 +15,13 @@ import json
 import sys
 from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import image_release  # noqa: E402
-import retail_figures  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core.emit import write_jsonl  # noqa: E402
+from synthetic_ecommerce_data.core.emit import write_jsonl
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    retail_figures,
+    scale,
+)
 
 
 def _lines(path: Path, rows: list[dict]) -> None:

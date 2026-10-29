@@ -20,7 +20,7 @@ the facet holds, not the authored word.
 
 A product of two colors carries ONE `color` value written in words, `Blue and White`, never
 `Blue / White` and never a list of both colors (a list would put a mostly blue product into a
-White filter) (gen#514). the `two_color_words` rule of `prototypes/retail_drawings/rules.py` holds it (run over every row
+White filter) (gen#514). the `two_color_words` rule of `src/synthetic_ecommerce_data/domains/retail/rules.py` holds it (run over every row
 by `tests/test_rules_538.py`): no `color` value has a `/` or `&`, and a two-color value reads
 `<A> and <B>` in title case.
 

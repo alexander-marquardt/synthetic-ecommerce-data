@@ -8,7 +8,7 @@ look like one.
 
 ## The table
 
-`prototypes/retail_drawings/style_table.py` declares, per style word, the necklines, lengths,
+`src/synthetic_ecommerce_data/domains/retail/style_table.py` declares, per style word, the necklines, lengths,
 sleeves and materials the style allows (`STYLES`). A field left out allows any value.
 
 | Style word | Necklines | Lengths | Materials |

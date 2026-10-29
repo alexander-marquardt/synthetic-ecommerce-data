@@ -19,8 +19,6 @@ SKU restates, then the SKU's own.
 from __future__ import annotations
 
 import copy
-import sys
-from pathlib import Path
 
 import pytest
 
@@ -28,13 +26,10 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.variant_axes import derived_from_one, profile, variant_axes
 from synthetic_ecommerce_data.domains.industrial.generate import generate
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
 
 
 def sku_profiles(doc: dict) -> list[dict[str, tuple[str, ...]]]:

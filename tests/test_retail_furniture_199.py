@@ -1,7 +1,7 @@
 """Furniture for the rest of the house (gen#199): the range, its structured attributes, its
 drawings and its place in the scaled build.
 
-``prototypes/retail_drawings/furniture_rows.py`` holds the rows and ``kit_furniture.py`` the
+``domains/retail/furniture_rows.py`` holds the rows and ``kit_furniture.py`` the
 shapes. A type is searched by room, material, size and finish, so each key the issue lists is a
 structured attribute in the export, not only a word in the title, and the drawing shows what
 the attributes say: a table's seats, a bookcase's shelves, a wardrobe's doors, a chest's drawers.
@@ -10,20 +10,16 @@ the attributes say: a table's seats, a bookcase's shelves, a wardrobe's doors, a
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import breadth_rows  # noqa: E402
-import export  # noqa: E402
-import furniture_rows  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import scale  # noqa: E402
-from retail_figures import figures  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    breadth_rows,
+    export,
+    furniture_rows,
+    image_release,
+    kit,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 #: product type -> its leaf and the keys a shopper narrows it on (each a product attribute).
 KEYS = {
@@ -73,7 +69,7 @@ def test_every_type_has_three_styles_from_three_brands_under_its_own_leaf() -> N
 
 
 def test_every_brand_has_an_owner_and_a_house_style() -> None:
-    import house_styles
+    from synthetic_ecommerce_data.domains.retail import house_styles
 
     brands = {r.brand for r in furniture_rows.ROWS}
     assert brands <= set(breadth_rows.OWNERS)

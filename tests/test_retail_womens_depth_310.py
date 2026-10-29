@@ -13,19 +13,15 @@ type below is planned there, and ``test_retail_apparel_decoys_311.py`` pins thre
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_apparel  # noqa: E402
-import decoy_product_words  # noqa: E402
-import decoy_rows  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_apparel,
+    decoy_product_words,
+    decoy_rows,
+    scale,
+)
 
 _DECOYS = decoy_apparel.ids() | decoy_rows.IDS | decoy_product_words.IDS
 
@@ -108,7 +104,7 @@ def test_every_named_leaf_has_its_own_floor(templates, leaf):
 @pytest.mark.parametrize("leaf", NECKLINE_LEAVES, ids=lambda p: " > ".join(p[1:]))
 def test_a_new_product_states_its_neckline_or_collar(templates, leaf):
     """Every product of the new rows in a leaf where a neckline applies carries one (#181)."""
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     ids = womens_depth_rows.product_ids()
     rows = [r for r in templates if r["product_id"] in ids and _under(r, (leaf,))]
@@ -118,7 +114,7 @@ def test_a_new_product_states_its_neckline_or_collar(templates, leaf):
 
 
 def test_every_new_product_states_fit_material_and_a_real_title(templates):
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     ids = womens_depth_rows.product_ids()
     rows = [r for r in templates if r["product_id"] in ids]
@@ -132,7 +128,7 @@ def test_every_new_product_states_fit_material_and_a_real_title(templates):
 
 
 def test_every_new_product_sells_the_six_main_colors(templates):
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     ids = womens_depth_rows.product_ids()
     for r in templates:
@@ -146,7 +142,7 @@ def test_every_new_product_sells_the_six_main_colors(templates):
 
 
 def test_the_new_rows_are_left_out_of_the_derivation(templates):
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     ids = womens_depth_rows.product_ids()
     assert ids
@@ -155,7 +151,7 @@ def test_the_new_rows_are_left_out_of_the_derivation(templates):
 
 
 def _new_rows(templates) -> list[dict]:
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     ids = womens_depth_rows.product_ids()
     return [r for r in templates if r["product_id"] in ids]
@@ -239,7 +235,7 @@ STEMS = {
 
 def test_a_feature_of_a_coat_is_in_its_title_and_its_description(templates):
     """Every feature word the rows module defines, in a title, is said again in the description."""
-    import womens_depth_rows
+    from synthetic_ecommerce_data.domains.retail import womens_depth_rows
 
     assert set(womens_depth_rows._FEATURE) <= set(STEMS), "a feature word without a stem"
     words = STEMS

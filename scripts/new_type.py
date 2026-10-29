@@ -3,7 +3,7 @@
 
     uv run python scripts/new_type.py <key> --kind clothing|beauty --product-type "Tracksuit"
 
-writes ``prototypes/retail_drawings/type_specs/<key>.py``: one ``SPEC = TypeSpec(...)`` with a
+writes ``domains/retail/type_specs/<key>.py``: one ``SPEC = TypeSpec(...)`` with a
 working example row. Edit that file and nothing else: the registry finds it, the scaled build
 and the figures read the registry, and ``tests/test_retail_type_specs_351.py`` holds every spec
 to the same checks. Then regenerate the figures (``docs/new-type-quick-path.md``). The command
@@ -17,7 +17,14 @@ import re
 import sys
 from pathlib import Path
 
-SPECS = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings" / "type_specs"
+SPECS = (
+    Path(__file__).resolve().parent.parent
+    / "src"
+    / "synthetic_ecommerce_data"
+    / "domains"
+    / "retail"
+    / "type_specs"
+)
 KEY = re.compile(r"[a-z][a-z0-9_]*")
 CODE = re.compile(r"[A-Z][A-Z0-9]{2,5}")
 
@@ -111,8 +118,8 @@ def _taken() -> set[str]:
     """Every product id the registered specs build (the rows still outside the registry are
     checked by the build, which names the clash)."""
     root = Path(__file__).resolve().parent.parent
-    sys.path[:0] = [str(root / "prototypes" / "retail_drawings"), str(root / "src")]
-    import type_registry
+    sys.path[:0] = [str(root / "src")]
+    from synthetic_ecommerce_data.domains.retail import type_registry
 
     return {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}
 

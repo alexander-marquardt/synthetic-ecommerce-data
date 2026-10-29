@@ -14,20 +14,19 @@ from __future__ import annotations
 
 import copy
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
+from synthetic_ecommerce_data.domains.retail import (
+    scale,
+    type_registry,
+)
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 
-import footwear_rows as fw  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
-from breadth_rows import Row  # noqa: E402
+ROOT = Path(__file__).resolve().parent.parent
+
 
 #: The product types of the 26 shoe kinds, spelled out so a kind dropped from ``TYPES`` is seen.
 SHOE_TYPES = (

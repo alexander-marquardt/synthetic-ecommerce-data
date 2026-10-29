@@ -10,19 +10,13 @@ washing machines carry the second title form, "Washing Machine from Frostholm, M
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import appliance_model_numbers as amn  # noqa: E402
-import large_appliance_rows as lar  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
+from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
+from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = ["Home", "Large Appliances"]
 #: the attribute holding each kind's capacity: a load, litres, or place settings

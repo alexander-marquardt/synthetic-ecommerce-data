@@ -11,19 +11,12 @@ brands drawing no logo, and no two brands drawn alike.
 from __future__ import annotations
 
 import re
-import sys
 from html import unescape
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import house_styles as hs  # noqa: E402
-
-from synthetic_ecommerce_data.core.drawing import brand_mark, brand_type, sheet  # noqa: E402
+from synthetic_ecommerce_data.core.drawing import brand_mark, brand_type, sheet
+from synthetic_ecommerce_data.domains.retail import house_styles as hs
 
 TILE_PX = 180.0
 PX_PER_UNIT = TILE_PX / hs.SIZE

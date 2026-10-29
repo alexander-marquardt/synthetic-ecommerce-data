@@ -11,7 +11,6 @@ gen#536).
 
 from __future__ import annotations
 
-import sys
 from collections import Counter
 from functools import cache
 from pathlib import Path
@@ -19,19 +18,18 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    grocery,
+    pack_scale,
+    real_brands,
+)
+from synthetic_ecommerce_data.domains.retail import grocery_rows as gr
+from synthetic_ecommerce_data.domains.retail import house_styles as hs
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import export  # noqa: E402
-import grocery  # noqa: E402
-import grocery_rows as gr  # noqa: E402
-import house_styles as hs  # noqa: E402
-import pack_scale  # noqa: E402
-import real_brands  # noqa: E402
-from retail_figures import figures  # noqa: E402
 
 TIER = 50_000
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _T = "tests/test_retail_drills_191.py"
 # The tool kit's third and fourth rows, two lines of which carry a brand.
 _KIT = (

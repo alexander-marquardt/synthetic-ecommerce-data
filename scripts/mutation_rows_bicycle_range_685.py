@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _F = "type_specs/bicycle.py"
 _T = "tests/test_retail_bicycle_range_685.py"
 

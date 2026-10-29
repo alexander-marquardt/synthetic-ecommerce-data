@@ -4,8 +4,8 @@ A range name that leads a title the way a brand does reads as a second brand. Pu
 listings name a model from plain words instead: a word, an optional sub-model, a number or a code,
 then the kind ("Ghost 18 Road Running Trainers"). gen#662 did this for running shoes, bicycles,
 dress shoes and appliances; gen#663 does it for the other clothing and footwear kinds. The grammar
-is `prototypes/retail_drawings/line_grammar.py`, which derives `FAMILIES` (a product type to its
-family) from the modules of `prototypes/retail_drawings/line_grammar_families/` (gen#513): a
+is `src/synthetic_ecommerce_data/domains/retail/line_grammar.py`, which derives `FAMILIES` (a product type to its
+family) from the modules of `src/synthetic_ecommerce_data/domains/retail/line_grammar_families/` (gen#513): a
 vocabulary lives in a module per family (`bra.py`, `jeans.py`, `tee.py`, `trainers.py`,
 `boots.py`, `casual.py` for the six below), each exposing `KINDS`, `LEADS`, `SUBS` and `NUMBERS`.
 A lead two modules hold is refused at import, so the home families gave up the words an authored

@@ -4,7 +4,7 @@
 Each row undoes one part of ``sale_share.py`` or its call sites and names the test that must go
 red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``sale share: ...``
 (``--only "sale share:"`` re-runs them). A row is ``(name, file, old, new, test, property)``; the
-root is ``prototypes/retail_drawings``.
+root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -80,4 +80,4 @@ PREFIX = "sale share"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

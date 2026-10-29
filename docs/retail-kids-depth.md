@@ -1,6 +1,6 @@
 # Retail clothing depth: the Kids slice (gen#310)
 
-`prototypes/retail_drawings/kids_depth_rows.py` adds Kids dresses and coats as distinct products,
+`src/synthetic_ecommerce_data/domains/retail/kids_depth_rows.py` adds Kids dresses and coats as distinct products,
 each with fit, material and sleeve length (and, on a dress, a neckline). The floors are pinned by
 `tests/test_retail_kids_depth_310.py` over `scale.templates()`. The other slices are
 [retail-womens-depth.md](retail-womens-depth.md) and [retail-mens-depth.md](retail-mens-depth.md);

@@ -11,18 +11,13 @@ only adds to them, so a floor met here is met by the ceiling build.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import house_styles  # noqa: E402
-import mens_depth_rows  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    house_styles,
+    mens_depth_rows,
+    scale,
+)
 
 #: group -> (category path prefixes, the floor of distinct products), from the issue.
 FLOORS = {

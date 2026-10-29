@@ -1,7 +1,7 @@
 # Near-white shades and bra shape x main color (gen#302)
 
 A color-group demo ("womens cream jumper", "ivory cardigan", "off white dress", "white minimiser
-bras") needs products to find. `prototypes/retail_drawings/colorgroup_rows.py` adds them as
+bras") needs products to find. `src/synthetic_ecommerce_data/domains/retail/colorgroup_rows.py` adds them as
 templates only: no derived style copies a row, so the seeded derivation of the other styles is
 what it was.
 

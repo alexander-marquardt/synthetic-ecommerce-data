@@ -12,19 +12,12 @@ the top 10.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import baseline_rank as br  # noqa: E402
-import decoy_product_words as dpw  # noqa: E402
-import scale  # noqa: E402
-from distractors import tokens  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import scale
+from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 #: query -> the category node of the product it names: no decoy of the query sits in it.
 QUERIES = {"mens black jeans": "Jeans", "white minimiser bras": "Bras"}

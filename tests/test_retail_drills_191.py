@@ -13,23 +13,19 @@ resolves for every SKU.
 from __future__ import annotations
 
 import re
-import sys
 import xml.dom.minidom
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import diy_decoy_rows  # noqa: E402
-import export  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    diy_decoy_rows,
+    export,
+    image_release,
+    kit,
+    main_colors,
+    scale,
+    type_registry,
+)
 
 #: key -> (product type, the shape it draws, a param and two values that change the drawing,
 #: the attribute keys it states).

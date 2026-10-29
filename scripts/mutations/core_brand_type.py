@@ -11,7 +11,7 @@ from __future__ import annotations
 from mutation_row import Mutation
 
 T = "tests/test_retail_brand_type_412.py"
-PROTO = "prototypes/retail_drawings/house_styles.py"
+PROTO = "src/synthetic_ecommerce_data/domains/retail/house_styles.py"
 
 MUTATIONS: list[Mutation] = [
     Mutation(

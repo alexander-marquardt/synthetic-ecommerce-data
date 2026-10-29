@@ -3,7 +3,7 @@
 Each row puts one old spelling back ("Set of 4", a bare digit) or breaks the count, and names the
 test that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named ``pack size:
 ...`` (``--only "pack size:"`` re-runs them). A row is ``(name, file, old, new, test, property)``;
-every file is under ``prototypes/retail_drawings``.
+every file is under ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -78,4 +78,4 @@ PREFIX = "pack size"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

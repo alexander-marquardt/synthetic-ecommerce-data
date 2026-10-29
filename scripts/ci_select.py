@@ -16,8 +16,8 @@ The selection is built to over-select, never to drop. A test file is selected wh
 * it is itself a changed path, or it is in ``SMOKE``;
 * a changed Python file is in its import closure. The closure follows ``import`` and
   ``from ... import`` statements (resolved against every Python file of the repository, by
-  every dotted suffix of its path, so the ``sys.path`` inserts of the retail tests need no
-  special case), the ``.py`` file names a file's text mentions (a harness that loads
+  every dotted suffix of its path, so a package import and a bare one off ``sys.path`` both
+  resolve), the ``.py`` file names a file's text mentions (a harness that loads
   ``scripts/mutation_check.py`` by path, a mutation row that names the file it plants in),
   the dotted module names it mentions, the console scripts of ``pyproject.toml`` it names
   (``ecom-generate`` runs ``generate_cli``), and, for a module that imports by computed
@@ -55,7 +55,7 @@ REPO = Path(__file__).resolve().parent.parent
 
 #: The directories whose ``test_*.py`` files pytest collects (``testpaths`` of pyproject.toml,
 #: ``ci_shards.TEST_DIRS``).
-_TEST_ROOTS = ("tests/", "prototypes/retail_drawings/")
+_TEST_ROOTS = ("tests/",)
 
 #: Test files every pull request runs: the guards of this selection and of the sharding, which
 #: are cheap and fail the moment the CI wiring or the selection is wrong.

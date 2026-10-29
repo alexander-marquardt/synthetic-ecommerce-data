@@ -4,7 +4,7 @@ Each row plants one defect that makes two values of a drawn attribute draw the s
 length or a denier draw out of order, and names the tests that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``underwear drawn values: ...``
 (``--only "underwear drawn values:"`` re-runs them). A row is
-``(name, file, old, new, test, property)``; the root is ``prototypes/retail_drawings``.
+``(name, file, old, new, test, property)``; the root is ``domains/retail``.
 """
 
 from __future__ import annotations
@@ -102,4 +102,4 @@ PREFIX = "underwear drawn values"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

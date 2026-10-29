@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import check_no_derived_files as guard  # noqa: E402
 
-RD = "prototypes/retail_drawings"
+RD = "src/synthetic_ecommerce_data/domains/retail"
 #: One concrete path for every glob the guard names, and the ones that were committed.
 PLANTED = (
     "golden-retail/stats.json",
@@ -139,8 +139,8 @@ def test_the_release_builds_both_assets_and_opens_the_pin_bump() -> None:
     steps = RELEASE["jobs"]["release"]["steps"]
     runs = "\n".join(str(step.get("run", "")) for step in steps)
     for want in (
-        "scale.py --skus",
-        "image_release.py --skus",
+        "retail.scale --skus",
+        "retail.image_release --skus",
         "gh release create",
         "scripts/open_pin_bump_pr.py",
         ".content-sha256",
@@ -225,8 +225,7 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
 
 
 def test_skus_ceiling_is_never_short_and_reports_what_the_build_made(tmp_path, monkeypatch) -> None:
-    sys.path.insert(0, str(ROOT / RD))
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
     real = scale.build
     monkeypatch.setattr(scale, "build", lambda skus, seed=0: real(300, seed))
