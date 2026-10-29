@@ -15,6 +15,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog, ProductLine, keyword_attribute
+from synthetic_ecommerce_data.domains.industrial import grouped
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
     disagreements,
@@ -110,7 +111,11 @@ def test_the_skus_per_product_follow_the_knob(catalog: Catalog) -> None:
     config = GeneratorConfig()
     distribution = skus_per_product(catalog)
     assert distribution_problems(distribution, config) == []
-    assert max(row["max"] for row in distribution.values()) <= 5
+    flat = {key: row for key, row in distribution.items() if key not in grouped.VARIANTS}
+    assert max(row["max"] for row in flat.values()) <= 5
+    # A grouped type's grouped products (#710) draw its own table, up to that table's maximum.
+    for key, table in grouped.VARIANTS.items():
+        assert distribution[key]["max"] <= max(count for count, _ in table), key
     assert all(sum(row["histogram"].values()) == row["products"] for row in distribution.values())
 
 

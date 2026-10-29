@@ -26,6 +26,11 @@ GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 #: random draws miss. Measured by direct count on the default config.
 MUST_STOCK_LINES = 5
 
+#: The build these tests judge: the must-stock pass without the grouped pass after it
+#: (#710), whose targets stock some of the same examples (the R8 hex bolt among them) and
+#: whose size follows the lines built before it. ``test_catalog_grouped.py`` judges that pass.
+FLAT = replace(GeneratorConfig(), grouped=False)
+
 
 def _unstocked(catalog, entries) -> list[str]:
     records = [
@@ -38,7 +43,7 @@ def _unstocked(catalog, entries) -> list[str]:
 
 @pytest.fixture(scope="module")
 def full():
-    return generate(GeneratorConfig())
+    return generate(FLAT)
 
 
 @functools.cache
@@ -65,7 +70,7 @@ def test_one_entry_per_requirement_example_and_none_twice():
 
 def test_the_pass_is_what_stocks_the_examples_the_random_catalog_misses(full):
     """Without the pass, five examples have no product; with it, none are missing."""
-    without = generate(replace(GeneratorConfig(), must_stock=False))
+    without = generate(replace(FLAT, must_stock=False))
     missing = _unstocked(without, muststock.MUST_STOCK)
     assert (
         'hex head cap screw: 7/16-14, 1-3/4" length under head, grade 8 steel, zinc finish'
@@ -81,7 +86,7 @@ def test_removing_an_entry_unstocks_its_example(monkeypatch):
         "synthetic_ecommerce_data.domains.industrial.generate.MUST_STOCK",
         tuple(e for e in muststock.MUST_STOCK if e is not r8),
     )
-    assert _unstocked(generate(GeneratorConfig()), [r8]) == [r8.example]
+    assert _unstocked(generate(FLAT), [r8]) == [r8.example]
 
 
 def test_the_pass_moves_nothing_the_main_generation_drew(full):
@@ -90,7 +95,7 @@ def test_the_pass_moves_nothing_the_main_generation_drew(full):
     The pass runs per type, after that type's own lines, so it is checked
     per type rather than as one prefix of the whole catalog.
     """
-    without = generate(replace(GeneratorConfig(), must_stock=False))
+    without = generate(replace(FLAT, must_stock=False))
 
     def by_type(lines):
         out: dict[str, list] = {}
@@ -111,7 +116,7 @@ def test_the_pass_moves_nothing_the_main_generation_drew(full):
 
 
 def test_the_pass_is_deterministic(full):
-    assert generate(GeneratorConfig()).lines == full.lines
+    assert generate(FLAT).lines == full.lines
 
 
 def test_an_entry_no_builder_can_reach_is_refused_loudly(monkeypatch):

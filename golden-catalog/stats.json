@@ -2947,7 +2947,7 @@
    "achieved": 15.65,
    "numerator": 559,
    "denominator": 347,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; PINNED SHORTFALL, below band at the default size: the grouped hex bolts (#710) are runs of 6 to 15 lengths, and the sizes that offer the most lengths are the small, cheap ones (the R8 7/16-14 target among them), so counted per SKU they pull the default build's p50 from 18.41 to 15.65; the flat bolts are priced as before, and the 100K build is in band",
    "band": [
     16.728,
     26.1375

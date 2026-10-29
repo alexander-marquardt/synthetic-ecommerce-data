@@ -1121,6 +1121,11 @@ reference query list: `5/16-18` button and low-head screws with a `3/4"` length,
 set screws, ball end mills at `1/8"`, `1/16"` and 15 mm, and a 4 mm solid carbide line.
 On the default build it adds 103 products and 922 SKUs, about 8% of the catalog.
 
+One price row moves out of its band, and it is pinned in `PINNED_SHORTFALLS` (`core/price.py`)
+with its reason. That row is the hex bolt p50 at the default size. The bolt sizes that offer
+the most lengths are the small, cheap ones, so counted per SKU the grouped runs pull the p50
+below the census band. At 100K the row is in band, and no flat bolt's price moves.
+
 `GeneratorConfig(grouped=False)` builds the flat catalog alone. `tests/test_catalog_grouped.py`
 builds the eight types with the pass and without. It holds each type's grouped products to
 its table, the pass to its size, and every target to its products. It also checks that

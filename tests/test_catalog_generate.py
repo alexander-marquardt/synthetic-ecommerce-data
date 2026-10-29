@@ -88,9 +88,13 @@ def _modelled_share(config) -> float:
     )
 
 
-def test_the_catalog_is_the_size_it_was_asked_for(stats, config):
+def test_the_catalog_is_the_size_it_was_asked_for(config):
     # Breadth (:mod:`.breadth`) adds a fixed ~50 lines on top, independent of
-    # every depth knob -- alexander-marquardt/synthetic-ecommerce-data#34.
+    # every depth knob -- alexander-marquardt/synthetic-ecommerce-data#34. The
+    # grouped pass (#710) is off: its products are sized by its own share and
+    # targets, which test_catalog_grouped.py holds.
+    flat = replace(config, grouped=False)
+    stats = measure(generate(flat), flat)
     asked = (
         round(config.lines * _modelled_share(config))
         + sum(config.new_type_products.values())
@@ -306,8 +310,9 @@ def test_the_sparsity_knob_moves_the_attribute_count():
 
 def test_the_line_and_sku_count_knobs_move_the_catalog_size():
     none = {key: 0.0 for key in GeneratorConfig().new_type_share}
-    small_cfg = GeneratorConfig(lines=50, seed=3, new_type_share=none)
-    large_cfg = GeneratorConfig(lines=150, seed=3, new_type_share=none)
+    # The grouped pass (#710) is off: it adds a type's products by its own table and targets.
+    small_cfg = GeneratorConfig(lines=50, seed=3, new_type_share=none, grouped=False)
+    large_cfg = GeneratorConfig(lines=150, seed=3, new_type_share=none, grouped=False)
     small = measure(_without_breadth(generate(small_cfg)))
     large = measure(_without_breadth(generate(large_cfg)))
     # Not quite twice: a bigger catalog draws more specs a brand has already
@@ -315,8 +320,8 @@ def test_the_line_and_sku_count_knobs_move_the_catalog_size():
     assert large["lines"] > small["lines"] * 1.8
     assert large["skus"] > small["skus"] * 1.8
 
-    narrow_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),))
-    wide_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),))
+    narrow_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),), grouped=False)
+    wide_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),), grouped=False)
     narrow = measure(_without_breadth(generate(narrow_cfg)))
     wide = measure(_without_breadth(generate(wide_cfg)))
     assert narrow["skus"] == narrow["lines"], "one variant per product, exactly"
