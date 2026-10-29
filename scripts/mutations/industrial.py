@@ -220,8 +220,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "variant bounds doc: the knob's maximum moves off the doc's",
         "domains/industrial/product_split.py",
-        "    ceiling = table[-1][0]\n",
-        "    ceiling = table[-1][0] + 1\n",
+        "            return ordered[-1][0], count\n",
+        "            return ordered[-1][0] + 1, count\n",
         "tests/test_variant_bounds_doc_252.py::test_the_doc_states_the_maximum_skus_per_product",
         "",
         "the doc states the most SKUs a product may have",
