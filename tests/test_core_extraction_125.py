@@ -275,11 +275,11 @@ def test_pytest_collects_tests_only():
     assert config["tool"]["pytest"]["ini_options"]["testpaths"] == ["tests"]
 
 
-#: ``(domain module, what it reaches past core and itself)``: the one seam the move of retail
-#: into ``domains/`` could not cut without a redesign (#125 slice 1). Shrinks only, like
-#: :data:`CORE_EDGES`. ``retail.rules`` runs the realism rules over the industrial build's rows
-#: too, so it builds one; the layer that composes the domains should hand it those rows.
-DOMAIN_EDGES = frozenset({("retail.rules", "domains.industrial.generate")})
+#: ``(domain module, what it reaches past core and itself)``: none. The one seam the move of
+#: retail into ``domains/`` left, ``retail.rules`` building the industrial rows its realism rules
+#: run over, is cut: ``rule_rowsets``, above ``domains/``, hands it those rows (#716). Shrinks
+#: only, like :data:`CORE_EDGES`, so it stays empty.
+DOMAIN_EDGES: frozenset[tuple[str, str]] = frozenset()
 
 
 def test_a_domain_reaches_past_core_only_through_the_listed_edges():
