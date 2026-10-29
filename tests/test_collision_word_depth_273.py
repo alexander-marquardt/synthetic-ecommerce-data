@@ -7,17 +7,12 @@ routes the word on the pair nothing to route, so each side holds :data:`collisio
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import collision_words  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    collision_words,
+    scale,
+)
 
 
 @pytest.fixture(scope="module")

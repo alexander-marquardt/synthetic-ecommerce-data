@@ -1,7 +1,7 @@
 # Retail toys depth: kites, play kitchens, dolls' houses, card games, marble runs, water guns (gen#424)
 
 The Toys department held a few of each of these under other leaves and drew none as its own
-shape. Six type specs under `prototypes/retail_drawings/type_specs/` add them; `kit_toys_play.py`
+shape. Six type specs under `src/synthetic_ecommerce_data/domains/retail/type_specs/` add them; `kit_toys_play.py`
 draws them and `toys_play_common.py` holds the shared helpers. None is derived: authored rows only.
 
 | Type | Path | Style axis | SKU axis | Key attributes |

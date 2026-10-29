@@ -2,8 +2,8 @@
 
 The five Mens tailoring types (jacket, trousers, waistcoat, dinner suit, formal accessories) are
 in [retail-mens-depth.md](retail-mens-depth.md). Two more suit types sit under the Womens and
-Kids roots, each a registered spec (`prototypes/retail_drawings/type_specs/`) and each drawn as
-the set by `prototypes/retail_drawings/kit_suit_sets.py`:
+Kids roots, each a registered spec (`src/synthetic_ecommerce_data/domains/retail/type_specs/`) and each drawn as
+the set by `src/synthetic_ecommerce_data/domains/retail/kit_suit_sets.py`:
 
 | Product type | Category path | Key attributes (structured entries) | Drawing params | Styles |
 |---|---|---|---|---|

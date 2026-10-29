@@ -3,7 +3,7 @@
 Each row plants one defect in a spec, a drawing parameter, a decoy or the wiring of gen#217 and
 names the test that must go red. ``mutation_check.py`` turns them into rows named ``decor 217: ...``
 (``--only "decor 217:"`` re-runs them). A row is ``(name, file, old, new, test, property)`` and
-``file`` is under ``prototypes/retail_drawings``.
+``file`` is under ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 # ruff: noqa: E501  (a removal row quotes the whole decoy call it takes out)
@@ -77,4 +77,4 @@ PREFIX = "decor 217"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

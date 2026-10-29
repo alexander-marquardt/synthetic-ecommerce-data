@@ -1,5 +1,11 @@
 # The retail prototype: distractors, footwear, grocery, the output standard and the catalog at a size
 
+The retail prototype is the retail domain now: its code is in
+`src/synthetic_ecommerce_data/domains/retail/` (it was `prototypes/retail_drawings/` until
+#125's first slice), imported as `synthetic_ecommerce_data.domains.retail`, and its tests are
+under `tests/`. A script of it runs as a module, for example
+`uv run python -m synthetic_ecommerce_data.domains.retail.scale --skus 20000`.
+
 This page holds the retail prototype's reference sections, moved out of
 [README.md](../README.md) verbatim (#240) because the README was over the file-size cap
 (`scripts/file_size_cap.txt`). The type batches add their listing line here, to
@@ -7,7 +13,7 @@ This page holds the retail prototype's reference sections, moved out of
 
 ## Planted distractors (retail prototype)
 
-The retail prototype in `prototypes/retail_drawings/` plants ordinary products
+The retail prototype in `src/synthetic_ecommerce_data/domains/retail/` plants ordinary products
 that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
@@ -121,7 +127,7 @@ proof corpus.
 ### Grocery
 
 `grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
-whose SKUs are flavor x pack size: `python3 prototypes/retail_drawings/grocery.py
+whose SKUs are flavor x pack size: `python3 -m synthetic_ecommerce_data.domains.retail.grocery
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. Its styles, SKUs and each family's share are `templates.grocery` and
 `grocery_families` in `retail_figures.figures()` (below); it covers the food leaves, plus a
@@ -130,8 +136,7 @@ kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
 Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
 
-The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3
-prototypes/retail_drawings/grocery.py --skus 50000 --out DIR`. A title is a range name plus a
+The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3 -m synthetic_ecommerce_data.domains.retail.grocery --skus 50000 --out DIR`. A title is a range name plus a
 flavor, so the 10K build's range names ran out for a family at this size and it stopped short
 of its budget. The tier adds range names (`grocery_rows.TIER_LINES`) and new invented brands per
 family group (`grocery_rows.TIER_BRANDS`; each has an `OWNERS` entry and a `house_styles` row
@@ -353,7 +358,7 @@ Elasticsearch. A target is in bold. A test checks that the proof was taken
 over the current records, that no target is in a baseline top 3 (class 15 instead claims that a bra is: an espresso cup is a cup and may lead too), that the
 policy top 3 is all targets, and that this table is the proof's.
 
-The pre-merge run collects `prototypes/retail_drawings` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
+The pre-merge run collects `src/synthetic_ecommerce_data/domains/retail` (`testpaths`), and `tests/test_real_classes_proof_fresh_479.py`
 holds the proof's fingerprint and its claim to the records the build makes now. A change to an
 indexed field of the corpus is red there until `es_proof.py` is run and the proof committed (the
 drawing is not indexed and does not count). `real_classes_proof.json` stays in git for now: it is
@@ -412,7 +417,7 @@ some entries and none on others, which the Engine refuses to start on. A measure
 never under `size`. One concept has one key (gen#227): a measured height is `item_height`
 (beside `item_width`, `item_depth` and `item_length`) on a sofa, a lamp, a doll, an olive tree and a
 Christmas tree alike, and a furniture piece's storage is `storage_feature` (`Lift-Top`, `Shelf`,
-`Drawer`, or `None` for no storage). `prototypes/retail_drawings/key_guard.py` names each concept, its
+`Drawer`, or `None` for no storage). `src/synthetic_ecommerce_data/domains/retail/key_guard.py` names each concept, its
 winning key and the keys that are another concept by design (`heel_height`, a grocery's `storage`),
 and `tests/test_retail_attribute_keys_227.py` refuses a second key for a concept. The metric,
 `key_guard.keys_per_concept`, is 1 for every concept. A new concept that two types could name
@@ -438,7 +443,7 @@ may keep an entry out of the flat `text` while it stays a facet
 (`standard.flat_documents(..., text_skip=...)`; the grocery's allergen warnings and
 dietary claims).
 
-`prototypes/retail_drawings/export.py` turns the 352-style build into that
+`src/synthetic_ecommerce_data/domains/retail/export.py` turns the 352-style build into that
 standard: `skus` become `variants`, each SKU option a variant-level attribute
 entry (a measurement split into `value`, `unit_code` and `value_canonical`);
 color and size options, the `promotion` and other flags, rating and the other
@@ -460,7 +465,7 @@ promotion") also carries the campaign's name, which never replaces "On sale".
 A product with no `was_price` has no `promotion` entry at all, so the facet
 never shows a "Not on sale" row. `was_price` and `discount_pct` stay. Multi-buy
 is out of scope and becomes its own field later. The values and the rule are in
-`prototypes/retail_drawings/promotion.py`; `tests/test_retail_promotion_189.py`
+`src/synthetic_ecommerce_data/domains/retail/promotion.py`; `tests/test_retail_promotion_189.py`
 checks every layer. A loader that read `offer` (a facet config, a field map)
 reads `promotion` instead; the catalog is reloaded once with #186 to #189.
 
@@ -470,7 +475,7 @@ once `sale` became the exact filter `promotion` = "On sale". Now a share of each
 department's SKUs has a `was_price`, with `discount_pct` and `promotion`: Womens
 and Mens 8%, Kids 10% and Baby 25% (Baby has about 1,400 SKUs, and the ask is a
 few hundred reduced SKUs across at least three product types in each of the
-four). The shares and the rule are in `prototypes/retail_drawings/sale_share.py`,
+four). The shares and the rule are in `src/synthetic_ecommerce_data/domains/retail/sale_share.py`,
 chosen by a hash of the style id and not by the build's random generator, so no
 other style moves. A petite style, a planted decoy and a failure-class row are
 never reduced, which keeps "petite sale" a pair only a policy may honour.
@@ -491,7 +496,7 @@ retail has `price`, `currency` and `in_stock` where industrial has
 `price_usd`, `stock`, `pricing_unit` and `order_multiple`, and no `dimension_provenance` or `spec_quality`
 (`tests/test_output_standard.py` pins that list). To write both files:
 
-    uv run python prototypes/retail_drawings/export.py OUTDIR   # nested.jsonl, flat.jsonl
+    uv run python -m synthetic_ecommerce_data.domains.retail.export OUTDIR   # nested.jsonl, flat.jsonl
 
 **The Combined loader takes every SKU of it.** The loader projects the flat export before it
 writes (`combined_catalog.py` in elastic/prism-industrial-products) and refuses a SKU whose
@@ -617,7 +622,7 @@ needs the same union (a follow-up there).
 and "corner sofa" can still narrow to its own child. The same holds for `Tables` (coffee, dining, side),
 `Lighting > Lamps` and `Lighting > Lights`, `Fans`, `Drills`, `Tool Sets`, `Skincare > Creams`,
 `Kitchen & Surfaces > Cleaners`, `Milk > Plant Milk`, `Biscuits & Snacks > Crisps`, `Bedding > Kids' Bedding`
-and `Beer, Wine & Spirits > Beer`. `prototypes/retail_drawings/tree_guard.py` states three rules and
+and `Beer, Wine & Spirits > Beer`. `src/synthetic_ecommerce_data/domains/retail/tree_guard.py` states three rules and
 `tests/test_retail_tree_nesting_283.py` runs them over the shipped documents, not the build
 records: (a) no node has a sibling whose label is a word-suffix of another's (`Sofas` beside `Corner Sofas`,
 `Skinny Jeans` beside `Super Skinny Jeans`); (b) three or more siblings that share a head noun sit under a parent that names it, or are listed in the guard's `EXCEPTIONS` with a reason; (c) a product whose
@@ -660,7 +665,7 @@ under Jeans, Trousers or Bras that names one of those values, a `fabric` holding
 a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
 bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
 
-`prototypes/retail_drawings/scale.py --skus 20000 --out retail.jsonl` builds the
+`src/synthetic_ecommerce_data/domains/retail/scale.py --skus 20000 --out retail.jsonl` builds the
 retail catalog to a target SKU count, writes it in the standard, and prints a
 report:
 - the coverage (styles, SKUs per department, products per leaf, attribute fill

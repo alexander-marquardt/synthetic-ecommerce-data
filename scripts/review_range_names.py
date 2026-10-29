@@ -32,18 +32,15 @@ import argparse
 import collections
 import json
 import re
-import sys
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
+from synthetic_ecommerce_data.domains.retail.place_ranges import LINE_KEYS
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 #: The attribute keys that name a range on a row.
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-from place_ranges import LINE_KEYS  # noqa: E402
 
 #: Real brands that are also a plain product word; their name in another department's title is
 #: that word ("Apple Graphic Mug"), not the maker. An invented brand never belongs here.
@@ -72,11 +69,6 @@ def _singular(word: str) -> str:
     return word
 
 
-def _prototype() -> None:
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-
-
 def _root(row: dict[str, Any]) -> str:
     """The row's top department ("" when the row states no category path)."""
     path = row.get("category_path") or ()
@@ -93,9 +85,10 @@ def _compatibility(title: str, brand: str) -> bool:
 
 def known_ranges() -> set[str]:
     """Every range name the generator draws from (its pools), read from the prototype."""
-    _prototype()
-    import grocery_rows  # noqa: PLC0415 -- the prototype's own directory is its import root
-    import range_ownership  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import (
+        grocery_rows,  # noqa: PLC0415
+        range_ownership,  # noqa: PLC0415
+    )
 
     names = set(grocery_rows.LINES) | set(grocery_rows.TIER_LINES)
     names |= set(range_ownership.candidates())
@@ -224,8 +217,7 @@ def read_rows(path: Path) -> Iterable[dict[str, Any]]:
 
 def ceiling_rows(skus: int = 10**9) -> list[dict[str, Any]]:
     """The ceiling build's styles (every template exhausted), read from ``scale``."""
-    _prototype()
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
     return list(scale.build(skus).records)
 

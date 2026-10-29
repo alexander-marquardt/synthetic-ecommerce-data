@@ -8,20 +8,16 @@ written out here, not read from the table, so loosening the table does not loose
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_apparel  # noqa: E402
-import neckline_rows  # noqa: E402
-import scale  # noqa: E402
-import style_table  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_apparel,
+    neckline_rows,
+    scale,
+    style_table,
+)
 
 
 @pytest.fixture(scope="module")

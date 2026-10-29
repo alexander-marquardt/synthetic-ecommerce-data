@@ -3,7 +3,7 @@
 Each row plants one defect in the splitter, in the style rows' wiring or in the swatch words, and
 names the test that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
 ``pattern facet: ...`` (``--only "pattern facet:"`` re-runs them). A row is
-``(name, file, old, new, tests, property)``; every file is under ``prototypes/retail_drawings``.
+``(name, file, old, new, tests, property)``; every file is under ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 # ruff: noqa: E501  -- an anchor is the exact source line, so it cannot be wrapped
@@ -94,4 +94,4 @@ PREFIX = "pattern facet"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

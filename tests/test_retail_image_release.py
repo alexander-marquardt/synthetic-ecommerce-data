@@ -1,7 +1,7 @@
 """The retail image release: one drawing per style, colorway and size rung (gen#125, gen#339),
 written to every SKU's own file (gen#706).
 
-``prototypes/retail_drawings/image_release.py`` renders every image the retail
+``src/synthetic_ecommerce_data/domains/retail/image_release.py`` renders every image the retail
 export (``export.py``) references and packages it as the industrial bundle is
 (:mod:`synthetic_ecommerce_data.core.bundle`): members under one top-level
 folder, a deterministic ``.tar.gz``, and the content digest a customization pins.
@@ -21,20 +21,20 @@ from typing import Any
 import pytest
 
 from synthetic_ecommerce_data.core import bundle
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    pack_scale,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
+from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
+from synthetic_ecommerce_data.domains.retail.variants import FAMILIES
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
-import export  # noqa: E402 -- the prototype's own directory is its import root
-import image_release  # noqa: E402
-import pack_scale  # noqa: E402
-import scale  # noqa: E402
-from build_preview import drawing_svg  # noqa: E402
-from build_preview4 import samples  # noqa: E402
-from retail_figures import figures  # noqa: E402
-from variants import FAMILIES  # noqa: E402
 
 #: The authored-styles build, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 RETAIL_SKUS = figures()["templates"]["authored"]["skus"]
@@ -198,7 +198,7 @@ def test_the_command_writes_the_industrial_package_shape(tmp_path, files):
 def test_a_style_with_one_print_colorway_and_solid_ones_renders_every_sku():
     """The floral dress draws its first colorway as a print; its solid colorways keep the style's
     motif keys on the drawing, and a solid fill carries none (gen#408)."""
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
     rec = next(r for r in scale.templates() if r["product_id"] == "BRD-CLRWRP")
     patterns = {}

@@ -3,7 +3,7 @@
 Each row plants one defect in ``kit_lighting.py`` and names the test that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``lighting drawings: ...``
 (``--only "lighting drawings:"`` re-runs them). A row is
-``(name, file, old, new, test, property)``; every row's root is ``prototypes/retail_drawings``.
+``(name, file, old, new, test, property)``; every row's root is ``domains/retail``.
 """
 
 from __future__ import annotations
@@ -34,4 +34,4 @@ PREFIX = "lighting drawings"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

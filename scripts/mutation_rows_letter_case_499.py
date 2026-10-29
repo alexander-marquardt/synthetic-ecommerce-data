@@ -12,7 +12,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _SRC = "src/synthetic_ecommerce_data"
-_RETAIL = "prototypes/retail_drawings"
+_RETAIL = "src/synthetic_ecommerce_data/domains/retail"
 _T = "tests/test_letter_case_499.py"
 _R = "tests/test_rules_538.py"  # the sentence_case rule over every row set (#538)
 _LC = "core/letter_case.py"

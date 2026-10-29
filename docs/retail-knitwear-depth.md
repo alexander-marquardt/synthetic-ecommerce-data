@@ -1,6 +1,6 @@
 # Retail knitwear depth (gen#309)
 
-`prototypes/retail_drawings/knitwear_rows.py` adds Women's and Men's jumpers, cardigans and
+`src/synthetic_ecommerce_data/domains/retail/knitwear_rows.py` adds Women's and Men's jumpers, cardigans and
 knitted tops as distinct products (a style is a product; its colors times its sizes are its
 SKUs), so "ladies white jumper", "mens navy v neck jumper" or "cashmere cardigan" have products to
 choose between. The floors and the style by material grid are pinned by

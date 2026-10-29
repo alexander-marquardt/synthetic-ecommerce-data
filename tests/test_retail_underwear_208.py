@@ -12,22 +12,17 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_underwear  # noqa: E402
-import scale  # noqa: E402
-import underwear_rows  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    kit_underwear,
+    scale,
+    underwear_rows,
+)
 
 ROWS = underwear_rows.ROWS
 
@@ -216,6 +211,6 @@ def test_every_underwear_style_reaches_the_100k_build_and_meets_the_standard() -
 
 def test_kids_sizes_use_the_spelling_the_other_kids_rows_use() -> None:
     """A second spelling of a kids size would split the ``size`` facet."""
-    import prints
+    from synthetic_ecommerce_data.domains.retail import prints
 
     assert underwear_rows.KIDS == prints.KIDS_SIZES

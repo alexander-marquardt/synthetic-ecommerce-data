@@ -11,19 +11,15 @@ variant axis that changes the look is a drawing param that agrees with the attri
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import footwear_rows as fw  # noqa: E402
-import kit  # noqa: E402
-import kit_footwear as kf  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+)
+from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
+from synthetic_ecommerce_data.domains.retail import kit_footwear as kf
 
 #: product_type -> (footwear kind, the export keys the issue lists for it).
 TYPES = {

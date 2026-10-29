@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _T = "tests/test_retail_garden_203.py"
 _COPY = "*(_copy(c, k, t, b, col, d) for items in _REAL.values() for c, k, t, b, col, d in items),"
 _MAKE = "*(make(c, t, d) for c, _p, make, t, d in _SIBLINGS),"

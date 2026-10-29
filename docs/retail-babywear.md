@@ -1,7 +1,7 @@
 # Retail babywear and nursery: sleepsuits, bodysuits, snowsuits, puddlesuits, all-in-ones, blankets, mats, caddies, storage (gen#213)
 
 The Baby audience held no babywear basics and no nursery textiles. Nine type specs under
-`prototypes/retail_drawings/type_specs/` add them; `kit_baby.py` draws each as a shape of its own
+`src/synthetic_ecommerce_data/domains/retail/type_specs/` add them; `kit_baby.py` draws each as a shape of its own
 and `babywear_rows.py` holds the shared colors, age sizes, row builders and decoy helper. None is
 derived: authored rows only. Every brand is invented.
 

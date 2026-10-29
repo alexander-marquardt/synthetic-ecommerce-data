@@ -46,7 +46,7 @@ list, and the list order did not change, so the pair is:
 ```
 .venv/bin/python - <<'PY'
 import sys
-sys.path.insert(0, "prototypes/retail_drawings")
+sys.path.insert(0, "src/synthetic_ecommerce_data/domains/retail")
 import scale
 print("old_sku,new_sku")
 for r in scale.templates():

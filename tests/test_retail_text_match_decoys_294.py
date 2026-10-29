@@ -10,22 +10,21 @@ The guard rows are real products whose name holds a color word ("green tea").
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
+from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
+from synthetic_ecommerce_data.domains.retail import (
+    feature_decoys,
+    main_colors,
+    scale,
+)
 
-import baseline_rank as br  # noqa: E402
-import decoy_apparel as da  # noqa: E402
-import decoy_rows as dr  # noqa: E402
-import feature_decoys  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: query -> (color, product types, path root, path word): what the interpreted query keeps.
 INTENT = {

@@ -15,19 +15,14 @@ gen#311), pinned by ``test_retail_apparel_decoys_311.py``.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_apparel  # noqa: E402
-import decoy_product_words  # noqa: E402
-import decoy_rows  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_apparel,
+    decoy_product_words,
+    decoy_rows,
+    scale,
+)
 
 _DECOYS = decoy_apparel.ids() | decoy_rows.IDS | decoy_product_words.IDS
 
@@ -47,7 +42,7 @@ def templates() -> list[dict]:
 
 
 def _new_rows(templates) -> list[dict]:
-    import kids_depth_rows
+    from synthetic_ecommerce_data.domains.retail import kids_depth_rows
 
     ids = kids_depth_rows.product_ids()
     return [r for r in templates if r["product_id"] in ids]
@@ -105,7 +100,7 @@ def test_a_new_dress_states_its_neckline(templates):
 
 def test_a_new_dress_states_the_neckline_its_description_names(templates):
     """The row states the neckline itself; ``neckline_rows.complete`` would only guess one."""
-    import kids_depth_rows
+    from synthetic_ecommerce_data.domains.retail import kids_depth_rows
 
     said = {phrase: fact for fact, phrase in kids_depth_rows.NECKS.values()}
     dresses = [r for r in _new_rows(templates) if r["product_type"] == "Dress"]
@@ -194,7 +189,7 @@ def test_the_new_rows_sell_the_main_colors_between_them(templates):
 
 
 def test_the_new_rows_are_left_out_of_the_derivation(templates):
-    import kids_depth_rows
+    from synthetic_ecommerce_data.domains.retail import kids_depth_rows
 
     ids = kids_depth_rows.product_ids()
     assert ids
@@ -233,7 +228,7 @@ def test_the_new_rows_leave_every_other_template_as_it_was(templates, monkeypatc
     share, they took a Kids dress's added colors and seven Kids styles' sale, so the derivation
     drew other fillers and a Kids tee pushed the "oranges" washing-up liquid out of the top
     twelve (``test_grocery_plural_nonfood_decoys_445``)."""
-    import kids_depth_rows
+    from synthetic_ecommerce_data.domains.retail import kids_depth_rows
 
     ids = kids_depth_rows.product_ids()
     monkeypatch.setattr(kids_depth_rows, "docs", lambda: [])
@@ -257,7 +252,7 @@ def test_each_new_leaf_has_a_product_on_sale(templates):
 def test_the_kids_department_holds_its_sale_share(templates):
     """``sale_share`` says the share holds whatever a later change adds: the new rows' SKUs count
     toward the Kids total, so the rows must carry their part of the share."""
-    import sale_share
+    from synthetic_ecommerce_data.domains.retail import sale_share
 
     kids = [r for r in templates if sale_share.department(r) == "Kids"]
     total = sum(r["sku_count"] for r in kids)

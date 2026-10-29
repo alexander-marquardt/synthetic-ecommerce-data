@@ -8,21 +8,16 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
 from retail_ceiling import ceiling_build
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import line_grammar  # noqa: E402
-import line_grammar_families  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    line_grammar,
+    line_grammar_families,
+    scale,
+)
 
 
 @pytest.fixture(scope="module")

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
-_T = "prototypes/retail_drawings/test_shape_honesty.py"
+_R = "src/synthetic_ecommerce_data/domains/retail"
+_T = "tests/test_shape_honesty.py"
 _LS = "leaf_shapes.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [

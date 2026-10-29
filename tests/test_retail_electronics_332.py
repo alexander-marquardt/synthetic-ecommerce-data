@@ -11,19 +11,16 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decoy_product_words  # noqa: E402
-import kit  # noqa: E402
-import real_brands  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    decoy_product_words,
+    kit,
+    real_brands,
+    scale,
+)
 
 NOTE = (Path(__file__).resolve().parents[1] / "docs" / "retail-electronics.md").read_text(
     encoding="utf-8"
@@ -60,7 +57,7 @@ def _accessories(docs: list[dict]) -> list[dict]:
 
 
 def test_the_department_is_on_the_closed_list_and_holds_every_node_of_the_issue(electronics):
-    import departments
+    from synthetic_ecommerce_data.domains.retail import departments
 
     assert "Electronics" in departments.DEPARTMENTS
     assert {tuple(d["category_path"]) for d in electronics} >= DEVICE_NODES

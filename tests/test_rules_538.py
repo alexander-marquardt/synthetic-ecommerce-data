@@ -3,27 +3,23 @@
 The rules of how the catalogue reads (a range name holds no color, ``Blue and White``, a dress
 style beside the neckline and length it allows, sentence case, one key per concept, orange shoes,
 two-word seeds) were a test file per issue, each building its own catalogue. They are functions of
-``prototypes/retail_drawings/rules.py`` now. This file runs each over each row set it is declared
+``domains/retail/rules.py`` now. This file runs each over each row set it is declared
 for, against the explicit allow-list ``rules_allow.toml``, a minimum count of rows examined, and
 a planted breach of each rule that the rule must find.
 """
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Callable
 from functools import cache
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import colorwords  # noqa: E402 -- the prototype's own directory is its import root
-import rules  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    rules,
+)
 
 CASES = [(r, name) for r in rules.RULES for name in r.minimum]
 
@@ -217,7 +213,7 @@ def test_a_seed_with_too_few_rows_is_found(monkeypatch):
 
 
 def test_a_place_range_with_a_color_is_found(monkeypatch):
-    import place_ranges
+    from synthetic_ecommerce_data.domains.retail import place_ranges
 
     monkeypatch.setattr(
         place_ranges, "PLACE_RANGES", (("Red Fell", "a fell"), *place_ranges.PLACE_RANGES)

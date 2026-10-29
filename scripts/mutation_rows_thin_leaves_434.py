@@ -11,7 +11,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _T = "tests/test_retail_thin_leaves_434.py"
-_ROOT = "prototypes/retail_drawings"
+_ROOT = "src/synthetic_ecommerce_data/domains/retail"
 _CHIPS = "type_specs/chips.py"
 _BED = "type_specs/bed.py"
 _BOMBER = "type_specs/bomber_jacket.py"

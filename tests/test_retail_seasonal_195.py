@@ -8,17 +8,16 @@ from :mod:`seasonal_rows`, so dropping one from the rows (or folding it again) f
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    export,
+    scale,
+)
 
-import colorwords  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: Plain color values, one each, a two-word color included (like Rose Gold).
 COLORS = frozenset({

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
-_T = "prototypes/retail_drawings/test_shape_honesty.py"
+_R = "src/synthetic_ecommerce_data/domains/retail"
+_T = "tests/test_shape_honesty.py"
 _NP = "named_parts.py"
 _DT = "details.py"
 _NEW = "a_new_part_is_one_the_shape_shows"

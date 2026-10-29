@@ -2,7 +2,7 @@
 
 A description that says "magnetic fastening" over a style whose `closure` is Zip, or a polka dot
 umbrella that sells a gingham color, contradicts its own facet. `attribute_text.disagreements(records)`
-(`prototypes/retail_drawings/attribute_text.py`) returns one line per row that disagrees, and its
+(`src/synthetic_ecommerce_data/domains/retail/attribute_text.py`) returns one line per row that disagrees, and its
 length is the metric. `tests/test_retail_attribute_text_250.py` holds it at zero on the templates
 and on the ceiling build, and holds the check itself against hand-made rows.
 

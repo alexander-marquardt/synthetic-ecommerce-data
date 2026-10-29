@@ -10,22 +10,20 @@ one key every measured height shares (gen#227).
 
 from __future__ import annotations
 
-import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 
 def _template_documents() -> list[dict[str, Any]]:
     """Every authored retail style (the templates the scaled build derives from) as the
     output standard's nested document."""
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import export  # noqa: PLC0415 -- the prototype's own directory is its import root
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import (
+        export,  # noqa: PLC0415
+        scale,  # noqa: PLC0415
+    )
 
     return [export.standard_document(rec) for rec in scale.templates()]
 

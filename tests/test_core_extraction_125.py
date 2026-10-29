@@ -19,6 +19,7 @@ import importlib.util
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 PACKAGE = Path(__file__).resolve().parents[1] / "src" / "synthetic_ecommerce_data"
@@ -135,13 +136,13 @@ def _is_module(name: str) -> bool:
         return False
 
 
-def _reached(path: Path, package: str) -> set[str]:
+def _reached(path: Path, package: str, is_module=_is_module) -> set[str]:
     """Every module that ``path``, a module in ``package``, imports or names.
 
     A relative import is resolved by its level. ``from P import N`` reaches
-    ``P.N`` when that is a module, else ``P`` itself, so a name imported from
-    a domain package counts as reaching the package. A string literal that is
-    a dotted path under :data:`PACKAGE_NAME` counts too.
+    ``P.N`` when that is a module (by ``is_module``), else ``P`` itself, so a
+    name imported from a domain package counts as reaching the package. A
+    string literal that is a dotted path under :data:`PACKAGE_NAME` counts too.
     """
     reached: set[str] = set()
     for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
@@ -153,7 +154,7 @@ def _reached(path: Path, package: str) -> set[str]:
                 source = node.module or ""
             for alias in node.names:
                 full = f"{source}.{alias.name}"
-                reached.add(full if _is_module(full) else source)
+                reached.add(full if is_module(full) else source)
         elif isinstance(node, ast.Import):
             reached.update(alias.name for alias in node.names)
         elif (
@@ -217,6 +218,108 @@ def test_the_edge_scan_sees_every_way_core_can_reach_outside_itself(tmp_path):
         ("other_domain", "domains.retail.catalog"),
         ("string", "domains.industrial.data"),
         ("app", "prism.field_map"),
+    }
+
+
+DOMAINS = PACKAGE / "domains"
+
+
+def _domain_edges(domains: Path) -> set[tuple[str, str]]:
+    """``(domain module, what it reaches)`` for every reach from a domain past core and itself.
+
+    ``domains`` is read as the package ``synthetic_ecommerce_data.domains``; each directory under
+    it is one domain. A module is named relative to ``domains``, a target relative to
+    :data:`PACKAGE_NAME`. A domain reaching core, itself or anything outside the package is no
+    edge; a reach into another domain, into ``domains`` itself or into the layers above core
+    (``prism/``, the commands) is.
+
+    A ``from P import N`` is resolved against the files under ``domains``, so the scan reads a
+    planted tree the same way as the real one.
+    """
+    root = f"{PACKAGE_NAME}.domains"
+
+    def in_tree(name: str) -> bool:
+        if name == root or not name.startswith(f"{root}."):
+            return _is_module(name)
+        rel = Path(*name.removeprefix(f"{root}.").split("."))
+        return (domains / rel).with_suffix(".py").is_file() or (domains / rel).is_dir()
+
+    edges = set()
+    for path in sorted(domains.rglob("*.py")):
+        rel = path.relative_to(domains).with_suffix("").parts
+        if len(rel) < 2:
+            continue
+        is_package = rel[-1] == "__init__"
+        inner = ".".join(rel[:-1] if is_package else rel)
+        module = f"{root}.{inner}"
+        package = module if is_package else module.rpartition(".")[0]
+        own = f"{root}.{rel[0]}"
+        for name in _reached(path, package, is_module=in_tree):
+            if not (name == PACKAGE_NAME or name.startswith(f"{PACKAGE_NAME}.")):
+                continue
+            if any(name == base or name.startswith(f"{base}.") for base in (CORE, own)):
+                continue
+            edges.add((inner, name.removeprefix(f"{PACKAGE_NAME}.")))
+    return edges
+
+
+def test_retail_is_a_domain_package_and_the_prototype_is_gone():
+    """The 2026-10-28 ruling on #125, slice 1: retail is a domain, under ``src/`` (#539)."""
+    assert (DOMAINS / "retail" / "__init__.py").is_file()
+    assert not (PACKAGE.parents[1] / "prototypes").exists()
+
+
+def test_pytest_collects_tests_only():
+    """With the prototype gone, ``tests/`` is the one place a test file lives (#539)."""
+    config = tomllib.loads((PACKAGE.parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
+    assert config["tool"]["pytest"]["ini_options"]["testpaths"] == ["tests"]
+
+
+#: ``(domain module, what it reaches past core and itself)``: the one seam the move of retail
+#: into ``domains/`` could not cut without a redesign (#125 slice 1). Shrinks only, like
+#: :data:`CORE_EDGES`. ``retail.rules`` runs the realism rules over the industrial build's rows
+#: too, so it builds one; the layer that composes the domains should hand it those rows.
+DOMAIN_EDGES = frozenset({("retail.rules", "domains.industrial.generate")})
+
+
+def test_a_domain_reaches_past_core_only_through_the_listed_edges():
+    assert _domain_edges(DOMAINS) == DOMAIN_EDGES
+
+
+def test_the_domain_scan_sees_every_way_one_domain_can_reach_another(tmp_path):
+    """Each plant is a way for domain ``a`` to depend on domain ``b``, or on ``domains``."""
+    domains = tmp_path / "domains"
+    (domains / "a" / "inner").mkdir(parents=True)
+    (domains / "b").mkdir()
+    for package in (domains, domains / "a", domains / "a" / "inner", domains / "b"):
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    (domains / "b" / "rows.py").write_text("", encoding="utf-8")
+    plants = {
+        "absolute": "import synthetic_ecommerce_data.domains.b.rows\n",
+        "from_package": "from synthetic_ecommerce_data.domains import b\n",
+        "relative": "from ..b import rows\n",
+        "relative_domains": "from .. import b\n",
+        "string": 'PACKAGE = "synthetic_ecommerce_data.domains.b.rows"\n',
+        # The application layer above core: a domain reaches core only.
+        "app": "from synthetic_ecommerce_data.prism import field_map\n",
+        # Itself, core and the standard library are no edge, by any spelling.
+        "inside": (
+            "from . import inner\nfrom .inner import x\n"
+            "from synthetic_ecommerce_data.domains.a import inner as again\n"
+            "from synthetic_ecommerce_data.core import emit\nimport json\n"
+        ),
+    }
+    for name, text in plants.items():
+        (domains / "a" / f"{name}.py").write_text(text, encoding="utf-8")
+    (domains / "a" / "inner" / "deep.py").write_text("from ...b import rows\n", encoding="utf-8")
+    assert _domain_edges(domains) == {
+        ("a.absolute", "domains.b.rows"),
+        ("a.from_package", "domains.b"),
+        ("a.relative", "domains.b.rows"),
+        ("a.relative_domains", "domains.b"),
+        ("a.string", "domains.b.rows"),
+        ("a.app", "prism.field_map"),
+        ("a.inner.deep", "domains.b.rows"),
     }
 
 

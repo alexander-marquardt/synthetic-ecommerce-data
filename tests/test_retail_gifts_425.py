@@ -14,27 +14,22 @@ type whose word its title holds).
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import baseline_rank as br  # noqa: E402
-import decoy_product_words as dpw  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_gifts  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
-import type_registry  # noqa: E402
-from distractors import tokens  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    kit_gifts,
+    main_colors,
+    scale,
+    tree_guard,
+    type_registry,
+)
+from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 ROOT = "Gifts"
 #: spec key -> (product type, path, the structured entries every style states).

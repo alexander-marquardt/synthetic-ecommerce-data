@@ -9,17 +9,13 @@ fill, and the top material is a drawing param that follows the attribute.
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import furniture_rows  # noqa: E402
-import image_release  # noqa: E402
-import kit  # noqa: E402
-import kit_furniture  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    furniture_rows,
+    image_release,
+    kit,
+    kit_furniture,
+)
 
 CELL = 4  # raster step in sheet units
 BASE = "#f2efe8"  # the catalog's White

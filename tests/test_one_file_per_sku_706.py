@@ -20,15 +20,16 @@ from typing import Any
 import pytest
 
 from synthetic_ecommerce_data.core import bundle
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-for _path in (RETAIL, ROOT / "scripts"):
-    if str(_path) not in sys.path:
-        sys.path.insert(0, str(_path))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
 
-import export  # noqa: E402 -- the prototype's own directory is its import root
-import image_release  # noqa: E402
 import open_pin_bump_pr as pins  # noqa: E402
 
 GOLDEN = ROOT / "golden-catalog"

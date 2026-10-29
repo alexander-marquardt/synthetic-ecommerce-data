@@ -11,27 +11,21 @@ rule) whose fields tell the truth, and the styles reach the build.
 from __future__ import annotations
 
 import re
-import sys
 import xml.dom.minidom
-from pathlib import Path
 
 import pytest
 
 from synthetic_ecommerce_data.core.letter_case import sentence_case
-
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import house_styles  # noqa: E402
-import kit  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    house_styles,
+    kit,
+    main_colors,
+    scale,
+    tree_guard,
+    type_registry,
+)
 
 #: product type -> (spec key, shape, the key attributes every style states).
 TYPES = {

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-_R = "prototypes/retail_drawings"
+_R = "src/synthetic_ecommerce_data/domains/retail"
 _F = "decoy_plural_nonfood_rows.py"
 _T = "tests/test_grocery_plural_nonfood_decoys_445.py"
 

@@ -9,24 +9,19 @@ that finds it ("bicycle", "bike helmet", "kayak", "scooter", "skateboard"; "tent
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import baseline_rank as br  # noqa: E402
-import decoy_product_words as dpw  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_sports  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import sports_rows  # noqa: E402
-import tree_guard  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    kit_sports,
+    main_colors,
+    scale,
+    sports_rows,
+    tree_guard,
+)
 
 ROOT = "Sports & Outdoors"
 #: The five types, the facets every style states (a variant's or a product's) and its SKU axis:

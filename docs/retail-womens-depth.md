@@ -1,6 +1,6 @@
 # Retail clothing depth: the Womens slice (gen#310)
 
-`prototypes/retail_drawings/womens_depth_rows.py` adds Womens dresses, blouses and shirts, coats
+`src/synthetic_ecommerce_data/domains/retail/womens_depth_rows.py` adds Womens dresses, blouses and shirts, coats
 and jackets, skirts and tops (camisoles, vest tops, tunics) as distinct products, each with fit,
 material and, where it applies, neckline and sleeve length. The floors are pinned by
 `tests/test_retail_womens_depth_310.py` over `scale.templates()`. The Mens slice is

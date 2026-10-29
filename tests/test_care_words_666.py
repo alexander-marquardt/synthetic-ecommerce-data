@@ -8,14 +8,7 @@ NOT-TESTED. Here the import sits in the test body and a failure there is an asse
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
 
 def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
@@ -23,8 +16,7 @@ def test_the_family_vocabularies_share_no_word_with_each_other_or_a_name():
     a first name reads as a brand. Metric: the words in two vocabularies, and the lead words that
     are also name words or that fall in both halves a build deals."""
     try:
-        import line_grammar
-        import line_grammar_families
+        from synthetic_ecommerce_data.domains.retail import line_grammar, line_grammar_families
     except ValueError as err:
         pytest.fail(f"the vocabularies do not load: {err}")
     leads = {n: f.leads for n, f in line_grammar_families.families().items()}
@@ -47,7 +39,7 @@ def test_the_scale_and_grocery_deals_of_a_care_family_share_no_word():
     """Guard (gen#666): the scale and the grocery build deal a care family's lead words from
     different halves, so no word is one brand's in one build and another's in the other (the #642
     failure). Metric: the words both builds' ``Deal`` of one family hands out."""
-    import line_grammar
+    from synthetic_ecommerce_data.domains.retail import line_grammar
 
     brands = ["Alba", "Brio", "Cora", "Dune"]
     for fam in line_grammar.CARE:

@@ -9,23 +9,21 @@ this file. The counts are taken over :func:`scale.templates`.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.core.drawing import brand_type
+from synthetic_ecommerce_data.domains.retail import (
+    build_preview,
+    house_styles,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail import color_word_brand_rows as cw_rows
+
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
 
-import build_preview  # noqa: E402
-import color_word_brand_rows as cw_rows  # noqa: E402
-import house_styles  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core import standard  # noqa: E402
-from synthetic_ecommerce_data.core.drawing import brand_type  # noqa: E402
 
 BRANDS = {
     "Green Harrow": "green", "Yellow Skerry": "yellow", "Black Larch": "black",

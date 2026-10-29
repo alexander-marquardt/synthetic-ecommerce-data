@@ -3,7 +3,7 @@
 Each row puts one retired spelling (``Striped``, ``Checked``, ``Spotted``) back on an authored row
 and names the test that must go red. ``mutation_check.py`` turns them into ``Mutation`` rows named
 ``pattern spelling: ...`` (``--only "pattern spelling:"`` re-runs them). A row is
-``(name, file, old, new, tests, property)``; every file is under ``prototypes/retail_drawings``.
+``(name, file, old, new, tests, property)``; every file is under ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 # ruff: noqa: E501  -- an anchor is the exact source line, so it cannot be wrapped
@@ -71,4 +71,4 @@ PREFIX = "pattern spelling"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

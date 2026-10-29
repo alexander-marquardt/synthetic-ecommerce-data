@@ -15,22 +15,21 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    house_styles,
+    image_release,
+    main_colors,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
-import baseline_rank as br  # noqa: E402
-import decoy_product_words as dpw  # noqa: E402
-import export  # noqa: E402
-import house_styles  # noqa: E402
-import image_release  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-from distractors import tokens  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
 
 from decoy_true_nodes import TRUE_NODE  # noqa: E402
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
 
 #: The nouns the issue names: each carries at least two class-8 decoys.
 MIN_NOUNS = (
@@ -227,9 +226,12 @@ def test_the_derived_build_writes_the_table_page(tmp_path, monkeypatch) -> None:
     page is the one :func:`decoy_product_words.table_doc` returns (gen#513)."""
     sys.path.insert(0, str(ROOT / "scripts"))
     import build_derived  # noqa: PLC0415
-    import build_preview  # noqa: PLC0415
-    import build_preview4  # noqa: PLC0415
-    import retail_figures  # noqa: PLC0415
+
+    from synthetic_ecommerce_data.domains.retail import (
+        build_preview,  # noqa: PLC0415
+        build_preview4,  # noqa: PLC0415
+        retail_figures,  # noqa: PLC0415
+    )
 
     monkeypatch.setattr(retail_figures, "figures", lambda: {})
     monkeypatch.setattr(retail_figures, "render", lambda figures: "")

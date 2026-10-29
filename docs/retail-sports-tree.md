@@ -1,6 +1,6 @@
 # Sports & Outdoors: the tree, its filters and what is not built (gen#290)
 
-The department is built from one spec file per type in `prototypes/retail_drawings/type_specs/`
+The department is built from one spec file per type in `src/synthetic_ecommerce_data/domains/retail/type_specs/`
 (gen#265, first increment, PR #288, moved there by gen#455; `sports_rows.py` lists their rows; the remainder, gen#368, adds seventeen types: yoga blocks, straps and bands, lanterns,
 roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
 helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
@@ -74,7 +74,7 @@ guard's rules hold on the subtree either way.
 
 Each bicycle title leads with its brand, its series and its model number, then the spec and the
 bike: `Wrenfield Aero Elite RD28-22-26 28in 22 Speed Carbon Road Bike`, the title order of the
-large appliances (gen#622). `prototypes/retail_drawings/bicycle_model_numbers.py` holds each
+large appliances (gen#622). `src/synthetic_ecommerce_data/domains/retail/bicycle_model_numbers.py` holds each
 brand's scheme and series. A code is built from the kind, the wheel inches, the gears and the
 model year, and `decode` reads it back. The model number and the model year are attributes, the
 series is exported as `series`, and every SKU carries its bike's code. The frame size (a kids'

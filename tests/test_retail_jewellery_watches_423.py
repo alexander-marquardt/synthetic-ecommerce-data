@@ -17,20 +17,19 @@ the unit, the number and the color are what a policy reads, and the fields below
 from __future__ import annotations
 
 import collections
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    scale,
+    type_registry,
+)
 
-import baseline_rank as br  # noqa: E402
-import kit  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 NEW_TYPES = ("Hoop Earrings", "Drop Earrings", "Analog Watch", "Digital Watch", "Fitness Band")
 KEYS = {t: t.lower().replace(" ", "_") for t in NEW_TYPES}

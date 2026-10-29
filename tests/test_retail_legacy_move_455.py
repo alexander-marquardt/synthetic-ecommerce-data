@@ -8,18 +8,13 @@ half-done move shows: the legacy list, the spec file and the shared file it left
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import scale  # noqa: E402
-import sports_rows  # noqa: E402
-import type_registry  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    scale,
+    sports_rows,
+    type_registry,
+)
 
 DEPARTMENT = "Sports & Outdoors"
 #: key -> (product type, the product ids of its styles): the ids are what the build had before

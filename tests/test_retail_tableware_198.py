@@ -7,19 +7,16 @@ Guard: a type that loses a style, a brand, a key attribute or its own shape fail
 from __future__ import annotations
 
 import inspect
-import sys
-from pathlib import Path
 
 import pytest
 
-HERE = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(HERE))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import kit_tableware  # noqa: E402
-import scale  # noqa: E402
-import tableware_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    kit_tableware,
+    scale,
+    tableware_rows,
+)
 
 #: product type -> its category leaf, its shape, and the keys its shoppers filter on. A key
 #: the SKUs carry (a pack size, a blade length) is read from the exported variants too.

@@ -1,6 +1,6 @@
 """The shopper-facing color is a plain color word, never an object or a food (gen#150).
 
-A yellow tee had the color "Lemon". ``prototypes/retail_drawings/colorwords.py`` maps
+A yellow tee had the color "Lemon". ``domains/retail/colorwords.py`` maps
 each authored fashion shade to its plain color; these tests hold the ceiling build (every
 template exhausted, so every derived style too) to it, at the three places a shopper
 meets a color: the style's ``color_options``, each SKU's ``color`` and the exported
@@ -11,21 +11,20 @@ allowlist it checks.
 from __future__ import annotations
 
 import collections
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    colorwords,
+    export,
+    scale,
+    shades,
+)
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
-import colorwords  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
-import shades  # noqa: E402
-from retail_figures import figures  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: Today's ceiling SKUs, as ``retail_figures.figures()`` measures it (gen#162, gen#536).
 CEILING_SKUS = figures()["ceiling"]["skus"]

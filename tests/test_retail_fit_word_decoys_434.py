@@ -9,20 +9,19 @@ no-policy baseline (:mod:`baseline_rank`) ranks them in the top 10 of the value'
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
 
-import baseline_rank as br  # noqa: E402
-import decoy_apparel as da  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 PER_VALUE = 3
 #: A jean whose text says "cropped" also carries the Cropped fit (``facet_leaves.CROPPED``), so a

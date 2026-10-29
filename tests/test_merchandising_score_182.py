@@ -9,8 +9,6 @@ integer in [0, 100], the same for the same seed; it follows the product's volume
 from __future__ import annotations
 
 import dataclasses
-import sys
-from pathlib import Path
 
 import pytest
 
@@ -19,13 +17,10 @@ from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.industrial.generate import generate
-
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
 
 #: The rank correlation of the score with popularity must sit in this band: below it the
 #: score would not follow popularity at all, above it boosting on it would reorder nothing.

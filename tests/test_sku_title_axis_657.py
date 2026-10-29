@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from pathlib import Path
 
 import pytest
@@ -30,7 +29,6 @@ from synthetic_ecommerce_data.core.naming import states_value
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN_DIR = ROOT / "golden-catalog"
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 #: The share of industrial SKU titles (of products with variants) that state at least one of
 #: their axis values. The generator targets 0.70 (``finishing.AXIS_IN_TITLE``): most titles
@@ -72,9 +70,7 @@ def industrial(request) -> list[dict]:
 
 @pytest.fixture(scope="module")
 def retail() -> list[dict]:
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import export
+    from synthetic_ecommerce_data.domains.retail import export
 
     return export.flat_documents()
 

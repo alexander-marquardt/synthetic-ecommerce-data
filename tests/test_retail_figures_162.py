@@ -5,7 +5,7 @@ counts and the near-duplicate rate move with every grocery or type pull request.
 a test, the README or a docstring, each such PR restated them in about ten places and
 conflicted with its siblings on every one.
 
-``prototypes/retail_drawings/retail_figures.py`` measures them from the tree (gen#536: nothing
+``domains/retail/retail_figures.py`` measures them from the tree (gen#536: nothing
 is committed, ``figures()`` is measured once per test run). These tests hold the two ends: the
 measurement is shared by a run's workers, and no test, doc or source comment restates a total in
 it. Invariants keep their own asserts elsewhere: no twins in a family, every allergen derived
@@ -16,17 +16,14 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import retail_figures
 
-import retail_figures  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: A retail feature's own reference page (gen#513), read like the page it left.
 PROTOTYPE_PAGES = tuple(
@@ -41,8 +38,8 @@ QUOTING = (
     "README.md",
     "docs/retail-prototype.md",
     *PROTOTYPE_PAGES,
-    "prototypes/retail_drawings/scale.py",
-    "prototypes/retail_drawings/grocery.py",
+    "src/synthetic_ecommerce_data/domains/retail/scale.py",
+    "src/synthetic_ecommerce_data/domains/retail/grocery.py",
     "tests/test_grocery_154.py",
     "tests/test_grocery_beer_oranges_161.py",
     "tests/test_grocery_ingredients_154.py",

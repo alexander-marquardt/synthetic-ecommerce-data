@@ -10,7 +10,7 @@ from __future__ import annotations
 from mutation_row import Row
 
 _T = "tests/test_retail_fit_word_decoys_434.py"
-_ROOT = "prototypes/retail_drawings"
+_ROOT = "src/synthetic_ecommerce_data/domains/retail"
 _D = "decoy_apparel.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [

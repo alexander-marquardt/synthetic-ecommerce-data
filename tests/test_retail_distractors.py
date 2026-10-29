@@ -11,22 +11,21 @@ lead, beef steaks follow), so growing the catalog cannot undo them.
 from __future__ import annotations
 
 import statistics
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import distractor_rows as dr
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    kit_tableware,
+    scale,
+    tableware_rows,
+)
 
-import baseline_rank as br  # noqa: E402
-import distractor_rows as dr  # noqa: E402
-import kit  # noqa: E402
-import kit_tableware  # noqa: E402
-import scale  # noqa: E402
-import tableware_rows  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 
 @pytest.fixture(scope="module")

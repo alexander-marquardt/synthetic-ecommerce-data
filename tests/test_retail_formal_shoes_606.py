@@ -10,18 +10,14 @@ names which women's shoe types it groups.
 from __future__ import annotations
 
 import collections
-import sys
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import footwear_rows as fw  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
+from synthetic_ecommerce_data.domains.retail import (
+    scale,
+    tree_guard,
+)
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 

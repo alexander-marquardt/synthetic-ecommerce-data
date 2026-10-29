@@ -11,20 +11,16 @@ authored styles, and the third pins the products the issue named.
 from __future__ import annotations
 
 import json
-import sys
 from functools import cache
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import key_guard  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    key_guard,
+    scale,
+)
 
 
 def _entry(key: str, text: bool = False) -> dict[str, str]:
@@ -161,8 +157,10 @@ def test_storage_is_one_kind_where_none_means_no_storage(leaf: str, values: set[
 def _built_samples(name: str) -> list[dict]:
     """The sneak-peek samples the builders write (``samples.ndjson``, ``samples4.ndjson``); the
     files are build output and not in git (gen#536)."""
-    import build_preview  # noqa: PLC0415
-    import build_preview4  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import (
+        build_preview,  # noqa: PLC0415
+        build_preview4,  # noqa: PLC0415
+    )
 
     builder = {"samples.ndjson": build_preview, "samples4.ndjson": build_preview4}[name]
     return [json.loads(line) for line in builder.outputs()[1].splitlines()]

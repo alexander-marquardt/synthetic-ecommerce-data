@@ -9,17 +9,12 @@ from the rows module, so dropping rows or a decoy class from the module fails th
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import needs_rows  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    needs_rows,
+    scale,
+)
 
 LEAF = ("Mens", "Trousers", "Elasticated Waist Trousers")
 CARGO_LEAF = ("Mens", "Trousers", "Cargo Trousers")

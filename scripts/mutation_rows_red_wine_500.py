@@ -2,7 +2,7 @@
 plants one defect on a changed line of ``decoy_rows.py`` and names the test that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``red wine decoys: ...``
 (``--only "red wine decoys:"`` re-runs them). A row is ``(name, file, old, new, test, property)``;
-the root is ``prototypes/retail_drawings``.
+the root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations
@@ -83,4 +83,4 @@ PREFIX = "red wine decoys"
 
 
 def rows() -> list[Row]:
-    return [Row(*r, "prototypes/retail_drawings") for r in ROWS]
+    return [Row(*r, "src/synthetic_ecommerce_data/domains/retail") for r in ROWS]

@@ -11,19 +11,15 @@ from __future__ import annotations
 
 import copy
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import type_colors  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    main_colors,
+    scale,
+    type_colors,
+)
 
 
 @pytest.fixture(scope="module")
@@ -108,7 +104,7 @@ def test_complete_never_adds_a_color_outside_the_allow_list():
 
 
 def test_the_decoy_clone_picker_reads_the_allow_list(tpls):
-    import decoy_apparel
+    from synthetic_ecommerce_data.domains.retail import decoy_apparel
 
     ids = decoy_apparel.IDS
     school = [r for r in tpls if r["product_id"] in ids and "School Uniform" in r["category_path"]]

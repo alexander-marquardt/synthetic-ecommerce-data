@@ -7,7 +7,7 @@
 Each path is the one the file used to have in git, under ``--out``: ``golden-retail/stats.json``
 (the retail build's measured totals), ``docs/figures.md`` (the same totals as a page),
 ``docs/retail-apparel-decoys.md`` (the apparel decoy table), the sneak-peek samples and previews
-under ``prototypes/retail_drawings/``, and ``docs/retail-product-word-decoys-table.md`` (the
+under ``domains/retail/``, and ``docs/retail-product-word-decoys-table.md`` (the
 product-word decoy table, cut out of its page in gen#513). The ``derived`` CI job runs this once
 per run and uploads ``--out`` as a workflow artifact; ``scripts/check_no_derived_files.py`` keeps
 them out of git, and a test reads a figure with ``retail_figures.figures()``, never from a file.
@@ -16,11 +16,9 @@ them out of git, and a test reads a figure with ``retail_figures.figures()``, ne
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
 
 #: Every path this script writes, relative to ``--out``. ``tests/test_no_derived_files_536.py``
 #: holds this list and ``check_no_derived_files.DERIVED`` to each other.
@@ -29,22 +27,22 @@ OUTPUTS: tuple[str, ...] = (
     "docs/figures.md",
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys-table.md",
-    "prototypes/retail_drawings/samples.ndjson",
-    "prototypes/retail_drawings/preview.html",
-    "prototypes/retail_drawings/samples4.ndjson",
-    "prototypes/retail_drawings/preview4.html",
+    "src/synthetic_ecommerce_data/domains/retail/samples.ndjson",
+    "src/synthetic_ecommerce_data/domains/retail/preview.html",
+    "src/synthetic_ecommerce_data/domains/retail/samples4.ndjson",
+    "src/synthetic_ecommerce_data/domains/retail/preview4.html",
 )
 
 
 def build(out: Path) -> list[str]:
     """Write every output under ``out``; return the paths written."""
-    if str(RETAIL) not in sys.path:
-        sys.path.insert(0, str(RETAIL))
-    import build_preview  # noqa: PLC0415 -- the prototype's own directory is its import root
-    import build_preview4  # noqa: PLC0415
-    import decoy_apparel  # noqa: PLC0415
-    import decoy_product_words  # noqa: PLC0415
-    import retail_figures  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import (
+        build_preview,  # noqa: PLC0415
+        build_preview4,  # noqa: PLC0415
+        decoy_apparel,  # noqa: PLC0415
+        decoy_product_words,  # noqa: PLC0415
+        retail_figures,  # noqa: PLC0415
+    )
 
     figures = retail_figures.figures()
     html, ndjson = build_preview.outputs()
@@ -54,10 +52,10 @@ def build(out: Path) -> list[str]:
         "docs/figures.md": retail_figures.markdown(figures),
         "docs/retail-apparel-decoys.md": decoy_apparel.doc_text(),
         decoy_product_words.TABLE_DOC: decoy_product_words.table_doc(),
-        "prototypes/retail_drawings/samples.ndjson": ndjson,
-        "prototypes/retail_drawings/preview.html": html,
-        "prototypes/retail_drawings/samples4.ndjson": ndjson4,
-        "prototypes/retail_drawings/preview4.html": html4,
+        "src/synthetic_ecommerce_data/domains/retail/samples.ndjson": ndjson,
+        "src/synthetic_ecommerce_data/domains/retail/preview.html": html,
+        "src/synthetic_ecommerce_data/domains/retail/samples4.ndjson": ndjson4,
+        "src/synthetic_ecommerce_data/domains/retail/preview4.html": html4,
     }
     if set(texts) != set(OUTPUTS):
         raise SystemExit("build_derived: OUTPUTS and the built files disagree")

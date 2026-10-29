@@ -10,19 +10,14 @@ outrank the bikes, whose titles are longer.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import baseline_rank as br  # noqa: E402
-import bicycle_model_numbers as bmn  # noqa: E402
-import kit  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    scale,
+)
 
 CYCLING = ["Sports & Outdoors", "Cycling"]
 BIKES = [*CYCLING, "Bikes"]
@@ -159,7 +154,7 @@ def test_each_accessory_is_drawn_as_its_own_shape(accessories):
 
 @pytest.mark.parametrize("shape", ["chain_lube", "bike_bottle", "bike_saddle", "bike_pedals"])
 def test_each_accessory_shape_draws_every_style(shape):
-    import kit_cycling
+    from synthetic_ecommerce_data.domains.retail import kit_cycling
 
     styles = {
         "chain_lube": ("drip", "spray"),

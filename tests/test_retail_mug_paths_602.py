@@ -13,21 +13,15 @@ there to be the wrong answer to "mug".
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import decor_rows  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core import emit, standard  # noqa: E402
-from synthetic_ecommerce_data.prism import index  # noqa: E402
+from synthetic_ecommerce_data.core import emit, standard
+from synthetic_ecommerce_data.domains.retail import (
+    decor_rows,
+    export,
+    scale,
+)
+from synthetic_ecommerce_data.prism import index
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 HOME = ("Home", "Kitchen & dining", "Drinkware", "Mugs")

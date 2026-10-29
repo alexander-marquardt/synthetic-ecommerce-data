@@ -16,17 +16,14 @@ the ratchet below fails when a pair is paid but left listed, or a new one appear
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-sys.path.insert(0, str(RETAIL))
-
-import kit  # noqa: E402
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    scale,
+)
 
 #: The scale build that exhausts every template (``tests/test_retail_scale.py`` CAPACITY).
 CEILING_SKUS = 76_417 * 2

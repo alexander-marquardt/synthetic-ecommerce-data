@@ -6,7 +6,7 @@ jumper cables, bow tie pasta. The structured fields tell the truth (category pat
 color, drawing). A title names at most the misleading color ("Sofa Cushion, Blue Trim" is a
 cream cushion piped in blue; "Dress for Success, Red Laces" are black shoes with red laces) and
 the drawing renders that detail. The rows are generated from
-`prototypes/retail_drawings/decoy_product_words.py` and pinned by
+`src/synthetic_ecommerce_data/domains/retail/decoy_product_words.py` and pinned by
 `tests/test_retail_product_word_decoys_326.py`. A new decoy set is one file,
 `feature_decoys/<topic>.py`; `decoy_contract.violations` (run by `tests/test_feature_decoys_513.py`)
 checks every row of it: the id is unique, the title carries a word of the query, a structured

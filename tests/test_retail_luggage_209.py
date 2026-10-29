@@ -13,20 +13,15 @@ incidental word), a place in the scaled build, and the figures the generic queri
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import kit  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import type_registry  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    main_colors,
+    scale,
+    type_registry,
+)
 
 PATH = ("Womens", "Accessories", "Travel")
 #: key -> (product type, category leaf, shape, structured attributes each style states, the
@@ -264,7 +259,7 @@ def test_a_suitcase_decoy_described_as_soft_sided_states_no_hard_shell_material(
 
 @pytest.mark.parametrize("brand", ["Tarnwick", "Fenmoor & Co", "Skerry Travel"])
 def test_each_new_luggage_brand_has_a_house_style_and_a_mark_of_its_own(brand: str) -> None:
-    import house_styles  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import house_styles  # noqa: PLC0415
 
     style = house_styles.HOUSE_STYLES.get(brand)
     assert style is not None, f"{brand} draws no logo: rendering its image raises KeyError"

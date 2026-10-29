@@ -20,16 +20,17 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    type_registry,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_derived  # noqa: E402
 
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
-import kit  # noqa: E402
-import type_registry  # noqa: E402
 
 DOC = ROOT / "docs" / "new-type-quick-path.md"
 HEADING = "## A type with its own drawing shape"
@@ -37,15 +38,15 @@ EXAMPLE = "garden_hose"
 
 #: Every file (or family of files) an own-shape type touches or reads, as the section writes it.
 TOUCHED = (
-    "prototypes/retail_drawings/type_specs/<key>.py",
-    "prototypes/retail_drawings/kit_garden.py",
-    "prototypes/retail_drawings/kit_sports.py",
-    "prototypes/retail_drawings/export.py",
-    "prototypes/retail_drawings/main_color_hex.py",
-    "prototypes/retail_drawings/main_colors.py",
-    "prototypes/retail_drawings/feature_decoys/<topic>.py",
-    "prototypes/retail_drawings/garden_rows.py",
-    "prototypes/retail_drawings/tree_guard.py",
+    "src/synthetic_ecommerce_data/domains/retail/type_specs/<key>.py",
+    "src/synthetic_ecommerce_data/domains/retail/kit_garden.py",
+    "src/synthetic_ecommerce_data/domains/retail/kit_sports.py",
+    "src/synthetic_ecommerce_data/domains/retail/export.py",
+    "src/synthetic_ecommerce_data/domains/retail/main_color_hex.py",
+    "src/synthetic_ecommerce_data/domains/retail/main_colors.py",
+    "src/synthetic_ecommerce_data/domains/retail/feature_decoys/<topic>.py",
+    "src/synthetic_ecommerce_data/domains/retail/garden_rows.py",
+    "src/synthetic_ecommerce_data/domains/retail/tree_guard.py",
     "tests/test_retail_type_specs_351.py",
     "tests/test_retail_main_colors_275.py",
     "tests/test_retail_tree_nesting_283.py",
@@ -56,7 +57,7 @@ TOUCHED = (
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys.md",
     "docs/retail-sports-tree.md",
-    "prototypes/retail_drawings/retail_figures.py",
+    "src/synthetic_ecommerce_data/domains/retail/retail_figures.py",
     "scripts/mutation_rows_",
 )
 
@@ -121,7 +122,8 @@ def test_the_worked_example_is_drawn_by_the_kit_module_the_section_names() -> No
     assert len(shapes) == 1, shapes
     (shape,) = shapes
     module = kit.SHAPES[shape].__module__
-    assert f"prototypes/retail_drawings/{module}.py" in _section(), module
+    path = module.removeprefix("synthetic_ecommerce_data.domains.retail.").replace(".", "/")
+    assert f"src/synthetic_ecommerce_data/domains/retail/{path}.py" in _section(), module
 
 
 def test_the_section_says_a_retail_type_has_no_part_number_block() -> None:
@@ -152,7 +154,7 @@ def test_the_sports_test_row_says_a_new_type_is_added_to_keys_and_axes() -> None
 
 
 def test_the_garden_rows_row_names_the_query_and_absent_entries() -> None:
-    row = _row("prototypes/retail_drawings/garden_rows.py")
+    row = _row("src/synthetic_ecommerce_data/domains/retail/garden_rows.py")
     assert "_QUERY" in row and "_ABSENT" in row, row
 
 

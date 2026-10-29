@@ -3,7 +3,7 @@
 Each row plants one defect in ``scale.derive``'s call of ``footwear_rows.fit_axes`` or in
 ``fit_axes`` itself, and names the tests that must go red. ``mutation_row.discover`` finds this
 file by glob and names the rows ``derived shoe axes: ...`` (``--only "derived shoe axes:"``
-re-runs them). The root is ``prototypes/retail_drawings``.
+re-runs them). The root is ``src/synthetic_ecommerce_data/domains/retail``.
 """
 
 from __future__ import annotations

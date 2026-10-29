@@ -10,20 +10,19 @@ from __future__ import annotations
 
 import itertools
 import re
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    grocery,
+    kit,
+    sheet_extent,
+)
 
-import export  # noqa: E402
-import grocery  # noqa: E402
-import kit  # noqa: E402
-import sheet_extent  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 PIZ = next(f for f in grocery.FAMILIES if f.code == "PIZ")
 FLAVOURS = [f.name for f in PIZ.flavors]

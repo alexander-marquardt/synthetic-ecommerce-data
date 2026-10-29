@@ -10,19 +10,15 @@ build, and the check itself is held against hand-made rows so it cannot go quiet
 from __future__ import annotations
 
 import copy
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import attribute_text  # noqa: E402
-import scale  # noqa: E402
-from retail_figures import figures  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    attribute_text,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 #: The ceiling build, as ``test_retail_scale.py`` builds it.
 CEILING_SKUS = figures()["ceiling"]["skus"] * 2

@@ -1,7 +1,7 @@
 # Retail DIY & Tools: the drill family (gen#191)
 
 Searching "drill" on the Retail catalog found four power drills from one brand, all typed
-"Cordless Drill", and none corded. Nine type specs in `prototypes/retail_drawings/type_specs/` now
+"Cordless Drill", and none corded. Nine type specs in `src/synthetic_ecommerce_data/domains/retail/type_specs/` now
 hold the range. Each product type names its tool, and none is a plain "Drill", so a retail type
 never collides with the industrial drill bits and bushings on a merged index.
 

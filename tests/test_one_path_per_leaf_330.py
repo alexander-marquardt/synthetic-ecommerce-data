@@ -13,17 +13,14 @@ The rule: within one root (a store department), a leaf label is reached by one p
 from __future__ import annotations
 
 import collections
-import sys
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import scale
 
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: Leaves a shopper reaches through the audience they shop for: the audience is the parent
 #: (Kids > Boys > Jeans, Kids > Girls > Jeans), so the label repeats by design. A leaf not

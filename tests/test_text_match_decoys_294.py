@@ -17,21 +17,20 @@ ingredient; an allergen that names a group of ingredients keeps its group name.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    scale,
+)
+from synthetic_ecommerce_data.domains.retail import grocery_ingredients as gi
 
-import baseline_rank as br  # noqa: E402
-import grocery  # noqa: E402
-import grocery_ingredients as gi  # noqa: E402
-import scale  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 BASE_PEANUT = "peanuts"
 FIELDS = ("ingredient_base", "contains", "may_contain")

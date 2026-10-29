@@ -7,17 +7,12 @@ packs and weight packs now declares ``item_g``, the typical weight of one item.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import grocery  # noqa: E402
-import grocery_rows  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    grocery,
+    grocery_rows,
+)
 
 PRODUCE = [f for f in grocery_rows.FAMILIES if f.shape == "produce_pile"]
 #: A pack of fresh fruit at a supermarket costs a few pounds; 25 is about five times the dearest

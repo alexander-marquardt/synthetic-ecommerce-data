@@ -8,19 +8,16 @@ otherwise (salt, sugar). A label value with no row is reported, never guessed.
 
 from __future__ import annotations
 
-import sys
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import grocery
+from synthetic_ecommerce_data.domains.retail import grocery_ingredients as gi
 
-import grocery  # noqa: E402
-import grocery_ingredients as gi  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 
 @cache
@@ -66,7 +63,7 @@ def test_every_label_value_of_the_build_has_a_row() -> None:
 
 def test_no_row_names_a_label_the_build_never_writes() -> None:
     """Read over the scale build, which holds the grocery rows and the decoys (gen#294)."""
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
     rows = grocery.flat(grocery.documents(scale.build(10**6).records))
     written = {v for r in rows for v in r["facets"].get("ingredients", ())}
@@ -125,7 +122,7 @@ def test_the_label_text_is_written_in_us_spelling() -> None:
 @cache
 def scaled_unmapped() -> list[str]:
     """The label values the base table lacks, over the scale build with the decoys (gen#294)."""
-    import scale  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
     return grocery.ingredient_report(scale.build(10**6).records)["ingredients_unmapped"]
 

@@ -8,19 +8,13 @@ own entry, in the style's attributes and on its SKUs alike.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-import scale  # noqa: E402
-
-from synthetic_ecommerce_data.core import standard  # noqa: E402
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    scale,
+)
 from test_retail_scale import TARGET  # noqa: E402  (TEMPLATE_SKUS + DERIVED_SKUS)
 
 KEY = "upper_material"

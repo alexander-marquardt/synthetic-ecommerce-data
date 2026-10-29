@@ -11,25 +11,20 @@ first on the baseline ranker, and text-match decoys.
 
 from __future__ import annotations
 
-import sys
 import xml.dom.minidom
-from pathlib import Path
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import baseline_rank as br  # noqa: E402
-import export  # noqa: E402
-import kit  # noqa: E402
-import main_colors  # noqa: E402
-import scale  # noqa: E402
-import tree_guard  # noqa: E402
-import type_registry  # noqa: E402
-
-from synthetic_ecommerce_data.core.standard import check_catalog  # noqa: E402
+from synthetic_ecommerce_data.core.standard import check_catalog
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    kit,
+    main_colors,
+    scale,
+    tree_guard,
+    type_registry,
+)
 
 SPEC = type_registry.specs()["gloves"]
 ROWS = SPEC.rows

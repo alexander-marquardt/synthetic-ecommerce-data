@@ -9,16 +9,10 @@ with three volumes among its templates has them at every size the build reaches.
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
 from functools import cache
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import scale  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import scale
 
 #: The fewest distinct net volumes a type that carries the field offers.
 MINIMUM = 3

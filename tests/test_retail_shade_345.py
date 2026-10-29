@@ -10,19 +10,12 @@ match. Lip, nail and eye products keep their ``color``.
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import export  # noqa: E402
-
-from synthetic_ecommerce_data.core import standard  # noqa: E402
+from synthetic_ecommerce_data.core import standard
+from synthetic_ecommerce_data.domains.retail import export
 
 #: The shade-code shape (depth 1-14, cool / neutral / warm): a color value never matches it.
 CODE = re.compile(r"^\d{1,2}[CNW]$")
@@ -147,7 +140,7 @@ def test_a_named_shade_states_its_depth_and_undertone(
 
 
 def test_an_unknown_shade_name_is_refused() -> None:
-    import shades  # noqa: PLC0415 -- the prototype's own directory is its import root
+    from synthetic_ecommerce_data.domains.retail import shades  # noqa: PLC0415
 
     with pytest.raises(KeyError, match="neither a code"):
         shades.classify("Mocha")

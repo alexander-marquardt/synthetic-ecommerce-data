@@ -9,21 +9,17 @@ are a third and a fourth kind, so a ring states ``ring_size_uk`` and ``ring_size
 
 from __future__ import annotations
 
-import sys
 from functools import cache
-from pathlib import Path
 from typing import Any
 
 import pytest
 
-RETAIL = Path(__file__).resolve().parent.parent / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import accessory_rows  # noqa: E402
-import export  # noqa: E402
-import scale  # noqa: E402
-import variants  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import (
+    accessory_rows,
+    export,
+    scale,
+    variants,
+)
 
 RING_ROWS = [r for r in accessory_rows.ROWS if r.product_type == "Ring"]
 GARMENT_KEYS = ("size_uk", "size_eu", "size_us")

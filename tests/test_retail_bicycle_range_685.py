@@ -10,16 +10,10 @@ model number come from :mod:`bicycle_model_numbers`, and its price follows from 
 
 from __future__ import annotations
 
-import sys
 from collections import defaultdict
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import bicycle_model_numbers as bmn  # noqa: E402
-from type_specs import bicycle  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
+from synthetic_ecommerce_data.domains.retail.type_specs import bicycle
 
 #: The rank of a part, cheaper first: a bike whose parts all rank at least as high, and one higher,
 #: costs more.

@@ -19,15 +19,9 @@ A test reads it and never edits it.
 from __future__ import annotations
 
 import functools
-import sys
-from pathlib import Path
 
-RETAIL = Path(__file__).resolve().parents[1] / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
-
-import scale  # noqa: E402
-from retail_figures import figures  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import scale
+from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 
 @functools.cache

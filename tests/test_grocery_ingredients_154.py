@@ -12,21 +12,23 @@ module's own, not the generator's, so a wrong list cannot pass by agreeing with 
 from __future__ import annotations
 
 import re
-import sys
 from functools import cache
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-RETAIL = ROOT / "prototypes" / "retail_drawings"
-if str(RETAIL) not in sys.path:
-    sys.path.insert(0, str(RETAIL))
+from synthetic_ecommerce_data.domains.retail import grocery
+from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
+    ALLERGEN_BASE,
+    facet_value,
+)
+from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
+    NO_LIST as generator_no_list,
+)
+from synthetic_ecommerce_data.domains.retail.grocery_rows import FAMILIES
 
-import grocery  # noqa: E402
-from grocery_ingredients import ALLERGEN_BASE, facet_value  # noqa: E402
-from grocery_ingredients import NO_LIST as generator_no_list  # noqa: E402
-from grocery_rows import FAMILIES  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+
 
 #: Phrases that hold an allergen word without the allergen, removed before matching.
 NOT_ALLERGEN = re.compile(

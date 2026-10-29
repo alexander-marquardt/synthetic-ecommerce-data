@@ -6,7 +6,7 @@ a new type goes and which test refuses it when it is wrong. The mechanics of the
 this page is the rest of the map. Every file, module name and command below is checked by
 `tests/test_adding_a_retail_type_210.py`, so a rename reds there, not in your context.
 
-Paths are relative to `prototypes/retail_drawings/` unless they start with `tests/`, `docs/`,
+Paths are relative to `src/synthetic_ecommerce_data/domains/retail/` unless they start with `tests/`, `docs/`,
 `golden-retail/` or `scripts/`. A `module.NAME` is a name in that module.
 
 ## 1. The row
@@ -85,7 +85,7 @@ rows, the apparel decoys, and last the grocery styles. `scale.build(skus)` takes
 that order until their SKUs reach the target, and only then derives more. A build smaller than
 the template list therefore stops partway: a type late in the list is absent from a small build,
 and its decoys are too. A spec needs no edit to `templates()`; a module of the older kind is added
-by hand, later ones in fewer small builds. See one: `uv run python prototypes/retail_drawings/scale.py --skus 2000`.
+by hand, later ones in fewer small builds. See one: `uv run python -m synthetic_ecommerce_data.domains.retail.scale --skus 2000`.
 
 ## 8. Images: one per style, colorway and size rung
 
@@ -114,9 +114,9 @@ Run, with your own test file: `tests/test_retail_type_specs_351.py`,
 `tests/test_output_standard.py`, `tests/test_retail_scale.py`, `tests/test_retail_breadth_34.py`,
 `tests/test_retail_drawing_honesty.py`, `tests/test_retail_image_release.py`, `tests/test_retail_figures_162.py`,
 `tests/test_retail_color_words.py`, `tests/test_retail_main_colors_275.py`,
-`tests/test_us_spelling.py`, `prototypes/retail_drawings/test_shape_honesty.py` and
-`prototypes/retail_drawings/test_house_styles.py`. Name them in the command: a bare `pytest` runs
-the whole suite. The pre-merge run collects `prototypes/retail_drawings` directly (`testpaths` in
+`tests/test_us_spelling.py`, `tests/test_shape_honesty.py` and
+`tests/test_house_styles.py`. Name them in the command: a bare `pytest` runs
+the whole suite. The pre-merge run collects `src/synthetic_ecommerce_data/domains/retail` directly (`testpaths` in
 `pyproject.toml`), and `tests/test_test_files_collected_362.py` fails a test file outside the
 collected directories, so a prototype test your change reddens fails the PR; a new brand takes a mark no other brand
 uses, a section of the sneak-peek samples is counted from the build (`build_preview4.py`), not
