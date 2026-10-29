@@ -53,14 +53,15 @@ framework. `src/synthetic_ecommerce_data/domains/industrial/` holds
 everything industrial: the generator, the types, vocabularies, standards,
 taxonomy, figures, geometry, census measurement and data. The commands
 compose a domain with core, so they stay at the top level beside `prism/`:
-`generate_cli.py` (`ecom-generate`). Some core modules still hold industrial tables next to their
+`generate_cli.py` (`ecom-generate`), and so does `rule_rowsets.py`, which hands the retail realism
+rules (`domains/retail/rules.py`) the industrial build's rows (#716). Some core modules still hold industrial tables next to their
 machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. Old `synthetic_industrial_products.catalog.*`
 import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
 retail store (the former `prototypes/retail_drawings/`, #125 slice 1): its departments live
-inside it, it reaches core only, and the same test refuses an import from one domain into
-another. Its tests are under `tests/` with the rest.
+inside it, it reaches core only, and the same test refuses any import from one domain into
+another (its list of such edges is empty). Its tests are under `tests/` with the rest.
 
 **Every product in this repository is synthetic.** No record here describes a
 real product offered by any retailer, and no retailer's catalog content is
