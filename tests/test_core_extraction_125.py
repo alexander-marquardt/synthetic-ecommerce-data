@@ -19,6 +19,7 @@ import importlib.util
 import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 PACKAGE = Path(__file__).resolve().parents[1] / "src" / "synthetic_ecommerce_data"
@@ -217,6 +218,74 @@ def test_the_edge_scan_sees_every_way_core_can_reach_outside_itself(tmp_path):
         ("other_domain", "domains.retail.catalog"),
         ("string", "domains.industrial.data"),
         ("app", "prism.field_map"),
+    }
+
+
+DOMAINS = PACKAGE / "domains"
+
+
+def _domain_edges(domains: Path) -> set[tuple[str, str]]:
+    """``(domain module, what it reaches)`` for every reach from a domain past core and itself.
+
+    ``domains`` is read as the package ``synthetic_ecommerce_data.domains``; each directory under
+    it is one domain. A module is named relative to ``domains``, a target relative to
+    :data:`PACKAGE_NAME`. A domain reaching core, itself or anything outside the package is no
+    edge; a reach into another domain, into ``domains`` itself or into the layers above core
+    (``prism/``, the commands) is.
+    """
+    return set()
+
+
+def test_retail_is_a_domain_package_and_the_prototype_is_gone():
+    """The 2026-10-28 ruling on #125, slice 1: retail is a domain, under ``src/`` (#539)."""
+    assert (DOMAINS / "retail" / "__init__.py").is_file()
+    assert not (PACKAGE.parents[1] / "prototypes").exists()
+
+
+def test_pytest_collects_tests_only():
+    """With the prototype gone, ``tests/`` is the one place a test file lives (#539)."""
+    config = tomllib.loads((PACKAGE.parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
+    assert config["tool"]["pytest"]["ini_options"]["testpaths"] == ["tests"]
+
+
+def test_no_domain_reaches_another_domain():
+    assert _domain_edges(DOMAINS) == set()
+
+
+def test_the_domain_scan_sees_every_way_one_domain_can_reach_another(tmp_path):
+    """Each plant is a way for domain ``a`` to depend on domain ``b``, or on ``domains``."""
+    domains = tmp_path / "domains"
+    (domains / "a" / "inner").mkdir(parents=True)
+    (domains / "b").mkdir()
+    for package in (domains, domains / "a", domains / "a" / "inner", domains / "b"):
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    (domains / "b" / "rows.py").write_text("", encoding="utf-8")
+    plants = {
+        "absolute": "import synthetic_ecommerce_data.domains.b.rows\n",
+        "from_package": "from synthetic_ecommerce_data.domains import b\n",
+        "relative": "from ..b import rows\n",
+        "relative_domains": "from .. import b\n",
+        "string": 'PACKAGE = "synthetic_ecommerce_data.domains.b.rows"\n',
+        # The application layer above core: a domain reaches core only.
+        "app": "from synthetic_ecommerce_data.prism import field_map\n",
+        # Itself, core and the standard library are no edge, by any spelling.
+        "inside": (
+            "from . import inner\nfrom .inner import x\n"
+            "from synthetic_ecommerce_data.domains.a import inner as again\n"
+            "from synthetic_ecommerce_data.core import emit\nimport json\n"
+        ),
+    }
+    for name, text in plants.items():
+        (domains / "a" / f"{name}.py").write_text(text, encoding="utf-8")
+    (domains / "a" / "inner" / "deep.py").write_text("from ...b import rows\n", encoding="utf-8")
+    assert _domain_edges(domains) == {
+        ("a.absolute", "domains.b.rows"),
+        ("a.from_package", "domains.b"),
+        ("a.relative", "domains.b.rows"),
+        ("a.relative_domains", "domains.b"),
+        ("a.string", "domains.b.rows"),
+        ("a.app", "prism.field_map"),
+        ("a.inner.deep", "domains.b.rows"),
     }
 
 
