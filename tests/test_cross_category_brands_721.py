@@ -13,6 +13,7 @@ from synthetic_ecommerce_data.domains.retail import (
     baseline_rank,
     house_styles,
     kit,
+    main_colors,
     real_brands,
     scale,
 )
@@ -86,6 +87,11 @@ def test_every_tv_and_volt_meter_sits_in_its_node(templates):
             assert tuple(doc["category_path"]) == TV_NODE, doc["title"]
         if doc["product_type"] == VOLT_METER:
             assert tuple(doc["category_path"]) == VOLT_METER_NODE, doc["title"]
+
+
+def test_a_tv_comes_only_in_its_four_frame_colors(templates):
+    tvs = [doc for doc in templates if doc["product_type"] == TV]
+    assert main_colors.offered(tvs) == {"Black", "Grey", "Silver", "White"}
 
 
 def test_at_least_three_of_the_five_brands_span_two_families(templates):
