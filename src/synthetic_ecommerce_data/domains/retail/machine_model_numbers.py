@@ -38,6 +38,8 @@ class Kind(NamedTuple):
     spec: str  # what a title states, given the measure; empty when the title opens on it
 
 
+#: A mower's spec spells its liters out: ``40L`` in a title would read as a net volume
+#: (:data:`net_volume.TITLE_VOLUME`), and a grass box is not what the mower holds for sale.
 _POWER = {"Cordless Battery": "B", "Petrol": "P", "Corded Electric": "E"}
 
 #: product type -> how a code reads it.
@@ -47,7 +49,7 @@ KINDS = {
         "wattage", 100, "{}W",
     ),
     "Toaster": Kind("TS", "finish", {"Gloss": "G", "Brushed": "B", "Matte": "M"}, "browning_settings", 1, "{} Setting"),
-    "Lawn Mower": Kind("LM", "power_source", _POWER, "grass_box_capacity", 1, "{}L Box"),
+    "Lawn Mower": Kind("LM", "power_source", _POWER, "grass_box_capacity", 1, "{} Liter Box"),
     "Robot Mower": Kind("RM", "boundary", {"Wire": "W", "Wire-Free GPS": "G"}, "max_slope", 1, "{}% Slope"),
     "Grass Trimmer": Kind("GT", "power_source", _POWER, "shaft_length", 1, "{}cm Shaft"),
     "Hedge Trimmer": Kind("HG", "power_source", _POWER, "tooth_gap", 1, "{}mm Tooth Gap"),
