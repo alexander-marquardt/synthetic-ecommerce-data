@@ -1,16 +1,18 @@
-"""Marks and house styles of the 13 invented electronics brands (gen#332).
+"""Marks and house styles of the 16 invented electronics brands (gen#332, #721).
 
 Halvern, Torvane, Nimbrel, Quorrin, Daskel, Mervane and Pellimar sell the phones, laptops,
 desktops, tablets and e-readers of the Electronics department (:mod:`electronics_rows`). Cindrel,
 Boltwick, Wexmoor, Dunvale, Ardmoor and Marrick sell its accessories: cases, protectors, chargers,
-cables, earbuds, sleeves, mice, keyboards and monitors. Each draws its own name on its product
+cables, earbuds, sleeves, mice, keyboards and monitors. Grape Computer, Xell and PackingHarder
+(#721) sell computers across departments: PackingHarder also sells monitors and the volt meters
+of Home > DIY & Tools. Each draws its own name on its product
 images: a lockup (the name beside, above or in a badge with the mark) or a mark alone with a text
 tag, with a mark no other brand uses.
 
 The only real names of the department are Apple, iPhone and iPad (:mod:`real_brands`): text only,
 so Apple's style row in :mod:`house_styles` draws no mark.
 
-:mod:`house_styles` imports this module last, so the 13 marks join ``MARKS`` and the 13 styles
+:mod:`house_styles` imports this module last, so the 16 marks join ``MARKS`` and the 16 styles
 join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -136,6 +138,34 @@ def m_arc(c: str) -> list[str]:
     ]
 
 
+def m_grape_trio(c: str) -> list[str]:
+    """Three grapes in a triangle under a curled stem."""
+    return [
+        _dot(-0.38, 0.05, 0.34, c),
+        _dot(0.38, 0.05, 0.34, c),
+        _dot(0, 0.62, 0.34, c),
+        _stroke("M0,-.3 Q.1,-.75 .6,-.85", 0.12, c),
+    ]
+
+
+def m_crate(c: str) -> list[str]:
+    """A crate: a box with a sloped lid, strapped shut."""
+    return [
+        _stroke("M-.85,-.35 L.85,-.35 L.85,.85 L-.85,.85 Z", 0.11, c, "miter"),
+        _stroke("M-.85,-.35 L-.5,-.85 L.5,-.85 L.85,-.35", 0.11, c, "miter"),
+        _stroke("M0,-.35 L0,.85", 0.14, c),
+    ]
+
+
+def m_x_cell(c: str) -> list[str]:
+    """A cross in a square with its corners cut."""
+    return [
+        _stroke("M-.6,-.85 L.6,-.85 L.85,-.6 L.85,.6 L.6,.85 L-.6,.85 L-.85,.6 L-.85,-.6 Z", 0.1, c, "miter"),
+        _stroke("M-.4,-.4 L.4,.4", 0.16, c),
+        _stroke("M-.4,.4 L.4,-.4", 0.16, c),
+    ]
+
+
 hs.MARKS.update(
     {
         "slab": m_slab,
@@ -151,11 +181,14 @@ hs.MARKS.update(
         "flap_sleeve": m_fold,
         "dial": m_dial,
         "arc": m_arc,
+        "grape_trio": m_grape_trio,
+        "crate": m_crate,
+        "x_cell": m_x_cell,
     }
 )
 
 # fmt: off
-#: Brand -> house style. Seven lockups and six marks alone with a text tag.
+#: Brand -> house style. Eight lockups and eight marks alone with a text tag.
 STYLES = {
     # The device brands.
     "Halvern":  H("#eef2f7", "none",     "thin",    "#2f5fa3", "#14233b", 1.05, False, "round", "slab",   "mark_left",  "top_left",      "none",    "sans",     700, "caps",      1.4),
@@ -172,6 +205,10 @@ STYLES = {
     "Dunvale":  H("#f2eeeb", "diagonal", "none",    "#9a4a3a", "#3a1a14", 1.1,  False, "round", "flap_sleeve", "mark_only",  "bottom_left",   "tab",     "humanist", 700, "lower",     0.4),
     "Ardmoor":  H("#edf4f8", "hatch",    "ticks",   "#2a86a8", "#0f3445", 0.95, False, "round", "dial",   "mark_only",  "top_left",      "underline", "serif",  400, "title",     1.8),
     "Marrick":  H("#f7eef0", "none",     "thin",    "#a83a4a", "#401a20", 1.3,  False, "sharp", "arc",    "mark_only",  "bottom_right",  "stamp",   "sans",     700, "smallcaps", 0.7),
+    # The computer brands that cross departments (#721).
+    "Grape Computer": H("#f3eff7", "none",  "rounded", "#5b3a8c", "#241538", 1.05, False, "round", "grape_trio", "mark_above", "top_center", "none", "humanist", 700, "title", 0.9),
+    "Xell":     H("#edf1f7", "lines",    "none",    "#1d4f91", "#0e2140", 0.9,  False, "sharp", "x_cell", "mark_only",  "bottom_left",   "plain",   "sans",     400, "lower",     2.4),
+    "PackingHarder": H("#f0f2ee", "grid", "heavy",  "#3c5a2e", "#18240f", 1.2,  False, "sharp", "crate",  "mark_only",  "top_right",     "stamp",   "mono",     700, "caps",      1.1),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

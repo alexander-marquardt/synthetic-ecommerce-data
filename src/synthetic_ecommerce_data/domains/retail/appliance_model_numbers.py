@@ -33,9 +33,11 @@ SCHEMES = {
     "Hollinmere": Scheme("HM", 11, "", True),
     "Cleavewick": Scheme("CW", 5, "-", True),
     "Lunden & Voss": Scheme("LV", 9, "", False),
+    "GoodLook": Scheme("GL", 13, "-", False),
+    "SingingSam": Scheme("SS", 17, "", True),
 }
 
-#: Five series a brand, thirty in all, and no name in two lists.
+#: Five series a brand, forty in all, and no name in two lists.
 SERIES = {
     "Frostholm": ("Arden", "Bexley", "Calder", "Dunmore", "Elston"),
     "Brimwell": ("Fenner", "Garrow", "Heywood", "Ingram", "Jessop"),
@@ -43,6 +45,8 @@ SERIES = {
     "Hollinmere": ("Pelham", "Quarrington", "Rowan", "Selby", "Thorne"),
     "Cleavewick": ("Ulverston", "Vellacott", "Wendover", "Yarrow", "Zennor"),
     "Lunden & Voss": ("Alnwick", "Burwash", "Coniston", "Denby", "Eskdale"),
+    "GoodLook": ("Fairmile", "Glenrose", "Hartfield", "Ivybank", "Juniper"),
+    "SingingSam": ("Kingsway", "Lockwood", "Merrow", "Netherby", "Oakham"),
 }  # fmt: skip
 
 #: The ``appliance_type`` value of each kind: (its base letter, what its digits hold).

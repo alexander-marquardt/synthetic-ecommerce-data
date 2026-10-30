@@ -48,6 +48,10 @@ RESTRICTED: dict[tuple[str, ...], tuple[tuple[str, ...], str]] = {
         "a ceiling fan's color is its metal or wood finish"),
     ("Home", "Large Appliances", "Dishwashers"): (
         ("White", "Black", "Silver"), "enamel white, black or stainless steel (gen#334)"),
+    ("Electronics", "TVs"): (
+        ("Black", "Grey", "Silver", "White"),
+        "a TV is sold in the dark, grey or pale frames that sit quietly round a screen",
+    ),
     ("Home", "Large Appliances", "Laundry"): (
         ("White", "Black", "Silver"), "enamel white, black or silver (gen#334)"),
 }  # fmt: skip

@@ -42,25 +42,42 @@ def _from_form(r: Row) -> Row:
     return replace(r, title=f"Washing Machine from {r.brand}, Model {code}")
 
 
+def _kind(row, n: int = 6, brands: tuple[str, ...] = lar.BRANDS, code: str = "") -> tuple[Row, ...]:
+    """``n`` models of a row of :data:`_LAUNDRY_KINDS`; ``code`` replaces its product id prefix."""
+    pre, shape, kind, title, kind_name, lead, models = row
+
+    def make(i):
+        load, spin, price = models[i]
+        rating = lar.RATINGS[(i + len(pre)) % 5]
+        what = f"takes a {load} kg load" + (f" and spins at {spin} rpm" if spin else "")
+        desc = f"{lead}. It {what}, energy rating {rating}."
+        attrs = [a("appliance_type", "Type", kind_name), lar.kg("load", "Load capacity", load)]
+        if spin:
+            attrs.append(a("spin_rpm", "Spin speed (rpm)", str(spin)))
+        attrs.append(a("energy_rating", "Energy rating", rating))
+        return float(price), desc, lar.PALETTES[i % 3], tuple(attrs)
+
+    params = (("kind", kind),) if kind else ()
+    return lar.kind_rows(code or pre, n, lar.LAUNDRY, "Laundry Appliance", shape, params, title, make, brands)
+
+
 def laundry_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, kind, title, kind_name, lead, models in _LAUNDRY_KINDS:
-        def make(i, models=models, lead=lead, kind_name=kind_name, pre=pre):
-            load, spin, price = models[i]
-            rating = lar.RATINGS[(i + len(pre)) % 5]
-            what = f"takes a {load} kg load" + (f" and spins at {spin} rpm" if spin else "")
-            desc = f"{lead}. It {what}, energy rating {rating}."
-            attrs = [a("appliance_type", "Type", kind_name), lar.kg("load", "Load capacity", load)]
-            if spin:
-                attrs.append(a("spin_rpm", "Spin speed (rpm)", str(spin)))
-            attrs.append(a("energy_rating", "Energy rating", rating))
-            return float(price), desc, lar.PALETTES[i % 3], tuple(attrs)
-        params = (("kind", kind),) if kind else ()
-        rows = lar.kind_rows(pre, 6, lar.LAUNDRY, "Laundry Appliance", shape, params, title, make)
-        if pre == "LWM":
+    for row in _LAUNDRY_KINDS:
+        rows = _kind(row)
+        if row[0] == "LWM":
             rows = tuple(_from_form(r) if i in _FROM_FORM else r for i, r in enumerate(rows))
         out += rows
     return tuple(out)
+
+
+def cross_brand_rows() -> tuple[Row, ...]:
+    """GoodLook's and SingingSam's washing machines (#721): three models each."""
+    return tuple(
+        r
+        for brand, lead in ((lar.GOODLOOK, "GL"), (lar.SINGINGSAM, "SS"))
+        for r in _kind(_LAUNDRY_KINDS[0], 3, (brand,), f"{lead}W")
+    )
 
 
 SPEC = TypeSpec(
@@ -68,7 +85,7 @@ SPEC = TypeSpec(
     department="Home",
     product_type="Laundry Appliance",
     owners=lar.OWNERS,
-    rows=laundry_rows(),
+    rows=laundry_rows() + cross_brand_rows(),
     decoys=(
         Decoy(1, "red washing machine", "color", lar.decoy_row(
             "LRS001", "Washing Machine with Red Spot Dial", lar.BRANDS[2], lar.LAUNDRY,

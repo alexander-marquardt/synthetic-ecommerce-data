@@ -15,6 +15,7 @@ longest prefix wins):
 | Home > Heating & Cooling > Fans > Ceiling Fans | White, Black, Silver, Brown, Gold, Copper, Bronze, Nickel | a ceiling fan's color is its metal or wood finish |
 | Home > Large Appliances > Dishwashers | White, Black, Silver | enamel white, black or stainless steel (gen#334) |
 | Home > Large Appliances > Laundry | White, Black, Silver | enamel white, black or silver (gen#334) |
+| Electronics > TVs | Black, Grey, Silver, White | a frame that sits quietly round a screen (#721) |
 
 One table is read three times: `main_colors.complete` adds a missing main color only to a style
 whose type comes in it, `main_colors.missing` asks a restricted type for only the main colors it

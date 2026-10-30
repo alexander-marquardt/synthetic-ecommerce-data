@@ -15,7 +15,7 @@ KINDS = (
 #: The lead word of a model.
 LEADS = (
     "Glow", "Beam", "Halo", "Lumen", "Spark", "Bright", "Gleam", "Flare", "Shimmer", "Shine",
-    "Dusk", "Morning", "Kindle", "Aura", "Glint", "Lustre", "Sheen", "Flicker", "Twilight",
+    "Dusk", "Morning", "Ember", "Aura", "Glint", "Lustre", "Sheen", "Flicker", "Twilight",
     "Radiant",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
