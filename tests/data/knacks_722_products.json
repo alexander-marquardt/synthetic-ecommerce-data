@@ -1,0 +1,383 @@
+{
+ "BRA-NKBRA1": {
+  "category_path": [
+   "Womens",
+   "Lingerie",
+   "Bras",
+   "Sports Bras"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Red",
+   "White"
+  ],
+  "price": 34.0,
+  "product_type": "Bra",
+  "sku_digest": "484fe0095d62b574e85983ef7192266d149c421a2e7f4bddadd70d0d40c5ab28",
+  "skus": 64
+ },
+ "BRD-NKJGM1": {
+  "category_path": [
+   "Mens",
+   "Joggers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Green",
+   "Red"
+  ],
+  "price": 49.0,
+  "product_type": "Joggers",
+  "sku_digest": "21ef1d5e1d47b490de15a1c559eee0475ccbe8c37fae303937722693db759aa6",
+  "skus": 60
+ },
+ "BRD-NKJGW1": {
+  "category_path": [
+   "Womens",
+   "Joggers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "White",
+   "Yellow"
+  ],
+  "price": 52.0,
+  "product_type": "Joggers",
+  "sku_digest": "c9f5d3a7d5e3a210abd125827b1fb8c4d83363b1a5f2b1bef967323039f3d7e3",
+  "skus": 60
+ },
+ "BRD-NKSWK1": {
+  "category_path": [
+   "Kids",
+   "Tops",
+   "Sweatshirts"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Red",
+   "White"
+  ],
+  "price": 28.0,
+  "product_type": "Sweatshirt",
+  "sku_digest": "6407f061887dd8aeddb2912c2a52449d29adb3839369739b071046017b2b4503",
+  "skus": 16
+ },
+ "BRD-NKSWM1": {
+  "category_path": [
+   "Mens",
+   "Tops",
+   "Sweatshirts"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Green",
+   "Red"
+  ],
+  "price": 44.0,
+  "product_type": "Sweatshirt",
+  "sku_digest": "e7909f7b6aee5e3441d22ba2bb2edef83b5575374cc380f821a9a002dd3c196e",
+  "skus": 20
+ },
+ "BRD-NKTEK1": {
+  "category_path": [
+   "Kids",
+   "Tops",
+   "T-Shirts"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Red",
+   "White"
+  ],
+  "price": 19.0,
+  "product_type": "Tee",
+  "sku_digest": "b017b034d9437298fa76d3ef0829f03e606ca4b78f5e5aaa2d11245163576781",
+  "skus": 16
+ },
+ "BRD-NKTEM1": {
+  "category_path": [
+   "Mens",
+   "Tops",
+   "T-Shirts"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Green",
+   "Red",
+   "White"
+  ],
+  "price": 27.0,
+  "product_type": "Tee",
+  "sku_digest": "d33cee929daeac03e8616e5ee5d1876dabf49c0cddac7e3b81100cec1a98632c",
+  "skus": 25
+ },
+ "BRD-NKTEM2": {
+  "category_path": [
+   "Mens",
+   "Tops",
+   "T-Shirts"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "White",
+   "Yellow"
+  ],
+  "price": 22.0,
+  "product_type": "Tee",
+  "sku_digest": "11668f613c994226edf1f724057d7a8cd29a2793b7ac1ba1424277d1647caa9a",
+  "skus": 20
+ },
+ "FTW-NKKAM90": {
+  "category_path": [
+   "Kids",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Orange",
+   "Red",
+   "White"
+  ],
+  "price": 54.0,
+  "product_type": "Trainers",
+  "sku_digest": "fd0e803a626dc621a6143d7df9209d782ad8819c9b96d5058375885be00d6ec7",
+  "skus": 50
+ },
+ "FTW-NKKAMEX": {
+  "category_path": [
+   "Kids",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Green",
+   "White"
+  ],
+  "price": 49.0,
+  "product_type": "Trainers",
+  "sku_digest": "24ec1f7d3579e7a5a227154537105b94055384ea1478ae61977281833b0520f4",
+  "skus": 30
+ },
+ "FTW-NKKFLEX": {
+  "category_path": [
+   "Kids",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Green",
+   "White"
+  ],
+  "price": 38.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "ceb6c301bc6d3e272259c7d111ccc0de91c08981d263db4490f1207856aaea95",
+  "skus": 30
+ },
+ "FTW-NKKRUN1": {
+  "category_path": [
+   "Kids",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Orange",
+   "Red",
+   "Yellow"
+  ],
+  "price": 42.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "90f9c73a461d3883238eeeca3474aeb64274049e98b846adc1e64e95a859c802",
+  "skus": 50
+ },
+ "FTW-NKMAM27": {
+  "category_path": [
+   "Mens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Green",
+   "Orange",
+   "White"
+  ],
+  "price": 144.0,
+  "product_type": "Trainers",
+  "sku_digest": "87a38a8a6f49723297fb1740d9bba6fc87b3ce30e3ac365b1f84a7ad75e6b3aa",
+  "skus": 70
+ },
+ "FTW-NKMAM90": {
+  "category_path": [
+   "Mens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Orange",
+   "Red",
+   "White"
+  ],
+  "price": 124.0,
+  "product_type": "Trainers",
+  "sku_digest": "71a94d51c7e640213c6963da22fb62fc89db991263130532f21bb53cf8369b5d",
+  "skus": 70
+ },
+ "FTW-NKMAMRN": {
+  "category_path": [
+   "Mens",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Green",
+   "Red"
+  ],
+  "price": 119.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "cd00f528da5227fd464a26b309920e0b4f41d44c84fc34e5db61a4a7d89fc216",
+  "skus": 42
+ },
+ "FTW-NKMCTV1": {
+  "category_path": [
+   "Mens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Red",
+   "White"
+  ],
+  "price": 64.0,
+  "product_type": "Trainers",
+  "sku_digest": "d7db0d6dbc3aa23462e533201cd85d2d564d33a1a5cfd7c89f160114d125728f",
+  "skus": 42
+ },
+ "FTW-NKMPEG1": {
+  "category_path": [
+   "Mens",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Orange",
+   "White",
+   "Yellow"
+  ],
+  "price": 109.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "49d2b0a21815211025c9053e9c1ffba8cab4302e40f22bf8bbc9fe9c018c0241",
+  "skus": 70
+ },
+ "FTW-NKWAM90": {
+  "category_path": [
+   "Womens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Orange",
+   "Red",
+   "White"
+  ],
+  "price": 124.0,
+  "product_type": "Trainers",
+  "sku_digest": "12acb78baca8217439a02656c166e93cbcb813bd21de872e950db9499f04dcfc",
+  "skus": 65
+ },
+ "FTW-NKWAMDW": {
+  "category_path": [
+   "Womens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Green",
+   "White",
+   "Yellow"
+  ],
+  "price": 119.0,
+  "product_type": "Trainers",
+  "sku_digest": "7c7d0f109e65e1f21aecd0a1f1623d1401a0ea3e840b33cf53539ec6282e7ec5",
+  "skus": 52
+ },
+ "FTW-NKWAMRN": {
+  "category_path": [
+   "Womens",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "Green"
+  ],
+  "price": 119.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "4c1ed623716e6ce2d3eda75bd80e777239f800fb7a02116930390e8c8172f30d",
+  "skus": 39
+ },
+ "FTW-NKWCTV1": {
+  "category_path": [
+   "Womens",
+   "Shoes",
+   "Trainers"
+  ],
+  "colors": [
+   "Black",
+   "Blue",
+   "White"
+  ],
+  "price": 64.0,
+  "product_type": "Trainers",
+  "sku_digest": "3610823320ed726d77f383f7d8cb28ede8e6959605a66d27b65ebd2bcde062ff",
+  "skus": 39
+ },
+ "FTW-NKWPEG1": {
+  "category_path": [
+   "Womens",
+   "Shoes",
+   "Sports Shoes",
+   "Running Shoes"
+  ],
+  "colors": [
+   "Black",
+   "Orange",
+   "Red",
+   "White",
+   "Yellow"
+  ],
+  "price": 109.0,
+  "product_type": "Running Shoes",
+  "sku_digest": "ea090de130ae162b848db3603fc69964138d103e19ab921efaee8e8500d538af",
+  "skus": 65
+ }
+}

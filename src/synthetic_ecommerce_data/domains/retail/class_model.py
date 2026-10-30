@@ -422,8 +422,8 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Jumper Lane", "Coat Hook", "Shirt Mews", "Dress Circle", "Boot Hill",
                 "Skirt Point", "Jacket Quay", "Sock Hop", "Shoe Lane", "Cardigan Bay",
                 "Blazer Court", "Slipper Brook", "Sandal Wood", "Pump Lane", "Slip Road",
-                # A real brand, text only (real_brands.ALLOWED, gen#341); another house's make.
-                "Nike",
+                # An invented sportswear brand (gen#722); another house's make.
+                "Knacks",
                 # An invented maker (gen#720): it sells its own GrapePhone and GrapePad.
                 "Grape Computer")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",

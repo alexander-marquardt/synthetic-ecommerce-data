@@ -22,7 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
     decoy_product_words,
     distractors,
     export,
-    nike_rows,
+    knacks_rows,
     scale,
     scale_rows,
     type_registry,
@@ -111,10 +111,10 @@ PROOF_PINNED_CLASS_ROWS = {
 DECOY_ROWS_BESIDE_A_SPEC = {"PLT-DXL10"}
 
 #: The shoe styles the footwear specs (gen#427) do not hold: the growth round 4 shoes
-#: (``scale_rows.FOOTWEAR``) and the Nike shoes (``nike_rows.STYLES``) are built by their own
+#: (``scale_rows.FOOTWEAR``) and the Knacks shoes (``knacks_rows.STYLES``) are built by their own
 #: modules, in their own places in the build, with their own ranks. They are shoes of a footwear
 #: spec's type, so the stray check passes them by id; a style added anywhere else is still stray.
-SHOES_BUILT_ELSEWHERE = {f"FTW-{s.code}" for s in (*scale_rows.FOOTWEAR, *nike_rows.STYLES)}
+SHOES_BUILT_ELSEWHERE = {f"FTW-{s.code}" for s in (*scale_rows.FOOTWEAR, *knacks_rows.STYLES)}
 
 #: The class-8 decoys (gen#326) that are a shoe of a footwear spec's type on purpose: the type
 #: stands in another word's results ("Blue Bull Trainers" for "bull").
@@ -145,7 +145,7 @@ def _outside_spec(templates: list[dict]) -> tuple[dict[str, list[str]], set[str]
             and r["product_id"] not in own
             and r["product_id"] not in SHOES_BUILT_ELSEWHERE
             and r["product_id"] not in scale.DECOY_IDS  # gen#311 clones every apparel type
-            and r["product_id"] not in nike_rows.decoy_ids()  # gen#341: stay in nike_rows (gen#455)
+            and r["product_id"] not in knacks_rows.decoy_ids()  # stay in knacks_rows (gen#455)
         ]  # fmt: skip
         # a class-8 product-word decoy (gen#326) is another type's title on purpose,
         # e.g. the black bike pump that stands in for "black pumps" (gen#368)

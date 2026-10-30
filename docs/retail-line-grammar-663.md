@@ -41,9 +41,9 @@ its family after its brand, and no title repeats its brand back to back.
   uses is reserved for its brand.
 - The place brand "Shirt Row" is "Shirt Mews": the class 8 fit-word decoy "T-Shirt Row Bra" named
   that brand inside its title.
-- A bra style whose line already leads with its brand (the Nike sports bra, line "Nike Dri-FIT")
-  says the brand once in its title and description (`BraStyle.name`), so it no longer reads "Nike
-  Nike Dri-FIT".
+- A bra style whose line already leads with its brand (the Knacks sports bra, line "Knacks
+  Driftdry") says the brand once in its title and description (`BraStyle.name`), so it no longer
+  reads "Knacks Knacks Driftdry".
 
 ## Class 6 and class 5 decoys
 

@@ -38,7 +38,7 @@ from typing import Any
 #: spelling to publish.
 PROPER_NOUNS: dict[str, str] = {
     "torx": "Torx",  # a trade name: "Hex & Torx keys"
-    "nike": "Nike",  # a real brand the retail catalogue carries (gen#332)
+    "knacks": "Knacks",  # an invented brand the retail catalogue carries (gen#722)
 }
 
 #: The file a build writes beside ``nested.jsonl``: ``{product_type: authored_names(...)}``.

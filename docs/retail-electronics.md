@@ -26,7 +26,7 @@ and `GrapePad mini`. They run `Grape OS`. `GrapePad` is ours: the maintainer nam
 
 Every brand of the department is invented: 16 in `electronics_brand_styles.py`, each with its own
 mark. Grape Computer's is `vine`, a sprig that is not the `grapes` mark of Stonepine Estate, and its
-drawings carry its name as any invented brand's do. `real_brands.ALLOWED` is Nike. `KNOWN_REAL`
+drawings carry its name as any invented brand's do. `real_brands.ALLOWED` is empty (Nike left with gen#722). `KNOWN_REAL`
 refuses iPhone, iPad and the other phone, computer and accessory makers in the brand, title and
 description. `BRAND_ONLY` refuses Apple in the `brand` field alone, because `apple` is a fruit word
 from here on.

@@ -1,11 +1,11 @@
 """The real brands the retail catalogue may name, and the guard that refuses all others (gen#341).
 
-README "Every name is invented" holds for every brand but these. The maintainer's ruling: Nike
-(2026-10-15, gen#341) is real, so a shopper who types ``nike air max`` finds products. A real brand
-is TEXT ONLY: its name is in the title, the ``brand`` field and the description, and no drawing
-carries its logo, mark, swoosh, wordmark or trade dress (:func:`house_styles.logo` draws nothing
-for a style whose mark is ``none``). Apple, iPhone and iPad were ruled out on 2026-10-30 (gen#720):
-the devices are Grape Computer's GrapePhone and GrapePad.
+README "Every name is invented" holds for every brand but these. The maintainer's ruling: there
+is no real brand now. Nike was ruled in by gen#341 and out by gen#722: its products are the
+invented brand Knacks, and the guard refuses it and its model lines. Apple, iPhone and iPad were
+ruled out on 2026-10-30 (gen#720): the devices are Grape Computer's GrapePhone and GrapePad. A real
+brand would be TEXT ONLY: its name in the title, the ``brand`` field and the description, and no
+drawing carries its logo, mark, wordmark or trade dress.
 
 :data:`ALLOWED` is the one list of the exceptions. :data:`KNOWN_REAL` is the real brand names the
 guard refuses: a name a contributor might reach for (sportswear, electronics, retail).
@@ -19,11 +19,13 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
-#: Real brands the maintainer has ruled in, text only: Nike (gen#341).
-ALLOWED: tuple[str, ...] = ("Nike",)
+#: Real brands the maintainer has ruled in, text only: none (Nike left with gen#722, Apple, iPhone
+#: and iPad with gen#720).
+ALLOWED: tuple[str, ...] = ()
 
 #: Real brand names the catalogue refuses in any field (unambiguous ones: no "gap" or "orange").
 KNOWN_REAL: tuple[str, ...] = (
+    "Nike", "Air Max", "Pegasus", "Dri-FIT",
     "Adidas", "Puma", "Reebok", "Asics", "New Balance", "Under Armour", "Converse", "Vans",
     "Skechers", "Fila", "Umbro", "Hoka", "Brooks", "Mizuno", "Saucony", "Lululemon", "Gymshark",
     "Levi's", "Wrangler", "Lee Cooper", "Zara", "H&M", "Uniqlo", "Primark", "Next",

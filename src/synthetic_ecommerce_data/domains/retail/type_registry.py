@@ -98,7 +98,7 @@ HOME_SOURCES: tuple[str, ...] = (
     "decoy_product_words", "shirt_rows", "accessory_rows", "school_rows", "sofa_rows",
     "household_rows", "appliance_rows", "underwear_rows", "toys_rows", "lowerbody_rows",
     "lighting_rows", "seasonal_rows", "garden_rows", "decor_rows", "colorgroup_rows",
-    "mens_depth_rows", "womens_depth_rows", "kids_depth_rows", "nike_rows", "knitwear_rows",
+    "mens_depth_rows", "womens_depth_rows", "kids_depth_rows", "knacks_rows", "knitwear_rows",
     "needs_rows", "color_word_brand_rows", "neckline_rows", "cups_plural_rows",
     "diy_decoy_rows", "grocery",
 )  # fmt: skip

@@ -54,7 +54,7 @@ def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         r
         for r in records
         if line_grammar.family(r)
-        and r["product_id"] not in scale.source_ids("nike_rows")
+        and r["product_id"] not in scale.source_ids("knacks_rows")
         and not r["product_id"].startswith("PLT-D")
     ]
 

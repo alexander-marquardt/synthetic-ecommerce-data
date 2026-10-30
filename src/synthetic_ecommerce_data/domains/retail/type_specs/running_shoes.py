@@ -8,5 +8,5 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Home
 SPEC = footwear_spec(
     "running_shoes",
     "Running Shoes",
-    homes=(Home("nike_rows", False),),
+    homes=(Home("knacks_rows", False),),
 )

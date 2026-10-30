@@ -85,9 +85,8 @@ def test_the_guard_refuses_a_former_line_name_in_every_field(name: str, field: s
     assert len(real_brands.check([{"product_id": "x", field: f"Case for {name} 15"}])) == 1
 
 
-def test_the_real_brand_exceptions_lose_apple_and_keep_nike() -> None:
-    assert not {"Apple", "iPhone", "iPad"} & set(real_brands.ALLOWED)
-    assert "Nike" in real_brands.ALLOWED
+def test_the_real_brand_exceptions_lose_apple_and_nike() -> None:
+    assert real_brands.ALLOWED == ()
 
 
 @pytest.mark.parametrize("product_id", sorted(FORMER_APPLE))

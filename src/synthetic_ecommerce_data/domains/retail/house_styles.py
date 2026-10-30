@@ -61,7 +61,7 @@ TAGS = ("none", "outline", "rect", "flag", "plain", "underline", "stamp", "tab")
 CASES = ("title", "caps", "smallcaps", "lower")
 
 
-#: A real brand (:mod:`real_brands`, gen#341) draws no logo: its style row carries this mark,
+#: A real brand (:mod:`real_brands`, gen#332) draws no logo: its style row carries this mark,
 #: so the name is text in the title and the ``brand`` field and the drawing shows no mark.
 NO_MARK = "none"
 
@@ -849,6 +849,12 @@ def m_tail_comb(c: str) -> list[str]:
     return [_stroke(spokes, 0.1, c), _dot(0, 0.8, 0.15, c)]
 
 
+# Knacks' mark (gen#722): a shoe's laces crossing between two rows of eyelets, in straight strokes.
+def m_laced_eyelets(c: str) -> list[str]:
+    eyelets = [_dot(x, y, 0.13, c) for x in (-0.6, 0.6) for y in (-0.7, 0, 0.7)]
+    return [_stroke("M-.6,-.7 L.6,0 L-.6,.7 M.6,-.7 L-.6,0 L.6,.7", 0.12, c), *eyelets]
+
+
 MARKS = {
     name[2:]: fn for name, fn in list(globals().items()) if name.startswith("m_") and callable(fn)
 }
@@ -1351,8 +1357,8 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Black Lapwing":        H("#f1f1f1", "none",     "none",    "#222222", "#111111", 1.3,  False, "sharp", "plume",            "mark_right",  "top_right",     "none",     "sans",     700, "caps",      3.0),
     "White Dormouse":       H("#ffffff", "hatch",    "ticks",   "#8a8a8a", "#2e2e2e", 0.9,  True,  "round", "oak_leaf",             "badge",       "bottom_center", "none",     "serif",    400, "title",     0.0),
     "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "chevron_trio",            "band_bottom", "bottom_center",      "none",     "humanist", 700, "title",     1.0),
-    # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
-    "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
+    # The invented sportswear brand (gen#722).
+    "Knacks":               H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "laced_eyelets",     "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "toggle",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
     # The beauty depth brands (type_specs, gen#214): invented, text only.
     "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "mist_cloud", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),

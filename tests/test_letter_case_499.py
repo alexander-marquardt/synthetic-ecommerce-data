@@ -59,7 +59,7 @@ ROOT = Path(__file__).resolve().parents[1]
         ("Thread M12x1", "Thread M12x1"),  # a code with a lower-case tail, after the first word
         # The exception list: a trade name keeps its capital wherever it falls.
         ("Hex & Torx Keys", "Hex & Torx keys"),
-        ("Nike Trainers", "Nike trainers"),
+        ("Knacks Trainers", "Knacks trainers"),
         # A word with its own inner capital is a brand spelling.
         ("GrapePhone Cases", "GrapePhone cases"),
         # A string that is already sentence case is unchanged.
