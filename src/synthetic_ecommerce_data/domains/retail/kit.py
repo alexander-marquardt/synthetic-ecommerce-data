@@ -355,7 +355,7 @@ DRESS_NECKS: dict[str, tuple[str, str]] = {
 }  # fmt: skip
 
 
-def dress(paint: str, fill: Fill, label: str | None, neckline: str | None = None) -> list[str]:
+def dress(paint: str, fill: Fill, label: str | None, neckline: str | None = None, count: str = "1") -> list[str]:
     body = "M158,112 Q200,128 242,112 L236,196 Q290,270 334,352 Q200,378 66,352 Q110,270 164,196 Z"
     straps, cut = DRESS_NECKS[neckline] if neckline else (_STRAPS, "")
     out = [_line(straps, 5), _path(body, paint)]
