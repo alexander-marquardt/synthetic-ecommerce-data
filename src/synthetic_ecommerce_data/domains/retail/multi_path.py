@@ -19,6 +19,8 @@ MUG_HOME = ("Home", "Kitchen & Dining", "Drinkware", "Mugs")
 MUG_GIFTS = ("Gifts", "Mugs & Drinkware")
 #: The pair a mug is filed at, whichever of the two its build record sits at.
 MUG_PATHS = (MUG_HOME, MUG_GIFTS)
+COURT_HEELS = ("Womens", "Shoes", "Heels", "Court Shoes")
+COURT_FORMAL = ("Womens", "Shoes", "Formal Shoes", "Court Shoes")
 
 
 def other_paths(rec: dict) -> list[tuple[str, ...]]:
