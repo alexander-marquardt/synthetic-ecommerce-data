@@ -402,8 +402,16 @@ def flat_documents(
     the first value that is a number, :func:`_number`) and the searchable ``text``.
     Product fields the document lacks (``series``) stay absent, never null. A key in
     ``text_skip`` is still a facet and an attribute, but its values stay out of ``text``.
+    A product filed at several paths (``category_paths``) is searchable by each: ``text``
+    holds the primary path, then the nodes each further path adds, each once.
     """
     product = {k: doc[k] for k in _FLAT_PRODUCT_FIELDS if k in doc}
+    nodes = dict.fromkeys(
+        node
+        for path in doc.get("category_paths", ())
+        for node in path
+        if node not in doc["category_path"]
+    )
     out: list[dict[str, Any]] = []
     for variant in doc["variants"]:
         own = {e["key"] for e in variant["attributes"]}
@@ -417,7 +425,7 @@ def flat_documents(
                 numeric.setdefault(entry["key"], number)
         if "merchandising_score" in doc:
             numeric["merchandising_score"] = float(doc["merchandising_score"])
-        words = [variant["title"], doc["brand"], doc.get("series"), *doc["category_path"]]
+        words = [variant["title"], doc["brand"], doc.get("series"), *doc["category_path"], *nodes]
         words.append(doc.get("fibre_content"))
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
