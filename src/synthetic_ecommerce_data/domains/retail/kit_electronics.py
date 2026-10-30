@@ -25,6 +25,7 @@ laptop_sleeve       a padded sleeve with a zip                 (none)
 mouse               a computer mouse                           form (wireless, gaming, ergonomic)
 keyboard            a keyboard                                 layout (full, compact)
 monitor             a monitor on its stand                     form (standard, ultrawide, curved)
+tv                  a wide panel on two feet                   form (flat, curved)
 dishwasher_tablets  a tub of dishwasher tablets                (none)
 ==================  =========================================  ==============================
 
@@ -418,6 +419,25 @@ def monitor(paint: str, fill: Fill, label: str | None, form: str = "standard") -
     return _label(out, label)
 
 
+def tv(paint: str, fill: Fill, label: str | None, form: str = "flat") -> list[str]:
+    """A TV on two feet, wider than a monitor and with no central stand: ``flat`` or ``curved``."""
+    if form == "curved":
+        out = [
+            _path("M26,92 C140,122 260,122 374,92 L374,262 C260,292 140,292 26,262 Z", paint),
+            _path(
+                "M38,106 C140,134 260,134 362,106 L362,246 C260,276 140,276 38,246 Z", SCREEN, 1.6
+            ),
+        ]
+    else:
+        out = [_rect(26, 92, 348, 196, paint, 6), _screen(36, 102, 328, 174, 3)]
+    foot = _tint(paint, 0.2)
+    out += [
+        _path("M92,284 L78,322 L110,322 L120,284 Z", foot),
+        _path("M308,284 L322,322 L290,322 L280,284 Z", foot),
+    ]
+    return _label(out, label)
+
+
 def dishwasher_tablets(paint: str, fill: Fill, label: str | None) -> list[str]:
     """A tub of dishwasher tablets: a lidded tub and tablets stood beside it."""
     out = [_rect(110, 130, 160, 170, paint, 14), _rect(104, 114, 172, 28, _shade(paint, 0.25), 8)]
@@ -431,7 +451,7 @@ SHAPES = {
     "tablet": tablet, "e_reader": e_reader, "phone_case": phone_case,
     "screen_protector": screen_protector, "charger": charger, "cable": cable,
     "earbuds": earbuds, "laptop_sleeve": laptop_sleeve, "mouse": mouse, "keyboard": keyboard,
-    "monitor": monitor, "dishwasher_tablets": dishwasher_tablets,
+    "monitor": monitor, "dishwasher_tablets": dishwasher_tablets, "tv": tv,
 
 }  # fmt: skip
 register(SHAPES)

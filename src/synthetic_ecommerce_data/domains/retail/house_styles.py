@@ -1406,10 +1406,10 @@ def differing(a: HouseStyle, b: HouseStyle) -> int:
 
 
 from synthetic_ecommerce_data.domains.retail import (  # noqa: E402
-    appliance_brand_styles,  # noqa: E402,F401 -- gen#334: six marks and styles join the tables
+    appliance_brand_styles,  # noqa: E402,F401 -- gen#334, #721: eight marks and styles join the tables
     color_word_brand_styles,  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
     diy_brand_styles,  # noqa: E402,F401 -- gen#191: four marks and styles join the tables
-    electronics_brand_styles,  # noqa: E402,F401 -- gen#332: 14 marks and styles of the Electronics department join the tables
+    electronics_brand_styles,  # noqa: E402,F401 -- gen#332, #721: 16 marks and styles of the Electronics department join the tables
     grocery_brand_styles,  # noqa: E402,F401 -- gen#376: 22 marks and styles of the 50K grocery tier join the tables
     luggage_brand_styles,  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
     place_brand_styles,  # noqa: E402,F401 -- gen#663: 15 marks and styles of the class 6 place brands join the tables

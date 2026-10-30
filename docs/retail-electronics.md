@@ -1,15 +1,15 @@
-# Electronics: phones, computers, tablets and their accessories (gen#332)
+# Electronics: phones, computers, tablets, TVs and their accessories (gen#332, #721)
 
-The department has 15 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
-154 template styles: 66 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers)
-and 88 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
+The department has 16 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
+187 template styles: 97 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers,
+TVs) and 90 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
 mice, keyboards, monitors). The rows are in `electronics_rows.py`; the drawings are in
 `kit_electronics.py` (a house-style drawing per type). Prices, specs and stock are synthetic.
 
 ## Tree
 
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
-`Tablets > {Tablets, E-readers}` and `Accessories > <leaf>`. Each type nests under its generic node
+`Tablets > {Tablets, E-readers}`, `TVs` and `Accessories > <leaf>`. Each type nests under its generic node
 and no sibling label is a word-suffix of another (`tree_guard`).
 
 ## Every brand is invented (gen#720)
@@ -24,7 +24,7 @@ invented products under a real company's name at invented prices.
 specs: `GrapePhone 15`, `GrapePhone SE` and the rest, and `GrapePad`, `GrapePad Air`, `GrapePad Pro`
 and `GrapePad mini`. They run `Grape OS`. `GrapePad` is ours: the maintainer named only GrapePhone.
 
-Every brand of the department is invented: 14 in `electronics_brand_styles.py`, each with its own
+Every brand of the department is invented: 16 in `electronics_brand_styles.py`, each with its own
 mark. Grape Computer's is `vine`, a sprig that is not the `grapes` mark of Stonepine Estate, and its
 drawings carry its name as any invented brand's do. `real_brands.ALLOWED` is Nike. `KNOWN_REAL`
 refuses iPhone, iPad and the other phone, computer and accessory makers in the brand, title and
@@ -37,8 +37,11 @@ sweets). `GrapePhone` is one word to a search, so `grape` finds the devices by t
 The web check of 2026-10-30 searched each exact name and found no company or product called
 Grape Computer, GrapePhone, GrapePad or Grape OS. Near names exist: Grape Systems Inc. and Grape Lab
 Inc. hold computing and accessory trademarks, Grapes Mobile sold phones in India, and GrandPad is a
-tablet. The check of the other 13 invented names could not be run from the build host (the search
+tablet. The check of the other 15 invented names could not be run from the build host (the search
 returned unrelated pages), so it is still to do by hand before those names are relied on.
+
+The brands that cross departments (Grape Computer, GoodLook, SingingSam, PackingHarder and Xell)
+are in [retail-prototype/cross-category-brands-721.md](retail-prototype/cross-category-brands-721.md).
 
 ## Decoys
 

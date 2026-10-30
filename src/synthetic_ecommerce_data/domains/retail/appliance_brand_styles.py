@@ -1,11 +1,12 @@
-"""Marks and house styles of the six invented large appliance brands (gen#334).
+"""Marks and house styles of the eight invented large appliance brands (gen#334, #721).
 
 Frostholm, Brimwell, Tavorne, Hollinmere, Cleavewick and Lunden & Voss sell the fridges,
 dishwashers and laundry appliances of :mod:`large_appliance_rows`. Each draws its own name on its
 product images: three lockups (the name beside, above or in a badge with the mark) and three marks
-alone with a text tag, each with a mark no other brand uses.
+alone with a text tag, each with a mark no other brand uses. GoodLook and SingingSam (#721) also
+sell the TVs of Electronics, and SingingSam its phones and a laptop.
 
-:mod:`house_styles` imports this module last, so the six marks join ``MARKS`` and the six styles
+:mod:`house_styles` imports this module last, so the eight marks join ``MARKS`` and the eight styles
 join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -69,6 +70,24 @@ def m_double_slash(c: str) -> list[str]:
     ]
 
 
+def m_lens_eye(c: str) -> list[str]:
+    """An open eye: two lids and a pupil."""
+    return [
+        _stroke("M-.9,0 Q0,-.8 .9,0", 0.1, c),
+        _stroke("M-.9,0 Q0,.8 .9,0", 0.1, c),
+        _dot(0, 0, 0.24, c),
+    ]
+
+
+def m_note_pair(c: str) -> list[str]:
+    """A beamed pair of musical notes."""
+    return [
+        _dot(-0.5, 0.6, 0.22, c),
+        _dot(0.45, 0.45, 0.22, c),
+        _stroke("M-.3,.6 L-.3,-.6 L.65,-.75 L.65,.45", 0.11, c, "miter"),
+    ]
+
+
 hs.MARKS.update(
     {
         "frost_star": m_frost_star,
@@ -77,11 +96,13 @@ hs.MARKS.update(
         "holly": m_holly,
         "wick": m_wick,
         "double_slash": m_double_slash,
+        "lens_eye": m_lens_eye,
+        "note_pair": m_note_pair,
     }
 )
 
 # fmt: off
-#: Brand -> house style: three lockups (the wordmark is the brand field), three marks with a tag.
+#: Brand -> house style: five lockups (the wordmark is the brand field), three marks with a tag.
 STYLES = {
     "Frostholm":      H("#eef4f8", "none",     "thin",    "#2f6f9a", "#17364d", 1.0,  False, "sharp", "frost_star",   "mark_left",  "top_left",      "none",      "sans",     700, "caps",      3.5),
     "Brimwell":       H("#f6f3ec", "dots",     "rounded", "#a2562f", "#43251a", 1.1,  False, "round", "brim_bowl",    "mark_only",  "bottom_left",   "rect",      "humanist", 400, "title",     0.5),
@@ -89,6 +110,8 @@ STYLES = {
     "Hollinmere":     H("#f2f0f5", "grid",     "heavy",   "#6a3f8c", "#2c1a3e", 1.05, False, "round", "holly",        "mark_above", "bottom_right",  "none",      "serif",    400, "title",     0.5),
     "Cleavewick":     H("#faf2e8", "diagonal", "none",    "#c27a1c", "#4b2d0b", 0.9,  False, "sharp", "wick",         "mark_only",  "bottom_right",  "underline", "mono",     400, "lower",     3.5),
     "Lunden & Voss":  H("#f0f1f3", "hatch",    "ticks",   "#3b4a5a", "#161c24", 1.2,  False, "round", "double_slash", "badge",      "top_center",    "none",      "sans",     400, "smallcaps", 4.0, True),
+    "GoodLook":       H("#f7f1ee", "dots",     "thin",    "#b33a3a", "#431616", 1.0,  False, "round", "lens_eye",     "mark_left",  "top_left",      "none",      "serif",    700, "title",     1.3, True),
+    "SingingSam":     H("#eef6f6", "hatch",    "double",  "#0f7c85", "#0a3034", 1.15, False, "round", "note_pair",    "band_bottom", "bottom_center", "none",     "humanist", 400, "caps",      2.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

@@ -1,13 +1,15 @@
-"""Marks and house styles of the 14 invented electronics brands (gen#332).
+"""Marks and house styles of the 16 invented electronics brands (gen#332, #721).
 
 Grape Computer, Halvern, Torvane, Nimbrel, Quorrin, Daskel, Mervane and Pellimar sell the phones, laptops,
 desktops, tablets and e-readers of the Electronics department (:mod:`electronics_rows`). Cindrel,
 Boltwick, Wexmoor, Dunvale, Ardmoor and Marrick sell its accessories: cases, protectors, chargers,
-cables, earbuds, sleeves, mice, keyboards and monitors. Each draws its own name on its product
+cables, earbuds, sleeves, mice, keyboards and monitors. Grape Computer, Xell and PackingHarder
+(#721) sell computers across departments: PackingHarder also sells monitors and the volt meters
+of Home > DIY & Tools. Each draws its own name on its product
 images: a lockup (the name beside, above or in a badge with the mark) or a mark alone with a text
 tag, with a mark no other brand uses.
 
-:mod:`house_styles` imports this module last, so the 14 marks join ``MARKS`` and the 14 styles
+:mod:`house_styles` imports this module last, so the 16 marks join ``MARKS`` and the 16 styles
 join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -143,6 +145,24 @@ def m_arc(c: str) -> list[str]:
     ]
 
 
+def m_crate(c: str) -> list[str]:
+    """A crate: a box with a sloped lid, strapped shut."""
+    return [
+        _stroke("M-.85,-.35 L.85,-.35 L.85,.85 L-.85,.85 Z", 0.11, c, "miter"),
+        _stroke("M-.85,-.35 L-.5,-.85 L.5,-.85 L.85,-.35", 0.11, c, "miter"),
+        _stroke("M0,-.35 L0,.85", 0.14, c),
+    ]
+
+
+def m_x_cell(c: str) -> list[str]:
+    """A cross in a square with its corners cut."""
+    return [
+        _stroke("M-.6,-.85 L.6,-.85 L.85,-.6 L.85,.6 L.6,.85 L-.6,.85 L-.85,.6 L-.85,-.6 Z", 0.1, c, "miter"),
+        _stroke("M-.4,-.4 L.4,.4", 0.16, c),
+        _stroke("M-.4,.4 L.4,-.4", 0.16, c),
+    ]
+
+
 hs.MARKS.update(
     {
         "vine": m_vine,
@@ -159,11 +179,13 @@ hs.MARKS.update(
         "flap_sleeve": m_fold,
         "dial": m_dial,
         "arc": m_arc,
+        "crate": m_crate,
+        "x_cell": m_x_cell,
     }
 )
 
 # fmt: off
-#: Brand -> house style. Eight lockups and six marks alone with a text tag.
+#: Brand -> house style. Eight lockups and eight marks alone with a text tag.
 STYLES = {
     # The device brands.
     "Grape Computer":  H("#f4f4f6", "none",  "ticks",   "#6a3d8f", "#2a1638", 0.9,  False, "sharp", "vine",   "mark_right", "bottom_right",  "none",    "humanist", 700, "caps",      1.3),
@@ -181,6 +203,9 @@ STYLES = {
     "Dunvale":  H("#f2eeeb", "diagonal", "none",    "#9a4a3a", "#3a1a14", 1.1,  False, "round", "flap_sleeve", "mark_only",  "bottom_left",   "tab",     "humanist", 700, "lower",     0.4),
     "Ardmoor":  H("#edf4f8", "hatch",    "ticks",   "#2a86a8", "#0f3445", 0.95, False, "round", "dial",   "mark_only",  "top_left",      "underline", "serif",  400, "title",     1.8),
     "Marrick":  H("#f7eef0", "none",     "thin",    "#a83a4a", "#401a20", 1.3,  False, "sharp", "arc",    "mark_only",  "bottom_right",  "stamp",   "sans",     700, "smallcaps", 0.7),
+    # The computer brands that cross departments (#721).
+    "Xell":     H("#edf1f7", "lines",    "none",    "#1d4f91", "#0e2140", 0.9,  False, "sharp", "x_cell", "mark_only",  "bottom_left",   "plain",   "sans",     400, "lower",     2.4),
+    "PackingHarder": H("#f0f2ee", "grid", "heavy",  "#3c5a2e", "#18240f", 1.2,  False, "sharp", "crate",  "mark_only",  "top_right",     "stamp",   "mono",     700, "caps",      1.1),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

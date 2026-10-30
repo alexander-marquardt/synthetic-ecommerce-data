@@ -188,7 +188,7 @@ def ranked() -> tuple[br.Index, list[dict]]:
 def test_a_full_model_number_finds_its_washing_machine_first(ranked):
     """Each brand's scheme, in both title forms: the code alone ranks its own machine first."""
     index, washers = ranked
-    assert {r["brand"] for r in washers} == set(lar.BRANDS)
+    assert {r["brand"] for r in washers} == {*lar.BRANDS, lar.GOODLOOK, lar.SINGINGSAM}
     assert any(FROM_FORM.match(r["title"]) for r in washers)
     for r in washers:
         code = _attrs(r)["model_number"]

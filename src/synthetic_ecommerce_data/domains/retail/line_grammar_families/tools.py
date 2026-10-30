@@ -11,7 +11,7 @@ from __future__ import annotations
 KINDS = (
     "Drill Driver", "Combi Drill", "Hammer Drill", "Corded Drill", "Impact Driver",
     "SDS Hammer Drill", "Drill Bit Set", "Tool Kit", "Step Ladder",
-    "Bit Set", "Screwdriver Set", "Socket Set", "Caulking Gun", "Glue Gun",
+    "Bit Set", "Screwdriver Set", "Socket Set", "Caulking Gun", "Glue Gun", "Volt Meter",
     "Jump Leads", "Cable Ties", "Foot Pumps", "Wireless Charger", "Fridge Thermometer", "Heater",
     "Desk Fan", "Pedestal Fan", "Tower Fan", "Ceiling Fan", "Handheld Fan",
 )  # fmt: skip

@@ -26,7 +26,9 @@ FRIDGES = (*ROOT, "Fridges & Freezers")
 DISHWASHERS = (*ROOT, "Dishwashers")
 LAUNDRY = (*ROOT, "Laundry")
 BRANDS = ("Frostholm", "Brimwell", "Tavorne", "Hollinmere", "Cleavewick", "Lunden & Voss")
-OWNERS = tuple((b, "own") for b in BRANDS)
+#: Brands that also sell outside this range (#721): a few models each, in the specs that name them.
+GOODLOOK, SINGINGSAM = "GoodLook", "SingingSam"
+OWNERS = (*((b, "own") for b in BRANDS), (GOODLOOK, "third_party"), (SINGINGSAM, "third_party"))
 
 WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
 BLACK = cw("Black", "#2d2d33")
@@ -102,15 +104,16 @@ def color_codes(extra, colors) -> tuple[tuple[str, str], ...]:
     return tuple((c[0], base + amn.COLORS[c[0]]) for c in colors)
 
 
-def kind_rows(pre: str, n: int, path, ptype, shape, params, title, make) -> tuple[Row, ...]:
-    """Six models of one kind: ``make(i)`` gives each model's (price, description, colors, attrs).
+def kind_rows(pre: str, n: int, path, ptype, shape, params, title, make,
+              brands: tuple[str, ...] = BRANDS) -> tuple[Row, ...]:
+    """``n`` models of one kind: ``make(i)`` gives each model's (price, description, colors, attrs).
 
     The title reads brand, series, model number, spec, then the kind (gen#622).
     """
     out = []
     for i in range(n):
         price, desc, colors, attrs = make(i)
-        brand = BRANDS[(sum(map(ord, pre)) + i) % len(BRANDS)]
+        brand = brands[(sum(map(ord, pre)) + i) % len(brands)]
         generation = GENERATIONS[(sum(map(ord, pre)) + i) % 5]
         series, code, extra, spec = identify(brand, attrs, colors[0][0], generation)
         out.append(_row(pre, i, f"{brand} {series} {code} {spec} {title}", brand, path, ptype, price,

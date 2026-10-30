@@ -50,29 +50,44 @@ _FRIDGE_KINDS = (
 )  # fmt: skip
 
 
+def _kind(kind, n: int = 6, brands: tuple[str, ...] = lar.BRANDS, code: str = "") -> tuple[Row, ...]:
+    """``n`` models of a row of :data:`_FRIDGE_KINDS`; ``code`` replaces its product id prefix."""
+    pre, shape, title, kind_name, lead, models = kind
+
+    def make(i):
+        cap, width, price = models[i]
+        frost_free = i % 3 != 2 or pre in {"FSS", "FCH"}
+        retro = pre == "FFB" and i >= 4
+        rating = lar.RATINGS[(i + len(pre)) % 5]
+        desc = (f"{lead}. {cap} litres in all, {width} cm wide, energy rating {rating}"
+                f"{', frost free' if frost_free else ', manual defrost'}"
+                f"{'. A retro shape with rounded corners' if retro else ''}.")
+        colors = lar.SIX if retro else lar.PALETTES[i % 3]
+        attrs = (a("appliance_type", "Type", kind_name), lar.litres(cap), lar.cm(width),
+                 a("energy_rating", "Energy rating", rating), lar.yn("frost_free", "Frost free", frost_free))
+        return float(price), desc, colors, attrs
+
+    rows = lar.kind_rows(code or pre, n, lar.FRIDGES, _PTYPE, "fridge", (("kind", shape),), title, make, brands)
+    if pre == "FFB":
+        rows = tuple(
+            r if i < 4 else replace(r, title=r.title.replace(title, f"Retro {title}"))
+            for i, r in enumerate(rows)
+        )
+    return rows
+
+
 def fridge_rows() -> tuple[Row, ...]:
-    out: list[Row] = []
-    for pre, shape, title, kind_name, lead, models in _FRIDGE_KINDS:
-        def make(i, models=models, lead=lead, kind_name=kind_name, pre=pre):
-            cap, width, price = models[i]
-            frost_free = i % 3 != 2 or pre in {"FSS", "FCH"}
-            retro = pre == "FFB" and i >= 4
-            rating = lar.RATINGS[(i + len(pre)) % 5]
-            desc = (f"{lead}. {cap} litres in all, {width} cm wide, energy rating {rating}"
-                    f"{', frost free' if frost_free else ', manual defrost'}"
-                    f"{'. A retro shape with rounded corners' if retro else ''}.")
-            colors = lar.SIX if retro else lar.PALETTES[i % 3]
-            attrs = (a("appliance_type", "Type", kind_name), lar.litres(cap), lar.cm(width),
-                     a("energy_rating", "Energy rating", rating), lar.yn("frost_free", "Frost free", frost_free))
-            return float(price), desc, colors, attrs
-        rows = lar.kind_rows(pre, 6, lar.FRIDGES, "Fridge & Freezer", "fridge", (("kind", shape),), title, make)
-        if pre == "FFB":
-            rows = tuple(
-                r if i < 4 else replace(r, title=r.title.replace(title, f"Retro {title}"))
-                for i, r in enumerate(rows)
-            )
-        out += rows
-    return tuple(out)
+    return tuple(r for kind in _FRIDGE_KINDS for r in _kind(kind))
+
+
+def cross_brand_rows() -> tuple[Row, ...]:
+    """GoodLook's and SingingSam's fridges (#721): two 70/30 models and two side-by-sides each."""
+    return tuple(
+        r
+        for brand, lead in ((lar.GOODLOOK, "GL"), (lar.SINGINGSAM, "SS"))
+        for kind in (_FRIDGE_KINDS[0], _FRIDGE_KINDS[2])
+        for r in _kind(kind, 2, (brand,), f"{lead}{kind[0][-1]}")
+    )
 
 
 SPEC = TypeSpec(
@@ -80,7 +95,7 @@ SPEC = TypeSpec(
     department="Home",
     product_type=_PTYPE,
     owners=lar.OWNERS,
-    rows=fridge_rows(),
+    rows=fridge_rows() + cross_brand_rows(),
     decoys=(
         Decoy(4, "black fridge", "color", lar.decoy_row(
             "FDB001", "Black Edition Fridge Freezer", lar.BRANDS[0], lar.FRIDGES, _PTYPE,

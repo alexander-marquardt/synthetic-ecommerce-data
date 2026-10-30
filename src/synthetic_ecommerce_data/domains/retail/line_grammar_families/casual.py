@@ -11,7 +11,7 @@ from __future__ import annotations
 KINDS = ("Espadrilles", "Slippers", "Wedges", "Mules", "Sandals", "Clogs", "Jelly Shoes")
 #: The lead word of a model.
 LEADS = (
-    "Siesta", "Fiesta", "Sorbet", "Languid", "Toasty", "Nestle", "Plush", "Lazy", "Sunset",
+    "Siesta", "Fiesta", "Sorbet", "Languid", "Toasty", "Snuggle", "Plush", "Lazy", "Sunset",
     "Sunrise", "Boardwalk", "Lido", "Parasol", "Gelato", "Barbecue", "Hammock", "Tropic",
     "Carnival", "Flutter", "Twirl", "Swish", "Bliss", "Tang", "Jolly",
 )  # fmt: skip
