@@ -19,11 +19,11 @@ with iphone, apple, and samsung, Xiaomi, Nokia, and say the top 10 .. those are 
 english words now, and need be represented .. people will definitely search for iphone .. and
 expect to see apple iphones". Then: "maybe we should only allow apple and iphone as exceptions ..
 for other phones, can make-up brands .. but apple is so iconic (and gives good clashes) so is a
-great demo .. same with iphone, and ipad .. we can keep those". This is the second exception to
-"every name is invented", beside Nike (gen#341). Apple devices are iPhone and
+great demo .. same with iphone, and ipad .. we can keep those". This is the one exception to
+"every name is invented" (Nike, the other, ended with gen#722). Apple devices are iPhone and
 iPad models with their public line names (`iPhone 15`, `iPad Air`); the Apple house style has the
 mark `none`, so no drawing carries a logo or a trade dress. Every other brand is invented: 13 in
-`electronics_brand_styles.py`, each with its own mark. `real_brands.ALLOWED` is Nike, Apple, iPhone
+`electronics_brand_styles.py`, each with its own mark. `real_brands.ALLOWED` is Apple, iPhone
 and iPad; `KNOWN_REAL` refuses the other phone, computer and accessory makers. The web check of the
 13 invented names could not be run from the build host (the search returned unrelated pages), so it
 is still to do by hand before the names are relied on.

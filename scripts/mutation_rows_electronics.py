@@ -23,8 +23,8 @@ def rows() -> list[Row]:
         _row(
             "iPad is no longer a ruled-in real name",
             "real_brands.py",
-            'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")',
-            'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone")',
+            'ALLOWED: tuple[str, ...] = ("Apple", "iPhone", "iPad")',
+            'ALLOWED: tuple[str, ...] = ("Apple", "iPhone")',
             f"{_T}::test_the_only_real_names_are_apple_iphone_and_ipad",
             "Apple, iPhone and iPad are the real names the maintainer ruled in",
         ),

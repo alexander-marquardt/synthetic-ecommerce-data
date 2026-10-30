@@ -18,8 +18,9 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md))
-and the household brands of the Electronics department (Apple, iPhone and iPad; gen#332, [docs/retail-electronics.md](retail-electronics.md)). The large
+not outrank. Every name is invented but the household brands of the Electronics department (Apple,
+iPhone and iPad; gen#332, [docs/retail-electronics.md](retail-electronics.md)); the sportswear brand
+is the invented Knacks ([docs/retail-knacks.md](retail-knacks.md)). The large
 appliance brands are not an exception: Frostholm, Brimwell, Tavorne, Hollinmere, Cleavewick and
 Lunden & Voss are invented, as the maintainer ruled for gen#334, and no real appliance maker is named.
 
@@ -115,7 +116,7 @@ and nested under `Trainers` it would make a leaf a parent. The 26 shoe types are
 registry list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields from it and answers
 `skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
 the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
-Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
+Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Knacks
 shoes are built by their own modules. The men's brogues and loafers sit
 under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
 has one node to point at; product ids, titles and drawings do not move. The node is chosen by

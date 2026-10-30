@@ -284,7 +284,7 @@ AUDIENCES = ("Mens", "Womens", "Kids")
 
 def orange_shoes(docs: list[Doc]) -> Report:
     """#420: trainers and running shoes offer Orange as a plain, solid, orange-hued color word on
-    at least three styles in each audience, and the Nike ones are among them."""
+    at least three styles in each audience, and the Knacks ones are among them."""
     import colorsys
 
     trainers = [d for d in docs if d.get("product_type") in TRAINER_TYPES and "color_options" in d]
@@ -314,12 +314,15 @@ def orange_shoes(docs: list[Doc]) -> Report:
                 found.append(
                     (audience, f"{n} Orange trainer styles for {audience}, at least 3 wanted")
                 )
-        nike = [d for d in orange if d.get("brand") == "Nike"]
-        if {d["product_type"] for d in nike} != set(TRAINER_TYPES) or {
-            d["category_path"][0] for d in nike
+        knacks = [d for d in orange if d.get("brand") == "Knacks"]
+        if {d["product_type"] for d in knacks} != set(TRAINER_TYPES) or {
+            d["category_path"][0] for d in knacks
         } != set(AUDIENCES):
             found.append(
-                ("Nike", "the Nike trainers and running shoes do not offer Orange in each audience")
+                (
+                    "Knacks",
+                    "the Knacks trainers and running shoes do not offer Orange in each audience",
+                )
             )
     return len(orange), found
 

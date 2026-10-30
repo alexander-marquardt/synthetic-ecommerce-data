@@ -83,7 +83,7 @@ COLORWORD_ROWS = FIGURES["templates"]["color_word_brand_rows"]["styles"]
 KNITWEAR_ROWS = FIGURES["templates"]["knitwear_rows"]["styles"]
 NECKLINE_ROWS = FIGURES["templates"]["neckline_rows"]["styles"]
 NEEDS_ROWS = FIGURES["templates"]["needs_rows"]["styles"]
-NIKE_ROWS = FIGURES["templates"]["nike_rows"]["styles"]
+KNACKS_ROWS = FIGURES["templates"]["knacks_rows"]["styles"]
 CUPS_PLURAL_ROWS = FIGURES["templates"]["cups_plural_rows"]["styles"]
 DIY_DECOY_ROWS = FIGURES["templates"]["diy_decoy_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
@@ -120,7 +120,7 @@ TEMPLATES = (
     + NECKLINE_ROWS
     + NEEDS_ROWS
     + CUPS_PLURAL_ROWS
-    + NIKE_ROWS
+    + KNACKS_ROWS
     + DIY_DECOY_ROWS
     + TYPE_SPEC_ROWS
     + DECOY_APPAREL_ROWS
@@ -1430,7 +1430,7 @@ def test_the_scale_and_grocery_halves_of_the_range_pool_share_no_name():
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names (gen#662), the real-brand rows and the
     decoys aside (a class 8 decoy is named for a village street on purpose)."""
-    skip = (scale.source_ids("nike_rows") | scale.source_ids("seasonal_rows")
+    skip = (scale.source_ids("knacks_rows") | scale.source_ids("seasonal_rows")
             | scale.source_ids("color_word_brand_rows"))  # real brands and decoy rows
     return [
         r
