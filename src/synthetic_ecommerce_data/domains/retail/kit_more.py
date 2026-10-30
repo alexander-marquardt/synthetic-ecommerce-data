@@ -240,8 +240,11 @@ def _sock(paint: str, transform: str) -> str:
     return f'<g class="sock" transform="{transform}">{"".join(parts)}</g>'
 
 
-def socks(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """One pair of socks; a pack of them is :mod:`pack_copies`'."""
+def socks(paint: str, fill: Fill, label: str | None, lone: str = "") -> list[str]:
+    """One pair of socks; a pack of them is :mod:`pack_copies`', which fans ``lone`` socks, one
+    for a pair, as a shop's listing does (gen#734)."""
+    if lone:
+        return [_sock(paint, "translate(86 74) scale(1.2)")]
     return [
         _sock(paint, "translate(132 40) scale(1.2)"),
         _sock(paint, "translate(86 74) scale(1.2)"),

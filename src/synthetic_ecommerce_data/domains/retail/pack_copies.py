@@ -22,6 +22,10 @@ family uses: a new family needs no drawing of its own to show its pack.
   ``pieces`` or ``units`` of that number. ``tub`` drew its own pots and moved onto this layout, as
   did socks and the school shirt.
 
+- SOCKS AND KNICKERS FAN (:data:`FANS`, gen#734): rows of them read as a heap, so they lie flat in
+  one sweep, as a shop's listing shows them, each turned about a point below the pack and each with
+  a light edge (:func:`_edge`), so that even black ones on black can be counted.
+
 A pack takes no pack factor (``pack_scale.factor``): its copies show its size. The count goes
 through ``export.drawing_spec``, so each count is its own drawing.
 """
@@ -31,7 +35,7 @@ from __future__ import annotations
 import math
 import re
 from html import escape
-from typing import Any
+from typing import Any, NamedTuple
 
 from synthetic_ecommerce_data.domains.retail import sheet_extent
 from synthetic_ecommerce_data.domains.retail.kit import (
@@ -64,6 +68,30 @@ LOOSE_BOX = 116.0
 BOX_SMALLEST = 0.74
 BOX_LARGEST_COUNT = 240
 
+#: The light edge round a fanned item, and how wide it is drawn (half of it shows past the item).
+EDGE = "#ffffff"
+EDGE_WIDTH = 7.0
+
+
+class Fan(NamedTuple):
+    """A family's fan: the turn between neighbours in degrees, the widest sweep it may take, and
+    the point every item turns about, ``across`` the item's width and ``below`` its foot as a
+    share of its height. ``crown`` lays the middle item last, so it lies whole on top with the
+    rest showing to either side; else each item lies on the one to its left."""
+
+    step: float
+    sweep: float
+    across: float
+    below: float
+    crown: bool = False
+
+
+#: The families that fan rather than stand in rows (gen#734).
+FANS = {
+    "knickers": Fan(step=9.0, sweep=60.0, across=0.5, below=1.6, crown=True),
+    "socks": Fan(step=16.0, sweep=110.0, across=0.5, below=0.15),
+}
+
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
 SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table"})
@@ -71,6 +99,8 @@ SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table
 ONE_ITEM = {
     "bath_towel": {"folded": "1"},
     "hangers": {"nested": "1"},
+    "knickers": {"flat": "1"},
+    "socks": {"lone": "1"},
     "travel_organizer": {"cubes": "1"},
 }
 
@@ -81,6 +111,9 @@ _TITLE = (
 )
 _TWO = re.compile(r"\btwin pack\b|\bpair$", re.IGNORECASE)
 _SHEET = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">{}</svg>'
+_TAG = re.compile(r"<[^>]+>")
+_D = re.compile(r' d="[^"]*"')
+_TURNED = re.compile(r' transform="[^"]*"')
 
 #: One copy: its center x, its baseline y and its scale, with the front copy at ``(0, 0, 1)``.
 Place = tuple[float, float, float]
@@ -279,13 +312,68 @@ def _loose(width: float, height: float) -> list[Place]:
     return [(middle, y1, size), (middle - across, y1, size), (middle + across, y1, size)]
 
 
-def layout(body: str, parts: list[str], n: int, paint: str, uid: str) -> str:
-    """``body`` (the product's drawing on the sheet) drawn as a pack of ``n``: copies of it, or
-    the outer box and loose items above :data:`MOST_DRAWN`. ``parts`` are the shape's own elements,
-    the box a copy is measured by."""
+def turns(n: int, fan: Fan) -> list[float]:
+    """Each of ``n`` items' turn in degrees, in the order they are laid, the last on top."""
+    step = min(fan.step, fan.sweep / (n - 1))
+    swept = [step * (i - (n - 1) / 2) for i in range(n)]
+    return sorted(swept, key=abs, reverse=True) if fan.crown else swept
+
+
+def _edge(body: str, paint: str) -> str:
+    """``body``'s silhouette in :data:`EDGE`, keeping its groups' transforms: each path in the
+    item's own paint, stroked wide. Laid under the item, only the stroke's outer half shows."""
+
+    def silhouette(tag: re.Match[str]) -> str:
+        text = tag[0]
+        if text == "</g>":
+            return text
+        if text.startswith("<g"):
+            turned = _TURNED.search(text)
+            return f"<g{turned[0] if turned else ''}>"
+        if text.startswith("<path") and f'fill="{paint}"' in text:
+            d = _D.search(text)
+            return (
+                f'<path{d[0]} fill="{EDGE}" stroke="{EDGE}" stroke-width="{EDGE_WIDTH:g}" '
+                'stroke-linejoin="round"/>'
+            )
+        return ""
+
+    return _TAG.sub(silhouette, body)
+
+
+def _fanned(body: str, box: sheet_extent.Box, n: int, paint: str, uid: str, fan: Fan) -> str:
+    """``body`` as a fan of ``n``: each item turned about the fan's point, scaled down as a whole
+    if it overflows :data:`AREA`, and centered on it."""
+    width, height = box[2] - box[0], box[3] - box[1]
+    x = box[0] + fan.across * width
+    y = box[3] + fan.below * height
+    item, edge = f"pack-item-{uid}", f"pack-edge-{uid}"
+    defs = f'<defs><g id="{item}">{body}</g><g id="{edge}">{_edge(body, paint)}</g></defs>'
+    laid = "".join(
+        f'<use class="pack-edge" href="#{edge}" transform="{turn}"/>'
+        f'<use class="pack-copy" href="#{item}" transform="{turn}"/>'
+        for turn in (f"rotate({a:.2f} {x:.2f} {y:.2f})" for a in turns(n, fan))
+    )
+    reached = sheet_extent.reach(_SHEET.format(defs + laid))
+    x0, y0, x1, y1 = AREA
+    fit = min(1.0, (x1 - x0) / (reached[2] - reached[0]), (y1 - y0) / (reached[3] - reached[1]))
+    dx = (x0 + x1) / 2 - fit * (reached[0] + reached[2]) / 2
+    dy = (y0 + y1) / 2 - fit * (reached[1] + reached[3]) / 2
+    return (
+        f'<g class="pack" data-count="{n}" '
+        f'transform="translate({dx:.2f} {dy:.2f}) scale({fit:.4f})">{defs}{laid}</g>'
+    )
+
+
+def layout(body: str, parts: list[str], n: int, paint: str, uid: str, shape: str) -> str:
+    """``body`` (the product's drawing on the sheet) drawn as a pack of ``n``: copies of it, a fan
+    of them for a family of :data:`FANS`, or the outer box and loose items above
+    :data:`MOST_DRAWN`. ``parts`` are the shape's own elements, the box a copy is measured by."""
     box = sheet_extent.reach(_SHEET.format("".join(parts)))
     if box is None:
         return body
+    if shape in FANS and n <= MOST_DRAWN:
+        return _fanned(body, box, n, paint, uid, FANS[shape])
     width, height = box[2] - box[0], box[3] - box[1]
     item = f"pack-item-{uid}"
     if n > MOST_DRAWN:

@@ -403,7 +403,9 @@ def test_one_drawing_many_uses_keeps_ids_unique_and_the_swatch() -> None:
     svg = _svg(rec, sku)
     ids = re.findall(r'\bid="([^"]+)"', svg)
     assert len(ids) == len(set(ids))
-    assert {m[0] for m in USE.findall(svg)} == {f"pack-item-{rec['product_id']}"}
+    assert set(re.findall(r'class="pack-copy" href="#([^"]+)"', svg)) == {
+        f"pack-item-{rec['product_id']}"
+    }
     assert color["hex"] in svg
     assert svg.count(color["hex"]) == _svg(rec, {**sku, "units_per_pack": 1}).count(color["hex"])
 
@@ -446,6 +448,8 @@ def test_a_pack_tells_a_shape_only_what_it_reads() -> None:
     assert pack_copies.one_item("tub", None) is None
     assert pack_copies.one_item("hangers", None) == {"nested": "1"}
     assert pack_copies.one_item("hangers", {"a": "b"}) == {"a": "b", "nested": "1"}
+    assert pack_copies.one_item("socks", None) == {"lone": "1"}
+    assert pack_copies.one_item("knickers", {"cut": "thong"}) == {"cut": "thong", "flat": "1"}
 
 
 def test_a_sock_rows_pairs_are_its_count_not_a_shape_param() -> None:
@@ -509,7 +513,7 @@ def test_a_small_item_keeps_its_size_at_the_loose_box_but_never_grows() -> None:
 
 
 def test_a_shape_that_draws_nothing_comes_back_as_it_is() -> None:
-    assert pack_copies.layout("", [], 4, "#000000", "p") == ""
+    assert pack_copies.layout("", [], 4, "#000000", "p", "tub") == ""
 
 
 # --------------------------------------------------------------------------
@@ -550,9 +554,11 @@ def test_a_clip_path_that_names_a_group_is_still_refused() -> None:
 
 def test_the_strip_shows_the_packs_the_issue_names() -> None:
     captions = [caption for caption, _ in pack_copies_strip.cells()]
-    assert len(captions) == len(set(captions)) == 16
+    assert len(captions) == len(set(captions)) == 19
     drawn = dict(pack_copies_strip.cells())
-    for caption, n in (("Socks, 5 pairs", 5), ("Lager, 6 cans", 6), ("Ginger beer, 6 bottles", 6),
+    for caption, n in (("Socks, 3 pairs", 3), ("Socks, 5 pairs", 5), ("Lager, 6 cans", 6),
+                       ("Knickers, 3 pack", 3), ("Knickers, 7 pack", 7),
+                       ("Ginger beer, 6 bottles", 6),
                        ("Eye patches, 24", 24),
                        ("Kids dresses, 2 pack", 2), ("Kids dresses, 3 pack", 3)):  # fmt: skip
         assert drawn[caption].decode().count('class="pack-copy"') == n, caption

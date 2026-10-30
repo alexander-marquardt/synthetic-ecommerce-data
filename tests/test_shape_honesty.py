@@ -120,8 +120,9 @@ def test_a_sock_drawing_shows_the_packs_pair_count() -> None:
         assert rec["drawing"]["shape"] == "socks", rec["title"]
         assert rec["drawing"].get("params", {}).get("pairs") == str(n), rec["title"]
         svg = image_release.render(rec, rec["skus"][0]).decode()
-        # One pair is two socks, once in the <defs> of a pack and used once per pair (gen#728).
-        assert svg.count('class="sock"') == 2, rec["title"]
+        # A single pair is two socks; a pack fans one sock for each pair, once in its <defs> and
+        # used once per pair (gen#728, gen#734).
+        assert svg.count('class="sock"') == (2 if n == 1 else 1), rec["title"]
         assert svg.count('class="pack-copy"') == (0 if n == 1 else n), rec["title"]
 
 

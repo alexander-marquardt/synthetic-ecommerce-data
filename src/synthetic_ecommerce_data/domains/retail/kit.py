@@ -825,7 +825,7 @@ def _placed(
         pack_copies,  # deferred: pack_copies draws with this kit
     )
 
-    return pack_copies.layout(body, [body], copies, paint, uid)
+    return pack_copies.layout(body, [body], copies, paint, uid, shape)
 
 
 def _render_styled(

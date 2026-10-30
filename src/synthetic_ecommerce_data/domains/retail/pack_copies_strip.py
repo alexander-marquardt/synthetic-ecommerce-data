@@ -1,4 +1,4 @@
-"""A strip of packs as they are drawn, for the docs and the pull request (gen#728).
+"""A strip of packs as they are drawn, for the docs and the pull request (gen#728, gen#734).
 
 Usage::
 
@@ -28,10 +28,13 @@ ACROSS = 4
 
 #: ``(caption, shape, a word of the title, count)``: the cells of real SKUs, in order.
 SHOWN = (
+    ("Socks, 3 pairs", "socks", "Socks", 3),
     ("Socks, 5 pairs", "socks", "Socks", 5),
     ("Socks, 7 pairs", "socks", "Socks", 7),
     ("Bodysuits, 3 pack", "baby_bodysuit", "Bodysuits", 3),
+    ("Knickers, 3 pack", "knickers", "Briefs", 3),
     ("Knickers, 5 pack", "knickers", "Briefs", 5),
+    ("Knickers, 7 pack", "knickers", "Briefs", 7),
     ("Ginger beer, 6 bottles", "bottle", "Beer", 6),
     ("Yogurt, 4 pots", "tub", "Yogurt", 4),
     ("Chocolate, 4 bars", "bar", "Chocolate", 4),
