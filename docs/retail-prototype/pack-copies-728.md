@@ -37,8 +37,7 @@ single of the same line keeps its factor.
 
 `tests/test_retail_pack_copies_728.py` holds the whole catalogue to this. The strip is drawn by
 `pack_copies_strip.py`, and the test compares it with `docs/images/pack-copies.svg`. The catalogue
-sells no six cans and no Kids dress packs yet (gen#727), so those cells give a real product that
-pack's size.
+sells no six cans, so that cell gives a real product that pack's size.
 
 A changed drawing reaches the catalogue through the next image release
 ([docs/releasing.md](../releasing.md)).
