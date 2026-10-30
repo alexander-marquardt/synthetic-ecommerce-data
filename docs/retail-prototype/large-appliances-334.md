@@ -40,6 +40,7 @@ and spin speed are each their own attribute. Two washing machines carry the seco
 or "I" (a word-like value is contradicted by any description that opens "A ..."); the decoys
 carry generation "H", which no authored model takes.
 `tests/test_retail_appliance_model_numbers_622.py` holds it.
+The small machines carry the same parts: [machine-model-numbers-622.md](machine-model-numbers-622.md).
 
 The beach towels (`type_specs/beach_towel.py`, gen#624) are twelve authored rows that replace the one
 derived "Cotton Velour Beach Towel": material, weave, feature and size vary, and the titles are 7

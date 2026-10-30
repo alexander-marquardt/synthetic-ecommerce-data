@@ -123,6 +123,7 @@ def test_a_brand_has_a_series_only_for_a_kind_the_scheme_reads():
 def test_the_spec_states_the_measure_and_a_drill_title_states_its_own():
     assert mmn.spec("Kettle", 3000) == "3000W"
     assert mmn.spec("Robot Mower", 35) == "35% Slope"
+    assert mmn.spec("Lawn Mower", 40) == "40 Liter Box"  # never "40L", a net volume
     assert mmn.spec("Drill Driver", 18) == ""
 
 
@@ -186,3 +187,14 @@ def test_a_full_model_number_finds_its_machine_first(templates, machines):
         code = _attrs(r).get("model_number")
         assert code, r["product_id"]
         assert br.rank(index, code, 1, popular=False)[0]["product_id"] == r["product_id"], code
+
+
+@pytest.mark.parametrize(
+    "query",
+    ["kettle", "lawn mower", "robot mower", "grass trimmer", "hedge trimmer", "drill driver"],
+)
+def test_on_the_words_alone_three_rows_without_a_code_outrank_every_machine(templates, query):
+    ranked = br.rank(br.Index(templates), query, 500, popular=False)
+    first = next(i for i, r in enumerate(ranked) if r["product_id"] in _IDS)
+    above = [r for r in ranked[:first] if "model_number" not in _attrs(r)]
+    assert len(above) >= 3, [r["title"] for r in ranked[: first + 1]]
