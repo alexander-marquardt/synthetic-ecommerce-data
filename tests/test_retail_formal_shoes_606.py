@@ -19,7 +19,6 @@ import collections
 import pytest
 
 from synthetic_ecommerce_data.core import standard
-from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
 from synthetic_ecommerce_data.domains.retail import (
     export,
     multi_path,
@@ -27,6 +26,7 @@ from synthetic_ecommerce_data.domains.retail import (
     scale,
     tree_guard,
 )
+from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
 from synthetic_ecommerce_data.prism import index
 
 CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
@@ -75,7 +75,8 @@ def test_a_formal_node_is_the_primary_path_of_its_brogues_and_loafers_alone(
         r["product_type"] for r in records if tuple(r["category_path"][:3]) == NODES[root]
     )
     assert set(held) == set(FORMAL_TYPES)
-    assert all(tuple(r["category_path"]) != NODES[root] for r in records), "Formal shoes is a parent"
+    paths = {tuple(r["category_path"]) for r in records}
+    assert NODES[root] not in paths, "Formal shoes is a parent"
 
 
 def test_every_court_shoe_keeps_the_heels_path_and_is_filed_under_formal_shoes(
