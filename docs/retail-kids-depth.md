@@ -12,7 +12,7 @@ thin when a leaf holds fewer.
 
 | Leaf | Before | After | Added |
 |---|---|---|---|
-| Kids/Girls/Dresses | 1 | 31 | party, summer, skater, smocked, tiered, pinafore, jumper, wrap, T-shirt and shirt dresses |
+| Kids/Girls/Dresses | 1 | 31, and 6 packs (gen#727) | party, summer, skater, smocked, tiered, pinafore, jumper, wrap, T-shirt and shirt dresses |
 | Kids/Girls/Coats & Jackets | 0 | 30 | padded coats, parkas, rain macs, trench coats, pea coats, quilted jackets |
 | Kids/Boys/Coats & Jackets | 10 (2 real) | 40 (32 real) | the same six |
 
@@ -26,6 +26,27 @@ Wool Blend Pea Coat"): the fabric is the `material` value, the sleeve is the `sl
 value, a feature such as Hooded or Longline is a title word and a description phrase, and no word
 appears twice. The fit is a value of the existing `fit` facet (Regular or Relaxed); the rows add
 no value to it. Sizes are the school ages ("3-4 Yrs" to "15-16 Yrs"), six of them on a dress.
+
+## Dress multipacks (gen#727)
+
+No dress title was plural, so "red dresses" had no plural title to prefer. `_PACKS` adds three
+girls' styles, each as a pack of 2 and a pack of 3: six products, 108 SKUs, every one sold in Red.
+There is no Womens multipack, and the range stays this small.
+
+| Part of a pack | How it is written |
+|---|---|
+| Title | The form the socks use: "Girls Cotton Jersey T-Shirt Dresses, Pack of 3" |
+| Count | One product per count: `pack_size` is the `2 pack` or `3 pack` of the one vocabulary (gen#246), and each SKU states `units_per_pack` |
+| Price | `underwear_rows._packs`: each size's dress price at 12.00 (the cheapest single) times the multibuy factor, 1.8 for two and 2.55 for three, so a pack costs less than that many singles |
+| Picture | The `dress` shape's `count` param draws that many dresses, each a `pack-item` group, on one floor |
+| Description | Opens "A pack of three ..." and says every dress of a pack is one color |
+
+Each SKU has its own image file, as every SKU does (gen#706). The rows are `PackRow`, which is
+`LRow`'s facts and `URow`'s pack, so no second pack mechanism exists.
+`tests/test_retail_kids_dress_packs_727.py` pins all of this.
+
+The ranking half needs elastic/prism#13599: until the plural boost stops firing on every dress's
+category text, a plural title gains nothing from it.
 
 ## Text-match decoys (gen#294)
 

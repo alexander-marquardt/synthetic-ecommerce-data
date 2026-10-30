@@ -105,9 +105,9 @@ def test_a_pack_is_drawn_as_that_many_dresses_and_a_single_as_one_dress(
     for rec in packs:
         for sku in rec["skus"][:7]:
             drawn = image_release.render(rec, sku, styled=False)
-            assert drawn.count('class="pack-item"') == _count(rec), rec["title"]
+            assert drawn.count(b'class="pack-item"') == _count(rec), rec["title"]
     single = next(r for r in dresses if r not in packs)
-    assert 'class="pack-item"' not in image_release.render(single, single["skus"][0], styled=False)
+    assert b'class="pack-item"' not in image_release.render(single, single["skus"][0], styled=False)
 
 
 @pytest.mark.parametrize("count", [2, 3])
@@ -116,11 +116,11 @@ def test_the_dress_drawing_counts_the_dresses_it_is_asked_for(count: int) -> Non
     assert svg.count('class="pack-item"') == count
 
 
-def test_a_pack_description_says_the_count_and_the_one_color(packs: list[dict]) -> None:
+def test_a_pack_description_says_the_count_and_the_same_color(packs: list[dict]) -> None:
     assert packs
     for rec in packs:
         assert rec["description"].startswith(f"A pack of {WORD[_count(rec)]} "), rec["title"]
-        assert ", all one color," in rec["description"], rec["title"]
+        assert ", all in the same color," in rec["description"], rec["title"]
 
 
 def test_each_pack_sku_has_its_own_image_file(packs: list[dict]) -> None:

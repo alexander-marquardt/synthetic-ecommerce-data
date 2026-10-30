@@ -355,16 +355,32 @@ DRESS_NECKS: dict[str, tuple[str, str]] = {
 }  # fmt: skip
 
 
+#: A dress multipack's count -> (each dress's scale, the center of each), the middle one drawn last.
+DRESS_PACKS = {2: (0.62, (124, 276)), 3: (0.56, (92, 308, 200))}
+#: The hem line a pack's dresses stand on, so a smaller dress does not float up the sheet.
+DRESS_FLOOR = 366
+
+
 def dress(paint: str, fill: Fill, label: str | None, neckline: str | None = None, count: str = "1") -> list[str]:
+    """One dress, or ``count`` dresses (2 or 3) side by side, each a ``pack-item`` group (gen#727)."""
     body = "M158,112 Q200,128 242,112 L236,196 Q290,270 334,352 Q200,378 66,352 Q110,270 164,196 Z"
     straps, cut = DRESS_NECKS[neckline] if neckline else (_STRAPS, "")
     out = [_line(straps, 5), _path(body, paint)]
     if cut:
         out.append(_line(cut, 2.4))
-    return [
+    one = [
         *out,
         _line("M164,196 Q200,206 236,196", 2.2),
         _line("M180,206 Q170,290 150,366 M220,206 Q230,290 250,366", 1.2, ' stroke-opacity=".6"'),
+    ]
+    pack = int(count)
+    if pack <= 1:
+        return one
+    scale, centers = DRESS_PACKS[pack]
+    return [
+        f'<g class="pack-item" transform="translate({cx - 200 * scale:g} {DRESS_FLOOR * (1 - scale):g}) '
+        f'scale({scale:g})">{"".join(one)}</g>'
+        for cx in centers
     ]
 
 

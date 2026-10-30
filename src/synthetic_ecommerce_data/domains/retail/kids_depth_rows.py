@@ -3,7 +3,8 @@
 The Kids tree held one girls' dress, two real boys' coats and no girls' coat. The issue asks for
 "school uniform ... plus dresses and coats" and names no number for them, so this slice raises the
 three leaves below to thirty real products each (the issue calls a leaf of under thirty thin).
-A product is a style; its colors times its school ages are its SKUs.
+A product is a style; its colors times its school ages are its SKUs. A dress multipack (gen#727)
+is its own product at each count, so "red dresses" has plural titles to prefer.
 
 =========================  ===================================================  =====
 leaf                       what is added                                        floor
@@ -37,6 +38,7 @@ from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.school_rows import AGES
+from synthetic_ecommerce_data.domains.retail.underwear_rows import URow, _pack_attrs, _packs
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _BRANDS = ("Little Fernby", "Calderby & Lune", "Bramblewood", "Larkmoor")
@@ -101,6 +103,22 @@ _COATS = (
 )  # fmt: skip
 _FEATURES = {"": "", "Hooded": "an attached hood", "Longline": "a longline length"}
 
+#: The dress multipacks (gen#727): (style, fabric, neck, sleeve, colors). Each style sells a pack
+#: of 2 and a pack of 3, in one color a pack, at the multibuy factor of a dress at the cheapest
+#: single's price. There is no Womens multipack: packs of dresses are a children's-wear habit.
+_PACKS = (
+    ("T-Shirt Dress", "Cotton Jersey", "Crew Neck", "Short Sleeve", ("Red", "Navy", "Pink")),
+    ("Summer Dress", "Cotton Poplin", "Square Neck", "Sleeveless", ("Red", "Blue", "Yellow")),
+    ("Skater Dress", "Stretch Jersey", "Scoop Neck", "Long Sleeve", ("Red", "Green", "Lilac")),
+)  # fmt: skip
+_PACK_COUNTS = {2: "two", 3: "three"}
+_PACK_PRICE = 12.0
+
+
+@dataclass(frozen=True)
+class PackRow(URow, LRow):
+    """A style sold only as one multipack: ``LRow``'s facts, and ``URow``'s pack on every SKU."""
+
 
 def _an(word: str) -> str:
     return f"{'an' if word.lower()[:1] in 'aeiou' else 'a'} {word.lower()}"
@@ -121,10 +139,11 @@ def _price(base: float, i: int) -> float:
 
 
 def _row(code: str, title: str, brand: str, path: tuple[str, ...], ptype: str, shape: str,
-         price: float, desc: str, colors: tuple, attrs: tuple, facts: tuple) -> LRow:  # fmt: skip
+         price: float, desc: str, colors: tuple, attrs: tuple, facts: tuple,
+         row: type[LRow] = LRow, **extra) -> LRow:  # fmt: skip
     sizes = tuple((a, round(price + 0.5 * k, 2)) for k, a in enumerate(_SIZES[ptype]))
-    return LRow(code, title, brand, _C, path, ptype, price, shape, desc, colors, attrs=attrs,
-                sizes=sizes, audience="kids", facts=facts)  # fmt: skip
+    return row(code, title, brand, _C, path, ptype, price, shape, desc, colors, attrs=attrs,
+               sizes=sizes, audience="kids", facts=facts, **extra)  # fmt: skip
 
 
 def _pick(keyed: list[tuple], n: int) -> list[tuple]:
@@ -152,6 +171,26 @@ def _dresses(n_each: int = 3) -> list[LRow]:
     return out
 
 
+def _dress_packs() -> list[LRow]:
+    """Each style of :data:`_PACKS` as a pack of 2 and a pack of 3, each its own product: the
+    count is in the title, the ``pack_size``, the SKU's ``units_per_pack`` and the drawing."""
+    out: list[LRow] = []
+    for si, (name, f, neck, s, colors) in enumerate(_PACKS):
+        st = next(d for d in _DRESSES if d.name == name)
+        sleeve, sleeve_words = SLEEVES[s]
+        for k, (n, word) in enumerate(_PACK_COUNTS.items()):
+            i = len(_PACK_COUNTS) * si + k
+            fit = ("Regular", "Relaxed")[i % 2]
+            desc = (f"A pack of {word} {f.lower()} {name.lower()}es, all in the same color, cut to {_an(fit)} fit, "
+                    f"with {NECKS[neck][1]}, {sleeve_words} and {st.tail}.")  # fmt: skip
+            attrs = (("fit", "Fit", fit), ("material", "Material", f), ("sleeve_length", "Sleeve length", sleeve),
+                     *_pack_attrs(_packs(n)))  # fmt: skip
+            out.append(_row(f"KDP{i:03d}", f"Girls {f} {name}es, Pack of {n}", _BRANDS[i % 4], ("Kids", "Girls", "Dresses"),
+                            "Dress", "dress", _PACK_PRICE, desc, tuple(_col(c) for c in colors), attrs,
+                            (("neckline", NECKS[neck][0]),), row=PackRow, packs=_packs(n), params=(("count", str(n)),)))  # fmt: skip
+    return out
+
+
 def _coats(who: str, code: str, palette: tuple[str, ...], n: int, base: float) -> list[LRow]:
     path = ("Kids", who, "Coats & Jackets")
     combos = [(st.name, f, feat) for st in _COATS for f in st.fabrics for feat in _FEATURES]
@@ -172,6 +211,7 @@ def _coats(who: str, code: str, palette: tuple[str, ...], n: int, base: float) -
 
 ROWS: tuple[LRow, ...] = (
     *_dresses(),
+    *_dress_packs(),
     *_coats("Girls", "KDG", _GIRLS_COAT, 30, 24.0),
     *_coats("Boys", "KDB", _BOYS_COAT, 30, 24.0),
 )
