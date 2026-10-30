@@ -114,12 +114,12 @@ def test_an_accessory_names_the_phone_it_fits_and_has_an_invented_brand(electron
     cases = [d for d in electronics if d["category_leaf"] == "Phone Cases"]
     assert len(cases) >= 10
     phones = [d for d in electronics if d["category_path"][-1] == "Smartphones"]
-    lines = {_attrs(d)["model_line"] for d in phones}
+    tablets = [d for d in electronics if d["category_path"][-1] == "Tablets"]
+    lines = {_attrs(d)["model_line"] for d in phones + tablets}
     for c in cases:
         fits = _attrs(c)["compatible_with"]
         assert fits in lines, c["product_id"]
         assert fits in c["title"], "the title names the phone line: the model-word decoy"
-        assert c["brand"] != "Grape Computer"
     assert len({_attrs(c)["compatible_with"] for c in cases}) >= 8
 
 

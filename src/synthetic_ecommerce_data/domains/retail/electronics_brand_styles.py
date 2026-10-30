@@ -1,15 +1,16 @@
-"""Marks and house styles of the 16 invented electronics brands (gen#332, #721).
+"""Marks and house styles of the 17 invented electronics brands (gen#332, #721, #724).
 
 Grape Computer, Halvern, Torvane, Nimbrel, Quorrin, Daskel, Mervane and Pellimar sell the phones, laptops,
 desktops, tablets and e-readers of the Electronics department (:mod:`electronics_rows`). Cindrel,
 Boltwick, Wexmoor, Dunvale, Ardmoor and Marrick sell its accessories: cases, protectors, chargers,
 cables, earbuds, sleeves, mice, keyboards and monitors. Grape Computer, Xell and PackingHarder
 (#721) sell computers across departments: PackingHarder also sells monitors and the volt meters
-of Home > DIY & Tools. Each draws its own name on its product
+of Home > DIY & Tools. FlyingFoo (#724) sells compatible cases and screen protectors. Each draws its
+own name on its product
 images: a lockup (the name beside, above or in a badge with the mark) or a mark alone with a text
 tag, with a mark no other brand uses.
 
-:mod:`house_styles` imports this module last, so the 16 marks join ``MARKS`` and the 16 styles
+:mod:`house_styles` imports this module last, so the 17 marks join ``MARKS`` and the 17 styles
 join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -163,6 +164,15 @@ def m_x_cell(c: str) -> list[str]:
     ]
 
 
+def m_wing(c: str) -> list[str]:
+    """A wing: three swept feathers from one root."""
+    return [
+        _stroke("M-.85,.6 Q-.15,-.65 .85,-.8", 0.13, c),
+        _stroke("M-.85,.6 Q-.05,-.2 .7,-.35", 0.11, c),
+        _stroke("M-.85,.6 Q.05,.2 .5,.1", 0.09, c),
+    ]
+
+
 hs.MARKS.update(
     {
         "vine": m_vine,
@@ -181,11 +191,12 @@ hs.MARKS.update(
         "arc": m_arc,
         "crate": m_crate,
         "x_cell": m_x_cell,
+        "wing": m_wing,
     }
 )
 
 # fmt: off
-#: Brand -> house style. Eight lockups and eight marks alone with a text tag.
+#: Brand -> house style. Nine lockups and eight marks alone with a text tag.
 STYLES = {
     # The device brands.
     "Grape Computer":  H("#f4f4f6", "none",  "ticks",   "#6a3d8f", "#2a1638", 0.9,  False, "sharp", "vine",   "mark_right", "bottom_right",  "none",    "humanist", 700, "caps",      1.3),
@@ -203,6 +214,7 @@ STYLES = {
     "Dunvale":  H("#f2eeeb", "diagonal", "none",    "#9a4a3a", "#3a1a14", 1.1,  False, "round", "flap_sleeve", "mark_only",  "bottom_left",   "tab",     "humanist", 700, "lower",     0.4),
     "Ardmoor":  H("#edf4f8", "hatch",    "ticks",   "#2a86a8", "#0f3445", 0.95, False, "round", "dial",   "mark_only",  "top_left",      "underline", "serif",  400, "title",     1.8),
     "Marrick":  H("#f7eef0", "none",     "thin",    "#a83a4a", "#401a20", 1.3,  False, "sharp", "arc",    "mark_only",  "bottom_right",  "stamp",   "sans",     700, "smallcaps", 0.7),
+    "FlyingFoo": H("#fdf1ea", "diagonal", "rounded", "#d9541e", "#451a08", 1.1,  False, "round", "wing",   "mark_left",  "bottom_left",   "none",    "sans",     700, "title",     1.5),
     # The computer brands that cross departments (#721).
     "Xell":     H("#edf1f7", "lines",    "none",    "#1d4f91", "#0e2140", 0.9,  False, "sharp", "x_cell", "mark_only",  "bottom_left",   "plain",   "sans",     400, "lower",     2.4),
     "PackingHarder": H("#f0f2ee", "grid", "heavy",  "#3c5a2e", "#18240f", 1.2,  False, "sharp", "crate",  "mark_only",  "top_right",     "stamp",   "mono",     700, "caps",      1.1),
