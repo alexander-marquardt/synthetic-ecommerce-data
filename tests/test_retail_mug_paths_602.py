@@ -125,6 +125,35 @@ def test_both_mappings_know_the_field() -> None:
     assert "category_paths" in emit.FLAT_MAPPING["mappings"]["properties"]
 
 
+# --- the searchable text reads every path, each node once ------------------------------------
+
+
+def _style(**paths: list) -> dict:
+    """The least nested document ``standard.flat_documents`` reads, at ``paths``."""
+    variant = {"sku": "S", "title": "Title", "attributes": []}
+    return {
+        "product_id": "P", "product_type": "T", "product_type_label": "T", "title": "Title",
+        "brand": "Brand", "attributes": [], "variants": [variant], **paths,
+    }  # fmt: skip
+
+
+def test_the_text_adds_only_the_nodes_a_further_path_brings() -> None:
+    a, b, c = ["Home", "Kitchen", "Mugs"], ["Home", "Kitchen", "Cups"], ["Gifts", "Cups"]
+    doc = _style(category_path=a, category_paths=[a, b, c])
+    assert standard.flat_documents(doc)[0]["text"] == "Title Brand Home Kitchen Mugs Cups Gifts"
+
+
+def test_the_text_of_a_product_with_one_path_is_that_path() -> None:
+    doc = _style(category_path=["Home", "Kitchen", "Mugs"])
+    assert standard.flat_documents(doc)[0]["text"] == "Title Brand Home Kitchen Mugs"
+
+
+def test_a_filed_mug_is_searchable_at_gifts(mugs: list[dict]) -> None:
+    rows = [row for d in mugs for row in standard.flat_documents(d, export.NUMERIC_FACTS)]
+    assert rows
+    assert [row["sku"] for row in rows if "Gifts" not in row["text"].split()] == []
+
+
 # --- the standard accepts a two-path product and refuses a malformed second path -------------
 
 
