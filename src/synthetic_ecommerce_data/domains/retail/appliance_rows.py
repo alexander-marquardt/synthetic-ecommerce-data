@@ -15,6 +15,10 @@ that varies by SKU (a toaster's ``slots``, an oil-filled radiator's ``fin_count`
 drawing param the SKU carries, so each SKU's image draws its own count
 (``export.drawing_spec``). These styles are templates only: :func:`scale.derivable` leaves
 them out, as it does the shirts, so the seeded derivation is what it was.
+
+A kettle or a toaster sells under its brand's series and model number (gen#622,
+:mod:`machine_model_numbers`): :data:`ROWS` numbers them, so :data:`KETTLES` and
+:data:`TOASTERS` hold each row's own words.
 """
 
 from __future__ import annotations
@@ -26,6 +30,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_appliances,  # noqa: F401 -- registers desk_fan, pedestal_fan, tower_fan, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
+from synthetic_ecommerce_data.domains.retail.machine_model_numbers import numbered
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _HW = "Home"
@@ -471,7 +476,7 @@ TOASTERS = (
 )  # fmt: skip
 
 ROWS = (*DESK_FANS, *PEDESTAL_FANS, *TOWER_FANS, *CEILING_FANS, *HANDHELD_FANS, *HEATERS,
-        *KETTLES, *TOASTERS)  # fmt: skip
+        *numbered((*KETTLES, *TOASTERS)))  # fmt: skip
 
 
 def docs() -> list[dict]:
