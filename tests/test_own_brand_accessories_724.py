@@ -1,4 +1,4 @@
-"""Grape Computer's and SingingSam's own cases and keyboards, and the rows that name their phones (#724).
+"""Grape Computer's and SingingSam's own accessories, and the rows that name their phones (#724).
 
 The shape is what shoppers see for a popular phone: the maker's own accessory beside compatible
 ones from other brands. ``real_brands.check`` runs over the ceiling build, not the templates alone.

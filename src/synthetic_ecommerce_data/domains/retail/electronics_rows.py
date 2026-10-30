@@ -6,7 +6,8 @@ one list from here, so a spec stays a few lines and the department reads in one 
 Every brand is invented (``electronics_brand_styles``): ``Grape Computer`` sells the GrapePhone and
 GrapePad lines (gen#720). An accessory keeps its own brand and names the phone it fits ("Clear Case
 for GrapePhone 15"): that is true and it is the model-word decoy, a query for the phone also finds
-its cases. A phone's operating system is named ``Grape OS``, ``Pellimar OS`` or ``Open Mobile OS``:
+its cases. Grape Computer and SingingSam also sell their own cases and keyboards beside those of the
+third-party brands (#724). A phone's operating system is named ``Grape OS``, ``Pellimar OS`` or ``Open Mobile OS``:
 no real system name appears.
 """
 
@@ -31,12 +32,15 @@ CINDREL, BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK = (
 GRAPE, XELL, PACKINGHARDER, GOODLOOK, SINGINGSAM = (
     "Grape Computer", "Xell", "PackingHarder", "GoodLook", "SingingSam")  # fmt: skip
 
+#: A third-party accessory brand (#724): the maintainer's example name, its web check is in the doc.
+FLYINGFOO = "FlyingFoo"
+
 #: Every brand of the department, all of them invented.
 ELECTRONICS_OWNERS = tuple(
     (b, "third_party")
     for b in (GRAPE, HALVERN, TORVANE, NIMBREL, QUORRIN, DASKEL, MERVANE, PELLIMAR, CINDREL,
               BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK, XELL, PACKINGHARDER,
-              GOODLOOK, SINGINGSAM)
+              GOODLOOK, SINGINGSAM, FLYINGFOO)
 )  # fmt: skip
 
 RED = cw("Red", "#c8312e")
@@ -287,6 +291,23 @@ _CASES = (
     (BOLTWICK, "Rugged Case", "rugged", "Nimbrel Sky 12", 26, (BLACK, YELLOW, BLUE)),
     (CINDREL, "Clear Case", "clear", "Quorrin Q Max", 14, (CLEAR, BLACK, PURPLE)),
     (WEXMOOR, "Wallet Case", "wallet", "Pellimar P11", 21, (BLACK, RED, GREEN, WHITE)),
+    # The maker's own case beside compatible ones, as for a popular phone (#724). A GrapePad case
+    # sits in this leaf as a GrapePad protector sits in Screen Protectors: no new leaf.
+    (GRAPE, "Grape Computer Clear Case", "clear", "GrapePhone 16", 29, (CLEAR, BLACK, PURPLE)),
+    (GRAPE, "Grape Computer Clear Case", "clear", "GrapePhone 15", 27, (CLEAR, BLACK, GOLD)),
+    (GRAPE, "Grape Computer Wallet Case", "wallet", "GrapePhone 15 Pro", 49, (BLACK, NAVY, PURPLE)),
+    (GRAPE, "Grape Computer Folio Case", "wallet", "GrapePad Air", 69, (GREY, BLUE, PURPLE)),
+    (GRAPE, "Grape Computer Folio Case", "wallet", "GrapePad Pro", 89, (BLACK, SILVER)),
+    (CINDREL, "Clear Case", "clear", "GrapePhone 16", 15, (CLEAR, BLACK, GREEN)),
+    (FLYINGFOO, "FlyingFoo Rugged Case", "rugged", "GrapePhone 16", 21, (BLACK, ORANGE, TEAL)),
+    (SINGINGSAM, "SingingSam Clear Case", "clear", "SingingSam Aria 9", 25, (CLEAR, BLACK, NAVY)),
+    (SINGINGSAM, "SingingSam Wallet Case", "wallet", "SingingSam Aria 9", 39, (BLACK, NAVY, PURPLE)),
+    (SINGINGSAM, "SingingSam Clear Case", "clear", "SingingSam Aria 5", 19, (CLEAR, BLUE, GREEN)),
+    (FLYINGFOO, "FlyingFoo Clear Case", "clear", "SingingSam Aria 9", 13, (CLEAR, BLACK, TEAL)),
+    (FLYINGFOO, "FlyingFoo Rugged Case", "rugged", "SingingSam Aria 5", 19, (BLACK, ORANGE, BLUE)),
+    (BOLTWICK, "Rugged Case", "rugged", "SingingSam Aria 9", 24, (BLACK, YELLOW, GREEN)),
+    (CINDREL, "Clear Case", "clear", "SingingSam Aria 5", 12, (CLEAR, BLACK, PINK)),
+    (WEXMOOR, "Wallet Case", "wallet", "SingingSam Aria 5", 19, (BLACK, NAVY, RED)),
 )  # fmt: skip
 _CASE_TEXT = {
     "clear": "A slim see-through case that shows the color of the phone and guards the back and edges.",
@@ -313,6 +334,11 @@ _PROTECTORS = (
     (CINDREL, "Tempered Glass Screen Protector", "clear", "GrapePad Air", 14),
     (WEXMOOR, "Matte Screen Protector", "matte", "GrapePad", 12),
     (BOLTWICK, "Impact Screen Protector", "clear", "Boltwick Ridge R1", 10),
+    (FLYINGFOO, "FlyingFoo Tempered Glass Screen Protector", "clear", "SingingSam Aria 9", 9),
+    (FLYINGFOO, "FlyingFoo Tempered Glass Screen Protector", "clear", "SingingSam Aria 5", 8),
+    (FLYINGFOO, "FlyingFoo Tempered Glass Screen Protector", "clear", "GrapePhone 16", 9),
+    (CINDREL, "Matte Screen Protector", "matte", "SingingSam Aria 9", 9),
+    (WEXMOOR, "Privacy Screen Protector", "privacy", "SingingSam Aria 5", 12),
 )  # fmt: skip
 _PROT_TEXT = {
     "clear": "a clear tempered glass sheet that resists scratches and keeps touch sharp",
@@ -434,14 +460,23 @@ _KEYBOARDS = (
     (ARDMOOR, "Ardmoor Compact Mechanical Keyboard", "compact", 59, "Wired", (BLACK, WHITE, ORANGE), "a seventy-five percent layout and hot-swap switches"),
     (MARRICK, "Marrick Slim Compact Keyboard", "compact", 27, "Wireless", (GREY, SILVER, TEAL), "low-profile keys that connect to three devices"),
     (DUNVALE, "Dunvale Folding Travel Keyboard", "compact", 35, "Bluetooth", (BLACK, NAVY), "a folding body that goes in a coat pocket"),
+    (GRAPE, "Grape Computer Pocket Keyboard", "compact", 59, "Bluetooth", (WHITE, BLACK, PURPLE), "a folding body and a stand that holds the phone upright", "GrapePhone 16"),
+    (GRAPE, "Grape Computer Slim Keyboard", "compact", 129, "Wired", (SILVER, BLACK), "a cover that snaps onto the keyboard connector", "GrapePad Pro"),
+    (SINGINGSAM, "SingingSam Pocket Keyboard", "compact", 49, "Bluetooth", (BLACK, NAVY, PURPLE), "a folding body and a stand that holds the phone upright", "SingingSam Aria 9"),
 )  # fmt: skip
-KEYBOARDS = tuple(
-    _row(f"EKB{i + 1:03d}", n, b, (*_A, "Keyboards"), "Keyboard", p, "keyboard",
-         f"A {'full-size' if f == 'full' else 'compact'} keyboard with {note}.", c,
-         (_a("connection", "Connection", conn), _a("keyboard_layout", "Layout", f.title())),
-         params=(("layout", f),))
-    for i, (b, n, f, p, conn, c, note) in enumerate(_KEYBOARDS)
-)  # fmt: skip
+
+
+def _keyboard(i, brand, name, form, price, conn, colors, note, fits="") -> Row:
+    """A keyboard; a maker's own one names the device it fits, as a case does (#724)."""
+    return _row(f"EKB{i + 1:03d}", f"{name} for {fits}" if fits else name, brand, (*_A, "Keyboards"),
+                "Keyboard", price, "keyboard",
+                f"A {'full-size' if form == 'full' else 'compact'} keyboard with {note}.", colors,
+                (*((_a("compatible_with", "Compatible with", fits),) if fits else ()),
+                 _a("connection", "Connection", conn), _a("keyboard_layout", "Layout", form.title())),
+                params=(("layout", form),))  # fmt: skip
+
+
+KEYBOARDS = tuple(_keyboard(i, *r) for i, r in enumerate(_KEYBOARDS))
 
 _MONITORS = (
     (MARRICK, "Marrick View Full HD Monitor", "standard", 119, ("24", "27"), (BLACK, WHITE), "a Full HD panel and a stand that tilts"),

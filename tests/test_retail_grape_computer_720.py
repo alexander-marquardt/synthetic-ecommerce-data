@@ -115,8 +115,9 @@ def test_an_accessory_names_the_new_line_it_fits(templates: list[dict]) -> None:
 def test_grape_meets_a_brand_and_a_fruit(templates: list[dict]) -> None:
     grape = [d for d in templates if "grape" in re.findall(r"[a-z]+", _text(d).lower())]
     assert {d["product_type"] for d in grape} >= {"Smartphone", "Tablet", "Juice"}
-    # The ten former Apple devices, and the five rows #721 adds: 2 laptops, 2 desktops, the GrapePhone 16.
-    assert sum(d["brand"] == GRAPE for d in grape) == len(FORMER_APPLE) + 5
+    # The ten former Apple devices, the five rows #721 adds (2 laptops, 2 desktops, the GrapePhone 16)
+    # and the seven #724 adds (5 cases, 2 keyboards).
+    assert sum(d["brand"] == GRAPE for d in grape) == len(FORMER_APPLE) + 5 + 7
 
 
 def test_the_fruit_rows_stay_and_are_no_decoys(by_id: dict[str, dict]) -> None:

@@ -5,9 +5,9 @@ fridge. A few styles of each brand and type are ordinary rows of the types they 
 
 | Brand | Short form | Sells | House style |
 |---|---|---|---|
-| Grape Computer | | laptops, desktops, the GrapePhone 16 smartphone | `electronics_brand_styles.py`, mark `vine` (gen#720) |
+| Grape Computer | | laptops, desktops, the GrapePhone 16 smartphone, its own cases and keyboards (#724) | `electronics_brand_styles.py`, mark `vine` (gen#720) |
 | GoodLook | GL | TVs, washing machines, fridges | `appliance_brand_styles.py`, mark `lens_eye` |
-| SingingSam | | TVs, washing machines, fridges, smartphones, a laptop | `appliance_brand_styles.py`, mark `note_pair` |
+| SingingSam | | TVs, washing machines, fridges, smartphones, a laptop, its own cases and a keyboard (#724) | `appliance_brand_styles.py`, mark `note_pair` |
 | PackingHarder | PH | monitors, desktops, laptops, volt meters | `electronics_brand_styles.py`, mark `crate` |
 | Xell | | desktops, laptops | `electronics_brand_styles.py`, mark `x_cell` |
 
