@@ -24,6 +24,8 @@ tool_kit        a carry case or a bag with a hammer,        case (case, bag)
                 pliers, a screwdriver and a tape on top
 step_ladder     an A-frame with one tread per step          steps (2 to 5), kind
                                                             (stool, ladder)
+volt_meter      a body with a display and a dial: two       form (handheld, clamp)
+                probe leads, or a jaw on top
 ==============  ==========================================  ==========================
 
 A drawing never prints a voltage, a wattage or a piece count: the title says it and a style's
@@ -349,9 +351,27 @@ def step_ladder(
     return _label(out, label)
 
 
+def volt_meter(paint: str, fill: Fill, label: str | None, form: str = "handheld") -> list[str]:
+    """A volt meter: a body with a display and a dial; ``handheld`` has two probe leads, ``clamp`` a jaw on top."""
+    out = [_rect(132, 130, 136, 200, paint, 18), _rect(150, 150, 100, 56, "#cfe3ee", 6, 1.6)]
+    out += [_line(f"M162,{y} L{x},{y}", 2.4) for y, x in ((168, 238), (186, 214))]
+    out += [_ell(200, 256, 34, 34, GRIP, 1.6), _line("M200,256 L222,232", 3)]
+    if form == "clamp":
+        out.insert(0, _path("M150,134 C110,40 290,40 250,134 L226,134 C250,74 150,74 174,134 Z", GRIP))
+    else:
+        out += [
+            _path("M160,330 C150,366 96,352 70,300", "none", 3),
+            _path("M240,330 C250,366 304,352 330,300", "none", 3),
+            _rect(62, 262, 14, 44, GRIP, 4, 1.4),
+            _rect(324, 262, 14, 44, METAL, 4, 1.4),
+        ]
+    return _label(out, label)
+
+
 SHAPES = {
     "drill_driver": drill_driver, "combi_drill": combi_drill, "hammer_drill": hammer_drill,
     "corded_drill": corded_drill, "impact_driver": impact_driver, "sds_drill": sds_drill,
     "drill_bit_set": drill_bit_set, "tool_kit": tool_kit, "step_ladder": step_ladder,
+    "volt_meter": volt_meter,
 }  # fmt: skip
 register(SHAPES)

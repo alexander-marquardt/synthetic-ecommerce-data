@@ -1,15 +1,15 @@
-# Electronics: phones, computers, tablets and their accessories (gen#332)
+# Electronics: phones, computers, tablets, TVs and their accessories (gen#332, #721)
 
-The department has 15 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
-154 template styles: 66 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers)
-and 88 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
+The department has 16 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
+187 template styles: 97 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers,
+TVs) and 90 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
 mice, keyboards, monitors). The rows are in `electronics_rows.py`; the drawings are in
 `kit_electronics.py` (a house-style drawing per type). Prices, specs and stock are synthetic.
 
 ## Tree
 
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
-`Tablets > {Tablets, E-readers}` and `Accessories > <leaf>`. Each type nests under its generic node
+`Tablets > {Tablets, E-readers}`, `TVs` and `Accessories > <leaf>`. Each type nests under its generic node
 and no sibling label is a word-suffix of another (`tree_guard`).
 
 ## Real names (Apple, iPhone, iPad only)
@@ -22,11 +22,15 @@ for other phones, can make-up brands .. but apple is so iconic (and gives good c
 great demo .. same with iphone, and ipad .. we can keep those". This is the second exception to
 "every name is invented", beside Nike (gen#341). Apple devices are iPhone and
 iPad models with their public line names (`iPhone 15`, `iPad Air`); the Apple house style has the
-mark `none`, so no drawing carries a logo or a trade dress. Every other brand is invented: 13 in
-`electronics_brand_styles.py`, each with its own mark. `real_brands.ALLOWED` is Nike, Apple, iPhone
+mark `none`, so no drawing carries a logo or a trade dress. Every other brand is invented: 16 in
+`electronics_brand_styles.py`, each with its own mark, and GoodLook and SingingSam in
+`appliance_brand_styles.py`. `real_brands.ALLOWED` is Nike, Apple, iPhone
 and iPad; `KNOWN_REAL` refuses the other phone, computer and accessory makers. The web check of the
 13 invented names could not be run from the build host (the search returned unrelated pages), so it
 is still to do by hand before the names are relied on.
+
+The brands that cross departments (Grape Computer, GoodLook, SingingSam, PackingHarder and Xell)
+are in [retail-prototype/cross-category-brands-721.md](retail-prototype/cross-category-brands-721.md).
 
 ## Decoys
 

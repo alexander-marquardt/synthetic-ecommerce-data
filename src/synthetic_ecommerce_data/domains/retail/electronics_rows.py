@@ -1,6 +1,6 @@
 """The Electronics department's rows (gen#332): phones, computers, tablets and their accessories.
 
-Data only. The fifteen spec files of ``type_specs/`` (``smartphone.py`` ... ``monitor.py``) each take
+Data only. The sixteen spec files of ``type_specs/`` (``smartphone.py`` ... ``tv.py``) each take
 one list from here, so a spec stays a few lines and the department reads in one place.
 
 Real names: Apple, iPhone and iPad only, as text (``real_brands.ALLOWED``; no logo, no trade
@@ -28,12 +28,16 @@ HALVERN, TORVANE, NIMBREL, QUORRIN = "Halvern", "Torvane", "Nimbrel", "Quorrin"
 DASKEL, MERVANE, PELLIMAR = "Daskel", "Mervane", "Pellimar"
 CINDREL, BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK = (
     "Cindrel", "Boltwick", "Wexmoor", "Dunvale", "Ardmoor", "Marrick")  # fmt: skip
+#: The brands that cross departments (#721); GoodLook and SingingSam also sell large appliances.
+GRAPE, XELL, PACKINGHARDER, GOODLOOK, SINGINGSAM = (
+    "Grape Computer", "Xell", "PackingHarder", "GoodLook", "SingingSam")  # fmt: skip
 
 #: Every brand of the department. Apple is a real name used as text; the rest are invented.
 ELECTRONICS_OWNERS = tuple(
     (b, "third_party")
     for b in (APPLE, HALVERN, TORVANE, NIMBREL, QUORRIN, DASKEL, MERVANE, PELLIMAR, CINDREL,
-              BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK)
+              BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK, GRAPE, XELL, PACKINGHARDER,
+              GOODLOOK, SINGINGSAM)
 )  # fmt: skip
 
 RED = cw("Red", "#c8312e")
@@ -53,7 +57,7 @@ ORANGE = cw("Orange", "#e07a1f")
 CLEAR = cw("Clear", "#e8f1f7")
 CHARCOAL = cw("Charcoal", "#44464d")
 
-_OS = {APPLE: "Apple OS", PELLIMAR: "Pellimar OS"}
+_OS = {APPLE: "Apple OS", PELLIMAR: "Pellimar OS", GRAPE: "Grape OS"}
 _P = (DEPARTMENT, "Phones")
 _C = (DEPARTMENT, "Computers")
 _T = (DEPARTMENT, "Tablets")
@@ -111,6 +115,9 @@ _PHONES = (
     (PELLIMAR, "Pellimar P11", "flagship", "6.6", "5G", 849, (BLACK, WHITE, SILVER, PINK), "a glass back and a camera that keeps skin tones natural"),
     (PELLIMAR, "Pellimar P5", "compact", "5.9", "5G", 399, (BLACK, WHITE, GOLD), "a light phone with a fast chip and a flat screen"),
     (BOLTWICK, "Boltwick Ridge R1", "midrange", "6.3", "5G", 429, (BLACK, ORANGE, YELLOW, GREEN), "a rubber-sealed body that shrugs off drops, water and dust"),
+    (GRAPE, "GrapePhone 16", "flagship", "6.3", "5G", 899, (BLACK, SILVER, PURPLE, GREEN), "a bright display, a fast chip and a camera built for portraits"),
+    (SINGINGSAM, "SingingSam Aria 9", "flagship", "6.7", "5G", 869, (BLACK, SILVER, NAVY, PURPLE), "stereo speakers tuned for music and a bright curved display"),
+    (SINGINGSAM, "SingingSam Aria 5", "midrange", "6.4", "5G", 369, (BLACK, WHITE, BLUE, GREEN), "a loud front speaker and a battery for a day of streaming"),
 )  # fmt: skip
 
 
@@ -158,6 +165,13 @@ _LAPTOPS = (
     (MERVANE, "Mervane Flex 13", "two_in_one", 699, "13.3", (8, 16), (256, 512), (SILVER, TEAL, PINK, WHITE), "Integrated", "a touch screen that turns through three hundred and sixty degrees"),
     (PELLIMAR, "Pellimar Go 14", "clamshell", 499, "14", (4, 8), (128, 256), (SILVER, BLUE, GREY, WHITE), "Integrated", "an everyday laptop for study and browsing with a battery that lasts the day"),
     (BOLTWICK, "Boltwick Ridge Book 14", "clamshell", 949, "14", (8, 16), (256, 512), (BLACK, ORANGE, GREEN), "Integrated", "a rubber-edged case and a sealed keyboard for building sites and workshops"),
+    (GRAPE, "Grape Computer Folio 13", "clamshell", 1099, "13.3", (8, 16), (256, 512), (SILVER, GREY, PURPLE), "Integrated", "a thin aluminum body and a bright, color-accurate screen"),
+    (GRAPE, "Grape Computer Folio Max 15", "workstation", 1899, "15.6", (16, 32), (512, 1024), (SILVER, GREY), "Dedicated", "a fast chip, a dedicated graphics card and a long battery life"),
+    (XELL, "Xell Vector 14", "clamshell", 749, "14", (8, 16), (256, 512), (BLACK, SILVER, NAVY), "Integrated", "a slim office body, a fingerprint reader and a spill-proof keyboard"),
+    (XELL, "Xell Vector Pro 16", "workstation", 1549, "16", (16, 32), (512, 1024), (BLACK, GREY), "Dedicated", "a certified graphics card and a docking port for a desk setup"),
+    (PACKINGHARDER, "PackingHarder Crate 14", "clamshell", 829, "14", (8, 16), (256, 512), (BLACK, GREEN, GREY), "Integrated", "a braced metal frame that takes a knock on a site or in a van"),
+    (PACKINGHARDER, "PackingHarder Deck 15", "workstation", 1399, "15.6", (16, 32), (512, 1024), (BLACK, GREY, SILVER), "Dedicated", "a serial port beside the USB ports, for test benches and lab gear"),
+    (SINGINGSAM, "SingingSam Chorus 14", "two_in_one", 899, "14", (8, 16), (256, 512), (SILVER, NAVY, PINK), "Integrated", "a fold-back touch screen and speakers tuned for music"),
 )  # fmt: skip
 
 
@@ -187,6 +201,12 @@ _DESKTOPS = (
     (PELLIMAR, "Pellimar Cube", "mini", 349, (4, 8), (128, 256), (BLACK, SILVER, WHITE), "a mini computer small enough to fit behind a monitor"),
     (MARRICK, "Marrick Mini Pro", "mini", 549, (8, 16), (256, 512), (SILVER, BLACK, GREY), "a palm-size computer with four screen outputs"),
     (BOLTWICK, "Boltwick Ridge Desk", "tower", 749, (8, 16), (256, 512), (BLACK, ORANGE, GREY), "a dust-filtered case for a workshop or a shop floor"),
+    (GRAPE, "Grape Computer Cube", "mini", 699, (8, 16), (256, 512), (SILVER, WHITE, GREY), "a small metal cube with a fast chip and a silent fan"),
+    (GRAPE, "Grape Computer Vista 24", "all_in_one", 1299, (8, 16), (256, 512), (SILVER, WHITE, PURPLE), "a 24 inch screen with the computer built into a slim stand"),
+    (XELL, "Xell Keystone Tower", "tower", 679, (8, 16), (256, 512), (BLACK, SILVER, GREY), "a plain office tower with room for a second drive"),
+    (XELL, "Xell Keystone Mini", "mini", 529, (8, 16), (256, 512), (BLACK, GREY), "a small business computer that mounts behind a monitor"),
+    (PACKINGHARDER, "PackingHarder Bay Tower", "tower", 989, (16, 32), (512, 1024), (BLACK, GREEN, GREY), "a steel case with a locking front panel and spare drive bays"),
+    (PACKINGHARDER, "PackingHarder Bay Mini", "mini", 619, (8, 16), (256, 512), (BLACK, GREY), "a sealed fanless computer for a bench or a control cabinet"),
 )  # fmt: skip
 
 
@@ -433,6 +453,8 @@ _MONITORS = (
     (QUORRIN, "Quorrin Panorama Ultrawide Monitor", "ultrawide", 449, ("34",), (BLACK, GREY), "a wide 34 inch panel with a speed that suits games"),
     (TORVANE, "Torvane Arc Curved Monitor", "curved", 279, ("27", "32"), (BLACK, BLUE), "a deep curve that wraps the view around you"),
     (DASKEL, "Daskel Studio Curved Monitor", "curved", 349, ("27", "32"), (BLACK, WHITE, GREY), "a curved panel with accurate color for editing"),
+    (PACKINGHARDER, "PackingHarder Bench Full HD Monitor", "standard", 139, ("24", "27"), (BLACK, GREY), "a Full HD panel and a steel stand that bolts to a bench"),
+    (PACKINGHARDER, "PackingHarder Bench 4K Monitor", "standard", 319, ("27", "32"), (BLACK, SILVER), "a 4K panel and a matte finish that cuts glare under workshop lights"),
 )  # fmt: skip
 MONITORS = tuple(
     _row(f"EMN{i + 1:03d}", n, b, (*_A, "Monitors"), "Monitor", p, "monitor",
@@ -442,12 +464,55 @@ MONITORS = tuple(
     for i, (b, n, f, p, sz, c, note) in enumerate(_MONITORS)
 )  # fmt: skip
 
-DEVICE_COUNT = len(SMARTPHONES + BASIC_PHONES + LAPTOPS + DESKTOPS + TABLETS + E_READERS)
+# --- TVs (#721): a screen size per SKU, in Electronics > TVs ---------------------------------
+_TV_PATH = (DEPARTMENT, "TVs")
+_TV_OS = "Open Smart TV OS"
+_TVS = (
+    (GOODLOOK, "GoodLook Vivid", "flat", "OLED", "4K", 899, ("48", "55", "65"), (BLACK, SILVER), "deep blacks and a thin panel that sits close to the wall"),
+    (GOODLOOK, "GoodLook Vivid", "flat", "Mini LED", "8K", 1799, ("65", "75"), (BLACK, SILVER), "a very sharp picture and a bright panel for a sunny room"),
+    (GOODLOOK, "GoodLook Clear", "flat", "LED", "4K", 449, ("43", "50", "55"), (BLACK, WHITE), "a bright picture, three HDMI inputs and slim feet"),
+    (GOODLOOK, "GoodLook Clear", "flat", "LED", "Full HD", 229, ("32", "40"), (BLACK, WHITE), "a plain picture for a bedroom or a kitchen"),
+    (GOODLOOK, "GoodLook Curve", "curved", "OLED", "4K", 1099, ("55", "65"), (BLACK, GREY), "a gently curved panel that wraps the view around the room"),
+    (SINGINGSAM, "SingingSam Encore", "flat", "OLED", "4K", 949, ("55", "65", "77"), (BLACK, SILVER), "a soundbar built into the stand and a bright thin panel"),
+    (SINGINGSAM, "SingingSam Encore", "flat", "Mini LED", "4K", 749, ("50", "55", "65"), (BLACK, GREY), "speakers along the top edge, so the sound comes from the picture"),
+    (SINGINGSAM, "SingingSam Duet", "flat", "LED", "4K", 399, ("43", "50", "55"), (BLACK, WHITE, GREY), "two large speakers and a remote with a voice button"),
+    (SINGINGSAM, "SingingSam Duet", "flat", "LED", "Full HD", 209, ("32", "40"), (BLACK, WHITE, SILVER), "a small panel with a loud speaker for a kitchen or a study"),
+    (SINGINGSAM, "SingingSam Stage", "curved", "Mini LED", "4K", 1049, ("55", "65"), (BLACK, GREY), "a curved panel and speakers that fire toward the seats"),
+    (HALVERN, "Halvern Vision", "flat", "LED", "4K", 379, ("43", "55"), (BLACK, SILVER), "slim edges and four HDMI inputs"),
+    (HALVERN, "Halvern Vision", "flat", "OLED", "4K", 829, ("48", "55"), (BLACK, GREY), "a thin panel and a stand that swivels"),
+    (MARRICK, "Marrick View", "flat", "LED", "4K", 429, ("50", "55", "65"), (BLACK, GREY), "a low delay mode for games and a quiet power supply"),
+    (TORVANE, "Torvane Pixel", "flat", "Mini LED", "4K", 699, ("50", "55"), (BLACK, SILVER), "a fast refresh rate and a game mode that picks itself"),
+)  # fmt: skip
+
+
+def _tv_attrs(form, tech, res) -> tuple:
+    return (_a("operating_system", "Operating system", _TV_OS),
+            _a("panel_type", "Panel type", form.title()),
+            _a("display_technology", "Display technology", tech),
+            _a("display_resolution", "Resolution", res))  # fmt: skip
+
+
+TVS = tuple(
+    _row(f"ETV{i + 1:03d}", f"{n} {res} {tech} Smart TV", b, _TV_PATH, "TV", p, "tv",
+         f"A {sz[0]} to {sz[-1]} inch television with {note}. It runs {_TV_OS}.", c,
+         (_a("model_line", "Model line", n), *_tv_attrs(f, tech, res)),
+         tuple((s, p + 200.0 * k) for k, s in enumerate(sz)), "screen_size_in", (("form", f),))
+    for i, (b, n, f, tech, res, p, sz, c, note) in enumerate(_TVS)
+)  # fmt: skip
+
+DEVICE_COUNT = len(SMARTPHONES + BASIC_PHONES + LAPTOPS + DESKTOPS + TABLETS + E_READERS + TVS)
 ACCESSORY_COUNT = len(PHONE_CASES + SCREEN_PROTECTORS + CHARGERS + CABLES + EARBUDS
                       + LAPTOP_SLEEVES + MICE + KEYBOARDS + MONITORS)  # fmt: skip
 
 # --- In-department text-match decoys (gen#294 classes 1-7); each tells the truth in its fields ----
 DECOY_ROWS = {
+    "tv": (
+        (1, "red tv", "color facet: Red in a range name is not the TV's color",
+         _row("DCETV1", "Marrick Red Line 4K LED Smart TV", MARRICK, _TV_PATH, "TV", 349.0, "tv",
+              "A 43 to 50 inch television in black from the Red Line range. It runs Open Smart TV OS.",
+              (BLACK,), (_a("model_line", "Model line", "Marrick Red Line"), *_tv_attrs("flat", "LED", "4K")),
+              (("43", 349.0), ("50", 549.0)), "screen_size_in", (("form", "flat"),))),
+    ),
     "keyboard": (
         (1, "blue keyboard", "color facet: Blue in a range name is not the keyboard color",
          _row("DCEKB1", "Blue Glow Keyboard", ARDMOOR, (*_A, "Keyboards"), "Keyboard", 21.0,
