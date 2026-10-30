@@ -1,4 +1,4 @@
-# A pack of N shows N items (gen#728)
+# A pack of N shows N items (gen#728, gen#734)
 
 A SKU that is a pack draws its items, so a six-pack does not look like one can. One layout does
 this for every family (`pack_copies.py`): a new family needs no pack drawing of its own.
@@ -15,6 +15,14 @@ up and to the right. **From 4 to 24** they stand in rows: the front row is full 
 behind is 10% smaller and higher, so a six-pack is two in front with two more rows behind. A wide
 item takes fewer columns, and a tall one no more than a square would. A stack past the product's
 area on the sheet is scaled down as a whole and centered.
+
+**Socks and knickers fan** (gen#734). In rows, socks read as a heap and knickers as a stepped pyramid,
+with most of each item hidden. A shop's listing lays them flat in one overlapped sweep, so `pack_copies.FANS`
+turns each item about a point below the pack. Socks go left to right, one sock for each pair, each
+lying on the one before it. Knickers keep to a shallow arc with the middle one last, so it lies
+whole on top with the rest showing to either side. Each item lies on a light edge of its own, the
+silhouette of its painted paths, so black ones on black can still be counted. A family joins by a
+line in `FANS`, and `tests/test_retail_pack_fan_734.py` measures what shows of each item.
 
 **Above 24** the pack is its outer box, in the product's own paint, with the count large on its
 front and three loose items before it (`pack_copies.outer_box`). The box grows with the logarithm

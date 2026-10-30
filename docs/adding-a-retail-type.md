@@ -96,7 +96,7 @@ by SKU (a lamp's `finish`) yields one per value. A multi-size clothing or footwe
 (`size_ladder.py`, gen#339): one image per rung, the smallest at 55/90 of the largest (its own size).
 Any other size adds none, except a SKU with a `net_volume_ml` or `net_weight_g` (Food & Drink and Beauty also
 `units_per_pack`), drawn at the cube root of that content against its style's largest size, floored at 0.6
-(`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged. A pack of N draws N copies of the drawing, or its outer box above 24 (`pack_copies.py`, gen#728).
+(`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged. A pack of N draws N copies of the drawing, or its outer box above 24 (`pack_copies.py`, gen#728); socks and knickers fan rather than stand in rows (`pack_copies.FANS`, gen#734).
 If two things must look different on the sheet (a two-seat and a three-seat sofa), they are two styles.
 `image_release.image_files` renders them, and `tests/test_retail_image_release.py` refuses an id
 that names two drawings.

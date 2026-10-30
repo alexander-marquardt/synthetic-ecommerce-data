@@ -162,8 +162,11 @@ def _knickers_thong(paint: str) -> list[str]:
     return out
 
 
-def knickers(paint: str, fill: Fill, label: str | None, cut: str = "brief", trim: str = "plain") -> list[str]:
-    """Knickers in one of the cuts: full brief, high-waisted, high-leg, bikini, thong, shorts."""
+def knickers(
+    paint: str, fill: Fill, label: str | None, cut: str = "brief", trim: str = "plain", flat: str = ""
+) -> list[str]:
+    """Knickers in one of the cuts: full brief, high-waisted, high-leg, bikini, thong, shorts.
+    ``flat`` lays them on the sheet with no shadow, for a pack's fan (gen#734)."""
     cut = cut.replace("-", "_").replace(" ", "_")
     if cut == "shorts":
         body, edge = _knickers_shorts(paint), (96, 304, 146)
@@ -173,7 +176,7 @@ def knickers(paint: str, fill: Fill, label: str | None, cut: str = "brief", trim
         cut = cut if cut in KNICKER_CUTS else "brief"
         wy, ww, _, _, _, _, _, _, bh = KNICKER_CUTS[cut]
         body, edge = _knickers_body(paint, cut), (200 - ww, 200 + ww, wy + bh)
-    out = [_shadow(330, 110), *body]
+    out = [*([] if flat else [_shadow(330, 110)]), *body]
     if trim == "lace":
         out.append(_g("lace-trim", _lace(edge[0] + 2, edge[1] - 2, edge[2], fill, 14)))
     return out
