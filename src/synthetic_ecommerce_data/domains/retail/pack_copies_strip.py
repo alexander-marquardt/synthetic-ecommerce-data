@@ -5,8 +5,8 @@ Usage::
     uv run python -m synthetic_ecommerce_data.domains.retail.pack_copies_strip \
         --out docs/images/pack-copies.svg
 
-Each cell is one catalogue SKU's image, as the release draws it. The catalogue sells no six cans
-and no Kids dress packs yet (gen#727), so those cells are a product given that pack's size.
+Each cell is one catalogue SKU's image, as the release draws it. The catalogue sells no six cans,
+so that cell is a product given that pack's size.
 """
 
 from __future__ import annotations
@@ -41,13 +41,11 @@ SHOWN = (
     ("Tea, 240 bags", "box", "Tea", 240),
     ("Eye patches, 30", "eye_patches", "Patches", 30),
     ("Cable ties, 100", "cable_ties", "Ties", 100),
-)
-#: ``(caption, shape, a word of the title, count)``: a product given a pack it is not sold in yet.
-GIVEN = (
-    ("Lager, 6 cans", "tin", "Lager", 6),
     ("Kids dresses, 2 pack", "dress", "Girls", 2),
     ("Kids dresses, 3 pack", "dress", "Girls", 3),
 )
+#: ``(caption, shape, a word of the title, count)``: a product given a pack it is not sold in yet.
+GIVEN = (("Lager, 6 cans", "tin", "Lager", 6),)
 
 
 def _named(recs: list[dict], shape: str, word: str) -> list[dict]:
