@@ -11,6 +11,7 @@ reaches the scaled build.
 from __future__ import annotations
 
 import collections
+import functools
 import re
 import xml.dom.minidom
 
@@ -20,6 +21,7 @@ from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     export,
+    image_release,
     kit,
     kit_school,
     main_colors,
@@ -29,6 +31,11 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 
 ROWS = school_rows.ROWS
+
+
+@functools.cache
+def _by_title() -> dict[str, dict]:
+    return {r["title"]: r for r in scale.templates()}
 ROOT, FAMILY = "Kids", "School Uniform"
 
 #: Each type, its drawing shape, its leaf and the key attributes every one of its styles states.
@@ -154,7 +161,6 @@ VARIANTS = [
     ("school_skirt", {"length": "knee"}, {"length": "midi"}),
     ("school_pinafore", {"style": "pinafore"}, {"style": "jumper_dress"}),
     ("school_shirt", {"sleeve": "long"}, {"sleeve": "short"}),
-    ("school_shirt", {"pack": "1"}, {"pack": "3"}),
 ]
 
 
@@ -247,8 +253,9 @@ def test_a_shirt_draws_a_collar_buttons_and_the_sleeve_and_pack_it_states() -> N
         assert f'<g class="sleeve-{sleeve}"' in svg, row.code
         pack = _attr(row, "pack_size")
         packs = 1 if pack == "Single" else int(pack[0])
-        assert dict(row.params)["pack"] == str(packs), row.code
-        assert _count(svg, "pack-item") == (packs if packs > 1 else 0), row.code
+        rec = _by_title()[row.title]
+        drawn = image_release.render(rec, rec["skus"][0]).decode()
+        assert drawn.count('class="pack-copy"') == (packs if packs > 1 else 0), row.code
 
 
 # --------------------------------------------------------------------------

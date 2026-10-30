@@ -119,10 +119,10 @@ def test_a_sock_drawing_shows_the_packs_pair_count() -> None:
         n = rec["units_per_pack"]
         assert rec["drawing"]["shape"] == "socks", rec["title"]
         assert rec["drawing"].get("params", {}).get("pairs") == str(n), rec["title"]
-        svg = bp4.drawing_svg(rec)
-        # One pair is two socks; a pack fans one sock per pair under a band naming the count.
-        assert svg.count('class="sock"') == (2 if n == 1 else n), rec["title"]
-        assert (f"{n} pairs" in svg) == (n > 1), rec["title"]
+        svg = image_release.render(rec, rec["skus"][0]).decode()
+        # One pair is two socks, once in the <defs> of a pack and used once per pair (gen#728).
+        assert svg.count('class="sock"') == 2, rec["title"]
+        assert svg.count('class="pack-copy"') == (0 if n == 1 else n), rec["title"]
 
 
 @pytest.mark.parametrize("stems", [5, 7, 9])

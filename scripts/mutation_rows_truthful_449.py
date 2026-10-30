@@ -32,9 +32,9 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     ),
     (
         "a multipack of pots is drawn as one pot",
-        "kit.py",
-        "n = int(count)",
-        "n = 1",
+        "pack_copies.py",
+        'return {"pack_count": n} if n > 1 else {}',
+        "return {}",
         f"{_T}::test_a_four_pack_of_yogurt_is_drawn_as_four_pots",
         "units_per_pack above one draws that many pots",
     ),

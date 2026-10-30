@@ -114,10 +114,10 @@ def coat_stand(paint: str, fill: Fill, label: str | None) -> list[str]:
     return out
 
 
-def hangers(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """Three empty coat hangers, nested."""
+def hangers(paint: str, fill: Fill, label: str | None, nested: str = "3") -> list[str]:
+    """Empty coat hangers, three nested unless told otherwise."""
     out = []
-    for dy, dx in ((0, 0), (22, 8), (44, 16)):
+    for dy, dx in ((0, 0), (22, 8), (44, 16))[: int(nested)]:
         d = f"M{60 + dx},{214 + dy} L200,{138 + dy} L{340 - dx},{214 + dy} Z"
         out += [
             _path(d, "none", 7, "", INK),

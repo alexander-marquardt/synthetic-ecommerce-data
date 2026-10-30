@@ -182,8 +182,8 @@ def luggage_set(paint: str, fill: Fill, label: str | None, pieces: str = "3") ->
     return out
 
 
-def travel_organizer(paint: str, fill: Fill, label: str | None, kind: str = "packing cubes") -> list[str]:
-    """A travel organizer: ``packing cubes`` (a stack of three, ``class="cube"`` each),
+def travel_organizer(paint: str, fill: Fill, label: str | None, kind: str = "packing cubes", cubes: str = "3") -> list[str]:
+    """A travel organizer: ``packing cubes`` (a stack of ``cubes``, ``class="cube"`` each),
     ``passport holder`` (a window and a crest), ``toiletry roll`` (a rolled bag with a strap) or
     ``adapter case`` (a small zip case with plug pins)."""
     k = kind.lower()
@@ -203,7 +203,7 @@ def travel_organizer(paint: str, fill: Fill, label: str | None, kind: str = "pac
                 _rect(150, 200, 10, 34, "#b8bcc2", 2, LW_DETAIL), _rect(190, 200, 10, 34, "#b8bcc2", 2, LW_DETAIL), _rect(230, 200, 10, 34, "#b8bcc2", 2, LW_DETAIL),
                 _highlight("M92,190 L92,270", 4, 0.3)]  # fmt: skip
     else:
-        for i, (w, y) in enumerate(((190, 232), (170, 160), (150, 92))):
+        for i, (w, y) in enumerate(((190, 232), (170, 160), (150, 92))[: int(cubes)]):
             x0 = 200 - w / 2
             out.append(_group("cube", [_path(f"M{x0 + 10},{y} L{x0 + w - 10},{y} Q{x0 + w},{y} {x0 + w},{y + 10} L{x0 + w},{y + 66} Q{x0 + w},{y + 76} {x0 + w - 10},{y + 76} L{x0 + 10},{y + 76} Q{x0},{y + 76} {x0},{y + 66} L{x0},{y + 10} Q{x0},{y} {x0 + 10},{y} Z", _tint(fill.base, 0.06 * i) if paint == fill.base else paint),
                                        _line(f"M{x0 + 8},{y + 14} L{x0 + w - 8},{y + 14}", 1.8, ' stroke-dasharray="6 3"'), _rect(200 - 8, y + 8, 16, 12, HARDWARE, 3, 1.2)]))  # fmt: skip

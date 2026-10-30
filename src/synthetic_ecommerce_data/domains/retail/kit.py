@@ -191,7 +191,7 @@ def _marked(x: float, y: float, w: float, h: float, text: str, max_size: float) 
 
 def _drawn(draw, paint: str, fill: Fill, label: str | None, params: dict | None) -> list[str]:
     """``draw`` called with the shape's own params; the grocery marks ride to :func:`_panel`."""
-    own = {k: v for k, v in (params or {}).items() if k not in MARK_KEYS}
+    own = {k: v for k, v in (params or {}).items() if k not in (*MARK_KEYS, "pairs")}
     _MARKS.clear()
     _MARKS.update({k: v for k, v in (params or {}).items() if k in MARK_KEYS})
     try:
@@ -701,29 +701,13 @@ def punnet(paint: str, fill: Fill, label: str | None, produce: str = "strawberry
     ]
 
 
-def tub(paint: str, fill: Fill, label: str | None, count: str = "1") -> list[str]:
-    """One pot, or ``count`` pots (2 to 6) in a pack, two rows when there are more than three."""
-    n = int(count)
-    if n <= 1:
-        return [
-            _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint, extra=' class="pot"'),
-            f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
-            *_panel(124, 190, 152, 96, label, 50),
-        ]
-    per_row = 2 if n == 4 else min(n, 3)
-    rows = [list(range(i, min(i + per_row, n))) for i in range(0, n, per_row)]
-    w, h = 112, 118
-    out: list[str] = []
-    for r, row in enumerate(rows):
-        top = 120 + r * 120 if len(rows) > 1 else 190
-        for c, _ in enumerate(row):
-            cx = 200 + (c - (len(row) - 1) / 2) * (w + 14)
-            out += [
-                _path(f"M{cx - w / 2:g},{top} L{cx + w / 2:g},{top} L{cx + w / 2 - 14:g},{top + h} Q{cx:g},{top + h + 8} {cx - w / 2 + 14:g},{top + h} Z", paint, extra=' class="pot"'),
-                f'<ellipse cx="{cx:g}" cy="{top}" rx="{w / 2:g}" ry="12" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
-            ]
-    out += _panel(130, 160, 140, 64, label, 40)
-    return out
+def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """One pot; a pack of them is :mod:`pack_copies`'."""
+    return [
+        _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint, extra=' class="pot"'),
+        f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
+        *_panel(124, 190, 152, 96, label, 50),
+    ]
 
 
 def loaf(paint: str, fill: Fill, label: str | None) -> list[str]:
@@ -827,8 +811,26 @@ def _shrunk(drawn: list[str], body: str, shrink: float) -> str:
     return pack_scale.wrap(body, drawn, shrink)
 
 
+def _placed(
+    shape: str, drawn: list[str], overlay: str, shrink: float, copies: int, paint: str, uid: str
+) -> str:
+    """The shape's drawing where it stands on the sheet: on its pack factor and offset, or laid
+    out as a pack of ``copies`` (:mod:`pack_copies`, gen#728)."""
+    body = _shrunk(drawn, "".join(drawn) + overlay, shrink)
+    if shape in OFFSET_Y:
+        body = f'<g transform="translate(0 {OFFSET_Y[shape]})">{body}</g>'
+    if copies <= 1:
+        return body
+    from synthetic_ecommerce_data.domains.retail import (
+        pack_copies,  # deferred: pack_copies draws with this kit
+    )
+
+    return pack_copies.layout(body, [body], copies, paint, uid)
+
+
 def _render_styled(
-    shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None
+    shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None,
+    copies=1,
 ) -> str:
     """:func:`render` in a brand's house style (see ``house_styles``)."""
     from synthetic_ecommerce_data.domains.retail import (
@@ -839,10 +841,10 @@ def _render_styled(
     )
 
     drawn = _drawn(draw, paint, fill, label, params)
-    inner = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
-    if shape in OFFSET_Y:
-        inner = f'<g transform="translate(0 {OFFSET_Y[shape]})">{inner}</g>'
-    inner = size_ladder.stand(inner, defs, size_scale)
+    overlay = _print_overlay(shape, fill, drawn, paint, uid)
+    inner = size_ladder.stand(
+        _placed(shape, drawn, overlay, shrink, copies, paint, uid), defs, size_scale
+    )
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     all_defs = defs + "".join(sheet_defs)
     parts = [
@@ -898,6 +900,7 @@ def render(
     style: object | None = None,
     shrink: float = 1.0,
     size_scale: float | None = None,
+    copies: int = 1,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -909,23 +912,30 @@ def render(
     pack about its bottom center on the same sheet (:mod:`pack_scale`, gen#543). ``size_scale`` is
     the scale the full-size drawing stands for on its product's size ladder (:mod:`size_ladder`,
     gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
+    ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728).
     """
     from synthetic_ecommerce_data.domains.retail import (
         size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
     )
 
+    if copies > 1:
+        from synthetic_ecommerce_data.domains.retail import (
+            pack_copies,  # deferred: pack_copies draws with this kit
+        )
+
+        params = pack_copies.one_item(shape, params)
     draw = SHAPES[shape]
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = _paint(fill, pid)
     if style is not None:
         return _render_styled(
-            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink, size_scale
+            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink,
+            size_scale, copies,
         )
     drawn = _drawn(draw, paint, fill, label, params)
-    body = _shrunk(drawn, "".join(drawn) + _print_overlay(shape, fill, drawn, paint, uid), shrink)
-    if shape in OFFSET_Y:
-        body = f'<g transform="translate(0 {OFFSET_Y[shape]})">{body}</g>'
+    overlay = _print_overlay(shape, fill, drawn, paint, uid)
+    body = _placed(shape, drawn, overlay, shrink, copies, paint, uid)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{defs}</defs>" if defs else "",

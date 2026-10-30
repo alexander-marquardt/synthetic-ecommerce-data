@@ -42,6 +42,7 @@ from synthetic_ecommerce_data.domains.retail import (
     colorwords,
     facet_leaves,
     multi_path,
+    pack_copies,
     pack_scale,
     shades,
     size_ladder,
@@ -246,17 +247,19 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     """What one SKU's image draws: its product's drawing in the SKU's color swatch, and the
     SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
     ``diameter_cm``: gen#197), the factor its pack is drawn at within its line when it is
-    not the line's largest size (``pack_scale``, gen#543), and, for a clothing or footwear SKU
-    on a size ladder, its ``size_scale`` (gen#339), so each size has its own image. A SKU that
-    carries none of these adds nothing, so its image id is what it was."""
+    not the line's largest size (``pack_scale``, gen#543), the items its pack draws
+    (``pack_copies``, gen#728), and, for a clothing or footwear SKU on a size ladder, its
+    ``size_scale`` (gen#339), so each size has its own image. A SKU that carries none of these
+    adds nothing, so its image id is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
+    own |= pack_copies.pile_count(rec, sku)
     if own:
         spec["params"] = own
     shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)
     spec = spec | {"pack_scale": shrink} if shrink else spec
-    return spec | size_ladder.spec(rec, sku)
+    return spec | pack_copies.spec(rec, sku) | size_ladder.spec(rec, sku)
 
 
 def drawing_id(rec: dict, sku: dict) -> str:

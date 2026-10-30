@@ -294,7 +294,7 @@ def _shirt(code, title, brand, sleeve, fit, care, fabric, pack, price, desc, col
                 (_a("sleeve_length", "Sleeve length", sleeve), _a("fit", "Fit", fit),
                  _a("easy_care", "Easy care", care), _a("fabric", "Fabric", fabric),
                  _a("pack_size", "Pack size", _pack(pack))),
-                (("sleeve", sleeve.lower()), ("pack", str(pack))))  # fmt: skip
+                (("sleeve", sleeve.lower()),))  # fmt: skip
 
 
 SHIRTS = (

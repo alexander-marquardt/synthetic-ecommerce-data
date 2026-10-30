@@ -521,7 +521,8 @@ def _svg_parts(doc: dict, bare: bool = False) -> tuple[list[ET.Element], list[ET
 
     def walk(el: ET.Element, hidden: bool) -> None:
         tag = el.tag.split("}")[-1]
-        hidden = hidden or tag in ("defs", "mask", "clipPath")
+        pack_item = any(c.get("id", "").startswith("pack-item-") for c in el)  # gen#728
+        hidden = hidden or (tag in ("defs", "mask", "clipPath") and not pack_item)
         if not hidden and el.get("data-part"):
             marked.append(el)
         elif not hidden:

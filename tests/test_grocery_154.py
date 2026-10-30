@@ -236,12 +236,13 @@ def test_the_build_is_deterministic_and_the_seed_changes_it() -> None:
 
 def test_one_drawing_per_style_and_pack_scale() -> None:
     """A style's sizes share a drawing unless its line draws a size smaller (gen#543) or a SKU
-    draws its own params (a pizza's flavour and size, gen#604)."""
+    draws its own params (a pizza's flavour and size, gen#604) or its pack's items (gen#728)."""
     recs = grocery.build(grocery.TARGET)
     images = {export.drawing_id(r, s) for r in recs for s in r["skus"]}
 
     def own(rec: dict, sku: dict) -> tuple:
-        return tuple(sorted(export.drawing_spec(rec, sku).get("params", {}).items()))
+        spec = export.drawing_spec(rec, sku)
+        return (spec.get("pack_count"), *sorted(spec.get("params", {}).items()))
 
     drawn = {(r["product_id"], pack_scale.factor(r, s), own(r, s)) for r in recs for s in r["skus"]}
     assert len(images) == len(drawn) >= STYLES

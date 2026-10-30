@@ -11,9 +11,8 @@ school_skirt    a waistband and a pleated, plain A-line or   style (pleated, a_l
 school_pinafore a blouse under a bib front with two straps   style (pinafore,
                 and a pleated skirt, or a jumper dress with  jumper_dress)
                 a scoop neck and no straps
-school_shirt    a collared, buttoned shirt with long or      sleeve (long, short),
-                short sleeves, a chest pocket and, for a     pack (1, 2, 3)
-                multipack, that many stacked pack items
+school_shirt    a collared, buttoned shirt with long or      sleeve (long, short)
+                short sleeves and a chest pocket
 ==============  ===========================================  ==========================
 
 What a drawing shows is what the record states, and a test reads it back from the marks: the leg
@@ -154,9 +153,9 @@ def school_pinafore(paint: str, fill: Fill, label: str | None, style: str = "pin
 SLEEVE_END = {"long": 292, "short": 160}
 
 
-def school_shirt(paint: str, fill: Fill, label: str | None, sleeve: str = "long", pack: str = "1") -> list[str]:
+def school_shirt(paint: str, fill: Fill, label: str | None, sleeve: str = "long") -> list[str]:
     """A school shirt: a pointed collar, a buttoned placket, a chest pocket and long or short
-    sleeves; a multipack stacks one small pack item per shirt in the pack under the hem."""
+    sleeves."""
     end = SLEEVE_END[sleeve]
     sleeves = []
     for sign in (1, -1):
@@ -173,11 +172,6 @@ def school_shirt(paint: str, fill: Fill, label: str | None, sleeve: str = "long"
     out.append(_line("M222,146 L252,146 L252,176 L222,176 Z", 1.4, ' stroke-opacity=".6"'))
     collar = "M162,70 L200,100 L238,70 L246,58 L200,64 L154,58 Z"
     out.append(_group("collar", [_path(collar, paint, LW), _dark(collar, 0.1), _line("M200,64 L200,100", 1.2)]))
-    count = int(pack)
-    if count > 1:
-        for i in range(count):
-            x, y = 158 + i * 8, 356 - i * 5
-            out.append(_group("pack-item", [_path(f"M{x},{y} L{x + 52},{y} L{x + 52},{y + 24} L{x},{y + 24} Z", paint, LW_DETAIL + 0.6)]))
     return out
 
 

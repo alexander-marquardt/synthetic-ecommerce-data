@@ -17,8 +17,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the styled render ignores the shrink",
         "kit.py",
-        "uid), shrink)\n    if shape in OFFSET_Y:\n        inner = f'<g",
-        "uid), 1.0)\n    if shape in OFFSET_Y:\n        inner = f'<g",
+        'body = _shrunk(drawn, "".join(drawn) + overlay, shrink)',
+        'body = _shrunk(drawn, "".join(drawn) + overlay, 1.0)',
         _STYLED,
         "the shipped (styled) drawing of a smaller size is drawn smaller",
         _ROOT,
