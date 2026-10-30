@@ -97,13 +97,15 @@ def is_model(fam: str, brand: str, line: str) -> bool:
     A numbered model is a lead word of the family, then sub-model words, generation numbers or
     codes, at least one of them; a dress model is one name-like word; an appliance model is a
     series its brand owns (gen#622); a food model is a plain lead word of its family, then
-    optionally a sub-model and a number (gen#665)."""
+    optionally one of its style words, and never a number (gen#665, gen#729)."""
     words = line.split()
     if fam in _NUMBERED:
         spec = _NUMBERED[fam]
         rest = words[1:]
         leads = (*spec.leads, *spec.grocery_leads)
-        return (len(words) >= (1 if spec.bare else 2) and words[0] in leads
+        if spec.bare:
+            return words[0] in leads and (not rest or " ".join(rest) in spec.subs)
+        return (len(words) >= 2 and words[0] in leads
                 and all(w in spec.subs or _code(w) for w in rest))  # fmt: skip
     if fam == "dress":
         return line in NAME_WORDS
@@ -134,8 +136,10 @@ class Deal:
     A numbered-family brand builds its models from its lead words, a generation and, past the
     first cycle of generations, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a
     model with one of its name words. A food brand builds a model from its lead words, the lead
-    alone first ("Finest"), then with a sub-model ("Finest Reserve") and then with a number ("Finest
-    Reserve 2"). ``half`` is the half of a food family's lead words this build deals from
+    alone first ("Finest"), then with each style word of the kind ("Finest Greek Style"). Past
+    those the models repeat and :meth:`round` tells the caller how far past it went, so a title
+    gains a true ingredient or claim of its own (:mod:`food_title_words`), never a number or an
+    empty word (gen#729). ``half`` is the half of a food family's lead words this build deals from
     (gen#665). A cleaning or beauty family has one lead list and splits it instead: the scale build
     deals its even words and the grocery build its odd ones (:data:`HALVES`, gen#666)."""
 
@@ -166,20 +170,13 @@ class Deal:
     def of(self, brand: str) -> tuple[str, ...]:
         return self._owned[brand]
 
-    def owned(self, brand: str, slot: int) -> str:
-        """The model ``brand`` sells at ``slot``."""
+    def owned(self, brand: str, slot: int, kind: str = "") -> str:
+        """The model ``brand`` sells at ``slot``; a food family words it for its ``kind``."""
         mine = self._owned[brand]
         word, k = mine[slot % len(mine)], slot // len(mine)
         if self.spec and self.spec.bare:
-            subs, numbers = self.spec.subs, self.spec.numbers
-            if k == 0:
-                return word
-            j = k - 1
-            if j < len(subs):
-                return f"{word} {subs[j]}"
-            j -= len(subs)
-            number = numbers[(j // len(subs)) % len(numbers)]
-            return f"{word} {subs[j % len(subs)]} {number}"
+            style = (None, *self.spec.styles[kind])[k % (len(self.spec.styles[kind]) + 1)]
+            return f"{word} {style}" if style else word
         if not self.spec:
             return word
         subs, numbers = self.spec.subs, self.spec.numbers
@@ -194,6 +191,13 @@ class Deal:
             sub = (None, *subs)[(k // len(numbers)) % (len(subs) + 1)]
             gen = numbers[k % len(numbers)]
         return " ".join(str(p) for p in (word, sub, gen) if p)
+
+    def round(self, brand: str, slot: int, kind: str) -> int:
+        """How many times a food family's ``slot`` has gone through ``brand``'s models of
+        ``kind``: 0 is the first pass, and a later one names a model an earlier one named."""
+        spec = self.spec
+        assert spec is not None and spec.bare, self.fam
+        return slot // len(self._owned[brand]) // (len(spec.styles[kind]) + 1)
 
 
 def _stated(rec: dict) -> str | None:
@@ -253,7 +257,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     its own brand, after a "Kids' " if it has one: "Stridewell Speed 5 Neutral Road Running
     Shoes". A dress style always leads with its brand and the name, and a style word follows the
     material in four draws of five: "Larkmoor Merlin Leather Smart Penny Loafers". A food style
-    leads with its brand, then the model, in two draws of three ("Hollin Finest Reserve 2
+    leads with its brand, then the model, in two draws of three ("Hollin Finest Small Batch
     Strawberry Jam"); the others keep the model alone (:func:`brand_led`). A cleaning or beauty
     style leads with its brand and its model, then the scent or shade and the kind: "Soapwell Keen
     Plus 4 Lemon Floor Cleaner". ``draw`` is the style's seeded number for these choices."""

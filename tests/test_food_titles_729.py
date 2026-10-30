@@ -244,8 +244,10 @@ def test_a_title_ending_is_true_of_every_variant(endings):
                 false.append((rec["title"], bad))
         elif ending in KNOWN_ENDINGS:
             names = BACKED_BY.get(ending, (ending.removeprefix("Real ").lower(),))
-            if not labels or len(labels) != len(rec["skus"]) or not all(
-                any(n in label for n in names) for label in labels
+            if (
+                not labels
+                or len(labels) != len(rec["skus"])
+                or not all(any(n in label for n in names) for label in labels)
             ):
                 false.append((rec["title"], names))
     assert false[:10] == []
@@ -291,11 +293,30 @@ def test_a_recipe_decides_the_ending():
     # a word a flavor or the title says stays out
     assert "with Real Butter" not in true_words("Biscuits", "Finest Biscuits", ["Butter"], [label])
     assert "with Real Sugar" not in true_words("Biscuits", "Sugar Biscuits", ["Plain"], [label])
+    # "Real" says nothing of what is in the pack, so a title that says it keeps its ending
+    assert "with Real Butter" in true_words("Biscuits", "Real Bakes Biscuits", ["Plain"], [label])
     # a recipe the label names no word for gains none, and a title with a "with" gains no second
     assert true_words("Biscuits", "Finest Biscuits", ["Plain"], []) == []
     assert true_words("Biscuits", "Finest Biscuits", ["Plain"], [label, []]) == []
     assert true_words("Tinned Food", "Tomatoes with Basil", ["Plain"], [label]) == []
     assert true_words("Wine", "Finest Merlot", ["Merlot"], [label]) == []
+
+
+def test_the_first_round_past_the_row_gains_an_ending():
+    """Guard (gen#729): a repeated model stays distinct only by its ending, so the first slot past
+    the row needs its word as much as a later one. Metric: one style's title at rounds 0 to 2."""
+    fam = next(f for f in FAMILIES if f.product_type == "Biscuits")
+    brand = sorted(grocery.OWNERS)[0]
+
+    def title(turn: int) -> str:
+        pid = f"GRC-{fam.code}-0001"
+        args = (pid, "Finest", brand, [fam.flavors[0]], list(fam.packs), "", False, "", turn)
+        return grocery.style(fam, *args)["title"]
+
+    assert _ending(title(0)) is None
+    assert _ending(title(1)) in KNOWN_ENDINGS
+    assert title(1).startswith(title(0))
+    assert title(1) != title(2)
 
 
 def test_a_style_word_a_recipe_contradicts_is_on_no_row():

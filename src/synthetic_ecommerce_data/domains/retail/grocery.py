@@ -50,6 +50,7 @@ from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.core.emit import write_jsonl
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.retail import (
+    food_title_words,
     grocery_rows,
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
@@ -95,8 +96,6 @@ HERE = Path(__file__).resolve().parent
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
-#: The top category of fresh produce, whose titles stay short (fresh against decoy length, gen#445).
-PRODUCE = "Fruit & Vegetables"
 #: The word overlap (Jaccard, over brand and title) at which two same-leaf food listings read as
 #: one; ``scale.NEAR_DUPLICATE_JACCARD`` is this value (gen#665).
 NEAR_DUPLICATE_JACCARD = 0.8
@@ -352,8 +351,11 @@ def _abv_text(pid: str, flavor: F) -> str:
 
 
 def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs: list[str],
-          may_codes: str, organic: bool, grade: str) -> dict:  # fmt: skip
-    """One style's record (the retail build's shape, for :func:`export.standard_document`)."""
+          may_codes: str, organic: bool, grade: str, turn: int = 0) -> dict:  # fmt: skip
+    """One style's record (the retail build's shape, for :func:`export.standard_document`).
+
+    ``turn`` is how far past its model words a food style's slot went (:meth:`Deal.round`): the
+    title then ends on the ingredient or claim of that turn that its recipe backs, or on none."""
     check_departments([fam.department], pid)
     parsed = [parse_pack(p) for p in packs]
     first = parse_pack(fam.packs[0])
@@ -374,6 +376,14 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
     head = f"{brand} {line}" if fam.food and line_grammar.brand_led(pid) else line
     head = f"{head} Organic" if organic else head
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
+    if turn:
+        lists = [s["ingredients"] for s in skus if "ingredients" in s]
+        words = food_title_words.true_words(
+            fam.product_type, title, [f.name for f in flavors], lists
+        )
+        # A brand's model starts at a place of its own, so one true word is not every title's.
+        start = zlib.crc32(f"{brand} {line}".encode())
+        title = f"{title} {words[(start + turn - 1) % len(words)]}" if words else title
     lead = head
     if line_grammar.FAMILIES.get(fam.product_type) in line_grammar.CARE:
         lead = f"{brand} {head}"  # a cleaning or beauty title leads with its brand (gen#666)
@@ -493,18 +503,16 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         packs = stocked(fam, packs, held[fam.code + "#"])
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
         kind = line_grammar.FAMILIES.get(fam.product_type)
+        turn = 0
         if fam.food:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
-            # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1";
-            # the tier needs the numbers to reach its budget (gen#376), so it keeps them.
-            reach = len(deal.of(brand)) * (1 + len(deal.spec.subs))
-            short = fam.path[1] == PRODUCE and not tier
-            model = deal.owned(brand, slot % reach if short else slot)
+            model = deal.owned(brand, slot, fam.product_type)
+            turn = deal.round(brand, slot, fam.product_type)
         elif kind in line_grammar.CARE:
             model = care_names(kind).owned(brand, slot)
         else:
             model = owned(brand, slot)
-        rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade)
+        rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade, turn)
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:
