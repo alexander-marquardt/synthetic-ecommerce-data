@@ -5,6 +5,9 @@ number, then the spec and the kind: "Frostholm Arden FW712DW 7kg 1200 Spin Washi
 model number is a letter-and-digit code the brand's scheme builds from the kind, the capacity,
 the spin speed, the generation and the color; a color variant changes only the last letter. A few
 washing machines carry the second title form, "Washing Machine from Frostholm, Model FW712DW".
+
+The model number makes a decoy probe, as the bicycles of gen#625 do: the code alone finds its
+machine first, while the words "washing machine" put short-titled decoys above every machine.
 """
 
 from __future__ import annotations
@@ -15,6 +18,7 @@ from collections import defaultdict
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail import scale
 
@@ -165,3 +169,39 @@ def test_each_exported_sku_states_the_model_number_of_its_own_color(appliances):
         assert a["model_number"].startswith(a["base_model"]), d["sku"]
         assert seen.setdefault(a["model_number"], d["sku"]) == d["sku"], a["model_number"]
     assert len(flat) > len(appliances), "color variants are SKUs of their own"
+
+
+# -- the model-number probe ---------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def ranked() -> tuple[br.Index, list[dict]]:
+    templates = scale.templates()
+    washers = [
+        r
+        for r in templates
+        if r["category_path"][:2] == ROOT and _attrs(r)["appliance_type"] == "Washing Machine"
+    ]
+    return br.Index(templates), washers
+
+
+def test_a_full_model_number_finds_its_washing_machine_first(ranked):
+    """Each brand's scheme, in both title forms: the code alone ranks its own machine first."""
+    index, washers = ranked
+    assert {r["brand"] for r in washers} == set(lar.BRANDS)
+    assert any(FROM_FORM.match(r["title"]) for r in washers)
+    for r in washers:
+        code = _attrs(r)["model_number"]
+        top = [hit["product_id"] for hit in br.rank(index, code, 1, popular=False)]
+        assert top == [r["product_id"]], code
+
+
+def test_three_short_titled_decoys_outrank_every_washing_machine(ranked):
+    """The words alone: decoys with no model number sit above the first machine."""
+    index, washers = ranked
+    ids = {r["product_id"] for r in washers}
+    ranking = br.rank(index, "washing machine", 20, popular=False)
+    first = next(i for i, r in enumerate(ranking) if r["product_id"] in ids)
+    above = [r for r in ranking[:first] if r["category_path"][:2] != ROOT]
+    assert len(above) >= 3, [r["title"] for r in ranking[: first + 1]]
+    assert all("model_number" not in _attrs(r) for r in above)
