@@ -1,16 +1,13 @@
-"""Marks and house styles of the 13 invented electronics brands (gen#332).
+"""Marks and house styles of the 14 invented electronics brands (gen#332).
 
-Halvern, Torvane, Nimbrel, Quorrin, Daskel, Mervane and Pellimar sell the phones, laptops,
+Grape Computer, Halvern, Torvane, Nimbrel, Quorrin, Daskel, Mervane and Pellimar sell the phones, laptops,
 desktops, tablets and e-readers of the Electronics department (:mod:`electronics_rows`). Cindrel,
 Boltwick, Wexmoor, Dunvale, Ardmoor and Marrick sell its accessories: cases, protectors, chargers,
 cables, earbuds, sleeves, mice, keyboards and monitors. Each draws its own name on its product
 images: a lockup (the name beside, above or in a badge with the mark) or a mark alone with a text
 tag, with a mark no other brand uses.
 
-The only real names of the department are Apple, iPhone and iPad (:mod:`real_brands`): text only,
-so Apple's style row in :mod:`house_styles` draws no mark.
-
-:mod:`house_styles` imports this module last, so the 13 marks join ``MARKS`` and the 13 styles
+:mod:`house_styles` imports this module last, so the 14 marks join ``MARKS`` and the 14 styles
 join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -20,6 +17,16 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
 from synthetic_ecommerce_data.domains.retail.house_styles import H, _dot, _ring, _stroke
+
+
+def m_vine(c: str) -> list[str]:
+    """A sprig: a curled stem over three berries."""
+    return [
+        _stroke("M0,-.35 Q.05,-.75 .5,-.85", 0.1, c),
+        _dot(-0.4, 0.0, 0.3, c),
+        _dot(0.4, 0.0, 0.3, c),
+        _dot(0.0, 0.6, 0.3, c),
+    ]
 
 
 def m_slab(c: str) -> list[str]:
@@ -138,6 +145,7 @@ def m_arc(c: str) -> list[str]:
 
 hs.MARKS.update(
     {
+        "vine": m_vine,
         "slab": m_slab,
         "hinge": m_hinge,
         "fins": m_fins,
@@ -155,9 +163,10 @@ hs.MARKS.update(
 )
 
 # fmt: off
-#: Brand -> house style. Seven lockups and six marks alone with a text tag.
+#: Brand -> house style. Eight lockups and six marks alone with a text tag.
 STYLES = {
     # The device brands.
+    "Grape Computer":  H("#f4f4f6", "none",  "ticks",   "#6a3d8f", "#2a1638", 0.9,  False, "sharp", "vine",   "mark_right", "bottom_right",  "none",    "humanist", 700, "caps",      1.3),
     "Halvern":  H("#eef2f7", "none",     "thin",    "#2f5fa3", "#14233b", 1.05, False, "round", "slab",   "mark_left",  "top_left",      "none",    "sans",     700, "caps",      1.4),
     "Torvane":  H("#f3f1ea", "lines",    "double",  "#6b5a3c", "#2b2417", 0.95, False, "sharp", "hinge",  "mark_above", "bottom_center", "none",    "serif",    400, "title",     0.6),
     "Nimbrel":  H("#eff6f4", "dots",     "rounded", "#1f7a6c", "#10332d", 1.15, False, "round", "pane",   "badge",      "top_right",     "none",    "humanist", 700, "smallcaps", 1.9),

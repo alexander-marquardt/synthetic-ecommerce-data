@@ -18,8 +18,8 @@ that win a query's top results on text alone, so a demo can show what a policy
 fixes. `distractors.py` holds the table; `distractors.check()` refuses a
 distractor that cannot outrank the best intended product (BM25 over title plus
 description). A class's *tail* is further products the query matches that need
-not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md))
-and the household brands of the Electronics department (Apple, iPhone and iPad; gen#332, [docs/retail-electronics.md](retail-electronics.md)). The large
+not outrank. Every name is invented but Nike (text only, no logo; gen#341, [docs/retail-nike.md](retail-nike.md)).
+The Electronics brands are invented too (Grape Computer sells the GrapePhone; gen#720, [docs/retail-electronics.md](retail-electronics.md)), and the large
 appliance brands are not an exception: Frostholm, Brimwell, Tavorne, Hollinmere, Cleavewick and
 Lunden & Voss are invented, as the maintainer ruled for gen#334, and no real appliance maker is named.
 

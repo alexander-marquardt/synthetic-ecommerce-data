@@ -1,6 +1,6 @@
 """Basic phones (gen#332): a bar, a flip and a big-button phone, calls and messages only.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

@@ -99,23 +99,21 @@ def test_a_range_stated_as_an_attribute_counts_when_the_title_does_not_lead_with
     assert rr.counts(found) == CLEAN | {"shared": 1}
 
 
-def test_a_word_brand_in_another_departments_title_is_not_foreign_but_a_maker_still_is():
-    """Apple is a real brand and a fruit: "Gala Apple Tree" is no phone. An invented brand is
-    never exempt, and Apple named in an Electronics title by another maker is still foreign."""
+def test_a_maker_named_in_another_brands_title_is_foreign_in_any_department():
+    """A fruit is no brand (gen#720): "Gala Apple Tree" names nobody, and a real maker's name in
+    another brand's title is foreign wherever the row sits."""
     phone = ["Electronics", "Phones", "Smartphones"]
     tree = ["Garden", "Trees"]
     rows = [
-        _row("a", "Apple iPhone", "Apple", category_path=phone),
+        _row("a", "Halvern Arc 5", "Halvern", category_path=phone),
         _row("b", "Gala Apple Tree", "Fenwold Nursery", category_path=tree),
-        _row("c", "Apple Style Phone", "Cindrel", category_path=phone),
+        _row("c", "Halvern Style Phone", "Cindrel", category_path=phone),
         _row("d", "Red Kite Hat", "Red Kite", category_path=tree),
         _row("e", "Red Kite Tree", "Fenwold Nursery", category_path=tree),
-        _row("f", "Apple Pie", "Fenwold Nursery"),
     ]
     assert rr.review(rows, RANGES)["foreign"] == [
-        ("Apple Style Phone", "Cindrel", "Apple"),
+        ("Halvern Style Phone", "Cindrel", "Halvern"),
         ("Red Kite Tree", "Fenwold Nursery", "Red Kite"),
-        ("Apple Pie", "Fenwold Nursery", "Apple"),
     ]
 
 

@@ -1,6 +1,6 @@
 """Screen protectors (gen#332): glass, matte and privacy sheets for a named phone or tablet.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

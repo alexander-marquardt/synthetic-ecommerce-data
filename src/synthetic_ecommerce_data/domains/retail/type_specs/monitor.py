@@ -1,6 +1,6 @@
 """Monitors (gen#332): standard, ultrawide and curved, a screen size per SKU.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

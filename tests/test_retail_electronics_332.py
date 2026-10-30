@@ -1,10 +1,9 @@
 """The Electronics department (gen#332): phones, computers, tablets and their accessories.
 
-Pinned from the issue and the maintainer's two rulings (2026-10-15): the only real names are Apple,
-iPhone and iPad (text only, no logo); every other brand is invented; the accessories keep invented
-brands and name the phone they fit, which is true and is the model-word decoy; the department
-ships cross-department word decoys
-("mouse", "tablet", "monitor", "mobile", "charger", "apple") as class 8 rows.
+Pinned from the issue and the maintainer's ruling of 2026-10-30 (gen#720): every brand is invented;
+the accessories keep their own brands and name the phone they fit, which is true and is the
+model-word decoy; the department ships cross-department word decoys
+("mouse", "tablet", "monitor", "mobile", "charger") as class 8 rows.
 """
 
 from __future__ import annotations
@@ -90,25 +89,24 @@ def test_a_laptop_sells_by_ram_storage_and_screen_and_a_desktop_by_ram_and_stora
             assert fields <= set(d["skus"][0]), d["product_id"]
 
 
-def test_the_only_real_names_are_apple_iphone_and_ipad():
-    assert {"Apple", "iPhone", "iPad"} <= set(real_brands.ALLOWED)
+def test_the_other_device_makers_are_refused():
     docs = [{"product_id": "x", "brand": "Samsung", "title": "Galaxy S24 phone", "description": ""}]
     assert real_brands.check(docs), "Samsung stays refused"
     for name in ("Xiaomi", "Motorola", "OnePlus", "Oppo", "Asus", "Acer", "Huawei"):
         assert real_brands.check([{"product_id": "x", "brand": name}]), name
 
 
-def test_the_department_names_no_real_brand_but_apple(electronics):
+def test_the_department_names_no_real_brand(electronics):
     assert real_brands.check(electronics) == []
     brands = collections.Counter(d["brand"] for d in _devices(electronics))
-    assert brands["Apple"] >= 8
-    assert sum(1 for b in brands if b != "Apple") >= 8, "the other brands are invented"
+    assert brands["Grape Computer"] >= 8
+    assert sum(1 for b in brands if b != "Grape Computer") >= 8, "a device has many makers"
 
 
-def test_apple_devices_carry_the_public_line_names(electronics):
-    titles = [d["title"] for d in electronics if d["brand"] == "Apple"]
-    assert sum("iPhone" in t for t in titles) >= 5
-    assert sum("iPad" in t for t in titles) >= 3
+def test_grape_computer_devices_carry_the_line_names(electronics):
+    titles = [d["title"] for d in electronics if d["brand"] == "Grape Computer"]
+    assert sum("GrapePhone" in t for t in titles) >= 5
+    assert sum("GrapePad" in t for t in titles) >= 3
     assert not [t for t in titles if re.search(r"MacBook|iMac|Mac mini", t)]
 
 
@@ -121,26 +119,16 @@ def test_an_accessory_names_the_phone_it_fits_and_has_an_invented_brand(electron
         fits = _attrs(c)["compatible_with"]
         assert fits in lines, c["product_id"]
         assert fits in c["title"], "the title names the phone line: the model-word decoy"
-        assert c["brand"] != "Apple"
+        assert c["brand"] != "Grape Computer"
     assert len({_attrs(c)["compatible_with"] for c in cases}) >= 8
 
 
 def test_a_model_line_query_matches_more_accessories_than_phones(electronics):
-    line = "iPhone 15"
+    line = "GrapePhone 15"
     hits = [d for d in electronics if line.lower() in d["title"].lower()]
     phones = [d for d in hits if d["category_path"][-1] == "Smartphones"]
     assert phones, "the phone itself is found"
     assert len(hits) - len(phones) >= 3, "its cases, protectors and chargers hold the same words"
-
-
-def test_the_apple_devices_have_apple_clashes_across_departments():
-    rows = {r.code: r for r in decoy_product_words.TABLE}
-    queries = {r.query for r in rows.values()}
-    assert "apple" in queries or any("apple" in q for q in queries)
-    apple = [
-        r for r in rows.values() if "apple" in r.query and r.device_type in {"Smartphone", "Tablet"}
-    ]
-    assert len(apple) >= 3, "juice, tree and candle clash with the devices"
 
 
 @pytest.mark.parametrize(
@@ -165,13 +153,11 @@ def test_the_color_decoys_say_one_color_and_draw_another(electronics):
     assert {s["color"] for s in glow[0]["skus"]} == {"White"}
 
 
-def test_the_devices_have_drawings_and_the_brand_is_text_only(electronics):
+def test_the_devices_have_drawings():
     for shape in ("smartphone", "laptop", "tablet", "phone_case", "earbuds", "monitor"):
         assert shape in kit.SHAPES, shape
-    apple = next(d for d in electronics if d["brand"] == "Apple")
-    assert "Apple" not in str(apple["drawing"]), "no mark, no wordmark"
 
 
 def test_the_doc_records_the_rulings():
-    assert "## Real names (Apple, iPhone, iPad only)" in NOTE
-    assert "maybe we should only allow apple and iphone as exceptions" in NOTE
+    assert "## Every brand is invented (gen#720)" in NOTE
+    assert "which is now GrapePhone" in NOTE
