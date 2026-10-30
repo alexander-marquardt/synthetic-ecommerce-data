@@ -708,8 +708,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "Knacks leaves the owner table",
                 "class_model.py",
-                '"Knacks",\n                # Real names, text only (gen#332)',
-                '"Coat Crake",\n                # Real names, text only (gen#332)',
+                '"Knacks",\n                # An invented maker (gen#720)',
+                '"Coat Crake",\n                # An invented maker (gen#720)',
                 "tests/test_retail_knacks_722.py -k third_party_brand",
                 "Knacks is another house's make",
             ),
