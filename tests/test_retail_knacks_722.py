@@ -178,9 +178,9 @@ def test_the_knacks_mark_is_its_own_and_is_drawn_in_straight_strokes() -> None:
     assert not re.search(r' d="[^"]*[QqCcSsAa]', hs.mark_svg(mark, 0, 0, 50, "#111111"))
 
 
-def test_only_a_real_brand_has_no_mark() -> None:
+def test_no_brand_has_no_mark() -> None:
     none = {b for b, s in hs.HOUSE_STYLES.items() if s.mark == hs.NO_MARK}
-    assert none == {"Apple"}
+    assert none == set()
 
 
 def test_an_invented_brand_still_draws_its_logo(catalog) -> None:

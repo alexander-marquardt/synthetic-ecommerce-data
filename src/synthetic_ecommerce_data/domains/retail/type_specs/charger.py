@@ -1,6 +1,6 @@
 """Chargers (gen#332): wall, wireless, power bank and car chargers for a named device.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

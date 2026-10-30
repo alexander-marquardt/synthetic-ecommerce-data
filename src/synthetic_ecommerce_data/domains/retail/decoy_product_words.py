@@ -43,6 +43,7 @@ from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, Style, one
 from synthetic_ecommerce_data.domains.retail.decoy_rows import COLORS, UK, Kind
 from synthetic_ecommerce_data.domains.retail.decoy_rows import KINDS as BASE_KINDS
+from synthetic_ecommerce_data.domains.retail.feature_decoys.electronics import fruit_rows
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 #: The invented class-7 brand: a color word in the name of a footwear house (not a real shop).
@@ -1391,7 +1392,7 @@ SEED_TOYS = (
     Row("DNO03", "dino_light", "Dinosaur Night Light",
         "A dinosaur lamp with a touch base and a soft glow.", "Green", decoy=False),
 )  # fmt: skip
-ROWS = (*TABLE, *FLOOR, *SEED_TOYS)
+ROWS = (*TABLE, *FLOOR, *SEED_TOYS, *fruit_rows(Row))
 #: The decoys whose title names a detail color that is not their color: left out of the standard's
 #: text-agrees check (a title and a color field that disagree are the point of the row).
 TEXT_EXEMPT = frozenset(f"PLT-{r.code}" for r in TABLE if r.detail)

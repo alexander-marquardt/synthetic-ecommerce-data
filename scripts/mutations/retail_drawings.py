@@ -690,14 +690,6 @@ MUTATIONS: list[Mutation] = [
                 "the guard refuses every other real brand",
             ),
             (
-                "the guard refuses Apple too",
-                "real_brands.py",
-                '"Adidas", "Puma", ',
-                '"Apple", "Adidas", "Puma", ',
-                "tests/test_retail_knacks_722.py -k allow_list_and_the_refused_list",
-                "the allow-list and the refused list do not overlap",
-            ),
-            (
                 "an apparel decoy may clone a Knacks style",
                 "decoy_apparel.py",
                 '            and d["brand"] != knacks_rows.BRAND',

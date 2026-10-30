@@ -1,6 +1,6 @@
-"""Tablets (gen#332): four iPads and eight invented tablets, with storage tiers.
+"""Tablets (gen#332): twelve tablets of invented brands, with storage tiers.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

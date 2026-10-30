@@ -10,6 +10,7 @@ brands drawing no logo, and no two brands drawn alike.
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from html import unescape
 
@@ -69,9 +70,9 @@ def test_no_retail_wordmark_renders_under_10px_at_the_studio_tile() -> None:
 
 
 def test_a_real_brand_draws_no_logo() -> None:
-    style = hs.HOUSE_STYLES["Apple"]
-    assert style.mark == hs.NO_MARK
-    assert hs.logo(style, "Apple") == []
+    """No brand is real now (gen#722), but a style with no mark still draws nothing."""
+    style = dataclasses.replace(hs.HOUSE_STYLES["Knacks"], mark=hs.NO_MARK)
+    assert hs.logo(style, "Knacks") == []
 
 
 def test_a_real_brand_keeps_the_product_placement_it_had_before_412() -> None:

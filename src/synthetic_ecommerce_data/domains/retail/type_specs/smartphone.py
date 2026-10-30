@@ -1,6 +1,6 @@
-"""Smartphones (gen#332): 26 styles, Apple and seven invented brands, with storage tiers.
+"""Smartphones (gen#332): 26 styles from eight invented brands, with storage tiers.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

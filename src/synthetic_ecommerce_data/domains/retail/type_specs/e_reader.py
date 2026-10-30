@@ -1,6 +1,6 @@
 """E-readers (gen#332): paper-like screens, two storage sizes.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

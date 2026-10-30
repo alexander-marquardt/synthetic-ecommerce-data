@@ -9,5 +9,4 @@ NODES: dict[str, str] = {
     "monitor": "Monitors",
     "mobile": "Smartphones",
     "charger": "Chargers",
-    "apple": "Smartphones",
 }

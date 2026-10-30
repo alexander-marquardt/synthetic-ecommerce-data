@@ -424,8 +424,8 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 "Blazer Court", "Slipper Brook", "Sandal Wood", "Pump Lane", "Slip Road",
                 # An invented sportswear brand (gen#722); another house's make.
                 "Knacks",
-                # Real names, text only (gen#332): Apple sells its own iPhone and iPad.
-                "Apple")  # fmt: skip
+                # An invented maker (gen#720): it sells its own GrapePhone and GrapePad.
+                "Grape Computer")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home",

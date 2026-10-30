@@ -61,7 +61,7 @@ ROOT = Path(__file__).resolve().parents[1]
         ("Hex & Torx Keys", "Hex & Torx keys"),
         ("Knacks Trainers", "Knacks trainers"),
         # A word with its own inner capital is a brand spelling.
-        ("iPhone Cases", "iPhone cases"),
+        ("GrapePhone Cases", "GrapePhone cases"),
         # A string that is already sentence case is unchanged.
         ("Handle material", "Handle material"),
         ("Dowel dia. (mm)", "Dowel dia. (mm)"),
