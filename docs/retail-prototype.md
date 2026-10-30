@@ -149,16 +149,23 @@ draw moves. The tier's styles, SKUs, brands and each family's share are `grocery
 `tests/test_grocery_50k_tier_376.py` holds them.
 
 Two in three food or drink titles lead with their brand (#665), the way a supermarket listing
-does: "Hollin Finest Reserve 2 Strawberry Jam"; the rest keep the model alone ("Finest Reserve 2
-Strawberry Jam"), a seeded mixture (`line_grammar.brand_led`), and a decoy may be shorter than
+does: "Hollin Finest Slow Cooked Strawberry Jam"; the rest keep the model alone ("Finest Slow
+Cooked Strawberry Jam"), a seeded mixture (`line_grammar.brand_led`), and a decoy may be shorter than
 the real products it competes with. Every food kind maps to a family in `line_grammar.FAMILIES`
 (`pantry`, `drink`, `alcohol`), and each is a module of `line_grammar_families/` and the range word is a plain
-model word (its `LEADS` and `GROCERY_LEADS`), then a sub-model (`SUBS`) and a number, then the kind. No coined
+model word (its `LEADS` and `GROCERY_LEADS`), then at most one style word of the kind (`STYLES`), then the
+product: "Finest Greek Style Yogurt", "Prime Slow Fried Crisps". A style word is one a shelf label uses, it is
+true of every flavor of its kind, and it states no fact a recipe would have to back. A food model carries no
+number (#729). A brand past its style words stays distinct by its title's ending, an ingredient or a claim that
+`food_title_words.true_words` reads from the style's label lists ("Finest Biscuits with Real Butter", "Prime
+Oat Drink with No Added Sugar"): an ingredient is in every variant's list, a claim's refused words are in none,
+and a word a flavor of the style already says stays out. A family with no label list gains no ending. No coined
 word and no place-like name stands in front. Each family's lead list is split in two, one half
 for the grocery build and one for the scale build, so one range word belongs to one brand (#642).
-Fresh produce stops at the sub-model ("Finest Batch Oranges, Class 1"). The grocery build also
+The grocery build also
 rejects a food style whose title is a near-twin (`grocery.NEAR_DUPLICATE_JACCARD`) of one it holds
-in the same leaf. `tests/test_retail_scale.py` holds the brand-first and one-brand guards.
+in the same leaf. `tests/test_retail_scale.py` holds the brand-first and one-brand guards, and
+`tests/test_food_titles_729.py` the model shape, the endings' truth and the product count.
 
 Food SKUs also carry a top-level `ingredients` list (5 to 20 invented items in label
 order, never in conflict with `contains`, which names the allergens the list holds a source
