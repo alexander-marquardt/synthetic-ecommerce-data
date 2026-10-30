@@ -1,13 +1,14 @@
 """Class-8 decoys of the Electronics department (gen#332): a device word in another product's title.
 
-Six words of the department's shoppers meet products that are not the device. "mouse" meets
+Five words of the department's shoppers meet products that are not the device. "mouse" meets
 two soft furnishings with a field mouse on them. "tablet" meets dishwasher tablets and Scottish
 tablet, the sweet. "monitor" meets a monitor lizard cushion. "mobile" meets a mobile coat stand.
-"charger" meets the charger plate that sits under a dinner plate. "apple" meets its
-juice, a candle and the tree: the brand is a real name the catalog keeps (README: Real names), so
-the word clashes. The fruit itself is no decoy: an apple is an apple, a true hit. Each decoy is a real product of a type the catalog already has, or of a plain kit
+"charger" meets the charger plate that sits under a dinner plate. Each decoy is a real product of a type the catalog already has, or of a plain kit
 shape, drawn as that product; the department policy drops it from an Electronics query. No
 title or description names a color.
+
+:data:`FRUIT_ROWS` are no decoys. ``apple`` is a fruit word since the department stopped naming the
+brand (gen#720), so its juice, candle and tree are ordinary products under the ids they had.
 """
 
 # ruff: noqa: E501 -- data tables and descriptions read better whole than wrapped.
@@ -32,9 +33,6 @@ _ROWS = (
     (708, "cushion", "Monitor Lizard Cushion", "A soft cushion shaped like a monitor lizard with a striped tail.", "Green", "monitor", "monitor", "Monitor"),
     (711, "stand", "Mobile Coat Stand", "A coat stand on wheels, easy to move from the hall to the bedroom.", "Black", "mobile", "mobile", "Smartphone"),
     (714, "el_plate", "Charger Plate, 33 cm", "A wide plate that sits under the dinner plate and sets the table.", "Gold", "charger", "charger", "Charger"),
-    (716, "juice", "Pressed Apple Juice, 1 L", "Cloudy juice from pressed apples, in a carton.", "Yellow", "apple", "apple", "Smartphone"),
-    (717, "candle", "Apple Blossom Candle", "A scented candle in a jar, with the smell of apple blossom in spring.", "Pink", "apple", "apple", "Smartphone"),
-    (718, "house_plant", "Crab Apple Tree, Potted", "A small crab apple tree in a pot, with blossom in spring and fruit in autumn.", "Green", "apple", "apple", "Tablet"),
     (719, "basket", "Field Mouse Storage Basket", "A fabric basket with a field mouse stitched on the front, for toys and blankets.", "Brown", "mouse", "mouse", "Computer Mouse"),
     (720, "throw", "Monitor Lizard Throw", "A woven throw with a pattern of monitor lizards basking on rocks.", "Green", "monitor", "monitor", "Monitor"),
     (721, "basket", "Monitor Lizard Toy Basket", "A canvas basket with a monitor lizard on the front, for a child's soft toys.", "Green", "monitor", "monitor", "Monitor"),
@@ -43,6 +41,16 @@ _ROWS = (
     (724, "el_plate", "Beaded Charger Plate", "A plate with a beaded rim that sits under the dinner plate for a formal table.", "Grey", "charger", "charger", "Charger"),
     (725, "el_plate", "Woven Rattan Charger Plate", "A round plate of woven rattan that sets off the table and takes the heat of a dish.", "Brown", "charger", "charger", "Charger"),
 )  # fmt: skip
+#: Rows of (code, kind, title, description, color).
+FRUIT_ROWS = (
+    ("DY716", "juice", "Pressed Apple Juice, 1 L", "Cloudy juice from pressed apples, in a carton.", "Yellow"),
+    ("DY717", "candle", "Apple Blossom Candle", "A scented candle in a jar, with the smell of apple blossom in spring.", "Pink"),
+    ("DY718", "house_plant", "Crab Apple Tree, Potted", "A small crab apple tree in a pot, with blossom in spring and fruit in autumn.", "Green"),
+)  # fmt: skip
+
+
+def fruit_rows(row):
+    return tuple(row(*fields, decoy=False) for fields in FRUIT_ROWS)
 
 
 def word_rows(d):

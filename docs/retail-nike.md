@@ -1,9 +1,8 @@
-# Nike, the second real-brand exception (gen#341)
+# Nike, the real-brand exception (gen#341)
 
 On the Combined persona `nike air max` found nothing, and with spelling correction on the phrase
 suggester showed "nose air max". Shoppers type well-known sportswear brands, so the maintainer
-ruled (2026-10-15) that Nike is a real brand beside Apple, iPhone and iPad. Every other brand stays
-invented.
+ruled (2026-10-15) that Nike is a real brand. Every other brand stays invented.
 
 ## What a real brand is
 

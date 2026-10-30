@@ -10,10 +10,9 @@ under many brands, or a brand's name inside another brand's title, reads as the 
 review counts four classes and exits 1 when any is not 0:
 
 * ``shared``: a range word that leads the titles of two or more brands (class A).
-* ``foreign``: a title that names a brand other than the row's own (class B). Two namings are no
-  claim of a maker: a compatibility reference ("Clear Case for Halvern Arc 5") and a real brand that
-  is also a plain word (:data:`WORD_BRANDS`, "Apple") on a row outside the departments the brand
-  sells in ("Gala Apple Tree"). A title naming another maker in any other way is still foreign.
+* ``foreign``: a title that names a brand other than the row's own (class B). A compatibility
+  reference ("Clear Case for Halvern Arc 5") is no claim of a maker. A title naming another maker
+  in any other way is still foreign.
 * ``phrase``: a brand made of a product phrase of two or more words, "Card Game Row" (class C).
 * ``unlabeled``: a title led by a range word whose row carries no ``Line`` (or ``Range``)
   attribute naming it (class D). A title led by its own brand's word leads with the maker, not a
@@ -42,10 +41,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 #: The attribute keys that name a range on a row.
 
-#: Real brands that are also a plain product word; their name in another department's title is
-#: that word ("Apple Graphic Mug"), not the maker. An invented brand never belongs here.
-WORD_BRANDS = frozenset({"Apple"})
-
 _WORD = re.compile(r"[a-z0-9&]+")
 
 
@@ -67,12 +62,6 @@ def _singular(word: str) -> str:
         if len(word) > 3 and word.endswith(tail):
             return word[: -len(tail)] + repl
     return word
-
-
-def _root(row: dict[str, Any]) -> str:
-    """The row's top department ("" when the row states no category path)."""
-    path = row.get("category_path") or ()
-    return str(path[0]) if path else ""
 
 
 def _compatibility(title: str, brand: str) -> bool:
@@ -178,18 +167,13 @@ def review(rows: Iterable[dict[str, Any]], ranges: Iterable[str] | None = None) 
     shared = {n: sorted(b) for n, b in sorted(by_range.items()) if len(b) >= 2}
 
     pattern = {b: re.compile(r"(?<![\w&])" + re.escape(b.lower()) + r"(?![\w&])") for b in brands}
-    roots: dict[str, set[str]] = collections.defaultdict(set)
-    for s in styles:
-        roots[s["brand"]].add(_root(s))
     foreign: list[tuple[str, str, str]] = []
     for s in styles:
         title, own = s["title"].lower(), s["brand"]
         for other, rx in pattern.items():
             if other == own or other.lower() in own.lower() or not rx.search(title):
                 continue
-            if _compatibility(title, other) or (
-                other in WORD_BRANDS and _root(s) and _root(s) not in roots[other]
-            ):
+            if _compatibility(title, other):
                 continue
             foreign.append((s["title"], own, other))
 

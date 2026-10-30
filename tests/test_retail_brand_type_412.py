@@ -68,7 +68,7 @@ def test_no_retail_wordmark_renders_under_10px_at_the_studio_tile() -> None:
     assert small == []
 
 
-@pytest.mark.parametrize("brand", ["Apple", "Nike"])
+@pytest.mark.parametrize("brand", ["Nike"])
 def test_a_real_brand_draws_no_logo(brand: str) -> None:
     style = hs.HOUSE_STYLES[brand]
     assert style.mark == hs.NO_MARK

@@ -120,7 +120,7 @@ def test_grape_meets_a_brand_and_a_fruit(templates: list[dict]) -> None:
 
 
 def test_the_fruit_rows_stay_and_are_no_decoys(by_id: dict[str, dict]) -> None:
-    assert [by_id[i]["title"] for i in FRUIT_IDS] == [
+    assert [by_id.get(i, {}).get("title") for i in FRUIT_IDS] == [
         "Pressed Apple Juice, 1 L",
         "Apple Blossom Candle",
         "Crab Apple Tree, Potted",

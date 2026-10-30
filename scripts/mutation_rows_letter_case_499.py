@@ -103,9 +103,9 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "a capital inside a word is lower-cased",
         _SRC,
         _LC,
-        "    return any(ch.isupper() for ch in part[1:])  # ``iPhone``",
+        "    return any(ch.isupper() for ch in part[1:])  # ``GrapePhone``",
         "    return False",
-        f"{_T} -k iPhone",
+        f"{_T} -k GrapePhone",
         "a mixed-case word keeps its capitals",
     ),
     (

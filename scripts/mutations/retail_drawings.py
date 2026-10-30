@@ -676,7 +676,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "Nike leaves the allow-list",
                 "real_brands.py",
-                'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")',
+                'ALLOWED: tuple[str, ...] = ("Nike",)',
                 "ALLOWED: tuple[str, ...] = ()",
                 "tests/test_retail_nike_341.py -k guard_allows_nike",
                 "the guard allows the ruled-in brand",
