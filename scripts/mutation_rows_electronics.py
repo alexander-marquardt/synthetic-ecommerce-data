@@ -21,12 +21,12 @@ def _row(name, file, old, new, test, prop) -> Row:
 def rows() -> list[Row]:
     return [
         _row(
-            "iPad is no longer a ruled-in real name",
+            "the guard stops refusing iPad",
             "real_brands.py",
-            'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")',
-            'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone")',
-            f"{_T}::test_the_only_real_names_are_apple_iphone_and_ipad",
-            "Apple, iPhone and iPad are the real names the maintainer ruled in",
+            '"iPhone", "iPad", "Samsung",',
+            '"iPhone", "Samsung",',
+            "tests/test_retail_grape_computer_720.py -k former_line_name",
+            "iPhone and iPad are refused in every field (gen#720)",
         ),
         _row(
             "Electronics leaves the closed department list",
@@ -42,7 +42,7 @@ def rows() -> list[Row]:
             '_row(f"ECS{i + 1:03d}", f"{n} for {fits}", b,',
             '_row(f"ECS{i + 1:03d}", f"{n}", b,',
             f"{_T}::test_an_accessory_names_the_phone_it_fits_and_has_an_invented_brand",
-            "a case for iPhone 15 names the phone truthfully (the model-word decoy)",
+            "a case for GrapePhone 15 names the phone truthfully (the model-word decoy)",
         ),
         _row(
             "a class 8 row forgets the device type it clashes with",

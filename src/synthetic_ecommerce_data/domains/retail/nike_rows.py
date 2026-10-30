@@ -1,9 +1,9 @@
 """Nike products and the decoys that name Nike (gen#341): data only.
 
-Nike is the second real-brand exception beside Apple, iPhone and iPad (maintainer ruling
-2026-10-15, :mod:`real_brands`): a shopper who types ``nike air max`` finds products. The name is
-text, in the title, the ``brand`` field and the description; no drawing carries a logo, a swoosh,
-a wordmark or a trade dress (``house_styles.HOUSE_STYLES["Nike"]`` has the mark ``none``).
+Nike is the real-brand exception (maintainer ruling 2026-10-15, :mod:`real_brands`): a shopper who
+types ``nike air max`` finds products. The name is text, in the title, the ``brand`` field and the
+description; no drawing carries a logo, a swoosh, a wordmark or a trade dress
+(``house_styles.HOUSE_STYLES["Nike"]`` has the mark ``none``).
 
 - **Trainers and running shoes** in the existing leaves of Mens, Womens and Kids, eight of them
   Air Max (:data:`STYLES`, drawn by the footwear kit), each in at least three of the six main

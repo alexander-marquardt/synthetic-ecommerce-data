@@ -1,6 +1,6 @@
 """Desktop computers (gen#332): towers, all-in-ones and minis; RAM and storage ride on each SKU.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

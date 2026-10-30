@@ -1,7 +1,7 @@
-"""Nike is the second real-brand exception: text only, found by ``nike air max`` (gen#341).
+"""Nike is the real-brand exception: text only, found by ``nike air max`` (gen#341).
 
-The maintainer's ruling (2026-10-15): Nike joins Apple, iPhone and iPad as a real brand. Every other
-brand stays invented. The name is text (title, brand, description); no drawing carries a logo, a
+The maintainer's ruling (2026-10-15): Nike is a real brand. Every other brand stays invented. The
+name is text (title, brand, description); no drawing carries a logo, a
 swoosh, a wordmark or a trade dress.
 """
 

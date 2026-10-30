@@ -12,11 +12,10 @@ FAMILY = "tests/test_retail_scale.py::test_a_family_class_6_rows_reach_every_bra
 LINE = "tests/test_retail_scale.py::test_a_name_led_title_carries_its_line_attribute"
 
 RV = "tests/test_review_range_names_623.py::"
-APPLE = RV + "test_a_word_brand_in_another_departments_title_is_not_foreign_but_a_maker_still_is"
 COMPAT = RV + "test_a_compatibility_reference_is_not_foreign_but_a_second_naming_is"
 OWNLED = RV + "test_a_title_led_by_its_own_brand_word_is_not_a_range_led_title"
 
-TESTS = [RANGES, FAMILY, SHARED, FOREIGN, PHRASE, LINE, HALVES, APPLE, COMPAT, OWNLED]
+TESTS = [RANGES, FAMILY, SHARED, FOREIGN, PHRASE, LINE, HALVES, COMPAT, OWNLED]
 
 RO = "prototypes/retail_drawings/range_ownership.py"
 SC = "prototypes/retail_drawings/scale.py"
@@ -51,9 +50,7 @@ MUTANTS = [
     ("prototypes/retail_drawings/decoy_apparel.py",
      "and (cls != 8 or not _line_held_elsewhere(o[\"line\"], ex[\"brand\"], words))\n", "\n",
      "a class 8 fit-word line is dealt to a second brand", [SHARED]),
-    ("scripts/review_range_names.py", "other in WORD_BRANDS and _root(s)", "False and _root(s)",
-     "the review counts a fruit named Apple as a foreign brand", [APPLE]),
-    ("scripts/review_range_names.py", "if _compatibility(title, other) or (", "if (",
+    ("scripts/review_range_names.py", "if _compatibility(title, other):", "if False:",
      "the review counts a case for another brand's phone as foreign", [COMPAT]),
     ("scripts/review_range_names.py", "name.lower() in _words(s[\"brand\"])", "False",
      "the review counts a brand-led title as unlabeled", [OWNLED]),
