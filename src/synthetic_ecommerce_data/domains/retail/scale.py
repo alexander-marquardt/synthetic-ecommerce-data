@@ -990,7 +990,8 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         brand = pick(brands, *key, "brand")
         deal = ctx.grammar.get(line_grammar.family(tpl) or "")
         slot = number(*key, "name") % RANGE_SLOTS
-        name = deal.owned(brand, slot) if deal else ctx.names.owned(brand, slot)
+        kind = tpl["product_type"]
+        name = deal.owned(brand, slot, kind) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
         target = price_point(min(max(price, lo), hi), lo, hi)

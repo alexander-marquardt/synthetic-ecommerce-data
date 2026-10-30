@@ -48,7 +48,7 @@ def test_every_food_and_drink_kind_is_mapped_to_a_line_grammar_family(ceiling):
 
 def test_a_food_or_drink_title_leads_with_its_brand_in_a_mixture(ceiling):
     """Guard (gen#665): of the food titles that name a range, most lead with the brand, so the
-    range reads as the brand's model ("Hollin Finest Reserve 2 Strawberry Jam"), not as a second
+    range reads as the brand's model ("Hollin Finest Slow Cooked Strawberry Jam"), not as a second
     brand ("Larkrise Jam"), and some do not, as the maintainer ruled on #665: "we can always make
     some of the real products not have their brand in their title .. they don't all need it ..
     we can have a mixture". The decoy rows keep their authored titles. Metric: the share of
@@ -95,7 +95,7 @@ def test_the_documented_food_example_words_are_real_lead_words():
     spec = line_grammar._NUMBERED["pantry"]
     leads = {*spec.leads, *spec.grocery_leads}
     quoted = re.search(r"own-label word \(``(\w+)``, ``(\w+)``\)", doc)
-    title = re.search(r'"Hollin (\w+) Reserve 2 Strawberry Jam', doc)
+    title = re.search(r'"Hollin (\w+) Slow Cooked Strawberry Jam', doc)
     assert quoted and title
     missing = [w for w in (*quoted.groups(), title.group(1)) if w not in leads]
     assert missing == []

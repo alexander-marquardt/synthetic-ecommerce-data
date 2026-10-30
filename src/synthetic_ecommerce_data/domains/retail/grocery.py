@@ -95,8 +95,6 @@ HERE = Path(__file__).resolve().parent
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
-#: The top category of fresh produce, whose titles stay short (fresh against decoy length, gen#445).
-PRODUCE = "Fruit & Vegetables"
 #: The word overlap (Jaccard, over brand and title) at which two same-leaf food listings read as
 #: one; ``scale.NEAR_DUPLICATE_JACCARD`` is this value (gen#665).
 NEAR_DUPLICATE_JACCARD = 0.8
@@ -495,11 +493,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         kind = line_grammar.FAMILIES.get(fam.product_type)
         if fam.food:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
-            # Fresh produce stops at the sub-model, no number: "Finest Reserve Oranges, Class 1";
-            # the tier needs the numbers to reach its budget (gen#376), so it keeps them.
-            reach = len(deal.of(brand)) * (1 + len(deal.spec.subs))
-            short = fam.path[1] == PRODUCE and not tier
-            model = deal.owned(brand, slot % reach if short else slot)
+            model = deal.owned(brand, slot, fam.product_type)
         elif kind in line_grammar.CARE:
             model = care_names(kind).owned(brand, slot)
         else:
