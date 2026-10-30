@@ -1,6 +1,6 @@
 """Cables (gen#332): USB-C, micro and multi-tip cables, a length per SKU.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

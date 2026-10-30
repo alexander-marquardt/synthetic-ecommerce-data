@@ -1353,8 +1353,6 @@ HOUSE_STYLES: dict[str, HouseStyle] = {
     "Jumper Jay":           H("#f7eefa", "lines",    "thin",    "#8a3fa0", "#341a3e", 1.0,  False, "round", "chevron_trio",            "band_bottom", "bottom_center",      "none",     "humanist", 700, "title",     1.0),
     # A real brand (real_brands.ALLOWED, gen#341): text only, so the drawing carries no logo.
     "Nike":                 H("#f6f6f6", "none",     "rounded", "#111111", "#111111", 1.0,  False, "round", "none",              "mark_left",   "bottom_left",   "none",     "sans",     400, "lower",     0.5),
-    # A real brand (real_brands.ALLOWED, gen#332): text only, so the drawing carries no logo.
-    "Apple":                H("#f4f4f6", "none",     "ticks",   "#1c1c1e", "#1c1c1e", 0.9,  False, "sharp", "none",              "mark_right",  "bottom_right",  "none",     "humanist", 700, "caps",      1.3),
     "Coat Crake":           H("#f3efe8", "dots",     "double",  "#7a5a3a", "#30241a", 1.1,  False, "sharp", "toggle",              "mark_only",   "bottom_left",   "stamp",    "mono",     700, "lower",     2.0),
     # The beauty depth brands (type_specs, gen#214): invented, text only.
     "Aldermist":           H("#fbf1f1", "dots", "double", "#b0486a", "#3a1a28", 0.85, False, "sharp", "mist_cloud", "mark_only", "top_left", "outline", "humanist", 700, "caps", 1.0),

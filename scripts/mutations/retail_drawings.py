@@ -676,7 +676,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "Nike leaves the allow-list",
                 "real_brands.py",
-                'ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")',
+                'ALLOWED: tuple[str, ...] = ("Nike",)',
                 "ALLOWED: tuple[str, ...] = ()",
                 "tests/test_retail_nike_341.py -k guard_allows_nike",
                 "the guard allows the ruled-in brand",
@@ -716,8 +716,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "Nike leaves the owner table",
                 "class_model.py",
-                '"Nike",\n                # Real names, text only (gen#332)',
-                '"Coat Crake",\n                # Real names, text only (gen#332)',
+                '"Nike",\n                # An invented maker (gen#720)',
+                '"Coat Crake",\n                # An invented maker (gen#720)',
                 "tests/test_retail_nike_341.py -k third_party_brand",
                 "Nike is another house's make",
             ),

@@ -5,7 +5,7 @@ fridge. A few styles of each brand and type are ordinary rows of the types they 
 
 | Brand | Short form | Sells | House style |
 |---|---|---|---|
-| Grape Computer | | laptops, desktops, the GrapePhone 16 smartphone | `electronics_brand_styles.py`, mark `grape_trio` |
+| Grape Computer | | laptops, desktops, the GrapePhone 16 smartphone | `electronics_brand_styles.py`, mark `vine` (gen#720) |
 | GoodLook | GL | TVs, washing machines, fridges | `appliance_brand_styles.py`, mark `lens_eye` |
 | SingingSam | | TVs, washing machines, fridges, smartphones, a laptop | `appliance_brand_styles.py`, mark `note_pair` |
 | PackingHarder | PH | monitors, desktops, laptops, volt meters | `electronics_brand_styles.py`, mark `crate` |
@@ -13,9 +13,8 @@ fridge. A few styles of each brand and type are ordinary rows of the types they 
 
 - Each mark is the brand's own and imitates no real one. `Xell` was chosen over `Dwell`, a real UK
   furniture retailer and brand.
-- Grape Computer's Apple-derived phones and tablets are #720. The GrapePhone 16 here is a new row,
-  so the brand holds a phone whichever of the two lands first. The other four names were given by
-  the maintainer; they have had no web check.
+- Grape Computer's phones and tablets came from #720. The GrapePhone 16 here is a new row beside
+  them. The other four names were given by the maintainer; they have had no web check.
 - GoodLook and SingingSam take schemes and series in `appliance_model_numbers.py`. They are left out
   of `large_appliance_rows.BRANDS`, which deals the six older brands round the authored range: adding
   them there would rebrand every existing model. `kind_rows(..., brands=)` makes their own rows

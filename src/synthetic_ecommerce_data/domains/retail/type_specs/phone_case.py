@@ -1,6 +1,6 @@
 """Phone cases (gen#332). Each names the phone it fits: the model-word decoy.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``. Only Apple is a real brand name.
+Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations

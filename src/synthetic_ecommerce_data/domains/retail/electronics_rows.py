@@ -3,11 +3,11 @@
 Data only. The sixteen spec files of ``type_specs/`` (``smartphone.py`` ... ``tv.py``) each take
 one list from here, so a spec stays a few lines and the department reads in one place.
 
-Real names: Apple, iPhone and iPad only, as text (``real_brands.ALLOWED``; no logo, no trade
-dress, the drawings carry none). Every other brand is invented (``electronics_brand_styles``). An
-accessory keeps an invented brand and names the phone it fits ("Clear Case for iPhone 15"): that
-is true and it is the model-word decoy, a query for the phone also finds its cases. A phone's
-operating system is named ``Apple OS`` or ``Open Mobile OS``: no real system name appears.
+Every brand is invented (``electronics_brand_styles``): ``Grape Computer`` sells the GrapePhone and
+GrapePad lines (gen#720). An accessory keeps its own brand and names the phone it fits ("Clear Case
+for GrapePhone 15"): that is true and it is the model-word decoy, a query for the phone also finds
+its cases. A phone's operating system is named ``Grape OS``, ``Pellimar OS`` or ``Open Mobile OS``:
+no real system name appears.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -23,7 +23,6 @@ from synthetic_ecommerce_data.domains.retail.furniture_rows import FurnitureRow
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 DEPARTMENT = "Electronics"
-APPLE = "Apple"
 HALVERN, TORVANE, NIMBREL, QUORRIN = "Halvern", "Torvane", "Nimbrel", "Quorrin"
 DASKEL, MERVANE, PELLIMAR = "Daskel", "Mervane", "Pellimar"
 CINDREL, BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK = (
@@ -32,11 +31,11 @@ CINDREL, BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK = (
 GRAPE, XELL, PACKINGHARDER, GOODLOOK, SINGINGSAM = (
     "Grape Computer", "Xell", "PackingHarder", "GoodLook", "SingingSam")  # fmt: skip
 
-#: Every brand of the department. Apple is a real name used as text; the rest are invented.
+#: Every brand of the department, all of them invented.
 ELECTRONICS_OWNERS = tuple(
     (b, "third_party")
-    for b in (APPLE, HALVERN, TORVANE, NIMBREL, QUORRIN, DASKEL, MERVANE, PELLIMAR, CINDREL,
-              BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK, GRAPE, XELL, PACKINGHARDER,
+    for b in (GRAPE, HALVERN, TORVANE, NIMBREL, QUORRIN, DASKEL, MERVANE, PELLIMAR, CINDREL,
+              BOLTWICK, WEXMOOR, DUNVALE, ARDMOOR, MARRICK, XELL, PACKINGHARDER,
               GOODLOOK, SINGINGSAM)
 )  # fmt: skip
 
@@ -57,7 +56,7 @@ ORANGE = cw("Orange", "#e07a1f")
 CLEAR = cw("Clear", "#e8f1f7")
 CHARCOAL = cw("Charcoal", "#44464d")
 
-_OS = {APPLE: "Apple OS", PELLIMAR: "Pellimar OS", GRAPE: "Grape OS"}
+_OS = {GRAPE: "Grape OS", PELLIMAR: "Pellimar OS"}
 _P = (DEPARTMENT, "Phones")
 _C = (DEPARTMENT, "Computers")
 _T = (DEPARTMENT, "Tablets")
@@ -89,12 +88,12 @@ _FORM_TEXT = {
     "foldable": "folding", "compact": "compact",
 }  # fmt: skip
 _PHONES = (
-    (APPLE, "iPhone 15", "flagship", "6.1", "5G", 799, (BLACK, PINK, BLUE, GOLD), "a bright display and a camera that handles low light well"),
-    (APPLE, "iPhone 15 Plus", "flagship", "6.7", "5G", 899, (BLACK, PINK, BLUE, GREEN), "the larger screen of the family and a battery that lasts two days"),
-    (APPLE, "iPhone 15 Pro", "flagship", "6.1", "5G", 999, (SILVER, BLACK, GREY, BLUE), "a brushed metal frame, a fast chip and a three-lens camera"),
-    (APPLE, "iPhone 14", "midrange", "6.1", "5G", 649, (BLACK, WHITE, BLUE, RED), "a dependable camera and a screen that stays readable in sun"),
-    (APPLE, "iPhone 13", "midrange", "6.1", "5G", 549, (BLACK, PINK, BLUE, GREEN), "a long battery life and a camera that copes with fast action"),
-    (APPLE, "iPhone SE", "compact", "4.7", "5G", 429, (BLACK, WHITE, RED), "a small body and a home button, for one-handed use"),
+    (GRAPE, "GrapePhone 15", "flagship", "6.1", "5G", 799, (BLACK, PINK, BLUE, GOLD), "a bright display and a camera that handles low light well"),
+    (GRAPE, "GrapePhone 15 Plus", "flagship", "6.7", "5G", 899, (BLACK, PINK, BLUE, GREEN), "the larger screen of the family and a battery that lasts two days"),
+    (GRAPE, "GrapePhone 15 Pro", "flagship", "6.1", "5G", 999, (SILVER, BLACK, GREY, BLUE), "a brushed metal frame, a fast chip and a three-lens camera"),
+    (GRAPE, "GrapePhone 14", "midrange", "6.1", "5G", 649, (BLACK, WHITE, BLUE, RED), "a dependable camera and a screen that stays readable in sun"),
+    (GRAPE, "GrapePhone 13", "midrange", "6.1", "5G", 549, (BLACK, PINK, BLUE, GREEN), "a long battery life and a camera that copes with fast action"),
+    (GRAPE, "GrapePhone SE", "compact", "4.7", "5G", 429, (BLACK, WHITE, RED), "a small body and a home button, for one-handed use"),
     (HALVERN, "Halvern Arc 5", "flagship", "6.4", "5G", 749, (BLACK, SILVER, TEAL, PURPLE), "a curved display and a fast charge that fills the battery in thirty minutes"),
     (HALVERN, "Halvern Arc 5 Pro", "flagship", "6.8", "5G", 949, (BLACK, SILVER, GOLD), "a large display, a periscope zoom lens and a glass back"),
     (HALVERN, "Halvern Arc Fold", "foldable", "7.6", "5G", 1349, (BLACK, SILVER, NAVY), "a tablet-size screen that folds flat to fit a pocket"),
@@ -228,10 +227,10 @@ DESKTOPS = tuple(_desktop(i, *r) for i, r in enumerate(_DESKTOPS))
 
 # --- Tablets and e-readers -----------------------------------------------------------------
 _TABLETS = (
-    (APPLE, "iPad", "standard", "10.9", 349, (SILVER, BLUE, PINK, YELLOW), "a bright screen, a front camera on the long edge and a day of battery"),
-    (APPLE, "iPad Air", "standard", "10.9", 599, (GREY, BLUE, PURPLE, GOLD), "a thin body, a fast chip and support for a pencil"),
-    (APPLE, "iPad Pro", "pro", "12.9", 1099, (SILVER, BLACK), "a large screen with a high refresh rate and a keyboard connector"),
-    (APPLE, "iPad mini", "standard", "8.3", 499, (GREY, PURPLE, PINK, GOLD), "a small screen that fits in one hand"),
+    (GRAPE, "GrapePad", "standard", "10.9", 349, (SILVER, BLUE, PINK, YELLOW), "a bright screen, a front camera on the long edge and a day of battery"),
+    (GRAPE, "GrapePad Air", "standard", "10.9", 599, (GREY, BLUE, PURPLE, GOLD), "a thin body, a fast chip and support for a pencil"),
+    (GRAPE, "GrapePad Pro", "pro", "12.9", 1099, (SILVER, BLACK), "a large screen with a high refresh rate and a keyboard connector"),
+    (GRAPE, "GrapePad mini", "standard", "8.3", 499, (GREY, PURPLE, PINK, GOLD), "a small screen that fits in one hand"),
     (HALVERN, "Halvern Tab 10", "standard", "10.1", 229, (GREY, BLUE, SILVER), "a sharp screen, four speakers and two days of battery"),
     (TORVANE, "Torvane Slate Pro", "pro", "11", 549, (GREY, BLACK, NAVY), "a stylus that clips to the side and a keyboard cover"),
     (NIMBREL, "Nimbrel Glide 11", "standard", "11", 329, (SILVER, GREEN, PINK), "a thin body, a fast screen and a kickstand cover"),
@@ -274,14 +273,14 @@ E_READERS = tuple(
 
 # --- Accessories ---------------------------------------------------------------------------
 _CASES = (
-    (CINDREL, "Clear Case", "clear", "iPhone 15", 14, (CLEAR, BLACK, PINK)),
-    (BOLTWICK, "Rugged Case", "rugged", "iPhone 15", 24, (BLACK, ORANGE, GREEN)),
-    (CINDREL, "Wallet Case", "wallet", "iPhone 15 Pro", 22, (BLACK, NAVY, RED)),
-    (CINDREL, "Clear Case", "clear", "iPhone 15 Pro", 15, (CLEAR, BLACK, BLUE)),
-    (WEXMOOR, "Wallet Case", "wallet", "iPhone 15 Plus", 23, (BLACK, GREEN, PINK)),
-    (CINDREL, "Clear Case", "clear", "iPhone 14", 13, (CLEAR, BLACK, YELLOW)),
-    (BOLTWICK, "Rugged Case", "rugged", "iPhone 13", 22, (BLACK, BLUE, RED)),
-    (WEXMOOR, "Slim Case", "clear", "iPhone SE", 12, (CLEAR, WHITE, RED)),
+    (CINDREL, "Clear Case", "clear", "GrapePhone 15", 14, (CLEAR, BLACK, PINK)),
+    (BOLTWICK, "Rugged Case", "rugged", "GrapePhone 15", 24, (BLACK, ORANGE, GREEN)),
+    (CINDREL, "Wallet Case", "wallet", "GrapePhone 15 Pro", 22, (BLACK, NAVY, RED)),
+    (CINDREL, "Clear Case", "clear", "GrapePhone 15 Pro", 15, (CLEAR, BLACK, BLUE)),
+    (WEXMOOR, "Wallet Case", "wallet", "GrapePhone 15 Plus", 23, (BLACK, GREEN, PINK)),
+    (CINDREL, "Clear Case", "clear", "GrapePhone 14", 13, (CLEAR, BLACK, YELLOW)),
+    (BOLTWICK, "Rugged Case", "rugged", "GrapePhone 13", 22, (BLACK, BLUE, RED)),
+    (WEXMOOR, "Slim Case", "clear", "GrapePhone SE", 12, (CLEAR, WHITE, RED)),
     (CINDREL, "Clear Case", "clear", "Halvern Arc 5", 14, (CLEAR, BLACK)),
     (BOLTWICK, "Rugged Case", "rugged", "Halvern Arc 5 Pro", 25, (BLACK, ORANGE, GREEN)),
     (WEXMOOR, "Wallet Case", "wallet", "Torvane T9", 21, (BLACK, NAVY, TEAL)),
@@ -304,15 +303,15 @@ PHONE_CASES = tuple(
 )  # fmt: skip
 
 _PROTECTORS = (
-    (CINDREL, "Tempered Glass Screen Protector", "clear", "iPhone 15", 9),
-    (CINDREL, "Matte Screen Protector", "matte", "iPhone 15 Pro", 9),
-    (WEXMOOR, "Privacy Screen Protector", "privacy", "iPhone 14", 12),
-    (CINDREL, "Tempered Glass Screen Protector", "clear", "iPhone 13", 8),
+    (CINDREL, "Tempered Glass Screen Protector", "clear", "GrapePhone 15", 9),
+    (CINDREL, "Matte Screen Protector", "matte", "GrapePhone 15 Pro", 9),
+    (WEXMOOR, "Privacy Screen Protector", "privacy", "GrapePhone 14", 12),
+    (CINDREL, "Tempered Glass Screen Protector", "clear", "GrapePhone 13", 8),
     (CINDREL, "Tempered Glass Screen Protector", "clear", "Halvern Arc 5", 9),
     (WEXMOOR, "Matte Screen Protector", "matte", "Torvane T9", 9),
     (WEXMOOR, "Privacy Screen Protector", "privacy", "Nimbrel Sky 12", 13),
-    (CINDREL, "Tempered Glass Screen Protector", "clear", "iPad Air", 14),
-    (WEXMOOR, "Matte Screen Protector", "matte", "iPad", 12),
+    (CINDREL, "Tempered Glass Screen Protector", "clear", "GrapePad Air", 14),
+    (WEXMOOR, "Matte Screen Protector", "matte", "GrapePad", 12),
     (BOLTWICK, "Impact Screen Protector", "clear", "Boltwick Ridge R1", 10),
 )  # fmt: skip
 _PROT_TEXT = {
@@ -330,17 +329,17 @@ SCREEN_PROTECTORS = tuple(
 )  # fmt: skip
 
 _CHARGERS = (
-    (BOLTWICK, "20W USB-C Wall Charger", "wall", "iPhone 15", 15, "20", (WHITE, BLACK)),
-    (BOLTWICK, "30W Dual Port Wall Charger", "wall", "iPad Air", 24, "30", (WHITE, BLACK)),
+    (BOLTWICK, "20W USB-C Wall Charger", "wall", "GrapePhone 15", 15, "20", (WHITE, BLACK)),
+    (BOLTWICK, "30W Dual Port Wall Charger", "wall", "GrapePad Air", 24, "30", (WHITE, BLACK)),
     (WEXMOOR, "65W USB-C Wall Charger", "wall", "Halvern Arc 5", 34, "65", (BLACK, WHITE, GREY)),
-    (WEXMOOR, "Fast Wireless Charger", "wireless", "iPhone 15", 22, "15", (WHITE, BLACK, PINK)),
-    (WEXMOOR, "Wireless Charging Stand", "wireless", "iPhone 15 Pro", 29, "15", (BLACK, WHITE, NAVY)),
+    (WEXMOOR, "Fast Wireless Charger", "wireless", "GrapePhone 15", 22, "15", (WHITE, BLACK, PINK)),
+    (WEXMOOR, "Wireless Charging Stand", "wireless", "GrapePhone 15 Pro", 29, "15", (BLACK, WHITE, NAVY)),
     (BOLTWICK, "Wireless Charging Pad", "wireless", "Torvane T9", 19, "10", (BLACK, GREY, GREEN)),
-    (BOLTWICK, "10000 mAh Power Bank", "power_bank", "iPhone 15", 27, "22", (BLACK, BLUE, RED, WHITE)),
-    (BOLTWICK, "20000 mAh Power Bank", "power_bank", "iPhone 14", 39, "30", (BLACK, ORANGE, GREEN)),
+    (BOLTWICK, "10000 mAh Power Bank", "power_bank", "GrapePhone 15", 27, "22", (BLACK, BLUE, RED, WHITE)),
+    (BOLTWICK, "20000 mAh Power Bank", "power_bank", "GrapePhone 14", 39, "30", (BLACK, ORANGE, GREEN)),
     (WEXMOOR, "5000 mAh Slim Power Bank", "power_bank", "Nimbrel Sky 12", 19, "15", (WHITE, PINK, BLUE)),
     (BOLTWICK, "Rugged 26800 mAh Power Bank", "power_bank", "Boltwick Ridge R1", 49, "45", (BLACK, YELLOW, ORANGE)),
-    (BOLTWICK, "Dual Port Car Charger", "car", "iPhone 15", 14, "30", (BLACK, SILVER)),
+    (BOLTWICK, "Dual Port Car Charger", "car", "GrapePhone 15", 14, "30", (BLACK, SILVER)),
     (WEXMOOR, "Fast Car Charger", "car", "Halvern Arc 5", 16, "36", (BLACK, GREY, RED)),
 )  # fmt: skip
 CHARGERS = tuple(
@@ -522,21 +521,21 @@ DECOY_ROWS = {
     ),
     "phone_case": (
         (5, "red phone case", "color facet: a color named in the text is not the case color",
-         _row("DCECS1", "Trim Edge Case for iPhone 14", CINDREL, (*_A, "Phone Cases"), "Phone Case", 13.0,
-              "phone_case", "A black case for the iPhone 14 with a thin red trim around the camera ring.",
-              (BLACK,), (_a("compatible_with", "Compatible with", "iPhone 14"), _a("case_style", "Case style", "Clear")),
+         _row("DCECS1", "Trim Edge Case for GrapePhone 14", CINDREL, (*_A, "Phone Cases"), "Phone Case", 13.0,
+              "phone_case", "A black case for the GrapePhone 14 with a thin red trim around the camera ring.",
+              (BLACK,), (_a("compatible_with", "Compatible with", "GrapePhone 14"), _a("case_style", "Case style", "Clear")),
               params=(("style", "clear"),))),
-        (4, "iphone 15", "category facet: a bare model-line query returns the Smartphones first, then the cases",
-         _row("DCECS2", "Pocket Wallet Case for iPhone 15", WEXMOOR, (*_A, "Phone Cases"), "Phone Case", 18.0,
-              "phone_case", "A slim folding case for the iPhone 15 with a card slot, not a phone.",
-              (BLACK, NAVY), (_a("compatible_with", "Compatible with", "iPhone 15"), _a("case_style", "Case style", "Wallet")),
+        (4, "grapephone 15", "category facet: a bare model-line query returns the Smartphones first, then the cases",
+         _row("DCECS2", "Pocket Wallet Case for GrapePhone 15", WEXMOOR, (*_A, "Phone Cases"), "Phone Case", 18.0,
+              "phone_case", "A slim folding case for the GrapePhone 15 with a card slot, not a phone.",
+              (BLACK, NAVY), (_a("compatible_with", "Compatible with", "GrapePhone 15"), _a("case_style", "Case style", "Wallet")),
               params=(("style", "wallet"),))),
     ),
     "charger": (
-        (7, "apple charger", "brand facet: a brand named in the text is not the charger's brand",
+        (7, "grape charger", "brand facet: a brand named in the text is not the charger's brand",
          _row("DCECH1", "Compatible USB-C Wall Charger", BOLTWICK, (*_A, "Chargers"), "Charger", 12.0,
-              "charger", "A 20 watt wall charger that works with the Apple iPhone and iPad, sold by Boltwick, not by Apple.",
-              (WHITE,), (_a("compatible_with", "Compatible with", "iPhone 15"), _a("charger_type", "Charger type", "Wall"),
+              "charger", "A 20 watt wall charger that works with the GrapePhone and GrapePad, sold by Boltwick, not by Grape Computer.",
+              (WHITE,), (_a("compatible_with", "Compatible with", "GrapePhone 15"), _a("charger_type", "Charger type", "Wall"),
                          _a("power_output", "Power output (W)", "20")), params=(("kind", "wall"),))),
     ),
 }  # fmt: skip

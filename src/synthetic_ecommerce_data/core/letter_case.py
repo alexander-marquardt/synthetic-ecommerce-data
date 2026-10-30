@@ -15,7 +15,7 @@ The rule, per string (a category node, or an attribute name):
 * the first letter is a capital, every later word is lower case;
 * a word keeps its capitals when it is an acronym (two or more letters, all capitals:
   ``ANSI``, ``ER``, ``(EU)``), carries a digit (``AS568``), has a capital after its first
-  letter (``iPhone``), is one capital letter standing alone or before a hyphen (the letter
+  letter (``GrapePhone``), is one capital letter standing alone or before a hyphen (the letter
   names a shape: ``T-slot nuts``, ``C-clamps``, ``V-belts``), or is on
   :data:`PROPER_NOUNS`;
 * hyphen compounds are cased per part (``O-ring seals``, ``Cut-resistant gloves``).
@@ -39,7 +39,6 @@ from typing import Any
 PROPER_NOUNS: dict[str, str] = {
     "torx": "Torx",  # a trade name: "Hex & Torx keys"
     "nike": "Nike",  # a real brand the retail catalogue carries (gen#332)
-    "apple": "Apple",  # a real brand the retail catalogue carries (gen#332)
 }
 
 #: The file a build writes beside ``nested.jsonl``: ``{product_type: authored_names(...)}``.
@@ -55,7 +54,7 @@ def _keeps_capitals(part: str) -> bool:
         return True
     if part.isupper():  # ``ANSI``, ``ER``, and one capital letter (``T`` of ``T-slot``)
         return True
-    return any(ch.isupper() for ch in part[1:])  # ``iPhone``
+    return any(ch.isupper() for ch in part[1:])  # ``GrapePhone``
 
 
 def sentence_case(name: str) -> str:

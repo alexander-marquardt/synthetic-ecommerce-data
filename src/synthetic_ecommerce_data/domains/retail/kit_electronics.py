@@ -2,7 +2,7 @@
 accessories and the products that share a word with them, each a plain device outline.
 
 A real brand is text only (``real_brands``): no drawing prints a name, a logo or a trade dress, so
-an Apple iPhone and an invented phone are drawn alike, by their form.
+a phone of any brand is drawn by its form.
 
 ==================  =========================================  ==============================
 shape               draws                                      params

@@ -152,13 +152,13 @@ TYPES: dict[str, tuple[str, tuple[str, ...], int, str]] = {
     "barefoot": ("Barefoot Shoes", ("Shoes", "Barefoot Shoes"), 0, "barefoot"),
 }
 
-#: The kinds a men's retailer files under ``Formal Shoes`` (gen#606): "dress shoes" and "smart
-#: shoes" mean these, and no node grouped them. A kind is placed under the node by its gender
-#: (:func:`nodes_of`), not in :data:`TYPES`, so Womens keeps its own tree until the maintainer
-#: names the women's types that group.
+#: The kinds a retailer files under ``Formal Shoes`` (gen#606): "dress shoes" and "smart shoes"
+#: mean these, and no node grouped them. A kind is placed under the node by its gender
+#: (:func:`nodes_of`), not in :data:`TYPES`. The court shoes join the women's node as a second
+#: path of their own (:mod:`multi_path`) and stay under ``Heels``.
 FORMAL_NODE = "Formal Shoes"
 FORMAL_KINDS = frozenset({"brogue", "loafer"})
-FORMAL_GENDERS = frozenset({"men"})
+FORMAL_GENDERS = frozenset({"men", "women"})
 
 
 def nodes_of(kind: str, gender: str) -> tuple[str, ...]:
