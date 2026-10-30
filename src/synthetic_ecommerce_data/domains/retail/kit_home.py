@@ -215,10 +215,10 @@ def duvet(paint: str, fill: Fill, label: str | None) -> list[str]:
 # --------------------------------------------------------------------------
 
 
-def bath_towel(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """A stack of three folded towels, each with a woven border band."""
+def bath_towel(paint: str, fill: Fill, label: str | None, folded: str = "3") -> list[str]:
+    """A stack of folded towels, three unless told otherwise, each with a woven border band."""
     out = ['<ellipse cx="200" cy="344" rx="150" ry="9" fill="#000000" fill-opacity=".08"/>']
-    for k, y in enumerate((280, 220, 160)):
+    for k, y in enumerate((280, 220, 160)[: int(folded)]):
         x0 = 78 + 6 * (k % 2)
         d = f"M{x0 + 26},{y} L{x0 + 246},{y} L{x0 + 246},{y + 58} L{x0 + 26},{y + 58} Q{x0},{y + 58} {x0},{y + 29} Q{x0},{y} {x0 + 26},{y} Z"
         band = f"M{x0 + 196},{y} L{x0 + 214},{y} L{x0 + 214},{y + 58} L{x0 + 196},{y + 58} Z"

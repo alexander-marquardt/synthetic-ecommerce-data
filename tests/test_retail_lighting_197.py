@@ -22,6 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
     image_release,
     kit,
     lighting_rows,
+    pack_copies,
     pack_scale,
     scale,
     size_ladder,
@@ -126,12 +127,13 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
     """The rule: a SKU whose product's drawing params it carries none of, in any template
     (whether or not that template's drawing declares params), has a spec with no ``params``
     and the image id it had before SKU params existed. A template that declares params
-    (a heater's ``fin_count``) is held to it on its param-less SKUs."""
+    (a heater's ``fin_count``) is held to it on its param-less SKUs. A pack draws its items and has
+    an image id of its own (gen#728)."""
     checked = 0
     for t in scale.templates():
         declared = t["drawing"].get("params") or {}
         for s in t["skus"]:
-            if any(k in s for k in declared):
+            if any(k in s for k in declared) or pack_copies.count(t, s) > 1:
                 continue
             checked += 1
             assert "params" not in export.drawing_spec(t, s), s["sku"]

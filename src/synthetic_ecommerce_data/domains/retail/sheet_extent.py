@@ -1,15 +1,16 @@
 """How far a drawing reaches on its sheet: the bounding box of the SVG a shape draws (gen#242).
 
 :func:`reach` reads the ``<path>``, ``<rect>``, ``<circle>`` and ``<ellipse>`` of one SVG, through
-every ``translate``, ``rotate`` and ``scale`` of the groups around them, and returns the box
-they cover.
+every ``translate``, ``rotate`` and ``scale`` of the groups around them, and every ``<use>`` of
+a definition (a pack's copies, gen#728), and returns the box they cover.
 A curve is measured at its true extremes, not at its control points, so a curve that bows
 inside the sheet is not flagged for a control point outside it. Stroke width is not counted:
 the guard is about the geometry a drawing places, as the issue words it. ``<text>`` is not
 measured either: a label is skipped, not read.
 
 Anything else outside this vocabulary (another element that paints, a path command, a transform,
-a nested ``<svg>``, a ``style`` transform, a ``<clipPath>`` transform or ``clipPathUnits``)
+a nested ``<svg>``, a ``style`` transform, a ``<clipPath>`` transform or ``clipPathUnits``, a
+``<use>`` that names nothing or carries its own ``x``, ``y``, ``width`` or ``height``)
 raises ``ValueError`` instead of being skipped, so a drawing that starts to use one is not
 measured as a smaller box than it has.
 """
@@ -209,7 +210,17 @@ def _num(el: ET.Element, name: str, default: float = 0.0) -> float:
     return float(el.get(name, default))
 
 
-def _boxes(el: ET.Element, m: Matrix, clips: dict[str, ET.Element]) -> Iterator[Box]:
+def _use_target(el: ET.Element, named: dict[str, ET.Element]) -> ET.Element:
+    """The element a ``<use>`` draws."""
+    if any(el.get(k) is not None for k in ("x", "y", "width", "height")):
+        raise ValueError("a <use> with its own x, y, width or height is not read by sheet_extent")
+    ref = (el.get("href") or "").removeprefix("#")
+    if ref not in named:
+        raise ValueError(f"a <use> of {ref!r}, which names nothing, is not read by sheet_extent")
+    return named[ref]
+
+
+def _boxes(el: ET.Element, m: Matrix, named: dict[str, ET.Element]) -> Iterator[Box]:
     tag = el.tag.removeprefix(NS)
     if "transform" in el.get("style", ""):
         raise ValueError(f"<{tag}> style transform is not read by sheet_extent")
@@ -220,36 +231,38 @@ def _boxes(el: ET.Element, m: Matrix, clips: dict[str, ET.Element]) -> Iterator[
         pts = [_apply(here, p) for p in _path_points(el.get("d", ""))]
         if pts:
             xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-            yield _clipped((min(xs), min(ys), max(xs), max(ys)), el, here, clips)
+            yield _clipped((min(xs), min(ys), max(xs), max(ys)), el, here, named)
     elif tag == "rect":
         x, y, w, h = (_num(el, k) for k in ("x", "y", "width", "height"))
         pts = [_apply(here, p) for p in ((x, y), (x + w, y), (x, y + h), (x + w, y + h))]
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-        yield _clipped((min(xs), min(ys), max(xs), max(ys)), el, here, clips)
+        yield _clipped((min(xs), min(ys), max(xs), max(ys)), el, here, named)
     elif tag == "circle":
         r = _num(el, "r")
         box = _ellipse_box(_num(el, "cx"), _num(el, "cy"), r, r, here)
-        yield _clipped(box, el, here, clips)
+        yield _clipped(box, el, here, named)
     elif tag == "ellipse":
         box = _ellipse_box(_num(el, "cx"), _num(el, "cy"), _num(el, "rx"), _num(el, "ry"), here)
-        yield _clipped(box, el, here, clips)
+        yield _clipped(box, el, here, named)
+    elif tag == "use":
+        yield from _boxes(_use_target(el, named), here, named)
     elif tag not in _NOT_DRAWN:
         raise ValueError(f"<{tag}> is not read by sheet_extent")
     if tag in ("g", "svg"):
         for child in el:
-            yield from _boxes(child, here, clips)
+            yield from _boxes(child, here, named)
 
 
-def _clipped(box: Box, el: ET.Element, m: Matrix, clips: dict[str, ET.Element]) -> Box:
+def _clipped(box: Box, el: ET.Element, m: Matrix, named: dict[str, ET.Element]) -> Box:
     """``box`` cut to the box of the ``clip-path`` the element names, if it names one: a net
     that is drawn far wider than the bag it is clipped to is only as wide as the bag."""
     ref = el.get("clip-path")
     if ref is None:
         return box
     found = re.fullmatch(r"url\(#([^)]+)\)", ref)
-    if not found or found.group(1) not in clips:
+    if not found or not named.get(found.group(1), ET.Element("")).tag.endswith("clipPath"):
         raise ValueError(f"clip-path {ref!r} names no clipPath in the SVG")
-    cut = [b for child in clips[found.group(1)] for b in _boxes(child, m, clips)]
+    cut = [b for child in named[found.group(1)] for b in _boxes(child, m, named)]
     if not cut:
         return (0.0, 0.0, 0.0, 0.0)
     x0, y0 = min(b[0] for b in cut), min(b[1] for b in cut)
@@ -262,11 +275,11 @@ def reach(svg: str | bytes) -> Box | None:
     root = ET.fromstring(svg)
     if any(el is not root for el in root.iter(f"{NS}svg")):
         raise ValueError("a nested <svg> (its x, y and viewBox) is not read by sheet_extent")
-    clips = {el.get("id", ""): el for el in root.iter(f"{NS}clipPath")}
-    for clip in clips.values():
+    named = {el.get("id", ""): el for el in root.iter()}  # what a clip-path or a <use> names
+    for clip in root.iter(f"{NS}clipPath"):
         if clip.get("transform") or clip.get("clipPathUnits"):
             raise ValueError("a <clipPath> transform or clipPathUnits is not read by sheet_extent")
-    boxes = list(_boxes(root, IDENTITY, clips))
+    boxes = list(_boxes(root, IDENTITY, named))
     if not boxes:
         return None
     return (min(b[0] for b in boxes), min(b[1] for b in boxes),

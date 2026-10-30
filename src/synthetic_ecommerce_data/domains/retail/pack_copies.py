@@ -136,5 +136,165 @@ def copies(rec: dict[str, Any], sku: dict[str, Any]) -> int:
 
 
 def spec(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
-    """Stub of the red commit: a pack adds nothing to its drawing."""
-    return {}
+    """What a pack adds to its SKU's drawing spec (so to its drawing id): nothing for one item."""
+    n = copies(rec, sku)
+    return {"pack_count": n} if n > 1 else {}
+
+
+def pile_count(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
+    """The ``count`` a pack of fruit draws when it is not the one its line's drawing was made for:
+    the drawing holds the line's first pack, so a line that starts at a single would draw its
+    4 pack as that single's pile."""
+    drawing = rec["drawing"]
+    n = count(rec, sku)
+    if drawing["shape"] != "produce_pile" or n == 1:
+        return {}
+    return {} if str((drawing.get("params") or {}).get("count")) == str(n) else {"count": n}
+
+
+def one_item(shape: str, params: dict | None) -> dict | None:
+    """``params``, told to draw one item where the shape draws several by default."""
+    return (params or {}) | ONE_ITEM[shape] if shape in ONE_ITEM else params
+
+
+def rows(n: int, width: float, height: float) -> list[int]:
+    """The copies of each row of a pack of ``n`` items of this size, front row first.
+
+    A wide item takes fewer columns, because its rows stack in less height, but never so few that
+    the pack becomes a tower. A tall one takes no more than a square would, so that a six-pack
+    keeps its two columns. Copies that do not divide evenly go to the rows nearest the front.
+    """
+    fewest = max(2, math.ceil(math.sqrt(n)) - 1)
+    columns = min(round(math.sqrt(n)), max(fewest, round(math.sqrt(n * ROW_RISE * height / width))))
+    depth = math.ceil(n / columns)
+    each, extra = divmod(n, depth)
+    return [each + 1 if row < extra else each for row in range(depth)]
+
+
+def _file(n: int, width: float, height: float) -> list[Place]:
+    """A file of ``n`` copies, front first: each behind the last, smaller, up and to the right."""
+    return [
+        (i * FILE_STEP_X * width, -i * FILE_STEP_Y * height, FILE_SHRINK**i) for i in range(n)
+    ]
+
+
+def _rows(n: int, width: float, height: float) -> list[Place]:
+    """``n`` copies in rows, front row first: each row smaller, and raised over the one before."""
+    counts = rows(n, width, height)
+    deepest = len(counts) - 1
+    shrink = max(ROW_SHRINK, ROW_FLOOR ** (1 / deepest)) if deepest else ROW_SHRINK
+    out: list[Place] = []
+    base = 0.0
+    for depth, across in enumerate(counts):
+        size = shrink**depth
+        pitch = COLUMN_PITCH * width * size
+        out += [(pitch * (c - (across - 1) / 2), base, size) for c in range(across)]
+        base -= ROW_RISE * height * size
+    return out
+
+
+def places(n: int, width: float, height: float) -> list[Place]:
+    """Where each of ``n`` copies of an item of this size stands, front first, unfitted."""
+    return _file(n, width, height) if n <= FILE_MOST else _rows(n, width, height)
+
+
+def fitted(placed: list[Place], width: float, height: float) -> list[Place]:
+    """``placed`` in the sheet's coordinates: scaled down as a whole if it overflows
+    :data:`AREA`, and centered on it."""
+    left = min(x - s * width / 2 for x, _, s in placed)
+    right = max(x + s * width / 2 for x, _, s in placed)
+    top = min(y - s * height for _, y, s in placed)
+    bottom = max(y for _, y, _ in placed)
+    x0, y0, x1, y1 = AREA
+    fit = min(1.0, (x1 - x0) / (right - left), (y1 - y0) / (bottom - top))
+    return [
+        (
+            (x0 + x1) / 2 + fit * (x - (left + right) / 2),
+            (y0 + y1) / 2 + fit * (y - (top + bottom) / 2),
+            fit * s,
+        )
+        for x, y, s in placed
+    ]
+
+
+def _use(item: str, box: sheet_extent.Box, place: Place) -> str:
+    """One copy: the item's bottom center moved onto the place's center and baseline."""
+    x, y, size = place
+    dx = x - size * (box[0] + box[2]) / 2
+    dy = y - size * box[3]
+    return (
+        f'<use class="pack-copy" href="#{item}" '
+        f'transform="translate({dx:.2f} {dy:.2f}) scale({size:.4f})"/>'
+    )
+
+
+def growth(n: int) -> float:
+    """The outer box's share of its largest size: it grows with the logarithm of the count, so
+    40, 80 and 240 tell apart without a large pack leaving the sheet."""
+    span = math.log(n / (MOST_DRAWN + 1)) / math.log(BOX_LARGEST_COUNT / (MOST_DRAWN + 1))
+    return min(1.0, BOX_SMALLEST + (1 - BOX_SMALLEST) * span)
+
+
+def outer_box(n: int, paint: str) -> str:
+    """The outer box of a pack of ``n``, in the product's own paint, with the count large on it."""
+    grown = growth(n)
+    width, height, depth, rise = 250 * grown, 268 * grown, 40 * grown, 30 * grown
+    left, bottom = 200 - (width + depth) / 2, 336.0
+    top, right = bottom - height, left + width
+    panel_x, panel_y = left + width * 0.1, top + height * 0.08
+    panel_w, panel_h = width * 0.8, height * 0.52
+    middle, word_w = left + width / 2, panel_w - 20
+    nw, ne = f"{left:.1f},{top:.1f}", f"{right:.1f},{top:.1f}"
+    sw, se = f"{left:.1f},{bottom:.1f}", f"{right:.1f},{bottom:.1f}"
+    back_nw = f"{left + depth:.1f},{top - rise:.1f}"
+    back_ne = f"{right + depth:.1f},{top - rise:.1f}"
+    back_se = f"{right + depth:.1f},{bottom - rise:.1f}"
+    return "".join(
+        (
+            f'<g class="pack-box" data-count="{n}">',
+            _path(f"M{nw} L{ne} L{se} L{sw} Z", paint),
+            _path(f"M{nw} L{back_nw} L{back_ne} L{ne} Z", paint),
+            _path(f"M{ne} L{back_ne} L{back_se} L{se} Z", paint),
+            _path(
+                f"M{nw} L{back_nw} L{back_ne} L{back_se} L{se} L{ne} Z",
+                "#000000",
+                1,
+                ' fill-opacity=".12"',
+            ),
+            f'<rect x="{panel_x:.1f}" y="{panel_y:.1f}" width="{panel_w:.1f}" '
+            f'height="{panel_h:.1f}" rx="8" fill="#ffffff" stroke="{INK}" '
+            f'stroke-width="{LW_DETAIL}"/>',
+            _word(escape(str(n)), middle, panel_y + panel_h * 0.42, word_w, panel_h * 0.66),
+            _word("pack", middle, panel_y + panel_h * 0.84, word_w, panel_h * 0.17),
+            "</g>",
+        )
+    )
+
+
+def _loose(width: float, height: float) -> list[Place]:
+    """Where the loose items stand before an outer box, front first."""
+    size = min(1.0, LOOSE_BOX / width, LOOSE_BOX / height)
+    x0, _, x1, y1 = AREA
+    middle, across = (x0 + x1) / 2, (x1 - x0) / 2 - size * width / 2
+    return [(middle, y1, size), (middle - across, y1, size), (middle + across, y1, size)]
+
+
+def layout(body: str, parts: list[str], n: int, paint: str, uid: str) -> str:
+    """``body`` (the product's drawing on the sheet) drawn as a pack of ``n``: copies of it, or
+    the outer box and loose items above :data:`MOST_DRAWN`. ``parts`` are the shape's own elements,
+    the box a copy is measured by."""
+    box = sheet_extent.reach(_SHEET.format("".join(parts)))
+    if box is None:
+        return body
+    width, height = box[2] - box[0], box[3] - box[1]
+    item = f"pack-item-{uid}"
+    if n > MOST_DRAWN:
+        front = _loose(width, height)
+        before = outer_box(n, paint)
+    else:
+        front = fitted(places(n, width, height), width, height)
+        before = ""
+    uses = "".join(_use(item, box, place) for place in reversed(front))
+    return (
+        f'<g class="pack" data-count="{n}"><defs><g id="{item}">{body}</g></defs>{before}{uses}</g>'
+    )

@@ -240,21 +240,12 @@ def _sock(paint: str, transform: str) -> str:
     return f'<g class="sock" transform="{transform}">{"".join(parts)}</g>'
 
 
-def socks(paint: str, fill: Fill, label: str | None, pairs: str = "1") -> list[str]:
-    """One pair of socks, or a pack of ``pairs`` socks fanned under a band naming the count."""
-    n = int(pairs)
-    if n < 1:
-        raise ValueError(f"a pack holds at least one pair, not {n}")
-    if n == 1:
-        return [
-            _sock(paint, "translate(132 40) scale(1.2)"),
-            _sock(paint, "translate(86 74) scale(1.2)"),
-        ]
-    out = [
-        _sock(paint, f"translate(150 72) scale(0.92) rotate({a:.1f} 30 280)")
-        for a in _spread(n, -20, 20)
+def socks(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """One pair of socks; a pack of them is :mod:`pack_copies`'."""
+    return [
+        _sock(paint, "translate(132 40) scale(1.2)"),
+        _sock(paint, "translate(86 74) scale(1.2)"),
     ]
-    return [*out, *_panel(112, 82, 176, 46, f"{n} pairs", 28)]
 
 
 def cardigan(paint: str, fill: Fill, label: str | None, neckline: str = "v_neck", sleeve: str = "long") -> list[str]:

@@ -17,6 +17,7 @@ import pytest
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     image_release,
+    pack_copies,
     scale,
 )
 
@@ -69,13 +70,13 @@ def test_apples_sold_four_to_a_pack_are_not_sold_loose(by_id: dict[str, dict]) -
 def test_a_four_pack_of_yogurt_is_drawn_as_four_pots(by_id: dict[str, dict]) -> None:
     rec = by_id["PLT-DXI08"]
     assert _attr(rec, "units_per_pack") == ["4"]
-    assert _svg(rec).count('class="pot"') == 4
+    assert image_release.render(rec, rec["skus"][0]).decode().count('class="pack-copy"') == 4
 
 
 def test_a_single_tub_is_still_one_pot(by_id: dict[str, dict]) -> None:
     single = next(
         r for r in by_id.values()
-        if r["drawing"]["shape"] == "tub" and not (r["drawing"].get("params") or {}).get("count")
+        if r["drawing"]["shape"] == "tub" and pack_copies.count(r, r["skus"][0]) == 1
     )
     assert _svg(single).count('class="pot"') == 1
 

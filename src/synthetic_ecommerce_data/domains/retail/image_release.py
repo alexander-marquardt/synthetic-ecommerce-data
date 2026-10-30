@@ -17,8 +17,9 @@ release side by side.
 - ONE FILE PER SKU, never one shared by two. A SKU's ``image_id``
   (:func:`export.image_id`) is ``<type>/<product>/<sku>``, as industrial's is.
   What the file draws is its product's drawing in the SKU's color swatch, pack
-  factor (:mod:`pack_scale`, gen#543) and size rung (``size_ladder.py``): SKUs
-  of one colorway, factor and rung draw the same picture (one
+  factor (:mod:`pack_scale`, gen#543), pack count (:mod:`pack_copies`, gen#728)
+  and size rung (``size_ladder.py``): SKUs of one colorway, factor, count and
+  rung draw the same picture (one
   :func:`export.drawing_id`), drawn once and written to each SKU's own file, so
   one SKU's parameters can change later without touching another's.
 - LAYOUT. Every member is ``retail/<image_id>.svg`` (``retail`` is
@@ -85,6 +86,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
         drawing["size_scale"] = spec["size_scale"]
     if "pack_scale" in spec:  # a smaller size of the line draws a smaller pack (gen#543)
         drawing["pack_scale"] = spec["pack_scale"]
+    if "pack_count" in spec:  # a pack of N draws N items (gen#728)
+        drawing["pack_count"] = spec["pack_count"]
     swatch = spec["swatch"]
     if swatch is None:
         return drawing

@@ -148,7 +148,7 @@ KINDS = {
                    colorless=True,
                    units_per_pack=4),
     "yoghurt": Kind("Food & Drink", ("Food & Drink", "Dairy & Alternatives", "Yogurt"), "Yogurt",
-                    "tub", "Pantry Mill", 2.0, params=(("count", "4"),), colorless=True,
+                    "tub", "Pantry Mill", 2.0, colorless=True,
                     units_per_pack=4),
     "cereal_bar": Kind("Food & Drink", ("Food & Drink", "Biscuits & Snacks", "Snack Bars"),
                        "Snack Bar", "box", "Copper Hill Preserves", 2.6, colorless=True),

@@ -122,7 +122,12 @@ def test_the_factor_is_the_cube_root_against_the_largest_size(
 
 
 def _line(*skus: dict, department: str = "Beauty") -> dict:
-    return {"category_path": [department, "Any"], "skus": list(skus)}
+    return {
+        "category_path": [department, "Any"],
+        "title": "Any",
+        "drawing": {"shape": "box"},
+        "skus": list(skus),
+    }
 
 
 def test_a_tiny_size_stops_at_the_floor() -> None:
