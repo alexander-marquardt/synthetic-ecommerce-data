@@ -116,11 +116,12 @@ registry list: a `FootwearRow(Row)` holds a `FootwearStyle`, takes its fields fr
 `skus()` and `doc()` with the style's own, as `LRow` does for a third SKU axis, so the style data,
 the size charts and the `scale` derivation stay where they were. The shoe-care products (Shoe Care
 Kit, Shoe Laces, Shoe Polish) are not shoes and stay on the list. The growth round 4 and Nike
-shoes are built by their own modules. The men's brogues and loafers sit
-under `Mens > Shoes > Formal shoes` (gen#606), so a spelling of "dress shoes" or "smart shoes"
-has one node to point at; product ids, titles and drawings do not move. The node is chosen by
-gender in `footwear_rows.nodes_of`, so the Womens brogues and loafers stay directly under
-`Womens > Shoes` until the women's types it groups are named. The boots row above is checked over the round 4 corpus plus
+shoes are built by their own modules. The brogues and loafers sit
+under `Mens > Shoes > Formal shoes` and `Womens > Shoes > Formal shoes` (gen#606), so a spelling of
+"dress shoes" or "smart shoes" has one node to point at; product ids, titles and drawings do not
+move. The node is chosen by gender in `footwear_rows.nodes_of`. The women's court shoes are in that
+node as well, as a second path of their own (see "A product at several category paths"): `Heels`
+stays its own group with all its types, and block and kitten heels stay under it alone. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
 proof corpus.
 
@@ -318,7 +319,7 @@ Trending, Online Only). Every doc has a full `category_path` of clean shopper
 terms (at least three levels, no merchandising bucket such as Sale or Petite,
 no leaf that is also a parent, one depth per node name) and its
 `category_leaf`; the index adds `category_path_joined`, every ancestor joined
-with "/", so a policy can route to a node. A product filed at several paths (the mugs) also
+with "/", so a policy can route to a node. A product filed at several paths (the mugs, the court shoes) also
 carries `category_paths`, all its paths with the primary first (see "A product at several
 category paths"). Food and furniture are colorless
 (no color facet, no swatches); beer carries `abv` as an attribute; beds carry
@@ -605,7 +606,7 @@ and a gift, so it is filed at `Home > Kitchen & dining > Drinkware > Mugs` and a
 `"category_paths": [["Home", "Kitchen & dining", "Drinkware", "Mugs"], ["Gifts", "Mugs & drinkware"]]`.
 `category_path`, `category_leaf` and `category_depth` keep describing the primary path; a product
 with one path has no `category_paths`. This is the worked example for any later product filed twice
-(`multi_path.py` names the pair and the decoys it leaves alone). The rules: the standard
+(`multi_path.py` names each pair and the decoys it leaves alone). The rules: the standard
 (`core/standard.py`) takes `category_paths` as a non-empty list of node-name lists with the primary
 first and no path twice, and `real_classes.check_category_paths` holds every path to the tree rules
 (three levels, clean names, no bucket, no leaf that is also a parent, one depth per node name). The
@@ -614,8 +615,14 @@ each once, so both category facets count a mug once and a filter on either path 
 The decoy mugs of `decor_rows.py` (an ornament, a thank-you card) keep their one Home path; other
 drinkware (travel cups, tumblers, cups and saucers, espresso sets) is not yet filed twice.
 `tests/test_retail_mug_paths_602.py` pins it. The retail loader in
-`elastic/prism-retail-and-industrial` builds `category_path_joined` from `category_path` alone, so it
-needs the same union (a follow-up there).
+`elastic/prism-retail-and-industrial` builds `category_path_joined` as the same union (its #772).
+
+The court shoes are the second pair (gen#606): a retailer keeps Heels as its own group and treats
+dress as an occasion across types, so every court shoe, the decoys too, has the primary
+`Womens > Shoes > Heels > Court shoes` and also `Womens > Shoes > Formal shoes > Court shoes`. The
+second path ends in `Court shoes` because a leaf is never a parent; a filter on
+`Womens/Shoes/Formal shoes` finds them through the union. `tests/test_retail_formal_shoes_606.py`
+pins it.
 
 **A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
 `Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa
