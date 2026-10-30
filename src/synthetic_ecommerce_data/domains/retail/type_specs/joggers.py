@@ -16,6 +16,6 @@ SPEC = TypeSpec(
     rows=(),
     homes=(
         Home("lowerbody_rows", False),
-        Home("nike_rows", False),
+        Home("knacks_rows", False),
     ),
 )

@@ -20,7 +20,7 @@ SPEC = TypeSpec(
         Home("decoy_rows", False),
         Home("decoy_product_words", False),
         Home("colorgroup_rows", False),
-        Home("nike_rows", False),
+        Home("knacks_rows", False),
         Home("needs_rows", False),
         Home("cups_plural_rows", False),
     ),

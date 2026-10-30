@@ -142,6 +142,7 @@ from synthetic_ecommerce_data.domains.retail import (
     grocery,
     household_rows,
     kids_depth_rows,
+    knacks_rows,
     knit_sleeves,
     knitwear_rows,
     leaf_shapes,
@@ -154,7 +155,6 @@ from synthetic_ecommerce_data.domains.retail import (
     neckline_rows,
     needs_rows,
     net_volume,
-    nike_rows,
     plus_sizes,
     range_ownership,
     sale_share,
@@ -318,7 +318,7 @@ def left_out() -> frozenset[str]:
     """The ids :func:`derivable` never copies, read from the specs and nothing a person types
     (gen#537): the rows of every spec that is not ``derivable``, every spec decoy, and the rows
     that a spec's ``Home(source, derivable=False)`` names in a shared source (the shirts, the
-    furniture, the garden, the grocery, the Nike rows and the rest of the templates-only
+    furniture, the garden, the grocery, the Knacks rows and the rest of the templates-only
     rows), and the clones of :mod:`decoy_apparel`, which are in no source."""
     out = set(type_registry.left_out_ids()) | decoy_apparel.IDS
     homed = collections.defaultdict(set)
@@ -402,7 +402,7 @@ def templates(baseline: bool = True) -> list[dict]:
         *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
         *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
         *womens_depth_rows.docs(), *kids_depth_rows.docs(),
-        *nike_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
+        *knacks_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
         *needs_rows.docs(),
         *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
         *diy_decoy_rows.docs(),
@@ -421,9 +421,9 @@ def templates(baseline: bool = True) -> list[dict]:
         body = main_colors.author_plain(body)
     tpls = [*body, *grocery.build()]
     type_registry.check_unique_ids(tpls)
-    colorword, nike = source_ids("color_word_brand_rows"), source_ids("nike_rows")
+    colorword, knacks = source_ids("color_word_brand_rows"), source_ids("knacks_rows")
     skip = (mens_depth_rows.decoy_ids() | colorword | garden_rows.decoy_ids()
-            | decor_rows.decoy_ids() | nike | type_registry.decoy_ids() | needs_rows.decoy_ids()
+            | decor_rows.decoy_ids() | knacks | type_registry.decoy_ids() | needs_rows.decoy_ids()
             | knitwear_rows.decoy_ids() | neckline_rows.decoy_ids() | source_ids("diy_decoy_rows"))
     # What a row plants keeps its price (gen#359): the failure classes and the planted distractors.
     planted = {d["product_id"] for k in PLANTED_SECTIONS for d in sections[k]}

@@ -17,6 +17,6 @@ SPEC = TypeSpec(
     homes=(
         Home("household_rows", False),
         Home("decor_rows", False),
-        Home("nike_rows", False),
+        Home("knacks_rows", False),
     ),
 )

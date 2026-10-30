@@ -17,6 +17,6 @@ SPEC = TypeSpec(
     homes=(
         Home("samples", True),
         Home("decoy_product_words", False),
-        Home("nike_rows", False),
+        Home("knacks_rows", False),
     ),
 )

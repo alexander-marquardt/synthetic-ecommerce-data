@@ -45,7 +45,7 @@ def rows() -> list[Row]:
         ),
         _row(
             "the sports tumbler title is the short one again",
-            "nike_rows.py",
+            "knacks_rows.py",
             '"Insulated Sports Tumbler with Straw Lid for Running"',
             '"Insulated Sports Tumbler"',
             f"{_T} -k six_to_ten_words",

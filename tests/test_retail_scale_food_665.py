@@ -27,7 +27,7 @@ def ceiling():
 
 def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """The styles of a family the line grammar names, the real-brand and decoy rows aside."""
-    skip = (scale.source_ids("nike_rows") | scale.source_ids("seasonal_rows")
+    skip = (scale.source_ids("knacks_rows") | scale.source_ids("seasonal_rows")
             | scale.source_ids("color_word_brand_rows"))
     return [r for r in records if line_grammar.family(r) and r["product_id"] not in skip]
 

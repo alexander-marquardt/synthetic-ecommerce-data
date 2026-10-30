@@ -1,10 +1,11 @@
 """The real brands the retail catalogue may name, and the guard that refuses all others (gen#341).
 
-README "Every name is invented" holds for every brand but these. The maintainer's rulings:
-Apple, iPhone and iPad (gen#332) and Nike (2026-10-15, gen#341) are real, so a shopper who types
-``nike air max`` finds products. A real brand is TEXT ONLY: its name is in the title, the
-``brand`` field and the description, and no drawing carries its logo, mark, swoosh, wordmark or
-trade dress (:func:`house_styles.logo` draws nothing for a style whose mark is ``none``).
+README "Every name is invented" holds for every brand but these. The maintainer's ruling:
+Apple, iPhone and iPad (gen#332) are real, so a shopper who types ``iphone`` finds products. A real
+brand is TEXT ONLY: its name is in the title, the ``brand`` field and the description, and no
+drawing carries its logo, mark, wordmark or trade dress (:func:`house_styles.logo` draws nothing
+for a style whose mark is ``none``). Nike was ruled in by gen#341 and out by gen#722: its products
+are the invented brand Knacks, and the guard refuses it and its model lines.
 
 :data:`ALLOWED` is the one list of the exceptions. :data:`KNOWN_REAL` is the real brand names the
 guard refuses: a name a contributor might reach for (sportswear, electronics, retail). Adding an
@@ -17,14 +18,14 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
-#: Real brands the maintainer has ruled in, text only: Nike (gen#341) and Apple, iPhone and iPad
-#: (gen#332). "Apple" is the brand; "iPhone" and "iPad" are the product lines it sells, named in a
-#: title or a description.
-ALLOWED: tuple[str, ...] = ("Nike", "Apple", "iPhone", "iPad")
+#: Real brands the maintainer has ruled in, text only: Apple, iPhone and iPad (gen#332). "Apple" is
+#: the brand; "iPhone" and "iPad" are the product lines it sells, named in a title or a description.
+ALLOWED: tuple[str, ...] = ("Apple", "iPhone", "iPad")
 
 #: Real brand names the catalogue refuses (unambiguous ones: no "gap" or "orange"; "apple" is the
 #: ruled-in brand, and its fruit, tree and candle clashes are class 8 rows).
 KNOWN_REAL: tuple[str, ...] = (
+    "Nike", "Air Max", "Pegasus", "Dri-FIT",
     "Adidas", "Puma", "Reebok", "Asics", "New Balance", "Under Armour", "Converse", "Vans",
     "Skechers", "Fila", "Umbro", "Hoka", "Brooks", "Mizuno", "Saucony", "Lululemon", "Gymshark",
     "Levi's", "Wrangler", "Lee Cooper", "Zara", "H&M", "Uniqlo", "Primark", "Next",

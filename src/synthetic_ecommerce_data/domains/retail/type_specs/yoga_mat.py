@@ -26,7 +26,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 SPEC = TypeSpec(
     key="yoga_mat",
-    homes=(Home("nike_rows", False),),
+    homes=(Home("knacks_rows", False),),
     department="Sports & Outdoors",
     product_type="Yoga Mat",
     rows=(
