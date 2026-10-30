@@ -20,6 +20,10 @@ names a part's color beside the product's own, and a description that names anot
 fields tell the truth. :func:`decoy_ids` is what :func:`scale.derivable` and :mod:`main_colors`
 leave alone.
 
+**Model numbers (gen#622).** The machines sell under their brand's series and model number
+(:mod:`machine_model_numbers`). :data:`ROWS` numbers them, so the decoys, copied from the
+plain rows, carry no code: a query for the number cannot find a decoy.
+
 All names are invented. Rows are templates only: :func:`scale.derivable` leaves them out, so the
 department grows by authored rows.
 """
@@ -36,6 +40,7 @@ from synthetic_ecommerce_data.domains.retail import (
     outdoor_helpers,
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
+from synthetic_ecommerce_data.domains.retail.machine_model_numbers import numbered
 from synthetic_ecommerce_data.domains.retail.type_specs import (
     garden_furniture_set,
     garden_hose,
@@ -72,11 +77,12 @@ def _mower(power: str, drive: str, box_l: int, heights: int, volts: int = 0) -> 
     return out
 
 
-def _trimmer(power: str, head: str, telescopic: bool, volts: int = 0) -> tuple:
+def _trimmer(power: str, head: str, telescopic: bool, shaft_cm: int, volts: int = 0) -> tuple:
     source = {"cordless": "Cordless Battery", "petrol": "Petrol", "electric": "Corded Electric"}[power]
     out = (_a("power_source", "Power source", source),
            _a("cutting_head", "Cutting head", "Line" if head == "line" else "Blade"),
-           _a("telescopic", "Telescopic", "Yes" if telescopic else "No"))  # fmt: skip
+           _a("telescopic", "Telescopic", "Yes" if telescopic else "No"),
+           _u("shaft_length", "Shaft length", shaft_cm, "CMT"))  # fmt: skip
     if power == "cordless":
         out += (_u("battery_voltage", "Battery voltage", volts, "VLT"),)
     return out
@@ -156,18 +162,18 @@ GRASS_TRIMMERS = (
     _row("TRMCRD", "Cordless Line Grass Trimmer", _V, (*_TRIM, "Cordless Grass Trimmers"), "Grass Trimmer",
          69.0, "grass_trimmer", "A battery trimmer with a nylon line head that feeds as you tap "
          "it, for edging a lawn and tidying round beds.",
-         (GREEN, RED, BLACK, YELLOW), _trimmer("cordless", "line", True, 18),
+         (GREEN, RED, BLACK, YELLOW), _trimmer("cordless", "line", True, 120, 18),
          _axis((25, 69.0), (30, 79.0), (33, 95.0)), "cutting_width_cm",
          (("head", "line"), ("power", "cordless"))),
     _row("TRMPET", "Petrol Blade Grass Trimmer", _H, (*_TRIM, "Petrol Grass Trimmers"), "Grass Trimmer",
          159.0, "grass_trimmer", "A two-stroke trimmer with a metal blade for brambles, nettles "
          "and rough ground, with a shoulder strap.",
-         (RED, BLUE, BLACK), _trimmer("petrol", "blade", False),
+         (RED, BLUE, BLACK), _trimmer("petrol", "blade", False, 150),
          _axis((40, 159.0), (43, 189.0)), "cutting_width_cm", (("head", "blade"), ("power", "petrol"))),
     _row("TRMELC", "Corded Electric Grass Trimmer", _W, (*_TRIM, "Electric Grass Trimmers"), "Grass Trimmer",
          34.0, "grass_trimmer", "A mains trimmer with a telescopic shaft and a pivoting head, "
          "light for trimming along walls and borders.",
-         (BLUE, YELLOW, WHITE, GREEN), _trimmer("electric", "line", True),
+         (BLUE, YELLOW, WHITE, GREEN), _trimmer("electric", "line", True, 110),
          _axis((26, 34.0), (30, 42.0)), "cutting_width_cm", (("head", "line"), ("power", "electric"))),
 )
 
@@ -269,7 +275,7 @@ DECOYS = (
     _apron("DCTAPR", "Grass Trimmer Dad Apron", "A cotton apron with a pocket, printed with a grass trimmer and a joke about the lawn."),
     _row("DCTELC", "Corded Grass Trimmer, Not Cordless", _W, (*_TRIM, "Electric Grass Trimmers"), "Grass Trimmer",
          29.0, "grass_trimmer", "A mains trimmer on a long cable, with no battery to charge.",
-         (YELLOW,), _trimmer("electric", "line", False), _axis((26, 29.0),), "cutting_width_cm",
+         (YELLOW,), _trimmer("electric", "line", False, 110), _axis((26, 29.0),), "cutting_width_cm",
          (("head", "line"), ("power", "electric"))),
     _candle("DCTCND", "Fresh Cut Grass Candle", "A cut-grass scent in a glass jar, as a trimmer leaves the verge.", "Cut Grass"),
     _apron("DCBAPR", "BBQ Master Apron", "A cotton apron with a pocket and a bottle opener loop, for the one who mans the grill."),
@@ -293,7 +299,7 @@ DECOYS = (
 # misleads, and the first size only.
 _MAIN = ("red", "blue", "green", "yellow", "black", "white")
 _BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows,
-                                  *hedge_trimmer.SPEC.rows, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows)}
+                                  *hedge_trimmer.ROWS, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
 _QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose",
           "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol"}
@@ -477,7 +483,7 @@ DECOYS = (
     *(make(c, t, d) for c, _p, make, t, d in _SIBLINGS),
 )
 
-ROWS = (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *DECOYS)
+ROWS = (*numbered((*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS)), *BBQS, *DECOYS)
 
 
 def decoy_ids() -> frozenset[str]:

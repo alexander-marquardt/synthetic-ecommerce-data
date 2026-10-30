@@ -1,7 +1,9 @@
 """Cordless drill drivers at 12, 18 and 20 V (gen#191): the product type names the tool, not a plain drill.
 
 Five styles from four brands over the 12, 18 and 20 V packs; the drawing's battery follows the voltage
-(:func:`kit_drills.drill_driver`). The two oldest rows were typed Cordless Drill in ``breadth_rows``."""
+(:func:`kit_drills.drill_driver`). The two oldest rows were typed Cordless Drill in ``breadth_rows``.
+The spec sells each under a series and a model number (gen#622, :mod:`machine_model_numbers`); the
+decoy is copied from the plain row, so it carries no code."""
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
 
@@ -9,6 +11,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import color_word_brand_rows
 from synthetic_ecommerce_data.domains.retail import diy_tools as d
+from synthetic_ecommerce_data.domains.retail.machine_model_numbers import numbered
 from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
 
 ROWS = d.styles(
@@ -68,7 +71,7 @@ SPEC = TypeSpec(
     key="drill_driver",
     department=d.HOME,
     product_type="Drill Driver",
-    rows=ROWS + color_word_brand_rows.spec_rows("Drill Driver"),
+    rows=numbered(ROWS) + color_word_brand_rows.spec_rows("Drill Driver"),
     decoys=d.decoys(
         ROWS[0],
         "drill driver",
