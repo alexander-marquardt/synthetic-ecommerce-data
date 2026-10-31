@@ -1382,12 +1382,14 @@ def test_the_measured_builds_file_is_what_the_rebuild_writes(catalog):
 def test_a_moved_figure_makes_the_rebuilt_file_differ_from_the_committed_one(monkeypatch):
     assert price.BUILDS_FILE.is_file(), f"{price.BUILDS_FILE} is missing; run {REBUILD_BUILDS}"
     committed = price.BUILDS_FILE.read_text("utf-8")
+    # A cached read: made under the plants below it would keep them for every later test (#539).
+    hundred_k = hundred_k_measured()
     model = price.MODELS[KIT]
     louder = replace(model, sku_sigma=model.sku_sigma * 10)
     monkeypatch.setitem(price.MODELS, KIT, louder)
     # no row is pinned, so the file holds no figure to move: plant one
     monkeypatch.setitem(price.PINNED_SHORTFALLS, KIT_SPREAD, "above band: planted")
-    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k_measured())
+    rebuilt = measured_builds.figures(generate(GeneratorConfig()), hundred_k)
     moved = measured_builds.render(rebuilt)
     assert moved != committed
 
