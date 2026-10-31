@@ -134,7 +134,9 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
     for t in scale.templates():
         declared = t["drawing"].get("params") or {}
         for s in t["skus"]:
-            if any(k in s for k in declared) or pack_copies.count(t, s) > 1 or lipstick_looks.params(t):
+            if any(k in s for k in declared) or pack_copies.count(t, s) > 1:
+                continue
+            if lipstick_looks.params(t):
                 continue
             checked += 1
             assert "params" not in export.drawing_spec(t, s), s["sku"]
