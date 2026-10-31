@@ -1,4 +1,4 @@
-"""Defect injection: the internal contradictions real catalogs carry.
+"""Defect injection: the unit mixing real catalogs carry.
 
 Each class is drawn against its own denominator, on a record that was correct
 a moment earlier (see :mod:`.generate`). Split from it
@@ -32,58 +32,36 @@ class DefectMixin:
     def _inject_defects(
         self, child: ChildDraft, attrs: list[Attribute], retired: tuple[Attribute, ...] = ()
     ) -> list[Attribute]:
-        """Reproduce the measured internal contradictions.
+        """Reproduce the measured unit mixing.
 
-        Each class is drawn against its own denominator: only a record that
-        actually carries the attribute pair is eligible, which is how the
-        reference statistics measure these rates.
+        The class is drawn against its own denominator: only a record that
+        actually carries two lengths is eligible, which is how the reference
+        statistics measure the rate.
         """
         cfg = self.config
         rng = self.rng
-        by_name = {a.name: i for i, a in enumerate(attrs)}
         out = list(attrs)
 
-        # Class 1: length of cut longer than overall length.
+        # A cut longer than its part and a length under an angle key are declined:
+        # each is a value the generator knows is wrong, which it does not write
+        # (#404, ``measured_loc_exceeds_oal``, ``measured_angle_carries_length_unit``).
+        # The draws the cut took still stand (nothing is written), so no other value
+        # in the build moves.
+        by_name = {a.name: a for a in attrs}
         loc_names = ("Length of Cut", "Flute Length", "Thread Length")
-        loc_index = next((by_name[n] for n in loc_names if n in by_name), None)
-        oal_index = by_name.get("Overall Length") or by_name.get("Length")
-        if "Overall Length" in by_name:
-            oal_index = by_name["Overall Length"]
-        elif "Length" in by_name:
-            oal_index = by_name["Length"]
-        else:
-            oal_index = None
-        if loc_index is not None and oal_index is not None:
-            self._bump("eligible_loc_oal")
-            if rng.random() < cfg.scaled_defect(cfg.defect_loc_exceeds_oal):
-                oal = out[oal_index]
-                loc = out[loc_index]
-                if oal.value_num and loc.value_num:
-                    # Publish a cut longer than the tool, the way the corpus
-                    # does: the same "3 in" against a shorter overall length.
-                    inflated = oal.value_num * rng.uniform(1.2, 2.5)
-                    # In the record's OWN system: publishing the inflated value
-                    # in the other unit would inject a second defect class
-                    # (unit mixing) as a side effect, and the two rates are
-                    # measured separately.
-                    # The record's OWN system, in the catalog's ONE spelling
-                    # for it. This used to pick its own style -- " in" at two
-                    # decimals -- which published "2.25 in" beside the
-                    # "2-1/4"" every other row of the same column carried, and
-                    # split that size across two facet buckets. The DEFECT
-                    # here is the value (a cut longer than the tool); its
-                    # spelling was never part of it. Keep the bad value, drop
-                    # the bad spelling (elastic/prism#9284).
-                    style = canonical_style(child.system)
-                    out[loc_index] = length_attribute(loc.name, self._publish(inflated, style))
-                    self._bump("defect_loc_exceeds_oal")
+        loc = next((by_name[n] for n in loc_names if n in by_name), None)
+        oal = by_name.get("Overall Length") or by_name.get("Length")
+        if (
+            loc is not None
+            and oal is not None
+            and rng.random() < cfg.scaled_defect(cfg.measured_loc_exceeds_oal)
+            and oal.value_num
+            and loc.value_num
+        ):
+            rng.uniform(1.2, 2.5)
 
-        # Class 2 (the angular attribute carrying a length unit) is declined: a
-        # length under an angle key is a value of the wrong kind, which this
-        # generator does not write (#404, ``measured_angle_carries_length_unit``).
-
-        # Class 3: unit mixing inside one record -- one dimension published in
-        # the other system.
+        # Unit mixing inside one record -- one dimension published in the other
+        # system: the right length, in the other spelling.
         # LENGTHS only. "Unit mixing" is a record describing itself in two
         # measurement systems; a grit number, a flute count or an ounce weight
         # is in neither, and moving one produced "Grit: 1524mm" -- not a

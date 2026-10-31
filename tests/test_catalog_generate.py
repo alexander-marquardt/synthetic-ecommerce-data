@@ -218,8 +218,6 @@ def test_both_the_role_ambiguity_cases_occur(stats):
 @pytest.mark.parametrize(
     "metric,low,high",
     [
-        ("length of cut > overall length", 0.03, 0.16),
-        ("declared system contradicts value units", 0.005, 0.08),
         ("unit mixing within one record", 0.005, 0.05),
         ("title dimension token unlabelled", 0.38, 0.55),
         # Lower than the corpus's 0.17: the newer types publish no secondary
@@ -233,16 +231,24 @@ def test_each_measured_rate_is_reproduced(stats, metric, low, high):
     assert low <= row.achieved <= high, row
 
 
-def test_no_angle_attribute_carries_a_length_unit(stats):
-    """0, exactly: the generator writes no value of the wrong kind for its key (#404).
+@pytest.mark.parametrize(
+    "metric",
+    [
+        "angle attribute carries a length unit",
+        "length of cut > overall length",
+        "declared system contradicts value units",
+    ],
+)
+def test_no_deliberately_wrong_value_is_written(stats, metric):
+    """0, exactly: the generator writes no value it knows is wrong for its key (#404).
 
-    The corpus measures 0.0469 (kept on
-    ``GeneratorConfig.measured_angle_carries_length_unit``); reproducing it put
-    inch lengths under ``point_angle`` and ``helix_angle``. The denominator is
-    asserted non-empty first, so "no wrong angles" is not "no angles examined".
+    The corpus measures each of these (kept as ``GeneratorConfig.measured_*``);
+    reproducing them put inch lengths under ``point_angle`` and ``helix_angle``, a cut
+    longer than its tool, and a declared system against the record's units. The
+    denominator is asserted non-empty first, so "none wrong" is not "none examined".
     """
-    row = next(c for c in stats["comparisons"] if c.name == "angle attribute carries a length unit")
-    assert row.denominator > 0, "no angle-carrying records were examined, so a zero proves nothing"
+    row = next(c for c in stats["comparisons"] if c.name == metric)
+    assert row.denominator > 0, "no record was examined, so a zero proves nothing"
     assert row.numerator == 0, row
     assert row.target == 0.0, row
 
@@ -394,7 +400,9 @@ def test_no_record_points_at_an_image_of_a_different_kind_of_product(catalog):
 def test_the_two_measured_image_rates_are_recorded_even_though_neither_is_reproduced():
     """A deviation that is not written down is indistinguishable from a bug."""
     assert SMALL.measured_image_missing == 0.1089
+    assert SMALL.measured_loc_exceeds_oal == 0.0829
     assert SMALL.measured_angle_carries_length_unit == 0.0469
+    assert SMALL.measured_system_contradicts_units == 0.0323
     assert SMALL.measured_image_sku_diverges == 0.7353
 
 

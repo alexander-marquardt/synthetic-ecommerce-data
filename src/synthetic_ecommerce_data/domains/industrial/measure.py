@@ -229,11 +229,11 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         ),
         Comparison(
             "length of cut > overall length",
-            config.defect_loc_exceeds_oal,
+            0.0,
             _rate(loc_oal_defect, loc_oal_eligible),
             loc_oal_defect,
             loc_oal_eligible,
-            "over records carrying the pair",
+            "deliberate: the corpus measures 0.0829",
         ),
         Comparison(
             "angle attribute carries a length unit",
@@ -245,11 +245,11 @@ def measure(catalog: Catalog, config: GeneratorConfig | None = None) -> dict[str
         ),
         Comparison(
             "declared system contradicts value units",
-            config.defect_system_contradicts_units,
+            0.0,
             _rate(system_defect, system_eligible),
             system_defect,
             system_eligible,
-            "over records carrying both",
+            "deliberate: the corpus measures 0.0323",
         ),
         Comparison(
             "unit mixing within one record",

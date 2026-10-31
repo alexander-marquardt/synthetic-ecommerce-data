@@ -161,7 +161,7 @@ class FastenerHead:
     that decides how the catalog writes the value: a metric standard's screw
     is published in millimetres and an inch standard's in inches, and writing
     either in the other unit is how the measurement-system contradictions in
-    the reference corpus arise.
+    the reference corpus arise (measured, not reproduced: #404).
     """
 
     standard: str
