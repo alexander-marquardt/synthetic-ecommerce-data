@@ -51,8 +51,6 @@ SIZE_SHAPES = tuple(
         # A baby's age in months (gen#213): NOT yet a size system of the projection, which
         # refuses it until it learns the row (prism-industrial-products#592).
         r"^(Newborn|\d{1,2}-\d{1,2} Mths)$",
-        # A child's sock band (gen#205): NOT yet a size system of the projection either.
-        r"^UK \d{1,2}(\.\d)?-\d{1,2}(\.\d)?$",
         r"^(\d{1,2}|\d{2}[A-K]{1,2})$",
         r"^(Hand Towel|Bath Towel|Bath Sheet)$",
         r"^\d+(\.\d+)? x \d+(\.\d+)? ?(cm|in)$",

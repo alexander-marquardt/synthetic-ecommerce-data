@@ -38,7 +38,7 @@ TYPES = {
     "school_polo": ("School Polo Shirt", "School Polo Shirts", "school_polo",
                     {"sleeve_length", "fabric", "pack_size", "color", "size"}),
     "school_socks": ("School Socks", "School Socks", "school_socks",
-                     {"sock_style", "fabric", "pack_size", "color", "size"}),
+                     {"sock_style", "fabric", "pack_size", "color", "shoe_size_band"}),
     "school_blazer": ("School Blazer", "School Blazers", "school_blazer",
                       {"fit", "lining", "badge_ready", "fabric", "color", "size"}),
     "pe_shorts": ("PE Shorts", "PE Shorts", "pe_shorts",
@@ -129,10 +129,11 @@ def test_a_sock_is_sold_by_uk_shoe_size_band_and_the_bands_rank_by_foot() -> Non
     for row in _rows()["school_socks"]:
         assert tuple(s for s, _ in row.sizes) == size_ladder.SOCK_BANDS, row.code
     rec = _templates()["BRD-SCSAN5"]
-    biggest = next(s for s in rec["skus"] if s["size"] == "UK 4-7")
-    second = next(s for s in rec["skus"] if s["size"] == "UK 12.5-3.5")
-    smallest = next(s for s in rec["skus"] if s["size"] == "UK 6-8.5")
+    biggest = next(s for s in rec["skus"] if s["shoe_size_band"] == "UK 4-7")
+    second = next(s for s in rec["skus"] if s["shoe_size_band"] == "UK 12.5-3.5")
+    smallest = next(s for s in rec["skus"] if s["shoe_size_band"] == "UK 6-8.5")
     scales = [size_ladder.size_scale(rec, s) for s in (smallest, second, biggest)]
+    assert None not in scales, "the band is not on the type's size axis"
     assert scales[0] < scales[1] < scales[2], scales
 
 

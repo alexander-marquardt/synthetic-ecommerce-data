@@ -30,8 +30,8 @@ GARMENT_TYPES = (
     "PE Shorts", "Parka", "Peacoat", "Period Pants", "Period Swimwear", "Platform Trainers",
     "Plimsolls", "Polo Shirt", "Puddlesuit", "Puffer Jacket", "Pyjamas", "Raincoat",
     "Running Shoes", "Safety Boots", "Sandals", "School Blazer", "School Pinafore",
-    "School Polo Shirt", "School Shirt", "School Shoes", "School Skirt", "School Socks",
-    "School Trousers", "Shacket", "Shapewear", "Shirt", "Shorts", "Skirt", "Sleepsuit", "Slip",
+    "School Polo Shirt", "School Shirt", "School Shoes", "School Skirt", "School Trousers",
+    "Shacket", "Shapewear", "Shirt", "Shorts", "Skirt", "Sleepsuit", "Slip",
     "Slippers", "Snowsuit", "Socks", "Suit Jacket", "Suit Trousers", "Sweatshirt", "Swim Shorts",
     "Swimsuit", "T-Shirt", "Tankini", "Tea Dress", "Tee", "Tights", "Top", "Tracksuit", "Trainers",
     "Trench Coat", "Trouser Suit", "Trousers", "Utility Jacket", "Vest", "Waistcoat",
@@ -41,6 +41,8 @@ GARMENT_TYPES = (
 #: ``product type -> its size axis``, the keys in the order they are read.
 AXES: dict[str, tuple[str, ...]] = {
     **dict.fromkeys(GARMENT_TYPES, GARMENT_KEYS),
+    # Sold by shoe size band, which the Combined loader refuses as a garment ``size``.
+    "School Socks": ("shoe_size_band",),
     # Worn, outside clothing and footwear.
     "Baseball Glove": ("glove_size_in",),
     "Batting Helmet": ("head_cm",),
