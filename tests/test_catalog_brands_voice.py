@@ -250,6 +250,12 @@ DISTINCT_SPEC_FLOOR = {
     # nylon-insert lock nut 0.82 and a socket head screw 0.89, rounded down to 0.05.
     "lock_nuts_nylon_insert": 0.80,
     "screw_socket_head": 0.85,
+    # #750: a drywall or deck screw is one head on a short table of gauges and lengths, so makers
+    # overlap by construction. Measured at 100K, drywall 0.505, deck 0.629, sheet metal 0.867,
+    # rounded down to 0.05.
+    "screw_drywall": 0.50,
+    "screw_deck": 0.60,
+    "screw_sheet_metal": 0.85,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers

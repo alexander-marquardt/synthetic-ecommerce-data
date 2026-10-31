@@ -113,6 +113,9 @@ class ChildDraft:
     #: the sibling's width makes the shared width such a value on both.
     also: Attribute | None = None
     system: str = "in"
+    #: The pack as this child's title says it (``Box of 100``, :mod:`.plain_screws`), for a child
+    #: whose pack is its own, not the line's. Empty for a title that takes the line's pack.
+    pack_phrase: str = ""
     #: A deliberately awkward single variant that carries NO variant-scope
     #: attribute: everything it publishes is on its product. A grouped view
     #: must render a selector with zero axes (elastic/prism-industrial-products#103).

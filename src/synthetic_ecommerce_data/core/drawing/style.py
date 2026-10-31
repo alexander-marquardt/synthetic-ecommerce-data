@@ -95,6 +95,9 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     # The text-match decoys (#462): a zinc coat and a baked-on powder coat.
     "Galvanized": "#c2cdc6",
     "Powder Coated": "#4a6a8a",
+    # The plain screws (#750): a drywall screw's dark coat and a deck screw's outdoor one.
+    "Black Phosphate": "#454a4e",
+    "Ceramic Coated": "#8a8468",
 }
 
 #: The fill of anything with no material or finish on the record.

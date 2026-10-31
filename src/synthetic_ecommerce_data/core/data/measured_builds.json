@@ -5,11 +5,11 @@
     }
   },
   "hundred_k": {
-    "lines": 73448,
+    "lines": 73729,
     "price_pins": {
       "price p50 (USD): bolt_hex": null
     },
-    "skus": 131499,
+    "skus": 131996,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -126,9 +126,14 @@
       "roller_chain_sprockets": 200,
       "safety_glasses": 1,
       "screw_button_head": 3968,
+      "screw_deck": 97,
+      "screw_drywall": 103,
       "screw_flat_head": 5316,
       "screw_low_head": 3220,
+      "screw_machine": 103,
+      "screw_sheet_metal": 98,
       "screw_socket_head": 8860,
+      "screw_wood": 96,
       "sds_drill_bits": 2,
       "seal_pick_sets": 2,
       "sems_bolts": 2,

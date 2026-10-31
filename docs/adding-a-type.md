@@ -791,6 +791,12 @@ stays one per type, and their attributes stay true. The class names the word:
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
 handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
 
+## Sold singly or by the box (the plain screws, #750)
+
+`domains/industrial/plain_screws.py` builds the wood, machine, drywall, sheet metal and deck screws from one table, the way `hammers.py` builds the hammers: add a `PlainScrewKind` and a three-line module under `product_types/fasteners/`. Each kind is its own leaf beside the lag screw under `Fasteners > Bolts, Screws & Cap Screws`, so no `SHARED_LEAVES` row is needed.
+
+A line is sold singly or by the box. A boxed line takes the plural item, publishes `Units per Pack` per SKU, and says so in the pack form through `ChildDraft.pack_phrase` (`Wood Screws, #8 Gauge, 1-1/4" L, Round Head, Box of 100`). A line sold singly takes the singular item, says no pack in its title and publishes a pack of 1: with no pack at all, the duplicate check reads a brand's loose screw as its boxed one less a dropped attribute. The size is `Gauge` on a kind with no thread and `Thread Size` on the machine screw, which names no standard, so it publishes nothing the coverage sweep reads as built to one. A line never lists one length twice (`_lengths_of_a_line`), so each SKU's length is its own within its line. `tests/test_plain_screws_750.py` holds these, and holds the five kinds to 1% of the catalog's SKUs.
+
 ## A decoy for an industrial seed query (#462)
 
 The Combined demo runs a category policy on the industrial half, and a policy has nothing visible to
