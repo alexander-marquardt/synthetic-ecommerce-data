@@ -1,0 +1,50 @@
+"""Mutants on the changed lines of gen#719."""
+
+TESTS = [
+    "tests/test_retail_size_axes_719.py",
+    "tests/test_industrial_size_ladder_719.py",
+    "tests/test_retail_size_ladder_339.py",
+]
+LADDER = "src/synthetic_ecommerce_data/domains/retail/size_ladder.py"
+BREADTH = "src/synthetic_ecommerce_data/domains/industrial/drawing/breadth_rungs.py"
+RUNGS = "src/synthetic_ecommerce_data/core/size_rungs.py"
+DRAWING = "src/synthetic_ecommerce_data/core/drawing/__init__.py"
+MUTANTS = [
+    (LADDER, 'if key in sku and len({str(s[key]) for s in rec["skus"] if key in s}) > 1:',
+     "if key in sku:", "the-axis-need-not-vary"),
+    (LADDER, 'word = WORDS.get(text.split(" (")[0].strip())', "word = WORDS.get(text.strip())",
+     "a-bed-size-keeps-its-feet"),
+    (LADDER, 'enumerate(("Hand Towel", "Bath Towel", "Bath Sheet"))',
+     'enumerate(("Bath Towel", "Hand Towel", "Bath Sheet"))', "towel-words-out-of-order"),
+    (LADDER, '("Single", "Small Double", "Double", "King Size", "Super King Size")',
+     '("Single", "Small Double", "King Size", "Double", "Super King Size")',
+     "bed-words-out-of-order"),
+    (LADDER, "return float(area.group(1)) * float(area.group(2))",
+     "return float(area.group(1))", "area-by-its-first-side"),
+    (LADDER, "return float(meters.group(1)) * 100", "return float(meters.group(1))",
+     "meters-not-converted"),
+    (BREADTH, 'if row is None or row.size_attr in NOT_SIZES or len(records) < 2:',
+     "if row is None or len(records) < 2:", "not-sizes-are-ranked"),
+    (BREADTH, 'if row is None or row.size_attr in NOT_SIZES or len(records) < 2:',
+     "if row is None or row.size_attr in NOT_SIZES:", "a-lone-record-is-read"),
+    (BREADTH, "    if len(ladder) < 2:  # noqa: PLR2004\n        return unscaled\n", "",
+     "one-size-is-a-ladder"),
+    (BREADTH, 'return (0.06 + 0.013 * number) * INCH', "return number",
+     "gauge-taken-as-millimeters"),
+    (BREADTH, 'found = _SIZE.match(value.split(" to ")[0])', "found = _SIZE.match(value)",
+     "a-range-is-not-cut"),
+    (BREADTH, 'return number * INCH if found["bottom"] else number', "return number",
+     "thread-fraction-not-inches"),
+    (BREADTH, '+ float(found["whole"] or 0)', "", "whole-inches-dropped"),
+    (BREADTH, 'if found["unit"] not in UNITS:\n        raise ValueError(f"size {value!r} has no place on a size ladder")\n    return number * UNITS[found["unit"]]',
+     'return number * UNITS.get(found["unit"], 1.0)', "unknown-unit-passes"),
+    (BREADTH, '"kg": 1000.0', '"kg": 1.0', "kilo-not-grams"),
+    (BREADTH, "return {name.casefold(): value for name, value in record.items()}[attr.casefold()]",
+     "return record[attr]", "a-published-name-is-not-read"),
+    (BREADTH, "ladder = sorted(set(sizes))", "ladder = list(dict.fromkeys(sizes))",
+     "ladder-in-record-order"),
+    (RUNGS, "return scale_at(rank, rungs) / TOP", "return scale_at(rank, rungs)",
+     "ratio-not-against-the-top"),
+    (DRAWING, "_draw(product_type, brand, record, scale * ratio)",
+     "_draw(product_type, brand, record, scale)", "the-ratio-is-not-drawn"),
+]

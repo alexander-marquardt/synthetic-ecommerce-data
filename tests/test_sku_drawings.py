@@ -377,9 +377,11 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
 
     Exempts the breadth categories (:mod:`.catalog.breadth`,
     alexander-marquardt/synthetic-ecommerce-data#34): their fixed-shape
-    drawings never read the record, so two siblings of one breadth product --
-    say two ball diameters -- draw identically BY DESIGN, the property this
-    test exists to catch everywhere else.
+    drawings never read the record, and this test draws each SKU alone, so two
+    siblings of one breadth product -- say two ball diameters -- draw
+    identically here, the property this test exists to catch everywhere else.
+    Their sizes differ only drawn together, as a product
+    (``tests/test_industrial_size_ladder_719.py``, gen#719).
     """
     offenders = []
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():

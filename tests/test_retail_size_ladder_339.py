@@ -1,10 +1,10 @@
-"""Clothing and footwear are drawn once per size, scaled by its place in the ladder (gen#339).
+"""A product is drawn once per size, scaled by its place in the ladder (gen#339, gen#719).
 
-A product's sizes used to share one drawing per color. Now a clothing or footwear product with
-more than one size draws each rung at its own scale, from ``size_ladder.BOTTOM`` (the smallest) to
+A product's sizes used to share one drawing per color. Now a product with more than one size
+draws each rung at its own scale, from ``size_ladder.BOTTOM`` (the smallest) to
 ``size_ladder.TOP`` (the largest), symbolic and not true to dimension. The ladder is the product's
 own; a two-dimensional size ranks by its first dimension and a fit that is not bigger or smaller
-changes nothing; bedding and pack sizes keep one image per color.
+changes nothing. ``test_retail_size_axes_719.py`` holds the declaration of every type's axis.
 """
 
 from __future__ import annotations
@@ -120,14 +120,14 @@ def test_a_fit_only_difference_keeps_the_shared_per_color_image():
 
 
 @pytest.mark.parametrize("pid", ["BED-DUVHOL", "PLT-MTTMEM", "GFT-KRAFT"])
-def test_bedding_and_pack_sizes_keep_one_image_per_color(pid):
+def test_bedding_and_sized_gifts_draw_each_size_per_color(pid):
     rec = BY_ID[pid]
     per_color: dict = {}
     for sku in rec["skus"]:
-        assert _scale(rec, sku) is None
+        assert _scale(rec, sku) is not None
         per_color.setdefault(sku.get("color"), set()).add(export.drawing_id(rec, sku))
     assert len({s.get("size") or s.get("bed_size") or s.get("size_uk") for s in rec["skus"]}) > 1
-    assert {len(v) for v in per_color.values()} == {1}
+    assert min(len(v) for v in per_color.values()) > 1
 
 
 def test_each_size_of_a_color_has_its_own_image():

@@ -137,7 +137,8 @@ def test_the_drawing_scales_with_the_wheel_size() -> None:
     assert len(specs) >= MIN_BIKE_SIZES
     assert len({repr(v) for v in specs.values()}) == len(specs)
     drawn = {size: kit.render(spec["drawing"]["shape"], kit.Fill("solid", "#123456", "#654321"),
-                              params=spec["drawing"]["params"] | spec.get("params", {}))
+                              params=spec["drawing"]["params"] | spec.get("params", {}),
+                              size_scale=spec.get("size_scale"))
              for size, spec in specs.items()}  # fmt: skip
     assert len(set(drawn.values())) == len(drawn)
     sizes = sorted(drawn, key=int)

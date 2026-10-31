@@ -161,7 +161,8 @@ margin on every side) over the type's extent: the smaller of
 the width and height ratios. `product_scale_for()` ignores the records it is
 given, so nothing about a particular product can change a type's scale. Two
 parts of one type are therefore in true proportion, and a head or bore that
-siblings share is drawn identically.
+siblings share is drawn identically. The one step off it is a breadth product's
+size rung (see "Breadth types" below), whose fixed shape has no dimension to draw.
 
 **Overlong fasteners are broken, not shrunk.** When a screw or bolt's total
 height exceeds 90% of its type's extent height (`BREAK_START`), `fastener()`
@@ -271,9 +272,16 @@ Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
 they come from `paint()` and not from the figure, so the outline is fixed but
-the colors are not. Two SKUs of one breadth product therefore draw
-identically, and `tests/test_sku_drawings.py` exempts breadth from the
+the colors are not. `tests/test_sku_drawings.py` exempts breadth from the
 "siblings must differ" and "nominal stays rare" checks.
+
+A product's sizes are still apart (gen#719): `draw_product` draws the fixed shape at
+`breadth_rungs.ratios` of the type's scale, the size's rank in the product's own ladder on the
+one rule retail reads (`core/size_rungs.py`), from 55/90 of the full drawing (the smallest) to
+all of it (the largest). The rank says bigger or smaller and no dimension. A row whose size
+attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a color, a type, a piece count, a
+rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
+already a longer drawing, and a rank on top would shrink it twice.
 
 ### A found drawing for a hard-to-draw shape (#102)
 

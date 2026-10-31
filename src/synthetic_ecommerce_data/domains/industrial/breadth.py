@@ -45,10 +45,11 @@ It runs once, at import.
 
 from __future__ import annotations
 
+import functools
 from importlib import resources
 from typing import TYPE_CHECKING, Any
 
-from synthetic_ecommerce_data.core import typespec
+from synthetic_ecommerce_data.core import size_rungs, typespec
 from synthetic_ecommerce_data.core.breadth import BreadthRow, read_rows, row_from_dict
 from synthetic_ecommerce_data.core.model import (
     Attribute,
@@ -61,6 +62,7 @@ from synthetic_ecommerce_data.core.model import (
 from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.core.voice import product_name
 from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
@@ -149,6 +151,7 @@ def register(new_rows: tuple[BreadthRow, ...] | None = None) -> None:
         STANDARDS_FAMILY[row.key] = row.family
         shape_fn, extent = BREADTH_SHAPES[row.shape]
         FIGURES[row.key] = (shape_fn, extent)
+        size_rungs.LADDERS[row.key] = functools.partial(breadth_rungs.ratios, row.key)
         specs = [AttrSpec(name=name, scope="line") for name in row.attributes]
         specs.append(AttrSpec(name=row.size_attr, scope="sku", kind="length"))
         VOCAB[row.key] = tuple(specs)
