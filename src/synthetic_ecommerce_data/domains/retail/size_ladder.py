@@ -14,8 +14,9 @@ scale: symbolic, not true to dimension, so S is visibly smaller than M and M tha
   garment number, and for a two-dimensional size its first dimension only (a bra's band, a
   trouser's waist). A fit that is not bigger or smaller (petite, regular, tall, a bra's cup, a
   jean's inside leg) is not read, so it shares its rung's image.
-- WHAT IS SCALED is the worn departments (:data:`WORN`), clothing and footwear only; bedding and
-  pack sizes keep one image per color.
+- WHAT IS SCALED is the worn departments (:data:`WORN`), clothing and footwear, and the product
+  types of :data:`SIZED_TYPES`, the bicycles (gen#718: the whole drawing, tires included, by a
+  frame's or a kids' wheel's rank); bedding and pack sizes keep one image per color.
 - ANCHORING. The drawing is scaled about its own bottom center (:func:`stand`), so a ladder reads
   as items standing on one floor. The largest rung is the drawing as it was (``TOP`` is the
   scale the full-size drawing stands for, not a measured share of the sheet), and a smaller
@@ -44,6 +45,9 @@ _AGE = re.compile(r"(\d+(?:\.\d+)?)(?:-\d+(?:\.\d+)?)?\s*(Mths?|Yrs?)$", re.IGNO
 NOT_CLOTHING = ("Accessories", "Jewellery")
 #: The SKU keys that carry a worn product's primary size, in the order they are tried.
 GARMENT_KEYS = ("waist", "size_uk", "size")
+#: The product types outside the worn departments whose sizes scale, and the SKU keys that carry
+#: their primary size, in the order they are tried.
+SIZED_TYPES = {"Bicycle": ("frame_cm", "wheel_size_in")}
 
 
 def _letter(text: str) -> int | None:
@@ -71,6 +75,9 @@ def _garment_order(text: str) -> float:
 
 def primary(rec: dict, sku: dict) -> tuple[str, str] | None:
     """``(key, value)``: the SKU's primary size, or ``None`` when its sizes do not scale."""
+    for key in SIZED_TYPES.get(rec.get("product_type", ""), ()):
+        if key in sku:
+            return key, str(sku[key])
     if not set(rec.get("department", ())) & set(WORN):
         return None
     if set(rec.get("category_path", ())[1:2]) & set(NOT_CLOTHING):

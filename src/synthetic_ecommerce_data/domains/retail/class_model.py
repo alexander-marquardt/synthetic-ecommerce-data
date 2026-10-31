@@ -425,7 +425,10 @@ _THIRD_PARTY = ("Kestlewood Cosmetics", "Stridewell", "Calderby & Lune", "Brambl
                 # An invented sportswear brand (gen#722); another house's make.
                 "Knacks",
                 # An invented maker (gen#720): it sells its own GrapePhone and GrapePad.
-                "Grape Computer")  # fmt: skip
+                "Grape Computer",
+                # The bicycle-only brands (gen#718).
+                "Gorsecliff", "Rindlemoor", "Tolvaney", "Ostlebury", "Wattlebrook",
+                "Pipkinford", "Hessenby")  # fmt: skip
 _OWN = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Little Fernby", "Quillon Sleep",
         "Ottery Denim", "Ferrowick Denim",
         "Pantry Mill", "Hearth & Table", "Brackenmere Home",
