@@ -31,7 +31,7 @@ no value to it. Sizes are the school ages ("3-4 Yrs" to "15-16 Yrs"), six of the
 
 No dress title was plural, so "red dresses" had no plural title to prefer. `_PACKS` adds three
 girls' styles, each as a pack of 2 and a pack of 3: six products, 108 SKUs, every one sold in Red.
-There is no Womens multipack, and the range stays this small.
+The range stays this small. The adult range is in [retail-womens-depth.md](retail-womens-depth.md#dress-multipacks-gen727).
 
 | Part of a pack | How it is written |
 |---|---|

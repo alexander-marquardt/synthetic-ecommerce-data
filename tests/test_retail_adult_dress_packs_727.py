@@ -84,6 +84,12 @@ def test_a_pack_states_its_count_in_the_one_pack_vocabulary(packs: list[dict]) -
         assert {s["units_per_pack"] for s in rec["skus"]} == {n}, rec["title"]
 
 
+def test_a_pack_states_the_neckline_of_its_style(packs: list[dict]) -> None:
+    assert packs
+    for rec in packs:
+        assert rec["neckline"] == ("v-neck" if "Midi" in rec["title"] else "crew"), rec["title"]
+
+
 def test_a_pack_is_priced_by_the_underwear_multibuy_factor() -> None:
     rows = [r for r in womens_depth_rows.ROWS if " Pack of " in r.title]
     assert rows
@@ -131,6 +137,12 @@ def test_each_pack_sku_has_its_own_image_file(packs: list[dict]) -> None:
     for rec in packs:
         assert len({export.image_id(rec, s) for s in rec["skus"]}) == len(rec["skus"])
         assert len(image_release.image_files([rec])) == len(rec["skus"])
+
+
+def test_no_single_dress_carries_a_pack_size(dresses: list[dict], packs: list[dict]) -> None:
+    """A decoy cloned from a pack would carry its count under a single's title."""
+    assert packs
+    assert [r["title"] for r in dresses if _attr(r, "pack_size") and r not in packs] == []
 
 
 def test_the_packs_stay_out_of_the_derivation(packs: list[dict]) -> None:

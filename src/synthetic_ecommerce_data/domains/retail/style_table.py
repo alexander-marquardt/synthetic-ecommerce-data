@@ -170,7 +170,7 @@ def complete_lengths(body: list[dict]) -> list[dict]:
     out = []
     for d in body:
         low = d["title"].lower()
-        word = next((w for w in LENGTH_WORDS if re.search(rf"\b{w} dress\b", low)), None)
+        word = next((w for w in LENGTH_WORDS if re.search(rf"\b{w} dress(?:es)?\b", low)), None)
         if d["product_type"] in DRESS_TYPES and word and length_of(d) is None:
             d = {**d, "attributes": [*d["attributes"], make_attr("length", "Length", word.title())]}
         out.append(d)
@@ -186,7 +186,7 @@ def violations(doc: dict) -> list[str]:
     out = [f"{s.word}: {m}" for s in styles_of(doc["title"], ptype) for m in mismatch(s, doc)]
     if ptype in DRESS_TYPES:
         for w in LENGTH_WORDS:
-            if re.search(rf"\b{w} dress\b", low) and length_of(doc) is None:
+            if re.search(rf"\b{w} dress(?:es)?\b", low) and length_of(doc) is None:
                 out.append(f"{w}: no length attribute")
     neck = doc.get("neckline")
     for phrase, facts in NECK_TITLE.items():
