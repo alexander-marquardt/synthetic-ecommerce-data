@@ -214,7 +214,7 @@ def test_merge_pr_checks_step_runs_on_the_same_workers() -> None:
     )
     workers, _, dist = cli.stdout.strip().removeprefix("-n ").partition(" --dist ")
     assert workers.isdigit() and int(workers) >= 2 and dist == "loadgroup", cli.stderr
-    script = (REPO / "scripts" / "merge_pr.sh").read_text(encoding="utf-8")
+    script = (REPO / "scripts" / "merge_pr" / "tree.sh").read_text(encoding="utf-8")
     (step,) = [line for line in script.splitlines() if "no:cacheprovider" in line]
     assert '"${parallel[@]}"' in step, step
     assert "--pytest-options" in script

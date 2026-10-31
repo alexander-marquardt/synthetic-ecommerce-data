@@ -912,7 +912,7 @@ leave `main` red. So every merge, by every builder, is:
 scripts/merge_pr.sh <PR number>
 ```
 
-It clones the PR head into a temporary directory and merges current `main`
+Every step and knob is in [merge-pr.md](merge-pr.md). It clones the PR head into a temporary directory and merges current `main`
 into it. A conflict in a file the rebuild rewrites (`scripts/merge_pr.sh
 --print-generated` lists them) is left for the rebuild; any other
 conflict, `names.py` or a file under `golden-catalog/` that the build does not

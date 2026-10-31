@@ -1,4 +1,4 @@
-"""The step 3 text of scripts/merge_pr.sh and docs/ci-sharding.md name the README size test (#700).
+"""The step 3 text of the merge script and its docs names the README size test (#700).
 
 This file is apart from tests/test_merge_pr.py on purpose: a test that reads
 ``docs/ci-sharding.md`` is selected by a document change, and test_merge_pr.py
@@ -20,8 +20,11 @@ def test_step_3_wording_names_the_readme_size_test_not_a_count() -> None:
     Step 3 runs the README size test too, so "drift, golden and seam" alone and
     "the four" are claims the entry in CHECKS made false.
     """
-    script = (REPO / "scripts" / "merge_pr.sh").read_text(encoding="utf-8")
+    page = (REPO / "docs" / "merge-pr.md").read_text(encoding="utf-8")
+    script = (REPO / "scripts" / "merge_pr" / "tree.sh").read_text(encoding="utf-8")
     doc = (REPO / "docs" / "ci-sharding.md").read_text(encoding="utf-8")
+    assert "golden and seam tests" not in page
+    assert "README size tests" in page
     assert "golden and seam tests" not in script
     assert "golden and seam" not in doc
     assert "the four drift" not in doc
