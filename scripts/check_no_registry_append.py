@@ -58,6 +58,8 @@ _DECOY_FORM = (
     " (rows made with the table's own maker d); the tables find it by walking the package"
 )
 _DECOY_FILES = (f"{RD}/feature_decoys/__init__.py",)
+_WORD_ROW = (r"^\s+_[a-z]\(\s*\d+,", r"^\s+_[a-z]\($")
+_WORD_KIND = (r"^NEW_KINDS\.update\(", _KIND_ENTRY)
 
 REGISTRIES: tuple[Registry, ...] = (
     Registry(
@@ -85,14 +87,22 @@ REGISTRIES: tuple[Registry, ...] = (
     ),
     Registry(
         f"{RD}/decoy_product_words.py",
-        _shapes(
-            r"^\s+_[a-z]\(\s*\d+,",
-            r"^\s+_[a-z]\($",
-            r"^TABLE = \(\*TABLE, \*(?!feature_decoys\.)",
-            r"^NEW_KINDS\.update\(",
-            _KIND_ENTRY,
-        ),
+        _shapes(*_WORD_ROW, r"^TABLE = \(\*TABLE, \*(?!feature_decoys\.)", *_WORD_KIND),
         '    _s(99, "s_probe", "Title", "Desc", "Brown", "block", "Yoga Block"),',
+        _DECOY_FORM,
+        _DECOY_FILES,
+    ),
+    Registry(
+        f"{RD}/decoy_word_table.py",
+        _shapes(*_WORD_ROW),
+        '    _d(99, "s_probe", "Title", "Desc", "Brown", "block", "Yoga Block", _CAT),',
+        _DECOY_FORM,
+        _DECOY_FILES,
+    ),
+    Registry(
+        f"{RD}/decoy_word_kinds.py",
+        _shapes(*_WORD_KIND),
+        '    "probe": Kind("Home", ("Home",), "Cushion", "cushion", "B", 1.0),',
         _DECOY_FORM,
         _DECOY_FILES,
     ),

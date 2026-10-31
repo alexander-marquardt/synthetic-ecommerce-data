@@ -15,7 +15,7 @@ _KIND = f"{_T} -k test_each_kind_of_tree_sits_in_garden_trees"
 ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the bay trees are back under Plants",
-        "breadth_rows.py",
+        "breadth_garden.py",
         '_TREES = ("Garden", "Trees", "Bay Trees")',
         '_TREES = ("Garden", "Plants", "Bay Trees")',
         _KIND,
@@ -23,7 +23,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the olive tree is back under Plants",
-        "breadth_rows.py",
+        "breadth_garden.py",
         '_OLIVES = ("Garden", "Trees", "Olive Trees")',
         '_OLIVES = ("Garden", "Plants", "Olive Trees")',
         _KIND,
@@ -31,7 +31,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the apple trees are back under Fruit Trees",
-        "breadth_rows.py",
+        "breadth_garden.py",
         '_APPLE = ("Garden", "Trees", "Apple Trees")',
         '_APPLE = ("Garden", "Fruit Trees", "Apple Trees")',
         _KIND,
@@ -39,7 +39,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the Christmas trees are back under Real Christmas Trees",
-        "breadth_rows.py",
+        "breadth_garden.py",
         '_XMAS = ("Garden", "Trees", "Christmas Trees")',
         '_XMAS = ("Garden", "Christmas Trees", "Real Christmas Trees")',
         _KIND,
@@ -47,7 +47,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the Christmas trees get a Real Christmas Trees level under Trees",
-        "breadth_rows.py",
+        "breadth_garden.py",
         '_XMAS = ("Garden", "Trees", "Christmas Trees")',
         '_XMAS = ("Garden", "Trees", "Real Christmas Trees")',
         f"{_T} -k test_garden_trees_holds_exactly_the_four_kinds",

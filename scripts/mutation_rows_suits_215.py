@@ -148,7 +148,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         'the check suit jacket is drawn as a coat again',
-        'class_rows.py',
+        "class_rows_apparel.py",
         '"Suit Jacket", "suit_jacket", one(',
         '"Suit Jacket", "coat", one(',
         'tests/test_retail_suit_sets_215.py -k old_suit_jacket_row',

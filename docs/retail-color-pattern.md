@@ -52,7 +52,7 @@ style is added: one colorway of a style main already sold carries each word. "Re
 first colorway of the wool pleated midi skirt (`lowerbody_rows.py`), "Pink Floral" of the jersey
 midi dress (`seasonal_rows.py`, drawn with a daisy print), "Navy Breton Stripe" of the ribbed long
 sleeve top (`colorgroup_rows.py`) and "Multi Patchwork" of the linen fringed cushion
-(`breadth_rows.py`, drawn with the patchwork fill). `colorwords.PATTERN_WORDS` lists the four;
+(`breadth_home.py`, drawn with the patchwork fill). `colorwords.PATTERN_WORDS` lists the four;
 `breton stripe` is one pattern, so a breton colorway is not read as a plain stripe. A patchwork throw is not sold: the Throw type has no
 plain color yet, and `main_colors.complete` refuses a type with none.
 

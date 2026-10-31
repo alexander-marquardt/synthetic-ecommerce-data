@@ -117,7 +117,7 @@ def rows() -> list[Row]:
         ),
         row(
             "a named shade is folded into a plain color word",
-            "class_rows.py",
+            "class_rows_apparel.py",
             '(shade("Porcelain", "#f1dcc8"), 1)',
             '(cw("Porcelain", "#f1dcc8"), 1)',
             (f"{_T} -k kept_as_authored", f"{_T} -k a_named_shade_states"),

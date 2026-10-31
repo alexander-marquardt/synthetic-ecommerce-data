@@ -34,7 +34,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a floor cleaner is too small a family to show a lemon",
-                "grocery_rows.py",
+                "grocery_families.py",
                 '_HOME_BRANDS, 0.016, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
                 '_HOME_BRANDS, 0.001, axis="scent",\n           department="Cleaning & Janitorial", noun="concentrated',
                 "tests/test_grocery_scent_depth_154.py -k lemon_is_a_scent",
@@ -42,7 +42,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a dish soap holds its scent as a flavor",
-                "grocery_rows.py",
+                "grocery_families.py",
                 '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",\n           department="Cleaning & Janitorial", noun="washing-up',
                 '_HOME_SCENTS, _HOME_BRANDS, 0.01, axis="flavor",\n           department="Cleaning & Janitorial", noun="washing-up',
                 "tests/test_grocery_scent_depth_154.py -k told_apart_by_attribute",
@@ -499,7 +499,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a class-8 decoy sells little, so it cannot lead",
-                "decoy_product_words.py",
+                "decoy_word_table.py",
                 "    sold: int = 2000",
                 "    sold: int = 1",
                 "tests/test_retail_product_word_decoys_326.py -k baseline_top_10",
@@ -507,7 +507,7 @@ MUTATIONS: list[Mutation] = [
             ),
             (
                 "a decoy's detail color is dropped from its drawing",
-                "decoy_product_words.py",
+                "decoy_word_table.py",
                 "params = k.params + (((self.detail_param, COLORS[self.detail]),) if self.detail else ())",
                 "params = k.params",
                 "tests/test_retail_product_word_decoys_326.py -k drawing_shows",

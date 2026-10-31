@@ -151,8 +151,8 @@ registry finds the module and feeds the scaled build; the decoy tables find `fea
      cross=True, target="<your product type>"), ...)`: a free `DY` number `n` (a number a table
      or another module holds is refused), a title that holds the shopper's word, and no color
      word in its title or description. A `KINDS = {key: decoy_kind.Kind(...)}` in the same file
-     declares a true type no table has. Never append a row or a kind to `decoy_product_words.py`
-     or `decoy_rows.py`: `scripts/check_no_registry_append.py` refuses it.
+     declares a true type no table has. Never append a row or a kind to `decoy_product_words.py`,
+     `decoy_word_kinds.py`, `decoy_word_table.py` or `decoy_rows.py`: `scripts/check_no_registry_append.py` refuses it.
    How many: Sports & Outdoors at least two per type (`SPORTS_EXEMPT` only with an issue named);
    Garden at least three of each of five classes (`garden_rows.py`); Clothing, Footwear and
    Lingerie by their `ApparelPlan`. Elsewhere no test counts them: say in the PR how many you

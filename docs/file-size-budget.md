@@ -29,6 +29,19 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.
 
+Retail source holds a tighter limit: no `.py` file under
+`src/synthetic_ecommerce_data/domains/retail/` over **1,000 lines**, held by
+`tests/test_retail_source_lines_455.py` and not by this gate, so no exception
+line lifts it. Nine files were over it when #455 split them by moving code into
+siblings: `breadth_rows.py` into one module per department, `breadth_row.py` for
+the `Row`; `decoy_product_words.py` into `decoy_word_kinds.py` and
+`decoy_word_table.py`; `house_styles.py` into `house_marks.py`; `kit_toys.py`
+into `kit_toy_parts.py` and `kit_toys_craft.py`; `kit_footwear.py` into
+`kit_footwear_last.py`; `grocery_rows.py` into `grocery_model.py` and
+`grocery_families.py`; `decoy_apparel.py` into `decoy_apparel_words.py`;
+`class_rows.py` into `class_rows_apparel.py`; `scale.py` into `scale_text.py`
+and `scale_measures.py`. Every importer keeps reading the original module.
+
 ## What it measures
 
 Every tracked file, and every untracked one `.gitignore` does not hide, with a
