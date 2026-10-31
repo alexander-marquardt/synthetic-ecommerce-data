@@ -50,6 +50,10 @@ the type; `tests/test_retail_face_creams_542.py` holds that, five brands, 20 pro
 three sizes. The five names keep the marks and house styles they already have; no brand, mark or style is new. The
 decoys of the type stay in `decoy_rows.py`.
 
+## False nails (gen#751)
+
+`false_nails` (`type_specs/false_nails.py`, leaf `Nails > False Nails`, shape `false_nails` with the param `tip`) gives `nails` its second real meaning: the hardware is under `Fasteners > Nails` ([adding-a-type.md](adding-a-type.md#nails-three-kinds-three-leaves-gen751)). Five styles from three brands, tip shape and nail length as attributes, each style in two colors and packs of 24 and 30, so 20 SKUs, and three decoys. The six main colors are spread across the styles. The titles hold both `Nails` and `Nail` (`Oval False Nail Set`), and the descriptions say `fake nails`. `tests/test_nails_751.py` holds them.
+
 ## Text-match decoys (gen#294)
 
 Each type carries three decoys, a clone of its first style whose words mislead a plain text

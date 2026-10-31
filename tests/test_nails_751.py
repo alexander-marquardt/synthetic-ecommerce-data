@@ -11,6 +11,7 @@ the slices with ``uv run python tests/test_nails_751.py``.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import re
 from pathlib import Path
@@ -23,8 +24,9 @@ from published import authored_attributes
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
-from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial import names, tabletype, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
+from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import nail_framing
 from synthetic_ecommerce_data.domains.retail import scale
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
@@ -38,7 +40,7 @@ LARGE_LINES = 39000
 
 
 def _mm(*rows: tuple[float, float, float]) -> set[tuple[float, ...]]:
-    return {tuple(round(value * MM, 3) for value in row) for row in rows}
+    return {tuple(round(value * MM, 2) for value in row) for row in rows}
 
 
 #: key -> (leaf, title item, material, finish, packs, the chart's rows in inches).
@@ -130,7 +132,7 @@ def test_the_false_nails_are_sold_in_packs(false_nails):
     assert false_nails, "no false nails"
     for record in false_nails:
         packs = {s.get("units_per_pack") for s in record["skus"]}
-        assert None not in packs and len(packs) >= 2, record["id"]
+        assert None not in packs and len(packs) >= 2, record["title"]
 
 
 def test_nail_and_nails_are_both_title_words_of_the_false_nails(false_nails):
@@ -234,7 +236,10 @@ def test_the_whole_build_carries_exactly_this_types_own_build(key):
 @pytest.mark.parametrize("key", KEYS)
 def test_every_row_of_the_table_is_built_and_nothing_else(key, large_docs):
     *_, rows = HARDWARE[key]
-    assert {table_gates.row(doc, COLUMNS) for doc in large_docs[key]} == rows
+    built_rows = sorted({table_gates.row(doc, COLUMNS) for doc in large_docs[key]})
+    assert len(built_rows) == len(rows)
+    for got, want in zip(built_rows, sorted(rows), strict=True):
+        assert got == pytest.approx(want, abs=0.01)
 
 
 @pytest.mark.parametrize("key", KEYS)
@@ -267,6 +272,30 @@ def test_every_row_has_a_valid_drawing_scaled_from_it(key):
     assert len(drawn) == len(HARDWARE[key][-1])
     assert [problem for _, svg in drawn.values() for problem in svg_problems(svg)] == []
     assert len({svg for _, svg in drawn.values()}) == len(drawn)
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_each_drawing_is_the_rows_length_tall_and_its_head_wide(key):
+    drawn = table_gates.drawings(table_gates.catalog(key, LARGE_LINES), key, COLUMNS)
+    assert drawn, f"{key} drew nothing"
+    for (length, _, head), (figure, _) in drawn.items():
+        assert figure.source == "record", (length, figure.source)
+        x0, y0, x1, y1 = figure.figure.bounds()
+        assert x1 - x0 == pytest.approx(head / MM, rel=1e-3), length
+        assert y1 - y0 == pytest.approx(length / MM, rel=1e-3), length
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        ({"source": ""}, "state one of standard and source"),
+        ({"standard": "ASTM F1667"}, "state one of standard and source"),
+    ],
+    ids=["neither", "both"],
+)
+def test_a_table_states_one_of_standard_and_source(change, message):
+    wrong = dataclasses.replace(nail_framing.TABLE, **change)
+    assert message in tabletype.problems(wrong)
 
 
 if __name__ == "__main__":

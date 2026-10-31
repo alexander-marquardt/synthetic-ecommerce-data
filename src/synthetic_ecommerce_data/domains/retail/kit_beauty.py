@@ -324,8 +324,28 @@ def sun_cream(paint: str, fill: Fill, label: str | None, form: str = "tube") -> 
     return _label(out, label)
 
 
+def false_nails(paint: str, fill: Fill, label: str | None, tip: str = "almond") -> list[str]:
+    """A card of ten press-on nails in two rows of five, each drawn to its ``tip``: ``almond``,
+    ``coffin``, ``square``, ``stiletto`` or ``oval``."""
+    outlines = {
+        "almond": "M-22,60 L-22,-10 Q-20,-46 0,-66 Q20,-46 22,-10 L22,60 Q0,74 -22,60 Z",
+        "coffin": "M-22,60 L-26,-10 L-14,-62 L14,-62 L26,-10 L22,60 Q0,74 -22,60 Z",
+        "square": "M-24,60 L-24,-40 L24,-40 L24,60 Q0,74 -24,60 Z",
+        "stiletto": "M-20,60 L-22,0 Q-14,-50 0,-84 Q14,-50 22,0 L20,60 Q0,74 -20,60 Z",
+        "oval": "M-24,60 L-24,-14 Q-24,-46 0,-46 Q24,-46 24,-14 L24,60 Q0,74 -24,60 Z",
+    }
+    outline = outlines[tip.lower()]
+    out = [_rect(52, 56, 296, 300, CAP, 12)]
+    for x, y in ((x, y) for y in (138, 276) for x in (84, 142, 200, 258, 316)):
+        out.append(
+            f'<path transform="translate({x},{y}) scale(0.92)" d="{outline}" fill="{paint}" '
+            f'stroke="{INK}" stroke-width="{LW}"/>'
+        )
+    return _label(out, label)
+
+
 SHAPES = {
-    "mascara": mascara, "primer": primer, "setting_spray": setting_spray, "serum": serum,
+    "false_nails": false_nails, "mascara": mascara, "primer": primer, "setting_spray": setting_spray, "serum": serum,
     "face_mask": face_mask, "eye_patches": eye_patches, "body_mist": body_mist,
     "aftershave": aftershave, "talc": talc, "sun_cream": sun_cream,
 }  # fmt: skip

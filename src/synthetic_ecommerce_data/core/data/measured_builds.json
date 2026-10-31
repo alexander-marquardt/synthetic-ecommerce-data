@@ -5,11 +5,11 @@
     }
   },
   "hundred_k": {
-    "lines": 73074,
+    "lines": 73448,
     "price_pins": {
       "price p50 (USD): bolt_hex": null
     },
-    "skus": 130934,
+    "skus": 131499,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -100,6 +100,9 @@
       "micro_collets": 2,
       "milling_collets": 2,
       "milling_tool_holders": 2,
+      "nail_finishing": 170,
+      "nail_framing": 199,
+      "nail_masonry": 196,
       "nut_drivers_hex": 2,
       "nut_hex": 12000,
       "nut_splitters": 2,

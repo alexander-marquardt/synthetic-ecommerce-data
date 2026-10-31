@@ -261,6 +261,24 @@
   "Thread type": "Thread Type",
   "Width across flats": "Width Across Flats"
  },
+ "nail_finishing": {
+  "Head dia.": "Head Dia.",
+  "Measurement system": "Measurement System",
+  "Shank dia.": "Shank Dia.",
+  "Units per pack": "Units per Pack"
+ },
+ "nail_framing": {
+  "Head dia.": "Head Dia.",
+  "Measurement system": "Measurement System",
+  "Shank dia.": "Shank Dia.",
+  "Units per pack": "Units per Pack"
+ },
+ "nail_masonry": {
+  "Head dia.": "Head Dia.",
+  "Measurement system": "Measurement System",
+  "Shank dia.": "Shank Dia.",
+  "Units per pack": "Units per Pack"
+ },
  "nut_drivers_hex": {
   "Drive size": "Drive Size"
  },
