@@ -118,15 +118,21 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
 
 
 def test_a_flat_sku_states_its_own_variants_allergens() -> None:
-    """Fruit Gums (the 150g SKU of GRC-SWT-0002) hold no milk: the Toffee next to it does."""
+    """Fruit Gums (the 150g SKU of a style that also sells Toffee) hold no milk: the Toffee next
+    to it does."""
     rows = {r["sku"]: r for r in grocery.flat(list(docs()))}
     nested = {v["sku"]: v for d in docs() for v in d["variants"]}
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
             stated = values(nested[sku]["attributes"], key)
             assert set(row["facets"].get(key, [])) == canon(stated), sku
+    mixed = next(
+        d for d in docs() if d["product_id"].startswith("GRC-SWT-")
+        and {"Fruit Gums", "Toffee"} <= {
+            a["value"] for v in d["variants"] for a in v["attributes"] if a["key"] == "flavor"}
+    )
     gums = next(
-        v["sku"] for d in docs() if d["product_id"] == "GRC-SWT-0002" for v in d["variants"]
+        v["sku"] for v in mixed["variants"]
         if {"flavor": "Fruit Gums", "pack_size": "150g"}.items() <= {
             a["key"]: a["value"] for a in v["attributes"]}.items()
     )
@@ -389,9 +395,10 @@ def test_no_label_starts_on_a_dangling_modifier_and_each_names_its_product() -> 
         assert label.split()[0] not in grocery.DANGLING, (title, label)
         assert label != "Selection", title
     by_title = dict(labels)
-    penne = [t for t in by_title if t.endswith("Gluten Free Penne")]
-    milk = [t for t in by_title if t.endswith("Lactose Free Milk")]
-    box = [t for t in by_title if t.endswith("Chocolate Selection")]
+    named = {t: t.split(" with ")[0] for t in by_title}  # an ending stays off the pack
+    penne = [t for t, name in named.items() if name.endswith("Gluten Free Penne")]
+    milk = [t for t, name in named.items() if name.endswith("Lactose Free Milk")]
+    box = [t for t, name in named.items() if name.endswith("Chocolate Selection")]
     assert penne and milk and box
     assert {by_title[t] for t in penne} == {"Penne"}
     assert {by_title[t] for t in milk} == {"Milk"}

@@ -170,7 +170,7 @@ def _word(text: str, cx: float, cy: float, width: float, max_size: float, color:
 #: The grocery marks of the pack being drawn (:data:`MARK_KEYS` from its params): the range
 #: name and the flavor colors. :func:`_drawn` sets it, :func:`_panel` reads it.
 _MARKS: dict[str, str] = {}
-MARK_KEYS = ("line", "chips")
+MARK_KEYS = ("line", "chips", "ending")  # "ending" tells two rounds of a model apart; not drawn
 
 
 def _marked(x: float, y: float, w: float, h: float, text: str, max_size: float) -> list[str]:

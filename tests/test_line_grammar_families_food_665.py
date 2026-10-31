@@ -20,8 +20,9 @@ PROBE = """
 KINDS = ("Probe Jam",)
 LEADS = ("Zzscale", "Zzother")
 GROCERY_LEADS = ("Zzshop", "Zzbasket")
+STYLES = {"Probe Jam": ("Pro",)}
 SUBS = ("Pro",)
-NUMBERS = (3, 4)
+NUMBERS = ()
 BARE = True
 MIXED_BRAND = True
 """
@@ -44,10 +45,10 @@ for draw in range(30):
 print(json.dumps({{
     "fields": [list(fam.grocery_leads), fam.bare, fam.mixed_brand],
     "bare_model": lg.is_model("zz_probe", "Acme", "Zzscale"),
-    "grocery_word": lg.is_model("zz_probe", "Acme", "Zzshop Pro 3"),
+    "grocery_word": lg.is_model("zz_probe", "Acme", "Zzshop Pro"),
     "shop": sorted(w for b in ("Acme", "Bolt") for w in shop.of(b)),
     "scale": sorted(w for b in ("Acme", "Bolt") for w in scale.of(b)),
-    "owned": [shop.owned("Acme", i) for i in range(5)],
+    "owned": [shop.owned("Acme", i, "Probe Jam") for i in range(5)],
     "led": led,
     "titles": titles,
 }}))
