@@ -16,6 +16,7 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     feature_decoys,
@@ -91,9 +92,20 @@ def test_every_guard_query_has_a_real_product_holding_its_words() -> None:
 
 @pytest.mark.parametrize("query", sorted(INTENT))
 def test_without_interpretation_decoys_lead_the_top_10(index: br.Index, query: str) -> None:
+    """A row planted for the query counts whichever table plants it. A gen#326 product-word decoy
+    of the query ("Blue Sofa Cover") is a text-match decoy by this module's own definition: its
+    title carries the query's words and its category says it is not what the query means. Which
+    of them outranks which turns on the catalog's mean title length (BM25's length norm), so a
+    longer food title elsewhere must not read as a decoy lost (gen#729)."""
     top = [d["product_id"] for d in br.rank(index, query, 10)]
     # gen#311: the apparel decoys are decoys of the same kind, and crowd the #294 ones.
-    planted = [i for i in top if (i in dr.BY_ID and not dr.BY_ID[i].true_hit) or i in da.IDS]
+    planted = [
+        i
+        for i in top
+        if (i in dr.BY_ID and not dr.BY_ID[i].true_hit)
+        or i in da.IDS
+        or (i in dpw.BY_ID and dpw.BY_ID[i].query == query)
+    ]
     assert len(planted) >= 3, (query, top)
     assert any(i in planted for i in top[:3]), (query, top[:3])
 
