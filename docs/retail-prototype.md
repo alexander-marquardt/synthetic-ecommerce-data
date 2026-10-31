@@ -8,8 +8,8 @@ under `tests/`. A script of it runs as a module, for example
 
 This page holds the retail prototype's reference sections, moved out of
 [README.md](../README.md) verbatim (#240) because the README was over the file-size cap
-(`scripts/file_size_cap.txt`). The type batches add their listing line here, to
-"The retail catalog at a size", not to the README.
+(`scripts/file_size_cap.txt`). A feature's own section is a page in
+[docs/retail-prototype/](retail-prototype/), not a heading here or in the README.
 
 ## Planted distractors (retail prototype)
 
@@ -790,4 +790,5 @@ A feature that needs a reference section of its own writes it as a page in
 (Womens sizes above UK 16, Womens dresses in UK numeric sizes, large appliances and pack scale
 are there). Every feature appended its section to the end of this page, so two features branched
 from one `main` conflicted here; this page now gains no heading, and `scripts/check_no_registry_append.py` refuses a diff that adds one
-(gen#513).
+(gen#513). `scripts/build_derived.py` writes the index of these pages, `docs/feature-pages.md`, into
+the `derived` artifact, so a new page lists itself.

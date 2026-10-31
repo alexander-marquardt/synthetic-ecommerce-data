@@ -164,6 +164,7 @@ if [[ " $* " == *measured_builds* ]]; then
 fi
 if [[ " $* " == *measure_pins* ]]; then
   # It reads the whole catalog: only a case about the pins runs the real one.
+  if [ -n "${FAKE_UV_PINS_REFUSE:-}" ]; then echo "no SKU satisfies the pin rule" >&2; exit 1; fi
   if [ -z "${FAKE_UV_PINS:-}" ]; then exit 0; fi
 fi
 exec "$REAL_UV" "$@"
@@ -428,6 +429,16 @@ def test_a_conflict_in_the_golden_pins_is_resolved_by_the_rebuild(world: dict) -
     assert result.returncode == 0, result.stdout + result.stderr
     assert _git(world["origin"], "show", f"{_branch(world)}:{_PINS}") + "\n" == true
     assert _merged(world)
+
+
+def test_a_pin_rule_no_sku_meets_refuses_the_merge(world: dict) -> None:
+    """A rule the merged catalog cannot satisfy stops the merge, naming the rule."""
+    head = _open_pr(world, _GREEN)
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_PINS_REFUSE="1")
+    assert result.returncode != 0
+    assert "no SKU satisfies the pin rule" in result.stderr
+    assert "golden pins refuse" in result.stderr
+    assert not _merged(world)
 
 
 

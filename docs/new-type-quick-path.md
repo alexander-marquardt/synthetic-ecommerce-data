@@ -198,12 +198,17 @@ names the file that replaces it:
 | `docs/retail-prototype.md` | a section heading for the feature, at the end of the page | its own page, `docs/retail-prototype/<topic>-<issue>.md` |
 | `docs/retail-product-word-decoys.md` | the regenerated decoy table, pasted whole; a bold section lead for the feature | the table: nothing, `scripts/build_derived.py` builds `docs/retail-product-word-decoys-table.md`; the section: its own page, `docs/retail-product-word-decoys/<topic>-<issue>.md` |
 | `tests/test_retail_product_word_decoys_326.py` | a `"noun": "Node",` row in `TRUE_NODE` | `tests/decoy_true_nodes/<topic>.py` with a `NODES` dict |
+| `docs/retail-catalog-batch-1.md` | the regenerated decoy table, pasted whole; a section heading | the table: nothing, `scripts/build_derived.py` builds `docs/retail-text-match-decoys-table.md`; the section: its own page, `docs/retail-prototype/<topic>-<issue>.md` |
+| `docs/adding-a-type.md` | a section heading for an industrial feature | its own page, `docs/industrial-types/<topic>-<issue>.md` |
+| `tests/test_retail_apparel_decoys_311.py` | a test function, a title in `REAL_COMPOUNDS` | `tests/test_retail_apparel_decoys_<topic>_<issue>.py` taking the build from `tests/retail_ceiling.py`; `tests/decoy_real_compounds/<topic>.py` with a `COMPOUNDS` frozenset |
+| `src/synthetic_ecommerce_data/domains/retail/details.py` | a shape's entry in `PARTS` | `details.register_parts(<shape>, {...})` in the type's spec file, beside its `kit.register` |
 
 A change that is no feature (a helper module the scaled build needs) puts
 `Registry-Append: <why no new file will do>` on a commit of the branch (a later commit or a merge
 of main does not drop it). A shared file that has no
-new-file form yet is not in the table (`details.PARTS`, the pasted doc tables); it is added to
-the table in the PR that gives it one.
+new-file form yet is not in the table; it is added to the table in the PR that gives it one.
+`scripts/pair_conflicts.py <head> <head> ...` runs `git merge-tree --write-tree` over every pair of
+heads and names each file that conflicts, apart from the files `scripts/merge_pr.sh` rebuilds.
 
 ## Metric
 
