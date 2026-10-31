@@ -127,6 +127,11 @@ that is dark on a light frame and light on a dark one, with a bolt in the frame'
 hub motor. A kids' bike has one stabilizer, the far one, behind and below the rear axle, drawn
 lighter and standing on the main wheels' ground. A road bike has none of these.
 
+A frame as pale as a brand's sheet carries an ink outline under its paint, so a White bike's frame
+shows on every brand's sheet (gen#746). The outline is drawn in the house style's ink and stroke
+weight. A colored frame stays bare, because at 120 px the outline would darken its color.
+`tests/test_retail_bicycle_white_frame_746.py` holds this on all ten bicycle brands' sheets.
+
 Each size is the whole drawing scaled, tires included, at the size's rank among the product's own
 sizes on the shared ladder (`size_ladder.py`): 55/90 of the largest for the smallest. A bike's first
 SKU is its smallest size, so that rung is the image on its product card.

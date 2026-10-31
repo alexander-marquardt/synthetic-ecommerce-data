@@ -77,6 +77,10 @@ FABRIC_DARK = "#3a3f46"
 TUBE = 8
 BATTERY_DARK, BATTERY_LIGHT = "#1f2329", "#f5c842"
 BATTERY_TURN = 0.16
+#: The frame luminance past which the paint is as light as a brand's sheet, so the tubes take an
+#: ink outline under it (gen#746). A colored frame stays bare: at the smallest size on a 120 px
+#: thumbnail the outline is as wide as the paint, and a red frame would read as dark.
+FRAME_PALE = 0.7
 
 
 def _ell(cx: float, cy: float, rx: float, ry: float, fill: str, width: float = LW, extra: str = "") -> str:
@@ -595,11 +599,17 @@ def bicycle(paint: str, fill: Fill, label: str | None, style: str = "road") -> l
     if kind == "mountain":  # the tread: short dashes round each tire's outer edge
         out += [_ell(x, cy, r + tire / 2 + 1, r + tire / 2 + 1, "none", 6, ' class="tread" stroke-dasharray="5 9"') for x in (rx, fx)]
     frame = fill.base
+    tubes = [
+        (f"M{bx},{by} L{sx},{sy} L{rx},{cy} L{bx},{by}", TUBE, "", frame),
+        (f"M{sx},{sy} L{hx},{hy}", TUBE, ' class="top-tube"', frame),
+        (f"M{hx},{hy} L{bx},{by}", TUBE * 2.5 if kind == "electric" else TUBE, ' class="down-tube"', frame),
+        (f"M{hx},{hy} L{fx},{cy}", 7 if kind != "mountain" else 11, "", POLE if kind == "mountain" else frame),
+    ]
+    # Every outline goes down before any paint, so a tube's joint with the next stays open.
+    if _luminance(frame) >= FRAME_PALE:
+        out += [_line(d, width + 2 * LW, ' class="tube-outline"') for d, width, _, _ in tubes]
+    out += [_line(d, width, extra, stroke=color) for d, width, extra, color in tubes]
     out += [
-        _line(f"M{bx},{by} L{sx},{sy} L{rx},{cy} L{bx},{by}", TUBE, stroke=frame),
-        _line(f"M{sx},{sy} L{hx},{hy}", TUBE, ' class="top-tube"', stroke=frame),
-        _line(f"M{hx},{hy} L{bx},{by}", TUBE * 2.5 if kind == "electric" else TUBE, ' class="down-tube"', stroke=frame),
-        _line(f"M{hx},{hy} L{fx},{cy}", 7 if kind != "mountain" else 11, stroke=POLE if kind == "mountain" else frame),
         _line(f"M{sx},{sy} L{sx - 6},{sy - 22}", 5),
         _path(f"M{sx - 28},{sy - 24} Q{sx - 6},{sy - 36} {sx + 20},{sy - 26} L{sx + 18},{sy - 18} L{sx - 28},{sy - 17} Z", INK),
         _line(f"M{bx - 16},{by + 8} L{bx + 16},{by - 8}", 5),
