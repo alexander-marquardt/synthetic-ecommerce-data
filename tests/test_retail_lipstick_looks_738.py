@@ -13,7 +13,15 @@ import re
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import export, image_release, scale
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    kit,
+    kit_home,
+    lipstick_looks,
+    scale,
+    sheet_extent,
+)
 from synthetic_ecommerce_data.domains.retail.line_grammar_families.beauty import (
     LEADS,
     NUMBERS,
@@ -87,7 +95,7 @@ def test_the_attribute_states_the_finish_over_the_title() -> None:
 
 @pytest.mark.parametrize(
     ("title", "finish"),
-    [("Satin Lipstick", "satin"), ("Rouge, Matte Lipstick", "matte"), ("Sheer Lip", "sheer"),
+    [("Satin Lipstick", "satin"), ("Matte, Rouge Lipstick", "matte"), ("Sheer Lip", "sheer"),
      ("Rouge Lipstick", "satin")],
 )  # fmt: skip
 def test_a_product_with_no_finish_attribute_reads_its_title(title: str, finish: str) -> None:
@@ -114,3 +122,120 @@ def test_no_shade_of_the_range_is_a_case_color() -> None:
               for c in r.get("color_options", ())}  # fmt: skip
     drawn = set(pattern.findall(str(_spec(_lipstick()))))
     assert shades and drawn and not shades & drawn
+
+
+def _drawn(**params: str) -> str:
+    return kit.render("lipstick", kit.Fill("solid", "#c8102e", "#2b2b30"), params=params)
+
+
+def test_every_look_stays_on_its_sheet() -> None:
+    for case, bullet, emblem, finish in itertools.product(
+        kit_home.LIPSTICK_CASES,
+        kit_home.LIPSTICK_BULLETS,
+        kit_home.LIPSTICK_EMBLEMS,
+        kit_home.LIPSTICK_FINISHES,
+    ):
+        svg = _drawn(case=case, bullet=bullet, emblem=emblem, finish=finish)
+        assert sheet_extent.overrun(svg, 400.0) == 0, (case, bullet, emblem, finish)
+
+
+@pytest.mark.parametrize(
+    ("param", "choices"),
+    [
+        ("case", kit_home.LIPSTICK_CASES),
+        ("case_color", lipstick_looks.CASE_COLORS),
+        ("collar", lipstick_looks.COLLARS),
+        ("bullet", kit_home.LIPSTICK_BULLETS),
+        ("emblem", kit_home.LIPSTICK_EMBLEMS),
+        ("finish", kit_home.LIPSTICK_FINISHES),
+    ],
+)
+def test_each_choice_of_a_look_draws_its_own_picture(param: str, choices: tuple) -> None:
+    assert len({_drawn(**{param: choice}) for choice in choices}) == len(choices) >= 3
+
+
+def test_a_case_and_its_collar_take_the_look_colors_and_the_cap_matches_the_base() -> None:
+    svg = _drawn(case="slim", case_color="#123456", collar="#654321", emblem="dot")
+    assert svg.count('fill="#123456"') == 2
+    assert svg.count('fill="#654321"') == 4
+
+
+def test_a_drawing_with_no_look_keeps_the_fill_accent_as_its_case() -> None:
+    assert 'fill="#2b2b30"' in _drawn()
+
+
+def test_only_a_satin_or_sheer_bullet_carries_gloss_and_only_sheer_shows_through() -> None:
+    gloss = 'stroke="#ffffff"'
+    assert gloss not in _drawn(finish="matte")
+    assert gloss in _drawn(finish="satin")
+    assert gloss in _drawn(finish="sheer")
+    assert 'stroke="#000000"' in _drawn(finish="satin")
+    assert 'stroke="#000000"' not in _drawn(finish="matte")
+    assert "fill-opacity" not in _drawn(finish="satin")
+    assert "fill-opacity" in _drawn(finish="sheer")
+
+
+def _rgb(hex_color: str) -> tuple[int, ...]:
+    return tuple(int(hex_color[i : i + 2], 16) for i in (1, 3, 5))
+
+
+def test_the_case_colors_read_apart_at_a_tile() -> None:
+    for one, other in itertools.combinations(lipstick_looks.CASE_COLORS, 2):
+        apart = sum((a - b) ** 2 for a, b in zip(_rgb(one), _rgb(other), strict=True)) ** 0.5
+        assert apart >= 45, (one, other)
+
+
+def test_the_choices_have_room_for_every_model() -> None:
+    room = (
+        len(kit_home.LIPSTICK_CASES)
+        * len(lipstick_looks.CASE_COLORS)
+        * len(kit_home.LIPSTICK_BULLETS)
+        * len(kit_home.LIPSTICK_EMBLEMS)
+        * len(lipstick_looks.COLLARS)
+    )
+    assert room >= lipstick_looks.MODELS
+
+
+def _number(line: str) -> int:
+    try:
+        return lipstick_looks._line_number(line)
+    except ValueError as gone:
+        raise AssertionError(f"{line!r} is outside the grammar and must hash: {gone}") from gone
+
+
+def test_a_real_model_is_numbered_from_its_words() -> None:
+    assert _number(f"{LEADS[0]} {NUMBERS[0]}") == 0
+    assert _number(f"{LEADS[0]} {SUBS[0]} {NUMBERS[0]}") == len(NUMBERS)
+    assert _number(f"{LEADS[1]} {NUMBERS[1]}") == (len(SUBS) + 1) * len(NUMBERS) + 1
+
+
+@pytest.mark.parametrize(
+    "near",
+    [f"{LEADS[0]} 1", f"{LEADS[0]} Limited 2", f"Harbor {NUMBERS[0]}", LEADS[0],
+     f"{LEADS[0]} {SUBS[0]}", f"{LEADS[0]} Plus Pro 2"],
+)  # fmt: skip
+def test_a_near_miss_of_the_grammar_hashes_into_the_models(near: str) -> None:
+    assert 0 < _number(near) < lipstick_looks.MODELS
+
+
+def test_models_that_differ_by_their_lead_alone_spread_over_the_cases_and_colors() -> None:
+    specs = [_spec(_lipstick(f"{lead} Pro 4")) for lead in LEADS]
+    assert len({s["case"] for s in specs}) == len(kit_home.LIPSTICK_CASES)
+    assert len({s["case_color"] for s in specs}) >= 10
+
+
+def test_each_look_lands_on_one_place() -> None:
+    assert sorted(lipstick_looks.SCATTERED) == list(range(lipstick_looks.MODELS))
+
+
+def _case(shape: str) -> list[str]:
+    return kit_home._lipstick_case(shape, 100, 200, 60, 300, "#123456")
+
+
+def test_each_case_draws_the_outline_its_name_says() -> None:
+    assert len(_case("slim")) == 1 and " Q" not in _case("slim")[0]
+    assert " Q" in _case("domed")[0] and "M96,300 L96,226" in _case("domed")[0]
+    assert " Q" in _case("waisted")[0] and "Q110,250" in _case("waisted")[0]
+    assert 'd="M108,200 L152,200 L164,300 L96,300 Z"' in _case("tapered")[0]
+    assert len(_case("square")) == 2 and _case("square")[1].count("M") == 2
+    assert len(_case("fluted")) == 2 and _case("fluted")[1].count("M") >= 4

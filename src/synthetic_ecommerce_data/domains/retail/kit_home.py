@@ -442,18 +442,85 @@ def fragrance(paint: str, fill: Fill, label: str | None) -> list[str]:
     return out
 
 
-def lipstick(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """An open lipstick (the bullet carries the shade) beside its cap."""
+#: A lipstick's case: how far each side of it stands out from the slim case, and how far its top
+#: narrows from its foot. The cap and the base share one.
+LIPSTICK_CASES = {"slim": (0, 0), "square": (6, 0), "domed": (4, 0), "tapered": (4, 12), "waisted": (6, 0), "fluted": (2, 0)}
+#: A bullet, drawn from the sleeve up. Where the shade shows, so a line's cut reads at a tile.
+LIPSTICK_BULLETS = {
+    "slant": "M220,154 L220,110 Q220,98 232,92 L256,76 Q262,74 262,82 L262,154 Z",
+    "dome": "M220,154 L220,112 Q220,74 241,74 Q262,74 262,112 L262,154 Z",
+    "point": "M220,154 L220,124 Q222,98 241,66 Q260,98 262,124 L262,154 Z",
+    "notch": "M220,154 L220,98 Q222,74 232,76 Q238,78 241,90 Q244,78 250,76 Q260,74 262,98 L262,154 Z",
+}
+#: A finish: the bullet's opacity, its white gloss ``(path, width, opacity)`` and the shadow down
+#: its far side, which a pale shade needs because white gloss does not show on it. A matte bullet
+#: has neither, so a matte and a satin of one shade do not draw alike.
+LIPSTICK_FINISHES = {
+    "satin": (1.0, ("M230,146 L230,106", 7, 0.7), "M255,148 L255,104"),
+    "matte": (1.0, None, None),
+    "sheer": (0.55, ("M230,146 L230,106 M250,146 L250,110", 5, 0.8), None),
+}
+LIPSTICK_EMBLEMS = ("none", "dot", "diamond", "bar")
+
+
+def _lipstick_case(shape: str, x: float, top: float, width: float, foot: float, color: str) -> list[str]:
+    """One piece of a lipstick's case, standing on ``foot``, ``width`` across before its shape."""
+    out, taper = LIPSTICK_CASES[shape]
+    left, right = x - out, x + width + out
+    if shape == "domed":
+        d = f"M{left},{foot} L{left},{top + 26} Q{left},{top} {left + 26},{top} L{right - 26},{top} Q{right},{top} {right},{top + 26} L{right},{foot} Z"
+    elif shape == "waisted":
+        mid = (top + foot) / 2
+        d = f"M{left},{top} Q{left + 16},{mid} {left},{foot} L{right},{foot} Q{right - 16},{mid} {right},{top} Z"
+    else:
+        d = f"M{left + taper},{top} L{right - taper},{top} L{right},{foot} L{left},{foot} Z"
+    case = [_path(d, color)]
+    if shape == "square":
+        case.append(_line(f"M{left + 12},{top + 2} L{left + 12},{foot - 2} M{right - 12},{top + 2} L{right - 12},{foot - 2}"))
+    if shape == "fluted":
+        flutes = " ".join(f"M{v},{top + 3} L{v},{foot - 3}" for v in range(int(left) + 12, int(right) - 6, 12))
+        case.append(_line(flutes, 1.6, ' stroke-opacity=".6"'))
+    return case
+
+
+def _lipstick_emblem(emblem: str, cx: float, cy: float, color: str) -> list[str]:
+    """The small mark on a lipstick's case, centered so no case's outline reaches it."""
+    if emblem == "dot":
+        return [f'<circle cx="{cx}" cy="{cy}" r="10" fill="{color}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>']
+    if emblem == "diamond":
+        return [_path(f"M{cx},{cy - 14} L{cx + 12},{cy} L{cx},{cy + 14} L{cx - 12},{cy} Z", color, LW_DETAIL)]
+    if emblem == "bar":
+        return [f'<rect x="{cx - 15}" y="{cy - 5}" width="30" height="10" fill="{color}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>']
+    return []
+
+
+def lipstick(
+    paint: str,
+    fill: Fill,
+    label: str | None,
+    case: str = "slim",
+    case_color: str | None = None,
+    collar: str = GOLD,
+    bullet: str = "slant",
+    emblem: str = "none",
+    finish: str = "satin",
+) -> list[str]:
+    """An open lipstick (the bullet carries the shade) beside its cap. The product's line chooses
+    the case, its color, the collar, the bullet's cut and the emblem, and its finish the bullet's
+    surface (:mod:`lipstick_looks`), so two products of one shade differ at a tile."""
+    color = case_color or fill.accent
+    opacity, highlight, shadow = LIPSTICK_FINISHES[finish]
     return [
-        f'<rect x="114" y="198" width="66" height="154" rx="5" fill="{fill.accent}" stroke="{INK}" stroke-width="{LW}"/>',
-        f'<rect x="114" y="332" width="66" height="20" fill="{GOLD}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
-        _highlight("M126,212 L126,320", 5, 0.35),
-        _path("M220,154 L220,110 Q220,98 232,92 L256,76 Q262,74 262,82 L262,154 Z", paint),
-        _highlight("M228,148 L228,112", 4, 0.45),
+        *_lipstick_case(case, 114, 198, 66, 332, color),
+        f'<rect x="{114 - LIPSTICK_CASES[case][0]}" y="332" width="{66 + 2 * LIPSTICK_CASES[case][0]}" height="20" fill="{collar}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        *_lipstick_emblem(emblem, 147, 264, collar),
+        _path(LIPSTICK_BULLETS[bullet], paint, extra=f' fill-opacity="{opacity:g}"' if opacity < 1 else ""),
+        *([_highlight(*highlight)] if highlight else []),
+        *([_line(shadow, 7, ' stroke-opacity=".28"', "#000000")] if shadow else []),
         f'<rect x="214" y="150" width="54" height="54" fill="{METAL}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
-        f'<rect x="206" y="200" width="70" height="16" fill="{GOLD}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
-        f'<rect x="206" y="214" width="70" height="138" rx="5" fill="{fill.accent}" stroke="{INK}" stroke-width="{LW}"/>',
-        _highlight("M218,228 L218,336", 5, 0.35),
+        f'<rect x="206" y="200" width="70" height="16" fill="{collar}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        *_lipstick_case(case, 206, 214, 70, 352, color),
+        *_lipstick_emblem(emblem, 241, 284, collar),
     ]
 
 
