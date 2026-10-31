@@ -37,8 +37,12 @@ __all__ = ["BOTTOM", "TOP", "primary", "scale_at", "size_scale", "spec", "stand"
 LETTERS = ("XXXS", "XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL")
 _ALIASES = {"2XS": "XXS", "3XS": "XXXS", "2XL": "XXL", "3XL": "XXXL", "4XL": "XXXXL"}
 #: A size sold by a word, on its own ladder; only the words of one product are ever compared.
+#: The UK shoe size bands a school sock is sold in, a child's to a teenager's: a child's sizes run
+#: up to 13 and start again at 1, so no band's opening number is its place.
+SOCK_BANDS = ("UK 6-8.5", "UK 9-12", "UK 12.5-3.5", "UK 4-7")
 WORDS = {
     **{word: float(rank) for rank, word in enumerate(("Small", "Medium", "Large"))},
+    **{word: float(rank) for rank, word in enumerate(SOCK_BANDS)},
     **{word: float(rank) for rank, word in enumerate(
         ("Single", "Small Double", "Double", "King Size", "Super King Size"))},  # fmt: skip
     **{word: float(rank) for rank, word in enumerate(("Hand Towel", "Bath Towel", "Bath Sheet"))},

@@ -1,4 +1,4 @@
-"""School uniform for Kids, first increment (gen#205): trousers, skirts, pinafores and shirts.
+"""School uniform for Kids (gen#205): the first increment's trousers, skirts, pinafores and shirts.
 
 The catalog had school shoes and school socks and no garment to wear above them, so "school
 trousers longer length", "girls pleated school skirt" or "2 pack school shirts" found adult trousers
@@ -20,8 +20,9 @@ count is a product attribute and the drawing of a multipack stacks that many pac
 styles are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("school_rows")``), so the
 seeded derivation is what it was. The types carry text-match decoys from :mod:`decoy_apparel`
 like every other clothing type, and the six main colors come from :mod:`main_colors`. Not yet
-here: polo shirts, socks (one pack style exists in ``class_rows``), blazers, PE shorts and
-jumpers or cardigans, which the issue lists next. Every brand is invented.
+here: jumpers and cardigans. Polo shirts, socks, blazers and PE shorts are specs of their own
+(``type_specs/school_polo.py``, ``school_socks.py``, ``school_blazer.py``, ``pe_shorts.py``) over
+this module's ages, colors and :func:`_row`. Every brand is invented.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).

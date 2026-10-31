@@ -90,6 +90,7 @@ class Fan(NamedTuple):
 FANS = {
     "knickers": Fan(step=9.0, sweep=60.0, across=0.5, below=1.6, crown=True),
     "socks": Fan(step=16.0, sweep=110.0, across=0.5, below=0.15),
+    "school_socks": Fan(step=16.0, sweep=110.0, across=0.5, below=0.15),
 }
 
 #: The params a shape draws its own count from, and the shapes that always draw their own.
@@ -100,6 +101,7 @@ ONE_ITEM = {
     "bath_towel": {"folded": "1"},
     "hangers": {"nested": "1"},
     "knickers": {"flat": "1"},
+    "school_socks": {"lone": "1"},
     "socks": {"lone": "1"},
     "travel_organizer": {"cubes": "1"},
 }
