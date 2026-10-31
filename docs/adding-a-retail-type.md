@@ -135,6 +135,6 @@ a drawing that looks wrong there may be right. On macOS use
 A feature never appends to a registry that other features append to. The decoy tables read the
 modules of `feature_decoys/`, the scaled build reads `type_specs/`, the line grammar reads
 `line_grammar_families/`, and the mutant harness reads `scripts/mutation_rows_*.py`, each by
-walking or globbing: add a file there. The table of the shared files and of what replaces a
-line in each is in [new-type-quick-path.md](new-type-quick-path.md#shared-files-add-a-file-never-a-line), and the
+walking or globbing: add a file there. A new shape's parts: `details.register_parts` in its spec.
+The table of the shared files and of what replaces a line in each is in [new-type-quick-path.md](new-type-quick-path.md#shared-files-add-a-file-never-a-line), and the
 `no-derived-files` job's `scripts/check_no_registry_append.py` fails a diff that appends one.

@@ -27,6 +27,8 @@ DERIVED: tuple[str, ...] = (
     "docs/figures.md",
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys-table.md",
+    "docs/retail-text-match-decoys-table.md",
+    "docs/feature-pages.md",
     "src/synthetic_ecommerce_data/domains/retail/samples*.ndjson",
     "src/synthetic_ecommerce_data/domains/retail/preview*.html",
 )

@@ -222,11 +222,11 @@ refusing the tree; rerun it.
 sources, its tests and its docs, and the golden files its change moves in `golden-catalog/`
 (`flat.jsonl`, `nested.jsonl`, `images.jsonl`, `stats.json`, the mappings). It
 never commits build output: the retail totals (`golden-retail/stats.json`), the figures page
-`docs/figures.md`, the decoy tables `docs/retail-apparel-decoys.md` and
-`docs/retail-product-word-decoys-table.md`, and the sneak-peek samples and previews. They
-moved with every type or grocery PR, so every merge conflicted the
-rest, and a merge that did not roll them left `main` red. CI builds them once per run and uploads
-them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
+`docs/figures.md`, the decoy tables `docs/retail-apparel-decoys.md`,
+`docs/retail-product-word-decoys-table.md` and `docs/retail-text-match-decoys-table.md`, the
+feature pages' index `docs/feature-pages.md`, and the sneak-peek samples and previews. They
+moved with every type or grocery PR, so every merge conflicted the rest, and a merge that did
+not roll them left `main` red. CI builds them once per run and uploads them as the `derived` artifact (`scripts/build_derived.py`; run it yourself, `uv run python
 scripts/build_derived.py --out build/derived`, to see yours), a test reads a total with
 `retail_figures.figures()` and never compares against a committed number, and the
 `no-derived-files` job (`scripts/check_no_derived_files.py`) fails a PR whose tree tracks one,

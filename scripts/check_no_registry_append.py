@@ -156,6 +156,40 @@ REGISTRIES: tuple[Registry, ...] = (
         " build from tests/retail_ceiling.py (ceiling_build()); this file gains no test",
         ("tests/retail_ceiling.py", "tests/test_retail_scale_drawing_params_512.py"),
     ),
+    Registry(
+        "docs/adding-a-type.md",
+        _shapes(r"^#{1,6}\s"),
+        "## Nuts by the box (#999)",
+        "write the feature's section as its own page, docs/industrial-types/<topic>-<issue>.md;"
+        " this guide gains no heading",
+        ("docs/industrial-types/plain-screws-750.md",),
+    ),
+    Registry(
+        "docs/retail-catalog-batch-1.md",
+        _shapes(r"^#{1,6}\s", r"^\|"),
+        "| red sofa | 1 color names a part | PLT-DXZ01 | Blue Sofa with Red Piping | decoy |",
+        "the table is built, not pasted: scripts/build_derived.py writes"
+        " docs/retail-text-match-decoys-table.md from decoy_rows.TABLE; write the feature's section"
+        " as its own page, docs/retail-prototype/<topic>-<issue>.md",
+        ("scripts/build_derived.py", "docs/retail-prototype/pack-scale-543.md"),
+    ),
+    Registry(
+        "tests/test_retail_apparel_decoys_311.py",
+        _shapes(r"^def test_\w+\(", r'^\s+"[A-Z]\w* [^"]*",'),
+        '    "Probe Slippers", "Probe Clogs",',
+        "add tests/test_retail_<topic>_decoys_<issue>.py for a test, taking the build from"
+        " tests/retail_ceiling.py, and tests/decoy_real_compounds/<topic>.py with a COMPOUNDS"
+        " frozenset for a title; both are found with no line here",
+        ("tests/retail_ceiling.py", "tests/decoy_real_compounds/__init__.py"),
+    ),
+    Registry(
+        f"{RD}/details.py",
+        _shapes(r'^ {4}"\w+":\s*\{'),
+        '    "probe_coat": {"hem": TORSO_HEM},',
+        "call details.register_parts(<shape>, {...}) in the type's spec file,"
+        f" {RD}/type_specs/<key>.py, beside its kit.register; PARTS gains no entry",
+        (f"{RD}/type_registry.py",),
+    ),
 )
 
 

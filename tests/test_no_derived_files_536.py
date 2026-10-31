@@ -27,6 +27,8 @@ PLANTED = (
     "docs/figures.md",
     "docs/retail-apparel-decoys.md",
     "docs/retail-product-word-decoys-table.md",
+    "docs/retail-text-match-decoys-table.md",
+    "docs/feature-pages.md",
     f"{RD}/samples.ndjson",
     f"{RD}/samples4.ndjson",
     f"{RD}/preview.html",

@@ -759,10 +759,6 @@ build module `domains/industrial/measured_builds.py` writes and
 that moves them runs the module and commits the file (`tests/test_price.py`
 is red until it does), and a conflict in it is never merged by hand.
 
-## Nails: three kinds, three leaves (gen#751)
-
-`Fasteners > Nails` holds three table types, each with its own leaf: `nail_framing` (Framing Nails), `nail_finishing` (Finishing Nails) and `nail_masonry` (Masonry Nails). `domains/industrial/nails.py` holds the columns (`Length`, `Shank Dia.`, `Head Dia.`) and the drawing they share. Each kind is one material over rows of one supplier chart, in two packs, so the range stays small: at the default build 27, 31 and 26 products (48, 55 and 43 SKUs). The charts name no standard, so a nail claims none. A title takes the pack form of every table type (`Framing Nail, 2" Length, 50 Pack`), and the variant count is `Generator._variant_count()`. The other meaning of the word is in [retail-beauty-depth.md](retail-beauty-depth.md#false-nails-gen751). `tests/test_nails_751.py` runs the per-type gates over all three keys.
-
 ## Several kinds under one node (the hammers, #305)
 
 A leaf is normally one type's own two-word plural. The exception is a node a shopper
@@ -790,12 +786,6 @@ stays one per type, and their attributes stay true. The class names the word:
 
 `tests/test_hammers_305.py` pins at least three of each class per kind and that the
 handle never is the named material. Only the flat `title` is short: `parent_title` and the nested title keep the brand form. One predicate, `hammers.is_incidental_decoy_title`, tells the class-4 title to the gates that read titles (the voice and the key-dimension gate exempt it). The color classes do not apply: a hammer has no color.
-
-## Sold singly or by the box (the plain screws, #750)
-
-`domains/industrial/plain_screws.py` builds the wood, machine, drywall, sheet metal and deck screws from one table, the way `hammers.py` builds the hammers: add a `PlainScrewKind` and a three-line module under `product_types/fasteners/`. Each kind is its own leaf beside the lag screw under `Fasteners > Bolts, Screws & Cap Screws`, so no `SHARED_LEAVES` row is needed.
-
-A line is sold singly or by the box. A boxed line takes the plural item, publishes `Units per Pack` per SKU, and says so in the pack form through `ChildDraft.pack_phrase` (`Wood Screws, #8 Gauge, 1-1/4" L, Round Head, Box of 100`). A line sold singly takes the singular item, says no pack in its title and publishes a pack of 1: with no pack at all, the duplicate check reads a brand's loose screw as its boxed one less a dropped attribute. The size is `Gauge` on a kind with no thread and `Thread Size` on the machine screw, which names no standard, so it publishes nothing the coverage sweep reads as built to one. A line never lists one length twice (`_lengths_of_a_line`), so each SKU's length is its own within its line. `tests/test_plain_screws_750.py` holds these, and holds the five kinds to 1% of the catalog's SKUs.
 
 ## A decoy for an industrial seed query (#462)
 
@@ -880,6 +870,9 @@ appended line; `scripts/check_no_registry_append.py` refuses the line. The table
 **Breadth types can be built in parallel.** Two breadth-type pull requests
 share only these, and each has a mechanical resolution:
 
+* **The feature's own section.** It is a page, `docs/industrial-types/<topic>-<issue>.md`
+  (nails and the plain screws are there): this guide gains no heading, and
+  `scripts/check_no_registry_append.py` refuses one (gen#513).
 * **The committed output**: `golden-catalog/*` (the records, `images.jsonl`
   and the totals in `stats.json`) and the field-weights YAML. Two types whose
   keys sort next to each other conflict in the `.jsonl` files. The totals
@@ -889,7 +882,8 @@ share only these, and each has a mechanical resolution:
   cleanly with totals that count only one of the two types. Rebuilding fixes
   it: `uv run ecom-generate build --out golden-catalog`. Until then the golden
   test and `tests/test_prism_field_map_drift.py` are red, but only on a tree
-  that holds both changes. A modelled type built from the per-type gate
+  that holds both changes. `scripts/merge_pr.sh` runs that rebuild and re-measures
+  `tests/data/golden_pins.json`, so a conflict in any of these files goes to no builder. A modelled type built from the per-type gate
   template also commits its own records as a slice under
   `tests/data/golden_slices/`, which no other type's pull request touches.
 * **The part-number blocks.** Two pull requests can derive the same block,

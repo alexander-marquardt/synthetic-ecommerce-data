@@ -14,7 +14,8 @@ parts it can show and where each one sits:
 
 Every element drawn here carries ``data-part="<part>"`` and the part's color as its fill or
 stroke, which ``tests/test_retail_apparel_decoys_311.py`` reads. A shape with no entry in
-:data:`PARTS` shows no part, and the decoys of its types do not name one.
+:data:`PARTS` shows no part, and the decoys of its types do not name one. A new shape's parts sit
+in its spec file, beside its ``kit.register``: :func:`register_parts` (gen#513), no line here.
 """
 
 from __future__ import annotations
@@ -153,6 +154,13 @@ PARTS: dict[str, dict[str, dict]] = {
     "cover_up": {"hem": TORSO_HEM},
     "changing_robe": {"hem": TORSO_HEM},
 }
+
+
+def register_parts(shape: str, parts: dict[str, dict]) -> None:
+    """Add a shape's parts from its spec module; a shape that already has a table is refused."""
+    if shape in PARTS:
+        raise ValueError(f"{shape!r} already has parts: {sorted(PARTS[shape])}")
+    PARTS[shape] = parts
 
 
 def parts_of(shape: str) -> tuple[str, ...]:
