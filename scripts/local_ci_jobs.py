@@ -61,6 +61,7 @@ SETUP_ACTIONS = (
     "astral-sh/setup-uv",
     "actions/setup-python",
     "actions/upload-artifact",
+    "actions/download-artifact",
 )
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
@@ -196,7 +197,9 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
             )
         values["matrix.shard"] = "all"
         values["strategy.job-total"] = "1"
-    for key in ("defaults", "continue-on-error", "needs"):
+    # No `needs` here: the jobs run one after the other in file order, in one tree, so what a
+    # job writes under build/ is there for the next (ceiling-catalogue before tests, #539).
+    for key in ("defaults", "continue-on-error"):
         if key in job:
             raise NoLocalEquivalent(f"{job_id}: job key {key!r} is not reproduced locally")
     lines = [f"echo {shlex.quote('== job ' + job_id + ' ==')}"]

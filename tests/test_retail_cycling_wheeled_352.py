@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail import (
@@ -18,7 +19,6 @@ from synthetic_ecommerce_data.domains.retail import (
     kit,
     kit_sports,
     main_colors,
-    scale,
     sports_rows,
     tree_guard,
 )
@@ -56,7 +56,7 @@ def _keys(row) -> set[str]:
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

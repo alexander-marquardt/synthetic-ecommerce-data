@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import distractor_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
@@ -30,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

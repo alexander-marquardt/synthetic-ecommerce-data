@@ -34,6 +34,7 @@ world = test_merge_pr.world
 #: The other jobs are green: the one named red is the whole of the refusal.
 _OTHERS_GREEN = {
     "lint": "true",
+    "ceiling-catalogue": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import emit, standard
 from synthetic_ecommerce_data.domains.retail import (
     decor_rows,
@@ -23,7 +24,6 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.prism import index
 
-CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 HOME = ("Home", "Kitchen & dining", "Drinkware", "Mugs")
 GIFTS = ("Gifts", "Mugs & drinkware")
 SEP = index.PATH_SEPARATOR
@@ -32,7 +32,7 @@ HOME_JOINED, GIFTS_JOINED = SEP.join(HOME), SEP.join(GIFTS)
 
 @pytest.fixture(scope="module")
 def documents() -> list[dict]:
-    return scale.documents(scale.build(CEILING))
+    return scale.documents(ceiling_build())
 
 
 @pytest.fixture(scope="module")

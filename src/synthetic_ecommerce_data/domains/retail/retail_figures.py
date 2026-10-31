@@ -13,6 +13,10 @@ makes it for the run), and the session fixture ``retail_figures_measured`` hands
 a test that wants it as an argument. ``scripts/build_derived.py`` writes the same figures to
 ``stats.json`` and ``docs/figures.md`` as a CI artifact.
 
+:func:`ceiling` is the build those figures measure, shared the same way (gen#539). In CI the
+``ceiling-catalogue`` job fills that directory once per run (``scripts/build_ceiling.py``) and
+every shard downloads it, so no test worker measures or builds.
+
 What stays in a test is an invariant, not a total: no twins in a family, every allergen
 derived from the ingredients, and a cap such as ``CEILING_NEAR_DUPLICATES``.
 """
@@ -23,6 +27,7 @@ import collections
 import fcntl
 import json
 import os
+import pickle
 from pathlib import Path
 from typing import Any
 
@@ -71,6 +76,9 @@ HERE = Path(__file__).resolve().parent
 
 #: The directory the pytest workers of one run share their one measurement through.
 CACHE_ENV = "RETAIL_FIGURES_CACHE"
+#: The two files a measurement leaves in that directory, and ``ceiling-catalogue`` uploads.
+FIGURES_FILE = "figures.json"
+CEILING_FILE = "ceiling.pickle"
 #: More SKUs than the templates can reach, so ``scale.build`` runs to its ceiling.
 EXHAUST = 10_000_000
 #: The grocery tier whose totals are pinned (``grocery.build`` past ``grocery.TARGET``, gen#376).
@@ -97,11 +105,35 @@ def figures() -> dict[str, Any]:
         else:
             with open(Path(cache) / "lock", "a+") as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX)
-                shared = Path(cache) / "figures.json"
+                shared = Path(cache) / FIGURES_FILE
                 if not shared.is_file():
                     shared.write_text(render(measure()), encoding="utf-8")
                 _MEMO["figures"] = json.loads(shared.read_text("utf-8"))
     return _MEMO["figures"]
+
+
+def ceiling() -> scale.Scaled:
+    """Every template exhausted (seed 0): the build where most derived styles exist.
+
+    Built once per process, and once per pytest run or CI run when ``RETAIL_FIGURES_CACHE`` names
+    a directory, as :func:`figures` does. The directory holds a pickle because the build's tuples
+    do not survive JSON, and it comes from this run on this tree. Its lock is its own:
+    :func:`measure` asks for this build while :func:`figures` holds that one.
+
+    Every caller shares one object: a test reads it and never edits it.
+    """
+    if "ceiling" not in _MEMO:
+        cache = os.environ.get(CACHE_ENV)
+        if not cache:
+            _MEMO["ceiling"] = scale.build(EXHAUST)
+        else:
+            with open(Path(cache) / "ceiling.lock", "a+") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                shared = Path(cache) / CEILING_FILE
+                if not shared.is_file():
+                    shared.write_bytes(pickle.dumps(scale.build(EXHAUST), pickle.HIGHEST_PROTOCOL))
+                _MEMO["ceiling"] = pickle.loads(shared.read_bytes())
+    return _MEMO["ceiling"]
 
 
 def grocery_records(records: list[dict]) -> list[dict]:
@@ -197,10 +229,10 @@ def measure() -> dict[str, Any]:
                        if r["product_id"] in {p[1] for p in main_colors.PLAIN_STYLES}],
         "grocery": grocery.build(),
     }
-    ceiling = scale.build(EXHAUST)
-    main = scale.derivable(ceiling.records)
-    groc = grocery_records(ceiling.records)
-    food = [r for r in ceiling.records if r["department"][0] == "Food & Drink"]
+    built = ceiling()
+    main = scale.derivable(built.records)
+    groc = grocery_records(built.records)
+    food = [r for r in built.records if r["department"][0] == "Food & Drink"]
     families: dict[str, list[dict]] = collections.defaultdict(list)
     for r in groc:
         families[r["product_id"].split("-")[1]].append(r)
@@ -209,7 +241,7 @@ def measure() -> dict[str, Any]:
     before_grocery = templates[: len(templates) - len(parts["grocery"])]
     main_food = [r for r in before_grocery if r["department"][0] == "Food & Drink"]
     checked, wrong = unheld_named_values(groc)
-    drawings = {export.drawing_id(r, s) for r in ceiling.records for s in r["skus"]}
+    drawings = {export.drawing_id(r, s) for r in built.records for s in r["skus"]}
     return {
         "templates": {
             **{name: _count(recs) for name, recs in parts.items()},
@@ -221,16 +253,16 @@ def measure() -> dict[str, Any]:
             "main_food": _count(main_food),
         },
         "ceiling": {
-            **_count(ceiling.records),
-            "derived_styles": len(ceiling.template_of),
+            **_count(built.records),
+            "derived_styles": len(built.template_of),
             "drawings": len(drawings),
             "non_grocery": _count(main),
             "grocery": _count(groc),
             "food_and_drink": _count(food),
             # The store's departments are the top level of the category tree (gen#281).
             "top_levels": {
-                root: _count([r for r in ceiling.records if r["category_path"][0] == root])
-                for root in sorted({r["category_path"][0] for r in ceiling.records})
+                root: _count([r for r in built.records if r["category_path"][0] == root])
+                for root in sorted({r["category_path"][0] for r in built.records})
             },
         },
         # Styles per sense of each collision word, over the templates (gen#273).

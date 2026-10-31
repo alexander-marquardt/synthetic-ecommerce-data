@@ -11,6 +11,7 @@ from __future__ import annotations
 from functools import cache
 from typing import Any
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
     scale,
@@ -23,7 +24,7 @@ def _e(key: str, value: Any) -> dict[str, Any]:
 
 @cache
 def _docs() -> tuple[dict[str, Any], ...]:
-    return tuple(scale.documents(scale.build(10**6)))
+    return tuple(scale.documents(ceiling_build()))
 
 
 def _entries(doc: dict[str, Any]):

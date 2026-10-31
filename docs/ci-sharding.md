@@ -96,6 +96,39 @@ a push to `main` runs every test file, so the whole suite still runs once after 
 
 To check what a change runs before pushing: `python3 scripts/ci_select.py --base origin/main --head HEAD --why`.
 
+## The ceiling catalogue is built once per run (#539)
+
+The retail ceiling build (every template exhausted, seed 0) takes about a minute, and the retail
+figures measured on it a minute or more. 45 test files built the ceiling for themselves and each
+shard measured the figures, so a full run did the same work dozens of times. The job
+`ceiling-catalogue` now does it once: `scripts/build_ceiling.py --out build/ceiling` writes
+`ceiling.pickle` and `figures.json`, and the job uploads them. `tests` needs that job; a shard
+with a file to run downloads the artifact to `build/ceiling` and names that directory in
+`RETAIL_FIGURES_CACHE`, and `retail_figures.ceiling()` and `figures()` read the two files. A
+worker loads the build in under a second.
+
+Outside CI nothing changes for the caller: `tests/conftest.py` makes the directory for a pytest
+run, the first worker to ask builds and the others load. Under `merge_pr.sh --local-ci` the
+jobs run in file order in one tree, so `tests` finds the job's `build/ceiling` the same way.
+
+A test takes the build with `ceiling_build()` from `tests/retail_ceiling.py`, reads it and never
+edits it: a worker's files share one object. `tests/test_ceiling_artifact_539.py` refuses a test
+that builds past the ceiling itself, and holds the wiring above.
+
+Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`).
+
+## Random order (#539)
+
+`pytest-randomly` is a dev dependency, blocked by `-p no:randomly` in `addopts`, so an ordinary
+run keeps its file order. To put the whole suite in a random order, dispatch the workflow with
+a seed; the same seed reproduces the order, shard by shard:
+
+```sh
+gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
+```
+
+Run one file the same way here with `uv run pytest -p randomly --randomly-seed=<n> tests/<file>`.
+
 ## `merge_pr.sh --github-ci <N>`
 
 Builds the merged tree exactly as `--local-ci` does (steps 1 and 2), pushes it to the

@@ -159,7 +159,7 @@ BUILDS_REBUILD=(python -m synthetic_ecommerce_data.domains.industrial.measured_b
 #: ci.yaml's push-only job, and review-verdict.yaml's review-verdict-rerun, which
 #: runs only on a Review-Verdict: comment or review event, never on the PR's own
 #: run (#708). Pinned to the workflows by tests/test_merge_pr.py.
-REQUIRED_CI=(lint tests commit-messages file-size red-commit-proof customer-name-check no-derived-files)
+REQUIRED_CI=(lint ceiling-catalogue tests commit-messages file-size red-commit-proof customer-name-check no-derived-files)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree review-verdict-rerun)
 
 die() {

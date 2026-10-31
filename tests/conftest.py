@@ -7,6 +7,7 @@ import tempfile
 import pytest
 
 import ci_shard_split
+import worker_peak
 from xdist_groups import group_for
 
 
@@ -18,6 +19,7 @@ def pytest_configure(config):
     once for the run, not once per worker. A worker inherits the name and never makes its own.
     """
     config.pluginmanager.register(ci_shard_split, "ci_shard_split")
+    config.pluginmanager.register(worker_peak, "worker_peak")
     if hasattr(config, "workerinput") or "RETAIL_FIGURES_CACHE" in os.environ:
         return
     config._retail_figures_cache = tempfile.mkdtemp(prefix="retail-figures-")

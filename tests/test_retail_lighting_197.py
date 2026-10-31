@@ -16,6 +16,7 @@ import re
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     export,
@@ -237,7 +238,7 @@ def _contradictions(rec: dict) -> list[str]:
 
 @pytest.fixture(scope="module")
 def derived_lighting() -> list[dict]:
-    built = scale.build(10**6)
+    built = ceiling_build()
     ids = {d["product_id"] for d in DOCS}
     return [
         r for r in built.records

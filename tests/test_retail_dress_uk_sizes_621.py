@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import scale
+from retail_ceiling import ceiling_build
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def dresses() -> list[dict]:
-    recs = scale.build(10**6).records
+    recs = ceiling_build().records
     return [r for r in recs if r["category_path"][:2] == ["Womens", "Dresses"]]
 
 

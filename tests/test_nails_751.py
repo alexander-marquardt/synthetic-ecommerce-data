@@ -21,13 +21,13 @@ import pytest
 import table_gates
 import type_gates
 from published import authored_attributes
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
 from synthetic_ecommerce_data.domains.industrial import names, tabletype, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import nail_framing
-from synthetic_ecommerce_data.domains.retail import scale
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
 from test_type_seam import _by_type, _moved_by_removing
@@ -81,7 +81,7 @@ def _default_docs(key: str) -> list[dict]:
 
 @pytest.fixture(scope="module")
 def retail() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

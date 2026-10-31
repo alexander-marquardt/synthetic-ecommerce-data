@@ -13,6 +13,7 @@ import re
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     lighting_rows,
     scale,
@@ -88,7 +89,7 @@ def test_a_pendant_keeps_its_own_qualifier() -> None:
 
 @pytest.fixture(scope="module")
 def derived_ceiling_lights() -> list[dict]:
-    built = scale.build(10**6)
+    built = ceiling_build()
     return [r for r in built.records if r["product_type"] == "Ceiling Light"]
 
 

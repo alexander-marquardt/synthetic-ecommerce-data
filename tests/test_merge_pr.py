@@ -85,6 +85,7 @@ case "$1 $2" in
       missing) ;;
     esac
     printf 'lint\tcompleted\tsuccess\n'
+    printf 'ceiling-catalogue\tcompleted\tsuccess\n'
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
@@ -443,8 +444,8 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         # CI ran on the PR head, never on the merge the script pushed.
         (
             "head-only",
-            "missing: lint tests commit-messages file-size red-commit-proof customer-name-check"
-            " no-derived-files",
+            "missing: lint ceiling-catalogue tests commit-messages file-size red-commit-proof"
+            " customer-name-check no-derived-files",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -979,6 +980,7 @@ _ALL_GREEN = _workflow(
     tests="echo suite",
     lint="echo lint",
     **{
+        "ceiling-catalogue": "echo ceiling",
         "commit-messages": "echo msgs",
         "file-size": "echo size",
         "red-commit-proof": "echo red",
@@ -1036,6 +1038,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
         tests="exit 1",
         **{
             "lint": "true",
+            "ceiling-catalogue": "true",
             "commit-messages": "true",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -1106,6 +1109,7 @@ _STALE_UNLESS_MAINS = (
 )
 _OTHER_JOBS = {
     "lint": "true",
+    "ceiling-catalogue": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",
@@ -1313,6 +1317,8 @@ def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
             "pytest",
             "-o",
             "addopts=",
+            "-p",
+            "no:randomly",
             "--collect-only",
             "-q",
             "-p",

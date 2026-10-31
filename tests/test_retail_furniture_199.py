@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     breadth_rows,
     export,
@@ -19,7 +20,6 @@ from synthetic_ecommerce_data.domains.retail import (
     kit,
     scale,
 )
-from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 #: product type -> its leaf and the keys a shopper narrows it on (each a product attribute).
 KEYS = {
@@ -206,7 +206,7 @@ def test_every_style_and_colorway_renders_its_image() -> None:
 
 def test_the_furniture_is_in_the_scaled_build_and_no_style_derives_from_it() -> None:
     ids = {f"BRD-{r.code}" for r in furniture_rows.ROWS}
-    built = scale.build(figures()["ceiling"]["skus"])
+    built = ceiling_build()
     assert ids <= {r["product_id"] for r in built.records}
     assert not ids & {r["product_id"] for r in scale.derivable(built.records)}
     furniture = {r.path for r in furniture_rows.ROWS}

@@ -23,6 +23,8 @@ dev = [
     # it from the network on every run.
     "hatchling>=1.25",
     "pytest>=8.0",
+    # Off unless asked for: ``addopts`` below blocks it (#539, docs/ci-sharding.md).
+    "pytest-randomly>=3.15",
     "pytest-timeout>=2.3",
     # ``pytest -n 2``: the full suite runs in about 22 minutes on two workers.
     "pytest-xdist>=3.6",
@@ -73,8 +75,10 @@ packages = [
 testpaths = ["tests"]
 # ``--dist loadgroup`` keeps a module's tests on one worker (``tests/conftest.py`` marks the
 # group): a plain ``-n 2`` would scatter a module over both workers, and each would load the
-# module's fixture (#140). Without ``-n`` it does nothing.
-addopts = "--dist loadgroup"
+# module's fixture (#140). Without ``-n`` it does nothing. ``-p no:randomly``: installed,
+# pytest-randomly would reorder every run; ``-p randomly --randomly-seed=<n>`` after this turns
+# it on, which is what a dispatched run's ``random_seed`` does (#539).
+addopts = "--dist loadgroup -p no:randomly"
 # No ``-q`` here: it stacks with the caller's ``-q`` into ``-qq``, and pytest at that level
 # prints no ``N passed`` line (#49). Say ``-q`` on the command line.
 # Per-test limit in seconds (pytest-timeout), fixture setup included. The

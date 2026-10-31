@@ -14,9 +14,9 @@ from __future__ import annotations
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
-from synthetic_ecommerce_data.domains.retail import scale
 from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 #: query -> the category node of the product it names: no decoy of the query sits in it.
@@ -29,7 +29,7 @@ FLOOR = {"mens black jeans": 4, "white minimiser bras": 3}
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

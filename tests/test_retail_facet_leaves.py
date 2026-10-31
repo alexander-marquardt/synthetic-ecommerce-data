@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import words
 from synthetic_ecommerce_data.domains.retail import (
@@ -41,7 +42,7 @@ KIND_NODES = {"Jeans": "Jeans", "Trousers": "Trousers", "Bra": "Bras"}
 
 @pytest.fixture(scope="module")
 def built():
-    return scale.build(10_000_000)
+    return ceiling_build()
 
 
 @pytest.fixture(scope="module")

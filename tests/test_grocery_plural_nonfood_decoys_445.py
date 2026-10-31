@@ -16,11 +16,11 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     real_brands,
-    scale,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,7 +81,7 @@ def test_a_non_food_decoy_is_a_brand_or_a_scent_and_never_fresh(plural: str) -> 
 
 @pytest.fixture(scope="module")
 def index() -> br.Index:
-    return br.Index(scale.build(10**6).records)
+    return br.Index(ceiling_build().records)
 
 
 @pytest.mark.parametrize("plural", TWO)

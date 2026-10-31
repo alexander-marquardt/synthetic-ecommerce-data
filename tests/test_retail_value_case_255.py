@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def docs():
-    return scale.documents(scale.build(10_000_000))
+    return scale.documents(ceiling_build())
 
 
 @pytest.fixture(scope="module")

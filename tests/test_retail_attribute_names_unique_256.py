@@ -12,12 +12,11 @@ from __future__ import annotations
 from functools import cache
 from typing import Any
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     name_guard,
     scale,
 )
-
-CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
 
 def _entry(key: str, name: str, value: str) -> dict[str, str]:
@@ -55,7 +54,7 @@ def test_distinct_names_and_a_key_listed_twice_are_not_findings() -> None:
 
 @cache
 def _docs() -> tuple[dict[str, Any], ...]:
-    return tuple(scale.documents(scale.build(CEILING)))
+    return tuple(scale.documents(ceiling_build()))
 
 
 def test_no_shipped_document_gives_two_keys_one_name() -> None:

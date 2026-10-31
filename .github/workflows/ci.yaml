@@ -27,6 +27,10 @@ on:
         description: "Pull request number whose title and body the PR jobs read"
         required: false
         default: ""
+      random_seed:
+        description: "Run the tests in a random order from this seed (pytest-randomly, #539)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -65,7 +69,30 @@ jobs:
       - name: Lint
         run: uv run --locked ruff check .
 
+  ceiling-catalogue:
+    # The retail ceiling build and its figures, once per run (#539): 45 test files each built it
+    # and a shard's every worker measured the figures, a minute each time. scripts/build_ceiling.py
+    # writes both, every shard with a file to run downloads them and points RETAIL_FIGURES_CACHE
+    # at them, and a worker loads the build in under a second. No `if`: a run of any kind has
+    # tests. It comes before `tests` here because the local run takes the jobs in file order.
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Build the ceiling catalogue and its figures
+        run: uv run --locked python scripts/build_ceiling.py --out build/ceiling
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ceiling-catalogue
+          path: build/ceiling
+          if-no-files-found: error
+          retention-days: 1
+
   tests:
+    needs: ceiling-catalogue
     # The suite is about 27 minutes of work on one core, and merges are serial
     # (#348), so it runs as SHARDS on separate runners: the matrix below is
     # the shard count, scripts/ci_shards.py deals the test files out (every file
@@ -116,6 +143,11 @@ jobs:
         if: steps.select.outputs.run == 'true'
         with:
           enable-cache: true
+      - uses: actions/download-artifact@v4
+        if: steps.select.outputs.run == 'true'
+        with:
+          name: ceiling-catalogue
+          path: build/ceiling
       # The golden comparison lives in here: tests/test_catalog_golden.py
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
@@ -128,7 +160,8 @@ jobs:
           CI_SHARDS: ${{ strategy.job-total }}
           # The junit path: `runner` is available in a step's env, not in the job's.
           # --durations=10 names the slowest tests in the log, so a shard that stalls is read, not guessed (#704).
-          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml
+          # A dispatched random_seed turns random order on (#539): docs/ci-sharding.md.
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('-p randomly --randomly-seed={0}', inputs.random_seed) || '' }}
         run: |
           plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
           first="${plan_text%%$'\n'*}"
@@ -140,6 +173,8 @@ jobs:
             exit 0
           fi
           export CI_SHARDS="${plan[0]#shards=}"
+          # The ceiling-catalogue job's files (#539), there on any run that has that job.
+          if [ -f build/ceiling/figures.json ]; then export RETAIL_FIGURES_CACHE="$PWD/build/ceiling"; fi
           # A lost xdist worker is an infra failure, rerun once (#629): docs/ci-sharding.md.
           python3 scripts/ci_run_pytest.py -- uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.

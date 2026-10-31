@@ -15,10 +15,10 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
-from synthetic_ecommerce_data.domains.retail import scale
 from synthetic_ecommerce_data.domains.retail.feature_decoys import olive_oil
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +104,6 @@ def test_the_codes_are_a_dy_block_of_their_own() -> None:
 
 
 def test_a_plain_olive_oil_search_ranks_decoys_in_the_top_10() -> None:
-    index = br.Index(scale.build(10**6).records)
+    index = br.Index(ceiling_build().records)
     top = [d["title"] for d in br.rank(index, QUERY, 10)]
     assert len([t for t in top if t in TRUTH]) >= 3, top

@@ -21,12 +21,11 @@ import collections
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     scale,
     tree_guard,
 )
-
-CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
 #: The least number of (generic, specific) pairs the shipped tree holds. It has 96 today (29 of the
 #: 34 nestings made by #284 are among them; the four named tests below cover the rest). The floor
@@ -40,7 +39,7 @@ def records() -> list[dict]:
     """The SHIPPED documents, not the build records: a jean's fit and a bra's style are leaves of
     the record (it keeps them so its drawing and image id do not move) and facets of the document
     (``facet_leaves``), so the tree a retailer loads is the document's."""
-    return scale.documents(scale.build(CEILING))
+    return scale.documents(ceiling_build())
 
 
 @pytest.fixture(scope="module")

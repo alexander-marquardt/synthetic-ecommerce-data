@@ -13,6 +13,7 @@ import xml.dom.minidom
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
@@ -237,7 +238,7 @@ def test_the_type_reaches_the_100k_build_and_meets_the_standard(key, build_100k)
 
 @pytest.fixture(scope="module")
 def index() -> br.Index:
-    return br.Index(scale.build(10**6).records)
+    return br.Index(ceiling_build().records)
 
 
 @pytest.mark.timeout(300)

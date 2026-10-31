@@ -18,6 +18,7 @@ from typing import Any
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     sale_share,
     scale,
@@ -34,7 +35,7 @@ GROUPS = ("Womens", "Mens", "Kids", "Baby")
 
 @pytest.fixture(scope="module")
 def nested() -> list[dict[str, Any]]:
-    return scale.documents(scale.build(10_000_000))
+    return scale.documents(ceiling_build())
 
 
 @pytest.fixture(scope="module")

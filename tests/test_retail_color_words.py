@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     colorwords,
     export,
@@ -51,7 +52,7 @@ DENYLIST = frozenset({
 
 @pytest.fixture(scope="module")
 def ceiling() -> scale.Scaled:
-    return scale.build(CEILING_SKUS * 2)
+    return ceiling_build()
 
 
 def _colored(records):
