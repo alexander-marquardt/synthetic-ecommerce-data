@@ -162,6 +162,10 @@ if [[ " $* " == *measured_builds* ]]; then
   # The 100K build takes about a minute: only a case about it runs the real one.
   if [ -z "${FAKE_UV_BUILDS:-}" ]; then exit 0; fi
 fi
+if [[ " $* " == *measure_pins* ]]; then
+  # It reads the whole catalog: only a case about the pins runs the real one.
+  if [ -z "${FAKE_UV_PINS:-}" ]; then exit 0; fi
+fi
 exec "$REAL_UV" "$@"
 """
 )
@@ -182,6 +186,7 @@ _IDENTITY = {
 
 _STATS = "golden-catalog/stats.json"
 _BUILDS = price.BUILDS_FILE.relative_to(Path(__file__).resolve().parent.parent).as_posix()
+_PINS = "tests/data/golden_pins.json"
 
 #: Name resolution that fails, as a dropped lookup does (#178). The stand-in uv
 #: stops a build that is not offline with the error uv printed then
@@ -407,6 +412,21 @@ def test_a_conflict_in_the_measured_builds_is_resolved_by_the_rebuild(world: dic
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
     assert _git(world["origin"], "show", f"{pushed}:{_BUILDS}") + "\n" == true
+    assert _merged(world)
+
+
+def test_a_conflict_in_the_golden_pins_is_resolved_by_the_rebuild(world: dict) -> None:
+    """gen#513: two catalog PRs each move the pinned document count; no hand merge."""
+    true = (world["checkout"] / _PINS).read_text()
+    assert '"documents": ' in true
+    head = _open_pr(
+        world,
+        {**_GREEN, _PINS: re.sub(r'"documents": \d+', '"documents": 1', true, count=1)},
+        on_main={_PINS: re.sub(r'"documents": \d+', '"documents": 2', true, count=1)},
+    )
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_PINS="1")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _git(world["origin"], "show", f"{_branch(world)}:{_PINS}") + "\n" == true
     assert _merged(world)
 
 
@@ -893,7 +913,7 @@ def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
     golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
     field_map = cli.field_map_target().relative_to(REPO).as_posix()
     builds = price.BUILDS_FILE.relative_to(REPO).as_posix()
-    want = sorted([*golden, field_map, builds])
+    want = sorted([*golden, field_map, builds, _PINS])
     assert sorted(_printed("--print-generated")) == want
 
 
