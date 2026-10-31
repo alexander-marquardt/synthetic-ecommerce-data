@@ -59,7 +59,9 @@ def _size_of(record: Mapping[str, str], attr: str) -> str:
 def ratios(product_type: str, records: Sequence[Mapping[str, str]]) -> list[float]:
     """The share of the type's scale each record is drawn at: 1 unless a breadth product's sizes
     form a ladder."""
-    from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: PLC0415 -- it registers this
+    from synthetic_ecommerce_data.domains.industrial import (
+        breadth,  # noqa: PLC0415 -- it registers this
+    )
 
     unscaled = [1.0] * len(records)
     row = next((r for r in breadth.rows() if r.key == product_type), None)
