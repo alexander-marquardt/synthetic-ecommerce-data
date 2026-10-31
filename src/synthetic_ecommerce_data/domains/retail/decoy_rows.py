@@ -6,7 +6,7 @@ whose words match while the product does not, and no text tuning separates them,
 words are really there. The color, category and audience policies separate them, because they
 read the structured fields. Each row of :data:`TABLE` is one such decoy, with its class and the
 query it targets, so the proof (``tests/test_retail_text_match_decoys_294.py``) and the docs table
-(``docs/retail-catalog-batch-1.md``) are generated from this table, never kept by hand.
+(``docs/retail-text-match-decoys-table.md``) are generated from this table, never kept by hand.
 
 The classes (the numbers follow the issue):
 
@@ -535,6 +535,20 @@ CLASSES = {
     9: "the fresh plural is in the title as an ingredient, a source, a brand or a scent",
     10: "the phrase names an ingredient of another food (vinegar, gravy, a casserole)",
 }
+
+
+#: The built page of :func:`table_doc` (``scripts/build_derived.py``; not in git, gen#513).
+TABLE_DOC = "docs/retail-text-match-decoys-table.md"
+
+
+def table_doc() -> str:
+    """The page :data:`TABLE_DOC`: a title, where it comes from, and :func:`table_markdown`."""
+    return (
+        "# Retail text-match decoys: every row (built)\n\n"
+        "Built by `scripts/build_derived.py` from `decoy_rows.TABLE`; what the rows are and why"
+        " is in `docs/retail-catalog-batch-1.md`.\n\n"
+        f"{table_markdown()}\n"
+    )
 
 
 def table_markdown() -> str:

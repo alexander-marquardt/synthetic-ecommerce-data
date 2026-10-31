@@ -27,7 +27,8 @@
 #      for step 2; any other conflict is refused, for the builder to resolve.
 #   2. rebuilds the committed catalog (ecom-generate build --out golden-catalog)
 #      and the pinned price figures and the 100K build's sizes (measured_builds.py,
-#      gen#85), and commits only GENERATED. A file still conflicted, or any other change
+#      gen#85) and the pins the tests read on the catalog (measure_pins.py, gen#513),
+#      and commits only GENERATED. A file still conflicted, or any other change
 #      in the tree, is refused. uv runs --locked, so a stale uv.lock is refused
 #      rather than re-locked into the commit. The retail totals are not here:
 #      nothing under golden-retail/ is committed (gen#536), a test measures them.
@@ -115,8 +116,8 @@ if [ -n "${MERGE_PR_CHECKS:-}" ]; then
   read -r -a CHECKS <<<"$MERGE_PR_CHECKS"
 fi
 
-#: Exactly the files `ecom-generate build --out golden-catalog` rewrites, so a
-#: conflict in one is resolved by a rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
+#: Exactly the files rebuild_generated rewrites (the build, the measured builds and the
+#: golden pins), so a conflict in one is resolved by a rebuild. Any other conflict, under golden-catalog/ or not, goes back to the
 #: builder. Pinned to the builds by tests/test_merge_pr.py.
 GENERATED=(
   golden-catalog/authored_names.json
@@ -128,6 +129,7 @@ GENERATED=(
   golden-catalog/stats.json
   src/synthetic_ecommerce_data/core/data/measured_builds.json
   src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml
+  tests/data/golden_pins.json
 )
 
 #: The tests whose red means "a generated file is stale", as the test runner names
@@ -151,6 +153,10 @@ READ_AT_IMPORT=(
 #: tests/test_merge_pr.py pins. It builds the default and the 100K catalog,
 #: about a minute.
 BUILDS_REBUILD=(python -m synthetic_ecommerce_data.domains.industrial.measured_builds)
+
+#: The command that re-measures the pins the tests read on the catalog (gen#50): every catalog
+#: PR moves them, so two such PRs conflict in the fixture (gen#513). It reads the rebuilt catalog.
+PINS_REBUILD=(python scripts/measure_pins.py)
 
 #: The jobs of .github/workflows/ci.yaml, by the check-run name GitHub gives
 #: them (a matrix job's name carries its shard: ``tests (3)``, and a required name
@@ -331,7 +337,7 @@ fi
 # Rebuild every generated file on the tree at $work. Two types on one
 # part-number block are refused here, naming both.
 rebuild_generated() {
-  local build_rc=0 builds_rc=0
+  local build_rc=0 builds_rc=0 pins_rc=0
   uv run -q --locked --directory "$work" ecom-generate build --out golden-catalog \
     >/dev/null 2>"$build_log" || build_rc=$?
   cat "$build_log" >&2
@@ -349,6 +355,11 @@ rebuild_generated() {
   cat "$build_log" >&2
   [ "$builds_rc" -eq 0 ] ||
     die "the measured-builds rebuild refuses the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
+  uv run -q --locked --directory "$work" "${PINS_REBUILD[@]}" \
+    >/dev/null 2>"$build_log" || pins_rc=$?
+  cat "$build_log" >&2
+  [ "$pins_rc" -eq 0 ] ||
+    die "the golden pins refuse the merged tree of #$pr (the reason is above); NOT pushed, NOT merged"
 }
 
 # 2. Rebuild the committed catalog on the merged tree.

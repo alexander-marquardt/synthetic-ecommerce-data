@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -34,7 +35,9 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tests"))
 
+import decoy_real_compounds  # noqa: E402
 
 DEPARTMENTS = {"Clothing", "Footwear", "Lingerie & Nightwear"}
 ROOTS = {"Womens", "Mens", "Kids"}
@@ -312,9 +315,8 @@ REAL_COMPOUNDS = frozenset({
     "Short Pyjamas", "Cami Pyjamas",
     "Bodysuit Shapewear", "Cami Shapewear", "Slip Shapewear",
     "Dress Slip", "Skirt Slip", "Cami Slip",
-    "Running Tights", "Cycling Tights",
     "Cami Vest", "Dress Vest", "Sweater Vest",
-})  # fmt: skip
+}) | decoy_real_compounds.FEATURE_COMPOUNDS  # fmt: skip
 
 
 def test_no_class_2_title_is_outside_the_real_compounds(
