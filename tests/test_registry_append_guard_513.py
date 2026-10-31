@@ -40,6 +40,10 @@ WORD_DOC = "docs/retail-product-word-decoys.md"
 CLASS8 = "tests/test_retail_product_word_decoys_326.py"
 GRAMMAR = f"{RD}/line_grammar.py"
 SCALE_TESTS = "tests/test_retail_scale.py"
+TYPE_GUIDE = "docs/adding-a-type.md"
+BATCH_DOC = "docs/retail-catalog-batch-1.md"
+APPAREL_TESTS = "tests/test_retail_apparel_decoys_311.py"
+DETAILS = f"{RD}/details.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -119,6 +123,25 @@ APPENDS = {
         "def test_a_cleaning_model_is_numbered(ceiling):",
         "test_retail_scale_",
     ),
+    "type-guide-section": (TYPE_GUIDE, "## Nuts by the box (#999)", "docs/industrial-types/"),
+    "batch-doc-section": (BATCH_DOC, "## A probe feature (gen#999)", "docs/retail-prototype/"),
+    "batch-doc-row": (
+        BATCH_DOC,
+        "| red sofa | 1 color names a part | PLT-DXZ01 | Blue Sofa with Red Piping | decoy |",
+        "build_derived",
+    ),
+    "apparel-test": (
+        APPAREL_TESTS,
+        "def test_a_probe_decoy_says_what_it_is(rows):",
+        "test_retail_apparel_decoys_",
+    ),
+    "apparel-compound": (
+        APPAREL_TESTS,
+        '    "Probe Slippers", "Probe Clogs",',
+        "decoy_real_compounds",
+    ),
+    "parts-entry": (DETAILS, '    "probe_coat": {"hem": TORSO_HEM},', "register_parts"),
+    "parts-open": (DETAILS, '    "probe_coat": {', "register_parts"),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -134,6 +157,12 @@ BASE = {
     CLASS8: "from decoy_true_nodes import TRUE_NODE\n\n\ndef test_x():\n    assert TRUE_NODE\n",
     GRAMMAR: 'FAMILIES = {\n    "Dishwasher": "appliance",\n}\n\n- sport: a lead word.\n',
     SCALE_TESTS: "def test_x(ceiling):\n    assert ceiling\n",
+    TYPE_GUIDE: "# Adding a type\n\n## The steps\n\nA line of prose.\n",
+    BATCH_DOC: "# Batch 1\n\n## Decoys\n\nA line of prose.\n",
+    APPAREL_TESTS: (
+        'WORDS = frozenset({\n    "Cami Bra",\n})\n\n\ndef test_x(rows):\n    assert rows\n'
+    ),
+    DETAILS: 'PARTS = {\n    "raincoat": {"hem": TORSO_HEM},\n}\n',
 }
 
 
@@ -334,14 +363,41 @@ def test_the_no_derived_files_job_runs_the_registry_guard():
 @pytest.mark.parametrize(
     ("doc", "named"),
     [
-        ("docs/new-type-quick-path.md", ("line_grammar_families", "retail_ceiling")),
-        ("docs/adding-a-retail-type.md", ("line_grammar_families", "check_no_registry_append")),
-        ("docs/adding-a-type.md", ("line_grammar.py", "check_no_registry_append")),
+        (
+            "docs/new-type-quick-path.md",
+            (
+                "line_grammar_families",
+                "retail_ceiling",
+                "register_parts",
+                "decoy_real_compounds",
+                "docs/retail-text-match-decoys-table.md",
+                "docs/industrial-types/",
+            ),
+        ),
+        (
+            "docs/adding-a-retail-type.md",
+            ("line_grammar_families", "check_no_registry_append", "register_parts"),
+        ),
+        (
+            "docs/adding-a-type.md",
+            ("line_grammar.py", "check_no_registry_append", "docs/industrial-types/"),
+        ),
     ],
 )
 def test_the_guide_names_the_new_file_form_and_not_a_line_to_append(doc, named):
     text = (ROOT / doc).read_text(encoding="utf-8")
     assert [n for n in named if n not in text] == [], doc
+
+
+@pytest.mark.parametrize(
+    "doc", ["CLAUDE.md", "docs/file-size-budget.md", "docs/retail-prototype.md"]
+)
+def test_no_page_tells_a_batch_to_add_its_listing_line_to_the_prototype_page(doc):
+    assert "listing line" not in (ROOT / doc).read_text(encoding="utf-8")
+
+
+def test_the_issue_pairwise_check_is_a_script_of_the_repository():
+    assert (SCRIPTS / "pair_conflicts.py").is_file()
 
 
 def test_the_quick_path_does_not_tell_a_contributor_to_paste_the_decoy_table():

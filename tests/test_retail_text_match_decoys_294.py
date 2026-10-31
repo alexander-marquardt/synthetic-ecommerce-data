@@ -137,10 +137,13 @@ def test_decoys_are_templates_never_copied_or_color_completed() -> None:
     assert not dr.IDS & {r["product_id"] for g in main_colors.groups(tpls).values() for r in g}
 
 
-def test_docs_table_is_generated_from_the_table() -> None:
-    """The docs hold :func:`decoy_rows.table_markdown` verbatim, so no count is kept by hand."""
+def test_docs_table_is_built_from_the_table_and_no_page_holds_a_copy() -> None:
+    """gen#513: every decoy feature pasted the table into the page, so any two conflicted. The
+    table is the built page :data:`decoy_rows.TABLE_DOC`, and the page only links to it."""
     doc = (ROOT / "docs" / "retail-catalog-batch-1.md").read_text()
-    assert dr.table_markdown() in doc
+    assert "PLT-DXS01" not in doc
+    assert dr.TABLE_DOC.removeprefix("docs/") in doc
+    assert dr.table_markdown() in dr.table_doc()
     assert len(dr.table_markdown().splitlines()) == len(dr.TABLE) + 2
 
 
