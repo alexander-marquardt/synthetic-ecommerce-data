@@ -146,7 +146,7 @@ STYLES = {
     "Fruit": _FRUIT,
     "Hamper": _GIFT,
     "Honey": (
-        "Raw", "Beekeeper's", "Pure", "Lightly Filtered", "Golden", "Breakfast", "Everyday",
+        "Raw", "Beekeeper's", "Pure", "Lightly Filtered", "Golden", "Breakfast", "Homely",
     ),
     "Ice Cream": (
         "Soft Scoop", "Luxury", "Gelato Style", "Slow Churned", "Rich & Creamy", "Smooth & Creamy",
@@ -186,7 +186,7 @@ STYLES = {
         "Pan Baked", "Italian Style", "Pizzeria Style", "Oven Baked", "Fire Baked",
     ),
     "Porridge": (
-        "Creamy", "Rolled", "Jumbo", "Slow Cooked", "Quick Cook", "Microwave Ready",
+        "Smooth Creamy", "Rolled", "Jumbo", "Slow Cooked", "Quick Cook", "Microwave Ready",
     ),
     "Potatoes": _VEGETABLE,
     "Ready Meal": (

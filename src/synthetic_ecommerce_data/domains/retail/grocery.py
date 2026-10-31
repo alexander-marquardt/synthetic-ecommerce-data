@@ -96,6 +96,9 @@ HERE = Path(__file__).resolve().parent
 
 TARGET = 10_000
 ORGANIC_SHARE = 0.12
+#: Seeds where in its true words a brand's model starts (gen#729); a seed that keeps every build's
+#: food styles and SKUs at or above what the numbered titles gave.
+ENDING_SALT = "q"
 #: The word overlap (Jaccard, over brand and title) at which two same-leaf food listings read as
 #: one; ``scale.NEAR_DUPLICATE_JACCARD`` is this value (gen#665).
 NEAR_DUPLICATE_JACCARD = 0.8
@@ -319,7 +322,8 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str, lead: str = ""
+    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str, lead: str = "",
+    ending: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
@@ -327,6 +331,8 @@ def _drawing(
     flavor = flavors[0]
     color = (flavor.name, "solid", flavor.hex, "#ffffff")
     marks = {"line": head, "chips": ",".join(f.hex for f in flavors)}
+    if ending:  # two rounds of one model draw apart by the word the title ends on (gen#729)
+        marks["ending"] = ending
     shape = SHAPES.get((fam.code, flavor.name), fam.shape)
     if fam.shape == "produce_pile":
         grams = pack.get("net_weight_g")
@@ -376,14 +382,23 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
     head = f"{brand} {line}" if fam.food and line_grammar.brand_led(pid) else line
     head = f"{head} Organic" if organic else head
     title = fam.title.format(line=head, flavor=flavors[0].name, abv=_abv_text(pid, flavors[0]))
+    ending = ""
     if turn:
         lists = [s["ingredients"] for s in skus if "ingredients" in s]
         words = food_title_words.true_words(
             fam.product_type, title, [f.name for f in flavors], lists
         )
         # A brand's model starts at a place of its own, so one true word is not every title's.
-        start = zlib.crc32(f"{brand} {line}".encode())
-        title = f"{title} {words[(start + turn - 1) % len(words)]}" if words else title
+        start = zlib.crc32(f"{brand} {line}{ENDING_SALT}".encode())
+        # A word that names a flavor of the family is no ending ("Sea Salt" is a crisps flavor),
+        # so the pick moves on to the next true word.
+        said = " ".join(f.name for f in fam.flavors).casefold()
+        first = (start + turn - 1) % len(words) if words else 0
+        order = [words[(first + k) % len(words)] for k in range(len(words))]
+        words = [w for w in order if w.removeprefix("with ").casefold() not in said]
+        if words:
+            ending = words[0]
+            title = f"{title} {ending}"
     lead = head
     if line_grammar.FAMILIES.get(fam.product_type) in line_grammar.CARE:
         lead = f"{brand} {head}"  # a cleaning or beauty title leads with its brand (gen#666)
@@ -416,7 +431,7 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
         product_type=fam.product_type, category_path=list(fam.path), category_leaf=fam.path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
-        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead),
+        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead, ending),
         collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
@@ -498,7 +513,7 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
     recs: list[dict] = []
 
     def add(fam: Family, slot: int, brand: str, flavors: list[F], packs: list[str], may: str,
-            organic: bool) -> bool:  # fmt: skip
+            organic: bool, decoy: bool = False) -> bool:  # fmt: skip
         grade = rng.choice(fam.grades) if fam.grades else ""
         packs = stocked(fam, packs, held[fam.code + "#"])
         pid = f"GRC-{fam.code}-{held[fam.code + '#'] + 1:04d}"
@@ -507,7 +522,8 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         if fam.food:
             deal = food_names(line_grammar.FAMILIES[fam.product_type])
             model = deal.owned(brand, slot, fam.product_type)
-            turn = deal.round(brand, slot, fam.product_type)
+            # A planted decoy keeps the short title its rank test reads (gen#294), no ending.
+            turn = 0 if decoy else deal.round(brand, slot, fam.product_type)
         elif kind in line_grammar.CARE:
             model = care_names(kind).owned(brand, slot)
         else:
@@ -538,19 +554,21 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         add(fam, n, fam.brands[n % len(fam.brands)], flavors, packs, may, False)
 
     # The text-match decoys (gen#294) draw from a stream of their own, so no other draw moves.
-    core_rng, rng = rng, random.Random(f"grocery-decoys:{seed}")
-    for code, names, may, offset in DECOY_ANCHORS:
-        if code not in fams:  # a build without this (depth) family plants no decoy for it
-            continue
-        fam = fams[code]
-        flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
-        add(fam, offset, fam.brands[offset % len(fam.brands)], flavors, list(fam.packs), may, False)
-    rng = core_rng
+    decoy_rng = random.Random(f"grocery-decoys:{seed}")
     if tier:
         rng = random.Random(f"grocery-tier:{seed}")
     depth_rng = random.Random(f"grocery-tier-depth:{seed}" if tier else f"grocery-depth:{seed}")
     for fam in sorted(FAMILIES, key=lambda f: f.depth):
         misses = 0
+        # A family's decoys are planted just before its own styles, so a family built earlier (the
+        # core, whatever depth families are dropped) never sees them.
+        rng, dealt = decoy_rng, rng
+        for code, names, may, offset in DECOY_ANCHORS:
+            if code == fam.code:
+                flavors = [next(f for f in fam.flavors if f.name == name) for name in names]
+                add(fam, offset, fam.brands[offset % len(fam.brands)], flavors, list(fam.packs),
+                    may, False, decoy=True)  # fmt: skip
+        rng = dealt
         if fam.depth:
             rng = depth_rng
         extra = grocery_rows.TIER_BRANDS.get(fam.brands, ()) if tier else ()

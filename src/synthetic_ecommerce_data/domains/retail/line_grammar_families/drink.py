@@ -22,7 +22,7 @@ GROCERY_LEADS = (
 )  # fmt: skip
 _FIZZY = (
     "Sparkling", "Lightly Sparkling", "Traditional", "Old Fashioned", "Extra Fizzy", "Craft Made",
-    "Signature Recipe", "Refreshing", "Light", "Small Batch", "Botanical", "Hand Crafted",
+    "Signature Recipe", "Refreshing", "Homely", "Small Batch", "Botanical", "Hand Crafted",
 )  # fmt: skip
 #: Kind -> the style words a model of it may carry after its lead word: see the pantry's.
 STYLES = {
@@ -35,7 +35,7 @@ STYLES = {
         "Barista Style", "Hand Roasted", "Roastery Style",
     ),
     "Juice": (
-        "Breakfast", "Sun Ripened", "Refreshing", "Everyday", "Lunchbox", "Family", "Sharing",
+        "Breakfast", "Sun Ripened", "Refreshing", "Daily Pour", "Lunchbox", "Family", "Sharing",
         "Thirst Quenching",
     ),
     "Soft Drink": _FIZZY,
