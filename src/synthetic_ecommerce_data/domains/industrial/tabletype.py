@@ -71,7 +71,8 @@ class TableType:
     item: str
     standards_family: str
     #: The standard whose table the cited chart reproduces. It is what the
-    #: provenance names and the one standard a record may claim.
+    #: provenance names and the one standard a record may claim. Empty for a
+    #: chart that names none, which then states ``source`` (gen#751).
     standard: str
     #: The published attribute of each column of ``rows``. The first is the
     #: size: the key dimension, which must rise down the table.
@@ -95,6 +96,9 @@ class TableType:
     #: ``TypeSpec.compat`` states it: ``(kind, attribute)``, or ``False`` for
     #: none. Required: left unset the spec is refused at registration (#75).
     compat: tuple[str, str] | bool | None = None
+    #: The chart the rows were read from, when it names no standard: the
+    #: provenance names it, and a record claims nothing (gen#751).
+    source: str = ""
 
     @property
     def per_inch(self) -> float:
@@ -111,7 +115,7 @@ class TableType:
 
     @property
     def provenance(self) -> str:
-        return table_provenance(*((name, self.standard) for name in self.columns))
+        return table_provenance(*((name, self.standard or self.source) for name in self.columns))
 
     @property
     def price(self) -> PriceModel:
@@ -144,6 +148,7 @@ def problems(table: TableType) -> list[str]:
         (0 < table.pack_slope < 1, "pack_slope is not between 0 and 1: a piece must cost less"),
         (table.base_price > 0, "base_price is not positive"),
         (table.unit in ("mm", "in"), "unit is neither mm nor in"),
+        (bool(table.standard) != bool(table.source), "state one of standard and source"),
     )  # fmt: skip
     return [message for ok, message in checks if not ok]
 
@@ -229,7 +234,7 @@ def spec(table: TableType) -> TypeSpec:
         return Drawn(table.draw(values), source)
 
     def claims(facts: Mapping[str, str], **_: object) -> tuple[str, ...]:
-        return (table.standard,)
+        return (table.standard,) if table.standard else ()
 
     make = _make(table)
     _MADE.setdefault(table.key, table)
@@ -252,7 +257,7 @@ def spec(table: TableType) -> TypeSpec:
         share=table.share,
         price=table.price,
         claims=claims,
-        may_claim=frozenset({table.standard}),
+        may_claim=frozenset({table.standard} - {""}),
         key_attributes=(table.columns[0],),
         use_lines=table.use_lines,
         compat=table.compat,

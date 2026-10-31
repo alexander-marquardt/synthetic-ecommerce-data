@@ -62,6 +62,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Tap",
     "Fastener",
     "Screw",
+    "Nail",
     "Bolt",
     "Washer",
     "Hammer",

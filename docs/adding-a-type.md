@@ -333,6 +333,7 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 
 * **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
+* **A chart that names no standard.** Leave `standard` empty and state `source`, the supplier's chart: the provenance names it, and a record claims no standard (`Standards` is not published). `spec(TABLE)` refuses a table that states both or neither. The nails do this (gen#751, below).
 * **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
 * **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
 * **A quantity drawn from a range.** Every quantity a type publishes is `tabled` unless its `AttrSpec` says `source="drawn"` (`vocab.py`): the facet rule reads that word, not the dispersion ratio, to offer a list or a range (gen#95). A table type's columns are tabled. Declare `drawn` only for a value the builder draws from an interval (an end mill's Neck Length is the one); `test_every_declaration_agrees_with_the_data_it_describes` reds if the data disagrees.
@@ -757,6 +758,10 @@ build module `domains/industrial/measured_builds.py` writes and
 `scripts/merge_pr.sh` rebuilds at merge. The README points at it; a type
 that moves them runs the module and commits the file (`tests/test_price.py`
 is red until it does), and a conflict in it is never merged by hand.
+
+## Nails: three kinds, three leaves (gen#751)
+
+`Fasteners > Nails` holds three table types, each with its own leaf: `nail_framing` (Framing Nails), `nail_finishing` (Finishing Nails) and `nail_masonry` (Masonry Nails). `domains/industrial/nails.py` holds the columns (`Length`, `Shank Dia.`, `Head Dia.`) and the drawing they share. Each kind is one material over rows of one supplier chart, in two packs, so the range stays small: at the default build 27, 31 and 26 products (48, 55 and 43 SKUs). The charts name no standard, so a nail claims none. A title takes the pack form of every table type (`Framing Nail, 2" Length, 50 Pack`), and the variant count is `Generator._variant_count()`. The other meaning of the word is in [retail-beauty-depth.md](retail-beauty-depth.md#false-nails-gen751). `tests/test_nails_751.py` runs the per-type gates over all three keys.
 
 ## Several kinds under one node (the hammers, #305)
 
