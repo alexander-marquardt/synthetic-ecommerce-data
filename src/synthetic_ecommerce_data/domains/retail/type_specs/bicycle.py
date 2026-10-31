@@ -2,10 +2,10 @@
 
 The range is built by code from a table of axes (gen#685), not authored row by row: :data:`KINDS`
 holds each kind's trims (gears, wheel size, frame material and brake), and :func:`build` crosses
-them with the brands and the model year. Every brand sells every trim; for each trim one brand, in
-turn, still sells last year's model, so the range carries two model years. That is 7 trims times
-3 brands, 21 bikes, and no two of them share brand, kind, gears, wheel and year. The price follows
-from the parts (:func:`_price`): the kind sets a base, a carbon frame, disc brakes and more gears
+them with the model year and the ten brands: each brand sells every trim of the kinds it has a
+series for (:data:`bicycle_model_numbers.SERIES`, gen#718). For each trim every third brand of the
+kind, in turn, still sells last year's model, so the range carries two model years, and no two
+bikes share brand, kind, gears, wheel and year. The price follows from the parts (:func:`_price`): the kind sets a base, a carbon frame, disc brakes and more gears
 each cost more, the brand costs nothing, and last year's model sells for less.
 
 Each bike is a template (``derivable`` False): the scaled build does not multiply it. An adult bike
@@ -30,9 +30,6 @@ from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.cycling_helpers import BIKES, _count, _inch
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
-    _H,
-    _L,
-    _W,
     BLACK,
     BLUE,
     GREEN,
@@ -95,8 +92,11 @@ KINDS: tuple[Kind, ...] = (
          (Trim(1, None, "Steel", "Coaster"),)),
 )  # fmt: skip
 
-#: The brands; each sells every trim.
-BRANDS = (_W, _H, _L)
+#: The brands, the three house brands first: each sells every trim of the kinds it has a series for.
+BRANDS = tuple(bmn.SERIES)
+#: One brand of this many, in turn, still sells a trim's last year's model. A count of its own, so
+#: a new brand after the first three moves no model number of theirs.
+LAST_YEAR_EVERY = 3
 
 #: What a part adds to the kind's base price. The brand adds nothing.
 MATERIAL = {"Steel": 0.0, "Aluminum": 100.0, "Carbon": 600.0}
@@ -150,16 +150,17 @@ def _bike(kind: Kind, trim: Trim, brand: str, year: int) -> Row:
 
 
 def build() -> tuple[Row, ...]:
-    """The bicycle rows: every brand sells every trim of every kind; for the ``i``-th trim, brand
-    ``i mod 3`` sells last year's model and the others this year's.
+    """The bicycle rows: each brand sells every trim of the kinds it has a series for; for the
+    ``i``-th trim, the kind's brands at places ``i mod 3``, three apart, sell last year's model and
+    the others this year's.
 
     Raises when two bikes share brand, kind, gears, wheel and year, or a row code.
     """
     trims = [(kind, trim) for kind in KINDS for trim in kind.trims]
     rows = [
-        _bike(kind, trim, brand, bmn.MODEL_YEAR - 1 if b == i % len(BRANDS) else bmn.MODEL_YEAR)
+        _bike(kind, trim, brand, bmn.MODEL_YEAR - 1 if b % LAST_YEAR_EVERY == i % LAST_YEAR_EVERY else bmn.MODEL_YEAR)
         for i, (kind, trim) in enumerate(trims)
-        for b, brand in enumerate(BRANDS)
+        for b, brand in enumerate(b for b in BRANDS if kind.name in bmn.SERIES[b])
     ]
     axes, codes = set(), set()
     for row in rows:

@@ -28,8 +28,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a kids' code with wheel digits decodes",
         "bicycle_model_numbers.py",
-        'if (wheel is None) != (kind == "Kids"):\n            continue',
-        "if False:\n            continue",
+        'if (wheel is None) != (kind == "Kids") or kind not in SERIES[brand]:',
+        "if kind not in SERIES[brand]:",
         f'{_T} -k "no_scheme_builds_decodes_to_nothing"',
         "a code no scheme builds decodes to nothing",
         _R,
