@@ -3,7 +3,8 @@ trees and eucalyptus each have a plant node, so a bare "lavender" has a category
 category-node policy can route to (as "champagne" and "oranges" do).
 
 The other senses of the words stay true: Sage is a color word of its own (a sage cushion), Olive
-already was, and the candle range carries lavender, sage and eucalyptus fragrances.
+already was, and the candles, the reed diffusers and the bath products carry lavender, sage and
+eucalyptus scents.
 """
 
 from __future__ import annotations
@@ -155,3 +156,30 @@ def test_the_scented_candles_carry_the_scent(records, scent):
     ]
     assert held, f"no {scent} candle"
     assert any(scent.lower() in r["title"].lower() for r in held)
+
+
+SCENTS = ("Lavender", "Sage", "Eucalyptus")
+
+
+def _scented(records: list[dict], path: tuple[str, ...], scent: str) -> list[dict]:
+    """The styles at ``path`` whose ``scent`` attribute is ``scent`` and whose title says it."""
+    return [
+        r
+        for r in records
+        if tuple(r["category_path"]) == path
+        and {a["value"] for a in r["attributes"] if a["key"] == "scent"} == {scent}
+        and scent in r["title"]
+    ]
+
+
+@pytest.mark.parametrize("scent", SCENTS)
+def test_a_reed_diffuser_carries_the_scent(records, scent):
+    air = ("Cleaning", "Air Care", "Air Fresheners")
+    held = [r for r in _scented(records, air, scent) if "Reed Diffuser" in r["title"]]
+    assert held, f"no {scent} reed diffuser"
+
+
+@pytest.mark.parametrize("scent", SCENTS)
+@pytest.mark.parametrize("leaf", ("Bath Salts", "Shower Gel"))
+def test_a_bath_product_carries_the_scent(records, leaf, scent):
+    assert _scented(records, ("Beauty", "Bath & Body", leaf), scent), f"no {scent} {leaf}"
