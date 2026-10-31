@@ -8,8 +8,8 @@ The order of work matters and is the same for every product type:
 2. A shared **post-pass** applies everything that is a property of the
    *catalog* rather than of the product: ragged attribute coverage, the
    measurement-system attribute under one of its three spellings, the
-   multi-valued ``Standards`` attribute, the internal contradictions real
-   catalogs contain, the title, and the image reference.
+   multi-valued ``Standards`` attribute, the unit mixing real catalogs
+   contain, the title, and the image reference.
 
 Keeping those apart is what makes the defect rates meaningful. A defect is
 injected into a record that was correct a moment earlier, against the

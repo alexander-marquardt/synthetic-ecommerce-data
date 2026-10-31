@@ -280,7 +280,7 @@ until something breaks:
 ```sh
 uv run ecom-generate build --lines 900               # a bigger or smaller catalog (THE size knob)
 uv run ecom-generate build --sparsity 0.4             # raggeder attribute coverage
-uv run ecom-generate build --defects 0.0              # a catalog with no contradictions
+uv run ecom-generate build --defects 0.0              # a catalog with no unit mixing or repeated pairs
 uv run ecom-generate build --seed 7                   # a different catalog
 ```
 
@@ -351,14 +351,14 @@ report`), with the default catalog beside it:
 
 | measured property | target | 100K |
 |---|--:|--:|
-| shank == cutting diameter | 0.6489 | 0.6895 |
-| length of cut > overall length | 0.0829 | 0.0829 |
+| shank == cutting diameter | 0.6489 | 0.6888 |
+| length of cut > overall length | 0.0829 | **0.0000, deliberately** (#404) |
 | angle carries a length unit | 0.0469 | **0.0000, deliberately** (#404) |
-| declared system contradicts units | 0.0323 | 0.0331 |
-| unit mixing within one record | 0.0222 | 0.0185 |
-| title dimension token unlabelled | 0.4667 | 0.4598 |
-| title names a secondary dimension too | 0.1714 | 0.1203 |
-| attributes per record (mean) | 13.12 | 13.07 |
+| declared system contradicts units | 0.0323 | **0.0000, deliberately** (#404) |
+| unit mixing within one record | 0.0222 | 0.0180 |
+| title dimension token unlabelled | 0.4667 | 0.4651 |
+| title names a secondary dimension too | 0.1714 | 0.1153 |
+| attributes per record (mean) | 13.12 | 11.19 |
 
 Drift, stated: every title now names its key dimension, so the census's
 "token is not the primary" case is a title that names a secondary dimension
@@ -457,9 +457,7 @@ shared tables):
   (the structural series, ISO 7414 / EN 14399-4), never at #6-#10 or M3-M10.
   The grade standards have a size scope too: SAE J995 covers 1/4" to 1-1/2"
   and ISO 898-2 covers M5 to M39, so a nut line claims one only when every
-  size it offers is inside (`conformance.within`). A nut record whose declared
-  measurement system contradicts its thread is the deliberate "declared system
-  contradicts units" defect (rate 0.0323), not a wrong standard. The rows were
+  size it offers is inside (`conformance.within`). The rows were
   checked against FreeCAD_FastenersWB at the commit `fastener_standards.json`
   records (`iso4032def.csv`, `iso4035def.csv`, `iso8673def.csv`,
   `iso8675def.csv`, `asmeb18.2.2.1def.csv`, `asmeb18.2.2.4def.csv`).
@@ -572,8 +570,8 @@ differently (`core/voice.py`).
   range and series, a generic benefit of a material or finish the record
   carries, and a pack line with the record's own quantity.
 * **No text states what the record cannot back.** Every number in a title or
-  description traces to a value the record publishes (records carrying a
-  MODELLED defect are excused, bounded at 2%) -- except the one
+  description traces to a value the record publishes (records carrying
+  modelled unit mixing are excused, bounded at 2%) -- except the one
   cross-reference sentence below, whose numbers are the OTHER product's and
   trace to a standard's table instead.
 
@@ -803,7 +801,8 @@ load, where a facet offered them beside `118` and `135`; a real retailer would
 fix that row, so the step is gone and `tests/test_no_wrong_kind_values_404.py`
 holds every angle key to angles, in the flat spelling and in the nested entry,
 over a sample of every product type at the measured defect rates and at their
-ceiling. The flat `facets_num` carries the same number as the nested entry,
+ceiling, and a part to its whole and a declared system to its units. The flat
+`facets_num` carries the same number as the nested entry,
 taken from the same rule (`entry.split`) (#120). An attribute that
 is not a measurement omits `unit_code` and `value_canonical` rather than
 carrying nulls.
@@ -1351,8 +1350,8 @@ image release, and the one renderer. How the code draws is in [docs/drawings.md]
 ## Realism
 
 The generator reproduces the defect classes found in real catalogs rather than
-smoothing them away: inconsistent unit formatting within a single record,
-ragged attribute coverage, and occasional internally impossible dimensions.
+smoothing them away: inconsistent unit formatting within a single record and
+ragged attribute coverage, but never a value a real retailer would fix (#404).
 A catalog where every field is populated and every value is well-formed does
 not look like a real one, and does not exercise a search engine like one.
 
@@ -1364,10 +1363,11 @@ than asserted.
 
 The defect classes, each with its own denominator:
 
-* the shank diameter equal to the cutting diameter, and a length of cut longer
-  than the overall length;
-* an angle attribute carrying a length unit, a declared measurement system that
-  contradicts the value's units, and unit mixing within one record;
+* the shank diameter equal to the cutting diameter, and unit mixing within one
+  record;
+* a length of cut longer than the overall length, an angle attribute carrying a
+  length unit, and a declared measurement system that contradicts the value's
+  units, each deliberately zero;
 * a parent repeating a (name, value) pair, over the parents carrying `Standards`;
 * a title dimension token with no label, one that is not the primary dimension,
   and a title label truncated at the length cap;
@@ -1377,8 +1377,8 @@ The defect classes, each with its own denominator:
 The target and the achieved figure of each, with the numerator and denominator
 behind it, are the `comparisons` in `golden-catalog/stats.json`, and
 `uv run ecom-generate report` prints them side by side. A row whose `note` says
-*deliberate* is a class the catalog leaves at zero on purpose (#404 for the
-angle unit); the note carries the corpus rate. Rebuilding with
+*deliberate* is a class the catalog leaves at zero on purpose (#404); the note
+carries the corpus rate. Rebuilding with
 `uv run ecom-generate build --out golden-catalog` rewrites them, so no
 achieved figure is typed on this page to go stale.
 
@@ -1395,10 +1395,10 @@ retail catalog. It is a defect class, so `--defects 0.0` removes it and
 `--defects N` scales it; the draw has its own stream per product, so changing
 it moves no other value in the catalog.
 
-Two notes on reading that table honestly. The angle row is **deliberately zero**:
-the corpus measures 0.0469, and the generator declines to write a length under an
-angle key (#404; `GeneratorConfig.measured_angle_carries_length_unit` keeps the
-measurement). And attributes per record sits about 6% below its target because the
+Two notes on reading that table honestly. The length-of-cut, angle and
+declared-system rows are **deliberately zero**: the corpus measures 0.0829, 0.0469
+and 0.0323, and the generator declines to write a value it knows is wrong
+(#404; the `GeneratorConfig.measured_*` rates keep the measurements). And attributes per record sits about 6% below its target because the
 reference mean is over a different mixture of product families than this
 catalog contains; the per-family shape is reproduced, the mixture is not the
 same one. It moved when the newer types arrived (hex nuts and hex keys publish
