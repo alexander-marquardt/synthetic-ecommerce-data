@@ -121,7 +121,6 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.standard import (
     text_contradictions,
-    words,
 )
 from synthetic_ecommerce_data.core.standard import value_pools as text_pools
 from synthetic_ecommerce_data.domains.retail import (
@@ -172,9 +171,37 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
 from synthetic_ecommerce_data.domains.retail.export import (
-    drawing_spec,
-    image_id,
     standard_document,
+)
+from synthetic_ecommerce_data.domains.retail.scale_measures import (
+    JITTER,
+    NEAR_DUPLICATE_JACCARD,
+    PRICE_BAND,
+    _step,
+    coverage,
+    distinctness,
+    grid_clones,
+    grid_tile,  # noqa: F401 -- read through this module
+    listing_tokens,
+    price_factor,
+    price_point,
+    prices_per_leaf,
+)
+from synthetic_ecommerce_data.domains.retail.scale_text import (
+    FROZEN_KEYS,  # noqa: F401 -- read through this module
+    _article,
+    _department,
+    _has_word,
+    _line,
+    _part_swaps,
+    _plural,
+    _restate_color_count,
+    _sku_values,
+    _swap,
+    _title,
+    twin_key,
+    value_pools,
+    variable_keys,
 )
 from synthetic_ecommerce_data.domains.retail.stable_ids import (
     number,
@@ -211,18 +238,6 @@ DEPARTMENT_SHARE = {
     "Home": 0.20, "Beauty": 0.08,
 }  # fmt: skip
 
-#: Keys whose value never changes: who it is for, its name, its size range, the
-#: pattern the drawing shows, how many motifs it prints where (the drawing's
-#: ``count`` and ``placement``, which the description's wording follows), a
-#: light's build (gen#197): a wall light's ``ip_rating`` (a bathroom light's text says
-#: where it may go) and what a lampshade's ring fits (``fitting``).
-#: A tableware kind (gen#198) fixes the drawn profile and the measured size beside it, so a
-#: 27 cm dinner plate never becomes a side plate.
-FROZEN_KEYS = frozenset(
-    {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
-     "ip_rating", "fitting",
-     "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
-)  # fmt: skip
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S, where a leaf's rank is a hash of its
 #: name in 1..:data:`LEAF_RANKS` (:func:`leaf_weight`), not its place in a shuffled list: adding a
@@ -253,22 +268,6 @@ RETRIES = 4
 
 #: Fields :func:`variants.product` derives from the SKUs; never copied.
 DERIVED_FIELDS = ("product_id", "price", "sku_count", "skus", "color_options", "size_options")
-
-#: The plural nouns a template's text counts its colorways in ("in 12 washes", "in three
-#: prints"), each with its singular. A derived style keeps a subset of the colorways, so
-#: :func:`_restate_color_count` rewrites the count to the style's own (gen#143).
-COLOR_COUNT_NOUNS = {
-    "washes": "wash", "prints": "print", "colors": "color", "colorways": "colorway",
-    "shades": "shade",
-}  # fmt: skip
-#: The counts a template spells out ("three prints"); index i is the word for i.
-NUMBER_WORDS = (
-    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-    "eleven", "twelve",
-)  # fmt: skip
-_COLOR_COUNT = re.compile(
-    rf"\b(\d+|{'|'.join(NUMBER_WORDS[2:])})\s+({'|'.join(COLOR_COUNT_NOUNS)})\b", re.IGNORECASE
-)
 
 
 @dataclass
@@ -466,143 +465,6 @@ def derivable(tpls: list[dict]) -> list[dict]:
             and r.get("neckline") not in ("boat", "slash")]  # fmt: skip
 
 
-def _words(text: str) -> str:
-    return words(text)
-
-
-def _has_word(text: str, value: str) -> bool:
-    return f" {_words(value).strip()} " in _words(text)
-
-
-def value_pools(recs: list[dict]) -> dict[tuple[str, str], tuple[str, ...]]:
-    """(leaf, key) -> the unit-free values the leaf's templates carry, in first-seen order."""
-    pools: dict[tuple[str, str], dict[str, None]] = collections.defaultdict(dict)
-    for r in recs:
-        for a in r["attributes"]:
-            if "unit_code" not in a:
-                pools[(r["category_leaf"], a["key"])][str(a["value"])] = None
-    return {k: tuple(v) for k, v in pools.items()}
-
-
-def variable_keys(rec: dict, pools: dict[tuple[str, str], tuple[str, ...]]) -> list[str]:
-    """The attribute keys a style derived from ``rec`` may change (see the module doc)."""
-    names = " ".join([*rec["category_path"], rec["category_leaf"], rec["product_type"]])
-    counts = collections.Counter(a["key"] for a in rec["attributes"])
-    shared = collections.Counter(str(a["value"]).lower() for a in rec["attributes"])
-    out = []
-    for a in rec["attributes"]:
-        key, value = a["key"], str(a["value"])
-        if key in FROZEN_KEYS or "unit_code" in a or counts[key] > 1 or shared[value.lower()] > 1:
-            continue
-        if len(pools.get((rec["category_leaf"], key), ())) < 2 or _has_word(names, value):
-            continue
-        if any(value.lower() in t.lower() and not _has_word(t, value)
-               for t in (rec["title"], rec["description"])):  # fmt: skip
-            continue
-        out.append(key)
-    return out
-
-
-def _line(rec: dict) -> str | None:
-    if rec.get("product_line"):
-        return str(rec["product_line"])
-    return next((str(a["value"]) for a in rec["attributes"] if a["key"] == "line"), None)
-
-
-def clone_key(rec: dict) -> tuple:
-    """Leaf, brand, attributes and title, the range name taken out of both."""
-    title, name = rec["title"], _line(rec)
-    if name:
-        title = re.sub(rf"\b{re.escape(name)}\b ?", "", title)
-    if line_grammar.family(rec):  # a brand-led model is its plain twin (gen#662)
-        title = re.sub(rf"^(Kids' )?{re.escape(rec['brand'])} ", r"\1", title)
-    attrs = tuple(
-        sorted((a["key"], str(a["value"])) for a in rec["attributes"] if a["key"] != "line")
-    )
-    return (rec["category_leaf"], rec["brand"], attrs, title.strip())
-
-
-def twin_key(rec: dict) -> tuple:
-    """Leaf, brand and title without the range name: two styles that share it read as one
-    listing whatever their unseen attributes, so the build makes no second (clones included)."""
-    leaf, brand, _, title = clone_key(rec)
-    return (leaf, brand, title)
-
-
-def _parts(value: str) -> list[str]:
-    """A comma-joined attribute value's parts: "patent, suede" -> ["patent", "suede"]."""
-    return [p.strip() for p in value.split(",")]
-
-
-def _part_swaps(old: str, new: str) -> dict[str, str]:
-    """Each part of ``old`` (lowercased) -> the part of ``new`` at its place, which a SKU
-    holding that part takes; a shorter ``new`` gives its last part to the rest."""
-    o, n = _parts(old), _parts(new)
-    return {p.lower(): n[min(i, len(n) - 1)] for i, p in enumerate(o)}
-
-
-def _sku_values(rec: dict, skus: list[dict], swaps: dict[str, dict[str, str]]) -> None:
-    """Each SKU takes the values ``derive`` drew for a key it carries (``swaps``), then
-    each style attribute whose key the SKUs carry lists only the parts they still hold:
-    a shoe kept in its suede colors alone no longer says "patent, suede" (gen#145), and a
-    title or description that names a dropped part names the first kept one instead
-    ("Soft leather ballet flats" -> "Soft patent ballet flats", gen#148)."""
-    for s in skus:
-        for key, swap in swaps.items():
-            if key in s:
-                s[key] = swap.get(str(s[key]).lower(), s[key])
-    for key in dict.fromkeys(a["key"] for a in rec["attributes"]):
-        held = {str(s[key]).lower() for s in skus if key in s}
-        if not held:
-            continue
-        entries = [a for a in rec["attributes"] if a["key"] == key]
-        kept = [p for a in entries for p in _parts(str(a["value"])) if p.lower() in held]
-        dropped = [p for a in entries for p in _parts(str(a["value"])) if p.lower() not in held]
-        for a in entries:
-            a["value"] = ", ".join(p for p in _parts(str(a["value"])) if p.lower() in held)
-        if kept:  # an entry for a material no kept SKU holds goes (a style lists the ones it sells)
-            rec["attributes"] = [a for a in rec["attributes"] if a["key"] != key or a["value"]]
-        for part in dropped if kept else ():
-            for text in ("title", "description"):
-                rec[text] = _swap(rec[text], part, kept[0])
-
-
-def _swap(text: str, old: str, new: str) -> str:
-    """``old`` -> ``new`` as a whole word in any case, each occurrence keeping its case
-    and an "a"/"an" before it agreeing with ``new`` (:func:`_article`):
-    lower stays lower, a capital first letter stays capital, otherwise ``new`` as given.
-    Its words match across a space or a hyphen, and ``&`` and "and" match each other, so
-    "Hook & Loop" rewrites "hook and loop"."""
-    body = re.sub(r"(?<![A-Za-z])and(?![A-Za-z])", r"\\&", re.escape(old))
-    body = body.replace(r"\&", "(?:&|and)").replace(r"\-", r"[\s-]").replace(r"\ ", r"[\s-]+")
-    pattern = r"(?:(?<![A-Za-z0-9])([Aa]n?) )?(?<![A-Za-z0-9])(" + body + r")(?![A-Za-z0-9])"
-
-    def cased(m: re.Match[str]) -> str:
-        article, hit = m.group(1), m.group(2)
-        if hit.islower():
-            word = new.lower()
-        elif hit[0].isupper() and (len(hit) == 1 or hit[1:].islower()):
-            word = new[0].upper() + new[1:]
-        else:
-            word = new
-        if article is None:
-            return word
-        # An article just before the word agrees with the word that replaces it.
-        fixed = _article(word)
-        return f"{fixed.capitalize() if article[0].isupper() else fixed} {word}"
-
-    return re.sub(pattern, cased, text, flags=re.IGNORECASE)
-
-
-def _title(tpl: dict, name: str) -> str:
-    old = _line(tpl)
-    if old and re.search(rf"\b{re.escape(old)}\b", tpl["title"]):
-        return re.sub(rf"\b{re.escape(old)}\b", name, tpl["title"], count=1)
-    if tpl["title"].startswith("The "):
-        return f"The {name} {tpl['title'][4:]}"
-    return f"{name} {tpl['title']}"
-
-
 #: The drawing fields that follow a changed ``motif``; ``count`` and ``placement`` never
 #: change (:data:`FROZEN_KEYS`).
 MOTIF_FIELDS = ("motif", "accent", "third")
@@ -618,16 +480,6 @@ def _motif_inks() -> dict[str, dict[str, Any]]:
             if a["key"] == "motif" and "motif" in t["drawing"]:
                 out.setdefault(str(a["value"]), {k: t["drawing"][k] for k in MOTIF_FIELDS})
     return out
-
-
-def _article(word: str) -> str:
-    return "an" if word[:1].lower() in "aeiou" else "a"
-
-
-def _plural(word: str) -> str:
-    if re.search(r"[^aeiou]y$", word):
-        return word[:-1] + "ies"
-    return word + ("es" if re.search(r"(s|x|z|ch|sh)$", word) else "s")
 
 
 def _redraw_motif(rec: dict, old: str, new: str) -> None:
@@ -649,24 +501,6 @@ def _redraw_motif(rec: dict, old: str, new: str) -> None:
         spread = "scattered on" if d.get("placement") == "scatter" else "all over"
         lead = f"{_article(low).capitalize()} {low} print"
         rec["description"] = f"{lead}: {_plural(low)} {spread} {on}."
-
-
-def _restate_color_count(text: str, n: int) -> str:
-    """``text`` with each colorway count ("in 12 washes", "in three prints") made ``n``:
-    "one wash" for a single colorway, else ``n`` in the template's own form (digits
-    or a word). A title-cased noun ("3 Washes") stays title-cased ("One Wash")."""
-
-    def restate(m: re.Match[str]) -> str:
-        plural = m.group(2)
-        if n == 1:
-            phrase = f"one {COLOR_COUNT_NOUNS[plural.lower()]}"
-            return phrase.title() if plural[0].isupper() else phrase
-        if m.group(1).isdigit() or n >= len(NUMBER_WORDS):
-            return f"{n} {plural}"
-        word = NUMBER_WORDS[n]
-        return f"{word.capitalize() if m.group(1)[0].isupper() else word} {plural}"
-
-    return _COLOR_COUNT.sub(restate, text)
 
 
 def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
@@ -753,10 +587,6 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
         out["price_max"] = max(s["price"] for s in out["skus"])
     sale_share.apply(out)  # a share of every people department is reduced (gen#359)
     return out
-
-
-def _department(rec: dict) -> str:
-    return str(rec["department"][0])
 
 
 def brand_pools(tpls: list[dict]) -> dict[tuple[str, str], list[str]]:
@@ -1024,172 +854,6 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         titles.add(rec["title"])
         return rec
     return None
-
-
-def coverage(recs: list[dict]) -> dict[str, Any]:
-    """Styles, SKUs, products per leaf, attribute fill per type and the image counts."""
-    per_leaf = collections.Counter(r["category_leaf"] for r in recs)
-    sizes = sorted(per_leaf.values(), reverse=True)
-    top = max(1, len(sizes) // 10)
-    by_type: dict[str, list[dict]] = collections.defaultdict(list)
-    for r in recs:
-        by_type[r["product_type"]].append(r)
-    fill = {}
-    for ptype, rows in sorted(by_type.items()):
-        keys = {a["key"] for r in rows for a in r["attributes"]}
-        have = [{a["key"] for a in r["attributes"]} for r in rows]
-        share = [sum(k in h for h in have) / len(rows) for k in keys]
-        fill[ptype] = {"products": len(rows), "keys": len(keys),
-                       "fill": round(sum(share) / len(share), 3) if share else 1.0}  # fmt: skip
-    depts: dict[str, list[int]] = collections.defaultdict(list)
-    for r in recs:
-        depts[_department(r)].append(r["sku_count"])
-    specs = {json.dumps(drawing_spec(r, s), sort_keys=True) for r in recs for s in r["skus"]}
-    return {
-        "styles": len(recs),
-        "skus": sum(r["sku_count"] for r in recs),
-        "skus_per_style_by_department": {
-            d: {"styles": len(v), "skus": sum(v), "per_style": round(sum(v) / len(v), 1)}
-            for d, v in sorted(depts.items())
-        },
-        "leaves": len(per_leaf),
-        "products_per_leaf": dict(per_leaf.most_common()),
-        "leaf_size": {
-            "max": sizes[0],
-            "median": sizes[len(sizes) // 2],
-            "min": sizes[-1],
-            "top_decile_share": round(sum(sizes[:top]) / len(recs), 3),
-        },  # fmt: skip
-        "attribute_fill": fill,
-        "images": {
-            "image_ids": len({image_id(r, s) for r in recs for s in r["skus"]}),
-            "distinct_drawings": len(specs),
-        },
-    }
-
-
-#: A derived style's price stays in [low * the leaf's cheapest template, high * its dearest].
-PRICE_BAND = (0.75, 1.35)
-
-
-#: A derived style's seeded spread around its template's price, before the band.
-JITTER = (0.85, 1.2)
-
-#: The price weight of a word in a value: a premium material costs more, a cheap one less.
-#: A value's weight is the product of its words' (1.0 when none is listed).
-PREMIUM = {
-    "cashmere": 1.6, "silk": 1.4, "goose": 1.3, "merino": 1.3, "leather": 1.3,
-    "down": 1.25, "suede": 1.25, "wool": 1.2, "egyptian": 1.2, "velvet": 1.15,
-    "linen": 1.15, "organic": 1.1, "canvas": 0.9, "faux": 0.85, "rubber": 0.85,
-    "nylon": 0.85, "microfibre": 0.85, "synthetic": 0.8, "polyester": 0.8,
-    "acrylic": 0.8, "hollowfibre": 0.8, "plastic": 0.8,
-    "bone": 2.0, "porcelain": 1.4, "enamel": 0.75, "melamine": 0.5,
-}  # fmt: skip
-
-
-def _weight(value: str) -> float:
-    out = 1.0
-    for w in words(value).split():
-        out *= PREMIUM.get(w, 1.0)
-    return out
-
-
-def price_factor(changes: dict[str, tuple[str, str]]) -> float:
-    """The price multiplier of attribute changes ``key -> (old, new)``: each new value's
-    :data:`PREMIUM` weight over the old one's."""
-    out = 1.0
-    for old, new in changes.values():
-        out *= _weight(new) / _weight(old)
-    return out
-
-
-def _step(price: float) -> float:
-    return 0.05 if price < 5 else 0.5 if price < 20 else 1.0 if price < 100 else 5.0
-
-
-def price_point(price: float, lo: float | None = None, hi: float | None = None) -> float:
-    """``price`` on the nearest retail price point (5p under £5, 50p under £20, £1 under
-    £100, then £5), moved one point inward when that leaves ``[lo, hi]``."""
-    step = _step(price)
-    n = round(price / step)
-    if lo is not None and n * step < lo - 1e-9:
-        n += 1
-    if hi is not None and n * step > hi + 1e-9:
-        n -= 1
-    return round(max(n, 1) * step, 2)
-
-
-def grid_tile(rec: dict) -> tuple:
-    """What a results grid shows of a style: its leaf, its hero picture and its price."""
-    hero = rec["skus"][0]
-    spec = json.dumps(drawing_spec(rec, hero), sort_keys=True)
-    return (rec["category_leaf"], spec, hero["price"])
-
-
-def grid_clones(recs: list[dict]) -> dict[str, Any]:
-    """The styles that share their grid tile (:func:`grid_tile`) with another style."""
-    tiles = collections.Counter(grid_tile(r) for r in recs)
-    shared = sum(n for n in tiles.values() if n > 1)
-    return {
-        "styles": len(recs),
-        "grid_clones": shared,
-        "grid_clone_rate": round(shared / len(recs), 4),
-        "largest_group": max(tiles.values()),
-    }
-
-
-def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
-    """Distinct style prices per leaf: each leaf's count, then the min and the median."""
-    prices: dict[str, set[float]] = collections.defaultdict(set)
-    for r in recs:
-        prices[r["category_leaf"]].add(r["price"])
-    counts = sorted(len(v) for v in prices.values())
-    return {
-        "distinct": {leaf: len(v) for leaf, v in sorted(prices.items())},
-        "min": counts[0],
-        "median": counts[len(counts) // 2],
-    }
-
-
-#: The word overlap (Jaccard, over brand and title) at which two same-leaf listings read as one.
-NEAR_DUPLICATE_JACCARD = grocery.NEAR_DUPLICATE_JACCARD
-
-
-def listing_tokens(rec: dict) -> frozenset[str]:
-    """The words a shopper and the index read on a listing: the brand and the title."""
-    return frozenset(_words(f"{rec['brand']} {rec['title']}").split())
-
-
-def distinctness(
-    recs: list[dict], sample: int = 500, seed: int = 0, jaccard: float = NEAR_DUPLICATE_JACCARD
-) -> dict[str, Any]:
-    """Duplicate titles and clones over all styles (excess copies: a pair is 1), and on a
-    seeded sample the share of styles with a same-leaf listing at ``jaccard`` or above."""
-    titles = collections.Counter(r["title"] for r in recs)
-    clones = collections.Counter(clone_key(r) for r in recs)
-    by_leaf: dict[str, list[tuple[int, frozenset[str]]]] = collections.defaultdict(list)
-    for i, r in enumerate(recs):
-        by_leaf[r["category_leaf"]].append((i, listing_tokens(r)))
-    picked = random.Random(seed).sample(range(len(recs)), min(sample, len(recs)))
-    near = 0
-    for i in picked:
-        mine = listing_tokens(recs[i])
-        for j, other in by_leaf[recs[i]["category_leaf"]]:
-            if j != i and len(mine & other) / len(mine | other) >= jaccard:
-                near += 1
-                break
-    n = len(recs)
-    dup = sum(c - 1 for c in titles.values())
-    clone = sum(c - 1 for c in clones.values())
-    return {
-        "duplicate_titles": dup,
-        "duplicate_title_rate": round(dup / n, 4),
-        "clones": clone,
-        "clone_rate": round(clone / n, 4),
-        "near_duplicate_rate": round(near / len(picked), 4),
-        "near_duplicate_sample": len(picked),
-        "near_duplicate_jaccard": jaccard,
-    }
 
 
 def documents(scaled: Scaled) -> list[dict[str, Any]]:

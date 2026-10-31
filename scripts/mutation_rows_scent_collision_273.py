@@ -35,7 +35,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the limes family falls back to its old weight",
-        "grocery_rows.py",
+        "grocery_families.py",
         '_FRESH, 0.010, item_g=70, axis="variety", depth=True),',
         '_FRESH, 0.003, item_g=70, axis="variety", depth=True),',
         f'{_DEPTH} -k "food and lime"',
@@ -44,7 +44,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "both scent palettes lose mint, lime, vanilla and cherry blossom",
-        "grocery_rows.py",
+        "grocery_families.py",
         '    F("Fresh Linen", "#cfe3ee"), F("Mint", "#3a8f6a"), F("Lime", "#9acd32"), F("Vanilla", "#f3e5ab"),\n    F("Cherry Blossom", "#f4b6c8"),\n)\n_HOME_BRANDS = ("Clearbrook Household", "Soapwell", "Pantry Mill", "Freshfold")\n_BODY_SCENTS = (\n    F("Honey", "#e0a030"), F("Lemon", "#f2d14b"), F("Coconut", "#efe8d8"), F("Almond", "#c9a96e"),\n    F("Lavender", "#9a7ab6"), F("Mint", "#3a8f6a"), F("Lime", "#9acd32"), F("Vanilla", "#f3e5ab"),\n    F("Cherry Blossom", "#f4b6c8"),\n)',
         '    F("Fresh Linen", "#cfe3ee"),\n)\n_HOME_BRANDS = ("Clearbrook Household", "Soapwell", "Pantry Mill", "Freshfold")\n_BODY_SCENTS = (\n    F("Honey", "#e0a030"), F("Lemon", "#f2d14b"), F("Coconut", "#efe8d8"), F("Almond", "#c9a96e"),\n    F("Lavender", "#9a7ab6"),\n)',
         f'{_DEPTH} -k "scent"',

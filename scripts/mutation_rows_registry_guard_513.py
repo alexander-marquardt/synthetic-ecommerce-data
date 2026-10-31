@@ -199,7 +199,7 @@ def rows() -> list[Row]:
         _row(
             "a kind in both tables is shadowed",
             RETAIL_DRAWINGS,
-            "decoy_product_words.py",
+            "decoy_word_kinds.py",
             "    if _key in BASE_KINDS:",
             "    if False:",
             f"{_F}::test_a_module_kind_that_the_word_table_already_holds_is_refused_naming_it",

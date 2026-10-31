@@ -88,7 +88,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "shoe polish is filed in another department than the kit beside it",
-        "decoy_product_words.py",
+        "decoy_word_kinds.py",
         '    "polish": Kind(\n        "Footwear",',
         '    "polish": Kind(\n        "Home",',
         f"{_T} -k shoe_care_is_one_node",

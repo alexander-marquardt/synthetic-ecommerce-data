@@ -176,7 +176,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "a new brand owned by the house",
-        "breadth_rows.py",
+        "breadth_row.py",
         '"Hessenby": "third_party"',
         '"Hessenby": "own"',
         f'{_N} -k "another_houses_make"',

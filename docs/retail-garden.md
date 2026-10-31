@@ -62,7 +62,7 @@ and a `drive-arrow` group. A test reads each against the row.
 ## Trees (gen#566)
 
 The trees sit under one category, `Garden > Trees`, with a child per kind: `Bay Trees`, `Olive
-Trees`, `Apple Trees` and `Christmas Trees` (`breadth_rows.py`, `_TREES`, `_OLIVES`, `_APPLE`,
+Trees`, `Apple Trees` and `Christmas Trees` (`breadth_garden.py`, `_TREES`, `_OLIVES`, `_APPLE`,
 `_XMAS`). They had been spread over `Garden > Plants` (bay, olive), `Garden > Fruit Trees > Apple
 Trees` and `Garden > Christmas Trees > Real Christmas Trees`. The two single-child levels are gone:
 apple is the only fruit tree and every Christmas tree is real. `Fruit Trees` comes back only with a
@@ -79,7 +79,7 @@ The barbecue cooking area and pizza ovens are also open.
 ## Plants named after a color and a scent (gen#509)
 
 A bare "lavender" read as a color (lavender clothing) and a scent (lavender cleaners) and had no
-plant, so the category-node policy had no node to route it to. `breadth_rows.py` now carries
+plant, so the category-node policy had no node to route it to. `breadth_garden.py` now carries
 twenty-four plant styles in six leaves under Garden > Plants, each named for the word a shopper
 types: Lavender, Herbs > Sage, Herbs > Rosemary, Herbs > Thyme, Olive Trees and Eucalyptus. Each leaf
 holds at least eight styles at the ceiling (`tests/test_retail_plant_nodes_509.py`). A herb is drawn
@@ -88,7 +88,7 @@ eucalyptus by `potted_tree`. The other senses stay true: Sage is a color value o
 (`colorwords.COLOR_WORDS`, beside Olive), so a sage cushion exists, and the scented candles, reed
 diffusers (`Cleaning > Air Care > Air Fresheners`) and bath products (`Beauty > Bath & Body > Bath
 Salts` and `Shower Gel`) carry Lavender, Sage and Eucalyptus scents, keyed `scent`. The depth family
-sells a lavender shower gel, so `breadth_rows.py` adds only the sage and eucalyptus ones. Bath
+sells a lavender shower gel, so `breadth_beauty.py` adds only the sage and eucalyptus ones. Bath
 salts and these two gels stay templates (`Home("breadth_rows", False)`).
 
 Measured on `catalog_combined_2026-10-30b` (the load with the plants, before the diffusers and the

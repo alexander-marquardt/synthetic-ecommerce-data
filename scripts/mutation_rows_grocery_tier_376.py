@@ -80,7 +80,7 @@ _ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "a family group gets no new brand",
-        "grocery_rows.py",
+        "grocery_families.py",
         '    _DAIRY: ("Wetherly Creamery",),\n',
         "",
         f"{_T} -k family_group_gets",

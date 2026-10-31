@@ -48,7 +48,7 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     ),
     (
         "the mug cake mix is drawn as a celebration cake",
-        "decoy_product_words.py",
+        "decoy_word_kinds.py",
         '"cake_mix": Kind("Food & Drink", ("Food & Drink", "Bakery", "Cakes"), "Cake", "box",',
         '"cake_mix": Kind("Food & Drink", ("Food & Drink", "Bakery", "Cakes"), "Cake", "cake",',
         f"{_T}::test_a_boxed_mug_cake_mix_is_drawn_as_a_box_not_a_celebration_cake",
@@ -88,7 +88,7 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     ),
     (
         "pasta names are a flavor again",
-        "grocery_rows.py",
+        "grocery_families.py",
         '           _CUP, 0.03, axis="variety"),',
         "           _CUP, 0.03),",
         f"{_T}::test_a_named_dish_or_pasta_is_a_variety_not_a_flavor",

@@ -219,7 +219,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "a class 2 table holds an invented compound",
-        "decoy_apparel.py",
+        "decoy_apparel_words.py",
         '("sandal", "Ballet Sandals")),',
         '("sandal", "Ballet Sandals"), ("sneaker", "Ballet Sneakers")),',
         "tests/test_retail_apparel_decoys_311.py -k no_invented_compound",
@@ -228,7 +228,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "a class 2 table re-adds a live title reworded",
-        "decoy_apparel.py",
+        "decoy_apparel_words.py",
         '"Wedges": (("sneaker", "Sneaker Wedges"),),',
         '"Wedges": (("sneaker", "Sneaker Wedges"), ("sandal", "Sandal Wedges")),',
         "tests/test_retail_apparel_decoys_311.py -k live_title_reworded",
@@ -237,7 +237,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "a type with two compounds is not declared short",
-        "decoy_apparel.py",
+        "decoy_apparel_words.py",
         '    "Tights": "only running tights and cycling tights are names a shopper meets",\n',
         "",
         "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",
@@ -246,7 +246,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "a type with a path-blocked phrase is not declared short",
-        "decoy_apparel.py",
+        "decoy_apparel_words.py",
         '    "Blouse": "only the dress blouse and the tunic blouse are names a shopper meets",\n',
         "",
         "tests/test_retail_apparel_decoys_311.py -k three_real_compounds_or_a_declared_reason",

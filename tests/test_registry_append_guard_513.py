@@ -32,6 +32,8 @@ RD = "src/synthetic_ecommerce_data/domains/retail"
 SCALE = f"{RD}/scale.py"
 DECOY_ROWS = f"{RD}/decoy_rows.py"
 WORDS = f"{RD}/decoy_product_words.py"
+WORD_TABLE = f"{RD}/decoy_word_table.py"
+WORD_KINDS = f"{RD}/decoy_word_kinds.py"
 HARNESS = "scripts/mutation_check.py"
 PROTO = "docs/retail-prototype.md"
 WORD_DOC = "docs/retail-product-word-decoys.md"
@@ -78,6 +80,18 @@ APPENDS = {
         "feature_decoys",
     ),
     "word-d-open": (WORDS, "    _d(", "feature_decoys"),
+    "word-table-row": (
+        WORD_TABLE,
+        '    _d(99, "s_probe", "Title", "Desc", "Brown", "block", "Yoga Block", _CAT),',
+        "feature_decoys",
+    ),
+    "word-table-open": (WORD_TABLE, "    _d(", "feature_decoys"),
+    "word-kinds-update": (WORD_KINDS, "NEW_KINDS.update(_PROBE_KINDS)", "feature_decoys"),
+    "word-kinds-row": (
+        WORD_KINDS,
+        '    "probe": Kind("Home", ("Home",), "Cushion", "cushion", "B", 1.0),',
+        "feature_decoys",
+    ),
     "prototype-section": (PROTO, "### Probe feature (gen#999)", "docs/retail-prototype/"),
     "prototype-subsection": (PROTO, "#### A probe detail", "docs/retail-prototype/"),
     "word-doc-row": (
@@ -113,6 +127,8 @@ BASE = {
     SCALE: "import json  # noqa: E402\nimport foo_rows  # noqa: E402\n",
     DECOY_ROWS: 'TABLE = (\n    _d("XS01", "sofa", "Sofa", "Desc", "Blue", 1, "red sofa"),\n)\n',
     WORDS: 'TABLE = (\n    _s(43, "s_x", "Block Heel", "Desc", "Brown", "block", "Yoga"),\n)\n',
+    WORD_TABLE: 'TABLE = (\n    _d(1, "x", "T", "D", "Red", "q", "n", _CAT),\n)\n',
+    WORD_KINDS: 'NEW_KINDS = {\n    "x": Kind("Home", ("Home",), "C", "c", "B", 1.0),\n}\n',
     PROTO: "# The retail prototype\n\n### Footwear\n\nA line of prose.\n",
     WORD_DOC: "# Decoys\n\nThe table is built.\n",
     CLASS8: "from decoy_true_nodes import TRUE_NODE\n\n\ndef test_x():\n    assert TRUE_NODE\n",

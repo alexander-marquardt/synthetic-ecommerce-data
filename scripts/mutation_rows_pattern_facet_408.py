@@ -73,7 +73,7 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the patchwork cushion is a gingham one",
-        "breadth_rows.py",
+        "breadth_home.py",
         'cw("Multi Patchwork", "#c46a4a", "patchwork", "#26365c")',
         'cw("Multi Patchwork", "#c46a4a", "gingham", "#26365c")',
         f"{_T} -k patchwork_cushion",

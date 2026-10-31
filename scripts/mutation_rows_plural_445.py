@@ -71,7 +71,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the orange family loses its grade",
-        "grocery_rows.py",
+        "grocery_families.py",
         'Family("ORA", _FRUIT + ("Citrus Fruit", "Oranges"), "{line} {flavor}, Class 1"',
         'Family("ORA", _FRUIT + ("Citrus Fruit", "Oranges"), "{line} {flavor}"',
         f'{_T} -k "first_twelve and oranges"',
@@ -80,7 +80,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the tomato family loses its grade",
-        "grocery_rows.py",
+        "grocery_families.py",
         'Family("TOM", _p("Fruit & Vegetables", "Fresh Vegetables", "Tomatoes"), "{line} {flavor}, Class 1"',
         'Family("TOM", _p("Fruit & Vegetables", "Fresh Vegetables", "Tomatoes"), "{line} {flavor}"',
         f'{_T} -k "first_twelve and tomatoes"',

@@ -127,7 +127,7 @@ proof corpus.
 
 ### Grocery
 
-`grocery.py` (data in `grocery_rows.py`, gen#154) builds Food & Drink styles
+`grocery.py` (data in `grocery_rows.py` and `grocery_families.py`, gen#154) builds Food & Drink styles
 whose SKUs are flavor x pack size: `python3 -m synthetic_ecommerce_data.domains.retail.grocery
 --skus 10000 --out DIR` writes `nested.jsonl` and `flat.jsonl`, both in the output
 standard. Its styles, SKUs and each family's share are `templates.grocery` and
@@ -275,7 +275,7 @@ ingredients, the near-duplicate and grid-clone caps.
 `real_classes.py` rebuilds thirteen query shapes observed by hand on a live
 retail site (every name invented, the brands from `house_styles.py`). The
 record model (`Style`, `Policy`, `ClassRow`, the closed lists) is in
-`class_model.py` and the rows themselves are data in `class_rows.py`. Its records
+`class_model.py` and the rows themselves are data in `class_rows.py` and `class_rows_apparel.py`. Its records
 carry the fields a policy reads and a title never states: `product_type`,
 `audience` (adult, kids, baby), `size_range` (regular, petite, tall, plus),
 `neckline`, `pattern`, `leg_style`, a `was_price` on a sale item only,
