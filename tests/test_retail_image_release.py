@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.domains.retail import (
     image_release,
     pack_scale,
     scale,
+    size_ladder,
 )
 from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
@@ -118,8 +119,9 @@ def test_every_image_reference_resolves_to_a_packaged_file(documents, files):
 def test_a_colorway_image_draws_that_colorway():
     rec = next(r for rs in samples().values() for r in rs if r["product_id"] == "BED-COVPRT")
     colors = {c[0]: c for c in next(s for s in FAMILIES["Bedding"] if s.code == "COVPRT").colors}
-    first = rec["skus"][0]
-    assert image_release.render(rec, first) == drawing_svg(rec).encode()
+    first_color = [s for s in rec["skus"] if s["color"] == rec["skus"][0]["color"]]
+    largest = max(first_color, key=lambda s: size_ladder.size_scale(rec, s))
+    assert image_release.render(rec, largest) == drawing_svg(rec).encode()
     drawn: dict[str, bytes] = {}
     for sku in rec["skus"]:
         name, pattern, base, accent = colors[sku["color"]]

@@ -22,7 +22,8 @@ Rulings this implements (elastic/prism-industrial-products#103, 2026-09-26 to
 The drawing is a pure function of ``(product_type, brand, attributes)``. It
 does not read the SKU, the product id or the title, so two SKUs publishing the
 same drawn values draw the same bytes, which is the correct answer: the
-picture has nothing to tell them apart with.
+picture has nothing to tell them apart with. A breadth product's fixed shape
+also reads its siblings' sizes, for its rung (:mod:`...industrial.drawing.breadth_rungs`).
 """
 
 from __future__ import annotations
@@ -203,9 +204,18 @@ def product_scale_for(product_type: str, records: Sequence[Mapping[str, str]]) -
 def draw_product(
     product_type: str, brand: str, records: Sequence[Mapping[str, str]]
 ) -> list[tuple[bytes, str]]:
-    """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale."""
+    """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale; the
+    fixed shape of a breadth product steps down its size ladder (gen#719)."""
+    from synthetic_ecommerce_data.domains.industrial.drawing import (
+        breadth_rungs,  # noqa: PLC0415 -- it reads the breadth table, which draws on this package
+    )
+
     scale = product_scale_for(product_type, records)
-    return [_draw(product_type, brand, record, scale) for record in records]
+    ratios = breadth_rungs.ratios(product_type, records)
+    return [
+        _draw(product_type, brand, record, scale * ratio)
+        for record, ratio in zip(records, ratios, strict=True)
+    ]
 
 
 def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[bytes, str]:

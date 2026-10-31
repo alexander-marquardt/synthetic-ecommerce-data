@@ -62,6 +62,15 @@ def test_each_type_on_a_declared_axis_draws_its_smallest_and_largest_rung_apart(
     assert not wrong
 
 
+def test_every_value_of_a_declared_axis_has_a_place_on_its_ladder():
+    for rec, _ in SIZED:
+        for sku in rec["skus"]:
+            try:
+                size_ladder.size_scale(rec, sku)
+            except ValueError as exc:
+                raise AssertionError(f"{rec['product_id']}: {exc}") from exc
+
+
 def test_each_rung_has_one_scale_and_a_color_one_image_a_rung():
     for rec, key in SIZED:
         assert {len(v) for v in _rungs(rec, key).values()} == {1}, rec["product_id"]
@@ -111,7 +120,7 @@ def test_a_pack_count_alone_is_not_scaled(key):
 
 @pytest.mark.parametrize(
     ("key", "rung"),
-    [("inside_leg", "waist"), ("inside_leg_in", "size"), ("cup_size", "size"),
+    [("inside_leg", "waist"), ("inside_leg_in", "size_uk"), ("cup_size", "size"),
      ("fit_length", "size"), ("width", "size_uk")],
 )  # fmt: skip
 def test_a_fit_shares_its_rung_image(key, rung):

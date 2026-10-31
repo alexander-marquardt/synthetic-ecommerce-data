@@ -550,12 +550,9 @@ def _ride(kind: str, age: str, kg: int, inches: int | None, wheels: int,
             _count("wheel_count", "Wheel count", wheels), *(_line(line, brand) if line else ()))  # fmt: skip
 
 
-def _rpm(kind: str, wheels: int, line: str | None = None,
-         inches: int | None = None) -> tuple[tuple[str, str], ...]:
-    """The drawing's params; a bike or a trike names its default wheel size, which each SKU's
-    own ``wheel_size_in`` replaces, so each size is its own picture."""
-    return (("kind", kind), ("wheels", str(wheels)), *_char(line),
-            *((("wheel_size_in", str(inches)),) if inches else ()))  # fmt: skip
+def _rpm(kind: str, wheels: int, line: str | None = None) -> tuple[tuple[str, str], ...]:
+    """The drawing's params; a bike's or a trike's sizes are its rungs on the size ladder."""
+    return (("kind", kind), ("wheels", str(wheels)), *_char(line))
 
 
 def _wheel_sizes(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
@@ -573,13 +570,13 @@ RIDE_ONS = (
          "inch. For ages 2 and up.",
          paint_range(RED, BLUE, GREEN), _ride("Balance Bike", "2+ years", 25, None, 2),
          _wheel_sizes((10, 45.0), (12, 50.0), (14, 58.0)), audience=TODDLER,
-         params=_rpm("balance_bike", 2, inches=12), size_key="wheel_size_in"),
+         params=_rpm("balance_bike", 2), size_key="wheel_size_in"),
     TRow("RIDWDB", "Wooden Balance Bike", _L, _T, _RID, "Ride-On Toy", 60.0, "ride_on",
          "A birch plywood balance bike with rubber tires and a padded seat. In three wheel "
          "sizes: 10, 12 and 14 inch. For ages 3 and up.", (NATURAL,),
          _ride("Balance Bike", "3+ years", 30, None, 2),
          _wheel_sizes((10, 55.0), (12, 60.0), (14, 68.0)), audience=KIDS,
-         params=_rpm("balance_bike", 2, inches=12), size_key="wheel_size_in",
+         params=_rpm("balance_bike", 2), size_key="wheel_size_in",
          fixed_color=_FIXED_WOOD),
     TRow("RIDSC3", "Three-Wheel Kids' Scooter with Light-Up Wheels", _K, _T, _RID,
          "Ride-On Toy", 30.0, "ride_on",
@@ -598,7 +595,7 @@ RIDE_ONS = (
          "18 months and up.",
          paint_range(RED, TEAL), _ride("Trike", "18+ months", 20, None, 3),
          _wheel_sizes((10, 55.0), (12, 62.0)), audience=TODDLER,
-         params=_rpm("trike", 3, inches=10), size_key="wheel_size_in"),
+         params=_rpm("trike", 3), size_key="wheel_size_in"),
     TRow("RIDCAR", "Push-Along Ride-On Car with Horn", _K, _T, _RID, "Ride-On Toy", 35.0,
          "ride_on", "A low ride-on car that little feet push along, with a horn that toots and "
          "a storage space under the seat. For ages 12 months and up.",

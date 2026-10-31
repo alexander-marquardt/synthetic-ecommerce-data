@@ -234,8 +234,8 @@ the file count are printed and written beside it as `.content-sha256`.
 industrial one is. What the file draws is keyed separately (`export.drawing_id`): the style and
 colorway, the pack scale (a smaller size of a line draws smaller, gen#543; see
 [the pack scale page](retail-prototype/pack-scale-543.md)), the pack count (a pack of N draws N
-items, gen#728; see [the pack copies page](retail-prototype/pack-copies-728.md)), and for clothing and footwear the
-size-ladder rung (`size_ladder.py`, gen#339). SKUs that draw the same picture each get their own
+items, gen#728; see [the pack copies page](retail-prototype/pack-copies-728.md)), and for a type that declares a
+size axis (`size_axes.AXES`) the size-ladder rung (`size_ladder.py`, gen#339, gen#719). SKUs that draw the same picture each get their own
 copy of it, so one SKU's color, size or shape can change later without moving another's image.
 The authored-styles build is `templates.authored` SKUs and files over `templates.authored_drawings`
 distinct drawings (`retail_figures.figures()`); `--skus N` releases the scaled build instead

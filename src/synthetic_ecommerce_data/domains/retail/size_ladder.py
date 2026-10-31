@@ -1,21 +1,22 @@
-"""Size-scaled drawings: one image per rung of a product's size ladder (gen#339).
+"""Size-scaled drawings: one image per rung of a product's size ladder (gen#339, gen#719).
 
 Every size of a color used to share one drawing, so a product's sizes showed the same image
-repeated. A clothing or footwear product with more than one size now draws each size at its own
-scale: symbolic, not true to dimension, so S is visibly smaller than M and M than L.
+repeated. A product with more than one size now draws each size at its own scale: symbolic, not
+true to dimension, so S is visibly smaller than M, and a 50 cm frame than a 58 cm one.
 
 - THE SCALE is the size's rank in the product's OWN ladder (the distinct primary sizes of its
   SKUs, smallest first), stepped evenly from :data:`BOTTOM` (the smallest) to :data:`TOP` (the
   largest), the scale the full-size drawing stands for (the largest keeps the style's size, the
   smallest draws at ``BOTTOM / TOP`` of it). A product with one size has no ladder
   and is not scaled (:func:`size_scale` is ``None``).
-- THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): a footwear
-  chart row (its UK, EU and US sizes are one rung), a letter size, a kids' age size or a
-  garment number, and for a two-dimensional size its first dimension only (a bra's band, a
-  trouser's waist). A fit that is not bigger or smaller (petite, regular, tall, a bra's cup, a
-  jean's inside leg) is not read, so it shares its rung's image.
-- WHAT IS SCALED is the worn departments (:data:`WORN`), clothing and footwear only; bedding and
-  pack sizes keep one image per color.
+- THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): the first key
+  of the type's declared axis (:data:`size_axes.AXES`) that varies within the product. That is a
+  footwear chart row (its UK, EU and US sizes are one rung), a letter size, a kids' age size, a
+  garment number or a measure, and for a two-dimensional size its first dimension only (a bra's
+  band, a trouser's waist). A fit that is not bigger or smaller (petite, regular, tall, a bra's
+  cup, a jean's inside leg) is not read, so it shares its rung's image.
+- WHAT IS NOT SCALED is what no type declares (:data:`size_axes.NOT_SIZES`): a fit, a rating, a
+  count, and a pack, which keeps :mod:`pack_scale`.
 - ANCHORING. The drawing is scaled about its own bottom center (:func:`stand`), so a ladder reads
   as items standing on one floor. The largest rung is the drawing as it was (``TOP`` is the
   scale the full-size drawing stands for, not a measured share of the sheet), and a smaller
@@ -27,23 +28,28 @@ from __future__ import annotations
 import re
 from typing import Any
 
-#: The scale factors of the largest and the smallest rung; a smaller rung draws at
-#: ``scale / TOP`` of the full-size drawing (a ratio, not a share of the sheet).
-TOP = 0.90
-BOTTOM = 0.55
-#: The departments whose sizes scale (``audience.WORN_DEPARTMENTS``).
-WORN = ("Clothing", "Footwear", "Lingerie & Nightwear")
+from synthetic_ecommerce_data.core.size_rungs import BOTTOM, TOP, scale_at
+from synthetic_ecommerce_data.domains.retail import size_axes
+
+__all__ = ["BOTTOM", "TOP", "primary", "scale_at", "size_scale", "spec", "stand"]
+
 #: Letter sizes, smallest first; "2XL" is the same rung as "XXL".
 LETTERS = ("XXXS", "XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL")
 _ALIASES = {"2XS": "XXS", "3XS": "XXXS", "2XL": "XXL", "3XL": "XXXL", "4XL": "XXXXL"}
+#: A size sold by a word, on its own ladder; only the words of one product are ever compared.
+WORDS = {
+    **{word: float(rank) for rank, word in enumerate(("Small", "Medium", "Large"))},
+    **{word: float(rank) for rank, word in enumerate(
+        ("Single", "Small Double", "Double", "King Size", "Super King Size"))},  # fmt: skip
+    **{word: float(rank) for rank, word in enumerate(("Hand Towel", "Bath Towel", "Bath Sheet"))},
+}
 _LEADING = re.compile(r"\d+(?:\.\d+)?")
 #: A baby's or child's age size, in months or years: "0-3 Mths", "2-3 Yrs", "6 Yrs".
 _AGE = re.compile(r"(\d+(?:\.\d+)?)(?:-\d+(?:\.\d+)?)?\s*(Mths?|Yrs?)$", re.IGNORECASE)
-#: What a worn department holds that is not clothing or footwear: bags and bracelets sit under
-#: Clothing in the build and are sized Small/Medium/Large, which is not a garment size.
-NOT_CLOTHING = ("Accessories", "Jewellery")
-#: The SKU keys that carry a worn product's primary size, in the order they are tried.
-GARMENT_KEYS = ("waist", "size_uk", "size")
+#: Two dimensions, which rank by their area: "140 x 200 cm", "5 x 7 in".
+_AREA = re.compile(r"(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)")
+#: A height in meters, beside the same plant's in centimeters: "1.2 m".
+_METERS = re.compile(r"(\d+(?:\.\d+)?)\s*m$")
 
 
 def _letter(text: str) -> int | None:
@@ -52,9 +58,13 @@ def _letter(text: str) -> int | None:
     return LETTERS.index(word) if word in LETTERS else None
 
 
-def _garment_order(text: str) -> float:
-    """A garment size's place on its ladder: a letter's index, else the number it opens with
-    (a waist "28", an age "3-4 Yrs" or "0-3 Mths", a bra "32B" is band 32)."""
+def _value_order(text: str) -> float:
+    """A size's place on its ladder: a word's or a letter's index, else what it measures (a
+    bed's "King Size (5 ft)", an age "3-4 Yrs" or "0-3 Mths", a rug's "120 x 170 cm"), else the
+    number it opens with (a waist "28", a bra "32B" is band 32)."""
+    word = WORDS.get(text.split(" (")[0].strip())
+    if word is not None:
+        return word
     letter = _letter(text.split("/")[0])  # a pair ("S/M": socks, tights) ranks by its first size
     if letter is not None:
         return float(letter)
@@ -63,6 +73,12 @@ def _garment_order(text: str) -> float:
     age = _AGE.match(text.strip())
     if age is not None:  # months and years on one scale, as a baby's range runs into a child's
         return float(age.group(1)) * (12 if age.group(2).lower().startswith("y") else 1)
+    area = _AREA.match(text.strip())
+    if area is not None:
+        return float(area.group(1)) * float(area.group(2))
+    meters = _METERS.match(text.strip())
+    if meters is not None:
+        return float(meters.group(1)) * 100
     found = _LEADING.match(text.strip())
     if found is None:
         raise ValueError(f"size {text!r} has no place on a size ladder")
@@ -70,33 +86,23 @@ def _garment_order(text: str) -> float:
 
 
 def primary(rec: dict, sku: dict) -> tuple[str, str] | None:
-    """``(key, value)``: the SKU's primary size, or ``None`` when its sizes do not scale."""
-    if not set(rec.get("department", ())) & set(WORN):
-        return None
-    if set(rec.get("category_path", ())[1:2]) & set(NOT_CLOTHING):
-        return None
-    if "Footwear" in rec["department"] and "size_uk" in sku:
-        return "size_uk", str(sku["size_uk"])
-    for key in GARMENT_KEYS:
-        if key in sku:
+    """``(key, value)``: the SKU's primary size, or ``None`` when its sizes do not scale: the
+    first key of its type's axis that varies within the product and that the SKU carries."""
+    for key in size_axes.AXES.get(rec["product_type"], ()):
+        if key in sku and len({str(s[key]) for s in rec["skus"] if key in s}) > 1:
             return key, str(sku[key])
     return None
 
 
 def _order(rec: dict, key: str, value: str) -> float:
-    """Where a primary size sits on the ladder: its footwear chart row, else its garment order.
+    """Where a primary size sits on the ladder: its footwear chart row, else its value's order.
     Sizes with one order (a bra's cups of one band) are one rung."""
     if "Footwear" in rec["department"]:  # the chart's row order: "10 Infant" is not a number
         chart = [str(v) for v in rec.get("size_options", {}).get(key, ())]
         if value not in chart:
             raise ValueError(f"{rec['product_id']}: size {value!r} is on no row of its chart")
         return float(chart.index(value))
-    return _garment_order(value)
-
-
-def scale_at(rank: int, rungs: int) -> float:
-    """The scale rung ``rank`` (0 = smallest) of ``rungs`` stands for, ``BOTTOM`` to ``TOP``."""
-    return round(BOTTOM + (TOP - BOTTOM) * rank / (rungs - 1), 4)
+    return _value_order(value)
 
 
 def size_scale(rec: dict, sku: dict) -> float | None:
