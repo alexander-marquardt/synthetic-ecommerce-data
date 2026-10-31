@@ -306,7 +306,7 @@ _PLAIN_SCREW_SKU = (
     _spec("Length", "sku", kind="length"),
     _spec("Units per Pack", "sku", kind="count"),
 )
-PLAIN_SCREW_VOCAB = (*_PLAIN_SCREW_LINE, _spec("Gauge", "sku"), *_PLAIN_SCREW_SKU)
+PLAIN_SCREW_VOCAB = (*_PLAIN_SCREW_LINE, _spec("Gauge", "sku", kind="count"), *_PLAIN_SCREW_SKU)
 MACHINE_SCREW_VOCAB = (*_PLAIN_SCREW_LINE, _spec("Thread Size", "sku"), *_PLAIN_SCREW_SKU)
 
 #: Flap discs.

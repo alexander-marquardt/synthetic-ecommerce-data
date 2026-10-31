@@ -404,7 +404,7 @@ fields:
   - name: for_shaft_diameter
     type: terms
     source: facets.for_shaft_diameter
-  # Gauge -- a discrete standard set: 2 distinct values over 17 product-value pairs is 0.12 per product, below the 0.50 continuity threshold, so the values repeat and are offered as a list rather than an interval
+  # Gauge -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 2 distinct values over 17 product-value pairs is 0.12 per product
   #   present on 30 documents across 4 product type(s); 2 distinct values
   - name: gauge
     type: terms
