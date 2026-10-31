@@ -177,7 +177,7 @@ REGISTRIES: tuple[Registry, ...] = (
         "tests/test_retail_apparel_decoys_311.py",
         _shapes(r"^def test_\w+\(", r'^\s+"[A-Z]\w* [^"]*",'),
         '    "Probe Slippers", "Probe Clogs",',
-        "add tests/test_retail_apparel_decoys_<topic>_<issue>.py for a test, taking the build from"
+        "add tests/test_retail_<topic>_decoys_<issue>.py for a test, taking the build from"
         " tests/retail_ceiling.py, and tests/decoy_real_compounds/<topic>.py with a COMPOUNDS"
         " frozenset for a title; both are found with no line here",
         ("tests/retail_ceiling.py", "tests/decoy_real_compounds/__init__.py"),
