@@ -1014,6 +1014,19 @@ CLEANING = (
         "bottle", "A fine mist for a hallway or a living room that lasts for hours. "
         "Scented with bergamot.",
         _spray("Lilac", "#2a2a2e"), _scent("Bergamot"), label="Room Spray", colorless=True),
+    # gen#509: the scent sense of a plant word on a diffuser, beside the candles of GIFTS.
+    Row("AIRLAV", "Lavender Reed Diffuser 100ml", "Freshfold", _CJ, _AIR, "Air Freshener",
+        9.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
+        "Scented with lavender.",
+        _spray("Lilac", "#b08a5a"), _scent("Lavender"), label="Reeds", colorless=True),
+    Row("AIRSAG", "Sage Reed Diffuser 100ml", "Pantry Mill", _CJ, _AIR, "Air Freshener",
+        9.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
+        "Scented with sage.",
+        _spray("Green", "#b08a5a"), _scent("Sage"), label="Reeds", colorless=True),
+    Row("AIREUC", "Eucalyptus Reed Diffuser 100ml", "Freshfold", _CJ, _AIR, "Air Freshener",
+        9.0, "jar", "A glass bottle with eight rattan reeds; turn the reeds weekly. "
+        "Scented with eucalyptus.",
+        _spray("Teal", "#b08a5a"), _scent("Eucalyptus"), label="Reeds", colorless=True),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -1224,6 +1237,8 @@ FOOD = (
 
 _CONDIT = ("Beauty", "Hair Care", "Conditioner")
 _HANDWASH = ("Beauty", "Bath & Body", "Hand Wash")
+_BATH_SALTS = ("Beauty", "Bath & Body", "Bath Salts")
+_SHOWER_GEL = ("Beauty", "Bath & Body", "Shower Gel")
 
 
 def _hair(hair: str, ingredient: str) -> tuple[tuple[str, str, str], ...]:
@@ -1258,6 +1273,33 @@ BEAUTY = (
         "A recycled bottle with enough to refill a pump bottle four times. "
         "Scented with sweet almond.",
         (cw("Cream", "#efe8d8", "solid", "#7a5a3a"),), _scent("Sweet Almond"), label="Refill",
+        colorless=True),
+    # gen#509: the scent sense of a plant word in the bath. A lavender shower gel comes from
+    # the depth family (grocery_rows._BODY_SCENTS), which holds neither sage nor eucalyptus.
+    Row("BSLLAV", "Lavender Bath Salts 500g", "Mirefield Naturals", "Beauty", _BATH_SALTS,
+        "Bath Salts", 7.0, "jar",
+        "Mineral salts to stir into a warm bath, a handful at a time. Scented with lavender.",
+        (cw("Lilac", "#c8b6d8", "solid", "#ffffff"),), _scent("Lavender"), label="Bath Salts",
+        colorless=True),
+    Row("BSLSAG", "Sage Bath Salts 500g", "Mirefield Naturals", "Beauty", _BATH_SALTS,
+        "Bath Salts", 7.0, "jar",
+        "Mineral salts to stir into a warm bath, a handful at a time. Scented with sage.",
+        (cw("Green", "#4f7a3a", "solid", "#ffffff"),), _scent("Sage"), label="Bath Salts",
+        colorless=True),
+    Row("BSLEUC", "Eucalyptus Bath Salts 500g", "Mirefield Naturals", "Beauty", _BATH_SALTS,
+        "Bath Salts", 7.0, "jar",
+        "Mineral salts to stir into a warm bath, a handful at a time. "
+        "Scented with eucalyptus.",
+        (cw("Teal", "#2a7f80", "solid", "#ffffff"),), _scent("Eucalyptus"), label="Bath Salts",
+        colorless=True),
+    Row("SGLSAG", "Sage Shower Gel 250ml", "Mirefield Naturals", "Beauty", _SHOWER_GEL,
+        "Shower Gel", 4.0, "bottle", "A creamy shower gel in a recycled bottle. Scented with sage.",
+        (cw("Green", "#4f7a3a", "solid", "#ffffff"),), _scent("Sage"), label="Shower Gel",
+        colorless=True),
+    Row("SGLEUC", "Eucalyptus Shower Gel 250ml", "Mirefield Naturals", "Beauty", _SHOWER_GEL,
+        "Shower Gel", 4.0, "bottle",
+        "A creamy shower gel in a recycled bottle. Scented with eucalyptus.",
+        (cw("Teal", "#2a7f80", "solid", "#ffffff"),), _scent("Eucalyptus"), label="Shower Gel",
         colorless=True),
 )  # fmt: skip
 
