@@ -7,6 +7,8 @@ figures on top. ``scripts/build_ceiling.py`` builds both in the ``ceiling-catalo
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import importlib.util
 import json
 import os
@@ -14,6 +16,7 @@ import pickle
 import re
 import subprocess
 import sys
+import threading
 import tomllib
 from pathlib import Path
 
@@ -92,6 +95,18 @@ def test_the_figures_measure_the_shared_build_so_the_job_builds_once(tmp_path, m
     assert calls == [retail_figures.EXHAUST]
 
 
+def test_the_build_waits_on_its_own_lock_not_the_one_figures_holds(tmp_path, monkeypatch) -> None:
+    """``figures`` holds ``lock`` while ``measure`` asks for the ceiling: one lock would hang it."""
+    _no_shared_build(monkeypatch)
+    monkeypatch.setenv(retail_figures.CACHE_ENV, str(tmp_path))
+    with open(tmp_path / "lock", "a+", encoding="utf-8") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        worker = threading.Thread(target=retail_figures.ceiling, daemon=True)
+        worker.start()
+        worker.join(10)
+        assert not worker.is_alive(), "ceiling() waited on the lock figures() holds"
+
+
 def _build_ceiling():
     spec = importlib.util.spec_from_file_location(
         "build_ceiling", REPO / "scripts" / "build_ceiling.py"
@@ -112,6 +127,7 @@ def test_the_job_s_script_leaves_the_two_files_and_nothing_from_an_older_tree(
     out = tmp_path / "ceiling"
     out.mkdir()
     (out / retail_figures.FIGURES_FILE).write_text('{"built": 99}', encoding="utf-8")
+    (out / retail_figures.CEILING_FILE).write_bytes(pickle.dumps(None))
     assert _build_ceiling().main(["--out", str(out)]) == 0
     assert json.loads((out / retail_figures.FIGURES_FILE).read_text("utf-8")) == {"built": 1}
     assert pickle.loads((out / retail_figures.CEILING_FILE).read_bytes()) == SMALL
@@ -122,20 +138,54 @@ def test_the_job_s_script_refuses_a_measurement_that_left_no_build(tmp_path, mon
     _no_shared_build(monkeypatch)
     monkeypatch.setattr(retail_figures, "measure", lambda: {"built": 0})
     monkeypatch.setenv(retail_figures.CACHE_ENV, str(tmp_path / "unused"))
-    with pytest.raises(SystemExit, match=retail_figures.CEILING_FILE):
-        _build_ceiling().main(["--out", str(tmp_path / "ceiling")])
+    refusal = ""
+    try:
+        _build_ceiling().build(tmp_path / "ceiling")
+    except SystemExit as refused:
+        refusal = str(refused)
+    assert retail_figures.CEILING_FILE in refusal
 
 
-def test_a_real_ceiling_survives_the_pickle() -> None:
-    """A tuple kept a tuple and a shared list kept shared: what a test reads from the artifact."""
-    built = ceiling_build()
+def test_the_job_s_script_measures_into_the_directory_it_was_given(tmp_path, monkeypatch) -> None:
+    named: list[str] = []
+    monkeypatch.setattr(
+        retail_figures, "measure", lambda: named.append(os.environ[retail_figures.CACHE_ENV]) or {}
+    )
+    monkeypatch.setattr(retail_figures, "_MEMO", {})
+    monkeypatch.setenv(retail_figures.CACHE_ENV, str(tmp_path / "unused"))
+    with contextlib.suppress(SystemExit):
+        _build_ceiling().build(tmp_path / "ceiling")
+    assert named == [str(tmp_path / "ceiling")]
+
+
+def test_the_measurement_reads_the_shared_build(monkeypatch) -> None:
+    """Built by ``measure`` itself, the job would build twice and upload no ``ceiling.pickle``."""
+
+    class AskedForTheSharedBuild(Exception):
+        pass
+
+    def shared() -> scale.Scaled:
+        raise AskedForTheSharedBuild
+
+    def no_build(skus: int, seed: int = 0) -> scale.Scaled:
+        raise AssertionError("measure() built the ceiling for itself")
+
+    monkeypatch.setattr(scale, "build", no_build)
+    monkeypatch.setattr(retail_figures, "ceiling", shared)
+    with pytest.raises(AskedForTheSharedBuild):
+        retail_figures.measure()
+
+
+def test_a_real_build_survives_the_pickle() -> None:
+    """A tuple stays a tuple through the artifact, so a test reads what the build made."""
+    built = scale.build(3000)
     assert pickle.loads(pickle.dumps(built, pickle.HIGHEST_PROTOCOL)) == built
 
 
 def test_every_shard_with_a_file_to_run_downloads_the_catalogue() -> None:
     assert TESTS.get("needs") == "ceiling-catalogue"
     download = _step("actions/download-artifact")
-    assert download["if"] == "steps.select.outputs.run == 'true'"
+    assert download.get("if") == "steps.select.outputs.run == 'true'"
     upload = next(
         s for s in CI["jobs"]["ceiling-catalogue"]["steps"]
         if s.get("uses", "").startswith("actions/upload-artifact")
@@ -240,6 +290,6 @@ def test_a_run_with_no_workers_prints_no_peak(tmp_path) -> None:
 def test_the_peak_is_the_high_water_mark_line_in_mb() -> None:
     import worker_peak  # noqa: PLC0415
 
-    assert worker_peak.peak_mb("VmPeak:\t 9 kB\nVmHWM:\t  2048 kB\nVmRSS:\t 1 kB\n") == 2
+    assert worker_peak.peak_mb("VmPeak:\t 9 kB\nVmHWM:\t 204800 kB\nVmRSS:\t 1 kB\n") == 200
     assert worker_peak.peak_mb("VmRSS:\t 1 kB\n") is None
     assert worker_peak.summary({"gw1": 7, "gw0": 9}) == "peak worker memory: 9 MB (gw0 9, gw1 7)"
