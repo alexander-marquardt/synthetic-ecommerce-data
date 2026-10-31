@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
     colorwords,
     facet_leaves,
+    lipstick_looks,
     multi_path,
     pack_copies,
     pack_scale,
@@ -255,6 +256,7 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
     own |= pack_copies.pile_count(rec, sku)
+    own |= lipstick_looks.params(rec)
     if own:
         spec["params"] = own
     shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)

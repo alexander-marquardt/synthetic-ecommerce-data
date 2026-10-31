@@ -35,6 +35,28 @@ only by an `es_proof.py` run) names its id. `PROOF_PINNED_CLASS_ROWS` in
 `tests/test_retail_type_specs_351.py` exempts that one id from the rule that a spec's type has no
 row outside the spec.
 
+## Lipsticks: a line draws its own case (gen#738)
+
+Every lipstick drew one case and only its shade changed, so a page of separate products read as a
+grouping failure. `lipstick_looks.py` now reads a look from the product, and `export.drawing_spec`
+carries it, so each image the release draws has it:
+
+- The product's line chooses the case shape, the case color, the bullet's cut, the emblem and the
+  collar. A row with no model reads its title instead. The five choices multiply to more looks
+  than the beauty grammar has models, and a model is numbered from its words, so no two models
+  share a look. `lipstick_looks.SALT` is chosen so that no two lines of one brand share both a case
+  and its color; a new line that lands on a taken pair needs a new salt, and a test names it.
+- The finish chooses the bullet's surface: satin has a white gloss and a shadow down its far side,
+  matte has neither, and sheer shows through with two glosses. It is the `finish` attribute, else
+  the finish word in the title, else satin. Two products of one line in two finishes share the
+  case, so they read as one range.
+- The shade stays the SKU's own, so the SKUs of a product share the case and a group reads as one
+  product.
+
+A lip balm is drawn the same way. `tests/test_retail_lipstick_looks_738.py` holds all of this over
+the grammar and the ceiling build. The choices are positional, so a new case, bullet or color
+redraws every line.
+
 ## Face creams: five brands (gen#542)
 
 `type_specs/face_cream.py` adds five brands the generator already sells for other beauty products to the Face Creams leaf (Skincare > Creams >
