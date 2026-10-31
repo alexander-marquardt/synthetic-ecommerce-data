@@ -31,6 +31,7 @@ import zlib
 from collections.abc import Callable, Iterable
 
 from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
+from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
 from synthetic_ecommerce_data.domains.retail import line_grammar_families
 
 #: The dress-shoe descriptors of public retail listings, in title order.
@@ -97,8 +98,11 @@ def is_model(fam: str, brand: str, line: str) -> bool:
     A numbered model is a lead word of the family, then sub-model words, generation numbers or
     codes, at least one of them; a dress model is one name-like word; an appliance model is a
     series its brand owns (gen#622); a food model is a plain lead word of its family, then
-    optionally one of its style words, and never a number (gen#665, gen#729)."""
+    optionally one of its style words, and never a number (gen#665, gen#729); a bike model is a
+    series its brand owns."""
     words = line.split()
+    if fam == "sport" and line in bmn.SERIES.get(brand, {}).values():
+        return True  # a bike series its brand owns (#718)
     if fam in _NUMBERED:
         spec = _NUMBERED[fam]
         rest = words[1:]

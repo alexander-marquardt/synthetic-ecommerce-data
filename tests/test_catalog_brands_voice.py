@@ -576,40 +576,19 @@ def test_every_qualifier_is_non_factual(golden):
 # --- no text states what the record does not publish ------------------------
 
 _NUMBER = re.compile(r"\d+(?:[./]\d+)*")
-_PAIRS = (
-    ("Length of Cut", "Overall Length"),
-    ("Flute Length", "Overall Length"),
-    ("Thread Length", "Length"),
-    ("Thread Length", "Overall Length"),
-)
 
 
 def _defect_signature(attributes: dict[str, str]) -> bool:
-    """A record the generator's MODELLED defects rewrote after its title.
+    """A record the generator's MODELLED defect rewrote after its title.
 
-    A cut, flute or thread length longer than the part (the census's 8.29%
-    LOC > OAL class and its fastener analogue), or a record mixing inch and
-    metric units (2.22%). Their titles carry the value before the defect --
-    the realistic variant this catalog exists to exhibit -- so a title token
-    need not equal the rewritten attribute.
+    A record mixing inch and metric units (2.22%). Its title carries the value
+    before the defect -- the realistic variant this catalog exists to exhibit --
+    so a title token need not equal the rewritten attribute.
     """
-
-    def length(name):
-        try:
-            return parse_length(attributes[name]).inches
-        except Exception:
-            return None
-
-    for short, whole in _PAIRS:
-        a, b = length(short), length(whole)
-        if a is not None and b is not None and a > b:
-            return True
     units = " ".join(attributes.values())
     inch = '"' in units or " in" in units
     metric = "mm" in units
-    # Mixed units, or a declared system its values contradict (3.23%).
-    declared = " ".join(v for k, v in attributes.items() if k == "Measurement System")
-    return (inch and metric) or ("Inch" in declared and metric) or ("Metric" in declared and inch)
+    return inch and metric
 
 
 def _lengths_in(values) -> list[float]:

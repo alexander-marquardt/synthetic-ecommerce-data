@@ -121,15 +121,15 @@ class GeneratorConfig:
     shank_equals_cutting_dia: float = 0.6489
 
     #: 09_defect_rate.json, each against its own denominator -- the records
-    #: that actually carry the attribute pair the class tests.
-    defect_loc_exceeds_oal: float = 0.0829
-    #: 09_defect_rate.json measures 0.0469 of angle-carrying records with a
-    #: length keyed into the angle field (``Point Angle = 2"``). **Measured and
-    #: deliberately not reproduced**: the generator writes no value of the wrong
-    #: kind for its key, and a real retailer would fix that row (#404). The
-    #: reproduction is declined, the measurement stands.
+    #: that actually carry the attribute pair the class tests: a length of cut
+    #: longer than the overall length, a length keyed into the angle field
+    #: (``Point Angle = 2"``), and a declared system against the record's units.
+    #: **Measured and deliberately not reproduced**: the generator writes no
+    #: value it knows is wrong for its key, and a real retailer would fix that
+    #: row (#404). The reproduction is declined, the measurement stands.
+    measured_loc_exceeds_oal: float = 0.0829
     measured_angle_carries_length_unit: float = 0.0469
-    defect_system_contradicts_units: float = 0.0323
+    measured_system_contradicts_units: float = 0.0323
 
     #: The share of parents carrying ``Standards`` that publish one of its
     #: values twice (``Standards = [ISO, ISO]``): a repeated (name, value) PAIR
@@ -211,9 +211,9 @@ class GeneratorConfig:
     #: the measured sparsity; lower makes the catalog raggeder.
     sparsity_scale: float = 1.0
 
-    #: Multiplier on every defect rate. 0.0 produces a catalog with no
-    #: internal contradictions at all -- useful as a control, and not what a
-    #: real catalog looks like.
+    #: Multiplier on every defect rate. 0.0 produces a catalog with no unit
+    #: mixing and no repeated pair -- useful as a control, and not what a real
+    #: catalog looks like.
     defect_scale: float = 1.0
 
     @property

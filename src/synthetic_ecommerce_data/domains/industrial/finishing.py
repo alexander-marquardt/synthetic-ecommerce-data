@@ -93,10 +93,7 @@ class FinishMixin:
         if len(built) < 2:
             return titles
         profiles = [
-            {
-                a.facet_key: tuple(sorted(set(a.values or (a.value,))))
-                for a in (*line_attrs, *attrs)
-            }
+            {a.facet_key: tuple(sorted(set(a.values or (a.value,)))) for a in (*line_attrs, *attrs)}
             for _, attrs, _, _ in built
         ]
         axes = set(variant_axes(profiles))
@@ -212,7 +209,7 @@ class FinishMixin:
 
     def _measurement_system(
         self, system: str, name: str, *, count: bool = True
-    ) -> tuple[Attribute | None, bool]:
+    ) -> Attribute | None:
         """The measurement-system attribute, under the spelling its LINE uses.
 
         The spelling is chosen once per product line, not once per record. A
@@ -221,30 +218,20 @@ class FinishMixin:
         which is exactly the case a field map has to absorb. Drawing it per
         record instead put all three spellings inside every product type,
         which is both less realistic and useless as a test of scoping.
-
-        Returns the attribute and whether its declared value contradicts the
-        units actually used in the record -- a measured defect class, so the
-        contradiction is produced here rather than patched in afterwards.
         """
         if self.rng.random() > MEASUREMENT_SYSTEM_PRESENCE:
-            return None, False
+            return None
         truthful = (
             "Metric" if system == "mm" else str(_weighted(self.rng, MEASUREMENT_SYSTEM_VALUES))
         )
         if truthful == "Metric" and system == "in":
             truthful = "Fractional Inch"
-        contradicts = self.rng.random() < self.config.scaled_defect(
-            self.config.defect_system_contradicts_units
-        )
-        if contradicts:
-            value = "Fractional Inch" if system == "mm" else "Metric"
-            if count:
-                self._bump("defect_system_contradicts")
-        else:
-            value = truthful
+        # The draw that once chose a contradicting value still stands, so no other
+        # value in the build moves: the value is the truthful one (#404).
+        self.rng.random()
         if count:
             self._bump("measurement_system_present")
-        return keyword_attribute(name, value), contradicts
+        return keyword_attribute(name, truthful)
 
     #: spec a SKU must not share with another of its brand and type.
     IDENTIFIER_ATTRIBUTES = frozenset({"List Number"})
@@ -391,7 +378,7 @@ class FinishMixin:
         # answered one SKU at a time.
         built: list[tuple[str, list[Attribute], float, int]] = []
         titles: list[Title] = []
-        line_system: tuple[tuple[Attribute | None, bool]] | None = None
+        line_system: tuple[Attribute | None] | None = None
         if len({c.system for c in draft.children}) > 1:
             raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
         for child in draft.children:
@@ -402,13 +389,12 @@ class FinishMixin:
                 child, attrs, tuple(a for a in child.attrs if isinstance(a, RetiredAttribute))
             )
             # The measurement system is the PRODUCT's (gen#63): the first SKU's draw
-            # decides whether it is published, its value and whether it contradicts
-            # the units, and every SKU of the line carries that one attribute. The
-            # later SKUs still take their draws (uncounted), so no other value in
-            # the build moves.
+            # decides whether it is published and its value, and every SKU of the
+            # line carries that one attribute. The later SKUs still take their draws
+            # (uncounted), so no other value in the build moves.
             drawn = self._measurement_system(child.system, system_name, count=line_system is None)
             line_system = line_system or (drawn,)
-            (system_attr, _) = line_system[0]
+            system_attr = line_system[0]
             if system_attr is not None and not child.zero_axis:
                 attrs = [*attrs, system_attr]
             # Each SKU is different from every other SKU of its brand and type.
