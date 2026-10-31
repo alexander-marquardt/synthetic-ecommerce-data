@@ -159,7 +159,9 @@ true of every flavor of its kind, and it states no fact a recipe would have to b
 number (#729). A brand past its style words stays distinct by its title's ending, an ingredient or a claim that
 `food_title_words.true_words` reads from the style's label lists ("Finest Biscuits with Real Butter", "Prime
 Oat Drink with No Added Sugar"): an ingredient is in every variant's list, a claim's refused words are in none,
-and a word a flavor of the style already says stays out. A family with no label list gains no ending. No coined
+and a word a flavor of the style already says stays out, as does one that names a flavor of the family ("Sea
+Salt" on crisps). A family with no label list gains no ending, and neither does a planted decoy, which keeps the
+short title its rank test reads. No coined
 word and no place-like name stands in front. Each family's lead list is split in two, one half
 for the grocery build and one for the scale build, so one range word belongs to one brand (#642).
 The grocery build also
