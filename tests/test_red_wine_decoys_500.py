@@ -14,9 +14,9 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
-from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -60,6 +60,6 @@ def test_every_red_wine_grocery_is_class_10_and_a_decoy_of_the_red_wine_query() 
 
 
 def test_a_plain_red_wine_search_scores_a_vinegar_in_the_top_10() -> None:
-    index = br.Index(scale.build(10**6).records)
+    index = br.Index(ceiling_build().records)
     top = [d["title"] for d in br.rank(index, "red wine", 10)]
     assert any("Red Wine Vinegar" in t for t in top), top

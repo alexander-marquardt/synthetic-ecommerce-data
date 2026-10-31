@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import grocery
 from synthetic_ecommerce_data.domains.retail import grocery_ingredients as gi
 
@@ -64,9 +65,8 @@ def test_every_label_value_of_the_build_has_a_row() -> None:
 def test_no_row_names_a_label_the_build_never_writes() -> None:
     """Read over the scale build, which holds the grocery rows and the decoys (gen#294), and the
     50K tier, which draws flavors a 10K build may not (gen#729)."""
-    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
-    rows = grocery.flat(grocery.documents(scale.build(10**6).records))
+    rows = grocery.flat(grocery.documents(ceiling_build().records))
     rows += grocery.flat(grocery.documents(grocery.build(50_000)))
     written = {v for r in rows for v in r["facets"].get("ingredients", ())}
     assert sorted(set(gi.BASE) - label_values() - written) == []
@@ -124,9 +124,8 @@ def test_the_label_text_is_written_in_us_spelling() -> None:
 @cache
 def scaled_unmapped() -> list[str]:
     """The label values the base table lacks, over the scale build with the decoys (gen#294)."""
-    from synthetic_ecommerce_data.domains.retail import scale  # noqa: PLC0415
 
-    return grocery.ingredient_report(scale.build(10**6).records)["ingredients_unmapped"]
+    return grocery.ingredient_report(ceiling_build().records)["ingredients_unmapped"]
 
 
 def test_the_scale_build_with_the_decoys_has_no_unmapped_label() -> None:

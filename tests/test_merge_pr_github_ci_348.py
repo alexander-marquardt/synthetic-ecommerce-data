@@ -63,6 +63,7 @@ verdict() {
   fi
   j() { printf '%s\t%s\tcompleted\t%s\t%s/job/%s\n' "$1" "$2" "$3" "$RUN_URL" "$1"; }
   j 1 lint success
+  j 10 ceiling-catalogue success
   case "$mode" in
     red) j 2 "tests (1)" success; j 3 "tests (2)" failure ;;
     stale) j 2 "tests (1)" failure; j 3 "tests (2)" success ;;
@@ -389,7 +390,7 @@ def test_the_real_workflow_s_pr_jobs_can_be_dispatched_with_the_range_as_inputs(
 
     document = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())
     inputs = document[True]["workflow_dispatch"]["inputs"]  # YAML reads `on` as True
-    assert set(inputs) == {"base", "head", "pr"}
+    assert set(inputs) == {"base", "head", "pr", "random_seed"}
     jobs = (
         "commit-messages", "file-size", "red-commit-proof", "customer-name-check",
         "no-derived-files",

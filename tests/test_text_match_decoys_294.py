@@ -22,10 +22,10 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
     grocery,
-    scale,
 )
 from synthetic_ecommerce_data.domains.retail import grocery_ingredients as gi
 
@@ -112,7 +112,7 @@ def test_the_ingredient_exclusion_leaves_at_least_ten_chocolate_results() -> Non
 
 def test_chocolate_without_peanuts_ranks_peanut_products_in_the_top_ten_without_a_policy() -> None:
     styles = _styles()
-    top = br.rank(br.Index(scale.build(10**6).records), "chocolate without peanuts", 10)
+    top = br.rank(br.Index(ceiling_build().records), "chocolate without peanuts", 10)
     decoys = [d["product_id"] for d in top
               if d["product_id"] in styles and _has_peanut(styles[d["product_id"]])
               and styles[d["product_id"]]["leaf"] in CHOCOLATE_LEAVES]  # fmt: skip

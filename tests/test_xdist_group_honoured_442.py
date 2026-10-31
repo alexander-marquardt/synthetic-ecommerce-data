@@ -69,8 +69,9 @@ def _run_two_workers(tmp_path: Path, *, spread: bool) -> tuple[list[str], list[s
     env.update(BUILDS_LOG=str(builds), TESTS_LOG=str(ran))
     done = subprocess.run(
         [
-            sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-            "--rootdir", str(tmp_path), "-n", "2", "--dist", "loadgroup", "-v", "test_two_tests.py",
+            sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:randomly",
+            "-p", "no:cacheprovider", "--rootdir", str(tmp_path), "-n", "2",
+            "--dist", "loadgroup", "-v", "test_two_tests.py",
         ],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip

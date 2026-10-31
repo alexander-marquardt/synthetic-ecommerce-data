@@ -13,9 +13,9 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     plus_sizes,
-    scale,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 def _womens(recs: list[dict], leaf: str) -> list[dict]:

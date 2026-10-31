@@ -15,6 +15,7 @@ import re
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     accessory_rows,
@@ -216,7 +217,7 @@ def test_every_accessory_type_declares_its_pinned_audience() -> None:
     """``test_every_worn_sku_has_exactly_one_audience`` only checks a value exists; this pins
     which one, read off the built SKUs, so a flipped type goes red."""
     assert set(AUDIENCE) == set(KEYS)
-    built = scale.build(10_000_000)
+    built = ceiling_build()
     got: dict[str, set[str]] = collections.defaultdict(set)
     for doc in scale.documents(built):
         if doc["product_id"] in scale.source_ids("accessory_rows"):

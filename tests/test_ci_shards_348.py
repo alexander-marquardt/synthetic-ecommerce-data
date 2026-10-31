@@ -124,7 +124,7 @@ def test_the_files_the_script_deals_are_the_files_pytest_collects() -> None:
     env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:cacheprovider", "-n", "0"],
+        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0"],
         cwd=REPO,
         env=env,
         capture_output=True,
@@ -252,7 +252,7 @@ def _collect(files: list[str], extra_env: dict[str, str]) -> list[str]:
     env = {k: v for k, v in os.environ.items() if k not in dropped}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:cacheprovider", "-n", "0", *files],
+        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", *files],
         cwd=REPO,
         env={**env, **extra_env},
         capture_output=True,

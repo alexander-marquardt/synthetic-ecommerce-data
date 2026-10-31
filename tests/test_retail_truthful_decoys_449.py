@@ -14,17 +14,17 @@ from typing import Any
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     image_release,
     pack_copies,
-    scale,
 )
 
 
 @pytest.fixture(scope="module")
 def by_id() -> dict[str, dict[str, Any]]:
-    return {r["product_id"]: r for r in scale.build(10**6).records}
+    return {r["product_id"]: r for r in ceiling_build().records}
 
 
 def _svg(rec: dict[str, Any]) -> str:

@@ -16,11 +16,11 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     decoy_rows,
-    scale,
 )
 from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail.distractors import tokens
@@ -50,7 +50,7 @@ FIRST = 12
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

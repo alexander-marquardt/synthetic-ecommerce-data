@@ -19,9 +19,9 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
-from synthetic_ecommerce_data.domains.retail import scale
 from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,7 +59,7 @@ NEW = {**BABY_FACE, **FACING, **CREAM_ONLY, **DECOR}
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

@@ -13,11 +13,11 @@ import collections
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     colorwords,
     kit,
     kit_garden,  # noqa: E402,F401 -- registers the shapes
-    scale,
     type_colors,
 )
 
@@ -36,7 +36,7 @@ NODES = (
 
 @pytest.fixture(scope="module")
 def records() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 def _colors(rec: dict) -> set[str]:

@@ -18,6 +18,7 @@ import collections
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.domains.retail import (
     export,
@@ -28,8 +29,6 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
 from synthetic_ecommerce_data.prism import index
-
-CEILING = 10_000_000  # more SKUs than the templates reach, so ``scale.build`` runs to its ceiling
 
 ROOTS = ("Mens", "Womens")
 NODES = {root: (root, "Shoes", "Formal shoes") for root in ROOTS}
@@ -43,7 +42,7 @@ COURT_FORMAL = (*NODES["Womens"], "Court shoes")
 @pytest.fixture(scope="module")
 def records() -> list[dict]:
     """The SHIPPED documents, as the 283 tree test reads them: decoys and derived styles too."""
-    return scale.documents(scale.build(CEILING))
+    return scale.documents(ceiling_build())
 
 
 def _of(records: list[dict], root: str, ptype: str) -> list[dict]:

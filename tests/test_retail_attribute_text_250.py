@@ -14,14 +14,13 @@ from typing import Any
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     attribute_text,
     scale,
 )
-from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 
 #: The ceiling build, as ``test_retail_scale.py`` builds it.
-CEILING_SKUS = figures()["ceiling"]["skus"] * 2
 #: The rows the check must read, so a check that sees none cannot pass: the templates hold 31
 #: styles with a closure attribute that names a closure word and 66 with a pattern attribute.
 MIN_CLOSURE_ROWS = 25
@@ -35,7 +34,7 @@ def templates() -> list[dict]:
 
 @pytest.fixture(scope="module")
 def ceiling() -> list[dict]:
-    return scale.build(CEILING_SKUS).records
+    return ceiling_build().records
 
 
 def _rec(

@@ -23,6 +23,7 @@ XDIST_SPREAD = True
 
 _JOBS = {
     "lint": "true",
+    "ceiling-catalogue": "true",
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",

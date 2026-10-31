@@ -17,11 +17,11 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
     grocery,
     grocery_rows,
-    scale,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,7 +77,7 @@ def test_grapes_is_a_fresh_fruit_leaf_with_twenty_products() -> None:
 
 @pytest.fixture(scope="module")
 def _top() -> dict[str, list[dict]]:
-    built = br.Index(scale.build(10**6).records)
+    built = br.Index(ceiling_build().records)
     return {q: br.rank(built, q, 10) for q in ("grapes", "steak")}
 
 

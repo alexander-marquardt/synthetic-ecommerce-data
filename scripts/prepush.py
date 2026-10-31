@@ -99,6 +99,8 @@ LEFT_TO_CI: dict[str, str] = {
     "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does,"
     " which a"
     " push does not have yet; tests/test_no_derived_files_536.py runs its command",
+    "ceiling-catalogue": "it builds the ceiling and measures its figures, minutes of work;"
+    " tests/test_ceiling_artifact_539.py runs its script on a planted build",
 }
 
 

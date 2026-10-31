@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import standard
 from synthetic_ecommerce_data.domains.retail import (
     audience,
@@ -39,7 +40,7 @@ FOLDED = {"Tee": "T-Shirt"}
 
 @pytest.fixture(scope="module")
 def built():
-    return scale.build(10_000_000)
+    return ceiling_build()
 
 
 @pytest.fixture(scope="module")

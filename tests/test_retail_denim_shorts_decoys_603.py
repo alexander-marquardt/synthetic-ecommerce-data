@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import scale
@@ -141,7 +142,7 @@ def test_the_decoys_are_about_as_long_as_the_real_titles() -> None:
 
 @cache
 def _index() -> br.Index:
-    return br.Index(scale.build(10**6).records)
+    return br.Index(ceiling_build().records)
 
 
 def test_a_raw_search_shows_four_decoys_in_the_first_twelve() -> None:

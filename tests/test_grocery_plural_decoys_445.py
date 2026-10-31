@@ -18,11 +18,11 @@ from pathlib import Path
 
 import pytest
 
+from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     grocery,
-    scale,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,7 +101,7 @@ def test_the_decoys_may_be_shorter_than_the_fresh_products(plural: str) -> None:
 
 @cache
 def _million() -> list[dict]:
-    return scale.build(10**6).records
+    return ceiling_build().records
 
 
 @pytest.fixture(scope="module")

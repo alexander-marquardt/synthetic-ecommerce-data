@@ -1,4 +1,4 @@
-"""The retail ceiling build, made once per process for every test file that needs it (gen#513).
+"""The retail ceiling build, made once for every test file that needs it (gen#513, gen#539).
 
 ``tests/test_retail_scale.py`` was a registry: its ``ceiling`` fixture was the only way to a
 build where most derived styles exist, so each feature's guard over the ceiling build was a test
@@ -12,19 +12,17 @@ that takes the build from here::
     def ceiling():
         return ceiling_build()
 
-The build is cached, so the files of one pytest process share a single build, not one each.
-A test reads it and never edits it.
+``retail_figures.ceiling`` builds it once for the run (in CI, once in the ``ceiling-catalogue``
+job, and each worker loads that), so a test never builds past the ceiling itself
+(``tests/test_ceiling_artifact_539.py``). A test reads it and never edits it: every file in a
+worker shares the one object.
 """
 
 from __future__ import annotations
 
-import functools
-
-from synthetic_ecommerce_data.domains.retail import scale
-from synthetic_ecommerce_data.domains.retail.retail_figures import figures
+from synthetic_ecommerce_data.domains.retail import retail_figures, scale
 
 
-@functools.cache
 def ceiling_build() -> scale.Scaled:
     """Every template exhausted: the build where most derived styles exist (seed 0)."""
-    return scale.build(figures()["ceiling"]["skus"] * 2)
+    return retail_figures.ceiling()
