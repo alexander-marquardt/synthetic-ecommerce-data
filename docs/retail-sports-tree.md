@@ -90,11 +90,46 @@ rows and that ranking.
 
 `type_specs/bicycle.py` builds the bikes from a table of axes rather than listing them. Each of
 the four kinds (Road, Mountain, Electric, Kids) has its trims: gears, wheel size, frame material
-and brake. Road, Mountain and Electric have two trims each, and Kids has one. All three brands sell
-every trim. For each trim, one brand in turn still sells last year's model (2025). That gives 21
-bikes, and no two share brand, kind, gears, wheel and year. The build raises if two bikes ever do,
-or if two share a code. Each bike keeps four colors times three frame sizes (three wheel sizes for a
-kids' bike), so it has twelve SKUs and four images.
+and brake. Road, Mountain and Electric have two trims each, and Kids has one. Each brand sells every
+trim of the kinds it has a series for. For each trim, every third brand of the kind in turn still
+sells last year's model (2025). That gives 41 bikes, and no two share brand, kind, gears, wheel and
+year. The build raises if two bikes ever do, or if two share a code. Each bike keeps four colors
+times three frame sizes (three wheel sizes for a kids' bike), so it has twelve SKUs, and each SKU
+has its own image.
+
+## Ten bicycle brands (gen#718)
+
+The three house brands sell all four kinds. Seven bicycle-only brands, invented, sell fewer, so each
+kind has at least three brands and not every brand sells every kind:
+
+| Brand | Kinds | Model number |
+| --- | --- | --- |
+| Gorsecliff | Mountain | `GC26MT-29-24` |
+| Rindlemoor | Mountain, Road | `RM-RD22-2826` |
+| Tolvaney | Road | `TV28RD18.26` |
+| Ostlebury | Road, Electric | `OB08-EB26-26` |
+| Wattlebrook | Electric | `WBEB28.07.26` |
+| Pipkinford | Kids | `PK-KD2601` |
+| Hessenby | Mountain, Electric, Kids | `HB26-01KD` |
+
+A brand's series are the keys of `bicycle_model_numbers.SERIES`: `encode` refuses a kind the brand
+does not sell, and `decode` reads such a code as nothing. The three house brands' bikes keep their
+model numbers and product ids, so a load adds the new bikes and removes none. Each name was checked
+with one web search on the exact name, of 2026-10-31, which found no bicycle brand; four first
+choices (Thornreach, Cairnfell, Swiftmere, Sprogwell) were dropped as too near real bike names.
+
+## What each kind looks like (gen#718)
+
+`kit_sports.bicycle` draws the kinds so they read apart at about 120 px. A mountain bike has larger
+wheels, tires twice as wide with a short tread dashed round them, a flat bar, a sloping top tube and
+a sprung fork. An electric bike has a down tube 2.5 times the other tubes, carrying a large battery
+that is dark on a light frame and light on a dark one, with a bolt in the frame's color, and a rear
+hub motor. A kids' bike has one stabilizer, the far one, behind and below the rear axle, drawn
+lighter and standing on the main wheels' ground. A road bike has none of these.
+
+Each size is the whole drawing scaled, tires included, at the size's rank among the product's own
+sizes on the shared ladder (`size_ladder.py`): 55/90 of the largest for the smallest. A bike's first
+SKU is its smallest size, so that rung is the image on its product card.
 
 The price follows from the parts. The kind sets a base, and the frame material (steel, aluminum,
 carbon), the brake (coaster, rim, disc) and each extra gear add to it. Last year's model sells at

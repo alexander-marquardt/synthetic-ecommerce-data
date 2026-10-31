@@ -1,7 +1,9 @@
-"""Series and model numbers of the bicycles (gen#625, in the scheme of gen#622).
+"""Series and model numbers of the bicycles (gen#625, scheme of gen#622; ten brands, gen#718).
 
 A brand owns its series: each series name belongs to one brand, and a brand gives each kind of
-bike it sells one of its own. A model number is a letter-and-digit code the brand's scheme builds
+bike it sells one of its own. Its series are the kinds it sells: the three house brands sell all
+four, and the seven bicycle-only brands fewer, a mountain specialist and an e-bike brand among
+them. A model number is a letter-and-digit code the brand's scheme builds
 from the bike's parts: the kind, the wheel size in inches, the number of gears and the model
 year. For Wrenfield, ``RD`` (a road bike) + ``28`` (inch wheels) + ``18`` (gears) + ``26`` (the
 2026 model year) is ``RD28-18-26``.
@@ -28,14 +30,37 @@ SCHEMES = {
     "Wrenfield": "{t}{w}-{g}-{y}",
     "Harbour & Pine": "HP{y}{t}{w}{g}",
     "Larkmoor": "LM{t}-{y}{w}{g}",
+    "Gorsecliff": "GC{y}{t}-{w}-{g}",
+    "Rindlemoor": "RM-{t}{g}-{w}{y}",
+    "Tolvaney": "TV{w}{t}{g}.{y}",
+    "Ostlebury": "OB{g}-{t}{w}-{y}",
+    "Wattlebrook": "WB{t}{w}.{g}.{y}",
+    "Pipkinford": "PK-{t}{w}{y}{g}",
+    "Hessenby": "HB{y}-{g}{t}{w}",
 }
 
-#: A series a kind, in the order of :data:`KINDS`, and no name in two lists.
+#: The kinds a brand sells, each in a series of its own, and no name in two brands.
 SERIES = {
-    "Wrenfield": ("Aero Elite", "Aero Max", "Aero Plus", "Aero Lite"),
-    "Harbour & Pine": ("Velocity Elite", "Velocity Max", "Velocity Plus", "Velocity Lite"),
-    "Larkmoor": ("Rapid Elite", "Rapid Max", "Rapid Plus", "Rapid Lite"),
-}
+    "Wrenfield": {
+        "Road": "Aero Elite", "Mountain": "Aero Max",
+        "Electric": "Aero Plus", "Kids": "Aero Lite",
+    },
+    "Harbour & Pine": {
+        "Road": "Velocity Elite", "Mountain": "Velocity Max",
+        "Electric": "Velocity Plus", "Kids": "Velocity Lite",
+    },
+    "Larkmoor": {
+        "Road": "Rapid Elite", "Mountain": "Rapid Max",
+        "Electric": "Rapid Plus", "Kids": "Rapid Lite",
+    },
+    "Gorsecliff": {"Mountain": "Scree"},
+    "Rindlemoor": {"Road": "Longstride", "Mountain": "Stonebrake"},
+    "Tolvaney": {"Road": "Fleetline"},
+    "Ostlebury": {"Road": "Meridian", "Electric": "Meridian Assist"},
+    "Wattlebrook": {"Electric": "Currentline"},
+    "Pipkinford": {"Kids": "First Spin"},
+    "Hessenby": {"Mountain": "Ridgeway", "Electric": "Ridgeway Assist", "Kids": "Ridgeway Junior"},
+}  # fmt: skip
 
 #: The model year every bike of the range is sold as.
 MODEL_YEAR = 2026
@@ -54,11 +79,13 @@ _PATTERNS = {
 
 def series_for(brand: str, kind: str) -> str:
     """The series a brand sells a kind of bike in."""
-    return SERIES[brand][tuple(KINDS).index(kind)]
+    return SERIES[brand][kind]
 
 
 def encode(brand: str, kind: str, wheel: int | None, gears: int, year: int = MODEL_YEAR) -> str:
     """The model number of a bike: ``wheel`` is ``None`` for a kids' bike (its SKU axis)."""
+    if kind not in SERIES[brand]:
+        raise ValueError(f"{brand} sells no {kind} bike")
     if (wheel is None) != (kind == "Kids"):
         raise ValueError(f"{kind}: only a kids' bike leaves its wheel size out of the code")
     w = "" if wheel is None else f"{wheel:02d}"
@@ -73,7 +100,7 @@ def decode(code: str) -> dict | None:
         if not m or m["t"] not in _KIND_OF:
             continue
         kind, wheel = _KIND_OF[m["t"]], m["w"]
-        if (wheel is None) != (kind == "Kids"):
+        if (wheel is None) != (kind == "Kids") or kind not in SERIES[brand]:
             continue
         return {"brand": brand, "kind": kind, "wheel": None if wheel is None else int(wheel),
                 "gears": int(m["g"]), "year": 2000 + int(m["y"])}  # fmt: skip
