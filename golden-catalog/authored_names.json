@@ -367,6 +367,18 @@
   "Thread type": "Thread Type",
   "Units per pack": "Units per Pack"
  },
+ "screw_deck": {
+  "Drive type": "Drive Type",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Units per pack": "Units per Pack"
+ },
+ "screw_drywall": {
+  "Drive type": "Drive Type",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Units per pack": "Units per Pack"
+ },
  "screw_flat_head": {
   "Dia./thread size": "Dia./Thread Size",
   "Drive size": "Drive Size",
@@ -393,6 +405,19 @@
   "Thread type": "Thread Type",
   "Units per pack": "Units per Pack"
  },
+ "screw_machine": {
+  "Drive type": "Drive Type",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Units per pack": "Units per Pack"
+ },
+ "screw_sheet_metal": {
+  "Drive type": "Drive Type",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Units per pack": "Units per Pack"
+ },
  "screw_socket_head": {
   "Dia./thread size": "Dia./Thread Size",
   "Drive size": "Drive Size",
@@ -404,6 +429,12 @@
   "Thread direction": "Thread Direction",
   "Thread length": "Thread Length",
   "Thread type": "Thread Type",
+  "Units per pack": "Units per Pack"
+ },
+ "screw_wood": {
+  "Drive type": "Drive Type",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
   "Units per pack": "Units per Pack"
  },
  "seal_pick_sets": {

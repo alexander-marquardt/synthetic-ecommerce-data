@@ -174,9 +174,18 @@ def parse_included_angle_degrees(value: str) -> float:
     return angle
 
 
+_GAUGE = re.compile(r"^#(?P<size>\d+)$")
 _NUMBER_THREAD = re.compile(r"^#(?P<size>\d+)\s*-\s*(?P<tpi>\d+)$")
 _INCH_THREAD = re.compile(r"^(?P<dia>[\d/\-.\" ]+?)\s*-\s*(?P<tpi>\d+)$")
 _METRIC_THREAD = re.compile(r"^M\s*(?P<dia>\d+(?:\.\d+)?)\s*[x×]\s*(?P<pitch>\d+(?:\.\d+)?)$", re.I)
+
+
+def parse_gauge(value: str) -> float:
+    """A bare screw gauge's major diameter in inches: ``#8`` is 0.164."""
+    m = _GAUGE.match(str(value).strip())
+    if m is None:
+        raise DimensionParseError(f"{value!r} is no screw gauge")
+    return _NUMBER_SIZE_BASE_IN + _NUMBER_SIZE_STEP_IN * int(m.group("size"))
 
 
 def parse_thread(value: str) -> Thread:

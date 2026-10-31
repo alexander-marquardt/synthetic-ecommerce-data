@@ -1,6 +1,6 @@
 {
- "lines": 6794,
- "skus": 13019,
+ "lines": 6814,
+ "skus": 13055,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -117,9 +117,14 @@
   "roller_chain_sprockets": 54,
   "safety_glasses": 1,
   "screw_button_head": 139,
+  "screw_deck": 4,
+  "screw_drywall": 4,
   "screw_flat_head": 186,
   "screw_low_head": 111,
+  "screw_machine": 4,
+  "screw_sheet_metal": 4,
   "screw_socket_head": 331,
+  "screw_wood": 4,
   "sds_drill_bits": 1,
   "seal_pick_sets": 1,
   "sems_bolts": 1,
@@ -275,9 +280,14 @@
   "roller_chain_sprockets": 102,
   "safety_glasses": 1,
   "screw_button_head": 351,
+  "screw_deck": 4,
+  "screw_drywall": 10,
   "screw_flat_head": 377,
   "screw_low_head": 267,
+  "screw_machine": 6,
+  "screw_sheet_metal": 8,
   "screw_socket_head": 800,
+  "screw_wood": 8,
   "sds_drill_bits": 2,
   "seal_pick_sets": 2,
   "sems_bolts": 2,
@@ -1358,6 +1368,25 @@
     "13": 1
    }
   },
+  "screw_deck": {
+   "products": 4,
+   "median": 1.0,
+   "max": 1,
+   "histogram": {
+    "1": 4
+   }
+  },
+  "screw_drywall": {
+   "products": 4,
+   "median": 2.5,
+   "max": 4,
+   "histogram": {
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "4": 1
+   }
+  },
   "screw_flat_head": {
    "products": 186,
    "median": 1.0,
@@ -1392,6 +1421,25 @@
     "13": 1
    }
   },
+  "screw_machine": {
+   "products": 4,
+   "median": 1.5,
+   "max": 2,
+   "histogram": {
+    "1": 2,
+    "2": 2
+   }
+  },
+  "screw_sheet_metal": {
+   "products": 4,
+   "median": 2.0,
+   "max": 3,
+   "histogram": {
+    "1": 1,
+    "2": 2,
+    "3": 1
+   }
+  },
   "screw_socket_head": {
    "products": 331,
    "median": 2,
@@ -1410,6 +1458,16 @@
     "11": 2,
     "12": 4,
     "13": 1
+   }
+  },
+  "screw_wood": {
+   "products": 4,
+   "median": 1.5,
+   "max": 4,
+   "histogram": {
+    "1": 2,
+    "2": 1,
+    "4": 1
    }
   },
   "sds_drill_bits": {
@@ -2532,6 +2590,26 @@
    "Thread Type",
    "Units per Pack"
   ],
+  "screw_deck": [
+   "Drive Type",
+   "Finish",
+   "Gauge",
+   "Head Type",
+   "Length",
+   "Material",
+   "Measurement System",
+   "Units per Pack"
+  ],
+  "screw_drywall": [
+   "Drive Type",
+   "Finish",
+   "Gauge",
+   "Head Type",
+   "Length",
+   "Material",
+   "Measurement System",
+   "Units per Pack"
+  ],
   "screw_flat_head": [
    "Dia./Thread Size",
    "Drive Size",
@@ -2568,6 +2646,26 @@
    "Thread Type",
    "Units per Pack"
   ],
+  "screw_machine": [
+   "Drive Type",
+   "Finish",
+   "Head Type",
+   "Length",
+   "Material",
+   "Measurement System",
+   "Thread Size",
+   "Units per Pack"
+  ],
+  "screw_sheet_metal": [
+   "Drive Type",
+   "Finish",
+   "Gauge",
+   "Head Type",
+   "Length",
+   "Material",
+   "Measurement System",
+   "Units per Pack"
+  ],
   "screw_socket_head": [
    "Dia./Thread Size",
    "Drive Size",
@@ -2584,6 +2682,16 @@
    "Thread Direction",
    "Thread Length",
    "Thread Type",
+   "Units per Pack"
+  ],
+  "screw_wood": [
+   "Drive Type",
+   "Finish",
+   "Gauge",
+   "Head Type",
+   "Length",
+   "Material",
+   "Measurement System",
    "Units per Pack"
   ],
   "sds_drill_bits": [
@@ -2825,7 +2933,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 137957,
+ "total_attribute_entries": 138225,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -2859,16 +2967,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5312,
+   "denominator": 5328,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0155219,
+   "achieved": 0.0154787,
    "numerator": 200,
-   "denominator": 12885,
+   "denominator": 12921,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -2884,18 +2992,18 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.461808,
-   "numerator": 6191,
-   "denominator": 13406,
+   "achieved": 0.461836,
+   "numerator": 6208,
+   "denominator": 13442,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.107191,
+   "achieved": 0.106904,
    "numerator": 1437,
-   "denominator": 13406,
+   "denominator": 13442,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -2904,7 +3012,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13019,
+   "denominator": 13055,
    "note": "over titles",
    "band": null
   },
@@ -2913,7 +3021,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13019,
+   "denominator": 13055,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -2922,16 +3030,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13019,
+   "denominator": 13055,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5966,
-   "numerator": 137957,
-   "denominator": 13019,
+   "achieved": 10.5879,
+   "numerator": 138225,
+   "denominator": 13055,
    "note": "count, not a rate",
    "band": null
   },
@@ -3777,65 +3885,65 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00577557,
-   "achieved": 0.00538936,
+   "target": 0.00577592,
+   "achieved": 0.00537425,
    "numerator": 69,
-   "denominator": 12803,
+   "denominator": 12839,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00220655,
-    0.00934459
+    0.0022169,
+    0.00933493
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0905453,
-   "achieved": 0.085683,
-   "numerator": 1097,
-   "denominator": 12803,
+   "target": 0.090473,
+   "achieved": 0.0855986,
+   "numerator": 1099,
+   "denominator": 12839,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0725129,
-    0.108578
+    0.0724912,
+    0.108455
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0594352,
-   "achieved": 0.0573303,
+   "target": 0.0593849,
+   "achieved": 0.0571696,
    "numerator": 734,
-   "denominator": 12803,
+   "denominator": 12839,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0426674,
-    0.0762029
+    0.0426642,
+    0.0761056
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.218712,
-   "achieved": 0.215184,
-   "numerator": 2755,
-   "denominator": 12803,
+   "target": 0.218728,
+   "achieved": 0.215126,
+   "numerator": 2762,
+   "denominator": 12839,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.197487,
-    0.239936
+    0.197563,
+    0.239893
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5312
+  "Measurement System": 5328
  },
  "measurement_system_values": {
-  "Fractional Inch": 2992,
-  "Inch": 321,
+  "Fractional Inch": 3004,
+  "Inch": 325,
   "Metric": 1934,
   "Decimal Inch": 65
  },
  "unit_suffix_distribution": {
-  "in": 26299,
-  "mm": 16158
+  "in": 26333,
+  "mm": 16160
  },
  "standards_present": 7101,
  "standards_multivalued": 1840,
@@ -3845,7 +3953,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 13019,
+  "n_skus_checked": 13055,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4007,29 +4115,29 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 40,
+   "modelled_types": 45,
    "breadth_categories": 116,
    "brands": 45
   },
   "drawings": {
-   "count": 13019,
-   "bytes": 32876573,
+   "count": 13055,
+   "bytes": 32979003,
    "geometry": {
     "nominal": 216,
     "partial": 2451,
-    "record": 10352
+    "record": 10388
    },
    "largest_bytes": 7789,
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 55,
-   "faceted_attributes": 51,
+   "quantitative_attributes": 56,
+   "faceted_attributes": 52,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",
-   "smallest_faceted": "Roller dia.",
-   "smallest_faceted_products": 32,
+   "smallest_faceted": "Gauge",
+   "smallest_faceted_products": 16,
    "drive_size_cardinality": 41,
    "drive_size_present": 2368,
    "held_by_floor": [

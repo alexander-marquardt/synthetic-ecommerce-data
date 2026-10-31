@@ -294,6 +294,21 @@ HAMMER_VOCAB = (
     _spec("Handle Length", "sku", 0.64, kind="length"),
 )
 
+#: The plain screws (#750): a gauge screw has no thread designation to publish, and its gauge is
+#: no measured ``Size``. A box publishes its pack, a screw sold singly none.
+_PLAIN_SCREW_LINE = (
+    _spec("Head Type", "line"),
+    _spec("Drive Type", "line"),
+    _spec("Material", "line"),
+    _spec("Finish", "line"),
+)
+_PLAIN_SCREW_SKU = (
+    _spec("Length", "sku", kind="length"),
+    _spec("Units per Pack", "sku", kind="count"),
+)
+PLAIN_SCREW_VOCAB = (*_PLAIN_SCREW_LINE, _spec("Gauge", "sku"), *_PLAIN_SCREW_SKU)
+MACHINE_SCREW_VOCAB = (*_PLAIN_SCREW_LINE, _spec("Thread Size", "sku"), *_PLAIN_SCREW_SKU)
+
 #: Flap discs.
 _FLAP_DISC = (
     _spec("Abrasive Material", "line"),

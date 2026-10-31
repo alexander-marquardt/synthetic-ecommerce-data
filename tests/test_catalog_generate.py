@@ -18,7 +18,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
-from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial import plain_screws, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.vocab import (
@@ -461,7 +461,7 @@ def test_the_catalog_offers_all_four_socket_screw_styles(catalog):
     styles: dict[str, set[str]] = {}
     standards: dict[str, set[str]] = {}
     for line in catalog.lines:
-        if not line.type_key.startswith("screw_"):
+        if not line.type_key.startswith("screw_") or line.type_key in plain_screws.KINDS:
             continue
         values = {a.name: a.value for a in line.attributes}
         styles.setdefault(line.type_key, set()).add(values["Head Type"])
