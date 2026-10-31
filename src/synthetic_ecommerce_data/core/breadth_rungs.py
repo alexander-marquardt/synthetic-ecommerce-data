@@ -1,10 +1,10 @@
 """A breadth product's sizes, ranked on the one ladder retail reads (gen#719).
 
-A breadth row's drawing is one fixed shape (:mod:`.breadth_shapes`), so its sizes used to share one
-picture. :func:`ratios` puts each SKU on the product's own ladder (:mod:`...core.size_rungs`) and
-says at what share of the type's scale it is drawn. Every other industrial figure is drawn from
-the SKU's own dimensions at one true scale per type, so its sizes already differ and a rank on top
-would shrink them twice: they stay at 1.
+A breadth row's drawing is one fixed shape, so its sizes used to share one picture. :func:`ratios`
+puts each SKU on the product's own ladder (:mod:`.size_rungs`) and says at what share of the
+type's scale it is drawn. A breadth row registers the attribute it reads in ``figures.SIZE_ATTRS``.
+Every other industrial figure is drawn from the SKU's own dimensions at one true scale per type,
+so it registers none: its sizes already differ, and a rank on top would shrink them twice.
 
 The ladder needs the values in order, not their measure: :func:`measure` puts a row's sizes, which
 mix inch fractions, metric threads and gauge numbers, on one scale. :data:`NOT_SIZES` names the
@@ -17,7 +17,6 @@ import re
 from collections.abc import Mapping, Sequence
 
 from synthetic_ecommerce_data.core.size_rungs import ratio_at
-from synthetic_ecommerce_data.domains.industrial import breadth
 
 #: A row's size attributes that are no size of the part: a kind, a count or a rating.
 NOT_SIZES = frozenset({"Color", "Type", "Piece Count", "Rated Load", "Maximum Workpiece Weight"})
@@ -57,14 +56,13 @@ def _size_of(record: Mapping[str, str], attr: str) -> str:
     return {name.casefold(): value for name, value in record.items()}[attr.casefold()]
 
 
-def ratios(product_type: str, records: Sequence[Mapping[str, str]]) -> list[float]:
-    """The share of the type's scale each record is drawn at: 1 unless a breadth product's sizes
-    form a ladder."""
+def ratios(size_attr: str | None, records: Sequence[Mapping[str, str]]) -> list[float]:
+    """The share of the type's scale each record is drawn at, read from the attribute its type
+    registered: 1 for a type with none, or unless the product's sizes form a ladder."""
     unscaled = [1.0] * len(records)
-    row = next((r for r in breadth.rows() if r.key == product_type), None)
-    if row is None or row.size_attr in NOT_SIZES or len(records) < 2:  # noqa: PLR2004
+    if size_attr is None or len(records) < 2:  # noqa: PLR2004
         return unscaled
-    sizes = [measure(_size_of(record, row.size_attr)) for record in records]
+    sizes = [measure(_size_of(record, size_attr)) for record in records]
     ladder = sorted(set(sizes))
     if len(ladder) < 2:  # noqa: PLR2004
         return unscaled

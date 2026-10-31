@@ -6,7 +6,7 @@ TESTS = [
     "tests/test_retail_size_ladder_339.py",
 ]
 LADDER = "src/synthetic_ecommerce_data/domains/retail/size_ladder.py"
-BREADTH = "src/synthetic_ecommerce_data/domains/industrial/drawing/breadth_rungs.py"
+BREADTH = "src/synthetic_ecommerce_data/core/breadth_rungs.py"
 RUNGS = "src/synthetic_ecommerce_data/core/size_rungs.py"
 DRAWING = "src/synthetic_ecommerce_data/core/drawing/__init__.py"
 MUTANTS = [
@@ -23,10 +23,12 @@ MUTANTS = [
      "return float(area.group(1))", "area-by-its-first-side"),
     (LADDER, "return float(meters.group(1)) * 100", "return float(meters.group(1))",
      "meters-not-converted"),
-    (BREADTH, 'if row is None or row.size_attr in NOT_SIZES or len(records) < 2:',
-     "if row is None or len(records) < 2:", "not-sizes-are-ranked"),
-    (BREADTH, 'if row is None or row.size_attr in NOT_SIZES or len(records) < 2:',
-     "if row is None or row.size_attr in NOT_SIZES:", "a-lone-record-is-read"),
+    ("src/synthetic_ecommerce_data/domains/industrial/breadth.py",
+     "if row.size_attr not in NOT_SIZES:", "if True:", "not-sizes-are-ranked"),
+    (BREADTH, "if size_attr is None or len(records) < 2:", "if size_attr is None:",
+     "a-lone-record-is-read"),
+    (BREADTH, "if size_attr is None or len(records) < 2:", "if len(records) < 2:",
+     "a-type-with-no-attribute-is-read"),
     (BREADTH, "    if len(ladder) < 2:  # noqa: PLR2004\n        return unscaled\n", "",
      "one-size-is-a-ladder"),
     (BREADTH, 'return (0.06 + 0.013 * number) * INCH', "return number",

@@ -10,7 +10,7 @@ more specific. That is the opposite of every other drawing in this package,
 which reads its geometry from the record's own published values -- and it is
 deliberate here: a breadth SKU's dimensions are cheap filler, and a drawing
 that scaled to them would assert a precision the record does not have. A
-product's sizes still differ: :mod:`.breadth_rungs` draws the same shape
+product's sizes still differ: :mod:`...core.breadth_rungs` draws the same shape
 smaller by its rank among them (gen#719), which says bigger or smaller and no
 dimension.
 

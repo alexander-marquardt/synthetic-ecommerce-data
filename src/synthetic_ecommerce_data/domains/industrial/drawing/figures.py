@@ -575,6 +575,9 @@ _FIGURES: dict[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = {}
 FIGURES: RegistryTable[str, tuple[Callable[[Record], Drawn], tuple[float, float]]] = RegistryTable(
     _FIGURES
 )
+#: ``type -> the attribute its size ladder ranks``: a fixed shape's, which draws no dimension of
+#: its own (:mod:`...core.breadth_rungs`, gen#719).
+SIZE_ATTRS: RegistryTable[str, str] = RegistryTable()
 
 
 # --- the types added by elastic/prism-industrial-products#103 ------------------

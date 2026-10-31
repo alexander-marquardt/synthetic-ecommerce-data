@@ -23,7 +23,7 @@ The drawing is a pure function of ``(product_type, brand, attributes)``. It
 does not read the SKU, the product id or the title, so two SKUs publishing the
 same drawn values draw the same bytes, which is the correct answer: the
 picture has nothing to tell them apart with. A breadth product's fixed shape
-also reads its siblings' sizes, for its rung (:mod:`...industrial.drawing.breadth_rungs`).
+also reads its siblings' sizes, for its rung (:mod:`...core.breadth_rungs`).
 """
 
 from __future__ import annotations
@@ -33,11 +33,11 @@ import re
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 
-from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core import brands, breadth_rungs
 from synthetic_ecommerce_data.core.drawing import brand_mark
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, SIZE_ATTRS
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
     MATERIAL_ATTRIBUTES,
@@ -206,12 +206,8 @@ def draw_product(
 ) -> list[tuple[bytes, str]]:
     """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale; the
     fixed shape of a breadth product steps down its size ladder (gen#719)."""
-    from synthetic_ecommerce_data.domains.industrial.drawing import (
-        breadth_rungs,  # noqa: PLC0415 -- it reads the breadth table, which draws on this package
-    )
-
     scale = product_scale_for(product_type, records)
-    ratios = breadth_rungs.ratios(product_type, records)
+    ratios = breadth_rungs.ratios(SIZE_ATTRS.get(product_type), records)
     return [
         _draw(product_type, brand, record, scale * ratio)
         for record, ratio in zip(records, ratios, strict=True)

@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.core import bundle, size_rungs
+from synthetic_ecommerce_data.core import breadth_rungs, bundle, size_rungs
 from synthetic_ecommerce_data.core.drawing import FIGURES, draw_product
 from synthetic_ecommerce_data.domains.industrial import breadth
-from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import SIZE_ATTRS
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog"
 FACETS = bundle.flat_facets(GOLDEN)
@@ -50,8 +50,8 @@ def _inches(text: str) -> float:
 def _ratios(product_type: str, records: list[dict]) -> list[float]:
     """``ratios``, where a record it cannot read fails the test rather than erroring it."""
     try:
-        return breadth_rungs.ratios(product_type, records)
-    except (KeyError, ZeroDivisionError) as exc:
+        return breadth_rungs.ratios(SIZE_ATTRS.get(product_type), records)
+    except (AttributeError, KeyError, ZeroDivisionError) as exc:
         raise AssertionError(f"{product_type}: {exc!r}") from exc
 
 
@@ -76,7 +76,7 @@ def test_each_diameter_of_an_end_mill_draws_its_own_picture():
 @pytest.mark.parametrize("product_type", ["bolt_hex", "end_mill_square"])
 def test_a_measured_figure_stays_at_its_true_scale(product_type):
     records = bundle.records(_parent(product_type), FACETS)
-    assert breadth_rungs.ratios(product_type, records) == [1.0] * len(records)
+    assert _ratios(product_type, records) == [1.0] * len(records)
 
 
 def test_the_census_of_breadth_ladders_is_not_empty():
@@ -101,7 +101,7 @@ def test_a_breadth_ladder_runs_from_the_smallest_rung_to_the_full_drawing():
         attr = ROWS[parent["product_type"]].size_attr
         if len({r[attr] for r in records}) < 2:
             continue
-        ratios = breadth_rungs.ratios(parent["product_type"], records)
+        ratios = _ratios(parent["product_type"], records)
         assert min(ratios) == pytest.approx(size_rungs.BOTTOM / size_rungs.TOP)
         assert max(ratios) == 1.0
 
@@ -109,7 +109,7 @@ def test_a_breadth_ladder_runs_from_the_smallest_rung_to_the_full_drawing():
 def test_a_rung_is_read_from_the_size_not_the_order_of_the_records():
     row = next(r for r in ROWS.values() if r.size_attr == "Diameter")
     records = [{"Diameter": "2 in"}, {"Diameter": "1/2 in"}, {"Diameter": "1 in"}]
-    ratios = breadth_rungs.ratios(row.key, records)
+    ratios = _ratios(row.key, records)
     assert ratios[1] < ratios[2] < ratios[0] == 1.0
 
 
@@ -125,7 +125,7 @@ def test_a_kind_a_count_or_a_rating_shares_one_picture(attr):
     row = next(r for r in ROWS.values() if r.size_attr == attr)
     records = [{attr: value} for value in row.size_values]
     assert len(records) > 1
-    assert breadth_rungs.ratios(row.key, records) == [1.0] * len(records)
+    assert _ratios(row.key, records) == [1.0] * len(records)
 
 
 def test_a_product_of_one_size_is_not_scaled():
