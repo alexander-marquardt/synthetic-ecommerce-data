@@ -16,6 +16,7 @@ SPEC = TypeSpec(
     rows=(),
     homes=(
         Home("samples", True),
+        Home("breadth_rows", False),
         Home("decoy_rows", False),
         Home("grocery", False),
     ),

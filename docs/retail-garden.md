@@ -85,7 +85,23 @@ types: Lavender, Herbs > Sage, Herbs > Rosemary, Herbs > Thyme, Olive Trees and 
 holds at least eight styles at the ceiling (`tests/test_retail_plant_nodes_509.py`). A herb is drawn
 by `kit_garden.potted_herb` (`leaves`, and `bloom` for a flowering lavender); an olive tree and a
 eucalyptus by `potted_tree`. The other senses stay true: Sage is a color value of its own
-(`colorwords.COLOR_WORDS`, beside Olive), so a sage cushion exists, and the scented candles carry
-Lavender, Sage and Eucalyptus fragrances. Not done here: reed diffusers and bath products in those
-scents, and the measured policies-off and policies-on pages of the issue, which need the next
-Combined load.
+(`colorwords.COLOR_WORDS`, beside Olive), so a sage cushion exists, and the scented candles, reed
+diffusers (`Cleaning > Air Care > Air Fresheners`) and bath products (`Beauty > Bath & Body > Bath
+Salts` and `Shower Gel`) carry Lavender, Sage and Eucalyptus scents, keyed `scent`. The depth family
+sells a lavender shower gel, so `breadth_rows.py` adds only the sage and eucalyptus ones. Bath
+salts and these two gels stay templates (`Home("breadth_rows", False)`).
+
+Measured on `catalog_combined_2026-10-30b` (the load with the plants, before the diffusers and the
+bath rows), `/v1/search?persona=Combined&debug=true`, off is `rewrite=false`, the first five SKUs:
+
+| Query             | Off                                  | On                                |
+| ----------------- | ------------------------------------ | --------------------------------- |
+| `lavender`        | four lavender body talcs, one plant  | five lavender plants              |
+| `sage`            | a sage candle, four sage plants      | five sage plants                  |
+| `olive tree`      | a candle, a hand wash, three trees   | five olive trees                  |
+| `lavender candle` | five lavender candles                | five lavender candles             |
+| `sage cushion`    | five sage cushions                   | five sage cushions                |
+
+With policies on, the category-node policy (`a query that names a category node filters to it in
+Best`) fired on the three bare words beside the color policy, and the plant node won, so there is no
+conflict to file with elastic/prism-retail-and-industrial.

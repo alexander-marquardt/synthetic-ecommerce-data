@@ -14,5 +14,8 @@ SPEC = TypeSpec(
     department="Beauty",
     product_type="Bath Salts",
     rows=(),
-    homes=(Home("decoy_rows", False),),
+    homes=(
+        Home("breadth_rows", False),
+        Home("decoy_rows", False),
+    ),
 )
