@@ -14,10 +14,12 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
+from synthetic_ecommerce_data.domains.retail import house_styles as hs
 from synthetic_ecommerce_data.domains.retail import (
     kit,
     scale,
 )
+from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 
 CYCLING = ["Sports & Outdoors", "Cycling"]
 BIKES = [*CYCLING, "Bikes"]
@@ -62,6 +64,13 @@ def _attrs(record: dict) -> dict[str, str]:
         (("Harbour & Pine", "Mountain", 29, 21), "HP26MT2921"),
         (("Larkmoor", "Electric", 28, 7), "LMEB-262807"),
         (("Wrenfield", "Kids", None, 1), "KD-01-26"),
+        (("Gorsecliff", "Mountain", 29, 24), "GC26MT-29-24"),
+        (("Rindlemoor", "Road", 28, 22), "RM-RD22-2826"),
+        (("Tolvaney", "Road", 28, 18), "TV28RD18.26"),
+        (("Ostlebury", "Electric", 26, 8), "OB08-EB26-26"),
+        (("Wattlebrook", "Electric", 28, 7), "WBEB28.07.26"),
+        (("Pipkinford", "Kids", None, 1), "PK-KD2601"),
+        (("Hessenby", "Kids", None, 1), "HB26-01KD"),
     ],
 )
 def test_each_brand_builds_its_code_from_kind_wheel_gears_and_year(args, code):
@@ -84,17 +93,61 @@ def test_a_code_no_scheme_builds_decodes_to_nothing():
     assert bmn.decode("KD28-01-26") is None  # a kids' code never carries a wheel
 
 
+def _sold() -> list[tuple[str, str]]:
+    """Every ``(brand, kind)`` the range sells."""
+    return [(brand, kind) for brand, series in bmn.SERIES.items() for kind in series]
+
+
 def test_the_same_bike_from_each_brand_gets_a_code_only_that_brand_builds():
-    codes = {brand: bmn.encode(brand, "Road", 28, 18) for brand in bmn.SCHEMES}
-    assert len(set(codes.values())) == len(codes)
-    for brand, code in codes.items():
-        assert bmn.decode(code)["brand"] == brand
+    for kind in bmn.KINDS:
+        wheel = None if kind == "Kids" else 28
+        codes = {b: bmn.encode(b, kind, wheel, 18) for b, k in _sold() if k == kind}
+        assert len(set(codes.values())) == len(codes)
+        for brand, code in codes.items():
+            assert bmn.decode(code)["brand"] == brand
+
+
+def test_every_brand_round_trips_every_kind_it_sells_in_either_year():
+    assert len(bmn.SCHEMES) == 10
+    for brand, kind in _sold():
+        for gears in (1, 8, 24):
+            for year in (bmn.MODEL_YEAR, bmn.MODEL_YEAR - 1):
+                wheel = None if kind == "Kids" else 29
+                code = bmn.encode(brand, kind, wheel, gears, year)
+                want = {"brand": brand, "kind": kind, "wheel": wheel, "gears": gears, "year": year}
+                assert bmn.decode(code) == want
+
+
+def test_a_brand_refuses_a_kind_it_does_not_sell():
+    with pytest.raises(ValueError):
+        bmn.encode("Wattlebrook", "Road", 28, 18)
+    assert bmn.decode("WBRD28.18.26") is None
+
+
+def test_each_scheme_has_lead_letters_of_its_own():
+    leads = [s.split("{")[0].rstrip("-") for s in bmn.SCHEMES.values()]
+    named = [lead for lead in leads if lead]
+    assert len(named) == len(set(named)) == len(bmn.SCHEMES) - 1  # Wrenfield leads with the kind
+    assert not set(named) & set(bmn.KINDS.values())
 
 
 def test_a_series_name_belongs_to_one_brand():
-    names = [s for series in bmn.SERIES.values() for s in series]
+    names = [s for series in bmn.SERIES.values() for s in series.values()]
     assert len(names) == len(set(names))
-    assert all(len(series) == len(bmn.KINDS) for series in bmn.SERIES.values())
+    assert all(set(series) <= set(bmn.KINDS) for series in bmn.SERIES.values())
+
+
+def test_each_new_brand_has_a_house_style_and_a_mark_of_its_own():
+    new = set(bmn.SERIES) - {"Wrenfield", "Harbour & Pine", "Larkmoor"}
+    assert len(new) == 7
+    marks = [hs.HOUSE_STYLES[brand].mark for brand in new]
+    assert hs.NO_MARK not in marks
+    assert len(set(marks)) == len(new)
+
+
+def test_each_new_brand_is_another_houses_make():
+    new = set(bmn.SERIES) - {"Wrenfield", "Harbour & Pine", "Larkmoor"}
+    assert {OWNERS[brand] for brand in new} == {"third_party"}
 
 
 def test_the_spec_names_wheel_and_speed():

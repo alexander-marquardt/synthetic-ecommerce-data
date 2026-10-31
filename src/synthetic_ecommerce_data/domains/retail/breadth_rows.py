@@ -51,6 +51,10 @@ OWNERS = {
     "Pipwick Toys": "third_party",
     # The seasonal rows (seasonal_rows.py, gen#195) sell a make-up brand.
     "Kestlewood Cosmetics": "third_party",
+    # The bicycle-only brands (type_specs/bicycle.py, gen#718).
+    "Gorsecliff": "third_party", "Rindlemoor": "third_party", "Tolvaney": "third_party",
+    "Ostlebury": "third_party", "Wattlebrook": "third_party", "Pipkinford": "third_party",
+    "Hessenby": "third_party",
 }  # fmt: skip
 
 

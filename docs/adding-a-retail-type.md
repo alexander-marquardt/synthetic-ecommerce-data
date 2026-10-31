@@ -92,8 +92,8 @@ by hand, later ones in fewer small builds. See one: `uv run python -m synthetic_
 `export.image_id` is `<type>/<product id>/<digest of the drawing spec>`, and
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
-by SKU (a lamp's `finish`) yields one per value. A multi-size clothing or footwear style adds `size_scale`
-(`size_ladder.py`, gen#339): one image per rung, the smallest at 55/90 of the largest (its own size).
+by SKU (a lamp's `finish`) yields one per value. A multi-size clothing, footwear or bicycle style adds `size_scale`
+(`size_ladder.py`, gen#339, gen#718): one image per rung, the smallest at 55/90 of the largest (its own size).
 Any other size adds none, except a SKU with a `net_volume_ml` or `net_weight_g` (Food & Drink and Beauty also
 `units_per_pack`), drawn at the cube root of that content against its style's largest size, floored at 0.6
 (`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged. A pack of N draws N copies of the drawing, or its outer box above 24 (`pack_copies.py`, gen#728); socks and knickers fan rather than stand in rows (`pack_copies.FANS`, gen#734).

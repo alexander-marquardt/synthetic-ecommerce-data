@@ -43,7 +43,8 @@ skateboard      a street deck, a cruiser or a longboard     style
 ==============  ==========================================  =====================
 
 A drawing never prints a size, a berth, a thickness or a weight: a style's SKUs share one image
-per colorway. Every param is a string with a default, so each shape also draws bare. The foam
+per colorway, except a bicycle's, whose sizes are on the size ladder (:mod:`size_ladder`, gen#718):
+each size is the whole drawing scaled, with nothing redrawn. Every param is a string with a default, so each shape also draws bare. The foam
 roller's bumps are drawn as that many marked groups, which ``tests/test_retail_sports_265.py``
 counts against the record.
 """
@@ -51,6 +52,8 @@ counts against the record.
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
 
 from __future__ import annotations
+
+import math
 
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
@@ -69,10 +72,15 @@ from synthetic_ecommerce_data.domains.retail.kit import (
 BUMP_COLUMNS, BUMP_ROWS = 4, 3
 POLE = "#8d949c"
 FABRIC_DARK = "#3a3f46"
+#: A bicycle's frame tube, and the battery's two colors and the frame luminance it turns dark at:
+#: either side of it the block is at least 3:1 against the frame.
+TUBE = 8
+BATTERY_DARK, BATTERY_LIGHT = "#1f2329", "#f5c842"
+BATTERY_TURN = 0.16
 
 
-def _ell(cx: float, cy: float, rx: float, ry: float, fill: str, width: float = LW) -> str:
-    return f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" fill="{fill}" stroke="{INK}" stroke-width="{width}"/>'
+def _ell(cx: float, cy: float, rx: float, ry: float, fill: str, width: float = LW, extra: str = "") -> str:
+    return f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" fill="{fill}" stroke="{INK}" stroke-width="{width}"{extra}/>'
 
 
 def _rect(x: float, y: float, w: float, h: float, fill: str, r: float = 6, width: float = LW) -> str:
@@ -518,29 +526,79 @@ def picnic_blanket(paint: str, fill: Fill, label: str | None, backing: str = "pl
 
 def _wheel(cx: float, cy: float, r: float, tire: float) -> list[str]:
     return [
-        _ell(cx, cy, r, r, "none", tire),
+        _ell(cx, cy, r, r, "none", tire, ' class="tire"'),
         _line(f"M{cx - r + 6:g},{cy:g} L{cx + r - 6:g},{cy:g} M{cx:g},{cy - r + 6:g} L{cx:g},{cy + r - 6:g}", 1.2, ' stroke-opacity=".35"'),
         _ell(cx, cy, 5, 5, INK),
     ]
 
 
+def _luminance(color: str) -> float:
+    """The WCAG relative luminance of a ``#rrggbb`` color."""
+    channels = [int(color[i : i + 2], 16) / 255 for i in (1, 3, 5)]
+    r, g, b = (c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _battery(hx: float, hy: float, bx: float, by: float, frame: str) -> list[str]:
+    """The battery along the down tube from ``(hx, hy)`` to ``(bx, by)``: a block wider than the
+    tube, dark on a light frame and light on a dark one, with a bolt in the frame's color."""
+    length = math.hypot(bx - hx, by - hy)
+    ux, uy = (bx - hx) / length, (by - hy) / length
+    mx, my = (hx + bx) / 2, (hy + by) / 2
+
+    def at(along: float, across: float) -> str:
+        return f"{mx + ux * along - uy * across:.1f},{my + uy * along + ux * across:.1f}"
+
+    block = BATTERY_DARK if _luminance(frame) >= BATTERY_TURN else BATTERY_LIGHT
+    half, side = 46, 17
+    corners = (at(-half, -side), at(half, -side), at(half, side), at(-half, side))
+    bolt = (at(-26, 5), at(-3, -9), at(-3, -2), at(26, -5), at(3, 9), at(3, 2))
+    return [
+        _path(f"M{' L'.join(corners)} Z", block, 2.4, ' class="battery"'),
+        _path(f"M{' L'.join(bolt)} Z", frame, 1.2, ' class="bolt"'),
+    ]
+
+
+def _stabilizer(rx: float, cy: float, r: float, tire: float, fill: str) -> str:
+    """The far stabilizer of a side view: a small wheel on a bracket from the rear axle, behind and
+    below it, on the main wheels' ground and lighter than they are. Drawn before them, so the main
+    wheel's tire runs over it."""
+    small = 14
+    x, y = rx - 36, cy + r - small
+    wheel = _ell(x, y, small, small, fill, tire, ' class="stabilizer"')
+    return (
+        '<g opacity=".6">'
+        f"{_line(f'M{rx},{cy} L{x},{y}', 4)}"
+        f"{wheel}"
+        f"{_ell(x, y, 3, 3, INK)}"
+        "</g>"
+    )
+
+
 def bicycle(paint: str, fill: Fill, label: str | None, style: str = "road") -> list[str]:
-    """A bicycle: ``road`` (drop bars, thin tires), ``mountain`` (flat bar, fat tires, a fork spring),
-    ``kids`` (small wheels, stabilisers and a basket) or ``electric`` (a battery on the down tube)."""
+    """A bicycle: ``road`` (drop bars, thin tires), ``mountain`` (large wheels, fat knobbly tires, a
+    flat bar, a sloping top tube and a fork spring), ``kids`` (small wheels, one stabilizer beside
+    the rear wheel and a basket) or ``electric`` (a thick down tube carrying a large battery, and a
+    rear hub motor). The kinds read apart at thumbnail size (gen#718)."""
     kind = style.lower()
     dark = _shade(fill.base, 0.35)
-    # rear axle, front axle, bottom bracket, seat top, head top, wheel radius, tire width
+    # wheel radius, tire width, rear axle, front axle, bottom bracket, seat top, head top
     r, tire, rx, fx, by, sy, hy = {
-        "mountain": (68, 9, 98, 302, 272, 172, 170),
+        "mountain": (78, 18, 100, 300, 268, 200, 160),
         "kids": (46, 6, 120, 280, 300, 220, 218),
         "electric": (62, 5, 106, 294, 274, 168, 164),
     }.get(kind, (64, 4, 105, 295, 275, 168, 168))
     cy = by
     bx, sx, hx = 198, 168, 262
-    out = [*_wheel(rx, cy, r, tire), *_wheel(fx, cy, r, tire)]
+    out = [_stabilizer(rx, cy, r, tire, dark)] if kind == "kids" else []
+    out += [*_wheel(rx, cy, r, tire), *_wheel(fx, cy, r, tire)]
+    if kind == "mountain":  # the tread: short dashes round each tire's outer edge
+        out += [_ell(x, cy, r + tire / 2 + 1, r + tire / 2 + 1, "none", 6, ' class="tread" stroke-dasharray="5 9"') for x in (rx, fx)]
     frame = fill.base
     out += [
-        _line(f"M{bx},{by} L{sx},{sy} L{hx},{hy} L{bx},{by} L{rx},{cy} L{sx},{sy}", 8, stroke=frame),
+        _line(f"M{bx},{by} L{sx},{sy} L{rx},{cy} L{bx},{by}", TUBE, stroke=frame),
+        _line(f"M{sx},{sy} L{hx},{hy}", TUBE, ' class="top-tube"', stroke=frame),
+        _line(f"M{hx},{hy} L{bx},{by}", TUBE * 2.5 if kind == "electric" else TUBE, ' class="down-tube"', stroke=frame),
         _line(f"M{hx},{hy} L{fx},{cy}", 7 if kind != "mountain" else 11, stroke=POLE if kind == "mountain" else frame),
         _line(f"M{sx},{sy} L{sx - 6},{sy - 22}", 5),
         _path(f"M{sx - 28},{sy - 24} Q{sx - 6},{sy - 36} {sx + 20},{sy - 26} L{sx + 18},{sy - 18} L{sx - 28},{sy - 17} Z", INK),
@@ -553,14 +611,12 @@ def bicycle(paint: str, fill: Fill, label: str | None, style: str = "road") -> l
         out += [
             _line(f"M{hx},{hy} L{hx + 2},{hy - 30} M{hx - 14},{hy - 30} L{hx + 18},{hy - 30}", 5),
             _rect(hx + 8, hy - 26, 44, 28, paint, 5, 2.4),
-            _ell(rx + 28, cy + 32, 13, 13, dark, 2.4),
-            _ell(rx - 30, cy + 32, 13, 13, dark, 2.4),
         ]
     elif kind == "electric":
         out += [
             _line(f"M{hx},{hy} L{hx - 6},{hy - 30} L{hx + 12},{hy - 34}", 5),
-            _path(f"M{bx - 8},{by - 70} L{hx - 30},{hy + 38} L{hx - 18},{hy + 48} L{bx + 4},{by - 58} Z", dark, 2.4),
-            _ell(rx, cy, 15, 15, dark, 2.4),
+            *_battery(hx, hy, bx, by, frame),
+            _ell(rx, cy, 24, 24, dark, 2.4, ' class="hub-motor"'),
         ]
     else:
         out += [_line(f"M{hx - 4},{hy - 24} L{hx + 6},{hy} M{hx - 20},{hy - 26} L{hx + 28},{hy - 26}", 5), _line(f"M{hx + 6},{hy + 12} L{fx - 8},{cy - 34}", 4, stroke=INK)]
