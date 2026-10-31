@@ -54,3 +54,20 @@ only) are the garment classes of gen#311 and are not authored for the toys. The 
 holds each decoy by code, class and query, and ranks each for its query.
 `decoy_contract.range_violations` checks the class 6 decoys of every toy: the title holds every
 word of the query, the category leaf holds none, no two share a query, and each toy has two.
+
+## Toy car packs (gen#749)
+
+No title said "cars", so "toy cars" and "toy car" could not show the exact-spelling preference.
+`CAR_PACKS` in `type_specs/toy_vehicle.py` adds two kinds of car, each as a pack of 3 and a pack of
+5: four products, 40 SKUs. The rows are the spec's own, so the derivation leaves them out.
+
+| Part of a pack | How it is written |
+|---|---|
+| Title | The form the socks use: "Die-Cast Cars, Pack of 5". "Toy" stays in the category, as on the singles, so a stemmed "toy car" gives a pack no phrase match a single lacks |
+| Count | One product per count: `pack_size` is `3 pack` or `5 pack` (gen#246), and each SKU states `units_per_pack` |
+| Price | `underwear_rows._packs` on the cheapest single of the material, 4.50 die-cast and 9.00 wooden, so a pack costs less than that many singles |
+| Color | The ten paints of a single (gen#271), one to a SKU, so every car of a pack is that color. The description says so |
+| Picture | `pack_copies` (gen#728) draws that many cars from `units_per_pack` |
+
+`tests/test_retail_toy_car_packs_749.py` pins all of this, and
+`tests/test_retail_toy_vehicle_colors_271.py` counts the packs among the free-paint styles.

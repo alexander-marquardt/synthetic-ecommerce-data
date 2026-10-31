@@ -21,6 +21,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit,
     toys_rows,
 )
+from synthetic_ecommerce_data.domains.retail.type_specs import toy_vehicle
 
 #: The leaves the issue names: toy cars and every ride-on (bikes, scooters, trikes).
 LEAVES = {"Toy Vehicles", "Ride-On Toys"}
@@ -33,7 +34,8 @@ FIXED = {"CARPOL", "CARBMB", "CARTIN", "RIDWDB", "RIDSC2"}
 
 
 def vehicle_rows() -> list:
-    return [r for r in (*breadth_rows.TOYS, *toys_rows.RIDE_ONS) if r.path[-1] in LEAVES]
+    rows = (*breadth_rows.TOYS, *toy_vehicle.SPEC.rows, *toys_rows.RIDE_ONS)
+    return [r for r in rows if r.path[-1] in LEAVES]
 
 
 def _bike(row) -> bool:
