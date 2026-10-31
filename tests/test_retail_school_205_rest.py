@@ -185,6 +185,15 @@ def test_a_polo_draws_a_placket_a_ribbed_collar_and_the_sleeve_it_states() -> No
         assert f'<g class="sleeve-{sleeve}"' in svg, row.code
 
 
+def test_a_long_sleeve_hangs_lower_than_a_short_one() -> None:
+    def lowest(sleeve: str) -> float:
+        svg = _svg(shape="school_polo", sleeve=sleeve)
+        d = re.search(rf'<g class="sleeve-{sleeve}">(.*?)</g>', svg, re.S).group(1)
+        return max(float(n) for n in re.findall(r",(\d+)", d))
+
+    assert lowest("short") < lowest("long")
+
+
 def test_a_knee_sock_stands_taller_than_an_ankle_sock() -> None:
     def tallest(height: str) -> float:
         svg = _svg(shape="school_socks", height=height)
@@ -256,7 +265,7 @@ def test_a_pack_of_socks_fans_one_sock_a_pair_and_tights_fold_to_one_leg() -> No
     assert _count(item, "sock") == 1
     pair = _svg(shape="school_socks", height="tights")
     folded = _svg(shape="school_socks", height="tights", lone="1")
-    assert folded.count("<path") < pair.count("<path")
+    assert "L254,84 Q260,190" in pair and "L254,84 Q260,190" not in folded, "one leg, folded"
     assert len(re.findall(r"M\d+,64 L", folded)) < len(re.findall(r"M\d+,64 L", pair))
 
 
