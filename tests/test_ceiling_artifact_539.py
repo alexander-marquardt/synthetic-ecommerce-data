@@ -20,7 +20,6 @@ import threading
 import tomllib
 from pathlib import Path
 
-import pytest
 import yaml
 
 from retail_ceiling import ceiling_build
@@ -152,6 +151,7 @@ def test_the_job_s_script_measures_into_the_directory_it_was_given(tmp_path, mon
         retail_figures, "measure", lambda: named.append(os.environ[retail_figures.CACHE_ENV]) or {}
     )
     monkeypatch.setattr(retail_figures, "_MEMO", {})
+    (tmp_path / "unused").mkdir()
     monkeypatch.setenv(retail_figures.CACHE_ENV, str(tmp_path / "unused"))
     with contextlib.suppress(SystemExit):
         _build_ceiling().build(tmp_path / "ceiling")
@@ -161,19 +161,24 @@ def test_the_job_s_script_measures_into_the_directory_it_was_given(tmp_path, mon
 def test_the_measurement_reads_the_shared_build(monkeypatch) -> None:
     """Built by ``measure`` itself, the job would build twice and upload no ``ceiling.pickle``."""
 
-    class AskedForTheSharedBuild(Exception):
+    class Asked(Exception):
         pass
 
+    asked: list[str] = []
+
     def shared() -> scale.Scaled:
-        raise AskedForTheSharedBuild
+        asked.append("shared")
+        raise Asked
 
-    def no_build(skus: int, seed: int = 0) -> scale.Scaled:
-        raise AssertionError("measure() built the ceiling for itself")
+    def own_build(skus: int, seed: int = 0) -> scale.Scaled:
+        asked.append("own")
+        raise Asked
 
-    monkeypatch.setattr(scale, "build", no_build)
+    monkeypatch.setattr(scale, "build", own_build)
     monkeypatch.setattr(retail_figures, "ceiling", shared)
-    with pytest.raises(AskedForTheSharedBuild):
+    with contextlib.suppress(Asked):
         retail_figures.measure()
+    assert asked == ["shared"]
 
 
 def test_a_real_build_survives_the_pickle() -> None:

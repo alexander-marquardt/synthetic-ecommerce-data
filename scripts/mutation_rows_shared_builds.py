@@ -71,8 +71,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the default dist mode scatters a module over the workers",
         "pyproject.toml",
-        'addopts = "--dist loadgroup"',
-        'addopts = ""',
+        'addopts = "--dist loadgroup -p no:randomly"',
+        'addopts = "-p no:randomly"',
         f"{GUARD} -k test_the_default_dist_mode_keeps_a_module_on_one_worker",
         "a plain -n 2 keeps a module on one worker",
         ".",

@@ -1016,6 +1016,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
         tests="echo suite",
         **{
             "lint": "true",
+            "ceiling-catalogue": "true",
             "commit-messages": "echo bad >&2; exit 3",
             "file-size": "true",
             "red-commit-proof": "true",
@@ -1054,7 +1055,8 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
 
 
 def test_a_required_check_missing_from_the_workflows_refuses(world: dict) -> None:
-    head = _open_pr(world, {**_GREEN, **_workflow(tests="true", lint="true")})
+    plant = _workflow(tests="true", lint="true", **{"ceiling-catalogue": "true"})
+    head = _open_pr(world, {**_GREEN, **plant})
     done = _run(world, head, _GREEN_CHECK, "--local-ci")
     assert done.returncode != 0
     assert "commit-messages is not a job" in done.stderr
