@@ -9,6 +9,7 @@ ingredient or claim on the end of its title, so the catalogue keeps its count.
 
 from __future__ import annotations
 
+import random
 import re
 from collections import Counter
 from typing import Any
@@ -21,7 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
     line_grammar,
     scale,
 )
-from synthetic_ecommerce_data.domains.retail.grocery_rows import FAMILIES
+from synthetic_ecommerce_data.domains.retail.grocery_rows import DECOY_ANCHORS, FAMILIES
 from synthetic_ecommerce_data.domains.retail.retail_figures import TIER_SKUS
 
 FOOD = ("pantry", "drink", "alcohol")
@@ -167,6 +168,19 @@ def test_the_product_count_does_not_drop(name):
     food = _all_food(name)
     assert (len(food), sum(r["sku_count"] for r in food)) >= BEFORE[name]
     assert len(food) >= BEFORE[name][0]
+
+
+def test_a_planted_decoy_draws_from_its_own_stream():
+    """Guard (gen#729): a decoy is planted among its family's draws, so one that drew from the
+    family's stream would move every style after it. Metric: the decoys' grades in the 10K build
+    against the decoy stream's, family by family in build order."""
+    stream = random.Random("grocery-decoys:0")
+    by_id = {r["product_id"]: r for r in grocery.build()}
+    for fam in sorted(FAMILIES, key=lambda f: f.depth):
+        for k in range(sum(code == fam.code for code, *_ in DECOY_ANCHORS)):
+            attrs = by_id[f"GRC-{fam.code}-{k + 1:04d}"]["attributes"]
+            said = {a["value"] for a in attrs if a["key"] == "nutrition_grade"}
+            assert said == {f"Grade {stream.choice(fam.grades)}"}, (fam.code, k)
 
 
 def test_every_grocery_family_reaches_its_budget():
