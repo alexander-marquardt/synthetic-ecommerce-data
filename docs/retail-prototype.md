@@ -612,6 +612,8 @@ first and no path twice, and `real_classes.check_category_paths` holds every pat
 (three levels, clean names, no bucket, no leaf that is also a parent, one depth per node name). The
 prism projection (`prism/index.py`) makes `category_path_joined` the union of the cumulative paths,
 each once, so both category facets count a mug once and a filter on either path finds all of them.
+The flat `text` holds the primary path and then the nodes each further path adds, each once
+(`standard.flat_documents`, gen#606), so a search reaches a mug at either path as well.
 The decoy mugs of `decor_rows.py` (an ornament, a thank-you card) keep their one Home path; other
 drinkware (travel cups, tumblers, cups and saucers, espresso sets) is not yet filed twice.
 `tests/test_retail_mug_paths_602.py` pins it. The retail loader in
@@ -621,8 +623,8 @@ The court shoes are the second pair (gen#606): a retailer keeps Heels as its own
 dress as an occasion across types, so every court shoe, the decoys too, has the primary
 `Womens > Shoes > Heels > Court shoes` and also `Womens > Shoes > Formal shoes > Court shoes`. The
 second path ends in `Court shoes` because a leaf is never a parent; a filter on
-`Womens/Shoes/Formal shoes` finds them through the union. `tests/test_retail_formal_shoes_606.py`
-pins it.
+`Womens/Shoes/Formal shoes` finds them through the union, and `Formal shoes` in their `text` lets
+the query "formal shoes" match them. `tests/test_retail_formal_shoes_606.py` pins it.
 
 **A type sits under its generic category** (gen#283). `Sofas` holds `Corner Sofas`, `Recliner Sofas`,
 `Modular Sofas`, `Chaise Sofas` and `Sofa Beds`, so a filter on `Home/Furniture/Sofas` takes every sofa

@@ -172,6 +172,16 @@ def test_other_paths_names_the_court_shoe_pair(
     assert multi_path.other_paths({"product_id": product_id, "category_path": path}) == other
 
 
+def test_a_court_shoe_is_searchable_by_both_of_its_paths(records: list[dict]) -> None:
+    """Best takes the node as a filter and still needs the query's words in the text, so a court
+    shoe whose ``text`` said only ``Heels`` was filtered in and never matched "formal shoes"."""
+    courts = _of(records, "Womens", COURT)
+    rows = [row for d in courts for row in standard.flat_documents(d, export.NUMERIC_FACTS)]
+    assert rows
+    assert [row["sku"] for row in rows if "Formal shoes" not in row["text"]] == []
+    assert [row["sku"] for row in rows if "Heels" not in row["text"]] == []
+
+
 def test_the_authored_styles_are_filed_by_the_same_rule() -> None:
     """The authored styles, before any derived style is added, agree with the built catalog."""
     for root in ROOTS:
