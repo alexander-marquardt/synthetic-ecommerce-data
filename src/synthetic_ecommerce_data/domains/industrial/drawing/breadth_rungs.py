@@ -17,7 +17,6 @@ import re
 from collections.abc import Mapping, Sequence
 
 from synthetic_ecommerce_data.core.size_rungs import ratio_at
-from synthetic_ecommerce_data.domains.industrial import breadth
 
 #: A row's size attributes that are no size of the part: a kind, a count or a rating.
 NOT_SIZES = frozenset({"Color", "Type", "Piece Count", "Rated Load", "Maximum Workpiece Weight"})
@@ -60,6 +59,8 @@ def _size_of(record: Mapping[str, str], attr: str) -> str:
 def ratios(product_type: str, records: Sequence[Mapping[str, str]]) -> list[float]:
     """The share of the type's scale each record is drawn at: 1 unless a breadth product's sizes
     form a ladder."""
+    from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: PLC0415 -- it registers this
+
     unscaled = [1.0] * len(records)
     row = next((r for r in breadth.rows() if r.key == product_type), None)
     if row is None or row.size_attr in NOT_SIZES or len(records) < 2:  # noqa: PLR2004

@@ -8,6 +8,12 @@ a smaller rung draws at ``scale / TOP`` of it (:func:`ratio_at`).
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
+
+#: A product type's own ladder rule, filled by the domain that owns the type: it maps the type's
+#: records to the share of the type's scale each is drawn at (:func:`...drawing.draw_product`).
+LADDERS: dict[str, Callable[[Sequence[Mapping[str, str]]], list[float]]] = {}
+
 #: The scale factors of the largest and the smallest rung; a smaller rung draws at
 #: ``scale / TOP`` of the full-size drawing (a ratio, not a share of the sheet).
 TOP = 0.90
