@@ -92,7 +92,7 @@ def test_a_shape_that_does_not_fan_keeps_the_rows_of_728() -> None:
 
 
 def test_every_family_that_fans_is_named() -> None:
-    assert set(pack_copies.FANS) == {"knickers", "socks"}
+    assert set(pack_copies.FANS) == {"knickers", "socks", "school_socks"}
 
 
 @pytest.mark.parametrize(

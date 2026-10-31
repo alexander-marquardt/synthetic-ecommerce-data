@@ -58,7 +58,7 @@ SPEC = TypeSpec(
         _shorts("SPESH2", "Short Leg PE Shorts, 2 Pack", CL, "Short", "Polyester", 2, 7.0,
                 "Two pairs of PE shorts with an elastic waist, one for the bag and one for the wash.",
                 (BLACK, NAVY, GREEN, BLUE)),
-        _shorts("SPEMD1", "Mid Length PE Shorts", BW, "Mid", "Polyester Mesh", 1, 5.0,
+        _shorts("SPEMD1", "Mid Length PE Shorts", BW, "Mid", "Mesh", 1, 5.0,
                 "Breathable mesh PE shorts cut to the mid thigh with an elastic waist.",
                 (BLACK, NAVY, YELLOW)),
         _shorts("SPEMD2", "Mid Length PE Shorts, 2 Pack", LK, "Mid", "Cotton", 2, 9.0,
