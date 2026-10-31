@@ -9,7 +9,10 @@ roughly a sphere / a bar / a box / a disc / a tube / a bracket" and nothing
 more specific. That is the opposite of every other drawing in this package,
 which reads its geometry from the record's own published values -- and it is
 deliberate here: a breadth SKU's dimensions are cheap filler, and a drawing
-that scaled to them would assert a precision the record does not have.
+that scaled to them would assert a precision the record does not have. A
+product's sizes still differ: :mod:`.breadth_rungs` draws the same shape
+smaller by its rank among them (gen#719), which says bigger or smaller and no
+dimension.
 
 Color and section hatch still come from the record's own Material/Finish
 (:mod:`.style`), through the same :func:`.draw_sku` pipeline every other type
