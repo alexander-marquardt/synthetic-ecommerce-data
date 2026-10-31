@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_underwear,  # noqa: F401 -- registers knickers, tights, vest, slip, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
+from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _LING = "Lingerie & Nightwear"
@@ -68,6 +69,11 @@ class URow(Row):
              "price": round(s["price"] * f, 2)}
             for s in out for n, f in self.packs
         ]  # fmt: skip
+
+
+@dataclass(frozen=True)
+class PackRow(URow, LRow):
+    """A style sold only as one multipack: ``LRow``'s facts, and ``URow``'s pack on every SKU."""
 
 
 def _a(key: str, name: str, v: str) -> tuple[str, str, str]:

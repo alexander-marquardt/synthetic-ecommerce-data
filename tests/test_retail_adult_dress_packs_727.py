@@ -133,6 +133,12 @@ def test_each_pack_sku_has_its_own_image_file(packs: list[dict]) -> None:
         assert len(image_release.image_files([rec])) == len(rec["skus"])
 
 
+def test_no_single_dress_carries_a_pack_size(dresses: list[dict], packs: list[dict]) -> None:
+    """A decoy cloned from a pack would carry its count under a single's title."""
+    assert packs
+    assert [r["title"] for r in dresses if _attr(r, "pack_size") and r not in packs] == []
+
+
 def test_the_packs_stay_out_of_the_derivation(packs: list[dict]) -> None:
     """A derived style would swap a value of a pack and keep its count."""
     assert packs

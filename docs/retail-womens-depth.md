@@ -27,6 +27,24 @@ is Fitted (a shift hangs straight), a top says "stretchy" only for a fabric that
 skirt closes the way its shape does (a wrap ties, a pleated or tiered skirt has an elastic waist,
 an A-line or pencil skirt a zip) and states `waist_type` and `lining` as the older skirts do.
 
+## Dress multipacks (gen#727)
+
+`_PACKS` adds two styles, each as a pack of 2 and a pack of 3: four products, 40 SKUs, every one
+sold in Red. The maintainer asked for adult packs of red dresses beside the
+[Kids range](retail-kids-depth.md#dress-multipacks-gen727), which shares the mechanism: `PackRow`,
+the `2 pack` or `3 pack` of the one vocabulary (gen#246), `underwear_rows._packs` and the
+`pack_copies` drawing (gen#728).
+
+| Title | Colors | Leaf |
+|---|---|---|
+| "Womens Cotton Jersey T-Shirt Dresses, Pack of 2" and "Pack of 3" | Red, Navy, Black | T-Shirt Dresses |
+| "Womens Red Stretch Jersey Midi Dresses, Pack of 2" and "Pack of 3" | Red | Midi Dresses |
+
+A title says Red only where the pack sells in nothing else, so the title stays true to every SKU.
+Each size's price is 22.00, the cheapest full-price single, times the multibuy factor: 39.60 for
+two and 56.10 for three. Each description opens "A pack of two ..." and says every dress of a pack
+is one color. `tests/test_retail_adult_dress_packs_727.py` pins all of this.
+
 ## Floors count real products
 
 The per-leaf floors (`LEAF_FLOORS` in the test) and the real-product floors count products that
