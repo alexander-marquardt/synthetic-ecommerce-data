@@ -28,6 +28,8 @@ The text-match decoys (gen#294) of these types are the apparel plan's (:mod:`dec
 gen#311): Dress, Blouse, Shirt, Coat, Skirt and Top each carry three per class, cloned from a
 real style of the type, so none is written here.
 
+A dress multipack (gen#727) is its own product at each count, so "red dresses" has plural titles.
+
 The rows are templates only: :func:`scale.derivable` leaves them out (``scale.source_ids("womens_depth_rows")``),
 so the seeded derivation is what it was.
 """
@@ -45,6 +47,7 @@ from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import ADULT, LRow
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
+from synthetic_ecommerce_data.domains.retail.underwear_rows import PackRow, _pack_attrs, _packs
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune", "Bramblewood")
@@ -296,10 +299,22 @@ _LEAVES = (
 )  # fmt: skip
 
 
-def _row(code, title, brand, kind: Kind, leaf: Leaf, desc, colors, attrs, *, price, params, facts) -> LRow:
-    return LRow(code, title, brand, _C, leaf.path, kind.ptype, price, kind.shape, desc, colors,
-                attrs=attrs, sizes=tuple((n, price) for n in ADULT), params=params, size_key="size",
-                facts=facts)  # fmt: skip
+#: The dress multipacks (gen#727): (leaf, title words, fabric, fit, neck, sleeve, colors). Each style
+#: sells a pack of 2 and a pack of 3, in one color a pack, at the multibuy factor of a dress at the
+#: cheapest single's price. A title says Red only where the pack sells in nothing else.
+_PACKS = (
+    ("TS", "Cotton Jersey T-Shirt", "Cotton Jersey", "Relaxed", "Crew Neck", "Short Sleeve", ("Red", "Navy", "Black")),
+    ("MD", "Red Stretch Jersey Midi", "Stretch Jersey", "Regular", "V Neck", "Short Sleeve", ("Red",)),
+)  # fmt: skip
+_PACK_COUNTS = {2: "two", 3: "three"}
+_PACK_PRICE = 22.0
+
+
+def _row(code, title, brand, kind: Kind, leaf: Leaf, desc, colors, attrs, *, price, params, facts,
+         row: type[LRow] = LRow, **extra) -> LRow:  # fmt: skip
+    return row(code, title, brand, _C, leaf.path, kind.ptype, price, kind.shape, desc, colors,
+               attrs=attrs, sizes=tuple((n, price) for n in ADULT), params=params, size_key="size",
+               facts=facts, **extra)  # fmt: skip
 
 
 def _rows() -> list[LRow]:
@@ -353,7 +368,29 @@ def _rows() -> list[LRow]:
     return out
 
 
-ROWS: tuple[LRow, ...] = tuple(_rows())
+def _dress_packs() -> list[LRow]:
+    """Each style of :data:`_PACKS` as a pack of 2 and a pack of 3, each its own product: the
+    count is in the title, the ``pack_size`` and the SKU's ``units_per_pack``, which
+    :mod:`pack_copies` draws."""
+    out: list[LRow] = []
+    kind = KINDS["Dress"]
+    for si, (abbr, name, f, fit, neck, s, colors) in enumerate(_PACKS):
+        leaf = next(lf for lf in _LEAVES if lf.abbr == abbr)
+        sleeves = f"{SLEEVES[s][0].lower()} sleeves"
+        for k, (n, word) in enumerate(_PACK_COUNTS.items()):
+            i = len(_PACK_COUNTS) * si + k
+            desc = (f"A pack of {word} {name.lower()} dresses, all in the same color, cut to {_an(fit)} fit, "
+                    f"with a {neck.lower()}, {sleeves} and {_tail(kind, leaf, fit, f, neck, '')}.")  # fmt: skip
+            attrs = (("fit", "Fit", fit), ("material", "Material", f), ("sleeve_length", "Sleeve length", SLEEVES[s][0]),
+                     *_pack_attrs(_packs(n)))  # fmt: skip
+            out.append(_row(f"WDPK{i:03d}", f"Womens {name} Dresses, Pack of {n}", _BRANDS[i % len(_BRANDS)], kind, leaf,
+                            desc, tuple(_col(c) for c in colors), attrs, price=_PACK_PRICE, params=(),
+                            facts=(("neckline", NECKS[neck][0]), ("size_range", ["regular"])),
+                            row=PackRow, packs=_packs(n)))  # fmt: skip
+    return out
+
+
+ROWS: tuple[LRow, ...] = (*_rows(), *_dress_packs())
 
 
 def docs() -> list[dict]:

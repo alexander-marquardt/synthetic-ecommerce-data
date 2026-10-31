@@ -2,10 +2,11 @@
 
 No dress title in the catalogue was plural, so the exact-spelling preference had nothing to show
 on "red dress" against "red dresses". The range is a pack of 2 and a pack of 3 of three girls'
-styles, in the title form the socks use ("Bamboo Socks, Pack of 5"), and no Womens dress pack.
-A pack is what a style is sold as, so each count is its own product. It uses the one ``pack_size``
-vocabulary (gen#246), the multibuy factors of ``underwear_rows`` and the one pack drawing
-(``pack_copies``, gen#728), and the description says the count (gen#449).
+styles, in the title form the socks use ("Bamboo Socks, Pack of 5"). The adult range has its own
+test, ``tests/test_retail_adult_dress_packs_727.py``. A pack is what a style is sold as, so each
+count is its own product. It uses the one ``pack_size`` vocabulary (gen#246), the multibuy factors
+of ``underwear_rows`` and the one pack drawing (``pack_copies``, gen#728), and the description says
+the count (gen#449).
 """
 
 from __future__ import annotations
@@ -28,7 +29,11 @@ WORD = {2: "two", 3: "three"}
 
 @pytest.fixture(scope="module")
 def dresses() -> list[dict]:
-    return [r for r in scale.templates() if r["product_type"] == "Dress"]
+    return [
+        r
+        for r in scale.templates()
+        if r["product_type"] == "Dress" and r["category_path"][0] == "Kids"
+    ]
 
 
 @pytest.fixture(scope="module")
@@ -122,9 +127,6 @@ def test_each_pack_sku_has_its_own_image_file(packs: list[dict]) -> None:
         assert len(image_release.image_files([rec])) == len(rec["skus"])
 
 
-def test_no_womens_dress_is_sold_as_a_pack(dresses: list[dict], packs: list[dict]) -> None:
+def test_no_single_dress_carries_a_pack_size(dresses: list[dict], packs: list[dict]) -> None:
     assert packs
-    packed = [r["title"] for r in dresses if _attr(r, "pack_size") and r not in packs]
-    womens = [r["title"] for r in dresses if r["category_path"][0] == "Womens" and r in packs]
-    assert packed == []
-    assert womens == []
+    assert [r["title"] for r in dresses if _attr(r, "pack_size") and r not in packs] == []

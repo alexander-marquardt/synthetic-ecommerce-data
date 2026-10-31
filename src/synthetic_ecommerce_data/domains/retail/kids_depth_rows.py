@@ -38,7 +38,7 @@ from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.school_rows import AGES
-from synthetic_ecommerce_data.domains.retail.underwear_rows import URow, _pack_attrs, _packs
+from synthetic_ecommerce_data.domains.retail.underwear_rows import PackRow, _pack_attrs, _packs
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _BRANDS = ("Little Fernby", "Calderby & Lune", "Bramblewood", "Larkmoor")
@@ -105,7 +105,7 @@ _FEATURES = {"": "", "Hooded": "an attached hood", "Longline": "a longline lengt
 
 #: The dress multipacks (gen#727): (style, fabric, neck, sleeve, colors). Each style sells a pack
 #: of 2 and a pack of 3, in one color a pack, at the multibuy factor of a dress at the cheapest
-#: single's price. There is no Womens multipack: packs of dresses are a children's-wear habit.
+#: single's price. The adult range is :mod:`womens_depth_rows`.
 _PACKS = (
     ("T-Shirt Dress", "Cotton Jersey", "Crew Neck", "Short Sleeve", ("Red", "Navy", "Pink")),
     ("Summer Dress", "Cotton Poplin", "Square Neck", "Sleeveless", ("Red", "Blue", "Yellow")),
@@ -113,11 +113,6 @@ _PACKS = (
 )  # fmt: skip
 _PACK_COUNTS = {2: "two", 3: "three"}
 _PACK_PRICE = 12.0
-
-
-@dataclass(frozen=True)
-class PackRow(URow, LRow):
-    """A style sold only as one multipack: ``LRow``'s facts, and ``URow``'s pack on every SKU."""
 
 
 def _an(word: str) -> str:
