@@ -158,11 +158,16 @@ def _card(quantity: int | None, product_type: str = MILL) -> bytes:
 
 def _outlines(data: bytes) -> list[list[tuple[float, float]]]:
     """The items a card draws behind its top one: the tilted four-cornered closed subpaths, in
-    sheet units. Nothing else on a sheet is one: a figure stands square to it."""
+    sheet units. Nothing else on a sheet is one: a figure stands square to it, and the brand
+    plate's slanted bars carry no stroke."""
     found: list[list[tuple[float, float]]] = []
     for element in ET.fromstring(data).iter():
         d = element.attrib.get("d", "")
-        if not element.tag.endswith("path") or element.attrib.get("fill", "").startswith("url"):
+        if (
+            not element.tag.endswith("path")
+            or "stroke" not in element.attrib
+            or element.attrib.get("fill", "").startswith("url")
+        ):
             continue
         for sub in re.findall(r"M[^MZ]*Z", d):
             numbers = [float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", sub)]
