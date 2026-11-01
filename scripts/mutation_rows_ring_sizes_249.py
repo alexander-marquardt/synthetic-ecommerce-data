@@ -49,8 +49,8 @@ ROWS: list[tuple[str, str, str, str, tuple[str, ...], str]] = [
     (
         "the ring keys leave the size options",
         "variants.py",
-        '"size_us", "ring_size_uk", "ring_size_us", "length",',
-        '"size_us", "length",',
+        '"size_us", "ring_size_uk", "ring_size_us",\n',
+        '"size_us",\n',
         f"{_T} -k size_options_are_listed",
         "a ring's size_options hold the ring keys",
     ),

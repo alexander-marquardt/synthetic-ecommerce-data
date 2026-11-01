@@ -17,6 +17,7 @@ each pair folded down its middle, because a fan of two-legged pairs reads as a t
 
 The UK size bands (`size_ladder.SOCK_BANDS`) rank by the band's place in the list: a child's sizes
 run to 13 and start again at 1, so `UK 4-7` is the largest although it opens on the smallest number.
+A band sits under `shoe_size_band`, not `size`: the Combined loader refuses it as a garment size.
 
 The leaf `School Socks` also holds `PLT-SK5KID`, of type Socks, which the real-classes proof names,
 so that style stays where it is. School socks are not color restricted in `type_colors.py`: the
