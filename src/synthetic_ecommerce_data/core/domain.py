@@ -1,0 +1,90 @@
+"""The domain registry: a domain hands core its tables, so core never imports a domain (#128).
+
+Core used to read the industrial tables directly: emit's image-id check asked
+``domains.industrial.taxonomy`` whether a type exists, and :meth:`.brands.Brand.makes`
+looked a type's family up in ``domains.industrial.vocab``. Either refused any type
+of a second domain. Here a domain registers a :class:`Domain` when its package is
+imported, and core asks every registered domain.
+
+A domain's tables are passed as functions, not as the tables themselves. A
+domain's package ``__init__`` registers it, and importing the table modules there
+would run them while the package is half imported.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Collection, Mapping
+from dataclasses import dataclass
+
+
+class DomainError(Exception):
+    """Two different domains registered under one name."""
+
+
+class ImageIdError(Exception):
+    """An image id is not ``<product type>/<product id>/<sku>``.
+
+    Raised rather than patched up. The id is a directory in a published URL:
+    an id repaired here would move every image under it and break every link to
+    it, silently and long after the change that caused it.
+    """
+
+
+@dataclass(frozen=True)
+class Domain:
+    """One domain's tables, as core reads them."""
+
+    name: str
+    #: Every product type the domain publishes. An image id's first segment is one of them.
+    product_types: Callable[[], Collection[str]]
+    #: Each of its types' brand family (:attr:`.brands.Brand.families`).
+    brand_families: Callable[[], Mapping[str, str]]
+
+
+_DOMAINS: dict[str, Domain] = {}
+
+
+def register(domain: Domain) -> None:
+    """Add ``domain``. The same one again does nothing; another under its name is refused."""
+    held = _DOMAINS.get(domain.name)
+    if held is not None and held is not domain:
+        raise DomainError(f"a domain named {domain.name!r} is already registered")
+    _DOMAINS[domain.name] = domain
+
+
+def domains() -> tuple[Domain, ...]:
+    """The registered domains, in the order they registered."""
+    return tuple(_DOMAINS.values())
+
+
+def is_product_type(type_key: str) -> bool:
+    """Whether a registered domain publishes ``type_key``."""
+    return any(type_key in d.product_types() for d in _DOMAINS.values())
+
+
+def brand_family(type_key: str) -> str:
+    """The brand family of ``type_key``. Raises ``KeyError`` when no domain gives it one."""
+    for d in _DOMAINS.values():
+        families = d.brand_families()
+        if type_key in families:
+            return families[type_key]
+    raise KeyError(type_key)
+
+
+def product_type_for_image(image_id: str) -> str:
+    """The product type an image is published under: the first segment of its id.
+
+    Read off the id rather than looked up, because the id was built from the
+    line's own product type. A malformed id, or a type no domain registers,
+    raises: a guess here would file a drawing under a category nothing else
+    agrees with.
+    """
+    parts = image_id.split("/")
+    if len(parts) != 3 or not all(parts) or not is_product_type(parts[0]):
+        known = sorted(t for d in _DOMAINS.values() for t in d.product_types())
+        raise ImageIdError(
+            f"{image_id!r} is not an image id. One reads "
+            "<product type>/<product id>/<sku>, and the product type must be one of "
+            f"{known}."
+        )
+    return parts[0]

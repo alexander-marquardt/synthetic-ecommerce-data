@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.core.domain import ImageIdError
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
 #: A category path, root first.
@@ -110,15 +111,6 @@ def ancestors(path: CategoryPath) -> tuple[CategoryPath, ...]:
 _DRAWING: dict[str, str] = {}
 # A read registers the type modules first, so a type in its own module is listed.
 DRAWING: RegistryTable[str, str] = RegistryTable(_DRAWING)
-
-
-class ImageIdError(Exception):
-    """An image id is not ``<product type>/<product id>``.
-
-    Raised rather than patched up. The id is a directory in a published URL:
-    an id repaired here would move every image under it and break every link to
-    it, silently and long after the change that caused it.
-    """
 
 
 def drawing_for(type_key: str) -> str:
