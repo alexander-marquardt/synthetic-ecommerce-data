@@ -29,7 +29,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
 
 SPEC = TypeSpec(
     "screw_button_head",
-    category=("Fasteners", "Bolts, Screws & Cap Screws", "Button Socket Cap Screws"),
+    category=("Fasteners", "Cap Screws", "Button Socket Cap Screws"),
     standards_family="fastener",
     vocab=_SOCKET_SCREW,
     figure=_broken(2.56, 2.8),
