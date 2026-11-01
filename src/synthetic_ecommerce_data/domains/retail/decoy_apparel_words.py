@@ -161,7 +161,8 @@ class Audience(NamedTuple):
 
 #: Class 3 (#781): the only types an audience decoy sits on, each with the one phrase real titles
 #: use there. Boyfriend cuts are womenswear borrowed from menswear, menswear-inspired tailoring is
-#: womenswear, and Mini-Me is the children's copy of an adult style. No phrase sells a men's
+#: womenswear, and Mini-Me is the children's copy of an adult style (or, on a Womens dress, the
+#: adult one of a pair with a girls' copy). No phrase sells a men's
 #: product with a women's word, so Mens holds none; and no lingerie, swimwear, babywear, school
 #: shoe or safety boot is here ("Mens-Style Bra" is a name no shopper meets).
 AUDIENCE_TYPES = {
@@ -174,16 +175,19 @@ AUDIENCE_TYPES = {
     "Trousers": Audience("Womens", "Menswear-Inspired", "mens"),
     "Suit Jacket": Audience("Womens", "Menswear-Inspired", "mens"),
     "Puffer Jacket": Audience("Kids", "Mini-Me", "mens"),
-    "Dress": Audience("Kids", "Mini-Me", "womens"),
+    "Dress": Audience("Womens", "Mini-Me", "girls"),
     "Pyjamas": Audience("Kids", "Mini-Me", "womens"),
     "Sweatshirt": Audience("Kids", "Mini-Me", "mens"),
 }
-#: Each phrase's description, as real copy says it: the sibling audience is named here, never in
-#: the title, so a text match on ``mens jeans`` still meets the women's boyfriend jeans.
+#: Each (department, phrase)'s description, as real copy says it: the sibling audience is named
+#: here, never in the title, so a text match on ``mens jeans`` still meets the women's boyfriend
+#: jeans.
 AUDIENCE_COPY = {
-    "Boyfriend": "{c} {n} in a relaxed boyfriend fit, the cut of our {word} {n}.",
-    "Menswear-Inspired": "{c} {n} with menswear-inspired tailoring, the cut of our {word} {n}.",
-    "Mini-Me": "{c} {n}, a smaller version of our {word} {n}, sized for children.",
+    ("Womens", "Boyfriend"): "{c} {n} in a relaxed boyfriend fit, the cut of our {word} {n}.",
+    ("Womens", "Menswear-Inspired"): "{c} {n} with menswear-inspired tailoring, the cut of our "
+    "{word} {n}.",
+    ("Womens", "Mini-Me"): "{c} {n} in womens sizes, with a matching {word} {n} sold separately.",
+    ("Kids", "Mini-Me"): "{c} {n}, a smaller version of our {word} {n}, sized for children.",
 }
 ABSENT = (("Leather-Look", "leather", "A finish made to look like leather; it holds no leather."),
           ("Suede-Look", "suede", "A soft finish that resembles suede; no suede is used."),

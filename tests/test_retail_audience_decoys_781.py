@@ -93,6 +93,8 @@ def test_class_3_sits_on_every_table_type_and_on_no_other(rows: list[da.Row]) ->
         assert len(rs) >= 3, (ptype, len(rs))
         assert {r.doc["category_path"][0] for r in rs} == {entry.root}, ptype
         assert all(entry.phrase in r.title for r in rs), (ptype, [r.title for r in rs])
+        if entry.fit:  # "Boyfriend Jeans" names a leg fit: only a boyfriend jean carries it
+            assert {da._fit(r.doc) for r in rs} == {entry.phrase}, (ptype, [r.title for r in rs])
 
 
 def test_an_audience_decoy_names_its_sibling_in_the_description_only(rows: list[da.Row]) -> None:

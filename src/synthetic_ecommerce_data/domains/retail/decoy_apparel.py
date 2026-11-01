@@ -424,7 +424,7 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                         title=f"{c} {a.phrase} {noun}",
                         word=a.word,
                         color=c,
-                        desc=AUDIENCE_COPY[a.phrase].format(c=c, n=n, word=a.word),
+                        desc=AUDIENCE_COPY[a.root, a.phrase].format(c=c, n=n, word=a.word),
                         query=f"{a.word} {n}",
                     )
                 )
