@@ -210,6 +210,9 @@ RANGE_DISPERSION = 0.5
 #: vocabulary here names (another catalog's) and every terms attribute, whose
 #: identifier test is the ratio.
 #:
+#: One exception, by name: ``Units per pack`` is tabled, a ladder, but a shopper asks for a
+#: threshold of it (``quantity > 10``, gen#14), which no list of rungs can answer as one click.
+#:
 #: Dispersion cannot tell saturation from growth on too few products: a
 #: ladder of K rungs reads below 0.5 only once roughly 1.6K products have
 #: landed on it, so an undersampled ladder looks like a continuum or an
@@ -245,6 +248,9 @@ RANGE_DISPERSION = 0.5
 #: 2). ``Neck Length`` clears it and is kept off a slider by
 #: :data:`MIN_PRESENCE`.
 RANGE_MIN_DOCS = 250
+
+#: The tabled quantities offered as a range all the same (see above; gen#14).
+RANGE_QUANTITIES = frozenset({"Units per pack"})
 
 
 def declared_sources(table: Mapping[str, Iterable[AttrSpec]]) -> dict[str, str]:
@@ -358,6 +364,8 @@ class AttributeStats:
         there must be enough observations for dispersion to mean anything,
         and the values must not saturate.
         """
+        if self.name in RANGE_QUANTITIES:
+            return True
         if self.declared_source is not None:
             return self.declared_source == "drawn"
         return (
@@ -494,6 +502,13 @@ def decide(stats: AttributeStats) -> Decision:
             False,
             f"reads as an identifier, not a facet: {over}, at or above the "
             f"{IDENTIFIER_DISPERSION:.2f} identifier threshold, so the values do not repeat",
+        )
+    if stats.name in RANGE_QUANTITIES:
+        return Decision(
+            stats,
+            True,
+            f"a range: a shopper asks for a threshold of it (quantity > 10), so its tabled "
+            f"values are still offered as an interval; {over}",
         )
     if stats.declared_source == "drawn":
         return Decision(

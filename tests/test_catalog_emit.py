@@ -16,6 +16,7 @@ import pytest
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.letter_case import sentence_case
+from synthetic_ecommerce_data.domains.industrial import pack
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
@@ -185,6 +186,8 @@ def test_every_sku_names_its_own_drawing():
     for doc in emit.iter_flat(CATALOG):
         assert doc["image_id"] == f"{doc['product_type']}/{doc['product_id']}/{doc['sku']}"
         assert doc["image_url"] == f"{emit.DEFAULT_IMAGE_BASE_URL}/{doc['image_id']}.svg"
+        if doc["pricing_unit"] == "Per Pack" and doc["product_type"] in pack.AXES:
+            continue  # a pack's detail is its single's drawing: tests/test_pack_axis_14.py
         assert doc["image_detail_url"] == doc["image_url"], "one SVG serves both views"
 
 

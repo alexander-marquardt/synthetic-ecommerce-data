@@ -470,7 +470,8 @@ def _opening(doc: dict) -> str:
     # ``<brand> <series> -- <qualifier> <item>``, so what follows the dashes is what the
     # variant's title says after its brand.
     item = doc["parent_title"].split(" -- ", 1)[-1]
-    title = doc["title"]
+    # A pack's count leads the brand's own opening (gen#14).
+    title = re.sub(r"^\d+PCS ", "", doc["title"])
     return title[: title.index(item)] if item in title else "<no item>"
 
 

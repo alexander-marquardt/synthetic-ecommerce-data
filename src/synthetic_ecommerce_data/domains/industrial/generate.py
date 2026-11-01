@@ -48,6 +48,7 @@ from synthetic_ecommerce_data.domains.industrial import (
     compat,
     grouped,
     hammers,
+    pack,
     series,
     standards,
     taxonomy,
@@ -1052,7 +1053,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         return draft
 
     def build(self) -> list[ProductLine]:
-        """This type's lines: its own products, its must-stock lines, then its grouped ones."""
+        """This type's lines: its own products, its must-stock lines, its grouped ones, then its
+        pack ones."""
         key = self.type_key
         cfg = self.config
         lines: list[ProductLine] = []
@@ -1069,11 +1071,14 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             for _ in range(cfg.new_type_products.get(key, 0)):
                 self._keep(lines, self._new_type_line(key))
         else:
-            lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
+            line = breadth.build_line(self, breadth.row_for(key), self.minter.next_index())
+            lines.append(self._widen(line) if cfg.pack_axis and key in pack.AXES else line)
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
         if cfg.grouped and key in grouped.VARIANTS:
             lines.extend(self._grouped(lines))
+        if cfg.pack_axis and kind == "modelled" and key in pack.AXES:
+            lines.extend(self._packed(lines))
         return lines
 
     def _builder(self):
@@ -1186,6 +1191,40 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             self.rng, self._variant_table = own_rng, own_table
         self._bump("grouped_lines", len(added))
         return added
+
+
+    def _packed(self, lines: list[ProductLine]) -> list[ProductLine]:
+        """This type's pack products (:mod:`.pack`): a run of sizes, each at several quantities.
+
+        Built last and from a stream of their own, so no line built before moves, by the type's
+        own builder at the grouped table's run of sizes: a matrix needs a run to be sparse in.
+        """
+        key = self.type_key
+        builder = self._builder()
+        (category,) = taxonomy.LEAVES[key]
+        added: list[ProductLine] = []
+        own_rng, own_table = self.rng, self._variant_table
+        self._variant_table = grouped.VARIANTS[key]
+        try:
+            self.rng = typespec.type_rng(self.config.seed, f"{key}:pack")
+            for _ in range(round(len(lines) * pack.SHARE)):
+                built = builder(self, key, category)
+                line = self._finish_line(key, built, self.minter.next_index())
+                if line is not None and len(line.children) >= pack.MIN_SIZES:
+                    added.append(self._widen(line))
+        finally:
+            self.rng, self._variant_table = own_rng, own_table
+        self._bump("pack_lines", len(added))
+        return added
+
+    def _widen(self, line: ProductLine) -> ProductLine:
+        """``line`` with its package-quantity axis (:func:`.pack.widen`), counted."""
+        rng = typespec.type_rng(self.config.seed, f"{line.type_key}:pack:{line.product_id}")
+        widened = pack.widen(line, self.minter.new_sku, rng, self.config.seed)
+        added = len(widened.children) - len(line.children)
+        self._bump("skus", added)
+        self._bump("pack_skus", added)
+        return widened
 
 
 def _stocks(entry, lines: Iterable[ProductLine]) -> bool:

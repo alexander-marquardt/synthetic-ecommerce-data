@@ -87,7 +87,8 @@ def image_url(image_id: str, base_url: str) -> str:
 
 
 def check_image_ids(catalog: Catalog) -> None:
-    """Every SKU names its own drawing, and every product its first SKU's.
+    """Every SKU names its own drawing, and every product its first SKU's. A pack SKU's
+    detail drawing is another SKU's of its product (gen#14).
 
     Checked once over the whole catalog, before any URL is published. Named
     separately, because "some image is broken" is not a report anyone can act
@@ -97,6 +98,7 @@ def check_image_ids(catalog: Catalog) -> None:
     malformed: list[str] = []
     mismatched: list[str] = []
     for line in catalog.lines:
+        own = {child.image_id for child in line.children}
         for child in line.children:
             try:
                 product_type_for_image(child.image_id)
@@ -106,6 +108,8 @@ def check_image_ids(catalog: Catalog) -> None:
             expected = f"{line.type_key}/{line.product_id}/{child.sku}"
             if child.image_id != expected:
                 mismatched.append(f"{child.sku} -> {child.image_id}")
+            if child.detail_image_id and child.detail_image_id not in own:
+                mismatched.append(f"{child.sku} detail -> {child.detail_image_id}")
         if line.children and line.image_id != line.children[0].image_id:
             mismatched.append(f"{line.product_id} -> {line.image_id} (not its first variant's)")
     problems = []
@@ -293,7 +297,7 @@ def _nested_document(catalog: Catalog, line: ProductLine, base_url: str) -> dict
                 "order_multiple": child.order_multiple,
                 "image_id": child.image_id,
                 "image_url": image_url(child.image_id, base_url),
-                "image_detail_url": image_url(child.image_id, base_url),
+                "image_detail_url": image_url(child.detail_image_id or child.image_id, base_url),
                 "attributes": _attribute_entries(child.attributes),
             }
             for child in line.children
@@ -347,7 +351,7 @@ def flat_documents(
             "order_multiple": child.order_multiple,
             "image_id": child.image_id,
             "image_url": image_url(child.image_id, base_url),
-            "image_detail_url": image_url(child.image_id, base_url),
+            "image_detail_url": image_url(child.detail_image_id or child.image_id, base_url),
             "attributes": _attribute_entries(merged),
             "attribute_names": sorted({a.name for a in merged}),
             "facets": facets,

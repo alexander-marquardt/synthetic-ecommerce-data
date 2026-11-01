@@ -57,11 +57,12 @@ from synthetic_ecommerce_data.core.model import (
     Sku,
     keyword_attribute,
     length_attribute,
+    numeric_attribute,
     pricing_unit_for,
 )
 from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.core.voice import product_name
-from synthetic_ecommerce_data.domains.industrial import taxonomy
+from synthetic_ecommerce_data.domains.industrial import pack, taxonomy
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
@@ -281,6 +282,12 @@ def sku_count(row: BreadthRow) -> int:
     return max(1, min(row.skus, len(row.size_values)))
 
 
+def published_skus(row: BreadthRow) -> int:
+    """How many SKUs ``row`` publishes: its sizes, and any pack pairs of theirs (:mod:`.pack`)."""
+    sizes = sku_count(row)
+    return pack.pairs(sizes, pack.AXES[row.key]) if row.key in pack.AXES else sizes
+
+
 def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     """One breadth product line: 1-2 SKUs, from ``row`` alone.
 
@@ -304,7 +311,12 @@ def build_line(gen: Generator, row: BreadthRow, index: int) -> ProductLine:
     line_attrs: list[Attribute] = []
     descriptor_value: str | None = None
     for name, value in chosen.items():
-        line_attrs.append(keyword_attribute(name, value))
+        # A count, so its range facet reaches every SKU that publishes one (gen#14).
+        line_attrs.append(
+            numeric_attribute(name, value, float(value))
+            if name == "Units per Pack"
+            else keyword_attribute(name, value)
+        )
         if name == row.descriptor_attr:
             descriptor_value = value
     item_text = f"{descriptor_value} {row.item}" if descriptor_value else row.item
