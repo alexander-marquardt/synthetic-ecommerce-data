@@ -21,13 +21,14 @@ import pytest
 
 from synthetic_ecommerce_data.core import bundle
 from synthetic_ecommerce_data.core.config import GeneratorConfig
-from synthetic_ecommerce_data.domains.industrial import grouped, muststock
-from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial import grouped, muststock, newtypes, series
+from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
     distribution_problems,
     skus_per_product,
     split_products,
 )
+from synthetic_ecommerce_data.domains.industrial.vocab import product_constant_names
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 TYPES = sorted(grouped.VARIANTS)
@@ -64,7 +65,10 @@ _SIZE_AXES = {
     "end_mill_square": "Milling Dia.",
     "end_mill_ball": "Milling Dia.",
     "drill_jobber": "Size",
+    "hex_key": "Size",
 }
+#: The types whose runs had to be shaped to fit their spec space (#770).
+_SPEC_BOUND = ("hex_key", "nut_hex", "tap_spiral_point")
 
 
 def _size_pool(key: str, axis: str, added, *, metric: bool) -> list[float]:
@@ -201,6 +205,7 @@ def test_the_pass_stops_at_the_types_budget(key, large_flat, large, monkeypatch)
     after = sum(len(line.children) for line in _own(large, key))
     assert 0.8 <= after / before <= 1.35, (key, before, after)
     monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
+    monkeypatch.setattr(grouped, "SPEC_BOUND_SCALE", grouped.SPEC_BOUND_SCALE / 2)
     config = replace(GeneratorConfig(), lines=RUN_LINES)
     halved = sum(len(line.children) for line in generate(config, types=[key]).lines)
     assert halved < after * 0.65, (key, after, halved)
@@ -229,10 +234,119 @@ def test_a_large_build_keeps_its_share_above_the_floor():
     assert grouped.flat_products(grouped.RUN_BUILD_LINES, 20) == 20
 
 
+def test_a_spec_bound_types_share_is_of_the_products_it_keeps():
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 12000, 4000) == 400
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES - 1, 12000, 4000) == 12000
+
+
+@pytest.fixture(scope="module")
+def spec_bound():
+    """Type -> its flat lines, its lines, and the SKUs its run lines drafted and kept."""
+    tally = {key: [0, 0] for key in _SPEC_BOUND}
+    own_finish = Generator._finish_line
+
+    def counting(self, type_key, draft, index):
+        in_run, drafted = self.in_run, len(draft.children)
+        line = own_finish(self, type_key, draft, index)
+        if in_run:
+            tally[type_key][0] += drafted
+            tally[type_key][1] += len(line.children) if line is not None else 0
+        return line
+
+    config = replace(GeneratorConfig(), lines=RUN_LINES)
+    flat_config = replace(config, grouped=False)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(Generator, "_finish_line", counting)
+        return {
+            key: (
+                generate(flat_config, types=[key]).lines,
+                generate(config, types=[key]).lines,
+                tally[key],
+            )
+            for key in _SPEC_BOUND
+        }
+
+
+@pytest.mark.parametrize("key", _SPEC_BOUND)
+def test_a_spec_bound_type_has_a_run_shape(key, spec_bound):
+    """Issue #770: the type's products hold a run, it stays a mixture, and its SKUs move."""
+    flat_lines, lines, _ = spec_bound[key]
+    sizes = [len(line.children) for line in lines]
+    assert sum(size >= 6 for size in sizes) / len(sizes) > 0.5, key
+    assert sum(size == 1 for size in sizes) / len(sizes) >= 0.05, key
+    before = sum(len(line.children) for line in flat_lines)
+    assert 0.9 <= sum(sizes) / before <= 1.1, (key, before, sum(sizes))
+
+
+@pytest.mark.parametrize("key", _SPEC_BOUND)
+def test_a_spec_bound_run_line_keeps_its_skus(key, spec_bound):
+    """Issue #770: the rejection takes at most a fifth of what the run lines draft."""
+    drafted, kept = spec_bound[key][2]
+    assert drafted and kept / drafted >= 0.8, (key, drafted, kept)
+
+
+@pytest.mark.parametrize("key", _SPEC_BOUND)
+def test_a_spec_bound_run_line_states_its_whole_line(key, spec_bound):
+    """A SKU of a line missing an attribute differs only by a drop from the same SKU of every
+    line with a value there, and the rejection takes it."""
+    flat_lines, lines, _ = spec_bound[key]
+    flat_ids = {line.product_id for line in flat_lines}
+    runs = [line for line in lines if line.product_id not in flat_ids and len(line.children) >= 6]
+    assert runs
+    assert all({"Material", "Finish"} <= {a.name for a in line.attributes} for line in runs)
+
+
+@pytest.mark.parametrize("key", ("nut_hex", "tap_spiral_point"))
+def test_a_threaded_run_walks_its_table_in_order(key, spec_bound):
+    """A window of a thread table never wraps from 1" back to #6, and no shuffle scatters it."""
+    tables = {
+        "tap_spiral_point": {
+            "UNC": series.TAP_SIZES_UNC,
+            "UNF": series.TAP_SIZES_UNF,
+            "Metric Coarse": series.TAP_SIZES_METRIC,
+        },
+        "nut_hex": {"UNC": newtypes._NUT_UNC, "Metric Coarse": newtypes._NUT_METRIC},
+    }[key]
+    flat_lines, lines, _ = spec_bound[key]
+    flat_ids = {line.product_id for line in flat_lines}
+    runs = [line for line in lines if line.product_id not in flat_ids and len(line.children) >= 6]
+    assert runs
+    for line in runs:
+        kind = next(a.value for a in line.attributes if a.name == "Thread Type")
+        order = [row[0] for row in tables[kind]]
+        places = [
+            order.index(a.value)
+            for child in line.children
+            for a in child.attributes
+            if a.name == "Thread Size" and a.value in order
+        ]
+        assert places == sorted(places), line.product_id
+
+
+def test_a_run_line_of_too_few_sizes_stays_flat():
+    """Issue #770: a fine thread's table holds five sizes, so a line off it is no run."""
+    assert not grouped.keeps_run("nut_hex", 5, 5)
+    assert grouped.keeps_run("nut_hex", 6, 6)
+
+
+def test_a_run_line_that_would_lose_its_skus_is_redrawn():
+    assert not grouped.keeps_run("hex_key", 7, 10)
+    assert grouped.keeps_run("hex_key", 8, 10)
+
+
+def test_a_bearing_line_is_no_run():
+    """Issue #770: a bearing number is the product and its closures its SKUs, three at most,
+    so bearings stay on the knob. A run of numbers needs the number to be a SKU value."""
+    assert "bearing_radial_ball" not in grouped.VARIANTS
+    assert len(newtypes._CLOSURES) < min(count for count, _ in grouped.RUN)
+    assert "Bearing Number" in product_constant_names("bearing_radial_ball")
+
+
 def test_a_type_with_no_table_builds_flat_alone():
     """A type outside the table keeps every product: the pass moves nothing there."""
-    plain = generate(GeneratorConfig(), types=["hex_key"]).lines
-    assert plain == generate(replace(GeneratorConfig(), grouped=False), types=["hex_key"]).lines
+    key = "bearing_radial_ball"
+    plain = generate(GeneratorConfig(), types=[key]).lines
+    assert plain == generate(replace(GeneratorConfig(), grouped=False), types=[key]).lines
 
 
 def test_a_product_title_names_no_sku_value(full):

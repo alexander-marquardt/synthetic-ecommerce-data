@@ -124,9 +124,10 @@ def test_the_skus_per_product_follow_the_knob(catalog: Catalog) -> None:
 
 def test_a_type_that_leaves_the_knob_reds() -> None:
     config = GeneratorConfig()
-    too_many = {"nut_hex": {"products": 100, "median": 1, "max": 6, "histogram": {6: 100}}}
+    key = "bearing_radial_ball"
+    too_many = {key: {"products": 100, "median": 1, "max": 6, "histogram": {6: 100}}}
     assert distribution_problems(too_many, config)
-    too_fat = {"nut_hex": {"products": 100, "median": 4, "max": 5, "histogram": {4: 100}}}
+    too_fat = {key: {"products": 100, "median": 4, "max": 5, "histogram": {4: 100}}}
     assert distribution_problems(too_fat, config)
     one_row = {"threaded_rod": {"products": 1, "median": 3, "max": 3, "histogram": {3: 1}}}
     assert distribution_problems(one_row, config) == []
