@@ -42,16 +42,16 @@ REAL_FLOORS = {
 SLEEVE_TYPES = ("Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket")
 MATERIAL_WORDS = ("wool", "linen", "leather", "silk", "cashmere", "down", "fur", "suede",
                   "denim", "flannel", "cotton")
-#: The product types that carry decoys, and the five-plus-two classes each carries.
+#: The product types that carry decoys, and the classes each carries: no class 3, as no men's
+#: title borrows a women's or kids' word (decoy_apparel_words.AUDIENCE_TYPES, #783).
 TYPES = ("Mens Trousers", "Shirt", "Polo Shirt", "Coat", "Jacket", "Suit Jacket", "Boxers", "Socks",
          "Suit Trousers", "Waistcoat", "Dinner Suit", "Formal Accessories")
-CLASSES = (1, 2, 3, 4, 5, 6, 7)
+CLASSES = (1, 2, 4, 5, 6, 7)
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 #: The invented brands of class 7: each holds a color or category word.
 BRANDS = ("Black Curlew", "Yellow Plover", "Jacket Wren")
 #: Other categories' nouns a class-2 title may borrow.
 CATEGORY_NOUNS = ("dress", "jumper", "coat", "blazer", "shirt", "trouser", "sock", "boot", "boxer")
-AUDIENCE_WORDS = ("women", "boyfriend", "kids", "boys", "girls", "mini-me")
 NEAR_WHITE = ("ivory", "cream", "off white")
 
 
@@ -125,6 +125,11 @@ def test_each_type_has_three_decoys_of_each_class(ptype, klass):
     assert n >= 3
 
 
+def test_no_type_carries_an_audience_decoy():
+    """#783: "Mens Boyfriend Fit Chinos" and "Mens Mini-Me Tie" are names no shopper meets."""
+    assert not [d.code for d in mens_depth_rows.TABLE if d.klass == 3]
+
+
 def test_a_decoy_is_a_product_of_its_type_and_true_in_its_fields(decoys):
     assert decoys
     for d, rec in decoys:
@@ -175,7 +180,7 @@ def test_class_6_sits_in_a_short_title_and_names_its_range(decoys):
             assert "range" in rec["description"].lower(), d.code
 
 
-def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(decoys):
+def test_class_2_borrows_another_categorys_noun(decoys):
     own = {"Mens Trousers": "chinos", "Shirt": "shirt", "Polo Shirt": "polo", "Coat": "coat",
            "Jacket": "jacket", "Suit Jacket": "blazer", "Boxers": "boxers", "Socks": "socks",
            "Suit Trousers": "suit trousers", "Waistcoat": "waistcoat", "Dinner Suit": "dinner suit",
@@ -185,9 +190,6 @@ def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(dec
         if d.klass == 2:
             assert d.word in CATEGORY_NOUNS and d.word in t, d.code
             assert d.word not in own[d.ptype], d.code
-        if d.klass == 3:
-            assert any(w in t for w in AUDIENCE_WORDS), d.code
-            assert rec["category_path"][0] == "Mens", d.code
 
 
 def test_class_4_names_a_feature_the_material_lacks(decoys):

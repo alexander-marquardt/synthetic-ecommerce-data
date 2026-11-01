@@ -23,6 +23,7 @@ from synthetic_ecommerce_data.domains.retail import (
     main_colors,
     scale,
 )
+from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import AUDIENCE_TYPES
 
 #: root -> (floor of distinct knitwear products, floor without decoys), from the issue.
 FLOORS = {"Womens": (150, 120), "Mens": (100, 80)}
@@ -41,7 +42,6 @@ MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 NEAR_WHITE = ("cream", "ivory", "off white", "ecru")
 BRANDS = ("White Heron", "Red Kite", "Cardigan Finch")
 CATEGORY_NOUNS = ("dress", "coat", "trouser", "shirt", "sock", "blazer", "skirt", "boot")
-AUDIENCE_WORDS = ("women", "men", "boyfriend", "kids", "boys", "girls", "mini-me")
 #: Necklines the knitwear carries (the existing facet's words, plus v-neck).
 NECKLINES = {"crew", "v-neck", "high", "boat", "collared", "round", "cowl"}
 
@@ -149,9 +149,14 @@ def test_every_row_is_unique_and_a_template(templates):
 @pytest.mark.parametrize("ptype", TYPES)
 @pytest.mark.parametrize("klass", CLASSES)
 def test_each_type_has_three_decoys_of_each_class_per_audience(root, ptype, klass):
+    """Class 3 sits only where AUDIENCE_TYPES holds the type in that department (#783)."""
     n = sum(1 for d in knitwear_rows.TABLE
             if d.ptype == ptype and d.klass == klass and d.root == root)
-    assert n >= 3
+    a = AUDIENCE_TYPES.get(ptype)
+    if klass == 3 and not (a and a.root == root):
+        assert n == 0, (root, ptype, n)
+    else:
+        assert n >= 3, (root, ptype, klass, n)
 
 
 def test_a_decoy_is_a_product_of_its_type_and_true_in_its_fields(decoys):
@@ -172,14 +177,21 @@ def test_class_1_names_a_trim_color_that_is_not_the_color(decoys):
             assert d.color.lower() in rec["title"].lower(), d.code
 
 
-def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_word(decoys):
+def test_class_2_borrows_another_categorys_noun_and_class_3_an_audience_phrase(decoys):
+    """Class 3 is the table's phrase in the title ("Womens Navy Boyfriend Jumper"), the sibling
+    audience in the description only, and a relaxed fit (#783)."""
     assert decoys
     for d, rec in decoys:
         t = rec["title"].lower()
         if d.klass == 2:
             assert d.word in CATEGORY_NOUNS and d.word in t, d.code
         if d.klass == 3:
-            assert any(w in t for w in AUDIENCE_WORDS), d.code
+            a = AUDIENCE_TYPES[d.ptype]
+            assert a.root == d.root and a.phrase.lower() in t, d.code
+            assert d.word == a.word and d.query == f"{a.word} {d.ptype.lower()}", d.code
+            assert re.search(rf"\b{a.word}\b", rec["description"]), d.code
+            assert not re.search(rf"\b{a.word}\b", t), d.code
+            assert _attr(rec, "fit") == "Relaxed", d.code
 
 
 def test_class_4_names_a_feature_the_material_lacks(decoys):

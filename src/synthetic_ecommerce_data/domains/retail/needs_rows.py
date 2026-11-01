@@ -14,9 +14,10 @@ Each product states ``waist_type`` Elastic, the one name the joggers and the sho
 for it, and is drawn with the gathered band (``waist="elasticated"``), so the picture, the title
 and the attribute say the same.
 
-**Text-match decoys (gen#294).** Three decoys of each of the seven classes. Classes 1 to 3 and 5
-to 7 are elasticated-waist trousers whose title or description misleads on another word (a color
-in a trim, a borrowed noun, an audience word, a fancy name, a range name, a brand). Class 4 is the
+**Text-match decoys (gen#294).** Three decoys of each of six classes: as in the Mens depth there
+is no class 3 audience word (#783). Classes 1, 2 and 5 to 7 are elasticated-waist trousers whose
+title or description misleads on another word (a color in a trim, a borrowed noun, a fancy name, a
+range name, a brand). Class 4 is the
 word "elasticated" on a product whose waist is NOT elastic: "Elasticated Cuff Cargo Trousers" has a
 belted waist, so the "garment attribute treated as keyword" class has the near miss it needs.
 

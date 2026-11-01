@@ -335,7 +335,8 @@ DECOY_IDS = (decoy_rows.IDS | decoy_apparel.IDS | garden_rows.decoy_ids()
 
 
 # The class-8 product-word decoys (gen#326) name a detail color on purpose in some rows only:
-# those rows join the exemption, by id, and the rest of the class is checked like any product.
+# those rows join the exemption, by id, and the rest of the class is checked like any product;
+# so do the knitwear audience decoys, which name the sibling audience (#783).
 # Every registered type's text-match decoys, of every department, join by registering
 # (:func:`type_registry.text_match_decoy_ids`, gen#452); an id no spec owns is declared with its
 # reason in :data:`type_registry.ONE_OFF_TEXT_EXEMPT`. :func:`exempt_problems` finds a stale one.
@@ -344,6 +345,7 @@ def text_exempt() -> frozenset[str]:
     return (
         DECOY_IDS
         | decoy_product_words.TEXT_EXEMPT
+        | knitwear_rows.TEXT_EXEMPT
         | type_registry.text_match_decoy_ids()
         | frozenset(type_registry.ONE_OFF_TEXT_EXEMPT)
     )

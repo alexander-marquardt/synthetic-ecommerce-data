@@ -24,14 +24,16 @@ adds the missing main colors. Each product carries its neckline (the existing fa
 plus ``v-neck``) and a ``knit_style`` attribute.
 
 **Text-match decoys (gen#294, maintainer ruling 2026-10-14).** Every product type and audience
-carries at least three decoys of each of seven classes: a title whose words mislead a text
+carries at least three decoys of each of seven classes (class 3 on its table's types only): a title whose words mislead a text
 search while the structured fields stay true. :data:`TABLE` lists each one with its class, the
 query it targets and the policy that repairs it; ``tests/test_retail_knitwear_309.py`` pins the
 three per class per type and their truth.
 
 1. **color**: "Womens Navy Jumper with Red Stripes" is navy.
 2. **category word**: "Womens Dress Length Cardigan".
-3. **audience word**: "Mens Women's-Style Cut Jumper".
+3. **audience word**: "Womens Navy Boyfriend Jumper", whose description names the mens jumper.
+   Only the types and the department that ``decoy_apparel_words.AUDIENCE_TYPES`` holds carry it
+   (#783): the Womens jumper and cardigan. The Mens types and the knitted top have none.
 4. **feature absent**: "Womens Alpaca-Feel Jumper" has no alpaca.
 5. **shade in the description only**: "Womens Moonbeam Jumper" is Ivory.
 6. **incidental word in a short title** (a range name): "Womens Kettle Hill Jumper" is not a kettle.
@@ -53,6 +55,10 @@ from dataclasses import dataclass
 from synthetic_ecommerce_data.domains.retail import named_parts
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
+from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import (
+    AUDIENCE_COPY,
+    AUDIENCE_TYPES,
+)
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
 from synthetic_ecommerce_data.domains.retail.main_colors import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.place_ranges import place_range
@@ -268,10 +274,6 @@ _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Oatmeal")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Ecru", "Off White")
-_AUDIENCE = {
-    "Womens": ("Boyfriend Fit", "Menswear-Style Cut", "Mini-Me Kids' Style"),
-    "Mens": ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style"),
-}  # fmt: skip
 _BORROW = {  # (the noun a title borrows, the modifier phrase), three per type
     _JUMP: (("shirt", "Shirt Collar"), ("coat", "Coat Length"), ("blazer", "Blazer Style")),
     _CARDI: (("coat", "Coat Style"), ("dress", "Dress Length"), ("skirt", "Skirt Hem")),
@@ -303,11 +305,11 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
             kk = k + 3 * r_i
 
             def add(klass, i, title, desc, true, word, query, policy="generic", tag=tag,
-                    st=st, ptype=ptype, root=root, extra=(), brand=None):  # noqa: PLR0913
+                    st=st, ptype=ptype, root=root, extra=(), brand=None, fit="Regular"):  # noqa: PLR0913
                 code = f"KD{tag}{klass}{i}"
                 brand = brand or (word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)])
                 rows.append(_row(code, title, brand, root, st, desc, (_col(true),),
-                                 "Acrylic blend", "Regular", price=round(22.0 + 1.5 * i + klass, 2),
+                                 "Acrylic blend", fit, price=round(22.0 + 1.5 * i + klass, 2),
                                  extra=extra))
                 table.append(Decoy(code, root, ptype, klass, word, true, query, policy))
 
@@ -326,17 +328,15 @@ def _decoys() -> tuple[list[LRow], list[Decoy]]:
                 add(2, i, f"{root} {mod} {noun}",
                     f"A {low} named for its {b} detail; it is not a {b}.",
                     _TRUE[(kk + i + 1) % 6], b, f"{b} {low}")  # fmt: skip
-                # 3: an audience word that names a sibling cut.
-                a = _AUDIENCE[root][i]
-                who = root.lower().rstrip("s")
-                if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
-                    add(3, i, f"{root} Mini-Me {noun}, Kids' Version Sold Separately",
-                        f"A {who}'s {low} with a matching kids' version, sold in {who}'s sizes.",
-                        _TRUE[(kk + i + 2) % 6], "Mini-Me", f"mini-me {low}")  # fmt: skip
-                else:
-                    add(3, i, f"{root} {a} {noun}",
-                        f"A {who}'s {low} in the {a.lower()}, sold in {who}'s sizes.",
-                        _TRUE[(kk + i + 2) % 6], a, f"{a.split()[0].lower()} {low}")  # fmt: skip
+                # 3: an audience phrase real titles use, only where decoy_apparel_words.
+                # AUDIENCE_TYPES holds the type in this department (#783): the Womens jumper and
+                # cardigan are Boyfriend; Mens and the knitted top hold none.
+                a = AUDIENCE_TYPES.get(ptype)
+                if a and a.root == root:
+                    c = _TRUE[(kk + i + 2) % 6]
+                    add(3, i, f"{root} {c} {a.phrase} {noun}",
+                        AUDIENCE_COPY[a.root, a.phrase].format(c=c, n=low, word=a.word), c,
+                        a.word, f"{a.word} {low}", fit="Relaxed")  # fmt: skip
                 # 4: a material or feature named, and absent.
                 f = _ABSENT[ptype][i]
                 add(4, i, f"{root} {f} {noun}",
@@ -382,6 +382,12 @@ def docs() -> list[dict]:
 def decoy_ids() -> frozenset[str]:
     """The decoys' product ids: ``main_colors.complete`` leaves them as authored."""
     return frozenset(f"BRD-{d.code}" for d in TABLE)
+
+
+#: The audience decoys, whose description names the sibling audience ("the cut of our mens
+#: jumper") on a Womens product: left out of the standard's text-agrees check, as the
+#: ``decoy_apparel`` ones are (#783).
+TEXT_EXEMPT = frozenset(f"BRD-{d.code}" for d in TABLE if d.klass == 3)
 
 
 def product_ids() -> frozenset[str]:

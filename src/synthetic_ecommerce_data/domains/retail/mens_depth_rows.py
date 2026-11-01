@@ -24,7 +24,7 @@ Relaxed Fit Shirt"), and each product carries its fit, material and, where it ap
 sleeve length.
 
 **Text-match decoys (gen#294, maintainer ruling 2026-10-14).** Every product type this module
-adds carries at least three decoys of each of the seven classes: a title whose words mislead a
+adds carries at least three decoys of each of the seven classes but class 3: a title whose words mislead a
 text search while the structured fields stay true. :data:`TABLE` lists each one with its class,
 the query it targets and the policy that repairs it; ``tests/test_retail_mens_depth_310.py`` pins
 the three per class per type and their truth. (gen PR #306 holds the shared ``decoy_rows.TABLE``;
@@ -32,7 +32,8 @@ until it merges these rows are registered here, and move to it afterwards.)
 
 1. **color**: "Mens White Chinos with Red Stripes" is white.
 2. **category word**: "Mens Dress Shirt", "Mens Jumper Knit Polo Shirt".
-3. **audience word**: "Mens Boyfriend Fit Chinos".
+3. **audience word**: none. ``decoy_apparel_words.AUDIENCE_TYPES`` holds no Mens type, because
+   no men's title borrows a women's or kids' word (#783).
 4. **feature absent**: "Mens Wool-Free Coat" has no wool.
 5. **shade in the description only**: "Mens Moonbeam Chinos" are Ivory.
 6. **incidental word in a short title** (a range name): "Mens Kettle Hill Chinos" are not kettles.
@@ -616,8 +617,6 @@ _MAIN_WORDS = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 _TRUE = ("White", "Black", "Navy", "Grey", "Stone", "Khaki")
 _FANCY = ("Moonbeam", "Candlelight", "Moss Lantern", "Morning Mist", "Sandcastle", "Soft Dune")
 _SHADES = ("Ivory", "Cream", "Off White")
-_MENS = "men's"
-_AUDIENCE = ("Women's-Style Cut", "Boyfriend Fit", "Mini-Me Kids' Style")
 _BRAND_TRUE = {"Black Curlew": "White", "Yellow Plover": "Navy", "Jacket Wren": "Grey"}
 _BRAND_QUERY = {"Black Curlew": "black", "Yellow Plover": "yellow", "Jacket Wren": "jacket"}
 
@@ -680,16 +679,8 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
                 f"{_np('', noun)} named for {'their' if _plural(noun) else 'its'} {b} detail; "
                 f"{'they are' if _plural(noun) else 'it is'} not a {b}.",
                 _TRUE[(k + i + 1) % 6], b, f"{b} {noun.lower()}")  # fmt: skip
-            # 3: an audience word that names a sibling cut.
-            a = _AUDIENCE[i]
-            if a == "Mini-Me Kids' Style":  # a real listing says what it matches, not "Kids' Style"
-                add(3, i, f"Mens Mini-Me {noun}, Kids' Version Sold Separately",
-                    f"{_np(_MENS, noun)} with a matching kids' version, sold in men's sizes.",
-                    _TRUE[(k + i + 2) % 6], "Mini-Me", f"mini-me {noun.lower()}")  # fmt: skip
-            else:
-                add(3, i, f"Mens {a} {noun}",
-                    f"{_np(_MENS, noun)} in the {a.lower()}, sold in men's sizes.",
-                    _TRUE[(k + i + 2) % 6], a, f"{a.split()[0].lower()} {noun.lower()}")  # fmt: skip
+            # 3 (an audience word) is left out: decoy_apparel_words.AUDIENCE_TYPES holds no Mens
+            # type, as no men's title borrows a women's or kids' word (#783).
             # 4: a material or feature named, and absent.
             f = kind.absent[i]
             n4 = kind.absent_noun or noun

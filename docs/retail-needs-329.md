@@ -27,14 +27,14 @@ leaf offers the six main colors.
 
 ## Text-match decoys (gen#294)
 
-Three decoys of each of the seven classes. Classes 1 to 3 and 5 to 7 are elasticated-waist
+Three decoys of each of six classes: as in the Mens depth, no class 3 audience word (#783).
+Classes 1, 2 and 5 to 7 are elasticated-waist
 trousers whose title or description misleads on another word; the structured fields stay true.
 
 | Class | Decoy | Example |
 |---|---|---|
 | 1 color | a trim names another color | "Mens White Elasticated Trousers with Red Waistband" is white |
 | 2 category word | another category's noun as a modifier | "Mens Shirt Collar Elasticated Trousers" |
-| 3 audience word | a sibling cut | "Mens Boyfriend Fit Elasticated Trousers" |
 | 4 feature absent | the word "elasticated" on a product whose waist is not elastic | "Mens Elasticated Cuff Cargo Trousers" has a belted waist |
 | 5 shade in the description | a fancy title, the shade in the text | "Mens Moonbeam Elasticated Trousers" are Ivory |
 | 6 incidental word | a range name, carried as a `range` attribute | "Mens Kettle Hill Elasticated Trousers" are not kettles; a range is a place, never a color (#446) |
@@ -69,4 +69,5 @@ per form (drum, empire, tapered, scalloped, pleated). They stay derivable like e
 ## Adding the next type
 
 Add a `Kind` and a `Leaf` to `needs_rows.py` and the decoys follow from the kind. A type outside
-Mens needs `mens_depth_rows._decoys` to take its audience word (the titles say "Mens" today).
+Mens needs `mens_depth_rows._decoys` to take its department word (the titles say "Mens" today),
+and its class 3 from `decoy_apparel_words.AUDIENCE_TYPES`.
