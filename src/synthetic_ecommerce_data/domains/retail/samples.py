@@ -15,6 +15,7 @@ audience). Round 2's records live in ``samples_round2``.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail.kit_produce import pile_params
 
 #: The closed list a record's ``department`` values come from.
@@ -67,28 +68,16 @@ def garment(**values: str) -> list[dict]:
 # Size charts: one row per size, (UK, EU, US)
 # --------------------------------------------------------------------------
 
-WOMENS = [
-    (str(uk), str(uk + 28), str(uk - 4)) for uk in range(6, 21, 2)
-]  # UK 6-20 / EU 34-48 / US 2-16
-SHOES = [
-    ("3", "36", "5"),
-    ("4", "37", "6"),
-    ("5", "38", "7"),
-    ("6", "39", "8"),
-    ("7", "40", "9"),
-    ("8", "42", "10"),
+#: Core's charts (:mod:`synthetic_ecommerce_data.core.size_charts`), as the runs these
+#: samples are cut in.
+WOMENS = [size_charts.WOMENS[uk] for uk in range(6, 21, 2)]  # UK 6-20 / EU 34-48 / US 2-16
+SHOES = [size_charts.WOMENS_SHOES[str(uk)] for uk in range(3, 9)]
+LETTER = list(size_charts.LETTER.values())
+BRA = [
+    size_charts.BRAS[f"{band}{cup}"]
+    for band in (30, 32, 34, 36, 38, 40)
+    for cup in ("A", "B", "C", "D", "DD", "E")
 ]
-LETTER = [(s, s, s) for s in ("XS", "S", "M", "L", "XL", "XXL")]
-_BAND = {30: 65, 32: 70, 34: 75, 36: 80, 38: 85, 40: 90}
-_CUP = {
-    "A": ("A", "A"),
-    "B": ("B", "B"),
-    "C": ("C", "C"),
-    "D": ("D", "D"),
-    "DD": ("E", "DD"),
-    "E": ("F", "DDD"),
-}
-BRA = [(f"{b}{c}", f"{_BAND[b]}{eu}", f"{b}{us}") for b in _BAND for c, (eu, us) in _CUP.items()]
 
 
 def sizes(

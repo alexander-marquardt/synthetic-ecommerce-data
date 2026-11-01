@@ -27,6 +27,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail.colorwords import plain
 from synthetic_ecommerce_data.domains.retail.departments import check as check_departments
 from synthetic_ecommerce_data.domains.retail.stable_ids import check_skus, sku_id
@@ -161,12 +162,10 @@ WASHES = {
     "White": "#ffffff",
 }
 
-#: UK dress size -> (UK, EU, US); UK 4-26.
-WOMENS_WAIST = {uk: (str(uk), str(uk + 28), str(uk - 4)) for uk in range(4, 27, 2)}
-#: Waist in inches -> (UK, EU, US); W28-42, odd waists to 33.
-MENS_WAIST = {
-    w: (str(w), str(w + 16), str(w)) for w in (28, 29, 30, 31, 32, 33, 34, 36, 38, 40, 42)
-}
+#: UK dress size -> (UK, EU, US); UK 4-26: core's women's chart.
+WOMENS_WAIST = size_charts.WOMENS
+#: Waist in inches -> (UK, EU, US); W28-42, odd waists to 33: core's men's waist chart.
+MENS_WAIST = size_charts.MENS_WAIST
 
 #: Leg length -> inside leg in inches.
 WOMENS_LEGS = {"Petite": 28, "Regular": 30, "Long": 32, "Extra Long": 34}
@@ -312,29 +311,11 @@ JEANS = (
 # Bras: band x cup, valid combinations only
 # ==========================================================================
 
-BANDS = (28, 30, 32, 34, 36, 38, 40, 42, 44, 46)
-#: UK cup, then its EU and US names (one row per cup, so the systems never disagree).
-CUPS = (
-    ("AA", "AA", "AA"),
-    ("A", "A", "A"),
-    ("B", "B", "B"),
-    ("C", "C", "C"),
-    ("D", "D", "D"),
-    ("DD", "E", "DD"),
-    ("E", "F", "DDD"),
-    ("F", "G", "G"),
-    ("FF", "H", "H"),
-    ("G", "I", "I"),
-    ("GG", "J", "J"),
-    ("H", "K", "K"),
-    ("HH", "L", "L"),
-    ("J", "M", "M"),
-)
+#: The bands and cups of core's bra chart (:data:`.size_charts.BRAS`): UK cup, then its EU and
+#: US names. Which band x cup pairs a bra is cut in is :data:`BRA_RULES`.
+BANDS = size_charts.BRA_BANDS
+CUPS = size_charts.BRA_CUPS
 UK_CUPS = tuple(c[0] for c in CUPS)
-
-
-def eu_band(band: int) -> int:
-    return 60 + (band - 28) // 2 * 5
 
 
 def _cup(c: str) -> int:
@@ -383,10 +364,10 @@ class BraStyle:
     def size_rows(self) -> list[tuple[str, str, str]]:
         lo, hi = _cup(self.cups[0]), _cup(self.cups[1])
         return [
-            (f"{b}{uk}", f"{eu_band(b)}{eu}", f"{b}{us}")
+            size_charts.BRAS[f"{b}{uk}"]
             for b in BANDS
             if self.bands[0] <= b <= self.bands[1]
-            for uk, eu, us in CUPS[lo : hi + 1]
+            for uk, _, _ in CUPS[lo : hi + 1]
             if bra_size_valid(b, uk)
         ]
 
@@ -457,17 +438,8 @@ BRAS = (
 # Shallow rows: one hand list per row
 # ==========================================================================
 
-#: Bed and pillow sizes -> (UK, EU, US).
-BED = {
-    "Single": ("Single", "90 x 200 cm", "Twin"),
-    "Small Double": ("Small Double", "120 x 190 cm", "Three Quarter"),
-    "Double": ("Double", "140 x 200 cm", "Full"),
-    "King": ("King", "150 x 200 cm", "Queen"),
-    "Super King": ("Super King", "180 x 200 cm", "King"),
-    "Standard Pillow": ("Standard", "50 x 75 cm", "Standard"),
-    "King Pillow": ("King", "50 x 90 cm", "King"),
-    "Square Pillow": ("Square", "65 x 65 cm", "Euro"),
-}
+#: Bed and pillow sizes -> (UK, EU, US): core's bedding chart.
+BED = size_charts.BEDDING
 BEDS = ("Single", "Double", "King", "Super King")
 PILLOWS = ("Standard Pillow", "King Pillow", "Square Pillow")
 
