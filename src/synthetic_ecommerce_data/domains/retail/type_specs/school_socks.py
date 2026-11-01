@@ -29,6 +29,7 @@ from synthetic_ecommerce_data.domains.retail.size_ladder import SOCK_BANDS
 from synthetic_ecommerce_data.domains.retail.type_registry import (
     BRAND_OWNER,
     ApparelPlan,
+    Option,
     Row,
     TypeSpec,
 )
@@ -46,7 +47,8 @@ def _sock(code, title, brand, style, fabric, pack, price, desc, colors) -> Row:
     return Row(code, title, brand, DEPARTMENT, _SOCKS, "School Socks", price, "school_socks", desc,
                colors, (_a("sock_style", "Sock style", style), _a("fabric", "Fabric", fabric),
                         _a("pack_size", "Pack size", _pack(pack))),
-               sizes, audience="kids", params=(("height", _HEIGHT[style]),))  # fmt: skip
+               sizes, audience="kids", size_key="shoe_size_band",
+               params=(("height", _HEIGHT[style]),))  # fmt: skip
 
 
 SPEC = TypeSpec(
@@ -54,6 +56,7 @@ SPEC = TypeSpec(
     department="Clothing",
     product_type="School Socks",
     owners=tuple((b, BRAND_OWNER[b]) for b in _BRANDS),
+    options=(Option("shoe_size_band", "shoe_size_band", "Shoe size band"),),
     rows=(
         _sock("SCSAN5", "Ankle School Socks, 5 Pack", LF, "Ankle", "Cotton", 5, 6.0,
               "Five pairs of ankle school socks with a ribbed cuff.", (WHITE, GREY, BLACK, NAVY)),
