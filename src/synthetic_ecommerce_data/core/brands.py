@@ -27,9 +27,9 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_FAMILY
+from synthetic_ecommerce_data.core import domain
 
-#: The product families a brand can make, as ``vocab.STANDARDS_FAMILY`` names them.
+#: The product families a brand can make, as a domain's ``brand_families`` names them.
 FAMILIES: tuple[str, ...] = ("cutting_tool", "fastener", "abrasive", "hand_tool", "motion")
 ALL = frozenset(FAMILIES)
 
@@ -150,7 +150,7 @@ class Brand:
     texture: int = 0
 
     def makes(self, type_key: str) -> bool:
-        return STANDARDS_FAMILY[type_key] in self.families
+        return domain.brand_family(type_key) in self.families
 
 
 def _b(name, code, weight, families, ink, frame, brand_first, descriptive):

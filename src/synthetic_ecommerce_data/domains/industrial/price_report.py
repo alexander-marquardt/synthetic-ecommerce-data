@@ -60,7 +60,7 @@ from dataclasses import dataclass, field, replace
 from statistics import NormalDist
 from typing import TYPE_CHECKING
 
-from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core import brands, domain
 from synthetic_ecommerce_data.core.price import (
     BORROWS,
     BRAND_CENSUS,
@@ -470,7 +470,7 @@ def tier_order(collected: Collected, prices: Mapping[str, float]) -> dict[str, t
         if "standard" not in by_tier:
             continue
         standard = statistics.median(by_tier["standard"])
-        economy, premium = ratios[brands.STANDARDS_FAMILY[type_key]]
+        economy, premium = ratios[domain.brand_family(type_key)]
         if "economy" in by_tier:
             economy.append(statistics.median(by_tier["economy"]) / standard)
         if "premium" in by_tier:

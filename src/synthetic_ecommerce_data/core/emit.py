@@ -36,6 +36,7 @@ from typing import Any
 
 from synthetic_ecommerce_data.core import letter_case
 from synthetic_ecommerce_data.core.dimensions import _METRIC_THREAD
+from synthetic_ecommerce_data.core.domain import ImageIdError, product_type_for_image
 from synthetic_ecommerce_data.core.entry import (
     sanitize as sanitize,  # re-exported: tests and readers call emit.sanitize
 )
@@ -43,10 +44,6 @@ from synthetic_ecommerce_data.core.merchandising import SEED as MERCHANDISING_SE
 from synthetic_ecommerce_data.core.merchandising import log_signal, merchandising_score
 from synthetic_ecommerce_data.core.model import Attribute, Catalog, ProductLine, Sku
 from synthetic_ecommerce_data.core.variant_axes import variant_axes
-from synthetic_ecommerce_data.domains.industrial.taxonomy import (
-    ImageIdError,
-    product_type_for_image,
-)
 
 #: Where a record's image is served from: the bundle's folder, as the demo
 #: serves it (elastic/prism#9770, the Studio images mount). Relative, so

@@ -30,6 +30,7 @@ CORE_MODULES = (
     "bundle",
     "config",
     "dimensions",
+    "domain",
     "drawing",
     "drawing.model",
     "drawing.sheet",
@@ -74,16 +75,14 @@ _I = "domains.industrial"
 
 #: ``(core module, what it reaches outside core)``, relative to the package:
 #: the seams the move-only step could not cut without a redesign. Shrinks
-#: only. 18 edges: 16 imports, and 2 module paths named in a string. The
+#: only. 16 edges: 14 imports, and 2 module paths named in a string. The
 #: ``ecom-generate`` command's 3 imports (breadth, generate, measure) and its
 #: prism imports left core with it, to ``generate_cli``.
 CORE_EDGES = frozenset(
     {
-        ("brands", f"{_I}.vocab"),
         ("drawing", f"{_I}.drawing.figures"),
         ("drawing", f"{_I}.geometry.palette"),
         ("drawing.style", f"{_I}.geometry.palette"),
-        ("emit", f"{_I}.taxonomy"),
         ("noise", f"{_I}.compat"),
         ("noise", f"{_I}.conformance"),
         ("noise", f"{_I}.standards"),
