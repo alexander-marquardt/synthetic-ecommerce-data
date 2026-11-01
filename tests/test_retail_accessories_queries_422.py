@@ -34,7 +34,7 @@ QUERIES = {
     "rfid wallet": "Wallet",
     "card holder": "Wallet",
 }
-#: The issue's six product types: the department's growth, and the 161 SKUs it started from.
+#: The issue's six product types, whose SKUs are the department's growth; it started from 161.
 TYPES = ("Belt", "Hat", "Scarf", "Gloves", "Sunglasses", "Wallet")
 GROWTH = 150
 #: Query -> the accessory it must find, and the non-accessories that share its word.

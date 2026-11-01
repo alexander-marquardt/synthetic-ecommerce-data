@@ -25,7 +25,7 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _a,
     _row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 PATH = (*CYCLING, "Bike Bottles")
 
@@ -33,6 +33,7 @@ SPEC = TypeSpec(
     key="bike_bottle",
     department="Sports & Outdoors",
     product_type="Bike Bottle",
+    homes=(Home("decoy_product_words", False),),
     rows=(
         _row("BTLSQZ", "Bicycle Water Bottle", _L, PATH, "Bike Bottle", 8.0, "bike_bottle",
              "A soft squeeze bottle with a push-pull valve and a waist that grips in the bottle cage.",
