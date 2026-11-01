@@ -44,6 +44,7 @@ from synthetic_ecommerce_data.domains.retail import (
     lipstick_looks,
     multi_path,
     pack_copies,
+    pack_looks,
     pack_scale,
     shades,
     size_ladder,
@@ -249,14 +250,15 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     SKU's own value of each drawing param it carries (a lamp's ``finish``, a lampshade's
     ``diameter_cm``: gen#197), the factor its pack is drawn at within its line when it is
     not the line's largest size (``pack_scale``, gen#543), the items its pack draws
-    (``pack_copies``, gen#728), and, for a SKU on its type's size ladder, its
+    (``pack_copies``, gen#728), its line's look where a kind has one (``lipstick_looks``, gen#738,
+    ``pack_looks``, gen#748), and, for a SKU on its type's size ladder, its
     ``size_scale`` (gen#339, gen#719), so each size has its own image. A SKU that carries none
     of these adds nothing, so its image id is what it was."""
     swatch = next((c for c in rec.get("color_options", ()) if c["color"] == sku.get("color")), None)
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
     own |= pack_copies.pile_count(rec, sku)
-    own |= lipstick_looks.params(rec)
+    own |= lipstick_looks.params(rec) | pack_looks.params(rec)
     if own:
         spec["params"] = own
     shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)

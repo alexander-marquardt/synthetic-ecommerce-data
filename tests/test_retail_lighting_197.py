@@ -25,6 +25,7 @@ from synthetic_ecommerce_data.domains.retail import (
     lighting_rows,
     lipstick_looks,
     pack_copies,
+    pack_looks,
     pack_scale,
     scale,
     size_ladder,
@@ -137,7 +138,7 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
         for s in t["skus"]:
             if any(k in s for k in declared) or pack_copies.count(t, s) > 1:
                 continue
-            if lipstick_looks.params(t):
+            if lipstick_looks.params(t) or pack_looks.params(t):
                 continue
             checked += 1
             assert "params" not in export.drawing_spec(t, s), s["sku"]
