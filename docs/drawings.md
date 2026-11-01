@@ -15,6 +15,7 @@ start with `tests/` or `scripts/`.
 
 ```
 SKU record (attribute name -> published string)
+  -> domain.figure(product_type)                 core/domain.py (the registered domains)
   -> FIGURES[product_type]                       domains/industrial/drawing/figures.py
        -> figure function, e.g. fastener()
             -> domains/industrial/geometry/<kind>.geometry_from_record()   (six kinds, see below)
@@ -82,7 +83,10 @@ Step by step:
 
 `FIGURES` in `domains/industrial/drawing/figures.py` maps a product type key to
 `(figure_function, (width_in, height_in))`. The pair is the type's largest
-drawn bounding box, in inches, with a little headroom.
+drawn bounding box, in inches, with a little headroom. Core does not import it:
+`domains/industrial/__init__.py` registers it, and `PACK_TYPES`, with
+`core/domain.py`, and `core/drawing` asks the registry (#128). A second domain
+that draws through core registers its own figures there.
 
 * `_FIGURES` holds eleven of the original twelve types. The screw and bolt
   types go through `_broken(width, height)`, which wraps `fastener()` with the

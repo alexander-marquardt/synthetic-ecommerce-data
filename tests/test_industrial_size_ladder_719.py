@@ -14,9 +14,10 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import bundle, size_rungs
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_product
+from synthetic_ecommerce_data.core.drawing import draw_product
 from synthetic_ecommerce_data.domains.industrial import breadth
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog"
 FACETS = bundle.flat_facets(GOLDEN)

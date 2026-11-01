@@ -33,19 +33,17 @@ import re
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 
-from synthetic_ecommerce_data.core import brands, size_rungs
+from synthetic_ecommerce_data.core import brands, domain, size_rungs
 from synthetic_ecommerce_data.core.drawing import brand_mark
 from synthetic_ecommerce_data.core.drawing.model import fan
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, PACK_TYPES
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
     MATERIAL_ATTRIBUTES,
 )
 
 __all__ = [
-    "FIGURES",
     "draw_product",
     "draw_sku",
     "magnifier",
@@ -227,7 +225,7 @@ def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[
 
 def _figure(product_type: str):
     try:
-        return FIGURES[product_type]
+        return domain.figure(product_type)
     except KeyError as exc:
         raise UnknownTypeError(f"no figure for product type {product_type!r}") from exc
 
@@ -237,7 +235,7 @@ def _pack_count(product_type: str, record: Mapping[str, str]) -> int:
 
     A bolt's ``Units per Pack`` is how its price is quoted, not a variant, and its one drawing
     is the item's (gen#14)."""
-    if product_type not in PACK_TYPES:
+    if not domain.is_pack_type(product_type):
         return 1
     return int(record.get("Units per Pack") or 1)
 
@@ -263,3 +261,10 @@ def _draw(
         scale,
     )
     return data, drawn.source
+
+
+# A domain's figures fill core's drawing slots as they load (its brand marks,
+# :func:`.brand_mark.use_marks`), so every registered domain's figures load with this
+# package: a caller of :func:`.style.house_style` finds the slot filled (#128).
+for _domain in domain.domains():
+    _domain.figures()

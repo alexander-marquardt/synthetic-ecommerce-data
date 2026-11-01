@@ -18,8 +18,8 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import bundle
-from synthetic_ecommerce_data.core.drawing import FIGURES
 from synthetic_ecommerce_data.core.drawing.model import Poly
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 

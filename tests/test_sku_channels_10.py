@@ -37,8 +37,9 @@ import pytest
 
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku
+from synthetic_ecommerce_data.core.drawing import draw_sku
 from synthetic_ecommerce_data.core.drawing.model import Disc, Lines
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, generate
 
 CATALOG = generate(SMALL)
