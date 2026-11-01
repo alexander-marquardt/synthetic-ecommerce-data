@@ -5,6 +5,9 @@ lingerie type ("Brown Mens-Style Bra", "Red Mens-Style School Shoes"). Now
 ``decoy_apparel_words.AUDIENCE_TYPES`` names each type an audience decoy may sit on, with its
 department and its one phrase (Boyfriend, Menswear-Inspired, Mini-Me), and the sibling audience
 moves into the description, where real copy names it. The data is the repository's templates.
+
+The Mens depth (with ``needs_rows``, which builds its decoys there) and the knitwear depth plant
+their own class 3 decoys; they take them from the same table (#783).
 """
 
 from __future__ import annotations
@@ -15,7 +18,12 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 from synthetic_ecommerce_data.domains.retail import decoy_rows as dr
-from synthetic_ecommerce_data.domains.retail import scale
+from synthetic_ecommerce_data.domains.retail import (
+    knitwear_rows,
+    mens_depth_rows,
+    needs_rows,
+    scale,
+)
 from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import AUDIENCE_TYPES
 
 #: A word that names who a garment is for, as a title spells it.
@@ -61,10 +69,24 @@ def rows() -> list[da.Row]:
     return da.build(body)
 
 
+def _depth_decoy_docs() -> list[dict]:
+    """The decoys of the Mens, needs and knitwear depths, Knitted Top included (#783)."""
+    out = []
+    for rows, table in (
+        (mens_depth_rows.ROWS, mens_depth_rows.TABLE),
+        (needs_rows.ROWS, needs_rows.TABLE),
+        ((*knitwear_rows.ROWS, *knitwear_rows.TOP_ROWS), knitwear_rows.TABLE),
+    ):
+        codes = {d.code for d in table}
+        out += [r.doc() for r in rows if r.code in codes]
+    return out
+
+
 @pytest.fixture(scope="module")
 def decoy_docs(rows: list[da.Row]) -> list[dict]:
-    """Every planted decoy's clothing, footwear or lingerie document, from both generators."""
-    return [d for d in [r.doc for r in rows] + dr.docs() if d["category_path"][0] in OWN]
+    """Every planted decoy's clothing, footwear or lingerie document, from every generator."""
+    docs = [r.doc for r in rows] + dr.docs() + _depth_decoy_docs()
+    return [d for d in docs if d["category_path"][0] in OWN]
 
 
 def _strays(doc: dict) -> set[str]:
