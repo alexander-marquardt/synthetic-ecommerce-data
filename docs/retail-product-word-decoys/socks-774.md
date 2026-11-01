@@ -14,7 +14,7 @@ index with the next industrial release the customization pins; the six retail ro
 
 Real socks gain the other half: their titles say how they are made, so a short title no longer wins
 on length alone. `sock_titles.py` holds the detail the generated socks add; the authored rows carry
-theirs in their own title. An apparel decoy of class 1, 2, 6 or 7 stays short, because its class holds
+theirs in their own title. An apparel decoy of class 1, 2, 6 or 7, or a men's decoy of class 6 or 7, stays short, because its class holds
 it to a shape (a named part last, a real compound, a short brand title).
 
 Each decoy sits under no Socks node and declares the category policy, which drops them all when

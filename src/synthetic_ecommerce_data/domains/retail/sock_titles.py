@@ -4,8 +4,8 @@ A retailer's sock title is rarely three words, and a short one is what let the r
 top of a plain match for ``socks``: BM25 favors a short field, and a boot sock's ``text`` already
 says the word three times. The generated socks (the color-word decoys and the men's depth rows)
 take their detail here; the authored rows carry theirs in their own title. An apparel decoy of
-class 1, 2, 6 or 7 keeps the shape its class holds it to (a named part last, a real compound, a
-short brand title): it is a demo row of another query.
+class 1, 2, 6 or 7, or a men's decoy of class 6 or 7, keeps the shape its class holds it to (a
+named part last, a real compound, a short brand title): it is a demo row of another query.
 """
 
 from __future__ import annotations
