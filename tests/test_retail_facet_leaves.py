@@ -524,7 +524,11 @@ def test_a_fibre_a_garment_title_states_is_one_of_its_fabrics(built, docs):
 
 
 def test_the_wool_titled_products_the_review_named_carry_wool(built, docs):
-    want = {"Wool Check Bomber Jacket", "Wool Blend Bomber Jacket", "Wool Walking Socks"}
+    want = {
+        "Wool Check Bomber Jacket",
+        "Wool Blend Bomber Jacket",
+        "Cushioned Wool Walking Socks, Single Pair",
+    }
     pairs = _textile(built, docs)
     seen = {r["title"]: _values(d, "fabric") for r, d in pairs if r["title"] in want}
     assert set(seen) == want

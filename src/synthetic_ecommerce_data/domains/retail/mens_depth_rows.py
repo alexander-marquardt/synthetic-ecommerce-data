@@ -55,6 +55,7 @@ from itertools import product as _product
 from synthetic_ecommerce_data.domains.retail import (
     kit_suits,  # noqa: F401 -- registers suit_jacket, suit_trousers, waistcoat, dinner_suit, formal_accessory
     named_parts,
+    sock_titles,
     type_colors,
     type_registry,
 )
@@ -413,13 +414,13 @@ _LEAVES = (
          "{f} {fit}"),
     Leaf("SK", ("Mens", "Socks", "Ankle Socks"), "Socks", 4,
          ("Cotton Rich", "Bamboo", "Sports Cushioned", "Organic Cotton"), ("",), ("",),
-         "{f} Ankle Socks", palette=_SOCKS),
+         "{f} Ankle Socks, Cushioned Sole", palette=_SOCKS),
     Leaf("SE", ("Mens", "Socks", "Everyday Socks"), "Socks", 4,
          ("Combed Cotton", "Merino Blend", "Ribbed Cotton", "Soft Top"), ("",), ("",),
-         "{f} Everyday Socks", palette=_SOCKS),
+         "{f} Everyday Socks, Cushioned Sole", palette=_SOCKS),
     Leaf("SP", ("Mens", "Socks", "Sports Socks"), "Socks", 4,
          ("Arch Support", "Padded Sole", "Moisture Wicking", "Running"), ("",), ("",),
-         "{f} Sports Socks", palette=_SOCKS),
+         "{f} Sports Socks, Cushioned Sole", palette=_SOCKS),
 )  # fmt: skip
 
 #: leaf path -> its sleeve length: a decoy takes its leaf's.
@@ -633,6 +634,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
                 ptype=ptype, material=None, extra=(), colors=None, brand=None):  # noqa: PLR0913
             code = f"{prefix}{tag}{klass}{i}"
+            title = sock_titles.detailed(title, ptype)
             brand = brand or (word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)])
             attrs = ()
             if kind.fitted:

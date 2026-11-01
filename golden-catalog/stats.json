@@ -1,6 +1,6 @@
 {
- "lines": 6775,
- "skus": 12804,
+ "lines": 6776,
+ "skus": 12806,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -139,6 +139,7 @@
   "sleeve_installation_kits": 1,
   "snap_ring_pliers": 1,
   "spanner_wrenches": 1,
+  "spill_socks": 1,
   "studs_double_end": 1,
   "swivel_casters": 1,
   "t_slot_nuts": 1,
@@ -302,6 +303,7 @@
   "sleeve_installation_kits": 2,
   "snap_ring_pliers": 2,
   "spanner_wrenches": 2,
+  "spill_socks": 2,
   "studs_double_end": 2,
   "swivel_casters": 2,
   "t_slot_nuts": 1,
@@ -1596,6 +1598,14 @@
     "2": 1
    }
   },
+  "spill_socks": {
+   "products": 1,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "2": 1
+   }
+  },
   "studs_double_end": {
    "products": 1,
    "median": 2,
@@ -2779,6 +2789,10 @@
    "Material",
    "Size"
   ],
+  "spill_socks": [
+   "Length",
+   "Material"
+  ],
   "studs_double_end": [
    "Finish",
    "Material",
@@ -2934,7 +2948,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 134994,
+ "total_attribute_entries": 134998,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -2975,9 +2989,9 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0157853,
+   "achieved": 0.0157828,
    "numerator": 200,
-   "denominator": 12670,
+   "denominator": 12672,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -3013,7 +3027,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 12804,
+   "denominator": 12806,
    "note": "over titles",
    "band": null
   },
@@ -3022,7 +3036,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 12804,
+   "denominator": 12806,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3031,16 +3045,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 12804,
+   "denominator": 12806,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5431,
-   "numerator": 134994,
-   "denominator": 12804,
+   "achieved": 10.5418,
+   "numerator": 134998,
+   "denominator": 12806,
    "note": "count, not a rate",
    "band": null
   },
@@ -3943,7 +3957,7 @@
   "Decimal Inch": 65
  },
  "unit_suffix_distribution": {
-  "in": 25680,
+  "in": 25682,
   "mm": 15549
  },
  "standards_present": 6928,
@@ -3954,7 +3968,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 12804,
+  "n_skus_checked": 12806,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4102,14 +4116,14 @@
  "figures": {
   "catalog": {
    "modelled_types": 45,
-   "breadth_categories": 116,
+   "breadth_categories": 117,
    "brands": 45
   },
   "drawings": {
-   "count": 12804,
-   "bytes": 32268480,
+   "count": 12806,
+   "bytes": 32271800,
    "geometry": {
-    "nominal": 216,
+    "nominal": 218,
     "partial": 2459,
     "record": 10129
    },

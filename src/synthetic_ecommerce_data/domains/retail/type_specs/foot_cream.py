@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Beauty",
     product_type="Foot Cream",
     rows=(),
-    homes=(Home("grocery", False),),
+    homes=(Home("grocery", False), Home("decoy_product_words", False)),
 )

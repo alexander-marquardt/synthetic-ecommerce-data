@@ -6,7 +6,7 @@ Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.electronics_rows import CABLES, ELECTRONICS_OWNERS
-from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="cable",
@@ -15,4 +15,5 @@ SPEC = TypeSpec(
     owners=ELECTRONICS_OWNERS,
     options=(Option("length_m", "item_length", "Item length", "MTR"),),
     rows=CABLES,
+    homes=(Home("decoy_product_words", False),),
 )
