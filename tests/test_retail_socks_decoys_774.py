@@ -43,8 +43,9 @@ MIN_BOOT_TITLE_WORDS = 7
 MENTIONS = 3
 CABLE_MENTIONS = 1
 SPILL_SOCKS = "synthetic_ecommerce_data.domains.industrial.product_types.safety.spill_socks"
-#: The apparel decoys of classes 1, 2, 6 and 7: their class holds them to a shape of their own.
-SHORT_BY_RULE = re.compile(r"PLT-D(A\d\d|SSCHOOL_SOCKS)[1267]\d\d")
+#: The apparel decoys of classes 1, 2, 6 and 7, and the men's decoys of classes 6 and 7: their class
+#: holds them to a shape of their own.
+SHORT_BY_RULE = re.compile(r"[A-Z]+-(D(A\d\d|SSCHOOL_SOCKS)[1267]\d\d|MDS\d\d[67]\d)")
 #: The apparel decoys of the other classes, whose title takes the detail of ``sock_titles``.
 GENERATED_BOOT_SOCK = re.compile(r"PLT-DA\d\d[0345]\d\d")
 SOCK_TYPES = ("Socks", "Boot Socks", "School Socks")

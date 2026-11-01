@@ -634,7 +634,7 @@ def _decoys(kinds=None, tails=None, prefix: str = "MD") -> tuple[list[LRow], lis
         def add(klass, i, title, desc, true, word, query, policy="generic", kind=kind, tag=tag,
                 ptype=ptype, material=None, extra=(), colors=None, brand=None):  # noqa: PLR0913
             code = f"{prefix}{tag}{klass}{i}"
-            title = sock_titles.detailed(title, ptype)
+            title = title if klass in (6, 7) else sock_titles.detailed(title, ptype)
             brand = brand or (word if klass == 7 else _BRANDS[(i + klass) % len(_BRANDS)])
             attrs = ()
             if kind.fitted:
