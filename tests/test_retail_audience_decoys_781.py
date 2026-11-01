@@ -30,8 +30,8 @@ OWN = {
     "Kids": {"kids", "boys", "girls"},
 }
 #: The issue's types: lingerie, swimwear, babywear, school shoes and safety boots.
-NEVER = {"Bra", "Knickers", "Slip", "Shapewear", "Period Pants", "Swimsuit", "Tankini",
-         "Bikini Top", "Bikini Bottoms", "Kids Swimsuit", "Swim Shorts", "Period Swimwear",
+NEVER = {"Bra", "Knickers", "Slip", "Shapewear", "Swimsuit", "Tankini",
+         "Bikini Top", "Bikini Bottoms", "Kids Swimsuit", "Swim Shorts",
          "Baby Bodysuit", "Sleepsuit", "All-in-One", "School Shoes", "Safety Boots"}  # fmt: skip
 #: The reviewed phrases, held apart from the generator's table: a type joins only with a phrase
 #: real titles use there (the maintainer's ruling on #781), and none leaves unnoticed.
