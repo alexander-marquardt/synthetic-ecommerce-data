@@ -1,0 +1,19 @@
+{
+  "source": "elastic/prism-retail-and-industrial#1047, the two verdict comments as GitHub served them on 2026-11-01, bodies cut after the verdict's own lines",
+  "head": "a3ee6f90a104a9e697f9cb7d8455e426ccbb2c1c",
+  "older_head": "ea5219082364c96614971e929bf8570a242b2fd0",
+  "comments": [
+    {
+      "id": 6555379437,
+      "login": "alexander-marquardt",
+      "created_at": "2026-11-01T09:12:06Z",
+      "body": "Review-Verdict: FIX\nReviewed-Head: ea5219082364c96614971e929bf8570a242b2fd0\nTier: production-runtime\n"
+    },
+    {
+      "id": 6555863433,
+      "login": "alexander-marquardt",
+      "created_at": "2026-11-01T09:03:40Z",
+      "body": "Review-Verdict: ARM\nReviewed-Head: a3ee6f90a104a9e697f9cb7d8455e426ccbb2c1c\nTier: production-runtime\nApproved-At: 5ea49f34671df5be889696bf33e9d6d248f4902d\n\nDelta review since the FIX at ea5219082364.\n"
+    }
+  ]
+}
