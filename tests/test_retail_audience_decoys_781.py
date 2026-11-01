@@ -33,6 +33,26 @@ OWN = {
 NEVER = {"Bra", "Knickers", "Slip", "Shapewear", "Period Pants", "Swimsuit", "Tankini",
          "Bikini Top", "Bikini Bottoms", "Kids Swimsuit", "Swim Shorts", "Period Swimwear",
          "Baby Bodysuit", "Sleepsuit", "All-in-One", "School Shoes", "Safety Boots"}  # fmt: skip
+#: The reviewed phrases, held apart from the generator's table: a type joins only with a phrase
+#: real titles use there (the maintainer's ruling on #781), and none leaves unnoticed.
+REVIEWED = {
+    "Jeans": ("Womens", "Boyfriend"),
+    "Shirt": ("Womens", "Boyfriend"),
+    "Tee": ("Womens", "Boyfriend"),
+    "Cardigan": ("Womens", "Boyfriend"),
+    "Jumper": ("Womens", "Boyfriend"),
+    "Shorts": ("Womens", "Boyfriend"),
+    "Trousers": ("Womens", "Menswear-Inspired"),
+    "Suit Jacket": ("Womens", "Menswear-Inspired"),
+    "Dress": ("Womens", "Mini-Me"),
+    "Puffer Jacket": ("Kids", "Mini-Me"),
+    "Pyjamas": ("Kids", "Mini-Me"),
+    "Sweatshirt": ("Kids", "Mini-Me"),
+}
+
+
+def test_the_table_is_the_reviewed_list() -> None:
+    assert {t: (a.root, a.phrase) for t, a in AUDIENCE_TYPES.items()} == REVIEWED
 
 
 @pytest.fixture(scope="module")
