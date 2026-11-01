@@ -165,7 +165,7 @@ TABLE = (
     _d(
         8,
         "socks_w",
-        "Black Boot Socks",
+        "Black Boot Socks, Thick Knit",
         "Thick black socks to wear inside boots.",
         "Black",
         "black boots",
@@ -176,7 +176,7 @@ TABLE = (
     _d(
         9,
         "socks_m",
-        "White Trainer Socks",
+        "White Trainer Socks, Cushioned Sole",
         "Five pairs of low white socks for trainers.",
         "White",
         "white trainers",
