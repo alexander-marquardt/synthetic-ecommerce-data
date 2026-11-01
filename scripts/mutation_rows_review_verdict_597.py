@@ -89,11 +89,41 @@ _MUTANTS = [
     ('(.submitted_at // "")', "(.submitted_at)", "review-time-may-be-null"),
 ]
 
+_LATE_TESTS = ("tests/test_review_verdict_late_on_older_head.py",)
+_LATE_MUTANTS = [
+    (
+        "if any(item[2].head == head.lower() for item in parsed):",
+        "if False:",
+        "late-verdict-on-older-head-outranks",
+    ),
+    (
+        "if any(item[2].head == head.lower() for item in parsed):",
+        "if any(item[2].head == head for item in parsed):",
+        "head-found-case-sensitively",
+    ),
+    (
+        "if item[2].head in (head.lower(), None)]",
+        "if item[2].head == head.lower()]",
+        "no-readable-head-dropped",
+    ),
+    (
+        "if item[2].head in (head.lower(), None)]",
+        "if item[2].head is None or item[2].head == head]",
+        "head-kept-case-sensitively",
+    ),
+    (
+        "verdict = newest_verdict(entries, head)",
+        "verdict = newest_verdict(entries)",
+        "judge-names-no-head",
+    ),
+]
+
 
 def rows() -> list[Row]:
     return [
-        Row(name, _FILE, old, new, _TESTS, f"the check stays honest: {name}", _ROOT)
-        for old, new, name in _MUTANTS
+        Row(name, _FILE, old, new, tests, f"the check stays honest: {name}", _ROOT)
+        for mutants, tests in ((_MUTANTS, _TESTS), (_LATE_MUTANTS, _LATE_TESTS))
+        for old, new, name in mutants
     ] + registry_rows()
 
 

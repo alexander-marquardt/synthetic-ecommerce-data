@@ -18,6 +18,9 @@ Tier: <docs | ui | gate-or-test | rulebook | production-runtime>
 ```
 
 The newest verdict by a non-bot author decides. `FIX` and `BLOCK` fail the check.
+A verdict naming another sha does not outrank one at the PR head, whatever its
+comment time (#775); a verdict at no readable head keeps its place by time, and
+with no verdict at the head the newest of all decides.
 
 ## What passes
 

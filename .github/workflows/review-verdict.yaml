@@ -4,7 +4,8 @@
 #
 # The job named ``review-verdict`` runs ``.github/scripts/check_review_binding.py``
 # on ``pull_request`` and ``merge_group``. It passes when the newest verdict
-# comment says ARM, names the PR head (or a head whose diff is unchanged), and
+# comment, one at the PR head outranking any on another sha, says ARM, names the
+# PR head (or a head whose diff is unchanged), and
 # carries a tier at least the changed paths require (``.github/review_verdict_tiers.json``).
 # The rule and the comment format are in that script's docstring.
 #

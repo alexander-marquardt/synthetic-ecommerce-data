@@ -237,6 +237,8 @@ DISTINCT_SPEC_FLOOR = {
     "hammer_rubber_mallet": 0.65,
     "hammer_dead_blow": 0.65,
     "bolt_hex": 0.75,
+    # 0.90 at 100K with the run lines of #766: a run shares lengths with a maker's other line.
+    "screw_flat_head": 0.85,
     "abrasive_flap_disc": 0.75,
     "kit_assortment": 0.80,
     "hex_key": 0.85,

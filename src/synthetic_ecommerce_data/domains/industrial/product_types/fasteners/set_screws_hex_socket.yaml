@@ -77,7 +77,7 @@ price:
   slope: 0.193
   length_slope: 0.216
   group_sigma: 0.083
-  sku_sigma: 0.037
+  sku_sigma: 0.05
   size_sigma: 0.181
   # @fit-end
   endings: set_screws_hex_socket

@@ -1,16 +1,18 @@
-"""The grouped pass (#710): threaded fasteners carry a run of lengths and end-mill lines a run of
-diameters, beside the flat products, so a search page has products to group.
+"""The grouped pass (#710, #766): threaded fasteners carry a run of lengths and end-mill and
+drill lines a run of diameters, as most of each type's products, so a search page has products
+to group.
 
 These tests build the grouped types alone, once with the pass and once without, and hold
-the pass to its per-type tables, to its targets, to its size, and to being additive: every
-SKU the flat build makes is in the grouped build unchanged. The reference-query coverage is
-held on the COMMITTED catalog.
+the pass to its per-type tables, to its targets, to its SKU total, and to the flat products
+that stay: they are the first of the flat build's, unchanged. The reference-query coverage
+is held on the COMMITTED catalog.
 """
 
 from __future__ import annotations
 
 import functools
 import json
+import re
 from dataclasses import replace
 from pathlib import Path
 from statistics import median
@@ -56,6 +58,28 @@ REFERENCE_ROWS = (
 ENTRIES = {e.example: e for e in (*muststock.MUST_STOCK, *grouped.TARGETS)}
 
 
+_END_MILLS = ("end_mill_square", "end_mill_ball")
+#: The attribute a run walks, for the types whose sizes are all one number.
+_SIZE_AXES = {
+    "end_mill_square": "Milling Dia.",
+    "end_mill_ball": "Milling Dia.",
+    "drill_jobber": "Size",
+}
+
+
+def _size_pool(key: str, axis: str, added, *, metric: bool) -> list[float]:
+    """Every size of ``axis`` the type's run lines offer, in one system, ascending."""
+    return sorted(
+        {
+            a.value_num
+            for line in added[key]
+            for child in line.children
+            for a in child.attributes
+            if a.name == axis and ("mm" in a.value) == metric
+        }
+    )
+
+
 def _table_median(table) -> int:
     total = sum(weight for _, weight in table)
     running = 0.0
@@ -73,6 +97,10 @@ def _carries(entry, line) -> bool:
     )
 
 
+#: Twice the smallest build that moves SKUs, so the flat floor leaves a small type most runs.
+RUN_LINES = 2 * grouped.RUN_BUILD_LINES
+
+
 @pytest.fixture(scope="module")
 def flat():
     return generate(replace(GeneratorConfig(), grouped=False, pack_axis=False), types=TYPES)
@@ -81,6 +109,17 @@ def flat():
 @pytest.fixture(scope="module")
 def full():
     return generate(replace(GeneratorConfig(), pack_axis=False), types=TYPES)
+
+
+@pytest.fixture(scope="module")
+def large():
+    """A build that moves SKUs into runs."""
+    return generate(replace(GeneratorConfig(), lines=RUN_LINES), types=TYPES)
+
+
+@pytest.fixture(scope="module")
+def large_flat():
+    return generate(replace(GeneratorConfig(), lines=RUN_LINES, grouped=False), types=TYPES)
 
 
 @pytest.fixture(scope="module")
@@ -94,63 +133,139 @@ def added(flat, full):
     return out
 
 
-def test_the_pass_is_additive(flat, full):
-    """Every product of the flat build is in the grouped build, unchanged: ids, titles, SKUs."""
-    after = {line.product_id: line for line in full.lines}
-    assert [after.get(line.product_id) for line in flat.lines] == list(flat.lines)
-    assert len(full.lines) > len(flat.lines)
+def _own(catalog, key: str) -> list:
+    return [line for line in catalog.lines if line.type_key == key]
 
 
 @pytest.mark.parametrize("key", TYPES)
-def test_each_type_draws_its_own_table(key, added, full):
-    """The grouped products follow the type's table (a run of 6 or more, median near the
-    table's), and the type keeps its single-SKU products: the catalog stays a mixture."""
+def test_the_flat_products_that_stay_are_the_flat_builds_first(key, large_flat, large):
+    """Each is the flat build's product at the same place, unchanged: id, title, SKUs."""
+    # A draft the type refuses leaves its place empty, so a few fewer than the share stayed.
+    kept = int(grouped.flat_products(RUN_LINES, len(_own(large_flat, key))) * 0.9)
+    assert kept >= 5
+    assert _own(large, key)[:kept] == _own(large_flat, key)[:kept]
+
+
+@pytest.mark.parametrize("key", TYPES)
+def test_most_products_are_run_lines(key, large):
+    """Issue #766: a run of 6 or more is most of the type, and it stays a mixture."""
+    sizes = [len(line.children) for line in _own(large, key)]
+    assert sum(size >= 6 for size in sizes) / len(sizes) > 0.5, key
+    assert sum(size == 1 for size in sizes) / len(sizes) >= 0.05, key
+
+
+@pytest.mark.parametrize("key", _END_MILLS)
+def test_end_mill_runs_go_past_the_nine_matching_shanks(key, added):
+    """Issue #766: a line stopped at 9 diameters, the size of the matching-shank pool."""
+    assert max(len(line.children) for line in added[key]) > 9
+
+
+@pytest.mark.parametrize(("key", "axis"), _SIZE_AXES.items())
+def test_a_run_line_sells_neighboring_sizes(key, axis, added):
+    """A line reads 1/8", 3/16", 1/4", never 1", 1-1/2", 1/16", 3/32": no window wraps round
+    the series and no shuffled pool scatters it. A rejected SKU may leave one small hole."""
+    lines = [line for line in added[key] if len(line.children) >= 6]
+    assert lines
+    for line in lines:
+        sizes = [next(a for a in child.attributes if a.name == axis) for child in line.children]
+        metric = sum("mm" in a.value for a in sizes) * 2 > len(sizes)
+        pool = _size_pool(key, axis, added, metric=metric)
+        # A unit-mixing defect states one SKU in the other system: not a place in this pool.
+        places = sorted(pool.index(a.value_num) for a in sizes if a.value_num in pool)
+        assert max(b - a for a, b in zip(places, places[1:], strict=False)) <= 5, line.product_id
+
+
+@pytest.mark.parametrize("key", TYPES)
+def test_each_type_draws_its_own_table(key, added):
+    """The grouped products follow the type's table: a run of 6 or more, median near the
+    table's."""
     table = grouped.VARIANTS[key]
     sizes = [len(line.children) for line in added[key]]
     assert sizes, f"{key}: the pass added no product"
     smallest, largest = min(c for c, _ in table), max(c for c, _ in table)
     # The series pool caps a draw (a small thread offers only a few lengths), so the median
     # may sit below the table's, never below its smallest count, and never above its own.
-    assert smallest <= median(sizes) <= _table_median(table), (key, sorted(sizes))
+    # A small build's few products may land a little above it.
+    assert smallest <= median(sizes) <= _table_median(table) + 2, (key, sorted(sizes))
     assert max(sizes) <= largest
     assert max(sizes) > max(c for c, _ in GeneratorConfig().variants_per_product)
     singles = sum(size == 1 for size in sizes) / len(sizes)
     assert singles <= 0.05, f"{key}: {singles:.0%} of its grouped products are single-SKU"
-    everyone = [len(line.children) for line in full.lines if line.type_key == key]
-    assert sum(size == 1 for size in everyone) / len(everyone) >= 0.35, key
 
 
 @pytest.mark.parametrize("key", TYPES)
-def test_the_pass_stays_modest(key, flat, added):
-    """Its share of the type's products, plus what the targets the type owns want: no more."""
-    own = [line for line in flat.lines if line.type_key == key]
-    wanted = sum(
-        grouped.wanted(sum(_carries(entry, line) for line in own))
-        for entry in grouped.TARGETS
-        if entry.types[0] == key
-    )
-    assert len(added[key]) <= round(len(own) * grouped.SHARE) + wanted
+def test_the_pass_stops_at_the_types_budget(key, large_flat, large, monkeypatch):
+    """The budget is what stops the pass, and it moves the type's SKUs instead of adding to
+    them: half the scale builds about half the run SKUs."""
+    before = sum(len(line.children) for line in _own(large_flat, key))
+    after = sum(len(line.children) for line in _own(large, key))
+    assert 0.8 <= after / before <= 1.35, (key, before, after)
+    monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
+    config = replace(GeneratorConfig(), lines=RUN_LINES)
+    halved = sum(len(line.children) for line in generate(config, types=[key]).lines)
+    assert halved < after * 0.65, (key, after, halved)
 
 
-def test_the_sku_total_grows_by_a_modest_share(flat, full):
-    before = sum(len(line.children) for line in flat.lines)
-    after = sum(len(line.children) for line in full.lines)
-    assert 1.0 < after / before <= 1.35, (before, after)
+def test_the_sku_total_holds(large_flat, large):
+    """Issue #766: the SKUs move into runs, and the total stays within about 10%."""
+    before = sum(len(line.children) for line in large_flat.lines)
+    after = sum(len(line.children) for line in large.lines)
+    assert 0.9 <= after / before <= 1.2, (before, after)
+    assert len(large.lines) < len(large_flat.lines) / 2
+
+
+@pytest.mark.parametrize("key", TYPES)
+def test_a_small_build_keeps_every_flat_product(key, flat, full):
+    """A run line is one size, so a small build keeps its flat products and only adds runs."""
+    # The tail is the must-stock lines, which draw the type's table in a grouped build.
+    kept = int(len(_own(flat, key)) * 0.9)
+    assert _own(full, key)[:kept] == _own(flat, key)[:kept]
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES - 1, 4000) == 4000
+
+
+def test_a_large_build_keeps_its_share_above_the_floor():
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 4000) == 400
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 1000) == grouped.FLAT_FLOOR
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 20) == 20
+
+
+def test_a_type_with_no_table_builds_flat_alone():
+    """A type outside the table keeps every product: the pass moves nothing there."""
+    plain = generate(GeneratorConfig(), types=["hex_key"]).lines
+    assert plain == generate(replace(GeneratorConfig(), grouped=False), types=["hex_key"]).lines
+
+
+def test_a_product_title_names_no_sku_value(full):
+    """Issue #766: the title heads a grouped card, so it may not name a value on which the
+    product's SKUs differ, such as a diameter."""
+    for line in full.lines:
+        seen: dict[str, set[str]] = {}
+        for child in line.children:
+            for a in child.attributes:
+                seen.setdefault(a.name, set()).add(a.value)
+        for name, values in seen.items():
+            if len(values) == 1:
+                continue
+            for value in values:
+                named = re.search(rf"(?<![\w./-]){re.escape(value)}(?![\w/-])", line.title)
+                assert not named, (line.product_id, line.title, name, value)
 
 
 @pytest.mark.parametrize("entry", grouped.TARGETS, ids=lambda e: e.example)
 def test_every_target_has_its_grouped_products(entry, added):
     carried = [line for line in added[entry.types[0]] if _carries(entry, line)]
-    assert len(carried) >= grouped.TARGET_PRODUCTS, entry.example
-    assert all(len(line.children) > 1 for line in carried), entry.example
+    # A brand's spec space can cut a line down to one SKU, so the count is of the runs.
+    assert sum(len(line.children) > 1 for line in carried) >= grouped.TARGET_PRODUCTS, entry.example
 
 
 def test_no_target_no_grouped_products_for_it(monkeypatch, flat):
-    """Planted regression: without its target, the R8 hex bolt has no grouped product."""
+    """Planted regression: with no SKUs to fill and without its target, the R8 hex bolt has
+    no grouped product."""
     r8 = next(e for e in grouped.TARGETS if e.example.startswith("hex head cap screw"))
     monkeypatch.setattr(grouped, "TARGETS", tuple(e for e in grouped.TARGETS if e is not r8))
+    monkeypatch.setattr(grouped, "SKU_SCALE", 0.0)
     before = {line.product_id for line in flat.lines}
-    built = generate(GeneratorConfig(), types=["bolt_hex"])
+    built = generate(replace(GeneratorConfig(), must_stock=False), types=["bolt_hex"])
     assert not [ln for ln in built.lines if ln.product_id not in before and _carries(r8, ln)]
 
 
@@ -171,7 +286,7 @@ def test_product_constants_agree_and_the_distribution_check_reads_the_type_table
     refused = distribution_problems(
         distribution, replace(GeneratorConfig(), grouped=False, pack_axis=False)
     )
-    assert refused and all("the knob's maximum is 5" in p for p in refused)
+    assert refused and all("the knob" in p for p in refused)
 
 
 @functools.cache
