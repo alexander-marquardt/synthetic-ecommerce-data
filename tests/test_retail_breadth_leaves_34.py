@@ -14,7 +14,7 @@ from synthetic_ecommerce_data.domains.retail import kit, scale
 
 LEAVES = {
     ("Home", "DIY & Tools", "Picture Hooks"): "Picture Hook",
-    ("Garden", "Pots & Planters", "Plant Pots"): "Plant Pot",
+    ("Home", "Home Accessories", "Plant Pots"): "Plant Pot",
     ("Electronics", "Accessories", "Batteries"): "Battery",
 }
 _IDS = [leaf[-1] for leaf in LEAVES]
@@ -41,7 +41,7 @@ def test_a_leaf_states_at_least_two_attributes_a_facet_can_show(path: tuple[str,
     "path, word",
     [
         (("Home", "DIY & Tools", "Picture Hooks"), "hooks"),
-        (("Garden", "Pots & Planters", "Plant Pots"), "pot"),
+        (("Home", "Home Accessories", "Plant Pots"), "pot"),
         (("Electronics", "Accessories", "Batteries"), "batteries"),
     ],
     ids=_IDS,
