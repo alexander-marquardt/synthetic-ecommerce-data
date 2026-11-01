@@ -33,7 +33,7 @@ def _claims(facts, *, metric, provenance, standard):
 
 SPEC = TypeSpec(
     "bolt_hex",
-    category=("Fasteners", "Bolts, Screws & Cap Screws", "Hex Head Bolts"),
+    category=("Fasteners", "Bolts", "Hex Head Bolts"),
     standards_family="fastener",
     vocab=_HEX_BOLT,
     figure=_broken(2.85, 5.35),

@@ -356,15 +356,15 @@ def test_a_row_may_still_author_a_stainless_plating_deliberately():
 
 
 def _node_names(node: str) -> set[str]:
-    """The kinds a grouping node names: ``Bolts, Screws & Cap Screws`` names
-    Bolts, Screws and Cap Screws."""
+    """The kinds a grouping node names: ``Wrenches & Keys`` names Wrenches and
+    Keys."""
     return {part.strip() for part in re.split(r",|&", node) if part.strip()}
 
 
 def _rows_opening_a_sibling_of_a_named_kind() -> dict[str, tuple[str, ...]]:
     """Each breadth row whose grouping node is spelled like one kind a sibling
     node (another type's) names, without being that node: the row opened a
-    second ``Screws`` beside ``Bolts, Screws & Cap Screws``."""
+    second ``Wrenches`` beside ``Wrenches & Keys``."""
     paths = [(key, path) for key, paths_ in taxonomy.LEAVES.items() for path in paths_]
     found: dict[str, tuple[str, ...]] = {}
     for row in breadth.rows():
@@ -386,10 +386,8 @@ def test_a_breadth_row_never_opens_a_sibling_node_for_a_kind_a_node_already_name
     assert _rows_opening_a_sibling_of_a_named_kind() == {}
 
 
-#: The five rows #675 moved under the node that already names their kind.
+#: The rows #675 moved under the node that already names their kind.
 _MOVED_UNDER_THE_NAMING_NODE = {
-    "carriage_bolts": ("Fasteners", "Bolts, Screws & Cap Screws", "Carriage Bolts"),
-    "sems_bolts": ("Fasteners", "Bolts, Screws & Cap Screws", "Sems Bolts"),
     "combination_wrenches": ("Hand Tools", "Wrenches & Keys", "Combination Wrenches"),
     "spanner_wrenches": ("Hand Tools", "Wrenches & Keys", "Spanner Wrenches"),
     "fastener_extractors": ("Hand Tools", "Pullers & Extractors", "Fastener Extractors"),
@@ -402,13 +400,8 @@ def test_a_row_sits_under_the_node_that_already_names_its_kind(key):
     assert by_key[key].category == _MOVED_UNDER_THE_NAMING_NODE[key]
 
 
-def test_lag_screws_sit_with_the_other_screws_and_no_screws_node_is_emitted():
+def test_lag_screws_sit_with_the_other_screws():
     by_key = {row.key: row for row in breadth.rows()}
-    assert by_key["lag_screws"].category == (
-        "Fasteners",
-        "Bolts, Screws & Cap Screws",
-        "Lag Screws",
-    )
+    assert by_key["lag_screws"].category == ("Fasteners", "Screws", "Lag Screws")
     nodes = {path[:2] for paths in taxonomy.LEAVES.values() for path in paths}
-    assert ("Fasteners", "Screws") not in nodes
     assert ("Fasteners", "Set Screws") in nodes, "Set Screws stays a sibling node (#658)"

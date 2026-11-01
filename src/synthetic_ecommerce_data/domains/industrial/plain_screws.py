@@ -1,8 +1,8 @@
 """The plain screws: one builder and one table for the kinds a hardware shelf sells (#750).
 
-Each kind is a leaf beside the lag screw under ``Fasteners > Bolts, Screws & Cap Screws``. #658
-retired the ``Fasteners > Screws`` node, so a shopper's ``screws`` reaches one place. A kind is a
-:class:`PlainScrewKind`, whose rows are the gauge or thread and the lengths it comes in.
+Each kind is a leaf beside the lag screw under ``Fasteners > Screws``, the node #767 split from
+the cap screws and the bolts. A kind is a :class:`PlainScrewKind`, whose rows are the gauge or
+thread and the lengths it comes in.
 
 Two lines in every :data:`SOLD_PERIOD` are sold by the box and take the plural title, in the pack
 form retail uses: ``Wood Screws, #8 Gauge, 1-1/4" L, Flat Head, Box of 100``. The third is sold
@@ -29,13 +29,13 @@ from synthetic_ecommerce_data.domains.industrial.vocab import (
     PLAIN_SCREW_VOCAB,
 )
 
-#: The node every plain screw sits under, with the lag screw and the cap screws.
-PARENT: tuple[str, ...] = ("Fasteners", "Bolts, Screws & Cap Screws")
+#: The node every plain screw sits under, with the lag screw.
+PARENT: tuple[str, ...] = ("Fasteners", "Screws")
 
 PROVENANCE = "generated; the sizes hardware listings carry, not read from a standard"
 
 #: A kind's share of ``lines``: about 58 products at the large build, 290 over the five kinds, so
-#: the range stays small beside the 24,000 SKUs of the node it joins.
+#: the range stays small beside the 21,000 cap screws.
 SHARE = 0.0015
 
 #: Which line of a kind is sold singly: the first of every :data:`SOLD_PERIOD`.
