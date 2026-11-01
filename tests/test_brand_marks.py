@@ -21,7 +21,6 @@ import pytest
 
 from synthetic_ecommerce_data.core import brands, bundle
 from synthetic_ecommerce_data.core.drawing import (
-    FIGURES,
     brand_mark,
     draw_sku,
     product_scale_for,
@@ -30,6 +29,7 @@ from synthetic_ecommerce_data.core.drawing import (
     svg_problems,
 )
 from synthetic_ecommerce_data.domains.industrial.drawing import brand_marks
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 

@@ -100,14 +100,14 @@ def facets(golden: Path = GOLDEN):
 
 
 def type_scale(type_key: str) -> float:
-    from synthetic_ecommerce_data.core.drawing import FIGURES
     from synthetic_ecommerce_data.core.drawing.sheet import type_scale as scale
+    from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
     return scale(FIGURES[type_key][1])
 
 
 def drawn_size(type_key: str, record) -> tuple[float, float]:
-    from synthetic_ecommerce_data.core.drawing import FIGURES
+    from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
     x0, y0, x1, y1 = FIGURES[type_key][0](dict(record)).figure.bounds()
     scale = type_scale(type_key)

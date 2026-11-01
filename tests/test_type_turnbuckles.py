@@ -32,8 +32,9 @@ from published import authored_attributes
 from synthetic_ecommerce_data.core import brands, emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku, svg_problems
+from synthetic_ecommerce_data.core.drawing import draw_sku, svg_problems
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import turnbuckles
 from synthetic_ecommerce_data.domains.industrial.vocab import MEASUREMENT_SYSTEM_NAMES

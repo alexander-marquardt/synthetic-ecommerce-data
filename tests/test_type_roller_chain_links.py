@@ -34,9 +34,10 @@ import type_gates
 from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku, svg_problems
+from synthetic_ecommerce_data.core.drawing import draw_sku, svg_problems
 from synthetic_ecommerce_data.core.drawing.model import Disc
 from synthetic_ecommerce_data.domains.industrial import names, tabletype, taxonomy
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates

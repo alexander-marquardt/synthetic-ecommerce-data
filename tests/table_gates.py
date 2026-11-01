@@ -17,8 +17,8 @@ from published import authored_entries
 from synthetic_ecommerce_data.core import brands, emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_sku
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.core.drawing import draw_sku
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, Drawn
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 MM = 25.4

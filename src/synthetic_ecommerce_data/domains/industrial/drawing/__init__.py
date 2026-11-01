@@ -1,15 +1,15 @@
 """The industrial figures: one per product kind, plus the breadth rows' plain shapes.
 
-``core.drawing`` imports :data:`.figures.FIGURES` when it loads. Loading it
-here, before either submodule, keeps the import order these modules had when
-they shared one package: a process whose first import is ``figures`` would
-otherwise reach ``core.drawing`` half-way through ``figures`` and find no
-``FIGURES`` yet.
+``core.drawing`` loads :data:`.figures.FIGURES` when it loads, through the
+domain registry (``core.domain``, #128). Loading it here, before either
+submodule, keeps the import order these modules had when they shared one
+package: a process whose first import is ``figures`` would otherwise reach
+``core.drawing`` half-way through ``figures`` and find no ``FIGURES`` yet.
 
 It also fills core's mark slot (``core.drawing.brand_mark.use_marks``) with
 this domain's brand marks, so core draws them without importing the domain:
-this package runs whenever ``core.drawing`` loads, since that loads
-``figures``.
+this package runs whenever ``core.drawing`` loads, since that loads the
+registered domains' figures.
 """
 
 import synthetic_ecommerce_data.core.drawing  # noqa: F401

@@ -18,4 +18,20 @@ def _brand_families():
     return STANDARDS_FAMILY
 
 
-_domain.register(_domain.Domain("industrial", _product_types, _brand_families))
+def _figures():
+    from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES  # noqa: PLC0415
+
+    return FIGURES
+
+
+def _pack_types():
+    from synthetic_ecommerce_data.domains.industrial.drawing.figures import (  # noqa: PLC0415
+        PACK_TYPES,
+    )
+
+    return PACK_TYPES
+
+
+_domain.register(
+    _domain.Domain("industrial", _product_types, _brand_families, _figures, _pack_types)
+)

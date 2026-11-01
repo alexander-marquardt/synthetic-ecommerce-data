@@ -139,7 +139,7 @@ _FRESH_READER = """
 import sys
 from synthetic_ecommerce_data.domains.industrial.taxonomy import LEAVES, drawing_for
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
-from synthetic_ecommerce_data.core.drawing import FIGURES
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 key, callers = sys.argv[1], sys.argv[2:]
 drawing_for(key), FIGURES[key], LEAVES[key], VOCAB[key]
 print([name for name in callers if name in sys.modules])

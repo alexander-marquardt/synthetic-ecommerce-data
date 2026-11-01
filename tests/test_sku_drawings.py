@@ -24,7 +24,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import bundle, emit
 from synthetic_ecommerce_data.core.config import SMALL
-from synthetic_ecommerce_data.core.drawing import FIGURES, draw_product, draw_sku, svg_problems
+from synthetic_ecommerce_data.core.drawing import draw_product, draw_sku, svg_problems
 from synthetic_ecommerce_data.core.drawing.model import Poly
 from synthetic_ecommerce_data.core.drawing.style import (
     EXTRA_FINISH_TINT,
@@ -33,6 +33,7 @@ from synthetic_ecommerce_data.core.drawing.style import (
     house_style,
 )
 from synthetic_ecommerce_data.domains.industrial import pack
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     BRAND_INK,

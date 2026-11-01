@@ -80,7 +80,6 @@ _I = "domains.industrial"
 #: prism imports left core with it, to ``generate_cli``.
 CORE_EDGES = frozenset(
     {
-        ("drawing", f"{_I}.drawing.figures"),
         ("drawing", f"{_I}.geometry.palette"),
         ("drawing.style", f"{_I}.geometry.palette"),
         ("noise", f"{_I}.compat"),

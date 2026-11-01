@@ -1,9 +1,10 @@
 """The domain registry: a domain hands core its tables, so core never imports a domain (#128).
 
 Core used to read the industrial tables directly: emit's image-id check asked
-``domains.industrial.taxonomy`` whether a type exists, and :meth:`.brands.Brand.makes`
-looked a type's family up in ``domains.industrial.vocab``. Either refused any type
-of a second domain. Here a domain registers a :class:`Domain` when its package is
+``domains.industrial.taxonomy`` whether a type exists, :meth:`.brands.Brand.makes`
+looked a type's family up in ``domains.industrial.vocab``, and :mod:`.drawing` drew
+a type from ``domains.industrial.drawing.figures``. Each refused any type of a
+second domain. Here a domain registers a :class:`Domain` when its package is
 imported, and core asks every registered domain.
 
 A domain's tables are passed as functions, not as the tables themselves. A
@@ -14,7 +15,8 @@ would run them while the package is half imported.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 
 class DomainError(Exception):
@@ -39,6 +41,13 @@ class Domain:
     product_types: Callable[[], Collection[str]]
     #: Each of its types' brand family (:attr:`.brands.Brand.families`).
     brand_families: Callable[[], Mapping[str, str]]
+    #: Each of its drawn types' figure function and largest extent, in inches
+    #: (:func:`.drawing.draw_sku`). A domain that draws through core gives one per type.
+    figures: Callable[[], Mapping[str, tuple[Callable[..., Any], tuple[float, float]]]] = field(
+        default=lambda: {}
+    )
+    #: Its types whose card draws the published pack, an item a unit (:func:`.drawing.model.fan`).
+    pack_types: Callable[[], Collection[str]] = field(default=lambda: frozenset())
 
 
 _DOMAINS: dict[str, Domain] = {}
@@ -69,6 +78,20 @@ def brand_family(type_key: str) -> str:
         if type_key in families:
             return families[type_key]
     raise KeyError(type_key)
+
+
+def figure(type_key: str) -> tuple[Callable[..., Any], tuple[float, float]]:
+    """The figure function and extent of ``type_key``. ``KeyError`` when no domain draws it."""
+    for d in _DOMAINS.values():
+        figures = d.figures()
+        if type_key in figures:
+            return figures[type_key]
+    raise KeyError(type_key)
+
+
+def is_pack_type(type_key: str) -> bool:
+    """Whether a registered domain draws ``type_key``'s card as its published pack."""
+    return any(type_key in d.pack_types() for d in _DOMAINS.values())
 
 
 def product_type_for_image(image_id: str) -> str:
