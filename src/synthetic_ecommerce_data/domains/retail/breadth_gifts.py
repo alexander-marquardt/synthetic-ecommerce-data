@@ -12,7 +12,9 @@ from synthetic_ecommerce_data.domains.retail.variants import cw
 _FRAMES = ("Gifts", "Keepsakes", "Photo Frames")
 _WRAP = ("Gifts", "Gift Wrap", "Wrapping Paper")
 _CHARM = ("Gifts", "Keepsakes", "Charm Keyrings")
-_DECOR = ("Gifts", "Christmas Gifts", "Tree Decorations")
+# gen#772: a Home path on a Gifts row. The department picks a derived style's rate and brands, so
+# it stays and the styles' brands and titles stay with it; a shopper reads the path alone.
+_DECOR = ("Home", "Christmas", "Tree Decorations")
 _CANDLE = ("Gifts", "Home Fragrance", "Scented Candles")
 
 
