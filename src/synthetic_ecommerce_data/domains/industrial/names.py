@@ -152,6 +152,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Compound",
     "Grease",
     "Chaser",
+    "Absorbent",
 )
 
 #: Type-qualified names that ARE type-specific in the evidence, with it.

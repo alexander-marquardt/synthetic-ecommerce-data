@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "ca217fbdda6ca4840af048aca9c8e6e6959ad1b75184bfda549e31f0478c29c6",
+ "fingerprint": "2e138690ea5fc1ffc6ff6b0703a296fdeb08b524451e36e81c3e79d8d4bfb0db",
  "rows": [
   {
    "query": "mattress topper",
@@ -281,12 +281,12 @@
      "title": "Cotton Rich Socks 7 Pack"
     },
     {
-     "product_id": "PLT-SK3PKS",
-     "title": "Striped Socks 3 Pack"
-    },
-    {
      "product_id": "PLT-SK5KID",
      "title": "Kids' School Socks 5 Pack (6-16 Yrs)"
+    },
+    {
+     "product_id": "PLT-SK3PKS",
+     "title": "Striped Cotton Socks 3 Pack"
     },
     {
      "product_id": "PLT-SK5BMB",
@@ -294,7 +294,7 @@
     },
     {
      "product_id": "PLT-SK1WAL",
-     "title": "Wool Walking Socks"
+     "title": "Cushioned Wool Walking Socks, Single Pair"
     }
    ],
    "policy": [
@@ -461,6 +461,10 @@
      "title": "Single Cube Chairbed"
     },
     {
+     "product_id": "PLT-SK1WAL",
+     "title": "Cushioned Wool Walking Socks, Single Pair"
+    },
+    {
      "product_id": "PLT-BDOTTO",
      "title": "Ottoman Storage Bed"
     },
@@ -471,10 +475,6 @@
     {
      "product_id": "PLT-BDPANL",
      "title": "Panelled Wooden Bed"
-    },
-    {
-     "product_id": "PLT-SOFBED",
-     "title": "Two Seater Sofa Bed"
     }
    ],
    "policy": [

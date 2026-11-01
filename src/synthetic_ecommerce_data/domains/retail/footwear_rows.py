@@ -816,7 +816,7 @@ BOOTS = dz.Row(
             drawing("tin", cw("Black", "#2a2a2e", "solid", "#c9a24a"), "Polish"),
         ), "product-type demotion: shoe care below boots"),
         dz.Distractor(dz.product(
-            "BOOTSOK", "Welly Boot Socks", "Hollinwray Knits", "Clothing",
+            "BOOTSOK", "Welly Boot Socks with Fold-Over Cuff, Thick Knit", "Hollinwray Knits", "Clothing",
             ("Womens", "Socks", "Boot Socks"), 9.0,
             "Thick knitted boot socks with a fold-over cuff that shows above welly boots. "
             "Warm in boots all winter.",

@@ -57,6 +57,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kids_depth_rows,
     knacks_rows,
     real_brands,
+    sock_titles,
     style_table,
     type_colors,
     type_registry,
@@ -547,7 +548,8 @@ def _title(ex: dict, spec: Spec, cls: int, o: dict) -> str:
         # a class 2 compound takes the fit before it ("Slim Cargo Jeans"), never inside it
         head = o["phrase"] if cls == 2 else spec.product_type
         title = title.replace(head, f"{fit} {head}", 1)
-    return title
+    # a class 1, 2, 6 or 7 title has a shape of its own, so it takes no sock detail (gen#774)
+    return title if cls in (1, 2, 6, 7) else sock_titles.detailed(title, spec.product_type)
 
 
 def _names_its_drawing(ex: dict) -> bool:

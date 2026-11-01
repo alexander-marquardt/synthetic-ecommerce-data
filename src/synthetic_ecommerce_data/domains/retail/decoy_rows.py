@@ -350,7 +350,7 @@ TABLE = (
        "A roomy womens puffer jacket in the cut of the mens puffer jacket.", "Green", 3,
        "mens puffer jacket", 700),
     # -- boys grey socks: adult socks titled without an audience word (3)
-    _d("XK01", "socks_m", "Grey Socks 5 Pack",
+    _d("XK01", "socks_m", "Grey Cotton Rich Socks 5 Pack",
        "Five pairs of grey socks, the same sock as our boys range, cut for men.", "Grey", 3,
        "boys grey socks", 900),
     _d("XK02", "socks_m", "Grey Ankle Socks 5 Pack",

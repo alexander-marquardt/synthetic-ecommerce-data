@@ -505,8 +505,8 @@ fields:
   - name: inside_width
     type: terms
     source: facets.inside_width
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 94 distinct values over 3064 product-value pairs is 0.03 per product
-  #   present on 3158 documents across 35 product type(s); 94 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 96 distinct values over 3066 product-value pairs is 0.03 per product
+  #   present on 3160 documents across 36 product type(s); 96 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -537,8 +537,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 43 distinct values over 5851 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 11697 documents across 159 product type(s); 43 distinct values
+  # Material -- 43 distinct values over 5852 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 11699 documents across 160 product type(s); 43 distinct values
   - name: material
     type: terms
     source: facets.material

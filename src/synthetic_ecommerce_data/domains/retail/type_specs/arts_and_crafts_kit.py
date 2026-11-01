@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Toys",
     product_type="Arts and Crafts Kit",
     rows=(),
-    homes=(Home("toys_rows", False),),
+    homes=(Home("toys_rows", False), Home("decoy_product_words", False)),
 )
