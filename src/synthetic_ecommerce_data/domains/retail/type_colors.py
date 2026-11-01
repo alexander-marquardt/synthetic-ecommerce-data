@@ -40,6 +40,7 @@ RESTRICTED: dict[tuple[str, ...], tuple[tuple[str, ...], str]] = {
         (*_SCHOOL, "Brown", "Green", "Burgundy"), _WHY_SCHOOL),
     ("Kids", "School Uniform", "School Pinafores"): (
         (*_SCHOOL, "Brown", "Green", "Burgundy"), _WHY_SCHOOL),
+    ("Kids", "School Uniform", "School Blazers"): ((*_SCHOOL, "Green", "Burgundy"), _WHY_SCHOOL),
     ("Womens", "Hosiery", "Tights"): (
         ("Nude", "Natural", "Black", "White", "Navy", "Grey", "Charcoal", "Brown", "Burgundy",
          "Teal", "Beige", "Cream"), "tights are skin tones and dark opaque colors"),

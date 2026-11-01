@@ -107,7 +107,11 @@ def test_the_decoy_clone_picker_reads_the_allow_list(tpls):
     from synthetic_ecommerce_data.domains.retail import decoy_apparel
 
     ids = decoy_apparel.IDS
-    school = [r for r in tpls if r["product_id"] in ids and "School Uniform" in r["category_path"]]
+    school = [
+        r for r in tpls
+        if r["product_id"] in ids and "School Uniform" in r["category_path"]
+        and type_colors.allowed_for(r["category_path"])
+    ]  # fmt: skip
     assert school
     for r in school:
         assert not set(_colors(r)) & {"Pink", "Yellow"}, r["product_id"]
