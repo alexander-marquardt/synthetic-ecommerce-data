@@ -57,11 +57,7 @@ compose a domain with core, so they stay at the top level beside `prism/`:
 rules (`domains/retail/rules.py`) the industrial build's rows (#716). Some core modules still hold industrial tables next to their
 machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
-`tests/test_core_extraction_125.py`, and that list only shrinks. A domain hands core its
-tables through `core/domain.py` (#128): importing `domains/industrial/` registers its product
-types and brand families, and emit's image-id check and `Brand.makes()` ask the registry, so
-a second domain's type is accepted without core naming it. Old `synthetic_industrial_products.catalog.*`
-import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
+`tests/test_core_extraction_125.py`, and that list only shrinks. A domain hands core its tables through `core/domain.py` (#128): importing `domains/industrial/` registers its types and brand families, and emit's image-id check and `Brand.makes()` ask the registry. Old `synthetic_industrial_products.catalog.*` import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
 retail store (the former `prototypes/retail_drawings/`, #125 slice 1): its departments live
 inside it, it reaches core only, and the same test refuses any import from one domain into
 another (its list of such edges is empty). Its tests are under `tests/` with the rest.
