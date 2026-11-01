@@ -108,6 +108,12 @@ def full():
 
 
 @pytest.fixture(scope="module")
+def large():
+    """Past every type's flat floor, which holds a small build's products flat for coverage."""
+    return generate(replace(GeneratorConfig(), lines=13000), types=TYPES)
+
+
+@pytest.fixture(scope="module")
 def added(flat, full):
     """Type -> the products the grouped pass added."""
     before = {line.product_id for line in flat.lines}
@@ -126,15 +132,15 @@ def _own(catalog, key: str) -> list:
 def test_the_flat_products_that_stay_are_the_flat_builds_first(key, flat, full):
     """Each is the flat build's product at the same place, unchanged: id, title, SKUs."""
     # A draft the type refuses leaves its place empty, so a few fewer than the share stayed.
-    kept = int(grouped.flat_products(len(_own(flat, key))) * 0.9)
+    kept = int(grouped.flat_products(key, len(_own(flat, key))) * 0.9)
     assert kept >= 5
     assert _own(full, key)[:kept] == _own(flat, key)[:kept]
 
 
 @pytest.mark.parametrize("key", TYPES)
-def test_most_products_are_run_lines(key, full):
+def test_most_products_are_run_lines(key, large):
     """Issue #766: a run of 6 or more is most of the type, and it stays a mixture."""
-    sizes = [len(line.children) for line in _own(full, key)]
+    sizes = [len(line.children) for line in _own(large, key)]
     assert sum(size >= 6 for size in sizes) / len(sizes) > 0.5, key
     assert sum(size == 1 for size in sizes) / len(sizes) >= 0.05, key
 
@@ -153,7 +159,8 @@ def test_a_run_line_sells_neighboring_sizes(key, axis, added):
     assert lines
     for line in lines:
         sizes = [next(a for a in child.attributes if a.name == axis) for child in line.children]
-        pool = _size_pool(key, axis, added, metric="mm" in sizes[0].value)
+        metric = sum("mm" in a.value for a in sizes) * 2 > len(sizes)
+        pool = _size_pool(key, axis, added, metric=metric)
         # A unit-mixing defect states one SKU in the other system: not a place in this pool.
         places = sorted(pool.index(a.value_num) for a in sizes if a.value_num in pool)
         assert max(b - a for a, b in zip(places, places[1:], strict=False)) <= 5, line.product_id
@@ -186,7 +193,8 @@ def test_the_pass_stops_at_the_types_budget(key, flat, full, monkeypatch):
     assert 0.8 <= after / before <= 1.35, (key, before, after)
     monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
     halved = sum(len(line.children) for line in generate(GeneratorConfig(), types=[key]).lines)
-    assert halved < after * 0.65, (key, after, halved)
+    # Not half of all of them: the flat floor stays, and it is most of a small type.
+    assert halved < after * 0.75, (key, after, halved)
 
 
 def test_the_sku_total_holds(flat, full):
@@ -195,6 +203,15 @@ def test_the_sku_total_holds(flat, full):
     after = sum(len(line.children) for line in full.lines)
     assert 0.9 <= after / before <= 1.2, (before, after)
     assert len(full.lines) < len(flat.lines) / 2
+
+
+def test_a_small_build_keeps_the_flat_floor():
+    """Each run line is one size, so a small build needs flat lines for every size to reach
+    a line: the coverage tests read the result, this holds the numbers."""
+    assert grouped.flat_products("end_mill_ball", 286) == grouped.FLAT_FLOOR
+    assert grouped.flat_products("end_mill_ball", 20) == 20
+    assert grouped.flat_products("end_mill_ball", 4000) == 400
+    assert grouped.flat_products("set_screws_hex_socket", 260) == 150
 
 
 def test_a_type_with_no_table_builds_flat_alone():
@@ -222,8 +239,8 @@ def test_a_product_title_names_no_sku_value(full):
 @pytest.mark.parametrize("entry", grouped.TARGETS, ids=lambda e: e.example)
 def test_every_target_has_its_grouped_products(entry, added):
     carried = [line for line in added[entry.types[0]] if _carries(entry, line)]
-    assert len(carried) >= grouped.TARGET_PRODUCTS, entry.example
-    assert all(len(line.children) > 1 for line in carried), entry.example
+    # A brand's spec space can cut a line down to one SKU, so the count is of the runs.
+    assert sum(len(line.children) > 1 for line in carried) >= grouped.TARGET_PRODUCTS, entry.example
 
 
 def test_no_target_no_grouped_products_for_it(monkeypatch, flat):

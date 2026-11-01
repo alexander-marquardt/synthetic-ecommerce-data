@@ -207,8 +207,13 @@ def test_the_measurement_system_attribute_appears_under_one_name(stats):
     assert list(names) == ["Measurement System"], names
 
 
-def test_both_the_role_ambiguity_cases_occur(stats):
-    """Shank equal to cutting diameter, and shank different: both, at rate."""
+def test_both_the_role_ambiguity_cases_occur():
+    """Shank equal to cutting diameter, and shank different: both, at rate. At the default
+    size: the 600 line build's only run lines are its targets, which take the shank their
+    diameter needs, and the rate is held by the lines that fill the type after them."""
+    config = GeneratorConfig()
+    catalog = generate(config, types=["end_mill_square", "end_mill_ball"])
+    stats = measure(catalog, config)
     row = next(c for c in stats["comparisons"] if c.name == "shank == cutting diameter")
     assert row.denominator > 200
     assert 0.55 <= row.achieved <= 0.75, row
@@ -799,6 +804,7 @@ def end_mill_lines():
         lines=1500,
         seed=123,
         new_type_share={key: 0.12 for key in GeneratorConfig().new_type_share},
+        grouped=False,
     )
     end_mill_types = ("end_mill_square", "end_mill_ball")
     lines = [line for line in generate(config).lines if line.type_key in end_mill_types]

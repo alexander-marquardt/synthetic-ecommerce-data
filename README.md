@@ -1100,40 +1100,52 @@ earlier line, and that an entry no builder can reach fails the build.
 ## Grouped product families
 
 The 1-5 knob fits marketplace-like types. A distributor, though, sells one cap screw or set
-screw (thread, material, finish, point) in a run of standard lengths, and one end-mill line
-in a run of diameters. Under the knob alone such a type's search page had almost nothing to
-group: `m6x1 set screws` returned 141 products for 260 SKUs, most tiles one variant (#710).
+screw (thread, material, finish, point) in a run of standard lengths, and one end-mill or
+drill line in a run of diameters. Under the knob alone such a type's search page had almost
+nothing to group: `m6x1 set screws` returned 141 products for 260 SKUs, most tiles one
+variant (#710).
 
-So eight types also carry **grouped products**: hex socket set screws; socket, button, low
-and flat socket cap screws; hex head bolts; square and ball end mills. Each type declares
-its own `(count, weight)` table in `domains/industrial/grouped.py` (`VARIANTS`: 6 to 15,
-median 10). The pass is **additive**. It runs after the main generation and the must-stock
-pass, from streams of its own, so every SKU those two build keeps its id, title and
-attributes, and the catalog stays a mixture of grouped and flat products (maintainer,
-2026-10-28). Each grouped product is built by its type's own builder, with only its SKU
-count drawn from the type's table, so its title, naming and derived dimensions follow the
-same rules as every other line. A fastener takes a contiguous run of its thread's standard
-lengths, and an end mill a window of its system's diameters (at most 9 for an inch line on
-matching shanks, the size of that pool).
+So on nine types most products are **run lines**: hex socket set screws; socket, button, low
+and flat socket cap screws; hex head bolts; square and ball end mills; jobber drills. Each
+type declares its own `(count, weight)` table in `domains/industrial/grouped.py` (`VARIANTS`:
+6 to 15, median 10). The SKUs **move**, as #766 asked: the main generation builds `FLAT_SHARE`
+(10%) of such a type's products, the first of its stream, so each of those keeps its id, title
+and attributes, and the catalog stays a mixture of grouped and flat products (maintainer,
+2026-10-28). A small build keeps at least `FLAT_FLOOR` (50, and 150 set screws), because a run
+line is one size and a rotation has to reach every size a standard offers. The grouped pass then builds run lines from streams of its own until the type
+holds `sku_budget()`: the flat products' SKUs per product times the products the type would
+have had, times `SKU_SCALE` (1.10). The must-stock lines of these types are run lines too.
+Each run line is built by its type's own builder, with only its SKU count drawn from the
+type's table, so its title, naming and derived dimensions follow the same rules as every
+other line. A fastener takes a contiguous run of its thread's standard lengths, and an end
+mill or drill a contiguous run of its system's diameters. An end mill on matching shanks
+stops at 9, the size of that pool; the wider series takes a line to 15. So a filling line takes
+the shank policy the record count needs, which holds the measured shank rate per record.
 
-The pass adds `SHARE` (3%) of the type's product count. It then adds more for each entry
-of `TARGETS`, until `wanted()` of its products carry the entry's values (at least 5, and
-10% of the type's products that already carry them). The targets are the thin rows of the
-reference query list: `5/16-18` button and low-head screws with a `3/4"` length, the R8
-`7/16-14` Grade 8 zinc hex bolt with `1-3/4"`, `1/4-20` and `M12x1.75` cap screws, `M6x1`
-set screws, ball end mills at `1/8"`, `1/16"` and 15 mm, and a 4 mm solid carbide line.
-On the default build it adds 103 products and 922 SKUs, about 8% of the catalog.
+For each entry of `TARGETS` the pass first adds lines until `wanted()` of them carry the
+entry's values (at least 5, and 10% of the flat products that already carry them). The
+targets are the thin rows of the reference query list: `5/16-18` button and low-head screws
+with a `3/4"` length, the R8 `7/16-14` Grade 8 zinc hex bolt with `1-3/4"`, `1/4-20` and
+`M12x1.75` cap screws, `M6x1` set screws, ball end mills at `1/8"`, `1/16"` and 15 mm, and
+a 4 mm solid carbide line.
 
-One price row moves out of its band, and it is pinned in `PINNED_SHORTFALLS` (`core/price.py`)
-with its reason. That row is the hex bolt p50 at the default size. The bolt sizes that offer
-the most lengths are the small, cheap ones, so counted per SKU the grouped runs pull the p50
-below the census band. At 100K the row is in band, and no flat bolt's price moves.
+A type needs room for a run. "Every SKU is different" rejects a SKU its brand already made,
+so a type with few specs loses the middle of its runs: hex keys came out with 2,210 of 4,314
+products single-SKU, and taps lost 42% of their run SKUs. Hex nuts, hex keys and taps stay
+on the knob, and so do bearings, whose line is one bearing number in three closures.
+
+Three price rows move out of their bands, each at one build, and each is pinned in
+`PINNED_SHORTFALLS` (`core/price.py`) with its reason. At the default size, a hex bolt product
+is nearly always one diameter's lengths, so no pair in it is twice the price, and about 30
+pairs of flat set screws decide their larger-size row. At 100K, the set screws' longer-costs-more
+row sits above its band, because a run line's pairs are neighboring lengths of one size.
 
 `GeneratorConfig(grouped=False)` builds the flat catalog alone. `tests/test_catalog_grouped.py`
-builds the eight types with the pass and without. It holds each type's grouped products to
-its table, the pass to its size, and every target to its products. It also checks that
-every flat SKU is in the grouped build unchanged, and that every reference query has at
-least 5 products in the committed catalog.
+builds the nine types with the pass and without. It holds each type's run lines to its table
+and to being most of the type, the pass to its budget, and every target to its products. It
+also checks that the flat products that stay are the flat build's first, unchanged, that a
+product's title names no value on which its SKUs differ, and that every reference query has
+at least 5 products in the committed catalog.
 
 ## Serving it with PRISM
 
@@ -1528,17 +1540,15 @@ entries of `golden-catalog/stats.json` whose `name` starts with `price `
 python3 -c "import json; r = [c for c in json.load(open('golden-catalog/stats.json'))['comparisons'] if c['name'].startswith('price ')]; print(len(r), 'rows,', sum(c['band'][0] <= c['achieved'] <= c['band'][1] for c in r), 'in band')"
 ```
 
-It prints `72 rows, 72 in band`: no row is pinned.
+It counts the rows in band: a pinned row is out of band at one build.
 `uv run python scripts/fit_price_model.py` prints every row at both sizes
 side by side (about 2 minutes).
 
-**Pins.** No row is pinned: the last two went when the wheel brand spread
-(#80) and the kit p90/p10 (#76) landed in band at both sizes, and
-`test_no_row_is_pinned_and_the_pin_machinery_is_held_empty` holds
-`price.PINNED_SHORTFALLS` empty. The machinery stays for a row that no model
-of this shape holds: it is declared with its reason and the issue that fixes
-it, and bounded at each size by the figure `price.PINNED_FIGURES` records,
-within `PIN_TOLERANCE`; the plants in `tests/test_price.py` exercise it.
+**Pins.** Three rows are pinned, each at one build: the rows the run lines of
+#766 move, listed under "Grouped product families". `test_three_rows_are_pinned_each_at_one_build`
+holds that list. A pinned row is declared with its reason, and bounded at each
+size by the figure `price.PINNED_FIGURES` records, within `PIN_TOLERANCE`; the
+plants in `tests/test_price.py` exercise it.
 
 A declared reason lives in `price.PINNED_SHORTFALLS`, and `stats.json` carries
 it in the row's `note`. A pin is never a wider band: a row that leaves its

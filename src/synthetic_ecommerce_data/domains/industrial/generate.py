@@ -263,6 +263,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self._published: set[str] = set()
         self.counters: dict[str, int] = {} if counters is None else counters
         self._rotations: dict[str, int] = {}
+        #: End mill records finished so far, on matching shanks and in all.
+        self._shank_records = [0, 0]
+        #: In the grouped pass's fill, past its targets.
+        self._filling = False
         #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
         #: for the main generation.
         self._pins: dict[str, float] = {}
@@ -342,6 +346,11 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             type_key, price.page_pack_draw(self.config.seed, type_key, brand, held)
         )
         return numeric_attribute("Units per Pack", str(quantity), float(quantity))
+
+    @property
+    def in_run(self) -> bool:
+        """Whether the line being built is a run line, on its type's table (:mod:`.grouped`)."""
+        return self._variant_table is not self.config.variants_per_product
 
     def _variant_count(self) -> int:
         """How many variants the next product offers: from the ONE distribution knob, or
@@ -499,13 +508,26 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         # shuffled pool afterwards. Truncating after the shuffle throws away a
         # random part of the window, which is the lottery again by another
         # route: measured that way, 15 mm came back to zero square end mills.
-        window = min(len(matching), count)
+        if self._filling:
+            # A run line's SKUs outweigh a flat line's, and a long line is never on matching
+            # shanks, so a draw per line misses the rate per record. A fill line takes the
+            # policy the record count needs. A target's line keeps its draw: it has to be
+            # able to reach a size either pool holds.
+            shanks_match = self._shank_records[0] < (
+                cfg.shank_equals_cutting_dia * self._shank_records[1]
+            )
+        draft.shanks_match = shanks_match
         pool_of = matching if shanks_match else full
-        start = self._rotate(
-            f"cutting_dia:{system}:{'match' if shanks_match else 'any'}", len(pool_of)
-        )
-        chosen = [pool_of[(start + offset) % len(pool_of)] for offset in range(window)]
-        rng.shuffle(chosen)
+        key = f"cutting_dia:{system}:{'match' if shanks_match else 'any'}"
+        if self.in_run:
+            # A run line sells contiguous sizes, and a long one has to leave the matching
+            # shanks: only the wider series offers its 10 to 15 diameters.
+            chosen = self._offered_run(f"{key}:run", pool_of, count)
+        else:
+            window = min(len(matching), count)
+            start = self._rotate(key, len(pool_of))
+            chosen = [pool_of[(start + offset) % len(pool_of)] for offset in range(window)]
+            rng.shuffle(chosen)
 
         for dia in chosen:
             child = ChildDraft(system=system)
@@ -601,7 +623,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             else [float(f) for f in series.DRILL_FRACTIONAL]
         )
         rng.shuffle(pool)
-        for size_in in pool[:count]:
+        offered = self._offered_run(f"drill:{system}", pool, count) if self.in_run else pool[:count]
+        for size_in in offered:
             style = self._style(system)
             child = ChildDraft(system=system)
             # A jobber drill's flute length and overall length follow the size,
@@ -1062,19 +1085,32 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             (category,) = taxonomy.LEAVES[key]
             weight = cfg.type_weights.get(key, typespec.modelled()[key].share)
             count = max(1, round(cfg.lines * weight))
-            for _ in range(count):
+            for _ in range(self._flat_products(count)):
                 draft = builder(self, key, category)
                 self._keep(lines, self._finish_line(key, draft, self.minter.next_index()))
         elif kind == "new":
-            for _ in range(cfg.new_type_products.get(key, 0)):
+            count = cfg.new_type_products.get(key, 0)
+            for _ in range(self._flat_products(count)):
                 self._keep(lines, self._new_type_line(key))
         else:
+            count = 0
             lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
+        budget = grouped.sku_budget(_sku_total(lines), len(lines), count)
+        if self._runs_lines():
+            self._variant_table = grouped.VARIANTS[key]
         if cfg.must_stock:
             lines.extend(self._must_stock(lines))
-        if cfg.grouped and key in grouped.VARIANTS:
-            lines.extend(self._grouped(lines))
+        if self._runs_lines():
+            lines.extend(self._grouped(lines, budget))
         return lines
+
+    def _runs_lines(self) -> bool:
+        """Whether this type's SKUs sit mostly in lines with a run of sizes (:mod:`.grouped`)."""
+        return self.config.grouped and self.type_key in grouped.VARIANTS
+
+    def _flat_products(self, count: int) -> int:
+        """How many of the type's ``count`` products the main generation builds."""
+        return grouped.flat_products(self.type_key, count) if self._runs_lines() else count
 
     def _builder(self):
         """This type's builder: its type module's ``make``."""
@@ -1136,28 +1172,20 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 self.rng, self._pins = own_rng, own_pins
         return added
 
-    def _grouped(self, lines: list[ProductLine]) -> list[ProductLine]:
-        """This type's grouped products (:mod:`.grouped`): a run of variants each.
+    def _grouped(self, lines: list[ProductLine], budget: int) -> list[ProductLine]:
+        """This type's run lines (:mod:`.grouped`): the SKUs of the products it did not build.
 
-        Built after every other line and from streams of their own, so no line built
-        before moves. First :data:`.grouped.SHARE` of the type's product count, then, for
-        each target the type owns, products until :func:`.grouped.wanted` of the pass's
-        products carry it.
+        Built after every other line and from streams of their own, so no line built before
+        moves. First, for each target the type owns, lines until :func:`.grouped.wanted` of
+        them carry it. Then lines until the type holds ``budget`` SKUs.
         """
         key = self.type_key
         builder = self._builder()
         (category,) = taxonomy.LEAVES[key]
         added: list[ProductLine] = []
-        own_rng, own_table = self.rng, self._variant_table
-        self._variant_table = grouped.VARIANTS[key]
+        own_rng = self.rng
 
         try:
-            self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped")
-            for _ in range(round(len(lines) * grouped.SHARE)):
-                draft = builder(self, key, category)
-                line = self._finish_line(key, draft, self.minter.next_index())
-                if line is not None:
-                    added.append(line)
             for entry in grouped.TARGETS:
                 if entry.types[0] != key:
                     continue
@@ -1182,10 +1210,24 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                     if line is not None and _stocks(entry, [line]):
                         added.append(line)
                         have += 1
+            self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped")
+            self._filling = True
+            for _ in range(grouped.MAX_ATTEMPTS):
+                if _sku_total(lines) + _sku_total(added) >= budget:
+                    break
+                draft = builder(self, key, category)
+                line = self._finish_line(key, draft, self.minter.next_index())
+                if line is not None:
+                    added.append(line)
         finally:
-            self.rng, self._variant_table = own_rng, own_table
+            self.rng = own_rng
+            self._filling = False
         self._bump("grouped_lines", len(added))
         return added
+
+
+def _sku_total(lines: Iterable[ProductLine]) -> int:
+    return sum(len(line.children) for line in lines)
 
 
 def _stocks(entry, lines: Iterable[ProductLine]) -> bool:

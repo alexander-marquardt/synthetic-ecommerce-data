@@ -1020,17 +1020,26 @@ PIN_TOLERANCE = 0.02
 #: ``tests/test_price.py`` to the side of the band the cause puts them. A
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
-#: One row, at the default size only (#710): every other row is in its band at
-#: both builds (the last pin before it, the kit p90/p10, went with the wider kit
-#: range, #76).
-_BOLT_P50 = "price p50 (USD): bolt_hex"
+#: Three rows the run lines of #766 move, each at one build: every other row is
+#: in its band at both builds.
+_BOLT_TWICE = "price smaller costs 2x+, same product: bolt_hex"
+_SET_SCREW_SIZE = "price larger size costs more: set_screws_hex_socket"
+_SET_SCREW_LENGTH = "price longer costs more: set_screws_hex_socket"
 PINNED_SHORTFALLS: dict[str, str] = {
-    _BOLT_P50: (
-        "below band at the default size: the grouped hex bolts (#710) are runs of 6 to 15 "
-        "lengths, and the sizes that offer the most lengths are the small, cheap ones (the "
-        "R8 7/16-14 target among them), so counted per SKU they pull the default build's "
-        f"p50 from 18.41 to {_quoted(_BOLT_P50, 0):.2f}; the flat bolts are priced as "
-        "before, and the 100K build is in band"
+    _BOLT_TWICE: (
+        "below band at the default size: a default-size hex bolt product is nearly always a "
+        "run of one diameter's lengths, and no pair of lengths is twice the price, so the "
+        f"row lands at {_quoted(_BOLT_TWICE, 0):.4f}; the 100K build is in band"
+    ),
+    _SET_SCREW_SIZE: (
+        "above band at the default size: about 30 pairs of flat set screws decide the row, too few "
+        f"to hold the census's rate, and they land at {_quoted(_SET_SCREW_SIZE, 0):.3f}; "
+        "the 100K build is in band"
+    ),
+    _SET_SCREW_LENGTH: (
+        "above band at 100K: a run line's pairs are neighboring lengths of one size and "
+        f"carry little spec noise, so they land at {_quoted(_SET_SCREW_LENGTH, 1):.3f}; "
+        "the default build is in band"
     ),
 }
 

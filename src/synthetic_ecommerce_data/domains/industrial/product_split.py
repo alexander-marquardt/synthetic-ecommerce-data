@@ -91,8 +91,7 @@ def distribution_problems(
 
     A grouped type (:data:`.grouped.VARIANTS`) also draws its own table for the products the
     grouped pass adds, so both bounds are the larger of the knob's and its table's. The
-    grouped products outnumber the flat ones in a small build, where the pass's targets are
-    most of a type, so the knob's median alone would refuse it."""
+    grouped products outnumber the flat ones, so the knob's median alone would refuse it."""
     problems = []
     knob = _bounds(config.variants_per_product)
     for key, row in distribution.items():

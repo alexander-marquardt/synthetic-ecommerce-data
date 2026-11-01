@@ -14,7 +14,8 @@ built by that type's OWN builder -- so its naming, title and every derived
 dimension follow the same rules as every other line -- from a stream seeded
 by the entry alone, trying successive lines until one carries a matching SKU.
 That line is added whole: it has the 1-5 variants its builder drew like any
-other line, one of which is the required SKU. An entry the random catalog
+other line (a grouped type's run, :mod:`.grouped`), one of which is the required
+SKU. An entry the random catalog
 already satisfies adds nothing. ``tests/test_catalog_must_stock.py`` asserts
 every entry is stocked on the committed catalog, and that the pass is what
 stocks them.
