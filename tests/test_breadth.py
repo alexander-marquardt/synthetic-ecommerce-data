@@ -57,7 +57,7 @@ def test_every_row_yields_valid_skus(catalog, breadth_lines):
     assert set(by_key) == {row.key for row in breadth.rows()}
     for row in breadth.rows():
         line = by_key[row.key]
-        expected = max(1, min(row.skus, len(row.size_values)))
+        expected = breadth.published_skus(row)
         assert len(line.children) == expected, (row.key, len(line.children))
         for child in line.children:
             assert child.sku, row.key

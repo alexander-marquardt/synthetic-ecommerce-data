@@ -32,6 +32,7 @@ from synthetic_ecommerce_data.core.drawing.style import (
     MATERIAL_HATCH,
     house_style,
 )
+from synthetic_ecommerce_data.domains.industrial import pack
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     BRAND_INK,
@@ -579,10 +580,18 @@ def _handled_k(width: float, height: float) -> float:
     return 0.92 * 2 * radius / math.hypot(width, height)
 
 
+def _golden_singles():
+    """Every committed SKU but a pack card, whose fan is wider than the one part ``_drawn_size``
+    measures (gen#14: ``tests/test_pack_axis_14.py``)."""
+    for parent, variant, record in _golden_skus():
+        if parent["product_type"] not in pack.AXES or record.get("Units per Pack") == "1":
+            yield parent, variant, record
+
+
 def test_the_lens_appears_exactly_when_the_rule_says():
     """Over every committed SKU: a lens iff the part is drawn w <= 1/5 AND h <= 1/6 of the sheet."""
     wrong, lensed, plain = [], 0, 0
-    for parent, variant, record in _golden_skus():
+    for parent, variant, record in _golden_singles():
         type_key = parent["product_type"]
         data, _ = draw_sku(type_key, parent["brand"], record)
         expected = _too_small(*_drawn_size(type_key, record))
@@ -704,7 +713,7 @@ def test_the_lens_shows_the_same_part_enlarged():
     from synthetic_ecommerce_data.core.drawing.sheet import magnifier
 
     checked = 0
-    for parent, variant, record in _golden_skus():
+    for parent, variant, record in _golden_singles():
         type_key = parent["product_type"]
         width, height = _drawn_size(type_key, record)
         mag = magnifier(width, height)

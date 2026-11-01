@@ -60,6 +60,7 @@ from catalog_size import DEPTH_SKUS
 from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER
+from synthetic_ecommerce_data.domains.industrial import pack
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -179,8 +180,10 @@ def _duplicates(by_line: dict[str, list[dict]], field: str) -> list[tuple[str, s
 
 
 def _axis_values(doc: dict) -> list[str]:
-    """Every published value of each of the SKU's variant axes."""
-    return [value for axis in doc["variant_axes"] for value in doc["facets"].get(axis, [])]
+    """Every published value of each of the SKU's variant axes, but its pack quantity: a title
+    states that as its ``5PCS`` lead, and a bare ``2`` is stated by any ``2 FL`` (gen#14)."""
+    axes = [axis for axis in doc["variant_axes"] if axis != "units_per_pack"]
+    return [value for axis in axes for value in doc["facets"].get(axis, [])]
 
 
 def _states_an_axis_value(doc: dict) -> bool:
@@ -269,6 +272,22 @@ def test_the_description_says_something_the_title_did_not(
     )
 
 
+def _per_quantity(by_line: dict[str, list[dict]]) -> list[tuple[str, list[dict]]]:
+    """The lines, with one on a pack axis split by quantity: a size repeats across its packs, and
+    the title names the pair by its count and its size between them (gen#14)."""
+    out: list[tuple[str, list[dict]]] = []
+    for product_id, docs in sorted(by_line.items()):
+        if docs[0]["product_type"] not in pack.AXES:
+            out.append((product_id, docs))
+            continue
+        quantities: dict[str, list[dict]] = {}
+        for doc in docs:
+            quantity = doc["facets"].get("units_per_pack", [""])[0]
+            quantities.setdefault(quantity, []).append(doc)
+        out.extend((product_id, group) for group in quantities.values())
+    return out
+
+
 def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
     by_line: dict[str, list[dict]],
 ) -> None:
@@ -283,7 +302,7 @@ def test_every_title_names_a_value_that_is_this_skus_alone_in_its_line(
     how 10 SKUs passed this while naming nothing of their own.
     """
     failures: list[tuple[str, str]] = []
-    for product_id, docs in sorted(by_line.items()):
+    for product_id, docs in _per_quantity(by_line):
         if len(docs) < 2:
             continue
         # Per ATTRIBUTE, not per value. The same string legitimately appears on

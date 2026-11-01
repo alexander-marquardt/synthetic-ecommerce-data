@@ -42,8 +42,13 @@ from synthetic_ecommerce_data.domains.industrial.geometry import flapdisc as fla
 from synthetic_ecommerce_data.domains.industrial.geometry import tap as tap_geom
 from synthetic_ecommerce_data.domains.industrial.geometry import washer as washer_geom
 from synthetic_ecommerce_data.domains.industrial.geometry.attrs import REFUSALS
+from synthetic_ecommerce_data.domains.industrial.pack import AXES
 
 Record = dict[str, str]
+
+#: The types whose card draws its published pack (gen#14): ``core/drawing`` reads them here,
+#: through the one edge it holds into this domain's figures.
+PACK_TYPES = frozenset(AXES)
 
 
 @dataclass(frozen=True)

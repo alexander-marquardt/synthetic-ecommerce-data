@@ -809,6 +809,7 @@ def _modelled_skus(catalog, type_key):
         for line in catalog.lines
         if line.type_key == type_key and line.spec_quality != "fast_and_cheap"
         for child in line.children
+        if not child.detail_image_id  # a pack is no census price (gen#14)
     ]
 
 

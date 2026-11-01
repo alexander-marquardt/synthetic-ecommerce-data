@@ -103,12 +103,12 @@ RUN_LINES = 2 * grouped.RUN_BUILD_LINES
 
 @pytest.fixture(scope="module")
 def flat():
-    return generate(replace(GeneratorConfig(), grouped=False), types=TYPES)
+    return generate(replace(GeneratorConfig(), grouped=False, pack_axis=False), types=TYPES)
 
 
 @pytest.fixture(scope="module")
 def full():
-    return generate(GeneratorConfig(), types=TYPES)
+    return generate(replace(GeneratorConfig(), pack_axis=False), types=TYPES)
 
 
 @pytest.fixture(scope="module")
@@ -283,7 +283,9 @@ def test_product_constants_agree_and_the_distribution_check_reads_the_type_table
     assert split_products(full) == {}
     distribution = skus_per_product(full)
     assert distribution_problems(distribution, GeneratorConfig()) == []
-    refused = distribution_problems(distribution, replace(GeneratorConfig(), grouped=False))
+    refused = distribution_problems(
+        distribution, replace(GeneratorConfig(), grouped=False, pack_axis=False)
+    )
     assert refused and all("the knob" in p for p in refused)
 
 

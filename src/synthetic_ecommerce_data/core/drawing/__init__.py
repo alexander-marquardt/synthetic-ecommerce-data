@@ -35,9 +35,10 @@ from collections.abc import Mapping, Sequence
 
 from synthetic_ecommerce_data.core import brands, size_rungs
 from synthetic_ecommerce_data.core.drawing import brand_mark
+from synthetic_ecommerce_data.core.drawing.model import fan
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, PACK_TYPES
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
     MATERIAL_ATTRIBUTES,
@@ -231,15 +232,31 @@ def _figure(product_type: str):
         raise UnknownTypeError(f"no figure for product type {product_type!r}") from exc
 
 
+def _pack_count(product_type: str, record: Mapping[str, str]) -> int:
+    """How many items a SKU's card draws: its published pack, on a type with a pack axis.
+
+    A bolt's ``Units per Pack`` is how its price is quoted, not a variant, and its one drawing
+    is the item's (gen#14)."""
+    if product_type not in PACK_TYPES:
+        return 1
+    return int(record.get("Units per Pack") or 1)
+
+
 def _draw(
     product_type: str, brand: str, record: Mapping[str, str], scale: float
 ) -> tuple[bytes, str]:
     figure_fn, _ = _figure(product_type)
     drawn = figure_fn(dict(record))
+    figure = drawn.figure
+    count = _pack_count(product_type, record)
+    if count > 1:
+        figure = fan(figure, count)
+        x0, y0, x1, y1 = figure.bounds()
+        scale = min(scale, type_scale((x1 - x0, y1 - y0)))
     material = _first(record, MATERIAL_ATTRIBUTES)
     finish = _first(record, FINISH_ATTRIBUTES)
     data = paint(
-        drawn.figure,
+        figure,
         house_style(brand),
         part_fill(finish, material),
         material_hatch(material),

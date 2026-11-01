@@ -563,8 +563,8 @@ differently (`core/voice.py`).
 * **Pricing unit and order multiple** (gen#14) are two plain fields on every SKU, `pricing_unit`
   (`Each`, or `Per Pack` when the record publishes a `Units per Pack` above 1) and
   `order_multiple` (1: a pack is ordered whole). They are not variants and not facets. The second
-  variant axis (a sparse set of packs per size, a SKU and an image for each existing pair) is the
-  rest of gen#14 and is not built yet.
+  variant axis (a sparse set of packs per size, a SKU and a card for each existing pair) is
+  [docs/package-quantity.md](docs/package-quantity.md).
 * **Descriptions** keep the spec clause and add the brand's template: a use
   line true of every product of the type, a family line naming the brand, its
   range and series, a generic benefit of a material or finish the record

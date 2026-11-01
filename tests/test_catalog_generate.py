@@ -331,8 +331,10 @@ def test_the_line_and_sku_count_knobs_move_the_catalog_size():
     assert large["lines"] > small["lines"] * 1.8
     assert large["skus"] > small["skus"] * 1.8
 
-    narrow_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),), grouped=False)
-    wide_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),), grouped=False)
+    # So is the pack axis (gen#14): a pack line sells its sizes across its quantities.
+    off = {"grouped": False, "pack_axis": False}
+    narrow_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((1, 1.0),), **off)
+    wide_cfg = GeneratorConfig(lines=60, seed=3, variants_per_product=((5, 1.0),), **off)
     narrow = measure(_without_breadth(generate(narrow_cfg)))
     wide = measure(_without_breadth(generate(wide_cfg)))
     assert narrow["skus"] == narrow["lines"], "one variant per product, exactly"
