@@ -11,7 +11,8 @@ from __future__ import annotations
 KINDS = (
     "Storage Basket", "Storage Boxes", "Storage Box", "Garment Bags", "Hanger", "Clothes Hangers",
     "Wash Bags", "Nursery Storage", "Laundry Basket", "Drying Racks", "Clothes Airer",
-    "Wall Hooks", "Door Stop", "Car Boot Organiser", "Cup Holder", "Nappy Caddy", "Money Box",
+    "Wall Hooks", "Picture Hook", "Door Stop", "Car Boot Organiser", "Cup Holder", "Nappy Caddy",
+    "Money Box",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

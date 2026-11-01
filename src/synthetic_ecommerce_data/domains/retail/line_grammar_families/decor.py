@@ -9,7 +9,7 @@ from __future__ import annotations
 
 #: The product types of the family.
 KINDS = (
-    "Photo Frame", "Decorative Tray", "Clock", "Christmas Decoration", "Ornament",
+    "Photo Frame", "Plant Pot", "Decorative Tray", "Clock", "Christmas Decoration", "Ornament",
     "Artificial Flowers", "Scented Candle", "Wallpaper", "Paint", "Trophy", "Fridge Magnets",
 )  # fmt: skip
 #: The lead word of a model.
