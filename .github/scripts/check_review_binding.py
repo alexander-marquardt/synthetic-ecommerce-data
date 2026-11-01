@@ -15,7 +15,9 @@ lines of its verdict::
     Tier: <a tier of .github/review_verdict_tiers.json: docs ... production-runtime>
 
 ``*``, backticks and ``#`` around a line are ignored, so a bold heading reads. The newest
-verdict by a non-bot author decides.
+verdict by a non-bot author decides. A verdict naming another sha does not outrank one at the PR
+head, whatever its comment time (agent-ops#809); a verdict at no readable head keeps its place by
+time, so a malformed FIX is never dropped.
 
 What passes
 -----------
@@ -122,13 +124,20 @@ def _is_bot(login: str) -> bool:
     return not login or login == "github-actions" or login.endswith("[bot]")
 
 
-def newest_verdict(entries: Sequence[Mapping[str, str]]) -> Verdict | None:
-    """The newest verdict by a non-bot author; ``entries`` carry body, created_at, login."""
+def newest_verdict(
+    entries: Sequence[Mapping[str, str]], head: str = ""
+) -> Verdict | None:
+    """The newest verdict by a non-bot author; ``entries`` carry body, created_at, login.
+
+    Once a verdict names ``head``, a verdict naming another sha is out of the running.
+    """
     parsed = [
         (entry["created_at"] or "", n, verdict)
         for n, entry in enumerate(entries)
         if not _is_bot(entry["login"]) and (verdict := parse_verdict(entry["body"]))
     ]
+    if any(item[2].head == head.lower() for item in parsed):
+        parsed = [item for item in parsed if item[2].head in (head.lower(), None)]
     return max(parsed, key=lambda item: item[:2])[2] if parsed else None
 
 
@@ -180,7 +189,7 @@ def judge(
         return Judgement(
             True, f"exempt: every changed path is one {author} may change unreviewed"
         )
-    verdict = newest_verdict(entries)
+    verdict = newest_verdict(entries, head)
     if verdict is None:
         return Judgement(False, NO_VERDICT)
     if verdict.kind is None:
