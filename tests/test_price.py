@@ -195,20 +195,14 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
     assert scored == set(TWICE_SCORED)
 
 
-def test_one_row_is_pinned_and_only_at_the_default_size():
-    """#76 took the last pin (the kit p90/p10) and #80 the one before it
-    (the wheel brand spread). The grouped pass (#710) put one back: the bolt
-    p50, below band at the default size and in band at 100K. Any other row
-    that falls out is red here and in the every-row-in-band tests rather
-    than silently disclosed. The plants below exercise the machinery."""
-    name = "price p50 (USD): bolt_hex"
-    assert set(price.PINNED_SHORTFALLS) == {name}
-    assert price.PINNED_SHORTFALLS[name].startswith("below band")
-    default, hundred_k = price.PINNED_FIGURES[name]
-    assert default is not None and hundred_k is None
+def test_no_row_is_pinned_and_the_pin_machinery_is_held_empty():
+    """#76 took the kit p90/p10 pin, #80 the wheel brand spread, and #766 the bolt
+    p50. Any row that falls out is red here and in the every-row-in-band tests
+    rather than silently disclosed. The plants below exercise the machinery."""
+    assert price.PINNED_SHORTFALLS == {}
+    assert price.PINNED_FIGURES == {}
     figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
-    builds = (figures["default"], figures["hundred_k"])
-    assert [set(build["price_pins"]) for build in builds] == [{name}, {name}]
+    assert figures["default"]["price_pins"] == figures["hundred_k"]["price_pins"] == {}
 
 
 def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):

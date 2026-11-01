@@ -79,9 +79,9 @@ class GeneratorConfig:
     #: the main generation, whatever the random streams drew.
     must_stock: bool = True
 
-    #: Add the grouped products (:mod:`..domains.industrial.grouped`, #710) after the
-    #: must-stock pass: product families whose SKU count follows their type's own table
-    #: rather than ``variants_per_product``. Off, the catalog is exactly the flat one.
+    #: Move most of a grouped type's SKUs into run lines (:mod:`..domains.industrial.grouped`,
+    #: #710, #766): product families whose SKU count follows their type's own table rather
+    #: than ``variants_per_product``. Off, the catalog is exactly the flat one.
     grouped: bool = True
 
     #: Products per NEWER product type, as a SHARE of ``lines``: a type with

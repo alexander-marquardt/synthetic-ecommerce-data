@@ -721,7 +721,10 @@ def test_every_decision_is_the_same_at_every_catalog_size(controls_by_size) -> N
     sizes = sorted(controls_by_size)
     for key in ("sizes_included", "bore_dia", "overall_length"):
         assert [controls_by_size[lines][key] for lines in sizes] == ["list"] * len(sizes), key
-    assert [controls_by_size[lines]["list_number"] for lines in sizes] == ["withheld"] * len(sizes)
+    # Under the presence gate at the smallest sizes, so not offered there either.
+    assert {controls_by_size[lines].get("list_number", "withheld") for lines in sizes} == {
+        "withheld"
+    }
 
 
 def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:
