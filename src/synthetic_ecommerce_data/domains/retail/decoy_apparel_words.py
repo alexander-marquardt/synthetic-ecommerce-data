@@ -185,10 +185,6 @@ AUDIENCE_COPY = {
     "Menswear-Inspired": "{c} {n} with menswear-inspired tailoring, the cut of our {word} {n}.",
     "Mini-Me": "{c} {n}, a smaller version of our {word} {n}, sized for children.",
 }
-AUDIENCE = {"Womens":(("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
-            "Mens": (("Womens-Style", "womens"), ("Womens Fit", "womens"), ("Girls Fit", "girls")),
-            "Kids": (("Mini-Me Mens", "mens"), ("Mini-Me Womens", "womens"),
-                     ("Mens-Style", "mens"))}  # fmt: skip
 ABSENT = (("Leather-Look", "leather", "A finish made to look like leather; it holds no leather."),
           ("Suede-Look", "suede", "A soft finish that resembles suede; no suede is used."),
           ("Cashmere-Feel", "cashmere", "Soft to the touch like cashmere; it holds no cashmere."),
