@@ -1,26 +1,40 @@
 """A domain registers its tables with core, and core reads them without importing it (#128).
 
-Core used to answer "is this a product type?" (an image id's first segment) and "which
-brand family is this type in?" from industrial tables it imported, so a record of any
-other domain's type was refused. These tests register a second, test-only domain and
-check that core accepts its type through the registry alone.
+Core used to answer "is this a product type?" (an image id's first segment), "which
+brand family is this type in?" and "how is this type drawn?" from industrial tables it
+imported, so a record of any other domain's type was refused. These tests register a
+second, test-only domain and check that core accepts and draws its type through the
+registry alone.
 """
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
 import synthetic_ecommerce_data.domains.industrial  # noqa: F401 - registers the domain
-from synthetic_ecommerce_data.core import domain, emit
+from synthetic_ecommerce_data.core import domain, drawing, emit
 from synthetic_ecommerce_data.core.brands import BRAND_BOOK
+from synthetic_ecommerce_data.core.drawing.model import Figure
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, PACK_TYPES
 
 #: A type no industrial table names.
 MUG = "test_mug_128"
+
+
+def _mug(record):
+    figure = Figure(size_in=4.0)
+    figure.rect(0.0, 0.0, 3.0, 4.0)
+    return SimpleNamespace(figure=figure, source="record")
+
 
 SECOND = domain.Domain(
     name="test_second_128",
     product_types=lambda: frozenset({MUG}),
     brand_families=lambda: {MUG: "abrasive"},
+    figures=lambda: {MUG: (_mug, (3.0, 4.0))},
+    pack_types=lambda: frozenset({MUG}),
 )
 
 
@@ -81,3 +95,27 @@ def test_a_second_registration_under_a_taken_name_is_refused(second_domain):
     other = domain.Domain(SECOND.name, lambda: frozenset(), lambda: {})
     assert _clashes(other)
     assert not _clashes(SECOND)  # the same object again is not a clash
+
+
+def test_the_industrial_domain_registers_its_figures():
+    assert domain.figure("end_mill_square") == FIGURES["end_mill_square"]
+    assert all(domain.is_pack_type(t) for t in PACK_TYPES)
+    plain = next(t for t in FIGURES if t not in PACK_TYPES)
+    assert not domain.is_pack_type(plain)
+
+
+def test_core_draws_a_second_domains_figure(second_domain):
+    svg, source = drawing.draw_sku(MUG, BRAND_BOOK[0].name, {})
+    assert source == "record"
+    assert drawing.svg_problems(svg) == []
+
+
+def test_core_reads_a_second_domains_pack_types(second_domain):
+    one, _ = drawing.draw_sku(MUG, BRAND_BOOK[0].name, {"Units per Pack": "1"})
+    three, _ = drawing.draw_sku(MUG, BRAND_BOOK[0].name, {"Units per Pack": "3"})
+    assert one != three
+
+
+def test_a_type_no_domain_draws_is_an_unknown_type():
+    with pytest.raises(drawing.UnknownTypeError, match=MUG):
+        drawing.draw_sku(MUG, BRAND_BOOK[0].name, {})
