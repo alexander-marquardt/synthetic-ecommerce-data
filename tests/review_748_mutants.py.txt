@@ -1,0 +1,36 @@
+"""Mutants on the changed lines of #748; the receipt a reviewer re-runs."""
+LOOKS = "src/synthetic_ecommerce_data/domains/retail/pack_looks.py"
+KIT = "src/synthetic_ecommerce_data/domains/retail/kit_packs.py"
+EXPORT = "src/synthetic_ecommerce_data/domains/retail/export.py"
+TESTS = ["tests/test_retail_pack_looks_748.py"]
+LINES = ["tests/test_retail_pack_lines_748.py"]
+MUTANTS = [
+    (EXPORT, "lipstick_looks.params(rec) | pack_looks.params(rec)", "lipstick_looks.params(rec)", "spec-drops-the-look"),
+    (LOOKS, 'if KINDS.get(kind) != rec["drawing"]["shape"]:', 'if kind not in KINDS:', "shape-unchecked"),
+    (LOOKS, 'if KINDS.get(kind) != rec["drawing"]["shape"]:', 'if KINDS.get(kind) == rec["drawing"]["shape"]:', "gate-inverted"),
+    (LOOKS, 'place(kind, rec.get("product_line") or rec["title"])', 'place(kind, rec["title"])', "line-ignored"),
+    (LOOKS, 'place(kind, rec.get("product_line") or rec["title"])', 'place(kind, rec.get("product_line") or "")', "title-fallback-gone"),
+    (LOOKS, "n, choice = divmod(n, len(options))", "choice = n % len(options)", "digits-not-advanced"),
+    (LOOKS, "return pow(base, start + _line_number(line), PRIME)", "return pow(base, start, PRIME)", "line-unread"),
+    (LOOKS, "return pow(base, start + _line_number(line), PRIME)", "return pow(3423, 1957 + _line_number(line), PRIME)", "kind-base-ignored"),
+    (LOOKS, '"Foundation": (3423, 1957)', '"Foundation": (3423, 1958)', "foundation-start-moved", LINES),
+    (LOOKS, '"Face Cream": (685, 3785)', '"Face Cream": (685, 3786)', "face-cream-start-moved", LINES),
+    (LOOKS, "PRIME = 6047", "PRIME = 6053", "prime-over-a-room"),
+    (LOOKS, '"top": tuple(family.tops),', '"top": tuple(family.tops)[:1],', "one-top"),
+    (LOOKS, '"form": tuple(family.forms),', '"form": tuple(family.forms)[:1],', "one-form"),
+    (KIT, "return _pack(family, paint, fill, label, **look) if look else plain(paint, fill, label)", "return plain(paint, fill, label)", "look-ignored"),
+    (KIT, "return _pack(family, paint, fill, label, **look) if look else plain(paint, fill, label)", "return _pack(family, paint, fill, label, **(look or dict(form=next(iter(family.forms)), top=next(iter(family.tops)), top_color=fill.accent, emblem=\"none\", trim=fill.accent)))", "plain-gone"),
+    (KIT, '*_lipstick_emblem(emblem, *drawn.mark, trim),\n', "", "emblem-gone"),
+    (KIT, "_lipstick_emblem(emblem, *drawn.mark, trim)", "_lipstick_emblem(emblem, 0, 0, trim)", "emblem-misplaced"),
+    (KIT, "_lipstick_emblem(emblem, *drawn.mark, trim)", "_lipstick_emblem(emblem, *drawn.mark, top_color)", "emblem-ignores-trim"),
+    (KIT, "half = min(family.half, form.panel[2] * 0.62)", "half = family.half", "top-overhangs"),
+    (KIT, "if not family.neck:", "if family.neck:", "neck-inverted"),
+    (KIT, "family.tops[top](form.mouth - 20, half, color, trim)", "family.tops[top](form.mouth, half, color, trim)", "top-on-the-collar"),
+    (KIT, "if family.stamp is None:", "if family.stamp:", "stamp-inverted"),
+    (KIT, "[_word(label, x + w / 2, y + h * 0.37, w - 14, family.max_size)] if label else []", "[]", "flacon-label-gone"),
+    (KIT, "[_word(label, x + w / 2, y + h * 0.37, w - 14, family.max_size)] if label else []", "[_word(label or \"\", x + w / 2, y + h * 0.37, w - 14, family.max_size)]", "flacon-label-unguarded"),
+    (KIT, "*family.tops[top](form.mouth - 20, half, color, trim), collar]", "*family.tops[top](form.mouth - 20, half, color, trim)]", "collar-gone"),
+    (KIT, 'register({shape: _looked(shape) for shape in FAMILIES})', 'register({})', "shapes-unregistered"),
+    (KIT, '"moisturiser_jar": Family(JARS, LIDS, 92, 30),', '"moisturiser_jar": Family(BOTTLES, LIDS, 92, 30),', "jar-draws-bottles"),
+    (KIT, '"jar": Family(JARS, LIDS, 92, 52),', '"jar": Family(JARS, NECK_TOPS, 92, 52),', "jar-takes-necks"),
+]

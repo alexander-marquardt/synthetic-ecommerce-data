@@ -57,6 +57,30 @@ A lip balm is drawn the same way. `tests/test_retail_lipstick_looks_738.py` hold
 the grammar and the ceiling build. The choices are positional, so a new case, bullet or color
 redraws every line.
 
+## Foundation, creams, bath salts and perfume: a line draws its own pack (gen#748)
+
+A foundation, a face cream, a moisturiser, a bath salt and a perfume each drew one pack, so a page
+of separate products read as a grouping failure, as lipstick did. `pack_looks.py` now reads a look
+from the product, `export.drawing_spec` carries it, and `kit_packs.py` draws it:
+
+- The product's line chooses the pack's form, the top, the top's color, the emblem and the trim.
+  A row with no model reads its title instead. A bottle has 8 forms, a jar 7 and a flacon 7. The
+  tops of a bottle and a flacon are a block, a tall cap, a ball, a pump, a dropper, a wide cap and a
+  stepped cap, and a jar's are a ribbed, smooth, dome, low, tiered or knobbed lid.
+- A model is numbered from its words, as a lipstick's is, and each kind raises its base to that
+  number modulo a prime, so no two models of a kind share a look. `pack_looks.BASES` are chosen so
+  that no two lines of a kind draw one picture with the colors taken out, and no two lines of a
+  brand share a form and a top; a new line that lands on a taken one needs a new entry, and a test
+  names it. Two products of one line share their pack: it is the line that chooses it.
+- The top's color used to follow the shade or the color's accent. A look's color is the line's, so
+  the SKUs of a product share a pack and differ by the shade on its body or by its size.
+- Only the kinds of `pack_looks.KINDS` draw a look. Hand wash, shower gel and the other creams print
+  their model's name on the pack, so a tile tells them apart, and they draw as they did.
+
+`tests/test_retail_pack_looks_748.py` holds this over the grammar, and
+`tests/test_retail_pack_lines_748.py` over the ceiling build. The choices are positional, so a new
+form, top or color redraws every line of the family.
+
 ## Face creams: five brands (gen#542)
 
 `type_specs/face_cream.py` adds five brands the generator already sells for other beauty products to the Face Creams leaf (Skincare > Creams >
