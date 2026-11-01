@@ -70,7 +70,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the merge script does not list the file as generated",
-        "scripts/merge_pr.sh",
+        "scripts/merge_pr/config.sh",
         f"  golden-catalog/stats.json\n  {_FILE}\n",
         "  golden-catalog/stats.json\n",
         f"{_MERGE} -k generated_files_are_exactly_what_the_build_writes",
@@ -79,7 +79,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the merge script does not rebuild the file",
-        "scripts/merge_pr.sh",
+        "scripts/merge_pr/tree.sh",
         '--directory "$work" "${BUILDS_REBUILD[@]}"',
         '--directory "$work" python -c pass',
         f"{_MERGE} -k conflict_in_the_measured_builds_is_resolved_by_the_rebuild",
@@ -88,7 +88,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the merge script keeps the conflicted file for the build to import",
-        "scripts/merge_pr.sh",
+        "scripts/merge_pr/config.sh",
         "READ_AT_IMPORT=(\n  src/synthetic_ecommerce_data/core/data/measured_builds.json\n)",
         "READ_AT_IMPORT=(\n)",
         f"{_MERGE} -k conflict_in_the_measured_builds_is_resolved_by_the_rebuild",

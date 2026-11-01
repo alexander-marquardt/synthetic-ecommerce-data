@@ -81,7 +81,7 @@ Where it runs:
   against the merge base at the time it runs, so two PRs that each stay under
   the cap can sum to more than it.
 - The README cap is also measured on the merged tree: `tests/test_readme_split_240.py`
-  is in `CHECKS` in `scripts/merge_pr.sh` (`--print-checks`), which step 3 runs
+  is in `CHECKS` in `scripts/merge_pr/config.sh` (`--print-checks`), which step 3 runs
   on the tree about to merge and the `main-merged-tree` job runs on every push
   to `main` (#700). A merge whose README is over the cap is refused there, not
   found fourteen minutes later in shard 9.

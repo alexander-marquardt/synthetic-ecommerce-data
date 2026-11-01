@@ -207,7 +207,7 @@ visibly end a head height apart.
 To add a product type, or move one into its own module, see
 [How to add a product type](docs/adding-a-type.md).
 
-Merge every pull request with `scripts/merge_pr.sh <PR number>`, not the
+Merge every pull request with `scripts/merge_pr.sh <PR number>` ([docs/merge-pr.md](docs/merge-pr.md)), not the
 GitHub button: this repository has no branch protection, so a green from an
 older `main` can merge and turn `main` red. The script merges current `main`
 in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam

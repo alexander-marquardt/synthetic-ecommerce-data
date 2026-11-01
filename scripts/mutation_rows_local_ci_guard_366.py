@@ -1,7 +1,8 @@
 """Mutation rows for the local CI guard's memory ceiling and lock (gen#366).
 
 Each row plants one defect on a changed line of ``local_ci_guard.py`` or of the lines of
-``merge_pr.sh`` that run the local CI through it, and names the test that must go red.
+``merge_pr.sh`` and ``merge_pr/`` that run the local CI through it, and names the test that
+must go red.
 Found by ``mutation_row.discover``; ``--only "local ci guard:"`` re-runs them.
 """
 
@@ -15,6 +16,8 @@ _G = "tests/test_local_ci_guard_366.py"
 _M = "tests/test_merge_pr_local_ci_guard_366.py"
 _GUARD = "local_ci_guard.py"
 _MERGE = "merge_pr.sh"
+_MERGE_CI = "merge_pr/ci.sh"
+_MERGE_TREE = "merge_pr/tree.sh"
 
 
 def _row(name, file, old, new, test, prop) -> Row:
@@ -68,7 +71,7 @@ def rows() -> list[Row]:
         ),
         _row(
             "a local CI job runs outside the guard",
-            _MERGE,
+            _MERGE_CI,
             "      guarded --notice-fd 3 -- bash --noprofile",
             "      bash --noprofile",
             f"{_M}::test_a_local_job_that_passes_the_memory_ceiling_refuses_the_merge",
@@ -84,7 +87,7 @@ def rows() -> list[Row]:
         ),
         _row(
             "the step-3 checks run outside the guard",
-            _MERGE,
+            _MERGE_TREE,
             'if ! guarded -- uv run -q --locked --directory "$work" pytest',
             'if ! uv run -q --locked --directory "$work" pytest',
             f"{_M}::test_the_step_3_checks_past_the_ceiling_refuse_the_merge",

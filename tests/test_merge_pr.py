@@ -36,6 +36,7 @@ from synthetic_ecommerce_data.core import price
 
 REPO = Path(__file__).resolve().parent.parent
 SCRIPT = REPO / "scripts" / "merge_pr.sh"
+SCRIPT_PARTS = REPO / "scripts" / "merge_pr"
 JOBS_SCRIPT = REPO / "scripts" / "local_ci_jobs.py"
 GUARD_SCRIPT = REPO / "scripts" / "local_ci_guard.py"
 sys.path.insert(0, str(REPO / "scripts"))
@@ -220,6 +221,12 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
+def _copy_the_script(tree: Path) -> None:
+    """Put this tree's script, and the files it sources, in ``tree``."""
+    shutil.copy2(SCRIPT, tree / "scripts" / "merge_pr.sh")
+    shutil.copytree(SCRIPT_PARTS, tree / "scripts" / "merge_pr", dirs_exist_ok=True)
+
+
 @pytest.fixture
 def world(tmp_path: Path) -> dict:
     env = {**os.environ, **_IDENTITY}
@@ -238,7 +245,7 @@ def world(tmp_path: Path) -> dict:
     clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
     subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
-    shutil.copy2(SCRIPT, checkout / "scripts" / "merge_pr.sh")
+    _copy_the_script(checkout)
     shutil.copy2(JOBS_SCRIPT, checkout / "scripts" / "local_ci_jobs.py")
     shutil.copy2(GUARD_SCRIPT, checkout / "scripts" / "local_ci_guard.py")
     bin_dir = tmp_path / "bin"
@@ -934,7 +941,7 @@ def test_the_builds_rebuild_is_the_command_the_builds_module_names() -> None:
 
     assert price.BUILDS_FILE.is_file()
     assert f"python -m {measured_builds.__name__}" in measured_builds.REBUILD
-    assert measured_builds.__name__ in SCRIPT.read_text()
+    assert measured_builds.__name__ in (SCRIPT_PARTS / "config.sh").read_text()
 
 
 
@@ -980,7 +987,7 @@ def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str,
     tree = tmp_path / "main"
     subprocess.run(["git", "clone", "-q", str(REPO), str(tree)], check=True)
     shutil.copy2(REPO / ".github" / "workflows" / "ci.yaml", tree / ".github/workflows/ci.yaml")
-    shutil.copy2(SCRIPT, tree / "scripts" / "merge_pr.sh")
+    _copy_the_script(tree)
     target = tree / path
     target.write_text(edit(target.read_text()))
     # The shell GitHub runs a ``run:`` step with.
