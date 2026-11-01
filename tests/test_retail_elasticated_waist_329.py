@@ -21,7 +21,8 @@ CARGO_LEAF = ("Mens", "Trousers", "Cargo Trousers")
 #: Distinct products in the leaf that are not decoys: the ranking needs real ones to choose from.
 REAL_FLOOR = 12
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
-CLASSES = (1, 2, 3, 4, 5, 6, 7)
+#: No class 3: the Mens depth's decoys carry no audience word (#783).
+CLASSES = (1, 2, 4, 5, 6, 7)
 #: The words a class-4 decoy names: an elastic that is NOT at the waist.
 NOT_AT_THE_WAIST = ("elasticated cuff", "elasticated hem", "elasticated ankle")
 
@@ -87,6 +88,10 @@ def test_the_real_products_are_mens_trousers_with_unique_titles(templates):
 def test_there_are_three_decoys_of_each_class(klass):
     n = sum(1 for d in needs_rows.TABLE if d.klass == klass)
     assert n >= 3, n
+
+
+def test_there_is_no_audience_decoy():
+    assert not [d.code for d in needs_rows.TABLE if d.klass == 3]
 
 
 def test_a_decoy_is_a_mens_trouser_true_in_its_fields(decoys):

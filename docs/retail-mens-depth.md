@@ -8,7 +8,9 @@ Kids are later slices.
 
 ## Text-match decoys (gen#294)
 
-Every added type carries three decoys of each of seven classes, 168 in all. Until gen PR #306
+Every added type carries three decoys of each of six classes, 216 in all: class 3 (an audience
+word) is left out, because `decoy_apparel_words.AUDIENCE_TYPES` holds no Mens type and no men's
+title borrows a women's or kids' word (#783). Until gen PR #306
 (`decoy_rows.TABLE`) merges they are registered in `mens_depth_rows.TABLE`, with the class, the
 misleading word, the query it targets and the policy that repairs it.
 
@@ -21,7 +23,6 @@ product floors count decoys; the tests also hold a floor without them.
 |---|---|---|
 | 1 color | a trim names another color | "Mens White Chinos with Red Waistband" is white |
 | 2 category word | another category's noun as a modifier | "Mens Shirt Collar Blazer" |
-| 3 audience word | a sibling cut | "Mens Boyfriend Fit Chinos" |
 | 4 feature absent | a feature named and missing | "Mens Wool-Free Coat" |
 | 5 shade in the description | a fancy title, the shade in the text | "Mens Moonbeam Chinos" are Ivory |
 | 6 incidental word | a range name, carried as a `range` attribute | "Mens Kettle Hill Chinos" are not kettles; a range is a place, never a color (#446) |
@@ -35,7 +36,7 @@ a brand such as "Black Curlew" is not read as naming a color.
 
 `Mens/Suits & Tailoring` holds five product types, each drawn as its own shape by
 `src/synthetic_ecommerce_data/domains/retail/kit_suits.py` (`suit_jacket`, `suit_trousers`, `waistcoat`,
-`dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same seven classes):
+`dinner_suit`, `formal_accessory`), and each carrying its own decoys (the same six classes):
 
 | Type (`product_type`) | Leaf | Key attributes (structured) | Shape params | SKUs |
 |---|---|---|---|---|

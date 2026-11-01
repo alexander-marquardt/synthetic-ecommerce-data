@@ -126,8 +126,8 @@ NEGATION = re.compile(r"\b(never|not|no|free|without)\b", re.I)
 
 @pytest.mark.parametrize(
     "pid",
-    ["BRD-DCTA02", "BRD-DCGA02", "BRD-DCPA02", "PLT-DY62", "BRD-KDM232", "BRD-KDW232",
-     "BRD-MDST632", "BRD-MDW732", "BRD-NXMET032"],
+    # The Mini-Me class 3 rows of the knitwear and Mens depths are gone (#783).
+    ["BRD-DCTA02", "BRD-DCGA02", "BRD-DCPA02", "PLT-DY62"],
 )
 def test_a_title_states_what_the_product_is_never_what_it_is_not(
     by_id: dict[str, dict], pid: str

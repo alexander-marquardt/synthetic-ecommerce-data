@@ -36,7 +36,7 @@ shades), #181 (neckline) and #275 (main colors).
 ## Text-match decoys (gen#294)
 
 Each type (jumper, cardigan, knitted top) and audience carries three decoys of each of seven
-classes, 126 in all, listed in `knitwear_rows.TABLE` with the class, the misleading word, the
+classes, class 3 only on the Womens jumper and cardigan (#783), 114 in all, listed in `knitwear_rows.TABLE` with the class, the misleading word, the
 query it targets and the policy that repairs it. A decoy's structured fields are true, and
 `main_colors.complete` skips decoys, so a "white" decoy is never given a color its text names.
 
@@ -44,7 +44,7 @@ query it targets and the policy that repairs it. A decoy's structured fields are
 |---|---|---|
 | 1 color | a trim names another color | "Womens Navy Jumper with Red Hem" is navy |
 | 2 category word | another category's noun as a modifier | "Womens Dress Length Cardigan" |
-| 3 audience word | a sibling cut | "Mens Women's-Style Cut Jumper" |
+| 3 audience word | the phrase `decoy_apparel_words.AUDIENCE_TYPES` gives the type, the sibling audience in the description only; no Mens type or knitted top has one, as no real title says so (#783) | "Womens Navy Boyfriend Jumper", "the cut of our mens jumper" |
 | 4 feature absent | a feature named and missing | "Womens Alpaca-Feel Jumper" has no alpaca |
 | 5 shade in the description | a fancy title, the shade in the text | "Womens Moonbeam Jumper" is Ivory |
 | 6 incidental word | a range name in a short title, a place that starts with a product word, never a color (#446) | "Womens Kettle Hill Jumper" is not a kettle |
