@@ -1105,10 +1105,10 @@ drill line in a run of diameters. Under the knob alone such a type's search page
 nothing to group: `m6x1 set screws` returned 141 products for 260 SKUs, most tiles one
 variant (#710).
 
-So on nine types most products of a large build are **run lines**: hex socket set screws;
-socket, button, low and flat socket cap screws; hex head bolts; square and ball end mills;
-jobber drills. Each type declares its own `(count, weight)` table in
-`domains/industrial/grouped.py` (`VARIANTS`: 6 to 15, median 10). The SKUs **move**, as #766
+So on twelve types most products of a large build are **run lines**: hex socket set screws;
+socket, button, low and flat socket cap screws; hex head bolts; hex nuts; hex keys; square and
+ball end mills; jobber drills; spiral point taps. Each type declares its `(count, weight)` table
+in `domains/industrial/grouped.py` (`VARIANTS`: 6 to 15, or 6 to 10). The SKUs **move**, as #766
 asked: from `RUN_BUILD_LINES` (13,000) the main generation builds `FLAT_SHARE` (10%) of such a
 type's products, and at least `FLAT_FLOOR` (150), the first of its stream, so each keeps its
 id, title and attributes (maintainer, 2026-10-28). A smaller build keeps every flat product: a
@@ -1125,10 +1125,10 @@ For each entry of `TARGETS` the pass first adds lines until `wanted()` of them c
 query list's thin rows: `5/16-18` button and low-head screws, the R8 `7/16-14` Grade 8 zinc
 bolt, `1/4-20` and `M12x1.75` cap screws, `M6x1` set screws, three ball end mills and a 4 mm line.
 
-A type needs room for a run. "Every SKU is different" rejects a SKU its brand already made, so
-a type with few specs loses the middle of its runs: hex keys came out with 2,210 of 4,314
-products single-SKU, and taps lost 42% of their run SKUs. Hex nuts, hex keys, taps and bearings
-(one bearing number in three closures) stay on the knob (#770).
+A type needs room for a run. "Every SKU is different" rejects a SKU its brand already made. Hex
+nuts, hex keys and taps fill their spec space, so each is `SPEC_BOUND` (#770): a draft that would
+keep under 80% or under 6 SKUs is redrawn, so fine threads stay flat. Radial ball bearings stay
+on the knob: one number in three closures gave 0 of 7,833 products 6 or more SKUs on the table.
 
 `GeneratorConfig(grouped=False)` builds the flat catalog alone. `tests/test_catalog_grouped.py`
 holds each type's run lines to its table and to most of the type, the pass to its budget, every

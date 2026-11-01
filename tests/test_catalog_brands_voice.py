@@ -241,11 +241,13 @@ DISTINCT_SPEC_FLOOR = {
     "screw_flat_head": 0.85,
     "abrasive_flap_disc": 0.75,
     "kit_assortment": 0.80,
-    "hex_key": 0.85,
-    # #33 dropped the heavy hex sizes below 1/4 in and M12 and the grade claims outside a
-    # standard's size scope, so fewer size and standard combinations remain: measured at
-    # 100K, 10773 distinct of 12000 (0.8978), rounded down to 0.85.
-    "nut_hex": 0.85,
+    # #770: a run line of a spec-bound type states its whole line, where a dropped attribute
+    # used to tell one maker's flat SKU from another's. The parts are the same, so makers
+    # overlap as they do on key stock. Measured at 100K, hex key 5040 of 6790 (0.742), hex nut
+    # 7262 of 12602 (0.576), tap 3102 of 3709 (0.836), rounded down to 0.05.
+    "hex_key": 0.70,
+    "nut_hex": 0.55,
+    "tap_spiral_point": 0.80,
     "dowel_pins": 0.80,
     # #497 stopped publishing the attributes that repeated the type (and the length under
     # the head), which had told some SKUs apart: measured on the 100K build after it, a

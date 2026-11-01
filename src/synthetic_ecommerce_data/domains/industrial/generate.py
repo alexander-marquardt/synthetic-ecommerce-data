@@ -243,6 +243,11 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self.minter = ids.IdMinter(ID_DOMAIN, type_key, typespec.block_of(type_key))
         #: Every spec drawn so far, per (type, brand) -- see :meth:`_spec_key`.
         self._drawn_specs: set[tuple] = set()
+        #: The same SKUs as their builders stated them, before finishing's draws, for a
+        #: spec-bound type (:data:`.grouped.SPEC_BOUND`).
+        self._drafted_specs: set[tuple] = set()
+        #: A spec-bound type's whole flat build, set by :meth:`build`.
+        self._whole_flat: list[ProductLine] | None = None
         self._title_styles: dict[tuple[str, str], str] = {}
         #: The PUBLISHED specs, per (type, brand, always-published values):
         #: a SKU whose published spec is a subset or superset of one already
@@ -392,11 +397,14 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         offers the shortest run -- where the common lengths are -- and later
         lines walk up the list until the long end is covered too.
         """
-        if count >= len(lengths):
-            return sorted(lengths)
-        ordered = sorted(lengths)
-        start = self._rotate(key, len(ordered) - count + 1)
-        return ordered[start : start + count]
+        return self._table_run(key, sorted(lengths), count)
+
+    def _table_run(self, key: str, rows: list, count: int) -> list:
+        """``count`` neighboring ``rows``, in their order, at a rotating offset."""
+        if count >= len(rows):
+            return rows
+        start = self._rotate(key, len(rows) - count + 1)
+        return rows[start : start + count]
 
     # -- type builders ---------------------------------------------------
 
@@ -676,7 +684,12 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         pool = list(table)
         rng.shuffle(pool)
         count = min(self._variant_count(), len(pool))
-        for designation, pitch in pool[:count]:
+        offered = (
+            self._table_run(f"tap:{thread_type}", list(table), count)
+            if self.in_run
+            else pool[:count]
+        )
+        for designation, pitch in offered:
             system = "mm" if metric else "in"
             style = self._style(system)
             child = ChildDraft(system=system)
@@ -1067,6 +1080,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         cfg = self.config
         lines: list[ProductLine] = []
         kind = _type_kinds()[key]
+        self._whole_flat = self._spec_bound_flat()
         if kind == "modelled":
             builder = self._builder()
             (category,) = taxonomy.LEAVES[key]
@@ -1083,6 +1097,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             count = 0
             lines.append(breadth.build_line(self, breadth.row_for(key), self.minter.next_index()))
         budget = grouped.sku_budget(_sku_total(lines), len(lines), count)
+        if self._whole_flat is not None:
+            budget = round(_sku_total(self._whole_flat) * grouped.SPEC_BOUND_SCALE)
         if self._runs_lines():
             self._variant_table = grouped.VARIANTS[key]
         if cfg.must_stock:
@@ -1097,7 +1113,25 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
 
     def _flat_products(self, count: int) -> int:
         """How many of the type's ``count`` products the main generation builds."""
-        return grouped.flat_products(self.config.lines, count) if self._runs_lines() else count
+        if not self._runs_lines():
+            return count
+        kept = None if self._whole_flat is None else len(self._whole_flat)
+        return grouped.flat_products(self.config.lines, count, kept)
+
+    def _spec_bound_flat(self) -> list[ProductLine] | None:
+        """A spec-bound type's whole flat build: what its budget and flat share stand on."""
+        if self._runs_lines() and self.type_key in grouped.SPEC_BOUND:
+            return generate_type(replace(self.config, grouped=False), self.type_key)
+        return None
+
+    def _run_keeps(self, type_key: str, draft: LineDraft) -> bool:
+        """Whether the run line ``draft`` would keep its SKUs, or spend its brand's spec space
+        on SKUs "Every SKU is different" would reject."""
+        fresh = sum(
+            self._draft_key(type_key, draft, child) not in self._drafted_specs
+            for child in draft.children
+        )
+        return grouped.keeps_run(type_key, fresh, len(draft.children))
 
     def _builder(self):
         """This type's builder: its type module's ``make``."""
@@ -1202,6 +1236,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 if _sku_total(lines) + _sku_total(added) >= budget:
                     break
                 draft = builder(self, key, category)
+                if key in grouped.SPEC_BOUND and not self._run_keeps(key, draft):
+                    self._bump("run_line_redrawn")
+                    continue
                 line = self._finish_line(key, draft, self.minter.next_index())
                 if line is not None:
                     added.append(line)

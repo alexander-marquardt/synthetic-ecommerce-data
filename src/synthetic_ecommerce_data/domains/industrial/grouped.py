@@ -24,10 +24,16 @@ pass runs after that and the must-stock pass, on streams of its own, and adds:
   still caps a draw, because a size offers only so many lengths.
 
 A type joins :data:`VARIANTS` only if its spec space holds a run. "Every SKU is different"
-rejects a SKU its brand already made, so a type with few specs loses the middle of its runs:
-measured at ``--lines 39000``, a hex key run line kept too few SKUs (2,210 of 4,314 products
-single-SKU), and taps lost 42% of their run SKUs. Hex nuts and hex keys stay on the knob, as
-do bearings, whose line is one bearing number in three closures.
+rejects a SKU its brand already made, so a type with few specs loses the middle of its runs.
+Hex nuts, hex keys and taps fill their spec space, and at ``--lines 39000`` on the plain
+table they kept 33%, 4% and 54% of their run SKUs and overshot their budget by half or more.
+So a :data:`SPEC_BOUND` type stands on its whole flat build, its run lines walk a table's
+neighboring rows, a draft that would lose its SKUs is redrawn (:func:`keeps_run`), and a run
+line states every line attribute, since a dropped one costs the rejection the whole line.
+
+Bearings stay on the knob: a bearing number is the product and its closures are its SKUs,
+three at most, so the plain table gave 0 of 7,833 products 6 or more SKUs and kept 40% of its
+run SKUs. A run of numbers would make the number, the bore and the ratings SKU values.
 
 ``tests/test_catalog_grouped.py`` holds the pass to the tables, to the targets, to the SKU
 total and to the flat products that stay.
@@ -54,6 +60,15 @@ RUN: tuple[tuple[int, float], ...] = (
     (15, 0.07),
 )
 
+#: A run off a table of about ten sizes: a hex key, a tap or a hex nut comes in no more.
+SHORT_RUN: tuple[tuple[int, float], ...] = (
+    (6, 0.25),
+    (7, 0.25),
+    (8, 0.20),
+    (9, 0.15),
+    (10, 0.15),
+)
+
 #: Each grouped type's own ``(count, weight)`` table. A type not listed here has no grouped
 #: products and draws only ``variants_per_product``.
 VARIANTS: dict[str, tuple[tuple[int, float], ...]] = {
@@ -66,6 +81,9 @@ VARIANTS: dict[str, tuple[tuple[int, float], ...]] = {
     "end_mill_square": RUN,
     "end_mill_ball": RUN,
     "drill_jobber": RUN,
+    "nut_hex": SHORT_RUN,
+    "hex_key": SHORT_RUN,
+    "tap_spiral_point": SHORT_RUN,
 }
 
 #: The flat products a grouped type keeps, as a share of the products it would otherwise
@@ -84,16 +102,37 @@ RUN_BUILD_LINES = 13000
 FLAT_FLOOR = 150
 
 
+#: Types whose spec space a flat build fills: nearly half the products asked of hex nuts make
+#: no SKU at all, so the products a type asks for overstate it. Each stands on its whole flat
+#: build instead, and a run line that would lose its SKUs is redrawn before it is finished.
+SPEC_BOUND = frozenset({"nut_hex", "hex_key", "tap_spiral_point"})
+
+#: The share of a spec-bound run line's SKUs that must be new to its brand.
+RUN_KEPT = 0.8
+
+#: A spec-bound type's SKUs against its whole flat build, which is exact: the rejection that
+#: :data:`SKU_SCALE` makes up for is redrawn here.
+SPEC_BOUND_SCALE = 1.05
+
 #: A grouped type's SKUs against the type built flat. #710's families grew these types by
 #: about 14%, and the catalog keeps most of that: the end mills stay within 3% of their SKUs.
 SKU_SCALE = 1.10
 
 
-def flat_products(lines: int, count: int) -> int:
-    """How many of a grouped type's ``count`` products stay flat in a build of ``lines``."""
+def keeps_run(key: str, fresh: int, drafted: int) -> bool:
+    """Whether a spec-bound run line of ``drafted`` SKUs, ``fresh`` of them new to its brand,
+    is worth finishing: it keeps :data:`RUN_KEPT` of them and a run's smallest count. A line
+    off a shorter table (a fine thread has five sizes or fewer) stays among the flat products."""
+    return fresh >= max(RUN_KEPT * drafted, min(count for count, _ in VARIANTS[key]))
+
+
+def flat_products(lines: int, count: int, kept: int | None = None) -> int:
+    """How many of a grouped type's ``count`` products stay flat in a build of ``lines``.
+
+    ``kept`` is the products a :data:`SPEC_BOUND` type's flat build makes of ``count``."""
     if lines < RUN_BUILD_LINES:
         return count
-    return min(count, max(FLAT_FLOOR, round(count * FLAT_SHARE)))
+    return min(count, max(FLAT_FLOOR, round((count if kept is None else kept) * FLAT_SHARE)))
 
 
 def sku_budget(flat_skus: int, flat_lines: int, count: int) -> int:
