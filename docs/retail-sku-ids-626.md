@@ -31,7 +31,7 @@ Guards: `tests/test_retail_stable_ids_626.py`.
 - A row's `department` is a draw input and is not in the export: it picks the template's rate and
   brand pool. To move a category to another root, change its path alone, and `category_path` and
   `text` are all that change. Moving the department too redraws brands and shifts the model names
-  a line grammar family deals out, which retitles styles of other types (gen#772: 38 brands, and
+  a line grammar family deals out, which retitles styles of other types (gen#772: 37 brands here, and
   243 SKUs of other types).
 - The industrial side (`core/ids.py`, `IdMinter`) is a different scheme and is not changed here.
 - The ceiling figures (`golden-retail/stats.json`) changed with the derived styles.

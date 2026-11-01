@@ -3,7 +3,7 @@
 A bauble is Christmas season stock, not a gift: ``Gifts > Christmas Gifts`` read wrong, and a
 shopper browsing Home found no Christmas area. Only the path moves. The rows keep the department
 Gifts because a department picks a derived style's rate and brands (:mod:`scale`): moving it
-redraws the brand on 38 of these SKUs and retitles 243 others. :data:`PINNED` holds the 73 SKUs
+redraws the brand on 37 of these SKUs and retitles 243 others. :data:`PINNED` holds the 73 SKUs
 as main built them before the move.
 """
 
