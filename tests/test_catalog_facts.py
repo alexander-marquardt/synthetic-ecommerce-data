@@ -597,8 +597,10 @@ def test_every_title_names_its_key_dimension(docs):
 
 
 def _axis_values(doc: dict) -> set[str]:
-    """The published values of each variant axis of the SKU's product line."""
-    return {value for axis in doc["variant_axes"] for value in doc["facets"].get(axis, [])}
+    """The published values of each variant axis of the SKU's product line, but its pack quantity:
+    a title states that as its ``5PCS`` lead, and a bare ``2`` is stated by a ``2 FL`` (gen#14)."""
+    axes = [axis for axis in doc["variant_axes"] if axis != "units_per_pack"]
+    return {value for axis in axes for value in doc["facets"].get(axis, [])}
 
 
 def leaves_axis_to_field(doc: dict) -> bool:

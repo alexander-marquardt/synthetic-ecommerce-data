@@ -183,6 +183,8 @@ def collect(catalog: Catalog) -> Collected:
         line_cell = tuple((a.name, a.value) for a in line.attributes if a.name in held)
         in_line: list[tuple[float, float, str]] = []
         for child in line.children:
+            if child.detail_image_id:
+                continue  # a pack's price is its single's down a curve, not a census price (gen#14)
             out.type_of[child.sku] = line.type_key
             if key_of is None:
                 continue

@@ -90,10 +90,11 @@ def _entries(yaml_text: str) -> dict[str, dict[str, str]]:
 # --------------------------------------------------------------------------
 
 
-def test_no_attribute_in_this_catalog_is_offered_as_a_range(
+def test_the_one_attribute_offered_as_a_range_is_the_pack_quantity(
     flat_rows: list[dict], rendered: str
 ) -> None:
-    """The measured outcome of the rule on the industrial catalog.
+    """The measured outcome of the rule on the industrial catalog, with its one named exception:
+    ``quantity > 10`` is a threshold, so ``Units per pack`` is a range over its ladder (gen#14).
 
     Asserted as an exact set rather than a count. A count of zero is also what
     an empty parse produces, so the entry total is asserted first -- a
@@ -108,7 +109,7 @@ def test_no_attribute_in_this_catalog_is_offered_as_a_range(
 
     ranged = {k for k, v in attribute_entries.items() if v.get("type") == "numeric"}
     offered_as_range = {k for k in ranged if entries[k].get("facet") != "false"}
-    assert offered_as_range == set(), (
+    assert offered_as_range == {"units_per_pack"}, (
         f"{sorted(offered_as_range)} are offered to a shopper as range controls. "
         f"Every dimensional attribute in this catalog is a discrete standard "
         f"set: their dispersion runs "
@@ -161,7 +162,8 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     # MEASURED_DISPERSION and test_the_widest_dispersion_is_a_continuum_that_
     # clears_the_document_floor) -- so this is the one exception to check
     # before the rule is trusted, not a failure of it.
-    assert [s.key for s in quantitative if s.is_continuous] == ["neck_length"]
+    # ``units_per_pack`` is the named exception of the rule, a threshold (RANGE_QUANTITIES).
+    assert [s.key for s in quantitative if s.is_continuous] == ["neck_length", "units_per_pack"]
 
 
 # --------------------------------------------------------------------------

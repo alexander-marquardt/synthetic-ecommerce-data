@@ -1310,6 +1310,17 @@ def shown_price(draw: Draw) -> float:
     return with_ending(noisy(draw), ending_for(model.endings, ending_u))
 
 
+#: A pack's price grows as its quantity to this power, so a pack is a discount and not a
+#: multiple: the listing #14 reads shows a 5-pack at $49.80 against $13.98 for one, 3.56 times
+#: the price for 5 times the units, and 5 ** 0.79 is 3.56.
+PACK_EXPONENT = 0.79
+
+
+def pack_price(price: float, ratio: float, ending_u: float) -> float:
+    """``price`` moved along the pack curve to ``ratio`` times the units (gen#14)."""
+    return with_ending(price * ratio**PACK_EXPONENT, ending_for(POOLED_ENDINGS, ending_u))
+
+
 def breadth_price(row: BreadthRow, size_value: str, tier: str, u: float, ending_u: float) -> float:
     """A breadth SKU's shown price.
 

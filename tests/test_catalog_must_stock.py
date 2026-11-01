@@ -29,7 +29,7 @@ MUST_STOCK_LINES = 5
 #: The build these tests judge: the must-stock pass without the grouped pass after it
 #: (#710), whose targets stock some of the same examples (the R8 hex bolt among them) and
 #: whose size follows the lines built before it. ``test_catalog_grouped.py`` judges that pass.
-FLAT = replace(GeneratorConfig(), grouped=False)
+FLAT = replace(GeneratorConfig(), grouped=False, pack_axis=False)
 
 
 def _unstocked(catalog, entries) -> list[str]:

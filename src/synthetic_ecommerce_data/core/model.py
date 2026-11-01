@@ -138,6 +138,10 @@ class Sku:
     #: This SKU's OWN drawing, as ``<product type>/<product id>/<sku>``, drawn
     #: from its own published values (elastic/prism-industrial-products#103).
     image_id: str = ""
+    #: The drawing behind ``image_detail_url`` when it is not this SKU's own: a pack's
+    #: card shows what is bought, and its detail what the item is, so a pack SKU names
+    #: its size's single-unit drawing (gen#14). Empty: its own drawing serves both.
+    detail_image_id: str = ""
     #: The one cross-reference sentence this SKU's copy carries -- which
     #: screws a key drives, which drill a tap wants (:mod:`.compat`). Also in
     #: the description; kept separately so the searchable text can carry it

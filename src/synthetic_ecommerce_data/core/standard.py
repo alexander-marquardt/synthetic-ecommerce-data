@@ -152,12 +152,17 @@ def _image(where: str, row: Mapping[str, Any]) -> list[str]:
     image_id = row.get("image_id")
     if not isinstance(image_id, str) or not IMAGE_ID_PATTERN.fullmatch(image_id):
         return [f"{where}: image_id {image_id!r} is not <type>/<product>/<drawing>"]
-    return [
-        f"{where}: {field} {row.get(field)!r} is not {image_id}.svg"
-        for field in ("image_url", "image_detail_url")
-        # absent or not a string is _fields' one problem, not a second one here
-        if isinstance(row.get(field), str) and not row[field].endswith(f"/{image_id}.svg")
-    ]
+    # absent or not a string is _fields' one problem, not a second one here
+    problems = []
+    url = row.get("image_url")
+    if isinstance(url, str) and not url.endswith(f"/{image_id}.svg"):
+        problems.append(f"{where}: image_url {url!r} is not {image_id}.svg")
+    # A pack's detail is its single unit's drawing, so of the product, not the SKU (gen#14).
+    product = image_id.rsplit("/", 1)[0]
+    detail = row.get("image_detail_url")
+    if isinstance(detail, str) and f"/{product}/" not in detail:
+        problems.append(f"{where}: image_detail_url {detail!r} is not a drawing of {product}")
+    return problems
 
 
 def _category_paths(where: str, primary: list[Any], paths: Any) -> list[str]:

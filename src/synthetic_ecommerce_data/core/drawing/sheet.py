@@ -54,7 +54,15 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing import brand_mark, svg
-from synthetic_ecommerce_data.core.drawing.model import Bars, Disc, Dots, Figure, Lines, Poly
+from synthetic_ecommerce_data.core.drawing.model import (
+    Bars,
+    Disc,
+    Dots,
+    Figure,
+    Lines,
+    Outlines,
+    Poly,
+)
 from synthetic_ecommerce_data.core.drawing.style import Hatch, HouseStyle, _mix
 
 #: The inset of the drawing from the sheet edge, in sheet units.
@@ -325,6 +333,15 @@ def _figure_at(
                 stroke_width=LW_LINE,
                 stroke_opacity=".8",
                 **dash,
+            )
+            continue
+        if isinstance(shape, Outlines):
+            page.path(
+                "".join(svg.path_d([at(p) for p in outline]) for outline in shape.outlines),
+                fill=pale,
+                stroke=ink,
+                stroke_width=svg.num(house.stroke),
+                stroke_linejoin="round",
             )
             continue
         if isinstance(shape, Dots):
