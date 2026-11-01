@@ -427,7 +427,7 @@ the knob, so a changed knob moves them; the floor of 20 is the fixed constant
 (`<type>: a product has N SKUs, the knob's maximum is M`; `<type>: median N SKUs per
 product, the knob allows M`). A product draws its count from the knob
 (`domains/industrial/generate.py`), and a pool smaller than the draw lowers it. A grouped
-type's median may reach its own table's 75% count (13): the grouped products are most of
+type's median may reach its own table's 75% count (13 on `RUN`): the grouped products are most of
 the type.
 `tests/test_variant_bounds_doc_252.py` holds these numbers to the code's.
 

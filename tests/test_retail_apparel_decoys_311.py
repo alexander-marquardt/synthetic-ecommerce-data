@@ -224,8 +224,7 @@ REAL_COMPOUNDS = frozenset({
     "Sports Bra Bikini Top", "Skirted Bikini Bottoms", "Boyshort Bikini Bottoms",
     "Brief Bikini Bottoms", "Skirted Tankini", "Tunic Tankini", "Cami Tankini",
     "Cargo Swim Shorts", "Chino Swim Shorts", "Tailored Swim Shorts", "Skirted Kids Swimsuit",
-    "Rash Vest Kids Swimsuit", "Skirted Period Swimwear", "Short Period Swimwear",
-    "Brief Period Swimwear", "Kimono Cover-Up", "Shirt Cover-Up", "Tunic Cover-Up",
+    "Rash Vest Kids Swimsuit", "Kimono Cover-Up", "Shirt Cover-Up", "Tunic Cover-Up",
     "Dress Cover-Up", "Poncho Changing Robe", "Parka Changing Robe", "Hoodie Changing Robe",
     "Tuxedo Trouser Suit", "Waistcoat Trouser Suit", "Culotte Trouser Suit",  # gen#215
     "Sailor Suit", "Tuxedo Suit", "Page Boy Suit",  # gen#215
@@ -293,7 +292,6 @@ REAL_COMPOUNDS = frozenset({
     "Chino School Trousers", "Jogger School Trousers", "Cargo School Trousers",
     "Pinafore School Skirt", "School Pinafore Dress",
     "School Polo Shirt", "Oxford School Shirt",
-    "Bikini Period Pants", "Boyshort Period Pants", "Thong Period Pants",
     "Boot Socks", "Trouser Socks", "Slipper Socks", "Trainer Socks", "Sneaker Socks",
     "Welly Boot Socks", "Wellington Boot Socks", "Walking Boot Socks",
     "Sandal Boots", "Sneaker Boots", "Loafer Boots", "Shoe Boots", "Slipper Boots", "Biker Boots",

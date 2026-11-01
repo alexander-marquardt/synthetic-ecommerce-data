@@ -23,8 +23,8 @@ belted waist, so the "garment attribute treated as keyword" class has the near m
 The lingerie slice is :data:`BRAS`: four mastectomy, three post-surgery and three nursing bras
 (the ``Mastectomy Bras`` leaf is new). They live here, not in :mod:`scale_rows`, because that
 module's rows each open a title value their leaf lacked and a medical bra is non-wired by nature:
-a derived "Wired Mastectomy Bra" would be false. Period pants are a type spec
-(``type_specs/period_pants.py``) and the "Lamp Shade" titles are in :mod:`lighting_rows`.
+a derived "Wired Mastectomy Bra" would be false. The pants are a type spec
+(``type_specs/pants.py``) and the "Lamp Shade" titles are in :mod:`lighting_rows`.
 
 Chinos and the lamps that carry "shade" in a title already exist; women's elasticated trousers
 are not in the issue's done-when and stay out.

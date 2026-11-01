@@ -150,7 +150,6 @@ PARTS: dict[str, dict[str, dict]] = {
     "tankini": {"straps": STRAPS_TOP, "hem": TORSO_HEM},
     "swim_shorts": {"waistband": WAIST, "cuffs": HEM},
     "kids_swimsuit": {"hem": TORSO_HEM},
-    "period_swimwear": {"waistband": WAIST},
     "cover_up": {"hem": TORSO_HEM},
     "changing_robe": {"hem": TORSO_HEM},
 }

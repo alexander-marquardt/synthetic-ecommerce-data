@@ -1,5 +1,5 @@
 """Swimwear types (gen#212): swimsuits, bikini tops and bottoms, tankinis, swim shorts, kids' and
-baby swimsuits, period swimwear, cover-ups and changing robes.
+baby swimsuits, swim bottoms (period swimwear until gen#780), cover-ups and changing robes.
 
 Each type is a spec of ``type_specs/`` (gen#351), its rows are in :mod:`swimwear_rows` and
 :mod:`kit_swimwear` draws them. These checks hold what the issue asked for: every type has its
@@ -35,7 +35,7 @@ TYPES = {
                                     "audience"}),
     "kids_swimsuit": ("Kids Swimsuit", {"uv_protection", "sleeve", "nappy_friendly", "size",
                                         "color", "audience"}),
-    "period_swimwear": ("Period Swimwear", {"absorbency", "cut", "size", "color", "audience"}),
+    "swim_bottoms": ("Swim Bottoms", {"cut", "size", "color", "audience"}),
     "cover_up": ("Cover-Up", {"length", "fabric", "size", "color", "audience"}),
     "changing_robe": ("Changing Robe", {"lining", "waterproof_shell", "length", "size", "color",
                                         "audience"}),
@@ -105,8 +105,8 @@ def _expected(row) -> dict[str, int]:
             out["upf-badge"] = 1
         if one("nappy_friendly", "Yes"):
             out["leg-band"] = 2
-    elif s == "period_swimwear":
-        out = {"waistband": 1, "absorbent-layer": 2 if one("absorbency", "Moderate") else 1}
+    elif s == "swim_bottoms":
+        out = {"waistband": 1}
     elif s == "cover_up":
         out = {"sleeve": 2}
     elif s == "changing_robe":
@@ -167,7 +167,7 @@ def test_a_swimsuit_sku_states_its_size_color_and_cup() -> None:
 
 @pytest.mark.parametrize(("key", "row"), ALL, ids=lambda v: v if isinstance(v, str) else v.code)
 def test_the_drawing_shows_the_marks_its_record_states(key: str, row) -> None:
-    """Cups, ruching, straps, ties, sleeves, a hood, absorbent layers: one marked group per
+    """Cups, ruching, straps, ties, sleeves, a hood, a waistband: one marked group per
     piece the record's attributes state, and no other."""
     assert _marks(row) == _expected(row)
 
@@ -179,7 +179,7 @@ def test_every_param_axis_changes_the_drawing() -> None:
         ("bikini_top", "top_shape", "triangle", "bandeau"),
         ("bikini_bottoms", "rise", "high", "low"), ("tankini", "length", "crop", "long"),
         ("swim_shorts", "length", "short", "long"), ("kids_swimsuit", "sleeve", "none", "long"),
-        ("period_swimwear", "cut", "bikini", "high_waisted"),
+        ("swim_bottoms", "cut", "bikini", "high_waisted"),
         ("cover_up", "length", "mini", "maxi"),
         ("changing_robe", "length", "hip", "full"),
         ("changing_robe", "lining", "fleece", "towelling"),
@@ -221,7 +221,7 @@ def test_the_range_states_each_value_the_issue_names() -> None:
     assert {"High", "Mid", "Low"} <= seen("bikini_bottoms", "rise")
     assert {"Short", "Mid", "Long"} <= seen("swim_shorts", "length")
     assert {"Drawstring", "Elasticated"} <= seen("swim_shorts", "waist_type")
-    assert {"Light", "Moderate"} <= seen("period_swimwear", "absorbency")
+    assert {"Bikini", "High-Waisted"} <= seen("swim_bottoms", "cut")
     assert {"Fleece", "Towelling"} <= seen("changing_robe", "lining")
     assert {"Cotton", "Voile"} <= seen("cover_up", "fabric")
     assert {"Sleeveless", "Short", "Long"} <= seen("kids_swimsuit", "sleeve")

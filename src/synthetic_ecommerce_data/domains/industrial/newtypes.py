@@ -98,7 +98,13 @@ def _weighted(rng: random.Random, table):
 
 
 def _window(gen: Generator, key: str, pool: list, count: int) -> list:
-    """A contiguous run of ``count`` from ``pool`` at a rotating start: full coverage."""
+    """A contiguous run of ``count`` from ``pool`` at a rotating start: full coverage.
+
+    The window wraps, so a flat line may offer the top of a table and its bottom. A run line
+    (:mod:`.grouped`) walks a table's neighboring rows and stops at its end.
+    """
+    if gen.in_run:
+        return gen._table_run(f"{key}:run", pool, count)
     count = max(1, min(count, len(pool)))
     start = gen._rotate(key, len(pool))
     return [pool[(start + k) % len(pool)] for k in range(count)]

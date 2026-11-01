@@ -1,4 +1,4 @@
-"""Mutation rows for the medical bras, period pants and lamp shades (gen#329).
+"""Mutation rows for the medical bras, women's pants and lamp shades (gen#329).
 
 Each row plants one defect and names the test that must go red. ``mutation_check.py`` turns them
 into rows named ``needs 329: ...`` (``--only "needs 329:"`` re-runs them). A row is
@@ -45,12 +45,12 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a mastectomy bra without pocketed cups",
     ),
     (
-        "every period pants states the Light absorbency",
-        "type_specs/period_pants.py",
-        'a("absorbency", "Absorbency", level)',
-        'a("absorbency", "Absorbency", "Light")',
-        "tests/test_retail_needs_329.py -k test_period_pants_state_an_absorbency_and_cover_every_level",
-        "every period pants states the Light absorbency",
+        "every pants row states the Bikini cut",
+        "type_specs/pants.py",
+        'a("cut", "Cut", cut)',
+        'a("cut", "Cut", "Bikini")',
+        "tests/test_retail_needs_329.py -k test_pants_state_one_cut_and_cover_every_cut",
+        "every pants row states the Bikini cut",
     ),
     (
         "a Lamp Shade row states no fitting",
@@ -69,12 +69,12 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "a mastectomy bra sold as wired",
     ),
     (
-        "a Bikini period pants drawn with the high-leg cut",
-        "type_specs/period_pants.py",
+        "a Bikini pants drawn with the high-leg cut",
+        "type_specs/pants.py",
         'CUTS = {"Bikini": "bikini"',
         'CUTS = {"Bikini": "high_leg"',
-        "tests/test_retail_needs_329.py -k test_each_period_pants_drawing_shows_the_cut_its_attribute_states",
-        "a Bikini period pants drawn with the high-leg cut",
+        "tests/test_retail_needs_329.py -k test_each_pants_drawing_shows_the_cut_its_attribute_states",
+        "a Bikini pants drawn with the high-leg cut",
     ),
 ]
 

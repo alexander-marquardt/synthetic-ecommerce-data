@@ -1,10 +1,11 @@
-"""Medical and period lingerie, and lamp shades as a leaf of their own (gen#329).
+"""Medical lingerie, everyday pants, and lamp shades as a leaf of their own (gen#329).
 
 The probe of 2026-10-15 found types a general retailer's failure classes need and the catalogue
 lacked. Elasticated-waist trousers (``test_retail_elasticated_waist_329``), chinos (gen#310) and
 plimsolls (gen#216) are on main; this file holds the rest: a mastectomy bra, more nursing and
-post-surgery bras, period pants as a type, and "Lamp Shade" titles in the Lampshades leaf. The
-floors are written out here, not read from the rows, so dropping rows fails this file.
+post-surgery bras, women's pants as a type (everyday pants since gen#780), and "Lamp Shade"
+titles in the Lampshades leaf. The floors are written out here, not read from the rows, so
+dropping rows fails this file.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 
 BRAS = ("Womens", "Lingerie", "Bras")
-PERIOD = ("Womens", "Lingerie", "Period Pants")
+PANTS = ("Womens", "Lingerie", "Pants")
 SHADES = ("Home", "Lighting", "Lampshades")
 MAIN = ("Red", "Blue", "Green", "Yellow", "Black", "White")
 
@@ -69,14 +70,14 @@ def test_a_medical_bra_is_non_wired(templates, leaf):
         assert _attr(r, "wiring") == {"Non-Wired"}, (r["product_id"], _attr(r, "wiring"))
 
 
-#: The cut each period-pants attribute value is drawn as (spelled here, not read from the rows).
+#: The cut each pants attribute value is drawn as (spelled here, not read from the rows).
 DRAWN_CUT = {
     "Bikini": "bikini", "Briefs": "brief", "High-Waisted": "high_waisted", "High-Leg": "high_leg",
 }  # fmt: skip
 
 
-def test_each_period_pants_drawing_shows_the_cut_its_attribute_states(templates):
-    rows = _real(_leaf(templates, PERIOD))
+def test_each_pants_drawing_shows_the_cut_its_attribute_states(templates):
+    rows = _real(_leaf(templates, PANTS))
     assert rows
     for r in rows:
         (cut,) = _attr(r, "cut")
@@ -88,40 +89,40 @@ def test_a_post_surgery_bra_names_the_mastectomy_it_follows(templates):
     assert sum("mastectomy" in r["description"].lower() for r in rows) >= 2
 
 
-def test_period_pants_are_a_registered_type_in_lingerie():
-    spec = type_registry.specs().get("period_pants")
+def test_pants_are_a_registered_type_in_lingerie():
+    spec = type_registry.specs().get("pants")
     assert spec is not None
-    assert (spec.department, spec.product_type) == ("Lingerie & Nightwear", "Period Pants")
+    assert (spec.department, spec.product_type) == ("Lingerie & Nightwear", "Pants")
     assert spec.apparel is not None and spec.apparel.compounds
 
 
-def test_period_pants_hold_a_floor_in_their_own_leaf(templates):
-    rows = _real(_leaf(templates, PERIOD))
+def test_pants_hold_a_floor_in_their_own_leaf(templates):
+    rows = _real(_leaf(templates, PANTS))
     assert len(rows) >= 8, len(rows)
-    assert {r["product_type"] for r in rows} == {"Period Pants"}
-    assert all("period pants" in r["title"].lower() for r in rows)
+    assert {r["product_type"] for r in rows} == {"Pants"}
+    assert all("pants" in r["title"].lower() for r in rows)
     titles = [r["title"] for r in rows]
     assert len(set(titles)) == len(titles)
 
 
-def test_period_pants_state_an_absorbency_and_cover_every_level(templates):
-    rows = _real(_leaf(templates, PERIOD))
+def test_pants_state_one_cut_and_cover_every_cut(templates):
+    rows = _real(_leaf(templates, PANTS))
     assert rows
-    levels = set()
+    cuts = set()
     for r in rows:
-        got = _attr(r, "absorbency")
+        got = _attr(r, "cut")
         assert len(got) == 1, r["product_id"]
-        levels |= got
-    assert {"Light", "Medium", "Heavy", "Overnight"} <= levels
+        cuts |= got
+    assert set(DRAWN_CUT) <= cuts
 
 
-def test_period_pants_are_sold_in_the_main_colors(templates):
-    colors = {s["color"] for r in _leaf(templates, PERIOD) for s in r["skus"]}
+def test_pants_are_sold_in_the_main_colors(templates):
+    colors = {s["color"] for r in _leaf(templates, PANTS) for s in r["skus"]}
     assert set(MAIN) <= colors, sorted(set(MAIN) - colors)
 
 
-def test_period_pants_carry_text_match_decoys_of_every_class(templates):
-    decoys = [r for r in _leaf(templates, PERIOD) if r["product_id"] in decoy_apparel.ids()]
+def test_pants_carry_text_match_decoys_of_every_class(templates):
+    decoys = [r for r in _leaf(templates, PANTS) if r["product_id"] in decoy_apparel.ids()]
     assert len(decoys) >= 15, len(decoys)  # five classes: audience is #781 only
 
 

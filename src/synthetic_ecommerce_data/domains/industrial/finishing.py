@@ -36,10 +36,12 @@ from synthetic_ecommerce_data.domains.industrial import (
 )
 from synthetic_ecommerce_data.domains.industrial.drafts import (
     MAX_MISSES,
+    ChildDraft,
     LineDraft,
     RetiredAttribute,
     _weighted,
 )
+from synthetic_ecommerce_data.domains.industrial.grouped import SPEC_BOUND
 from synthetic_ecommerce_data.domains.industrial.taxonomy import drawing_for, image_id_for
 from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 from synthetic_ecommerce_data.domains.industrial.vocab import (
@@ -264,6 +266,16 @@ class FinishMixin:
         )
         return (type_key, brand, spec)
 
+    def _draft_key(self, type_key: str, draft: LineDraft, child: ChildDraft) -> tuple:
+        """A SKU's spec as its builder states it: before the draws finishing adds, so a run
+        line can be judged before it is finished (``Generator._run_keeps``)."""
+        attributes = [
+            a
+            for a in (*draft.line_attrs, *child.attrs)
+            if not (isinstance(a, RetiredAttribute) and not a.distinguishes)
+        ]
+        return self._spec_key(type_key, draft.brand, attributes)
+
     def _unique_series(self, draft: LineDraft, line_attrs: list[Attribute]) -> None:
         """Give the product a series no other product of its brand has in this type.
 
@@ -344,6 +356,10 @@ class FinishMixin:
     def _finish_line(self, type_key: str, draft: LineDraft, index: int) -> ProductLine | None:
         rng = self.rng
         line_attrs, line_ghosts = self._sparsify(type_key, draft.line_attrs, "line")
+        # A spec-bound run line states its whole line. Each SKU of a line missing its Material
+        # differs by a drop from the same SKU in every other material, so the line loses them.
+        if self.in_run and type_key in SPEC_BOUND:
+            line_attrs = [a for a in draft.line_attrs if not isinstance(a, RetiredAttribute)]
         # One spelling of the measurement-system attribute per line.
         system_name = str(_weighted(rng, MEASUREMENT_SYSTEM_NAMES))
         standards_attr = self._standards_attribute(type_key, draft)
@@ -424,6 +440,8 @@ class FinishMixin:
                 self._bump("spec_already_drawn")
                 continue
             self._drawn_specs.add(key)
+            if type_key in SPEC_BOUND:
+                self._drafted_specs.add(self._draft_key(type_key, draft, child))
 
             sku = self.minter.new_sku()
             self._published = {a.name for a in (*line_attrs, *attrs)}

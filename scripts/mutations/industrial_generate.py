@@ -373,8 +373,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "offer lengths the standard does not, by scaling the run",
         "domains/industrial/generate.py",
-        "        return ordered[start : start + count]",
-        "        return [value * 1.5 for value in ordered[start : start + count]]",
+        "        return self._table_run(key, sorted(lengths), count)",
+        "        return [value * 1.5 for value in self._table_run(key, sorted(lengths), count)]",
         "tests/test_catalog_coverage.py",
         "B",
         "7/16-14 exists, in the standard's own offered lengths",
