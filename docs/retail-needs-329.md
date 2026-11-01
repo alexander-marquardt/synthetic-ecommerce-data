@@ -14,7 +14,7 @@ are pinned by `tests/test_retail_elasticated_waist_329.py`; the lingerie and lam
 | elasticated waist | done: leaf `Mens/Trousers/Elasticated Waist Trousers` |
 | lamp shades as a leaf | done: five "Lamp Shade" titles in `Home/Lighting/Lampshades` (`lighting_rows.py`); lamps with "Shade" in a title were already there as the decoys |
 | mastectomy, post-surgery and nursing bras | done: the new leaf `Womens/Lingerie/Bras/Mastectomy Bras` and more post-surgery and nursing bras (`needs_rows.BRAS`) |
-| period pants | done: leaf `Womens/Lingerie/Period Pants` (`type_specs/period_pants.py`) |
+| period pants | done, then made everyday pants in gen#780: leaf `Womens/Lingerie/Pants` (`type_specs/pants.py`); see [pants-780](retail-prototype/pants-780.md) |
 | plimsolls | done in gen#216: kind `plimsoll`, leaf `Shoes/Plimsolls` |
 | Womens elasticated trousers | open |
 
@@ -54,11 +54,12 @@ and three Nursing. `Mastectomy Bras` is a purpose node that stays under Bras
 row has to open a wiring value its leaf lacked and a medical bra is non-wired by nature; they are
 templates, so no derived "Wired Mastectomy Bra" exists.
 
-## Period pants
+## Pants
 
-`type_specs/period_pants.py` is a type spec of ten products with an `absorbency` attribute
-(Light, Medium, Heavy, Overnight). The decoys are the apparel family `u` plan of
-`decoy_apparel.py`, with the compounds Bikini, Boyshort and Thong Period Pants.
+`type_specs/pants.py` is a type spec of ten products sold by cut and fabric. Until gen#780 it was
+the period pants type with an `absorbency` attribute; [pants-780](retail-prototype/pants-780.md)
+says why it became everyday underwear. The decoys are the apparel family `u` plan of
+`decoy_apparel.py`, with the compounds Bikini, Boyshort and Thong Pants.
 
 ## Lamp shades
 

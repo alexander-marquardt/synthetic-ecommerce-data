@@ -3,8 +3,8 @@
 The catalog had no swimsuit, bikini, swim short or swimwear shape, so a search for any of them
 found nothing relevant. Each type here is a leaf under the Swimwear node of its audience
 (``Womens/Swimwear``, ``Mens/Swimwear``, ``Kids/Girls|Boys|Baby/Swimwear``), with its own
-drawing (:mod:`kit_swimwear`), its shopper attributes (cut, rise, length, UPF, absorbency,
-lining, ...) as structured entries, and SKUs over color and size (and, for a swimsuit, the cup).
+drawing (:mod:`kit_swimwear`), its shopper attributes (cut, rise, length, UPF, lining, ...) as
+structured entries, and SKUs over color and size (and, for a swimsuit, the cup).
 
 A style's attribute and its drawing param are made from one value (:func:`_f`), so the image
 never states what the row does not. A drawing prints no size. These styles are templates only:
@@ -37,7 +37,6 @@ SWIMSUIT = ("Womens", "Swimwear", "Swimsuits")
 BIKINI_TOP = ("Womens", "Swimwear", "Bikini Tops")
 BIKINI_BOTTOMS = ("Womens", "Swimwear", "Bikini Bottoms")
 TANKINI = ("Womens", "Swimwear", "Tankinis")
-PERIOD = ("Womens", "Swimwear", "Period Swimwear")
 COVER_UP = ("Womens", "Swimwear", "Cover-Ups & Kaftans")
 ROBE_W = ("Womens", "Swimwear", "Changing Robes")
 ROBE_M = ("Mens", "Swimwear", "Changing Robes")
@@ -223,21 +222,21 @@ KIDS_ROWS = (
     _kids("KSWBBU", "Baby Long Sleeve UPF Swimsuit", _LM, KIDS_BABY, "Long", "yes", "yes", 13.0, "A baby long sleeve UPF 50+ swimsuit with a nappy friendly leg band.", (BLUE, RED, GREEN, WHITE, YELLOW), BABY, "baby"),
 )
 
-# -- Period swimwear -------------------------------------------------------------------------------
+# -- Swim bottoms: plain bottoms sold by cut in the Bikini Bottoms leaf (gen#780) -----------------
 
 
-def _period(code, title, brand, absorbency, cut, price, desc, colors):
+def _swim_bottoms(code, title, brand, cut, price, desc, colors):
     return _row(
-        code, title, brand, PERIOD, "Period Swimwear", "period_swimwear", price, desc, colors,
-        (("absorbency", "Absorbency", absorbency, "absorbency"), ("cut", "Cut", cut, "cut")), UK,
+        code, title, brand, BIKINI_BOTTOMS, "Swim Bottoms", "swim_bottoms", price, desc, colors,
+        (("cut", "Cut", cut, "cut"),), UK,
     )  # fmt: skip
 
 
-PERIOD_ROWS = (
-    _period("PRDLGT", "Light Absorbency Period Swim Bottoms", _HW, "Light", "Bikini", 22.0, "Period swim bottoms with a light absorbency gusset for the lighter days of a period.", (BLACK, NAVY, RED, BLUE, GREEN, WHITE)),
-    _period("PRDMOD", "Moderate Absorbency Period Swim Bottoms", _TW, "Moderate", "High-Waisted", 28.0, "High-waisted period swim bottoms with a two layer gusset for a moderate flow.", (BLACK, RED, BLUE, YELLOW)),
-    _period("PRDHWL", "High-Waisted Light Period Swim Bottoms", _WF, "Light", "High-Waisted", 24.0, "High-waisted period swim bottoms with a light absorbency lining.", (BLACK, GREEN, WHITE, NAVY)),
-    _period("PRDBMO", "Bikini Period Swim Bottoms, Moderate", _LK, "Moderate", "Bikini", 26.0, "Bikini cut period swim bottoms with a moderate absorbency gusset.", (BLACK, BLUE, RED, YELLOW)),
+SWIM_BOTTOM_ROWS = (
+    _swim_bottoms("PRDLGT", "Bikini Swim Bottoms", _HW, "Bikini", 12.0, "Classic bikini cut swim bottoms in a quick-drying stretch fabric, fully lined.", (BLACK, NAVY, RED, BLUE, GREEN, WHITE)),
+    _swim_bottoms("PRDMOD", "High-Waisted Swim Bottoms", _TW, "High-Waisted", 15.0, "High-waisted swim bottoms with a deep waistband that sits above the navel.", (BLACK, RED, BLUE, YELLOW)),
+    _swim_bottoms("PRDHWL", "High-Waisted Full Coverage Swim Bottoms", _WF, "High-Waisted", 16.0, "High-waisted swim bottoms with full coverage at the back and a soft lining.", (BLACK, GREEN, WHITE, NAVY)),
+    _swim_bottoms("PRDBMO", "Classic Bikini Swim Bottoms", _LK, "Bikini", 12.0, "Bikini cut swim bottoms with a mid rise and a smooth leg line.", (BLACK, BLUE, RED, YELLOW)),
 )
 
 # -- Cover-ups and kaftans -------------------------------------------------------------------------

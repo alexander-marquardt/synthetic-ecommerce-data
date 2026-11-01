@@ -13,8 +13,7 @@ bikini_bottoms    briefs at a high, mid or low rise, tied or not      rise, tie_
 tankini           a swim top: crop, hip or long, three supports       length, support
 swim_shorts       trunks: short, mid or long, drawstring or elastic   length, waist
 kids_swimsuit     a child's one piece, sleeveless to long sleeved     sleeve, upf, nappy
-period_swimwear   briefs with an absorbent gusset of one or two       absorbency, cut
-                  layers
+swim_bottoms      plain briefs, bikini cut or high-waisted            cut
 cover_up          a kaftan: mini, midi or maxi, with wide sleeves     length
 changing_robe     a hooded robe: hip, knee or full, two linings       length, lining, waterproof
 ================  ==================================================  ==========================
@@ -23,7 +22,7 @@ A drawing never prints a size. What a row states and the drawing can count is dr
 many marked groups (``tests/test_retail_swimwear_212.py`` counts them per record): ``cup``,
 ``underwire``, ``strap``, ``tie``, ``ruching``, ``band``, ``waistband``, ``leg-opening``,
 ``shelf-band``, ``leg``, ``drawstring``, ``elastic``, ``sleeve``, ``upf-badge``, ``leg-band``,
-``absorbent-layer``, ``hood``, ``lining``, ``storm-flap``. Every param is a string with a
+``hood``, ``lining``, ``storm-flap``. Every param is a string with a
 default, so each shape also draws bare.
 """
 
@@ -235,22 +234,19 @@ def kids_swimsuit(paint: str, fill: Fill, label: str | None, sleeve: str = "none
 
 
 # --------------------------------------------------------------------------
-# Period swimwear
+# Swim bottoms
 # --------------------------------------------------------------------------
 
 
-def period_swimwear(paint: str, fill: Fill, label: str | None, absorbency: str = "light", cut: str = "bikini") -> list[str]:
-    """Briefs with a gusset: one absorbent layer is light, two are moderate."""
+def swim_bottoms(paint: str, fill: Fill, label: str | None, cut: str = "bikini") -> list[str]:
+    """Plain briefs with a waistband; a high-waisted cut sits higher (gen#780: the period
+    swimwear's gusset layers are gone)."""
     wy = 112 if cut == "high_waisted" else 150
     left = [("L", 96, wy), ("Q", 104, (wy + 214) / 2, 112, 214), ("Q", 154, 266, 200, 296)]
     d = _closed((200, wy), left)
     out = [_shadow(330, 110), _path(d, paint), _dark(d, 0.05)]
     band = f"M97,{wy} L303,{wy} L304,{wy + 18} L96,{wy + 18} Z"
     out.append(_g("waistband", [_path(band, paint, LW_DETAIL + 0.4), _dark(band, 0.1)]))
-    layers = 2 if absorbency == "moderate" else 1
-    for i in range(layers):
-        g = f"M182,{206 + i * 12} Q200,{198 + i * 12} 218,{206 + i * 12} L214,{268 - i * 6} Q200,{282 - i * 6} 186,{268 - i * 6} Z"
-        out.append(_g("absorbent-layer", [_path(g, paint, LW_DETAIL), _dark(g, 0.1 + 0.08 * i)]))
     return out
 
 
@@ -298,8 +294,8 @@ def changing_robe(paint: str, fill: Fill, label: str | None, length: str = "knee
 register(
     {"swimsuit": swimsuit, "bikini_top": bikini_top, "bikini_bottoms": bikini_bottoms,
      "tankini": tankini, "swim_shorts": swim_shorts, "kids_swimsuit": kids_swimsuit,
-     "period_swimwear": period_swimwear, "cover_up": cover_up, "changing_robe": changing_robe},
+     "swim_bottoms": swim_bottoms, "cover_up": cover_up, "changing_robe": changing_robe},
 )  # fmt: skip
 
 SHAPES = ("swimsuit", "bikini_top", "bikini_bottoms", "tankini", "swim_shorts", "kids_swimsuit",
-          "period_swimwear", "cover_up", "changing_robe")
+          "swim_bottoms", "cover_up", "changing_robe")
