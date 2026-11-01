@@ -174,7 +174,9 @@ are drawn to exactly its published length.
 
 Every SKU's `image_id` is `<product type>/<product id>/<sku>`; its `image_url`
 is `/images/industrial/<image_id>.svg`, and `image_detail_url` names the same
-file (one SVG serves both views). A product shows its first variant's drawing.
+file (one SVG serves both views). The exception is a pack on a
+[package quantity](package-quantity.md) axis: its card fans its N items, and its
+detail is its single's drawing. A product shows its first variant's drawing.
 The URL is relative on purpose: the demo serves the bundle's folder itself
 (elastic/prism#9770), and nothing points at a third-party host. That includes
 the personal site of the write-up: it hosts only a small sample of the

@@ -14,6 +14,7 @@ from typing import Any
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog, ProductLine
 from synthetic_ecommerce_data.domains.industrial.grouped import VARIANTS
+from synthetic_ecommerce_data.domains.industrial.pack import AXES, pairs
 from synthetic_ecommerce_data.domains.industrial.vocab import product_constant_names
 
 
@@ -92,7 +93,8 @@ def distribution_problems(
     A grouped type (:data:`.grouped.VARIANTS`) also draws its own table for the products the
     grouped pass adds, so both bounds are the larger of the knob's and its table's. The
     grouped products outnumber the flat ones in a small build, where the pass's targets are
-    most of a type, so the knob's median alone would refuse it."""
+    most of a type, so the knob's median alone would refuse it. A type with a pack axis
+    (:data:`.pack.AXES`) sells each size at several quantities, so its maximum counts the pairs."""
     problems = []
     knob = _bounds(config.variants_per_product)
     for key, row in distribution.items():
@@ -100,6 +102,8 @@ def distribution_problems(
         most, median_ceiling = (
             knob if own is None else map(max, zip(knob, _bounds(own), strict=True))
         )
+        if config.pack_axis and key in AXES:
+            most = pairs(most, AXES[key])
         if row["max"] > most:
             problems.append(f"{key}: a product has {row['max']} SKUs, the knob's maximum is {most}")
         if row["products"] >= MEDIAN_MIN_PRODUCTS and row["median"] > median_ceiling:

@@ -84,6 +84,10 @@ class GeneratorConfig:
     #: rather than ``variants_per_product``. Off, the catalog is exactly the flat one.
     grouped: bool = True
 
+    #: Add the package-quantity axis (:mod:`..domains.industrial.pack`, gen#14). Off, no
+    #: line sells a pack as a variant of a single.
+    pack_axis: bool = True
+
     #: Products per NEWER product type, as a SHARE of ``lines``: a type with
     #: share ``s`` gets ``round(lines * s)`` products (:attr:`new_type_products`).
     #: A share, not a count, so ``lines`` stays the ONE size knob -- a catalog

@@ -216,6 +216,8 @@ def measure_title_cut() -> dict:
     word = set(string.ascii_letters + string.digits + './"-')
     over_cap = mid_word = 0
     for document in documents:
+        if document.detail_image_id:
+            continue  # a pack's title is its single's with a count in front (gen#14)
         full, cap = assembled[document.title]
         if len(full) <= cap:
             continue

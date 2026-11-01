@@ -124,7 +124,8 @@
   "Number of flutes": "Number of Flutes",
   "Overall length": "Overall Length",
   "Shank dia.": "Shank Dia.",
-  "Single end/double end": "Single End/Double End"
+  "Single end/double end": "Single End/Double End",
+  "Units per pack": "Units per Pack"
  },
  "end_mill_square": {
   "Coolant fed": "Coolant Fed",
@@ -141,7 +142,8 @@
   "Number of flutes": "Number of Flutes",
   "Overall length": "Overall Length",
   "Shank dia.": "Shank Dia.",
-  "Single end/double end": "Single End/Double End"
+  "Single end/double end": "Single End/Double End",
+  "Units per pack": "Units per Pack"
  },
  "eye_bolts": {
   "Thread size": "Thread Size"

@@ -62,11 +62,19 @@ class Bars:
     role: str = "part"
 
 
+@dataclass(frozen=True)
+class Outlines:
+    """Plain closed outlines painted as ONE path: the items behind a pack's top item (:func:`fan`)
+    cost a few bytes each rather than a whole drawing each."""
+
+    outlines: tuple[tuple[Point, ...], ...]
+
+
 @dataclass
 class Figure:
     """One product drawn in inches, and how big it is."""
 
-    shapes: list[Poly | Disc | Lines | Dots | Bars] = field(default_factory=list)
+    shapes: list[Poly | Disc | Lines | Dots | Bars | Outlines] = field(default_factory=list)
     #: The characteristic size, in inches, that the sheet's size cue reads.
     size_in: float = 1.0
 
@@ -111,6 +119,9 @@ class Figure:
                 for x0, y0, x1, y1 in shape.rects:
                     xs.extend((x0, x1))
                     ys.extend((y0, y1))
+            elif isinstance(shape, Outlines):
+                xs.extend(p[0] for outline in shape.outlines for p in outline)
+                ys.extend(p[1] for outline in shape.outlines for p in outline)
             else:
                 for a, b in shape.segments:
                     xs.extend((a[0], b[0]))
@@ -118,6 +129,39 @@ class Figure:
         if not xs:
             raise ValueError("an empty figure has no bounds")
         return min(xs), min(ys), max(xs), max(ys)
+
+
+#: How far apart a pack's items stand, and the furthest one leans to either side.
+FAN_STEP_DEG = 14.0
+FAN_REACH_DEG = 55.0
+
+
+def fan(figure: Figure, count: int) -> Figure:
+    """``count`` of ``figure``, fanned about the foot of its long axis, as a pack is depicted.
+
+    The figure itself stands on top, whole. The other ``count - 1`` lean out to alternate sides
+    behind it, each as its bounding box: a drawing has a byte budget, and only the top item's
+    detail can be seen anyway. Rotation carries a property here, the pack (gen#14 supersedes #5
+    for this one use).
+    """
+    x0, y0, x1, y1 = figure.bounds()
+    pivot = ((x0 + x1) / 2, y1) if y1 - y0 >= x1 - x0 else (x0, (y0 + y1) / 2)
+    box = ((x0, y0), (x1, y0), (x1, y1), (x0, y1))
+    step = min(FAN_STEP_DEG, FAN_REACH_DEG / (count // 2))
+    behind = []
+    for k in range(1, count):
+        angle = math.radians((k + 1) // 2 * step * (1 if k % 2 else -1))
+        cos, sin = math.cos(angle), math.sin(angle)
+        behind.append(
+            tuple(
+                (
+                    pivot[0] + (x - pivot[0]) * cos - (y - pivot[1]) * sin,
+                    pivot[1] + (x - pivot[0]) * sin + (y - pivot[1]) * cos,
+                )
+                for x, y in box
+            )
+        )
+    return Figure([Outlines(tuple(behind)), *figure.shapes], figure.size_in)
 
 
 def regular_polygon(centre: Point, radius: float, sides: int, phase_deg: float = 0.0):
