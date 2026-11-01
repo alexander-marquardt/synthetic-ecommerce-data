@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
 # -- the words ------------------------------------------------------------------------------------
 #: Class 2: the compounds a shopper reads as a real product name (dress shirt, shirt dress, slipper
 #: socks), per type, each as (the word it targets, the phrase). A phrase keeps the type's head noun
@@ -145,7 +147,45 @@ SHORT_COMPOUNDS: dict[str, str] = {
     "Tights": "only running tights and cycling tights are names a shopper meets",
     "Pyjamas": "only short pyjamas and cami pyjamas are names a shopper meets",
 }
-AUDIENCE = {"Womens": (("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
+
+
+class Audience(NamedTuple):
+    """Class 3 on one type: the department its decoys are sold in, the title phrase a shopper
+    meets there, and the sibling audience its description and its query name."""
+
+    root: str
+    phrase: str
+    word: str
+    fit: bool = False  # the phrase is a leg fit: only an exemplar of that fit carries it
+
+
+#: Class 3 (#781): the only types an audience decoy sits on, each with the one phrase real titles
+#: use there. Boyfriend cuts are womenswear borrowed from menswear, menswear-inspired tailoring is
+#: womenswear, and Mini-Me is the children's copy of an adult style. No phrase sells a men's
+#: product with a women's word, so Mens holds none; and no lingerie, swimwear, babywear, school
+#: shoe or safety boot is here ("Mens-Style Bra" is a name no shopper meets).
+AUDIENCE_TYPES = {
+    "Jeans": Audience("Womens", "Boyfriend", "mens", fit=True),
+    "Shirt": Audience("Womens", "Boyfriend", "mens"),
+    "Tee": Audience("Womens", "Boyfriend", "mens"),
+    "Cardigan": Audience("Womens", "Boyfriend", "mens"),
+    "Jumper": Audience("Womens", "Boyfriend", "mens"),
+    "Shorts": Audience("Womens", "Boyfriend", "mens"),
+    "Trousers": Audience("Womens", "Menswear-Inspired", "mens"),
+    "Suit Jacket": Audience("Womens", "Menswear-Inspired", "mens"),
+    "Puffer Jacket": Audience("Kids", "Mini-Me", "mens"),
+    "Dress": Audience("Kids", "Mini-Me", "womens"),
+    "Pyjamas": Audience("Kids", "Mini-Me", "womens"),
+    "Sweatshirt": Audience("Kids", "Mini-Me", "mens"),
+}
+#: Each phrase's description, as real copy says it: the sibling audience is named here, never in
+#: the title, so a text match on ``mens jeans`` still meets the women's boyfriend jeans.
+AUDIENCE_COPY = {
+    "Boyfriend": "{c} {n} in a relaxed boyfriend fit, the cut of our {word} {n}.",
+    "Menswear-Inspired": "{c} {n} with menswear-inspired tailoring, the cut of our {word} {n}.",
+    "Mini-Me": "{c} {n}, a smaller version of our {word} {n}, sized for children.",
+}
+AUDIENCE = {"Womens":(("Mens-Style", "mens"), ("Mens Fit", "mens"), ("Boys Fit", "boys")),
             "Mens": (("Womens-Style", "womens"), ("Womens Fit", "womens"), ("Girls Fit", "girls")),
             "Kids": (("Mini-Me Mens", "mens"), ("Mini-Me Womens", "womens"),
                      ("Mens-Style", "mens"))}  # fmt: skip
