@@ -592,7 +592,7 @@ S/M and L/XL) and gloves (`type_specs/gloves.py`: four kinds, a lining, S to XL,
 the same way, each with the six main colors, two brands and decoys of classes 4, 5, 6 (two: a color
 word and another category's noun in a range name) and 7. Every spec decoy is exempt from the output
 standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are. Belt left the
-legacy type list (deleted since, gen#537). Scarf and wallet are still to do.
+legacy type list (deleted since, gen#537). Scarves (`type_specs/scarf.py`, shape `scarf`: four kinds, a material and a measured length, `Womens > Accessories > Scarves`) and wallets (`type_specs/wallet.py`, shape `wallet_fold`: four kinds, a material and RFID blocking, `Mens > Accessories > Wallets`) finish the six, in the same way with color as the only SKU axis. `feature_decoys/accessories_422.py` holds the class 8 decoys: a belt sander, a screw cap, a pen cap and two scarf stores. `tests/test_retail_accessories_queries_422.py` holds every query shape of the issue on the ceiling build, and the six types' growth of at least 150 SKUs.
 
 **The store's department is the top level of `category_path`, and no document states one**
 (gen#281). The retail tree has exactly eleven roots: Womens, Mens, Kids, Food & Drink, Home,

@@ -19,7 +19,7 @@ from synthetic_ecommerce_data.domains.retail.gifts_rows import (
     SIX_COLORS,
     THISTLE,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Row, TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, Row, TypeSpec, a
 
 _COVER = {"hardback": "Hardback", "softback": "Softback", "leather": "Leather-Effect"}
 
@@ -38,6 +38,7 @@ SPEC = TypeSpec(
     key="notebook",
     department=DEPARTMENT,
     product_type="Notebook",
+    homes=(Home("decoy_product_words", False),),
     rows=(
         _nb("GNBA5DH", "A5 Dotted Hardback Notebook", LANTERNBY, 9.0, "A5", "dotted", "hardback",
             "An A5 notebook with dotted pages and a hard cover, with a ribbon marker."),

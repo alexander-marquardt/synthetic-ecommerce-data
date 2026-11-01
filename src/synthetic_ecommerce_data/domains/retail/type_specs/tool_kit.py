@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import diy_tools as d
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Contents
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec, a
 
 #: What each kit holds: the one source of its piece count, its title and its description.
 K6 = Contents(
@@ -89,6 +89,7 @@ SPEC = TypeSpec(
     key="tool_kit",
     department=d.HOME,
     product_type="Tool Kit",
+    homes=(Home("decoy_product_words", False),),
     rows=ROWS,
     decoys=d.decoys(ROWS[0], "tool kit", ("DCTKCS", "Tool Kit, Case Free", "tool kit with case")),
     owners=d.OWNERS,
