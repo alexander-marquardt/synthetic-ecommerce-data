@@ -263,10 +263,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         self._published: set[str] = set()
         self.counters: dict[str, int] = {} if counters is None else counters
         self._rotations: dict[str, int] = {}
-        #: End mill records finished so far, on matching shanks and in all.
-        self._shank_records = [0, 0]
-        #: In the grouped pass's fill, past its targets.
-        self._filling = False
         #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
         #: for the main generation.
         self._pins: dict[str, float] = {}
@@ -508,15 +504,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         # shuffled pool afterwards. Truncating after the shuffle throws away a
         # random part of the window, which is the lottery again by another
         # route: measured that way, 15 mm came back to zero square end mills.
-        if self._filling:
-            # A run line's SKUs outweigh a flat line's, and a long line is never on matching
-            # shanks, so a draw per line misses the rate per record. A fill line takes the
-            # policy the record count needs. A target's line keeps its draw: it has to be
-            # able to reach a size either pool holds.
-            shanks_match = self._shank_records[0] < (
-                cfg.shank_equals_cutting_dia * self._shank_records[1]
-            )
-        draft.shanks_match = shanks_match
         pool_of = matching if shanks_match else full
         key = f"cutting_dia:{system}:{'match' if shanks_match else 'any'}"
         if self.in_run:
@@ -1110,7 +1097,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
 
     def _flat_products(self, count: int) -> int:
         """How many of the type's ``count`` products the main generation builds."""
-        return grouped.flat_products(self.type_key, count) if self._runs_lines() else count
+        return grouped.flat_products(self.config.lines, count) if self._runs_lines() else count
 
     def _builder(self):
         """This type's builder: its type module's ``make``."""
@@ -1211,7 +1198,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                         added.append(line)
                         have += 1
             self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped")
-            self._filling = True
             for _ in range(grouped.MAX_ATTEMPTS):
                 if _sku_total(lines) + _sku_total(added) >= budget:
                     break
@@ -1221,7 +1207,6 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                     added.append(line)
         finally:
             self.rng = own_rng
-            self._filling = False
         self._bump("grouped_lines", len(added))
         return added
 

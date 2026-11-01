@@ -20,7 +20,7 @@ from statistics import median
 import pytest
 
 from synthetic_ecommerce_data.core import bundle
-from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import grouped, muststock
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
@@ -109,8 +109,13 @@ def full():
 
 @pytest.fixture(scope="module")
 def large():
-    """Past every type's flat floor, which holds a small build's products flat for coverage."""
-    return generate(replace(GeneratorConfig(), lines=13000), types=TYPES)
+    """The build whose figures issue #766 states."""
+    return generate(replace(GeneratorConfig(), lines=LARGE_BUILD_LINES), types=TYPES)
+
+
+@pytest.fixture(scope="module")
+def large_flat():
+    return generate(replace(GeneratorConfig(), lines=LARGE_BUILD_LINES, grouped=False), types=TYPES)
 
 
 @pytest.fixture(scope="module")
@@ -129,12 +134,12 @@ def _own(catalog, key: str) -> list:
 
 
 @pytest.mark.parametrize("key", TYPES)
-def test_the_flat_products_that_stay_are_the_flat_builds_first(key, flat, full):
+def test_the_flat_products_that_stay_are_the_flat_builds_first(key, large_flat, large):
     """Each is the flat build's product at the same place, unchanged: id, title, SKUs."""
     # A draft the type refuses leaves its place empty, so a few fewer than the share stayed.
-    kept = int(grouped.flat_products(key, len(_own(flat, key))) * 0.9)
+    kept = int(grouped.flat_products(LARGE_BUILD_LINES, len(_own(large_flat, key))) * 0.9)
     assert kept >= 5
-    assert _own(full, key)[:kept] == _own(flat, key)[:kept]
+    assert _own(large, key)[:kept] == _own(large_flat, key)[:kept]
 
 
 @pytest.mark.parametrize("key", TYPES)
@@ -185,33 +190,39 @@ def test_each_type_draws_its_own_table(key, added):
 
 
 @pytest.mark.parametrize("key", TYPES)
-def test_the_pass_stops_at_the_types_budget(key, flat, full, monkeypatch):
+def test_the_pass_stops_at_the_types_budget(key, large_flat, large, monkeypatch):
     """The budget is what stops the pass, and it moves the type's SKUs instead of adding to
     them: half the scale builds about half the run SKUs."""
-    before = sum(len(line.children) for line in _own(flat, key))
-    after = sum(len(line.children) for line in _own(full, key))
+    before = sum(len(line.children) for line in _own(large_flat, key))
+    after = sum(len(line.children) for line in _own(large, key))
     assert 0.8 <= after / before <= 1.35, (key, before, after)
     monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
-    halved = sum(len(line.children) for line in generate(GeneratorConfig(), types=[key]).lines)
-    # Not half of all of them: the flat floor stays, and it is most of a small type.
-    assert halved < after * 0.75, (key, after, halved)
+    config = replace(GeneratorConfig(), lines=LARGE_BUILD_LINES)
+    halved = sum(len(line.children) for line in generate(config, types=[key]).lines)
+    assert halved < after * 0.65, (key, after, halved)
 
 
-def test_the_sku_total_holds(flat, full):
+def test_the_sku_total_holds(large_flat, large):
     """Issue #766: the SKUs move into runs, and the total stays within about 10%."""
-    before = sum(len(line.children) for line in flat.lines)
-    after = sum(len(line.children) for line in full.lines)
+    before = sum(len(line.children) for line in large_flat.lines)
+    after = sum(len(line.children) for line in large.lines)
     assert 0.9 <= after / before <= 1.2, (before, after)
-    assert len(full.lines) < len(flat.lines) / 2
+    assert len(large.lines) < len(large_flat.lines) / 2
 
 
-def test_a_small_build_keeps_the_flat_floor():
-    """Each run line is one size, so a small build needs flat lines for every size to reach
-    a line: the coverage tests read the result, this holds the numbers."""
-    assert grouped.flat_products("end_mill_ball", 286) == grouped.FLAT_FLOOR
-    assert grouped.flat_products("end_mill_ball", 20) == 20
-    assert grouped.flat_products("end_mill_ball", 4000) == 400
-    assert grouped.flat_products("set_screws_hex_socket", 260) == 150
+@pytest.mark.parametrize("key", TYPES)
+def test_a_small_build_keeps_every_flat_product(key, flat, full):
+    """A run line is one size, so a small build keeps its flat products and only adds runs."""
+    # The tail is the must-stock lines, which draw the type's table in a grouped build.
+    kept = int(len(_own(flat, key)) * 0.9)
+    assert _own(full, key)[:kept] == _own(flat, key)[:kept]
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES - 1, 4000) == 4000
+
+
+def test_a_large_build_keeps_its_share_above_the_floor():
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 4000) == 400
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 1000) == grouped.FLAT_FLOOR
+    assert grouped.flat_products(grouped.RUN_BUILD_LINES, 20) == 20
 
 
 def test_a_type_with_no_table_builds_flat_alone():

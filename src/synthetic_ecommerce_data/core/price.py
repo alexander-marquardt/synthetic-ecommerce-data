@@ -1005,12 +1005,6 @@ def _read_pinned_figures() -> dict[str, tuple[float | None, float | None]]:
 PINNED_FIGURES: dict[str, tuple[float | None, float | None]] = _read_pinned_figures()
 
 
-def _quoted(row: str, build: int) -> float:
-    """A pinned figure for a reason to quote; NaN before the file exists."""
-    figure = PINNED_FIGURES.get(row, (math.nan, math.nan))[build]
-    return math.nan if figure is None else figure
-
-
 #: How far past its recorded figure a pinned row may move, as a ratio. The
 #: build is one seed, so the figure is exact on it; the tolerance is room for
 #: the fit rounding its literals.
@@ -1020,28 +1014,10 @@ PIN_TOLERANCE = 0.02
 #: ``tests/test_price.py`` to the side of the band the cause puts them. A
 #: figure a reason quotes is read from :data:`PINNED_FIGURES`, so a refit that
 #: re-records the figure cannot leave the reason quoting the old one.
-#: Three rows the run lines of #766 move, each at one build: every other row is
-#: in its band at both builds.
-_BOLT_TWICE = "price smaller costs 2x+, same product: bolt_hex"
-_SET_SCREW_SIZE = "price larger size costs more: set_screws_hex_socket"
-_SET_SCREW_LENGTH = "price longer costs more: set_screws_hex_socket"
-PINNED_SHORTFALLS: dict[str, str] = {
-    _BOLT_TWICE: (
-        "below band at the default size: a default-size hex bolt product is nearly always a "
-        "run of one diameter's lengths, and no pair of lengths is twice the price, so the "
-        f"row lands at {_quoted(_BOLT_TWICE, 0):.4f}; the 100K build is in band"
-    ),
-    _SET_SCREW_SIZE: (
-        "above band at the default size: about 30 pairs of flat set screws decide the row, too few "
-        f"to hold the census's rate, and they land at {_quoted(_SET_SCREW_SIZE, 0):.3f}; "
-        "the 100K build is in band"
-    ),
-    _SET_SCREW_LENGTH: (
-        "above band at 100K: a run line's pairs are neighboring lengths of one size and "
-        f"carry little spec noise, so they land at {_quoted(_SET_SCREW_LENGTH, 1):.3f}; "
-        "the default build is in band"
-    ),
-}
+#: None: the bolt p50 of #710 went in band when the default build kept its flat bolts (#766),
+#: and every row is in its band at both builds (the pin before it, the kit p90/p10, went with
+#: the wider kit range, #76).
+PINNED_SHORTFALLS: dict[str, str] = {}
 
 
 def slope_cut_mismatch(models: Mapping[str, PriceModel], cuts: Mapping[str, str]) -> set[str]:

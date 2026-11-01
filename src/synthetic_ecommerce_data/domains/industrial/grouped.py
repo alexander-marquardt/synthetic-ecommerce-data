@@ -73,13 +73,15 @@ VARIANTS: dict[str, tuple[tuple[int, float], ...]] = {
 #: and they leave the type a mixture with some single-SKU products.
 FLAT_SHARE = 0.10
 
-#: The fewest flat products a grouped type keeps. Each product is one size of one standard,
-#: and a rotation has to reach every size a standard offers: a run line holds ten SKUs but
-#: one size, so a small build of run lines alone leaves sizes on no line at all. Set screws
-#: need the most: eight standards of about twelve sizes each. At ``--lines 39000`` every
-#: type's share is past its floor.
-FLAT_FLOOR = 50
-FLAT_FLOORS = {"set_screws_hex_socket": 150}
+#: The build size at which a grouped type's SKUs move. A smaller build keeps every flat
+#: product, and the pass only adds run lines: it has few products to spare, and a run line
+#: is one size of one standard, so run lines alone leave sizes on no line and rare attributes
+#: under the evidence the facet rules ask for.
+RUN_BUILD_LINES = 13000
+
+#: The fewest flat products a grouped type keeps once its SKUs move, so a rotation reaches
+#: every size a standard offers: set screws have eight standards of about twelve sizes each.
+FLAT_FLOOR = 150
 
 
 #: A grouped type's SKUs against the type built flat. #710's families grew these types by
@@ -87,9 +89,11 @@ FLAT_FLOORS = {"set_screws_hex_socket": 150}
 SKU_SCALE = 1.10
 
 
-def flat_products(key: str, count: int) -> int:
-    """How many of grouped type ``key``'s ``count`` products stay flat."""
-    return min(count, max(FLAT_FLOORS.get(key, FLAT_FLOOR), round(count * FLAT_SHARE)))
+def flat_products(lines: int, count: int) -> int:
+    """How many of a grouped type's ``count`` products stay flat in a build of ``lines``."""
+    if lines < RUN_BUILD_LINES:
+        return count
+    return min(count, max(FLAT_FLOOR, round(count * FLAT_SHARE)))
 
 
 def sku_budget(flat_skus: int, flat_lines: int, count: int) -> int:

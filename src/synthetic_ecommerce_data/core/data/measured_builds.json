@@ -1,19 +1,11 @@
 {
   "default": {
-    "price_pins": {
-      "price larger size costs more: set_screws_hex_socket": 0.871,
-      "price longer costs more: set_screws_hex_socket": null,
-      "price smaller costs 2x+, same product: bolt_hex": 0.0
-    }
+    "price_pins": {}
   },
   "hundred_k": {
-    "lines": 50782,
-    "price_pins": {
-      "price larger size costs more: set_screws_hex_socket": null,
-      "price longer costs more: set_screws_hex_socket": 0.93,
-      "price smaller costs 2x+, same product: bolt_hex": null
-    },
-    "skus": 134995,
+    "lines": 50743,
+    "price_pins": {},
+    "skus": 134991,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -66,8 +58,8 @@
       "drill_stop_collars": 2,
       "drive_guards": 2,
       "driver_bit_sets": 2,
-      "end_mill_ball": 8933,
-      "end_mill_square": 15184,
+      "end_mill_ball": 8932,
+      "end_mill_square": 15181,
       "er_collets": 2,
       "eye_bolts": 2,
       "fastener_dispensers": 2,

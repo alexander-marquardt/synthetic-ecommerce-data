@@ -209,8 +209,8 @@ def test_the_measurement_system_attribute_appears_under_one_name(stats):
 
 def test_both_the_role_ambiguity_cases_occur():
     """Shank equal to cutting diameter, and shank different: both, at rate. At the default
-    size: the 600 line build's only run lines are its targets, which take the shank their
-    diameter needs, and the rate is held by the lines that fill the type after them."""
+    size: a 600 line build's end mills are mostly the run lines its targets ask for, and a
+    target takes the shank its diameter needs."""
     config = GeneratorConfig()
     catalog = generate(config, types=["end_mill_square", "end_mill_ball"])
     stats = measure(catalog, config)

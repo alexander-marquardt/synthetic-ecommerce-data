@@ -195,27 +195,14 @@ def test_the_twice_types_are_the_census_types_with_20_pairs(census, price_rows):
     assert scored == set(TWICE_SCORED)
 
 
-#: The rows the run lines of #766 put out of band: the side, and the build (0
-#: the default, 1 the 100K) each is out at.
-_PINS = {
-    "price smaller costs 2x+, same product: bolt_hex": ("below band", 0),
-    "price larger size costs more: set_screws_hex_socket": ("above band", 0),
-    "price longer costs more: set_screws_hex_socket": ("above band", 1),
-}
-
-
-def test_three_rows_are_pinned_each_at_one_build():
-    """#766 took the bolt p50 pin of #710, and left these three. Any other
-    row that falls out is red here and in the every-row-in-band tests rather
-    than silently disclosed. The plants below exercise the machinery."""
-    assert set(price.PINNED_SHORTFALLS) == set(_PINS)
-    for name, (side, out_at) in _PINS.items():
-        assert price.PINNED_SHORTFALLS[name].startswith(side)
-        figures = price.PINNED_FIGURES[name]
-        assert figures[out_at] is not None and figures[1 - out_at] is None, name
+def test_no_row_is_pinned_and_the_pin_machinery_is_held_empty():
+    """#76 took the kit p90/p10 pin, #80 the wheel brand spread, and #766 the bolt
+    p50. Any row that falls out is red here and in the every-row-in-band tests
+    rather than silently disclosed. The plants below exercise the machinery."""
+    assert price.PINNED_SHORTFALLS == {}
+    assert price.PINNED_FIGURES == {}
     figures = json.loads(price.BUILDS_FILE.read_text("utf-8"))
-    builds = (figures["default"], figures["hundred_k"])
-    assert [set(build["price_pins"]) for build in builds] == [set(_PINS), set(_PINS)]
+    assert figures["default"]["price_pins"] == figures["hundred_k"]["price_pins"] == {}
 
 
 def test_the_wheel_brand_spread_lands_in_band_on_the_default_build(price_rows):
@@ -455,9 +442,7 @@ def test_every_monotonicity_row_counts_pairs(price_rows):
         if "costs more" in row.name or "costs 2x+" in row.name
     }
     empty = [name for name, n in counted.items() if n < 20]
-    # A run line is one size, and at the default size hex bolts are nearly all run lines
-    # (#766): the row is in band on 7 pairs here and on its thousands at 100K.
-    assert empty == ["price larger size costs more: bolt_hex"]
+    assert not empty, empty
 
 
 @pytest.mark.parametrize("type_key", sorted(price.ENDINGS))
@@ -954,7 +939,7 @@ def test_a_smaller_sku_priced_3x_the_bigger_breaks_the_2x_rows(scored):
             bigger_than[bigger] += 0
             bigger_than[smaller] += 1
     prices.update({sku: 3.0**n for sku, n in bigger_than.items()})
-    rows = _held_to_band("price smaller costs 2x+, same product: {}", TWICE_SCORED)
+    rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
     _above(_newly_out(scored, prices), rows)
 
 
@@ -968,7 +953,7 @@ def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
     prices = dict(base)
     paired = sorted({s for pairs in collected.product_pairs.values() for p in pairs for s in p[:2]})
     prices.update({sku: base[sku] * 4 for sku in paired[1::2]})
-    rows = _held_to_band("price smaller costs 2x+, same product: {}", TWICE_SCORED)
+    rows = [f"price smaller costs 2x+, same product: {t}" for t in TWICE_SCORED]
     out = _newly_out(scored, prices)
     _above(out, rows)
     for name in rows:
@@ -978,6 +963,7 @@ def test_a_quarter_of_pairs_at_2x_breaks_the_2x_rows(scored):
 #: The 2x rows whose census band is narrower than the floor on the default
 #: build, so the floor alone sets the band: each implies a share under 0.001.
 TWICE_FLOORED = (
+    "bolt_hex",
     "drill_jobber",
     "hex_key",
     "lock_nuts_nylon_insert",

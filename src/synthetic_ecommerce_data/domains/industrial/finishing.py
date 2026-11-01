@@ -450,9 +450,6 @@ class FinishMixin:
                 self._bump("brand_type_exhausted")
             return None
         self._misses[pair] = 0
-        if draft.shanks_match is not None:
-            self._shank_records[0] += len(built) if draft.shanks_match else 0
-            self._shank_records[1] += len(built)
 
         published = [attrs for _, attrs, _, _ in built]
         titles = self._disambiguate_titles(

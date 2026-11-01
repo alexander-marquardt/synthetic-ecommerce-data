@@ -142,8 +142,6 @@ class LineDraft:
     #: The title is the item alone: no brand, no qualifier, no segments (the incidental-word
     #: text-match decoy of :mod:`.hammers`, whose short indexed title outranks real hits).
     bare_title: bool = False
-    #: An end mill line's shank policy; None on every other type.
-    shanks_match: bool | None = None
 
 
 #: The word a terse title uses for an end mill's end shape, by its
