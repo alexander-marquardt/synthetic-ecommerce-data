@@ -703,10 +703,19 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "decoys: the pen cap decoy leaves the catalogue",
         "feature_decoys/accessories_422.py",
-        '    (4222, "ac_notebook", "Pen Cap Loop Notebook", "A lined notebook with a loop on the spine that holds a pen by its cap.", "Grey", "cap", "cap", "Hat"),\n',
+        '    (4222, "ac_notebook", "Pen Cap Loop Notebook", "A lined notebook with a loop on the spine that holds a pen by its cap.", "Grey", "cap", "cap"),\n',
         "",
         'tests/test_retail_accessories_queries_422.py -k "shares_the_word"',
         "the issue's cap decoys are planted",
+        _R,
+    ),
+    (
+        "decoys: a leather wallet counts as a garment fibre",
+        "facet_leaves.py",
+        '"Waist Bags", "Wallet", "Watch",',
+        '"Waist Bags", "Watch",',
+        'tests/test_retail_facet_leaves.py -k "garment_material"',
+        "a wallet keeps its own material, no fabric",
         _R,
     ),
 ]

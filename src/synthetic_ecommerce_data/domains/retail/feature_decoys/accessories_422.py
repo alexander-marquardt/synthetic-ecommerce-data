@@ -21,18 +21,18 @@ KINDS = {
     "ac_storage_box": Kind("Home", ("Home", "Storage", "Storage Boxes"), "Storage Box", "storage_box", "Harbour & Pine", 11.0),
 }  # fmt: skip
 
-#: Rows of (number, kind, title, description, color, query, noun, accessory type).
+#: Rows of (number, kind, title, description, color, query, noun).
 _ROWS = (
-    (4220, "ac_tool_kit", "Belt Sander Tool Kit", "A belt sander in a carry case with three spare sanding belts for floors and doors.", "Grey", "belt", "belt", "Belt"),
-    (4221, "ac_bike_bottle", "Screw Cap Bike Bottle", "A leakproof bottle with a screw cap and a wide mouth, for a long ride.", "Grey", "cap", "cap", "Hat"),
-    (4222, "ac_notebook", "Pen Cap Loop Notebook", "A lined notebook with a loop on the spine that holds a pen by its cap.", "Grey", "cap", "cap", "Hat"),
-    (4223, "ac_hanger", "Scarf Hanger with Loops", "A hanger with twelve round loops that keeps every scarf in view in the wardrobe.", "Grey", "scarf", "scarf", "Scarf"),
-    (4224, "ac_storage_box", "Scarf Storage Box", "A lidded fabric box with sixteen small sections for folded scarves.", "Grey", "scarf", "scarf", "Scarf"),
+    (4220, "ac_tool_kit", "Belt Sander Tool Kit", "A belt sander in a carry case with three spare sanding belts for floors and doors.", "Grey", "belt", "belt"),
+    (4221, "ac_bike_bottle", "Screw Cap Bike Bottle", "A leakproof bottle with a screw cap and a wide mouth, for a long ride.", "Grey", "cap", "cap"),
+    (4222, "ac_notebook", "Pen Cap Loop Notebook", "A lined notebook with a loop on the spine that holds a pen by its cap.", "Grey", "cap", "cap"),
+    (4223, "ac_hanger", "Scarf Hanger with Loops", "A hanger with twelve round loops that keeps every scarf in view in the wardrobe.", "Grey", "scarf", "scarf"),
+    (4224, "ac_storage_box", "Scarf Storage Box", "A lidded fabric box with sixteen small sections for folded scarves.", "Grey", "scarf", "scarf"),
 )  # fmt: skip
 
 
 def word_rows(d):
     return tuple(
-        d(n, kind, title, desc, color, query, noun, "department", cross=True, target=target)
-        for n, kind, title, desc, color, query, noun, target in _ROWS
+        d(n, kind, title, desc, color, query, noun, "department", cross=True)
+        for n, kind, title, desc, color, query, noun in _ROWS
     )

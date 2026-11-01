@@ -145,7 +145,7 @@ SPEC = TypeSpec(
         _row("SCFWVN", "Woven Wool Scarf", _P, 22.0, "Woven", "Wool", "190",
              "A soft wool scarf in a woven check with a short fringe, warm and light around the neck."),
         _row("SCFCSH", "Cashmere Blend Scarf", _W, 45.0, "Woven", "Cashmere", "170",
-             "A fine woven scarf with a brushed finish and a short fringe, soft enough to wear next to the skin."),
+             "A fine woven scarf with a brushed finish and a short fringe, soft enough to wear against the skin."),
         _row("SCFSLK", "Silk Square Scarf", _P, 32.0, "Silk Square", "Silk", "90",
              "A smooth silk square with a hand rolled hem, to knot at the neck or tie to a bag handle."),
         _row("SCFSLP", "Silk Neck Scarf", _W, 26.0, "Silk Square", "Silk", "70",
