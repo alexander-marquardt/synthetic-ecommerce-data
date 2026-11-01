@@ -8,6 +8,7 @@ variant whose three values are no row of a core chart (``tests/test_output_stand
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
 
 ROOT = Path(__file__).resolve().parents[1]
 DOMAINS = ROOT / "src" / "synthetic_ecommerce_data" / "domains"
+CHARTS_RECORDED = ROOT / "tests" / "data" / "size_charts_125.json"
 
 #: The ways a retail module used to build a chart of its own: the women's and men's formulas,
 #: the shoe chart builder and the bra band's EU name.
@@ -79,6 +81,14 @@ def test_a_chart_row_is_three_size_strings_and_its_key_names_it():
                 name,
                 key,
             )
+
+
+def test_every_chart_row_is_the_recorded_one():
+    """A chart row is a fact the export carries, so a changed row is a changed catalog:
+    ``tests/data/size_charts_125.json`` is the charts as they were when they moved to core."""
+    recorded = json.loads(CHARTS_RECORDED.read_text(encoding="utf-8"))
+    now = {name: {str(k): list(r) for k, r in chart.items()} for name, chart in sc.CHARTS.items()}
+    assert now == recorded
 
 
 def test_the_bra_chart_is_every_band_by_every_cup():
