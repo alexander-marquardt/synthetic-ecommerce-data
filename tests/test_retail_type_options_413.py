@@ -58,6 +58,7 @@ MOVED = {
     "curtains": [_DROP],
     "blind": [_DROP],
     "shower_curtain": [_DROP],
+    "school_socks": [Option("shoe_size_band", "shoe_size_band", "Shoe size band")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
