@@ -14,6 +14,7 @@ fixed numbers and no cluster.
 
 from __future__ import annotations
 
+import importlib
 import json
 import math
 import re
@@ -22,7 +23,6 @@ from functools import cache
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import standard
-from synthetic_ecommerce_data.domains.industrial import seed_decoys
 from synthetic_ecommerce_data.domains.retail import decoy_contract, export
 from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 
@@ -39,13 +39,21 @@ TOP = 12
 MIN_DECOYS = 3
 #: The fewest words a real sock's title may have: "Mens Bamboo Ankle Socks" was four.
 MIN_TITLE_WORDS = 5
+MIN_BOOT_TITLE_WORDS = 7
+MENTIONS = 3
+CABLE_MENTIONS = 1
+SPILL_SOCKS = "synthetic_ecommerce_data.domains.industrial.product_types.safety.spill_socks"
+#: The apparel decoys of classes 1, 2, 6 and 7: their class holds them to a shape of their own.
+SHORT_BY_RULE = re.compile(r"PLT-D(A\d\d|SSCHOOL_SOCKS)[1267]\d\d")
+#: The apparel decoys of the other classes, whose title takes the detail of ``sock_titles``.
+GENERATED_BOOT_SOCK = re.compile(r"PLT-DA\d\d[0345]\d\d")
 SOCK_TYPES = ("Socks", "Boot Socks", "School Socks")
 TITLES = (
     "Moisturising Gel Socks",
     "Exfoliating Foot Peel Socks",
     "Mesh Wash Bag for Socks",
     "Socks and Underwear Drawer Organiser",
-    "Make Your Own Socks Puppet Kit",
+    "Socks Puppet Craft Kit",
     "Cable Pulling Socks",
 )
 
@@ -123,8 +131,25 @@ def test_real_sock_titles_are_not_short() -> None:
     socks = {r["product_id"]: r["title"] for r in ceiling_build().records
              if r["product_type"] in SOCK_TYPES and QUERY in _words(r["title"])}  # fmt: skip
     assert len(socks) > 100
-    short = {p: t for p, t in socks.items() if len(_words(t)) < MIN_TITLE_WORDS}
+    short = {p: t for p, t in socks.items()
+             if len(_words(t)) < MIN_TITLE_WORDS and not SHORT_BY_RULE.fullmatch(p)}  # fmt: skip
     assert short == {}
+
+
+def test_a_generated_boot_sock_title_is_the_longest() -> None:
+    """A boot sock has the shortest ``text`` of the sock types, so its title adds the most."""
+    boots = {r["product_id"]: r["title"] for r in ceiling_build().records
+             if r["product_type"] == "Boot Socks"
+             and GENERATED_BOOT_SOCK.fullmatch(r["product_id"])}  # fmt: skip
+    assert boots
+    assert {p: t for p, t in boots.items() if len(_words(t)) < MIN_BOOT_TITLE_WORDS} == {}
+
+
+def test_each_decoy_but_the_cable_grip_says_the_word_three_times() -> None:
+    """Three mentions in a short description is the shape that reaches a boot sock's score."""
+    counts = {r.title: _words(r.desc).count(QUERY) for r in _rows()}
+    assert counts.pop("Cable Pulling Socks") == CABLE_MENTIONS
+    assert set(counts.values()) == {MENTIONS}
 
 
 def test_no_decoy_sits_in_a_socks_node() -> None:
@@ -143,4 +168,6 @@ def test_each_decoy_declares_the_category_policy() -> None:
 
 
 def test_the_industrial_spill_socks_serve_the_query() -> None:
-    assert seed_decoys.SEED_DECOYS.get(QUERY) == ("spill_socks",)
+    row = importlib.import_module(SPILL_SOCKS).SPEC.breadth
+    assert QUERY in _words(row.item)
+    assert not any("sock" in node.lower() for node in row.category)

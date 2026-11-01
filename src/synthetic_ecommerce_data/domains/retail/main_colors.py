@@ -69,7 +69,7 @@ PLAIN_STYLES = (
     ("PLT-CARCHK", "PLT-CARPL", "Car Coat",
      "A car coat, jacket length, with a contrast collar.",
      None, ("Camel", "#c19a6b", "brown")),
-    ("PLT-BOOTSOK", "PLT-BOOTPL", "Knitted Boot Socks",
+    ("PLT-BOOTSOK", "PLT-BOOTPL", "Knitted Boot Socks with Fold-Over Cuff, Thick Knit",
      "Thick knitted boot socks with a fold-over cuff that shows above welly boots.",
      None, ("Light Beige", "#d9cdb4", "beige")),
     ("GFT-KRAFT", "GFT-KRAFTPL", "Plain Paper Bag with Rope Handles",
