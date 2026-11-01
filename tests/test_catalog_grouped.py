@@ -20,7 +20,7 @@ from statistics import median
 import pytest
 
 from synthetic_ecommerce_data.core import bundle
-from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import grouped, muststock
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
@@ -97,6 +97,10 @@ def _carries(entry, line) -> bool:
     )
 
 
+#: Twice the smallest build that moves SKUs, so the flat floor leaves a small type most runs.
+RUN_LINES = 2 * grouped.RUN_BUILD_LINES
+
+
 @pytest.fixture(scope="module")
 def flat():
     return generate(replace(GeneratorConfig(), grouped=False), types=TYPES)
@@ -109,13 +113,13 @@ def full():
 
 @pytest.fixture(scope="module")
 def large():
-    """The build whose figures issue #766 states."""
-    return generate(replace(GeneratorConfig(), lines=LARGE_BUILD_LINES), types=TYPES)
+    """A build that moves SKUs into runs."""
+    return generate(replace(GeneratorConfig(), lines=RUN_LINES), types=TYPES)
 
 
 @pytest.fixture(scope="module")
 def large_flat():
-    return generate(replace(GeneratorConfig(), lines=LARGE_BUILD_LINES, grouped=False), types=TYPES)
+    return generate(replace(GeneratorConfig(), lines=RUN_LINES, grouped=False), types=TYPES)
 
 
 @pytest.fixture(scope="module")
@@ -137,7 +141,7 @@ def _own(catalog, key: str) -> list:
 def test_the_flat_products_that_stay_are_the_flat_builds_first(key, large_flat, large):
     """Each is the flat build's product at the same place, unchanged: id, title, SKUs."""
     # A draft the type refuses leaves its place empty, so a few fewer than the share stayed.
-    kept = int(grouped.flat_products(LARGE_BUILD_LINES, len(_own(large_flat, key))) * 0.9)
+    kept = int(grouped.flat_products(RUN_LINES, len(_own(large_flat, key))) * 0.9)
     assert kept >= 5
     assert _own(large, key)[:kept] == _own(large_flat, key)[:kept]
 
@@ -197,7 +201,7 @@ def test_the_pass_stops_at_the_types_budget(key, large_flat, large, monkeypatch)
     after = sum(len(line.children) for line in _own(large, key))
     assert 0.8 <= after / before <= 1.35, (key, before, after)
     monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
-    config = replace(GeneratorConfig(), lines=LARGE_BUILD_LINES)
+    config = replace(GeneratorConfig(), lines=RUN_LINES)
     halved = sum(len(line.children) for line in generate(config, types=[key]).lines)
     assert halved < after * 0.65, (key, after, halved)
 
