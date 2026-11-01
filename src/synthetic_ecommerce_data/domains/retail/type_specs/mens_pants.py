@@ -132,7 +132,7 @@ ROWS = (
     _row("MPBRSP", "Mens Sports Brief Pants", _HP, "Briefs", "Microfiber", 9.5,
          "Quick-dry men's brief pants with a supportive cut, for running and training.",
          (BLACK, BLUE, RED, YELLOW, CHARCOAL)),
-    _row("MPHPST", "Mens Stretch Hipster Pants", _TW, "Hipster", "Cotton Stretch", 8.5,
+    _row("MPHPST", "Mens Stretch Hipster Pants", _TW, "Hipster", "Cotton", 8.5,
          "Men's hipster pants in cotton stretch that keep their shape wash after wash.",
          (BLACK, NAVY, RED, GREY)),
     _row("MPLRBM", "Mens Bamboo Low-Rise Pants", _WF, "Low-Rise Briefs", "Bamboo", 9.5,
