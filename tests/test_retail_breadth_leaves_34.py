@@ -78,3 +78,12 @@ def test_a_battery_cell_is_the_size_its_row_says_it_is() -> None:
     for doc in docs:
         cell = next(a["value"] for a in doc["attributes"] if a["key"] == "battery_size")
         assert doc["drawing"]["params"]["cell"] == cell
+
+
+def test_a_hook_is_drawn_with_the_pins_its_fixing_states() -> None:
+    docs = _docs(("Home", "DIY & Tools", "Picture Hooks"))
+    assert docs
+    for doc in docs:
+        fixing = {a["key"]: a["value"] for a in doc["attributes"]}.get("fixing")
+        pins = {"Single pin": "1", "Double pin": "2"}.get(fixing)
+        assert doc["drawing"]["params"]["pins"] == pins
