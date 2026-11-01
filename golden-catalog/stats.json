@@ -3199,8 +3199,8 @@
   {
    "name": "price p50 (USD): end_mill_ball",
    "target": 88.23,
-   "achieved": 98.48,
-   "numerator": 801,
+   "achieved": 94.08,
+   "numerator": 731,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3211,8 +3211,8 @@
   {
    "name": "price p90/p10: end_mill_ball",
    "target": 8.62933,
-   "achieved": 8.12308,
-   "numerator": 801,
+   "achieved": 7.66572,
+   "numerator": 731,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3223,9 +3223,9 @@
   {
    "name": "price larger size costs more: end_mill_ball",
    "target": 0.909,
-   "achieved": 0.874272,
-   "numerator": 11258,
-   "denominator": 12877,
+   "achieved": 0.910576,
+   "numerator": 9419,
+   "denominator": 10344,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.648848,
@@ -3235,8 +3235,8 @@
   {
    "name": "price p50 (USD): end_mill_square",
    "target": 52.5,
-   "achieved": 52.99,
-   "numerator": 1358,
+   "achieved": 50.0,
+   "numerator": 1228,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3247,8 +3247,8 @@
   {
    "name": "price p90/p10: end_mill_square",
    "target": 7.53715,
-   "achieved": 8.78527,
-   "numerator": 1358,
+   "achieved": 8.09887,
+   "numerator": 1228,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3259,9 +3259,9 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.779701,
-   "numerator": 21303,
-   "denominator": 27322,
+   "achieved": 0.812751,
+   "numerator": 18230,
+   "denominator": 22430,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.569266,
@@ -3823,7 +3823,7 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.49645,
+   "achieved": 1.41519,
    "numerator": 139,
    "denominator": 5,
    "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec",
@@ -3894,50 +3894,50 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00560522,
-   "achieved": 0.00521542,
+   "target": 0.00569125,
+   "achieved": 0.00529547,
    "numerator": 69,
-   "denominator": 13230,
+   "denominator": 13030,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00215139,
-    0.00905905
+    0.00218441,
+    0.0091981
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0953937,
-   "achieved": 0.0869237,
-   "numerator": 1150,
-   "denominator": 13230,
+   "target": 0.0928921,
+   "achieved": 0.0874137,
+   "numerator": 1139,
+   "denominator": 13030,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0748279,
-    0.11596
+    0.0736535,
+    0.112131
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0642833,
-   "achieved": 0.0597128,
-   "numerator": 790,
-   "denominator": 13230,
+   "target": 0.0617991,
+   "achieved": 0.0600153,
+   "numerator": 782,
+   "denominator": 13030,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0449438,
-    0.0836227
+    0.0437987,
+    0.0797994
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.217765,
-   "achieved": 0.215117,
-   "numerator": 2846,
-   "denominator": 13230,
+   "target": 0.218236,
+   "achieved": 0.215349,
+   "numerator": 2806,
+   "denominator": 13030,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.194978,
-    0.240551
+    0.196301,
+    0.24017
    ]
   }
  ],

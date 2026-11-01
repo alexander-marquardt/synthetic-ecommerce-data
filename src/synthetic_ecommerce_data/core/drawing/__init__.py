@@ -38,12 +38,11 @@ from synthetic_ecommerce_data.core.drawing import brand_mark
 from synthetic_ecommerce_data.core.drawing.model import fan
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES, PACK_TYPES
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
     MATERIAL_ATTRIBUTES,
 )
-from synthetic_ecommerce_data.domains.industrial.pack import AXES
 
 __all__ = [
     "FIGURES",
@@ -238,7 +237,7 @@ def _pack_count(product_type: str, record: Mapping[str, str]) -> int:
 
     A bolt's ``Units per Pack`` is how its price is quoted, not a variant, and its one drawing
     is the item's (gen#14)."""
-    if product_type not in AXES:
+    if product_type not in PACK_TYPES:
         return 1
     return int(record.get("Units per Pack") or 1)
 

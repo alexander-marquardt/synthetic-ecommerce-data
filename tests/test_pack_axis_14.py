@@ -20,7 +20,7 @@ from synthetic_ecommerce_data.core.drawing import draw_sku
 from synthetic_ecommerce_data.core.drawing.sheet import FIGURE_HEIGHT
 from synthetic_ecommerce_data.core.drawing.svg import WIDTH
 from synthetic_ecommerce_data.core.model import Catalog
-from synthetic_ecommerce_data.domains.industrial import pack
+from synthetic_ecommerce_data.domains.industrial import pack, price_report
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
     distribution_problems,
@@ -95,6 +95,11 @@ def test_a_pack_is_a_discount_and_not_a_multiple_of_its_single(pack_lines):
             if quantity > 1:
                 unit = singles[_size(child)]
                 assert unit < child.price_usd < unit * quantity, child.sku
+
+
+def test_the_price_report_reads_single_units_and_no_pack(catalog, pack_lines):
+    packs = {c.sku for line in pack_lines for c in line.children if _quantity(c) > 1}
+    assert packs and not packs & set(price_report.collect(catalog).type_of)
 
 
 def test_the_title_leads_with_the_count_above_one_and_only_there(pack_lines):
