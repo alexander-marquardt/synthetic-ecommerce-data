@@ -43,12 +43,12 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _R,
     ),
     (
-        "the period swimwear absorbency is not drawn",
-        "swimwear_rows.py",
-        '("absorbency", "Absorbency", absorbency, "absorbency")',
-        '("absorbency", "Absorbency", absorbency)',
+        "swim bottoms lose their waistband",
+        "kit_swimwear.py",
+        '    out.append(_g("waistband", [_path(band, paint, LW_DETAIL + 0.4), _dark(band, 0.1)]))\n    return out\n\n\n# --------------------------------------------------------------------------\n# Cover-up',
+        '    return out\n\n\n# --------------------------------------------------------------------------\n# Cover-up',
         f"{_T} -k drawing_shows_the_marks",
-        "a moderate absorbency draws two absorbent layers",
+        "swim bottoms draw the waistband their record has",
         _R,
     ),
     (
