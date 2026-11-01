@@ -303,7 +303,7 @@ NON_TEXTILE_TYPES = frozenset({
     "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Bracelet", "Digital Watch",
     "Drop Earrings", "Earrings", "Fitness Band", "Handbag", "Hoop Earrings", "Key Clips",
     "Necklace", "Purse", "Ring", "Shoe Care Kit", "Shoe Laces", "Shoe Polish", "Tote Bag",
-    "Travel Cases", "Umbrella", "Waist Bags", "Watch",
+    "Travel Cases", "Umbrella", "Waist Bags", "Wallet", "Watch",
 })  # fmt: skip
 
 
