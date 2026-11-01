@@ -27,7 +27,8 @@ nothing.
 
 A pack is cheaper per piece. Its price is `price * quantity ** 0.79` (`price.pack_price`), so
 a 5-pack costs 3.56 singles, then takes the catalog's pooled price endings: the pack price is
-never a linear multiple of the single's.
+never a linear multiple of the single's. The price report leaves a pack out, so the census
+rows and the fit read single units only.
 
 The title leads with the count, `5PCS ` followed by the single's title. A title that would
 pass 100 characters drops its last whole `, ` segment, so a value is never cut in half. The
