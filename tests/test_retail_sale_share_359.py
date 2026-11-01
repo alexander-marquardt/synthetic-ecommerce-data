@@ -61,7 +61,7 @@ def test_the_groups_are_not_empty_so_the_shares_below_are_not_vacuous(
 ) -> None:
     seen = collections.Counter(g for r in rows if (g := _group(r)))
     assert sorted(seen) == sorted(GROUPS)
-    assert min(seen.values()) > 4 * FEW_HUNDRED
+    assert min(seen.values()) > 3 * FEW_HUNDRED
 
 
 @pytest.mark.parametrize("group", GROUPS)

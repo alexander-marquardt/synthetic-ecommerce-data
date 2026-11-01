@@ -65,7 +65,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         _LS,
         '(), {"kind": "knee_boot"}),',
         '(), {"kind": "ankle_boot"}),',
-        f'{_T} -k "a_reported_product_is_drawn_as_its_title and PLT-DA36301"',
+        f'{_T} -k "a_reported_product_is_drawn_as_its_title and PLT-DA36400"',
         "knee high boots are drawn to the knee",
         _R,
     ),

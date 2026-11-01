@@ -17,7 +17,9 @@ The classes (the numbers follow the issue):
    the named part in the named color, :mod:`details`).
 2. **type**: another category's noun in a real compound ("Navy Shirt Dress", "Cream Trouser Socks";
    :data:`COMPOUNDS`, never an invented one such as "Dress Pyjamas").
-3. **audience**: an audience word of a sibling version ("Black Mens-Style Jeans", a women's style).
+3. **audience**: a phrase that names a sibling version, on a type where real titles use it
+   ("Blue Boyfriend Jeans", a women's style whose description names "our mens jeans"; #781). Only
+   the types of :data:`AUDIENCE_TYPES` carry it, each with its one phrase.
 4. **absent**: a material or feature named but absent ("Black Leather-Look Jacket").
 5. (retired in #663: a shade spelled in the description only, "Moonbeam Dress" in soft ivory, is
    a trap no shopper meets in a title; the number is not reused.)
@@ -65,7 +67,8 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.class_model import SHADE_FAMILY
 from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import (
     ABSENT,
-    AUDIENCE,
+    AUDIENCE_COPY,
+    AUDIENCE_TYPES,
     CATEGORY_RANGES,
     COMPOUNDS,
     SHORT_COMPOUNDS,
@@ -91,7 +94,7 @@ MAIN_WORDS = ("red", "blue", "green", "yellow", "black", "white")
 CLASSES = {
     1: "color names a part",
     2: "another category's noun as a modifier",
-    3: "audience word of a sibling version",
+    3: "phrase naming a sibling version",
     4: "material or feature named but absent",
     6: "incidental word in a range name",
     7: "invented brand holding a color or category word",
@@ -114,7 +117,8 @@ class Spec:
     @property
     def classes(self) -> dict[int, int]:
         n = self.per_class
-        out = {1: n, 2: n, 3: n, 4: n, 6: n, 7: min(n, len(BRANDS))}
+        audience = AUDIENCE_DECOYS if self.product_type in AUDIENCE_TYPES else 0  # #781
+        out = {1: n, 2: n, 3: audience, 4: n, 6: n, 7: min(n, len(BRANDS))}
         if self.product_type in FIT_WORDS:
             out[8] = WORD_DECOYS * len(FIT_WORDS[self.product_type])
         return out
@@ -122,6 +126,8 @@ class Spec:
 
 #: Decoys per word of class 8: three, so a value's query holds three in its top 10.
 WORD_DECOYS = 3
+#: Class 3 decoys on a type of :data:`AUDIENCE_TYPES`: three, as for a class 8 word (#781).
+AUDIENCE_DECOYS = 3
 #: The words class 8 plants, per type: (attribute key, value) of every value the live products
 #: hold (``tests/test_retail_fit_word_decoys_434.py`` reds when the catalog gains one). Cropped is
 #: left out: a jean whose text says "cropped" also carries the Cropped fit (``facet_leaves``),
@@ -178,7 +184,9 @@ _PLANNED: tuple[Spec, ...] = (
 #: existing id can change content (PLT-DA08602 does), so a decoy is never pinned by its id.
 #: Retiring class 5 (#663) took Top and Dress (6 classes of 6), Jumper and Shirt (6 of 3) under a
 #: tenth of 376, 361, 202 and 184 styles: Top and Dress carry 7 a class, Jumper and Shirt 4.
-_MORE = {"Top": 7, "Dress": 7, "Jumper": 4, "Shirt": 4}
+#: Class 3 leaving every type outside the audience table (#781) took Top (5 classes of 7) and Coat
+#: (5 of 3) under a tenth of 376 and 161 styles: Top carries 8 a class, Coat 4.
+_MORE = {"Top": 8, "Dress": 7, "Jumper": 4, "Shirt": 4, "Coat": 4}
 BASE_TYPES: tuple[Spec, ...] = tuple(
     replace(s, prefix=f"A{ti:02d}", per_class=_MORE.get(s.product_type, s.per_class))
     for ti, s in enumerate(_PLANNED)
@@ -407,15 +415,17 @@ def _options(cls: int, spec: Spec, ex: dict) -> list[dict]:
                     )
                 )
     elif cls == 3:
-        for phrase, word in AUDIENCE[ex["category_path"][0]]:
+        a = AUDIENCE_TYPES.get(noun)
+        fit = (_fit(ex) or "").lower()
+        if a and ex["category_path"][0] == a.root and (not a.fit or fit == a.phrase.lower()):
             for c in PRODUCT_COLORS:
                 out.append(
                     dict(
-                        title=f"{c} {phrase} {noun}",
-                        word=word,
+                        title=f"{c} {a.phrase} {noun}",
+                        word=a.word,
                         color=c,
-                        desc=f"{c} {n} cut in a {phrase.lower()} fit.",
-                        query=f"{word} {n}",
+                        desc=AUDIENCE_COPY[a.root, a.phrase].format(c=c, n=n, word=a.word),
+                        query=f"{a.word} {n}",
                     )
                 )
     elif cls == 4:
@@ -628,6 +638,18 @@ def _restyle(cls, spec, exemplars, step, o, used, words):
     )
 
 
+def _audience_exemplar(spec: Spec, exemplars: list[dict], at: int, used: set, words: set) -> dict:
+    """The first exemplar from ``at`` that can carry a class 3 option: one of the department
+    and, for a fit phrase, the fit that :data:`AUDIENCE_TYPES` names (#781)."""
+    n = len(exemplars)
+    for k in range(n):
+        ex = exemplars[(at + k) % n]
+        if _candidates(3, spec, ex, used, words):
+            return ex
+    a = AUDIENCE_TYPES[spec.product_type]
+    raise ValueError(f"{spec.product_type} class 3: no {a.root} exemplar carries {a.phrase}")
+
+
 def _without_petite(pool: list[dict]) -> list[dict]:
     """``pool`` with each petite exemplar replaced, in its own place, by the nearest one before it
     that is not (the last one, for a petite exemplar that comes first).
@@ -675,9 +697,16 @@ def build(body: list[dict]) -> list[Row]:
         step = 0
         for cls, n in spec.classes.items():
             rnd = random.Random(f"311-{spec.product_type}-{cls}")
+            audience_at = None
+            if cls == 3:  # #781: class 3 keeps its old share of ``step``, so the classes after
+                # it keep the exemplars they had before the audience table
+                audience_at, step = step, step + spec.per_class
             for i in range(n):
-                ex = exemplars[step % len(exemplars)]
-                step += 1
+                if audience_at is not None:
+                    ex = _audience_exemplar(spec, exemplars, audience_at + i, used, words)
+                else:
+                    ex = exemplars[step % len(exemplars)]
+                    step += 1
                 want = None
                 if cls == 8:  # this decoy's word, on the next exemplar that can carry it
                     want = FIT_WORDS[spec.product_type][i // WORD_DECOYS][1].lower()
@@ -778,7 +807,8 @@ Kids clothing, footwear and lingerie, products whose words mislead a plain text 
 structured fields tell the truth (gen#294's rule; `decoy_rows.py` holds the demo-query rows). A
 decoy is a clone of one real style of its type in one main color. The color, category and audience
 policies read the fields and drop it. The classes: 1 a color word names a trim or strap; 2 another
-category's noun in a real compound; 3 an audience word of a sibling version; 4 a material or
+category's noun in a real compound; 3 a phrase naming a sibling version (#781: Boyfriend,
+Menswear-Inspired or Mini-Me, only on the types where real titles use it); 4 a material or
 feature named but absent; 6 a place, which is the decoy's brand, holds a category word ("Cardigan
 Bay Running Shoes"); 7 an invented brand holds a color or category word; 8 (jeans and bras only,
 gen#434) a line is named for a fit or a shape the product is not. Class 5 (a shade spelled in the

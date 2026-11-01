@@ -123,7 +123,7 @@ def test_pants_are_sold_in_the_main_colors(templates):
 
 def test_pants_carry_text_match_decoys_of_every_class(templates):
     decoys = [r for r in _leaf(templates, PANTS) if r["product_id"] in decoy_apparel.ids()]
-    assert len(decoys) >= 18, len(decoys)
+    assert len(decoys) >= 15, len(decoys)  # five classes: audience is #781 only
 
 
 def test_the_lampshades_leaf_has_lamp_shade_titles_in_two_words(templates):

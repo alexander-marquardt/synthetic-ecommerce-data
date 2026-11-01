@@ -181,7 +181,7 @@ EXAMPLES: dict[str, tuple[str, dict[str, str]]] = {
     "BRD-MDPS240": ("top", {"kind": "polo", "neckline": "polo", "sleeve": "short"}),
     "BRD-NXMET041": ("trousers", {"cargo": "yes"}),
     "PLT-OFRPJS": ("shorts", {"style": "sweat", "pocket": "no"}),
-    "PLT-DA36301": ("shoe", {"kind": "knee_boot"}),
+    "PLT-DA36400": ("shoe", {"kind": "knee_boot"}),  # #781 retired PLT-DA36301, a class 3 decoy
 }
 
 

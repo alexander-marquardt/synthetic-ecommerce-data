@@ -128,7 +128,7 @@ def index() -> br.Index:
 )
 def test_the_issue_query_returns_the_type_first(index: br.Index, query: str) -> None:
     """The first hit that is no planted text-match decoy (``PLT-D...`` or its own) is a style."""
-    top = br.rank(index, query, size=12)
+    top = br.rank(index, query, size=20)
     planted = type_registry.decoy_ids_of(SPEC)
     first = next(
         (

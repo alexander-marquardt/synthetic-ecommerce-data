@@ -120,7 +120,9 @@ def test_every_type_has_three_decoys_per_class_in_the_built_catalog(
     assert grouped and set(grouped) == {t.product_type for t in da.TYPES}
     assert {r.pid for r in rows} == da.IDS == {p for p in by_id if p in da.IDS}
     for ptype, rs in grouped.items():
-        for cls in (1, 2, 3, 4, 6, 7):  # class 5 is retired (#663)
+        # class 5 is retired (#663); class 3 sits only on the audience table's types (#781,
+        # tests/test_retail_audience_decoys_781.py)
+        for cls in (1, 2, 4, 6, 7) + ((3,) if ptype in da.AUDIENCE_TYPES else ()):
             n = sum(r.cls == cls for r in rs)
             assert n >= 3, (ptype, cls, n)
         assert all(by_id[r.pid]["product_type"] == ptype for r in rs), ptype

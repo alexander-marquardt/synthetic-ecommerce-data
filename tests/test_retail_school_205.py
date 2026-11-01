@@ -279,8 +279,10 @@ def test_every_type_carries_decoys_of_all_six_classes(ptype: str) -> None:
     docs = [d for d in scale.templates(baseline=False) if d["product_id"] in decoy_apparel.IDS]
     mine = [d for d in docs if d["product_type"] == ptype]
     classes = collections.Counter(d["product_id"].split("-D")[1][3] for d in mine)
-    assert len(mine) >= 18, (ptype, len(mine))
-    assert len(classes) == 6 and min(classes.values()) >= 3, classes
+    # five classes of three: class 3 sits only on the audience table's types (#781)
+    assert ptype not in decoy_apparel.AUDIENCE_TYPES
+    assert len(mine) >= 15, (ptype, len(mine))
+    assert len(classes) == 5 and min(classes.values()) >= 3, classes
 
 
 def _paths() -> list[tuple[str, ...]]:

@@ -306,8 +306,9 @@ def test_every_type_carries_decoys_of_all_six_classes(key: str) -> None:
     docs = [d for d in scale.templates(baseline=False) if d["product_id"] in decoy_apparel.IDS]
     mine = [d for d in docs if d["product_type"] == ptype]
     classes = collections.Counter(re.search(r"(\d)\d\d$", d["product_id"]).group(1) for d in mine)
-    assert len(mine) >= 18, (ptype, len(mine))
-    assert len(classes) == 6 and min(classes.values()) >= 3, classes
+    audience = ptype in decoy_apparel.AUDIENCE_TYPES  # class 3 sits only on these (#781)
+    assert len(mine) >= (18 if audience else 15), (ptype, len(mine))
+    assert len(classes) == (6 if audience else 5) and min(classes.values()) >= 3, classes
 
 
 def test_the_types_sit_in_the_tree_under_the_guards_rules() -> None:
