@@ -253,7 +253,11 @@ style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
 the before and after is `docs/images/pizza-drawn-604.svg`). A pack's label is the
 title's product noun (`grocery.pack_label`), and its panel also carries the range
 name and a band of the style's flavor colors (`kit._panel` reads them from the
-drawing's `line` and `chips` params). The range-name text tells siblings of a family
+drawing's `line` and `chips` params). On a round container (`tin`, `bottle`, `jar`, and the
+`tub` pot) the label wraps round it: its top and bottom edges are arcs of the container's rim
+ellipse (on the tin its own `A88,20` rim), and the pot's label leans in with the pot's sides
+(`kit._panel`'s `rim` and `lean`; `tests/test_round_labels_737.py`; the before and after is
+`docs/images/round-labels-737.svg`). Flat packs keep the flat panel. The range-name text tells siblings of a family
 apart; the flavor band is not seen by the grid-clone gate (it reads the leaf, hero picture and price).
 The grocery styles are held to the honesty tests of the main catalog and to a
 grid-clone cap (`GROCERY_GRID_CLONES`).

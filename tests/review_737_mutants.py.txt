@@ -1,0 +1,22 @@
+"""Mutants on the changed lines of #737; the receipt a reviewer re-runs."""
+KIT = "src/synthetic_ecommerce_data/domains/retail/kit.py"
+TESTS = ["tests/test_round_labels_737.py"]
+MUTANTS = [
+    (KIT, "RIM_TILT = 20 / 88", "RIM_TILT = 20 / 60", "tilt-moved"),
+    (KIT, "return half_width, round(half_width * RIM_TILT, 1)", "return half_width, round(half_width * RIM_TILT * 0.5, 1)", "rim-flattened"),
+    (KIT, "    if rim is None:\n        outline", "    if rim is not None:\n        outline", "rim-gate-inverted"),
+    (KIT, "    bot_rx = top_rx - lean\n", "    bot_rx = top_rx\n", "bottom-rim-not-narrowed"),
+    (KIT, "bot_ry = round(top_ry * bot_rx / top_rx, 1)", "bot_ry = top_ry", "bottom-rim-depth-kept"),
+    (KIT, "sag = top_ry * (1 - (1 - (w / 2 / top_rx) ** 2) ** 0.5)", "sag = 0", "word-not-lowered"),
+    (KIT, "A{top_rx:g},{top_ry:g} 0 0 0 {x + w:g},{y:g}", "A{top_rx:g},{top_ry:g} 0 0 1 {x + w:g},{y:g}", "top-edge-bulges-up"),
+    (KIT, "A{bot_rx:g},{bot_ry:g} 0 0 1 {x + lean:g}", "A{bot_rx:g},{bot_ry:g} 0 0 0 {x + lean:g}", "bottom-edge-bulges-up"),
+    (KIT, 'f"L{x + w - lean:g},{y + h:g} A', 'f"L{x + w:g},{y + h:g} A', "right-side-not-leaning"),
+    (KIT, "0 0 1 {x + lean:g},{y + h:g} Z", "0 0 1 {x:g},{y + h:g} Z", "left-side-not-leaning"),
+    (KIT, "*_panel_word(x + lean, y + sag, w - 2 * lean, h - sag, text, max_size)", "*_panel_word(x, y, w, h, text, max_size)", "word-in-flat-box"),
+    (KIT, "return [outline, *_panel_word(x, y, w, h, text, max_size)]", "return [outline, *_panel_word(x, y + 1, w, h, text, max_size)]", "flat-word-moved"),
+    (KIT, "*_panel(150, 226, 100, 92, label, 44, rim=_rim(58)),", "*_panel(150, 226, 100, 92, label, 44),", "bottle-flat"),
+    (KIT, "*_panel(128, 196, 144, 104, label, 52, rim=_rim(80)),", "*_panel(128, 196, 144, 104, label, 52),", "jar-flat"),
+    (KIT, "*_panel(122, 180, 156, 100, label, 52, rim=(88, 20)),", "*_panel(122, 180, 156, 100, label, 52, rim=_rim(96)),", "tin-not-its-rim"),
+    (KIT, "*_panel(122, 190, 156, 96, label, 50, rim=_rim(80), lean=10.5),", "*_panel(122, 190, 156, 96, label, 50, rim=_rim(80)),", "pot-not-leaning"),
+    (KIT, "*_panel(122, 190, 156, 96, label, 50, rim=_rim(80), lean=10.5),", "*_panel(124, 190, 152, 96, label, 50),", "pot-flat"),
+]

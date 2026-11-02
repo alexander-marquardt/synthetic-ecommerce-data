@@ -201,14 +201,57 @@ def _drawn(draw, paint: str, fill: Fill, label: str | None, params: dict | None)
         _MARKS.clear()
 
 
+#: A round container seen from a little above: its rim's depth over its width, as the tin's
+#: ``A88,20`` rim draws it. A label wrapped round the container curves by the same ellipse.
+RIM_TILT = 20 / 88
+
+
+def _rim(half_width: float) -> tuple[float, float]:
+    """The (rx, ry) of a round container's rim ``half_width`` across, at :data:`RIM_TILT`."""
+    return half_width, round(half_width * RIM_TILT, 1)
+
+
 def _panel(
-    x: float, y: float, w: float, h: float, text: str | None, max_size: float = 56, rx: float = 6
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    text: str | None,
+    max_size: float = 56,
+    rx: float = 6,
+    rim: tuple[float, float] | None = None,
+    lean: float = 0.0,
 ) -> list[str]:
-    """A white label panel carrying the product word."""
-    out = [
-        f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" '
-        f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
-    ]
+    """A white label panel carrying the product word.
+
+    With ``rim`` (the container's (rx, ry) at the label's top edge) the label wraps round a
+    round container (gen#737): its top and bottom edges are arcs of that ellipse, so they sag
+    toward the viewer, and the word sits below the top edge's lowest point. ``lean`` is how far
+    each side steps in over the label's height, for a pot narrowing to its foot; the bottom
+    edge's ellipse narrows with it. Without ``rim`` it is a flat rounded rectangle."""
+    if rim is None:
+        outline = (
+            f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" '
+            f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+        )
+        return [outline, *_panel_word(x, y, w, h, text, max_size)]
+    top_rx, top_ry = rim
+    bot_rx = top_rx - lean
+    bot_ry = round(top_ry * bot_rx / top_rx, 1)
+    sag = top_ry * (1 - (1 - (w / 2 / top_rx) ** 2) ** 0.5)
+    d = (
+        f"M{x:g},{y:g} A{top_rx:g},{top_ry:g} 0 0 0 {x + w:g},{y:g} "
+        f"L{x + w - lean:g},{y + h:g} A{bot_rx:g},{bot_ry:g} 0 0 1 {x + lean:g},{y + h:g} Z"
+    )
+    outline = f'<path d="{d}" fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+    return [outline, *_panel_word(x + lean, y + sag, w - 2 * lean, h - sag, text, max_size)]
+
+
+def _panel_word(
+    x: float, y: float, w: float, h: float, text: str | None, max_size: float
+) -> list[str]:
+    """The panel's word (and the grocery marks) in the box (x, y, w, h)."""
+    out: list[str] = []
     if text and _MARKS:
         out += _marked(x, y, w, h, text, max_size)
     elif text:
@@ -528,7 +571,7 @@ def bottle(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path(body, paint),
         _path("M176,36 L224,36 L224,94 L176,94 Z", _shade(fill.base, 0.35)),
-        *_panel(150, 226, 100, 92, label, 44),
+        *_panel(150, 226, 100, 92, label, 44, rim=_rim(58)),
         _highlight("M154,206 Q154,164 180,140", 5, 0.5),
     ]
 
@@ -540,7 +583,7 @@ def jar(paint: str, fill: Fill, label: str | None) -> list[str]:
         _line(
             " ".join(f"M{x},100 L{x},138" for x in range(142, 270, 12)), 1.0, ' stroke-opacity=".5"'
         ),
-        *_panel(128, 196, 144, 104, label, 52),
+        *_panel(128, 196, 144, 104, label, 52, rim=_rim(80)),
     ]
 
 
@@ -551,7 +594,7 @@ def tin(paint: str, fill: Fill, label: str | None) -> list[str]:
         f'<ellipse cx="200" cy="112" rx="88" ry="20" fill="{metal}" stroke="{INK}" stroke-width="{LW}"/>',
         f'<ellipse cx="200" cy="112" rx="72" ry="14" fill="none" stroke="{INK}" stroke-width="1"/>',
         _line("M112,140 A88,20 0 0 0 288,140 M112,316 A88,20 0 0 0 288,316", 1.2),
-        *_panel(122, 180, 156, 100, label, 52),
+        *_panel(122, 180, 156, 100, label, 52, rim=(88, 20)),
     ]
 
 
@@ -707,7 +750,7 @@ def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint, extra=' class="pot"'),
         f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
-        *_panel(124, 190, 152, 96, label, 50),
+        *_panel(122, 190, 156, 96, label, 50, rim=_rim(80), lean=10.5),
     ]
 
 
