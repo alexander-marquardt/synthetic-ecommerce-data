@@ -201,14 +201,57 @@ def _drawn(draw, paint: str, fill: Fill, label: str | None, params: dict | None)
         _MARKS.clear()
 
 
+#: A round container seen from a little above: its rim's depth over its width, as the tin's
+#: ``A88,20`` rim draws it. A label wrapped round the container curves by the same ellipse.
+RIM_TILT = 20 / 88
+
+
+def _rim(half_width: float) -> tuple[float, float]:
+    """The (rx, ry) of a round container's rim ``half_width`` across, at :data:`RIM_TILT`."""
+    return half_width, round(half_width * RIM_TILT, 1)
+
+
 def _panel(
-    x: float, y: float, w: float, h: float, text: str | None, max_size: float = 56, rx: float = 6
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    text: str | None,
+    max_size: float = 56,
+    rx: float = 6,
+    rim: tuple[float, float] | None = None,
+    lean: float = 0.0,
 ) -> list[str]:
-    """A white label panel carrying the product word."""
-    out = [
-        f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" '
-        f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
-    ]
+    """A white label panel carrying the product word.
+
+    With ``rim`` (the container's (rx, ry) at the label's top edge) the label wraps round a
+    round container (gen#737): its top and bottom edges are arcs of that ellipse, so they sag
+    toward the viewer, and the word sits below the top edge's lowest point. ``lean`` is how far
+    each side steps in over the label's height, for a pot narrowing to its foot; the bottom
+    edge's ellipse narrows with it. Without ``rim`` it is a flat rounded rectangle."""
+    if rim is None:
+        outline = (
+            f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" '
+            f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+        )
+        return [outline, *_panel_word(x, y, w, h, text, max_size)]
+    top_rx, top_ry = rim
+    bot_rx = top_rx - lean
+    bot_ry = round(top_ry * bot_rx / top_rx, 1)
+    sag = top_ry * (1 - (1 - (w / 2 / top_rx) ** 2) ** 0.5)
+    d = (
+        f"M{x:g},{y:g} A{top_rx:g},{top_ry:g} 0 0 0 {x + w:g},{y:g} "
+        f"L{x + w - lean:g},{y + h:g} A{bot_rx:g},{bot_ry:g} 0 0 1 {x + lean:g},{y + h:g} Z"
+    )
+    outline = f'<path d="{d}" fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+    return [outline, *_panel_word(x + lean, y + sag, w - 2 * lean, h - sag, text, max_size)]
+
+
+def _panel_word(
+    x: float, y: float, w: float, h: float, text: str | None, max_size: float
+) -> list[str]:
+    """The panel's word (and the grocery marks) in the box (x, y, w, h)."""
+    out: list[str] = []
     if text and _MARKS:
         out += _marked(x, y, w, h, text, max_size)
     elif text:
@@ -528,7 +571,7 @@ def bottle(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path(body, paint),
         _path("M176,36 L224,36 L224,94 L176,94 Z", _shade(fill.base, 0.35)),
-        *_panel(150, 226, 100, 92, label, 44),
+        *_panel(150, 226, 100, 92, label, 44, rim=_rim(58)),
         _highlight("M154,206 Q154,164 180,140", 5, 0.5),
     ]
 
@@ -540,7 +583,7 @@ def jar(paint: str, fill: Fill, label: str | None) -> list[str]:
         _line(
             " ".join(f"M{x},100 L{x},138" for x in range(142, 270, 12)), 1.0, ' stroke-opacity=".5"'
         ),
-        *_panel(128, 196, 144, 104, label, 52),
+        *_panel(128, 196, 144, 104, label, 52, rim=_rim(80)),
     ]
 
 
@@ -551,7 +594,7 @@ def tin(paint: str, fill: Fill, label: str | None) -> list[str]:
         f'<ellipse cx="200" cy="112" rx="88" ry="20" fill="{metal}" stroke="{INK}" stroke-width="{LW}"/>',
         f'<ellipse cx="200" cy="112" rx="72" ry="14" fill="none" stroke="{INK}" stroke-width="1"/>',
         _line("M112,140 A88,20 0 0 0 288,140 M112,316 A88,20 0 0 0 288,316", 1.2),
-        *_panel(122, 180, 156, 100, label, 52),
+        *_panel(122, 180, 156, 100, label, 52, rim=(88, 20)),
     ]
 
 
@@ -600,114 +643,12 @@ def tray(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-HALF = ' stroke-opacity=".5"'
-
-
-def _strawberry(x: float, y: float) -> str:
-    berry = (
-        "M0,-24 C18,-24 24,-8 16,10 C10,22 4,30 0,32 C-4,30 -10,22 -16,10 C-24,-8 -18,-24 0,-24 Z"
-    )
-    return (
-        f'<g transform="translate({x} {y})">{_path(berry, "#d23a3a", 2)}'
-        f"{_path('M-12,-22 L0,-32 L12,-22 L0,-18 Z', '#4c9a3c', 1.4)}"
-        f'<g fill="#f6e27a"><circle cx="-6" cy="-6" r="1.6"/><circle cx="6" cy="2" r="1.6"/><circle cx="-2" cy="12" r="1.6"/></g></g>'
-    )
-
-
-def _tomato(x: float, y: float) -> str:
-    return (
-        f'<g transform="translate({x} {y})">{_path("M0,-22 C22,-22 28,-2 22,12 C16,26 -16,26 -22,12 C-28,-2 -22,-22 0,-22 Z", "#c8312e", 2)}'
-        f"{_path('M-10,-20 L0,-30 L10,-20 L4,-16 L0,-20 L-4,-16 Z', '#4c9a3c', 1.4)}"
-        f"{_highlight('M-14,-8 Q-12,-16 -4,-17', 2, 0.6)}</g>"
-    )
-
-
-def _mushroom(x: float, y: float) -> str:
-    return (
-        f'<g transform="translate({x} {y})">{_path("M-9,2 L-7,26 Q0,30 7,26 L9,2 Z", "#efe9da", 2)}'
-        f"{_path('M-26,4 C-26,-20 -10,-28 0,-28 C10,-28 26,-20 26,4 Q0,12 -26,4 Z', '#cdb797', 2)}"
-        f"{_highlight('M-16,-8 Q-12,-18 -4,-20', 2, 0.5)}</g>"
-    )
-
-
-def _carrot(x: float, y: float) -> str:
-    return (
-        f'<g transform="translate({x} {y}) rotate(-14)">{_path("M-8,-20 L8,-20 L3,34 L-3,34 Z", "#e07a1f", 2)}'
-        f"{_line('M-6,-8 L-1,-8 M2,6 L7,6 M-4,18 L0,18', 1.4)}"
-        f"{_path('M-6,-20 L-10,-34 L-2,-26 L0,-38 L2,-26 L10,-34 L6,-20 Z', '#4c9a3c', 1.4)}</g>"
-    )
-
-
-def _bean(x: float, y: float) -> str:
-    return (
-        f'<g transform="translate({x} {y})">{_path("M-20,22 C-24,0 -10,-16 6,-26 C12,-22 14,-18 10,-14 C0,-6 -2,6 -2,22 Z", "#5a9a3a", 2)}'
-        f"{_line('M-12,18 C-14,2 -4,-10 4,-20', 1.2, HALF)}</g>"
-    )
-
-
-def _herb(x: float, y: float) -> str:
-    leaf = "M0,0 C-14,-8 -14,-26 0,-34 C14,-26 14,-8 0,0 Z"
-    return (
-        f'<g transform="translate({x} {y})">'
-        f'<g transform="rotate(-38) translate(0 -2)">{_path(leaf, "#3a8f6a", 1.6)}</g>'
-        f'<g transform="rotate(38) translate(0 -2)">{_path(leaf, "#2f7d5a", 1.6)}</g>'
-        f'<g transform="translate(0 4)">{_path(leaf, "#47a57a", 1.6)}</g>'
-        f"{_line('M0,0 L0,-22', 1.0, HALF)}</g>"
-    )
-
-
-def _pepper(x: float, y: float) -> str:
-    return (
-        f'<g transform="translate({x} {y})">{_path("M-16,-16 C-26,0 -20,24 -4,28 C0,30 6,30 10,28 C24,22 26,-2 16,-16 C8,-22 -8,-22 -16,-16 Z", "#c8312e", 2)}'
-        f"{_path('M-3,-18 L-1,-30 L4,-30 L4,-18 Z', '#4c9a3c', 1.4)}"
-        f"{_highlight('M-14,-6 Q-14,-14 -6,-16', 2, 0.6)}</g>"
-    )
-
-
-#: What a punnet holds, by the ``produce`` param (a punnet of strawberries when it is absent).
-PRODUCE = {
-    "strawberry": _strawberry,
-    "tomato": _tomato,
-    "mushroom": _mushroom,
-    "carrot": _carrot,
-    "bean": _bean,
-    "herb": _herb,
-    "pepper": _pepper,
-}
-
-
-def punnet(paint: str, fill: Fill, label: str | None, produce: str = "strawberry") -> list[str]:
-    """A punnet of ``produce`` (one of :data:`PRODUCE`): the fruit or vegetable it is named for."""
-    item = PRODUCE[produce]
-    berries = [
-        item(x, y)
-        for x, y in (
-            (126, 186),
-            (166, 176),
-            (206, 182),
-            (246, 174),
-            (282, 188),
-            (146, 200),
-            (226, 200),
-            (266, 204),
-        )
-    ]
-    slots = " ".join(f"M{x},236 L{x + (x - 200) * -0.08:.1f},344" for x in range(112, 300, 20))
-    return [
-        *berries,
-        _path("M86,204 L314,204 L288,356 L112,356 Z", "#eef6f8"),
-        _line(slots, 1.0, ' stroke-opacity=".5"'),
-        _path("M96,224 L304,224 L296,276 L104,276 Z", paint, LW_DETAIL),
-        _word(label or "", 200, 250, 186, 40, "#ffffff") if label else "",
-    ]
-
-
 def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
     """One pot; a pack of them is :mod:`pack_copies`'."""
     return [
         _path("M112,118 L288,118 L262,356 Q200,366 138,356 Z", paint, extra=' class="pot"'),
         f'<ellipse cx="200" cy="114" rx="96" ry="18" fill="#e9edf0" stroke="{INK}" stroke-width="{LW}"/>',
-        *_panel(124, 190, 152, 96, label, 50),
+        *_panel(122, 190, 156, 96, label, 50, rim=_rim(80), lean=10.5),
     ]
 
 
@@ -780,7 +721,6 @@ SHAPES = {
     "box_wide": box_wide,
     "crisps_bag": crisps_bag,
     "tray": tray,
-    "punnet": punnet,
     "tub": tub,
     "loaf": loaf,
     "cake": cake,
