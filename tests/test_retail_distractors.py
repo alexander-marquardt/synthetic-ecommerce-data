@@ -21,6 +21,7 @@ from synthetic_ecommerce_data.domains.retail import distractor_rows as dr
 from synthetic_ecommerce_data.domains.retail import (
     kit,
     kit_tableware,
+    retail_figures,
     scale,
     tableware_rows,
 )
@@ -186,15 +187,16 @@ def test_a_steak_search_without_a_policy_leads_with_knives(index) -> None:
     assert [d for d in top if d["product_type"] == "Meat"]
 
 
-def test_the_new_rows_are_deterministic() -> None:
+def test_the_new_rows_are_deterministic(ceiling, index) -> None:
     assert [s.doc() for s in dr.STYLES] == [s.doc() for s in dr.STYLES]
     assert dr.docs() == dr.docs()
     assert len({s.code for s in dr.STYLES}) == len(dr.STYLES)
-    a, b = scale.build(10**6, seed=0).records, scale.build(10**6, seed=0).records
-    assert a == b
-    ix = br.Index(a)
-    assert [d["product_id"] for d in br.rank(ix, "petite sale")] == \
-        [d["product_id"] for d in br.rank(ix, "petite sale")]  # fmt: skip
+    # One fresh build against the shared ceiling, not two fresh builds (#790). In CI the ceiling
+    # was built in another process (the ceiling-catalogue job), so an order that moves with the
+    # hash seed is caught too.
+    assert scale.build(retail_figures.EXHAUST, seed=0).records == ceiling
+    assert [d["product_id"] for d in br.rank(index, "petite sale")] == \
+        [d["product_id"] for d in br.rank(index, "petite sale")]  # fmt: skip
 
 
 def test_the_classes_that_already_failed_still_fail_without_a_policy(index) -> None:

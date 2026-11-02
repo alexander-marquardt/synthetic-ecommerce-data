@@ -289,6 +289,23 @@ def test_a_kit_is_one_sku_of_its_own_product(docs):
     assert not kit_products & parts
 
 
+def test_a_kits_description_lists_its_sizes(docs):
+    """Every kit's spec clause lists its ``Sizes Included``, so a query for a
+    size finds the kit through text and not only through the keyword field
+    (#87). A clause item is the value with its unit (``1.50mm``)."""
+    listed = 0
+    for doc in _kits(docs):
+        contents = _contents(doc)
+        if not contents:
+            continue
+        clause = doc["description"].removeprefix(f"{doc['title']} - ").split(". ")[0]
+        items = clause.split(", ")
+        missing = [v for v in contents if not any(item.startswith(v) for item in items)]
+        assert not missing, (doc["sku"], missing)
+        listed += 1
+    assert listed >= 30, listed
+
+
 def test_a_kits_piece_count_is_its_contents(docs):
     """``Piece Count`` is a real count: one per size in a set, a whole
     number per size in an assortment (a tap set holds a taper and a plug of

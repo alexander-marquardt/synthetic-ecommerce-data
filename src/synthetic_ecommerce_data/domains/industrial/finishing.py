@@ -478,6 +478,11 @@ class FinishMixin:
 
         # The variant axis: what "also available in" names the siblings by.
         axis = draft.children[0].primary.name if draft.children else None
+        # A zero-axis variant's values are published on its product, and its
+        # spec clause still states them: a kit's sizes, a nut's width across
+        # flats (#87).
+        moved = draft.children[0].moved if len(draft.children) == 1 else frozenset()
+        carried = [a for a in line_attrs if a.name in moved]
         siblings = [
             next((a.value for a in attrs if a.name == axis), "") for _, attrs, _, _ in built
         ]
@@ -504,7 +509,7 @@ class FinishMixin:
                 Sku(
                     sku=sku,
                     title=title.text,
-                    description=self._build_description(draft, title, attrs, extra),
+                    description=self._build_description(draft, title, [*carried, *attrs], extra),
                     attributes=tuple(attrs),
                     price_usd=shown,
                     stock=stock,

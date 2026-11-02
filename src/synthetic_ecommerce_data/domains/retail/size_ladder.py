@@ -115,7 +115,8 @@ def size_scale(rec: dict, sku: dict) -> float | None:
     if own is None:
         return None
     key, value = own
-    ladder = sorted({_order(rec, key, str(s[key])) for s in rec["skus"] if key in s})
+    # each distinct size placed once, not once per SKU: a 100-SKU style asked 100 times (#790)
+    ladder = sorted({_order(rec, key, v) for v in {str(s[key]) for s in rec["skus"] if key in s}})
     if len(ladder) < 2:
         return None
     return scale_at(ladder.index(_order(rec, key, value)), len(ladder))
