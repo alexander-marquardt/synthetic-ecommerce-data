@@ -175,3 +175,18 @@ def misplaced_title_findings(
                     f"{product_id} {title!r} sits in {' > '.join(own)}, names {' > '.join(node)}"
                 )
     return sorted(found)
+
+
+LABEL_EXCEPTIONS: dict[Path, str] = {}
+
+
+def named_nodes(paths: Iterable[Sequence[str]], query: str) -> set[Path]:
+    return set()
+
+
+def bare_label_findings(
+    rows: Iterable[tuple[str, str, str, Sequence[str]]],
+    colors: Iterable[str],
+    exceptions: dict[Path, str] | None = None,
+) -> list[str]:
+    return []
