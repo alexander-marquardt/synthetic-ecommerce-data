@@ -291,6 +291,10 @@ def main(argv: list[str] | None = None) -> int:
         return _images(argv[1:])
     if argv and argv[0] == "block":
         return _block(argv[1:])
+    if argv and argv[0] == "compose":
+        from synthetic_ecommerce_data import compose  # noqa: PLC0415
+
+        return compose.main(argv[1:])
     parser = argparse.ArgumentParser(prog="ecom-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
     parser.add_argument("--out", type=Path, default=Path("out/catalog"))
