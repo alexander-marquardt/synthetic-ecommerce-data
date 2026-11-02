@@ -83,8 +83,8 @@ A module declares one `SPEC = TypeSpec(...)`, of one of two kinds:
   `data/breadth_categories/<type_key>.yaml`. The leaf, the drawing, the vocabulary and
   the brand family all follow from the row. `shape` is one of the
   shapes in `domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`,
-  `disc`, `tube` or `bracket` (plain), or `c_clamp` (found; a new found shape follows
-  [docs/drawings.md](drawings.md#a-found-drawing-for-a-hard-to-draw-shape-102)). Example:
+  `disc`, `tube`, `bracket` or `c_clamp`, each drawn in code; a new shape is drawn in code
+  too, never copied from an image file (#803). Example:
   `domains/industrial/product_types/raw_materials/ball_stock_precision.py`.
 * **Modelled type.** `category`, `standards_family`, `vocab`, `figure` and
   `extent`, `make`, `share`, `price` and `key_attributes`, the facts the tests

@@ -1,4 +1,4 @@
-"""Fixed shapes for the breadth categories: six plain geometric ones and a found C-clamp.
+"""Fixed shapes for the breadth categories: six plain geometric ones and a C-clamp, all in code.
 
 alexander-marquardt/synthetic-ecommerce-data#34: the breadth categories
 exist to fill out category BREADTH cheaply -- "just something to fill up the
@@ -25,7 +25,6 @@ but does not compare two records' bytes.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.core.drawing.model import Figure
-from synthetic_ecommerce_data.domains.industrial.drawing import found_shapes
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, Record
 
 
@@ -102,14 +101,32 @@ def bracket(record: Record) -> Drawn:
     return Drawn(fig, "nominal")
 
 
-#: The longer side of the found C-clamp, in inches (the bracket it replaces was 1.6).
-C_CLAMP_IN = 2.0
-
-
 def c_clamp(record: Record) -> Drawn:
-    """A C-clamp: a found CC0 drawing (``data/found_svg/``), the same whatever the record."""
+    """A C-clamp: a C frame, a threaded screw through its lower boss, a swivel pad and a T-handle.
+
+    The frame opens to the right; the screw rises through the boss at the end of the lower arm
+    and presses its pad up toward the fixed jaw under the upper arm. 1.6 by 2.0 inches.
+    """
     del record
-    return Drawn(found_shapes.load("c_clamp", C_CLAMP_IN), "nominal")
+    screw_x, screw_r = 1.14, 0.06
+    fig = Figure(size_in=2.0)
+    fig.poly(
+        (
+            (1.25, 0.0), (0.22, 0.0), (0.0, 0.22), (0.0, 1.28), (0.22, 1.5), (1.0, 1.5),
+            (1.0, 1.24), (0.38, 1.24), (0.26, 1.12), (0.26, 0.38), (0.38, 0.26), (1.25, 0.26),
+        )
+    )
+    fig.rect(0.98, 0.26, 1.3, 0.34, "plain")
+    fig.rect(screw_x - screw_r, 0.8, screw_x + screw_r, 1.93, "plain")
+    crests = [0.9 + 0.06 * i for i in range(5)] + [1.66 + 0.06 * i for i in range(4)]
+    fig.lines(((screw_x - screw_r, y), (screw_x + screw_r, y - 0.03)) for y in crests)
+    fig.poly(((0.98, 0.7), (1.3, 0.7), (1.26, 0.8), (1.02, 0.8)))
+    fig.rect(0.98, 1.18, 1.3, 1.62)
+    fig.rect(0.73, 1.89, 1.55, 1.97, "plain")
+    fig.disc((0.73, 1.93), 0.05, "plain")
+    fig.disc((1.55, 1.93), 0.05, "plain")
+    fig.disc((screw_x, 1.93), 0.07)
+    return Drawn(fig, "nominal")
 
 
 #: One entry per fixed shape: its drawing function, and the extent
@@ -125,5 +142,5 @@ BREADTH_SHAPES: dict[str, tuple] = {
     "disc": (disc, (1.6, 1.6)),
     "tube": (tube, (2.2, 0.6)),
     "bracket": (bracket, (1.6, 1.6)),
-    "c_clamp": (c_clamp, found_shapes.extent("c_clamp", C_CLAMP_IN)),
+    "c_clamp": (c_clamp, (1.6, 2.0)),
 }
