@@ -32,6 +32,35 @@ def _pack_types():
     return PACK_TYPES
 
 
-_domain.register(
-    _domain.Domain("industrial", _product_types, _brand_families, _figures, _pack_types)
+#: The package its type modules sit under: one directory per family, one module per
+#: type, each exposing ``SPEC`` (:func:`...core.typespec.discover`).
+TYPES_PACKAGE = "synthetic_ecommerce_data.domains.industrial.product_types"
+
+
+def _load_types():
+    # The YAML breadth rows register when breadth is imported.
+    from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415
+
+
+def _register_type(spec):
+    from synthetic_ecommerce_data.domains.industrial.type_tables import (  # noqa: PLC0415
+        register_type,
+    )
+
+    register_type(spec)
+
+
+#: The domain as core holds it; a spec registered from outside :data:`TYPES_PACKAGE`
+#: (a test's toy type) names it: ``typespec.register(spec, DOMAIN)``.
+DOMAIN = _domain.Domain(
+    "industrial",
+    _product_types,
+    _brand_families,
+    _figures,
+    _pack_types,
+    types_package=TYPES_PACKAGE,
+    load_types=_load_types,
+    register_type=_register_type,
 )
+
+_domain.register(DOMAIN)

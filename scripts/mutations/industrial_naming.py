@@ -49,7 +49,7 @@ MUTATIONS: list[Mutation] = [
         "a label names one type",
     ),
     # "publish a URL for a drawing nothing renders" is retired (#61): a type in its
-    # own module registers ``DRAWING[key] = key`` in core/typespec.py, so no
+    # own module registers ``DRAWING[key] = key`` in domains/industrial/type_tables.py, so no
     # per-type mapping exists to point at a drawing nothing renders.
     # ---- vocab: disjointness, both directions ----------------------------
     Mutation(
