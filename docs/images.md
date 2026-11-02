@@ -13,7 +13,7 @@ provenance ladder, the publish gate, and a checklist for adding a type -- is in
 [docs/drawings.md](drawings.md).
 
 **Exception: the [breadth categories](../README.md#catalog-breadth) draw one of seven
-FIXED shapes** (sphere, cylinder, block, disc, tube, bracket, and a found C-clamp --
+FIXED shapes** (sphere, cylinder, block, disc, tube, bracket and C-clamp, all drawn in code --
 `domains/industrial/drawing/breadth_shapes.py`), never scaled or dimensioned from the SKU's own
 published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a

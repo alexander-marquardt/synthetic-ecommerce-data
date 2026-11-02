@@ -127,7 +127,6 @@ DRAWING_MODULES = [
     "compose",
     "brand_marks",
     "breadth_shapes",
-    "found_shapes",
 ]
 
 
