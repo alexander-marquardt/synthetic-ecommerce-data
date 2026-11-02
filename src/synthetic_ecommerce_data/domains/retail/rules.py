@@ -31,6 +31,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from synthetic_ecommerce_data.domains.retail import attribute_cleanup
+
 HERE = Path(__file__).resolve().parent
 GOLDEN = HERE.parents[3] / "golden-catalog"
 ALLOW = HERE / "rules_allow.toml"
@@ -241,6 +243,9 @@ MERGED_AWAY = {
     "package_quantity": "units_per_pack",
     "number_of_pieces": "piece_count",
 }
+#: The retail merged-away keys (``attribute_cleanup.RENAMES``), held apart: their kept keys are
+#: retail ones, which the industrial golden catalogue does not publish.
+RETAIL_MERGED_AWAY = {old: key for old, (key, _) in attribute_cleanup.RENAMES.items() if old != key}
 
 
 def one_key_per_concept(docs: list[Doc]) -> Report:
@@ -256,7 +261,7 @@ def one_key_per_concept(docs: list[Doc]) -> Report:
             continue
         seen += 1
         for e in rows:
-            if e["key"] in REMOVED_KEYS | set(MERGED_AWAY):
+            if e["key"] in REMOVED_KEYS | set(MERGED_AWAY) | set(RETAIL_MERGED_AWAY):
                 found.append((row_id(doc), f"the key {e['key']!r} is retired"))
             if "name" in e:
                 names_of[e["key"]].add(e["name"])

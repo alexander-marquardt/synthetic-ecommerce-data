@@ -27,13 +27,13 @@ no guidance example says `none` there too.
 | --- | --- | --- | --- |
 | Sports & Outdoors > Camping > Tents > Dome Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | none |
 | Sports & Outdoors > Camping > Tents > Tunnel Tents | berth, season_rating, hydrostatic_head, tent_type, material, color | tent capacity, season rating | none |
-| Sports & Outdoors > Camping > Sleeping Bags | season_rating, item_length, bag_shape, fill, material, color | season rating | none |
+| Sports & Outdoors > Camping > Sleeping Bags | season_rating, item_length, bag_shape, filling, material, color | season rating | none |
 | Sports & Outdoors > Camping > Camping Chairs | frame_material, max_load_kg, arms, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Mats | thickness, material, surface, color | mat thickness | none |
 | Sports & Outdoors > Yoga & Fitness > Weights > Dumbbells | weight, head_shape, sold_as, material, color | dumbbell weight | none |
 | Sports & Outdoors > Yoga & Fitness > Weights > Kettlebells | weight, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Foam Rollers | item_length, surface, material, color | none | none |
-| Sports & Outdoors > Camping > Lanterns | power, brightness, material, color | none | none |
+| Sports & Outdoors > Camping > Lanterns | power_source, brightness, material, color | none | none |
 | Sports & Outdoors > Camping > Picnic Blankets | waterproof_backing, dimensions, material, color | none | none |
 | Sports & Outdoors > Camping > Roll Mats | thickness, fold, material, color | none | none |
 | Sports & Outdoors > Yoga & Fitness > Yoga > Yoga Blocks | item_height, sold_as, material, color | none | none |
@@ -60,8 +60,8 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Cycling > Bike Bottles | bottle_type, insulated, capacity, color | none | none |
 | Sports & Outdoors > Cycling > Bike Saddles | saddle_type, padding, color | none | none |
 | Sports & Outdoors > Cycling > Bike Pedals | pedal_type, material, color | none | none |
-| Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
-| Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seats, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
+| Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Skateboards | board_type, material, deck_width, color | none | none |
 

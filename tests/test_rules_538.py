@@ -191,6 +191,7 @@ PLANTS: list[tuple[str, Callable[[], list[dict[str, Any]]], str]] = [
     ),
     ("one_key_per_concept", lambda: _key_doc(("item", "Item")), "is retired"),
     ("one_key_per_concept", lambda: _key_doc(("wheel_dia", "Wheel dia")), "is retired"),
+    ("one_key_per_concept", lambda: _key_doc(("seats", "Seats")), "is retired"),
     ("one_key_per_concept", lambda: _key_doc(("a", "Same"), ("b", "Same")), "has keys"),
     (
         "one_key_per_concept",

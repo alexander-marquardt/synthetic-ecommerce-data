@@ -57,7 +57,7 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "the one-key rule forgets the merged-away keys",
         _RETAIL,
         "rules.py",
-        '            if e["key"] in REMOVED_KEYS | set(MERGED_AWAY):',
+        '            if e["key"] in REMOVED_KEYS | set(MERGED_AWAY) | set(RETAIL_MERGED_AWAY):',
         '            if e["key"] in REMOVED_KEYS:',
         _RULE.format("one_key_per_concept"),
         "a key that was merged into another is found (#497)",

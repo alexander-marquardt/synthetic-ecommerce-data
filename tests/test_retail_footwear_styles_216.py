@@ -15,6 +15,7 @@ import collections
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
 )
@@ -67,8 +68,9 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(d)
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        if TYPES[ptype][1] - keys:
-            missing[d["product_id"]] = sorted(TYPES[ptype][1] - keys)
+        want = {attribute_cleanup.published(k) for k in TYPES[ptype][1]}
+        if want - keys:
+            missing[d["product_id"]] = sorted(want - keys)
     assert missing == {}
 
 

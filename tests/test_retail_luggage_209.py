@@ -16,6 +16,7 @@ from __future__ import annotations
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     main_colors,
@@ -87,7 +88,7 @@ def test_the_product_type_names_the_type_and_the_path_is_under_travel(key: str) 
 
 @pytest.mark.parametrize("key", KEYS)
 def test_every_key_attribute_is_a_structured_entry_in_the_export(key: str) -> None:
-    keys = TYPES[key][3]
+    keys = {attribute_cleanup.published(k) for k in TYPES[key][3]}
     rows = _spec(key).rows
     assert rows
     missing = {r.code: sorted(keys - _entries(r)) for r in rows if keys - _entries(r)}

@@ -46,6 +46,8 @@ A value with a unit, or one that names the leaf, is already never changed
 * One key per concept: every measured height is `item_height`, never a second spelling
   (`key_guard.py`, gen#227). Values of two kinds (a garment size `M`, a thread size) do not
   share a key.
+* A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name
+  (`seats` is `seat_count`); a test reads it through `attribute_cleanup.published(key)` (gen#497).
 
 ## 4. Export SKU options: `export.OPTIONS`
 

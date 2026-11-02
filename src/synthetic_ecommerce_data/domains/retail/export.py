@@ -376,15 +376,18 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
         "image_url": _url(image),
         "image_detail_url": _url(image),
         **({"ingredients": sku["ingredients"]} if "ingredients" in sku else {}),
-        "attributes": [
-            e
-            for k in options
-            for e in (
-                _swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k])
-            )
-            if not (own and e["key"] == "pattern")
-        ]
-        + _one_case(own),
+        "attributes": attribute_cleanup.clean(
+            [
+                e
+                for k in options
+                for e in (
+                    _swatch_entries(rec, sku[k]) if k == "color" else _entries(OPTIONS[k], sku[k])
+                )
+                if not (own and e["key"] == "pattern")
+            ]
+            + _one_case(own),
+            rec["product_type"],
+        ),
     }
 
 

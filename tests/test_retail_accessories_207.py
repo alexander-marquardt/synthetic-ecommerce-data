@@ -19,6 +19,7 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     accessory_rows,
+    attribute_cleanup,
     export,
     kit,
     kit_accessories,
@@ -117,7 +118,7 @@ def test_every_style_draws_as_its_own_accessory_shape() -> None:
 def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> None:
     missing = {}
     for row in (r for r in ROWS if r.product_type == ptype):
-        want = KEYS[ptype] | _conditional(row)
+        want = {attribute_cleanup.published(k) for k in KEYS[ptype] | _conditional(row)}
         if want - _keys(row):
             missing[row.code] = sorted(want - _keys(row))
     assert missing == {}

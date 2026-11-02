@@ -16,6 +16,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_cycling,
@@ -143,9 +144,10 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
     missing = {}
     rows = [r for r in ROWS if r.product_type == ptype]
     assert rows, ptype
+    want = {attribute_cleanup.published(k) for k in KEYS[ptype]}
     for row in rows:
-        if KEYS[ptype] - _keys(row):
-            missing[row.code] = sorted(KEYS[ptype] - _keys(row))
+        if want - _keys(row):
+            missing[row.code] = sorted(want - _keys(row))
     assert missing == {}
 
 
