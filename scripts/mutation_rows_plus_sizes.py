@@ -1,16 +1,20 @@
 """Mutation rows for Womens sizes above UK 16 (gen#434), kept out of ``mutation_check.py``.
 
-Each row plants one defect in ``plus_sizes.py`` and names the test that must go red.
+Each row plants one defect in ``plus_sizes.py``, or in the core chart it reads
+(``core/size_charts.py``), and names the test that must go red.
 ``mutation_check.py`` turns them into ``Mutation`` rows named ``plus sizes: ...``
 (``--only "plus sizes:"`` re-runs them). A row is ``(name, file, old, new, test, prop, root)``.
 """
 
 from __future__ import annotations
 
-from mutation_row import Row
+from mutation_row import GENERATOR, Row
 
 _T = "tests/test_retail_plus_sizes_434.py"
 _ROOT = "src/synthetic_ecommerce_data/domains/retail"
+#: The women's chart the new sizes read their EU and US sizes from, in core (gen#125).
+_PACKAGE = GENERATOR
+_CHART = "core/size_charts.py"
 
 ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
@@ -51,39 +55,39 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "the EU size is one too small, in the build",
-        "plus_sizes.py",
+        _CHART,
         "str(uk + 28)",
         "str(uk + 27)",
         f"{_T} -k 'larger_size_is_a_row'",
         "a new size carries the chart's EU size",
-        _ROOT,
+        _PACKAGE,
     ),
     (
         "the EU size is one too small, in the unit",
-        "plus_sizes.py",
+        _CHART,
         "str(uk + 28)",
         "str(uk + 27)",
         f"{_T} -k 'literal_eu_and_us and Jeans'",
         "a new size carries the chart's EU size",
-        _ROOT,
+        _PACKAGE,
     ),
     (
         "the US size is one too large, in the build",
-        "plus_sizes.py",
+        _CHART,
         "str(uk - 4)",
         "str(uk - 3)",
         f"{_T} -k 'larger_size_is_a_row'",
         "a new size carries the chart's US size",
-        _ROOT,
+        _PACKAGE,
     ),
     (
         "the US size is one too large, in the unit",
-        "plus_sizes.py",
+        _CHART,
         "str(uk - 4)",
         "str(uk - 3)",
         f"{_T} -k 'literal_eu_and_us and Jeans'",
         "a new size carries the chart's US size",
-        _ROOT,
+        _PACKAGE,
     ),
 ]
 

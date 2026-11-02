@@ -179,6 +179,14 @@ def _set_product_image(doc: dict[str, Any], image: str) -> None:
     doc.update(image_id=image, image_url=url, image_detail_url=url)
 
 
+def _value(row: dict[str, Any], key: str) -> dict[str, Any]:
+    return next(e for e in row["attributes"] if e["key"] == key)
+
+
+def _drop(row: dict[str, Any], key: str) -> None:
+    row["attributes"].remove(_value(row, key))
+
+
 #: One defect per plant: plant(doc) -> the one problem check_document reports, ``P``
 #: the document's id and ``V`` its first variant's ``<id>/<sku>``. Each row is the
 #: check it pins; removing that check turns the row red (the PR body's mutant run).
@@ -270,6 +278,14 @@ PLANTS: dict[str, tuple[Any, str]] = {
     "a wrong variant_count": (
         lambda d: d.update(variant_count=d["variant_count"] + 1),
         "P: variant_count 445 is not 444",
+    ),
+    "a size in two systems, not three": (
+        lambda d: _drop(d["variants"][0], "size_us"),
+        "V: states size_uk, size_eu without size_us",
+    ),
+    "a size that is no row of a core chart": (
+        lambda d: _value(d["variants"][0], "size_eu").update(value="34"),
+        "V: size ('4', '34', '0') (UK, EU, US) is no row of a core size chart",
     ),
 }
 

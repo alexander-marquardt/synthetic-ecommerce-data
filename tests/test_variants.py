@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail import build_preview4
 from synthetic_ecommerce_data.domains.retail import distractors as dz
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
@@ -64,16 +65,13 @@ def test_a_bra_size_every_rule_allows_is_kept(band: int, cup: str) -> None:
 
 
 def test_every_bra_sku_holds_a_valid_size_and_each_color_has_40_or_more() -> None:
-    eu_of = {uk: eu for uk, eu, _ in vr.CUPS}
-    us_of = {uk: us for uk, _, us in vr.CUPS}
     for d in _family_docs("BRA-"):
         for c in d["color_options"]:
             assert sum(s["color"] == c["color"] for s in d["skus"]) >= 40, (d["title"], c)
         for uk, eu, us in map(_sizes, d["skus"]):
             band, cup = int(uk[:2]), uk[2:]
             assert vr.bra_size_valid(band, cup), uk
-            assert eu == f"{vr.eu_band(band)}{eu_of[cup]}"
-            assert us == f"{band}{us_of[cup]}"
+            assert (uk, eu, us) == size_charts.BRAS[uk]
 
 
 def test_the_rosedene_cross_drops_exactly_the_four_forbidden_pairs() -> None:

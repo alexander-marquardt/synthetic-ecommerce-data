@@ -90,7 +90,11 @@ unless it collapses on `product_id`.
 `footwear_rows.py` holds fifty-five shoe styles (thirty-three women's, fourteen men's,
 eight kids'), one document per style with its color x width x size SKUs
 nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
-one chart row of the audience, so they never disagree; half sizes exist only
+one chart row of the audience, so they never disagree. The charts are core's
+(`src/synthetic_ecommerce_data/core/size_charts.py`, gen#125): a size system is a fact about
+the world, so a domain reads a chart and never builds one, and `check_catalog` refuses a variant
+that states one of the three keys without the other two, or three values that are no row of a
+core chart. Half sizes exist only
 where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each

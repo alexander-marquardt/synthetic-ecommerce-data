@@ -21,6 +21,10 @@ catalog prices in USD (it keeps ``price_usd`` for its loader), the retail one
 in GBP. Availability is the ``in_stock`` yes/no; ``stock`` is the count, emitted
 only by a domain that models one.
 
+A size is ``size_uk``, ``size_eu`` and ``size_us`` together, read from one row of a core
+chart (:mod:`.size_charts`); a variant that states one without the other two, or a triple that
+is no chart's row, breaks the standard.
+
 :func:`check_catalog` is the validator: every way a catalog breaks the standard,
 empty when it holds. ``tests/test_output_standard.py`` runs it over each domain.
 """
@@ -31,6 +35,7 @@ import re
 from collections.abc import Collection, Iterable, Mapping
 from typing import Any
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_PER_UNIT, canonical
 
 _STR, _INT, _NUM, _BOOL, _LIST = "str", "int", "number", "bool", "list"
@@ -218,6 +223,7 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
         if isinstance(currency, str) and not CURRENCY_PATTERN.fullmatch(currency):
             out.append(f"{at}: currency {currency!r} is not an ISO 4217 code")
         out += [e for entry in variant.get("attributes") or () for e in check_entry(at, entry)]
+        out += size_charts.problems(at, variant.get("attributes") or ())
     return out
 
 
