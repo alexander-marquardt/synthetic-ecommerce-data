@@ -30,6 +30,16 @@ together, one file per SKU (gen#706). A release is a `v*` tag.
    the UNCOMPRESSED composed documents (a gzip's bytes depend on the toolchain); the image pin's
    is the content digest `image_release.py` prints.
 
+## Composing locally
+
+```sh
+uv run ecom-generate compose --domain industrial=out/catalog --domain retail=out/retail --out out/combined
+```
+
+Each `--domain` is a domain's finished build (a directory holding its `nested.jsonl` and
+`flat.jsonl`). `compose` writes `catalog.ndjson` (every domain's flat file byte for byte, in the
+order given) and `provenance.json`, and writes nothing when the union breaks the output standard.
+
 ## The dry run
 
 A manual run of the workflow (Actions, Release, Run workflow, with a `tag` such as `v0.0.0-dryrun`)
