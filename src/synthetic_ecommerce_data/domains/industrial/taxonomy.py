@@ -27,6 +27,12 @@ THE RULE, read off the real distributor's own breadcrumbs and category facet
 * **Depth varies, 3 to 5 levels**, because it varies in the real catalog:
   drill bits sit one grouping deeper than taps.
 * **Root names are the real catalog's** (``Holemaking``, not ``Drilling``).
+* **The department is the top level of the published path** (slice 3 of the 2026-10-28
+  ruling on #125). A type files its path from its root down (``Milling / End Mills / Square
+  End Mills``); :data:`DEPARTMENT_OF` files each root under one of core's departments
+  (:mod:`synthetic_ecommerce_data.core.departments`), and :func:`rooted` puts it on top of every
+  line's path before emission, so a document's ``category_path`` reads ``Tools / Milling / End
+  mills / Square end mills``. There is no ``department`` field: the path states it.
 """
 
 from __future__ import annotations
@@ -78,6 +84,39 @@ END_MILL_MATERIALS: dict[str, tuple[str, ...]] = {
 #: type's own two-word plural (``test_every_leaf_is_its_types_own_self_describing_plural``)
 #: holds for every leaf not named here.
 SHARED_LEAVES: frozenset[CategoryPath] = frozenset({("Hand Tools", "Hammers")})
+
+
+#: Each root, in its published spelling, and the department it is filed under. The rows are
+#: the catalogue repository's (``INDUSTRIAL_DEPARTMENTS`` in its ``combined_catalog.py``, #352,
+#: elastic/prism#11985), which prefixed every industrial path at load until this table moved
+#: here. A root missing from it is refused by :func:`rooted`, never passed through, so a new
+#: root is a deliberate row. Each product sits in ONE department.
+DEPARTMENT_OF: dict[str, str] = {
+    "Fasteners": "Hardware",
+    "Motion control & fluid power": "Hardware",
+    "Hose, tube, fittings & valves": "Hardware",
+    "Raw materials": "Hardware",
+    "Tapes & adhesives": "Hardware",
+    "Milling": "Tools",
+    "Abrasives": "Tools",
+    "Hand tools": "Tools",
+    "Power tools": "Tools",
+    "Saw blades": "Tools",
+    "Holemaking": "Tools",
+    "Threading": "Tools",
+    "Tool holding": "Tools",
+    "Clamping, workholding & positioning": "Tools",
+    "Measuring & inspecting": "Tools",
+    "Material handling & storage": "Workshop & safety",
+    "Machinery": "Workshop & safety",
+    "Safety": "Workshop & safety",
+    "Lubricants, coolants & fluids": "Workshop & safety",
+}
+
+
+def rooted(path: CategoryPath) -> CategoryPath:
+    """``path`` as a document publishes it: its root's department on top."""
+    return path
 
 
 def all_paths() -> tuple[CategoryPath, ...]:

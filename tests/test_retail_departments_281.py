@@ -17,6 +17,7 @@ from typing import Any
 
 import pytest
 
+from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.retail import (
     audience,
@@ -24,23 +25,9 @@ from synthetic_ecommerce_data.domains.retail import (
     scale,
 )
 
-#: The store's departments, and the only values the top level of a retail ``category_path`` takes.
-DEPARTMENTS = frozenset(
-    {
-        "Womens",
-        "Mens",
-        "Kids",
-        "Food & drink",
-        "Home",
-        "Beauty",
-        "Cleaning",
-        "Toys",
-        "Gifts",
-        "Garden",
-        "Sports & outdoors",
-        "Electronics",
-    }
-)
+#: The store's departments, and the only values the top level of a retail ``category_path``
+#: takes: core's closed list (``core/departments.py``, slice 3 of the 2026-10-28 ruling on #125).
+DEPARTMENTS = frozenset(departments.RETAIL)
 #: The roots the build once had -> the first two nodes their subtree now starts with.
 FOLDED_ROOTS = {
     "Food": ["Food & drink", "Fruit & vegetables"],
