@@ -11,7 +11,12 @@ shared table (#48, #61). The files that stay shared are listed under
 [What is still shared](#what-is-still-shared).
 
 The build finds the modules by walking the package
-(`core/typespec.py`, `discover`). The first read of any shared, type-keyed
+(`core/typespec.py`, `discover`). Core does not name it: `domains/industrial/__init__.py`
+registers it with `core/domain.py` as the domain's `types_package`, beside
+`register_type` (`domains/industrial/type_tables.py`), which writes a spec into the
+industrial tables while `typespec.register` writes core's (#128). A second domain that
+declares types through core registers its own package and writer the same way. The first
+read of any shared, type-keyed
 table (`LEAVES`, `DRAWING`, `VOCAB`, `STANDARDS_FAMILY`, `USE_LINES`,
 `FIGURES`, or the breadth rows through `breadth.rows()`) registers every module
 into those tables, so no caller has to call a registration step before it

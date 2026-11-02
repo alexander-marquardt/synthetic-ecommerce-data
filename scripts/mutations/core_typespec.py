@@ -116,17 +116,17 @@ MUTATIONS: list[Mutation] = [
         "every read of a type table registers the type modules first",
     ),
     Mutation(
-        "type seam: registered() no longer imports breadth",
-        "core/typespec.py",
-        "        from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415\n",
-        "",
+        "type seam: the industrial domain no longer loads breadth before discovery",
+        "domains/industrial/__init__.py",
+        "    from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415\n",
+        "    pass\n",
         "tests/test_type_seam.py::test_registration_brings_in_the_yaml_rows_without_any_type_module",
         "",
         "every read of a type table registers the type modules first",
     ),
     Mutation(
         "type seam: register skips DRAWING",
-        "core/typespec.py",
+        "domains/industrial/type_tables.py",
         "    taxonomy.DRAWING[spec.key] = spec.key\n",
         "",
         "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
@@ -135,7 +135,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register skips STANDARDS_FAMILY",
-        "core/typespec.py",
+        "domains/industrial/type_tables.py",
         "    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family\n",
         "",
         "tests/test_type_seam.py::test_a_modelled_module_is_registered_into_every_table[screw_socket_head]",
@@ -236,7 +236,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         "type seam: register leaves a spec's claims out of CLAIMS",
-        "core/typespec.py",
+        "domains/industrial/type_tables.py",
         '        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),\n',
         "        # CLAIMS left out\n",
         "tests/test_type_registration.py::"

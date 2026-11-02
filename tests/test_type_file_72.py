@@ -28,6 +28,7 @@ import yaml
 import type_gates
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.drawing.model import Lines
+from synthetic_ecommerce_data.domains.industrial import TYPES_PACKAGE
 from synthetic_ecommerce_data.domains.industrial.drawing.headless import headless_screw
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -46,7 +47,7 @@ def test_the_pilot_type_is_a_data_file_and_no_code_module() -> None:
     assert PILOT_FILE.is_file(), f"{PILOT_FILE.name} is not beside the family's modules"
     assert not PILOT_FILE.with_suffix(".py").exists(), "the pilot is still a code module"
     spec = typespec.discover()[PILOT_KEY]
-    assert spec.module == f"{typespec.TYPES_PACKAGE}.fasteners.{PILOT_KEY}"
+    assert spec.module == f"{TYPES_PACKAGE}.fasteners.{PILOT_KEY}"
     assert spec.make is not None and spec.figure is not None
 
 
