@@ -14,10 +14,12 @@ lines of its verdict::
     Reviewed-Head: <full 40-character sha>
     Tier: <a tier of .github/review_verdict_tiers.json: docs ... production-runtime>
 
-``*``, backticks and ``#`` around a line are ignored, so a bold heading reads. The newest
-verdict by a non-bot author decides. A verdict naming another sha does not outrank one at the PR
-head, whatever its comment time (agent-ops#809); a verdict at no readable head keeps its place by
-time, so a malformed FIX is never dropped.
+``*``, backticks and ``#`` around a line are ignored, so a bold heading reads. A quoted line
+(``>``) or a list item (``- ``, ``* ``, ``+ ``, ``1. ``) is no field: it repeats or describes a
+verdict, as a rethink's bullet ``- `Review-Verdict: ARM` at this head`` does (agent-ops#813).
+The newest verdict by a non-bot author decides. A verdict naming another sha does not outrank
+one at the PR head, whatever its comment time (agent-ops#809); a verdict at no readable head
+keeps its place by time, so a malformed FIX is never dropped.
 
 What passes
 -----------
@@ -71,6 +73,8 @@ FULL_SHA = re.compile(r"[0-9a-fA-F]{40}")
 _FIELD = re.compile(r"^(Review-Verdict|Reviewed-Head|Tier)\s*:\s*(\S+)", re.IGNORECASE)
 # No ``>``: a quoted block is someone repeating a verdict, not posting one.
 _STRIP = re.compile(r"[*`#_ -]*")
+# A list item describes a verdict, it does not post one (agent-ops#813).
+_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")
 NO_VERDICT = (
     "no review verdict on this pull request. The reviewer posts a comment with the lines "
     "`Review-Verdict: ARM`, `Reviewed-Head: <full sha>` and `Tier: <tier>`"
@@ -106,6 +110,8 @@ def parse_verdict(body: str) -> Verdict | None:
     """The three fields of the first ``Review-Verdict:`` line's comment, or ``None``."""
     found: dict[str, str] = {}
     for line in body.splitlines():
+        if _LIST_ITEM.match(line):
+            continue
         matched = _FIELD.match(_STRIP.sub("", line, count=1))
         if matched:
             found.setdefault(matched.group(1).lower(), matched.group(2).strip("*`"))
