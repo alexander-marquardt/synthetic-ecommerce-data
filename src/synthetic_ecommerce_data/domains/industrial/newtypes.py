@@ -633,8 +633,11 @@ def build_bearing(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
 
 # --- depressed-center wheels -----------------------------------------------------
 
-#: (diameter in, maximum rpm) -- stocked sizes and their rated speeds.
-_WHEELS = ((4.0, 15200), (4.5, 13300), (5.0, 12200), (6.0, 10200), (7.0, 8600), (9.0, 6600))
+#: (diameter in, maximum rpm) -- stocked sizes and their rated speeds, read from the
+#: library's ``depressed_center_wheel_speeds`` table.
+_WHEELS: tuple[tuple[float, int], ...] = tuple(
+    (r["dia_in"], r["max_rpm"]) for r in library.table("depressed_center_wheel_speeds").rows
+)
 #: A wheel's grade is its grit band, and the band is the PRODUCT's (gen#63): a product
 #: is one grade, and its variants are the grits inside it. Mixing a coarse and a fine
 #: wheel under one product made the grade a size.
@@ -778,24 +781,27 @@ def build_hex_key(gen: Generator, type_key: str, category: tuple[str, ...]) -> L
 
 
 def _sixty_fourths(lo: int, hi: int) -> tuple[float, ...]:
-    return tuple(float(Fraction(n, 64)) for n in range(lo, hi + 1))
+    """The fractional drills from ``lo``/64" to ``hi``/64", each an ASME B94.11M size."""
+    return tuple(
+        float(f) for f in thread_series.fractional_drills(Fraction(lo, 64), Fraction(hi, 64))
+    )
+
+
+def _metric_drill_kit(sizes_mm: list[float]) -> tuple[float, ...]:
+    """A metric drill set's sizes in inches, each drill a size of the DIN 338 series."""
+    return tuple(
+        mm / MM_PER_INCH for mm in library.table("din_338_metric_jobber_drills").pick(sizes_mm)
+    )
 
 
 #: Number drills #60 to #1 and letter drills A to Z, the decimal inch diameters
-#: of ASME B94.11M, smallest first within each series.
-_NUMBER_DRILLS = (
-    0.0400, 0.0410, 0.0420, 0.0430, 0.0465, 0.0520, 0.0550, 0.0595, 0.0635, 0.0670,
-    0.0700, 0.0730, 0.0760, 0.0785, 0.0810, 0.0820, 0.0860, 0.0890, 0.0935, 0.0960,
-    0.0980, 0.0995, 0.1015, 0.1040, 0.1065, 0.1100, 0.1110, 0.1130, 0.1160, 0.1200,
-    0.1285, 0.1360, 0.1405, 0.1440, 0.1470, 0.1495, 0.1520, 0.1540, 0.1570, 0.1590,
-    0.1610, 0.1660, 0.1695, 0.1730, 0.1770, 0.1800, 0.1820, 0.1850, 0.1890, 0.1910,
-    0.1935, 0.1960, 0.1990, 0.2010, 0.2040, 0.2055, 0.2090, 0.2130, 0.2210, 0.2280,
-)  # fmt: skip
-_LETTER_DRILLS = (
-    0.2340, 0.2380, 0.2420, 0.2460, 0.2500, 0.2570, 0.2610, 0.2660, 0.2720, 0.2770,
-    0.2810, 0.2900, 0.2950, 0.3020, 0.3160, 0.3230, 0.3320, 0.3390, 0.3480, 0.3580,
-    0.3680, 0.3770, 0.3860, 0.3970, 0.4040, 0.4130,
-)  # fmt: skip
+#: of ASME B94.11M, smallest first within each series, read from the library.
+_NUMBER_DRILLS: tuple[float, ...] = tuple(
+    r["dia_in"] for r in library.table("asme_b94_11m_drill_series_in").data["number"]
+)
+_LETTER_DRILLS: tuple[float, ...] = tuple(
+    r["dia_in"] for r in library.table("asme_b94_11m_drill_series_in").data["letter"]
+)
 
 
 @dataclass(frozen=True)
@@ -887,7 +893,7 @@ KITS: tuple[Kit, ...] = (
     Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 24)),
     Kit("Jobber Drill Set", "drill_jobber", "in", _sixty_fourths(4, 16)),
     # A metric index, 1 to 13mm by half millimetres.
-    Kit("Jobber Drill Set", "drill_jobber", "mm", tuple(k / 2 / MM_PER_INCH for k in range(2, 27))),
+    Kit("Jobber Drill Set", "drill_jobber", "mm", _metric_drill_kit([k / 2 for k in range(2, 27)])),
     # Socket head cap screw assortments: a count of each diameter.
     Kit(
         "Socket Head Cap Screw Assortment",
@@ -992,7 +998,7 @@ KITS: tuple[Kit, ...] = (
         "Jobber Drill Set",
         "drill_jobber",
         "mm",
-        tuple(round(1.0 + 0.1 * k, 1) / MM_PER_INCH for k in range(91)),
+        _metric_drill_kit([round(1.0 + 0.1 * k, 1) for k in range(91)]),
     ),
     # Two taps of each coarse metric size, M3 to M16 (a taper and a plug).
     Kit(

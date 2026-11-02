@@ -390,6 +390,14 @@ def test_the_drill_series_the_catalog_uses_are_the_library_tables():
             assert {round(s * series.MM_PER_INCH, 6) for s in kit.sizes} <= metric, kit
 
 
+def test_a_fractional_drill_range_ends_on_sizes_the_series_has():
+    assert series.fractional_drills(Fraction(1, 4), Fraction(5, 16)) == tuple(
+        Fraction(n, 64) for n in range(16, 21)
+    )
+    with pytest.raises(lib.StandardsTableError, match="1/3"):
+        series.fractional_drills(Fraction(1, 16), Fraction(1, 3))
+
+
 def test_the_wheel_speeds_the_catalog_uses_are_the_library_table():
     rows = lib.table("depressed_center_wheel_speeds").rows
     assert tuple((r["dia_in"], r["max_rpm"]) for r in rows) == newtypes._WHEELS
