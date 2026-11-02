@@ -109,6 +109,9 @@ def test_each_sofa_version_draws_its_own_shape() -> None:
     assert len(set(drawn.values())) == 3
     rest = {k: v for k, v in rec["drawing"]["params"].items() if k != "configuration"}
     assert drawn["2 Seater"] == kit.render("sofa_seats", fill, params={"seats": "2", **rest})
+    assert drawn["3 Seater"] == kit.render("sofa_seats", fill, params={"seats": "3", **rest})
+    corner = {"seats": "5", "side": "left", **rest}
+    assert drawn["Corner"] == kit.render("corner_sofa", fill, params=corner)
 
 
 def test_no_product_name_states_a_value_of_its_axes() -> None:
