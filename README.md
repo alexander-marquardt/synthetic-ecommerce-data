@@ -683,7 +683,7 @@ test holds all three to non-empty. A kit's title says what it is ("Socket
 Head Cap Screw Assortment Kit, 240 pcs", "Hex Key Set, 9 pcs"); its `Item`
 is the one facet value "Assortment Kit" and its kind is `Type`. A kit's
 description lists its sizes in the spec clause as well as `Sizes Included`
-(57 of 59 kits on the default build; 2 omit the clause). 59 kits on
+(59 of 59 kits on the default build), a zero-axis kit too (#87). 59 kits on
 the default build, 742 at 100K, from a 12-piece pack to a 1,000-piece
 assortment (#76). A kit's price is its contents' price times one fitted factor,
 its material and its tier ([Price](#price)).
@@ -726,7 +726,9 @@ families beside those, with 6 to 15 variants each: see
 [Grouped product families](#grouped-product-families). Two deliberately awkward cases are built in, so a
 grouped view is proven on more than the well-formed shapes: a single variant
 that carries **no** variant-scope attribute (`zero_axis_share`), and variants
-whose sparsity leaves one without an attribute its siblings carry.
+whose sparsity leaves one without an attribute its siblings carry. A zero-axis
+variant's values move onto its product, and its description still states them
+in the spec clause, as it would on the variant (#87).
 
 **Attribute names are the census's generic ones.** A concept is one name across
 types -- `Material` on an end mill, a drill and a screw alike -- because that is
