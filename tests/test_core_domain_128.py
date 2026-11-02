@@ -2,14 +2,16 @@
 
 Core used to answer "is this a product type?" (an image id's first segment), "which
 brand family is this type in?" and "how is this type drawn?" from industrial tables it
-imported, so a record of any other domain's type was refused. These tests register a
-second, test-only domain and check that core accepts and draws its type through the
-registry alone.
+imported, so a record of any other domain's type was refused. It also found types in the
+industrial package alone and wrote each into industrial tables. These tests register a
+second, test-only domain and check that core finds, registers, accepts and draws its type
+through the registry alone.
 """
 
 from __future__ import annotations
 
 import dataclasses
+import os
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -138,6 +140,125 @@ def test_a_type_no_domain_draws_is_an_unknown_type():
         raised = exc
     assert isinstance(raised, drawing.UnknownTypeError)
     assert MUG in str(raised)
+
+
+#: A second domain's type module, as a domain package would hold it: core only.
+_MUG_MODULE = f'''
+from synthetic_ecommerce_data.core import price
+from synthetic_ecommerce_data.core.typespec import TypeSpec
+
+SPEC = TypeSpec(
+    "{MUG}",
+    category=("Kitchen", "Mugs"),
+    standards_family="mug",
+    vocab=("Capacity",),
+    figure=lambda record: None,
+    extent=(3.0, 4.0),
+    make=lambda gen, type_key, category: None,
+    share=0.1,
+    price=price.PriceModel(10.0, 0.5, 0.8, 0.3, 0.2, measured=False),
+    key_attributes=("Capacity",),
+    compat=False,
+)
+'''
+
+#: The second domain's package: it registers itself, its types package and its own table.
+_SECOND_INIT = '''
+from synthetic_ecommerce_data.core import domain
+
+TABLE = {}
+
+domain.register(
+    domain.Domain(
+        "test_second_128",
+        lambda: frozenset(TABLE),
+        lambda: {},
+        types_package=__name__ + ".types",
+        register_type=lambda spec: TABLE.__setitem__(spec.key, spec.category),
+    )
+)
+'''
+
+
+def _plant_second_domain(root):
+    """``test_second_128/`` under ``root``: the package, and one type module in one family."""
+    package = root / "test_second_128"
+    family = package / "types" / "kitchen"
+    family.mkdir(parents=True)
+    (package / "__init__.py").write_text(_SECOND_INIT, encoding="utf-8")
+    (package / "types" / "__init__.py").write_text("", encoding="utf-8")
+    (family / "__init__.py").write_text("", encoding="utf-8")
+    (family / f"{MUG}.py").write_text(_MUG_MODULE, encoding="utf-8")
+
+
+def _fresh(root, code):
+    """``code`` in a fresh process that can import the package planted under ``root``.
+
+    The child imports the same ``synthetic_ecommerce_data`` this process did: an installed
+    copy of another commit (red-commit-proof judges a tree beside its own build) would
+    otherwise answer for this one."""
+    src = os.path.dirname(os.path.dirname(synthetic_ecommerce_data.__file__))
+    path = [str(root), src, os.environ.get("PYTHONPATH", "")]
+    env = {**os.environ, "PYTHONPATH": os.pathsep.join(filter(None, path))}
+    return subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env)
+
+
+def test_a_domain_carries_its_types():
+    names = {f.name for f in dataclasses.fields(domain.Domain)}
+    assert {"types_package", "load_types", "register_type"} <= names
+
+
+def test_the_industrial_domain_hands_core_its_types_package():
+    from synthetic_ecommerce_data.domains import industrial
+    from synthetic_ecommerce_data.domains.industrial import product_types
+
+    held = [d.types_package for d in domain.domains() if d.name == "industrial"]
+    assert held == [industrial.TYPES_PACKAGE] == [product_types.__name__]
+
+
+def test_discovery_walks_every_registered_domains_types_package(tmp_path, monkeypatch):
+    from synthetic_ecommerce_data.core import typespec
+
+    _plant_second_domain(tmp_path)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    second = domain.Domain(
+        "test_second_128",
+        lambda: frozenset({MUG}),
+        lambda: {},
+        types_package="test_second_128.types",
+    )
+    monkeypatch.setitem(domain._DOMAINS, second.name, second)
+    found = typespec.discover()
+    assert found[MUG].module == f"test_second_128.types.kitchen.{MUG}"
+    assert "end_mill_square" in found
+
+
+def test_a_fresh_process_registers_a_second_domains_type_into_its_own_tables(tmp_path):
+    """Registration runs once per process, so a fresh one: the second domain's spec lands
+    in its own table and core's, and in no industrial table."""
+    _plant_second_domain(tmp_path)
+    code = (
+        "import test_second_128\n"
+        "from synthetic_ecommerce_data.core import price, typespec\n"
+        "from synthetic_ecommerce_data.domains.industrial import taxonomy, vocab\n"
+        "from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES\n"
+        f"assert {MUG!r} in typespec.registered()\n"
+        f"assert test_second_128.TABLE == {{{MUG!r}: ('Kitchen', 'Mugs')}}\n"
+        f"assert {MUG!r} in price.MODELS\n"
+        "industrial = (taxonomy.LEAVES, taxonomy.DRAWING, vocab.VOCAB, FIGURES)\n"
+        f"assert not any({MUG!r} in table for table in industrial)\n"
+        "assert 'end_mill_square' in taxonomy.LEAVES\n"
+    )
+    result = _fresh(tmp_path, code)
+    assert result.returncode == 0, result.stderr
+
+
+def test_a_spec_outside_every_domains_types_package_is_refused():
+    from synthetic_ecommerce_data.core import typespec
+
+    stray = dataclasses.replace(typespec.discover()["end_mill_square"], module="elsewhere.mugs")
+    with pytest.raises(typespec.TypeModuleError, match="elsewhere.mugs"):
+        typespec.register(stray)
 
 
 def test_a_fresh_process_finds_the_mark_slot_filled_by_core_drawing_alone():
