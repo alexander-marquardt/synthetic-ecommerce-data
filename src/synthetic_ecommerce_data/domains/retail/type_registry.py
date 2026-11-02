@@ -102,6 +102,8 @@ HOME_SOURCES: tuple[str, ...] = (
     "needs_rows", "color_word_brand_rows", "neckline_rows", "cups_plural_rows",
     "diy_decoy_rows", "grocery",
 )  # fmt: skip
+SPEC_SOURCE = "type_specs"
+BUILD_SOURCES: tuple[str, ...] = HOME_SOURCES
 
 
 class Home(NamedTuple):

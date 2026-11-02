@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
     export,
+    scale,
     type_registry,
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import Option, SpecError
@@ -27,6 +28,8 @@ _RAM = Option("ram_gb", "ram", "Memory (GB)")
 _SCREEN = Option("screen_size_in", "screen_size", "Screen size", "INH")
 _LENGTH = Option("length_m", "item_length", "Item length", "MTR")
 _DROP = Option("drop_cm", "drop_length", "Drop length", "CMT")
+_THICKNESS = Option("thickness_mm", "thickness", "Thickness", "MMT")
+_WEIGHT = Option("weight_kg", "weight", "Weight", "KGM")
 MOVED = {
     "parasol": [Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR")],
     "garden_furniture_set": [Option("seats", "seats", "Seats", "C62")],
@@ -59,6 +62,17 @@ MOVED = {
     "blind": [_DROP],
     "shower_curtain": [_DROP],
     "school_socks": [Option("shoe_size_band", "shoe_size_band", "Shoe size band")],
+    # The options the shared table still held that no shared source's row carries (#413).
+    "belt": [Option("waist_in", "waist_size", "Waist size", "INH")],
+    "hat_cap": [Option("hat_size", "hat_size", "Hat size")],
+    "gloves": [Option("glove_size_letter", "glove_size_letter", "Glove size (S to XL)")],
+    "tent": [Option("berth", "berth", "Berth", "C62")],
+    "roll_mat": [_THICKNESS],
+    "yoga_mat": [_THICKNESS],
+    "dumbbell": [_WEIGHT],
+    "kettlebell": [_WEIGHT],
+    "suitcase": [_WEIGHT, Option("luggage_size", "luggage_size", "Luggage size")],
+    "wallpaper": [Option("roll_length_m", "roll_length", "Roll length", "MTR")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
@@ -80,6 +94,19 @@ def test_the_export_table_still_states_every_moved_option_as_before() -> None:
     got = {o.option: export.OPTIONS[o.option] for opts in MOVED.values() for o in opts}
     want = {o.option: (o.key, o.name, o.unit) for opts in MOVED.values() for o in opts}
     assert got == want
+
+
+def test_no_shared_option_is_carried_by_spec_rows_alone() -> None:
+    """``SHARED_OPTIONS`` holds an option only while a row no spec owns carries it (#413): an
+    option that only spec rows carry is declared by those specs, so a new type that puts its
+    quantity in the shared table fails here."""
+    owned = {i for s in type_registry.specs().values() for i in type_registry.ids_of(s)}
+    carried: dict[str, set[bool]] = {}
+    for rec in scale.templates():
+        names = {*rec.get("size_options", {}), *(k for s in rec["skus"] for k in s)}
+        for option in names & set(export.SHARED_OPTIONS):
+            carried.setdefault(option, set()).add(rec["product_id"] in owned)
+    assert sorted(o for o, by_spec in carried.items() if by_spec == {True}) == []
 
 
 def test_the_merged_table_is_the_shared_table_and_every_declaration() -> None:

@@ -297,6 +297,10 @@ def source_docs(name: str) -> list[dict]:
     return importlib.import_module(f"{grocery.__package__}.{name}").docs()
 
 
+def family_docs(skip: frozenset[str]) -> list[dict]:
+    return []
+
+
 @functools.cache
 def _source_keys(name: str) -> tuple[tuple[str, str, str], ...]:
     """``(product id, department, product type)`` of every document of a source. Ids and types
