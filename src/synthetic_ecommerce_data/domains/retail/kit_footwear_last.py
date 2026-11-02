@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 
 from synthetic_ecommerce_data.domains.retail.kit import _shade, _tint
 
@@ -54,8 +55,12 @@ def _trim(base: str, t: float = 0.2) -> str:
 _TOKEN = re.compile(r"([MLCQZ])|(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)")
 
 
-def _points(d: str, n: int = 48) -> list[tuple[float, float]]:
-    """Points along ``d`` (absolute M, L, C, Q and Z only, the commands this module writes)."""
+@lru_cache(maxsize=4096)
+def _points(d: str, n: int = 48) -> tuple[tuple[float, float], ...]:
+    """Points along ``d`` (absolute M, L, C, Q and Z only, the commands this module writes).
+
+    Kept per outline (#790): a shoe asks for the same outline once per glitter dot and per
+    crossing, and sampling it again was most of the time a drawing sweep took."""
     out: list[tuple[float, float]] = []
     cmd, args, cur, start = "", [], (0.0, 0.0), (0.0, 0.0)
     need = {"M": 1, "L": 1, "Q": 2, "C": 3}
@@ -86,7 +91,7 @@ def _points(d: str, n: int = 48) -> list[tuple[float, float]]:
                 out.append(pts[0])
             cur = args[-1]
         args = []
-    return out
+    return tuple(out)
 
 
 def _crossings(d: str, v: float, axis: int) -> list[float]:

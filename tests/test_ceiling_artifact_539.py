@@ -20,6 +20,7 @@ import threading
 import tomllib
 from pathlib import Path
 
+import pytest
 import yaml
 
 from retail_ceiling import ceiling_build
@@ -289,7 +290,25 @@ def test_a_run_on_workers_prints_their_peak(tmp_path) -> None:
 
 
 def test_a_run_with_no_workers_prints_no_peak(tmp_path) -> None:
-    assert "peak worker memory" not in _child_pytest(tmp_path)
+    printed = _child_pytest(tmp_path)
+    assert "peak worker memory" not in printed
+    assert "module peak memory" not in printed
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_run_on_workers_prints_each_modules_peak(tmp_path) -> None:
+    printed = _child_pytest(tmp_path, "-n", "1")
+    assert "module peak memory: 0 of 1 modules over 1500 MB: none" in printed.splitlines()
+
+
+def test_the_module_line_names_the_modules_over_the_line_heaviest_first() -> None:
+    import worker_peak  # noqa: PLC0415
+
+    peaks = {"tests/test_a.py": 1600, "tests/test_b.py": 1500, "tests/test_c.py": 3100}
+    assert worker_peak.module_summary(peaks) == (
+        "module peak memory: 2 of 3 modules over 1500 MB: "
+        "tests/test_c.py 3100, tests/test_a.py 1600"
+    )
 
 
 def test_the_peak_is_the_high_water_mark_line_in_mb() -> None:

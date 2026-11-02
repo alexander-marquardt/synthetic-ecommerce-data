@@ -990,10 +990,14 @@ def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str,
     _copy_the_script(tree)
     target = tree / path
     target.write_text(edit(target.read_text()))
-    # The shell GitHub runs a ``run:`` step with.
+    # The shell GitHub runs a ``run:`` step with. ``-x``: the job is red at its first failing
+    # check, and a job that stays green still runs every check, so the guard reads the same in a
+    # fraction of the 3 to 4 minutes the whole list took, twice (#790).
+    addopts = f"{os.environ.get('PYTEST_ADDOPTS', '')} -x".strip()
     result = subprocess.run(
         ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", _job_run("main-merged-tree")],
         cwd=tree,
+        env={**os.environ, "PYTEST_ADDOPTS": addopts},
         capture_output=True,
         text=True,
         check=False,
