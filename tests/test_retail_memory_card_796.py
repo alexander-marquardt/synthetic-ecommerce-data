@@ -63,6 +63,7 @@ def test_electronics_carries_a_memory_card_type_sold_by_capacity(ceiling: list[d
         assert doc["category_path"] == PATH, doc["product_id"]
         attrs = _attrs(doc)
         assert attrs.get("card_format") in {"microSD", "SD"}, (doc["product_id"], attrs)
+        assert attrs["card_format"].lower() in tokens(doc["title"]), (doc["title"], attrs)
         assert attrs.get("speed_class"), (doc["product_id"], attrs)
         capacities = {s.get("storage_gb") for s in doc["skus"]}
         assert None not in capacities and len(capacities) >= 2, (doc["product_id"], capacities)
