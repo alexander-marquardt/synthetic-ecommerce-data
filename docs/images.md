@@ -251,7 +251,7 @@ code, not a committed catalog), so the render is its source.
 the one-file-per-SKU rule, that every document's image URL resolves to a packaged file, and the
 package shape.
 
-A `v*` tag builds the ceiling export, the industrial large build and this bundle, uploads them to a release with their
+A `v*` tag builds the retail ceiling and the industrial large build, composes them into one catalog, builds this bundle, uploads them to a release with their
 `.content-sha256`, and opens the pin-bump pull request in the catalogue repository
 ([docs/releasing.md](releasing.md), gen#536); a manual run of the workflow is the dry run.
 

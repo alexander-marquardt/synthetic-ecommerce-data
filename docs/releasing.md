@@ -9,20 +9,26 @@ together, one file per SKU (gen#706). A release is a `v*` tag.
 
 `.github/workflows/release.yaml` runs on a pushed `v*` tag and:
 
-1. builds the ceiling export (`python -m synthetic_ecommerce_data.domains.retail.scale --skus ceiling
-   --flat ...`, the build run to its ceiling) and gzips it as `catalog.ndjson.gz`;
+1. builds the retail ceiling (`python -m synthetic_ecommerce_data.domains.retail.scale --skus ceiling
+   --out build/release/retail/nested.jsonl --flat build/release/retail/flat.jsonl`, the build run to
+   its ceiling);
 2. builds the industrial large catalog (`ecom-generate build --lines 39000`, `config.LARGE_BUILD_LINES`);
-3. builds the one image bundle (`python -m synthetic_ecommerce_data.domains.retail.image_release
+3. composes the two into the ONE catalog (`ecom-generate compose --domain industrial=... --domain
+   retail=...`, gen#125): `build/release/catalog/catalog.ndjson`, industrial's flat file then
+   retail's, byte for byte, and `provenance.json`, where each domain's lines sit and each part's
+   sha256. A union the output standard refuses (a `sku` or `product_id` two domains share, a key
+   two domains name differently) fails the tag. It is gzipped as `catalog.ndjson.gz`;
+4. builds the one image bundle (`python -m synthetic_ecommerce_data.domains.retail.image_release
    --skus ceiling --industrial-catalog ...`) as
    `images.tar.gz`: both halves' drawings, a file per SKU, refused if two SKUs share a file or a
    SKU has none;
-4. uploads the export and the bundle to the tag's release with their sidecars:
+5. uploads the catalog, its provenance and the bundle to the tag's release with their sidecars:
    `catalog.ndjson.gz.content-sha256` and `images.tar.gz.content-sha256` (`<sha256>  <count>`),
    and `images.tar.gz.sha256`;
-5. runs `scripts/open_pin_bump_pr.py`, which writes the two pin files with the new digests and
+6. runs `scripts/open_pin_bump_pr.py`, which writes the two pin files with the new digests and
    opens a pull request in `elastic/prism-retail-and-industrial`. The catalog pin's digest is of
-   the UNCOMPRESSED documents (a gzip's bytes depend on the toolchain); the image pin's is the
-   content digest `image_release.py` prints.
+   the UNCOMPRESSED composed documents (a gzip's bytes depend on the toolchain); the image pin's
+   is the content digest `image_release.py` prints.
 
 ## The dry run
 
@@ -32,7 +38,7 @@ builds the same assets, prints the pin-bump pull request body (`scripts/open_pin
 release and opens no pull request, so it runs on a fork. Locally, with the two built files:
 
 ```sh
-python3 scripts/open_pin_bump_pr.py --tag v0.0.0-dryrun --catalog build/release/catalog.ndjson \
+python3 scripts/open_pin_bump_pr.py --tag v0.0.0-dryrun --catalog build/release/catalog/catalog.ndjson \
     --images-sidecar build/release/images.tar.gz.content-sha256 --dry-run
 ```
 

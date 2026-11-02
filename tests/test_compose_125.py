@@ -14,11 +14,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from synthetic_ecommerce_data import compose, generate_cli
 
@@ -67,9 +67,7 @@ def _run(tmp_path: Path, *domains: str) -> int:
     return compose.main(argv)
 
 
-def test_compose_writes_each_domains_flat_file_in_order_with_its_provenance(
-    tmp_path, retail_build
-):
+def test_compose_writes_each_domains_flat_file_in_order_with_its_provenance(tmp_path, retail_build):
     assert _run(tmp_path, f"industrial={GOLDEN}", f"retail={retail_build}") == 0
     catalog = tmp_path / "out" / compose.CATALOG
     assert catalog.is_file(), "compose wrote no catalog"
@@ -173,8 +171,15 @@ def _flat_short(industrial: Path, retail: Path) -> str:
     return "retail: flat.jsonl and nested.jsonl are not one build"
 
 
+def _no_final_newline(industrial: Path, retail: Path) -> str:
+    flat = retail / "flat.jsonl"
+    flat.write_bytes(flat.read_bytes().rstrip(b"\n"))
+    return "retail: flat.jsonl does not end in a newline"
+
+
 #: A planted defect in the retail build -> the start of the problem compose names.
 PLANTS = {
+    "a flat file with no final newline": _no_final_newline,
     "a sku industrial also has": _shared_sku,
     "a product_id industrial also has": _shared_product,
     "a key industrial names otherwise": _two_names,
@@ -200,32 +205,50 @@ def test_a_union_that_breaks_the_standard_is_refused_and_nothing_written(
         (("toys={i}",), "unknown domain 'toys'"),
         (("industrial={i}", "industrial={i}"), "domain 'industrial' is named twice"),
         (("industrial",), "is not <domain>=<build directory>"),
+        (("industrial={i}/absent",), "industrial: no nested.jsonl in"),
+        ((), "no --domain given"),
     ],
-    ids=["an unknown domain", "a domain named twice", "no build directory"],
+    ids=[
+        "an unknown domain",
+        "a domain named twice",
+        "no build directory",
+        "a directory with no build",
+        "no domain",
+    ],
 )
 def test_an_unknown_repeated_or_malformed_domain_is_refused(
     domains, expected, tmp_path, capsys, small_industrial
 ):
     given = [d.format(i=small_industrial) for d in domains]
-    assert _run(tmp_path, *given) == 1
+    try:
+        code = _run(tmp_path, *given)
+    except Exception as error:  # a refusal is an exit code and a message, never a traceback
+        raise AssertionError(f"compose crashed instead of refusing: {error!r}") from error
+    assert code == 1
     assert expected in capsys.readouterr().err
     assert not (tmp_path / "out" / compose.CATALOG).exists()
 
 
+def _step(name: str) -> str:
+    steps = yaml.safe_load(RELEASE.read_text(encoding="utf-8"))["jobs"]["release"]["steps"]
+    found = [s["run"] for s in steps if s.get("name", "").startswith(name)]
+    assert found, f"release.yaml has no step {name!r}"
+    return found[0]
+
+
 def test_the_release_ships_the_composed_catalog_as_its_one_catalog_asset():
-    text = RELEASE.read_text(encoding="utf-8")
     composed = "build/release/catalog/catalog.ndjson"
-    step = re.search(r"ecom-generate compose(?:[^\n]*\\\n)*[^\n]*", text)
-    assert step, "release.yaml runs no `ecom-generate compose`"
-    for part in (
-        "--domain industrial=build/release/industrial",
-        "--domain retail=build/release/retail",
-        "--out build/release/catalog",
-    ):
-        assert part in step.group(0), part
-    assert f"gzip -n -9 -c {composed} > build/release/catalog.ndjson.gz" in text
-    assert f"--catalog {composed}" in text
-    assert "build/release/catalog/provenance.json" in text.split("gh release create", 1)[1]
     # the retail half is built as a domain build: its nested and its flat file in one directory
-    assert "--out build/release/retail/nested.jsonl" in text
-    assert "--flat build/release/retail/flat.jsonl" in text
+    retail = _step("Build the retail ceiling")
+    assert "--out build/release/retail/nested.jsonl" in retail
+    assert "--flat build/release/retail/flat.jsonl" in retail
+    step = _step("Compose the one catalog")
+    for part in (
+        "ecom-generate compose --domain industrial=build/release/industrial",
+        "--domain retail=build/release/retail --out build/release/catalog",
+        f"gzip -n -9 -c {composed} > build/release/catalog.ndjson.gz",
+    ):
+        assert part in step, part
+    pin_bump = _step("The pin-bump")
+    assert f"--catalog {composed}" in pin_bump
+    assert "build/release/catalog/provenance.json" in pin_bump.split("gh release create", 1)[1]

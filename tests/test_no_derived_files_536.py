@@ -203,8 +203,9 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
     script = "\n".join(
         _release_run(n)
         for n in (
-            "Build the ceiling export",
+            "Build the retail ceiling",
             "Build the industrial catalog",
+            "Compose the one catalog",
             "Build the image bundle",
             "The pin-bump",
         )
@@ -222,6 +223,7 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
         "images.tar.gz",
         "images.tar.gz.content-sha256",
         "pin-bump-body.txt",
+        "catalog/provenance.json",
     ):
         assert (out / asset).stat().st_size > 0, asset
 
@@ -238,7 +240,7 @@ def test_skus_ceiling_is_never_short_and_reports_what_the_build_made(tmp_path, m
     assert scale.main(["--skus", "10000000"]) == 2, "a number past the ceiling is still refused"
 
 
-@pytest.mark.parametrize("step", ["Build the ceiling export", "Build the image bundle"])
+@pytest.mark.parametrize("step", ["Build the retail ceiling", "Build the image bundle"])
 def test_the_release_build_defaults_to_the_ceiling_not_a_number(step) -> None:
     """With no ``RELEASE_SKUS`` the tag build asks for ``ceiling`` (gen#536 review): a number past
     the frozen catalogue is refused with exit 2, so a default of 10000000 fails every ``v*`` tag

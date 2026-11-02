@@ -372,6 +372,19 @@ and a metric cutter below 6 mm takes its DIN 6527 shank (see
 quantised by brand (each brand spells a label one way), so e.g. the flute
 label mix differs from the census's 0.66 / 0.28 / 0.06.
 
+### One catalog for every domain
+
+```sh
+uv run ecom-generate compose --domain industrial=out/catalog --domain retail=out/retail --out out/combined
+```
+
+`compose` takes each domain's finished build (a directory holding its `nested.jsonl` and
+`flat.jsonl`) and writes ONE `catalog.ndjson`: every domain's flat file byte for byte, in the
+order given, with a `provenance.json` that names where each domain's lines sit and each one's
+sha256. It writes nothing when the union breaks the output standard: a `sku` or `product_id`
+two domains share, or a key two domains name differently. The release ships this file as
+its one catalog asset ([docs/releasing.md](docs/releasing.md), gen#125).
+
 ## Brands
 
 Forty-five manufacturers, all invented, in one table (`core/brands.py`):

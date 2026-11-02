@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Open the pin-bump pull request a generator release asks of the catalogue repository (gen#536).
 
-    python3 scripts/open_pin_bump_pr.py --tag v1.2.3 --catalog build/release/catalog.ndjson \\
+    python3 scripts/open_pin_bump_pr.py --tag v1.2.3 \\
+        --catalog build/release/catalog/catalog.ndjson \\
         --images-sidecar build/release/images.tar.gz.content-sha256 --dry-run
 
 The catalogue repository (``elastic/prism-retail-and-industrial``) pins the generator's output by
-digest in two files, ``catalog_release.json`` (the catalog asset: the sha256 of the UNCOMPRESSED
-documents and their count) and ``images_release.json`` (the ONE image archive of the combined
+digest in two files, ``catalog_release.json`` (the ONE catalog asset ``ecom-generate compose``
+writes, every domain's documents, gen#125: the sha256 of the UNCOMPRESSED documents and their
+count) and ``images_release.json`` (the ONE image archive of the combined
 catalog, industrial and retail drawings together, gen#706: the content digest and file count
 ``image_release.py`` writes beside it). A merged decoy or product reached
 the catalogue only by hand. ``.github/workflows/release.yaml`` builds both assets on a ``v*`` tag,
