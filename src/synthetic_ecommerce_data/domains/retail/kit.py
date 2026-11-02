@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from html import escape
+from pathlib import Path
 
 SIZE = 400
 INK = "#2b3440"
@@ -890,6 +891,25 @@ def register(shapes: dict, offsets: dict | None = None) -> None:
     OFFSET_Y.update(offsets or {})
 
 
+def _draw(shape: str):
+    """The drawing ``shape`` names. A shape is registered when its module is imported, and a
+    build loaded from a pickle imports none of the row modules, so a shape not yet registered
+    imports every module that registers one (``kit_*.py`` and ``type_specs/*.py``) before it is
+    looked up again (synth#797)."""
+    if shape not in SHAPES:
+        import importlib  # deferred: the kits import this module
+        import pkgutil
+
+        from synthetic_ecommerce_data.domains.retail import type_specs
+
+        for info in pkgutil.iter_modules([str(Path(__file__).parent)]):
+            if info.name.startswith("kit_"):
+                importlib.import_module(f"{__package__}.{info.name}")
+        for info in pkgutil.iter_modules(type_specs.__path__):
+            importlib.import_module(f"{type_specs.__name__}.{info.name}")
+    return SHAPES[shape]
+
+
 def render(
     shape: str,
     fill: Fill,
@@ -924,7 +944,7 @@ def render(
         )
 
         params = pack_copies.one_item(shape, params)
-    draw = SHAPES[shape]
+    draw = _draw(shape)
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = _paint(fill, pid)
