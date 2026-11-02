@@ -17,7 +17,7 @@ import pytest
 from synthetic_ecommerce_data.core import price, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing.model import Figure
-from synthetic_ecommerce_data.domains.industrial import tabletype
+from synthetic_ecommerce_data.domains.industrial import TYPES_PACKAGE, tabletype
 from synthetic_ecommerce_data.domains.industrial.generate import Generator
 from synthetic_ecommerce_data.domains.industrial.tabletype import TableType, Variant
 
@@ -208,9 +208,9 @@ def test_a_ladder_whose_cheapest_material_is_not_the_base_is_refused():
 def _modules_stating_a_table() -> set[str]:
     """The type modules holding a ``TableType``, read off the modules
     themselves: a second route to the set ``tabletype.tables()`` records."""
-    root = importlib.import_module(typespec.TYPES_PACKAGE)
+    root = importlib.import_module(TYPES_PACKAGE)
     found = set()
-    for info in pkgutil.walk_packages(root.__path__, prefix=f"{typespec.TYPES_PACKAGE}."):
+    for info in pkgutil.walk_packages(root.__path__, prefix=f"{TYPES_PACKAGE}."):
         if info.ispkg:
             continue
         module = importlib.import_module(info.name)
@@ -242,6 +242,6 @@ def test_a_table_type_whose_make_is_wrapped_is_still_a_recorded_table_type():
     """A type that adds per-line attributes wraps the ``make`` its spec was
     handed (turnbuckles: the end fitting). The record is kept by type key, so
     the wrapping does not hide it from the gates that read ``tables()``."""
-    turnbuckles = importlib.import_module(f"{typespec.TYPES_PACKAGE}.fasteners.turnbuckles")
+    turnbuckles = importlib.import_module(f"{TYPES_PACKAGE}.fasteners.turnbuckles")
     assert turnbuckles.SPEC.make is not tabletype.spec(turnbuckles.TABLE).make
     assert tabletype.tables().get("turnbuckles") is turnbuckles.TABLE

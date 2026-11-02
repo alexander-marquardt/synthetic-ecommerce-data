@@ -29,7 +29,7 @@ def rows() -> list[Row]:
         ),
         Row(
             "a spec's relation never reaches the table",
-            "core/typespec.py",
+            f"{INDUSTRIAL}/type_tables.py",
             '"compat.RELATIONS": (compat.RELATIONS, spec.compat or None)',
             '"compat.RELATIONS": (compat.RELATIONS, None)',
             f"{T} -k writes_its_sentence_for_a_planted_type",
@@ -39,7 +39,7 @@ def rows() -> list[Row]:
         ),
         Row(
             "a spec's near-miss period never reaches the table",
-            "core/typespec.py",
+            f"{INDUSTRIAL}/type_tables.py",
             "(compat.NEAR_MISS_PERIOD, spec.near_miss_period)",
             "(compat.NEAR_MISS_PERIOD, None)",
             f"{T} -k near_miss_period_and_cutting_reach_their_tables",
@@ -89,7 +89,7 @@ def rows() -> list[Row]:
         ),
         Row(
             "an unknown relation kind is accepted",
-            "core/typespec.py",
+            f"{INDUSTRIAL}/type_tables.py",
             "spec.compat[0] not in compat.KINDS",
             "spec.compat[0] not in (*compat.KINDS, 'sprocket')",
             f"{T} -k malformed_declaration_is_refused",

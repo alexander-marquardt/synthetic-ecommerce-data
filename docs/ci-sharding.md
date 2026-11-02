@@ -219,8 +219,10 @@ Every job's `runs-on` is one expression: `[self-hosted, synth-ci]` when the repo
 `SYNTH_CI_SELF_HOSTED` is `true` and the run is a push, a dispatched run or a pull request whose
 head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull request never runs
 on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
-throwaway container on the agent VM, `--cpus 8 --memory 16g`, one job at a time by default, so a
-full run's jobs queue behind each other there. Unsetting the variable sends every job back to
+throwaway container on the agent VM, `--cpus 4 --memory 6g` with swap equal to memory, four jobs
+at a time, and `-n auto` starts 2 workers there (agent-ops `vm/ci_runner/runner.conf`:
+`CI_CPUS`, `CI_MEMORY`, `CI_MAX_JOBS`, `CI_PYTEST_WORKERS`), so a full run's jobs queue behind
+each other there. Unsetting the variable sends every job back to
 hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
 `true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead; pull requests and
 dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
@@ -236,9 +238,34 @@ Three pull requests had a `tests` shard end red with no test id: both workers we
 tenth of a second (`node down: Not properly terminated`), and the controller then raised
 `INTERNALERROR> KeyError: <WorkerController gw2>` replacing them. The two worker crashes read
 back were at 94 % and 98 % of the shard's items, on two different shards; main's same shards were
-green. The runner's kernel log cannot be read from inside a job, so this change does not name the
-cause: an out-of-memory kill (the container has `--memory 16g` while the VM was swapping) is the
-first hypothesis and is not confirmed.
+green.
+
+The cause was the job container's memory cap. The runner host's kernel log
+(`/var/log/kern.log*` on the agent VM; a job cannot read it) has a `CONSTRAINT_MEMCG` OOM kill
+seconds before each red job ended. On run 39608972042, `tests (7)` ended at 16:42:55Z and
+`tests (1)` at 16:46:06Z:
+
+```
+2026-10-21T16:42:36 memory: usage 6291456kB, limit 6291456kB
+2026-10-21T16:42:36 Memory cgroup out of memory: Killed process 841076 (python) anon-rss:2343888kB
+2026-10-21T16:42:36 Memory cgroup out of memory: Killed process 841081 (python) anon-rss:2103808kB
+2026-10-21T16:45:59 Memory cgroup out of memory: Killed process 938488 (python) anon-rss:2069332kB
+2026-10-21T16:45:59 Memory cgroup out of memory: Killed process 938484 (python) anon-rss:1704908kB
+2026-10-21T16:45:59 Memory cgroup out of memory: Killed process 1304392 (git) anon-rss:1153084kB
+```
+
+The task table of the 16:42:36 report adds up to the 6 GiB cap: the two xdist workers (2304 and
+2069 MiB), two `git` processes (904 and 676 MiB) next to a `git-upload-pack` (a test fixture's
+local fetch, its pack-objects counting all the host's CPUs), and the runner's own 260 MiB. The
+host was not short of memory; the job's cgroup was. Such kills recur in the log from 2026-10-20 to
+2026-10-26 14:05Z, and none come after it. agent-ops#458 capped git in the job image
+(`pack.threads` at `CI_CPUS`, `pack.windowMemory` 100m, about 0.84 GB), merged 2026-10-26 15:58Z.
+From then to 2026-11-02 00:01Z the kernel log has no OOM kill. With `-n` held at 2 and git
+capped, the shard fits. On main's run 41361458944 the largest `peak worker memory:` lines
+(MiB) were `tests (7)` at gw0 3532 and gw1 809, then `tests (11)` and `tests (1)` at about 3100
+for one worker. Shard 7's two worker peaks, git's cap (about 800 MiB) and the runner (260 MiB) add
+up to about 5.4 GiB of the 6 GiB `memory.max`. That is under 1 GiB of headroom, so the next time
+a worker's peak goes over about 4000 MiB, split that shard.
 
 The Tests step runs `python3 scripts/ci_run_pytest.py -- uv run --locked pytest ...`. When the
 output shows a lost worker the script prints `infra: worker lost` (a `::warning::` annotation),
@@ -248,5 +275,7 @@ kernel OOM lines when `dmesg` is readable. It then runs the shard once more (`--
 1). A shard that loses a worker on every attempt ends with exit code 75 and an `::error::infra:
 worker lost` annotation, not a test's exit code. A run whose tests failed with every worker alive
 is never rerun. The next occurrence therefore names its cause in the job log, and a first
-occurrence no longer reds a pull request. If the evidence shows memory, lower `-n` for that shard
-or split it (the matrix list in `ci.yaml`). `tests/test_ci_worker_lost_629.py` is the guard.
+occurrence no longer reds a pull request. If the evidence shows memory (`oom_kill` above 0 in
+`memory.events`), split that shard (the matrix list in `ci.yaml`) or raise `CI_MEMORY`. A
+lower `-n` is no option, since one worker is the serial run. `tests/test_ci_worker_lost_629.py`
+is the guard.
