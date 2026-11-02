@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -131,6 +132,24 @@ def test_the_drawing_shows_the_true_product_and_the_named_detail(by_id: dict[str
             assert hexv in svg, (pid, row.detail)
         if row.color != row.detail:
             assert doc["drawing"]["base"] == dpw.COLORS[row.color], pid
+
+
+def test_a_fresh_import_registers_every_shape_the_rows_draw() -> None:
+    """In CI the ceiling build is a pickle, so no row module runs and ``kit.SHAPES`` holds only
+    what this module's imports registered: ``render`` above raised ``KeyError: 'plate'`` unless
+    an earlier file in the worker had imported :mod:`kit_tableware` (synth#797)."""
+    code = (
+        "from synthetic_ecommerce_data.domains.retail import kit, decoy_product_words as dpw\n"
+        "failed = []\n"
+        "for shape in sorted({r.shape for r in dpw.ROWS}):\n"
+        "    try:\n"
+        "        kit.render(shape, kit.Fill())\n"
+        "    except KeyError:\n"
+        "        failed.append(shape)\n"
+        "print(failed)"
+    )
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    assert out.stdout.strip() == "[]"
 
 
 def test_the_detail_is_the_only_color_the_title_names() -> None:
