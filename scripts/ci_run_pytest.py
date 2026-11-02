@@ -6,8 +6,8 @@
 Three pull requests had a ``tests`` shard end red with no test id: both xdist workers went down
 within a tenth of a second (``node down: Not properly terminated``), the controller then raised
 ``INTERNALERROR> KeyError: <WorkerController gw2>`` replacing them, and the verdict read as a test
-failure. Main's same shard was green. The runner's kernel log is not readable from a job, so the
-cause (an out-of-memory kill is the first hypothesis) was never shown.
+failure. Main's same shard was green. The runner's kernel log, which a job cannot read, named the
+cause: the job container's 6 GiB memory cap killed both workers (docs/ci-sharding.md, #629).
 
 This runs the command, passing its output through. When the output shows a lost worker it
 prints ``infra: worker lost`` with what a job can read about memory (``evidence``), and runs the
