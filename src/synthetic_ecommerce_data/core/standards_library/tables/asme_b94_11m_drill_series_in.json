@@ -1,0 +1,422 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B94.11M"
+  ],
+  "edition": "number and letter drill diameters as carried by domains/industrial/newtypes.py in the repository at commit bb40bb14; no edition year was recorded when they were transcribed",
+  "source": "ASME B94.11M twist drills, inch series: the decimal inch diameter of each number drill (#60 to #1) and letter drill (A to Z), smallest first, and the fractional sizes from 1/16\" to 1\" by sixty-fourths",
+  "kind": "drill_series"
+ },
+ "unit": "in",
+ "number": [
+  {
+   "drill": "#60",
+   "dia_in": 0.04
+  },
+  {
+   "drill": "#59",
+   "dia_in": 0.041
+  },
+  {
+   "drill": "#58",
+   "dia_in": 0.042
+  },
+  {
+   "drill": "#57",
+   "dia_in": 0.043
+  },
+  {
+   "drill": "#56",
+   "dia_in": 0.0465
+  },
+  {
+   "drill": "#55",
+   "dia_in": 0.052
+  },
+  {
+   "drill": "#54",
+   "dia_in": 0.055
+  },
+  {
+   "drill": "#53",
+   "dia_in": 0.0595
+  },
+  {
+   "drill": "#52",
+   "dia_in": 0.0635
+  },
+  {
+   "drill": "#51",
+   "dia_in": 0.067
+  },
+  {
+   "drill": "#50",
+   "dia_in": 0.07
+  },
+  {
+   "drill": "#49",
+   "dia_in": 0.073
+  },
+  {
+   "drill": "#48",
+   "dia_in": 0.076
+  },
+  {
+   "drill": "#47",
+   "dia_in": 0.0785
+  },
+  {
+   "drill": "#46",
+   "dia_in": 0.081
+  },
+  {
+   "drill": "#45",
+   "dia_in": 0.082
+  },
+  {
+   "drill": "#44",
+   "dia_in": 0.086
+  },
+  {
+   "drill": "#43",
+   "dia_in": 0.089
+  },
+  {
+   "drill": "#42",
+   "dia_in": 0.0935
+  },
+  {
+   "drill": "#41",
+   "dia_in": 0.096
+  },
+  {
+   "drill": "#40",
+   "dia_in": 0.098
+  },
+  {
+   "drill": "#39",
+   "dia_in": 0.0995
+  },
+  {
+   "drill": "#38",
+   "dia_in": 0.1015
+  },
+  {
+   "drill": "#37",
+   "dia_in": 0.104
+  },
+  {
+   "drill": "#36",
+   "dia_in": 0.1065
+  },
+  {
+   "drill": "#35",
+   "dia_in": 0.11
+  },
+  {
+   "drill": "#34",
+   "dia_in": 0.111
+  },
+  {
+   "drill": "#33",
+   "dia_in": 0.113
+  },
+  {
+   "drill": "#32",
+   "dia_in": 0.116
+  },
+  {
+   "drill": "#31",
+   "dia_in": 0.12
+  },
+  {
+   "drill": "#30",
+   "dia_in": 0.1285
+  },
+  {
+   "drill": "#29",
+   "dia_in": 0.136
+  },
+  {
+   "drill": "#28",
+   "dia_in": 0.1405
+  },
+  {
+   "drill": "#27",
+   "dia_in": 0.144
+  },
+  {
+   "drill": "#26",
+   "dia_in": 0.147
+  },
+  {
+   "drill": "#25",
+   "dia_in": 0.1495
+  },
+  {
+   "drill": "#24",
+   "dia_in": 0.152
+  },
+  {
+   "drill": "#23",
+   "dia_in": 0.154
+  },
+  {
+   "drill": "#22",
+   "dia_in": 0.157
+  },
+  {
+   "drill": "#21",
+   "dia_in": 0.159
+  },
+  {
+   "drill": "#20",
+   "dia_in": 0.161
+  },
+  {
+   "drill": "#19",
+   "dia_in": 0.166
+  },
+  {
+   "drill": "#18",
+   "dia_in": 0.1695
+  },
+  {
+   "drill": "#17",
+   "dia_in": 0.173
+  },
+  {
+   "drill": "#16",
+   "dia_in": 0.177
+  },
+  {
+   "drill": "#15",
+   "dia_in": 0.18
+  },
+  {
+   "drill": "#14",
+   "dia_in": 0.182
+  },
+  {
+   "drill": "#13",
+   "dia_in": 0.185
+  },
+  {
+   "drill": "#12",
+   "dia_in": 0.189
+  },
+  {
+   "drill": "#11",
+   "dia_in": 0.191
+  },
+  {
+   "drill": "#10",
+   "dia_in": 0.1935
+  },
+  {
+   "drill": "#9",
+   "dia_in": 0.196
+  },
+  {
+   "drill": "#8",
+   "dia_in": 0.199
+  },
+  {
+   "drill": "#7",
+   "dia_in": 0.201
+  },
+  {
+   "drill": "#6",
+   "dia_in": 0.204
+  },
+  {
+   "drill": "#5",
+   "dia_in": 0.2055
+  },
+  {
+   "drill": "#4",
+   "dia_in": 0.209
+  },
+  {
+   "drill": "#3",
+   "dia_in": 0.213
+  },
+  {
+   "drill": "#2",
+   "dia_in": 0.221
+  },
+  {
+   "drill": "#1",
+   "dia_in": 0.228
+  }
+ ],
+ "letter": [
+  {
+   "drill": "A",
+   "dia_in": 0.234
+  },
+  {
+   "drill": "B",
+   "dia_in": 0.238
+  },
+  {
+   "drill": "C",
+   "dia_in": 0.242
+  },
+  {
+   "drill": "D",
+   "dia_in": 0.246
+  },
+  {
+   "drill": "E",
+   "dia_in": 0.25
+  },
+  {
+   "drill": "F",
+   "dia_in": 0.257
+  },
+  {
+   "drill": "G",
+   "dia_in": 0.261
+  },
+  {
+   "drill": "H",
+   "dia_in": 0.266
+  },
+  {
+   "drill": "I",
+   "dia_in": 0.272
+  },
+  {
+   "drill": "J",
+   "dia_in": 0.277
+  },
+  {
+   "drill": "K",
+   "dia_in": 0.281
+  },
+  {
+   "drill": "L",
+   "dia_in": 0.29
+  },
+  {
+   "drill": "M",
+   "dia_in": 0.295
+  },
+  {
+   "drill": "N",
+   "dia_in": 0.302
+  },
+  {
+   "drill": "O",
+   "dia_in": 0.316
+  },
+  {
+   "drill": "P",
+   "dia_in": 0.323
+  },
+  {
+   "drill": "Q",
+   "dia_in": 0.332
+  },
+  {
+   "drill": "R",
+   "dia_in": 0.339
+  },
+  {
+   "drill": "S",
+   "dia_in": 0.348
+  },
+  {
+   "drill": "T",
+   "dia_in": 0.358
+  },
+  {
+   "drill": "U",
+   "dia_in": 0.368
+  },
+  {
+   "drill": "V",
+   "dia_in": 0.377
+  },
+  {
+   "drill": "W",
+   "dia_in": 0.386
+  },
+  {
+   "drill": "X",
+   "dia_in": 0.397
+  },
+  {
+   "drill": "Y",
+   "dia_in": 0.404
+  },
+  {
+   "drill": "Z",
+   "dia_in": 0.413
+  }
+ ],
+ "fractional": [
+  "1/16",
+  "5/64",
+  "3/32",
+  "7/64",
+  "1/8",
+  "9/64",
+  "5/32",
+  "11/64",
+  "3/16",
+  "13/64",
+  "7/32",
+  "15/64",
+  "1/4",
+  "17/64",
+  "9/32",
+  "19/64",
+  "5/16",
+  "21/64",
+  "11/32",
+  "23/64",
+  "3/8",
+  "25/64",
+  "13/32",
+  "27/64",
+  "7/16",
+  "29/64",
+  "15/32",
+  "31/64",
+  "1/2",
+  "33/64",
+  "17/32",
+  "35/64",
+  "9/16",
+  "37/64",
+  "19/32",
+  "39/64",
+  "5/8",
+  "41/64",
+  "21/32",
+  "43/64",
+  "11/16",
+  "45/64",
+  "23/32",
+  "47/64",
+  "3/4",
+  "49/64",
+  "25/32",
+  "51/64",
+  "13/16",
+  "53/64",
+  "27/32",
+  "55/64",
+  "7/8",
+  "57/64",
+  "29/32",
+  "59/64",
+  "15/16",
+  "61/64",
+  "31/32",
+  "63/64",
+  "1"
+ ]
+}

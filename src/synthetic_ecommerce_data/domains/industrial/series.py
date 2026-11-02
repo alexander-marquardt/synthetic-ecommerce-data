@@ -328,19 +328,34 @@ def larger_shank_metric(dia_mm: float, target_mm: float) -> float:
     return min(allowed, key=lambda s: abs(s - target_mm))
 
 
+def fractional_drills(lo: Fraction, hi: Fraction) -> tuple[Fraction, ...]:
+    """The fractional drills from ``lo`` to ``hi`` inclusive, read from the library's
+    ``asme_b94_11m_drill_series_in`` table; refuses an end the series lacks."""
+    sizes = [Fraction(s) for s in library.table("asme_b94_11m_drill_series_in").data["fractional"]]
+    for end in (lo, hi):
+        if end not in sizes:
+            raise library.StandardsTableError(f"asme_b94_11m_drill_series_in has no drill {end}")
+    return tuple(s for s in sizes if lo <= s <= hi)
+
+
 #: Jobber drill sizes, as exact inch fractions: the fractional drill series,
 #: 1/16" to 1/2" in its own 1/64 progression. (It used to step by 1/32, which
 #: left out 25/64, 27/64 and 29/64 -- the tap drills of 7/16-20, 1/2-13 and
 #: 1/2-20, and every odd sixty-fourth a distributor stocks.)
-DRILL_FRACTIONAL: tuple[Fraction, ...] = tuple(Fraction(n, 64) for n in range(4, 33))
+DRILL_FRACTIONAL: tuple[Fraction, ...] = fractional_drills(Fraction(1, 16), Fraction(1, 2))
 
 #: Metric jobber drill sizes (DIN 338), in millimetres: the half-millimetre
 #: series from 1 to 13mm plus the tap-drill sizes a distributor stocks beside
 #: it (3.3, 4.2, 6.8, 8.8, 10.2, 10.8) -- the sizes a metric tap-drill chart
-#: names, :data:`.compat.TAP_DRILLS_METRIC`.
-DRILL_METRIC_MM: tuple[float, ...] = (
-    1.0, 1.5, 2.0, 2.5, 3.0, 3.3, 3.5, 4.0, 4.2, 4.5, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0,
-    7.5, 8.0, 8.5, 8.8, 9.0, 9.5, 10.0, 10.2, 10.5, 10.8, 11.0, 11.5, 12.0, 12.5, 13.0,
+#: names, :data:`.compat.TAP_DRILLS_METRIC`. Each is a size of the library's
+#: ``din_338_metric_jobber_drills`` table, which refuses one it lacks.
+DRILL_METRIC_MM: tuple[float, ...] = tuple(
+    library.table("din_338_metric_jobber_drills").pick(
+        [
+            1.0, 1.5, 2.0, 2.5, 3.0, 3.3, 3.5, 4.0, 4.2, 4.5, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0,
+            7.5, 8.0, 8.5, 8.8, 9.0, 9.5, 10.0, 10.2, 10.5, 10.8, 11.0, 11.5, 12.0, 12.5, 13.0,
+        ]
+    )
 )  # fmt: skip
 
 #: Tap thread sizes offered, paired with their threads-per-inch or pitch, one

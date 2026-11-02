@@ -1,0 +1,36 @@
+{
+ "_library": {
+  "standards": [
+   "ANSI B7.1"
+  ],
+  "edition": "as carried by domains/industrial/newtypes.py (_WHEELS) in the repository at commit bb40bb14; the figures were not read from a B7.1 table and no edition is recorded",
+  "source": "the stocked diameters of Type 27/28 depressed-center wheels and the maximum operating speed each is marked with, the conventional marked speeds; ANSI B7.1 bounds a wheel's speed by its rim speed, so the rated rpm falls as the diameter grows",
+  "kind": "rows"
+ },
+ "rows": [
+  {
+   "dia_in": 4.0,
+   "max_rpm": 15200
+  },
+  {
+   "dia_in": 4.5,
+   "max_rpm": 13300
+  },
+  {
+   "dia_in": 5.0,
+   "max_rpm": 12200
+  },
+  {
+   "dia_in": 6.0,
+   "max_rpm": 10200
+  },
+  {
+   "dia_in": 7.0,
+   "max_rpm": 8600
+  },
+  {
+   "dia_in": 9.0,
+   "max_rpm": 6600
+  }
+ ]
+}
