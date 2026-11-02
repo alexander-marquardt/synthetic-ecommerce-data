@@ -1,9 +1,9 @@
 # Electronics: phones, computers, tablets, TVs and their accessories (gen#332, #721, #724)
 
-The department has 16 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each) and
-210 template styles: 97 devices (smartphones, basic phones, laptops, desktops, tablets, e-readers,
-TVs) and 113 accessories (phone cases, screen protectors, chargers, cables, earbuds, laptop sleeves,
-mice, keyboards, monitors). The rows are in `electronics_rows.py`; the drawings are in
+The department has 17 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each,
+besides the breadth leaf Batteries) and 212 template styles: 96 devices (smartphones, basic phones, laptops,
+desktops, tablets, e-readers, TVs) and 116 accessories (phone cases, screen protectors, chargers, cables, earbuds,
+laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `electronics_rows.py`; the drawings are in
 `kit_electronics.py` (a house-style drawing per type). Prices, specs and stock are synthetic.
 
 ## Tree
@@ -80,6 +80,12 @@ that follows it lands on the maker's own rows and on compatible rows from other 
   throw and basket), `mobile` (a coat stand, a clothes rack and a basket on wheels) and `charger` (three
   charger plates). The table is in
   [retail-product-word-decoys.md](retail-product-word-decoys.md).
+- Memory cards (gen#796), `Accessories > Memory Cards`: microSD and SD cards sold by capacity
+  (`storage_gb`), with `card_format` and `speed_class`. Their class 8 decoys are in
+  `feature_decoys/memory_card_796.py` (DY7960, DY7961, `device_type` `Memory Card`): a memory card
+  storage wallet (a Travel Case, dropped by the department policy) and a laptop sleeve with a card
+  pocket (in Electronics, dropped by the category policy). See
+  [memory-card-796.md](retail-product-word-decoys/memory-card-796.md).
 - The apple juice, the Apple Blossom Candle and the crab apple tree (DY716 to DY718,
   `feature_decoys.electronics.FRUIT_ROWS`) were class 8 decoys against the brand. They are ordinary
   products now and left the table.

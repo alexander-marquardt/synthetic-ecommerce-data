@@ -26,6 +26,7 @@ mouse               a computer mouse                           form (wireless, g
 keyboard            a keyboard                                 layout (full, compact)
 monitor             a monitor on its stand                     form (standard, ultrawide, curved)
 tv                  a wide panel on two feet                   form (flat, curved)
+memory_card         a memory card with its gold contacts       form (sd, microsd)
 dishwasher_tablets  a tub of dishwasher tablets                (none)
 ==================  =========================================  ==============================
 
@@ -438,6 +439,30 @@ def tv(paint: str, fill: Fill, label: str | None, form: str = "flat") -> list[st
     return _label(out, label)
 
 
+CONTACT = "#d8b56a"
+
+
+def memory_card(paint: str, fill: Fill, label: str | None, form: str = "sd") -> list[str]:
+    """A memory card, front: an ``sd`` card with a clipped corner, gold contacts and a lock switch,
+    or a smaller ``microsd`` card with a notch in one side and a row of contacts."""
+    if form == "microsd":
+        out = [
+            _path(
+                "M150,110 L250,110 L250,190 L240,200 L240,230 L250,240 L250,300 L150,300 Z", paint
+            ),
+            _rect(162, 196, 76, 88, _tint(paint, 0.35), 6, 1.6),
+        ]
+        out += [_rect(158 + 11 * i, 120, 7, 30, CONTACT, 2, 1.2) for i in range(8)]
+    else:
+        out = [
+            _path("M110,60 L250,60 L290,100 L290,340 L110,340 Z", paint),
+            _rect(130, 160, 140, 160, _tint(paint, 0.35), 8, 1.6),
+            _rect(98, 150, 14, 40, "#b8c2cc", 3, 1.6),
+        ]
+        out += [_rect(126 + 18 * i, 72, 12, 40, CONTACT, 2, 1.2) for i in range(8)]
+    return _label(out, label)
+
+
 def dishwasher_tablets(paint: str, fill: Fill, label: str | None) -> list[str]:
     """A tub of dishwasher tablets: a lidded tub and tablets stood beside it."""
     out = [_rect(110, 130, 160, 170, paint, 14), _rect(104, 114, 172, 28, _shade(paint, 0.25), 8)]
@@ -452,6 +477,7 @@ SHAPES = {
     "screen_protector": screen_protector, "charger": charger, "cable": cable,
     "earbuds": earbuds, "laptop_sleeve": laptop_sleeve, "mouse": mouse, "keyboard": keyboard,
     "monitor": monitor, "dishwasher_tablets": dishwasher_tablets, "tv": tv,
+    "memory_card": memory_card,
 
 }  # fmt: skip
 register(SHAPES)

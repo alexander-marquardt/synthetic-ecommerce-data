@@ -1,6 +1,6 @@
 """The Electronics department's rows (gen#332): phones, computers, tablets and their accessories.
 
-Data only. The sixteen spec files of ``type_specs/`` (``smartphone.py`` ... ``tv.py``) each take
+Data only. The seventeen spec files of ``type_specs/`` (``smartphone.py`` ... ``memory_card.py``) each take
 one list from here, so a spec stays a few lines and the department reads in one place.
 
 Every brand is invented (``electronics_brand_styles``): ``Grape Computer`` sells the GrapePhone and
@@ -498,6 +498,25 @@ MONITORS = tuple(
     for i, (b, n, f, p, sz, c, note) in enumerate(_MONITORS)
 )  # fmt: skip
 
+# --- Memory cards (gen#796): a capacity per SKU; the format and speed class are attributes ------
+_MEMORY_CARDS = (
+    (BOLTWICK, "Everyday microSD Memory Card", "microSD", "Class 10", 9, (32, 64, 128), (BLACK, BLUE), "an SD adapter, for a phone, a tablet or a games console"),
+    (BOLTWICK, "Extreme microSD Memory Card", "microSD", "V30", 15, (64, 128, 256), (BLACK, RED), "the speed to record 4K video on an action camera or a drone"),
+    (WEXMOOR, "Pro Plus microSD Memory Card", "microSD", "UHS-I U3", 12, (64, 128, 256, 512), (BLACK, GREY), "an SD adapter and fast loading of apps on a phone"),
+    (CINDREL, "Endurance microSD Memory Card", "microSD", "V30", 14, (32, 64, 128), (WHITE, GREY), "a long life under constant writing, for a dash cam or a door camera"),
+    (WEXMOOR, "Pro SD Memory Card", "SD", "V30", 16, (64, 128, 256), (BLACK, YELLOW), "a write speed that keeps up with a camera shooting bursts of photos"),
+    (BOLTWICK, "Extreme Pro SD Memory Card", "SD", "V60", 29, (128, 256, 512), (BLACK, RED), "the speed of a full-size card for 4K and 6K video"),
+    (CINDREL, "Everyday SD Memory Card", "SD", "Class 10", 8, (32, 64, 128), (BLUE, WHITE), "a lock switch on the side, for a compact camera"),
+)  # fmt: skip
+MEMORY_CARDS = tuple(
+    _row(f"EMC{i + 1:03d}", n, b, (*_A, "Memory Cards"), "Memory Card", p, "memory_card",
+         f"A {fmt} memory card with {note}. It comes in {len(caps)} capacities.", c,
+         (_a("card_format", "Card format", fmt), _a("speed_class", "Speed class", speed)),
+         tuple((str(g), p + 8.0 * k) for k, g in enumerate(caps)), "storage_gb",
+         (("form", fmt.lower()),))
+    for i, (b, n, fmt, speed, p, caps, c, note) in enumerate(_MEMORY_CARDS)
+)  # fmt: skip
+
 # --- TVs (#721): a screen size per SKU, in Electronics > TVs ---------------------------------
 _TV_PATH = (DEPARTMENT, "TVs")
 _TV_OS = "Open Smart TV OS"
@@ -536,7 +555,7 @@ TVS = tuple(
 
 DEVICE_COUNT = len(SMARTPHONES + BASIC_PHONES + LAPTOPS + DESKTOPS + TABLETS + E_READERS + TVS)
 ACCESSORY_COUNT = len(PHONE_CASES + SCREEN_PROTECTORS + CHARGERS + CABLES + EARBUDS
-                      + LAPTOP_SLEEVES + MICE + KEYBOARDS + MONITORS)  # fmt: skip
+                      + LAPTOP_SLEEVES + MICE + KEYBOARDS + MONITORS + MEMORY_CARDS)  # fmt: skip
 
 # --- In-department text-match decoys (gen#294 classes 1-7); each tells the truth in its fields ----
 DECOY_ROWS = {

@@ -1,4 +1,4 @@
-"""Electronics nouns of the #332 rows: the node of the device the noun names."""
+"""Electronics nouns of the #332 and #796 rows: the node of the device the noun names."""
 
 from __future__ import annotations
 
@@ -9,4 +9,5 @@ NODES: dict[str, str] = {
     "monitor": "Monitors",
     "mobile": "Smartphones",
     "charger": "Chargers",
+    "memory": "Memory Cards",  # gen#796
 }
