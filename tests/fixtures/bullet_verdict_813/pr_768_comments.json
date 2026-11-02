@@ -1,0 +1,18 @@
+{
+  "source": "alexander-marquardt/synthetic-ecommerce-data#768, the ARM verdict and the rethink comment after it as GitHub served them on 2026-11-02 (gh api repos/.../issues/768/comments), bodies whole",
+  "head": "e7392793a413e1467ec7c2916f29c49640cf9701",
+  "comments": [
+    {
+      "id": 6556043887,
+      "login": "alexander-marquardt",
+      "created_at": "2026-11-01T09:21:00Z",
+      "body": "Review-Verdict: ARM\nReviewed-Head: e7392793a413e1467ec7c2916f29c49640cf9701\nTier: production-runtime\nApproved-At: 52137a1c48114d351131e56032a7ec6ee0b56f56\n\nNo blocking findings.\n\n- Scope: feature, not a bug fix, so no `Reproduced:` gate comment is needed.\n- CI at this head: 25 checks pass; only `review-verdict` was red, because no verdict existed yet.\n- Ran 6 test modules touching the change: `test_pack_axis_14`, `test_catalog_titles`, `test_facet_control_rule`, `test_price`, `test_sku_drawings`, `test_catalog_must_stock`. Result: 442 passed. `brief_derived.py split-tests` could not run (it needs `.github/scripts/check_es_free_test_visibility.py`, which this repo lacks), so I ran them together.\n- Read `pack.py`, `price.pack_price`, the `Outlines` drawing shape, the `_packed` pass in `generate.py` and the `RANGE_QUANTITIES` exception in `derive.py`:\n  - The pass runs last from its own rng stream, so existing SKUs do not move.\n  - The matrix is sparse.\n  - The price is a discount (`quantity ** 0.79`), not a multiple.\n  - The title leads with the count and sheds whole segments to stay within the cap.\n  - The detail image is the single's own.\n- Golden catalog, stats and pins are regenerated consistently with the generator change.\n"
+    },
+    {
+      "id": 6557039538,
+      "login": "alexander-marquardt",
+      "created_at": "2026-11-01T11:00:28Z",
+      "body": "Rethink at e7392793a413 (v3 job `20261101T105148-r`): nothing on this PR needs changing. What holds it is v3's read of the `review-verdict` check, filed as alexander-marquardt/agent-ops#811.\n\nWhat the PR shows:\n- `Review-Verdict: ARM` with `Reviewed-Head` at this head (09:21:00Z), 25 CI checks green, `mergeable: MERGEABLE`, no branch protection blocks it (`mergeStateStatus: UNSTABLE`).\n- The `review-verdict` run 41290191191 has two attempts at this head, and GitHub lists both check runs in the rollup. Attempt 1 (job 124799644692) failed before any verdict existed: `no review verdict on this pull request`. The `rerun-on-verdict` job re-ran it after the ARM, and attempt 2 (job 124807234772) passed: `PASS #768 head e7392793a413: ARM at the head, tier production-runtime`.\n- GitHub records the superseded attempt 1 with `startedAt` 09:45:36Z, an hour after its own log's clock (08:46Z) and after attempt 2 (09:21:13Z). v3's `gh.checks` keeps a check's newest run by `startedAt`, so it keeps the failed attempt and reads `ARM at the head but review-verdict is fail`.\n\nSo the PR is complete and approved; it merges once v3 orders a check's runs by job id (agent-ops#811) and reads the passing attempt as the newest. A hand `gh run rerun 41290191191` (an attempt 3 with a later recorded start) or `gh pr merge 768` gets there sooner if wanted.\n\nRethink-Result: fix — owner: implementer on alexander-marquardt/agent-ops#811; nothing changes on this PR: its head e7392793a413 is approved and green, and it merges once v3 reads the passing re-run of review-verdict as the newest run at the head\n"
+    }
+  ]
+}
