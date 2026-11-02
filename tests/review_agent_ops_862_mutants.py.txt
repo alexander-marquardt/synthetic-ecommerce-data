@@ -1,0 +1,13 @@
+"""Mutants on the changed lines of agent-ops#862; the receipt a reviewer re-runs."""
+CHECK = ".github/scripts/check_review_binding.py"
+TESTS = ["tests/test_review_verdict_list_item_862.py"]
+MUTANTS = [
+    (CHECK, "        if _LIST_ITEM.match(line):\n            continue\n", "", "skip-gone"),
+    (CHECK, "        if _LIST_ITEM.match(line):", "        if _LIST_ITEM.fullmatch(line):", "skip-needs-whole-line"),
+    (CHECK, "            continue\n        matched", "            pass\n        matched", "skip-falls-through"),
+    (CHECK, r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")', r'_LIST_ITEM = re.compile(r"\s*([*+]|\d+[.)])\s")', "dash-not-a-bullet"),
+    (CHECK, r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")', r'_LIST_ITEM = re.compile(r"\s*([-+]|\d+[.)])\s")', "star-not-a-bullet"),
+    (CHECK, r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")', r'_LIST_ITEM = re.compile(r"([-*+]|\d+[.)])\s")', "indented-bullet-reads"),
+    (CHECK, r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")', r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])")', "bold-is-a-bullet"),
+    (CHECK, r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])\s")', r'_LIST_ITEM = re.compile(r"\s*([-*+]|\d+[.)])?\s")', "indent-is-a-bullet"),
+]
