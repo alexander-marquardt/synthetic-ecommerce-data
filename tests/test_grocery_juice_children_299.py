@@ -92,6 +92,18 @@ def test_nothing_sits_on_juice_itself_in_the_shipped_tree(docs: list[dict]) -> N
     assert [d["title"] for d in docs if d["category_path"] == shipped] == []
 
 
+@pytest.mark.parametrize("fruit", ["Orange", "Apple", "Grape", "Pineapple"])
+def test_each_shipped_juice_sits_in_the_child_its_title_names(fruit: str, docs) -> None:
+    """The decoys too: "Juice from Oranges" and "Blood Orange Juice" sit in Orange juice."""
+    juices = [d for d in docs if d["category_path"][:3] == ["Food & drink", "Drinks", "Juice"]
+              and fruit.lower() in tree_guard.words(d["title"])
+              and "Smoothie" not in d["title"]]  # fmt: skip
+    assert juices
+    wrong = {d["title"]: d["category_path"][3] for d in juices
+             if d["category_path"][3] != f"{fruit} juice"}  # fmt: skip
+    assert wrong == {}
+
+
 def test_orange_juice_names_the_orange_juice_node(docs: list[dict]) -> None:
     paths = [p for *_, p in _rows(docs)]
     assert tree_guard.named_nodes(paths, "orange juice") == {
@@ -110,12 +122,22 @@ def test_no_label_in_the_shipped_tree_reads_wrongly_without_its_breadcrumb(docs)
     assert tree_guard.bare_label_findings(_rows(docs), _colors(docs)) == []
 
 
-def test_a_planted_bare_orange_leaf_under_juice_fails_the_guard(docs: list[dict]) -> None:
-    """The mutant the issue asks for: the orange juices moved to a leaf called ``Orange``."""
-    planted = [(pid, title, kind, (*path[:3], "Orange") if path[3:] == ("Orange juice",) else path)
+@pytest.mark.parametrize(
+    ("child", "bare", "where"),
+    [
+        # The mutant the issue asks for: a color and the fruit's Oranges.
+        ("Orange juice", "Orange", "Food & drink > Drinks > Juice > Orange"),
+        # No color, only another node: the garment's Skirts (gen#296).
+        ("Skirt steak", "Skirt", "Food & drink > Meat & fish > Fresh meat > Steak > Skirt"),
+    ],
+    ids=["orange", "skirt"],
+)
+def test_a_planted_bare_leaf_fails_the_guard(child: str, bare: str, where: str, docs) -> None:
+    """A shipped child renamed to the bare word a grocer might use: the guard refuses it."""
+    planted = [(pid, title, kind, (*path[:-1], bare) if path[-1] == child else path)
                for pid, title, kind, path in _rows(docs)]  # fmt: skip
     found = tree_guard.bare_label_findings(planted, _colors(docs))
-    assert [f for f in found if f.startswith("Food & drink > Drinks > Juice > Orange:")], found
+    assert [f for f in found if f.startswith(f"{where}:")], found
 
 
 def test_each_declared_label_exception_still_fires_and_has_a_reason(docs: list[dict]) -> None:

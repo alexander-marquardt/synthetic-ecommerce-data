@@ -181,8 +181,8 @@ page, and a feature's section is its own page in [retail-prototype/](retail-prot
 
 ## Not done in this increment
 
-#298 (the Chocolate node), #299 (Juice children and the label-collision guard) and #181
-(neckline) are not built yet; their issues stay open.
+#298 (the Chocolate node) and #181 (neckline) are not built yet; their issues stay open. #299
+(Juice children and the label-collision guard) is built since: [retail-prototype/juice-children-299.md](retail-prototype/juice-children-299.md).
 
 Of #294 this increment lands the generated decoy table, the class 7 rows, four guards and the
 proofs for cups, "d cup bra" and oranges on the rows `class_rows.py` already plants. #294 stays

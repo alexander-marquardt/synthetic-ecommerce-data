@@ -427,10 +427,11 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
     extra = {"ingredients": base} if base is not None else {}
     h = zlib.crc32(pid.encode())
     prices = [s["price"] for s in skus]
+    path = fam.path_of(flavors)
     return product(
         pid, skus, {},
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
-        product_type=fam.product_type, category_path=list(fam.path), category_leaf=fam.path[-1],
+        product_type=fam.product_type, category_path=list(path), category_leaf=path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
         drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead, ending),
         collections=[], currency="GBP",

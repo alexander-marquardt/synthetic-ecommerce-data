@@ -13,6 +13,10 @@ child. Three rules over the built tree keep it that way:
   carry a declared exception in :data:`EXCEPTIONS` with its reason.
 * (c) :func:`misplaced_title_findings` -- a product whose title names a more specific node of its
   own department (``Four Seater Corner Sofa``) sits in that node, not in the generic one.
+* (d) :func:`bare_label_findings` (gen#299) -- a label is read right without its breadcrumb: the
+  category vocabulary reads a label on its own, so ``Orange`` under ``Juice`` would name the
+  fruit and the color. A label that is another node's or a color names the product
+  (``Orange Juice``), or carries a declared reason in :data:`LABEL_EXCEPTIONS`.
 
 The functions take plain paths and ``(product id, title, path)`` rows, so the test can feed them a
 tree it breaks on purpose (the mutant: ``Corner Sofas`` back beside ``Sofas``).
@@ -177,11 +181,23 @@ def misplaced_title_findings(
     return sorted(found)
 
 
-LABEL_EXCEPTIONS: dict[Path, str] = {}
+#: Labels rule (d) would refuse that still name what they hold, each with its reason. Key: the
+#: node's path as shipped (sentence case). An entry that no longer fires is itself a finding.
+LABEL_EXCEPTIONS: dict[Path, str] = {
+    ("Garden", "Plants", "Lavender"): "a lavender plant is a lavender: gen#509 made the node so "
+    "that a shopper's 'lavender' has a plant to route to",
+}
 
 
 def named_nodes(paths: Iterable[Sequence[str]], query: str) -> set[Path]:
-    return set()
+    """The nodes a query names when a label is read on its own: the same words, plural folded."""
+    want = words(query)
+    return {node for node in nodes(paths) if words(node[-1]) == want}
+
+
+def _reads(title: list[str], phrase: list[str]) -> bool:
+    span = len(phrase)
+    return any(title[i : i + span] == phrase for i in range(len(title) - span + 1))
 
 
 def bare_label_findings(
@@ -189,4 +205,35 @@ def bare_label_findings(
     colors: Iterable[str],
     exceptions: dict[Path, str] | None = None,
 ) -> list[str]:
-    return []
+    """Rule (d), gen#299: a label that needs its breadcrumb to be read right.
+
+    ``rows`` are ``(product id, title, product type, path)``. A node's label *collides* when,
+    after the plural rule, it is another node's label (``Orange`` and the fruit's ``Oranges``) or
+    a color value. A colliding label is a finding when it does not name the product: its titles
+    read it before its parent's noun (``Orange`` under ``Juice`` holds "Smooth Orange Juice"), so
+    the product is the two words and the label alone is the other sense. ``Orange Juice`` names
+    the product, and so do ``Oranges`` and ``Accessories``, whose titles never read "orange
+    fruit" or "accessory accessory".
+    """
+    declared = LABEL_EXCEPTIONS if exceptions is None else exceptions
+    held: dict[Path, list[list[str]]] = collections.defaultdict(list)
+    for _, title, _, path in rows:
+        said = words(title)
+        for depth in range(1, len(path) + 1):
+            held[tuple(path[:depth])].append(said)
+    by_label: dict[tuple[str, ...], list[Path]] = collections.defaultdict(list)
+    for node in held:
+        by_label[tuple(words(node[-1]))].append(node)
+    color_labels = {tuple(words(c)) for c in colors}
+    found = []
+    for node in sorted(held):
+        label = words(node[-1])
+        others = [" > ".join(o) for o in sorted(by_label[tuple(label)]) if o != node]
+        if len(node) < 2 or node in declared or not (others or tuple(label) in color_labels):
+            continue
+        product = [*label, head_noun(node[-2])]
+        if any(_reads(title, product) for title in held[node]):
+            clash = f"is also {others[0]!r}" if others else "is a color"
+            found.append(f"{' > '.join(node)}: {node[-1]!r} {clash}, and its titles read "
+                         f"{' '.join(product)!r}: name the product")  # fmt: skip
+    return found

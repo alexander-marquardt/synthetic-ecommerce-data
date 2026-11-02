@@ -163,9 +163,14 @@ KINDS = {
     # The red wine groceries (class 10, gen#500): real products, none of them wine.
     "vinegar": _food(("Food Cupboard", "Vinegar"), "Vinegar", "bottle", "Olivar Grove", 1.6),
     "gravy": _food(("Food Cupboard", "Sauces & Condiments"), "Sauce", "jar", "Pantry Mill", 1.9),
-    # The kinds of the class 9 plural decoys (gen#445), each in a leaf the grocery build has.
-    "juice": _food(("Drinks", "Juice"), "Juice", "carton",
-             "Vine & Valley", 2.1),
+    # The kinds of the class 9 plural decoys (gen#445), each in a leaf the grocery build has. A
+    # juice sits in the Juice child of its fruit (gen#299); a smoothie in its own child there.
+    "orange_juice": _food(("Drinks", "Juice", "Orange Juice"), "Juice", "carton",
+                    "Vine & Valley", 2.1),
+    "apple_juice": _food(("Drinks", "Juice", "Apple Juice"), "Juice", "carton",
+                   "Vine & Valley", 2.1),
+    "smoothie": _food(("Drinks", "Juice", "Smoothies"), "Juice", "carton",
+                "Vine & Valley", 2.1),
     "water": _food(("Drinks", "Soft Drinks"), "Soft Drink", "bottle",
              "Vine & Valley", 1.1),
     "chocolate": _food(("Chocolate & Sweets", "Chocolate Bars"), "Chocolate Bar", "bar",

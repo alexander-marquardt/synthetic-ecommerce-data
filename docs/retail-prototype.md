@@ -651,11 +651,11 @@ the query "formal shoes" match them. `tests/test_retail_formal_shoes_606.py` pin
 and "corner sofa" can still narrow to its own child. The same holds for `Tables` (coffee, dining, side),
 `Lighting > Lamps` and `Lighting > Lights`, `Fans`, `Drills`, `Tool Sets`, `Skincare > Creams`,
 `Kitchen & Surfaces > Cleaners`, `Milk > Plant Milk`, `Biscuits & Snacks > Crisps`, `Bedding > Kids' Bedding`
-and `Beer, Wine & Spirits > Beer`. `src/synthetic_ecommerce_data/domains/retail/tree_guard.py` states three rules and
+and `Beer, Wine & Spirits > Beer`. `src/synthetic_ecommerce_data/domains/retail/tree_guard.py` states four rules and
 `tests/test_retail_tree_nesting_283.py` runs them over the shipped documents, not the build
 records: (a) no node has a sibling whose label is a word-suffix of another's (`Sofas` beside `Corner Sofas`,
 `Skinny Jeans` beside `Super Skinny Jeans`); (b) three or more siblings that share a head noun sit under a parent that names it, or are listed in the guard's `EXCEPTIONS` with a reason; (c) a product whose
-title names a more specific node of its own department sits in that node. Two siblings (`Bath Towels`,
+title names a more specific node of its own department sits in that node; (d) a label is read right without its breadcrumb ([gen#299](retail-prototype/juice-children-299.md)). Two siblings (`Bath Towels`,
 `Beach Towels`) need no parent. A product still sits in exactly one place.
 `tests/test_retail_departments_281.py` holds the root list at every layer, and
 `retail_figures.figures()` records the ceiling's styles and SKUs per top level

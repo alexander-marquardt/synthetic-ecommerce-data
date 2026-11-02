@@ -43,7 +43,7 @@ _ROWS = (
 )  # fmt: skip
 #: Rows of (code, kind, title, description, color).
 FRUIT_ROWS = (
-    ("DY716", "juice", "Pressed Apple Juice, 1 L", "Cloudy juice from pressed apples, in a carton.", "Yellow"),
+    ("DY716", "apple_juice", "Pressed Apple Juice, 1 L", "Cloudy juice from pressed apples, in a carton.", "Yellow"),
     ("DY717", "candle", "Apple Blossom Candle", "A scented candle in a jar, with the smell of apple blossom in spring.", "Pink"),
     ("DY718", "house_plant", "Crab Apple Tree, Potted", "A small crab apple tree in a pot, with blossom in spring and fruit in autumn.", "Green"),
 )  # fmt: skip

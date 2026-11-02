@@ -17,7 +17,7 @@ A row is (code, kind, title, description, color, plural, sold, ingredients).
 
 ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- oranges
-    ("XQ01", "juice", "Juice from Oranges, 1L", "Not-from-concentrate juice pressed from oranges, in a 1 litre carton. Keep chilled.", "Orange", "oranges", 950, ("pressed oranges (100%)",)),
+    ("XQ01", "orange_juice", "Juice from Oranges, 1L", "Not-from-concentrate juice pressed from oranges, in a 1 litre carton. Keep chilled.", "Orange", "oranges", 950, ("pressed oranges (100%)",)),
     ("XQ02", "chocolate", "Chocolate & Candied Oranges", "A 70% dark chocolate bar studded with pieces of candied oranges.", "Brown", "oranges", 930, ("cocoa mass", "sugar", "candied oranges (12%)", "cocoa butter")),
     ("XQ03", "tinned", "Mandarin Oranges, 298g", "Segments of mandarin oranges in a light juice, in a 298g tin.", "Orange", "oranges", 910, ("mandarin oranges (60%)", "mandarin juice")),
     ("XQ04", "jam", "Seville Oranges Marmalade", "A thick cut marmalade made with bitter Seville oranges, in a 340g jar.", "Orange", "oranges", 890, ("seville oranges (45%)", "sugar", "lemon juice")),
@@ -31,7 +31,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     ("XQ10", "sweets", "Lemons & Limes Sweets", "Boiled sweets in lemon and lime flavors, in a 200g bag.", "Green", "limes", 910, ("sugar", "glucose syrup", "dried lime juice", "dried lemon juice")),
     ("XQ11", "marinade", "Limes & Coriander Marinade", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),
     # -- apples
-    ("XQ12", "juice", "Cloudy Juice from Apples", "A cloudy juice pressed from British apples, in a 1 litre carton.", "Green", "apples", 950, ("pressed apples (100%)",)),
+    ("XQ12", "apple_juice", "Cloudy Juice from Apples", "A cloudy juice pressed from British apples, in a 1 litre carton.", "Green", "apples", 950, ("pressed apples (100%)",)),
     ("XQ13", "tinned", "Stewed Apples in Syrup", "Stewed apples in a light syrup, in a 385g tin. Warm for crumble or porridge.", "Green", "apples", 920, ("apples (62%)", "water", "sugar")),
     ("XQ14", "cereal_bar", "Apples & Cinnamon Oat Bars", "Chewy oat bars with dried apples and cinnamon, in a box of 5.", "Brown", "apples", 890, ("oats", "dried apples (14%)", "honey", "cinnamon")),
     ("XQ15", "cake", "Spiced Apples Crumble Cake", "A crumble-topped sponge baked with spiced apples. Serves 8.", "Brown", "apples", 860, ("wheat flour", "apples (20%)", "butter", "sugar")),
@@ -63,7 +63,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     ("XQ35", "tinned", "Carrots and Coriander Soup", "A smooth soup of carrots and coriander, in a 400g tin.", "Orange", "carrots", 910, ("carrots (45%)", "coriander", "cream", "vegetable stock")),
     ("XQ36", "spread", "Houmous with Roasted Carrots", "A chilled houmous swirled with roasted carrots and cumin. A 200g pot.", "Orange", "carrots", 880, ("chickpeas", "roasted carrots (14%)", "tahini", "cumin")),
     # -- bananas
-    ("XQ37", "juice", "Strawberries and Bananas Smoothie", "A fruit smoothie of strawberries and bananas, in a 750ml carton.", "Pink", "bananas", 940, ("apple juice", "banana puree (20%)", "strawberry puree (18%)")),
+    ("XQ37", "smoothie", "Strawberries and Bananas Smoothie", "A fruit smoothie of strawberries and bananas, in a 750ml carton.", "Pink", "bananas", 940, ("apple juice", "banana puree (20%)", "strawberry puree (18%)")),
     ("XQ38", "cereal_bar", "Bananas and Honey Oat Bars", "Chewy oat bars with dried bananas and honey, in a box of 5.", "Cream", "bananas", 910, ("oats", "dried bananas (12%)", "honey")),
     ("XQ39", "sweets", "Milk Chocolate Covered Bananas", "Dried banana slices coated in milk chocolate, in a 130g bag.", "Brown", "bananas", 880, ("milk chocolate", "dried bananas (35%)")),
     # -- cherries

@@ -28,6 +28,7 @@ def _p(*parts: str) -> tuple[str, ...]:
 
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
 _STEAK = _p("Meat & Fish", "Fresh Meat", "Steak")
+_JUICE = _p("Drinks", "Juice")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 _WINE = _p("Beer, Wine & Spirits", "Wine")
 _CIDER = _p("Beer, Wine & Spirits", "Cider")
@@ -263,11 +264,17 @@ FAMILIES: tuple[Family, ...] = (
            (F("Cloudy Lemonade", "#f2e04b"), F("Orange Crush", "#f2a14b"), F("Cola", "#3a2618"),
             F("Ginger Beer", "#d9b97a"), F("Elderflower Presse", "#e8f0d8"), F("Sparkling Mint Water", "#bfe3d0")),
            _DRINK, 0.035, per_style=(2, 5)),
-    Family("JUI", _p("Drinks", "Juice"), "{line} {flavor} Juice", "Juice", "carton", "Juice", _C, "C", 1.8,
+    # Juice is a parent with one child per flavour (gen#299), each label the product on its own:
+    # "Orange Juice", never a grocer's bare "Orange", which the category vocabulary would read as
+    # the fruit and the color. The family stays one, so no draw moves; ``children`` files a style.
+    Family("JUI", _JUICE, "{line} {flavor} Juice", "Juice", "carton", "Juice", _C, "C", 1.8,
            ("1L", "1.75L", "330ml"),
            (F("Smooth Orange", "#f2a14b"), F("Orange with Bits", "#e8902b"), F("Apple", "#d9c84b"),
             F("Pineapple", "#f2d14b"), F("Coconut Water", "#efe8d8")),
-           _DRINK, 0.025),
+           _DRINK, 0.025,
+           children=(("Smooth Orange", "Orange Juice"), ("Orange with Bits", "Orange Juice"),
+                     ("Apple", "Apple Juice"), ("Pineapple", "Pineapple Juice"),
+                     ("Coconut Water", "Coconut Water"))),
     # Baby, Free From
     Family("BAB", _p("Baby & Toddler", "Baby Food"), "{line} {flavor} Baby Food", "Baby Food", "jar", "Baby", _A,
            "A", 1.0, ("120g", "4 x 120g"),
@@ -664,9 +671,10 @@ FAMILIES: tuple[Family, ...] = (
             _o("Black Seedless Grapes", "#3a1f4a", "Chile"), _o("Sweet Red Grapes", "#b02a44", "Peru"),
             _o("Crisp Green Grapes", "#b4d254", "Egypt"), _o("Midnight Black Grapes", "#2e1a40", "South Africa")),
            _FRESH, 0.008, axis="variety", depth=True),
-    Family("GJU", _p("Drinks", "Juice"), "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
+    Family("GJU", _JUICE, "{line} {flavor}", "Juice", "carton", "Juice", _C, "C", 1.9,
            ("1L", "1.75L", "2L"), (F("Red Grape Juice", "#6a1a3a"), F("White Grape Juice", "#d9d27a")),
-           _DRINK, 0.002, depth=True),
+           _DRINK, 0.002, depth=True,
+           children=(("Red Grape Juice", "Grape Juice"), ("White Grape Juice", "Grape Juice"))),
     Family("GCH", _p("Chocolate & Sweets", "Sweets"), "{line} {flavor}", "Sweets", "bag", "Sweets", _A, "E", 1.2,
            ("150g", "300g"), (F("Grape Fruit Chews", "#6a2a7a", "h"), F("Grape Jellies", "#7a3a8a")),
            _SNACK, 0.001, depth=True),
