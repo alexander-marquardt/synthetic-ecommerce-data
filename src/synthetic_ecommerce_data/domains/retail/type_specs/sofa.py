@@ -7,7 +7,7 @@ type as its own spec file with its rows.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="sofa",
@@ -17,5 +17,11 @@ SPEC = TypeSpec(
     homes=(
         Home("decoy_rows", False),
         Home("sofa_rows", False),
+    ),
+    # A grouped sofa's version, and the seat count and depth that follow it (gen#808).
+    options=(
+        Option("configuration", "configuration", "Configuration"),
+        Option("seat_count", "seat_count", "Seat count", "C62"),
+        Option("depth_cm", "item_depth", "Item depth", "CMT"),
     ),
 )

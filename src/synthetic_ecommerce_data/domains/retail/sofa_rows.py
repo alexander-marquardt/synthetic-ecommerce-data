@@ -10,7 +10,9 @@ What changes a sofa's picture is a style, not a SKU (one image per style and col
 ``tests/test_retail_image_release.py``): a model (its ``line``) is sold as a 2, 2.5, 3 or 4
 seater, and a corner or chaise sofa as a left-hand or right-hand one, each its own style
 with its colors as SKUs. What does not change the picture is a SKU axis: a recliner's
-``recline`` (manual or power) and a sofa bed's ``bed_size``.
+``recline`` (manual or power) and a sofa bed's ``bed_size``. The grouped sofas of
+:mod:`sofa_groups` (gen#808) are the exception: one product sold as a 2 seater, a 3 seater and a
+corner sofa, each version a SKU that draws its own picture.
 
 :func:`scale.templates` builds these just before the grocery styles and :func:`scale.derivable`
 leaves them out, as it does the shirts, so the seeded derivation (and every product id and
@@ -21,6 +23,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
     kit_seating,  # noqa: F401 -- registers the seating shapes
+    sofa_groups,
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.variants import Color, cw
@@ -408,10 +411,11 @@ FOOTSTOOL_ROWS = (
 
 ROWS = (
     *SOFA_ROWS, *CORNER_ROWS, *CHAISE_ROWS, *MODULAR_ROWS, *RECLINER_ROWS, *SOFA_BED_ROWS,
-    *ARMCHAIR_ROWS, *FOOTSTOOL_ROWS,
+    *ARMCHAIR_ROWS, *FOOTSTOOL_ROWS, *sofa_groups.SOFAS,
 )  # fmt: skip
 
 
 def docs() -> list[dict]:
-    """Every seating style's catalog document, in the order of :data:`ROWS`."""
-    return [r.doc() for r in ROWS]
+    """Every seating style's catalog document, in the order of :data:`ROWS`, then the grouped
+    sofa cushions of :mod:`sofa_groups` (gen#808), sold beside the grouped sofas."""
+    return [r.doc() for r in (*ROWS, *sofa_groups.CUSHIONS)]

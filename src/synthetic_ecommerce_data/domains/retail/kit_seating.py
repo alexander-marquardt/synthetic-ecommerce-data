@@ -13,7 +13,9 @@ sofa_seats      a straight sofa, one seat and back cushion       seats (2, 2.5, 
                 per seat (2.5 draws two wide ones)               legs
 corner_sofa     a sofa and its return, the return with its own   seats (in all), side (left,
                 back and seats; ``u`` returns on both sides      right, u), arms, legs
-chaise_sofa     a sofa whose end seat runs forward as a chaise,  seats, side (left, right),
+sofa_version    one version of a sofa sold as several (gen#808): configuration (2 Seater,
+                the 2 or 3 seater, or the left-hand corner       3 Seater, Corner), arms, legs
+chaise_sofa    a sofa whose end seat runs forward as a chaise,  seats, side (left, right),
                 its back along the whole rear, chaise included   arms, legs
 modular_sofa    separate modules with a gap between each,        pieces, layout (straight,
                 armless in the middle; an ottoman in front       corner), ottoman (yes, no)
@@ -340,6 +342,21 @@ def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", sid
     return _draw(boxes, paint, fill)
 
 
+#: A version of a sofa sold as several (gen#808) -> the seats it has in all; the corner is an
+#: L-shape, a run of two beside its corner seat and a two-seat return.
+CONFIGURATION_SEATS = {"2 Seater": 2, "3 Seater": 3, "Corner": 5}
+
+
+def sofa_version(paint: str, fill: Fill, label: str | None, configuration: str = "3 Seater", arms: str = "track", legs: str = "walnut") -> list[str]:
+    """One version of a sofa sold as a 2 seater, a 3 seater and a corner sofa: the straight sofa
+    of its seat count, or the left-hand corner sofa. ``configuration`` is a SKU's own value, so each
+    version draws its own picture."""
+    seats = str(CONFIGURATION_SEATS[configuration])
+    if configuration == "Corner":
+        return corner_sofa(paint, fill, label, seats, "left", arms, legs)
+    return sofa_seats(paint, fill, label, seats, arms, legs)
+
+
 def chaise_sofa(paint: str, fill: Fill, label: str | None, seats: str = "3", side: str = "left", arms: str = "track", legs: str = "oak") -> list[str]:
     """A straight sofa whose end seat on ``side`` runs forward as a chaise.
 
@@ -586,7 +603,7 @@ def footstool(paint: str, fill: Fill, label: str | None, form: str = "rectangula
 SHAPES = {
     "sofa_seats": sofa_seats, "corner_sofa": corner_sofa, "chaise_sofa": chaise_sofa,
     "modular_sofa": modular_sofa, "recliner_sofa": recliner_sofa, "sofa_bed": sofa_bed,
-    "armchair": armchair, "footstool": footstool,
+    "armchair": armchair, "footstool": footstool, "sofa_version": sofa_version,
 }  # fmt: skip
 
 register(SHAPES)

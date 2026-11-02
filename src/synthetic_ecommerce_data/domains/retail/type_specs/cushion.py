@@ -22,5 +22,6 @@ SPEC = TypeSpec(
         Home("decor_rows", False),
         Home("color_word_brand_rows", False),
         Home("diy_decoy_rows", False),
+        Home("sofa_rows", False),  # the grouped sofa cushions (sofa_groups.py, gen#808)
     ),
 )
