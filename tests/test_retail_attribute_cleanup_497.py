@@ -111,6 +111,13 @@ def test_a_same_concept_key_is_published_under_its_one_key_and_name() -> None:
     assert [(e["key"], e["name"]) for e in got] == list(dict.fromkeys(MERGED.values()))
 
 
+def test_a_test_reads_an_authored_key_under_the_key_it_is_published_as() -> None:
+    assert {old: attribute_cleanup.published(old) for old in MERGED} == {
+        old: key for old, (key, _) in MERGED.items()
+    }
+    assert attribute_cleanup.published("color") == "color"
+
+
 def test_a_merged_entry_that_repeats_its_target_is_published_once() -> None:
     got = attribute_cleanup.clean(
         [_e("seat_count", "4"), _e("seats", "4"), _e("seats", "6")], "Garden Furniture Set"

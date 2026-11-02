@@ -19,6 +19,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     garden_rows,
     kit,
@@ -90,7 +91,7 @@ def test_each_type_draws_as_a_shape_of_its_own(ptype: str) -> None:
 
 @pytest.mark.parametrize("ptype", sorted(TYPES))
 def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> None:
-    need = TYPES[ptype][2]
+    need = {attribute_cleanup.published(k) for k in TYPES[ptype][2]}
     for row in _rows(ptype):
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
@@ -101,6 +102,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
 @pytest.mark.parametrize("ptype", sorted(TYPES))
 def test_the_measured_axis_is_on_every_sku_with_its_unit(ptype: str) -> None:
     sku_key, export_key, unit = TYPES[ptype][3]
+    export_key = attribute_cleanup.published(export_key)
     for row in _rows(ptype):
         assert row.size_key == sku_key and row.sizes, row.code
         doc = export.standard_document(row.doc())

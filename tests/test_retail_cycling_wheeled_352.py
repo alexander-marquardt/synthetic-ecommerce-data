@@ -12,9 +12,8 @@ from __future__ import annotations
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import baseline_rank as br
-from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_sports,
@@ -22,6 +21,8 @@ from synthetic_ecommerce_data.domains.retail import (
     sports_rows,
     tree_guard,
 )
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 
 ROOT = "Sports & Outdoors"
 #: The five types, the facets every style states (a variant's or a product's) and its SKU axis:
@@ -73,7 +74,8 @@ def test_the_five_types_are_live_in_the_department(ceiling: list[dict]) -> None:
 def test_every_style_states_the_types_facets(ptype: str) -> None:
     rows = _rows(ptype)
     assert len(rows) >= 3 and len({r.brand for r in rows}) >= 2, ptype
-    missing = {r.code: sorted(TYPES[ptype] - _keys(r)) for r in rows if TYPES[ptype] - _keys(r)}
+    want = {attribute_cleanup.published(k) for k in TYPES[ptype]}
+    missing = {r.code: sorted(want - _keys(r)) for r in rows if want - _keys(r)}
     assert missing == {}
 
 

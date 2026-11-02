@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_toys,
@@ -110,8 +111,9 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        if KEYS[ptype] - keys:
-            missing[row.code] = sorted(KEYS[ptype] - keys)
+        want = {attribute_cleanup.published(k) for k in KEYS[ptype]}
+        if want - keys:
+            missing[row.code] = sorted(want - keys)
     assert missing == {}
 
 
@@ -185,7 +187,7 @@ def test_a_jigsaws_finished_size_is_two_centimeter_entries_beside_its_text() -> 
     for row in jigsaws:
         attrs = export.standard_document(row.doc())["attributes"]
         by_key = {e["key"]: e for e in attrs}
-        text = by_key["finished_size"]["value"]
+        text = by_key[attribute_cleanup.published("finished_size")]["value"]
         length, width = (float(n) for n in re.fullmatch(r"(\d+) x (\d+) cm", text).groups())
         for key, cm in (("item_length", length), ("item_width", width)):
             entry = by_key.get(key)

@@ -18,6 +18,7 @@ import xml.dom.minidom
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     diy_decoy_rows,
     export,
     image_release,
@@ -150,7 +151,7 @@ def test_every_style_draws_well_formed_svg(key: str) -> None:
 
 @pytest.mark.parametrize("key", KEYS)
 def test_each_key_attribute_is_a_structured_entry_in_the_export(key: str) -> None:
-    wanted = TYPES[key][3]
+    wanted = {attribute_cleanup.published(k) for k in TYPES[key][3]}
     docs = _spec(key).docs()
     own = [d for d in docs if d["product_id"] in {f"BRD-{r.code}" for r in _spec(key).rows}]
     assert own

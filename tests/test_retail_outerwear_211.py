@@ -19,6 +19,7 @@ import pytest
 from synthetic_ecommerce_data.core import letter_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     decoy_apparel,
     export,
     kit,
@@ -113,6 +114,7 @@ def _keys(row) -> set[str]:
 
 
 def _values(row, key: str) -> list[str]:
+    key = attribute_cleanup.published(key)
     return [str(e["value"]) for e in _doc(row)["attributes"] if e["key"] == key]
 
 
@@ -151,7 +153,7 @@ def test_the_type_is_named_and_filed_under_coats_and_jackets(ptype: str) -> None
 
 @pytest.mark.parametrize("ptype", sorted(TYPES))
 def test_each_key_attribute_is_a_structured_entry_not_a_word_in_the_title(ptype: str) -> None:
-    want = TYPES[ptype][2]
+    want = {attribute_cleanup.published(k) for k in TYPES[ptype][2]}
     missing = {r.code: want - _keys(r) for r in _rows(ptype)}
     assert {c: m for c, m in missing.items() if m} == {}
 
