@@ -22,13 +22,14 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _axis,
     _row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="yoga_mat",
     homes=(Home("knacks_rows", False),),
     department="Sports & Outdoors",
     product_type="Yoga Mat",
+    options=(Option("thickness_mm", "thickness", "Thickness", "MMT"),),
     rows=(
         _row("YGMFLT", "Non-Slip Yoga Mat", _L, (*_YOGA, "Yoga Mats"), "Yoga Mat", 16.0, "yoga_mat",
              "A grippy mat with a textured top that stays put through a long flow, in a choice of "

@@ -22,12 +22,13 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _axis,
     _row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="dumbbell",
     department="Sports & Outdoors",
     product_type="Dumbbell",
+    options=(Option("weight_kg", "weight", "Weight", "KGM"),),
     rows=(
         _row("DMBHEX", "Hex Rubber Dumbbell", _W, (*_WEIGHTS, "Dumbbells"), "Dumbbell", 14.0,
              "dumbbell", "A cast iron dumbbell in a rubber coat with hex heads that do not roll, "

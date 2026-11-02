@@ -27,7 +27,14 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _shade,
     register,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Row, TypeSpec, a, cw
+from synthetic_ecommerce_data.domains.retail.type_registry import (
+    Decoy,
+    Option,
+    Row,
+    TypeSpec,
+    a,
+    cw,
+)
 
 _PATH = ("Womens", "Accessories", "Hats & Caps")
 _W, _P = "Wrenfield", "Pellbrook"
@@ -184,6 +191,7 @@ SPEC = TypeSpec(
     key="hat_cap",
     department="Clothing",
     product_type="Hat",
+    options=(Option("hat_size", "hat_size", "Hat size"),),
     owners=((_W, "own"), (_P, "third_party")),
     apparel_exempt="an accessory, not a garment: its decoys are authored here (gen#294)",
     rows=(

@@ -27,12 +27,13 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _row,
     _season,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="tent",
     department="Sports & Outdoors",
     product_type="Tent",
+    options=(Option("berth", "berth", "Berth", "C62"),),
     rows=(
         _row("TNTDOM", "Compact Dome Tent", _W, (*_TENTS, "Dome Tents"), "Tent", 49.0, "tent",
              "A two-pole dome tent with a sewn-in groundsheet and a porch door, quick to pitch for a "

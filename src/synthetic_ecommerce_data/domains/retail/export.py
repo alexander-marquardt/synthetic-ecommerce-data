@@ -71,10 +71,11 @@ VALUE_CASE = {"pattern": str.lower, "rise": str.title}
 #: the image id keeps the authored type, so the 561 tees keep their ``tee/...`` image ids.
 PRODUCT_TYPE_FOLDS = {"Tee": "T-Shirt"}
 
-#: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it. The options
-#: that types not yet moved into spec files share. A type spec declares its own option
-#: (``TypeSpec.options``), so a new quantity edits no line here (gen#413); a key has one name,
-#: and a unit may split it (a hose's ``item_length`` is in metres, a knife's in centimetres).
+#: SKU option -> (key, name, unit): one variant-level entry each; a unit splits it. Only the
+#: options a row of a shared row module carries (a row no spec owns). An option that only spec
+#: rows carry is declared by those specs (``TypeSpec.options``), so a new quantity edits no line
+#: here, and a test fails while one stays (gen#413); a key has one name, and a unit may split it
+#: (a hose's ``item_length`` is in metres, a knife's in centimetres).
 SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "color": ("color", "Color", None),
     # A complexion product's shade, sold instead of a color (shades.py, gen#345).
@@ -99,10 +100,6 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "fit_length": ("fit_length", "Fit length", None),
     "inside_leg_in": ("inside_leg_length", "Inside leg length", "INH"),
     "waist": ("waist", "Waist", None),
-    # Worn accessories (gen#422): a belt's waist in inches, a hat's and a glove's own size scale.
-    "waist_in": ("waist_size", "Waist size", "INH"),
-    "hat_size": ("hat_size", "Hat size", None),
-    "glove_size_letter": ("glove_size_letter", "Glove size (S to XL)", None),
     "bed_size": ("bed_size", "Bed size", None),
     "width": ("width", "Width", None),
     # A tree's height in feet (``5 ft``, which the core reads as a length) is the one key every
@@ -157,21 +154,10 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A balance bike's and a trike's wheel size (toys_rows.py, gen#271): its own attribute,
     # never the garment ``size``, whose S/M/L is another kind of value.
     "wheel_size_in": ("wheel_size", "Wheel size", "INH"),
-    # A tent's berth, a mat's thickness and a dumbbell's or kettlebell's weight
-    # (sports_rows.py, gen#265).
-    "berth": ("berth", "Berth", "C62"),
-    "thickness_mm": ("thickness", "Thickness", "MMT"),
-    "weight_kg": ("weight", "Weight", "KGM"),
-    # A suitcase's size name beside its litres (luggage_common.py, gen#209): cabin, medium, large.
-    "luggage_size": ("luggage_size", "Luggage size", None),
     # A mower's or trimmer's cutting width and a robot mower's lawn area (garden_rows.py,
     # gen#203); the area is a plain number named in square metres, as a wattage is in watts.
     "cutting_width_cm": ("cutting_width", "Cutting width", "CMT"),
     "lawn_area_m2": ("lawn_area", "Lawn area (sq m)", None),
-    # A wallpaper roll's length (type_specs/wallpaper.py, gen#217): the roll is cut and sold in
-    # metres; a clock's dial, a tray's size and a stem's height reuse diameter_cm, length_cm and
-    # height_cm.
-    "roll_length_m": ("roll_length", "Roll length", "MTR"),
 }
 #: Every SKU option: the shared ones above and the ones a type spec declares (``TypeSpec.options``,
 #: gen#413). A key declared with two meanings stops the build here and fails the registry's test.

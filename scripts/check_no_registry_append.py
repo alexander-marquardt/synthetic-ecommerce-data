@@ -60,6 +60,8 @@ _DECOY_FORM = (
 _DECOY_FILES = (f"{RD}/feature_decoys/__init__.py",)
 _WORD_ROW = (r"^\s+_[a-z]\(\s*\d+,", r"^\s+_[a-z]\($")
 _WORD_KIND = (r"^NEW_KINDS\.update\(", _KIND_ENTRY)
+#: A row module named by hand: an import (plain or in a parenthesised list) or a ``docs()`` call.
+_FAMILY = (r"^import \w+_rows\b", r"^\s+\w+_rows,$", r"\b\w+_rows\.docs\(\)")
 
 REGISTRIES: tuple[Registry, ...] = (
     Registry(
@@ -72,11 +74,29 @@ REGISTRIES: tuple[Registry, ...] = (
     ),
     Registry(
         f"{RD}/scale.py",
-        _shapes(r"^import \w+_rows\b", r"^[A-Z][A-Z_]*_IDS\s*="),
+        _shapes(*_FAMILY, r"^[A-Z][A-Z_]*_IDS\s*="),
         "import probe_rows  # noqa: E402",
         f"declare the type as a spec, {RD}/type_specs/<key>.py (uv run python scripts/new_type.py"
         " <key>); the registry feeds the scaled build, so scale.py gains no import and no id set",
         ("scripts/new_type.py", f"{RD}/type_registry.py"),
+    ),
+    Registry(
+        f"{RD}/retail_figures.py",
+        _shapes(*_FAMILY),
+        '        "probe_rows": probe_rows.docs(),',
+        "measure() reads every row module and the specs by name from type_registry.BUILD_SOURCES"
+        f" (gen#413); declare the type as a spec, {RD}/type_specs/<key>.py, and this file gains"
+        " no import and no line",
+        (f"{RD}/type_registry.py",),
+    ),
+    Registry(
+        f"{RD}/type_registry.py",
+        _shapes(r'^\s+"\w+_rows",$'),
+        '    "probe_rows",',
+        f"declare the type as a spec, {RD}/type_specs/<key>.py (uv run python scripts/new_type.py"
+        " <key>): BUILD_SOURCES lists the shared row modules a spec may name as a home, and a new"
+        " type adds no module to it (gen#413)",
+        ("scripts/new_type.py",),
     ),
     Registry(
         f"{RD}/decoy_rows.py",

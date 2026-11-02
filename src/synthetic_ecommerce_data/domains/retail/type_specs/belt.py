@@ -28,7 +28,15 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _shade,
     register,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Home, Row, TypeSpec, a, cw
+from synthetic_ecommerce_data.domains.retail.type_registry import (
+    Decoy,
+    Home,
+    Option,
+    Row,
+    TypeSpec,
+    a,
+    cw,
+)
 
 GOLD = "#d6b56a"
 _PATH = ("Mens", "Accessories", "Belts")
@@ -164,6 +172,7 @@ SPEC = TypeSpec(
     homes=(Home("samples", True), Home("decoy_product_words", False)),
     department="Clothing",
     product_type="Belt",
+    options=(Option("waist_in", "waist_size", "Waist size", "INH"),),
     owners=((_W, "own"), (_P, "third_party")),
     rows=(
         _row("BLTLTH", "Leather Dress Belt", _W, 16.0, "Leather", "Pin", "3",

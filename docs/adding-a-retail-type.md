@@ -51,8 +51,8 @@ A value with a unit, or one that names the leaf, is already never changed
 
 One line per SKU field: `field -> (key, name, unit code or None)`, for example
 `"width_cm": ("item_width", "Item width", "CMT")`. A SKU field that `export.OPTIONS` does not
-name is a `KeyError` at export, not a silent skip. Add the line for each new unit field, and use
-the existing line when the concept already has one.
+name is a `KeyError` at export, not a silent skip. A spec declares its own (`TypeSpec.options`);
+`export.SHARED_OPTIONS` keeps only the fields a shared row module carries (gen#413).
 
 ## 5. Color words
 
@@ -79,13 +79,13 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 
 ## 7. Where a row goes in `scale.templates()`, and smaller builds
 
-`scale.templates` lists the authored documents in a fixed order: the preview samples, the
-`*_rows` modules, `type_registry.docs()` (every spec, in key order), the needs and color-word
-rows, the apparel decoys, and last the grocery styles. `scale.build(skus)` takes templates in
+`scale.templates` reads the authored documents in the order `type_registry.BUILD_SOURCES` lists
+them: the preview samples, the `*_rows` modules, `type_registry.docs()` (every spec, in key
+order), the needs and color-word rows, then the apparel decoys, and last the grocery styles. `scale.build(skus)` takes templates in
 that order until their SKUs reach the target, and only then derives more. A build smaller than
 the template list therefore stops partway: a type late in the list is absent from a small build,
-and its decoys are too. A spec needs no edit to `templates()`; a module of the older kind is added
-by hand, later ones in fewer small builds. See one: `uv run python -m synthetic_ecommerce_data.domains.retail.scale --skus 2000`.
+and its decoys are too. A spec needs no edit to `templates()`, and neither `scale.py` nor
+`retail_figures.py` names a row module (gen#413). See one: `uv run python -m synthetic_ecommerce_data.domains.retail.scale --skus 2000`.
 
 ## 8. Images: one per style, colorway and size rung
 

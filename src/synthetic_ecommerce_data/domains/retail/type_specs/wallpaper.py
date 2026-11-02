@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.decor_rows import (
     cm,
     row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec, a
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 STRIPE = cw("Blue", "#f4f1ea", "stripe", "#3f6fb5")
@@ -62,5 +62,6 @@ SPEC = TypeSpec(
     key="wallpaper",
     department="Home",
     product_type="Wallpaper",
+    options=(Option("roll_length_m", "roll_length", "Roll length", "MTR"),),
     rows=ROWS,
 )

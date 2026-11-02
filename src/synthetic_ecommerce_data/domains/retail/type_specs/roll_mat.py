@@ -18,12 +18,13 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _axis,
     _row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="roll_mat",
     department="Sports & Outdoors",
     product_type="Roll Mat",
+    options=(Option("thickness_mm", "thickness", "Thickness", "MMT"),),
     rows=(
         _row("RMTRLL", "Closed Cell Foam Roll Mat", _L, (*_CAMP, "Roll Mats"), "Roll Mat", 12.0, "roll_mat",
              "A light rolled foam mat that insulates from cold ground and straps to the outside of a rucksack.",
