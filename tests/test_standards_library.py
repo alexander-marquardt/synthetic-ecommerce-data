@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 import json
+import math
 import re
 from fractions import Fraction
 from pathlib import Path
@@ -40,6 +41,9 @@ EXPECTED = (
     "set_screw_standards",
     "as568_sizes",
     "tap_shank_squares",
+    "asme_b94_11m_drill_series_in",
+    "din_338_metric_jobber_drills",
+    "depressed_center_wheel_speeds",
 )
 
 PACKAGE = Path(lib.__file__).resolve().parent
@@ -233,6 +237,70 @@ def test_a_tap_drill_is_smaller_than_the_thread_it_makes_a_hole_for():
         assert row["dia_in"] < majors[size], row["thread"]
 
 
+def test_the_b94_11m_drill_series_ascend_and_the_fractionals_step_by_sixty_fourths():
+    table = lib.table("asme_b94_11m_drill_series_in")
+    assert table.standards == ("ASME B94.11M",)
+    number, letter = table.data["number"], table.data["letter"]
+    assert [r["drill"] for r in number] == [f"#{n}" for n in range(60, 0, -1)]
+    assert [r["drill"] for r in letter] == [chr(c) for c in range(ord("A"), ord("Z") + 1)]
+    # #60 is the smallest number drill, #1 the largest, and A is larger than #1.
+    assert _ascending([r["dia_in"] for r in number + letter])
+    fractional = [Fraction(s) for s in table.data["fractional"]]
+    assert _ascending(fractional) and fractional[0] == Fraction(1, 16)
+    assert {b - a for a, b in zip(fractional, fractional[1:], strict=False)} == {Fraction(1, 64)}
+
+
+def test_every_inch_tap_drill_is_a_b94_11m_drill_at_its_diameter():
+    table = lib.table("asme_b94_11m_drill_series_in")
+    named = {r["drill"]: r["dia_in"] for r in table.data["number"] + table.data["letter"]}
+    named |= {f'{s}"': float(Fraction(s)) for s in table.data["fractional"]}
+    rows = lib.table("inch_tap_drills").rows
+    assert len(rows) >= 10
+    for row in rows:
+        assert named.get(row["drill"]) == row["dia_in"], row
+
+
+def test_the_metric_jobber_series_ascends_and_holds_each_tap_drill_inside_its_span():
+    values = lib.table("din_338_metric_jobber_drills").values
+    assert _ascending(values)
+    inside = [r for r in lib.table("metric_tap_drills").rows if r["drill_mm"] <= values[-1]]
+    assert len(inside) >= 10
+    for row in inside:
+        assert row["drill_mm"] in values, row
+
+
+def test_a_larger_wheel_is_rated_slower_at_about_one_rim_speed():
+    # A wheel's rated speed is a limit on its rim speed, so rpm falls as the diameter
+    # grows and pi * d * rpm stays nearly the same across the sizes.
+    rows = lib.table("depressed_center_wheel_speeds").rows
+    assert len(rows) >= 4
+    assert _ascending([r["dia_in"] for r in rows])
+    assert _ascending([-r["max_rpm"] for r in rows])
+    rim_ft_per_min = [math.pi * r["dia_in"] / 12 * r["max_rpm"] for r in rows]
+    assert max(rim_ft_per_min) / min(rim_ft_per_min) < 1.05
+
+
+def test_the_extractions_thread_pitches_are_the_thread_tables():
+    # fastener_standards.json carries pitches beside its dimensions; they are a second
+    # source for the thread tables' figures, so the two are held equal.
+    extraction = lib.table("fastener_standards").data
+    metric = {r["size"]: r for r in lib.table("iso_262_metric_threads").rows}
+    rows = extraction["ISO 262 (metric coarse thread pitches)"]["rows"]
+    assert len(rows) >= 9
+    for row in rows:
+        fine = {row["pitch_fine_1_mm"], row["pitch_fine_2_mm"]} - {None}
+        assert row["pitch_coarse_mm"] == metric[row["size"]]["coarse_pitch_mm"], row["size"]
+        assert fine == set(metric[row["size"]].get("fine_pitches_mm", ())), row["size"]
+    unified = {r["size"]: r["unc_tpi"] for r in lib.table("asme_b1_1_unified_threads").rows}
+    checked = 0
+    for section in extraction.values():
+        for row in section.get("rows", []) if isinstance(section, dict) else []:
+            if "threads_per_inch" in row:
+                assert row["threads_per_inch"] == unified[row["size"]], row["size"]
+                checked += 1
+    assert checked >= 9
+
+
 def test_a_stronger_class_has_the_higher_number():
     rows = lib.table("property_class_strength").rows
     assert len(rows) >= 3
@@ -304,6 +372,30 @@ def test_the_tap_drills_the_sentences_cite_are_the_library_tables():
     assert inch == compat.TAP_DRILLS_INCH
 
 
+def test_the_drill_series_the_catalog_uses_are_the_library_tables():
+    table = lib.table("asme_b94_11m_drill_series_in")
+    assert tuple(r["dia_in"] for r in table.data["number"]) == newtypes._NUMBER_DRILLS
+    assert tuple(r["dia_in"] for r in table.data["letter"]) == newtypes._LETTER_DRILLS
+    fractional = {Fraction(s) for s in table.data["fractional"]}
+    assert series.DRILL_FRACTIONAL and set(series.DRILL_FRACTIONAL) <= fractional
+    metric = set(lib.table("din_338_metric_jobber_drills").values)
+    assert series.DRILL_METRIC_MM and set(series.DRILL_METRIC_MM) <= metric
+    inch = {float(f) for f in fractional} | set(newtypes._NUMBER_DRILLS + newtypes._LETTER_DRILLS)
+    kits = [k for k in newtypes.KITS if k.part_type == "drill_jobber"]
+    assert len(kits) >= 6
+    for kit in kits:
+        if kit.system == "in":
+            assert set(kit.sizes) <= inch, kit
+        else:
+            assert {round(s * series.MM_PER_INCH, 6) for s in kit.sizes} <= metric, kit
+
+
+def test_the_wheel_speeds_the_catalog_uses_are_the_library_table():
+    rows = lib.table("depressed_center_wheel_speeds").rows
+    assert tuple((r["dia_in"], r["max_rpm"]) for r in rows) == newtypes._WHEELS
+    assert newtypes._WHEELS
+
+
 def test_the_stronger_than_pairs_are_the_library_table():
     rows = lib.table("property_class_strength").rows
     assert {r["class"]: r["stronger_than"] for r in rows} == noise.STRONGER_THAN
@@ -364,3 +456,18 @@ def test_no_thread_designation_or_hex_key_size_is_written_out_beside_the_library
         for kw in kit.keywords:
             if kw.arg == "designations":
                 assert isinstance(kw.value, ast.Call), "a kit's designations are read, not typed"
+
+
+def test_no_drill_series_or_wheel_speed_is_written_out_beside_the_library():
+    root = Path(series.__file__).parent
+    names = {"_NUMBER_DRILLS", "_LETTER_DRILLS", "_WHEELS", "DRILL_FRACTIONAL", "DRILL_METRIC_MM"}
+    found = set()
+    for module in ("series.py", "newtypes.py"):
+        for node in ast.walk(ast.parse((root / module).read_text("utf-8"))):
+            target = node.target if isinstance(node, ast.AnnAssign) else None
+            if isinstance(node, ast.Assign) and len(node.targets) == 1:
+                target = node.targets[0]
+            if isinstance(target, ast.Name) and target.id in names:
+                found.add(target.id)
+                assert not isinstance(node.value, ast.Tuple), f"{module}: {target.id} is typed out"
+    assert found == names

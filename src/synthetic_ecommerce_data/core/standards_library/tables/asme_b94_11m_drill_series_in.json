@@ -1,0 +1,14 @@
+{
+ "_library": {
+  "standards": [
+   "ASME B94.11M"
+  ],
+  "edition": "stub",
+  "source": "stub",
+  "kind": "drill_series"
+ },
+ "unit": "in",
+ "number": [],
+ "letter": [],
+ "fractional": []
+}

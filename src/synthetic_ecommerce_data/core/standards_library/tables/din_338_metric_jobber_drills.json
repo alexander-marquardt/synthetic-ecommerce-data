@@ -1,0 +1,12 @@
+{
+ "_library": {
+  "standards": [
+   "DIN 338"
+  ],
+  "edition": "stub",
+  "source": "stub",
+  "kind": "series"
+ },
+ "unit": "mm",
+ "values": []
+}
