@@ -1000,17 +1000,6 @@ It also means the catalog is inspectable, and citable, without installing the
 generator: a reviewer reading a PR, or anyone asking what a record actually
 looks like, opens a file rather than running a build.
 
-### Every path starts at its department
-
-The top level of every `category_path`, industrial and retail alike, is the store's department,
-from the closed list in `core/departments.py`; there is no `department` field (the 2026-10-28
-ruling on #125, after gen#281). Industrial types author their paths from their root down
-(`Milling > End mills > Square end mills`), and `domains/industrial/taxonomy.DEPARTMENT_OF` files
-each root under Hardware, Tools or Workshop & safety, so the document reads `Tools > Milling > End
-mills > Square end mills`. A root with no row is refused, and `core/standard.check_catalog`
-refuses a top level off the list for any domain. The table was the catalogue repository's
-(`INDUSTRIAL_DEPARTMENTS`, which re-rooted every industrial path at load) until it moved here.
-
 ### One letter case for names
 
 Every category node and every attribute display name is **sentence case**, industrial and
@@ -1018,6 +1007,7 @@ retail alike (gen#499): `Handle material`, `Bore dia.`, `Hardware > Hose, tube, 
 Seals & gaskets > O-ring seals`. One normaliser, `core/letter_case.py`, runs at export on the finished
 document (`emit.nested_document`, `emit.flat_documents`, retail's `export.standard_document`);
 the authored literals are not edited. A machine `key` is never touched, and neither is a value.
+Every path also starts at its department ([docs/department-roots.md](docs/department-roots.md)).
 
 A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
 (`AS568`), has a capital inside it (`GrapePhone`), is a lone capital letter (`T-slot`, `V-belts`),
