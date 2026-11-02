@@ -161,7 +161,7 @@ def test_the_attribute_the_issue_names_has_one_display_name() -> None:
 
 def test_the_category_the_issue_names_is_in_sentence_case() -> None:
     paths = {tuple(doc["category_path"]) for doc in _golden("nested.jsonl")}
-    assert ("Hose, tube, fittings & valves", "Seals & gaskets", "O-ring seals") in paths
+    assert ("Hardware", "Hose, tube, fittings & valves", "Seals & gaskets", "O-ring seals") in paths
 
 
 def test_the_searchable_text_carries_the_cased_category(

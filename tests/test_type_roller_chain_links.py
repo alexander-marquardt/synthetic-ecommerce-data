@@ -278,6 +278,7 @@ def test_one_link_publishes_exactly_these_attributes(large_docs):
     ]
     assert (_item(doc) in (CONNECTING, OFFSET), int(pack) in PACKS) == (True, True)
     assert doc["category_path"] == [
+        "Hardware",
         "Motion control & fluid power",
         "Chain & sprockets",
         "Roller chain links",

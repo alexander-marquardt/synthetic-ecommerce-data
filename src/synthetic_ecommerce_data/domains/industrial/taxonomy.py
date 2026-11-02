@@ -40,6 +40,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core.domain import ImageIdError
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
 #: A category path, root first.
@@ -115,8 +116,18 @@ DEPARTMENT_OF: dict[str, str] = {
 
 
 def rooted(path: CategoryPath) -> CategoryPath:
-    """``path`` as a document publishes it: its root's department on top."""
-    return path
+    """``path`` as a document publishes it: its root's department on top.
+
+    ValueError for a root :data:`DEPARTMENT_OF` does not file; a department is none, so a path
+    is never rooted twice.
+    """
+    department = DEPARTMENT_OF.get(sentence_case(path[0]))
+    if department is None:
+        raise ValueError(
+            f"category path {path!r}: {path[0]!r} is filed under no department "
+            "(taxonomy.DEPARTMENT_OF); add its row rather than pass the path through"
+        )
+    return (department, *path)
 
 
 def all_paths() -> tuple[CategoryPath, ...]:

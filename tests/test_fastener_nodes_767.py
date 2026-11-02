@@ -64,8 +64,8 @@ def test_the_committed_catalog_files_each_type_under_its_node():
     with (GOLDEN / "flat.jsonl").open(encoding="utf-8") as lines:
         for line in lines:
             doc = json.loads(line)
-            if doc["category_path"][0] == "Fasteners":
-                types_by_node[doc["category_path"][1]].add(doc["product_type"])
+            if doc["category_path"][:2] == ["Hardware", "Fasteners"]:
+                types_by_node[doc["category_path"][2]].add(doc["product_type"])
     assert types_by_node["Screws"] == NODES["Screws"]
     assert types_by_node["Cap screws"] == NODES["Cap Screws"]
     assert types_by_node["Bolts"] == NODES["Bolts"]

@@ -1110,7 +1110,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             lines.extend(self._grouped(lines, budget))
         if cfg.pack_axis and kind == "modelled" and key in pack.AXES:
             lines.extend(self._packed(lines))
-        return lines
+        # The department goes on top once, after every line that copies another's path is made.
+        return [replace(line, category=taxonomy.rooted(line.category)) for line in lines]
 
     def _runs_lines(self) -> bool:
         """Whether this type's SKUs sit mostly in lines with a run of sizes (:mod:`.grouped`)."""
