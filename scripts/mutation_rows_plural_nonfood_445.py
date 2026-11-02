@@ -55,7 +55,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "the oranges candle moves into the food department",
         _F,
         '("XR01", "fruit_candle",',
-        '("XR01", "juice",',
+        '("XR01", "orange_juice",',
         f'{_T} -k "has_a_non_food_decoy and oranges"',
         "oranges keeps two decoys from a non-food department",
         _R,

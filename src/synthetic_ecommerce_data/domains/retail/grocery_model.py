@@ -49,7 +49,14 @@ class Family:
     fits: str = ""  # a non-food's closing sentence, "{x}" the lower-cased axis value (else "Scented with")
     item_g: float = 0.0  # a per-item fruit's typical weight of one item, g: prices a weight pack beside count packs
     depth: bool = False  # built after the core families from its own stream (see ``grocery.build``)
+    children: tuple[tuple[str, str], ...] = ()  # (flavor, child of ``path``) when a style sits in one
 
     @property
     def food(self) -> bool:
         return self.department == "Food & Drink"
+
+    def path_of(self, flavors: list[F]) -> tuple[str, ...]:
+        """A style's category: ``path``, then its first flavor's child when the family has them."""
+        if not self.children:
+            return self.path
+        return (*self.path, dict(self.children)[flavors[0].name])

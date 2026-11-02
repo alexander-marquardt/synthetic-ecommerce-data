@@ -82,7 +82,7 @@ _DECOYS = (
      "A shower gel scented with blood orange, in a 250ml bottle.", "Orange", 4, 700),
     ("BLR13", "jam", "Blood Orange Marmalade, 340g",
      "A thin cut marmalade made with the blood orange fruit, in a 340g jar.", "Orange", 2, 80),
-    ("BLR14", "juice", "Blood Orange Juice, 1L",
+    ("BLR14", "orange_juice", "Blood Orange Juice, 1L",
      "A juice pressed from blood orange fruit, in a 1 litre carton. Keep cold.", "Orange", 2, 80),
 )  # fmt: skip
 
