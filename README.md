@@ -722,13 +722,11 @@ children  the SKUs, varying: milling diameter, length of cut, overall
 half of products are single-SKU and the rest have 2 to 5, skewed small, as on a
 marketplace (maintainer, 2026-09-27). A product never offers more variants than
 its series has members. Threaded fasteners and end mills also carry grouped product
-families beside those, with 6 to 15 variants each: see
-[Grouped product families](#grouped-product-families). Two deliberately awkward cases are built in, so a
-grouped view is proven on more than the well-formed shapes: a single variant
-that carries **no** variant-scope attribute (`zero_axis_share`), and variants
-whose sparsity leaves one without an attribute its siblings carry. A zero-axis
-variant's values move onto its product, and its description still states them
-in the spec clause, as it would on the variant (#87).
+families beside those, with 6 to 15 variants each: see [Grouped product families](#grouped-product-families).
+Two deliberately awkward cases are built in, so a grouped view is proven on more than the well-formed
+shapes: a single variant that carries **no** variant-scope attribute (`zero_axis_share`), whose values
+move onto its product while its description still states them (#87), and variants whose sparsity
+leaves one without an attribute its siblings carry.
 
 **Attribute names are the census's generic ones.** A concept is one name across
 types -- `Material` on an end mill, a drill and a screw alike -- because that is
