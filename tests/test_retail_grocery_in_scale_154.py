@@ -116,17 +116,16 @@ def test_the_flat_export_carries_food_and_drink_with_ingredients_top_level(built
 
 
 def test_the_image_release_ships_the_grocery_drawings(built):
-    files = image_release.image_files(built.records)
+    # The release draws each record on its own, so the grocery records alone are the input: the
+    # rest of the build was 4 minutes of drawings this test never reads (#790).
+    grocery_recs = [r for r in built.records if r["product_id"].startswith("GRC-")]
+    files = image_release.image_files(grocery_recs)
     members = {path for path, _ in files}
-    grocery_skus = [
-        s for r in built.records if r["product_id"].startswith("GRC-") for s in r["skus"]
-    ]
+    grocery_skus = [s for r in grocery_recs for s in r["skus"]]
     assert len(grocery_skus) == GROCERY_SKUS
-    by_id = {r["product_id"]: r for r in built.records}
     missing = [
         s["sku"]
-        for pid, r in by_id.items()
-        if pid.startswith("GRC-")
+        for r in grocery_recs
         for s in r["skus"]
         if image_release.member_path(image_release.export.image_id(r, s)) not in members
     ]

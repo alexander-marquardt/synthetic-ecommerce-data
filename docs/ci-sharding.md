@@ -115,7 +115,10 @@ A test takes the build with `ceiling_build()` from `tests/retail_ceiling.py`, re
 edits it: a worker's files share one object. `tests/test_ceiling_artifact_539.py` refuses a test
 that builds past the ceiling itself, and holds the wiring above.
 
-Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`).
+Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`), and on
+Linux a `module peak memory:` line that names each module over 1,500 MB (#790). Before each
+module the worker resets its high-water mark, so a module's figure is the worker's peak while
+that module ran. That is the figure to read when you size a shard's worker count.
 
 ## Random order (#539)
 

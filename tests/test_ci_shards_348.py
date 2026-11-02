@@ -118,21 +118,41 @@ def test_a_shard_outside_the_count_is_refused(args: list[str]) -> None:
     assert done.returncode != 0 and done.stdout == ""
 
 
-def test_the_files_the_script_deals_are_the_files_pytest_collects() -> None:
+#: A plugin that writes down each file pytest makes a test module of and imports none of them:
+#: importing the suite's 400 modules to list their names took two minutes of a shard (#790).
+_MODULES_ONLY = """
+import os
+import pytest
+
+@pytest.hookimpl(wrapper=True)
+def pytest_collect_file(file_path, parent):
+    found = yield
+    with open(os.environ["MODULES_ONLY_OUT"], "a", encoding="utf-8") as out:
+        out.writelines(f"{node.path}\\n" for node in found if isinstance(node, pytest.Module))
+    return []
+"""
+
+
+def test_the_files_the_script_deals_are_the_files_pytest_collects(tmp_path: Path) -> None:
     """The glob in ci_shards.py is pytest's collection rule, not a guess at it: the run names
     no path, so ``testpaths`` of ``pyproject.toml`` decides what it collects (gen#362)."""
+    (tmp_path / "modules_only.py").write_text(_MODULES_ONLY, encoding="utf-8")
+    out = tmp_path / "modules.txt"
     env = {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
+    env |= {"PYTHONPATH": os.pathsep.join(filter(None, [str(tmp_path), env.get("PYTHONPATH")]))}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0"],
+        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", "-p", "modules_only"],
         cwd=REPO,
-        env=env,
+        env=env | {"MODULES_ONLY_OUT": str(out)},
         capture_output=True,
         text=True,
         check=False,
     )
-    assert done.returncode == 0, done.stdout[-600:] + done.stderr[-600:]
-    collected = {line.split("::")[0] for line in done.stdout.splitlines() if "::" in line}
+    # pytest exits 5 when it collected no test: every module was left unimported on purpose
+    assert done.returncode == 5, done.stdout[-600:] + done.stderr[-600:]
+    lines = out.read_text(encoding="utf-8").splitlines()
+    collected = {Path(line).relative_to(REPO).as_posix() for line in lines}
     assert collected == set(ci_shards.collected_test_files())
 
 

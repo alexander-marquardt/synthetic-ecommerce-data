@@ -142,7 +142,6 @@ def test_the_detail_is_the_only_color_the_title_names() -> None:
         assert named == {row.detail.lower()}, (row.code, row.title)
 
 
-@pytest.mark.timeout(900)  # three standard checks over the 10**6 ceiling: 172 s on a light shard
 def test_a_detail_color_is_exempt_by_decoy_id_and_an_ordinary_product_is_not(
     ceiling: list[dict],
 ) -> None:
@@ -154,11 +153,15 @@ def test_a_detail_color_is_exempt_by_decoy_id_and_an_ordinary_product_is_not(
     decoys = [d for d in docs if d["product_id"] in dpw.TEXT_EXEMPT]
     assert len(decoys) == len(detailed)
     assert check_catalog(docs, text_exempt=scale.TEXT_EXEMPT) == []
+    # A title is read against its own leaf's pools (standard.text_contradictions), so the decoys'
+    # leaves give the refusals below exactly what the whole ceiling gives, in a few seconds (#790).
+    leaves = {d["category_leaf"] for d in decoys}
+    shelf = [d for d in docs if d["category_leaf"] in leaves]
     # the exemption is keyed on the id: leave the class-8 ids out and each of them is refused
-    refused = check_catalog(docs, text_exempt=scale.TEXT_EXEMPT - dpw.TEXT_EXEMPT)
+    refused = check_catalog(shelf, text_exempt=scale.TEXT_EXEMPT - dpw.TEXT_EXEMPT)
     assert {p.split(":")[0] for p in refused} == dpw.TEXT_EXEMPT, refused
     ordinary = json.loads(json.dumps(decoys[0]).replace("PLT-", "ORDINARY-8-"))
-    refused = check_catalog([*docs, ordinary], text_exempt=scale.TEXT_EXEMPT)
+    refused = check_catalog([*shelf, ordinary], text_exempt=scale.TEXT_EXEMPT)
     assert [p for p in refused if p.startswith("ORDINARY-8")], refused
 
 

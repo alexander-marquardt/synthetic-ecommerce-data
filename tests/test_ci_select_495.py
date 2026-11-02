@@ -479,15 +479,32 @@ def test_every_file_a_mutation_row_plants_in_selects_the_mutation_bed(real: ci_s
     rows = _mutation_rows()
     assert len(rows) > 100
     planted = {Path(row.root, row.file).as_posix().removeprefix("./") for row in rows}
-    missing = sorted(p for p in planted if bed not in ci_select.select([p], real)[0])
+    # ``among``: whether each change selects the bed, not the whole selection 250 times (#790)
+    missing = sorted(p for p in planted if bed not in ci_select.select([p], real, among={bed})[0])
     assert not missing, f"a change to these files does not select {bed}: {missing[:5]}"
     harness = [
         "scripts/mutation_check.py",
         *sorted(p for p in real.py if Path(p).name.startswith("mutation_rows_")),
         *sorted(p for p in real.py if p.startswith("scripts/mutations/")),
     ]
-    unselected = [p for p in harness if bed not in ci_select.select([p], real)[0]]
+    unselected = [p for p in harness if bed not in ci_select.select([p], real, among={bed})[0]]
     assert not unselected, f"a change to these does not select {bed}: {unselected}"
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [
+        ["src/synthetic_ecommerce_data/core/standard.py"],
+        ["docs/ci-sharding.md"],
+        ["pyproject.toml"],
+    ],
+)
+def test_a_selection_among_some_files_is_the_whole_selection_cut_to_them(
+    real: ci_select.Tree, changed: list[str]
+) -> None:
+    some = set(_test_files(real)[::3])
+    whole = ci_select.select(changed, real)[0]
+    assert ci_select.select(changed, real, among=some)[0] == [t for t in whole if t in some]
 
 
 def test_a_type_module_selects_the_tests_that_discover_it(real: ci_select.Tree) -> None:
