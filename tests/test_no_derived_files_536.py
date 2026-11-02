@@ -92,6 +92,7 @@ def test_this_repository_tracks_no_derived_file() -> None:
 import hashlib  # noqa: E402
 import json  # noqa: E402
 import os  # noqa: E402
+import re  # noqa: E402
 
 import build_derived  # noqa: E402
 import local_ci_jobs  # noqa: E402
@@ -226,6 +227,9 @@ def test_the_release_build_commands_exit_zero_and_leave_both_assets(tmp_path) ->
         "catalog/provenance.json",
     ):
         assert (out / asset).stat().st_size > 0, asset
+    count = (out / "images.tar.gz.content-sha256").read_text("utf-8").split()[1]
+    body = (out / "pin-bump-body.txt").read_text("utf-8")
+    assert re.search(rf'"tag": "images-{count}-\d{{8}}"', body), "the image pin names its release"
 
 
 def test_skus_ceiling_is_never_short_and_reports_what_the_build_made(tmp_path, monkeypatch) -> None:

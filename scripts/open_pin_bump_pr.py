@@ -12,8 +12,10 @@ count) and ``images_release.json`` (the ONE image archive of the combined
 catalog, industrial and retail drawings together, gen#706: the content digest and file count
 ``image_release.py`` writes beside it). A merged decoy or product reached
 the catalogue only by hand. ``.github/workflows/release.yaml`` builds both assets on a ``v*`` tag,
-uploads them to the release, and runs this script, which writes the two pin files with the new
-digests and opens a pull request that carries them.
+uploads the catalog to that release and the image archive to its own release, tagged
+``images-<count>-<YYYYMMDD>`` (the archive's file count and the UTC day, gen#804), and runs this
+script, which writes the two pin files with the new digests and opens a pull request that carries
+them.
 
 ``--dry-run`` prints the pull request body and the two files and touches no network. Without it
 the script needs ``PIN_BUMP_TOKEN`` in the environment: a token scoped to pull requests and
@@ -27,9 +29,11 @@ import base64
 import hashlib
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
+from datetime import UTC, datetime
 from pathlib import Path
 
 #: Where the pins live in the catalogue repository.
@@ -41,6 +45,8 @@ IMAGES_PIN = "src/prism_retail_and_industrial/data/images_release.json"
 CATALOG_ASSET = "catalog.ndjson.gz"
 IMAGES_ASSET = "images.tar.gz"
 TOKEN_ENV = "PIN_BUMP_TOKEN"
+#: The image release's tag: the archive's file count and the UTC day it was built (gen#804).
+IMAGES_TAG = re.compile(r"images-(\d+)-(\d{8})")
 
 
 def catalog_pin(catalog: Path, repository: str, tag: str) -> dict:
@@ -70,7 +76,26 @@ def images_pin(sidecar: Path, repository: str, tag: str) -> dict:
 
 
 def utc_day() -> str:
-    return ""
+    return datetime.now(UTC).strftime("%Y%m%d")
+
+
+def images_tag(images: dict, tag: str | None) -> str:
+    """The image release's tag: ``tag`` checked against the pin, or the pin's count and today."""
+    if tag is None:
+        return f"images-{images['file_count']}-{utc_day()}"
+    match = IMAGES_TAG.fullmatch(tag)
+    if match is None:
+        raise SystemExit(f"open_pin_bump_pr: --images-tag {tag} is not images-<count>-<YYYYMMDD>")
+    try:
+        datetime.strptime(match[2], "%Y%m%d")
+    except ValueError:
+        raise SystemExit(f"open_pin_bump_pr: --images-tag {tag} names no date") from None
+    if int(match[1]) != images["file_count"]:
+        raise SystemExit(
+            f"open_pin_bump_pr: --images-tag {tag} counts {match[1]} files;"
+            f" the archive holds {images['file_count']}"
+        )
+    return tag
 
 
 def render(pin: dict) -> str:
@@ -79,12 +104,13 @@ def render(pin: dict) -> str:
 
 def body(tag: str, repository: str, catalog: dict, images: dict) -> str:
     """The pull request body: what moved, where the assets are, and how to check them."""
-    url = f"https://github.com/{repository}/releases/tag/{tag}"
+    url = f"https://github.com/{repository}/releases/tag/"
     return "\n".join(
         [
             f"Bump the generator pins to release `{tag}` of `{repository}`.",
             "",
-            f"Release: {url}",
+            f"Release: {url}{tag}",
+            f"Images: {url}{images['tag']} (the one archive of the combined catalog)",
             "",
             f"- `{CATALOG_PIN}`: asset `{catalog['asset']}`, {catalog['documents']:,} documents,"
             f" content sha256 `{catalog['content_sha256']}` (of the uncompressed documents).",
@@ -155,7 +181,10 @@ def main(argv: list[str] | None = None) -> int:
         "--catalog", type=Path, required=True, help="the UNCOMPRESSED catalog NDJSON"
     )
     parser.add_argument("--images-sidecar", type=Path, required=True)
-    parser.add_argument("--images-tag")
+    parser.add_argument(
+        "--images-tag",
+        help="the image release's tag, images-<count>-<YYYYMMDD> (default: the count and today)",
+    )
     parser.add_argument(
         "--repository",
         default=os.environ.get("GITHUB_REPOSITORY", "alexander-marquardt/synthetic-ecommerce-data"),
@@ -169,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
 
     catalog = catalog_pin(args.catalog, args.repository, args.tag)
     images = images_pin(args.images_sidecar, args.repository, args.tag)
+    images["tag"] = images_tag(images, args.images_tag)
     text = body(args.tag, args.repository, catalog, images)
     files = {CATALOG_PIN: render(catalog), IMAGES_PIN: render(images)}
     if args.dry_run:

@@ -3,7 +3,8 @@
 A merged decoy or product used to reach the catalogue repository only by hand: the generator had
 no releases, and the catalogue pins `catalog_release.json` and `images_release.json` by
 digest (gen#536). The image pin is ONE set for the combined catalog, industrial and retail
-together, one file per SKU (gen#706). A release is a `v*` tag.
+together, one file per SKU (gen#706), and it ships as its own release, tagged
+`images-<count>-<YYYYMMDD>` (gen#804). A release is a `v*` tag.
 
 ## What a tag does
 
@@ -22,13 +23,20 @@ together, one file per SKU (gen#706). A release is a `v*` tag.
    --skus ceiling --industrial-catalog ...`) as
    `images.tar.gz`: both halves' drawings, a file per SKU, refused if two SKUs share a file or a
    SKU has none;
-5. uploads the catalog, its provenance and the bundle to the tag's release with their sidecars:
-   `catalog.ndjson.gz.content-sha256` and `images.tar.gz.content-sha256` (`<sha256>  <count>`),
-   and `images.tar.gz.sha256`;
-6. runs `scripts/open_pin_bump_pr.py`, which writes the two pin files with the new digests and
-   opens a pull request in `elastic/prism-retail-and-industrial`. The catalog pin's digest is of
-   the UNCOMPRESSED composed documents (a gzip's bytes depend on the toolchain); the image pin's
-   is the content digest `image_release.py` prints.
+5. uploads the catalog and its provenance to the tag's release with
+   `catalog.ndjson.gz.content-sha256` (`<sha256>  <count>`);
+6. uploads the bundle to its own release, `images-<count>-<YYYYMMDD>` (the archive's file count
+   from `images.tar.gz.content-sha256` and the UTC day of the run, gen#804), with that sidecar and
+   `images.tar.gz.sha256`. The images release holds `images.tar.gz` and nothing of the catalog.
+   A second `v*` tag the same day whose archive has the same count reuses that release when its
+   `images.tar.gz.content-sha256` is the same, and fails when it differs;
+7. runs `scripts/open_pin_bump_pr.py --images-tag images-<count>-<YYYYMMDD>`, which writes the two
+   pin files with the new digests and opens a pull request in `elastic/prism-retail-and-industrial`:
+   `catalog_release.json` names the `v*` tag, `images_release.json` the images tag. The catalog
+   pin's digest is of the UNCOMPRESSED composed documents (a gzip's bytes depend on the
+   toolchain); the image pin's is the content digest `image_release.py` prints. The script refuses
+   an `--images-tag` that is not `images-<count>-<YYYYMMDD>`, names no real date, or counts other
+   than the archive's files.
 
 ## Composing locally
 
