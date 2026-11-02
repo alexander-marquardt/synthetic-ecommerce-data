@@ -4,8 +4,9 @@ The Womens UK size charts stopped at 16 (some at 18 or 20), so a query for "dres
 the size, filtered the dresses and found no dress that carried it. :func:`extend` runs over the
 templates (:func:`scale.templates`), so a derived style inherits the longer run: a digest-chosen
 :data:`SHARE` of the Womens styles in :data:`LEAVES` whose SKUs carry a numeric UK size gain
-every size up to :data:`TOP` in the same chart as the shorter run (``samples.WOMENS``: EU = UK + 28,
-US = UK - 4, written only where the SKU stores them: jeans). Today that is the jeans, dresses and
+every size up to :data:`TOP` in the same chart as the shorter run (core's
+:data:`~synthetic_ecommerce_data.core.size_charts.WOMENS`, its EU and US sizes written only where
+the SKU stores them: jeans). Today that is the jeans, dresses and
 tops; trousers measure by ``waist`` and knitwear is letter-sized, so neither is changed. Each new
 SKU copies the largest-size SKU of its color (same price, stock and other options); the new SKUs
 are appended, so no existing SKU id
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 import zlib
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail.stable_ids import check_skus, sku_id
 
 #: The Womens leaves (second path node) whose styles may gain the larger sizes.
@@ -68,7 +70,7 @@ def extend(rec: dict) -> dict:
         for uk in range(top + 2, TOP + 1, 2):
             sizes = {key: str(uk)}
             if key == "size_uk":
-                sizes |= {"size_eu": str(uk + 28), "size_us": str(uk - 4)}
+                sizes |= dict(zip(size_charts.KEYS, size_charts.WOMENS[uk], strict=True))
             added.append({**{k: v for k, v in base.items() if k != "sku"}, **sizes})
     rows = [*skus, *({"sku": sku_id(pid, s), **s} for s in added)]
     check_skus(pid, rows)

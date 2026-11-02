@@ -8,6 +8,7 @@ here is invented. Garments carry the structured attributes of
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail.samples import (
     LETTER,
     WOMENS,
@@ -19,25 +20,12 @@ from synthetic_ecommerce_data.domains.retail.samples import (
 )
 
 # --------------------------------------------------------------------------
-# More size charts: one row per size, (UK, EU, US)
+# More size charts: one row per size, (UK, EU, US), from core's charts
 # --------------------------------------------------------------------------
 
-MENS_WAIST = [(str(w), str(w + 16), str(w)) for w in range(28, 40, 2)]  # W28-38 / EU 44-54
-KIDS = [
-    ("3-4Y", "104", "4"),
-    ("5-6Y", "116", "6"),
-    ("7-8Y", "128", "8"),
-    ("9-10Y", "140", "10"),
-    ("11-12Y", "152", "12"),
-    ("13-14Y", "164", "14"),
-]
-BABY = [
-    ("0-3M", "62", "0-3M"),
-    ("3-6M", "68", "3-6M"),
-    ("6-12M", "80", "6-12M"),
-    ("12-18M", "86", "12-18M"),
-    ("18-24M", "92", "18-24M"),
-]
+MENS_WAIST = [row for w, row in size_charts.MENS_WAIST.items() if w % 2 == 0 and w <= 38]
+KIDS = list(size_charts.KIDS_AGES.values())
+BABY = list(size_charts.BABY_AGES.values())
 
 INK_BLUE = "#34466e"
 

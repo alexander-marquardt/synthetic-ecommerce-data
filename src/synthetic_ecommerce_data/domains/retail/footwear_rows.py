@@ -3,8 +3,9 @@
 One :class:`FootwearStyle` is one product page and one document (the gen#125
 ruling): its SKUs are color x width x size, nested. A size is held in one
 field per size system, ``size_uk``, ``size_eu`` and ``size_us``, all three
-read from ONE chart row of the style's audience (:data:`CHARTS`), so they can
-never disagree. Slippers add a letter ``size`` (S, M, L) whose row gives each
+read from ONE chart row of the style's audience (:data:`CHARTS`, core's
+:mod:`~synthetic_ecommerce_data.core.size_charts`), so they can never
+disagree. Slippers add a letter ``size`` (S, M, L) whose row gives each
 system's range ("5-6"). ``width`` is a selector too: Standard, Wide and
 Extra Wide for adults, the F, G and H fittings for kids' school shoes; a
 non-standard width is cut only in the sizes ``wide`` names.
@@ -30,6 +31,7 @@ import functools
 from dataclasses import dataclass
 from typing import Any
 
+from synthetic_ecommerce_data.core import size_charts
 from synthetic_ecommerce_data.domains.retail import distractors as dz
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
@@ -48,44 +50,20 @@ from synthetic_ecommerce_data.domains.retail.variants import (
 )
 
 # ==========================================================================
-# Size charts: one row per size, (UK, EU, US)
+# Size charts: one row per size, (UK, EU, US), read from core (:mod:`.size_charts`)
 # ==========================================================================
 
-Row3 = tuple[str, str, str]
-
-
-def _n(x: float) -> str:
-    return f"{x:g}"
-
-
-def _chart(lo: int, hi: int, eu: int, us: int) -> dict[str, Row3]:
-    """Whole and half UK sizes ``lo`` to ``hi``; EU and US are UK plus a fixed step."""
-    sizes = [lo + n / 2 for n in range(2 * (hi - lo) + 1)]
-    return {_n(uk): (_n(uk), _n(uk + eu), _n(uk + us)) for uk in sizes}
-
+Row3 = size_charts.Row
 
 #: Women's: UK 5 = EU 38 = US 7.
-WOMEN = _chart(2, 9, 33, 2)
+WOMEN = size_charts.WOMENS_SHOES
 #: Men's: UK 9 = EU 43 = US 10.
-MEN = _chart(5, 14, 34, 1)
-#: Kids': infant sizes run to 13, then junior sizes start again at 1; US
-#: child (C) sizes, then youth (Y). Whole sizes only.
-KIDS: dict[str, Row3] = {
-    uk: (uk, eu, us)
-    for uk, eu, us in (
-        ("4 Infant", "20", "4.5C"), ("5 Infant", "21", "5.5C"), ("6 Infant", "23", "6.5C"),
-        ("7 Infant", "24", "7.5C"), ("8 Infant", "25", "8.5C"), ("9 Infant", "27", "9.5C"),
-        ("10 Infant", "28", "10.5C"), ("11 Infant", "29", "11.5C"),
-        ("12 Infant", "30", "12.5C"), ("13 Infant", "32", "13.5C"),
-        ("1 Junior", "33", "1.5Y"), ("2 Junior", "34", "2.5Y"), ("3 Junior", "35", "3.5Y"),
-        ("4 Junior", "37", "4.5Y"), ("5 Junior", "38", "5.5Y"), ("6 Junior", "39", "6.5Y"),
-    )
-}  # fmt: skip
+MEN = size_charts.MENS_SHOES
+#: Kids': infant sizes to 13, then junior sizes from 1; whole sizes only.
+KIDS = size_charts.KIDS_SHOES
 #: Slippers come in letter sizes, each spanning two shoe sizes per system.
-SLIPPERS_WOMEN = {"S": ("3-4", "36-37", "5-6"), "M": ("5-6", "38-39", "7-8"),
-                  "L": ("7-8", "40-41", "9-10")}  # fmt: skip
-SLIPPERS_MEN = {"M": ("7-8", "41-42", "8-9"), "L": ("9-10", "43-44", "10-11"),
-                "XL": ("11-12", "45-46", "12-13")}  # fmt: skip
+SLIPPERS_WOMEN = size_charts.SLIPPERS_WOMEN
+SLIPPERS_MEN = size_charts.SLIPPERS_MEN
 CHARTS: dict[str, dict[str, Row3]] = {
     "women": WOMEN, "men": MEN, "kids": KIDS,
     "slippers_women": SLIPPERS_WOMEN, "slippers_men": SLIPPERS_MEN,

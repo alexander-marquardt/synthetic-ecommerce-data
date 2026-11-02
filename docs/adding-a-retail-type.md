@@ -39,10 +39,10 @@ A value with a unit, or one that names the leaf, is already never changed
   millimeters: 90 cm is 900.0. `furniture_rows._cm` writes the tuple
   `(key, name, "90", "CMT", 900.0)`; a SKU field goes through `export.OPTIONS` and
   `synthetic_ecommerce_data.core.entry.split` computes the pair for you.
-* `synthetic_ecommerce_data.core.standard.check_catalog` (run by `tests/test_output_standard.py`
-  with `one_class_per_key=True` for retail) refuses: a `unit_code` without a `value_canonical`
-  or the reverse, an unknown unit code, a value that is not a bare number, a canonical that is
-  not the value converted, and a key that has a unit on some entries and none on others.
+* `synthetic_ecommerce_data.core.standard.check_catalog` (`tests/test_output_standard.py`) refuses:
+  a `unit_code` without a `value_canonical` or the reverse, an unknown unit code, a value not a bare
+  number, a canonical not the value converted, a key with a unit on some entries only (retail's
+  `one_class_per_key=True`), and sizes no row of `src/synthetic_ecommerce_data/core/size_charts.py`.
 * One key per concept: every measured height is `item_height`, never a second spelling
   (`key_guard.py`, gen#227). Values of two kinds (a garment size `M`, a thread size) do not
   share a key.
