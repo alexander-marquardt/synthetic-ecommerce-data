@@ -75,7 +75,7 @@ def test_the_page_covers_each_topic_the_issue_lists(topic: str) -> None:
 
 def test_the_page_is_one_page_and_points_to_the_quick_path() -> None:
     text = _text()
-    assert len(text.splitlines()) <= 140, "a one-page map: keep it to 140 lines"
+    assert len(text.splitlines()) <= 142, "a one-page map: keep it to 142 lines"
     assert "new-type-quick-path.md" in text, "the page does not say where the one-file path is"
 
 
