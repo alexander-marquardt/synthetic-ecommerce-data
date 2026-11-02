@@ -69,6 +69,10 @@ def images_pin(sidecar: Path, repository: str, tag: str) -> dict:
     }
 
 
+def utc_day() -> str:
+    return ""
+
+
 def render(pin: dict) -> str:
     return json.dumps(pin, indent=2) + "\n"
 
@@ -151,6 +155,7 @@ def main(argv: list[str] | None = None) -> int:
         "--catalog", type=Path, required=True, help="the UNCOMPRESSED catalog NDJSON"
     )
     parser.add_argument("--images-sidecar", type=Path, required=True)
+    parser.add_argument("--images-tag")
     parser.add_argument(
         "--repository",
         default=os.environ.get("GITHUB_REPOSITORY", "alexander-marquardt/synthetic-ecommerce-data"),
