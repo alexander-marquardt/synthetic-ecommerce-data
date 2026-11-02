@@ -6,8 +6,10 @@ paths, so a shopper who browsed the other tree never met it. A product document 
 at. The mugs are the worked example (``docs/retail-prototype.md``, "A product at several category
 paths"). The court shoes are the other pair (gen#606): a retailer keeps Heels as its own group and
 treats dress as an occasion across types, so a court shoe stays under Heels and is under Formal
-Shoes too. Its second path ends in ``Court Shoes`` because a leaf is never a parent. Nothing else
-in the catalog is filed twice yet.
+Shoes too. Its second path ends in ``Court Shoes`` because a leaf is never a parent. A sofa sold
+with a corner version (:mod:`sofa_groups`, gen#808) sits at ``Sofas`` and is filed at ``Sofas >
+Corner Sofas`` too, so a shopper who narrows to corner sofas finds its corner version. Nothing
+else in the catalog is filed twice yet.
 
 A pair is keyed by the path the build record sits at. The decoy mugs of :mod:`decor_rows` (an
 ornament, a thank-you card) sit at the Home path too, and keep that one path: they are the wrong
@@ -26,6 +28,8 @@ COURT_FORMAL = ("Womens", "Shoes", "Formal Shoes", "Court Shoes")
 MUG_PATHS = (MUG_HOME, MUG_GIFTS)
 #: The pair a court shoe is filed at; the build record sits at the Heels path.
 COURT_PATHS = (COURT_HEELS, COURT_FORMAL)
+SOFAS = ("Home", "Furniture", "Sofas")
+CORNER_SOFAS = (*SOFAS, "Corner Sofas")
 
 
 def other_paths(rec: dict) -> list[tuple[str, ...]]:
@@ -36,4 +40,6 @@ def other_paths(rec: dict) -> list[tuple[str, ...]]:
     for pair in (MUG_PATHS, COURT_PATHS):
         if here in pair:
             return [p for p in pair if p != here]
+    if here == SOFAS and any(s.get("configuration") == "Corner" for s in rec["skus"]):
+        return [CORNER_SOFAS]
     return []

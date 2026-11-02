@@ -73,6 +73,12 @@ MOVED = {
     "kettlebell": [_WEIGHT],
     "suitcase": [_WEIGHT, Option("luggage_size", "luggage_size", "Luggage size")],
     "wallpaper": [Option("roll_length_m", "roll_length", "Roll length", "MTR")],
+    # a grouped sofa's version and what follows it (gen#808)
+    "sofa": [
+        Option("configuration", "configuration", "Configuration"),
+        Option("seat_count", "seat_count", "Seat count", "C62"),
+        Option("depth_cm", "item_depth", "Item depth", "CMT"),
+    ],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 

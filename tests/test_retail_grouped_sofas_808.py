@@ -14,9 +14,10 @@ import pytest
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import export, kit, scale, sofa_groups, sofa_rows
 
-CUSHIONS = ("Home", "Soft Furnishings", "Cushions")
+# the exported letter case (letter_case.py): a segment after the first word is lower case
+CUSHIONS = ("Home", "Soft furnishings", "Cushions")
 SOFAS = ("Home", "Furniture", "Sofas")
-CORNER = (*SOFAS, "Corner Sofas")
+CORNER = (*SOFAS, "Corner sofas")
 CONFIGURATIONS = {"2 Seater", "3 Seater", "Corner"}
 SIZES = {"40 x 40cm", "45 x 45cm", "50 x 50cm"}
 
@@ -28,9 +29,7 @@ def _docs(rows) -> list[tuple[dict, dict]]:
 
 def _values(doc: dict, key: str) -> list[str]:
     """The value of ``key`` on each SKU, in SKU order (one value each)."""
-    return [
-        next(e["value"] for e in v["attributes"] if e["key"] == key) for v in doc["variants"]
-    ]
+    return [next(e["value"] for e in v["attributes"] if e["key"] == key) for v in doc["variants"]]
 
 
 def _style(doc: dict, key: str) -> set[str]:
@@ -102,8 +101,9 @@ def test_each_sofa_version_draws_its_own_shape() -> None:
     fill = kit.Fill("solid", "#123456", "#654321")
     rec, _doc = SOFA_DOCS[0]
     drawn = {
-        c: kit.render(rec["drawing"]["shape"], fill, params=rec["drawing"]["params"] | {
-            "configuration": c})
+        c: kit.render(
+            rec["drawing"]["shape"], fill, params=rec["drawing"]["params"] | {"configuration": c}
+        )
         for c in CONFIGURATIONS
     }
     assert len(set(drawn.values())) == 3
@@ -126,6 +126,6 @@ def test_no_product_name_states_a_value_of_its_axes() -> None:
 
 def test_the_groups_are_seating_templates_that_meet_the_standard() -> None:
     ids = {r.product_id for r in (*sofa_groups.SOFAS, *sofa_groups.CUSHIONS)}
-    assert ids <= {r.product_id for r in sofa_rows.ROWS}
+    assert ids <= {d["product_id"] for d in sofa_rows.docs()}
     assert ids <= scale.left_out()
     assert check_catalog([doc for _rec, doc in (*SOFA_DOCS, *CUSHION_DOCS)]) == []
