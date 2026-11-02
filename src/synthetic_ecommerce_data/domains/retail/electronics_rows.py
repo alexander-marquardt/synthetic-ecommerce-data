@@ -500,9 +500,9 @@ MONITORS = tuple(
 
 # --- Memory cards (gen#796): a capacity per SKU; the format and speed class are attributes ------
 _MEMORY_CARDS = (
-    (BOLTWICK, "Everyday microSD Memory Card", "microSD", "Class 10", 9, (32, 64, 128), (BLACK, BLUE), "an SD adapter, for a phone, a tablet or a games console"),
+    (BOLTWICK, "Everyday microSD Memory Card", "microSD", "Class 10", 9, (32, 64, 128), (BLACK, BLUE), "a full-size adapter, for a phone, a tablet or a games console"),
     (BOLTWICK, "Extreme microSD Memory Card", "microSD", "V30", 15, (64, 128, 256), (BLACK, RED), "the speed to record 4K video on an action camera or a drone"),
-    (WEXMOOR, "Pro Plus microSD Memory Card", "microSD", "UHS-I U3", 12, (64, 128, 256, 512), (BLACK, GREY), "an SD adapter and fast loading of apps on a phone"),
+    (WEXMOOR, "Pro Plus microSD Memory Card", "microSD", "UHS-I U3", 12, (64, 128, 256, 512), (BLACK, GREY), "a full-size adapter and fast loading of apps on a phone"),
     (CINDREL, "Endurance microSD Memory Card", "microSD", "V30", 14, (32, 64, 128), (WHITE, GREY), "a long life under constant writing, for a dash cam or a door camera"),
     (WEXMOOR, "Pro SD Memory Card", "SD", "V30", 16, (64, 128, 256), (BLACK, YELLOW), "a write speed that keeps up with a camera shooting bursts of photos"),
     (BOLTWICK, "Extreme Pro SD Memory Card", "SD", "V60", 29, (128, 256, 512), (BLACK, RED), "the speed of a full-size card for 4K and 6K video"),
