@@ -1156,6 +1156,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         if len(draft.children) == 1 and self.rng.random() < self.config.zero_axis_share:
             (only,) = draft.children
             draft.line_attrs = [*draft.line_attrs, *only.attrs]
+            only.moved = frozenset(a.name for a in only.attrs)
             only.attrs = []
             only.zero_axis = True
             self._bump("zero_axis_products")

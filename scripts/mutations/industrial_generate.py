@@ -47,6 +47,18 @@ MUTATIONS: list[Mutation] = [
         "A",
         "every product and every variant carries an image that resolves",
     ),
+    Mutation(
+        "leave a zero-axis variant's moved values out of its description",
+        "domains/industrial/finishing.py",
+        "        carried = [a for a in line_attrs if a.name in moved]\n",
+        "        carried = []\n",
+        (
+            "tests/test_catalog_generate.py -k zero_axis_variant_states",
+            "tests/test_noise_text.py -k kits_description_lists_its_sizes",
+        ),
+        "",
+        "a zero-axis variant's description states the values its product carries for it (#87)",
+    ),
     # ---- series: geometry coherence, both directions ---------------------
     Mutation(
         "let the cut run past the end of the tool",
