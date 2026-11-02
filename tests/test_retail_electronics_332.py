@@ -34,7 +34,7 @@ DEVICE_NODES = {
 }
 ACCESSORY_LEAVES = {
     "Phone Cases", "Screen Protectors", "Chargers", "Cables", "Earbuds", "Laptop Sleeves",
-    "Mice", "Keyboards", "Monitors",
+    "Mice", "Keyboards", "Monitors", "Memory Cards",
 }  # fmt: skip
 
 
