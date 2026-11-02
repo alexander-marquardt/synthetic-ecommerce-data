@@ -507,6 +507,14 @@ def test_a_selection_among_some_files_is_the_whole_selection_cut_to_them(
     assert ci_select.select(changed, real, among=some)[0] == [t for t in whole if t in some]
 
 
+def test_a_type_module_selects_the_tests_that_discover_it(real: ci_select.Tree) -> None:
+    """Core no longer names the industrial types package (#128): the domain hands it over,
+    and the package walk is read off the walked package's own ``__init__``."""
+    module = "src/synthetic_ecommerce_data/domains/industrial/product_types/fasteners/bolt_hex.py"
+    chosen = set(ci_select.select([module], real)[0])
+    assert {"tests/test_type_seam.py", "tests/test_catalog_golden.py"} <= chosen
+
+
 def test_the_smoke_tests_are_selected_by_any_change(real: ci_select.Tree) -> None:
     assert set(ci_select.SMOKE) <= set(ci_select.select(["docs/ci-sharding.md"], real)[0])
 

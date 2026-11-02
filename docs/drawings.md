@@ -96,7 +96,8 @@ that draws through core registers its own figures there.
   `wheel_depressed_center` and `hex_key`.
 * A type declared in its own module (`domains/industrial/product_types/`) is **not written in
   `figures.py`**: its `TypeSpec` carries `figure` and `extent`, and
-  `typespec.register` writes the pair into `FIGURES`. `screw_socket_head`
+  `typespec.register` hands the spec to the domain's writer
+  (`domains/industrial/type_tables.py`), which writes the pair into `FIGURES`. `screw_socket_head`
   (the twelfth original type) and `lock_nuts_nylon_insert` (which reuses
   `hex_nut`) are declared this way.
 * The breadth types (`figures.catalog.breadth_categories` in `golden-catalog/stats.json`) are not written in `figures.py` either.

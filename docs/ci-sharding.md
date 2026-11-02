@@ -182,6 +182,40 @@ and it assumes the merge tests cost the same ratio; the last measured whole-suit
 (637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
 with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
 
+## What each target times (#348, 2026-11-02)
+
+The two targets above time `merge_pr.sh` from its start to the squash merge. Since late October
+the generator's merges mostly go another way: agent-ops `coordinator/gen_train.sh` merges a PR
+at once when its head is the reviewed sha, every check is green and GitHub reads it CLEAN. It
+calls `merge_pr.sh <N>` only for a PR whose update from main conflicts. After at most
+`TRAIN_BATCH` merges (default 5) it waits for main's push run to be green before it merges more.
+Of the 25 merge calls the train logged from 10-31 11:15Z to 11-02 00:27Z (its `MERGE-CALL` lines),
+one went through `merge_pr.sh` (#779, which refused it), so `gen-merge-minutes` was printed for
+none of the merges.
+
+| Run | What its time is | Target | Measured |
+| --- | --- | --- | --- |
+| `merge_pr.sh --local-ci <N>` | `gen-merge-minutes` | under 10 | not run since the train |
+| `merge_pr.sh --github-ci <N>` | `gen-merge-minutes` | under 15 | not run since the train |
+| a train merge (pass 1) | the merge call, seconds | none | the PR's own run before it |
+| a pull request's run | the PR's own wait | none | 14 to 45 min on 11-01 |
+| the push run on `main` | the train's wait every batch | under 15 (#790) | 22 to 37 min |
+
+The 10 and the 15 are kept, each for its mode. The push run on `main` had no target; it has the
+`--github-ci` one now, since it runs the same 16 shards on the same runners. The `Measured`
+column comes from `gh run list --workflow ci.yaml --limit 40` on 11-02: 12 push runs on `main`
+from 11-01 06:16Z to 11-02 00:27Z took 22.4 to 37.3 minutes, and one took 82.0.
+
+What sets a push run's time is its job-minutes over the runner slots it gets. Run 41367228402
+(11-02, 24.2 min) had 16 `tests (N)` shards, each with `created: 2/2 workers` in a
+`--cpus 4 --memory 6g` container (`PYTEST_XDIST_AUTO_NUM_WORKERS=2`, agent-ops
+`vm/ci_runner/runner.conf`). The shards' pytest walls ran from 378 to 922 s and add up to
+9,650 s, and the run used 175 job-minutes. Eight shards started 2 minutes in and the other eight
+10 to 14 minutes in, as slots freed. Each shard's ten slowest phases (160 in all, the
+`slowest 10 durations` lines) add up to 8,832 s of about 19,300 worker-seconds. Worker peaks
+(`peak worker memory:`) run from 0.4 to 3.5 GB, and in 13 of the 16 shards one of the two
+workers stays under 1.2 GB. Cutting those tests, and the worker count they hold down, is #790.
+
 ## Where the jobs run (#596)
 
 Every job's `runs-on` is one expression: `[self-hosted, synth-ci]` when the repository variable
