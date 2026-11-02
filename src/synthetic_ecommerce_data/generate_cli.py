@@ -5,6 +5,7 @@
     ecom-generate build --lines 600 --sparsity 0.6 --defects 2.0
     ecom-generate images --catalog golden-catalog --out out/images --archive out/images.tar.gz
     ecom-generate block shim_stock_precision
+    ecom-generate compose --domain industrial=out/catalog --domain retail=out/retail --out out/all
 
 ``build`` runs its image, product and non-copying audits first and writes nothing
 if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
@@ -21,6 +22,9 @@ if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
     what was generated, measured against the statistics it reproduces, and
     under ``figures`` the counts and the facet rule's figures that docs and
     tests point at rather than restate (#103)
+
+``compose`` writes the named domains' builds as ONE catalog and its provenance, refusing a
+union the output standard refuses (:mod:`synthetic_ecommerce_data.compose`, gen#125).
 
 ``block`` prints the part-number block a new type's key derives and, when
 another type already uses it, the first free block to declare instead.
@@ -291,6 +295,10 @@ def main(argv: list[str] | None = None) -> int:
         return _images(argv[1:])
     if argv and argv[0] == "block":
         return _block(argv[1:])
+    if argv and argv[0] == "compose":
+        from synthetic_ecommerce_data import compose  # noqa: PLC0415
+
+        return compose.main(argv[1:])
     parser = argparse.ArgumentParser(prog="ecom-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
     parser.add_argument("--out", type=Path, default=Path("out/catalog"))
