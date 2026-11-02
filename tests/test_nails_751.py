@@ -95,8 +95,8 @@ def built() -> dict[str, list[dict]]:
     catalog = generate(GeneratorConfig(defect_scale=0.0))
     held: dict[str, list[dict]] = {}
     for doc in table_gates.docs(catalog):
-        if doc["category_path"][:2] == ["Fasteners", "Nails"]:
-            held.setdefault(doc["category_path"][2].lower(), []).append(doc)
+        if doc["category_path"][:3] == ["Hardware", "Fasteners", "Nails"]:
+            held.setdefault(doc["category_path"][3].lower(), []).append(doc)
     return held
 
 

@@ -63,7 +63,7 @@ def test_a_plain_screw_sits_beside_the_lag_screw(key):
     docs = _docs(key)
     assert docs, f"the catalog sells no {key}"
     for doc in docs:
-        assert doc["category_path"] == [*lag["category_path"][:2], KINDS[key][2]]
+        assert doc["category_path"] == [*lag["category_path"][:3], KINDS[key][2]]
 
 
 @pytest.mark.parametrize("key", KINDS)

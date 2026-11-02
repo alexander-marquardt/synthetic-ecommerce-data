@@ -21,6 +21,10 @@ catalog prices in USD (it keeps ``price_usd`` for its loader), the retail one
 in GBP. Availability is the ``in_stock`` yes/no; ``stock`` is the count, emitted
 only by a domain that models one.
 
+The top level of every ``category_path`` (and of each ``category_paths`` entry) is a department
+on core's closed list (:mod:`.departments`): the department is the path's top level, never a
+field of its own.
+
 A size is ``size_uk``, ``size_eu`` and ``size_us`` together, read from one row of a core
 chart (:mod:`.size_charts`); a variant that states one without the other two, or a triple that
 is no chart's row, breaks the standard.
@@ -36,7 +40,7 @@ from collections.abc import Collection, Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
-from synthetic_ecommerce_data.core import size_charts
+from synthetic_ecommerce_data.core import departments, size_charts
 from synthetic_ecommerce_data.core.entry import CANONICAL_PER_UNIT, RECIPROCAL_PER_UNIT, canonical
 
 _STR, _INT, _NUM, _BOOL, _LIST = "str", "int", "number", "bool", "list"
@@ -187,7 +191,15 @@ def _category_paths(where: str, primary: list[Any], paths: Any) -> list[str]:
         out.append(f"{where}: category_paths {paths!r} does not lead with category_path")
     if len({tuple(p) for p in paths}) != len(paths):
         out.append(f"{where}: category_paths {paths!r} names a path twice")
-    return out
+    # the first is category_path, whose top level check_document has already judged
+    return out + [e for p in paths[1:] for e in _department(where, "category_paths", p)]
+
+
+def _department(where: str, field: str, path: list[Any]) -> list[str]:
+    """The finding when ``path``'s top level is not on core's closed department list."""
+    if path[0] in departments.DEPARTMENTS:
+        return []
+    return [f"{where}: {field} top level {path[0]!r} is not a department"]
 
 
 def check_document(doc: Mapping[str, Any]) -> list[str]:
@@ -198,8 +210,10 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
     if isinstance(path, list):
         if not path or not all(_typed(seg, _STR) for seg in path):
             out.append(f"{where}: category_path {path!r} is not a list of node names")
-        elif doc.get("category_leaf") != path[-1] or doc.get("category_depth") != len(path):
-            out.append(f"{where}: category_leaf/category_depth do not match {path!r}")
+        else:
+            if doc.get("category_leaf") != path[-1] or doc.get("category_depth") != len(path):
+                out.append(f"{where}: category_leaf/category_depth do not match {path!r}")
+            out += _department(where, "category_path", path)
         out += _category_paths(where, path, doc.get("category_paths"))
     out += _image(where, doc)
     score = doc.get("merchandising_score")

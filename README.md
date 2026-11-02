@@ -1003,10 +1003,11 @@ looks like, opens a file rather than running a build.
 ### One letter case for names
 
 Every category node and every attribute display name is **sentence case**, industrial and
-retail alike (gen#499): `Handle material`, `Bore dia.`, `Hose, tube, fittings & valves > Seals &
-gaskets > O-ring seals`. One normaliser, `core/letter_case.py`, runs at export on the finished
+retail alike (gen#499): `Handle material`, `Bore dia.`, `Hardware > Hose, tube, fittings & valves >
+Seals & gaskets > O-ring seals`. One normaliser, `core/letter_case.py`, runs at export on the finished
 document (`emit.nested_document`, `emit.flat_documents`, retail's `export.standard_document`);
 the authored literals are not edited. A machine `key` is never touched, and neither is a value.
+Every path also starts at its department ([docs/department-roots.md](docs/department-roots.md)).
 
 A word keeps its capitals when it is an acronym (`ER`, `RPM`, `(UK)`), carries a digit
 (`AS568`), has a capital inside it (`GrapePhone`), is a lone capital letter (`T-slot`, `V-belts`),

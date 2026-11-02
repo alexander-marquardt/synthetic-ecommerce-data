@@ -176,9 +176,9 @@ def test_a_variant_can_lack_an_attribute_its_siblings_carry(catalog):
 
 
 def test_the_category_tree_is_used_and_is_three_to_five_deep(catalog):
-    depths = {len(line.category) for line in catalog.lines}
-    # The one shared leaf, Hand Tools > Hammers (#305), is two levels: the combined tree puts
-    # the catalog's own root above it.
+    # A published path has its department on top (#125): the authored tree is 3 to 5 deep.
+    depths = {len(line.category) - 1 for line in catalog.lines}
+    # The one shared leaf, Hand Tools > Hammers (#305), is two levels below its department.
     assert depths <= {2, 3, 4, 5}
     assert {d for d in depths if d == 2} <= {len(p) for p in taxonomy.SHARED_LEAVES}
     assert depths == taxonomy.tree_depths()
@@ -795,7 +795,8 @@ def test_every_leaf_is_its_types_own_self_describing_plural(catalog):
     shared = [p[0] for p in taxonomy.LEAVES.values() if p[0] in shared_leaves]
     assert set(shared) == shared_leaves
     assert len(shared) >= 6
-    assert {line.category for line in catalog.lines} == set(taxonomy.all_paths())
+    published = {taxonomy.rooted(path) for path in taxonomy.all_paths()}
+    assert {line.category for line in catalog.lines} == published
 
 
 def test_every_end_mill_publishes_its_material(catalog):

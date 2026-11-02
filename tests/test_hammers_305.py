@@ -26,7 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 #: The one node every hammer lives under: the combined tree reads ``Tools > Hand Tools > Hammers``.
-HAMMERS = ["Hand tools", "Hammers"]
+#: The one hammers node, under its department (#125).
+HAMMERS = ["Tools", "Hand tools", "Hammers"]
 
 KINDS = frozenset({
     "hammer_ball_pein",

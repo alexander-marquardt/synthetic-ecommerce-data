@@ -205,6 +205,14 @@ PLANTS: dict[str, tuple[Any, str]] = {
         lambda d: d.update(category_depth=d["category_depth"] + 1),
         "P: category_leaf/category_depth do not match PATH",
     ),
+    "a top level that is no department": (
+        lambda d: d["category_path"].__setitem__(0, "Denim"),
+        "P: category_path top level 'Denim' is not a department",
+    ),
+    "a further path under no department": (
+        lambda d: d.update(category_paths=[d["category_path"], ["Denim", "Jeans"]]),
+        "P: category_paths top level 'Denim' is not a department",
+    ),
     "a variant without currency": (
         lambda d: d["variants"][0].pop("currency"),
         "V: lacks 'currency'",
