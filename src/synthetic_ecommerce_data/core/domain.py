@@ -4,8 +4,9 @@ Core used to read the industrial tables directly: emit's image-id check asked
 ``domains.industrial.taxonomy`` whether a type exists, :meth:`.brands.Brand.makes`
 looked a type's family up in ``domains.industrial.vocab``, and :mod:`.drawing` drew
 a type from ``domains.industrial.drawing.figures``. Each refused any type of a
-second domain. Here a domain registers a :class:`Domain` when its package is
-imported, and core asks every registered domain.
+second domain. :mod:`.typespec` found types in the industrial package alone and
+wrote each into industrial tables. Here a domain registers a :class:`Domain` when
+its package is imported, and core asks every registered domain.
 
 A domain's tables are passed as functions, not as the tables themselves. A
 domain's package ``__init__`` registers it, and importing the table modules there
@@ -16,7 +17,10 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection, Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from synthetic_ecommerce_data.core.typespec import TypeSpec
 
 
 class DomainError(Exception):
@@ -48,6 +52,15 @@ class Domain:
     )
     #: Its types whose card draws the published pack, an item a unit (:func:`.drawing.model.fan`).
     pack_types: Callable[[], Collection[str]] = field(default=lambda: frozenset())
+    #: The package its type modules sit under, which :func:`.typespec.discover` walks.
+    #: Empty for a domain that declares no type through core.
+    types_package: str = ""
+    #: Run before its types package is walked, for the types its tables declare
+    #: rather than a type module (the industrial YAML breadth rows).
+    load_types: Callable[[], None] = field(default=lambda: None)
+    #: Writes one spec into the domain's own type-keyed tables, refusing what they
+    #: refuse; :func:`.typespec.register` writes core's around it.
+    register_type: Callable[[TypeSpec], None] | None = None
 
 
 _DOMAINS: dict[str, Domain] = {}
@@ -92,6 +105,16 @@ def figure(type_key: str) -> tuple[Callable[..., Any], tuple[float, float]]:
 def is_pack_type(type_key: str) -> bool:
     """Whether a registered domain draws ``type_key``'s card as its published pack."""
     return any(type_key in d.pack_types() for d in _DOMAINS.values())
+
+
+def owner_of(module: str) -> Domain | None:
+    """The domain whose types package holds the dotted ``module``, else ``None``."""
+    for d in _DOMAINS.values():
+        if d.types_package and (
+            module == d.types_package or module.startswith(f"{d.types_package}.")
+        ):
+            return d
+    return None
 
 
 def product_type_for_image(image_id: str) -> str:

@@ -22,7 +22,7 @@ import yaml
 from synthetic_ecommerce_data.core import emit, typespec
 from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig, small
 from synthetic_ecommerce_data.core.model import Catalog
-from synthetic_ecommerce_data.domains.industrial import breadth, generate
+from synthetic_ecommerce_data.domains.industrial import DOMAIN, TYPES_PACKAGE, breadth, generate
 
 #: The two types this seam was proven on: a depth type with its own figure,
 #: and a breadth type.
@@ -122,7 +122,7 @@ DISCOVERED = typespec.discover()
 @pytest.mark.parametrize("key", sorted(DISCOVERED))
 def test_a_type_module_is_its_types_only_declaration(key: str) -> None:
     module = DISCOVERED[key].module
-    family = module.removeprefix(f"{typespec.TYPES_PACKAGE}.").split(".")
+    family = module.removeprefix(f"{TYPES_PACKAGE}.").split(".")
     assert len(family) == 2 and family[1] == key, f"{module} is not <family>.{key}"
     # Declared once: its module is the only declaration, not a second copy.
     assert key not in {row.key for row in breadth.load_rows()}, f"{key} is still a YAML row"
@@ -245,7 +245,7 @@ _YAML_ROWS_FIRST = """
 import sys
 from synthetic_ecommerce_data.core import typespec
 # No type module at all, so none imports breadth on registration's behalf.
-typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+typespec.discover = lambda package=None: {}
 from synthetic_ecommerce_data.domains.industrial.taxonomy import LEAVES
 assert "synthetic_ecommerce_data.domains.industrial.breadth" not in sys.modules
 assert sys.argv[1] in LEAVES, "a YAML breadth row is missing from a fresh read"
@@ -262,7 +262,7 @@ import sys
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.domains.industrial.taxonomy import LEAVES
 found = typespec.discover
-def discover(package=typespec.TYPES_PACKAGE):
+def discover(package=None):
     # What a type module that reads a shared table at import (a sibling
     # type's vocabulary, say) does while registration is importing it.
     len(LEAVES)
@@ -297,7 +297,7 @@ from synthetic_ecommerce_data.core import typespec
 row = dataclasses.replace(breadth.load_rows()[0], key="planted_rod", part_number_block=None)
 spec = typespec.TypeSpec("planted_rod", breadth=row, module="x.planted_rod", part_number_block=1234)
 seen = []
-def discover(package=typespec.TYPES_PACKAGE):
+def discover(package=None):
     try:
         seen.append(typespec.block_of("planted_rod"))
     except Exception as refused:
@@ -396,7 +396,7 @@ def _modelled(**changes) -> typespec.TypeSpec:
 )
 def test_a_modelled_spec_missing_a_field_is_refused_naming_it(field: str, unset: object) -> None:
     with pytest.raises(typespec.TypeModuleError, match=rf"planted_widget declares no {field}\b"):
-        typespec.register(_modelled(**{field: unset}))
+        typespec.register(_modelled(**{field: unset}), DOMAIN)
 
 
 def test_a_breadth_spec_whose_row_has_another_key_is_refused() -> None:
@@ -405,7 +405,7 @@ def test_a_breadth_spec_whose_row_has_another_key_is_refused() -> None:
     with pytest.raises(
         typespec.TypeModuleError, match=r"'planted_widget' with a breadth row for 'shaft_collars'"
     ):
-        typespec.register(spec)
+        typespec.register(spec, DOMAIN)
 
 
 def test_a_type_module_row_that_repeats_a_yaml_row_is_refused(
@@ -461,7 +461,7 @@ _BLOCK_OF_FIRST = """
 import sys
 from synthetic_ecommerce_data.core import typespec
 # No type module at all, so none imports breadth on block_of's behalf.
-typespec.discover = lambda package=typespec.TYPES_PACKAGE: {}
+typespec.discover = lambda package=None: {}
 assert "synthetic_ecommerce_data.domains.industrial.breadth" not in sys.modules
 print(typespec.block_of(sys.argv[1]))
 """
@@ -486,7 +486,7 @@ if sys.argv[1] == "row":
     spec = dataclasses.replace(spec, breadth=dataclasses.replace(row, part_number_block=1234))
 else:
     spec = dataclasses.replace(spec, part_number_block=1234)
-typespec.discover = lambda package=typespec.TYPES_PACKAGE: {"planted_rod": spec}
+typespec.discover = lambda package=None: {"planted_rod": spec}
 print(typespec.block_of("planted_rod"))
 """
 
@@ -677,7 +677,7 @@ def test_a_collision_refusal_says_where_each_kind_of_type_is_fixed(
     text = str(refused.value)
     assert "part_number_block: <block> in " in text
     assert "data/breadth_categories/shaft_collars.yaml" in text
-    assert f"TypeSpec('{UNMIGRATED}', ...) in {typespec.TYPES_PACKAGE}" in text
+    assert f"TypeSpec('{UNMIGRATED}', ...) in {TYPES_PACKAGE}" in text
     assert "NEWLY ADDED" in text
 
 

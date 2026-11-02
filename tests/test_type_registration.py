@@ -26,6 +26,7 @@ import yaml
 
 from synthetic_ecommerce_data.core import noise, price, typespec, voice
 from synthetic_ecommerce_data.domains.industrial import (
+    DOMAIN,
     breadth,
     compat,
     conformance,
@@ -123,7 +124,7 @@ def planted(monkeypatch):
     typespec.ensure_registered()
     spec = _toy_spec()
     try:
-        typespec.register(spec)
+        typespec.register(spec, DOMAIN)
         # Discovery lists it too, as it would a module found on disk: the
         # facts tests read the specs from there.
         monkeypatch.setitem(typespec.registered(), TOY, spec)
@@ -231,7 +232,7 @@ def test_a_key_in_a_shared_table_and_in_its_spec_is_refused(
     monkeypatch.setitem(getattr(owner, table), TOY, value)
     refused = None
     try:
-        typespec.register(_toy_spec(**{field: value}))
+        typespec.register(_toy_spec(**{field: value}), DOMAIN)
     except typespec.TypeCollisionError as error:
         refused = str(error)
     finally:
@@ -243,7 +244,7 @@ def test_a_label_on_the_spec_joins_the_label_table() -> None:
     """The label is on the type's own module, so a new type edits no shared table (#103)."""
     typespec.ensure_registered()
     try:
-        typespec.register(_toy_spec(label="Toy Widget"))
+        typespec.register(_toy_spec(label="Toy Widget"), DOMAIN)
         assert PRODUCT_TYPE_LABELS[TOY] == "Toy Widget"
     finally:
         _unregister(TOY)
@@ -255,7 +256,7 @@ def test_a_label_in_the_table_and_on_the_spec_is_refused(monkeypatch) -> None:
     monkeypatch.setitem(PRODUCT_TYPE_LABELS, TOY, "Toy Widget")
     refused = None
     try:
-        typespec.register(_toy_spec(label="Toy Widget"))
+        typespec.register(_toy_spec(label="Toy Widget"), DOMAIN)
     except typespec.TypeCollisionError as error:
         refused = str(error)
     finally:
@@ -268,7 +269,7 @@ def test_a_modelled_type_without_a_key_dimension_is_refused() -> None:
     typespec.ensure_registered()
     refused = None
     try:
-        typespec.register(_toy_spec(key_attributes=()))
+        typespec.register(_toy_spec(key_attributes=()), DOMAIN)
     except typespec.TypeModuleError as error:
         refused = str(error)
     finally:

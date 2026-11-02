@@ -7,9 +7,10 @@ below. A retail product's ``product_type`` is already a display name, and its la
 name (``export.standard_document``).
 
 This is the one table, filled from two places: the entries below, and the ``label`` of each
-type module's ``TypeSpec`` (``typespec.register`` calls this module's hook, which writes it
-in; a key in both is refused). A new type declares its label on its own spec, so two PRs
-that each add a type edit no line in common here (#103).
+type module's ``TypeSpec`` (``typespec.register`` hands the spec to the domain's writer,
+``type_tables.register_type``, which calls :func:`declare_label`; a key in both is
+refused). A new type declares its label on its own spec, so two PRs that each add a type
+edit no line in common here (#103).
 ``tests/test_product_type_label_331.py`` holds the table to the types the generator emits:
 none missing, none extra, no ``_`` in a label, no two types sharing one.
 """
@@ -20,7 +21,6 @@ from synthetic_ecommerce_data.core.typespec import (
     RegistryTable,
     TypeCollisionError,
     TypeSpec,
-    on_register,
 )
 
 _LABELS: dict[str, str] = {
@@ -112,7 +112,7 @@ def label_for(type_key: str) -> str:
     return PRODUCT_TYPE_LABELS[type_key]
 
 
-def _declare_label(spec: TypeSpec) -> None:
+def declare_label(spec: TypeSpec) -> None:
     """Write ``spec.label`` into the table; a key labelled here and on its spec is refused."""
     if not spec.label:
         return
@@ -122,7 +122,3 @@ def _declare_label(spec: TypeSpec) -> None:
             f"module {spec.module}; keep the label on its TypeSpec"
         )
     PRODUCT_TYPE_LABELS[spec.key] = spec.label
-
-
-# Core's register() reaches this table through the hook, never an import (#103).
-on_register(_declare_label)

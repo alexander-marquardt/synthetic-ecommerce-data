@@ -10,7 +10,8 @@ code. Three things here make that hold, each a pure function of the key:
 * :func:`block_of` -- the type's four-digit part-number block, which leads
   every SKU and product id the type issues, so two types can never issue the
   same identifier and no global sequence is needed to keep them apart.
-* :func:`discover` -- the per-type modules under :data:`TYPES_PACKAGE`, found
+* :func:`discover` -- the per-type modules under each registered domain's
+  types package (:attr:`.domain.Domain.types_package`, #128), found
   by walking the package rather than by a hand-kept list that every new type
   would have to edit.
 
@@ -47,14 +48,10 @@ from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from synthetic_ecommerce_data.core import domain
+
 if TYPE_CHECKING:
     from synthetic_ecommerce_data.core.price import PriceModel
-    from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
-    from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
-
-#: The package type modules are discovered under: one directory per family,
-#: one module per type, each exposing ``SPEC``.
-TYPES_PACKAGE = "synthetic_ecommerce_data.domains.industrial.product_types"
 
 #: Part-number blocks are four digits, so a block always prints the same width.
 BLOCK_LOW = 1000
@@ -105,9 +102,10 @@ class TypeSpec:
       does for a row file in ``data/breadth_categories/``.
 
     :func:`register` writes either kind into the shared, type-keyed tables
-    (``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the
-    rest), so the code that reads those tables is unchanged by where a type is
-    declared.
+    (core's own, and through its domain's ``register_type`` the domain's:
+    ``taxonomy.LEAVES``, ``vocab.VOCAB``, ``drawing.figures.FIGURES`` and the
+    rest for industrial), so the code that reads those tables is unchanged by
+    where a type is declared.
 
     ``part_number_block`` is only for the rare type whose derived block
     collides with another's; every other type leaves it unset.
@@ -128,7 +126,8 @@ class TypeSpec:
     #: (``vocab.STANDARDS_FAMILY``).
     standards_family: str = ""
     #: Every attribute the type may publish (``vocab.VOCAB``).
-    vocab: tuple[AttrSpec, ...] = ()
+    #: Each is the domain's own attribute spec (industrial: ``vocab.AttrSpec``).
+    vocab: tuple[Any, ...] = ()
     #: The drawing function and the extent every SKU of the type is drawn at
     #: (``drawing.figures.FIGURES``).
     figure: Callable[..., Any] | None = None
@@ -205,7 +204,8 @@ class TypeSpec:
     #: what they were when the two kinds were built from different tables.
     newer: bool = False
     #: A breadth type's row, in place of every modelled field above.
-    breadth: BreadthRow | None = None
+    #: The domain's own row type (industrial: ``breadth.BreadthRow``); core reads its ``key``.
+    breadth: Any = None
     #: The dotted module the spec was found in, filled in by :func:`discover`.
     module: str = ""
 
@@ -243,19 +243,22 @@ def _entries(package: str, paths: Iterable[str]) -> list[tuple[str, str, str | N
     return [found[name] for name in sorted(found)]
 
 
-def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
+def types_packages() -> list[str]:
+    """Each registered domain's types package, in the order the domains registered."""
+    return [d.types_package for d in domain.domains() if d.types_package]
+
+
+def discover(package: str | None = None) -> dict[str, TypeSpec]:
     """Every type under ``package``, by type key: a code module or a data file.
 
-    A module that fails to import is reported by its dotted path, because the
-    underlying error (a typo in a table, a bad import) rarely says which of
-    many type files it came from. A ``<key>.yaml`` data file is read by the
-    generic builder named in :data:`TYPE_FILE_LOADER` (#72); a file that is wrong
-    is refused naming the file.
+    With no ``package``, every registered domain's types package
+    (:func:`types_packages`); a key two of them declare is refused like two
+    modules of one. A module that fails to import is reported by its dotted
+    path, because the underlying error (a typo in a table, a bad import) rarely
+    says which of many type files it came from. A ``<key>.yaml`` data file is
+    read by the generic builder named in :data:`TYPE_FILE_LOADER` (#72); a file
+    that is wrong is refused naming the file.
     """
-    try:
-        root = importlib.import_module(package)
-    except Exception as exc:  # noqa: BLE001 - re-raised, naming the package
-        raise TypeModuleError(f"type package {package} failed to import: {exc!r}") from exc
     specs: dict[str, TypeSpec] = {}
     loaders: list[Callable[[Path, str], TypeSpec]] = []
 
@@ -294,52 +297,70 @@ def discover(package: str = TYPES_PACKAGE) -> dict[str, TypeSpec]:
                 )
             specs[spec.key] = replace(spec, module=dotted)
 
-    walk(package, list(root.__path__))
+    for name in [package] if package else types_packages():
+        try:
+            root = importlib.import_module(name)
+        except Exception as exc:  # noqa: BLE001 - re-raised, naming the package
+            raise TypeModuleError(f"type package {name} failed to import: {exc!r}") from exc
+        walk(name, list(root.__path__))
     return specs
 
 
-#: Per-spec hooks :func:`register` calls first, each filled by the domain module
-#: that owns the table it writes (:func:`on_register`), so core imports no domain.
-_SPEC_HOOKS: list[Callable[[TypeSpec], None]] = []
+def owner(spec: TypeSpec) -> domain.Domain:
+    """The registered domain whose types package holds ``spec``'s module.
 
-
-def on_register(hook: Callable[[TypeSpec], None]) -> None:
-    """Have :func:`register` call ``hook(spec)`` on every spec, before it writes its tables.
-
-    Adding a hook twice leaves one. A hook that reads a spec's field a table does not take
-    (the label, #103) is how a domain table fills without core naming the domain.
+    Raises :class:`TypeModuleError` for a spec no domain's package holds: core
+    would not know whose tables it fills.
     """
-    if hook not in _SPEC_HOOKS:
-        _SPEC_HOOKS.append(hook)
+    held = domain.owner_of(spec.module)
+    if held is None or held.register_type is None:
+        raise TypeModuleError(
+            f"type module {spec.module or '(none)'} declaring {spec.key!r} is in no registered "
+            f"domain's types package ({', '.join(types_packages()) or 'none registered'}); "
+            "a type module sits under its domain's types package"
+        )
+    return held
 
 
-def register(spec: TypeSpec) -> None:
+def refuse_redeclared(spec: TypeSpec, own: Mapping[str, tuple[dict[str, Any], Any]]) -> None:
+    """Refuse a spec field whose key its shared table already holds.
+
+    ``own`` maps a table's name to the table and the value ``spec`` gives it,
+    ``None`` for none. Each entry is declared once: a key in the shared table
+    AND on its spec is refused, since which one won would depend on
+    registration order.
+    """
+    for name, (table, value) in own.items():
+        if value is not None and dict.__contains__(table, spec.key):
+            raise TypeCollisionError(
+                f"{spec.key!r} is declared both in {name} and by type module {spec.module}; "
+                "keep the declaration on its TypeSpec"
+            )
+
+
+def register(spec: TypeSpec, into: domain.Domain | None = None) -> None:
     """Write ``spec`` into the shared, type-keyed tables every reader uses.
 
-    The same tables :func:`.breadth.register` fills for a YAML row, so the
-    code that reads them cannot tell a type declared in its own module from
-    one declared in a shared table.
+    Core's tables (price, noise, voice) are written here, and the domain's own
+    through its :attr:`.domain.Domain.register_type`: the domain ``into``, else
+    the one whose types package holds the spec (:func:`owner`). Industrial's are
+    the same tables :func:`.breadth.register` fills for a YAML row, so the code
+    that reads them cannot tell a type declared in its own module from one
+    declared in a shared table.
     """
     # Imported here: each of these modules imports this one.
     from synthetic_ecommerce_data.core import noise, price, voice
-    from synthetic_ecommerce_data.domains.industrial import (  # noqa: PLC0415
-        breadth,
-        compat,
-        conformance,
-        taxonomy,
-        vocab,
-    )
-    from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES  # noqa: PLC0415
 
-    for hook in _SPEC_HOOKS:
-        hook(spec)
+    held = into or owner(spec)
+    if held.register_type is None:
+        raise TypeModuleError(f"domain {held.name!r} registers no types through core")
     if spec.breadth is not None:
         if spec.breadth.key != spec.key:
             raise TypeModuleError(
                 f"type module {spec.module} declares {spec.key!r} with a breadth row "
                 f"for {spec.breadth.key!r}"
             )
-        breadth.add_row(spec.breadth)
+        held.register_type(spec)
         _declare_block(spec)
         return
     # ``share`` and ``extent`` are refused when left at their defaults too: a
@@ -365,13 +386,6 @@ def register(spec: TypeSpec) -> None:
     ]
     if missing:
         raise TypeModuleError(f"type module {spec.module} declares no {', '.join(missing)}")
-    if isinstance(spec.compat, tuple) and (
-        len(spec.compat) != 2 or spec.compat[0] not in compat.KINDS
-    ):
-        raise TypeModuleError(
-            f"type module {spec.module} declares compat={spec.compat!r}; "
-            f"a relation is (kind, attribute) with kind one of {sorted(compat.KINDS)}"
-        )
     if spec.near_miss_period is not None and spec.near_miss_period < 2:
         raise TypeModuleError(
             f"type module {spec.module} declares near_miss_period={spec.near_miss_period}; "
@@ -382,35 +396,23 @@ def register(spec: TypeSpec) -> None:
             f"type module {spec.module} declares both a price model and borrows "
             f"{spec.borrows!r}; a type prices by one model"
         )
-    # The per-type entries a type used to add to a shared table by hand. Each
-    # is declared once: a key in the shared table AND on its spec is refused,
-    # since which one won would depend on registration order.
+    # The per-type entries a type used to add to one of core's tables by hand.
     own = {
-        "conformance.CLAIMS": (conformance.CLAIMS, spec.claims),
         "price.KEY_ATTRIBUTES": (price.KEY_ATTRIBUTES, spec.key_attributes),
         "noise.THREADED": (noise.THREADED, spec.threaded),
         "noise.FASTENERS": (noise.FASTENERS, spec.fastener or None),
         "noise.UNIT_PRIMARY": (noise.UNIT_PRIMARY, spec.unit_primary),
         "noise.CUTTING": (noise.CUTTING, spec.cutting or None),
-        "compat.RELATIONS": (compat.RELATIONS, spec.compat or None),
-        "compat.NEAR_MISS_PERIOD": (compat.NEAR_MISS_PERIOD, spec.near_miss_period),
     }
-    for name, (table, value) in own.items():
-        if value is not None and dict.__contains__(table, spec.key):
-            raise TypeCollisionError(
-                f"{spec.key!r} is declared both in {name} and by type module {spec.module}; "
-                "keep the declaration on its TypeSpec"
-            )
+    refuse_redeclared(spec, own)
+    # The domain refuses what its own tables refuse before it writes any, so a
+    # refusal there leaves core's tables unwritten too.
+    held.register_type(spec)
     for table, value in own.values():
         if value is not None:
             table[spec.key] = value
     # A borrower's key is held to its model's fitted span (``price.bounded``).
     price.KEYS[spec.key] = price.bounded(spec.key, price.key_reader(*spec.key_attributes))
-    taxonomy.LEAVES[spec.key] = (spec.category,)
-    taxonomy.DRAWING[spec.key] = spec.key
-    vocab.VOCAB[spec.key] = spec.vocab
-    vocab.STANDARDS_FAMILY[spec.key] = spec.standards_family
-    FIGURES[spec.key] = (spec.figure, spec.extent)
     if spec.borrows:
         price.BORROWS[spec.key] = spec.borrows
     else:
@@ -512,20 +514,28 @@ class RegistryTable(dict[_K, _V]):
 
 @cache
 def registered() -> dict[str, TypeSpec]:
-    """Every type module under :data:`TYPES_PACKAGE`, registered once per process.
+    """Every type module of every registered domain, registered once per process.
 
     Runs on the first read of any :class:`RegistryTable`, so no caller has to
-    call it before reading the tables.
+    call it before reading the tables. Each domain loads its table-declared
+    types first (:attr:`.domain.Domain.load_types`): a reader that never
+    imported the industrial ``breadth`` would otherwise see none of its YAML
+    rows. A key two domains declare is refused.
     """
     _REGISTRATION["running"] = True
+    specs: dict[str, TypeSpec] = {}
     try:
-        # The YAML breadth rows register when breadth is imported; a reader
-        # that never imported it would otherwise see none of them.
-        from synthetic_ecommerce_data.domains.industrial import breadth  # noqa: F401, PLC0415
-
-        specs = discover()
-        for spec in specs.values():
-            register(spec)
+        for held in domain.domains():
+            if not held.types_package:
+                continue
+            held.load_types()
+            for key, spec in discover(held.types_package).items():
+                if key in specs:
+                    raise TypeCollisionError(
+                        f"type {key!r} is declared by both {specs[key].module} and {spec.module}"
+                    )
+                register(spec, held)
+                specs[key] = spec
     finally:
         _REGISTRATION["running"] = False
     _REGISTRATION["done"] = True
@@ -575,7 +585,11 @@ def block_of(type_key: str) -> int:
 def module_fix_site(key: str) -> str:
     """Where a code type declares its own block: ``SPEC`` in its type module."""
     found = discover().get(key)
-    module = found.module if found else f"{TYPES_PACKAGE}.<family>.{key}"
+    module = (
+        found.module
+        if found
+        else " or ".join(f"{package}.<family>.{key}" for package in types_packages())
+    )
     return f"part_number_block=<block> in SPEC = TypeSpec({key!r}, ...) in {module}"
 
 

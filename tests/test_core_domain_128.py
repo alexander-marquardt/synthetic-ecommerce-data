@@ -26,6 +26,8 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES,
 
 #: A type no industrial table names.
 MUG = "test_mug_128"
+#: An industrial type declared in its own module.
+INDUSTRIAL_TYPE = "screw_socket_head"
 
 
 def _mug(record):
@@ -163,7 +165,7 @@ SPEC = TypeSpec(
 '''
 
 #: The second domain's package: it registers itself, its types package and its own table.
-_SECOND_INIT = '''
+_SECOND_INIT = """
 from synthetic_ecommerce_data.core import domain
 
 TABLE = {}
@@ -177,10 +179,10 @@ domain.register(
         register_type=lambda spec: TABLE.__setitem__(spec.key, spec.category),
     )
 )
-'''
+"""
 
 
-def _plant_second_domain(root):
+def _plant_second_domain(root, key=MUG):
     """``test_second_128/`` under ``root``: the package, and one type module in one family."""
     package = root / "test_second_128"
     family = package / "types" / "kitchen"
@@ -188,7 +190,7 @@ def _plant_second_domain(root):
     (package / "__init__.py").write_text(_SECOND_INIT, encoding="utf-8")
     (package / "types" / "__init__.py").write_text("", encoding="utf-8")
     (family / "__init__.py").write_text("", encoding="utf-8")
-    (family / f"{MUG}.py").write_text(_MUG_MODULE, encoding="utf-8")
+    (family / f"{key}.py").write_text(_MUG_MODULE.replace(MUG, key), encoding="utf-8")
 
 
 def _fresh(root, code):
@@ -221,14 +223,12 @@ def test_discovery_walks_every_registered_domains_types_package(tmp_path, monkey
 
     _plant_second_domain(tmp_path)
     monkeypatch.syspath_prepend(str(tmp_path))
-    second = domain.Domain(
-        "test_second_128",
-        lambda: frozenset({MUG}),
-        lambda: {},
-        types_package="test_second_128.types",
-    )
-    monkeypatch.setitem(domain._DOMAINS, second.name, second)
+    # The planted package registers itself on import, into a copy this test throws away.
+    monkeypatch.setattr(domain, "_DOMAINS", dict(domain._DOMAINS))
+    monkeypatch.delitem(sys.modules, "test_second_128", raising=False)
+    __import__("test_second_128")
     found = typespec.discover()
+    assert MUG in found
     assert found[MUG].module == f"test_second_128.types.kitchen.{MUG}"
     assert "end_mill_square" in found
 
@@ -247,18 +247,59 @@ def test_a_fresh_process_registers_a_second_domains_type_into_its_own_tables(tmp
         f"assert {MUG!r} in price.MODELS\n"
         "industrial = (taxonomy.LEAVES, taxonomy.DRAWING, vocab.VOCAB, FIGURES)\n"
         f"assert not any({MUG!r} in table for table in industrial)\n"
-        "assert 'end_mill_square' in taxonomy.LEAVES\n"
+        f"assert {INDUSTRIAL_TYPE!r} in taxonomy.LEAVES\n"
     )
     result = _fresh(tmp_path, code)
     assert result.returncode == 0, result.stderr
 
 
+def test_a_key_two_domains_declare_is_refused_naming_both_modules(tmp_path):
+    _plant_second_domain(tmp_path, key=INDUSTRIAL_TYPE)
+    code = (
+        "import test_second_128\n"
+        "from synthetic_ecommerce_data.core import typespec\n"
+        "typespec.registered()\n"
+    )
+    result = _fresh(tmp_path, code)
+    assert "TypeCollisionError" in result.stderr, result.stderr[-1500:]
+    assert f"product_types.fasteners.{INDUSTRIAL_TYPE} and " in result.stderr
+    assert f"test_second_128.types.kitchen.{INDUSTRIAL_TYPE}" in result.stderr
+
+
+def test_a_module_belongs_to_the_domain_whose_types_package_holds_it():
+    from synthetic_ecommerce_data.domains.industrial import DOMAIN, TYPES_PACKAGE
+
+    assert domain.owner_of(f"{TYPES_PACKAGE}.fasteners.{INDUSTRIAL_TYPE}") is DOMAIN
+    assert domain.owner_of(TYPES_PACKAGE) is DOMAIN
+    # A sibling whose name only starts with the package's is not under it.
+    assert domain.owner_of(f"{TYPES_PACKAGE}_extra.{INDUSTRIAL_TYPE}") is None
+
+
+def test_a_spec_registers_into_the_domain_its_module_sits_in(monkeypatch):
+    from synthetic_ecommerce_data.core import typespec
+    from synthetic_ecommerce_data.domains.industrial import DOMAIN
+
+    seen = []
+    spy = dataclasses.replace(DOMAIN, register_type=seen.append)
+    monkeypatch.setitem(domain._DOMAINS, DOMAIN.name, spy)
+    spec = typespec.discover()[INDUSTRIAL_TYPE]
+    assert typespec.owner(spec) is spy
+    breadth_like = dataclasses.replace(spec, breadth=SimpleNamespace(key=spec.key))
+    typespec.register(breadth_like)  # the breadth path writes no core table but the block
+    assert seen == [breadth_like]
+
+
 def test_a_spec_outside_every_domains_types_package_is_refused():
     from synthetic_ecommerce_data.core import typespec
 
-    stray = dataclasses.replace(typespec.discover()["end_mill_square"], module="elsewhere.mugs")
-    with pytest.raises(typespec.TypeModuleError, match="elsewhere.mugs"):
+    stray = dataclasses.replace(typespec.discover()[INDUSTRIAL_TYPE], module="elsewhere.mugs")
+    refused = None
+    try:
         typespec.register(stray)
+    except Exception as exc:  # noqa: BLE001 - which refusal it is is the assertion
+        refused = exc
+    assert isinstance(refused, typespec.TypeModuleError), refused
+    assert "elsewhere.mugs" in str(refused) and "no registered domain" in str(refused)
 
 
 def test_a_fresh_process_finds_the_mark_slot_filled_by_core_drawing_alone():

@@ -16,7 +16,7 @@ from compat_text import compatibility_sentences, noise_sentences
 from published import authored_attributes
 from synthetic_ecommerce_data.core import emit, noise, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
-from synthetic_ecommerce_data.domains.industrial import compat
+from synthetic_ecommerce_data.domains.industrial import DOMAIN, compat
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 SET_SCREW = "set_screws_hex_socket"
@@ -115,7 +115,7 @@ def test_a_modelled_type_that_declares_no_compat_is_refused():
     typespec.ensure_registered()
     refused = None
     try:
-        typespec.register(registration._toy_spec(compat=None))
+        typespec.register(registration._toy_spec(compat=None), DOMAIN)
     except typespec.TypeModuleError as error:
         refused = str(error)
     finally:
@@ -138,7 +138,7 @@ def test_a_malformed_declaration_is_refused_naming_it(fields, named):
     typespec.ensure_registered()
     refused = None
     try:
-        typespec.register(registration._toy_spec(**fields))
+        typespec.register(registration._toy_spec(**fields), DOMAIN)
     except typespec.TypeModuleError as error:
         refused = str(error)
     finally:
@@ -176,7 +176,7 @@ def _plant(monkeypatch, **fields):
     typespec.ensure_registered()
     spec = registration._toy_spec(**fields)
     try:
-        typespec.register(spec)
+        typespec.register(spec, DOMAIN)
         monkeypatch.setitem(typespec.registered(), registration.TOY, spec)
         yield spec
     finally:
