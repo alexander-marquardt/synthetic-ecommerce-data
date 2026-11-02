@@ -183,6 +183,10 @@ NOT_SIZES: dict[str, str] = {
 }
 
 #: The types whose drawing reads the size itself, so its sizes already differ (gen#197).
-DRAWN_TO_SIZE = {"Lampshade": "diameter_cm"}
+DRAWN_TO_SIZE: dict[str, tuple[str, ...]] = {
+    "Lampshade": ("diameter_cm",),
+    # A sofa version is its configuration: ``kit_seating.sofa_version`` draws it (#808).
+    "Sofa": ("configuration", "seat_count", "width_cm", "depth_cm"),
+}
 #: The types whose ``size`` value is a pack's weight (``400 g``), so a pack and not an axis.
 PACK_SIZED = ("Crisps", "Fresh Fruit", "Pasta", "Pickle")

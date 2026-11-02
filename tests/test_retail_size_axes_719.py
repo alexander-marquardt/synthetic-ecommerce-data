@@ -91,7 +91,7 @@ def test_every_varying_sku_key_is_a_declared_axis_or_named_as_no_size():
                 continue
             if key == "size" and rec["product_type"] in size_axes.PACK_SIZED:
                 continue
-            if size_axes.DRAWN_TO_SIZE.get(rec["product_type"]) == key:
+            if key in size_axes.DRAWN_TO_SIZE.get(rec["product_type"], ()):
                 continue
             undeclared.add((rec["product_type"], key))
     assert not undeclared
