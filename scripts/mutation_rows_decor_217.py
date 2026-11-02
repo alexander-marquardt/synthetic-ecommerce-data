@@ -24,9 +24,9 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "the wallpaper roll length is not a structured entry",
-        "export.py",
-        '"roll_length_m": ("roll_length", "Roll length", "MTR"),',
-        '"roll_length_m": ("roll_len", "Roll length", "MTR"),',
+        "type_specs/wallpaper.py",
+        'Option("roll_length_m", "roll_length", "Roll length", "MTR")',
+        'Option("roll_length_m", "roll_len", "Roll length", "MTR")',
         f"{_T} -k key_attribute_is_a_structured_entry",
         "a wallpaper's roll length is a structured attribute of its SKUs",
     ),
