@@ -161,7 +161,7 @@ SHAPES = {
     ("BUT", "Spreadable Butter"): "lidded_tub",
     ("BUT", "Plant Spread"): "lidded_tub",
 }
-#: What a punnet holds, by the VEG variety (``kit.PRODUCE``).
+#: What a punnet holds, by the VEG variety (``kit_punnet.PRODUCE``).
 PUNNET = {
     "Cherry Tomatoes": "tomato",
     "Baby Carrots": "carrot",
