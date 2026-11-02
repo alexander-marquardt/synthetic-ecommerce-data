@@ -22,12 +22,13 @@ from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _axis,
     _row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSpec
 
 SPEC = TypeSpec(
     key="kettlebell",
     department="Sports & Outdoors",
     product_type="Kettlebell",
+    options=(Option("weight_kg", "weight", "Weight", "KGM"),),
     rows=(
         _row("KTBCST", "Cast Iron Kettlebell", _H, (*_WEIGHTS, "Kettlebells"), "Kettlebell", 24.0,
              "kettlebell", "A solid cast kettlebell with a wide handle for swings, squats and "

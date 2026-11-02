@@ -124,30 +124,18 @@ from synthetic_ecommerce_data.core.standard import (
 )
 from synthetic_ecommerce_data.core.standard import value_pools as text_pools
 from synthetic_ecommerce_data.domains.retail import (
-    accessory_rows,
-    appliance_rows,
-    breadth_rows,
-    color_word_brand_rows,
-    colorgroup_rows,
-    cups_plural_rows,
     decor_rows,
     decoy_apparel,
     decoy_product_words,
     decoy_rows,
-    distractor_rows,
-    diy_decoy_rows,
     footwear_rows,
     garden_rows,
     grocery,
-    household_rows,
-    kids_depth_rows,
-    knacks_rows,
     knit_sleeves,
     knitwear_rows,
     leaf_shapes,
     lighting_rows,
     line_grammar,
-    lowerbody_rows,
     main_colors,
     mens_depth_rows,
     named_parts,
@@ -157,17 +145,9 @@ from synthetic_ecommerce_data.domains.retail import (
     plus_sizes,
     range_ownership,
     sale_share,
-    scale_rows,
-    school_rows,
-    seasonal_rows,
-    shirt_rows,
-    sofa_rows,
     stable_ids,
     style_table,
-    toys_rows,
     type_registry,
-    underwear_rows,
-    womens_depth_rows,
 )
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
 from synthetic_ecommerce_data.domains.retail.export import (
@@ -297,6 +277,21 @@ def source_docs(name: str) -> list[dict]:
     return importlib.import_module(f"{grocery.__package__}.{name}").docs()
 
 
+def family_docs(skip: frozenset[str]) -> list[dict]:
+    """The documents of every shared row module and every spec, in the order
+    :data:`type_registry.BUILD_SOURCES` lists them (gen#413): the sources between the authored
+    ``samples`` and the ``grocery`` build. ``skip`` is the spec ids the samples already hold."""
+    return [
+        d
+        for name in type_registry.BUILD_SOURCES[1:-1]
+        for d in (
+            type_registry.docs(skip=skip)
+            if name == type_registry.SPEC_SOURCE
+            else source_docs(name)
+        )
+    ]
+
+
 @functools.cache
 def _source_keys(name: str) -> tuple[tuple[str, str, str], ...]:
     """``(product id, department, product type)`` of every document of a source. Ids and types
@@ -373,11 +368,9 @@ PLANTED_SECTIONS = ("Observed failure classes", "Planted distractors", "Gift bag
 
 
 def templates(baseline: bool = True) -> list[dict]:
-    """The authored styles, then :mod:`scale_rows`, :mod:`breadth_rows` and
-    :mod:`distractor_rows`, :mod:`shirt_rows`, :mod:`sofa_rows`, :mod:`household_rows`,
-    :mod:`appliance_rows`, :mod:`underwear_rows`, :mod:`toys_rows`, :mod:`lowerbody_rows`
-    and :mod:`lighting_rows` (gen#197), then the plain styles of :mod:`main_colors`,
-    then the :mod:`grocery` styles (gen#154), in build order.
+    """The authored styles, then every shared row module and the specs (:func:`family_docs`, in
+    the order of :data:`type_registry.BUILD_SOURCES`), then the plain styles of
+    :mod:`main_colors`, then the :mod:`grocery` styles (gen#154), in build order.
 
     ``baseline`` adds the plain styles a pattern-only (type, audience) needs and each group's
     missing main colors (:mod:`main_colors`, gen#275).
@@ -394,20 +387,7 @@ def templates(baseline: bool = True) -> list[dict]:
     sections = samples()
     authored = [r for recs in sections.values() for r in recs]
     sampled = {r["product_id"] for r in authored}  # the footwear specs' styles are among them
-    body = [
-        *authored, *scale_rows.docs(), *breadth_rows.docs(), *distractor_rows.docs(),
-        *decoy_rows.docs(), *decoy_product_words.docs(),
-        *shirt_rows.docs(), *accessory_rows.docs(),
-        *school_rows.docs(), *sofa_rows.docs(), *household_rows.docs(),
-        *appliance_rows.docs(), *underwear_rows.docs(), *toys_rows.docs(),
-        *lowerbody_rows.docs(), *lighting_rows.docs(), *seasonal_rows.docs(),
-        *garden_rows.docs(), *decor_rows.docs(), *colorgroup_rows.docs(), *mens_depth_rows.docs(),
-        *womens_depth_rows.docs(), *kids_depth_rows.docs(),
-        *knacks_rows.docs(), *knitwear_rows.docs(), *type_registry.docs(skip=sampled),
-        *needs_rows.docs(),
-        *color_word_brand_rows.docs(), *neckline_rows.docs(), *cups_plural_rows.docs(),
-        *diy_decoy_rows.docs(),
-    ]  # fmt: skip
+    body = [*authored, *family_docs(frozenset(sampled))]
     body = plus_sizes.extend_all(body, decoy_rows.IDS | decoy_product_words.IDS)  # gen#434
     body = leaf_shapes.apply(body)  # gen#447: a bomber is drawn as a bomber, before decoys clone it
     body = style_table.complete_lengths(body)  # gen#511: a Midi Dress states its length

@@ -31,7 +31,7 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     luggage_row,
     sized,
 )  # fmt: skip
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec
 
 PT, LEAF = "Suitcase", "Suitcases"
 SPINNER, TWO, TSA = "4 Wheel Spinner", "2 Wheel", "TSA"
@@ -79,6 +79,10 @@ SPEC = TypeSpec(
     key="suitcase",
     department="Clothing",
     product_type=PT,
+    options=(
+        Option("weight_kg", "weight", "Weight", "KGM"),
+        Option("luggage_size", "luggage_size", "Luggage size"),
+    ),
     rows=_ROWS,
     owners=OWNED,
     apparel_exempt=EXEMPT,

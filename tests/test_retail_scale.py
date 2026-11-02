@@ -29,6 +29,7 @@ from synthetic_ecommerce_data.domains.retail import (
     line_grammar_families,
     range_ownership,
     scale,
+    scale_rows,
     stable_ids,
 )
 from synthetic_ecommerce_data.domains.retail.retail_figures import (
@@ -964,7 +965,7 @@ def test_growing_one_department_never_starves_another(ceiling, monkeypatch):
 
 def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
     """A ``scale_rows`` template adds capacity only through what the authored styles lack."""
-    rows = scale.scale_rows.docs()
+    rows = scale_rows.docs()
     assert len(rows) == SCALE_ROWS
     authored = scale.templates()[:AUTHORED]
     have = {
@@ -993,7 +994,7 @@ def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
 def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
     """A derived shoe rewrites its style's material but not its SKUs' (#145), so a new
     footwear row keeps to a material its leaf's authored styles carry."""
-    rows = getattr(scale.scale_rows, "FOOTWEAR", ())
+    rows = getattr(scale_rows, "FOOTWEAR", ())
     # The ``scale_rows.FOOTWEAR`` rows (growth round 4). A lowercase local: a constant of 13
     # collided with a measured total (``templates.cups_plural_rows.styles``, gen#508).
     footwear_rows = 13
@@ -1010,7 +1011,7 @@ def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
 
 def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
     """A front-fastening, sleep or bandeau bra has no three-row hook and eye back."""
-    rows = scale.scale_rows
+    rows = scale_rows
     bras = [s for s in rows.FAMILIES["Bras"] if isinstance(s, rows.Bra)]
     own = [s for s in bras if s.fitting != rows.HOOK_BACK]
     assert len(own) == 26

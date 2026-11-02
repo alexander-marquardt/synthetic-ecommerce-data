@@ -97,7 +97,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `src/synthetic_ecommerce_data/domains/retail/type_specs/<key>.py` | The spec: the rows, the brands' owners, the in-department decoys. Start from a copy of the worked example; the file name is the key. |
 | `src/synthetic_ecommerce_data/domains/retail/kit_garden.py` | The drawing function and its place in `SHAPES`, for a Garden type; the same job as the next row for another department (`kit_home.py`, `kit_toys.py`, `kit_household.py`). |
 | `src/synthetic_ecommerce_data/domains/retail/kit_sports.py` | The same job for a Sports & Outdoors type; also exports the helpers (`_ell`, `_rect`, `_label`) the garden kit imports. A department with no kit file gets a new `kit_<department>.py`. |
-| `src/synthetic_ecommerce_data/domains/retail/export.py` | Read only: `SHARED_OPTIONS` holds the options the types not yet moved into spec files share. A new SKU quantity is declared by the spec (`options=(Option("size_key", "id", "Name", "UNIT"),)`), and a key already in the table is reused. |
+| `src/synthetic_ecommerce_data/domains/retail/export.py` | Read only: `SHARED_OPTIONS` holds only the options a shared row module's rows carry; one that only spec rows carry fails `tests/test_retail_type_options_413.py` (gen#413). A new SKU quantity is declared by the spec (`options=(Option("size_key", "id", "Name", "UNIT"),)`), and a key already in the table is reused. |
 | `src/synthetic_ecommerce_data/domains/retail/main_color_hex.py` | Read only: the six main colors (gen#275) every color-bearing type offers across its styles, as plain swatches. |
 | `src/synthetic_ecommerce_data/domains/retail/main_colors.py` | `EXCEPTIONS`: one line with a reason, only when the color IS the material (cut flowers, steel cutlery); `complete()` otherwise adds a missing main color as copied SKUs. |
 | `src/synthetic_ecommerce_data/domains/retail/tree_guard.py` | Read only: the rules the category path must meet (the type nests under its generic node; no sibling whose label is a word-suffix of another). |
@@ -118,7 +118,7 @@ catalog (`docs/adding-a-type.md`); a retail product id is `BRD-<row code>`, one 
 | `tests/test_retail_sports_decoys_368.py` | The decoy census of Sports & Outdoors: a type with fewer than two decoys and no `SPORTS_EXEMPT` entry reds. Garden's is `tests/test_retail_garden_203.py` (`-k at_least_three_decoys`). |
 | `scripts/mutation_rows_<topic>.py` | New file: one row per planted defect in the decoys, the drawing or the rule, each naming the test that must go red. The file exposes `PREFIX` (the text before `: ` in each row's name) and `rows()` (a list of `mutation_row.Row`); `scripts/mutation_row.py` finds it by glob, so nothing is imported or listed in `scripts/mutation_check.py` and `tests/test_mutation_rows_glob_506.py` fails if a script names a rows file. A single defect in code of an area that has a file goes in `scripts/mutations/<area>.py` instead (`MUTATIONS`, found by the same loader). |
 
-Not touched: `scale.py`, the registry, `decoy_rows.py` and `decoy_product_words.py`. The
+Not touched: `scale.py`, `retail_figures.py`, `export.py`, the registry, `decoy_rows.py` and `decoy_product_words.py`. The
 registry finds the module and feeds the scaled build; the decoy tables find `feature_decoys/<topic>.py` by walking the package.
 
 ### In order
@@ -190,6 +190,8 @@ names the file that replaces it:
 |---|---|---|
 | `scripts/mutation_check.py` | an import or a wrapper per rows file | `scripts/mutation_rows_<topic>.py` with `PREFIX` and `rows()` |
 | `src/synthetic_ecommerce_data/domains/retail/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
+| `src/synthetic_ecommerce_data/domains/retail/retail_figures.py` | an import or a `<x>_rows.docs()` line | nothing: `measure()` walks `type_registry.BUILD_SOURCES` |
+| `src/synthetic_ecommerce_data/domains/retail/type_registry.py` | a `"<x>_rows",` entry in `BUILD_SOURCES` | the type's spec, `type_specs/<key>.py` |
 | `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
 | `decoy_product_words.py` | a `_s(...)` row, a `Kind` entry, a `TABLE = (*TABLE, ...)` | `feature_decoys/<topic>.py` with `word_rows(d)` and `KINDS` |
 | `src/synthetic_ecommerce_data/domains/retail/line_grammar.py` | a `FAMILIES` row, a vocabulary constant, a `fam == ...` branch, a docstring bullet for a numbered family | `line_grammar_families/<family>.py` with `KINDS`, `LEADS`, `NUMBERS` and `SUBS` (gen#513); the walk refuses a kind, a lead word or a name-like word another family holds |

@@ -90,18 +90,50 @@ class Option(NamedTuple):
     unit: str | None = None
 
 
-#: The shared sources whose rows a spec may name as its home (gen#537), in the order the scaled
-#: build reads them: the row modules (``<name>.docs()``), the authored ``samples`` and the
-#: ``grocery`` build. ``scale.source_docs`` reads each by this name.
-HOME_SOURCES: tuple[str, ...] = (
-    "samples", "scale_rows", "breadth_rows", "distractor_rows", "decoy_rows",
-    "decoy_product_words", "shirt_rows", "accessory_rows", "school_rows", "sofa_rows",
-    "household_rows", "appliance_rows", "underwear_rows", "toys_rows", "lowerbody_rows",
-    "lighting_rows", "seasonal_rows", "garden_rows", "decor_rows", "colorgroup_rows",
-    "mens_depth_rows", "womens_depth_rows", "kids_depth_rows", "knacks_rows", "knitwear_rows",
-    "needs_rows", "color_word_brand_rows", "neckline_rows", "cups_plural_rows",
-    "diy_decoy_rows", "grocery",
-)  # fmt: skip
+#: Where the spec rows (:func:`docs`) sit among the build's sources.
+SPEC_SOURCE = "type_specs"
+#: Every source of the scaled build's templates, in the order it reads them (gen#413): the
+#: authored ``samples``, the shared row modules (``<name>.docs()``), the specs at
+#: :data:`SPEC_SOURCE`, and last the ``grocery`` build. ``scale.templates`` and
+#: ``retail_figures.measure`` walk this one list, so neither names a module. A new type is a spec
+#: and adds no line here (``scripts/check_no_registry_append.py`` refuses one).
+BUILD_SOURCES: tuple[str, ...] = (
+    "samples",
+    "scale_rows",
+    "breadth_rows",
+    "distractor_rows",
+    "decoy_rows",
+    "decoy_product_words",
+    "shirt_rows",
+    "accessory_rows",
+    "school_rows",
+    "sofa_rows",
+    "household_rows",
+    "appliance_rows",
+    "underwear_rows",
+    "toys_rows",
+    "lowerbody_rows",
+    "lighting_rows",
+    "seasonal_rows",
+    "garden_rows",
+    "decor_rows",
+    "colorgroup_rows",
+    "mens_depth_rows",
+    "womens_depth_rows",
+    "kids_depth_rows",
+    "knacks_rows",
+    "knitwear_rows",
+    SPEC_SOURCE,
+    "needs_rows",
+    "color_word_brand_rows",
+    "neckline_rows",
+    "cups_plural_rows",
+    "diy_decoy_rows",
+    "grocery",
+)
+#: The shared sources whose rows a spec may name as its home (gen#537): the build's sources less
+#: the specs themselves. ``scale.source_docs`` reads each by this name.
+HOME_SOURCES: tuple[str, ...] = tuple(s for s in BUILD_SOURCES if s != SPEC_SOURCE)
 
 
 class Home(NamedTuple):

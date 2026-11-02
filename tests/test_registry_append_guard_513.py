@@ -44,12 +44,20 @@ TYPE_GUIDE = "docs/adding-a-type.md"
 BATCH_DOC = "docs/retail-catalog-batch-1.md"
 APPAREL_TESTS = "tests/test_retail_apparel_decoys_311.py"
 DETAILS = f"{RD}/details.py"
+FIGURES = f"{RD}/retail_figures.py"
+REGISTRY = f"{RD}/type_registry.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
     "harness-import": (HARNESS, "import mutation_rows_probe_513  # noqa: E402", "mutation_rows_"),
     "harness-wrapper": (HARNESS, "    *_wrap(mutation_rows_probe_513.ROWS),", "mutation_rows_"),
     "scale-import": (SCALE, "import probe_rows  # noqa: E402", "type_specs"),
+    "scale-family-import": (SCALE, "    probe_rows,", "type_specs"),
+    "scale-family-docs": (SCALE, "        *probe_rows.docs(),", "type_specs"),
+    "figures-import": (FIGURES, "import probe_rows", "BUILD_SOURCES"),
+    "figures-family-import": (FIGURES, "    probe_rows,", "BUILD_SOURCES"),
+    "figures-family-docs": (FIGURES, '        "probe_rows": probe_rows.docs(),', "BUILD_SOURCES"),
+    "build-source": (REGISTRY, '    "probe_rows",', "type_specs"),
     "scale-ids": (SCALE, "PROBE_IDS = frozenset(r.code for r in probe_rows.ROWS)", "type_specs"),
     "decoy-row": (
         DECOY_ROWS,
@@ -163,6 +171,8 @@ BASE = {
         'WORDS = frozenset({\n    "Cami Bra",\n})\n\n\ndef test_x(rows):\n    assert rows\n'
     ),
     DETAILS: 'PARTS = {\n    "raincoat": {"hem": TORSO_HEM},\n}\n',
+    FIGURES: "from x import (\n    export,\n)\n",
+    REGISTRY: 'BUILD_SOURCES = (\n    "samples",\n    "foo_rows",\n)\n',
 }
 
 

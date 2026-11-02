@@ -27,7 +27,14 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _shade,
     register,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Row, TypeSpec, a, cw
+from synthetic_ecommerce_data.domains.retail.type_registry import (
+    Decoy,
+    Option,
+    Row,
+    TypeSpec,
+    a,
+    cw,
+)
 
 _PATH = ("Womens", "Accessories", "Gloves")
 _W, _P = "Wrenfield", "Pellbrook"
@@ -119,6 +126,7 @@ SPEC = TypeSpec(
     key="gloves",
     department="Clothing",
     product_type="Gloves",
+    options=(Option("glove_size_letter", "glove_size_letter", "Glove size (S to XL)"),),
     owners=((_W, "own"), (_P, "third_party")),
     apparel_exempt="an accessory, not a garment: its decoys are authored here (gen#294)",
     rows=(

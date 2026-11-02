@@ -32,42 +32,13 @@ from pathlib import Path
 from typing import Any
 
 from synthetic_ecommerce_data.domains.retail import (
-    accessory_rows,
-    appliance_rows,
-    breadth_rows,
     collision_words,
-    color_word_brand_rows,
-    colorgroup_rows,
-    cups_plural_rows,
-    decor_rows,
     decoy_apparel,
-    decoy_product_words,
-    decoy_rows,
-    distractor_rows,
-    diy_decoy_rows,
     export,
-    garden_rows,
     grocery,
-    household_rows,
-    kids_depth_rows,
-    knacks_rows,
-    knitwear_rows,
-    lighting_rows,
-    lowerbody_rows,
     main_colors,
-    mens_depth_rows,
-    neckline_rows,
-    needs_rows,
     scale,
-    scale_rows,
-    school_rows,
-    seasonal_rows,
-    shirt_rows,
-    sofa_rows,
-    toys_rows,
     type_registry,
-    underwear_rows,
-    womens_depth_rows,
 )
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
 
@@ -193,36 +164,15 @@ def measure() -> dict[str, Any]:
     authored = [r for recs in samples().values() for r in recs]
     parts = {
         "authored": authored,
-        "scale_rows": scale_rows.docs(),
-        "breadth_rows": breadth_rows.docs(),
-        "distractor_rows": distractor_rows.docs(),
-        "decoy_rows": decoy_rows.docs(),
-        "decoy_product_words": decoy_product_words.docs(),
-        "shirt_rows": shirt_rows.docs(),
-        "accessory_rows": accessory_rows.docs(),
-        "garden_rows": garden_rows.docs(),
-        "decor_rows": decor_rows.docs(),
-        "school_rows": school_rows.docs(),
-        "household_rows": household_rows.docs(),
-        "lowerbody_rows": lowerbody_rows.docs(),
-        "lighting_rows": lighting_rows.docs(),
-        "sofa_rows": sofa_rows.docs(),
-        "appliance_rows": appliance_rows.docs(),
-        "underwear_rows": underwear_rows.docs(),
-        "toys_rows": toys_rows.docs(),
-        "seasonal_rows": seasonal_rows.docs(),
-        "colorgroup_rows": colorgroup_rows.docs(),
-        "mens_depth_rows": mens_depth_rows.docs(),
-        "womens_depth_rows": womens_depth_rows.docs(),
-        "kids_depth_rows": kids_depth_rows.docs(),
-        "color_word_brand_rows": color_word_brand_rows.docs(),
-        "knitwear_rows": knitwear_rows.docs(),
-        "neckline_rows": neckline_rows.docs(),
-        "needs_rows": needs_rows.docs(),
-        "cups_plural_rows": cups_plural_rows.docs(),
-        "diy_decoy_rows": diy_decoy_rows.docs(),
-        "knacks_rows": knacks_rows.docs(),
-        "type_specs": type_registry.docs(skip={r["product_id"] for r in authored}),
+        # Every row module and the specs, by name, in build order (gen#413).
+        **{
+            name: (
+                type_registry.docs(skip={r["product_id"] for r in authored})
+                if name == type_registry.SPEC_SOURCE
+                else scale.source_docs(name)
+            )
+            for name in type_registry.BUILD_SOURCES[1:-1]
+        },
         "decoy_apparel": [r for r in scale.templates(baseline=False)
                           if r["product_id"] in decoy_apparel.IDS],
         "plain_rows": [r for r in main_colors.author_plain(scale.templates(baseline=False))

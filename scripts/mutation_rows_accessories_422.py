@@ -540,9 +540,9 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     ),
     (
         "gloves: the letter sizes share the baseball glove's output key",
-        "export.py",
-        '"glove_size_letter": ("glove_size_letter", "Glove size (S to XL)", None)',
-        '"glove_size_letter": ("glove_size", "Glove size (S to XL)", None)',
+        "type_specs/gloves.py",
+        'Option("glove_size_letter", "glove_size_letter", "Glove size (S to XL)")',
+        'Option("glove_size_letter", "glove_size", "Glove size (S to XL)")',
         'tests/test_retail_gloves_422.py -k "output_key_no_other_option_shares"',
         "no two SKU options state one output key with and without a unit",
         _R,
