@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Collection, Iterable, Mapping
+from functools import lru_cache
 from typing import Any
 
 from synthetic_ecommerce_data.core import departments, size_charts
@@ -241,8 +242,12 @@ def check_document(doc: Mapping[str, Any]) -> list[str]:
     return out
 
 
+@lru_cache(maxsize=1 << 16)
 def words(text: str) -> str:
-    """``text`` as space-padded lower-case words, ``&`` read as "and": " hook and loop "."""
+    """``text`` as space-padded lower-case words, ``&`` read as "and": " hook and loop ".
+
+    Kept per text (#790): the text check asks it for each pool value once per document, 76
+    million calls over the retail ceiling for a few thousand distinct values."""
     return " " + re.sub(r"[^a-z0-9]+", " ", text.lower().replace("&", " and ")).strip() + " "
 
 
@@ -306,7 +311,9 @@ def text_contradictions(
     if doc.get("brand"):
         values.add(str(doc["brand"]))
     every = sorted(values, key=len, reverse=True)
-    padded_own = [words(v) for v in values]
+    # Every own value's words in one string: words() never writes "|", so a padded phrase found
+    # in it lies inside one value, and each pool value is looked up once, not once per value (#790).
+    own_text = "|".join(words(v) for v in values)
     texts = [str(doc.get("title") or "")]
     texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
     out = []
@@ -314,7 +321,7 @@ def text_contradictions(
         pool = {
             v
             for v in pools.get((str(doc.get("category_leaf")), key), set()) - mine
-            if not any(_names(own_value, v) for own_value in padded_own)
+            if not _names(own_text, v)
         }
         for text in dict.fromkeys(texts):
             claimed = _REFERENCE.sub(" | ", text)

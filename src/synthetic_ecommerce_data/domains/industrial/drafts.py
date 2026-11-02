@@ -120,6 +120,9 @@ class ChildDraft:
     #: attribute: everything it publishes is on its product. A grouped view
     #: must render a selector with zero axes (elastic/prism-industrial-products#103).
     zero_axis: bool = False
+    #: The names of the attributes a zero-axis variant moved onto its product.
+    #: Its description still states them, as it would on the variant (#87).
+    moved: frozenset[str] = frozenset()
 
 
 @dataclass

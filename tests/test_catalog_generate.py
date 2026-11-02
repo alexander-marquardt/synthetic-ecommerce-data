@@ -18,6 +18,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
+from synthetic_ecommerce_data.core.naming import states_value
 from synthetic_ecommerce_data.domains.industrial import plain_screws, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
@@ -142,6 +143,26 @@ def test_every_line_carries_line_constant_attributes_and_every_child_varies(cata
                 assert len(line.children) == 1, f"{child.sku} has siblings and no attributes"
                 zero_axis += 1
     assert zero_axis > 0, "the zero-axis awkward case never occurred"
+
+
+def test_a_zero_axis_variant_states_the_values_its_product_carries_for_it(catalog):
+    """A zero-axis variant's own values are published on its product, and its
+    description still states each one, as it would on the variant (#87). A
+    kit whose sizes moved up named none in its text, so ``1/4-20`` found it
+    only through the keyword field."""
+    checked = 0
+    for line in catalog.lines:
+        if len(line.children) != 1 or line.children[0].attributes:
+            continue
+        (only,) = line.children
+        sku_scope = {spec.name for spec in VOCAB.get(line.type_key, ()) if spec.scope == "sku"}
+        for attribute in line.attributes:
+            if attribute.name not in sku_scope:
+                continue
+            for value in attribute.values or (attribute.value,):
+                assert states_value(only.description, value), (only.sku, attribute.name, value)
+            checked += 1
+    assert checked > 0, "no zero-axis variant carried a value of its own"
 
 
 def test_a_variant_can_lack_an_attribute_its_siblings_carry(catalog):

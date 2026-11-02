@@ -49,6 +49,7 @@ import re
 import subprocess
 import sys
 from collections import defaultdict
+from collections.abc import Collection
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -497,10 +498,14 @@ def select(
     tree: Tree | None = None,
     root: Path = REPO,
     modified: set[str] | None = None,
+    among: Collection[str] | None = None,
 ) -> tuple[list[str], dict[str, str]]:
-    """The test files to run for the changed paths, and the reason for each."""
+    """The test files to run for the changed paths, and the reason for each.
+
+    ``among`` asks about those test files only: each one is selected or not as it is in the
+    whole selection, and a question about one file skips the other 400 (#790)."""
     tree = tree or Tree(root)
-    tests = sorted(p for p in tree.py if is_test_file(p))
+    tests = sorted(p for p in tree.py if is_test_file(p) and (among is None or p in among))
     reasons: dict[str, str] = {}
     for path in changed:
         if any(path == f or (f.endswith("/") and path.startswith(f)) for f in FULL_RUN):

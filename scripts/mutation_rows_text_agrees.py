@@ -38,7 +38,7 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "a value inside the doc's own value is a claim again",
         _STANDARD,
-        "if not any(_names(own_value, v) for own_value in padded_own)",
+        "if not _names(own_text, v)",
         "if True",
         (f"{_SILENT} -k inside-own-value", f"{_SILENT} -k words-of-own-value"),
         "a pool value whose words sit inside the doc's own value contradicts nothing",
@@ -46,7 +46,7 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "every pool value is exempt",
         _STANDARD,
-        "if not any(_names(own_value, v) for own_value in padded_own)",
+        "if not _names(own_text, v)",
         "if False",
         f"{_PLANTED} -k inside-own-value",
         "a pool value outside the doc's own values is still a contradiction",
