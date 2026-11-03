@@ -1048,7 +1048,7 @@ the script and names the rule. `--check` compares the committed file without wri
 To find a pin still typed by hand, `uv run python scripts/reseed_proof.py` moves the
 default seed in a scratch worktree of HEAD, runs the rebuild `scripts/merge_pr.sh` runs,
 then the tests that read what it rewrote (`--all`: the whole suite). It prints each red
-test, a figure the fixture does not carry, or `green`. It takes minutes.
+test, a figure the fixture does not carry, or `green`. It takes most of an hour.
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image

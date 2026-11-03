@@ -14,8 +14,10 @@ fixture ``tests/data/golden_pins.json`` does not carry: it prints one id per lin
 
 Exit 0 when green, 1 with a red test, 2 when the proof could not run (a rebuild refused the seed,
 a measure rule nothing on the new catalog fits, or pytest stopped before its summary). It takes
-minutes: three builds and the catalog readers on ``--workers`` processes. Committed work only:
-the worktree is HEAD's, so an uncommitted edit is not in the proof.
+most of an hour: three builds, then about 355 of the suite's files (``ci_select.py`` over-selects,
+and the merge-script tests clone the tree), 43 minutes on four workers. Run it in the background
+with a limit past that. Committed work only: the worktree is HEAD's, so an uncommitted edit is not
+in the proof.
 """
 
 from __future__ import annotations
@@ -43,8 +45,8 @@ REBUILD: tuple[tuple[str, ...], ...] = (
 
 SEED_LINE = re.compile(r"^(    seed: int = )(\d+)$", re.MULTILINE)
 #: A red in pytest's ``-rfE`` summary: the id (a parameter id may hold blanks), without the
-#: `` - <message>`` after it.
-RED_LINE = re.compile(r"^(?:FAILED|ERROR) ([^\s\[]+(?:\[[^\]]*\])?)", re.MULTILINE)
+#: ``@<group>`` xdist's ``loadgroup`` appends or the `` - <message>`` after it.
+RED_LINE = re.compile(r"^(?:FAILED|ERROR) ([^\s\[@]+(?:\[[^\]]*\])?)", re.MULTILINE)
 
 
 class ProofError(Exception):

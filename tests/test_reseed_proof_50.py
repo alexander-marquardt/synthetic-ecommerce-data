@@ -87,6 +87,8 @@ FAILED tests/test_sku_drawings.py::test_pinned[M6x1 x 10mm, handle-less] - asser
 ERROR tests/test_facet_control_rule.py::test_band - KeyError: 'band'
 FAILED tests/test_catalog_golden.py::test_lines - AssertionError: assert 2611 == 2603
 FAILED tests/test_whole_file.py
+FAILED tests/test_price.py::test_band@test_price
+FAILED tests/test_price.py::test_row[p50 (USD): threaded_rod]@test_price
 ==================== 3 failed, 400 passed, 1 error in 61.20s ====================
 """
 
@@ -97,6 +99,8 @@ def test_the_red_tests_are_read_from_the_summary_each_once():
         "tests/test_sku_drawings.py::test_pinned[M6x1 x 10mm, handle-less]",
         "tests/test_facet_control_rule.py::test_band",
         "tests/test_whole_file.py",
+        "tests/test_price.py::test_band",
+        "tests/test_price.py::test_row[p50 (USD): threaded_rod]",
     ]
 
 
