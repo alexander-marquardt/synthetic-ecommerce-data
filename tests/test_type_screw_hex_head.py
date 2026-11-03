@@ -32,7 +32,7 @@ KEY = "screw_hex_head"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's 72 SKUs, rounded down to a ten.
+#: Two thirds of the default build's 70 SKUs, rounded down to a ten.
 DEFAULT_SKU_FLOOR = 40
 
 DIMENSIONAL = {screw_hex_head.STANDARD}

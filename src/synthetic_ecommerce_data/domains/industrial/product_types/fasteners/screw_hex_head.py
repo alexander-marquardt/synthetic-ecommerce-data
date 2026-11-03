@@ -152,7 +152,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     lengths = offered_lengths_in(size)
     count = min(gen._variant_count(), len(lengths))
     style = feed_style(brand, "in", BRANDS)
-    for length_in in gen._offered_run(f"lengths:{size}", lengths, count):
+    # One length wheel per size and feed: a size recurs every ninth line and a
+    # grade-and-finish pair every seventh, so a wheel per size alone locks the
+    # run to the pair, and the feed (the brand's length spelling) is drawn
+    # apart from both, which keeps the wheel out of their phase.
+    feed = BRANDS.index(brand) % 4
+    for length_in in gen._offered_run(f"lengths:{size}:{feed}", lengths, count):
         child = ChildDraft(system="in")
         # Fully threaded when shorter than the standard's thread length.
         thread_len_in = min(length_in, head["thread_length_in"])

@@ -177,17 +177,6 @@ each system, its own category leaf and its own drawing:
 | `screw_button_head` | `ISO 7380-1` | `ASME B18.3.3A` | shallow dome |
 | `screw_low_head` | `DIN 7984` | `ASME B18.3.1G` | squat cylinder |
 
-A fifth cap screw is turned by its head, not a key: `screw_hex_head`, the hex
-head cap screw (#819), in `Cap Screws/Hex Head Cap Screws` beside the four.
-It is not the hex bolt (`bolt_hex`, under `Bolts`): it has a washer face under
-the head and is made to be tightened into a tapped hole, and catalogs sell the
-two as separate lines. It is inch only, ASME B18.2.1, 1/4-20 to 1-8 UNC and
-the UNF size of each, 1/2" to 6" long, in SAE J429 Grade 2, 5 and 8
-(`Material` `Grade 2 Steel`, `Grade 5 Steel`, `Grade 8 Alloy Steel`) and
-`Plain`, `Zinc Plated` or `Zinc Yellow`. Its head, washer face, thread
-length and lengths are the library table `asme_b18_2_1_hex_cap_screws_in`;
-the drawing stands the hex on its washer face.
-
 **The length.** A screw publishes two of them and they are two different
 measurements (`Length under Head` was a third until #497: on every screw but a
 countersunk one it repeated `Length` to the digit, so it was folded into it):
@@ -1093,9 +1082,7 @@ carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer rul
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
-with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, the product that query
-names (a `screw_hex_head` in `7/16-14`, `1-3/4"`, `Grade 8 Alloy Steel` and
-`Zinc Yellow`, #819), and 22 more.
+with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more (a `screw_hex_head` too, #819: docs/industrial-types/hex-cap-screws-819.md).
 
 It runs after the main generation and changes nothing the main generation
 drew. For each entry no SKU already satisfies, it builds lines with that
