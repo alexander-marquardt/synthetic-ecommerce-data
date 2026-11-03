@@ -251,8 +251,7 @@ def test_no_published_document_carries_an_authored_length_key() -> None:
         (e["key"], doc["product_type"])
         for doc in _docs()
         for e in _entries(doc)
-        if e["key"] in ("inside_leg", "skirt_length")
-        or (e["key"] == "length" and doc["product_type"] != "Suit Jacket")
+        if e["key"] in ("inside_leg", "skirt_length", "length")
     }
     assert left == set()
 
@@ -260,13 +259,7 @@ def test_no_published_document_carries_an_authored_length_key() -> None:
 def test_every_leg_length_is_a_leg_option_and_petite_is_never_a_length() -> None:
     legs = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"] == "leg_length"}
     assert legs == LEG_LENGTHS
-    # A Skirt's ``fit_length`` (Short/Petite, Regular, Long) awaits the maintainer's ruling.
-    lengths = {
-        e["value"]
-        for doc in _docs()
-        for e in _entries(doc)
-        if e["key"].endswith("length") and e["key"] != "fit_length"
-    }
+    lengths = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"].endswith("length")}
     assert {"Petite", "Short/Petite"} & lengths == set()
 
 
@@ -276,6 +269,54 @@ def test_a_jeans_style_sold_in_a_petite_leg_is_in_the_petite_size_range() -> Non
                                           for e in doc["attributes"])]  # fmt: skip
     assert len(petite) >= 300
     for doc in jeans:
+        for variant in doc["variants"]:
+            assert not any(e["key"] == "size_range" for e in variant["attributes"])
+
+
+# The 11-03 ruling: a garment with no leg sells its height fit as ``fit_length`` "Fit length",
+# never a leg length or a style length, and a Short/Petite fit is Short in the Petite range.
+
+FIT_LENGTHS = {"Short", "Regular", "Long"}
+
+
+def _pairs(entries: list[dict[str, Any]]) -> set[tuple[str, Any]]:
+    return {(e["key"], e["value"]) for e in entries}
+
+
+def test_a_skirt_and_a_suit_jacket_fit_is_one_fit_length_and_petite_its_size_range() -> None:
+    got = _clean_on([_e("fit_length", "Short/Petite"), _e("fit_length", "Long")], "Skirt")
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("fit_length", "Fit length", "Short"),
+        ("size_range", "Size range", "Petite"),
+        ("fit_length", "Fit length", "Long"),
+    ]
+    jacket = _clean_on([_e("length", "Short"), _e("length", "Regular")], "Suit Jacket")
+    assert [(e["key"], e["name"], e["value"]) for e in jacket] == [
+        ("fit_length", "Fit length", "Short"),
+        ("fit_length", "Fit length", "Regular"),
+    ]
+    sku = attribute_cleanup.clean([_e("fit_length", "Short/Petite")], "Skirt")
+    assert [(e["key"], e["value"]) for e in sku] == [("fit_length", "Short")]
+    assert attribute_cleanup.published("length", "Suit Jacket") == "fit_length"
+    assert "length" in attribute_cleanup.RETIRED
+
+
+def test_every_fit_length_is_short_regular_or_long_under_one_name() -> None:
+    fits = [(doc["product_type"], e) for doc in _docs() for e in _entries(doc)
+            if e["key"] == "fit_length"]  # fmt: skip
+    assert {product_type for product_type, _ in fits} == {"Skirt", "Suit Jacket"}
+    entries = [e for _, e in fits]
+    assert {e["name"] for e in entries} == {"Fit length"}
+    assert {e["value"] for e in entries} == FIT_LENGTHS
+
+
+def test_a_skirt_sold_in_a_short_petite_fit_is_in_the_petite_size_range() -> None:
+    skirts = [doc for doc in _docs() if doc["product_type"] == "Skirt"]
+    petite = [doc for doc in skirts if ("fit_length", "Short") in _pairs(doc["attributes"])]
+    assert petite
+    for doc in petite:
+        assert ("size_range", "Petite") in _pairs(doc["attributes"])
+    for doc in skirts:
         for variant in doc["variants"]:
             assert not any(e["key"] == "size_range" for e in variant["attributes"])
 
