@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import difflib
 import sys
+from pathlib import Path
 
 import golden_pins
 
@@ -27,13 +28,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--check", action="store_true", help="compare the committed fixture, write nothing"
     )
+    parser.add_argument("--golden", type=Path, help="the catalog to measure")
+    parser.add_argument("--seed", type=int, help="the seed the catalog was built with")
+    parser.add_argument("--out", type=Path, help="the fixture to write or check")
     args = parser.parse_args(argv)
     try:
         measured = golden_pins.dump(golden_pins.measure_all())
     except golden_pins.PinRuleError as error:
         print(f"measure_pins: {error}", file=sys.stderr)
         return 1
-    path = golden_pins.PINS_PATH
+    path = args.out or golden_pins.PINS_PATH
     committed = path.read_text("utf-8") if path.exists() else ""
     diff = "".join(
         difflib.unified_diff(
