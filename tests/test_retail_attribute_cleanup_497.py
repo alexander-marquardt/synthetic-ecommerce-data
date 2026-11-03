@@ -358,6 +358,24 @@ def test_a_neck_is_a_neckline_and_a_knit_style_keeps_its_construction() -> None:
     assert [(e["key"], e["value"]) for e in roll] == [("neckline", "High")]
 
 
+def test_a_neck_in_the_knit_style_gives_way_to_the_authored_neckline() -> None:
+    polo = [_e("knit_style", "Crew Neck"), _e("neckline", "collared")]
+    for entries in (polo, polo[::-1]):
+        got = attribute_cleanup.clean(entries, "Polo Jumper")
+        assert [(e["key"], e["value"]) for e in got] == [("neckline", "Collared")]
+
+
+def test_no_entry_list_carries_two_necklines() -> None:
+    lists = [doc["attributes"] for doc in _docs()]
+    lists += [variant["attributes"] for doc in _docs() for variant in doc["variants"]]
+    twice = [
+        [e["value"] for e in entries if e["key"] == "neckline"]
+        for entries in lists
+        if sum(e["key"] == "neckline" for e in entries) > 1
+    ]
+    assert twice == []
+
+
 def test_no_knit_style_names_a_neck_and_every_neckline_is_in_one_casing() -> None:
     knits = {v for doc in _docs() for v in _published_of(doc, "knit_style")}
     assert knits and knits & NECKS == set()
