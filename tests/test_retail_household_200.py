@@ -16,6 +16,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     household_rows,
     kit,
@@ -62,6 +63,12 @@ def _attr(row: household_rows.Row, key: str) -> list[str]:
     return [a[2] for a in row.attrs if a[0] == key]
 
 
+def _restating(rec: dict) -> set[str]:
+    """The authored keys the export drops because their value is the product type (gen#497)."""
+    ptype = rec["product_type"]
+    return {e["key"] for e in rec["attributes"] if attribute_cleanup.restates_the_type(e, ptype)}
+
+
 def _svg(row: household_rows.Row) -> str:
     return kit.render(row.shape, kit.Fill("solid", "#123456", "#654321"), params=dict(row.params))
 
@@ -96,6 +103,8 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
         want = KEYS[ptype] - (SET_EXEMPT if "Set" in _attr(row, "set_or_single") else set())
         want -= NOT_APPLICABLE.get(row.code, set())
+        want -= _restating(row.doc())
+        want = {attribute_cleanup.published(k, ptype) for k in want}
         if want - keys:
             missing[row.code] = sorted(want - keys)
     assert missing == {}

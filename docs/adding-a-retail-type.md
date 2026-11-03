@@ -48,6 +48,7 @@ A value with a unit, or one that names the leaf, is already never changed
 * A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name (`seats` is `seat_count`), or `attribute_cleanup.BY_TYPE` where the type decides; a test reads it through `attribute_cleanup.published(key, product_type)` (gen#497).
 * `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
 * Lengths: a leg option (`inside_leg`, a Jeans `length`) is `leg_length`, a style length (`skirt_length`, any other `length`) `garment_length`; Petite is a `size_range`, never a length. One kind per key: a watch's `strap` is `strap_material`, any other `strap_style`; a lampshade's `fabric` is `shade_material`, a soft toy's `material` (`fabric` is apparel's); a neck in `knit_style` is `neckline` (`attribute_cleanup.BY_VALUE`) unless the product authors its own neckline, one spelling each (Crew, V-neck); `items` and a counting `contents` ("3 items") are `piece_count`.
+* A one-type sub-kind key (`attribute_cleanup.SUB_KINDS`: `bbq_kind`, `skirt_shape`, `plate_type`, ...) is the product's `style` "Style"; a value naming the type itself is dropped. A new type names its sub-kind `style`; a well-known facet (`bra_shape`, `knit_style`, `back_style`, `leg_fit`, `fit`, `cut`, `collar`, `closure`) keeps its own key.
 
 ## 4. Export SKU options: `export.OPTIONS`
 

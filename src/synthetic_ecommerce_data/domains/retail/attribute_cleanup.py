@@ -32,11 +32,16 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   neckline (a polo's Collared), and every neckline takes one spelling (Crew, V-neck; a roll
   or turtle neck is High, as ``neckline_rows.TITLE_WORDS`` reads it);
   and ``items`` or a ``contents`` that only counts ("3 items", :data:`COUNTED`) is the
-  ``piece_count``, a bare number of pieces.
+  ``piece_count``, a bare number of pieces;
+- **folded**: a one-type sub-kind key (:data:`SUB_KINDS`: a BBQ's ``bbq_kind``, a skirt's
+  ``skirt_shape``, a whisky's ``spirit_style``) is the product's ``style`` "Style" (the 10-18
+  ruling, "Style"). A value naming the product type itself (a Marble Run's ``toy_type`` Marble
+  Run) is dropped as above. The well-known facets of their own (``bra_shape``, ``knit_style``,
+  ``back_style``, ``leg_fit``, ``fit``, ``cut``, ``collar``, ``closure``) are not folded.
 
 A test that reads a document by an authored key asks :func:`published` for the key to read.
 The rest of #497's retail half (a Skirt's ``fit_length`` and a Suit Jacket's ``length``, which
-await a ruling; the ``style`` fold, the other value fixes) goes in later slices.
+await a ruling; the other value fixes) goes in later slices.
 """
 
 from __future__ import annotations
@@ -46,8 +51,24 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.entry import split
 
-#: Keys the review found carrying the product type as their value (#497, "Remove").
-RESTATING = frozenset({"storage_type", "tracker_type", "type"})
+#: Review merge #30's one-type sub-kind keys, and the Jelly Shoes' ``jelly_style`` (also shown
+#: as "Style"): each names the kind of product within its type, published as ``style``.
+SUB_KINDS = frozenset(
+    {
+        "accessory_type", "airer_type", "bag_shape", "bag_style", "band_type", "bbq_kind",
+        "bin_type", "bookcase_style", "bowl_type", "bracelet_type", "chair_style", "chest_style",
+        "cutlery_type", "earring_style", "fixture_type", "furniture_kind", "glass_type",
+        "heater_type", "jelly_style", "kettle_type", "knife_type", "laundry_basket_type",
+        "lid_type", "mattress_type", "mirror_type", "module_type", "mop_type", "necklace_type",
+        "pan_type", "parasol_kind", "pinafore_style", "plate_type", "pump_type", "purse_type",
+        "ring_type", "shapewear_type", "shorts_style", "skirt_shape", "skirt_style",
+        "spirit_style", "storage_type", "table_type", "tent_type", "toy_type", "tracker_type",
+        "umbrella_type", "utensil_type", "watch_type",
+    }
+)  # fmt: skip
+#: Keys the review found carrying the product type as their value (#497, "Remove"), and every
+#: key folded into ``style`` (a Frying Pan's ``pan_type`` Frying Pan).
+RESTATING = frozenset({"type", "style", *SUB_KINDS})
 
 #: Authored key -> the (key, display name) it is published under: one concept written two
 #: ways (#497 review merges #15-#27, #31). A target key is listed too, so it carries one name.
@@ -56,6 +77,7 @@ GARMENT = ("garment_length", "Garment length")
 STRAP_MATERIAL = ("strap_material", "Strap material")
 NECKLINE = ("neckline", "Neckline")
 PIECES = ("piece_count", "Piece count")
+STYLE = ("style", "Style")
 RENAMES: dict[str, tuple[str, str]] = {
     "fill": ("filling", "Filling"),
     "seats": ("seat_count", "Seat count"),
@@ -83,6 +105,7 @@ RENAMES: dict[str, tuple[str, str]] = {
     "neckline": NECKLINE,
     "items": PIECES,
     "piece_count": PIECES,
+    **{key: STYLE for key in SUB_KINDS | {"style"}},
 }
 #: (authored key, product type) -> the (key, name) it is published under on that type alone. A
 #: Suit Jacket's Short/Regular/Long ``length`` is a fit with no leg, kept until a ruling. A

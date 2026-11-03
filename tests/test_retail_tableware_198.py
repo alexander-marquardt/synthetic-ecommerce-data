@@ -11,6 +11,7 @@ import inspect
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_tableware,
@@ -58,7 +59,11 @@ AXES = {"pack_size": "pack_size", "blade_length": "blade_length_cm", "dimensions
 
 
 def _wanted(ptype: str, doc: dict) -> set[str]:
-    return {k for k in TYPES[ptype][2] if k not in AXES or any(AXES[k] in s for s in doc["skus"])}
+    return {
+        attribute_cleanup.published(k, ptype)
+        for k in TYPES[ptype][2]
+        if k not in AXES or any(AXES[k] in s for s in doc["skus"])
+    }
 
 
 def _keys(doc: dict) -> set[str]:
