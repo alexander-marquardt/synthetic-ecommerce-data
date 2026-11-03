@@ -469,8 +469,8 @@ GOLDEN_FLAT = ROOT / "golden-catalog" / "flat.jsonl"
 
 #: The retail flat document is industrial's (``golden-catalog/flat.jsonl``, which
 #: prism-industrial-products loads as ``catalog.ndjson``) but for these keys.
-#: Industrial keeps its USD amount and stock count and its provenance notes;
-#: retail states ``price`` in ``currency`` and only knows whether a SKU is in stock.
+#: Both state ``price`` in ``currency`` and ``in_stock``; industrial keeps its USD amount
+#: and stock count beside them, and its provenance notes.
 INDUSTRIAL_ONLY_FLAT = frozenset(
     {
         "price_usd",
@@ -481,7 +481,8 @@ INDUSTRIAL_ONLY_FLAT = frozenset(
         "spec_quality",
     }
 )
-RETAIL_ONLY_FLAT = {"price": float, "currency": str, "in_stock": bool}
+#: Nothing: both state ``price`` in ``currency`` and ``in_stock`` (gen#125, slice 4).
+RETAIL_ONLY_FLAT: dict[str, type] = {}
 #: Present only on a style with a product line (6 of 328), or with a blend (gen#187), or filed at
 #: more than one category path (the mugs, gen#602).
 RETAIL_OPTIONAL_FLAT = frozenset({"series", "fibre_content", "category_paths"})

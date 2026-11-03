@@ -68,3 +68,14 @@ environment and never prints it; without it, and without `--dry-run`, it exits 2
 
 `release.yaml` is not a pull-request check: `scripts/local_ci_jobs.py` (`NOT_A_CHECK`) leaves it
 out of `merge_pr.sh --local-ci`.
+
+## The flat document's price and rating shapes
+
+A flat document states its price as `price` in `currency` (`USD`) and its
+availability as `in_stock`, the same columns the nested variant and the retail
+flat document carry, so the composed catalog (`ecom-generate compose`) has one
+price shape. `price_usd` and the `stock` count stay beside them for the
+industrial loader. On the retail side, a `rating` entry carries its number as
+`value_canonical` with no unit (a score, `core/standard.py` `SCORE_KEYS`), and a
+shoe's fit is `fit_width`. Both are shapes the catalogue repo's Combined
+projection used to make (gen#125).

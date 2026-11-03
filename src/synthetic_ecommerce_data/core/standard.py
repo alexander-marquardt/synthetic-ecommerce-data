@@ -5,14 +5,16 @@ Who reads each shape:
 - **flat**, one document per SKU (:func:`flat_documents`; industrial writes it as
   ``golden-catalog/flat.jsonl`` with ``emit.flat_documents``): the shape
   elastic/prism-industrial-products loads, as its ``catalog.ndjson``. A loader of
-  the industrial file reads the retail one: same keys and types, but retail states
-  ``price`` in ``currency`` and ``in_stock`` where industrial has ``price_usd`` and
-  ``stock`` (the exact list: ``tests/test_output_standard.py``, ``*_ONLY_FLAT``).
+  the industrial file reads the retail one: same keys and types, both stating ``price`` in
+  ``currency`` and ``in_stock``; industrial alone adds ``price_usd`` and ``stock`` beside them
+  (the exact list: ``tests/test_output_standard.py``, ``INDUSTRIAL_ONLY_FLAT``).
 - **nested**, one document per product, below: no loader reads it yet.
 
 A domain emits one nested document per product, its SKUs nested in ``variants``, and
 every fact a shopper can narrow on as a nested ``{key, name, value[, unit_code,
-value_canonical]}`` attribute entry, at product or variant level. The fields are
+value_canonical]}`` attribute entry, at product or variant level. ``unit_code`` and
+``value_canonical`` come together, except on a score (:data:`SCORE_KEYS`, a rating), which
+carries its number with no unit. The fields are
 :data:`PRODUCT_FIELDS` and :data:`VARIANT_FIELDS`; :data:`.emit.NESTED_MAPPING`
 declares exactly these, so a field outside them is a field no query can see.
 
@@ -100,6 +102,11 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
 }
 
 ENTRY_FIELDS = frozenset({"key", "name", "value", "unit_code", "value_canonical"})
+#: Keys whose value is a SCORE: a number a shopper compares ("4 and over"), neither a count nor
+#: a measurement (ind#333). Its entry carries ``value_canonical``, the value itself, and NO
+#: ``unit_code``: a unit would file a score under a count's (``C62``). Every other entry has
+#: both or neither.
+SCORE_KEYS = frozenset({"rating"})
 KEY_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_]*$")
 CURRENCY_PATTERN = re.compile(r"^[A-Z]{3}$")
 #: ``<type>/<product>/<drawing>``: the bundle path of the drawing, less ``.svg``.
@@ -143,7 +150,11 @@ def check_entry(where: str, entry: Any) -> list[str]:
         if not _typed(entry.get(part), _STR):
             out.append(f"{where}: entry {entry.get('key')!r} has no {part} string")
     unit, canon = entry.get("unit_code"), entry.get("value_canonical")
-    if (unit is None) != (canon is None):
+    if unit is None and canon is not None and entry.get("key") in SCORE_KEYS:
+        if not (_DECIMAL.fullmatch(str(entry.get("value"))) and canon == float(entry["value"])):
+            key = entry.get("key")
+            out.append(f"{where}: score {key!r} value_canonical {canon!r} is not its value")
+    elif (unit is None) != (canon is None):
         out.append(f"{where}: entry {entry.get('key')!r} has unit_code or value_canonical alone")
     elif unit is not None:
         value = str(entry.get("value"))
