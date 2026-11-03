@@ -151,3 +151,56 @@ def test_a_heel_drop_holds_its_millimetres_in_the_unit_field() -> None:
     drops = [e for doc in _docs() for e in _entries(doc) if e["key"] == "heel_drop"]
     assert drops
     assert {(e["value"], e.get("unit_code")) for e in drops} <= {("0", "MMT"), ("8", "MMT")}
+
+
+# Third slice: where a product comes from is one multi-valued key, every level that applies,
+# most specific first, each value a place name (the 10-18 ruling, "Origin").
+
+
+def _origins(doc: dict[str, Any]) -> list[Any]:
+    return [e["value"] for e in _entries(doc) if e["key"] == "origin"]
+
+
+def test_country_and_origin_are_published_as_one_origin_key() -> None:
+    got = attribute_cleanup.clean(
+        [_e("country", "Spain"), _e("origin", "Croatian")], "Thing", title="A Thing"
+    )
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("origin", "Origin", "Spain"),
+        ("origin", "Origin", "Croatia"),
+    ]
+    assert attribute_cleanup.published("country") == "origin"
+
+
+def test_a_place_within_a_country_is_published_with_its_country_after_it() -> None:
+    got = attribute_cleanup.clean([_e("origin", "Sicilian")], "Olive Oil", title="Olive Oil")
+    assert [e["value"] for e in got] == ["Sicily", "Italy"]
+    got = attribute_cleanup.clean([_e("country", "Scotland")], "Whisky", title="Scotch Whisky")
+    assert [e["value"] for e in got] == ["Scotland", "United Kingdom"]
+
+
+def test_a_region_the_title_names_goes_first_only_when_it_lies_in_the_country() -> None:
+    rioja = attribute_cleanup.clean([_e("country", "Spain")], "Wine", title="Rioja Reserva")
+    assert [e["value"] for e in rioja] == ["Rioja", "Spain"]
+    elsewhere = attribute_cleanup.clean([_e("country", "Chile")], "Wine", title="Rioja Style Red")
+    assert [e["value"] for e in elsewhere] == ["Chile"]
+
+
+def test_no_published_document_carries_country() -> None:
+    assert not any(e["key"] == "country" for doc in _docs() for e in _entries(doc))
+
+
+def test_every_origin_is_a_place_name_under_one_display_name() -> None:
+    entries = [e for doc in _docs() for e in _entries(doc) if e["key"] == "origin"]
+    assert {e["name"] for e in entries} == {"Origin"}
+    assert {e["value"] for e in entries} - attribute_cleanup.PLACES == set()
+    assert {"Croatian", "Sicilian", "Sumatran", "Italian"} & {e["value"] for e in entries} == set()
+
+
+def test_a_drink_carries_its_region_before_its_country() -> None:
+    by_title = {doc["title"]: _origins(doc) for doc in _docs() if _origins(doc)}
+    assert by_title["Yellow Skerry Rioja Reserva"] == ["Rioja", "Spain"]
+    champagnes = [_origins(doc) for doc in _docs() if doc["product_type"] == "Champagne"]
+    assert champagnes and all(o == ["Champagne", "France"] for o in champagnes)
+    scotch = [o for t, o in by_title.items() if "Scotch" in t]
+    assert scotch and all(o == ["Scotland", "United Kingdom"] for o in scotch)
