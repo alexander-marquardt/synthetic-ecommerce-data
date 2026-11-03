@@ -922,8 +922,89 @@ def test_a_part_longer_than_its_extent_is_drawn_broken_and_fits():
     long_part = figure_fn(record).figure
     x0, y0, x1, y1 = long_part.bounds()
     assert y1 - y0 <= height
-    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and len(s.segments) == 6]
-    assert len(breaks) >= 2
+    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and s.role == "break"]
+    assert len(breaks) == 2
     shorter = dict(record, **{"Length": '10"', "Length under Head": '10"'})
     sy0, sy1 = figure_fn(shorter).figure.bounds()[1::2]
     assert sy1 - sy0 < y1 - y0, "a longer part must still draw taller"
+
+
+#: The card Studio shows a drawing in is about 170 px wide; the sheet is 200 units wide.
+CARD_PX_PER_UNIT = 170 / 200
+
+#: Long fasteners of each broken kind (#822): the maintainer's 1/4-20 x 4-1/4" flat
+#: head cap screw (ASME B18.3 head), the narrowest shank drawn broken, a long hex
+#: bolt, the 100K catalog's longest socket screw, and threaded rod.
+LONG_FASTENERS = {
+    "flat head 1/4-20 x 4-1/4": ("screw_flat_head", {
+        "Head Type": "Flat", "Dia./Thread Size": "1/4-20", "Length": '4-1/4"',
+        "Thread Length": '1"', "Head Dia.": '0.5000"', "Head Height": '0.1400"',
+        "Drive Size": '5/32"',
+    }),
+    "flat head #8-32 x 4-1/4": ("screw_flat_head", {
+        "Head Type": "Flat", "Dia./Thread Size": "#8-32", "Length": '4-1/4"',
+        "Thread Length": '0.8280"', "Head Dia.": '0.3590"', "Head Height": '0.1120"',
+    }),
+    "hex bolt 1/2-13 x 10": ("bolt_hex", {
+        "Dia./Thread Size": "1/2-13", "Length": '10"', "Thread Length": '1-1/4"',
+    }),
+    "socket 3/4-10 x 14-5/8": ("screw_socket_head", {
+        "Dia./Thread Size": "3/4-10", "Length": '14-5/8"', "Length under Head": '14-5/8"',
+        "Thread Length": '2-1/4"',
+    }),
+    "threaded rod 1/4-20 x 72": ("threaded_rod", {"Thread Size": "1/4-20", "Length": '72"'}),
+    "threaded rod M24 x 2000 mm": ("threaded_rod", {"Thread Size": "M24x3", "Length": "2000 mm"}),
+}
+
+
+@pytest.mark.parametrize("name", sorted(LONG_FASTENERS))
+def test_each_break_reads_as_a_zigzag_at_card_size(name):
+    """At the 170 px card, each cut is a zigzag a shopper can see (#822).
+
+    A tooth is at least 3 px tall and each stroke runs at least 2 px across; the
+    zigzag is stroked at the brand's outline weight, solid; and the gap between
+    the two zigzags is paper, so the cut ends follow the zigzag instead of
+    reading as a flat snap.
+    """
+    from synthetic_ecommerce_data.core.drawing.model import Lines
+    from synthetic_ecommerce_data.core.drawing.sheet import type_scale
+
+    type_key, record = LONG_FASTENERS[name]
+    figure_fn, extent = FIGURES[type_key]
+    fig = figure_fn(record).figure
+    px = type_scale(extent) * CARD_PX_PER_UNIT
+    marks = [s for s in fig.shapes if isinstance(s, Lines) and s.role == "break"]
+    assert len(marks) == 2, name
+    for mark in marks:
+        points = [a for a, _ in mark.segments] + [mark.segments[-1][1]]
+        ys = [y for _, y in points]
+        assert (max(ys) - min(ys)) * px >= 3, name
+        runs = [abs(b[0] - a[0]) for a, b in mark.segments]
+        assert min(runs) * px >= 2, name
+    gaps = [s for s in fig.shapes if isinstance(s, Poly) and s.role == "gap"]
+    assert len(gaps) == 1, name
+    # The shank reaches each zigzag's far tip, so the cut ends on the zigzag, not flat.
+    sections = [
+        [y for _, y in s.points]
+        for s in fig.shapes
+        if isinstance(s, Poly) and s.role != "gap" and min(x for x, _ in s.points) < 0
+    ]
+    for mark in marks:
+        ys = [y for (_, y), _ in mark.segments]
+        tip = 1e-9  # the lower section is placed through the shift: rounding, no more
+        assert any(min(sy) - tip <= min(ys) and max(ys) <= max(sy) + tip for sy in sections), name
+
+    brand = BRANDS[0]
+    house = house_style(brand)
+    root = ET.fromstring(draw_sku(type_key, brand, record)[0])
+    ns = "{http://www.w3.org/2000/svg}"
+    zigzags = [
+        el
+        for el in root.iter(f"{ns}path")
+        if el.get("fill") == "none" and el.get("stroke-width") == f"{house.stroke:g}"
+    ]
+    assert len(zigzags) == 2, name
+    assert all(el.get("stroke-dasharray") is None for el in zigzags), name
+    assert all(el.get("stroke-opacity") is None for el in zigzags), name
+    paper = [el for el in root.iter(f"{ns}path") if el.get("stroke") == house.paper]
+    assert len(paper) == 1 and paper[0].get("fill") == house.paper, name

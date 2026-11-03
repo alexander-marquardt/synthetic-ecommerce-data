@@ -357,10 +357,15 @@ FASTENER_NOMINAL = {
 
 
 #: The visible share of a type's extent a broken part is drawn to, and the gap
-#: between its break lines, as shares of the extent's height.
+#: between its break lines, as shares of the extent's height. The gap is 10 to
+#: 14 px at card size (about 170 px wide); at 0.05 the two zigzags ran together.
 BREAK_START = 0.9
 BREAK_VISIBLE = 0.97
-BREAK_GAP = 0.05
+BREAK_GAP = 0.08
+#: A break line's zigzag reaches this share of the gap either side of its cut: a
+#: tooth 5 to 7 px tall at card size, with half the gap clear between the two
+#: lines (#822; at 0.12 of a 0.05 gap a tooth was about 1 px and the cut read flat).
+BREAK_AMPLITUDE = 0.25
 
 
 def fastener(record: Record, max_height: float | None = None) -> Drawn:
@@ -435,11 +440,12 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
         body = visible - gap
         cut = hh + 0.35 * (body - hh)
         resume = total - (body - cut)
-        interval(shank_top, cut, 0.0)
-        interval(resume, total, total - visible)
-        amplitude = gap * 0.12
-        P.break_mark(fig, r, cut, amplitude)
-        P.break_mark(fig, r, cut + gap, amplitude)
+        # Each section runs one amplitude past its cut, to the far tip of its
+        # zigzag; the break's paper gap trims it back to the zigzag.
+        amplitude = gap * BREAK_AMPLITUDE
+        interval(shank_top, cut + amplitude, 0.0)
+        interval(resume - amplitude, total, total - visible)
+        P.drafting_break(fig, r, cut, cut + gap, amplitude)
     # End view of the head, beside it: the drive a shopper would see.
     cx = max(hd, major) * 1.25
     cy = hd / 2

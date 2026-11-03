@@ -66,7 +66,9 @@ every other drawing -- only the GEOMETRY is fixed.
   (`tests/test_brand_marks.py`; the closest pair measures 25).
 * **A part longer than its type's extent is drawn BROKEN**, not shrunk: the
   shank is shortened between two drafting break lines, head and thread end
-  kept, to a height that still grows with the true length. The screw and bolt
+  kept, to a height that still grows with the true length. Each break line is
+  a zigzag that the cut end follows, large enough to read at card size, so the
+  part looks shortened rather than snapped ([Drawings](drawings.md)). The screw and bolt
   extents are the pre-100K ones, so one 14-5/8" outlier no longer draws every
   socket screw 2.5x smaller.
 * **Finish and material** are the part's fill (the finish's color, else the
