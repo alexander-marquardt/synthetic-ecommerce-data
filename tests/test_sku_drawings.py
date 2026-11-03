@@ -922,8 +922,8 @@ def test_a_part_longer_than_its_extent_is_drawn_broken_and_fits():
     long_part = figure_fn(record).figure
     x0, y0, x1, y1 = long_part.bounds()
     assert y1 - y0 <= height
-    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and len(s.segments) == 6]
-    assert len(breaks) >= 2
+    breaks = [s for s in long_part.shapes if type(s).__name__ == "Lines" and s.role == "break"]
+    assert len(breaks) == 2
     shorter = dict(record, **{"Length": '10"', "Length under Head": '10"'})
     sy0, sy1 = figure_fn(shorter).figure.bounds()[1::2]
     assert sy1 - sy0 < y1 - y0, "a longer part must still draw taller"
@@ -983,6 +983,16 @@ def test_each_break_reads_as_a_zigzag_at_card_size(name):
         assert min(runs) * px >= 2, name
     gaps = [s for s in fig.shapes if isinstance(s, Poly) and s.role == "gap"]
     assert len(gaps) == 1, name
+    # The shank reaches each zigzag's far tip, so the cut ends on the zigzag, not flat.
+    sections = [
+        [y for _, y in s.points]
+        for s in fig.shapes
+        if isinstance(s, Poly) and s.role != "gap" and min(x for x, _ in s.points) < 0
+    ]
+    for mark in marks:
+        ys = [y for (_, y), _ in mark.segments]
+        tip = 1e-9  # the lower section is placed through the shift: rounding, no more
+        assert any(min(sy) - tip <= min(ys) and max(ys) <= max(sy) + tip for sy in sections), name
 
     brand = BRANDS[0]
     house = house_style(brand)
@@ -996,3 +1006,5 @@ def test_each_break_reads_as_a_zigzag_at_card_size(name):
     assert len(zigzags) == 2, name
     assert all(el.get("stroke-dasharray") is None for el in zigzags), name
     assert all(el.get("stroke-opacity") is None for el in zigzags), name
+    paper = [el for el in root.iter(f"{ns}path") if el.get("stroke") == house.paper]
+    assert len(paper) == 1 and paper[0].get("fill") == house.paper, name

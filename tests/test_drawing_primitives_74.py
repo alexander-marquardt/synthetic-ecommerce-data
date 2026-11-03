@@ -610,10 +610,13 @@ PINNED = {
     "end_mill_ball": "44:788b7bf4527443726cb07aaffe4887b943d449d7b1dd2368092d7612cc0595ff",
     "drill_jobber": "37:314a201c0d810636d30d6d4e2ce313f227981de767fbd49a352869990f5c4249",
     "tap_spiral_point": "31:a573394f5f232dd76c86ec12176ecf893dcc4bf822ac060fd1578425d57a8b84",
-    "screw_flat_head": "23:29052f7315ee8fe1f2d51f79658741b56de5351eed692aeff14f42ab08f51285",
-    "screw_button_head": "21:993c2b30ce7bb290a3db9e1c8bb3b311b5eb417f0554df0b61c2e99bf696936a",
-    "screw_low_head": "18:19a56605e9d5d9b25ea5335d246c9820908520e15c050012c63f9f3b49387aaf",
-    "bolt_hex": "32:4b864dcd6c2b82f8bb044b74914cecc00827fb5d6b309a3b96ba5bfccf716bb9",
+    # #822 re-took the four fastener pins on purpose: each pins one broken variant (its
+    # length set past the extent), and the drafting break is now a 4-stroke zigzag at the
+    # outline's weight over a paper gap of 0.08 of the extent. No other record moved.
+    "screw_flat_head": "23:97e395b35c761d021f5862e71998d7280c0159516f38ab67f0890b072e2ff1dd",
+    "screw_button_head": "21:6dbe2b7a0d778481b8d412c6b7f29772a96742dd7647e0a75d7b9643894c53bb",
+    "screw_low_head": "18:c962fa95e1a16cb67e39105e5fe6e1c44388d5b4efec58c153017854d0785aa4",
+    "bolt_hex": "32:032bf13aa5709b8f5e4dc0130435ba26811076431f54d1ce19aa8a5afcecdf3e",
     "washer_flat": "25:591f3ece432799789834037f99a33a566f18696896c84025381d6ee6e8ea2649",
     "nut_hex": "65:c5fcf14fd19e4b2fec365984ff6795812217a6a4f94e09a2d51460ce419c56ce",
 }

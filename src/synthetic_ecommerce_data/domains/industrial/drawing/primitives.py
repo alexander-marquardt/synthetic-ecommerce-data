@@ -125,15 +125,49 @@ def thread(
     )
 
 
+#: A break's zigzag: its strokes, and how far it reaches past the shank as a share
+#: of the shank's radius. Four strokes, not six: at card size (about 170 px wide)
+#: a 1/4" shank is about 9 px across, and six teeth ran together (#822).
+BREAK_STROKES = 4
+BREAK_REACH = 1.3
+
+
+def _zigzag(r: float, y: float, amplitude: float) -> list[Point]:
+    """The break's points across a shank of radius ``r``, ``amplitude`` either side of ``y``."""
+    half = r * BREAK_REACH
+    xs = [-half + k * (2 * half / BREAK_STROKES) for k in range(BREAK_STROKES + 1)]
+    return [(x, y + (amplitude if k % 2 else -amplitude)) for k, x in enumerate(xs)]
+
+
+def _across_shank(points: list[Point], r: float) -> list[Point]:
+    """The part of a zigzag (``x`` increasing) between ``x = -r`` and ``x = r``."""
+    inside: list[Point] = []
+    for (xa, ya), (xb, yb) in zip(points, points[1:], strict=False):
+        for edge in (-r, r):
+            if xa < edge < xb:
+                inside.append((edge, ya + (yb - ya) * (edge - xa) / (xb - xa)))
+        if -r <= xb <= r:
+            inside.append((xb, yb))
+    return inside
+
+
 def break_mark(fig: Figure, r: float, y: float, amplitude: float) -> None:
-    """A drafting break across a shank of radius ``r`` at ``y``: a zigzag."""
-    xs = [-r * 1.15 + k * (2.3 * r / 6) for k in range(7)]
-    points = [(x, y + (amplitude if k % 2 else -amplitude)) for k, x in enumerate(xs)]
-    fig.lines(list(zip(points, points[1:], strict=False)))
+    """A drafting break across a shank of radius ``r`` at ``y``: a zigzag, stroked at
+    the outline's weight (role ``break``)."""
+    points = _zigzag(r, y, amplitude)
+    fig.lines(list(zip(points, points[1:], strict=False)), role="break")
 
 
 def drafting_break(fig: Figure, r: float, y0: float, y1: float, amplitude: float) -> None:
-    """The drafting break of a long shank of radius ``r``: a cut at ``y0`` and at ``y1``."""
+    """The drafting break of a long shank of radius ``r``, cut at ``y0`` and at ``y1``.
+
+    The gap between the two zigzags is paper across the shank (role ``gap``), so a
+    section drawn ``amplitude`` past its cut ends on the zigzag, not flat: the
+    part reads as shortened for the drawing, never as snapped in two (#822).
+    """
+    top = _across_shank(_zigzag(r, y0, amplitude), r)
+    bottom = _across_shank(_zigzag(r, y1, amplitude), r)
+    fig.poly(top + bottom[::-1], "gap")
     break_mark(fig, r, y0, amplitude)
     break_mark(fig, r, y1, amplitude)
 

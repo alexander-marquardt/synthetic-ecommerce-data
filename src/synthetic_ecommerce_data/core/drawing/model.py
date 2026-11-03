@@ -19,8 +19,10 @@ Point = tuple[float, float]
 #: edge view): a paler fill, no hatch. ``hole`` is a bore or an arbor: the
 #: paper shows through. ``dark`` is a recess (a socket, a drive). ``line`` is
 #: line work only (flutes, thread crests). ``handle`` and ``grip`` take their
-#: color from the shape itself.
-ROLES = ("part", "plain", "hole", "dark", "line", "handle", "grip")
+#: color from the shape itself. ``break`` is a drafting break's zigzag, line work
+#: stroked at the outline's weight, solid; ``gap`` is the paper between a break's
+#: two zigzags, unoutlined, so a shank's cut end follows its zigzag (#822).
+ROLES = ("part", "plain", "hole", "dark", "line", "handle", "grip", "break", "gap")
 
 
 @dataclass(frozen=True)
@@ -87,10 +89,10 @@ class Figure:
     def disc(self, centre: Point, radius: float, role: str = "part", fill=None) -> None:
         self.shapes.append(Disc(centre, radius, role, fill))
 
-    def lines(self, segments) -> None:
+    def lines(self, segments, role: str = "line") -> None:
         segments = tuple(segments)
         if segments:
-            self.shapes.append(Lines(segments))
+            self.shapes.append(Lines(segments, role))
 
     def dots(self, centres, radius: float) -> None:
         centres = tuple(centres)

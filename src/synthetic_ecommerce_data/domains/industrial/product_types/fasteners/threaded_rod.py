@@ -40,7 +40,11 @@ from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing import primitives as P  # noqa: N812
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import (
+    BREAK_AMPLITUDE,
+    BREAK_GAP,
+    Drawn,
+)
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     MM_PER_INCH,
     NO_STANDARD,
@@ -264,10 +268,10 @@ def figure(record: dict[str, str]) -> Drawn:
     crests = P.thread_crests(r, c, drawn - c, max(thread.pitch_in, drawn / MAX_CRESTS))
     fig.lines(crests)
     if full > KNEE:
+        # The screws' drafting break (``figures.fastener``), at this type's extent.
         cut = drawn * 0.45
-        amplitude = min(0.04, r * 0.2)
-        P.break_mark(fig, r, cut, amplitude)
-        P.break_mark(fig, r, cut + 0.1, amplitude)
+        gap = EXTENT[1] * BREAK_GAP
+        P.drafting_break(fig, r, cut, cut + gap, gap * BREAK_AMPLITUDE)
     source = "record" if length and "Thread Size" in record else "nominal"
     return Drawn(fig, source)
 
