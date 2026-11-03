@@ -67,6 +67,7 @@ def test_a_catalog_built_with_another_seed_has_every_pin_restated(
 ) -> None:
     out = tmp_path / "golden_pins.json"
     assert _measure(reseeded, out) == 0
+    assert out.is_file(), "the script did not write the fixture --out names"
     pins = json.loads(out.read_text("utf-8"))
     committed = golden_pins.load()
     assert sorted(pins) == sorted(committed)
@@ -78,6 +79,9 @@ def test_a_catalog_built_with_another_seed_has_every_pin_restated(
         "catalog, not the one it was given"
     )
     assert pins["anchor"]["product_id"] != committed["anchor"]["product_id"]
+    assert pins["titles"]["documents"] != committed["titles"]["documents"], (
+        "the title counts are the default seed's: the title cut did not build with --seed"
+    )
 
     variants = {v["sku"]: (parent, v) for parent in _lines(reseeded) for v in parent["variants"]}
     for rule in golden_pins.SKU_RULES:
