@@ -110,7 +110,7 @@ def test_a_guidance_example_is_one_the_guidance_names_and_sits_on_its_own_leaf()
 
 
 def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
-    from synthetic_ecommerce_data.domains.retail import export
+    from synthetic_ecommerce_data.domains.retail import attribute_cleanup, export
 
     by_leaf: dict[str, set[str]] = {}
     for row in sports_rows.ROWS:
@@ -119,7 +119,7 @@ def test_the_filters_named_for_a_leaf_are_keys_the_rows_export() -> None:
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
         by_leaf.setdefault(SEP.join(row.path), set()).update(keys)
     for leaf, cells in _leaf_rows().items():
-        named = {k.strip() for k in cells[1].split(",")}
+        named = {attribute_cleanup.published(k.strip()) for k in cells[1].split(",")}
         assert named <= by_leaf.get(leaf, set()), (leaf, named - by_leaf.get(leaf, set()))
 
 
