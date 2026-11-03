@@ -295,3 +295,103 @@ def test_every_style_length_is_one_garment_length_under_one_name_and_spelling() 
 def test_every_size_range_is_in_one_casing() -> None:
     ranges = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"] == "size_range"}
     assert ranges and ranges <= {"Petite", "Regular", "Tall", "Plus"}
+
+
+# Fifth slice: an authored key that holds two kinds of value is split, one kind per key (the
+# 10-18 ruling, "Split"; review #6, #28, #29).
+
+STRAP_MATERIALS = {"Leather", "Fabric", "Stainless Steel Mesh", "Silicone"}
+STRAP_FORMS = {"Adjustable", "Thin", "Chain", "Back strap", "None"}
+NECKS = {"Crew Neck", "V Neck", "Roll Neck", "Boat Neck", "Cowl Neck", "Turtle Neck"}
+NECKLINES = {
+    "Crew", "V-neck", "Round", "Boat", "Slash", "Square", "High", "Collared", "Cowl", "Halter",
+    "Tie-neck", "Roll-neck", "Turtleneck",
+}  # fmt: skip
+
+
+def _published_of(doc: dict[str, Any], key: str) -> list[Any]:
+    return [e["value"] for e in _entries(doc) if e["key"] == key]
+
+
+def test_a_strap_is_published_as_its_material_or_its_form_by_type() -> None:
+    watch = attribute_cleanup.clean([_e("strap", "Leather")], "Analog Watch")
+    slip = attribute_cleanup.clean([_e("strap", "Adjustable")], "Slip")
+    assert [(e["key"], e["name"]) for e in watch] == [("strap_material", "Strap material")]
+    assert [(e["key"], e["name"]) for e in slip] == [("strap_style", "Strap style")]
+    assert attribute_cleanup.published("strap", "Fitness Band") == "strap_material"
+    assert attribute_cleanup.published("strap", "Handbag") == "strap_style"
+
+
+def test_no_published_strap_mixes_a_material_with_a_form() -> None:
+    material = {v for doc in _docs() for v in _published_of(doc, "strap_material")}
+    style = {v for doc in _docs() for v in _published_of(doc, "strap_style")}
+    assert not any(_published_of(doc, "strap") for doc in _docs())
+    assert material == STRAP_MATERIALS
+    assert style and style <= STRAP_FORMS
+
+
+def test_a_lampshade_and_a_soft_toy_carry_a_material_not_a_fabric() -> None:
+    shade = attribute_cleanup.clean([_e("fabric", "Velvet")], "Lampshade")
+    toy = attribute_cleanup.clean([_e("fabric", "Plush")], "Soft Toy")
+    coat = attribute_cleanup.clean([_e("fabric", "Wool")], "Coat")
+    assert [(e["key"], e["name"]) for e in shade] == [("shade_material", "Shade material")]
+    assert [(e["key"], e["name"]) for e in toy] == [("material", "Material")]
+    assert [e["key"] for e in coat] == ["fabric"]
+    left = {
+        doc["product_type"]
+        for doc in _docs()
+        if doc["product_type"] in ("Lampshade", "Soft Toy") and _published_of(doc, "fabric")
+    }
+    assert left == set()
+
+
+def test_a_neck_is_a_neckline_and_a_knit_style_keeps_its_construction() -> None:
+    got = attribute_cleanup.clean(
+        [_e("knit_style", "Crew Neck"), _e("knit_style", "Cable Knit"), _e("neckline", "crew")],
+        "Jumper",
+    )
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("neckline", "Neckline", "Crew"),
+        ("knit_style", "Knit_Style", "Cable Knit"),
+    ]
+    roll = attribute_cleanup.clean([_e("knit_style", "Roll Neck")], "Jumper")
+    assert [(e["key"], e["value"]) for e in roll] == [("neckline", "Roll-neck")]
+
+
+def test_no_knit_style_names_a_neck_and_every_neckline_is_in_one_casing() -> None:
+    knits = {v for doc in _docs() for v in _published_of(doc, "knit_style")}
+    assert knits and knits & NECKS == set()
+    necks = [e for doc in _docs() for e in _entries(doc) if e["key"] == "neckline"]
+    assert {e["name"] for e in necks} == {"Neckline"}
+    assert {e["value"] for e in necks} <= NECKLINES
+    jumpers = {
+        v for doc in _docs() if doc["product_type"] == "Jumper"
+        for v in _published_of(doc, "neckline")
+    }  # fmt: skip
+    assert {"Crew", "V-neck", "Roll-neck", "Boat", "Cowl", "Turtleneck"} <= jumpers
+
+
+def test_a_count_of_items_is_a_piece_count() -> None:
+    got = attribute_cleanup.clean(
+        [
+            _e("contents", "3 items"),
+            {"key": "items", "name": "Items", "value": "4", "unit_code": "C62",
+             "value_canonical": 4.0},
+            _e("contents", "4 Plates, 4 Bowls"),
+        ],
+        "Gift Set",
+    )  # fmt: skip
+    assert [(e["key"], e["name"], e["value"], e.get("unit_code")) for e in got] == [
+        ("piece_count", "Piece count", "3", "C62"),
+        ("piece_count", "Piece count", "4", "C62"),
+        ("contents", "Contents", "4 Plates, 4 Bowls", None),
+    ]
+
+
+def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_is_whole() -> None:
+    assert not any(_published_of(doc, k) for doc in _docs() for k in ("items", "contents"))
+    pieces = [e for doc in _docs() for e in _entries(doc) if e["key"] == "piece_count"]
+    assert {e["name"] for e in pieces} == {"Piece count"}
+    assert {(e["unit_code"], e["value"].isdigit()) for e in pieces} == {("C62", True)}
+    hampers = [doc for doc in _docs() if doc["product_type"] in ("Gift Hamper", "Gift Set")]
+    assert hampers and all(_published_of(doc, "piece_count") for doc in hampers)
