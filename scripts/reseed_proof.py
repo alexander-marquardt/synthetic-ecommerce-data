@@ -113,16 +113,25 @@ def prove(tree: Path, seed: int | None, every: bool, workers: str) -> tuple[int,
         ).stdout.split()
         if not tests:
             raise ProofError(f"no test reads the files the rebuild rewrote: {rewritten}")
-    print(f"reseed_proof: running {len(tests) or 'every'} test file(s)", file=sys.stderr)
-    done = _run(
-        tree, ("pytest", "-q", "-rfE", "-p", "no:cacheprovider", "-n", workers, "--", *tests)
-    )
-    reds = red_tests(done.stdout)
+    # The run takes minutes: its log is a file, so a slow one can be watched with `tail -f`.
+    log = tree.parent / "pytest.log"
+    print(f"reseed_proof: running {len(tests) or 'every'} test file(s); log {log}", file=sys.stderr)
+    with log.open("w", encoding="utf-8") as out:
+        code = subprocess.run(
+            ["uv", "run", "-q", "--locked", "--directory", str(tree), "pytest", "-v", "-rfE"]
+            + ["-p", "no:cacheprovider", "-n", workers, "--", *tests],
+            stdout=out,
+            stderr=subprocess.STDOUT,
+            env=_env(),
+            check=False,
+        ).returncode
+    output = log.read_text("utf-8")
+    reds = red_tests(output)
     # 0 is green and 1 is a red test; anything else (an interrupt, a usage or internal error,
     # nothing collected) stopped before the verdict.
-    if done.returncode not in (0, 1) or (done.returncode == 1 and not reds):
-        tail = "\n".join((done.stdout + done.stderr).strip().splitlines()[-20:])
-        raise ProofError(f"pytest stopped with {done.returncode} before a verdict:\n{tail}")
+    if code not in (0, 1) or (code == 1 and not reds):
+        tail = "\n".join(output.strip().splitlines()[-20:])
+        raise ProofError(f"pytest stopped with {code} before a verdict:\n{tail}")
     return new, reds
 
 
