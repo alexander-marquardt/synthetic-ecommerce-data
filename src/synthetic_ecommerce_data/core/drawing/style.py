@@ -39,6 +39,9 @@ MATERIAL_FILL: dict[str, str] = {
     "Alloy Steel": "#c9ced2",
     "Grade 12.9 Alloy Steel": "#b8bec3",
     "Grade 8 Alloy Steel": "#bdc2c7",
+    # The hex cap screw's SAE J429 grades (#819): plain carbon steel, lighter.
+    "Grade 2 Steel": "#e4e7ea",
+    "Grade 5 Steel": "#d5d9dd",
     "18-8 Stainless Steel": "#eef1f3",
     "Nylon": "#f4f0e2",
     "Forged Steel": "#c3c7cb",
@@ -126,6 +129,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Alloy Steel": Hatch((90,), 5.0),
     "Grade 12.9 Alloy Steel": Hatch((0, 90), 5.0),
     "Grade 8 Alloy Steel": Hatch((0, 30), 5.0),
+    "Grade 2 Steel": Hatch((0, 150), 5.0),
+    "Grade 5 Steel": Hatch((90, 30), 5.0),
     "18-8 Stainless Steel": Hatch((45,), 8.0, dots=True),
     "Nylon": Hatch((), 7.0, dots=True),
     "Forged Steel": Hatch((135,), 8.0, dots=True),

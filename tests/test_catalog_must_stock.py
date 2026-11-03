@@ -23,8 +23,9 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
 #: How many must-stock lines the default build adds: the examples its own
-#: random draws miss. Measured by direct count on the default config.
-MUST_STOCK_LINES = 5
+#: random draws miss. Measured by direct count on the default config; the sixth
+#: is the hex head cap screw of R8 (#819).
+MUST_STOCK_LINES = 6
 
 #: The build these tests judge: the must-stock pass without the grouped pass after it
 #: (#710), whose targets stock some of the same examples (the R8 hex bolt among them) and
@@ -65,11 +66,11 @@ def test_every_requirement_example_is_stocked_in_the_committed_catalog(entry):
 
 def test_one_entry_per_requirement_example_and_none_twice():
     examples = [e.example for e in muststock.MUST_STOCK]
-    assert len(examples) == len(set(examples)) == 24
+    assert len(examples) == len(set(examples)) == 25
 
 
 def test_the_pass_is_what_stocks_the_examples_the_random_catalog_misses(full):
-    """Without the pass, five examples have no product; with it, none are missing."""
+    """Without the pass, six examples have no product; with it, none are missing."""
     without = generate(replace(FLAT, must_stock=False))
     missing = _unstocked(without, muststock.MUST_STOCK)
     assert (

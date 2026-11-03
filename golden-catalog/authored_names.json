@@ -394,6 +394,19 @@
   "Thread type": "Thread Type",
   "Units per pack": "Units per Pack"
  },
+ "screw_hex_head": {
+  "Dia./thread size": "Dia./Thread Size",
+  "Drive type": "Drive Type",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Thread direction": "Thread Direction",
+  "Thread length": "Thread Length",
+  "Thread type": "Thread Type",
+  "Threads per inch": "Threads per Inch",
+  "Units per pack": "Units per Pack",
+  "Width across flats": "Width Across Flats"
+ },
  "screw_low_head": {
   "Dia./thread size": "Dia./Thread Size",
   "Drive size": "Drive Size",

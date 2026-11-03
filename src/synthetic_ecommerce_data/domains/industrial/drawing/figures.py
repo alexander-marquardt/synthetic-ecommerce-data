@@ -363,7 +363,11 @@ BREAK_VISIBLE = 0.97
 BREAK_GAP = 0.05
 
 
-def fastener(record: Record, max_height: float | None = None) -> Drawn:
+def fastener(
+    record: Record,
+    max_height: float | None = None,
+    washer_face: tuple[float, float] | None = None,
+) -> Drawn:
     """A screw or bolt, drawn to its published lengths.
 
     ``max_height`` is the type's extent. A part longer than it is drawn with
@@ -371,10 +375,19 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
     lines, head and thread end kept -- rather than shrinking every part of the
     type to fit one outlier (the 100K catalog's longest screw is 14.62"
     against a 5.95" extent).
+
+    ``washer_face`` is a hex head's bearing collar, ``(diameter, thickness)``
+    in inches, read from the standard's row for the record's size (the hex
+    cap screw, #819). It is part of the head height: the hex is drawn above
+    it, and the end view shows its circle inside the flats.
     """
     rec = dict(record)
     if "Head Type" not in rec and "Screw Head Type" not in rec:
         rec["Head Type"] = "Socket"
+    # A hex cap screw publishes its head by its flats alone (#819); a hex
+    # head's side profile is its width across flats, as on the bolt.
+    if "Head Dia." not in rec and "Width Across Flats" in rec:
+        rec["Head Dia."] = rec["Width Across Flats"]
     nominal = {**FASTENER_NOMINAL, "Head Type": rec.get("Head Type", rec.get("Screw Head Type"))}
     geom, source = _read(
         rec, fastener_geom.geometry_from_record, FASTENER_DEFAULTS, nominal, "Dia./Thread Size"
@@ -400,6 +413,10 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
         P.head_flat(fig, hd, r, hh)
     elif geom.domed:
         P.head_button(fig, hd, hh)
+    elif geom.hex_headed and washer_face is not None:
+        face_dia, face_thickness = washer_face
+        P.head_hex(fig, geom.across_flats, hh - face_thickness)
+        P.round_body(fig, face_dia, hh - face_thickness, hh)
     elif geom.hex_headed:
         P.head_hex(fig, geom.across_flats, hh)
     else:
@@ -445,6 +462,8 @@ def fastener(record: Record, max_height: float | None = None) -> Drawn:
     cy = hd / 2
     if geom.hex_headed:
         P.hex_face(fig, (cx, cy), geom.across_flats / math.sqrt(3))
+        if washer_face is not None:
+            P.round_face(fig, (cx, cy), washer_face[0] / 2, "plain")
     else:
         P.round_face(fig, (cx, cy), hd / 2)
         if geom.drive_size is not None:
