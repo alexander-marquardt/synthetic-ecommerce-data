@@ -47,7 +47,7 @@ A value with a unit, or one that names the leaf, is already never changed
   of two kinds (a garment size `M`, a thread size) do not share a key.
 * A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name (`seats` is `seat_count`), or `attribute_cleanup.BY_TYPE` where the type decides; a test reads it through `attribute_cleanup.published(key, product_type)` (gen#497).
 * `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
-* Lengths: a leg option (`inside_leg`, a Jeans `length`) is `leg_length`, a style length (`skirt_length`, any other `length`) `garment_length`; Petite is a `size_range`, never a length.
+* Lengths: a leg option (`inside_leg`, a Jeans `length`) is `leg_length`, a style length (`skirt_length`, any other `length`) `garment_length`; Petite is a `size_range`, never a length. One kind per key: a watch's `strap` is `strap_material`, any other `strap_style`; a lampshade's `fabric` is `shade_material`, a soft toy's `material` (`fabric` is apparel's); a neck in `knit_style` is `neckline` (`attribute_cleanup.BY_VALUE`), one spelling each (Crew, V-neck); `items` and a counting `contents` ("3 items") are `piece_count`.
 
 ## 4. Export SKU options: `export.OPTIONS`
 

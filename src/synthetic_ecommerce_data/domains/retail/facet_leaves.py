@@ -38,6 +38,7 @@ import re
 from typing import Any
 
 from synthetic_ecommerce_data.core.standard import UNHYPHENATED, words
+from synthetic_ecommerce_data.domains.retail import attribute_cleanup
 
 #: The kind nodes whose fit leaves collapse into them, by product type.
 FIT_NODES = {"Jeans": "Jeans", "Trousers": "Trousers"}
@@ -401,11 +402,18 @@ def _fit_of_leaf(leaf: str, node: str) -> str | None:
     return leaf[: -len(suffix)] if leaf.endswith(suffix) else None
 
 
+def _fabric(product_type: str) -> tuple[str, str]:
+    """The (key, name) a ``product_type``'s ``fabric`` is published under: a lampshade's cloth is
+    its ``shade_material`` (gen#497), whose blend moves as a garment's fabric's does."""
+    return attribute_cleanup.published_as("fabric", "Fabric", product_type)
+
+
 def fibre_content(entries: list[dict[str, Any]], product_type: str) -> str | None:
     """The blend or grade ``entries``' ``fabric`` held ("98% Cotton, 2% Elastane"), for the
     document's ``fibre_content`` detail; ``None`` when the fabric is already a shopper's."""
+    key = _fabric(product_type)[0]
     for entry in entries:
-        move = fabric_move(product_type, entry["value"]) if entry["key"] == "fabric" else None
+        move = fabric_move(product_type, entry["value"]) if entry["key"] == key else None
         if move:
             return move[1]
     return None
@@ -416,8 +424,9 @@ def _fabric_facets(
 ) -> tuple[list[tuple[str, str, str]], set[str]]:
     """The fabric a fibre-content ``fabric`` becomes, as (key, name, value), and the key it
     replaces. Neither for a value that is already a fabric."""
-    move = fabric_move(product_type, have["fabric"]) if "fabric" in have else None
-    return ([("fabric", "Fabric", move[0])], {"fabric"}) if move else ([], set())
+    key, name = _fabric(product_type)
+    move = fabric_move(product_type, have[key]) if key in have else None
+    return ([(key, name, move[0])], {key}) if move else ([], set())
 
 
 def _garment_fabrics(
@@ -430,10 +439,11 @@ def _garment_fabrics(
     (:func:`stated_fabrics`): "cotton top" finds a top whose title says cotton. Only a garment:
     a bag, a watch, a shoe and homeware keep their own ``material`` (:data:`NON_TEXTILE_TYPES`)."""
     moved, keys = _fabric_facets(have, rec["product_type"])
+    key, name = _fabric(rec["product_type"])
     if moved:
-        also = FABRIC_ALSO.get(have["fabric"], ())
-        return moved + [("fabric", "Fabric", fibre) for fibre in also], keys
-    if "fabric" in have or not is_textile(rec):
+        also = FABRIC_ALSO.get(have[key], ())
+        return moved + [(key, name, fibre) for fibre in also], keys
+    if key in have or not is_textile(rec):
         return [], keys
     named = (*MATERIAL_FABRICS.get(have.get("material", ""), ()), *stated_fabrics(rec["title"]))
     return [("fabric", "Fabric", fibre) for fibre in dict.fromkeys(named)], keys

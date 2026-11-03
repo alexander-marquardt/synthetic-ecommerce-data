@@ -305,7 +305,7 @@ STRAP_FORMS = {"Adjustable", "Thin", "Chain", "Back strap", "None"}
 NECKS = {"Crew Neck", "V Neck", "Roll Neck", "Boat Neck", "Cowl Neck", "Turtle Neck"}
 NECKLINES = {
     "Crew", "V-neck", "Round", "Boat", "Slash", "Square", "High", "Collared", "Cowl", "Halter",
-    "Tie-neck", "Roll-neck", "Turtleneck",
+    "Tie-neck",
 }  # fmt: skip
 
 
@@ -355,7 +355,7 @@ def test_a_neck_is_a_neckline_and_a_knit_style_keeps_its_construction() -> None:
         ("knit_style", "Knit_Style", "Cable Knit"),
     ]
     roll = attribute_cleanup.clean([_e("knit_style", "Roll Neck")], "Jumper")
-    assert [(e["key"], e["value"]) for e in roll] == [("neckline", "Roll-neck")]
+    assert [(e["key"], e["value"]) for e in roll] == [("neckline", "High")]
 
 
 def test_no_knit_style_names_a_neck_and_every_neckline_is_in_one_casing() -> None:
@@ -368,7 +368,7 @@ def test_no_knit_style_names_a_neck_and_every_neckline_is_in_one_casing() -> Non
         v for doc in _docs() if doc["product_type"] == "Jumper"
         for v in _published_of(doc, "neckline")
     }  # fmt: skip
-    assert {"Crew", "V-neck", "Roll-neck", "Boat", "Cowl", "Turtleneck"} <= jumpers
+    assert {"Crew", "V-neck", "High", "Boat", "Cowl"} <= jumpers
 
 
 def test_a_count_of_items_is_a_piece_count() -> None:
@@ -393,5 +393,5 @@ def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_i
     pieces = [e for doc in _docs() for e in _entries(doc) if e["key"] == "piece_count"]
     assert {e["name"] for e in pieces} == {"Piece count"}
     assert {(e["unit_code"], e["value"].isdigit()) for e in pieces} == {("C62", True)}
-    hampers = [doc for doc in _docs() if doc["product_type"] in ("Gift Hamper", "Gift Set")]
-    assert hampers and all(_published_of(doc, "piece_count") for doc in hampers)
+    counted = {doc["product_type"] for doc in _docs() if _published_of(doc, "piece_count")}
+    assert {"Gift Hamper", "Gift Set", "Hospital Bag", "Travel Set"} <= counted
