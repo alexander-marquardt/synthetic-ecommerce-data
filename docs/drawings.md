@@ -182,6 +182,17 @@ grows with the true length, up to 97% of the extent (`BREAK_VISIBLE`), so two
 lengths never draw alike. The extents are the pre-100K ones on purpose; the
 comment above `FIGURES` explains why.
 
+Each cut must read as a zigzag at card size (about 170 px wide), or the part looks
+snapped in two (#822). `primitives.drafting_break` draws it: four strokes reaching
+1.3 shank radii either side of the axis, `BREAK_AMPLITUDE` (a quarter of the gap)
+above and below the cut, stroked at the brand's outline weight and never dashed
+(the `break` role). The gap between the two cuts is `BREAK_GAP` (8%) of the extent
+and is paper across the shank (the `gap` role). Each section is drawn one amplitude
+past its cut and the gap trims it back, so the shank ends on its zigzag instead of
+a flat edge. Threaded rod draws the same break across its continuous body.
+`test_each_break_reads_as_a_zigzag_at_card_size` holds a tooth to at least 3 px tall
+and each stroke to at least 2 px across at that size.
+
 **The magnifier.** `sheet.magnifier(width, height)` takes the part's drawn size
 in sheet units. It returns `None` (draw plain) unless the part is at most 1/5
 of the sheet's width **and** at most 1/6 of its height. A lensed part is drawn
@@ -352,7 +363,7 @@ that matter most when you change a figure:
 | `test_no_product_exceeds_its_types_extent` / `test_every_drawing_fits_its_sheet` | the `FIGURES` extent really is the type's maximum, so its scale is a constant | golden |
 | `test_siblings_are_drawn_at_one_scale_...` / `test_within_a_type_every_part_is_drawn_in_true_proportion` / `test_an_m3_washer_is_drawn_smaller_than_an_m16_in_true_proportion` | one scale per type, measured on the true-scale copy (an M3 washer is 7/30 of an M16) | golden + planted |
 | the `test_the_lens_*` and `test_*lens*` tests, `test_no_outline_is_thinner_than_the_minimum_stroke` | the magnifier rule, enlargement floor (the catalog's measured minimum, `lens.min_enlargement` in `tests/data/golden_pins.json`), balance, ink and minimum stroke | golden + planted |
-| `test_a_part_longer_than_its_extent_is_drawn_broken_and_fits`, `test_no_fastener_is_drawn_smaller_because_of_an_outlier` | the break convention | planted |
+| `test_a_part_longer_than_its_extent_is_drawn_broken_and_fits`, `test_no_fastener_is_drawn_smaller_because_of_an_outlier`, `test_each_break_reads_as_a_zigzag_at_card_size` | the break convention, and that each cut reads as a zigzag at card size | planted |
 | `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
 | `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name's capitals at least 10 px tall at the tile; the four layouts, and a name no layout fits refused; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
 | `tests/test_end_mill_ends_drawn_9.py` | an end mill's cutting ends, counted off the figure's `part` polygons, equal its published `Single End/Double End` on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
@@ -384,7 +395,7 @@ the point.
 | Shank and bodies | `shank` (plain, round), `round_body`, `hex_body` (side view, width across corners), `conical_end` (a drill's point) |
 | Ring, tube, plate | `ring` (face), `tube` (cut through its axis), `plate` (with holes) |
 | Chamfer | `chamfer` (a bar with its end cut; `thread` uses it) |
-| Drafting break | `break_mark` |
+| Drafting break | `drafting_break` (both cuts and the paper gap between them), `break_mark` (one zigzag) |
 
 **Declaring a figure.** A `Spec` lists the dimensions the figure reads (`Dim`: the
 record attribute, how to read it, and its nominal value when the record omits it),

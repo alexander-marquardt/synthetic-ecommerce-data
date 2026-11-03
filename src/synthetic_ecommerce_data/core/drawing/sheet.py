@@ -255,11 +255,15 @@ def chamfer_points(margin: float) -> list[tuple[float, float]]:
     ]
 
 
+def _texture_id(house: HouseStyle) -> str:
+    return f"t{house.texture}{house.ink[1:]}"
+
+
 def _texture(page: svg.Svg, house: HouseStyle) -> None:
     """The background texture, behind everything, over the figure area."""
     if house.texture == "plain":
         return
-    key = f"t{house.texture}{house.ink[1:]}"
+    key = _texture_id(house)
     c = svg.num(TEXTURE_CELL)
     if house.texture == "grid":
         mark = f'<path d="M0 0H{c}M0 0V{c}" fill="none" stroke="{house.ink}" stroke-width=".5"/>'
@@ -325,6 +329,16 @@ def _figure_at(
     pale = _mix(fill, "#ffffff", 0.5)
     ink = house.ink
     for shape in figure.shapes:
+        if isinstance(shape, Lines) and shape.role == "break":
+            # A drafting break's zigzag: one joined line at the outline's weight,
+            # solid, so it reads at card size (#822).
+            page.polyline(
+                [at(a) for a, _ in shape.segments] + [at(shape.segments[-1][1])],
+                stroke=ink,
+                stroke_width=svg.num(house.stroke),
+                stroke_linejoin="round",
+            )
+            continue
         if isinstance(shape, Lines):
             dash = {"stroke_dasharray": house.dash} if house.dash else {}
             page.lines(
@@ -352,6 +366,15 @@ def _figure_at(
                 for x, y in (at(c) for c in shape.centres)
             )
             page.path(d, fill=_mix(ink, "#ffffff", 0.55))
+            continue
+        if isinstance(shape, Poly) and shape.role == "gap":
+            # Paper, stroked in paper at the zigzags' weight: the stroke hides the
+            # ends of the shank's outline under the zigzag drawn over it.
+            points = [at(p) for p in shape.points]
+            weight = svg.num(house.stroke)
+            page.polygon(points, fill=house.paper, stroke=house.paper, stroke_width=weight)
+            if house.texture != "plain":
+                page.polygon(points, fill=f"url(#{_texture_id(house)})")
             continue
         if shape.role == "part":
             color, hatched = fill, True
