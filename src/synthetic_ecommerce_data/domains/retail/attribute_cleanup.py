@@ -13,15 +13,22 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   that key and its one display name (``seats`` is ``seat_count`` "Seat count", ``range`` and
   ``suit_set`` are ``line`` "Range"); a (key, value) the merge repeats is published once;
 - **respelt**: :data:`VALUES` gives a merged key's value its one spelling, and the value is split
-  again so a unit written into it (a heel drop's "8mm") goes to the unit field.
+  again so a unit written into it (a heel drop's "8mm") goes to the unit field;
+- **placed**: ``country`` and ``origin`` are one concept, published as ``origin`` "Origin" with
+  one entry per level that applies, most specific first (the 10-18 ruling): an adjective is
+  its place (:data:`PLACE_OF`: Croatian is Croatia), a place within a country is followed by
+  that country (:data:`WITHIN`: Sicily, Italy), and a region the product's own title or type
+  names (:data:`NAMED_REGION`: a Rioja Reserva) goes first when it lies in that country, so
+  a search for either level finds it. Every published value is in :data:`PLACES`.
 
 A test that reads a document by an authored key asks :func:`published` for the key to read.
-The rest of #497's retail half (the length cluster, the ``style`` fold, ``origin``, the other
-value fixes) goes in later slices.
+The rest of #497's retail half (the length cluster, the ``style`` fold, the other value fixes)
+goes in later slices.
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from synthetic_ecommerce_data.core.entry import split
@@ -46,7 +53,53 @@ RENAMES: dict[str, tuple[str, str]] = {
     "finished_size": ("dimensions", "Dimensions"),
     "charms": ("charm_count", "Charm count"),
     "drop": ("heel_drop", "Heel drop"),
+    "country": ("origin", "Origin"),
+    "origin": ("origin", "Origin"),
 }
+
+#: An authored origin adjective -> the place it names.
+PLACE_OF: dict[str, str] = {
+    "Brazilian": "Brazil",
+    "Colombian": "Colombia",
+    "Croatian": "Croatia",
+    "Ethiopian": "Ethiopia",
+    "Greek": "Greece",
+    "Guatemalan": "Guatemala",
+    "Italian": "Italy",
+    "Portuguese": "Portugal",
+    "Sicilian": "Sicily",
+    "Spanish": "Spain",
+    "Sumatran": "Sumatra",
+    "Tunisian": "Tunisia",
+}
+#: A place -> the country it lies in.
+WITHIN: dict[str, str] = {
+    "Champagne": "France",
+    "Chianti": "Italy",
+    "England": "United Kingdom",
+    "Rioja": "Spain",
+    "Scotland": "United Kingdom",
+    "Sicily": "Italy",
+    "Sumatra": "Indonesia",
+}
+#: A word of a product's title or type -> the region it names.
+NAMED_REGION: dict[str, str] = {
+    "Champagne": "Champagne",
+    "Chianti": "Chianti",
+    "English": "England",
+    "Rioja": "Rioja",
+}
+#: Every place an ``origin`` entry may hold.
+PLACES = frozenset(
+    {
+        "Argentina", "Australia", "Barbados", "Brazil", "Caribbean", "Chile", "Colombia",
+        "Costa Rica", "Croatia", "Dominican Republic", "Ecuador", "Egypt", "Ethiopia", "France",
+        "Germany", "Greece", "Guatemala", "Guyana", "Indonesia", "Ireland", "Israel", "Italy",
+        "Jamaica", "Mexico", "Morocco", "Netherlands", "New Zealand", "Peru", "Poland",
+        "Portugal", "Serbia", "South Africa", "Spain", "Sweden", "Tunisia", "Turkey",
+        "United Kingdom", "United States", *WITHIN,
+    }
+)  # fmt: skip
 
 #: Published key -> {value: its one spelling} (#497 value fixes).
 VALUES: dict[str, dict[str, str]] = {
@@ -69,6 +122,27 @@ def restates_the_type(entry: dict[str, Any], product_type: str) -> bool:
     )
 
 
+def places(value: str, named: str) -> list[str]:
+    """The levels an authored origin ``value`` publishes, most specific first; ``named`` is
+    the product's title and type, whose region goes first when it lies in that place."""
+    levels = [PLACE_OF.get(value, value)]
+    while levels[-1] in WITHIN:
+        levels.append(WITHIN[levels[-1]])
+    for word in re.findall(r"\w+", named):
+        region = NAMED_REGION.get(word)
+        if region is not None and region not in levels and WITHIN[region] == levels[0]:
+            levels.insert(0, region)
+    return levels
+
+
+def _published(entry: dict[str, Any], named: str) -> list[dict[str, Any]]:
+    """``entry`` as the entries it publishes: one per origin level, else :func:`_merged`."""
+    if published(entry["key"]) == "origin":
+        name = RENAMES[entry["key"]][1]
+        return [{"key": "origin", "name": name, "value": p} for p in places(entry["value"], named)]
+    return [_merged(entry)]
+
+
 def _merged(entry: dict[str, Any]) -> dict[str, Any]:
     """``entry`` under its published key and name, its value in its one spelling."""
     if entry["key"] not in RENAMES:
@@ -81,16 +155,19 @@ def _merged(entry: dict[str, Any]) -> dict[str, Any]:
     return entry | {"key": key, "name": name}
 
 
-def clean(entries: list[dict[str, Any]], product_type: str) -> list[dict[str, Any]]:
+def clean(
+    entries: list[dict[str, Any]], product_type: str, title: str = ""
+) -> list[dict[str, Any]]:
     """``entries`` as published: none restating the type, each merged key under its one key
-    and name, a (key, value) the merge repeats dropped."""
+    and name, an origin as its places (a region ``title`` names first), a (key, value) the
+    merge repeats dropped."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
     for raw in entries:
         if restates_the_type(raw, product_type):
             continue
-        e = _merged(raw)
-        if e is raw or (e["key"], e["value"]) not in seen:
-            seen.add((e["key"], e["value"]))
-            out.append(e)
+        for e in _published(raw, f"{title} {product_type}"):
+            if e is raw or (e["key"], e["value"]) not in seen:
+                seen.add((e["key"], e["value"]))
+                out.append(e)
     return out
