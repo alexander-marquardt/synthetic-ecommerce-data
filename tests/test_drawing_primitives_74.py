@@ -119,6 +119,7 @@ CALLS = {
     "chamfer": dict(r=0.1, y0=0.0, y1=1.0, length=0.05),
     "thread": dict(r=0.1, y0=0.2, y1=1.0, pitch=0.05, chamfer_length=0.05),
     "break_mark": dict(r=0.1, y=0.5, amplitude=0.01),
+    "drafting_break": dict(r=0.1, y0=0.5, y1=0.8, amplitude=0.02),
     "conical_end": dict(r=0.1, y0=0.0, y_shoulder=0.8, y_tip=1.0),
     "head_flat": dict(head_d=0.4, shank_r=0.1, height=0.1),
     "head_button": dict(head_d=0.4, height=0.1),
@@ -221,12 +222,31 @@ def test_drop_draws_a_section_that_far_toward_the_origin():
     assert bounds(dropped)[3] == pytest.approx(bounds(plain)[3] - 1.5)
 
 
-def test_break_mark_is_a_zigzag_of_six_strokes_wider_than_the_shank():
+def test_break_mark_is_a_zigzag_of_four_strokes_wider_than_the_shank():
+    """Four strokes, not six: at card size a 1/4" shank is about 9 px wide, and six
+    teeth across it run together into a smudge (#822)."""
     fig = fresh()
     primitives.break_mark(fig, 0.1, 0.5, 0.01)
-    assert strokes(fig) == 6
-    x0, _, x1, _ = bounds(fig)
-    assert x1 - x0 == pytest.approx(0.23)
+    (mark,) = fig.shapes
+    assert isinstance(mark, Lines) and mark.role == "break"
+    assert strokes(fig) == 4
+    x0, y0, x1, y1 = bounds(fig)
+    assert x1 - x0 == pytest.approx(0.26)
+    assert (y0, y1) == pytest.approx((0.49, 0.51))
+
+
+def test_a_drafting_break_masks_the_gap_and_marks_each_cut():
+    """The gap between the two zigzags is paper, so each cut end of the shank
+    follows its zigzag instead of ending flat (#822)."""
+    fig = fresh()
+    primitives.drafting_break(fig, 0.1, 0.5, 0.8, 0.02)
+    gaps = [s for s in fig.shapes if isinstance(s, Poly) and s.role == "gap"]
+    marks = [s for s in fig.shapes if isinstance(s, Lines) and s.role == "break"]
+    assert len(gaps) == 1 and len(marks) == 2
+    # The mask is painted first, the zigzags over it.
+    assert fig.shapes.index(gaps[0]) < min(fig.shapes.index(m) for m in marks)
+    # It covers the shank's width only, from the first zigzag to the second.
+    assert box(gaps[0]) == pytest.approx((-0.1, 0.48, 0.1, 0.82))
 
 
 def test_conical_end_comes_to_a_point_on_the_axis():

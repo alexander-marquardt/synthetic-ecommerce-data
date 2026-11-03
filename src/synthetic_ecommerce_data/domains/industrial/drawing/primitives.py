@@ -132,6 +132,12 @@ def break_mark(fig: Figure, r: float, y: float, amplitude: float) -> None:
     fig.lines(list(zip(points, points[1:], strict=False)))
 
 
+def drafting_break(fig: Figure, r: float, y0: float, y1: float, amplitude: float) -> None:
+    """The drafting break of a long shank of radius ``r``: a cut at ``y0`` and at ``y1``."""
+    break_mark(fig, r, y0, amplitude)
+    break_mark(fig, r, y1, amplitude)
+
+
 def conical_end(fig: Figure, r: float, y0: float, y_shoulder: float, y_tip: float) -> None:
     """A round body of radius ``r`` from ``y0`` to ``y_shoulder`` that ends in a cone
     to a point at ``y_tip`` (a drill's point)."""
