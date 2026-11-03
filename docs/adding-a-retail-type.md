@@ -43,11 +43,11 @@ A value with a unit, or one that names the leaf, is already never changed
   a `unit_code` without a `value_canonical` or the reverse, an unknown unit code, a value not a bare
   number, a canonical not the value converted, a key with a unit on some entries only (retail's
   `one_class_per_key=True`), and sizes no row of `src/synthetic_ecommerce_data/core/size_charts.py`.
-* One key per concept: every measured height is `item_height`, never a second spelling
-  (`key_guard.py`, gen#227). Values of two kinds (a garment size `M`, a thread size) do not
-  share a key.
+* One key per concept: every measured height is `item_height` (`key_guard.py`, gen#227); values
+  of two kinds (a garment size `M`, a thread size) do not share a key.
 * A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name
   (`seats` is `seat_count`); a test reads it through `attribute_cleanup.published(key)` (gen#497).
+* `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
 
 ## 4. Export SKU options: `export.OPTIONS`
 

@@ -12,7 +12,7 @@ from functools import cache
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import grocery
+from synthetic_ecommerce_data.domains.retail import attribute_cleanup, grocery
 
 DRINKS = ["Food & drink", "Beer, wine & spirits"]
 FRUIT = ["Food & drink", "Fruit & vegetables", "Fresh fruit"]
@@ -130,7 +130,7 @@ def test_the_type_is_generated_with_its_attributes(name: str) -> None:
         assert d["category_leaf"] == path[-1]
         have = {e["key"]: e["value"] for e in d["attributes"]}
         for key in keys:
-            assert have.get(key), f"{d['title']}: {key} is empty"
+            assert have.get(attribute_cleanup.published(key)), f"{d['title']}: {key} is empty"
         assert d["variants"]
         low, high = BANDS[name]
         for v in d["variants"]:
