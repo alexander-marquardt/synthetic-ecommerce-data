@@ -19,11 +19,16 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   its place (:data:`PLACE_OF`: Croatian is Croatia), a place within a country is followed by
   that country (:data:`WITHIN`: Sicily, Italy), and a region the product's own title or type
   names (:data:`NAMED_REGION`: a Rioja Reserva) goes first when it lies in that country, so
-  a search for either level finds it. Every published value is in :data:`PLACES`.
+  a search for either level finds it. Every published value is in :data:`PLACES`;
+- **lengths**: a trouser's leg option is ``leg_length`` "Leg length" (``inside_leg``, a Jeans
+  ``length``) and a style length is ``garment_length`` "Garment length" (``skirt_length``, a
+  PE Shorts ``leg_length``, every other type's ``length``), in one spelling each. "Petite" is a
+  size range, never a length (the 10-18 ruling): a Petite leg is Short, and on the product it
+  also puts Petite in the ``size_range``, whose values are title case.
 
 A test that reads a document by an authored key asks :func:`published` for the key to read.
-The rest of #497's retail half (the length cluster, the ``style`` fold, the other value fixes)
-goes in later slices.
+The rest of #497's retail half (a Skirt's ``fit_length`` and a Suit Jacket's ``length``, which
+await a ruling; the ``style`` fold, the other value fixes) goes in later slices.
 """
 
 from __future__ import annotations
@@ -38,6 +43,8 @@ RESTATING = frozenset({"storage_type", "tracker_type", "type"})
 
 #: Authored key -> the (key, display name) it is published under: one concept written two
 #: ways (#497 review merges #15-#27, #31). A target key is listed too, so it carries one name.
+LEG = ("leg_length", "Leg length")
+GARMENT = ("garment_length", "Garment length")
 RENAMES: dict[str, tuple[str, str]] = {
     "fill": ("filling", "Filling"),
     "seats": ("seat_count", "Seat count"),
@@ -55,7 +62,26 @@ RENAMES: dict[str, tuple[str, str]] = {
     "drop": ("heel_drop", "Heel drop"),
     "country": ("origin", "Origin"),
     "origin": ("origin", "Origin"),
+    "inside_leg": LEG,
+    "leg_length": LEG,
+    "length": GARMENT,
+    "skirt_length": GARMENT,
+    "garment_length": GARMENT,
+    "size_range": ("size_range", "Size range"),
 }
+#: (authored key, product type) -> the (key, name) it is published under on that type alone. A
+#: Suit Jacket's Short/Regular/Long ``length`` is a fit with no leg, kept until a ruling.
+BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
+    ("length", "Jeans"): LEG,
+    ("length", "Suit Jacket"): ("length", "Length"),
+    ("leg_length", "PE Shorts"): GARMENT,
+}
+#: The authored keys no type publishes under their own name: a Suit Jacket keeps ``length``.
+RETIRED = frozenset(old for old, (key, _) in RENAMES.items() if old != key) - {
+    old for (old, _), (key, _) in BY_TYPE.items() if old == key
+}
+#: An authored leg value the product's ``size_range`` also carries: Petite is a cut, not a length.
+PETITE_LEG = "Petite"
 
 #: An authored origin adjective -> the place it names.
 PLACE_OF: dict[str, str] = {
@@ -104,12 +130,25 @@ PLACES = frozenset(
 #: Published key -> {value: its one spelling} (#497 value fixes).
 VALUES: dict[str, dict[str, str]] = {
     "power_source": {"Battery": "Battery-Powered"},
+    "leg_length": {"Short/Petite": "Short", PETITE_LEG: "Short"},
+    "garment_length": {
+        "Knee Length": "Knee",
+        "Mid": "Mid Length",
+        "Full": "Full Length",
+        "Crop": "Cropped",
+    },  # fmt: skip
+    "size_range": {"petite": "Petite", "regular": "Regular", "tall": "Tall", "plus": "Plus"},
 }
 
 
-def published(key: str) -> str:
-    """The key an authored ``key`` is published under."""
-    return RENAMES.get(key, (key,))[0]
+def _target(key: str, product_type: str) -> tuple[str, str] | None:
+    return BY_TYPE.get((key, product_type)) or RENAMES.get(key)
+
+
+def published(key: str, product_type: str = "") -> str:
+    """The key an authored ``key`` is published under (on ``product_type``, when it decides)."""
+    target = _target(key, product_type)
+    return key if target is None else target[0]
 
 
 def restates_the_type(entry: dict[str, Any], product_type: str) -> bool:
@@ -135,19 +174,26 @@ def places(value: str, named: str) -> list[str]:
     return levels
 
 
-def _published(entry: dict[str, Any], named: str) -> list[dict[str, Any]]:
-    """``entry`` as the entries it publishes: one per origin level, else :func:`_merged`."""
-    if published(entry["key"]) == "origin":
-        name = RENAMES[entry["key"]][1]
-        return [{"key": "origin", "name": name, "value": p} for p in places(entry["value"], named)]
-    return [_merged(entry)]
+def _published(
+    entry: dict[str, Any], product_type: str, named: str, on_product: bool
+) -> list[dict[str, Any]]:
+    """``entry`` as the entries it publishes: one per origin level, a Petite leg with the
+    product's Petite size range, else :func:`_merged`."""
+    target = _target(entry["key"], product_type)
+    if target is not None and target[0] == "origin":
+        values = places(entry["value"], named)
+        return [{"key": "origin", "name": target[1], "value": p} for p in values]
+    out = [_merged(entry, target)]
+    if on_product and target == LEG and entry["value"] == PETITE_LEG:
+        out.append({"key": "size_range", "name": "Size range", "value": "Petite"})
+    return out
 
 
-def _merged(entry: dict[str, Any]) -> dict[str, Any]:
+def _merged(entry: dict[str, Any], target: tuple[str, str] | None) -> dict[str, Any]:
     """``entry`` under its published key and name, its value in its one spelling."""
-    if entry["key"] not in RENAMES:
+    if target is None:
         return entry
-    key, name = RENAMES[entry["key"]]
+    key, name = target
     value = entry["value"]
     if isinstance(value, str) and "unit_code" not in entry:
         value = VALUES.get(key, {}).get(value, value)
@@ -156,17 +202,22 @@ def _merged(entry: dict[str, Any]) -> dict[str, Any]:
 
 
 def clean(
-    entries: list[dict[str, Any]], product_type: str, title: str = ""
+    entries: list[dict[str, Any]],
+    product_type: str,
+    title: str = "",
+    *,
+    on_product: bool = False,
 ) -> list[dict[str, Any]]:
     """``entries`` as published: none restating the type, each merged key under its one key
     and name, an origin as its places (a region ``title`` names first), a (key, value) the
-    merge repeats dropped."""
+    merge repeats dropped. ``on_product``: the product's list, where a Petite leg also puts
+    Petite in the size range (a SKU's list does not carry the range)."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
     for raw in entries:
         if restates_the_type(raw, product_type):
             continue
-        for e in _published(raw, f"{title} {product_type}"):
+        for e in _published(raw, product_type, f"{title} {product_type}", on_product):
             if e is raw or (e["key"], e["value"]) not in seen:
                 seen.add((e["key"], e["value"]))
                 out.append(e)

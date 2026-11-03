@@ -45,9 +45,9 @@ A value with a unit, or one that names the leaf, is already never changed
   `one_class_per_key=True`), and sizes no row of `src/synthetic_ecommerce_data/core/size_charts.py`.
 * One key per concept: every measured height is `item_height` (`key_guard.py`, gen#227); values
   of two kinds (a garment size `M`, a thread size) do not share a key.
-* A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name
-  (`seats` is `seat_count`); a test reads it through `attribute_cleanup.published(key)` (gen#497).
+* A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name (`seats` is `seat_count`), or `attribute_cleanup.BY_TYPE` where the type decides; a test reads it through `attribute_cleanup.published(key, product_type)` (gen#497).
 * `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
+* Lengths: a leg option (`inside_leg`, a Jeans `length`) is `leg_length`, a style length (`skirt_length`, any other `length`) `garment_length`; Petite is a `size_range`, never a length.
 
 ## 4. Export SKU options: `export.OPTIONS`
 

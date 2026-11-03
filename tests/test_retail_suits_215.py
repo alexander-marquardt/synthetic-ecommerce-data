@@ -216,7 +216,7 @@ def test_suit_trousers_sell_each_leg_as_its_own_sku() -> None:
         assert {s["inside_leg"] for s in skus} == set(LEGS3), r.code
         assert len(skus) == len(r.colors) * len(r.sizes) * len(LEGS3), r.code
         axes = export.standard_document(r.doc())["variant_axes"]  # color only where it varies
-        assert axes[-2:] == ["waist", "inside_leg"], (r.code, axes)
+        assert axes[-2:] == ["waist", "leg_length"], (r.code, axes)  # inside_leg, published
 
 
 def test_a_suit_trousers_size_range_is_derived_from_the_legs_in_stock() -> None:
@@ -231,7 +231,7 @@ def test_a_petite_filter_finds_the_suit_trousers_with_a_short_leg_in_stock() -> 
 
     def petite(r) -> bool:  # the class 6 filter, on the exported entries
         attrs = export.standard_document(r.doc())["attributes"]
-        return any(a["key"] == "size_range" and a["value"] == "petite" for a in attrs)
+        return any(a["key"] == "size_range" and a["value"] == "Petite" for a in attrs)
 
     def short_in_stock(r) -> bool:
         return any(s.get("inside_leg") == "Short/Petite" and s["in_stock"] for s in r.skus())

@@ -325,7 +325,9 @@ def _product_attributes(rec: dict) -> list[dict[str, Any]]:
         if (e["key"], e["value"]) not in have:
             have.add((e["key"], e["value"]))
             out.append(e)
-    return attribute_cleanup.clean(_one_case(out), rec["product_type"], rec["title"])
+    return attribute_cleanup.clean(
+        _one_case(out), rec["product_type"], rec["title"], on_product=True
+    )
 
 
 def _one_case(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
