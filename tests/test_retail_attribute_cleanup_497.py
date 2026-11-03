@@ -402,7 +402,9 @@ def test_a_count_of_items_is_a_piece_count() -> None:
 
 
 def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_is_whole() -> None:
-    assert not any(_published_of(doc, k) for doc in _docs() for k in ("items", "contents"))
+    assert not any(_published_of(doc, "items") for doc in _docs())
+    contents = {v for doc in _docs() for v in _published_of(doc, "contents")}
+    assert contents and not {v for v in contents if attribute_cleanup.COUNTED.fullmatch(v)}
     pieces = [e for doc in _docs() for e in _entries(doc) if e["key"] == "piece_count"]
     assert {e["name"] for e in pieces} == {"Piece count"}
     assert {(e["unit_code"], e["value"].isdigit()) for e in pieces} == {("C62", True)}
@@ -414,10 +416,11 @@ def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_i
 #: as "Style"): one concept, published as ``style`` "Style" (the 10-18 ruling, "Style").
 SUB_KINDS = {
     "accessory_type", "airer_type", "bag_shape", "bag_style", "band_type", "bbq_kind",
-    "bin_type", "bookcase_style", "bowl_type", "bracelet_type", "chair_style", "chest_style",
-    "cutlery_type", "earring_style", "fixture_type", "furniture_kind", "glass_type",
-    "heater_type", "jelly_style", "kettle_type", "knife_type", "laundry_basket_type", "lid_type",
-    "mattress_type", "mirror_type", "module_type", "mop_type", "necklace_type", "pan_type",
+    "bin_type", "bolero_style", "bookcase_style", "bowl_type", "bracelet_type", "chair_style",
+    "chest_style", "cutlery_type", "earring_style", "fixture_type", "furniture_kind",
+    "glass_type", "heater_type", "jelly_style", "kettle_type", "knife_type", "ladder_kind",
+    "laundry_basket_type", "lid_type", "mattress_type", "mirror_type", "module_type", "mop_type",
+    "necklace_type", "pan_type",
     "parasol_kind", "pinafore_style", "plate_type", "pump_type", "purse_type", "ring_type",
     "shapewear_type", "shorts_style", "skirt_shape", "skirt_style", "spirit_style",
     "storage_type", "table_type", "tent_type", "toy_type", "tracker_type", "umbrella_type",
@@ -487,11 +490,16 @@ def test_a_boolean_is_published_only_when_true_and_always_as_yes() -> None:
         ("belt", "Yes"),
         ("ring_size_uk", "N"),
     ]
-    values = {e["value"] for doc in _docs() for e in _entries(doc) if isinstance(e["value"], str)}
+    authored = [_e("pocket", "No"), _e("hood", "No"), _e("hood", "Yes"), _e("lined", "false")]
+    assert attribute_cleanup.withheld(authored) == {"pockets", "lined"}
+    plain = [_e("bolero_style", "Bolero"), _e("hood", "No")]
+    assert attribute_cleanup.withheld(plain, "Bolero") == {"style", "hood"}
+    values ={e["value"] for doc in _docs() for e in _entries(doc) if isinstance(e["value"], str)}
     assert {v for v in values if v.casefold() in ("no", "false", "yes", "true")} == {"Yes"}
 
 
-#: A number with a unit written into its text: the unit belongs in the unit field.
+#: A number with a unit written into its text: the unit belongs in the unit field. A ``size``
+#: is a SKU option's label ("60 cm" on a Plant), kept as the shopper picks it.
 NUMBER_AND_UNIT = re.compile(r"\d[\d,.]*\s*(cm|mm)")
 
 
@@ -506,7 +514,9 @@ def test_a_unit_written_into_a_value_goes_to_the_unit_field() -> None:
         (e["key"], e["value"])
         for doc in _docs()
         for e in _entries(doc)
-        if isinstance(e["value"], str) and NUMBER_AND_UNIT.fullmatch(e["value"])
+        if e["key"] != "size"
+        and isinstance(e["value"], str)
+        and NUMBER_AND_UNIT.fullmatch(e["value"])
     }
     assert written == set()
 

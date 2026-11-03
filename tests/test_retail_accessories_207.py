@@ -53,7 +53,8 @@ def _attr(row: accessory_rows.ARow, key: str) -> list[str]:
 def _keys(row: accessory_rows.ARow) -> set[str]:
     doc = export.standard_document(row.doc())
     keys = {e["key"] for e in doc["attributes"]}
-    return keys | {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
 
 
 def _conditional(row: accessory_rows.ARow) -> set[str]:

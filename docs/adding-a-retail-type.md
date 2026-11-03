@@ -49,6 +49,8 @@ A value with a unit, or one that names the leaf, is already never changed
 * `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
 * Lengths: a leg option (`inside_leg`, a Jeans `length`) is `leg_length`, a style length (`skirt_length`, any other `length`) `garment_length`; Petite is a `size_range`, never a length. One kind per key: a watch's `strap` is `strap_material`, any other `strap_style`; a lampshade's `fabric` is `shade_material`, a soft toy's `material` (`fabric` is apparel's); a neck in `knit_style` is `neckline` (`attribute_cleanup.BY_VALUE`) unless the product authors its own neckline, one spelling each (Crew, V-neck); `items` and a counting `contents` ("3 items") are `piece_count`.
 
+* Values (gen#497): a boolean is published only when true, always as `Yes` (author Yes/No as you like: a No, a `no` fact, is dropped); a number goes in the value and its unit in the unit field, so author `measured(...)`, or list the key in `attribute_cleanup.UNIT_IN_VALUE` if its value reads "36cm"; one spelling per value (`attribute_cleanup.VALUES`: Hollowfibre). One display name names one key and one key has one name across the whole catalogue, not just within one document: `name_guard.catalogue_name_findings` must find nothing in the ceiling build. So reuse a key that already exists (`shape`, `form`, `contents`, `noise_level`), or pick a name nobody else uses (a Water Gun's range is "Water range", not the brand line's "Range").
+
 ## 4. Export SKU options: `export.OPTIONS`
 
 One line per SKU field: `field -> (key, name, unit code or None)`, for example

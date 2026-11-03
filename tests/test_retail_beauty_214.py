@@ -18,6 +18,7 @@ import pytest
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     house_styles,
     kit,
@@ -109,9 +110,9 @@ def _doc(row) -> dict:
 
 def _keys(row) -> set[str]:
     doc = _doc(row)
-    return {e["key"] for e in doc["attributes"]} | {
-        e["key"] for v in doc["variants"] for e in v["attributes"]
-    }
+    keys = {e["key"] for e in doc["attributes"]}
+    keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
 
 
 def _seen(ptype: str, key: str) -> set[str]:
@@ -178,7 +179,7 @@ def test_the_sku_axes_are_options_with_their_units(ptype: str) -> None:
 
 def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
     assert _seen("Mascara", "effect") == {"Volume", "Length", "Curl"}
-    assert _seen("Mascara", "waterproof") == {"Yes", "No"}
+    assert _seen("Mascara", "waterproof") == {"Yes"}  # a No is not published (#497)
     assert {"Matte", "Dewy"} <= _seen("Face Primer", "finish")
     assert {"Matte", "Dewy"} <= _seen("Setting Spray", "finish")
     assert {"Retinol", "Vitamin C", "Hyaluronic Acid", "Niacinamide"} <= _seen("Serum", "active")

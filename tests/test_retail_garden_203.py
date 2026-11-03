@@ -61,7 +61,8 @@ AXES = {
 def _keys(row) -> set[str]:
     doc = export.standard_document(row.doc())
     keys = {e["key"] for e in doc["attributes"]}
-    return keys | {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
 
 
 def _svg(row=None, **kw) -> str:

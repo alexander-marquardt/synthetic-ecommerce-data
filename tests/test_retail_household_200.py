@@ -101,6 +101,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+        keys |= attribute_cleanup.withheld(row.doc()["attributes"])
         want = KEYS[ptype] - (SET_EXEMPT if "Set" in _attr(row, "set_or_single") else set())
         want -= NOT_APPLICABLE.get(row.code, set())
         want -= _restating(row.doc())
