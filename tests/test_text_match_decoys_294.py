@@ -34,7 +34,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 BASE_PEANUT = "peanuts"
 FIELDS = ("ingredient_base", "contains", "may_contain")
-CHOCOLATE_LEAVES = ("Chocolate bars", "Chocolate boxes")  # published leaves (sentence case)
+#: The published leaves under Chocolate (sentence case), where "chocolate" routes (gen#298).
+CHOCOLATE_LEAVES = ("Dark chocolate bars", "Milk chocolate bars", "White chocolate bars",
+                    "Chocolate multipacks", "Sharing bags", "Chocolate boxes")  # fmt: skip
 
 
 @cache

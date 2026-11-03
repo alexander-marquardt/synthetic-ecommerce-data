@@ -237,9 +237,9 @@ PACKS_PER_STYLE: dict[str, int] = {
 #: (family, the flavors it carries, its may-contain codes).
 ANCHORS: tuple[tuple[str, tuple[str, ...], str], ...] = (
     ("CHB", ("Peanut Caramel", "Milk"), ""),  # contains peanuts
-    ("CHB", ("Milk", "Dark 70%"), "PT"),  # may contain peanuts
+    ("CHB", ("Dark 70%", "Raspberry Dark"), "PT"),  # may contain peanuts; a style is one chocolate (gen#298)
     ("CHB", ("Dark 70%", "Mint Dark", "Orange Dark", "Coconut Dark"), ""),  # vegan, nut free
-    ("CHB", ("Milk", "Salted Caramel Milk", "White"), ""),  # milk chocolate, nut free
+    ("CHB", ("Milk", "Salted Caramel Milk"), ""),  # milk chocolate, nut free
     ("LEM", ("Unwaxed Lemons",), ""),
     ("ORA", ("Oranges",), ""),
     ("ORA", ("Blood Oranges",), ""),

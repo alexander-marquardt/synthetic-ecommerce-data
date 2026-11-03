@@ -71,6 +71,7 @@ def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, pric
 
 
 _SOFAS = ("Home", "Furniture", "Sofas")
+_CHOCOLATE = ("Chocolate & Sweets", "Chocolate")  # the Chocolate aisle (gen#298)
 UK = ("6", "8", "10", "12", "14", "16")
 KIDS_SIZES = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs")
 KINDS = {
@@ -173,9 +174,12 @@ KINDS = {
                 "Vine & Valley", 2.1),
     "water": _food(("Drinks", "Soft Drinks"), "Soft Drink", "bottle",
              "Vine & Valley", 1.1),
-    "chocolate": _food(("Chocolate & Sweets", "Chocolate Bars"), "Chocolate Bar", "bar",
-                 "Pantry Mill", 2.2),
-    "chocolate_box": _food(("Chocolate & Sweets", "Chocolate Boxes"), "Chocolate Box", "box",
+    # A bar sits in the Chocolate Bars child for its chocolate, a box under Chocolate (gen#298).
+    "dark_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "Dark Chocolate Bars"), "Chocolate Bar",
+                      "bar", "Pantry Mill", 2.2),
+    "white_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "White Chocolate Bars"),
+                       "Chocolate Bar", "bar", "Pantry Mill", 2.2),
+    "chocolate_box": _food((*_CHOCOLATE, "Chocolate Boxes"), "Chocolate Box", "box",
                      "Hearth & Table", 4.5),
     "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",
               "Pantry Mill", 1.6),

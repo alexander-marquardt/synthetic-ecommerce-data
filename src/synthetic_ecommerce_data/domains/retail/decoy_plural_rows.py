@@ -18,7 +18,7 @@ A row is (code, kind, title, description, color, plural, sold, ingredients).
 ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- oranges
     ("XQ01", "orange_juice", "Juice from Oranges, 1L", "Not-from-concentrate juice pressed from oranges, in a 1 litre carton. Keep chilled.", "Orange", "oranges", 950, ("pressed oranges (100%)",)),
-    ("XQ02", "chocolate", "Chocolate & Candied Oranges", "A 70% dark chocolate bar studded with pieces of candied oranges.", "Brown", "oranges", 930, ("cocoa mass", "sugar", "candied oranges (12%)", "cocoa butter")),
+    ("XQ02", "dark_chocolate", "Chocolate & Candied Oranges", "A 70% dark chocolate bar studded with pieces of candied oranges.", "Brown", "oranges", 930, ("cocoa mass", "sugar", "candied oranges (12%)", "cocoa butter")),
     ("XQ03", "tinned", "Mandarin Oranges, 298g", "Segments of mandarin oranges in a light juice, in a 298g tin.", "Orange", "oranges", 910, ("mandarin oranges (60%)", "mandarin juice")),
     ("XQ04", "jam", "Seville Oranges Marmalade", "A thick cut marmalade made with bitter Seville oranges, in a 340g jar.", "Orange", "oranges", 890, ("seville oranges (45%)", "sugar", "lemon juice")),
     # -- lemons
@@ -41,7 +41,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     ("XQ18", "yoghurt", "Strawberries and Cream Yogurt, 4 Pack", "Four pots of creamy yogurt with strawberry puree.", "Pink", "strawberries", 910, ("yogurt", "strawberry puree (8%)", "cream")),
     ("XQ19", "sweets", "Milk Chocolate Covered Strawberries", "Freeze-dried strawberries coated in milk chocolate, in a 120g bag.", "Pink", "strawberries", 880, ("milk chocolate", "freeze-dried strawberries (30%)")),
     # -- raspberries
-    ("XQ20", "chocolate", "White Chocolate Raspberries Bar", "A white chocolate bar with pieces of freeze-dried raspberries.", "White", "raspberries", 940, ("sugar", "cocoa butter", "milk powder", "freeze-dried raspberries (6%)")),
+    ("XQ20", "white_chocolate", "White Chocolate Raspberries Bar", "A white chocolate bar with pieces of freeze-dried raspberries.", "White", "raspberries", 940, ("sugar", "cocoa butter", "milk powder", "freeze-dried raspberries (6%)")),
     ("XQ21", "biscuit", "Raspberries and Cream Shortbread", "Shortbread biscuits filled with raspberries and cream.", "Pink", "raspberries", 910, ("wheat flour", "butter", "raspberry jam", "cream")),
     ("XQ22", "cereal", "Raspberries and Almond Granola", "Crunchy oat granola with almonds and dried raspberries, in a 500g box.", "Pink", "raspberries", 890, ("oats", "almonds", "dried raspberries (5%)", "honey")),
     ("XQ23", "jam", "Seedless Raspberries Jam, 340g", "A seedless jam made from raspberries, in a 340g jar.", "Red", "raspberries", 860, ("raspberries (50%)", "sugar", "lemon juice")),

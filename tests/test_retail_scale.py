@@ -934,7 +934,7 @@ def test_every_department_holds_its_floor_of_styles(ceiling):
 
 #: The Home templates :func:`test_growing_one_department_never_starves_another` adds: a
 #: batch the size of the Home types the open batches plan (gen#196-#217).
-SYNTHETIC_HOME = 200
+SYNTHETIC_HOME = 210
 
 
 def test_growing_one_department_never_starves_another(ceiling, monkeypatch):

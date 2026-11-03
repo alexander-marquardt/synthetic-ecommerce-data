@@ -581,7 +581,10 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
                 packs = list(fam.packs)
             else:
                 lo, hi = fam.per_style
-                flavors = rng.sample(fam.flavors, rng.randint(lo, hi))
+                # A family with children draws a style's flavors from one child (gen#298); one
+                # without draws as before, so its stream does not move.
+                pool = fam.kin(rng.choice(fam.flavors)) if fam.children else fam.flavors
+                flavors = rng.sample(pool, min(rng.randint(lo, hi), len(pool)))
                 flavors.sort(key=fam.flavors.index)
                 packs = list(fam.packs)
             organic = fam.food and rng.random() < ORGANIC_SHARE
