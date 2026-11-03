@@ -130,7 +130,7 @@ MUTATIONS: list[Mutation] = [
             (
                 "a wool material is not also the wool fabric",
                 "facet_leaves.py",
-                '    if "fabric" in have or not is_textile(rec):',
+                '    if key in have or not is_textile(rec):',
                 "    if True:",
                 "tests/test_retail_facet_leaves.py -k material_that_names_wool",
                 "a named fibre is a fabric",
