@@ -47,7 +47,7 @@ def test_a_key_that_restates_the_type_is_dropped_and_a_real_sub_kind_stays() -> 
     )
     assert [(e["key"], e["value"]) for e in got] == [
         ("type", "Set Screw"),
-        ("storage_type", "Underbed"),
+        ("style", "Underbed"),
         ("type", "Deep Groove"),
         ("color", "Storage Box"),
     ]
@@ -65,7 +65,7 @@ def test_no_published_attribute_restates_its_product_type() -> None:
         (doc["product_type"], e["key"], e["value"])
         for doc in _docs()
         for e in _entries(doc)
-        if e["key"] in {"storage_type", "tracker_type", "type"}
+        if e["key"] in {"style", "type"}
         and str(e["value"]).casefold() == doc["product_type"].casefold()
     }
     assert restating == set()
@@ -73,20 +73,14 @@ def test_no_published_attribute_restates_its_product_type() -> None:
 
 def test_the_real_sub_kinds_of_a_removed_key_stay_published() -> None:
     """A storage box's Underbed and a nursery storage's Basket say something the type does
-    not, so their ``storage_type`` stays; the Fitness Band loses its ``tracker_type`` whole."""
-    seen: dict[tuple[str, str], set[str]] = {}
+    not, so they stay (as its ``style``, the 10-18 fold); the Fitness Band's ``tracker_type``
+    is dropped whole."""
+    seen: dict[str, set[str]] = {}
     for doc in _docs():
-        for e in _entries(doc):
-            if e["key"] in {"storage_type", "tracker_type"}:
-                seen.setdefault((doc["product_type"], e["key"]), set()).add(e["value"])
-    assert "Underbed" in seen[("Storage Box", "storage_type")]
-    assert {"Basket", "Cube", "Hanging Organizer"} <= seen[("Nursery Storage", "storage_type")]
-    assert ("Fitness Band", "tracker_type") not in seen
-    assert all(
-        value.casefold() != ptype.casefold()
-        for (ptype, _), values in seen.items()
-        for value in values
-    )
+        seen.setdefault(doc["product_type"], set()).update(_published_of(doc, "style"))
+    assert "Underbed" in seen["Storage Box"]
+    assert {"Basket", "Cube", "Hanging Organizer"} <= seen["Nursery Storage"]
+    assert "Fitness band" not in seen.get("Fitness Band", set())
 
 
 #: Second slice: an authored key -> the (key, display name) it is published under.
@@ -412,3 +406,69 @@ def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_i
     assert {(e["unit_code"], e["value"].isdigit()) for e in pieces} == {("C62", True)}
     counted = {doc["product_type"] for doc in _docs() if _published_of(doc, "piece_count")}
     assert {"Gift Hamper", "Gift Set", "Hospital Bag", "Travel Set"} <= counted
+
+
+#: Review merge #30's one-type sub-kind keys, and the Jelly Shoes' ``jelly_style`` (also shown
+#: as "Style"): one concept, published as ``style`` "Style" (the 10-18 ruling, "Style").
+SUB_KINDS = {
+    "accessory_type", "airer_type", "bag_shape", "bag_style", "band_type", "bbq_kind",
+    "bin_type", "bookcase_style", "bowl_type", "bracelet_type", "chair_style", "chest_style",
+    "cutlery_type", "earring_style", "fixture_type", "furniture_kind", "glass_type",
+    "heater_type", "jelly_style", "kettle_type", "knife_type", "laundry_basket_type", "lid_type",
+    "mattress_type", "mirror_type", "module_type", "mop_type", "necklace_type", "pan_type",
+    "parasol_kind", "pinafore_style", "plate_type", "pump_type", "purse_type", "ring_type",
+    "shapewear_type", "shorts_style", "skirt_shape", "skirt_style", "spirit_style",
+    "storage_type", "table_type", "tent_type", "toy_type", "tracker_type", "umbrella_type",
+    "utensil_type", "watch_type",
+}  # fmt: skip
+
+
+def test_a_sub_kind_key_is_published_as_style() -> None:
+    got = attribute_cleanup.clean(
+        [_e("bbq_kind", "Kamado"), {"key": "skirt_shape", "name": "Shape", "value": "A-Line"}],
+        "BBQ",
+    )
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("style", "Style", "Kamado"),
+        ("style", "Style", "A-Line"),
+    ]
+    assert {attribute_cleanup.published(k) for k in SUB_KINDS} == {"style"}
+
+
+def test_a_sub_kind_that_names_the_product_type_is_dropped() -> None:
+    got = attribute_cleanup.clean(
+        [_e("toy_type", "Marble Run"), _e("pan_type", "Wok")], "Marble Run"
+    )
+    assert [(e["key"], e["value"]) for e in got] == [("style", "Wok")]
+
+
+def test_no_published_document_carries_a_sub_kind_key_and_style_has_one_name() -> None:
+    left = {e["key"] for doc in _docs() for e in _entries(doc)} & SUB_KINDS
+    assert left == set()
+    names = {e["name"] for doc in _docs() for e in _entries(doc) if e["key"] == "style"}
+    assert names == {"Style"}
+
+
+def test_a_folded_sub_kind_is_a_style_value_and_the_named_facets_stay() -> None:
+    styles: dict[str, set[str]] = {}
+    for doc in _docs():
+        styles.setdefault(doc["product_type"], set()).update(_published_of(doc, "style"))
+    assert "Kamado" in styles["BBQ"]
+    assert "A-Line" in styles["Skirt"]
+    assert "Underbed" in styles["Storage Box"]
+    assert {"Single Malt", "Blended"} <= styles["Whisky"]
+    for kept in ("bra_shape", "knit_style", "back_style"):
+        assert any(_published_of(doc, kept) for doc in _docs()), kept
+
+
+def test_no_style_restates_its_product_type() -> None:
+    restating = {
+        (doc["product_type"], value)
+        for doc in _docs()
+        for value in _published_of(doc, "style")
+        if str(value).casefold() == doc["product_type"].casefold()
+    }
+    assert restating == set()
+    houses = {v for doc in _docs() if doc["product_type"] == "Dolls' House"
+              for v in _published_of(doc, "style")}  # fmt: skip
+    assert houses and "Dolls' House" not in houses

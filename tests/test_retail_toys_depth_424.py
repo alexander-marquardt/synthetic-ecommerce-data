@@ -15,8 +15,8 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
-from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     main_colors,
@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.domains.retail import (
     tree_guard,
     type_registry,
 )
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 
 ROOT = "Toys"
 #: key -> the leaf path, the product type, the structured entries every row states (key -> unit
@@ -136,11 +137,16 @@ def test_every_key_attribute_is_a_structured_entry_with_its_unit(key) -> None:
     rows = _spec(key).rows
     assert rows
     for row in rows:
-        doc = export.standard_document(row.doc())
+        rec = row.doc()
+        doc = export.standard_document(rec)
         found = {e["key"]: e for e in doc["attributes"]}
         for v in doc["variants"]:
             found.update({e["key"]: e for e in v["attributes"]})
-        for entry, unit in TYPES[key]["entries"].items():
+        for authored, unit in TYPES[key]["entries"].items():
+            entry = attribute_cleanup.published(authored, doc["product_type"])
+            if any(attribute_cleanup.restates_the_type(e, doc["product_type"])
+                   for e in rec["attributes"] if e["key"] == authored):  # fmt: skip
+                continue  # a Marble Run's toy_type Marble Run is dropped (gen#497)
             assert entry in found, (row.code, entry)
             if unit:
                 assert found[entry].get("unit_code") == unit, (row.code, entry)

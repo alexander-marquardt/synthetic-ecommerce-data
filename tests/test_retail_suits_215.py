@@ -16,6 +16,7 @@ from collections import defaultdict
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     mens_depth_rows,
@@ -87,7 +88,7 @@ def test_a_type_draws_as_its_own_shape(ptype: str) -> None:
 
 @pytest.mark.parametrize("ptype", TYPES)
 def test_every_key_attribute_is_a_structured_entry(ptype: str) -> None:
-    _, keys = TYPES[ptype]
+    keys = {attribute_cleanup.published(k, ptype) for k in TYPES[ptype][1]}
     missing = {}
     for r in _styles(ptype):
         doc = export.standard_document(r.doc())
