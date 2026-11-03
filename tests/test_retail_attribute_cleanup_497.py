@@ -209,3 +209,85 @@ def test_a_drink_carries_its_region_before_its_country() -> None:
     assert champagnes and all(o == ["Champagne", "France"] for o in champagnes)
     scotch = [o for t, o in by_title.items() if "Scotch" in t]
     assert scotch and all(o == ["Scotland", "United Kingdom"] for o in scotch)
+
+
+# Fourth slice: a trouser's leg option is one key, a style length another, and "Petite" is a
+# size range, never a length (the 10-18 ruling, "Size range and leg length"; review merge #3).
+
+LEG_LENGTHS = {"Extra Short", "Short", "Regular", "Long", "Extra Long"}
+
+
+def _clean_on(entries: list[dict[str, Any]], product_type: str) -> list[dict[str, Any]]:
+    # A Petite leg puts Petite in the product's size range, so clean knows the product's list.
+    assert "on_product" in inspect.signature(attribute_cleanup.clean).parameters
+    return attribute_cleanup.clean(entries, product_type, on_product=True)
+
+
+def test_a_leg_option_is_published_as_one_leg_length_and_petite_is_its_size_range() -> None:
+    got = _clean_on([_e("length", "Petite"), _e("length", "Long")], "Jeans")
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("leg_length", "Leg length", "Short"),
+        ("size_range", "Size range", "Petite"),
+        ("leg_length", "Leg length", "Long"),
+    ]
+    legs = attribute_cleanup.clean([_e("inside_leg", "Short/Petite")], "Trousers")
+    assert [(e["key"], e["value"]) for e in legs] == [("leg_length", "Short")]
+    assert attribute_cleanup.published("inside_leg") == "leg_length"
+    assert attribute_cleanup.published("length", "Jeans") == "leg_length"
+
+
+def test_a_style_length_is_published_as_one_garment_length_in_one_spelling() -> None:
+    got = attribute_cleanup.clean(
+        [_e("length", "Knee"), _e("garment_length", "Knee Length"), _e("length", "Crop")], "Dress"
+    )
+    assert [(e["key"], e["name"], e["value"]) for e in got] == [
+        ("garment_length", "Garment length", "Knee"),
+        ("garment_length", "Garment length", "Cropped"),
+    ]
+    shorts = attribute_cleanup.clean([_e("leg_length", "Mid")], "PE Shorts")
+    assert [(e["key"], e["value"]) for e in shorts] == [("garment_length", "Mid Length")]
+    assert attribute_cleanup.published("skirt_length") == "garment_length"
+    assert attribute_cleanup.published("length", "Dress") == "garment_length"
+
+
+def test_no_published_document_carries_an_authored_length_key() -> None:
+    left = {
+        (e["key"], doc["product_type"])
+        for doc in _docs()
+        for e in _entries(doc)
+        if e["key"] in ("inside_leg", "skirt_length")
+        or (e["key"] == "length" and doc["product_type"] != "Suit Jacket")
+    }
+    assert left == set()
+
+
+def test_every_leg_length_is_a_leg_option_and_petite_is_never_a_length() -> None:
+    legs = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"] == "leg_length"}
+    assert legs == LEG_LENGTHS
+    lengths = {
+        e["value"] for doc in _docs() for e in _entries(doc) if e["key"].endswith("length")
+    }
+    assert {"Petite", "Short/Petite"} & lengths == set()
+
+
+def test_a_jeans_style_sold_in_a_petite_leg_is_in_the_petite_size_range() -> None:
+    jeans = [doc for doc in _docs() if doc["product_type"] == "Jeans"]
+    petite = [doc for doc in jeans if any(e["key"] == "size_range" and e["value"] == "Petite"
+                                          for e in doc["attributes"])]  # fmt: skip
+    assert len(petite) >= 300
+    for doc in jeans:
+        for variant in doc["variants"]:
+            assert not any(e["key"] == "size_range" for e in variant["attributes"])
+
+
+def test_every_style_length_is_one_garment_length_under_one_name_and_spelling() -> None:
+    entries = [e for doc in _docs() for e in _entries(doc) if e["key"] == "garment_length"]
+    assert {e["name"] for e in entries} == {"Garment length"}
+    values = {e["value"] for e in entries}
+    assert {"Mini", "Midi", "Maxi", "Knee", "Cropped", "Mid Length", "Full Length"} <= values
+    assert {"Knee Length", "Mid", "Full", "Crop", "Petite", "Short/Petite"} & values == set()
+
+
+def test_every_size_range_is_in_one_casing() -> None:
+    ranges = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"] == "size_range"}
+    assert ranges and ranges <= {"Petite", "Regular", "Tall", "Plus"}
