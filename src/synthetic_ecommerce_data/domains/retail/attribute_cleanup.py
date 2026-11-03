@@ -28,8 +28,9 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
 - **split**: an authored key holding two kinds of value goes out as one key per kind (the 10-18
   ruling, "Split"): a watch's ``strap`` is ``strap_material``, any other's ``strap_style``; a
   lampshade's ``fabric`` is ``shade_material`` and a soft toy's ``material``; a neck in a
-  ``knit_style`` (:data:`BY_VALUE`) is the ``neckline``, whose values take one spelling each
-  (Crew, V-neck; a roll or turtle neck is High, as ``neckline_rows.TITLE_WORDS`` reads it);
+  ``knit_style`` (:data:`BY_VALUE`) is the ``neckline``, unless the product authors its own
+  neckline (a polo's Collared), and every neckline takes one spelling (Crew, V-neck; a roll
+  or turtle neck is High, as ``neckline_rows.TITLE_WORDS`` reads it);
   and ``items`` or a ``contents`` that only counts ("3 items", :data:`COUNTED`) is the
   ``piece_count``, a bare number of pieces.
 
@@ -99,7 +100,8 @@ BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
 }
 #: (authored key, value) -> the (key, name) that value alone is published under: a jumper's
 #: ``knit_style`` names its neck beside its construction (review #29), and the neck is its
-#: ``neckline``, in that key's vocabulary (``neckline_rows.TITLE_WORDS``).
+#: ``neckline``, in that key's vocabulary (``neckline_rows.TITLE_WORDS``). A list that authors
+#: that key already keeps its own value and drops the moved one: one neckline per product.
 BY_VALUE: dict[tuple[str, str], tuple[str, str]] = {
     ("knit_style", neck): NECKLINE
     for neck in ("Crew Neck", "V Neck", "Roll Neck", "Boat Neck", "Cowl Neck", "Turtle Neck")
@@ -254,6 +256,13 @@ def _merged(entry: dict[str, Any], target: tuple[str, str] | None) -> dict[str, 
     return entry | {"key": key, "name": name}
 
 
+def _gives_way(entry: dict[str, Any], authored: set[str]) -> bool:
+    """Whether ``entry`` is a value :data:`BY_VALUE` moves onto a key the list already authors
+    (a polo's ``knit_style`` Crew Neck beside its ``neckline`` collared)."""
+    value = entry["value"]
+    return isinstance(value, str) and BY_VALUE.get((entry["key"], value), ("",))[0] in authored
+
+
 def clean(
     entries: list[dict[str, Any]],
     product_type: str,
@@ -263,12 +272,14 @@ def clean(
 ) -> list[dict[str, Any]]:
     """``entries`` as published: none restating the type, each merged key under its one key
     and name, an origin as its places (a region ``title`` names first), a (key, value) the
-    merge repeats dropped. ``on_product``: the product's list, where a Petite leg also puts
-    Petite in the size range (a SKU's list does not carry the range)."""
+    merge repeats dropped, a value moved onto a key the list authors dropped. ``on_product``:
+    the product's list, where a Petite leg also puts Petite in the size range (a SKU's list
+    does not carry the range)."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
+    authored = {published(e["key"], product_type) for e in entries}
     for raw in entries:
-        if restates_the_type(raw, product_type):
+        if restates_the_type(raw, product_type) or _gives_way(raw, authored):
             continue
         for e in _published(raw, product_type, f"{title} {product_type}", on_product):
             if e is raw or (e["key"], e["value"]) not in seen:

@@ -347,8 +347,7 @@ def test_a_lampshade_and_a_soft_toy_carry_a_material_not_a_fabric() -> None:
 
 def test_a_neck_is_a_neckline_and_a_knit_style_keeps_its_construction() -> None:
     got = attribute_cleanup.clean(
-        [_e("knit_style", "Crew Neck"), _e("knit_style", "Cable Knit"), _e("neckline", "crew")],
-        "Jumper",
+        [_e("knit_style", "Crew Neck"), _e("knit_style", "Cable Knit")], "Jumper"
     )
     assert [(e["key"], e["name"], e["value"]) for e in got] == [
         ("neckline", "Neckline", "Crew"),
