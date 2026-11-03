@@ -973,27 +973,38 @@ def _job_run(job: str) -> str:
 
 
 @pytest.mark.parametrize(
-    "path, edit",
+    "path, edit, check",
     [
-        (_STATS, lambda t: t.replace('"lines": ', '"lines": 1', 1)),
+        (
+            _STATS,
+            lambda t: t.replace('"lines": ', '"lines": 1', 1),
+            "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed",
+        ),
         (
             "src/prism_synthetic_industrial/data/field_weights/synthetic_industrial_flat.yaml",
             lambda t: t + "\n# hand edit\n",
+            "tests/test_prism_field_map_drift.py::test_committed_field_map_matches_a_fresh_derivation",
         ),
     ],
     ids=["stats-auto-merged-wrong", "field-weights-hand-edit"],
 )
-def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str, edit) -> None:
+def test_main_merged_tree_job_is_red_on_a_broken_main(
+    tmp_path: Path, path: str, edit, check: str
+) -> None:
     tree = tmp_path / "main"
     subprocess.run(["git", "clone", "-q", str(REPO), str(tree)], check=True)
     shutil.copy2(REPO / ".github" / "workflows" / "ci.yaml", tree / ".github/workflows/ci.yaml")
     _copy_the_script(tree)
     target = tree / path
     target.write_text(edit(target.read_text()))
-    # The shell GitHub runs a ``run:`` step with. ``-x``: the job is red at its first failing
-    # check, and a job that stays green still runs every check, so the guard reads the same in a
-    # fraction of the 3 to 4 minutes the whole list took, twice (#790).
-    addopts = f"{os.environ.get('PYTEST_ADDOPTS', '')} -x".strip()
+    # The shell GitHub runs a ``run:`` step with, the job's own check list narrowed to the one
+    # check that catches this edit. Under the inherited ``-n auto`` a ``-x`` did not stop early:
+    # every check ran, both full builds with them, about 2 minutes a case and past the 300 s cap
+    # beside a shard's 3 GB modules (#824). Serial and ``-k``: no build for the stats edit, one
+    # generation for the field-weights edit. A check renamed or dropped from the list selects
+    # nothing, so the guard asks for that check's own FAILED line, not just a red exit.
+    name = check.rpartition("::")[2]
+    addopts = f"{os.environ.get('PYTEST_ADDOPTS', '')} -n 0 -rf -k {name}".strip()
     result = subprocess.run(
         ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", _job_run("main-merged-tree")],
         cwd=tree,
@@ -1003,6 +1014,9 @@ def test_main_merged_tree_job_is_red_on_a_broken_main(tmp_path: Path, path: str,
         check=False,
     )
     assert result.returncode != 0, "main-merged-tree is green on a broken main"
+    assert f"FAILED {check}" in result.stdout, (
+        f"main-merged-tree is red, but not at {check}:\n{result.stdout[-2000:]}"
+    )
 
 
 # -- --local-ci: the workflows' jobs run here, GitHub is not asked -----------

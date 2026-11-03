@@ -98,3 +98,6 @@ under it and forces a rerun. A second run prints that it is waiting, polls every
 Step 6 narrows the window but cannot close it: GitHub has no compare-and-swap on the base.
 The CI job `main-merged-tree` runs `CHECKS` on every push to main, so a merge that raced
 (or bypassed the script) shows red on main at once.
+`tests/test_merge_pr.py::test_main_merged_tree_job_is_red_on_a_broken_main` proves it: per planted
+edit it runs the job's run line narrowed to the one check that catches that edit (`-n 0 -k`), and asks
+for that check's `FAILED` line, so it costs seconds rather than two builds (#824).
