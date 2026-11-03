@@ -24,7 +24,15 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   ``length``) and a style length is ``garment_length`` "Garment length" (``skirt_length``, a
   PE Shorts ``leg_length``, every other type's ``length``), in one spelling each. "Petite" is a
   size range, never a length (the 10-18 ruling): a Petite leg is Short, and on the product it
-  also puts Petite in the ``size_range``, whose values are title case.
+  also puts Petite in the ``size_range``, whose values are title case;
+- **split**: an authored key holding two kinds of value goes out as one key per kind (the 10-18
+  ruling, "Split"): a watch's ``strap`` is ``strap_material``, any other's ``strap_style``; a
+  lampshade's ``fabric`` is ``shade_material`` and a soft toy's ``material``; a neck in a
+  ``knit_style`` (:data:`BY_VALUE`) is the ``neckline``, unless the product authors its own
+  neckline (a polo's Collared), and every neckline takes one spelling (Crew, V-neck; a roll
+  or turtle neck is High, as ``neckline_rows.TITLE_WORDS`` reads it);
+  and ``items`` or a ``contents`` that only counts ("3 items", :data:`COUNTED`) is the
+  ``piece_count``, a bare number of pieces.
 
 A test that reads a document by an authored key asks :func:`published` for the key to read.
 The rest of #497's retail half (a Skirt's ``fit_length`` and a Suit Jacket's ``length``, which
@@ -45,6 +53,9 @@ RESTATING = frozenset({"storage_type", "tracker_type", "type"})
 #: ways (#497 review merges #15-#27, #31). A target key is listed too, so it carries one name.
 LEG = ("leg_length", "Leg length")
 GARMENT = ("garment_length", "Garment length")
+STRAP_MATERIAL = ("strap_material", "Strap material")
+NECKLINE = ("neckline", "Neckline")
+PIECES = ("piece_count", "Piece count")
 RENAMES: dict[str, tuple[str, str]] = {
     "fill": ("filling", "Filling"),
     "seats": ("seat_count", "Seat count"),
@@ -68,14 +79,36 @@ RENAMES: dict[str, tuple[str, str]] = {
     "skirt_length": GARMENT,
     "garment_length": GARMENT,
     "size_range": ("size_range", "Size range"),
+    "strap": ("strap_style", "Strap style"),
+    "neckline": NECKLINE,
+    "items": PIECES,
+    "piece_count": PIECES,
 }
 #: (authored key, product type) -> the (key, name) it is published under on that type alone. A
-#: Suit Jacket's Short/Regular/Long ``length`` is a fit with no leg, kept until a ruling.
+#: Suit Jacket's Short/Regular/Long ``length`` is a fit with no leg, kept until a ruling. A
+#: watch's ``strap`` is what the strap is made of; every other type's is its form (the 10-18
+#: ruling, "Split"). A lampshade's and a soft toy's cloth is a material: ``fabric`` is apparel's.
 BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
     ("length", "Jeans"): LEG,
     ("length", "Suit Jacket"): ("length", "Length"),
     ("leg_length", "PE Shorts"): GARMENT,
+    ("strap", "Analog Watch"): STRAP_MATERIAL,
+    ("strap", "Digital Watch"): STRAP_MATERIAL,
+    ("strap", "Fitness Band"): STRAP_MATERIAL,
+    ("fabric", "Lampshade"): ("shade_material", "Shade material"),
+    ("fabric", "Soft Toy"): ("material", "Material"),
 }
+#: (authored key, value) -> the (key, name) that value alone is published under: a jumper's
+#: ``knit_style`` names its neck beside its construction (review #29), and the neck is its
+#: ``neckline``, in that key's vocabulary (``neckline_rows.TITLE_WORDS``). A list that authors
+#: that key already keeps its own value and drops the moved one: one neckline per product.
+BY_VALUE: dict[tuple[str, str], tuple[str, str]] = {
+    ("knit_style", neck): NECKLINE
+    for neck in ("Crew Neck", "V Neck", "Roll Neck", "Boat Neck", "Cowl Neck", "Turtle Neck")
+}
+#: An authored ``contents`` that only counts what is in the box ("3 items") is its piece count
+#: (review #6); a ``contents`` that lists the pieces stays.
+COUNTED = re.compile(r"(?P<n>\d+) items?")
 #: The authored keys no type publishes under their own name: a Suit Jacket keeps ``length``.
 RETIRED = frozenset(old for old, (key, _) in RENAMES.items() if old != key) - {
     old for (old, _), (key, _) in BY_TYPE.items() if old == key
@@ -138,17 +171,37 @@ VALUES: dict[str, dict[str, str]] = {
         "Crop": "Cropped",
     },  # fmt: skip
     "size_range": {"petite": "Petite", "regular": "Regular", "tall": "Tall", "plus": "Plus"},
-}
+    "neckline": {
+        "crew": "Crew", "Crew Neck": "Crew", "v-neck": "V-neck", "V Neck": "V-neck",
+        "round": "Round", "boat": "Boat", "Boat Neck": "Boat", "slash": "Slash",
+        "square": "Square", "high": "High", "collared": "Collared", "cowl": "Cowl",
+        "Cowl Neck": "Cowl", "halter": "Halter", "tie-neck": "Tie-neck",
+        "Roll Neck": "High", "Turtle Neck": "High",
+    },
+}  # fmt: skip
+#: A published key whose bare number is in a unit (``export.FACTS`` gives ``piece_count`` C62).
+BARE_UNIT = {"piece_count": "C62"}
 
 
-def _target(key: str, product_type: str) -> tuple[str, str] | None:
+def _target(key: str, product_type: str, value: Any = None) -> tuple[str, str] | None:
+    if isinstance(value, str):
+        if key == "contents" and COUNTED.fullmatch(value):
+            return PIECES
+        if (key, value) in BY_VALUE:
+            return BY_VALUE[(key, value)]
     return BY_TYPE.get((key, product_type)) or RENAMES.get(key)
 
 
-def published(key: str, product_type: str = "") -> str:
-    """The key an authored ``key`` is published under (on ``product_type``, when it decides)."""
-    target = _target(key, product_type)
+def published(key: str, product_type: str = "", value: Any = None) -> str:
+    """The key an authored ``key`` is published under (on ``product_type``, or with ``value``,
+    when it decides)."""
+    target = _target(key, product_type, value)
     return key if target is None else target[0]
+
+
+def published_as(key: str, name: str, product_type: str = "") -> tuple[str, str]:
+    """The (key, display name) an authored ``key`` named ``name`` is published under."""
+    return _target(key, product_type) or (key, name)
 
 
 def restates_the_type(entry: dict[str, Any], product_type: str) -> bool:
@@ -179,7 +232,7 @@ def _published(
 ) -> list[dict[str, Any]]:
     """``entry`` as the entries it publishes: one per origin level, a Petite leg with the
     product's Petite size range, else :func:`_merged`."""
-    target = _target(entry["key"], product_type)
+    target = _target(entry["key"], product_type, entry["value"])
     if target is not None and target[0] == "origin":
         values = places(entry["value"], named)
         return [{"key": "origin", "name": target[1], "value": p} for p in values]
@@ -197,8 +250,17 @@ def _merged(entry: dict[str, Any], target: tuple[str, str] | None) -> dict[str, 
     value = entry["value"]
     if isinstance(value, str) and "unit_code" not in entry:
         value = VALUES.get(key, {}).get(value, value)
-        return {"key": key, "name": name, **split(name, value)}
+        if target == PIECES:
+            value = COUNTED.sub(r"\g<n>", value)
+        return {"key": key, "name": name, **split(name, value, BARE_UNIT.get(key))}
     return entry | {"key": key, "name": name}
+
+
+def _gives_way(entry: dict[str, Any], authored: set[str]) -> bool:
+    """Whether ``entry`` is a value :data:`BY_VALUE` moves onto a key the list already authors
+    (a polo's ``knit_style`` Crew Neck beside its ``neckline`` collared)."""
+    value = entry["value"]
+    return isinstance(value, str) and BY_VALUE.get((entry["key"], value), ("",))[0] in authored
 
 
 def clean(
@@ -210,12 +272,14 @@ def clean(
 ) -> list[dict[str, Any]]:
     """``entries`` as published: none restating the type, each merged key under its one key
     and name, an origin as its places (a region ``title`` names first), a (key, value) the
-    merge repeats dropped. ``on_product``: the product's list, where a Petite leg also puts
-    Petite in the size range (a SKU's list does not carry the range)."""
+    merge repeats dropped, a value moved onto a key the list authors dropped. ``on_product``:
+    the product's list, where a Petite leg also puts Petite in the size range (a SKU's list
+    does not carry the range)."""
     out: list[dict[str, Any]] = []
     seen: set[tuple[str, Any]] = set()
+    authored = {published(e["key"], product_type) for e in entries}
     for raw in entries:
-        if restates_the_type(raw, product_type):
+        if restates_the_type(raw, product_type) or _gives_way(raw, authored):
             continue
         for e in _published(raw, product_type, f"{title} {product_type}", on_product):
             if e is raw or (e["key"], e["value"]) not in seen:

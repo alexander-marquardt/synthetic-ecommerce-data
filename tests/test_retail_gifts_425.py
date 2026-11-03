@@ -19,9 +19,8 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.standard import check_catalog
-from synthetic_ecommerce_data.domains.retail import baseline_rank as br
-from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_gifts,
@@ -30,6 +29,8 @@ from synthetic_ecommerce_data.domains.retail import (
     tree_guard,
     type_registry,
 )
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
+from synthetic_ecommerce_data.domains.retail import decoy_product_words as dpw
 from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 ROOT = "Gifts"
@@ -131,8 +132,9 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(key: str) -> No
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        if TYPES[key][2] - keys:
-            missing[row.code] = sorted(TYPES[key][2] - keys)
+        want = {attribute_cleanup.published(k, doc["product_type"]) for k in TYPES[key][2]}
+        if want - keys:
+            missing[row.code] = sorted(want - keys)
     assert missing == {}
 
 

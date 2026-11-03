@@ -79,7 +79,7 @@ def test_key_attributes_are_structured_entries_and_the_sku_axis_is_a_variant_ent
     assert check_catalog(standard) == []
     for doc in standard:
         keys, axis = TYPES[doc["product_type"]][2], TYPES[doc["product_type"]][3]
-        keys = {attribute_cleanup.published(k) for k in keys}
+        keys = {attribute_cleanup.published(k, doc["product_type"]) for k in keys}
         axis = axis if axis is None else attribute_cleanup.published(axis)
         assert keys <= {e["key"] for e in doc["attributes"]}, doc["product_id"]
         if axis is not None:

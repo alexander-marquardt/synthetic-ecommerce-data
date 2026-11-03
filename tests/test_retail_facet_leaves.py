@@ -22,6 +22,7 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import words
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     facet_leaves,
     scale,
@@ -331,7 +332,8 @@ def test_the_blend_is_a_detail_not_a_facet(built, docs):
         fabric, blend = TYPED_MOVED.get(
             (rec["product_type"], old[0]), MOVED.get(old[0], (old[0], None)))
         also = list(facet_leaves.FABRIC_ALSO.get(old[0], ()))
-        assert _values(doc, "fabric") == [fabric, *also], rec["product_id"]
+        key = attribute_cleanup.published("fabric", rec["product_type"])
+        assert _values(doc, key) == [fabric, *also], rec["product_id"]
         assert doc.get("fibre_content") == blend, rec["product_id"]
         moved[rec["product_type"]] += bool(blend)
     assert {v for r in built.records for a in r["attributes"] if a["key"] == "fabric"
