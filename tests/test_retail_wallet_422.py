@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     main_colors,
@@ -70,6 +71,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export() -> None:
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+        keys |= attribute_cleanup.withheld(row.doc()["attributes"])
         assert {"wallet_style", "rfid_blocking", "material", "color"} <= keys, row.code
 
 

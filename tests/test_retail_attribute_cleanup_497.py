@@ -9,12 +9,14 @@ past the ceiling), not the helper alone.
 from __future__ import annotations
 
 import inspect
+import re
 from functools import cache
 from typing import Any
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
+    name_guard,
     scale,
 )
 
@@ -400,7 +402,9 @@ def test_a_count_of_items_is_a_piece_count() -> None:
 
 
 def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_is_whole() -> None:
-    assert not any(_published_of(doc, k) for doc in _docs() for k in ("items", "contents"))
+    assert not any(_published_of(doc, "items") for doc in _docs())
+    contents = {v for doc in _docs() for v in _published_of(doc, "contents")}
+    assert contents and not {v for v in contents if attribute_cleanup.COUNTED.fullmatch(v)}
     pieces = [e for doc in _docs() for e in _entries(doc) if e["key"] == "piece_count"]
     assert {e["name"] for e in pieces} == {"Piece count"}
     assert {(e["unit_code"], e["value"].isdigit()) for e in pieces} == {("C62", True)}
@@ -412,10 +416,11 @@ def test_no_document_carries_items_or_a_counted_contents_and_every_piece_count_i
 #: as "Style"): one concept, published as ``style`` "Style" (the 10-18 ruling, "Style").
 SUB_KINDS = {
     "accessory_type", "airer_type", "bag_shape", "bag_style", "band_type", "bbq_kind",
-    "bin_type", "bookcase_style", "bowl_type", "bracelet_type", "chair_style", "chest_style",
-    "cutlery_type", "earring_style", "fixture_type", "furniture_kind", "glass_type",
-    "heater_type", "jelly_style", "kettle_type", "knife_type", "laundry_basket_type", "lid_type",
-    "mattress_type", "mirror_type", "module_type", "mop_type", "necklace_type", "pan_type",
+    "bin_type", "bolero_style", "bookcase_style", "bowl_type", "bracelet_type", "chair_style",
+    "chest_style", "cutlery_type", "earring_style", "fixture_type", "furniture_kind",
+    "glass_type", "heater_type", "jelly_style", "kettle_type", "knife_type", "ladder_kind",
+    "laundry_basket_type", "lid_type", "mattress_type", "mirror_type", "module_type", "mop_type",
+    "necklace_type", "pan_type",
     "parasol_kind", "pinafore_style", "plate_type", "pump_type", "purse_type", "ring_type",
     "shapewear_type", "shorts_style", "skirt_shape", "skirt_style", "spirit_style",
     "storage_type", "table_type", "tent_type", "toy_type", "tracker_type", "umbrella_type",
@@ -472,3 +477,75 @@ def test_no_style_restates_its_product_type() -> None:
     houses = {v for doc in _docs() if doc["product_type"] == "Dolls' House"
               for v in _published_of(doc, "style")}  # fmt: skip
     assert houses and "Dolls' House" not in houses
+
+
+def test_a_boolean_is_published_only_when_true_and_always_as_yes() -> None:
+    got = attribute_cleanup.clean(
+        [_e("waterproof", "No"), _e("online_only", "no"), _e("pet_friendly", "yes"),
+         _e("belt", "Yes"), _e("ring_size_uk", "N")],
+        "Raincoat",
+    )  # fmt: skip
+    assert [(e["key"], e["value"]) for e in got] == [
+        ("pet_friendly", "Yes"),
+        ("belt", "Yes"),
+        ("ring_size_uk", "N"),
+    ]
+    authored = [_e("pocket", "No"), _e("hood", "No"), _e("hood", "Yes"), _e("lined", "false")]
+    assert attribute_cleanup.withheld(authored) == {"pockets", "lined"}
+    plain = [_e("bolero_style", "Bolero"), _e("hood", "No")]
+    assert attribute_cleanup.withheld(plain, "Bolero") == {"style", "hood"}
+    values ={e["value"] for doc in _docs() for e in _entries(doc) if isinstance(e["value"], str)}
+    assert {v for v in values if v.casefold() in ("no", "false", "yes", "true")} == {"Yes"}
+
+
+#: A number with a unit written into its text: the unit belongs in the unit field. A ``size``
+#: is a SKU option's label ("60 cm" on a Plant), kept as the shopper picks it.
+NUMBER_AND_UNIT = re.compile(r"\d[\d,.]*\s*(cm|mm)")
+
+
+def test_a_unit_written_into_a_value_goes_to_the_unit_field() -> None:
+    boots = [e for doc in _docs() if doc["product_type"] == "Knee High Boots"
+             for e in _entries(doc) if e["key"] == "calf"]  # fmt: skip
+    assert boots and {(e["value"], e.get("unit_code")) for e in boots} == {("36", "CMT")}
+    rated = [e for doc in _docs() for e in _entries(doc) if e["key"] == "waterproof_rating"]
+    assert rated and {e.get("unit_code") for e in rated} == {"MMT"}
+    assert all(e["value"].isdigit() for e in rated)
+    written = {
+        (e["key"], e["value"])
+        for doc in _docs()
+        for e in _entries(doc)
+        if e["key"] != "size"
+        and isinstance(e["value"], str)
+        and NUMBER_AND_UNIT.fullmatch(e["value"])
+    }
+    assert written == set()
+
+
+def test_a_value_has_one_spelling() -> None:
+    fillings = {v for doc in _docs() for v in _published_of(doc, "filling")}
+    assert "Hollowfibre" in fillings and "Hollow Fibre" not in fillings
+    lines = {v for doc in _docs() for v in _published_of(doc, "line")}
+    assert not {v for v in lines if "Stone Ground" in v}
+
+
+def test_the_catalogue_guard_finds_a_name_on_two_keys_and_a_key_under_two_names() -> None:
+    docs = [
+        {"product_id": "a", "attributes": [_e("rug_shape", "Round") | {"name": "Shape"}],
+         "variants": []},
+        {"product_id": "b", "attributes": [_e("shape", "Oval") | {"name": "Shape"}],
+         "variants": [{"attributes": [_e("shape", "Oval") | {"name": "Outline"}]}]},
+    ]  # fmt: skip
+    assert name_guard.catalogue_name_findings(docs) == [
+        "key 'shape' is shown as ['Outline', 'Shape']",
+        "name 'Shape' names ['rug_shape', 'shape']",
+    ]
+
+
+def test_one_display_name_is_one_key_and_one_key_one_name_catalogue_wide() -> None:
+    assert name_guard.catalogue_name_findings(_docs()) == []
+    styles: dict[str, set[str]] = {"Bolero": set(), "Step Ladder": set()}
+    for doc in _docs():
+        if doc["product_type"] in styles:
+            styles[doc["product_type"]].update(_published_of(doc, "style"))
+    assert "Shrug" in styles["Bolero"] and "Step stool" in styles["Step Ladder"]
+    assert "Bolero" not in styles["Bolero"] and "Step ladder" not in styles["Step Ladder"]

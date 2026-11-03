@@ -96,6 +96,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+        keys |= attribute_cleanup.withheld(row.doc()["attributes"])
         assert need <= keys, (row.code, sorted(need - keys))
 
 

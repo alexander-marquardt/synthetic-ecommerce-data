@@ -149,6 +149,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(key: str) -> No
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+        keys |= attribute_cleanup.withheld(row.doc()["attributes"])
         want = {attribute_cleanup.published(k, row.product_type) for k in TYPES[key][1]}
         if want - keys:
             missing[row.code] = sorted(want - keys)

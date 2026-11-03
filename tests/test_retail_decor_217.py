@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     main_colors,
@@ -69,7 +70,8 @@ def _rows():
 def _keys(row) -> set[str]:
     doc = export.standard_document(row.doc())
     keys = {e["key"] for e in doc["attributes"]}
-    return keys | {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
 
 
 def test_every_type_is_a_spec_with_three_styles_from_three_brands() -> None:

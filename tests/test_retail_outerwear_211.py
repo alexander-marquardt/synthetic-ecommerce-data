@@ -108,9 +108,9 @@ def _doc(row) -> dict:
 
 def _keys(row) -> set[str]:
     doc = _doc(row)
-    return {e["key"] for e in doc["attributes"]} | {
-        e["key"] for v in doc["variants"] for e in v["attributes"]
-    }
+    keys = {e["key"] for e in doc["attributes"]}
+    keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+    return keys | attribute_cleanup.withheld(row.doc()["attributes"], row.product_type)
 
 
 def _values(row, key: str) -> list[str]:
@@ -170,7 +170,7 @@ def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
                      ("Utility Jacket", "jacket_style")]
     }  # fmt: skip
     assert {"Short", "Mid Length", "Long"} <= seen["Trench Coat", "garment_length"]
-    assert seen["Trench Coat", "belted"] == {"Yes", "No"}
+    assert seen["Trench Coat", "belted"] == {"Yes"}  # a No is not published (#497)
     assert seen["Trench Coat", "breasting"] == {"Double-Breasted", "Single-Breasted"}
     assert {"Short", "Mid Length", "Long"} <= seen["Raincoat", "garment_length"]
     assert {"Fixed", "Packaway"} <= seen["Raincoat", "hood_type"]
@@ -179,7 +179,9 @@ def test_the_attribute_values_a_shopper_filters_on_are_all_stated() -> None:
     assert {"Padded", "Fleece", "Quilted"} <= seen["Gilet", "fill"]
     assert seen["Gilet", "use"] == {"Performance", "Casual"}
     assert {"Flannel", "Corduroy", "Fleece"} <= seen["Shacket", "fabric"]
-    assert {"Bolero", "Shrug", "Cape"} <= seen["Bolero", "bolero_style"]
+    # A plain Bolero's style restates the type and is dropped (#497).
+    assert {"Shrug", "Cape"} <= seen["Bolero", "bolero_style"]
+    assert "Bolero" not in seen["Bolero", "bolero_style"]
     assert seen["Windbreaker", "zip_style"] == {"Half-Zip", "Full-Zip"}
     assert seen["Hoodie", "zip_style"] == {"Zip-Through", "Pullover"}
     assert {"Utility", "Chore", "Field"} <= seen["Utility Jacket", "jacket_style"]
@@ -235,7 +237,7 @@ def test_a_belted_trench_coat_draws_its_belt_and_a_hooded_one_its_hood() -> None
         belted = _values(row, "belted") == ["Yes"]
         assert belted == ('class="belt"' in _svg(row)), row.code
     for row in _rows("Raincoat") + _rows("Parka"):
-        assert ('class="hood' in _svg(row)) == (_values(row, "hood") != ["No"]), row.code
+        assert ('class="hood' in _svg(row)) == (_values(row, "hood") == ["Yes"]), row.code
 
 
 # --------------------------------------------------------------------------
@@ -285,7 +287,8 @@ def _stated_and_drawn(row) -> dict[str, tuple]:
     zips = {"Full-Zip": ("zip-full",), "Half-Zip": ("zip-half",), "Zip-Through": ("zip-through",),
             "Pullover": ()}  # fmt: skip
     fills = {"Padded": "channel", "Quilted": "diamond", "Fleece": "pile"}
-    styles = {"Cape": "cape", "Bolero": "hem-bolero", "Shrug": "hem-shrug"}
+    # A plain Bolero publishes no style: "Bolero" restates the type (#497).
+    styles = {"Cape": "cape", None: "hem-bolero", "Shrug": "hem-shrug"}
     out: dict[str, tuple] = {}
     for axis in AXES_OF[row.shape]:
         if axis == "length":

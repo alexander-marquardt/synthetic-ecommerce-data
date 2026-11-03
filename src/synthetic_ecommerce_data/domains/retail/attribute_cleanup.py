@@ -37,11 +37,15 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   ``skirt_shape``, a whisky's ``spirit_style``) is the product's ``style`` "Style" (the 10-18
   ruling, "Style"). A value naming the product type itself (a Marble Run's ``toy_type`` Marble
   Run) is dropped as above. The well-known facets of their own (``bra_shape``, ``knit_style``,
-  ``back_style``, ``leg_fit``, ``fit``, ``cut``, ``collar``, ``closure``) are not folded.
+  ``back_style``, ``leg_fit``, ``fit``, ``cut``, ``collar``, ``closure``) are not folded;
+- **value-fixed** (no deliberately wrong data, gen#404): a boolean is published only when
+  true, always as ``Yes`` (:data:`TRUE`, :data:`FALSE`), and a :data:`UNIT_IN_VALUE` value's
+  unit ("36cm") goes to the unit field.
 
-A test that reads a document by an authored key asks :func:`published` for the key to read.
-The rest of #497's retail half (a Skirt's ``fit_length`` and a Suit Jacket's ``length``, which
-await a ruling; the other value fixes) goes in later slices.
+Across the catalogue, one display name names one key and one key has one name
+(``name_guard.catalogue_name_findings``): a Rug's ``rug_shape`` is ``shape``, and so on in
+:data:`RENAMES`. A test that reads a document by an authored key asks :func:`published` for the
+key to read. A Skirt's ``fit_length`` and a Suit Jacket's ``length`` await a ruling.
 """
 
 from __future__ import annotations
@@ -49,21 +53,21 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from synthetic_ecommerce_data.core.entry import split
+from synthetic_ecommerce_data.core.entry import canonical, split
 
 #: Review merge #30's one-type sub-kind keys, and the Jelly Shoes' ``jelly_style`` (also shown
 #: as "Style"): each names the kind of product within its type, published as ``style``.
 SUB_KINDS = frozenset(
     {
         "accessory_type", "airer_type", "bag_shape", "bag_style", "band_type", "bbq_kind",
-        "bin_type", "bookcase_style", "bowl_type", "bracelet_type", "chair_style", "chest_style",
-        "cutlery_type", "earring_style", "fixture_type", "furniture_kind", "glass_type",
-        "heater_type", "jelly_style", "kettle_type", "knife_type", "laundry_basket_type",
-        "lid_type", "mattress_type", "mirror_type", "module_type", "mop_type", "necklace_type",
-        "pan_type", "parasol_kind", "pinafore_style", "plate_type", "pump_type", "purse_type",
-        "ring_type", "shapewear_type", "shorts_style", "skirt_shape", "skirt_style",
-        "spirit_style", "storage_type", "table_type", "tent_type", "toy_type", "tracker_type",
-        "umbrella_type", "utensil_type", "watch_type",
+        "bin_type", "bolero_style", "bookcase_style", "bowl_type", "bracelet_type", "chair_style",
+        "chest_style", "cutlery_type", "earring_style", "fixture_type", "furniture_kind",
+        "glass_type", "heater_type", "jelly_style", "kettle_type", "knife_type", "ladder_kind",
+        "laundry_basket_type", "lid_type", "mattress_type", "mirror_type", "module_type",
+        "mop_type", "necklace_type", "pan_type", "parasol_kind", "pinafore_style", "plate_type",
+        "pump_type", "purse_type", "ring_type", "shapewear_type", "shorts_style", "skirt_shape",
+        "skirt_style", "spirit_style", "storage_type", "table_type", "tent_type", "toy_type",
+        "tracker_type", "umbrella_type", "utensil_type", "watch_type",
     }
 )  # fmt: skip
 #: Keys the review found carrying the product type as their value (#497, "Remove"), and every
@@ -105,6 +109,16 @@ RENAMES: dict[str, tuple[str, str]] = {
     "neckline": NECKLINE,
     "items": PIECES,
     "piece_count": PIECES,
+    # One display name, one key, catalogue-wide (#497's guard, ``name_guard``): a Rug's shape
+    # is ``shape``, a Volt Meter's form ``form``, a fan's and a dishwasher's noise one key, a
+    # hamper's theme and a tool kit's pieces both its ``contents``; a Water Gun's range is not
+    # the brand ``line`` "Range".
+    "rug_shape": ("shape", "Shape"),
+    "meter_form": ("form", "Form"),
+    "noise_db": ("noise_level", "Noise level (dB)"),
+    "contents_kind": ("contents", "Contents"),
+    "kit_contents": ("contents", "Contents"),
+    "water_range": ("water_range", "Water range"),
     **{key: STYLE for key in SUB_KINDS | {"style"}},
 }
 #: (authored key, product type) -> the (key, name) it is published under on that type alone. A
@@ -186,6 +200,7 @@ PLACES = frozenset(
 #: Published key -> {value: its one spelling} (#497 value fixes).
 VALUES: dict[str, dict[str, str]] = {
     "power_source": {"Battery": "Battery-Powered"},
+    "filling": {"Hollow Fibre": "Hollowfibre"},
     "leg_length": {"Short/Petite": "Short", PETITE_LEG: "Short"},
     "garment_length": {
         "Knee Length": "Knee",
@@ -204,6 +219,14 @@ VALUES: dict[str, dict[str, str]] = {
 }  # fmt: skip
 #: A published key whose bare number is in a unit (``export.FACTS`` gives ``piece_count`` C62).
 BARE_UNIT = {"piece_count": "C62"}
+#: A key whose authored value writes its unit into the text (a boot's calf "36cm", a coat's
+#: "5,000 mm" rating): the number is the value and the unit goes to the unit field.
+UNIT_IN_VALUE = frozenset({"calf", "waterproof_rating"})
+_NUMBER_UNIT = re.compile(r"(?P<n>\d[\d,]*(?:\.\d+)?)\s*(?P<unit>cm|mm)")
+_UNIT_CODE = {"cm": "CMT", "mm": "MMT"}
+#: A boolean is published only when true, and always as ``Yes`` (#497 value fixes): the
+#: authored rows say Yes/No and the record's flags (``online_only``) yes/no.
+TRUE, FALSE = frozenset({"yes", "true"}), frozenset({"no", "false"})
 
 
 def _target(key: str, product_type: str, value: Any = None) -> tuple[str, str] | None:
@@ -279,6 +302,37 @@ def _merged(entry: dict[str, Any], target: tuple[str, str] | None) -> dict[str, 
     return entry | {"key": key, "name": name}
 
 
+def withheld(entries: list[dict[str, Any]], product_type: str = "") -> set[str]:
+    """The published keys of ``entries`` that publish nothing: every value a false boolean (a
+    raincoat that is not ``waterproof``, a tote's ``pocket`` No) or, given ``product_type``,
+    one restating it (a plain Bolero's ``bolero_style`` Bolero). A test that wants a type's key
+    attributes on its document wants these off it."""
+    held: dict[str, bool] = {}
+    for e in entries:
+        false = isinstance(e["value"], str) and e["value"].casefold() in FALSE
+        false = false or restates_the_type(e, product_type)
+        key = published(e["key"], product_type)
+        held[key] = held.get(key, True) and false
+    return {key for key, false in held.items() if false}
+
+
+def _value_fixed(entry: dict[str, Any]) -> dict[str, Any] | None:
+    """``entry`` with a boolean only when true, as ``Yes`` (else None), and a unit written into
+    a :data:`UNIT_IN_VALUE` value moved to the unit field."""
+    value = entry["value"]
+    if not isinstance(value, str) or "unit_code" in entry:
+        return entry
+    if value.casefold() in FALSE:
+        return None
+    if value.casefold() in TRUE:
+        return entry if value == "Yes" else entry | {"value": "Yes"}
+    if entry["key"] in UNIT_IN_VALUE and (m := _NUMBER_UNIT.fullmatch(value)):
+        number, unit = m["n"].replace(",", ""), _UNIT_CODE[m["unit"]]
+        exact = canonical(number, unit)
+        return entry | {"value": number, "unit_code": unit, "value_canonical": exact}
+    return entry
+
+
 def _gives_way(entry: dict[str, Any], authored: set[str]) -> bool:
     """Whether ``entry`` is a value :data:`BY_VALUE` moves onto a key the list already authors
     (a polo's ``knit_style`` Crew Neck beside its ``neckline`` collared)."""
@@ -305,6 +359,9 @@ def clean(
         if restates_the_type(raw, product_type) or _gives_way(raw, authored):
             continue
         for e in _published(raw, product_type, f"{title} {product_type}", on_product):
+            e = _value_fixed(e)
+            if e is None:
+                continue
             if e is raw or (e["key"], e["value"]) not in seen:
                 seen.add((e["key"], e["value"]))
                 out.append(e)

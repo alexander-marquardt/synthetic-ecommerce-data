@@ -80,7 +80,7 @@ def test_every_brand_has_an_owner_and_a_house_style() -> None:
 def test_every_key_attribute_is_a_structured_entry_in_the_export() -> None:
     for doc in _docs():
         std = export.standard_document(doc)
-        keys = set(_attrs(std["attributes"]))
+        keys = set(_attrs(std["attributes"])) | attribute_cleanup.withheld(doc["attributes"])
         ptype = doc["product_type"]
         dropped = {
             e["key"] for e in doc["attributes"] if attribute_cleanup.restates_the_type(e, ptype)
