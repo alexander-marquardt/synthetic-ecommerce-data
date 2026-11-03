@@ -134,6 +134,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(key: str) -> No
         doc = export.standard_document(row.doc())
         got = {e["key"] for e in doc["attributes"]}
         got |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
+        got |= attribute_cleanup.withheld(row.doc()["attributes"])
         if keys - got:
             missing[row.code] = sorted(keys - got)
     assert missing == {}

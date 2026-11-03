@@ -1,0 +1,27 @@
+# Mutants for #497's value-fix and name-guard slice: read by vendor/prism/scripts/mutant_run.py.
+C = "src/synthetic_ecommerce_data/domains/retail/attribute_cleanup.py"
+G = "src/synthetic_ecommerce_data/domains/retail/name_guard.py"
+P = "src/synthetic_ecommerce_data/domains/retail/line_grammar_families/pantry.py"
+TESTS = ["tests/test_retail_attribute_cleanup_497.py"]
+MUTANTS = [
+    (C, 'frozenset({"no", "false"})', 'frozenset({"false"})', "a No is kept"),
+    (C, 'return entry if value == "Yes" else entry | {"value": "Yes"}', "return entry",
+     "a yes is not respelt Yes"),
+    (C, 'frozenset({"calf", "waterproof_rating"})', 'frozenset({"waterproof_rating"})',
+     "calf keeps its unit in the value"),
+    (C, '_UNIT_CODE = {"cm": "CMT", "mm": "MMT"}', '_UNIT_CODE = {"cm": "MMT", "mm": "MMT"}',
+     "cm read as mm"),
+    (C, '    "filling": {"Hollow Fibre": "Hollowfibre"},\n', "", "Hollow Fibre kept"),
+    (P, '"Bold", "Stoneground", "Freshly Ground"', '"Bold", "Stone Ground", "Freshly Ground"',
+     "Stone Ground kept"),
+    (C, '    "rug_shape": ("shape", "Shape"),\n', "", "rug_shape kept"),
+    (C, '    "water_range": ("water_range", "Water range"),\n', "", "Water range named Range"),
+    (C, '"bin_type", "bolero_style", "bookcase_style"', '"bin_type", "bookcase_style"',
+     "bolero_style not folded"),
+    (G, '        *(f"name {n!r} names {sorted(k)}" for n, k in sorted(keys.items()) if len(k) > 1),\n',
+     "", "the guard misses a name on two keys"),
+    (C, "        false = false or restates_the_type(e, product_type)\n", "",
+     "withheld misses a restating value"),
+    (C, '        key = published(e["key"], product_type)\n', '        key = e["key"]\n',
+     "withheld names the authored key"),
+]

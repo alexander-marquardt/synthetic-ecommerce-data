@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     export,
     kit,
     kit_softfurn,
@@ -111,7 +112,9 @@ def test_each_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> N
         have = {a["key"] for a in doc["attributes"]}
         for sku in doc["variants"]:
             have |= {a["key"] for a in sku["attributes"]}
-        assert TYPES[ptype][1] <= have, (row.code, TYPES[ptype][1] - have)
+        have |= attribute_cleanup.withheld(row.doc()["attributes"])
+        want = {attribute_cleanup.published(k) for k in TYPES[ptype][1]}
+        assert want <= have, (row.code, want - have)
 
 
 def test_a_width_and_a_drop_are_measured_in_centimetres_on_each_sku() -> None:

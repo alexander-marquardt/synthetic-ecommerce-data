@@ -202,7 +202,7 @@ STYLES = {
         "Restaurant Style", "Silky", "Bold", "Family Recipe",
     ),
     "Seasoning": (
-        "Hand Blended", "Bold", "Stone Ground", "Freshly Ground", "Coarse Ground", "Home Style",
+        "Hand Blended", "Bold", "Stoneground", "Freshly Ground", "Coarse Ground", "Home Style",
         "Butcher's Blend", "Small Batch",
     ),
     "Snack Bar": _BAR,

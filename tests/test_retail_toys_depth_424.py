@@ -147,6 +147,8 @@ def test_every_key_attribute_is_a_structured_entry_with_its_unit(key) -> None:
             if any(attribute_cleanup.restates_the_type(e, doc["product_type"])
                    for e in rec["attributes"] if e["key"] == authored):  # fmt: skip
                 continue  # a Marble Run's toy_type Marble Run is dropped (gen#497)
+            if entry in attribute_cleanup.withheld(rec["attributes"]):
+                continue  # a No is not published (gen#497)
             assert entry in found, (row.code, entry)
             if unit:
                 assert found[entry].get("unit_code") == unit, (row.code, entry)
