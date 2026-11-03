@@ -245,8 +245,12 @@ MERGED_AWAY = {
 }
 #: The retail merged-away keys (``attribute_cleanup.RETIRED``), held apart: their kept keys are
 #: retail ones, which the industrial golden catalogue does not publish. A key some type still
-#: publishes (a Suit Jacket's ``length``, the industrial ``length``) is not one of them.
-RETAIL_MERGED_AWAY = {old: attribute_cleanup.published(old) for old in attribute_cleanup.RETIRED}
+#: publishes (the industrial ``length``, which no retail type publishes any more) is not one of
+#: them; ``test_retail_attribute_cleanup_497`` holds that retail build free of it.
+RETAIL_MERGED_AWAY = {
+    old: attribute_cleanup.published(old)
+    for old in attribute_cleanup.RETIRED - set(MERGED_AWAY.values())
+}
 
 
 def one_key_per_concept(docs: list[Doc]) -> Report:
