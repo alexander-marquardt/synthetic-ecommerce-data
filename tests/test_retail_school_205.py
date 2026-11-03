@@ -19,6 +19,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    attribute_cleanup,
     decoy_apparel,
     export,
     image_release,
@@ -112,8 +113,9 @@ def test_every_style_draws_as_its_types_own_school_shape(ptype: str) -> None:
 def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> None:
     missing = {}
     for row in (r for r in ROWS if r.product_type == ptype):
-        if TYPES[ptype][2] - _keys(row):
-            missing[row.code] = sorted(TYPES[ptype][2] - _keys(row))
+        want = {attribute_cleanup.published(k, ptype) for k in TYPES[ptype][2]}
+        if want - _keys(row):
+            missing[row.code] = sorted(want - _keys(row))
     assert missing == {}
 
 

@@ -569,7 +569,7 @@ def test_a_flat_document_is_its_variant_under_its_product(retail, retail_flat):
     flat = _first(retail_flat, "sku", variant["sku"])
     own = {e["key"] for e in variant["attributes"]}
     # the SKU's own color, pattern and sizes replace the style's lists of them
-    sizes = {"length", "inside_leg_length", "size_uk", "size_eu", "size_us"}
+    sizes = {"leg_length", "inside_leg_length", "size_uk", "size_eu", "size_us"}
     assert own == {"color", "pattern"} | sizes
     kept = [e for e in jeans["attributes"] if e["key"] not in own]
     assert flat["attributes"] == kept + variant["attributes"]

@@ -31,8 +31,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 #: The facet names the downstream attribute markers read, by the product type that has them.
+#: A Jeans leg option is published as ``leg_length`` (gen#497), which the catalogue maps.
 CONTRACT = {
-    "Jeans": {"leg_fit", "rise", "length"},
+    "Jeans": {"leg_fit", "rise", "leg_length"},
     "Bra": {"wiring", "bra_shape", "padding", "back_style", "fabric"},
 }
 #: The facets whose values a collapsed leaf named.

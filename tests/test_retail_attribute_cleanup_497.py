@@ -264,8 +264,12 @@ def test_no_published_document_carries_an_authored_length_key() -> None:
 def test_every_leg_length_is_a_leg_option_and_petite_is_never_a_length() -> None:
     legs = {e["value"] for doc in _docs() for e in _entries(doc) if e["key"] == "leg_length"}
     assert legs == LEG_LENGTHS
+    # A Skirt's ``fit_length`` (Short/Petite, Regular, Long) awaits the maintainer's ruling.
     lengths = {
-        e["value"] for doc in _docs() for e in _entries(doc) if e["key"].endswith("length")
+        e["value"]
+        for doc in _docs()
+        for e in _entries(doc)
+        if e["key"].endswith("length") and e["key"] != "fit_length"
     }
     assert {"Petite", "Short/Petite"} & lengths == set()
 

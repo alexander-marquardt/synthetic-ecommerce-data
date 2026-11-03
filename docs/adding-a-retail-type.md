@@ -48,6 +48,9 @@ A value with a unit, or one that names the leaf, is already never changed
 * A row may keep an older key: `attribute_cleanup.RENAMES` publishes it under the one key and name
   (`seats` is `seat_count`); a test reads it through `attribute_cleanup.published(key)` (gen#497).
 * `country`, `origin`: one `origin`, a `PLACES` name per level, most specific first (Rioja, Spain).
+* Lengths: a trouser's leg option (`inside_leg`, a Jeans `length`) is `leg_length` "Leg length";
+  a style length (`skirt_length`, any other `length`) is `garment_length` "Garment length". Petite
+  is a `size_range`, never a length: a Petite leg is Short (`attribute_cleanup.BY_TYPE`, `VALUES`).
 
 ## 4. Export SKU options: `export.OPTIONS`
 
