@@ -60,3 +60,9 @@ class Family:
         if not self.children:
             return self.path
         return (*self.path, dict(self.children)[flavors[0].name])
+
+    def kin(self, flavor: F) -> tuple[F, ...]:
+        """The flavors that share ``flavor``'s child: what one style of the family draws from
+        (gen#298), so a milk bar range carries no white bar."""
+        child = dict(self.children)
+        return tuple(f for f in self.flavors if child[f.name] == child[flavor.name])

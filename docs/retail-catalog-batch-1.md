@@ -27,7 +27,8 @@ juice" are *oranges*, "sea salt" is *salt*, "emulsifier (soya lecithin)" is *soy
 ## Text-match decoys: "chocolate without peanuts" (gen#294, class 8)
 
 Text search ignores "without": a chocolate that holds the word "peanut" scores highest.
-The grocery build plants 23 chocolate styles under Chocolate & Sweets > Chocolate Bars
+The grocery build plants 23 chocolate styles under Chocolate & Sweets > Chocolate > Chocolate Bars,
+each in the Dark or Milk Chocolate Bars child for its chocolate (gen#298)
 (`grocery_rows.DECOY_ANCHORS`, families `PNT`, `PNH`, `PNF`, drawn from a stream of their
 own, so no other grocery draw moves). The base ingredient is `peanuts` (plural, gen#295), so
 the exclusion filters `peanuts` on `facets.ingredient_base`, `facets.contains` and
@@ -181,8 +182,10 @@ page, and a feature's section is its own page in [retail-prototype/](retail-prot
 
 ## Not done in this increment
 
-#298 (the Chocolate node) and #181 (neckline) are not built yet; their issues stay open. #299
+#181 (neckline) is not built yet; its issue stays open. #299
 (Juice children and the label-collision guard) is built since: [retail-prototype/juice-children-299.md](retail-prototype/juice-children-299.md).
+#298 (the Chocolate node: every chocolate moves one level deeper, under Chocolate & Sweets >
+Chocolate) is built since: [retail-prototype/chocolate-node-298.md](retail-prototype/chocolate-node-298.md).
 
 Of #294 this increment lands the generated decoy table, the class 7 rows, four guards and the
 proofs for cups, "d cup bra" and oranges on the rows `class_rows.py` already plants. #294 stays

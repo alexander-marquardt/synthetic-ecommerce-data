@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from synthetic_ecommerce_data.domains.retail.grocery_model import F, Family
 
 _CHOC = ("Crunchworth", "Pantry Mill", "Hearth & Table", "Barrowby Kitchen")
@@ -29,6 +31,8 @@ def _p(*parts: str) -> tuple[str, ...]:
 _FRUIT = _p("Fruit & Vegetables", "Fresh Fruit")
 _STEAK = _p("Meat & Fish", "Fresh Meat", "Steak")
 _JUICE = _p("Drinks", "Juice")
+_CHOCOLATE = _p("Chocolate & Sweets", "Chocolate")  # a UK grocer's Chocolate aisle (gen#298)
+_BARS = (*_CHOCOLATE, "Chocolate Bars")
 _BEER = _p("Beer, Wine & Spirits", "Beer")
 _WINE = _p("Beer, Wine & Spirits", "Wine")
 _CIDER = _p("Beer, Wine & Spirits", "Cider")
@@ -47,6 +51,18 @@ def _w(name: str, hex_: str, abv: float, grape: str, country: str, style: str) -
 def _s(name: str, hex_: str, abv: float, country: str, style: str, codes: str = "") -> F:
     """One spirit or mead: its country and style are attributes beside the strength."""
     return F(name, hex_, codes, abv, (("country", "Country", country), ("spirit_style", "Style", style)))
+
+
+def _bars(fam: Family) -> Family:
+    """A bar family under Chocolate Bars: each flavor files in the child for its chocolate
+    (gen#298), the white or dark its name says, else milk, which it then contains."""
+    def child(f: F) -> str:
+        kind = next((k for k in ("White", "Dark") if k in f.name.split()), "Milk" if "M" in f.codes else "")
+        if not kind:
+            raise ValueError(f"{fam.code} {f.name}: names no white or dark and contains no milk")
+        return f"{kind} Chocolate Bars"
+
+    return replace(fam, children=tuple((f.name, child(f)) for f in fam.flavors))
 
 
 def _o(name: str, hex_: str, origin: str) -> F:
@@ -95,15 +111,15 @@ TIER_BRANDS: dict[tuple[str, ...], tuple[str, ...]] = {
 
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
-    Family("CHB", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} Chocolate Bar", "Chocolate Bar",
+    _bars(Family("CHB", _BARS, "{line} Chocolate Bar", "Chocolate Bar",
            "bar", "Chocolate", _A, "DE", 1.5, ("100g", "4 x 35g", "200g"),
            (F("Milk", "#8a5a3c", "M"), F("Dark 70%", "#3b2416"), F("Hazelnut Milk", "#9a6a44", "MT"),
             F("Peanut Caramel", "#b07a3c", "MP"), F("Mint Dark", "#2f6b52"), F("Orange Dark", "#d9822b"),
             F("Coconut Dark", "#efe8d8"), F("Salted Caramel Milk", "#c48a3a", "M"),
             F("White", "#f2e6c8", "M"), F("Almond Dark", "#7a4a2a", "T"), F("Lemon White", "#f2d14b", "M"),
             F("Raspberry Dark", "#a3214a")),
-           _CHOC, 0.09, base="S", may=_NUTS, per_style=(3, 7)),
-    Family("CHX", _p("Chocolate & Sweets", "Chocolate Boxes"), "{line} {flavor} Chocolate Selection",
+           _CHOC, 0.09, base="S", may=_NUTS, per_style=(3, 7))),
+    Family("CHX", (*_CHOCOLATE, "Chocolate Boxes"), "{line} {flavor} Chocolate Selection",
            "Chocolate Box", "chocolate_box", "Chocolates", _A, "E", 6.0, ("150g", "250g", "400g"),
            (F("Classic Milk", "#8a5a3c", "M"), F("Praline", "#9a6a44", "MT"), F("Dark Truffle", "#3b2416", "M"),
             F("Mint Crisp", "#2f6b52", "M"), F("Orange Cream", "#d9822b", "M"), F("Vegan Dark", "#2a1a10")),
@@ -381,10 +397,10 @@ FAMILIES: tuple[Family, ...] = (
            _SNACK, 0.003, may=((3, ""), (1, "M"))),
     # Class "oranges": the word names a flavour in a bar, a bake, a biscuit and a drink, in
     # categories other than Oranges.
-    Family("CHO", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar", "bar",
+    _bars(Family("CHO", _BARS, "{line} {flavor}", "Chocolate Bar", "bar",
            "Chocolate Orange", _A, "DE", 1.8, ("100g", "175g"),
            (F("Milk Chocolate Orange", "#d9822b", "M"), F("Dark Chocolate Orange", "#8a4a1c")),
-           _CHOC, 0.008, base="S", may=_NUTS),
+           _CHOC, 0.008, base="S", may=_NUTS)),
     Family("PAN", _p("Bakery", "Festive Bakes"), "{line} {flavor}", "Festive Bake", "cake", "Festive Bake", _A,
            "DE", 4.0, ("500g", "750g"),
            (F("Cranberry & Orange Panettone", "#d9a441", "GME"), F("Lemon & Orange Panettone", "#f2c14b", "GME"),
@@ -686,23 +702,23 @@ FAMILIES: tuple[Family, ...] = (
     # that holds the word "peanut" wins, and so does one that says "peanut-free". Planted by
     # ``DECOY_ANCHORS`` only (a depth family's budget is spent by them); the ingredient fields
     # (``facets.ingredient_base``, ``contains``, ``may_contain``) are the truth the policy reads.
-    Family("PNT", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+    _bars(Family("PNT", _BARS, "{line} {flavor}", "Chocolate Bar",
            "bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
            (F("Chocolate Peanut Butter Cups", "#a06a30", "MP"), F("Milk Chocolate with Crunchy Peanuts", "#8a5a3c", "MP"),
             F("Chocolate Coated Peanuts", "#7a4a2a", "MP"), F("Peanut Caramel Chocolate Bar", "#b07a3c", "MP"),
             F("Dark Chocolate Peanut Clusters", "#3b2416", "P"), F("Chocolate Peanut Brittle", "#c48a3a", "MP")),
-           _CHOC, 0.001, base="S", depth=True),
-    Family("PNH", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           _CHOC, 0.001, base="S", depth=True)),
+    _bars(Family("PNH", _BARS, "{line} {flavor}", "Chocolate Bar",
            "bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
            (F("Milk Chocolate Praline Bar", "#9a6a44", "MP"), F("Triple Chocolate Biscuit Bar", "#6a3a22", "GMP"),
             F("Dark Chocolate Crunch Bar", "#3b2416", "P")),
-           _CHOC, 0.001, base="S", depth=True),
-    Family("PNF", _p("Chocolate & Sweets", "Chocolate Bars"), "{line} {flavor}", "Chocolate Bar",
+           _CHOC, 0.001, base="S", depth=True)),
+    _bars(Family("PNF", _BARS, "{line} {flavor}", "Chocolate Bar",
            "bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
            (F("Peanut-Free Milk Chocolate Bar", "#8a5a3c", "M"), F("Peanut-Free Dark Chocolate Bar", "#3b2416"),
             F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
             F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
-           _CHOC, 0.001, base="S", depth=True),
+           _CHOC, 0.001, base="S", depth=True)),
     # Fresh produce on the plural (gen#445): one bare-noun leaf each for the six fruits and
     # vegetables a plain "tomatoes" or "bananas" search met no fresh leaf for. Titles are as long as
     # the decoys' (a variety, a grade or a pack word in the name), appended last so no earlier
@@ -737,4 +753,18 @@ FAMILIES: tuple[Family, ...] = (
            (_o("Sweet Red Cherries", "#a3182e", "Turkey"), _o("Large Dark Cherries", "#6a1226", "Spain"),
             _o("Ripe British Cherries", "#b02238", "United Kingdom"), _o("Juicy Morello Cherries", "#8a1a2e", "Chile")),
            _FRESH, 0.005, axis="variety", depth=True),
+    # The Chocolate aisle's pack-size leaves (gen#298): the bar lines in a multipack of bars and
+    # in a sharing bag of buttons or bites. Appended last, from the depth stream, so no draw moves.
+    Family("CMP", (*_CHOCOLATE, "Chocolate Multipacks"), "{line} {flavor} Multipack", "Chocolate Bar", "bar",
+           "Chocolate", _A, "DE", 2.0, ("4 x 35g", "6 x 25g"),
+           (F("Milk Chocolate", "#8a5a3c", "M"), F("Dark Chocolate", "#3b2416"), F("White Chocolate", "#f2e6c8", "M"),
+            F("Hazelnut Milk Chocolate", "#9a6a44", "MT"), F("Salted Caramel Milk Chocolate", "#c48a3a", "M"),
+            F("Mint Dark Chocolate", "#2f6b52")),
+           _CHOC, 0.005, base="S", may=_NUTS, depth=True),
+    Family("CSB", (*_CHOCOLATE, "Sharing Bags"), "{line} {flavor} Sharing Bag", "Chocolate Bar", "bag",
+           "Chocolate", _A, "E", 2.2, ("150g", "250g"),
+           (F("Milk Chocolate Buttons", "#8a5a3c", "M"), F("White Chocolate Buttons", "#f2e6c8", "M"),
+            F("Dark Chocolate Buttons", "#3b2416"), F("Honeycomb Milk Chocolate Bites", "#d9a441", "M"),
+            F("Caramel Milk Chocolate Bites", "#c48a3a", "M"), F("Orange Dark Chocolate Bites", "#d9822b")),
+           _CHOC, 0.005, base="S", may=_NUTS, depth=True),
 )  # fmt: skip

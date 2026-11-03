@@ -25,6 +25,8 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import grocery, grocery_rows, scale, tree_guard
+from synthetic_ecommerce_data.domains.retail.grocery_families import _bars
+from synthetic_ecommerce_data.domains.retail.grocery_model import F, Family
 
 CHOCOLATE = ("Food & Drink", "Chocolate & Sweets", "Chocolate")
 BARS = (*CHOCOLATE, "Chocolate Bars")
@@ -104,6 +106,15 @@ def test_each_box_multipack_and_sharing_bag_family_is_a_real_leaf(code: str) -> 
     assert {tuple(r["category_path"]) for r in styles} == {(*CHOCOLATE, LEAF[code])}
 
 
+def test_a_bar_flavor_of_no_chocolate_type_stops_the_build() -> None:
+    """A flavor that names no white or dark and holds no milk has no child: refused, not filed."""
+    carob = (F("Plain Carob", "#3b2416"),)
+    fam = Family("XXX", BARS, "{line} {flavor}", "Chocolate Bar", "bar", "Chocolate", "ambient",
+                 "D", 1.0, ("100g",), carob, ("Pantry Mill",), 0.001)  # fmt: skip
+    with pytest.raises(ValueError, match="Plain Carob"):
+        _bars(fam)
+
+
 @pytest.fixture(scope="module")
 def docs() -> list[dict]:
     """The shipped documents: the seasonal, decoy and scaled rows as well as the grocery build."""
@@ -121,6 +132,15 @@ def test_every_shipped_chocolate_sits_under_chocolate_and_nothing_else_does(docs
               if d["category_path"][:3] == SHIPPED
               and d["product_type"] not in CHOCOLATE_TYPES}  # fmt: skip
     assert (outside, inside) == ({}, {})
+
+
+def test_the_bar_decoys_sit_in_the_child_for_their_chocolate(docs) -> None:
+    """The class 9 plural decoys (gen#445) of the kinds dark_chocolate and white_chocolate."""
+    named = ("Chocolate & Candied Oranges", "White Chocolate Raspberries Bar")
+    assert {d["title"]: d["category_path"][3:] for d in docs if d["title"] in named} == {
+        "Chocolate & Candied Oranges": ["Chocolate bars", "Dark chocolate bars"],
+        "White Chocolate Raspberries Bar": ["Chocolate bars", "White chocolate bars"],
+    }
 
 
 def test_nothing_sits_on_chocolate_or_chocolate_bars_itself(docs) -> None:
