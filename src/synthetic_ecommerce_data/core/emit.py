@@ -56,7 +56,7 @@ IMAGE_ROOT = "industrial"
 DEFAULT_IMAGE_BASE_URL = f"/images/{IMAGE_ROOT}"
 
 #: The ISO 4217 code of every industrial price. The nested standard's ``price`` is
-#: in ``currency`` (:mod:`.standard`); ``price_usd`` stays beside it for the loader.
+#: in ``currency`` (:mod:`.standard`), in both shapes; ``price_usd`` stays beside it for the loader.
 CURRENCY = "USD"
 
 
@@ -342,6 +342,11 @@ def flat_documents(
             "dimension_provenance": line.dimension_provenance,
             "spec_quality": line.spec_quality,
             "variant_axes": list(axes),
+            # The nested variant's price columns, as the retail flat document writes them
+            # (gen#125): the Combined load reads ``price`` in ``currency`` and ``in_stock``.
+            "price": child.price_usd,
+            "currency": CURRENCY,
+            "in_stock": child.stock > 0,
             "price_usd": child.price_usd,
             "stock": child.stock,
             "pricing_unit": child.pricing_unit,
@@ -506,6 +511,9 @@ FLAT_MAPPING: dict[str, Any] = {
             "dimension_provenance": {"type": "keyword"},
             "spec_quality": {"type": "keyword"},
             "variant_axes": {"type": "keyword"},
+            "price": {"type": "double"},
+            "currency": {"type": "keyword"},
+            "in_stock": {"type": "boolean"},
             "price_usd": {"type": "double"},
             "stock": {"type": "integer"},
             "pricing_unit": {"type": "keyword"},

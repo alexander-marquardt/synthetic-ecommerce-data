@@ -101,7 +101,9 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     "inside_leg_in": ("inside_leg_length", "Inside leg length", "INH"),
     "waist": ("waist", "Waist", None),
     "bed_size": ("bed_size", "Bed size", None),
-    "width": ("width", "Width", None),
+    # A shoe's fit (Standard, Wide, a kids' F/G/H), never industrial's measured ``width``: the
+    # Combined projection's ``fit_width`` (gen#125, #286).
+    "width": ("fit_width", "Fit width", None),
     # A tree's height in feet (``5 ft``, which the core reads as a length) is the one key every
     # measured height has, ``item_height`` (key_guard.py, gen#227).
     "height": ("item_height", "Item height", None),
@@ -219,7 +221,10 @@ def _spelling(value: Any) -> str:
 
 
 def _entry(key: str, name: str, unit: str | None, value: Any) -> dict[str, Any]:
-    return {"key": key, "name": name, **split(name, _spelling(value), bare_unit=unit)}
+    out = {"key": key, "name": name, **split(name, _spelling(value), bare_unit=unit)}
+    if key in standard.SCORE_KEYS:
+        out["value_canonical"] = float(out["value"])
+    return out
 
 
 def _entries(spec: tuple[str, str, str | None], value: Any) -> list[dict[str, Any]]:
