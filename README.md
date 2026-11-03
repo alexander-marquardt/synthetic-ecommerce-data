@@ -1044,9 +1044,6 @@ which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrite
 `tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
 that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
 the script and names the rule. `--check` compares the committed file without writing.
-`--golden DIR --seed N --out FILE` measures another catalog into another file;
-`tests/test_golden_pins_reseed_50.py` runs it on a build with another seed, where every
-pin moves, and on one with a rule's SKUs taken out.
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
