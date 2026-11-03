@@ -249,8 +249,7 @@ MERGED_AWAY = {
 #: them; ``test_retail_attribute_cleanup_497`` holds that retail build free of it.
 RETAIL_MERGED_AWAY = {
     old: attribute_cleanup.published(old)
-    for old in attribute_cleanup.RETIRED
-    if old not in set(MERGED_AWAY.values())
+    for old in attribute_cleanup.RETIRED - set(MERGED_AWAY.values())
 }
 
 
