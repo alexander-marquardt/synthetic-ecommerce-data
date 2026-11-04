@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 42749,
+    "lines": 43333,
     "price_pins": {},
-    "skus": 140185,
+    "skus": 141361,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -125,6 +125,7 @@
       "screw_deck": 97,
       "screw_drywall": 103,
       "screw_flat_head": 5488,
+      "screw_hex_head": 1176,
       "screw_low_head": 3176,
       "screw_machine": 103,
       "screw_sheet_metal": 98,
