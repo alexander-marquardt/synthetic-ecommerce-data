@@ -115,7 +115,8 @@ def test_the_skus_per_product_follow_the_knob(catalog: Catalog) -> None:
     assert max(row["max"] for row in flat.values()) <= 5
     # A grouped type's grouped products (#710) draw its own table, up to that table's maximum.
     for key, table in grouped.VARIANTS.items():
-        most = max(count for count, _ in table)
+        # A reach line (#850) sells each size at up to ``reach_most`` length classes.
+        most = max(count for count, _ in table) * grouped.reach_most(key)
         # A pack line (gen#14) sells those sizes across its quantities.
         most = pack.pairs(most, pack.AXES[key]) if key in pack.AXES else most
         assert distribution[key]["max"] <= most, key

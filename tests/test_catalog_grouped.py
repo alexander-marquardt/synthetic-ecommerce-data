@@ -21,6 +21,7 @@ import pytest
 
 from synthetic_ecommerce_data.core import bundle
 from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.emit import line_variant_axes
 from synthetic_ecommerce_data.domains.industrial import grouped, muststock, newtypes, series
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.product_split import (
@@ -164,14 +165,32 @@ def test_end_mill_runs_go_past_the_nine_matching_shanks(key, added):
     assert max(len(line.children) for line in added[key]) > 9
 
 
+def _value(child, name: str) -> str | None:
+    return next((a.value for a in child.attributes if a.name == name), None)
+
+
+def _num(child, name: str) -> float | None:
+    return next((a.value_num for a in child.attributes if a.name == name), None)
+
+
+def _sizes(line) -> int:
+    """A line's sizes: its SKUs, or for a :data:`grouped.REACH` type its diameters (#850),
+    counted by value, so a defect's respelling of one diameter is not a size of its own."""
+    if line.type_key not in grouped.REACH:
+        return len(line.children)
+    return len({_num(child, "Milling Dia.") for child in line.children})
+
+
 def _at_each_diameter(lines) -> list[list]:
-    """Each (product, milling diameter) pair's SKUs: what a tile groups for a diameter query."""
-    pairs: dict[tuple[str, str], list] = {}
+    """Each (product, milling diameter) pair's SKUs: what a tile groups for a diameter query.
+    A pack line's quantities of one diameter are a pair each (:mod:`.pack`)."""
+    pairs: dict[tuple, list] = {}
     for line in lines:
         for child in line.children:
-            dia = next((a.value for a in child.attributes if a.name == "Milling Dia."), None)
+            dia = _value(child, "Milling Dia.")
             if dia is not None:
-                pairs.setdefault((line.product_id, dia), []).append(child)
+                key = (line.product_id, dia, _value(child, "Units per Pack"))
+                pairs.setdefault(key, []).append(child)
     return list(pairs.values())
 
 
@@ -187,6 +206,25 @@ def test_a_diameter_query_groups_several_lengths_of_one_line(key, large):
     for skus in several:
         cuts = [a.value for s in skus for a in s.attributes if a.name == "Length of Cut"]
         assert len(set(cuts)) == len(cuts), (key, cuts)
+
+
+#: What a shopper picks on a line that sells each diameter at several lengths (#850). A milling
+#: diameter and its shank determine each other, so either one names the size. A pack line
+#: (:data:`.pack.AXES`) also offers its quantities.
+_REACH_AXES = {"milling_dia", "shank_dia", "length_of_cut", "overall_length", "units_per_pack"}
+
+
+@pytest.mark.parametrize("key", _END_MILLS)
+def test_a_line_of_several_lengths_offers_a_diameter_and_a_length(key, large):
+    """Issue #850: the shank, the corner radius and the neck follow the diameter or the length
+    of cut, and are stated on every SKU or on none, so a product page offers no third choice.
+    A defect (:mod:`.defects`) still leaves an odd line a stray axis."""
+    lines = [line for line in _own(large, key) if len(line.children) > _sizes(line)]
+    assert len(lines) >= 50, (key, len(lines))
+    stray = [
+        axes for line in lines if not set(axes := line_variant_axes(large, line)) <= _REACH_AXES
+    ]
+    assert len(stray) / len(lines) < 0.1, (key, len(stray), len(lines), stray[:5])
 
 
 @pytest.mark.parametrize(("key", "axis"), _SIZE_AXES.items())
@@ -209,7 +247,7 @@ def test_each_type_draws_its_own_table(key, added):
     """The grouped products follow the type's table: a run of 6 or more, median near the
     table's."""
     table = grouped.VARIANTS[key]
-    sizes = [len(line.children) for line in added[key]]
+    sizes = [_sizes(line) for line in added[key]]
     assert sizes, f"{key}: the pass added no product"
     smallest, largest = min(c for c, _ in table), max(c for c, _ in table)
     # The series pool caps a draw (a small thread offers only a few lengths), so the median
@@ -225,23 +263,30 @@ def test_each_type_draws_its_own_table(key, added):
 @pytest.mark.parametrize("key", TYPES)
 def test_the_pass_stops_at_the_types_budget(key, large_flat, large, monkeypatch):
     """The budget is what stops the pass, and it moves the type's SKUs instead of adding to
-    them: half the scale builds about half the run SKUs."""
-    before = sum(len(line.children) for line in _own(large_flat, key))
-    after = sum(len(line.children) for line in _own(large, key))
+    them: half the scale builds about half the run SKUs. A reach line's sizes are what the
+    budget counts (#850)."""
+    before = sum(_sizes(line) for line in _own(large_flat, key))
+    after = sum(_sizes(line) for line in _own(large, key))
     assert 0.8 <= after / before <= 1.35, (key, before, after)
     monkeypatch.setattr(grouped, "SKU_SCALE", grouped.SKU_SCALE / 2)
     monkeypatch.setattr(grouped, "SPEC_BOUND_SCALE", grouped.SPEC_BOUND_SCALE / 2)
     config = replace(GeneratorConfig(), lines=RUN_LINES)
-    halved = sum(len(line.children) for line in generate(config, types=[key]).lines)
+    halved = sum(_sizes(line) for line in generate(config, types=[key]).lines)
     assert halved < after * 0.65, (key, after, halved)
 
 
 def test_the_sku_total_holds(large_flat, large):
-    """Issue #766: the SKUs move into runs, and the total stays within about 10%."""
-    before = sum(len(line.children) for line in large_flat.lines)
-    after = sum(len(line.children) for line in large.lines)
+    """Issue #766: the SKUs move into runs, and the total stays within about 10%. The end
+    mills' sizes do (#850): their length classes add SKUs, by about the mean reach."""
+    before = sum(_sizes(line) for line in large_flat.lines)
+    after = sum(_sizes(line) for line in large.lines)
     assert 0.9 <= after / before <= 1.2, (before, after)
     assert len(large.lines) < len(large_flat.lines) / 2
+    for key in grouped.REACH:
+        mean = sum(c * w for c, w in grouped.REACH[key]) / sum(w for _, w in grouped.REACH[key])
+        skus = sum(len(line.children) for line in _own(large, key))
+        sizes = sum(_sizes(line) for line in _own(large, key))
+        assert 1.5 <= skus / sizes <= mean, (key, skus, sizes)
 
 
 @pytest.mark.parametrize("key", TYPES)
