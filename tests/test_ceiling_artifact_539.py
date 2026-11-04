@@ -260,20 +260,24 @@ def test_a_dispatched_seed_turns_random_order_on() -> None:
     assert "format('-p randomly --randomly-seed={0}', inputs.random_seed)" in addopts
 
 
-def _child_pytest(tmp_path: Path, *options: str) -> str:
+def _child_pytest(tmp_path: Path, *options: str, env: dict[str, str] | None = None) -> str:
+    """A pytest run in ``tmp_path`` on ``test_two.py`` (and any file ``options`` names after it).
+
+    With ``env`` it may fail, a worker killed; without, it must pass.
+    """
     (tmp_path / "conftest.py").write_text(ROOT_CONFTEST, encoding="utf-8")
     (tmp_path / "test_two.py").write_text(
         "def test_one():\n    pass\n\n\ndef test_two():\n    pass\n", encoding="utf-8"
     )
-    drop = ("PYTEST_ADDOPTS", "CI_SHARD", "CI_SHARDS")
-    env = {k: v for k, v in os.environ.items() if k not in drop}
-    env["PYTHONPATH"] = str(REPO / "tests")
+    drop = ("PYTEST_ADDOPTS", "CI_SHARD", "CI_SHARDS", "WORKER_PEAK_DIR")
+    child_env = {k: v for k, v in os.environ.items() if k not in drop} | (env or {})
+    child_env["PYTHONPATH"] = str(REPO / "tests")
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-         "--rootdir", str(tmp_path), *options, "test_two.py"],
-        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
+         "--rootdir", str(tmp_path), "test_two.py", *options],
+        cwd=tmp_path, env=child_env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip
-    assert done.returncode == 0, done.stdout + done.stderr
+    assert env is not None or done.returncode == 0, done.stdout + done.stderr
     return done.stdout
 
 
@@ -299,6 +303,32 @@ def test_a_run_with_no_workers_prints_no_peak(tmp_path) -> None:
 def test_a_run_on_workers_prints_each_modules_peak(tmp_path) -> None:
     printed = _child_pytest(tmp_path, "-n", "1")
     assert "module peak memory: 0 of 1 modules over 1500 MB: none" in printed.splitlines()
+
+
+#: A module whose first test kills its worker, as the kernel's OOM killer does (#845).
+KILLED_MODULE = "import os\nimport signal\n\n\ndef test_killed():\n" \
+    "    os.kill(os.getpid(), signal.SIGKILL)\n"  # fmt: skip
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_killed_worker_leaves_its_modules_peaks_and_the_module_it_was_in(tmp_path) -> None:
+    (tmp_path / "test_three.py").write_text(KILLED_MODULE, encoding="utf-8")
+    peaks = tmp_path / "peaks"
+    peaks.mkdir()
+    env = {"WORKER_PEAK_DIR": str(peaks)}
+    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", "test_three.py", env=env)
+    assert "[gw0] node down: Not properly terminated" in printed
+    assert (peaks / "gw0.peaks").exists(), "the killed worker left no peak file"
+    lines = (peaks / "gw0.peaks").read_text(encoding="utf-8").splitlines()
+    rows = [ln.split("\t") for ln in lines]
+    assert all(len(r) == 2 and r[1].isdigit() for r in rows), lines
+    assert [m for m, _ in rows if m == "test_two.py"], "the finished module's peak is lost"
+    assert rows[-1][0] == "test_three.py", "the module the worker died in is not named last"
+
+
+def test_a_run_with_no_peak_directory_writes_no_peak_file(tmp_path) -> None:
+    _child_pytest(tmp_path, "-n", "1")
+    assert not list(tmp_path.rglob("*.peaks"))
 
 
 def test_the_module_line_names_the_modules_over_the_line_heaviest_first() -> None:
