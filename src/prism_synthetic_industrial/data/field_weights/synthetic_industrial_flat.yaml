@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 116 distinct attribute names and a hand-maintained list
-# of 116 declarations drifts from the data the first time either side moves.
+# publishes 120 distinct attribute names and a hand-maintained list
+# of 120 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,9 +66,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      116
-#   offered as facets        102  (1 numeric ranges, 101 terms)
-#   declared, not faceted    14
+#   attributes declared      120
+#   offered as facets        105  (1 numeric ranges, 104 terms)
+#   declared, not faceted    15
 # =============================================================================
 
 field_map_version: 1
@@ -252,6 +252,11 @@ fields:
   - name: bearing_number
     type: terms
     source: facets.bearing_number
+  # Bearing type -- 5 distinct values over 39 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 69 documents across 1 product type(s); 5 distinct values
+  - name: bearing_type
+    type: terms
+    source: facets.bearing_type
   # Bolt hole center-to-center -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 7 distinct values over 77 product-value pairs is 0.09 per product
   #   present on 90 documents across 1 product type(s); 7 distinct values
   - name: bolt_hole_center_to_center
@@ -272,8 +277,8 @@ fields:
   - name: cage_material
     type: terms
     source: facets.cage_material
-  # Capacity -- 6 distinct values over 7 product-value pairs is 0.86 per product, at or above the 0.50 identifier threshold but on 4 products, fewer than the 250 the identifier test needs as evidence
-  #   present on 8 documents across 4 product type(s); 6 distinct values
+  # Capacity -- 5 distinct values over 6 product-value pairs is 0.83 per product, at or above the 0.50 identifier threshold but on 3 products, fewer than the 250 the identifier test needs as evidence
+  #   present on 6 documents across 3 product type(s); 5 distinct values
   - name: capacity
     type: terms
     source: facets.capacity
@@ -526,8 +531,8 @@ fields:
     type: terms
     source: facets.list_number
     facet: false
-  # Load capacity -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 24 distinct values over 219 product-value pairs is 0.11 per product
-  #   present on 219 documents across 2 product type(s); 24 distinct values
+  # Load capacity -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 34 distinct values over 277 product-value pairs is 0.12 per product
+  #   present on 288 documents across 3 product type(s); 34 distinct values
   - name: load_capacity
     type: terms
     source: facets.load_capacity
@@ -537,8 +542,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 43 distinct values over 5852 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 11699 documents across 160 product type(s); 43 distinct values
+  # Material -- 50 distinct values over 5890 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 11766 documents across 160 product type(s); 50 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -564,7 +569,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 5506 documents across 45 product type(s); 4 distinct values
+  #   present on 5538 documents across 46 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -574,6 +579,12 @@ fields:
   - name: milling_dia
     type: terms
     source: facets.milling_dia
+  # Mounting style -- single-valued: clicking it cannot narrow the result set
+  #   present on 69 documents across 1 product type(s); 1 distinct values
+  - name: mounting_style
+    type: terms
+    source: facets.mounting_style
+    facet: false
   # Mounting type -- 3 distinct values over 450 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 802 documents across 2 product type(s); 3 distinct values
   - name: mounting_type
@@ -600,8 +611,8 @@ fields:
   - name: outside_dia
     type: terms
     source: facets.outside_dia
-  # Overall height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 6 distinct values over 76 product-value pairs is 0.08 per product
-  #   present on 90 documents across 1 product type(s); 6 distinct values
+  # Overall height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 19 distinct values over 145 product-value pairs is 0.13 per product
+  #   present on 159 documents across 2 product type(s); 19 distinct values
   - name: overall_height
     type: terms
     source: facets.overall_height
@@ -687,8 +698,8 @@ fields:
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
-  # Size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 122 distinct values over 2239 product-value pairs is 0.05 per product
-  #   present on 2239 documents across 37 product type(s); 122 distinct values
+  # Size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 122 distinct values over 2237 product-value pairs is 0.05 per product
+  #   present on 2237 documents across 36 product type(s); 122 distinct values
   - name: size
     type: terms
     source: facets.size
@@ -775,6 +786,11 @@ fields:
   - name: tip_style
     type: terms
     source: facets.tip_style
+  # Tread width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 7 distinct values over 43 product-value pairs is 0.16 per product
+  #   present on 69 documents across 1 product type(s); 7 distinct values
+  - name: tread_width
+    type: terms
+    source: facets.tread_width
   # Type -- 40 distinct values over 3380 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 6164 documents across 28 product type(s); 40 distinct values
   - name: type
@@ -785,6 +801,11 @@ fields:
   - name: units_per_pack
     type: numeric
     source: facets_num.units_per_pack
+  # Wheel diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 9 distinct values over 69 product-value pairs is 0.13 per product
+  #   present on 69 documents across 1 product type(s); 9 distinct values
+  - name: wheel_diameter
+    type: terms
+    source: facets.wheel_diameter
   # Wheel grade -- 3 distinct values over 429 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 766 documents across 1 product type(s); 3 distinct values
   - name: wheel_grade
