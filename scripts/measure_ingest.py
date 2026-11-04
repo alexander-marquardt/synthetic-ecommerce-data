@@ -176,6 +176,20 @@ def machine(label: str) -> dict[str, Any]:
     }
 
 
+def merged_store(host: str, index: str, poll: float = 2.0) -> int:
+    """The index's primary store bytes once force-merged to one segment.
+
+    The store read straight after the ingest still holds segments Elasticsearch
+    has not merged yet, so two runs of one build differ; the merged size does not.
+    """
+    merge = f"/{index}/_forcemerge?max_num_segments=1&wait_for_completion=false"
+    task = request(host, "POST", merge)["task"]
+    while not request(host, "GET", f"/_tasks/{task}").get("completed"):
+        time.sleep(poll)
+    stats = request(host, "GET", f"/{index}/_stats/store,docs")
+    return primary_store(stats, index)["store_bytes"]
+
+
 def jvm_reader(host: str) -> Callable[[], tuple[int, int]]:
     def read() -> tuple[int, int]:
         with urllib.request.urlopen(f"{host}{JVM_STATS_PATH}", timeout=30) as response:
@@ -214,6 +228,7 @@ def measure(args: argparse.Namespace) -> dict[str, Any]:
         index: {
             **primary_store(stats, index),
             "documents": request(args.host, "GET", f"/{index}/_count")["count"],
+            "merged_store_bytes": merged_store(args.host, index),
         }
         for index, *_ in shapes
     }

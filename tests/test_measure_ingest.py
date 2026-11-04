@@ -75,12 +75,15 @@ def test_the_sampler_keeps_every_reading_and_takes_one_more_on_exit():
 
 def test_the_settled_heap_is_the_lowest_reading_of_the_window():
     readings = iter([(40, 512), (25, 512), (31, 512)])
-    assert measure_ingest.settle(lambda: next(readings), seconds=0, interval=0) == 40
+    assert (
+        measure_ingest.settle(lambda: next(readings), seconds=0, interval=0, clock=lambda: 5.0)
+        == 40
+    )
     readings = iter([(40, 512), (25, 512), (31, 512)])
     clock = iter([0.0, 0.5, 1.0, 9.0])
     assert (
         measure_ingest.settle(
-            lambda: next(readings), seconds=2, interval=0, clock=lambda: next(clock)
+            lambda: next(readings), seconds=2, interval=0, clock=lambda: next(clock, 9.0)
         )
         == 25
     )
@@ -104,3 +107,28 @@ def test_the_live_cluster_and_a_non_test_index_are_refused(host, index):
 
 def test_a_test_index_on_a_test_cluster_is_allowed():
     measure_ingest.refuse_unsafe("http://127.0.0.1:9211", ("test-x",))
+
+
+def test_the_merged_store_waits_for_the_force_merge_then_reads_the_store(monkeypatch):
+    still_running = {**_fixture("forcemerge_task_completed.json"), "completed": False}
+    answers = {
+        "POST": iter([_fixture("forcemerge_started.json")]),
+        "GET /_tasks": iter([still_running, _fixture("forcemerge_task_completed.json")]),
+        "GET stats": iter([_fixture("index_stats_store_merged.json")]),
+    }
+    calls = []
+
+    def fake_request(host, method, path, body=None):
+        calls.append((method, path))
+        if method == "POST":
+            return next(answers["POST"])
+        return next(answers["GET /_tasks" if path.startswith("/_tasks/") else "GET stats"])
+
+    monkeypatch.setattr(measure_ingest, "request", fake_request)
+    assert measure_ingest.merged_store("http://127.0.0.1:9211", "test-838-probe", poll=0) == 3706
+    assert calls == [
+        ("POST", "/test-838-probe/_forcemerge?max_num_segments=1&wait_for_completion=false"),
+        ("GET", "/_tasks/uKsMCB9kRd2DNivBuTxPAw:335"),
+        ("GET", "/_tasks/uKsMCB9kRd2DNivBuTxPAw:335"),
+        ("GET", "/test-838-probe/_stats/store,docs"),
+    ]
