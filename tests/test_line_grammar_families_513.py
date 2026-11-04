@@ -73,12 +73,11 @@ def test_a_probe_family_module_is_read_with_no_shared_file_edited(tmp_path):
     assert got["family"] == "zz_probe" and got["other_kind"] == "zz_probe"
     assert got["numbered"] is True
     assert got["model"] is True
-    assert got["bare_lead"] is False, "a lead word alone is a range name, not a model"
+    assert got["bare_lead"] is True, "a derived model is its lead word alone (#851)"
     assert got["foreign_lead"] is False, "another family's lead is not this family's"
     assert got["acme"] and got["bolt"] and not set(got["acme"]) & set(got["bolt"])
     assert set(got["acme"]) | set(got["bolt"]) == {"Zzgentle", "Zztotal"}
-    assert all(m.split()[0] in got["acme"] for m in got["owned"])
-    assert got["owned"][0].split()[-1] in {"3", "4", "5"}
+    assert set(got["owned"]) <= set(got["acme"]), "no number or sub-model follows it (#851)"
     assert got["retitled"] == "Acme Zzgentle Pro 4 Floor Mop"
     assert got["suffix"] == ", Red"
     assert got["sport_kept"] == "sport", "the shipped sport family is still read"

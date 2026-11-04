@@ -125,8 +125,10 @@ def _quotations(stats: dict) -> dict[str, str]:
             # and so is "ASTM F2329" (a total of 2329 styles collided with it, gen#510).
             # A date is not a total either: a count that reaches 2026 collided with every
             # ISO date of the README ("2026-09-28"), so a figure followed by "-MM-DD" is skipped.
+            # A figure glued to a letter is part of a name, "iso4035def.csv" (a total of 4035
+            # derived styles collided with it, #851).
             plain = (
-                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_]){value}(?![\d,_])"
+                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_A-Za-z]){value}(?![\d,_])"
                 r"(?!-\d{2}-\d{2})"
             )
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
@@ -201,6 +203,7 @@ def test_an_iso_date_is_not_a_restated_total() -> None:
     assert not re.search(pattern, "(maintainer ruling, 2026-09-28) and 2026-10-07")
     assert re.search(pattern, "The ceiling is 2026 styles")
     assert re.search(pattern, "CAPACITY = 2026-")  # a bare figure is still a figure
+    assert not re.search(pattern, "the records (`iso2026def.csv`)")  # a name, not a figure
 
 
 def test_the_guard_catches_a_restated_total(stats: dict) -> None:
