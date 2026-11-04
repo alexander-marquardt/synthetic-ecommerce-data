@@ -131,10 +131,11 @@ def same_product_duplicates(docs: list[dict]) -> list[tuple[str, str]]:
 #: it was (``drafts.RetiredAttribute``), and its "already made" check still counts it. For
 #: these three the retired attribute (``Item``, ``End Mill Style``, ``Insert Material``) was
 #: the only thing telling two SKUs apart, so a pair of them reads as one product once it is
-#: gone: 2 pairs among the 11,765 committed SKUs and 126 among the 124,677 of the 100K build.
+#: gone: 2 pairs among the 11,765 committed SKUs and 515 among the 165,893 of the 100K build
+#: (126 among 124,677 before an end-mill run line sold each diameter at several lengths, #850).
 RETIRED_TWIN_TYPES = frozenset({"lock_nuts_nylon_insert", "end_mill_square", "end_mill_ball"})
-#: Twins are a rounding error, not a leak: measured 0.10% of the 100K build's SKUs (126 pairs).
-RETIRED_TWIN_SHARE = 0.002
+#: Twins are a rounding error, not a leak: measured 0.31% of the 100K build's SKUs (515 pairs).
+RETIRED_TWIN_SHARE = 0.004
 
 
 def unexplained_duplicates(

@@ -539,6 +539,15 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 classes = self._table_run(
                     f"reach:{type_key}", list(series.LENGTH_CLASSES), draft.reach
                 )
+                # Two lengths of cut do not fit the overall length of a long class, so its
+                # drawing refuses a double-ended tool and draws the diameter alone: the
+                # lengths of a size would then draw alike. The draw above is still taken.
+                draft.line_attrs = [
+                    keyword_attribute("Single End/Double End", "Single End")
+                    if a.name == "Single End/Double End"
+                    else a
+                    for a in draft.line_attrs
+                ]
 
         # A reach line's tool at one diameter is one tool in several lengths: its shank and corner
         # radius are the diameter's, and its neck follows its length of cut. A line of one class
@@ -613,7 +622,12 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 radius_in = geom.cutting_dia_in / drawn(
                     ("radius", dia), lambda: rng.choice((8.0, 16.0, 32.0))
                 )
-                child.attrs.append(self._length("Corner Radius", radius_in, style))
+                corner = self._length("Corner Radius", radius_in, style)
+                # A ball nose has no corners, and its drawing refuses a stated radius and falls
+                # back to the diameter alone: the lengths of one size would then draw alike. A
+                # line of one length keeps the radius it always stated (#850).
+                if len(classes) == 1 or type_key != "end_mill_ball":
+                    child.attrs.append(corner)
                 # The "flute" class of misleading title token: a flute length that
                 # is not the cutting diameter.
                 child.secondary["flute"] = loc
