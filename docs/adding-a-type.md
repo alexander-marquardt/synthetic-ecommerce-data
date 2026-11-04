@@ -371,6 +371,8 @@ The whole catalog's measured figures are not edited by hand: the facet rule's ba
 
 The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50). `--golden DIR --seed N --out FILE` measures another catalog into another file; `tests/test_golden_pins_reseed_50.py` runs it on a build with another seed, where every pin moves, and on one with a rule's SKUs taken out.
 
+A pin still typed by hand shows on another seed: `uv run python scripts/reseed_proof.py` moves the default seed in a scratch worktree of HEAD, runs the rebuild `scripts/merge_pr.sh` runs, then the tests that read what it rewrote (`--all`: the whole suite), and prints each red test or `green`. It takes most of an hour (#50).
+
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
 ## The rules a deepened type follows
