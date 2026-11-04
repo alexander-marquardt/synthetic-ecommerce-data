@@ -1501,12 +1501,7 @@ strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
 separates them: in every brand's chain number offered in more than one strand
 count in one material and length, the median price rises with the strand count
-(13 such sets on the golden catalog, 105 at `--lines 39000`). The
-combination wrenches keep their 158 census prices the same way, and since
-the census has within-page pairs for them, their slope on the size is the
-census's (0.647). What their kind multiplies the price by is GENERATED
-(`combination_wrenches.PRICE`: ratcheting 1.8x, long pattern 1.3x, stubby
-0.9x a standard wrench; the census's prices are not split by kind).
+(13 such sets on the golden catalog, 105 at `--lines 39000`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs
