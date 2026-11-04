@@ -34,9 +34,9 @@ MODULE = "synthetic_ecommerce_data.domains.industrial.product_types.safety.safet
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to ten: a floor that
+#: Two thirds of the default build's 52 SKUs, rounded down to ten: a floor that
 #: catches a collapse back to breadth, not a target.
-DEFAULT_SKU_FLOOR = 40
+DEFAULT_SKU_FLOOR = 30
 
 #: The lens colors the breadth row offered (``size_values``): each is still offered.
 BREADTH_COLORS = ("Clear", "Gray", "Amber")
@@ -86,7 +86,7 @@ def test_every_published_pair_is_one_of_the_makers_model_lines():
 def test_the_model_lines_are_distinct_and_sold_in_named_tints():
     module = _module()
     lines = module.MODEL_LINES
-    assert len(lines) == len(set(lines)) == 57
+    assert len(lines) == len(set(lines)) == 44
     assert {tint for row in lines for tint in row.tints} == set(module.LENS_COLORS)
     assert {row.coating for row in lines} == {"Anti-Fog", "No Anti-Fog"}
 

@@ -375,6 +375,11 @@
   "Outside dia.": "Outside Dia.",
   "Units per pack": "Units per Pack"
  },
+ "safety_glasses": {
+  "Frame color": "Frame Color",
+  "Lens color": "Lens Color",
+  "Measurement system": "Measurement System"
+ },
  "screw_button_head": {
   "Dia./thread size": "Dia./Thread Size",
   "Drive size": "Drive Size",
