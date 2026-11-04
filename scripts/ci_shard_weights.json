@@ -7,6 +7,7 @@
  "tests/test_bolt_page_pack.py": 17.6,
  "tests/test_brand_marks.py": 10.7,
  "tests/test_breadth.py": 71.6,
+ "tests/test_build_frees_its_generator_839.py": 3.5,
  "tests/test_build_refusal_writes_nothing.py": 24.3,
  "tests/test_catalog_brands_voice.py": 672.4,
  "tests/test_catalog_coverage.py": 50.9,
