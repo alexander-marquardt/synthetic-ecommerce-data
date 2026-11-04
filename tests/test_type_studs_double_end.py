@@ -15,7 +15,8 @@ Copied from the threaded rod's gate file; each gate is about this type alone:
 
 And this type's own: every thread a record publishes is a row of the thread
 table its line reads, on a stud at least :data:`LENGTH_OVER_DIAMETER` times
-its diameter long, and the breadth row's sizes are all offered.
+its diameter long, both kinds (equal threads and tap end) are built, and the
+breadth row's sizes are all offered.
 """
 
 from __future__ import annotations
@@ -42,10 +43,10 @@ KEY = "studs_double_end"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to a ten
+#: Two thirds of the default build's 71 SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse back to the
 #: breadth row's 2 SKUs, and is not a target.
-DEFAULT_SKU_FLOOR = 50
+DEFAULT_SKU_FLOOR = 40
 
 #: The dimensional standards this type's lines claim (none: ASME B18.31.2 was
 #: not read) and the dimensions it publishes.
@@ -129,6 +130,13 @@ def test_no_stud_is_shorter_than_four_diameters():
 def test_every_breadth_size_is_offered_at_the_default_build():
     built = {_value(d, "Thread Size") for d in _default_docs()}
     assert set(BREADTH_SIZES) <= built, sorted(set(BREADTH_SIZES) - built)
+
+
+def test_both_kinds_are_built_at_the_default_build():
+    """``Type`` is sparse (``VOCAB``), so only the records that publish it are read."""
+    published = (a for d in _default_docs() for a in authored_attributes(d))
+    built = {a["value"] for a in published if a["name"] == "Type"}
+    assert built == set(_module().KINDS), sorted(built)
 
 
 def test_two_builds_are_byte_identical():
