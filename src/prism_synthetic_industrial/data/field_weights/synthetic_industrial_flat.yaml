@@ -365,8 +365,8 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 24 distinct values over 824 product-value pairs is 0.03 per product
-  #   present on 1431 documents across 21 product type(s); 24 distinct values
+  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 23 distinct values over 822 product-value pairs is 0.03 per product
+  #   present on 1429 documents across 20 product type(s); 23 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
@@ -405,8 +405,8 @@ fields:
   - name: face_type
     type: terms
     source: facets.face_type
-  # Finish -- 21 distinct values over 4175 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 8560 documents across 68 product type(s); 21 distinct values
+  # Finish -- 21 distinct values over 4199 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 8600 documents across 69 product type(s); 21 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -461,7 +461,7 @@ fields:
     type: terms
     source: facets.handle_material
   # Hardness -- present on 44% of its product types' documents (floor 50%)
-  #   present on 1017 documents across 7 product type(s); 10 distinct values
+  #   present on 1027 documents across 8 product type(s); 11 distinct values
   - name: hardness
     type: terms
     source: facets.hardness
@@ -526,8 +526,8 @@ fields:
   - name: knit_gauge
     type: terms
     source: facets.knit_gauge
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 97 distinct values over 3174 product-value pairs is 0.03 per product
-  #   present on 3301 documents across 38 product type(s); 97 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 98 distinct values over 3229 product-value pairs is 0.03 per product
+  #   present on 3355 documents across 38 product type(s); 98 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -558,8 +558,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 56 distinct values over 6033 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 12032 documents across 161 product type(s); 56 distinct values
+  # Material -- 56 distinct values over 6063 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 12086 documents across 161 product type(s); 56 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -585,7 +585,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 5666 documents across 50 product type(s); 4 distinct values
+  #   present on 5690 documents across 51 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -647,8 +647,8 @@ fields:
   - name: piece_count
     type: terms
     source: facets.piece_count
-  # Pin dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 12 distinct values over 67 product-value pairs is 0.18 per product
-  #   present on 67 documents across 1 product type(s); 12 distinct values
+  # Pin dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 27 distinct values over 99 product-value pairs is 0.27 per product
+  #   present on 123 documents across 2 product type(s); 27 distinct values
   - name: pin_dia
     type: terms
     source: facets.pin_dia
@@ -730,8 +730,8 @@ fields:
     type: terms
     source: facets.square_size
     facet: false
-  # Standards -- 71 distinct values over 4733 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7322 documents across 30 product type(s); 71 distinct values
+  # Standards -- 75 distinct values over 4750 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7349 documents across 31 product type(s); 75 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -745,8 +745,8 @@ fields:
   - name: stock_fit
     type: terms
     source: facets.stock_fit
-  # Style -- 14 distinct values over 102 product-value pairs is 0.14 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 184 documents across 12 product type(s); 14 distinct values
+  # Style -- 17 distinct values over 115 product-value pairs is 0.15 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 211 documents across 13 product type(s); 17 distinct values
   - name: style
     type: terms
     source: facets.style
@@ -807,8 +807,8 @@ fields:
   - name: tread_width
     type: terms
     source: facets.tread_width
-  # Type -- 43 distinct values over 3448 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 6304 documents across 30 product type(s); 43 distinct values
+  # Type -- 45 distinct values over 3479 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 6360 documents across 31 product type(s); 45 distinct values
   - name: type
     type: terms
     source: facets.type

@@ -16,8 +16,9 @@ Copied from the double-end stud's gate file; each gate is about this type alone:
 And this type's own: a metric pin's diameter is a row of its ISO table and its
 length a nominal length inside that row's range; an inch pin's diameter is a
 row of the ASME B18.8.2 table and its length a stocked one between
-:data:`MIN_OVER_DIAMETER` and :data:`MAX_OVER_DIAMETER` diameters; both kinds
-(slotted and coiled) are built, and the breadth row's sizes are all offered.
+:data:`MIN_OVER_DIAMETER` and :data:`MAX_OVER_DIAMETER` diameters; every pin
+is the kind (slotted or coiled) its table is of, every table and both kinds
+are built, and the breadth row's sizes are all offered.
 """
 
 from __future__ import annotations
@@ -46,14 +47,23 @@ KEY = "roll_pins"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to a ten
+#: Two thirds of the default build's 56 SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse back to the
 #: breadth row's 2 SKUs, and is not a target.
-DEFAULT_SKU_FLOOR = 40
+DEFAULT_SKU_FLOOR = 30
 
 #: The dimensional standards a line claims, and the dimensions it publishes.
 DIMENSIONAL = {"ASME B18.8.2", "ISO 8752", "ISO 13337", "ISO 8750", "ISO 8748"}
 DIMENSIONS = ("Pin Dia.", "Length")
+#: The kind of pin each table is the table of: ISO 8752 and ISO 13337 are
+#: slotted, ISO 8750 and ISO 8748 coiled, and the ASME B18.8.2 table read slotted.
+KIND_OF = {
+    "ASME B18.8.2": "Slotted",
+    "ISO 8752": "Slotted",
+    "ISO 13337": "Slotted",
+    "ISO 8750": "Coiled",
+    "ISO 8748": "Coiled",
+}
 
 #: The breadth row's size_values: each must be offered at the default build.
 BREADTH_SIZES = ("1/8", "3/16", "1/4", "3/8")
@@ -130,8 +140,10 @@ def test_every_metric_pin_is_a_row_and_a_length_of_its_iso_table():
         if standard == module.B18_8_2:
             continue
         rows = {row.d: row for row in module.METRIC_TABLES[standard]}
-        d = round(_inches(doc, "Pin Dia.") * MM, 3)
-        length = round(_inches(doc, "Length") * MM, 3)
+        # To the tables' own precision: a feed that writes a metric pin in
+        # decimal inches (0.0984") reads back as 2.499 mm.
+        d = round(_inches(doc, "Pin Dia.") * MM, 1)
+        length = round(_inches(doc, "Length") * MM)
         row = rows.get(d)
         if row is None or length not in module.ISO_LENGTHS or not row.min_l <= length <= row.max_l:
             stray.append((doc["sku"], standard, d, length))
@@ -163,12 +175,18 @@ def test_every_breadth_size_is_offered_at_the_default_build():
 
 
 def test_every_table_and_both_kinds_are_built_at_the_default_build():
-    module = _module()
     docs = _default_docs()
-    assert {_table(d) for d in docs} == set(module.SERIES), sorted({_table(d) for d in docs})
-    published = (a for d in docs for a in authored_attributes(d))
-    built = {a["value"] for a in published if a["name"] == "Type"}
-    assert built == set(module.KINDS), sorted(built)
+    assert {_table(d) for d in docs} == DIMENSIONAL, sorted({_table(d) for d in docs})
+    assert {_value(d, "Type") for d in docs} == set(KIND_OF.values())
+
+
+def test_every_pin_is_the_kind_its_table_is_of():
+    wrong = [
+        (d["sku"], _table(d), _value(d, "Type"))
+        for d in _default_docs()
+        if _value(d, "Type") != KIND_OF[_table(d)]
+    ]
+    assert not wrong, wrong[:5]
 
 
 def test_two_builds_are_byte_identical():
