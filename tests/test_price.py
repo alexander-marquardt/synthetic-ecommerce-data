@@ -1020,7 +1020,14 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them.
 NOT_MEASURED = frozenset(
-    {*hammers.KINDS, *plain_screws.KINDS, "key_stock", "er_collets", *tabletype.tables()}
+    {
+        *hammers.KINDS,
+        *plain_screws.KINDS,
+        "key_stock",
+        "er_collets",
+        "studs_double_end",
+        *tabletype.tables(),
+    }
 )
 
 
