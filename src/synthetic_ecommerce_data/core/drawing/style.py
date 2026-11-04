@@ -89,6 +89,14 @@ MATERIAL_FILL: dict[str, str] = {
     "Plastic": "#9fb0c0",
     "Sulfurized Oil": "#7a5a2e",
     "Tool Steel": "#a9afb5",
+    # The caster wheels (#835): the treads and cores a rigid caster's chart names.
+    "Hard Rubber": "#4a4540",
+    "Polyolefin": "#e8e6dc",
+    "Semi-Steel": "#9da2a6",
+    "Phenolic": "#7b4a2a",
+    "Ductile Steel": "#b2b7bb",
+    "Rubber on Cast Iron": "#55585a",
+    "Polyurethane on Cast Iron": "#b8643a",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -173,6 +181,14 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Plastic": Hatch((95,), 7.0, dots=True),
     "Sulfurized Oil": Hatch((), 11.0, dots=True),
     "Tool Steel": Hatch((100,), 5.0),
+    # The caster wheels (#835): each a pattern no other material uses.
+    "Hard Rubber": Hatch((165,), 3.0, dots=True),
+    "Polyolefin": Hatch((), 4.5, dots=True),
+    "Semi-Steel": Hatch((20, 110), 5.0),
+    "Phenolic": Hatch((55,), 6.0, dots=True),
+    "Ductile Steel": Hatch((100, 10), 4.0),
+    "Rubber on Cast Iron": Hatch((15, 75), 3.0, dots=True),
+    "Polyurethane on Cast Iron": Hatch((135, 45), 7.0, dots=True),
 }
 
 

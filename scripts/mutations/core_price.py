@@ -29,6 +29,15 @@ MUTATIONS: list[Mutation] = [
         "every_thread_is_a_real_designation_and_its_thread_type_says_which",
         "a rod's Thread Type says which pitch its designation carries",
     ),
+    Mutation(
+        "rigid caster: a load is scaled from its chart row",
+        "domains/industrial/product_types/material_handling/rigid_casters.py",
+        'numeric_attribute(LOAD, f"{loads[dia]:,} lbf", float(loads[dia])),',
+        'numeric_attribute(LOAD, f"{loads[dia] * 2:,} lbf", float(loads[dia] * 2)),',
+        "tests/test_type_rigid_casters.py",
+        "every_published_dimension_and_load_is_its_charts_row",
+        "a caster's load is its chart row",
+    ),
     # ---- price: the model and its census gate (#52) ------------------------
     # Every name starts "price:", so `--only "price:"` re-runs them. A model
     # row plants a defect in what prices a SKU and names the default-size
@@ -58,6 +67,14 @@ MUTATIONS: list[Mutation] = [
                 "domains/industrial/product_types/fasteners/threaded_rod.py",
                 "    44.0, 0.5, 0.583, 0.8, 0.15,",
                 "    132.0, 0.5, 0.583, 0.8, 0.15,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "the rigid caster prices at three times its fitted anchor",
+                "domains/industrial/product_types/material_handling/rigid_casters.py",
+                "    60.0, 4.0, 1.016, 0.8, 0.15,",
+                "    180.0, 4.0, 1.016, 0.8, 0.15,",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a deepened breadth category keeps its census level",
             ),
