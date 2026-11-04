@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 120 distinct attribute names and a hand-maintained list
-# of 120 declarations drifts from the data the first time either side moves.
+# publishes 123 distinct attribute names and a hand-maintained list
+# of 123 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,9 +66,9 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      120
-#   offered as facets        105  (1 numeric ranges, 104 terms)
-#   declared, not faceted    15
+#   attributes declared      123
+#   offered as facets        107  (1 numeric ranges, 106 terms)
+#   declared, not faceted    16
 # =============================================================================
 
 field_map_version: 1
@@ -221,6 +221,11 @@ fields:
   - name: abrasive_material
     type: terms
     source: facets.abrasive_material
+  # ANSI cut level -- 6 distinct values over 39 product-value pairs is 0.15 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 68 documents across 1 product type(s); 6 distinct values
+  - name: ansi_cut_level
+    type: terms
+    source: facets.ansi_cut_level
   # ANSI number -- 32 distinct values over 254 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 269 documents across 3 product type(s); 32 distinct values
   - name: ansi_number
@@ -297,11 +302,17 @@ fields:
   - name: closure_type
     type: terms
     source: facets.closure_type
-  # Color -- 2 distinct values over 2 product-value pairs is 1.00 per product, at or above the 0.50 identifier threshold but on 2 products, fewer than the 250 the identifier test needs as evidence
-  #   present on 2 documents across 2 product type(s); 2 distinct values
+  # Coating -- 6 distinct values over 39 product-value pairs is 0.15 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 68 documents across 1 product type(s); 6 distinct values
+  - name: coating
+    type: terms
+    source: facets.coating
+  # Color -- single-valued: clicking it cannot narrow the result set
+  #   present on 1 documents across 1 product type(s); 1 distinct values
   - name: color
     type: terms
     source: facets.color
+    facet: false
   # Container size -- 9 distinct values over 12 product-value pairs is 0.75 per product, at or above the 0.50 identifier threshold but on 6 products, fewer than the 250 the identifier test needs as evidence
   #   present on 12 documents across 6 product type(s); 9 distinct values
   - name: container_size
@@ -510,6 +521,11 @@ fields:
   - name: inside_width
     type: terms
     source: facets.inside_width
+  # Knit gauge -- 8 distinct values over 30 product-value pairs is 0.27 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 56 documents across 1 product type(s); 8 distinct values
+  - name: knit_gauge
+    type: terms
+    source: facets.knit_gauge
   # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 96 distinct values over 3066 product-value pairs is 0.03 per product
   #   present on 3160 documents across 36 product type(s); 96 distinct values
   - name: length
@@ -542,8 +558,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 50 distinct values over 5890 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 11766 documents across 160 product type(s); 50 distinct values
+  # Material -- 54 distinct values over 5928 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 11833 documents across 160 product type(s); 54 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -569,7 +585,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 5538 documents across 46 product type(s); 4 distinct values
+  #   present on 5564 documents across 47 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -698,8 +714,8 @@ fields:
   - name: single_end_double_end
     type: terms
     source: facets.single_end_double_end
-  # Size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 122 distinct values over 2237 product-value pairs is 0.05 per product
-  #   present on 2237 documents across 36 product type(s); 122 distinct values
+  # Size -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 127 distinct values over 2304 product-value pairs is 0.06 per product
+  #   present on 2304 documents across 36 product type(s); 127 distinct values
   - name: size
     type: terms
     source: facets.size
@@ -714,8 +730,8 @@ fields:
     type: terms
     source: facets.square_size
     facet: false
-  # Standards -- 70 distinct values over 4656 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7216 documents across 28 product type(s); 70 distinct values
+  # Standards -- 71 distinct values over 4678 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7252 documents across 29 product type(s); 71 distinct values
   - name: standards
     type: terms
     source: facets.standards

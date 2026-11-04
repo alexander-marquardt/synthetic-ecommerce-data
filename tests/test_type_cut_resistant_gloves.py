@@ -34,7 +34,7 @@ MODULE = "synthetic_ecommerce_data.domains.industrial.product_types.safety.cut_r
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to ten: a floor that
+#: Two thirds of the default build's 68 SKUs, rounded down to ten: a floor that
 #: catches a collapse back to breadth, not a target.
 DEFAULT_SKU_FLOOR = 40
 
