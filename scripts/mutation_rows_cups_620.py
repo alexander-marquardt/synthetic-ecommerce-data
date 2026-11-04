@@ -38,8 +38,8 @@ def rows() -> list[Row]:
         _row(
             "the espresso set title is the short one again",
             "class_rows.py",
-            "Set of 4 Porcelain Espresso Cups in Gift Box",
-            "Set of 4 Espresso Cups",
+            "Porcelain Espresso Cup Set in Gift Box",
+            "Espresso Cup Set",
             f"{_T} -k six_to_ten_words",
             "a real cup title is six to ten words",
         ),
