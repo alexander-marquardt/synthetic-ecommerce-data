@@ -14,6 +14,8 @@ tests failed, with every worker alive, is not rerun: a failing test stays a fail
 from __future__ import annotations
 
 import importlib.util
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -165,6 +167,41 @@ def test_the_evidence_names_the_cgroup_s_oom_kills_and_peak_memory(tmp_path: Pat
 def test_the_evidence_of_a_runner_with_no_cgroup_files_says_so(tmp_path: Path) -> None:
     text = "\n".join(ci_run_pytest.evidence(tmp_path))
     assert "no cgroup memory files" in text
+
+
+#: Two modules on one worker; the second kills it in its first test, as the OOM killer does (#845).
+DONE_MODULE = "def test_one():\n    pass\n"
+KILLED_MODULE = "import os\nimport signal\n\n\ndef test_killed():\n" \
+    "    os.kill(os.getpid(), signal.SIGKILL)\n"  # fmt: skip
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_killed_worker_s_last_module_and_peak_are_in_the_log(tmp_path: Path) -> None:
+    (tmp_path / "conftest.py").write_text(
+        "import worker_peak\n\n\ndef pytest_configure(config):\n"
+        '    config.pluginmanager.register(worker_peak, "worker_peak")\n',
+        encoding="utf-8",
+    )
+    (tmp_path / "test_done.py").write_text(DONE_MODULE, encoding="utf-8")
+    (tmp_path / "test_killed.py").write_text(KILLED_MODULE, encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if k not in ("PYTEST_ADDOPTS", "WORKER_PEAK_DIR")}
+    env["PYTHONPATH"] = str(REPO / "tests")
+    pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
+                  "-p", "no:randomly", "--rootdir", str(tmp_path), "-n", "1",
+                  "test_done.py", "test_killed.py"]  # fmt: skip
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--reruns", "0", "--", *pytest_cmd],
+        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
+    )  # fmt: skip
+    assert done.returncode == ci_run_pytest.EXIT_INFRA, done.stdout + done.stderr
+    assert re.search(
+        r"^ci_run_pytest: gw0 was in test_killed\.py at \d+ MB", done.stdout, re.M
+    ), done.stdout
+
+
+def test_a_killed_worker_that_left_no_peak_says_so(tmp_path: Path) -> None:
+    done, _ = run_wrapper(tmp_path, "lose-always")
+    assert "ci_run_pytest: gw0 left no module peak" in done.stdout, done.stdout
 
 
 def test_the_tests_step_runs_pytest_through_the_wrapper() -> None:
