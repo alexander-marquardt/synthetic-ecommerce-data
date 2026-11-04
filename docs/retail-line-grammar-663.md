@@ -12,6 +12,9 @@ A lead two modules hold is refused at import, so the home families gave up the w
 bra or jeans row uses (furniture Comfort, Heritage and Core are Settle, Tradition and Heart; decor
 Jolly and Delight are Mirth and Gladness; toys Hop is Leap).
 
+A derived style's model is now its lead word alone, with no sub-model or number
+([#851](retail-prototype/range-names-851.md)); the authored rows below keep theirs.
+
 A model reads `<lead> [<sub>] <number>`, and the title reads `<brand> <model> <descriptors> <kind>`.
 The sub-model is one of Pro, Max, Elite, Edge, Lite, Plus. The number is a generation (2 to 9), or
 for jeans a fit code (101, 205, 312, 418, 520, 625, 731, 840). Every lead is a plain English word
