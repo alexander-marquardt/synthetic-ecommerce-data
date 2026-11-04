@@ -12,32 +12,52 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import pinned
 from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 
 SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "fit_price_model.py"
 
 
-@pytest.fixture(scope="module")
-def fit():
+def _load_fit():
     spec = importlib.util.spec_from_file_location("fit_price_model", SCRIPT)
     module = importlib.util.module_from_spec(spec)
     sys.modules["fit_price_model"] = module
     spec.loader.exec_module(module)
-    yield module
+    return module
+
+
+@pytest.fixture(scope="module")
+def fit():
+    yield _load_fit()
     del sys.modules["fit_price_model"]
 
 
-def test_the_census_slopes_and_the_page_pack_spread_the_default_bolt_build_30x(fit):
-    catalog, recorded = fit.record_draws(GeneratorConfig())
+def _bolt_spread(fit, config: GeneratorConfig) -> dict:
+    """The default bolt build's p90/p10 under the census slopes, with its page pack and
+    from the slopes alone, to two places."""
+    catalog, recorded = fit.record_draws(config)
     build = fit.type_build("bolt_hex", fit.collect(catalog), recorded)
     slope = price.CENSUS["bolt_hex"].slope
     length = price.LENGTH_CENSUS["bolt_hex"].slope
-    with_pack = fit.alone(build, slope, length)
-    # With the grouped bolts (#710): 30.47x and 22.84x on the flat build alone.
-    assert round(with_pack, 2) == 30.79
-    # The pack term is in it: the slopes alone spread 19.49x.
-    assert round(fit._p90_p10(slope * build.log_key + length * build.log_length), 2) == 19.49  # noqa: SLF001
+    alone = fit._p90_p10(slope * build.log_key + length * build.log_length)  # noqa: SLF001
+    return {"with_pack": round(fit.alone(build, slope, length), 2), "slopes_alone": round(alone, 2)}
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    try:
+        return {"bolt_spread": _bolt_spread(_load_fit(), config)}
+    finally:
+        del sys.modules["fit_price_model"]
+
+
+def test_the_census_slopes_and_the_page_pack_spread_the_default_bolt_build(fit):
+    """About 30x with the grouped bolts (#710); the fixture holds the build's figure."""
+    spread = _bolt_spread(fit, GeneratorConfig())
+    # The pack term is in it: the slopes alone spread less.
+    assert spread["with_pack"] > spread["slopes_alone"]
+    assert spread == pinned.figure(__file__, "bolt_spread")
 
 
 @pytest.fixture(scope="module")

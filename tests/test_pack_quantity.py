@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import price_report
@@ -37,16 +38,6 @@ PACKED = {
 RANKED = ["screw_socket_head"]
 
 
-#: How many SKUs of each packed type the default build publishes a pack on.
-PUBLISHED = {
-    "bolt_hex": 516,
-    "screw_socket_head": 708,
-    "screw_button_head": 315,
-    "screw_flat_head": 365,
-    "screw_low_head": 241,
-}
-
-
 @pytest.fixture(scope="module")
 def census() -> dict:
     return json.loads(CENSUS_FILE.read_text())
@@ -54,9 +45,13 @@ def census() -> dict:
 
 @pytest.fixture(scope="module")
 def packs() -> dict[str, list[tuple[float, float | None]]]:
+    return _packs(GeneratorConfig())
+
+
+def _packs(config: GeneratorConfig) -> dict[str, list[tuple[float, float | None]]]:
     """Per packed type, every SKU's (key dimension, published pack), read off
-    the default build's published records."""
-    catalog = generate(GeneratorConfig())
+    the published records of the build ``config`` makes."""
+    catalog = generate(config)
     type_of = price_report.collect(catalog).type_of
     out: dict[str, list[tuple[float, float | None]]] = {t: [] for t in PACKED}
     for line, child in catalog.all_skus():
@@ -101,7 +96,8 @@ def test_each_packed_type_prices_its_pack_on_the_census_slope(type_key):
 def test_every_packed_sku_publishes_a_census_pack(packs, type_key):
     census_packs = set(price.PACK_COUNTS[PACKED[type_key]])
     published = [pack for _, pack in packs[type_key]]
-    assert len(published) == PUBLISHED[type_key]
+    # Every SKU of the type publishes one: golden-catalog/stats.json counts them.
+    assert len(published) == pinned.default_skus(type_key)
     assert [p for p in published if p is None or int(p) not in census_packs] == []
 
 
@@ -139,13 +135,25 @@ def test_the_builds_median_pack_is_the_census_median(packs, type_key, census_med
 def test_the_builds_socket_screw_pack_falls_as_the_diameter_grows(packs):
     rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
     assert len(rows) == len(packs["screw_socket_head"])
-    third = len(rows) // 3
     # The mean, not the median: a grouped product (#710) is ten or so SKUs of one pack, so
-    # the median of a third lands on whichever pack its runs hold (50 on the flat build,
-    # 100 with the M12x1.75 runs); the mean still falls, from 100 to 71.2 (66.2 flat).
+    # the median of a third lands on whichever pack its runs hold; the mean still falls.
+    small, large = _socket_screw_means(packs)
+    assert small > large
+    assert [small, large] == pinned.figure(__file__, "socket_screw_means")
+
+
+def _socket_screw_means(packs: dict) -> list[float]:
+    """The mean pack of the smallest third of socket screws by diameter, and of the largest."""
+    rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
+    third = len(rows) // 3
     small = statistics.mean(pack for _, pack in rows[:third])
     large = statistics.mean(pack for _, pack in rows[-third:])
-    assert (round(small, 1), round(large, 1)) == (100.0, 71.2)
+    return [round(small, 1), round(large, 1)]
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {"socket_screw_means": _socket_screw_means(_packs(config))}
 
 
 def test_the_page_pack_leaves_the_bolt_slopes_cut_by_the_aim():

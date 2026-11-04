@@ -1044,6 +1044,10 @@ which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrite
 `tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
 that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
 the script and names the rule. `--check` compares the committed file without writing.
+The same run rewrites each type's golden slice in `tests/data/golden_slices/` and the
+`figures` a test measured on one build (a type's SKU count at `--lines 39000`, the sizes
+a defect rewrote): each module `tests/pinned.py` names measures its own, and the test
+reads it back from the fixture. A census band is never such a figure.
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
@@ -1501,7 +1505,8 @@ strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
 separates them: in every brand's chain number offered in more than one strand
 count in one material and length, the median price rises with the strand count
-(13 such sets on the golden catalog, 105 at `--lines 39000`).
+(how many such sets the golden catalog and `--lines 39000` hold is
+`test_type_roller_chain`'s figure in `tests/data/golden_pins.json`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs

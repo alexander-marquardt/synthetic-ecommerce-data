@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes, authored_entries
@@ -79,13 +80,6 @@ PACKS = {1, 2, 4}
 
 #: A build large enough to reach every row in every pack.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_PRODUCTS = 43
-DEFAULT_SKUS = 90
-#: What ``LARGE_LINES`` builds: the table's 27 size-and-pack cells over the
-#: brands that sell the type.
-LARGE_PRODUCTS = 174
-LARGE_SKUS = 270
 #: USD for one pack, any size, pack and brand tier. Not a fit: a price outside
 #: it is a broken ladder (a mounted bearing for a few dollars, or four of them
 #: for many thousands), not a wrong estimate.
@@ -126,18 +120,20 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 def test_the_default_build_holds_the_declared_count():
     docs = _default_docs()
-    assert len(docs) == DEFAULT_SKUS
-    assert len({doc["product_id"] for doc in docs}) == DEFAULT_PRODUCTS
+    assert len(docs) == pinned.default_skus(KEY)
+    assert len({doc["product_id"] for doc in docs}) == pinned.default_products(KEY)
 
 
 def test_the_large_build_holds_every_cell(large, large_docs):
-    assert len(large.lines) == LARGE_PRODUCTS
-    assert len(large_docs) == LARGE_SKUS
+    """What ``LARGE_LINES`` builds: the table's 27 size-and-pack cells over the
+    brands that sell the type, as the fixture last measured them."""
+    assert len(large.lines) == pinned.figure(__file__, "large_products")
+    assert len(large_docs) == pinned.figure(__file__, "large_skus")
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
     docs = _default_docs()
-    assert len(docs) == DEFAULT_SKUS
+    assert len(docs) == pinned.default_skus(KEY)
     assert same_product_duplicates(docs) == []
 
 
@@ -157,7 +153,7 @@ def test_the_provenance_names_where_each_published_dimension_came_from(large_doc
 def test_two_builds_are_byte_identical():
     """In two processes: a set-order draw agrees with itself in one."""
     first, second = type_gates.builds_under_two_hash_seeds(KEY)
-    assert len(first) == DEFAULT_SKUS
+    assert len(first) == pinned.default_skus(KEY)
     report = type_gates.difference(first, second)
     if report:
         pytest.fail(f"{KEY} builds differently under two hash seeds: {report}")
@@ -210,24 +206,47 @@ def test_no_load_capacity_is_published(large_docs):
     assert sorted(name for name in published if "Load" in name) == []
 
 
-def test_one_product_publishes_exactly_these_attributes():
-    """The default build's first record, whole."""
-    doc = _default_docs()[0]
-    # This SKU's title leaves its bore to the axis field, as about three in ten do (#657).
-    assert doc["title"] == "Replacement Pillow Block Bearing"
-    assert doc["price_usd"] == 24.94
-    assert {a["name"]: a["value"] for a in authored_entries(doc)} == {
-        "Material": "Cast Iron",
-        "Finish": "Painted",
-        "Units per Pack": "1",
-        "Standards": "JIS B 1557",
-        "Bore Dia.": "3/4",
-        "Base to Center Height": "1-5/16",
-        "Overall Length": "5",
-        "Bolt Hole Center-to-Center": "3.7400",
-        "Overall Height": "2.5600",
-        "Measurement System": "Fractional Inch",
+#: What a pillow block publishes, in order. Its values are one build's: the fixture holds them.
+PUBLISHED = (
+    "Material",
+    "Finish",
+    "Units per Pack",
+    "Standards",
+    "Bore Dia.",
+    "Base to Center Height",
+    "Overall Length",
+    "Bolt Hole Center-to-Center",
+    "Overall Height",
+    "Measurement System",
+)
+
+
+def _first_record(docs: list[dict]) -> dict:
+    doc = docs[0]
+    return {
+        "title": doc["title"],
+        "price_usd": doc["price_usd"],
+        "attributes": {a["name"]: a["value"] for a in authored_entries(doc)},
     }
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    large = table_gates.catalog(KEY, LARGE_LINES, base=config)
+    records = type_gates.records(generate_type(config, KEY))
+    return {
+        "large_products": len(large.lines),
+        "large_skus": len(table_gates.docs(large)),
+        "first_record": _first_record([json.loads(line) for line in records]),
+    }
+
+
+def test_one_product_publishes_exactly_these_attributes():
+    """The default build's first record, whole: every name a pillow block
+    publishes, and the values the fixture last measured."""
+    first = _first_record(_default_docs())
+    assert tuple(first["attributes"]) == PUBLISHED
+    assert first == pinned.figure(__file__, "first_record")
 
 
 # --- the declared price keeps its orders --------------------------------------------

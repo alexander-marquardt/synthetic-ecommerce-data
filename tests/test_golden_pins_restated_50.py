@@ -75,7 +75,10 @@ TYPED = {
         "tests/test_type_roller_chain_sprockets.py",
         r"^(?:DEFAULT_SKUS|MILLIMETRE_PITCHES) = \d|len\(units\) == \d|not in sizes\]\) == \d",
     ),
-    "links": ("tests/test_type_roller_chain_links.py", r"^DEFAULT_\w+ = \d|== \(\d+, \d+\)"),
+    "links": (
+        "tests/test_type_roller_chain_links.py",
+        r"^DEFAULT_\w+ = \d|== \(\d+, \d+\)|product_id\"\] for doc in docs\}\) == \d",
+    ),
     "pillow-blocks": (
         "tests/test_type_pillow_block_bearings.py",
         r'^(?:DEFAULT|LARGE)_(?:SKUS|PRODUCTS) = \d|doc\["price_usd"\] == \d',
