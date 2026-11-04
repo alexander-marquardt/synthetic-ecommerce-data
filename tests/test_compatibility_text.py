@@ -338,8 +338,12 @@ def test_every_thread_is_a_real_designation_and_its_thread_type_says_which(docs)
 
 #: Threaded types that sell no fine pitch in a system: the set screw builds
 #: its inch fine pitch (UNF) beside the coarse, and its metric sizes in ISO
-#: 261's coarse pitch only (no ISO 4026 to 4029 row names a fine one).
-NO_FINE_PITCH = {"set_screws_hex_socket": {"Metric Fine"}}
+#: 261's coarse pitch only (no ISO 4026 to 4029 row names a fine one). The hex head
+#: cap screw is inch only (ASME B18.2.1), so it sells no metric pitch.
+NO_FINE_PITCH = {
+    "set_screws_hex_socket": {"Metric Fine"},
+    "screw_hex_head": {"Metric Coarse", "Metric Fine"},
+}
 
 
 def test_a_diameter_query_has_a_pitch_to_choose(docs):
