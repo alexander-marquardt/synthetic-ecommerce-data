@@ -120,6 +120,17 @@ def test_the_ladders_are_read_from_the_hex_key_tables():
         assert list(mm) == sorted(mm), drive
 
 
+def test_the_borrowed_price_is_held_to_the_hex_keys_the_model_was_fitted_on():
+    """A bit past the hex key builder's largest key is priced as that key."""
+    from synthetic_ecommerce_data.core import price
+    from synthetic_ecommerce_data.domains.industrial import newtypes
+
+    assert price.BORROWS[KEY] == "hex_key"
+    keys = (*newtypes._KEY_INCH, *(k / newtypes.MM_PER_INCH for k in newtypes._KEY_MM))
+    assert price.MEASURED_SPANS["hex_key"] == pytest.approx((min(keys), max(keys)))
+    assert max(s for _, _, mm in _module().LADDERS for s in mm) / 25.4 > max(keys)
+
+
 def test_two_builds_are_byte_identical():
     """In two processes: a set-order draw agrees with itself in one."""
     first, second = type_gates.builds_under_two_hash_seeds(KEY)
