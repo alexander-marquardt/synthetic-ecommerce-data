@@ -525,7 +525,10 @@
   "Overall length": "Overall Length"
  },
  "studs_double_end": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread direction": "Thread Direction",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type"
  },
  "t_slot_nuts": {
   "Thread size": "Thread Size"
