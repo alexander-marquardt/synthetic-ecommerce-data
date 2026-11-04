@@ -341,11 +341,9 @@ iterated at the default size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
-serves that one, from a pinned release, and the 100K build is a capability
-kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
-published artifact. What serving it costs in Elasticsearch (ingest time,
-index size and heap), and how that grows with `--lines`, is in
-[docs/ingest-cost.md](docs/ingest-cost.md).
+serves that one, from a pinned release. The 100K build is kept tested
+(`tests/test_catalog_brands_voice.py` builds it), not published; what serving
+a build costs in Elasticsearch is in [docs/ingest-cost.md](docs/ingest-cost.md).
 
 What moves at 100K, measured against the census targets (`ecom-generate
 report`), with the default catalog beside it:
@@ -1159,12 +1157,6 @@ PRISM_CUSTOMIZATION_PATH=<this repo> PRISM_RUNTIME_MODE=dev \
   PRISM_ELASTICSEARCH_URL=http://127.0.0.1:9201 \
   uv run prism-engine validate-customization
 ```
-
-Before a build larger than the 100K one is served, measure what loading it
-costs with `scripts/measure_ingest.py`. It records ingest time, the primary
-store size of each index and Elasticsearch heap at peak and settled. The
-measured builds, their machines and the largest build that fits the laptop
-and the CI runner are in [docs/ingest-cost.md](docs/ingest-cost.md) (#838).
 
 ### The field map is derived, never written
 
