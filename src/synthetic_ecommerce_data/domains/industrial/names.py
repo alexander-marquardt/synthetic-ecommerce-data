@@ -249,6 +249,11 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "the bearing a caster wheel turns on (#835), the maker's chart's own heading; the"
         " census has only a mounted bearing's Bearing Insert Type"
     ),
+    "Schedule": (
+        "a pipe nipple's wall (#832): ASTM A733 orders a nipple by its pipe schedule, and the"
+        " maker's nipple sheets the type reads are headed Schedule 40 and Schedule 80; the"
+        " census carries no pipe"
+    ),
 }
 
 
