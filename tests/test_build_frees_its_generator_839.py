@@ -14,6 +14,7 @@ import weakref
 
 from synthetic_ecommerce_data.core.config import small
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
+from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 
 
 def test_a_generator_is_freed_once_its_build_returns() -> None:
@@ -33,3 +34,12 @@ def test_a_whole_build_leaves_no_generator_behind() -> None:
     before = alive()
     assert generate(small(), types=["abrasive_flap_disc", "bolt_hex"]).lines
     assert alive() == before
+
+
+def test_each_generator_answers_always_published_from_its_own_config() -> None:
+    """The answer kept on the Generator is its config's: a config that scales every presence to
+    1.0 publishes every attribute always, whatever another Generator of that type was told."""
+    key = "abrasive_flap_disc"
+    usual = Generator(small(), key)._always_published(key)
+    scaled = Generator(small().with_(sparsity_scale=1000.0), key)._always_published(key)
+    assert usual < scaled == {spec.name for spec in VOCAB[key]}
