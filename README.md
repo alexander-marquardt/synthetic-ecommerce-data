@@ -1082,7 +1082,7 @@ carries a **must-stock list** (`domains/industrial/muststock.py`, maintainer rul
 elastic/prism-industrial-products#103): one entry per requirement example, naming
 the product type(s) it may be and the published values a SKU must carry --
 `Milling Dia.` `1/2"` with `Length of Cut` `1"`, a `bolt_hex` in `7/16-14`
-with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more.
+with `Length` `1-3/4"`, `Grade 8` and `Zinc Plated`, and 22 more (a `screw_hex_head` too, #819: docs/industrial-types/hex-cap-screws-819.md).
 
 It runs after the main generation and changes nothing the main generation
 drew. For each entry no SKU already satisfies, it builds lines with that

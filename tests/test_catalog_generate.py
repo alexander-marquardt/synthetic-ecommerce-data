@@ -489,7 +489,11 @@ def test_the_catalog_offers_all_four_socket_screw_styles(catalog):
     styles: dict[str, set[str]] = {}
     standards: dict[str, set[str]] = {}
     for line in catalog.lines:
-        if not line.type_key.startswith("screw_") or line.type_key in plain_screws.KINDS:
+        if (
+            not line.type_key.startswith("screw_")
+            or line.type_key in plain_screws.KINDS
+            or line.type_key == "screw_hex_head"  # its own node and test (#819)
+        ):
             continue
         values = {a.name: a.value for a in line.attributes}
         styles.setdefault(line.type_key, set()).add(values["Head Type"])

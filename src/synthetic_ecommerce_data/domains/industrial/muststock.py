@@ -115,6 +115,16 @@ MUST_STOCK: tuple[MustStock, ...] = (
         Grade="Grade 8",
         Finish="Zinc Plated",
     ),
+    # R8 again, as the product it names: the hex head cap screw (#819). The
+    # hex bolt above stays, the near miss beside it.
+    _screw(
+        'hex head cap screw: 7/16-14, 1-3/4" length under head, grade 8 alloy steel, zinc yellow',
+        ("screw_hex_head",),
+        "7/16-14",
+        '1-3/4"',
+        Material="Grade 8 Alloy Steel",
+        Finish="Zinc Yellow",
+    ),
 )
 
 #: How many lines the pass may build for one entry before it refuses. A cap,
