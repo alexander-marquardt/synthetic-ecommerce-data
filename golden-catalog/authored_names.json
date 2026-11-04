@@ -89,6 +89,11 @@
  "coupling_nuts": {
   "Thread size": "Thread Size"
  },
+ "cut_resistant_gloves": {
+  "ANSI cut level": "ANSI Cut Level",
+  "Knit gauge": "Knit Gauge",
+  "Measurement system": "Measurement System"
+ },
  "dowel_pins": {
   "Dia. tolerance": "Dia. Tolerance",
   "Dowel dia.": "Dowel Dia.",
