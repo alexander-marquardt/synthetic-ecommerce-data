@@ -1,6 +1,6 @@
 """A cup set is sold in sets of 2, 4 and 8, and a travel cup or tumbler in three capacities (#851).
 
-After slice 1 each brand sold one cup set, but every SKU of it was "Set of 4" and differed by
+After slice 1 each brand sold one cup set, but every SKU of it was a set of 4 and differed by
 color alone, and each brand's travel cup and steel tumbler had no size at all. The maintainer asked
 for each brand's set to be one product whose SKUs are pack size (2, 4, 8) x color, each pack
 drawn with that many cups, and for a single item where a pack is not natural (a travel cup, a
@@ -10,13 +10,15 @@ tumbler) to be one product whose SKUs are capacity x color.
 from __future__ import annotations
 
 import collections
+import re
 
 import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import export, pack_copies, size_axes, size_ladder
 
-PACKS = {"Set of 2": 2, "Set of 4": 4, "Set of 8": 8}
+#: A count is "N pack" in every department (gen#246); the title says "Cup Set".
+PACKS = {"2 pack": 2, "4 pack": 4, "8 pack": 8}
 #: The templates sold by capacity, and the capacities (ml) each color comes in.
 SIZED = {"PLT-DRKTRV": "Travel Cup", "PLT-DRKTMB": "Tumbler"}
 CAPACITIES = [350, 470, 590]
@@ -40,8 +42,8 @@ def _per_color(rec: dict, key: str) -> dict[str, list]:
 
 
 def test_a_cup_set_sells_each_color_in_sets_of_2_4_and_8(ceiling):
-    """Guard (#851): every cup set SKU was "Set of 4". Metric: cup sets with a color not sold in
-    exactly the three set sizes, or a title that names one count for all of them."""
+    """Guard (#851): every cup set SKU was a "Set of 4". Metric: cup sets with a color not sold
+    in exactly the three pack sizes, or a title that names one count for all of them."""
     sets = [r for r in ceiling.records if r["product_type"] == "Cup Set"]
     assert len(sets) > 1
     wrong = [
@@ -51,7 +53,7 @@ def test_a_cup_set_sells_each_color_in_sets_of_2_4_and_8(ceiling):
         if sorted(packs, key=str) != sorted(PACKS)
     ]
     assert wrong == [], wrong[:5]
-    assert [r["title"] for r in sets if "Set of" in r["title"]] == []
+    assert [r["title"] for r in sets if re.search(r"\bSet of \d", r["title"])] == []
 
 
 def test_a_cup_set_sku_draws_as_many_cups_as_its_set_holds(ceiling):
