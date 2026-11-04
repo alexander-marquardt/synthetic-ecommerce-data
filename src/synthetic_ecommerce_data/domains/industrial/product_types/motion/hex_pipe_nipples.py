@@ -222,7 +222,7 @@ VOCAB = (
     AttrSpec(FINISH, "line"),
     AttrSpec("Thread Type", "line"),
     AttrSpec(SCHEDULE, "line"),
-    AttrSpec(PIPE_SIZE, "sku"),
+    AttrSpec(PIPE_SIZE, "sku", kind="count"),
     AttrSpec(LENGTH, "sku", kind="length"),
     AttrSpec(OD, "sku", kind="length"),
     AttrSpec(HEX, "sku", kind="length"),
