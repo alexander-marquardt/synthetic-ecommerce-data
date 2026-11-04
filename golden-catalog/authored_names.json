@@ -335,6 +335,15 @@
   "Measurement system": "Measurement System",
   "Units per pack": "Units per Pack"
  },
+ "rigid_casters": {
+  "Bearing type": "Bearing Type",
+  "Load capacity": "Load Capacity",
+  "Measurement system": "Measurement System",
+  "Mounting style": "Mounting Style",
+  "Overall height": "Overall Height",
+  "Tread width": "Tread Width",
+  "Wheel diameter": "Wheel Diameter"
+ },
  "rigid_shaft_couplings": {
   "Bore dia.": "Bore Dia."
  },
