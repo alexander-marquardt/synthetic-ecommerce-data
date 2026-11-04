@@ -121,7 +121,8 @@ that builds past the ceiling itself, and holds the wiring above.
 Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`), and on
 Linux a `module peak memory:` line that names each module over 1,500 MB (#790). Before each
 module the worker resets its high-water mark, so a module's figure is the worker's peak while
-that module ran. That is the figure to read when you size a shard's worker count.
+that module ran. That is the figure to read when you size a shard's worker count. A worker the
+kernel kills prints neither line; "A lost xdist worker" below names the module it died in (#845).
 
 ## Random order (#539)
 
@@ -285,6 +286,16 @@ occurrence no longer reds a pull request. If the evidence shows memory (`oom_kil
 `memory.events`), split that shard (the matrix list in `ci.yaml`) or raise `CI_MEMORY`. A
 lower `-n` is no option, since one worker is the serial run. `tests/test_ci_worker_lost_629.py`
 is the guard.
+
+A killed worker never sends its `module peak memory:` figures to the controller, so the script
+also names where each lost worker was (#845). Each attempt names a fresh directory in
+`WORKER_PEAK_DIR`, and `tests/worker_peak.py` has each worker append `<module>\t<MB>` to
+`<dir>/<gw>.peaks` as a module starts and each time its peak rises. For each `[gwN] node down`
+line the log then shows `ci_run_pytest: gwN was in tests/test_x.py at 2100 MB`: the module the
+worker was running when the kernel killed it, and that worker's peak while it ran. Start the
+investigation with that module. A worker with no `/proc` (macOS), or one killed before its first
+module, gets `gwN left no module peak`. A run outside `ci_run_pytest.py` names no directory and
+writes no file.
 
 Before splitting, look for a leak. #820's shard 9 lost both workers on every attempt (run
 41743387835, `peak=6144 MB limit=6144 MB`, largest process 2767 MB). Run alone in one process,
