@@ -173,6 +173,17 @@ def test_the_breadth_rows_lengths_are_still_offered():
     assert [length for length in ROW_LENGTHS if not counts[length]] == []
 
 
+def test_every_title_names_the_lines_own_shape():
+    """"Hand" is a shape: a flat file titled "Hand File" names the wrong one (#846)."""
+    wrong = [
+        (doc["product_id"], doc[field])
+        for doc in _default_docs()
+        for field in ("title", "parent_title")
+        if f"{_value(doc, 'Shape')} File" not in doc[field]
+    ]
+    assert wrong == []
+
+
 def test_two_builds_are_byte_identical():
     """In two processes: a set-order draw agrees with itself in one."""
     first, second = type_gates.builds_under_two_hash_seeds(KEY)
