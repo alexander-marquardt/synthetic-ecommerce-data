@@ -194,9 +194,8 @@ def test_a_killed_worker_s_last_module_and_peak_are_in_the_log(tmp_path: Path) -
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip
     assert done.returncode == ci_run_pytest.EXIT_INFRA, done.stdout + done.stderr
-    assert re.search(
-        r"^ci_run_pytest: gw0 was in test_killed\.py at \d+ MB", done.stdout, re.M
-    ), done.stdout
+    named = re.compile(r"^ci_run_pytest: gw0 was in test_killed\.py at \d+ MB$", re.M)
+    assert named.search(done.stdout), done.stdout
 
 
 def test_a_killed_worker_that_left_no_peak_says_so(tmp_path: Path) -> None:
