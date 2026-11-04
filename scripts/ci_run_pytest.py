@@ -14,15 +14,22 @@ prints ``infra: worker lost`` with what a job can read about memory (``evidence`
 command again, ``--reruns`` times (default 1). A run that loses a worker on every attempt ends
 with ``EXIT_INFRA``, not a test's exit code. A run whose tests failed with every worker alive is
 never rerun: a failing test stays a failing test, and the command's own exit code is the result.
+
+Each attempt names a fresh directory in ``WORKER_PEAK_DIR``, where ``tests/worker_peak.py`` has
+each worker append its module peaks as it runs (#845). For each worker the log shows went down,
+it prints ``<gw> was in <module> at <MB> MB``: the last line that worker wrote before the kill.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import resource
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 #: Exit code of a run that lost a worker on every attempt (EX_TEMPFAIL): not a test's code.
@@ -36,7 +43,10 @@ LOST_SIGNATURES = (
     re.compile(r"^INTERNALERROR> KeyError: <WorkerController ", re.MULTILINE),
 )
 CRASHED_TEST = re.compile(r"worker '(gw\d+)' crashed while running '([^']+)'")
+NODE_DOWN = re.compile(r"^[.sxXFE]*\[(gw\d+)\] node down: Not properly terminated\s*$")
 MB = 1024 * 1024
+#: Where ``tests/worker_peak.py`` appends each worker's module peaks (#845).
+PEAK_DIR_ENV = "WORKER_PEAK_DIR"
 
 
 def worker_lost(text: str) -> bool:
@@ -96,12 +106,26 @@ def _kernel_oom_lines() -> list[str]:
     return hits[-5:] or ["dmesg: readable, no OOM line"]
 
 
-def run_once(command: list[str]) -> tuple[int, bool, list[str]]:
-    """Run ``command`` passing its output through: exit code, a worker was lost, crashed tests."""
-    lost, crashed = False, []
+def last_module(peaks: Path, worker: str) -> str:
+    """Where ``worker`` was when it went down, from the last line of its peak file (#845)."""
+    lines = (_read(peaks / f"{worker}.peaks") or "").splitlines()
+    module, _, mb = lines[-1].rpartition("\t") if lines else ("", "", "")
+    if not module or not mb.isdigit():
+        return f"{worker} left no module peak (no /proc, or killed before its first module)"
+    return f"{worker} was in {module} at {mb} MB"
+
+
+def run_once(command: list[str], peaks: Path) -> tuple[int, bool, list[str]]:
+    """Run ``command`` passing its output through: exit code, a worker was lost, what it names.
+
+    The names are each crashed test, then where each worker that went down was (#845).
+    """
+    lost, crashed, down = False, [], []
+    env = os.environ | {PEAK_DIR_ENV: str(peaks)}
     with subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace"
-    ) as child:
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace",
+        env=env,
+    ) as child:  # fmt: skip
         assert child.stdout is not None
         for line in child.stdout:
             sys.stdout.write(line)
@@ -110,7 +134,10 @@ def run_once(command: list[str]) -> tuple[int, bool, list[str]]:
             found = CRASHED_TEST.search(line)
             if found:
                 crashed.append(f"{found.group(1)} crashed while running {found.group(2)}")
-    return child.returncode, lost, crashed
+            gone = NODE_DOWN.search(line)
+            if gone and gone.group(1) not in down:
+                down.append(gone.group(1))
+    return child.returncode, lost, crashed + [last_module(peaks, w) for w in down]
 
 
 def main(argv: list[str]) -> int:
@@ -124,7 +151,11 @@ def main(argv: list[str]) -> int:
     attempt = 0
     while True:
         attempt += 1
-        code, lost, crashed = run_once(command)
+        peaks = Path(tempfile.mkdtemp(prefix="worker-peaks-"))
+        try:
+            code, lost, crashed = run_once(command, peaks)
+        finally:
+            shutil.rmtree(peaks, ignore_errors=True)
         if not lost:
             return code
         for line in evidence():
