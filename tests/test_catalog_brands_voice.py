@@ -260,6 +260,10 @@ DISTINCT_SPEC_FLOOR = {
     "screw_drywall": 0.50,
     "screw_deck": 0.60,
     "screw_sheet_metal": 0.85,
+    # #835: a rigid caster is the maker's plate charts, 93 chart rows per brand, so the brands
+    # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
+    # rounded down to 0.05.
+    "rigid_casters": 0.55,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers

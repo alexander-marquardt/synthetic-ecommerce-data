@@ -338,8 +338,7 @@
   "Mounting style": "Mounting Style",
   "Overall height": "Overall Height",
   "Tread width": "Tread Width",
-  "Wheel dia.": "Wheel Dia.",
-  "Wheel material": "Wheel Material"
+  "Wheel diameter": "Wheel Diameter"
  },
  "rigid_shaft_couplings": {
   "Bore dia.": "Bore Dia."

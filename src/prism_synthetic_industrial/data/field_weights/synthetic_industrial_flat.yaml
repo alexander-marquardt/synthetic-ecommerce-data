@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 121 distinct attribute names and a hand-maintained list
-# of 121 declarations drifts from the data the first time either side moves.
+# publishes 120 distinct attribute names and a hand-maintained list
+# of 120 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      121
-#   offered as facets        106  (1 numeric ranges, 105 terms)
+#   attributes declared      120
+#   offered as facets        105  (1 numeric ranges, 104 terms)
 #   declared, not faceted    15
 # =============================================================================
 
@@ -542,8 +542,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 43 distinct values over 5851 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 11697 documents across 159 product type(s); 43 distinct values
+  # Material -- 50 distinct values over 5890 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 11766 documents across 160 product type(s); 50 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -801,21 +801,16 @@ fields:
   - name: units_per_pack
     type: numeric
     source: facets_num.units_per_pack
-  # Wheel dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 9 distinct values over 69 product-value pairs is 0.13 per product
+  # Wheel diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 9 distinct values over 69 product-value pairs is 0.13 per product
   #   present on 69 documents across 1 product type(s); 9 distinct values
-  - name: wheel_dia
+  - name: wheel_diameter
     type: terms
-    source: facets.wheel_dia
+    source: facets.wheel_diameter
   # Wheel grade -- 3 distinct values over 429 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 766 documents across 1 product type(s); 3 distinct values
   - name: wheel_grade
     type: terms
     source: facets.wheel_grade
-  # Wheel material -- 9 distinct values over 39 product-value pairs is 0.23 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 69 documents across 1 product type(s); 9 distinct values
-  - name: wheel_material
-    type: terms
-    source: facets.wheel_material
   # Width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 72 distinct values over 796 product-value pairs is 0.09 per product
   #   present on 1329 documents across 9 product type(s); 72 distinct values
   - name: width

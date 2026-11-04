@@ -163,8 +163,7 @@ TYPE_SPECIFIC: dict[str, str] = {
     "Wheel Grade": (
         "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade"
     ),
-    "Wheel Dia.": "#835: a caster's wheel, a part it holds; the price census keys casters on it",
-    "Wheel Material": "#835: a caster's wheel, not its frame; Material would not say which",
+    "Wheel Diameter": "#835: a caster's wheel, a part it holds",
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
@@ -239,13 +238,9 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "how many units one listing sells (#497); the census states it as Package Quantity"
     ),
     "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
-    "Wheel Dia.": (
-        "a caster's wheel diameter (#835): the price census's own key for the rigid casters"
-        " (P2_price_census.json, key_dimension_attribute); the attribute census has no caster"
-    ),
-    "Wheel Material": (
-        "a caster's wheel, not its frame (#835): the maker's chart heads it Wheel Type"
-        " (product_types/material_handling/rigid_casters.py cites it); no caster in the census"
+    "Wheel Diameter": (
+        "a caster's wheel diameter (#835), the maker's chart's own heading; the attribute"
+        " census has no caster"
     ),
     "Tread Width": (
         "a caster wheel's tread (#835), the maker's chart's own heading; no caster in the census"

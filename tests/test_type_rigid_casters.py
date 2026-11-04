@@ -44,7 +44,7 @@ DEFAULT_SKU_FLOOR = 40
 
 #: No dimensional standard exists for a caster, so none is claimed.
 DIMENSIONAL: set[str] = set()
-DIMENSIONS = ("Wheel Dia.", "Tread Width", "Overall Height")
+DIMENSIONS = ("Wheel Diameter", "Tread Width", "Overall Height")
 
 #: The wheel diameters the breadth row offered (``size_values``, in inches).
 BREADTH_SIZES = (2.0, 3.0, 4.0, 5.0, 6.0)
@@ -99,9 +99,9 @@ def test_every_published_dimension_and_load_is_its_charts_row():
     for doc in _default_docs():
         attrs = _attrs(doc)
         key = (
-            parse_length(attrs["Wheel Dia."]).inches,
+            parse_length(attrs["Wheel Diameter"]).inches,
             parse_length(attrs["Tread Width"]).inches,
-            attrs["Wheel Material"],
+            attrs["Material"],
             attrs["Bearing Type"],
         )
         # A published length is rounded to three places (1-1/16" reads 1.062).
@@ -124,7 +124,7 @@ def test_every_published_dimension_and_load_is_its_charts_row():
 
 
 def test_every_wheel_the_breadth_row_offered_is_built():
-    built = {parse_length(_attrs(doc)["Wheel Dia."]).inches for doc in _default_docs()}
+    built = {parse_length(_attrs(doc)["Wheel Diameter"]).inches for doc in _default_docs()}
     missing = [size for size in BREADTH_SIZES if size not in built]
     assert not missing, f"no {KEY} SKU has a wheel of {missing} in"
 

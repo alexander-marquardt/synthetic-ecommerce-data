@@ -22,15 +22,15 @@ A line is one wheel material and one bearing in one series. Its SKUs are the
 wheel diameters the table offers that pair on, so a line never offers a
 wheel the maker does not.
 
-**Names.** ``Wheel Dia.`` is the census's own key for this type
-(``P2_price_census.json``, ``breadth_categories.rigid_casters``,
-``key_dimension_attribute``). ``Tread Width`` and ``Bearing Type`` are the
-catalogue's column headings, and ``Wheel Material`` is the catalogue's
-"Wheel Type" column, named for what it holds. ``Overall Height`` and
-``Load Capacity`` are census names. A load is published in lbf, as every load
-in the catalog is. The census has no caster attribute names, so
-``names.NAME_EXCEPTIONS`` and ``names.TYPE_SPECIFIC`` cite this catalogue for
-the four it lacks.
+**Names.** The census keys this type on ``Wheel Dia.``, but the key ``wheel_dia``
+is retired for ``diameter`` (``retail.rules.MERGED_AWAY``), so the wheel diameter
+is published as ``Wheel Diameter``. ``Tread Width`` and ``Bearing Type`` are the
+catalogue's column headings. The wheel material is ``Material``, the one name
+every type gives what it is made of; the catalogue calls it "Wheel Type".
+``Overall Height`` and ``Load Capacity`` are census names. A load is published
+in lbf, as every load in the catalog is. The census has no caster attribute
+names, so ``names.NAME_EXCEPTIONS`` and ``names.TYPE_SPECIFIC`` cite this
+catalogue for the three it lacks.
 
 **Values.** A wheel type is published under a generic name. The catalogue's
 "Mold-On Rubber" is a "vulcanized rubber tread on cast iron core" (page 133),
@@ -83,11 +83,11 @@ if TYPE_CHECKING:
 
 ITEM = "Rigid Caster"
 
-SIZE = "Wheel Dia."
+SIZE = "Wheel Diameter"
 TREAD = "Tread Width"
 HEIGHT = "Overall Height"
 LOAD = "Load Capacity"
-MATERIAL = "Wheel Material"
+MATERIAL = "Material"
 BEARING = "Bearing Type"
 MOUNTING = "Mounting Style"
 

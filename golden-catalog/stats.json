@@ -2552,12 +2552,12 @@
   "rigid_casters": [
    "Bearing Type",
    "Load Capacity",
+   "Material",
    "Measurement System",
    "Mounting Style",
    "Overall Height",
    "Tread Width",
-   "Wheel Dia.",
-   "Wheel Material"
+   "Wheel Diameter"
   ],
   "rigid_shaft_couplings": [
    "Bore Dia.",
@@ -3642,7 +3642,7 @@
   {
    "name": "price p90/p10: rigid_casters",
    "target": 16.9615,
-   "achieved": 15.0562,
+   "achieved": 17.0078,
    "numerator": 69,
    "denominator": 157,
    "note": "shown price; denom is the census n",
@@ -4187,7 +4187,7 @@
   },
   "drawings": {
    "count": 13475,
-   "bytes": 33826152,
+   "bytes": 33859380,
    "geometry": {
     "nominal": 220,
     "partial": 2655,
