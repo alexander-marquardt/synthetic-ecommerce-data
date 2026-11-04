@@ -119,7 +119,9 @@ class TitleMixin:
             ),
             *also,
         ]
-        if style == "secondary":
+        # A named ``also`` is the title's second dimension already: a second one would name
+        # the length of cut twice, or push the line's facts past the cap (#850).
+        if style == "secondary" and not also:
             # The pair's secondary dimension, fixed like its style: the pair
             # ranks the secondary classes once, and each title names the
             # first one THIS record publishes. It used to pick by

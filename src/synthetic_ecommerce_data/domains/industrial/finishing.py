@@ -402,8 +402,21 @@ class FinishMixin:
         line_system: tuple[Attribute | None] | None = None
         if len({c.system for c in draft.children}) > 1:
             raise ValueError(f"{type_key}: a product's SKUs are in one measurement system")
+        published: set[str] | None = None
         for child in draft.children:
             attrs, sku_ghosts = self._sparsify(type_key, list(child.attrs), "sku")
+            # A line that sells each size at several lengths (#850) publishes an attribute
+            # on every SKU or on none, as its first SKU's draw decides: a corner radius
+            # stated on one length of a size and not on the next would be a choice of its
+            # own on the product page. Every SKU still takes its draws.
+            if draft.reach > 1:
+                if published is None:
+                    published = {a.name for a in attrs}
+                attrs = [
+                    a
+                    for a in child.attrs
+                    if not isinstance(a, RetiredAttribute) and a.name in published
+                ]
             if not attrs and not child.zero_axis:
                 continue
             attrs = self._inject_defects(
