@@ -603,7 +603,7 @@ def test_the_drill_is_a_declared_spec_of_registered_primitives():
 
 PINNED = {
     # #849 re-took nine pins on purpose: every brand draws on one paper (#f9f9f7), which also
-    # shows through a washer's hole and a break's gap. With each brand's paper colour
+    # shows through a washer's hole and a break's gap. With each brand's paper color
     # replaced by the one paper, every pinned SVG is byte-identical to main's; drill_jobber's
     # brand already drew on it. A pin draws with no product id, so at 0 degrees.
     # #10 re-took both end mill pins on purpose: a pinned record drawn from a fallback now

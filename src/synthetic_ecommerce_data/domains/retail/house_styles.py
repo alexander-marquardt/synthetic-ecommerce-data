@@ -467,8 +467,8 @@ def turn(full: str, defs: str, angle: float) -> str:
 
     ``full`` is the drawing at its line's full size (no pack scale, no size rung), so every
     SKU of a product that draws one shape is scaled alike and a smaller size still draws
-    smaller. The drawing turns about the centre of the box it covers, and is scaled about
-    that centre just enough that the turned drawing stays inside :data:`TURN_AREA` (measured
+    smaller. The drawing turns about the center of the box it covers, and is scaled about
+    that center just enough that the turned drawing stays inside :data:`TURN_AREA` (measured
     by :func:`.sheet_extent.reach`, through the rotation, not by the turned box's corners).
     """
     if not angle:
