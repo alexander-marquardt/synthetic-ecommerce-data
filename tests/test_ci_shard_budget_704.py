@@ -77,7 +77,8 @@ def test_no_selection_is_dealt_a_shard_past_the_budget(every: int) -> None:
     """The real weights and files: the whole suite, and a half, a third, a fifth of it."""
     weights = ci_shards.load_weights()
     files = ci_shards.collected_test_files()[::every]
-    count = ci_shards.shards_needed(files, 16, weights)
+    shards = len(_tests_job()["strategy"]["matrix"]["shard"])
+    count = ci_shards.shards_needed(files, shards, weights)
     loads = _loads(files, count, weights)
     assert max(loads) <= ci_shards.SHARD_BUDGET_SECONDS, (
         f"{len(files)} files go to {count} shards of {[round(x) for x in loads]} s of work, "

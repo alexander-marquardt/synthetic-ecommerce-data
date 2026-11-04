@@ -79,7 +79,7 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
   that count prints no file, and its job ends after the checkout without installing anything.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 16 shards of about 1121 s of the
+  every file, for a local run. A full run deals the files to 17 shards of about 1055 s of the
   weights each.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
   can take on a hosted runner, up to 0.99 s (measured on the 16 shards of one push run). An
