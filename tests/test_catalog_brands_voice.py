@@ -249,6 +249,10 @@ DISTINCT_SPEC_FLOOR = {
     "nut_hex": 0.55,
     "tap_spiral_point": 0.80,
     "dowel_pins": 0.80,
+    # #836: a hand file is a shape, a cut grade and a conventional length, and every maker
+    # sells the same ones. Measured at 100K, 264 distinct specs over 761 SKUs (0.347),
+    # rounded down to 0.05.
+    "hand_files": 0.30,
     # #497 stopped publishing the attributes that repeated the type (and the length under
     # the head), which had told some SKUs apart: measured on the 100K build after it, a
     # nylon-insert lock nut 0.82 and a socket head screw 0.89, rounded down to 0.05.

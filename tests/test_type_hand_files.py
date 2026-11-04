@@ -45,7 +45,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 #: Two thirds of the default build's SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse back to the
 #: breadth row's 2 SKUs, and is not a target.
-DEFAULT_SKU_FLOOR = 50
+DEFAULT_SKU_FLOOR = 40
 
 #: The breadth row's ``size_values``, in inches: each must still be offered at the default size.
 ROW_LENGTHS = (4.0, 6.0, 8.0, 10.0, 12.0)
@@ -123,14 +123,45 @@ def test_the_tooth_type_follows_the_makers_single_or_double_cut_rule():
         assert _value(doc, "Tooth Type") == expected, (doc["sku"], shape, cut, length)
         seen[expected] += 1
     assert seen["Single Cut"] and seen["Double Cut"], seen
+    # The cases the default build may not reach: a long mill file, a long smooth one.
+    tooth_type = _module().tooth_type
+    assert tooth_type("Mill", "Bastard", 10.0) == "Single Cut"
+    assert tooth_type("Flat", "Smooth", 12.0) == "Single Cut"
+    assert tooth_type("Half Round", "Second", 6.0) == "Single Cut"
+    assert tooth_type("Half Round", "Second", 8.0) == "Double Cut"
+    assert tooth_type("Round", "Bastard", 300 / 25.4) == "Double Cut"
 
 
 def test_every_shape_and_cut_is_built():
-    files = _module()
     docs = _default_docs()
-    assert {_value(d, "Shape") for d in docs} == {shape.name for shape in files.SHAPES}
-    assert {_value(d, "Cut Type") for d in docs} == set(files.CUTS)
+    assert {_value(d, "Shape") for d in docs} == set(RUNS)
+    assert {_value(d, "Cut Type") for d in docs} == {"Bastard", "Second", "Smooth"}
     assert {"mm" in _value(d, "Length") for d in docs} == {True, False}
+
+
+#: Each shape's stocked lengths, inch (in) then metric (mm); the mill file is inch only.
+RUNS = {
+    "Flat": ((4, 6, 8, 10, 12, 14), (100, 150, 200, 250, 300)),
+    "Hand": ((6, 8, 10, 12), (150, 200, 250, 300)),
+    "Mill": ((4, 6, 8, 10, 12, 14), ()),
+    "Half Round": ((4, 6, 8, 10, 12, 14), (100, 150, 200, 250, 300)),
+    "Round": ((4, 6, 8, 10, 12), (100, 150, 200, 250)),
+    "Square": ((4, 6, 8, 10, 12), (100, 150, 200, 250)),
+    "Three Square": ((4, 6, 8, 10), (100, 150, 200)),
+}
+
+
+def test_each_shape_stocks_its_own_run_of_lengths():
+    files = _module()
+    built = {}
+    for shape in files.SHAPES:
+        inch = tuple(round(length) for length in files.lengths_in(shape, False))
+        mm = () if shape.mm is None else tuple(
+            round(length * 25.4) for length in files.lengths_in(shape, True)
+        )
+        built[shape.name] = (inch, mm)
+    assert built == RUNS
+    assert not any(system == "mm" and shape.name == "Mill" for shape, _, system in files.COMBOS)
 
 
 def test_the_breadth_rows_lengths_are_still_offered():
