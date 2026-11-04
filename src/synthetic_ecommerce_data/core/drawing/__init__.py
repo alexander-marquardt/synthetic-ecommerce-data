@@ -201,7 +201,10 @@ def product_scale_for(product_type: str, records: Sequence[Mapping[str, str]]) -
 
 
 def draw_product(
-    product_type: str, brand: str, records: Sequence[Mapping[str, str]]
+    product_type: str,
+    brand: str,
+    records: Sequence[Mapping[str, str]],
+    product_id: str | None = None,
 ) -> list[tuple[bytes, str]]:
     """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale; the
     fixed shape of a breadth product steps down its size ladder (gen#719)."""
@@ -214,7 +217,12 @@ def draw_product(
     ]
 
 
-def draw_sku(product_type: str, brand: str, record: Mapping[str, str]) -> tuple[bytes, str]:
+def draw_sku(
+    product_type: str,
+    brand: str,
+    record: Mapping[str, str],
+    product_id: str | None = None,
+) -> tuple[bytes, str]:
     """``(svg_bytes, source)`` for a SKU drawn on its own -- a product of one variant.
 
     ``source`` is ``record``, ``partial`` or ``nominal`` -- see
