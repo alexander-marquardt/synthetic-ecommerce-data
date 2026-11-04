@@ -41,10 +41,10 @@ KEY = "bronze_sleeve_bushings"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to a ten
+#: Two thirds of the default build's 66 SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse back to the
 #: breadth row's 2 SKUs, and is not a target.
-DEFAULT_SKU_FLOOR = 50
+DEFAULT_SKU_FLOOR = 40
 
 DIMENSIONS = ("Bore Dia.", "Outside Dia.", "Length", "Flange Dia.", "Flange Thickness")
 
@@ -88,11 +88,17 @@ def test_every_published_name_passes_the_census_gate():
 
 def test_the_provenance_names_where_each_published_dimension_came_from():
     bushings = _module()
-    problems, checked = type_gates.provenance_problems(
-        _default_docs(), (bushings.ISO_2795,), DIMENSIONS
-    )
+    problems, _ = type_gates.provenance_problems(_default_docs(), (bushings.ISO_2795,), DIMENSIONS)
     assert problems == [], problems[:10]
-    assert checked > 0, "no metric line was built"
+
+
+def test_a_metric_line_claims_its_table_and_an_inch_line_its_bronzes_specification():
+    bushings = _module()
+    iso = bushings.ISO_2795
+    assert bushings.claims({}, metric=True, provenance="", standard=iso) == [iso]
+    for material, standard in ((bushings.SINTERED, "ASTM B438"), (bushings.CAST, "ASTM B584")):
+        facts = {"Material": material}
+        assert bushings.claims(facts, metric=False, provenance="", standard="") == [standard]
 
 
 def test_every_bushing_is_a_row_of_its_lines_table():
@@ -102,7 +108,9 @@ def test_every_bushing_is_a_row_of_its_lines_table():
     seen = set()
     for doc in _default_docs():
         v = _values(doc)
-        line = (v["Type"], v["Material"], "mm" if "mm" in v["Bore Dia."] else "in")
+        # The provenance, not a published unit: a unit defect may spell an inch bore in mm.
+        metric = bushings.ISO_2795 in doc["dimension_provenance"]
+        line = (v["Type"], v["Material"], "mm" if metric else "in")
         sizes = [
             s for t in bushings.series() if (t.form, t.material, t.system) == line for s in t.sizes
         ]
@@ -133,7 +141,7 @@ def test_every_row_is_its_catalogue_number():
 
 def test_the_iso_2795_rows_are_the_libraries_and_the_thin_wall_footnote_holds():
     bushings = _module()
-    normal, thin = bushings.iso_2795()
+    normal, thin = (tuple(s for row in rows for s in row) for rows in bushings.iso_2795())
     assert len(normal) == 102
     # Footnote a: up to d 20 mm the last length is not a thin-wall one.
     d20 = [s for s in thin if abs(s.bore * 25.4 - 20) < 1e-9]

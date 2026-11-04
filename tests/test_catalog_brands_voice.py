@@ -268,6 +268,9 @@ DISTINCT_SPEC_FLOOR = {
     # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
     # rounded down to 0.05.
     "rigid_casters": 0.55,
+    # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
+    # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
+    "bronze_sleeve_bushings": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
