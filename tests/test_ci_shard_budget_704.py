@@ -3,13 +3,15 @@
 A pull request that touches the shared price code selects nearly every test file. The
 scoped plan (``scripts/ci_shards.py``) dealt that selection to as few shards as kept each
 under ``SCOPED_SHARD_SECONDS`` (1800 s of the weights), where a full run's shard holds
-about 1121 s. Measured on the hosted runners (the 16 ``tests`` jobs of the push run 40436122954),
-a shard takes 0.47 to 0.99 s of wall clock per second of weight, so a 1767 s shard ran 25
-minutes and was cancelled at the job's ``timeout-minutes: 25`` (tests (5) of #696 and #697).
+about 1129 s (17 shards, #852). Measured on the hosted runners (the 16 ``tests`` jobs of the
+push run 40436122954), a shard takes 0.47 to 0.99 s of wall clock per second of weight, so a
+1767 s shard ran 25 minutes and was cancelled at the job's ``timeout-minutes: 25`` (tests (5)
+of #696 and #697).
 
 * the scoped shard budget is no heavier than a full run's shard, and the budget fits the timeout;
 * a selection is dealt so that no shard's real load is past the budget (the longest-first deal
   can overshoot the average by a file, so the shard count is checked against the deal itself);
+* main's files plus the next new, unweighted test file still fit the matrix's shards (#852);
 * the Tests step prints the slowest tests, so a slow test is named in the log the first time it
   appears.
 
@@ -54,8 +56,12 @@ def _loads(files: list[str], count: int, weights: dict[str, float]) -> list[floa
     ]
 
 
+def _matrix_count() -> int:
+    return len(_tests_job()["strategy"]["matrix"]["shard"])
+
+
 def test_a_scoped_shard_is_no_heavier_than_a_shard_of_a_full_run() -> None:
-    count = len(_tests_job()["strategy"]["matrix"]["shard"])
+    count = _matrix_count()
     full = max(ci_shards.shard_loads(count))
     assert ci_shards.SCOPED_SHARD_SECONDS <= ci_shards.SHARD_BUDGET_SECONDS
     assert full <= ci_shards.SHARD_BUDGET_SECONDS, (
@@ -77,11 +83,26 @@ def test_no_selection_is_dealt_a_shard_past_the_budget(every: int) -> None:
     """The real weights and files: the whole suite, and a half, a third, a fifth of it."""
     weights = ci_shards.load_weights()
     files = ci_shards.collected_test_files()[::every]
-    count = ci_shards.shards_needed(files, 16, weights)
+    count = ci_shards.shards_needed(files, _matrix_count(), weights)
     loads = _loads(files, count, weights)
     assert max(loads) <= ci_shards.SHARD_BUDGET_SECONDS, (
         f"{len(files)} files go to {count} shards of {[round(x) for x in loads]} s of work, "
         f"past the {ci_shards.SHARD_BUDGET_SECONDS:.0f} s budget"
+    )
+
+
+def test_the_next_new_test_file_still_fits_a_full_run() -> None:
+    """A pull request that adds a type adds one test file the weights do not know yet, dealt at
+    the default seconds: main's files plus that one still fit the matrix's shards (#852)."""
+    weights = ci_shards.load_weights()
+    new_file = "tests/test_type_not_yet_weighted_852.py"
+    assert new_file not in weights
+    files = sorted([*ci_shards.collected_test_files(), new_file])
+    count = _matrix_count()
+    loads = _loads(files, count, weights)
+    assert max(loads) <= ci_shards.SHARD_BUDGET_SECONDS, (
+        f"{len(files)} files at {count} shards deal a heaviest shard of {max(loads):.1f} s, "
+        f"past the {ci_shards.SHARD_BUDGET_SECONDS:.0f} s budget: add a shard (docs/ci-sharding.md)"
     )
 
 
