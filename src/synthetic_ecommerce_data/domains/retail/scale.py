@@ -166,6 +166,7 @@ from synthetic_ecommerce_data.domains.retail.scale_measures import (
     price_factor,
     price_point,
     prices_per_leaf,
+    single_sku_kinds,
 )
 from synthetic_ecommerce_data.domains.retail.scale_text import (
     FROZEN_KEYS,  # noqa: F401 -- read through this module
@@ -905,6 +906,7 @@ def main(argv: list[str] | None = None) -> int:
         "distinctness": distinctness(scaled.records, seed=args.seed),
         "templates_distinctness": distinctness(templates(), seed=args.seed),
         "grid_clones": grid_clones(scaled.records),
+        "single_sku_kinds": single_sku_kinds(scaled.records),
         "prices_per_leaf": {
             k: v for k, v in prices_per_leaf(scaled.records).items() if k != "distinct"
         },  # fmt: skip
