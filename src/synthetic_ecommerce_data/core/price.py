@@ -1120,12 +1120,20 @@ BORROWS: dict[str, str] = {
 #: largest the flat washer builder stocks.
 _WASHER_SPAN = (3.2 / 25.4, 21.0 / 25.4)
 
+#: ASME B18.3's 0.050" and 1/2" keys, the smallest and largest the hex key
+#: builder stocks (its metric 1.5 mm to 12 mm sit inside). A 5/8" or 19 mm hex
+#: bit socket is priced as the 1/2" key, not on the slope run out past it.
+_HEX_KEY_SPAN = (0.050, 0.5)
+
 #: The key span (census units) a borrowable model was fitted over, so a
 #: borrower's key is held inside it (:func:`bounded`) and the model is never
 #: read beyond what it was fitted on: the washer's 1.3 slope run out to a
 #: 25.94" O-ring priced it near 1,000 USD. The census records no key span, so
 #: the span is that of the catalog's own rows the anchor was fitted to.
-MEASURED_SPANS: dict[str, tuple[float, float]] = {"washer_flat": _WASHER_SPAN}
+MEASURED_SPANS: dict[str, tuple[float, float]] = {
+    "washer_flat": _WASHER_SPAN,
+    "hex_key": _HEX_KEY_SPAN,
+}
 
 
 def model_for(type_key: str) -> PriceModel:

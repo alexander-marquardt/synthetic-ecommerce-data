@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 42459,
+    "lines": 42874,
     "price_pins": {},
-    "skus": 139900,
+    "skus": 140603,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -82,7 +82,7 @@
       "hand_files": 2,
       "handle_wedges": 2,
       "hex_bit_socket_sets": 2,
-      "hex_bit_sockets": 2,
+      "hex_bit_sockets": 705,
       "hex_key": 6790,
       "hex_pipe_nipples": 2,
       "hose_clamps": 2,
