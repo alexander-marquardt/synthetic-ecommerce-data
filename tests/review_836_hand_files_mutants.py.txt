@@ -8,5 +8,6 @@ MUTANTS = [
     (M, 'Shape("Three Square", (4.0, 10.0), (100.0, 200.0))', 'Shape("Three Square", (4.0, 12.0), (100.0, 200.0))', "the three square stocking 12 in"),
     (M, 'CUTS = ("Bastard", "Second", "Smooth")', 'CUTS = ("Bastard", "Smooth")', "the second cut dropped"),
     (M, 'keyword_attribute("Cut Type", cut)', 'keyword_attribute("Cut Grade", cut)', "a cut name outside the census and the exceptions"),
+    (M, "        item=item(shape.name),", "        item=ITEM,", "every line titled Hand File"),
     (M, "    draft.provenance = PROVENANCE\n", "    draft.provenance = 'generated; no standard fixes these values'\n", "provenance naming no length"),
 ]

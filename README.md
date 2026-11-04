@@ -1501,10 +1501,7 @@ strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
 separates them: in every brand's chain number offered in more than one strand
 count in one material and length, the median price rises with the strand count
-(13 such sets on the golden catalog, 105 at `--lines 39000`). The hand
-files keep their 118 census prices the same way, and since the census has
-within-page pairs for them, their slope on the length is the census's
-(0.947, `hand_files.PRICE`).
+(13 such sets on the golden catalog, 105 at `--lines 39000`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs

@@ -113,6 +113,12 @@ def tooth_type(shape: str, cut: str, length_in: float) -> str:
     return "Double Cut"
 
 
+def item(shape: str) -> str:
+    """The line's noun, named by its shape as a distributor titles it ("Flat File",
+    "Half Round File"): "Hand File" alone would name the hand shape on every line."""
+    return f"{shape} File"
+
+
 def _spec(name: str, scope: str, presence: float = 1.0, kind: str = "keyword") -> AttrSpec:
     return AttrSpec(name=name, scope=scope, presence=presence, kind=kind)
 
@@ -138,7 +144,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     metric = system == "mm"
     brand = brands.pick_brand(rng, type_key, gen._exhausted)
     draft = LineDraft(
-        item=ITEM,
+        item=item(shape.name),
         brand=brand,
         series=f"HF{rng.randint(100, 999)}",
         category=category,
@@ -149,7 +155,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         keyword_attribute("Cut Type", cut),
         keyword_attribute("Material", "Carbon Steel"),
     ]
-    draft.descriptors = [("Shape", shape.name), ("Cut Type", cut)]
+    draft.descriptors = [("Cut Type", cut)]
     pool = list(lengths_in(shape, metric))
     count = min(gen._variant_count(), len(pool))
     style = gen._style(system)
