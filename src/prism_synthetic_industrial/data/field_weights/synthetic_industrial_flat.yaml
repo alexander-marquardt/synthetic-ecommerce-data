@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 124 distinct attribute names and a hand-maintained list
-# of 124 declarations drifts from the data the first time either side moves.
+# publishes 123 distinct attribute names and a hand-maintained list
+# of 123 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      124
-#   offered as facets        109  (1 numeric ranges, 108 terms)
+#   attributes declared      123
+#   offered as facets        108  (1 numeric ranges, 107 terms)
 #   declared, not faceted    15
 # =============================================================================
 
@@ -621,16 +621,11 @@ fields:
   - name: number_of_teeth
     type: terms
     source: facets.number_of_teeth
-  # Outside dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 71 distinct values over 1008 product-value pairs is 0.07 per product
-  #   present on 1511 documents across 4 product type(s); 71 distinct values
+  # Outside dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 83 distinct values over 1039 product-value pairs is 0.08 per product
+  #   present on 1561 documents across 5 product type(s); 83 distinct values
   - name: outside_dia
     type: terms
     source: facets.outside_dia
-  # Outside diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 14 distinct values over 31 product-value pairs is 0.45 per product
-  #   present on 50 documents across 1 product type(s); 14 distinct values
-  - name: outside_diameter
-    type: terms
-    source: facets.outside_diameter
   # Overall height -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 19 distinct values over 145 product-value pairs is 0.13 per product
   #   present on 159 documents across 2 product type(s); 19 distinct values
   - name: overall_height

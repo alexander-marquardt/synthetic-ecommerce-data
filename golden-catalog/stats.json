@@ -2208,7 +2208,7 @@
    "Grip Range",
    "Material",
    "Measurement System",
-   "Outside Diameter",
+   "Outside Dia.",
    "Overall Length",
    "Size",
    "Standards",
@@ -4245,8 +4245,8 @@
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 60,
-   "faceted_attributes": 56,
+   "quantitative_attributes": 59,
+   "faceted_attributes": 55,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",

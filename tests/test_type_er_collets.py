@@ -118,7 +118,7 @@ def test_every_collet_is_a_row_of_its_series_table():
         d1_mm, _ = er.SERIES[row[0]]
         lengths = {
             "Concentricity Tolerance": parse_length(expected["Concentricity Tolerance"]).inches,
-            "Outside Diameter": d1_mm / 25.4,
+            "Outside Dia.": d1_mm / 25.4,
             "Overall Length": er.length_mm(row) / 25.4,
         }
         for name, inches in lengths.items():

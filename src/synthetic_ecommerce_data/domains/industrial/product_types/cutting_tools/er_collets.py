@@ -12,7 +12,7 @@ DIN 6499-B / ISO 15488, which is sold and was not read): each series' metric
 and inch nominal bores with their clamping range (pp. 87-95), each series'
 outside diameter D1 and length L (p. 161), and the runout TIR by clamping
 diameter (p. 83). A collet's ``Size`` is its nominal bore, its ``Grip Range``
-the row's clamping range, and its ``Outside Diameter`` and ``Overall Length``
+the row's clamping range, and its ``Outside Dia.`` and ``Overall Length``
 its series' D1 and L.
 
 **Lines.** A line is one brand's collets of one series, in one unit system
@@ -55,7 +55,7 @@ TABLE = library.table("iso_15488_er_collets")
 STANDARDS = ("ISO 15488", "DIN 6499")
 SOURCE = " / ".join(STANDARDS)
 #: The dimensions every record publishes, each read from the table.
-DIMENSIONS = ("Size", "Grip Range", "Outside Diameter", "Overall Length", "Concentricity Tolerance")
+DIMENSIONS = ("Size", "Grip Range", "Outside Dia.", "Overall Length", "Concentricity Tolerance")
 
 #: Each series' outside diameter D1 and length L, in mm.
 SERIES: dict[str, tuple[float, float]] = {s: (d1, length) for s, d1, length in TABLE.data["series"]}
@@ -182,7 +182,7 @@ VOCAB = (
     _spec("Type", "line"),
     _spec("Class", "line"),
     _spec("Material", "line", 0.85),
-    _spec("Outside Diameter", "line", 0.8, kind="length"),
+    _spec("Outside Dia.", "line", 0.8, kind="length"),
     _spec("Overall Length", "sku", 0.8, kind="length"),
     _spec("Size", "sku", kind="length"),
     _spec("Grip Range", "sku", 0.9),
@@ -212,7 +212,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         keyword_attribute("Type", published_series(series)),
         keyword_attribute("Class", accuracy),
         keyword_attribute("Material", "Alloy Steel"),
-        gen._length("Outside Diameter", d1_mm / MM_PER_INCH, style),
+        gen._length("Outside Dia.", d1_mm / MM_PER_INCH, style),
     ]
     draft.descriptors = [("Type", published_series(series)), ("Class", accuracy)]
     ladder = list(LADDERS[(series, system)])
@@ -251,7 +251,7 @@ def _inches(record: Mapping[str, str], name: str) -> float | None:
 def figure(record: dict[str, str]) -> Drawn:
     """The collet from the side, nose up: the 8 degree taper widening from the
     rear to D1, the 30 degree cone closing to the nose face, and the bore."""
-    d1 = _inches(record, "Outside Diameter")
+    d1 = _inches(record, "Outside Dia.")
     length = _inches(record, "Overall Length")
     bore = _inches(record, "Size")
     source = "record" if d1 and length and bore else "partial" if d1 or bore else "nominal"
