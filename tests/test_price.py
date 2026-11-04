@@ -1015,10 +1015,13 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the other hammer kinds (#305) have no census row either.
 #: The price census has no key stock at all, so its model is
-#: hand-set from surveyed listings (#108). Every table type (#101) joins them,
+#: hand-set from surveyed listings (#108). The census has no ER collets either,
+#: so their model is generated (#831). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them.
-NOT_MEASURED = frozenset({*hammers.KINDS, *plain_screws.KINDS, "key_stock", *tabletype.tables()})
+NOT_MEASURED = frozenset(
+    {*hammers.KINDS, *plain_screws.KINDS, "key_stock", "er_collets", *tabletype.tables()}
+)
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):

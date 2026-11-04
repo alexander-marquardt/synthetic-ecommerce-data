@@ -1144,36 +1144,6 @@
   skus: 2
   reason: '''thread'' + ''gage'' -- overlaps R5/R6''s thread family and the issue''s own ''gage balls''
     wording'
-- key: er_collets
-  # Its derived block is tap_spiral_point's too (catalog/typespec.py).
-  part_number_block: 1951
-  category:
-  - Tool Holding
-  - Collets
-  - ER Collets
-  family: cutting_tool
-  shape: tube
-  item: ER Collet
-  descriptor_attr: null
-  size_attr: Size
-  size_values:
-  - 1/8 in
-  - 3/16 in
-  - 1/4 in
-  - 3/8 in
-  - 1/2 in
-  attributes:
-    Material:
-    - Steel
-    Type:
-    - ER16
-    - ER20
-    - ER32
-  price_range: [8.0, 45.0]
-  skus: 2
-  featured_sizes:
-  - 1/2 in
-  reason: '''1/2'' overlap; tool-holding category gap, complements the end-mill R1/R2 rows'
 - key: drill_bushings
   category:
   - Tool Holding

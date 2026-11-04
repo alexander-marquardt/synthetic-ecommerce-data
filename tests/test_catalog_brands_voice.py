@@ -268,6 +268,10 @@ DISTINCT_SPEC_FLOOR = {
     # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
     # rounded down to 0.05.
     "rigid_casters": 0.55,
+    # #831: an ER collet is a row of the maker's bore ladder in one of three classes, and every
+    # maker sells the same bores. Measured at 100K, 894 distinct specs over 1015 SKUs (0.881),
+    # rounded down to 0.05.
+    "er_collets": 0.85,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
