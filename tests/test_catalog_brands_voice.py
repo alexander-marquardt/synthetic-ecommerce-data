@@ -253,6 +253,10 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same ones, as with key stock. Measured at 100K, 195 distinct specs over 698
     # SKUs (0.279), rounded down to 0.05.
     "combination_wrenches": 0.25,
+    # #836: a hex bit socket is a hex key size on a drive, in three kinds, and every maker sells
+    # the same ones, as with key stock. Measured at 100K, 306 distinct specs over 705 SKUs
+    # (0.434), rounded down to 0.05.
+    "hex_bit_sockets": 0.40,
     # #497 stopped publishing the attributes that repeated the type (and the length under
     # the head), which had told some SKUs apart: measured on the 100K build after it, a
     # nylon-insert lock nut 0.82 and a socket head screw 0.89, rounded down to 0.05.
