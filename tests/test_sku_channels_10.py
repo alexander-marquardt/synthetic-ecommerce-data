@@ -64,6 +64,7 @@ HAND_NOT_DRAWN = frozenset(
         ("screw_low_head", "Thread Direction"),
         ("screw_socket_head", "Thread Direction"),
         ("set_screws_hex_socket", "Thread Direction"),
+        ("studs_double_end", "Thread Direction"),
         ("tap_spiral_point", "Thread Direction"),
         ("threaded_rod", "Thread Direction"),
     }
