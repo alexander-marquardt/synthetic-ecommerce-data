@@ -282,3 +282,15 @@ occurrence no longer reds a pull request. If the evidence shows memory (`oom_kil
 `memory.events`), split that shard (the matrix list in `ci.yaml`) or raise `CI_MEMORY`. A
 lower `-n` is no option, since one worker is the serial run. `tests/test_ci_worker_lost_629.py`
 is the guard.
+
+Before splitting, look for a leak. #820's shard 9 lost both workers on every attempt (run
+41743387835, `peak=6144 MB limit=6144 MB`, largest process 2767 MB). Run alone in one process,
+`tests/test_type_seam.py` went from 51 to 2107 MB and kept all of it after its last test: each
+test that built `generate.generate(SMALL)` added about 245 MB. `gc.get_referrers` on a leftover
+`Generator` led to a `functools.cache` on a method (`FinishMixin._always_published`), whose
+`(self, type_key)` keys held every Generator and its spec sets for the life of the worker. With
+the cache kept on the instance, the module peaks at 91 MB. The same 25 modules ran with `-n 2` in
+a 6 GB cgroup with no swap with worker peaks of 985 and 497 MB, where before the kernel killed
+them at 95 %. A module whose RSS after its last test is its peak, and grows with each test, holds
+something; `tests/test_build_frees_its_generator_839.py` keeps a finished build from holding its
+Generator.

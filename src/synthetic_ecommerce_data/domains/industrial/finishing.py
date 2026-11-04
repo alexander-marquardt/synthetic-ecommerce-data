@@ -8,7 +8,6 @@ through ``self``.
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import random
 from dataclasses import replace
@@ -315,14 +314,20 @@ class FinishMixin:
             line_attrs[:] = [walked(a) for a in line_attrs]
             draft.line_attrs = [walked(a) for a in draft.line_attrs]
 
-    @functools.cache  # noqa: B019 - a pure function of the config and the type
     def _always_published(self, type_key: str) -> frozenset[str]:
-        """The attributes sparsity never drops for this type (presence 1.0)."""
-        return frozenset(
-            spec.name
-            for spec in VOCAB[type_key]
-            if self.config.scaled_presence(spec.presence) >= 1.0
-        )
+        """The attributes sparsity never drops for this type (presence 1.0).
+
+        Kept on the Generator, not in a ``functools.cache`` on the method: that cache held every
+        Generator it was asked about, and each one's spec sets, for the life of the process
+        (#839: about 120 MB per small build, 2.1 GB for ``tests/test_type_seam.py``).
+        """
+        if type_key not in self._always_published_by_type:
+            self._always_published_by_type[type_key] = frozenset(
+                spec.name
+                for spec in VOCAB[type_key]
+                if self.config.scaled_presence(spec.presence) >= 1.0
+            )
+        return self._always_published_by_type[type_key]
 
     def _differs_only_by_a_drop(
         self,
