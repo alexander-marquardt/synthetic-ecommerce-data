@@ -164,6 +164,31 @@ def test_end_mill_runs_go_past_the_nine_matching_shanks(key, added):
     assert max(len(line.children) for line in added[key]) > 9
 
 
+def _at_each_diameter(lines) -> list[list]:
+    """Each (product, milling diameter) pair's SKUs: what a tile groups for a diameter query."""
+    pairs: dict[tuple[str, str], list] = {}
+    for line in lines:
+        for child in line.children:
+            dia = next((a.value for a in child.attributes if a.name == "Milling Dia."), None)
+            if dia is not None:
+                pairs.setdefault((line.product_id, dia), []).append(child)
+    return list(pairs.values())
+
+
+@pytest.mark.parametrize("key", _END_MILLS)
+def test_a_diameter_query_groups_several_lengths_of_one_line(key, large):
+    """Issue #850: ``1/2 end mill`` names the diameter a line runs on, so a line of diameters
+    alone groups one SKU per tile. Most run lines sell each diameter in more than one length
+    class, so most products a diameter query reaches group several SKUs, told apart by their
+    length of cut."""
+    pairs = _at_each_diameter(_own(large, key))
+    several = [skus for skus in pairs if len(skus) >= 2]
+    assert len(several) / len(pairs) > 0.5, (key, len(several), len(pairs))
+    for skus in several:
+        cuts = [a.value for s in skus for a in s.attributes if a.name == "Length of Cut"]
+        assert len(set(cuts)) == len(cuts), (key, cuts)
+
+
 @pytest.mark.parametrize(("key", "axis"), _SIZE_AXES.items())
 def test_a_run_line_sells_neighboring_sizes(key, axis, added):
     """A line reads 1/8", 3/16", 1/4", never 1", 1-1/2", 1/16", 3/32": no window wraps round
