@@ -19,7 +19,7 @@ from collections.abc import Mapping, Sequence
 from synthetic_ecommerce_data.core.size_rungs import ratio_at
 
 #: A row's size attributes that are no size of the part: a kind, a count or a rating.
-NOT_SIZES = frozenset({"Color", "Type", "Piece Count", "Rated Load", "Maximum Workpiece Weight"})
+NOT_SIZES = frozenset({"Type", "Piece Count", "Rated Load", "Maximum Workpiece Weight"})
 #: Sizes sold by a word.
 WORDS = {"Small": 0.0, "Medium": 1.0, "Large": 2.0, "X-Large": 3.0}
 #: A unit's factor to the row's one scale: millimeters, grams, or the count of what it holds.

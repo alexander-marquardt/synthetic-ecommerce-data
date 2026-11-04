@@ -272,6 +272,10 @@ DISTINCT_SPEC_FLOOR = {
     # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
     # (0.332), rounded down to 0.05.
     "cut_resistant_gloves": 0.30,
+    # #834: a pair of safety glasses is a frame style, lens coating and frame color in one of
+    # six lens colors, 58 specs in the maker's feed, so makers overlap by construction.
+    # Measured at 100K, 58 distinct specs of 429 SKUs (0.135), rounded down to 0.05.
+    "safety_glasses": 0.10,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
