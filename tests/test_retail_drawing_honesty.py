@@ -20,13 +20,8 @@ from typing import Any
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import (
-    kit,
-    scale,
-)
-
-#: The scale build that exhausts every template (``tests/test_retail_scale.py`` CAPACITY).
-CEILING_SKUS = 76_417 * 2
+from retail_ceiling import ceiling_build
+from synthetic_ecommerce_data.domains.retail import kit
 
 #: Titles whose product really is a tub (a pot of tablets, wipes, beads, a drink powder).
 TUB_NOUNS = re.compile(r"\b(Wipes|Tablets|Pods|Capsules|Beads|Chocolate|Yogurt|Pot)\b")
@@ -77,8 +72,11 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
 
 @pytest.fixture(scope="module")
 def records() -> list[dict[str, Any]]:
-    """Every style, grocery included: the one catalog is drawn by the one set of honesty rules."""
-    return scale.build(CEILING_SKUS).records
+    """Every style, grocery included: the one catalog is drawn by the one set of honesty rules.
+
+    The ceiling build, shared with every file that reads it: a typed SKU count stopped
+    exhausting the templates once a color became a SKU of its style (#851)."""
+    return ceiling_build().records
 
 
 #: The model number after the lead word ("Bloom 5 Olive Tree"): not a cut.
