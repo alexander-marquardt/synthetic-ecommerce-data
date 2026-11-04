@@ -18,6 +18,7 @@ turned figure and its dimension lines stay inside the frame.
 
 from __future__ import annotations
 
+import hashlib
 import math
 
 #: The paper every product drawing sits on.
@@ -30,8 +31,8 @@ ANGLES: tuple[int, ...] = (-36, -24, -12, 0, 12, 24, 36)
 
 def angle_of(product_id: str) -> int:
     """The angle every SKU of product ``product_id`` is drawn at."""
-    del product_id
-    return 0
+    digest = hashlib.sha256(product_id.encode("utf-8")).digest()
+    return ANGLES[int.from_bytes(digest[:8], "big") % len(ANGLES)]
 
 
 def turned(width: float, height: float, angle: float) -> tuple[float, float]:

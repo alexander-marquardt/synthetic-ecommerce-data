@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.core.drawing import product_look
 from synthetic_ecommerce_data.domains.retail import (
     export,
     image_release,
@@ -186,9 +187,13 @@ def _styled_pack_box(rec: dict, sku: dict) -> tuple[float, float, float, float]:
 
 
 @pytest.mark.parametrize("ml", [30.0, 50.0])
-def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(ml: float) -> None:
+def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(
+    ml: float, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """The shipped drawings are the styled ones: a 30 ml and a 50 ml pack measure smaller than the
-    100 ml pack at the cube-root rule, and the canvas is the same 400 x 400."""
+    100 ml pack at the cube-root rule, and the canvas is the same 400 x 400. The rule holds at
+    the product's own angle (#849: every SKU of a product is turned and fitted alike); the
+    shared baseline is the upright drawing's, since a turn lifts a pack's foot."""
     rec = line_30_50_100()
     small = _styled_pack_box(rec, _sku(rec, ml))
     big = _styled_pack_box(rec, _sku(rec, 100.0))
@@ -197,6 +202,8 @@ def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(ml: f
     for lo, hi in ((0, 2), (1, 3)):  # width, then height
         got = (small[hi] - small[lo]) / (big[hi] - big[lo])
         assert got == pytest.approx(want, rel=TOLERANCE)
+    monkeypatch.setattr(product_look, "angle_of", lambda _id: 0)
+    small, big = _styled_pack_box(rec, _sku(rec, ml)), _styled_pack_box(rec, _sku(rec, 100.0))
     assert small[3] == pytest.approx(big[3], abs=1.0)  # same baseline
     root = ET.fromstring(image_release.render(rec, _sku(rec, ml), styled=True))
     assert (root.get("width"), root.get("height"), root.get("viewBox")) == (

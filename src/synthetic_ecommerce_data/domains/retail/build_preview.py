@@ -19,6 +19,7 @@ import json
 from html import escape
 from pathlib import Path
 
+from synthetic_ecommerce_data.core.drawing import product_look
 from synthetic_ecommerce_data.domains.retail import (
     kit_garments,  # noqa: E402,F401 -- registers the trousers and top shapes
     kit_home,  # noqa: E402,F401 -- registers the home and beauty shapes
@@ -79,6 +80,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
         style=HOUSE_STYLES[rec["brand"]] if styled else None,
         shrink=d.get("pack_scale", 1.0),  # the SKU's size within its line (gen#543)
         copies=d.get("pack_count", 1),  # the items its pack draws (gen#728)
+        angle=product_look.angle_of(rec["product_id"]) if styled else 0,  # #849
     )
 
 

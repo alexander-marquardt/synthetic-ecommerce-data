@@ -143,7 +143,8 @@ def test_the_drawings_are_small():
 
 def test_the_same_record_draws_the_same_bytes():
     line, child, data, _ = DRAWINGS[0]
-    again, _ = draw_sku(line.type_key, line.brand, emit.drawing_record(CATALOG, line, child))
+    record = emit.drawing_record(CATALOG, line, child)
+    again, _ = draw_sku(line.type_key, line.brand, record, line.product_id)
     assert again == data
 
 
@@ -152,7 +153,7 @@ def test_a_drawn_dimension_changes_the_drawing():
     line, child, data, _ = next(d for d in DRAWINGS if d[0].type_key == "screw_socket_head")
     record = emit.drawing_record(CATALOG, line, child)
     longer = dict(record, Length='9"', **{"Length under Head": '9"', "Thread Length": '9"'})
-    other, _ = draw_sku(line.type_key, line.brand, longer)
+    other, _ = draw_sku(line.type_key, line.brand, longer, line.product_id)
     assert other != data
 
 
@@ -161,7 +162,7 @@ def test_an_attribute_no_drawing_shows_does_not_change_it():
     line, child, data, _ = DRAWINGS[0]
     record = emit.drawing_record(CATALOG, line, child)
     record["Standards"] = "ISO 9999, ANSI Z1"
-    same, _ = draw_sku(line.type_key, line.brand, record)
+    same, _ = draw_sku(line.type_key, line.brand, record, line.product_id)
     assert same == data
 
 
@@ -171,7 +172,7 @@ def test_the_brand_is_the_house_style():
     record = emit.drawing_record(CATALOG, line, child)
     # Another INK: brands share inks now (the (ink, frame) pair names a brand).
     other_brand = next(b for b in BRANDS if BRAND_INK[b] != BRAND_INK[line.brand])
-    other, _ = draw_sku(line.type_key, other_brand, record)
+    other, _ = draw_sku(line.type_key, other_brand, record, line.product_id)
     assert other != data
     assert BRAND_INK[other_brand].encode() in other
     assert BRAND_INK[line.brand].encode() not in other

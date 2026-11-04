@@ -34,7 +34,7 @@ import xml.etree.ElementTree as ET
 from collections.abc import Mapping, Sequence
 
 from synthetic_ecommerce_data.core import brands, domain, size_rungs
-from synthetic_ecommerce_data.core.drawing import brand_mark
+from synthetic_ecommerce_data.core.drawing import brand_mark, product_look
 from synthetic_ecommerce_data.core.drawing.model import fan
 from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
@@ -81,9 +81,10 @@ ALLOWED_ATTRIBUTES: frozenset[str] = frozenset(
 )  # fmt: skip
 #: Attributes only the wordmark's ``<text>`` may carry.
 _TEXT_ONLY = frozenset({"font-family", "font-size", "font-weight", "textLength", "lengthAdjust"})
-#: Ids are the hatch patterns' own (``h45s5<ink>``) and the textures' (``tgrid<ink>``,
-#: ``tdot<ink>``): a font's glyph ids (``DejaVuSans-31``) and anything else are refused.
-_ID = re.compile(r"^(?:h[0-9-]*s[0-9.]+d?|tgrid|tdot)[0-9a-f]{6}$")
+#: Ids are the hatch patterns' own (``h45s5<ink>``): a font's glyph ids
+#: (``DejaVuSans-31``), the background textures' ids no drawing has drawn since #849
+#: (``tgrid<ink>``) and anything else are refused.
+_ID = re.compile(r"^h[0-9-]*s[0-9.]+d?[0-9a-f]{6}$")
 
 #: Attribute VALUES, as the figures write them. A value grammar closes the
 #: paint-server route: ``fill="url(data:...)"`` or ``url(https://...#p)`` would
@@ -97,7 +98,7 @@ _NUMBER = r"-?(?:\d+\.?\d*|\.\d+)"
 _COLOR = r"#[0-9a-f]{6}"
 _VALUE_GRAMMAR: dict[str, re.Pattern[str]] = {
     "fill": re.compile(
-        rf"^(?:{_COLOR}|none|url\(#(?:h[0-9-]*s[0-9.]+d?|tgrid|tdot)[0-9a-f]{{6}}\))$"
+        rf"^(?:{_COLOR}|none|url\(#h[0-9-]*s[0-9.]+d?[0-9a-f]{{6}}\))$"
     ),
     # The brand book's dash arrays (``brands.DASHES``), nothing else.
     "stroke-dasharray": re.compile(
@@ -186,18 +187,22 @@ def _first(record: Mapping[str, str], names) -> str | None:
     return None
 
 
-def product_scale_for(product_type: str, records: Sequence[Mapping[str, str]]) -> float:
-    """The scale every SKU of a product is drawn at (sheet units per inch): its TYPE's.
+def product_scale_for(
+    product_type: str, records: Sequence[Mapping[str, str]], angle: float = 0.0
+) -> float:
+    """The scale every SKU of a product is drawn at (sheet units per inch): its TYPE's, at
+    its ``angle``.
 
-    One constant per type, so siblings draw a head, a thread or a bore they
-    share identically and every part of a type is in true proportion. A part
-    too small to read gets the magnifier (:func:`.sheet.magnifier`) rather than
-    a larger scale. ``records`` is accepted so a caller need not know that no
-    record changes the answer.
+    One constant per type and angle, so siblings draw a head, a thread or a bore
+    they share identically and every part of a product is in true proportion; the
+    type's largest extent, turned by ``angle``, fills the figure area, so no part of
+    the type turned leaves it (#849). A part too small to read gets the magnifier
+    (:func:`.sheet.magnifier`) rather than a larger scale. ``records`` is accepted
+    so a caller need not know that no record changes the answer.
     """
     del records
     _, extent = _figure(product_type)
-    return type_scale(extent)
+    return type_scale(product_look.turned(*extent, angle))
 
 
 def draw_product(
@@ -206,29 +211,28 @@ def draw_product(
     records: Sequence[Mapping[str, str]],
     product_id: str | None = None,
 ) -> list[tuple[bytes, str]]:
-    """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale; the
+    """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale and
+    angle (:func:`.product_look.angle_of` its ``product_id``, #849; upright with none); the
     fixed shape of a breadth product steps down its size ladder (gen#719)."""
-    scale = product_scale_for(product_type, records)
+    angle = product_look.angle_of(product_id) if product_id is not None else 0
+    scale = product_scale_for(product_type, records, angle)
     ladder = size_rungs.LADDERS.get(product_type)
     ratios = ladder(records) if ladder else [1.0] * len(records)
     return [
-        _draw(product_type, brand, record, scale * ratio)
+        _draw(product_type, brand, record, scale * ratio, angle)
         for record, ratio in zip(records, ratios, strict=True)
     ]
 
 
 def draw_sku(
-    product_type: str,
-    brand: str,
-    record: Mapping[str, str],
-    product_id: str | None = None,
+    product_type: str, brand: str, record: Mapping[str, str], product_id: str | None = None
 ) -> tuple[bytes, str]:
     """``(svg_bytes, source)`` for a SKU drawn on its own -- a product of one variant.
 
     ``source`` is ``record``, ``partial`` or ``nominal`` -- see
     :mod:`.figures` for what each means.
     """
-    return draw_product(product_type, brand, [record])[0]
+    return draw_product(product_type, brand, [record], product_id)[0]
 
 
 def _figure(product_type: str):
@@ -249,7 +253,7 @@ def _pack_count(product_type: str, record: Mapping[str, str]) -> int:
 
 
 def _draw(
-    product_type: str, brand: str, record: Mapping[str, str], scale: float
+    product_type: str, brand: str, record: Mapping[str, str], scale: float, angle: float
 ) -> tuple[bytes, str]:
     figure_fn, _ = _figure(product_type)
     drawn = figure_fn(dict(record))
@@ -258,7 +262,7 @@ def _draw(
     if count > 1:
         figure = fan(figure, count)
         x0, y0, x1, y1 = figure.bounds()
-        scale = min(scale, type_scale((x1 - x0, y1 - y0)))
+        scale = min(scale, type_scale(product_look.turned(x1 - x0, y1 - y0, angle)))
     material = _first(record, MATERIAL_ATTRIBUTES)
     finish = _first(record, FINISH_ATTRIBUTES)
     data = paint(
@@ -267,6 +271,7 @@ def _draw(
         part_fill(finish, material),
         material_hatch(material),
         scale,
+        angle,
     )
     return data, drawn.source
 

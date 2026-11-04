@@ -385,11 +385,11 @@ their product families, market weight, house style and title voice.
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
   Meadow Works`, `Wendlow Tool`, `Quillon Carbide`, ...): a brand filter has to
   tell a brand from a word, and a catalog without such a name never makes it.
-* **House style.** Twelve inks, six paper tints and four frames in use (a
-  fifth, `chamfer`, is declared, unused). Each brand owns one (ink, frame)
-  pair, read back by `drawing.style.brand_for_house_style`; its paper is
-  independent of its ink. Every (ink, paper, frame) triple is unique, every ink
-  at least 3:1 against every paper (lowest 4.4:1). Capacity (#55): 570 distinguishable styles, 45 x 570
+* **House style.** Twelve inks and four frames in use (a fifth, `chamfer`, is
+  declared, unused). Each brand owns one (ink, frame) pair, read back by
+  `drawing.style.brand_for_house_style`. Every brand draws on the one paper, no
+  texture, every ink 3:1 against it; each product's figure has its own angle
+  (#849, `drawing.product_look`). Capacity (#55): 110 distinguishable styles, 45 x 110
   with the mark, against the 135 brands #53 needs ([detail](docs/house-style-levers.md)).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs

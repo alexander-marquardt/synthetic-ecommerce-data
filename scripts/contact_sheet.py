@@ -60,7 +60,10 @@ def _load(catalog: Path) -> list[dict]:
 def _cell(parent: dict, variant: dict, caption: str) -> str:
     # Drawn with its siblings, at the product's one scale, exactly as the bundle is.
     drawn = draw_product(
-        parent["product_type"], parent["brand"], [v["record"] for v in parent["variants"]]
+        parent["product_type"],
+        parent["brand"],
+        [v["record"] for v in parent["variants"]],
+        parent["product_id"],
     )
     data, source = drawn[parent["variants"].index(variant)]
     # An <img> per drawing, not inline SVG: each file is its own document, as

@@ -64,7 +64,8 @@ Step by step:
    the sheet or, when `magnifier()` says the part is too small to see, draws
    it at true scale near the bottom with an enlarged copy inside a lens.
 6. **Style.** `core/drawing/style.py` supplies the brand's house style (`ink`,
-   `paper`, `frame`, from the brand book in `core/brands.py`), the part fill
+   `frame`, from the brand book in `core/brands.py`; the `paper` is the one
+   every brand shares, `core/drawing/product_look.PAPER`, #849), the part fill
    (the published finish's color, else the bare material's) and the section
    hatch (the material's). A brand, finish or material with no entry raises
    `UnknownStyleError` instead of falling back to a default color.
@@ -164,10 +165,19 @@ the same scale and has a different digest.
 200 x 236 sheet above the brand plate, `FIGURE_HEIGHT`, minus an 18-unit
 margin on every side) over the type's extent: the smaller of
 the width and height ratios. `product_scale_for()` ignores the records it is
-given, so nothing about a particular product can change a type's scale. Two
-parts of one type are therefore in true proportion, and a head or bore that
+given, so nothing about a particular product's SKUs can change its scale. Two
+parts of one product are therefore in true proportion, and a head or bore that
 siblings share is drawn identically. The one step off it is a breadth product's
 size rung (see "Breadth types" below), whose fixed shape has no dimension to draw.
+
+**One angle per product (#849).** `draw_product(..., product_id)` turns every
+SKU's figure by `product_look.angle_of(product_id)`, one of -36, -24, -12, 0,
+12, 24 or 36 degrees, so two products of one type do not draw the same
+picture. The scale is the type's extent turned by that angle over the figure
+area, so a turned part and its dimension lines stay inside it (a product at
+0 degrees keeps the type's scale). The magnifier's too-small rule reads the
+part's upright size, and its layout the box the turned part covers. A caller
+that names no product id draws upright.
 
 **A pack card fans its items.** For a type in `pack.AXES`, `_draw` passes a figure through
 `fan()` (`core/drawing/model.py`) when the record's `Units per Pack` is above 1: the part stays

@@ -602,23 +602,27 @@ def test_the_drill_is_a_declared_spec_of_registered_primitives():
 
 
 PINNED = {
+    # #849 re-took nine pins on purpose: every brand draws on one paper (#f9f9f7), which also
+    # shows through a washer's hole and a break's gap. With each brand's paper colour
+    # replaced by the one paper, every pinned SVG is byte-identical to main's; drill_jobber's
+    # brand already drew on it. A pin draws with no product id, so at 0 degrees.
     # #10 re-took both end mill pins on purpose: a pinned record drawn from a fallback now
     # keeps its published flute count and hand, where it was drawn with the nominal ones.
-    "end_mill_square": "75:211c453c77c6642f6aacaec186b339dc40cc1ea4b60a123efff193f277ec6448",
+    "end_mill_square": "75:445f84659edeed484cef27a326f3ad23a89935292a68b6441489df57dd21eaac",
     # #9 moved exactly one pinned record here (a Double End ball nose, drawn with
     # one end before, two now), so this pin was re-taken on purpose; #10 re-took it again.
-    "end_mill_ball": "44:788b7bf4527443726cb07aaffe4887b943d449d7b1dd2368092d7612cc0595ff",
+    "end_mill_ball": "44:bef95098b38e62b48db02e735cc609c35ed3b346d628e01b54220af981bdaaf0",
     "drill_jobber": "37:314a201c0d810636d30d6d4e2ce313f227981de767fbd49a352869990f5c4249",
-    "tap_spiral_point": "31:a573394f5f232dd76c86ec12176ecf893dcc4bf822ac060fd1578425d57a8b84",
+    "tap_spiral_point": "31:3153d6128d6b8ab555a0059d16b2f0e0346339af2ab22e07dc459925a89e7900",
     # #822 re-took the four fastener pins on purpose: each pins one broken variant (its
     # length set past the extent), and the drafting break is now a 4-stroke zigzag at the
     # outline's weight over a paper gap of 0.08 of the extent. No other record moved.
-    "screw_flat_head": "23:97e395b35c761d021f5862e71998d7280c0159516f38ab67f0890b072e2ff1dd",
-    "screw_button_head": "21:6dbe2b7a0d778481b8d412c6b7f29772a96742dd7647e0a75d7b9643894c53bb",
-    "screw_low_head": "18:c962fa95e1a16cb67e39105e5fe6e1c44388d5b4efec58c153017854d0785aa4",
-    "bolt_hex": "32:032bf13aa5709b8f5e4dc0130435ba26811076431f54d1ce19aa8a5afcecdf3e",
-    "washer_flat": "25:591f3ece432799789834037f99a33a566f18696896c84025381d6ee6e8ea2649",
-    "nut_hex": "65:c5fcf14fd19e4b2fec365984ff6795812217a6a4f94e09a2d51460ce419c56ce",
+    "screw_flat_head": "23:703819c562bd47ed1fb18907579fb01db9011be5881021b6f257c3d1745ff700",
+    "screw_button_head": "21:8beb4792a82f62b79f947be836d8f6b8ead5de5b6625796be7734cbad9750726",
+    "screw_low_head": "18:ee39df9933b02149cf6310a960c6ecee9572bf98129cc099941d3f023794deb7",
+    "bolt_hex": "32:ac8cc94a65763946dfb1243a99a8fc705817887fb030d465053ff7d680c58d06",
+    "washer_flat": "25:5165f2dfb3f239b8729a5c352d18369e7c1e0760447a28b8700fab4c599b0824",
+    "nut_hex": "65:bf362530599d4de2c61b5b68bd0e5fc68839aacb11673f3c239fbcb3079c4e3c",
 }
 
 
