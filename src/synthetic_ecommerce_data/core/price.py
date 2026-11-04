@@ -700,6 +700,7 @@ def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[st
 #: within-page pairs for it, so no order row.
 DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
     "combination_wrenches": (158, 4.011, 15.38, 39.145),
+    "rigid_casters": (157, 20.744, 76.2, 351.85),
     "roller_chain": (71, 74.1, 358.0, 773.0),
     "threaded_rod": (248, 6.511, 33.52, 140.855),
 }
@@ -720,7 +721,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "hand_files": (4.409, 21.43, 24.9),
     "hex_pipe_nipples": (3.33, 5.2, 16.24),
     "hose_clamps": (13.492, 34.95, 43.43),
-    "rigid_casters": (20.744, 76.2, 351.85),
     "safety_glasses": (5.0, 8.605, 24.26),
     "u_bolts": (3.454, 10.68, 23.918),
     "v_belts": (7.707, 23.465, 103.945),
