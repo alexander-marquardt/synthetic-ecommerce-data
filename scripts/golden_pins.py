@@ -39,6 +39,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 GOLDEN = ROOT / "golden-catalog"
 PINS_PATH = ROOT / "tests" / "data" / "golden_pins.json"
+SLICES = ROOT / "tests" / "data" / "golden_slices"
 
 #: The command a contributor runs after a regeneration; every failure here names it.
 REGENERATE = (
