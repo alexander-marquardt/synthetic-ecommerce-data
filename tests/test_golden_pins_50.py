@@ -159,7 +159,7 @@ def test_the_script_fails_naming_the_rule_and_writes_nothing_when_a_measure_is_r
 ) -> None:
     out = tmp_path / "golden_pins.json"
 
-    def refuse() -> dict:
+    def refuse(*_: object) -> dict:
         raise golden_pins.PinRuleError("no SKU satisfies the pin rule 'drill': the planted rule")
 
     monkeypatch.setattr(golden_pins, "MEASURES", {"lens": refuse})
@@ -174,13 +174,13 @@ def test_the_script_writes_the_measured_pins_and_check_compares_them(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     out = tmp_path / "golden_pins.json"
-    monkeypatch.setattr(golden_pins, "MEASURES", {"x": lambda: {"n": 1}})
+    monkeypatch.setattr(golden_pins, "MEASURES", {"x": lambda *_: {"n": 1}})
     monkeypatch.setattr(golden_pins, "PINS_PATH", out)
     assert measure_pins.main([]) == 0
     assert out.exists(), "the script wrote no fixture"
     assert json.loads(out.read_text("utf-8")) == {"x": {"n": 1}}
     assert measure_pins.main(["--check"]) == 0
-    monkeypatch.setattr(golden_pins, "MEASURES", {"x": lambda: {"n": 2}})
+    monkeypatch.setattr(golden_pins, "MEASURES", {"x": lambda *_: {"n": 2}})
     assert measure_pins.main(["--check"]) != 0
     assert golden_pins.REGENERATE in capsys.readouterr().err
 

@@ -369,7 +369,7 @@ Shared files, edited by hand:
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
-The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50).
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50). `--golden DIR --seed N --out FILE` measures another catalog into another file; `tests/test_golden_pins_reseed_50.py` runs it on a build with another seed, where every pin moves, and on one with a rule's SKUs taken out.
 
 A pin still typed by hand shows on another seed: `uv run python scripts/reseed_proof.py` moves the default seed in a scratch worktree of HEAD, runs the rebuild `scripts/merge_pr.sh` runs, then the tests that read what it rewrote (`--all`: the whole suite), and prints each red test or `green`. It takes most of an hour (#50).
 

@@ -174,12 +174,16 @@ def measure_lens(golden: Path = GOLDEN) -> dict:
 # --- the title cap -----------------------------------------------------------------------------
 
 
-def measure_title_cut() -> dict:
-    """The titles the pre-#9284 cap cut would have landed inside a word, on a fresh default build.
+@functools.cache
+def measure_title_cut(seed: int | None = None) -> dict:
+    """The titles the pre-#9284 cap cut would have landed inside a word, on a fresh build.
 
-    Spies on ``build_title`` rather than reimplementing the grammar: the segments and delimiters
-    are the production ones and only the trimming rule is the old one.
+    The build is the default one, or the default one with ``seed``: the seed the catalog the
+    other pins are measured on was built with. Spies on ``build_title`` rather than
+    reimplementing the grammar: the segments and delimiters are the production ones and only
+    the trimming rule is the old one.
     """
+    from synthetic_ecommerce_data.core.config import GeneratorConfig
     from synthetic_ecommerce_data.core.naming import DELIMITER
     from synthetic_ecommerce_data.domains.industrial import finishing as finishing_module
     from synthetic_ecommerce_data.domains.industrial import generate as generate_module
@@ -199,7 +203,7 @@ def measure_title_cut() -> dict:
     # Both modules build titles: the thinning pass rebuilds a title the titles module made.
     titles_module.build_title = finishing_module.build_title = spy
     try:
-        catalog = generate_module.generate()
+        catalog = generate_module.generate(None if seed is None else GeneratorConfig(seed=seed))
     finally:
         titles_module.build_title = finishing_module.build_title = real
 
@@ -315,15 +319,16 @@ def prose_patterns(pins: dict) -> dict[str, str]:
 
 # --- the fixture -------------------------------------------------------------------------------
 
-MEASURES: dict[str, Callable[[], dict]] = {
-    "lens": measure_lens,
-    "titles": measure_title_cut,
-    "anchor": measure_anchor,
+#: Each measure reads the catalog directory and the seed it was built with (``None``: the default).
+MEASURES: dict[str, Callable[[Path, int | None], dict]] = {
+    "lens": lambda golden, seed: measure_lens(golden),
+    "titles": lambda golden, seed: measure_title_cut(seed),
+    "anchor": lambda golden, seed: measure_anchor(golden),
 }
 
 
-def measure_all() -> dict:
-    return {name: measure() for name, measure in MEASURES.items()}
+def measure_all(golden: Path = GOLDEN, seed: int | None = None) -> dict:
+    return {name: measure(golden, seed) for name, measure in MEASURES.items()}
 
 
 def load() -> dict:
