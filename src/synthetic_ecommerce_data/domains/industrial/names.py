@@ -163,6 +163,8 @@ TYPE_SPECIFIC: dict[str, str] = {
     "Wheel Grade": (
         "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade"
     ),
+    "Wheel Dia.": "#835: a caster's wheel, a part it holds; the price census keys casters on it",
+    "Wheel Material": "#835: a caster's wheel, not its frame; Material would not say which",
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
@@ -175,11 +177,11 @@ NAME_EXCEPTIONS: dict[str, str] = {
     ),
     "Maximum Size": (
         "the largest nut, pin, bearing, gear or bit a hand tool takes, in inches; the census has"
-        " Capacity, which the rigid casters already publish in pounds as a load"
+        " Capacity, which reads as a load, as the rigid casters' Load Capacity is"
     ),
     "Maximum Workpiece Weight": (
         "the heaviest bearing an induction heater lifts and heats; the census has Capacity, which"
-        " the rigid casters already publish in pounds as a load"
+        " reads as a load, as the rigid casters' Load Capacity is"
     ),
     "Pin Dia.": "a cotter pin diameter; the census carries no cotter pin family",
     # Not in TYPE_SPECIFIC: "Dowel" is not a qualifying noun, so only the census gate applies.
@@ -237,6 +239,21 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "how many units one listing sells (#497); the census states it as Package Quantity"
     ),
     "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
+    "Wheel Dia.": (
+        "a caster's wheel diameter (#835): the price census's own key for the rigid casters"
+        " (P2_price_census.json, key_dimension_attribute); the attribute census has no caster"
+    ),
+    "Wheel Material": (
+        "a caster's wheel, not its frame (#835): the maker's chart heads it Wheel Type"
+        " (product_types/material_handling/rigid_casters.py cites it); no caster in the census"
+    ),
+    "Tread Width": (
+        "a caster wheel's tread (#835), the maker's chart's own heading; no caster in the census"
+    ),
+    "Bearing Type": (
+        "the bearing a caster wheel turns on (#835), the maker's chart's own heading; the"
+        " census has only a mounted bearing's Bearing Insert Type"
+    ),
 }
 
 

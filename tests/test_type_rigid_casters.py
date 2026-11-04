@@ -104,7 +104,16 @@ def test_every_published_dimension_and_load_is_its_charts_row():
             attrs["Wheel Material"],
             attrs["Bearing Type"],
         )
-        row = rows.get(key)
+        # A published length is rounded to three places (1-1/16" reads 1.062).
+        row = next(
+            (
+                found
+                for (dia, tread, material, bearing), found in rows.items()
+                if (dia, material, bearing) == (key[0], key[2], key[3])
+                and abs(tread - key[1]) < 1e-3
+            ),
+            None,
+        )
         published = (
             parse_length(attrs["Overall Height"]).inches,
             float(attrs["Load Capacity"].split()[0].replace(",", "")),
