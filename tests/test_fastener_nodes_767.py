@@ -30,6 +30,7 @@ NODES = {
     "Cap Screws": {
         "screw_button_head",
         "screw_flat_head",
+        "screw_hex_head",
         "screw_low_head",
         "screw_socket_head",
     },
