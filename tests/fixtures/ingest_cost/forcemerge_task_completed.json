@@ -1,0 +1,21 @@
+{
+    "completed": true,
+    "task": {
+        "node": "uKsMCB9kRd2DNivBuTxPAw",
+        "id": 335,
+        "type": "transport",
+        "action": "indices:admin/forcemerge",
+        "description": "Force-merge indices [test-838-probe], maxSegments[1], onlyExpungeDeletes[false], flush[true]",
+        "start_time_in_millis": 1793803967310,
+        "running_time_in_nanos": 33282434,
+        "cancellable": false,
+        "headers": {}
+    },
+    "response": {
+        "_shards": {
+            "total": 1,
+            "successful": 1,
+            "failed": 0
+        }
+    }
+}
