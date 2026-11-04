@@ -241,6 +241,11 @@
  "hex_bit_socket_sets": {
   "Drive size": "Drive Size"
  },
+ "hex_bit_sockets": {
+  "Drive size": "Drive Size",
+  "Measurement system": "Measurement System",
+  "Tip style": "Tip Style"
+ },
  "hex_key": {
   "Measurement system": "Measurement System",
   "Overall length": "Overall Length",
