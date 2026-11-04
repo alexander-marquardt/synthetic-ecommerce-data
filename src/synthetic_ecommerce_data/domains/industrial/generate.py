@@ -254,6 +254,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         #: a SKU whose published spec is a subset or superset of one already
         #: made differs from it only by an attribute sparsity dropped.
         self._published_specs: dict[tuple, list[frozenset]] = {}
+        #: :meth:`_always_published`'s answers, per type.
+        self._always_published_by_type: dict[str, frozenset[str]] = {}
         #: (type, brand) pairs whose spec space is spent, and how many lines
         #: in a row each has drafted without making a SKU.
         self._exhausted: set[tuple[str, str]] = set()
