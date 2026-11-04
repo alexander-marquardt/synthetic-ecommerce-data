@@ -65,7 +65,9 @@ JVM_STATS_PATH = "/_nodes/_local/stats/jvm?filter_path=nodes.*.jvm.mem"
 
 def heap_reading(node_stats: dict[str, Any]) -> tuple[int, int]:
     """``(heap used, heap max)`` in bytes from a one-node ``_nodes/stats/jvm`` response."""
-    return 0, 0
+    (node,) = node_stats["nodes"].values()
+    mem = node["jvm"]["mem"]
+    return mem["heap_used_in_bytes"], mem["heap_max_in_bytes"]
 
 
 def primary_store(index_stats: dict[str, Any], index: str) -> dict[str, int]:
@@ -74,22 +76,29 @@ def primary_store(index_stats: dict[str, Any], index: str) -> dict[str, int]:
     A nested entry is a Lucene document of its own, so ``lucene_docs`` is above the
     product count for the nested index; ``_count`` gives the top-level documents.
     """
-    return {}
+    primaries = index_stats["indices"][index]["primaries"]
+    return {
+        "lucene_docs": primaries["docs"]["count"],
+        "store_bytes": primaries["store"]["size_in_bytes"],
+    }
 
 
 def peak_rss_bytes(ru_maxrss: int, system: str) -> int:
     """``getrusage``'s ``ru_maxrss`` in bytes: kibibytes on Linux, bytes on macOS."""
-    return 0
+    return ru_maxrss if system == "Darwin" else ru_maxrss * 1024
 
 
 def cgroup_bytes(text: str) -> int | None:
     """A cgroup v2 memory file's value; ``max`` (no limit) is ``None``."""
-    return 0
+    value = text.strip()
+    return None if value == "max" else int(value)
 
 
 def nested_index_body() -> dict[str, Any]:
     """The nested mapping, with no replica: a single-node test cluster cannot allocate one."""
-    return copy.deepcopy({"settings": {"number_of_replicas": 1}, "mappings": {}})
+    body = copy.deepcopy(emit.NESTED_MAPPING)
+    body["settings"]["number_of_replicas"] = 0
+    return body
 
 
 def refuse_unsafe(host: str, indices: tuple[str, ...]) -> None:
@@ -113,7 +122,9 @@ class HeapSampler:
         self.max_bytes = 0
 
     def _sample(self) -> None:
-        pass
+        used, max_bytes = self._read()
+        self.used.append(used)
+        self.max_bytes = max_bytes
 
     def _run(self) -> None:
         while not self._stop.wait(self._interval):
@@ -137,7 +148,12 @@ def settle(
     clock: Callable[[], float] = time.monotonic,
 ) -> int:
     """The lowest heap reading over a quiet window of ``seconds`` after the ingest."""
-    return 0
+    readings = [read()[0]]
+    deadline = clock() + seconds
+    while clock() < deadline:
+        time.sleep(interval)
+        readings.append(read()[0])
+    return min(readings)
 
 
 def container_peak(container: str) -> int | None:
