@@ -10,7 +10,7 @@ KINDS = ("Running Shoes", "Bicycle")
 #: The lead word of a model: a performance word.
 LEADS = (
     "Speed", "Ultra", "Fast", "Sport", "Performance", "Tempo", "Pace", "Race", "Aero", "Glide",
-    "Rapid", "Boost", "Surge", "Velocity",
+    "Rapid", "Boost", "Surge", "Velocity", "Stride", "Momentum", "Cadence", "Kinetic",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Pro", "Max", "Elite", "Edge", "Lite", "Plus")

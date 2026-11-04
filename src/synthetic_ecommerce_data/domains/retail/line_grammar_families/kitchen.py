@@ -14,8 +14,9 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Chef", "Cook", "Bake", "Simmer", "Whisk", "Sizzle", "Stir", "Roast", "Larder", "Prep",
+    "Chef", "Cook", "Bake", "Simmer", "Pinch", "Sizzle", "Stir", "Morsel", "Larder", "Prep",
     "Galley", "Brew", "Steam", "Poach", "Braise", "Saute", "Knead", "Zest", "Spice", "Season",
+    "Baste", "Whip", "Dollop", "Sift",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

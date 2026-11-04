@@ -15,7 +15,7 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Cloud", "Restful", "Snug", "Cosy", "Dream", "Drift", "Feather", "Nap", "Rest", "Hush", "Lull",
+    "Cloud", "Restful", "Snug", "Cosy", "Dream", "Drift", "Repose", "Nap", "Rest", "Hush", "Lull",
     "Slumber", "Doze", "Cuddle", "Tender", "Gentle", "Fluff", "Haze", "Calm", "Lounge",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
