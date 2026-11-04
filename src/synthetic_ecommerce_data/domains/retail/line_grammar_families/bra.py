@@ -14,7 +14,7 @@ KINDS = ("Bra",)
 LEADS = (
     "Comfort", "Support", "Anytime", "Balance", "Contour", "Lift", "Shape", "Soft", "Poise",
     "Serene", "Haven", "Essence", "Harmony", "Petal", "Delight", "Nimbus", "Mist", "Unwind",
-    "Cushion", "Smooth",
+    "Cushion", "Solace",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Pro", "Max", "Elite", "Edge", "Lite", "Plus")

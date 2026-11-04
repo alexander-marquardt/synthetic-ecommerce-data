@@ -5,9 +5,11 @@ shopper reads it as a second brand. Public retail listings name a model from pla
 instead, and what makes it read as a model is the part after the word: a generation number, a
 sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words differ by family:
 
-- numbered families (sport: running shoes, bikes): a lead word, an optional sub-model and a
-  generation number or a code, then a use, e.g. "Tempo Max 3 Trail Running Shoes". Each is a
-  module of ``line_grammar_families/``, found by walking the package (gen#513), so a new one
+- numbered families (sport, tableware, lighting and the rest): a derived model is a lead word
+  alone, then a use, e.g. "Tempo Trail Running Shoes", "Supper Set of 4 Porcelain Espresso
+  Cups": a generation number read as synthetic on a cup set ("Supper 6", #851). An authored
+  model and a cleaning or beauty one may still carry a sub-model and a number or a code. Each is
+  a module of ``line_grammar_families/``, found by walking the package (gen#513), so a new one
   edits no file here;
 - dress shoes (brogues, loafers): the brand always leads, then an optional name-like model word
   (a first name such as "Merlin"), then the descriptors ``<fit> <material> <style> <type>
@@ -95,8 +97,9 @@ def _code(token: str) -> bool:
 def is_model(fam: str, brand: str, line: str) -> bool:
     """Whether ``line`` is a model name of ``fam`` built from the family's words alone.
 
-    A numbered model is a lead word of the family, then sub-model words, generation numbers or
-    codes, at least one of them; a dress model is one name-like word; an appliance model is a
+    A numbered model is a lead word of the family, then any sub-model words, generation numbers
+    or codes: a derived one is the lead word alone (#851), an authored or care one may carry
+    the rest; a dress model is one name-like word; an appliance model is a
     series its brand owns (gen#622); a food model is a plain lead word of its family, then
     optionally one of its style words, and never a number (gen#665, gen#729); a bike model is a
     series its brand owns."""
@@ -109,8 +112,7 @@ def is_model(fam: str, brand: str, line: str) -> bool:
         leads = (*spec.leads, *spec.grocery_leads)
         if spec.bare:
             return words[0] in leads and (not rest or " ".join(rest) in spec.subs)
-        return (len(words) >= 2 and words[0] in leads
-                and all(w in spec.subs or _code(w) for w in rest))  # fmt: skip
+        return words[0] in leads and all(w in spec.subs or _code(w) for w in rest)
     if fam == "dress":
         return line in NAME_WORDS
     if fam == "appliance":
@@ -137,8 +139,11 @@ class Deal:
     (gen#642). An authored row's model word stays its brand's (``authored``: word -> brand), and
     the rest are dealt in turn over the brands in name order.
 
-    A numbered-family brand builds its models from its lead words, a generation and, past the
-    first cycle of generations, a sub-model: "Tempo 3", then "Tempo Pro 3". A dress brand names a
+    A numbered-family brand names a model with one of its lead words alone ("Tempo"), as a
+    retailer names a range: a generation number or a sub-model word read as synthetic on a cup
+    set ("Supper 6", "Spread Mini 8", #851). A cleaning or beauty brand still builds its models
+    from its lead words, a sub-model and a generation ("Keen Plus 4"), as the grocery build deals
+    them too. A dress brand names a
     model with one of its name words. A food brand builds a model from its lead words, the lead
     alone first ("Finest"), then with each style word of the kind ("Finest Greek Style"). Past
     those the models repeat and :meth:`round` tells the caller how far past it went, so a title
@@ -148,7 +153,12 @@ class Deal:
     deals its even words and the grocery build its odd ones (:data:`HALVES`, gen#666)."""
 
     def __init__(
-        self, fam: str, brands: Iterable[str], authored: dict[str, str], half: str = "scale"
+        self,
+        fam: str,
+        brands: Iterable[str],
+        authored: dict[str, str],
+        half: str = "scale",
+        taken: frozenset[str] = frozenset(),
     ) -> None:
         self.fam = fam
         self.brands = sorted(set(brands))
@@ -158,6 +168,10 @@ class Deal:
                 words = self.spec.leads[HALVES[half] :: 2]
             else:
                 words = self.spec.grocery_leads if half == "grocery" else self.spec.leads
+            if not self.spec.bare and fam not in CARE:
+                # A bare range word that any text also uses reads as that text's range (#851).
+                words = tuple(w for w in words if w.lower() not in taken)
+                authored = {w: o for w, o in authored.items() if w.lower() not in taken}
             assert len(words) >= len(self.brands), f"{fam}/{half}: {len(self.brands)} brands"
         else:
             words = NAME_WORDS
@@ -181,19 +195,15 @@ class Deal:
         if self.spec and self.spec.bare:
             style = (None, *self.spec.styles[kind])[k % (len(self.spec.styles[kind]) + 1)]
             return f"{word} {style}" if style else word
-        if not self.spec:
-            return word
+        if not self.spec or self.fam not in CARE:
+            return word  # a range is a plain word: "Supper", never "Supper 6" (#851)
         subs, numbers = self.spec.subs, self.spec.numbers
-        if self.fam in CARE:
-            # A care model sits in a short title, so two of one brand's models that differ in a
-            # single token read as one listing (Jaccard 0.8). The sub-model and the generation
-            # both move with each reuse of a word and with the word's place in the brand's list.
-            shift = slot % len(mine) + k
-            sub = (None, *subs)[shift % (len(subs) + 1)]
-            gen = numbers[(shift + k // ((len(subs) + 1) * 4)) % len(numbers)]
-        else:
-            sub = (None, *subs)[(k // len(numbers)) % (len(subs) + 1)]
-            gen = numbers[k % len(numbers)]
+        # A care model sits in a short title, so two of one brand's models that differ in a
+        # single token read as one listing (Jaccard 0.8). The sub-model and the generation
+        # both move with each reuse of a word and with the word's place in the brand's list.
+        shift = slot % len(mine) + k
+        sub = (None, *subs)[shift % (len(subs) + 1)]
+        gen = numbers[(shift + k // ((len(subs) + 1) * 4)) % len(numbers)]
         return " ".join(str(p) for p in (word, sub, gen) if p)
 
     def round(self, brand: str, slot: int, kind: str) -> int:
@@ -216,7 +226,11 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
     """family -> its :class:`Deal` over every brand a derived style of the family may carry.
 
     ``brands`` is the scale build's (department, product type) -> brand pool. An authored model
-    that is not the family's own (a real brand's) reserves nothing."""
+    that is not the family's own (a real brand's) reserves nothing. A lead word that a template's
+    title, description, brand or attribute value also uses is no derived model (#851): "Toast"
+    alone would be the range of "for toast, cake or a starter" and "Bright" of "Bright Orange
+    Crew Neck Tee", which a number kept apart before."""
+    taken = text_words(tpls)
     out = {}
     for fam in (*NUMBERED, "dress"):
         authored = {
@@ -226,8 +240,18 @@ def deals(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> dict[st
             and is_model(fam, r["brand"], str(line))
         }  # fmt: skip
         mine = [pool for (_, kind), pool in brands.items() if FAMILIES.get(kind) == fam]
-        out[fam] = Deal(fam, [b for pool in mine for b in pool], authored)
+        out[fam] = Deal(fam, [b for pool in mine for b in pool], authored, taken=taken)
     return out
+
+
+def text_words(recs: Iterable[dict]) -> frozenset[str]:
+    """The lowercase words of every title, description, brand and attribute value of ``recs``."""
+    out: set[str] = set()
+    for r in recs:
+        values = (str(a["value"]) for a in r.get("attributes", ()))
+        text = " ".join((r["title"], r.get("description", ""), r["brand"], *values))
+        out.update(re.findall(r"[a-z]+", text.lower()))
+    return frozenset(out)
 
 
 def brand_led(key: object) -> bool:

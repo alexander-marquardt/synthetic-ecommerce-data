@@ -142,6 +142,26 @@ def prices_per_leaf(recs: list[dict]) -> dict[str, Any]:
     }
 
 
+def single_sku_kinds(recs: list[dict]) -> dict[str, dict[str, int]]:
+    """The product types where most products have one SKU although one of them has two colors
+    or sizes, so the axis exists: kind -> its one-SKU products and its products (#851)."""
+    single: collections.Counter[str] = collections.Counter()
+    total: collections.Counter[str] = collections.Counter()
+    axis: set[str] = set()
+    for r in recs:
+        kind = r["product_type"]
+        total[kind] += 1
+        single[kind] += r["sku_count"] == 1
+        sizes = (r.get("size_options") or {}).values()
+        if len(r.get("color_options") or ()) > 1 or any(len(v) > 1 for v in sizes):
+            axis.add(kind)
+    return {
+        kind: {"single": single[kind], "products": total[kind]}
+        for kind in sorted(axis)
+        if single[kind] * 2 > total[kind]
+    }
+
+
 #: The word overlap (Jaccard, over brand and title) at which two same-leaf listings read as one.
 NEAR_DUPLICATE_JACCARD = grocery.NEAR_DUPLICATE_JACCARD
 
