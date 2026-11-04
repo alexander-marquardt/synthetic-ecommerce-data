@@ -3,13 +3,15 @@
 A pull request that touches the shared price code selects nearly every test file. The
 scoped plan (``scripts/ci_shards.py``) dealt that selection to as few shards as kept each
 under ``SCOPED_SHARD_SECONDS`` (1800 s of the weights), where a full run's shard holds
-about 1121 s. Measured on the hosted runners (the 16 ``tests`` jobs of the push run 40436122954),
-a shard takes 0.47 to 0.99 s of wall clock per second of weight, so a 1767 s shard ran 25
-minutes and was cancelled at the job's ``timeout-minutes: 25`` (tests (5) of #696 and #697).
+about 1129 s (17 shards, #852). Measured on the hosted runners (the 16 ``tests`` jobs of the
+push run 40436122954), a shard takes 0.47 to 0.99 s of wall clock per second of weight, so a
+1767 s shard ran 25 minutes and was cancelled at the job's ``timeout-minutes: 25`` (tests (5)
+of #696 and #697).
 
 * the scoped shard budget is no heavier than a full run's shard, and the budget fits the timeout;
 * a selection is dealt so that no shard's real load is past the budget (the longest-first deal
   can overshoot the average by a file, so the shard count is checked against the deal itself);
+* main's files plus the next new, unweighted test file still fit the matrix's shards (#852);
 * the Tests step prints the slowest tests, so a slow test is named in the log the first time it
   appears.
 
