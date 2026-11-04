@@ -414,7 +414,9 @@ TABLE = (
     _d("XU01", "tea", "Green Tea, 40 Bags", "Sencha green tea in round bags, 40 to a box.",
        "Green", 5, "green tea", 900, true_hit=True),
     _d("XU02", "spice", "Black Pepper, Whole Peppercorns",
-       "Whole black peppercorns for a grinder.", "Black", 5, "black pepper", 90, true_hit=True),
+       # 200 sold: at 90 it fell under "Black Sneaker Boots" once merged colors left the
+       # titles that said "Black" (#851)
+       "Whole black peppercorns for a grinder.", "Black", 5, "black pepper", 200, true_hit=True),
     _d("XU03", "cake", "Red Velvet Cake", "A red velvet sponge with cream cheese icing. Serves 8.",
        "Red", 5, "red velvet cake", 90, true_hit=True),
     # -- pink lady apples: the guard holds the pink and the apple together (5)

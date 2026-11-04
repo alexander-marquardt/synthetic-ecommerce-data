@@ -268,6 +268,10 @@ DISTINCT_SPEC_FLOOR = {
     # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
     # rounded down to 0.05.
     "rigid_casters": 0.55,
+    # #834: a cut-resistant glove is one of 29 model lines in one of 6 hand sizes, 174 specs
+    # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
+    # (0.332), rounded down to 0.05.
+    "cut_resistant_gloves": 0.30,
     # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
     # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
     "bronze_sleeve_bushings": 0.80,

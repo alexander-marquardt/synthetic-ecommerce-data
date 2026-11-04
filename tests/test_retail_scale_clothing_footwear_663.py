@@ -60,15 +60,16 @@ def _family_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def test_a_vocabulary_model_is_one_of_its_leads_then_a_number_and_nothing_else():
-    """#663: each new family's model reads "<lead> [<sub>] <number>" (a sub-model or a number, at
-    least one); the bare lead, a lead the family does not hold or a stray word is no model."""
+    """#663: each new family's model reads "<lead> [<sub>] [<number>]": the bare lead is the one
+    a derived style takes (#851), an authored one may add the rest; a lead the family does not
+    hold or a stray word is no model."""
     fams = _all_families()
     assert set(NEW_FAMILIES) <= set(fams)
     for fam in NEW_FAMILIES:
         vocab = fams[fam]
         lead, number = vocab.leads[0], str(vocab.numbers[0])
         assert line_grammar.is_model(fam, "Brand", f"{lead} {number}")
-        assert not line_grammar.is_model(fam, "Brand", lead)  # no number
+        assert line_grammar.is_model(fam, "Brand", lead)  # a range is a plain word (#851)
         sub = vocab.subs[0]
         assert line_grammar.is_model(fam, "Brand", f"{lead} {sub} {number}")
         assert not line_grammar.is_model(fam, "Brand", f"Quibble {number}")  # no family leads

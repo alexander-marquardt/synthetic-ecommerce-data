@@ -3,8 +3,9 @@
 A bauble is Christmas season stock, not a gift: ``Gifts > Christmas Gifts`` read wrong, and a
 shopper browsing Home found no Christmas area. Only the path moves. The rows keep the department
 Gifts because a department picks a derived style's rate and brands (:mod:`scale`): moving it
-redraws the brand on 37 of these SKUs and retitles 243 others. :data:`PINNED` holds the 73 SKUs
-as main built them before the move.
+redraws the brand on 37 of these SKUs and retitles 243 others. :data:`PINNED` holds the SKUs
+as main built them before the move, re-pinned when #851 dropped the range numbers and made a
+color a SKU of its style (73 SKUs of 56 products became 118 of 55).
 """
 
 from __future__ import annotations
@@ -65,7 +66,7 @@ def test_the_decorations_keep_their_skus_images_brands_and_titles(ceiling: scale
         for sku in rec["skus"]
     ]
     pinned = json.loads(PINNED.read_text("utf-8"))
-    assert len(pinned) == 73 and len({r["product_id"] for r in pinned}) == 56
+    assert len(pinned) == 118 and len({r["product_id"] for r in pinned}) == 55
     assert sorted(built, key=lambda r: r["sku"]) == pinned
 
 

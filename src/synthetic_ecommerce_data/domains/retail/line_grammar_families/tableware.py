@@ -16,7 +16,7 @@ KINDS = (
 #: The lead word of a model.
 LEADS = (
     "Supper", "Feast", "Brunch", "Banquet", "Serve", "Dine", "Savour", "Relish", "Gather", "Toast",
-    "Buffet", "Picnic", "Dessert", "Starter", "Platter", "Sip", "Taste", "Entertain", "Everyday",
+    "Buffet", "Picnic", "Dessert", "Mingle", "Platter", "Sip", "Taste", "Entertain", "Everyday",
     "Spread",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.

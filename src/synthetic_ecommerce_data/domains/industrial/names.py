@@ -193,6 +193,14 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Take Up": "how far a turnbuckle draws its ends together; no turnbuckle in the census",
     "Closed Length": "a turnbuckle end to end, fully taken up; no turnbuckle in the census",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "ANSI Cut Level": (
+        "a glove's cut resistance level, A1 to A9, as ANSI/ISEA 105 names it; the census carries"
+        " no glove family"
+    ),
+    "Knit Gauge": (
+        "a knit glove shell's stitches per inch, the Gauge column of a cut glove guide; the"
+        " census's Gauge is a screw's wire gauge, another measurement"
+    ),
     "Base to Center Height": (
         "a pillow block's mounting face to its shaft centre; the census has Height and"
         " Overall Height, which are other measurements"

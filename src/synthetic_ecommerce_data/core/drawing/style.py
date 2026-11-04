@@ -67,6 +67,12 @@ MATERIAL_FILL: dict[str, str] = {
     "Urethane": "#c9572b",
     "HPPE": "#9aa08a",
     "PU Foam": "#f2b134",
+    # The cut-resistant glove shells (#834): grey blended HPPE, the yellow aramid
+    # yarn is spun in, and an acrylic thermal shell.
+    "HPPE Blend": "#8d9387",
+    "Aramid": "#d9b740",
+    "Aramid Blend": "#c9ad52",
+    "Acrylic": "#e8e2d4",
     # The O-ring compounds (#53): black nitrile and EPDM, brown FKM and the
     # red-orange silicone is commonly moulded in.
     "Buna-N": "#2e2e2e",
@@ -164,6 +170,11 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Urethane": Hatch((), 6.0, dots=True),
     "HPPE": Hatch((), 6.0, dots=True),
     "PU Foam": Hatch((), 5.0, dots=True),
+    # The glove shells: a knit's dots, a new spacing or angle each.
+    "HPPE Blend": Hatch((45,), 6.0, dots=True),
+    "Aramid": Hatch((), 4.0, dots=True),
+    "Aramid Blend": Hatch((135,), 4.0, dots=True),
+    "Acrylic": Hatch((), 7.0, dots=True),
     # The O-ring compounds: the elastomers' dotted single line, a new angle each.
     "Buna-N": Hatch((75,), 2.5, dots=True),
     "FKM": Hatch((105,), 2.5, dots=True),

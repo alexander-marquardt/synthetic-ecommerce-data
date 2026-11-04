@@ -19,6 +19,7 @@ KINDS = (
 LEADS = (
     "Torque", "Grip", "Drive", "Anvil", "Lever", "Gear", "Crank", "Pivot", "Ratchet", "Forge",
     "Workshop", "Bench", "Rivet", "Power", "Volt", "Amp", "Watt", "Dynamo", "Breeze", "Gust",
+    "Mortise", "Dovetail", "Joist", "Trestle",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")
