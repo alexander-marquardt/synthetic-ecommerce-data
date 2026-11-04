@@ -115,6 +115,8 @@ SHARED_OPTIONS: dict[str, tuple[str, str, str | None]] = {
     # A pan's diameter and a bin's or a box's capacity (household_rows.py, gen#200).
     "diameter_cm": ("diameter", "Diameter", "CMT"),
     "capacity_l": ("capacity", "Capacity", "LTR"),
+    # A travel cup's or a tumbler's capacity, a size of one product (class_rows.py, #851).
+    "capacity_ml": ("capacity", "Capacity", "MLT"),
     # A mirror's glass and a bookcase's height (furniture_rows.py, gen#199).
     "height_cm": ("item_height", "Item height", "CMT"),
     "blade_length_cm": ("blade_length", "Blade length", "CMT"),

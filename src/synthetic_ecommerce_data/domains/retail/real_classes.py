@@ -214,6 +214,8 @@ SKUS = {
         "width_cm": {"type": "integer"},
         "length_cm": {"type": "integer"},
         "net_volume_ml": {"type": "float"},
+        "pack_size": {"type": "keyword"},  # a cup set's 2, 4 or 8 pack (#851)
+        "capacity_ml": {"type": "integer"},  # a travel cup's or a tumbler's size (#851)
         "price": {"type": "float"},
     },
 }
