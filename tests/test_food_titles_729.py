@@ -358,12 +358,24 @@ def test_the_pack_label_stops_before_the_ending():
     assert grocery.pack_label(f"{head} Crisps with No Palm Oil", head) == "Crisps"
 
 
-@pytest.mark.parametrize("fam", ["trainers", "cleaning", "toys"])
+@pytest.mark.parametrize("fam", ["cleaning", "beauty"])
 def test_a_numbered_model_keeps_its_generation(fam):
-    """Guard (gen#729): "Tempo 3" stays; only the food families lost their number. Metric: the
-    models of a numbered family's first slots, each with a digit."""
+    """Guard (gen#729): a care model keeps its number, "Fresh 3"; the food families lost theirs,
+    and since #851 every other family's derived model is its lead word alone. Metric: the
+    models of a care family's first slots, each with a digit."""
     deal = line_grammar.Deal(fam, ["Acme"], {})
     got = [deal.owned("Acme", slot) for slot in range(10)]
     assert all(any(c.isdigit() for c in model) for model in got), got
     assert deal.spec.numbers and not deal.spec.bare
+    assert line_grammar.is_model(fam, "Acme", got[0])
+
+
+@pytest.mark.parametrize("fam", ["trainers", "toys"])
+def test_a_numbered_model_outside_care_is_its_lead_word(fam):
+    """Guard (#851): "Tempo 3" read as synthetic on a range; the model is now "Tempo". Metric:
+    the models of a non-care family's first slots, none with a digit."""
+    deal = line_grammar.Deal(fam, ["Acme"], {})
+    got = [deal.owned("Acme", slot) for slot in range(10)]
+    assert not any(c.isdigit() for model in got for c in model), got
+    assert set(got) <= set(deal.of("Acme"))
     assert line_grammar.is_model(fam, "Acme", got[0])

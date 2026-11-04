@@ -15,8 +15,8 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Border", "Patio", "Meadow", "Bloom", "Blossom", "Sprout", "Harvest", "Wildflower", "Trellis",
-    "Terrace", "Hedgerow", "Verge", "Plot", "Pasture", "Grow", "Seedling", "Sunlit", "Cottage",
+    "Paddock", "Copse", "Meadow", "Bloom", "Blossom", "Sprout", "Harvest", "Wildflower", "Trellis",
+    "Terrace", "Hedgerow", "Verge", "Plot", "Pasture", "Furrow", "Seedling", "Sunlit", "Cottage",
     "Allotment", "Potting",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
