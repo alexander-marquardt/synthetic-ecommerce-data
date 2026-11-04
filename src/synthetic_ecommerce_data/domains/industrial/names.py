@@ -237,6 +237,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "how many units one listing sells (#497); the census states it as Package Quantity"
     ),
     "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
+    "Number of Points": (
+        "a wrench's box end, 6 or 12 points (#836); the census carries no wrench family, its"
+        " Point Type is a set screw's or a drill's point, and it is cased like Number of Flutes"
+    ),
 }
 
 

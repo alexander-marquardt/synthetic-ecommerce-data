@@ -22,6 +22,7 @@ from __future__ import annotations
 import importlib
 import json
 from collections import Counter
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -69,6 +70,10 @@ def _value(doc: dict, name: str) -> str:
 
 def test_the_type_is_modelled_in_its_own_module():
     assert KEY in typespec.modelled(), f"{KEY} is still a breadth row"
+
+
+def test_the_type_keeps_the_node_675_moved_its_row_under():
+    assert taxonomy.LEAVES[KEY] == (("Hand Tools", "Wrenches & Keys", "Combination Wrenches"),)
 
 
 def test_the_default_build_is_deep():
@@ -120,13 +125,22 @@ def test_the_sizes_are_read_from_the_across_flats_tables():
     assert wrenches.INCH_FLATS and wrenches.MM_FLATS
     assert set(wrenches.INCH_FLATS.values()) == {"ASME B18.2.2", "ASME B18.2.1"}
     assert set(wrenches.MM_FLATS.values()) == {"ISO 4017", "DIN 933"}
+    # A width the nut or ISO table carries is read from it; the other table fills its gaps.
+    assert wrenches.INCH_FLATS[Fraction(1, 2)] == "ASME B18.2.2"
+    assert wrenches.INCH_FLATS[Fraction(5, 8)] == "ASME B18.2.1"
+    assert wrenches.MM_FLATS[10.0] == "ISO 4017"
+    assert wrenches.MM_FLATS[17.0] == "DIN 933"
     for kind in wrenches.KINDS:
         assert wrenches.sizes_in(kind, False) and wrenches.sizes_in(kind, True), kind.type
 
 
 def test_the_breadth_rows_sizes_are_still_offered():
-    counts = Counter(_value(doc, "Size") for doc in _default_docs())
-    assert {size: counts[f"{size} in"] for size in ROW_SIZES if not counts[f"{size} in"]} == {}
+    counts = Counter(
+        Fraction(parse_length(_value(doc, "Size")).inches).limit_denominator(64)
+        for doc in _default_docs()
+        if "mm" not in _value(doc, "Size")
+    )
+    assert [size for size in ROW_SIZES if not counts[Fraction(size)]] == []
 
 
 def test_two_builds_are_byte_identical():
