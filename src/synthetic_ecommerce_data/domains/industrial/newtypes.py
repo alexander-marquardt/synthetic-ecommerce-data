@@ -364,6 +364,7 @@ def build_nut(gen: Generator, type_key: str, category: tuple[str, ...]) -> LineD
             length_attribute("Width Across Flats", gen._publish(flats_in, style)),
             length_attribute("Height", gen._publish(height_in, style)),
         ]
+        child.exact = {"Width Across Flats": flats_in, "Height": height_in}
         draft.children.append(child)
     draft.provenance = nut_provenance(style_name, system, fine, row_standards)
     # The line claims a dimensional standard only when EVERY row it offers is

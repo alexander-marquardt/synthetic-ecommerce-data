@@ -56,9 +56,10 @@ def test_a_nut_records_the_magnitude_each_length_was_published_from():
             lengths = {a.name: a.value_num for a in child.attrs if a.name in NUT_LENGTHS}
             assert set(child.exact) == NUT_LENGTHS, (child.primary, child.exact)
             for name, published in lengths.items():
-                # The published figure is the recorded one, rounded at most to thousandths.
+                # The published figure is the recorded one rounded, at most to tenths of a
+                # millimetre (a metric nut's 16.35 mm height published as 16.3mm).
                 assert published is not None
-                assert abs(published - child.exact[name]) <= 0.0005 + 1e-9, (name, published)
+                assert abs(published - child.exact[name]) <= 0.05 / 25.4 + 1e-9, (name, published)
                 checked += 1
     assert checked > 100
 

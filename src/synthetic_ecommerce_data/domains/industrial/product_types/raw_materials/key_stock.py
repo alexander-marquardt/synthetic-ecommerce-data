@@ -134,10 +134,29 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     return draft
 
 
+def _told_apart(sections: list[tuple[Fraction, Fraction]]) -> bool:
+    """Whether every bar has a width or a height no other bar of ``sections`` has."""
+    widths = [w for w, _ in sections]
+    heights = [h for _, h in sections]
+    return all(widths.count(w) == 1 or heights.count(h) == 1 for w, h in sections)
+
+
 def line_sections(start: int, count: int) -> list[tuple[Fraction, Fraction]]:
-    """The sections a line offers: ``count`` of them from ``start`` on, round SECTIONS."""
-    count = min(count, len(SECTIONS))
-    return [SECTIONS[(start + k) % len(SECTIONS)] for k in range(count)]
+    """The sections a line offers: ``count`` of them from ``start`` on, round SECTIONS.
+
+    A section that would leave a bar with no width or height of its own is skipped for the
+    next one: a 1/4" x 3/16" bar beside the 3/16" and 1/4" squares, whose title then names
+    nothing that is its alone (#50). The count holds while a line has sections to take, at
+    least the eleven squares, so the random stream after the line does not move.
+    """
+    taken: list[tuple[Fraction, Fraction]] = []
+    for k in range(len(SECTIONS)):
+        if len(taken) == count:
+            break
+        section = SECTIONS[(start + k) % len(SECTIONS)]
+        if _told_apart([*taken, section]):
+            taken.append(section)
+    return taken
 
 
 # --- the drawing ------------------------------------------------------------------
