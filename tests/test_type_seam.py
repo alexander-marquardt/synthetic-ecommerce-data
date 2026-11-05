@@ -578,9 +578,9 @@ def test_the_block_command_names_the_owner_and_a_really_free_block(
 def test_the_block_command_reports_a_block_already_declared(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    declared = _yaml_declared_blocks()["er_collets"]
-    out = _block_command("er_collets", capsys)
-    assert out == f"er_collets: already declares part_number_block={declared:04d}"
+    declared = _yaml_declared_blocks()["shaft_collars"]
+    out = _block_command("shaft_collars", capsys)
+    assert out == f"shaft_collars: already declares part_number_block={declared:04d}"
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:

@@ -502,13 +502,16 @@ RETIRED_TERMS_CAP = 25
 #: and Material, which their four compounds took from 23 values to 27.
 #: A roller chain's ANSI Number is the eighth: 27 values (the ``-2`` and ``-3``
 #: strand suffixes included) that repeat across its lines. The ``Item``
-#: attribute, once the tenth, is not published any more (#497).
+#: attribute, once the tenth, is not published any more (#497). An ER collet's
+#: Grip Range (#831) is one more: 26 clamping ranges over 53 product-value
+#: pairs on the default build (0.49), each repeated across the makers' lines.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
         "bearing_number",
         "dash_number",
         "dia_thread_size",
+        "grip_range",
         "material",
         "sizes_included",
         "standards",
