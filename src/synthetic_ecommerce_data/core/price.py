@@ -699,6 +699,7 @@ def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[st
 #: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
 #: within-page pairs for it, so no order row.
 DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "combination_wrenches": (158, 4.011, 15.38, 39.145),
     "cut_resistant_gloves": (22, 9.45, 21.45, 67.675),
     "rigid_casters": (157, 20.744, 76.2, 351.85),
     "roller_chain": (71, 74.1, 358.0, 773.0),
@@ -716,7 +717,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "c_clamps": (10.526, 52.0, 342.25),
     "carriage_bolts": (10.841, 26.1, 67.205),
     "cold_chisels": (7.13, 15.68, 38.2),
-    "combination_wrenches": (4.011, 15.38, 39.145),
     "eye_bolts": (3.469, 14.735, 62.405),
     "foam_ear_plugs": (3.152, 95.675, 175.9),
     "hand_files": (4.409, 21.43, 24.9),
