@@ -341,9 +341,9 @@ iterated at the default size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
-serves that one, from a pinned release, and the 100K build is a capability
-kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
-published artifact.
+serves that one, from a pinned release. The 100K build is kept tested
+(`tests/test_catalog_brands_voice.py` builds it), not published; what serving
+a build costs in Elasticsearch is in [docs/ingest-cost.md](docs/ingest-cost.md).
 
 What moves at 100K, measured against the census targets (`ecom-generate
 report`), with the default catalog beside it:
