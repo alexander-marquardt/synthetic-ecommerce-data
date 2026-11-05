@@ -97,7 +97,7 @@ def test_every_packed_sku_publishes_a_census_pack(packs, type_key):
     census_packs = set(price.PACK_COUNTS[PACKED[type_key]])
     published = [pack for _, pack in packs[type_key]]
     # Every SKU of the type publishes one: golden-catalog/stats.json counts them.
-    assert len(published) == pinned.default_skus(type_key)
+    assert len(published) == pinned.sku_count(type_key)
     assert [p for p in published if p is None or int(p) not in census_packs] == []
 
 

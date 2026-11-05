@@ -5,7 +5,7 @@ scripts/measure_pins.py``) moves a type's SKU count, the sizes a defect rewrote,
 A test that typed such a figure went red on a moved seed until it was measured again by hand
 (slice 2 of #50, ``scripts/reseed_proof.py``, listed them). It reads the figure here instead:
 
-* :func:`default_skus` and :func:`default_products`: the default build's counts by type, from
+* :func:`sku_count` and :func:`product_count`: the default build's counts by type, from
   ``golden-catalog/stats.json``, which the build writes;
 * :func:`hundred_k_skus`: the 100K build's, from ``measured_builds.json``, which the merge
   script's rebuild writes (gen#85);
@@ -48,12 +48,12 @@ def _stats() -> dict:
     return json.loads(STATS.read_text("utf-8"))
 
 
-def default_skus(type_key: str) -> int:
+def sku_count(type_key: str) -> int:
     """How many SKUs of ``type_key`` the default build holds."""
     return _stats()["skus_by_type"][type_key]
 
 
-def default_products(type_key: str) -> int:
+def product_count(type_key: str) -> int:
     """How many products (lines) of ``type_key`` the default build holds."""
     return _stats()["lines_by_type"][type_key]
 

@@ -98,7 +98,7 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 
 def test_the_default_build_holds_the_declared_count():
-    assert len(_default_docs()) == pinned.default_skus(KEY)
+    assert len(_default_docs()) == pinned.sku_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():

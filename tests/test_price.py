@@ -1193,7 +1193,7 @@ def _build_kits(request, build: str) -> list[KitSku]:
 
 
 #: How many kit SKUs each build holds, as the files the one command writes count them (#50).
-KIT_COUNTS = {"default": pinned.default_skus, "100K": pinned.hundred_k_skus}
+KIT_COUNTS = {"default": pinned.sku_count, "100K": pinned.hundred_k_skus}
 
 
 @pytest.mark.parametrize("build", KIT_COUNTS)

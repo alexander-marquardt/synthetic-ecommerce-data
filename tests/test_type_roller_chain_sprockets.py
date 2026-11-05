@@ -147,8 +147,8 @@ def test_the_registry_knows_it_as_a_table_type():
 
 
 def test_the_default_build_holds_the_declared_count():
-    assert len(generate_type(GeneratorConfig(), KEY)) == pinned.default_products(KEY)
-    assert len(_default_docs()) == pinned.default_skus(KEY)
+    assert len(generate_type(GeneratorConfig(), KEY)) == pinned.product_count(KEY)
+    assert len(_default_docs()) == pinned.sku_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
