@@ -38,6 +38,24 @@ MUTATIONS: list[Mutation] = [
         "every_published_dimension_and_load_is_its_charts_row",
         "a caster's load is its chart row",
     ),
+    Mutation(
+        "pipe nipple: a hex nipple's pressure rating is scaled from its chart row",
+        "domains/industrial/product_types/motion/hex_pipe_nipples.py",
+        'numeric_attribute(PRESSURE, f"{psi:,}", float(psi)),',
+        'numeric_attribute(PRESSURE, f"{psi * 2:,}", float(psi * 2)),',
+        "tests/test_type_hex_pipe_nipples.py",
+        "every_hex_nipple_is_a_row_of_the_hex_chart",
+        "a hex nipple's rating is its chart row",
+    ),
+    Mutation(
+        "pipe nipple: a barrel nipple's outside diameter is scaled from its A733 size",
+        "domains/industrial/product_types/motion/hex_pipe_nipples.py",
+        'gen._length(OD, _A733_ROWS[size]["od"], style)]',
+        'gen._length(OD, _A733_ROWS[size]["od"] * 2, style)]',
+        "tests/test_type_hex_pipe_nipples.py",
+        "every_close_and_barrel_nipple_is_an_a733_size_and_length_in_its_schedule",
+        "a close or barrel nipple is its A733 size",
+    ),
     # ---- price: the model and its census gate (#52) ------------------------
     # Every name starts "price:", so `--only "price:"` re-runs them. A model
     # row plants a defect in what prices a SKU and names the default-size
@@ -75,6 +93,14 @@ MUTATIONS: list[Mutation] = [
                 "domains/industrial/product_types/material_handling/rigid_casters.py",
                 "    60.0, 4.0, 1.016, 0.8, 0.15,",
                 "    180.0, 4.0, 1.016, 0.8, 0.15,",
+                "within_its_band_or_pinned_at_the_default_size",
+                "a deepened breadth category keeps its census level",
+            ),
+            (
+                "the pipe nipple prices at three times its fitted anchor",
+                "domains/industrial/product_types/motion/hex_pipe_nipples.py",
+                "    3.6, 0.5, 0.45, 0.2, 0.08,",
+                "    10.8, 0.5, 0.45, 0.2, 0.08,",
                 "within_its_band_or_pinned_at_the_default_size",
                 "a deepened breadth category keeps its census level",
             ),

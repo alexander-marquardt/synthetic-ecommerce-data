@@ -49,6 +49,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Ceramic": "#c7613f",
     "Aluminum Oxide": "#8c6d4f",
     "316 Stainless Steel": "#e9eef1",
+    "304 Stainless Steel": "#ebeff2",
     "Brass": "#e0c46c",
     "Chrome Steel": "#cdd3d8",
     "440C Stainless Steel": "#e4e9ec",
@@ -103,6 +104,9 @@ MATERIAL_FILL: dict[str, str] = {
     "Ductile Steel": "#b2b7bb",
     "Rubber on Cast Iron": "#55585a",
     "Polyurethane on Cast Iron": "#b8643a",
+    # The bushing bronzes (#833): a porous pressed bronze, lighter, and a cast one.
+    "Oil-Impregnated Sintered Bronze": "#c4a46e",
+    "Cast Bronze": "#9a7542",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -115,6 +119,8 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     # The plain screws (#750): a drywall screw's dark coat and a deck screw's outdoor one.
     "Black Phosphate": "#454a4e",
     "Ceramic Coated": "#8a8468",
+    # The pipe nipples (#832): black steel pipe, sold uncoated in its mill finish.
+    "Black": "#4a4d50",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -152,6 +158,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ceramic": Hatch((30, 150), 6.0),
     "Aluminum Oxide": Hatch((120,), 6.0, dots=True),
     "316 Stainless Steel": Hatch((135,), 8.0, dots=True),
+    "304 Stainless Steel": Hatch((45,), 6.0, dots=True),
     "Brass": Hatch((45,), 3.0),
     "Chrome Steel": Hatch((0, 45), 6.0),
     "440C Stainless Steel": Hatch((0, 135), 6.0),
@@ -200,6 +207,9 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ductile Steel": Hatch((100, 10), 4.0),
     "Rubber on Cast Iron": Hatch((15, 75), 3.0, dots=True),
     "Polyurethane on Cast Iron": Hatch((135, 45), 7.0, dots=True),
+    # The bushing bronzes (#833): the sintered one dotted for its pores.
+    "Oil-Impregnated Sintered Bronze": Hatch((60,), 3.5, dots=True),
+    "Cast Bronze": Hatch((120, 60), 4.0),
 }
 
 

@@ -52,7 +52,11 @@
   "Width across flats": "Width Across Flats"
  },
  "bronze_sleeve_bushings": {
-  "Bore dia.": "Bore Dia."
+  "Bore dia.": "Bore Dia.",
+  "Flange dia.": "Flange Dia.",
+  "Flange thickness": "Flange Thickness",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia."
  },
  "cantilever_racks": {
   "Rated load": "Rated Load"
@@ -255,6 +259,14 @@
   "Overall length": "Overall Length",
   "Overall width": "Overall Width",
   "Tip style": "Tip Style"
+ },
+ "hex_pipe_nipples": {
+  "Hex size": "Hex Size",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Pipe size": "Pipe Size",
+  "Pressure rating (psi)": "Pressure Rating (psi)",
+  "Thread type": "Thread Type"
  },
  "induction_heaters": {
   "Maximum workpiece weight": "Maximum Workpiece Weight"
