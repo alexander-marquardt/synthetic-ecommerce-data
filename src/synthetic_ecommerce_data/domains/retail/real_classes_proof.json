@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "a748e716bcda1f056882f68f3c6baaffac0267eba91806384807238dd95bb984",
+ "fingerprint": "d41b4833139200a418ccabfd53c96274125bd96ba636e83672739028f48b002f",
  "rows": [
   {
    "query": "mattress topper",
@@ -585,12 +585,12 @@
      "title": "Fine Bone China Tea Cup and Saucer for Afternoon Tea"
     },
     {
-     "product_id": "PLT-MUG-APPLE",
-     "title": "Apple Graphic Mug"
+     "product_id": "PLT-MUG10",
+     "title": "Porcelain Mug"
     },
     {
-     "product_id": "PLT-MUG11",
-     "title": "Travel Mug"
+     "product_id": "PLT-MUG6",
+     "title": "Ribbed Mug"
     }
    ]
   }
