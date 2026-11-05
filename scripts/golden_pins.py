@@ -24,13 +24,24 @@ Three kinds of pin live in the fixture:
     catalog order, with more than one variant. :func:`anchor_needles` lists the texts a planted
     row quotes, and :func:`measure_anchor` refuses an anchor any of them does not occur in exactly
     once.
+``figures``
+    What a test measured on one build and compared exactly: a type's SKU count at
+    ``--lines 39000``, the sizes a defect rewrote, a fit's spread. Each module ``tests/pinned.py``
+    names measures its own with ``measure_pins(config)``, the test's own code on the build that
+    config makes, and reads the figures back from the fixture. A census band is never a figure.
+
+The same command rewrites every slice of ``tests/data/golden_slices/`` (:func:`write_slices`), a
+type's default build that its ``tests/test_type_<key>.py`` holds byte for byte; slice 2 of #50
+found the slices stale on a moved seed, each rewritten only by its test's own ``__main__``.
 """
 
 from __future__ import annotations
 
 import functools
+import importlib
 import json
 import string
+import sys
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,6 +50,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 GOLDEN = ROOT / "golden-catalog"
 PINS_PATH = ROOT / "tests" / "data" / "golden_pins.json"
+SLICES = ROOT / "tests" / "data" / "golden_slices"
 
 #: The command a contributor runs after a regeneration; every failure here names it.
 REGENERATE = (
@@ -317,6 +329,46 @@ def prose_patterns(pins: dict) -> dict[str, str]:
     return patterns
 
 
+# --- the figures of one build and the golden slices --------------------------------------------
+
+
+def _config(seed: int | None):
+    from synthetic_ecommerce_data.core.config import GeneratorConfig
+
+    return GeneratorConfig() if seed is None else GeneratorConfig(seed=seed)
+
+
+def _tests_importable() -> None:
+    tests = str(ROOT / "tests")
+    if tests not in sys.path:
+        sys.path.insert(0, tests)
+
+
+def measure_figures(seed: int | None = None) -> dict:
+    """``{module: figures}`` for each module ``tests/pinned.py`` names, on ``seed``'s build."""
+    _tests_importable()
+    import pinned
+
+    config = _config(seed)
+    return {name: importlib.import_module(name).measure_pins(config) for name in pinned.MODULES}
+
+
+def write_slices(slices: Path, seed: int | None = None) -> list[str]:
+    """Rewrite each ``<key>.jsonl`` in ``slices`` as type ``key``'s build; the names rewritten."""
+    _tests_importable()
+    import type_gates
+    from synthetic_ecommerce_data.domains.industrial.generate import generate_type
+
+    moved = []
+    for path in sorted(slices.glob("*.jsonl")):
+        records = type_gates.records(generate_type(_config(seed), path.stem))
+        text = "".join(line + "\n" for line in records)
+        if path.read_text("utf-8") != text:
+            path.write_text(text, "utf-8")
+            moved.append(path.name)
+    return moved
+
+
 # --- the fixture -------------------------------------------------------------------------------
 
 #: Each measure reads the catalog directory and the seed it was built with (``None``: the default).
@@ -324,6 +376,7 @@ MEASURES: dict[str, Callable[[Path, int | None], dict]] = {
     "lens": lambda golden, seed: measure_lens(golden),
     "titles": lambda golden, seed: measure_title_cut(seed),
     "anchor": lambda golden, seed: measure_anchor(golden),
+    "figures": lambda golden, seed: measure_figures(seed),
 }
 
 

@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes, authored_entries
@@ -54,8 +55,6 @@ PACKS = {25, 100, 500}
 
 #: A build large enough to reach every row in every material and pack.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_SKUS = 67
 #: USD for one pack, any size, material, pack and brand tier. Not a fit: a
 #: price outside it is a broken ladder (a pack of 25 small steel pins for
 #: cents, or 500 large stainless ones for thousands), not a wrong estimate.
@@ -99,7 +98,7 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 
 def test_the_default_build_holds_the_declared_count():
-    assert len(_default_docs()) == DEFAULT_SKUS
+    assert len(_default_docs()) == pinned.sku_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -171,16 +170,29 @@ def test_every_material_and_pack_is_built_and_nothing_else(large_docs):
 
 def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
     """The build with its defects on shows more distinct sizes than the table
-    has rows (14 against 12). Each extra one is a row's size rewritten in
-    inches to four places, which reads back within a hundredth of a
-    millimetre of that row: a defect the catalog injects on purpose, not a
-    size the table lacks."""
-    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True))
+    has rows. Each extra one is a row's size rewritten in inches to four
+    places, which reads back within a hundredth of a millimetre of that row:
+    a defect the catalog injects on purpose, not a size the table lacks."""
+    read = _sizes_with_defects()
+    assert sorted({round(size, 2) for size in read} - {row[0] for row in ROWS}) == []
+    rewritten = _rewritten(read)
+    assert len(rewritten) == pinned.figure(__file__, "rewritten"), rewritten
+
+
+def _sizes_with_defects(base: GeneratorConfig | None = None) -> list[float]:
+    """The pin diameter each record of the large build with its defects on reads."""
+    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True, base=base))
+    return [float(table_gates.values(doc)["Pin Dia."]["value_canonical"]) for doc in docs]
+
+
+def _rewritten(read: list[float]) -> list[float]:
     sizes = {row[0] for row in ROWS}
-    read = [float(table_gates.values(doc)["Pin Dia."]["value_canonical"]) for doc in docs]
-    assert sorted({round(size, 2) for size in read} - sizes) == []
-    rewritten = [size for size in read if size not in sizes]
-    assert len(rewritten) == 5, rewritten
+    return [size for size in read if size not in sizes]
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {"rewritten": len(_rewritten(_sizes_with_defects(config)))}
 
 
 def test_no_length_is_published(large_docs):
