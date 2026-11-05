@@ -602,27 +602,28 @@ def test_the_drill_is_a_declared_spec_of_registered_primitives():
 
 
 PINNED = {
-    # #849 re-took nine pins on purpose: every brand draws on one paper (#f9f9f7), which also
-    # shows through a washer's hole and a break's gap. With each brand's paper color
-    # replaced by the one paper, every pinned SVG is byte-identical to main's; drill_jobber's
-    # brand already drew on it. A pin draws with no product id, so at 0 degrees.
+    # #849 re-took all ten pins on purpose: every brand draws on one white paper (#ffffff, the
+    # maintainer's ruling on #860), which also shows through a washer's hole and a break's
+    # gap. Drawn on #f9f9f7 again, every pinned SVG is byte-identical to the pin it replaced,
+    # and that one to main's with each brand's paper swapped for it. A pin draws with no
+    # product id, so at 0 degrees.
     # #10 re-took both end mill pins on purpose: a pinned record drawn from a fallback now
     # keeps its published flute count and hand, where it was drawn with the nominal ones.
-    "end_mill_square": "75:445f84659edeed484cef27a326f3ad23a89935292a68b6441489df57dd21eaac",
+    "end_mill_square": "75:d0187c7c760612b1f5c792db618e2ad6de5d595ab2be483a9c953a62be5af33d",
     # #9 moved exactly one pinned record here (a Double End ball nose, drawn with
     # one end before, two now), so this pin was re-taken on purpose; #10 re-took it again.
-    "end_mill_ball": "44:bef95098b38e62b48db02e735cc609c35ed3b346d628e01b54220af981bdaaf0",
-    "drill_jobber": "37:314a201c0d810636d30d6d4e2ce313f227981de767fbd49a352869990f5c4249",
-    "tap_spiral_point": "31:3153d6128d6b8ab555a0059d16b2f0e0346339af2ab22e07dc459925a89e7900",
+    "end_mill_ball": "44:709c5e884430c0ea8e3f7f0497404c77d61809305c3c55c0325ba466aba925de",
+    "drill_jobber": "37:a0c656fa2955e3add144573bb40b84c724dca8c1abcf6c4fadcf7fed5826059e",
+    "tap_spiral_point": "31:c05274c5a587336be817a48c6892044dca17c7c42ca330cbeec383da45190128",
     # #822 re-took the four fastener pins on purpose: each pins one broken variant (its
     # length set past the extent), and the drafting break is now a 4-stroke zigzag at the
     # outline's weight over a paper gap of 0.08 of the extent. No other record moved.
-    "screw_flat_head": "23:703819c562bd47ed1fb18907579fb01db9011be5881021b6f257c3d1745ff700",
-    "screw_button_head": "21:8beb4792a82f62b79f947be836d8f6b8ead5de5b6625796be7734cbad9750726",
-    "screw_low_head": "18:ee39df9933b02149cf6310a960c6ecee9572bf98129cc099941d3f023794deb7",
-    "bolt_hex": "32:ac8cc94a65763946dfb1243a99a8fc705817887fb030d465053ff7d680c58d06",
-    "washer_flat": "25:5165f2dfb3f239b8729a5c352d18369e7c1e0760447a28b8700fab4c599b0824",
-    "nut_hex": "65:bf362530599d4de2c61b5b68bd0e5fc68839aacb11673f3c239fbcb3079c4e3c",
+    "screw_flat_head": "23:a77c632c17652ad92ac73da1cfcaae2264b04ce0beaaa4528c984e5c4c89c2fd",
+    "screw_button_head": "21:2a76e8e3bd3204010e0543b90f33039829f69d691efb46ca127bdd5b5eaf6207",
+    "screw_low_head": "18:4ac7b32ad6d9cd16b9c4e58b94a7614150b869a403459f3ca526f1bc14c7eca2",
+    "bolt_hex": "32:0df881873c7e0845b18edd88080af3d5c43522abf64db42e1c514150cbd3cf61",
+    "washer_flat": "25:20ac44f8bd56ec296b38a0fd18daf2e5dabfc9d2bd9daee877b7d0686c9adfda",
+    "nut_hex": "65:cc4d5bd4b58d0f70f2bb99a5d78a90b577f6807f78a9f95ef8a13a553558512f",
 }
 
 

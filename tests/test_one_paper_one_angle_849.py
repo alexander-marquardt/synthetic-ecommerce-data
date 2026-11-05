@@ -3,14 +3,18 @@
 The issue's Done-when, one test group each:
 
 1. no colored background: every industrial brand and every retail brand draws on
-   :data:`product_look.PAPER`, with no texture behind the figure;
+   :data:`product_look.PAPER`, white (the maintainer's ruling on #860), with no texture
+   behind the figure;
 2. one angle per product: every SKU of a product is drawn at its product's angle, the
-   angles spread over the set (not 0 degrees for most), two products of one type at two
-   angles draw two pictures, and the turned figure stays inside its area.
+   angles spread over each orientation's set (not 0 degrees for most), two products of one
+   type at two angles draw two pictures, and the turned figure stays inside its area;
+3. every type names its orientation (#860): the 24 clock positions (``any``), +-36 degrees
+   (``upright``) or +-15 degrees (``slight``), every industrial type and every retail shape.
 """
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import json
 import re
@@ -19,11 +23,13 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core import brands, domain
 from synthetic_ecommerce_data.core.bundle import flat_facets, records
 from synthetic_ecommerce_data.core.drawing import draw_product, draw_sku, product_look, sheet
+from synthetic_ecommerce_data.domains.industrial import orientation as industrial_orientation
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
-from synthetic_ecommerce_data.domains.retail import sheet_extent
+from synthetic_ecommerce_data.domains.retail import kit, sheet_extent
+from synthetic_ecommerce_data.domains.retail import orientation as retail_orientation
 from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 from synthetic_ecommerce_data.domains.retail.samples import records as retail_records
 
@@ -67,10 +73,8 @@ def _figure_groups(svg: bytes) -> str:
 # --- 1. one paper, no texture ----------------------------------------------------------
 
 
-def test_the_paper_is_one_light_neutral():
-    r, g, b = (int(product_look.PAPER[i : i + 2], 16) for i in (1, 3, 5))
-    assert min(r, g, b) >= 0xF0
-    assert max(r, g, b) - min(r, g, b) <= 4  # a neutral, not a tint
+def test_the_paper_is_white():
+    assert product_look.PAPER == "#ffffff"
 
 
 @pytest.mark.parametrize("brand", brands.BRANDS)
@@ -96,19 +100,35 @@ def test_every_retail_brand_draws_on_the_one_paper_with_no_texture():
 # --- 2. one angle per product ----------------------------------------------------------
 
 
-def test_an_angle_is_a_multiple_of_twelve_within_thirty_six():
-    assert product_look.ANGLES == (-36, -24, -12, 0, 12, 24, 36)
-    assert product_look.angle_of("ABC-1") == product_look.angle_of("ABC-1")
+def _angle(product_id: str, product_type: str) -> int:
+    return product_look.angle_of(product_id, domain.orientation(product_type))
 
 
-def test_the_angles_spread_over_the_set_and_most_products_are_turned():
-    """Over the committed catalog's products, every angle is used and none takes more than
-    a fifth: 0 degrees is one in seven, not most."""
-    counts = Counter(product_look.angle_of(p["product_id"]) for p in _golden())
+def test_the_three_orientations_are_the_clock_and_two_narrow_fans():
+    assert product_look.ORIENTATIONS == {
+        "any": (0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165,
+                180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345),
+        "upright": (-36, -24, -12, 0, 12, 24, 36),
+        "slight": (-15, -10, -5, 0, 5, 10, 15),
+    }  # fmt: skip
+    assert product_look.angle_of("ABC-1", "any") == product_look.angle_of("ABC-1", "any")
+
+
+@pytest.mark.parametrize("name", ["any", "upright"])
+def test_the_angles_spread_over_each_set_and_most_products_are_turned(name):
+    """Over the committed catalog's products of each orientation, every angle of its set is
+    used and none takes more than twice its share: 0 degrees is one in 24 or one in seven,
+    not most."""
+    angles = product_look.ORIENTATIONS[name]
+    counts = Counter(
+        product_look.angle_of(p["product_id"], name)
+        for p in _golden()
+        if domain.orientation(p["product_type"]) == name
+    )
     total = sum(counts.values())
-    assert set(counts) == set(product_look.ANGLES)
-    assert max(counts.values()) / total < 0.2, counts
-    assert counts[0] / total < 0.2
+    assert total > 50 * len(angles)
+    assert set(counts) == set(angles)
+    assert max(counts.values()) / total < 2 / len(angles), counts
 
 
 def test_every_sku_of_a_product_is_drawn_at_its_products_angle():
@@ -116,7 +136,7 @@ def test_every_sku_of_a_product_is_drawn_at_its_products_angle():
     for parent in _golden():
         if len(parent["variants"]) < 3 or checked >= 12:
             continue
-        angle = product_look.angle_of(parent["product_id"])
+        angle = _angle(parent["product_id"], parent["product_type"])
         drawn = draw_product(
             parent["product_type"],
             parent["brand"],
@@ -133,22 +153,30 @@ def test_every_sku_of_a_product_is_drawn_at_its_products_angle():
 def test_two_products_of_one_type_at_two_angles_draw_two_pictures():
     parent = _one_per_type()[0]
     record = records(parent, _facets())[0]
+    name = domain.orientation(parent["product_type"])
     ids = {}
-    for n in range(100):
-        ids.setdefault(product_look.angle_of(f"P-{n}"), f"P-{n}")
-    a, b = ids[-24], ids[24]
+    for n in range(200):
+        ids.setdefault(product_look.angle_of(f"P-{n}", name), f"P-{n}")
+    a, b = sorted(ids.values())[:2]
     one, _ = draw_sku(parent["product_type"], parent["brand"], record, a)
     two, _ = draw_sku(parent["product_type"], parent["brand"], record, b)
     assert one != two
 
 
-@pytest.mark.parametrize("angle", product_look.ANGLES)
+#: Every angle some orientation turns a figure by.
+EVERY_ANGLE = sorted({a for angles in product_look.ORIENTATIONS.values() for a in angles})
+
+
+@pytest.mark.parametrize("angle", EVERY_ANGLE)
 def test_a_turned_industrial_figure_stays_inside_the_figure_area(angle, monkeypatch):
-    """Every type's first product, drawn at each angle: the turned figure, measured through
-    its rotation (strokes not counted), stays inside the area above the brand plate."""
-    monkeypatch.setattr(product_look, "angle_of", lambda _id: angle)
+    """Every type's first product, drawn at each angle of its orientation: the turned figure,
+    measured through its rotation (strokes not counted), stays inside the area above the
+    brand plate."""
+    monkeypatch.setattr(product_look, "angle_of", lambda *_: angle)
     outside = []
     for parent in _one_per_type():
+        if angle not in product_look.ORIENTATIONS[domain.orientation(parent["product_type"])]:
+            continue
         for data, _ in draw_product(
             parent["product_type"], parent["brand"], records(parent, _facets()), "any"
         ):
@@ -182,13 +210,14 @@ def test_a_turned_retail_product_stays_inside_the_room_its_logo_leaves(monkeypat
     turned = 0
     every = retail_records()
     for rec in every:
-        angle = product_look.angle_of(rec["product_id"])
+        shape = rec["drawing"]["shape"]
+        angle = product_look.angle_of(rec["product_id"], retail_orientation.of(shape))
         if angle == 0:
             continue
         turned += 1
         text = drawing_svg(rec)
         with monkeypatch.context() as m:
-            m.setattr(product_look, "angle_of", lambda _id: 0)
+            m.setattr(product_look, "angle_of", lambda *_: 0)
             upright = _reach(drawing_svg(rec))
         box = _reach(text)
         _, group = _product(text)
@@ -209,5 +238,51 @@ def test_a_turned_retail_product_stays_inside_the_room_its_logo_leaves(monkeypat
         if (box[0] < area[0] - slack or box[1] < area[1] - slack
                 or box[2] > area[2] + slack or box[3] > area[3] + slack):  # fmt: skip
             bad.append((rec["product_id"], angle, box, area))
-    assert turned > len(every) // 2  # 0 degrees is one product in seven
+    assert turned > len(every) // 2  # 0 degrees is one product in seven at most
     assert bad == []
+
+
+# --- 3. every type names its orientation (#860) ------------------------------------------
+
+
+def _drawn_industrial_types() -> set[str]:
+    return {t for d in domain.domains() for t in d.figures()}
+
+
+def _retail_shapes() -> set[str]:
+    # A shape not yet registered imports every module that registers one.
+    with contextlib.suppress(KeyError):
+        kit._draw("")
+    return set(kit.SHAPES)
+
+
+@pytest.mark.parametrize(
+    ("table", "every"),
+    [
+        (industrial_orientation, _drawn_industrial_types),
+        (retail_orientation, _retail_shapes),
+    ],
+    ids=["industrial type", "retail shape"],
+)
+def test_every_type_names_one_orientation(table, every):
+    """A drawn type missing from its domain's table, or named twice, fails here, so a new
+    type cannot forget its orientation."""
+    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT]
+    assert len(named) == len(set(named)), Counter(named).most_common(3)
+    assert sorted(every() - set(named)) == []
+    assert sorted(set(named) - every()) == []
+    assert set(table.ORIENTATION.values()) <= set(product_look.ORIENTATIONS)
+
+
+def test_gloves_turn_any_way_and_clothing_only_slightly():
+    """The maintainer's rulings on #860: gloves read at any angle; a garment or a shoe turned
+    past 15 degrees reads as falling over; a screw has no up; a sink or a bottle does."""
+    assert domain.orientation("cut_resistant_gloves") == "any"
+    assert retail_orientation.of("gloves") == "any"
+    for shape in ("tshirt", "top", "blouse", "trousers", "jeans_straight", "dress", "skirt",
+                  "coat", "bra", "knickers", "pyjamas", "swimsuit", "socks", "tights", "shoe",
+                  "trainer"):  # fmt: skip
+        assert retail_orientation.of(shape) == "slight", shape
+    assert domain.orientation("screw_socket_head") == "any"
+    assert domain.orientation("bench_vises") == "upright"
+    assert retail_orientation.of("bottle") == "upright"

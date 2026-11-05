@@ -11,7 +11,7 @@ two, which is true, and every SKU of one product shares it.
 outline color         the brand (one of twelve inks)
 paper tone             none: one paper for every brand (#849)
 frame                  the brand (one of four frame treatments)
-figure angle           the product (one of seven, :mod:`.product_look`)
+figure angle           the product (one of its type's orientation set, :mod:`.product_look`)
 (ink, frame)           unique per brand, so the pair names the brand
 brand plate            the brand: its mark (motif + enclosure) and name
 part fill              the published finish; else the material's color

@@ -212,9 +212,14 @@ def draw_product(
     product_id: str | None = None,
 ) -> list[tuple[bytes, str]]:
     """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale and
-    angle (:func:`.product_look.angle_of` its ``product_id``, #849; upright with none); the
-    fixed shape of a breadth product steps down its size ladder (gen#719)."""
-    angle = product_look.angle_of(product_id) if product_id is not None else 0
+    angle (:func:`.product_look.angle_of` its ``product_id`` over its type's orientation, #849;
+    upright with none); the fixed shape of a breadth product steps down its size ladder
+    (gen#719)."""
+    angle = (
+        product_look.angle_of(product_id, domain.orientation(product_type))
+        if product_id is not None
+        else 0
+    )
     scale = product_scale_for(product_type, records, angle)
     ladder = size_rungs.LADDERS.get(product_type)
     ratios = ladder(records) if ladder else [1.0] * len(records)

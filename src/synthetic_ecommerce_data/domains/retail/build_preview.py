@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_garments,  # noqa: E402,F401 -- registers the trousers and top shapes
     kit_home,  # noqa: E402,F401 -- registers the home and beauty shapes
     motifs,  # noqa: E402,F401 -- registers the motif, surface and produce_pile shapes
+    orientation,
 )
 from synthetic_ecommerce_data.domains.retail.house_styles import HOUSE_STYLES
 from synthetic_ecommerce_data.domains.retail.kit import Fill, render
@@ -69,6 +70,8 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
                 placement=d.get("placement"), scale=d.get("scale", 0.0),
                 spacing=d.get("spacing", 0.0), count=d.get("count", 1),
                 detail=(d["detail"]["part"], d["detail"]["color"]) if d.get("detail") else None)  # fmt: skip
+    # The product's one angle, over its shape's orientation (#849); the plain sheet is upright.
+    angle = product_look.angle_of(rec["product_id"], orientation.of(d["shape"])) if styled else 0
     return render(
         d["shape"],
         fill,
@@ -80,7 +83,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
         style=HOUSE_STYLES[rec["brand"]] if styled else None,
         shrink=d.get("pack_scale", 1.0),  # the SKU's size within its line (gen#543)
         copies=d.get("pack_count", 1),  # the items its pack draws (gen#728)
-        angle=product_look.angle_of(rec["product_id"]) if styled else 0,  # #849
+        angle=angle,
     )
 
 

@@ -202,7 +202,7 @@ def test_the_styled_render_draws_a_smaller_size_smaller_on_the_same_canvas(
     for lo, hi in ((0, 2), (1, 3)):  # width, then height
         got = (small[hi] - small[lo]) / (big[hi] - big[lo])
         assert got == pytest.approx(want, rel=TOLERANCE)
-    monkeypatch.setattr(product_look, "angle_of", lambda _id: 0)
+    monkeypatch.setattr(product_look, "angle_of", lambda *_: 0)
     small, big = _styled_pack_box(rec, _sku(rec, ml)), _styled_pack_box(rec, _sku(rec, 100.0))
     assert small[3] == pytest.approx(big[3], abs=1.0)  # same baseline
     root = ET.fromstring(image_release.render(rec, _sku(rec, ml), styled=True))

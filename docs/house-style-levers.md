@@ -24,7 +24,7 @@ third-angle projection (no figure draws the end view the convention needs).
 **The paper and the texture are levers no more (#849).** A brand's paper tint (one of six) and a
 background texture were levers until a demo showed a tinted sheet reading as a search signal: a
 green sheet looks like a different kind of product from a blue one. Every drawing now sits on
-the one paper, `core/drawing/product_look.PAPER`, with no texture, whatever the brand; the
+the one paper, `core/drawing/product_look.PAPER` (white, #860), with no texture, whatever the brand; the
 retail house styles lost the same two fields. What does vary by product, not brand, is the
 figure's angle (`product_look.angle_of`), so two products of one type no longer draw alike.
 

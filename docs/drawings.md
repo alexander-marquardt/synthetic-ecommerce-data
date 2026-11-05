@@ -171,9 +171,14 @@ siblings share is drawn identically. The one step off it is a breadth product's
 size rung (see "Breadth types" below), whose fixed shape has no dimension to draw.
 
 **One angle per product (#849).** `draw_product(..., product_id)` turns every
-SKU's figure by `product_look.angle_of(product_id)`, one of -36, -24, -12, 0,
-12, 24 or 36 degrees, so two products of one type do not draw the same
-picture. The scale is the type's extent turned by that angle over the figure
+SKU's figure by `product_look.angle_of(product_id, orientation)`, so two
+products of one type do not draw the same picture. The orientation is the
+type's, from `domains/industrial/orientation.py` (through
+`core.domain.orientation`): `any` turns a part with no natural up (a screw, a
+nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
+-36 to 36 degrees in steps of 12, and `slight` (clothing) within -15 to 15 in
+steps of 5. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
+scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scale is the type's extent turned by that angle over the figure
 area, so a turned part and its dimension lines stay inside it (a product at
 0 degrees keeps the type's scale). The magnifier's too-small rule reads the
 part's upright size, and its layout the box the turned part covers. A caller
@@ -183,7 +188,8 @@ that names no product id draws upright.
 `fan()` (`core/drawing/model.py`) when the record's `Units per Pack` is above 1: the part stays
 whole and upright, and the other N - 1 are tilted bounding outlines in one `Outlines` path, so a
 card of 50 stays small. The card's scale is the type's or what fits the fan, whichever is
-smaller. It is the only rotation in the drawings ([package quantity](package-quantity.md)).
+smaller. Besides the product's angle above, it is the only rotation in the drawings
+([package quantity](package-quantity.md)).
 
 **Overlong fasteners are broken, not shrunk.** When a screw or bolt's total
 height exceeds 90% of its type's extent height (`BREAK_START`), `fastener()`

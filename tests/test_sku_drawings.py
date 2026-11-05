@@ -724,10 +724,12 @@ def test_the_lens_shows_the_same_part_enlarged():
         data, _ = draw_sku(type_key, parent["brand"], record)
         small = _true_scale_copy(data)
         after = list(ET.fromstring(data))
-        lens_at = next(
+        lens_at = next(  # the lens is a circle: the white paper (#860) is the other white
             i
             for i, e in enumerate(after)
-            if e.attrib.get("fill") == LENS_COLOR and "stroke" not in e.attrib
+            if e.tag.endswith("circle")
+            and e.attrib.get("fill") == LENS_COLOR
+            and "stroke" not in e.attrib
         )
         large = after[lens_at + 1 : lens_at + 1 + len(small)]
         assert [e.tag for e in large] == [e.tag for e in small], variant["sku"]
