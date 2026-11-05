@@ -183,7 +183,9 @@ simulation of xdist's rule (each unit to the worker that frees first) gives a wh
 of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 268 s against
 207 s on 24. That is a projection from a five-module sample, not a measured whole-suite run,
 and it assumes the merge tests cost the same ratio; the last measured whole-suite runs
-(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
+(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33, before #442 made
+the grouping take effect (its re-measurement on CI's shards: docs/adding-a-type.md, "The
+suite runs on several workers"). Three real merges
 with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
 
 ## What each target times (#348, 2026-11-02)
