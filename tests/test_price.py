@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import pinned
 from shared_builds import (
     KIT,
     KitSku,
@@ -1015,7 +1016,8 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the other hammer kinds (#305) have no census row either.
 #: The price census has no key stock at all, so its model is
-#: hand-set from surveyed listings (#108). Every table type (#101) joins them,
+#: hand-set from surveyed listings (#108). The census has no ER collets either,
+#: so their model is generated (#831). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them. The census has no bushings,
 #: so the bronze sleeve bushing's model is hand-set (#833).
@@ -1024,6 +1026,7 @@ NOT_MEASURED = frozenset(
         *hammers.KINDS,
         *plain_screws.KINDS,
         "key_stock",
+        "er_collets",
         "studs_double_end",
         "bronze_sleeve_bushings",
         *tabletype.tables(),
@@ -1199,12 +1202,16 @@ def _build_kits(request, build: str) -> list[KitSku]:
     )
 
 
-@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 742)])
-def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
+#: How many kit SKUs each build holds, as the files the one command writes count them (#50).
+KIT_COUNTS = {"default": pinned.sku_count, "100K": pinned.hundred_k_skus}
+
+
+@pytest.mark.parametrize("build", KIT_COUNTS)
+def test_each_kit_price_tracks_its_contents_at_both_builds(request, build):
     """Every kit, at either size, costs its contents' price times its
     material and tier, within its SKU noise and ending."""
     kits = _build_kits(request, build)
-    assert len(kits) == count
+    assert len(kits) == KIT_COUNTS[build]("kit_assortment")
     ratios = []
     for shown, facts, brand in kits:
         contents = price.kit_contents(facts)

@@ -29,6 +29,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes, authored_entries
@@ -80,8 +81,6 @@ SHARED = ("Pitch", "ANSI Number", "Inside Width")
 #: A build large enough to reach every row in every material and pack, as
 #: both links.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_SKUS = 94
 #: USD for one pack, any size, material, pack, link and brand tier. Not a fit:
 #: a price outside it is a broken ladder, not a wrong estimate.
 SANITY_BAND = (1.0, 600.0)
@@ -156,8 +155,8 @@ def test_the_type_is_found_as_a_table_type():
 
 def test_the_default_build_holds_the_declared_count():
     docs = _default_docs()
-    assert len(docs) == DEFAULT_SKUS
-    assert len({doc["product_id"] for doc in docs}) == 52
+    assert len(docs) == pinned.sku_count(KEY)
+    assert len({doc["product_id"] for doc in docs}) == pinned.product_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -176,7 +175,14 @@ def test_every_published_name_passes_the_census_gate():
 def test_the_provenance_names_where_each_published_dimension_came_from(large_docs):
     problems, checked = type_gates.provenance_problems(large_docs, DIMENSIONAL, COLUMNS)
     assert problems == [], problems[:10]
-    assert (checked, len(large_docs)) == (401, 769)
+    assert [checked, len(large_docs)] == pinned.figure(__file__, "provenance_checked")
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, base=config))
+    _, checked = type_gates.provenance_problems(docs, DIMENSIONAL, COLUMNS)
+    return {"provenance_checked": [checked, len(docs)]}
 
 
 def test_the_provenance_does_not_say_the_standard_was_read(large_docs):

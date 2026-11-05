@@ -8,6 +8,67 @@
     "second_sku": "1609562324",
     "variant_count": 3
   },
+  "figures": {
+    "test_fit_price_model": {
+      "bolt_spread": {
+        "slopes_alone": 19.49,
+        "with_pack": 30.79
+      }
+    },
+    "test_pack_quantity": {
+      "socket_screw_means": [
+        100.0,
+        71.2
+      ]
+    },
+    "test_type_cotter_pins": {
+      "rewritten": 5
+    },
+    "test_type_pillow_block_bearings": {
+      "first_record": {
+        "attributes": {
+          "Base to Center Height": "1-5/16",
+          "Bolt Hole Center-to-Center": "3.7400",
+          "Bore Dia.": "3/4",
+          "Finish": "Painted",
+          "Material": "Cast Iron",
+          "Measurement System": "Fractional Inch",
+          "Overall Height": "2.5600",
+          "Overall Length": "5",
+          "Standards": "JIS B 1557",
+          "Units per Pack": "1"
+        },
+        "price_usd": 24.94,
+        "title": "Replacement Pillow Block Bearing"
+      },
+      "large_products": 174,
+      "large_skus": 270
+    },
+    "test_type_roller_chain": {
+      "strand_sets": {
+        "--lines 39000": 105,
+        "default": 13
+      }
+    },
+    "test_type_roller_chain_links": {
+      "provenance_checked": [
+        401,
+        769
+      ]
+    },
+    "test_type_roller_chain_sprockets": {
+      "chain_pitches": 75,
+      "millimetre_pitches": 23,
+      "rewritten": 1
+    },
+    "test_type_shackles": {
+      "large_skus": 374,
+      "rewritten_sizes": [
+        9.52,
+        28.57
+      ]
+    }
+  },
   "lens": {
     "min_enlargement": 2.08,
     "skus": {
@@ -17,7 +78,7 @@
     }
   },
   "titles": {
-    "documents": 13806,
+    "documents": 13868,
     "mid_word": 37,
     "over_cap": 78
   }
