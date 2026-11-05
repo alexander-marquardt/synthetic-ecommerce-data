@@ -158,6 +158,13 @@
   "Single end/double end": "Single End/Double End",
   "Units per pack": "Units per Pack"
  },
+ "er_collets": {
+  "Concentricity tolerance": "Concentricity Tolerance",
+  "Grip range": "Grip Range",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Overall length": "Overall Length"
+ },
  "eye_bolts": {
   "Thread size": "Thread Size"
  },
