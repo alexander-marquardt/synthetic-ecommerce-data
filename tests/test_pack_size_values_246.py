@@ -3,8 +3,8 @@
 A count pack was written three ways: ``Single`` / ``3 pack`` (underwear, school, grocery),
 ``Set of 4`` (the furniture and tableware rows) and a bare digit (the planted distractors and
 decoys), so the one ``pack_size`` facet listed all three side by side. The ruling is one term
-per concept: a count is ``Single`` or ``N pack``. A title may keep natural wording ("Set of 4
-Porcelain Espresso Cups in Gift Box"); the attribute VALUE does not. A net weight or volume
+per concept: a count is ``Single`` or ``N pack``. A title may keep natural wording ("Recycled
+Cotton Tea Towels, Set of 2"); the attribute VALUE does not. A net weight or volume
 (``400g``, ``4 x 35g``, ``2 pint``, ``12 inch``, ``240 bags``) is a measure, not a count,
 and stays as it is.
 """
