@@ -10,7 +10,8 @@ Each test module's peak too (#790): a worker sets its high-water mark back to wh
 is the worker's peak while that module ran (what earlier modules left resident counts too). The
 ``module peak memory:`` line names the modules over :data:`HEAVY_MB`, so a shard's log says which
 modules need a worker of their own. A worker that cannot reset the mark (no ``/proc``) reports no
-module.
+module. Before each reset the worker keeps the mark it clears, so its ``peak worker memory:``
+figure is its peak over the whole run, not the last module's (#869).
 
 A killed worker sends no ``workeroutput`` (#845), so when the run names a directory in
 :data:`PEAK_DIR_ENV` each worker also appends to ``<dir>/<worker id>.peaks``, flushed as it goes: a
@@ -87,6 +88,15 @@ def _record(config: pytest.Config, module: str, mb: int) -> None:
             out.write(f"{module}\t{mb}\n")
 
 
+def _session_peak(config: pytest.Config) -> int | None:
+    """This worker's peak over its run so far: the mark now, or a higher one a reset cleared."""
+    now = own_peak_mb()
+    if now is None:
+        return None
+    config._session_peak = max(getattr(config, "_session_peak", 0), now)
+    return config._session_peak
+
+
 @pytest.hookimpl(wrapper=True)
 def pytest_runtest_protocol(item: pytest.Item, nextitem: pytest.Item | None):
     config = item.config
@@ -94,6 +104,7 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: pytest.Item | None):
         return (yield)
     peaks = config.__dict__.setdefault("_module_peaks", {})
     if getattr(config, "_peak_module", None) != _module(item):
+        _session_peak(config)  # before the reset clears the mark
         config._peak_module = _module(item) if reset_peak() else None
         start = own_peak_mb()
         if config._peak_module is not None and start is not None:
@@ -110,7 +121,7 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: pytest.Item | None):
 
 def pytest_sessionfinish(session: pytest.Session) -> None:
     if hasattr(session.config, "workerinput"):
-        session.config.workeroutput["peak_mb"] = own_peak_mb()
+        session.config.workeroutput["peak_mb"] = _session_peak(session.config)
         session.config.workeroutput["module_peaks"] = session.config.__dict__.get(
             "_module_peaks", {}
         )
