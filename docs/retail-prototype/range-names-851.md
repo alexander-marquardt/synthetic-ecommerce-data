@@ -30,6 +30,20 @@ have one SKU although one of its products has two colors or sizes, with its coun
 At the ceiling build the build has fewer products and more SKUs (`scale --report` measures them;
 a total is never typed here, `tests/test_retail_figures_162.py`). The numbered ranges left are the
 cleaning and beauty models and the authored bra, jeans, running shoe and walking boot lines. Cup
-sets and travel cups are one product per brand, each with several colors as its SKUs.
+sets and travel cups are one product per brand, each with several colors as its SKUs. The mugs
+still have one SKU each, because their print lines have one color.
 
-The guards are in `tests/test_retail_scale_range_names_851.py`.
+**A set is sold in packs, a single cup in sizes.** Every SKU of a cup set was a set of four, so a
+brand's one cup set differed only by color. The cup set (`class_rows.CUPS` `DRKSET`, "Porcelain
+Espresso Cup Set in Gift Box") now sells every color in a 2 pack, a 4 pack and an 8 pack
+(`Style.packs`, the SKU option `pack_size`, listed on the product too), and each pack draws that
+many cups (`pack_copies`, gen#728). The value is `N pack`, not "Set of 4": one `pack_size`
+vocabulary (gen#246, `tests/test_pack_size_values_246.py`). A travel cup or a tumbler is not
+sold in packs, so the travel cup (`DRKTRV`) and the steel tumbler (`DRKTMB`) sell every color in
+350, 470 and 590 ml (12, 16 and 20 oz: `Style.capacities`, the SKU option `capacity_ml`,
+exported as Capacity in ml). Their declared size axis (`size_axes.AXES`) draws a larger cup
+larger (`size_ladder`). A derived style copies its template's SKUs, so each brand's set or cup
+is one product with pack or capacity × color SKUs.
+
+The guards are in `tests/test_retail_scale_range_names_851.py` and
+`tests/test_retail_scale_cup_packs_851.py`.
