@@ -52,7 +52,11 @@
   "Width across flats": "Width Across Flats"
  },
  "bronze_sleeve_bushings": {
-  "Bore dia.": "Bore Dia."
+  "Bore dia.": "Bore Dia.",
+  "Flange dia.": "Flange Dia.",
+  "Flange thickness": "Flange Thickness",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia."
  },
  "cantilever_racks": {
   "Rated load": "Rated Load"

@@ -280,6 +280,9 @@ DISTINCT_SPEC_FLOOR = {
     # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
     # (0.332), rounded down to 0.05.
     "cut_resistant_gloves": 0.30,
+    # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
+    # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
+    "bronze_sleeve_bushings": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
