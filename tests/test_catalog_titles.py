@@ -473,10 +473,13 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
         assert title == title.rstrip(), f"trailing whitespace from a cut: {title!r}"
         tail = title.rsplit(",", 1)[-1].strip()
         published = set(doc["attribute_names"])
+        # A whole published value is not a label cut short: an ER collet's
+        # class ``Standard`` is a prefix of the ``Standards`` label.
+        values = {v for vs in doc["facets"].values() if isinstance(vs, list) for v in vs}
         words = tail.split()
         for start in range(len(words)):
             candidate = " ".join(words[start:])
-            if len(candidate) <= 4 or candidate in published:
+            if len(candidate) <= 4 or candidate in published or candidate in values:
                 continue
             if any(name.startswith(candidate) and name != candidate for name in published):
                 cut.append(title)

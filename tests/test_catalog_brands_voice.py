@@ -273,6 +273,10 @@ DISTINCT_SPEC_FLOOR = {
     # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
     # rounded down to 0.05.
     "rigid_casters": 0.55,
+    # #831: an ER collet is a row of the maker's bore ladder in one of three classes, and every
+    # maker sells the same bores. Measured at 100K, 894 distinct specs over 1015 SKUs (0.881),
+    # rounded down to 0.05.
+    "er_collets": 0.85,
     # #834: a cut-resistant glove is one of 29 model lines in one of 6 hand sizes, 174 specs
     # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
     # (0.332), rounded down to 0.05.
