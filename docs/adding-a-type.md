@@ -106,6 +106,10 @@ The five newer types (`nut_hex`, `bearing_radial_ball`, `wheel_depressed_center`
 `newer=True`, and its builder function lives in `domains/industrial/newtypes.py`. A
 newer type's `share` is its fraction of the lines (`config.new_type_share`, derived
 from the specs), not a weight, and its line count is `round(lines * share)`.
+A modelled type drafts exactly `max(1, round(lines * share))` products, and a newer
+type `round(lines * share)`, before grouping, must-stock lines and packs add lines of their
+own. `test_a_type_modules_share_sizes_its_type` holds that for each type, so a type's size
+changes only through an edit to its `share` (#10).
 
 ## Where a modelled type's builder lives
 
