@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import dark_blues, export, image_release, variants
+from synthetic_ecommerce_data.domains.retail import dark_blues, scale, variants
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 
 SRC = Path(__file__).resolve().parents[1] / "src" / "synthetic_ecommerce_data"
@@ -86,11 +86,11 @@ def test_no_swatch_table_copies_a_dark_blue():
 
 
 def test_every_solid_navy_swatch_draws_a_navy_constant():
+    """Every style the scaled build draws from (``scale.templates``), not only the authored ones."""
     navy = {
-        sw["hex"]
-        for rec in image_release.records()
-        for sku in rec["skus"]
-        if (sw := export.drawing_spec(rec, sku)["swatch"]) and sw["color"] == "Navy"
-        and sw["pattern"] == "solid"
-    }  # fmt: skip
-    assert navy and navy <= {dark_blues.NAVY, dark_blues.NAVY_LIGHT}, navy
+        (o["hex"], rec["product_type"])
+        for rec in scale.templates()
+        for o in rec.get("color_options", ())
+        if o["color"] == "Navy" and o["pattern"] == "solid"
+    }
+    assert navy and {h for h, _ in navy} <= {dark_blues.NAVY, dark_blues.NAVY_LIGHT}, navy

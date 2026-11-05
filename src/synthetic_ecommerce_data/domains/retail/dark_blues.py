@@ -8,12 +8,12 @@ can read it without importing the registry.
 from __future__ import annotations
 
 #: The dark denim washes, darkest first (``variants.WASHES`` keeps this order).
-RINSE = "#1f2a44"
-DARK_INDIGO = "#25345a"
-INDIGO = "#34466e"
-MID_WASH = "#4a6a94"
+RINSE = "#2b4a80"
+DARK_INDIGO = "#32548c"
+INDIGO = "#3d5f97"
+MID_WASH = "#5578a8"
 
 #: Navy: darker than the main color Blue (``main_color_hex.MAIN_COLORS``), still blue on screen.
-NAVY = "#26365c"
+NAVY = "#2c477e"
 #: The lighter navy of the swimwear, underwear, babywear, trouser and suede shoe tables.
-NAVY_LIGHT = "#2c3a5e"
+NAVY_LIGHT = "#34508a"

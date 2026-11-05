@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.class_model import BED_SIZE_DIMS
 from synthetic_ecommerce_data.domains.retail.type_registry import (
     BRAND_OWNER,
@@ -54,7 +55,7 @@ _BEDS = (
     ("BDBLKM", "Black Metal Spindle Bed Frame", BRANDS[1], 169.0, "A black metal bed with a spindle head end, in single, small double and double.", "spindle", SIZES[:3], "#2d2d2f"),
     ("BDBRSS", "Brass Finish Spindle Bed", BRANDS[0], 239.0, "A bed with a brass finish metal frame and a spindle head end, in single to king size.", "spindle", SIZES[:4], "#b5a14a"),
     ("BDGRYV", "Grey Velvet Upholstered Bed", BRANDS[1], 479.0, "A bed upholstered in soft grey velvet, in small double to super king.", "upholstered", SIZES[1:], "#7b7d86"),
-    ("BDNVYB", "Navy Buttoned Upholstered Bed", BRANDS[0], 519.0, "A buttoned navy upholstered bed with a tall headboard, in double to super king.", "upholstered", SIZES[2:], "#26365c"),
+    ("BDNVYB", "Navy Buttoned Upholstered Bed", BRANDS[0], 519.0, "A buttoned navy upholstered bed with a tall headboard, in double to super king.", "upholstered", SIZES[2:], dark_blues.NAVY),
     ("BDCRMS", "Cream Boucle Sleigh Bed", BRANDS[1], 1049.0, "A scrolled sleigh bed in cream boucle, in king and super king.", "sleigh", SIZES[3:], "#e7ddc9"),
     ("BDGRYO", "Grey Fabric Ottoman Bed", BRANDS[0], 949.0, "A lift up ottoman bed in grey fabric with deep storage, in double, king and super king.", "ottoman", SIZES[2:], "#8a8a90"),
     ("BDPINE", "Pine Panel Bed Frame", BRANDS[1], 199.0, "A pine bed frame with a panelled headboard, in single, small double and double.", "panel", SIZES[:3], "#c8a96a"),

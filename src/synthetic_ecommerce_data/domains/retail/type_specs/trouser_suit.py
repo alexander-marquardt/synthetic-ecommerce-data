@@ -11,6 +11,7 @@ differ on either draw differently. Each record states what its drawing shows (``
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_suit_sets,  # noqa: F401 -- registers trouser_suit
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import (
@@ -27,7 +28,7 @@ PRODUCT_TYPE = "Trouser Suit"
 PATH = ("Womens", "Suits & Tailoring", "Trouser Suits")
 UK = ("8", "10", "12", "14", "16", "18")
 HEX = {
-    "Navy": "#26365c", "Black": "#2f2f35", "Charcoal": "#4a4a50", "White": "#f4f4f4",
+    "Navy": dark_blues.NAVY, "Black": "#2f2f35", "Charcoal": "#4a4a50", "White": "#f4f4f4",
     "Stone": "#bdb5a6", "Blue": "#2f6fb5", "Red": "#c8312e", "Green": "#2f7a46",
     "Burgundy": "#6d1f2f", "Yellow": "#f2d14b", "Cream": "#efe4cf",
 }  # fmt: skip

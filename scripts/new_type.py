@@ -39,7 +39,7 @@ KINDS = {
         "row": "LRow",
         "extra": '            facts=(("size_range", ["regular"]), ("pattern", "plain")),\n',
         "sizes": 'sizes(20.0, ("XS", "S", "M", "L", "XL"))',
-        "colors": '(cw("Navy", "#26365c"), cw("Black", "#2f2f35"))',
+        "colors": '(cw("Navy", dark_blues.NAVY), cw("Black", "#2f2f35"))',
         "attrs": '(a("fabric", "Fabric", "Cotton"), a("fit", "Fit", "Regular"))',
         "colorless": "",
         "apparel": (
@@ -48,6 +48,8 @@ KINDS = {
             '    apparel=ApparelPlan(compounds=(("shirt", "Shirt {ptype}"),)),\n'
         ),
         "imports": "ApparelPlan, LRow, TypeSpec, a, cw, sizes",
+        # Navy is one constant (gen#875): a spec imports it, never types the hex.
+        "head": "from synthetic_ecommerce_data.domains.retail import dark_blues\n",
     },
     "beauty": {
         "department": "Beauty",
@@ -62,6 +64,7 @@ KINDS = {
         "colorless": "            colorless=True,\n",
         "apparel": "",
         "imports": "Row, TypeSpec, a, cw",
+        "head": "",
     },
 }
 
@@ -75,7 +78,7 @@ a shape the kit lacks is defined in this module and added with ``kit.register``.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.type_registry import (
+{head}from synthetic_ecommerce_data.domains.retail.type_registry import (
 {imports}
 )
 
@@ -136,7 +139,7 @@ def render(key: str, kind: str, ptype: str, code: str | None = None) -> str:
         shape=spec["shape"], colors=spec["colors"], attrs=spec["attrs"], sizes=spec["sizes"],
         imports="\n".join(f"    {n}," for n in spec["imports"].split(", ")),
         apparel=spec["apparel"].format(ptype=ptype),
-        colorless=spec["colorless"], extra=spec["extra"],
+        colorless=spec["colorless"], extra=spec["extra"], head=spec["head"],
         derivable="True" if kind == "beauty" else "False",
     )  # fmt: skip
 

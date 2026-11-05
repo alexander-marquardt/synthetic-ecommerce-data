@@ -23,7 +23,7 @@ import functools
 from collections import Counter
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import motifs
+from synthetic_ecommerce_data.domains.retail import dark_blues, motifs
 from synthetic_ecommerce_data.domains.retail.class_model import Style, _digest
 from synthetic_ecommerce_data.domains.retail.kit import Fill
 from synthetic_ecommerce_data.domains.retail.variants import Color, cw
@@ -31,7 +31,7 @@ from synthetic_ecommerce_data.domains.retail.variants import Color, cw
 #: The most of one category path that may be prints: a range is mostly plain.
 MAX_PRINT_SHARE = 0.25
 
-WHITE, NAVY, GREY, BLACK, SAGE = "#ffffff", "#26365c", "#b9bec4", "#2a2a2e", "#9bb08f"
+WHITE, NAVY, GREY, BLACK, SAGE = "#ffffff", dark_blues.NAVY, "#b9bec4", "#2a2a2e", "#9bb08f"
 CREAM, STONE, PINK, KHAKI, OAT = "#f3ead8", "#d9d0c1", "#f3c6cf", "#8a8456", "#e6dccb"
 ORANGE, LEMON, STEEL, GREEN = "#f28c28", "#f2d14b", "#8e9aa6", "#5f9a4a"
 
