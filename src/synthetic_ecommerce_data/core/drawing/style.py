@@ -105,6 +105,9 @@ MATERIAL_FILL: dict[str, str] = {
     "Polyurethane on Cast Iron": "#b8643a",
     # The safety glasses (#834): a spectacle's lens.
     "Polycarbonate": "#dce8ee",
+    # The bushing bronzes (#833): a porous pressed bronze, lighter, and a cast one.
+    "Oil-Impregnated Sintered Bronze": "#c4a46e",
+    "Cast Bronze": "#9a7542",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -204,6 +207,9 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Polyurethane on Cast Iron": Hatch((135, 45), 7.0, dots=True),
     # The safety glasses (#834): a pattern no other material uses.
     "Polycarbonate": Hatch((65,), 7.5, dots=True),
+    # The bushing bronzes (#833): the sintered one dotted for its pores.
+    "Oil-Impregnated Sintered Bronze": Hatch((60,), 3.5, dots=True),
+    "Cast Bronze": Hatch((120, 60), 4.0),
 }
 
 

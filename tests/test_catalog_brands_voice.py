@@ -280,6 +280,9 @@ DISTINCT_SPEC_FLOOR = {
     # six lens colors, 58 specs in the maker's feed, so makers overlap by construction.
     # Measured at 100K, 58 distinct specs of 414 SKUs (0.140), rounded down to 0.05.
     "safety_glasses": 0.10,
+    # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
+    # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
+    "bronze_sleeve_bushings": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers

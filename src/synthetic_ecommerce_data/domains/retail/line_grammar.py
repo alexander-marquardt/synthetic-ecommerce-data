@@ -6,8 +6,8 @@ instead, and what makes it read as a model is the part after the word: a generat
 sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words differ by family:
 
 - numbered families (sport, tableware, lighting and the rest): a derived model is a lead word
-  alone, then a use, e.g. "Tempo Trail Running Shoes", "Supper Set of 4 Porcelain Espresso
-  Cups": a generation number read as synthetic on a cup set ("Supper 6", #851). An authored
+  alone, then a use, e.g. "Tempo Trail Running Shoes", "Supper Porcelain Espresso Cup
+  Set": a generation number read as synthetic on a cup set ("Supper 6", #851). An authored
   model and a cleaning or beauty one may still carry a sub-model and a number or a code. Each is
   a module of ``line_grammar_families/``, found by walking the package (gen#513), so a new one
   edits no file here;
