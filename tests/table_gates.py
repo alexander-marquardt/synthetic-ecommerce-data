@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 
 from published import authored_entries
 from synthetic_ecommerce_data.core import brands, emit
@@ -25,13 +26,16 @@ MM = 25.4
 PACK = "Units per Pack"
 
 
-def catalog(key: str, lines: int | None = None, defects: bool = False):
+def catalog(
+    key: str, lines: int | None = None, defects: bool = False, base: GeneratorConfig | None = None
+):
     """The type's own build; without the injected defects unless asked, so
-    each value is the builder's."""
+    each value is the builder's. ``base`` is the configuration it changes: the
+    default, or the one ``scripts/measure_pins.py`` measures a figure on (#50)."""
     config: dict = {} if defects else {"defect_scale": 0.0}
     if lines:
         config["lines"] = lines
-    return generate(GeneratorConfig(**config), types=[key])
+    return generate(replace(base or GeneratorConfig(), **config), types=[key])
 
 
 def docs(built) -> list[dict]:

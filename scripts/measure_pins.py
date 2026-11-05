@@ -4,9 +4,10 @@ After a regeneration::
 
     uv run ecom-generate build --out golden-catalog && uv run python scripts/measure_pins.py
 
-writes ``tests/data/golden_pins.json``. The rules are in ``scripts/golden_pins.py``. A rule that no
-SKU of the catalog satisfies stops the script and names the rule: it writes nothing and never
-falls back to a weaker SKU.
+writes ``tests/data/golden_pins.json`` and rewrites each golden slice of
+``tests/data/golden_slices/`` (a type's default build). The rules are in
+``scripts/golden_pins.py``. A rule that no SKU of the catalog satisfies stops the script and names
+the rule: it writes nothing and never falls back to a weaker SKU.
 
 ``--check`` writes nothing and exits 1, printing the fixture's diff, when the committed fixture is
 not what the committed catalog measures. The diff of the fixture is the review artifact of a
@@ -15,6 +16,7 @@ regeneration: a figure that moved for no stated reason is questioned there.
 ``--golden DIR --seed N --out FILE`` measures another catalog, built with ``--seed N``, into
 another fixture: ``tests/test_golden_pins_reseed_50.py`` runs it on a reseeded build, where every
 pinned SKU moves, and on one with a rule's SKUs taken out, where the script must name the rule.
+A fixture written elsewhere rewrites no golden slice.
 """
 
 from __future__ import annotations
@@ -66,6 +68,9 @@ def main(argv: list[str] | None = None) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(measured, "utf-8")
     print(diff or f"{path.name}: no figure moved")
+    if args.out is None:
+        moved = golden_pins.write_slices(golden_pins.SLICES, args.seed)
+        print(f"golden slices rewritten: {', '.join(moved) or 'none moved'}")
     return 0
 
 

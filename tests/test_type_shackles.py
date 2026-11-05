@@ -24,6 +24,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes, authored_entries
@@ -92,11 +93,6 @@ PACKS = {1}
 
 #: A build large enough to reach every row of both bodies.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_SKUS = 132
-DEFAULT_PRODUCTS = 74
-#: The large build runs out of shackles: 22 rows from each of 17 brands.
-LARGE_SKUS = 374
 #: USD for one shackle, any size and brand tier. Not a fit: a price outside
 #: it is a broken ladder, not a wrong estimate.
 SANITY_BAND = (4.0, 500.0)
@@ -108,6 +104,27 @@ THREAD_END = 0.15
 
 def _default_docs() -> list[dict]:
     return [json.loads(line) for line in type_gates.default_records(KEY)]
+
+
+def _sizes_with_defects(base: GeneratorConfig | None = None) -> tuple[list[float], list[float]]:
+    """The size each record of the large build with its defects on reads, in millimetres,
+    and how far each is from the nearest row's."""
+    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True, base=base))
+    sizes = [size * MM for size in BY_SIZE]
+    read = [float(table_gates.values(doc)["Size"]["value_canonical"]) for doc in docs]
+    return read, [min(abs(size - row) for row in sizes) for size in read]
+
+
+def _rewritten(read: list[float], nearest: list[float]) -> list[float]:
+    return sorted({size for size, gap in zip(read, nearest, strict=True) if gap > 1e-6})
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {
+        "large_skus": len(table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, base=config))),
+        "rewritten_sizes": _rewritten(*_sizes_with_defects(config)),
+    }
 
 
 @pytest.fixture(scope="module")
@@ -151,8 +168,9 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 def test_the_default_build_holds_the_declared_count():
     docs = _default_docs()
-    assert len(docs) == DEFAULT_SKUS
-    assert len({doc["product_id"] for doc in docs}) == DEFAULT_PRODUCTS
+    # A move is a change to the table or its share; the counts are golden-catalog/stats.json's.
+    assert len(docs) == pinned.sku_count(KEY)
+    assert len({doc["product_id"] for doc in docs}) == pinned.product_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -214,7 +232,7 @@ def test_the_whole_build_carries_exactly_this_types_own_build():
 
 def test_every_row_of_both_tables_is_built_and_nothing_else(large_docs):
     assert len(ROWS) == 22
-    assert len(large_docs) == LARGE_SKUS
+    assert len(large_docs) == pinned.figure(__file__, "large_skus")
     assert {table_gates.row(doc, COLUMNS) for doc in large_docs} == ROWS
 
 
@@ -287,17 +305,13 @@ def test_no_dimension_the_census_cannot_name_is_published(large_docs):
 
 
 def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
-    """The build with its defects on shows two sizes no table has (9.52 mm and
-    28.57 mm). Each is a row's size rewritten in millimetres to two places,
-    which reads back within a hundredth of a millimetre of that row: a defect
-    the catalog injects on purpose, not a size the table lacks."""
-    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True))
-    sizes = [size * MM for size in BY_SIZE]
-    read = [float(table_gates.values(doc)["Size"]["value_canonical"]) for doc in docs]
-    nearest = [min(abs(size - row) for row in sizes) for size in read]
+    """The build with its defects on shows sizes no table has (the fixture names
+    them). Each is a row's size rewritten in millimetres to two places, which
+    reads back within a hundredth of a millimetre of that row: a defect the
+    catalog injects on purpose, not a size the table lacks."""
+    read, nearest = _sizes_with_defects()
     assert [gap for gap in nearest if gap > 0.01] == []
-    rewritten = sorted({size for size, gap in zip(read, nearest, strict=True) if gap > 1e-6})
-    assert rewritten == [9.52, 28.57]
+    assert _rewritten(read, nearest) == pinned.figure(__file__, "rewritten_sizes")
 
 
 # --- the declared price keeps its order ----------------------------------------------
