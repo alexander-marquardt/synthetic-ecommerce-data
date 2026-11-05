@@ -267,6 +267,14 @@
   "Overall width": "Overall Width",
   "Tip style": "Tip Style"
  },
+ "hex_pipe_nipples": {
+  "Hex size": "Hex Size",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Pipe size": "Pipe Size",
+  "Pressure rating (psi)": "Pressure Rating (psi)",
+  "Thread type": "Thread Type"
+ },
  "induction_heaters": {
   "Maximum workpiece weight": "Maximum Workpiece Weight"
  },
