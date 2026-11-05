@@ -19,6 +19,7 @@ import sys
 import threading
 import tomllib
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -319,6 +320,13 @@ def test_a_worker_s_peak_is_its_whole_run_not_its_last_module(tmp_path) -> None:
     peak = re.search(r"^peak worker memory: \d+ MB \(gw0 (\d+)\)$", printed, re.M)
     assert peak, printed
     assert int(peak.group(1)) >= 200, peak.group(0)
+
+
+def test_a_worker_with_no_proc_reports_no_peak(monkeypatch) -> None:
+    import worker_peak  # noqa: PLC0415
+
+    monkeypatch.setattr(worker_peak, "own_peak_mb", lambda: None)
+    assert worker_peak._session_peak(SimpleNamespace()) is None
 
 
 #: A module whose first test kills its worker, as the kernel's OOM killer does (#845).
