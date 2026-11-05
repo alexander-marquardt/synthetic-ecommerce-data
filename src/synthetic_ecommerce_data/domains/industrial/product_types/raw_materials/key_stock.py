@@ -121,8 +121,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     # combination spread over the sizes. Every section is reached: STRIDE
     # shares no factor with the section count.
     start = OFFSET * combo + STRIDE * gen._rotate(f"sections:{combo}", len(SECTIONS))
-    count = min(gen._variant_count(), len(SECTIONS))
-    for width, height in (SECTIONS[(start + k) % len(SECTIONS)] for k in range(count)):
+    for width, height in line_sections(start, gen._variant_count()):
         child = ChildDraft(system="in")
         child.primary = gen._length("Width", float(width), style)
         height_attr = gen._length("Height", float(height), style)
@@ -133,6 +132,12 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
             child.also = height_attr
         draft.children.append(child)
     return draft
+
+
+def line_sections(start: int, count: int) -> list[tuple[Fraction, Fraction]]:
+    """The sections a line offers: ``count`` of them from ``start`` on, round SECTIONS."""
+    count = min(count, len(SECTIONS))
+    return [SECTIONS[(start + k) % len(SECTIONS)] for k in range(count)]
 
 
 # --- the drawing ------------------------------------------------------------------
