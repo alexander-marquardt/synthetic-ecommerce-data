@@ -164,6 +164,10 @@ TYPE_SPECIFIC: dict[str, str] = {
         "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade"
     ),
     "Wheel Diameter": "#835: a caster's wheel, a part it holds",
+    "Drill Size": (
+        "#831: the drill a drill bushing guides, a mating part as a tap's tap drill is"
+        " (census 12): its bore spelled as the drill, #30, F or 1/8"
+    ),
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.

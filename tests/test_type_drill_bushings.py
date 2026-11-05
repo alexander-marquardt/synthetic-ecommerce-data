@@ -43,7 +43,7 @@ KEY = "drill_bushings"
 #: The committed slice: this type's flat records at the default build.
 SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
-#: Two thirds of the default build's SKUs, rounded down to a ten
+#: Two thirds of the default build's 72 SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse back to the
 #: breadth row's 2 SKUs, and is not a target.
 DEFAULT_SKU_FLOOR = 40
@@ -166,12 +166,12 @@ def test_a_press_fit_body_is_ground_over_its_nominal_and_a_slip_fit_under_it():
     """A press-fit and a liner body are ground over nominal to press into the
     plate; a renewable body is ground under nominal to slip into its liner.
     The one printed exception is the catalogue's SF-88 minimum, kept as
-    printed and never published (``MISPRINTS``)."""
+    printed and never published (``OD_AS_PRINTED``)."""
     bushings = _module()
     for row in bushings.ROWS:
         nominal = _inches(row["od_nominal"])
         label = f"{row['type']}-{row['body']}"
-        if label in bushings.MISPRINTS:
+        if label in bushings.OD_AS_PRINTED:
             continue
         assert row["od_min_in"] < row["od_max_in"], label
         if row["type"] == "SF":
