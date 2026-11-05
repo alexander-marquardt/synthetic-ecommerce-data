@@ -250,6 +250,10 @@ DISTINCT_SPEC_FLOOR = {
     "nut_hex": 0.55,
     "tap_spiral_point": 0.80,
     "dowel_pins": 0.80,
+    # #836: a combination wrench is a hex width across flats in six kinds, and every maker
+    # sells the same ones, as with key stock. Measured at 100K, 195 distinct specs over 698
+    # SKUs (0.279), rounded down to 0.05.
+    "combination_wrenches": 0.25,
     # #836: a hex bit socket is a hex key size on a drive, in three kinds, and every maker sells
     # the same ones, as with key stock. Measured at 100K, 306 distinct specs over 705 SKUs
     # (0.434), rounded down to 0.05.
