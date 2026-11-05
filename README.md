@@ -1032,18 +1032,18 @@ That is the whole command — the default configuration, the default seed. Then
 commit whatever changed, `src/prism_synthetic_industrial/data/field_weights/`
 included, since the same build regenerates the PRISM field map.
 
-The tests also pin SKUs and counts measured on the committed catalog (the SKUs the
-handle-less lens tests name, the title-cap counts, the SKU the mutation bed plants its
-defects in). Those are not typed in the tests: after a regeneration run
+The tests also pin what they measured on the committed catalog (the handle-less lens
+SKUs, the title-cap counts, the mutation bed's SKU, a type's `figures` of one build) and
+each golden slice. None is typed in a test: after a regeneration run
 
 ```sh
 uv run python scripts/measure_pins.py
 ```
 
 which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrites
-`tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
-that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
-the script and names the rule. `--check` compares the committed file without writing.
+`tests/data/golden_pins.json` and `tests/data/golden_slices/`. A reviewer reads that
+diff: a figure that moved for no stated reason is questioned there. A rule that no SKU
+satisfies stops the script and names the rule. `--check` compares without writing.
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
@@ -1500,8 +1500,8 @@ triple 2.8x, four strand 3.7x the single strand chain; a heavy series chain
 strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
 separates them: in every brand's chain number offered in more than one strand
-count in one material and length, the median price rises with the strand count
-(13 such sets on the golden catalog, 105 at `--lines 39000`).
+count in one material and length, the median price rises with the strand count (the set
+counts are `test_type_roller_chain`'s figure in `tests/data/golden_pins.json`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs

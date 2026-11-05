@@ -176,6 +176,7 @@ def test_the_script_writes_the_measured_pins_and_check_compares_them(
     out = tmp_path / "golden_pins.json"
     monkeypatch.setattr(golden_pins, "MEASURES", {"x": lambda *_: {"n": 1}})
     monkeypatch.setattr(golden_pins, "PINS_PATH", out)
+    monkeypatch.setattr(golden_pins, "SLICES", tmp_path)  # no slice to rewrite
     assert measure_pins.main([]) == 0
     assert out.exists(), "the script wrote no fixture"
     assert json.loads(out.read_text("utf-8")) == {"x": {"n": 1}}
@@ -190,7 +191,7 @@ def test_the_script_writes_the_measured_pins_and_check_compares_them(
 
 def test_the_fixture_carries_every_pin() -> None:
     pins = golden_pins.load()
-    assert sorted(pins) == ["anchor", "lens", "titles"], (
+    assert sorted(pins) == ["anchor", "figures", "lens", "titles"], (
         f"tests/data/golden_pins.json holds no pins; run {golden_pins.REGENERATE}"
     )
     assert sorted(pins["lens"]["skus"]) == sorted(rule.key for rule in golden_pins.SKU_RULES)
