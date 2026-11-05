@@ -386,9 +386,9 @@ def test_a_breadth_row_never_opens_a_sibling_node_for_a_kind_a_node_already_name
     assert _rows_opening_a_sibling_of_a_named_kind() == {}
 
 
-#: The rows #675 moved under the node that already names their kind.
+#: The rows #675 moved under the node that already names their kind. The combination
+#: wrenches it moved are a modelled type now (#836): their gate file holds the node.
 _MOVED_UNDER_THE_NAMING_NODE = {
-    "combination_wrenches": ("Hand Tools", "Wrenches & Keys", "Combination Wrenches"),
     "spanner_wrenches": ("Hand Tools", "Wrenches & Keys", "Spanner Wrenches"),
     "fastener_extractors": ("Hand Tools", "Pullers & Extractors", "Fastener Extractors"),
 }

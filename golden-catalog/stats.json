@@ -1,6 +1,6 @@
 {
- "lines": 7045,
- "skus": 13816,
+ "lines": 7079,
+ "skus": 13891,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -34,7 +34,7 @@
   "chain_tensioners": 1,
   "circle_cutters": 1,
   "cold_chisels": 1,
-  "combination_wrenches": 1,
+  "combination_wrenches": 35,
   "compound_cutters": 1,
   "compression_springs": 1,
   "conduit_pliers": 1,
@@ -199,7 +199,7 @@
   "chain_tensioners": 2,
   "circle_cutters": 1,
   "cold_chisels": 1,
-  "combination_wrenches": 2,
+  "combination_wrenches": 77,
   "compound_cutters": 2,
   "compression_springs": 2,
   "conduit_pliers": 2,
@@ -604,11 +604,15 @@
    }
   },
   "combination_wrenches": {
-   "products": 1,
+   "products": 35,
    "median": 2,
-   "max": 2,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 16,
+    "2": 8,
+    "3": 2,
+    "4": 6,
+    "5": 3
    }
   },
   "compound_cutters": {
@@ -2058,7 +2062,10 @@
   "combination_wrenches": [
    "Finish",
    "Material",
-   "Size"
+   "Measurement System",
+   "Number of Points",
+   "Size",
+   "Type"
   ],
   "compound_cutters": [
    "Handle Material",
@@ -3043,7 +3050,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 146167,
+ "total_attribute_entries": 146544,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3077,16 +3084,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5638,
+   "denominator": 5655,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0168956,
+   "achieved": 0.016803,
    "numerator": 230,
-   "denominator": 13613,
+   "denominator": 13688,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -3102,18 +3109,18 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.458267,
-   "numerator": 9169,
-   "denominator": 20008,
+   "achieved": 0.457755,
+   "numerator": 9194,
+   "denominator": 20085,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.128898,
+   "achieved": 0.128404,
    "numerator": 2579,
-   "denominator": 20008,
+   "denominator": 20085,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3122,7 +3129,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13816,
+   "denominator": 13891,
    "note": "over titles",
    "band": null
   },
@@ -3131,7 +3138,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13816,
+   "denominator": 13891,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3140,16 +3147,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13816,
+   "denominator": 13891,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5795,
-   "numerator": 146167,
-   "denominator": 13816,
+   "achieved": 10.5496,
+   "numerator": 146544,
+   "denominator": 13891,
    "note": "count, not a rate",
    "band": null
   },
@@ -3694,6 +3701,30 @@
    ]
   },
   {
+   "name": "price p50 (USD): combination_wrenches",
+   "target": 15.38,
+   "achieved": 13.64,
+   "numerator": 77,
+   "denominator": 158,
+   "note": "shown price; denom is the census n",
+   "band": [
+    12.304,
+    19.225
+   ]
+  },
+  {
+   "name": "price p90/p10: combination_wrenches",
+   "target": 9.75941,
+   "achieved": 8.56782,
+   "numerator": 77,
+   "denominator": 158,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.31956,
+    12.98
+   ]
+  },
+  {
    "name": "price p50 (USD): cut_resistant_gloves",
    "target": 21.45,
    "achieved": 21.335,
@@ -4043,65 +4074,65 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00568127,
-   "achieved": 0.00516004,
+   "target": 0.00568252,
+   "achieved": 0.00513049,
    "numerator": 69,
-   "denominator": 13372,
+   "denominator": 13449,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00227383,
-    0.0090887
+    0.00229455,
+    0.00907048
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0896508,
-   "achieved": 0.0847293,
-   "numerator": 1133,
-   "denominator": 13372,
+   "target": 0.0895085,
+   "achieved": 0.0843185,
+   "numerator": 1134,
+   "denominator": 13449,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0714128,
-    0.107889
+    0.0713748,
+    0.107642
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0603201,
-   "achieved": 0.0583308,
-   "numerator": 780,
-   "denominator": 13372,
+   "target": 0.0602123,
+   "achieved": 0.0580712,
+   "numerator": 781,
+   "denominator": 13449,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0432109,
-    0.0774292
+    0.043201,
+    0.0772236
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.216953,
-   "achieved": 0.215226,
-   "numerator": 2878,
-   "denominator": 13372,
+   "target": 0.216995,
+   "achieved": 0.215035,
+   "numerator": 2892,
+   "denominator": 13449,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.195892,
-    0.238014
+    0.196054,
+    0.237935
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5638
+  "Measurement System": 5655
  },
  "measurement_system_values": {
-  "Fractional Inch": 3234,
+  "Fractional Inch": 3236,
   "Inch": 314,
-  "Metric": 2023,
-  "Decimal Inch": 67
+  "Metric": 2037,
+  "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
-  "in": 28124,
-  "mm": 16386
+  "in": 28160,
+  "mm": 16425
  },
  "standards_present": 7362,
  "standards_multivalued": 1831,
@@ -4111,7 +4142,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 13816,
+  "n_skus_checked": 13891,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4271,16 +4302,16 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 51,
-   "breadth_categories": 112,
+   "modelled_types": 52,
+   "breadth_categories": 111,
    "brands": 45
   },
   "drawings": {
-   "count": 13816,
-   "bytes": 34549683,
+   "count": 13891,
+   "bytes": 34714263,
    "geometry": {
-    "nominal": 213,
-    "partial": 2754,
+    "nominal": 211,
+    "partial": 2831,
     "record": 10849
    },
    "largest_bytes": 7789,
