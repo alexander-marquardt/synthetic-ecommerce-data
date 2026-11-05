@@ -302,8 +302,10 @@ def low_head(standard: str, size: str) -> FastenerHead:
     product: the head is about half as tall, because the screw exists for
     joints with no room for a full head. It is not wider for it -- DIN 7984's
     head diameter equals ISO 4762's at every size here, and ASME B18.3.1G's is
-    a few thousandths under ASME B18.3's -- so what the two published numbers
-    describe is a full head's diameter at half its height. That difference is
+    never over ASME B18.3's: 2.5 to 3.5 thousandths under at most sizes, but
+    35 under at 5/16, 34.5 at 7/16 and 67 at 5/8 -- so what the two published
+    numbers describe is a full head's diameter, or a little less, at half its
+    height. That difference is
     entirely in those two numbers, which is why no separate head SHAPE is
     derived for it: a drawing built from these dimensions is already the squat
     head the standard describes.

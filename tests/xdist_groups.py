@@ -8,6 +8,8 @@ agents), the whole suite grouped by module took 637 s and 729 s on 12 workers; a
 ends at up to 4.3 GB because it keeps what each module it ran built. Those figures were taken
 before #442: the group mark was added after xdist read the markers, so no module was grouped
 (``tests/test_xdist_group_honoured_442.py`` checks it through a real ``--dist loadgroup`` run).
+The grouped re-measurement, on CI's shards, is in docs/adding-a-type.md ("The suite runs on
+several workers").
 
 A module whose tests build their own world (no shared fixture, minutes in total) sets
 ``XDIST_SPREAD = True`` so its tests spread over the workers: ``tests/test_merge_pr.py``

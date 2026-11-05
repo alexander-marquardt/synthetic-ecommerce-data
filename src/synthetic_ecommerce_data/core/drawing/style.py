@@ -49,6 +49,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Ceramic": "#c7613f",
     "Aluminum Oxide": "#8c6d4f",
     "316 Stainless Steel": "#e9eef1",
+    "304 Stainless Steel": "#ebeff2",
     "Brass": "#e0c46c",
     "Chrome Steel": "#cdd3d8",
     "440C Stainless Steel": "#e4e9ec",
@@ -118,6 +119,8 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     # The plain screws (#750): a drywall screw's dark coat and a deck screw's outdoor one.
     "Black Phosphate": "#454a4e",
     "Ceramic Coated": "#8a8468",
+    # The pipe nipples (#832): black steel pipe, sold uncoated in its mill finish.
+    "Black": "#4a4d50",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -155,6 +158,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ceramic": Hatch((30, 150), 6.0),
     "Aluminum Oxide": Hatch((120,), 6.0, dots=True),
     "316 Stainless Steel": Hatch((135,), 8.0, dots=True),
+    "304 Stainless Steel": Hatch((45,), 6.0, dots=True),
     "Brass": Hatch((45,), 3.0),
     "Chrome Steel": Hatch((0, 45), 6.0),
     "440C Stainless Steel": Hatch((0, 135), 6.0),

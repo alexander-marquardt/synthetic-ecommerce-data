@@ -9,7 +9,7 @@
     "variant_count": 3
   },
   "lens": {
-    "min_enlargement": 2.12,
+    "min_enlargement": 2.08,
     "skus": {
       "drill": "3818060916",
       "hairline_drill": "3818542871",
@@ -17,7 +17,7 @@
     }
   },
   "titles": {
-    "documents": 13850,
+    "documents": 13920,
     "mid_word": 41,
     "over_cap": 95
   }

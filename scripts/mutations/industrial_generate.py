@@ -105,6 +105,24 @@ MUTATIONS: list[Mutation] = [
         "",
         "every type module's type is built",
     ),
+    Mutation(
+        "type seam: a type drafts fewer products than its share asks",
+        "domains/industrial/generate.py",
+        "            count = max(1, round(cfg.lines * weight))\n",
+        "            count = max(1, round(cfg.lines * weight * 0.9))\n",
+        "tests/test_type_seam.py::test_a_type_modules_share_sizes_its_type[end_mill_square]",
+        "A",
+        "a type drafts exactly the products its share asks for",
+    ),
+    Mutation(
+        "type seam: a type drafts more products than its share asks",
+        "domains/industrial/generate.py",
+        "            count = max(1, round(cfg.lines * weight))\n",
+        "            count = max(1, round(cfg.lines * weight * 1.1))\n",
+        "tests/test_type_seam.py::test_a_type_modules_share_sizes_its_type[end_mill_square]",
+        "B",
+        "a type drafts exactly the products its share asks for",
+    ),
     # ---- generate: the measured rates, both directions -------------------
     Mutation(
         "make every tool line a matching-shank line",
