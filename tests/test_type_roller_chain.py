@@ -17,10 +17,12 @@ from __future__ import annotations
 import json
 import math
 import statistics
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+import pinned
 import type_gates
 from published import authored_attributes, authored_entries
 from synthetic_ecommerce_data.core import brands, emit, typespec
@@ -336,8 +338,10 @@ def test_no_chain_any_brand_could_offer_draws_past_the_size_cap():
                     drawn += 1
                     expected += 1
     assert four, "no offer stocks a four-strand chain"
-    assert drawn == expected == (len(roller_chain.ANSI) + len(four)) * len(materials) * len(
-        brands.BRANDS
+    assert (
+        drawn
+        == expected
+        == (len(roller_chain.ANSI) + len(four)) * len(materials) * len(brands.BRANDS)
     )
     assert largest < MAX_DRAWING_BYTES, largest
 
@@ -345,9 +349,28 @@ def test_no_chain_any_brand_could_offer_draws_past_the_size_cap():
 # --- the strand count moves the price -----------------------------------------
 
 STRANDS_IN_ORDER = ("Single Strand", "Double Strand", "Triple Strand")
-#: The same-spec sets each build holds: one brand's chain number in one material and
-#: length, offered in two or three strand counts.
-STRAND_SETS = {None: 13, LARGE_LINES: 105}
+
+
+def _sets_as_shipped(
+    lines: int | None, base: GeneratorConfig | None = None
+) -> dict[tuple, dict[str, list[float]]]:
+    """The strand sets of the build as it ships, defects included, at ``lines``."""
+    config = replace(base or GeneratorConfig(), **({"lines": lines} if lines else {}))
+    catalog = generate(config, types=[KEY])
+    return _strand_sets(
+        [doc for line in catalog.lines for doc in emit.flat_documents(catalog, line)]
+    )
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {
+        "strand_sets": {_build(n): len(_sets_as_shipped(n, config)) for n in (None, LARGE_LINES)}
+    }
+
+
+def _build(lines: int | None) -> str:
+    return "default" if lines is None else f"--lines {lines}"
 
 
 def _strand_sets(docs: list[dict]) -> dict[tuple, dict[str, list[float]]]:
@@ -379,11 +402,10 @@ def test_more_strands_cost_more_in_every_same_spec_set(lines):
     its pitch, material and length, and a triple strand one three times: the
     median price of every such set rises with the strand count. Read off the
     build as it ships, defects included, so the sets are the catalog's own."""
-    config = GeneratorConfig(**({"lines": lines} if lines else {}))
-    catalog = generate(config, types=[KEY])
-    docs = [doc for line in catalog.lines for doc in emit.flat_documents(catalog, line)]
-    sets = _strand_sets(docs)
-    assert len(sets) == STRAND_SETS[lines], len(sets)
+    sets = _sets_as_shipped(lines)
+    # The same-spec sets the build holds: one brand's chain number in one material and
+    # length, offered in two or three strand counts.
+    assert len(sets) == pinned.figure(__file__, "strand_sets")[_build(lines)], len(sets)
     falling = []
     for spec, by in sorted(sets.items()):
         medians = [statistics.median(by[s]) for s in STRANDS_IN_ORDER if s in by]
@@ -488,15 +510,15 @@ def test_a_four_strand_chain_costs_more_than_its_brands_single_strand_one():
 
 
 def test_the_readme_states_the_strand_factors_and_set_counts_the_code_holds():
-    """The README's roller chain price paragraph quotes the factors and set counts."""
+    """The README's roller chain price paragraph quotes the factors and names the set counts."""
     text = " ".join(Path(__file__).resolve().parents[1].joinpath("README.md").read_text().split())
     start = text.index("`roller_chain.STRAND_FACTORS`")
     paragraph = text[start : start + 900]
     for factor in ("double 1.9x", "triple 2.8x", "four strand 3.7x"):
         assert factor in paragraph, factor
     assert f"{roller_chain.HEAVY_FACTOR}x the standard one" in paragraph
-    assert f"({STRAND_SETS[None]} such sets on the golden catalog" in paragraph
-    assert f"{STRAND_SETS[LARGE_LINES]} at `--lines 39000`" in paragraph
+    # The set counts are one build's: the paragraph names the fixture rather than quote them.
+    assert "`test_type_roller_chain`'s figure in `tests/data/golden_pins.json`" in paragraph
 
 
 if __name__ == "__main__":

@@ -8,7 +8,15 @@ entry of ``MUTATIONS`` in turn (``--only`` filters by a substring of the name). 
 # ruff: noqa: E501  (a mutation quotes the whole line it plants in)
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 from mutation_row import Mutation
+
+#: The default seed, as ``core/config.py`` states it: a regeneration on a moved seed (#50) keeps
+#: the row that moves it planted.
+CONFIG = Path(__file__).resolve().parents[2] / "src/synthetic_ecommerce_data/core/config.py"
+SEED = int(re.search(r"^    seed: int = (\d+)$", CONFIG.read_text("utf-8"), re.M).group(1))
 
 MUTATIONS: list[Mutation] = [
     Mutation(
@@ -305,8 +313,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "change the default seed and leave the catalog on the old one",
         "core/config.py",
-        "    seed: int = 20260917",
-        "    seed: int = 20260918",
+        f"    seed: int = {SEED}",
+        f"    seed: int = {SEED + 1}",
         "tests/test_catalog_golden.py::test_stats_reports_the_catalog_that_was_committed",
         "",
         "the committed catalog is the DEFAULT configuration",
