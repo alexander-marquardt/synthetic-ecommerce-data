@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import prints, scale_measures
+from synthetic_ecommerce_data.domains.retail import prints, scale, scale_measures
 
 #: The print line's mug codes: its plains (PLT-MUG1 ...) and prints (PLT-MUG-APPLE ...).
 LINE = next(line for line in prints.LINES if line.code == "MUG")
@@ -46,6 +46,16 @@ def test_a_plain_mug_sells_three_glazes():
     assert len(plains) == len(LINE.plains)
     assert {s.code: len(s.colors) for s in plains if len(s.colors) != 3} == {}
     assert {s.code: len(s.colors) for s in plains if len({c[0] for c, _ in s.colors}) != 3} == {}
+
+
+@pytest.mark.parametrize("n", [1, 2, 3])
+def test_a_derived_style_keeps_two_colors_of_a_template_with_two(n):
+    """Guard (#851): a derived graphic mug drew its hero ground alone, a one-SKU product beside
+    its brand's others. Metric: the fewest colors any of 200 draws keeps, for a template of
+    ``n`` colors."""
+    tpl = {"color_options": [{"color": c} for c in ("White", "Navy", "Stone")[:n]]}
+    fewest = min(len(scale._colors(tpl, "White", 0, "T", k)) for k in range(200))
+    assert fewest == min(n, 2)
 
 
 def test_mug_is_not_a_kind_of_one_sku_products(ceiling):
