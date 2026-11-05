@@ -305,6 +305,22 @@ def test_a_run_on_workers_prints_each_modules_peak(tmp_path) -> None:
     assert "module peak memory: 0 of 1 modules over 1500 MB: none" in printed.splitlines()
 
 
+#: A module that holds 200 MB, then lets it go, so the module after it starts small again.
+HEAVY_MODULE = "def test_heavy():\n    held = b'x' * (200 << 20)\n    del held\n"
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_worker_s_peak_is_its_whole_run_not_its_last_module(tmp_path) -> None:
+    """Each module resets the mark (#790), so the last module's mark alone understates it (#869)."""
+    (tmp_path / "test_heavy.py").write_text(HEAVY_MODULE, encoding="utf-8")
+    (tmp_path / "test_light.py").write_text("def test_light():\n    pass\n", encoding="utf-8")
+    modules = ("test_heavy.py", "test_light.py")
+    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", *modules)
+    peak = re.search(r"^peak worker memory: \d+ MB \(gw0 (\d+)\)$", printed, re.M)
+    assert peak, printed
+    assert int(peak.group(1)) >= 200, peak.group(0)
+
+
 #: A module whose first test kills its worker, as the kernel's OOM killer does (#845).
 KILLED_MODULE = "import os\nimport signal\n\n\ndef test_killed():\n" \
     "    os.kill(os.getpid(), signal.SIGKILL)\n"  # fmt: skip
