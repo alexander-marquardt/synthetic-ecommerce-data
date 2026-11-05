@@ -121,8 +121,10 @@ that builds past the ceiling itself, and holds the wiring above.
 Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`), and on
 Linux a `module peak memory:` line that names each module over 1,500 MB (#790). Before each
 module the worker resets its high-water mark, so a module's figure is the worker's peak while
-that module ran. That is the figure to read when you size a shard's worker count. A worker the
-kernel kills prints neither line; "A lost xdist worker" below names the module it died in (#845).
+that module ran. That is the figure to read when you size a shard's worker count. The worker
+keeps each mark before it resets it, so `peak worker memory:` gives each worker's peak over the
+whole run, not just its last module's (#869). A worker the kernel kills prints neither line;
+"A lost xdist worker" below names the module it died in (#845).
 
 ## Random order (#539)
 
@@ -183,7 +185,9 @@ simulation of xdist's rule (each unit to the worker that frees first) gives a wh
 of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 268 s against
 207 s on 24. That is a projection from a five-module sample, not a measured whole-suite run,
 and it assumes the merge tests cost the same ratio; the last measured whole-suite runs
-(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
+(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33, before #442 made
+the grouping take effect (its re-measurement on CI's shards: docs/adding-a-type.md, "The
+suite runs on several workers"). Three real merges
 with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
 
 ## What each target times (#348, 2026-11-02)
