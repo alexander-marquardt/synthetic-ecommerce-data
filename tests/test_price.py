@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import pinned
 from shared_builds import (
     KIT,
     KitSku,
@@ -1201,12 +1202,16 @@ def _build_kits(request, build: str) -> list[KitSku]:
     )
 
 
-@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 742)])
-def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
+#: How many kit SKUs each build holds, as the files the one command writes count them (#50).
+KIT_COUNTS = {"default": pinned.sku_count, "100K": pinned.hundred_k_skus}
+
+
+@pytest.mark.parametrize("build", KIT_COUNTS)
+def test_each_kit_price_tracks_its_contents_at_both_builds(request, build):
     """Every kit, at either size, costs its contents' price times its
     material and tier, within its SKU noise and ending."""
     kits = _build_kits(request, build)
-    assert len(kits) == count
+    assert len(kits) == KIT_COUNTS[build]("kit_assortment")
     ratios = []
     for shown, facts, brand in kits:
         contents = price.kit_contents(facts)

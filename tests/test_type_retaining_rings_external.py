@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes
@@ -63,8 +64,6 @@ PACKS = {10, 50, 100}
 
 #: A build large enough to reach every row in every material and pack.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_SKUS = 82
 #: USD for one pack, any size, material, pack and brand tier. Not a fit: a
 #: price outside it is a broken ladder (ten small steel rings for cents, or a
 #: hundred large stainless ones for thousands), not a wrong estimate.
@@ -106,7 +105,7 @@ def test_the_type_does_not_also_exist_as_a_breadth_row():
 
 
 def test_the_default_build_holds_the_declared_count():
-    assert len(_default_docs()) == DEFAULT_SKUS
+    assert len(_default_docs()) == pinned.sku_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
