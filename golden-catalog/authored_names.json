@@ -73,6 +73,10 @@
  "circle_cutters": {
   "Maximum size": "Maximum Size"
  },
+ "combination_wrenches": {
+  "Measurement system": "Measurement System",
+  "Number of points": "Number of Points"
+ },
  "compound_cutters": {
   "Handle material": "Handle Material",
   "Overall length": "Overall Length"
