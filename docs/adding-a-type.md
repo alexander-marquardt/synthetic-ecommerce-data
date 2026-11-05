@@ -106,6 +106,10 @@ The five newer types (`nut_hex`, `bearing_radial_ball`, `wheel_depressed_center`
 `newer=True`, and its builder function lives in `domains/industrial/newtypes.py`. A
 newer type's `share` is its fraction of the lines (`config.new_type_share`, derived
 from the specs), not a weight, and its line count is `round(lines * share)`.
+A modelled type drafts exactly `max(1, round(lines * share))` products, and a newer
+type `round(lines * share)`, before grouping, must-stock lines and packs add lines of their
+own. `test_a_type_modules_share_sizes_its_type` holds that for each type, so a type's size
+changes only through an edit to its `share` (#10).
 
 ## Where a modelled type's builder lives
 
@@ -1021,13 +1025,25 @@ in effect until #442: xdist read the markers before the conftest hook added
 them, so a module's tests spread over the workers and its fixtures were built
 once per worker; the hook is now `tryfirst`, and
 `tests/test_xdist_group_honoured_442.py` runs a real `-n 2 --dist loadgroup`
-pytest to check it. The whole-suite figures above (637 s and 729 s on 12
-workers, up to 4.3 GB a worker, 4,500 MB a worker in the cap) were measured
-before it and are not re-measured: the shared host refuses a whole-suite run
-from an agent. On 14 modules with module-scoped fixtures (654 tests, `-n 12`,
-one run each, load average about 18) the wall time was 328 s before and 331 s
-after, the largest single process 2.0 GB before and 2.7 GB after, and after the
-change every one of the 14 modules ran on one worker. Run the merge chain on the agent VM, which has
+pytest to check it. The local figures (637 s and 729 s on 12 workers, up to
+4.3 GB a worker, 4,500 MB a worker in the cap) were measured before it. On 14
+modules with module-scoped fixtures (654 tests, `-n 12`, one run each, load
+average about 18) the wall time was 328 s before and 331 s after, the largest
+single process 2.0 GB before and 2.7 GB after, and after the change every one
+of the 14 modules ran on one worker. The whole suite was re-measured on CI,
+whose shards each run `-n 2 --dist loadgroup`. Main's push run on the commit
+before #580 (run 39693451146) against the one on #580's merge (run
+39693472872), which differ only in the grouping: the shards' pytest time summed
+6,243 s before and 5,574 s after (13,778 and 13,780 tests), and the longest
+shard took 624 s before and 601 s after, one run each on shared runners. Peak
+memory per worker, grouped, from main's push run 41951182159 (af803cf2, 17
+shards, 34 workers, 17,663 tests): the largest was 2,704 MB, in
+`tests/test_plain_screws_750.py`, and 12 modules went over 1,500 MB, all below
+the 4,500 MB budget. Read that from the `module peak memory:` lines: the
+`peak worker memory:` line shows only the last module's peak (#869). A CI
+worker runs about a 34th of the suite and a local worker a 12th, so a local
+worker can hold more; the 12-worker run has not been repeated with the grouping
+in effect. Run the merge chain on the agent VM, which has
 the cores and the memory, so it does not compete with a laptop's other work.
 
 **A 100K catalog is built once, not once per worker (#140).** A 100K build is

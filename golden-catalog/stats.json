@@ -1,6 +1,6 @@
 {
- "lines": 7109,
- "skus": 13949,
+ "lines": 7147,
+ "skus": 14017,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -79,7 +79,7 @@
   "hex_bit_socket_sets": 1,
   "hex_bit_sockets": 35,
   "hex_key": 638,
-  "hex_pipe_nipples": 1,
+  "hex_pipe_nipples": 39,
   "hose_clamps": 1,
   "induction_heaters": 1,
   "key_stock": 42,
@@ -244,7 +244,7 @@
   "hex_bit_socket_sets": 2,
   "hex_bit_sockets": 77,
   "hex_key": 1178,
-  "hex_pipe_nipples": 2,
+  "hex_pipe_nipples": 70,
   "hose_clamps": 2,
   "induction_heaters": 2,
   "key_stock": 70,
@@ -1054,11 +1054,14 @@
    }
   },
   "hex_pipe_nipples": {
-   "products": 1,
+   "products": 39,
    "median": 2,
-   "max": 2,
+   "max": 4,
    "histogram": {
-    "2": 1
+    "1": 19,
+    "2": 10,
+    "3": 9,
+    "4": 1
    }
   },
   "hose_clamps": {
@@ -2399,9 +2402,17 @@
    "Type"
   ],
   "hex_pipe_nipples": [
+   "Finish",
+   "Hex Size",
    "Length",
    "Material",
-   "Size"
+   "Measurement System",
+   "Outside Dia.",
+   "Pipe Size",
+   "Pressure Rating (psi)",
+   "Schedule",
+   "Thread Type",
+   "Type"
   ],
   "hose_clamps": [
    "Material",
@@ -3058,7 +3069,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 146796,
+ "total_attribute_entries": 147351,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3092,16 +3103,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5689,
+   "denominator": 5720,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0170231,
-   "numerator": 234,
-   "denominator": 13746,
+   "achieved": 0.0171565,
+   "numerator": 237,
+   "denominator": 13814,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -3117,18 +3128,18 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.45788,
-   "numerator": 9224,
-   "denominator": 20145,
+   "achieved": 0.457482,
+   "numerator": 9248,
+   "denominator": 20215,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.128121,
+   "achieved": 0.127677,
    "numerator": 2581,
-   "denominator": 20145,
+   "denominator": 20215,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3137,7 +3148,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13949,
+   "denominator": 14017,
    "note": "over titles",
    "band": null
   },
@@ -3146,7 +3157,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13949,
+   "denominator": 14017,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3155,16 +3166,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13949,
+   "denominator": 14017,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5238,
-   "numerator": 146796,
-   "denominator": 13949,
+   "achieved": 10.5123,
+   "numerator": 147351,
+   "denominator": 14017,
    "note": "count, not a rate",
    "band": null
   },
@@ -3757,6 +3768,30 @@
    ]
   },
   {
+   "name": "price p50 (USD): hex_pipe_nipples",
+   "target": 5.2,
+   "achieved": 4.92,
+   "numerator": 70,
+   "denominator": 81,
+   "note": "shown price; denom is the census n",
+   "band": [
+    4.16,
+    6.5
+   ]
+  },
+  {
+   "name": "price p90/p10: hex_pipe_nipples",
+   "target": 4.87688,
+   "achieved": 3.77224,
+   "numerator": 70,
+   "denominator": 81,
+   "note": "shown price; denom is the census n",
+   "band": [
+    3.65766,
+    6.48625
+   ]
+  },
+  {
    "name": "price p50 (USD): rigid_casters",
    "target": 76.2,
    "achieved": 76.0,
@@ -4082,65 +4117,65 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00568348,
-   "achieved": 0.00510771,
+   "target": 0.00568459,
+   "achieved": 0.00508138,
    "numerator": 69,
-   "denominator": 13509,
+   "denominator": 13579,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00231053,
-    0.00905642
+    0.002329,
+    0.00904018
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0893987,
-   "achieved": 0.0840181,
-   "numerator": 1135,
-   "denominator": 13509,
+   "target": 0.0892719,
+   "achieved": 0.0836586,
+   "numerator": 1136,
+   "denominator": 13579,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0713456,
-    0.107452
+    0.0713117,
+    0.107232
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0601292,
-   "achieved": 0.0577393,
-   "numerator": 780,
-   "denominator": 13509,
+   "target": 0.0600331,
+   "achieved": 0.0575153,
+   "numerator": 781,
+   "denominator": 13579,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0431934,
-    0.0770649
+    0.0431846,
+    0.0768816
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.217027,
-   "achieved": 0.21482,
-   "numerator": 2902,
-   "denominator": 13509,
+   "target": 0.217064,
+   "achieved": 0.214301,
+   "numerator": 2910,
+   "denominator": 13579,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196179,
-    0.237875
+    0.196324,
+    0.237805
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5689
+  "Measurement System": 5720
  },
  "measurement_system_values": {
-  "Fractional Inch": 3259,
-  "Inch": 319,
+  "Fractional Inch": 3286,
+  "Inch": 323,
   "Metric": 2043,
   "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
-  "in": 28274,
-  "mm": 16415
+  "in": 28474,
+  "mm": 16418
  },
  "standards_present": 7390,
  "standards_multivalued": 1802,
@@ -4150,7 +4185,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 13949,
+  "n_skus_checked": 14017,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4310,24 +4345,24 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 53,
-   "breadth_categories": 110,
+   "modelled_types": 54,
+   "breadth_categories": 109,
    "brands": 45
   },
   "drawings": {
-   "count": 13949,
-   "bytes": 34919036,
+   "count": 14017,
+   "bytes": 35072275,
    "geometry": {
-    "nominal": 209,
+    "nominal": 207,
     "partial": 2809,
-    "record": 10931
+    "record": 11001
    },
    "largest_bytes": 7789,
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
-   "quantitative_attributes": 60,
-   "faceted_attributes": 54,
+   "quantitative_attributes": 63,
+   "faceted_attributes": 55,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",
