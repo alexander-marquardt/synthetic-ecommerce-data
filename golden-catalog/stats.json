@@ -1394,9 +1394,9 @@
    "median": 1.0,
    "max": 3,
    "histogram": {
-    "1": 27,
-    "2": 8,
-    "3": 3
+    "1": 26,
+    "2": 10,
+    "3": 2
    }
   },
   "screw_button_head": {
@@ -2653,6 +2653,7 @@
    "Coating",
    "Frame Color",
    "Lens Color",
+   "Material",
    "Measurement System",
    "Standards",
    "Style"
@@ -3045,7 +3046,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 146279,
+ "total_attribute_entries": 146340,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3095,17 +3096,17 @@
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00821918,
+   "achieved": 0.00821243,
    "numerator": 30,
-   "denominator": 3650,
+   "denominator": 3653,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.457534,
-   "numerator": 9185,
+   "achieved": 0.457235,
+   "numerator": 9179,
    "denominator": 20075,
    "note": "over title dimension tokens",
    "band": null
@@ -3149,8 +3150,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5373,
-   "numerator": 146279,
+   "achieved": 10.5417,
+   "numerator": 146340,
    "denominator": 13882,
    "note": "count, not a rate",
    "band": null
@@ -3794,7 +3795,7 @@
   {
    "name": "price p50 (USD): safety_glasses",
    "target": 8.605,
-   "achieved": 7.885,
+   "achieved": 8.135,
    "numerator": 52,
    "denominator": 74,
    "note": "shown price; denom is the census n",
@@ -3806,7 +3807,7 @@
   {
    "name": "price p90/p10: safety_glasses",
    "target": 4.852,
-   "achieved": 4.74129,
+   "achieved": 4.12601,
    "numerator": 52,
    "denominator": 74,
    "note": "shown price; denom is the census n",
@@ -4153,9 +4154,9 @@
   "in": 28057,
   "mm": 16314
  },
- "standards_present": 7350,
+ "standards_present": 7354,
  "standards_multivalued": 1802,
- "standards_total_values": 9495,
+ "standards_total_values": 9499,
  "multivalued_attribute_names": {
   "Standards": 1802,
   "Sizes Included": 59
@@ -4327,7 +4328,7 @@
   },
   "drawings": {
    "count": 13882,
-   "bytes": 34680435,
+   "bytes": 34701601,
    "geometry": {
     "nominal": 212,
     "partial": 2809,

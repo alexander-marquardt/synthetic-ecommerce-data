@@ -103,6 +103,8 @@ MATERIAL_FILL: dict[str, str] = {
     "Ductile Steel": "#b2b7bb",
     "Rubber on Cast Iron": "#55585a",
     "Polyurethane on Cast Iron": "#b8643a",
+    # The safety glasses (#834): a spectacle's lens.
+    "Polycarbonate": "#dce8ee",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -200,6 +202,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ductile Steel": Hatch((100, 10), 4.0),
     "Rubber on Cast Iron": Hatch((15, 75), 3.0, dots=True),
     "Polyurethane on Cast Iron": Hatch((135, 45), 7.0, dots=True),
+    # The safety glasses (#834): a pattern no other material uses.
+    "Polycarbonate": Hatch((65,), 7.5, dots=True),
 }
 
 

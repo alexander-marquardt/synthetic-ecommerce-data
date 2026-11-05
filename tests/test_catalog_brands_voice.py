@@ -278,7 +278,7 @@ DISTINCT_SPEC_FLOOR = {
     "cut_resistant_gloves": 0.30,
     # #834: a pair of safety glasses is a frame style, lens coating and frame color in one of
     # six lens colors, 58 specs in the maker's feed, so makers overlap by construction.
-    # Measured at 100K, 58 distinct specs of 429 SKUs (0.135), rounded down to 0.05.
+    # Measured at 100K, 58 distinct specs of 414 SKUs (0.140), rounded down to 0.05.
     "safety_glasses": 0.10,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90

@@ -26,6 +26,17 @@ no lens treatment (the anti-fog of their lens is unstated), and every lens color
 but the six :data:`LENS_COLORS`, the tints sold across most models; the others
 are trade-named tints of one or two models each.
 
+**Material.** ``Material`` is the lens's: the maker's own model pages
+(https://www.pyramex.com/products/<model>, read 2026-11-05) state a
+polycarbonate lens for 24 of the 33 models behind :data:`MODEL_LINES`; none
+names another lens material, and none states a frame's (TruLock's names only its
+temples, nylon). Every line publishes ``Polycarbonate``. For the nine models
+whose pages state no lens material (Alair, Atoka, Cortez, Endeavor Plus Foam
+Padded, Howitzer, Monteagle, Onix, PMXSPEC, Sitecore) that is an inference from
+the maker's other models, not a stated fact. A line that published no
+``Material`` would differ from another maker's line of the same combination
+only by the dropped attribute, and the catalog counts that as one product.
+
 **Standard.** Every line claims ANSI/ISEA Z87.1: a spectacle sold as eye
 protection to a US workplace meets it (OSHA 29 CFR 1910.133(b)), and the feed's
 descriptions state Z87.1 where they state a standard.
@@ -65,6 +76,9 @@ SILVER = "Silver Mirror"
 BLUE = "Blue Mirror"
 #: The lens colors published, in the order a line's run of them is taken.
 LENS_COLORS = (CLEAR, GRAY, AMBER, IO, SILVER, BLUE)
+
+#: Every lens's material: see **Material** above.
+MATERIAL = "Polycarbonate"
 
 
 class ModelLine(NamedTuple):
@@ -183,6 +197,7 @@ PROVENANCE = f"model lines read from {FEED} (2026-11-04)"
 
 VOCAB = (
     AttrSpec("Style", "line"),
+    AttrSpec("Material", "line"),
     AttrSpec("Coating", "line"),
     AttrSpec("Frame Color", "line"),
     AttrSpec("Lens Color", "sku"),
@@ -208,6 +223,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
     draft.line_attrs = [
         keyword_attribute("Style", model.style),
         keyword_attribute("Coating", model.coating),
+        keyword_attribute("Material", MATERIAL),
     ]
     if model.frame_color:
         draft.line_attrs.append(keyword_attribute("Frame Color", model.frame_color))

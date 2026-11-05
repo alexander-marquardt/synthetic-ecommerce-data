@@ -415,7 +415,7 @@ fields:
     type: terms
     source: facets.for_shaft_diameter
   # Frame color -- 16 distinct values over 29 product-value pairs is 0.55 per product, at or above the 0.50 identifier threshold but on 29 products, fewer than the 250 the identifier test needs as evidence
-  #   present on 38 documents across 1 product type(s); 16 distinct values
+  #   present on 40 documents across 1 product type(s); 16 distinct values
   - name: frame_color
     type: terms
     source: facets.frame_color
@@ -562,8 +562,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 56 distinct values over 6060 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 12087 documents across 160 product type(s); 56 distinct values
+  # Material -- 57 distinct values over 6098 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 12139 documents across 161 product type(s); 57 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -589,7 +589,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 5706 documents across 52 product type(s); 4 distinct values
+  #   present on 5709 documents across 52 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -739,8 +739,8 @@ fields:
     type: terms
     source: facets.square_size
     facet: false
-  # Standards -- 72 distinct values over 4752 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7350 documents across 31 product type(s); 72 distinct values
+  # Standards -- 72 distinct values over 4755 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7354 documents across 31 product type(s); 72 distinct values
   - name: standards
     type: terms
     source: facets.standards
