@@ -154,6 +154,12 @@ class Style:
     #: Beauty and drinks sold in several sizes: (ml, price) of each, one SKU per color x size,
     #: the volume a SKU option (gen#347). Not with :attr:`unit`, which is one size for all.
     volumes: tuple[tuple[float, float], ...] = ()
+    #: A set sold in several sizes: (label, price) of each ("4 pack", gen#246), one SKU per
+    #: color x pack, the ``pack_size`` a SKU option drawn with that many items (#851, gen#728).
+    packs: tuple[tuple[str, float], ...] = ()
+    #: Drinkware sold in several capacities: (ml, price) of each, one SKU per color x capacity,
+    #: the ``capacity_ml`` a SKU option and a size (#851).
+    capacities: tuple[tuple[int, float], ...] = ()
     #: Furniture: the :data:`BED_SIZE_DIMS` sizes it is made in, one SKU each
     #: with its price and dimensions; a bed need not come in every size.
     bed_frame: tuple[str, ...] = ()
@@ -230,6 +236,12 @@ class Style:
         if self.volumes:
             return [{"net_volume_ml": ml, "price": price, "in_stock": True}
                     for ml, price in self.volumes]  # fmt: skip
+        if self.packs:
+            return [{"pack_size": label, "price": price, "in_stock": True}
+                    for label, price in self.packs]  # fmt: skip
+        if self.capacities:
+            return [{"capacity_ml": ml, "price": price, "in_stock": True}
+                    for ml, price in self.capacities]  # fmt: skip
         if self.bed_sized:
             step = round(self.price / 4)
             return [{"bed_size": b, "price": float(self.price + n * step), "in_stock": True}

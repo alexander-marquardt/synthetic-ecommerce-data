@@ -373,6 +373,12 @@ def bra_sizes(cups: str) -> tuple[str, ...]:
     return tuple(f"{band}{cup}" for band in (32, 34, 36, 38) for cup in cups)
 
 
+def _capacities(price: float) -> tuple[tuple[int, float], ...]:
+    """A travel cup's or tumbler's capacities, 12, 16 and 20 oz in ml, each a step up in price
+    from ``price`` (#851): a single item is sold by size, not in packs."""
+    return tuple((ml, price + 2.0 * n) for n, ml in enumerate((350, 470, 590)))
+
+
 CUPS = (
     Style("DRKMUG", "Speckled Stoneware Mug", "Brackenmere Home", "Home", (*DRINKWARE, "Mugs"),
           8.0, "A glazed stoneware mug with a speckled finish. Holds 350ml.",
@@ -382,21 +388,27 @@ CUPS = (
           "Mug", "mug", one(cw("White", WHITE), 45)),
     Style("DRKTMB", "Double Walled Insulated Steel Tumbler with Sliding Lid", "Pewley Table",
           "Home", (*DRINKWARE, "Tumblers"), 14.0,
-          "An insulated steel tumbler with a sliding lid. Keeps drinks hot for 6 hours.",
-          "Tumbler", "tumbler", ((cw("Black", BLACK), 50), (cw("Navy", NAVY), 30))),
+          "An insulated steel tumbler with a sliding lid. Keeps drinks hot for 6 hours. In 350, "
+          "470 and 590 ml.",
+          "Tumbler", "tumbler", ((cw("Black", BLACK), 50), (cw("Navy", NAVY), 30)),
+          capacities=_capacities(14.0)),
     Style("DRKSAU", "Fine Bone China Tea Cup and Saucer for Afternoon Tea", "Pewley Table", "Home",
           (*DRINKWARE, "Cups & Saucers"), 12.0,
           "A fine bone china tea cup with a matching saucer.",
           "Cup", "tea_cup", one(cw("White", WHITE), 35)),
     Style("DRKTRV", "Leakproof Reusable Travel Cup with Lid for Car Holders", "Brackenmere Home",
           "Home", (*DRINKWARE, "Travel Cups"), 16.0,
-          "A reusable travel cup with a leakproof lid that fits most car holders.",
+          "A reusable travel cup with a leakproof lid that fits most car holders. In 350, 470 "
+          "and 590 ml.",
           "Travel Cup", "travel_cup",
-          ((cw("Charcoal", "#4a4a4a"), 60), (cw("Pink", "#f3c6cf"), 20))),
-    Style("DRKSET", "Set of 4 Porcelain Espresso Cups in Gift Box", "Brackenmere Home",
-          "Home", (*DRINKWARE, "Cups & Saucers"), 18.0,
-          "Four small porcelain espresso cups in a gift box.",
-          "Cup Set", "espresso_cup", one(cw("Stone", "#c8bfae"), 30)),
+          ((cw("Charcoal", "#4a4a4a"), 60), (cw("Pink", "#f3c6cf"), 20)),
+          capacities=_capacities(16.0)),
+    Style("DRKSET", "Porcelain Espresso Cup Set in Gift Box", "Brackenmere Home",
+          "Home", (*DRINKWARE, "Cups & Saucers"), 10.0,
+          "Small porcelain espresso cups in a gift box, in a set of 2, 4 or 8.",
+          "Cup Set", "espresso_cup", one(cw("Stone", "#c8bfae"), 30),
+          packs=(("2 pack", 10.0), ("4 pack", 18.0), ("8 pack", 32.0)),
+          extra=(("pack_size", "Pack size", "2 pack, 4 pack, 8 pack"),)),
 )  # fmt: skip
 
 _BRA = "route: a bare cup goes to Drinkware; a bra word in the query switches the route off"

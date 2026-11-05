@@ -266,6 +266,14 @@ NAME_EXCEPTIONS: dict[str, str] = {
         " maker's nipple sheets the type reads are headed Schedule 40 and Schedule 80; the"
         " census carries no pipe"
     ),
+    "Flange Dia.": (
+        "a flanged bushing's flange, beside its Outside Dia. (#833): the D column of the"
+        " maker's stock table; the census has no bushing flange"
+    ),
+    "Flange Thickness": (
+        "a flanged bushing's flange thickness (#833): the E column of the maker's stock"
+        " table; the census has no bushing flange"
+    ),
 }
 
 
