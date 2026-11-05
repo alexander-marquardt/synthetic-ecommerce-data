@@ -670,33 +670,6 @@
   featured_sizes:
   - 1/2 in
   reason: '''ball'' + ''1/2'' -- the original issue''s own comparison category'
-- key: bronze_sleeve_bushings
-  category:
-  - Motion Control & Fluid Power
-  - Bushings
-  - Bronze Sleeve Bushings
-  family: motion
-  shape: tube
-  item: Bronze Sleeve Bushing
-  descriptor_attr: null
-  size_attr: Bore Dia.
-  size_values:
-  - 1/4 in
-  - 3/8 in
-  - 1/2 in
-  - 5/8 in
-  - 3/4 in
-  attributes:
-    Material:
-    - Bronze
-    Length:
-    - 1/2 in
-    - 1 in
-  price_range: [2.0, 15.0]
-  skus: 2
-  featured_sizes:
-  - 1/2 in
-  reason: '''1/2'' overlap; bearing-adjacent bushing category gap'
 - key: shaft_collars
   # Its derived block is drill_bushings's too (catalog/typespec.py).
   part_number_block: 4659
