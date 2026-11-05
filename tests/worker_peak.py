@@ -11,10 +11,17 @@ is the worker's peak while that module ran (what earlier modules left resident c
 ``module peak memory:`` line names the modules over :data:`HEAVY_MB`, so a shard's log says which
 modules need a worker of their own. A worker that cannot reset the mark (no ``/proc``) reports no
 module.
+
+A killed worker sends no ``workeroutput`` (#845), so when the run names a directory in
+:data:`PEAK_DIR_ENV` each worker also appends to ``<dir>/<worker id>.peaks``, flushed as it goes: a
+``<module>\t<MB>`` line as a module starts and again each time its peak rises. A worker the OOM
+killer ends leaves its finished modules' peaks, and its last line names the module it died in.
+``scripts/ci_run_pytest.py`` names the directory and prints that last line for a lost worker.
 """
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -63,8 +70,21 @@ def module_summary(peaks: dict[str, int]) -> str:
     return f"module peak memory: {len(heavy)} of {len(peaks)} modules over {HEAVY_MB} MB: {each}"
 
 
+#: The directory a worker appends its module peaks to, one file per worker (#845); unset, none.
+PEAK_DIR_ENV = "WORKER_PEAK_DIR"
+
+
 def _module(item: pytest.Item) -> str:
     return item.nodeid.split("::", 1)[0]
+
+
+def _record(config: pytest.Config, module: str, mb: int) -> None:
+    """Append ``module``'s peak to this worker's file, so a kill after this line keeps it."""
+    folder = os.environ.get(PEAK_DIR_ENV)
+    if folder:
+        path = Path(folder) / f"{config.workerinput['workerid']}.peaks"
+        with path.open("a", encoding="utf-8") as out:
+            out.write(f"{module}\t{mb}\n")
 
 
 @pytest.hookimpl(wrapper=True)
@@ -75,10 +95,15 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: pytest.Item | None):
     peaks = config.__dict__.setdefault("_module_peaks", {})
     if getattr(config, "_peak_module", None) != _module(item):
         config._peak_module = _module(item) if reset_peak() else None
+        start = own_peak_mb()
+        if config._peak_module is not None and start is not None:
+            _record(config, config._peak_module, start)
     result = yield
     # the module's fixtures are torn down in its last test's teardown, inside this protocol
     module, mb = config._peak_module, own_peak_mb()
     if module is not None and mb is not None:
+        if mb > peaks.get(module, 0):
+            _record(config, module, mb)
         peaks[module] = max(peaks.get(module, 0), mb)
     return result
 
