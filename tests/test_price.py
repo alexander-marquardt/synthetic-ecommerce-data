@@ -1017,7 +1017,8 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: The price census has no key stock at all, so its model is
 #: hand-set from surveyed listings (#108). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
-#: nobody measured. No row scores any of them.
+#: nobody measured. No row scores any of them. The census has no bushings,
+#: so the bronze sleeve bushing's model is hand-set (#833).
 NOT_MEASURED = frozenset(
     {
         *hammers.KINDS,
@@ -1025,6 +1026,7 @@ NOT_MEASURED = frozenset(
         "key_stock",
         "roll_pins",
         "studs_double_end",
+        "bronze_sleeve_bushings",
         *tabletype.tables(),
     }
 )
