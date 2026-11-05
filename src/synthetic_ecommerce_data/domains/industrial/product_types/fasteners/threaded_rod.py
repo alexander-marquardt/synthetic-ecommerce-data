@@ -45,6 +45,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import (
     BREAK_GAP,
     Drawn,
 )
+from synthetic_ecommerce_data.domains.industrial.geometry import thread as thread_geom
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     MM_PER_INCH,
     NO_STANDARD,
@@ -225,7 +226,8 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 KNEE = 3.0
 TAIL = 0.6
 SCALE = 24.0
-#: The most crests drawn along a rod.
+#: The most crests drawn along a coarse-thread rod; a fine one draws more, at its true
+#: ratio to the coarse thread of its diameter (``geometry.thread.capped_pitch``, #9).
 MAX_CRESTS = 60
 #: The drawing's extent, measured at the default and ``--lines 39000`` builds
 #: (docs/adding-a-type.md "Figure and extent"): the largest drawn is 1.358 x
@@ -265,7 +267,7 @@ def figure(record: dict[str, str]) -> Drawn:
         ],
         "part",
     )
-    crests = P.thread_crests(r, c, drawn - c, max(thread.pitch_in, drawn / MAX_CRESTS))
+    crests = P.thread_crests(r, c, drawn - c, thread_geom.capped_pitch(thread, drawn / MAX_CRESTS))
     fig.lines(crests)
     if full > KNEE:
         # The screws' drafting break (``figures.fastener``), at this type's extent.

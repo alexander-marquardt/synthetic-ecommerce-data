@@ -7,5 +7,6 @@ text-free drawings are the only renderer, so nothing in this package imports a
 drawing library.
 
 ``palette`` holds the brand inks, the finish tints and the published attribute
-spellings the drawings read.
+spellings the drawings read. ``thread`` holds the crest spacing a compressed
+threaded part is drawn at.
 """

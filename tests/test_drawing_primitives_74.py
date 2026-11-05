@@ -131,6 +131,7 @@ CALLS = {
     "drive_recess": dict(centre=(1.0, 0.2), key=0.1),
     "helix_flutes": dict(dia=0.5, y0=0.0, y1=2.0, flutes=4, helix_deg=30.0),
     "flute_end_view": dict(centre=(1.0, 0.2), radius=0.25, flutes=4),
+    "coolant_outlets": dict(centre=(1.0, 0.2), radius=0.25, flutes=4),
     "ring": dict(centre=(0.0, 0.0), r_out=0.5, r_in=0.2),
     "tube": dict(r_out=0.5, y0=0.0, y1=1.0, r_in=0.4),
     "plate": dict(x0=0.0, y0=0.0, x1=2.0, y1=1.0, holes=(((0.5, 0.5), 0.1),)),

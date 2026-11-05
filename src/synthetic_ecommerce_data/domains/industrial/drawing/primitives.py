@@ -283,6 +283,26 @@ def flute_end_view(fig: Figure, centre: Point, radius: float, flutes: int, hand:
     fig.lines(segments)
 
 
+#: A coolant outlet's radius and its distance from the axis, as shares of the cutting
+#: radius, and how far it sits behind its flute line (radians), toward the gullet.
+OUTLET_RADIUS = 0.16
+OUTLET_DISTANCE = 0.55
+OUTLET_LAG = 0.9
+
+
+def coolant_outlets(fig: Figure, centre: Point, radius: float, flutes: int, hand: int = 1) -> None:
+    """A coolant-fed cutting end's outlets on its end view: one hole per flute, in the
+    gullet between two flute lines (the end view of :func:`flute_end_view`)."""
+    cx, cy = centre
+    for k in range(int(flutes)):
+        angle = 2 * math.pi * k / flutes + hand * OUTLET_LAG
+        at = (
+            cx + OUTLET_DISTANCE * radius * math.cos(angle),
+            cy + OUTLET_DISTANCE * radius * math.sin(angle),
+        )
+        fig.disc(at, OUTLET_RADIUS * radius, "hole")
+
+
 # --- rings, tubes and plates ---------------------------------------------------
 
 

@@ -92,5 +92,9 @@ def test_every_part_in_the_committed_catalog_keeps_its_pitch_ratio_to_its_siblin
             factor = drawn_pitch(type_key, record) / thread.pitch_in
             groups[(round(thread.major.inches, 4), record["Length"])][thread.pitch_in] = factor
     assert len(groups) > 10, len(groups)
-    spread = {key: factors for key, factors in groups.items() if len(set(factors.values())) > 1}
+    spread = {
+        key: factors
+        for key, factors in groups.items()
+        if max(factors.values()) - min(factors.values()) > 1e-6
+    }
     assert not spread, spread

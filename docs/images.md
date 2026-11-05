@@ -37,8 +37,10 @@ every other drawing -- only the GEOMETRY is fixed.
 * **No other text** -- no dimension, callout, label or SKU.
   The words are on the record (title, description, attributes); the drawing
   reflects the specifications **visually**: a longer length of cut is drawn
-  longer, a finer thread with more crests, a flat head is a cone and a button
-  head a dome, a sealed bearing is closed and an open one shows its balls.
+  longer, a finer thread with more crests (a compressed rod or stud too: its
+  crests are spread by one factor per diameter, so fine stays finer than
+  coarse), a coolant-fed end mill shows its outlets, a flat head is a cone and
+  a button head a dome, a sealed bearing is closed and an open one shows its balls.
   The gate is an **allow-list**, not a list of text forms
   (`drawing.svg_problems`):
   - every element must be one the figures emit (`svg, rect, defs, pattern, g,
