@@ -1,0 +1,117 @@
+"""The merchandise of seven invented kids' films, named only in the product text (gen#887).
+
+A film's name is a phrase a shopper types (``plaything story mug``) that no structured field
+holds: the products keep their makers' brands, no series and their types' categories. These tests
+pin the film list, that no film name sits in a brand, series or category field anywhere in the
+catalogue, that every film sells in five categories or more with a grocery item among them, that
+every description calls the film a movie, that each film has a product named in its description
+only, and that each SKU draws its own picture in code.
+"""
+
+from __future__ import annotations
+
+import re
+
+import pytest
+
+from synthetic_ecommerce_data.domains.retail import export, image_release, kids_films, scale
+
+FILMS = (
+    "Plaything Story",
+    "Lovely and the Beast",
+    "Duck Run",
+    "Really Cold",
+    "Little Tiny Queen",
+    "Home Without Anybody",
+    "The Blue Balloon",
+)
+#: The fewest categories (leaves) each film sells in.
+MIN_CATEGORIES = 5
+
+
+@pytest.fixture(scope="module")
+def catalog() -> list[dict]:
+    return scale.templates()
+
+
+def _names(doc: dict, film: str) -> bool:
+    text = f"{doc['title']} {doc['description']}"
+    return re.search(rf"\b{re.escape(film)}\b", text, re.IGNORECASE) is not None
+
+
+def _of(catalog: list[dict], film: str) -> list[dict]:
+    return [d for d in catalog if _names(d, film)]
+
+
+def test_the_film_list_is_the_seven_invented_films() -> None:
+    assert tuple(kids_films.FILMS) == FILMS
+
+
+def test_no_film_name_is_in_a_brand_series_or_category_field(catalog) -> None:
+    named = {d["product_id"]: kids_films.structured_names(d) for d in catalog}
+    assert {p: n for p, n in named.items() if n} == {}
+
+
+def test_structured_names_finds_a_film_in_each_field() -> None:
+    """The guard above can fail: a film in the brand, the series, the path or the leaf is found."""
+    plain = {"brand": "Little Fernby", "category_path": ["Kids", "Tops"], "category_leaf": "Tops"}
+    assert kids_films.structured_names(plain) == []
+    assert kids_films.structured_names({**plain, "brand": "Duck Run Toys"}) == ["Duck Run"]
+    assert kids_films.structured_names({**plain, "product_line": "Really Cold"}) == ["Really Cold"]
+    leaf = {**plain, "category_leaf": "The Blue Balloon"}
+    assert kids_films.structured_names(leaf) == ["The Blue Balloon"]
+
+
+def test_only_the_film_rows_name_a_film(catalog) -> None:
+    named = {d["product_id"] for f in FILMS for d in _of(catalog, f)}
+    assert named == kids_films.ids()
+
+
+@pytest.mark.parametrize("film", FILMS)
+def test_each_film_sells_in_five_categories_and_a_grocery_one(catalog, film) -> None:
+    docs = _of(catalog, film)
+    leaves = {d["category_leaf"] for d in docs}
+    assert len(leaves) >= MIN_CATEGORIES, sorted(leaves)
+    assert any(d["category_path"][0] == "Food & Drink" for d in docs), sorted(leaves)
+
+
+@pytest.mark.parametrize("film", FILMS)
+def test_every_description_calls_the_film_a_movie_and_no_title_does(catalog, film) -> None:
+    for d in _of(catalog, film):
+        assert f"{film} {kids_films.MOVIE}".lower() in d["description"].lower(), d["product_id"]
+        assert kids_films.MOVIE not in d["title"].lower(), d["product_id"]
+
+
+@pytest.mark.parametrize("film", FILMS)
+def test_each_film_has_a_product_named_in_its_description_only(catalog, film) -> None:
+    docs = _of(catalog, film)
+    only = [d["product_id"] for d in docs if film.lower() not in d["title"].lower()]
+    titled = [d["product_id"] for d in docs if film.lower() in d["title"].lower()]
+    assert only and titled, (only, titled)
+    assert set(only) <= kids_films.DESCRIPTION_ONLY
+
+
+def test_a_blue_balloon_product_with_a_color_sells_blue(catalog) -> None:
+    """Its title names Blue, so the product carries it: the text and the color field agree."""
+    for d in _of(catalog, "The Blue Balloon"):
+        if d.get("color_options") and "blue" in d["title"].lower():
+            assert "Blue" in [c["color"] for c in d["color_options"]], d["product_id"]
+
+
+def test_film_products_have_ordinary_skus_and_variants(catalog) -> None:
+    docs = [d for d in catalog if d["product_id"] in kids_films.ids()]
+    assert len(docs) == len(kids_films.ROWS)
+    assert all(d["skus"] for d in docs)
+    assert sum(len(d["skus"]) > 1 for d in docs) >= len(docs) // 2
+
+
+def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:
+    recs = [d for d in catalog if d["product_id"] in kids_films.ids()]
+    ids = [export.image_id(r, s) for r in recs for s in r["skus"]]
+    assert len(set(ids)) == len(ids)
+    files = dict(image_release.image_files(recs))
+    assert {image_release.member_path(i) for i in ids} == set(files)
+    for name, svg in files.items():
+        text = svg.decode()
+        assert text.startswith("<svg") and "<path" in text, name
+        assert "<image" not in text and "href=" not in text, name
