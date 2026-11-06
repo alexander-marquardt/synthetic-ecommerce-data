@@ -20,9 +20,11 @@ def _lines(kind: str) -> dict[str, dict]:
     return {r.get("product_line") or r["title"]: r for r in _products(kind)}
 
 
+#: A floor of lines per kind. A beauty model is its lead word alone since #851, so a kind holds
+#: about as many lines as its brands have lead words ("Revive", never "Revive Plus 3").
 @pytest.mark.parametrize(
     ("kind", "most"),
-    [("Foundation", 50), ("Face Cream", 20), ("Moisturiser", 5), ("Bath Salts", 3), ("Perfume", 2)],
+    [("Foundation", 8), ("Face Cream", 20), ("Moisturiser", 3), ("Bath Salts", 3), ("Perfume", 2)],
 )
 def test_every_line_of_a_kind_draws_its_own_outline(kind: str, most: int) -> None:
     lines = _lines(kind)

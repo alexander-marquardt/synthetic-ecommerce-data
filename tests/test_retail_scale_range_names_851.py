@@ -4,10 +4,10 @@ The line grammar named a derived cup set "Supper 6" and its next one "Supper 9":
 generation number, which no retailer puts on a cup set. And a style its template already shows
 in every title-shown value differed from it by its hero color alone, so it was a product of one
 SKU titled with that color ("Brackenmere Home Supper 9 Set of 4 Porcelain Espresso Cups in Gift
-Box, Green"), beside the brand's own grouped product. A derived model of a non-care family is now
-its lead word alone, and such a style carries the template's colors as its SKUs, so a brand sells
-one of it. The cleaning and beauty models keep their numbers until the grocery build drops them
-too (the issue's Remaining line).
+Box, Green"), beside the brand's own grouped product. A derived model is now its lead word alone,
+and such a style carries the template's colors as its SKUs, so a brand sells one of it. A cleaning
+or beauty model of the scale build followed last ("Keen Plus 4"); a care shade is still its own
+product.
 """
 
 from __future__ import annotations
@@ -34,23 +34,23 @@ def _derived(ceiling) -> list[dict]:
 
 
 def test_a_derived_range_name_has_no_bare_number(ceiling):
-    """Guard (#851): "Supper 6" and "Spread Mini 8" read as synthetic. Metric: derived styles
-    outside the care families whose range name has a word that is a number."""
+    """Guard (#851): "Supper 6", "Spread Mini 8" and "Keen Plus 4" read as synthetic. Metric:
+    derived styles whose range name has a word that is a number."""
     numbered = [
         (r["product_type"], scale._line(r))
         for r in _derived(ceiling)
-        if line_grammar.family(r) not in line_grammar.CARE
-        and BARE_NUMBER.search(scale._line(r) or "")
+        if BARE_NUMBER.search(scale._line(r) or "")
     ]
     assert numbered == [], f"{len(numbered)}: {sorted(set(numbered))[:10]}"
 
 
-def test_a_grammar_model_outside_care_is_its_lead_word():
-    """Guard (#851): every slot a brand of a non-care, non-food family deals is one of its lead
-    words, so no number or sub-model word ("Mini", "Plus") follows it. Metric: off-list models."""
+def test_a_grammar_model_is_its_lead_word():
+    """Guard (#851): every slot a brand of a non-food family deals in the scale build is one of its
+    lead words, so no number or sub-model word ("Mini", "Plus") follows it. Metric: off-list
+    models."""
     for fam in line_grammar.NUMBERED:
         deal = line_grammar.Deal(fam, ["Brand A", "Brand B"], {})
-        if fam in line_grammar.CARE or deal.spec.bare:
+        if deal.spec.bare:
             continue
         for brand in deal.brands:
             models = {deal.owned(brand, slot) for slot in range(scale.RANGE_SLOTS)}
@@ -61,14 +61,14 @@ def test_no_dealt_range_word_is_a_word_of_any_template_text():
     """Guard (#851): with no number after it, a range word that a description or title also
     says ("for toast, cake or a starter", "Bright Orange Crew Neck Tee") reads as that text's
     range, which ``check_catalog`` and ``review_range_names`` refuse. Metric: the words dealt to
-    a brand of a non-care family that some template's text uses."""
+    a brand that some template's text uses."""
     tpls = scale.templates()
     taken = line_grammar.text_words(tpls)
     deals = line_grammar.deals(tpls, scale.brand_pools(scale.derivable(tpls)))
     clash = sorted(
         (fam, w)
         for fam, deal in deals.items()
-        if deal.spec and not deal.spec.bare and fam not in line_grammar.CARE
+        if deal.spec and not deal.spec.bare
         for b in deal.brands
         for w in deal.of(b)
         if w.lower() in taken

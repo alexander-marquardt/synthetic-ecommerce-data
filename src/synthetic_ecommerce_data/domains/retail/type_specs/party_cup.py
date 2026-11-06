@@ -3,14 +3,18 @@
 Three styles from three brands, drawn by :func:`kit_cups.party_cup`. A real party cup carries a
 realistic title (material, use, pack) of six to ten words, so a short decoy outscores it on a bare
 ``cup`` and the cups policy (gen#125 class 15) is what finds it. A pack is a style; the pack count
-sits in the title, never in a drawing. Every name here is invented.
+sits in the title, never in a drawing. Every name here is invented. The paper cups of the invented
+kids' films (gen#887) come from :mod:`kids_films`.
 """
 
 # ruff: noqa: E501 -- authored descriptions read better whole (prototype only).
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import kit_cups  # noqa: F401 -- registers party_cup
+from synthetic_ecommerce_data.domains.retail import (
+    kids_films,
+    kit_cups,  # noqa: F401 -- registers party_cup
+)
 from synthetic_ecommerce_data.domains.retail.decor_rows import (
     BLUE,
     COBBLE,
@@ -48,5 +52,5 @@ SPEC = TypeSpec(
     key="party_cup",
     department="Home",
     product_type="Party Cup",
-    rows=ROWS,
+    rows=(*ROWS, *kids_films.rows_of("Party Cup")),
 )
