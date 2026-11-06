@@ -121,8 +121,7 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     # combination spread over the sizes. Every section is reached: STRIDE
     # shares no factor with the section count.
     start = OFFSET * combo + STRIDE * gen._rotate(f"sections:{combo}", len(SECTIONS))
-    count = min(gen._variant_count(), len(SECTIONS))
-    for width, height in (SECTIONS[(start + k) % len(SECTIONS)] for k in range(count)):
+    for width, height in line_sections(start, gen._variant_count()):
         child = ChildDraft(system="in")
         child.primary = gen._length("Width", float(width), style)
         height_attr = gen._length("Height", float(height), style)
@@ -133,6 +132,31 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
             child.also = height_attr
         draft.children.append(child)
     return draft
+
+
+def _told_apart(sections: list[tuple[Fraction, Fraction]]) -> bool:
+    """Whether every bar has a width or a height no other bar of ``sections`` has."""
+    widths = [w for w, _ in sections]
+    heights = [h for _, h in sections]
+    return all(widths.count(w) == 1 or heights.count(h) == 1 for w, h in sections)
+
+
+def line_sections(start: int, count: int) -> list[tuple[Fraction, Fraction]]:
+    """The sections a line offers: ``count`` of them from ``start`` on, round SECTIONS.
+
+    A section that would leave a bar with no width or height of its own is skipped for the
+    next one: a 1/4" x 3/16" bar beside the 3/16" and 1/4" squares, whose title then names
+    nothing that is its alone (#50). The count holds while a line has sections to take, at
+    least the eleven squares, so the random stream after the line does not move.
+    """
+    taken: list[tuple[Fraction, Fraction]] = []
+    for k in range(len(SECTIONS)):
+        if len(taken) == count:
+            break
+        section = SECTIONS[(start + k) % len(SECTIONS)]
+        if _told_apart([*taken, section]):
+            taken.append(section)
+    return taken
 
 
 # --- the drawing ------------------------------------------------------------------

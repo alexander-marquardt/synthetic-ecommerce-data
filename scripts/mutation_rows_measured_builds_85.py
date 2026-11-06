@@ -107,7 +107,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a 100K per-type size may be typed in a doc again",
         "tests/test_measured_figures.py",
-        "if count >= 1000:",
+        "if count >= 1000 and count % 100:",
         "if count >= 10**9:",
         "tests/test_measured_figures.py -k planted_restatement",
         "a typed per-type size is refused",
