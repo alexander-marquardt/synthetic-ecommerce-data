@@ -214,6 +214,34 @@ def test_the_catalogue_job_runs_on_every_event_and_builds_where_it_uploads() -> 
     assert "scripts/build_ceiling.py --out build/ceiling" in runs
 
 
+def test_the_shared_100k_files_are_built_in_a_leg_of_the_job_and_named_to_the_workers() -> None:
+    """The 100K files of tests/shared_builds.py are built once per run (#790): the job's
+    ``hundred_k`` leg builds and uploads them, and a shard downloads them where it names them
+    in ``SHARED_BUILDS_DIR`` before the tests run."""
+    job = CI["jobs"]["ceiling-catalogue"]
+    legs = job.get("strategy", {}).get("matrix", {}).get("shard", [])
+    assert sorted(legs) == ["ceiling", "hundred_k"]
+    runs = " ".join(s.get("run", "") for s in job["steps"])
+    assert "scripts/build_shared_100k.py --out build/hundred_k" in runs
+    upload = next(
+        s for s in job["steps"]
+        if s.get("uses", "").startswith("actions/upload-artifact")
+        and s["with"]["name"] == "hundred-k-builds"
+    )  # fmt: skip
+    assert upload["if"] == "matrix.shard == 'hundred_k'"
+    assert upload["with"]["path"] == "build/hundred_k"
+    download = next(
+        s for s in TESTS["steps"]
+        if s.get("uses", "").startswith("actions/download-artifact")
+        and s["with"]["name"] == "hundred-k-builds"
+    )  # fmt: skip
+    assert download.get("if") == "steps.select.outputs.run == 'true'"
+    assert download["with"]["path"] == "build/hundred_k"
+    run = next(s for s in TESTS["steps"] if s.get("name") == "Tests")["run"]
+    assert 'export SHARED_BUILDS_DIR="$PWD/build/hundred_k"' in run
+    assert run.index("SHARED_BUILDS_DIR") < run.index("ci_run_pytest.py")
+
+
 def test_the_local_run_reaches_the_catalogue_job_before_the_tests() -> None:
     """``local_ci_jobs.py`` takes the jobs in file order, and ignores ``needs``."""
     names = list(CI["jobs"])

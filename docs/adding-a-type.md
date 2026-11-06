@@ -1057,7 +1057,9 @@ an old file. A test that needs a 100K build adds a function there; it does not
 name `LARGE_BUILD_LINES` itself (`tests/test_shared_builds_140.py` fails a module
 that does, and fails a worker that holds 500 MB or more for the price fixture).
 `SHARED_BUILDS_DIR=<dir>` moves the files; deleting the directory only costs one
-rebuild.
+rebuild. In CI the files are made once per run, before the shards (#790): a new
+build that a test reads belongs in `FROM_ONE_BUILD` or `ON_THEIR_OWN` there, so
+the `ceiling-catalogue` job makes it too (docs/ci-sharding.md).
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the
