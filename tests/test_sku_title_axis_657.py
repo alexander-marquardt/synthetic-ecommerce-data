@@ -46,7 +46,6 @@ BAND = (0.60, 0.80)
 #: is a new line in this list that someone has to read.
 RETAIL_COINCIDENCES = {
     ("SPF 50 Face Sun Cream", "net_volume", "50"),
-    ("Stridewell Speed 4 Neutral Road Running Shoes", "size_uk", "4"),
 }
 
 #: A comma not followed by a space; between two digits it is a thousands separator.

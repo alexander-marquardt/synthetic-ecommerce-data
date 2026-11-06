@@ -1,7 +1,7 @@
 """The boots family of the line grammar: boots (gen#663, gen#513).
 
-A model is a plain word of the family, an optional sub-model and a number or a code, then the
-descriptors and the kind, the brand first, e.g. "Brand Summit 3 Waterproof Walking Boots". The
+A model is a plain word of the family alone, then the descriptors and the kind, the brand
+first, e.g. "Brand Summit Waterproof Walking Boots": a number read as synthetic (#851). The
 lead words are plain English words of public retail listings, not coined brand-sounding ones,
 names or places.
 """

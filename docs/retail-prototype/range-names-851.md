@@ -29,7 +29,7 @@ have one SKU although one of its products has two colors or sizes, with its coun
 
 At the ceiling build the build has fewer products and more SKUs (`scale --report` measures them;
 a total is never typed here, `tests/test_retail_figures_162.py`). The numbered ranges left are the
-cleaning and beauty models and the authored bra, jeans, running shoe and walking boot lines. Cup
+cleaning and beauty models. Cup
 sets and travel cups are one product per brand, each with several colors as its SKUs.
 
 **A mug is sold in several glazes.** Each plain mug of the mug print line (`prints.py`, line
@@ -62,6 +62,22 @@ serving platter, the salad, serving and mixing bowls) is not sold in packs and h
 A brand may still sell two plates of one template when they differ by material or finish
 (stoneware, bone china).
 
+**An authored range is a plain word too.** The authored bra, jeans, running shoe and walking
+boot rows kept their numbers after the derived ones dropped them: "Bramblewood Comfort Pro 3
+Underwired Lace Plunge Bra", "Ottery Denim Original Pro 101 High Rise Cigarette Jeans",
+"Stridewell Summit 2 Waterproof Walking Boots". Each authored line is now its lead word alone
+(`scale_rows.py`, `variants.py`, `colorgroup_rows.py`, `needs_rows.py`, `footwear_rows.py`). Bramblewood's bras are
+"Anytime", not "Comfort": a bare "Comfort" also leads another brand's title ("Comfort
+High-Waisted Pants"), so the range review read one range word under two brands. Eight bras would
+then share a brand, a wiring and a style with another, though they sell other band and
+cup runs and colors, so each takes another word its brand is dealt: Saltmarsh's second
+non-wired nursing, full cup, minimiser, post-surgery and mastectomy bras are "Haven" (its third
+post-surgery bra "Nimbus"), and Bramblewood's second non-wired plunge and mastectomy bras are
+"Harmony". The women's and men's walking boots share one title, as the running shoes already
+did; their category paths differ. An appliance, tool or garden model ("Torque Pro") keeps its
+sub-model word, with no number after it.
+
 The guards are in `tests/test_retail_scale_range_names_851.py`,
+`tests/test_retail_scale_authored_lines_851.py`,
 `tests/test_retail_scale_cup_packs_851.py`, `tests/test_retail_scale_mugs_851.py` and
 `tests/test_retail_scale_tableware_packs_851.py`.
