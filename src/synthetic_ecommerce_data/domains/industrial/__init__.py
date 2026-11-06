@@ -32,6 +32,12 @@ def _pack_types():
     return PACK_TYPES
 
 
+def _orientations():
+    from synthetic_ecommerce_data.domains.industrial.orientation import ORIENTATION  # noqa: PLC0415
+
+    return ORIENTATION
+
+
 #: The package its type modules sit under: one directory per family, one module per
 #: type, each exposing ``SPEC`` (:func:`...core.typespec.discover`).
 TYPES_PACKAGE = "synthetic_ecommerce_data.domains.industrial.product_types"
@@ -61,6 +67,7 @@ DOMAIN = _domain.Domain(
     types_package=TYPES_PACKAGE,
     load_types=_load_types,
     register_type=_register_type,
+    orientations=_orientations,
 )
 
 _domain.register(DOMAIN)
