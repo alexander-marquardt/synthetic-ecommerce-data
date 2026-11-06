@@ -10,7 +10,9 @@ only, and that each SKU draws its own picture in code.
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
 import pytest
 
@@ -126,3 +128,28 @@ def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:
         text = svg.decode()
         assert text.startswith("<svg") and "<path" in text, name
         assert "<image" not in text and "href=" not in text, name
+
+
+#: The other products of the types the films join, as main built them before the films came
+#: (tests/data/kids_films_887_neighbors.json). A film row in a decoy, main-color or sale pass
+#: would move one of them.
+NEIGHBORS = Path(__file__).parent / "data" / "kids_films_887_neighbors.json"
+NEIGHBOR_FIELDS = (
+    "title", "brand", "category_path", "sku_count", "price_min", "price_max", "was_price",
+)
+
+
+def test_the_other_products_of_the_joined_types_are_what_they_were_on_main(catalog) -> None:
+    pinned = json.loads(NEIGHBORS.read_text())
+    types = set(pinned["product_types"])
+    got = {
+        d["product_id"]: {
+            **{f: d.get(f) for f in NEIGHBOR_FIELDS},
+            "colors": [c["color"] for c in d.get("color_options") or ()],
+        }
+        for d in catalog
+        if d["product_type"] in types and d["product_id"] not in kids_films.ids()
+    }
+    new = sorted(set(got) - set(pinned["products"]))
+    assert all(pid.startswith("BRD-STK") for pid in new), new
+    assert {pid: got[pid] for pid in pinned["products"]} == pinned["products"]
