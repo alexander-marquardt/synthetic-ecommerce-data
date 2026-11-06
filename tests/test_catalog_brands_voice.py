@@ -299,6 +299,7 @@ DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 TABLE_TYPES = tabletype.tables()
 
 
+@pytest.mark.default_seed_band
 def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
     specs: dict[str, set] = collections.defaultdict(set)
     skus: collections.Counter = collections.Counter()
@@ -396,13 +397,19 @@ def test_every_brand_has_a_unique_name_and_id_code():
     assert len({b.code for b in BRAND_BOOK}) == len(BRAND_BOOK)
 
 
-def test_the_brand_pool_is_a_long_tail_and_a_few_names_are_ordinary_words(hundred_k):
-    """A few broad houses, many small makers; no brand near a tenth of 100K."""
+@pytest.mark.default_seed_band
+def test_no_brand_holds_a_tenth_of_100k_or_under_three_in_a_thousand(hundred_k):
+    """A few broad houses, many small makers; no brand near a tenth of 100K. A floor on one
+    draw: seed 20260918 leaves its smallest maker at 0.0028 (#50)."""
     share = collections.Counter(doc["brand"] for doc in hundred_k)
     total = sum(share.values())
-    assert set(share) == set(BRANDS), set(BRANDS) - set(share)
     assert max(share.values()) / total <= 0.10
     assert min(share.values()) / total >= 0.003
+
+
+def test_the_brand_pool_is_a_long_tail_and_a_few_names_are_ordinary_words(hundred_k):
+    share = collections.Counter(doc["brand"] for doc in hundred_k)
+    assert set(share) == set(BRANDS), set(BRANDS) - set(share)
     ordinary = {
         "Iron Heron",
         "Lantern Rock",

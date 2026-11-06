@@ -89,7 +89,7 @@ addopts = "--dist loadgroup -p no:randomly"
 timeout = 300
 markers = [
     # scripts/reseed_proof.py deselects it: a census band is judged at the default seed only (#50).
-    "default_seed_band: a census band row, judged at the default seed only",
+    "default_seed_band: a census band or floor on one draw, judged at the default seed only",
 ]
 
 [tool.ruff]

@@ -1045,8 +1045,8 @@ which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrite
 diff: a figure that moved for no stated reason is questioned there. A rule that no SKU
 satisfies stops the script and names the rule. `--check` compares without writing.
 A census band is not a pin: it holds the default seed's build to the census, and on
-another seed the default build may land out of it (`scripts/reseed_proof.py` leaves
-the `default_seed_band` tests out, #50).
+another seed the default build may land out of it, so `scripts/reseed_proof.py`
+leaves the `default_seed_band` tests out (#50).
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
