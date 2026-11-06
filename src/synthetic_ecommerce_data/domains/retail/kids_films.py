@@ -24,7 +24,7 @@ from __future__ import annotations
 import functools
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import breadth_rows
+from synthetic_ecommerce_data.domains.retail import breadth_rows, dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.prints import ADULT_SIZES, KIDS_SIZES
@@ -45,7 +45,7 @@ MOVIE = "movie"
 
 breadth_rows.OWNERS.update({b: BRAND_OWNER[b] for b in ("Crofter's Bakehouse",) if b not in breadth_rows.OWNERS})
 
-WHITE, NAVY = cw("White", "#f4f1ea", "solid", "#9a9ca0"), cw("Navy", "#2c477e")
+WHITE, NAVY = cw("White", "#f4f1ea", "solid", "#9a9ca0"), cw("Navy", dark_blues.NAVY)
 RED, BLUE = cw("Red", "#c8312e"), cw("Blue", "#2f6db5")
 YELLOW, GREEN = cw("Yellow", "#f2c230"), cw("Green", "#3c8d4f")
 PINK, PURPLE = cw("Pink", "#f2a1b8"), cw("Purple", "#7b4fa0")
@@ -118,7 +118,7 @@ ROWS: tuple[Row, ...] = (
     _p(_LB, "PJ", "Lovely and the Beast Kids' Pyjamas", "Long-sleeve cotton pyjamas for kids with the castle and its roses from the Lovely and the Beast movie.", (PINK, NAVY)),
     _p(_LB, "BD", "Lovely and the Beast Kids' Duvet Set", "A single duvet cover and pillowcase printed with the castle ballroom from the Lovely and the Beast movie. Duvet sold separately.", (PINK, YELLOW)),
     _p(_LB, "TY", "Lovely and the Beast Plush Beast Soft Toy", "A big, soft plush of the gentle beast from the Lovely and the Beast movie, with a velvet cape.", (GREY,)),
-    _p(_LB, "PC", "Lovely and the Beast Paper Party Cups", "Paper party cups with the castle and roses from the Lovely and the Beast movie, for a birthday party.", (PINK, YELLOW)),
+    _p(_LB, "PC", "Lovely and the Beast Paper Party Cups for Birthday Parties", "Paper party cups with the castle and roses from the Lovely and the Beast movie, for a birthday party.", (PINK, YELLOW)),
     _p(_LB, "SS", "Lovely and the Beast Rose Jelly Sweets", "Rose-shaped fruit jelly sweets in a bag printed with the castle from the Lovely and the Beast movie."),
     # -- Duck Run: a farmyard escape --
     _p(_DR, "MG", "Duck Run Stoneware Mug", "A stoneware mug with the escaping ducks from the Duck Run movie. Dishwasher safe.", (WHITE, YELLOW)),
@@ -127,7 +127,7 @@ ROWS: tuple[Row, ...] = (
     _p(_DR, "PJ", "Kids' Farmyard Pyjamas", "Long-sleeve cotton pyjamas for kids, printed with the ducks of the Duck Run movie on the run from the farm.", (YELLOW, NAVY)),
     _p(_DR, "LN", "Duck Run Kids' Lunch Box", "A wipe-clean lunch box with a clip lid and the ducks from the Duck Run movie.", (YELLOW, GREEN)),
     _p(_DR, "TY", "Duck Run Duckling Soft Toy", "A small plush of the duckling hero from the Duck Run movie, with a soft felt beak.", (YELLOW,), shape="bird"),
-    _p(_DR, "PC", "Duck Run Paper Party Cups", "Paper party cups with the farmyard ducks from the Duck Run movie, for a birthday party.", (YELLOW, GREEN)),
+    _p(_DR, "PC", "Duck Run Paper Party Cups for Birthday Parties", "Paper party cups with the farmyard ducks from the Duck Run movie, for a birthday party.", (YELLOW, GREEN)),
     _p(_DR, "SS", "Duck Run Fruit Gummy Ducks", "Chewy fruit gummies shaped like the ducks of the Duck Run movie."),
     # -- Really Cold: an ice kingdom --
     _p(_RC, "MG", "Really Cold Stoneware Mug", "A stoneware mug with the ice palace from the Really Cold movie, for hot chocolate on a snow day. Dishwasher safe.", (WHITE, BLUE)),
@@ -158,7 +158,7 @@ ROWS: tuple[Row, ...] = (
     _p(_BB, "TE", "The Blue Balloon Kids' Cotton Tee", "A soft cotton tee for kids with the floating balloon from The Blue Balloon movie on the front.", (BLUE, WHITE)),
     _p(_BB, "SW", "The Blue Balloon Kids' Sweatshirt", "A brushed-back cotton sweatshirt for kids with the city rooftops from The Blue Balloon movie.", (BLUE, NAVY)),
     _p(_BB, "BD", "The Blue Balloon Kids' Duvet Set", "A single duvet cover and pillowcase with the balloon over the rooftops from The Blue Balloon movie. Duvet sold separately.", (BLUE, WHITE)),
-    _p(_BB, "PC", "The Blue Balloon Paper Party Cups", "Paper party cups with the floating balloon from The Blue Balloon movie, for a birthday party.", (BLUE, WHITE)),
+    _p(_BB, "PC", "The Blue Balloon Paper Party Cups for Birthday Parties", "Paper party cups with the floating balloon from The Blue Balloon movie, for a birthday party.", (BLUE, WHITE)),
     _p(_BB, "PB", "The Blue Balloon Party Bags", "Paper party bags with the girl and her balloon from The Blue Balloon movie, ready to fill for a birthday.", (BLUE, WHITE)),
     _p(_BB, "ST", "Kids' Sky Adventure Sticker Sheets", "Four sheets of stickers of the balloon, the girl and the city from The Blue Balloon movie.", (BLUE,)),
     _p(_BB, "SS", "The Blue Balloon Bubblegum Sweets", "Round bubblegum sweets in a bag printed with the balloon from The Blue Balloon movie."),
