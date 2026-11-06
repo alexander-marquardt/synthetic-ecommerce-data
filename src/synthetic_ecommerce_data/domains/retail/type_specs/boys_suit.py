@@ -9,6 +9,7 @@ only (``derivable`` False).
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_suit_sets,  # noqa: F401 -- registers boys_suit
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import (
@@ -24,7 +25,7 @@ PRODUCT_TYPE = "Boys Suit"
 PATH = ("Kids", "Boys", "Suits")
 AGES = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs", "11-12 Yrs", "13-14 Yrs")
 HEX = {
-    "Navy": "#26365c", "Black": "#2f2f35", "Charcoal": "#4a4a50", "White": "#f4f4f4",
+    "Navy": dark_blues.NAVY, "Black": "#2f2f35", "Charcoal": "#4a4a50", "White": "#f4f4f4",
     "Stone": "#bdb5a6", "Blue": "#2f6fb5", "Red": "#c8312e", "Green": "#2f7a46",
     "Burgundy": "#6d1f2f", "Yellow": "#f2d14b", "Grey": "#9a9a9a",
 }  # fmt: skip

@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_appliances,  # noqa: F401 -- registers desk_fan, pedestal_fan, tower_fan, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -111,7 +112,7 @@ PINK = cw("Pink", "#f2a1b8", "solid", "#2f2f35")
 YELLOW = cw("Yellow", "#f2d14b", "solid", "#2f2f35")
 DUCK_EGG = cw("Duck Egg", "#b7d3cf", "solid", "#2f2f35")
 MUSTARD = cw("Mustard", "#d1a03c", "solid", "#2f2f35")
-NAVY = cw("Navy", "#26365c", "solid", "#8f989f")
+NAVY = cw("Navy", dark_blues.NAVY, "solid", "#8f989f")
 
 # --------------------------------------------------------------------------
 # Desk fans: color x blade size; the head draws its blade count.

@@ -53,5 +53,15 @@ exported as Capacity in ml). Their declared size axis (`size_axes.AXES`) draws a
 larger (`size_ladder`). A derived style copies its template's SKUs, so each brand's set or cup
 is one product with pack or capacity × color SKUs.
 
+**A plate, bowl or glass set is sold as the cup set is.** Each plate, bowl and glass row sold in
+packs (`tableware_rows.PLATES`, `BOWLS`, `GLASSES`) named its own: Single, 4 and 6 for a dinner
+plate, 4 and Single for a cereal bowl, 2, 4 and 6 for a wine glass, and none of them an 8 pack.
+Each now sells every color in a 2 pack, a 4 pack and an 8 pack (`tableware_rows._sets`), and each
+pack draws that many items (`pack_copies`). A derived style copies them. A large single piece (the
+serving platter, the salad, serving and mixing bowls) is not sold in packs and has no pack axis.
+A brand may still sell two plates of one template when they differ by material or finish
+(stoneware, bone china).
+
 The guards are in `tests/test_retail_scale_range_names_851.py`,
-`tests/test_retail_scale_cup_packs_851.py` and `tests/test_retail_scale_mugs_851.py`.
+`tests/test_retail_scale_cup_packs_851.py`, `tests/test_retail_scale_mugs_851.py` and
+`tests/test_retail_scale_tableware_packs_851.py`.
