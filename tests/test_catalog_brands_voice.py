@@ -280,6 +280,10 @@ DISTINCT_SPEC_FLOOR = {
     # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
     # (0.332), rounded down to 0.05.
     "cut_resistant_gloves": 0.30,
+    # #834: a pair of safety glasses is a frame style, lens coating and frame color in one of
+    # six lens colors, 58 specs in the maker's feed, so makers overlap by construction.
+    # Measured at 100K, 58 distinct specs of 414 SKUs (0.140), rounded down to 0.05.
+    "safety_glasses": 0.10,
     # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
     # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
     "bronze_sleeve_bushings": 0.80,

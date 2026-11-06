@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row, _fab, _mat
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -20,10 +21,10 @@ HOME = (
     Row("CSHVEL", "Velvet Piped Cushion", "Hearth & Table", "Home", _CUSH, "Cushion", 18.0,
         "cushion", "A square cushion with a piped edge and a feather pad. Zip opening.",
         (cw("Teal", "#1c7c7d"), cw("Mustard", "#d4a32a"), cw("Blush", "#e8b9b3"),
-         cw("Navy", "#26365c")), _fab("Velvet"), (("45 x 45cm", 18.0), ("55 x 55cm", 24.0))),
+         cw("Navy", dark_blues.NAVY)), _fab("Velvet"), (("45 x 45cm", 18.0), ("55 x 55cm", 24.0))),
     Row("CSHLIN", "Linen Fringed Cushion", "Lanternby", "Home", _CUSH, "Cushion", 22.0,
         "cushion", "A square cushion with a knotted fringe and a hollowfibre pad.",
-        (cw("Multi Patchwork", "#c46a4a", "patchwork", "#26365c"), cw("Sage", "#9bb08f"),
+        (cw("Multi Patchwork", "#c46a4a", "patchwork", dark_blues.NAVY), cw("Sage", "#9bb08f"),
          cw("Rust", "#a4502a")), _fab("Linen"),
         (("45 x 45cm", 22.0), ("55 x 55cm", 28.0))),
     Row("CSHBOU", "Boucle Bolster Cushion", "Calderby & Lune", "Home", _CUSH, "Cushion", 26.0,
@@ -48,7 +49,7 @@ HOME = (
         _fab("Bamboo"), (("Hand Towel", 10.0), ("Bath Towel", 18.0), ("Bath Sheet", 28.0))),
     Row("TWLTRK", "Turkish Cotton Bath Towel", "Lanternby", "Home", _TOWEL, "Towel", 9.0,
         "bath_towel", "A heavy towel woven with long loops, with a hanging loop. Machine wash.",
-        (cw("Navy", "#26365c"), cw("White", "#ffffff"), cw("Mustard", "#d4a32a"),
+        (cw("Navy", dark_blues.NAVY), cw("White", "#ffffff"), cw("Mustard", "#d4a32a"),
          cw("Stone", "#c9bfae")), _fab("Turkish Cotton"),
         (("Hand Towel", 9.0), ("Bath Towel", 16.0), ("Bath Sheet", 25.0))),
     Row("TWLZRO", "Zero Twist Cotton Bath Towel", "Hearth & Table", "Home", _TOWEL, "Towel",

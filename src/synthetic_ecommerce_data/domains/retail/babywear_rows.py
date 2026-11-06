@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_baby,  # noqa: F401 -- registers the babywear and nursery shapes
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -28,7 +29,7 @@ BLACK = cw("Black", "#2f2f35", "solid", "#8f989f")
 WHITE = cw("White", "#f4f1ea", "solid", "#b9b4a6")
 PINK = cw("Pink", "#f2b8c6", "solid", "#a8324a")
 GREY = cw("Grey", "#aeb0b5", "solid", "#55575c")
-NAVY = cw("Navy", "#2c3a5e", "solid", "#d8dce8")
+NAVY = cw("Navy", dark_blues.NAVY_LIGHT, "solid", "#d8dce8")
 CREAM = cw("Cream", "#efe8d8", "solid", "#b9b4a6")
 SAGE = cw("Sage", "#a9bfa5", "solid", "#4d6149")
 

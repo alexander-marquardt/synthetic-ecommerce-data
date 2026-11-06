@@ -13,6 +13,7 @@ size, a capacity and a weight are all structured entries on the variant. Every b
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_luggage,  # noqa: F401 -- registers suitcase, cabin_case, holdall, ...
 )
 from synthetic_ecommerce_data.domains.retail.accessory_rows import ARow, _a, _count, _num, _who
@@ -38,7 +39,7 @@ GREEN = cw("Green", "#4f8a3a")
 YELLOW = cw("Yellow", "#f2c230")
 BLACK = cw("Black", "#2d2d33")
 WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
-NAVY = cw("Navy", "#26365c")
+NAVY = cw("Navy", dark_blues.NAVY)
 GREY = cw("Grey", "#9a9ca0")
 SILVER = cw("Silver", "#cfd5da", "solid", "#8f989f")
 TEAL = cw("Teal", "#1c7c7d")

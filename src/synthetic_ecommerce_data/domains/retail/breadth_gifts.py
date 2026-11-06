@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -130,7 +131,7 @@ GIFTS = (
         "Wrapping Paper", 5.5, "wrapping_paper",
         "Two foil-printed sheets and two tags, folded flat in a card sleeve.",
         (cw("Ruby Spot", "#8e1b2c", "polka", "#d4af37"),
-         cw("Navy Stripe", "#26365c", "stripe", "#c0c0c0")),
+         cw("Navy Stripe", dark_blues.NAVY, "stripe", "#c0c0c0")),
         _occ("Birthday")),
     Row("CHMBRS", "Brass Hedgehog Charm Keyring", "Lanternby", "Gifts", _CHARM, "Keyring",
         10.0, "keyring", "A solid brass charm that darkens with use, on a small gift card.",

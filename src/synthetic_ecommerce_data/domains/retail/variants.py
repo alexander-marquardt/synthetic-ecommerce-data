@@ -28,6 +28,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import size_charts
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.colorwords import plain
 from synthetic_ecommerce_data.domains.retail.departments import check as check_departments
 from synthetic_ecommerce_data.domains.retail.stable_ids import check_skus, sku_id
@@ -148,10 +149,10 @@ def product(product_id: str, skus: list[dict], swatches: dict[str, dict], **fiel
 # ==========================================================================
 
 WASHES = {
-    "Rinse": "#1f2a44",
-    "Dark Indigo": "#25345a",
-    "Indigo": "#34466e",
-    "Mid Wash": "#4a6a94",
+    "Rinse": dark_blues.RINSE,
+    "Dark Indigo": dark_blues.DARK_INDIGO,
+    "Indigo": dark_blues.INDIGO,
+    "Mid Wash": dark_blues.MID_WASH,
     "Vintage Blue": "#6283ad",
     "Light Wash": "#8fb0cf",
     "Bleach Wash": "#c4d6e6",
@@ -414,9 +415,9 @@ BRAS = (
     BraStyle("FARNLEY", "Support 2", "Saltmarsh", "Full Cup", (32, 46), ("B", "J"),
              (BLACK, WHITE, NUDE), 28.0),
     BraStyle("HALDEN", "Support 3", "Saltmarsh", "T-Shirt", (30, 40), ("A", "GG"),
-             (BLACK, WHITE, NUDE, cw("Mocha", "#7b5a45"), cw("Navy", "#26365c"),
+             (BLACK, WHITE, NUDE, cw("Mocha", "#7b5a45"), cw("Navy", dark_blues.NAVY),
               cw("Grey Marl", "#9a9ca0"), cw("Ivory", "#f3ecd9"),
-              cw("Breton", "#ffffff", "stripe", "#26365c")), 20.0),
+              cw("Breton", "#ffffff", "stripe", dark_blues.NAVY)), 20.0),
     BraStyle("THORNBY", "Comfort 4", "Bramblewood", "Soft Cup", (30, 42), ("A", "E"),
              (BLACK, NUDE), 16.0, wired=False),
     BraStyle("KINVER", "Support 4", "Saltmarsh", "Sports", (30, 44), ("A", "G"),
@@ -503,7 +504,7 @@ _PLAIN = (
     cw("Slate", "#6f7c86"),
     cw("Sage", "#9bb08f"),
     cw("Ochre", "#d1a03c"),
-    cw("Navy", "#26365c"),
+    cw("Navy", dark_blues.NAVY),
 )
 BEDDING = (
     ShallowRow("DUVHOL", "Bedding", "Hollowfibre 10.5 Tog Duvet", "Quillon Sleep",
@@ -526,9 +527,9 @@ BEDDING = (
                ("Home", "Bedding", "Duvet Covers"), 34.0, "duvet",
                "Soft washed cotton in woven stripe, gingham and spot designs, with a button "
                "closure.",
-               (cw("Ticking Stripe", "#ffffff", "stripe", "#26365c"),
+               (cw("Ticking Stripe", "#ffffff", "stripe", dark_blues.NAVY),
                 cw("Red Gingham", "#ffffff", "gingham", "#c8312e"),
-                cw("Navy Spot", "#26365c", "polka", "#ffffff")),
+                cw("Navy Spot", dark_blues.NAVY, "polka", "#ffffff")),
                ("Double", "King", "Super King")),
     ShallowRow("PILMIC", "Bedding", "Microfibre Pillow Pair", "Quillon Sleep",
                ("Home", "Bedding", "Pillows"), 18.0, "pillow",

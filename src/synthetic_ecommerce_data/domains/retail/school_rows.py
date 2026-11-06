@@ -30,6 +30,7 @@ this module's ages, colors and :func:`_row`. Every brand is invented.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_school,  # noqa: F401 -- registers school_trousers, school_skirt, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
@@ -50,7 +51,7 @@ AGES = ("3-4 Yrs", "5-6 Yrs", "7-8 Yrs", "9-10 Yrs", "11-12 Yrs", "13-14 Yrs", "
 
 BLACK = cw("Black", "#2a2a2e")
 GREY = cw("Grey", "#9a9ca0")
-NAVY = cw("Navy", "#26365c")
+NAVY = cw("Navy", dark_blues.NAVY)
 CHARCOAL = cw("Charcoal", "#4a4a50")
 WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
 BLUE = cw("Blue", "#8fb4dc")

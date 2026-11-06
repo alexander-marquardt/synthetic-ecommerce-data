@@ -39,6 +39,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.core.entry import canonical
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_decor,  # noqa: F401 -- registers clock, ornament, stems, trinket_tray, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -68,7 +69,7 @@ GREEN, YELLOW = cw("Green", "#4f8a3a"), cw("Yellow", "#f2c230")
 BLACK, WHITE = cw("Black", "#2d2d33"), cw("White", "#f4f1ea", "solid", "#9a9ca0")
 NATURAL, CREAM, GOLD = cw("Natural", "#e3d6bb"), cw("Cream", "#efe6cf"), cw("Gold", "#c9a227")
 SILVER, GREY, PINK = cw("Silver", "#c3c7cc"), cw("Grey", "#9a9ca0"), cw("Pink", "#e8b9b3")
-BROWN, TEAL, NAVY = cw("Brown", "#7a5a3c"), cw("Teal", "#1c7c7d"), cw("Navy", "#26365c")
+BROWN, TEAL, NAVY = cw("Brown", "#7a5a3c"), cw("Teal", "#1c7c7d"), cw("Navy", dark_blues.NAVY)
 COPPER, TAN = cw("Copper", "#c06a3c"), cw("Tan", "#c8a87a")
 
 

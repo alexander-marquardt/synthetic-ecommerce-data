@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from synthetic_ecommerce_data.core import size_charts
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail import distractors as dz
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, COLOR_FAMILIES, _digest
@@ -358,7 +359,7 @@ _W, _M, _K = "women", "men", "kids"
 WOMENS = (
     FootwearStyle("WTRCNV", "Canvas Lace-Up Trainers", "Larkmoor", _W, "trainer", 26.0,
                   "Low canvas trainers with a cushioned insole and a vulcanised rubber sole.",
-                  (sh("White", "#f7f5ef", "white", "canvas"), sh("Navy", "#26365c", "navy", "canvas"),
+                  (sh("White", "#f7f5ef", "white", "canvas"), sh("Navy", dark_blues.NAVY, "navy", "canvas"),
                    sh("Black", "#2a2a2e", "black", "canvas"), sh("Sage", "#9bae8f", "green", "canvas"),
                    sh("Orange", "#e8742a", "orange", "canvas")),
                   W_WHOLE, "Lace-Up", "Rubber"),
@@ -430,7 +431,7 @@ WOMENS = (
                   W_WHOLE, "Slingback", "Leather", toe="Pointed"),
     FootwearStyle("WBALLT", "Leather Ballet Pumps", "Wrenfield", _W, "ballet", 29.0,
                   "Soft leather ballet flats with a bow trim and a flexible sole. Folds flat.",
-                  (sh("Black", "#2a2a2e", "black", "leather"), sh("Navy", "#26365c", "navy", "leather"),
+                  (sh("Black", "#2a2a2e", "black", "leather"), sh("Navy", dark_blues.NAVY, "navy", "leather"),
                    sh("Nude", "#d9b8a0", "cream", "leather"),
                    sh("Leopard", "#c9a26b", "multi", "suede", "leopard", "#3a2a1c"),
                    sh("Red Patent", "#b3202e", "red", "patent")),
@@ -444,11 +445,11 @@ WOMENS = (
     FootwearStyle("WSLMOC", "Faux Fur Lined Moccasin Slippers", "Hollinwray Knits", _W, "slipper",
                   22.0, "Suede moccasin slippers lined in soft faux fur, on a grippy sole.",
                   (sh("Grey", "#9a9a9e", "grey", "suede"), sh("Dusky Pink", "#d7a1a6", "pink", "suede"),
-                   sh("Navy", "#26365c", "navy", "suede")),
+                   sh("Navy", dark_blues.NAVY, "navy", "suede")),
                   tuple(SLIPPERS_WOMEN), "Slip-On", "Rubber", lining="Faux fur"),
     FootwearStyle("WWELGL", "Gloss Tall Wellies", "Thistle & Wren", _W, "welly", 35.0,
                   "Glossy rubber wellingtons with a side buckle and a ribbed, grippy sole.",
-                  (sh("Navy", "#26365c", "navy", "rubber"), sh("Olive", "#5f6b3a", "green", "rubber"),
+                  (sh("Navy", dark_blues.NAVY, "navy", "rubber"), sh("Olive", "#5f6b3a", "green", "rubber"),
                    sh("Red", "#b3202e", "red", "rubber")),
                   W_WHOLE, "Pull-On", "Rubber", extra=(("waterproof", "Waterproof", "Yes"),)),
 )  # fmt: skip
@@ -457,7 +458,7 @@ MENS = (
     FootwearStyle("MTRLOW", "Leather Low Top Trainers", "Harbour & Pine", _M, "trainer", 45.0,
                   "Clean leather trainers with a padded collar and a stitched cupsole.",
                   (sh("White", "#fbfaf6", "white", "leather"), sh("Black", "#2a2a2e", "black", "leather"),
-                   sh("White Navy", "#26365c", "navy", "leather")),
+                   sh("White Navy", dark_blues.NAVY, "navy", "leather")),
                   run("6", "13", 11, "men"), "Lace-Up", "Rubber"),
     FootwearStyle("MRUNCR", "Stridewell Speed 4 Neutral Road Running Shoes", "Stridewell", _M, "running", 95.0,
                   "Neutral road running shoes with a soft foam midsole and a breathable mesh "
@@ -469,13 +470,13 @@ MENS = (
                   product_line="Speed 4", extra=(("drop", "Heel drop", "8mm"),)),
     FootwearStyle("MCHLSD", "Suede Chelsea Boots", "Harbour & Pine", _M, "chelsea", 69.0,
                   "Suede Chelsea boots with elastic side panels, a pull tab and a crepe-look sole.",
-                  (sh("Tan Suede", "#b5835a", "brown", "suede"), sh("Navy Suede", "#2c3a5e", "navy", "suede"),
+                  (sh("Tan Suede", "#b5835a", "brown", "suede"), sh("Navy Suede", dark_blues.NAVY_LIGHT, "navy", "suede"),
                    sh("Black Suede", "#26262a", "black", "suede")),
                   M_DRESS, "Elastic Gusset", "Rubber"),
     FootwearStyle("MCHKSD", "Suede Chukka Boots", "Harbour & Pine", _M, "chukka", 59.0,
                   "Two-eyelet suede desert boots on a light rubber sole.",
                   (sh("Sand Suede", "#c9b28c", "cream", "suede"), sh("Olive Suede", "#6b6b3a", "green", "suede"),
-                   sh("Navy Suede", "#2c3a5e", "navy", "suede")),
+                   sh("Navy Suede", dark_blues.NAVY_LIGHT, "navy", "suede")),
                   run("6", "12", chart="men"), "Lace-Up", "Rubber"),
     FootwearStyle("MWLKFS", "Stridewell Summit 3 Waterproof Walking Boots", "Stridewell", _M, "walking_boot",
                   99.0, "Nubuck hiking boots with a waterproof membrane and a deep lug sole.",
@@ -519,7 +520,7 @@ MENS = (
 KIDS_STYLES = (
     FootwearStyle("KTRHLT", "Kids' Hook & Loop Trainers", "Little Fernby", _K, "trainer", 18.0,
                   "Easy-on trainers with two hook and loop straps and a bendy rubber sole.",
-                  (sh("Navy", "#26365c", "navy", "synthetic"), sh("Pink", "#e88aa8", "pink", "synthetic"),
+                  (sh("Navy", dark_blues.NAVY, "navy", "synthetic"), sh("Pink", "#e88aa8", "pink", "synthetic"),
                    sh("Black", "#2a2a2e", "black", "synthetic"), sh("White", "#fbfaf6", "white", "synthetic"),
                    sh("Orange", "#e8742a", "orange", "synthetic")),
                   INFANT_JUNIOR, "Hook & Loop", "Rubber", junior_price=22.0),
@@ -540,13 +541,13 @@ KIDS_STYLES = (
     FootwearStyle("KWELPD", "Kids' Polka Dot Wellies", "Little Fernby", _K, "welly", 14.0,
                   "Bright rubber wellies with easy pull-on handles and a grippy sole.",
                   (sh("Red Polka Dot", "#c8102e", "red", "rubber", "polka", "#ffffff"),
-                   sh("Navy Polka Dot", "#26365c", "navy", "rubber", "polka", "#ffffff"),
+                   sh("Navy Polka Dot", dark_blues.NAVY, "navy", "rubber", "polka", "#ffffff"),
                    sh("Pink Polka Dot", "#e88aa8", "pink", "rubber", "polka", "#ffffff")),
                   INFANT_JUNIOR, "Pull-On", "Rubber", junior_price=16.0,
                   extra=(("waterproof", "Waterproof", "Yes"),)),
     FootwearStyle("KSNDHL", "Kids' Hook & Loop Sandals", "Little Fernby", _K, "sandal", 16.0,
                   "Open sandals with a padded footbed and hook and loop straps.",
-                  (sh("Navy", "#26365c", "navy", "synthetic"), sh("Pink", "#e88aa8", "pink", "synthetic"),
+                  (sh("Navy", dark_blues.NAVY, "navy", "synthetic"), sh("Pink", "#e88aa8", "pink", "synthetic"),
                    sh("Silver", "#c7c9cc", "silver", "synthetic")),
                   INFANT_JUNIOR, "Hook & Loop", "Rubber", junior_price=18.0),
 )  # fmt: skip
@@ -560,7 +561,7 @@ KIDS_RUN = run("10 Infant", "6 Junior", chart="kids")
 _BLK, _WHT = ("Black", "#2a2a2e", "black"), ("White", "#f7f5ef", "white")
 _RED, _YEL = ("Red", "#b3202e", "red"), ("Yellow", "#e8c43a", "yellow")
 _GRN, _BLU = ("Green", "#3f7a4a", "green"), ("Blue", "#2b56b5", "blue")
-_NAV = ("Navy", "#26365c", "navy")
+_NAV = ("Navy", dark_blues.NAVY, "navy")
 
 
 def _in(material: str, *colors: tuple[str, str, str]) -> tuple[Shade, ...]:

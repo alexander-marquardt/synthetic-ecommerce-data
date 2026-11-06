@@ -23,6 +23,7 @@ No drawing prints a number: a style's sizes share one image.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.kit import (
     Fill,
     _highlight,
@@ -146,7 +147,7 @@ def card_game(paint: str, fill: Fill, label: str | None, kind: str = "family") -
                 "#c8312e",
                 2,
             ),
-            "strategy": _rect(-14, -14, 28, 28, "#26365c", 3, 2),
+            "strategy": _rect(-14, -14, 28, 28, dark_blues.NAVY, 3, 2),
         }.get(kind.lower(), _ell(0, 0, 15, 15, "#c8312e", 2))
         out.append(
             f'<g transform="translate({x} 250) rotate({ang})">'

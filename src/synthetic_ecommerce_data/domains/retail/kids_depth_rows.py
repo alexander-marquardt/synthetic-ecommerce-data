@@ -33,6 +33,7 @@ from __future__ import annotations
 import zlib
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
@@ -46,7 +47,7 @@ OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
 
 _C = "Clothing"
 HEX = {
-    **MAIN_COLORS, "Navy": "#26365c", "Pink": "#e7a9b8", "Cream": "#efe4cf", "Grey": "#9a9a9a",
+    **MAIN_COLORS, "Navy": dark_blues.NAVY, "Pink": "#e7a9b8", "Cream": "#efe4cf", "Grey": "#9a9a9a",
     "Lilac": "#b9a6d4", "Teal": "#1c7c7d", "Olive": "#6b6b2f", "Burgundy": "#6d1f2f",
     "Camel": "#b5835a", "Charcoal": "#4a4a50",
 }  # fmt: skip

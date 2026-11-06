@@ -24,6 +24,7 @@ from fractions import Fraction
 
 from synthetic_ecommerce_data.domains.retail import (
     audience,
+    dark_blues,
     kit_accessories,  # noqa: F401 -- registers handbag, backpack, tote_bag, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
@@ -96,7 +97,7 @@ def _num(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
 
 BLACK = cw("Black", "#2d2d33")
 TAN = cw("Tan", "#b8864f")
-NAVY = cw("Navy", "#26365c")
+NAVY = cw("Navy", dark_blues.NAVY)
 BURGUNDY = cw("Burgundy", "#6e2233")
 CREAM = cw("Cream", "#efe6d2", "solid", "#b9b4a6")
 PINK = cw("Pink", "#e8a5b5")
@@ -112,7 +113,7 @@ NATURAL = cw("Natural", "#d8c8a0", "solid", "#8a7a52")
 GOLD = cw("Gold", "#d4af37", "solid", "#8a6a22")
 SILVER = cw("Silver", "#cfd5da", "solid", "#8f989f")
 ROSE_GOLD = cw("Rose Gold", "#d8a28f", "solid", "#8a5a48")
-STRIPE = cw("Navy Stripe", "#ffffff", "stripe", "#26365c")
+STRIPE = cw("Navy Stripe", "#ffffff", "stripe", dark_blues.NAVY)
 RED_STRIPE = cw("Red Stripe", "#ffffff", "stripe", "#c8312e")
 GINGHAM = cw("Blue Gingham", "#ffffff", "gingham", "#3f6fb5")
 POLKA = cw("Pink Polka Dot", "#f6dfe6", "polka", "#c8312e")
@@ -388,7 +389,7 @@ UMBRELLAS = (
     _urow("UMBPOL", "Polka Dot Stick Umbrella", _M, 22.0,
           "A stick umbrella with a polka dot canopy, a curved handle and an automatic open "
           "button.",
-          (POLKA, cw("Navy Polka Dot", "#26365c", "polka", "#ffffff")),
+          (POLKA, cw("Navy Polka Dot", dark_blues.NAVY, "polka", "#ffffff")),
           _um("Stick", True, False, False, 8, _a("pattern", "Pattern", "Polka Dot")),
           _num((95, 22.0),), "open", "curved", 8),
     _urow("UMBSTR", "Striped Windproof Stick Umbrella", _W, 24.0,

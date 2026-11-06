@@ -21,7 +21,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core.entry import canonical
-from synthetic_ecommerce_data.domains.retail import prints
+from synthetic_ecommerce_data.domains.retail import dark_blues, prints
 from synthetic_ecommerce_data.domains.retail.colorwords import plain
 from synthetic_ecommerce_data.domains.retail.departments import check as check_departments
 from synthetic_ecommerce_data.domains.retail.kit_produce import pile_params
@@ -276,7 +276,7 @@ DUVET = (
         "DUVSET", "Duvet Cover Set with Pillowcases", "Brackenmere Home", "Home",
         ("Home", "Bedding", "Bedding Sets"), 32.0,
         "A duvet set: one duvet cover and two matching pillowcases. Duvet not included.",
-        drawing("duvet", cw("Ticking Stripe", WHITE, "stripe", "#26365c")),
+        drawing("duvet", cw("Ticking Stripe", WHITE, "stripe", dark_blues.NAVY)),
         (("color", "Color", "Navy and White"), ("pattern", "Pattern", "Stripe")),
     ), "type-exact intent: Duvets, not Bedding Sets"),
     Distractor(prints.doc("PLT-DUVKID"), "type-exact intent: Duvets, not Bedding Sets"),
@@ -463,7 +463,7 @@ GIFT_TAIL = (
         "GTKEYR", "Gift Boxed Brass Keyring", "Calderby & Lune", "Gifts",
         ("Gifts", "Gifts for Him", "Keyrings"), 15.0,
         "A solid brass keyring on a leather fob, gift boxed.",
-        drawing("keyring", cw("Navy", "#26365c")), (("material", "Material", "Brass"),),
+        drawing("keyring", cw("Navy", dark_blues.NAVY)), (("material", "Material", "Brass"),),
     ), _BOOST + "Keyrings"),
 )  # fmt: skip
 
