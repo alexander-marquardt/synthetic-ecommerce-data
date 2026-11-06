@@ -7,7 +7,7 @@ category:
 - Nuts
 - T-Slot Nuts
 family: fastener
-shape: block
+shape: t_slot_nut
 item: T-Slot Nut
 descriptor_attr: null
 size_attr: Thread Size
