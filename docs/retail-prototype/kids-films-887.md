@@ -45,7 +45,10 @@ mug.
 - **Stickers** are a new type, `type_specs/stickers.py`, at `Toys > Arts & Crafts > Stickers`:
   the film sheets, and two plain ranges so that `stickers` finds more than film products. Its
   drawing, `sticker_sheet`, is drawn in code: a paper sheet of die-cut stickers, the largest in
-  the row's first color. A sheet's SKU carries no color.
+  the row's first color. A sheet's SKU carries no color. The type is a kind of the toys family
+  of the line grammar (`line_grammar_families/toys.py`), as every Toys kind is.
+- A film's party cups name their use in the title ("Duck Run Paper Party Cups for Birthday
+  Parties"), so they are six to ten words long, as every real party cup is.
 - **No other product moves.** The film rows stay out of the passes that weigh one style against
   another: the apparel decoys never clone one (`decoy_apparel.build`), and the main-color and
   sale passes of `scale.templates` leave them out. A film product takes a main color only in a
