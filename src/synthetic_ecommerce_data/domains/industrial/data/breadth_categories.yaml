@@ -243,7 +243,7 @@
   - Nuts
   - T-Slot Nuts
   family: fastener
-  shape: block
+  shape: t_slot_nut
   item: T-Slot Nut
   descriptor_attr: null
   size_attr: Thread Size
@@ -649,7 +649,7 @@
   - Valves
   - Ball Valves
   family: motion
-  shape: block
+  shape: ball_valve
   item: Ball Valve
   descriptor_attr: null
   size_attr: Size
@@ -1048,7 +1048,7 @@
   - Vises
   - Bench Vises
   family: hand_tool
-  shape: block
+  shape: bench_vise
   item: Bench Vise
   descriptor_attr: null
   size_attr: Size
@@ -1072,7 +1072,7 @@
   - Gages
   - Thread Pitch Gages
   family: hand_tool
-  shape: block
+  shape: pitch_gage
   item: Thread Pitch Gage
   descriptor_attr: null
   size_attr: Type
