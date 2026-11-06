@@ -105,6 +105,17 @@ def test_film_products_have_ordinary_skus_and_variants(catalog) -> None:
     assert sum(len(d["skus"]) > 1 for d in docs) >= len(docs) // 2
 
 
+def test_film_products_keep_their_authored_colors_and_take_no_sale_price(catalog) -> None:
+    """They stay out of the main-color and sale passes, so no other style's copied color or sale
+    price moves when a film product is added."""
+    by_id = {d["product_id"]: d for d in catalog}
+    for row in kids_films.ROWS:
+        doc = by_id[row.product_id]
+        colors = [c["color"] for c in doc.get("color_options") or ()]
+        assert colors == ([] if row.colorless else [c[0] for c in row.colors]), row.product_id
+        assert not {"was_price", "promotion", "discount_pct"} & set(doc), row.product_id
+
+
 def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:
     recs = [d for d in catalog if d["product_id"] in kids_films.ids()]
     ids = [export.image_id(r, s) for r in recs for s in r["skus"]]

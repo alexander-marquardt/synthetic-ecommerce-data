@@ -49,7 +49,7 @@ mug.
 - **No other product moves.** The film rows stay out of the passes that weigh one style against
   another: the apparel decoys never clone one (`decoy_apparel.build`), and the main-color and
   sale passes of `scale.templates` leave them out. A film product takes a main color only in a
-  group that no other style completes (the kids' lunch boxes), and it has no sale price. The
+  group that no other style completes (none today), and it has no sale price. The
   template build of main and of this branch differ by the 54 new products alone, and the 150K
   scaled build differs only by its last two derived styles, which the new templates push past
   the SKU target.
