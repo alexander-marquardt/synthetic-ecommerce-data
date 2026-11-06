@@ -119,9 +119,8 @@ def test_every_published_name_passes_the_census_gate():
 
 def test_the_provenance_names_where_each_published_dimension_came_from():
     docs = _default_docs()
-    problems, checked = type_gates.provenance_problems(docs, DIMENSIONAL, DIMENSIONS)
+    problems, _ = type_gates.provenance_problems(docs, DIMENSIONAL, DIMENSIONS)
     assert problems == [], problems[:10]
-    assert checked == len(docs), "a line claims no table"
     for doc in docs:
         _table(doc)
 

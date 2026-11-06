@@ -289,6 +289,14 @@
   "Sizes included": "Sizes Included",
   "Tip style": "Tip Style"
  },
+ "lag_screws": {
+  "Drive type": "Drive Type",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Threads per inch": "Threads per Inch",
+  "Width across flats": "Width Across Flats"
+ },
  "lock_nuts_nylon_insert": {
   "Measurement system": "Measurement System",
   "Thread direction": "Thread Direction",
