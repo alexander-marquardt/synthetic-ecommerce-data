@@ -14,8 +14,9 @@ Jolly and Delight are Mirth and Gladness; toys Hop is Leap).
 
 A derived style's model is now its lead word alone, with no sub-model or number
 ([#851](retail-prototype/range-names-851.md)), and so is an authored bra, jeans, running shoe
-or walking boot ("Bramblewood Anytime Underwired Balcony Bra"). A cleaning or beauty model keeps
-its sub-model and number until the grocery build drops them too.
+or walking boot ("Bramblewood Anytime Underwired Balcony Bra"), and so is a cleaning or beauty
+model of the scale build ("Soapwell Keen Lemon Floor Cleaner"). A grocery care model keeps its
+sub-model and number for now.
 
 A model reads `<lead> [<sub>] <number>`, and the title reads `<brand> <model> <descriptors> <kind>`.
 The sub-model is one of Pro, Max, Elite, Edge, Lite, Plus. The number is a generation (2 to 9), or
