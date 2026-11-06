@@ -294,4 +294,15 @@ def prebuild(group: str, cache_dir: Path) -> list[Path]:
     reads, so a test that asks finds the file and never builds. A file already there for
     these inputs is kept. No build lock: the caller owns ``cache_dir`` (the CI job runs the
     two groups side by side, which the lock would put one after the other)."""
-    return []  # red: no file is written yet
+    builds = FROM_ONE_BUILD if group == "one_build" else {group: ON_THEIR_OWN[group]}
+    paths = {name: path_of(name, build, cache_dir=cache_dir) for name, build in builds.items()}
+    missing = [name for name, path in paths.items() if _read(path) is None]
+    if missing and group == "one_build":
+        built = _hundred_k_build()
+        for name in missing:
+            _write(paths[name], FROM_ONE_BUILD[name](built))
+        del built
+    elif missing:
+        _write(paths[group], ON_THEIR_OWN[group]())
+    gc.collect()
+    return list(paths.values())
