@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_furniture,  # noqa: F401 -- registers the furniture shapes
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -47,7 +48,7 @@ MIRRORS = ("Home", "Home Accessories", "Mirrors")
 # timber is the ``material``, the color is the finish the drawing is painted in.
 NATURAL, DARK_BROWN = cw("Natural", "#c9a06a", accent="#7a5a3a"), cw("Dark Brown", "#5e3b25")
 WHITE, GREY, BLACK = cw("White", "#f2efe8"), cw("Grey", "#9a9ca0"), cw("Black", "#2b2b2e")
-GREEN, NAVY, PINK = cw("Green", "#3f6b4f"), cw("Navy", "#2c3e5c"), cw("Pink", "#e3b2ad")
+GREEN, NAVY, PINK = cw("Green", "#3f6b4f"), cw("Navy", dark_blues.NAVY), cw("Pink", "#e3b2ad")
 TAN, GOLD, SILVER = cw("Tan", "#b07a43"), cw("Gold", "#c9a24a"), cw("Silver", "#b9bcc0")
 BRUSHED_GOLD = cw("Brushed Gold", "#b8995a")
 

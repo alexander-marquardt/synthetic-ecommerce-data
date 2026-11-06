@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_cleaning import _CJ, _spray
 from synthetic_ecommerce_data.domains.retail.breadth_food import _FD, _flavor
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row, _fab, _mat
@@ -123,12 +124,13 @@ BREADTH_34 = (
     Row("LNCBOX", "Leakproof Lunch Box", "Hearth & Table", _HW,
         (*_KD, "Lunch Boxes"), "Lunch Box", 9.0, "box",
         "A lunch box with three compartments and a locking lid. Dishwasher safe.",
-        (cw("Green", "#4f7a3a", "solid", "#efe8d8"), cw("Navy", "#26365c", "solid", "#efe8d8")),
+        (cw("Green", "#4f7a3a", "solid", "#efe8d8"),
+         cw("Navy", dark_blues.NAVY, "solid", "#efe8d8")),
         _a1("material", "Material", "Recycled Plastic")),
     Row("APRCTN", "Cotton Kitchen Apron with Pocket", "Hearth & Table", _HW,
         (*_KD, "Aprons"), "Apron", 12.0, "apron",
         "An adjustable neck strap, a wide front pocket and ties that wrap around twice.",
-        (cw("Sage", "#9bb08f"), cw("Navy", "#26365c"), cw("Rust", "#a4502a")),
+        (cw("Sage", "#9bb08f"), cw("Navy", dark_blues.NAVY), cw("Rust", "#a4502a")),
         _fab("Cotton")),
     Row("SCRDSET", _SCR6.title("Slotted and Phillips Screwdriver Set"), "Calderby & Lune", _HW,
         (*_DIY, "Tool Sets", "Screwdriver Sets"), "Screwdriver Set", 13.0, "screwdriver",
@@ -168,7 +170,7 @@ BREADTH_34 = (
     Row("EYLBLK", "Waterproof Eyeliner Pencil", "Hollin Hair", "Beauty",
         ("Beauty", "Make-Up", "Eyes", "Eyeliners"), "Eyeliner", 5.0, "eyeliner",
         "A soft pencil that glides on and stays put all day. Twist up, no sharpening.",
-        (cw("Black", "#2a2a2e"), cw("Brown", "#5a3a26"), cw("Navy", "#26365c")),
+        (cw("Black", "#2a2a2e"), cw("Brown", "#5a3a26"), cw("Navy", dark_blues.NAVY)),
         _a1("finish", "Finish", "Matte")),
     Row("DINOFG", _DINO6.title("Plastic Dinosaur Figure Set"), "Puddlecombe Toys", "Toys",
         ("Toys", "Figures & Playsets", "Dinosaur Figures"), "Toy Figure", 8.0, "dinosaur",

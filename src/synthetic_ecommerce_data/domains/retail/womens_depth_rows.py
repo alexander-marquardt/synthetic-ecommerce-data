@@ -42,7 +42,10 @@ import zlib
 from dataclasses import dataclass
 from itertools import product as _product
 
-from synthetic_ecommerce_data.domains.retail import kit_suits  # noqa: F401 -- registers suit_jacket
+from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
+    kit_suits,  # noqa: F401 -- registers suit_jacket
+)
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import ADULT, LRow
@@ -55,7 +58,7 @@ OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
 
 _C = "Clothing"
 HEX = {
-    **MAIN_COLORS, "Navy": "#26365c", "Charcoal": "#4a4a50", "Stone": "#bdb5a6", "Grey": "#9a9a9a",
+    **MAIN_COLORS, "Navy": dark_blues.NAVY, "Charcoal": "#4a4a50", "Stone": "#bdb5a6", "Grey": "#9a9a9a",
     "Camel": "#b5835a", "Burgundy": "#6d1f2f", "Cream": "#efe4cf", "Pink": "#e7a9b8",
     "Olive": "#6b6b2f", "Brown": "#6b4a32", "Lilac": "#b9a6d4", "Teal": "#1c7c7d",
 }  # fmt: skip

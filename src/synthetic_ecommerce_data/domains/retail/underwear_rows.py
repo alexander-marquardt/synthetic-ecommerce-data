@@ -21,6 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_underwear,  # noqa: F401 -- registers knickers, tights, vest, slip, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -112,7 +113,7 @@ WHITE = cw("White", "#f4f1ea", "solid", "#b9b4a6")
 NUDE = cw("Nude", "#e5c1a8", "solid", "#a9805f")
 PINK = cw("Pink", "#e8b4c4", "solid", "#a8324a")
 ROSE = cw("Rose", "#d98aa0", "solid", "#7a2a40")
-NAVY = cw("Navy", "#2c3a5e", "solid", "#d8dce8")
+NAVY = cw("Navy", dark_blues.NAVY_LIGHT, "solid", "#d8dce8")
 GREY = cw("Grey", "#9a9ca0", "solid", "#55575c")
 CHARCOAL = cw("Charcoal", "#4a4d52", "solid", "#c8cbd0")
 RED = cw("Red", "#b3263a", "solid", "#f4d8dc")
@@ -124,8 +125,8 @@ TEAL = cw("Teal", "#2f7f84", "solid", "#d0e6e8")
 BLUE = cw("Blue", "#6b8fc4", "solid", "#e0e8f4")
 GREEN = cw("Green", "#4c7a58", "solid", "#d8e6dc")
 PINK_DOT = cw("Pink Polka Dot", "#f4f1ea", "polka", "#c9587a")
-NAVY_DOT = cw("Navy Polka Dot", "#2c3a5e", "polka", "#f4f1ea")
-NAVY_STRIPE = cw("Navy Stripe", "#f4f1ea", "stripe", "#2c3a5e")
+NAVY_DOT = cw("Navy Polka Dot", dark_blues.NAVY_LIGHT, "polka", "#f4f1ea")
+NAVY_STRIPE = cw("Navy Stripe", "#f4f1ea", "stripe", dark_blues.NAVY_LIGHT)
 GREY_STRIPE = cw("Grey Stripe", "#f4f1ea", "stripe", "#9a9ca0")
 LEOPARD = cw("Brown Leopard", "#d6a76b", "leopard", "#5a3a22")
 
