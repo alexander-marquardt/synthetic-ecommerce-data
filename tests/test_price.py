@@ -793,6 +793,19 @@ def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog
     assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
 
 
+def test_a_spec_whose_published_material_is_empty_is_caught(catalog, monkeypatch):
+    """Plant: the wheel publishes its abrasive with an empty value. A material
+    the record omits leaves the SKU in no spec, so only an empty one reaches a
+    spec, and the guard must not count it as held (#892)."""
+    material_of = price.material_of
+    monkeypatch.setattr(
+        price, "material_of", lambda t, facts: "" if t == WHEEL else material_of(t, facts)
+    )
+    collected = price_report.collect(catalog)
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == {""}
+    assert price_report.types_without_material(collected) == {WHEEL}
+
+
 #: Each brand-census type's spec attribute beyond its material, as the census
 #: names it ("material, flutes, grit, closure...", ``method.brand_spread``).
 CENSUS_SPEC_ATTRIBUTE = {
@@ -1021,6 +1034,7 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them. The census has no bushings,
 #: so the bronze sleeve bushing's model is hand-set (#833).
+#: The census has no lag screws either (#829).
 NOT_MEASURED = frozenset(
     {
         *hammers.KINDS,
@@ -1030,6 +1044,7 @@ NOT_MEASURED = frozenset(
         "drill_bushings",
         "roll_pins",
         "studs_double_end",
+        "lag_screws",
         "bronze_sleeve_bushings",
         *tabletype.tables(),
     }

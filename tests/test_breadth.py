@@ -405,7 +405,7 @@ def test_a_row_sits_under_the_node_that_already_names_its_kind(key):
 
 
 def test_lag_screws_sit_with_the_other_screws():
-    by_key = {row.key: row for row in breadth.rows()}
-    assert by_key["lag_screws"].category == ("Fasteners", "Screws", "Lag Screws")
+    # A modelled type since #829: its leaf is read from the taxonomy, not a breadth row.
+    assert taxonomy.LEAVES["lag_screws"] == (("Fasteners", "Screws", "Lag Screws"),)
     nodes = {path[:2] for paths in taxonomy.LEAVES.values() for path in paths}
     assert ("Fasteners", "Set Screws") in nodes, "Set Screws stays a sibling node (#658)"

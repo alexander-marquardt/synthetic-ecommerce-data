@@ -416,7 +416,7 @@ MUTATIONS: list[Mutation] = [
                 "domains/industrial/price_report.py",
                 "    held = {spec[0] for spec in collected.specs if spec[2]}",
                 "    held = {spec[0] for spec in collected.specs}",
-                "never_publishes_is_caught",
+                "published_material_is_empty_is_caught",
                 "a type whose specs hold no material is caught",
             ),
             (
