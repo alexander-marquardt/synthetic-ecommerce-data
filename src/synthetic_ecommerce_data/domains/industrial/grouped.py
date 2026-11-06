@@ -21,7 +21,9 @@ pass runs after that and the must-stock pass, on streams of its own, and adds:
   line), with its SKU count drawn from the type's table instead of the global knob. A
   fastener builder takes a contiguous run of its thread's standard lengths, and an end-mill
   or drill builder of its system's diameters (``Generator._offered_run``). The series pool
-  still caps a draw, because a size offers only so many lengths.
+  still caps a draw, because a size offers only so many lengths. An end-mill run line sells
+  each diameter at :data:`REACH` neighboring length classes (#850), and the budget counts its
+  sizes, so a query that names a diameter reaches several SKUs of one line.
 
 A type joins :data:`VARIANTS` only if its spec space holds a run. "Every SKU is different"
 rejects a SKU its brand already made, so a type with few specs loses the middle of its runs.
@@ -85,6 +87,22 @@ VARIANTS: dict[str, tuple[tuple[int, float], ...]] = {
     "hex_key": SHORT_RUN,
     "tap_spiral_point": SHORT_RUN,
 }
+
+#: How many of the series' length classes (Stub, Regular, Long: ``series.LENGTH_CLASSES``) a
+#: run line of the type sells at each of its sizes, as ``(count, weight)`` (#850). A query that
+#: names the size (``1/2 end mill``) reaches one SKU of a line that runs on that size alone,
+#: so its tiles each grouped one SKU; a line that sells the size at a regular and a long length
+#: of cut groups both. Neighboring classes, and the run's size count is still the type's table.
+REACH: dict[str, tuple[tuple[int, float], ...]] = {
+    "end_mill_square": ((1, 0.15), (2, 0.55), (3, 0.30)),
+    "end_mill_ball": ((1, 0.15), (2, 0.55), (3, 0.30)),
+}
+
+
+def reach_most(key: str) -> int:
+    """The most length classes a run line of ``key`` sells at one size: 1 off :data:`REACH`."""
+    return max((count for count, _ in REACH.get(key, ())), default=1)
+
 
 #: The flat products a grouped type keeps, as a share of the products it would otherwise
 #: have. They are the first of the type's stream, so each keeps its id and every attribute,

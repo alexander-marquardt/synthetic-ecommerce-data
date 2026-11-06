@@ -148,6 +148,9 @@ class LineDraft:
     #: The title is the item alone: no brand, no qualifier, no segments (the incidental-word
     #: text-match decoy of :mod:`.hammers`, whose short indexed title outranks real hits).
     bare_title: bool = False
+    #: The length classes the line sells at each size (:data:`.grouped.REACH`, #850): its SKUs
+    #: are its sizes times this, and the grouped pass's budget counts its sizes.
+    reach: int = 1
 
 
 #: The word a terse title uses for an end mill's end shape, by its
