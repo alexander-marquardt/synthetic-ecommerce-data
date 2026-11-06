@@ -47,6 +47,7 @@ __all__ = [
     "draw_product",
     "draw_sku",
     "magnifier",
+    "product_angle",
     "product_scale_for",
     "svg_problems",
     "UnknownTypeError",
@@ -205,6 +206,16 @@ def product_scale_for(
     return type_scale(product_look.turned(*extent, angle))
 
 
+def product_angle(
+    product_type: str, records: Sequence[Mapping[str, str]], product_id: str
+) -> int:
+    """The angle every SKU of product ``product_id`` is drawn at: over its type's orientation
+    (#849), or level when any of its ``records`` is a pack of several items (#884)."""
+    packed = any(_pack_count(product_type, record) > 1 for record in records)
+    orientation = product_look.product_orientation(domain.orientation(product_type), packed)
+    return product_look.angle_of(product_id, orientation)
+
+
 def draw_product(
     product_type: str,
     brand: str,
@@ -212,14 +223,9 @@ def draw_product(
     product_id: str | None = None,
 ) -> list[tuple[bytes, str]]:
     """``(svg_bytes, source)`` for each SKU of one product, all at the product's one scale and
-    angle (:func:`.product_look.angle_of` its ``product_id`` over its type's orientation, #849;
-    upright with none); the fixed shape of a breadth product steps down its size ladder
-    (gen#719)."""
-    angle = (
-        product_look.angle_of(product_id, domain.orientation(product_type))
-        if product_id is not None
-        else 0
-    )
+    angle (:func:`product_angle`; upright with no ``product_id``); the fixed shape of a breadth
+    product steps down its size ladder (gen#719)."""
+    angle = product_angle(product_type, records, product_id) if product_id is not None else 0
     scale = product_scale_for(product_type, records, angle)
     ladder = size_rungs.LADDERS.get(product_type)
     ratios = ladder(records) if ladder else [1.0] * len(records)

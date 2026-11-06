@@ -69,15 +69,21 @@ every other drawing -- only the GEOMETRY is fixed.
   (`core/drawing/product_look.py`, #849). Every SKU of a product shares it, so
   a product's variants still read as one product, and two products of one type
   from two brands no longer draw the same picture. Every type names one of
-  three orientations (`domains/industrial/orientation.py` by type,
+  four orientations (`domains/industrial/orientation.py` by type,
   `domains/retail/orientation.py` by drawn shape; a test refuses a type that
-  names none):
+  names none). A product any SKU of which is a pack of several items (a cup
+  set in 2, 4 and 8 packs, a card of end mills) is drawn `level` on every SKU
+  whatever its type's orientation (#884): a turned group sits on a slant and
+  overlaps. A single product keeps its tilt.
 
   | Orientation | Angles | For |
   |---|---|---|
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a sofa), and any type nobody was sure of |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
+  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), and every pack (#884) |
+
+  ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

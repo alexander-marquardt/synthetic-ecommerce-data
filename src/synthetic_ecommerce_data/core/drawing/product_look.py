@@ -11,12 +11,13 @@ looked like one product that should have been grouped. A product's figure is tur
 :func:`angle_of` its product id, over the angles its type's :data:`ORIENTATIONS` entry
 allows: every SKU of the product shares it, and two products of one type differ in it
 unless their ids land on the same angle of the set (one pair in 24 for a type drawn at
-``any`` angle, one in seven for the others). The angle is a hash of the id, never a rank in
+``any`` angle, one in seven for ``upright`` and ``slight``; every product of a ``level`` type
+is drawn at 0). The angle is a hash of the id, never a rank in
 the catalog, so adding a product moves no other product's drawing. A drawing scales its
 figure by its product's angle (:func:`turned`), so the turned figure and its dimension
 lines stay inside the frame.
 
-THREE ORIENTATIONS. Every type names one (the industrial table in
+FOUR ORIENTATIONS. Every type names one (the industrial table in
 ``domains/industrial/orientation.py``, the retail one, by drawn shape, in
 ``domains/retail/orientation.py``):
 
@@ -25,7 +26,15 @@ THREE ORIENTATIONS. Every type names one (the industrial table in
 * ``upright``: within +-36 degrees in 12 degree steps, for a product that looks wrong upside
   down (a sink, a bottle, a vise, a sofa), and for any type nobody was sure of;
 * ``slight``: within +-15 degrees in 5 degree steps, for clothing and footwear, where even
-  +-36 degrees reads as a garment falling over.
+  +-36 degrees reads as a garment falling over;
+* ``level``: 0 degrees only, for a set or kit drawn as several items (#884).
+
+A PACK IS LEVEL. A product any SKU of which is a pack of several items (a cup set in 2, 4
+and 8 packs, a card of end mills) is drawn level on every SKU, whatever its type's
+orientation: a turned group of items sits on a slant and overlaps (#884). A single product
+keeps its tilt (the maintainer, on #884: "singular products look OK tilted in general"). The
+rule is per product, so its SKUs still share one angle; :func:`product_orientation` applies
+it.
 """
 
 from __future__ import annotations
@@ -38,15 +47,22 @@ PAPER = "#ffffff"
 
 #: The angles a figure may be turned by, in degrees clockwise on screen (SVG's ``rotate``), per
 #: orientation: ``any`` the 24 clock positions, ``upright`` the multiples of 12 within +-36,
-#: ``slight`` the multiples of 5 within +-15.
+#: ``slight`` the multiples of 5 within +-15, ``level`` none but 0.
 ORIENTATIONS: dict[str, tuple[int, ...]] = {
     "any": tuple(range(0, 360, 15)),
     "upright": (-36, -24, -12, 0, 12, 24, 36),
     "slight": (-15, -10, -5, 0, 5, 10, 15),
+    "level": (0,),
 }
 
 #: The ``any`` set, which the clock positions name.
 ANGLES: tuple[int, ...] = ORIENTATIONS["any"]
+
+
+def product_orientation(orientation: str, packed: bool) -> str:
+    """The orientation a product is drawn at: its type's ``orientation``, or ``level`` when
+    ``packed``, some SKU of it drawn as several items (#884)."""
+    return "level" if packed else orientation
 
 
 def angle_of(product_id: str, orientation: str) -> int:
