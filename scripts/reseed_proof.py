@@ -95,6 +95,18 @@ def _rewritten(tree: Path) -> list[str]:
     return [line[3:] for line in status.splitlines() if line[3:] != str(CONFIG)]
 
 
+def pytest_argv(tree: Path, workers: str, tests: list[str]) -> list[str]:
+    """The pytest run of the proof over ``tests`` (none: the whole suite) in ``tree``."""
+    return ["uv", "run", "-q", "--locked", "--directory", str(tree), "pytest", "-v", "-rfE"] + [
+        "-p",
+        "no:cacheprovider",
+        "-n",
+        workers,
+        "--",
+        *tests,
+    ]
+
+
 def prove(tree: Path, seed: int | None, every: bool, workers: str) -> tuple[int, list[str]]:
     """Reseed, rebuild and test the worktree at ``tree``: the seed and the red ids."""
     config = tree / CONFIG
@@ -120,8 +132,7 @@ def prove(tree: Path, seed: int | None, every: bool, workers: str) -> tuple[int,
     print(f"reseed_proof: running {len(tests) or 'every'} test file(s); log {log}", file=sys.stderr)
     with log.open("w", encoding="utf-8") as out:
         code = subprocess.run(
-            ["uv", "run", "-q", "--locked", "--directory", str(tree), "pytest", "-v", "-rfE"]
-            + ["-p", "no:cacheprovider", "-n", workers, "--", *tests],
+            pytest_argv(tree, workers, tests),
             stdout=out,
             stderr=subprocess.STDOUT,
             env=_env(),

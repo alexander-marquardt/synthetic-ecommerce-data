@@ -106,3 +106,12 @@ def test_the_red_tests_are_read_from_the_summary_each_once():
 
 def test_a_green_run_has_no_red_test():
     assert reseed_proof.red_tests("....\n==== 4 passed in 1.00s ====\n") == []
+
+
+def test_the_proof_judges_the_census_bands_at_the_default_seed_only():
+    """The 2026-11-06 ruling on #50, option (b): a band row is a property of the default seed,
+    so the proof deselects the tests marked ``default_seed_band`` and runs every other one."""
+    argv = reseed_proof.pytest_argv(Path("/tree"), "4", ["tests/test_price.py"])
+    end = argv.index("--")
+    assert argv[end - 2 : end] == ["-m", "not default_seed_band"]
+    assert argv[end + 1 :] == ["tests/test_price.py"]
