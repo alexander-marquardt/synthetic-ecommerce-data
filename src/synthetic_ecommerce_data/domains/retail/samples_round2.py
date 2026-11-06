@@ -9,6 +9,7 @@ here is invented. Garments carry the structured attributes of
 from __future__ import annotations
 
 from synthetic_ecommerce_data.core import size_charts
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.samples import (
     LETTER,
     WOMENS,
@@ -27,7 +28,7 @@ MENS_WAIST = [row for w, row in size_charts.MENS_WAIST.items() if w % 2 == 0 and
 KIDS = list(size_charts.KIDS_AGES.values())
 BABY = list(size_charts.BABY_AGES.values())
 
-INK_BLUE = "#34466e"
+INK_BLUE = dark_blues.INDIGO
 
 
 def wear(title, brand, path, price, size_rows, attrs, draw, dept=("clothing",), coll=()):
@@ -161,7 +162,7 @@ LEGWEAR = [
         35.00,
         sizes(WOMENS, "6", "18"),
         legs("Navy", "Plain", "Womens", "Wool Blend", "High", "Carrot"),
-        trouser_drawing("#26365c", "carrot", "high", "tailored"),
+        trouser_drawing(dark_blues.NAVY, "carrot", "high", "tailored"),
     ),
     wear(
         "Check Cropped Cigarette Trousers",
@@ -235,7 +236,7 @@ TOPS = [
         14.00,
         sizes(LETTER, "S", "XXL"),
         tops("Navy", "Plain", "Regular", "Mens", "Recycled Polyester", "Crew", "Sleeveless"),
-        top_drawing("#26365c", "crew", "sleeveless"),
+        top_drawing(dark_blues.NAVY, "crew", "sleeveless"),
     ),
     wear(
         "Breton Stripe Boat Neck Top",
@@ -441,7 +442,7 @@ HOME = [
             "Cotton Velour",
             attr("towel_size", "Towel size", "Beach Towel"),
         ),
-        drawing("beach_towel", "stripe", "#f2c84b", "#26365c"),
+        drawing("beach_towel", "stripe", "#f2c84b", dark_blues.NAVY),
         coll=("summer",),
     ),
     item(

@@ -1,7 +1,7 @@
 """Fixed shapes for the breadth categories: six plain geometric ones and six products, all in code.
 
 The products are the C-clamp (#803) and, since the maintainer found them "a bit too square" as
-boxes (#873), the ball valve, safety glasses, bench vise, thread pitch gage and T-slot nut.
+boxes (#873), the ball valve, bench vise, thread pitch gage and T-slot nut.
 
 alexander-marquardt/synthetic-ecommerce-data#34: the breadth categories
 exist to fill out category BREADTH cheaply -- "just something to fill up the
@@ -182,26 +182,6 @@ def ball_valve(record: Record) -> Drawn:
     return Drawn(fig, "nominal")
 
 
-def safety_glasses(record: Record) -> Drawn:
-    """Safety glasses from the front: two curved lenses under one brow bar, a nose bridge between
-    them and a hinge at each end. 3.0 by 0.82 inches (#873)."""
-    del record
-    fig = Figure(size_in=3.0)
-    for cx in (0.78, 2.22):
-        fig.poly(
-            ((cx + 0.68 * math.cos(t), 0.2 + 0.62 * math.sin(t)) for t in _steps(0, math.pi, 12)),
-            "plain",
-        )
-    fig.poly(((0.0, 0.08), (0.1, 0.02), (2.9, 0.02), (3.0, 0.08), (3.0, 0.16), (2.9, 0.22),
-              (0.1, 0.22), (0.0, 0.16)))  # fmt: skip
-    fig.poly([(1.38, 0.14), (1.62, 0.14), (1.62, 0.46), *arc((1.5, 0.46), 0.12, 0.0, -180.0, 8)])
-    fig.rect(0.0, 0.0, 0.12, 0.26, "plain")
-    fig.rect(2.88, 0.0, 3.0, 0.26, "plain")
-    glints = (((-0.4, 0.62), (-0.1, 0.32)), ((-0.22, 0.66), (0.02, 0.42)))
-    fig.lines(((cx + a, ay), (cx + b, by)) for cx in (0.78, 2.22) for (a, ay), (b, by) in glints)
-    return Drawn(fig, "nominal")
-
-
 def _steps(start: float, end: float, count: int) -> list[float]:
     return [start + (end - start) * k / count for k in range(count + 1)]
 
@@ -292,7 +272,6 @@ BREADTH_SHAPES: dict[str, tuple] = {
     "bracket": (bracket, (1.6, 1.6)),
     "c_clamp": (c_clamp, (1.6, 2.0)),
     "ball_valve": (ball_valve, (3.0, 1.75)),
-    "safety_glasses": (safety_glasses, (3.0, 0.83)),
     "bench_vise": (bench_vise, (2.84, 2.4)),
     "pitch_gage": (pitch_gage, (2.94, 2.17)),
     "t_slot_nut": (t_slot_nut, (2.0, 1.3)),

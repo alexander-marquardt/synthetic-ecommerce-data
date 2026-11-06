@@ -52,7 +52,7 @@ from __future__ import annotations
 import zlib
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import named_parts
+from synthetic_ecommerce_data.domains.retail import dark_blues, named_parts
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import (
@@ -77,7 +77,7 @@ _C = "Clothing"
 HEX = {
     **MAIN_COLORS, "White": "#ffffff", "Cream": "#efe4cf", "Ivory": "#f3ecd9",
     "Off White": "#f4f1ea", "Ecru": "#e4d9bd", "Oatmeal": "#d9ccb4", "Camel": "#b5835a",
-    "Grey Marl": "#a9a9ac", "Navy": "#26365c", "Stone": "#bdb5a6", "Rose": "#d98a96",
+    "Grey Marl": "#a9a9ac", "Navy": dark_blues.NAVY, "Stone": "#bdb5a6", "Rose": "#d98a96",
     "Charcoal": "#4a4a50", "Burgundy": "#6d1f2f", "Grey": "#9a9a9a", "Black": "#2a2a2e",
 }  # fmt: skip
 

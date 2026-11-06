@@ -33,7 +33,7 @@ import re
 import zlib
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import style_table
+from synthetic_ecommerce_data.domains.retail import dark_blues, style_table
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.kit_garments import NECKLINES
@@ -46,7 +46,7 @@ OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
 _C = "Clothing"
 _TOPS = ("Womens", "Tops")
 HEX = {
-    **MAIN_COLORS, "White": "#ffffff", "Cream": "#efe4cf", "Navy": "#26365c", "Black": "#2a2a2e",
+    **MAIN_COLORS, "White": "#ffffff", "Cream": "#efe4cf", "Navy": dark_blues.NAVY, "Black": "#2a2a2e",
     "Rose": "#d98a96", "Camel": "#b5835a", "Oatmeal": "#d9ccb4", "Stone": "#bdb5a6",
 }  # fmt: skip
 _COLORS = ("Black", "White", "Navy", "Cream", "Red", "Rose", "Blue", "Green", "Camel", "Stone", "Oatmeal", "Yellow")

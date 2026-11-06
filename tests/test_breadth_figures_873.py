@@ -1,7 +1,7 @@
 """Five breadth types draw their own figure, not the generic box, and the glove is rounded (#873).
 
 The maintainer, on the #860 contact sheet: the glove and ball valve images "are a bit too
-square". The ball valve, safety glasses, bench vise, thread pitch gauge and T-slot nut drew the
+square". The ball valve, bench vise, thread pitch gauge and T-slot nut drew the
 generic ``block``; each now has a shape of its own, drawn in code like the C-clamp (#803).
 ``bar_stock_square`` is a block and keeps it. The glove's palm, thumb and fingers were
 rectangles; it is now one curved outline, still in its shell's knit hatch and the brand's ink.
@@ -31,7 +31,6 @@ GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 #: Each type that drew the box, and the shape it draws now.
 OWN_SHAPES = {
     "ball_valves": "ball_valve",
-    "safety_glasses": "safety_glasses",
     "bench_vises": "bench_vise",
     "thread_pitch_gages": "pitch_gage",
     "t_slot_nuts": "t_slot_nut",
@@ -124,17 +123,6 @@ def test_the_ball_valve_is_a_round_body_two_pipe_ends_and_a_lever():
     ]
     assert levers, "no lever handle over the body"
     assert _polys(fig, "grip"), "the lever has no grip"
-
-
-def test_the_safety_glasses_are_two_lenses_under_one_brow():
-    fig = _figure("safety_glasses")
-    lenses = _polys(fig, "plain")
-    left = [p for p in lenses if max(q[0] for q in p.points) <= 1.5 + 0.05 and _width(p) > 1.0]
-    right = [p for p in lenses if min(q[0] for q in p.points) >= 1.5 - 0.05 and _width(p) > 1.0]
-    assert left and right, "not two lenses, one each side of the bridge"
-    assert all(len(p.points) >= 12 for p in left + right), "a lens is curved, not a box"
-    brows = [p for p in _polys(fig, "part") if _width(p) >= 0.9 * 3.0]
-    assert brows, "no frame across both lenses"
 
 
 def test_the_bench_vise_has_two_jaws_a_throat_a_screw_and_a_handle():
