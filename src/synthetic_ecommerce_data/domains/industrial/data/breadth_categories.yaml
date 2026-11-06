@@ -854,7 +854,7 @@
   - Eye Protection
   - Protective Glasses
   family: hand_tool
-  shape: safety_glasses
+  shape: block
   item: Safety Glasses
   descriptor_attr: null
   size_attr: Color

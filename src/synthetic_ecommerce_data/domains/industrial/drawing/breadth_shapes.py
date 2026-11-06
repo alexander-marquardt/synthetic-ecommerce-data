@@ -1,4 +1,4 @@
-"""Fixed shapes for the breadth categories: six plain geometric ones and six products, all in code.
+"""Fixed shapes for the breadth categories: six plain geometric ones and five products, all in code.
 
 The products are the C-clamp (#803) and, since the maintainer found them "a bit too square" as
 boxes (#873), the ball valve, bench vise, thread pitch gage and T-slot nut.

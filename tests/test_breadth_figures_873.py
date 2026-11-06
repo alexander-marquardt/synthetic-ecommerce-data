@@ -1,4 +1,4 @@
-"""Five breadth types draw their own figure, not the generic box, and the glove is rounded (#873).
+"""Four breadth types draw their own figure, not the generic box, and the glove is rounded (#873).
 
 The maintainer, on the #860 contact sheet: the glove and ball valve images "are a bit too
 square". The ball valve, bench vise, thread pitch gauge and T-slot nut drew the
