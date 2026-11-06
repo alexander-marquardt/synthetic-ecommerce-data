@@ -13,10 +13,10 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
+from synthetic_ecommerce_data.core.drawing.product_look import PAPER
 from synthetic_ecommerce_data.domains.retail import bicycle_model_numbers as bmn
 from synthetic_ecommerce_data.domains.retail import image_release, kit, kit_sports, scale
 from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
-from synthetic_ecommerce_data.domains.retail.house_styles import HOUSE_STYLES
 
 STYLES = ("road", "mountain", "electric", "kids")
 #: What a frame's outline shows each side of its paint, in the drawing's units, at the least.
@@ -90,12 +90,11 @@ def test_every_white_tube_has_an_outline_under_all_the_paint(style):
 @pytest.mark.parametrize("brand", list(bmn.SERIES))
 def test_a_white_frame_shows_on_the_brands_sheet(brand):
     found = _on_sheet(brand)
-    style = HOUSE_STYLES[brand]
     paint = {el.get("d"): float(el.get("stroke-width", "0")) for el in _paint(found, WHITE)}
     outlines = _outlines(found)
     assert outlines, f"{brand}: the frame has no outline"
     for el in outlines:
-        assert _contrast(el.get("stroke", "#ffffff"), style.paper) >= MIN_CONTRAST
+        assert _contrast(el.get("stroke", "#ffffff"), PAPER) >= MIN_CONTRAST
         d = el.get("d")
         if d in paint:  # the mountain fork is steel, not the frame's paint
             edge = (float(el.get("stroke-width", "0")) - paint[d]) / 2

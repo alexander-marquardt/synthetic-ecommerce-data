@@ -183,7 +183,10 @@ def rebuild(catalog_dir: Path) -> list[tuple[str, bytes]]:
             continue
         parent = json.loads(line)
         drawn = draw_product(
-            parent["product_type"], parent["brand"], records(parent, facets_by_sku)
+            parent["product_type"],
+            parent["brand"],
+            records(parent, facets_by_sku),
+            parent["product_id"],
         )
         for variant, (data, _) in zip(parent["variants"], drawn, strict=True):
             image_id = variant["image_id"]

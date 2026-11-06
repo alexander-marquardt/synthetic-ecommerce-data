@@ -781,16 +781,20 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
 # -- two type PRs, one after the other (#103) ---------------------------------
 
 _BALL_MODULE = Path("src/synthetic_ecommerce_data/domains/industrial/product_types/raw_materials")
+_ORIENTATION = Path("src/synthetic_ecommerce_data/domains/industrial/orientation.py")
 
 
-def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
+def _add_a_type(world: dict, branch: str, key: str, label: str, tuple_name: str) -> str:
     """A PR branch off main that adds the breadth type ``key`` the way
     docs/adding-a-type.md says: a module declaring its own label, and the
     rebuilt golden.
 
     The module is the precision-ball one under a new key. Both keys sort
     straight after ``ball_stock_precision``, so were the label a line of a
-    shared table, the two branches would edit the same lines of it."""
+    shared table, the two branches would edit the same lines of it.
+
+    The type also names its orientation (#849), a line of a shared table: each branch adds its
+    key to its own tuple of ``orientation.py`` (``tuple_name``), so the two edits sit far apart."""
     checkout = world["checkout"]
     _git(checkout, "switch", "-q", "-c", branch, "main")
     module = (checkout / _BALL_MODULE / "ball_stock_precision.py").read_text()
@@ -801,6 +805,11 @@ def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
     (checkout / _BALL_MODULE / f"{key}.py").write_text(
         module.replace("ball_stock_precision", key).replace("Precision Balls", label + "s")
     )
+    table = checkout / _ORIENTATION
+    opening = f"{tuple_name}: tuple[str, ...] = (\n"
+    text = table.read_text()
+    assert opening in text
+    table.write_text(text.replace(opening, f'{opening}    "{key}",\n'))
     built = subprocess.run(
         ["uv", "run", "--locked", "ecom-generate", "build", "--out", "golden-catalog"],
         cwd=checkout,
@@ -845,8 +854,8 @@ def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
 ) -> None:
     """The done-when of #103: no hand merge for the second PR."""
     heads = {
-        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball"),
-        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball"),
+        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball", "ANY"),
+        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball", "UPRIGHT"),
     }
     for branch, head in heads.items():
         result = _run(
