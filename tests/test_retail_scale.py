@@ -208,11 +208,12 @@ def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
     assert small.skus >= 100
 
 
-def test_the_build_is_deterministic_by_seed():
-    # TARGET, not a fixed size: a build at or under TEMPLATE_SKUS takes no seeded draw.
-    a, b, c = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3), scale.build(TARGET, seed=4)
+def test_the_build_is_deterministic_by_seed(built):
+    # TARGET, not a fixed size: a build at or under TEMPLATE_SKUS takes no seeded draw. The other
+    # seed is the module's own seed-0 build: each build is 20 s of setup whatever its size (#790).
+    a, b = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3)
     assert a.records == b.records
-    assert [r["title"] for r in a.records] != [r["title"] for r in c.records]
+    assert [r["title"] for r in a.records] != [r["title"] for r in built.records]
 
 
 def test_the_20k_build_meets_the_output_standard(built):
@@ -810,15 +811,27 @@ def test_the_cli_writes_the_report_and_the_documents(tmp_path):
     assert sum(json.loads(line)["variant_count"] for line in lines) == got["coverage"]["skus"]
 
 
-def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
+def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(
+    tmp_path, monkeypatch, capsys, ceiling
+):
+    """The CLI's own run, in process, on the shared ceiling build (#790): a target past the
+    capacity takes ``build``'s loop to the same end as the ceiling's own target, so the build
+    the CLI would make is the one already made, and a subprocess building it again was a minute
+    of the same work. The ceiling build itself is that loop running out of templates."""
     PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
+    asked: list[tuple[int, int]] = []
+
+    def shared(skus: int, seed: int = 0) -> scale.Scaled:
+        asked.append((skus, seed))
+        return ceiling
+
+    monkeypatch.setattr(scale, "build", shared)
     report = tmp_path / "report.json"
-    done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", str(PAST), "--report", str(report)],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
-    assert done.returncode == 2, done.stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in done.stderr
+    code = scale.main(["--skus", str(PAST), "--report", str(report)])
+    stderr = capsys.readouterr().err
+    assert asked == [(PAST, 0)], "the CLI did not ask the build for its target on seed 0"
+    assert code == 2, stderr[-2000:]
+    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
