@@ -14,10 +14,21 @@ shape cannot forget it. The sets are :data:`...core.drawing.product_look.ORIENTA
 * ``upright`` (+-36 degrees): everything with a natural up (a bottle, a sofa, a lamp, a fridge,
   a toy), and every shape nobody was sure of.
 
-To move a shape, move its line to another tuple.
+* ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
+  luggage), which overlap on a slant.
+
+A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
+units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
+whatever its shape (:func:`of_product`, #884), so a cup set in 2, 4 and 8 packs stands level
+while a single cup keeps its tilt. To move a shape, move its line to another tuple.
 """
 
 from __future__ import annotations
+
+from typing import Any
+
+from synthetic_ecommerce_data.core.drawing import product_look
+from synthetic_ecommerce_data.domains.retail import pack_copies
 
 #: Things with no natural up, drawn at any of the 24 clock positions.
 ANY: tuple[str, ...] = (
@@ -44,32 +55,31 @@ SLIGHT: tuple[str, ...] = (
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
     "aftershave", "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
-    "baby_blanket", "backpack", "badminton_set", "bag", "banana", "bar", "baseball_bat",
-    "baseball_glove", "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq",
-    "beach_towel", "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals",
-    "bike_pump", "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle",
-    "bouquet", "bowl", "box", "box_wide", "bracelet", "building_set", "butter_block", "cabin_case",
-    "cake", "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat",
-    "caulking_gun", "ceiling_fan", "ceiling_light", "chain_lube", "chairbed", "chaise_sofa",
-    "changing_mat", "charger", "charging_pad", "cherries", "chest_of_drawers", "chocolate_box",
-    "chopping_board", "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_table",
-    "colander", "combi_drill", "compact", "corded_drill", "corner_sofa", "craft_kit", "crisps_bag",
-    "cupcake", "curtains", "cushion", "cutlery_piece", "cutlery_set", "daisy", "desk_fan",
-    "desk_lamp", "desktop", "diary", "digital_watch", "dining_chair", "dining_table", "dinner_set",
-    "dinosaur", "dishwasher", "dishwasher_tablets", "doll", "dolls_house", "door_stop", "doughnut",
-    "draped_throw", "drill", "drill_bit_set", "drill_driver", "drinking_glass", "drop_earrings",
-    "dumbbell", "duvet", "e_reader", "earbuds", "earrings", "espresso_cup", "eye_patches",
-    "eyeliner", "face_mask", "false_nails", "fish_bag", "fitness_band", "floor_lamp",
-    "foam_roller", "footstool", "fragrance", "fridge", "fridge_magnet", "fridge_thermometer",
-    "frying_pan", "garden_furniture", "garden_hose", "garment_bag", "gift_bag", "gift_card",
-    "gift_hamper", "gift_mug", "gift_set", "glue_gun", "grass_trimmer", "greeting_card",
-    "grill_press", "hammer", "hammer_drill", "handbag", "handheld_fan", "hanger", "hangers",
-    "heater", "hedge_trimmer", "holdall", "hook_rail", "hoop_earrings", "ice_cream",
+    "baby_blanket", "backpack", "bag", "banana", "bar", "baseball_bat", "baseball_glove",
+    "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
+    "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals", "bike_pump",
+    "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
+    "bowl", "box", "box_wide", "bracelet", "building_set", "butter_block", "cabin_case", "cake",
+    "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat", "caulking_gun",
+    "ceiling_fan", "ceiling_light", "chain_lube", "chairbed", "chaise_sofa", "changing_mat",
+    "charger", "charging_pad", "cherries", "chest_of_drawers", "chocolate_box", "chopping_board",
+    "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_table", "colander",
+    "combi_drill", "compact", "corded_drill", "corner_sofa", "craft_kit", "crisps_bag", "cupcake",
+    "curtains", "cushion", "cutlery_piece", "daisy", "desk_fan", "desk_lamp", "desktop", "diary",
+    "digital_watch", "dining_chair", "dining_table", "dinosaur", "dishwasher",
+    "dishwasher_tablets", "doll", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
+    "drill_driver", "drinking_glass", "drop_earrings", "dumbbell", "duvet", "e_reader", "earbuds",
+    "earrings", "espresso_cup", "eye_patches", "eyeliner", "face_mask", "false_nails", "fish_bag",
+    "fitness_band", "floor_lamp", "foam_roller", "footstool", "fragrance", "fridge",
+    "fridge_magnet", "fridge_thermometer", "frying_pan", "garden_furniture", "garden_hose",
+    "garment_bag", "gift_bag", "gift_card", "gift_hamper", "gift_mug", "glue_gun", "grass_trimmer",
+    "greeting_card", "grill_press", "hammer", "hammer_drill", "handbag", "handheld_fan", "hanger",
+    "hangers", "heater", "hedge_trimmer", "holdall", "hook_rail", "hoop_earrings", "ice_cream",
     "impact_driver", "jar", "jigsaw", "kayak", "kettle", "kettlebell", "keyboard", "keyring",
     "kick_scooter", "kickboard", "kitchen_bin", "kitchen_knife", "kitchen_scales",
     "kitchen_utensil", "kite", "lampshade", "lantern", "laptop", "laptop_sleeve", "laundry_basket",
-    "lawn_mower", "lidded_tub", "light_bulb", "lipstick", "loaf", "luggage_set", "marble_run",
-    "mascara", "mattress", "mattress_protector", "mattress_topper", "measuring_cup", "memory_card",
+    "lawn_mower", "lidded_tub", "light_bulb", "lipstick", "loaf", "marble_run", "mascara",
+    "mattress", "mattress_protector", "mattress_topper", "measuring_cup", "memory_card",
     "mesh_bag", "mirror", "modular_sofa", "moisturiser_jar", "money_box", "monitor", "mop",
     "mouse", "mug", "mushroom", "nappy_caddy", "neck_pillow", "necklace", "notebook",
     "nursery_storage", "onion", "ornament", "panettone", "paper_cup", "parasol", "party_cup",
@@ -91,14 +101,27 @@ UPRIGHT: tuple[str, ...] = (
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
 )
 
+#: Set types, drawn as several items: at 0 degrees only (#884).
+LEVEL: tuple[str, ...] = (
+    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "gift_set", "luggage_set",
+)
+
 #: Shape -> orientation.
 ORIENTATION: dict[str, str] = {
     **dict.fromkeys(ANY, "any"),
     **dict.fromkeys(SLIGHT, "slight"),
     **dict.fromkeys(UPRIGHT, "upright"),
+    **dict.fromkeys(LEVEL, "level"),
 }
 
 
 def of(shape: str) -> str:
     """The orientation ``shape`` is drawn at. ``KeyError`` for a shape the table does not name."""
     return ORIENTATION[shape]
+
+
+def of_product(rec: dict[str, Any]) -> str:
+    """The orientation product ``rec`` is drawn at: its shape's, or ``level`` when any of its
+    SKUs is a pack of several items (#884), so every SKU of it shares the one angle."""
+    packed = any(pack_copies.count(rec, sku) > 1 for sku in rec.get("skus", ()))
+    return product_look.product_orientation(of(rec["drawing"]["shape"]), packed)
