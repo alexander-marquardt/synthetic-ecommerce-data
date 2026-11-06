@@ -1,4 +1,7 @@
-"""Fixed shapes for the breadth categories: six plain geometric ones and a C-clamp, all in code.
+"""Fixed shapes for the breadth categories: six plain geometric ones and six products, all in code.
+
+The products are the C-clamp (#803) and, since the maintainer found them "a bit too square" as
+boxes (#873), the ball valve, safety glasses, bench vise, thread pitch gage and T-slot nut.
 
 alexander-marquardt/synthetic-ecommerce-data#34: the breadth categories
 exist to fill out category BREADTH cheaply -- "just something to fill up the
@@ -24,7 +27,9 @@ but does not compare two records' bytes.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.core.drawing.model import Figure
+import math
+
+from synthetic_ecommerce_data.core.drawing.model import Figure, arc
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, Record
 
 
@@ -112,8 +117,18 @@ def c_clamp(record: Record) -> Drawn:
     fig = Figure(size_in=2.0)
     fig.poly(
         (
-            (1.25, 0.0), (0.22, 0.0), (0.0, 0.22), (0.0, 1.28), (0.22, 1.5), (1.0, 1.5),
-            (1.0, 1.24), (0.38, 1.24), (0.26, 1.12), (0.26, 0.38), (0.38, 0.26), (1.25, 0.26),
+            (1.25, 0.0),
+            (0.22, 0.0),
+            (0.0, 0.22),
+            (0.0, 1.28),
+            (0.22, 1.5),
+            (1.0, 1.5),
+            (1.0, 1.24),
+            (0.38, 1.24),
+            (0.26, 1.12),
+            (0.26, 0.38),
+            (0.38, 0.26),
+            (1.25, 0.26),
         )
     )
     fig.rect(0.98, 0.26, 1.3, 0.34, "plain")
@@ -126,6 +141,139 @@ def c_clamp(record: Record) -> Drawn:
     fig.disc((0.73, 1.93), 0.05, "plain")
     fig.disc((1.55, 1.93), 0.05, "plain")
     fig.disc((screw_x, 1.93), 0.07)
+    return Drawn(fig, "nominal")
+
+
+#: The vinyl sleeve on a ball valve's lever: the red a quarter-turn valve's handle is sold in.
+LEVER_GRIP = "#b5342b"
+
+
+def _ellipse(centre: tuple[float, float], rx: float, ry: float, steps: int = 24):
+    cx, cy = centre
+    return [
+        (cx + rx * math.cos(2 * math.pi * k / steps), cy + ry * math.sin(2 * math.pi * k / steps))
+        for k in range(steps)
+    ]
+
+
+def ball_valve(record: Record) -> Drawn:
+    """A ball valve from the side: a round body between two threaded pipe ends, and a lever.
+
+    The pipe runs left to right through the body. The stem rises from the body's top through a
+    packing nut to the lever, which lies along the pipe as an open valve's does, its end in a
+    vinyl grip. 3.0 by 1.75 inches (#873).
+    """
+    del record
+    cx, cy, r = 1.5, 1.15, 0.6
+    fig = Figure(size_in=3.0)
+    for x0, x1, flat in ((0.0, 0.8, 0.55), (2.2, 3.0, 2.45)):
+        fig.rect(x0, cy - 0.32, x1, cy + 0.32)
+        fig.lines([((flat, cy - 0.32), (flat, cy + 0.32))])
+    crests = [0.06 + 0.08 * i for i in range(5)] + [2.62 + 0.08 * i for i in range(5)]
+    fig.lines(((x, cy - 0.32), (x + 0.05, cy + 0.32)) for x in crests)
+    fig.disc((cx, cy), r)
+    fig.rect(1.43, 0.18, 1.57, 0.6, "plain")
+    fig.rect(1.3, 0.42, 1.7, 0.58, "plain")
+    fig.rect(1.28, 0.06, 2.5, 0.22)
+    fig.disc((cx, 0.14), 0.1, "plain")
+    fig.poly(
+        [(2.2, 0.0), *arc((2.86, 0.14), 0.14, -90.0, 90.0, 8), (2.2, 0.28)], "grip", LEVER_GRIP
+    )
+    return Drawn(fig, "nominal")
+
+
+def safety_glasses(record: Record) -> Drawn:
+    """Safety glasses from the front: two curved lenses under one brow bar, a nose bridge between
+    them and a hinge at each end. 3.0 by 0.82 inches (#873)."""
+    del record
+    fig = Figure(size_in=3.0)
+    for cx in (0.78, 2.22):
+        fig.poly(
+            ((cx + 0.68 * math.cos(t), 0.2 + 0.62 * math.sin(t)) for t in _steps(0, math.pi, 12)),
+            "plain",
+        )
+    fig.poly(((0.0, 0.08), (0.1, 0.02), (2.9, 0.02), (3.0, 0.08), (3.0, 0.16), (2.9, 0.22),
+              (0.1, 0.22), (0.0, 0.16)))  # fmt: skip
+    fig.poly([(1.38, 0.14), (1.62, 0.14), (1.62, 0.46), *arc((1.5, 0.46), 0.12, 0.0, -180.0, 8)])
+    fig.rect(0.0, 0.0, 0.12, 0.26, "plain")
+    fig.rect(2.88, 0.0, 3.0, 0.26, "plain")
+    glints = (((-0.4, 0.62), (-0.1, 0.32)), ((-0.22, 0.66), (0.02, 0.42)))
+    fig.lines(((cx + a, ay), (cx + b, by)) for cx in (0.78, 2.22) for (a, ay), (b, by) in glints)
+    return Drawn(fig, "nominal")
+
+
+def _steps(start: float, end: float, count: int) -> list[float]:
+    return [start + (end - start) * k / count for k in range(count + 1)]
+
+
+def bench_vise(record: Record) -> Drawn:
+    """A bench vise from the side, jaws up: a fixed jaw with an anvil behind it, a sliding jaw on
+    its beam, serrated jaw plates with the throat between them, the screw and its handle bar, and
+    a swivel base. 2.84 by 2.4 inches (#873)."""
+    del record
+    fig = Figure(size_in=2.84)
+    fig.rect(0.25, 2.2, 2.6, 2.4)
+    fig.poly(((0.55, 2.2), (2.25, 2.2), (2.1, 2.0), (0.7, 2.0)), "plain")
+    fig.rect(1.1, 1.15, 2.3, 1.45, "plain")
+    fig.poly(((0.0, 0.42), (0.5, 0.42), (0.5, 0.0), (0.95, 0.0), (0.95, 0.55), (1.1, 0.55),
+              (1.1, 1.2), (1.0, 2.0), (0.6, 2.0), (0.5, 0.8), (0.0, 0.8)))  # fmt: skip
+    fig.poly(((1.45, 0.0), (1.95, 0.0), (1.95, 0.6), (2.1, 0.75), (2.1, 1.5), (1.35, 1.5),
+              (1.35, 0.55), (1.45, 0.55)))  # fmt: skip
+    fig.rect(0.95, 0.0, 1.05, 0.5, "dark")
+    fig.rect(1.35, 0.0, 1.45, 0.5, "dark")
+    fig.lines(((x0, y), (x0 + 0.1, y)) for x0 in (0.95, 1.35) for y in _steps(0.07, 0.42, 5))
+    fig.rect(2.1, 0.95, 2.75, 1.07, "plain")
+    fig.rect(2.72, 0.4, 2.8, 1.62, "plain")
+    for y in (0.4, 1.62):
+        fig.disc((2.76, y), 0.08, "plain")
+    fig.disc((2.75, 1.01), 0.09, "plain")
+    for x in (0.45, 2.4):
+        fig.disc((x, 2.3), 0.05, "hole")
+    return Drawn(fig, "nominal")
+
+
+#: A pitch gage's fanned leaves: each one's angle (degrees, negative is up) and its tooth pitch.
+GAGE_LEAVES = ((-14.0, 0.08), (-26.0, 0.1), (-38.0, 0.12), (-50.0, 0.15))
+
+
+def pitch_gage(record: Record) -> Drawn:
+    """A thread pitch gage: steel leaves fanned out of their case about one pivot, each with a row
+    of thread teeth of its own pitch along its edge. 2.94 by 2.17 inches (#873)."""
+    del record
+    px, py, length, half = 0.22, 2.13, 2.55, 0.13
+    fig = Figure(size_in=2.94)
+    for angle, pitch in GAGE_LEAVES:
+        c, s = math.cos(math.radians(angle)), math.sin(math.radians(angle))
+        teeth = []
+        u = length - 0.12
+        while u > 0.5:
+            teeth += [(u, -half), (u - pitch / 2, -half + 0.05)]
+            u -= pitch
+        local = [(-0.13, half), (length - 0.1, half), (length, 0.0), *teeth, (-0.13, -half)]
+        fig.poly(((px + a * c - b * s, py + a * s + b * c) for a, b in local), "plain")
+    fig.poly([(0.0, 1.92), (2.73, 1.92), *arc((2.73, 2.13), 0.21, -90.0, 90.0, 8), (0.0, 2.34)])
+    fig.disc((px, py), 0.11, "plain")
+    fig.disc((px, py), 0.04, "dark")
+    return Drawn(fig, "nominal")
+
+
+def t_slot_nut(record: Record) -> Drawn:
+    """A T-slot nut seen along its slot, turned a little: the T of its neck and flange, their top
+    faces and right sides, and the tapped hole down through the neck. 2.0 by 1.3 inches (#873)."""
+    del record
+    fig = Figure(size_in=2.0)
+    for face in (
+        ((0.0, 0.8), (0.45, 0.8), (0.85, 0.5), (0.4, 0.5)),
+        ((1.15, 0.8), (1.6, 0.8), (2.0, 0.5), (1.55, 0.5)),
+        ((1.6, 0.8), (2.0, 0.5), (2.0, 1.0), (1.6, 1.3)),
+        ((1.15, 0.3), (1.55, 0.0), (1.55, 0.5), (1.15, 0.8)),
+        ((0.45, 0.3), (1.15, 0.3), (1.55, 0.0), (0.85, 0.0)),
+    ):
+        fig.poly(face, "plain")
+    fig.poly(((0.45, 0.3), (1.15, 0.3), (1.15, 0.8), (1.6, 0.8), (1.6, 1.3), (0.0, 1.3),
+              (0.0, 0.8), (0.45, 0.8)))  # fmt: skip
+    fig.poly(_ellipse((1.0, 0.15), 0.17, 0.09), "hole")
+    fig.poly(_ellipse((1.0, 0.16), 0.11, 0.055), "dark")
     return Drawn(fig, "nominal")
 
 
@@ -143,4 +291,9 @@ BREADTH_SHAPES: dict[str, tuple] = {
     "tube": (tube, (2.2, 0.6)),
     "bracket": (bracket, (1.6, 1.6)),
     "c_clamp": (c_clamp, (1.6, 2.0)),
+    "ball_valve": (ball_valve, (3.0, 1.75)),
+    "safety_glasses": (safety_glasses, (3.0, 0.83)),
+    "bench_vise": (bench_vise, (2.84, 2.4)),
+    "pitch_gage": (pitch_gage, (2.94, 2.17)),
+    "t_slot_nut": (t_slot_nut, (2.0, 1.3)),
 }

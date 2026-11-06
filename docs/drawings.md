@@ -304,8 +304,9 @@ depth SKU falls back to nominal geometry.
 The breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
 `domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of seven shapes from
-`domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
-`bracket` and `c_clamp`, all drawn in code.
+`domains/industrial/drawing/breadth_shapes.py`, all drawn in code: six plain solids (`sphere`,
+`cylinder`, `block`, `disc`, `tube` and `bracket`) and six products (`c_clamp`, `ball_valve`,
+`safety_glasses`, `bench_vise`, `pitch_gage` and `t_slot_nut`).
 Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
@@ -329,6 +330,21 @@ manifest (#102). It is now a shape function like the others: a C frame, a thread
 the boss on the lower arm, a swivel pad facing the fixed jaw, and a T-handle.
 `tests/test_c_clamp_drawn_803.py` pins its parts and refuses any `.svg` file under `src/`, so a
 copied drawing cannot come back unnoticed. A shape that is hard to draw is still drawn in code.
+
+### A product that reads as a box gets its own shape (#873)
+
+The maintainer found the ball valve and the glove "a bit too square" on the #860 contact sheet.
+Five breadth types drew the generic `block`. Each now has a shape of its own: a ball valve (a
+round body between two threaded pipe ends, with a lever in a red vinyl grip), safety glasses
+(two curved lenses under one brow), a bench vise (two jaws with the throat between them, the
+screw, its handle bar and a swivel base), a thread pitch gage (toothed leaves fanned out of
+their case) and a T-slot nut (the T of its neck and flange, with a tapped hole). Square bar
+stock is a block and keeps it. The cut-resistant glove, a deep type with its own figure, is
+drawn as one curved outline, with rounded fingertips and thumb and a palm that narrows to a
+ribbed cuff, still hatched in its shell's knit. `tests/test_breadth_figures_873.py` checks each
+shape's parts and checks the glove. Every SKU of a product shares its angle and look on the white
+paper (#849). Before and after, the first product of each type and three of its SKUs:
+[before](images/breadth-figures-873-before.svg), [after](images/breadth-figures-873-after.svg).
 
 ## Determinism and the publish gate
 

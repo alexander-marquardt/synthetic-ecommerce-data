@@ -35,10 +35,11 @@ and the guide's ``Gauge`` column state them.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, NamedTuple
 
-from synthetic_ecommerce_data.core.drawing.model import Figure
+from synthetic_ecommerce_data.core.drawing.model import Figure, arc
 from synthetic_ecommerce_data.core.model import keyword_attribute
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
@@ -185,27 +186,60 @@ def figure(record: dict[str, str]) -> Drawn:
     width = WIDTH * size.number
     cuff, palm, finger = CUFF * length, PALM * length, FINGER * length
     half = width / 2
-    # The page's y runs down: the cuff's edge is y = 0 and the glove is above it.
-    fig = Figure(size_in=length)
-    fig.rect(-0.9 * half, -cuff, 0.9 * half, 0.0)
-    top = -(cuff + palm)
-    fig.rect(-half, top, half, -cuff)
     pitch = width / len(FINGERS)
-    for k, share in enumerate(FINGERS):
-        x0 = -half + k * pitch + 0.08 * pitch
-        fig.rect(x0, top - share * finger, x0 + 0.84 * pitch, top)
-    # The thumb leans out from the palm's side, below the fingers.
-    thumb = 0.55 * finger
-    base = -cuff - 0.25 * palm
-    fig.poly(
-        [
-            (-half, base),
-            (-half, base - 0.45 * palm),
-            (-half - 0.7 * thumb, base - 0.45 * palm - 0.6 * thumb),
-            (-half - 0.7 * thumb - 0.7 * pitch, base - 0.45 * palm - 0.6 * thumb + 0.5 * pitch),
-        ]
+    top = -(cuff + palm)
+    wrist = 0.8 * half
+    # The page's y runs down: the cuff's edge is y = 0 and the glove is above it. One outline,
+    # drawn round from the cuff's edge: up the little finger's side, over each fingertip, down
+    # the index side, round the thumb and back to the cuff (#873).
+    outline = [(-wrist, 0.0), (wrist, 0.0), (0.97 * wrist, -cuff)]
+    outline += _bend(outline[-1], (half, -cuff - 0.1 * palm), (half, -cuff - 0.5 * palm))
+    crotch = 0.08 * pitch
+    outline += _bend(
+        outline[-1], (half, top + 0.2 * palm), (half - pitch / 2 + 0.42 * pitch, top - crotch)
     )
+    for k in reversed(range(len(FINGERS))):
+        centre = -half + (k + 0.5) * pitch
+        tip, base = 0.36 * pitch, 0.42 * pitch
+        reach = top - FINGERS[k] * finger + tip
+        outline += [(centre + base, top - crotch), (centre + tip, reach)]
+        outline += arc((centre, reach), tip, 0.0, -180.0, 8)[1:]
+        outline.append((centre - base, top - crotch))
+        if k:  # the rounded crotch down to the next finger
+            outline += arc((centre - base - crotch, top - crotch), crotch, 0.0, 90.0, 3)[1:]
+            outline += arc((centre - base - crotch, top - crotch), crotch, 90.0, 180.0, 3)[1:-1]
+    outline += _bend(outline[-1], (-half, top + 0.1 * palm), (-half, -cuff - 0.72 * palm))
+    # The thumb leans out from the palm's side, below the fingers: a capsule on a slant.
+    lean = math.radians(42.0)
+    out = (-math.sin(lean), -math.cos(lean))
+    side = (math.cos(lean), -math.sin(lean))
+    thumb, radius = 0.6 * finger, 0.45 * pitch
+    root = (-half + 0.25 * pitch, -cuff - 0.45 * palm)
+    centre = (root[0] + out[0] * (thumb - radius), root[1] + out[1] * (thumb - radius))
+    start = math.degrees(math.atan2(side[1], side[0]))
+    outline += arc(centre, radius, start, start - 180.0, 10)
+    outline.append((root[0] - side[0] * radius, root[1] - side[1] * radius))
+    outline += _bend(outline[-1], (-0.97 * half, -cuff - 0.12 * palm), (-0.97 * wrist, -cuff))
+    fig = Figure(size_in=length)
+    fig.poly(outline)
+    ribs = [-wrist + k * pitch / 3 for k in range(1, int(2 * wrist / (pitch / 3)) + 1)]
+    fig.lines([((-0.97 * wrist, -cuff), (0.97 * wrist, -cuff))])
+    fig.lines(((x, -0.08 * cuff), (x, -0.92 * cuff)) for x in ribs if abs(x) < 0.95 * wrist)
     return Drawn(fig, source)
+
+
+def _bend(
+    start: tuple[float, float], control: tuple[float, float], end: tuple[float, float]
+) -> list[tuple[float, float]]:
+    """The points after ``start`` of a quadratic curve pulled toward ``control``, to ``end``."""
+    steps = 6
+    return [
+        (
+            (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t**2 * end[0],
+            (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t**2 * end[1],
+        )
+        for t in (k / steps for k in range(1, steps + 1))
+    ]
 
 
 def claims(

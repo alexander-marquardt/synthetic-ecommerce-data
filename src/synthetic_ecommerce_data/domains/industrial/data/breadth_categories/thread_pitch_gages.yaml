@@ -7,7 +7,7 @@ category:
 - Gages
 - Thread Pitch Gages
 family: hand_tool
-shape: block
+shape: pitch_gage
 item: Thread Pitch Gage
 descriptor_attr: null
 size_attr: Type
