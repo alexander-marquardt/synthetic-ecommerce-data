@@ -1,6 +1,6 @@
 {
- "lines": 7192,
- "skus": 14240,
+ "lines": 7222,
+ "skus": 14294,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -111,7 +111,7 @@
   "rigging_pulleys": 1,
   "rigid_casters": 39,
   "rigid_shaft_couplings": 1,
-  "roll_pins": 1,
+  "roll_pins": 31,
   "roller_chain": 40,
   "roller_chain_links": 52,
   "roller_chain_sprockets": 54,
@@ -276,7 +276,7 @@
   "rigging_pulleys": 2,
   "rigid_casters": 69,
   "rigid_shaft_couplings": 2,
-  "roll_pins": 2,
+  "roll_pins": 56,
   "roller_chain": 73,
   "roller_chain_links": 94,
   "roller_chain_sprockets": 102,
@@ -1355,11 +1355,14 @@
    }
   },
   "roll_pins": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 31,
+   "median": 1,
+   "max": 4,
    "histogram": {
-    "2": 1
+    "1": 16,
+    "2": 8,
+    "3": 4,
+    "4": 3
    }
   },
   "roller_chain": {
@@ -2637,9 +2640,15 @@
    "Style"
   ],
   "roll_pins": [
-   "Diameter",
+   "Finish",
+   "Hardness",
    "Length",
-   "Material"
+   "Material",
+   "Measurement System",
+   "Pin Dia.",
+   "Standards",
+   "Style",
+   "Type"
   ],
   "roller_chain": [
    "ANSI Number",
@@ -3076,7 +3085,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 149857,
+ "total_attribute_entries": 150203,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3110,43 +3119,43 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5816,
+   "denominator": 5840,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0173745,
-   "numerator": 243,
-   "denominator": 13986,
+   "achieved": 0.0173789,
+   "numerator": 244,
+   "denominator": 14040,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00865099,
+   "achieved": 0.00861141,
    "numerator": 32,
-   "denominator": 3699,
+   "denominator": 3716,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.458878,
-   "numerator": 9379,
-   "denominator": 20439,
+   "achieved": 0.458892,
+   "numerator": 9405,
+   "denominator": 20495,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.125153,
-   "numerator": 2558,
-   "denominator": 20439,
+   "achieved": 0.124909,
+   "numerator": 2560,
+   "denominator": 20495,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3155,7 +3164,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14240,
+   "denominator": 14294,
    "note": "over titles",
    "band": null
   },
@@ -3164,7 +3173,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14240,
+   "denominator": 14294,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3173,16 +3182,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14240,
+   "denominator": 14294,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5237,
-   "numerator": 149857,
-   "denominator": 14240,
+   "achieved": 10.5081,
+   "numerator": 150203,
+   "denominator": 14294,
    "note": "count, not a rate",
    "band": null
   },
@@ -4148,75 +4157,75 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00561713,
-   "achieved": 0.00499891,
+   "target": 0.00561827,
+   "achieved": 0.00497871,
    "numerator": 69,
-   "denominator": 13803,
+   "denominator": 13859,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00231597,
-    0.00891829
+    0.00233043,
+    0.00890611
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0905937,
-   "achieved": 0.086358,
-   "numerator": 1192,
-   "denominator": 13803,
+   "target": 0.0904895,
+   "achieved": 0.0860812,
+   "numerator": 1193,
+   "denominator": 13859,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0719024,
-    0.109285
+    0.0718737,
+    0.109105
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0615185,
-   "achieved": 0.0586829,
+   "target": 0.0614376,
+   "achieved": 0.0584458,
    "numerator": 810,
-   "denominator": 13803,
+   "denominator": 13859,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0438954,
-    0.0791415
+    0.0438857,
+    0.0789894
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.21633,
-   "achieved": 0.214084,
-   "numerator": 2955,
-   "denominator": 13803,
+   "target": 0.216362,
+   "achieved": 0.213507,
+   "numerator": 2959,
+   "denominator": 13859,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.195187,
-    0.237473
+    0.195305,
+    0.23742
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5816
+  "Measurement System": 5840
  },
  "measurement_system_values": {
-  "Fractional Inch": 3316,
-  "Inch": 319,
-  "Metric": 2113,
+  "Fractional Inch": 3325,
+  "Inch": 323,
+  "Metric": 2124,
   "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
-  "in": 28856,
-  "mm": 16839
+  "in": 28903,
+  "mm": 16902
  },
- "standards_present": 7564,
+ "standards_present": 7591,
  "standards_multivalued": 1831,
- "standards_total_values": 9742,
+ "standards_total_values": 9769,
  "multivalued_attribute_names": {
   "Standards": 1831,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 14240,
+  "n_skus_checked": 14294,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4385,17 +4394,17 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 55,
-   "breadth_categories": 108,
+   "modelled_types": 56,
+   "breadth_categories": 107,
    "brands": 45
   },
   "drawings": {
-   "count": 14240,
-   "bytes": 37871607,
+   "count": 14294,
+   "bytes": 37944256,
    "geometry": {
-    "nominal": 206,
+    "nominal": 204,
     "partial": 2885,
-    "record": 11149
+    "record": 11205
    },
    "largest_bytes": 9491,
    "largest_product_type": "bearing_radial_ball"

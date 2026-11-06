@@ -13,7 +13,9 @@ bra or jeans row uses (furniture Comfort, Heritage and Core are Settle, Traditio
 Jolly and Delight are Mirth and Gladness; toys Hop is Leap).
 
 A derived style's model is now its lead word alone, with no sub-model or number
-([#851](retail-prototype/range-names-851.md)); the authored rows below keep theirs.
+([#851](retail-prototype/range-names-851.md)), and so is an authored bra, jeans, running shoe
+or walking boot ("Bramblewood Anytime Underwired Balcony Bra"). A cleaning or beauty model keeps
+its sub-model and number until the grocery build drops them too.
 
 A model reads `<lead> [<sub>] <number>`, and the title reads `<brand> <model> <descriptors> <kind>`.
 The sub-model is one of Pro, Max, Elite, Edge, Lite, Plus. The number is a generation (2 to 9), or
@@ -25,8 +27,8 @@ back.
 
 | Family | Kinds | Lead words (sample) | A real title from the 10K build |
 |---|---|---|---|
-| bra | Bra | Comfort, Support, Anytime, Balance, Contour | Bramblewood Comfort 2 Underwired Balcony Bra |
-| jeans | Jeans | Original, Heritage, Core, Authentic, Rider | Ottery Denim Original 101 High Rise Skinny Jeans |
+| bra | Bra | Comfort, Support, Anytime, Balance, Contour | Bramblewood Anytime Underwired Balcony Bra |
+| jeans | Jeans | Original, Heritage, Core, Authentic, Rider | Ottery Denim Original High Rise Skinny Jeans |
 | tee | Tee, T-Shirt | Regular, Casual, Weekend, Laidback, Varsity | Little Fernby Varsity Max 2 Slim Fit Ribbed Tee, Green |
 | trainers | Trainers, Platform Trainers, Plimsolls, Barefoot Shoes | Dash, Cruise, Baseline, Pitch, Orbit | Treadmoor Blaze 9 Leather Platform Trainers |
 | boots | Walking, Chelsea, Ankle, Chukka, Knee High, Safety Boots, Wellies | Summit, Ascent, Alpine, Grit, Puddle | Cobbleway Alpine Pro 5 Suede Chelsea Boots |
