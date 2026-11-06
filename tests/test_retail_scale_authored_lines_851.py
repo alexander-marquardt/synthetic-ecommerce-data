@@ -6,8 +6,8 @@ Denim Original Pro 101 High Rise Cigarette Jeans", "Stridewell Summit 2 Waterpro
 Boots". A number or a sub-model word after a range word reads as synthetic, and two bras of one
 brand, wiring and style ("Comfort Lite 7", "Comfort Lite 8") were told apart by it alone. Each
 authored line is now one lead word of its family; a brand's second bra of one wiring and style
-takes another. The cleaning and beauty models keep their numbers until the grocery build drops
-them too (the issue's Remaining line).
+takes another. The scale build's cleaning and beauty models dropped theirs too, so only a grocery
+care model keeps a number (the issue's Remaining line).
 """
 
 from __future__ import annotations
@@ -35,17 +35,19 @@ def authored() -> list[dict]:
     return [t for t in scale.templates() if not t["product_id"].startswith(scale.GROCERY_PREFIX)]
 
 
-def _outside_care(rec: dict) -> bool:
-    return line_grammar.family(rec) not in line_grammar.CARE
+def _grocery_care(rec: dict) -> bool:
+    grocery = rec["product_id"].startswith(scale.GROCERY_PREFIX)
+    return grocery and line_grammar.family(rec) in line_grammar.CARE
 
 
-def test_no_product_outside_care_has_a_numbered_range(ceiling):
-    """Guard (#851): "Comfort 2", "Speed 4", "Summit 2" on an authored row. Metric: ceiling
-    products outside the cleaning and beauty families whose range name has a bare number."""
+def test_no_product_but_a_grocery_care_one_has_a_numbered_range(ceiling):
+    """Guard (#851): "Comfort 2", "Speed 4", "Summit 2" on an authored row, "Keen Plus 4" on a
+    derived cleaner. Metric: ceiling products outside the grocery build's cleaning and beauty
+    families whose range name has a bare number."""
     numbered = [
         (r["product_type"], scale._line(r))
         for r in ceiling.records
-        if _outside_care(r) and BARE_NUMBER.search(scale._line(r) or "")
+        if not _grocery_care(r) and BARE_NUMBER.search(scale._line(r) or "")
     ]
     assert numbered == [], f"{len(numbered)}: {sorted(set(numbered))[:10]}"
 
