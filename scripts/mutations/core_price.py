@@ -301,7 +301,7 @@ MUTATIONS: list[Mutation] = [
                 "core/price.py",
                 "PIN_TOLERANCE = 0.02",
                 "PIN_TOLERANCE = 0.5",
-                "a_pin_five_percent_further_out",
+                "a_planted_pin_five_percent_further_out",
                 "a pin may not worsen",
             ),
             (
@@ -391,7 +391,7 @@ MUTATIONS: list[Mutation] = [
                 "domains/industrial/price_report.py",
                 "    recorded = PINNED_FIGURES[row.name][build]",
                 "    recorded = PINNED_FIGURES[row.name][0]",
-                "a_pin_may_land_no_further_out",
+                "a_planted_pin_may_land_no_further_out",
                 "a pin holds each build to its own figure",
             ),
             (
