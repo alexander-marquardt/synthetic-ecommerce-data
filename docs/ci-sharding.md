@@ -114,6 +114,20 @@ Outside CI nothing changes for the caller: `tests/conftest.py` makes the directo
 run, the first worker to ask builds and the others load. Under `merge_pr.sh --local-ci` the
 jobs run in file order in one tree, so `tests` finds the job's `build/ceiling` the same way.
 
+The same job builds the 100K files of `tests/shared_builds.py` (#790). Each shard whose modules
+read a 100K build (the price, brand-voice, plain-screw and set-screw tests) built it itself,
+about two minutes a build, so a full run built the same 100K catalogs shard after shard. The job
+is a matrix of two legs on two runners: `ceiling` as above, and `hundred_k`, which runs
+`scripts/build_shared_100k.py --out build/hundred_k` and uploads `hundred-k-builds`. The script
+runs two processes side by side: one 100K build reduced to the price, measured and flat files,
+and the quiet-wheel build, whose patched price model makes a catalog of its own. A shard with a
+file to run downloads the artifact to `build/hundred_k` and names it in `SHARED_BUILDS_DIR`. Each
+file is named by a digest of `src/`, `uv.lock` and `shared_builds.py`: the shard's checkout is
+the job's, so a test finds its file, and a tree that differs misses it and builds, never reads
+it. Locally nothing changes: a test that misses builds its file on demand, and the local run
+takes the matrix as the one `all` leg and builds both. A leg, not a job of its own, so the checks
+a merge waits for (`REQUIRED_CI` in `scripts/merge_pr/config.sh`) are unchanged.
+
 A test takes the build with `ceiling_build()` from `tests/retail_ceiling.py`, reads it and never
 edits it: a worker's files share one object. `tests/test_ceiling_artifact_539.py` refuses a test
 that builds past the ceiling itself, and holds the wiring above.
