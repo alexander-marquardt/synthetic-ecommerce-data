@@ -1,14 +1,17 @@
 """How a drawing looks: the brand's house style, the finish's color, the material's hatch.
 
-Every visual channel is a function of a published property, never of the SKU,
-the product id or chance (elastic/prism-industrial-products#103, rulings of
-2026-09-26): a reader who sees two drawings differ concludes the products
-differ, and driven by the record that conclusion is right.
+Every visual channel is a function of a published property, never of the SKU
+or chance (elastic/prism-industrial-products#103, rulings of 2026-09-26): a
+reader who sees two drawings differ concludes the products differ, and driven
+by the record that conclusion is right. The one channel the product id drives
+is the figure's angle (#849, :mod:`.product_look`): it says two products are
+two, which is true, and every SKU of one product shares it.
 
 =====================  ==============================================
 outline color         the brand (one of twelve inks)
-paper tone             the brand (one of six tints, independent of the ink)
+paper tone             none: one paper for every brand (#849)
 frame                  the brand (one of four frame treatments)
+figure angle           the product (one of its type's orientation set, :mod:`.product_look`)
 (ink, frame)           unique per brand, so the pair names the brand
 brand plate            the brand: its mark (motif + enclosure) and name
 part fill              the published finish; else the material's color
@@ -25,6 +28,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing.brand_mark import Mark, mark_for
+from synthetic_ecommerce_data.core.drawing.product_look import PAPER
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import FINISH_TINT
 
 #: What a part is colored when the record publishes no finish: the color of
@@ -230,7 +234,6 @@ class HouseStyle:
     stroke: float = brands.WEIGHTS[0]
     dash: str = brands.DASHES[0]
     margin: float = brands.MARGINS[0]
-    texture: str = brands.TEXTURES[0]
 
 
 def _mix(hex_color: str, towards: str, share: float) -> str:
@@ -257,17 +260,16 @@ def house_style(brand: str) -> HouseStyle:
     if brand not in brands.BY_NAME:
         raise UnknownStyleError(f"no house style for brand {brand!r}")
     ink = brands.ink_of(brand)
-    stroke, dash, margin, texture = brands.levers_of(brand)
+    stroke, dash, margin = brands.levers_of(brand)
     return HouseStyle(
         ink=ink,
-        paper=brands.paper_of(brand),
+        paper=PAPER,
         frame=brands.frame_of(brand),
         name=brand,
         mark=mark_for(brand),
         stroke=stroke,
         dash=dash,
         margin=margin,
-        texture=texture,
     )
 
 

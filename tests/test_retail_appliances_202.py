@@ -10,6 +10,7 @@ the SKU carries it), and the styles reach the scaled build.
 from __future__ import annotations
 
 import collections
+import math
 import re
 
 import pytest
@@ -186,7 +187,16 @@ def _points_drawn(svg: str) -> list[tuple[float, float]]:
         corners = motifs._element_points(tag, at)
         if tag in ("rect", "circle", "ellipse") and len(corners) == 2:
             (x0, y0), (x1, y1) = corners
-            corners = [(x0, y0), (x1, y0), (x0, y1), (x1, y1)]
+            if tag == "rect":
+                corners = [(x0, y0), (x1, y0), (x0, y1), (x1, y1)]
+            else:
+                # The outline itself: a turned figure's round shadow must not be judged by the
+                # corners of its box, which reach past it (#849).
+                cx, cy, rx, ry = (x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0) / 2, (y1 - y0) / 2
+                corners = [
+                    (cx + rx * math.cos(k * math.pi / 32), cy + ry * math.sin(k * math.pi / 32))
+                    for k in range(64)
+                ]
         pts += [(a * x + c * y + e, b * x + d * y + f) for x, y in corners]
     return pts
 

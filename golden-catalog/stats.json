@@ -1,6 +1,6 @@
 {
- "lines": 7192,
- "skus": 14074,
+ "lines": 7155,
+ "skus": 14023,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -115,7 +115,7 @@
   "roller_chain": 40,
   "roller_chain_links": 52,
   "roller_chain_sprockets": 54,
-  "safety_glasses": 38,
+  "safety_glasses": 1,
   "screw_button_head": 135,
   "screw_deck": 4,
   "screw_drywall": 4,
@@ -280,7 +280,7 @@
   "roller_chain": 73,
   "roller_chain_links": 94,
   "roller_chain_sprockets": 102,
-  "safety_glasses": 52,
+  "safety_glasses": 1,
   "screw_button_head": 315,
   "screw_deck": 4,
   "screw_drywall": 10,
@@ -1399,13 +1399,11 @@
    }
   },
   "safety_glasses": {
-   "products": 38,
-   "median": 1.0,
-   "max": 3,
+   "products": 1,
+   "median": 1,
+   "max": 1,
    "histogram": {
-    "1": 26,
-    "2": 10,
-    "3": 2
+    "1": 1
    }
   },
   "screw_button_head": {
@@ -2680,12 +2678,8 @@
    "Units per Pack"
   ],
   "safety_glasses": [
-   "Coating",
-   "Frame Color",
-   "Lens Color",
+   "Color",
    "Material",
-   "Measurement System",
-   "Standards",
    "Style"
   ],
   "screw_button_head": [
@@ -3076,7 +3070,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 147815,
+ "total_attribute_entries": 147512,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3126,27 +3120,27 @@
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00865099,
+   "achieved": 0.00870275,
    "numerator": 32,
-   "denominator": 3699,
+   "denominator": 3677,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.457308,
-   "numerator": 9271,
-   "denominator": 20273,
+   "achieved": 0.457643,
+   "numerator": 9254,
+   "denominator": 20221,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.127214,
+   "achieved": 0.127541,
    "numerator": 2579,
-   "denominator": 20273,
+   "denominator": 20221,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3155,7 +3149,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14074,
+   "denominator": 14023,
    "note": "over titles",
    "band": null
   },
@@ -3164,7 +3158,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14074,
+   "denominator": 14023,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3173,16 +3167,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14074,
+   "denominator": 14023,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.5027,
-   "numerator": 147815,
-   "denominator": 14074,
+   "achieved": 10.5193,
+   "numerator": 147512,
+   "denominator": 14023,
    "note": "count, not a rate",
    "band": null
   },
@@ -3847,30 +3841,6 @@
    ]
   },
   {
-   "name": "price p50 (USD): safety_glasses",
-   "target": 8.605,
-   "achieved": 8.135,
-   "numerator": 52,
-   "denominator": 74,
-   "note": "shown price; denom is the census n",
-   "band": [
-    6.884,
-    10.7563
-   ]
-  },
-  {
-   "name": "price p90/p10: safety_glasses",
-   "target": 4.852,
-   "achieved": 4.12601,
-   "numerator": 52,
-   "denominator": 74,
-   "note": "shown price; denom is the census n",
-   "band": [
-    3.639,
-    6.45316
-   ]
-  },
-  {
    "name": "price p50 (USD): threaded_rod",
    "target": 33.52,
    "achieved": 27.75,
@@ -4148,50 +4118,50 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00568551,
-   "achieved": 0.00505976,
+   "target": 0.00568469,
+   "achieved": 0.00507913,
    "numerator": 69,
-   "denominator": 13637,
+   "denominator": 13585,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00234416,
-    0.00902685
+    0.00233057,
+    0.0090388
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0891678,
-   "achieved": 0.084696,
-   "numerator": 1155,
-   "denominator": 13637,
+   "target": 0.0892611,
+   "achieved": 0.0839161,
+   "numerator": 1140,
+   "denominator": 13585,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0712839,
-    0.107052
+    0.0713088,
+    0.107213
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0599543,
-   "achieved": 0.0574907,
+   "target": 0.0600249,
+   "achieved": 0.0577107,
    "numerator": 784,
-   "denominator": 13637,
+   "denominator": 13585,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0431774,
-    0.0767311
+    0.0431838,
+    0.076866
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.217095,
-   "achieved": 0.214563,
-   "numerator": 2926,
-   "denominator": 13637,
+   "target": 0.217068,
+   "achieved": 0.214869,
+   "numerator": 2919,
+   "denominator": 13585,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196443,
-    0.237748
+    0.196336,
+    0.237799
    ]
   }
  ],
@@ -4208,15 +4178,15 @@
   "in": 28530,
   "mm": 16466
  },
- "standards_present": 7435,
+ "standards_present": 7403,
  "standards_multivalued": 1831,
- "standards_total_values": 9613,
+ "standards_total_values": 9581,
  "multivalued_attribute_names": {
   "Standards": 1831,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 14074,
+  "n_skus_checked": 14023,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4376,19 +4346,19 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 55,
-   "breadth_categories": 108,
+   "modelled_types": 54,
+   "breadth_categories": 109,
    "brands": 45
   },
   "drawings": {
-   "count": 14074,
-   "bytes": 35084050,
+   "count": 14023,
+   "bytes": 37254394,
    "geometry": {
-    "nominal": 206,
+    "nominal": 207,
     "partial": 2831,
-    "record": 11037
+    "record": 10985
    },
-   "largest_bytes": 7789,
+   "largest_bytes": 9491,
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
@@ -4403,7 +4373,6 @@
    "drive_size_present": 2241,
    "held_by_floor": [
     "Dash number",
-    "Frame color",
     "Sizes included"
    ],
    "min_presence_arm": "Neck length",
