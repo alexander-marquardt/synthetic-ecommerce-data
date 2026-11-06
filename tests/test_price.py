@@ -1028,6 +1028,7 @@ NOT_MEASURED = frozenset(
         "key_stock",
         "er_collets",
         "drill_bushings",
+        "roll_pins",
         "studs_double_end",
         "bronze_sleeve_bushings",
         *tabletype.tables(),

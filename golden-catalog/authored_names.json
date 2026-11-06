@@ -387,6 +387,10 @@
  "rigid_shaft_couplings": {
   "Bore dia.": "Bore Dia."
  },
+ "roll_pins": {
+  "Measurement system": "Measurement System",
+  "Pin dia.": "Pin Dia."
+ },
  "roller_chain": {
   "ANSI number": "ANSI Number",
   "Inside width": "Inside Width",
