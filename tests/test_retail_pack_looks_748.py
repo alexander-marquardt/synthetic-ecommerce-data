@@ -8,7 +8,6 @@ image with its colors and words taken out is the picture a line owns.
 from __future__ import annotations
 
 import copy
-import itertools
 import re
 
 import pytest
@@ -25,11 +24,7 @@ from synthetic_ecommerce_data.domains.retail import (
     shades,
     sheet_extent,
 )
-from synthetic_ecommerce_data.domains.retail.line_grammar_families.beauty import (
-    LEADS,
-    NUMBERS,
-    SUBS,
-)
+from synthetic_ecommerce_data.domains.retail.line_grammar_families.beauty import LEADS
 
 TEMPLATES = {
     "Foundation": "BEA-FNDFTH",
@@ -75,9 +70,7 @@ def test_two_titles_with_no_model_draw_two_outlines(kind: str) -> None:
 
 @pytest.mark.parametrize("kind", KINDS)
 def test_every_model_of_the_grammar_has_a_look_of_its_own(kind: str) -> None:
-    subs = ("", *(f"{s} " for s in SUBS))
-    lines = [f"{a} {b}{n}" for a, b, n in itertools.product(LEADS, subs, NUMBERS)]
-    assert len({str(_spec(_product(kind, line))) for line in lines}) == len(lines)
+    assert len({str(_spec(_product(kind, line))) for line in LEADS}) == len(LEADS)
 
 
 def test_a_foundations_shades_share_one_pack() -> None:

@@ -107,6 +107,17 @@
   "Dowel dia.": "Dowel Dia.",
   "Measurement system": "Measurement System"
  },
+ "drill_bushings": {
+  "ANSI number": "ANSI Number",
+  "Decimal equivalent": "Decimal Equivalent",
+  "Drill size": "Drill Size",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Overall length": "Overall Length"
+ },
  "drill_jobber": {
   "Cutting direction": "Cutting Direction",
   "Decimal equivalent": "Decimal Equivalent",
