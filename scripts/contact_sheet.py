@@ -19,7 +19,11 @@ elastic/prism-industrial-products#103:
   hex key row among them), so each brand's house style -- ink and frame -- and
   its title template can be compared on the same part;
 * one brand across the types it makes, for a few brands, so the house style
-  can be seen staying the same.
+  can be seen staying the same;
+* one product of each orientation (#849) at every angle its type allows: a long
+  screw (``any``, the 24 clock positions), a bench vise (``upright``) and a
+  retail garment (``slight``), so the turn and the shrink that keeps a turned
+  figure in its frame can be judged.
 
 The page itself carries labels (type, brand, SKU) under each drawing so the
 sheet can be read; the drawings carry none.
@@ -29,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import html
 import json
 import sys
@@ -37,8 +42,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+from synthetic_ecommerce_data.core import domain  # noqa: E402
 from synthetic_ecommerce_data.core.bundle import flat_facets, records  # noqa: E402
-from synthetic_ecommerce_data.core.drawing import draw_product  # noqa: E402
+from synthetic_ecommerce_data.core.drawing import draw_product, product_look  # noqa: E402
+from synthetic_ecommerce_data.domains.retail import orientation  # noqa: E402
+from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg  # noqa: E402
+from synthetic_ecommerce_data.domains.retail.samples import records as retail_records  # noqa: E402
 
 
 def _load(catalog: Path) -> list[dict]:
@@ -60,7 +69,10 @@ def _load(catalog: Path) -> list[dict]:
 def _cell(parent: dict, variant: dict, caption: str) -> str:
     # Drawn with its siblings, at the product's one scale, exactly as the bundle is.
     drawn = draw_product(
-        parent["product_type"], parent["brand"], [v["record"] for v in parent["variants"]]
+        parent["product_type"],
+        parent["brand"],
+        [v["record"] for v in parent["variants"]],
+        parent["product_id"],
     )
     data, source = drawn[parent["variants"].index(variant)]
     # An <img> per drawing, not inline SVG: each file is its own document, as
@@ -192,6 +204,65 @@ def _one_brand_across_types(products: list[dict]) -> list[str]:
     return cells
 
 
+#: The industrial types shown at every angle of their orientation, and the retail shape.
+ANGLE_TYPES = ("screw_socket_head", "bench_vises")
+ANGLE_SHAPE = "jeans_straight"
+
+
+@contextlib.contextmanager
+def _turned_by(angle: int):
+    """Every drawing made inside is turned by ``angle``, whatever its product id."""
+    held = product_look.angle_of
+    product_look.angle_of = lambda *_: angle
+    try:
+        yield
+    finally:
+        product_look.angle_of = held
+
+
+def _retail_cell(rec: dict, caption: str) -> str:
+    src = "data:image/svg+xml;base64," + base64.b64encode(drawing_svg(rec).encode()).decode()
+    return (
+        '<figure style="margin:4px;display:inline-block;width:150px;vertical-align:top">'
+        f'<img src="{src}" width="150" height="150" alt="">'
+        f'<figcaption style="font:11px system-ui;color:#555">{html.escape(caption)}</figcaption>'
+        "</figure>"
+    )
+
+
+def _length(variant: dict) -> float:
+    """The SKU's canonical length, or 0."""
+    attrs = variant["attributes"]
+    lengths = [e.get("value_canonical") or 0 for e in attrs if e["name"] == "Length"]
+    return max(lengths, default=0)
+
+
+def _angles(products: list[dict]) -> list[str]:
+    """One product per orientation at every angle of its set (#849): the longest SKU of each
+    :data:`ANGLE_TYPES` in the catalog, then the first retail sample drawn as
+    :data:`ANGLE_SHAPE`."""
+    cells = ["<h3>One product per orientation, at every angle its type allows (#849)</h3>"]
+    for type_key in ANGLE_TYPES:
+        parent, variant = max(
+            ((p, v) for p in products if p["product_type"] == type_key for v in p["variants"]),
+            key=lambda pv: _length(pv[1]),
+        )
+        name = domain.orientation(type_key)
+        cells.append(f"<h4>{html.escape(type_key)}: {name}</h4><div>")
+        for angle in product_look.ORIENTATIONS[name]:
+            with _turned_by(angle):
+                cells.append(_cell(parent, variant, f"{angle} degrees"))
+        cells.append("</div>")
+    rec = next(r for r in retail_records() if r["drawing"]["shape"] == ANGLE_SHAPE)
+    name = orientation.of(ANGLE_SHAPE)
+    cells.append(f"<h4>{html.escape(rec['title'])} ({ANGLE_SHAPE}): {name}</h4><div>")
+    for angle in product_look.ORIENTATIONS[name]:
+        with _turned_by(angle):
+            cells.append(_retail_cell(rec, f"{angle} degrees"))
+    cells.append("</div>")
+    return cells
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", type=Path, default=Path("golden-catalog"))
@@ -206,6 +277,7 @@ def main() -> int:
         *_washers(products),
         *_brands_across_a_type(products),
         *_one_brand_across_types(products),
+        *_angles(products),
         *_per_type(products),
         "</body>",
     ]

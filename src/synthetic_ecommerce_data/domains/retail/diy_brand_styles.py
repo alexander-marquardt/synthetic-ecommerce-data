@@ -56,10 +56,10 @@ hs.MARKS.update(
 # fmt: off
 #: Brand -> house style: every one a lockup, so the wordmark is the brand field.
 STYLES = {
-    "Torvane Tools":  H("#f2f4f0", "diagonal", "heavy",   "#d9541e", "#2b1a12", 1.3,  False, "sharp", "bitspiral", "mark_left",  "top_right",     "none", "sans",     700, "caps",      2.0),
-    "Marlowick":      H("#f6f1ea", "dots",     "double",  "#8a5a2b", "#33241a", 0.9,  False, "round", "marlow",    "mark_above", "bottom_right",  "none", "serif",    700, "smallcaps", 1.0, True),
-    "Harkwell Works": H("#eef2f7", "grid",     "ticks",   "#1f4e8c", "#14243d", 1.1,  True,  "sharp", "hawkwing",  "band_bottom","bottom_center","none", "humanist", 700, "title",     0.5),
-    "Stonemarsh":     H("#eff3ec", "hatch",    "rounded", "#4f6b3a", "#1f2d17", 1.0,  False, "round", "cairn",     "pill",       "top_left", "none", "mono",     400, "lower",     0.5),
+    "Torvane Tools":  H("heavy",   "#d9541e", "#2b1a12", 1.3,  False, "sharp", "bitspiral", "mark_left",  "top_right",     "none", "sans",     700, "caps",      2.0),
+    "Marlowick":      H("double",  "#8a5a2b", "#33241a", 0.9,  False, "round", "marlow",    "mark_above", "bottom_right",  "none", "serif",    700, "smallcaps", 1.0, True),
+    "Harkwell Works": H("ticks",   "#1f4e8c", "#14243d", 1.1,  True,  "sharp", "hawkwing",  "band_bottom","bottom_center","none", "humanist", 700, "title",     0.5),
+    "Stonemarsh":     H("rounded", "#4f6b3a", "#1f2d17", 1.0,  False, "round", "cairn",     "pill",       "top_left", "none", "mono",     400, "lower",     0.5),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

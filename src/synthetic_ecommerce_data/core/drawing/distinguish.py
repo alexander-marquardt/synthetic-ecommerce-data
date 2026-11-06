@@ -1,9 +1,10 @@
 """When two brands' drawings are visibly different, and how many brands that allows (#55).
 
-A drawing's brand channels are its house style: the ink, the paper, the frame,
-the mark and the four text-free levers the brand book declares
-(:data:`..brands.WEIGHTS`, :data:`..brands.DASHES`, :data:`..brands.MARGINS`,
-:data:`..brands.TEXTURES`). Twelve inks and four frames gave 48 pairs; the
+A drawing's brand channels are its house style: the ink, the frame, the mark
+and the three text-free levers the brand book declares
+(:data:`..brands.WEIGHTS`, :data:`..brands.DASHES`, :data:`..brands.MARGINS`).
+The paper tint and the background texture were levers too, until every drawing
+went onto one paper (#849). Twelve inks and four frames gave 48 pairs; the
 levers multiply that, but counting combinations is not the limit.
 DISTINGUISHABILITY is, so the rule is measurable:
 
@@ -17,12 +18,11 @@ Two brands are visibly different when ANY ONE STRONG LEVER differs:
   deuteranopia and tritanopia (:func:`ink_delta_e`). Two inks nearer than that
   in any one of the four are one ink to some reader, and count as a WEAK lever;
 
-or when at least :data:`WEAK_LEVERS_NEEDED` (3) WEAK levers differ: the paper
-tint, the outline weight, the dash pattern, the frame margin, the texture, and
-a confusable ink.
+or when at least :data:`WEAK_LEVERS_NEEDED` (3) WEAK levers differ: the
+outline weight, the dash pattern, the frame margin, and a confusable ink.
 
 The ink-to-paper contrast floor (3:1) is a separate ground, held for every ink
-against every paper (``tests/test_house_style_levers_55.py``).
+against the one paper (``tests/test_house_style_levers_55.py``).
 """
 
 from __future__ import annotations
@@ -74,14 +74,12 @@ class Style(NamedTuple):
     """One brand's house style: every lever as the index the book declares."""
 
     ink: int
-    paper: int
     frame: int
     #: The brand's mark; two brands' marks differ when these are unequal.
     mark: object
     outline: int
     dash: int
     margin: int
-    texture: int
 
 
 def style_of(brand: str) -> Style:
@@ -91,13 +89,11 @@ def style_of(brand: str) -> Style:
     book = brands.BY_NAME[brand]
     return Style(
         book.ink,
-        brands.PAPERS.index(brands.paper_of(brand)),
         book.frame,
         mark_for(brand),
         book.outline,
         book.dash,
         book.margin,
-        book.texture,
     )
 
 
@@ -150,11 +146,9 @@ def visibly_different(a: Style, b: Style) -> bool:
         x != y
         for x, y in (
             (a.ink, b.ink),
-            (a.paper, b.paper),
             (a.outline, b.outline),
             (a.dash, b.dash),
             (a.margin, b.margin),
-            (a.texture, b.texture),
         )
     )
     return weak >= WEAK_LEVERS_NEEDED
@@ -172,16 +166,14 @@ def pack() -> list[Style]:
     """
     space = itertools.product(
         range(len(brands.INKS)),
-        range(len(brands.PAPERS)),
         range(len(brands.ALL_FRAMES)),
         range(len(brands.WEIGHTS)),
         range(len(brands.DASHES)),
         range(len(brands.MARGINS)),
-        range(len(brands.TEXTURES)),
     )
     chosen: list[Style] = []
-    for ink, paper, frame, outline, dash, margin, texture in space:
-        candidate = Style(ink, paper, frame, None, outline, dash, margin, texture)
+    for ink, frame, outline, dash, margin in space:
+        candidate = Style(ink, frame, None, outline, dash, margin)
         if all(visibly_different(candidate, other) for other in chosen):
             chosen.append(candidate)
     return chosen

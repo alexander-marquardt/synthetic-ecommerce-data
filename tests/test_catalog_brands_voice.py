@@ -430,16 +430,14 @@ def _contrast(ink: str, paper: str) -> float:
 
 
 def test_every_brand_has_exactly_one_house_style_and_no_two_share_it():
+    from synthetic_ecommerce_data.core.drawing.product_look import PAPER
     from synthetic_ecommerce_data.core.drawing.style import brand_for_house_style, house_style
 
     styles = {brand: house_style(brand) for brand in BRANDS}
     pairs = {(s.ink, s.frame) for s in styles.values()}
     assert len(pairs) == len(BRANDS)
-    assert len({(s.ink, s.paper, s.frame) for s in styles.values()}) == len(BRANDS)
-    # Brands sharing an ink differ in paper as well as in frame.
-    for ink in {s.ink for s in styles.values()}:
-        papers = [s.paper for s in styles.values() if s.ink == ink]
-        assert len(set(papers)) == len(papers), ink
+    # No brand tints the paper (#849): every brand draws on the one.
+    assert {s.paper for s in styles.values()} == {PAPER}
     worst = min((_contrast(s.ink, s.paper), b) for b, s in styles.items())
     assert worst[0] >= 3.0, worst
     for brand, style in styles.items():
