@@ -119,8 +119,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "drop the key dimension from secondary-style titles",
         "domains/industrial/titles.py",
-        '        if style == "secondary":\n            # The pair\'s secondary dimension',
-        '        if style == "secondary":\n            segments = []\n            # The pair\'s secondary dimension',
+        '        if style == "secondary" and not also:\n            # The pair\'s secondary dimension',
+        '        if style == "secondary" and not also:\n            segments = []\n            # The pair\'s secondary dimension',
         "tests/test_catalog_facts.py -k names_its_key_dimension",
         "B",
         "a brand titles a type one way, naming its key size",
@@ -146,7 +146,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "choose labelled or secondary per SKU inside a labelled-or-secondary pair",
         "domains/industrial/titles.py",
-        '        if style == "secondary":\n            # The pair\'s secondary dimension',
+        '        if style == "secondary" and not also:\n            # The pair\'s secondary dimension',
         '        if style != "unlabelled" and self.rng.random() < 0.5:\n'
         "            # The pair's secondary dimension",
         "tests/test_catalog_facts.py -k secondary_dimension_on_every_title_or_none",
