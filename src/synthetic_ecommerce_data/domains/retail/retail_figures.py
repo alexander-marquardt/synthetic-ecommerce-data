@@ -36,6 +36,7 @@ from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     export,
     grocery,
+    kit,
     main_colors,
     scale,
     type_registry,
@@ -104,6 +105,8 @@ def ceiling() -> scale.Scaled:
                 if not shared.is_file():
                     shared.write_bytes(pickle.dumps(scale.build(EXHAUST), pickle.HIGHEST_PROTOCOL))
                 _MEMO["ceiling"] = pickle.loads(shared.read_bytes())
+            # The pickle imports no row module, so the shapes it draws are not registered yet.
+            kit.register_all()
     return _MEMO["ceiling"]
 
 

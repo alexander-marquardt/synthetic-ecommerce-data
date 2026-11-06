@@ -14,7 +14,6 @@ The issue's Done-when, one test group each:
 
 from __future__ import annotations
 
-import contextlib
 import functools
 import json
 import re
@@ -250,9 +249,7 @@ def _drawn_industrial_types() -> set[str]:
 
 
 def _retail_shapes() -> set[str]:
-    # A shape not yet registered imports every module that registers one.
-    with contextlib.suppress(KeyError):
-        kit._draw("")
+    kit.register_all()
     return set(kit.SHAPES)
 
 
