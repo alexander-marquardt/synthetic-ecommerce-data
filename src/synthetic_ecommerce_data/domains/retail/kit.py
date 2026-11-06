@@ -835,22 +835,28 @@ def register(shapes: dict, offsets: dict | None = None) -> None:
     OFFSET_Y.update(offsets or {})
 
 
+def register_all() -> None:
+    """Fill :data:`SHAPES` with every shape: import each module that registers one (``kit_*.py``
+    and ``type_specs/*.py``). A shape is registered when its module is imported, and a build
+    loaded from a pickle imports none of the row modules, so code that reads the whole registry
+    calls this first (synth#797)."""
+    import importlib  # deferred: the kits import this module
+    import pkgutil
+
+    from synthetic_ecommerce_data.domains.retail import type_specs
+
+    for info in pkgutil.iter_modules([str(Path(__file__).parent)]):
+        if info.name.startswith("kit_"):
+            importlib.import_module(f"{__package__}.{info.name}")
+    for info in pkgutil.iter_modules(type_specs.__path__):
+        importlib.import_module(f"{type_specs.__name__}.{info.name}")
+
+
 def _draw(shape: str):
-    """The drawing ``shape`` names. A shape is registered when its module is imported, and a
-    build loaded from a pickle imports none of the row modules, so a shape not yet registered
-    imports every module that registers one (``kit_*.py`` and ``type_specs/*.py``) before it is
-    looked up again (synth#797)."""
+    """The drawing ``shape`` names; a shape not yet registered fills the registry
+    (:func:`register_all`) before it is looked up again (synth#797)."""
     if shape not in SHAPES:
-        import importlib  # deferred: the kits import this module
-        import pkgutil
-
-        from synthetic_ecommerce_data.domains.retail import type_specs
-
-        for info in pkgutil.iter_modules([str(Path(__file__).parent)]):
-            if info.name.startswith("kit_"):
-                importlib.import_module(f"{__package__}.{info.name}")
-        for info in pkgutil.iter_modules(type_specs.__path__):
-            importlib.import_module(f"{type_specs.__name__}.{info.name}")
+        register_all()
     return SHAPES[shape]
 
 

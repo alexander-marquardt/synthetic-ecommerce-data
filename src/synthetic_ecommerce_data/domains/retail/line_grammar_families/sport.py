@@ -1,7 +1,7 @@
 """The sport family of the line grammar: running shoes and bikes (gen#662, gen#513).
 
-A model is a performance word, an optional sub-model and a generation number or a code, then a
-use, e.g. "Tempo Max 3 Trail Running Shoes".
+A model is a performance word alone, then a use, e.g. "Tempo Trail Running Shoes": a
+generation number read as synthetic (#851). A bike's model is a series its brand owns.
 """
 
 from __future__ import annotations
