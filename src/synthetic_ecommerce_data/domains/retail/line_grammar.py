@@ -7,8 +7,10 @@ sub-model or a code, then a use ("Ghost 18 Road Running Trainers"). The words di
 
 - numbered families (sport, tableware, lighting and the rest): a derived model is a lead word
   alone, then a use, e.g. "Tempo Trail Running Shoes", "Supper Porcelain Espresso Cup
-  Set": a generation number read as synthetic on a cup set ("Supper 6", #851). An authored
-  model and a cleaning or beauty one may still carry a sub-model and a number or a code. Each is
+  Set": a generation number read as synthetic on a cup set ("Supper 6", #851), and so is a
+  cleaning or beauty model of the scale build ("Soapwell Keen Lemon Floor Cleaner"). A grocery
+  care model still carries a sub-model and a number, and an authored model a sub-model or a
+  code (a tool's "Torque Pro"). Each is
   a module of ``line_grammar_families/``, found by walking the package (gen#513), so a new one
   edits no file here;
 - dress shoes (brogues, loafers): the brand always leads, then an optional name-like model word
@@ -98,8 +100,8 @@ def is_model(fam: str, brand: str, line: str) -> bool:
     """Whether ``line`` is a model name of ``fam`` built from the family's words alone.
 
     A numbered model is a lead word of the family, then any sub-model words, generation numbers
-    or codes: a derived one is the lead word alone (#851), an authored or care one may carry
-    the rest; a dress model is one name-like word; an appliance model is a
+    or codes: a derived one is the lead word alone (#851), an authored or grocery care one may
+    carry the rest; a dress model is one name-like word; an appliance model is a
     series its brand owns (gen#622); a food model is a plain lead word of its family, then
     optionally one of its style words, and never a number (gen#665, gen#729); a bike model is a
     series its brand owns."""
@@ -141,9 +143,10 @@ class Deal:
 
     A numbered-family brand names a model with one of its lead words alone ("Tempo"), as a
     retailer names a range: a generation number or a sub-model word read as synthetic on a cup
-    set ("Supper 6", "Spread Mini 8", #851). A cleaning or beauty brand still builds its models
-    from its lead words, a sub-model and a generation ("Keen Plus 4"), as the grocery build deals
-    them too. A dress brand names a
+    set ("Supper 6", "Spread Mini 8", #851), and so does a cleaning or beauty brand of the scale
+    build ("Keen"). The grocery build still builds a care model from a lead word, a sub-model and
+    a generation ("Keen Plus 4"): with one word alone, its brands run out of titles before their
+    families reach their budgets. A dress brand names a
     model with one of its name words. A food brand builds a model from its lead words, the lead
     alone first ("Finest"), then with each style word of the kind ("Finest Greek Style"). Past
     those the models repeat and :meth:`round` tells the caller how far past it went, so a title
@@ -163,12 +166,13 @@ class Deal:
         self.fam = fam
         self.brands = sorted(set(brands))
         self.spec = _NUMBERED.get(fam)
+        self.half = half
         if self.spec:
             if fam in CARE:
                 words = self.spec.leads[HALVES[half] :: 2]
             else:
                 words = self.spec.grocery_leads if half == "grocery" else self.spec.leads
-            if not self.spec.bare and fam not in CARE:
+            if not self.spec.bare:
                 # A bare range word that any text also uses reads as that text's range (#851).
                 words = tuple(w for w in words if w.lower() not in taken)
                 authored = {w: o for w, o in authored.items() if w.lower() not in taken}
@@ -195,7 +199,7 @@ class Deal:
         if self.spec and self.spec.bare:
             style = (None, *self.spec.styles[kind])[k % (len(self.spec.styles[kind]) + 1)]
             return f"{word} {style}" if style else word
-        if not self.spec or self.fam not in CARE:
+        if not self.spec or self.fam not in CARE or self.half != "grocery":
             return word  # a range is a plain word: "Supper", never "Supper 6" (#851)
         subs, numbers = self.spec.subs, self.spec.numbers
         # A care model sits in a short title, so two of one brand's models that differ in a
@@ -288,7 +292,7 @@ def retitle(rec: dict, tpl: dict, draw: int) -> None:
     leads with its brand, then the model, in two draws of three ("Hollin Finest Small Batch
     Strawberry Jam"); the others keep the model alone (:func:`brand_led`). A cleaning or beauty
     style leads with its brand and its model, then the scent or shade and the kind: "Soapwell Keen
-    Plus 4 Lemon Floor Cleaner". ``draw`` is the style's seeded number for these choices."""
+    Lemon Floor Cleaner". ``draw`` is the style's seeded number for these choices."""
     fam, brand, line = family(rec), rec["brand"], str(rec["product_line"])
     brands = (tpl["brand"], brand)
     title = _peel(rec["title"], brands)
