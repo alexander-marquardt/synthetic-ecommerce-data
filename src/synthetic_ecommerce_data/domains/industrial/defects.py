@@ -93,13 +93,16 @@ class DefectMixin:
                 style = canonical_style(other)
                 attribute = out[index]
                 assert attribute.value_num is not None
+                # The magnitude it was published from, where the builder kept it: the
+                # rounded 0.438" of a 7/16" nut height restates as 11.13mm, off its table.
+                magnitude = child.exact.get(attribute.name, attribute.value_num)
                 # The key travels with the unit: a name two types use for two
                 # quantities (a sprocket's Pitch, a tap's) is told apart by it,
                 # and a restated value under the name's default key would join
                 # the other type's facet.
                 if attribute.facet_key not in UNIT_SPLIT_KEYS:
                     out[index] = replace(
-                        length_attribute(attribute.name, self._publish(attribute.value_num, style)),
+                        length_attribute(attribute.name, self._publish(magnitude, style)),
                         key=attribute.key,
                     )
                     self._bump("defect_unit_mixing")
