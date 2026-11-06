@@ -288,6 +288,10 @@ DISTINCT_SPEC_FLOOR = {
     # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
     # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
     "bronze_sleeve_bushings": 0.80,
+    # #829: a lag screw is a DIN 571 or ASME B18.2.1 row on a run of stocked lengths, and every
+    # maker sells the same rows. Measured at 100K, 731 distinct specs of 848 SKUs (0.862),
+    # rounded down to 0.05.
+    "lag_screws": 0.85,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
