@@ -14,6 +14,7 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import (
     line_grammar,
+    line_grammar_families,
     scale,
 )
 
@@ -70,8 +71,8 @@ def test_a_cleaning_or_beauty_title_leads_with_its_brand(ceiling):
 
 
 def test_a_cleaning_or_beauty_model_is_built_from_its_family_vocabulary(ceiling):
-    """Guard (gen#666): the model of a cleaning or beauty style is a plain word of its family, a
-    sub-model and a code, never a coined range name. Metric: the styles whose model is not."""
+    """Guard (gen#666): the model of a cleaning or beauty style is a plain word of its family,
+    never a coined range name. Metric: the styles whose model is not."""
     off = [
         (r["product_id"], r["brand"], scale._line(r))
         for r in _care_records(ceiling.records)
@@ -91,26 +92,22 @@ def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):
     assert {w: sorted(b) for w, b in brands.items() if len(b) > 1} == {}
 
 
-#: Pairs of one brand's models that differ in a single token ("Defence 6", "Defence Ultra 6").
-#: The build holds 52; without the stepping of the sub-model and the generation (``Deal.owned``)
-#: it holds 153, and the grocery near-duplicate share leaves its 4.0% cap.
-CEILING_ONE_TOKEN_PAIRS = 100
-
-
-def test_a_care_brands_models_seldom_differ_in_one_token(ceiling):
-    """Guard (gen#666): two models of one brand that differ in a single token make titles that
-    read as one listing, which is what the grocery near-duplicate cap counts. Metric: the pairs
-    of one brand's models whose token sets differ in under two tokens, against
-    :data:`CEILING_ONE_TOKEN_PAIRS`."""
-    models: dict[str, set[str]] = {}
-    for r in _care_records(ceiling.records):
-        models.setdefault(r["brand"], set()).add(scale._line(r))
-    assert sum(len(m) for m in models.values()) > 300
-    close = [
-        (brand, a, b)
-        for brand, each in models.items()
-        for a in sorted(each)
-        for b in sorted(each)
-        if a < b and len(set(a.split()) ^ set(b.split())) < 2
-    ]
-    assert len(close) <= CEILING_ONE_TOKEN_PAIRS, close[:5]
+def test_a_care_model_is_one_lead_word_of_its_family(ceiling):
+    """Guard (#851): two models of one brand that differed in one token ("Defence 6", "Defence
+    Ultra 6") read as one listing, and a number on a range reads as synthetic ("Keen Plus 4").
+    A scale-build model is now its lead word alone, so two of one brand's models share no word.
+    Metric: the scale build's cleaning and beauty styles whose model is not one lead word of its
+    family."""
+    care = [
+        r for r in _care_records(ceiling.records)
+        if not r["product_id"].startswith(scale.GROCERY_PREFIX)
+    ]  # fmt: skip
+    leads = {n: f.leads for n, f in line_grammar_families.families().items()}
+    models = {(r["brand"], scale._line(r)) for r in care}
+    assert len(models) > 20  # the guard reads real models, not an empty set
+    off = sorted(
+        (r["product_type"], scale._line(r))
+        for r in care
+        if scale._line(r) not in leads[line_grammar.family(r)]
+    )
+    assert off[:10] == [], len(off)

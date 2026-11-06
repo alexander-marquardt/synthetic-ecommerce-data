@@ -22,17 +22,13 @@ from synthetic_ecommerce_data.domains.retail import (
     scale,
     sheet_extent,
 )
-from synthetic_ecommerce_data.domains.retail.line_grammar_families.beauty import (
-    LEADS,
-    NUMBERS,
-    SUBS,
-)
+from synthetic_ecommerce_data.domains.retail.line_grammar_families.beauty import LEADS
 
 SATIN = next(r for r in scale.templates() if r["product_id"] == "BEA-LIPSAT")
 
 
 def _lipstick(
-    line: str | None = "Renew 2", finish: str | None = "Satin", title: str = "Lip"
+    line: str | None = "Renew", finish: str | None = "Satin", title: str = "Lip"
 ) -> dict:
     """A copy of the satin lipstick on ``line`` in ``finish``, its first SKU alone."""
     rec = copy.deepcopy(SATIN)
@@ -54,13 +50,11 @@ def _spec(rec: dict) -> dict:
 
 
 def test_every_model_of_the_grammar_draws_a_look_of_its_own() -> None:
-    subs = ("", *(f"{s} " for s in SUBS))
-    lines = [f"{a} {b}{n}" for a, b, n in itertools.product(LEADS, subs, NUMBERS)]
-    assert len({str(_spec(_lipstick(line))) for line in lines}) == len(lines)
+    assert len({str(_spec(_lipstick(line))) for line in LEADS}) == len(LEADS)
 
 
 def test_two_lines_draw_different_pictures_of_one_shade() -> None:
-    one, other = _lipstick("Renew 2"), _lipstick("Renew 4")
+    one, other = _lipstick("Renew"), _lipstick("Revive")
     assert _picture(one, one["skus"][0]) != _picture(other, other["skus"][0])
 
 
@@ -203,23 +197,23 @@ def _number(line: str) -> int:
         raise AssertionError(f"{line!r} is outside the grammar and must hash: {gone}") from gone
 
 
-def test_a_real_model_is_numbered_from_its_words() -> None:
-    assert _number(f"{LEADS[0]} {NUMBERS[0]}") == 0
-    assert _number(f"{LEADS[0]} {SUBS[0]} {NUMBERS[0]}") == len(NUMBERS)
-    assert _number(f"{LEADS[1]} {NUMBERS[1]}") == (len(SUBS) + 1) * len(NUMBERS) + 1
+def test_a_real_model_is_numbered_from_its_lead_word() -> None:
+    assert _number(LEADS[0]) == 0
+    assert _number(LEADS[1]) == lipstick_looks.STRIDE
+    assert _number(LEADS[-1]) == (len(LEADS) - 1) * lipstick_looks.STRIDE < lipstick_looks.MODELS
 
 
 @pytest.mark.parametrize(
     "near",
-    [f"{LEADS[0]} 1", f"{LEADS[0]} Limited 2", f"Harbor {NUMBERS[0]}", LEADS[0],
-     f"{LEADS[0]} {SUBS[0]}", f"{LEADS[0]} Plus Pro 2"],
+    [f"{LEADS[0]} 1", f"{LEADS[0]} Limited 2", "Harbor 2", LEADS[0].lower(),
+     f"{LEADS[0]} Plus", f"{LEADS[0]} Plus Pro 2"],
 )  # fmt: skip
 def test_a_near_miss_of_the_grammar_hashes_into_the_models(near: str) -> None:
     assert 0 < _number(near) < lipstick_looks.MODELS
 
 
 def test_models_that_differ_by_their_lead_alone_spread_over_the_cases_and_colors() -> None:
-    specs = [_spec(_lipstick(f"{lead} Pro 4")) for lead in LEADS]
+    specs = [_spec(_lipstick(lead)) for lead in LEADS]
     assert len({s["case"] for s in specs}) == len(kit_home.LIPSTICK_CASES)
     assert len({s["case_color"] for s in specs}) >= 10
 
