@@ -9,7 +9,8 @@ The issue's Done-when, one test group each:
    angles spread over each orientation's set (not 0 degrees for most), two products of one
    type at two angles draw two pictures, and the turned figure stays inside its area;
 3. every type names its orientation (#860): the 24 clock positions (``any``), +-36 degrees
-   (``upright``) or +-15 degrees (``slight``), every industrial type and every retail shape.
+   (``upright``), +-15 degrees (``slight``) or none (``level``, #884), every industrial type
+   and every retail shape.
 """
 
 from __future__ import annotations
@@ -103,12 +104,13 @@ def _angle(product_id: str, product_type: str) -> int:
     return product_look.angle_of(product_id, domain.orientation(product_type))
 
 
-def test_the_three_orientations_are_the_clock_and_two_narrow_fans():
+def test_the_four_orientations_are_the_clock_two_narrow_fans_and_level():
     assert product_look.ORIENTATIONS == {
         "any": (0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165,
                 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345),
         "upright": (-36, -24, -12, 0, 12, 24, 36),
         "slight": (-15, -10, -5, 0, 5, 10, 15),
+        "level": (0,),
     }  # fmt: skip
     assert product_look.angle_of("ABC-1", "any") == product_look.angle_of("ABC-1", "any")
 
@@ -264,7 +266,7 @@ def _retail_shapes() -> set[str]:
 def test_every_type_names_one_orientation(table, every):
     """A drawn type missing from its domain's table, or named twice, fails here, so a new
     type cannot forget its orientation."""
-    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT]
+    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *table.LEVEL]
     assert len(named) == len(set(named)), Counter(named).most_common(3)
     assert sorted(every() - set(named)) == []
     assert sorted(set(named) - every()) == []
@@ -273,7 +275,8 @@ def test_every_type_names_one_orientation(table, every):
 
 def test_gloves_turn_any_way_and_clothing_only_slightly():
     """The maintainer's rulings on #860: gloves read at any angle; a garment or a shoe turned
-    past 15 degrees reads as falling over; a screw has no up; a sink or a bottle does."""
+    past 15 degrees reads as falling over; a screw has no up; a sink or a bottle does; a
+    cutlery set is not turned at all (#884)."""
     assert domain.orientation("cut_resistant_gloves") == "any"
     assert retail_orientation.of("gloves") == "any"
     for shape in ("tshirt", "top", "blouse", "trousers", "jeans_straight", "dress", "skirt",
@@ -283,3 +286,4 @@ def test_gloves_turn_any_way_and_clothing_only_slightly():
     assert domain.orientation("screw_socket_head") == "any"
     assert domain.orientation("bench_vises") == "upright"
     assert retail_orientation.of("bottle") == "upright"
+    assert retail_orientation.of("cutlery_set") == "level"

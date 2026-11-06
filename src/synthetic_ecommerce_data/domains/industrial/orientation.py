@@ -12,8 +12,10 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
   racks, cases and kits, containers of grease or fluid, casters, pulleys and bearings on a
   base, guards, padlocks and glasses.
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
+* ``level`` (0 degrees only, #884): a set or kit, whose several items overlap on a slant.
 
-To move a type, move its line to the other tuple.
+A product with a SKU of more than one unit on a pack type is drawn level whatever its type's
+orientation (``drawing.product_angle``, #884). To move a type, move its line to another tuple.
 """
 
 from __future__ import annotations
@@ -46,28 +48,35 @@ ANY: tuple[str, ...] = (
 UPRIGHT: tuple[str, ...] = (
     "anaerobic_threadlockers", "anti_seize_compounds", "ball_valves", "band_saw_blades",
     "bearing_greases", "bearing_pullers", "bench_tool_racks", "bench_vises", "bit_index_cases",
-    "bit_sharpeners", "bit_socket_sets", "c_clamps", "cantilever_racks", "center_punches",
-    "chain_breakers", "chain_lubricants", "chain_tensioners", "circle_cutters", "cold_chisels",
-    "combination_wrenches", "compound_cutters", "conduit_pliers", "cord_splicing_kits",
-    "cutter_sharpening_fixtures", "cutter_storage_cases", "cutter_storage_racks", "drawer_slides",
-    "drive_guards", "driver_bit_sets", "fastener_dispensers", "gear_pullers", "grinder_guards",
-    "grooving_cutters", "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow",
-    "hammer_framing", "hammer_rubber_mallet", "hammer_sledge", "hand_files", "hex_bit_socket_sets",
-    "induction_heaters", "keyed_padlocks", "kit_assortment", "milling_tool_holders",
-    "nut_drivers_hex", "nut_splitters", "pillow_block_bearings", "pin_pullers", "pin_punch_sets",
-    "pneumatic_cut_off_tools", "rigging_pulleys", "rigid_casters", "safety_glasses",
-    "seal_pick_sets", "shaft_alignment_lasers", "side_lock_holders", "silicone_greases",
-    "sleeve_installation_kits", "snap_ring_pliers", "spanner_wrenches", "swivel_casters",
-    "tap_wrenches", "tapping_fluids", "thread_chasers", "thread_pitch_gages", "thread_plug_gages",
-    "thread_repair_kits", "thread_restoring_files", "tool_holsters", "wrench_organizers",
+    "bit_sharpeners", "c_clamps", "cantilever_racks", "center_punches", "chain_breakers",
+    "chain_lubricants", "chain_tensioners", "circle_cutters", "cold_chisels",
+    "combination_wrenches", "compound_cutters", "conduit_pliers", "cutter_sharpening_fixtures",
+    "cutter_storage_cases", "cutter_storage_racks", "drawer_slides", "drive_guards",
+    "fastener_dispensers", "gear_pullers", "grinder_guards", "grooving_cutters",
+    "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
+    "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
+    "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "pillow_block_bearings",
+    "pin_pullers", "pneumatic_cut_off_tools", "rigging_pulleys", "rigid_casters", "safety_glasses",
+    "shaft_alignment_lasers", "side_lock_holders", "silicone_greases", "snap_ring_pliers",
+    "spanner_wrenches", "swivel_casters", "tap_wrenches", "tapping_fluids", "thread_chasers",
+    "thread_pitch_gages", "thread_plug_gages", "thread_restoring_files", "tool_holsters",
+    "wrench_organizers",
 )
 
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
 
+#: Sets and kits, drawn as several items: at 0 degrees only (#884).
+LEVEL: tuple[str, ...] = (
+    "bit_socket_sets", "cord_splicing_kits", "driver_bit_sets", "hex_bit_socket_sets",
+    "kit_assortment", "pin_punch_sets", "seal_pick_sets", "sleeve_installation_kits",
+    "thread_repair_kits",
+)
+
 #: Type key -> orientation.
 ORIENTATION: dict[str, str] = {
     **dict.fromkeys(ANY, "any"),
     **dict.fromkeys(UPRIGHT, "upright"),
+    **dict.fromkeys(LEVEL, "level"),
     **dict.fromkeys(SLIGHT, "slight"),
 }
