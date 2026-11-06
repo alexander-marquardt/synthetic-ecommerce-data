@@ -213,7 +213,10 @@ in, rebuilds `golden-catalog/` and merges only when the drift, golden and seam
 tests pass on that tree. A draft is refused before any clone or build (#70).
 `tests/test_merge_pr.py` builds its planted worlds with `UV_OFFLINE=1` and name
 resolution blocked, so it needs uv's cache (warm once `uv sync` has run in this
-checkout) but not the network. When a real merge's build fails on a dropped
+checkout) but not the network. A world's origin holds one parentless commit of this
+checkout's HEAD tree, made once per worker, not the repository's history: the script
+needs the tree, and copying the history cost each case about 50 s of setup (#790).
+When a real merge's build fails on a dropped
 lookup, the script says "the build failed on the network" apart from the build
 refusing the tree; rerun it.
 

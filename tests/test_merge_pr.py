@@ -20,6 +20,7 @@ under test is the script's order of operations, not the suite.
 
 from __future__ import annotations
 
+import functools
 import os
 import re
 import shutil
@@ -227,22 +228,41 @@ def _copy_the_script(tree: Path) -> None:
     shutil.copytree(SCRIPT_PARTS, tree / "scripts" / "merge_pr", dirs_exist_ok=True)
 
 
+_QUIET = ["-c", "gc.auto=0", "-c", "maintenance.auto=false", "-c", "fetch.writeCommitGraph=false"]
+
+
+@functools.cache
+def _seed(base: Path) -> Path:
+    """A bare repository whose ``main`` is one parentless commit of this
+    checkout's HEAD tree, made once per worker (``base``: its pytest basetemp).
+
+    The script under test needs HEAD's tree, not its history: copying the
+    whole history into every case was about 50 s of setup each (#790). The
+    depth-1 fetch stays in this repository; a world fetches only the new commit,
+    so no repository a case runs in is shallow."""
+    seed = base / "merge-pr-seed.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(seed)], check=True)
+    _git(seed, *_QUIET, "fetch", "-q", "--depth", "1", REPO.as_uri(), "HEAD:refs/heads/head")
+    message = _git(REPO, "log", "-1", "--format=%B", "HEAD")
+    root = _git(seed, "commit-tree", "head^{tree}", "-m", message)
+    _git(seed, "update-ref", "refs/heads/main", root)
+    return seed
+
+
 @pytest.fixture
-def world(tmp_path: Path) -> dict:
+def world(tmp_path: Path, tmp_path_factory: pytest.TempPathFactory) -> dict:
     env = {**os.environ, **_IDENTITY}
     origin = tmp_path / "origin.git"
     subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
-    # This checkout's HEAD as the origin's main; CI checks out full history so
-    # the fetch never starts from a shallow repository.
-    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false"]
-    quiet += ["-c", "fetch.writeCommitGraph=false"]
-    _git(origin, *quiet, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    # This checkout's HEAD tree as the origin's main.
+    seed = _seed(tmp_path_factory.getbasetemp())
+    _git(origin, *_QUIET, "fetch", "-q", str(seed), "main:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
     # --no-local: the objects are transferred, not hardlinked or copied from the origin's
     # directory; on a hosted runner the copy raced with git's own commit-graph writes
     # ("hardlink different from source", "failed to copy file ... commit-graph-chain.lock").
-    clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
+    clone = ["git", *_QUIET, "clone", "-q", "--no-local", str(origin), str(checkout)]
     subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
     _copy_the_script(checkout)
