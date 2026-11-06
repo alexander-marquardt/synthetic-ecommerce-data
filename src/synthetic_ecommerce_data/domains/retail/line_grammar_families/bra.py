@@ -1,9 +1,10 @@
 """The bra family of the line grammar: bras (gen#663, gen#513).
 
-A model is a plain word of the family, an optional sub-model and a number or a code, then the
-descriptors and the kind, the brand first, e.g. "Bramblewood Comfort Pro 3 Underwired Balcony
-Bra". The lead words are plain English words of public retail listings, not coined brand-sounding
-ones, names or places.
+A model is a plain word of the family alone, then the descriptors and the kind, the brand
+first, e.g. "Bramblewood Anytime Underwired Balcony Bra": a sub-model and a number read as
+synthetic (#851), so ``SUBS`` and ``NUMBERS`` name no authored or derived bra. The lead words
+are plain English words of public retail listings, not coined brand-sounding ones, names or
+places.
 """
 
 from __future__ import annotations

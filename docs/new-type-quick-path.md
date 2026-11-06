@@ -131,7 +131,10 @@ registry finds the module and feeds the scaled build; the decoy tables find `fea
    (the `test_a_param_changes_the_drawing` pattern) renders two readings and asserts they differ.
    Add it to the file's `SHAPES` dict; the `register(SHAPES)` call at the foot of the file puts the
    dict into `kit.SHAPES`. The spec imports the kit module (`import kit_garden  # noqa: F401 --
-   registers garden_hose`), so the shape exists before the row is built. Look at it (import the kit module first, with
+   registers garden_hose`), so the shape exists before the row is built. A build loaded from a
+   pickle imports no spec, so code that reads the whole of `kit.SHAPES` calls `kit.register_all()`
+   first; `kit.render` does that itself on an unregistered shape, and `retail_figures.ceiling`
+   after it loads its pickle (synth#797). Look at it (import the kit module first, with
    `src/synthetic_ecommerce_data/domains/retail` on `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"),
    params={...})`, write the SVG to a file and `rsvg-convert -o shape.png shape.svg`.
 2. **Write the rows** in the spec: each style is a `Row` of colors times a SKU axis (`sizes`, or
