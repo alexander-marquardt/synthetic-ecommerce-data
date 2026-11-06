@@ -87,6 +87,10 @@ addopts = "--dist loadgroup -p no:randomly"
 # or a runaway. A slow test raises its own limit with
 # ``@pytest.mark.timeout(<s>)``; this default stays.
 timeout = 300
+markers = [
+    # scripts/reseed_proof.py deselects it: a census band is judged at the default seed only (#50).
+    "default_seed_band: a census band row, judged at the default seed only",
+]
 
 [tool.ruff]
 line-length = 100

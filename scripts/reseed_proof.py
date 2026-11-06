@@ -11,6 +11,8 @@ every pinned figure with one command, the one ``rebuild_generated`` runs in
 ``GeneratorConfig.seed`` there, runs that rebuild, and runs the tests that read what it rewrote
 (``scripts/ci_select.py`` over the rewritten paths). Each test that goes red pins a figure the
 fixture ``tests/data/golden_pins.json`` does not carry: it prints one id per line, or ``green``.
+A census band test (marked ``default_seed_band``) is left out: a band is judged at the default
+seed only (:data:`DEFAULT_SEED_BAND`).
 
 Exit 0 when green, 1 with a red test, 2 when the proof could not run (a rebuild refused the seed,
 a measure rule nothing on the new catalog fits, or pytest stopped before its summary). It takes
@@ -42,6 +44,12 @@ REBUILD: tuple[tuple[str, ...], ...] = (
     ("python", "-m", "synthetic_ecommerce_data.domains.industrial.measured_builds"),
     ("python", "scripts/measure_pins.py"),
 )
+
+#: The marker of a census band test, judged at the default seed only and left out of the proof:
+#: ``price.FITTED`` is fitted to that seed's one draw, and the default build has too few product
+#: lines per type to land in band on every seed (#50, the 2026-11-06 ruling, option b). Every
+#: other test still has to pass on the moved seed. Robustness over seeds is its own issue.
+DEFAULT_SEED_BAND = "default_seed_band"
 
 SEED_LINE = re.compile(r"^(    seed: int = )(\d+)$", re.MULTILINE)
 #: A red in pytest's ``-rfE`` summary: the id (a parameter id may hold blanks), without the
@@ -102,6 +110,8 @@ def pytest_argv(tree: Path, workers: str, tests: list[str]) -> list[str]:
         "no:cacheprovider",
         "-n",
         workers,
+        "-m",
+        f"not {DEFAULT_SEED_BAND}",
         "--",
         *tests,
     ]
