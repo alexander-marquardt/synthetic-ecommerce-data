@@ -307,9 +307,13 @@ def test_finish_never_plates_a_stainless_material():
     plating = breadth._PLATING_FINISHES
     violations: list[tuple[str, str, str]] = []
     exercised_a_plating_redraw = False
+    # Only a breadth row makes a ``fast_and_cheap`` line, and a type's lines do not depend on
+    # which other types are built (``generate``'s ``types``), so each seed builds the breadth
+    # types alone: the same lines as the whole catalog, in 0.1 s instead of 5 s (#790).
+    breadth_types = [row.key for row in breadth.rows()]
     for seed in range(30):
         config = GeneratorConfig(lines=1, new_type_share={}, seed=seed)
-        built = generate(config)
+        built = generate(config, types=breadth_types)
         for line in built.lines:
             if line.spec_quality != "fast_and_cheap":
                 continue
