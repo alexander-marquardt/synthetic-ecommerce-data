@@ -70,8 +70,9 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
                 placement=d.get("placement"), scale=d.get("scale", 0.0),
                 spacing=d.get("spacing", 0.0), count=d.get("count", 1),
                 detail=(d["detail"]["part"], d["detail"]["color"]) if d.get("detail") else None)  # fmt: skip
-    # The product's one angle, over its shape's orientation (#849); the plain sheet is upright.
-    angle = product_look.angle_of(rec["product_id"], orientation.of(d["shape"])) if styled else 0
+    # The product's one angle, over its shape's orientation (#849), level for a pack (#884); the
+    # plain sheet is upright.
+    angle = product_look.angle_of(rec["product_id"], orientation.of_product(rec)) if styled else 0
     return render(
         d["shape"],
         fill,
