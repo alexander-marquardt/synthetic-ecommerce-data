@@ -101,3 +101,7 @@ The CI job `main-merged-tree` runs `CHECKS` on every push to main, so a merge th
 `tests/test_merge_pr.py::test_main_merged_tree_job_is_red_on_a_broken_main` proves it: per planted
 edit it runs the job's run line narrowed to the one check that catches that edit (`-n 0 -k`), and asks
 for that check's `FAILED` line, so it costs seconds rather than two builds (#824).
+
+A planted world's origin in `tests/test_merge_pr.py` holds one parentless commit of this checkout's
+HEAD tree, made once per worker, not the repository's history: the script needs the tree, and copying
+the history cost each case about 50 s of setup (#790).
