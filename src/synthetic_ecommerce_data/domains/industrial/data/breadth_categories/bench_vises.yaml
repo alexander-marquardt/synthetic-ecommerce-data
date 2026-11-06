@@ -7,7 +7,7 @@ category:
 - Vises
 - Bench Vises
 family: hand_tool
-shape: block
+shape: bench_vise
 item: Bench Vise
 descriptor_attr: null
 size_attr: Size
