@@ -32,12 +32,13 @@ chance, so the build is deterministic.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.class_model import LEGS3, Style, one
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 BED = ("Home", "Bedding")
 WJEANS = ("Womens", "Jeans")
-DENIM, MID, LIGHT, BLACK, NAVY = "#4a6a94", "#5b7aa6", "#9fb4cf", "#2a2a2e", "#26365c"
+DENIM, MID, LIGHT, BLACK, NAVY = "#4a6a94", "#5b7aa6", "#9fb4cf", "#2a2a2e", dark_blues.NAVY
 WHITE, STONE, OLIVE = "#ffffff", "#d9d3c7", "#6b6b3a"
 
 

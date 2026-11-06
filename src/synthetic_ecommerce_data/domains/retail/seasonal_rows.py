@@ -27,6 +27,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.toys_rows import RANGES
 from synthetic_ecommerce_data.domains.retail.variants import cw
@@ -73,7 +74,7 @@ def _mark(name: str) -> tuple[tuple[str, object], ...]:
 
 
 CHAMPAGNE = cw("Champagne", "#e8d5a8")
-NAVY_BLUE = cw("Navy Blue", "#1f3a68")
+NAVY_BLUE = cw("Navy Blue", dark_blues.NAVY)
 DUCK_EGG = cw("Duck Egg", "#a9cfc8")
 RUST = cw("Rust", "#b5532a")
 CARAMEL = cw("Caramel", "#c68642")
@@ -96,7 +97,7 @@ ORANGE = cw("Orange", "#e07a1f")
 BLACK = cw("Black", "#2a2a2e")
 WHITE = cw("White", "#f4f1ea")
 PINK = cw("Pink", "#f2a1b8")
-NAVY = cw("Navy", "#26365c")
+NAVY = cw("Navy", dark_blues.NAVY)
 
 _ADULT = (("S", 0.0), ("M", 0.0), ("L", 0.0))
 _KID_AGES = (("3-4 Yrs", 0.0), ("5-6 Yrs", 0.0), ("7-8 Yrs", 0.0))
@@ -209,7 +210,7 @@ SEASONS = (
 #: the one brand that owns the range (gen#623).
 _PJ_DESC = "A long sleeve top and bottoms in soft cotton, with the {line} mark all over."
 _PJ_FOR = {  # the ground, printed with the range's mark in a pale ink
-    "Moonmoth Rangers": cw("Navy", "#26365c", "print", "#f2d14b"),
+    "Moonmoth Rangers": cw("Navy", dark_blues.NAVY, "print", "#f2d14b"),
     "Rumblesaur Ridge": cw("Green", "#5f9a4a", "print", "#f4f1ea"),
     "Hazelwren Owls": cw("Pink", "#f2a1b8", "print", "#7a4a5a"),
     "Driftwhistle Bay": cw("Blue", "#3f6fb5", "print", "#f4f1ea"),

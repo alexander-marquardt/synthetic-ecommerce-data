@@ -25,6 +25,7 @@ No title or description here names a mug, a saucer or an espresso cup, so the si
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.class_model import Style
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -53,7 +54,7 @@ _TW, _BM, _SM, _WF = "Thistle & Wren", "Bramblewood", "Saltmarsh", "Wrenfield"
 _B = "Bralette Bras"
 _S = "Sports Bras"
 _T = "T-Shirt Bras"
-_CARAMEL, _PINK, _SAGE, _NAVY = cw("Caramel", "#b07a45"), cw("Pink", "#f3c6cf"), cw("Sage", "#9bb08f"), cw("Navy", "#26365c")
+_CARAMEL, _PINK, _SAGE, _NAVY = cw("Caramel", "#b07a45"), cw("Pink", "#f3c6cf"), cw("Sage", "#9bb08f"), cw("Navy", dark_blues.NAVY)
 
 STYLES: tuple[Style, ...] = (
     # -- bralettes: soft, non-wired, in letter sizes

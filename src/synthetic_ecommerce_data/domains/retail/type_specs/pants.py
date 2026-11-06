@@ -14,6 +14,7 @@ styles are templates only (``derivable`` False). The text-match decoys come from
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.type_registry import (
     ApparelPlan,
     Row,
@@ -27,7 +28,7 @@ _LING = "Lingerie & Nightwear"
 PATH = ("Womens", "Lingerie", "Pants")
 UK = ("8", "10", "12", "14", "16", "18", "20", "22")
 BLACK, WHITE = cw("Black", "#2f2f35", "solid", "#8f989f"), cw("White", "#f4f1ea", "solid", "#b9b4a6")
-NUDE, NAVY = cw("Nude", "#e5c1a8", "solid", "#a9805f"), cw("Navy", "#2c3a5e", "solid", "#d8dce8")
+NUDE, NAVY = cw("Nude", "#e5c1a8", "solid", "#a9805f"), cw("Navy", dark_blues.NAVY_LIGHT, "solid", "#d8dce8")
 GREY, PLUM = cw("Grey", "#9a9ca0", "solid", "#55575c"), cw("Plum", "#5e2a4a", "solid", "#e8d0de")
 CUTS = {"Bikini": "bikini", "Briefs": "brief", "High-Waisted": "high_waisted", "High-Leg": "high_leg"}
 

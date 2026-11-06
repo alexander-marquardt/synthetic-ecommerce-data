@@ -18,6 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_household,  # noqa: F401 -- registers saucepan, frying_pan, casserole, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Contents, Row
@@ -137,7 +138,7 @@ SAUCEPANS = (
     HRow("SPNCST", "Enameled Cast Iron Saucepan", _C, _HW, _SP, "Saucepan", 85.0, "saucepan",
          "A heavy pan that holds its heat for slow sauces and custards, on every hob, "
          "induction included. Enameled inside and out, with a cast iron lid.",
-         (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", "#26365c", "solid", "#2f2f35"),
+         (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", dark_blues.NAVY, "solid", "#2f2f35"),
           cw("Cream", "#efe8d8", "solid", "#2f2f35")),
          (*_sp("Cast Iron", "Enamel", "Cast Iron", ALL_HOBS), *_oven(250)),
          _cm((16, 85.0), (18, 99.0), (20, 115.0)), params=(("count", "1"), ("lid", "steel")),
@@ -227,7 +228,7 @@ CASSEROLES = (
     Row("CASRND", "Enameled Cast Iron Round Casserole", _C, _HW, _CS, "Casserole Dish", 89.0,
         "casserole", "A heavy round casserole with a tight lid that keeps stews moist, from the "
         "hob to the oven to the table. Enameled inside and out.",
-        (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", "#26365c", "solid", "#2f2f35"),
+        (cw("Red", "#b8322b", "solid", "#2f2f35"), cw("Navy", dark_blues.NAVY, "solid", "#2f2f35"),
          cw("Green", "#3f6b4a", "solid", "#2f2f35"), cw("Cream", "#efe8d8", "solid", "#2f2f35")),
         _cs("Cast Iron", "Round", 250, ALL_HOBS, "Enamel"),
         _litres((2.4, 89.0), (4.2, 119.0), (6.7, 149.0)),
@@ -329,7 +330,7 @@ STORAGE_BOXES = (
     Row("BOXFAB", "Fabric Storage Box with Lid", _C, _HW, _SB, "Storage Box", 16.0,
         "storage_box", "A soft box with a stiffened base and a lift-off lid that folds flat "
         "when it is not in use.",
-        (GREY, cw("Navy", "#26365c"), cw("Beige", "#d8c9a8")),
+        (GREY, cw("Navy", dark_blues.NAVY), cw("Beige", "#d8c9a8")),
         _sb("Fabric", "Lift-Off Lid", NO, NO), _litres((30, 16.0), (48, 22.0)),
         params=_sbp("box", "yes", "no", "fabric"), size_key="capacity_l"),
     Row("BOXCRD", "Cardboard Storage Box with Lid", _L, _HW, _SB, "Storage Box", 5.0,
@@ -369,7 +370,7 @@ LAUNDRY_BASKETS = (
     Row("LDBFLD", "Folding Fabric Laundry Basket", _L, _HW, _LB, "Laundry Basket", 12.0,
         "laundry_basket", "A pop-up fabric tub on a wire rim that folds flat to a disc, with two "
         "carry handles, 45 l.",
-        (GREY, cw("Navy", "#26365c"), cw("Beige", "#d8c9a8")), _lb("Folding", "Fabric", 45),
+        (GREY, cw("Navy", dark_blues.NAVY), cw("Beige", "#d8c9a8")), _lb("Folding", "Fabric", 45),
         params=(("kind", "folding"), ("material", "fabric"))),
     Row("LDBTWO", "Two-Compartment Seagrass Laundry Sorter", _C, _HW, _LB, "Laundry Basket",
         65.0, "laundry_basket", "A wide sorter with two lidded sections, to sort lights from "

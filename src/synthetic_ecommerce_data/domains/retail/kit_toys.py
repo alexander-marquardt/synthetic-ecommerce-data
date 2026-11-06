@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import math
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -467,8 +468,8 @@ def _figure(cx: float, base: float, h: float, paint: str) -> str:
     """One small bendy figure, ``h`` tall: head, body and legs (``class="piece"``)."""
     r = h * 0.13
     return _group("piece", [
-        _rect(cx - h * 0.09, base - h * 0.42, h * 0.07, h * 0.42, "#26365c", 2, 1.2),
-        _rect(cx + h * 0.02, base - h * 0.42, h * 0.07, h * 0.42, "#26365c", 2, 1.2),
+        _rect(cx - h * 0.09, base - h * 0.42, h * 0.07, h * 0.42, dark_blues.NAVY, 2, 1.2),
+        _rect(cx + h * 0.02, base - h * 0.42, h * 0.07, h * 0.42, dark_blues.NAVY, 2, 1.2),
         _rect(cx - h * 0.15, base - h * 0.74, h * 0.3, h * 0.36, paint, 5, LW_DETAIL),
         _ell(cx, base - h * 0.74 - r, r, r, SKIN, LW_DETAIL),
         _path(f"M{cx - r:.1f},{base - h * 0.74 - r:.1f} Q{cx:.1f},{base - h * 0.74 - r * 2.6:.1f} {cx + r:.1f},{base - h * 0.74 - r:.1f} Z", HAIR, 1.2)])  # fmt: skip

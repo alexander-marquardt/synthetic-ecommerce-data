@@ -312,7 +312,8 @@ def text_contradictions(
     neither does a pool value whose words sit inside one of the document's own values
     ("Steel" on 18-8 Stainless Steel, "Grinding" on Cutting & Grinding), nor a value the text
     only compares or refers to (:data:`_REFERENCE`), nor one before a hyphen
-    (:data:`UNHYPHENATED`)."""
+    (:data:`UNHYPHENATED`). A variant's description may also name that variant's own values
+    ("Blue Mirror" lenses on a black frame, gen#834)."""
     attrs = [e for e in doc.get("attributes") or () if isinstance(e, dict)]
     own: dict[str, set[str]] = {}
     for e in attrs:
@@ -321,20 +322,24 @@ def text_contradictions(
     values = {v for vs in own.values() for v in vs}
     if doc.get("brand"):
         values.add(str(doc["brand"]))
-    every = sorted(values, key=len, reverse=True)
+    texts = {str(doc.get("title") or ""): frozenset[str]()}
+    for variant in doc.get("variants") or ():
+        if variant.get("description"):
+            entries = [e for e in variant.get("attributes") or () if isinstance(e, dict)]
+            theirs = frozenset(str(e.get("value")) for e in entries)
+            texts.setdefault(str(variant["description"]), theirs)
     # Every own value's words in one string: words() never writes "|", so a padded phrase found
     # in it lies inside one value, and each pool value is looked up once, not once per value (#790).
-    own_text = "|".join(words(v) for v in values)
-    texts = [str(doc.get("title") or "")]
-    texts += [str(v.get("description")) for v in doc.get("variants") or () if v.get("description")]
+    own_texts = {}
+    for theirs in set(texts.values()):
+        both = values | theirs
+        own_texts[theirs] = (sorted(both, key=len, reverse=True), "|".join(words(v) for v in both))
     out = []
     for key, mine in own.items():
-        pool = {
-            v
-            for v in pools.get((str(doc.get("category_leaf")), key), set()) - mine
-            if not _names(own_text, v)
-        }
-        for text in dict.fromkeys(texts):
+        leaf_pool = pools.get((str(doc.get("category_leaf")), key), set()) - mine
+        for text, theirs in texts.items():
+            every, own_text = own_texts[theirs]
+            pool = {v for v in leaf_pool if not _names(own_text, v)}
             claimed = _REFERENCE.sub(" | ", text)
             padded = words(claimed)
             if not pool or any(_names(padded, v) for v in mine):

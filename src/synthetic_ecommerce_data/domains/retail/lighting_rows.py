@@ -44,6 +44,7 @@ from __future__ import annotations
 import re
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_lighting,  # noqa: F401 -- registers the lighting shapes
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -101,7 +102,7 @@ def _each(price: float, *values: str) -> tuple[tuple[str, float], ...]:
 
 
 WHITE, BLACK, CREAM = cw("White", "#f6f3ea"), cw("Black", "#2f2f33"), cw("Cream", "#efe6cf")
-NATURAL, GREY, NAVY = cw("Natural", "#e3d6bb"), cw("Grey", "#a3a7ab"), cw("Navy", "#26365c")
+NATURAL, GREY, NAVY = cw("Natural", "#e3d6bb"), cw("Grey", "#a3a7ab"), cw("Navy", dark_blues.NAVY)
 FOREST, SAGE, MUSTARD = cw("Forest", "#3f5f45"), cw("Sage", "#9bb08f"), cw("Mustard", "#d4a32a")
 BLUSH, TEAL, CLEAR = cw("Blush", "#e8b9b3"), cw("Teal", "#1c7c7d"), cw("Clear", "#dfe8ea")
 SMOKE, BRASS, COPPER = cw("Smoke", "#8f9296"), cw("Brass", "#c9a227"), cw("Copper", "#c06a3c")
