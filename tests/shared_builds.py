@@ -20,6 +20,12 @@ Here a module asks for what it READS from a 100K build, not for the build:
 The files live in ``.pytest_cache/shared_builds``, which the repository already ignores
 through pytest's own ``.gitignore`` there (and holds a ``.gitignore`` of its own).
 ``SHARED_BUILDS_DIR`` names another directory.
+
+In CI the files are made before any shard runs (#790): the ``ceiling-catalogue`` job's
+``hundred_k`` leg runs ``scripts/build_shared_100k.py``, which calls :func:`prebuild` (the
+price, measured and flat files from ONE default build, and the quiet-wheel file from its own),
+and every shard names the downloaded directory in ``SHARED_BUILDS_DIR``. Same checkout, same
+digest, so a test reads the file; a shard whose digest differs builds, as it would locally.
 """
 
 from __future__ import annotations
@@ -92,19 +98,15 @@ def _read(path: Path) -> Any | None:
         return None
 
 
-def cached(
+def path_of(
     name: str,
     build: Callable[[], Any],
     *,
     roots: list[Path] | None = None,
     cache_dir: Path | None = None,
-) -> Any:
-    """What ``build()`` returns, read from the file of this name and digest when it exists.
-
-    On a miss the caller takes the one build lock, looks again (another process may have
-    written it while this one waited), and only then builds. ``build`` returns the small
-    thing the tests read; the catalog it built is out of scope when it returns.
-    """
+) -> Path:
+    """The file ``cached(name, build)`` reads and writes: its directory made, its name the
+    digest of the generator's inputs, of ``build``'s code and of this file."""
     directory = cache_dir or default_cache_dir()
     directory.mkdir(parents=True, exist_ok=True)
     (directory / ".gitignore").write_text("*\n", encoding="utf-8")
@@ -119,23 +121,45 @@ def cached(
     digest = hashlib.sha256(
         (inputs_digest(roots) + _code_of(build) + Path(__file__).read_text("utf-8")).encode()
     ).hexdigest()[:20]
-    path = directory / f"{name}-{digest}.pickle"
+    return directory / f"{name}-{digest}.pickle"
+
+
+def _write(path: Path, value: Any) -> None:
+    """Write ``value`` to ``path`` whole or not at all, and remove the older digests' files."""
+    name = path.name.rsplit("-", 1)[0]
+    fd, temp = tempfile.mkstemp(dir=path.parent, prefix=f"{name}-", suffix=".part")
+    with os.fdopen(fd, "wb") as handle:
+        pickle.dump((value,), handle, protocol=pickle.HIGHEST_PROTOCOL)
+    os.replace(temp, path)
+    for old in path.parent.glob(f"{name}-*.pickle"):
+        if old != path:
+            old.unlink(missing_ok=True)
+
+
+def cached(
+    name: str,
+    build: Callable[[], Any],
+    *,
+    roots: list[Path] | None = None,
+    cache_dir: Path | None = None,
+) -> Any:
+    """What ``build()`` returns, read from the file of this name and digest when it exists.
+
+    On a miss the caller takes the one build lock, looks again (another process may have
+    written it while this one waited), and only then builds. ``build`` returns the small
+    thing the tests read; the catalog it built is out of scope when it returns.
+    """
+    path = path_of(name, build, roots=roots, cache_dir=cache_dir)
     found = _read(path)
     if found is not None:
         return found[0]
-    with _one_build_at_a_time(directory):
+    with _one_build_at_a_time(path.parent):
         found = _read(path)
         if found is not None:
             return found[0]
         value = build()
         gc.collect()
-        fd, temp = tempfile.mkstemp(dir=directory, prefix=f"{name}-", suffix=".part")
-        with os.fdopen(fd, "wb") as handle:
-            pickle.dump((value,), handle, protocol=pickle.HIGHEST_PROTOCOL)
-        os.replace(temp, path)
-        for old in directory.glob(f"{name}-*.pickle"):
-            if old != path:
-                old.unlink(missing_ok=True)
+        _write(path, value)
     return value
 
 
@@ -176,10 +200,19 @@ def realistic_only(docs: list[dict]) -> list[dict]:
     return [doc for doc in docs if doc.get("spec_quality") != "fast_and_cheap"]
 
 
-def _hundred_k_prices_build() -> tuple[dict, list[KitSku]]:
+#: The default-config 100K build that the price, measured and flat files reduce: a recorded
+#: build, whose recording reads the kit draws and changes nothing in the catalog.
+Built = tuple[Catalog, list[KitSku]]
+
+
+def _hundred_k_build() -> Built:
+    return recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
+
+
+def _hundred_k_prices_build(built: Built | None = None) -> tuple[dict, list[KitSku]]:
     from synthetic_ecommerce_data.domains.industrial import price_report
 
-    catalog, kits = recorded_build(GeneratorConfig(lines=LARGE_BUILD_LINES))
+    catalog, kits = built or _hundred_k_build()
     return {row.name: row for row in price_report.price_comparisons(catalog)}, kits
 
 
@@ -188,10 +221,10 @@ def hundred_k_prices() -> tuple[dict, list[KitSku]]:
     return cached("hundred_k_prices", _hundred_k_prices_build)
 
 
-def _hundred_k_measured_build() -> dict:
+def _hundred_k_measured_build(built: Built | None = None) -> dict:
     from synthetic_ecommerce_data.domains.industrial import measured_builds
 
-    return measured_builds.hundred_k_figures(generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))
+    return measured_builds.hundred_k_figures((built or _hundred_k_build())[0])
 
 
 def hundred_k_measured() -> dict:
@@ -231,12 +264,34 @@ def hundred_k_quiet_wheel() -> tuple[Any, dict[tuple, tuple[str, ...]]]:
     return cached("hundred_k_quiet_wheel", _hundred_k_quiet_wheel_build)
 
 
-def _hundred_k_flat_build() -> list[dict]:
+def _hundred_k_flat_build(built: Built | None = None) -> list[dict]:
     from synthetic_ecommerce_data.core import emit
 
-    return realistic_only(list(emit.iter_flat(generate(GeneratorConfig(lines=LARGE_BUILD_LINES)))))
+    return realistic_only(list(emit.iter_flat((built or _hundred_k_build())[0])))
 
 
 def hundred_k_flat() -> list[dict]:
     """The 100K build's realistic flat documents, as the brand-voice tests read them."""
     return cached("hundred_k_flat", _hundred_k_flat_build)
+
+
+# --- every file made at once, for the CI job that hands them to the shards ------------
+
+#: Each file of the one default-config build, by name, and the build that writes it. A test
+#: asks for one and makes that one; ``prebuild`` makes them all from one build.
+FROM_ONE_BUILD: dict[str, Callable[..., Any]] = {
+    "hundred_k_prices": _hundred_k_prices_build,
+    "hundred_k_measured": _hundred_k_measured_build,
+    "hundred_k_flat": _hundred_k_flat_build,
+}
+#: The builds of their own: a patched generator, so a catalog no other file reads.
+ON_THEIR_OWN: dict[str, Callable[[], Any]] = {"hundred_k_quiet_wheel": _hundred_k_quiet_wheel_build}
+
+
+def prebuild(group: str, cache_dir: Path) -> list[Path]:
+    """Write the files of ``group`` (``"one_build"``: every name in ``FROM_ONE_BUILD``, from one
+    100K build; or a name in ``ON_THEIR_OWN``) to ``cache_dir`` under the names ``cached``
+    reads, so a test that asks finds the file and never builds. A file already there for
+    these inputs is kept. No build lock: the caller owns ``cache_dir`` (the CI job runs the
+    two groups side by side, which the lock would put one after the other)."""
+    return []  # red: no file is written yet
