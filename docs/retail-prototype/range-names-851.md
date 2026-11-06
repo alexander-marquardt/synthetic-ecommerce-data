@@ -13,24 +13,24 @@ description, brand or attribute value also uses is not dealt (`line_grammar.text
 without a number, "Toast" would be the range of "for toast, cake or a starter", and "Bright" of
 "Bright Orange Crew Neck Tee". So the families gained words no text uses (storage, kitchen,
 lighting, sport and tools), and eight words a description used were replaced (Feather, Border,
-Patio, Grow, Whisk, Roast, Starter, Smooth). An authored model, and a cleaning or beauty model, may
-still carry a sub-model and a number. `line_grammar.is_model` reads a lead word alone as a model.
+Patio, Grow, Whisk, Roast, Starter, Smooth). `line_grammar.is_model` reads a lead word alone as a
+model.
 
 **A color is a SKU, not a product.** A derived style whose title-shown values its template, or
 an earlier sibling, already shows used to carry its hero color alone, with the color named in
 its title. It now carries every color of its template, hero first, and its title names none
 (`scale._draw`). So it is its brand's one product of the kind. A second one from the same brand
 would be a twin (`scale_text.twin_key`), so the build makes none, and different brands stay
-separate products. A cleaning or beauty style (a lipstick shade, a scent) keeps the older rule
-until those families drop their numbers.
+separate products. A cleaning or beauty style (a lipstick shade, a scent) keeps the older rule:
+its hero color alone, named in its title. A shade as a SKU would leave Beauty under
+`breadth_rows.DEPARTMENT_FLOOR` at the ceiling, so that waits on a ruling (#851).
 
 **The report.** `scale --report` has `single_sku_kinds`: each product type where most products
 have one SKU although one of its products has two colors or sizes, with its counts.
 
 At the ceiling build the build has fewer products and more SKUs (`scale --report` measures them;
-a total is never typed here, `tests/test_retail_figures_162.py`). The numbered ranges left are the
-cleaning and beauty models. Cup
-sets and travel cups are one product per brand, each with several colors as its SKUs.
+a total is never typed here, `tests/test_retail_figures_162.py`). Cup sets and travel cups are
+one product per brand, each with several colors as its SKUs.
 
 **A mug is sold in several glazes.** Each plain mug of the mug print line (`prints.py`, line
 `MUG`) had one glaze and each graphic mug one ground, so most mugs were one-SKU products. A plain
@@ -77,7 +77,21 @@ post-surgery bra "Nimbus"), and Bramblewood's second non-wired plunge and mastec
 did; their category paths differ. An appliance, tool or garden model ("Torque Pro") keeps its
 sub-model word, with no number after it.
 
+**A scale-build cleaning or beauty model is a plain word too.** Both builds named a care model
+with a lead word, a sub-model and a generation: "Freshfold Resolute Plus 7 Ocean Breeze Thick
+Toilet Cleaner 750ml", "Orrin Skin Revive Plus 3 Soft Veil Foundation, Toffee". A care model the
+scale build deals is now its lead word alone (`line_grammar.Deal.owned`), and a lead word that a
+template's text also uses is not dealt, as for the other families. A lipstick's or a beauty
+pack's look is numbered from its lead word (`lipstick_looks._line_number`, each lead every
+`STRIDE` th place), so the build's lipstick and beauty pack lines are fewer: one per lead word.
+
+The grocery build keeps its care models' sub-model and number ("Clearbrook Household Total Plus 9
+Lemon Multi-Surface Cleaner" beside "Total Ultra 6 Lavender" and "Total 8 Mint"). Each grocery
+care style is one scent in its pack sizes. With a lead word alone, a brand has only as many
+titles as it has words times scents, and its families fall short of their budgets: the 50K tier
+misses its SKU target. That waits on a grocery care style that sells several scents as SKUs.
+
 The guards are in `tests/test_retail_scale_range_names_851.py`,
 `tests/test_retail_scale_authored_lines_851.py`,
 `tests/test_retail_scale_cup_packs_851.py`, `tests/test_retail_scale_mugs_851.py` and
-`tests/test_retail_scale_tableware_packs_851.py`.
+`tests/test_retail_scale_tableware_packs_851.py` and `tests/test_retail_scale_care_666.py`.

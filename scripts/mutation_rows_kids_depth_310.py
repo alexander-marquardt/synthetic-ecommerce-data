@@ -128,8 +128,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the main-color pass and the sale share count the Kids rows again",
         "scale.py",
-        'seeded = [r for r in tpls if r["product_id"] not in kids]',
-        "seeded = tpls",
+        'seeded = [r for r in tpls if r["product_id"] not in kids | films]',
+        'seeded = [r for r in tpls if r["product_id"] not in films]',
         f"{_T} -k leave_every_other_template",
         "the Kids rows leave every other template, and so the seeded fillers, as they were",
         _R,

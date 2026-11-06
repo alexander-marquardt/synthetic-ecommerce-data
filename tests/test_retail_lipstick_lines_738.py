@@ -11,6 +11,10 @@ import copy
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import export, image_release
 
+#: A floor of lipstick lines. A beauty model is its lead word alone since #851, so the build holds
+#: about as many lines as its lipstick brands have lead words ("Revive", never "Revive Plus 3").
+LINES = 10
+
 
 def _picture(rec: dict) -> str:
     """What ``rec``'s first SKU draws on the plain sheet, in one shade, with no id of its own."""
@@ -28,7 +32,7 @@ def _spec(rec: dict) -> dict:
 def test_every_lipstick_line_of_the_ceiling_build_draws_its_own_picture() -> None:
     lips = [r for r in ceiling_build().records if r["product_type"] == "Lipstick"]
     lines = {r.get("product_line") or r["title"]: r for r in lips}
-    assert len(lines) > 50
+    assert len(lines) > LINES
     assert len({_picture(r) for r in lines.values()}) == len(lines)
 
 
@@ -41,6 +45,6 @@ def test_no_two_lines_of_one_brand_share_a_case_and_its_color() -> None:
             look = _spec(rec)
             line = rec.get("product_line") or rec["title"]
             by_brand.setdefault(rec["brand"], {})[line] = (look.get("case"), look.get("case_color"))
-    assert sum(len(lines) for lines in by_brand.values()) > 50
+    assert sum(len(lines) for lines in by_brand.values()) > LINES
     for brand, lines in by_brand.items():
         assert len(set(lines.values())) == len(lines), brand

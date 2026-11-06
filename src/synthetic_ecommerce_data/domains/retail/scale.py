@@ -136,6 +136,7 @@ from synthetic_ecommerce_data.domains.retail import (
     footwear_rows,
     garden_rows,
     grocery,
+    kids_films,
     knit_sleeves,
     knitwear_rows,
     leaf_shapes,
@@ -417,12 +418,21 @@ def templates(baseline: bool = True) -> list[dict]:
     # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
     # another, so every other template, and the seeded fillers drawn from them, is as it was.
     kids = source_ids("kids_depth_rows")
-    seeded = [r for r in tpls if r["product_id"] not in kids]
+    # The film merchandise (gen#887) is left out of both passes too: with it in a group, another
+    # style's copied main color or sale price would move.
+    films = kids_films.ids()
+    seeded = [r for r in tpls if r["product_id"] not in kids | films]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
     # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
     # Kids share holds its target, and nothing else moves.
     done += sale_share.apply_all([r for r in tpls if r["product_id"] in kids], ())
+    # A film product takes a main color only in a group no other style completes (none today),
+    # read against the completed styles, and no sale price.
+    own = [r for r in tpls if r["product_id"] in films]
+    if baseline:
+        own = [r for r in main_colors.complete([*done, *own], skip) if r["product_id"] in films]
+    done += own
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 
