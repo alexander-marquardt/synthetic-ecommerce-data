@@ -1118,7 +1118,7 @@ products the type would have had, times `SKU_SCALE` (1.10). Must-stock lines of 
 run lines too. Each is built by its type's own builder, with only its SKU count drawn from the
 table. A fastener takes a contiguous run of its thread's lengths, and an end mill or drill a
 contiguous run of its system's diameters. An end mill on matching shanks stops at 9, the size
-of that pool; the wider series takes a line to 15.
+of that pool; the wider series takes a line to 15 (an end mill sells a diameter at 1-3 lengths, #850: docs/industrial-types/end-mill-lengths-850.md).
 
 For each entry of `TARGETS` the pass first adds lines until `wanted()` of them carry its values
 (at least 5, and 10% of the flat products that already do). The targets are the reference
