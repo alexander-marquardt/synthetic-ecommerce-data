@@ -26,9 +26,8 @@ from pathlib import Path
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.core import domain
 from synthetic_ecommerce_data.core.bundle import flat_facets, records
-from synthetic_ecommerce_data.core.drawing import draw_product, product_look
+from synthetic_ecommerce_data.core.drawing import draw_product, product_angle, product_look
 from synthetic_ecommerce_data.core.drawing.style import house_style
 from synthetic_ecommerce_data.domains.retail import export, image_release
 from synthetic_ecommerce_data.domains.retail import orientation as retail_orientation
@@ -90,7 +89,7 @@ def test_every_sku_of_an_industrial_product_shares_its_outline_frame_plate_and_a
             split.append(pid)
             continue
         ((frame, _, outline, turn),) = looks
-        angle = product_look.angle_of(pid, domain.orientation(parent["product_type"]))
+        angle = product_angle(parent["product_type"], records(parent, facets), pid)
         assert turn == ({f"{angle}"} if angle else set()), pid
         assert outline, pid
         if frame:
@@ -122,7 +121,7 @@ def _retail_parts(svg: str) -> tuple[str, str]:
 def test_every_sku_of_a_retail_product_shares_its_outline_frame_logo_and_angle():
     """Every product of the retail image release: its SKUs' sheet outside the product (the
     paper, frame and logo), the outline hand of its ink strokes and its turn are one, and the
-    turn is the product's angle over its shape's orientation."""
+    turn is the product's angle over its shape's orientation, level for a pack (#884)."""
     split = []
     for pid, skus in _release().items():
         rec = skus[0][0]
@@ -135,7 +134,7 @@ def test_every_sku_of_a_retail_product_shares_its_outline_frame_logo_and_angle()
             split.append(pid)
             continue
         ((_, outline, turn),) = looks
-        angle = product_look.angle_of(pid, retail_orientation.of(rec["drawing"]["shape"]))
+        angle = product_look.angle_of(pid, retail_orientation.of_product(rec))
         assert turn == ((f"{angle}",) if angle else ()), pid
         assert outline, pid
     assert split == []

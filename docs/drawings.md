@@ -176,8 +176,10 @@ products of one type do not draw the same picture. The orientation is the
 type's, from `domains/industrial/orientation.py` (through
 `core.domain.orientation`): `any` turns a part with no natural up (a screw, a
 nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
--36 to 36 degrees in steps of 12, and `slight` (clothing) within -15 to 15 in
-steps of 5. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
+-36 to 36 degrees in steps of 12, `slight` (clothing) within -15 to 15 in
+steps of 5, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
+drawn level whatever its type's orientation (`product_angle`), so a fan of
+end mills is not tilted as a whole. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
 scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scale is the type's extent turned by that angle over the figure
 area, so a turned part and its dimension lines stay inside it (a product at
 0 degrees keeps the type's scale). The magnifier's too-small rule reads the
