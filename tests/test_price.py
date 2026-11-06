@@ -226,12 +226,14 @@ PLANTED_ROW = SPREAD_ROW.format("bearing_radial_ball")
 
 def _plant_pin(monkeypatch, row, side: str, build: int) -> float:
     """Pin ``row`` on ``side`` of its band with a record 50% past the band edge
-    at both builds (no committed pin exists to read one from); returns the
-    record for ``build``."""
-    record = row.band[0] * 0.5 if side == "below" else row.band[1] * 1.5
-    monkeypatch.setitem(price.PINNED_FIGURES, row.name, (record, record))
+    at the default build and 40% past it at 100K (no committed pin exists to
+    read one from; two figures, so a pin that reads the wrong build's is
+    caught); returns the record for ``build``."""
+    records = (0.5, 0.6) if side == "below" else (1.5, 1.4)
+    edge = row.band[0] if side == "below" else row.band[1]
+    monkeypatch.setitem(price.PINNED_FIGURES, row.name, tuple(edge * r for r in records))
     monkeypatch.setitem(price.PINNED_SHORTFALLS, row.name, f"{side} band: planted")
-    return record
+    return edge * records[build]
 
 
 @pytest.mark.parametrize("side", ["below", "above"])
