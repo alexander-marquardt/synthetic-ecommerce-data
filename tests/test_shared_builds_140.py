@@ -125,6 +125,37 @@ def test_a_changed_source_is_never_served_the_old_file(tmp_path):
     assert counter.read_text().splitlines() == ["built", "built"]
 
 
+def test_the_ci_job_makes_each_file_from_one_build_and_a_test_reads_it_without_building(
+    tmp_path, monkeypatch
+):
+    """The ``ceiling-catalogue`` job's ``hundred_k`` leg writes the files a shard then names in
+    ``SHARED_BUILDS_DIR`` (#790): every file of the default build from ONE build, each under the
+    name ``cached`` reads, so the shard's test finds it and builds nothing."""
+    import shared_builds
+
+    builds: list[str] = []
+
+    def one_build():
+        builds.append("built")
+        return ("catalog", ["kit"])
+
+    def reduce_a(built=None):
+        return ("a", *(built or one_build()))
+
+    def reduce_b(built=None):
+        return ("b", *(built or one_build()))
+
+    monkeypatch.setattr(shared_builds, "_hundred_k_build", one_build)
+    monkeypatch.setattr(shared_builds, "FROM_ONE_BUILD", {"toy_a": reduce_a, "toy_b": reduce_b})
+    cache = tmp_path / "hundred_k"
+    shared_builds.prebuild("one_build", cache)
+    assert builds == ["built"]
+    monkeypatch.setenv("SHARED_BUILDS_DIR", str(cache))
+    assert shared_builds.cached("toy_a", reduce_a) == ("a", "catalog", ["kit"])
+    assert shared_builds.cached("toy_b", reduce_b) == ("b", "catalog", ["kit"])
+    assert builds == ["built"], "a test that asked built again instead of reading the file"
+
+
 def test_a_cache_directory_made_before_pytests_own_is_still_ignored_by_git(tmp_path):
     """pytest writes the ``.gitignore`` of ``.pytest_cache`` only when it makes the directory
     itself: one made first (by a build, before pytest's first cache write) left the whole
