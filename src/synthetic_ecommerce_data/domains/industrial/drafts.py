@@ -113,6 +113,9 @@ class ChildDraft:
     #: the sibling's width makes the shared width such a value on both.
     also: Attribute | None = None
     system: str = "in"
+    #: The magnitude, in inches, a length was published from, by name, where its spelling
+    #: rounds it: a nut's 7/16" height published as ``0.438``.
+    exact: dict[str, float] = field(default_factory=dict)
     #: The pack as this child's title says it (``Box of 100``, :mod:`.plain_screws`), for a child
     #: whose pack is its own, not the line's. Empty for a title that takes the line's pack.
     pack_phrase: str = ""
