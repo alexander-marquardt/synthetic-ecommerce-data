@@ -793,6 +793,19 @@ def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog
     assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
 
 
+def test_a_spec_whose_published_material_is_empty_is_caught(catalog, monkeypatch):
+    """Plant: the wheel publishes its abrasive with an empty value. A material
+    the record omits leaves the SKU in no spec, so only an empty one reaches a
+    spec, and the guard must not count it as held (#892)."""
+    material_of = price.material_of
+    monkeypatch.setattr(
+        price, "material_of", lambda t, facts: "" if t == WHEEL else material_of(t, facts)
+    )
+    collected = price_report.collect(catalog)
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == {""}
+    assert price_report.types_without_material(collected) == {WHEEL}
+
+
 #: Each brand-census type's spec attribute beyond its material, as the census
 #: names it ("material, flutes, grit, closure...", ``method.brand_spread``).
 CENSUS_SPEC_ATTRIBUTE = {
