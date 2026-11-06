@@ -1027,6 +1027,7 @@ NOT_MEASURED = frozenset(
         *plain_screws.KINDS,
         "key_stock",
         "er_collets",
+        "roll_pins",
         "studs_double_end",
         "bronze_sleeve_bushings",
         *tabletype.tables(),
