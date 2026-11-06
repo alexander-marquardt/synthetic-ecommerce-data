@@ -65,6 +65,17 @@ class Bars:
 
 
 @dataclass(frozen=True)
+class Discs:
+    """Many discs of one radius and role, painted as ONE group: a part that repeats (a
+    bearing's balls) costs a bare ``<circle>`` a copy rather than a styled element and its
+    hatch a copy (#50)."""
+
+    centres: tuple[Point, ...]
+    radius: float
+    role: str = "part"
+
+
+@dataclass(frozen=True)
 class Outlines:
     """Plain closed outlines painted as ONE path: the items behind a pack's top item (:func:`fan`)
     cost a few bytes each rather than a whole drawing each."""
