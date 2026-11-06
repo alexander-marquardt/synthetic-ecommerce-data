@@ -116,7 +116,9 @@ def _quotations(stats: dict) -> dict[str, str]:
         patterns["hundred_k.skus"] = rf"\b{hundred_k['skus']:,}\b"
         patterns["hundred_k.lines"] = rf"\b{hundred_k['lines']:,}\b"
         for type_key, count in hundred_k["skus_by_type"].items():
-            if count >= 1000:  # a smaller count is too common a number to name the figure
+            # A smaller or a round count is too common a number to name the figure: key
+            # stock's 1,000 at 100K is not the README's "1,000-piece" pack (#50).
+            if count >= 1000 and count % 100:
                 patterns[f"hundred_k.skus_by_type.{type_key}"] = rf"\b{count:,}\b"
     overmatch = figures.get("flat_overmatch", {})
     if overmatch:
