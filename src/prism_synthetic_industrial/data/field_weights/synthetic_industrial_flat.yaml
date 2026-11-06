@@ -890,8 +890,8 @@ fields:
   - name: width
     type: terms
     source: facets.width
-  # Width across flats -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 63 distinct values over 2079 product-value pairs is 0.03 per product
-  #   present on 2384 documents across 4 product type(s); 63 distinct values
+  # Width across flats -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 62 distinct values over 2079 product-value pairs is 0.03 per product
+  #   present on 2384 documents across 4 product type(s); 62 distinct values
   - name: width_across_flats
     type: terms
     source: facets.width_across_flats
