@@ -108,15 +108,6 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
         "src/synthetic_ecommerce_data",
     ),
     (
-        "a texture is never drawn",
-        S,
-        'if house.texture == "plain":',
-        'if house.texture:',
-        f'{T} -k "each_lever and texture"',
-        "a texture reaches the drawing",
-        "src/synthetic_ecommerce_data",
-    ),
-    (
         "the chamfer cuts into the plate",
         S,
         "CHAMFER = 7.0",

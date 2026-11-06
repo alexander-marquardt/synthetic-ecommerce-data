@@ -52,17 +52,6 @@ INKS: tuple[str, ...] = (
     "#6a1b4d",
 )
 
-#: Paper tints. Each brand gets one INDEPENDENTLY of its ink
-#: (:func:`paper_of`), so two brands sharing an ink also differ in background.
-PAPERS: tuple[str, ...] = (
-    "#f9f9f7",
-    "#eef3fa",
-    "#faf1e4",
-    "#edf6ec",
-    "#f7ecf4",
-    "#f1f1e8",
-)
-
 #: The frame treatments of a sheet. Distinct at a 180px thumbnail: nothing, a
 #: square rule, a rounded border, or four corner marks.
 FRAMES: tuple[str, ...] = ("none", "rule", "rounded", "corners")
@@ -87,8 +76,6 @@ DASHES: tuple[str, ...] = ("", "3 2", "6 2 1 2")
 #: closer, never further in: the handle-less lens (``sheet.LENS_MARGIN``) and
 #: the plate clear a frame drawn at 6 and no deeper.
 MARGINS: tuple[float, ...] = (6.0, 3.0)
-#: Background texture of the figure area, in the brand's ink: none, a grid, dots.
-TEXTURES: tuple[str, ...] = ("plain", "grid", "dot")
 
 #: Qualifiers a product NAME or title may carry before the item, by family.
 #: NON-FACTUAL on purpose: none names a material, finish, dimension, grade,
@@ -142,12 +129,12 @@ class Brand:
     #: premium makers, the rest standard. It holds in every family the brand
     #: makes, and it is no field on the record: it shows through price.
     tier: str = "standard"
-    #: The text-free levers (#55): indexes into ``WEIGHTS`` (``outline``), ``DASHES``,
-    #: ``MARGINS`` and ``TEXTURES``; 0 is the original look.
+    #: The text-free levers (#55): indexes into ``WEIGHTS`` (``outline``), ``DASHES``
+    #: and ``MARGINS``; 0 is the original look. No brand tints the paper or textures
+    #: it (#849): every drawing sits on ``drawing.product_look.PAPER``.
     outline: int = 0
     dash: int = 0
     margin: int = 0
-    texture: int = 0
 
     def makes(self, type_key: str) -> bool:
         return domain.brand_family(type_key) in self.families
@@ -306,15 +293,7 @@ def frame_of(brand: str) -> str:
     return ALL_FRAMES[BY_NAME[brand].frame]
 
 
-def levers_of(brand: str) -> tuple[float, str, float, str]:
-    """``brand``'s (outline weight, dash array, frame margin, texture), resolved."""
+def levers_of(brand: str) -> tuple[float, str, float]:
+    """``brand``'s (outline weight, dash array, frame margin), resolved."""
     book = BY_NAME[brand]
-    return WEIGHTS[book.outline], DASHES[book.dash], MARGINS[book.margin], TEXTURES[book.texture]
-
-
-def paper_of(brand: str) -> str:
-    """The brand's paper: its rank among the brands sharing its ink, offset by
-    the ink, so brands of one ink never share a paper and the tints spread."""
-    book = BY_NAME[brand]
-    same_ink = [b.name for b in BRAND_BOOK if b.ink == book.ink]
-    return PAPERS[(same_ink.index(brand) + book.ink) % len(PAPERS)]
+    return WEIGHTS[book.outline], DASHES[book.dash], MARGINS[book.margin]
