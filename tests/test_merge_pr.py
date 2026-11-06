@@ -349,6 +349,19 @@ _GREEN = {"tests/test_planted_green.py": "def test_ok():\n    pass\n"}
 _GREEN_CHECK = "tests/test_planted_green.py"
 
 
+def test_a_world_origin_holds_this_checkouts_head_tree_and_none_of_its_history(
+    world: dict,
+) -> None:
+    """A case copies HEAD's tree, not the repository's history: copying the
+    whole history twice was about 50 s of setup per case on CI (#790)."""
+    origin = world["origin"]
+    assert _git(origin, "rev-list", "--count", "main") == "1"
+    assert _git(origin, "rev-parse", "main^{tree}") == _git(REPO, "rev-parse", "HEAD^{tree}")
+    # One parentless commit, not a shallow fetch: nothing the script runs meets a graft.
+    assert not (origin / "shallow").exists()
+    assert not (world["checkout"] / ".git" / "shallow").exists()
+
+
 # -- the merge it exists for -------------------------------------------------
 
 
