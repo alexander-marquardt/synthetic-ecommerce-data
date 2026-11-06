@@ -54,6 +54,7 @@ from dataclasses import dataclass
 from itertools import product as _product
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_suits,  # noqa: F401 -- registers suit_jacket, suit_trousers, waistcoat, dinner_suit, formal_accessory
     named_parts,
     sock_titles,
@@ -80,7 +81,7 @@ _LING = "Lingerie & Nightwear"
 
 #: The colors, as (plain word, swatch): the six main colors and the usual menswear shades.
 HEX = {
-    **MAIN_COLORS, "Navy": "#26365c", "Charcoal": "#4a4a50", "Khaki": "#b8a36a",
+    **MAIN_COLORS, "Navy": dark_blues.NAVY, "Charcoal": "#4a4a50", "Khaki": "#b8a36a",
     "Stone": "#bdb5a6", "Grey": "#9a9a9a", "Brown": "#6b4a32", "Camel": "#b5835a",
     "Olive": "#6b6b2f", "Burgundy": "#6d1f2f", "Cream": "#efe4cf", "Ivory": "#f3ecd9",
     "Off White": "#f4f1ea",

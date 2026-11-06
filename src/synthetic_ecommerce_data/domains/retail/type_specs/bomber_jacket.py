@@ -14,6 +14,7 @@ The type's text-match decoys (gen#311) are planned in ``decoy_apparel``, which a
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.type_registry import (
     BRAND_OWNER,
     Home,
@@ -29,7 +30,7 @@ _SIZES = ("XS", "S", "M", "L", "XL")
 
 #: The check colors: (base, accent).
 _CHECKS = {
-    "Brown": ("#7a5a3c", "#3b2a1c"), "Grey": ("#9a9a9a", "#2a2a2e"), "Navy": ("#26365c", "#c8312e"),
+    "Brown": ("#7a5a3c", "#3b2a1c"), "Grey": ("#9a9a9a", "#2a2a2e"), "Navy": (dark_blues.NAVY, "#c8312e"),
     "Green": ("#4d6b45", "#e8dfcc"), "Red": ("#a8322e", "#2a2a2e"), "Black": ("#2a2a2e", "#8a8a8a"),
     "Blue": ("#4a6a94", "#e8dfcc"), "Camel": ("#b5835a", "#5a3426"),
 }  # fmt: skip

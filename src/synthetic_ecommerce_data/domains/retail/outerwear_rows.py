@@ -20,6 +20,7 @@ leaves them out, so the seeded derivation is what it was.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_coats,  # noqa: F401 -- registers trench_coat, raincoat, parka, puffer, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -57,7 +58,7 @@ TYPES = tuple(LEAVES)
 PAL = {
     "Black": cw("Black", "#2f2f35"), "White": cw("White", "#f4f1ea", "solid", "#b9b4a6"),
     "Red": cw("Red", "#b8322b"), "Blue": cw("Blue", "#3f6fb5"), "Green": cw("Green", "#3f7a4a"),
-    "Yellow": cw("Yellow", "#e8c547"), "Navy": cw("Navy", "#26365c"), "Camel": cw("Camel", "#c19a6b"),
+    "Yellow": cw("Yellow", "#e8c547"), "Navy": cw("Navy", dark_blues.NAVY), "Camel": cw("Camel", "#c19a6b"),
     "Stone": cw("Stone", "#cfc6b8"), "Olive": cw("Olive", "#6b6b3a"), "Khaki": cw("Khaki", "#8a8456"),
     "Grey": cw("Grey", "#9a9ca0"), "Charcoal": cw("Charcoal", "#4b4e55"), "Cream": cw("Cream", "#efe8d8", "solid", "#b9b4a6"),
     "Burgundy": cw("Burgundy", "#6e2433"), "Pink": cw("Pink", "#e7a9b8"), "Brown": cw("Brown", "#6b4a35"),

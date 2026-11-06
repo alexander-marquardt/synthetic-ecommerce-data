@@ -175,13 +175,24 @@ def corpus() -> list[dict]:
     return [*base_corpus(), *class_docs()]
 
 
+def _unindexed_stripped(doc: dict) -> dict:
+    """The doc without the fields the mapping does not index: ``drawing`` and a swatch ``hex``."""
+    out = {k: v for k, v in doc.items() if k != "drawing"}
+    if "color_options" in out:
+        out["color_options"] = [
+            {k: v for k, v in c.items() if k != "hex"} for c in out["color_options"]
+        ]
+    return out
+
+
 def fingerprint(catalog: list[dict]) -> str:
     """sha256 of the catalog as the proof indexed it: an indexed-field change makes the proof stale.
 
     The ``drawing`` field is left out. The index mapping is ``dynamic: false`` and maps no
     ``drawing``, so no query can see it: re-drawing a tile must not force an Elasticsearch re-run.
+    The ``hex`` of a ``color_options`` entry is a swatch fill and is left out the same way.
     """
-    indexed = ({k: v for k, v in d.items() if k != "drawing"} for d in catalog)
+    indexed = (_unindexed_stripped(d) for d in catalog)
     blob = "".join(json.dumps(d, sort_keys=True, ensure_ascii=False) + "\n" for d in indexed)
     return hashlib.sha256(blob.encode()).hexdigest()
 

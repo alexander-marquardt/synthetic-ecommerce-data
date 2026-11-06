@@ -18,6 +18,7 @@ a 27 cm dinner plate into a side plate.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_tableware,  # noqa: F401 -- registers plate, bowl, cutlery_piece, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Contents, Row
@@ -124,13 +125,14 @@ PLATES = (
     _tw("PLTBON", "Bone China Rim Band Dinner Plate", "Lanternby", "Plates", "Plate", "plate",
         "A fine 27 cm dinner plate with a hand-painted rim band, light enough to stack high. "
         "Dishwasher and microwave safe.",
-        (cw("White", "#f7f5ef", "solid", "#26365c"),),
+        (cw("White", "#f7f5ef", "solid", dark_blues.NAVY),),
         (*_plate("Dinner", 27, "Bone China", "Rim Band"), MICROWAVE),
         _sets(23.0, 42.0, 78.0), _pp("dinner", 27, "Rim Band")),
     _tw("PLTPLA", "Enamel Serving Platter", "Calderby & Lune", "Plates", "Plate", "plate",
         "An oval 36 cm platter with a rolled rim band, for a roast, a salad or a sharing board. "
         "Dishwasher safe.",
-        (cw("White", "#f7f5ef", "solid", "#26365c"), cw("Cream", "#efe8d8", "solid", "#2a2a2e")),
+        (cw("White", "#f7f5ef", "solid", dark_blues.NAVY),
+         cw("Cream", "#efe8d8", "solid", "#2a2a2e")),
         _plate("Serving Platter", 36, "Enamel", "Rim Band"), price=24.0,
         params=_pp("serving platter", 36, "Rim Band")),
 )  # fmt: skip
@@ -149,7 +151,7 @@ BOWLS = (
     _tw("BWLCER", "Stoneware Cereal Bowl", "Hearth & Table", "Bowls", "Bowl", "bowl",
         "A 16 cm bowl that holds 600 ml, deep enough for cereal, porridge or a noodle soup. "
         "Dishwasher and microwave safe.",
-        (cw("Sage", "#9bb08f"), cw("Navy", "#26365c"), cw("Cream", "#efe8d8")),
+        (cw("Sage", "#9bb08f"), cw("Navy", dark_blues.NAVY), cw("Cream", "#efe8d8")),
         (*_bowl("Cereal", 16, 600, "Stoneware"), MICROWAVE),
         _sets(11.0, 20.0, 36.0), (("kind", "cereal"),)),
     _tw("BWLPAS", "Porcelain Pasta Bowl", "Lanternby", "Bowls", "Bowl", "bowl",
@@ -391,7 +393,7 @@ UTENSILS = (
         (cw("Orange", "#e07a1f"), cw("Green", "#6f8f4a")), "Peeler", "Stainless Steel", 3.5),
     _ut("UTNGRT", "Four Sided Box Grater", "Calderby & Lune",
         "A box grater with coarse, fine, slicing and zesting faces and a non-slip base.",
-        (cw("Navy", "#26365c"), BLACK), "Grater", "Stainless Steel", 10.0),
+        (cw("Navy", dark_blues.NAVY), BLACK), "Grater", "Stainless Steel", 10.0),
     _ut("UTNSET", _SET5.title("Silicone Utensil Set with Holder"), "Hearth & Table",
         _SET5.text("Heat resistant heads on sturdy handles: the utensil set stands in a "
                    "matching pot."),

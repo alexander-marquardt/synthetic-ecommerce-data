@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.grocery_model import F, Family
 
 _CHOC = ("Crunchworth", "Pantry Mill", "Hearth & Table", "Barrowby Kitchen")
@@ -267,7 +268,7 @@ FAMILIES: tuple[Family, ...] = (
     # Drinks
     Family("TEA", _p("Drinks", "Tea"), "{line} Tea", "Tea", "box", "Tea", _A, "A", 2.0,
            ("40 bags", "80 bags", "240 bags"),
-           (F("English Breakfast", "#8c3b2a"), F("Earl Grey", "#26365c"), F("Peppermint", "#3a8f6a"),
+           (F("English Breakfast", "#8c3b2a"), F("Earl Grey", dark_blues.NAVY), F("Peppermint", "#3a8f6a"),
             F("Lemon & Ginger", "#f2d14b"), F("Green", "#7ab648"), F("Honey & Vanilla Rooibos", "#d9a441", "h")),
            ("Kettleby Tea Co.", "Pantry Mill", "Hearth & Table"), 0.03, per_style=(2, 5)),
     Family("COF", _p("Drinks", "Coffee"), "{line} {flavor} Coffee", "Coffee", "jar", "Coffee", _A, "A", 4.0,

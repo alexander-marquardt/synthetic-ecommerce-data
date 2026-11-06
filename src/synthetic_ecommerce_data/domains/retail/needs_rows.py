@@ -37,6 +37,7 @@ The rows are templates only: :func:`scale.derivable` leaves them out (``scale.so
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail import mens_depth_rows as m
 from synthetic_ecommerce_data.domains.retail.scale_rows import Bra
 from synthetic_ecommerce_data.domains.retail.variants import cw, style_docs
@@ -101,7 +102,7 @@ BRAS = (
         (_NUDE, _BLACK, _WHITE), 23.0, wired=False, fabric="Modal, Elastane",
         fitting="a crossover front that opens for feeding and a pull-on band with no hook"),
     Bra("LOFTUS", "Anytime", "Bramblewood", "Nursing", (32, 44), ("C", "G"),
-        (_BLACK, cw("Navy", "#26365c"), _NUDE), 29.0,
+        (_BLACK, cw("Navy", dark_blues.NAVY), _NUDE), 29.0,
         fitting="clip-down cups with a light underwire, adjustable straps and a three-row hook and eye back"),
 )  # fmt: skip
 

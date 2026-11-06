@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.core.entry import canonical
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_electronics,  # noqa: F401 -- registers smartphone, laptop, tablet, phone_case, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -54,7 +55,7 @@ GOLD = cw("Gold", "#d8b56a")
 GREY = cw("Grey", "#9a9ca0")
 PINK = cw("Pink", "#e59ab0")
 PURPLE = cw("Purple", "#7b5aa6")
-NAVY = cw("Navy", "#25365e")
+NAVY = cw("Navy", dark_blues.NAVY)
 TEAL = cw("Teal", "#2f8f8a")
 ORANGE = cw("Orange", "#e07a1f")
 CLEAR = cw("Clear", "#e8f1f7")

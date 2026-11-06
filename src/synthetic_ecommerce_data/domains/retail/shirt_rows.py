@@ -18,12 +18,13 @@ Every row is a :class:`class_model.Style`; a title says "Shirt", never "Tee".
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.class_model import Style
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 SIZES = ("XS", "S", "M", "L", "XL")
 NAVY, WHITE, BLUE, RED, GREEN, SAND, BLACK = (
-    "#26365c", "#ffffff", "#8fb8de", "#a83a32", "#5f7a4d", "#d9c9a8", "#2a2a2e",
+    dark_blues.NAVY, "#ffffff", "#8fb8de", "#a83a32", "#5f7a4d", "#d9c9a8", "#2a2a2e",
 )  # fmt: skip
 
 #: leaf -> ((fabric, ((title head, description, pattern, ((color, sold), ...)) x 3)),): the

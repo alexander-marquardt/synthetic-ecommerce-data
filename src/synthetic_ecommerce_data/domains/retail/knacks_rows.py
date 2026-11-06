@@ -22,7 +22,7 @@ The rows are templates only: :func:`scale.derivable` leaves them out (``scale.so
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import breadth_rows
+from synthetic_ecommerce_data.domains.retail import breadth_rows, dark_blues
 from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
@@ -161,7 +161,7 @@ BRA = Bra("NKBRA1", "Knacks Driftdry", BRAND, "Sports", (32, 38), ("A", "D"),
 # -- text-match decoys: another brand's product whose description names Knacks -----------------------
 
 _G = cw("Grey", "#9a9ca0")
-_NAVY = cw("Navy", "#26365c")
+_NAVY = cw("Navy", dark_blues.NAVY)
 
 
 def _decoy(code, title, brand, dept, path, ptype, price, shape, desc, colors, attrs=(), params=(),
