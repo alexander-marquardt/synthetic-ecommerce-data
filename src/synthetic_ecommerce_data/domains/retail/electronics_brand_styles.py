@@ -199,25 +199,25 @@ hs.MARKS.update(
 #: Brand -> house style. Nine lockups and eight marks alone with a text tag.
 STYLES = {
     # The device brands.
-    "Grape Computer":  H("#f4f4f6", "none",  "ticks",   "#6a3d8f", "#2a1638", 0.9,  False, "sharp", "vine",   "mark_right", "bottom_right",  "none",    "humanist", 700, "caps",      1.3),
-    "Halvern":  H("#eef2f7", "none",     "thin",    "#2f5fa3", "#14233b", 1.05, False, "round", "slab",   "mark_left",  "top_left",      "none",    "sans",     700, "caps",      1.4),
-    "Torvane":  H("#f3f1ea", "lines",    "double",  "#6b5a3c", "#2b2417", 0.95, False, "sharp", "hinge",  "mark_above", "bottom_center", "none",    "serif",    400, "title",     0.6),
-    "Nimbrel":  H("#eff6f4", "dots",     "rounded", "#1f7a6c", "#10332d", 1.15, False, "round", "pane",   "badge",      "top_right",     "none",    "humanist", 700, "smallcaps", 1.9),
-    "Quorrin":  H("#f6f0f3", "grid",     "heavy",   "#8a2f5a", "#35121f", 1.0,  False, "sharp", "twin_orbit",  "mark_right", "bottom_right",  "none",    "mono",     400, "lower",     2.3),
-    "Daskel":   H("#f2f4ee", "diagonal", "ticks",   "#4f7a2a", "#1d3010", 1.1,  True,  "round", "fins",   "pill",       "bottom_left",   "none",    "sans",     400, "title",     0.8),
-    "Mervane":  H("#f1f2f8", "hatch",    "none",    "#4a4aa8", "#1a1a45", 0.9,  False, "sharp", "pixels", "mark_only",  "top_left",      "outline", "serif",    700, "caps",      1.2),
-    "Pellimar": H("#f8f3ea", "none",     "thin",    "#b0652a", "#40230e", 1.2,  False, "round", "page",   "mark_only",  "bottom_right",  "flag",    "humanist", 400, "smallcaps", 2.6),
+    "Grape Computer":  H("ticks",   "#6a3d8f", "#2a1638", 0.9,  False, "sharp", "vine",   "mark_right", "bottom_right",  "none",    "humanist", 700, "caps",      1.3),
+    "Halvern":  H("thin",    "#2f5fa3", "#14233b", 1.05, False, "round", "slab",   "mark_left",  "top_left",      "none",    "sans",     700, "caps",      1.4),
+    "Torvane":  H("double",  "#6b5a3c", "#2b2417", 0.95, False, "sharp", "hinge",  "mark_above", "bottom_center", "none",    "serif",    400, "title",     0.6),
+    "Nimbrel":  H("rounded", "#1f7a6c", "#10332d", 1.15, False, "round", "pane",   "badge",      "top_right",     "none",    "humanist", 700, "smallcaps", 1.9),
+    "Quorrin":  H("heavy",   "#8a2f5a", "#35121f", 1.0,  False, "sharp", "twin_orbit",  "mark_right", "bottom_right",  "none",    "mono",     400, "lower",     2.3),
+    "Daskel":   H("ticks",   "#4f7a2a", "#1d3010", 1.1,  True,  "round", "fins",   "pill",       "bottom_left",   "none",    "sans",     400, "title",     0.8),
+    "Mervane":  H("none",    "#4a4aa8", "#1a1a45", 0.9,  False, "sharp", "pixels", "mark_only",  "top_left",      "outline", "serif",    700, "caps",      1.2),
+    "Pellimar": H("thin",    "#b0652a", "#40230e", 1.2,  False, "round", "page",   "mark_only",  "bottom_right",  "flag",    "humanist", 400, "smallcaps", 2.6),
     # The accessory brands.
-    "Cindrel":  H("#f4f6f0", "lines",    "rounded", "#3d8a4a", "#173a1d", 1.0,  False, "round", "loop",   "band_top",   "top_center",    "none",    "mono",     700, "lower",     1.6),
-    "Boltwick": H("#fbf4e6", "grid",     "double",  "#c28a12", "#463208", 1.25, False, "sharp", "cell",   "mark_left",  "top_right",     "none",    "sans",     700, "title",     2.1),
-    "Wexmoor":  H("#eff1f4", "dots",     "heavy",   "#58606e", "#1c2028", 0.85, True,  "sharp", "prong",  "mark_only",  "top_right",     "rect",    "mono",     400, "caps",      1.0),
-    "Dunvale":  H("#f2eeeb", "diagonal", "none",    "#9a4a3a", "#3a1a14", 1.1,  False, "round", "flap_sleeve", "mark_only",  "bottom_left",   "tab",     "humanist", 700, "lower",     0.4),
-    "Ardmoor":  H("#edf4f8", "hatch",    "ticks",   "#2a86a8", "#0f3445", 0.95, False, "round", "dial",   "mark_only",  "top_left",      "underline", "serif",  400, "title",     1.8),
-    "Marrick":  H("#f7eef0", "none",     "thin",    "#a83a4a", "#401a20", 1.3,  False, "sharp", "arc",    "mark_only",  "bottom_right",  "stamp",   "sans",     700, "smallcaps", 0.7),
-    "FlyingFoo": H("#fdf1ea", "diagonal", "rounded", "#d9541e", "#451a08", 1.1,  False, "round", "wing",   "mark_left",  "bottom_left",   "none",    "sans",     700, "title",     1.5),
+    "Cindrel":  H("rounded", "#3d8a4a", "#173a1d", 1.0,  False, "round", "loop",   "band_top",   "top_center",    "none",    "mono",     700, "lower",     1.6),
+    "Boltwick": H("double",  "#c28a12", "#463208", 1.25, False, "sharp", "cell",   "mark_left",  "top_right",     "none",    "sans",     700, "title",     2.1),
+    "Wexmoor":  H("heavy",   "#58606e", "#1c2028", 0.85, True,  "sharp", "prong",  "mark_only",  "top_right",     "rect",    "mono",     400, "caps",      1.0),
+    "Dunvale":  H("none",    "#9a4a3a", "#3a1a14", 1.1,  False, "round", "flap_sleeve", "mark_only",  "bottom_left",   "tab",     "humanist", 700, "lower",     0.4),
+    "Ardmoor":  H("ticks",   "#2a86a8", "#0f3445", 0.95, False, "round", "dial",   "mark_only",  "top_left",      "underline", "serif",  400, "title",     1.8),
+    "Marrick":  H("thin",    "#a83a4a", "#401a20", 1.3,  False, "sharp", "arc",    "mark_only",  "bottom_right",  "stamp",   "sans",     700, "smallcaps", 0.7),
+    "FlyingFoo": H("rounded", "#d9541e", "#451a08", 1.1,  False, "round", "wing",   "mark_left",  "bottom_left",   "none",    "sans",     700, "title",     1.5),
     # The computer brands that cross departments (#721).
-    "Xell":     H("#edf1f7", "lines",    "none",    "#1d4f91", "#0e2140", 0.9,  False, "sharp", "x_cell", "mark_only",  "bottom_left",   "plain",   "sans",     400, "lower",     2.4),
-    "PackingHarder": H("#f0f2ee", "grid", "heavy",  "#3c5a2e", "#18240f", 1.2,  False, "sharp", "crate",  "mark_only",  "top_right",     "stamp",   "mono",     700, "caps",      1.1),
+    "Xell":     H("none",    "#1d4f91", "#0e2140", 0.9,  False, "sharp", "x_cell", "mark_only",  "bottom_left",   "plain",   "sans",     400, "lower",     2.4),
+    "PackingHarder": H("heavy",  "#3c5a2e", "#18240f", 1.2,  False, "sharp", "crate",  "mark_only",  "top_right",     "stamp",   "mono",     700, "caps",      1.1),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

@@ -136,7 +136,7 @@ def iter_drawings(catalog: Catalog) -> Iterator[tuple[ProductLine, Sku, bytes, s
 
     for line in catalog.lines:
         records = [drawing_record(catalog, line, child) for child in line.children]
-        drawn = draw_product(line.type_key, line.brand, records)
+        drawn = draw_product(line.type_key, line.brand, records, line.product_id)
         for child, (data, source) in zip(line.children, drawn, strict=True):
             yield line, child, data, source
 

@@ -4361,13 +4361,13 @@
   },
   "drawings": {
    "count": 14077,
-   "bytes": 35161146,
+   "bytes": 37415398,
    "geometry": {
     "nominal": 205,
     "partial": 2831,
     "record": 11041
    },
-   "largest_bytes": 7789,
+   "largest_bytes": 9491,
    "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
