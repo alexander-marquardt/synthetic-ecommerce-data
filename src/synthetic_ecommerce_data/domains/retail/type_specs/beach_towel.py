@@ -26,6 +26,7 @@ title stays the one authored here. The registry feeds the scaled build and the f
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_home,  # noqa: F401 -- registers the beach_towel drawing
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -53,7 +54,7 @@ def _towel(code, title, brand, price, desc, colors, material, weave, feature, si
 ROWS = (
     _towel("BCHAOT", "Extra Absorbent Organic Cotton Terry Beach Towel, Navy Stripe", HARBOUR, 24.0,
            "A thick organic cotton terry towel with a looped pile that soaks up water fast, woven in navy and white stripes.",
-           (cw("Navy Stripe", "#ffffff", "stripe", "#26365c"),),
+           (cw("Navy Stripe", "#ffffff", "stripe", dark_blues.NAVY),),
            "Organic Cotton", "Terry", "Extra Absorbent", "90 x 170 cm"),
     _towel("BCHQDM", "Quick Dry Microfibre Sand Free Beach Towel, 80 x 160 cm", CALDERBY, 16.0,
            "A thin microfibre towel with a smooth weave that shakes the sand off, dries in minutes and folds into its pouch.",
@@ -61,7 +62,7 @@ ROWS = (
            "Microfibre", "Sand Free", "Quick Dry", "80 x 160 cm"),
     _towel("BCHTUR", "Oversized Turkish Peshtemal Cotton Beach Towel with Tassels", THISTLE, 28.0,
            "A flat woven Turkish peshtemal in light cotton, big enough to lie on, with knotted tassels at both ends.",
-           (cw("Sand", "#d8c9a8", "solid", WHITE), cw("Navy", "#26365c", "solid", WHITE), cw("Sage", "#9bb08f", "solid", WHITE)),
+           (cw("Sand", "#d8c9a8", "solid", WHITE), cw("Navy", dark_blues.NAVY, "solid", WHITE), cw("Sage", "#9bb08f", "solid", WHITE)),
            "Cotton", "Turkish Peshtemal", "Oversized", "100 x 180 cm"),
     _towel("BCHDWF", "Double Sided Cotton Polyester Blend Waffle Beach Towel", LARCHWOOD, 19.0,
            "A honeycomb waffle towel in a cotton polyester blend, a different color on each side so it can be turned over on the sand.",
@@ -73,7 +74,7 @@ ROWS = (
            "Cotton", "Velour", "Extra Soft", "85 x 160 cm"),
     _towel("BCHHOD", "Hooded Cotton Terry Beach Towel Poncho with Front Pocket", BRACKENMERE, 26.0,
            "A cotton terry poncho towel with a hood to pull up after a swim and a warm front pocket for the hands.",
-           (cw("Navy", "#26365c", "solid", WHITE), cw("Grey", "#9a9ca0", "solid", WHITE)),
+           (cw("Navy", dark_blues.NAVY, "solid", WHITE), cw("Grey", "#9a9ca0", "solid", WHITE)),
            "Cotton", "Terry", "Hooded", "75 x 110 cm"),
     _towel("BCHFDR", "Fade Resistant Cotton Polyester Blend Terry Beach Towel, Red Stripe", EMBERLY, 17.0,
            "A cotton polyester blend terry towel in wide red and white stripes that hold their color wash after wash.",

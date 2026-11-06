@@ -74,8 +74,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the patchwork cushion is a gingham one",
         "breadth_home.py",
-        'cw("Multi Patchwork", "#c46a4a", "patchwork", "#26365c")',
-        'cw("Multi Patchwork", "#c46a4a", "gingham", "#26365c")',
+        'cw("Multi Patchwork", "#c46a4a", "patchwork", dark_blues.NAVY)',
+        'cw("Multi Patchwork", "#c46a4a", "gingham", dark_blues.NAVY)',
         f"{_T} -k patchwork_cushion",
         "a patchwork cushion is drawn with the patchwork fill",
     ),

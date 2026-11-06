@@ -22,6 +22,7 @@ image id it makes) is what it was.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_seating,  # noqa: F401 -- registers the seating shapes
     sofa_groups,
 )
@@ -38,7 +39,7 @@ SOFA_BEDS = (*SOFAS, "Sofa Beds")
 ARMCHAIRS = (*_FURN, "Armchairs")
 FOOTSTOOLS = (*_FURN, "Footstools")
 
-GREEN, NAVY, BLUSH, MUSTARD = (cw("Bottle Green", "#2f5b46"), cw("Navy", "#26365c"),
+GREEN, NAVY, BLUSH, MUSTARD = (cw("Bottle Green", "#2f5b46"), cw("Navy", dark_blues.NAVY),
                                cw("Blush", "#e8b9b3"), cw("Mustard", "#d4a32a"))
 CREAM, OAT, TAUPE = cw("Cream", "#efe8d8"), cw("Oat", "#d8c9a8"), cw("Taupe", "#8b7d6b")
 GREY, RUST, SAGE, CHARCOAL = (cw("Grey", "#9a9ca0"), cw("Rust", "#a4502a"),
