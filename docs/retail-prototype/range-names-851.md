@@ -30,8 +30,16 @@ have one SKU although one of its products has two colors or sizes, with its coun
 At the ceiling build the build has fewer products and more SKUs (`scale --report` measures them;
 a total is never typed here, `tests/test_retail_figures_162.py`). The numbered ranges left are the
 cleaning and beauty models and the authored bra, jeans, running shoe and walking boot lines. Cup
-sets and travel cups are one product per brand, each with several colors as its SKUs. The mugs
-still have one SKU each, because their print lines have one color.
+sets and travel cups are one product per brand, each with several colors as its SKUs.
+
+**A mug is sold in several glazes.** Each plain mug of the mug print line (`prints.py`, line
+`MUG`) had one glaze and each graphic mug one ground, so most mugs were one-SKU products. A plain
+style may now carry several colors (`prints._glazes`): each plain mug sells three glazes, hero
+first, and each graphic mug two grounds. A derived style with a new title-shown value (a graphic
+mug with another motif) takes its hero color and a seeded subset of the rest
+(`scale._colors`), and that subset could be empty. It now keeps one more color at least when the
+template has two, so no derived style of a two-color template is a one-color product. Mug is no
+longer in `single_sku_kinds`; the two one-SKU mugs left are decoys of other queries.
 
 **A set is sold in packs, a single cup in sizes.** Every SKU of a cup set was a set of four, so a
 brand's one cup set differed only by color. The cup set (`class_rows.CUPS` `DRKSET`, "Porcelain
@@ -45,5 +53,5 @@ exported as Capacity in ml). Their declared size axis (`size_axes.AXES`) draws a
 larger (`size_ladder`). A derived style copies its template's SKUs, so each brand's set or cup
 is one product with pack or capacity × color SKUs.
 
-The guards are in `tests/test_retail_scale_range_names_851.py` and
-`tests/test_retail_scale_cup_packs_851.py`.
+The guards are in `tests/test_retail_scale_range_names_851.py`,
+`tests/test_retail_scale_cup_packs_851.py` and `tests/test_retail_scale_mugs_851.py`.

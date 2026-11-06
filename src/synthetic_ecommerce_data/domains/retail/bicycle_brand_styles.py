@@ -79,13 +79,13 @@ hs.MARKS.update({
 # fmt: off
 #: Brand -> house style: four lockups and three marks alone, as about half the table is.
 STYLES = {
-    "Gorsecliff":  H("#f3f2e8", "hatch",    "heavy",   "#5e6b2e", "#2a3014", 1.15, False, "sharp", "crag",          "mark_left",  "top_right",     "none",      "sans",     700, "caps",      1.5),
-    "Rindlemoor":  H("#eff2f5", "none",     "thin",    "#37566e", "#1b2a36", 0.95, False, "round", "chainring",     "mark_only",  "top_left",      "tab",       "humanist", 700, "title",     1.0),
-    "Tolvaney":    H("#f7f1ee", "lines",    "none",    "#a0342b", "#42160f", 0.85, False, "round", "drop_bar",      "mark_right", "bottom_left",   "none",      "serif",    700, "caps",      3.0, True),
-    "Ostlebury":   H("#f4f3ee", "dots",     "double",  "#6b5a3a", "#2d2616", 1.05, False, "round", "milestone",     "mark_only",  "bottom_right",  "stamp",     "mono",     700, "caps",      1.0),
-    "Wattlebrook": H("#eef6f3", "grid",     "rounded", "#16806d", "#0c3a31", 1.0,  False, "round", "bolt_ring",     "pill",       "top_center",    "none",      "humanist", 400, "lower",     1.0),
-    "Pipkinford":  H("#fdf5ea", "none",     "ticks",   "#d0702a", "#532a0c", 1.1,  False, "round", "pipkin_wheel",  "mark_above", "bottom_center", "none",      "humanist", 700, "lower",     0.5, True),
-    "Hessenby":    H("#f2f0f6", "diagonal", "thin",    "#54418a", "#241a3e", 0.9,  False, "sharp", "keystone_arch", "mark_only",  "top_right",     "outline",   "serif",    400, "smallcaps", 2.0),
+    "Gorsecliff":  H("heavy",   "#5e6b2e", "#2a3014", 1.15, False, "sharp", "crag",          "mark_left",  "top_right",     "none",      "sans",     700, "caps",      1.5),
+    "Rindlemoor":  H("thin",    "#37566e", "#1b2a36", 0.95, False, "round", "chainring",     "mark_only",  "top_left",      "tab",       "humanist", 700, "title",     1.0),
+    "Tolvaney":    H("none",    "#a0342b", "#42160f", 0.85, False, "round", "drop_bar",      "mark_right", "bottom_left",   "none",      "serif",    700, "caps",      3.0, True),
+    "Ostlebury":   H("double",  "#6b5a3a", "#2d2616", 1.05, False, "round", "milestone",     "mark_only",  "bottom_right",  "stamp",     "mono",     700, "caps",      1.0),
+    "Wattlebrook": H("rounded", "#16806d", "#0c3a31", 1.0,  False, "round", "bolt_ring",     "pill",       "top_center",    "none",      "humanist", 400, "lower",     1.0),
+    "Pipkinford":  H("ticks",   "#d0702a", "#532a0c", 1.1,  False, "round", "pipkin_wheel",  "mark_above", "bottom_center", "none",      "humanist", 700, "lower",     0.5, True),
+    "Hessenby":    H("double",  "#54418a", "#241a3e", 0.9,  False, "sharp", "keystone_arch", "mark_only",  "top_right",     "outline",   "serif",    400, "smallcaps", 2.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

@@ -159,7 +159,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw every product at one fixed scale instead of its type's",
         "core/drawing/__init__.py",
-        "    return type_scale(extent)",
+        "    return type_scale(product_look.turned(*extent, angle))",
         "    return 60.0",
         "tests/test_sku_drawings.py -k true_proportion",
         "A",
@@ -177,8 +177,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "draw the lens's part at true scale instead of enlarged",
         "core/drawing/sheet.py",
-        "    _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens)",
-        "    _figure_at(page, figure, house, fill, hatch_id, scale, mag.lens)",
+        "    _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens, angle)",
+        "    _figure_at(page, figure, house, fill, hatch_id, scale, mag.lens, angle)",
         "tests/test_sku_drawings.py -k same_part_enlarged",
         "A",
         "the lens shows the same part enlarged",

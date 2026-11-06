@@ -10,11 +10,10 @@ PREFIX = "house style levers"
 def rows() -> list[Row]:
     return [
         Row(
-            "style_of pins the four levers to 0",
+            "style_of pins the three levers to 0",
             "core/drawing/distinguish.py",
-            "        book.outline,\n        book.dash,\n"
-            "        book.margin,\n        book.texture,\n",
-            "        0,\n        0,\n        0,\n        0,\n",
+            "        book.outline,\n        book.dash,\n        book.margin,\n",
+            "        0,\n        0,\n        0,\n",
             "tests/test_house_style_levers_55.py"
             "::test_style_of_carries_a_brands_levers_to_the_rule",
             "a brand's levers reach the distinguishability rule",
