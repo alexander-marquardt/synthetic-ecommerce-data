@@ -112,21 +112,21 @@ hs.MARKS.update(NEW_MARKS)
 #: a mark-only tag, so the wordmark is the brand field in title or small-caps case. No two
 #: share a mark, nor an arrangement and wordmark (:func:`house_styles.lockup_key`).
 STYLES = {
-    "Jumper Lane":   H("#f4f1ea", "none",     "thin",    "#8a5a2b", "#3a2a18", 1.0,  False, "round", "pl_lane",   "mark_left",  "top_left",      "none", "humanist", 700, "title",     0.15),
-    "Coat Hook":     H("#eef2f5", "lines",    "double",  "#3b5b78", "#1f2f3f", 1.1,  False, "sharp", "pl_hook",   "mark_above", "top_center",    "none", "serif",    700, "title",     0.25),
-    "Shirt Mews":    H("#fbf3e6", "dots",     "none",    "#b5651d", "#4a2b10", 0.9,  False, "round", "pl_row",    "mark_right", "bottom_left",   "none", "sans",     400, "title",     0.35),
-    "Dress Circle":  H("#f6eef3", "none",     "rounded", "#8e3b6e", "#3d1a30", 0.8,  False, "round", "pl_seats",  "badge",      "bottom_center", "none", "serif",    400, "smallcaps", 0.45),
-    "Boot Hill":     H("#eef3ea", "hatch",    "heavy",   "#4c7a34", "#22361a", 1.3,  False, "sharp", "pl_hill",   "band_bottom","bottom_center", "none", "mono",     700, "title",     0.55),
-    "Skirt Point":   H("#fdf0ee", "diagonal", "thin",    "#c04a3a", "#4a1d17", 1.0,  True,  "sharp", "pl_point",  "pill",       "top_right",     "none", "sans",     700, "smallcaps", 0.65),
-    "Jacket Quay":   H("#eaf3f4", "grid",     "ticks",   "#1f7a84", "#12363b", 1.2,  False, "sharp", "pl_quay",   "band_top",   "top_center",    "none", "humanist", 400, "title",     0.75),
-    "Sock Hop":      H("#fff4d9", "none",     "double",  "#d98a1c", "#4d3208", 1.1,  False, "round", "pl_hop",    "mark_left",  "bottom_right",  "none", "humanist", 700, "title",     0.85, True),
-    "Shoe Lane":     H("#f1efe9", "dots",     "none",    "#6b5d4a", "#2b241a", 0.9,  False, "round", "pl_stones", "mark_above", "bottom_left",   "none", "mono",     400, "smallcaps", 0.95),
-    "Cardigan Bay":  H("#e9f1f8", "lines",    "rounded", "#2c6ea6", "#162f48", 0.85, False, "round", "pl_bay",    "mark_right", "top_left",      "none", "serif",    700, "smallcaps", 1.05, True),
-    "Blazer Court":  H("#efefef", "none",     "heavy",   "#2f3b4a", "#161c24", 1.4,  False, "sharp", "pl_court",  "badge",      "top_right",     "none", "sans",     700, "title",     1.15),
-    "Slipper Brook": H("#eef6f0", "diagonal", "thin",    "#3a8f6e", "#17382b", 0.8,  True,  "round", "pl_brook",  "pill",       "bottom_right",  "none", "serif",    400, "title",     1.25),
-    "Sandal Wood":   H("#f7efe3", "hatch",    "ticks",   "#a0693a", "#40250f", 1.0,  False, "sharp", "pl_rings",  "band_bottom","bottom_center", "none", "humanist", 700, "smallcaps", 1.35),
-    "Pump Lane":     H("#f0f3f9", "grid",     "none",    "#4a5fb0", "#1d2650", 1.2,  False, "sharp", "pl_spout",  "mark_left",  "bottom_center", "none", "mono",     700, "title",     1.45),
-    "Slip Road":     H("#f5f0f6", "none",     "thin",    "#7a4a9a", "#2e1a3d", 0.9,  False, "round", "pl_fork",   "mark_above", "bottom_right",  "none", "sans",     400, "smallcaps", 1.55),
+    "Jumper Lane":   H("rounded", "#8a5a2b", "#3a2a18", 1.0,  False, "round", "pl_lane",   "mark_left",  "top_left",      "none", "humanist", 700, "title",     0.15),
+    "Coat Hook":     H("double",  "#3b5b78", "#1f2f3f", 1.1,  False, "sharp", "pl_hook",   "mark_above", "top_center",    "none", "serif",    700, "title",     0.25),
+    "Shirt Mews":    H("none",    "#b5651d", "#4a2b10", 0.9,  False, "round", "pl_row",    "mark_right", "bottom_left",   "none", "sans",     400, "title",     0.35),
+    "Dress Circle":  H("rounded", "#8e3b6e", "#3d1a30", 0.8,  False, "round", "pl_seats",  "badge",      "bottom_center", "none", "serif",    400, "smallcaps", 0.45),
+    "Boot Hill":     H("heavy",   "#4c7a34", "#22361a", 1.3,  False, "sharp", "pl_hill",   "band_bottom","bottom_center", "none", "mono",     700, "title",     0.55),
+    "Skirt Point":   H("thin",    "#c04a3a", "#4a1d17", 1.0,  True,  "sharp", "pl_point",  "pill",       "top_right",     "none", "sans",     700, "smallcaps", 0.65),
+    "Jacket Quay":   H("ticks",   "#1f7a84", "#12363b", 1.2,  False, "sharp", "pl_quay",   "band_top",   "top_center",    "none", "humanist", 400, "title",     0.75),
+    "Sock Hop":      H("double",  "#d98a1c", "#4d3208", 1.1,  False, "round", "pl_hop",    "mark_left",  "bottom_right",  "none", "humanist", 700, "title",     0.85, True),
+    "Shoe Lane":     H("none",    "#6b5d4a", "#2b241a", 0.9,  False, "round", "pl_stones", "mark_above", "bottom_left",   "none", "mono",     400, "smallcaps", 0.95),
+    "Cardigan Bay":  H("rounded", "#2c6ea6", "#162f48", 0.85, False, "round", "pl_bay",    "mark_right", "top_left",      "none", "serif",    700, "smallcaps", 1.05, True),
+    "Blazer Court":  H("heavy",   "#2f3b4a", "#161c24", 1.4,  False, "sharp", "pl_court",  "badge",      "top_right",     "none", "sans",     700, "title",     1.15),
+    "Slipper Brook": H("thin",    "#3a8f6e", "#17382b", 0.8,  True,  "round", "pl_brook",  "pill",       "bottom_right",  "none", "serif",    400, "title",     1.25),
+    "Sandal Wood":   H("ticks",   "#a0693a", "#40250f", 1.0,  False, "sharp", "pl_rings",  "band_bottom","bottom_center", "none", "humanist", 700, "smallcaps", 1.35),
+    "Pump Lane":     H("none",    "#4a5fb0", "#1d2650", 1.2,  False, "sharp", "pl_spout",  "mark_left",  "bottom_center", "none", "mono",     700, "title",     1.45),
+    "Slip Road":     H("thin",    "#7a4a9a", "#2e1a3d", 0.9,  False, "round", "pl_fork",   "mark_above", "bottom_right",  "none", "sans",     400, "smallcaps", 1.55),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

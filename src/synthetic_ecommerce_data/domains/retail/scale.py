@@ -752,13 +752,15 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
 def _colors(tpl: dict, family: str | None, *key: object) -> list[str]:
     """A hero color of ``family``, then a seeded subset of the rest in template order. Each
     choice is a hash of ``key`` and the color (:func:`stable_ids.pick`), so a template that gains
-    a colorway changes a style's colors only where the new one wins."""
+    a colorway changes a style's colors only where the new one wins. The subset holds one color
+    at least when the template has two: a style of one color beside its brand's others read as
+    a product split by color (#851)."""
     swatches = tpl.get("color_options", ())
     if not swatches:
         return []
     hero = pick([c["color"] for c in swatches if _family(c) == family], *key, "hero")
     rest = [c["color"] for c in swatches if c["color"] != hero]
-    count = int(unit(*key, "count") * (len(rest) + 1))
+    count = max(int(unit(*key, "count") * (len(rest) + 1)), 1 if rest else 0)
     keep = set(sorted(rest, key=lambda c: number(*key, "keep", c))[:count])
     return [hero, *(c for c in rest if c in keep)]
 

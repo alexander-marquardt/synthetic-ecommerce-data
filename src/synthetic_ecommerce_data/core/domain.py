@@ -61,6 +61,9 @@ class Domain:
     #: Writes one spec into the domain's own type-keyed tables, refusing what they
     #: refuse; :func:`.typespec.register` writes core's around it.
     register_type: Callable[[TypeSpec], None] | None = None
+    #: Each of its drawn types' orientation, a key of :data:`.drawing.product_look.ORIENTATIONS`:
+    #: the set of angles its products' figures are turned by (#849).
+    orientations: Callable[[], Mapping[str, str]] = field(default=lambda: {})
 
 
 _DOMAINS: dict[str, Domain] = {}
@@ -99,6 +102,15 @@ def figure(type_key: str) -> tuple[Callable[..., Any], tuple[float, float]]:
         figures = d.figures()
         if type_key in figures:
             return figures[type_key]
+    raise KeyError(type_key)
+
+
+def orientation(type_key: str) -> str:
+    """The orientation of ``type_key`` (#849). ``KeyError`` when no domain names one."""
+    for d in _DOMAINS.values():
+        orientations = d.orientations()
+        if type_key in orientations:
+            return orientations[type_key]
     raise KeyError(type_key)
 
 

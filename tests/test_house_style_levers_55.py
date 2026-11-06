@@ -6,6 +6,8 @@ The issue's Done-when, one test group each:
   (``test_the_space_supports_the_brands_the_deepened_catalog_needs``);
 * the distinguishability rule is a test (the rule table, the book's pairs, the
   ink-to-paper contrast and the color-vision-deficiency checks);
+* since #849 no brand tints the paper or textures it: those two levers left the
+  space, and the capacity is what the three left measure;
 * the levers are drawn, text-free, and a brand that names none draws as before.
 """
 
@@ -20,7 +22,7 @@ import pytest
 from synthetic_ecommerce_data.core import brands, emit
 from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.drawing import distinguish as dist
-from synthetic_ecommerce_data.core.drawing import draw_sku, sheet, svg_problems
+from synthetic_ecommerce_data.core.drawing import draw_sku, product_look, sheet, svg_problems
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 MAX_DRAWING_BYTES = 8000  # tests/test_sku_drawings.py
@@ -67,10 +69,16 @@ def test_the_old_space_was_forty_eight_house_styles():
 def test_the_space_supports_the_brands_the_deepened_catalog_needs():
     """Done-when, line one. The count is the greedy pack of ``dist.pack()``, built
     WITHOUT the mark (brands that would share one), so it does not lean on the 45
-    marks, which are the other cap (``tests/test_brand_marks.py``)."""
+    marks, which are the other cap (``tests/test_brand_marks.py``).
+
+    #849 took the paper tint and the texture out of the space (every drawing sits on
+    one paper), and the levers left hold 110 (measured; 570 with the two), under
+    #53's 135. With the marks the space still holds them: every brand owns a mark,
+    and two marks are a strong lever."""
     assert dist.BRANDS_NEEDED == 135
-    assert dist.capacity() >= dist.BRANDS_NEEDED
+    assert dist.capacity() == 110
     assert dist.capacity() > len(brands.INKS) * len(brands.FRAMES)
+    assert dist.capacity_with_marks(len(brands.BRANDS)) >= dist.BRANDS_NEEDED
 
 
 def test_the_pack_is_a_set_of_pairwise_visibly_different_styles():
@@ -87,17 +95,17 @@ def test_the_pack_is_a_set_of_pairwise_visibly_different_styles():
 
 # --- the rule -------------------------------------------------------------------
 
-_BASE = dist.Style(ink=0, paper=0, frame=0, mark="m", outline=0, dash=0, margin=0, texture=0)
+_BASE = dist.Style(ink=0, frame=0, mark="m", outline=0, dash=0, margin=0)
 #: (name, changes to _BASE, visibly different?)
 RULE_TABLE = [
     ("identical", {}, False),
-    ("one weak lever: paper", {"paper": 1}, False),
+    ("one weak lever: margin", {"margin": 1}, False),
     ("one weak lever: outline", {"outline": 1}, False),
     ("two weak levers", {"outline": 1, "dash": 1}, False),
-    ("three weak levers", {"outline": 1, "dash": 1, "texture": 1}, True),
+    ("three weak levers", {"outline": 1, "dash": 1, "margin": 1}, True),
     ("a safe ink alone", {"ink": 1}, True),
     ("a confusable ink alone", {"ink": 3}, False),
-    ("a confusable ink and two weak levers", {"ink": 3, "paper": 1, "dash": 2}, True),
+    ("a confusable ink and two weak levers", {"ink": 3, "margin": 1, "dash": 2}, True),
     ("the frame alone", {"frame": 1}, True),
     ("the chamfered frame alone", {"frame": 4}, True),
     ("the mark alone", {"mark": "n"}, True),
@@ -123,14 +131,14 @@ def test_ink_zero_and_ink_three_are_the_confusable_pair_the_table_uses():
 
 def test_style_of_carries_a_brands_levers_to_the_rule(monkeypatch):
     brand = brands.BRANDS[0]
-    row = dataclasses.replace(brands.BY_NAME[brand], outline=1, dash=2, margin=1, texture=2)
+    row = dataclasses.replace(brands.BY_NAME[brand], outline=1, dash=2, margin=1)
     monkeypatch.setitem(brands.BY_NAME, brand, row)
     style = dist.style_of(brand)
-    assert (style.outline, style.dash, style.margin, style.texture) == (1, 2, 1, 2)
+    assert (style.outline, style.dash, style.margin) == (1, 2, 1)
 
 
 def test_every_pair_of_brands_in_the_book_is_visibly_different():
-    """The way the (ink, paper, frame) uniqueness was tested: every pair of the book."""
+    """The way the (ink, frame) uniqueness was tested: every pair of the book."""
     styles = {name: dist.style_of(name) for name in brands.BRANDS}
     clashes = [
         (a, b)
@@ -164,18 +172,16 @@ def _luminance(hex_color: str) -> float:
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
-def test_every_ink_holds_three_to_one_on_every_paper():
-    """The existing floor, held for every ink against EVERY paper tint, so a lever
-    that re-pairs a brand's ink and paper cannot drop under it."""
+def test_every_ink_holds_three_to_one_on_the_paper():
+    """The existing floor, held for every ink against the one paper (#849)."""
+    p = product_look.PAPER
     worst = min(
         (
             (_luminance(max(i, p, key=_luminance)) + 0.05)
             / (_luminance(min(i, p, key=_luminance)) + 0.05),
             i,
-            p,
         )
         for i in brands.INKS
-        for p in brands.PAPERS
     )
     assert worst[0] >= 3.0, worst
 
@@ -220,7 +226,6 @@ def test_the_levers_default_to_the_original_look():
     assert brands.WEIGHTS[0] == sheet.MIN_STROKE
     assert brands.DASHES[0] == ""
     assert brands.MARGINS[0] == 6.0
-    assert brands.TEXTURES[0] == "plain"
     _, _, data = _sample()
     for marker in (b"stroke-dasharray", b"tgrid", b"tdot"):
         assert marker not in data
@@ -233,8 +238,6 @@ def test_the_levers_default_to_the_original_look():
         pytest.param("outline", 2, b'stroke-width="3.7"', id="outline-heavy"),
         pytest.param("dash", 1, b'stroke-dasharray="3 2"', id="dash-dashed"),
         pytest.param("dash", 2, b'stroke-dasharray="6 2 1 2"', id="dash-chain"),
-        pytest.param("texture", 1, b'fill="url(#tgrid', id="texture-grid"),
-        pytest.param("texture", 2, b'fill="url(#tdot', id="texture-dot"),
     ],
 )
 def test_each_lever_changes_the_drawing_and_stays_text_free(lever, value, marker, monkeypatch):
@@ -315,6 +318,9 @@ def test_weights_are_above_the_floor_and_a_visible_step_apart_at_the_tile():
         '<path d="M0 0L1 1" stroke-dasharray="3 2 7"/>',
         '<path d="M0 0L1 1" fill="url(#tgridzzzzzz)"/>',
         '<path d="M0 0L1 1" fill="url(#tspiral1f6fb0)"/>',
+        # The textures' own ids, refused since no drawing draws one (#849).
+        '<path d="M0 0L1 1" fill="url(#tgrid1f6fb0)"/>',
+        '<pattern id="tdot1f6fb0"/>',
     ],
 )
 def test_the_allow_list_refuses_a_dash_or_texture_it_does_not_declare(planted):

@@ -43,11 +43,11 @@ hs.MARKS.update({"clover": m_clover, "spiral": m_spiral, "cushion": m_cushion, "
 
 # fmt: off
 STYLES = {
-    "Lucky Lemons":   H("#fffdf0", "dots",     "rounded", "#d8b320", "#3f3510", 1.0, False, "round", "clover",  "mark_left",  "top_left",      "none", "sans",     700, "title",     0.5),
-    "Going Bananas":  H("#fff9e8", "lines",    "thin",    "#e0a82e", "#4a3a10", 0.9, False, "round", "smile",   "mark_above", "bottom_center", "none", "humanist", 400, "title",     1.0),
-    "Couch Potatoes": H("#f6f1ea", "none",     "double",  "#8a6a45", "#3a2c1c", 1.1, False, "sharp", "cushion", "band_top",   "top_center",    "none", "serif",    700, "smallcaps", 1.0),
-    "Little Carrots": H("#fff2e8", "hatch",    "ticks",   "#d9732b", "#4a2410", 1.0, True,  "round", "acorn",   "badge",      "bottom_right",  "none", "sans",     400, "title",     0.0),
-    "Happy Onions":   H("#f8f1f6", "diagonal", "heavy",   "#a5568a", "#33182c", 1.2, False, "sharp", "spiral",  "pill",       "top_right",     "none", "mono",     700, "title",     0.5),
+    "Lucky Lemons":   H("rounded", "#d8b320", "#3f3510", 1.0, False, "round", "clover",  "mark_left",  "top_left",      "none", "sans",     700, "title",     0.5),
+    "Going Bananas":  H("thin",    "#e0a82e", "#4a3a10", 0.9, False, "round", "smile",   "mark_above", "bottom_center", "none", "humanist", 400, "title",     1.0),
+    "Couch Potatoes": H("double",  "#8a6a45", "#3a2c1c", 1.1, False, "sharp", "cushion", "band_top",   "top_center",    "none", "serif",    700, "smallcaps", 1.0),
+    "Little Carrots": H("ticks",   "#d9732b", "#4a2410", 1.0, True,  "round", "acorn",   "badge",      "bottom_right",  "none", "sans",     400, "title",     0.0),
+    "Happy Onions":   H("heavy",   "#a5568a", "#33182c", 1.2, False, "sharp", "spiral",  "pill",       "top_right",     "none", "mono",     700, "title",     0.5),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

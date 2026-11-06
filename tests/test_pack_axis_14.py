@@ -7,6 +7,7 @@ stays the single unit's drawing. ``quantity > 10`` is a range over the published
 
 from __future__ import annotations
 
+import math
 import re
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -156,25 +157,41 @@ def _card(quantity: int | None, product_type: str = MILL) -> bytes:
     return draw_sku(product_type, "Braddlestow", record)[0]
 
 
+def _turn(points, transform):
+    """``points`` as a ``rotate(angle cx cy)`` group places them on the sheet (#849)."""
+    angle, cx, cy = (float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", transform))
+    c, s = math.cos(math.radians(angle)), math.sin(math.radians(angle))
+    return [
+        (cx + (x - cx) * c - (y - cy) * s, cy + (x - cx) * s + (y - cy) * c) for x, y in points
+    ]
+
+
 def _outlines(data: bytes) -> list[list[tuple[float, float]]]:
     """The items a card draws behind its top one: the tilted four-cornered closed subpaths, in
-    sheet units. Nothing else on a sheet is one: a figure stands square to it, and the brand
+    sheet units (a figure turned by its product's angle sits in a ``rotate`` group, which is
+    applied). Nothing else on a sheet is one: a figure stands square to it, and the brand
     plate's slanted bars carry no stroke."""
     found: list[list[tuple[float, float]]] = []
-    for element in ET.fromstring(data).iter():
+
+    def walk(element, transform: str) -> None:
+        if element.tag.endswith("}g"):
+            transform = element.attrib.get("transform", transform)
         d = element.attrib.get("d", "")
         if (
-            not element.tag.endswith("path")
-            or "stroke" not in element.attrib
-            or element.attrib.get("fill", "").startswith("url")
+            element.tag.endswith("path")
+            and "stroke" in element.attrib
+            and not element.attrib.get("fill", "").startswith("url")
         ):
-            continue
-        for sub in re.findall(r"M[^MZ]*Z", d):
-            numbers = [float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", sub)]
-            points = list(zip(numbers[::2], numbers[1::2], strict=True))
-            square = len(points) != 4 or points[0][1] == points[1][1]
-            if not square and re.fullmatch(r"M[-\d. ]+(L[-\d. ]+){3}Z", sub):
-                found.append(points)
+            for sub in re.findall(r"M[^MZ]*Z", d):
+                numbers = [float(n) for n in re.findall(r"-?\d+(?:\.\d+)?", sub)]
+                points = list(zip(numbers[::2], numbers[1::2], strict=True))
+                square = len(points) != 4 or points[0][1] == points[1][1]
+                if not square and re.fullmatch(r"M[-\d. ]+(L[-\d. ]+){3}Z", sub):
+                    found.append(_turn(points, transform) if transform else points)
+        for child in element:
+            walk(child, transform)
+
+    walk(ET.fromstring(data), "")
     return found
 
 

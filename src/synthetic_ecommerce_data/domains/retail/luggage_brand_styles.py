@@ -49,9 +49,9 @@ hs.MARKS.update({"trunk": m_trunk, "luggage_tag": m_tag, "bearing": m_bearing})
 # fmt: off
 #: Brand -> house style: every one a lockup, so the wordmark is the brand field.
 STYLES = {
-    "Tarnwick":      H("#f2f1ec", "lines",    "thin",    "#6b4a2f", "#2d2118", 1.1,  False, "sharp", "trunk",       "mark_left",  "bottom_left",   "none", "sans",     700, "caps",  2.0),
-    "Fenmoor & Co":  H("#eef3f1", "none",     "rounded", "#2c6e63", "#17332e", 0.9,  False, "round", "luggage_tag", "mark_above", "top_right",     "none", "serif",    400, "title", 1.0, True),
-    "Skerry Travel": H("#f3f5fa", "dots",     "ticks",   "#2f4f8a", "#16233f", 1.0,  False, "round", "bearing",     "badge",      "bottom_center", "none", "humanist", 700, "smallcaps", 1.5),
+    "Tarnwick":      H("thin",    "#6b4a2f", "#2d2118", 1.1,  False, "sharp", "trunk",       "mark_left",  "bottom_left",   "none", "sans",     700, "caps",  2.0),
+    "Fenmoor & Co":  H("rounded", "#2c6e63", "#17332e", 0.9,  False, "round", "luggage_tag", "mark_above", "top_right",     "none", "serif",    400, "title", 1.0, True),
+    "Skerry Travel": H("ticks",   "#2f4f8a", "#16233f", 1.0,  False, "round", "bearing",     "badge",      "bottom_center", "none", "humanist", 700, "smallcaps", 1.5),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)
