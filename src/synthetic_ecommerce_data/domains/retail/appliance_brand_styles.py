@@ -104,14 +104,14 @@ hs.MARKS.update(
 # fmt: off
 #: Brand -> house style: five lockups (the wordmark is the brand field), three marks with a tag.
 STYLES = {
-    "Frostholm":      H("#eef4f8", "none",     "thin",    "#2f6f9a", "#17364d", 1.0,  False, "sharp", "frost_star",   "mark_left",  "top_left",      "none",      "sans",     700, "caps",      3.5),
-    "Brimwell":       H("#f6f3ec", "dots",     "rounded", "#a2562f", "#43251a", 1.1,  False, "round", "brim_bowl",    "mark_only",  "bottom_left",   "rect",      "humanist", 400, "title",     0.5),
-    "Tavorne":        H("#f1f4ee", "lines",    "double",  "#5b7f3a", "#26331a", 0.95, True,  "sharp", "pennant",      "mark_only",  "top_right",     "flag",      "serif",    700, "smallcaps", 2.5),
-    "Hollinmere":     H("#f2f0f5", "grid",     "heavy",   "#6a3f8c", "#2c1a3e", 1.05, False, "round", "holly",        "mark_above", "bottom_right",  "none",      "serif",    400, "title",     0.5),
-    "Cleavewick":     H("#faf2e8", "diagonal", "none",    "#c27a1c", "#4b2d0b", 0.9,  False, "sharp", "wick",         "mark_only",  "bottom_right",  "underline", "mono",     400, "lower",     3.5),
-    "Lunden & Voss":  H("#f0f1f3", "hatch",    "ticks",   "#3b4a5a", "#161c24", 1.2,  False, "round", "double_slash", "badge",      "top_center",    "none",      "sans",     400, "smallcaps", 4.0, True),
-    "GoodLook":       H("#f7f1ee", "dots",     "thin",    "#b33a3a", "#431616", 1.0,  False, "round", "lens_eye",     "mark_left",  "top_left",      "none",      "serif",    700, "title",     1.3, True),
-    "SingingSam":     H("#eef6f6", "hatch",    "double",  "#0f7c85", "#0a3034", 1.15, False, "round", "note_pair",    "band_bottom", "bottom_center", "none",     "humanist", 400, "caps",      2.0),
+    "Frostholm":      H("thin",    "#2f6f9a", "#17364d", 1.0,  False, "sharp", "frost_star",   "mark_left",  "top_left",      "none",      "sans",     700, "caps",      3.5),
+    "Brimwell":       H("rounded", "#a2562f", "#43251a", 1.1,  False, "round", "brim_bowl",    "mark_only",  "bottom_left",   "rect",      "humanist", 400, "title",     0.5),
+    "Tavorne":        H("double",  "#5b7f3a", "#26331a", 0.95, True,  "sharp", "pennant",      "mark_only",  "top_right",     "flag",      "serif",    700, "smallcaps", 2.5),
+    "Hollinmere":     H("heavy",   "#6a3f8c", "#2c1a3e", 1.05, False, "round", "holly",        "mark_above", "bottom_right",  "none",      "serif",    400, "title",     0.5),
+    "Cleavewick":     H("none",    "#c27a1c", "#4b2d0b", 0.9,  False, "sharp", "wick",         "mark_only",  "bottom_right",  "underline", "mono",     400, "lower",     3.5),
+    "Lunden & Voss":  H("ticks",   "#3b4a5a", "#161c24", 1.2,  False, "round", "double_slash", "badge",      "top_center",    "none",      "sans",     400, "smallcaps", 4.0, True),
+    "GoodLook":       H("thin",    "#b33a3a", "#431616", 1.0,  False, "round", "lens_eye",     "mark_left",  "top_left",      "none",      "serif",    700, "title",     1.3, True),
+    "SingingSam":     H("double",  "#0f7c85", "#0a3034", 1.15, False, "round", "note_pair",    "band_bottom", "bottom_center", "none",     "humanist", 400, "caps",      2.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

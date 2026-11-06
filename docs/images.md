@@ -50,7 +50,8 @@ every other drawing -- only the GEOMETRY is fixed.
   - every attribute must be one they use, and every attribute VALUE must fit
     its grammar: a paint is a color, `none` or a same-file hatch reference,
     never an external or `data:` URL;
-  - every id is a hatch's or texture's (`tgrid`, `tdot`); dasharray: book's only;
+  - every id is a hatch's (the background textures' `tgrid`, `tdot` are refused
+    since #849); dasharray: book's only;
   - no element but `<text>` may carry character data;
   - no comment, processing instruction, doctype or entity reference may
     appear, but the `&amp;` of a name like `Lark & Lathe`.
@@ -61,11 +62,38 @@ every other drawing -- only the GEOMETRY is fixed.
   `<foreignObject>`, an embedded raster, `@font-face`, a glyph path from any
   font -- each red `tests/test_sku_drawings.py`.
 * **Brands visibly different**, by house style and by mark: each brand owns
-  one (ink, frame) pair and an independent paper tint -- twelve inks, six
-  papers, four frames in use -- and one mark, consistent within a brand, never
-  random per product ([Brands](../README.md#brands)). Any two brands' marks, rasterised
+  one (ink, frame) pair -- twelve inks, four frames in use -- and one mark,
+  consistent within a brand, never random per product
+  ([Brands](../README.md#brands)). Every brand draws on the one paper, white,
+  with no texture (#849): a tinted paper read as a search signal.
+* **Products visibly different**: each product's figure is turned by its own
+  angle, a hash of its product id over the angles its type's orientation allows
+  (`core/drawing/product_look.py`, #849). Every SKU of a product shares it, so
+  a product's variants still read as one product, and two products of one type
+  from two brands no longer draw the same picture. Every type names one of
+  three orientations (`domains/industrial/orientation.py` by type,
+  `domains/retail/orientation.py` by drawn shape; a test refuses a type that
+  names none):
+
+  | Orientation | Angles | For |
+  |---|---|---|
+  | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
+  | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a sofa), and any type nobody was sure of |
+  | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
+
+  Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
   (`tests/test_brand_marks.py`; the closest pair measures 25).
+* **What every SKU of a product shares, and what is its own** (the maintainer's
+  ruling on #860; `tests/test_one_look_per_product_849.py` checks all three
+  over the golden catalog, the retail image release and the retail ceiling build):
+
+  | Same for every SKU of a product | Per SKU |
+  |---|---|
+  | outline color, frame, brand mark and name, angle | fill = the SKU's own color; a named part's color (a cushion's blue trim) drawn on that part |
+
+  A product with no color attribute (a screw) keeps its material or finish
+  fill, so all its SKUs look alike except for the size.
 * **A part longer than its type's extent is drawn BROKEN**, not shrunk: the
   shank is shortened between two drafting break lines, head and thread end
   kept, to a height that still grows with the true length. Each break line is

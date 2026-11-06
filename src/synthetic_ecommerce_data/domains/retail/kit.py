@@ -771,9 +771,9 @@ def _placed(
 
 def _render_styled(
     shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None,
-    copies=1,
+    copies=1, angle=0.0,
 ) -> str:
-    """:func:`render` in a brand's house style (see ``house_styles``)."""
+    """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``."""
     from synthetic_ecommerce_data.domains.retail import (
         house_styles as hs,  # deferred: house_styles is an optional layer over the kit
     )
@@ -786,13 +786,17 @@ def _render_styled(
     inner = size_ladder.stand(
         _placed(shape, drawn, overlay, shrink, copies, paint, uid), defs, size_scale
     )
+    product = hs.restyle(inner, style)
+    if angle:
+        full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid)
+        product = f'<g class="turn" transform="{hs.turn(full, defs, angle)}">{product}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     all_defs = defs + "".join(sheet_defs)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{all_defs}</defs>" if all_defs else "",
         *sheet,
-        f'<g class="product" transform="{hs.product_transform(style, brand)}">{hs.restyle(inner, style)}</g>',
+        f'<g class="product" transform="{hs.product_transform(style, brand)}">{product}</g>',
         f'<g class="brand">{"".join(overlay)}</g>',
         "</svg>",
     ]
@@ -861,6 +865,7 @@ def render(
     shrink: float = 1.0,
     size_scale: float | None = None,
     copies: int = 1,
+    angle: float = 0.0,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -873,6 +878,7 @@ def render(
     the scale the full-size drawing stands for on its product's size ladder (:mod:`size_ladder`,
     gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
     ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728).
+    ``angle`` turns a styled drawing by its product's angle (``house_styles.turn``, #849).
     """
     from synthetic_ecommerce_data.domains.retail import (
         size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
@@ -891,7 +897,7 @@ def render(
     if style is not None:
         return _render_styled(
             shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink,
-            size_scale, copies,
+            size_scale, copies, angle,
         )
     drawn = _drawn(draw, paint, fill, label, params)
     overlay = _print_overlay(shape, fill, drawn, paint, uid)
