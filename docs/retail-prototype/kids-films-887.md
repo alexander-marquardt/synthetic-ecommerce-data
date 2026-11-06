@@ -65,7 +65,9 @@ template build:
 - every film sells in five categories or more, with a Food & Drink item among them;
 - every description says `<film> movie`, and no title says "movie";
 - every film has both a description-only product and a titled one;
-- every film SKU has its own image file, drawn in SVG paths with no embedded image.
+- every film SKU has its own image file, drawn in SVG paths with no embedded image;
+- the other products of the types the films join are as main built them before the films
+  came (`tests/data/kids_films_887_neighbors.json`).
 
 The names follow the invented-brands rule (no real film titles). They were given by the
 maintainer and have not been checked on the web.
