@@ -13,6 +13,7 @@ readers, minutes; these tests hold its parts on fixed text:
 
 from __future__ import annotations
 
+import ast
 import re
 import sys
 from pathlib import Path
@@ -115,3 +116,42 @@ def test_the_proof_judges_the_census_bands_at_the_default_seed_only():
     end = argv.index("--")
     assert argv[end - 2 : end] == ["-m", "not default_seed_band"]
     assert argv[end + 1 :] == ["tests/test_price.py"]
+
+
+#: The tests that hold a census band or floor on one draw of the default seed, each red on seed
+#: 20260918 (``reseed_proof.py --seed 20260918``): the 2026-11-04T23:27 gate's Deliverables 1
+#: and 2 on #50, with the brand share floor of ``test_catalog_brands_voice`` that went red since.
+#: Multi-seed robustness of these rows is its own issue.
+DEFAULT_SEED_BANDS = {
+    "tests/test_price.py::test_every_price_row_is_within_its_band_or_pinned_at_the_default_size",
+    "tests/test_price.py::test_scaling_every_price_breaks_every_p50_row",
+    "tests/test_price.py::test_widening_or_narrowing_each_types_spread_breaks_its_spread_row",
+    "tests/test_price.py::test_the_kit_p90_p10_is_in_band_at_100k",
+    "tests/test_price.py::test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k",
+    "tests/test_set_screw_length_row_in_band_69b.py::test_a_set_screws_size_and_length_rows_are_both_in_band",
+    "tests/test_declared_copy_roles_75.py::test_a_set_screw_reads_its_declared_period_for_the_fine_pitch_near_miss",
+    "tests/test_pack_quantity.py::test_the_builds_median_pack_is_the_census_median",
+    "tests/test_catalog_brands_voice.py::test_each_type_keeps_its_distinct_spec_floor_at_100k",
+    "tests/test_catalog_brands_voice.py::test_no_brand_holds_a_tenth_of_100k_or_under_three_in_a_thousand",
+}
+
+
+def _marked(path: Path) -> set[str]:
+    """The tests of ``path`` that carry ``@pytest.mark.default_seed_band``, read from its source."""
+    tree = ast.parse(path.read_text("utf-8"))
+    return {
+        f"tests/{path.name}::{node.name}"
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and any(
+            reseed_proof.DEFAULT_SEED_BAND in ast.unparse(decorator)
+            for decorator in node.decorator_list
+        )
+    }
+
+
+def test_the_tests_judged_at_the_default_seed_only_are_the_census_bands_and_floors():
+    """A band row the proof leaves out is one the ruling names, and each one it names is out:
+    a new mark is a reviewed change to this list, never a way to quiet a moved seed."""
+    marked = set().union(*(_marked(path) for path in sorted((REPO / "tests").glob("test_*.py"))))
+    assert marked == DEFAULT_SEED_BANDS
