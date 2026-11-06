@@ -20,7 +20,7 @@ denominator rather than against the whole corpus.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import replace
 from fractions import Fraction
 from typing import Literal, TypeVar
@@ -267,8 +267,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         #: line-level facts, set per line by :meth:`_finish_line`.
         self._voice: Voice | None = None
         self._line_facts: dict[str, str] = {}
-        #: The attribute names the SKU being titled publishes.
-        self._published: set[str] = set()
+        #: The attributes the SKU being titled publishes: name -> its published value.
+        self._published: dict[str, str] = {}
         self.counters: dict[str, int] = {} if counters is None else counters
         self._rotations: dict[str, int] = {}
         #: Builder choices a must-stock entry fixes (:mod:`.muststock`); empty
@@ -277,6 +277,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         #: The ``(count, weight)`` table :meth:`_variant_count` draws from: the
         #: global knob, or the type's own table during the grouped pass (#710).
         self._variant_table = self.config.variants_per_product
+        #: Whether a run line sells each size at several length classes (:data:`.grouped.REACH`):
+        #: on during the grouped pass only, so no flat, must-stock or pack line moves (#850).
+        self._reach_axis = False
 
     # -- bookkeeping ----------------------------------------------------
 
@@ -527,60 +530,108 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             chosen = [pool_of[(start + offset) % len(pool_of)] for offset in range(window)]
             rng.shuffle(chosen)
 
-        for dia in chosen:
-            child = ChildDraft(system=system)
-            if metric:
-                dia_mm = float(dia)
-                if shanks_match:
-                    shank_mm = series.nearest_shank_metric(dia_mm)
-                else:
-                    ratio = float(_weighted(rng, series.OBSERVED_SHANK_RATIOS))  # type: ignore[arg-type]
-                    # Never smaller than the cutting diameter: a ratio below 1
-                    # (the census carries 0.833 and 0.75) is read as "the next
-                    # shank up", and a snap that lands below it goes up too.
-                    shank_mm = series.larger_shank_metric(dia_mm, dia_mm * max(ratio, 1.0))
-                geom = series.build_metric(dia_mm, length_class, multiple, shank_mm)
-            else:
-                dia_fr = Fraction(dia)
-                if shanks_match:
-                    shank_fr = series.nearest_shank_imperial(float(dia_fr))
-                else:
-                    ratio = float(_weighted(rng, series.OBSERVED_SHANK_RATIOS))  # type: ignore[arg-type]
-                    shank_fr = series.larger_shank_imperial(
-                        float(dia_fr), float(dia_fr) * max(ratio, 1.0)
-                    )
-                geom = series.build_imperial(dia_fr, length_class, multiple, shank_fr)
+        # A run line sells each diameter at its neighboring length classes (#850), so a
+        # query naming the diameter reaches several SKUs of the line, not one.
+        classes = [(length_class, multiple)]
+        if self._reach_axis and type_key in grouped.REACH and "length_multiple" not in self._pins:
+            draft.reach = int(_weighted(rng, grouped.REACH[type_key]))  # type: ignore[arg-type]
+            if draft.reach > 1:
+                classes = self._table_run(
+                    f"reach:{type_key}", list(series.LENGTH_CLASSES), draft.reach
+                )
+                # Two lengths of cut do not fit the overall length of a long class, so its
+                # drawing refuses a double-ended tool and draws the diameter alone: the
+                # lengths of a size would then draw alike. The draw above is still taken.
+                draft.line_attrs = [
+                    keyword_attribute("Single End/Double End", "Single End")
+                    if a.name == "Single End/Double End"
+                    else a
+                    for a in draft.line_attrs
+                ]
 
-            style = self._style(system)
-            cut_name = "Milling Dia."
-            child.primary = self._length(cut_name, geom.cutting_dia_in, style)
-            shank = self._length("Shank Dia.", geom.shank_dia_in, style)
-            loc = self._length("Length of Cut", geom.length_of_cut_in, style)
-            oal = self._length("Overall Length", geom.overall_length_in, style)
-            child.attrs = [child.primary, shank, loc, oal]
-            child.secondary = {
-                "length_of_cut": loc,
-                "other_length": oal,
-            }
-            # Unconditionally computed and appended, like Milling Dia./Shank
-            # Dia./Length of Cut/Overall Length above: WHETHER either publishes
-            # is decided once, centrally, by ``_apply_sparsity`` reading the
-            # census presence rate off VOCAB. A second probabilistic gate here
-            # used to duplicate that decision at the SAME rate VOCAB declares,
-            # squaring the presence instead of reproducing it -- 0.22 and 0.18
-            # made Corner Radius and Neck Length land at ~5%/~3% of end mills
-            # instead of the measured 40%/27%
-            # (alexander-marquardt/synthetic-ecommerce-data#39).
-            neck_in = geom.length_of_cut_in * rng.uniform(1.05, 1.4)
-            neck = self._length("Neck Length", neck_in, style)
-            child.attrs.append(neck)
-            child.secondary["neck"] = neck
-            radius_in = geom.cutting_dia_in / rng.choice((8.0, 16.0, 32.0))
-            child.attrs.append(self._length("Corner Radius", radius_in, style))
-            # The "flute" class of misleading title token: a flute length that
-            # is not the cutting diameter.
-            child.secondary["flute"] = loc
-            draft.children.append(child)
+        # A reach line's tool at one diameter is one tool in several lengths: its shank and corner
+        # radius are the diameter's, and its neck follows its length of cut. A line of one class
+        # draws each per SKU, as it always did, so no draw of it moves.
+        held: dict[object, float] = {}
+
+        def drawn(scope: object, draw: Callable[[], float]) -> float:
+            if len(classes) == 1:
+                return draw()
+            if scope not in held:
+                held[scope] = draw()
+            return held[scope]
+
+        for dia in chosen:
+            for length_class, multiple in classes:
+                child = ChildDraft(system=system)
+                if metric:
+                    dia_mm = float(dia)
+                    if shanks_match:
+                        shank_mm = series.nearest_shank_metric(dia_mm)
+                    else:
+                        ratio = drawn(
+                            ("ratio", dia),
+                            lambda: float(_weighted(rng, series.OBSERVED_SHANK_RATIOS)),  # type: ignore[arg-type]
+                        )
+                        # Never smaller than the cutting diameter: a ratio below 1
+                        # (the census carries 0.833 and 0.75) is read as "the next
+                        # shank up", and a snap that lands below it goes up too.
+                        shank_mm = series.larger_shank_metric(dia_mm, dia_mm * max(ratio, 1.0))
+                    geom = series.build_metric(dia_mm, length_class, multiple, shank_mm)
+                else:
+                    dia_fr = Fraction(dia)
+                    if shanks_match:
+                        shank_fr = series.nearest_shank_imperial(float(dia_fr))
+                    else:
+                        ratio = drawn(
+                            ("ratio", dia),
+                            lambda: float(_weighted(rng, series.OBSERVED_SHANK_RATIOS)),  # type: ignore[arg-type]
+                        )
+                        shank_fr = series.larger_shank_imperial(
+                            float(dia_fr), float(dia_fr) * max(ratio, 1.0)
+                        )
+                    geom = series.build_imperial(dia_fr, length_class, multiple, shank_fr)
+
+                style = self._style(system)
+                cut_name = "Milling Dia."
+                child.primary = self._length(cut_name, geom.cutting_dia_in, style)
+                shank = self._length("Shank Dia.", geom.shank_dia_in, style)
+                loc = self._length("Length of Cut", geom.length_of_cut_in, style)
+                oal = self._length("Overall Length", geom.overall_length_in, style)
+                child.attrs = [child.primary, shank, loc, oal]
+                if len(classes) > 1:
+                    # Its title names the length of cut: the diameter alone is a sibling's too.
+                    child.also = loc
+                child.secondary = {
+                    "length_of_cut": loc,
+                    "other_length": oal,
+                }
+                # Unconditionally computed and appended, like Milling Dia./Shank
+                # Dia./Length of Cut/Overall Length above: WHETHER either publishes
+                # is decided once, centrally, by ``_apply_sparsity`` reading the
+                # census presence rate off VOCAB. A second probabilistic gate here
+                # used to duplicate that decision at the SAME rate VOCAB declares,
+                # squaring the presence instead of reproducing it -- 0.22 and 0.18
+                # made Corner Radius and Neck Length land at ~5%/~3% of end mills
+                # instead of the measured 40%/27%
+                # (alexander-marquardt/synthetic-ecommerce-data#39).
+                neck_in = geom.length_of_cut_in * drawn("neck", lambda: rng.uniform(1.05, 1.4))
+                neck = self._length("Neck Length", neck_in, style)
+                child.attrs.append(neck)
+                child.secondary["neck"] = neck
+                radius_in = geom.cutting_dia_in / drawn(
+                    ("radius", dia), lambda: rng.choice((8.0, 16.0, 32.0))
+                )
+                corner = self._length("Corner Radius", radius_in, style)
+                # A ball nose has no corners, and its drawing refuses a stated radius and falls
+                # back to the diameter alone: the lengths of one size would then draw alike. A
+                # line of one length keeps the radius it always stated (#850).
+                if len(classes) == 1 or type_key != "end_mill_ball":
+                    child.attrs.append(corner)
+                # The "flute" class of misleading title token: a flute length that
+                # is not the cutting diameter.
+                child.secondary["flute"] = loc
+                draft.children.append(child)
         return draft
 
     def _build_drill(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
@@ -1213,7 +1264,11 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         builder = self._builder()
         (category,) = taxonomy.LEAVES[key]
         added: list[ProductLine] = []
+        # The budget counts a line's sizes, not its length classes: a line that sells each size
+        # at two lengths of cut is still one run, and the type keeps its number of runs (#850).
+        sizes = 0.0
         own_rng = self.rng
+        self._reach_axis = True
 
         try:
             for entry in grouped.TARGETS:
@@ -1239,10 +1294,11 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                     line = self._finish_line(key, draft, self.minter.next_index())
                     if line is not None and _stocks(entry, [line]):
                         added.append(line)
+                        sizes += len(line.children) / draft.reach
                         have += 1
             self.rng = typespec.type_rng(self.config.seed, f"{key}:grouped")
             for _ in range(grouped.MAX_ATTEMPTS):
-                if _sku_total(lines) + _sku_total(added) >= budget:
+                if _sku_total(lines) + sizes >= budget:
                     break
                 draft = builder(self, key, category)
                 if key in grouped.SPEC_BOUND and not self._run_keeps(key, draft):
@@ -1251,8 +1307,10 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 line = self._finish_line(key, draft, self.minter.next_index())
                 if line is not None:
                     added.append(line)
+                    sizes += len(line.children) / draft.reach
         finally:
             self.rng = own_rng
+            self._reach_axis = False
         self._bump("grouped_lines", len(added))
         return added
 

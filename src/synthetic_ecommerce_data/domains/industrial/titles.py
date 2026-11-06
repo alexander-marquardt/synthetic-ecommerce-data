@@ -98,11 +98,13 @@ class TitleMixin:
             return []
         style = self._title_style(draft.brand, draft.type_key)
         self._bump("title_token")
-        # Named only when the record publishes it, like a secondary.
+        # Named only when the record publishes it, like a secondary, and as it publishes it: a
+        # unit-mixing defect (:mod:`.defects`) may restate it, and on a line that sells a size
+        # at several lengths (#850) it is what tells the SKU from its size's other lengths.
         also = (
             [
                 Segment(
-                    value=child.also.value,
+                    value=self._published[child.also.name],
                     label=self._label_for(child.also.name),
                     attribute=child.also.name,
                 )
@@ -119,7 +121,9 @@ class TitleMixin:
             ),
             *also,
         ]
-        if style == "secondary":
+        # A named ``also`` is the title's second dimension already: a second one would name
+        # the length of cut twice, or push the line's facts past the cap (#850).
+        if style == "secondary" and not also:
             # The pair's secondary dimension, fixed like its style: the pair
             # ranks the secondary classes once, and each title names the
             # first one THIS record publishes. It used to pick by
