@@ -62,14 +62,30 @@ def built():
 
 def test_only_a_reduced_neck_lines_tools_state_a_neck_and_each_that_fits_does(clean) -> None:
     """The line is the mark: a reduced-neck line states the neck on every tool a reach fits,
-    and a line that is not one states it on none."""
+    and a line that is not one states it on none. On a line of several lengths the neck is the
+    next reach past the length of cut, and it (or its absence) follows that axis alone, so it is
+    no third choice on the product page (#850)."""
     skus = [attrs for _, _, line in clean for attrs in line]
-    marked_lines = 0
+    marked_lines = reach_lines = 0
     for _, product_id, line in clean:
         stating = [NECK in attrs for attrs in line]
         if not any(stating):
             continue
         marked_lines += 1
+        cuts: dict[str, set[str]] = {}
+        for attrs in line:
+            cuts.setdefault(attrs["Milling Dia."].value, set()).add(attrs["Length of Cut"].value)
+        if any(len(lengths) > 1 for lengths in cuts.values()):
+            reach_lines += 1
+            by_cut: dict[str, set[str | None]] = {}
+            for attrs in line:
+                neck = attrs.get(NECK)
+                by_cut.setdefault(attrs["Length of Cut"].value, set()).add(neck and neck.value)
+                geom = _geometry(attrs)
+                if neck is not None and geom is not None:
+                    assert neck.value_num == pytest.approx(series.neck_lengths(geom)[0])
+            assert all(len(necks) == 1 for necks in by_cut.values()), (product_id, by_cut)
+            continue
         for attrs, states in zip(line, stating, strict=True):
             geom = _geometry(attrs)
             if geom is None:
@@ -77,7 +93,7 @@ def test_only_a_reduced_neck_lines_tools_state_a_neck_and_each_that_fits_does(cl
             fits = bool(series.neck_lengths(geom))
             assert states == fits, (product_id, attrs["Milling Dia."].value)
     with_neck = sum(NECK in attrs for attrs in skus)
-    assert marked_lines and with_neck
+    assert marked_lines and reach_lines and with_neck
     # Near the census's 0.2727 of end mills, and well under every tool.
     assert 0.18 < with_neck / len(skus) < 0.36, (with_neck, len(skus))
     for key in END_MILLS:
@@ -97,14 +113,34 @@ def test_a_stated_neck_is_a_standard_reach_the_tool_fits_in_its_length_of_cuts_u
             assert not re.search(r"\.\d{3,}", neck.value), (product_id, neck.value)
             standard = STANDARD_MM_IN if unit == "mm" else STANDARD_IN
             assert any(abs(neck.value_num - size) < 1e-6 for size in standard), neck.value
+            dia = attrs["Milling Dia."].value_num
+            most = series.REDUCED_NECK_MAX_DIA_MM / series.MM_PER_INCH if unit == "mm" else 0.5
+            assert dia <= most + 1e-9, (product_id, attrs["Milling Dia."].value)
+            assert attrs["Length of Cut"].value_num < neck.value_num <= 10 * dia + 1e-9, (
+                product_id,
+                loc,
+                neck.value,
+            )
             geom = _geometry(attrs)
             if geom is not None:
+                grip = geom.overall_length_in - series.NECK_GRIP_SHANKS * geom.shank_dia_in
+                assert neck.value_num <= grip + 1e-9, (product_id, neck.value)
                 assert any(abs(neck.value_num - s) < 1e-6 for s in series.neck_lengths(geom)), (
                     product_id,
                     attrs["Milling Dia."].value,
                     loc,
                     neck.value,
                 )
+
+
+def test_tools_of_one_diameter_are_sold_at_several_reaches(clean) -> None:
+    """The tool's own draw picks among the sizes that fit, not the shortest every time."""
+    reaches: dict[str, set[str]] = {}
+    for _, _, line in clean:
+        for attrs in line:
+            if NECK in attrs:
+                reaches.setdefault(attrs["Milling Dia."].value, set()).add(attrs[NECK].value)
+    assert max(len(values) for values in reaches.values()) >= 4, reaches
 
 
 def test_a_neck_is_at_least_the_length_of_cut_and_shorter_than_the_tool(clean) -> None:

@@ -177,17 +177,12 @@ IDENTIFIER_DISPERSION = 0.5
 #:
 #: THE BAND IS OVER THE FACETED ONES, and saying so is the correction rather
 #: than the update. Two quantitative attributes are NOT faceted, and one of
-#: them, ``Neck Length``, has a dispersion near 1 -- nearly every value
-#: distinct, a real continuum. Dispersion does not make THAT one a list;
-#: :data:`MIN_PRESENCE` does (it is present on well under half of end-mill
-#: documents -- ``min_presence_arm_share`` in the figures). A band quoted over
-#: all quantitative attributes runs to near 1 and credits the wrong threshold
-#: with an outcome :data:`MIN_PRESENCE` produced. Applying Neck Length's
-#: census presence rate once instead of twice
-#: (alexander-marquardt/synthetic-ecommerce-data#39) is what moved it
-#: from below :data:`RANGE_MIN_DOCS` to below :data:`MIN_PRESENCE` instead --
-#: still off a slider, now for the floor that actually fits a category-scoped
-#: attribute this rare.
+#: them, ``Neck Length``, had a dispersion near 1 -- nearly every value
+#: distinct -- until it became a standard reach (#859). Dispersion did not
+#: make it a list; :data:`MIN_PRESENCE` does (it is present on well under half
+#: of end-mill documents), and still does now that it is a list of a few dozen
+#: sizes. A band quoted over all quantitative attributes ran to near 1 and
+#: credited the wrong threshold with an outcome :data:`MIN_PRESENCE` produced.
 #:
 #: **This rule is derived on purpose, and must not be reimplemented as
 #: "industrial uses keyword".** Grocery migrates onto the same machinery
@@ -245,7 +240,7 @@ RANGE_DISPERSION = 0.5
 #: (``held_by_floor`` in :func:`dispersion_figures`). Across the whole build
 #: it keeps two breadth-category terms facets offered that the ratio alone
 #: would withhold, ``Style`` (11 values on 13 products) and ``Color`` (2 on
-#: 2). ``Neck Length`` clears it and is kept off a slider by
+#: 2). ``Neck Length`` clears it and is kept off the sidebar by
 #: :data:`MIN_PRESENCE`.
 RANGE_MIN_DOCS = 250
 
