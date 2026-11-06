@@ -114,6 +114,24 @@ def test_the_planted_incoherence_alone_is_reported_in_the_title_too() -> None:
     assert len(problems) == 1 and "'Grade 5'" in problems[0]
 
 
+def _glasses(pid: str, frame: str, lens: str, text: str) -> dict[str, Any]:
+    doc = _doc(pid, "frame_color", frame, "plain")
+    lens_color = [{"key": "lens_color", "value": lens}]
+    doc["variants"] = [{"sku": f"{pid}-1", "attributes": lens_color, "description": text}]
+    return doc
+
+
+def test_a_variant_description_may_name_that_variants_own_value() -> None:
+    """gen#834: a black frame's "Blue Mirror" lens is the variant's own value, not the "Blue"
+    frame of another pair; the same text on a clear-lens variant still contradicts the frame."""
+    other = _glasses("O-1", "Blue", "Clear", "plain")
+    own = _glasses("P-1", "Black", "Blue Mirror", "Safety Glasses - Blue Mirror Lens Color.")
+    assert standard.text_contradictions(own, standard.value_pools([own, other])) == []
+    planted = _glasses("P-1", "Black", "Clear", "Safety Glasses - Blue Mirror Lens Color.")
+    problems = standard.text_contradictions(planted, standard.value_pools([planted, other]))
+    assert len(problems) == 1 and "'Blue'" in problems[0] and "frame_color" in problems[0]
+
+
 # -- the industrial golden -------------------------------------------------------------------
 
 
