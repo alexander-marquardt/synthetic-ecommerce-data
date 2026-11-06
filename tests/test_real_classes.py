@@ -466,9 +466,17 @@ def test_a_drawing_change_keeps_the_fingerprint_and_a_title_change_alters_it() -
     assert "drawing" not in rc.index_body()["mappings"]["properties"]
     redrawn = [{**d, "drawing": {**d["drawing"], "base": "#000000"}} for d in CORPUS]
     retitled = [{**CORPUS[0], "title": CORPUS[0]["title"] + " Deluxe"}, *CORPUS[1:]]
+    reswatched = [
+        {**d, "color_options": [{**c, "hex": "#000000"} for c in d["color_options"]]}
+        if "color_options" in d
+        else d
+        for d in CORPUS
+    ]
     assert rc.fingerprint(redrawn) == rc.fingerprint(CORPUS)
+    assert rc.fingerprint(reswatched) == rc.fingerprint(CORPUS)
     assert rc.fingerprint(retitled) != rc.fingerprint(CORPUS)
     assert rc.verdicts(PROOF, redrawn) == []
+    assert rc.verdicts(PROOF, reswatched) == []
     assert rc.verdicts(PROOF, retitled) == [
         "the proof was taken over another catalog: re-run es_proof.py"
     ]

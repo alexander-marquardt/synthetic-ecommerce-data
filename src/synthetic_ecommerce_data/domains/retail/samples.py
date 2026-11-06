@@ -16,6 +16,7 @@ audience). Round 2's records live in ``samples_round2``.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.core import size_charts
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.kit_produce import pile_params
 
 #: The closed list a record's ``department`` values come from.
@@ -100,14 +101,14 @@ def sizes(
 # --------------------------------------------------------------------------
 
 COLORS = {
-    "Navy": "#26365c",
+    "Navy": dark_blues.NAVY,
     "White": "#ffffff",
     "Ecru": "#efe7d4",
     "Olive": "#6b7240",
     "Sky Blue": "#9cc3e6",
     "Leopard": "#d9a95b",
     "Red": "#c8312e",
-    "Indigo": "#34466e",
+    "Indigo": dark_blues.INDIGO,
     "Black": "#2a2a2e",
     "Stone": "#cdbb98",
     "Tan": "#b07a45",

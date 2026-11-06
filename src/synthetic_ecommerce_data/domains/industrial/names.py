@@ -201,6 +201,14 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "a knit glove shell's stitches per inch, the Gauge column of a cut glove guide; the"
         " census's Gauge is a screw's wire gauge, another measurement"
     ),
+    "Lens Color": (
+        "a spectacle lens's tint, the Lens Color option of a safety-eyewear maker's product"
+        " feed; the census's Color is one color per part, and a pair has two"
+    ),
+    "Frame Color": (
+        "a spectacle frame's color, the Body Color option of a safety-eyewear maker's product"
+        " feed; the census's Color is one color per part, and a pair has two"
+    ),
     "Base to Center Height": (
         "a pillow block's mounting face to its shaft centre; the census has Height and"
         " Overall Height, which are other measurements"

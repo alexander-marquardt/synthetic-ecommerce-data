@@ -37,6 +37,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     feature_decoys,
     fruit_word_brand_styles,  # noqa: F401 -- registers the five house styles
 )
@@ -55,7 +56,7 @@ OWNERS.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 BRAND_OWNER.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
-NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = ("#26365c", "#efe8d8", "#c9a34a", "#3c8d4f",
+NAVY, CREAM, GOLD, GREEN, BROWN, PINK, NUDE = (dark_blues.NAVY, "#efe8d8", "#c9a34a", "#3c8d4f",
                                                "#6b4a2e", "#e8b9b3", "#e3c1a5")  # fmt: skip
 YELLOW, PURPLE, CLEAR, ORANGE = "#f2d14b", "#7a5a9e", "#e3eef0", "#e07a1f"
 COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY, "Navy": NAVY,

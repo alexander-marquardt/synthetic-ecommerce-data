@@ -319,7 +319,7 @@ A product's sizes are still apart (gen#719): `draw_product` draws the fixed shap
 `breadth_rungs.ratios` of the type's scale, the size's rank in the product's own ladder on the
 one rule retail reads (`core/size_rungs.py`), from 55/90 of the full drawing (the smallest) to
 all of it (the largest). The rank says bigger or smaller and no dimension. A row whose size
-attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a color, a type, a piece count, a
+attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a type, a piece count, a
 rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
 already a longer drawing, and a rank on top would shrink it twice.
 

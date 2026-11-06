@@ -704,6 +704,7 @@ DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
     "hex_pipe_nipples": (81, 3.33, 5.2, 16.24),
     "rigid_casters": (157, 20.744, 76.2, 351.85),
     "roller_chain": (71, 74.1, 358.0, 773.0),
+    "safety_glasses": (74, 5.0, 8.605, 24.26),
     "threaded_rod": (248, 6.511, 33.52, 140.855),
 }
 
@@ -721,7 +722,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "foam_ear_plugs": (3.152, 95.675, 175.9),
     "hand_files": (4.409, 21.43, 24.9),
     "hose_clamps": (13.492, 34.95, 43.43),
-    "safety_glasses": (5.0, 8.605, 24.26),
     "u_bolts": (3.454, 10.68, 23.918),
     "v_belts": (7.707, 23.465, 103.945),
     "wedge_anchors": (41.05, 117.775, 251.625),
