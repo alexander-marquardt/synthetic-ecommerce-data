@@ -1,4 +1,4 @@
-"""The merchandise of seven invented kids' films, named only in the product text (gen#887).
+"""The merchandise of twelve invented kids' films, named only in the product text (gen#887, #905).
 
 A film's name is a phrase a shopper types (``plaything story mug``) that no structured field
 holds: the products keep their makers' brands, no series and their types' categories. These tests
@@ -26,6 +26,11 @@ FILMS = (
     "Little Tiny Queen",
     "Home Without Anybody",
     "The Blue Balloon",
+    "The Toy Movie",
+    "Frozen Story",
+    "The Home Run",
+    "The Lady in High Heels",
+    "The Haunted Dollhouse",
 )
 #: The fewest categories (leaves) each film sells in.
 MIN_CATEGORIES = 5
@@ -45,7 +50,7 @@ def _of(catalog: list[dict], film: str) -> list[dict]:
     return [d for d in catalog if _names(d, film)]
 
 
-def test_the_film_list_is_the_seven_invented_films() -> None:
+def test_the_film_list_is_the_twelve_invented_films() -> None:
     assert tuple(kids_films.FILMS) == FILMS
 
 
@@ -80,8 +85,8 @@ def test_each_film_sells_in_five_categories_and_a_grocery_one(catalog, film) -> 
 @pytest.mark.parametrize("film", FILMS)
 def test_every_description_calls_the_film_a_movie_and_no_title_does(catalog, film) -> None:
     for d in _of(catalog, film):
-        assert f"{film} {kids_films.MOVIE}".lower() in d["description"].lower(), d["product_id"]
-        assert kids_films.MOVIE not in d["title"].lower(), d["product_id"]
+        assert kids_films.called_a_movie(film).lower() in d["description"].lower(), d["product_id"]
+        assert kids_films.MOVIE not in d["title"].lower().replace(film.lower(), ""), d["product_id"]
 
 
 @pytest.mark.parametrize("film", FILMS)

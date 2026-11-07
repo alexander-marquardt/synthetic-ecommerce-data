@@ -39,9 +39,31 @@ FILMS: dict[str, str] = {
     "Little Tiny Queen": "LQ",
     "Home Without Anybody": "HW",
     "The Blue Balloon": "BB",
+    "The Toy Movie": "TM",
+    "Frozen Story": "FS",
+    "The Home Run": "HR",
+    "The Lady in High Heels": "LH",
+    "The Haunted Dollhouse": "HD",
+}
+#: The films whose name holds a category word (gen#905), each with the words of the categories it
+#: names (High Heels names every shoe). A film sells nothing in a category whose path holds one of
+#: its words: the name is its only link to that category, so a search for it must not filter to
+#: the category.
+NAMED_CATEGORIES: dict[str, tuple[str, ...]] = {
+    "The Toy Movie": ("toy",),
+    "Frozen Story": ("frozen",),
+    "The Home Run": ("home", "run"),
+    "The Lady in High Heels": ("heel", "shoe"),
+    "The Haunted Dollhouse": ("doll",),
 }
 #: The word every description puts after the film's name.
 MOVIE = "movie"
+
+
+def called_a_movie(film: str) -> str:
+    """What a description of ``film`` says to call it a movie: the name and :data:`MOVIE`, or the
+    name alone when it already ends in Movie (``The Toy Movie``)."""
+    return film if film.lower().endswith(MOVIE) else f"{film} {MOVIE}"
 
 breadth_rows.OWNERS.update({b: BRAND_OWNER[b] for b in ("Crofter's Bakehouse",) if b not in breadth_rows.OWNERS})
 
