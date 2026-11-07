@@ -51,9 +51,52 @@ mug.
   "Movie" is part of one name, The Toy Movie, so its descriptions say "from The Toy Movie"
   rather than "The Toy Movie movie", and its titles say "Movie" only inside the name
   (`kids_films.called_a_movie`).
-- **The Blue Balloon products that have a color sell Blue**, so a title that names Blue names a
-  color the product has, and the output standard's text check passes them as it passes any other
-  product.
+- **The Blue Balloon comes in many colors, not mostly blue** (gen#904): a red mug, a yellow
+  tee, a green sweatshirt, a white duvet set, blue party cups and red party bags. Each colored
+  product has one color and its title names it ("The Blue Balloon Red Stoneware Mug"), so
+  `the blue balloon` has to stay a name and not become the color Blue: one of its twelve
+  colored SKUs is blue. A title that names one of the product's own colors is one the output
+  standard's text check passes, as it passes any other product.
+
+## The emblems (gen#904)
+
+Each film has one emblem, printed on every product it sells, so the hits of a film search can be
+seen to belong together. The emblems are original drawings in SVG paths
+(`src/synthetic_ecommerce_data/domains/retail/film_emblems.py`), each a round badge: a white
+disc in a dark ring with the film's picture in it.
+
+| Film | Emblem | Studio on the licence line |
+|---|---|---|
+| Plaything Story | a toy cowboy, his hat and his red neckerchief | Plaything Story Studios |
+| Lovely and the Beast | a lit lantern | Lovely and the Beast Studios |
+| Duck Run | a yellow duck, running | Duck Run Studios |
+| Really Cold | an ice castle of three towers | Really Cold Studios |
+| Little Tiny Queen | a small gold crown | Little Tiny Queen Studios |
+| Home Without Anybody | a scared face, wide eyes and an open mouth | Home Without Anybody Studios |
+| The Blue Balloon | a blue balloon in the badge's circle | Blue Balloon Studios |
+| The Toy Movie | a red wind-up robot with a key | Toy Movie Studios |
+| Frozen Story | a six-armed snowflake | Frozen Story Studios |
+| The Home Run | a baseball over a crossed bat | Home Run Studios |
+| The Lady in High Heels | a red high-heeled shoe | Lady in High Heels Studios |
+| The Haunted Dollhouse | a small house with a ghost in its window | Haunted Dollhouse Studios |
+
+The scared face, the balloon, the ice castle and the duck are the maintainer's; the cowboy, the
+lantern and the crown are proposals the maintainer may change, as are the five of the films
+of gen#905.
+
+- **On the product.** `film_emblems.PLACES` gives each shape the films sell the badge's center
+  and radius on its widest plain surface: the chest of a tee, the side of a mug, the top tier of
+  a cake, one sticker of a sticker sheet. The badge is drawn inside the product, so it scales,
+  turns and shrinks with it, and is the same drawing on every product of the film: the product
+  keeps its own color, and The Blue Balloon's balloon stays blue on a red mug. Its ink is not the
+  kit's, so a brand's house style does not restyle it.
+- **The licence line.** Beside the maker's logo (Brackenmere Home, Lanternby, ...) each film
+  product's image sets a small line, the emblem and "Licensed from <studio>", in the logo's
+  family and ink, on the product's side of the logo's text: under a logo at the top of the sheet,
+  over one at its foot. The product is drawn clear of it, as it is of the logo
+  (`house_styles.product_transform`'s `extra`). Each studio is invented and named after its film.
+- The drawing is chosen by the product's id (`kids_films.film_of_id`), so no field of the
+  record changes, and every SKU still has its own image file.
 
 ## Where it lives
 
@@ -95,8 +138,15 @@ template build (`tests/test_kids_films_905.py` adds the named categories, below)
 - every film has both a description-only product and a titled one;
 - every film SKU has its own image file, drawn in SVG paths with no embedded image;
 - the film SKUs on sale reach each people department's share;
+- a Blue Balloon product's title names one of its own colors;
 - the other products of the types the films join are as main built them before the films
   came (`tests/data/kids_films_887_neighbors.json`).
+
+`tests/test_film_emblems_904.py` reads every film SKU's image and checks that it carries its
+film's emblem and no other, and its studio's licence line; that no other product of the types the
+films sell carries either; that The Blue Balloon sells red, yellow, white, green and blue, with at
+least half of its colored SKUs not blue; and that each colored Blue Balloon product has one color
+its title names.
 
 `tests/test_kids_films_905.py` checks that no product of the five gen#905 films has a category
 path that holds a word its name names, that each of those words is a category of the catalogue
