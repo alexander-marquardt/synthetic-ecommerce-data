@@ -53,8 +53,10 @@ Step by step:
    read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
-   rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
-   (grit texture), plus `size_in`. Each `Poly` and `Disc` has a paint *role*:
+   rectangles), `Disc`, `Discs` (many discs of one radius, a bearing's balls:
+   one painted `<g>` of bare `<circle>`s, so the repeats stay under the size
+   cap, #50), `Lines` (line work: flutes, thread crests) and `Dots`
+   (grit texture), plus `size_in`. Each `Poly`, `Disc` and `Discs` has a paint *role*:
    `part`, `plain`, `hole`, `dark`, `handle` or `grip`. Geometry stays in real
    units until the last step, so "a longer length of cut is drawn longer" holds
    by construction.
@@ -231,8 +233,8 @@ for kind in (True, False):
     print('handled' if kind else 'handle-less', len(k), f'x{min(k):.2f} to x{max(k):.2f}')"
 ```
 
-**No text but the brand plate.** Figures only have `Poly`, `Disc`, `Lines` and
-`Dots` to draw with. The one `<text>` a drawing carries is the brand's
+**No text but the brand plate.** Figures only have `Poly`, `Disc`, `Discs`, `Lines`
+and `Dots` to draw with. The one `<text>` a drawing carries is the brand's
 wordmark, which `paint()` sets with its mark in the plate under the figure
 (`PLATE_BOX`, #132). `core/drawing/brand_mark.py` draws both, and
 `domains/industrial/drawing/brand_marks.py` declares each brand's motif.
