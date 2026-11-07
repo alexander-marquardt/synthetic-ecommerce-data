@@ -10,11 +10,16 @@ its title (:data:`DESCRIPTION_ONLY`), so a description-only match can be ranked.
 
 The names follow the invented-brands rule: no real film title. Several share a word with the
 catalogue on purpose (``duck``, ``cold``, ``Home``, ``Blue``): phrase matching has to keep them
-together. A Blue Balloon product with a color sells Blue, so its title names a color it has.
+together. The Blue Balloon's products come in red, yellow, white, green and blue, one color
+each, and each title names its product's color ("The Blue Balloon Red Stoneware Mug"): ``blue``
+in the film's name is no color, and only the emblem's balloon is always blue (gen#904). A title
+that names one of its product's own colors is one the output standard's text check passes, so a
+red mug whose title also holds "Blue" needs no exemption.
 
 The rows are ordinary rows of the types they join: each type's spec reads its own with
 :func:`rows_of` (``type_specs/mug.py``, ...), and the stickers are a type of their own
-(``type_specs/stickers.py``). The drawings are the kit's shapes for those types, one per SKU.
+(``type_specs/stickers.py``). The drawings are the kit's shapes for those types, one per SKU,
+each with its film's emblem printed on it (:mod:`film_emblems`, gen#904).
 """
 
 # ruff: noqa: E501 -- data rows read better whole (prototype only).
@@ -508,44 +513,44 @@ ROWS: tuple[Row, ...] = (
     _p(
         _BB,
         "MG",
-        "The Blue Balloon Stoneware Mug",
-        "A stoneware mug with the girl and her balloon from The Blue Balloon movie. Dishwasher safe.",
-        (BLUE, WHITE),
+        "The Blue Balloon Red Stoneware Mug",
+        "A red stoneware mug printed with the blue balloon in a circle from The Blue Balloon movie. Dishwasher safe.",
+        (RED,),
     ),
     _p(
         _BB,
         "TE",
-        "The Blue Balloon Kids' Cotton Tee",
-        "A soft cotton tee for kids with the floating balloon from The Blue Balloon movie on the front.",
-        (BLUE, WHITE),
+        "The Blue Balloon Kids' Yellow Cotton Tee",
+        "A soft yellow cotton tee for kids with the floating blue balloon from The Blue Balloon movie on the front.",
+        (YELLOW,),
     ),
     _p(
         _BB,
         "SW",
-        "The Blue Balloon Kids' Sweatshirt",
-        "A brushed-back cotton sweatshirt for kids with the city rooftops from The Blue Balloon movie.",
-        (BLUE, NAVY),
+        "The Blue Balloon Kids' Green Sweatshirt",
+        "A brushed-back green cotton sweatshirt for kids with the blue balloon from The Blue Balloon movie on the chest.",
+        (GREEN,),
     ),
     _p(
         _BB,
         "BD",
-        "The Blue Balloon Kids' Duvet Set",
-        "A single duvet cover and pillowcase with the balloon over the rooftops from The Blue Balloon movie. Duvet sold separately.",
-        (BLUE, WHITE),
+        "The Blue Balloon Kids' White Duvet Set",
+        "A single white duvet cover and pillowcase with the blue balloon in a circle from The Blue Balloon movie. Duvet sold separately.",
+        (WHITE,),
     ),
     _p(
         _BB,
         "PC",
-        "The Blue Balloon Paper Party Cups for Birthday Parties",
-        "Paper party cups with the floating balloon from The Blue Balloon movie, for a birthday party.",
-        (BLUE, WHITE),
+        "The Blue Balloon Blue Paper Party Cups for Birthday Parties",
+        "Blue paper party cups with the floating balloon from The Blue Balloon movie, for a birthday party.",
+        (BLUE,),
     ),
     _p(
         _BB,
         "PB",
-        "The Blue Balloon Party Bags",
-        "Paper party bags with the girl and her balloon from The Blue Balloon movie, ready to fill for a birthday.",
-        (BLUE, WHITE),
+        "The Blue Balloon Red Party Bags",
+        "Red paper party bags with the blue balloon from The Blue Balloon movie, ready to fill for a birthday.",
+        (RED,),
     ),
     _p(
         _BB,
@@ -568,9 +573,15 @@ def film_of(row: Row) -> str:
     return next(f for f, c in FILMS.items() if row.code[2:4] == c)
 
 
+@functools.cache
+def _films_by_id() -> dict[str, str]:
+    return {r.product_id: film_of(r) for r in ROWS}
+
+
 def film_of_id(product_id: str) -> str | None:
-    """The film the product sells, or ``None``: a stub."""
-    return next((film_of(r) for r in ROWS if r.product_id == product_id), None)
+    """The film the product sells, or ``None`` for a product of no film: its drawing carries
+    that film's emblem (:mod:`film_emblems`, gen#904)."""
+    return _films_by_id().get(product_id)
 
 
 #: The ids of the products whose title does not name their film.

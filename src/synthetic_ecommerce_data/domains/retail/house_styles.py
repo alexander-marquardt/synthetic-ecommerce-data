@@ -221,7 +221,10 @@ def _lines(
 ) -> list[str]:
     """The block's lines, the capitals of the whole block centered on ``center``."""
     baselines = block.baselines(center, _cap(style))
-    return [brand_type.text(style, t, x, b, block.size, color, anchor) for t, b in zip(block.lines, baselines, strict=True)]
+    return [
+        brand_type.text(style, t, x, b, block.size, color, anchor)
+        for t, b in zip(block.lines, baselines, strict=True)
+    ]
 
 
 def _lockup(style: HouseStyle, brand: str) -> Logo:
@@ -244,7 +247,9 @@ def _lockup(style: HouseStyle, brand: str) -> Logo:
         w = m + 10 + block.width
         x0 = _x_for(style.place, w)
         cy = EDGE + h / 2 if top else SIZE - EDGE - h / 2
-        mx, tx = (x0 + m / 2, x0 + m + 10) if lay == "mark_left" else (x0 + block.width + 10 + m / 2, x0)
+        mx, tx = (
+            (x0 + m / 2, x0 + m + 10) if lay == "mark_left" else (x0 + block.width + 10 + m / 2, x0)
+        )
         parts = [mark_svg(style.mark, mx, cy, m, c), *_lines(style, block, tx, cy, style.ink)]
         return Logo(parts, top=EDGE + h if top else 0, bottom=0 if top else EDGE + h)
     if lay == "mark_above":
@@ -378,7 +383,9 @@ def _logo(style: HouseStyle, brand: str) -> Logo:
     cx = EDGE + r if h == "left" else SIZE - EDGE - r
     cy = EDGE + r if v == "top" else SIZE - EDGE - r
     tag = _tag(style, brand, tag_place(style))
-    return Logo([mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.color), *tag.parts], tag.top, tag.bottom)
+    return Logo(
+        [mark_svg(style.mark, cx, cy, MARK_ONLY_SIZE, style.color), *tag.parts], tag.top, tag.bottom
+    )
 
 
 def logo(style: HouseStyle, brand: str) -> list[str]:
@@ -433,20 +440,23 @@ def restyle(fragment: str, style: HouseStyle) -> str:
     )
 
 
-def product_transform(style: HouseStyle, brand: str) -> str:
+def product_transform(
+    style: HouseStyle, brand: str, extra: tuple[float, float] = (0.0, 0.0)
+) -> str:
     """Shrink the product a little and move it clear of the logo's text.
 
     Products span y 28..362 of the sheet (334 tall). The scale is the style's
     (0.86 for a corner mark, 0.78 for a lockup) or less, if the logo's reach top
     and bottom leaves less room; the product then sits as near the middle as
-    that reach and :data:`AIR` allow.
+    that reach and :data:`AIR` allow. ``extra`` adds to the reach (top, bottom): the
+    licence line a film product sets beside the logo (:mod:`film_emblems`, gen#904).
     """
     s0 = 0.86 if style.layout == "mark_only" else 0.78
     if style.mark == NO_MARK:  # no logo to clear: the product sits where it always did
         dy = 0.0 if style.layout == "mark_only" else (10.0 if style.top_logo else -10.0)
         t = SIZE / 2 * (1 - s0)
         return f"translate({t:g} {t + dy:.1f}) scale({s0:.3f})"
-    top, bottom = reach(style, brand)
+    top, bottom = (r + e for r, e in zip(reach(style, brand), extra, strict=True))
     lo = top + AIR if top else FREE_EDGE
     hi = SIZE - (bottom + AIR if bottom else FREE_EDGE)
     s = min(s0, (hi - lo) / PRODUCT_SPAN)
@@ -459,7 +469,9 @@ def product_transform(style: HouseStyle, brand: str) -> str:
 #: drawings take (:data:`PRODUCT_TOP`, :data:`PRODUCT_SPAN`), as wide as it is tall. A drawing
 #: that already reaches past it upright keeps its own reach, so 0 degrees changes nothing.
 TURN_AREA = (PRODUCT_TOP, PRODUCT_TOP, SIZE - PRODUCT_TOP, PRODUCT_TOP + PRODUCT_SPAN)
-_MEASURED = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {0} {0}"><defs>{1}</defs>{2}</svg>'
+_MEASURED = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {0} {0}"><defs>{1}</defs>{2}</svg>'
+)
 
 
 def turn(full: str, defs: str, angle: float) -> str:
