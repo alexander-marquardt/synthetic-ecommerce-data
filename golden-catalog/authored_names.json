@@ -65,11 +65,10 @@
   "Thread size": "Thread Size"
  },
  "carriage_bolts": {
-  "Head diameter": "Head Diameter",
+  "Head dia.": "Head Dia.",
   "Head height": "Head Height",
   "Head type": "Head Type",
   "Measurement system": "Measurement System",
-  "Neck length": "Neck Length",
   "Thread size": "Thread Size",
   "Thread type": "Thread Type",
   "Units per pack": "Units per Pack"

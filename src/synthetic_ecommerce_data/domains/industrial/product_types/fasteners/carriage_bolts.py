@@ -24,7 +24,9 @@ The thread is read from the library's ASME B1.1 (UNC) and ISO 262 (metric
 coarse) tables, as the threaded rod and the stud read it (#73); each head
 table's own pitch agrees with it on every row (the type's gate file checks).
 
-Left out on purpose: the square neck's width (the census has no name for it);
+Left out on purpose: the square neck's width and length (the census has no name for
+the width, and its "Neck Length" is the end mill's drawn quantity, which a tabled one
+would turn into a mixed name);
 the thread length (DIN 603 publishes one per length band and ASME B18.5 a
 rule, neither read here); the fine-thread and the ribbed or short-neck kinds
 (no table was read). A line is sold in a pack (:data:`PACK_COUNTS`), as 97% of
@@ -57,11 +59,12 @@ from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 KEY = "carriage_bolts"
 ITEM = "Carriage Bolt"
 THREAD = "Thread Size"
-HEAD_DIA = "Head Diameter"
+HEAD_DIA = "Head Dia."
 HEAD = "Head Height"
-NECK = "Neck Length"
-#: The head and neck dimensions each SKU publishes, in its table's order.
-HEAD_DIMS = (HEAD_DIA, HEAD, NECK)
+#: The head dimensions each SKU publishes, in its table's order. The square neck's
+#: length is not published: "Neck Length" is the end mill's drawn quantity, and a
+#: type that tables the same name reds the facet rule's declaration check.
+HEAD_DIMS = (HEAD_DIA, HEAD)
 
 ASME = "ASME B18.5"
 DIN_603 = "DIN 603"
@@ -200,7 +203,6 @@ VOCAB = (
     _spec("Length", "sku", kind="length"),
     _spec(HEAD_DIA, "sku", kind="length"),
     _spec(HEAD, "sku", kind="length"),
-    _spec(NECK, "sku", kind="length"),
 )
 
 
@@ -219,11 +221,11 @@ def provenance(standard: str) -> str:
     for an inch bolt a stocked length inside the head table's range."""
     if standard == ASME:
         table = table_provenance(
-            (HEAD_DIA, ASME), (HEAD, ASME), (NECK, ASME), (THREAD, INCH_THREADS)
+            (HEAD_DIA, ASME), (HEAD, ASME), (THREAD, INCH_THREADS)
         )
         return f"{table}; Length is a stocked length inside the {ASME} table's range"
     return table_provenance(
-        (HEAD_DIA, DIN_603), (HEAD, DIN_603), (NECK, DIN_603), ("Length", DIN_603),
+        (HEAD_DIA, DIN_603), (HEAD, DIN_603), ("Length", DIN_603),
         (THREAD, METRIC_THREADS),
     )  # fmt: skip
 
@@ -239,12 +241,12 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     if standard == ASME:
         row = ASME_ROWS[gen._rotate(f"size:{type_key}:{standard}", len(ASME_ROWS))]
         size_key, thread, combos = row.size, inch_thread(row), INCH_COMBOS
-        head_in = (row.a, row.h, row.p)
+        head_in = (row.a, row.h)
         lengths_in = [float(v) for v in inch_lengths(row)]
     else:
         metric_row = DIN_603_ROWS[gen._rotate(f"size:{type_key}:{standard}", len(DIN_603_ROWS))]
         size_key, thread, combos = f"M{metric_row.d}", metric_thread(metric_row), METRIC_COMBOS
-        head_in = tuple(mm / MM_PER_INCH for mm in (metric_row.dk, metric_row.k, metric_row.f))
+        head_in = tuple(mm / MM_PER_INCH for mm in (metric_row.dk, metric_row.k))
         lengths_in = [mm / MM_PER_INCH for mm in metric_lengths(metric_row)]
     combo = f"combo:{type_key}:{standard}:{size_key}"
     material, finish, grade = combos[gen._rotate(combo, len(combos))]
@@ -327,7 +329,7 @@ def figure(record: dict[str, str]) -> Drawn:
     r = d / 2
     head_d = _value(record, HEAD_DIA) or 2.2 * d
     head = _value(record, HEAD) or 0.55 * d
-    neck = _value(record, NECK) or 0.55 * d
+    neck = 0.55 * d  # the table's neck length is not published
     full = length or 8 * d
     shank = full if full <= KNEE else KNEE + TAIL * (1 - math.exp(-(full - KNEE)))
     fig = Figure(size_in=head + shank)
@@ -374,7 +376,7 @@ ENDINGS = {
 #: does not move its price.
 PRICE = PriceModel(
     # @fit-begin
-    28.0, 0.375, 1.0, 0.4, 0.1,
+    31.5, 0.375, 1.0, 0.4, 0.1,
     # @fit-end
     endings=ENDINGS,
     pack_attribute="Units per Pack",

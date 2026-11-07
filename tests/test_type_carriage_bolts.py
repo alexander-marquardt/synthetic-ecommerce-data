@@ -55,7 +55,7 @@ DEFAULT_SKU_FLOOR = 30
 ASME = "ASME B18.5"
 DIN = "DIN 603"
 DIMENSIONAL = {ASME, DIN}
-HEAD = ("Head Diameter", "Head Height", "Neck Length")
+HEAD = ("Head Dia.", "Head Height")
 DIMENSIONS = ("Thread Size", "Length", *HEAD)
 
 #: The breadth row's size_values: each must be offered at the default build.
@@ -66,7 +66,7 @@ CENSUS_FILE = Path(__file__).resolve().parents[1] / "reference-statistics" / "P2
 
 MM = 25.4
 
-_TABLE = re.compile(r"Head Diameter and [^;]*read from the (ASME B18\.5|DIN 603) table")
+_TABLE = re.compile(r"Head Dia\. and [^;]*read from the (ASME B18\.5|DIN 603) table")
 
 
 def _default_docs() -> list[dict]:
@@ -158,7 +158,7 @@ def test_every_metric_bolt_is_a_row_and_a_length_of_the_din_table():
             or round(thread.pitch_in * MM, 2) != row.p
             or length not in module.DIN_603_LENGTHS
             or not row.min_l <= length <= row.max_l
-            or head != (row.dk, row.k, row.f)
+            or head != (row.dk, row.k)
         ):
             stray.append((doc["sku"], d, length, head))
     assert not stray, stray[:5]
@@ -181,7 +181,7 @@ def test_every_inch_bolt_is_a_row_of_the_asme_table_inside_its_range():
             or not row.min_l <= length <= row.max_l
             or any(
                 abs(got - want) > 1e-3
-                for got, want in zip(head, (row.a, row.h, row.p), strict=True)
+                for got, want in zip(head, (row.a, row.h), strict=True)
             )
         ):
             stray.append((doc["sku"], _value(doc, "Thread Size"), length, head))
