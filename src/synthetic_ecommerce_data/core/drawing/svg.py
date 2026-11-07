@@ -94,6 +94,12 @@ class Svg:
     def circle(self, cx: float, cy: float, r: float, **attrs: str) -> None:
         self.add(f'<circle cx="{num(cx)}" cy="{num(cy)}" r="{num(r)}"{_attrs(attrs)}/>')
 
+    def circles(self, centres: Sequence[Point], r: float, **attrs: str) -> None:
+        """Many circles of one radius as ONE group, its paint on the ``<g>``: a bare
+        ``<circle>`` a copy (#50)."""
+        body = "".join(f'<circle cx="{num(x)}" cy="{num(y)}" r="{num(r)}"/>' for x, y in centres)
+        self.add(f"<g{_attrs(attrs)}>{body}</g>")
+
     def text(self, x: float, y: float, content: str, **attrs: str) -> None:
         """A ``<text>`` element: the brand wordmark is the only text a drawing carries (#132)."""
         body = escape(content, quote=False)

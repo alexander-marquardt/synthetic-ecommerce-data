@@ -4425,14 +4425,14 @@
   },
   "drawings": {
    "count": 14426,
-   "bytes": 38213579,
+   "bytes": 37688275,
    "geometry": {
     "nominal": 200,
     "partial": 2901,
     "record": 11325
    },
-   "largest_bytes": 9491,
-   "largest_product_type": "bearing_radial_ball"
+   "largest_bytes": 7403,
+   "largest_product_type": "roller_chain"
   },
   "dispersion": {
    "quantitative_attributes": 64,
