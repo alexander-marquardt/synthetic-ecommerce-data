@@ -149,6 +149,31 @@ def test_no_doc_restates_a_figure_the_build_measures(stats: dict, path: str) -> 
     )
 
 
+def test_a_published_measurement_is_not_read_as_a_count(
+    stats: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Seed 20260918 builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's
+    ``1,070 lbf`` is a load, not that count (#50). The count's own spellings stay refused."""
+    builds = json.loads(BUILDS_FILE.read_text("utf-8"))
+    builds["hundred_k"]["skus_by_type"]["screw_hex_head"] = 1070
+    moved = tmp_path / "measured_builds.json"
+    moved.write_text(json.dumps(builds), "utf-8")
+    monkeypatch.setattr(f"{__name__}.BUILDS_FILE", moved)
+    pattern = _quotations(stats)["hundred_k.skus_by_type.screw_hex_head"]
+    readme = (ROOT / "README.md").read_text("utf-8")
+    assert "`1,070 lbf`" in readme
+    assert not re.search(pattern, readme)
+    for unit in ("lbf", "lb", "mm", "ft", "oz", "Degrees", "in."):
+        assert not re.search(pattern, f"rated 1,070 {unit} at most"), unit
+    assert not re.search(pattern, 'a 1,070" rod')
+    for restated in (
+        "| screw_hex_head | 1,070 |",
+        "1,070 hex head screws",
+        "1,070 in the 100K build",
+    ):
+        assert re.search(pattern, restated), restated
+
+
 def test_no_per_type_size_is_typed_by_hand() -> None:
     """A type's lines and SKUs are ``stats.json``'s (``type_facts.default_size``).
 
