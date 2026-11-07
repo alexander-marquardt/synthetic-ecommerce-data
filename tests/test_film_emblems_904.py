@@ -20,6 +20,7 @@ from synthetic_ecommerce_data.domains.retail import (
     image_release,
     kids_films,
     scale,
+    sheet_extent,
 )
 
 #: The colors The Blue Balloon sells in, at least.
@@ -66,6 +67,19 @@ def test_every_film_sku_image_sets_its_studios_licence_line(images) -> None:
         lines = re.findall(r">(Licensed from [^<]*)<", svg)
         assert lines == [film_emblems.licence_text(film)], (film, lines)
         assert svg.count(film_emblems.badge(film)) == 2, film  # on the product and in the line
+
+
+def test_the_product_is_drawn_clear_of_the_licence_line(images) -> None:
+    """The product moves off the line as it does off the logo: their boxes share no row."""
+    half = film_emblems.LICENCE_HEIGHT / 2
+    for film, svg in images:
+        product = svg[svg.index('<g class="product"') : svg.index('<g class="brand">')]
+        _, y0, _, y1 = sheet_extent.reach(
+            f'<svg xmlns="http://www.w3.org/2000/svg">{product}</svg>'
+        )
+        baseline = float(re.search(r'<text x="[\d.]+" y="([\d.]+)"[^>]*>Licensed from', svg)[1])
+        center = baseline - film_emblems.LICENCE_SIZE * 0.35  # the line's middle, near enough
+        assert y1 <= center - half or y0 >= center + half, (film, y0, y1, center)
 
 
 def test_the_blue_balloon_emblem_is_blue_on_a_product_of_any_color(images) -> None:
