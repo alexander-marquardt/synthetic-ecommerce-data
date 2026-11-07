@@ -120,8 +120,13 @@ def test_the_provenance_names_where_each_published_dimension_came_from():
     docs = _default_docs()
     problems, _ = type_gates.provenance_problems(docs, DIMENSIONAL, DIMENSIONS)
     assert problems == [], problems[:10]
-    for doc in docs:
-        _table(doc)
+    # The table named is the thread's own: a metric thread is DIN 603's.
+    wrong = [
+        doc["sku"]
+        for doc in docs
+        if (_table(doc) == DIN) != _value(doc, "Thread Size").startswith("M")
+    ]
+    assert wrong == [], wrong[:5]
 
 
 def test_each_head_tables_pitch_is_the_thread_tables():
