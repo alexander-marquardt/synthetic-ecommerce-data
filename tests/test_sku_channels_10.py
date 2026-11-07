@@ -105,10 +105,13 @@ def _figure(type_key: str, record: dict[str, str]):
 FLUTE_CASES: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
 #: Every record of each (type, direction attribute) the catalog publishes a hand for.
 HAND_CASES: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
+#: Every record of each type the catalog builds, whatever it publishes.
+TYPE_RECORDS: dict[str, list[dict[str, str]]] = defaultdict(list)
 #: How each of those records was read: ``record``, ``partial`` or ``nominal``.
 SOURCES: set[str] = set()
 PUBLISHED_HANDS: set[str] = set()
 for _type, _record in _records():
+    TYPE_RECORDS[_type].append(_record)
     SOURCES.add(FIGURES[_type][0](dict(_record)).source)
     # Only a figure with an end view draws the count: a tap states its flutes and draws none,
     # which is a different gap, not this channel.
@@ -252,15 +255,35 @@ def test_a_direction_the_drawing_ignores_is_named_and_only_that():
     parametrize list cannot leave a type out unseen; a type in it that now draws its
     direction fails here too, so the list cannot go on excusing a drawing that is fixed.
     """
+    assert _ignored(HAND_CASES, TYPE_RECORDS) == HAND_NOT_DRAWN
+
+
+def test_a_named_direction_stays_named_on_a_seed_whose_lines_do_not_publish_it():
+    """A seed can build a type none of whose lines publish its direction: still ignored.
+
+    Seed 20260918 builds two studs lines and neither publishes a ``Thread Direction``
+    (presence 0.55 a line). The studs drawing ignores the hand all the same.
+    """
+    studs = ("studs_double_end", "Thread Direction")
+    hand_cases = {case: records for case, records in HAND_CASES.items() if case != studs}
+    type_records = {
+        **TYPE_RECORDS,
+        studs[0]: [{k: v for k, v in r.items() if k != studs[1]} for r in TYPE_RECORDS[studs[0]]],
+    }
+    assert _ignored(hand_cases, type_records) == HAND_NOT_DRAWN
+
+
+def _ignored(hand_cases, type_records) -> set[tuple[str, str]]:
+    """Each (type, direction attribute) whose drawing shows no difference between the hands."""
 
     def drawn(case) -> bool:
         type_key, name = case
         return any(
             _figure(type_key, {**r, name: HANDS[0]}) != _figure(type_key, {**r, name: HANDS[1]})
-            for r in HAND_CASES[case]
+            for r in hand_cases[case]
         )
 
-    assert {case for case in HAND_CASES if not drawn(case)} == HAND_NOT_DRAWN
+    return {case for case in hand_cases if not drawn(case)}
 
 
 # --- which hatch belongs to which material ---------------------------------------------
