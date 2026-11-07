@@ -88,19 +88,29 @@ def test_the_catalog_and_drawing_figures_are_the_committed_catalogs(stats: dict)
     }
 
 
-#: A published unit marker after a number: the number is a measurement, never a count of
-#: SKUs or lines. Bare ``in`` is left out because it is also the preposition.
+#: A published word unit after a number: the number is a measurement, never a count of
+#: SKUs or lines. Bare ``in`` is left out because it is also the preposition, and the
+#: inch mark ``"`` because it is also a quotation mark (``_count`` takes it apart).
 _UNIT_AFTER = "|".join(
     re.escape(suffix)
     for suffix in sorted(UNIT_FOR_SUFFIX, key=len, reverse=True)
-    if suffix != "in"
+    if suffix not in ("in", '"')
 )
 
 
 def _count(number: int) -> str:
     """A count spelled as a bare number, unless a unit marker follows it: seed 20260918
-    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's ``1,070 lbf`` is a load (#50)."""
-    return rf"\b{number:,}\b(?!\s*(?:{_UNIT_AFTER}))"
+    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's ``1,070 lbf`` is a load (#50).
+
+    A word unit ends at a non-letter, so ``1,070 lbs`` is still a count. The inch mark
+    counts only right after the number and when no ``"`` opens before it, so a quoted
+    ``"1,070"`` is still a count.
+    """
+    spelled = f"{number:,}"
+    return (
+        rf"\b{spelled}\b(?!\s*(?:{_UNIT_AFTER})(?![A-Za-z]))"
+        rf'(?!(?<!"{spelled})")'
+    )
 
 
 def _quotations(stats: dict) -> dict[str, str]:
@@ -186,6 +196,11 @@ def test_a_published_measurement_is_not_read_as_a_count(
         "| screw_hex_head | 1,070 |",
         "1,070 hex head screws",
         "1,070 in the 100K build",
+        'the "1,070" SKUs',
+        '| "1,070" |',
+        "1,070 lbs of screws",
+        "1,070 mmm",
+        "1,070 ftp uploads",
     ):
         assert re.search(pattern, restated), restated
 
