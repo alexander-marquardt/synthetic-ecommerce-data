@@ -1,4 +1,4 @@
-"""The merchandise of seven invented kids' films, named only in the product text (gen#887).
+"""The merchandise of twelve invented kids' films, named only in the product text (gen#887, #905).
 
 A film's name is a phrase a shopper types (``plaything story mug``) that no structured field
 holds: the products keep their makers' brands, no series and their types' categories. These tests
@@ -16,7 +16,13 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import export, image_release, kids_films, scale
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    kids_films,
+    sale_share,
+    scale,
+)
 
 FILMS = (
     "Plaything Story",
@@ -26,6 +32,11 @@ FILMS = (
     "Little Tiny Queen",
     "Home Without Anybody",
     "The Blue Balloon",
+    "The Toy Movie",
+    "Frozen Story",
+    "The Home Run",
+    "The Lady in High Heels",
+    "The Haunted Dollhouse",
 )
 #: The fewest categories (leaves) each film sells in.
 MIN_CATEGORIES = 5
@@ -45,7 +56,7 @@ def _of(catalog: list[dict], film: str) -> list[dict]:
     return [d for d in catalog if _names(d, film)]
 
 
-def test_the_film_list_is_the_seven_invented_films() -> None:
+def test_the_film_list_is_the_twelve_invented_films() -> None:
     assert tuple(kids_films.FILMS) == FILMS
 
 
@@ -80,8 +91,8 @@ def test_each_film_sells_in_five_categories_and_a_grocery_one(catalog, film) -> 
 @pytest.mark.parametrize("film", FILMS)
 def test_every_description_calls_the_film_a_movie_and_no_title_does(catalog, film) -> None:
     for d in _of(catalog, film):
-        assert f"{film} {kids_films.MOVIE}".lower() in d["description"].lower(), d["product_id"]
-        assert kids_films.MOVIE not in d["title"].lower(), d["product_id"]
+        assert kids_films.called_a_movie(film).lower() in d["description"].lower(), d["product_id"]
+        assert kids_films.MOVIE not in d["title"].lower().replace(film.lower(), ""), d["product_id"]
 
 
 @pytest.mark.parametrize("film", FILMS)
@@ -110,15 +121,26 @@ def test_film_products_have_ordinary_skus_and_variants(catalog) -> None:
     assert sum(len(d["skus"]) > 1 for d in docs) >= len(docs) // 2
 
 
-def test_film_products_keep_their_authored_colors_and_take_no_sale_price(catalog) -> None:
-    """They stay out of the main-color and sale passes, so no other style's copied color or sale
-    price moves when a film product is added."""
+def test_film_products_keep_their_authored_colors(catalog) -> None:
+    """They stay out of the main-color pass, so no other style's copied color moves when a film
+    product is added."""
     by_id = {d["product_id"]: d for d in catalog}
     for row in kids_films.ROWS:
         doc = by_id[row.product_id]
         colors = [c["color"] for c in doc.get("color_options") or ()]
         assert colors == ([] if row.colorless else [c[0] for c in row.colors]), row.product_id
-        assert not {"was_price", "promotion", "discount_pct"} & set(doc), row.product_id
+
+
+def test_the_films_carry_their_own_sale_share(catalog) -> None:
+    """Their sale comes from a pass of their own (gen#905): in each people department the film
+    SKUs on sale reach the department's share, so the films do not thin it."""
+    films = [d for d in catalog if d["product_id"] in kids_films.ids()]
+    for dept in {sale_share.department(d) for d in films} - {None}:
+        docs = [d for d in films if sale_share.department(d) == dept]
+        total = sum(d["sku_count"] for d in docs)
+        held = sum(d["sku_count"] for d in docs if "was_price" in d)
+        assert held >= sale_share.SHARE[dept] * total, (dept, held, total)
+    assert not any("was_price" in d for d in films if sale_share.department(d) is None)
 
 
 def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:

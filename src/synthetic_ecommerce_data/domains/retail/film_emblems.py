@@ -131,6 +131,73 @@ def _small_crown() -> str:
     ])  # fmt: skip
 
 
+def _toy_robot() -> str:
+    """The Toy Movie: a wind-up robot with a key in its back."""
+    return "".join([
+        _ink("M-0.08,-0.62 L-0.08,-0.5 M0.08,-0.62 L0.08,-0.5", 0.05),
+        _ink("M-0.3,-0.5 L0.3,-0.5 L0.3,-0.06 L-0.3,-0.06 Z", 0.05, "#b9bec4"),
+        '<circle cx="-0.12" cy="-0.3" r="0.07" fill="#c8312e"/>',
+        '<circle cx="0.12" cy="-0.3" r="0.07" fill="#c8312e"/>',
+        _ink("M-0.4,-0.0 L0.4,-0.0 L0.4,0.46 L-0.4,0.46 Z", 0.05, "#c8312e"),
+        _ink("M-0.4,0.08 L-0.62,0.3 M0.4,0.08 L0.62,0.3", 0.06),
+        _ink("M-0.22,0.46 L-0.22,0.7 M0.22,0.46 L0.22,0.7", 0.07),
+        _ink("M0.4,0.14 L0.62,0.0 L0.56,-0.14 L0.74,-0.08", 0.04),
+    ])  # fmt: skip
+
+
+def _snowflake() -> str:
+    """Frozen Story: a six-armed snowflake."""
+    arms = "".join(
+        f"M0,0 L{x:g},{y:g} "
+        for x, y in (
+            (0, -0.7),
+            (0.61, -0.35),
+            (0.61, 0.35),
+            (0, 0.7),
+            (-0.61, 0.35),
+            (-0.61, -0.35),
+        )
+    )
+    twigs = "M-0.14,-0.5 L0,-0.38 L0.14,-0.5 M-0.14,0.5 L0,0.38 L0.14,0.5 M0.3,-0.4 L0.34,-0.24 L0.5,-0.2 M-0.3,-0.4 L-0.34,-0.24 L-0.5,-0.2 M0.3,0.4 L0.34,0.24 L0.5,0.2 M-0.3,0.4 L-0.34,0.24 L-0.5,0.2"
+    return (
+        _ink(arms, 0.07)
+        + _ink(twigs, 0.05)
+        + '<circle cx="0" cy="0" r="0.1" fill="#cfe8f7" stroke="#25303b" stroke-width="0.04"/>'
+    )
+
+
+def _baseball() -> str:
+    """The Home Run: a baseball with its stitching, over a crossed bat."""
+    return "".join([
+        _ink("M-0.62,0.6 L0.5,-0.52", 0.16, "none").replace('stroke="#25303b"', 'stroke="#9a6232"'),
+        '<circle cx="0.06" cy="0.04" r="0.42" fill="#ffffff" stroke="#25303b" stroke-width="0.05"/>',
+        _ink("M-0.18,-0.32 Q0.02,-0.1 -0.18,0.4 M0.3,-0.32 Q0.1,-0.1 0.3,0.4", 0.04),
+        _ink("M-0.1,-0.2 L-0.02,-0.18 M-0.08,0.0 L0.0,0.0 M-0.1,0.2 L-0.02,0.18 M0.22,-0.2 L0.14,-0.18 M0.2,0.0 L0.12,0.0 M0.22,0.2 L0.14,0.18", 0.03, "none").replace('stroke="#25303b"', 'stroke="#c8312e"'),
+    ])  # fmt: skip
+
+
+def _high_heel() -> str:
+    """The Lady in High Heels: a red high-heeled shoe seen from the side."""
+    return "".join([
+        _ink("M-0.66,0.5 Q-0.7,-0.3 -0.5,-0.4 Q-0.3,-0.2 -0.1,0.02 Q0.3,0.12 0.64,0.3 Q0.7,0.5 0.5,0.5 L0.0,0.5 L-0.16,0.2 L-0.3,0.5 Z", 0.05, "#c8312e"),
+        _ink("M-0.66,0.5 L-0.7,0.74 L-0.58,0.74 L-0.5,0.5", 0.05, "#7a1c1a"),
+        _ink("M-0.5,-0.4 Q-0.36,-0.5 -0.28,-0.3", 0.04),
+        '<ellipse cx="-0.36" cy="-0.14" rx="0.05" ry="0.1" fill="#ffffff" opacity="0.8"/>',
+    ])  # fmt: skip
+
+
+def _haunted_house() -> str:
+    """The Haunted Dollhouse: a small crooked house with a ghost in its window."""
+    return "".join([
+        _ink("M-0.5,0.62 L-0.5,-0.08 L0.5,-0.08 L0.5,0.62 Z", 0.05, "#e8d7f2"),
+        _ink("M-0.62,-0.08 L0,-0.64 L0.62,-0.08 Z", 0.05, "#7b4fa0"),
+        _ink("M-0.38,0.0 L-0.38,0.3 L-0.1,0.3 L-0.1,0.0 Z", 0.04, "#25303b"),
+        _ink("M-0.34,0.28 L-0.34,0.06 Q-0.24,-0.04 -0.14,0.06 L-0.14,0.28 Q-0.2,0.22 -0.24,0.28 Q-0.28,0.22 -0.34,0.28 Z", 0.03, "#ffffff"),
+        _ink("M0.12,0.62 L0.12,0.3 Q0.26,0.18 0.4,0.3 L0.4,0.62 Z", 0.04, "#5a3a78"),
+        _ink("M0.38,-0.5 L0.38,-0.3 L0.28,-0.3", 0.04),
+    ])  # fmt: skip
+
+
 #: Each film's picture, inside its badge.
 _PICTURES = {
     "Plaything Story": _toy_cowboy,
@@ -140,6 +207,11 @@ _PICTURES = {
     "Little Tiny Queen": _small_crown,
     "Home Without Anybody": _scared_face,
     "The Blue Balloon": _blue_balloon,
+    "The Toy Movie": _toy_robot,
+    "Frozen Story": _snowflake,
+    "The Home Run": _baseball,
+    "The Lady in High Heels": _high_heel,
+    "The Haunted Dollhouse": _haunted_house,
 }
 
 #: Each film's invented studio, named after it: what its licence line names.
@@ -151,6 +223,11 @@ STUDIOS: dict[str, str] = {
     "Little Tiny Queen": "Little Tiny Queen Studios",
     "Home Without Anybody": "Home Without Anybody Studios",
     "The Blue Balloon": "Blue Balloon Studios",
+    "The Toy Movie": "Toy Movie Studios",
+    "Frozen Story": "Frozen Story Studios",
+    "The Home Run": "Home Run Studios",
+    "The Lady in High Heels": "Lady in High Heels Studios",
+    "The Haunted Dollhouse": "Haunted Dollhouse Studios",
 }
 
 #: Where a shape prints the emblem, in the kit's 400-unit sheet: the badge's center and radius.

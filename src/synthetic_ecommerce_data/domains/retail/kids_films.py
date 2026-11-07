@@ -1,4 +1,4 @@
-"""Merchandise of seven invented kids' films, named only in the product text (gen#887): data only.
+"""Merchandise of twelve invented kids' films, named only in the product text (gen#887): data only.
 
 A shopper types ``plaything story mug``: the film is a name that lives in the title and the
 description, never in a structured field. Each product keeps the brand of the house that makes it
@@ -15,6 +15,9 @@ each, and each title names its product's color ("The Blue Balloon Red Stoneware 
 in the film's name is no color, and only the emblem's balloon is always blue (gen#904). A title
 that names one of its product's own colors is one the output standard's text check passes, so a
 red mug whose title also holds "Blue" needs no exemption.
+Five names hold a category word (gen#905: The Toy Movie, Frozen Story, The Home Run, The Lady in
+High Heels, The Haunted Dollhouse), and none of those films sells in the category it names
+(:data:`NAMED_CATEGORIES`), so a search for the name must not become a category filter.
 
 The rows are ordinary rows of the types they join: each type's spec reads its own with
 :func:`rows_of` (``type_specs/mug.py``, ...), and the stickers are a type of their own
@@ -44,9 +47,32 @@ FILMS: dict[str, str] = {
     "Little Tiny Queen": "LQ",
     "Home Without Anybody": "HW",
     "The Blue Balloon": "BB",
+    "The Toy Movie": "TM",
+    "Frozen Story": "FS",
+    "The Home Run": "HR",
+    "The Lady in High Heels": "LH",
+    "The Haunted Dollhouse": "HD",
+}
+#: The films whose name holds a category word (gen#905), each with the words of the categories it
+#: names (High Heels names every shoe). A film sells nothing in a category whose path holds one of
+#: its words: the name is its only link to that category, so a search for it must not filter to
+#: the category.
+NAMED_CATEGORIES: dict[str, tuple[str, ...]] = {
+    "The Toy Movie": ("toy",),
+    "Frozen Story": ("frozen",),
+    "The Home Run": ("home", "run"),
+    "The Lady in High Heels": ("heel", "shoe"),
+    "The Haunted Dollhouse": ("doll",),
 }
 #: The word every description puts after the film's name.
 MOVIE = "movie"
+
+
+def called_a_movie(film: str) -> str:
+    """What a description of ``film`` says to call it a movie: the name and :data:`MOVIE`, or the
+    name alone when it already ends in Movie (``The Toy Movie``)."""
+    return film if film.lower().endswith(MOVIE) else f"{film} {MOVIE}"
+
 
 breadth_rows.OWNERS.update(
     {b: BRAND_OWNER[b] for b in ("Crofter's Bakehouse",) if b not in breadth_rows.OWNERS}
@@ -197,6 +223,8 @@ def _p(film: str, kind: str, title: str, description: str, colors=(WHITE,), **pa
 
 _PS, _LB, _DR, _RC = "Plaything Story", "Lovely and the Beast", "Duck Run", "Really Cold"
 _LQ, _HW, _BB = "Little Tiny Queen", "Home Without Anybody", "The Blue Balloon"
+_TM, _FS, _HR = "The Toy Movie", "Frozen Story", "The Home Run"
+_LH, _HD = "The Lady in High Heels", "The Haunted Dollhouse"
 
 ROWS: tuple[Row, ...] = (
     # -- Plaything Story: a toy box that comes to life --
@@ -564,6 +592,267 @@ ROWS: tuple[Row, ...] = (
         "SS",
         "The Blue Balloon Bubblegum Sweets",
         "Round bubblegum sweets in a bag printed with the balloon from The Blue Balloon movie.",
+    ),
+    # gen#905: five films whose names hold a category word, none selling in that category.
+    # -- The Toy Movie: the toys of a toy shop wake at night (nothing under Toys) --
+    _p(
+        _TM,
+        "MG",
+        "The Toy Movie Stoneware Mug",
+        "A stoneware mug with the wind-up robot and the toy shop at night from The Toy Movie. Dishwasher safe.",
+        (WHITE, RED),
+    ),
+    _p(
+        _TM,
+        "TE",
+        "The Toy Movie Kids' Cotton Tee",
+        "A soft cotton tee for kids with the wind-up robot from The Toy Movie on the front.",
+        (RED, GREY),
+    ),
+    _p(
+        _TM,
+        "SW",
+        "The Toy Movie Kids' Sweatshirt",
+        "A brushed-back cotton sweatshirt for kids with the toy shop window from The Toy Movie.",
+        (NAVY, RED),
+    ),
+    _p(
+        _TM,
+        "PJ",
+        "Kids' Wind-Up Robot Pyjamas",
+        "Long-sleeve cotton pyjamas for kids, printed with the wind-up robot and his friends from The Toy Movie.",
+        (GREY, NAVY),
+    ),
+    _p(
+        _TM,
+        "LN",
+        "The Toy Movie Kids' Lunch Box",
+        "A wipe-clean lunch box with a clip lid and the toy shop gang from The Toy Movie.",
+        (RED, YELLOW),
+    ),
+    _p(
+        _TM,
+        "PC",
+        "The Toy Movie Paper Party Cups for Birthday Parties",
+        "Paper party cups with the wind-up robot from The Toy Movie, for a birthday party.",
+        (RED, YELLOW),
+    ),
+    _p(
+        _TM,
+        "CK",
+        "The Toy Movie Birthday Cake",
+        "A chocolate sponge birthday cake with buttercream, topped with the wind-up robot from The Toy Movie. Serves 12.",
+    ),
+    _p(
+        _TM,
+        "SS",
+        "The Toy Movie Robot Jelly Sweets",
+        "Fruit jelly sweets shaped like the robots of The Toy Movie.",
+    ),
+    # -- Frozen Story: an ice lolly races to the seaside before he melts (nothing under Frozen) --
+    _p(
+        _FS,
+        "MG",
+        "Frozen Story Stoneware Mug",
+        "A stoneware mug with the ice lolly hero and his seaside friends from the Frozen Story movie. Dishwasher safe.",
+        (WHITE, BLUE),
+    ),
+    _p(
+        _FS,
+        "TE",
+        "Frozen Story Kids' Cotton Tee",
+        "A soft cotton tee for kids with the smiling ice lolly from the Frozen Story movie on the front.",
+        (BLUE, PINK, WHITE),
+    ),
+    _p(
+        _FS,
+        "PJ",
+        "Frozen Story Kids' Pyjamas",
+        "Long-sleeve cotton pyjamas for kids, printed with the ice lolly and the beach from the Frozen Story movie.",
+        (BLUE, PINK),
+    ),
+    _p(
+        _FS,
+        "LN",
+        "Frozen Story Kids' Lunch Box",
+        "A wipe-clean lunch box with a clip lid and the ice lolly hero from the Frozen Story movie.",
+        (BLUE, YELLOW),
+    ),
+    _p(
+        _FS,
+        "TY",
+        "Frozen Story Seagull Soft Toy",
+        "A soft plush of the cheeky seagull from the Frozen Story movie, with felt feet.",
+        (WHITE,),
+        shape="bird",
+    ),
+    _p(
+        _FS,
+        "ST",
+        "Kids' Seaside Race Sticker Sheets",
+        "Four sheets of stickers of the ice lolly, the seagull and the seaside from the Frozen Story movie.",
+        (BLUE,),
+    ),
+    _p(
+        _FS,
+        "SS",
+        "Frozen Story Fizzy Fruit Sweets",
+        "Fizzy fruit sweets in a bag printed with the ice lolly from the Frozen Story movie.",
+    ),
+    # -- The Home Run: a team of misfits plays its first baseball season (nothing in Home, no running shoes, no marble run) --
+    _p(
+        _HR,
+        "TE",
+        "The Home Run Kids' Cotton Tee",
+        "A soft cotton tee for kids with the bat and ball of the team from The Home Run movie on the front.",
+        (WHITE, RED),
+    ),
+    _p(
+        _HR,
+        "SW",
+        "The Home Run Kids' Sweatshirt",
+        "A brushed-back cotton sweatshirt for kids with the team badge from The Home Run movie.",
+        (NAVY, GREY),
+    ),
+    _p(
+        _HR,
+        "PJ",
+        "The Home Run Kids' Pyjamas",
+        "Long-sleeve cotton pyjamas for kids, printed with bats, balls and gloves from The Home Run movie.",
+        (NAVY, RED),
+    ),
+    _p(
+        _HR,
+        "TY",
+        "The Home Run Team Mascot Soft Toy",
+        "A cuddly plush of the team's lion mascot from The Home Run movie, in a baseball cap.",
+        (YELLOW,),
+        shape="cat",
+    ),
+    _p(
+        _HR,
+        "ST",
+        "The Home Run Sticker Sheets",
+        "Four sheets of stickers of the players, the bats and the ball from The Home Run movie.",
+        (RED,),
+    ),
+    _p(
+        _HR,
+        "PB",
+        "The Home Run Party Bags",
+        "Paper party bags with the bat and ball from The Home Run movie, ready to fill for a birthday.",
+        (RED, NAVY),
+    ),
+    _p(
+        _HR,
+        "CK",
+        "Kids' Baseball Birthday Cake",
+        "A vanilla sponge birthday cake shaped like a baseball, with the team badge from The Home Run movie. Serves 12.",
+    ),
+    # -- The Lady in High Heels: a grandmother spy in red high heels (no shoes) --
+    _p(
+        _LH,
+        "MG",
+        "The Lady in High Heels Stoneware Mug",
+        "A stoneware mug with the spy grandmother and her shiny heels from The Lady in High Heels movie. Dishwasher safe.",
+        (WHITE, PINK),
+    ),
+    _p(
+        _LH,
+        "TE",
+        "The Lady in High Heels Kids' Cotton Tee",
+        "A soft cotton tee for kids with the spy grandmother from The Lady in High Heels movie on the front.",
+        (PINK, WHITE),
+    ),
+    _p(
+        _LH,
+        "PJ",
+        "The Lady in High Heels Kids' Pyjamas",
+        "Long-sleeve cotton pyjamas for kids, printed with magnifying glasses and shiny heels from The Lady in High Heels movie.",
+        (PINK, NAVY),
+    ),
+    _p(
+        _LH,
+        "LN",
+        "Kids' Secret Agent Lunch Box",
+        "A wipe-clean lunch box with a clip lid, printed with the spy grandmother's gadgets from The Lady in High Heels movie.",
+        (NAVY, PINK),
+    ),
+    _p(
+        _LH,
+        "ST",
+        "The Lady in High Heels Sticker Sheets",
+        "Four sheets of stickers of the spy grandmother, her gadgets and her shiny heels from The Lady in High Heels movie.",
+        (PINK,),
+    ),
+    _p(
+        _LH,
+        "PB",
+        "The Lady in High Heels Party Bags",
+        "Paper party bags with the spy grandmother from The Lady in High Heels movie, ready to fill for a birthday.",
+        (PINK, PURPLE),
+    ),
+    _p(
+        _LH,
+        "CK",
+        "The Lady in High Heels Birthday Cake",
+        "A strawberry sponge birthday cake with pink icing and a sugar high heel from The Lady in High Heels movie. Serves 12.",
+    ),
+    _p(
+        _LH,
+        "SS",
+        "The Lady in High Heels Spy Sweets",
+        "Fruit sweets in a secret-code bag from The Lady in High Heels movie.",
+    ),
+    # -- The Haunted Dollhouse: a friendly ghost lives in an old dollhouse (no dolls or dolls' houses) --
+    _p(
+        _HD,
+        "MG",
+        "The Haunted Dollhouse Stoneware Mug",
+        "A stoneware mug with the little house and the ghost at its window from The Haunted Dollhouse movie. Dishwasher safe.",
+        (WHITE, PURPLE),
+    ),
+    _p(
+        _HD,
+        "TE",
+        "The Haunted Dollhouse Kids' Cotton Tee",
+        "A soft cotton tee for kids with the friendly ghost from The Haunted Dollhouse movie on the front.",
+        (PURPLE, GREY, WHITE),
+    ),
+    _p(
+        _HD,
+        "SW",
+        "The Haunted Dollhouse Kids' Sweatshirt",
+        "A brushed-back cotton sweatshirt for kids with the moonlit house from The Haunted Dollhouse movie.",
+        (PURPLE, NAVY),
+    ),
+    _p(
+        _HD,
+        "BD",
+        "Kids' Spooky Night Duvet Set",
+        "A single duvet cover and pillowcase with the ghost and the moonlit house from The Haunted Dollhouse movie. Duvet sold separately.",
+        (PURPLE, GREY),
+    ),
+    _p(
+        _HD,
+        "TY",
+        "The Haunted Dollhouse Ghost Cat Soft Toy",
+        "A soft plush of the ghost's cat from The Haunted Dollhouse movie, glow-in-the-dark eyes.",
+        (GREY,),
+        shape="cat",
+    ),
+    _p(
+        _HD,
+        "ST",
+        "The Haunted Dollhouse Sticker Sheets",
+        "Four sheets of glow-in-the-dark stickers of the ghost and the house from The Haunted Dollhouse movie.",
+        (PURPLE,),
+    ),
+    _p(
+        _HD,
+        "CK",
+        "The Haunted Dollhouse Celebration Cake",
+        "A chocolate sponge cake with purple icing and a sugar ghost from The Haunted Dollhouse movie. Serves 14.",
     ),
 )
 
