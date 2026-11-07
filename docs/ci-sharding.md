@@ -17,6 +17,7 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The
 | more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`)                                |
 | refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
 | run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 17` prints its files                                          |
+| refresh the peaks    | download the `module-peaks-*` artifacts of green runs, then `python3 scripts/ci_shards.py --refresh-peaks module-peaks-*.json` |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
 `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`, about 75 minutes of
@@ -139,6 +140,22 @@ that module ran. That is the figure to read when you size a shard's worker count
 keeps each mark before it resets it, so `peak worker memory:` gives each worker's peak over the
 whole run, not just its last module's (#869). A worker the kernel kills prints neither line;
 "A lost xdist worker" below names the module it died in (#845).
+
+A self-hosted runner's 6 GB container caps `-n auto` at two workers
+(`PYTEST_XDIST_AUTO_NUM_WORKERS=2`), because a few modules peak near 3 GB. A shard that runs none
+of them gets three (#790): before pytest starts, `scripts/ci_shards.py --workers <files>` reads
+`scripts/ci_module_peaks.json`, the recorded peak of each module in MB. When every planned file
+is recorded at 1,500 MB or less, it prints `3` and the step exports it. A file over 1,500 MB, or
+one with no recorded peak (a new module), keeps the runner's two. The reason goes in the log
+above the run, and a hosted runner, which sets no cap, keeps `-n auto`. Each shard writes every
+module's figure to `$MODULE_PEAKS_OUT` and uploads it as `module-peaks-<N>`, and
+`--refresh-peaks` rebuilds the table from those files. A worker's reset keeps what is resident,
+so a module that runs after a heavier one on the same worker can read high on that module's
+leftovers. A figure over 1,500 MB that is below its shard's highest is therefore not counted,
+while a figure at or under 1,500 MB always is. The first table came from the logs and junit
+reports of the 18 push-to-main runs from 42182122044 to 42370021846. A module a shard's line
+named got its figure. Any other module the shard ran got the smaller of 1,500 MB and the shard's
+highest worker peak, since the line says it stayed under 1,500 MB.
 
 ## Random order (#539)
 

@@ -9,7 +9,9 @@ Each test module's peak too (#790): a worker sets its high-water mark back to wh
 (``5`` to ``/proc/self/clear_refs``) before each module, so the mark after the module's last test
 is the worker's peak while that module ran (what earlier modules left resident counts too). The
 ``module peak memory:`` line names the modules over :data:`HEAVY_MB`, so a shard's log says which
-modules need a worker of their own. A worker that cannot reset the mark (no ``/proc``) reports no
+modules need a worker of their own, and ``MODULE_PEAKS_OUT`` names a file for every module's
+figure, which picks a shard's worker count (``scripts/ci_shards.py --workers``). A worker that
+cannot reset the mark (no ``/proc``) reports no
 module. Before each reset the worker keeps the mark it clears, so its ``peak worker memory:``
 figure is its peak over the whole run, not the last module's (#869).
 
@@ -22,6 +24,7 @@ killer ends leaves its finished modules' peaks, and its last line names the modu
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from pathlib import Path
@@ -73,6 +76,9 @@ def module_summary(peaks: dict[str, int]) -> str:
 
 #: The directory a worker appends its module peaks to, one file per worker (#845); unset, none.
 PEAK_DIR_ENV = "WORKER_PEAK_DIR"
+#: The file the controller writes every module's peak to, as ``{module: MB}`` JSON (#790): a CI
+#: shard uploads it, and ``scripts/ci_shards.py --refresh-peaks`` reads it. Unset, none.
+MODULE_PEAKS_OUT_ENV = "MODULE_PEAKS_OUT"
 
 
 def _module(item: pytest.Item) -> str:
@@ -145,3 +151,7 @@ def pytest_terminal_summary(terminalreporter, config) -> None:
     modules = getattr(config, "_all_module_peaks", None)
     if modules:
         terminalreporter.write_line(module_summary(modules))
+        out = os.environ.get(MODULE_PEAKS_OUT_ENV)
+        if out:
+            table = json.dumps(dict(sorted(modules.items())), indent=1)
+            Path(out).write_text(table + "\n", encoding="utf-8")

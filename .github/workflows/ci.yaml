@@ -208,6 +208,12 @@ jobs:
           if [ -f build/ceiling/figures.json ]; then export RETAIL_FIGURES_CACHE="$PWD/build/ceiling"; fi
           # The 100K files of the ceiling-catalogue job's hundred_k leg (#790).
           if [ -d build/hundred_k ]; then export SHARED_BUILDS_DIR="$PWD/build/hundred_k"; fi
+          # Every module's peak (tests/worker_peak.py), uploaded below for --refresh-peaks; a local run has no RUNNER_TEMP.
+          if [ -n "${RUNNER_TEMP:-}" ]; then export MODULE_PEAKS_OUT="$RUNNER_TEMP/module-peaks-${{ matrix.shard }}.json"; fi
+          # Three workers, not the runner's two, when no module of the plan was measured over
+          # 1500 MB (scripts/ci_module_peaks.json, #790); the line above the run says why.
+          workers=$(python3 scripts/ci_shards.py --workers "${files[@]}") || { echo "the worker count failed"; exit 1; }
+          if [ -n "$workers" ]; then export PYTEST_XDIST_AUTO_NUM_WORKERS="$workers"; fi
           # A lost xdist worker is an infra failure, rerun once (#629): docs/ci-sharding.md.
           python3 scripts/ci_run_pytest.py -- uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.
@@ -216,6 +222,13 @@ jobs:
         with:
           name: junit-${{ matrix.shard }}
           path: ${{ runner.temp }}/junit-${{ matrix.shard }}.xml
+          if-no-files-found: ignore
+      # Each shard's module peaks: scripts/ci_shards.py --refresh-peaks reads them (#790).
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: module-peaks-${{ matrix.shard }}
+          path: ${{ runner.temp }}/module-peaks-${{ matrix.shard }}.json
           if-no-files-found: ignore
 
   main-merged-tree:

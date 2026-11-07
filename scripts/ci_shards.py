@@ -6,6 +6,8 @@
     ci_shards.py --shard K --of N --base B --head H   # the same, for the files B..H reaches (#495)
     ci_shards.py --plan K --of N --base B --head H    # ``shards=<n>`` then shard K's files
     ci_shards.py --refresh JUNIT...   # rewrite scripts/ci_shard_weights.json from junit reports
+    ci_shards.py --workers FILE...    # the worker count for a shard running these files (#790)
+    ci_shards.py --refresh-peaks PEAKS_JSON...   # rewrite scripts/ci_module_peaks.json
 
 The workflow's ``tests`` job is a matrix of N shards on GitHub-hosted runners, each running
 ``pytest -n auto --dist loadgroup`` over the files this prints. The suite is about 27
@@ -33,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -83,6 +86,66 @@ def load_weights(path: Path = WEIGHTS) -> dict[str, float]:
     if not path.exists():
         return {}
     return {name: float(seconds) for name, seconds in json.loads(path.read_text()).items()}
+
+
+#: Each test module's peak resident memory on a CI worker, in MB (#790): ``--refresh-peaks``
+#: writes it from the shards' ``module-peaks-*`` artifacts, and ``--workers`` reads it.
+MODULE_PEAKS = REPO / "scripts" / "ci_module_peaks.json"
+#: A module over this many MB is heavy: ``HEAVY_MB`` of ``tests/worker_peak.py``, the figure its
+#: ``module peak memory:`` line names a module by.
+HEAVY_MB = 1500
+#: The workers of a shard with no heavy module: 3 x 1.5 GB fits a runner's 6 GB container (#790).
+LIGHT_WORKERS = 3
+#: The runner's cap on ``-n auto``: a self-hosted container sets it, a hosted runner does not.
+WORKERS_ENV = "PYTEST_XDIST_AUTO_NUM_WORKERS"
+
+
+def load_peaks(path: Path = MODULE_PEAKS) -> dict[str, int]:
+    if not path.exists():
+        return {}
+    return {name: int(mb) for name, mb in json.loads(path.read_text(encoding="utf-8")).items()}
+
+
+def workers(files: list[str], peaks: dict[str, int], cap: str | None) -> tuple[int | None, str]:
+    """The worker count for a shard that runs ``files``, or None to keep the runner's, and why.
+
+    A runner that caps ``-n auto`` below ``LIGHT_WORKERS`` (a 6 GB container's two) gets
+    ``LIGHT_WORKERS`` when every file's recorded peak is at most ``HEAVY_MB``. A file with no
+    recorded peak (a new module) counts as heavy. A runner with no cap, or a higher one, keeps it.
+    """
+    if not cap or not cap.isdigit() or int(cap) >= LIGHT_WORKERS:
+        return None, f"workers: the runner's ({WORKERS_ENV}={cap or 'unset'})"
+    heavy = [name for name in files if peaks.get(name, HEAVY_MB + 1) > HEAVY_MB]
+    if heavy:
+        named = ", ".join(
+            f"{name} {peaks[name]} MB" if name in peaks else f"{name} not measured"
+            for name in heavy
+        )
+        return None, f"workers: the runner's {cap}, over {HEAVY_MB} MB or not measured: {named}"
+    return LIGHT_WORKERS, (
+        f"workers: {LIGHT_WORKERS}, not the runner's {cap}: no module of this shard's plan "
+        f"measured over {HEAVY_MB} MB ({MODULE_PEAKS.name})"
+    )
+
+
+def refresh_peaks(reports: list[Path]) -> dict[str, int]:
+    """The peak table from the shards' module-peak files: each module's highest figure of its own.
+
+    A file is one shard's ``{module: MB}``, which ``tests/worker_peak.py`` writes. A worker resets
+    its high-water mark before each module but keeps what is resident, so a module that runs
+    after a heavier one on the same worker can read over ``HEAVY_MB`` on that one's leftovers. A
+    figure over ``HEAVY_MB`` and below its shard's highest is not counted. A figure at or under
+    ``HEAVY_MB`` always is, since leftovers only add. A module with no counted figure is left
+    out, and ``workers`` counts a module left out as heavy.
+    """
+    table: dict[str, int] = {}
+    for report in reports:
+        figures = {name: int(mb) for name, mb in json.loads(report.read_text("utf-8")).items()}
+        top = max(figures.values(), default=0)
+        for name, mb in figures.items():
+            if mb <= HEAVY_MB or mb == top:
+                table[name] = max(table.get(name, 0), mb)
+    return dict(sorted(table.items()))
 
 
 _SPREAD = re.compile(r"^XDIST_SPREAD\s*=\s*True\b", re.MULTILINE)
@@ -239,7 +302,23 @@ def main(argv: list[str] | None = None) -> int:
         "--base", default="", help="base of the change; with --head, scope the files"
     )
     parser.add_argument("--head", default="", help="head of the change")
+    parser.add_argument(
+        "--workers", nargs="+", metavar="FILE", help="print the worker count for these files"
+    )
+    parser.add_argument("--refresh-peaks", nargs="+", type=Path, metavar="PEAKS_JSON")
+    parser.add_argument("--peaks", type=Path, default=MODULE_PEAKS, help="the module peak table")
     args = parser.parse_args(argv)
+    if args.workers:
+        count, why = workers(args.workers, load_peaks(args.peaks), os.environ.get(WORKERS_ENV))
+        print(why, file=sys.stderr)
+        if count is not None:
+            print(count)
+        return 0
+    if args.refresh_peaks:
+        table = refresh_peaks(args.refresh_peaks)
+        args.peaks.write_text(json.dumps(table, indent=1) + "\n", encoding="utf-8")
+        print(f"wrote {args.peaks}")
+        return 0
     if args.plan == "all":  # a local run: every test file, one shard
         every = collected_test_files()
         ordered = run_order(every, load_weights(), spread_files(every))
