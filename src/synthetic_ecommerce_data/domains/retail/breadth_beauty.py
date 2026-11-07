@@ -94,19 +94,19 @@ BEAUTY = (
     # leaf's derived styles may take (the satin and matte lipsticks are in ``variants.BEAUTY``).
     Row("LIPCRM", "Kestlewood Cream Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
         "Lipstick", 13.0, "lipstick", "A cushiony cream lipstick with full color in one sweep.",
-        _shades("Rose Petal; Spiced Plum; Cherry Red; Soft Mauve; Cinnamon; Warm Nude; "
-                "Raspberry; Deep Wine",
+        _shades("Light Rose; Dark Purple; Red; Soft Lilac; Tan; Warm Nude; "
+                "Raspberry; Dark Burgundy",
                 "d98c95 7a3b4f b3132b b48a96 a0522d c49a83 c72c58 5b1a2a"),
         _finish("Cream")),
     Row("LIPSHR", "Kestlewood Sheer Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
         "Lipstick", 12.0, "lipstick",
         "A light, glossy lipstick that gives a wash of color you can layer.",
-        _shades("Blush Glaze; Peony Glaze; Cherry Glaze; Nude Glaze; Plum Glaze; Coral Glaze",
+        _shades("Sheer Pink; Sheer Rose; Sheer Red; Sheer Nude; Sheer Purple; Sheer Coral",
                 "e8a3a8 e58fa8 c0392b d8b4a0 8e4a6b f08070"),
         _finish("Sheer")),
     Row("LIPMET", "Kestlewood Metallic Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
         "Lipstick", 15.0, "lipstick", "A foiled lipstick with a high-shine metallic finish.",
-        _shades("Bronze Foil; Rose Gold; Copper Penny; Garnet Foil; Amethyst; Champagne Pink",
+        _shades("Dark Copper; Rose Gold; Copper; Maroon; Purple; Champagne Pink",
                 "a0663a c98b7c b0643c 7b1e2a 7d4e8a e3b7a8"),
         _finish("Metallic")),
     Row("FNDCRM", "Kestlewood Cream Foundation 30ml", "Kestlewood Cosmetics", "Beauty",

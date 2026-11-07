@@ -1,5 +1,5 @@
 {
- "recorded_from": "main 905f3cd0, scale.templates()",
+ "recorded_from": "main abccab29 plus #851, scale.templates()",
  "product_types": ["Cake", "Duvet Set", "Gift Bag", "Jumper", "Lunch Box", "Mug", "Party Cup", "Pyjamas", "Soft Toy", "Stickers", "Sweatshirt", "Sweets", "Tee"],
  "products": {
   "BRD-CHKDRI": {"brand":"Puddlecombe Toys","category_path":["Food & Drink","Bakery","Cakes"],"colors":[],"price_max":5.0,"price_min":5.0,"sku_count":1,"title":"Driftwhistle Bay Cupcakes","was_price":null},
@@ -309,11 +309,11 @@
   "GRC-CAK-0065": {"brand":"Hearth & Table","category_path":["Food & Drink","Bakery","Cakes"],"colors":[],"price_max":2.55,"price_min":2.35,"sku_count":2,"title":"Plentiful Layered Coffee & Walnut Cake with Real Egg","was_price":null},
   "GRC-CAK-0066": {"brand":"Hearth & Table","category_path":["Food & Drink","Bakery","Cakes"],"colors":[],"price_max":2.39,"price_min":2.19,"sku_count":2,"title":"Hearth & Table Plentiful Light & Fluffy Chocolate Fudge Cake with Real Egg","was_price":null},
   "GRC-CAK-0067": {"brand":"Crofter's Bakehouse","category_path":["Food & Drink","Bakery","Cakes"],"colors":[],"price_max":3.05,"price_min":2.79,"sku_count":2,"title":"Fair Home Baked Style Coffee & Walnut Cake with Real Sugar","was_price":null},
-  "GRC-GCH-0001": {"brand":"Wheatsheaf Lane","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.39,"price_min":1.39,"sku_count":2,"title":"Wheatsheaf Lane Prime Nostalgic Grape Jellies with No Artificial Ingredients","was_price":null},
-  "GRC-GCH-0002": {"brand":"Wheatsheaf Lane","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.29,"price_min":1.29,"sku_count":2,"title":"Prime Grape Fruit Chews with No Preservatives","was_price":null},
-  "GRC-GCH-0003": {"brand":"Wheatsheaf Lane","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.29,"price_min":1.29,"sku_count":2,"title":"Wheatsheaf Lane Prime Pick & Mix Grape Fruit Chews with No Artificial Ingredients","was_price":null},
-  "GRC-GCH-0004": {"brand":"Wheatsheaf Lane","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.29,"price_min":1.29,"sku_count":2,"title":"Wheatsheaf Lane Prime Old Fashioned Grape Fruit Chews with Real Sugar","was_price":null},
-  "GRC-GCH-0005": {"brand":"Crunchworth","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.39,"price_min":1.39,"sku_count":2,"title":"Crunchworth Honest Vintage Style Organic Grape Jellies with Natural Flavoring","was_price":null},
+  "GRC-GCH-0001": {"brand":"Pantry Mill","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":1.99,"price_min":1.15,"sku_count":2,"title":"Pantry Mill Finest Vintage Style Grape Jellies with No Artificial Ingredients","was_price":null},
+  "GRC-GCH-0002": {"brand":"Pantry Mill","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":1.89,"price_min":1.09,"sku_count":2,"title":"Finest Nostalgic Organic Grape Fruit Chews with No Artificial Colors","was_price":null},
+  "GRC-GCH-0003": {"brand":"Crunchworth","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.39,"price_min":1.39,"sku_count":2,"title":"Crunchworth Honest Hand Pulled Grape Jellies with No Artificial Colors","was_price":null},
+  "GRC-GCH-0004": {"brand":"Wheatsheaf Lane","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.39,"price_min":1.39,"sku_count":2,"title":"Wheatsheaf Lane Prime Old Fashioned Organic Grape Jellies with No Preservatives","was_price":null},
+  "GRC-GCH-0005": {"brand":"Crunchworth","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.29,"price_min":1.29,"sku_count":2,"title":"Crunchworth Honest Sharing Grape Fruit Chews with No Artificial Colors","was_price":null},
   "GRC-SWT-0001": {"brand":"Crofter's Bakehouse","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.09,"price_min":1.15,"sku_count":4,"title":"Crofter's Bakehouse Fair Old Fashioned Sweets with Natural Flavoring","was_price":null},
   "GRC-SWT-0002": {"brand":"Pantry Mill","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":1.75,"price_min":0.9,"sku_count":4,"title":"Pantry Mill Finest Vintage Style Sweets with No Palm Oil","was_price":null},
   "GRC-SWT-0003": {"brand":"Crunchworth","category_path":["Food & Drink","Chocolate & Sweets","Sweets"],"colors":[],"price_max":2.09,"price_min":1.15,"sku_count":6,"title":"Honest Traditional Organic Sweets with Real Sugar","was_price":null},
