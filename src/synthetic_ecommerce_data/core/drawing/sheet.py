@@ -63,6 +63,7 @@ from synthetic_ecommerce_data.core.drawing import brand_mark, product_look, svg
 from synthetic_ecommerce_data.core.drawing.model import (
     Bars,
     Disc,
+    Discs,
     Dots,
     Figure,
     Lines,
@@ -390,6 +391,12 @@ def _figure_at(
             page.polygon(points, **style)
             if hatched and hatch_id:
                 page.polygon(points, fill=f"url(#{hatch_id})")
+        elif isinstance(shape, Discs):
+            centres = [at(c) for c in shape.centres]
+            r = shape.radius * scale
+            page.circles(centres, r, **style)
+            if hatched and hatch_id:
+                page.circles(centres, r, fill=f"url(#{hatch_id})")
         elif isinstance(shape, Disc):
             cx, cy = at(shape.centre)
             r = shape.radius * scale

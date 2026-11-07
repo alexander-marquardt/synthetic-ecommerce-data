@@ -65,6 +65,17 @@ class Bars:
 
 
 @dataclass(frozen=True)
+class Discs:
+    """Many discs of one radius and role, painted as ONE group: a part that repeats (a
+    bearing's balls) costs a bare ``<circle>`` a copy rather than a styled element and its
+    hatch a copy (#50)."""
+
+    centres: tuple[Point, ...]
+    radius: float
+    role: str = "part"
+
+
+@dataclass(frozen=True)
 class Outlines:
     """Plain closed outlines painted as ONE path: the items behind a pack's top item (:func:`fan`)
     cost a few bytes each rather than a whole drawing each."""
@@ -76,7 +87,7 @@ class Outlines:
 class Figure:
     """One product drawn in inches, and how big it is."""
 
-    shapes: list[Poly | Disc | Lines | Dots | Bars | Outlines] = field(default_factory=list)
+    shapes: list[Poly | Disc | Discs | Lines | Dots | Bars | Outlines] = field(default_factory=list)
     #: The characteristic size, in inches, that the sheet's size cue reads.
     size_in: float = 1.0
 
@@ -88,6 +99,11 @@ class Figure:
 
     def disc(self, centre: Point, radius: float, role: str = "part", fill=None) -> None:
         self.shapes.append(Disc(centre, radius, role, fill))
+
+    def discs(self, centres, radius: float, role: str = "part") -> None:
+        centres = tuple(centres)
+        if centres:
+            self.shapes.append(Discs(centres, radius, role))
 
     def lines(self, segments, role: str = "line") -> None:
         segments = tuple(segments)
@@ -114,6 +130,9 @@ class Figure:
             elif isinstance(shape, Disc):
                 xs.extend((shape.centre[0] - shape.radius, shape.centre[0] + shape.radius))
                 ys.extend((shape.centre[1] - shape.radius, shape.centre[1] + shape.radius))
+            elif isinstance(shape, Discs):
+                xs.extend(x + d for x, _ in shape.centres for d in (-shape.radius, shape.radius))
+                ys.extend(y + d for _, y in shape.centres for d in (-shape.radius, shape.radius))
             elif isinstance(shape, Dots):
                 xs.extend(c[0] for c in shape.centres)
                 ys.extend(c[1] for c in shape.centres)
