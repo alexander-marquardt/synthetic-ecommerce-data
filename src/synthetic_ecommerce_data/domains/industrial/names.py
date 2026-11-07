@@ -258,6 +258,11 @@ NAME_EXCEPTIONS: dict[str, str] = {
         "how many units one listing sells (#497); the census states it as Package Quantity"
     ),
     "Piece Count": "how many pieces a kit holds (#497); the census states it as Number of Pieces",
+    "Cut Type": (
+        "a hand file's cut grade, Bastard, Second or Smooth (#836); the census carries no file"
+        " family, its Grade is a bolt's strength class and its Cutting Type an end mill's;"
+        " a distributor's file spec table names it Cut Type"
+    ),
     "Number of Points": (
         "a wrench's box end, 6 or 12 points (#836); the census carries no wrench family, its"
         " Point Type is a set screw's or a drill's point, and it is cased like Number of Flutes"

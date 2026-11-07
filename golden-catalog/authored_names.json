@@ -270,6 +270,11 @@
   "Measurement system": "Measurement System",
   "Overall length": "Overall Length"
  },
+ "hand_files": {
+  "Cut type": "Cut Type",
+  "Measurement system": "Measurement System",
+  "Tooth type": "Tooth Type"
+ },
  "hex_bit_socket_sets": {
   "Drive size": "Drive Size"
  },
