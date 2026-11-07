@@ -140,6 +140,32 @@ def _titled(title: str) -> int:
     return 2 if _TWO.search(title) else 1
 
 
+_STATED = (
+    re.compile(r"\b(?:pack|set|box) of (\d+|two|three|four|five|six)\b", re.IGNORECASE),
+    re.compile(r"\b(\d+)[ -]?(?:pack|pk|piece)\b", re.IGNORECASE),
+)
+_WORDS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
+_PAIR = re.compile(r"\btwin pack\b|\bpair of\b|\bpair$", re.IGNORECASE)
+
+
+def title_count(title: str) -> int | None:
+    """The count the title states (``Set of 4``, ``Set of Three``, ``6 Pack``, ``5pk``,
+    ``16 Piece``, ``Twin Pack``, ``Pair of``), or ``None`` when it states none."""
+    for pattern in _STATED:
+        named = pattern.search(title)
+        if named:
+            return _WORDS.get(named[1].lower()) or int(named[1])
+    return 2 if _PAIR.search(title) else None
+
+
+def shown(rec: dict[str, Any]) -> int | None:
+    return None
+
+
+def count_tag(n: int) -> str:
+    return ""
+
+
 def count(rec: dict[str, Any], sku: dict[str, Any]) -> int:
     """How many items the SKU's pack holds."""
     if "units_per_pack" in sku:
