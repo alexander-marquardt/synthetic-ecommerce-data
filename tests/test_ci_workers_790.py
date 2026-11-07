@@ -129,7 +129,8 @@ def test_the_tests_step_exports_the_count_the_planner_gives() -> None:
     assert 'python3 scripts/ci_shards.py --workers "${files[@]}"' in run
     assert 'export PYTEST_XDIST_AUTO_NUM_WORKERS="$workers"' in run
     assert run.index("--workers") < run.index("ci_run_pytest.py")
-    assert step["env"].get("MODULE_PEAKS_OUT") == PEAKS_OUT
+    assert 'export MODULE_PEAKS_OUT="$RUNNER_TEMP/module-peaks-${{ matrix.shard }}.json"' in run
+    assert run.index("MODULE_PEAKS_OUT") < run.index("ci_run_pytest.py")
 
 
 def test_each_shard_uploads_its_module_peaks() -> None:
