@@ -40,7 +40,7 @@ MODELS = 1920
 STRIDE = MODELS // len(LEADS)
 #: Chosen by search so that, in the catalog's seed, no two lipstick lines of one brand share both a
 #: case and its color: a brand's products fill a page together. A test holds this.
-SALT = 295163
+SALT = 295164
 #: A model's number -> its place among the looks: every place once, in no order of the grammar.
 SCATTERED = sorted(range(MODELS), key=lambda n: zlib.crc32(f"{SALT}:{n}".encode()))
 

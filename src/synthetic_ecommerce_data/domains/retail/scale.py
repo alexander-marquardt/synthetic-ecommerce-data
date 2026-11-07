@@ -78,8 +78,8 @@ sibling already shows, its title tells it from them by its brand alone: it is th
 brand's one product of the kind, in all of the template's colors, never a product of
 one color named in its title ("Supper 9 ..., Green" beside the brand's own grouped
 product, #851). A second such style of the same brand is a twin, so the build makes none.
-A cleaning or beauty style keeps the older rule for now: the hero color alone sets it
-apart, so it carries that color only and its title ends with it ("..., Coral").
+A beauty shade is such a color too: a lipstick or foundation line sells its shades as SKUs
+and splits into products by its finish or formula, never by a shade (#851).
 Its price is re-drawn: the template's, times :func:`price_factor`
 of the values it changed, times a seeded :data:`JITTER`, inside the leaf's
 :data:`PRICE_BAND`, on a :func:`price_point`, never the template's own. A value
@@ -788,11 +788,9 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
 
     A style whose title-shown values the template or an earlier sibling already shows carries
     all of the template's colors as its SKUs, hero first, and its title names none: it is its
-    brand's one product of the kind, never one color of it (#851). A cleaning or beauty style
-    (a lipstick shade, a scent) is still that one color, its title naming it ("…, Coral"), until
-    those families drop their numbered models too. A style of a
-    :mod:`line_grammar` family takes a model its brand owns there and the family's title shape
-    (gen#662)."""
+    brand's one product of the kind, never one color of it (#851), and so is a lipstick or
+    foundation shade. A style of a :mod:`line_grammar` family takes a model its brand owns there
+    and the family's title shape (gen#662)."""
     leaf = tpl["category_leaf"]
     tid = tpl["product_id"]
     keys = variable_keys(tpl, ctx.pools)
@@ -818,10 +816,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         values = dict(zip(shown, sig[0], strict=True))
         values |= {k: pick(ctx.pools[(leaf, k)], *key, k) for k in keys if k not in shown}
         colors = _colors(tpl, sig[1], *key)
-        named = sig[0] in taken and line_grammar.family(tpl) in line_grammar.CARE
-        if named:  # a care shade or scent is still its own product, its title says which
-            colors = colors[:1]
-        elif sig[0] in taken and colors:  # the brand's one product of the kind (#851)
+        if sig[0] in taken and colors:  # the brand's one product of the kind (#851)
             rest = (c["color"] for c in tpl["color_options"] if c["color"] != colors[0])
             colors = [colors[0], *rest]
         brand = pick(brands, *key, "brand")
@@ -843,8 +838,6 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
             continue  # the drawn values merged two SKUs into one: not a product, so not drawn
         if deal:
             line_grammar.retitle(rec, tpl, number(*key, "grammar"))
-        if named and colors:
-            rec["title"] += line_grammar.color_suffix(rec, colors[0])
         if twin_key(rec) in used or rec["title"] in titles:
             continue
         if text_contradictions(standard_document(rec), ctx.text_pools):

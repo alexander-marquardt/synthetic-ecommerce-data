@@ -471,8 +471,8 @@ def range_names() -> Deal:
 @functools.cache
 def care_names(kind: str) -> line_grammar.Deal:
     """The grocery half of a cleaning or beauty family's model words, dealt over the grocery
-    brands that sell it (gen#666): "Soapwell Keen Plus 4". The scale build deals the other
-    half, so a word belongs to one brand across both."""
+    brands that sell it (gen#666): "Soapwell Total Lemon Floor Cleaner". The scale build deals
+    the other half, so a word belongs to one brand across both."""
     brands = {
         b
         for f in FAMILIES
@@ -531,6 +531,11 @@ def build(skus: int = TARGET, seed: int = 0) -> list[dict]:
         else:
             model = owned(brand, slot)
         rec = style(fam, pid, model, brand, flavors, packs, may, organic, grade, turn)
+        # A style word its flavor also says would be doubled ("Cask Traditional Traditional
+        # Perry", gen#729): that draw is no product, so another is made.
+        said = re.findall(r"[\w']+", rec["title"])
+        if fam.food and any(w != "&" and said.count(w) > 1 for w in model.split()[1:]):
+            return False
         # A depth family's twin is the same title bar the strength suffix: one drawing, two ids.
         key = re.sub(r" [\d.]+%$", "", rec["title"]) if fam.depth else rec["title"]
         if key in titles:

@@ -1,7 +1,7 @@
 """The beauty family of the line grammar: hand wash, make-up, creams, hair care (gen#666, gen#513).
 
 A title leads with the brand and a model, then the shade or scent and the kind, e.g.
-"Larkmoor Lasting Rich 3 Rose Lipstick". The lead words are plain words of public beauty
+"Larkmoor Lasting Rose Lipstick". The lead words are plain words of public beauty
 listings, not names, places or words another family uses.
 """
 
@@ -22,7 +22,20 @@ LEADS = (
     "Restore",
     "Replenish", "Hydrate", "Soothe", "Prestige", "Serenity", "Supple",
 )  # fmt: skip
-#: The sub-model word that may follow the lead.
+#: More lead words the grocery build deals with the odd half of ``LEADS`` (#851). A grocery
+#: hand wash or cream is one scent in its pack sizes, so a brand's titles are its words times
+#: the scents, and a model is a word alone ("Prestige Honey Body Milk", never "Prestige Pro 4").
+GROCERY_LEADS = (
+    "Dew", "Elixir", "Cocoon", "Embrace", "Caress", "Lumina", "Opulence", "Grace", "Splendor",
+    "Tranquil", "Adore", "Reverie", "Precious", "Purity", "Oasis", "Cosset", "Indulgence",
+    "Enchant", "Enrich", "Featherlight", "Botanica", "Lush", "Dreamy", "Bespoke", "Timeless",
+    "Ageless", "Youthful", "Rebalance", "Illuminate", "Cleanse", "Purify", "Nectar", "Gossamer",
+    "Radiate", "Luminosity", "Starlit", "Moonlit", "Velveteen", "Sumptuous", "Decadence",
+    "Splendid", "Majesty", "Royale", "Couture", "Chic", "Muse", "Belle", "Gorgeous", "Flourish",
+    "Thrive", "Blissful", "Elysian", "Halcyon", "Idyll", "Heavenly", "Angelic", "Ethereal",
+    "Celestial", "Reveal", "Rescue",
+)  # fmt: skip
+#: The sub-model word an authored model may carry after the lead.
 SUBS = ("Plus", "Lite", "Rich", "Pro", "Extra")
 #: The generations a model is in.
 NUMBERS = tuple(range(2, 10))

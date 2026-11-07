@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Beauty",
     product_type="Foundation",
     rows=(),
-    homes=(Home("samples", True),),
+    homes=(Home("samples", True), Home("breadth_rows", True)),
 )

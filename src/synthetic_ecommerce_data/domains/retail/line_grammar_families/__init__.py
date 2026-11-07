@@ -21,6 +21,9 @@ lead word, an optional sub-model and a number or a code ("Tempo Pro 3") is now a
 ``GROCERY_LEADS``
     A second lead half (optional): the grocery build deals it, the scale build deals ``LEADS``,
     so one word belongs to one brand across both builds (gen#642, gen#665). Checked like ``LEADS``.
+    A cleaning or beauty family splits ``LEADS`` between the builds instead, and the grocery
+    build deals these as well as its odd half: its styles are one scent each, so its brands need
+    more words than the scale build's to reach their budgets (#851).
 ``BARE``
     True when the lead word alone is a model (optional, gen#665).
 ``STYLES``

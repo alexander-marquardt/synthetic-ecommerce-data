@@ -39,8 +39,9 @@ from synthetic_ecommerce_data.domains.retail.breadth_toys import TOYS
 #: The fewest derivable styles any department holds at the ceiling build (gen#220). It is a
 #: count of the department's own, not a share of the total: a batch that grows one department
 #: (the Home types of gen#196-#217) moves no other department's standing, so it needs no
-#: filler rows elsewhere. The smallest department at the ceiling holds 212 (Beauty);
-#: dropping half of any thin department's rows here leaves it with 64 to 116.
+#: filler rows elsewhere. The smallest department at the ceiling holds 163 (Beauty, whose
+#: shades are SKUs of a line split by finish or formula, #851); dropping half of any thin
+#: department's rows here leaves it with 64 to 116.
 DEPARTMENT_FLOOR = 150
 
 
