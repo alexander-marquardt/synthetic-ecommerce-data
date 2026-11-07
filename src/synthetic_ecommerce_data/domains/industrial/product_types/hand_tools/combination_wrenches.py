@@ -10,13 +10,14 @@ inch sizes are read from the standards library's hex nut widths across flats
 from ASME B18.2.1's hex cap screw heads (``fastener_standards``); the metric
 ones from ISO 4017's hex cap screw heads and, where it has none, from
 DIN 933's. So every size turns a hex fastener the catalog sells. Each kind
-stocks a run of those sizes (:data:`KINDS`). ASME B107.100, the flat wrench
-standard the issue names, was not read: the standard is sold, and only its
-table of contents is public (it names Category 6 Combination Wrench and its
-Tables 5.1.1-1 and 5.1.1-1M, sizes in U.S. Customary and SI units). So no
-line claims it, no record publishes a length the standard would give
-(overall length, head thickness), and the sizes it lists beyond these hex
-widths (13/16 in, 1 in, 9 mm, 11 mm and so on) are not offered.
+stocks a run of those sizes (:data:`KINDS`), and the breadth row's sizes are
+each a run's first size on some line whatever the seed (:data:`BREADTH_SIZES`).
+ASME B107.100, the flat wrench standard the issue names, was not read: the
+standard is sold, and only its table of contents is public (it names
+Category 6 Combination Wrench and its Tables 5.1.1-1 and 5.1.1-1M, sizes in
+U.S. Customary and SI units). So no line claims it, no record publishes a
+length the standard would give (overall length, head thickness), and the
+sizes it lists beyond these hex widths (13/16 in, 1 in, 9 mm, 11 mm and so on) are not offered.
 
 **Names.** ``Size``, ``Type``, ``Material`` and ``Finish`` are census names.
 The census has no wrench family and no name for how many points a box end
@@ -110,6 +111,13 @@ KINDS = (
 #: Every line a brand can offer: a kind in a unit system.
 COMBOS = tuple((kind, system) for kind in KINDS for system in ("in", "mm"))
 
+#: The sizes the breadth row offered (its ``size_values``), each still offered. The first inch
+#: lines start their runs at these in turn (:func:`_run`), so no seed's variant counts can
+#: leave one out (#50: seed 20260918 built no 5/8 or 3/4 in wrench).
+BREADTH_SIZES = tuple(
+    Fraction(s) for s in ("1/4", "5/16", "3/8", "7/16", "1/2", "9/16", "5/8", "3/4")
+)
+
 
 def sizes_in(kind: Kind, metric: bool) -> tuple[float, ...]:
     """``kind``'s stocked sizes in one unit system, in inches."""
@@ -125,6 +133,27 @@ def flats_standard(size_in: float, metric: bool) -> str:
     if metric:
         return MM_FLATS[round(size_in * MM_PER_INCH, 1)]
     return INCH_FLATS[Fraction(size_in).limit_denominator(64)]
+
+
+def _run(gen: Any, type_key: str, kind: Kind, system: str, count: int) -> list[float]:
+    """The ``count`` contiguous sizes a line stocks.
+
+    The pool's rotation alone starts each (kind, system)'s runs at its short end, and with a
+    few lines to a key the long breadth sizes were a variant count's luck. So the type's
+    first inch lines start at each of :data:`BREADTH_SIZES` in turn (or as near as the kind's
+    run allows) and the rotation picks the later ones. Both are rotations, not draws.
+    """
+    pool = sorted(sizes_in(kind, system == "mm"))
+    run = gen._offered_run(f"sizes:{kind.type}:{kind.finish}:{system}", pool, count)
+    if system == "mm":
+        return run
+    step = gen._rotation_step(f"breadth:{type_key}")
+    if step >= len(BREADTH_SIZES):
+        return run
+    anchor = float(BREADTH_SIZES[step])
+    start = next((i for i, size in enumerate(pool) if size >= anchor - 1e-9), 0)
+    start = min(start, len(pool) - count)
+    return pool[start : start + count]
 
 
 def provenance(sizes: list[float], metric: bool) -> str:
@@ -170,10 +199,9 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         keyword_attribute("Finish", kind.finish),
     ]
     draft.descriptors = [("Type", kind.type), ("Number of Points", kind.points)]
-    pool = list(sizes_in(kind, metric))
-    count = min(gen._variant_count(), len(pool))
+    count = min(gen._variant_count(), len(sizes_in(kind, metric)))
     style = gen._style(system)
-    run = gen._offered_run(f"sizes:{kind.type}:{kind.finish}:{system}", pool, count)
+    run = _run(gen, type_key, kind, system, count)
     for size_in in run:
         child = ChildDraft(system=system)
         child.primary = gen._length("Size", size_in, style)
