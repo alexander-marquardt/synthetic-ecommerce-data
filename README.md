@@ -1191,8 +1191,7 @@ otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
 
 A numeric attribute is a **range** or a **list** by what its `AttrSpec` declares
-(gen#95): `tabled` (default) or `drawn` (an end mill's Neck Length), read by
-`prism/derive.py` at any `--lines`; an undeclared one uses the ratio and floor.
+(gen#95): `tabled` (default) or `drawn` (none here since #859 made Neck Length a standard reach), read by `prism/derive.py` at any `--lines`; an undeclared one uses the ratio and floor.
 
 **An attribute whose key is a column's name is namespaced, never dropped.**
 Real feeds publish attributes named like a catalog's own columns -- the census

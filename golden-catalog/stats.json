@@ -3110,7 +3110,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 151445,
+ "total_attribute_entries": 151378,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3151,8 +3151,8 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0174993,
-   "numerator": 248,
+   "achieved": 0.0171465,
+   "numerator": 243,
    "denominator": 14172,
    "note": "over records with a readable dimension",
    "band": null
@@ -3160,17 +3160,17 @@
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00852197,
+   "achieved": 0.0085197,
    "numerator": 32,
-   "denominator": 3755,
+   "denominator": 3756,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.4596,
-   "numerator": 9482,
+   "achieved": 0.459648,
+   "numerator": 9483,
    "denominator": 20631,
    "note": "over title dimension tokens",
    "band": null
@@ -3214,8 +3214,8 @@
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.4981,
-   "numerator": 151445,
+   "achieved": 10.4934,
+   "numerator": 151378,
    "denominator": 14426,
    "note": "count, not a rate",
    "band": null
@@ -3415,7 +3415,7 @@
   {
    "name": "price p90/p10: end_mill_square",
    "target": 7.53715,
-   "achieved": 8.37619,
+   "achieved": 8.3807,
    "numerator": 1258,
    "denominator": 69,
    "note": "shown price; denom is the census n",
@@ -3427,9 +3427,9 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.810304,
-   "numerator": 19000,
-   "denominator": 23448,
+   "achieved": 0.810803,
+   "numerator": 19019,
+   "denominator": 23457,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.569266,
@@ -4239,12 +4239,12 @@
   "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
-  "in": 29318,
-  "mm": 16976
+  "in": 29314,
+  "mm": 16912
  },
- "standards_present": 7667,
+ "standards_present": 7668,
  "standards_multivalued": 1831,
- "standards_total_values": 9845,
+ "standards_total_values": 9846,
  "multivalued_attribute_names": {
   "Standards": 1831,
   "Sizes Included": 59
@@ -4425,14 +4425,14 @@
   },
   "drawings": {
    "count": 14426,
-   "bytes": 37687980,
+   "bytes": 38213567,
    "geometry": {
     "nominal": 200,
     "partial": 2901,
     "record": 11325
    },
-   "largest_bytes": 7403,
-   "largest_product_type": "roller_chain"
+   "largest_bytes": 9491,
+   "largest_product_type": "bearing_radial_ball"
   },
   "dispersion": {
    "quantitative_attributes": 64,
@@ -4449,11 +4449,11 @@
     "Frame color",
     "Sizes included"
    ],
-   "min_presence_arm": "Neck length",
-   "min_presence_arm_dispersion": 0.9912,
-   "min_presence_arm_present": 668,
-   "min_presence_arm_type_denominator": 2324,
-   "min_presence_arm_share": 0.29,
+   "min_presence_arm": "Decimal equivalent",
+   "min_presence_arm_dispersion": 0.162,
+   "min_presence_arm_present": 463,
+   "min_presence_arm_type_denominator": 652,
+   "min_presence_arm_share": 0.71,
    "identifier": "List number",
    "identifier_dispersion": 0.9575,
    "densest_terms_facet": "Bearing number",
@@ -4462,7 +4462,7 @@
   "flat_overmatch": {
    "attribute": "Shank dia.",
    "value": "3/8",
-   "matching": 369,
+   "matching": 384,
    "publishing": 202
   }
  }

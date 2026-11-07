@@ -153,17 +153,10 @@ def test_every_attribute_that_is_quantitative_still_says_so(flat_rows: list[dict
     stats = measure(flat_rows)
     quantitative = [s for s in stats.values() if s.is_numeric]
     assert len(quantitative) >= 25, len(quantitative)
-    # Neck Length is the one real continuum on this catalog: its values never
-    # repeat, and applying its census presence rate once instead of twice
-    # (alexander-marquardt/synthetic-ecommerce-data#39) raised its
-    # document count well past RANGE_MIN_DOCS, so dispersion alone now calls
-    # it continuous. It still is not OFFERED as a range -- MIN_PRESENCE keeps
-    # it off faceting entirely, since it is rare even among end mills (see
-    # MEASURED_DISPERSION and test_the_widest_dispersion_is_a_continuum_that_
-    # clears_the_document_floor) -- so this is the one exception to check
-    # before the rule is trusted, not a failure of it.
+    # No quantity on this catalog is a continuum since Neck Length became a
+    # standard reach (#859); it was the one whose values never repeated.
     # ``units_per_pack`` is the named exception of the rule, a threshold (RANGE_QUANTITIES).
-    assert [s.key for s in quantitative if s.is_continuous] == ["neck_length", "units_per_pack"]
+    assert [s.key for s in quantitative if s.is_continuous] == ["units_per_pack"]
 
 
 # --------------------------------------------------------------------------
@@ -395,19 +388,20 @@ def test_the_faceted_dispersion_band_is_what_the_rule_states(decided) -> None:
     assert over == sorted(NUMERIC_HELD_BY_FLOOR), "the band must sit below the threshold"
 
 
-def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) -> None:
-    """The arm the band does NOT cover, and which threshold decides it now.
+def test_the_widest_dispersion_is_a_ladder_and_the_neck_is_kept_off_by_min_presence(
+    decided,
+) -> None:
+    """The arm the band does NOT cover, and which threshold decides the neck.
 
-    ``Neck Length`` is a real continuum and clears ``RANGE_DISPERSION`` with
-    room to spare. It used to be the catalog's real example of
-    ``RANGE_MIN_DOCS`` -- too few documents to trust the dispersion statistic
-    -- but applying its census presence rate once instead of twice
-    (alexander-marquardt/synthetic-ecommerce-data#39) raised its
-    document count from 48 to 388, clearing that floor too. It is still not
-    offered as a range: it is rare even among end mills, the only product
-    types that carry it, so ``MIN_PRESENCE`` is the floor that decides it
-    now. If a regeneration drops either count back below its floor, this
-    reds rather than quietly changing the control.
+    ``Neck Length`` was this catalog's one continuum, over ``RANGE_DISPERSION``
+    with room to spare, so ``MIN_PRESENCE`` was the floor that kept it off a
+    slider. It is a standard reach since #859, a few dozen values, so no
+    quantity with the evidence ``RANGE_MIN_DOCS`` asks for reads as a continuum
+    any more: the widest is a ladder under the threshold. The neck is still not
+    offered: a reduced neck is rare even among end mills, the only product
+    types that carry it, so ``MIN_PRESENCE`` keeps it off. If a regeneration
+    lifts either over its threshold, this reds rather than quietly changing the
+    control.
     """
     # Over attributes with the evidence RANGE_MIN_DOCS asks for: a unit's own
     # key can hold a handful of defect values (``diameter_mm``: 2 documents),
@@ -418,23 +412,15 @@ def test_the_widest_dispersion_is_a_continuum_kept_off_by_min_presence(decided) 
     assert round(widest.dispersion, 4) == MEASURED_DISPERSION["min_presence_arm_dispersion"]
     assert widest.present == MEASURED_DISPERSION["min_presence_arm_present"]
     assert widest.type_denominator == MEASURED_DISPERSION["min_presence_arm_type_denominator"]
-    assert widest.dispersion > RANGE_DISPERSION, (
-        "dispersion alone would offer this as a RANGE -- the reason "
-        "MIN_PRESENCE, not dispersion, has to be the one that keeps it off a "
-        "slider"
-    )
-    assert widest.products >= RANGE_MIN_DOCS, (
-        "RANGE_MIN_DOCS no longer decides this attribute -- if it reds, "
-        "restate this test against whichever attribute IS below it, or "
-        "against the constructed case in test_a_small_sample_falls_back_to_discrete"
-    )
-    assert widest.is_continuous
     presence_share = widest.present / widest.type_denominator
     assert round(presence_share, 2) == MEASURED_DISPERSION["min_presence_arm_share"]
-    assert presence_share < MIN_PRESENCE, (
-        "MIN_PRESENCE is the floor this test is about; it has to actually apply"
+    assert widest.dispersion < RANGE_DISPERSION
+    assert not widest.is_continuous
+    neck, decision = decided["neck_length"]
+    assert not neck.is_continuous
+    assert neck.present / neck.type_denominator < MIN_PRESENCE, (
+        "MIN_PRESENCE is the floor that keeps the neck off; it has to actually apply"
     )
-    _, decision = decided["neck_length"]
     assert not decision.facet
     assert "floor 50%" in decision.reason, decision.reason
 
@@ -801,20 +787,21 @@ def test_derive_reads_the_generators_identifier_declaration() -> None:
 def test_derive_reads_the_generators_quantity_declaration() -> None:
     """One source for tabled-or-drawn: the vocabulary's own ``source``.
 
-    Neck Length is the one quantity the end-mill builder draws from a range
-    (``length of cut * uniform(1.05, 1.4)``); every other quantity lands on a
-    table row. The sidebar reads the published (sentence case) name.
+    Every quantity this catalog publishes lands on a table row. Neck Length was
+    the one drawn from a range (``length of cut * uniform(1.05, 1.4)``) until
+    it became a standard reach (#859). The sidebar reads the published
+    (sentence case) name.
     """
     from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
 
     assert {spec.source for spec in VOCAB["end_mill_square"] if spec.name == "Neck Length"} == {
-        "drawn"
+        "tabled"
     }
     sources = quantity_sources()
     assert sources == declared_sources(VOCAB)
-    assert sources["Neck length"] == "drawn"
+    assert sources["Neck length"] == "tabled"
     assert sources["Drive size"] == "tabled"
-    assert {name for name, source in sources.items() if source == "drawn"} == {"Neck length"}
+    assert {name for name, source in sources.items() if source == "drawn"} == set()
 
 
 def test_a_name_two_types_declare_differently_is_left_to_the_ratio() -> None:
@@ -851,19 +838,25 @@ def test_a_source_other_than_tabled_or_drawn_is_refused() -> None:
     assert "tabled" in message and "drawn" in message, message
 
 
-def test_a_declared_drawn_quantity_is_a_range_whatever_the_ratio_and_the_floor() -> None:
+def test_a_declared_drawn_quantity_is_a_range_whatever_the_ratio_and_the_floor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Forty products with 40 values is under the floor; three values on 400 repeat.
 
     Neither would be a range by the ratio. The declaration says the values are
-    drawn from a range, so the control is a range in both.
+    drawn from a range, so the control is a range in both. No quantity here is
+    drawn since #859, so the declaration is a constructed one.
     """
-    few = _stats(cardinality=40, present=40, name="Neck length")
+    from synthetic_ecommerce_data.prism import derive
+
+    monkeypatch.setattr(derive, "quantity_sources", lambda: {"Reach": "drawn"})
+    few = _stats(cardinality=40, present=40, name="Reach")
     assert few.products < RANGE_MIN_DOCS
-    repeating = _stats(cardinality=3, present=400, name="Neck length")
+    repeating = _stats(cardinality=3, present=400, name="Reach")
     assert repeating.dispersion < RANGE_DISPERSION
-    for neck in (few, repeating):
-        assert neck.is_continuous
-        decision = decide(neck)
+    for reach in (few, repeating):
+        assert reach.is_continuous
+        decision = decide(reach)
         assert decision.facet
         assert "a range" in decision.reason and "declares" in decision.reason, decision.reason
 
@@ -904,9 +897,10 @@ def test_every_quantity_this_catalog_publishes_is_declared(flat_rows: list[dict]
 def test_every_declaration_agrees_with_the_data_it_describes(flat_rows: list[dict]) -> None:
     """The guard on the declaration: where the data is evidence, the ratio agrees.
 
-    Over the floor a ladder reads under the continuity threshold and the drawn
+    Over the floor a ladder reads under the continuity threshold and a drawn
     quantity over it. A type that declares a continuous quantity tabled, or a
-    ladder drawn, reds here by name.
+    ladder drawn, reds here by name. This catalog draws none since Neck Length
+    became a standard reach (#859), and the neck is held as a ladder here.
     """
     sources = quantity_sources()
     evidenced = [
@@ -916,7 +910,8 @@ def test_every_declaration_agrees_with_the_data_it_describes(flat_rows: list[dic
     ]
     drawn = {s.name for s in evidenced if sources[s.name] == "drawn"}
     tabled = {s.name for s in evidenced if sources[s.name] == "tabled"}
-    assert drawn == {"Neck length"}
+    assert drawn == set()
+    assert "Neck length" in tabled
     assert len(tabled) > 20
     for s in evidenced:
         assert (s.dispersion >= RANGE_DISPERSION) == (sources[s.name] == "drawn"), (
@@ -942,6 +937,6 @@ def test_a_declared_quantity_does_not_move_with_the_floor(
 
     before = controls()
     assert {"neck_length", "drive_size"} <= set(before)
-    assert before["neck_length"] and not before["drive_size"]
+    assert not before["neck_length"] and not before["drive_size"]
     monkeypatch.setattr(derive, "RANGE_MIN_DOCS", floor)
     assert controls() == before
