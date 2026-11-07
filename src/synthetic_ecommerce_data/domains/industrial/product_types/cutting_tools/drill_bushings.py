@@ -17,7 +17,9 @@ number and letter drills of ``asme_b94_11m_drill_series_in`` and the
 fractional sizes by sixty-fourths, to the 1-7/8" the largest SF body takes.
 
 **Lines.** A line is one brand's bushings of one type, body, bore range and
-length; its SKUs are a run of the drill sizes in that range. A liner guides
+length; its SKUs are a run of the drill sizes in that range that its drawing
+tells apart (:func:`ladder`, #50): a ``#28`` drill and a ``9/64`` one are
+0.0001" apart and would draw alike, so they are never siblings. A liner guides
 no drill: its bore is the renewable bushing's body, so a liner line is one
 brand's liners of one type and length, and its SKUs are the bodies made in
 that length. The combinations are rotated, not drawn, so every type is built.
@@ -32,6 +34,8 @@ MEASURED.
 from __future__ import annotations
 
 import contextlib
+import functools
+import math
 from collections.abc import Mapping
 from fractions import Fraction
 from typing import Any
@@ -127,6 +131,72 @@ def holes_of(row: Mapping[str, Any]) -> tuple[tuple[str, float], ...]:
     """The drill sizes inside a row's bore range."""
     low, high = row["bore_min_in"] - _BORE_SLACK, row["bore_max_in"] + _BORE_SLACK
     return tuple(hole for hole in HOLES if low <= hole[1] <= high)
+
+
+#: The table's largest drawing plus 0.1", rounded up to 0.05" (docs/adding-a-type.md
+#: "Figure and extent"): HL-176's 2-7/8" head, and H-144-48's 3" under a 3/8" head. The
+#: default and ``--lines 39000`` builds draw at most 2.75 x 3.38 in.
+EXTENT = (2.95, 3.5)
+
+
+@functools.cache
+def bore_step(row_index: int, length: int) -> float:
+    """The least bore step a line of row ``row_index`` and length code ``length`` draws apart,
+    at every angle a bushing turns by (#50).
+
+    A bore line moves by half the step, times the scale, along the direction the angle turns it
+    to, so along one axis by at least that over the square root of two. The drawing writes each
+    coordinate at one decimal (``svg.num``), and two values more than 0.1 apart never round
+    alike. A bushing small enough for the magnifier is drawn again ``k`` times larger, where a
+    step ``k`` times smaller moves a line as far. Every SKU of the line shares its body, so its
+    box, its lens and its ``k``. The step is the largest that bound needs at any angle of the
+    type's orientation: 0.0079" for a body too large for a lens, at 45 degrees, where the
+    turned extent is drawn smallest.
+    """
+    from synthetic_ecommerce_data.core.drawing import product_look, sheet
+
+    place = 0.1
+    x0, y0, x1, y1 = figure(_body_record(ROWS[row_index], length)).figure.bounds()
+    steps = []
+    for angle in product_look.ORIENTATIONS["any"]:
+        a = math.radians(angle)
+        scale = sheet.type_scale(product_look.turned(*EXTENT, angle))
+        lens = sheet.magnifier((x1 - x0) * scale, (y1 - y0) * scale, angle)
+        scale *= max(1.0, lens.k) if lens else 1.0
+        steps.append(2 * place / (scale * max(abs(math.cos(a)), abs(math.sin(a)))))
+    return max(steps)
+
+
+def _body_record(row: Mapping[str, Any], length: int) -> dict[str, str]:
+    """The drawn values every bushing of a row's line of ``length`` shares, as a record: its
+    body, its head and its length, and the row's least bore."""
+    record = {
+        "Head Type": TYPES[row["type"]][1],
+        length_name(row): f'{length / 16:.4f}"',
+        "Outside Dia.": f'{_inches(row["od_nominal"]):.4f}"',
+        "Size": f'{row["bore_min_in"]:.4f}"',
+    }
+    if "head_dia" in row:
+        record["Head Dia."] = f'{_inches(row["head_dia"]):.4f}"'
+        record["Head Height"] = f'{_inches(row["head_thickness"]):.4f}"'
+    return record
+
+
+@functools.cache
+def ladder(row_index: int, length: int) -> tuple[tuple[str, float], ...]:
+    """The bores a line of row ``row_index`` and length code ``length`` draws its SKUs from:
+    every fractional size in the row's range, and each number or letter drill more than
+    :func:`bore_step` from every bore kept before it, smallest first. A ``#28`` drill
+    (0.1405") and a ``9/64`` one (0.1406") would draw alike, so they are never siblings of a
+    line; the fractional sizes, a sixty-fourth apart, hold every breadth-row bore
+    (:data:`FEATURED`)."""
+    step = bore_step(row_index, length)
+    holes = holes_of(ROWS[row_index])
+    kept = [hole for hole in holes if hole[0][0].isdigit()]
+    for hole in holes:
+        if not hole[0][0].isdigit() and all(abs(hole[1] - other[1]) > step for other in kept):
+            kept.append(hole)
+    return tuple(sorted(kept, key=lambda hole: hole[1]))
 
 
 def row_of(number: str, size_in: float) -> tuple[dict | None, int]:
@@ -280,12 +350,12 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
     count = gen._variant_count()
     if ladder_key:
         (row,) = rows
-        ladder = holes_of(row)
-        count = min(count, len(ladder))
-        starts = _starts(ladder_key[0], ladder)
+        sizes = ladder(ladder_key[0], length)
+        count = min(count, len(sizes))
+        starts = _starts(ladder_key[0], sizes)
         key = f"sizes:{code}:{row['body']}:{row['bore_min_in']}"
-        start = min(starts[gen._rotate(key, len(starts))], len(ladder) - count)
-        for drill, inches in ladder[start : start + count]:
+        start = min(starts[gen._rotate(key, len(starts))], len(sizes) - count)
+        for drill, inches in sizes[start : start + count]:
             child = ChildDraft(system="in")
             child.primary = gen._length("Size", inches, style)
             child.attrs = [
@@ -391,10 +461,7 @@ SPEC = TypeSpec(
     standards_family="cutting_tool",
     vocab=VOCAB,
     figure=figure,
-    # The table's largest drawing plus 0.1", rounded up to 0.05" (docs/adding-a-type.md
-    # "Figure and extent"): HL-176's 2-7/8" head, and H-144-48's 3" under a 3/8" head. The
-    # default and ``--lines 39000`` builds draw at most 2.75 x 3.38 in.
-    extent=(2.95, 3.5),
+    extent=EXTENT,
     make=_make,
     share=0.016,
     price=PRICE,
