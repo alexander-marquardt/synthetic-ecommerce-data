@@ -379,8 +379,8 @@ fields:
   - name: dowel_dia
     type: terms
     source: facets.dowel_dia
-  # Drill size -- 21 distinct values over 48 product-value pairs is 0.44 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 48 documents across 1 product type(s); 21 distinct values
+  # Drill size -- 22 distinct values over 48 product-value pairs is 0.46 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 48 documents across 1 product type(s); 22 distinct values
   - name: drill_size
     type: terms
     source: facets.drill_size
