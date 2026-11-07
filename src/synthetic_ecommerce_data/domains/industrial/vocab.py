@@ -141,14 +141,19 @@ _END_MILL = (
     _spec("Shank Dia.", "sku", kind="length"),
     _spec("Length of Cut", "sku", kind="length"),
     _spec("Overall Length", "sku", 0.92, kind="length"),
+    # A reduced-neck tool always states its neck, and no other tool has one:
+    # the builder decides which tools those are (``series.reduced_neck``,
+    # #859), at a line share that puts the published rate near the census's
+    # 0.2727 (by_family.end_mill of 06_attribute_sparsity.json). The neck is a
+    # standard reach read off ``series.NECK_LENGTHS_IN``/``_MM``, so it is
+    # tabled. It used to be drawn from ``length of cut * uniform(1.05, 1.4)``
+    # (gen#95), the one continuum this catalog had.
+    _spec("Neck Length", "sku", kind="length"),
     # Census rate applied exactly once (by _apply_sparsity, the only gate
-    # left on these two): 0.2727 and 0.4034 in by_family.end_mill of
-    # 06_attribute_sparsity.json, rounded to two places as every other spec
-    # in this table is. A second, builder-level gate at 0.18/0.22 used to
-    # square this to ~3%/~5% (alexander-marquardt/synthetic-ecommerce-data#39).
-    # The one quantity DRAWN from a range rather than read off a table:
-    # ``length of cut * uniform(1.05, 1.4)`` in ``Generator._build_end_mill`` (gen#95).
-    _spec("Neck Length", "sku", 0.27, kind="length", source="drawn"),
+    # left on it): 0.4034 in by_family.end_mill of 06_attribute_sparsity.json,
+    # rounded to two places as every other spec in this table is. A second,
+    # builder-level gate at 0.22 used to square this to ~5%
+    # (alexander-marquardt/synthetic-ecommerce-data#39).
     _spec("Corner Radius", "sku", 0.40, kind="length"),
 )
 

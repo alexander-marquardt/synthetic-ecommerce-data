@@ -4,9 +4,10 @@ A query that names the size, such as `1/2 end mill`, reaches one SKU of a line t
 diameters alone, so each of its tiles grouped one SKU (#850). An end-mill run line therefore
 sells each diameter at 1, 2 or 3 neighboring length classes (`REACH`: Stub, Regular and Long,
 weighted 15/55/30%). Most tiles on a diameter query group 2 or 3 SKUs, and each title names the
-length of cut. A diameter's lengths share its shank and corner radius, the neck follows the
-length of cut, and each of those is stated on every SKU of the line or on none, so the product
-page offers the diameter and the length and no third choice. The budget counts a line's sizes,
+length of cut. A diameter's lengths share its shank and corner radius, each stated on every SKU of
+the line or on none, and a reduced neck follows the length of cut (#859:
+docs/industrial-types/end-mill-neck-859.md), so the product page offers the diameter and the length
+and no third choice. The budget counts a line's sizes,
 not its SKUs, so the type keeps its number of runs and each diameter's coverage. The end mills'
 SKUs grow by the mean reach, and the PR for #850 states the build totals. The flat, must-stock
 and pack lines are unchanged. Screws stay on the length axis alone, so a thread × length query
