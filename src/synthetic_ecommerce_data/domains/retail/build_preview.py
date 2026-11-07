@@ -21,6 +21,7 @@ from pathlib import Path
 
 from synthetic_ecommerce_data.core.drawing import product_look
 from synthetic_ecommerce_data.domains.retail import (
+    kids_films,
     kit_garments,  # noqa: E402,F401 -- registers the trousers and top shapes
     kit_home,  # noqa: E402,F401 -- registers the home and beauty shapes
     motifs,  # noqa: E402,F401 -- registers the motif, surface and produce_pile shapes
@@ -85,6 +86,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
         shrink=d.get("pack_scale", 1.0),  # the SKU's size within its line (gen#543)
         copies=d.get("pack_count", 1),  # the items its pack draws (gen#728)
         angle=angle,
+        emblem=kids_films.film_of_id(rec["product_id"]),  # a film product's emblem (gen#904)
     )
 
 

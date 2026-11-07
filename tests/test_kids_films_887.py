@@ -93,11 +93,14 @@ def test_each_film_has_a_product_named_in_its_description_only(catalog, film) ->
     assert set(only) <= kids_films.DESCRIPTION_ONLY
 
 
-def test_a_blue_balloon_product_with_a_color_sells_blue(catalog) -> None:
-    """Its title names Blue, so the product carries it: the text and the color field agree."""
+def test_a_blue_balloon_products_title_names_a_color_it_has(catalog) -> None:
+    """Besides the film's Blue, the title names one of the product's own colors: the text and
+    the color field agree (gen#904; ``tests/test_film_emblems_904.py`` checks the colors)."""
     for d in _of(catalog, "The Blue Balloon"):
-        if d.get("color_options") and "blue" in d["title"].lower():
-            assert "Blue" in [c["color"] for c in d["color_options"]], d["product_id"]
+        colors = [c["color"] for c in d.get("color_options") or ()]
+        if colors and "blue balloon" in d["title"].lower():
+            rest = d["title"].replace("The Blue Balloon", "")
+            assert any(re.search(rf"\b{c}\b", rest) for c in colors), d["product_id"]
 
 
 def test_film_products_have_ordinary_skus_and_variants(catalog) -> None:
@@ -135,7 +138,13 @@ def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:
 #: would move one of them.
 NEIGHBORS = Path(__file__).parent / "data" / "kids_films_887_neighbors.json"
 NEIGHBOR_FIELDS = (
-    "title", "brand", "category_path", "sku_count", "price_min", "price_max", "was_price",
+    "title",
+    "brand",
+    "category_path",
+    "sku_count",
+    "price_min",
+    "price_max",
+    "was_price",
 )
 
 

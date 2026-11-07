@@ -770,10 +770,24 @@ def _placed(
 
 
 def _render_styled(
-    shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None,
-    copies=1, angle=0.0,
+    shape,
+    draw,
+    paint,
+    defs,
+    fill,
+    label,
+    brand,
+    uid,
+    params,
+    style,
+    shrink,
+    size_scale=None,
+    copies=1,
+    angle=0.0,
+    emblem=None,
 ) -> str:
-    """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``."""
+    """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``, with
+    ``emblem``'s licence line beside the logo."""
     from synthetic_ecommerce_data.domains.retail import (
         house_styles as hs,  # deferred: house_styles is an optional layer over the kit
     )
@@ -782,7 +796,7 @@ def _render_styled(
     )
 
     drawn = _drawn(draw, paint, fill, label, params)
-    overlay = _print_overlay(shape, fill, drawn, paint, uid)
+    overlay = _print_overlay(shape, fill, drawn, paint, uid) + _emblem(shape, emblem)
     inner = size_ladder.stand(
         _placed(shape, drawn, overlay, shrink, copies, paint, uid), defs, size_scale
     )
@@ -791,12 +805,18 @@ def _render_styled(
         full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid)
         product = f'<g class="turn" transform="{hs.turn(full, defs, angle)}">{product}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
+    extra = (0.0, 0.0)
+    if emblem:
+        from synthetic_ecommerce_data.domains.retail import film_emblems
+
+        center, extra = film_emblems.licence_band(*hs.reach(style, brand))
+        overlay = [*overlay, *film_emblems.licence(style.font, style.ink, emblem, center)]
     all_defs = defs + "".join(sheet_defs)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{all_defs}</defs>" if all_defs else "",
         *sheet,
-        f'<g class="product" transform="{hs.product_transform(style, brand)}">{product}</g>',
+        f'<g class="product" transform="{hs.product_transform(style, brand, extra)}">{product}</g>',
         f'<g class="brand">{"".join(overlay)}</g>',
         "</svg>",
     ]
@@ -808,6 +828,17 @@ def _paint(fill: Fill, pid: str) -> str:
     if fill.pattern == "solid" or fill.placement == "placement":
         return fill.base
     return f"url(#{pid})"
+
+
+def _emblem(shape: str, film: str | None) -> str:
+    """The film's emblem printed on the product (gen#904), else empty."""
+    if not film:
+        return ""
+    from synthetic_ecommerce_data.domains.retail import (
+        film_emblems,  # deferred: only a film product draws one
+    )
+
+    return film_emblems.on_product(film, shape)
 
 
 def _print_overlay(shape: str, fill: Fill, drawn: list[str], paint: str, uid: str) -> str:
@@ -872,6 +903,7 @@ def render(
     size_scale: float | None = None,
     copies: int = 1,
     angle: float = 0.0,
+    emblem: str | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -885,6 +917,8 @@ def render(
     gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
     ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728).
     ``angle`` turns a styled drawing by its product's angle (``house_styles.turn``, #849).
+    ``emblem`` names the invented film whose emblem the product carries, and whose licence line
+    a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
     """
     from synthetic_ecommerce_data.domains.retail import (
         size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
@@ -902,11 +936,24 @@ def render(
     paint = _paint(fill, pid)
     if style is not None:
         return _render_styled(
-            shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink,
-            size_scale, copies, angle,
+            shape,
+            draw,
+            paint,
+            defs,
+            fill,
+            label,
+            brand or "",
+            uid,
+            params,
+            style,
+            shrink,
+            size_scale,
+            copies,
+            angle,
+            emblem,
         )
     drawn = _drawn(draw, paint, fill, label, params)
-    overlay = _print_overlay(shape, fill, drawn, paint, uid)
+    overlay = _print_overlay(shape, fill, drawn, paint, uid) + _emblem(shape, emblem)
     body = _placed(shape, drawn, overlay, shrink, copies, paint, uid)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
