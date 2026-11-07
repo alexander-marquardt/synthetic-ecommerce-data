@@ -1,6 +1,7 @@
 """Bolts and socket screws publish the pack their shown price is for (#65).
 
-The socket screw's pack is ranked by size; the bolt's is its page's (#86,
+So does the carriage bolt (#829). The socket screw's and the carriage bolt's
+packs are ranked by size; the bolt's is its page's (#86,
 ``tests/test_bolt_page_pack.py``).
 """
 
@@ -31,11 +32,19 @@ PACKED = {
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
+    "carriage_bolts": "carriage_bolts",
 }
 
 
 #: The types whose pack falls as the size grows (:func:`price.pack_quantity`).
-RANKED = ["screw_socket_head"]
+RANKED = ["screw_socket_head", "carriage_bolts"]
+
+
+def _pack_row(census: dict, type_key: str) -> dict:
+    """A type's census pack figures: a deep type's, or a deepened breadth
+    category's (the carriage bolt, #829)."""
+    section = "deep_types" if type_key in census["deep_types"] else "breadth_categories"
+    return census[section][type_key]["pack_vs_each"]
 
 
 @pytest.fixture(scope="module")
@@ -68,18 +77,18 @@ def _packs(config: GeneratorConfig) -> dict[str, list[tuple[float, float | None]
 
 @pytest.mark.parametrize("type_key", sorted(price.PACK_SLOPES))
 def test_each_pack_slope_is_the_census_figure(census, type_key):
-    pack = census["deep_types"][type_key]["pack_vs_each"]
+    pack = _pack_row(census, type_key)
     assert price.PACK_SLOPES[type_key] == pack["pooled_loglog_slope_price_on_pack_qty"]
 
 
 @pytest.mark.parametrize("type_key", sorted(price.PACK_COUNTS))
 def test_each_pack_count_is_the_census_count(census, type_key):
-    counts = census["deep_types"][type_key]["pack_vs_each"]["pack_quantity_counts"]
+    counts = _pack_row(census, type_key)["pack_quantity_counts"]
     assert price.PACK_COUNTS[type_key] == {int(qty): n for qty, n in counts.items()}
 
 
-def test_the_drawn_packs_are_the_bolts_and_the_socket_screws():
-    assert set(price.PACK_COUNTS) == {"bolt_hex", "screw_socket_head"}
+def test_the_drawn_packs_are_the_bolts_the_socket_screws_and_the_carriage_bolts():
+    assert set(price.PACK_COUNTS) == {"bolt_hex", "screw_socket_head", "carriage_bolts"}
     assert set(PACKED.values()) == set(price.PACK_COUNTS)
 
 
