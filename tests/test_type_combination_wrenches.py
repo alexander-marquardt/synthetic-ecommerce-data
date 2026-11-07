@@ -162,6 +162,34 @@ def test_the_breadth_rows_sizes_are_offered_whatever_the_seed():
     assert missing == {}
 
 
+class _Rotations:
+    """A generator's two rotations, for ``_run`` alone: the pool's rotation always at 0."""
+
+    def __init__(self, step: int):
+        self.step = step
+
+    def _rotation_step(self, key: str) -> int:
+        return self.step
+
+    def _offered_run(self, key: str, lengths: list[float], count: int) -> list[float]:
+        return sorted(lengths)[:count]
+
+
+def test_a_line_anchored_on_a_breadth_size_keeps_its_drawn_count_and_the_size():
+    """A run anchored near the pool's long end is moved back, never cut short."""
+    wrenches = _module()
+    for kind in wrenches.KINDS:
+        pool = sorted(wrenches.sizes_in(kind, False))
+        for step, anchor in enumerate(wrenches.BREADTH_SIZES):
+            for count in range(1, len(pool) + 1):
+                run = wrenches._run(_Rotations(step), KEY, kind, "in", count)
+                assert len(run) == count, (kind.type, anchor, count)
+                start = pool.index(run[0])
+                assert run == pool[start : start + count], (kind.type, anchor, count)
+                if float(anchor) in pool:
+                    assert float(anchor) in run, (kind.type, anchor, count)
+
+
 def test_two_builds_are_byte_identical():
     """In two processes: a set-order draw agrees with itself in one."""
     first, second = type_gates.builds_under_two_hash_seeds(KEY)
