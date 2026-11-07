@@ -87,6 +87,7 @@ def test_a_set_screw_carries_the_near_miss_thread_sentence(fresh):
     assert len(negatives) > 40, len(negatives)
 
 
+@pytest.mark.default_seed_band
 def test_a_set_screw_reads_its_declared_period_for_the_fine_pitch_near_miss(fresh):
     """An inch size with a fine series is built to UNF on every Nth line, N being the
     period the spec declares. At period 3 the default build holds 19 UNF lines (the first

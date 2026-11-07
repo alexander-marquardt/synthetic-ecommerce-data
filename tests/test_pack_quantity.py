@@ -125,6 +125,7 @@ def test_an_even_spread_over_the_sizes_publishes_the_census_counts(type_key):
         assert abs(drawn[qty] / (sizes * steps) - n / total) <= 1.0 / steps, qty
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize("type_key,census_median", [("bolt_hex", 25), ("screw_socket_head", 100)])
 def test_the_builds_median_pack_is_the_census_median(packs, type_key, census_median):
     published = [pack for _, pack in packs[type_key] if pack is not None]
