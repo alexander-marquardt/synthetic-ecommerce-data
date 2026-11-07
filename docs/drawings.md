@@ -284,7 +284,11 @@ is still drawn with two cutting ends, its published flute count and its publishe
 A flute count that is not a count and a hand that is not `Right Hand` or `Left Hand`
 are not carried. The fasteners' `Thread Direction` and the drill's and tap's cutting
 direction have no drawing channel (only an end mill draws a hand), and
-`tests/test_sku_channels_10.py` names them in one exact set.
+`tests/test_sku_channels_10.py` names them in one exact set. Each named pair is
+measured on every record of its type that the small catalog builds, with each hand set
+in turn. A type publishes its direction line by line (a stud at 0.55), so a seed can
+build a type none of whose lines publish it (#50). A named pair must be one its type's
+vocabulary can publish, and the catalog must build that type.
 
 A "contradiction" is any exception in `domains/industrial/geometry/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
