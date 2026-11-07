@@ -36,6 +36,7 @@ def test_no_set_screw_row_is_pinned():
     assert {name for name in price.PINNED_FIGURES if name.endswith(f": {SET_SCREW}")} == set()
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize("row_name", [LENGTH_ROW, ORDER_ROW])
 def test_a_set_screws_size_and_length_rows_are_both_in_band(rows, row_name):
     row = rows[row_name.format(SET_SCREW)]
