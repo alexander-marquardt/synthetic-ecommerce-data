@@ -134,13 +134,60 @@ def test_the_sizes_are_read_from_the_across_flats_tables():
         assert wrenches.sizes_in(kind, False) and wrenches.sizes_in(kind, True), kind.type
 
 
-def test_the_breadth_rows_sizes_are_still_offered():
+def _missing_row_sizes(docs: list[dict]) -> list[str]:
     counts = Counter(
         Fraction(parse_length(_value(doc, "Size")).inches).limit_denominator(64)
-        for doc in _default_docs()
+        for doc in docs
         if "mm" not in _value(doc, "Size")
     )
-    assert [size for size in ROW_SIZES if not counts[Fraction(size)]] == []
+    return [size for size in ROW_SIZES if not counts[Fraction(size)]]
+
+
+def test_the_breadth_rows_sizes_are_still_offered():
+    assert _missing_row_sizes(_default_docs()) == []
+
+
+#: Twelve seeds from the default on: before #50's fix, 9 of them built no 3/4" wrench.
+SEEDS = range(GeneratorConfig().seed, GeneratorConfig().seed + 12)
+
+
+def test_the_breadth_rows_sizes_are_offered_whatever_the_seed():
+    """The sizes are a rotation over the type's lines, not a variant count's luck (#50)."""
+    missing = {}
+    for seed in SEEDS:
+        built = generate_type(GeneratorConfig(seed=seed), KEY)
+        docs = [json.loads(line) for line in type_gates.records(built)]
+        if gaps := _missing_row_sizes(docs):
+            missing[seed] = gaps
+    assert missing == {}
+
+
+class _Rotations:
+    """A generator's two rotations, for ``_run`` alone: the pool's rotation always at 0."""
+
+    def __init__(self, step: int):
+        self.step = step
+
+    def _rotation_step(self, key: str) -> int:
+        return self.step
+
+    def _offered_run(self, key: str, lengths: list[float], count: int) -> list[float]:
+        return sorted(lengths)[:count]
+
+
+def test_a_line_anchored_on_a_breadth_size_keeps_its_drawn_count_and_the_size():
+    """A run anchored near the pool's long end is moved back, never cut short."""
+    wrenches = _module()
+    for kind in wrenches.KINDS:
+        pool = sorted(wrenches.sizes_in(kind, False))
+        for step, anchor in enumerate(wrenches.BREADTH_SIZES):
+            for count in range(1, len(pool) + 1):
+                run = wrenches._run(_Rotations(step), KEY, kind, "in", count)
+                assert len(run) == count, (kind.type, anchor, count)
+                start = pool.index(run[0])
+                assert run == pool[start : start + count], (kind.type, anchor, count)
+                if float(anchor) in pool:
+                    assert float(anchor) in run, (kind.type, anchor, count)
 
 
 def test_two_builds_are_byte_identical():
