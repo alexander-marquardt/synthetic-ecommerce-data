@@ -276,6 +276,23 @@ def test_a_named_direction_stays_named_on_a_seed_whose_lines_do_not_publish_it()
     assert _ignored(hand_cases, type_records) == HAND_NOT_DRAWN
 
 
+def test_a_named_direction_the_drawing_shows_is_caught_on_a_seed_whose_lines_do_not_publish_it():
+    """The other edge on the same seed: a named pair the drawing shows is not excused.
+
+    Planted on the end mill, whose drawing does show its hand: named, and published by no
+    line, it is still measured as drawn.
+    """
+    end_mill = ("end_mill_square", CUTTING_DIRECTION)
+    hand_cases = {case: records for case, records in HAND_CASES.items() if case != end_mill}
+    type_records = {
+        **TYPE_RECORDS,
+        end_mill[0]: [
+            {k: v for k, v in r.items() if k != end_mill[1]} for r in TYPE_RECORDS[end_mill[0]]
+        ],
+    }
+    assert end_mill not in _ignored(hand_cases, type_records, HAND_NOT_DRAWN | {end_mill})
+
+
 def test_each_named_direction_is_one_its_type_publishes_and_the_catalog_builds():
     """A named pair the catalog cannot show would be excused forever, drawn or not."""
     unpublishable = sorted(case for case in HAND_NOT_DRAWN if case[1] not in names_for(case[0]))
@@ -284,7 +301,7 @@ def test_each_named_direction_is_one_its_type_publishes_and_the_catalog_builds()
     assert not unbuilt, f"the small catalog builds no record of these types: {unbuilt}"
 
 
-def _ignored(hand_cases, type_records) -> set[tuple[str, str]]:
+def _ignored(hand_cases, type_records, named=HAND_NOT_DRAWN) -> set[tuple[str, str]]:
     """Each published or named (type, direction) whose drawing shows no difference of hand.
 
     Measured on every record of the type, not only those that publish the direction.
@@ -297,7 +314,7 @@ def _ignored(hand_cases, type_records) -> set[tuple[str, str]]:
             for r in type_records.get(type_key, ())
         )
 
-    return {case for case in hand_cases.keys() | HAND_NOT_DRAWN if not drawn(case)}
+    return {case for case in hand_cases.keys() | named if not drawn(case)}
 
 
 # --- which hatch belongs to which material ---------------------------------------------
