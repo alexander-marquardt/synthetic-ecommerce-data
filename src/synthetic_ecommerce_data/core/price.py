@@ -588,16 +588,19 @@ ENDINGS: dict[str, dict[str, float]] = {
 #: a pack of 100 costs more than a pack of 25, but far less than four times.
 #: The hex bolt has none: its pack is drawn per page and priced within a size
 #: (:data:`PACK_ELASTICITY`), because the pooled slope (0.223) mixes the
-#: bolts' sizes with their packs.
+#: bolts' sizes with their packs. The carriage bolt, a breadth category the
+#: census measured, reads ``breadth_categories.carriage_bolts`` (#829).
 PACK_SLOPES: dict[str, float] = {
     "nut_hex": 0.234,
     "screw_socket_head": 0.051,
+    "carriage_bolts": 0.325,
 }
 
 #: How many census SKUs each pack quantity is sold in
 #: (``deep_types.<type>.pack_vs_each.pack_quantity_counts``), for the types
 #: whose pack the builder draws (:func:`pack_quantity`). 98.8% of census
-#: bolts and every census socket screw are sold in packs.
+#: bolts and every census socket screw are sold in packs, and 97.3% of census
+#: carriage bolts (``breadth_categories.carriage_bolts``, #829).
 PACK_COUNTS: dict[str, dict[int, int]] = {
     "bolt_hex": {
         4: 7,
@@ -617,6 +620,7 @@ PACK_COUNTS: dict[str, dict[int, int]] = {
         2800: 1,
     },
     "screw_socket_head": {5: 4, 10: 5, 25: 13, 50: 25, 100: 261},
+    "carriage_bolts": {5: 10, 10: 14, 25: 22, 50: 3, 75: 1, 100: 55, 1200: 1, 1400: 1},
 }
 
 
@@ -699,6 +703,7 @@ def page_pack_draw(seed: int, type_key: str, brand: str, held: Iterable[tuple[st
 #: p50 and p90/p10 rows (:func:`.price_report.price_rows`); the census has no
 #: within-page pairs for it, so no order row.
 DEEPENED_CENSUS: dict[str, tuple[int, float, float, float]] = {
+    "carriage_bolts": (110, 10.841, 26.1, 67.205),
     "combination_wrenches": (158, 4.011, 15.38, 39.145),
     "cut_resistant_gloves": (22, 9.45, 21.45, 67.675),
     "hex_pipe_nipples": (81, 3.33, 5.2, 16.24),
@@ -716,7 +721,6 @@ BREADTH_CENSUS: dict[str, tuple[float, float, float]] = {
     "ball_valves": (3.674, 13.145, 182.59),
     "blind_rivets": (12.308, 21.1, 27.415),
     "c_clamps": (10.526, 52.0, 342.25),
-    "carriage_bolts": (10.841, 26.1, 67.205),
     "cold_chisels": (7.13, 15.68, 38.2),
     "eye_bolts": (3.469, 14.735, 62.405),
     "foam_ear_plugs": (3.152, 95.675, 175.9),

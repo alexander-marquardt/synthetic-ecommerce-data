@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.core.drawing import draw_sku
 from synthetic_ecommerce_data.core.drawing.model import Disc, Lines
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, generate
+from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
 CATALOG = generate(SMALL)
 
@@ -51,7 +52,9 @@ HANDS = ("Left Hand", "Right Hand")
 #: The types whose published direction their drawing does not show, each with the attribute.
 #: Not a list to grow: a pair here is a published value the picture does not keep. The
 #: last test below fails the day one starts drawing it (take it out) and the day a type
-#: publishes a direction its drawing ignores (name it, or draw it).
+#: publishes a direction its drawing ignores (name it, or draw it). A pair is measured on
+#: every record of its type the catalog builds, each hand set in turn: a type publishes its
+#: direction line by line, so a seed can build none that publish it (#50).
 HAND_NOT_DRAWN = frozenset(
     {
         ("bolt_hex", "Thread Direction"),
@@ -105,10 +108,13 @@ def _figure(type_key: str, record: dict[str, str]):
 FLUTE_CASES: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
 #: Every record of each (type, direction attribute) the catalog publishes a hand for.
 HAND_CASES: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
+#: Every record of each type the catalog builds, whatever it publishes.
+TYPE_RECORDS: dict[str, list[dict[str, str]]] = defaultdict(list)
 #: How each of those records was read: ``record``, ``partial`` or ``nominal``.
 SOURCES: set[str] = set()
 PUBLISHED_HANDS: set[str] = set()
 for _type, _record in _records():
+    TYPE_RECORDS[_type].append(_record)
     SOURCES.add(FIGURES[_type][0](dict(_record)).source)
     # Only a figure with an end view draws the count: a tap states its flutes and draws none,
     # which is a different gap, not this channel.
@@ -253,15 +259,63 @@ def test_a_direction_the_drawing_ignores_is_named_and_only_that():
     parametrize list cannot leave a type out unseen; a type in it that now draws its
     direction fails here too, so the list cannot go on excusing a drawing that is fixed.
     """
+    assert _ignored(HAND_CASES, TYPE_RECORDS) == HAND_NOT_DRAWN
+
+
+def test_a_named_direction_stays_named_on_a_seed_whose_lines_do_not_publish_it():
+    """A seed can build a type none of whose lines publish its direction: still ignored.
+
+    Seed 20260918 builds two studs lines and neither publishes a ``Thread Direction``
+    (presence 0.55 a line). The studs drawing ignores the hand all the same.
+    """
+    studs = ("studs_double_end", "Thread Direction")
+    hand_cases = {case: records for case, records in HAND_CASES.items() if case != studs}
+    type_records = {
+        **TYPE_RECORDS,
+        studs[0]: [{k: v for k, v in r.items() if k != studs[1]} for r in TYPE_RECORDS[studs[0]]],
+    }
+    assert _ignored(hand_cases, type_records) == HAND_NOT_DRAWN
+
+
+def test_a_named_direction_the_drawing_shows_is_caught_on_a_seed_whose_lines_do_not_publish_it():
+    """The other edge on the same seed: a named pair the drawing shows is not excused.
+
+    Planted on the end mill, whose drawing does show its hand: named, and published by no
+    line, it is still measured as drawn.
+    """
+    end_mill = ("end_mill_square", CUTTING_DIRECTION)
+    hand_cases = {case: records for case, records in HAND_CASES.items() if case != end_mill}
+    type_records = {
+        **TYPE_RECORDS,
+        end_mill[0]: [
+            {k: v for k, v in r.items() if k != end_mill[1]} for r in TYPE_RECORDS[end_mill[0]]
+        ],
+    }
+    assert end_mill not in _ignored(hand_cases, type_records, HAND_NOT_DRAWN | {end_mill})
+
+
+def test_each_named_direction_is_one_its_type_publishes_and_the_catalog_builds():
+    """A named pair the catalog cannot show would be excused forever, drawn or not."""
+    unpublishable = sorted(case for case in HAND_NOT_DRAWN if case[1] not in names_for(case[0]))
+    unbuilt = sorted(case for case in HAND_NOT_DRAWN if not TYPE_RECORDS.get(case[0]))
+    assert not unpublishable, f"no record of these types may publish the direction: {unpublishable}"
+    assert not unbuilt, f"the small catalog builds no record of these types: {unbuilt}"
+
+
+def _ignored(hand_cases, type_records, named=HAND_NOT_DRAWN) -> set[tuple[str, str]]:
+    """Each published or named (type, direction) whose drawing shows no difference of hand.
+
+    Measured on every record of the type, not only those that publish the direction.
+    """
 
     def drawn(case) -> bool:
         type_key, name = case
         return any(
             _figure(type_key, {**r, name: HANDS[0]}) != _figure(type_key, {**r, name: HANDS[1]})
-            for r in HAND_CASES[case]
+            for r in type_records.get(type_key, ())
         )
 
-    assert {case for case in HAND_CASES if not drawn(case)} == HAND_NOT_DRAWN
+    return {case for case in hand_cases.keys() | named if not drawn(case)}
 
 
 # --- which hatch belongs to which material ---------------------------------------------

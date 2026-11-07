@@ -25,6 +25,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import price
+from synthetic_ecommerce_data.core.entry import UNIT_FOR_SUFFIX
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -87,6 +88,31 @@ def test_the_catalog_and_drawing_figures_are_the_committed_catalogs(stats: dict)
     }
 
 
+#: A published word unit after a number: the number is a measurement, never a count of
+#: SKUs or lines. Bare ``in`` is left out because it is also the preposition, and the
+#: inch mark ``"`` because it is also a quotation mark (``_count`` takes it apart).
+_UNIT_AFTER = "|".join(
+    re.escape(suffix)
+    for suffix in sorted(UNIT_FOR_SUFFIX, key=len, reverse=True)
+    if suffix not in ("in", '"')
+)
+
+
+def _count(number: int) -> str:
+    """A count spelled as a bare number, unless a unit marker follows it: seed 20260918
+    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's ``1,070 lbf`` is a load (#50).
+
+    A word unit ends at a non-letter, so ``1,070 lbs`` is still a count. The inch mark
+    counts only right after the number and when no ``"`` opens before it, so a quoted
+    ``"1,070"`` is still a count.
+    """
+    spelled = f"{number:,}"
+    return (
+        rf"\b{spelled}\b(?!\s*(?:{_UNIT_AFTER})(?![A-Za-z]))"
+        rf'(?!(?<!"{spelled})")'
+    )
+
+
 def _quotations(stats: dict) -> dict[str, str]:
     """Each measured figure as the prose spelled it, by the figure it quotes.
 
@@ -97,8 +123,8 @@ def _quotations(stats: dict) -> dict[str, str]:
     catalog = figures.get("catalog", {})
     drawings = figures.get("drawings", {})
     patterns = {
-        "skus": rf"\b{stats['skus']:,}\b",
-        "lines": rf"\b{stats['lines']:,}\b",
+        "skus": _count(stats["skus"]),
+        "lines": _count(stats["lines"]),
     }
     if catalog:
         patterns["catalog.modelled_types"] = rf"\b{catalog['modelled_types']}\s+depth\s+types"
@@ -113,13 +139,13 @@ def _quotations(stats: dict) -> dict[str, str]:
             patterns[f"drawings.geometry.{rung}"] = rf"\b{count:,}\s+`{rung}`"
     if BUILDS_FILE.is_file():
         hundred_k = json.loads(BUILDS_FILE.read_text("utf-8"))["hundred_k"]
-        patterns["hundred_k.skus"] = rf"\b{hundred_k['skus']:,}\b"
-        patterns["hundred_k.lines"] = rf"\b{hundred_k['lines']:,}\b"
+        patterns["hundred_k.skus"] = _count(hundred_k["skus"])
+        patterns["hundred_k.lines"] = _count(hundred_k["lines"])
         for type_key, count in hundred_k["skus_by_type"].items():
             # A smaller or a round count is too common a number to name the figure: key
             # stock's 1,000 at 100K is not the README's "1,000-piece" pack (#50).
             if count >= 1000 and count % 100:
-                patterns[f"hundred_k.skus_by_type.{type_key}"] = rf"\b{count:,}\b"
+                patterns[f"hundred_k.skus_by_type.{type_key}"] = _count(count)
     overmatch = figures.get("flat_overmatch", {})
     if overmatch:
         patterns["flat_overmatch.matching"] = rf"matches\s+\*{{0,2}}{overmatch['matching']:,}\b"
@@ -147,6 +173,36 @@ def test_no_doc_restates_a_figure_the_build_measures(stats: dict, path: str) -> 
         f"`figures` (or `skus` / `lines`) in golden-catalog/stats.json instead; "
         f"{REBUILD} rewrites them there"
     )
+
+
+def test_a_published_measurement_is_not_read_as_a_count(
+    stats: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Seed 20260918 builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's
+    ``1,070 lbf`` is a load, not that count (#50). The count's own spellings stay refused."""
+    builds = json.loads(BUILDS_FILE.read_text("utf-8"))
+    builds["hundred_k"]["skus_by_type"]["screw_hex_head"] = 1070
+    moved = tmp_path / "measured_builds.json"
+    moved.write_text(json.dumps(builds), "utf-8")
+    monkeypatch.setattr(f"{__name__}.BUILDS_FILE", moved)
+    pattern = _quotations(stats)["hundred_k.skus_by_type.screw_hex_head"]
+    readme = (ROOT / "README.md").read_text("utf-8")
+    assert "`1,070 lbf`" in readme
+    assert not re.search(pattern, readme)
+    for unit in ("lbf", "lb", "mm", "ft", "oz", "Degrees", "in."):
+        assert not re.search(pattern, f"rated 1,070 {unit} at most"), unit
+    assert not re.search(pattern, 'a 1,070" rod')
+    for restated in (
+        "| screw_hex_head | 1,070 |",
+        "1,070 hex head screws",
+        "1,070 in the 100K build",
+        'the "1,070" SKUs',
+        '| "1,070" |',
+        "1,070 lbs of screws",
+        "1,070 mmm",
+        "1,070 ftp uploads",
+    ):
+        assert re.search(pattern, restated), restated
 
 
 def test_no_per_type_size_is_typed_by_hand() -> None:

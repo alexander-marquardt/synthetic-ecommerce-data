@@ -856,10 +856,12 @@ def test_every_sparsity_controlled_end_mill_attribute_is_applied_once(end_mill_l
     attribute goes through exactly once). Applying one probability twice
     squares it: Neck Length fell to ~3% of end mills and Corner Radius to
     ~5%, against the 27%/40% the reference census measures and VOCAB now
-    declares (#39). Squaring any presence rate this table carries (all below
-    0.92) moves it far outside a tolerance wide enough for this sample's
-    ordinary noise -- which is what makes a reintroduced double application
-    red here, for whichever attribute it is reintroduced on.
+    declares (#39). Neck Length is now on a reduced-neck tool only, which the
+    builder decides (#859), so it is at 1.0 and not among these. Squaring any
+    presence rate this table carries (all below 0.92) moves it far outside a
+    tolerance wide enough for this sample's ordinary noise -- which is what
+    makes a reintroduced double application red here, for whichever attribute
+    it is reintroduced on.
     """
     population = (
         end_mill_lines

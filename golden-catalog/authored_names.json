@@ -65,7 +65,13 @@
   "Thread size": "Thread Size"
  },
  "carriage_bolts": {
-  "Thread size": "Thread Size"
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Units per pack": "Units per Pack"
  },
  "chain_lubricants": {
   "Container size": "Container Size"

@@ -677,9 +677,8 @@ def bearing(record: Record) -> Drawn:
     role = _CLOSURE_ROLE.get(closure)
     if role is None:
         balls = max(6, int(2 * math.pi * pitch_r / (2.3 * ball_r)))
-        for k in range(balls):
-            a = 2 * math.pi * k / balls
-            fig.disc((pitch_r * math.cos(a), pitch_r * math.sin(a)), ball_r)
+        angles = (2 * math.pi * k / balls for k in range(balls))
+        fig.discs(((pitch_r * math.cos(a), pitch_r * math.sin(a)) for a in angles), ball_r)
     else:
         fig.disc((0.0, 0.0), r_out - ring * 1.15, role)
     fig.disc((0.0, 0.0), r_in + ring)
