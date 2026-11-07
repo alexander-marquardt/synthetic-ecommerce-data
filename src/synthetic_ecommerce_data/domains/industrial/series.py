@@ -168,6 +168,48 @@ OBSERVED_SHANK_RATIOS: tuple[tuple[float, int], ...] = (
 )
 
 
+#: A reduced neck (#859): a long-reach end mill is ground below its cutting
+#: diameter for a stated length behind the flutes, so it reaches into a pocket
+#: without the body rubbing. Catalogs sell it on small cutters only, at a reach
+#: from a short list of standard sizes, and print that reach as ``Neck Length``
+#: in the unit and spelling of the tool's other lengths. These are those sizes:
+#: fractions on the 1/16" grid the other inch lengths print on, and whole
+#: millimetres. A tool outside the range, or with no size that fits, has no
+#: neck to state.
+NECK_LENGTHS_IN: tuple[Fraction, ...] = (
+    Fraction(1, 4),
+    Fraction(3, 8),
+    Fraction(1, 2),
+    Fraction(5, 8),
+    Fraction(3, 4),
+    Fraction(1, 1),
+    Fraction(5, 4),
+    Fraction(3, 2),
+    Fraction(2, 1),
+    Fraction(5, 2),
+    Fraction(3, 1),
+)
+NECK_LENGTHS_MM: tuple[float, ...] = (3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40, 50)
+
+#: The largest cutter a reduced neck is sold on, per system.
+REDUCED_NECK_MAX_DIA_IN = 0.5
+REDUCED_NECK_MAX_DIA_MM = 12.0
+
+#: The longest reach, in cutting diameters: past ten a small cutter deflects
+#: too far to hold a size.
+NECK_MAX_DIAMETERS = 10.0
+
+#: The shank a reduced-neck tool keeps to clamp, in shank diameters: the neck
+#: ends at least this far from the back of the tool.
+NECK_GRIP_SHANKS = 1.5
+
+#: The share of end-mill lines sold as reduced-neck lines. Every tool of such a
+#: line that a size fits states its neck, and the published share across end
+#: mills lands near the census rate, ``by_family.end_mill`` 0.2727 in
+#: 06_attribute_sparsity.json.
+REDUCED_NECK_LINE_SHARE = 0.42
+
+
 class GeometryError(ValueError):
     """The requested tool geometry does not describe a tool that can exist."""
 
@@ -252,6 +294,41 @@ def build_metric(
         shank_dia_in=shank_mm / MM_PER_INCH,
         length_class=length_class,
     )
+
+
+def neck_lengths(geom: ToolGeometry) -> tuple[float, ...]:
+    """The standard reaches, in inches, a reduced neck on ``geom`` can be sold at.
+
+    Longer than the length of cut, since a neck starts where the flutes end, and
+    no longer than ten diameters or than the tool less its grip, so it is
+    always shorter than the overall length. Empty for a cutter above the range.
+    """
+    if geom.system == "mm":
+        if geom.cutting_dia_in * MM_PER_INCH > REDUCED_NECK_MAX_DIA_MM + 1e-9:
+            return ()
+        sizes = [mm / MM_PER_INCH for mm in NECK_LENGTHS_MM]
+    else:
+        if geom.cutting_dia_in > REDUCED_NECK_MAX_DIA_IN + 1e-9:
+            return ()
+        sizes = [float(size) for size in NECK_LENGTHS_IN]
+    longest = min(
+        NECK_MAX_DIAMETERS * geom.cutting_dia_in,
+        geom.overall_length_in - NECK_GRIP_SHANKS * geom.shank_dia_in,
+    )
+    return tuple(s for s in sizes if geom.length_of_cut_in < s <= longest + 1e-9)
+
+
+def reduced_neck(geom: ToolGeometry, line_roll: float, roll: float) -> float | None:
+    """The neck ``geom`` is sold with, in inches, or None when it has none.
+
+    ``line_roll`` marks the line as a reduced-neck line, under
+    :data:`REDUCED_NECK_LINE_SHARE`; ``roll`` picks the tool's reach among the
+    sizes that fit. Both are uniform on [0, 1).
+    """
+    sizes = neck_lengths(geom)
+    if not sizes or line_roll >= REDUCED_NECK_LINE_SHARE:
+        return None
+    return sizes[min(int(roll * len(sizes)), len(sizes) - 1)]
 
 
 def nearest_shank_imperial(target_in: float) -> Fraction:

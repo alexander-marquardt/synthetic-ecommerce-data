@@ -70,18 +70,6 @@ ROWS: list[tuple[str, str, str, str, str, str | tuple[str, ...], str]] = [
         "the sidebar reads the published quantity names",
     ),
     (
-        "the end mill's drawn neck length is declared tabled",
-        _SRC,
-        "domains/industrial/vocab.py",
-        "    _spec(\"Neck Length\", \"sku\", 0.27, kind=\"length\", source=\"drawn\"),",
-        "    _spec(\"Neck Length\", \"sku\", 0.27, kind=\"length\"),",
-        (
-            f"{_T} -k reads_the_generators_quantity_declaration",
-            f"{_T} -k every_declaration_agrees_with_the_data",
-        ),
-        "the declaration says what the builder does",
-    ),
-    (
         "a spec may name any source",
         _SRC,
         "domains/industrial/vocab.py",

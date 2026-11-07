@@ -20,6 +20,7 @@ denominator rather than against the whole corpus.
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Callable, Iterable
 from dataclasses import replace
 from fractions import Fraction
@@ -553,6 +554,9 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         # radius are the diameter's, and its neck follows its length of cut. A line of one class
         # draws each per SKU, as it always did, so no draw of it moves.
         held: dict[object, float] = {}
+        # Whether this is a reduced-neck line, read off a digest of the line so no draw moves.
+        digest = hashlib.sha256(f"{cfg.seed}:reduced-neck:{type_key}:{series_code}".encode())
+        neck_line_roll = int(digest.hexdigest()[:8], 16) / 16**8
 
         def drawn(scope: object, draw: Callable[[], float]) -> float:
             if len(classes) == 1:
@@ -606,19 +610,28 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                     "length_of_cut": loc,
                     "other_length": oal,
                 }
-                # Unconditionally computed and appended, like Milling Dia./Shank
-                # Dia./Length of Cut/Overall Length above: WHETHER either publishes
-                # is decided once, centrally, by ``_apply_sparsity`` reading the
-                # census presence rate off VOCAB. A second probabilistic gate here
-                # used to duplicate that decision at the SAME rate VOCAB declares,
-                # squaring the presence instead of reproducing it -- 0.22 and 0.18
-                # made Corner Radius and Neck Length land at ~5%/~3% of end mills
-                # instead of the measured 40%/27%
-                # (alexander-marquardt/synthetic-ecommerce-data#39).
-                neck_in = geom.length_of_cut_in * drawn("neck", lambda: rng.uniform(1.05, 1.4))
-                neck = self._length("Neck Length", neck_in, style)
-                child.attrs.append(neck)
-                child.secondary["neck"] = neck
+                # A reduced-neck line's tool states its neck, a standard reach the
+                # tool fits (:func:`series.reduced_neck`, #859); any other tool lists
+                # it retired, so the sparsity draw it takes keeps every later draw
+                # where it was. ``rng.random`` is the one draw ``uniform(1.05, 1.4)``
+                # took when the neck was the length of cut times that. A line of several
+                # lengths takes the next reach past the length of cut, so the neck follows
+                # that axis alone and is no third choice on the product page (#850).
+                roll = drawn("neck", rng.random)
+                neck_in = series.reduced_neck(
+                    geom, neck_line_roll, roll if len(classes) == 1 else 0.0
+                )
+                if neck_in is None:
+                    child.attrs.append(
+                        retired(
+                            self._length("Neck Length", geom.length_of_cut_in, style),
+                            distinguishes=False,
+                        )
+                    )
+                else:
+                    neck = self._length("Neck Length", neck_in, style)
+                    child.attrs.append(neck)
+                    child.secondary["neck"] = neck
                 radius_in = geom.cutting_dia_in / drawn(
                     ("radius", dia), lambda: rng.choice((8.0, 16.0, 32.0))
                 )
@@ -632,6 +645,22 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
                 # is not the cutting diameter.
                 child.secondary["flute"] = loc
                 draft.children.append(child)
+        # A line of several lengths states a neck that follows its length of cut. A length of
+        # cut with a neck on one SKU and none on another (a cutter past the reduced-neck range
+        # beside one in it) would make the neck a third choice on the product page (#850,
+        # #859), so that length of cut states none.
+        if len(classes) > 1:
+            stated: dict[str, set[bool]] = {}
+            for child in draft.children:
+                cut = child.secondary["length_of_cut"].value
+                stated.setdefault(cut, set()).add("neck" in child.secondary)
+            for child in draft.children:
+                cut = child.secondary["length_of_cut"].value
+                if len(stated[cut]) > 1 and "neck" in child.secondary:
+                    neck = child.secondary.pop("neck")
+                    child.attrs = [
+                        retired(a, distinguishes=False) if a is neck else a for a in child.attrs
+                    ]
         return draft
 
     def _build_drill(self, type_key: str, category: tuple[str, ...]) -> LineDraft:
