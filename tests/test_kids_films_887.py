@@ -16,7 +16,13 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import export, image_release, kids_films, scale
+from synthetic_ecommerce_data.domains.retail import (
+    export,
+    image_release,
+    kids_films,
+    sale_share,
+    scale,
+)
 
 FILMS = (
     "Plaything Story",
@@ -112,15 +118,26 @@ def test_film_products_have_ordinary_skus_and_variants(catalog) -> None:
     assert sum(len(d["skus"]) > 1 for d in docs) >= len(docs) // 2
 
 
-def test_film_products_keep_their_authored_colors_and_take_no_sale_price(catalog) -> None:
-    """They stay out of the main-color and sale passes, so no other style's copied color or sale
-    price moves when a film product is added."""
+def test_film_products_keep_their_authored_colors(catalog) -> None:
+    """They stay out of the main-color pass, so no other style's copied color moves when a film
+    product is added."""
     by_id = {d["product_id"]: d for d in catalog}
     for row in kids_films.ROWS:
         doc = by_id[row.product_id]
         colors = [c["color"] for c in doc.get("color_options") or ()]
         assert colors == ([] if row.colorless else [c[0] for c in row.colors]), row.product_id
-        assert not {"was_price", "promotion", "discount_pct"} & set(doc), row.product_id
+
+
+def test_the_films_carry_their_own_sale_share(catalog) -> None:
+    """Their sale comes from a pass of their own (gen#905): in each people department the film
+    SKUs on sale reach the department's share, so the films do not thin it."""
+    films = [d for d in catalog if d["product_id"] in kids_films.ids()]
+    for dept in {sale_share.department(d) for d in films} - {None}:
+        docs = [d for d in films if sale_share.department(d) == dept]
+        total = sum(d["sku_count"] for d in docs)
+        held = sum(d["sku_count"] for d in docs if "was_price" in d)
+        assert held >= sale_share.SHARE[dept] * total, (dept, held, total)
+    assert not any("was_price" in d for d in films if sale_share.department(d) is None)
 
 
 def test_every_film_sku_draws_its_own_picture_in_code(catalog) -> None:

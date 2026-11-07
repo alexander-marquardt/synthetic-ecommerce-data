@@ -428,11 +428,13 @@ def templates(baseline: bool = True) -> list[dict]:
     # Kids share holds its target, and nothing else moves.
     done += sale_share.apply_all([r for r in tpls if r["product_id"] in kids], ())
     # A film product takes a main color only in a group no other style completes (none today),
-    # read against the completed styles, and no sale price.
+    # read against the completed styles. Its sale comes from a pass of its own, as the Kids rows'
+    # does (gen#905): its SKUs count toward each department's total, so the films carry their
+    # part of the share, and no other style's sale moves.
     own = [r for r in tpls if r["product_id"] in films]
     if baseline:
         own = [r for r in main_colors.complete([*done, *own], skip) if r["product_id"] in films]
-    done += own
+    done += sale_share.apply_all(own, ())
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 
