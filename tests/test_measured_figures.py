@@ -25,6 +25,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.core import price
+from synthetic_ecommerce_data.core.entry import UNIT_FOR_SUFFIX
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -87,6 +88,21 @@ def test_the_catalog_and_drawing_figures_are_the_committed_catalogs(stats: dict)
     }
 
 
+#: A published unit marker after a number: the number is a measurement, never a count of
+#: SKUs or lines. Bare ``in`` is left out because it is also the preposition.
+_UNIT_AFTER = "|".join(
+    re.escape(suffix)
+    for suffix in sorted(UNIT_FOR_SUFFIX, key=len, reverse=True)
+    if suffix != "in"
+)
+
+
+def _count(number: int) -> str:
+    """A count spelled as a bare number, unless a unit marker follows it: seed 20260918
+    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's ``1,070 lbf`` is a load (#50)."""
+    return rf"\b{number:,}\b(?!\s*(?:{_UNIT_AFTER}))"
+
+
 def _quotations(stats: dict) -> dict[str, str]:
     """Each measured figure as the prose spelled it, by the figure it quotes.
 
@@ -97,8 +113,8 @@ def _quotations(stats: dict) -> dict[str, str]:
     catalog = figures.get("catalog", {})
     drawings = figures.get("drawings", {})
     patterns = {
-        "skus": rf"\b{stats['skus']:,}\b",
-        "lines": rf"\b{stats['lines']:,}\b",
+        "skus": _count(stats["skus"]),
+        "lines": _count(stats["lines"]),
     }
     if catalog:
         patterns["catalog.modelled_types"] = rf"\b{catalog['modelled_types']}\s+depth\s+types"
@@ -113,13 +129,13 @@ def _quotations(stats: dict) -> dict[str, str]:
             patterns[f"drawings.geometry.{rung}"] = rf"\b{count:,}\s+`{rung}`"
     if BUILDS_FILE.is_file():
         hundred_k = json.loads(BUILDS_FILE.read_text("utf-8"))["hundred_k"]
-        patterns["hundred_k.skus"] = rf"\b{hundred_k['skus']:,}\b"
-        patterns["hundred_k.lines"] = rf"\b{hundred_k['lines']:,}\b"
+        patterns["hundred_k.skus"] = _count(hundred_k["skus"])
+        patterns["hundred_k.lines"] = _count(hundred_k["lines"])
         for type_key, count in hundred_k["skus_by_type"].items():
             # A smaller or a round count is too common a number to name the figure: key
             # stock's 1,000 at 100K is not the README's "1,000-piece" pack (#50).
             if count >= 1000 and count % 100:
-                patterns[f"hundred_k.skus_by_type.{type_key}"] = rf"\b{count:,}\b"
+                patterns[f"hundred_k.skus_by_type.{type_key}"] = _count(count)
     overmatch = figures.get("flat_overmatch", {})
     if overmatch:
         patterns["flat_overmatch.matching"] = rf"matches\s+\*{{0,2}}{overmatch['matching']:,}\b"
