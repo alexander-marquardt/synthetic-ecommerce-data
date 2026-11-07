@@ -556,28 +556,24 @@ def test_a_style_that_changes_no_shown_value_is_its_brands_one_product_in_every_
     """A style whose title-shown values equal its template's or an earlier sibling's is its
     brand's one product of the kind, in every color of its template, and its title names none:
     a product of one color titled "…, Green" beside the brand's grouped one read as a product
-    that should have been grouped (#851). A cleaning or beauty style is still that one color,
-    named in the listing convention "…, Coral", until those families drop their numbers."""
+    that should have been grouped (#851). A beauty shade is such a color too ("Orrin Skin Desire
+    Soft Veil Foundation, Toffee" was one): a lipstick or foundation line sells its shades as
+    SKUs."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
-    merged, named = [], []
+    merged = []
     for r, t in ceiling_pairs:
         shown = _signature(r, t)[0]
         if shown in taken[t["product_id"]]:
             hero = (r.get("color_options") or [{}])[0].get("color")
             suffixed = hero and r["title"].endswith(line_grammar.color_suffix(r, hero))
-            if line_grammar.family(t) in line_grammar.CARE:
-                assert suffixed, (r["product_id"], r["title"])
-                named.append(r["product_id"])
-            else:
-                assert not suffixed, (r["product_id"], r["title"])
-                colors = {c["color"] for c in r.get("color_options") or ()}
-                assert colors == {c["color"] for c in t.get("color_options") or ()}, r["title"]
-                merged.append(r["product_id"])
+            assert not suffixed, (r["product_id"], r["title"])
+            colors = {c["color"] for c in r.get("color_options") or ()}
+            assert colors == {c["color"] for c in t.get("color_options") or ()}, r["title"]
+            merged.append(r["product_id"])
         taken[t["product_id"]].add(shown)
     assert len(merged) >= MERGED_COLOR_STYLES, len(merged)
-    assert len(named) >= NAMED_CARE_SHADES, len(named)
 
 
 def test_a_redrawn_print_motif_takes_its_plural_and_article():
@@ -1064,26 +1060,23 @@ def test_the_invented_names_are_new_and_never_repeat():
     assert sorted(authored & set(pool)) == []
 
 
-#: The ceiling's styles that are their brand's one product in every color (#851), and the
-#: care styles still named for one color: floors under the measured counts.
+#: The ceiling's styles that are their brand's one product in every color (#851): a floor
+#: under the measured count.
 MERGED_COLOR_STYLES = 1_000
-NAMED_CARE_SHADES = 100
 
 
-def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
-    """A listing whose title names a color IS that color: every SKU of a style titled
-    "…, Sage" is Sage, in all its sizes."""
-    seen = 0
-    for r, t in ceiling_pairs:
-        hero = (r.get("color_options") or [{}])[0].get("color")
-        if not (hero and r["title"].endswith(line_grammar.color_suffix(r, hero))):
-            continue
-        seen += 1
-        assert {s.get("color") for s in r["skus"]} == {hero}, r["product_id"]
-        assert [c["color"] for c in r["color_options"]] == [hero], r["product_id"]
-        sizes = {s.get("size") for s in t["skus"] if s.get("color") == hero}
-        assert {s.get("size") for s in r["skus"]} == sizes, r["product_id"]
-    assert seen >= 100
+def test_no_derived_title_ends_with_its_hero_color(ceiling_pairs):
+    """Guard (#851): a derived style titled "…, Sage" or "…, Toffee" was one color of its
+    template sold as a product of its own; a color is a SKU of its brand's one product, so no
+    derived title names one. Metric: the derived styles whose title ends with their hero
+    color."""
+    titled = [
+        r["title"]
+        for r, _ in ceiling_pairs
+        if (hero := (r.get("color_options") or [{}])[0].get("color"))
+        and r["title"].endswith(line_grammar.color_suffix(r, hero))
+    ]
+    assert titled[:5] == [], len(titled)
 
 
 def test_a_duvets_drawn_tog_is_its_tog_attribute(built):

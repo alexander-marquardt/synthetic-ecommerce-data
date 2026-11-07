@@ -21,9 +21,17 @@ an earlier sibling, already shows used to carry its hero color alone, with the c
 its title. It now carries every color of its template, hero first, and its title names none
 (`scale._draw`). So it is its brand's one product of the kind. A second one from the same brand
 would be a twin (`scale_text.twin_key`), so the build makes none, and different brands stay
-separate products. A cleaning or beauty style (a lipstick shade, a scent) keeps the older rule:
-its hero color alone, named in its title. A shade as a SKU would leave Beauty under
-`breadth_rows.DEPARTMENT_FLOOR` at the ceiling, so that waits on a ruling (#851).
+separate products.
+
+**A beauty shade is a SKU too.** A lipstick, foundation or tinted moisturiser style used to keep
+the older rule: its hero shade alone, named in its title. Now it follows the rule above, so a
+brand's lipstick line sells its shades as SKUs. A beauty retailer splits a line into products by
+finish or formula, never by shade. The breadth rows (`breadth_beauty.py`) add the lipstick
+finishes Cream, Sheer and Metallic and the foundation formulas Cream, Mousse, Liquid and Serum,
+so a derived lipstick or foundation varies its finish or formula. Beauty then holds 163 styles at
+the ceiling, above `breadth_rows.DEPARTMENT_FLOOR` (150), so the floor is unchanged.
+`kit_home.LIPSTICK_FINISHES` draws the cream and metallic finishes. `lipstick_looks.SALT` and
+`pack_looks.BASES["Foundation"]` were searched again, so a brand's lines still differ in look.
 
 **The report.** `scale --report` has `single_sku_kinds`: each product type where most products
 have one SKU although one of its products has two colors or sizes, with its counts.
@@ -85,13 +93,15 @@ template's text also uses is not dealt, as for the other families. A lipstick's 
 pack's look is numbered from its lead word (`lipstick_looks._line_number`, each lead every
 `STRIDE` th place), so the build's lipstick and beauty pack lines are fewer: one per lead word.
 
-The grocery build keeps its care models' sub-model and number ("Clearbrook Household Total Plus 9
-Lemon Multi-Surface Cleaner" beside "Total Ultra 6 Lavender" and "Total 8 Mint"). Each grocery
-care style is one scent in its pack sizes. With a lead word alone, a brand has only as many
-titles as it has words times scents, and its families fall short of their budgets: the 50K tier
-misses its SKU target. That waits on a grocery care style that sells several scents as SKUs.
+The grocery build names its care models the same way: "Clearbrook Household Total Lemon
+Multi-Surface Cleaner", not "Total Plus 9". A grocery care style stays one scent, with its pack
+sizes as SKUs. A word alone gives a brand fewer titles (its words times its scents), so each care
+family gives the grocery build words of its own (`GROCERY_LEADS` in
+`line_grammar_families/cleaning.py` and `beauty.py`), dealt beside the odd half of its leads. No
+family falls short of its budget, and the 10K and 50K tiers keep their totals.
 
 The guards are in `tests/test_retail_scale_range_names_851.py`,
 `tests/test_retail_scale_authored_lines_851.py`,
 `tests/test_retail_scale_cup_packs_851.py`, `tests/test_retail_scale_mugs_851.py` and
-`tests/test_retail_scale_tableware_packs_851.py` and `tests/test_retail_scale_care_666.py`.
+`tests/test_retail_scale_tableware_packs_851.py`, `tests/test_retail_scale_care_666.py` and
+`tests/test_food_titles_729.py`.

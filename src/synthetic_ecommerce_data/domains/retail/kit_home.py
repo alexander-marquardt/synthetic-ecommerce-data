@@ -459,6 +459,8 @@ LIPSTICK_FINISHES = {
     "satin": (1.0, ("M230,146 L230,106", 7, 0.7), "M255,148 L255,104"),
     "matte": (1.0, None, None),
     "sheer": (0.55, ("M230,146 L230,106 M250,146 L250,110", 5, 0.8), None),
+    "cream": (1.0, ("M232,146 L232,108", 4, 0.45), None),
+    "metallic": (1.0, ("M226,146 L226,106 M240,146 L240,108", 6, 0.9), "M255,148 L255,104"),
 }
 LIPSTICK_EMBLEMS = ("none", "dot", "diamond", "bar")
 

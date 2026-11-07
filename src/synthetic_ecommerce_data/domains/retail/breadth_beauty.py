@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.breadth_gifts import _scent
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
-from synthetic_ecommerce_data.domains.retail.variants import cw
+from synthetic_ecommerce_data.domains.retail.variants import _shades, _tones, cw
 
 # --------------------------------------------------------------------------
-# Beauty: the hair type and the ingredient vary; the hand wash's fragrance varies.
+# Beauty: the hair type and the ingredient vary; the hand wash's fragrance varies; a lipstick
+# takes another finish and a foundation another formula.
 # --------------------------------------------------------------------------
 
 _CONDIT = ("Beauty", "Hair Care", "Conditioner")
@@ -16,8 +17,20 @@ _BATH_SALTS = ("Beauty", "Bath & Body", "Bath Salts")
 _SHOWER_GEL = ("Beauty", "Bath & Body", "Shower Gel")
 
 
+_LIPS = ("Beauty", "Make-Up", "Lips", "Lipstick")
+_FOUNDATION = ("Beauty", "Make-Up", "Face", "Foundation")
+
+
 def _hair(hair: str, ingredient: str) -> tuple[tuple[str, str, str], ...]:
     return (("hair_type", "Hair type", hair), ("ingredient", "Ingredient", ingredient))
+
+
+def _finish(finish: str) -> tuple[tuple[str, str, str], ...]:
+    return (("finish", "Finish", finish),)
+
+
+def _formula(formula: str) -> tuple[tuple[str, str, str], ...]:
+    return (("formula", "Formula", formula),)
 
 
 BEAUTY = (
@@ -76,4 +89,41 @@ BEAUTY = (
         "A creamy shower gel in a recycled bottle. Scented with eucalyptus.",
         (cw("Teal", "#2a7f80", "solid", "#ffffff"),), _scent("Eucalyptus"), label="Shower Gel",
         colorless=True),
+    # #851: a shade is a SKU of one lipstick or foundation, and a line is split by its finish or
+    # its formula, as a beauty retailer lists them. Each finish and formula here is a value the
+    # leaf's derived styles may take (the satin and matte lipsticks are in ``variants.BEAUTY``).
+    Row("LIPCRM", "Kestlewood Cream Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
+        "Lipstick", 13.0, "lipstick", "A cushiony cream lipstick with full color in one sweep.",
+        _shades("Rose Petal; Spiced Plum; Cherry Red; Soft Mauve; Cinnamon; Warm Nude; "
+                "Raspberry; Deep Wine",
+                "d98c95 7a3b4f b3132b b48a96 a0522d c49a83 c72c58 5b1a2a"),
+        _finish("Cream")),
+    Row("LIPSHR", "Kestlewood Sheer Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
+        "Lipstick", 12.0, "lipstick",
+        "A light, glossy lipstick that gives a wash of color you can layer.",
+        _shades("Blush Glaze; Peony Glaze; Cherry Glaze; Nude Glaze; Plum Glaze; Coral Glaze",
+                "e8a3a8 e58fa8 c0392b d8b4a0 8e4a6b f08070"),
+        _finish("Sheer")),
+    Row("LIPMET", "Kestlewood Metallic Lipstick", "Kestlewood Cosmetics", "Beauty", _LIPS,
+        "Lipstick", 15.0, "lipstick", "A foiled lipstick with a high-shine metallic finish.",
+        _shades("Bronze Foil; Rose Gold; Copper Penny; Garnet Foil; Amethyst; Champagne Pink",
+                "a0663a c98b7c b0643c 7b1e2a 7d4e8a e3b7a8"),
+        _finish("Metallic")),
+    Row("FNDCRM", "Kestlewood Cream Foundation 30ml", "Kestlewood Cosmetics", "Beauty",
+        _FOUNDATION, "Foundation", 30.0, "bottle",
+        "A rich foundation with full coverage and a soft matte finish.",
+        _tones("1N 2N 3N 3W 4N 5N 5W 6N 7N 8N 9N 10N 11N 12N"), _formula("Cream"),
+        label="Foundation"),
+    Row("FNDMSE", "Airy Mousse Foundation 30ml", "Kestlewood Cosmetics", "Beauty", _FOUNDATION,
+        "Foundation", 34.0, "bottle", "A light foundation that blends out to a soft, airy finish.",
+        _tones("1C 2N 3C 4N 5W 6N 7C 8N 9W 10N"), _formula("Mousse"), label="Foundation"),
+    Row("FNDLIQ", "Weightless Liquid Foundation 30ml", "Kestlewood Cosmetics", "Beauty",
+        _FOUNDATION, "Foundation", 26.0, "bottle",
+        "A thin, buildable foundation that wears light all day.",
+        _tones("1N 1W 2N 3N 4C 4N 5N 6W 7N 8N 9N 10W 11N 12N 13N"), _formula("Liquid"),
+        label="Foundation"),
+    Row("FNDSER", "Dewy Serum Foundation 30ml", "Kestlewood Cosmetics", "Beauty", _FOUNDATION,
+        "Foundation", 36.0, "bottle",
+        "A sheer foundation with a serum base for a fresh, dewy finish.",
+        _tones("1N 2C 3N 4W 5N 6C 7N 8W 9N 10N 11W 12N"), _formula("Serum"), label="Foundation"),
 )  # fmt: skip
