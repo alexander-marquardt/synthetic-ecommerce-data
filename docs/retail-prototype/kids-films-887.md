@@ -21,7 +21,7 @@ of the name, so the phrase is the name alone.
 | The Lady in High Heels | `LH` | mug, kids' tee, pyjamas, lunch box, stickers, party bags, birthday cake, sweets |
 | The Haunted Dollhouse | `HD` | mug, kids' tee, kids' sweatshirt, kids' duvet set, ghost cat soft toy, stickers, cake |
 
-89 products and 362 SKUs. Each film sells 25 to 37 SKUs. Every film sells in seven or more categories, and each sells a cake or
+Each film sells a few dozen SKUs. Every film sells in seven or more categories, and each sells a cake or
 sweets. A product's id is `BRD-KF<film code><kind>`, for example `BRD-KFPSMG`, the Plaything Story
 mug.
 
@@ -100,7 +100,7 @@ template build (`tests/test_kids_films_905.py` adds the named categories, below)
 
 `tests/test_kids_films_905.py` checks that no product of the five gen#905 films has a category
 path that holds a word its name names, that each of those words is a category of the catalogue
-(so the check is not empty), and that each film sells 25 to 35 SKUs.
+(so the check is not empty), and the range of SKUs each film sells.
 
 Each film's emblem, printed on its products, is gen#904's.
 
