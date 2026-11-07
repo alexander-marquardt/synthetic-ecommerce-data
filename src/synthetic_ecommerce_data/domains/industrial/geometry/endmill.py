@@ -13,6 +13,8 @@ requiring it asks for nothing a real record withholds.
 ``Cutting Direction`` decides which way the flutes lean and
 ``Single End/Double End`` decides whether there is a second cutting end. Both
 are followed when published; when the record is silent the usual form is used.
+``Coolant Fed`` decides whether coolant outlets are drawn on the cutting end: only
+``Coolant Through`` draws them, and a silent record or any other value draws none.
 
 ``Corner Radius`` rounds the corners of a square end. On a ball nose there are
 no corners to round, so a record publishing both is refused rather than drawn
@@ -57,6 +59,9 @@ END_STYLES: dict[str, str] = {
 #: helix rises to the right in this view; a left-hand one rises to the left.
 HANDS: dict[str, int] = {"right hand": 1, "left hand": -1}
 
+#: ``Coolant Fed`` values and whether coolant runs through the tool.
+COOLANT: dict[str, bool] = {"coolant through": True, "non-coolant through": False}
+
 
 @dataclass(frozen=True)
 class EndMillGeometry:
@@ -78,6 +83,8 @@ class EndMillGeometry:
     ends_published: bool = True
     #: Corner radius on a square end, when the record publishes one.
     corner_radius: Length | None = None
+    #: Whether the record publishes ``Coolant Fed: Coolant Through``.
+    coolant: bool = False
 
     @property
     def max_d(self) -> float:
@@ -169,6 +176,7 @@ def geometry_from_record(record: dict) -> EndMillGeometry:
         double_end=ends_raw == "double end",
         ends_published=bool(ends_raw),
         corner_radius=parse_length(radius_raw) if radius_raw else None,
+        coolant=COOLANT.get(str(record.get("Coolant Fed", "")).strip().lower(), False),
     )
     cutting = geom.loc.inches * (2 if geom.double_end else 1)
     if cutting >= geom.oal.inches:

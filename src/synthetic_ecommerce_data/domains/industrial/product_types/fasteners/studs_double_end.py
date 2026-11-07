@@ -44,6 +44,7 @@ from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
 from synthetic_ecommerce_data.domains.industrial.drawing import primitives as P  # noqa: N812
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.domains.industrial.geometry import thread as thread_geom
 from synthetic_ecommerce_data.domains.industrial.newtypes import (
     MM_PER_INCH,
     NO_STANDARD,
@@ -248,7 +249,9 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 KNEE = 3.0
 TAIL = 0.6
 SCALE = 6.0
-#: The most crests drawn along one threaded end.
+#: The most crests drawn along one threaded end of a coarse-thread stud; a fine one draws
+#: more, at its true ratio to the coarse thread of its diameter (``geometry.thread.capped_pitch``,
+#: #9).
 MAX_CRESTS = 24
 #: Each end's threaded length, in diameters, as drawn (not published: no
 #: thread length was read). An equal stud carries NUT_END on both ends; a
@@ -298,7 +301,7 @@ def figure(record: dict[str, str]) -> Drawn:
         "part",
     )
     lower = TAP if record.get("Type") == TAP_END else NUT_END
-    pitch = max(thread.pitch_in * shrink, drawn * END_CAP / MAX_CRESTS)
+    pitch = thread_geom.capped_pitch(thread, drawn * END_CAP / MAX_CRESTS, shrink)
     low_end = min(lower * d * shrink, drawn * END_CAP)
     high_end = min(NUT_END * d * shrink, drawn * END_CAP)
     fig.lines(P.thread_crests(r, c, low_end, pitch))
