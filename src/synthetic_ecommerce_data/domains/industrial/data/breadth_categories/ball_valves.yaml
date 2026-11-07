@@ -7,7 +7,7 @@ category:
 - Valves
 - Ball Valves
 family: motion
-shape: block
+shape: ball_valve
 item: Ball Valve
 descriptor_attr: null
 size_attr: Size

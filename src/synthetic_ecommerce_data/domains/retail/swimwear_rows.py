@@ -17,6 +17,7 @@ what it was.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_swimwear,  # noqa: F401 -- registers swimsuit, bikini_top, tankini, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
@@ -77,7 +78,7 @@ CUPS = ("B", "C", "D", "DD")
 
 BLACK = cw("Black", "#2f2f35", "solid", "#d8dce8")
 WHITE = cw("White", "#f4f1ea", "solid", "#7a7f88")
-NAVY = cw("Navy", "#2c3a5e", "solid", "#d8dce8")
+NAVY = cw("Navy", dark_blues.NAVY_LIGHT, "solid", "#d8dce8")
 RED = cw("Red", "#c32f3a", "solid", "#f4d8dc")
 BLUE = cw("Blue", "#2f6db5", "solid", "#e4eefa")
 GREEN = cw("Green", "#3c8d4f", "solid", "#e0f1e4")

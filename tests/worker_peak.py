@@ -10,11 +10,19 @@ Each test module's peak too (#790): a worker sets its high-water mark back to wh
 is the worker's peak while that module ran (what earlier modules left resident counts too). The
 ``module peak memory:`` line names the modules over :data:`HEAVY_MB`, so a shard's log says which
 modules need a worker of their own. A worker that cannot reset the mark (no ``/proc``) reports no
-module.
+module. Before each reset the worker keeps the mark it clears, so its ``peak worker memory:``
+figure is its peak over the whole run, not the last module's (#869).
+
+A killed worker sends no ``workeroutput`` (#845), so when the run names a directory in
+:data:`PEAK_DIR_ENV` each worker also appends to ``<dir>/<worker id>.peaks``, flushed as it goes: a
+``<module>\t<MB>`` line as a module starts and again each time its peak rises. A worker the OOM
+killer ends leaves its finished modules' peaks, and its last line names the module it died in.
+``scripts/ci_run_pytest.py`` names the directory and prints that last line for a lost worker.
 """
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -63,8 +71,30 @@ def module_summary(peaks: dict[str, int]) -> str:
     return f"module peak memory: {len(heavy)} of {len(peaks)} modules over {HEAVY_MB} MB: {each}"
 
 
+#: The directory a worker appends its module peaks to, one file per worker (#845); unset, none.
+PEAK_DIR_ENV = "WORKER_PEAK_DIR"
+
+
 def _module(item: pytest.Item) -> str:
     return item.nodeid.split("::", 1)[0]
+
+
+def _record(config: pytest.Config, module: str, mb: int) -> None:
+    """Append ``module``'s peak to this worker's file, so a kill after this line keeps it."""
+    folder = os.environ.get(PEAK_DIR_ENV)
+    if folder:
+        path = Path(folder) / f"{config.workerinput['workerid']}.peaks"
+        with path.open("a", encoding="utf-8") as out:
+            out.write(f"{module}\t{mb}\n")
+
+
+def _session_peak(config: pytest.Config) -> int | None:
+    """This worker's peak over its run so far: the mark now, or a higher one a reset cleared."""
+    now = own_peak_mb()
+    if now is None:
+        return None
+    config._session_peak = max(getattr(config, "_session_peak", 0), now)
+    return config._session_peak
 
 
 @pytest.hookimpl(wrapper=True)
@@ -74,18 +104,24 @@ def pytest_runtest_protocol(item: pytest.Item, nextitem: pytest.Item | None):
         return (yield)
     peaks = config.__dict__.setdefault("_module_peaks", {})
     if getattr(config, "_peak_module", None) != _module(item):
+        _session_peak(config)  # before the reset clears the mark
         config._peak_module = _module(item) if reset_peak() else None
+        start = own_peak_mb()
+        if config._peak_module is not None and start is not None:
+            _record(config, config._peak_module, start)
     result = yield
     # the module's fixtures are torn down in its last test's teardown, inside this protocol
     module, mb = config._peak_module, own_peak_mb()
     if module is not None and mb is not None:
+        if mb > peaks.get(module, 0):
+            _record(config, module, mb)
         peaks[module] = max(peaks.get(module, 0), mb)
     return result
 
 
 def pytest_sessionfinish(session: pytest.Session) -> None:
     if hasattr(session.config, "workerinput"):
-        session.config.workeroutput["peak_mb"] = own_peak_mb()
+        session.config.workeroutput["peak_mb"] = _session_peak(session.config)
         session.config.workeroutput["module_peaks"] = session.config.__dict__.get(
             "_module_peaks", {}
         )

@@ -25,6 +25,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
     color_word_brand_styles,  # noqa: F401 -- registers the six house styles
+    dark_blues,
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row, _a1, _in, _volts
 from synthetic_ecommerce_data.domains.retail.variants import cw
@@ -346,7 +347,7 @@ ROWS = (
         12.0,
         "bath_towel",
         "A heavy cotton towel with a looped pile, soft after every wash.",
-        (cw("Navy", "#26365c", "solid", "#ffffff"),),
+        (cw("Navy", dark_blues.NAVY, "solid", "#ffffff"),),
         (("fabric", "Fabric", "Cotton"),),
         color_word="Silver",
         true_color="Navy",

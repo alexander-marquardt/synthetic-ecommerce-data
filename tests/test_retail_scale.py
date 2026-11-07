@@ -135,11 +135,12 @@ TEMPLATE_SKUS = FIGURES["templates"]["all"]["skus"]
 #: The derived styles :data:`TARGET` must hold so the ``pairs`` tests read a real sample:
 #: round 2's 19K build held 166 (seed 0), and adding templates must not shrink it.
 MIN_DERIVED = 150
-#: The sample build: the templates, then derived styles to about 4.5K SKUs past them,
+#: The sample build: the templates, then derived styles to about 10.5K SKUs past them,
 #: under the ceiling (:data:`CAPACITY`). It moves with
 #: :data:`TEMPLATE_SKUS`, so new templates never empty it. Round 4's deep-SKU templates
-#: left 4K too few styles, so it went up by 500.
-DERIVED_SKUS = 4_500
+#: left 4K too few styles, so it went up by 500; a style that is its brand's one product in
+#: every color (#851) holds more SKUs, so 4.5K held 134 styles and it went up to 10.5K.
+DERIVED_SKUS = 10_500
 TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 #: Every template exhausted, seed 0: today's ceiling (styles, SKUs). More brands per
 #: type, title-visible values or templates raise it; rebuild the figures then.
@@ -207,11 +208,12 @@ def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
     assert small.skus >= 100
 
 
-def test_the_build_is_deterministic_by_seed():
-    # TARGET, not a fixed size: a build at or under TEMPLATE_SKUS takes no seeded draw.
-    a, b, c = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3), scale.build(TARGET, seed=4)
+def test_the_build_is_deterministic_by_seed(built):
+    # TARGET, not a fixed size: a build at or under TEMPLATE_SKUS takes no seeded draw. The other
+    # seed is the module's own seed-0 build: each build is 20 s of setup whatever its size (#790).
+    a, b = scale.build(TARGET, seed=3), scale.build(TARGET, seed=3)
     assert a.records == b.records
-    assert [r["title"] for r in a.records] != [r["title"] for r in c.records]
+    assert [r["title"] for r in a.records] != [r["title"] for r in built.records]
 
 
 def test_the_20k_build_meets_the_output_standard(built):
@@ -548,25 +550,34 @@ def test_a_motif_style_draws_and_describes_its_own_motif(ceiling_pairs):
     assert changed >= 40, changed
 
 
-def test_a_style_that_changes_no_shown_value_carries_its_hero_color_in_its_title(
+def test_a_style_that_changes_no_shown_value_is_its_brands_one_product_in_every_color(
     ceiling_pairs,
 ):
-    """A style whose title-shown values equal its template's or an earlier sibling's differs
-    from it in the hero color alone: its title says so, in the listing convention "…, Navy".
-    Most are derived styles whose hero color sets them apart."""
+    """A style whose title-shown values equal its template's or an earlier sibling's is its
+    brand's one product of the kind, in every color of its template, and its title names none:
+    a product of one color titled "…, Green" beside the brand's grouped one read as a product
+    that should have been grouped (#851). A cleaning or beauty style is still that one color,
+    named in the listing convention "…, Coral", until those families drop their numbers."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
     for t in scale.templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
-    colored = []
+    merged, named = [], []
     for r, t in ceiling_pairs:
         shown = _signature(r, t)[0]
         if shown in taken[t["product_id"]]:
             hero = (r.get("color_options") or [{}])[0].get("color")
-            named = hero and r["title"].endswith(line_grammar.color_suffix(r, hero))
-            assert named, (r["product_id"], r["title"])
-            colored.append(r["product_id"])
+            suffixed = hero and r["title"].endswith(line_grammar.color_suffix(r, hero))
+            if line_grammar.family(t) in line_grammar.CARE:
+                assert suffixed, (r["product_id"], r["title"])
+                named.append(r["product_id"])
+            else:
+                assert not suffixed, (r["product_id"], r["title"])
+                colors = {c["color"] for c in r.get("color_options") or ()}
+                assert colors == {c["color"] for c in t.get("color_options") or ()}, r["title"]
+                merged.append(r["product_id"])
         taken[t["product_id"]].add(shown)
-    assert len(colored) >= 1_000
+    assert len(merged) >= MERGED_COLOR_STYLES, len(merged)
+    assert len(named) >= NAMED_CARE_SHADES, len(named)
 
 
 def test_a_redrawn_print_motif_takes_its_plural_and_article():
@@ -800,15 +811,27 @@ def test_the_cli_writes_the_report_and_the_documents(tmp_path):
     assert sum(json.loads(line)["variant_count"] for line in lines) == got["coverage"]["skus"]
 
 
-def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(tmp_path):
+def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(
+    tmp_path, monkeypatch, capsys, ceiling
+):
+    """The CLI's own run, in process, on the shared ceiling build (#790): a target past the
+    capacity takes ``build``'s loop to the same end as the ceiling's own target, so the build
+    the CLI would make is the one already made, and a subprocess building it again was a minute
+    of the same work. The ceiling build itself is that loop running out of templates."""
     PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
+    asked: list[tuple[int, int]] = []
+
+    def shared(skus: int, seed: int = 0) -> scale.Scaled:
+        asked.append((skus, seed))
+        return ceiling
+
+    monkeypatch.setattr(scale, "build", shared)
     report = tmp_path / "report.json"
-    done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", str(PAST), "--report", str(report)],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
-    assert done.returncode == 2, done.stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in done.stderr
+    code = scale.main(["--skus", str(PAST), "--report", str(report)])
+    stderr = capsys.readouterr().err
+    assert asked == [(PAST, 0)], "the CLI did not ask the build for its target on seed 0"
+    assert code == 2, stderr[-2000:]
+    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in stderr
     got = json.loads(report.read_text(encoding="utf-8"))
     assert got["reached_target"] is False
     assert got["standard_problems"] == 0
@@ -1039,6 +1062,12 @@ def test_the_invented_names_are_new_and_never_repeat():
     # gen#623: an authored row's range is in no half, or a builder would deal it a second time
     authored = {scale._line(t) for t in scale.templates() if not t["product_id"].startswith("GRC-")}
     assert sorted(authored & set(pool)) == []
+
+
+#: The ceiling's styles that are their brand's one product in every color (#851), and the
+#: care styles still named for one color: floors under the measured counts.
+MERGED_COLOR_STYLES = 1_000
+NAMED_CARE_SHADES = 100
 
 
 def test_a_color_titled_style_carries_only_its_title_color_in_every_sku(ceiling_pairs):
@@ -1542,16 +1571,18 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     assert all(len(ws) >= (10 if _PLAIN[n].bare else 20) for n, ws in leads.items())
 
 
-def test_a_numbered_family_model_has_a_number_after_its_lead_word():
-    """Guard (gen#664): "Beam" alone is a word, "Beam 300" a model, so a model is a lead word then
-    a sub-model or a number, at least one, and its number is one the family carries. Metric: the
-    models of the cases below that ``is_model`` judges wrong."""
+def test_a_numbered_family_model_is_a_lead_word_of_its_family():
+    """Guard (gen#664, #851): "Beam" is a lighting range and "Beam 300" an authored model, but a
+    soft lead word or a stray word after the lead is neither. A derived model is its brand's lead
+    word alone ("Supper 6" read as synthetic), and no lead word is two brands'. Metric: the models
+    of the cases below that ``is_model`` judges wrong, and the words two brands share."""
     assert line_grammar.is_model("lighting", "B", "Beam 300")
     assert line_grammar.is_model("soft", "B", "Cloud Plus 3")
-    assert not line_grammar.is_model("lighting", "B", "Beam")
+    assert line_grammar.is_model("lighting", "B", "Beam")
     assert not line_grammar.is_model("lighting", "B", "Cloud 3")  # a soft lead word
     assert not line_grammar.is_model("lighting", "B", "Beam Esk")
     deal = line_grammar.Deal("toys", ["A", "B"], {})
-    models = {deal.owned(b, slot) for b in ("A", "B") for slot in range(scale.RANGE_SLOTS)}
-    assert len(models) == 2 * scale.RANGE_SLOTS  # no model is two brands' or twice one brand's
-    assert all(line_grammar.is_model("toys", "A", m) for m in models)
+    owned = {b: {deal.owned(b, slot) for slot in range(scale.RANGE_SLOTS)} for b in ("A", "B")}
+    assert not owned["A"] & owned["B"]
+    assert owned["A"] | owned["B"] == set(deal.spec.leads)
+    assert all(line_grammar.is_model("toys", "A", m) for m in owned["A"] | owned["B"])

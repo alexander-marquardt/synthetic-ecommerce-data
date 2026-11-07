@@ -42,6 +42,7 @@ from __future__ import annotations
 import math
 import re
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -66,7 +67,7 @@ FINISHES = {
 #: A shade color (a table lamp SKU's ``shade_color``, lowercased) -> its hex.
 SHADE_COLORS = {
     "white": "#f6f3ea", "cream": "#efe6cf", "natural": "#e3d6bb", "grey": "#a3a7ab",
-    "black": "#2f2f33", "navy": "#26365c", "dark green": "#3f5f45", "pink": "#e8b4b8",
+    "black": "#2f2f33", "navy": dark_blues.NAVY, "dark green": "#3f5f45", "pink": "#e8b4b8",
 }  # fmt: skip
 GLOW = "#fbe7a1"
 BULB = "#fff6d8"

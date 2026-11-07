@@ -52,7 +52,11 @@
   "Width across flats": "Width Across Flats"
  },
  "bronze_sleeve_bushings": {
-  "Bore dia.": "Bore Dia."
+  "Bore dia.": "Bore Dia.",
+  "Flange dia.": "Flange Dia.",
+  "Flange thickness": "Flange Thickness",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia."
  },
  "cantilever_racks": {
   "Rated load": "Rated Load"
@@ -61,13 +65,23 @@
   "Thread size": "Thread Size"
  },
  "carriage_bolts": {
-  "Thread size": "Thread Size"
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Units per pack": "Units per Pack"
  },
  "chain_lubricants": {
   "Container size": "Container Size"
  },
  "circle_cutters": {
   "Maximum size": "Maximum Size"
+ },
+ "combination_wrenches": {
+  "Measurement system": "Measurement System",
+  "Number of points": "Number of Points"
  },
  "compound_cutters": {
   "Handle material": "Handle Material",
@@ -89,10 +103,26 @@
  "coupling_nuts": {
   "Thread size": "Thread Size"
  },
+ "cut_resistant_gloves": {
+  "ANSI cut level": "ANSI Cut Level",
+  "Knit gauge": "Knit Gauge",
+  "Measurement system": "Measurement System"
+ },
  "dowel_pins": {
   "Dia. tolerance": "Dia. Tolerance",
   "Dowel dia.": "Dowel Dia.",
   "Measurement system": "Measurement System"
+ },
+ "drill_bushings": {
+  "ANSI number": "ANSI Number",
+  "Decimal equivalent": "Decimal Equivalent",
+  "Drill size": "Drill Size",
+  "Head dia.": "Head Dia.",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Overall length": "Overall Length"
  },
  "drill_jobber": {
   "Cutting direction": "Cutting Direction",
@@ -144,6 +174,13 @@
   "Shank dia.": "Shank Dia.",
   "Single end/double end": "Single End/Double End",
   "Units per pack": "Units per Pack"
+ },
+ "er_collets": {
+  "Concentricity tolerance": "Concentricity Tolerance",
+  "Grip range": "Grip Range",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Overall length": "Overall Length"
  },
  "eye_bolts": {
   "Thread size": "Thread Size"
@@ -252,6 +289,14 @@
   "Overall width": "Overall Width",
   "Tip style": "Tip Style"
  },
+ "hex_pipe_nipples": {
+  "Hex size": "Hex Size",
+  "Measurement system": "Measurement System",
+  "Outside dia.": "Outside Dia.",
+  "Pipe size": "Pipe Size",
+  "Pressure rating (psi)": "Pressure Rating (psi)",
+  "Thread type": "Thread Type"
+ },
  "induction_heaters": {
   "Maximum workpiece weight": "Maximum Workpiece Weight"
  },
@@ -265,6 +310,14 @@
   "Piece count": "Piece Count",
   "Sizes included": "Sizes Included",
   "Tip style": "Tip Style"
+ },
+ "lag_screws": {
+  "Drive type": "Drive Type",
+  "Head height": "Head Height",
+  "Head type": "Head Type",
+  "Measurement system": "Measurement System",
+  "Threads per inch": "Threads per Inch",
+  "Width across flats": "Width Across Flats"
  },
  "lock_nuts_nylon_insert": {
   "Measurement system": "Measurement System",
@@ -353,6 +406,10 @@
  "rigid_shaft_couplings": {
   "Bore dia.": "Bore Dia."
  },
+ "roll_pins": {
+  "Measurement system": "Measurement System",
+  "Pin dia.": "Pin Dia."
+ },
  "roller_chain": {
   "ANSI number": "ANSI Number",
   "Inside width": "Inside Width",
@@ -374,6 +431,11 @@
   "Number of teeth": "Number of Teeth",
   "Outside dia.": "Outside Dia.",
   "Units per pack": "Units per Pack"
+ },
+ "safety_glasses": {
+  "Frame color": "Frame Color",
+  "Lens color": "Lens Color",
+  "Measurement system": "Measurement System"
  },
  "screw_button_head": {
   "Dia./thread size": "Dia./Thread Size",
@@ -517,7 +579,10 @@
   "Overall length": "Overall Length"
  },
  "studs_double_end": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread direction": "Thread Direction",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type"
  },
  "t_slot_nuts": {
   "Thread size": "Thread Size"

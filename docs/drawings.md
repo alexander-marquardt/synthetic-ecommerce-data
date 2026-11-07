@@ -53,8 +53,10 @@ Step by step:
    read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
-   rectangles), `Disc`, `Lines` (line work: flutes, thread crests) and `Dots`
-   (grit texture), plus `size_in`. Each `Poly` and `Disc` has a paint *role*:
+   rectangles), `Disc`, `Discs` (many discs of one radius, a bearing's balls:
+   one painted `<g>` of bare `<circle>`s, so the repeats stay under the size
+   cap, #50), `Lines` (line work: flutes, thread crests) and `Dots`
+   (grit texture), plus `size_in`. Each `Poly`, `Disc` and `Discs` has a paint *role*:
    `part`, `plain`, `hole`, `dark`, `handle` or `grip`. Geometry stays in real
    units until the last step, so "a longer length of cut is drawn longer" holds
    by construction.
@@ -64,7 +66,8 @@ Step by step:
    the sheet or, when `magnifier()` says the part is too small to see, draws
    it at true scale near the bottom with an enlarged copy inside a lens.
 6. **Style.** `core/drawing/style.py` supplies the brand's house style (`ink`,
-   `paper`, `frame`, from the brand book in `core/brands.py`), the part fill
+   `frame`, from the brand book in `core/brands.py`; the `paper` is the one
+   every brand shares, `core/drawing/product_look.PAPER`, #849), the part fill
    (the published finish's color, else the bare material's) and the section
    hatch (the material's). A brand, finish or material with no entry raises
    `UnknownStyleError` instead of falling back to a default color.
@@ -164,16 +167,33 @@ the same scale and has a different digest.
 200 x 236 sheet above the brand plate, `FIGURE_HEIGHT`, minus an 18-unit
 margin on every side) over the type's extent: the smaller of
 the width and height ratios. `product_scale_for()` ignores the records it is
-given, so nothing about a particular product can change a type's scale. Two
-parts of one type are therefore in true proportion, and a head or bore that
+given, so nothing about a particular product's SKUs can change its scale. Two
+parts of one product are therefore in true proportion, and a head or bore that
 siblings share is drawn identically. The one step off it is a breadth product's
 size rung (see "Breadth types" below), whose fixed shape has no dimension to draw.
+
+**One angle per product (#849).** `draw_product(..., product_id)` turns every
+SKU's figure by `product_look.angle_of(product_id, orientation)`, so two
+products of one type do not draw the same picture. The orientation is the
+type's, from `domains/industrial/orientation.py` (through
+`core.domain.orientation`): `any` turns a part with no natural up (a screw, a
+nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
+-36 to 36 degrees in steps of 12, `slight` (clothing) within -15 to 15 in
+steps of 5, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
+drawn level whatever its type's orientation (`product_angle`), so a fan of
+end mills is not tilted as a whole. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
+scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scale is the type's extent turned by that angle over the figure
+area, so a turned part and its dimension lines stay inside it (a product at
+0 degrees keeps the type's scale). The magnifier's too-small rule reads the
+part's upright size, and its layout the box the turned part covers. A caller
+that names no product id draws upright.
 
 **A pack card fans its items.** For a type in `pack.AXES`, `_draw` passes a figure through
 `fan()` (`core/drawing/model.py`) when the record's `Units per Pack` is above 1: the part stays
 whole and upright, and the other N - 1 are tilted bounding outlines in one `Outlines` path, so a
 card of 50 stays small. The card's scale is the type's or what fits the fan, whichever is
-smaller. It is the only rotation in the drawings ([package quantity](package-quantity.md)).
+smaller. Besides the product's angle above, it is the only rotation in the drawings
+([package quantity](package-quantity.md)).
 
 **Overlong fasteners are broken, not shrunk.** When a screw or bolt's total
 height exceeds 90% of its type's extent height (`BREAK_START`), `fastener()`
@@ -213,8 +233,8 @@ for kind in (True, False):
     print('handled' if kind else 'handle-less', len(k), f'x{min(k):.2f} to x{max(k):.2f}')"
 ```
 
-**No text but the brand plate.** Figures only have `Poly`, `Disc`, `Lines` and
-`Dots` to draw with. The one `<text>` a drawing carries is the brand's
+**No text but the brand plate.** Figures only have `Poly`, `Disc`, `Discs`, `Lines`
+and `Dots` to draw with. The one `<text>` a drawing carries is the brand's
 wordmark, which `paint()` sets with its mark in the plate under the figure
 (`PLATE_BOX`, #132). `core/drawing/brand_mark.py` draws both, and
 `domains/industrial/drawing/brand_marks.py` declares each brand's motif.
@@ -258,13 +278,19 @@ these in order and stops at the first that parses:
 
 Rungs 3, 4 and 5 take every extent from the defaults or the nominal shape, but never
 a *form* the record publishes: `_read()`'s `form` argument carries those values (an end
-mill's `Single End/Double End`, #9, and its `Number of Flutes` and `Cutting Direction`,
-#10) into all three, so a double-end mill whose dimensions cannot be drawn as published
-is still drawn with two cutting ends, its published flute count and its published hand.
-A flute count that is not a count and a hand that is not `Right Hand` or `Left Hand`
-are not carried. The fasteners' `Thread Direction` and the drill's and tap's cutting
+mill's `Single End/Double End` and `Coolant Fed`, #9, and its `Number of Flutes` and
+`Cutting Direction`, #10) into all three, so a double-end mill whose dimensions cannot be
+drawn as published is still drawn with two cutting ends, its published flute count, its
+published hand and, on a `Coolant Through` mill, one coolant outlet per flute on its end
+view. A flute count that is not a count, a hand that is not `Right Hand` or `Left Hand`
+and a coolant value that is neither `Coolant Through` nor `Non-Coolant Through` are not
+carried. The fasteners' `Thread Direction` and the drill's and tap's cutting
 direction have no drawing channel (only an end mill draws a hand), and
-`tests/test_sku_channels_10.py` names them in one exact set.
+`tests/test_sku_channels_10.py` names them in one exact set. Each named pair is
+measured on every record of its type that the small catalog builds, with each hand set
+in turn. A type publishes its direction line by line (a stud at 0.55), so a seed can
+build a type none of whose lines publish it (#50). A named pair must be one its type's
+vocabulary can publish, and the catalog must build that type.
 
 A "contradiction" is any exception in `domains/industrial/geometry/attrs.py` `REFUSALS`:
 `MissingAttributeError`, `ImpossibleGeometryError`, `UnsupportedFeatureError`
@@ -287,9 +313,10 @@ depth SKU falls back to nominal geometry.
 
 The breadth categories (row files in `data/breadth_categories/` and breadth modules; every
 breadth line is published with `spec_quality: "fast_and_cheap"`, set by
-`domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of seven shapes from
-`domains/industrial/drawing/breadth_shapes.py`: `sphere`, `cylinder`, `block`, `disc`, `tube`
-`bracket` and `c_clamp`, all drawn in code.
+`domains/industrial/breadth.py` `SPEC_QUALITY`) draw one of eleven shapes from
+`domains/industrial/drawing/breadth_shapes.py`, all drawn in code: six plain solids (`sphere`,
+`cylinder`, `block`, `disc`, `tube` and `bracket`) and five products (`c_clamp`, `ball_valve`,
+`bench_vise`, `pitch_gage` and `t_slot_nut`).
 Each YAML row names its shape with `shape:`. A shape function
 discards the record (`del record`) and returns the same geometry every time, with its own fixed
 extent in `BREADTH_SHAPES`. Brand, material and finish still apply, because
@@ -301,7 +328,7 @@ A product's sizes are still apart (gen#719): `draw_product` draws the fixed shap
 `breadth_rungs.ratios` of the type's scale, the size's rank in the product's own ladder on the
 one rule retail reads (`core/size_rungs.py`), from 55/90 of the full drawing (the smallest) to
 all of it (the largest). The rank says bigger or smaller and no dimension. A row whose size
-attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a color, a type, a piece count, a
+attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a type, a piece count, a
 rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
 already a longer drawing, and a rank on top would shrink it twice.
 
@@ -313,6 +340,22 @@ manifest (#102). It is now a shape function like the others: a C frame, a thread
 the boss on the lower arm, a swivel pad facing the fixed jaw, and a T-handle.
 `tests/test_c_clamp_drawn_803.py` pins its parts and refuses any `.svg` file under `src/`, so a
 copied drawing cannot come back unnoticed. A shape that is hard to draw is still drawn in code.
+
+### A product that reads as a box gets its own shape (#873)
+
+The maintainer found the ball valve and the glove "a bit too square" on the #860 contact sheet.
+Four breadth types drew the generic `block`. Each now has a shape of its own: a ball valve (a
+round body between two threaded pipe ends, with a lever in a red vinyl grip), a bench vise (two
+jaws with the throat between them, the screw, its handle bar and a swivel base), a thread pitch
+gage (toothed leaves fanned out of their case) and a T-slot nut (the T of its neck and flange,
+with a tapped hole). Safety glasses also drew the block, but they are now a deep type with a
+figure of their own (#863), so they have no breadth shape. Square bar stock is a block and
+keeps it. The cut-resistant glove, a deep type with its own figure, is
+drawn as one curved outline, with rounded fingertips and thumb and a palm that narrows to a
+ribbed cuff, still hatched in its shell's knit. `tests/test_breadth_figures_873.py` checks each
+shape's parts and checks the glove. Every SKU of a product shares its angle and look on the white
+paper (#849). Before and after, the first product of each type and three of its SKUs:
+[before](images/breadth-figures-873-before.svg), [after](images/breadth-figures-873-after.svg).
 
 ## Determinism and the publish gate
 
@@ -367,6 +410,8 @@ that matter most when you change a figure:
 | `test_no_drawing_carries_any_text_but_a_brands_wordmark`, `test_the_allow_list_refuses_every_planted_text_form` | the allow-list, against planted `<title>`, `aria-label`, comments, rasters, `@font-face`, glyph paths | SMALL + planted |
 | `tests/test_brand_marks.py` | the plate (#132): marks unique and 24 px apart at 19 px; every name's capitals at least 10 px tall at the tile; the four layouts, and a name no layout fits refused; no figure reaches the plate; each drawing's text is its own brand's wordmark; the gate refuses any other text | golden + planted |
 | `tests/test_end_mill_ends_drawn_9.py` | an end mill's cutting ends, counted off the figure's `part` polygons, equal its published `Single End/Double End` on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
+| `tests/test_coolant_fed_drawn_9.py` | an end mill's coolant outlets, counted off the figure's `hole` discs, are one per flute on a `Coolant Through` record and none otherwise, on every rung of `_read()` and on every end mill of `golden-catalog/` | planted + golden |
+| `tests/test_thread_type_drawn_9.py` | a threaded rod or stud drawn at its crest cap still draws a fine thread finer than the coarse one of its diameter, at their true ratio (`geometry/thread.py` `capped_pitch()`): the crest spacing is measured off the figure | planted + golden |
 | `tests/test_sku_channels_10.py` | the end view shows as many flutes as the record states, on every rung of `_read()` and on every end mill of the small catalog; a published `Left Hand` is the mirror of a `Right Hand` drawing; the hatch of each material is the one its convention says | planted + SMALL |
 | `test_nominal_geometry_stays_rare` | at most 10% `nominal` per depth type | SMALL |
 | `test_the_committed_catalog_rebuilds_into_its_recorded_drawings` and the bundle/digest tests | the publish gate above | golden |
@@ -391,7 +436,7 @@ the point.
 | Thread | `thread` (body, chamfered end, a crest per pitch), `thread_crests` (the strokes alone, a helper) |
 | Head | `head_hex`, `head_socket`, `head_button`, `head_flat`, `head_pan` |
 | Drive recess | `drive_recess` (a hex socket seen end on), with `hex_face` and `round_face` for the face itself |
-| Flute | `helix_flutes` (side), `flute_end_view` (end) |
+| Flute | `helix_flutes` (side), `flute_end_view` (end), `coolant_outlets` (a hole per flute on the end view of a `Coolant Through` mill) |
 | Shank and bodies | `shank` (plain, round), `round_body`, `hex_body` (side view, width across corners), `conical_end` (a drill's point) |
 | Ring, tube, plate | `ring` (face), `tube` (cut through its axis), `plate` (with holes) |
 | Chamfer | `chamfer` (a bar with its end cut; `thread` uses it) |

@@ -341,9 +341,9 @@ iterated at the default size.
 
 The files are far too large to commit uncompressed (`flat.jsonl` is ~330 MB).
 This repository commits the default-size catalog only; the industrial demo
-serves that one, from a pinned release, and the 100K build is a capability
-kept tested (`tests/test_catalog_brands_voice.py` builds it) rather than a
-published artifact.
+serves that one, from a pinned release. The 100K build is kept tested
+(`tests/test_catalog_brands_voice.py` builds it), not published; what serving
+a build costs in Elasticsearch is in [docs/ingest-cost.md](docs/ingest-cost.md).
 
 What moves at 100K, measured against the census targets (`ecom-generate
 report`), with the default catalog beside it:
@@ -385,11 +385,11 @@ their product families, market weight, house style and title voice.
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
   Meadow Works`, `Wendlow Tool`, `Quillon Carbide`, ...): a brand filter has to
   tell a brand from a word, and a catalog without such a name never makes it.
-* **House style.** Twelve inks, six paper tints and four frames in use (a
-  fifth, `chamfer`, is declared, unused). Each brand owns one (ink, frame)
-  pair, read back by `drawing.style.brand_for_house_style`; its paper is
-  independent of its ink. Every (ink, paper, frame) triple is unique, every ink
-  at least 3:1 against every paper (lowest 4.4:1). Capacity (#55): 570 distinguishable styles, 45 x 570
+* **House style.** Twelve inks and four frames in use (a fifth, `chamfer`, is
+  declared, unused). Each brand owns one (ink, frame) pair, read back by
+  `drawing.style.brand_for_house_style`. Every brand draws on the one paper, no
+  texture, every ink 3:1 against it; each product's figure has its own angle
+  (#849, `drawing.product_look`). Capacity (#55): 110 distinguishable styles, 45 x 110
   with the mark, against the 135 brands #53 needs ([detail](docs/house-style-levers.md)).
 * **Brand mark** (#132). Each brand declares a `motif` and an `enclosure`
   (`core/brands.py`): fifteen machine-shop motifs
@@ -1032,18 +1032,18 @@ That is the whole command — the default configuration, the default seed. Then
 commit whatever changed, `src/prism_synthetic_industrial/data/field_weights/`
 included, since the same build regenerates the PRISM field map.
 
-The tests also pin SKUs and counts measured on the committed catalog (the SKUs the
-handle-less lens tests name, the title-cap counts, the SKU the mutation bed plants its
-defects in). Those are not typed in the tests: after a regeneration run
+The tests also pin what they measured on the committed catalog (the handle-less lens
+SKUs, the title-cap counts, the mutation bed's SKU, a type's `figures` of one build) and
+each golden slice. None is typed in a test: after a regeneration run
 
 ```sh
 uv run python scripts/measure_pins.py
 ```
 
 which re-measures each by its stated rule (`scripts/golden_pins.py`) and rewrites
-`tests/data/golden_pins.json`. The diff of that file is what a reviewer reads: a figure
-that moved for no stated reason is questioned there. A rule that no SKU satisfies stops
-the script and names the rule. `--check` compares the committed file without writing.
+`tests/data/golden_pins.json` and `tests/data/golden_slices/`. A reviewer reads that
+diff: a figure that moved for no stated reason is questioned there. A rule that no SKU
+satisfies stops the script and names the rule. `--check` compares without writing.
 
 **You are expected to run it in the same commit as any generator change that
 moves the output** — a new attribute, a changed distribution, a different image
@@ -1118,7 +1118,7 @@ products the type would have had, times `SKU_SCALE` (1.10). Must-stock lines of 
 run lines too. Each is built by its type's own builder, with only its SKU count drawn from the
 table. A fastener takes a contiguous run of its thread's lengths, and an end mill or drill a
 contiguous run of its system's diameters. An end mill on matching shanks stops at 9, the size
-of that pool; the wider series takes a line to 15.
+of that pool; the wider series takes a line to 15 (an end mill sells a diameter at 1-3 lengths, #850: docs/industrial-types/end-mill-lengths-850.md).
 
 For each entry of `TARGETS` the pass first adds lines until `wanted()` of them carry its values
 (at least 5, and 10% of the flat products that already do). The targets are the reference
@@ -1191,8 +1191,7 @@ otherwise. The catalog deliberately emits values that do not parse, so the
 test is a majority rather than "all".
 
 A numeric attribute is a **range** or a **list** by what its `AttrSpec` declares
-(gen#95): `tabled` (default) or `drawn` (an end mill's Neck Length), read by
-`prism/derive.py` at any `--lines`; an undeclared one uses the ratio and floor.
+(gen#95): `tabled` (default) or `drawn` (none here since #859 made Neck Length a standard reach), read by `prism/derive.py` at any `--lines`; an undeclared one uses the ratio and floor.
 
 **An attribute whose key is a column's name is namespaced, never dropped.**
 Real feeds publish attributes named like a catalog's own columns -- the census
@@ -1500,8 +1499,8 @@ triple 2.8x, four strand 3.7x the single strand chain; a heavy series chain
 strand count). One brand's single, double and triple strand chains share
 their price noise (`PriceModel.option_attribute`), so the multiplier is what
 separates them: in every brand's chain number offered in more than one strand
-count in one material and length, the median price rises with the strand count
-(13 such sets on the golden catalog, 105 at `--lines 39000`).
+count in one material and length, the median price rises with the strand count (the set
+counts are `test_type_roller_chain`'s figure in `tests/data/golden_pins.json`).
 
 **How it is checked.** `ecom-generate report` prints one row per measured
 figure: each type's p50 and p90/p10, the share of within-page size pairs

@@ -771,9 +771,9 @@ def _placed(
 
 def _render_styled(
     shape, draw, paint, defs, fill, label, brand, uid, params, style, shrink, size_scale=None,
-    copies=1,
+    copies=1, angle=0.0,
 ) -> str:
-    """:func:`render` in a brand's house style (see ``house_styles``)."""
+    """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``."""
     from synthetic_ecommerce_data.domains.retail import (
         house_styles as hs,  # deferred: house_styles is an optional layer over the kit
     )
@@ -786,13 +786,17 @@ def _render_styled(
     inner = size_ladder.stand(
         _placed(shape, drawn, overlay, shrink, copies, paint, uid), defs, size_scale
     )
+    product = hs.restyle(inner, style)
+    if angle:
+        full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid)
+        product = f'<g class="turn" transform="{hs.turn(full, defs, angle)}">{product}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     all_defs = defs + "".join(sheet_defs)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{all_defs}</defs>" if all_defs else "",
         *sheet,
-        f'<g class="product" transform="{hs.product_transform(style, brand)}">{hs.restyle(inner, style)}</g>',
+        f'<g class="product" transform="{hs.product_transform(style, brand)}">{product}</g>',
         f'<g class="brand">{"".join(overlay)}</g>',
         "</svg>",
     ]
@@ -831,22 +835,28 @@ def register(shapes: dict, offsets: dict | None = None) -> None:
     OFFSET_Y.update(offsets or {})
 
 
+def register_all() -> None:
+    """Fill :data:`SHAPES` with every shape: import each module that registers one (``kit_*.py``
+    and ``type_specs/*.py``). A shape is registered when its module is imported, and a build
+    loaded from a pickle imports none of the row modules, so code that reads the whole registry
+    calls this first (synth#797)."""
+    import importlib  # deferred: the kits import this module
+    import pkgutil
+
+    from synthetic_ecommerce_data.domains.retail import type_specs
+
+    for info in pkgutil.iter_modules([str(Path(__file__).parent)]):
+        if info.name.startswith("kit_"):
+            importlib.import_module(f"{__package__}.{info.name}")
+    for info in pkgutil.iter_modules(type_specs.__path__):
+        importlib.import_module(f"{type_specs.__name__}.{info.name}")
+
+
 def _draw(shape: str):
-    """The drawing ``shape`` names. A shape is registered when its module is imported, and a
-    build loaded from a pickle imports none of the row modules, so a shape not yet registered
-    imports every module that registers one (``kit_*.py`` and ``type_specs/*.py``) before it is
-    looked up again (synth#797)."""
+    """The drawing ``shape`` names; a shape not yet registered fills the registry
+    (:func:`register_all`) before it is looked up again (synth#797)."""
     if shape not in SHAPES:
-        import importlib  # deferred: the kits import this module
-        import pkgutil
-
-        from synthetic_ecommerce_data.domains.retail import type_specs
-
-        for info in pkgutil.iter_modules([str(Path(__file__).parent)]):
-            if info.name.startswith("kit_"):
-                importlib.import_module(f"{__package__}.{info.name}")
-        for info in pkgutil.iter_modules(type_specs.__path__):
-            importlib.import_module(f"{type_specs.__name__}.{info.name}")
+        register_all()
     return SHAPES[shape]
 
 
@@ -861,6 +871,7 @@ def render(
     shrink: float = 1.0,
     size_scale: float | None = None,
     copies: int = 1,
+    angle: float = 0.0,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -873,6 +884,7 @@ def render(
     the scale the full-size drawing stands for on its product's size ladder (:mod:`size_ladder`,
     gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
     ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728).
+    ``angle`` turns a styled drawing by its product's angle (``house_styles.turn``, #849).
     """
     from synthetic_ecommerce_data.domains.retail import (
         size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
@@ -891,7 +903,7 @@ def render(
     if style is not None:
         return _render_styled(
             shape, draw, paint, defs, fill, label, brand or "", uid, params, style, shrink,
-            size_scale, copies,
+            size_scale, copies, angle,
         )
     drawn = _drawn(draw, paint, fill, label, params)
     overlay = _print_overlay(shape, fill, drawn, paint, uid)

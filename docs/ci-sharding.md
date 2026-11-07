@@ -16,7 +16,7 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`)                                |
 | refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
-| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 16` prints its files                                          |
+| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 17` prints its files                                          |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
 `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`, about 75 minutes of
@@ -79,8 +79,11 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
   that count prints no file, and its job ends after the checkout without installing anything.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 16 shards of about 1121 s of the
-  weights each.
+  every file, for a local run. A full run deals the files to 17 shards of about 1129 s of the
+  weights each. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
+  20 s default put it at 1201.1 s, past the budget; at 17 that file deals 1130.5 s (#852).
+  `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
+  count, so the shard to add is named before the pull request that would need it.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
   can take on a hosted runner, up to 0.99 s (measured on the 16 shards of one push run). An
   earlier 1800 s budget dealt a near-full selection to shards of 1767 s, which ran 25 minutes
@@ -111,6 +114,20 @@ Outside CI nothing changes for the caller: `tests/conftest.py` makes the directo
 run, the first worker to ask builds and the others load. Under `merge_pr.sh --local-ci` the
 jobs run in file order in one tree, so `tests` finds the job's `build/ceiling` the same way.
 
+The same job builds the 100K files of `tests/shared_builds.py` (#790). Each shard whose modules
+read a 100K build (the price, brand-voice, plain-screw and set-screw tests) built it itself,
+about two minutes a build, so a full run built the same 100K catalogs shard after shard. The job
+is a matrix of two legs on two runners: `ceiling` as above, and `hundred_k`, which runs
+`scripts/build_shared_100k.py --out build/hundred_k` and uploads `hundred-k-builds`. The script
+runs two processes side by side: one 100K build reduced to the price, measured and flat files,
+and the quiet-wheel build, whose patched price model makes a catalog of its own. A shard with a
+file to run downloads the artifact to `build/hundred_k` and names it in `SHARED_BUILDS_DIR`. Each
+file is named by a digest of `src/`, `uv.lock` and `shared_builds.py`: the shard's checkout is
+the job's, so a test finds its file, and a tree that differs misses it and builds, never reads
+it. Locally nothing changes: a test that misses builds its file on demand, and the local run
+takes the matrix as the one `all` leg and builds both. A leg, not a job of its own, so the checks
+a merge waits for (`REQUIRED_CI` in `scripts/merge_pr/config.sh`) are unchanged.
+
 A test takes the build with `ceiling_build()` from `tests/retail_ceiling.py`, reads it and never
 edits it: a worker's files share one object. `tests/test_ceiling_artifact_539.py` refuses a test
 that builds past the ceiling itself, and holds the wiring above.
@@ -118,7 +135,10 @@ that builds past the ceiling itself, and holds the wiring above.
 Each run on workers ends with a `peak worker memory:` line (`tests/worker_peak.py`), and on
 Linux a `module peak memory:` line that names each module over 1,500 MB (#790). Before each
 module the worker resets its high-water mark, so a module's figure is the worker's peak while
-that module ran. That is the figure to read when you size a shard's worker count.
+that module ran. That is the figure to read when you size a shard's worker count. The worker
+keeps each mark before it resets it, so `peak worker memory:` gives each worker's peak over the
+whole run, not just its last module's (#869). A worker the kernel kills prints neither line;
+"A lost xdist worker" below names the module it died in (#845).
 
 ## Random order (#539)
 
@@ -179,7 +199,9 @@ simulation of xdist's rule (each unit to the worker that frees first) gives a wh
 of about 412 s on 13 workers in alphabetical order and 375 s in run order, and 268 s against
 207 s on 24. That is a projection from a five-module sample, not a measured whole-suite run,
 and it assumes the merge tests cost the same ratio; the last measured whole-suite runs
-(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33. Three real merges
+(637 to 729 s on 12 workers) were on a VM with a load average of 20 to 33, before #442 made
+the grouping take effect (its re-measurement on CI's shards: docs/adding-a-type.md, "The
+suite runs on several workers"). Three real merges
 with their `gen-merge-minutes` lines are still the figure that closes the issue's first bullet.
 
 ## What each target times (#348, 2026-11-02)
@@ -202,7 +224,7 @@ none of the merges.
 | the push run on `main` | the train's wait every batch | under 15 (#790) | 22 to 37 min |
 
 The 10 and the 15 are kept, each for its mode. The push run on `main` had no target; it has the
-`--github-ci` one now, since it runs the same 16 shards on the same runners. The `Measured`
+`--github-ci` one now, since it runs the same 17 shards on the same runners. The `Measured`
 column comes from `gh run list --workflow ci.yaml --limit 40` on 11-02: 12 push runs on `main`
 from 11-01 06:16Z to 11-02 00:27Z took 22.4 to 37.3 minutes, and one took 82.0.
 
@@ -231,7 +253,7 @@ hosted runners with no commit. A push to `main` can have its own runners. When t
 dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
 `vm/ci_runner/README.md`), so a merge's main run no longer waits behind pull-request runs. A
-full run is 23 jobs of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+full run is 25 jobs (17 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
 to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
 
@@ -282,6 +304,16 @@ occurrence no longer reds a pull request. If the evidence shows memory (`oom_kil
 `memory.events`), split that shard (the matrix list in `ci.yaml`) or raise `CI_MEMORY`. A
 lower `-n` is no option, since one worker is the serial run. `tests/test_ci_worker_lost_629.py`
 is the guard.
+
+A killed worker never sends its `module peak memory:` figures to the controller, so the script
+also names where each lost worker was (#845). Each attempt names a fresh directory in
+`WORKER_PEAK_DIR`, and `tests/worker_peak.py` has each worker append `<module>\t<MB>` to
+`<dir>/<gw>.peaks` as a module starts and each time its peak rises. For each `[gwN] node down`
+line the log then shows `ci_run_pytest: gwN was in tests/test_x.py at 2100 MB`: the module the
+worker was running when the kernel killed it, and that worker's peak while it ran. Start the
+investigation with that module. A worker with no `/proc` (macOS), or one killed before its first
+module, gets `gwN left no module peak`. A run outside `ci_run_pytest.py` names no directory and
+writes no file.
 
 Before splitting, look for a leak. #820's shard 9 lost both workers on every attempt (run
 41743387835, `peak=6144 MB limit=6144 MB`, largest process 2767 MB). Run alone in one process,

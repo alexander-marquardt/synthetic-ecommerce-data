@@ -57,6 +57,7 @@ from synthetic_ecommerce_data.domains.retail import (
     details,
     facet_leaves,
     kids_depth_rows,
+    kids_films,
     knacks_rows,
     real_brands,
     sock_titles,
@@ -686,6 +687,7 @@ def build(body: list[dict]) -> list[Row]:
             and d["product_id"] not in kids_depth_rows.product_ids()  # gen#310: see ``build``
             and d["brand"] not in real_brands.ALLOWED  # a real brand is never cloned (gen#341)
             and d["brand"] != knacks_rows.BRAND  # gen#722 renames its products and adds none
+            and d["product_id"] not in kids_films.ids()  # gen#887: a film's name is no clone's
             and _names_its_drawing(d)
         ):
             pool.setdefault(d["product_type"], []).append(d)

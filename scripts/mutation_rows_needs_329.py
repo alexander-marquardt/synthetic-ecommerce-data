@@ -31,8 +31,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the Mastectomy leaf holds three products, below its floor of four",
         "needs_rows.py",
-        'Bra("KILDALE", "Comfort Lite 7", "Bramblewood", "Mastectomy"',
-        'Bra("KILDALE", "Comfort Lite 7", "Bramblewood", "Post-Surgery"',
+        'Bra("KILDALE", "Anytime", "Bramblewood", "Mastectomy"',
+        'Bra("KILDALE", "Anytime", "Bramblewood", "Post-Surgery"',
         "tests/test_retail_needs_329.py -k test_a_purpose_bra_leaf_holds_a_floor_of_real_products",
         "the Mastectomy leaf holds three products, below its floor of four",
     ),
@@ -63,8 +63,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "a mastectomy bra sold as wired",
         "needs_rows.py",
-        'Bra("MARSKE", "Support Lite 8", "Saltmarsh", "Mastectomy", (32, 46), ("A", "G"),\n        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 26.0, wired=False',
-        'Bra("MARSKE", "Support Lite 8", "Saltmarsh", "Mastectomy", (32, 46), ("A", "G"),\n        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 26.0, wired=True',
+        'Bra("MARSKE", "Support", "Saltmarsh", "Mastectomy", (32, 46), ("A", "G"),\n        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 26.0, wired=False',
+        'Bra("MARSKE", "Support", "Saltmarsh", "Mastectomy", (32, 46), ("A", "G"),\n        (cw("Soft Grey", "#b9bbbe"), _NUDE, _BLACK), 26.0, wired=True',
         "tests/test_retail_needs_329.py -k test_a_medical_bra_is_non_wired",
         "a mastectomy bra sold as wired",
     ),

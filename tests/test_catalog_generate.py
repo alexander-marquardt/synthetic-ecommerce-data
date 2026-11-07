@@ -514,8 +514,9 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
     Both are lower, and only the button head is wider -- which is what the
     extracted tables say and is not what you would guess: DIN 7984's head
     diameter EQUALS ISO 4762's at every metric size here, and ASME B18.3.1G's
-    is a few thousandths under ASME B18.3's, so a low head is a full head's
-    diameter at half its height. If the generator were scaling one head table
+    is never over ASME B18.3's (2.5 to 3.5 thousandths under at most sizes,
+    35 at 5/16, 34.5 at 7/16, 67 at 5/8), so a low head is a full head's
+    diameter, or a little less, at half its height. If the generator were scaling one head table
     for all four styles, every one of these comparisons would come out equal.
     """
     from synthetic_ecommerce_data.core.dimensions import parse_length
@@ -557,10 +558,10 @@ def test_a_button_head_and_a_low_head_have_the_head_their_standard_gives_them(ca
                 # (``Head Dia.`` printed "1.1811"", 4 decimal places) while
                 # the first of the other is styled in mm ("30mm", parsed back
                 # at full precision). The two are the same head diameter --
-                # display rounding, not a real geometric difference, and a
-                # few thousandths under a real diameter (this docstring's own
-                # "ASME B18.3.1G's is a few thousandths under ASME B18.3's")
-                # is two orders of magnitude bigger than this tolerance.
+                # display rounding, not a real geometric difference, and the
+                # smallest real gap between the inch tables (2.5 thousandths,
+                # ASME B18.3.1G under ASME B18.3 at #6, #8 and #10) is 25
+                # times this tolerance.
                 assert dia <= full_dia + 1e-4, (style, size, dia, full_dia)
 
 
@@ -855,10 +856,12 @@ def test_every_sparsity_controlled_end_mill_attribute_is_applied_once(end_mill_l
     attribute goes through exactly once). Applying one probability twice
     squares it: Neck Length fell to ~3% of end mills and Corner Radius to
     ~5%, against the 27%/40% the reference census measures and VOCAB now
-    declares (#39). Squaring any presence rate this table carries (all below
-    0.92) moves it far outside a tolerance wide enough for this sample's
-    ordinary noise -- which is what makes a reintroduced double application
-    red here, for whichever attribute it is reintroduced on.
+    declares (#39). Neck Length is now on a reduced-neck tool only, which the
+    builder decides (#859), so it is at 1.0 and not among these. Squaring any
+    presence rate this table carries (all below 0.92) moves it far outside a
+    tolerance wide enough for this sample's ordinary noise -- which is what
+    makes a reintroduced double application red here, for whichever attribute
+    it is reintroduced on.
     """
     population = (
         end_mill_lines

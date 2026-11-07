@@ -1,14 +1,17 @@
 """How a drawing looks: the brand's house style, the finish's color, the material's hatch.
 
-Every visual channel is a function of a published property, never of the SKU,
-the product id or chance (elastic/prism-industrial-products#103, rulings of
-2026-09-26): a reader who sees two drawings differ concludes the products
-differ, and driven by the record that conclusion is right.
+Every visual channel is a function of a published property, never of the SKU
+or chance (elastic/prism-industrial-products#103, rulings of 2026-09-26): a
+reader who sees two drawings differ concludes the products differ, and driven
+by the record that conclusion is right. The one channel the product id drives
+is the figure's angle (#849, :mod:`.product_look`): it says two products are
+two, which is true, and every SKU of one product shares it.
 
 =====================  ==============================================
 outline color         the brand (one of twelve inks)
-paper tone             the brand (one of six tints, independent of the ink)
+paper tone             none: one paper for every brand (#849)
 frame                  the brand (one of four frame treatments)
+figure angle           the product (one of its type's orientation set, :mod:`.product_look`)
 (ink, frame)           unique per brand, so the pair names the brand
 brand plate            the brand: its mark (motif + enclosure) and name
 part fill              the published finish; else the material's color
@@ -25,6 +28,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.drawing.brand_mark import Mark, mark_for
+from synthetic_ecommerce_data.core.drawing.product_look import PAPER
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import FINISH_TINT
 
 #: What a part is colored when the record publishes no finish: the color of
@@ -49,6 +53,7 @@ MATERIAL_FILL: dict[str, str] = {
     "Ceramic": "#c7613f",
     "Aluminum Oxide": "#8c6d4f",
     "316 Stainless Steel": "#e9eef1",
+    "304 Stainless Steel": "#ebeff2",
     "Brass": "#e0c46c",
     "Chrome Steel": "#cdd3d8",
     "440C Stainless Steel": "#e4e9ec",
@@ -67,6 +72,12 @@ MATERIAL_FILL: dict[str, str] = {
     "Urethane": "#c9572b",
     "HPPE": "#9aa08a",
     "PU Foam": "#f2b134",
+    # The cut-resistant glove shells (#834): grey blended HPPE, the yellow aramid
+    # yarn is spun in, and an acrylic thermal shell.
+    "HPPE Blend": "#8d9387",
+    "Aramid": "#d9b740",
+    "Aramid Blend": "#c9ad52",
+    "Acrylic": "#e8e2d4",
     # The O-ring compounds (#53): black nitrile and EPDM, brown FKM and the
     # red-orange silicone is commonly moulded in.
     "Buna-N": "#2e2e2e",
@@ -97,6 +108,11 @@ MATERIAL_FILL: dict[str, str] = {
     "Ductile Steel": "#b2b7bb",
     "Rubber on Cast Iron": "#55585a",
     "Polyurethane on Cast Iron": "#b8643a",
+    # The safety glasses (#834): a spectacle's lens.
+    "Polycarbonate": "#dce8ee",
+    # The bushing bronzes (#833): a porous pressed bronze, lighter, and a cast one.
+    "Oil-Impregnated Sintered Bronze": "#c4a46e",
+    "Cast Bronze": "#9a7542",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -109,6 +125,8 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     # The plain screws (#750): a drywall screw's dark coat and a deck screw's outdoor one.
     "Black Phosphate": "#454a4e",
     "Ceramic Coated": "#8a8468",
+    # The pipe nipples (#832): black steel pipe, sold uncoated in its mill finish.
+    "Black": "#4a4d50",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -146,6 +164,7 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ceramic": Hatch((30, 150), 6.0),
     "Aluminum Oxide": Hatch((120,), 6.0, dots=True),
     "316 Stainless Steel": Hatch((135,), 8.0, dots=True),
+    "304 Stainless Steel": Hatch((45,), 6.0, dots=True),
     "Brass": Hatch((45,), 3.0),
     "Chrome Steel": Hatch((0, 45), 6.0),
     "440C Stainless Steel": Hatch((0, 135), 6.0),
@@ -161,6 +180,11 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Urethane": Hatch((), 6.0, dots=True),
     "HPPE": Hatch((), 6.0, dots=True),
     "PU Foam": Hatch((), 5.0, dots=True),
+    # The glove shells: a knit's dots, a new spacing or angle each.
+    "HPPE Blend": Hatch((45,), 6.0, dots=True),
+    "Aramid": Hatch((), 4.0, dots=True),
+    "Aramid Blend": Hatch((135,), 4.0, dots=True),
+    "Acrylic": Hatch((), 7.0, dots=True),
     # The O-ring compounds: the elastomers' dotted single line, a new angle each.
     "Buna-N": Hatch((75,), 2.5, dots=True),
     "FKM": Hatch((105,), 2.5, dots=True),
@@ -189,6 +213,11 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Ductile Steel": Hatch((100, 10), 4.0),
     "Rubber on Cast Iron": Hatch((15, 75), 3.0, dots=True),
     "Polyurethane on Cast Iron": Hatch((135, 45), 7.0, dots=True),
+    # The safety glasses (#834): a pattern no other material uses.
+    "Polycarbonate": Hatch((65,), 7.5, dots=True),
+    # The bushing bronzes (#833): the sintered one dotted for its pores.
+    "Oil-Impregnated Sintered Bronze": Hatch((60,), 3.5, dots=True),
+    "Cast Bronze": Hatch((120, 60), 4.0),
 }
 
 
@@ -205,7 +234,6 @@ class HouseStyle:
     stroke: float = brands.WEIGHTS[0]
     dash: str = brands.DASHES[0]
     margin: float = brands.MARGINS[0]
-    texture: str = brands.TEXTURES[0]
 
 
 def _mix(hex_color: str, towards: str, share: float) -> str:
@@ -232,17 +260,16 @@ def house_style(brand: str) -> HouseStyle:
     if brand not in brands.BY_NAME:
         raise UnknownStyleError(f"no house style for brand {brand!r}")
     ink = brands.ink_of(brand)
-    stroke, dash, margin, texture = brands.levers_of(brand)
+    stroke, dash, margin = brands.levers_of(brand)
     return HouseStyle(
         ink=ink,
-        paper=brands.paper_of(brand),
+        paper=PAPER,
         frame=brands.frame_of(brand),
         name=brand,
         mark=mark_for(brand),
         stroke=stroke,
         dash=dash,
         margin=margin,
-        texture=texture,
     )
 
 

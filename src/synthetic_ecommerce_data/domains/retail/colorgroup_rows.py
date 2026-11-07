@@ -22,7 +22,7 @@ the seasonal rows, so the seeded derivation is what it was.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import variants
+from synthetic_ecommerce_data.domains.retail import dark_blues, variants
 from synthetic_ecommerce_data.domains.retail.main_colors import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.scale_rows import Bra
 from synthetic_ecommerce_data.domains.retail.seasonal_rows import SRow
@@ -31,10 +31,10 @@ from synthetic_ecommerce_data.domains.retail.variants import cw
 CREAM, IVORY, OFF_WHITE = cw("Cream", "#efe4cf"), cw("Ivory", "#f3ecd9"), cw("Off White", "#f4f1ea")
 WHITE, BLACK = cw("White", "#ffffff"), cw("Black", "#2a2a2e")
 #: The ribbed top's first colorway: a breton stripe, so "breton stripe top" finds it (gen#408).
-BRETON = cw("Navy Breton Stripe", "#ffffff", "stripe", "#26365c")
+BRETON = cw("Navy Breton Stripe", "#ffffff", "stripe", dark_blues.NAVY)
 RED, BLUE = cw("Red", MAIN_COLORS["Red"]), cw("Blue", MAIN_COLORS["Blue"])
 ALMOND = cw("Almond", "#d9b79a")  # the plain color word is Beige
-NAVY, GREEN = cw("Navy", "#26365c"), cw("Green", MAIN_COLORS["Green"])
+NAVY, GREEN = cw("Navy", dark_blues.NAVY), cw("Green", MAIN_COLORS["Green"])
 CAMEL, OATMEAL = cw("Camel", "#b5835a"), cw("Oatmeal", "#d9ccb4")
 STONE, ROSE = cw("Stone", "#bdb5a6"), cw("Rose", "#d98a96")
 
@@ -128,12 +128,12 @@ def _bra(code: str, line: str, brand: str, kind: str, bands: tuple[int, int],
 
 #: One style per shape, each in the five main colors a bra comes in, plus a second minimiser.
 BRAS = (
-    _bra("NWMIN1", "Support Plus 5", "Saltmarsh", "Minimiser", (34, 46), ("C", "G"), 24.0),
-    _bra("NWMIN2", "Comfort Plus 4", "Bramblewood", "Minimiser", (32, 44), ("B", "F"), 26.0),
-    _bra("NWPLG1", "Comfort Plus 5", "Bramblewood", "Plunge", (30, 40), ("A", "E"), 22.0),
-    _bra("NWBAL1", "Support Plus 6", "Saltmarsh", "Balcony", (30, 40), ("A", "E"), 22.0),
-    _bra("NWFUL1", "Support Plus 7", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"), 24.0),
-    _bra("NWTSH1", "Comfort Plus 6", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0),
+    _bra("NWMIN1", "Haven", "Saltmarsh", "Minimiser", (34, 46), ("C", "G"), 24.0),
+    _bra("NWMIN2", "Anytime", "Bramblewood", "Minimiser", (32, 44), ("B", "F"), 26.0),
+    _bra("NWPLG1", "Harmony", "Bramblewood", "Plunge", (30, 40), ("A", "E"), 22.0),
+    _bra("NWBAL1", "Support", "Saltmarsh", "Balcony", (30, 40), ("A", "E"), 22.0),
+    _bra("NWFUL1", "Haven", "Saltmarsh", "Full Cup", (32, 46), ("B", "H"), 24.0),
+    _bra("NWTSH1", "Anytime", "Bramblewood", "T-Shirt", (30, 42), ("A", "F"), 20.0),
 )
 
 

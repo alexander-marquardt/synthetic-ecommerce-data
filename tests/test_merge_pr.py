@@ -20,6 +20,7 @@ under test is the script's order of operations, not the suite.
 
 from __future__ import annotations
 
+import functools
 import os
 import re
 import shutil
@@ -159,14 +160,51 @@ MSG
     exit 0
   fi
 fi
+# A case about one of the two rebuilds below runs its real module on the merged tree, with
+# only the slow part read from a committed file (#790): the command's last words are swapped
+# for a Python that does that, and any other command is refused so a renamed one is seen.
+n=$#
+swap() {
+  local want=$1 code=$2 file=$3 words k
+  shift 3
+  read -r -a words <<<"$want"
+  k=${#words[@]}
+  [ "${*:n-k+1}" = "$want" ] || { echo "fake uv: not \"$want\": $*" >&2; exit 97; }
+  exec "$REAL_UV" "${@:1:n-k}" python -c "$code" "$file"
+}
 if [[ " $* " == *measured_builds* ]]; then
-  # The 100K build takes about a minute: only a case about it runs the real one.
+  # The 100K build is about two minutes. tests/test_price.py holds the committed 100K figures
+  # to a real 100K build; here the default build is real, the 100K figures FAKE_UV_BUILDS's.
   if [ -z "${FAKE_UV_BUILDS:-}" ]; then exit 0; fi
+  read -r -d '' code <<'PY'
+import json, sys
+from synthetic_ecommerce_data.domains.industrial import measured_builds as builds
+large = json.loads(open(sys.argv[1], encoding="utf-8").read())["hundred_k"]
+real, default = builds.generate, builds.GeneratorConfig().lines
+assert callable(builds.hundred_k_figures), "measured_builds has no hundred_k_figures"
+builds.hundred_k_figures = lambda catalog: large
+builds.generate = lambda config: real(config) if config.lines == default else None
+raise SystemExit(builds.main())
+PY
+  module=synthetic_ecommerce_data.domains.industrial.measured_builds
+  swap "python -m $module" "$code" "$FAKE_UV_BUILDS" "$@"
 fi
 if [[ " $* " == *measure_pins* ]]; then
-  # It reads the whole catalog: only a case about the pins runs the real one.
+  # It reads the whole catalog, and the per-module figures are about a minute of builds. Each
+  # module of tests/pinned.py holds its committed figures to its own measure; here every
+  # other measure is real, the figures FAKE_UV_PINS's.
   if [ -n "${FAKE_UV_PINS_REFUSE:-}" ]; then echo "no SKU satisfies the pin rule" >&2; exit 1; fi
   if [ -z "${FAKE_UV_PINS:-}" ]; then exit 0; fi
+  read -r -d '' code <<'PY'
+import json, os, sys
+sys.path.insert(0, os.path.abspath("scripts"))
+import golden_pins, measure_pins
+figures = json.loads(open(sys.argv[1], encoding="utf-8").read())["figures"]
+assert "figures" in golden_pins.MEASURES, "golden_pins measures no figures"
+golden_pins.MEASURES["figures"] = lambda golden, seed: figures
+raise SystemExit(measure_pins.main([]))
+PY
+  swap "python scripts/measure_pins.py" "$code" "$FAKE_UV_PINS" "$@"
 fi
 exec "$REAL_UV" "$@"
 """
@@ -227,22 +265,41 @@ def _copy_the_script(tree: Path) -> None:
     shutil.copytree(SCRIPT_PARTS, tree / "scripts" / "merge_pr", dirs_exist_ok=True)
 
 
+_QUIET = ["-c", "gc.auto=0", "-c", "maintenance.auto=false", "-c", "fetch.writeCommitGraph=false"]
+
+
+@functools.cache
+def _seed(base: Path) -> Path:
+    """A bare repository whose ``main`` is one parentless commit of this
+    checkout's HEAD tree, made once per worker (``base``: its pytest basetemp).
+
+    The script under test needs HEAD's tree, not its history: copying the
+    whole history into every case was about 50 s of setup each (#790). The
+    depth-1 fetch stays in this repository; a world fetches only the new commit,
+    so no repository a case runs in is shallow."""
+    seed = base / "merge-pr-seed.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(seed)], check=True)
+    _git(seed, *_QUIET, "fetch", "-q", "--depth", "1", REPO.as_uri(), "HEAD:refs/heads/head")
+    message = _git(REPO, "log", "-1", "--format=%B", "HEAD")
+    root = _git(seed, "commit-tree", "head^{tree}", "-m", message)
+    _git(seed, "update-ref", "refs/heads/main", root)
+    return seed
+
+
 @pytest.fixture
-def world(tmp_path: Path) -> dict:
+def world(tmp_path: Path, tmp_path_factory: pytest.TempPathFactory) -> dict:
     env = {**os.environ, **_IDENTITY}
     origin = tmp_path / "origin.git"
     subprocess.run(["git", "init", "-q", "--bare", str(origin)], check=True)
-    # This checkout's HEAD as the origin's main; CI checks out full history so
-    # the fetch never starts from a shallow repository.
-    quiet = ["-c", "gc.auto=0", "-c", "maintenance.auto=false"]
-    quiet += ["-c", "fetch.writeCommitGraph=false"]
-    _git(origin, *quiet, "fetch", "-q", str(REPO), "HEAD:refs/heads/main")
+    # This checkout's HEAD tree as the origin's main.
+    seed = _seed(tmp_path_factory.getbasetemp())
+    _git(origin, *_QUIET, "fetch", "-q", str(seed), "main:refs/heads/main")
     _git(origin, "symbolic-ref", "HEAD", "refs/heads/main")
     checkout = tmp_path / "checkout"
     # --no-local: the objects are transferred, not hardlinked or copied from the origin's
     # directory; on a hosted runner the copy raced with git's own commit-graph writes
     # ("hardlink different from source", "failed to copy file ... commit-graph-chain.lock").
-    clone = ["git", *quiet, "clone", "-q", "--no-local", str(origin), str(checkout)]
+    clone = ["git", *_QUIET, "clone", "-q", "--no-local", str(origin), str(checkout)]
     subprocess.run(clone, check=True)
     # The script under test is this tree's, not the HEAD commit's.
     _copy_the_script(checkout)
@@ -349,6 +406,19 @@ _GREEN = {"tests/test_planted_green.py": "def test_ok():\n    pass\n"}
 _GREEN_CHECK = "tests/test_planted_green.py"
 
 
+def test_a_world_origin_holds_this_checkouts_head_tree_and_none_of_its_history(
+    world: dict,
+) -> None:
+    """A case copies HEAD's tree, not the repository's history: copying the
+    whole history twice was about 50 s of setup per case on CI (#790)."""
+    origin = world["origin"]
+    assert _git(origin, "rev-list", "--count", "main") == "1"
+    assert _git(origin, "rev-parse", "main^{tree}") == _git(REPO, "rev-parse", "HEAD^{tree}")
+    # One parentless commit, not a shallow fetch: nothing the script runs meets a graft.
+    assert not (origin / "shallow").exists()
+    assert not (world["checkout"] / ".git" / "shallow").exists()
+
+
 # -- the merge it exists for -------------------------------------------------
 
 
@@ -356,7 +426,9 @@ def test_a_stale_golden_is_rebuilt_on_the_merged_tree_pushed_and_merged(world: d
     stats = world["checkout"] / _STATS
     stale = stats.read_text().replace('"lines": ', '"lines": 1', 1)
     head = _open_pr(world, {_STATS: stale})
-    result = _run(world, head, "tests/test_catalog_golden.py")
+    # The one golden test red on the stale stats, green on the rebuilt ones: the rest of the
+    # file adds a second full build and holds nothing the script does (#790).
+    result = _run(world, head, _STATS_FRESH)
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
     assert pushed != head, "the merged and rebuilt tree was not pushed"
@@ -384,7 +456,7 @@ def test_a_red_merged_tree_is_neither_pushed_nor_merged(world: dict) -> None:
 def test_a_dry_run_pushes_and_merges_nothing(world: dict) -> None:
     stats = world["checkout"] / _STATS
     head = _open_pr(world, {_STATS: stats.read_text() + " "})
-    result = _run(world, head, "tests/test_catalog_golden.py", "--dry-run")
+    result = _run(world, head, _STATS_FRESH, "--dry-run")
     assert result.returncode == 0, result.stdout + result.stderr
     assert "dry run: would push" in result.stdout
     assert _branch(world) == head
@@ -405,8 +477,20 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
 
 
 
+def _committed(world: dict, path: str, text: str) -> str:
+    """``text``, the committed ``path``, in a file of its own: where a rebuild's stand-in
+    reads the slow part of what the real one measures."""
+    kept = world["log"].parent / "committed" / Path(path).name
+    kept.parent.mkdir(exist_ok=True)
+    kept.write_text(text)
+    return str(kept)
+
+
 def test_a_conflict_in_the_measured_builds_is_resolved_by_the_rebuild(world: dict) -> None:
-    """gen#85: two type PRs move the 100K sizes and the pinned figures; no hand merge."""
+    """gen#85: two type PRs move the 100K sizes and the pinned figures; no hand merge.
+
+    The rebuild's module runs on the merged tree, its 100K figures read from the committed
+    file (``FAKE_UV_BUILDS``): a file the rebuild did not write is still conflicted or gone."""
     path = world["checkout"] / _BUILDS
     assert path.is_file(), f"{_BUILDS} is missing"
     true = path.read_text()
@@ -416,7 +500,7 @@ def test_a_conflict_in_the_measured_builds_is_resolved_by_the_rebuild(world: dic
         {**_GREEN, _BUILDS: re.sub(r'"lines": \d+', '"lines": 1', true, count=1)},
         on_main={_BUILDS: re.sub(r'"lines": \d+', '"lines": 2', true, count=1)},
     )
-    result = _run(world, head, _GREEN_CHECK, FAKE_UV_BUILDS="1")
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_BUILDS=_committed(world, _BUILDS, true))
     assert result.returncode == 0, result.stdout + result.stderr
     pushed = _branch(world)
     assert _git(world["origin"], "show", f"{pushed}:{_BUILDS}") + "\n" == true
@@ -424,7 +508,10 @@ def test_a_conflict_in_the_measured_builds_is_resolved_by_the_rebuild(world: dic
 
 
 def test_a_conflict_in_the_golden_pins_is_resolved_by_the_rebuild(world: dict) -> None:
-    """gen#513: two catalog PRs each move the pinned document count; no hand merge."""
+    """gen#513: two catalog PRs each move the pinned document count; no hand merge.
+
+    The document count is measured on the merged tree; only the per-module figures are read
+    from the committed fixture (``FAKE_UV_PINS``)."""
     true = (world["checkout"] / _PINS).read_text()
     assert '"documents": ' in true
     head = _open_pr(
@@ -432,7 +519,7 @@ def test_a_conflict_in_the_golden_pins_is_resolved_by_the_rebuild(world: dict) -
         {**_GREEN, _PINS: re.sub(r'"documents": \d+', '"documents": 1', true, count=1)},
         on_main={_PINS: re.sub(r'"documents": \d+', '"documents": 2', true, count=1)},
     )
-    result = _run(world, head, _GREEN_CHECK, FAKE_UV_PINS="1")
+    result = _run(world, head, _GREEN_CHECK, FAKE_UV_PINS=_committed(world, _PINS, true))
     assert result.returncode == 0, result.stdout + result.stderr
     assert _git(world["origin"], "show", f"{_branch(world)}:{_PINS}") + "\n" == true
     assert _merged(world)
@@ -781,16 +868,20 @@ def test_a_generated_file_the_rebuild_left_conflicted_is_refused(world: dict) ->
 # -- two type PRs, one after the other (#103) ---------------------------------
 
 _BALL_MODULE = Path("src/synthetic_ecommerce_data/domains/industrial/product_types/raw_materials")
+_ORIENTATION = Path("src/synthetic_ecommerce_data/domains/industrial/orientation.py")
 
 
-def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
+def _add_a_type(world: dict, branch: str, key: str, label: str, tuple_name: str) -> str:
     """A PR branch off main that adds the breadth type ``key`` the way
     docs/adding-a-type.md says: a module declaring its own label, and the
     rebuilt golden.
 
     The module is the precision-ball one under a new key. Both keys sort
     straight after ``ball_stock_precision``, so were the label a line of a
-    shared table, the two branches would edit the same lines of it."""
+    shared table, the two branches would edit the same lines of it.
+
+    The type also names its orientation (#849), a line of a shared table: each branch adds its
+    key to its own tuple of ``orientation.py`` (``tuple_name``), so the two edits sit far apart."""
     checkout = world["checkout"]
     _git(checkout, "switch", "-q", "-c", branch, "main")
     module = (checkout / _BALL_MODULE / "ball_stock_precision.py").read_text()
@@ -801,6 +892,11 @@ def _add_a_type(world: dict, branch: str, key: str, label: str) -> str:
     (checkout / _BALL_MODULE / f"{key}.py").write_text(
         module.replace("ball_stock_precision", key).replace("Precision Balls", label + "s")
     )
+    table = checkout / _ORIENTATION
+    opening = f"{tuple_name}: tuple[str, ...] = (\n"
+    text = table.read_text()
+    assert opening in text
+    table.write_text(text.replace(opening, f'{opening}    "{key}",\n'))
     built = subprocess.run(
         ["uv", "run", "--locked", "ecom-generate", "build", "--out", "golden-catalog"],
         cwd=checkout,
@@ -845,14 +941,20 @@ def test_two_prs_that_each_add_a_type_merge_one_after_the_other_by_the_script(
 ) -> None:
     """The done-when of #103: no hand merge for the second PR."""
     heads = {
-        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball"),
-        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball"),
+        "pr-a": _add_a_type(world, "pr-a", _ADDED_TYPES[0], "Ptfe Ball", "ANY"),
+        "pr-b": _add_a_type(world, "pr-b", _ADDED_TYPES[1], "Quartz Ball", "UPRIGHT"),
+    }
+    # The second PR's merged tree is held to a fresh build. The first, which main did not move
+    # under, is held to what its rebuilt stats say: its fresh build was a third of the case (#790).
+    checks = {
+        "pr-a": f"{_STATS_FRESH} tests/test_product_type_label_331.py",
+        "pr-b": "tests/test_catalog_golden.py tests/test_product_type_label_331.py",
     }
     for branch, head in heads.items():
         result = _run(
             world,
             head,
-            "tests/test_catalog_golden.py tests/test_product_type_label_331.py",
+            checks[branch],
             FAKE_GH_BRANCH=branch,
             FAKE_GH_LAND="1",
         )

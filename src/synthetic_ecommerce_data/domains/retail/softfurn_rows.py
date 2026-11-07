@@ -33,6 +33,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_softfurn,  # noqa: F401 -- registers curtains, blind, rug, draped_throw, bath_mat, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -53,7 +54,7 @@ CL, HP = "Calderby & Lune", "Harbour & Pine"
 RED, BLUE, GREEN = cw("Red", "#c8312e"), cw("Blue", "#3f6fb5"), cw("Green", "#4f8a3a")
 YELLOW, BLACK = cw("Yellow", "#f2c230"), cw("Black", "#2d2d33")
 WHITE = cw("White", "#f4f1ea", "solid", "#9a9ca0")
-GREY, CREAM, NAVY = cw("Grey", "#9a9ca0"), cw("Cream", "#efe6cf"), cw("Navy", "#26365c")
+GREY, CREAM, NAVY = cw("Grey", "#9a9ca0"), cw("Cream", "#efe6cf"), cw("Navy", dark_blues.NAVY)
 MAIN = (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)
 
 

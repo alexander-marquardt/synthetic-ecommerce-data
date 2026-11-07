@@ -1,6 +1,6 @@
 {
- "lines": 6966,
- "skus": 13688,
+ "lines": 7357,
+ "skus": 14556,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -23,39 +23,39 @@
   "bit_socket_sets": 1,
   "blind_rivets": 1,
   "bolt_hex": 240,
-  "bronze_sleeve_bushings": 1,
+  "bronze_sleeve_bushings": 39,
   "c_clamps": 1,
   "cantilever_racks": 1,
   "cap_nuts_acorn": 1,
-  "carriage_bolts": 1,
+  "carriage_bolts": 31,
   "center_punches": 1,
   "chain_breakers": 1,
   "chain_lubricants": 1,
   "chain_tensioners": 1,
   "circle_cutters": 1,
   "cold_chisels": 1,
-  "combination_wrenches": 1,
+  "combination_wrenches": 35,
   "compound_cutters": 1,
   "compression_springs": 1,
   "conduit_pliers": 1,
   "cord_splicing_kits": 1,
   "cotter_pins": 39,
   "coupling_nuts": 1,
-  "cut_resistant_gloves": 1,
+  "cut_resistant_gloves": 39,
   "cutter_sharpening_fixtures": 1,
   "cutter_storage_cases": 1,
   "cutter_storage_racks": 1,
   "diamond_wheels": 1,
   "dowel_pins": 36,
   "drawer_slides": 1,
-  "drill_bushings": 1,
+  "drill_bushings": 42,
   "drill_jobber": 291,
   "drill_stop_collars": 1,
   "drive_guards": 1,
   "driver_bit_sets": 1,
   "end_mill_ball": 309,
   "end_mill_square": 519,
-  "er_collets": 1,
+  "er_collets": 39,
   "eye_bolts": 1,
   "fastener_dispensers": 1,
   "fastener_extractors": 1,
@@ -79,13 +79,13 @@
   "hex_bit_socket_sets": 1,
   "hex_bit_sockets": 35,
   "hex_key": 638,
-  "hex_pipe_nipples": 1,
+  "hex_pipe_nipples": 39,
   "hose_clamps": 1,
   "induction_heaters": 1,
   "key_stock": 42,
   "keyed_padlocks": 1,
   "kit_assortment": 59,
-  "lag_screws": 1,
+  "lag_screws": 31,
   "lock_nuts_nylon_insert": 256,
   "magnetic_bit_holders": 1,
   "micro_collets": 1,
@@ -111,11 +111,11 @@
   "rigging_pulleys": 1,
   "rigid_casters": 39,
   "rigid_shaft_couplings": 1,
-  "roll_pins": 1,
+  "roll_pins": 31,
   "roller_chain": 40,
   "roller_chain_links": 52,
   "roller_chain_sprockets": 54,
-  "safety_glasses": 1,
+  "safety_glasses": 38,
   "screw_button_head": 135,
   "screw_deck": 4,
   "screw_drywall": 4,
@@ -141,7 +141,7 @@
   "snap_ring_pliers": 1,
   "spanner_wrenches": 1,
   "spill_socks": 1,
-  "studs_double_end": 1,
+  "studs_double_end": 38,
   "swivel_casters": 1,
   "t_slot_nuts": 1,
   "tap_extractors": 1,
@@ -188,39 +188,39 @@
   "bit_socket_sets": 2,
   "blind_rivets": 2,
   "bolt_hex": 516,
-  "bronze_sleeve_bushings": 2,
+  "bronze_sleeve_bushings": 66,
   "c_clamps": 2,
   "cantilever_racks": 2,
   "cap_nuts_acorn": 1,
-  "carriage_bolts": 2,
+  "carriage_bolts": 63,
   "center_punches": 1,
   "chain_breakers": 2,
   "chain_lubricants": 2,
   "chain_tensioners": 2,
   "circle_cutters": 1,
   "cold_chisels": 1,
-  "combination_wrenches": 2,
+  "combination_wrenches": 78,
   "compound_cutters": 2,
   "compression_springs": 2,
   "conduit_pliers": 2,
   "cord_splicing_kits": 2,
   "cotter_pins": 67,
   "coupling_nuts": 2,
-  "cut_resistant_gloves": 1,
+  "cut_resistant_gloves": 68,
   "cutter_sharpening_fixtures": 2,
   "cutter_storage_cases": 2,
   "cutter_storage_racks": 1,
   "diamond_wheels": 2,
   "dowel_pins": 60,
   "drawer_slides": 2,
-  "drill_bushings": 2,
+  "drill_bushings": 72,
   "drill_jobber": 580,
   "drill_stop_collars": 2,
   "drive_guards": 2,
   "driver_bit_sets": 2,
-  "end_mill_ball": 819,
-  "end_mill_square": 1339,
-  "er_collets": 2,
+  "end_mill_ball": 910,
+  "end_mill_square": 1414,
+  "er_collets": 62,
   "eye_bolts": 2,
   "fastener_dispensers": 2,
   "fastener_extractors": 2,
@@ -244,13 +244,13 @@
   "hex_bit_socket_sets": 2,
   "hex_bit_sockets": 77,
   "hex_key": 1178,
-  "hex_pipe_nipples": 2,
+  "hex_pipe_nipples": 70,
   "hose_clamps": 2,
   "induction_heaters": 2,
   "key_stock": 70,
   "keyed_padlocks": 2,
   "kit_assortment": 59,
-  "lag_screws": 2,
+  "lag_screws": 64,
   "lock_nuts_nylon_insert": 469,
   "magnetic_bit_holders": 2,
   "micro_collets": 2,
@@ -276,11 +276,11 @@
   "rigging_pulleys": 2,
   "rigid_casters": 69,
   "rigid_shaft_couplings": 2,
-  "roll_pins": 2,
+  "roll_pins": 56,
   "roller_chain": 73,
   "roller_chain_links": 94,
   "roller_chain_sprockets": 102,
-  "safety_glasses": 1,
+  "safety_glasses": 52,
   "screw_button_head": 315,
   "screw_deck": 4,
   "screw_drywall": 10,
@@ -306,7 +306,7 @@
   "snap_ring_pliers": 2,
   "spanner_wrenches": 2,
   "spill_socks": 2,
-  "studs_double_end": 2,
+  "studs_double_end": 71,
   "swivel_casters": 2,
   "t_slot_nuts": 1,
   "tap_extractors": 2,
@@ -516,11 +516,14 @@
    }
   },
   "bronze_sleeve_bushings": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 39,
+   "median": 1,
+   "max": 4,
    "histogram": {
-    "2": 1
+    "1": 21,
+    "2": 11,
+    "3": 5,
+    "4": 2
    }
   },
   "c_clamps": {
@@ -548,11 +551,15 @@
    }
   },
   "carriage_bolts": {
-   "products": 1,
+   "products": 31,
    "median": 2,
-   "max": 2,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 15,
+    "2": 5,
+    "3": 7,
+    "4": 3,
+    "5": 1
    }
   },
   "center_punches": {
@@ -604,11 +611,15 @@
    }
   },
   "combination_wrenches": {
-   "products": 1,
+   "products": 35,
    "median": 2,
-   "max": 2,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 16,
+    "2": 8,
+    "3": 2,
+    "4": 5,
+    "5": 4
    }
   },
   "compound_cutters": {
@@ -664,11 +675,15 @@
    }
   },
   "cut_resistant_gloves": {
-   "products": 1,
-   "median": 1,
-   "max": 1,
+   "products": 39,
+   "median": 2,
+   "max": 5,
    "histogram": {
-    "1": 1
+    "1": 19,
+    "2": 14,
+    "3": 4,
+    "4": 1,
+    "5": 1
    }
   },
   "cutter_sharpening_fixtures": {
@@ -723,11 +738,14 @@
    }
   },
   "drill_bushings": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 42,
+   "median": 1.0,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 25,
+    "2": 6,
+    "3": 10,
+    "5": 1
    }
   },
   "drill_jobber": {
@@ -773,31 +791,29 @@
   "end_mill_ball": {
    "products": 309,
    "median": 2,
-   "max": 20,
+   "max": 30,
    "histogram": {
     "1": 150,
     "2": 67,
     "3": 40,
     "4": 25,
     "5": 4,
-    "6": 1,
-    "7": 1,
     "8": 1,
-    "9": 2,
-    "10": 2,
-    "11": 1,
-    "12": 4,
-    "13": 4,
-    "14": 1,
+    "12": 5,
+    "13": 1,
+    "14": 2,
     "15": 1,
+    "16": 2,
+    "18": 3,
     "19": 4,
-    "20": 1
+    "20": 2,
+    "30": 2
    }
   },
   "end_mill_square": {
    "products": 519,
    "median": 2,
-   "max": 29,
+   "max": 36,
    "histogram": {
     "1": 247,
     "2": 123,
@@ -806,24 +822,29 @@
     "5": 15,
     "6": 1,
     "8": 1,
-    "9": 3,
-    "10": 1,
-    "12": 2,
+    "9": 1,
     "14": 2,
     "15": 1,
+    "18": 1,
     "19": 8,
     "20": 2,
+    "22": 1,
     "23": 2,
-    "27": 1,
-    "29": 1
+    "24": 1,
+    "27": 2,
+    "29": 1,
+    "36": 1
    }
   },
   "er_collets": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 39,
+   "median": 1,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 24,
+    "2": 9,
+    "3": 5,
+    "5": 1
    }
   },
   "eye_bolts": {
@@ -1047,11 +1068,14 @@
    }
   },
   "hex_pipe_nipples": {
-   "products": 1,
+   "products": 39,
    "median": 2,
-   "max": 2,
+   "max": 4,
    "histogram": {
-    "2": 1
+    "1": 19,
+    "2": 10,
+    "3": 9,
+    "4": 1
    }
   },
   "hose_clamps": {
@@ -1098,11 +1122,15 @@
    }
   },
   "lag_screws": {
-   "products": 1,
+   "products": 31,
    "median": 2,
-   "max": 2,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 15,
+    "2": 6,
+    "3": 5,
+    "4": 3,
+    "5": 2
    }
   },
   "lock_nuts_nylon_insert": {
@@ -1342,11 +1370,14 @@
    }
   },
   "roll_pins": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 31,
+   "median": 1,
+   "max": 4,
    "histogram": {
-    "2": 1
+    "1": 16,
+    "2": 8,
+    "3": 4,
+    "4": 3
    }
   },
   "roller_chain": {
@@ -1386,11 +1417,13 @@
    }
   },
   "safety_glasses": {
-   "products": 1,
-   "median": 1,
-   "max": 1,
+   "products": 38,
+   "median": 1.0,
+   "max": 3,
    "histogram": {
-    "1": 1
+    "1": 26,
+    "2": 10,
+    "3": 2
    }
   },
   "screw_button_head": {
@@ -1648,11 +1681,15 @@
    }
   },
   "studs_double_end": {
-   "products": 1,
-   "median": 2,
-   "max": 2,
+   "products": 38,
+   "median": 1.5,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 19,
+    "2": 10,
+    "3": 5,
+    "4": 3,
+    "5": 1
    }
   },
   "swivel_casters": {
@@ -1996,8 +2033,14 @@
   ],
   "bronze_sleeve_bushings": [
    "Bore Dia.",
+   "Flange Dia.",
+   "Flange Thickness",
    "Length",
-   "Material"
+   "Material",
+   "Measurement System",
+   "Outside Dia.",
+   "Standards",
+   "Type"
   ],
   "c_clamps": [
    "Material",
@@ -2016,9 +2059,17 @@
   ],
   "carriage_bolts": [
    "Finish",
+   "Grade",
+   "Head Dia.",
+   "Head Height",
+   "Head Type",
    "Length",
    "Material",
-   "Thread Size"
+   "Measurement System",
+   "Standards",
+   "Thread Size",
+   "Thread Type",
+   "Units per Pack"
   ],
   "center_punches": [
    "Length",
@@ -2051,7 +2102,10 @@
   "combination_wrenches": [
    "Finish",
    "Material",
-   "Size"
+   "Measurement System",
+   "Number of Points",
+   "Size",
+   "Type"
   ],
   "compound_cutters": [
    "Handle Material",
@@ -2089,9 +2143,13 @@
    "Thread Size"
   ],
   "cut_resistant_gloves": [
-   "Color",
+   "ANSI Cut Level",
+   "Coating",
+   "Knit Gauge",
    "Material",
-   "Size"
+   "Measurement System",
+   "Size",
+   "Standards"
   ],
   "cutter_sharpening_fixtures": [
    "Material",
@@ -2126,9 +2184,20 @@
    "Material"
   ],
   "drill_bushings": [
+   "ANSI Number",
+   "Decimal Equivalent",
+   "Drill Size",
+   "Head Dia.",
+   "Head Height",
+   "Head Type",
    "Length",
    "Material",
-   "Size"
+   "Measurement System",
+   "Outside Dia.",
+   "Overall Length",
+   "Size",
+   "Standards",
+   "Type"
   ],
   "drill_jobber": [
    "Cutting Direction",
@@ -2204,8 +2273,15 @@
    "Units per Pack"
   ],
   "er_collets": [
+   "Class",
+   "Concentricity Tolerance",
+   "Grip Range",
    "Material",
+   "Measurement System",
+   "Outside Dia.",
+   "Overall Length",
    "Size",
+   "Standards",
    "Type"
   ],
   "eye_bolts": [
@@ -2375,9 +2451,17 @@
    "Type"
   ],
   "hex_pipe_nipples": [
+   "Finish",
+   "Hex Size",
    "Length",
    "Material",
-   "Size"
+   "Measurement System",
+   "Outside Dia.",
+   "Pipe Size",
+   "Pressure Rating (psi)",
+   "Schedule",
+   "Thread Type",
+   "Type"
   ],
   "hose_clamps": [
    "Material",
@@ -2413,10 +2497,17 @@
    "Type"
   ],
   "lag_screws": [
+   "Diameter",
+   "Drive Type",
    "Finish",
+   "Head Height",
+   "Head Type",
    "Length",
    "Material",
-   "Size"
+   "Measurement System",
+   "Standards",
+   "Threads per Inch",
+   "Width Across Flats"
   ],
   "lock_nuts_nylon_insert": [
    "Finish",
@@ -2593,9 +2684,15 @@
    "Style"
   ],
   "roll_pins": [
-   "Diameter",
+   "Finish",
+   "Hardness",
    "Length",
-   "Material"
+   "Material",
+   "Measurement System",
+   "Pin Dia.",
+   "Standards",
+   "Style",
+   "Type"
   ],
   "roller_chain": [
    "ANSI Number",
@@ -2636,8 +2733,12 @@
    "Units per Pack"
   ],
   "safety_glasses": [
-   "Color",
+   "Coating",
+   "Frame Color",
+   "Lens Color",
    "Material",
+   "Measurement System",
+   "Standards",
    "Style"
   ],
   "screw_button_head": [
@@ -2869,8 +2970,14 @@
   ],
   "studs_double_end": [
    "Finish",
+   "Grade",
+   "Length",
    "Material",
-   "Thread Size"
+   "Measurement System",
+   "Thread Direction",
+   "Thread Size",
+   "Thread Type",
+   "Type"
   ],
   "swivel_casters": [
    "Diameter",
@@ -3022,14 +3129,14 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 145129,
+ "total_attribute_entries": 152385,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
    "target": 0.6489,
-   "achieved": 0.607507,
-   "numerator": 1311,
-   "denominator": 2158,
+   "achieved": 0.621773,
+   "numerator": 1445,
+   "denominator": 2324,
    "note": "over records carrying both dimensions",
    "band": null
   },
@@ -3038,7 +3145,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 2450,
+   "denominator": 2574,
    "note": "deliberate: the corpus measures 0.0829",
    "band": null
   },
@@ -3047,7 +3154,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 2367,
+   "denominator": 2460,
    "note": "deliberate: the corpus measures 0.0469",
    "band": null
   },
@@ -3056,43 +3163,43 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5598,
+   "denominator": 5924,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0168266,
-   "numerator": 228,
-   "denominator": 13550,
+   "achieved": 0.0170582,
+   "numerator": 244,
+   "denominator": 14304,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00803547,
-   "numerator": 29,
-   "denominator": 3609,
+   "achieved": 0.00848581,
+   "numerator": 32,
+   "denominator": 3771,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.457111,
-   "numerator": 9086,
-   "denominator": 19877,
+   "achieved": 0.459138,
+   "numerator": 9534,
+   "denominator": 20765,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.129748,
-   "numerator": 2579,
-   "denominator": 19877,
+   "achieved": 0.124488,
+   "numerator": 2585,
+   "denominator": 20765,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3101,7 +3208,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13688,
+   "denominator": 14556,
    "note": "over titles",
    "band": null
   },
@@ -3110,7 +3217,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13688,
+   "denominator": 14556,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3119,16 +3226,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 13688,
+   "denominator": 14556,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.6026,
-   "numerator": 145129,
-   "denominator": 13688,
+   "achieved": 10.4689,
+   "numerator": 152385,
+   "denominator": 14556,
    "note": "count, not a rate",
    "band": null
   },
@@ -3279,8 +3386,8 @@
   {
    "name": "price p50 (USD): end_mill_ball",
    "target": 88.23,
-   "achieved": 84.46,
-   "numerator": 744,
+   "achieved": 86.87,
+   "numerator": 835,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3291,8 +3398,8 @@
   {
    "name": "price p90/p10: end_mill_ball",
    "target": 8.62933,
-   "achieved": 7.4479,
-   "numerator": 744,
+   "achieved": 7.38956,
+   "numerator": 835,
    "denominator": 65,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3303,9 +3410,9 @@
   {
    "name": "price larger size costs more: end_mill_ball",
    "target": 0.909,
-   "achieved": 0.903526,
-   "numerator": 11454,
-   "denominator": 12677,
+   "achieved": 0.90319,
+   "numerator": 14638,
+   "denominator": 16207,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.648848,
@@ -3315,8 +3422,8 @@
   {
    "name": "price p50 (USD): end_mill_square",
    "target": 52.5,
-   "achieved": 50.5,
-   "numerator": 1183,
+   "achieved": 53.315,
+   "numerator": 1258,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3327,8 +3434,8 @@
   {
    "name": "price p90/p10: end_mill_square",
    "target": 7.53715,
-   "achieved": 8.25028,
-   "numerator": 1183,
+   "achieved": 8.3807,
+   "numerator": 1258,
    "denominator": 69,
    "note": "shown price; denom is the census n",
    "band": [
@@ -3339,9 +3446,9 @@
   {
    "name": "price larger size costs more: end_mill_square",
    "target": 0.833,
-   "achieved": 0.813594,
-   "numerator": 15848,
-   "denominator": 19479,
+   "achieved": 0.810803,
+   "numerator": 19019,
+   "denominator": 23457,
    "note": "within-cell pairs whose key dimension differs",
    "band": [
     0.569266,
@@ -3673,6 +3780,102 @@
    ]
   },
   {
+   "name": "price p50 (USD): carriage_bolts",
+   "target": 26.1,
+   "achieved": 22.45,
+   "numerator": 63,
+   "denominator": 110,
+   "note": "shown price; denom is the census n",
+   "band": [
+    20.88,
+    32.625
+   ]
+  },
+  {
+   "name": "price p90/p10: carriage_bolts",
+   "target": 6.19915,
+   "achieved": 5.89736,
+   "numerator": 63,
+   "denominator": 110,
+   "note": "shown price; denom is the census n",
+   "band": [
+    4.64936,
+    8.24487
+   ]
+  },
+  {
+   "name": "price p50 (USD): combination_wrenches",
+   "target": 15.38,
+   "achieved": 13.6,
+   "numerator": 78,
+   "denominator": 158,
+   "note": "shown price; denom is the census n",
+   "band": [
+    12.304,
+    19.225
+   ]
+  },
+  {
+   "name": "price p90/p10: combination_wrenches",
+   "target": 9.75941,
+   "achieved": 7.39031,
+   "numerator": 78,
+   "denominator": 158,
+   "note": "shown price; denom is the census n",
+   "band": [
+    7.31956,
+    12.98
+   ]
+  },
+  {
+   "name": "price p50 (USD): cut_resistant_gloves",
+   "target": 21.45,
+   "achieved": 21.335,
+   "numerator": 68,
+   "denominator": 22,
+   "note": "shown price; denom is the census n",
+   "band": [
+    17.16,
+    26.8125
+   ]
+  },
+  {
+   "name": "price p90/p10: cut_resistant_gloves",
+   "target": 7.16138,
+   "achieved": 7.95909,
+   "numerator": 68,
+   "denominator": 22,
+   "note": "shown price; denom is the census n",
+   "band": [
+    5.37103,
+    9.52463
+   ]
+  },
+  {
+   "name": "price p50 (USD): hex_pipe_nipples",
+   "target": 5.2,
+   "achieved": 4.92,
+   "numerator": 70,
+   "denominator": 81,
+   "note": "shown price; denom is the census n",
+   "band": [
+    4.16,
+    6.5
+   ]
+  },
+  {
+   "name": "price p90/p10: hex_pipe_nipples",
+   "target": 4.87688,
+   "achieved": 3.77224,
+   "numerator": 70,
+   "denominator": 81,
+   "note": "shown price; denom is the census n",
+   "band": [
+    3.65766,
+    6.48625
+   ]
+  },
+  {
    "name": "price p50 (USD): rigid_casters",
    "target": 76.2,
    "achieved": 76.0,
@@ -3742,6 +3945,30 @@
    "band": [
     7.82389,
     13.8744
+   ]
+  },
+  {
+   "name": "price p50 (USD): safety_glasses",
+   "target": 8.605,
+   "achieved": 8.135,
+   "numerator": 52,
+   "denominator": 74,
+   "note": "shown price; denom is the census n",
+   "band": [
+    6.884,
+    10.7563
+   ]
+  },
+  {
+   "name": "price p90/p10: safety_glasses",
+   "target": 4.852,
+   "achieved": 4.12601,
+   "numerator": 52,
+   "denominator": 74,
+   "note": "shown price; denom is the census n",
+   "band": [
+    3.639,
+    6.45316
    ]
   },
   {
@@ -3951,8 +4178,8 @@
   {
    "name": "price brand spread, same spec (median max/min): end_mill_ball",
    "target": 1.3624,
-   "achieved": 1.40259,
-   "numerator": 133,
+   "achieved": 1.3746,
+   "numerator": 132,
    "denominator": 5,
    "note": "over specs (key dimension, material, number of flutes) two or more brands make; 3 brands sampled per spec",
    "band": [
@@ -4022,75 +4249,75 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00567911,
-   "achieved": 0.00521109,
-   "numerator": 69,
-   "denominator": 13241,
+   "target": 0.00562364,
+   "achieved": 0.00495435,
+   "numerator": 70,
+   "denominator": 14129,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00223803,
-    0.00912019
+    0.0023985,
+    0.00884878
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0898967,
-   "achieved": 0.0851144,
-   "numerator": 1127,
-   "denominator": 13241,
+   "target": 0.0899984,
+   "achieved": 0.0859933,
+   "numerator": 1215,
+   "denominator": 14129,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0714784,
-    0.108315
+    0.0717381,
+    0.108259
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0605063,
-   "achieved": 0.0584548,
-   "numerator": 774,
-   "denominator": 13241,
+   "target": 0.0610565,
+   "achieved": 0.0578243,
+   "numerator": 817,
+   "denominator": 14129,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0432279,
-    0.0777847
+    0.0438399,
+    0.0782731
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.21688,
-   "achieved": 0.214863,
-   "numerator": 2845,
-   "denominator": 13241,
+   "target": 0.216513,
+   "achieved": 0.214028,
+   "numerator": 3024,
+   "denominator": 14129,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.195611,
-    0.238149
+    0.195858,
+    0.237169
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5598
+  "Measurement System": 5924
  },
  "measurement_system_values": {
-  "Fractional Inch": 3214,
-  "Inch": 314,
-  "Metric": 2003,
-  "Decimal Inch": 67
+  "Fractional Inch": 3385,
+  "Inch": 325,
+  "Metric": 2146,
+  "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
-  "in": 28020,
-  "mm": 16273
+  "in": 29483,
+  "mm": 17001
  },
- "standards_present": 7286,
- "standards_multivalued": 1802,
- "standards_total_values": 9428,
+ "standards_present": 7702,
+ "standards_multivalued": 1831,
+ "standards_total_values": 9880,
  "multivalued_attribute_names": {
-  "Standards": 1802,
+  "Standards": 1831,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 13688,
+  "n_skus_checked": 14556,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4122,12 +4349,20 @@
    "5198947014",
    "5198509338",
    "5198071662",
-   "5198523159",
-   "5198163036",
-   "5198484253",
-   "5198592264",
-   "5198545169",
-   "5198700275",
+   "5198021751",
+   "5198412332",
+   "5198193494",
+   "5198052209",
+   "5198082667",
+   "5198473248",
+   "5198941382",
+   "5198113125",
+   "5198581259",
+   "5198392879",
+   "5198027124",
+   "5198135135",
+   "5198088040",
+   "5198243146",
    "7038781162",
    "7038811620",
    "7038936268",
@@ -4200,15 +4435,16 @@
    "7038085224",
    "7038287425",
    "7038068587",
-   "7038137692",
-   "7038683379",
-   "7038104418",
-   "7038229066",
+   "7038431267",
+   "7038976954",
    "7038397993",
-   "7038018417",
-   "7038392361",
-   "7038079333",
-   "7038032238"
+   "7038522641",
+   "7038489367",
+   "7038395177",
+   "7038176339",
+   "7038691568",
+   "7038076517",
+   "7038763489"
   ],
   "n_reference_tuples": 147,
   "n_reference_skus": 332
@@ -4250,24 +4486,24 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 49,
-   "breadth_categories": 114,
+   "modelled_types": 60,
+   "breadth_categories": 103,
    "brands": 45
   },
   "drawings": {
-   "count": 13688,
-   "bytes": 34261850,
+   "count": 14556,
+   "bytes": 38063784,
    "geometry": {
-    "nominal": 216,
-    "partial": 2802,
-    "record": 10670
+    "nominal": 196,
+    "partial": 2972,
+    "record": 11388
    },
-   "largest_bytes": 7789,
-   "largest_product_type": "bearing_radial_ball"
+   "largest_bytes": 7403,
+   "largest_product_type": "roller_chain"
   },
   "dispersion": {
-   "quantitative_attributes": 58,
-   "faceted_attributes": 54,
+   "quantitative_attributes": 64,
+   "faceted_attributes": 56,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",
@@ -4277,23 +4513,24 @@
    "drive_size_present": 2241,
    "held_by_floor": [
     "Dash number",
+    "Frame color",
     "Sizes included"
    ],
-   "min_presence_arm": "Neck length",
-   "min_presence_arm_dispersion": 0.9942,
-   "min_presence_arm_present": 588,
-   "min_presence_arm_type_denominator": 2158,
-   "min_presence_arm_share": 0.27,
+   "min_presence_arm": "Decimal equivalent",
+   "min_presence_arm_dispersion": 0.162,
+   "min_presence_arm_present": 463,
+   "min_presence_arm_type_denominator": 652,
+   "min_presence_arm_share": 0.71,
    "identifier": "List number",
-   "identifier_dispersion": 0.9592,
+   "identifier_dispersion": 0.9575,
    "densest_terms_facet": "Bearing number",
    "densest_terms_facet_dispersion": 0.1105
   },
   "flat_overmatch": {
    "attribute": "Shank dia.",
    "value": "3/8",
-   "matching": 337,
-   "publishing": 178
+   "matching": 384,
+   "publishing": 202
   }
  }
 }

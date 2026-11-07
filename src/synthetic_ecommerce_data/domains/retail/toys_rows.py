@@ -33,6 +33,7 @@ from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core.entry import canonical
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_toys,  # noqa: F401 -- registers building_set, jigsaw, board_game, doll, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Contents, Row, paint_range
@@ -104,7 +105,7 @@ def _yes(v: bool) -> str:
 
 RED = cw("Red", "#c8312e", "solid", "#f4f1ea")
 BLUE = cw("Blue", "#3f6fb5", "solid", "#f4f1ea")
-NAVY = cw("Navy", "#26365c", "solid", "#f2d14b")
+NAVY = cw("Navy", dark_blues.NAVY, "solid", "#f2d14b")
 GREEN = cw("Green", "#5f9a4a", "solid", "#f4f1ea")
 YELLOW = cw("Yellow", "#f2c94c", "solid", "#2f2f35")
 PINK = cw("Pink", "#f2a1b8", "solid", "#2f2f35")

@@ -328,21 +328,38 @@ def test_block_of_read_during_registration_is_refused_not_answered_by_import_ord
         if spec.breadth is None and key not in SMALL.type_weights
     ),
 )
-def test_a_type_modules_share_sizes_its_type(key: str) -> None:
-    """With no ``type_weights`` entry, the module's ``share`` is the type's weight.
+def test_a_type_modules_share_sizes_its_type(key: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """With no ``type_weights`` entry, the module's ``share`` is the type's weight,
+    and the type drafts exactly the products that share asks for.
 
     Without that fallback the type builds only its must-stock lines, and every
-    other check still passes.
+    other check still passes. Exact and per type, because a lower bound let
+    52 default-build lines move from one type to another with every generator
+    test green, the golden files' regeneration the only sign (#10). A type's
+    size is its declared share, never a count typed by hand (#103), so moving
+    one is a reviewed edit to that share. Drafts are counted where each is kept
+    or dropped (``_keep``), so a draft a builder discards still counts, and with
+    grouping, must-stock lines and packs off, which add lines of their own.
     """
     spec = DISCOVERED[key]
     if spec.newer:
         # A newer type is sized by ``new_type_share``, whose default is the module's share.
         assert GeneratorConfig().new_type_share[key] == spec.share
-        share = SMALL.new_type_share[key]
+        asked = round(SMALL.lines * SMALL.new_type_share[key])
     else:
-        share = spec.share
-    built = generate.generate(SMALL, types=[key]).lines
-    assert len(built) >= round(SMALL.lines * share)
+        asked = max(1, round(SMALL.lines * spec.share))
+    drafted = 0
+    keep = generate.Generator._keep
+
+    def counted(self: generate.Generator, lines: list, line: object) -> None:
+        nonlocal drafted
+        drafted += 1
+        keep(self, lines, line)
+
+    monkeypatch.setattr(generate.Generator, "_keep", counted)
+    flat = dataclasses.replace(small(), grouped=False, must_stock=False, pack_axis=False)
+    generate.generate(flat, types=[key])
+    assert drafted == asked, f"{key} drafted {drafted} products; its share asks for {asked}"
 
 
 @pytest.mark.parametrize(
@@ -561,9 +578,9 @@ def test_the_block_command_names_the_owner_and_a_really_free_block(
 def test_the_block_command_reports_a_block_already_declared(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    declared = _yaml_declared_blocks()["er_collets"]
-    out = _block_command("er_collets", capsys)
-    assert out == f"er_collets: already declares part_number_block={declared:04d}"
+    declared = _yaml_declared_blocks()["shaft_collars"]
+    out = _block_command("shaft_collars", capsys)
+    assert out == f"shaft_collars: already declares part_number_block={declared:04d}"
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:

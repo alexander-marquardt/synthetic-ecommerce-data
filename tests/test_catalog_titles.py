@@ -60,7 +60,7 @@ from catalog_size import DEPTH_SKUS
 from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER
-from synthetic_ecommerce_data.domains.industrial import pack
+from synthetic_ecommerce_data.domains.industrial import grouped, pack
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -274,16 +274,29 @@ def test_the_description_says_something_the_title_did_not(
 
 def _per_quantity(by_line: dict[str, list[dict]]) -> list[tuple[str, list[dict]]]:
     """The lines, with one on a pack axis split by quantity: a size repeats across its packs, and
-    the title names the pair by its count and its size between them (gen#14)."""
+    the title names the pair by its count and its size between them (gen#14). A line that sells
+    a diameter at several lengths (#850) is split by diameter the same way: the title names the
+    pair by its diameter and its length of cut, and a length of cut repeats across diameters."""
     out: list[tuple[str, list[dict]]] = []
     for product_id, docs in sorted(by_line.items()):
-        if docs[0]["product_type"] not in pack.AXES:
+        kind = docs[0]["product_type"]
+        if kind not in pack.AXES and kind not in grouped.REACH:
             out.append((product_id, docs))
             continue
-        quantities: dict[str, list[dict]] = {}
+
+        def size(doc: dict) -> str:
+            return doc["facets"].get("milling_dia", [""])[0]
+
+        def quantity(doc: dict) -> str:
+            return doc["facets"].get("units_per_pack", [""])[0]
+
+        # Only a line that repeats a diameter: a line of one SKU per diameter stays whole.
+        pairs = collections.Counter((quantity(doc), size(doc)) for doc in docs)
+        by_size = kind in grouped.REACH and max(pairs.values()) > 1
+        quantities: dict[tuple[str, str], list[dict]] = {}
         for doc in docs:
-            quantity = doc["facets"].get("units_per_pack", [""])[0]
-            quantities.setdefault(quantity, []).append(doc)
+            key = (quantity(doc), size(doc) if by_size else "")
+            quantities.setdefault(key, []).append(doc)
         out.extend((product_id, group) for group in quantities.values())
     return out
 
@@ -460,10 +473,13 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
         assert title == title.rstrip(), f"trailing whitespace from a cut: {title!r}"
         tail = title.rsplit(",", 1)[-1].strip()
         published = set(doc["attribute_names"])
+        # A whole published value is not a label cut short: an ER collet's
+        # class ``Standard`` is a prefix of the ``Standards`` label.
+        values = {v for vs in doc["facets"].values() if isinstance(vs, list) for v in vs}
         words = tail.split()
         for start in range(len(words)):
             candidate = " ".join(words[start:])
-            if len(candidate) <= 4 or candidate in published:
+            if len(candidate) <= 4 or candidate in published or candidate in values:
                 continue
             if any(name.startswith(candidate) and name != candidate for name in published):
                 cut.append(title)

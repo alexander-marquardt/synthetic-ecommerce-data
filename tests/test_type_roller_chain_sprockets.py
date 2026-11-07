@@ -21,10 +21,12 @@ from __future__ import annotations
 
 import json
 import math
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+import pinned
 import table_gates
 import type_gates
 from published import authored_attributes, authored_entries
@@ -95,17 +97,9 @@ PITCH_OF = {"35": "3/8", "40": "1/2", "50": "5/8", "60": "3/4"}
 
 #: A build large enough to reach every row.
 LARGE_LINES = 39000
-#: What the default build holds: a move is a change to the table or its share.
-DEFAULT_LINES = 54
-DEFAULT_SKUS = 102
 #: USD for one sprocket, any size and brand tier. Not a fit: a price outside
 #: it is a broken ladder, not a wrong estimate.
 SANITY_BAND = (5.0, 600.0)
-
-
-#: The sprockets of the default build whose pitch the unit-mixing defect
-#: restates in millimetres when it is applied to every record.
-MILLIMETRE_PITCHES = 23
 
 
 def _inches(doc: dict) -> tuple[float, ...]:
@@ -153,8 +147,8 @@ def test_the_registry_knows_it_as_a_table_type():
 
 
 def test_the_default_build_holds_the_declared_count():
-    assert len(generate_type(GeneratorConfig(), KEY)) == DEFAULT_LINES
-    assert len(_default_docs()) == DEFAULT_SKUS
+    assert len(generate_type(GeneratorConfig(), KEY)) == pinned.product_count(KEY)
+    assert len(_default_docs()) == pinned.sku_count(KEY)
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -302,14 +296,9 @@ def test_a_sprockets_pitch_being_a_length_does_not_make_the_chains_one():
     chain's lengths, so with that defect on every record, no chain publishes
     its pitch in millimetres. Read every type's lengths instead and declaring
     this table changes what the chain builds."""
-    built = generate(GeneratorConfig(defect_scale=1000.0), types=["roller_chain"])
-    units = [
-        published["Pitch"]["unit_code"]
-        for published in map(table_gates.values, table_gates.docs(built))
-        if "Pitch" in published
-    ]
+    units = [unit for _, unit in _pitches("roller_chain")]
     assert set(units) == {"INH"}
-    assert len(units) == 75
+    assert len(units) == pinned.figure(__file__, "chain_pitches")
 
 
 def test_a_pitch_published_in_millimetres_keeps_the_chain_pitch_key():
@@ -319,25 +308,52 @@ def test_a_pitch_published_in_millimetres_keeps_the_chain_pitch_key():
     pitch facet would offer a chain's link spacing. With the defect on every
     record, some sprockets publish the pitch in millimetres, and each one is
     still ``chain_pitch``."""
-    built = generate(GeneratorConfig(defect_scale=1000.0), types=[KEY])
-    pitches = [
-        (published["Pitch"]["key"], published["Pitch"]["unit_code"])
-        for published in map(table_gates.values, table_gates.docs(built))
-        if "Pitch" in published
-    ]
+    pitches = _pitches(KEY)
     assert sorted(set(pitches)) == [("chain_pitch", "INH"), ("chain_pitch", "MMT")]
-    assert len([unit for _, unit in pitches if unit == "MMT"]) == MILLIMETRE_PITCHES
+    millimetres = len([unit for _, unit in pitches if unit == "MMT"])
+    assert millimetres == pinned.figure(__file__, "millimetre_pitches")
 
 
 def test_a_size_off_the_table_is_a_row_rewritten_by_an_injected_defect():
     """With its defects on, the build shows sizes the table lacks. Each is a
     row's size within a hundredth of a millimetre: a defect the catalog
     injects on purpose, not a sprocket the table lacks."""
-    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True))
+    read = _sizes_with_defects()
     sizes = sorted(row[0] for row in ROWS)
-    read = [float(table_gates.values(doc)[COLUMNS[0]]["value_canonical"]) for doc in docs]
     assert [size for size in read if min(abs(size - s) for s in sizes) > 0.01] == []
-    assert len([size for size in read if round(size, 3) not in sizes]) == 1
+    assert _rewritten(read) == pinned.figure(__file__, "rewritten")
+
+
+def _pitches(type_key: str, base: GeneratorConfig | None = None) -> list[tuple[str, str]]:
+    """``(key, unit)`` of each ``Pitch`` that ``type_key`` publishes with the unit-mixing
+    defect on every record."""
+    config = replace(base or GeneratorConfig(), defect_scale=1000.0)
+    built = generate(config, types=[type_key])
+    return [
+        (published["Pitch"]["key"], published["Pitch"]["unit_code"])
+        for published in map(table_gates.values, table_gates.docs(built))
+        if "Pitch" in published
+    ]
+
+
+def _sizes_with_defects(base: GeneratorConfig | None = None) -> list[float]:
+    docs = table_gates.docs(table_gates.catalog(KEY, LARGE_LINES, defects=True, base=base))
+    return [float(table_gates.values(doc)[COLUMNS[0]]["value_canonical"]) for doc in docs]
+
+
+def _rewritten(read: list[float]) -> int:
+    """How many sizes read are no row's: a row's size the defect rewrote."""
+    sizes = {row[0] for row in ROWS}
+    return len([size for size in read if round(size, 3) not in sizes])
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {
+        "chain_pitches": len(_pitches("roller_chain", config)),
+        "millimetre_pitches": len([u for _, u in _pitches(KEY, config) if u == "MMT"]),
+        "rewritten": _rewritten(_sizes_with_defects(config)),
+    }
 
 
 # --- the declared price keeps its order ---------------------------------------------

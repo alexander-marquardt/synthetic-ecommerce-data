@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_row import (
     Row,
     _fab,
@@ -36,7 +37,7 @@ TOYS = (
         "whale",
         "A long whale with a squashy body and a stitched smile, filled with recycled fiber. "
         "Machine washable at 30 degrees.",
-        (cw("Navy", "#26365c"), cw("Sky Blue", "#8fb8de")), _fab("Corduroy"), audience=_KIDS),
+        (cw("Navy", dark_blues.NAVY), cw("Sky Blue", "#8fb8de")), _fab("Corduroy"), audience=_KIDS),
     Row("SFTDIN", "Faux Fur Dinosaur Soft Toy", "Puddlecombe Toys", "Toys", _SOFT, "Soft Toy",
         20.0, "dinosaur",
         "A big-footed dinosaur with soft spines down its back, made for hugging. "
@@ -71,7 +72,7 @@ TOYS = (
     Row("CARPOL", "Die-Cast Police Car", "Puddlecombe Toys", "Toys", _CARS, "Toy Vehicle", 6.0,
         "car",
         "A pocket-size police car with opening doors and a pull-back motor. For ages 3 and up.",
-        (cw("White", "#ffffff", "solid", "#26365c"),), _mat("Die-Cast"), audience=_KIDS,
+        (cw("White", "#ffffff", "solid", dark_blues.NAVY),), _mat("Die-Cast"), audience=_KIDS,
         fixed_color="the police livery: white with a navy stripe is what makes it a police car"),
     Row("CARVIN", "Recycled Plastic Vintage Car", "Little Fernby", "Toys", _CARS, "Toy Vehicle",
         11.0, "car",
@@ -88,7 +89,7 @@ TOYS = (
         (cw("Tabby", "#b07a43"),), _mat("Resin"), audience=_KIDS),
     Row("FIGWHL", "Wooden Whale Figure", "Little Fernby", "Toys", _FIG, "Toy Figure", 6.0,
         "whale", "A smooth whale figure with a rounded tail, for play in the bath or on the rug.",
-        (cw("Navy", "#26365c"),), _mat("Wooden"), audience=_KIDS),
+        (cw("Navy", dark_blues.NAVY),), _mat("Wooden"), audience=_KIDS),
     Row("FIGBRD", "Rubber Bird Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure", 4.0,
         "bird", "A robin figure with a flat base so it stands up, soft enough to chew.",
         (cw("Red", "#c8312e", "solid", "#7a4a2a"),), _mat("Rubber"), audience=_KIDS),
@@ -149,7 +150,7 @@ TOYS = (
         (cw("Moss Green", "#6f8f4a"), cw("Ochre", "#c8902e")), _mat("Felt"), audience=_KIDS),
     Row("FIGRCY", "Rubber Whale Bath Figure", "Little Fernby", "Toys", _FIG, "Toy Figure", 3.5,
         "whale", "A whale figure with no small parts, for play on the rug or in the bath.",
-        (cw("Aqua", "#8fd1d0"), cw("Navy", "#26365c")), _mat("Rubber"), audience=_KIDS),
+        (cw("Aqua", "#8fd1d0"), cw("Navy", dark_blues.NAVY)), _mat("Rubber"), audience=_KIDS),
     Row("FIGPOR", "Wooden Cat Ornament Figure", "Puddlecombe Toys", "Toys", _FIG, "Toy Figure",
         4.0, "cat", "A small figure for a shelf or a dolls' house, for ages 3 and up.",
         (cw("Calico", "#c8a27a"), cw("Grey", "#9a9a9a")), _mat("Wooden"), audience=_KIDS),

@@ -163,11 +163,13 @@ END_MILL_NOMINAL = {
 ENDS_ATTRIBUTE = "Single End/Double End"
 FLUTES_ATTRIBUTE = "Number of Flutes"
 HAND_ATTRIBUTE = "Cutting Direction"
+COOLANT_ATTRIBUTE = "Coolant Fed"
 
 
 def _end_mill_form(record: Record) -> Record:
     """The published values that say what KIND of end mill it is: the number of cutting ends,
-    the number of flutes and their hand. A value that names none of these is not carried."""
+    the number of flutes, their hand and whether coolant runs through it. A value that names
+    none of these is not carried."""
     form = {}
     ends = str(record.get(ENDS_ATTRIBUTE, "")).strip()
     if ends.lower() in ("single end", "double end"):
@@ -181,6 +183,9 @@ def _end_mill_form(record: Record) -> Record:
     hand = str(record.get(HAND_ATTRIBUTE, "")).strip()
     if hand.lower() in endmill_geom.HANDS:
         form[HAND_ATTRIBUTE] = hand
+    coolant = str(record.get(COOLANT_ATTRIBUTE, "")).strip()
+    if coolant.lower() in endmill_geom.COOLANT:
+        form[COOLANT_ATTRIBUTE] = coolant
     return form
 
 
@@ -229,7 +234,10 @@ def end_mill(record: Record, style: str = END_MILL_NOMINAL["End Mill Style"]) ->
         geom.helix_deg,
         geom.hand,
     )
-    P.flute_end_view(fig, (max(r, s / 2) + 1.3 * r, body_top * 0.25 + r), r, geom.flutes, geom.hand)
+    end_view = (max(r, s / 2) + 1.3 * r, body_top * 0.25 + r)
+    P.flute_end_view(fig, end_view, r, geom.flutes, geom.hand)
+    if geom.coolant:
+        P.coolant_outlets(fig, end_view, r, geom.flutes, geom.hand)
     return Drawn(fig, source)
 
 
@@ -669,9 +677,8 @@ def bearing(record: Record) -> Drawn:
     role = _CLOSURE_ROLE.get(closure)
     if role is None:
         balls = max(6, int(2 * math.pi * pitch_r / (2.3 * ball_r)))
-        for k in range(balls):
-            a = 2 * math.pi * k / balls
-            fig.disc((pitch_r * math.cos(a), pitch_r * math.sin(a)), ball_r)
+        angles = (2 * math.pi * k / balls for k in range(balls))
+        fig.discs(((pitch_r * math.cos(a), pitch_r * math.sin(a)) for a in angles), ball_r)
     else:
         fig.disc((0.0, 0.0), r_out - ring * 1.15, role)
     fig.disc((0.0, 0.0), r_in + ring)

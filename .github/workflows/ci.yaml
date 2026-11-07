@@ -75,21 +75,47 @@ jobs:
     # writes both, every shard with a file to run downloads them and points RETAIL_FIGURES_CACHE
     # at them, and a worker loads the build in under a second. No `if`: a run of any kind has
     # tests. It comes before `tests` here because the local run takes the jobs in file order.
+    #
+    # Its second leg builds the 100K files of tests/shared_builds.py, once per run (#790): each
+    # shard whose modules asked built them itself, about two minutes a build, so a full run built
+    # the same 100K catalogs in shard after shard. scripts/build_shared_100k.py makes them from
+    # two builds side by side, every shard with a file to run downloads them and names them in
+    # SHARED_BUILDS_DIR, and a test reads its file. A file is named by a digest of src/, uv.lock
+    # and shared_builds.py, so a tree that differs misses it and builds, never reads it. A leg
+    # of this job, not a job of its own: the legs run on two runners side by side, `tests` needs
+    # both, and the checks a merge waits for (scripts/merge_pr/config.sh) are unchanged. The
+    # local run takes the matrix as the one `all` leg and builds both.
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [ceiling, hundred_k]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Build the ceiling catalogue and its figures
-        run: uv run --locked python scripts/build_ceiling.py --out build/ceiling
+      - name: Build the ceiling catalogue and its figures, or the shared 100K files
+        run: |
+          if [ "${{ matrix.shard }}" != hundred_k ]; then uv run --locked python scripts/build_ceiling.py --out build/ceiling; fi
+          if [ "${{ matrix.shard }}" != ceiling ]; then uv run --locked python scripts/build_shared_100k.py --out build/hundred_k; fi
       - uses: actions/upload-artifact@v4
+        if: matrix.shard == 'ceiling'
         with:
           name: ceiling-catalogue
           path: build/ceiling
           if-no-files-found: error
           retention-days: 1
+      - uses: actions/upload-artifact@v4
+        if: matrix.shard == 'hundred_k'
+        with:
+          name: hundred-k-builds
+          path: build/hundred_k
+          if-no-files-found: error
+          retention-days: 1
+          # Pickles of a few hundred MB: the fastest zip level, which every shard then unzips.
+          compression-level: 1
 
   tests:
     needs: ceiling-catalogue
@@ -114,7 +140,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
@@ -148,6 +174,11 @@ jobs:
         with:
           name: ceiling-catalogue
           path: build/ceiling
+      - uses: actions/download-artifact@v4
+        if: steps.select.outputs.run == 'true'
+        with:
+          name: hundred-k-builds
+          path: build/hundred_k
       # The golden comparison lives in here: tests/test_catalog_golden.py
       # rebuilds the catalog and compares every committed file by sha256, so a
       # generator change landed without its regeneration is red.
@@ -175,6 +206,8 @@ jobs:
           export CI_SHARDS="${plan[0]#shards=}"
           # The ceiling-catalogue job's files (#539), there on any run that has that job.
           if [ -f build/ceiling/figures.json ]; then export RETAIL_FIGURES_CACHE="$PWD/build/ceiling"; fi
+          # The 100K files of the ceiling-catalogue job's hundred_k leg (#790).
+          if [ -d build/hundred_k ]; then export SHARED_BUILDS_DIR="$PWD/build/hundred_k"; fi
           # A lost xdist worker is an infra failure, rerun once (#629): docs/ci-sharding.md.
           python3 scripts/ci_run_pytest.py -- uv run --locked pytest "${files[@]}"
       # Each shard's per-test times: scripts/ci_shards.py --refresh reads them.

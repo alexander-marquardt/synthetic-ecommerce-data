@@ -15,18 +15,18 @@ the ratchet below fails when a pair is paid but left listed, or a new one appear
 
 from __future__ import annotations
 
+import json
+import os
 import re
+import subprocess
+import sys
+from pathlib import Path
 from typing import Any
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import (
-    kit,
-    scale,
-)
-
-#: The scale build that exhausts every template (``tests/test_retail_scale.py`` CAPACITY).
-CEILING_SKUS = 76_417 * 2
+from retail_ceiling import ceiling_build
+from synthetic_ecommerce_data.domains.retail import kit, retail_figures
 
 #: Titles whose product really is a tub (a pot of tablets, wipes, beads, a drink powder).
 TUB_NOUNS = re.compile(r"\b(Wipes|Tablets|Pods|Capsules|Beads|Chocolate|Yogurt|Pot)\b")
@@ -77,8 +77,11 @@ LABEL_DEBT: frozenset[tuple[str, str]] = frozenset({
 
 @pytest.fixture(scope="module")
 def records() -> list[dict[str, Any]]:
-    """Every style, grocery included: the one catalog is drawn by the one set of honesty rules."""
-    return scale.build(CEILING_SKUS).records
+    """Every style, grocery included: the one catalog is drawn by the one set of honesty rules.
+
+    The ceiling build, shared with every file that reads it: a typed SKU count stopped
+    exhausting the templates once a color became a SKU of its style (#851)."""
+    return ceiling_build().records
 
 
 #: The model number after the lead word ("Bloom 5 Olive Tree"): not a cut.
@@ -102,6 +105,22 @@ def _label_pairs(records: list[dict[str, Any]]) -> set[tuple[str, str]]:
 def test_every_drawn_shape_is_registered(records):
     unknown = sorted({r["drawing"]["shape"] for r in records} - set(kit.SHAPES))
     assert unknown == []
+
+
+def test_a_pickled_ceiling_leaves_every_drawn_shape_registered(records):
+    """In CI a worker loads the ceiling from its pickle, which runs no row module, so
+    ``kit.SHAPES`` lacked 26 of the drawn shapes (armchair, bowl, plate, ...) (synth#797). A new
+    interpreter that only loads that pickle finds every shape the ceiling draws."""
+    assert (Path(os.environ[retail_figures.CACHE_ENV]) / retail_figures.CEILING_FILE).is_file()
+    code = (
+        "import json\n"
+        "from synthetic_ecommerce_data.domains.retail import kit, retail_figures\n"
+        "retail_figures.ceiling()\n"
+        "print(json.dumps(sorted(kit.SHAPES)))"
+    )
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    drawn = {r["drawing"]["shape"] for r in records}
+    assert sorted(drawn - set(json.loads(out.stdout))) == []
 
 
 def _expected_loo_shape(title: str) -> str:

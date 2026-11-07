@@ -1,9 +1,15 @@
 """Placing a figure on the sheet and painting it in the brand's house style.
 
-THE SCALE is one constant per product type: the usable sheet over the type's
-largest drawn extent (:data:`.figures.FIGURES`). Every SKU of a type is drawn at
-it, so any two parts of one type are in true proportion to each other, and
-siblings draw a head, a thread or a bore they share identically.
+THE SCALE is one constant per product type and angle: the usable sheet over the
+box the type's largest drawn extent (:data:`.figures.FIGURES`) covers when turned
+by the product's angle (#849, :mod:`.product_look`). Every SKU of a product is
+drawn at it, so any two parts of one product are in true proportion to each
+other, and siblings draw a head, a thread or a bore they share identically; and
+no part of the type, turned, leaves the figure area. A product at 0 degrees is
+drawn at the type's scale as before.
+
+THE ONE PAPER (#849): every sheet is :data:`.product_look.PAPER`, with no
+texture, whatever the brand.
 
 THE MAGNIFIER (maintainer ruling on elastic/prism-industrial-products#103,
 2026-09-28, from prototype v8). A part too small to read at its type's scale is
@@ -53,10 +59,11 @@ import math
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core import brands
-from synthetic_ecommerce_data.core.drawing import brand_mark, svg
+from synthetic_ecommerce_data.core.drawing import brand_mark, product_look, svg
 from synthetic_ecommerce_data.core.drawing.model import (
     Bars,
     Disc,
+    Discs,
     Dots,
     Figure,
     Lines,
@@ -169,13 +176,19 @@ def _glyph_extent(radius: float, floor: bool = True) -> tuple[float, float, floa
     return w, -outer, max(outer, reach * math.cos(a) + w), max(outer, reach * math.sin(a) + w)
 
 
-def magnifier(width: float, height: float) -> Magnifier | None:
-    """The layout for a part drawn ``width`` x ``height``, or ``None`` if it is drawn plain."""
+def magnifier(width: float, height: float, angle: float = 0.0) -> Magnifier | None:
+    """The layout for a part drawn ``width`` x ``height``, or ``None`` if it is drawn plain.
+
+    Turned ``angle`` degrees (#849), the part is no easier to see, so the rule reads its
+    upright size; the layout places the box it covers turned. The lens's enlargement reads
+    the part's diagonal, which turning does not change.
+    """
     if width <= 0 or height <= 0:
         return None
     if width > svg.WIDTH * MAGNIFY_WIDTH_SHARE or height > svg.HEIGHT * MAGNIFY_HEIGHT_SHARE:
         return None
     diagonal = math.hypot(width, height)
+    width, height = product_look.turned(width, height, angle)
     # The handled glass: every extent is linear in the lens radius, so the
     # largest lens that fits is the tighter of the width and the height budgets.
     _, left1, right1, bottom1 = _glyph_extent(1.0, floor=False)
@@ -233,11 +246,6 @@ def _hatch_pattern(page: svg.Svg, hatch: Hatch, ink: str) -> str:
 #: How far a chamfered frame cuts each corner. 7 keeps the plate's bottom corners
 #: (14 units in, 8 above the edge) 2.1 units inside the cut at the default margin.
 CHAMFER = 7.0
-#: The texture's cell, in sheet units, and its strength. Faint, so the figure and
-#: its hatch still read; drawn in the brand's ink over the figure area only, so the
-#: wordmark's plate stays plain.
-TEXTURE_CELL = 10.0
-TEXTURE_OPACITY = {"grid": ".14", "dot": ".28"}
 
 
 def chamfer_points(margin: float) -> list[tuple[float, float]]:
@@ -253,29 +261,6 @@ def chamfer_points(margin: float) -> list[tuple[float, float]]:
         (m, h - m - c),
         (m, m + c),
     ]
-
-
-def _texture_id(house: HouseStyle) -> str:
-    return f"t{house.texture}{house.ink[1:]}"
-
-
-def _texture(page: svg.Svg, house: HouseStyle) -> None:
-    """The background texture, behind everything, over the figure area."""
-    if house.texture == "plain":
-        return
-    key = _texture_id(house)
-    c = svg.num(TEXTURE_CELL)
-    if house.texture == "grid":
-        mark = f'<path d="M0 0H{c}M0 0V{c}" fill="none" stroke="{house.ink}" stroke-width=".5"/>'
-    else:
-        mid = svg.num(TEXTURE_CELL / 2)
-        mark = f'<circle cx="{mid}" cy="{mid}" r=".9" fill="{house.ink}"/>'
-    page.define(
-        key,
-        f'<pattern id="{key}" width="{c}" height="{c}" patternUnits="userSpaceOnUse">'
-        f'<g opacity="{TEXTURE_OPACITY[house.texture]}">{mark}</g></pattern>',
-    )
-    page.rect(0, 0, svg.WIDTH, FIGURE_HEIGHT, fill=f"url(#{key})")
 
 
 def _frame(page: svg.Svg, house: HouseStyle) -> None:
@@ -316,8 +301,10 @@ def _figure_at(
     hatch_id: str | None,
     scale: float,
     centre: tuple[float, float],
+    angle: float = 0.0,
 ) -> None:
-    """Paint ``figure`` at ``scale`` with its bounding box centred on ``centre``."""
+    """Paint ``figure`` at ``scale`` with its bounding box centred on ``centre``, turned
+    ``angle`` degrees about that centre (its product's angle, :mod:`.product_look`)."""
     x0, y0, x1, y1 = figure.bounds()
     bw, bh = max(x1 - x0, 1e-9), max(y1 - y0, 1e-9)
     ox = centre[0] - (x0 + bw / 2) * scale
@@ -325,6 +312,10 @@ def _figure_at(
 
     def at(p):
         return (ox + p[0] * scale, oy + p[1] * scale)
+
+    if angle:
+        turn = f"rotate({svg.num(angle)} {svg.num(centre[0])} {svg.num(centre[1])})"
+        page.add(f'<g transform="{turn}">')
 
     pale = _mix(fill, "#ffffff", 0.5)
     ink = house.ink
@@ -373,8 +364,6 @@ def _figure_at(
             points = [at(p) for p in shape.points]
             weight = svg.num(house.stroke)
             page.polygon(points, fill=house.paper, stroke=house.paper, stroke_width=weight)
-            if house.texture != "plain":
-                page.polygon(points, fill=f"url(#{_texture_id(house)})")
             continue
         if shape.role == "part":
             color, hatched = fill, True
@@ -402,12 +391,20 @@ def _figure_at(
             page.polygon(points, **style)
             if hatched and hatch_id:
                 page.polygon(points, fill=f"url(#{hatch_id})")
+        elif isinstance(shape, Discs):
+            centres = [at(c) for c in shape.centres]
+            r = shape.radius * scale
+            page.circles(centres, r, **style)
+            if hatched and hatch_id:
+                page.circles(centres, r, fill=f"url(#{hatch_id})")
         elif isinstance(shape, Disc):
             cx, cy = at(shape.centre)
             r = shape.radius * scale
             page.circle(cx, cy, r, **style)
             if hatched and hatch_id:
                 page.circle(cx, cy, r, fill=f"url(#{hatch_id})")
+    if angle:
+        page.add("</g>")
 
 
 def _glyph(page: svg.Svg, mag: Magnifier, ink: str) -> None:
@@ -441,25 +438,28 @@ def paint(
     fill: str,
     hatch: Hatch | None,
     scale: float,
+    angle: float = 0.0,
 ) -> bytes:
     """The figure on a sheet, as SVG bytes. Its only text is the brand's wordmark.
 
     Drawn plain and centred in the figure area, or -- when :func:`magnifier`
     says so -- at true scale near the bottom with a magnifying glass above it;
-    then the brand plate (:func:`plate_lockup`) in the strip below.
+    then the brand plate (:func:`plate_lockup`) in the strip below. The figure
+    is turned ``angle`` degrees, and laid out by the box it covers turned: the
+    caller's ``scale`` is one that keeps that box inside the figure area
+    (:func:`.draw_product`).
     """
     page = svg.Svg(background=house.paper)
-    _texture(page, house)
     _frame(page, house)
     hatch_id = _hatch_pattern(page, hatch, house.ink) if hatch is not None else None
-    x0, y0, x1, y1 = figure.bounds()
-    mag = magnifier((x1 - x0) * scale, (y1 - y0) * scale)
+    mag = magnifier(*_drawn_size(figure, scale), angle)
     if mag is None:
-        _figure_at(page, figure, house, fill, hatch_id, scale, (svg.WIDTH / 2, FIGURE_HEIGHT / 2))
+        centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2)
+        _figure_at(page, figure, house, fill, hatch_id, scale, centre, angle)
     else:
-        _figure_at(page, figure, house, fill, hatch_id, scale, mag.part)
+        _figure_at(page, figure, house, fill, hatch_id, scale, mag.part, angle)
         page.circle(*mag.lens, mag.radius, fill="#ffffff")
-        _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens)
+        _figure_at(page, figure, house, fill, hatch_id, scale * mag.k, mag.lens, angle)
         _glyph(page, mag, house.ink)
     brand_mark.plate(
         page,
@@ -488,15 +488,22 @@ def wordmark_of(name: str) -> str:
     return " ".join(plate_lockup(name).lines)
 
 
-def figure_boxes(
-    figure: Figure, scale: float, stroke: float = MIN_STROKE
-) -> list[tuple[float, float, float, float]]:
-    """The boxes :func:`paint` draws the figure in, strokes included: the part,
-    and -- when lensed -- the whole glyph. None of them reaches :data:`PLATE_BOX`."""
+def _drawn_size(figure: Figure, scale: float) -> tuple[float, float]:
+    """The width and height ``figure`` covers on the sheet at ``scale``, upright."""
     x0, y0, x1, y1 = figure.bounds()
-    w, h = (x1 - x0) * scale, (y1 - y0) * scale
+    return (x1 - x0) * scale, (y1 - y0) * scale
+
+
+def figure_boxes(
+    figure: Figure, scale: float, stroke: float = MIN_STROKE, angle: float = 0.0
+) -> list[tuple[float, float, float, float]]:
+    """The boxes :func:`paint` draws the figure in, strokes included: the part
+    (turned ``angle``), and -- when lensed -- the whole glyph. None of them reaches
+    :data:`PLATE_BOX`."""
+    upright = _drawn_size(figure, scale)
+    w, h = product_look.turned(*upright, angle)
     half = stroke / 2
-    mag = magnifier(w, h)
+    mag = magnifier(*upright, angle)
     centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2) if mag is None else mag.part
     dx, dy = w / 2 + half, h / 2 + half
     boxes = [(centre[0] - dx, centre[1] - dy, centre[0] + dx, centre[1] + dy)]

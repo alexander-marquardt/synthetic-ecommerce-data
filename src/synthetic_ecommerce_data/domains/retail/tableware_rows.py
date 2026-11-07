@@ -18,6 +18,7 @@ a 27 cm dinner plate into a side plate.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_tableware,  # noqa: F401 -- registers plate, bowl, cutlery_piece, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Contents, Row
@@ -59,6 +60,13 @@ def _packs(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
     return tuple(("Single" if n == 1 else f"{n} pack", p) for n, p in pairs)
 
 
+def _sets(two: float, four: float, eight: float) -> tuple[tuple[str, float], ...]:
+    """A plate, bowl or glass set's packs: a 2, 4 and 8 pack at these prices, as the cup set
+    (``class_rows.CUPS`` ``DRKSET``) is sold, so each brand's set in the kitchen and dining aisle
+    is one product of pack x color SKUs, each pack drawn with that many items (#851, gen#728)."""
+    return _packs((2, two), (4, four), (8, eight))
+
+
 def _tw(code, title, brand, leaf, ptype, shape, desc, colors, attrs, sizes=(), params=(),
         size_key="pack_size", unit=None, price=None, axis_name="Pack size") -> Row:  # fmt: skip
     """A tableware row: its axis values are SKUs and product-level entries alike."""
@@ -94,36 +102,37 @@ PLATES = (
         "so no two plates match exactly. Dishwasher and microwave safe.",
         (cw("Sage", "#9bb08f"), cw("Teal", "#1c7c7d"), cw("Ochre", "#c9873a")),
         (*_plate("Dinner", 27, "Stoneware", "Reactive Glaze"), MICROWAVE),
-        _packs((1, 9.0), (4, 32.0), (6, 45.0)), _pp("dinner", 27, "Reactive Glaze")),
+        _sets(17.0, 32.0, 60.0), _pp("dinner", 27, "Reactive Glaze")),
     _tw("PLTPOR", "White Porcelain Side Plate", "Hearth & Table", "Plates", "Plate", "plate",
         "A 20 cm side plate with a gently rolled rim, for toast, cake or a starter. Dishwasher "
         "and microwave safe.",
         (cw("White", "#f4f1ea", "solid", "#b9b4a6"),),
         (*_plate("Side", 20, "Porcelain", "Gloss"), MICROWAVE),
-        _packs((1, 4.0), (4, 14.0), (6, 19.0)), _pp("side", 20, "Gloss")),
+        _sets(8.0, 14.0, 26.0), _pp("side", 20, "Gloss")),
     _tw("PLTMEL", "Striped Melamine Side Plate", "Lanternby", "Plates", "Plate", "plate",
         "A 20 cm side plate printed with a bold stripe, light and hard to break, for picnics "
         "and the garden. Dishwasher safe.",
         (cw("Blue Stripe", "#ffffff", "stripe", "#3f6fb5"),
          cw("Red Stripe", "#ffffff", "stripe", "#c8312e")),
         (*_plate("Side", 20, "Melamine", "Gloss"), _a("pattern", "Pattern", "Stripe")),
-        _packs((4, 12.0), (6, 16.0)), _pp("side", 20, "Gloss")),
+        _sets(7.0, 12.0, 22.0), _pp("side", 20, "Gloss")),
     _tw("PLTPAS", "Speckled Stoneware Pasta Plate", "Hearth & Table", "Plates", "Plate", "plate",
         "A 23 cm pasta plate with a deep well and a wide rim, in a speckled matte glaze. "
         "Dishwasher and microwave safe.",
         (cw("Cream", "#d8cdb8", "solid", "#6b5b45"), cw("Grey", "#9a9a9a")),
         (*_plate("Pasta", 23, "Stoneware", "Matte"), MICROWAVE),
-        _packs((1, 8.0), (4, 28.0)), _pp("pasta", 23, "Matte")),
+        _sets(15.0, 28.0, 52.0), _pp("pasta", 23, "Matte")),
     _tw("PLTBON", "Bone China Rim Band Dinner Plate", "Lanternby", "Plates", "Plate", "plate",
         "A fine 27 cm dinner plate with a hand-painted rim band, light enough to stack high. "
         "Dishwasher and microwave safe.",
-        (cw("White", "#f7f5ef", "solid", "#26365c"),),
+        (cw("White", "#f7f5ef", "solid", dark_blues.NAVY),),
         (*_plate("Dinner", 27, "Bone China", "Rim Band"), MICROWAVE),
-        _packs((1, 12.0), (4, 42.0), (6, 60.0)), _pp("dinner", 27, "Rim Band")),
+        _sets(23.0, 42.0, 78.0), _pp("dinner", 27, "Rim Band")),
     _tw("PLTPLA", "Enamel Serving Platter", "Calderby & Lune", "Plates", "Plate", "plate",
         "An oval 36 cm platter with a rolled rim band, for a roast, a salad or a sharing board. "
         "Dishwasher safe.",
-        (cw("White", "#f7f5ef", "solid", "#26365c"), cw("Cream", "#efe8d8", "solid", "#2a2a2e")),
+        (cw("White", "#f7f5ef", "solid", dark_blues.NAVY),
+         cw("Cream", "#efe8d8", "solid", "#2a2a2e")),
         _plate("Serving Platter", 36, "Enamel", "Rim Band"), price=24.0,
         params=_pp("serving platter", 36, "Rim Band")),
 )  # fmt: skip
@@ -142,21 +151,21 @@ BOWLS = (
     _tw("BWLCER", "Stoneware Cereal Bowl", "Hearth & Table", "Bowls", "Bowl", "bowl",
         "A 16 cm bowl that holds 600 ml, deep enough for cereal, porridge or a noodle soup. "
         "Dishwasher and microwave safe.",
-        (cw("Sage", "#9bb08f"), cw("Navy", "#26365c"), cw("Cream", "#efe8d8")),
+        (cw("Sage", "#9bb08f"), cw("Navy", dark_blues.NAVY), cw("Cream", "#efe8d8")),
         (*_bowl("Cereal", 16, 600, "Stoneware"), MICROWAVE),
-        _packs((1, 6.0), (4, 20.0)), (("kind", "cereal"),)),
+        _sets(11.0, 20.0, 36.0), (("kind", "cereal"),)),
     _tw("BWLPAS", "Porcelain Pasta Bowl", "Lanternby", "Bowls", "Bowl", "bowl",
         "A wide, shallow 22 cm bowl that holds 900 ml, for pasta, risotto or a salad. "
         "Dishwasher and microwave safe.",
         (cw("White", "#f4f1ea", "solid", "#b9b4a6"), cw("Grey", "#9a9a9a")),
         (*_bowl("Pasta", 22, 900, "Porcelain"), MICROWAVE),
-        _packs((1, 7.0), (4, 24.0), (6, 34.0)), (("kind", "pasta"),)),
+        _sets(13.0, 24.0, 44.0), (("kind", "pasta"),)),
     _tw("BWLSOU", "Reactive Glaze Soup Bowl", "Calderby & Lune", "Bowls", "Bowl", "bowl",
         "A rounded 15 cm soup bowl that holds 500 ml, its glaze pooling darker inside. "
         "Dishwasher and microwave safe.",
         (cw("Teal", "#1c7c7d"), cw("Rust", "#a4502a")),
         (*_bowl("Soup", 15, 500, "Stoneware"), _a("finish", "Finish", "Reactive Glaze"), MICROWAVE),
-        _packs((1, 8.0), (4, 28.0)), (("kind", "soup"),)),
+        _sets(15.0, 28.0, 52.0), (("kind", "soup"),)),
     _tw("BWLSAL", "Large Bamboo Salad Bowl", "Lanternby", "Bowls", "Bowl", "bowl",
         "A large 30 cm salad bowl that holds 3000 ml, turned from bamboo and finished with a "
         "food-safe oil. Hand wash.",
@@ -310,31 +319,31 @@ GLASSES = (
     _tw("GLSWIN", "Crystal Wine Glasses", "Lanternby", *_GLASSWARE,
         "Thin-rimmed wine glasses that hold 450 ml, with a tall stem and a tulip bowl. "
         "Dishwasher safe.",
-        (CLEAR,), _glass("Wine", 450, "Crystal"), _packs((2, 24.0), (4, 40.0), (6, 55.0)),
+        (CLEAR,), _glass("Wine", 450, "Crystal"), _sets(24.0, 40.0, 72.0),
         (("kind", "wine"),)),
     _tw("GLSFLT", "Champagne Flutes", "Hearth & Table", *_GLASSWARE,
         "Tall flutes that hold 200 ml and keep the bubbles longer. Dishwasher safe.",
         (CLEAR, cw("Gold", "#f2e29b")), _glass("Champagne Flute", 200, "Glass"),
-        _packs((4, 16.0), (6, 22.0)), (("kind", "champagne flute"),)),
+        _sets(9.0, 16.0, 30.0), (("kind", "champagne flute"),)),
     _tw("GLSHIB", "Ribbed Highball Glasses", "Calderby & Lune", *_GLASSWARE,
         "Tall ribbed highball glasses that hold 400 ml, for long drinks and juice. "
         "Dishwasher safe.",
         (CLEAR, cw("Smoke", "#9a9a9a"), cw("Amber", "#d9a05b")), _glass("Highball", 400, "Glass"),
-        _packs((4, 18.0), (6, 25.0)), (("kind", "highball"), ("ribbed", "1"))),
+        _sets(10.0, 18.0, 34.0), (("kind", "highball"), ("ribbed", "1"))),
     _tw("GLSTUM", "Plastic Outdoor Tumblers", "Hearth & Table", *_GLASSWARE,
         "Shatterproof tumblers that hold 300 ml, for the garden, the pool and picnics. "
         "Dishwasher safe.",
         (cw("Blue", "#3f6fb5"), cw("Pink", "#f3c6cf"), cw("Green", "#6f8f4a")),
-        _glass("Tumbler", 300, "Plastic"), _packs((4, 8.0), (6, 11.0)), (("kind", "tumbler"),)),
+        _glass("Tumbler", 300, "Plastic"), _sets(5.0, 8.0, 15.0), (("kind", "tumbler"),)),
     _tw("GLSGIN", "Gin Balloon Glasses", "Lanternby", *_GLASSWARE,
         "Wide balloon glasses on a stem that hold 650 ml, room for ice and a garnish. "
         "Dishwasher safe.",
         (CLEAR, cw("Pink", "#f3c6cf")), _glass("Gin", 650, "Glass"),
-        _packs((2, 14.0), (4, 24.0)), (("kind", "gin"),)),
+        _sets(14.0, 24.0, 44.0), (("kind", "gin"),)),
     _tw("GLSBER", "Pint Beer Glasses", "Calderby & Lune", *_GLASSWARE,
         "Pint glasses that hold 568 ml, with a bulge near the rim for a sure grip. "
         "Dishwasher safe.",
-        (CLEAR,), _glass("Beer", 568, "Glass"), _packs((2, 9.0), (4, 16.0)), (("kind", "beer"),)),
+        (CLEAR,), _glass("Beer", 568, "Glass"), _sets(9.0, 16.0, 30.0), (("kind", "beer"),)),
 )  # fmt: skip
 
 # --------------------------------------------------------------------------
@@ -384,7 +393,7 @@ UTENSILS = (
         (cw("Orange", "#e07a1f"), cw("Green", "#6f8f4a")), "Peeler", "Stainless Steel", 3.5),
     _ut("UTNGRT", "Four Sided Box Grater", "Calderby & Lune",
         "A box grater with coarse, fine, slicing and zesting faces and a non-slip base.",
-        (cw("Navy", "#26365c"), BLACK), "Grater", "Stainless Steel", 10.0),
+        (cw("Navy", dark_blues.NAVY), BLACK), "Grater", "Stainless Steel", 10.0),
     _ut("UTNSET", _SET5.title("Silicone Utensil Set with Holder"), "Hearth & Table",
         _SET5.text("Heat resistant heads on sturdy handles: the utensil set stands in a "
                    "matching pot."),

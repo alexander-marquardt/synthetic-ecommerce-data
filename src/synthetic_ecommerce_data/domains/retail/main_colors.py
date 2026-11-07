@@ -20,6 +20,7 @@ import copy
 import re
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     decoy_apparel,
     decoy_product_words,
     decoy_rows,
@@ -84,10 +85,10 @@ PLAIN_STYLES = (
      None, ("Cream", "#f4efe2", "cream")),
     ("FTW-KWELPD", "FTW-KWELPL", "Kids' Wellies",
      "Bright rubber wellies with easy pull-on handles and a grippy sole.",
-     None, ("Navy", "#26365c", "navy")),
+     None, ("Navy", dark_blues.NAVY, "navy")),
     ("PLT-KIDBMB", "PLT-KIDBPL", "Boys' Plain Bomber Jacket (2-8 Yrs)",
      "A plain bomber jacket for boys with ribbed cuffs.",
-     None, ("Navy", "#26365c", "navy")),
+     None, ("Navy", dark_blues.NAVY, "navy")),
 )
 
 

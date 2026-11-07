@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import pinned
 from shared_builds import (
     KIT,
     KitSku,
@@ -159,6 +160,7 @@ TWICE_SCORED = (
 )
 
 
+@pytest.mark.default_seed_band
 def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_rows):
     expected = (
         3 * len(price.CENSUS)
@@ -170,7 +172,7 @@ def test_every_price_row_is_within_its_band_or_pinned_at_the_default_size(price_
         + len(price_report.ENDING_CLASSES)
         + 2 * len(price.DEEPENED_CENSUS)
     )
-    assert len(price_rows) == expected == 78
+    assert len(price_rows) == expected == 88
     out = [row for row in price_rows if not row.within and row.name not in price.PINNED_SHORTFALLS]
     assert not out, "\n".join(f"{row.name}: {row.achieved:.4f} outside {row.band}" for row in out)
 
@@ -224,12 +226,14 @@ PLANTED_ROW = SPREAD_ROW.format("bearing_radial_ball")
 
 def _plant_pin(monkeypatch, row, side: str, build: int) -> float:
     """Pin ``row`` on ``side`` of its band with a record 50% past the band edge
-    at both builds (no committed pin exists to read one from); returns the
-    record for ``build``."""
-    record = row.band[0] * 0.5 if side == "below" else row.band[1] * 1.5
-    monkeypatch.setitem(price.PINNED_FIGURES, row.name, (record, record))
+    at the default build and 40% past it at 100K (no committed pin exists to
+    read one from; two figures, so a pin that reads the wrong build's is
+    caught); returns the record for ``build``."""
+    records = (0.5, 0.6) if side == "below" else (1.5, 1.4)
+    edge = row.band[0] if side == "below" else row.band[1]
+    monkeypatch.setitem(price.PINNED_FIGURES, row.name, tuple(edge * r for r in records))
     monkeypatch.setitem(price.PINNED_SHORTFALLS, row.name, f"{side} band: planted")
-    return record
+    return edge * records[build]
 
 
 @pytest.mark.parametrize("side", ["below", "above"])
@@ -619,6 +623,7 @@ def _held_to_band(template: str, type_keys) -> list[str]:
     return [template.format(t) for t in type_keys if template.format(t) not in exempt]
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize(("factor", "check"), [(2.0, _above), (0.5, _below)])
 def test_scaling_every_price_breaks_every_p50_row(scored, factor, check):
     """The p50 band is x0.8 to x1.25 of the census: a catalog priced twice or
@@ -628,6 +633,7 @@ def test_scaling_every_price_breaks_every_p50_row(scored, factor, check):
     check(_newly_out(scored, prices), _held_to_band("price p50 (USD): {}", price.CENSUS))
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize(("power", "check"), [(2.0, _above), (0.2, _below)])
 def test_widening_or_narrowing_each_types_spread_breaks_its_spread_row(scored, power, check):
     """Each type's prices move about its own median, in logs: squared, the
@@ -790,6 +796,19 @@ def test_a_spec_read_off_an_attribute_the_type_never_publishes_is_caught(catalog
     """Plant: the wheel's spec read "Material", as it did before #66."""
     monkeypatch.setattr(price, "MATERIAL_ATTRIBUTES", {})
     assert price_report.types_without_material(price_report.collect(catalog)) == {WHEEL}
+
+
+def test_a_spec_whose_published_material_is_empty_is_caught(catalog, monkeypatch):
+    """Plant: the wheel publishes its abrasive with an empty value. A material
+    the record omits leaves the SKU in no spec, so only an empty one reaches a
+    spec, and the guard must not count it as held (#892)."""
+    material_of = price.material_of
+    monkeypatch.setattr(
+        price, "material_of", lambda t, facts: "" if t == WHEEL else material_of(t, facts)
+    )
+    collected = price_report.collect(catalog)
+    assert {spec[2] for spec in collected.specs if spec[0] == WHEEL} == {""}
+    assert price_report.types_without_material(collected) == {WHEEL}
 
 
 #: Each brand-census type's spec attribute beyond its material, as the census
@@ -1015,10 +1034,26 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: declared ``measured=False``: the ball-pein hammer's archived pages are
 #: script shells, and the other hammer kinds (#305) have no census row either.
 #: The price census has no key stock at all, so its model is
-#: hand-set from surveyed listings (#108). Every table type (#101) joins them,
+#: hand-set from surveyed listings (#108). The census has no ER collets or drill
+#: bushings either, so their models are generated (#831). Every table type (#101) joins them,
 #: read from the registry and not listed: its price is a declared ladder
-#: nobody measured. No row scores any of them.
-NOT_MEASURED = frozenset({*hammers.KINDS, *plain_screws.KINDS, "key_stock", *tabletype.tables()})
+#: nobody measured. No row scores any of them. The census has no bushings,
+#: so the bronze sleeve bushing's model is hand-set (#833).
+#: The census has no lag screws either (#829).
+NOT_MEASURED = frozenset(
+    {
+        *hammers.KINDS,
+        *plain_screws.KINDS,
+        "key_stock",
+        "er_collets",
+        "drill_bushings",
+        "roll_pins",
+        "studs_double_end",
+        "lag_screws",
+        "bronze_sleeve_bushings",
+        *tabletype.tables(),
+    }
+)
 
 
 def test_the_rows_score_every_priced_type_but_the_declared_exceptions(scored):
@@ -1158,6 +1193,7 @@ def test_the_kit_p90_p10_is_in_band_on_the_default_build(price_rows):
     assert row.within, (row.achieved, row.band)
 
 
+@pytest.mark.default_seed_band
 def test_the_kit_p90_p10_is_in_band_at_100k(hundred_k_rows):
     row = hundred_k_rows[KIT_SPREAD]
     assert row.within, (row.achieved, row.band)
@@ -1189,12 +1225,16 @@ def _build_kits(request, build: str) -> list[KitSku]:
     )
 
 
-@pytest.mark.parametrize(("build", "count"), [("default", 59), ("100K", 742)])
-def test_each_kit_price_tracks_its_contents_at_both_builds(request, build, count):
+#: How many kit SKUs each build holds, as the files the one command writes count them (#50).
+KIT_COUNTS = {"default": pinned.sku_count, "100K": pinned.hundred_k_skus}
+
+
+@pytest.mark.parametrize("build", KIT_COUNTS)
+def test_each_kit_price_tracks_its_contents_at_both_builds(request, build):
     """Every kit, at either size, costs its contents' price times its
     material and tier, within its SKU noise and ending."""
     kits = _build_kits(request, build)
-    assert len(kits) == count
+    assert len(kits) == KIT_COUNTS[build]("kit_assortment")
     ratios = []
     for shown, facts, brand in kits:
         contents = price.kit_contents(facts)
@@ -1295,6 +1335,7 @@ def test_the_100k_build_scores_every_row_the_default_build_scores(hundred_k_rows
     assert sorted(hundred_k_rows) == ROW_NAMES
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize("name", ROW_NAMES)
 def test_each_price_row_is_within_its_band_or_its_pin_holds_at_100k(hundred_k_rows, name):
     """The band is the census's, whatever the catalog's size; a pin may not

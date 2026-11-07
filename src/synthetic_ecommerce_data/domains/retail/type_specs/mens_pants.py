@@ -13,7 +13,7 @@ are templates only (``derivable`` False). The text-match decoys come from the ap
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import details
+from synthetic_ecommerce_data.domains.retail import dark_blues, details
 from synthetic_ecommerce_data.domains.retail.kit import Fill, _line, _path, register
 from synthetic_ecommerce_data.domains.retail.kit_garments import _dark
 from synthetic_ecommerce_data.domains.retail.kit_underwear import _band, _g, _hi, _shadow
@@ -93,7 +93,7 @@ _HB, _WF, _TW, _QS, _HP, _LM = (
     "Harbour & Pine", "Wrenfield", "Thistle & Wren", "Quillon Sleep", "Hollinwray Knits", "Larkmoor",
 )  # fmt: skip
 BLACK, WHITE = cw("Black", "#2f2f35", "solid", "#8f989f"), cw("White", "#f4f1ea", "solid", "#b9b4a6")
-NAVY, GREY = cw("Navy", "#2c3a5e", "solid", "#d8dce8"), cw("Grey", "#9a9ca0", "solid", "#55575c")
+NAVY, GREY = cw("Navy", dark_blues.NAVY_LIGHT, "solid", "#d8dce8"), cw("Grey", "#9a9ca0", "solid", "#55575c")
 CHARCOAL = cw("Charcoal", "#4a4d52", "solid", "#c8cbd0")
 BLUE, RED = cw("Blue", "#2f6db5", "solid", "#e4eefa"), cw("Red", "#b3263a", "solid", "#f4d8dc")
 GREEN = cw("Green", "#3c6e4f", "solid", "#d8e6dc")

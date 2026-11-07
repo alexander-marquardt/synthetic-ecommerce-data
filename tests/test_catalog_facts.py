@@ -675,7 +675,9 @@ def test_a_brand_names_a_secondary_dimension_on_every_title_or_none(monkeypatch)
 
     def spy(self, draft, child):
         segments = original(self, draft, child)
-        if segments:
+        # A published ``also`` is the title's second dimension whatever its style (#850), so
+        # such a record says nothing about the pair's style.
+        if segments and not any(s.attribute == getattr(child.also, "name", None) for s in segments):
             primary = child.primary.name
             could = any(
                 a.name in self._published and a.name != primary for a in child.secondary.values()

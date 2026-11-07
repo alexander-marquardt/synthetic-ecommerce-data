@@ -106,6 +106,10 @@ The five newer types (`nut_hex`, `bearing_radial_ball`, `wheel_depressed_center`
 `newer=True`, and its builder function lives in `domains/industrial/newtypes.py`. A
 newer type's `share` is its fraction of the lines (`config.new_type_share`, derived
 from the specs), not a weight, and its line count is `round(lines * share)`.
+A modelled type drafts exactly `max(1, round(lines * share))` products, and a newer
+type `round(lines * share)`, before grouping, must-stock lines and packs add lines of their
+own. `test_a_type_modules_share_sizes_its_type` holds that for each type, so a type's size
+changes only through an edit to its `share` (#10).
 
 ## Where a modelled type's builder lives
 
@@ -230,6 +234,9 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
      that share the key dimension (key stock's square bar and the rectangular
      bar of its width), the builder sets `ChildDraft.also` to the second
      dimension on the SKU that needs it, and that SKU's title names both.
+     Both is still nothing of its own when each dimension is a sibling's (a
+     1/4" x 3/16" bar beside the 3/16" and 1/4" squares): the builder leaves
+     such a SKU out of the line, as `key_stock.line_sections` does (#50).
    * `title_attributes`: only for a type whose title names another attribute
      than its price key; the title test then reads it in place of
      `key_attributes`. An O-ring is priced on its cross-section (`Width`) and
@@ -339,9 +346,9 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 * **Fields.** `columns` (the published name of each chart column, the size first) and `rows` (one real size per row, rising); `variants` (material, finish, price factor, cheapest first at 1.0); `packs`; `base_price`, `size_slope`, `pack_slope`; `draw` and `extent`; `share`; `unit` (`"mm"`, or `"in"` for an inch chart). `spec(TABLE)` refuses a table that breaks an order.
 * **Facts.** Publish only what the chart gives, and cite the chart and the day it was read in the module docstring. Say so if the standard itself was not read. A column the chart lacks (a cotter pin's length) is not published.
 * **A chart that names no standard.** Leave `standard` empty and state `source`, the supplier's chart: the provenance names it, and a record claims no standard (`Standards` is not published). `spec(TABLE)` refuses a table that states both or neither. The nails do this (gen#751, below).
-* **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate.
+* **A column another type publishes.** Use that type's name and spelling (a sprocket's `Pitch` is the roller chain's). Every column is a length of this type only: the unit-mixing defect reads a type's own lengths, so a name that is a length here and not there moves nothing there. `others_moved_from_the_golden` in `tests/type_gates.py` is the gate. The defect restates the published figure in the other system, so a builder whose spelling rounds a table value (a nut's 7/16" height published as `0.438"`) records the value in `ChildDraft.exact`; restated from the rounded figure, it reads `11.13mm` where the table's 7/16" is 11.11 mm (#50).
 * **Attributes the table cannot state.** A `Variant` is a material. For a style with its own columns (a turnbuckle's end fittings, a shackle's body), wrap the `make` of `spec(TABLE)` with `dataclasses.replace` and add the attributes there, as `turnbuckles.py` does. The type is still a table type: `tabletype.tables()` records it by its key, so nothing else is written. A measurement two types publish under one name carries one unit in both (`Load Capacity` is in lbf): `tests/test_nested_entry_contract.py` is the gate.
-* **A quantity drawn from a range.** Every quantity a type publishes is `tabled` unless its `AttrSpec` says `source="drawn"` (`vocab.py`): the facet rule reads that word, not the dispersion ratio, to offer a list or a range (gen#95). The one tabled quantity offered as a range is `Units per Pack`, a threshold (`RANGE_QUANTITIES`, [package quantity](package-quantity.md)). A table type's columns are tabled. Declare `drawn` only for a value the builder draws from an interval (an end mill's Neck Length is the one); `test_every_declaration_agrees_with_the_data_it_describes` reds if the data disagrees.
+* **A quantity drawn from a range.** Every quantity a type publishes is `tabled` unless its `AttrSpec` says `source="drawn"` (`vocab.py`): the facet rule reads that word, not the dispersion ratio, to offer a list or a range (gen#95). The one tabled quantity offered as a range is `Units per Pack`, a threshold (`RANGE_QUANTITIES`, [package quantity](package-quantity.md)). A table type's columns are tabled. Declare `drawn` only for a value the builder draws from an interval (none does since an end mill's Neck Length became a standard reach, #859); `test_every_declaration_agrees_with_the_data_it_describes` reds if the data disagrees.
 * **Price.** A declared estimate, not a measurement: `base_price` is the first row in the first material and pack, a larger size costs more, a later material costs its factor, and a larger pack costs more in total and less a piece. There is no census row, no borrowed model, no noise and no fit.
 * **Drawing.** `draw(values)` gets each column's length in inches from the SKU's own record and returns a `Figure` scaled from them. It carries no text; a proportion no column gives is a named constant in the module.
 * **Share.** Two rules, both at the default build, where a type's product count is its `lines_by_type` and its SKU count its `skus_by_type` in `golden-catalog/stats.json`:
@@ -354,7 +361,7 @@ Use a table type (`domains/industrial/tabletype.py`, #101) when a type does not 
 
 * `src/synthetic_ecommerce_data/domains/industrial/product_types/<family>/<key>.py` (new)
 * `tests/test_type_<key>.py` (new)
-* `tests/data/golden_slices/<key>.jsonl` (new, written by the test module)
+* `tests/data/golden_slices/<key>.jsonl` (new, written by the test module; `scripts/measure_pins.py` rewrites it on every regeneration)
 * `src/synthetic_ecommerce_data/domains/industrial/data/breadth_categories/<key>.yaml` (deleted, when the type had a breadth row)
 
 Generated files. Rebuild them with `uv run ecom-generate build --out golden-catalog`, and for the measured builds the command beside the last item below; `scripts/merge_pr.sh` rebuilds them again at merge, so a conflict in one is never resolved by hand. The retail totals are not here: nothing under `golden-retail/` is committed (gen#536), and a test measures them with `retail_figures.figures()`:
@@ -369,9 +376,9 @@ Shared files, edited by hand:
 
 The whole catalog's measured figures are not edited by hand: the facet rule's band and attribute counts (once `MEASURED_DISPERSION` in `prism/derive.py` and two counts in `tests/test_facet_control_rule.py`), and the type, brand and drawing counts the docs used to quote. The build writes them under `figures` in `golden-catalog/stats.json`, the tests read them there, and `tests/test_measured_figures.py` refuses a doc that restates one (#103). A conflict in them is resolved by the rebuild.
 
-The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50). `--golden DIR --seed N --out FILE` measures another catalog into another file; `tests/test_golden_pins_reseed_50.py` runs it on a build with another seed, where every pin moves, and on one with a rule's SKUs taken out.
+The SKUs and counts the tests pin on the committed catalog (the handle-less lens SKUs and floor, the title-cap counts, the mutation bed's golden anchor) are rule-picked into `tests/data/golden_pins.json` by `uv run python scripts/measure_pins.py`, run after the rebuild; `tests/test_golden_pins_50.py` refuses a typed pin (#50). The same run rewrites every golden slice, and measures the `figures` a type test compares exactly on one build: a test reads the default build's SKU and product counts from `golden-catalog/stats.json` (`pinned.sku_count(KEY)`), and anything else it measured on one build (a count at `LARGE_LINES`, the sizes a defect rewrote) from the fixture with `pinned.figure(__file__, name)`, after its module gains a `measure_pins(config)` and a row in `pinned.MODULES` (`tests/pinned.py`). `tests/test_golden_pins_restated_50.py` refuses such a figure typed. A census band stays a band: it is never a figure. `--golden DIR --seed N --out FILE` measures another catalog into another file; `tests/test_golden_pins_reseed_50.py` runs it on a build with another seed, where every pin moves, and on one with a rule's SKUs taken out.
 
-A pin still typed by hand shows on another seed: `uv run python scripts/reseed_proof.py` moves the default seed in a scratch worktree of HEAD, runs the rebuild `scripts/merge_pr.sh` runs, then the tests that read what it rewrote (`--all`: the whole suite), and prints each red test or `green`. It takes most of an hour (#50).
+A pin still typed by hand shows on another seed: `uv run python scripts/reseed_proof.py` moves the default seed in a scratch worktree of HEAD, runs the rebuild `scripts/merge_pr.sh` runs, then the tests that read what it rewrote (`--all`: the whole suite), and prints each red test or `green`. It takes most of an hour (#50). A test that holds a census band or floor on one draw is judged at the default seed only and left out of it: `price.FITTED` is fitted to that seed's one draw, and the default build has too few product lines per type to land in band on every seed. Such a test carries `@pytest.mark.default_seed_band`, which the proof deselects; every other test still has to pass on the moved seed. `DEFAULT_SEED_BANDS` in `tests/test_reseed_proof_50.py` lists the marked tests, so a new mark is a reviewed change there and never a way to quiet a moved seed.
 
 Nothing else is edited. A table type is found from the registry (`tabletype.tables()`), so it is not added to `NOT_MEASURED` in `tests/test_price.py` and has no row in `DISTINCT_SPEC_FLOOR` in `tests/test_catalog_brands_voice.py`. The `table:` rows in `scripts/mutation_check.py` cover the mechanism; a type adds none.
 
@@ -1021,13 +1028,25 @@ in effect until #442: xdist read the markers before the conftest hook added
 them, so a module's tests spread over the workers and its fixtures were built
 once per worker; the hook is now `tryfirst`, and
 `tests/test_xdist_group_honoured_442.py` runs a real `-n 2 --dist loadgroup`
-pytest to check it. The whole-suite figures above (637 s and 729 s on 12
-workers, up to 4.3 GB a worker, 4,500 MB a worker in the cap) were measured
-before it and are not re-measured: the shared host refuses a whole-suite run
-from an agent. On 14 modules with module-scoped fixtures (654 tests, `-n 12`,
-one run each, load average about 18) the wall time was 328 s before and 331 s
-after, the largest single process 2.0 GB before and 2.7 GB after, and after the
-change every one of the 14 modules ran on one worker. Run the merge chain on the agent VM, which has
+pytest to check it. The local figures (637 s and 729 s on 12 workers, up to
+4.3 GB a worker, 4,500 MB a worker in the cap) were measured before it. On 14
+modules with module-scoped fixtures (654 tests, `-n 12`, one run each, load
+average about 18) the wall time was 328 s before and 331 s after, the largest
+single process 2.0 GB before and 2.7 GB after, and after the change every one
+of the 14 modules ran on one worker. The whole suite was re-measured on CI,
+whose shards each run `-n 2 --dist loadgroup`. Main's push run on the commit
+before #580 (run 39693451146) against the one on #580's merge (run
+39693472872), which differ only in the grouping: the shards' pytest time summed
+6,243 s before and 5,574 s after (13,778 and 13,780 tests), and the longest
+shard took 624 s before and 601 s after, one run each on shared runners. Peak
+memory per worker, grouped, from main's push run 41951182159 (af803cf2, 17
+shards, 34 workers, 17,663 tests): the largest was 2,704 MB, in
+`tests/test_plain_screws_750.py`, and 12 modules went over 1,500 MB, all below
+the 4,500 MB budget. Read that from the `module peak memory:` lines: the
+`peak worker memory:` line shows only the last module's peak (#869). A CI
+worker runs about a 34th of the suite and a local worker a 12th, so a local
+worker can hold more; the 12-worker run has not been repeated with the grouping
+in effect. Run the merge chain on the agent VM, which has
 the cores and the memory, so it does not compete with a laptop's other work.
 
 **A 100K catalog is built once, not once per worker (#140).** A 100K build is
@@ -1041,7 +1060,9 @@ an old file. A test that needs a 100K build adds a function there; it does not
 name `LARGE_BUILD_LINES` itself (`tests/test_shared_builds_140.py` fails a module
 that does, and fails a worker that holds 500 MB or more for the price fixture).
 `SHARED_BUILDS_DIR=<dir>` moves the files; deleting the directory only costs one
-rebuild.
+rebuild. In CI the files are made once per run, before the shards (#790): a new
+build that a test reads belongs in `FROM_ONE_BUILD` or `ON_THEIR_OWN` there, so
+the `ceiling-catalogue` job makes it too (docs/ci-sharding.md).
 
 That re-read narrows the race with another merge but cannot close it: GitHub
 has no compare-and-swap on the base. The `main-merged-tree` CI job runs the

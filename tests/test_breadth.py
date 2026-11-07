@@ -307,9 +307,13 @@ def test_finish_never_plates_a_stainless_material():
     plating = breadth._PLATING_FINISHES
     violations: list[tuple[str, str, str]] = []
     exercised_a_plating_redraw = False
+    # Only a breadth row makes a ``fast_and_cheap`` line, and a type's lines do not depend on
+    # which other types are built (``generate``'s ``types``), so each seed builds the breadth
+    # types alone: the same lines as the whole catalog, in 0.1 s instead of 5 s (#790).
+    breadth_types = [row.key for row in breadth.rows()]
     for seed in range(30):
         config = GeneratorConfig(lines=1, new_type_share={}, seed=seed)
-        built = generate(config)
+        built = generate(config, types=breadth_types)
         for line in built.lines:
             if line.spec_quality != "fast_and_cheap":
                 continue
@@ -386,9 +390,9 @@ def test_a_breadth_row_never_opens_a_sibling_node_for_a_kind_a_node_already_name
     assert _rows_opening_a_sibling_of_a_named_kind() == {}
 
 
-#: The rows #675 moved under the node that already names their kind.
+#: The rows #675 moved under the node that already names their kind. The combination
+#: wrenches it moved are a modelled type now (#836): their gate file holds the node.
 _MOVED_UNDER_THE_NAMING_NODE = {
-    "combination_wrenches": ("Hand Tools", "Wrenches & Keys", "Combination Wrenches"),
     "spanner_wrenches": ("Hand Tools", "Wrenches & Keys", "Spanner Wrenches"),
     "fastener_extractors": ("Hand Tools", "Pullers & Extractors", "Fastener Extractors"),
 }
@@ -401,7 +405,7 @@ def test_a_row_sits_under_the_node_that_already_names_its_kind(key):
 
 
 def test_lag_screws_sit_with_the_other_screws():
-    by_key = {row.key: row for row in breadth.rows()}
-    assert by_key["lag_screws"].category == ("Fasteners", "Screws", "Lag Screws")
+    # A modelled type since #829: its leaf is read from the taxonomy, not a breadth row.
+    assert taxonomy.LEAVES["lag_screws"] == (("Fasteners", "Screws", "Lag Screws"),)
     nodes = {path[:2] for paths in taxonomy.LEAVES.values() for path in paths}
     assert ("Fasteners", "Set Screws") in nodes, "Set Screws stays a sibling node (#658)"

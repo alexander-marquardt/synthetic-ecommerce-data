@@ -1,6 +1,7 @@
 """Bolts and socket screws publish the pack their shown price is for (#65).
 
-The socket screw's pack is ranked by size; the bolt's is its page's (#86,
+So does the carriage bolt (#829). The socket screw's and the carriage bolt's
+packs are ranked by size; the bolt's is its page's (#86,
 ``tests/test_bolt_page_pack.py``).
 """
 
@@ -13,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import price_report
@@ -30,21 +32,19 @@ PACKED = {
     "screw_button_head": "screw_socket_head",
     "screw_flat_head": "screw_socket_head",
     "screw_low_head": "screw_socket_head",
+    "carriage_bolts": "carriage_bolts",
 }
 
 
 #: The types whose pack falls as the size grows (:func:`price.pack_quantity`).
-RANKED = ["screw_socket_head"]
+RANKED = ["screw_socket_head", "carriage_bolts"]
 
 
-#: How many SKUs of each packed type the default build publishes a pack on.
-PUBLISHED = {
-    "bolt_hex": 516,
-    "screw_socket_head": 708,
-    "screw_button_head": 315,
-    "screw_flat_head": 365,
-    "screw_low_head": 241,
-}
+def _pack_row(census: dict, type_key: str) -> dict:
+    """A type's census pack figures: a deep type's, or a deepened breadth
+    category's (the carriage bolt, #829)."""
+    section = "deep_types" if type_key in census["deep_types"] else "breadth_categories"
+    return census[section][type_key]["pack_vs_each"]
 
 
 @pytest.fixture(scope="module")
@@ -54,9 +54,13 @@ def census() -> dict:
 
 @pytest.fixture(scope="module")
 def packs() -> dict[str, list[tuple[float, float | None]]]:
+    return _packs(GeneratorConfig())
+
+
+def _packs(config: GeneratorConfig) -> dict[str, list[tuple[float, float | None]]]:
     """Per packed type, every SKU's (key dimension, published pack), read off
-    the default build's published records."""
-    catalog = generate(GeneratorConfig())
+    the published records of the build ``config`` makes."""
+    catalog = generate(config)
     type_of = price_report.collect(catalog).type_of
     out: dict[str, list[tuple[float, float | None]]] = {t: [] for t in PACKED}
     for line, child in catalog.all_skus():
@@ -73,18 +77,18 @@ def packs() -> dict[str, list[tuple[float, float | None]]]:
 
 @pytest.mark.parametrize("type_key", sorted(price.PACK_SLOPES))
 def test_each_pack_slope_is_the_census_figure(census, type_key):
-    pack = census["deep_types"][type_key]["pack_vs_each"]
+    pack = _pack_row(census, type_key)
     assert price.PACK_SLOPES[type_key] == pack["pooled_loglog_slope_price_on_pack_qty"]
 
 
 @pytest.mark.parametrize("type_key", sorted(price.PACK_COUNTS))
 def test_each_pack_count_is_the_census_count(census, type_key):
-    counts = census["deep_types"][type_key]["pack_vs_each"]["pack_quantity_counts"]
+    counts = _pack_row(census, type_key)["pack_quantity_counts"]
     assert price.PACK_COUNTS[type_key] == {int(qty): n for qty, n in counts.items()}
 
 
-def test_the_drawn_packs_are_the_bolts_and_the_socket_screws():
-    assert set(price.PACK_COUNTS) == {"bolt_hex", "screw_socket_head"}
+def test_the_drawn_packs_are_the_bolts_the_socket_screws_and_the_carriage_bolts():
+    assert set(price.PACK_COUNTS) == {"bolt_hex", "screw_socket_head", "carriage_bolts"}
     assert set(PACKED.values()) == set(price.PACK_COUNTS)
 
 
@@ -101,7 +105,8 @@ def test_each_packed_type_prices_its_pack_on_the_census_slope(type_key):
 def test_every_packed_sku_publishes_a_census_pack(packs, type_key):
     census_packs = set(price.PACK_COUNTS[PACKED[type_key]])
     published = [pack for _, pack in packs[type_key]]
-    assert len(published) == PUBLISHED[type_key]
+    # Every SKU of the type publishes one: golden-catalog/stats.json counts them.
+    assert len(published) == pinned.sku_count(type_key)
     assert [p for p in published if p is None or int(p) not in census_packs] == []
 
 
@@ -129,6 +134,7 @@ def test_an_even_spread_over_the_sizes_publishes_the_census_counts(type_key):
         assert abs(drawn[qty] / (sizes * steps) - n / total) <= 1.0 / steps, qty
 
 
+@pytest.mark.default_seed_band
 @pytest.mark.parametrize("type_key,census_median", [("bolt_hex", 25), ("screw_socket_head", 100)])
 def test_the_builds_median_pack_is_the_census_median(packs, type_key, census_median):
     published = [pack for _, pack in packs[type_key] if pack is not None]
@@ -139,13 +145,25 @@ def test_the_builds_median_pack_is_the_census_median(packs, type_key, census_med
 def test_the_builds_socket_screw_pack_falls_as_the_diameter_grows(packs):
     rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
     assert len(rows) == len(packs["screw_socket_head"])
-    third = len(rows) // 3
     # The mean, not the median: a grouped product (#710) is ten or so SKUs of one pack, so
-    # the median of a third lands on whichever pack its runs hold (50 on the flat build,
-    # 100 with the M12x1.75 runs); the mean still falls, from 100 to 71.2 (66.2 flat).
+    # the median of a third lands on whichever pack its runs hold; the mean still falls.
+    small, large = _socket_screw_means(packs)
+    assert small > large
+    assert [small, large] == pinned.figure(__file__, "socket_screw_means")
+
+
+def _socket_screw_means(packs: dict) -> list[float]:
+    """The mean pack of the smallest third of socket screws by diameter, and of the largest."""
+    rows = sorted((key, pack) for key, pack in packs["screw_socket_head"] if pack is not None)
+    third = len(rows) // 3
     small = statistics.mean(pack for _, pack in rows[:third])
     large = statistics.mean(pack for _, pack in rows[-third:])
-    assert (round(small, 1), round(large, 1)) == (100.0, 71.2)
+    return [round(small, 1), round(large, 1)]
+
+
+def measure_pins(config: GeneratorConfig) -> dict:
+    """What this file pins on the build ``config`` makes; ``tests/pinned.py`` reads it (#50)."""
+    return {"socket_screw_means": _socket_screw_means(_packs(config))}
 
 
 def test_the_page_pack_leaves_the_bolt_slopes_cut_by_the_aim():

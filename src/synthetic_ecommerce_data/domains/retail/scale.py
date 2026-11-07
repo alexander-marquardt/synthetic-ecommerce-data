@@ -34,7 +34,8 @@ A derived style copies one template and changes, deterministically from the seed
   is rebuilt from the product noun after "Graphic" or "Print" in the title, with
   no color words. Count and placement are frozen;
 - its **colorways**, a hero color, then a subset of the template's other colors;
-  a style whose title names its color (see below) carries that hero colorway
+  a style its title cannot tell from its template (see below) carries every one
+  of the template's colors (#851), or, in a cleaning or beauty family, its hero
   alone. Its SKUs are the template's own size run times those colors, hero first
   (:func:`variants.product`): no SKU is invented. Each SKU's price is the
   template's times the style's price ratio (see below). A description's
@@ -73,8 +74,12 @@ positional ids within their table.
 **A style, not a rename.** A derived style takes a :func:`signature` (the values of
 the keys its title shows, and its hero color family) that neither its template nor
 any sibling has. When its title-shown values are ones the template or an earlier
-sibling already shows, the hero color alone sets it apart, so its title ends with
-it in the listing convention ("The Elmsett High Rise Straight Jeans, Dark Indigo").
+sibling already shows, its title tells it from them by its brand alone: it is that
+brand's one product of the kind, in all of the template's colors, never a product of
+one color named in its title ("Supper 9 ..., Green" beside the brand's own grouped
+product, #851). A second such style of the same brand is a twin, so the build makes none.
+A cleaning or beauty style keeps the older rule for now: the hero color alone sets it
+apart, so it carries that color only and its title ends with it ("..., Coral").
 Its price is re-drawn: the template's, times :func:`price_factor`
 of the values it changed, times a seeded :data:`JITTER`, inside the leaf's
 :data:`PRICE_BAND`, on a :func:`price_point`, never the template's own. A value
@@ -131,6 +136,7 @@ from synthetic_ecommerce_data.domains.retail import (
     footwear_rows,
     garden_rows,
     grocery,
+    kids_films,
     knit_sleeves,
     knitwear_rows,
     leaf_shapes,
@@ -166,6 +172,7 @@ from synthetic_ecommerce_data.domains.retail.scale_measures import (
     price_factor,
     price_point,
     prices_per_leaf,
+    single_sku_kinds,
 )
 from synthetic_ecommerce_data.domains.retail.scale_text import (
     FROZEN_KEYS,  # noqa: F401 -- read through this module
@@ -411,12 +418,21 @@ def templates(baseline: bool = True) -> list[dict]:
     # The Kids depth rows (gen#310) are left out of the two passes that weigh one style against
     # another, so every other template, and the seeded fillers drawn from them, is as it was.
     kids = source_ids("kids_depth_rows")
-    seeded = [r for r in tpls if r["product_id"] not in kids]
+    # The film merchandise (gen#887) is left out of both passes too: with it in a group, another
+    # style's copied main color or sale price would move.
+    films = kids_films.ids()
+    seeded = [r for r in tpls if r["product_id"] not in kids | films]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
     # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
     # Kids share holds its target, and nothing else moves.
     done += sale_share.apply_all([r for r in tpls if r["product_id"] in kids], ())
+    # A film product takes a main color only in a group no other style completes (none today),
+    # read against the completed styles, and no sale price.
+    own = [r for r in tpls if r["product_id"] in films]
+    if baseline:
+        own = [r for r in main_colors.complete([*done, *own], skip) if r["product_id"] in films]
+    done += own
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 
@@ -746,13 +762,15 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
 def _colors(tpl: dict, family: str | None, *key: object) -> list[str]:
     """A hero color of ``family``, then a seeded subset of the rest in template order. Each
     choice is a hash of ``key`` and the color (:func:`stable_ids.pick`), so a template that gains
-    a colorway changes a style's colors only where the new one wins."""
+    a colorway changes a style's colors only where the new one wins. The subset holds one color
+    at least when the template has two: a style of one color beside its brand's others read as
+    a product split by color (#851)."""
     swatches = tpl.get("color_options", ())
     if not swatches:
         return []
     hero = pick([c["color"] for c in swatches if _family(c) == family], *key, "hero")
     rest = [c["color"] for c in swatches if c["color"] != hero]
-    count = int(unit(*key, "count") * (len(rest) + 1))
+    count = max(int(unit(*key, "count") * (len(rest) + 1)), 1 if rest else 0)
     keep = set(sorted(rest, key=lambda c: number(*key, "keep", c))[:count])
     return [hero, *(c for c in rest if c in keep)]
 
@@ -768,10 +786,13 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
     the same and the retry: the style is the same whenever it is drawn, and no draw made before
     it matters.
 
-    A style whose title-shown values the template or an earlier sibling already shows
-    differs in its hero color alone, so its title names it: "…, Sage", or "… in Tan" for a
-    dress shoe. A style of a :mod:`line_grammar` family takes a model its brand owns there and
-    the family's title shape (gen#662)."""
+    A style whose title-shown values the template or an earlier sibling already shows carries
+    all of the template's colors as its SKUs, hero first, and its title names none: it is its
+    brand's one product of the kind, never one color of it (#851). A cleaning or beauty style
+    (a lipstick shade, a scent) is still that one color, its title naming it ("…, Coral"), until
+    those families drop their numbered models too. A style of a
+    :mod:`line_grammar` family takes a model its brand owns there and the family's title shape
+    (gen#662)."""
     leaf = tpl["category_leaf"]
     tid = tpl["product_id"]
     keys = variable_keys(tpl, ctx.pools)
@@ -797,8 +818,12 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         values = dict(zip(shown, sig[0], strict=True))
         values |= {k: pick(ctx.pools[(leaf, k)], *key, k) for k in keys if k not in shown}
         colors = _colors(tpl, sig[1], *key)
-        if sig[0] in taken:  # the title names the color: the style IS that color
+        named = sig[0] in taken and line_grammar.family(tpl) in line_grammar.CARE
+        if named:  # a care shade or scent is still its own product, its title says which
             colors = colors[:1]
+        elif sig[0] in taken and colors:  # the brand's one product of the kind (#851)
+            rest = (c["color"] for c in tpl["color_options"] if c["color"] != colors[0])
+            colors = [colors[0], *rest]
         brand = pick(brands, *key, "brand")
         deal = ctx.grammar.get(line_grammar.family(tpl) or "")
         slot = number(*key, "name") % RANGE_SLOTS
@@ -818,7 +843,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
             continue  # the drawn values merged two SKUs into one: not a product, so not drawn
         if deal:
             line_grammar.retitle(rec, tpl, number(*key, "grammar"))
-        if sig[0] in taken and colors:
+        if named and colors:
             rec["title"] += line_grammar.color_suffix(rec, colors[0])
         if twin_key(rec) in used or rec["title"] in titles:
             continue
@@ -905,6 +930,7 @@ def main(argv: list[str] | None = None) -> int:
         "distinctness": distinctness(scaled.records, seed=args.seed),
         "templates_distinctness": distinctness(templates(), seed=args.seed),
         "grid_clones": grid_clones(scaled.records),
+        "single_sku_kinds": single_sku_kinds(scaled.records),
         "prices_per_leaf": {
             k: v for k, v in prices_per_leaf(scaled.records).items() if k != "distinct"
         },  # fmt: skip

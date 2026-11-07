@@ -164,6 +164,10 @@ TYPE_SPECIFIC: dict[str, str] = {
         "#497: a wheel's abrasive coarseness (Fine, Medium, Coarse), split from a bolt's Grade"
     ),
     "Wheel Diameter": "#835: a caster's wheel, a part it holds",
+    "Drill Size": (
+        "#831: the drill a drill bushing guides, a mating part as a tap's tap drill is"
+        " (census 12): its bore spelled as the drill, #30, F or 1/8"
+    ),
 }
 
 #: Names in neither the census nor the reference list, and why each is kept.
@@ -193,6 +197,22 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Take Up": "how far a turnbuckle draws its ends together; no turnbuckle in the census",
     "Closed Length": "a turnbuckle end to end, fully taken up; no turnbuckle in the census",
     "Head Weight": "hammer head weight; the census carries no hammer family",
+    "ANSI Cut Level": (
+        "a glove's cut resistance level, A1 to A9, as ANSI/ISEA 105 names it; the census carries"
+        " no glove family"
+    ),
+    "Knit Gauge": (
+        "a knit glove shell's stitches per inch, the Gauge column of a cut glove guide; the"
+        " census's Gauge is a screw's wire gauge, another measurement"
+    ),
+    "Lens Color": (
+        "a spectacle lens's tint, the Lens Color option of a safety-eyewear maker's product"
+        " feed; the census's Color is one color per part, and a pair has two"
+    ),
+    "Frame Color": (
+        "a spectacle frame's color, the Body Color option of a safety-eyewear maker's product"
+        " feed; the census's Color is one color per part, and a pair has two"
+    ),
     "Base to Center Height": (
         "a pillow block's mounting face to its shaft centre; the census has Height and"
         " Overall Height, which are other measurements"
@@ -243,6 +263,10 @@ NAME_EXCEPTIONS: dict[str, str] = {
         " family, its Grade is a bolt's strength class and its Cutting Type an end mill's;"
         " a distributor's file spec table names it Cut Type"
     ),
+    "Number of Points": (
+        "a wrench's box end, 6 or 12 points (#836); the census carries no wrench family, its"
+        " Point Type is a set screw's or a drill's point, and it is cased like Number of Flutes"
+    ),
     "Wheel Diameter": (
         "a caster's wheel diameter (#835), the maker's chart's own heading; the attribute"
         " census has no caster"
@@ -253,6 +277,19 @@ NAME_EXCEPTIONS: dict[str, str] = {
     "Bearing Type": (
         "the bearing a caster wheel turns on (#835), the maker's chart's own heading; the"
         " census has only a mounted bearing's Bearing Insert Type"
+    ),
+    "Schedule": (
+        "a pipe nipple's wall (#832): ASTM A733 orders a nipple by its pipe schedule, and the"
+        " maker's nipple sheets the type reads are headed Schedule 40 and Schedule 80; the"
+        " census carries no pipe"
+    ),
+    "Flange Dia.": (
+        "a flanged bushing's flange, beside its Outside Dia. (#833): the D column of the"
+        " maker's stock table; the census has no bushing flange"
+    ),
+    "Flange Thickness": (
+        "a flanged bushing's flange thickness (#833): the E column of the maker's stock"
+        " table; the census has no bushing flange"
     ),
 }
 

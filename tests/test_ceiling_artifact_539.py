@@ -19,6 +19,7 @@ import sys
 import threading
 import tomllib
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -213,6 +214,34 @@ def test_the_catalogue_job_runs_on_every_event_and_builds_where_it_uploads() -> 
     assert "scripts/build_ceiling.py --out build/ceiling" in runs
 
 
+def test_the_shared_100k_files_are_built_in_a_leg_of_the_job_and_named_to_the_workers() -> None:
+    """The 100K files of tests/shared_builds.py are built once per run (#790): the job's
+    ``hundred_k`` leg builds and uploads them, and a shard downloads them where it names them
+    in ``SHARED_BUILDS_DIR`` before the tests run."""
+    job = CI["jobs"]["ceiling-catalogue"]
+    legs = job.get("strategy", {}).get("matrix", {}).get("shard", [])
+    assert sorted(legs) == ["ceiling", "hundred_k"]
+    runs = " ".join(s.get("run", "") for s in job["steps"])
+    assert "scripts/build_shared_100k.py --out build/hundred_k" in runs
+    upload = next(
+        s for s in job["steps"]
+        if s.get("uses", "").startswith("actions/upload-artifact")
+        and s["with"]["name"] == "hundred-k-builds"
+    )  # fmt: skip
+    assert upload["if"] == "matrix.shard == 'hundred_k'"
+    assert upload["with"]["path"] == "build/hundred_k"
+    download = next(
+        s for s in TESTS["steps"]
+        if s.get("uses", "").startswith("actions/download-artifact")
+        and s["with"]["name"] == "hundred-k-builds"
+    )  # fmt: skip
+    assert download.get("if") == "steps.select.outputs.run == 'true'"
+    assert download["with"]["path"] == "build/hundred_k"
+    run = next(s for s in TESTS["steps"] if s.get("name") == "Tests")["run"]
+    assert 'export SHARED_BUILDS_DIR="$PWD/build/hundred_k"' in run
+    assert run.index("SHARED_BUILDS_DIR") < run.index("ci_run_pytest.py")
+
+
 def test_the_local_run_reaches_the_catalogue_job_before_the_tests() -> None:
     """``local_ci_jobs.py`` takes the jobs in file order, and ignores ``needs``."""
     names = list(CI["jobs"])
@@ -260,20 +289,24 @@ def test_a_dispatched_seed_turns_random_order_on() -> None:
     assert "format('-p randomly --randomly-seed={0}', inputs.random_seed)" in addopts
 
 
-def _child_pytest(tmp_path: Path, *options: str) -> str:
+def _child_pytest(tmp_path: Path, *options: str, env: dict[str, str] | None = None) -> str:
+    """A pytest run in ``tmp_path`` on ``test_two.py`` (and any file ``options`` names after it).
+
+    With ``env`` it may fail, a worker killed; without, it must pass.
+    """
     (tmp_path / "conftest.py").write_text(ROOT_CONFTEST, encoding="utf-8")
     (tmp_path / "test_two.py").write_text(
         "def test_one():\n    pass\n\n\ndef test_two():\n    pass\n", encoding="utf-8"
     )
-    drop = ("PYTEST_ADDOPTS", "CI_SHARD", "CI_SHARDS")
-    env = {k: v for k, v in os.environ.items() if k not in drop}
-    env["PYTHONPATH"] = str(REPO / "tests")
+    drop = ("PYTEST_ADDOPTS", "CI_SHARD", "CI_SHARDS", "WORKER_PEAK_DIR")
+    child_env = {k: v for k, v in os.environ.items() if k not in drop} | (env or {})
+    child_env["PYTHONPATH"] = str(REPO / "tests")
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-         "--rootdir", str(tmp_path), *options, "test_two.py"],
-        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
+         "--rootdir", str(tmp_path), "test_two.py", *options],
+        cwd=tmp_path, env=child_env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip
-    assert done.returncode == 0, done.stdout + done.stderr
+    assert env is not None or done.returncode == 0, done.stdout + done.stderr
     return done.stdout
 
 
@@ -299,6 +332,55 @@ def test_a_run_with_no_workers_prints_no_peak(tmp_path) -> None:
 def test_a_run_on_workers_prints_each_modules_peak(tmp_path) -> None:
     printed = _child_pytest(tmp_path, "-n", "1")
     assert "module peak memory: 0 of 1 modules over 1500 MB: none" in printed.splitlines()
+
+
+#: A module that holds 200 MB, then lets it go, so the module after it starts small again.
+HEAVY_MODULE = "def test_heavy():\n    held = b'x' * (200 << 20)\n    del held\n"
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_worker_s_peak_is_its_whole_run_not_its_last_module(tmp_path) -> None:
+    """Each module resets the mark (#790), so the last module's mark alone understates it (#869)."""
+    (tmp_path / "test_heavy.py").write_text(HEAVY_MODULE, encoding="utf-8")
+    (tmp_path / "test_light.py").write_text("def test_light():\n    pass\n", encoding="utf-8")
+    modules = ("test_heavy.py", "test_light.py")
+    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", *modules)
+    peak = re.search(r"^peak worker memory: \d+ MB \(gw0 (\d+)\)$", printed, re.M)
+    assert peak, printed
+    assert int(peak.group(1)) >= 200, peak.group(0)
+
+
+def test_a_worker_with_no_proc_reports_no_peak(monkeypatch) -> None:
+    import worker_peak  # noqa: PLC0415
+
+    monkeypatch.setattr(worker_peak, "own_peak_mb", lambda: None)
+    assert worker_peak._session_peak(SimpleNamespace()) is None
+
+
+#: A module whose first test kills its worker, as the kernel's OOM killer does (#845).
+KILLED_MODULE = "import os\nimport signal\n\n\ndef test_killed():\n" \
+    "    os.kill(os.getpid(), signal.SIGKILL)\n"  # fmt: skip
+
+
+@pytest.mark.skipif(not Path("/proc/self/clear_refs").exists(), reason="Linux /proc only")
+def test_a_killed_worker_leaves_its_modules_peaks_and_the_module_it_was_in(tmp_path) -> None:
+    (tmp_path / "test_three.py").write_text(KILLED_MODULE, encoding="utf-8")
+    peaks = tmp_path / "peaks"
+    peaks.mkdir()
+    env = {"WORKER_PEAK_DIR": str(peaks)}
+    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", "test_three.py", env=env)
+    assert "[gw0] node down: Not properly terminated" in printed
+    assert (peaks / "gw0.peaks").exists(), "the killed worker left no peak file"
+    lines = (peaks / "gw0.peaks").read_text(encoding="utf-8").splitlines()
+    rows = [ln.split("\t") for ln in lines]
+    assert all(len(r) == 2 and r[1].isdigit() for r in rows), lines
+    assert [m for m, _ in rows if m == "test_two.py"], "the finished module's peak is lost"
+    assert rows[-1][0] == "test_three.py", "the module the worker died in is not named last"
+
+
+def test_a_run_with_no_peak_directory_writes_no_peak_file(tmp_path) -> None:
+    _child_pytest(tmp_path, "-n", "1")
+    assert not list(tmp_path.rglob("*.peaks"))
 
 
 def test_the_module_line_names_the_modules_over_the_line_heaviest_first() -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.class_model import (
     INSIDE_LEGS,
     LEGS3,
@@ -11,7 +12,7 @@ from synthetic_ecommerce_data.domains.retail.class_model import (
 from synthetic_ecommerce_data.domains.retail.variants import cw, shade
 
 DENIM, MID, LIGHT, ECRU, BLACK = "#4a6a94", "#5b7aa6", "#9fb4cf", "#e8dfcc", "#2a2a2e"
-WHITE, NAVY, CAMEL, OLIVE, RUST = "#ffffff", "#26365c", "#c19a6b", "#6b6b3a", "#a8502e"
+WHITE, NAVY, CAMEL, OLIVE, RUST = "#ffffff", dark_blues.NAVY, "#c19a6b", "#6b6b3a", "#a8502e"
 
 # --------------------------------------------------------------------------
 # 2. "mattress topper": protectors share the head word and sell more

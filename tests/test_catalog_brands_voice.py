@@ -131,10 +131,11 @@ def same_product_duplicates(docs: list[dict]) -> list[tuple[str, str]]:
 #: it was (``drafts.RetiredAttribute``), and its "already made" check still counts it. For
 #: these three the retired attribute (``Item``, ``End Mill Style``, ``Insert Material``) was
 #: the only thing telling two SKUs apart, so a pair of them reads as one product once it is
-#: gone: 2 pairs among the 11,765 committed SKUs and 126 among the 124,677 of the 100K build.
+#: gone: 2 pairs among the 11,765 committed SKUs and 515 among the 165,893 of the 100K build
+#: (126 among 124,677 before an end-mill run line sold each diameter at several lengths, #850).
 RETIRED_TWIN_TYPES = frozenset({"lock_nuts_nylon_insert", "end_mill_square", "end_mill_ball"})
-#: Twins are a rounding error, not a leak: measured 0.10% of the 100K build's SKUs (126 pairs).
-RETIRED_TWIN_SHARE = 0.002
+#: Twins are a rounding error, not a leak: measured 0.31% of the 100K build's SKUs (515 pairs).
+RETIRED_TWIN_SHARE = 0.004
 
 
 def unexplained_duplicates(
@@ -253,6 +254,10 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same ones. Measured at 100K, 264 distinct specs over 761 SKUs (0.347),
     # rounded down to 0.05.
     "hand_files": 0.30,
+    # #836: a combination wrench is a hex width across flats in six kinds, and every maker
+    # sells the same ones, as with key stock. Measured at 100K, 195 distinct specs over 698
+    # SKUs (0.279), rounded down to 0.05.
+    "combination_wrenches": 0.25,
     # #836: a hex bit socket is a hex key size on a drive, in three kinds, and every maker sells
     # the same ones, as with key stock. Measured at 100K, 306 distinct specs over 705 SKUs
     # (0.434), rounded down to 0.05.
@@ -272,6 +277,25 @@ DISTINCT_SPEC_FLOOR = {
     # overlap on the same wheel. Measured at 100K, 366 distinct specs of 644 SKUs (0.568),
     # rounded down to 0.05.
     "rigid_casters": 0.55,
+    # #831: an ER collet is a row of the maker's bore ladder in one of three classes, and every
+    # maker sells the same bores. Measured at 100K, 894 distinct specs over 1015 SKUs (0.881),
+    # rounded down to 0.05.
+    "er_collets": 0.85,
+    # #834: a cut-resistant glove is one of 29 model lines in one of 6 hand sizes, 174 specs
+    # before a dropped gauge, so makers overlap by construction. Measured at 100K, 252 of 759
+    # (0.332), rounded down to 0.05.
+    "cut_resistant_gloves": 0.30,
+    # #834: a pair of safety glasses is a frame style, lens coating and frame color in one of
+    # six lens colors, 58 specs in the maker's feed, so makers overlap by construction.
+    # Measured at 100K, 58 distinct specs of 414 SKUs (0.140), rounded down to 0.05.
+    "safety_glasses": 0.10,
+    # #833: a bronze bushing is a stock table's row, and every maker stocks the same tables.
+    # Measured at 100K, 843 distinct specs of 1009 SKUs (0.835), rounded down to 0.05.
+    "bronze_sleeve_bushings": 0.80,
+    # #829: a lag screw is a DIN 571 or ASME B18.2.1 row on a run of stocked lengths, and every
+    # maker sells the same rows. Measured at 100K, 731 distinct specs of 848 SKUs (0.862),
+    # rounded down to 0.05.
+    "lag_screws": 0.85,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
@@ -283,6 +307,7 @@ DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 TABLE_TYPES = tabletype.tables()
 
 
+@pytest.mark.default_seed_band
 def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
     specs: dict[str, set] = collections.defaultdict(set)
     skus: collections.Counter = collections.Counter()
@@ -380,13 +405,19 @@ def test_every_brand_has_a_unique_name_and_id_code():
     assert len({b.code for b in BRAND_BOOK}) == len(BRAND_BOOK)
 
 
-def test_the_brand_pool_is_a_long_tail_and_a_few_names_are_ordinary_words(hundred_k):
-    """A few broad houses, many small makers; no brand near a tenth of 100K."""
+@pytest.mark.default_seed_band
+def test_no_brand_holds_a_tenth_of_100k_or_under_three_in_a_thousand(hundred_k):
+    """A few broad houses, many small makers; no brand near a tenth of 100K. A floor on one
+    draw: seed 20260918 leaves its smallest maker at 0.0028 (#50)."""
     share = collections.Counter(doc["brand"] for doc in hundred_k)
     total = sum(share.values())
-    assert set(share) == set(BRANDS), set(BRANDS) - set(share)
     assert max(share.values()) / total <= 0.10
     assert min(share.values()) / total >= 0.003
+
+
+def test_the_brand_pool_is_a_long_tail_and_a_few_names_are_ordinary_words(hundred_k):
+    share = collections.Counter(doc["brand"] for doc in hundred_k)
+    assert set(share) == set(BRANDS), set(BRANDS) - set(share)
     ordinary = {
         "Iron Heron",
         "Lantern Rock",
@@ -419,16 +450,14 @@ def _contrast(ink: str, paper: str) -> float:
 
 
 def test_every_brand_has_exactly_one_house_style_and_no_two_share_it():
+    from synthetic_ecommerce_data.core.drawing.product_look import PAPER
     from synthetic_ecommerce_data.core.drawing.style import brand_for_house_style, house_style
 
     styles = {brand: house_style(brand) for brand in BRANDS}
     pairs = {(s.ink, s.frame) for s in styles.values()}
     assert len(pairs) == len(BRANDS)
-    assert len({(s.ink, s.paper, s.frame) for s in styles.values()}) == len(BRANDS)
-    # Brands sharing an ink differ in paper as well as in frame.
-    for ink in {s.ink for s in styles.values()}:
-        papers = [s.paper for s in styles.values() if s.ink == ink]
-        assert len(set(papers)) == len(papers), ink
+    # No brand tints the paper (#849): every brand draws on the one.
+    assert {s.paper for s in styles.values()} == {PAPER}
     worst = min((_contrast(s.ink, s.paper), b) for b, s in styles.items())
     assert worst[0] >= 3.0, worst
     for brand, style in styles.items():

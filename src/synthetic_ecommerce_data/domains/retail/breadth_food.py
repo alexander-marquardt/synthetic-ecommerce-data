@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -71,7 +72,7 @@ FOOD = (
     # Round 2 (gen#125): at the ceiling, food held 45 styles against a half share of 91.
     Row("TEAEGR", "Earl Grey Tea, 40 Bags", "Kettleby Tea Co.", _FD, _TEA, "Tea", 3.0, "box",
         "String-and-tag bags in a foil-lined box. Brew 3 minutes, best without milk.",
-        (cw("Navy", "#26365c", "solid", "#d4af37"),), _blend("Earl Grey"), label="Tea",
+        (cw("Navy", dark_blues.NAVY, "solid", "#d4af37"),), _blend("Earl Grey"), label="Tea",
         colorless=True),
     Row("TEAPEP", "Peppermint Tea Pyramids", "Hearth & Table", _FD, _TEA, "Tea",
         2.5, "box",
@@ -130,7 +131,7 @@ FOOD = (
     # Growth round 3: crisps by flavor, olive oil by origin, pasta by shape.
     Row("CRSSEA", "Sea Salt Hand Cooked Crisps", "Pantry Mill", _FD, _CRISPS, "Crisps", 1.6,
         "crisps_bag", "Thick-cut potatoes cooked in small batches, in a sharing bag.",
-        (cw("Navy", "#26365c", "solid", "#efe8d8"),), _flavor("Sea Salt"),
+        (cw("Navy", dark_blues.NAVY, "solid", "#efe8d8"),), _flavor("Sea Salt"),
         (("150g", 1.6), ("6 x 25g", 2.2)), "Crisps", colorless=True),
     Row("CRSCHO", "Cheese & Onion Crinkle Cut Crisps", "Freshfold", _FD, _CRISPS, "Crisps", 1.5,
         "crisps_bag", "Ridged crisps with a crunch that holds a dip, in a sharing bag.",
@@ -188,7 +189,7 @@ FOOD = (
         colorless=True),
     Row("PSTCON", "Conchiglie Durum Wheat Pasta", "Hearth & Table", _FD, _PASTA, "Pasta", 1.1,
         "box", "Ridged shells that scoop up a chunky sauce. Cooks in 11 minutes.",
-        (cw("Navy", "#26365c", "solid", "#efe8d8"),), _shape("Conchiglie"),
+        (cw("Navy", dark_blues.NAVY, "solid", "#efe8d8"),), _shape("Conchiglie"),
         (("500g", 1.1), ("1kg", 1.9)), "Pasta", colorless=True),
     Row("OILCRO", "Croatian Extra Virgin Olive Oil", "Freshfold", _FD, _OIL, "Olive Oil", 9.0,
         "bottle", "A green, peppery oil from Istrian groves.",

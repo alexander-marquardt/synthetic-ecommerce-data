@@ -1,7 +1,7 @@
 {
  "elasticsearch": "9.3.0",
  "docs": 294,
- "fingerprint": "2e138690ea5fc1ffc6ff6b0703a296fdeb08b524451e36e81c3e79d8d4bfb0db",
+ "fingerprint": "298fc68498dc15146d1e39815beeda63cc71d4a6cefe2387236cdf19f83737d9",
  "rows": [
   {
    "query": "mattress topper",
@@ -578,19 +578,19 @@
     },
     {
      "product_id": "PLT-DRKSET",
-     "title": "Set of 4 Porcelain Espresso Cups in Gift Box"
+     "title": "Porcelain Espresso Cup Set in Gift Box"
     },
     {
      "product_id": "PLT-DRKSAU",
      "title": "Fine Bone China Tea Cup and Saucer for Afternoon Tea"
     },
     {
-     "product_id": "PLT-MUG-APPLE",
-     "title": "Apple Graphic Mug"
+     "product_id": "PLT-MUG10",
+     "title": "Porcelain Mug"
     },
     {
-     "product_id": "PLT-MUG11",
-     "title": "Travel Mug"
+     "product_id": "PLT-MUG6",
+     "title": "Ribbed Mug"
     }
    ]
   }

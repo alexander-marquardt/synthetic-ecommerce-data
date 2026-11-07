@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_lowerbody,  # noqa: F401 -- registers leggings, joggers, shorts, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
@@ -116,7 +117,7 @@ BLACK = cw("Black", "#2f2f35")
 WHITE = cw("White", "#f4f1ea", "solid", "#b9b4a6")
 GREY = cw("Grey", "#9a9ca0")
 CHARCOAL = cw("Charcoal", "#4b4e55")
-NAVY = cw("Navy", "#26365c")
+NAVY = cw("Navy", dark_blues.NAVY)
 KHAKI = cw("Khaki", "#8a8456")
 CREAM = cw("Cream", "#efe8d8", "solid", "#b9b4a6")
 PINK = cw("Pink", "#e7a9b8")
@@ -132,12 +133,12 @@ BEIGE = cw("Beige", "#d8c9a8", "solid", "#b9b4a6")
 GREY_MARL = cw("Grey Marl", "#a9abb0")
 #: The wool pleated skirt's first colorway: a tartan, so "tartan skirt" finds it (gen#408).
 RED_TARTAN = cw("Red Tartan", "#a3262a", "tartan", "#1f4f3a")
-LIGHT_WASH = cw("Light Wash", "#8fb0cf", "solid", "#4a6a94")
-MID_WASH = cw("Mid Wash", "#4a6a94", "solid", "#25345a")
+LIGHT_WASH = cw("Light Wash", "#8fb0cf", "solid", dark_blues.MID_WASH)
+MID_WASH = cw("Mid Wash", dark_blues.MID_WASH, "solid", dark_blues.DARK_INDIGO)
 BLACK_DENIM = cw("Black", "#3a3a40", "solid", "#8f989f")
-NAVY_STRIPE = cw("Navy Stripe", "#f4f1ea", "stripe", "#26365c")
+NAVY_STRIPE = cw("Navy Stripe", "#f4f1ea", "stripe", dark_blues.NAVY)
 GREY_STRIPE = cw("Grey Stripe", "#f4f1ea", "stripe", "#7d8087")
-NAVY_CHECK = cw("Navy Check", "#26365c", "gingham", "#a83a32")
+NAVY_CHECK = cw("Navy Check", dark_blues.NAVY, "gingham", "#a83a32")
 GREEN_CHECK = cw("Green Check", "#3f7a4a", "gingham", "#efe8d8")
 
 # --------------------------------------------------------------------------

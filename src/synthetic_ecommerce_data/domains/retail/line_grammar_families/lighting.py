@@ -16,7 +16,7 @@ KINDS = (
 LEADS = (
     "Glow", "Beam", "Halo", "Lumen", "Spark", "Bright", "Gleam", "Flare", "Shimmer", "Shine",
     "Dusk", "Morning", "Ember", "Aura", "Glint", "Lustre", "Sheen", "Flicker", "Twilight",
-    "Radiant",
+    "Radiant", "Beacon", "Dawn", "Aurora", "Daybreak",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

@@ -18,6 +18,7 @@ KINDS = (
 LEADS = (
     "Tidy", "Stow", "Neat", "Order", "Stack", "Tuck", "Sort", "Keep", "Fold", "Hold", "Haul",
     "Carry", "Shelve", "Clear", "Space", "Nook", "Cache", "Locker", "Handy", "Utility",
+    "Cubby", "Stash", "Cove", "Burrow", "Trove", "Alcove", "Niche", "Hideaway",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

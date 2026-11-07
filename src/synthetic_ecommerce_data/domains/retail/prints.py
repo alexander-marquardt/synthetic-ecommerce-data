@@ -23,7 +23,7 @@ import functools
 from collections import Counter
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import motifs
+from synthetic_ecommerce_data.domains.retail import dark_blues, motifs
 from synthetic_ecommerce_data.domains.retail.class_model import Style, _digest
 from synthetic_ecommerce_data.domains.retail.kit import Fill
 from synthetic_ecommerce_data.domains.retail.variants import Color, cw
@@ -31,7 +31,7 @@ from synthetic_ecommerce_data.domains.retail.variants import Color, cw
 #: The most of one category path that may be prints: a range is mostly plain.
 MAX_PRINT_SHARE = 0.25
 
-WHITE, NAVY, GREY, BLACK, SAGE = "#ffffff", "#26365c", "#b9bec4", "#2a2a2e", "#9bb08f"
+WHITE, NAVY, GREY, BLACK, SAGE = "#ffffff", dark_blues.NAVY, "#b9bec4", "#2a2a2e", "#9bb08f"
 CREAM, STONE, PINK, KHAKI, OAT = "#f3ead8", "#d9d0c1", "#f3c6cf", "#8a8456", "#e6dccb"
 ORANGE, LEMON, STEEL, GREEN = "#f28c28", "#f2d14b", "#8e9aa6", "#5f9a4a"
 
@@ -72,7 +72,8 @@ class Line:
     department: str
     path: tuple[str, ...]
     price: float
-    plains: tuple[tuple[str, Color, str], ...]  # (title, color, description)
+    #: (title, color, description); a mug's color is its glazes, hero first (#851).
+    plains: tuple[tuple[str, Color | tuple[Color, ...], str], ...]
     prints: tuple[Print, ...]
     sizes: tuple[str, ...] = ()
     #: Words a print's title ends with after the noun (", Set of 2").
@@ -159,9 +160,11 @@ def styles(lines: tuple[Line, ...] | None = None) -> list[Style]:
     for line in lines:
         for n, (title, color, description) in enumerate(line.plains, 1):
             code = f"{line.code}{n}"
+            colors = (((color, _sold(code)),) if isinstance(color[0], str)
+                      else tuple((c, _sold(code + c[0])) for c in color))  # fmt: skip
             out.append(Style(
                 code, title, line.brand, line.department, line.path, line.price, description,
-                line.noun, line.shape, ((color, _sold(code)),), audience=line.style_audience,
+                line.noun, line.shape, colors, audience=line.style_audience,
                 pattern="plain", sizes=line.sizes,
             ))  # fmt: skip
         out += [_print_style(line, p) for p in line.prints]
@@ -218,6 +221,12 @@ def _scatter(motif: str, ink: str, grounds, count: int, **kw) -> Print:
 def _plains(*rows: tuple[str, str, str, str]) -> tuple[tuple[str, Color, str], ...]:
     """(title, color name, hex, description) rows as a line's plain styles."""
     return tuple((t, cw(name, hex_), d) for t, name, hex_, d in rows)
+
+
+def _glazes(*rows) -> tuple[tuple[str, tuple[Color, ...], str], ...]:
+    """(title, ((color name, hex), ...), description) rows as plain styles of several colors,
+    hero first: a mug is one product in three glazes, not three products (#851)."""
+    return tuple((t, tuple(cw(name, hex_) for name, hex_ in colors), d) for t, colors, d in rows)
 
 
 TEE = "A soft cotton jersey tee with a ribbed crew neck."
@@ -388,28 +397,40 @@ LINES: tuple[Line, ...] = (
          ), title_suffix=", Set of 2"),
     Line("MUG", "mugs", "adult", "core", "mug", "Mug", "Brackenmere Home", "Home",
          ("Home", "Kitchen & Dining", "Drinkware", "Mugs"), 8.0, (
-             ("Stoneware Mug", cw("White", WHITE), "A chunky stoneware mug, dishwasher safe."),
-             ("Speckled Mug", cw("Oat", OAT), "A speckled glaze mug that holds 350ml."),
-             ("Tall Latte Mug", cw("Navy", NAVY), "A tall mug for lattes."),
-             *_plains(
-                 ("Enamel Mug", "White", WHITE, "A camping style enamel mug with a steel rim."),
-                 ("Reactive Glaze Mug", "Sage", SAGE, "A mug with a pooling reactive glaze."),
-                 ("Ribbed Mug", "Stone", STONE, "A ribbed stoneware mug."),
-                 ("Espresso Mug", "Black", BLACK, "A small mug for a strong espresso."),
-                 ("Footed Mug", "Grey", GREY, "A mug on a small foot, 300ml."),
-                 ("Matte Mug", "Charcoal", "#4a4d52", "A matte stoneware mug."),
-                 ("Porcelain Mug", "White", WHITE, "A fine porcelain mug."),
-                 ("Travel Mug", "Navy", NAVY, "A lidded travel mug that keeps drinks hot."),
-                 ("Jumbo Mug", "Oat", OAT, "A jumbo mug that holds 500ml."),
+             *_glazes(
+                 ("Stoneware Mug", (("White", WHITE), ("Navy", NAVY), ("Sage", SAGE)),
+                  "A chunky stoneware mug, dishwasher safe."),
+                 ("Speckled Mug", (("Oat", OAT), ("Stone", STONE), ("Grey", GREY)),
+                  "A speckled glaze mug that holds 350ml."),
+                 ("Tall Latte Mug", (("Navy", NAVY), ("White", WHITE), ("Sage", SAGE)),
+                  "A tall mug for lattes."),
+                 ("Enamel Mug", (("White", WHITE), ("Navy", NAVY), ("Green", GREEN)),
+                  "A camping style enamel mug with a steel rim."),
+                 ("Reactive Glaze Mug", (("Sage", SAGE), ("Blue", "#2f5d8a"), ("Rust", "#b5562f")),
+                  "A mug with a pooling reactive glaze."),
+                 ("Ribbed Mug", (("Stone", STONE), ("White", WHITE), ("Charcoal", "#4a4d52")),
+                  "A ribbed stoneware mug."),
+                 ("Espresso Mug", (("Black", BLACK), ("White", WHITE), ("Stone", STONE)),
+                  "A small mug for a strong espresso."),
+                 ("Footed Mug", (("Grey", GREY), ("Cream", CREAM), ("Pink", PINK)),
+                  "A mug on a small foot, 300ml."),
+                 ("Matte Mug", (("Charcoal", "#4a4d52"), ("Stone", STONE), ("Sage", SAGE)),
+                  "A matte stoneware mug."),
+                 ("Porcelain Mug", (("White", WHITE), ("Pink", PINK), ("Grey", GREY)),
+                  "A fine porcelain mug."),
+                 ("Travel Mug", (("Navy", NAVY), ("Black", BLACK), ("Silver", STEEL)),
+                  "A lidded travel mug that keeps drinks hot."),
+                 ("Jumbo Mug", (("Oat", OAT), ("White", WHITE), ("Navy", NAVY)),
+                  "A jumbo mug that holds 500ml."),
              ),
          ), (
-             Print("orange", "placement", ORANGE, (("White", WHITE),),
+             Print("orange", "placement", ORANGE, (("White", WHITE), ("Navy", NAVY)),
                    description="A mug with one big orange: orange on white, an orange mug."),
-             Print("apple", "placement", "#c8312f", (("White", WHITE),),
+             Print("apple", "placement", "#c8312f", (("White", WHITE), ("Stone", STONE)),
                    description="One big red apple on a white mug."),
-             Print("strawberry", "placement", "#d9363e", (("White", WHITE),),
+             Print("strawberry", "placement", "#d9363e", (("White", WHITE), ("Pink", PINK)),
                    description="A large strawberry graphic on a white mug."),
-             Print("cherries", "placement", "#a3162b", (("Stone", STONE),),
+             Print("cherries", "placement", "#a3162b", (("Stone", STONE), ("White", WHITE)),
                    description="A big pair of cherries on a stone mug."),
          )),
 )  # fmt: skip
