@@ -371,12 +371,13 @@ def test_a_numbered_model_is_its_lead_word(fam):
 
 
 @pytest.mark.parametrize("fam", ["cleaning", "beauty"])
-def test_a_grocery_care_model_keeps_its_generation(fam):
-    """Guard (gen#729, #851): the grocery build's care model keeps its number, "Fresh 3", until its
-    scents are SKUs: with a lead word alone its brands run out of titles before their families
-    reach their budgets. Metric: the models of the family's first grocery slots, each with a
-    digit."""
+def test_a_grocery_care_model_is_its_lead_word(fam):
+    """Guard (#851): the grocery build's care model was "Total Plus 9" beside "Total Ultra 6"; a
+    scent is its own product and its title says which, so the range is a lead word alone, and the
+    family's ``GROCERY_LEADS`` give its brands titles enough. Metric: the models of the family's
+    first grocery slots, none with a digit."""
     deal = line_grammar.Deal(fam, ["Acme"], {}, "grocery")
     got = [deal.owned("Acme", slot) for slot in range(10)]
-    assert all(any(c.isdigit() for c in model) for model in got), got
+    assert not any(c.isdigit() for model in got for c in model), got
+    assert set(got) <= set(deal.of("Acme"))
     assert line_grammar.is_model(fam, "Acme", got[0])

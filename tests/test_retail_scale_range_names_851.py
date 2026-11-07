@@ -6,8 +6,8 @@ in every title-shown value differed from it by its hero color alone, so it was a
 SKU titled with that color ("Brackenmere Home Supper 9 Set of 4 Porcelain Espresso Cups in Gift
 Box, Green"), beside the brand's own grouped product. A derived model is now its lead word alone,
 and such a style carries the template's colors as its SKUs, so a brand sells one of it. A cleaning
-or beauty model of the scale build followed last ("Keen Plus 4"); a care shade is still its own
-product.
+or beauty model followed ("Keen Plus 4", "Total Plus 9"), and a beauty shade is a SKU of its
+line too: a line is split by its finish or formula, never by its shade.
 """
 
 from __future__ import annotations
@@ -89,14 +89,14 @@ def test_a_brand_sells_one_of_each_cup_with_its_colors_as_skus(ceiling, kind):
 
 def test_no_derived_title_names_a_color_it_alone_carries(ceiling):
     """Guard (#851): ", Green" at the end of a one-color style's title was how a color became
-    a product. Metric: derived styles outside the care families, of one color from a template
-    of several, whose title ends with that color."""
+    a product, and ", Toffee" how a foundation shade did ("Orrin Skin Desire Soft Veil
+    Foundation, Toffee"). Metric: derived styles of one color from a template of several, whose
+    title ends with that color."""
     tpls = {r["product_id"]: r for r in ceiling.records}
     named = [
         r["title"]
         for r in _derived(ceiling)
-        if line_grammar.family(r) not in line_grammar.CARE
-        and len(r.get("color_options", ())) == 1
+        if len(r.get("color_options", ())) == 1
         and len(tpls[ceiling.template_of[r["product_id"]]].get("color_options", ())) > 1
         and r["title"].endswith(line_grammar.color_suffix(r, r["color_options"][0]["color"]))
     ]
@@ -109,3 +109,15 @@ def test_the_report_names_the_kinds_most_of_whose_products_have_one_sku(ceiling)
     single = scale_measures.single_sku_kinds(ceiling.records)
     assert all(row["single"] * 2 > row["products"] for row in single.values())
     assert {"Cup Set", "Travel Cup"}.isdisjoint(single)
+
+
+def test_a_beauty_line_is_split_by_its_finish_or_formula_never_by_its_shade(ceiling):
+    """Guard (#851, the ruling of 2026-11-07): a lipstick or foundation line sells its shades as
+    SKUs and splits into products by finish (matte, satin) or formula (liquid, serum), as a
+    beauty retailer lists them. Metric: the finishes and formulas the derived lipsticks and
+    foundations name, and those of them that carry one shade."""
+    for kind, key in (("Lipstick", "finish"), ("Foundation", "formula")):
+        recs = [r for r in _derived(ceiling) if r["product_type"] == kind]
+        values = {a["value"] for r in recs for a in r["attributes"] if a["key"] == key}
+        assert len(values) > 2, (kind, values)
+        assert [r["title"] for r in recs if len(r.get("color_options", ())) < 2] == []

@@ -94,15 +94,15 @@ def test_a_cleaning_or_beauty_lead_word_belongs_to_one_brand(ceiling):
 
 def test_a_care_model_is_one_lead_word_of_its_family(ceiling):
     """Guard (#851): two models of one brand that differed in one token ("Defence 6", "Defence
-    Ultra 6") read as one listing, and a number on a range reads as synthetic ("Keen Plus 4").
-    A scale-build model is now its lead word alone, so two of one brand's models share no word.
-    Metric: the scale build's cleaning and beauty styles whose model is not one lead word of its
-    family."""
-    care = [
-        r for r in _care_records(ceiling.records)
-        if not r["product_id"].startswith(scale.GROCERY_PREFIX)
-    ]  # fmt: skip
-    leads = {n: f.leads for n, f in line_grammar_families.families().items()}
+    Ultra 6") read as one listing, and a number on a range reads as synthetic ("Keen Plus 4",
+    "Total Plus 9"). A model of either build is now its lead word alone, so two of one brand's
+    models share no word. Metric: the cleaning and beauty styles whose model is not one lead
+    word of its family."""
+    care = _care_records(ceiling.records)
+    assert any(r["product_id"].startswith(scale.GROCERY_PREFIX) for r in care)
+    leads = {
+        n: (*f.leads, *f.grocery_leads) for n, f in line_grammar_families.families().items()
+    }
     models = {(r["brand"], scale._line(r)) for r in care}
     assert len(models) > 20  # the guard reads real models, not an empty set
     off = sorted(
