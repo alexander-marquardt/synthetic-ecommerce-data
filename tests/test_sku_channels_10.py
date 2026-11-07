@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.core.drawing import draw_sku
 from synthetic_ecommerce_data.core.drawing.model import Disc, Lines
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.generate import BRANDS, generate
+from synthetic_ecommerce_data.domains.industrial.vocab import names_for
 
 CATALOG = generate(SMALL)
 
@@ -51,7 +52,9 @@ HANDS = ("Left Hand", "Right Hand")
 #: The types whose published direction their drawing does not show, each with the attribute.
 #: Not a list to grow: a pair here is a published value the picture does not keep. The
 #: last test below fails the day one starts drawing it (take it out) and the day a type
-#: publishes a direction its drawing ignores (name it, or draw it).
+#: publishes a direction its drawing ignores (name it, or draw it). A pair is measured on
+#: every record of its type the catalog builds, each hand set in turn: a type publishes its
+#: direction line by line, so a seed can build none that publish it (#50).
 HAND_NOT_DRAWN = frozenset(
     {
         ("bolt_hex", "Thread Direction"),
@@ -273,17 +276,28 @@ def test_a_named_direction_stays_named_on_a_seed_whose_lines_do_not_publish_it()
     assert _ignored(hand_cases, type_records) == HAND_NOT_DRAWN
 
 
+def test_each_named_direction_is_one_its_type_publishes_and_the_catalog_builds():
+    """A named pair the catalog cannot show would be excused forever, drawn or not."""
+    unpublishable = sorted(case for case in HAND_NOT_DRAWN if case[1] not in names_for(case[0]))
+    unbuilt = sorted(case for case in HAND_NOT_DRAWN if not TYPE_RECORDS.get(case[0]))
+    assert not unpublishable, f"no record of these types may publish the direction: {unpublishable}"
+    assert not unbuilt, f"the small catalog builds no record of these types: {unbuilt}"
+
+
 def _ignored(hand_cases, type_records) -> set[tuple[str, str]]:
-    """Each (type, direction attribute) whose drawing shows no difference between the hands."""
+    """Each published or named (type, direction) whose drawing shows no difference of hand.
+
+    Measured on every record of the type, not only those that publish the direction.
+    """
 
     def drawn(case) -> bool:
         type_key, name = case
         return any(
             _figure(type_key, {**r, name: HANDS[0]}) != _figure(type_key, {**r, name: HANDS[1]})
-            for r in hand_cases[case]
+            for r in type_records.get(type_key, ())
         )
 
-    return {case for case in hand_cases if not drawn(case)}
+    return {case for case in hand_cases.keys() | HAND_NOT_DRAWN if not drawn(case)}
 
 
 # --- which hatch belongs to which material ---------------------------------------------
