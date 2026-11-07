@@ -14,13 +14,15 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import kids_films, scale
 
-NEW_FILMS = (
-    "The Toy Movie",
-    "Frozen Story",
-    "The Home Run",
-    "The Lady in High Heels",
-    "The Haunted Dollhouse",
-)
+#: Each new film and the words of the categories its name names (High Heels names every shoe).
+NAMED = {
+    "The Toy Movie": ("toy",),
+    "Frozen Story": ("frozen",),
+    "The Home Run": ("home", "run"),
+    "The Lady in High Heels": ("heel", "shoe"),
+    "The Haunted Dollhouse": ("doll",),
+}
+NEW_FILMS = tuple(NAMED)
 #: The SKUs each new film sells, the range of gen#887's films (26 to 37).
 SKUS = range(25, 36)
 
@@ -40,7 +42,7 @@ def _path(doc: dict) -> str:
 
 
 def test_the_named_films_are_the_five_new_ones() -> None:
-    assert tuple(kids_films.NAMED_CATEGORIES) == NEW_FILMS
+    assert kids_films.NAMED_CATEGORIES == NAMED
     assert tuple(kids_films.FILMS)[-5:] == NEW_FILMS
 
 
@@ -48,7 +50,7 @@ def test_the_named_films_are_the_five_new_ones() -> None:
 def test_each_named_word_is_a_category_of_the_catalogue(catalog, film) -> None:
     """The check below is not empty: each word names categories other products sell in."""
     paths = {_path(d) for d in catalog}
-    for word in kids_films.NAMED_CATEGORIES[film]:
+    for word in NAMED[film]:
         assert any(word in p for p in paths), word
 
 
@@ -56,7 +58,7 @@ def test_each_named_word_is_a_category_of_the_catalogue(catalog, film) -> None:
 def test_no_film_sells_in_the_category_its_name_names(catalog, film) -> None:
     docs = _film_docs(catalog, film)
     assert docs
-    words = kids_films.NAMED_CATEGORIES[film]
+    words = NAMED[film]
     inside = {d["product_id"]: _path(d) for d in docs if any(w in _path(d) for w in words)}
     assert inside == {}
 
