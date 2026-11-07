@@ -127,8 +127,9 @@ for _type, _record in _records():
 
 
 def _end_view(figure) -> tuple[Disc, Lines]:
-    """The end view: the figure's one disc and the line work drawn right after it."""
-    discs = [s for s in figure.shapes if isinstance(s, Disc)]
+    """The end view: the figure's one disc and the line work drawn right after it. A coolant
+    outlet is a ``hole`` disc on it (#9), not another view."""
+    discs = [s for s in figure.shapes if isinstance(s, Disc) and s.role != "hole"]
     assert len(discs) == 1, f"{len(discs)} discs; the end view is the figure's only one"
     lines = figure.shapes[figure.shapes.index(discs[0]) + 1]
     assert isinstance(lines, Lines)
