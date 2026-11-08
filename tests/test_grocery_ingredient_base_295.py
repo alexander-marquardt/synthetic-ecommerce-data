@@ -77,6 +77,8 @@ def test_a_flat_row_carries_the_base_of_each_label_row_in_order() -> None:
     assert listed
     for r in listed:
         want = list(dict.fromkeys(gi.base_value(v) for v in r["facets"]["ingredients"]))
+        # A row with a nut also holds ``nuts``, last (#909).
+        want = gi.with_nuts(want, gi.NUT_BASES)
         assert r["facets"].get("ingredient_base") == want, r["sku"]
 
 

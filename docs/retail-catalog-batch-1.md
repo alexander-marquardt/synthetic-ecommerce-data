@@ -56,6 +56,15 @@ have no single base value: `tree nuts`, `gluten`, `fish`
 (`grocery_ingredients.ALLERGEN_GROUPS`). Singular and plural spellings are the vocabulary's
 job (elastic/prism#12043), not the data's. The mapping is `grocery_ingredients.ALLERGEN_BASE`.
 
+A fourth group, `nuts`, is never stated on its own and rides on the others (#909): "any product
+that has peanuts, also has an allergen that is nuts" (the maintainer, 2026-11-08,
+elastic/prism-retail-and-industrial#832). A row whose `facets.contains` holds `peanuts` or
+`tree nuts` also holds `nuts`, and so does its `facets.may_contain`, unless `contains` already
+holds `nuts`. A row whose `facets.ingredient_base` holds `peanuts` or a tree nut (`almonds`,
+`brazil nuts`, `cashews`, `hazelnuts`, `walnuts`, `pine nuts`: `grocery_ingredients.NUT_BASES`)
+also holds `nuts` there. `nuts` comes last in each list, so `bread without nuts` has a value to
+exclude. `tests/test_grocery_nuts_909.py` checks it on the default build.
+
 ## Grapes, a Steak parent and allergen coverage (gen#296)
 
 - **Grapes.** `Food & Drink > Fruit & Vegetables > Fresh Fruit > Grapes` (family `GRP`: red,

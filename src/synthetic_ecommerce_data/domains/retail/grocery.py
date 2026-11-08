@@ -67,12 +67,16 @@ from synthetic_ecommerce_data.domains.retail.export import (
     standard_document,
 )
 from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
+    NUT_ALLERGENS,
+    NUT_BASES,
+    NUTS,
     allergen_value,
     base_value,
     facet_value,
     ingredients,
     shared,
     unmapped,
+    with_nuts,
 )
 from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     ALLERGENS,
@@ -618,7 +622,9 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     top-level ``ingredients`` keeps the label text), ``facets.ingredient_base`` (the
     base ingredient of each of those, from the committed table
     ``grocery_ingredients.BASE``, gen#295), ``facets.contains``,
-    ``facets.may_contain`` and ``facets.dietary``, each a keyword list.
+    ``facets.may_contain`` and ``facets.dietary``, each a keyword list. A row with peanuts or
+    a tree nut in ``ingredient_base``, ``contains`` or ``may_contain`` also holds ``nuts`` there,
+    last, and a trace it already contains is not stated again (#909).
     ``contains``, ``may_contain`` and ``dietary`` are warnings and claims, not description
     (:data:`WARNINGS`): they stay out of ``text``, so a "peanut"
     query cannot match a product through its allergen warning. ``contains`` and
@@ -640,12 +646,19 @@ def flat(docs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     row["facets"]["ingredients"] = list(
                         dict.fromkeys(facet_value(i) for i in row["ingredients"])
                     )
-                    row["facets"]["ingredient_base"] = list(
-                        dict.fromkeys(base_value(v) for v in row["facets"]["ingredients"])
+                    row["facets"]["ingredient_base"] = with_nuts(
+                        list(dict.fromkeys(base_value(v) for v in row["facets"]["ingredients"])),
+                        NUT_BASES,
                     )
                 for key in UNIONED:
                     if key in row["facets"]:
-                        row["facets"][key] = [allergen_value(v) for v in row["facets"][key]]
+                        row["facets"][key] = with_nuts(
+                            [allergen_value(v) for v in row["facets"][key]], NUT_ALLERGENS
+                        )
+                # Peanuts contained and tree nuts traced: a trace already contained is not stated.
+                traces = row["facets"].get("may_contain", [])
+                if NUTS in traces and NUTS in row["facets"].get("contains", ()):
+                    traces.remove(NUTS)
                 out.append(row)
     return out
 
