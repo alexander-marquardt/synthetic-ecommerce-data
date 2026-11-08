@@ -691,7 +691,24 @@ ALLERGEN_BASE: dict[str, str] = {
 #: Allergens that name a group of ingredients (almonds, hazelnuts ...; wheat, barley, rye, oats;
 #: salmon, tuna ...), so no single base ingredient is theirs: their own value, in the same
 #: lower-case form, and the only values of ``facets.contains`` the base table has no row for.
-ALLERGEN_GROUPS: frozenset[str] = frozenset({"tree nuts", "gluten", "fish"})
+#: ``nuts`` groups both nut allergens (#909).
+ALLERGEN_GROUPS: frozenset[str] = frozenset({"tree nuts", "gluten", "fish", "nuts"})
+
+#: The allergen and ingredient value a row with any nut also holds (#909): "any product that has
+#: peanuts, also has an allergen that is nuts" (the maintainer, 2026-11-08,
+#: elastic/prism-retail-and-industrial#832), so a "without nuts" filter has a value to read.
+NUTS = "nuts"
+#: The ``contains`` / ``may_contain`` values that are a nut.
+NUT_ALLERGENS: frozenset[str] = frozenset({"peanuts", "tree nuts"})
+#: The ``ingredient_base`` values that are a nut: peanuts and the tree-nut rows of :data:`BASE`.
+NUT_BASES: frozenset[str] = frozenset(
+    {"peanuts", "almonds", "brazil nuts", "cashews", "hazelnuts", "walnuts", "pine nuts"}
+)
+
+
+def with_nuts(values: list[str], nuts: frozenset[str]) -> list[str]:
+    """``values`` with :data:`NUTS` last when one of them is in ``nuts`` (#909)."""
+    return [*values, NUTS] if nuts & set(values) and NUTS not in values else values
 
 
 def allergen_value(allergen: str) -> str:

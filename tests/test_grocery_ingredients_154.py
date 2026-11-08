@@ -99,7 +99,8 @@ def stated(item: dict, key: str) -> set[str]:
     """An allergen list: a flat row keeps it in its facet only, a nested entry in its attributes."""
     if "facets" in item:
         # The facet holds the canonical value (gen#294): read it back as the allergen name.
-        return {ALLERGEN_NAME[v] for v in item["facets"].get(key, [])}
+        # ``nuts`` names no allergen of its own: it rides on peanuts or tree nuts (#909).
+        return {ALLERGEN_NAME[v] for v in item["facets"].get(key, []) if v != "nuts"}
     return values(item["attributes"], key)
 
 

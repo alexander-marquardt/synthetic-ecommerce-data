@@ -25,6 +25,7 @@ from synthetic_ecommerce_data.domains.retail import (
     pack_scale,
 )
 from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
+    NUTS,
     allergen_value,
     facet_value,
 )
@@ -49,6 +50,11 @@ def canon(names) -> set[str]:  # noqa: ANN001
 def canon1(value: str, name: str) -> str:
     """One attribute value as its facet holds it: an allergen in its canonical form."""
     return allergen_value(value) if name in ("contains", "may_contain") else value
+
+
+def allergens(row: dict, key: str) -> set[str]:
+    """A flat row's allergen facet less ``nuts``, which rides on peanuts and tree nuts (#909)."""
+    return set(row["facets"].get(key, [])) - {NUTS}
 
 
 @cache
@@ -112,7 +118,7 @@ def test_no_flat_sku_contains_what_another_flavor_of_its_style_contains() -> Non
             continue
         for key in ("contains", "may_contain"):
             stated = values(nested[row["sku"]]["attributes"], key)
-            if set(row["facets"].get(key, [])) != canon(stated):
+            if allergens(row, key) != canon(stated):
                 bad.append((row["sku"], key))
     assert bad == []
 
@@ -125,7 +131,7 @@ def test_a_flat_sku_states_its_own_variants_allergens() -> None:
     for sku, row in rows.items():
         for key in ("contains", "may_contain"):
             stated = values(nested[sku]["attributes"], key)
-            assert set(row["facets"].get(key, [])) == canon(stated), sku
+            assert allergens(row, key) == canon(stated), sku
     mixed = next(
         d for d in docs() if d["product_id"].startswith("GRC-SWT-")
         and {"Fruit Gums", "Toffee"} <= {
@@ -170,7 +176,9 @@ def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
                 if name == "ingredients"
                 else [canon1(e["value"], name) for e in own["attributes"] if e["key"] == name]
             )
-            assert row["facets"].get(name, []) == want, (row["sku"], name)
+            # ``nuts`` is added beside peanuts and tree nuts (#909): tests/test_grocery_nuts_909.py.
+            got = [v for v in row["facets"].get(name, []) if name == "ingredients" or v != NUTS]
+            assert got == want, (row["sku"], name)
             seen[name] += bool(want)
     assert all(seen.values()), seen
 
@@ -178,8 +186,8 @@ def test_every_food_fact_is_a_flat_facet_equal_to_what_the_sku_states() -> None:
 def test_the_facet_values_are_the_closed_vocabularies() -> None:
     rows = grocery.flat(list(docs()))
     pool = lambda name: {v for r in rows for v in r["facets"].get(name, [])}  # noqa: E731
-    assert pool("contains") == canon(ALL)
-    assert pool("may_contain") <= canon(ALL)
+    assert pool("contains") == canon(ALL) | {NUTS}
+    assert pool("may_contain") <= canon(ALL) | {NUTS}
     assert pool("dietary") == set(DIETARY)
     assert len(pool("ingredients")) > 100
 
