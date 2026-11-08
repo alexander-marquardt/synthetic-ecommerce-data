@@ -4,6 +4,7 @@
 # 4. Push the merged tree, if it is not the PR head already. With --github-ci the
 #    push waits for the green run, below: a red tree never lands on the PR.
 push_merged_tree() {
+  started 4 "push the merged tree to $head_ref"
   if [ "$final_sha" != "$head_sha" ]; then
     git -C "$work" push -q origin "HEAD:refs/heads/$head_ref" ||
       die "the push of $final_sha to $head_ref was refused (has the PR head moved?); NOT merged"
@@ -32,6 +33,7 @@ remote_ref_is() {
 
 squash_merge() {
   local attempt merge_seconds ci_mode
+  started 6 "squash-merge #$pr"
   seen_sha=""
   for attempt in 1 2 3 4 5 6; do
     remote_ref_is "$base_ref" "$base_sha" ||

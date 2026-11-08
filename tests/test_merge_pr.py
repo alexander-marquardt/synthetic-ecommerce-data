@@ -20,12 +20,15 @@ under test is the script's order of operations, not the suite.
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 import threading
 from pathlib import Path
 
@@ -380,14 +383,31 @@ def _open_pr(
 def _run(
     world: dict, head: str, checks: str, *flags: str, **env: str
 ) -> subprocess.CompletedProcess:
+    """The script's run. Its output goes to files, not a pipe (#912): when the wait ends in
+    an exception, a pytest-timeout's included, what it printed so far (its step lines
+    name the step it was in) goes to this test's stderr, and its process group is stopped."""
     env = {**world["env"], "FAKE_GH_HEAD": head, "MERGE_PR_CHECKS": checks, **env}
-    return subprocess.run(
-        [str(world["checkout"] / "scripts" / "merge_pr.sh"), *flags, "54"],
-        env=env,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    args = [str(world["checkout"] / "scripts" / "merge_pr.sh"), *flags, "54"]
+    with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
+        process = subprocess.Popen(args, env=env, stdout=out, stderr=err, start_new_session=True)
+
+        def printed() -> list[str]:
+            texts = []
+            for f in (out, err):
+                f.seek(0)
+                texts.append(f.read().decode(errors="replace"))
+            return texts
+
+        try:
+            code = process.wait()
+        except BaseException:
+            with contextlib.suppress(ProcessLookupError):
+                os.killpg(process.pid, signal.SIGKILL)
+            process.wait()
+            stdout, stderr = printed()
+            print(f"merge_pr.sh stopped; stdout:\n{stdout}\nstderr:\n{stderr}", file=sys.stderr)
+            raise
+        return subprocess.CompletedProcess(args, code, *printed())
 
 
 def _branch(world: dict, name: str = "pr-branch") -> str:

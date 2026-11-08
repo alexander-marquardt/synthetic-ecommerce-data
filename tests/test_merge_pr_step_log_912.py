@@ -20,6 +20,10 @@ import sys
 import time
 from pathlib import Path
 
+# The inner case runs its world and _run; the import puts this file in CI's selection for
+# a change to them or to a part of the script (scripts/ci_select.py).
+import test_merge_pr  # noqa: F401
+
 TESTS = Path(__file__).resolve().parent
 
 #: The inner case: ``uv`` hangs on the build, so the script stops in step 2. The

@@ -27,6 +27,7 @@ DRIVERS = (
     "tests/test_merge_pr_github_ci_348.py",
     "tests/test_merge_pr_local_ci_guard_366.py",
     "tests/test_merge_pr_red_log_453.py",
+    "tests/test_merge_pr_step_log_912.py",
 )
 
 

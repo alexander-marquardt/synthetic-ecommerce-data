@@ -40,6 +40,13 @@ builds that tree before it merges.
    is repeated, up to 3 reads 10 s apart (`MERGE_PR_HEAD_SLEEP`), before the ref is called
    moved: `ls-remote` right after a push can answer from before it (#383).
 
+As each step starts (and the merge lock and the clone before them), the script prints one
+line to stderr: `merge_pr.sh: <UTC time> +<seconds since the start>s step <n> started: <what>`.
+A run that stalls, or a test of the script that times out, then shows which step was running
+and since when: a stalled step is told from a slow host (#912). `tests/test_merge_pr.py`'s
+`_run` keeps the script's output in files, not a pipe, and prints it when the call ends in an
+exception, a pytest-timeout included; it also stops the script's process group.
+
 ## Step 5 with `--local-ci`
 
 With `--local-ci` (or `GEN_LOCAL_CI=1`, which makes it the default) step 5 waits for

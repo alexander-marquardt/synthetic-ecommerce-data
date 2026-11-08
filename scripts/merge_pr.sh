@@ -20,6 +20,8 @@ die() {
   echo "merge_pr.sh: $*" >&2
   exit 1
 }
+# A step's start, timed, on stderr: the log of a test that times out names the step (#912).
+started() { echo "merge_pr.sh: $(date -u +%Y-%m-%dT%H:%M:%SZ) +$((SECONDS - merge_started))s step $1 started: $2" >&2; }
 
 # True when $1 is one of the remaining arguments.
 listed() {
@@ -83,6 +85,7 @@ slug=$(printf '%s\n' "$origin_url" | sed -E 's#^(https://[^/]+/|git@[^:]+:)##; s
 if [ "$dry_run" -eq 0 ]; then acquire_merge_lock; fi
 
 # 0. Refuse what can never merge, before anything is cloned.
+started 0 "read #$pr"
 fields=$(gh pr view "$pr" -R "$slug" \
   --json state,isCrossRepository,headRefName,headRefOid,baseRefName,isDraft \
   --jq '[.state, (.isCrossRepository|tostring), .headRefName, .headRefOid, .baseRefName, (.isDraft|tostring)] | @tsv')
@@ -111,6 +114,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
+started clone "clone $head_ref and fetch $base_ref"
 git clone -q --branch "$head_ref" "$origin_url" "$work"
 [ "$(git -C "$work" rev-parse HEAD)" = "$head_sha" ] ||
   die "#$pr head moved while cloning; re-run"
