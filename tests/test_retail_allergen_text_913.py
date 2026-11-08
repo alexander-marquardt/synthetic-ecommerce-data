@@ -81,6 +81,13 @@ def test_a_contains_line_naming_another_flavors_allergen_disagrees():
     ]
 
 
+def test_a_contains_line_naming_an_allergen_a_sku_only_traces_disagrees():
+    rec = _rec("Biscuits. Contains: Egg.", _sku("A", ("Egg",)), _sku("B", may=("Egg",)))
+    assert attribute_text.allergen_lines(rec) == [
+        "SKU B does not hold ['Egg'] but the text says Contains"
+    ]
+
+
 def test_a_contains_line_every_sku_holds_agrees():
     rec = _rec(
         "Chocolate bars. Contains: Milk, Soy.",
