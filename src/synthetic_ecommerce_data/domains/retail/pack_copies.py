@@ -21,6 +21,11 @@ family uses: a new family needs no drawing of its own to show its pack.
   (told the SKU's count by :func:`pile_count`), a nest of tables, a shape with its own ``count``,
   ``pieces`` or ``units`` of that number. ``tub`` drew its own pots and moved onto this layout, as
   did socks and the school shirt.
+- A PIECE SET (gen#728, the 11-04 scan) whose piece is one item (:data:`PIECE_COPIES`: a
+  screwdriver set, a set of chopping boards, a dinosaur figure set) lays out its title's "N Piece"
+  as N copies. One whose drawing shows its parts rather than N items (a dinner set's plate, bowl
+  and mug, a tool kit), or more than :data:`MOST_DRAWN`, carries the count printed on its image
+  (:func:`printed`, :func:`count_tag`). :func:`shown` is the count a drawing shows by itself.
 
 - SOCKS AND KNICKERS FAN (:data:`FANS`, gen#734): rows of them read as a heap, so they lie flat in
   one sweep, as a shop's listing shows them, each turned about a point below the pack and each with
@@ -44,6 +49,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _path,
     _word,
 )
+from synthetic_ecommerce_data.domains.retail.kit_drills import MOST_BITS
 
 #: The largest pack drawn item by item; above it the outer box stands in.
 MOST_DRAWN = 24
@@ -96,6 +102,18 @@ FANS = {
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
 SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table"})
+#: The shapes whose kind draws a set of a fixed count: four pads, a nest of three tables, a knife
+#: block's five knives and the block, four utensils and their holder.
+KIND_COUNT = {
+    ("anti_vibration_mat", None): 4,
+    ("side_table", "nest"): 3,
+    ("kitchen_knife", "block"): 6,
+    ("kitchen_utensil", "set"): 5,
+}
+#: The shapes whose "N Piece" set is N of the one item drawn (gen#728).
+PIECE_COPIES = frozenset({"chopping_board", "dinosaur", "screwdriver"})
+#: The printed count's tag: its right and top edge on the sheet, its width and height.
+TAG = (376.0, 28.0, 120.0, 80.0)
 #: What a shape that draws several in one drawing is told, so that a copy is one item.
 ONE_ITEM = {
     "bath_towel": {"folded": "1"},
@@ -111,7 +129,16 @@ _TITLE = (
     re.compile(r"\b(?:pack|set) of (\d+)\b", re.IGNORECASE),
     re.compile(r"\b(\d+)[ -]?(?:pack|pk)\b", re.IGNORECASE),
 )
-_TWO = re.compile(r"\btwin pack\b|\bpair$", re.IGNORECASE)
+_PIECES = re.compile(r"\b(\d+)[ -]?piece\b", re.IGNORECASE)
+#: What a title states beyond what the layout reads: a box, a count in words, its pieces. A set
+#: of three rings is drawn by the ring shape itself, so the layout leaves the words alone.
+_STATED = (
+    re.compile(r"\b(?:pack|set|box) of (\d+|two|three|four|five|six)\b", re.IGNORECASE),
+    _TITLE[1],
+    _PIECES,
+)
+_WORDS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
+_TWO = re.compile(r"\btwin pack\b|(?<!single )\bpair$", re.IGNORECASE)
 _SHEET = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">{}</svg>'
 _TAG = re.compile(r"<[^>]+>")
 _D = re.compile(r' d="[^"]*"')
@@ -131,39 +158,40 @@ def _attribute(rec: dict[str, Any]) -> int | None:
     return int(sized[1]) if sized else None
 
 
-def _titled(title: str) -> int:
-    """The count the title names, or 1."""
-    for pattern in _TITLE:
-        named = pattern.search(title)
-        if named:
-            return int(named[1])
-    return 2 if _TWO.search(title) else 1
-
-
-_STATED = (
-    re.compile(r"\b(?:pack|set|box) of (\d+|two|three|four|five|six)\b", re.IGNORECASE),
-    re.compile(r"\b(\d+)[ -]?(?:pack|pk|piece)\b", re.IGNORECASE),
-)
-_WORDS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
-_PAIR = re.compile(r"\btwin pack\b|\bpair of\b|\bpair$", re.IGNORECASE)
-
-
-def title_count(title: str) -> int | None:
-    """The count the title states (``Set of 4``, ``Set of Three``, ``6 Pack``, ``5pk``,
-    ``16 Piece``, ``Twin Pack``, ``Pair of``), or ``None`` when it states none."""
-    for pattern in _STATED:
+def title_count(title: str, patterns: tuple[re.Pattern[str], ...] = _STATED) -> int | None:
+    """The count the title states (``Set of 4``, ``Box of 12``, ``Set of Three``, ``6 Pack``,
+    ``5pk``, ``16 Piece``, ``Twin Pack``, ``..., Pair``), or ``None`` when it states none."""
+    for pattern in patterns:
         named = pattern.search(title)
         if named:
             return _WORDS.get(named[1].lower()) or int(named[1])
-    return 2 if _PAIR.search(title) else None
+    return 2 if _TWO.search(title) else None
+
+
+def _titled(rec: dict[str, Any]) -> int:
+    """The count the layout reads off the title, or 1: its pieces only where a piece is one drawn
+    item (:data:`PIECE_COPIES`)."""
+    pieces = rec["drawing"]["shape"] in PIECE_COPIES
+    return title_count(rec["title"], (*_TITLE, _PIECES) if pieces else _TITLE) or 1
 
 
 def shown(rec: dict[str, Any]) -> int | None:
+    """The items the product's own drawing shows, where it shows a count of its own: a kind of a
+    fixed count (:data:`KIND_COUNT`), a drill bit case's bits and the case, a shape's ``count``,
+    ``pieces`` or ``units``, or the sum of its ``counts`` (a craft kit's paints and brushes)."""
+    drawing = rec["drawing"]
+    params = drawing.get("params") or {}
+    shape = drawing["shape"]
+    if (shape, params.get("kind")) in KIND_COUNT:
+        return KIND_COUNT[shape, params.get("kind")]
+    if shape == "drill_bit_set":
+        return min(int(params["bits"]), MOST_BITS) + 1
+    for key in OWN_COUNT:
+        if key in params:
+            return int(params[key])
+    if "counts" in params:
+        return sum(int(c) for c in str(params["counts"]).split(","))
     return None
-
-
-def count_tag(n: int) -> str:
-    return ""
 
 
 def count(rec: dict[str, Any], sku: dict[str, Any]) -> int:
@@ -177,7 +205,7 @@ def count(rec: dict[str, Any], sku: dict[str, Any]) -> int:
     if attribute is not None:
         return attribute
     pairs = (rec["drawing"].get("params") or {}).get("pairs")
-    return int(pairs) if pairs else _titled(rec["title"])
+    return int(pairs) if pairs else _titled(rec)
 
 
 def self_drawn(rec: dict[str, Any], n: int) -> bool:
@@ -196,10 +224,24 @@ def copies(rec: dict[str, Any], sku: dict[str, Any]) -> int:
     return 1 if self_drawn(rec, n) else n
 
 
+def printed(rec: dict[str, Any], sku: dict[str, Any]) -> int | None:
+    """The count printed on the SKU's image: its title's, for a SKU laid out as no copies whose
+    drawing does not show that count (a dinner set's plate, bowl and mug), or shows more than
+    :data:`MOST_DRAWN` (a 1000 piece puzzle)."""
+    n = title_count(rec["title"])
+    if n is None or n == 1 or copies(rec, sku) > 1:
+        return None
+    return n if shown(rec) != n or n > MOST_DRAWN else None
+
+
 def spec(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
-    """What a pack adds to its SKU's drawing spec (so to its drawing id): nothing for one item."""
+    """What a pack adds to its SKU's drawing spec (so to its drawing id): the copies it lays out,
+    or the count printed on it; nothing for one item."""
     n = copies(rec, sku)
-    return {"pack_count": n} if n > 1 else {}
+    if n > 1:
+        return {"pack_count": n}
+    stated = printed(rec, sku)
+    return {"printed_count": stated} if stated else {}
 
 
 def pile_count(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
@@ -327,6 +369,23 @@ def outer_box(n: int, paint: str) -> str:
             f'stroke-width="{LW_DETAIL}"/>',
             _word(escape(str(n)), middle, panel_y + panel_h * 0.42, word_w, panel_h * 0.66),
             _word("pack", middle, panel_y + panel_h * 0.84, word_w, panel_h * 0.17),
+            "</g>",
+        )
+    )
+
+
+def count_tag(n: int) -> str:
+    """The count printed on a piece set's image: a white tag at the top right of the product's
+    area, ``n`` large on it over the word "pieces"."""
+    right, top, width, height = TAG
+    left, middle = right - width, right - width / 2
+    return "".join(
+        (
+            f'<g class="pack-tag" data-count="{n}">',
+            f'<rect x="{left:g}" y="{top:g}" width="{width:g}" height="{height:g}" rx="10" '
+            f'fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+            _word(str(n), middle, top + height * 0.4, width - 16, height * 0.56),
+            _word("pieces", middle, top + height * 0.8, width - 20, height * 0.26),
             "</g>",
         )
     )

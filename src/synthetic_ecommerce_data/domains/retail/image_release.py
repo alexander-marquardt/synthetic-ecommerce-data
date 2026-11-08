@@ -88,6 +88,8 @@ def colorway_drawing(rec: dict, sku: dict) -> dict:
         drawing["pack_scale"] = spec["pack_scale"]
     if "pack_count" in spec:  # a pack of N draws N items (gen#728)
         drawing["pack_count"] = spec["pack_count"]
+    if "printed_count" in spec:  # a piece set not drawn item by item prints its count (gen#728)
+        drawing["printed_count"] = spec["printed_count"]
     swatch = spec["swatch"]
     if swatch is None:
         return drawing

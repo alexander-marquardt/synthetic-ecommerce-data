@@ -20,12 +20,13 @@ SDS = Contents((5, "SDS-plus bits"), (1, "case"))
 HEX = Contents((10, "hex shank bits"), (1, "case"))
 
 
-def _row(code, name, brand, price, c, drills, shank, bits, text):
-    """``drills`` is one material or a tuple: a multi-purpose set states each material it drills into."""
+def _row(code, name, brand, price, c, drills, shank, text):
+    """``drills`` is one material or a tuple: a multi-purpose set states each material it drills into.
+    The case draws every piece but itself (gen#728)."""
     into = (drills,) if isinstance(drills, str) else drills
     return (code, c.title(name), brand, price, c.text(text),
             (*(a("drills_into", "Drills into", m) for m in into), a("shank", "Shank", shank), a("case", "Case", "Hard case"), *c.attrs),
-            (("shank", shank.lower()), ("bits", str(bits))))  # fmt: skip
+            (("shank", shank.lower()), ("bits", str(c.n - 1))))  # fmt: skip
 
 
 ROWS = d.styles(
@@ -38,7 +39,6 @@ ROWS = d.styles(
             WOOD,
             "Wood",
             "Round",
-            9,
             "Ground points that start cleanly, in a hard case.",
         ),
         _row(
@@ -49,7 +49,6 @@ ROWS = d.styles(
             MASONRY,
             "Masonry",
             "Round",
-            12,
             "Carbide tips for brick, block and stone, in a hard case.",
         ),
         _row(
@@ -60,7 +59,6 @@ ROWS = d.styles(
             METAL,
             "Metal",
             "Round",
-            13,
             "Titanium-coated steel for sheet and bar, in a hard case.",
         ),
         _row(
@@ -71,7 +69,6 @@ ROWS = d.styles(
             MULTI,
             ("Multi-purpose", "Wood", "Masonry", "Metal"),
             "Round",
-            13,
             "Bits for wood, masonry and metal, in a hard case.",
         ),
         _row(
@@ -82,7 +79,6 @@ ROWS = d.styles(
             SDS,
             "Masonry",
             "SDS",
-            5,
             "Four-cutter tips for concrete, in a hard case.",
         ),
         _row(
@@ -93,7 +89,6 @@ ROWS = d.styles(
             HEX,
             "Multi-purpose",
             "Hex",
-            10,
             "A quarter-inch hex shank for impact drivers, in a hard case.",
         ),
     ),

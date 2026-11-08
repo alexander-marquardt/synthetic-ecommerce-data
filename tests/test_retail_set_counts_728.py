@@ -47,6 +47,33 @@ def test_every_counted_title_draws_its_count(rows):
     assert wrong == [], wrong[:8]
 
 
+def test_a_count_above_24_is_printed_or_boxed(rows):
+    """Guard (gen#728): past 24 items a shopper cannot count them (a 1000 piece puzzle's grid).
+    Metric: rows above :data:`pack_copies.MOST_DRAWN` drawn neither printed nor as the outer box."""
+    big = [r for r in rows if r.title_n > pack_copies.MOST_DRAWN]
+    assert big
+    assert [(r.title, r.how) for r in big if r.how not in ("printed", "outer box")] == []
+
+
+#: The types whose count is printed, the table's named mismatches (Done-when 3): their drawing
+#: shows the set's parts, or more than 24 items.
+PRINTED = {
+    "Arts and Crafts Kit",
+    "Cutlery Set",
+    "Dinner Set",
+    "Drill Bit Set",
+    "Jigsaw Puzzle",
+    "Socket Set",
+    "Tool Kit",
+}
+
+
+def test_the_printed_types_are_the_named_ones(rows):
+    """Guard (gen#728): a drawing that shows its count (a knife block's five knives and the block,
+    a single pair of socks) should not carry a tag as well. Metric: the types with a printed row."""
+    assert {r.product_type for r in rows if r.how == "printed"} == PRINTED
+
+
 def test_laid_out_copies_are_the_count_drawn(rows):
     """Guard (gen#728): the count read off an image is the copies it really draws. Metric: rows
     laid out as copies whose ``pack-copy`` uses are not their count."""
