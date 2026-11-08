@@ -33,8 +33,8 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "a multipack of pots is drawn as one pot",
         "pack_copies.py",
-        'return {"pack_count": n} if n > 1 else {}',
-        "return {}",
+        '        return {"pack_count": n}\n    stated = printed(rec, sku)',
+        "        return {}\n    stated = printed(rec, sku)",
         f"{_T}::test_a_four_pack_of_yogurt_is_drawn_as_four_pots",
         "units_per_pack above one draws that many pots",
     ),

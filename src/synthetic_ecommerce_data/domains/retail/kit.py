@@ -753,19 +753,28 @@ def _shrunk(drawn: list[str], body: str, shrink: float) -> str:
 
 
 def _placed(
-    shape: str, drawn: list[str], overlay: str, shrink: float, copies: int, paint: str, uid: str
+    shape: str,
+    drawn: list[str],
+    overlay: str,
+    shrink: float,
+    copies: int,
+    paint: str,
+    uid: str,
+    printed: int | None = None,
 ) -> str:
     """The shape's drawing where it stands on the sheet: on its pack factor and offset, or laid
-    out as a pack of ``copies`` (:mod:`pack_copies`, gen#728)."""
+    out as a pack of ``copies`` (:mod:`pack_copies`, gen#728), with ``printed`` on its tag."""
     body = _shrunk(drawn, "".join(drawn) + overlay, shrink)
     if shape in OFFSET_Y:
         body = f'<g transform="translate(0 {OFFSET_Y[shape]})">{body}</g>'
-    if copies <= 1:
+    if copies <= 1 and not printed:
         return body
     from synthetic_ecommerce_data.domains.retail import (
         pack_copies,  # deferred: pack_copies draws with this kit
     )
 
+    if printed:
+        return body + pack_copies.count_tag(printed)
     return pack_copies.layout(body, [body], copies, paint, uid, shape)
 
 
@@ -785,6 +794,7 @@ def _render_styled(
     copies=1,
     angle=0.0,
     emblem=None,
+    printed=None,
 ) -> str:
     """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``, with
     ``emblem``'s licence line beside the logo."""
@@ -798,11 +808,11 @@ def _render_styled(
     drawn = _drawn(draw, paint, fill, label, params)
     overlay = _print_overlay(shape, fill, drawn, paint, uid) + _emblem(shape, emblem)
     inner = size_ladder.stand(
-        _placed(shape, drawn, overlay, shrink, copies, paint, uid), defs, size_scale
+        _placed(shape, drawn, overlay, shrink, copies, paint, uid, printed), defs, size_scale
     )
     product = hs.restyle(inner, style)
     if angle:
-        full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid)
+        full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid, printed)
         product = f'<g class="turn" transform="{hs.turn(full, defs, angle)}">{product}</g>'
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     extra = (0.0, 0.0)
@@ -904,6 +914,7 @@ def render(
     copies: int = 1,
     angle: float = 0.0,
     emblem: str | None = None,
+    printed: int | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -915,7 +926,8 @@ def render(
     pack about its bottom center on the same sheet (:mod:`pack_scale`, gen#543). ``size_scale`` is
     the scale the full-size drawing stands for on its product's size ladder (:mod:`size_ladder`,
     gen#339): a smaller one shrinks the drawing about its own bottom center, ``None`` leaves it.
-    ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728).
+    ``copies`` above 1 draws the pack of that many items (:mod:`pack_copies`, gen#728);
+    ``printed`` prints a piece set's count on its tag (``pack_copies.count_tag``).
     ``angle`` turns a styled drawing by its product's angle (``house_styles.turn``, #849).
     ``emblem`` names the invented film whose emblem the product carries, and whose licence line
     a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
@@ -951,10 +963,11 @@ def render(
             copies,
             angle,
             emblem,
+            printed,
         )
     drawn = _drawn(draw, paint, fill, label, params)
     overlay = _print_overlay(shape, fill, drawn, paint, uid) + _emblem(shape, emblem)
-    body = _placed(shape, drawn, overlay, shrink, copies, paint, uid)
+    body = _placed(shape, drawn, overlay, shrink, copies, paint, uid, printed)
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{defs}</defs>" if defs else "",

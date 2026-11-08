@@ -19,7 +19,7 @@ impact_driver   a short stubby body with a hex collet       batteries (0, 1, 2)
 sds_drill       a long barrel body with a D-handle and      power (corded, cordless)
                 an SDS chuck with two grooves
 drill_bit_set   an open case holding a row of bits of       shank (round, hex, sds),
-                the set's shank                             bits (3 to 13)
+                the set's shank                             bits (3 to 23)
 tool_kit        a carry case or a bag with a hammer,        case (case, bag)
                 pliers, a screwdriver and a tape on top
 step_ladder     an A-frame with one tread per step          steps (2 to 5), kind
@@ -55,6 +55,8 @@ PACK_H = {"compact": 30, "standard": 42, "large": 56}
 BATTERY_CLASS = "battery"
 TREAD_CLASS = "tread"
 BIT_CLASS = "bit"
+#: The most bits a case draws: with the case, a set of 24 pieces (``pack_copies.MOST_DRAWN``).
+MOST_BITS = 23
 CABLE_CLASS = "cable"
 
 
@@ -231,9 +233,9 @@ def sds_drill(paint: str, fill: Fill, label: str | None, power: str = "corded") 
 def drill_bit_set(
     paint: str, fill: Fill, label: str | None, shank: str = "round", bits: str = "9"
 ) -> list[str]:
-    """A drill bit set: an open case holding one bit per slot; the shank is round, hex (a flat
-    hex tip) or SDS (a grooved tip)."""
-    n = max(3, min(13, int(bits or 9)))
+    """A drill bit set: an open case holding one bit per slot, up to :data:`MOST_BITS`; the shank
+    is round, hex (a flat hex tip) or SDS (a grooved tip)."""
+    n = max(3, min(MOST_BITS, int(bits or 9)))
     out = [
         _path("M40,120 L360,120 L360,330 L40,330 Z", paint),
         _path("M52,132 L348,132 L348,318 L52,318 Z", _shade(fill.base, 0.3), 1.6),
