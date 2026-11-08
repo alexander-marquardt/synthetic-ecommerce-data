@@ -108,6 +108,14 @@ def test_a_drill_bit_case_draws_every_bit_up_to_23(bits):
     assert svg.count(f'class="{BIT_CLASS}"') == bits
 
 
+def test_a_drill_bit_set_of_24_or_fewer_draws_its_bits_and_case(rows):
+    """Guard (gen#728): the case is a piece, so a 19 piece set is 18 bits and the case, drawn, not
+    printed. Metric: drill bit set rows of 24 or fewer pieces and how each is drawn."""
+    sets = [r for r in rows if r.product_type == "Drill Bit Set" and r.title_n <= 24]
+    assert len(sets) >= 4
+    assert {r.how for r in sets} == {"own drawing"}, [(r.title, r.how) for r in sets]
+
+
 def test_each_drill_bit_set_names_its_bits_from_its_contents(ceiling):
     """Guard (gen#728): ``bits`` was typed by hand beside the contents and disagreed (9 of 18).
     Metric: each set's ``bits`` against its title's pieces less the case."""
