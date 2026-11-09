@@ -144,9 +144,11 @@ jobs:
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
+      # A lost worker is not replaced: under loadgroup the replacement gets no module and
+      # the shard waits for its timeout, so the run ends and ci_run_pytest reruns it (#916).
       # (The `runner` context is not available in a job-level `env`: the junit path
       # is added to PYTEST_ADDOPTS in the Tests step's own env.)
-      PYTEST_ADDOPTS: "-n auto --dist loadgroup -rfE"
+      PYTEST_ADDOPTS: "-n auto --dist loadgroup --max-worker-restart=0 -rfE"
     steps:
       - uses: actions/checkout@v4
         with:

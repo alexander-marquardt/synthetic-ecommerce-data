@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import re
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -208,3 +209,39 @@ def test_the_tests_step_runs_pytest_through_the_wrapper() -> None:
     lines = [ln.strip() for ln in steps.splitlines() if "uv run --locked pytest" in ln]
     assert lines, "the tests job no longer runs pytest"
     assert all(ln.startswith("python3 scripts/ci_run_pytest.py -- ") for ln in lines), lines
+
+
+def _tests_job_addopts() -> str:
+    """The tests job's ``PYTEST_ADDOPTS``: the options every shard's pytest starts from."""
+    steps = WORKFLOW.read_text(encoding="utf-8").split("  main-merged-tree:")[0]
+    found = re.search(r'^ +PYTEST_ADDOPTS: "([^"]+)"$', steps, re.MULTILINE)
+    assert found, "the tests job sets no PYTEST_ADDOPTS"
+    return found.group(1)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX process groups only")
+def test_a_worker_lost_under_the_tests_job_s_options_ends_the_run(tmp_path: Path) -> None:
+    """Under ``--dist loadgroup`` xdist starts a replacement worker but gives it no module, so a
+    shard whose worker the kernel killed waited for its 25-minute timeout, and the rerun above
+    never came (#916). With the job's own options the run ends and names the lost worker."""
+    (tmp_path / "test_a_killed.py").write_text(KILLED_MODULE, encoding="utf-8")
+    (tmp_path / "test_b_later.py").write_text(DONE_MODULE, encoding="utf-8")
+    drop = ("PYTEST_ADDOPTS", "WORKER_PEAK_DIR", "PYTEST_XDIST_AUTO_NUM_WORKERS")
+    env = {k: v for k, v in os.environ.items() if k not in drop}
+    env |= {"PYTEST_ADDOPTS": _tests_job_addopts(), "PYTEST_XDIST_AUTO_NUM_WORKERS": "1"}
+    pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
+                  "-p", "no:randomly", "--rootdir", str(tmp_path),
+                  "test_a_killed.py", "test_b_later.py"]  # fmt: skip
+    run = subprocess.Popen(
+        [sys.executable, str(SCRIPT), "--reruns", "0", "--", *pytest_cmd],
+        cwd=tmp_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        start_new_session=True,
+    )  # fmt: skip
+    try:
+        out, _ = run.communicate(timeout=90)
+    except subprocess.TimeoutExpired:
+        os.killpg(run.pid, signal.SIGKILL)
+        out, _ = run.communicate()
+        pytest.fail(f"the run never ended after its worker was lost:\n{out}")
+    assert run.returncode == ci_run_pytest.EXIT_INFRA, out
+    assert "infra: worker lost" in out, out
