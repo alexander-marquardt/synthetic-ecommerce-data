@@ -45,7 +45,8 @@ decoy rows pick their part with `named_parts.trim_part` from `details.PARTS`, th
 shape can show, and `named_parts.violations` is what `test_shape_honesty.py` runs over every
 apparel template. "Stitching" and "Piping" are too fine to see at thumbnail size, so no garment
 title names them. A part a shape cannot show is added to `details.PARTS` with its geometry before
-a title names it.
+a title names it. A dress title's construction or pattern word (wrap, tiered, pinstripe, roses)
+is drawn on the dress: [retail-dress-features.md](retail-dress-features.md) (gen#922).
 
 `tests/test_retail_drawing_honesty.py` holds the ceiling build to the same rule:
 the toilet cleaners draw as an angled-neck bottle or a hanging rim block (two units
