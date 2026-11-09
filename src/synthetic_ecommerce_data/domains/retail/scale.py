@@ -133,6 +133,7 @@ from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     decoy_product_words,
     decoy_rows,
+    dress_features,
     footwear_rows,
     garden_rows,
     grocery,
@@ -402,6 +403,7 @@ def templates(baseline: bool = True) -> list[dict]:
     body = knit_sleeves.complete(body)  # gen#434: a sleeve on every knit, before decoys
     body += decoy_apparel.docs(body)  # gen#311: clones of the styles above, appended last
     body = neckline_rows.complete(body)  # gen#181: every top, dress and knit states its neckline
+    body = dress_features.apply(body)  # gen#922: a Wrap Dress draws its wrap, decoys included
     body = net_volume.state_title_volumes(body)  # gen#347: a volume the title states is the field
     body = _state_lines(body)  # gen#623: a range a row carries is also its Line
     body = line_grammar.lead_with_brand(body, _line)  # gen#664: a model follows its brand

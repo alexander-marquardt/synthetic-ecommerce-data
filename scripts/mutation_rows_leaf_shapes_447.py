@@ -153,7 +153,7 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "the shirt dress loses its placket line",
         "kit_garments.py",
-        '        _line("M200,100 L200,364"),\n',
+        '{_line("M200,100 L200,364")}',
         "",
         f'{_T} -k "a_new_garment_part_is_drawn_by_its_kit_function"',
         "a shirt dress draws a buttoned placket",

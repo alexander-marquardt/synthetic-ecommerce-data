@@ -399,16 +399,26 @@ DRESS_NECKS: dict[str, tuple[str, str]] = {
 }  # fmt: skip
 
 
-def dress(paint: str, fill: Fill, label: str | None, neckline: str | None = None) -> list[str]:
+def dress(
+    paint: str, fill: Fill, label: str | None, neckline: str | None = None, features: str = ""
+) -> list[str]:
+    """The strap dress, with the construction and pattern ``features`` its title names
+    (:mod:`dress_features`, gen#922); a wrap front is its own V, so it draws no neckline cut."""
+    from synthetic_ecommerce_data.domains.retail import (
+        dress_features,  # deferred: dress_features draws with this kit
+    )
+
     body = "M158,112 Q200,128 242,112 L236,196 Q290,270 334,352 Q200,378 66,352 Q110,270 164,196 Z"
     straps, cut = DRESS_NECKS[neckline] if neckline else (_STRAPS, "")
-    out = [_line(straps, 5), _path(body, paint)]
-    if cut:
+    under, over = dress_features.draw("dress", features, paint, fill)
+    out = [_line(straps, 5), _path(body, paint), *under]
+    if cut and "wrap" not in features.split():
         out.append(_line(cut, 2.4))
     return [
         *out,
         _line("M164,196 Q200,206 236,196", 2.2),
         _line("M180,206 Q170,290 150,366 M220,206 Q230,290 250,366", 1.2, ' stroke-opacity=".6"'),
+        *over,
     ]
 
 

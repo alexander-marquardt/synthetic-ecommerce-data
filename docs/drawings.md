@@ -340,6 +340,8 @@ manifest (#102). It is now a shape function like the others: a C frame, a thread
 the boss on the lower arm, a swivel pad facing the fixed jaw, and a T-handle.
 `tests/test_c_clamp_drawn_803.py` pins its parts and refuses any `.svg` file under `src/`, so a
 copied drawing cannot come back unnoticed. A shape that is hard to draw is still drawn in code.
+A dress's wrap front, tiers, pinstripes and other title words are code-drawn marks over the
+shape: [retail-dress-features.md](retail-dress-features.md) (gen#922).
 
 ### A product that reads as a box gets its own shape (#873)
 

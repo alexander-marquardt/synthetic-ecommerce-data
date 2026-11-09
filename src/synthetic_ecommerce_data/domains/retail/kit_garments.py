@@ -331,28 +331,38 @@ def _mirror_path(d: str) -> str:
     return _poly([(SIZE - x, y) for x, y in pts])
 
 
-def shirt_dress(paint: str, fill: Fill, label: str | None) -> list[str]:
+def shirt_dress(paint: str, fill: Fill, label: str | None, features: str = "") -> list[str]:
     """A shirt dress: a pointed collar, short sleeves, a buttoned placket to the hem and a belt at
-    the waist (gen#447: it is not the strappy sundress ``dress`` draws)."""
+    the waist (gen#447: it is not the strappy sundress ``dress`` draws), with the pattern and
+    construction ``features`` its title names (:mod:`dress_features`, gen#922). Its placket and
+    belt are marked as the button front and the belt a title may name."""
+    from synthetic_ecommerce_data.domains.retail import (
+        dress_features,  # deferred: dress_features draws with the kit
+    )
+
     sleeve = "M158,72 L116,98 L100,146 L136,160 L152,130 Z"
     body = "M158,66 L242,66 L252,172 L306,358 Q200,376 94,358 L148,172 Z"
     collar = "M170,52 L200,100 L182,112 L152,76 Z"
     belt = "M150,172 L250,172 L252,192 L148,192 Z"
+    under, over = dress_features.draw("shirt_dress", features, paint, fill)
+    buttons = [
+        f'<circle cx="200" cy="{y}" r="3.6" fill="#ffffff" stroke="{INK}" stroke-width="1.2"/>'
+        for y in (122, 150, 214, 250, 286, 322)
+    ]
     return [
         _path(sleeve, paint),
         _path(_mirror_path(sleeve), paint),
         _path(body, paint),
+        *under,
+        *over,
         _path(collar, paint, LW_DETAIL),
         _path(_mirror_path(collar), paint, LW_DETAIL),
         _dark(collar, 0.12),
         _dark(_mirror_path(collar), 0.12),
-        _line("M200,100 L200,364"),
-        *[
-            f'<circle cx="200" cy="{y}" r="3.6" fill="#ffffff" stroke="{INK}" stroke-width="1.2"/>'
-            for y in (122, 150, 214, 250, 286, 322)
-        ],
-        _path(belt, _shade(fill.base, 0.2), LW_DETAIL),
-        f'<rect x="188" y="170" width="24" height="24" rx="3" fill="none" stroke="{INK}" stroke-width="2"/>',
+        f'<g data-feature="button_front">{_line("M200,100 L200,364")}{"".join(buttons)}</g>',
+        f'<g data-feature="belted">{_path(belt, _shade(fill.base, 0.2), LW_DETAIL)}'
+        f'<rect x="188" y="170" width="24" height="24" rx="3" fill="none" stroke="{INK}" '
+        f'stroke-width="2"/></g>',
         _line("M96,350 Q200,370 304,350", 1.2, ' stroke-dasharray="4 3"'),
     ]
 
