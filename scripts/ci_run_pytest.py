@@ -18,6 +18,11 @@ never rerun: a failing test stays a failing test, and the command's own exit cod
 Each attempt names a fresh directory in ``WORKER_PEAK_DIR``, where ``tests/worker_peak.py`` has
 each worker append its module peaks as it runs (#845). For each worker the log shows went down,
 it prints ``<gw> was in <module> at <MB> MB``: the last line that worker wrote before the kill.
+
+A shard that hangs never exits, so the evidence is also printed while pytest runs (#918). A
+SIGTERM, SIGINT or SIGHUP (the job's timeout, a cancel) prints it with the kernel-OOM lines, stops
+pytest and exits ``128 + signal``. A timer prints the same every ``--evidence-every`` seconds
+(default 300, 0 for none): the runner may end the step with SIGKILL, which no trap catches.
 """
 
 from __future__ import annotations
@@ -27,9 +32,12 @@ import os
 import re
 import resource
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 from pathlib import Path
 
 #: Exit code of a run that lost a worker on every attempt (EX_TEMPFAIL): not a test's code.
@@ -47,6 +55,12 @@ NODE_DOWN = re.compile(r"^[.sxXFE]*\[(gw\d+)\] node down: Not properly terminate
 MB = 1024 * 1024
 #: Where ``tests/worker_peak.py`` appends each worker's module peaks (#845).
 PEAK_DIR_ENV = "WORKER_PEAK_DIR"
+#: Seconds between the evidence printed while pytest runs (#918).
+EVIDENCE_EVERY = 300.0
+#: The signals a timeout or a cancel sends: each prints the evidence before the wrapper stops.
+STOP_SIGNALS = (signal.SIGTERM, signal.SIGINT, signal.SIGHUP)
+#: The timer thread and a signal handler write too; reentrant, as a handler may interrupt a write.
+_OUT = threading.RLock()
 
 
 def worker_lost(text: str) -> bool:
@@ -72,9 +86,9 @@ def _meminfo_mb(field: str) -> str:
 
 
 def evidence(cgroup: Path = Path("/sys/fs/cgroup")) -> list[str]:
-    """What the job can read about memory: the cgroup's OOM count and peak, the host's headroom."""
+    """What the job can read about memory: the cgroup's OOM count, use and peak, host headroom."""
     lines = []
-    events = _read(cgroup / "memory.events")
+    events, now = _read(cgroup / "memory.events"), _read(cgroup / "memory.current")
     peak, limit = _read(cgroup / "memory.peak"), _read(cgroup / "memory.max")
     if events is None and peak is None and limit is None:
         lines.append(f"no cgroup memory files under {cgroup}")
@@ -82,12 +96,12 @@ def evidence(cgroup: Path = Path("/sys/fs/cgroup")) -> list[str]:
         counts = dict(ln.split() for ln in (events or "").splitlines() if len(ln.split()) == 2)
         lines.append(
             f"cgroup: oom={counts.get('oom', '?')} oom_kill={counts.get('oom_kill', '?')} "
-            f"peak={_mb(peak)} limit={_mb(limit)}"
+            f"now={_mb(now)} peak={_mb(peak)} limit={_mb(limit)}"
         )
     rss_kb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
     rss_mb = rss_kb // 1024 if sys.platform != "darwin" else rss_kb // MB
     lines.append(
-        f"largest process so far: {rss_mb} MB; host MemAvailable={_meminfo_mb('MemAvailable')} "
+        f"largest finished process: {rss_mb} MB; host MemAvailable={_meminfo_mb('MemAvailable')} "
         f"SwapFree={_meminfo_mb('SwapFree')}"
     )
     return lines
@@ -106,6 +120,18 @@ def _kernel_oom_lines() -> list[str]:
     return hits[-5:] or ["dmesg: readable, no OOM line"]
 
 
+def _write(text: str) -> None:
+    with _OUT:
+        sys.stdout.write(text)
+        sys.stdout.flush()
+
+
+def report(when: str) -> None:
+    """Print the memory evidence and the kernel-OOM lines while pytest still runs (#918)."""
+    for line in [*evidence(), *_kernel_oom_lines()]:
+        _write(f"ci_run_pytest: {when}: {line}\n")
+
+
 def last_module(peaks: Path, worker: str) -> str:
     """Where ``worker`` was when it went down, from the last line of its peak file (#845)."""
     lines = (_read(peaks / f"{worker}.peaks") or "").splitlines()
@@ -115,28 +141,50 @@ def last_module(peaks: Path, worker: str) -> str:
     return f"{worker} was in {module} at {mb} MB"
 
 
-def run_once(command: list[str], peaks: Path) -> tuple[int, bool, list[str]]:
+def run_once(
+    command: list[str], peaks: Path, every: float = EVIDENCE_EVERY
+) -> tuple[int, bool, list[str]]:
     """Run ``command`` passing its output through: exit code, a worker was lost, what it names.
 
-    The names are each crashed test, then where each worker that went down was (#845).
+    The names are each crashed test, then where each worker that went down was (#845). While it
+    runs, the evidence is printed every ``every`` seconds and on a stop signal (#918).
     """
     lost, crashed, down = False, [], []
     env = os.environ | {PEAK_DIR_ENV: str(peaks)}
+    started, stop = time.monotonic(), threading.Event()
     with subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace",
         env=env,
     ) as child:  # fmt: skip
         assert child.stdout is not None
-        for line in child.stdout:
-            sys.stdout.write(line)
-            sys.stdout.flush()
-            lost = lost or worker_lost(line)
-            found = CRASHED_TEST.search(line)
-            if found:
-                crashed.append(f"{found.group(1)} crashed while running {found.group(2)}")
-            gone = NODE_DOWN.search(line)
-            if gone and gone.group(1) not in down:
-                down.append(gone.group(1))
+
+        def tick() -> None:
+            while not stop.wait(every):
+                report(f"pytest still running at {time.monotonic() - started:.0f} s")
+
+        def on_signal(signum: int, _frame: object) -> None:
+            name = signal.Signals(signum).name
+            report(f"{name} at {time.monotonic() - started:.0f} s, pytest still running")
+            child.terminate()
+            os._exit(128 + signum)
+
+        previous = {sig: signal.signal(sig, on_signal) for sig in STOP_SIGNALS}
+        if every > 0:
+            threading.Thread(target=tick, daemon=True).start()
+        try:
+            for line in child.stdout:
+                _write(line)
+                lost = lost or worker_lost(line)
+                found = CRASHED_TEST.search(line)
+                if found:
+                    crashed.append(f"{found.group(1)} crashed while running {found.group(2)}")
+                gone = NODE_DOWN.search(line)
+                if gone and gone.group(1) not in down:
+                    down.append(gone.group(1))
+        finally:
+            stop.set()
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
     return child.returncode, lost, crashed + [last_module(peaks, w) for w in down]
 
 
@@ -145,6 +193,10 @@ def main(argv: list[str]) -> int:
     head, command = argv[:split], argv[split + 1 :]
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--reruns", type=int, default=1, help="extra attempts after a lost worker")
+    parser.add_argument(
+        "--evidence-every", type=float, default=EVIDENCE_EVERY,
+        help="seconds between the memory evidence printed while pytest runs; 0 for none (#918)",
+    )  # fmt: skip
     args = parser.parse_args(head)
     if not command:
         parser.error("no command after --")
@@ -153,7 +205,7 @@ def main(argv: list[str]) -> int:
         attempt += 1
         peaks = Path(tempfile.mkdtemp(prefix="worker-peaks-"))
         try:
-            code, lost, crashed = run_once(command, peaks)
+            code, lost, crashed = run_once(command, peaks, args.evidence_every)
         finally:
             shutil.rmtree(peaks, ignore_errors=True)
         if not lost:
