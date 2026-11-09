@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     export,
     image_release,
     kids_films,
@@ -179,7 +180,8 @@ def test_the_other_products_of_the_joined_types_are_what_they_were_on_main(catal
             "colors": [c["color"] for c in d.get("color_options") or ()],
         }
         for d in catalog
-        if d["product_type"] in types and d["product_id"] not in kids_films.ids()
+        if d["product_type"] in types
+        and d["product_id"] not in kids_films.ids() | barry_plotter.ids()  # gen#925 joins them too
     }
     new = sorted(set(got) - set(pinned["products"]))
     assert all(pid.startswith("BRD-STK") for pid in new), new

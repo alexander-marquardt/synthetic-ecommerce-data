@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import math
 
-from synthetic_ecommerce_data.domains.retail import kids_films
+from synthetic_ecommerce_data.domains.retail import barry_plotter, kids_films
 from synthetic_ecommerce_data.domains.retail.kit import PAPER, Fill, _line, _path, _shade, register
 from synthetic_ecommerce_data.domains.retail.type_registry import Row, TypeSpec, cw
 
@@ -71,5 +71,5 @@ SPEC = TypeSpec(
     key="stickers",
     department="Toys",
     product_type="Stickers",
-    rows=ROWS,
+    rows=(*ROWS, *barry_plotter.rows_of("Stickers")),
 )

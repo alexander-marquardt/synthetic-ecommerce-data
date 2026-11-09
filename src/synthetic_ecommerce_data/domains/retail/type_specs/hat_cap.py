@@ -17,6 +17,7 @@ product of another type, which the ranker's category intent keeps below a cap he
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import barry_plotter
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -207,6 +208,7 @@ SPEC = TypeSpec(
              "A wool felt fedora with a pinched crown, a ribbon band and a medium brim, shaped to keep its dent."),
         _row("HATSUN", "Wide Brim Straw Sun Hat", _P, 16.0, "Sun Hat", "Straw", _ONE,
              "A woven straw sun hat with a wide brim and a low crown, light enough for the beach."),
+        *barry_plotter.rows_of("Hat"),  # the Barry Plotter range (gen#925)
     ),
     decoys=(
         Decoy(4, "wool beanie", "material facet: a wool query keeps Wool in the material",

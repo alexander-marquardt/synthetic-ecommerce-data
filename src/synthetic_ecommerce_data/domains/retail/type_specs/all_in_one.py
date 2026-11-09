@@ -3,6 +3,7 @@ hooded or not. :mod:`kit_baby` draws each as its own shape."""
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import barry_plotter
 from synthetic_ecommerce_data.domains.retail.babywear_rows import (
     ADULT,
     BLACK,
@@ -59,6 +60,7 @@ SPEC = TypeSpec(
         _aio("AIOKTD", "Kids Teddy Fleece Onesie", QUILLON, _K, 18.0,
              "A cuddly teddy fleece onesie with a zip front and elastic cuffs.",
              (YELLOW, BLUE, RED), "Teddy", False, "Unisex", priced(KIDS, 18.0), "kids"),
+        *barry_plotter.rows_of("All-in-One"),  # the Barry Plotter range (gen#925)
     ),
     apparel=ApparelPlan(
         compounds=(("jumpsuit", "Jumpsuit All-in-One"), ("onesie", "Onesie All-in-One"),

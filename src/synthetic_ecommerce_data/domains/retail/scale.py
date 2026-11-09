@@ -129,6 +129,7 @@ from synthetic_ecommerce_data.core.standard import (
 )
 from synthetic_ecommerce_data.core.standard import value_pools as text_pools
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     decor_rows,
     decoy_apparel,
     decoy_product_words,
@@ -421,8 +422,10 @@ def templates(baseline: bool = True) -> list[dict]:
     # another, so every other template, and the seeded fillers drawn from them, is as it was.
     kids = source_ids("kids_depth_rows")
     # The film merchandise (gen#887) is left out of both passes too: with it in a group, another
-    # style's copied main color or sale price would move.
-    films = kids_films.ids()
+    # style's copied main color or sale price would move. The Barry Plotter range (gen#925) is
+    # left out with them, for the same reason.
+    plotter = barry_plotter.ids()
+    films = kids_films.ids() | plotter
     seeded = [r for r in tpls if r["product_id"] not in kids | films]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
@@ -436,7 +439,9 @@ def templates(baseline: bool = True) -> list[dict]:
     own = [r for r in tpls if r["product_id"] in films]
     if baseline:
         own = [r for r in main_colors.complete([*done, *own], skip) if r["product_id"] in films]
-    done += sale_share.apply_all(own, ())
+    done += sale_share.apply_all([r for r in own if r["product_id"] not in plotter], ())
+    # The range takes no department's share: a quarter of its products are on sale, its own.
+    done += [barry_plotter.on_sale(r) for r in own if r["product_id"] in plotter]
     by_id = {r["product_id"]: r for r in done}
     return [by_id.get(r["product_id"], r) for r in tpls]
 
