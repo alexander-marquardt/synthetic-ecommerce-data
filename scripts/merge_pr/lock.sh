@@ -1,4 +1,4 @@
-# The merge lock of scripts/merge_pr.sh. Reads $slug, $pr and die.
+# The merge lock of scripts/merge_pr.sh. Reads $slug, $pr, die and started.
 # shellcheck shell=bash
 
 #: One merge at a time (#383). mkdir is the atomic step; the owner file names the holder's
@@ -16,6 +16,7 @@ acquire_merge_lock() {
   local waited_for=$SECONDS deadline owner_pid owner_pr announced=0
   lock_dir=${MERGE_PR_LOCK:-/tmp/merge-pr-$(printf '%s' "$slug" | tr -c 'A-Za-z0-9._-' _).lock}
   deadline=$((SECONDS + ${MERGE_PR_LOCK_WAIT:-14400}))
+  started lock "take the merge lock $lock_dir"
   until mkdir "$lock_dir" 2>/dev/null; do
     owner_pid="" owner_pr=""
     read -r owner_pid owner_pr 2>/dev/null <"$lock_dir/owner" || true

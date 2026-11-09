@@ -5,6 +5,7 @@
 # 1. Merge current main into the PR head. Sets conflicted to the files left for the rebuild.
 merge_main_into_head() {
   local by_hand path
+  started 1 "merge $base_ref into the PR head"
   conflicted=""
   if git -C "$work" merge-base --is-ancestor "$base_sha" HEAD; then
     echo "1. $base_ref is already in the PR head"
@@ -69,6 +70,7 @@ $stray"
 # 2. Rebuild the committed catalog on the merged tree.
 rebuild_merged_tree() {
   local path
+  started 2 "rebuild the generated files on the merged tree"
   # A generated file the code reads at import (core/price.py reads the measured builds)
   # holds conflict markers after a conflicted merge, and the build that would rewrite it
   # cannot import them: drop it, so the build starts without it and writes it (gen#85).
@@ -108,6 +110,7 @@ count() { sed -nE "s/.*<testsuite[^>]*[[:space:]]$1=\"([0-9]+)\".*/\1/p" "$check
 # --github-ci skips this: the same files run in the sharded tests job (#348).
 check_merged_tree() {
   local parallel passed
+  started 3 "the checks on the merged tree"
   if [ "$github_ci" -eq 1 ]; then
     echo "3. skipped: the drift, golden, seam and README size tests run in the sharded tests job"
     return 0

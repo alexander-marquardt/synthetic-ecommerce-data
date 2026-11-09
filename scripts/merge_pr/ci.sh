@@ -148,6 +148,7 @@ only_stale_generated_files_red() {
 run_local_ci_regenerating() {
   local job run_ci=run_local_ci ci_name="local CI"
   if [ "$github_ci" -eq 1 ]; then run_ci=run_github_ci ci_name="GitHub CI"; fi
+  started 5 "$ci_name on the merged tree"
   $run_ci && return 0
   only_stale_generated_files_red ||
     die "$ci_name is red on $final_sha (failed:$local_ci_failed); NOT merged"
@@ -170,6 +171,7 @@ wait_for_pr_checks() {
   local ci_timeout ci_deadline runs seen seen_stems pending missing name status conclusion
   ci_timeout=${MERGE_PR_CI_TIMEOUT:-3600}
   ci_deadline=$((SECONDS + ci_timeout))
+  started 5 "wait for the CI checks on $final_sha"
   while :; do
     runs=$(gh api "repos/$slug/commits/$final_sha/check-runs?per_page=100" \
       --jq '.check_runs[] | [.name, .status, (.conclusion // "")] | @tsv')
