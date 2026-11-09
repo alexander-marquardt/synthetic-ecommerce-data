@@ -21,6 +21,12 @@ Pattern. A record with a ``pattern`` attribute sells only that pattern: every co
 option (and the drawing) carries the pattern :data:`PATTERN_KIND` maps it to, and the
 title and description name no other pattern.
 
+Allergens (#913). A grocery description is written once for the style, and each SKU states its own
+``contains`` and ``may_contain``. Every allergen its "Contains:" line names must be in each SKU's
+``contains``, and every one its "May contain:" line names in each SKU's ``contains`` or
+``may_contain``: a Nut Free Milk bar must not read "Contains: Peanuts" because the style's other
+flavor holds them.
+
 Material words are not read: 71 of the template rows hold a material word that is not
 the style's material (a leather-look decoy, a wooden handle on a steel knife, a ceramic
 coating on an aluminum pan), and none of those is a defect. The reason is in
@@ -31,6 +37,8 @@ from __future__ import annotations
 
 import re
 from typing import Any
+
+from synthetic_ecommerce_data.domains.retail.grocery_model import ALLERGENS
 
 #: closure family -> the words that name it in text.
 FAMILIES: dict[str, str] = {
@@ -131,10 +139,32 @@ def pattern_lines(rec: dict[str, Any]) -> list[str]:
     return out
 
 
+#: The allergen lines of a grocery description -> the SKU keys whose union must hold each name.
+ALLERGEN_LINES: dict[str, tuple[str, ...]] = {
+    "Contains": ("contains",),
+    "May contain": ("contains", "may_contain"),
+}
+
+
+def allergen_lines(rec: dict[str, Any]) -> list[str]:
+    """The SKUs of one record whose own allergens its description's allergen lines overstate."""
+    out = []
+    for label, keys in ALLERGEN_LINES.items():
+        line = re.search(rf"\b{label}: ([^.]*)\.", rec.get("description", ""))
+        if line is None:
+            continue
+        said = [a.strip() for a in line.group(1).split(",") if a.strip() in ALLERGENS.values()]
+        for sku in rec.get("skus", ()):
+            held = {a for k in keys for a in sku.get(k, ())}
+            if extra := [a for a in said if a not in held]:
+                out.append(f"SKU {sku.get('sku')} does not hold {extra} but the text says {label}")
+    return out
+
+
 def disagreements(records: list[dict[str, Any]]) -> list[str]:
     """``product_id: reason`` for every row whose words contradict its attributes."""
     return [
         f"{rec['product_id']}: {line}"
         for rec in records
-        for line in closure_lines(rec) + pattern_lines(rec)
+        for line in closure_lines(rec) + pattern_lines(rec) + allergen_lines(rec)
     ]

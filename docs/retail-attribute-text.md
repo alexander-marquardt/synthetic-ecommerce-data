@@ -11,6 +11,16 @@ and on the ceiling build, and holds the check itself against hand-made rows.
 | `closure` is Zip, Magnetic, Snap, Drawstring, Clasp or Buckle | the title or description, if it names any closure word (zip, magnetic, snap, drawstring, clasp, buckle), names that one |
 | `closure` is anything else (Lace-Up, Pull-On, Ankle Strap, ...) | the text names no closure word, or only those `ALSO` lists for that value, each with its reason |
 | `pattern` | every color option and the drawing carry the pattern `PATTERN_KIND` maps it to, and the text names no other pattern (a gingham check may say "check") |
+| a grocery SKU's `contains` and `may_contain` (#913) | every allergen the description's "Contains:" line names is in each SKU's `contains`, and every one its "May contain:" line names is in each SKU's `contains` or `may_contain` |
+
+**Allergens (#913).** A grocery description is written once for the style, but each SKU states its
+own allergens. When the description listed the union over the flavors, the Nut Free Milk bar of
+`GRC-CHB-0001` read "Contains: Peanuts" because the style's Peanut Caramel bar holds them (1,885
+SKUs of the ceiling build). `grocery._description` now writes only what every SKU holds: "Contains:"
+is the allergens every SKU contains, and "May contain:" is those every SKU contains or may contain
+and not all contain. A SKU's own full list stays in `facets.contains` and `facets.may_contain`.
+`attribute_text.allergen_lines` is the check, and `tests/test_retail_allergen_text_913.py` holds it
+at zero on the ceiling build.
 
 A zipped pocket, compartment or lining is not a closure (`NOT_A_CLOSURE`). A text that names no
 closure word agrees with any closure.

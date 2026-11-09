@@ -302,8 +302,11 @@ def _description(fam: Family, flavors: list[F], packs: list[dict], skus: list[di
         out.append(CUT_NOTES[fam.code, names[0]])
     out.append(_available(packs))
     out.append(STORAGE_TEXT[fam.storage])
-    contains = _union(s.get("contains", []) for s in skus)
-    may = [a for a in _union(s.get("may_contain", []) for s in skus) if a not in contains]
+    # The text is the style's and the allergens are each SKU's: a line names only what every SKU
+    # holds, so a Nut Free flavor never reads "Contains: Peanuts" for another flavor's (#913).
+    contains = _common(s.get("contains", []) for s in skus)
+    held = _common([*s.get("contains", []), *s.get("may_contain", [])] for s in skus)
+    may = [a for a in ALLERGENS.values() if a in held and a not in contains]
     if contains:
         out.append(f"Contains: {', '.join(contains)}.")
     if may:
