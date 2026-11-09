@@ -96,8 +96,10 @@ def test_the_evidence_names_the_cgroup_s_memory_in_use_now(tmp_path: Path) -> No
 
 
 def test_a_green_run_shorter_than_the_period_prints_no_evidence(tmp_path: Path) -> None:
+    # A second of running: a default period of seconds, not minutes, would print evidence here.
+    child = "import time; time.sleep(1); print('ok')"
     done = subprocess.run(
-        [sys.executable, str(SCRIPT), "--", sys.executable, "-c", "print('ok')"],
+        [sys.executable, str(SCRIPT), "--", sys.executable, "-c", child],
         capture_output=True, text=True, timeout=60, check=False,
     )  # fmt: skip
     assert (done.returncode, done.stdout) == (0, "ok\n"), done.stdout + done.stderr
