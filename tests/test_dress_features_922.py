@@ -79,9 +79,18 @@ def test_the_reported_dress_draws_its_wrap_and_pinstripe(dresses) -> None:
 def test_the_check_names_every_word_it_misses_not_only_the_first() -> None:
     rec = {"product_id": "X", "title": "Pinstripe Tiered Wrap Dress", "product_type": "Dress",
            "category_path": ["Womens", "Dresses"]}  # fmt: skip
-    plain = "".join(kit.dress("#223344", Fill("solid", "#223344", "#333333", "#f2d14b"), None))
-    got = dress_features.unshown([rec], lambda _rec: ("solid", plain))
+    # Drawn with another feature: a mark that is not the word's does not count as drawing it.
+    fill = Fill("solid", "#223344", "#333333", "#f2d14b")
+    belted = "".join(kit.dress("#223344", fill, None, features="belted"))
+    got = dress_features.unshown([rec], lambda _rec: ("solid", belted))
     assert got == {"pinstripe": ["X"], "tiered": ["X"], "wrap": ["X"]}
+
+
+def test_a_shirt_dress_marks_its_own_belt_and_button_front() -> None:
+    rec = {"product_id": "X", "title": "Belted Button Front Shirt Dress", "product_type": "Dress",
+           "category_path": ["Womens", "Dresses"]}  # fmt: skip
+    svg = kit.render("shirt_dress", Fill("solid", "#223344", "#333333", "#f2d14b"))
+    assert dress_features.unshown([rec], lambda _rec: ("solid", svg)) == {}
 
 
 @pytest.mark.parametrize("word", sorted(NAMED_TODAY))
@@ -100,3 +109,27 @@ def test_each_feature_draws_a_mark_the_plain_shape_lacks(shape) -> None:
         if svg == plain or feature not in _MARK.findall(svg):
             missing.append(feature)
     assert not missing, f"{shape} draws nothing for {missing}"
+
+
+def test_a_wrap_front_is_its_own_v_and_draws_no_neckline_cut() -> None:
+    fill = Fill("solid", "#c2b8a3", "#333333", "#f2d14b")
+    cut = kit.DRESS_NECKS["v_neck"][1]
+    assert cut in "".join(kit.dress("#c2b8a3", fill, None, neckline="v_neck"))
+    assert cut not in "".join(kit.dress("#c2b8a3", fill, None, neckline="v_neck", features="wrap"))
+
+
+def test_a_mark_on_a_dark_fill_is_drawn_light_not_in_the_kit_ink() -> None:
+    def marks(base: str) -> str:
+        drawn = "".join(kit.dress(base, Fill("solid", base, "#333333", "#f2d14b"), None,
+                                  features="belted wrap"))  # fmt: skip
+        return "".join(re.findall(r'<g data-feature="[a-z_]+">.*?</g>', drawn))
+
+    assert f'stroke="{kit.INK}"' in marks("#c2b8a3")
+    assert f'stroke="{kit.INK}"' not in marks("#2f2f35")
+
+
+def test_a_shape_refuses_a_feature_it_cannot_draw() -> None:
+    with pytest.raises(ValueError, match="shirt_dress draws no"):
+        dress_features.draw(
+            "shirt_dress", "wrap", "#ffffff", Fill("solid", "#ffffff", "#333333", "#f2d14b")
+        )
