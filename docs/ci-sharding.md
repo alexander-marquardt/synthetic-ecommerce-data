@@ -312,8 +312,8 @@ a worker's peak goes over about 4000 MiB, split that shard.
 The Tests step runs `python3 scripts/ci_run_pytest.py -- uv run --locked pytest ...`. When the
 output shows a lost worker the script prints `infra: worker lost` (a `::warning::` annotation),
 then what a job can read: the job cgroup's `memory.events` OOM counts, `memory.peak` and
-`memory.max`, the largest process's peak RSS, the host's MemAvailable and SwapFree, and the
-kernel OOM lines when `dmesg` is readable. It then runs the shard once more (`--reruns N`, default
+`memory.max` (and `memory.current` as `now=`), the largest finished process's peak RSS, the
+host's MemAvailable and SwapFree, and the kernel OOM lines when `dmesg` is readable. It then runs the shard once more (`--reruns N`, default
 1). A shard that loses a worker on every attempt ends with exit code 75 and an `::error::infra:
 worker lost` annotation, not a test's exit code. A run whose tests failed with every worker alive
 is never rerun. The next occurrence therefore names its cause in the job log, and a first
@@ -329,6 +329,16 @@ d708bdd66520, the host's OOM killer took a worker in nine shards over two attemp
 sat until the 25-minute job timeout and ended cancelled, with no rerun.
 `test_a_worker_lost_under_the_tests_job_s_options_ends_the_run` runs a module that kills its
 worker under the job's own options, and it needs the run to end.
+
+A shard that hangs (workers OOM-killed and never replaced, a deadlock) never exits, so evidence
+printed only after pytest exits never reached the log: such a red read only "timed out" until the
+host's `journalctl -k` was read (#918). The script therefore also prints it while pytest runs. A
+SIGTERM, SIGINT or SIGHUP, as the job's timeout or a cancel sends, prints the same lines and the
+kernel OOM lines as `ci_run_pytest: SIGTERM at <s> s, pytest still running: ...`, stops pytest
+and exits `128 + signal`. The runner may skip the catchable signal and end the step with SIGKILL,
+so a timer also prints them every `--evidence-every` seconds (default 300; 0 turns it off) as
+`ci_run_pytest: pytest still running at <s> s: ...`. A shard killed outright still shows the
+evidence of its last five minutes. `tests/test_ci_timeout_evidence_918.py` is the guard.
 
 A killed worker never sends its `module peak memory:` figures to the controller, so the script
 also names where each lost worker was (#845). Each attempt names a fresh directory in
