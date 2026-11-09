@@ -322,6 +322,14 @@ occurrence no longer reds a pull request. If the evidence shows memory (`oom_kil
 lower `-n` is no option, since one worker is the serial run. `tests/test_ci_worker_lost_629.py`
 is the guard.
 
+The tests job runs with `--max-worker-restart=0` (#916): a lost worker ends the run, and the
+script reruns it. Without it, xdist starts a replacement worker, but under `--dist loadgroup`
+it gives the replacement no module, so pytest never ends. On main's run 42543867279 at
+d708bdd66520, the host's OOM killer took a worker in nine shards over two attempts. Eight of them
+sat until the 25-minute job timeout and ended cancelled, with no rerun.
+`test_a_worker_lost_under_the_tests_job_s_options_ends_the_run` runs a module that kills its
+worker under the job's own options, and it needs the run to end.
+
 A shard that hangs (workers OOM-killed and never replaced, a deadlock) never exits, so evidence
 printed only after pytest exits never reached the log: such a red read only "timed out" until the
 host's `journalctl -k` was read (#918). The script therefore also prints it while pytest runs. A
