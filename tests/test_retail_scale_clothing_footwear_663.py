@@ -169,12 +169,15 @@ def test_no_apparel_decoy_clones_a_petite_style(ceiling):
     fell to 0.0997 once the class 5 retirement moved the exemplar walk. Metric: the apparel
     decoys that are petite, of a type that has a style which is not (every jogger is petite, so
     the joggers' decoys may be)."""
-    from synthetic_ecommerce_data.domains.retail import decoy_apparel
+    from synthetic_ecommerce_data.domains.retail import barry_plotter, decoy_apparel
 
     ids = decoy_apparel.ids()
     petite = lambda r: "petite" in r.get("size_range", ())  # noqa: E731
     has_other = {
-        r["product_type"] for r in ceiling.records if r["product_id"] not in ids and not petite(r)
+        r["product_type"]
+        for r in ceiling.records
+        # gen#925: the range is no clone's source
+        if r["product_id"] not in ids | barry_plotter.ids() and not petite(r)
     }
     off = [
         r["product_id"]

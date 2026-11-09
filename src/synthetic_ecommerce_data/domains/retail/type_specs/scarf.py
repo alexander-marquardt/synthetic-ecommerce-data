@@ -17,6 +17,7 @@ Scarf" is black) and another brand's name in the description (class 7).
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import barry_plotter
 from synthetic_ecommerce_data.domains.retail.kit import (
     LW,
     LW_DETAIL,
@@ -152,6 +153,7 @@ SPEC = TypeSpec(
              "A small silk scarf with a rolled hem that folds to a neat band at the neck."),
         _row("SCFSNO", "Ribbed Knit Snood", _W, 16.0, "Snood", "Wool", "60",
              "A closed loop of ribbed wool that pulls over the head and sits close to the neck, with no ends to tie."),
+        *barry_plotter.rows_of("Scarf"),  # the Barry Plotter range (gen#925)
     ),
     decoys=(
         Decoy(4, "silk scarf", "material facet: a silk query keeps Silk in the material",

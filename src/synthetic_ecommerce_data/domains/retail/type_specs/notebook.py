@@ -10,7 +10,10 @@ Not derivable: authored rows only. Every name here is invented.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import kit_gifts  # noqa: F401 -- registers notebook
+from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
+    kit_gifts,  # noqa: F401 -- registers notebook
+)
 from synthetic_ecommerce_data.domains.retail.gifts_rows import (
     CALDERBY,
     DEPARTMENT,
@@ -56,5 +59,6 @@ SPEC = TypeSpec(
             "A pocket A6 notebook with lined pages and a flexible cover."),
         _nb("GNBA6PH", "A6 Plain Hardback Notebook", CALDERBY, 6.0, "A6", "plain", "hardback",
             "A small A6 notebook with plain pages and a hard cover, for a bag or a coat pocket."),
+        *barry_plotter.rows_of("Notebook"),  # the Barry Plotter range (gen#925)
     ),
 )  # fmt: skip

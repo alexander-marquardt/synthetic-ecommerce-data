@@ -18,7 +18,12 @@ import re
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import line_grammar, scale, scale_measures
+from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
+    line_grammar,
+    scale,
+    scale_measures,
+)
 
 #: A bare number, or a number after a modifier ("Plus 2", "Mini 8"), as a word of a range name.
 BARE_NUMBER = re.compile(r"\b\d+\b")
@@ -81,6 +86,7 @@ def test_a_brand_sells_one_of_each_cup_with_its_colors_as_skus(ceiling, kind):
     """Guard (#851): the ceiling's cup sets were seven products, six of them one color each,
     three from one brand. Metric: products per brand of the kind, and one-SKU products."""
     cups = [r for r in ceiling.records if r["product_type"] == kind]
+    cups = [r for r in cups if r["product_id"] not in barry_plotter.ids()]  # gen#925
     per_brand = collections.Counter(r["brand"] for r in cups)
     assert len(per_brand) > 1, per_brand
     assert max(per_brand.values()) == 1, per_brand

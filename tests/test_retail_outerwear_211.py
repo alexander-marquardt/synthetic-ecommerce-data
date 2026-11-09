@@ -20,6 +20,7 @@ from synthetic_ecommerce_data.core import letter_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
+    barry_plotter,
     decoy_apparel,
     export,
     kit,
@@ -89,7 +90,7 @@ def _spec(ptype: str) -> type_registry.TypeSpec:
 
 
 def _rows(ptype: str) -> list:
-    return list(_spec(ptype).rows)
+    return [r for r in _spec(ptype).rows if r.product_id not in barry_plotter.ids()]  # gen#925
 
 
 def _all_rows() -> list:

@@ -20,11 +20,12 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     kit,
     scale,
 )
+from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail.distractors import tokens
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,7 +52,8 @@ def docs() -> list[dict]:
 
 
 def _of(docs: list[dict], product_type: str) -> list[dict]:
-    return [d for d in docs if d["product_type"] == product_type]
+    own = [d for d in docs if d["product_type"] == product_type]
+    return [d for d in own if d["product_id"] not in barry_plotter.ids()]  # gen#925
 
 
 def _decoys(docs: list[dict]) -> list[dict]:

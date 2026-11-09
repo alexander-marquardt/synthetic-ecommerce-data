@@ -12,6 +12,7 @@ kids' films (gen#887) come from :mod:`kids_films`.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     kids_films,
     kit_cups,  # noqa: F401 -- registers party_cup
 )
@@ -52,5 +53,5 @@ SPEC = TypeSpec(
     key="party_cup",
     department="Home",
     product_type="Party Cup",
-    rows=(*ROWS, *kids_films.rows_of("Party Cup")),
+    rows=(*ROWS, *kids_films.rows_of("Party Cup"), *barry_plotter.rows_of("Party Cup")),
 )

@@ -17,6 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     export,
     kit,
     main_colors,
@@ -26,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 
 SPEC = type_registry.specs()["scarf"]
-ROWS = SPEC.rows
+ROWS = tuple(r for r in SPEC.rows if r.product_id not in barry_plotter.ids())  # gen#925
 PTYPE = "Scarf"
 PATH = ("Womens", "Accessories", "Scarves")
 KINDS = {"Knitted", "Woven", "Silk Square", "Snood"}

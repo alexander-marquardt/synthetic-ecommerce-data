@@ -7,7 +7,7 @@ brands and helpers); this spec registers the type and reads its rows back. Templ
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import outerwear_rows
+from synthetic_ecommerce_data.domains.retail import barry_plotter, outerwear_rows
 from synthetic_ecommerce_data.domains.retail.type_registry import ApparelPlan, TypeSpec
 
 PRODUCT_TYPE = "Hoodie"
@@ -17,7 +17,7 @@ SPEC = TypeSpec(
     department="Clothing",
     product_type=PRODUCT_TYPE,
     owners=outerwear_rows.owners_of(PRODUCT_TYPE),
-    rows=outerwear_rows.rows_of(PRODUCT_TYPE),
+    rows=(*outerwear_rows.rows_of(PRODUCT_TYPE), *barry_plotter.rows_of(PRODUCT_TYPE)),
     apparel=ApparelPlan(
         compounds=(
             ("bomber", "Bomber Hoodie"),

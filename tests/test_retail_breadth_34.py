@@ -10,6 +10,7 @@ from __future__ import annotations
 import collections
 
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     breadth_rows,
     color_word_brand_rows,
     diy_decoy_rows,
@@ -55,8 +56,8 @@ def test_no_other_template_uses_a_breadth_leaf() -> None:
         and d["product_id"] not in color_word_brand_rows.product_ids()
         # the lunch cooler named for a fridge is a real lunch box, so it sits in that leaf (gen#334)
         and d["product_id"] not in _lunch_cooler_ids()
-        # a film's lunch box is a real lunch box, so it sits in that leaf (gen#887)
-        and d["product_id"] not in kids_films.ids()
+        # a film's or Barry Plotter's lunch box is a real lunch box, so it sits in that leaf
+        and d["product_id"] not in kids_films.ids() | barry_plotter.ids()  # gen#887, gen#925
         # a drill-family decoy (an apron, a candle) sits in a breadth leaf on purpose (gen#191)
         and d["product_id"] not in diy_decoy_rows.product_ids()
     }
