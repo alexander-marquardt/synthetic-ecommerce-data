@@ -33,7 +33,7 @@ KINDS = {
     "fc874_sofa": Kind("Home", ("Home", "Furniture", "Sofas"), "Sofa", "sofa_seats", "Brackenmere Home", 599.0,
                        params=(("seats", "2"), ("arms", "rolled"), ("legs", "walnut")), extra=_BABY),
     "fc874_cushion": Kind("Home", ("Home", "Soft Furnishings", "Cushions"), "Cushion", "cushion", "Hearth & Table", 24.0,
-                          extra=(("fabric", "Fabric", "Baby Face Fabric"),)),
+                          extra=_BABY),
     "fc874_jars": Kind("Beauty", _TRAVEL, "Travel Set", "moisturiser_jar", "Velling Apothecary", 6.0, colorless=True),
 }  # fmt: skip
 
