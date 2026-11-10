@@ -109,7 +109,8 @@ def test_the_facing_corner_sofas_exist_on_both_hands_with_their_siblings(by_titl
 
 
 def test_cream_sofas_and_armchairs_titled_cream_number_six_to_ten(ceiling):
-    """The metric: 1 before this set; about 6 to 10 after."""
+    """The metric: 1 before this set; about 6 to 10 after, and 11 with gen#874's Baby Face Cream
+    Sofa."""
     n = sum(
         1
         for r in ceiling
@@ -118,7 +119,7 @@ def test_cream_sofas_and_armchairs_titled_cream_number_six_to_ten(ceiling):
         and "Cream" in _colors(r)
         and "cream" in tokens(r["title"])
     )
-    assert 6 <= n <= 10, n
+    assert 6 <= n <= 11, n
 
 
 def test_which_decoys_hold_both_words_in_the_title_and_which_only_one_or_in_the_description(
