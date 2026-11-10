@@ -23,6 +23,7 @@ from synthetic_ecommerce_data.domains.retail import (
     feature_decoys,
     main_colors,
     scale,
+    shoe_grid,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -127,7 +128,8 @@ def test_a_decoys_fields_tell_the_truth(ceiling: list[dict]) -> None:
     by_id = {r["product_id"]: r for r in ceiling}
     for pid, row in dr.BY_ID.items():
         colors = {c["color"] for c in by_id[pid].get("color_options", [])}
-        assert len(colors) <= 1, (pid, colors)
+        # A shoe is sold in sizes and colors (gen#935), none the query's (below).
+        assert len(colors) <= 1 or shoe_grid.is_footwear(by_id[pid]), (pid, colors)
         if row.cls == 1 and row.query in INTENT:
             assert INTENT[row.query][0] not in colors, (pid, row.title)
 
