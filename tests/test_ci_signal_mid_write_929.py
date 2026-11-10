@@ -84,3 +84,18 @@ def test_a_sigterm_during_a_blocked_write_prints_the_evidence_and_exits(tmp_path
     assert "ci_run_pytest: SIGTERM at " in log, tail
     assert "Out of memory: Killed process 7" in log, tail
     assert proc.wait() == 128 + signal.SIGTERM, tail
+
+
+def test_an_error_in_the_relay_thread_ends_the_wrapper_with_its_traceback() -> None:
+    # The relay's write fails once the log's pipe is gone: the error reaches the main thread,
+    # not a thread's stderr note while the wrapper goes on as if pytest's output got through.
+    child = "import time; time.sleep(0.5); print('pytest output', flush=True)"
+    proc = subprocess.Popen(
+        [sys.executable, str(SCRIPT), "--", sys.executable, "-c", child],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )  # fmt: skip
+    assert proc.stdout is not None and proc.stderr is not None
+    proc.stdout.close()
+    err = proc.stderr.read()
+    assert proc.wait(timeout=30) != 0, err
+    assert "BrokenPipeError" in err and "in run_once" in err, err
