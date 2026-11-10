@@ -8,7 +8,7 @@ about 40% of their score, so the top 24 showed one decoy and the demo had no "be
 
 Each row here is a short title that holds the phrase and names a product a shopper really meets:
 
-* **Baby Face Cream**: a sofa range sells its fabric and colour as one name, so "Baby Face" (the
+* **Baby Face Cream**: a sofa range sells its fabric and color as one name, so "Baby Face" (the
   upholstery fabric of gen#541) in Cream is "Baby Face Cream". A sofa and a matching cushion.
 * **Empty containers**: travel jars and sample pots that a face cream is decanted into, sold
   empty in Beauty > Travel & Minis.

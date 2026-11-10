@@ -105,7 +105,7 @@ words but never the phrase, so the 23 real creams took the top 23 of `face cream
 had nothing for interpretation to fix. Two changes fix that:
 
 - Four decoys in `feature_decoys/face_cream_874.py` hold the phrase in a short title. A
-  sofa range names its fabric and colour together, so the "Baby Face" upholstery of gen#541 in
+  sofa range names its fabric and color together, so the "Baby Face" upholstery of gen#541 in
   cream gives the Baby Face Cream Sofa and its matching cushion. Face Cream Travel Jars and Face
   Cream Sample Pots are empty containers in Beauty > Travel & Minis.
 - The 20 face creams of the five brands now say who they are for or what they hold ("Repair
