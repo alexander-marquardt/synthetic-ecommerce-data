@@ -251,6 +251,13 @@ PLACES: dict[str, tuple[float, float, float]] = {
 }
 
 
+def emblem_of_id(product_id: str) -> str | None:
+    """The emblem a product carries (gen#928): stub, films only."""
+    from synthetic_ecommerce_data.domains.retail import kids_films
+
+    return kids_films.film_of_id(product_id)
+
+
 def badge(film: str) -> str:
     """The film's emblem in the unit box: the same SVG on every product of the film."""
     return f'<g class="emblem">{_DISC}{_PICTURES[film]()}</g>'
