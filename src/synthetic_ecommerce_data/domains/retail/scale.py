@@ -153,6 +153,7 @@ from synthetic_ecommerce_data.domains.retail import (
     plus_sizes,
     range_ownership,
     sale_share,
+    shoe_grid,
     stable_ids,
     style_table,
     type_registry,
@@ -443,7 +444,8 @@ def templates(baseline: bool = True) -> list[dict]:
     # The range takes no department's share: a quarter of its products are on sale, its own.
     done += [barry_plotter.on_sale(r) for r in own if r["product_id"] in plotter]
     by_id = {r["product_id"]: r for r in done}
-    return [by_id.get(r["product_id"], r) for r in tpls]
+    # gen#935: every shoe is sold in UK sizes and colors; last, so nothing above moves.
+    return shoe_grid.apply([by_id.get(r["product_id"], r) for r in tpls])
 
 
 def _state_lines(recs: list[dict]) -> list[dict]:
@@ -519,6 +521,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
     rec.pop("price_min", None)
     rec.pop("price_max", None)
     rec.pop("bestseller_rank", None)
+    rec.pop(shoe_grid.COLOR_COPY, None)  # a color's own title is the template's (gen#935)
     # A derived style's price is redrawn, so the template's was_price is not its own; a petite
     # copy that kept it would let a no-policy baseline satisfy "petite sale", the pair only a
     # policy may honour (gen#125, gen#275).

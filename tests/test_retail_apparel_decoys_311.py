@@ -32,6 +32,7 @@ from synthetic_ecommerce_data.domains.retail import (
     mens_depth_rows,
     neckline_rows,
     scale,
+    shoe_grid,
 )
 from synthetic_ecommerce_data.domains.retail import decoy_apparel as da
 
@@ -137,7 +138,11 @@ def test_each_decoys_fields_contradict_its_misleading_word(
         colors = {c["color"] for c in doc["color_options"]}
         path = " ".join(doc["category_path"]).lower() + " " + doc["product_type"].lower()
         text = f"{doc['title']} {doc['description']}".lower()
-        assert len(colors) == 1, (r.pid, colors)
+        # A shoe is sold in 2 to 5 colors (gen#935); none is the misleading word (below).
+        assert len(colors) == 1 or (shoe_grid.is_footwear(doc) and 2 <= len(colors) <= 5), (
+            r.pid,
+            colors,
+        )
         assert r.word in text, (r.pid, r.word, doc["title"])
         if r.cls in (1, 6, 7) and r.word in MAIN:
             assert r.word.title() not in colors, (r.pid, r.word, colors)

@@ -6,7 +6,8 @@ field per size system, ``size_uk``, ``size_eu`` and ``size_us``, all three
 read from ONE chart row of the style's audience (:data:`CHARTS`, core's
 :mod:`~synthetic_ecommerce_data.core.size_charts`), so they can never
 disagree. Slippers add a letter ``size`` (S, M, L) whose row gives each
-system's range ("5-6"). ``width`` is a selector too: Standard, Wide and
+system's range ("5-6"); the scaled build sells them in single UK sizes instead
+(:mod:`shoe_grid`, gen#935). ``width`` is a selector too: Standard, Wide and
 Extra Wide for adults, the F, G and H fittings for kids' school shoes; a
 non-standard width is cut only in the sizes ``wide`` names.
 

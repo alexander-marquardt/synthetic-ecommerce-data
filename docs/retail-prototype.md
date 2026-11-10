@@ -128,7 +128,8 @@ move. The node is chosen by gender in `footwear_rows.nodes_of`. The women's cour
 node as well, as a second path of their own (see "A product at several category paths"): `Heels`
 stays its own group with all its types, and block and kitten heels stay under it alone. The boots row above is checked over the round 4 corpus plus
 footwear (`footwear_rows.catalog()`). Footwear is not in the Elasticsearch
-proof corpus.
+proof corpus. In the scaled build every shoe, planted and decoy rows too, is sold in UK sizes and
+colors: [retail-prototype/shoe-sizes-colors-935.md](retail-prototype/shoe-sizes-colors-935.md).
 
 ### Grocery
 

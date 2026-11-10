@@ -210,7 +210,8 @@ COLUMNS = frozenset({"product_id", "product_type", "product_type_label", "title"
 #: record's own ``attributes`` already carry them as an entry, or (``department``, gen#281) the
 #: store's department is the top level of ``category_path``, which the downstream reads.
 DROPPED = frozenset(
-    {"price", "price_min", "price_max", "sku_count", "drawing", "abv", "department"}
+    {"price", "price_min", "price_max", "sku_count", "drawing", "abv", "department",
+     "color_copy"}  # gen#935: each variant's own title, read by _variant
 )
 
 
@@ -376,8 +377,9 @@ def _variant(rec: dict, sku: dict) -> dict[str, Any]:
     own = _own_pattern(rec, sku) if _splits(rec) else []
     return {
         "sku": sku["sku"],
-        "title": rec["title"],
-        "description": rec["description"],
+        # gen#935: a SKU in a color the title does not name carries its own title.
+        **{"title": rec["title"], "description": rec["description"]}
+        | rec.get("color_copy", {}).get(sku.get("color"), {}),  # shoe_grid.COLOR_COPY
         "price": float(sku["price"]),
         "currency": rec["currency"],
         "in_stock": sku["in_stock"],

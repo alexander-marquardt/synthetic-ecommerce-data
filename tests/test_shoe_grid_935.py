@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import retail_figures
+from synthetic_ecommerce_data.domains.retail import retail_figures, shoe_grid
 from synthetic_ecommerce_data.domains.retail.export import image_id, standard_document
 
 ROOTS = ("Mens", "Womens", "Kids")
@@ -100,6 +100,94 @@ def test_no_sku_takes_another_products_title(shoes: list[dict]) -> None:
         (d["product_id"], v["title"])
         for d in map(standard_document, shoes)
         for v in d["variants"]
-        if own.get(v["title"], d["product_id"]) != d["product_id"]
+        if v["title"] != d["title"] and v["title"] in own
     )
+    assert any(v["title"] != d["title"] for d in map(standard_document, shoes)
+               for v in d["variants"])  # fmt: skip
     assert clash == []
+
+
+def _row(pid: str = "PLT-T1", title: str = "Blue Bull Trainers", color: str = "Black",
+         root: str = "Mens", **skus: object) -> dict:  # fmt: skip
+    """A planted shoe row as :mod:`decoy_rows` makes one: one SKU, no size, one color."""
+    sku = {"sku": f"{pid}-X", "color": color, "price": 40.0, "in_stock": True, **skus}
+    return {
+        "product_id": pid, "title": title, "brand": "Blue Bull",
+        "description": f"{color} trainers by Blue Bull.", "product_type": "Trainers",
+        "category_path": [root, "Shoes", "Trainers"], "drawing": {"accent": "#333333"},
+        "price": 40.0, "sku_count": 1, "skus": [sku],
+        "color_options": [{"color": color, "hex": "#2a2a2e", "pattern": "solid",
+                           "family": color.lower()}],
+    }  # fmt: skip
+
+
+def test_a_row_without_sizes_takes_its_audiences_whole_uk_run() -> None:
+    runs = (("Mens", "6", "12"), ("Womens", "3", "8"), ("Kids", "8 Infant", "2 Junior"))
+    for root, lo, hi in runs:
+        rec = shoe_grid.apply_one(_row(root=root))
+        sizes = list(dict.fromkeys(s["size_uk"] for s in rec["skus"]))
+        assert sizes[0] == lo and sizes[-1] == hi
+        assert len(sizes) >= 5
+        assert not any(".5" in s for s in sizes)
+        assert all(s["size_eu"] and s["size_us"] for s in rec["skus"])
+
+
+def test_one_inner_size_is_left_out_of_some_rows_never_an_end() -> None:
+    runs = [shoe_grid.ladder(_row(pid=f"PLT-T{i}")) for i in range(60)]
+    full = max(map(len, runs))
+    gapped = [r for r in runs if len(r) == full - 1]
+    assert 0 < len(gapped) < len(runs)
+    assert all(r[0] == "6" and r[-1] == "12" for r in runs)
+
+
+def test_a_one_color_row_takes_two_to_five_colors_none_its_text_names() -> None:
+    counts = set()
+    for i in range(40):
+        rec = shoe_grid.apply_one(_row(pid=f"PLT-T{i}"))
+        colors = list(dict.fromkeys(s["color"] for s in rec["skus"]))
+        counts.add(len(colors))
+        assert colors[0] == "Black"
+        assert "Blue" not in colors
+        assert [o["color"] for o in rec["color_options"]] == colors
+        assert rec["sku_count"] == len(rec["skus"]) == len(colors) * len(shoe_grid.ladder(rec))
+    assert min(counts) == shoe_grid.MIN_COLORS and max(counts) == shoe_grid.MAX_COLORS
+
+
+def test_an_added_color_whose_title_is_another_rows_is_left_out() -> None:
+    rec = _row(title="Black Trainers")
+    held = shoe_grid.colors_for(rec, ["Black"], frozenset({"White Trainers", "Red Trainers"}))
+    assert "White" not in held and "Red" not in held
+    assert len(held) >= shoe_grid.MIN_COLORS
+
+
+def test_a_title_naming_no_color_is_never_its_own_twin() -> None:
+    rec = _row(title="Dress for Success Brogues")
+    held = shoe_grid.colors_for(rec, ["Black"], frozenset({rec["title"]}))
+    assert len(held) >= shoe_grid.MIN_COLORS
+
+
+def test_a_title_naming_its_color_is_each_added_colors_own() -> None:
+    rec = shoe_grid.apply_one(_row(title="Black Canvas Trainers"))
+    for color, copy in rec[shoe_grid.COLOR_COPY].items():
+        assert copy == {"title": f"{color} Canvas Trainers",
+                        "description": f"{color} trainers by Blue Bull."}  # fmt: skip
+    assert "Black" not in rec[shoe_grid.COLOR_COPY]
+
+
+def test_a_slipper_letter_row_lends_its_stock_to_the_uk_sizes_it_spans() -> None:
+    rec = _row(size="M", size_uk="7-8", size_eu="41-42", size_us="8-9")
+    rec["skus"][0]["in_stock"] = False
+    rec["skus"].append({"sku": "PLT-T1-Y", "color": "Black", "price": 40.0, "in_stock": True,
+                        "size": "L", "size_uk": "9-10", "size_eu": "43-44", "size_us": "10-11"})
+    out = shoe_grid.apply_one(rec)
+    stock = {s["size_uk"]: s["in_stock"] for s in out["skus"] if s["color"] == "Black"}
+    assert "size" not in out["skus"][0]
+    assert stock.get("7") is False and stock.get("10") is True
+
+
+def test_a_sized_row_in_two_colors_and_any_other_row_is_left_as_it_is() -> None:
+    rec = _row(size_uk="7", size_eu="41", size_us="8")
+    rec["skus"].append(rec["skus"][0] | {"sku": "PLT-T1-Y", "color": "Grey"})
+    assert shoe_grid.apply_one(rec) is rec
+    bag = _row() | {"category_path": ["Womens", "Accessories", "Bags"]}
+    assert shoe_grid.apply_one(bag) is bag
