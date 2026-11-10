@@ -444,8 +444,11 @@ def templates(baseline: bool = True) -> list[dict]:
     # The range takes no department's share: a quarter of its products are on sale, its own.
     done += [barry_plotter.on_sale(r) for r in own if r["product_id"] in plotter]
     by_id = {r["product_id"]: r for r in done}
-    # gen#935: every shoe is sold in UK sizes and colors; last, so nothing above moves.
-    return shoe_grid.apply([by_id.get(r["product_id"], r) for r in tpls])
+    # gen#935: every shoe is sold in UK sizes and colors; last, so nothing above moves. The Kids
+    # shoes' added SKUs count toward the Kids sale share, so the Kids rows, which carry that
+    # share (above), take one more pass; every other row keeps its price.
+    shod = shoe_grid.apply([by_id.get(r["product_id"], r) for r in tpls])
+    return sale_share.apply_all(shod, {r["product_id"] for r in shod} - kids)
 
 
 def _state_lines(recs: list[dict]) -> list[dict]:
