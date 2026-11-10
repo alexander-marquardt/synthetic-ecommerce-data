@@ -93,7 +93,7 @@ def _text(rec: dict) -> str:
 
 def colors_for(rec: dict, held: list[str], titles: frozenset[str] = frozenset()) -> list[str]:
     """``held`` and the colors added to it: 2 to 5 in all, from the type's palette, never one
-    whose word (or family) the row's text names, nor one whose own title (:func:`_swap`) is
+    whose word the row's text names, nor one whose own title (:func:`_swap`) is
     another row's title in ``titles``: "White Trainers with Black Sole" is never sold in red
     beside "Red Trainers with Black Sole"."""
     if len(held) >= MIN_COLORS:
@@ -103,7 +103,7 @@ def colors_for(rec: dict, held: list[str], titles: frozenset[str] = frozenset())
     text = _text(rec)
     pool = [c for c in PALETTES.get(rec["product_type"], DEFAULT_PALETTE)
             if c not in held and c in COLORS
-            and not _named(c, text) and not _named(SHADE_FAMILY.get(c, c.lower()), text)
+            and not _named(c, text)
             and not (held and _named(held[0], rec["title"])
                      and _swap(rec["title"], held[0], c) in titles)]
     rng.shuffle(pool)

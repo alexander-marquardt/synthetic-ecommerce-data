@@ -167,11 +167,17 @@ def test_a_title_naming_no_color_is_never_its_own_twin() -> None:
 
 
 def test_a_title_naming_its_color_is_each_added_colors_own() -> None:
-    rec = shoe_grid.apply_one(_row(title="Black Canvas Trainers"))
+    row = _row(title="Black Canvas Trainers") | {"description": "Canvas trainers in black."}
+    rec = shoe_grid.apply_one(row)
     for color, copy in rec[shoe_grid.COLOR_COPY].items():
         assert copy == {"title": f"{color} Canvas Trainers",
-                        "description": f"{color} trainers by Blue Bull."}  # fmt: skip
-    assert "Black" not in rec[shoe_grid.COLOR_COPY]
+                        "description": f"Canvas trainers in {color.lower()}."}  # fmt: skip
+    assert rec[shoe_grid.COLOR_COPY] and "Black" not in rec[shoe_grid.COLOR_COPY]
+
+
+def test_a_row_already_in_two_colors_keeps_them() -> None:
+    held = ["Black", "Grey", "Red"]
+    assert shoe_grid.colors_for(_row(), held) == held
 
 
 def test_a_slipper_letter_row_lends_its_stock_to_the_uk_sizes_it_spans() -> None:
@@ -185,9 +191,17 @@ def test_a_slipper_letter_row_lends_its_stock_to_the_uk_sizes_it_spans() -> None
     assert stock.get("7") is False and stock.get("10") is True
 
 
+def test_a_color_whose_every_letter_row_is_sold_out_still_has_one_size_in_stock() -> None:
+    rec = _row(size="M", size_uk="7-8", size_eu="41-42", size_us="8-9")
+    rec["skus"][0]["in_stock"] = False
+    out = shoe_grid.apply_one(rec)
+    assert any(s["in_stock"] for s in out["skus"] if s["color"] == "Black")
+
+
 def test_a_sized_row_in_two_colors_and_any_other_row_is_left_as_it_is() -> None:
     rec = _row(size_uk="7", size_eu="41", size_us="8")
     rec["skus"].append(rec["skus"][0] | {"sku": "PLT-T1-Y", "color": "Grey"})
+    rec["color_options"].append(rec["color_options"][0] | {"color": "Grey", "family": "grey"})
     assert shoe_grid.apply_one(rec) is rec
     bag = _row() | {"category_path": ["Womens", "Accessories", "Bags"]}
     assert shoe_grid.apply_one(bag) is bag
