@@ -46,8 +46,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "one brand's SPF line is no longer an SPF line",
         "type_specs/face_cream.py",
-        '"Day Face Cream SPF 30", "Sorrel & Salt"',
-        '"Day Face Cream", "Sorrel & Salt"',
+        '"Day Face Cream SPF 30 for Normal Skin", "Sorrel & Salt"',
+        '"Day Face Cream for Normal Skin", "Sorrel & Salt"',
         f"{_T} -k each_new_brand_sells_a_day_a_night_and_an_spf_line",
         "each of the five new brands sells a day, a night and an SPF line",
         _R,

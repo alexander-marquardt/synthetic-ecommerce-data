@@ -37,7 +37,7 @@ PRIME = 6047
 #: A kind's ``(base, start)``. Chosen by search: see the module's docstring.
 BASES = {
     "Foundation": (3423, 6),
-    "Face Cream": (685, 3785),
+    "Face Cream": (685, 3787),
     "Moisturiser": (5403, 4596),
     "Bath Salts": (2572, 2828),
     "Perfume": (2372, 5984),

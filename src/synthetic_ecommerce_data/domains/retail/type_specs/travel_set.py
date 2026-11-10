@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Beauty",
     product_type="Travel Set",
     rows=(),
-    homes=(Home("samples", True),),
+    homes=(Home("samples", True), Home("decoy_rows", False)),
 )
