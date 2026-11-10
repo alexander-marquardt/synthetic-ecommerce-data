@@ -69,7 +69,9 @@ def test_every_range_sku_image_carries_the_range_emblem_and_licence_line(range_i
     assert len(range_images) == 608
     for pid, svg in range_images:
         assert _emblems_in(svg) == {RANGE}, (pid, sorted(_emblems_in(svg)))
-        assert svg.count(film_emblems.badge(RANGE)) == 2, pid  # on the product and in the line
+        product, line = svg.split('<g class="brand">')
+        assert film_emblems.badge(RANGE) in product, pid  # on each item a pack draws
+        assert line.count(film_emblems.badge(RANGE)) == 1, pid  # and once in the licence line
         lines = re.findall(r">(Licensed from [^<]*)<", svg)
         assert lines == ["Licensed from Barry Plotter Studios"], (pid, lines)
 

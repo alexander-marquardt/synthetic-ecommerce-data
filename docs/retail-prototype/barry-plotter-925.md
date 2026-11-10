@@ -82,6 +82,33 @@ type of the catalogue sells: pencil cases, posters and dressing-up costumes are 
 onesie is the All-in-One type, lounge pants are Joggers, a bottle is the Travel Cup type (titled
 "Drinks Bottle") and a cap is a beanie of the Hat type.
 
+## The emblem and the licence line (gen#928)
+
+Every product of the range prints one emblem and carries a licence line beside its maker's logo,
+the same way each film product does ([kids-films-887.md](kids-films-887.md#the-emblems-gen904)).
+Without it, a range T-shirt looked like any other T-shirt of its house. With it, a `barry plotter`
+search shows its hits belonging together.
+
+- **The emblem** (`film_emblems._gardener_kid`) is the films' round badge, a white disc in a dark
+  ring. It shows a kid's head and shoulders: round-rimmed glasses, tousled dark hair and a green
+  jumper, with one hand holding up a seedling in a pot, the gardener of the enchanted allotment.
+  The maintainer allowed round-rimmed glasses and tousled hair because both are generic. Nothing
+  else from the original appears: no scar or lightning shape, robe, pointed hat, wand, owl,
+  scarf or tie in house colors, castle or train. The drawing is original, in SVG paths.
+- **The licence line** reads "Licensed from Barry Plotter Studios".
+- **Where it prints.** `film_emblems.PLACES` has a place for each of the range's 22 shapes. Twelve
+  of them were new with gen#928: the all-in-one, backpack, building set, cushion, hat, hoodie,
+  joggers, notebook, scarf, socks, star night light and travel cup. A pack of socks prints the
+  badge on each sock it draws. A shape with no place fails the build.
+- **One choice.** `film_emblems.emblem_of_id` chooses the emblem for a film's products and for the
+  range's, and the preview and the image release both draw through it.
+
+![A range T-shirt, mug and building set as the image release draws them, and the badge](../images/barry-plotter-emblem-928.svg)
+
+`tests/test_barry_plotter_emblem_928.py` reads every one of the range's 608 SKU images and finds
+the range's emblem on the product, once in the licence line, and no film's emblem. It also checks
+that every film SKU still carries its own film's emblem.
+
 ## What a filter on the range returns
 
 Each figure is a count of SKUs, the hits of an ungrouped search:

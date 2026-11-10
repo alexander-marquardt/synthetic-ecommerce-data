@@ -15,6 +15,7 @@ import re
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
     export,
     film_emblems,
     image_release,
@@ -50,9 +51,10 @@ def _emblems_in(svg: str) -> set[str]:
 
 
 def test_each_film_has_its_own_emblem_and_studio() -> None:
-    assert set(film_emblems.STUDIOS) == set(kids_films.FILMS)
-    assert len({film_emblems.badge(f) for f in kids_films.FILMS}) == len(kids_films.FILMS)
-    for film, studio in film_emblems.STUDIOS.items():
+    assert set(film_emblems.STUDIOS) == {*kids_films.FILMS, barry_plotter.NAME}  # gen#928
+    assert len({film_emblems.badge(f) for f in film_emblems.STUDIOS}) == len(film_emblems.STUDIOS)
+    for film in kids_films.FILMS:
+        studio = film_emblems.STUDIOS[film]
         assert film.removeprefix("The ") in studio and studio.endswith(" Studios"), film
 
 
@@ -90,9 +92,8 @@ def test_the_blue_balloon_emblem_is_blue_on_a_product_of_any_color(images) -> No
 
 def test_no_other_product_of_a_film_type_carries_an_emblem_or_a_licence(catalog) -> None:
     types = {r.product_type for r in kids_films.ROWS}
-    others = [
-        d for d in catalog if d["product_type"] in types and d["product_id"] not in kids_films.ids()
-    ]
+    emblemed = kids_films.ids() | barry_plotter.ids()  # the range carries its own (gen#928)
+    others = [d for d in catalog if d["product_type"] in types and d["product_id"] not in emblemed]
     assert others
     for d in others:
         svg = image_release.render(d, d["skus"][0]).decode()
