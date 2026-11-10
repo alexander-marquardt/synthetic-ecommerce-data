@@ -96,6 +96,30 @@ the type; `tests/test_retail_face_creams_542.py` holds that, five brands, 20 pro
 three sizes. The five names keep the marks and house styles they already have; no brand, mark or style is new. The
 decoys of the type stay in `decoy_rows.py`.
 
+## Face cream decoys that hold the phrase (gen#874)
+
+With interpretation off, the served search multiplies a product's text score by 3 for each typed
+word in its title and by 2.5 more for the typed phrase itself (prism#14050). Every real face cream
+says "Face Cream". The older decoys ("Cream Face Towel", "Cream Baby Face Fabric Sofa") hold both
+words but never the phrase, so the 23 real creams took the top 23 of `face cream`, and the demo
+had nothing for interpretation to fix. Two changes fix that:
+
+- Four decoys in `feature_decoys/face_cream_874.py` hold the phrase in a short title. A
+  sofa range names its fabric and colour together, so the "Baby Face" upholstery of gen#541 in
+  cream gives the Baby Face Cream Sofa and its matching cushion. Face Cream Travel Jars and Face
+  Cream Sample Pots are empty containers in Beauty > Travel & Minis.
+- The 20 face creams of the five brands now say who they are for or what they hold ("Repair
+  Night Face Cream for Dry Skin", "Renewal Night Face Cream with Retinol"), so a short title no
+  longer wins on length alone. The three Velling Apothecary class rows keep their titles, because
+  the proof pins them. A cream's pack is numbered from its title (gen#748), and the new titles
+  put two lines on one outline, so `pack_looks.BASES` starts Face Cream at 3787, not 3785.
+
+Every decoy is a Sofa, a Cushion or a Travel Set outside the Face Creams node. With interpretation
+on, the Face Creams route of class 12 boosts the real creams ×6 against the decoys' ×2, so the top
+12 stays all face creams. `tests/test_face_cream_decoys_874.py` ranks the build with the served
+factors and the `_explain` figures of the loaded index, and holds that at least three decoys are
+in the top 12.
+
 ## False nails (gen#751)
 
 `false_nails` (`type_specs/false_nails.py`, leaf `Nails > False Nails`, shape `false_nails` with the param `tip`) gives `nails` its second real meaning: the hardware is under `Fasteners > Nails` ([adding-a-type.md](adding-a-type.md#nails-three-kinds-three-leaves-gen751)). Five styles from three brands, tip shape and nail length as attributes, each style in two colors and packs of 24 and 30, so 20 SKUs, and three decoys. The six main colors are spread across the styles. The titles hold both `Nails` and `Nail` (`Oval False Nail Set`), and the descriptions say `fake nails`. `tests/test_nails_751.py` holds them.
