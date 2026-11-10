@@ -11,6 +11,11 @@ Each film product's brand panel also carries a licence line beside the maker's l
 licensed merchandise does: the emblem and "Licensed from <studio>" (:func:`licence`). Each
 film's studio is invented and named after it (:data:`STUDIOS`).
 
+The Barry Plotter range (:mod:`barry_plotter`, gen#925) carries an emblem and a licence line the
+same way (gen#928): a kid gardener with round-rimmed glasses and tousled hair, holding up a
+seedling, "Licensed from Barry Plotter Studios". :func:`emblem_of_id` chooses a product's emblem
+for the films and the range alike.
+
 The drawings are original (MIT, like the rest of the code): no copied art and nothing drawn
 after a real film's logo. They are drawn in a unit box, -1 to 1 on each axis, y down.
 """
@@ -22,6 +27,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.core.drawing import brand_type
+from synthetic_ecommerce_data.domains.retail import barry_plotter, kids_films
 
 #: The badge's ink: not the kit's ink, so a brand's restyle (``house_styles.restyle``) never
 #: changes an emblem's line.
@@ -198,7 +204,36 @@ def _haunted_house() -> str:
     ])  # fmt: skip
 
 
-#: Each film's picture, inside its badge.
+def _gardener_kid() -> str:
+    """Barry Plotter (gen#928): a kid's head and shoulders, with round-rimmed glasses and tousled
+    dark hair, holding up a seedling in a pot, the range's allotment. Glasses and hair are generic;
+    no scar, robe, hat, wand, owl, house scarf or tie, castle or train."""
+    skin, hair, jumper, pot, leaf = "#f3cfa4", "#3b2a1f", "#6f9a45", "#c8693a", "#5fae4a"
+    return "".join([
+        _ink("M-0.1,0.18 L-0.1,0.4 L0.1,0.4 L0.1,0.18 Z", 0.04, skin),
+        # the jumper's shoulders end on the badge's circle, so nothing leaves the disc
+        _ink("M-0.6,0.8 Q-0.6,0.44 -0.2,0.38 Q0,0.48 0.2,0.38 Q0.6,0.44 0.6,0.8 A1,1 0 0 1 -0.6,0.8 Z", 0.05, jumper),
+        _ink("M0.34,0.62 L0.5,0.12 L0.7,0.14 L0.62,0.68 Z", 0.05, jumper),
+        _ink("M0.47,-0.14 L0.73,-0.14 L0.69,0.06 L0.51,0.06 Z", 0.04, pot),
+        _ink("M0.45,-0.2 L0.75,-0.2 L0.75,-0.13 L0.45,-0.13 Z", 0.04, pot),
+        '<circle cx="0.6" cy="0.08" r="0.09" fill="#f3cfa4" stroke="#25303b" stroke-width="0.04"/>',
+        _ink("M0.6,-0.2 Q0.58,-0.34 0.6,-0.46", 0.04),
+        _ink("M0.59,-0.34 Q0.46,-0.4 0.44,-0.54 Q0.58,-0.52 0.59,-0.34 Z", 0.03, leaf),
+        _ink("M0.6,-0.42 Q0.66,-0.54 0.72,-0.54 Q0.72,-0.44 0.6,-0.42 Z", 0.03, leaf),
+        '<circle cx="-0.34" cy="-0.02" r="0.07" fill="#f3cfa4" stroke="#25303b" stroke-width="0.04"/>',
+        '<circle cx="0.34" cy="-0.02" r="0.07" fill="#f3cfa4" stroke="#25303b" stroke-width="0.04"/>',
+        '<circle cx="0" cy="-0.06" r="0.34" fill="#f3cfa4" stroke="#25303b" stroke-width="0.05"/>',
+        _ink("M-0.37,-0.02 Q-0.44,-0.3 -0.3,-0.44 L-0.34,-0.54 L-0.2,-0.5 L-0.16,-0.64 L-0.04,-0.54 L0.06,-0.66 L0.14,-0.53 L0.28,-0.58 L0.26,-0.46 Q0.44,-0.3 0.37,-0.02 L0.3,-0.16 L0.22,-0.1 L0.16,-0.22 L0.06,-0.12 L-0.02,-0.24 L-0.1,-0.12 L-0.18,-0.22 L-0.26,-0.1 L-0.3,-0.18 Z", 0.04, hair),
+        '<circle cx="-0.14" cy="-0.02" r="0.1" fill="#eef6fb" stroke="#25303b" stroke-width="0.045"/>',
+        '<circle cx="0.14" cy="-0.02" r="0.1" fill="#eef6fb" stroke="#25303b" stroke-width="0.045"/>',
+        _ink("M-0.04,-0.03 Q0,-0.07 0.04,-0.03 M-0.24,-0.04 L-0.33,-0.06 M0.24,-0.04 L0.33,-0.06", 0.04),
+        '<circle cx="-0.14" cy="-0.01" r="0.03" fill="#25303b"/>',
+        '<circle cx="0.14" cy="-0.01" r="0.03" fill="#25303b"/>',
+        _ink("M-0.1,0.13 Q0,0.21 0.1,0.13", 0.04),
+    ])  # fmt: skip
+
+
+#: Each film's picture, and the Barry Plotter range's, inside its badge.
 _PICTURES = {
     "Plaything Story": _toy_cowboy,
     "Lovely and the Beast": _lantern,
@@ -212,9 +247,10 @@ _PICTURES = {
     "The Home Run": _baseball,
     "The Lady in High Heels": _high_heel,
     "The Haunted Dollhouse": _haunted_house,
+    barry_plotter.NAME: _gardener_kid,
 }
 
-#: Each film's invented studio, named after it: what its licence line names.
+#: Each film's invented studio, named after it, and the range's: what its licence line names.
 STUDIOS: dict[str, str] = {
     "Plaything Story": "Plaything Story Studios",
     "Lovely and the Beast": "Lovely and the Beast Studios",
@@ -228,6 +264,7 @@ STUDIOS: dict[str, str] = {
     "The Home Run": "Home Run Studios",
     "The Lady in High Heels": "Lady in High Heels Studios",
     "The Haunted Dollhouse": "Haunted Dollhouse Studios",
+    barry_plotter.NAME: f"{barry_plotter.NAME} Studios",
 }
 
 #: Where a shape prints the emblem, in the kit's 400-unit sheet: the badge's center and radius.
@@ -248,7 +285,29 @@ PLACES: dict[str, tuple[float, float, float]] = {
     "bird": (280, 248, 28),
     "cake": (194, 202, 32),
     "bag": (200, 206, 42),
+    # the Barry Plotter range's other shapes (gen#928)
+    "all_in_one": (190, 186, 32),
+    "backpack": (200, 180, 42),
+    "building_set": (172, 150, 36),
+    "cushion": (196, 206, 62),
+    "hat": (200, 212, 32),
+    "hoodie": (200, 176, 44),
+    "joggers": (156, 196, 24),
+    "notebook": (304, 190, 40),
+    "scarf": (152, 260, 24),
+    "socks": (150, 150, 24),
+    "star": (200, 215, 40),
+    "travel_cup": (190, 242, 44),
 }
+
+
+def emblem_of_id(product_id: str) -> str | None:
+    """The emblem a product carries, the one choice the preview and the scaled build read: its
+    film's (gen#904), :data:`barry_plotter.NAME` for a product of the range (gen#928), or
+    ``None`` for any other product."""
+    if product_id in barry_plotter.ids():
+        return barry_plotter.NAME
+    return kids_films.film_of_id(product_id)
 
 
 def badge(film: str) -> str:
