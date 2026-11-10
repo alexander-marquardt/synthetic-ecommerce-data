@@ -23,6 +23,8 @@ A shard that hangs never exits, so the evidence is also printed while pytest run
 SIGTERM, SIGINT or SIGHUP (the job's timeout, a cancel) prints it with the kernel-OOM lines, stops
 pytest and exits ``128 + signal``. A timer prints the same every ``--evidence-every`` seconds
 (default 300, 0 for none): the runner may end the step with SIGKILL, which no trap catches.
+pytest's output is relayed on its own thread while the main thread waits, so a stop signal's
+handler runs within ``SIGNAL_LATENCY`` seconds, whatever the relay is doing (#929).
 """
 
 from __future__ import annotations
@@ -59,8 +61,10 @@ PEAK_DIR_ENV = "WORKER_PEAK_DIR"
 EVIDENCE_EVERY = 300.0
 #: The signals a timeout or a cancel sends: each prints the evidence before the wrapper stops.
 STOP_SIGNALS = (signal.SIGTERM, signal.SIGINT, signal.SIGHUP)
-#: The timer thread and a signal handler write too; reentrant, as a handler may interrupt a write.
+#: The relay thread, the timer thread and a signal handler all write; one line at a time.
 _OUT = threading.RLock()
+#: Most seconds a stop signal waits for its handler: the main thread wakes this often (#929).
+SIGNAL_LATENCY = 0.5
 
 
 def worker_lost(text: str) -> bool:
@@ -150,6 +154,7 @@ def run_once(
     runs, the evidence is printed every ``every`` seconds and on a stop signal (#918).
     """
     lost, crashed, down = False, [], []
+    failed: list[BaseException] = []
     env = os.environ | {PEAK_DIR_ENV: str(peaks)}
     started, stop = time.monotonic(), threading.Event()
     with subprocess.Popen(
@@ -157,6 +162,7 @@ def run_once(
         env=env,
     ) as child:  # fmt: skip
         assert child.stdout is not None
+        output = child.stdout
 
         def tick() -> None:
             while not stop.wait(every):
@@ -168,19 +174,34 @@ def run_once(
             child.terminate()
             os._exit(128 + signum)
 
+        def relay() -> None:
+            nonlocal lost
+            try:
+                for line in output:
+                    _write(line)
+                    lost = lost or worker_lost(line)
+                    found = CRASHED_TEST.search(line)
+                    if found:
+                        crashed.append(f"{found.group(1)} crashed while running {found.group(2)}")
+                    gone = NODE_DOWN.search(line)
+                    if gone and gone.group(1) not in down:
+                        down.append(gone.group(1))
+            except BaseException as error:  # re-raised on the main thread below
+                failed.append(error)
+
         previous = {sig: signal.signal(sig, on_signal) for sig in STOP_SIGNALS}
         if every > 0:
             threading.Thread(target=tick, daemon=True).start()
+        # The output is relayed on its own thread, and this one only waits (#929). A handler runs
+        # on the main thread between bytecodes. Inside a blocking read it waited until pytest
+        # printed again, and inside a flush of sys.stdout its own write raised RuntimeError.
+        reader = threading.Thread(target=relay, daemon=True)
+        reader.start()
         try:
-            for line in child.stdout:
-                _write(line)
-                lost = lost or worker_lost(line)
-                found = CRASHED_TEST.search(line)
-                if found:
-                    crashed.append(f"{found.group(1)} crashed while running {found.group(2)}")
-                gone = NODE_DOWN.search(line)
-                if gone and gone.group(1) not in down:
-                    down.append(gone.group(1))
+            while reader.is_alive():
+                reader.join(SIGNAL_LATENCY)
+            if failed:
+                raise failed[0]
         finally:
             stop.set()
             for sig, handler in previous.items():

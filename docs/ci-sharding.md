@@ -340,6 +340,14 @@ so a timer also prints them every `--evidence-every` seconds (default 300; 0 tur
 `ci_run_pytest: pytest still running at <s> s: ...`. A shard killed outright still shows the
 evidence of its last five minutes. `tests/test_ci_timeout_evidence_918.py` is the guard.
 
+Python runs a signal's handler on the main thread, between bytecodes. The main thread used to
+relay pytest's output, so a signal that landed inside a blocking read waited until pytest printed
+again, and one that landed inside `sys.stdout.flush()` had its own write raise `RuntimeError:
+reentrant call`. Either way a hung shard printed nothing (#929). The output is therefore relayed
+on its own thread, and the main thread only waits on it, waking every `SIGNAL_LATENCY` seconds
+(0.5), so the handler runs within that. `tests/test_ci_signal_mid_write_929.py` blocks the relay
+on a full pipe and sends SIGTERM into that write.
+
 A killed worker never sends its `module peak memory:` figures to the controller, so the script
 also names where each lost worker was (#845). Each attempt names a fresh directory in
 `WORKER_PEAK_DIR`, and `tests/worker_peak.py` has each worker append `<module>\t<MB>` to
