@@ -17,7 +17,7 @@ from collections import defaultdict
 
 import pytest
 
-from synthetic_ecommerce_data.core.config import SMALL
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.naming import LABEL_FORMS
 from synthetic_ecommerce_data.core.voice import PACK_LABELS
 from synthetic_ecommerce_data.domains.industrial.generate import generate
@@ -54,7 +54,9 @@ def forms_by_type(lines) -> dict[tuple[str, str], dict[str, list[str]]]:
 
 @pytest.fixture(scope="module")
 def catalog():
-    return generate(SMALL)
+    """The default build, the committed catalog's: SMALL has no unlabelled type whose titles
+    name a second length or a disambiguating size, so it could not see those labelled."""
+    return generate(GeneratorConfig())
 
 
 def test_the_reader_tells_two_spellings_of_one_attribute_apart():
