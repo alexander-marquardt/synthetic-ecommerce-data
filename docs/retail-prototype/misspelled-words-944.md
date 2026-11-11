@@ -27,15 +27,18 @@ and the four invented brands, with their owners and house styles, in `misspelled
   (`Hazelnut Milk Chocolate Bar`: "in creamy milk choocolate"). No category node, product type or
   attribute holds one, so no vocabulary or category name learns the misspelling.
 - **No real brand.** The four brands are invented and third party; each draws its own name on
-  its images in a dedicated house style.
+  its images in a dedicated house style, with a mark no other brand draws (`bar_grid`,
+  `peel_arc`, `stride_bars`, `button_pair`, new in `misspelled_brands.py`). `Choocolate Factory`
+  and `Cardigen & Co` are full lockups; `Bannana Bros` and `Leggins Lab` show the mark alone in a
+  corner with the name as a tag, which keeps the full-lockup share of all brands at most 60%.
 
 ## What else moves
 
 Nothing. The rows are left out of the derived styles (`Home("decoy_product_words", False)` on the
 Cardigan, Chocolate Bar and Fresh Fruit specs; Leggings had it already) and out of the clothing
 text-match decoys' exemplars (`decoy_apparel.build`), so no other product changes. Measured on the
-ceiling build a release ships: 16,686 products and 262,668 SKUs on main, 16,708 and 262,770 with
-these rows, the 22 products and their 102 SKUs, and no other record differs.
+ceiling build a release ships, against main: the build gains the 22 products and their 102 SKUs,
+and no other record differs.
 
 ## Not built here
 
