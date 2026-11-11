@@ -16,7 +16,7 @@ import re
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import house_styles
+from synthetic_ecommerce_data.domains.retail import house_styles, scale
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 
 #: misspelling -> (common spelling, the category node and type its products sit in, products).
@@ -104,3 +104,13 @@ def test_each_invented_brand_is_third_party_and_draws_its_own_mark(records, bran
     assert any(r["brand"] == brand for r in records), brand
     assert BRAND_OWNER.get(brand) == "third_party"
     assert brand in house_styles.HOUSE_STYLES
+
+
+def test_no_derived_style_is_drawn_from_a_misspelled_product(records) -> None:
+    """The rows are templates only. In the pool a derived style is drawn from, they would move
+    the seeded derivation, and about a hundred other products of the build would change."""
+    ours = {r["product_id"] for w in WORDS for r in _carrying(records, w)}
+    assert ours
+    pool = {d["product_id"] for d in scale.derivable(scale.templates())}
+    assert sorted(ours & pool) == []
+    assert sorted(i for i, t in ceiling_build().template_of.items() if t in ours) == []
