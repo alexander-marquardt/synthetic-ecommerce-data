@@ -369,8 +369,8 @@ become the next shank up, and above the largest stocked shank it is the
 cutter's own size; and an oversize shank is at most three times its cutter,
 and a metric cutter below 6 mm takes its DIN 6527 shank (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
-quantised by product type (every title of a type spells a label one way,
-#938), so e.g. the flute label mix differs from the census's 0.66 / 0.28 / 0.06.
+quantised by product type (#938), so e.g. the flute label mix differs from
+the census's 0.66 / 0.28 / 0.06.
 
 ## Brands
 
@@ -495,23 +495,13 @@ shared tables):
 * **Every title names the type's key dimension** -- the thread size of a
   fastener, the size of a hex key, the cutting diameter of an end mill or
   drill, the bore and number of a bearing -- and a product type fixes its
-  title style ONCE (its dimensions bare, labelled, or labelled plus a labelled
-  secondary dimension), for every maker of it (#938). A secondary-style
-  (brand, type) ranks the secondary dimensions once and each title names the
-  first its record publishes, so a title names one whenever its record
-  publishes one. The census mix is reproduced ACROSS types, each weighted by
-  the products the config gives it: 0.4685 unlabelled and 0.081 secondary at
-  100K against the census's 0.467 and 0.171. A smaller build moves in steps
-  of a type (the default catalog: 0.354 and 0.130).
-* **A title attribute is written one way within its product type** (#938):
-  one label spelling (`L` or `Length`, never both), and labelled in every
-  title of the type or in none, whichever role it has in the title. The
-  spelling and the pack segment's label (`Pk`, `Pack`, `per Pack`) are the
-  type's, not the brand's: two makers spelling one attribute two ways in one
-  result list read as a rendering bug. A brand still decides whether its
-  titles carry a pack segment at all.
-  `tests/test_title_attribute_forms_938.py` reads every title of a build and
-  holds each (type, attribute) to one form.
+  title style ONCE (bare, labelled, or labelled plus a secondary dimension)
+  for every maker of it (#938). A secondary-style (brand, type) ranks the
+  secondary dimensions once; a title names the first its record publishes. The
+  census mix is reproduced ACROSS types by product weight: 0.4685 unlabelled,
+  0.081 secondary at 100K (census 0.467, 0.171; default catalog 0.354, 0.130).
+* **A title attribute is written one way within its product type** (#938): one
+  label spelling, labelled in every title of the type or none, one pack label.
 
 ## Every SKU is different
 
