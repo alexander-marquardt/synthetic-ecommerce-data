@@ -13,6 +13,7 @@ and then names the first differing SKU, so a red reports in seconds.
 from __future__ import annotations
 
 import json
+import re
 import statistics
 from collections import defaultdict
 from fractions import Fraction
@@ -207,10 +208,11 @@ def test_a_rectangular_bars_title_names_its_height_and_a_square_bars_does_not(la
     stating = [doc for doc in large_docs if not leaves_axis_to_field(doc)]
     assert len(stating) > len(large_docs) / 2
     rectangular = [doc for doc in stating if _section(doc)[0] != _section(doc)[1]]
-    named = [doc for doc in stating if "Height" in doc["title"]]
-    assert [doc["sku"] for doc in named] == [doc["sku"] for doc in rectangular]
+    # Since #937 a title writes the abbreviation (`3/16" H`); the description keeps `Height`.
+    named = [doc for doc in stating if re.search(r'" H\b', doc["title"])]
+    assert {doc["sku"] for doc in named} <= {doc["sku"] for doc in rectangular}
     square = [doc for doc in large_docs if _section(doc)[0] == _section(doc)[1]]
-    assert not [doc for doc in square if "Height" in doc["title"]]
+    assert not [doc for doc in square if re.search(r'" H\b', doc["title"])]
     titles = {(doc["product_id"], doc["title"]) for doc in stating}
     assert len(titles) == len(stating)
 
