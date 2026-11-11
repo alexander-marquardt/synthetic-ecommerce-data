@@ -251,6 +251,8 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
         #: A spec-bound type's whole flat build, set by :meth:`build`.
         self._whole_flat: list[ProductLine] | None = None
         self._title_styles: dict[tuple[str, str], str] = {}
+        #: The types whose titles name their dimensions bare (#938), computed on first use.
+        self._unlabelled_types: frozenset[str] | None = None
         #: The PUBLISHED specs, per (type, brand, always-published values):
         #: a SKU whose published spec is a subset or superset of one already
         #: made differs from it only by an attribute sparsity dropped.

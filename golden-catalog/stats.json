@@ -3188,8 +3188,8 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.459138,
-   "numerator": 9534,
+   "achieved": 0.354298,
+   "numerator": 7357,
    "denominator": 20765,
    "note": "over title dimension tokens",
    "band": null
@@ -3197,8 +3197,8 @@
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.124488,
-   "numerator": 2585,
+   "achieved": 0.129882,
+   "numerator": 2697,
    "denominator": 20765,
    "note": "over title dimension tokens",
    "band": null
