@@ -1,4 +1,4 @@
-"""Barry Plotter, an invented franchise range of 608 SKUs, named only in the product text
+"""Barry Plotter, an invented franchise range of 1,133 SKUs, named only in the product text
 (gen#925): data only.
 
 The invented kids' films (:mod:`kids_films`) sell about 30 SKUs each, from one brand at one price
@@ -9,9 +9,12 @@ party and stationery), each type made by two to four existing houses at a value,
 premium price, about 60% of its SKUs under £30 and about a quarter of its products on sale.
 
 The name follows the invented-brands rule: Barry Plotter is a play on a famous name, and nothing
-else of the original appears. The range has motifs of its own (:data:`MOTIFS`): a talking
-scarecrow, a moonlit glasshouse, creatures that hatch from enchanted packets, a dragon in the
-compost heap. No motif word is a product type, a category or a color word of the catalogue.
+else of the original appears. The range has 15 motifs of its own (:data:`MOTIFS`, gen#942): a
+talking scarecrow, a moonlit glasshouse, creatures that hatch from enchanted packets, a dragon in
+the compost heap, a clockwork mole. Each type sells one product per motif, and each motif prints
+a badge of its own (:data:`MOTIF_OF`, :mod:`barry_plotter_emblems`), so 15 mugs of one color show
+15 pictures. No motif word is a product type, category, color, pattern or material word of the
+catalogue.
 
 As with the films, the name lives only in the title and the description: each product keeps the
 brand of the house that makes it, no ``product_line`` and the category of its type, and no
@@ -55,9 +58,12 @@ NAME = "Barry Plotter"
 FROM = f"from the {NAME} films"
 
 #: Each motif, with what a description says of it. A motif's words are in the title; none is a
-#: product type, a category or a color word of the catalogue (``watering``, ``night`` and
-#: ``lantern`` are, so the range never puts them in a title). No description says "Barry's": the
-#: output standard reads the "s" as the size S on a product sold in sizes.
+#: product type, category, color, pattern or material word of the catalogue, plural or not
+#: (``watering``, ``night``, ``lantern``, ``stone``, ``seed`` and ``hedge`` are, so the range never
+#: puts them in a title; ``tests/test_barry_plotter_motifs_942.py`` checks every word). Titles stay
+#: allotment-themed and clear of the real films' titles. No description says "Barry's": the
+#: output standard reads the "s" as the size S on a product sold in sizes. Each motif's badge
+#: picture is :data:`barry_plotter_emblems.PICTURES`.
 MOTIFS: dict[str, str] = {
     "Talking Scarecrow": "the talking scarecrow who keeps watch over the allotment",
     "Moonlit Glasshouse": "the glasshouse where the enchanted plants grow by moonlight",
@@ -67,6 +73,14 @@ MOTIFS: dict[str, str] = {
     "Compost Dragon": "the friendly dragon who sleeps in the warm compost heap",
     "Potting Shed": "the crooked potting shed where the adventures begin",
     "Wheelbarrow Race": "the great wheelbarrow race across the allotments",
+    # gen#942: seven more, so each type sells 15 products, each with its own badge
+    "Scary Raven": "the scary raven who guards the seed beds from the fence post",
+    "Clockwork Mole": "the clockwork mole who digs the tunnels under the allotment",
+    "Frost Fairy": "the frost fairy who breathes sparkling frost over the allotment on winter mornings",
+    "Midnight Beetles": "the beetles whose wings glow as they march out at midnight",
+    "Whispering Bramble": "the bramble that whispers secrets across the allotment to anyone who listens",
+    "Giant Sunflower": "the giant sunflower that grows taller than the potting shed",
+    "Flying Trowel": "the enchanted trowel that flies off to dig wherever it is needed",
 }
 
 BLACK = cw("Black", "#2a2a2e")
@@ -254,31 +268,35 @@ def _title(kind: str, i: int, motif: str, noun: str) -> str:
     return f"{motif} {noun}" if (kind, i) in _DESCRIPTION_ONLY else f"{NAME} {motif} {noun}"
 
 
-def _rows_of_kind(code: str, k: Kind) -> list[Row]:
+def _rows_of_kind(code: str, k: Kind) -> list[tuple[str, Row]]:
+    """The kind's products, one per motif, each with its motif."""
     rows = []
     for i, (motif, says) in enumerate(MOTIFS.items()):
         price = k.prices[i % 3]
         colors = tuple(k.colors[(i + j) % len(k.colors)] for j in range(k.per_product))
-        rows.append(
+        rows.append((
+            motif,
             Row(
                 f"BYP{code}{i + 1:02d}", _title(code, i, motif, k.noun), k.brands[i % len(k.brands)],
                 k.department, k.paths[i % len(k.paths)], k.product_type, price, k.shape,
                 f"{k.lead} {says}, {FROM}.{k.tail}", colors, k.attrs,
                 tuple((s, price) for s in k.sizes), audience=k.audience, colorless=k.colorless,
                 params=k.params, size_key=k.size_key,
-            )
-        )  # fmt: skip
+            ),
+        ))  # fmt: skip
     return rows
 
 
-def _building_sets() -> list[Row]:
+def _building_sets() -> list[tuple[str, Row]]:
+    """The building sets, one per motif at each of :data:`SET_SIZES`, each with its motif."""
     rows = []
     for i, (motif, says) in enumerate(MOTIFS.items()):
         for j, (pieces, age, prices) in enumerate(SET_SIZES):
             n = i * len(SET_SIZES) + j
             count = f"{pieces:,}"
             ages = "For adult builders." if age == "18" else f"For ages {age} and up."
-            rows.append(
+            rows.append((
+                motif,
                 Row(
                     f"BYPBS{n + 1:02d}", _title("BS", n, motif, f"Building Set, {count} Pieces"),
                     _SET_BRAND, "Toys", ("Toys", "Building & Construction", "Building Sets"),
@@ -289,15 +307,19 @@ def _building_sets() -> list[Row]:
                      ("compatible_system", "Compatible system", "Standard Bricks")),
                     ((str(pieces), prices[i % 3]),), audience="adult" if age == "18" else "kids",
                     colorless=True, params=(("theme", "castle"),), size_key="piece_count",
-                )
-            )  # fmt: skip
+                ),
+            ))  # fmt: skip
     return rows
 
 
-ROWS: tuple[Row, ...] = (
+_MOTIF_ROWS: tuple[tuple[str, Row], ...] = (
     *_building_sets(),
     *(r for code, k in KINDS.items() for r in _rows_of_kind(code, k)),
 )
+ROWS: tuple[Row, ...] = tuple(r for _, r in _MOTIF_ROWS)
+#: Each product's motif, by product id: the emblem it prints (``film_emblems.emblem_of_id``,
+#: gen#942).
+MOTIF_OF: dict[str, str] = {r.product_id: motif for motif, r in _MOTIF_ROWS}
 
 
 def _kind_of(row: Row) -> str:

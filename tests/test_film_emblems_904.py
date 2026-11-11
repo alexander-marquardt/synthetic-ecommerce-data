@@ -51,7 +51,8 @@ def _emblems_in(svg: str) -> set[str]:
 
 
 def test_each_film_has_its_own_emblem_and_studio() -> None:
-    assert set(film_emblems.STUDIOS) == {*kids_films.FILMS, barry_plotter.NAME}  # gen#928
+    # gen#928, gen#942: each Barry Plotter motif has its own emblem
+    assert set(film_emblems.STUDIOS) == {*kids_films.FILMS, *barry_plotter.MOTIFS}
     assert len({film_emblems.badge(f) for f in film_emblems.STUDIOS}) == len(film_emblems.STUDIOS)
     for film in kids_films.FILMS:
         studio = film_emblems.STUDIOS[film]
