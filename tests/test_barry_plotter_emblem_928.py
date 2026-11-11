@@ -24,9 +24,9 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 
 STUDIO = "Barry Plotter Studios"
-#: The range's SKUs on the default build: 76 per motif, 15 motifs (gen#942; gen#925 sold 608
-#: for 8).
-RANGE_SKUS = 1140
+#: The range's SKUs on the default build: 75 per motif for 15 motifs, and 8 more from the two
+#: kids' hoodies the build also sells in a second color (gen#942; gen#925 sold 608 for 8 motifs).
+RANGE_SKUS = 1133
 
 
 def _motif_of(title: str) -> str:
