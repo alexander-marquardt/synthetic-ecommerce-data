@@ -85,6 +85,8 @@ VARIANT_FIELDS: dict[str, tuple[str, bool]] = {
     "sku": (_STR, True),
     "title": (_STR, True),
     "description": (_STR, False),
+    #: The manufacturer's part number (#937): an industrial SKU's own, never its ``sku``.
+    "mfr_part_number": (_STR, False),
     "price": (_NUM, True),
     "currency": (_STR, True),
     "in_stock": (_BOOL, True),
@@ -479,7 +481,7 @@ def flat_documents(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
             | {"product_type": doc["product_type"]}
             | {"product_type_label": doc["product_type_label"], "title": variant["title"]}
-            | {k: variant[k] for k in ("description",) if k in variant}
+            | {k: variant[k] for k in ("description", "mfr_part_number") if k in variant}
             | {"parent_title": doc["title"]}
             | product
             | {k: variant[k] for k in _FLAT_VARIANT_FIELDS if k in variant}

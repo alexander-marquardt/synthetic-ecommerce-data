@@ -10,6 +10,7 @@ here reads the generator's own state through ``self``.
 from __future__ import annotations
 
 import hashlib
+from dataclasses import replace
 
 from synthetic_ecommerce_data.core import brands
 from synthetic_ecommerce_data.core.model import (
@@ -19,23 +20,30 @@ from synthetic_ecommerce_data.core.naming import (
     LABEL_FORMS,
     Segment,
     Title,
-    abbreviate_value,
     build_title,
     states_value,
     thread_parts,
 )
 from synthetic_ecommerce_data.core.voice import description_tail
 from synthetic_ecommerce_data.domains.industrial.drafts import (
-    END_SHAPE_OF_TYPE,
-    END_SHAPE_WORD,
     KEY_DIMENSIONS,
     ChildDraft,
     LineDraft,
     _weighted,
 )
+from synthetic_ecommerce_data.domains.industrial.title_attributes import MEASURED, declared
 from synthetic_ecommerce_data.domains.industrial.vocab import (
     STANDARDS_FAMILY,
 )
+
+
+def compose_description(
+    title: str, details: list[str], brand: str, series: str, part_number: str
+) -> str:
+    """``<title> - <remaining attrs>, <brand> <line> <mfr part number>`` (#937): the
+    reference catalogue's description. With no attribute left over, it is
+    ``<title> - <brand> <line> <mfr part number>``."""
+    return f"{title} - {', '.join([*details, f'{brand} {series} {part_number}'])}"
 
 
 class TitleMixin:
@@ -176,10 +184,13 @@ class TitleMixin:
         """A SKU title, in one of the two measured styles: the brand's."""
         voice = self._voice
         assert voice is not None, "a title is composed inside _finish_line"
-        descriptive = voice.descriptive
         segments: list[Segment] = []
         if draft.bare_title:
-            return build_title(draft.item, (), cap=self.config.title_length_cap)
+            # A hammer's incidental-word decoy (gen#320): its type, then its misleading words
+            # alone, ``Claw Hammer: Hickory Creek``.
+            kind_item, phrase = draft.bare_title
+            cap = self.config.title_length_cap
+            return build_title(kind_item, (Segment(value=phrase),), cap=cap)
 
         # The type's KEY dimension, when the variant axis is something else
         # (a bearing's closure, a wheel's grit): the census core of a title
@@ -198,8 +209,8 @@ class TitleMixin:
             # material their attribute block did not carry.
             if name not in self._published:
                 continue
-            text = value if descriptive else abbreviate_value(value)
-            segments.append(Segment(value=text, label=None, attribute=name))
+            # The value in its human form (#937): ``Stainless Steel``, never ``SS``.
+            segments.append(Segment(value=value, label=None, attribute=name))
 
         flutes = next(
             (
@@ -213,22 +224,8 @@ class TitleMixin:
             label = self._label_for("Number of Flutes")
             segments.append(Segment(value=flutes.value, label=label, attribute=flutes.name))
 
-        if not descriptive:
-            end = next(
-                (a for a in draft.line_attrs if a.name == "Single End/Double End"),
-                None,
-            )
-            # The end SHAPE is the mill's own style: "SGL Sq End" on a square
-            # end mill, "SGL Ball End" on a ball nose one. It used to say
-            # "Sq End" on every end mill, ball nose included.
-            shape = END_SHAPE_OF_TYPE.get(draft.type_key)
-            if end is not None and shape is not None:
-                segments.append(
-                    Segment(
-                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",
-                        label=None,
-                    )
-                )
+        # The end mill's end-shape token (``SGL Sq End``) is gone with #937: it named no
+        # attribute, and the measured end mill title names its diameter and length of cut alone.
 
         # NO label is cut off here any more. This block used to fire at the
         # measured 3.23% and publish titles ending "Dia./Thread Siz" or
@@ -245,24 +242,57 @@ class TitleMixin:
         # fixture (elastic/prism#9288) rather than by shipped catalog data.
 
         # The pack segment, last so the cap sheds it first -- and ONLY with the
-        # record's own Units per Pack; no quantity is ever stated unbacked.
+        # record's own Units per Pack; no quantity is ever stated unbacked. A boxed screw's
+        # quantity is its own (``Box of 100`` once, ``100 Pk`` since #937).
         quantity = self._line_facts.get("Units per Pack")
-        if child.pack_phrase:
+        if child.pack_phrase and "Units per Pack" in self._published:
             segments.append(
-                Segment(value=child.pack_phrase, label=None, attribute="Units per Pack")
+                Segment(value=self._published["Units per Pack"], attribute="Units per Pack")
             )
         elif quantity is not None and voice.pack_label is not None:
-            segments.append(
-                Segment(value=quantity, label=voice.pack_label, attribute="Units per Pack")
-            )
+            segments.append(Segment(value=quantity, attribute="Units per Pack"))
 
+        # What a brand's voice puts before the type (its name, a qualifier) stays in the
+        # type clause, before the colon: ``Dravenholt Claw Hammer: 16 oz Wt, Hickory``.
         qualifier = voice.qualifier[STANDARDS_FAMILY[draft.type_key]]
         item = f"{qualifier} {draft.item}" if qualifier else draft.item
         return build_title(
             f"{draft.brand} {item}" if voice.brand_first else item,
-            tuple(segments),
+            tuple(self._declared_segments(draft.type_key, segments)),
             cap=self.config.title_length_cap,
         )
+
+    def _declared_segments(self, type_key: str, segments: list[Segment]) -> list[Segment]:
+        """The segments a title of ``type_key`` may carry (#937), each labelled with the
+        abbreviation its type declares (:mod:`.title_attributes`).
+
+        A segment naming an attribute the type does not declare, or one already named, is
+        dropped. A measured type (the end mills) names every declared attribute the record
+        publishes, in the declared order, as each of the 24 measured titles does. A title
+        that would name nothing names the first declared attribute the record publishes, so
+        no title is its type alone.
+        """
+        abbreviation = declared(type_key)
+        kept: dict[str, Segment] = {}
+        for segment in segments:
+            name = segment.attribute
+            if name is None or name not in abbreviation or name in kept:
+                continue
+            kept[name] = replace(segment, label=abbreviation[name])
+        if type_key in MEASURED:
+            for name in abbreviation:
+                if name not in kept and name in self._published:
+                    kept[name] = Segment(
+                        value=self._published[name], label=abbreviation[name], attribute=name
+                    )
+            return [kept[name] for name in abbreviation if name in kept]
+        if not kept:
+            name = next((n for n in abbreviation if n in self._published), None)
+            if name is not None:
+                kept[name] = Segment(
+                    value=self._published[name], label=abbreviation[name], attribute=name
+                )
+        return list(kept.values())
 
     def _identifying_attribute(self, published: list[list[Attribute]]) -> str | None:
         """The ONE attribute that tells every SKU of a line apart, or None.
@@ -328,6 +358,7 @@ class TitleMixin:
         titles: list[Title],
         published: list[list[Attribute]],
         identifying: str | None,
+        type_key: str,
     ) -> list[Title]:
         """Give two SKUs of one line that share a title the thing that differs.
 
@@ -398,10 +429,12 @@ class TitleMixin:
             # record are a defect class this catalog carries on purpose, not
             # one to quietly repair.
             attribute = next((a for a in published[index] if a.name == identifying), None)
-            if attribute is not None:
+            # Only an attribute the type's title may name (#937), with its declared label.
+            abbreviation = declared(type_key)
+            if attribute is not None and attribute.name in abbreviation:
                 segment = Segment(
                     value=attribute.value,
-                    label=self._label_for(attribute.name),
+                    label=abbreviation[attribute.name],
                     attribute=attribute.name,
                 )
                 at = min(1, len(title.segments))
@@ -417,12 +450,11 @@ class TitleMixin:
         draft: LineDraft,
         title: Title,
         attributes: list[Attribute],
-        compatibility: str = "",
+        part_number: str,
     ) -> str:
-        """The description, in the grammar the real rows use.
+        """The description, in the grammar the real rows use (#937).
 
-            <title clause> - <the dimensions the title had no room for>,
-            <line descriptors>, <brand line>
+            <title> - <the attributes the title left out>, <brand> <line> <mfr part number>
 
         Measured over the 24 real rows this catalog is modelled against, 24 of
         24 compose exactly that way::
@@ -443,11 +475,17 @@ class TitleMixin:
           this SKU actually publishes, with their units, so that a shopper
           scanning six neighbouring cards can see what separates them without
           opening any of them.
-        * **The brand line stays, at the end.** It is what the description
-          used to be in its entirety -- ``Ingleward ISO4762-64 -- Socket
-          Head Cap Screw`` -- which restated the title, the brand and the
-          product type and said nothing at all about this SKU. It earns a
-          place; it does not earn the whole field.
+        * **The brand line stays, at the end, and the part number closes it.**
+          The brand line is what the description used to be in its entirety:
+          ``Ingleward ISO4762-64 -- Socket Head Cap Screw``. That line restated
+          the title, the brand and the product type, and said nothing about this
+          SKU. It earns a place, but not the whole field. The manufacturer part
+          number is the record's own (``Sku.mfr_part_number``).
+
+        Nothing follows the part number. The cross-reference sentence, the noise
+        sentences and the brand's template (:meth:`_description_copy`) used to
+        follow the brand line. They are now in the searchable ``text`` only
+        (:func:`~synthetic_ecommerce_data.core.emit._searchable_text`).
 
         Composed from the attributes the record PUBLISHES, after sparsity and
         after defect injection, so the description and the attribute block
@@ -477,11 +515,14 @@ class TitleMixin:
         # A glued size the title or the spec clause names is one token to the
         # analyzer, so its parts are written out as well (#33).
         details.extend(thread_parts(f"{title.text} {', '.join(details)}"))
-        details.append(f"{draft.brand} {draft.series}")
+        return compose_description(title.text, details, draft.brand, draft.series, part_number)
+
+    def _description_copy(self, draft: LineDraft, attributes: list[Attribute]) -> str:
+        """The brand's template sentences (a use line, a family line, a benefit, a pack line).
+
+        Until #937 they followed the brand line in the description. The reference grammar ends
+        the description with the part number, so they now reach the searchable ``text`` only:
+        a word such as ``deburring`` that only they hold still reaches a free-text query.
+        """
         facts = {**self._line_facts, **{a.name: a.value for a in attributes}}
-        tail = description_tail(draft.brand, draft.series, draft.type_key, facts)
-        # The cross-reference sentence (:mod:`.compat`) sits between the spec
-        # clause and the brand's template, where a distributor prints "for M12
-        # socket head cap screws".
-        middle = f"{compatibility} " if compatibility else ""
-        return f"{title.text} - {', '.join(details)}. {middle}{tail}"
+        return description_tail(draft.brand, draft.series, draft.type_key, facts)

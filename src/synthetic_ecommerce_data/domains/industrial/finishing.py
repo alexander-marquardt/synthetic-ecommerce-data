@@ -41,6 +41,7 @@ from synthetic_ecommerce_data.domains.industrial.drafts import (
     _weighted,
 )
 from synthetic_ecommerce_data.domains.industrial.grouped import SPEC_BOUND
+from synthetic_ecommerce_data.domains.industrial.part_numbers import mfr_part_number
 from synthetic_ecommerce_data.domains.industrial.taxonomy import drawing_for, image_id_for
 from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 from synthetic_ecommerce_data.domains.industrial.vocab import (
@@ -113,7 +114,8 @@ class FinishMixin:
                 if segment.attribute not in names
                 and not any(states_value(segment.text(), value) for value in values)
             )
-            if len(kept) == len(title.segments):
+            # A title names at least one attribute after its type (#937).
+            if len(kept) == len(title.segments) or not kept:
                 continue
             candidate = build_title(title.item, kept, cap=self.config.title_length_cap)
             # No two SKUs of a line share a title (README, "Two properties are asserted over the
@@ -489,7 +491,7 @@ class FinishMixin:
 
         published = [attrs for _, attrs, _, _ in built]
         titles = self._disambiguate_titles(
-            titles, published, self._identifying_attribute(published)
+            titles, published, self._identifying_attribute(published), type_key
         )
         if type_key not in hammers.KINDS:
             titles = self._thin_axis_titles(product_id, titles, line_attrs, built)
@@ -522,18 +524,22 @@ class FinishMixin:
                     siblings=siblings,
                 )
             )
-            extra = " ".join(part for part in (compatibility, noise_text) if part)
+            part_number = mfr_part_number(self.config.seed, draft.series, sku)
             children.append(
                 Sku(
                     sku=sku,
                     title=title.text,
-                    description=self._build_description(draft, title, [*carried, *attrs], extra),
+                    description=self._build_description(
+                        draft, title, [*carried, *attrs], part_number
+                    ),
                     attributes=tuple(attrs),
                     price_usd=shown,
                     stock=stock,
                     image_id=image_id_for(type_key, product_id, sku),
                     compatibility=compatibility,
                     noise=noise_text,
+                    copy=self._description_copy(draft, [*carried, *attrs]),
+                    mfr_part_number=part_number,
                     pricing_unit=pricing_unit_for(values.get("Units per Pack")),
                 )
             )

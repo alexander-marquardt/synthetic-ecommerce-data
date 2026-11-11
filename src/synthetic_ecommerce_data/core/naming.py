@@ -44,6 +44,10 @@ from dataclasses import dataclass
 #: uniform and a search on ``Alloy Steel`` is not a search on a token glued to the comma (#657).
 DELIMITER = ", "
 
+#: Between a title's type and its first attribute (#937): the reference catalogue's
+#: ``<Product Type>: <value> <Abbrev>, <value> <Abbrev>``.
+TYPE_DELIMITER = ": "
+
 #: How a label may be written, per attribute, with the weights the measured
 #: lexicon gives. The first entry of each list is the unabbreviated form.
 #: Counts in the comments are occurrences in P1_title_grammar.json.
@@ -287,14 +291,14 @@ def build_title(
         raise TitleError("a title needs an ITEM segment")
 
     def assemble(keep: int) -> str:
-        pieces = [item]
-        for segment in segments[:keep]:
-            pieces.append(DELIMITER + segment.text())
-        return "".join(pieces)
+        if keep == 0:
+            return item
+        return item + TYPE_DELIMITER + DELIMITER.join(s.text() for s in segments[:keep])
 
     kept = len(segments)
     text = assemble(kept)
-    while kept > 0 and len(text) > cap:
+    # The first segment is never shed: a title names its type and at least one attribute (#937).
+    while kept > 1 and len(text) > cap:
         kept -= 1
         text = assemble(kept)
 

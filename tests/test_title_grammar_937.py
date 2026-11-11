@@ -18,11 +18,14 @@ unchanged, so only a fresh build can show it. Removing the colon from
 from __future__ import annotations
 
 import re
+from types import SimpleNamespace
 
 import pytest
 
 from synthetic_ecommerce_data.core.naming import Segment, build_title
+from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
+from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
 
 #: The grammar's opening: a type with no comma and no colon, then ``": "``.
 TYPE_COLON = re.compile(r"^[^:,]+: ")
@@ -72,7 +75,17 @@ def test_every_industrial_title_opens_with_its_type_and_a_colon(docs: list[dict]
 
 
 def test_every_title_attribute_is_one_its_type_declares(docs: list[dict]) -> None:
-    off = [(d["product_type"], d["title"], bad) for d in docs if (bad := _undeclared(d))]
+    """Every title but a hammer's incidental-word decoy (gen#320). That title is the type and
+    its misleading words alone (``Claw Hammer: Hickory Creek``), which name no attribute by
+    design: the facts gate exempts it by the same predicate (:mod:`.hammers`)."""
+    decoys = [d for d in docs if is_incidental_decoy_title(d["title"])]
+    assert decoys and all(d["product_type"].startswith("hammer_") for d in decoys)
+    assert len(decoys) < len(docs) / 100, f"{len(decoys)} decoy titles is no exception"
+    off = [
+        (d["product_type"], d["title"], bad)
+        for d in docs
+        if not is_incidental_decoy_title(d["title"]) and (bad := _undeclared(d))
+    ]
     assert not off, f"{len(off)} titles name an attribute their type does not declare: {off[:5]}"
 
 
@@ -124,3 +137,19 @@ def test_the_composer_writes_type_colon_then_value_and_abbreviation() -> None:
         ),
     )
     assert title.text == 'Square End Mill: 3/4" Dia, 1-1/2" LOC'
+
+
+def test_the_composer_drops_a_segment_its_type_does_not_declare() -> None:
+    """The default build hands the composer only declared attributes, so the generated titles
+    cannot show this filter work: a type added without its row in the table would."""
+    composer = SimpleNamespace(_published={"Material": "Steel", "Thread Size": "M8x1.25"})
+    kept = TitleMixin._declared_segments(
+        composer,
+        "nut_hex",
+        [
+            Segment(value="M8x1.25", label="Thread Size", attribute="Thread Size"),
+            Segment(value="6.8mm", label="Height", attribute="Height"),
+            Segment(value="Steel", attribute="Material"),
+        ],
+    )
+    assert [(s.value, s.label) for s in kept] == [("M8x1.25", "Thread"), ("Steel", None)]

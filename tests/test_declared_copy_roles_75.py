@@ -47,7 +47,7 @@ def test_a_set_screw_names_the_hex_key_it_takes(fresh):
     carried = 0
     for doc in _of(fresh, SET_SCREW):
         drive = _published(doc)["Drive Size"]
-        found = [m for m in compatibility_sentences(doc["description"]) if m["key"]]
+        found = [m for m in compatibility_sentences(doc["text"]) if m["key"]]
         if compat.drive_sentence(drive) is None:
             assert not found, doc["sku"]  # an off-series drive is no key
             continue
@@ -65,7 +65,7 @@ def test_a_lock_nut_names_the_thread_it_fits(fresh):
     docs = _of(fresh, LOCK_NUT)
     assert len(docs) > 300, len(docs)
     for doc in docs:
-        found = [m["nut"] for m in compatibility_sentences(doc["description"]) if m["nut"]]
+        found = [m["nut"] for m in compatibility_sentences(doc["text"]) if m["nut"]]
         assert found == [_published(doc)["Thread Size"]], doc["sku"]
 
 
@@ -79,10 +79,7 @@ def test_the_two_types_join_the_noise_tables_from_their_specs():
 def test_a_set_screw_carries_the_near_miss_thread_sentence(fresh):
     """``Not for M10 or M16 threads.`` -- only a threaded type writes it."""
     negatives = [
-        m
-        for doc in _of(fresh, SET_SCREW)
-        for m in noise_sentences(doc["description"])
-        if m["not_threads"]
+        m for doc in _of(fresh, SET_SCREW) for m in noise_sentences(doc["text"]) if m["not_threads"]
     ]
     assert len(negatives) > 40, len(negatives)
 

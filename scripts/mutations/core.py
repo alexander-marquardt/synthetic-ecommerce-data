@@ -142,7 +142,8 @@ MUTATIONS: list[Mutation] = [
         "core/naming.py",
         "    kept = len(segments)\n"
         "    text = assemble(kept)\n"
-        "    while kept > 0 and len(text) > cap:\n"
+        "    # The first segment is never shed: a title names its type and at least one attribute (#937).\n"
+        "    while kept > 1 and len(text) > cap:\n"
         "        kept -= 1\n"
         "        text = assemble(kept)",
         "    kept = len(segments)\n    text = assemble(kept)[:cap].rstrip()",

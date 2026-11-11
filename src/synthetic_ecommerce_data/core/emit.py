@@ -176,6 +176,12 @@ def _attribute_entries(attributes: tuple[Attribute, ...]) -> list[dict[str, Any]
     return entries
 
 
+def _part_number(child: Sku) -> dict[str, str]:
+    """The SKU's manufacturer part number as a field (#937), or no field: a domain that
+    publishes none (retail) writes its documents as before."""
+    return {"mfr_part_number": child.mfr_part_number} if child.mfr_part_number else {}
+
+
 def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute, ...]) -> str:
     """Everything a full-text query should be able to reach.
 
@@ -209,6 +215,14 @@ def _searchable_text(line: ProductLine, child: Sku, attributes: tuple[Attribute,
         # cap screws" matched every word. The diameter the designation names is
         # added beside it: a fact of this record, read from its own value.
         parts.extend(f"M{m.group('dia')}" for value in values if (m := _METRIC_THREAD.match(value)))
+    # The manufacturer part number (#937), so a free-text query for it finds the record. Its
+    # period closes the record's facts: what follows are sentences, and a sentence's first word
+    # is never read as the tail of an attribute value.
+    if child.mfr_part_number:
+        parts.append(f"{child.mfr_part_number}.")
+    # The brand's template sentences: the description ends with the part number since #937,
+    # so a word only they hold reaches a free-text query from here.
+    parts.append(child.copy)
     # The cross-reference sentence IS folded in, unlike the rest of the
     # description: it names the OTHER product a query may be about (``For M12
     # socket head cap screws``), which is what makes a size query reach the
@@ -283,6 +297,7 @@ def _nested_document(catalog: Catalog, line: ProductLine, base_url: str) -> dict
         "variants": [
             {
                 "sku": child.sku,
+                **_part_number(child),
                 "title": child.title,
                 "description": child.description,
                 "price": child.price_usd,
@@ -334,6 +349,7 @@ def flat_documents(
             # grouped view will head a card with -- but it is no longer what a
             # shopper reads under the title.
             "description": child.description,
+            **_part_number(child),
             "parent_title": line.title,
             "brand": line.brand,
             "series": line.series,
@@ -448,6 +464,7 @@ NESTED_MAPPING: dict[str, Any] = {
                 "type": "nested",
                 "properties": {
                     "sku": {"type": "keyword"},
+                    "mfr_part_number": {"type": "keyword"},
                     "title": {"type": "text"},
                     "description": {"type": "text"},
                     "price": {"type": "double"},
@@ -497,6 +514,7 @@ FLAT_MAPPING: dict[str, Any] = {
         ],
         "properties": {
             "sku": {"type": "keyword"},
+            "mfr_part_number": {"type": "keyword"},
             "product_id": {"type": "keyword"},
             "product_type": {"type": "keyword"},
             "product_type_label": {"type": "keyword"},

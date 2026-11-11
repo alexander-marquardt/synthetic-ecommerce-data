@@ -37,7 +37,7 @@ KINDS = {
     "screw_sheet_metal": ("Sheet Metal Screw", "Sheet Metal Screws", "Sheet metal screws"),
     "screw_deck": ("Deck Screw", "Deck Screws", "Deck screws"),
 }
-BOX = re.compile(r", Box of (\d+)$")
+BOX = re.compile(r", (\d+) Pk$")
 #: The most of the catalog's SKUs the five kinds may be together.
 RANGE_CAP = 0.01
 
@@ -86,7 +86,7 @@ def test_a_screw_sold_singly_has_a_singular_title_and_says_no_pack(key):
     assert loose, f"no {key} is sold singly"
     for doc in loose:
         assert singular in doc["title"] and plural not in doc["title"], doc["title"]
-        assert "Box of" not in doc["title"], doc["title"]
+        assert BOX.search(doc["title"]) is None, doc["title"]
         assert doc["pricing_unit"] == "Each"
 
 

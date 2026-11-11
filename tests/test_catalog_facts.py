@@ -377,7 +377,7 @@ def test_no_finish_or_hardness_the_material_cannot_have(docs):
             wrong.append((doc["sku"], grade, finish))
         if grade and "Stainless" in material:
             wrong.append((doc["sku"], material, grade))
-        if re.search(r"\(not plated\)", doc["description"]) and finish not in ("", "Plain"):
+        if re.search(r"\(not plated\)", doc["text"]) and finish not in ("", "Plain"):
             wrong.append((doc["sku"], "not plated", finish))
     assert wrong == [], wrong[:10]
 
@@ -477,19 +477,29 @@ END_MILL_SHAPE = {
 }
 
 
-def test_a_title_names_the_mills_own_end_shape(docs):
-    """``SGL Sq End`` on a ball nose end mill states a shape it does not have
-    (168 of 568 ball end mills on 7dac659's golden)."""
+def test_an_end_mill_title_names_its_diameter_and_length_of_cut_alone(docs):
+    """``SGL Sq End`` on a ball nose end mill once stated a shape it does not have (168 of
+    568 ball end mills on 7dac659's golden). Since #937 an end mill title names no end shape:
+    it is ``<Type>: <dia> Dia, <loc> LOC``, the pair all 24 measured reference titles name
+    (elastic/prism-retail-and-industrial#1694), so it can state no wrong shape either. The
+    #657 pass drops the line's axis (most often the diameter) from about three in ten
+    titles, and a mill that publishes no length of cut names its diameter alone."""
+    pair = re.compile(r"^[^:,]+: (?:[^,]+ Dia, [^,]+ LOC|[^,]+ Dia|[^,]+ LOC)$")
     wrong, named = [], collections.Counter()
     for doc in docs:
         shape = END_MILL_SHAPE.get(doc["product_type"])
         if shape is None:
             continue
-        for word, style in (("Sq End", "Square"), ("Ball End", "Ball Nose")):
-            if re.search(rf"\b(?:SGL|DBL) {word}\b", doc["title"]):
-                named[style] += 1
-                if style != shape:
-                    wrong.append((doc["sku"], shape, doc["title"]))
+        named[shape] += 1
+        # The length of cut, unless it is the line's axis, which #657 may leave out.
+        publishes_loc = any(a["name"].casefold() == "length of cut" for a in doc["attributes"])
+        publishes_loc &= "length_of_cut" not in doc.get("variant_axes", [])
+        if (
+            not pair.match(doc["title"])
+            or re.search(r"\b(?:SGL|DBL)\b", doc["title"])
+            or (publishes_loc and not doc["title"].endswith(" LOC"))
+        ):
+            wrong.append((doc["sku"], shape, doc["title"]))
     assert wrong == [], wrong[:10]
     assert named["Square"] > 50 and named["Ball Nose"] > 20, named
 
@@ -714,7 +724,7 @@ def test_kit_titles_say_what_the_kit_is(docs):
 def test_only_a_size_is_called_a_size(docs):
     """ "Also available in Double Shield / Open sizes" named a closure a size."""
     for doc in docs:
-        match = re.search(r"Also available in (.+?) sizes\.", doc["description"])
+        match = re.search(r"Also available in (.+?) sizes\.", doc["text"])
         if match:
             for value in match.group(1).split(" / "):
                 assert _inches(value) is not None or re.match(r"^(M|#)?[\d/]", value), (

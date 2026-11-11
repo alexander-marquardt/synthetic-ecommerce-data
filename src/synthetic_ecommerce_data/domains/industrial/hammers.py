@@ -60,7 +60,7 @@ PLACES: tuple[str, ...] = ("Creek", "Ridge", "Lane", "Hollow")
 
 #: The misleading phrase of a class-4 decoy: ``word`` is the handle material it names.
 INCIDENTAL_PHRASE = re.compile(rf"\b(?P<word>{'|'.join(ABSENT_HANDLES)}) (?:{'|'.join(PLACES)})\b")
-_INCIDENTAL_TITLE = re.compile(rf"^[A-Z][A-Za-z ]+, {INCIDENTAL_PHRASE.pattern}$")
+_INCIDENTAL_TITLE = re.compile(rf"^[A-Z][A-Za-z ]+: {INCIDENTAL_PHRASE.pattern}$")
 
 
 def is_incidental_decoy_title(title: str) -> bool:
@@ -113,25 +113,25 @@ DECOY_CLASSES: dict[int, str] = {
 }
 
 
-def decoy_item(gen: Any, kind: HammerKind, handle: str) -> tuple[str, bool]:
-    """The item as the title says it, and whether that is the whole title (class 4).
+def decoy_item(gen: Any, kind: HammerKind, handle: str) -> tuple[str, tuple[str, ...]]:
+    """The item as the title says it, and the whole title when that is bare (class 4).
 
-    Plain, or with the line's decoy words after it.
-
-    After, so a brand's title template (what opens the title) stays one per type.
+    Plain, or with the line's decoy words BEFORE it: a title's type clause holds no comma
+    (#937), so ``Claw Hammer, Sledge Series`` became ``Sledge Series Claw Hammer``. A class-4
+    title is ``(type, words)``, written ``Claw Hammer: Hickory Creek``.
     """
     slot = gen._rotate(f"hammer_decoy:{kind.key}", DECOY_PERIOD)
     if slot not in DECOY_CLASSES:
-        return kind.item, False
+        return kind.item, ()
     if slot == 0:
         nouns = [n for k, n in KIND_NOUN.items() if k != kind.key]
         noun = nouns[gen._rotate(f"hammer_decoy_noun:{kind.key}", len(nouns))]
-        return f"{kind.item}, {noun} Series", False
+        return f"{noun} Series {kind.item}", ()
     absent = next(h for h in ABSENT_HANDLES if h != handle)
     if slot == 2:
-        return f"{kind.item}, {absent}-Look", False
+        return f"{absent}-Look {kind.item}", ()
     place = PLACES[gen._rotate(f"hammer_decoy_place:{kind.key}", len(PLACES))]
-    return f"{kind.item}, {absent} {place}", True
+    return f"{absent} {place} {kind.item}", (kind.item, f"{absent} {place}")
 
 
 @dataclass(frozen=True)

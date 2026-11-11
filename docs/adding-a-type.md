@@ -1090,6 +1090,10 @@ What a modelled type can still edit in a shared file, and so conflict on:
 * `generate.KEY_DIMENSIONS`, for a type whose titles must name a key
   dimension that is not its variant axis (a bearing's number, a wheel's
   diameter).
+* `domains/industrial/title_attributes.TITLE_ATTRIBUTES`, the attributes a
+  type's title may name and the abbreviation each is written with (#937). A
+  type needs a row: its title is `<Type>: <value> <Abbrev>, ...`, and
+  `tests/test_title_grammar_937.py` fails a title that names no attribute.
 * The family builder in `domains/industrial/generate.py` (see
   [above](#modelled-types-what-the-family-builder-still-needs)), and the
   standards extraction in `core/standards_library/tables/fastener_standards.json`.

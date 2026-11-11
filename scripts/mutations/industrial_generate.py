@@ -339,8 +339,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "let the noise into the title",
         "domains/industrial/finishing.py",
-        "                    title=title.text,\n                    description=self._build_description(draft, title, [*carried, *attrs], extra),",
-        '                    title=title.text + (" " + noise_text if noise_text else ""),\n                    description=self._build_description(draft, title, [*carried, *attrs], extra),',
+        "                    title=title.text,\n                    description=self._build_description(\n",
+        '                    title=title.text + (" " + noise_text if noise_text else ""),\n                    description=self._build_description(\n',
         "tests/test_noise_text.py -k never_moves_an_attribute",
         "A",
         "noise never moves an attribute or a title",
