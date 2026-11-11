@@ -502,6 +502,8 @@ shared tables):
   0.081 secondary at 100K (census 0.467, 0.171; default catalog 0.354, 0.130).
 * **A title attribute is written one way within its product type** (#938): one
   label spelling, labelled in every title of the type or none, one pack label.
+  No label is cut off (`40mm Lengt`) and every comma is followed by a space;
+  `tests/test_title_attribute_forms_938.py` checks all three on the default build.
 
 ## Every SKU is different
 
