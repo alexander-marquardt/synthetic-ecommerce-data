@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 48761,
+    "lines": 48764,
     "price_pins": {},
-    "skus": 176345,
+    "skus": 176348,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -42,7 +42,7 @@
       "combination_wrenches": 685,
       "compound_cutters": 2,
       "compression_springs": 2,
-      "conduit_pliers": 2,
+      "conduit_pliers": 3,
       "cord_splicing_kits": 2,
       "cotter_pins": 803,
       "coupling_nuts": 2,
@@ -143,7 +143,7 @@
       "silicone_greases": 2,
       "sleeve_anchors": 2,
       "sleeve_installation_kits": 2,
-      "snap_ring_pliers": 2,
+      "snap_ring_pliers": 4,
       "spanner_wrenches": 2,
       "spill_socks": 2,
       "studs_double_end": 1034,

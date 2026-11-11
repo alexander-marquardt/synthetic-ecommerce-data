@@ -6,7 +6,7 @@ results (the Engine's `did_you_mean_head_hit_threshold`, kept at 3) and the comm
 least 5 times more common. The maintainer asked for a few misspelled products, half of the words
 on three products or fewer and half on more, so the demo shows both behaviours.
 
-The rows are in `src/synthetic_ecommerce_data/domains/retail/feature_decoys/misspelled_words_944.py`
+The retail rows are in `src/synthetic_ecommerce_data/domains/retail/feature_decoys/misspelled_words_944.py`
 and the four invented brands, with their owners and house styles, in `misspelled_brands.py`.
 
 | Misspelling | Products | Common spelling | Category | The demo shows |
@@ -15,6 +15,7 @@ and the four invented brands, with their owners and house styles, in `misspelled
 | bannana | 3 | banana | Food & Drink > Fruit & Vegetables > Fresh Fruit > Bananas | the hits and the suggestion |
 | leggins | 8 | leggings | Womens > Leggings | hits only |
 | cardigen | 8 | cardigan | Womens > Knitwear > Cardigans | hits only |
+| pliars | 3 | pliers | Tools > Hand tools > Pliers (industrial) | the hits and the suggestion |
 
 ## What a product is
 
@@ -40,11 +41,35 @@ text-match decoys' exemplars (`decoy_apparel.build`), so no other product change
 ceiling build a release ships, against main: the build gains the 22 products and their 102 SKUs,
 and no other record differs.
 
-## Not built here
+## Pliars, the industrial word
 
-`pliars` (pliers), the issue's fifth word, is an industrial product: retail has no Pliers type,
-and the catalogue's pliers are in `Tools > Hand tools > Pliers`. It is a separate industrial
-change.
+`pliars` (pliers) is the issue's fifth word. Retail sells no pliers: the catalogue's pliers are
+the industrial build's `Tools > Hand tools > Pliers`. So three industrial products carry it,
+listed in `src/synthetic_ecommerce_data/domains/industrial/misspelled_pliers_944.py`:
+
+| Product | Type | Size |
+|---|---|---|
+| Conduit Pliars | `conduit_pliers` (Lock Nut Pliers) | 12 in |
+| Snap Ring Pliars | `snap_ring_pliers` (Retaining Ring Pliers) | 9 in |
+| Convertible Snap Ring Pliars | `snap_ring_pliers` | 6 in |
+
+With 3 products the demo shows the hits and the suggestion "pliers".
+
+- **The misspelling is in the title**, so also in the product name and the description written
+  from it. The industrial brand book is full (45 brands fill the 45 mark slots, README → Brands),
+  so no invented brand carries it. The category, type label and attributes are the type's own.
+- **Each one is an ordinary product of its type**: one SKU, at a size its type's own line does not
+  sell. No title names a seed noun (`nut`, `retaining ring`), so the industrial seed decoys
+  (#462) gain no line.
+- **Nothing else moves.** The lines are built after their type's own line, from a stream of their
+  own, with the type's own minter. Breadth types build once at any `--lines`, so the count is 3
+  at every scale. Against main, the golden catalogue gains the 3 products and their 3 SKUs
+  (`nested.jsonl`, `flat.jsonl` and `images.jsonl` each add 3 rows and drop none), and no other
+  record differs.
+
+`tests/test_industrial_misspelled_pliers_944.py` counts the 3 at the default size, at
+`--lines 20000` and in the golden catalogue. It checks each product's type and leaf, that no
+category, type label or attribute holds the word, and that no title names a seed noun.
 
 `tests/test_retail_misspelled_words_944.py` counts each word's products on the ceiling build,
 checks each product's category and type, that the common spelling of a three-product word is at
