@@ -502,7 +502,7 @@ shared tables):
   census mix is reproduced ACROSS types by product weight: 0.4685 unlabelled,
   0.081 secondary at 100K (census 0.467, 0.171; default catalog 0.354, 0.130).
 * **A title attribute is written one way within its product type** (#938): one
-  label spelling, labelled in every title of the type or none, one pack label.
+  label spelling and pack label, in every title or none, never cut off (`40mm Lengt`); a comma takes a space.
 
 ## Every SKU is different
 
