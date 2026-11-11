@@ -355,8 +355,8 @@ report`), with the default catalog beside it:
 | angle carries a length unit | 0.0469 | **0.0000, deliberately** (#404) |
 | declared system contradicts units | 0.0323 | **0.0000, deliberately** (#404) |
 | unit mixing within one record | 0.0222 | 0.0180 |
-| title dimension token unlabelled | 0.4667 | 0.4651 |
-| title names a secondary dimension too | 0.1714 | 0.1153 |
+| title dimension token unlabelled | 0.4667 | 0.4685 |
+| title names a secondary dimension too | 0.1714 | 0.0809 |
 | attributes per record (mean) | 13.12 | 11.19 |
 
 Drift, stated: every title now names its key dimension, so the census's
@@ -369,8 +369,8 @@ become the next shank up, and above the largest stocked shank it is the
 cutter's own size; and an oversize shank is at most three times its cutter,
 and a metric cutter below 6 mm takes its DIN 6527 shank (see
 [Brand voice](#brand-voice-titles-and-descriptions)). Label spellings are
-quantised by brand (each brand spells a label one way), so e.g. the flute
-label mix differs from the census's 0.66 / 0.28 / 0.06.
+quantised by product type (every title of a type spells a label one way,
+#938), so e.g. the flute label mix differs from the census's 0.66 / 0.28 / 0.06.
 
 ## Brands
 
@@ -494,13 +494,24 @@ shared tables):
   mills said `Sq End`).
 * **Every title names the type's key dimension** -- the thread size of a
   fastener, the size of a hex key, the cutting diameter of an end mill or
-  drill, the bore and number of a bearing -- and a (brand, type) fixes its
-  title style ONCE (key bare, key labelled, or key labelled plus a labelled
-  secondary dimension). A secondary-style (brand, type) ranks the secondary
-  dimensions once and each title names the first its record publishes, so a
-  title names one whenever its record publishes one. The census mix is
-  reproduced ACROSS a type's makers by market weight: 0.456 unlabelled and
-  0.122 secondary against the census's 0.467 and 0.171.
+  drill, the bore and number of a bearing -- and a product type fixes its
+  title style ONCE (its dimensions bare, labelled, or labelled plus a labelled
+  secondary dimension), for every maker of it (#938). A secondary-style
+  (brand, type) ranks the secondary dimensions once and each title names the
+  first its record publishes, so a title names one whenever its record
+  publishes one. The census mix is reproduced ACROSS types, each weighted by
+  the products the config gives it: 0.4685 unlabelled and 0.081 secondary at
+  100K against the census's 0.467 and 0.171. A smaller build moves in steps
+  of a type (the default catalog: 0.354 and 0.130).
+* **A title attribute is written one way within its product type** (#938):
+  one label spelling (`L` or `Length`, never both), and labelled in every
+  title of the type or in none, whichever role it has in the title. The
+  spelling and the pack segment's label (`Pk`, `Pack`, `per Pack`) are the
+  type's, not the brand's: two makers spelling one attribute two ways in one
+  result list read as a rendering bug. A brand still decides whether its
+  titles carry a pack segment at all.
+  `tests/test_title_attribute_forms_938.py` reads every title of a build and
+  holds each (type, attribute) to one form.
 
 ## Every SKU is different
 

@@ -10,9 +10,12 @@ series and their description facts, not from shuffled wording.
 The title keeps the census structure as its core (``<Item>, <key dim>
 <role>, <material>, <coating>, <flutes>``, :func:`.naming.build_title`). The
 voice only chooses among census-observed variants -- descriptive or terse,
-the brand name first or not, the label spelling of each attribute -- and adds
-words AROUND the core: a qualifier before the item and, where the record
-publishes ``Units per Pack``, a pack segment at the end.
+the brand name first or not -- and adds words AROUND the core: a qualifier
+before the item and, where the record publishes ``Units per Pack``, a pack
+segment at the end. A label's spelling (``L`` or ``Length``) and the pack
+segment's label are the product TYPE's, not the brand's
+(:mod:`synthetic_ecommerce_data.domains.industrial.titles`, #938): two makers
+of one type spelling one attribute two ways read as a rendering bug.
 
 Nothing a voice adds may state a fact the record does not carry. The
 qualifiers are words true of every product in their family
@@ -29,7 +32,6 @@ from dataclasses import dataclass
 from functools import cache
 
 from synthetic_ecommerce_data.core import brands
-from synthetic_ecommerce_data.core.naming import LABEL_FORMS
 from synthetic_ecommerce_data.core.typespec import RegistryTable
 
 #: What every product of a type is for. True of the TYPE, so true of every
@@ -95,40 +97,14 @@ class Voice:
     qualifier: dict[str, str | None]
     #: The brand's range name, used in product names and descriptions.
     range_word: str | None
-    #: One label spelling per attribute, from the census's observed forms.
-    labels: dict[str, str]
-    #: The label of the trailing pack segment; None for no pack segment.
+    #: Whether the brand's titles carry a trailing pack segment: None for none. The
+    #: label it draws is not used; the segment is labelled by its product type (#938).
     pack_label: str | None
     use_style: int
     family_style: int
     pack_style: int
     #: The order of the description's tail sentences: use, family, benefit, pack.
     tail_order: tuple[int, ...]
-
-
-def _stratified(forms, brand: str, attribute: str) -> str:
-    """The brand's label spelling for one attribute, spread over the brand book
-    so the catalog-wide mix follows the census's observed shares.
-
-    Each brand holds a slice of [0, 1) the size of its market weight, and
-    takes the form whose cumulative census share covers the middle of its
-    slice. A per-brand random draw was the first version: with a dozen
-    brands per family it can miss a spelling outright -- measured, "Flutes"
-    (28% in the census) appeared on NO title of the 100K build. The start of
-    the slices rotates per attribute, so the same brands do not always take
-    the commonest form.
-    """
-    total = sum(b.weight for b in brands.BRAND_BOOK)
-    offset = (sum(map(ord, attribute)) % 97) / 97
-    start = sum(b.weight for b in brands.BRAND_BOOK[: brands.BRANDS.index(brand)])
-    point = ((start + brands.BY_NAME[brand].weight / 2) / total + offset) % 1.0
-    cumulative = 0.0
-    weight_total = sum(w for _, w in forms)
-    for form, weight in forms:
-        cumulative += weight / weight_total
-        if point < cumulative:
-            return form
-    return forms[-1][0]
 
 
 @cache
@@ -145,7 +121,6 @@ def voice_for(brand: str) -> Voice:
         family: (rng.choice(words) if rng.random() < 0.5 and not book.brand_first else None)
         for family, words in brands.PRODUCT_WORDS.items()
     }
-    labels = {name: _stratified(forms, brand, name) for name, forms in LABEL_FORMS.items()}
     # The two draws that once placed a comma with no space after it (``3/8,4 FL``) stay, unused,
     # so every later draw of this brand's voice is the draw it was (#657).
     if rng.random() < 0.18:
@@ -156,7 +131,6 @@ def voice_for(brand: str) -> Voice:
         brand_first=book.brand_first,
         qualifier=qualifier,
         range_word=rng.choice(brands.RANGE_WORDS) if rng.random() < 0.6 else None,
-        labels=labels,
         pack_label=rng.choice(PACK_LABELS) if rng.random() < 0.5 else None,
         use_style=rng.randrange(2),
         family_style=rng.randrange(len(FAMILY_PHRASES)),
