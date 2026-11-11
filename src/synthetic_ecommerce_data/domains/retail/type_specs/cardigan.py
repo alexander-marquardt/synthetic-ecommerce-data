@@ -18,6 +18,7 @@ SPEC = TypeSpec(
         Home("samples", True),
         Home("seasonal_rows", False),
         Home("colorgroup_rows", False),
+        Home("decoy_product_words", False),  # gen#944: the misspelled products
         Home("knitwear_rows", False),
     ),
 )
