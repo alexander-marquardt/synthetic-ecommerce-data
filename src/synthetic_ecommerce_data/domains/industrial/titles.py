@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import hashlib
 
-from synthetic_ecommerce_data.core import brands
+from synthetic_ecommerce_data.core import brands, typespec
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import (
     Attribute,
 )
@@ -24,45 +25,102 @@ from synthetic_ecommerce_data.core.naming import (
     states_value,
     thread_parts,
 )
-from synthetic_ecommerce_data.core.voice import description_tail
+from synthetic_ecommerce_data.core.voice import PACK_LABELS, description_tail
 from synthetic_ecommerce_data.domains.industrial.drafts import (
     END_SHAPE_OF_TYPE,
     END_SHAPE_WORD,
     KEY_DIMENSIONS,
     ChildDraft,
     LineDraft,
-    _weighted,
 )
 from synthetic_ecommerce_data.domains.industrial.vocab import (
     STANDARDS_FAMILY,
 )
 
 
+def _unit(key: str) -> float:
+    """A point in [0, 1) that is a pure function of ``key``."""
+    return int(hashlib.sha256(key.encode()).hexdigest()[:8], 16) / 0x1_0000_0000
+
+
+def _pack_label(type_key: str) -> str:
+    """The type's label for its trailing pack segment (``10 Pk``): one per type,
+    whoever makes it (#938). Whether a title carries a pack segment at all is
+    still the brand's (:attr:`.voice.Voice.pack_label`)."""
+    return PACK_LABELS[int(_unit(f"pack:{type_key}") * len(PACK_LABELS))]
+
+
+def unlabelled_types(config: GeneratorConfig) -> frozenset[str]:
+    """The product types whose titles name their dimensions bare (#938).
+
+    One answer per type, so a type is bare or labelled whoever makes it. The
+    census mix is hit ACROSS the types, weighted by the products the config
+    gives each: the types are put in a seeded order and each takes "unlabelled"
+    when the middle of its slice of the products falls in the first 46.7%. A
+    pure function of the config, so a type built alone (``generate_type``)
+    titles its products as the whole build does. A plain seeded draw per type
+    did not hit the census: one large type tipped the 600-line build to 0.76.
+    """
+    # Imported here: the generator module imports this one.
+    from synthetic_ecommerce_data.domains.industrial.generate import _type_kinds
+
+    weights: dict[str, int] = {}
+    for key, kind in _type_kinds().items():
+        if kind == "modelled":
+            share = config.type_weights.get(key, typespec.modelled()[key].share)
+            weights[key] = max(1, round(config.lines * share))
+        elif kind == "new":
+            weights[key] = config.new_type_products.get(key, 0)
+        else:
+            weights[key] = 1
+    total = sum(weights.values())
+    cumulative = 0
+    chosen: set[str] = set()
+    for key in sorted(weights, key=lambda k: (_unit(f"{config.seed}:title:{k}"), k)):
+        middle = (cumulative + weights[key] / 2) / total
+        cumulative += weights[key]
+        if middle < config.title_token_unlabelled:
+            chosen.add(key)
+    return frozenset(chosen)
+
+
 class TitleMixin:
     """Title and description assembly, mixed into :class:`~.generate.Generator`."""
 
-    #: A (brand, type)'s title style, drawn ONCE per pair: "unlabelled" names
-    #: the key dimension bare, "labelled" with its label, "secondary" labels it
-    #: and adds a labelled secondary dimension. One maker lists one type one
-    #: way; the census mix is reproduced ACROSS brands, not per SKU.
+    #: The title styles. "unlabelled" names a type's dimensions bare; it is the
+    #: TYPE's, so every maker of a type writes its dimensions the same way
+    #: (#938). In a labelled type a (brand, type) is "labelled" or "secondary",
+    #: which labels the same dimensions and adds a labelled secondary one.
     TITLE_STYLES = ("unlabelled", "secondary", "labelled")
 
-    def _title_style(self, brand: str, type_key: str) -> str:
-        """The (brand, type)'s style: fixed per pair, and the census mix is hit
-        ACROSS the type's makers by their market weight.
+    #: Attributes a title always labels, whatever its type's style: a bare
+    #: ``4`` or ``10`` says nothing about what it counts.
+    ALWAYS_LABELLED = frozenset({"Number of Flutes", "Units per Pack"})
 
-        The makers of a type are put in a seeded order and each takes the style
-        its slice of the type's market weight falls in: the first 46.7% of
-        weight unlabelled, the next 17.1% secondary, the rest labelled. A
-        brand's share of a type's SKUs follows its weight, so the per-title
-        mix approximates the census while every brand keeps one style. (A
-        per-pair coin flip did not: 250 pairs weighted by SKU count drifted to
-        0.35 / 0.26 against 0.47 / 0.17.)
+    def _title_style(self, brand: str, type_key: str) -> str:
+        """The (brand, type)'s style: "unlabelled" for every maker of an
+        unlabelled type (:func:`unlabelled_types`), else fixed per pair.
+
+        Bare or labelled used to be a (brand, type)'s choice too, so two makers
+        of one type wrote its thread size ``M12x1.75 Dia./Thread Size`` and a
+        bare ``M10x1.5`` side by side in one result list (#938). Whether a
+        labelled title also names a secondary dimension changes how no
+        attribute is written, so that stays the maker's: a labelled type's
+        makers are put in a seeded order and each takes the style its slice of
+        the type's market weight falls in, the first
+        ``not_primary / (1 - unlabelled)`` of it secondary and the rest
+        labelled, so the secondary rate over all titles approximates the
+        census's 17.1%.
         """
         cfg = self.config
+        if self._unlabelled_types is None:
+            self._unlabelled_types = unlabelled_types(cfg)
+        if type_key in self._unlabelled_types:
+            return "unlabelled"
         key = (brand, type_key)
         style = self._title_styles.get(key)
         if style is None:
+            secondary = cfg.title_token_not_primary / (1 - cfg.title_token_unlabelled)
             makers = sorted(
                 brands.brands_for(type_key),
                 key=lambda b: hashlib.sha256(
@@ -74,12 +132,7 @@ class TitleMixin:
             for maker in makers:
                 middle = (cumulative + maker.weight / 2) / total
                 cumulative += maker.weight
-                if middle < cfg.title_token_unlabelled:
-                    choice = "unlabelled"
-                elif middle < cfg.title_token_unlabelled + cfg.title_token_not_primary:
-                    choice = "secondary"
-                else:
-                    choice = "labelled"
+                choice = "secondary" if middle < secondary else "labelled"
                 self._title_styles[(maker.name, type_key)] = choice
             style = self._title_styles.get(key, "labelled")
         return style
@@ -96,7 +149,8 @@ class TitleMixin:
         primary = child.primary
         if primary is None:
             return []
-        style = self._title_style(draft.brand, draft.type_key)
+        type_key = draft.type_key
+        style = self._title_style(draft.brand, type_key)
         self._bump("title_token")
         # Named only when the record publishes it, like a secondary, and as it publishes it: a
         # unit-mixing defect (:mod:`.defects`) may restate it, and on a line that sells a size
@@ -105,7 +159,7 @@ class TitleMixin:
             [
                 Segment(
                     value=self._published[child.also.name],
-                    label=self._label_for(child.also.name),
+                    label=self._dimension_label(type_key, child.also.name),
                     attribute=child.also.name,
                 )
             ]
@@ -117,7 +171,9 @@ class TitleMixin:
             return [Segment(value=primary.value, label=None, attribute=primary.name), *also]
         segments = [
             Segment(
-                value=primary.value, label=self._label_for(primary.name), attribute=primary.name
+                value=primary.value,
+                label=self._dimension_label(type_key, primary.name),
+                attribute=primary.name,
             ),
             *also,
         ]
@@ -147,7 +203,7 @@ class TitleMixin:
                 segments.append(
                     Segment(
                         value=attribute.value,
-                        label=self._label_for(attribute.name),
+                        label=self._dimension_label(type_key, attribute.name),
                         attribute=attribute.name,
                     )
                 )
@@ -162,15 +218,43 @@ class TitleMixin:
         start = int(digest.hexdigest()[:8], 16) % len(classes)
         return classes[start:] + classes[:start]
 
-    def _label_for(self, attribute_name: str) -> str:
+    def _label_for(self, type_key: str, attribute_name: str) -> str:
+        """The TYPE's spelling of an attribute's label: every title of one
+        product type spells it the same way, whoever makes it (#938).
+
+        It used to be the brand's, so one type's titles read ``40mm L`` and
+        ``60mm Length``. The form is the census's, picked by a point in [0, 1)
+        that is a pure function of the type and the attribute, so the mix over
+        many types follows the census shares.
+        """
         forms = LABEL_FORMS.get(attribute_name)
         if not forms:
             return attribute_name
-        if self._voice is None:
-            return str(_weighted(self.rng, forms))
-        # The BRAND's spelling: every title one maker lists spells a label
-        # the same way (:mod:`.voice`).
-        return self._voice.labels[attribute_name]
+        point = _unit(f"label:{type_key}:{attribute_name}")
+        total = sum(weight for _, weight in forms)
+        cumulative = 0.0
+        for form, weight in forms:
+            cumulative += weight / total
+            if point < cumulative:
+                return form
+        return forms[-1][0]
+
+    def _dimension_label(self, type_key: str, attribute_name: str) -> str | None:
+        """The label a dimension segment of this type carries, or None for bare.
+
+        One answer per (type, attribute), whichever role the attribute has in a
+        title -- the key dimension, the axis, a second length, a secondary or the
+        segment that tells a SKU from its siblings -- so the attribute is labelled
+        in every title of its type or in none (#938). A type's named key
+        dimensions (:data:`.drafts.KEY_DIMENSIONS`) lead its titles bare.
+        """
+        if attribute_name in KEY_DIMENSIONS.get(type_key, ()):
+            return None
+        if self._unlabelled_types is None:
+            self._unlabelled_types = unlabelled_types(self.config)
+        if type_key in self._unlabelled_types and attribute_name not in self.ALWAYS_LABELLED:
+            return None
+        return self._label_for(type_key, attribute_name)
 
     def _build_line_title(self, draft: LineDraft, child: ChildDraft) -> Title:
         """A SKU title, in one of the two measured styles: the brand's."""
@@ -210,7 +294,7 @@ class TitleMixin:
             None,
         )
         if flutes is not None:
-            label = self._label_for("Number of Flutes")
+            label = self._label_for(draft.type_key, "Number of Flutes")
             segments.append(Segment(value=flutes.value, label=label, attribute=flutes.name))
 
         if not descriptive:
@@ -253,7 +337,11 @@ class TitleMixin:
             )
         elif quantity is not None and voice.pack_label is not None:
             segments.append(
-                Segment(value=quantity, label=voice.pack_label, attribute="Units per Pack")
+                Segment(
+                    value=quantity,
+                    label=_pack_label(draft.type_key),
+                    attribute="Units per Pack",
+                )
             )
 
         qualifier = voice.qualifier[STANDARDS_FAMILY[draft.type_key]]
@@ -328,6 +416,7 @@ class TitleMixin:
         titles: list[Title],
         published: list[list[Attribute]],
         identifying: str | None,
+        type_key: str,
     ) -> list[Title]:
         """Give two SKUs of one line that share a title the thing that differs.
 
@@ -401,14 +490,12 @@ class TitleMixin:
             if attribute is not None:
                 segment = Segment(
                     value=attribute.value,
-                    label=self._label_for(attribute.name),
+                    label=self._dimension_label(type_key, attribute.name),
                     attribute=attribute.name,
                 )
                 at = min(1, len(title.segments))
                 segments = (*title.segments[:at], segment, *title.segments[at:])
-                titles[index] = build_title(
-                    title.item, segments, cap=self.config.title_length_cap
-                )
+                titles[index] = build_title(title.item, segments, cap=self.config.title_length_cap)
                 self._bump("title_disambiguated")
         return titles
 

@@ -489,7 +489,7 @@ class FinishMixin:
 
         published = [attrs for _, attrs, _, _ in built]
         titles = self._disambiguate_titles(
-            titles, published, self._identifying_attribute(published)
+            titles, published, self._identifying_attribute(published), type_key
         )
         if type_key not in hammers.KINDS:
             titles = self._thin_axis_titles(product_id, titles, line_attrs, built)
