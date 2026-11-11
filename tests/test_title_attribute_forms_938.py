@@ -20,6 +20,7 @@ though it starts ``Width Across Flats``.
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 
 import pytest
@@ -62,12 +63,24 @@ def forms_by_type(lines) -> dict[tuple[str, str], dict[str, list[str]]]:
 def cut_off_labels(lines) -> list[tuple[str, str]]:
     """``(the cut-off label, its title)`` for every title segment that writes an attribute's
     published value followed by a strict prefix of one of that attribute's declared forms."""
-    return []  # stub: the reader comes in the next commit
+    found = []
+    for line in lines:
+        for sku in line.children:
+            values = {a.name: a.value for a in (*line.attributes, *sku.attributes)}
+            for segment in sku.title.split(", ")[1:]:
+                for name, value in values.items():
+                    if not segment.startswith(f"{value} "):
+                        continue
+                    label = segment[len(value) + 1 :]
+                    forms = _forms(name)
+                    if label not in forms and any(form.startswith(label) for form in forms):
+                        found.append((label, sku.title))
+    return found
 
 
 def tight_commas(lines) -> list[str]:
     """Every SKU title that holds a comma not followed by a space."""
-    return []  # stub: the reader comes in the next commit
+    return [sku.title for line in lines for sku in line.children if re.search(r",(?! )", sku.title)]
 
 
 @pytest.fixture(scope="module")
