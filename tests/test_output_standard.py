@@ -479,6 +479,8 @@ INDUSTRIAL_ONLY_FLAT = frozenset(
         "order_multiple",
         "dimension_provenance",
         "spec_quality",
+        # A manufacturer part number is an industrial record's own (#937).
+        "mfr_part_number",
     }
 )
 #: Nothing: both state ``price`` in ``currency`` and ``in_stock`` (gen#125, slice 4).

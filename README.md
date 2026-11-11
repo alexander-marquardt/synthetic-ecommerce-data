@@ -489,9 +489,10 @@ shared tables):
   are below its range and take 3 mm (3.0x), an extension. This replaced one
   6 mm shank for all of them, which nothing had confirmed (#87). Above the
   largest stocked shank the shank is the cutter's own size.
-* **A terse end mill title names the mill's own end**: `SGL Sq End` on a
-  square end mill, `SGL Ball End` on a ball nose one (168 of 568 ball end
-  mills said `Sq End`).
+* **An end mill title names its diameter and length of cut** (#937):
+  `Square End Mill: 3/4" Dia, 1-1/2" LOC`, the pair all 24 measured reference
+  titles name (elastic/prism-retail-and-industrial#1694). It names no end shape,
+  so it states no wrong one (168 of 568 ball end mills once said `Sq End`).
 * **Every title names the type's key dimension** -- the thread size of a
   fastener, the size of a hex key, the cutting diameter of an end mill or
   drill, the bore and number of a bearing -- and a product type fixes its
@@ -539,12 +540,17 @@ allowed): flat washers 0.15, hammers 0.72, bolts 0.76, flap discs 0.79, kits
 A brand's catalog section reads uniformly, and two brands read slightly
 differently (`core/voice.py`).
 
-* **The title's core is the census structure** -- `<Item>, <key dim> <role>,
-  <material>, <coating>, <flutes>...`. A type whose variant axis is not its
+* **A title reads `<Type>: <value> <Abbrev>, <value> <Abbrev>`** (#937) -- the
+  product type, a colon, then attributes its type declares in
+  `domains/industrial/title_attributes.py`, each as its value and an abbreviated
+  name (`Square End Mill: 3/4" Dia, 1-1/2" LOC`) while the attribute block keeps
+  the full name (`Milling Dia.`). A value that says what it is (`Alloy Steel`)
+  is written alone, and a title never names an attribute its type leaves out. A type whose variant axis is not its
   size still names its key dimension (`KEY_DIMENSIONS`): a bearing its bearing
   number, a wheel and a flap disc their diameter. A brand's template chooses
-  only among census-observed variants and adds words AROUND the core: a
-  non-factual qualifier or the brand's name, and a trailing pack segment.
+  only among census-observed variants and adds words before the colon: a
+  non-factual qualifier or the brand's name. A pack is a declared attribute
+  (`100 Pk`).
 * **A SKU title may carry its variant axis value; a product name never does** (#657). The
   product name (`parent_title`) heads the whole product, so it states no value of any of its
   axes. A SKU title names an axis value on about 77% of SKUs (measured 0.7726; `finishing.AXIS_IN_TITLE` draws
@@ -565,10 +571,13 @@ differently (`core/voice.py`).
   `order_multiple` (1: a pack is ordered whole). They are not variants and not facets. The second
   variant axis (a sparse set of packs per size, a SKU and a card for each existing pair) is
   [docs/package-quantity.md](docs/package-quantity.md).
-* **Descriptions** keep the spec clause and add the brand's template: a use
-  line true of every product of the type, a family line naming the brand, its
-  range and series, a generic benefit of a material or finish the record
-  carries, and a pack line with the record's own quantity.
+* **Descriptions** read `<title> - <remaining attrs>, <brand> <line> <mfr part
+  number>` (#937): the title verbatim, the attributes it left out, then the
+  brand, the line and the record's manufacturer part number (`mfr_part_number`).
+  The brand's template -- a use line true of every product of the type, a
+  family line naming the brand, its range and series, a generic benefit of a
+  material or finish the record carries, and a pack line with the record's own
+  quantity -- is in the searchable `text`, after the part number.
 * **No text states what the record cannot back.** Every number in a title or
   description traces to a value the record publishes (records carrying
   modelled unit mixing are excused, bounded at 2%) -- except the one
@@ -585,8 +594,8 @@ answered every size query with one product type on its words alone, and the
 facets had nothing to do. Two changes make the search realistically ambiguous
 without stating anything false (`domains/industrial/compat.py`):
 
-* **One cross-reference sentence**, in the description AND in the searchable
-  `text`, never as an attribute (a hex key does not acquire a thread size, so
+* **One cross-reference sentence**, in the searchable `text` (the description
+  carries none since #937), never as an attribute (a hex key does not acquire a thread size, so
   the text match brings it in and the facets take it out). Each is read from a
   table, about the record's own PUBLISHED value, and written only when that
   value is exactly a table entry:
@@ -623,7 +632,8 @@ without stating anything false (`domains/industrial/compat.py`):
   beside it; without that, `m12 socket cap screws` reached the hex keys whose
   copy names M12 screws and not a single screw.
 * **A glued size is also written in its parts, in the description**
-  (#33). Wherever a title or description glues a size, the description
+  (#33; since #937 a cross-reference sentence and its parts are in the searchable
+  `text`). Wherever a title or description glues a size, the description
   writes it out too: the record's own sizes as `M12 thread, 1.75 mm pitch`
   in the spec clause, and a size a sentence names for another product in
   brackets after it -- `Tap drill for M12x1.75 threads (M12 thread, 1.75 mm
@@ -637,36 +647,7 @@ without stating anything false (`domains/industrial/compat.py`):
 
 ## Copy noise
 
-A distributor's copy mentions sizes a product does NOT fit, the siblings it
-is also sold in, the unit a shopper might have typed, what it pairs with and
-what it cuts. Every one of those words is searchable, so a query matches more
-than the products it names, and the policies and facets are what narrow the
-page back down (`core/noise.py`). Every sentence is TRUE of its record --
-read from its own published values, its siblings, or a table -- and the
-attributes are never touched, so the facets can always separate the noise out.
-
-| type | example | from |
-|---|---|---|
-| negative fit | `Not for M10 or M16 threads.` / `Will not fit 5/32" sockets.` | the neighbouring diameters; the next smaller key |
-| siblings | `Also available in 3/16" / 7/32" sizes.` / `Also available in M12x1.25 sizes (M12 thread, 1.25 mm pitch).` | the product's other SKUs, on its variant axis |
-| unit equivalent | `12mm (approx. 15/32").` | the published value, to the nearest 64th or 0.1mm |
-| fit / pairing | `Bore 11.992-12.000mm (ISO 492 Normal class).` / `Pair with M12x1.75 hex nuts and a 10mm hex key.` | ISO 492 bore tolerances; the record's thread and drive |
-| material contrast | `Zinc-plated steel (not stainless).` / `18-8 Stainless Steel (not plated).` | the record's material and finish |
-| work material | `Suitable for aluminum, brass and mild steel.` | what the tool's material cuts, by common practice |
-| standards | `Equivalent to DIN 912 / ISO 4762.` / `Higher strength than Class 8.8.` | same-dimension standards; ISO 898 / SAE J429 grades |
-| application | `For use with socket cap screws.` | hex keys |
-
-**One knob:** `GeneratorConfig.noise` (`--noise`) scales every rate; 1.0 is
-the realistic default and 0 a clean catalog. Each record draws from its own
-stream (catalog seed + SKU), so the clean and the noisy build have IDENTICAL
-attributes and titles, record for record -- `tests/test_noise_text.py`
-builds both and compares. **Unit equivalents are held to a minority**:
-15-20% of the records that could carry one (measured 18.0% on the golden,
-1,043 of 5,792),
-because the facets expand units themselves and a result should show the facet
-working, not text luck. Every sentence type has a checker in that test
-against tables written out there, a planted false sentence reds, and five
-mutation rows prove the checks bite.
+A distributor's copy mentions sizes a product does NOT fit, its siblings, units and pairings; every sentence is true of its record and only in the searchable `text` (#937). The sentence types, the `--noise` knob and the checks are in [docs/copy-noise.md](docs/copy-noise.md).
 
 ## Assortment kits
 
@@ -903,7 +884,9 @@ and not of the data.
 | `images.jsonl` | one row per image — one per product line — with its product type, the shape it is drawn as, its path under the image base URL at both profiles, and how many products point at it |
 | `stats.json` | what was generated, measured against the statistics it reproduces |
 
-Both shapes publish a SKU's own `description` beside its `title`. The line's
+Both shapes publish a SKU's own `description` beside its `title`. An industrial
+SKU also publishes its manufacturer part number, `mfr_part_number` (#937): a
+`keyword`, never equal to the `sku`, and the last token of the description. The line's
 title ships too, as `parent_title` — it is what a grouped card will be headed
 with — but it is no longer what renders under a SKU's title.
 

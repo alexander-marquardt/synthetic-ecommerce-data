@@ -144,13 +144,13 @@ MUTATIONS: list[Mutation] = [
         "a brand titles a type one way, naming its key size",
     ),
     Mutation(
-        "title every end mill Sq End, ball nose included",
+        "write a title attribute's full name, not its declared abbreviation",
         "domains/industrial/titles.py",
-        '                        value=f"{abbreviate_value(end.value)} {END_SHAPE_WORD[shape]} End",',
-        '                        value=f"{abbreviate_value(end.value)} Sq End",',
-        "tests/test_catalog_facts.py -k mills_own_end_shape",
+        "            kept[name] = replace(segment, label=abbreviation[name])",
+        "            kept[name] = replace(segment, label=name)",
+        "tests/test_catalog_facts.py -k names_its_diameter_and_length_of_cut",
         "A",
-        "a title names the end mill's own end shape",
+        "an end mill title names its diameter and length of cut",
     ),
     Mutation(
         "stop writing a glued size's parts in the spec clause",
@@ -204,7 +204,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "put the line title back in the description field",
         "domains/industrial/titles.py",
-        "        return f\"{title.text} - {', '.join(details)}. {middle}{tail}\"",
+        "        return compose_description(title.text, details, draft.brand, draft.series, part_number)",
         '        return f"{draft.brand} {draft.series} -- {draft.item}"',
         "tests/test_catalog_titles.py",
         "A",

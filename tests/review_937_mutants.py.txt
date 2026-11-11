@@ -1,0 +1,81 @@
+# Mutants for #937: each plants a defect on a changed line and names the test that must go red.
+
+
+TESTS = ["tests/test_title_grammar_937.py"]
+
+MUTANTS = [
+    (
+        "src/synthetic_ecommerce_data/core/naming.py",
+        'TYPE_DELIMITER = ": "',
+        'TYPE_DELIMITER = " "',
+        "delete the colon in the title composer",
+        ["tests/test_title_grammar_937.py::test_every_industrial_title_opens_with_its_type_and_a_colon"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/core/naming.py",
+        "    while kept > 1 and len(text) > cap:",
+        "    while kept > 0 and len(text) > cap:",
+        "shed the last segment, leaving the type alone",
+        ["tests/test_catalog_titles.py::test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/domains/industrial/titles.py",
+        "            if name is None or name not in abbreviation or name in kept:\n"
+        "                continue\n"
+        "            kept[name] = replace(segment, label=abbreviation[name])",
+        "            if name is None or name in kept:\n"
+        "                continue\n"
+        "            kept[name] = replace(segment, label=abbreviation.get(name, segment.label))",
+        "let a title name an attribute its type does not declare",
+        ["tests/test_title_grammar_937.py::test_the_composer_drops_a_segment_its_type_does_not_declare"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/domains/industrial/titles.py",
+        "            kept[name] = replace(segment, label=abbreviation[name])",
+        "            kept[name] = replace(segment, label=name)",
+        "write the full attribute name instead of the declared abbreviation",
+        ["tests/test_title_grammar_937.py::test_every_title_attribute_is_one_its_type_declares"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/domains/industrial/titles.py",
+        "        if type_key in MEASURED:",
+        "        if False:",
+        "stop naming every measured attribute on an end mill",
+        ["tests/test_catalog_facts.py::test_an_end_mill_title_names_its_diameter_and_length_of_cut_alone[fresh]"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/domains/industrial/titles.py",
+        "    return f\"{title} - {', '.join([*details, f'{brand} {series} {part_number}'])}\"",
+        "    return f\"{title} - {', '.join([*details, f'{brand} {series}'])}\"",
+        "end the description without the part number",
+        ["tests/test_title_grammar_937.py::test_every_description_restates_the_title_and_ends_with_the_part_number"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/domains/industrial/pack.py",
+        'return f"{title} - {details}{quantity} Units per Pack, {_brand_line(line, child)}"',
+        'return f"{title} - {details}{quantity} Units per Pack"',
+        "end a pack's description without the brand line",
+        ["tests/test_title_grammar_937.py::test_every_description_restates_the_title_and_ends_with_the_part_number"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/core/emit.py",
+        '    return {"mfr_part_number": child.mfr_part_number} if child.mfr_part_number else {}',
+        "    return {}",
+        "emit no part number field",
+        ["tests/test_title_grammar_937.py::test_every_record_carries_a_part_number_that_is_not_its_sku"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/core/emit.py",
+        '        parts.append(f"{child.mfr_part_number}.")',
+        "        parts.append(child.mfr_part_number)",
+        "leave the period off the part number in the text",
+        ["tests/test_catalog_brands_voice.py::test_every_brand_follows_one_template_per_type[hundred_k]"],
+    ),
+    (
+        "src/synthetic_ecommerce_data/core/emit.py",
+        "    parts.append(child.copy)",
+        "    pass",
+        "drop the brand template from the searchable text",
+        ["tests/test_catalog_brands_voice.py::test_every_brand_follows_one_template_per_type[hundred_k]"],
+    ),
+]

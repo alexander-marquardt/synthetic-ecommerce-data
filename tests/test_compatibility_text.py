@@ -172,7 +172,7 @@ def sentence_errors(docs: list[dict]) -> list[tuple[str, str]]:
     bad: list[tuple[str, str]] = []
     for doc in docs:
         values = _published(doc)
-        for match in compatibility_sentences(doc["description"]):
+        for match in compatibility_sentences(doc["text"]):
             ok = _sentence_holds(match, doc["product_type"], values)
             if not ok or match.group(0) not in doc.get("text", match.group(0)):
                 bad.append((doc["sku"], match.group(0)))
@@ -241,19 +241,19 @@ def test_every_compatibility_sentence_holds(docs):
             if v is not None and k not in ("standard", "tap_drill")
         )
         for doc in docs
-        for m in compatibility_sentences(doc["description"])
+        for m in compatibility_sentences(doc["text"])
     }
     assert kinds == {"screws", "key", "tapped", "drilled", "nut", "washer"}, kinds
 
 
 def test_a_planted_false_sentence_is_caught(golden):
-    key = next(d for d in golden if "For M12 socket head cap screws" in d["description"])
-    planted = dict(key, description=key["description"].replace("For M12 ", "For M10 "))
+    key = next(d for d in golden if "For M12 socket head cap screws" in d["text"])
+    planted = dict(key, text=key["text"].replace("For M12 ", "For M10 "))
     assert sentence_errors([planted]) == [
         (key["sku"], "For M10 socket head cap screws (ISO 4762).")
     ]
-    drill = next(d for d in golden if "Tap drill for M12x1.75 threads (" in d["description"])
-    planted = dict(drill, description=drill["description"].replace("M12x1.75", "M12x1.5"))
+    drill = next(d for d in golden if "Tap drill for M12x1.75 threads (" in d["text"])
+    planted = dict(drill, text=drill["text"].replace("M12x1.75", "M12x1.5"))
     assert sentence_errors([planted]) == [
         (drill["sku"], "Tap drill for M12x1.5 threads (M12 thread, 1.75 mm pitch).")
     ]
@@ -295,11 +295,14 @@ def test_a_metric_designation_is_searchable_by_its_diameter(docs):
     assert checked > 100, checked
 
 
-def test_the_description_is_the_template_plus_at_most_one_sentence(docs):
+def test_the_text_carries_at_most_one_sentence_and_the_description_none(docs):
+    """Since #937 the description is ``<title> - <attrs>, <brand> <line> <part number>``, so
+    the cross-reference sentence lives in the searchable ``text`` alone."""
     for doc in docs:
-        found = compatibility_sentences(doc["description"])
+        assert not compatibility_sentences(doc["description"]), doc["sku"]
+        found = compatibility_sentences(doc["text"])
         assert len(found) <= 1, doc["sku"]
-        assert "  " not in without_compatibility(doc["description"]), doc["sku"]
+        assert "  " not in without_compatibility(doc["text"]), doc["sku"]
 
 
 # --- near-miss threads ---------------------------------------------------------

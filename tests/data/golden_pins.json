@@ -39,7 +39,7 @@
           "Units per Pack": "1"
         },
         "price_usd": 24.94,
-        "title": "Replacement Pillow Block Bearing"
+        "title": "Replacement Pillow Block Bearing: 3/4\" Bore"
       },
       "large_products": 174,
       "large_skus": 270
@@ -79,7 +79,7 @@
   },
   "titles": {
     "documents": 14360,
-    "mid_word": 28,
-    "over_cap": 57
+    "mid_word": 2,
+    "over_cap": 2
   }
 }

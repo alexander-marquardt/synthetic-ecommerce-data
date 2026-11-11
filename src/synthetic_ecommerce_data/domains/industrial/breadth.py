@@ -66,6 +66,8 @@ from synthetic_ecommerce_data.domains.industrial import pack, taxonomy
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
+from synthetic_ecommerce_data.domains.industrial.part_numbers import mfr_part_number
+from synthetic_ecommerce_data.domains.industrial.title_attributes import declared
 from synthetic_ecommerce_data.domains.industrial.type_labels import label_for
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_FAMILY, VOCAB, AttrSpec
 
@@ -199,7 +201,11 @@ def _build_sku(
     )
 
     size_attribute = length_attribute(row.size_attr, size_value)
-    title = build_title(item_text, (Segment(value=size_value, attribute=row.size_attr),))
+    # The row's one title attribute, with the abbreviation its type declares (#937).
+    label = declared(row.key).get(row.size_attr)
+    title = build_title(
+        item_text, (Segment(value=size_value, label=label, attribute=row.size_attr),)
+    )
     merged = {a.name: a.value for a in draft.line_attrs}
     merged[row.size_attr] = size_value
     compatibility = compat.sentence_for(row.key, merged) or ""
@@ -215,8 +221,8 @@ def _build_sku(
             siblings=(),
         )
     )
-    extra = " ".join(part for part in (compatibility, noise_text) if part)
-    description = gen._build_description(draft, title, [size_attribute], extra)  # noqa: SLF001
+    part_number = mfr_part_number(gen.config.seed, draft.series, sku)
+    description = gen._build_description(draft, title, [size_attribute], part_number)  # noqa: SLF001
     return Sku(
         sku=sku,
         title=title.text,
@@ -227,6 +233,8 @@ def _build_sku(
         image_id=taxonomy.image_id_for(row.key, product_id, sku),
         compatibility=compatibility,
         noise=noise_text,
+        copy=gen._description_copy(draft, [size_attribute]),  # noqa: SLF001
+        mfr_part_number=part_number,
         pricing_unit=pricing_unit_for(merged.get("Units per Pack")),
     )
 

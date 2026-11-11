@@ -145,9 +145,11 @@ class LineDraft:
     #: the line's dimensions are not already a standard's by provenance (the
     #: hex nut: :func:`.newtypes.nut_row`). Empty when no one standard fits.
     standard: str = ""
-    #: The title is the item alone: no brand, no qualifier, no segments (the incidental-word
-    #: text-match decoy of :mod:`.hammers`, whose short indexed title outranks real hits).
-    bare_title: bool = False
+    #: The title is the type and its decoy words alone, ``Claw Hammer: Hickory Creek``: no
+    #: brand, no qualifier, no attribute (the incidental-word text-match decoy of
+    #: :mod:`.hammers`, whose short indexed title outranks real hits). Empty for every other
+    #: line; else ``(type, words)``.
+    bare_title: tuple[str, ...] = ()
     #: The length classes the line sells at each size (:data:`.grouped.REACH`, #850): its SKUs
     #: are its sizes times this, and the grouped pass's budget counts its sizes.
     reach: int = 1

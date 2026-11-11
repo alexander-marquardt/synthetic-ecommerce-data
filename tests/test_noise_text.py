@@ -178,7 +178,7 @@ def noise_errors(docs: list[dict]) -> tuple[list[tuple[str, str]], collections.C
     kinds: collections.Counter = collections.Counter()
     for doc in docs:
         siblings = [d for d in by_product[doc["product_id"]] if d["sku"] != doc["sku"]]
-        for match in noise_sentences(doc["description"]):
+        for match in noise_sentences(doc["text"]):
             kinds[next(k for k, v in match.groupdict().items() if v is not None)] += 1
             if not _holds(match, doc, siblings) or match.group(0) not in doc["text"]:
                 bad.append((doc["sku"], match.group(0)))
@@ -196,30 +196,23 @@ def test_every_noise_sentence_is_true(docs):
 
 
 def test_a_planted_false_noise_sentence_is_caught(golden):
-    doc = next(
-        d for d in golden if "Suitable for aluminum, brass and mild steel." in d["description"]
-    )
+    doc = next(d for d in golden if "Suitable for aluminum, brass and mild steel." in d["text"])
     planted = dict(
         doc,
-        description=doc["description"].replace(
+        text=doc["text"].replace(
             "Suitable for aluminum, brass and mild steel.",
             "Suitable for aluminum, brass and hardened steel.",
         ),
     )
-    planted["text"] = planted["description"]
     assert noise_errors([planted])[0]
     screw = next(
         d
         for d in golden
-        if re.search(r"Not for M\d+ or M\d+ threads\.", d["description"])
+        if re.search(r"Not for M\d+ or M\d+ threads\.", d["text"])
         and "Dia./Thread Size" in _values(d)
     )
     own = _diameter(_values(screw)["Dia./Thread Size"])
-    wrong = dict(
-        screw,
-        description=re.sub(r"Not for M\d+ or", f"Not for {own} or", screw["description"]),
-    )
-    wrong["text"] = wrong["description"]
+    wrong = dict(screw, text=re.sub(r"Not for M\d+ or", f"Not for {own} or", screw["text"]))
     assert noise_errors([wrong])[0]
 
 
@@ -229,9 +222,11 @@ def test_noise_never_moves_an_attribute_or_a_title(fresh, clean):
     for noisy, plain in zip(fresh, clean, strict=True):
         assert noisy["attributes"] == plain["attributes"], noisy["sku"]
         assert noisy["title"] == plain["title"], noisy["sku"]
-        stripped = re.sub(r"\s*(?:" + NOISE.pattern + r")", "", noisy["description"])
-        assert stripped == plain["description"], noisy["sku"]
-    assert not any(noise_sentences(d["description"]) for d in clean)
+        # The description carries no noise since #937; the searchable text does.
+        assert noisy["description"] == plain["description"], noisy["sku"]
+        stripped = re.sub(r"\s*(?:" + NOISE.pattern + r")", "", noisy["text"])
+        assert stripped == plain["text"], noisy["sku"]
+    assert not any(noise_sentences(d["text"]) for d in clean)
 
 
 def test_unit_equivalents_are_a_minority_within_their_bound(docs):
@@ -262,7 +257,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
         except Exception:  # noqa: BLE001 -- an unparseable defect row is not eligible
             continue
         eligible += 1
-        carrying += any(m.group("eq_value") for m in noise_sentences(doc["description"]))
+        carrying += any(m.group("eq_value") for m in noise_sentences(doc["text"]))
     labels = {n for v in primary.values() for n in ((v,) if isinstance(v, str) else v)}
     assert seen == labels, f"mapped labels no document carries: {sorted(labels - seen)}"
     share = carrying / eligible

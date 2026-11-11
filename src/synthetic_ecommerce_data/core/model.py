@@ -147,9 +147,16 @@ class Sku:
     #: the description; kept separately so the searchable text can carry it
     #: without folding in the rest of the description.
     compatibility: str = ""
-    #: The copy's noise sentences (:mod:`.noise`): true, distracting, and in
-    #: the description and the searchable text only -- never an attribute.
+    #: The copy's noise sentences (:mod:`.noise`): true and distracting. They are in the
+    #: searchable text only, never an attribute; the description dropped them with #937.
     noise: str = ""
+    #: The brand's template sentences (a use line, a family line, a benefit, a pack line).
+    #: They followed the brand line in the description until #937. Now the description ends
+    #: with the part number, and these reach the searchable text only.
+    copy: str = ""
+    #: The manufacturer's part number (#937): the record's own, never its SKU. The industrial
+    #: description ends with it. Empty on a record of a domain that publishes none.
+    mfr_part_number: str = ""
     #: How the shown price is quoted: ``"Each"``, or ``"Per Pack"`` when the SKU
     #: publishes ``Units per Pack`` above 1 (gen#14). A plain field, not a variant.
     pricing_unit: str = "Each"

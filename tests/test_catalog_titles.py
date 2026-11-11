@@ -59,8 +59,9 @@ import pytest
 from catalog_size import DEPTH_SKUS
 from published import authored_attributes
 from synthetic_ecommerce_data.core.entry import published
-from synthetic_ecommerce_data.core.naming import DELIMITER
+from synthetic_ecommerce_data.core.naming import DELIMITER, TYPE_DELIMITER
 from synthetic_ecommerce_data.domains.industrial import grouped, pack
+from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -471,7 +472,10 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
     for doc in flat_docs:
         title = doc["title"]
         assert title == title.rstrip(), f"trailing whitespace from a cut: {title!r}"
-        tail = title.rsplit(",", 1)[-1].strip()
+        # Since #937 the attributes follow ``<Type>: `` and a label is the abbreviation
+        # its type declares (``Drive`` for ``Drive Size``): a declared abbreviation is whole.
+        tail = title.split(TYPE_DELIMITER, 1)[-1].rsplit(",", 1)[-1].strip()
+        abbreviations = {a for _, a in TITLE_ATTRIBUTES.get(doc["product_type"], ()) if a}
         published = set(doc["attribute_names"])
         # A whole published value is not a label cut short: an ER collet's
         # class ``Standard`` is a prefix of the ``Standards`` label.
@@ -480,6 +484,8 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
         for start in range(len(words)):
             candidate = " ".join(words[start:])
             if len(candidate) <= 4 or candidate in published or candidate in values:
+                continue
+            if candidate in abbreviations:
                 continue
             if any(name.startswith(candidate) and name != candidate for name in published):
                 cut.append(title)
@@ -521,12 +527,13 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
         for n in range(1, 12)
     )
 
+    # ``<Type>: <segment>, <segment>`` (#937), and never fewer than one segment: a title
+    # that is its type alone would lose the colon the grammar opens with.
     def prefixes() -> list[str]:
-        out = []
-        for keep in range(len(segments) + 1):
-            pieces = [item] + [DELIMITER + seg.text() for seg in segments[:keep]]
-            out.append("".join(pieces))
-        return out
+        return [
+            item + TYPE_DELIMITER + DELIMITER.join(seg.text() for seg in segments[:keep])
+            for keep in range(1, len(segments) + 1)
+        ]
 
     whole = prefixes()
 
@@ -540,12 +547,12 @@ def test_an_over_long_title_sheds_a_whole_segment_rather_than_being_cut() -> Non
             f"at cap {cap} the title {title.text!r} is not a whole-segment "
             f"prefix of what it was assembled from -- it was cut"
         )
-        assert len(title.text) <= cap or title.text == item, (
+        assert len(title.text) <= cap or title.text == whole[0], (
             f"at cap {cap} the title is {len(title.text)} characters"
         )
 
     tight = build_title(item, segments, cap=len(item) + 1)
-    assert tight.text == item, "shedding stops at the item, which names the product"
+    assert tight.text == whole[0], "shedding stops at the type and its first segment"
 
 
 def test_the_cap_cut_this_replaced_really_did_land_inside_words() -> None:

@@ -36,6 +36,7 @@ from synthetic_ecommerce_data.core.model import (
     numeric_attribute,
     pricing_unit_for,
 )
+from synthetic_ecommerce_data.domains.industrial.part_numbers import mfr_part_number
 from synthetic_ecommerce_data.domains.industrial.taxonomy import image_id_for
 
 #: Each type's quantities above 1, smallest first.
@@ -78,9 +79,22 @@ def _per_pack(quantity: int) -> str:
     return f" {quantity} per pack."
 
 
-def _copy(single: Sku) -> str:
-    """A single's description past its title, which a pack's own title replaces."""
-    return single.description[len(single.title) :]
+def _brand_line(line: ProductLine, child: Sku) -> str:
+    """What a description ends with (#937): ``<brand> <line> <mfr part number>``."""
+    return f"{line.brand} {line.series} {child.mfr_part_number}"
+
+
+def _details(line: ProductLine, child: Sku) -> str:
+    """A description's remaining attributes, between ``<title> - `` and the brand line: empty,
+    or ending with ``", "``."""
+    return child.description.removeprefix(f"{child.title} - ").removesuffix(
+        _brand_line(line, child)
+    )
+
+
+def _described(line: ProductLine, child: Sku, title: str, details: str, quantity: int) -> str:
+    """``<title> - <attrs>, <quantity> Units per Pack, <brand> <line> <mfr part number>``."""
+    return f"{title} - {details}{quantity} Units per Pack, {_brand_line(line, child)}"
 
 
 def _pack(
@@ -97,11 +111,14 @@ def _pack(
     while len(lead + title) > TITLE_CAP and ", " in title:
         title = title.rsplit(", ", 1)[0]
     stock = (0, rng.randint(1, 40), rng.randint(40, 900))
+    part = replace(single, mfr_part_number=mfr_part_number(seed, line.series, sku))
+    details = _details(line, single).removesuffix("1 Units per Pack, ")
     return replace(
-        single,
+        part,
         sku=sku,
         title=lead + title,
-        description=f"{lead}{title}{_copy(single)[:-len(_per_pack(1))]}{_per_pack(quantity)}",
+        description=_described(line, part, lead + title, details, quantity),
+        copy=single.copy[: -len(_per_pack(1))] + _per_pack(quantity),
         attributes=(*single.attributes[:-1], _attribute(quantity)),
         price_usd=price.pack_price(single.price_usd, quantity, price.ending_draw(seed, sku)),
         stock=rng.choices(stock, weights=(0.08, 0.42, 0.5))[0],
@@ -130,7 +147,8 @@ def widen(
         replace(
             child,
             attributes=(*child.attributes, _attribute(1)),
-            description=child.description + _per_pack(1),
+            description=_described(line, child, child.title, _details(line, child), 1),
+            copy=child.copy + _per_pack(1),
             price_usd=_unit_price(line, child, seed),
         )
         for child in line.children

@@ -6,7 +6,9 @@ catalog-2026-09-29f, the six jobber drills saying "Tap drill for M12x1.75
 threads" were not returned for ``m12``. The maintainer ruled this is fixed in
 the data (alexander-marquardt/synthetic-ecommerce-data#33): wherever the
 text carries a glued size, the description also writes the diameter and the
-pitch as tokens of their own.
+pitch as tokens of their own. Since #937 the cross-reference sentence (``Tap drill for
+M12x1.75 threads (M12 thread, 1.75 mm pitch).``) is in the searchable ``text`` and not in the
+description, so a record's copy here is its description and its text together.
 
 The tokens are read here the way the standard tokenizer splits them, from
 this file's own pattern, never from the generator's.
@@ -56,16 +58,21 @@ def docs(request) -> list[dict]:
     return request.getfixturevalue(request.param)
 
 
+def _copy(doc: dict) -> str:
+    """What a free-text query reads: the description and the searchable text."""
+    return f"{doc['description']} {doc['text']}"
+
+
 def unsplit(docs: list[dict]) -> tuple[list[tuple[str, str]], collections.Counter[str]]:
     """Records whose title or description glues a size the description never
     writes in parts, and the count of glued records checked, by type."""
     missing, checked = [], collections.Counter()
     for doc in docs:
-        hits = GLUED.findall(f"{doc['title']} {doc['description']}")
+        hits = GLUED.findall(f"{doc['title']} {_copy(doc)}")
         if not hits:
             continue
         checked[doc["product_type"]] += 1
-        tokens = _tokens(doc["description"])
+        tokens = _tokens(_copy(doc))
         for dia, pitch in hits:
             if f"m{dia}" not in tokens or pitch not in tokens:
                 missing.append((doc["sku"], f"M{dia}x{pitch}"))
@@ -87,8 +94,8 @@ def test_every_written_part_is_a_glued_size_the_record_names(docs):
     title or description glues."""
     invented, written = [], 0
     for doc in docs:
-        glued = set(GLUED.findall(f"{doc['title']} {doc['description']}"))
-        for dia, pitch in PART.findall(doc["description"]):
+        glued = set(GLUED.findall(f"{doc['title']} {_copy(doc)}"))
+        for dia, pitch in PART.findall(_copy(doc)):
             written += 1
             if (dia, pitch) not in glued:
                 invented.append((doc["sku"], dia, pitch))
@@ -102,10 +109,10 @@ def test_a_tap_drill_for_m12_is_found_by_m12(docs):
     drills = [
         doc
         for doc in docs
-        if doc["product_type"] == "drill_jobber" and "for M12x1.75 threads" in doc["description"]
+        if doc["product_type"] == "drill_jobber" and "for M12x1.75 threads" in doc["text"]
     ]
     assert drills, "no drill names the M12x1.75 tap drill"
-    assert [d["sku"] for d in drills if "m12" not in _tokens(d["description"])] == []
+    assert [d["sku"] for d in drills if "m12" not in _tokens(d["text"])] == []
 
 
 @pytest.mark.parametrize(

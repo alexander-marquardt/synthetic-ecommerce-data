@@ -29,6 +29,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.naming import LABEL_FORMS
 from synthetic_ecommerce_data.core.voice import PACK_LABELS
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
 
 BARE = "<bare>"
 
@@ -37,6 +38,13 @@ def _forms(name: str) -> set[str]:
     """Every label an attribute is declared to be written with: its census spellings, its own
     name, and for a pack count the pack labels."""
     forms = {form for form, _ in LABEL_FORMS.get(name, ())} | {name}
+    # The abbreviation a type's title table declares for the attribute (#937) is a whole label.
+    forms |= {
+        abbrev
+        for pairs in TITLE_ATTRIBUTES.values()
+        for full, abbrev in pairs
+        if full == name and abbrev
+    }
     if name == "Units per Pack":
         forms |= set(PACK_LABELS)
     return forms

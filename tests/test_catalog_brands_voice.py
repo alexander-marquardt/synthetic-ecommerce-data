@@ -29,7 +29,7 @@ from pathlib import Path
 
 import pytest
 
-from compat_text import without_compatibility
+from compat_text import NOISE, without_compatibility
 from published import authored_attributes
 from shared_builds import hundred_k_flat, realistic_only
 from synthetic_ecommerce_data.core.brands import (
@@ -536,6 +536,15 @@ def _about(sentence: str, facts: str) -> bool:
     )
 
 
+def _template(doc: dict) -> str:
+    """The brand's template sentences. Since #937 the description ends with the part number
+    and the template is in the searchable ``text``, after ``<part number>. `` and before the
+    cross-reference and noise sentences, which are removed here."""
+    marker = f"{doc['mfr_part_number']}. "
+    text = NOISE.sub("", without_compatibility(doc["text"]))
+    return " ".join(text.split(marker, 1)[1].split()) if marker in text else ""
+
+
 def voice_deviations(docs: list[dict]) -> list[tuple]:
     """(brand, type) groups whose titles or descriptions break one template.
 
@@ -551,9 +560,7 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
         # brand's voice (gen#320); its description still follows the template.
         if not is_incidental_decoy_title(doc["title"]):
             openings[key].add(_opening(doc))
-        marker = f"{doc['brand']} {doc['series']}. "
-        description = without_compatibility(doc["description"])
-        tail = description.split(marker, 1)[1] if marker in description else ""
+        tail = _template(doc)
         sentences = [s.replace(doc["series"], "{S}") for s in re.split(r"(?<=\.) ", tail) if s]
         facts = " ".join(a["value"] for a in authored_attributes(doc))
         tails[key].append((sentences, facts))
@@ -588,11 +595,9 @@ def test_a_planted_off_template_title_and_description_are_caught(golden):
     doc = next(d for d in golden if not d["title"].startswith(d["brand"]))
     off_title = dict(doc, title=f"{doc['brand']} {doc['title']}")
     assert any(v[1] == "title" for v in voice_deviations([*golden, off_title]))
-    marker = f"{doc['brand']} {doc['series']}. "
-    head, tail = doc["description"].split(marker, 1)
-    off_description = dict(
-        doc, description=head + marker + "Great value. " + tail[tail.index(" ") :]
-    )
+    marker = f"{doc['mfr_part_number']}. "
+    head, tail = doc["text"].split(marker, 1)
+    off_description = dict(doc, text=head + marker + "Great value. " + tail[tail.index(" ") :])
     assert any(v[1] == "description" for v in voice_deviations([*golden, off_description]))
 
 
@@ -671,11 +676,14 @@ def untraced_numbers(docs: list[dict]) -> tuple[list, int]:
         # Every value of every attribute: a multi-valued one (a kit's ``Sizes
         # Included``) is several entries under one name.
         every_value = [a["value"] for a in authored_attributes(doc)]
-        backed = set(_NUMBER.findall(" ".join([*every_value, doc["series"], doc["brand"]])))
+        # The part number (#937) is a field of its own.
+        own = [*every_value, doc["series"], doc["brand"], doc.get("mfr_part_number", "")]
+        backed = set(_NUMBER.findall(" ".join(own)))
         # The cross-reference sentence's numbers are the OTHER product's (the
         # M12 a key drives) and trace to a standard's table instead;
         # ``test_compatibility_text`` checks every one of them there.
-        description = without_compatibility(doc["description"])
+        # The brand's template sentences are in ``text`` since #937 (:func:`_template`).
+        description = f"{without_compatibility(doc['description'])} {_template(doc)}"
         stated = set(_NUMBER.findall(doc["title"])) | set(_NUMBER.findall(description))
         # A title composed before the unit-mixing defect names a length in
         # the system it was built in (``4.20mm``) beside the value republished

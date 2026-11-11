@@ -23,6 +23,9 @@
    "sku": {
     "type": "keyword"
    },
+   "mfr_part_number": {
+    "type": "keyword"
+   },
    "product_id": {
     "type": "keyword"
    },
