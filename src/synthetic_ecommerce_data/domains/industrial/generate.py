@@ -49,6 +49,7 @@ from synthetic_ecommerce_data.domains.industrial import (
     compat,
     grouped,
     hammers,
+    misspelled_pliers_944,
     pack,
     series,
     standards,
@@ -1183,6 +1184,7 @@ class Generator(TitleMixin, DefectMixin, FinishMixin):
             count = 0
             line = breadth.build_line(self, breadth.row_for(key), self.minter.next_index())
             lines.append(self._widen(line) if cfg.pack_axis and key in pack.AXES else line)
+            lines.extend(misspelled_pliers_944.build(self, key))
         budget = grouped.sku_budget(_sku_total(lines), len(lines), count)
         if self._whole_flat is not None:
             budget = round(_sku_total(self._whole_flat) * grouped.SPEC_BOUND_SCALE)

@@ -53,7 +53,10 @@ def test_the_table_has_the_rows_the_issue_asks_for():
 def test_every_row_yields_valid_skus(catalog, breadth_lines):
     """Every row makes at least one line, its own SKUs, and nothing crashes
     building or emitting them (the nested and flat shapes, and every drawing)."""
-    by_key = {line.type_key: line for line in breadth_lines}
+    # A type's own line comes first; the pliers types add one-SKU misspelled lines after it (#944).
+    by_key: dict = {}
+    for line in breadth_lines:
+        by_key.setdefault(line.type_key, line)
     assert set(by_key) == {row.key for row in breadth.rows()}
     for row in breadth.rows():
         line = by_key[row.key]
