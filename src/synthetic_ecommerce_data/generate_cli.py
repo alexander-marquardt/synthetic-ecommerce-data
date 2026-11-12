@@ -301,7 +301,12 @@ def main(argv: list[str] | None = None) -> int:
         return compose.main(argv[1:])
     parser = argparse.ArgumentParser(prog="ecom-generate", description=__doc__)
     parser.add_argument("command", choices=("build", "report"))
-    parser.add_argument("--out", type=Path, default=Path("out/catalog"))
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="default out/catalog, or out/stress with --stress-keys",
+    )
     parser.add_argument("--seed", type=int, default=GeneratorConfig.seed)
     parser.add_argument("--lines", type=int, default=GeneratorConfig.lines)
     parser.add_argument(
@@ -331,7 +336,31 @@ def main(argv: list[str] | None = None) -> int:
             f"(default: {emit.DEFAULT_IMAGE_BASE_URL})"
         ),
     )
+    parser.add_argument(
+        "--stress-keys",
+        type=int,
+        default=0,
+        help=(
+            "build the stress catalog instead (gen#948, docs/stress-catalog.md): about this many "
+            "attribute keys, as numbered copies of each product's attributes; 0 (default) = off"
+        ),
+    )
+    parser.add_argument(
+        "--stress-copies",
+        type=int,
+        default=3,
+        help="with --stress-keys: at most this many copies of each attribute per product",
+    )
     args = parser.parse_args(argv)
+    if args.stress_keys < 0 or args.stress_copies < 1:
+        parser.error("--stress-keys must be 0 (off) or more, --stress-copies 1 or more")
+    if args.stress_keys and args.command != "build":
+        parser.error("--stress-keys applies to build only")
+    if args.out is None:
+        args.out = Path("out/stress" if args.stress_keys else "out/catalog")
+    if args.stress_keys and (args.out / "stats.json").exists():
+        # The standard catalog's own file: a stress build is never written over one (gen#948).
+        parser.error(f"{args.out} holds a standard build; give the stress catalog its own --out")
 
     config = _config_from(args)
     catalog = generate(config)
@@ -377,6 +406,24 @@ def main(argv: list[str] | None = None) -> int:
         # Refuse to write a catalog that breaks the repository's own promise.
         print("non-copying audit FAILED:", json.dumps(audit), file=sys.stderr)
         return 1
+
+    if args.stress_keys:
+        from synthetic_ecommerce_data import stress  # noqa: PLC0415
+
+        mappings = {
+            "mapping.nested.json": emit.NESTED_MAPPING,
+            "mapping.flat.json": emit.FLAT_MAPPING,
+        }
+        for line in stress.write(
+            list(emit.iter_nested(catalog, base_url)),
+            emit.iter_image_manifest(catalog, base_url),
+            out,
+            args.stress_keys,
+            args.stress_copies,
+            mappings,
+        ):
+            print(line)
+        return 0
 
     # Every audit has passed: only now is anything written (gen#253). A refused build leaves
     # ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files with a
