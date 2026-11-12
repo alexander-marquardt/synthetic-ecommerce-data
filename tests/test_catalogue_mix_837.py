@@ -3,11 +3,13 @@
 The family issues and the sized release build are measured against that table's ``Target``
 column. So the table has to sum to about 500K, its total row has to equal its rows, and each
 department has to be one that ``core/departments.py`` lists, in the domain the row names.
-A department not on that list yet is marked ``new``.
+A department not on that list yet is marked ``new``. Each row that grows names its own family
+issue (gen#837 Done-when 2), and a row that does not grow names ``none``.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from synthetic_ecommerce_data.core import departments
@@ -55,6 +57,20 @@ def test_each_row_names_its_domain_and_a_listed_department_or_a_new_one() -> Non
         if row["Status"] == "new":
             assert row["Department"] not in departments.DEPARTMENTS, row["Department"]
             assert _count(row["Today"]) == 0, row["Department"]
+
+
+def test_every_growing_row_names_its_own_family_issue() -> None:
+    """gen#837 Done-when 2: one family issue per department that grows, linked from its row."""
+    rows, _ = _table()
+    issues = []
+    for row in rows:
+        cell = row.get("Family issue", "")
+        if _count(row["Growth"]) > 0:
+            assert re.fullmatch(r"gen#\d+", cell), row["Department"]
+            issues.append(cell)
+        else:
+            assert cell == "none", row["Department"]
+    assert len(issues) == len(set(issues))
 
 
 def test_every_listed_department_has_a_row() -> None:
