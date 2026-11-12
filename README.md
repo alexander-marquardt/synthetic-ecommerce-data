@@ -283,6 +283,9 @@ uv run ecom-generate build --defects 0.0              # a catalog with no unit m
 uv run ecom-generate build --seed 7                   # a different catalog
 ```
 
+A stress catalog of 10K–50K attribute keys, numbered copies of each product's attributes written to
+its own output, is `--stress-keys` ([docs/stress-catalog.md](docs/stress-catalog.md), gen#948).
+
 The generator is deterministic: one seed produces one catalog, byte for byte.
 `scripts/check_determinism.py [--lines N] [--images]` proves it: it builds
 twice, each in a fresh interpreter with a different `PYTHONHASHSEED`, and
