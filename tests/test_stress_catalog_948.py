@@ -16,7 +16,7 @@ from synthetic_ecommerce_data import generate_cli, stress
 
 LINES = "40"
 TARGET = 500
-COPIES = 3
+COPIES = 2  # below C (500 // the base keys), so the cap of N copies is seen
 COPY_KEY = re.compile(r"^(?P<base>.+)_(?P<number>\d{4})$")
 
 
@@ -69,7 +69,8 @@ def test_flag_off_is_byte_identical(builds):
 
 def test_copy_names_follow_attribute_and_four_digits(builds):
     base = _keys(_nested(builds["standard"]))
-    copies = stress.copies_per_attribute(TARGET, len(base))
+    copies = TARGET // len(base)
+    assert copies > COPIES
     added = _keys(_nested(builds["stress_a"])) - base
     assert added, "the stress build added no keys"
     for key in added:
@@ -97,6 +98,7 @@ def test_originals_kept_and_copies_are_subsets(builds):
 
 
 def test_no_more_than_n_copies_of_an_attribute(builds):
+    standard = {doc["product_id"]: doc for doc in _nested(builds["standard"])}
     for doc in _nested(builds["stress_a"]):
         numbers: dict[str, set[str]] = {}
         for entries in _lists(doc):
@@ -104,7 +106,7 @@ def test_no_more_than_n_copies_of_an_attribute(builds):
                 match = COPY_KEY.fullmatch(entry["key"])
                 if match:
                     numbers.setdefault(match["base"], set()).add(match["number"])
-        assert numbers, doc["product_id"]
+        assert set(numbers) == _keys([standard[doc["product_id"]]]), doc["product_id"]
         assert all(1 <= len(found) <= COPIES for found in numbers.values()), doc["product_id"]
 
 
@@ -120,8 +122,10 @@ def test_census_is_written_and_printed(builds, capsys, tmp_path):
     assert census["distinct_keys"] == len(keys)
     assert set(census["products_per_key"]) == {"min", "p50", "p90", "p99", "max"}
     assert census["values_per_key"]["max"] >= census["values_per_key"]["min"] >= 1
-    assert census["keys_on_fewer_than_5_products"] <= len(keys)
-    _build(tmp_path / "printed", "--stress-keys", str(TARGET))
+    carriers = [sum(1 for doc in docs if key in _keys([doc])) for key in keys]
+    assert census["products_per_key"]["max"] == max(carriers)
+    assert census["keys_on_fewer_than_5_products"] == sum(1 for n in carriers if n < 5)
+    _build(tmp_path / "printed", "--stress-keys", str(TARGET), "--stress-copies", str(COPIES))
     printed = capsys.readouterr().out
     assert f"{census['products']} products, {census['distinct_keys']} distinct keys" in printed
     for label in ("products per key:", "values per key:", "keys on fewer than 5 products:"):
