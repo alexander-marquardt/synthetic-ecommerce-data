@@ -416,7 +416,6 @@ def main(argv: list[str] | None = None) -> int:
         }
         for line in stress.write(
             list(emit.iter_nested(catalog, base_url)),
-            emit.iter_image_manifest(catalog, base_url),
             out,
             args.stress_keys,
             args.stress_copies,

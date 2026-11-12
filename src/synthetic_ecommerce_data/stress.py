@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 import random
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -63,7 +63,6 @@ def expand_product(doc: Mapping[str, Any], copies: int, max_copies: int) -> dict
     same copy numbers on the product and on every variant, so a SKU's flat document holds each
     copy once, as it holds the base.
     """
-    return dict(doc)  # red-commit stub: no copies yet
     rng = random.Random(f"stress:{doc['product_id']}")
     numbers: dict[str, list[int]] = {}
     for key in dict.fromkeys(entry["key"] for entry in _entries(doc)):
@@ -147,7 +146,6 @@ def census_lines(figures: Mapping[str, Any]) -> list[str]:
 
 def write(
     docs: list[dict[str, Any]],
-    images: Iterator[dict[str, Any]],
     out: Path,
     target_keys: int,
     max_copies: int,
@@ -156,8 +154,9 @@ def write(
     """Expand ``docs`` and write the stress catalog into ``out``; return the lines to print.
 
     ``out`` gets ``nested.jsonl``, ``flat.jsonl`` (each SKU's flat document, from the expanded
-    nested one by :func:`.core.standard.flat_documents`), ``images.jsonl`` (the standard
-    drawings: a copy names no new image), the ``mappings`` and :data:`CENSUS`.
+    nested one by :func:`.core.standard.flat_documents`), the ``mappings`` and :data:`CENSUS`.
+    No ``images.jsonl``: a stress document keeps its standard image ids, so the standard
+    catalog's image bundle serves it.
     """
     bases = base_keys(docs)
     copies = copies_per_attribute(target_keys, len(bases))
@@ -165,7 +164,6 @@ def write(
     flat = (row for doc in expanded for row in standard.flat_documents(doc))
     emit.write_jsonl(iter(expanded), out / "nested.jsonl")
     emit.write_jsonl(flat, out / "flat.jsonl")
-    emit.write_jsonl(images, out / "images.jsonl")
     for name, mapping in mappings.items():
         (out / name).write_text(json.dumps(mapping, indent=1) + "\n", encoding="utf-8")
     figures = census(expanded)
