@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "spanner_wrenches",
     label="Lock Nut Spanner Wrench",
+    use_lines=(
+        (
+            "Hook spanner for slotted round lock nuts: the hook sits in a slot on the nut's rim "
+            "and turns it without marring."
+        ),
+        (
+            "The adjustable hook fits a range of lock nut diameters, so one wrench turns every "
+            "nut in its span."
+        ),
+    ),
     breadth=BreadthRow(
         key="spanner_wrenches",
         category=("Hand Tools", "Wrenches & Keys", "Spanner Wrenches"),

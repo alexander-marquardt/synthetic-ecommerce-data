@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "sleeve_anchors",
     label="Stainless Steel Hex Bolt Sleeve Anchor",
+    use_lines=(
+        (
+            "Fastens a fixture to concrete or brick: tighten the bolt and the sleeve expands in "
+            "the hole around the bolt."
+        ),
+        (
+            "Set it through the fixture into a drilled hole; turning the bolt draws the cone into "
+            "the sleeve, which grips the hole around the bolt."
+        ),
+    ),
     breadth=BreadthRow(
         key="sleeve_anchors",
         category=("Fasteners", "Anchors", "Sleeve Anchors"),

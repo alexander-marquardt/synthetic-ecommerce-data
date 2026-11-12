@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "nylon_wall_anchors",
     label="Screw Anchor",
+    use_lines=(
+        (
+            "Expands in the drilled hole as the screw is driven, so the screw holds in masonry or "
+            "drywall."
+        ),
+        (
+            "Push the anchor into a drilled hole and drive a screw into it; the anchor spreads "
+            "and grips the wall around the screw."
+        ),
+    ),
     breadth=BreadthRow(
         key="nylon_wall_anchors",
         category=("Fasteners", "Anchors", "Plastic Wall Anchors"),

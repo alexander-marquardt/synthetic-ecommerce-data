@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "anti_seize_compounds",
     label="Anti-Seize Compound for Stainless Steel Hex Bolts",
+    use_lines=(
+        (
+            "Brush onto bolt threads before assembly, so the bolts come apart later without "
+            "galling or seizing."
+        ),
+        (
+            "Keeps bolts from seizing in heat and corrosion, so a bolt comes out at service "
+            "without snapping."
+        ),
+    ),
     breadth=BreadthRow(
         key="anti_seize_compounds",
         category=(

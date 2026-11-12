@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "compound_cutters",
     label="Bolt Cutter",
+    use_lines=(
+        (
+            "Cuts bolts, threaded rod and chain; the compound action multiplies hand force, so a "
+            "bolt shears in one stroke."
+        ),
+        (
+            "Compound-action jaws shear bolts and rod with less effort than a straight cutter; a "
+            "bolt within the jaw capacity cuts in one squeeze."
+        ),
+    ),
     breadth=BreadthRow(
         key="compound_cutters",
         category=("Hand Tools", "Cutters", "Compound Cutters"),

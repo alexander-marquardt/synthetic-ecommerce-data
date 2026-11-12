@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "thread_plug_gages",
     label="Hex Nut Thread Plug Gage",
+    use_lines=(
+        (
+            "Checks the internal thread of a nut: the Go end must thread fully into the nut, and "
+            "the No-Go end must not."
+        ),
+        (
+            "Go/No-Go gage for inspecting nuts and tapped holes; if the No-Go end enters the nut, "
+            "the thread is oversize."
+        ),
+    ),
     breadth=BreadthRow(
         key="thread_plug_gages",
         category=("Measuring & Inspecting", "Gages", "Thread Plug Gages"),
