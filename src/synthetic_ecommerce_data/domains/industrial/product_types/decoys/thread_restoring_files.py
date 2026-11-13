@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "thread_restoring_files",
     label="Hex Head Bolt Thread Restoring File",
+    use_lines=(
+        (
+            "Files damaged threads back into shape on bolts and studs: pick the face that matches "
+            "the bolt's pitch and stroke along the thread."
+        ),
+        "Restores battered or crossed threads on a bolt in place, without removing the bolt.",
+    ),
     breadth=BreadthRow(
         key="thread_restoring_files",
         category=("Hand Tools", "Files & Rasps", "Thread Restoring Files"),

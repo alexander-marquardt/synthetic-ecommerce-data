@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "sems_bolts",
     label="Sems Bolt with Captive Washer",
+    use_lines=(
+        (
+            "The washer is held captive under the head, so bolt and washer go in as one part and "
+            "the washer cannot be lost."
+        ),
+        "Preassembled with its washer, it saves handling a loose washer on the assembly line.",
+    ),
     breadth=BreadthRow(
         key="sems_bolts",
         category=("Fasteners", "Bolts", "Sems Bolts"),

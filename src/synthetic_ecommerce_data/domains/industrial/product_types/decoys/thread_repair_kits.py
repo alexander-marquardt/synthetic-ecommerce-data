@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "thread_repair_kits",
     label="Thread Repair Insert Kit for 1/4-20 Screws",
+    use_lines=(
+        "Repairs a stripped screw hole with a coil insert, so the same screw size threads back in.",
+        (
+            "Drill, tap and install the insert, and the hole takes the screw again on a "
+            "wear-resistant thread that holds the screw."
+        ),
+    ),
     breadth=BreadthRow(
         key="thread_repair_kits",
         category=("Threading", "Thread Repair", "Thread Repair Kits"),
