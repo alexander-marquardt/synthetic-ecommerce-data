@@ -117,25 +117,36 @@ def voice_for(brand: str) -> Voice:
     # tells a SKU from its siblings (measured on the first build of this
     # book: five screw titles lost it). So a title opens "<Brand> <Item>",
     # "<Qualifier> <Item>" or "<Item>" -- one of the three, per brand.
-    qualifier = {
-        family: (rng.choice(words) if rng.random() < 0.5 and not book.brand_first else None)
-        for family, words in brands.PRODUCT_WORDS.items()
-    }
+
+    def pick(words: tuple[str, ...]) -> str | None:
+        return rng.choice(words) if rng.random() < 0.5 and not book.brand_first else None
+
+    qualifier = {family: pick(brands.PRODUCT_WORDS[family]) for family in brands.FIRST_FAMILIES}
     # The two draws that once placed a comma with no space after it (``3/8,4 FL``) stay, unused,
     # so every later draw of this brand's voice is the draw it was (#657).
     if rng.random() < 0.18:
         rng.random()
+    range_word = rng.choice(brands.RANGE_WORDS) if rng.random() < 0.6 else None
+    pack_label = rng.choice(PACK_LABELS) if rng.random() < 0.5 else None
+    use_style = rng.randrange(2)
+    family_style = rng.randrange(len(FAMILY_PHRASES))
+    pack_style = rng.randrange(len(PACK_PHRASES))
+    tail_order = tuple(rng.sample(range(4), 4))
+    # A family added to the book later draws its qualifier after every draw above, so the
+    # brand's voice in the older families is the one it had (#830).
+    for family in brands.FAMILIES[len(brands.FIRST_FAMILIES) :]:
+        qualifier[family] = pick(brands.PRODUCT_WORDS[family])
     return Voice(
         brand=brand,
         descriptive=book.descriptive,
         brand_first=book.brand_first,
         qualifier=qualifier,
-        range_word=rng.choice(brands.RANGE_WORDS) if rng.random() < 0.6 else None,
-        pack_label=rng.choice(PACK_LABELS) if rng.random() < 0.5 else None,
-        use_style=rng.randrange(2),
-        family_style=rng.randrange(len(FAMILY_PHRASES)),
-        pack_style=rng.randrange(len(PACK_PHRASES)),
-        tail_order=tuple(rng.sample(range(4), 4)),
+        range_word=range_word,
+        pack_label=pack_label,
+        use_style=use_style,
+        family_style=family_style,
+        pack_style=pack_style,
+        tail_order=tail_order,
     )
 
 

@@ -275,6 +275,31 @@ def hundred_k_flat() -> list[dict]:
     return cached("hundred_k_flat", _hundred_k_flat_build)
 
 
+def _hundred_k_drawn_styles_build(built: Built | None = None) -> dict[str, dict[str, int]]:
+    from collections import Counter
+
+    from synthetic_ecommerce_data.core import emit
+    from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
+        FINISH_ATTRIBUTES,
+        MATERIAL_ATTRIBUTES,
+    )
+
+    catalog = (built or _hundred_k_build())[0]
+    materials: Counter[str] = Counter()
+    finishes: Counter[str] = Counter()
+    for line, child in catalog.all_skus():
+        record = emit.drawing_record(catalog, line, child)
+        materials.update(record[n] for n in MATERIAL_ATTRIBUTES if n in record)
+        finishes.update(record[n] for n in FINISH_ATTRIBUTES if n in record)
+    return {"materials": dict(materials), "finishes": dict(finishes)}
+
+
+def hundred_k_drawn_styles() -> dict[str, dict[str, int]]:
+    """Every ``Material`` and ``Finish`` value the 100K build's drawing records publish, with
+    its SKU count: what a drawing styles at the release size, as the style sweep reads it (#949)."""
+    return cached("hundred_k_drawn_styles", _hundred_k_drawn_styles_build)
+
+
 # --- every file made at once, for the CI job that hands them to the shards ------------
 
 #: Each file of the one default-config build, by name, and the build that writes it. A test
@@ -283,6 +308,7 @@ FROM_ONE_BUILD: dict[str, Callable[..., Any]] = {
     "hundred_k_prices": _hundred_k_prices_build,
     "hundred_k_measured": _hundred_k_measured_build,
     "hundred_k_flat": _hundred_k_flat_build,
+    "hundred_k_drawn_styles": _hundred_k_drawn_styles_build,
 }
 #: The builds of their own: a patched generator, so a catalog no other file reads.
 ON_THEIR_OWN: dict[str, Callable[[], Any]] = {"hundred_k_quiet_wheel": _hundred_k_quiet_wheel_build}

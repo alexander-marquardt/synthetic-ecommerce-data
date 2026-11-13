@@ -13,6 +13,10 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "seal_pick_sets",
     label="O-Ring Pick Set",
+    use_lines=(
+        "Hooks and picks for removing and seating O-rings without scoring the gland or the O-ring.",
+        "Lifts a worn O-ring out of its groove and guides the new O-ring in without nicking it.",
+    ),
     breadth=BreadthRow(
         key="seal_pick_sets",
         category=("Hand Tools", "Picks & Hooks", "Seal Pick Sets"),

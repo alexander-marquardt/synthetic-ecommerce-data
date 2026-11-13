@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "nut_drivers_hex",
     label="Hex Nut Driver",
+    use_lines=(
+        "Turns hex nuts faster than a wrench; the six-point socket grips the nut on its flats.",
+        (
+            "A hollow shaft clears long studs, so the driver runs a nut down threaded rod and "
+            "seats the nut by hand."
+        ),
+    ),
     breadth=BreadthRow(
         key="nut_drivers_hex",
         category=("Hand Tools", "Screwdrivers & Nut Drivers", "Nut Drivers"),

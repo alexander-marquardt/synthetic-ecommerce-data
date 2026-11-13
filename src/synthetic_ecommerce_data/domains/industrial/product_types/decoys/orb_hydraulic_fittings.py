@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "orb_hydraulic_fittings",
     label="ORB Hydraulic Fitting with O-Ring",
+    use_lines=(
+        (
+            "Straight-thread port fitting; the O-ring seals against the port face, so the threads "
+            "need no sealant and the O-ring can be replaced."
+        ),
+        (
+            "O-ring boss fitting: the O-ring sits between the thread and the hex and seals in the "
+            "port's chamfer."
+        ),
+    ),
     breadth=BreadthRow(
         key="orb_hydraulic_fittings",
         category=("Hose, Tube, Fittings & Valves", "Hydraulic Fittings", "ORB Hydraulic Fittings"),

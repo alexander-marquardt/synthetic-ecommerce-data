@@ -47,6 +47,8 @@ MATERIAL_FILL: dict[str, str] = {
     "Grade 2 Steel": "#e4e7ea",
     "Grade 5 Steel": "#d5d9dd",
     "18-8 Stainless Steel": "#eef1f3",
+    # The roll pins' martensitic stainless (#949): hardened, a shade darker than 18-8.
+    "420 Stainless Steel": "#dce2e5",
     "Nylon": "#f4f0e2",
     "Forged Steel": "#c3c7cb",
     "Zirconia Alumina": "#5d8aa8",
@@ -127,6 +129,8 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     "Ceramic Coated": "#8a8468",
     # The pipe nipples (#832): black steel pipe, sold uncoated in its mill finish.
     "Black": "#4a4d50",
+    # Round bar stock (#830): a centerless-ground bar, a duller grey than a bright drawn one.
+    "Ground": "#d1d7db",
 }
 
 #: The fill of anything with no material or finish on the record.
@@ -158,6 +162,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Grade 2 Steel": Hatch((0, 150), 5.0),
     "Grade 5 Steel": Hatch((90, 30), 5.0),
     "18-8 Stainless Steel": Hatch((45,), 8.0, dots=True),
+    # A stainless's dotted single line at an angle no other material uses (#949).
+    "420 Stainless Steel": Hatch((75,), 8.0, dots=True),
     "Nylon": Hatch((), 7.0, dots=True),
     "Forged Steel": Hatch((135,), 8.0, dots=True),
     "Zirconia Alumina": Hatch((60,), 4.0),

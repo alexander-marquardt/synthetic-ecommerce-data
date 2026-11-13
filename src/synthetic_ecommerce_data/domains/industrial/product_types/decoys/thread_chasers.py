@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "thread_chasers",
     label="Hex Head Bolt Thread Chaser",
+    use_lines=(
+        (
+            "Cleans and re-forms damaged bolt threads without cutting them undersize, so the nut "
+            "runs on the bolt again."
+        ),
+        (
+            "Runs over a bolt's thread to clear rust, paint and dents; it chases the existing "
+            "thread, so the bolt keeps its size."
+        ),
+    ),
     breadth=BreadthRow(
         key="thread_chasers",
         category=("Threading", "Thread Repair", "Thread Chasers"),

@@ -225,6 +225,10 @@ def test_the_same_part_from_two_brands_is_two_products(golden):
 #: A table type (#101) has no row here: see ``TABLE_TYPES``.
 DISTINCT_SPEC_FLOOR = {
     "key_stock": 0.15,
+    # #830: a round bar is a diameter, an alloy, a finish and a cut length, and every maker
+    # of the material family sells the same ones. Measured at 100K, 1038 distinct specs over
+    # 1223 SKUs (0.849), rounded down to 0.05.
+    "bar_stock_round": 0.80,
     "washer_flat": 0.15,
     "roller_chain": 0.70,
     "hammer_ball_pein": 0.70,

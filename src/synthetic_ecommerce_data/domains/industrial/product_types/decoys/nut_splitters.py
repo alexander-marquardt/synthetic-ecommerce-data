@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "nut_splitters",
     label="Hex Nut Splitter",
+    use_lines=(
+        (
+            "Splits a seized or rusted nut without damaging the stud: tighten the chisel against "
+            "one flat until the nut cracks."
+        ),
+        (
+            "Removes nuts that will not turn; the chisel cuts through the nut's side and leaves "
+            "the thread underneath intact."
+        ),
+    ),
     breadth=BreadthRow(
         key="nut_splitters",
         category=("Hand Tools", "Nut Breakers", "Nut Splitters"),

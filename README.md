@@ -951,6 +951,10 @@ depth types' materials, finishes, hardnesses and titles against reference
 tables built from the census this catalog otherwise reproduces, and breadth's
 short value lists were never measured against it.
 
+The catalogue-wide target is about 500K SKUs, grown mostly in everyday retail departments
+(gen#837). Its per-department mix, with today's count and the domain of each department, is in
+[docs/catalogue-mix-837.md](docs/catalogue-mix-837.md).
+
 This round is the GENERATOR only. Hiding facets carried by too few results,
 re-pinning releases, re-deriving the CI subset and the customer-facing
 requirement-query before/after tables are the industrial side
