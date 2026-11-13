@@ -285,7 +285,8 @@ NAME_EXCEPTIONS: dict[str, str] = {
     ),
     "Flange Dia.": (
         "a flanged bushing's flange, beside its Outside Dia. (#833): the D column of the"
-        " maker's stock table; the census has no bushing flange"
+        " maker's stock table; the census has no bushing flange. A flange nut's flange too"
+        " (#829): ISO 4161's d_c and ASME B18.2.2's B"
     ),
     "Flange Thickness": (
         "a flanged bushing's flange thickness (#833): the E column of the maker's stock"

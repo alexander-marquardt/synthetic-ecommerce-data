@@ -37,3 +37,19 @@ an allow-list: the test has none, so the count only goes down.
 
 `src/synthetic_ecommerce_data/domains/retail/motifs.drawn_box` is the older, coarser measure (the control-point
 hull of a shape's default drawing, for placing a print); it and this guard agree on the sheet.
+
+## In its house style: clear of the logo and the licence line (gen#932)
+
+`house_styles.product_transform` scales the product into the rows that the logo's text leaves
+free (`house_styles.reach`), plus a licensed product's licence line (`film_emblems.licence_band`),
+keeping `AIR` beside them and `FREE_EDGE` from a bare edge. It used to fit a fixed span, y 28..362
+of the kit's sheet, so a drawing that reached past that span still crossed the logo: an XL
+hoodie's hood rose over "Licensed from Barry Plotter Studios", and a turned all-in-one's ground
+shadow dipped into a logo at the foot. On the default build 3,249 of the 121,456 SKU images
+crossed.
+
+`kit._render_styled` now measures the rows the drawing covers (`house_styles.drawn_rows`): the
+largest size after its turn, and the SKU's own when that differs. The transform fits that span,
+joined with 28..362, so every size of one product is placed alike, and a drawing inside
+28..362 keeps the transform it had. `tests/test_product_clear_of_logo_932.py` measures every
+hoodie and all-in-one SKU image's `<g class="product">` against those rows.

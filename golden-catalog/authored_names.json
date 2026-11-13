@@ -12,6 +12,10 @@
  "anti_seize_compounds": {
   "Container size": "Container Size"
  },
+ "bar_stock_round": {
+  "Material grade": "Material Grade",
+  "Measurement system": "Measurement System"
+ },
  "bearing_greases": {
   "Container size": "Container Size"
  },
@@ -189,7 +193,11 @@
   "Piece count": "Piece Count"
  },
  "flange_nuts": {
-  "Thread size": "Thread Size"
+  "Flange dia.": "Flange Dia.",
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "fluted_dowels": {
   "Units per pack": "Units per Pack"

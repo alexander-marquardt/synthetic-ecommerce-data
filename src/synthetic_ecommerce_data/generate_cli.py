@@ -41,6 +41,7 @@ import json
 import os
 import sys
 from collections import Counter
+from collections.abc import Iterator
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -142,8 +143,7 @@ def _print_report(stats: dict) -> None:
     print("skus per product by type:")
     for key, row in stats["skus_per_product_by_type"].items():
         print(
-            f"  {key:<34}{row['products']:>6} products  median {row['median']:>3}"
-            f"  max {row['max']}"
+            f"  {key:<34}{row['products']:>6} products  median {row['median']:>3}  max {row['max']}"
         )
     print(
         "products whose SKUs disagree on a product-constant attribute:",
@@ -232,35 +232,68 @@ def _measured_figures(out: Path) -> dict[str, Any]:
     ``scripts/merge_pr.sh`` rebuilds on a conflict.
     """
     from synthetic_ecommerce_data.prism.derive import (  # noqa: PLC0415
+        OvermatchTally,
         dispersion_figures,
-        flat_overmatch_figures,
     )
 
-    flat = [json.loads(line) for line in (out / "flat.jsonl").read_text("utf-8").splitlines()]
-    images = [json.loads(line) for line in (out / "images.jsonl").read_text("utf-8").splitlines()]
-    breadth = {doc["product_type"] for doc in flat if doc.get("spec_quality") == SPEC_QUALITY}
+    # Each file is read one line at a time and each figure keeps only its own small state:
+    # the files as one list of rows were 3.3 GiB of the 39,000-line build's peak (gen#952).
+    types: set[str] = set()
+    breadth: set[str] = set()
+    brands: set[str] = set()
+    overmatch = OvermatchTally()
+
+    def tallied() -> Iterator[dict[str, Any]]:
+        for doc in _jsonl(out / "flat.jsonl"):
+            types.add(doc["product_type"])
+            brands.add(doc["brand"])
+            if doc.get("spec_quality") == SPEC_QUALITY:
+                breadth.add(doc["product_type"])
+            overmatch.add(doc)
+            yield doc
+
+    dispersion = dispersion_figures(tallied())
+    count = total_bytes = 0
+    geometry: Counter[str] = Counter()
+    largest: dict[str, Any] | None = None
+    for image in _jsonl(out / "images.jsonl"):
+        count += 1
+        total_bytes += image["bytes"]
+        geometry[image["geometry"]] += 1
+        # Strictly larger: the first of equal keys stays, as ``max`` keeps it.
+        if largest is None or (image["bytes"], image["image_id"]) > (
+            largest["bytes"],
+            largest["image_id"],
+        ):
+            largest = image
     figures: dict[str, Any] = {
         "catalog": {
-            "modelled_types": len({doc["product_type"] for doc in flat} - breadth),
+            "modelled_types": len(types - breadth),
             "breadth_categories": len(breadth),
-            "brands": len({doc["brand"] for doc in flat}),
+            "brands": len(brands),
         },
         "drawings": {
-            "count": len(images),
-            "bytes": sum(image["bytes"] for image in images),
+            "count": count,
+            "bytes": total_bytes,
             # How many drawings fell down the provenance ladder, by rung.
-            "geometry": dict(sorted(Counter(image["geometry"] for image in images).items())),
+            "geometry": dict(sorted(geometry.items())),
         },
-        "dispersion": dispersion_figures(flat),
-        "flat_overmatch": flat_overmatch_figures(flat),
+        "dispersion": dispersion,
+        "flat_overmatch": overmatch.figures(),
     }
-    if images:
-        largest = max(images, key=lambda image: (image["bytes"], image["image_id"]))
+    if largest is not None:
         figures["drawings"] |= {
             "largest_bytes": largest["bytes"],
             "largest_product_type": largest["product_type"],
         }
     return figures
+
+
+def _jsonl(path: Path) -> Iterator[dict[str, Any]]:
+    """``path``'s rows, parsed one line at a time."""
+    with path.open(encoding="utf-8") as lines:
+        for line in lines:
+            yield json.loads(line)
 
 
 def _block(argv: list[str]) -> int:

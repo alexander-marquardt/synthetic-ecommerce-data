@@ -565,12 +565,23 @@ def test_only_the_size_noise_types_draw_a_size_noise():
     )
 
 
+#: A family whose lines share too few specs across brands at the default size to order its
+#: tiers there, and the test that orders them at ``--lines 39000``: one type of 42 lines over
+#: 2,160 specs a brand can make (#830).
+TIERS_ORDERED_LARGE = {
+    "material": "tests/test_type_bar_stock_round.py::"
+    "test_the_pools_tiers_price_in_order_on_the_specs_its_brands_share",
+}
+
+
 def test_each_familys_tiers_price_in_order(scored):
     """Per family, on specs it shares, an economy brand's median price is
     below a standard brand's and a premium brand's above it."""
     order = price_report.tier_order(*scored)
     assert set(order) == set(TIERS_BY_FAMILY)
     for family, (economy, premium) in order.items():
+        if family in TIERS_ORDERED_LARGE:
+            continue
         assert economy < 1.0 < premium, (family, economy, premium)
 
 
@@ -594,6 +605,8 @@ TIERS_BY_FAMILY = {
     "abrasive": ({"Tervasko", "Salt Meadow Works", "Stone Wicket"}, {"Grisenne"}),
     "hand_tool": ({"Tervasko", "Stone Wicket"}, {"Ashcombe Forge"}),
     "motion": ({"Tervasko", "Harnell"}, {"Quennick"}),
+    # #830: the bar stock pool, makers already in the book.
+    "material": ({"Tervasko", "Salt Meadow Works"}, {"Ashcombe Forge", "Quennick"}),
 }
 
 
@@ -1039,17 +1052,19 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them. The census has no bushings,
 #: so the bronze sleeve bushing's model is hand-set (#833).
-#: The census has no lag screws either (#829).
+#: The census has no lag screws or flange nuts either (#829).
 NOT_MEASURED = frozenset(
     {
         *hammers.KINDS,
         *plain_screws.KINDS,
         "key_stock",
+        "bar_stock_round",
         "er_collets",
         "drill_bushings",
         "roll_pins",
         "studs_double_end",
         "lag_screws",
+        "flange_nuts",
         "bronze_sleeve_bushings",
         *tabletype.tables(),
     }

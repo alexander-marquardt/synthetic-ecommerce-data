@@ -821,9 +821,15 @@ def _render_styled(
         _placed(shape, drawn, overlay, shrink, copies, paint, uid, printed), defs, size_scale
     )
     product = hs.restyle(inner, style)
+    full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid, printed)
+    measured = [product] if full == inner else [full, product]
     if angle:
-        full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid, printed)
-        product = f'<g class="turn" transform="{hs.turn(full, defs, angle)}">{product}</g>'
+        turned = hs.turn(full, defs, angle)
+        measured = [f'<g transform="{turned}">{m}</g>' for m in measured]
+        product = f'<g class="turn" transform="{turned}">{product}</g>'
+    # The rows the largest size covers, so every size of the product is placed alike, and the
+    # SKU's own, which a turned smaller size can reach past (gen#932).
+    rows = hs.drawn_rows(defs, *measured) if style.mark != hs.NO_MARK else None
     sheet_defs, sheet, overlay = hs.dress(style, brand, uid)
     extra = (0.0, 0.0)
     if emblem:
@@ -836,7 +842,7 @@ def _render_styled(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">',
         f"<defs>{all_defs}</defs>" if all_defs else "",
         *sheet,
-        f'<g class="product" transform="{hs.product_transform(style, brand, extra)}">{product}</g>',
+        f'<g class="product" transform="{hs.product_transform(style, brand, extra, rows)}">{product}</g>',
         f'<g class="brand">{"".join(overlay)}</g>',
         "</svg>",
     ]

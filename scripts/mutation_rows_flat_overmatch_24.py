@@ -45,7 +45,7 @@ def rows() -> list[Row]:
         Row(
             "the build drops the over-match figure",
             "generate_cli.py",
-            '        "flat_overmatch": flat_overmatch_figures(flat),\n',
+            '        "flat_overmatch": overmatch.figures(),\n',
             "",
             "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build[stats.json]",
             "the build writes the flat over-match into stats.json",
