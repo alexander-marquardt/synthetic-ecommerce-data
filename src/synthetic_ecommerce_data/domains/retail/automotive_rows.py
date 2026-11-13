@@ -86,17 +86,18 @@ CAR_SHAMPOOS = tuple(
 )  # fmt: skip
 
 # --- Car wax: brand x wax, a paste by weight, a liquid or spray by volume -------------------------
+_WAX_PRICES = {2: (12.0, 20.0), 3: (7.0, 12.0, 20.0)}  # base price per size, by how many sizes a wax has
 _WAXES = (
     ("WXP", "Carnauba Paste Car Wax Pot", "Paste", "Carnauba", "tub", ("200", "400"), "net_weight_g", "a hard carnauba paste worked on with a foam pad for a deep, warm shine that lasts about two months"),
-    ("WXL", "Liquid Car Wax", "Liquid", "Synthetic", "bottle", ("500", "1000"), "net_volume_ml", "a synthetic liquid wax that spreads thin by hand or by machine and buffs off without dust"),
-    ("WXS", "Spray Car Wax", "Spray", "Carnauba", "trigger_spray", ("500", "1000"), "net_volume_ml", "a quick spray wax for a wet or dry car: mist one panel at a time and buff to a gloss"),
-    ("WXC", "Ceramic Spray Sealant", "Spray", "Ceramic", "trigger_spray", ("500", "1000"), "net_volume_ml", "a ceramic sealant spray that bonds to clean paint and keeps water beading for months"),
+    ("WXL", "Liquid Car Wax", "Liquid", "Synthetic", "bottle", ("250", "500", "1000"), "net_volume_ml", "a synthetic liquid wax that spreads thin by hand or by machine and buffs off without dust"),
+    ("WXS", "Spray Car Wax", "Spray", "Carnauba", "trigger_spray", ("250", "500", "1000"), "net_volume_ml", "a quick spray wax for a wet or dry car: mist one panel at a time and buff to a gloss"),
+    ("WXC", "Ceramic Spray Sealant", "Spray", "Ceramic", "trigger_spray", ("250", "500", "1000"), "net_volume_ml", "a ceramic sealant spray that bonds to clean paint and keeps water beading for months"),
 )
 CAR_WAXES = tuple(
     _row(f"AU{code}{b + 1}", f"{brand} {title}", brand, "Car Wax", "Car Wax", shape,
          f"{note[0].upper()}{note[1:]}.", (_PACK[brand],),
          (_a("wax_form", "Wax form", form), _a("wax_type", "Wax type", wax)),
-         ((sizes[0], round(12.0 * k, 2)), (sizes[1], round(20.0 * k, 2))), key)
+         tuple((s, round(price * k, 2)) for s, price in zip(sizes, _WAX_PRICES[len(sizes)], strict=True)), key)
     for code, title, form, wax, shape, sizes, key, note in _WAXES
     for b, (brand, k) in enumerate(_SHAMPOO_BRANDS)
 )  # fmt: skip
@@ -110,7 +111,7 @@ _POLISHES = (
 CAR_POLISHES = tuple(
     _row(f"AU{code}{b + 1}", f"{brand} {title}", brand, "Car Polish", "Car Polish", "bottle",
          f"{note[0].upper()}{note[1:]}.", (_PACK[brand],), (_a("polish_type", "Polish type", job),),
-         (("250", round(9.0 * k, 2)), ("500", round(15.0 * k, 2))), "net_volume_ml")
+         (("100", round(5.0 * k, 2)), ("250", round(9.0 * k, 2)), ("500", round(15.0 * k, 2))), "net_volume_ml")
     for code, title, job, note in _POLISHES
     for b, (brand, k) in enumerate(_SHAMPOO_BRANDS)
 )  # fmt: skip
@@ -126,7 +127,7 @@ WASHER_FLUIDS = tuple(
     _row(f"AU{code}{b + 1}", f"{brand} {title}", brand, "Windshield Washer Fluid", "Windshield Washer Fluid",
          "fluid_jug", f"{note[0].upper()}{note[1:]}.", (_PACK[brand],),
          (_a("blend", "Blend", blend), _a("fluid_form", "Fluid form", form)),
-         (("2000", round(5.0 * k, 2)), ("5000", round(9.0 * k, 2))), "net_volume_ml")
+         (("1000", round(3.0 * k, 2)), ("2000", round(5.0 * k, 2)), ("5000", round(9.0 * k, 2))), "net_volume_ml")
     for code, title, blend, form, note in _FLUIDS
     for b, (brand, k) in enumerate(_SHAMPOO_BRANDS)
 )  # fmt: skip
@@ -141,7 +142,7 @@ _INTERIOR = (
 INTERIOR_CLEANERS = tuple(
     _row(f"AU{code}{b + 1}", f"{brand} {title}", brand, "Car Interior Cleaners", "Car Interior Cleaner",
          "trigger_spray", f"{note[0].upper()}{note[1:]}.", (_PACK[brand],), (_a("surface", "Surface", surface),),
-         (("500", round(6.0 * k, 2)), ("750", round(8.0 * k, 2))), "net_volume_ml")
+         (("250", round(4.0 * k, 2)), ("500", round(6.0 * k, 2)), ("750", round(8.0 * k, 2))), "net_volume_ml")
     for code, title, surface, note in _INTERIOR
     for b, (brand, k) in enumerate(_SHAMPOO_BRANDS)
 )  # fmt: skip
@@ -195,15 +196,15 @@ _SCENTS = (
     ("LA", "Lavender", cw("Purple", "#7b5aa6")),
 )
 _FORMATS = (
-    ("C", "Hanging Car Air Freshener", "Hanging Card", "card", (("1 pack", 2.0), ("3 pack", 5.0)), "a scented card on an elastic string for the mirror or a headrest; it lasts about four weeks"),
-    ("V", "Vent Clip Car Air Freshener", "Vent Clip", "vent_clip", (("1 pack", 4.0), ("2 pack", 7.0)), "a clip for an air vent that releases its scent faster when the fan is on; it lasts about six weeks"),
-    ("G", "Gel Can Car Air Freshener", "Gel Can", "gel_can", (("1 pack", 3.5),), "a gel can for a cup holder or under a seat with a twist lid that sets how strong it smells"),
+    ("C", "Hanging Car Air Freshener", "Hanging Card", "card", (("Single", 2.0), ("3 pack", 5.0)), "a scented card on an elastic string for the mirror or a headrest; it lasts about four weeks"),
+    ("V", "Vent Clip Car Air Freshener", "Vent Clip", "vent_clip", (("Single", 4.0), ("2 pack", 7.0)), "a clip for an air vent that releases its scent faster when the fan is on; it lasts about six weeks"),
+    ("G", "Gel Can Car Air Freshener", "Gel Can", "gel_can", (("Single", 3.5),), "a gel can for a cup holder or under a seat with a twist lid that sets how strong it smells"),
 )
 _FRESH_BRANDS = ((OSTREL, 1.0), (DRAYFIELD, 0.85), (GLOSSMERE, 1.2))
 AIR_FRESHENERS = tuple(
     _row(f"AUF{f}{s}{b + 1}", f"{brand} {scent} {title}", brand, "Car Air Fresheners", "Car Air Freshener",
          "air_freshener", f"{note[0].upper()}{note[1:]}. Its scent is {scent.lower()}.",
-         (color,), (_a("freshener_format", "Freshener format", fmt), _a("fragrance", "Fragrance", scent)),
+         (color,), (_a("freshener_format", "Freshener format", fmt), _a("scent", "Scent", scent)),
          tuple((n, round(p * k, 2)) for n, p in packs), "pack_size", (("style", style),))
     for f, title, fmt, style, packs, note in _FORMATS
     for s, scent, color in _SCENTS

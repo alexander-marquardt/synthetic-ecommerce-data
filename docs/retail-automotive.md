@@ -15,11 +15,11 @@ in `type_specs/` (`car_shampoo.py` to `microfiber_towel.py`). Slices 2 (fluids a
 | Windshield Washer Fluid | Automotive > Car Care > Windshield Washer Fluid | brand, blend and form (ready to use, concentrate) | bottle size (ml) | blend, fluid form |
 | Car Interior Cleaner | Automotive > Car Care > Car Interior Cleaners | brand and surface | bottle size (ml) | surface |
 | Wiper Blade | Automotive > Car Care > Wiper Blades | brand, blade type (conventional, beam, hybrid, rear, winter) | blade length (in) | blade type, connector, season, wiper position |
-| Car Air Freshener | Automotive > Car Care > Car Air Fresheners | brand, format and fragrance | pack size | freshener format, fragrance |
+| Car Air Freshener | Automotive > Car Care > Car Air Fresheners | brand, format and scent | pack size | freshener format, scent |
 | Wash Mitt | Automotive > Car Care > Wash Mitts | brand and material | size | material |
 | Microfiber Towel | Automotive > Car Care > Microfiber Towels | brand and towel type | dimensions | material, towel type |
 
-The templates hold 194 styles and 692 SKUs. Every brand is invented (`automotive_brand_styles.py`:
+The templates hold 194 styles and 756 SKUs. Every brand is invented (`automotive_brand_styles.py`:
 Glossmere, Kestrova, Drayfield and Ostrel), each with a mark of its own and a house style.
 
 ## Color

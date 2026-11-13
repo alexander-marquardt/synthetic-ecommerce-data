@@ -13,9 +13,9 @@
     "skus": [
       {
         "in_stock": true,
-        "pack_size": "1 pack",
+        "pack_size": "Single",
         "price": 2.0,
-        "sku": "BRD-AUFCNC1-C60C7A20"
+        "sku": "BRD-AUFCNC1-2CAB2F0A"
       },
       {
         "in_stock": true,
@@ -33,11 +33,17 @@
       "Car Care",
       "Car Interior Cleaners"
     ],
-    "price": 7.8,
+    "price": 5.2,
     "product_id": "BRD-AUICD1",
     "product_type": "Car Interior Cleaner",
-    "sku_count": 2,
+    "sku_count": 3,
     "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "250",
+        "price": 5.2,
+        "sku": "BRD-AUICD1-507D8C3A"
+      },
       {
         "in_stock": true,
         "net_volume_ml": "500",
@@ -60,11 +66,17 @@
       "Car Care",
       "Car Polish"
     ],
-    "price": 11.7,
+    "price": 6.5,
     "product_id": "BRD-AUPLC1",
     "product_type": "Car Polish",
-    "sku_count": 2,
+    "sku_count": 3,
     "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "100",
+        "price": 6.5,
+        "sku": "BRD-AUPLC1-E8994102"
+      },
       {
         "in_stock": true,
         "net_volume_ml": "250",
@@ -297,11 +309,17 @@
       "Car Care",
       "Windshield Washer Fluid"
     ],
-    "price": 6.5,
+    "price": 3.9,
     "product_id": "BRD-AUWFA1",
     "product_type": "Windshield Washer Fluid",
-    "sku_count": 2,
+    "sku_count": 3,
     "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "1000",
+        "price": 3.9,
+        "sku": "BRD-AUWFA1-003D57EE"
+      },
       {
         "in_stock": true,
         "net_volume_ml": "2000",
