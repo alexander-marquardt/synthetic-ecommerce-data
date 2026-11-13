@@ -55,7 +55,7 @@ import math
 import random
 import statistics
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from statistics import NormalDist
 from typing import TYPE_CHECKING
@@ -125,6 +125,43 @@ BRAND_ROW = "price brand spread, same spec (median max/min): {}"
 EQUAL_ROW = "price equal price, size pair: {}"
 
 
+class CellPairs:
+    """One type's cells, read as their (larger, smaller) SKU pairs whose key differs.
+
+    The pairs are generated on each pass and never stored: a cell's pairs grow with the
+    square of its members, and the stored lists were 2.2 GiB of the 39,000-line build's
+    peak, about 17.7 GiB at 500K SKUs (gen#952). The members are held once, by their cell.
+    """
+
+    __slots__ = ("cells",)
+
+    def __init__(self) -> None:
+        self.cells: list[list[tuple[float, str]]] = []
+
+    def __iter__(self) -> Iterator[tuple[str, str]]:
+        for members in self.cells:
+            for i, (key_a, sku_a) in enumerate(members):
+                for j in range(i + 1, len(members)):
+                    key_b, sku_b = members[j]
+                    if abs(key_a - key_b) < 1e-9:
+                        continue
+                    yield (sku_a, sku_b) if key_a > key_b else (sku_b, sku_a)
+
+    def __len__(self) -> int:
+        return sum(1 for _ in self)
+
+
+def pair_count(
+    pairs: Iterable[tuple[str, str]], hit: Callable[[str, str], bool]
+) -> tuple[int, int]:
+    """(pairs ``hit`` holds for, pairs), in one pass over ``pairs``."""
+    hits = total = 0
+    for first, second in pairs:
+        total += 1
+        hits += hit(first, second)
+    return hits, total
+
+
 @dataclass
 class Collected:
     """Everything a price row reads except the prices, by SKU."""
@@ -132,12 +169,10 @@ class Collected:
     #: Every modelled SKU's type.
     type_of: dict[str, str] = field(default_factory=dict)
     #: Per type, every within-cell (larger, smaller) SKU pair whose key differs.
-    pairs: dict[str, list[tuple[str, str]]] = field(default_factory=lambda: defaultdict(list))
+    pairs: dict[str, CellPairs] = field(default_factory=dict)
     #: Per type, every (longer, shorter) SKU pair of one brand and line cell
     #: whose key dimension is equal and whose length differs.
-    length_pairs: dict[str, list[tuple[str, str]]] = field(
-        default_factory=lambda: defaultdict(list)
-    )
+    length_pairs: dict[str, CellPairs] = field(default_factory=dict)
     #: Per census type (a borrower under its sibling), every (bigger,
     #: smaller, log ratio) SKU pair of one product line whose axis differs:
     #: length at an equal key for a LENGTH_HELD type, the key otherwise.
@@ -217,11 +252,7 @@ def collect(catalog: Catalog) -> Collected:
         _product_pairs(out, line.type_key, in_line)
     for target, groups in ((out.pairs, cells), (out.length_pairs, by_length)):
         for (type_key, *_), members in groups.items():
-            for i, (key_a, sku_a) in enumerate(members):
-                for key_b, sku_b in members[i + 1 :]:
-                    if abs(key_a - key_b) < 1e-9:
-                        continue
-                    target[type_key].append((sku_a, sku_b) if key_a > key_b else (sku_b, sku_a))
+            target.setdefault(type_key, CellPairs()).cells.append(members)
     return out
 
 
@@ -532,16 +563,17 @@ def type_rows(type_key: str, collected: Collected, prices: Mapping[str, float]) 
     )
 
     census = CENSUS[type_key]
-    pairs = collected.pairs.get(type_key, [])
-    more = sum(prices[larger] > prices[smaller] for larger, smaller in pairs)
+    more, total = pair_count(
+        collected.pairs.get(type_key, ()), lambda larger, smaller: prices[larger] > prices[smaller]
+    )
     return [
         *level_rows(type_key, census.n, census.p10, census.p50, census.p90, collected, prices),
         Comparison(
             ORDER_ROW.format(type_key),
             census.larger_costs_more,
-            more / len(pairs) if pairs else 0.0,
+            more / total if total else 0.0,
             more,
-            len(pairs),
+            total,
             "within-cell pairs whose key dimension differs",
             share_band(census.larger_costs_more, census.n_pairs),
         ),
@@ -561,15 +593,17 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
         rows.extend(level_rows(type_key, n, p10, p50, p90, collected, prices))
 
     for type_key, figure in LENGTH_CENSUS.items():
-        pairs = collected.length_pairs.get(type_key, [])
-        more = sum(prices[longer] > prices[shorter] for longer, shorter in pairs)
+        more, total = pair_count(
+            collected.length_pairs.get(type_key, ()),
+            lambda longer, shorter: prices[longer] > prices[shorter],
+        )
         rows.append(
             Comparison(
                 LENGTH_ROW.format(type_key),
                 figure.longer_costs_more,
-                more / len(pairs) if pairs else 0.0,
+                more / total if total else 0.0,
                 more,
-                len(pairs),
+                total,
                 "pairs of one brand and line cell, key dimension equal, length differs",
                 share_band(figure.longer_costs_more, figure.n_pairs),
             )
@@ -577,15 +611,17 @@ def price_rows(collected: Collected, prices: Mapping[str, float]) -> list[Compar
 
     for type_key in EQUAL_PRICE_TYPES:
         census = CENSUS[type_key]
-        pairs = collected.pairs.get(type_key, [])
-        equal = sum(prices[larger] == prices[smaller] for larger, smaller in pairs)
+        equal, total = pair_count(
+            collected.pairs.get(type_key, ()),
+            lambda larger, smaller: prices[larger] == prices[smaller],
+        )
         rows.append(
             Comparison(
                 EQUAL_ROW.format(type_key),
                 census.equal_price,
-                equal / len(pairs) if pairs else 0.0,
+                equal / total if total else 0.0,
                 equal,
-                len(pairs),
+                total,
                 "within-cell pairs whose key dimension differs",
                 equal_band(census),
             )
