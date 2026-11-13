@@ -208,6 +208,14 @@ def _cell_names(lines: list) -> dict[str, frozenset[str]]:
 
 def collect(catalog: Catalog) -> Collected:
     out = Collected()
+    collect_into(out, catalog)
+    return out
+
+
+def collect_into(out: Collected, catalog: Catalog) -> None:
+    """Add ``catalog``'s SKUs to ``out``. A streamed build adds one type at a time (gen#952):
+    ``catalog`` must hold each of its types whole, because a type's cells are read off all of
+    its lines (:func:`_cell_names`) and are closed when the call returns."""
     cells: dict[tuple, list[tuple[float, str]]] = defaultdict(list)
     by_length: dict[tuple, list[tuple[float, str]]] = defaultdict(list)
     lines = [line for line in catalog.lines if line.spec_quality != "fast_and_cheap"]
@@ -253,7 +261,6 @@ def collect(catalog: Catalog) -> Collected:
     for target, groups in ((out.pairs, cells), (out.length_pairs, by_length)):
         for (type_key, *_), members in groups.items():
             target.setdefault(type_key, CellPairs()).cells.append(members)
-    return out
 
 
 def types_without_material(collected: Collected) -> set[str]:
@@ -738,6 +745,23 @@ def recorded_digits(name: str) -> int:
     return 2 if name.startswith("price p50 (USD)") else 3
 
 
+class PriceTally:
+    """:func:`price_comparisons` taken one part of the catalog at a time (gen#952): what it
+    keeps is the census's per-SKU ids and keys and each SKU's price, never a product."""
+
+    def __init__(self) -> None:
+        self.collected = Collected()
+        self.prices: dict[str, float] = {}
+
+    def add(self, catalog: Catalog) -> None:
+        collect_into(self.collected, catalog)
+        self.prices.update((child.sku, child.price_usd) for _, child in catalog.all_skus())
+
+    def comparisons(self) -> list[Comparison]:
+        return price_rows(self.collected, self.prices)
+
+
 def price_comparisons(catalog: Catalog) -> list[Comparison]:
-    prices = {child.sku: child.price_usd for _, child in catalog.all_skus()}
-    return price_rows(collect(catalog), prices)
+    tally = PriceTally()
+    tally.add(catalog)
+    return tally.comparisons()

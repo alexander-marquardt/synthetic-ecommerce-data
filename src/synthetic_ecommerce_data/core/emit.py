@@ -30,9 +30,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 from synthetic_ecommerce_data.core import letter_case
 from synthetic_ecommerce_data.core.dimensions import _METRIC_THREAD
@@ -394,11 +394,17 @@ def iter_flat(catalog: Catalog, base_url: str = DEFAULT_IMAGE_BASE_URL) -> Itera
 
 def write_jsonl(rows: Iterator[dict[str, Any]], path: Path) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
-    count = 0
     with path.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-            count += 1
+        return append_jsonl(rows, handle)
+
+
+def append_jsonl(rows: Iterable[dict[str, Any]], handle: TextIO) -> int:
+    """Write ``rows`` to the open ``handle``, one JSON line each; return how many. The build
+    appends one type's rows at a time to the file it holds open (gen#952)."""
+    count = 0
+    for row in rows:
+        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        count += 1
     return count
 
 

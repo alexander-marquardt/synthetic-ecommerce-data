@@ -21,7 +21,7 @@ denominator rather than against the whole corpus.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import replace
 from fractions import Fraction
 from typing import Literal, TypeVar
@@ -1454,11 +1454,18 @@ def generate_type(
     return Generator(config, type_key, counters).build()
 
 
-def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None = None) -> Catalog:
-    """The catalog: each type built on its own, in key order, and concatenated.
+def iter_types(
+    config: GeneratorConfig | None = None,
+    types: Iterable[str] | None = None,
+    counters: dict[str, int] | None = None,
+) -> Iterator[Catalog]:
+    """The catalog one type at a time: each type's lines as a catalog of their own, in key
+    order (gen#952).
 
-    ``types`` builds only those types; every other type's output is unchanged
-    by leaving one out, which is what lets types be built in parallel.
+    A caller that drops each part before it asks for the next holds one type's products at a
+    time, so its peak grows with the largest type and not with the catalog. ``counters`` is
+    the build's one counter dict: every part's ``stats`` is that dict, and it is complete once
+    the last part is out. ``types`` builds only those types, as :func:`generate` does.
     """
     cfg = config or GeneratorConfig()
     known = _check_blocks()
@@ -1466,6 +1473,18 @@ def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None 
     if unknown:
         raise ValueError(f"no such product type(s): {unknown}")
     chosen = known if types is None else sorted(set(types))
+    shared = {} if counters is None else counters
+    for key in chosen:
+        yield Catalog(lines=tuple(Generator(cfg, key, shared).build()), stats=shared)
+
+
+def generate(config: GeneratorConfig | None = None, types: Iterable[str] | None = None) -> Catalog:
+    """The catalog: each type built on its own, in key order, and concatenated.
+
+    ``types`` builds only those types; every other type's output is unchanged
+    by leaving one out, which is what lets types be built in parallel. The build
+    itself streams the same parts (:func:`iter_types`) and never holds this whole.
+    """
     counters: dict[str, int] = {}
-    lines = [line for key in chosen for line in Generator(cfg, key, counters).build()]
+    lines = [line for part in iter_types(config, types, counters) for line in part.lines]
     return Catalog(lines=tuple(lines), stats=dict(counters))
