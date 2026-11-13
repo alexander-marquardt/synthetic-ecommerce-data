@@ -44,7 +44,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 #: Two thirds of the default build's SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse, and is not a target.
-DEFAULT_SKU_FLOOR = 10
+DEFAULT_SKU_FLOOR = 20
 
 #: The six main colors every color-bearing type offers (gen#275).
 MAIN_COLORS = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
@@ -127,7 +127,7 @@ def test_every_material_lock_system_and_main_color_is_built():
     tapes = _module()
     docs = _default_docs()
     assert {_value(d, "Material") for d in docs} == set(tapes.MATERIALS)
-    assert {_value(d, "Lock Type") for d in docs} == set(tapes.LOCKS)
+    assert {_value(d, "Lock") for d in docs} == set(tapes.LOCKS)
     assert {_value(d, "Length").split()[1] for d in docs} == {"ft", "m"}
     assert {_value(d, "Color") for d in docs} == MAIN_COLORS
     assert len(set(tapes.COMBOS)) == len(tapes.MATERIALS) * len(tapes.LOCKS) * 2
