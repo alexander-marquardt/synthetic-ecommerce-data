@@ -169,8 +169,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "stop counting titles, so the zero-truncation rate has an empty denominator",
         "domains/industrial/measure.py",
-        "            titles += 1",
-        "            titles += 0",
+        "                self.titles += 1",
+        "                self.titles += 0",
         "tests/test_catalog_generate.py -k truncated",
         "B",
         "no title label is truncated",
