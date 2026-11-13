@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "cord_splicing_kits",
     label="O-Ring Cord Splicing Kit",
+    use_lines=(
+        (
+            "Cuts O-ring cord to length and bonds the ends to make an O-ring in a size not on the "
+            "shelf."
+        ),
+        (
+            "Makes custom O-rings: cut the cord square, glue the joint, and the O-ring is ready "
+            "to fit."
+        ),
+    ),
     breadth=BreadthRow(
         key="cord_splicing_kits",
         category=("Hose, Tube, Fittings & Valves", "Seals & Gaskets", "Cord Splicing Kits"),

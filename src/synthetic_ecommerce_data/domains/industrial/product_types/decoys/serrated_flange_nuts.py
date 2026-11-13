@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "serrated_flange_nuts",
     label="Washer-Faced Flange Nut",
+    use_lines=(
+        "The flange spreads the load like a washer, so no separate washer is needed under the nut.",
+        (
+            "A built-in washer face spreads the clamping force, replacing a nut and washer with "
+            "one part."
+        ),
+    ),
     breadth=BreadthRow(
         key="serrated_flange_nuts",
         category=("Fasteners", "Nuts", "Serrated Flange Nuts"),

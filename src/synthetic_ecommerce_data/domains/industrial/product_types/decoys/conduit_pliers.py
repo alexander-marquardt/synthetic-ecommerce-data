@@ -13,6 +13,13 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "conduit_pliers",
     label="Lock Nut Pliers",
+    use_lines=(
+        (
+            "Tightens and loosens conduit lock nuts; the jaws hold the lock nut by its lugs so it "
+            "seats against the box."
+        ),
+        "Grips the lugs of a conduit lock nut, so each nut seats tight against the box wall.",
+    ),
     breadth=BreadthRow(
         key="conduit_pliers",
         category=("Hand Tools", "Pliers", "Conduit Pliers"),

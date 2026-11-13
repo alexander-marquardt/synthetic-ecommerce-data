@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "circle_cutters",
     label="Washer Cutter, Adjustable",
+    use_lines=(
+        (
+            "Cuts washers and gaskets from sheet stock; set the inner and outer radius and the "
+            "cutter turns out a matching washer."
+        ),
+        (
+            "Makes custom washers to size: one blade cuts the hole and the other the outside, so "
+            "each washer comes out round."
+        ),
+    ),
     breadth=BreadthRow(
         key="circle_cutters",
         category=("Hand Tools", "Cutters", "Circle Cutters"),
