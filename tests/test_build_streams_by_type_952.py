@@ -10,6 +10,11 @@ them before the next product. The same doubling grows its peak by about 5 MiB, f
 It writes into a temporary directory beside ``--out`` and moves the files in only once every
 audit has passed, so a refusal raised after some types were already written still leaves
 ``--out`` untouched (gen#253).
+
+The stress catalog (``--stress-keys``, gen#948) streams too (gen#952 slice 3). It used to gather
+every nested document into one list, then every expanded one into a second: at seed 7 its peak
+went from 203 MiB at 2,600 lines to 346 MiB at 5,200. Each type's documents now go to a spool
+file, and the expansion reads it back one document at a time.
 """
 
 from __future__ import annotations
@@ -24,7 +29,8 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data import generate_cli as cli
-from synthetic_ecommerce_data.core import emit
+from synthetic_ecommerce_data import stress
+from synthetic_ecommerce_data.core import emit, standard
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import generate as gen
 from synthetic_ecommerce_data.domains.industrial.generate import generate
@@ -38,6 +44,13 @@ LINES = 2600
 #: How much the build's peak RSS may grow when ``--lines`` doubles from :data:`LINES`.
 #: Streamed, it grows by about 5 MiB. Holding the catalog whole it grew by 70 MiB.
 GROWTH_CEILING_MIB = 25
+#: The stress builds' flags: a key target and copies per attribute large enough that the
+#: expanded documents dwarf the standard ones.
+STRESS_KEYS = 5000
+STRESS_COPIES = 3
+STRESS = ("--stress-keys", str(STRESS_KEYS), "--stress-copies", str(STRESS_COPIES))
+#: The builds the doubling compares: the standard build and the stress build.
+MODES = {"standard": (), "stress": STRESS}
 
 #: The files the build writes one type at a time, and the writer each comes from.
 WRITERS = {
@@ -66,37 +79,42 @@ def _digest(root: Path) -> dict[str, str]:
 
 
 @pytest.fixture(scope="module")
-def doubled(tmp_path_factory: pytest.TempPathFactory) -> dict[int, tuple[int, Path]]:
-    """The build at :data:`LINES` and twice it, each in its own interpreter, side by side:
-    ``{lines: (peak RSS in KiB, --out)}``."""
+def doubled(tmp_path_factory: pytest.TempPathFactory) -> dict[tuple[str, int], tuple[int, Path]]:
+    """The standard and the stress build at :data:`LINES` and twice it, each in its own
+    interpreter, side by side: ``{(mode, lines): (peak RSS in KiB, --out)}``."""
     root = tmp_path_factory.mktemp("doubled")
     runs = {}
-    for lines in (LINES, 2 * LINES):
-        out = root / f"lines-{lines}"
-        argv = ["build", "--lines", str(lines), "--seed", str(SEED), "--out", str(out)]
-        process = subprocess.Popen(
-            [sys.executable, "-c", PEAK_RSS, *argv],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        runs[lines] = (process, out)
+    for mode, extra in MODES.items():
+        for lines in (LINES, 2 * LINES):
+            out = root / f"{mode}-{lines}"
+            argv = ["build", "--lines", str(lines), "--seed", str(SEED), "--out", str(out), *extra]
+            process = subprocess.Popen(
+                [sys.executable, "-c", PEAK_RSS, *argv],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            runs[mode, lines] = (process, out)
     peaks = {}
-    for lines, (process, out) in runs.items():
+    for (mode, lines), (process, out) in runs.items():
         stdout, stderr = process.communicate(timeout=540)
-        assert process.returncode == 0, f"the --lines {lines} build failed:\n{stderr[-2000:]}"
+        failed = f"the {mode} --lines {lines} build failed:\n{stderr[-2000:]}"
+        assert process.returncode == 0, failed
         peak = next(line for line in stdout.splitlines() if line.startswith("PEAK_KIB"))
-        peaks[lines] = (int(peak.split()[1]), out)
+        peaks[mode, lines] = (int(peak.split()[1]), out)
     return peaks
 
 
-def test_the_peak_does_not_grow_with_the_catalog(doubled) -> None:
-    """Twice the lines, about the same peak: no structure the build keeps grows with the rows."""
-    small, _ = doubled[LINES]
-    large, _ = doubled[2 * LINES]
+@pytest.mark.parametrize("mode", list(MODES))
+def test_the_peak_does_not_grow_with_the_catalog(doubled, mode) -> None:
+    """Twice the lines, about the same peak: no structure the build keeps grows with the rows,
+    in the standard build or the stress one."""
+    small, _ = doubled[mode, LINES]
+    large, _ = doubled[mode, 2 * LINES]
     growth = (large - small) / 1024
     assert growth < GROWTH_CEILING_MIB, (
-        f"--lines {LINES} peaked at {small // 1024} MiB and --lines {2 * LINES} at "
+        f"The {mode} build at --lines {LINES} peaked at {small // 1024} MiB and at --lines "
+        f"{2 * LINES} at "
         f"{large // 1024} MiB: {growth:.0f} MiB more for twice the catalog, over the "
         f"{GROWTH_CEILING_MIB} MiB ceiling. Something the build keeps across types grows with "
         "the rows."
@@ -107,7 +125,7 @@ def test_the_streamed_build_writes_what_the_whole_catalog_does(doubled) -> None:
     """At twice the golden size: the files and figures are those of the whole catalog, built in
     one piece and written by the same writers (the golden size is ``test_catalog_golden``)."""
     lines = 2 * LINES
-    _, out = doubled[lines]
+    _, out = doubled["standard", lines]
     config = GeneratorConfig(seed=SEED, lines=lines)
     catalog = generate(config)
     base_url = emit.DEFAULT_IMAGE_BASE_URL
@@ -122,6 +140,56 @@ def test_the_streamed_build_writes_what_the_whole_catalog_does(doubled) -> None:
     assert {key: stats[key] for key in measured} == json.loads(json.dumps(measured))
     authored = json.loads((out / "authored_names.json").read_text(encoding="utf-8"))
     assert authored == emit.authored_name_map(catalog)
+
+
+def _whole_list_stress(config: GeneratorConfig) -> dict[str, bytes]:
+    """The stress files as main wrote them before it streamed: every nested document of the whole
+    catalog in one list, every expanded one in another, each file written from those lists."""
+    catalog = generate(config)
+    docs = list(emit.iter_nested(catalog, emit.DEFAULT_IMAGE_BASE_URL))
+    bases = stress.base_keys(docs)
+    copies = stress.copies_per_attribute(STRESS_KEYS, len(bases))
+    expanded = [stress.expand_product(doc, copies, STRESS_COPIES) for doc in docs]
+
+    def lines(rows) -> bytes:
+        return "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows).encode()
+
+    run = {"target_keys": STRESS_KEYS, "max_copies": STRESS_COPIES}
+    run |= {"base_keys": len(bases), "copies_per_attribute": copies}
+    figures = {"config": run, "census": stress.census(expanded)}
+    return {
+        "flat.jsonl": lines(row for doc in expanded for row in standard.flat_documents(doc)),
+        "mapping.flat.json": (json.dumps(emit.FLAT_MAPPING, indent=1) + "\n").encode(),
+        "mapping.nested.json": (json.dumps(emit.NESTED_MAPPING, indent=1) + "\n").encode(),
+        "nested.jsonl": lines(expanded),
+        stress.CENSUS: (json.dumps(figures, indent=1) + "\n").encode(),
+    }
+
+
+def _files(root: Path) -> dict[str, bytes]:
+    return {path.name: path.read_bytes() for path in sorted(root.iterdir())}
+
+
+def test_the_streamed_stress_build_writes_what_the_whole_list_does(doubled) -> None:
+    """At twice the golden size, every file the stress build writes, and no other, is the one the
+    whole-list path writes."""
+    _, out = doubled["stress", 2 * LINES]
+    expected = _whole_list_stress(GeneratorConfig(seed=SEED, lines=2 * LINES))
+    written = _files(out)
+    assert sorted(written) == sorted(expected)
+    for name, content in expected.items():
+        assert written[name] == content, name
+
+
+def test_the_stress_build_at_the_golden_seed_writes_what_the_whole_list_does(tmp_path) -> None:
+    """At the golden seed and size (the default config): the same files, byte for byte."""
+    out = tmp_path / "stress"
+    assert cli.main(["build", "--out", str(out), *STRESS]) == 0
+    expected = _whole_list_stress(GeneratorConfig())
+    written = _files(out)
+    assert sorted(written) == sorted(expected)
+    for name, content in expected.items():
+        assert written[name] == content, name
 
 
 def test_no_earlier_type_is_held_while_the_next_is_built(tmp_path, monkeypatch) -> None:
