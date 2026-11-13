@@ -62,7 +62,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "keep the product's scale when the logo leaves it less room",
         PROTO,
-        "    s = min(s0, (hi - lo) / PRODUCT_SPAN)",
+        "    s = min(s0, (hi - lo) / span)",
         "    s = s0",
         f"{T} -k product_clears_every_logo",
         "A",
