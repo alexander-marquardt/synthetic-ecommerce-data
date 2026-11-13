@@ -12,6 +12,10 @@
  "anti_seize_compounds": {
   "Container size": "Container Size"
  },
+ "bar_stock_round": {
+  "Material grade": "Material Grade",
+  "Measurement system": "Measurement System"
+ },
  "bearing_greases": {
   "Container size": "Container Size"
  },

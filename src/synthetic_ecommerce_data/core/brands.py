@@ -30,7 +30,19 @@ from dataclasses import dataclass
 from synthetic_ecommerce_data.core import domain
 
 #: The product families a brand can make, as a domain's ``brand_families`` names them.
-FAMILIES: tuple[str, ...] = ("cutting_tool", "fastener", "abrasive", "hand_tool", "motion")
+#: ``material`` (metal bar stock, #830) came last: a family added later goes at the end,
+#: and :func:`.voice.voice_for` draws its qualifier after every other draw of a brand's
+#: voice, so no older family's title moves.
+FAMILIES: tuple[str, ...] = (
+    "cutting_tool",
+    "fastener",
+    "abrasive",
+    "hand_tool",
+    "motion",
+    "material",
+)
+#: The families the brand book had before #830: their voice draws come first, in this order.
+FIRST_FAMILIES: tuple[str, ...] = FAMILIES[:5]
 ALL = frozenset(FAMILIES)
 
 #: Outline inks. Twelve hues dark enough to read as line work at thumbnail
@@ -90,6 +102,8 @@ PRODUCT_WORDS: dict[str, tuple[str, ...]] = {
     "abrasive": ("General Purpose", "Industrial", "Shop"),
     "hand_tool": ("General Purpose", "Professional", "Workshop"),
     "motion": ("General Purpose", "Industrial", "Replacement"),
+    # Not "Replacement": bar stock is cut and machined, not swapped in.
+    "material": ("General Purpose", "Industrial", "Shop"),
 }
 
 #: Range names a brand may give a product line: ordinary words, none a value
@@ -194,6 +208,15 @@ TIER_EXCEPTIONS: dict[tuple[str, str], str] = {
 
 
 C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
+#: Metal bar stock (#830). Its pool is its own, not the fastener pool: screw makers rarely
+#: sell bar stock. Ten makers already in the book carry it: the three broad-line houses,
+#: four multi-family metal houses, a bearing maker (a bearing house sells precision
+#: shafting), a forge and a works. No fastener specialist makes it. Economy: Tervasko and
+#: Salt Meadow Works, the book's smallest maker, which sat at the 0.3% floor of the 100K
+#: build and would fall under it as the catalog grows; premium: Ashcombe Forge and
+#: Quennick. No new name was added: each would need the README's real-company check, and
+#: on one type it would fall under that floor.
+S = "material"
 
 #: The brand book. ``brand_first`` and ``descriptive`` are set so the
 #: catalog-wide shares stay where the single draw put them before brands had
@@ -206,14 +229,14 @@ C, F, A, H, M = "cutting_tool", "fastener", "abrasive", "hand_tool", "motion"
 BRAND_BOOK: tuple[Brand, ...] = (
     _b("Dravenholt", "DRV", 1.3, ALL, 0, 0, True, True),
     _b("Hollisdane", "HOL", 2.2, (C, H), 1, 1, False, False),
-    _b("Varnstrom", "VST", 2.0, (F, A), 2, 2, False, True),
+    _b("Varnstrom", "VST", 2.0, (F, A, S), 2, 2, False, True),
     _b("Druvanholm", "DRU", 2.0, (F,), 3, 3, True, False),
     _b("Estrimore", "EST", 2.0, (C,), 4, 0, False, True),
-    _b("Iron Heron", "IRH", 1.8, (C, A), 5, 1, True, True),
+    _b("Iron Heron", "IRH", 1.8, (C, A, S), 5, 1, True, True),
     _b("Kessingmoor", "KES", 1.1, ALL, 6, 2, False, True),
     _b("Ingleward", "ING", 1.6, (H, F), 7, 3, False, True),
     _b("Tervasko", "TER", 1.0, ALL, 8, 0, False, False),
-    _b("Vellinhorst", "VLH", 1.6, (M, F), 9, 1, False, True),
+    _b("Vellinhorst", "VLH", 1.6, (M, F, S), 9, 1, False, True),
     # Cutting-tool specialists.
     _b("Quillon Carbide", "QUI", 1.4, (C,), 10, 0, True, True),
     _b("Tessaly Cutters", "TES", 1.1, (C,), 11, 1, False, False),
@@ -237,23 +260,23 @@ BRAND_BOOK: tuple[Brand, ...] = (
     _b("Braddlestow", "BRD", 1.0, (A,), 3, 1, True, False),
     _b("Tannerby", "TAN", 0.7, (A,), 4, 2, False, False),
     _b("Brennavik", "BRN", 0.6, (A,), 5, 3, False, True),
-    _b("Salt Meadow Works", "SAL", 0.4, (A,), 6, 0, False, True),
+    _b("Salt Meadow Works", "SAL", 0.4, (A, S), 6, 0, False, True),
     # Hand-tool specialists.
-    _b("Ashcombe Forge", "ASH", 1.1, (H,), 7, 1, True, True),
+    _b("Ashcombe Forge", "ASH", 1.1, (H, S), 7, 1, True, True),
     _b("Pennock & Hale", "PEN", 0.9, (H,), 8, 2, False, True),
     _b("Brindlecote", "BRI", 0.7, (H,), 9, 3, True, False),
     _b("Ivenhoft", "IVH", 0.6, (H,), 10, 1, False, True),
     _b("Lantern Rock", "LAN", 0.4, (H,), 11, 2, True, True),
     # Bearing specialists.
     _b("Quarrenby", "QRB", 1.4, (M,), 0, 3, False, True),
-    _b("Quennick", "QNK", 1.1, (M,), 1, 0, True, True),
+    _b("Quennick", "QNK", 1.1, (M, S), 1, 0, True, True),
     _b("Lorcastle", "LOR", 0.9, (M,), 2, 1, False, False),
     _b("Spindlewick", "SPI", 0.7, (M,), 3, 2, True, False),
     _b("Tin Kestrel", "TKS", 0.5, (M,), 4, 3, False, True),
     _b("Harnell", "HAR", 0.4, (M,), 5, 0, True, False),
     # Two-and-three-family makers.
     _b("Quellmarsh", "QLM", 1.0, (F, H), 6, 1, False, True),
-    _b("Crennick Works", "CRE", 0.9, (C, A), 7, 2, False, False),
+    _b("Crennick Works", "CRE", 0.9, (C, A, S), 7, 2, False, False),
     _b("Stone Wicket", "STW", 0.8, (F, H, A), 8, 3, False, True),
 )
 
