@@ -81,8 +81,8 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   that count prints no file, and its job ends after the checkout without installing anything.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
   every file, for a local run. A full run deals the files to 18 shards of about 1070 s of the
-  weights each (an 18th was added at 436 files, gen#952: at 17 the merged tree's heaviest shard was 1200.8 s). At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
-  20 s default put it at 1201.1 s, past the budget; at 17 that file deals 1130.5 s (#852).
+  weights each. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
+  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949).
   `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
   count, so the shard to add is named before the pull request that would need it.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second

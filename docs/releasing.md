@@ -13,7 +13,13 @@ together, one file per SKU (gen#706), and it ships as its own release, tagged
 1. builds the retail ceiling (`python -m synthetic_ecommerce_data.domains.retail.scale --skus ceiling
    --out build/release/retail/nested.jsonl --flat build/release/retail/flat.jsonl`, the build run to
    its ceiling);
-2. builds the industrial large catalog (`ecom-generate build --lines 39000`, `config.LARGE_BUILD_LINES`);
+2. builds the industrial large catalog (`ecom-generate build --lines 39000`, `config.LARGE_BUILD_LINES`),
+   then sweeps the build sizes (gen#949): `ecom-generate build` at `--lines` 2600, 4000 and 10000
+   into `build/sweep/<lines>`, and checks that each of those builds and the large build wrote
+   `nested.jsonl`, `flat.jsonl`, `images.jsonl` and `stats.json`. A value only a larger build
+   draws once stopped the 4000-line build part-way while the default build passed. The sweep is
+   too slow for CI (2 to 4 minutes), which keeps the per-material test
+   (`tests/test_material_styles_949.py`); `RELEASE_SWEEP_LINES` names other sizes;
 3. composes the two into the ONE catalog (`ecom-generate compose --domain industrial=... --domain
    retail=...`, gen#125): `build/release/catalog/catalog.ndjson`, industrial's flat file then
    retail's, byte for byte, and `provenance.json`, where each domain's lines sit and each part's
