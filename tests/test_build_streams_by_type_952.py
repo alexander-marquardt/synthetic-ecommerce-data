@@ -14,7 +14,7 @@ audit has passed, so a refusal raised after some types were already written stil
 The stress catalog (``--stress-keys``, gen#948) streams too (gen#952 slice 3). It used to gather
 every nested document into one list, then every expanded one into a second: at seed 7 its peak
 went from 203 MiB at 2,600 lines to 346 MiB at 5,200. Each type's documents now go to a spool
-file, and the expansion reads it back one document at a time.
+file, and the expansion reads it back one document at a time: 66 MiB, then 73 MiB.
 """
 
 from __future__ import annotations
