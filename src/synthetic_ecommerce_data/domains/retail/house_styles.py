@@ -24,6 +24,7 @@ duplicate lockup and a brand with no row). A row sets:
 
 from __future__ import annotations
 
+import functools
 import math
 import re
 from dataclasses import astuple, dataclass, fields
@@ -440,29 +441,57 @@ def restyle(fragment: str, style: HouseStyle) -> str:
     )
 
 
+def drawn_rows(defs: str, *drawings: str) -> tuple[float, float] | None:
+    """The top and bottom row, in the kit's own units, that ``drawings`` cover together
+    (:func:`.sheet_extent.reach`), or None when they draw nothing ``reach`` measures."""
+    boxes = [b for b in (_box(defs, d) for d in drawings) if b is not None]
+    if not boxes:
+        return None
+    return min(b[1] for b in boxes), max(b[3] for b in boxes)
+
+
+@functools.lru_cache(maxsize=256)
+def _box(defs: str, drawing: str) -> sheet_extent.Box | None:
+    """The box ``drawing`` covers, kept: every size rung of one colorway measures the same
+    full-size drawing."""
+    return sheet_extent.reach(_MEASURED.format(SIZE, defs, drawing))
+
+
 def product_transform(
-    style: HouseStyle, brand: str, extra: tuple[float, float] = (0.0, 0.0)
+    style: HouseStyle,
+    brand: str,
+    extra: tuple[float, float] = (0.0, 0.0),
+    rows: tuple[float, float] | None = None,
 ) -> str:
     """Shrink the product a little and move it clear of the logo's text.
 
-    Products span y 28..362 of the sheet (334 tall). The scale is the style's
-    (0.86 for a corner mark, 0.78 for a lockup) or less, if the logo's reach top
-    and bottom leaves less room; the product then sits as near the middle as
-    that reach and :data:`AIR` allow. ``extra`` adds to the reach (top, bottom): the
-    licence line a film product sets beside the logo (:mod:`film_emblems`, gen#904).
+    Products span y 28..362 of the sheet (334 tall). ``rows`` is the top and bottom the
+    drawing itself covers (:func:`drawn_rows`), and widens that span where the drawing
+    reaches past it: an XL hood, or a turned product's ground shadow (gen#932). The scale is
+    the style's (0.86 for a corner mark, 0.78 for a lockup) or less, if the logo's reach top
+    and bottom leaves less room for the span; the product then sits as near the middle as
+    that reach and :data:`AIR` allow, so a drawing already clear of them is not moved.
+    ``extra`` adds to the reach (top, bottom): the licence line a film product sets beside
+    the logo (:mod:`film_emblems`, gen#904).
     """
     s0 = 0.86 if style.layout == "mark_only" else 0.78
     if style.mark == NO_MARK:  # no logo to clear: the product sits where it always did
         dy = 0.0 if style.layout == "mark_only" else (10.0 if style.top_logo else -10.0)
         t = SIZE / 2 * (1 - s0)
         return f"translate({t:g} {t + dy:.1f}) scale({s0:.3f})"
+    first, last = PRODUCT_TOP, PRODUCT_TOP + PRODUCT_SPAN
+    if rows is not None:
+        first, last = min(first, rows[0]), max(last, rows[1])
+    span = last - first
     top, bottom = (r + e for r, e in zip(reach(style, brand), extra, strict=True))
     lo = top + AIR if top else FREE_EDGE
     hi = SIZE - (bottom + AIR if bottom else FREE_EDGE)
-    s = min(s0, (hi - lo) / PRODUCT_SPAN)
+    s = min(s0, (hi - lo) / span)
+    if round(s, 3) * span > hi - lo:  # the scale is written to 3 places: never round it up
+        s = math.floor(s * 1000) / 1000
     t = SIZE / 2 * (1 - s)
-    y0 = min(max(t + PRODUCT_TOP * s, lo), hi - PRODUCT_SPAN * s)
-    return f"translate({t:g} {y0 - PRODUCT_TOP * s:.1f}) scale({s:.3f})"
+    ty = min(max(t, lo - first * s), hi - last * s)
+    return f"translate({t:g} {ty:.1f}) scale({s:.3f})"
 
 
 #: The area a turned product stays inside, in the kit's own units (#849): the span the kit's
@@ -474,6 +503,7 @@ _MEASURED = (
 )
 
 
+@functools.lru_cache(maxsize=256)  # every size rung of one colorway turns the same drawing
 def turn(full: str, defs: str, angle: float) -> str:
     """The transform that turns a product drawing by its product's ``angle`` (#849), or "".
 

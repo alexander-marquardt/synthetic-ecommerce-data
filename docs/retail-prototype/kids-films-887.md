@@ -94,7 +94,8 @@ of gen#905.
   product's image sets a small line, the emblem and "Licensed from <studio>", in the logo's
   family and ink, on the product's side of the logo's text: under a logo at the top of the sheet,
   over one at its foot. The product is drawn clear of it, as it is of the logo
-  (`house_styles.product_transform`'s `extra`). Each studio is invented and named after its film.
+  (`house_styles.product_transform`'s `extra`), at every size
+  ([retail-sheet-bounds.md](../retail-sheet-bounds.md), gen#932). Each studio is invented and named after its film.
 - The drawing is chosen by the product's id (`film_emblems.emblem_of_id`, which reads
   `kids_films.film_of_id`), so no field of the record changes, and every SKU still has its own
   image file. The Barry Plotter range carries its own emblem and licence line the same way
