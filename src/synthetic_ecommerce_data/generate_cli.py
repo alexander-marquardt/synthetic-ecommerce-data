@@ -7,8 +7,11 @@
     ecom-generate block shim_stock_precision
     ecom-generate compose --domain industrial=out/catalog --domain retail=out/retail --out out/all
 
-``build`` runs its image, product and non-copying audits first and writes nothing
-if one refuses (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
+``build`` builds one product type at a time: it builds a type, audits it, writes its lines and
+drops it before it builds the next, so its peak grows with the largest type and not with the
+catalog (gen#952). It writes into a temporary directory beside ``--out`` and moves the files into
+``--out`` only once the image, product and non-copying audits have all passed: a refused build
+writes nothing to ``--out`` (exit 1, ``--out`` untouched: gen#253). When all pass it writes:
 
 ``nested.jsonl``
     parent documents with nested SKUs and nested key-value attributes
@@ -39,18 +42,22 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import sys
+import tempfile
 from collections import Counter
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
+from contextlib import ExitStack
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 from synthetic_ecommerce_data.core import emit, letter_case, noncopy, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.model import Catalog
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
-from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, generate
-from synthetic_ecommerce_data.domains.industrial.measure import measure
+from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys, iter_types
+from synthetic_ecommerce_data.domains.industrial.measure import Measurement
 from synthetic_ecommerce_data.domains.industrial.product_split import distribution_problems
 
 
@@ -194,8 +201,8 @@ def field_map_target() -> Path:
     )
 
 
-def _write_field_map(catalog, config: GeneratorConfig) -> str:
-    """Regenerate the committed PRISM field map from the catalog just built.
+def _write_field_map(flat_rows: Iterable[dict[str, Any]], config: GeneratorConfig) -> str:
+    """Regenerate the committed PRISM field map from the flat documents just written.
 
     Only for the DEFAULT generator configuration. ``ecom-generate build
     --lines 900`` describes a different catalog, and letting it overwrite the
@@ -217,7 +224,7 @@ def _write_field_map(catalog, config: GeneratorConfig) -> str:
     # another xdist worker, an editor) sees the old file whole or the new one whole (#440).
     staged = target.with_name(f"{target.name}.{os.getpid()}.tmp")
     try:
-        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")
+        staged.write_text(render(flat_rows), encoding="utf-8")
         os.replace(staged, target)
     finally:
         staged.unlink(missing_ok=True)
@@ -396,32 +403,103 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"{args.out} holds a standard build; give the stress catalog its own --out")
 
     config = _config_from(args)
-    catalog = generate(config)
-    stats = measure(catalog, config)
-
     if args.command == "report":
-        _print_report(stats)
+        counters: dict[str, int] = {}
+        measurement = Measurement(config)
+        for part in iter_types(config, counters=counters):
+            measurement.add(part)
+        _print_report(measurement.result(counters))
         return 0
+    return _build(args, config)
 
-    out = args.out
-    base_url = args.image_base_url
-    # Every SKU points at its own drawing and every product at one of its
-    # SKUs'. Both directions are asserted before anything is written.
-    referenced = emit.referenced_image_ids(catalog)
-    problems = _check_images(catalog, referenced)
+
+#: The files the build streams, one type at a time, and the writer each line comes from.
+STREAMED = {
+    "nested.jsonl": emit.iter_nested,
+    "flat.jsonl": emit.iter_flat,
+    "images.jsonl": emit.iter_image_manifest,
+}
+
+
+def _image_problems(part: Catalog) -> list[str]:
+    """One type's image audit: every SKU points at its own drawing and every product at one of
+    its SKUs', and each id has the form ``<type>/<product>/<sku>`` with the product pointing at
+    its first variant's (gen#387). An id names its type, so a type audited alone is audited
+    against every other: two types cannot share one."""
+    problems = _check_images(part, emit.referenced_image_ids(part))
     if problems:
-        for problem in problems:
-            print(f"image audit FAILED: {problem}", file=sys.stderr)
-        return 1
-    # The id's own form (``<type>/<product>/<sku>``) and a product pointing at its first
-    # variant's drawing: an id can pass the check above and fail this one. The writers run it
-    # too, but on their first ``next()`` inside ``write_jsonl``, after ``--out`` was truncated
-    # (gen#387).
+        return problems
     try:
-        emit.check_image_ids(catalog)
+        emit.check_image_ids(part)
     except emit.UnresolvedImageError as error:
-        print(f"image audit FAILED: {error}", file=sys.stderr)
-        return 1
+        return [str(error)]
+    return []
+
+
+def _merged_audit(total: dict | None, part: dict) -> dict:
+    """Two parts' non-copying audits as one: the SKUs checked summed, the collisions joined."""
+    if total is None:
+        return part
+    return {
+        key: total[key] + value if key == "n_skus_checked" or isinstance(value, list) else value
+        for key, value in part.items()
+    }
+
+
+def _build(args: argparse.Namespace, config: GeneratorConfig) -> int:
+    """Build, audit and write one type at a time into a staging directory; move the files into
+    ``--out`` once every audit has passed (gen#952, gen#253)."""
+    out: Path = args.out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=f".{out.name}.", suffix=".building", dir=out.parent))
+    try:
+        return _build_into(args, config, staging)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+
+
+def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path) -> int:
+    out: Path = args.out
+    base_url = args.image_base_url
+    counters: dict[str, int] = {}
+    measurement = Measurement(config)
+    audit: dict | None = None
+    authored: dict[str, dict[str, str]] = {}
+    written: Counter[str] = Counter()
+    # The stress catalog still takes every nested document at once (gen#952 slice 3).
+    stress_documents: list[dict[str, Any]] = []
+    with ExitStack() as files:
+        handles = (
+            {}
+            if args.stress_keys
+            else {
+                name: files.enter_context((staging / name).open("w", encoding="utf-8"))
+                for name in STREAMED
+            }
+        )
+        for part in iter_types(config, counters=counters):
+            # Every SKU points at its own drawing and every product at one of its SKUs'. Both
+            # directions are asserted before the type's lines are written: the writers run the
+            # id-form check too, but only on their first ``next()`` (gen#387).
+            problems = _image_problems(part)
+            if problems:
+                for problem in problems:
+                    print(f"image audit FAILED: {problem}", file=sys.stderr)
+                return 1
+            measurement.add(part)
+            audit = _merged_audit(audit, noncopy.audit(part))
+            authored.update(emit.authored_name_map(part))
+            if args.stress_keys:
+                stress_documents.extend(emit.iter_nested(part, base_url))
+            else:
+                for name, rows in STREAMED.items():
+                    written[name] += emit.append_jsonl(rows(part, base_url), handles[name])
+            # Dropped before the next type is built: the loop name would hold it until then.
+            del part
+    if audit is None:
+        audit = noncopy.audit(Catalog(lines=()))
+    stats = measurement.result(counters)
+
     # A product's SKUs agree on its product-constant attributes, and the SKUs per product
     # follow ``variants_per_product`` (gen#63); a catalog that breaks either is not written.
     split_problems = distribution_problems(stats["skus_per_product_by_type"], config)
@@ -434,7 +512,6 @@ def main(argv: list[str] | None = None) -> int:
         for problem in split_problems:
             print(f"product audit FAILED: {problem}", file=sys.stderr)
         return 1
-    audit = noncopy.audit(catalog)
     if audit["full_tuple_collisions"] or audit["sku_collisions"]:
         # Refuse to write a catalog that breaks the repository's own promise.
         print("non-copying audit FAILED:", json.dumps(audit), file=sys.stderr)
@@ -448,7 +525,7 @@ def main(argv: list[str] | None = None) -> int:
             "mapping.flat.json": emit.FLAT_MAPPING,
         }
         for line in stress.write(
-            list(emit.iter_nested(catalog, base_url)),
+            stress_documents,
             out,
             args.stress_keys,
             args.stress_copies,
@@ -456,13 +533,6 @@ def main(argv: list[str] | None = None) -> int:
         ):
             print(line)
         return 0
-
-    # Every audit has passed: only now is anything written (gen#253). A refused build leaves
-    # ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files with a
-    # catalog an audit just refused.
-    nested = emit.write_jsonl(emit.iter_nested(catalog, base_url), out / "nested.jsonl")
-    flat = emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")
-    images = emit.write_jsonl(emit.iter_image_manifest(catalog, base_url), out / "images.jsonl")
 
     payload = _serialisable(stats)
     payload["noncopy_audit"] = audit
@@ -474,26 +544,36 @@ def main(argv: list[str] | None = None) -> int:
         "sparsity_scale": config.sparsity_scale,
         "defect_scale": config.defect_scale,
     }
-    payload["figures"] = _measured_figures(out)
-    (out / "stats.json").write_text(
+    payload["figures"] = _measured_figures(staging)
+    (staging / "stats.json").write_text(
         json.dumps(round_floats(payload), indent=1) + "\n", encoding="utf-8"
     )
-    (out / letter_case.AUTHORED_NAMES_FILE).write_text(
-        json.dumps(emit.authored_name_map(catalog), indent=1, sort_keys=True) + "\n",
+    (staging / letter_case.AUTHORED_NAMES_FILE).write_text(
+        json.dumps(dict(sorted(authored.items())), indent=1, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    (out / "mapping.nested.json").write_text(
+    (staging / "mapping.nested.json").write_text(
         json.dumps(emit.NESTED_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
-    (out / "mapping.flat.json").write_text(
+    (staging / "mapping.flat.json").write_text(
         json.dumps(emit.FLAT_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
 
-    field_map = _write_field_map(catalog, config)
+    # Every audit has passed: only now does anything reach ``--out`` (gen#253). A refused build
+    # leaves ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files
+    # with a catalog an audit just refused. Each file is renamed into place, beside whatever
+    # else ``--out`` holds.
+    out.mkdir(parents=True, exist_ok=True)
+    for path in sorted(staging.iterdir()):
+        os.replace(path, out / path.name)
 
-    print(f"{out}/nested.jsonl  {nested} parent documents")
-    print(f"{out}/flat.jsonl    {flat} sku documents")
-    print(f"{out}/images.jsonl  {images} SKU drawings, served under {base_url}")
+    # The field map reads the flat documents back one line at a time; it reads no image URL,
+    # so the file's base URL is the default's to it.
+    field_map = _write_field_map(_jsonl(out / "flat.jsonl"), config)
+
+    print(f"{out}/nested.jsonl  {written['nested.jsonl']} parent documents")
+    print(f"{out}/flat.jsonl    {written['flat.jsonl']} sku documents")
+    print(f"{out}/images.jsonl  {written['images.jsonl']} SKU drawings, served under {base_url}")
     print(f"{out}/stats.json    measured against target")
     print(field_map)
     print()

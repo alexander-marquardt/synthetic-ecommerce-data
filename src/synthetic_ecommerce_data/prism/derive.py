@@ -417,15 +417,44 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
     present: collections.Counter[str] = collections.Counter()
     numeric: collections.Counter[str] = collections.Counter()
     values: dict[str, set[str]] = collections.defaultdict(set)
-    product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
     magnitudes: dict[str, set[Any]] = collections.defaultdict(set)
-    product_magnitudes: dict[str, set[tuple[str, Any]]] = collections.defaultdict(set)
-    products: dict[str, set[str]] = collections.defaultdict(set)
     types: dict[str, set[str]] = collections.defaultdict(set)
     published_name: dict[str, str] = {}
     type_sizes: collections.Counter[str] = collections.Counter()
 
+    # The (product, value) and (product, magnitude) pairs, and the products, are counted one
+    # product at a time: a product's documents come one after another, so only the pairs of the
+    # product being read are held. As sets over the whole catalog they grew with its products
+    # and were most of the build's figures-pass peak (gen#952). A product met again after
+    # another is refused: counting it twice would give a wrong figure, not a slow one.
+    product_values: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
+    product_magnitudes: dict[str, set[tuple[str, Any]]] = collections.defaultdict(set)
+    value_pairs: collections.Counter[str] = collections.Counter()
+    magnitude_pairs: collections.Counter[str] = collections.Counter()
+    products: collections.Counter[str] = collections.Counter()
+    finished: set[str] = set()
+    current: str | None = None
+
+    def close() -> None:
+        for key, pairs in product_values.items():
+            value_pairs[key] += len(pairs)
+            products[key] += 1
+        for key, pairs in product_magnitudes.items():
+            magnitude_pairs[key] += len(pairs)
+        product_values.clear()
+        product_magnitudes.clear()
+
     for row in rows:
+        if row["product_id"] != current:
+            close()
+            if current is not None:
+                finished.add(current)
+            current = row["product_id"]
+            if current in finished:
+                raise ValueError(
+                    f"product {current!r} is met again after another product: measure() reads "
+                    "a product's documents one after another"
+                )
         product_type = row["product_type"]
         type_sizes[product_type] += 1
         for key, vals in row["facets"].items():
@@ -435,7 +464,6 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             for magnitude in _magnitudes(row, key, vals):
                 magnitudes[key].add(magnitude)
                 product_magnitudes[key].add((row["product_id"], magnitude))
-            products[key].add(row["product_id"])
             types[key].add(product_type)
         for key in row["facets_num"]:
             numeric[key] += 1
@@ -444,6 +472,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
         # filed under the facets key each entry's value sits under.
         for attribute in row["attributes"]:
             published_name.setdefault(flat_key(attribute), attribute["name"])
+    close()
 
     return {
         key: AttributeStats(
@@ -454,10 +483,10 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
             cardinality=len(values[key]),
             product_types=tuple(sorted(types[key])),
             type_denominator=sum(type_sizes[t] for t in types[key]),
-            product_values=len(product_values[key]),
+            product_values=value_pairs[key],
             magnitudes=len(magnitudes[key]),
-            product_magnitudes=len(product_magnitudes[key]),
-            products=len(products[key]),
+            product_magnitudes=magnitude_pairs[key],
+            products=products[key],
         )
         for key, count in sorted(present.items())
     }

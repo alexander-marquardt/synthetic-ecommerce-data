@@ -10,21 +10,34 @@ from __future__ import annotations
 
 from mutation_row import Row
 
-EARLY_WRITE = '    emit.write_jsonl(emit.iter_flat(catalog, base_url), out / "flat.jsonl")\n'
+
+# The build now writes into a staging directory and moves it into ``--out`` after every audit
+# (gen#952): a write ahead of an audit goes straight into ``--out``, at the loop's indent (12)
+# or the function's (4).
+def _early_write(indent: int) -> str:
+    pad = " " * indent
+    return (
+        f"{pad}out.mkdir(parents=True, exist_ok=True)\n"
+        f'{pad}(out / "flat.jsonl").write_text("{{}}\\n", encoding="utf-8")\n'
+    )
+
+
+EARLY_WRITE = _early_write(4)
+LOOP_WRITE = _early_write(12)
 TESTS = "tests/test_build_refusal_writes_nothing.py -k"
 
 ROWS: list[tuple[str, str, str, tuple[str, ...], str]] = [
     (
         "flat.jsonl is written before the image audit",
-        "    referenced = emit.referenced_image_ids(catalog)\n",
-        EARLY_WRITE + "    referenced = emit.referenced_image_ids(catalog)\n",
+        "            problems = _image_problems(part)\n",
+        LOOP_WRITE + "            problems = _image_problems(part)\n",
         (f'{TESTS} "leaves_no_output and image"', f'{TESTS} "does_not_overwrite and image"'),
         "a refused build leaves --out as it was",
     ),
     (
         "flat.jsonl is written before the image-id form check",
-        "    try:\n        emit.check_image_ids(catalog)\n",
-        EARLY_WRITE + "    try:\n        emit.check_image_ids(catalog)\n",
+        "            problems = _image_problems(part)\n",
+        LOOP_WRITE + "            problems = _image_problems(part)\n",
         (f'{TESTS} "leaves_no_output and idform"', f'{TESTS} "does_not_overwrite and idform"'),
         "a refused build leaves --out as it was",
     ),
@@ -37,8 +50,8 @@ ROWS: list[tuple[str, str, str, tuple[str, ...], str]] = [
     ),
     (
         "flat.jsonl is written before the non-copying audit",
-        "    audit = noncopy.audit(catalog)\n",
-        EARLY_WRITE + "    audit = noncopy.audit(catalog)\n",
+        "            audit = _merged_audit(audit, noncopy.audit(part))\n",
+        LOOP_WRITE + "            audit = _merged_audit(audit, noncopy.audit(part))\n",
         (f'{TESTS} "leaves_no_output and noncopy"', f'{TESTS} "does_not_overwrite and noncopy"'),
         "a refused build leaves --out as it was",
     ),

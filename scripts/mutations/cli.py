@@ -23,8 +23,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "write the committed field map in place, not by replacement (#440)",
         "generate_cli.py",
-        '        staged.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")\n        os.replace(staged, target)',
-        '        target.write_text(render(emit.iter_flat(catalog)), encoding="utf-8")',
+        '        staged.write_text(render(flat_rows), encoding="utf-8")\n        os.replace(staged, target)',
+        '        target.write_text(render(flat_rows), encoding="utf-8")',
         "tests/test_prism_field_map_drift.py::test_the_field_map_is_replaced_not_rewritten_in_place",
         "",
         "a reader never sees the committed field map cut short",
@@ -32,9 +32,9 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "emit an eighth file the build does not commit",
         "generate_cli.py",
-        '    (out / "mapping.flat.json").write_text(',
-        '    (out / "mapping.extra.json").write_text("{}\\n", encoding="utf-8")\n'
-        '    (out / "mapping.flat.json").write_text(',
+        '    (staging / "mapping.flat.json").write_text(',
+        '    (staging / "mapping.extra.json").write_text("{}\\n", encoding="utf-8")\n'
+        '    (staging / "mapping.flat.json").write_text(',
         "tests/test_catalog_golden.py::test_golden_directory_holds_exactly_the_build_output",
         "B",
         "the committed catalog is byte-identical to a fresh build",

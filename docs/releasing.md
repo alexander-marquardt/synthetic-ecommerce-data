@@ -60,14 +60,17 @@ The release runner is `ubuntu-latest` (16 GB), so the industrial build's peak me
 how large a catalogue it can make (gen#952). These are peak RSS and wall time, measured by
 `/usr/bin/time -v ecom-generate build --lines N` on a 32-vCPU Linux machine:
 
-| `--lines` | SKUs | before gen#952 | after |
-|---|---|---|---|
-| 2,600 | 14,559 | 354 MiB, 24 s | 118 MiB, 18 s |
-| 10,000 | 49,378 | 1,114 MiB, 69 s | 307 MiB, 44 s |
-| 39,000 | 176,348 | 3,866 MiB, 197 s | 790 MiB, 155 s |
+| `--lines` | SKUs | before gen#952 | passes fixed (gen#977) | one type at a time |
+|---|---|---|---|---|
+| 2,600 | 14,559 | 354 MiB, 24 s | 118 MiB, 18 s | 63 MiB |
+| 10,000 | 49,378 | 1,114 MiB, 69 s | 307 MiB, 44 s | 93 MiB |
+| 39,000 | 176,348 | 3,866 MiB, 197 s | 790 MiB, 155 s | 268 MiB |
 
-Two passes held the catalogue a second time, and neither does now. The output is byte for byte
-the same:
+The last column was measured on a loaded machine, so it gives no wall time. Its CPU time at
+10,000 lines is the same as the column before it (62 s and 64 s of user time, side by side).
+Each step leaves the output byte for byte the same.
+
+Two passes held the catalogue a second time, and neither does now:
 
 - The price census (`price_report.collect`) stored every within-cell SKU pair. A cell's pairs
   grow with the square of its members, so they took 2.2 GiB at 39,000 lines and would take about
@@ -76,9 +79,32 @@ the same:
 - The figures pass (`generate_cli._measured_figures`) read `flat.jsonl` back as one list of
   dicts, which took 3.3 GiB. It now reads each file one line at a time.
 
-`tests/test_build_peak_memory_952.py` fails if either pass holds such a list again. What
-remains is the catalogue object itself, about 2.7 KB per SKU, which is about 1.4 GiB at 500K
-SKUs. Building one type at a time removes that too.
+`tests/test_build_peak_memory_952.py` fails if either pass holds such a list again.
+
+The build then held the catalogue object itself, about 2.7 KB per SKU, about 1.4 GiB at 500K
+SKUs. Now it builds one product type at a time (`generate.iter_types`). It builds a type,
+audits it, writes its lines and drops it before it builds the next, so the peak grows with the
+largest type and not with the catalogue. What it keeps across types:
+
+- tallies and per-type summaries (`measure.Measurement`);
+- the price census's per-SKU ids and keys (`price_report.PriceTally`);
+- the non-copying audit's collisions.
+
+The figures pass (`prism.derive.measure`) counts each product's (product, value) pairs when it
+reaches the product's last document and then drops them. A product's documents come one after
+another; if a product appears again after another one, the pass refuses rather than counting it
+twice. The build writes into a temporary directory beside `--out` and moves the files into
+`--out` once every audit has passed, so a refusal after some types were written still leaves
+`--out` untouched (gen#253).
+
+`tests/test_build_streams_by_type_952.py` holds this:
+
+- When `--lines` doubles from 2,600 to 5,200, the peak RSS may grow by at most 25 MiB. It grows
+  by about 5 MiB. Holding the catalogue whole, it grew by 70 MiB.
+- No earlier type's products are alive when the next type is built.
+- The files are those the whole catalogue writes.
+
+The `--stress-keys` build still holds every nested document at once (gen#952 slice 3).
 
 ## The dry run
 
