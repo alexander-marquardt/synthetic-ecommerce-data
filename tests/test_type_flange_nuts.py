@@ -94,6 +94,13 @@ def _inches(doc: dict, name: str) -> float:
     return parse_length(_value(doc, name)).inches
 
 
+def _published(doc: dict) -> list[str]:
+    """The nut dimensions ``doc`` publishes: Height is sparse, as the lock nut's is."""
+    present = {a["name"] for a in authored_attributes(doc)}
+    assert {"Width Across Flats", "Flange Dia."} <= present, doc["sku"]
+    return [name for name in NUT if name in present]
+
+
 def test_the_type_is_modelled_in_its_own_module():
     assert KEY in typespec.modelled(), f"{KEY} is still a breadth row"
 
@@ -149,12 +156,16 @@ def test_every_metric_nut_is_a_row_of_the_iso_table():
         # To the table's own precision: a feed that writes a metric nut in
         # decimal inches reads back a hair off the millimetre.
         d = round(thread.major.inches * MM)
-        nut = tuple(round(_inches(doc, name) * MM, 1) for name in NUT)
+        nut = {name: round(_inches(doc, name) * MM, 1) for name in _published(doc)}
         row = rows.get(d)
         if (
             row is None
             or round(thread.pitch_in * MM, 2) != row.p
-            or nut != (row.s, row.dc, row.m)
+            or any(
+                nut[name] != want
+                for name, want in zip(NUT, (row.s, row.dc, row.m), strict=True)
+                if name in nut
+            )
         ):
             stray.append((doc["sku"], d, nut))
     assert not stray, stray[:5]
@@ -168,9 +179,11 @@ def test_every_inch_nut_is_a_row_of_the_asme_table():
         if _table(doc) != ASME:
             continue
         row = rows.get(_value(doc, "Thread Size"))
-        nut = [_inches(doc, name) for name in NUT]
+        nut = {name: _inches(doc, name) for name in _published(doc)}
         if row is None or any(
-            abs(got - want) > 1e-3 for got, want in zip(nut, (row.f, row.b, row.h), strict=True)
+            abs(nut[name] - want) > 1e-3
+            for name, want in zip(NUT, (row.f, row.b, row.h), strict=True)
+            if name in nut
         ):
             stray.append((doc["sku"], _value(doc, "Thread Size"), nut))
     assert not stray, stray[:5]
@@ -186,7 +199,7 @@ def test_both_tables_are_built_at_the_default_build():
 
 
 def test_both_flanges_are_built_in_each_table():
-    built = {(_table(d), _value(d, "Nut Style")) for d in _default_docs()}
+    built = {(_table(d), _value(d, "Style")) for d in _default_docs()}
     assert built == {(table, style) for table in DIMENSIONAL for style in STYLES}, sorted(built)
 
 
