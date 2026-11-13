@@ -169,12 +169,13 @@ def test_a_cache_directory_made_before_pytests_own_is_still_ignored_by_git(tmp_p
 
 
 #: Modules that may name the large build size: the shared builds, the name census, this guard,
-#: and the release test, which reads the size to check release.yaml's default and builds nothing
-#: (gen#706).
+#: and the release tests, which read the size to check release.yaml's default and build nothing
+#: (gen#706, gen#949).
 _MAY_ASK = {
     "shared_builds.py",
     "test_large_build_name_62.py",
     "test_no_derived_files_536.py",
+    "test_release_size_sweep_949.py",
     Path(__file__).name,
 }
 

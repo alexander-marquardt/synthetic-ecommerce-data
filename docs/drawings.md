@@ -517,7 +517,9 @@ still draw their own shapes and move onto the primitives as their types are touc
    `420 Stainless Steel`, first drawn at 4000 lines) is swept by
    `tests/test_material_styles_949.py`, which reads the release-size build
    (`config.LARGE_BUILD_LINES`, through `tests/shared_builds.py`) and checks a
-   rotated table entry by entry.
+   rotated table entry by entry. The release workflow also builds at 2600, 4000,
+   10000 and the release size and fails the tag when a build leaves a file out
+   ([releasing.md](releasing.md), step 2).
 5. **Do not widen the allow-list casually.** A new element or attribute in
    `svg_problems()` reopens a route for text. If one is truly needed, add a
    value grammar for it and keep the planted-text tests red-capable.

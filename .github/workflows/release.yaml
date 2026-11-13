@@ -46,6 +46,23 @@ jobs:
         run: |
           uv run --locked ecom-generate build --lines "${RELEASE_INDUSTRIAL_LINES:-39000}" \
             --out build/release/industrial
+      # A value only a larger build draws stopped `ecom-generate build --lines 4000` part-way while
+      # the default build passed (gen#949). Each size below the release size is built and every
+      # file it must write is checked; the release size is the industrial build above, checked
+      # here rather than built twice. CI keeps the per-material test; this sweep is too slow for it.
+      - name: Sweep the industrial build sizes
+        run: |
+          check() {
+            for f in nested.jsonl flat.jsonl images.jsonl stats.json; do
+              test -s "$1/$f" || { echo "::error::ecom-generate build into $1 wrote no $f"; return 1; }
+            done
+            echo "$1: every file written"
+          }
+          for lines in ${RELEASE_SWEEP_LINES:-2600 4000 10000}; do
+            uv run --locked ecom-generate build --lines "$lines" --out "build/sweep/$lines"
+            check "build/sweep/$lines"
+          done
+          check build/release/industrial
       - name: Compose the one catalog
         run: |
           uv run --locked ecom-generate compose --domain industrial=build/release/industrial \
