@@ -127,6 +127,8 @@ EXTRA_FINISH_TINT: dict[str, str] = {
     "Ceramic Coated": "#8a8468",
     # The pipe nipples (#832): black steel pipe, sold uncoated in its mill finish.
     "Black": "#4a4d50",
+    # Round bar stock (#830): a centerless-ground bar, a duller grey than a bright drawn one.
+    "Ground": "#d1d7db",
 }
 
 #: The fill of anything with no material or finish on the record.

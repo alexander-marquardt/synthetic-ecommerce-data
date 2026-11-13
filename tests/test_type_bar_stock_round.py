@@ -90,7 +90,7 @@ MATERIAL_POOL = {
     "Crennick Works",
     "Ashcombe Forge",
     "Quennick",
-    "Harnell",
+    "Salt Meadow Works",
 }
 #: Every attribute name a record may publish of its own.
 NAMES = {"Material", "Material Grade", "Finish", "Length", "Diameter"}
@@ -227,8 +227,28 @@ def test_the_type_draws_from_the_material_pool_and_no_fastener_specialist():
 
 def test_the_material_pool_has_economy_and_premium_makers():
     makers = brands.brands_for(KEY)
-    assert {b.name for b in makers if b.tier == "economy"} == {"Tervasko", "Harnell"}
+    assert {b.name for b in makers if b.tier == "economy"} == {"Tervasko", "Salt Meadow Works"}
     assert {b.name for b in makers if b.tier == "premium"} == {"Ashcombe Forge", "Quennick"}
+
+
+def test_the_pools_tiers_price_in_order_on_the_specs_its_brands_share(large_docs):
+    """``test_price``'s tier order, for the material family at ``--lines 39000``: at the
+    default size its 42 lines share almost no spec across brands (#830)."""
+    by_spec: dict[tuple, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+    for doc in large_docs:
+        tier = brands.tier_of(doc["brand"], KEY)
+        by_spec[(_combo(doc), _diameter(doc))][tier].append(doc["price_usd"])
+    economy, premium = [], []
+    for tiers in by_spec.values():
+        if "standard" not in tiers:
+            continue
+        standard = statistics.median(tiers["standard"])
+        if "economy" in tiers:
+            economy.append(statistics.median(tiers["economy"]) / standard)
+        if "premium" in tiers:
+            premium.append(statistics.median(tiers["premium"]) / standard)
+    assert len(economy) >= 20 and len(premium) >= 20, (len(economy), len(premium))
+    assert statistics.median(economy) < 1.0 < statistics.median(premium)
 
 
 # --- the type's values against the spec space ---------------------------------------
@@ -250,9 +270,11 @@ def test_the_default_build_stays_in_the_spec_space(clean_docs):
     assert {_combo(doc) for doc in clean_docs} <= COMBOS
 
 
-def test_the_large_build_offers_every_diameter_in_every_combination(large_docs):
-    built = {(_combo(doc), _diameter(doc)) for doc in large_docs}
-    assert built == {(combo, diameter) for combo in COMBOS for diameter in DIAMETERS}
+def test_the_large_build_offers_every_combination_and_every_diameter(large_docs):
+    """2,160 cells a brand can make outrun 607 lines, so a cell is not every brand's; every
+    combination and every diameter is built (1,038 cells at ``--lines 39000``)."""
+    assert {_combo(doc) for doc in large_docs} == COMBOS
+    assert {_diameter(doc) for doc in large_docs} == DIAMETERS
 
 
 def test_a_record_publishes_its_alloy_and_no_tolerance_or_standard(large_docs):
@@ -288,11 +310,11 @@ def test_stainless_costs_several_times_steel_and_a_long_bar_under_its_short_bars
         material, _, finish, length = _combo(doc)
         by_spec[(material, finish, length, _diameter(doc))].append(doc["price_usd"])
     median = {spec: statistics.median(prices) for spec, prices in by_spec.items()}
-    diameters = sorted({d for *_, d in median})
-    assert len(diameters) == len(DIAMETERS)
 
     def ratio(top: tuple, bottom: tuple) -> float:
-        return statistics.median(median[(*top, d)] / median[(*bottom, d)] for d in diameters)
+        shared = [d for d in DIAMETERS if (*top, d) in median and (*bottom, d) in median]
+        assert len(shared) >= 5, (top, bottom, shared)
+        return statistics.median(median[(*top, d)] / median[(*bottom, d)] for d in shared)
 
     assert 2.0 < ratio(("Stainless Steel", "Bright", 12), ("Steel", "Bright", 12)) < 5.0
     assert 1.2 < ratio(("Steel", "Ground", 12), ("Steel", "Bright", 12)) < 2.2

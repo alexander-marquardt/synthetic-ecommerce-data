@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 137 distinct attribute names and a hand-maintained list
-# of 137 declarations drifts from the data the first time either side moves.
+# publishes 138 distinct attribute names and a hand-maintained list
+# of 138 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      137
-#   offered as facets        118  (1 numeric ranges, 117 terms)
+#   attributes declared      138
+#   offered as facets        119  (1 numeric ranges, 118 terms)
 #   declared, not faceted    19
 # =============================================================================
 
@@ -374,8 +374,8 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 32 distinct values over 853 product-value pairs is 0.04 per product
-  #   present on 1493 documents across 21 product type(s); 32 distinct values
+  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 47 distinct values over 937 product-value pairs is 0.05 per product
+  #   present on 1577 documents across 21 product type(s); 47 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
@@ -419,8 +419,8 @@ fields:
   - name: face_type
     type: terms
     source: facets.face_type
-  # Finish -- 22 distinct values over 4305 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 8930 documents across 70 product type(s); 22 distinct values
+  # Finish -- 23 distinct values over 4346 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 9014 documents across 70 product type(s); 23 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -568,8 +568,8 @@ fields:
   - name: knit_gauge
     type: terms
     source: facets.knit_gauge
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 108 distinct values over 3588 product-value pairs is 0.03 per product
-  #   present on 3736 documents across 38 product type(s); 108 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 109 distinct values over 3630 product-value pairs is 0.03 per product
+  #   present on 3822 documents across 39 product type(s); 109 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -605,11 +605,16 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 59 distinct values over 6365 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 12795 documents across 161 product type(s); 59 distinct values
+  # Material -- 59 distinct values over 6406 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 12879 documents across 161 product type(s); 59 distinct values
   - name: material
     type: terms
     source: facets.material
+  # Material grade -- 13 distinct values over 42 product-value pairs is 0.31 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 86 documents across 1 product type(s); 13 distinct values
+  - name: material_grade
+    type: terms
+    source: facets.material_grade
   # Material grade - machining -- present on 42% of its product types' documents (floor 50%)
   #   present on 973 documents across 2 product type(s); 2 distinct values
   - name: material_grade_machining
@@ -632,7 +637,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 6004 documents across 60 product type(s); 4 distinct values
+  #   present on 6046 documents across 61 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
