@@ -1,6 +1,6 @@
 """Spiral notebooks (gen#969): Office & school > Paper & notebooks > Spiral notebooks.
 
-A breadth type: ``derivable`` True, so the scaled build draws more notebooks from these two by the
+A breadth type: ``derivable`` True, so the scaled build draws more notebooks from these three by the
 values their titles show (the page size and the ruling). The color is the cover's; the binding draws
 the coil on the side or the top, and the ruling is printed on the cover panel
 (:func:`kit_office.spiral_notebook`). Each SKU is a color in a pack of one, three or five.
@@ -17,6 +17,7 @@ from synthetic_ecommerce_data.domains.retail.office_rows import (
     LANTERNBY,
     NOTEBOOKS,
     RED,
+    THISTLE,
     decoy,
     packs,
     row,
@@ -38,6 +39,10 @@ ROWS = (
         "A wirebound notebook of 60 squared sheets that fold flat over the coil, for maths and sketches.",
         _book("A5", "Squared", "Top Bound"), packs((1, 2.5), (3, 6.0), (5, 9.0)),
         (("binding", "top bound"), ("ruling", "squared"))),
+    row("SNBB5D", "B5 Dotted Spiral Notebook", THISTLE, NOTEBOOKS, "Spiral Notebook", "spiral_notebook",
+        "A wirebound notebook of 70 dotted sheets on a smooth cream paper, for planners, lists and journals.",
+        _book("B5", "Dotted", "Side Bound"), packs((1, 3.5), (3, 8.5), (5, 12.5)),
+        (("binding", "side bound"), ("ruling", "dotted"))),
 )
 
 SPEC = TypeSpec(

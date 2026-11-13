@@ -1,6 +1,6 @@
 """Pens (gen#969): Office & school > Pens & pencils > Pens.
 
-A breadth type: ``derivable`` True, so the scaled build draws more pens from these two by the
+A breadth type: ``derivable`` True, so the scaled build draws more pens from these three by the
 values their titles show (the pen's style and its point). The ink is the SKU's color, drawn as
 the barrel; the style draws the tip and the mechanism a click button or a cap (:func:`kit_office.pen`).
 Each SKU is a color in a pack of 4, 10 or 20.
@@ -17,6 +17,7 @@ from synthetic_ecommerce_data.domains.retail.office_rows import (
     DEPARTMENT,
     LANTERNBY,
     PENS,
+    THISTLE,
     decoy,
     packs,
     row,
@@ -38,6 +39,10 @@ ROWS = (
         "Capped gel pens with a soft grip and a vivid ink that writes a crisp, even line.",
         _pen("Gel", "Fine", "Capped"), packs((4, 4.0), (10, 8.0), (20, 14.0)),
         (("style", "gel"), ("mechanism", "capped"))),
+    row("PENRBB", "Bold Rollerball Pens", THISTLE, PENS, "Pen", "pen",
+        "Capped rollerball pens with a free-flowing ink that glides over the page without pressing.",
+        _pen("Rollerball", "Bold", "Capped"), packs((4, 5.0), (10, 10.0), (20, 17.0)),
+        (("style", "rollerball"), ("mechanism", "capped"))),
 )
 
 SPEC = TypeSpec(

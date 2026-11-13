@@ -1,7 +1,7 @@
 """Pencils (gen#969): Office & school > Pens & pencils > Pencils.
 
-A breadth type: ``derivable`` True, so the scaled build draws more pencils from these three by the
-lead grade their titles show (HB, 2B, 4B). The color is the barrel's; a pencil sold with an eraser
+A breadth type: ``derivable`` True, so the scaled build draws more pencils from these four by the
+lead grade their titles show (HB, 2B, 4B, 2H). The color is the barrel's; a pencil sold with an eraser
 is drawn with its ferrule and eraser, one without with a dipped end (:func:`kit_office.pencil`).
 Each SKU is a color in a pack of 6, 12 or 24.
 """
@@ -39,6 +39,9 @@ ROWS = (
     row("PNC4BS", "4B Sketching Pencils", LANTERNBY, PENCILS, "Pencil", "pencil",
         "Sharpened cedar pencils with a dark 4B lead for bold lines and deep shading.",
         _pencil("4B"), packs((6, 3.5), (12, 6.0), (24, 10.0)), (("eraser", "no"),)),
+    row("PNC2HT", "2H Technical Pencils", THISTLE, PENCILS, "Pencil", "pencil",
+        "Sharpened cedar pencils with a 2H lead that holds its point, for plans, diagrams and technical drawing.",
+        _pencil("2H"), packs((6, 2.5), (12, 4.5), (24, 8.0)), (("eraser", "no"),)),
 )
 
 SPEC = TypeSpec(
