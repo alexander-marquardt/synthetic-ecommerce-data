@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _plate(material: str, kind: str, finish: str) -> tuple[tuple, ...]:
-    return (a("material", "Material", material), a("kind", "Plate size", kind),
+    return (a("material", "Material", material), a("kind", "Kind", kind),
             a("finish", "Finish", finish))  # fmt: skip
 
 

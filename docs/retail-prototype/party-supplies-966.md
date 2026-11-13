@@ -7,7 +7,7 @@ mix (`docs/catalogue-mix-837.md`). It had nothing for a party, so a search for `
 | Type | Spec | Leaf | Drawn by | Title-shown attributes | SKU axis |
 |---|---|---|---|---|---|
 | Balloon | `type_specs/balloon.py` | `Balloons` | `kit_party.balloon` | finish (Matte, Pearl, Metallic, Clear), style (Latex, Foil, Confetti) | six main colors x pack (`pack_size`) |
-| Party Plate | `type_specs/party_plate.py` | `Party Tableware` | `kit_tableware.plate` | material (Paper, Bamboo, Card), plate size (Dinner, Side) | six main colors x pack (`pack_size`) |
+| Party Plate | `type_specs/party_plate.py` | `Party Tableware` | `kit_tableware.plate` | material (Paper, Bamboo, Card), kind (Dinner, Side) | six main colors x pack (`pack_size`) |
 | Bunting | `type_specs/party_bunting.py` | `Party Decorations` | `kit_party.bunting` | material (Paper, Fabric, Felt), flag shape (Pennant, Square, Scalloped) | six main colors x length in metres (`item_length`) |
 
 All three are derivable, offer the six main colors (gen#275) and are sold by the department's
