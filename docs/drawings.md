@@ -512,7 +512,12 @@ still draw their own shapes and move onto the primitives as their types are touc
    and `domains/industrial/geometry/palette.py` `FINISH_TINT`), or
    drawing raises `UnknownStyleError`.
    `test_every_published_finish_and_material_has_a_color_and_a_hatch` sweeps
-   the data.
+   the default build's data. A value that only a larger build reaches (the last
+   entry of a table a rotation draws from, such as `roll_pins.COMBOS`'s
+   `420 Stainless Steel`, first drawn at 4000 lines) is swept by
+   `tests/test_material_styles_949.py`, which reads the release-size build
+   (`config.LARGE_BUILD_LINES`, through `tests/shared_builds.py`) and checks a
+   rotated table entry by entry.
 5. **Do not widen the allow-list casually.** A new element or attribute in
    `svg_problems()` reopens a route for text. If one is truly needed, add a
    value grammar for it and keep the planted-text tests red-capable.

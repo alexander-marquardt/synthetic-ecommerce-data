@@ -48,6 +48,32 @@ Each `--domain` is a domain's finished build (a directory holding its `nested.js
 `flat.jsonl`). `compose` writes `catalog.ndjson` (every domain's flat file byte for byte, in the
 order given) and `provenance.json`, and writes nothing when the union breaks the output standard.
 
+## The build's memory
+
+The release runner is `ubuntu-latest` (16 GB), so the industrial build's peak memory decides
+how large a catalogue it can make (gen#952). These are peak RSS and wall time, measured by
+`/usr/bin/time -v ecom-generate build --lines N` on a 32-vCPU Linux machine:
+
+| `--lines` | SKUs | before gen#952 | after |
+|---|---|---|---|
+| 2,600 | 14,559 | 354 MiB, 24 s | 118 MiB, 18 s |
+| 10,000 | 49,378 | 1,114 MiB, 69 s | 307 MiB, 44 s |
+| 39,000 | 176,348 | 3,866 MiB, 197 s | 790 MiB, 155 s |
+
+Two passes held the catalogue a second time, and neither does now. The output is byte for byte
+the same:
+
+- The price census (`price_report.collect`) stored every within-cell SKU pair. A cell's pairs
+  grow with the square of its members, so they took 2.2 GiB at 39,000 lines and would take about
+  17.7 GiB at 500K SKUs. `CellPairs` now keeps each cell's members once and generates the pairs
+  each time a price row counts them.
+- The figures pass (`generate_cli._measured_figures`) read `flat.jsonl` back as one list of
+  dicts, which took 3.3 GiB. It now reads each file one line at a time.
+
+`tests/test_build_peak_memory_952.py` fails if either pass holds such a list again. What
+remains is the catalogue object itself, about 2.7 KB per SKU, which is about 1.4 GiB at 500K
+SKUs. Building one type at a time removes that too.
+
 ## The dry run
 
 A manual run of the workflow (Actions, Release, Run workflow, with a `tag` such as `v0.0.0-dryrun`)

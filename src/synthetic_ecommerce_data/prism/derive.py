@@ -573,23 +573,37 @@ def flat_overmatch_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:
     the over-match the nested shape with ``reverse_nested`` does not have.
     The README points here instead of quoting the counts.
     """
-    matching = publishing = 0
+    tally = OvermatchTally()
     for row in rows:
+        tally.add(row)
+    return tally.figures()
+
+
+class OvermatchTally:
+    """:func:`flat_overmatch_figures` one row at a time, for a caller that walks the rows
+    once for several figures and keeps none of them (gen#952)."""
+
+    def __init__(self) -> None:
+        self.matching = self.publishing = 0
+
+    def add(self, row: dict[str, Any]) -> None:
         attributes = row.get("attributes", [])
         if any(a["name"] == OVERMATCH_ATTRIBUTE for a in attributes) and any(
             a["value"] == OVERMATCH_VALUE for a in attributes
         ):
-            matching += 1
-            publishing += any(
+            self.matching += 1
+            self.publishing += any(
                 a["name"] == OVERMATCH_ATTRIBUTE and a["value"] == OVERMATCH_VALUE
                 for a in attributes
             )
-    return {
-        "attribute": OVERMATCH_ATTRIBUTE,
-        "value": OVERMATCH_VALUE,
-        "matching": matching,
-        "publishing": publishing,
-    }
+
+    def figures(self) -> dict[str, Any]:
+        return {
+            "attribute": OVERMATCH_ATTRIBUTE,
+            "value": OVERMATCH_VALUE,
+            "matching": self.matching,
+            "publishing": self.publishing,
+        }
 
 
 def dispersion_figures(rows: Iterable[dict[str, Any]]) -> dict[str, Any]:

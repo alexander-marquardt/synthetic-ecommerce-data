@@ -821,6 +821,16 @@ list its key under the query in `domains/industrial/seed_decoys.py`:
 type serves its seed, and that every module under `decoys/` serves one. A head noun a decoy adds
 (`Holder`, `Puller`) is registered in `domains/industrial/names.py` `PRODUCT_NOUNS`.
 
+A decoy for an item noun (`o-rings`, `screws`, `bolts`, `washers`, `nuts`) also declares
+`use_lines` on its `TypeSpec` (#951). These are two sentences on what the product does, written as a
+catalogue writes them, and each names the noun at least twice the way the product uses it ("Lubricates
+O-rings at assembly, so each O-ring seats without twisting or pinching."). They reach the record's
+searchable `text`. A plain O-ring holds its noun in the title, the category leaf and the text. A
+decoy that says it only in its title ranked 56th and lower on `o-rings` with policies off. The
+lines say only what is true of every product of the type, never repeat the noun past what a real
+catalogue would write, and name no size or material. `tests/test_item_noun_decoy_copy_951.py`
+checks every such type's lines and its SKUs' `text`.
+
 ## The commands
 
 ```sh

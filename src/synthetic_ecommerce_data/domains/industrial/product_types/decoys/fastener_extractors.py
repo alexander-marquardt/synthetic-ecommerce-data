@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "fastener_extractors",
     label="Screw Extractor Set for 1/4-20 Screws",
+    use_lines=(
+        (
+            "Backs out broken or stripped screws: drill a pilot hole in the screw, then turn the "
+            "extractor counterclockwise."
+        ),
+        (
+            "Removes screws with damaged or rounded heads; the reverse flutes bite into the screw "
+            "as it turns out."
+        ),
+    ),
     breadth=BreadthRow(
         key="fastener_extractors",
         category=("Hand Tools", "Pullers & Extractors", "Fastener Extractors"),

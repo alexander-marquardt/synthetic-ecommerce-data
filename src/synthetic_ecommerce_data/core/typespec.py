@@ -138,7 +138,7 @@ class TypeSpec:
     #: ``type_weights`` entry for the key overrides it.
     share: float = 0.0
     #: What every product of the type is for (``voice.USE_LINES``); empty
-    #: falls back to the generic lines.
+    #: falls back to the generic lines. A breadth spec may declare them too (#951).
     use_lines: tuple[str, ...] = ()
     #: How the type's SKUs are priced (:class:`.price.PriceModel`): its
     #: census slope and endings, and its fitted anchor and noise.
@@ -361,6 +361,10 @@ def register(spec: TypeSpec, into: domain.Domain | None = None) -> None:
                 f"for {spec.breadth.key!r}"
             )
         held.register_type(spec)
+        # A breadth type's own use lines (#951): an item-noun decoy says what it does, and
+        # names its noun there, in place of the generic lines.
+        if spec.use_lines:
+            voice.USE_LINES[spec.key] = spec.use_lines
         _declare_block(spec)
         return
     # ``share`` and ``extent`` are refused when left at their defaults too: a
