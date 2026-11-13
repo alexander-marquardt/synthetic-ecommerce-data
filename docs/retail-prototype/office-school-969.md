@@ -31,8 +31,8 @@ each by Thistle & Wren) widens both the value pools and the brand pools.
 **Decoys.** Each type carries two text-match decoys: class 4 (a color word for a part, such as
 a red grip on a black-ink pen) and class 6 (a color word in a range name, such as `Green Park`).
 
-**Measured** (ceiling build, seed 0): 1,560 SKUs in 108 styles under Office & school (Pens 29
-styles, Pencils 50, Spiral Notebooks 29; 16 authored with the decoys, 92 derived), about 35% of the department's
-4,500 target in `docs/catalogue-mix-837.md`. Binders and folders, backpacks and the
+**Measured** (ceiling build, seed 0): the department's size, its styles per type and the
+authored and derived split are read from the build (`retail_figures`), never typed here. It is
+about a third of the department's 4,500 target in `docs/catalogue-mix-837.md`. Binders and folders, backpacks and the
 rest of the department are later slices of gen#969. The guards are in
 `tests/test_retail_office_969.py`.
