@@ -44,7 +44,7 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 #: Two thirds of the default build's SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse, and is not a target.
-DEFAULT_SKU_FLOOR = 20
+DEFAULT_SKU_FLOOR = 10
 
 #: The six main colors every color-bearing type offers (gen#275).
 MAIN_COLORS = {"Red", "Blue", "Green", "Yellow", "Black", "White"}

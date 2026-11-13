@@ -1,0 +1,11 @@
+M = "src/synthetic_ecommerce_data/domains/industrial/product_types/hand_tools/levels.py"
+TESTS = ["tests/test_type_levels.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-n", "4", "-k", "not other_type and not two_builds and not whole_build"]
+MUTANTS = [
+    (M, '"Box Beam": (24, 48, 72),\n    "I-Beam"', '"Box Beam": (24, 48, 78),\n    "I-Beam"', "a 78 in box beam, a length the test does not list"),
+    (M, "SYSTEMS[(i + i // 2) % 2])", "SYSTEMS[0])", "no metric level built"),
+    (M, "(n + n // len(COMBOS)) % len(COLORS)]", "(n + n // len(COMBOS)) % (len(COLORS) - 1)]", "no white frame built"),
+    (M, "DECOY_SLOTS: tuple[int, ...] = (1, 4)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
+    (M, "MATERIALS[(i + i // 3) % 3]", "MATERIALS[0]", "only aluminum frames built"),
+    (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no length"),
+]

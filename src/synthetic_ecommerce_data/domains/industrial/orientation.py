@@ -55,7 +55,7 @@ UPRIGHT: tuple[str, ...] = (
     "fastener_dispensers", "gear_pullers", "grinder_guards", "grooving_cutters",
     "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
     "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
-    "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "pillow_block_bearings",
+    "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "pillow_block_bearings",
     "pin_pullers", "pneumatic_cut_off_tools", "rigging_pulleys", "rigid_casters", "safety_glasses",
     "shaft_alignment_lasers", "side_lock_holders", "silicone_greases", "snap_ring_pliers",
     "spanner_wrenches", "swivel_casters", "tap_wrenches", "tapping_fluids", "thread_chasers",
