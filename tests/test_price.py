@@ -1052,7 +1052,7 @@ def test_tying_every_pair_breaks_the_equal_price_row(scored):
 #: read from the registry and not listed: its price is a declared ladder
 #: nobody measured. No row scores any of them. The census has no bushings,
 #: so the bronze sleeve bushing's model is hand-set (#833).
-#: The census has no lag screws either (#829).
+#: The census has no lag screws or flange nuts either (#829).
 NOT_MEASURED = frozenset(
     {
         *hammers.KINDS,
@@ -1064,6 +1064,7 @@ NOT_MEASURED = frozenset(
         "roll_pins",
         "studs_double_end",
         "lag_screws",
+        "flange_nuts",
         "bronze_sleeve_bushings",
         *tabletype.tables(),
     }
