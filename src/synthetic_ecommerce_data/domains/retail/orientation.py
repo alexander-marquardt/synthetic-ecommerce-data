@@ -55,7 +55,8 @@ SLIGHT: tuple[str, ...] = (
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
     "aftershave", "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
-    "baby_blanket", "backpack", "bag", "banana", "bar", "baseball_bat", "baseball_glove",
+    "baby_blanket", "baby_bottle",
+    "backpack", "bag", "banana", "bar", "baseball_bat", "baseball_glove",
     "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
     "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals", "bike_pump",
     "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
@@ -65,7 +66,8 @@ UPRIGHT: tuple[str, ...] = (
     "charger", "charging_pad", "cherries", "chest_of_drawers", "chocolate_box", "chopping_board",
     "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_table", "colander",
     "combi_drill", "compact", "corded_drill", "corner_sofa", "craft_kit", "crisps_bag", "cupcake",
-    "curtains", "cushion", "cutlery_piece", "daisy", "desk_fan", "desk_lamp", "desktop", "diary",
+    "curtains", "cushion", "cutlery_piece", "daisy", "desk_fan", "desk_lamp", "desktop",
+    "diaper_pack", "diary",
     "digital_watch", "dining_chair", "dining_table", "dinosaur", "dishwasher",
     "dishwasher_tablets", "doll", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
     "drill_driver", "drinking_glass", "drop_earrings", "dumbbell", "duvet", "e_reader", "earbuds",
@@ -97,7 +99,8 @@ UPRIGHT: tuple[str, ...] = (
     "tote_bag", "tower_fan", "travel_cup", "travel_organizer", "tray", "trigger_spray",
     "trinket_tray", "trophy", "tub", "tulip", "tumble_dryer", "tumbler", "tv", "umbrella",
     "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "washer_dryer",
-    "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wooden_toy",
+    "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wipes_pack",
+    "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
 )
 
