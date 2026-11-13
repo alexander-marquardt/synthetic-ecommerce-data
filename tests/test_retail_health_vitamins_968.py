@@ -28,6 +28,7 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments as core_departments
+from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import departments, scale, type_registry
 
@@ -139,9 +140,11 @@ def test_census_the_type_meets_the_output_standard_under_health(key: str, ceilin
     ptype = _spec(key).product_type
     mine = [r for r in ceiling.records if r["product_type"] == ptype]
     docs = scale.documents(scale.Scaled(mine, {}))
-    assert check_catalog(docs, one_class_per_key=True) == []
+    # A spec's text-match decoys contradict their own fields on purpose (scale.TEXT_EXEMPT).
+    assert check_catalog(docs, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
+    # A published node is sentence case (core/letter_case.py): "Vitamins & supplements".
     assert {d["category_path"][0] for d in docs} == {ROOT}
-    assert {tuple(d["category_path"][:2]) for d in docs} == {PARENT}
+    assert {tuple(d["category_path"][:2]) for d in docs} == {tuple(map(sentence_case, PARENT))}
 
 
 _DIGEST = (

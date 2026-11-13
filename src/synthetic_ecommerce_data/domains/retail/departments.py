@@ -8,7 +8,7 @@ Audience (womens, kids, baby) is an attribute, never a department.
 Since gen#281 this list classifies the BUILD records only (brand pools, department floors,
 the worn-department audience rule): no document states it, because its values mixed audience
 (Clothing) with product kind (Footwear). The store's department is the top level of the
-document's ``category_path`` (eleven roots, ``tests/test_retail_departments_281.py``).
+document's ``category_path`` (one root per department, ``tests/test_retail_departments_281.py``).
 
 **The department is the top level of ``category_path``; there is no ``department`` field**
 (the 2026-10-28 ruling on #125, after gen#281). A second home for a fact the path already
@@ -29,6 +29,7 @@ RETAIL = (
     "Toys",
     "Sports & Outdoors",
     "Electronics",
+    "Health",
 )
 SHARED = (
     "Workwear & PPE",
