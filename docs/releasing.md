@@ -104,7 +104,24 @@ twice. The build writes into a temporary directory beside `--out` and moves the 
 - No earlier type's products are alive when the next type is built.
 - The files are those the whole catalogue writes.
 
-The `--stress-keys` build still holds every nested document at once (gen#952 slice 3).
+The `--stress-keys` build streams too (gen#952 slice 3). C, the copies per attribute, needs
+every base key in the catalogue before the first product is expanded. So the build writes each
+type's nested documents to a spool file in the temporary directory and keeps only the set of
+keys. Once the audits pass, `stress.write` reads the spool one document at a time. It expands
+the document, writes its nested and flat lines, counts it in the census and then reads the next.
+The census keeps only, per key, the products that carry it and its distinct values. Measured
+with `--seed 7 --stress-keys 5000 --stress-copies 3`, each pair of builds side by side, with
+every file byte for byte the same:
+
+| `--lines` | whole lists (before) | spooled |
+|---|---|---|
+| 2,600 | 204 MiB | 66 MiB |
+| 5,200 | 347 MiB | 73 MiB |
+| 39,000 | 1,736 MiB | 272 MiB |
+
+The same test file runs the stress build at 2,600 and 5,200 lines under the same 25 MiB
+ceiling. It also checks that every file the stress build writes is what the whole-list path
+writes, at the golden seed and at 5,200 lines.
 
 ## The dry run
 

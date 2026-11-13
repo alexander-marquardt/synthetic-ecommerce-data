@@ -52,6 +52,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from synthetic_ecommerce_data import stress
 from synthetic_ecommerce_data.core import emit, letter_case, noncopy, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.model import Catalog
@@ -458,6 +459,16 @@ def _build(args: argparse.Namespace, config: GeneratorConfig) -> int:
         shutil.rmtree(staging, ignore_errors=True)
 
 
+def _publish(staging: Path, out: Path) -> None:
+    """Every audit has passed: only now does anything reach ``--out`` (gen#253). A refused build
+    leaves ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files with
+    a catalog an audit just refused. Each file is renamed into place, beside whatever else
+    ``--out`` holds."""
+    out.mkdir(parents=True, exist_ok=True)
+    for path in sorted(staging.iterdir()):
+        os.replace(path, out / path.name)
+
+
 def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path) -> int:
     out: Path = args.out
     base_url = args.image_base_url
@@ -466,17 +477,15 @@ def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path
     audit: dict | None = None
     authored: dict[str, dict[str, str]] = {}
     written: Counter[str] = Counter()
-    # The stress catalog still takes every nested document at once (gen#952 slice 3).
-    stress_documents: list[dict[str, Any]] = []
+    # The stress catalog spools each type's nested documents and keeps only their keys; it is
+    # expanded from the spool once every audit has passed (gen#952).
+    stress_keys: set[str] = set()
+    names = [stress.SPOOL] if args.stress_keys else list(STREAMED)
     with ExitStack() as files:
-        handles = (
-            {}
-            if args.stress_keys
-            else {
-                name: files.enter_context((staging / name).open("w", encoding="utf-8"))
-                for name in STREAMED
-            }
-        )
+        handles = {
+            name: files.enter_context((staging / name).open("w", encoding="utf-8"))
+            for name in names
+        }
         for part in iter_types(config, counters=counters):
             # Every SKU points at its own drawing and every product at one of its SKUs'. Both
             # directions are asserted before the type's lines are written: the writers run the
@@ -490,7 +499,7 @@ def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path
             audit = _merged_audit(audit, noncopy.audit(part))
             authored.update(emit.authored_name_map(part))
             if args.stress_keys:
-                stress_documents.extend(emit.iter_nested(part, base_url))
+                stress.spool(emit.iter_nested(part, base_url), handles[stress.SPOOL], stress_keys)
             else:
                 for name, rows in STREAMED.items():
                     written[name] += emit.append_jsonl(rows(part, base_url), handles[name])
@@ -518,19 +527,14 @@ def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path
         return 1
 
     if args.stress_keys:
-        from synthetic_ecommerce_data import stress  # noqa: PLC0415
-
         mappings = {
             "mapping.nested.json": emit.NESTED_MAPPING,
             "mapping.flat.json": emit.FLAT_MAPPING,
         }
-        for line in stress.write(
-            stress_documents,
-            out,
-            args.stress_keys,
-            args.stress_copies,
-            mappings,
-        ):
+        lines = stress.write(staging, stress_keys, args.stress_keys, args.stress_copies, mappings)
+        _publish(staging, out)
+        print(f"{out}  {lines[0]}")
+        for line in lines[1:]:
             print(line)
         return 0
 
@@ -559,13 +563,7 @@ def _build_into(args: argparse.Namespace, config: GeneratorConfig, staging: Path
         json.dumps(emit.FLAT_MAPPING, indent=1) + "\n", encoding="utf-8"
     )
 
-    # Every audit has passed: only now does anything reach ``--out`` (gen#253). A refused build
-    # leaves ``--out`` as it was, so ``--out golden-catalog`` never replaces the tracked files
-    # with a catalog an audit just refused. Each file is renamed into place, beside whatever
-    # else ``--out`` holds.
-    out.mkdir(parents=True, exist_ok=True)
-    for path in sorted(staging.iterdir()):
-        os.replace(path, out / path.name)
+    _publish(staging, out)
 
     # The field map reads the flat documents back one line at a time; it reads no image URL,
     # so the file's base URL is the default's to it.

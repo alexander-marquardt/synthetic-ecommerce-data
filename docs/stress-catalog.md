@@ -42,6 +42,12 @@ one. With it, the build runs the standard audits, then writes only these files i
 | `mapping.nested.json`, `mapping.flat.json` | the standard mappings |
 | `stress.json` | the census below, and the config (target, N, base keys, C) |
 
+The build streams (gen#952): it spools each type's nested documents to a file and keeps only
+their keys. After the audits it expands the spool one document at a time, so the peak does not
+grow with the catalog ([releasing.md](releasing.md#the-builds-memory)). Like the standard build,
+it writes into a temporary directory and moves the files into `--out` only when every audit has
+passed.
+
 There is no `images.jsonl`: a stress document keeps its standard image ids, and the standard image
 bundle serves them. The flat mapping maps each `facets.<key>` as its own field, so at this scale
 load the nested shape or a mapping that does not do that. The build refuses an `--out` that holds a
