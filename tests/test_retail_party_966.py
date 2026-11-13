@@ -116,5 +116,18 @@ GOLDEN: dict[str, list[tuple]] = {
 
 
 @pytest.mark.parametrize("ptype", TYPES)
+def test_each_decoy_names_a_color_its_fields_do_not_hold(ptype) -> None:
+    """A class 4 and a class 6 decoy per type, each titled with its query's color word and
+    sold in one other color, so a search for that color finds it by text alone (gen#309)."""
+    decoys = type_registry.specs()[KEYS[ptype]].decoys
+    assert sorted(d.cls for d in decoys) == [4, 6]
+    for d in decoys:
+        word = d.query.split()[0].title()
+        assert d.row.title.startswith(word), (d.row.title, d.query)
+        assert [c[0] for c in d.row.colors] != [word], (d.row.code, d.row.colors)
+        assert len(d.row.colors) == 1, (d.row.code, d.row.colors)
+
+
+@pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_golden_slice(party, ptype) -> None:
     assert _golden(party, ptype) == GOLDEN[ptype]
