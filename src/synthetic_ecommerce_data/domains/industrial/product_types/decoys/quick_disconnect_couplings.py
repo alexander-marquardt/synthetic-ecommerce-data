@@ -13,6 +13,16 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "quick_disconnect_couplings",
     label="Quick-Disconnect Coupling with Viton O-Ring Seal",
+    use_lines=(
+        (
+            "Joins and releases a line by hand; an O-ring in the socket seals against the plug, "
+            "and a worn O-ring can be replaced."
+        ),
+        (
+            "Push to connect, pull the sleeve to release; the O-ring seal holds the line, and the "
+            "O-ring is replaced without changing the coupling."
+        ),
+    ),
     breadth=BreadthRow(
         key="quick_disconnect_couplings",
         category=(

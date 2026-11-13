@@ -13,6 +13,10 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "silicone_greases",
     label="O-Ring Silicone Grease",
+    use_lines=(
+        "Lubricates O-rings at assembly, so each O-ring seats without twisting or pinching.",
+        "A thin film helps an O-ring slide into its groove and keeps O-rings from drying out.",
+    ),
     breadth=BreadthRow(
         key="silicone_greases",
         category=("Lubricants, Coolants & Fluids", "Greases", "Silicone Greases"),
