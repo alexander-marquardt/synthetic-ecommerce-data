@@ -8,3 +8,6 @@ each root under Hardware, Tools or Workshop & safety, so the document reads `Too
 mills > Square end mills`. A root with no row is refused, and `core/standard.check_catalog`
 refuses a top level off the list for any domain. The table was the catalogue repository's
 (`INDUSTRIAL_DEPARTMENTS`, which re-rooted every industrial path at load) until it moved here.
+
+The retail list grows by a department's family issue: `Automotive` joined it with gen#970
+(`docs/retail-automotive.md`).
