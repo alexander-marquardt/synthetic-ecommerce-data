@@ -45,8 +45,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "figures: brands counted as product types",
         "generate_cli.py",
-        '"brands": len({doc["brand"] for doc in flat}),',
-        '"brands": len({doc["product_type"] for doc in flat}),',
+        '"brands": len(brands),',
+        '"brands": len(types),',
         "tests/test_catalog_golden.py::test_committed_file_matches_a_fresh_build",
         "",
         "the measured figures are the committed catalog's",
