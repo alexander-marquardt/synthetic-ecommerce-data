@@ -1,0 +1,11 @@
+M = "src/synthetic_ecommerce_data/domains/industrial/product_types/hand_tools/stud_finders.py"
+TESTS = ["tests/test_type_stud_finders.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-n", "4", "-k", "not other_type and not two_builds and not whole_build"]
+MUTANTS = [
+    (M, '"Multi-Scan": (1.5, 2.0),', '"Multi-Scan": (1.5, 2.5),', "a 2-1/2 in multi-scan depth, one the test does not list"),
+    (M, "return tuple(COLORS)[(combo + turn) % len(COLORS)]", "return tuple(COLORS)[(n + turn) % len(COLORS)]", "the levels' color form: each combination meets three colors"),
+    (M, '    ("Magnetic", MAGNET, "Magnetic"),\n', '    ("Magnetic", "LED Arrows", "Magnetic"),\n', "a magnetic finder with an electronic indicator"),
+    (M, "DECOY_SLOTS: tuple[int, ...] = (1, 4)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
+    (M, '("Basic", "Multi-Scan")[(i // 2) % 2]', '"Basic"', "no multi-scan tier built"),
+    (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no scan depth"),
+]

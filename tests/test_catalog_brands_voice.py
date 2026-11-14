@@ -305,6 +305,10 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same rows. Measured at 100K, 421 distinct specs of 722 SKUs (0.583), rounded
     # down to 0.05.
     "flange_nuts": 0.55,
+    # #971: a stud finder is a style, an indicator and a scan-mode tier (13 lines), a body
+    # color and the tier's two scan depths, 156 specs, and every maker sells the same ones.
+    # Measured at 100K, 156 distinct specs of 361 SKUs (0.432), rounded down to 0.05.
+    "stud_finders": 0.40,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers

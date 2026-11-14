@@ -113,6 +113,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Socket",
     "Vise",
     "Gage",
+    "Finder",
     "Collet",
     # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
     # "Handle" stays unregistered: it is the negative control of

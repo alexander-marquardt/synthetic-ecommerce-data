@@ -147,6 +147,15 @@ def test_every_style_indicator_mode_set_and_main_color_is_built():
     assert len(set(finders.COMBOS)) == len(finders.COMBOS)
 
 
+def test_each_combination_meets_every_main_color_over_six_turns():
+    """The default build is one turn and a bit, so the rotation is read from the module: over
+    six turns of the 13 combinations each one is offered in all six colors (gen#275)."""
+    finders = _module()
+    turns = len(finders.COMBOS) * len(MAIN_COLORS)
+    pairs = {(n % len(finders.COMBOS), finders.body_color(n)) for n in range(turns)}
+    assert len(pairs) == turns
+
+
 def test_some_titles_name_another_tool_and_every_title_names_the_item():
     """The decoys (gen#294): another tool's word before the item, never a finder's attribute."""
     finders = _module()

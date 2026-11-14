@@ -386,6 +386,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     "snap_ring_pliers": (("Overall Length", "OAL"),),
     "spanner_wrenches": (("Size", "Size"),),
     "spill_socks": (("Length", "L"),),
+    "stud_finders": (
+        ("Scan Depth (In.)", "Scan Depth"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "studs_double_end": (
         ("Length", "L"),
         ("Material", None),
