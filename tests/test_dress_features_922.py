@@ -3,7 +3,8 @@
 The "Petite Pinstripe Wrap Midi Dress" was drawn as the plain strap dress: no wrap front, no
 pinstripe. :mod:`dress_features` reads each construction or pattern word off a dress title and
 draws it on the dress. These tests read the SKU's release image (``image_release.render``), the
-file a shopper sees, so a word the release cannot draw fails here.
+file a shopper sees, so a word the release cannot draw fails here, and the fill it was drawn in
+from the release's drawings file (gen#924), not re-derived from the templates.
 """
 
 from __future__ import annotations
@@ -46,20 +47,27 @@ NAMED_TODAY = {
 _MARK = re.compile(r'data-feature="([a-z_]+)"')
 
 
-def _look(rec: dict) -> tuple[str, str]:
-    """The release image of the row's first SKU: its fill pattern and its SVG."""
-    sku = rec["skus"][0]
-    return image_release.colorway_drawing(rec, sku)["pattern"], image_release.render(
-        rec, sku
-    ).decode()
-
-
 @pytest.fixture(scope="module")
 def dresses() -> list[dict]:
     return [d for d in scale.templates(baseline=False) if dress_features.is_dress(d)]
 
 
-def test_every_construction_and_pattern_word_of_a_dress_title_is_drawn(dresses) -> None:
+@pytest.fixture(scope="module")
+def drawings(dresses, tmp_path_factory) -> dict[str, dict]:
+    """The dresses' rows of the release's drawings file, by ``image_url``, read back from it."""
+    path = tmp_path_factory.mktemp("release") / image_release.DRAWINGS_FILE
+    image_release.write_drawings(image_release.drawing_rows(dresses), path)
+    return {row["image_url"]: row for row in image_release.read_drawings(path)}
+
+
+def test_every_construction_and_pattern_word_of_a_dress_title_is_drawn(dresses, drawings) -> None:
+    def _look(rec: dict) -> tuple[str, str]:
+        """The release image of the row's first SKU: the fill pattern its drawings row names,
+        and its SVG."""
+        sku = rec["skus"][0]
+        url = dict(image_release.sku_urls([rec]))[sku["sku"]]
+        return drawings[url]["drawing"]["pattern"], image_release.render(rec, sku).decode()
+
     unshown = dress_features.unshown(dresses, _look)
     assert not unshown, "dress titles name words their images do not draw:\n" + "\n".join(
         f"  {word}: {len(rows)} rows, e.g. {', '.join(rows[:3])}"

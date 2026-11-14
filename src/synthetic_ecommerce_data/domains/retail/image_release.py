@@ -5,6 +5,8 @@ Usage::
     uv run python -m synthetic_ecommerce_data.domains.retail.image_release \\
         --out out/images --archive out/images.tar.gz [--skus 20000] \\
         [--industrial-catalog out/catalog-100k]
+    uv run python -m synthetic_ecommerce_data.domains.retail.image_release \\
+        --lookup <image_url | product id | sku> --drawings out/drawings.jsonl.gz
 
 Without ``--skus`` it releases the 352 authored styles; with it, the scaled
 build that reaches that SKU count (:func:`scale.build`, the 20K catalog's input),
@@ -38,14 +40,24 @@ Unlike the industrial bundle there is no committed ``images.jsonl`` to check
 the retail render against: the retail build is this folder's code, not a
 committed catalog, so the render is the source. What is checked instead is that
 one ``drawing_id`` never names two different drawings (:func:`image_files`).
+
+THE DRAWINGS FILE (gen#924). Beside the archive, and in ``--out``, ``drawings.jsonl.gz`` holds
+one row per image file, sorted by ``image_url``: the SKU, its product and title, and the
+``drawing`` that rendered it (retail: the colorway drawing, ``shape``, fill as ``base``,
+``pattern`` and ``accent``, ``params``; industrial: :func:`..core.drawing.drawing_spec`). A
+title/image mismatch is traced by looking the image up (``--lookup``), with no cluster and no
+re-derivation from the templates. It is not an archive member: the archive holds one file per
+SKU, and its count names the images release.
 """
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from synthetic_ecommerce_data.core import bundle
 from synthetic_ecommerce_data.domains.retail import (
@@ -56,7 +68,6 @@ from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
 
 HERE = Path(__file__).resolve().parent
-
 
 
 def member_path(image_id: str) -> str:
@@ -118,20 +129,50 @@ DRAWINGS_FILE = "drawings.jsonl.gz"
 
 
 def drawing_rows(recs: list[dict]) -> list[dict]:
-    """Stub (gen#924): no row yet."""
-    del recs
-    return []
+    """One row per retail SKU image: its ``image_url``, ``image_id``, ``product_id``, ``sku``,
+    ``title``, ``drawing_id`` and the colorway ``drawing`` :func:`render` draws it from."""
+    return [
+        {
+            "image_url": f"{export.IMAGE_BASE_URL}/{export.image_id(rec, sku)}.svg",
+            "image_id": export.image_id(rec, sku),
+            "product_id": rec["product_id"],
+            "sku": sku["sku"],
+            "title": rec["title"],
+            "drawing_id": export.drawing_id(rec, sku),
+            "drawing": colorway_drawing(rec, sku),
+        }
+        for rec in recs
+        for sku in rec["skus"]
+    ]
 
 
 def write_drawings(rows: list[dict], path: Path) -> None:
-    """Stub (gen#924): writes nothing."""
-    del rows, path
+    """Write ``rows`` to ``path`` as gzipped JSON lines, sorted by ``image_url``, with no
+    timestamp in the gzip header: the same rows write the same bytes."""
+    lines = [
+        json.dumps(row, sort_keys=True, ensure_ascii=False)
+        for row in sorted(rows, key=lambda row: row["image_url"])
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as gz:
+        gz.write("".join(f"{line}\n" for line in lines).encode("utf-8"))
+
+
+def read_drawings(path: Path) -> list[dict]:
+    """The rows of a drawings file (:func:`write_drawings`)."""
+    with gzip.open(path, "rt", encoding="utf-8") as fh:
+        return [json.loads(line) for line in fh if line.strip()]
 
 
 def drawing_for(path: Path, key: str) -> list[dict]:
-    """Stub (gen#924): finds nothing."""
-    del path, key
-    return []
+    """The rows of the drawings file at ``path`` whose ``image_url``, ``product_id`` or ``sku``
+    is ``key``. An absolute URL (``https://<demo>/images/...``) is matched on its path."""
+    wanted = {key, urlsplit(key).path}
+    return [
+        row
+        for row in read_drawings(path)
+        if wanted & {row["image_url"], row["product_id"], row["sku"]}
+    ]
 
 
 def image_files(recs: list[dict] | None = None) -> list[tuple[str, bytes]]:
@@ -184,14 +225,34 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="an `ecom-generate build` directory whose drawings ship in the same archive",
     )
+    parser.add_argument(
+        "--lookup",
+        default=None,
+        help="print the drawing rows of this image_url, product id or sku, and build nothing",
+    )
+    parser.add_argument(
+        "--drawings",
+        type=Path,
+        default=None,
+        help=f"the {DRAWINGS_FILE} --lookup reads (default: the one in --out)",
+    )
     args = parser.parse_args(argv)
+    if args.lookup is not None:
+        found = drawing_for(args.drawings or args.out / DRAWINGS_FILE, args.lookup)
+        for row in found:
+            print(json.dumps(row, sort_keys=True, ensure_ascii=False))
+        if not found:
+            print(f"no image row names {args.lookup!r}", file=sys.stderr)
+        return 0 if found else 1
     recs = records(args.skus)
     files = image_files(recs)
     skus = sku_urls(recs)
+    drawings = drawing_rows(recs)
     try:
         if args.industrial_catalog is not None:
             drawn, named = industrial(args.industrial_catalog)
             files, skus = sorted(files + drawn), skus + named
+            drawings += bundle.drawing_rows(args.industrial_catalog)
     except bundle.BundleMismatchError as exc:
         print(f"image release REFUSED: {exc}", file=sys.stderr)
         return 1
@@ -202,6 +263,8 @@ def main(argv: list[str] | None = None) -> int:
     bundle.write_files(files, args.out, root=export.IMAGE_ROOT)
     total = sum(len(data) for _, data in files)
     print(f"{args.out}  {len(files)} files for {len(skus)} SKUs, {total:,} bytes")
+    write_drawings(drawings, args.out / DRAWINGS_FILE)
+    print(f"{args.out / DRAWINGS_FILE}  {len(drawings)} drawing rows, one per image")
     content = bundle.files_digest(files)
     print(f"content digest (pin this) {content}  over {len(files)} files")
     if args.archive is not None:
@@ -212,6 +275,7 @@ def main(argv: list[str] | None = None) -> int:
         args.archive.with_name(args.archive.name + ".content-sha256").write_text(
             f"{content}  {len(files)}\n", encoding="utf-8"
         )
+        write_drawings(drawings, args.archive.with_name(DRAWINGS_FILE))
         print(f"{args.archive}  {args.archive.stat().st_size:,} bytes  archive sha256 {digest}")
     return 0
 

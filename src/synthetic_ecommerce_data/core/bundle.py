@@ -101,9 +101,32 @@ def records(parent: dict, facets_by_sku: dict[str, dict]) -> list[dict[str, str]
 
 
 def drawing_rows(catalog_dir: Path) -> list[dict]:
-    """Stub (gen#924): no row yet."""
-    del catalog_dir
-    return []
+    """One row per SKU image of a catalog directory: its ``image_url``, ``image_id``,
+    ``product_id``, ``sku``, ``title``, ``brand`` and the ``drawing`` that renders it
+    (:func:`..drawing.drawing_spec`), read off ``nested.jsonl`` and ``flat.jsonl`` as
+    :func:`rebuild` reads them, so the spec is the input the drawing is made from (gen#924)."""
+    from synthetic_ecommerce_data.core.drawing import drawing_spec  # noqa: PLC0415
+
+    facets_by_sku = flat_facets(catalog_dir)
+    rows: list[dict] = []
+    for line in (catalog_dir / "nested.jsonl").read_text("utf-8").splitlines():
+        if not line:
+            continue
+        parent = json.loads(line)
+        drawn = records(parent, facets_by_sku)
+        for variant, record in zip(parent["variants"], drawn, strict=True):
+            rows.append(
+                {
+                    "image_url": variant["image_url"],
+                    "image_id": variant["image_id"],
+                    "product_id": parent["product_id"],
+                    "sku": variant["sku"],
+                    "title": variant["title"],
+                    "brand": parent["brand"],
+                    "drawing": drawing_spec(parent["product_type"], record),
+                }
+            )
+    return rows
 
 
 def member_path(path: str) -> str:
