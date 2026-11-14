@@ -60,5 +60,5 @@ checks in the type's own test file (`tests/test_retail_health_vitamins_968.py` f
 - **census**: the spec is registered in its department and tree, plants its decoys, and its documents
   pass the output standard (`core/standard.check_catalog`);
 - **byte-determinism**: two processes under two hash seeds build byte-identical documents;
-- **a golden slice**: the committed `tests/data/golden_slices/retail_<key>.jsonl` equals a fresh build.
+- **a golden slice**: the committed `tests/data/golden_slices_retail/<key>.jsonl` (apart from `golden_slices/`, which `scripts/golden_pins.py` rebuilds as industrial types) equals a fresh build.
   Rewrite the slices with `uv run python tests/test_retail_health_vitamins_968.py`.

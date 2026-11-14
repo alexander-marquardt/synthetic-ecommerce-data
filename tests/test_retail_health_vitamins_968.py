@@ -35,7 +35,7 @@ from synthetic_ecommerce_data.domains.retail import departments, scale, type_reg
 KEYS = ("vitamins", "minerals")
 ROOT = "Health"
 PARENT = ("Health", "Vitamins & Supplements")
-SLICES = Path(__file__).parent / "data" / "golden_slices"
+SLICES = Path(__file__).parent / "data" / "golden_slices_retail"
 #: Words that would make a title or description a medical or efficacy claim (the issue's
 #: "Over the counter only": no prescription product, no claim).
 CLAIM = re.compile(
@@ -60,7 +60,7 @@ def _slice_text(key: str) -> str:
 
 
 def _slice_path(key: str) -> Path:
-    return SLICES / f"retail_{key}.jsonl"
+    return SLICES / f"{key}.jsonl"
 
 
 @pytest.fixture(scope="module")
