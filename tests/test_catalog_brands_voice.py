@@ -309,6 +309,10 @@ DISTINCT_SPEC_FLOOR = {
     # color and the tier's two scan depths, 156 specs, and every maker sells the same ones.
     # Measured at 100K, 156 distinct specs of 361 SKUs (0.432), rounded down to 0.05.
     "stud_finders": 0.40,
+    # #971: a tape measure is a case material, a lock and a color on a stocked blade length,
+    # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
+    # SKUs (0.802), rounded down to 0.05.
+    "tape_measures": 0.80,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
