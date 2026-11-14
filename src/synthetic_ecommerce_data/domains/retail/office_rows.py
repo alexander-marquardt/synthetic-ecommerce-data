@@ -3,10 +3,11 @@
 The store's department is the top level of ``category_path`` (``Office & school``, on
 ``core/departments.RETAIL``); the build record's ``department`` is the closed list's
 ``Office & Stationery`` (:mod:`departments`), which keys the department's brand pools. Each type
-is a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``) drawn by
-:mod:`kit_office`. A SKU is a color in a pack (``pack_size``), so a pack of ten is drawn as ten
-pens (:mod:`pack_copies`). The brands are the invented stationery brands of the Gifts notebooks
-and diaries; every name here is invented.
+is a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``, and slice 2's
+``ring_binder.py``, ``document_folder.py``, ``calculator.py``) drawn by :mod:`kit_office`. A SKU
+is a color in a pack (``pack_size``), so a pack of ten is drawn as ten pens (:mod:`pack_copies`).
+The brands are the invented stationery brands of the Gifts notebooks and diaries; every name
+here is invented.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from synthetic_ecommerce_data.domains.retail import (
-    kit_office,  # noqa: F401 -- registers pen, pencil, spiral_notebook
+    kit_office,  # noqa: F401 -- registers the department's shapes
 )
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.type_registry import Row, cw
@@ -26,6 +27,9 @@ ROOT = "Office & School"
 PENS = (ROOT, "Pens & Pencils", "Pens")
 PENCILS = (ROOT, "Pens & Pencils", "Pencils")
 NOTEBOOKS = (ROOT, "Paper & Notebooks", "Spiral Notebooks")
+BINDERS = (ROOT, "Binders & Folders", "Ring Binders")
+FOLDERS = (ROOT, "Binders & Folders", "Document Folders")
+CALCULATORS = (ROOT, "Office Electronics", "Calculators")
 
 CALDERBY = "Calderby & Lune"
 LANTERNBY = "Lanternby"

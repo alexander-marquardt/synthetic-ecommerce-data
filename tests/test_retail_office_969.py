@@ -1,12 +1,14 @@
-"""Office & school, slice 1 (gen#969): the department, with pens, pencils and spiral notebooks.
+"""Office & school, slices 1 and 2 (gen#969): the department, with pens, pencils, spiral
+notebooks, ring binders, document folders and calculators.
 
 The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
-drawn by :mod:`kit_office`. These checks hold the slice's Done-when: the ceiling build has at least
-1,400 SKUs under the department; each type's styles have unique ids, titles and twin keys; the
-rows and their drawings are the same on every call; and a golden slice pins each type's first
-derived styles, so a change that moves them shows here.
+drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,
+``document_folder.py``, ``calculator.py``). These checks hold the slices' Done-when: the ceiling
+build has at least 2,850 SKUs under the department; each type's styles have unique ids, titles
+and twin keys; the rows and their drawings are the same on every call; and a golden slice pins
+each type's first derived styles, so a change that moves them shows here.
 """
 
 from __future__ import annotations
@@ -19,10 +21,14 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, type_registry
 
-TYPES = ("Pen", "Pencil", "Spiral Notebook")
-KEYS = {"Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook"}
-#: The slice's floor at the ceiling build (the gate comment of gen#969).
-FLOOR = 1_400
+TYPES = ("Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator")
+KEYS = {
+    "Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook",
+    "Ring Binder": "ring_binder", "Document Folder": "document_folder", "Calculator": "calculator",
+}  # fmt: skip
+#: Slice 2's floor at the ceiling build (the gate comment of gen#969): 1,400 for slice 1, plus
+#: 1,450 for ring binders, document folders and calculators.
+FLOOR = 2_850
 
 
 @pytest.fixture(scope="module")
@@ -93,6 +99,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-082994CBD41A", "Brackbank A5 Dotted Spiral Notebook", 6, 2.9),
         ("BRD-15F48D958E7F", "Edenworth A5 Lined Spiral Notebook", 6, 3.95),
         ("BRD-29026ABE797F", "Sandlow B5 Squared Spiral Notebook", 9, 3.4),
+    ],
+    "Ring Binder": [
+        ("BRD-07E9D725EAA2", "Swanden A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Foxburn A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Wraybrook A5 Slanted Ring Binder", 12, 2.65),
+    ],
+    "Document Folder": [
+        ("BRD-04A14787D567", "Rudthwaite A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Upgate A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Milness Letter Zip Document Folders", 6, 5.5),
+    ],
+    "Calculator": [
+        ("BRD-03D4351FCA63", "Kelfell 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Clevecombe 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Chaphurst 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 
