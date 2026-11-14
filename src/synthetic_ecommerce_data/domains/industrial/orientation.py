@@ -60,7 +60,7 @@ UPRIGHT: tuple[str, ...] = (
     "shaft_alignment_lasers", "side_lock_holders", "silicone_greases", "snap_ring_pliers",
     "spanner_wrenches", "swivel_casters", "tap_wrenches", "tape_measures", "tapping_fluids",
     "thread_chasers", "thread_pitch_gages", "thread_plug_gages", "thread_restoring_files",
-    "tool_holsters", "wrench_organizers",
+    "tool_holsters", "utility_knives", "wrench_organizers",
 )
 
 #: Clothing: within +-15 degrees. No industrial type is clothing.

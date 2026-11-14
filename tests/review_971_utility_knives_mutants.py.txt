@@ -1,0 +1,11 @@
+M = "src/synthetic_ecommerce_data/domains/industrial/product_types/hand_tools/utility_knives.py"
+TESTS = ["tests/test_type_utility_knives.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-n", "4", "-k", "not other_type and not two_builds and not whole_build"]
+MUTANTS = [
+    (M, '    ("Snap-Off", 25),\n', '    ("Snap-Off", 19),\n', "no 25 mm snap-off knife"),
+    (M, "MATERIALS[(i + i // len(KINDS)) % len(MATERIALS)]", "MATERIALS[i % len(MATERIALS)]", "a style never built in every material"),
+    (M, "(n + n // len(COMBOS)) % len(COLORS)]", "(n + n // len(COMBOS)) % (len(COLORS) - 1)]", "no white handle built"),
+    (M, "DECOY_SLOTS: tuple[int, ...] = (1, 4)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
+    (M, "    for k in range(blades):\n", "    for k in range(1):\n", "a pack's blades not drawn"),
+    (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no width"),
+]

@@ -645,6 +645,10 @@
   "Thread size": "Thread Size",
   "Units per pack": "Units per Pack"
  },
+ "utility_knives": {
+  "Measurement system": "Measurement System",
+  "Number of blades": "Number of Blades"
+ },
  "washer_flat": {
   "Inside dia.": "Inside Dia.",
   "Measurement system": "Measurement System",

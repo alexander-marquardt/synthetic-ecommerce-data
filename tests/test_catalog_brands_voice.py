@@ -309,6 +309,10 @@ DISTINCT_SPEC_FLOOR = {
     # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
     # SKUs (0.802), rounded down to 0.05.
     "tape_measures": 0.80,
+    # #971: a utility knife is a style on its blade width, a handle material, a color and a
+    # blade count, 432 specs, and makers sell the same ones. Measured at 100K, 306 distinct
+    # specs of 388 SKUs (0.789), rounded down to 0.05.
+    "utility_knives": 0.75,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
