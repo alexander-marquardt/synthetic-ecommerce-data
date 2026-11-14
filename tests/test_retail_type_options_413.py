@@ -79,6 +79,8 @@ MOVED = {
         Option("seat_count", "seat_count", "Seat count", "C62"),
         Option("depth_cm", "item_depth", "Item depth", "CMT"),
     ],
+    # a diaper's size, Size 1 to Size 6 (#965)
+    "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
