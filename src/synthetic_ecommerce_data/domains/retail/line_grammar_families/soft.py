@@ -12,11 +12,14 @@ KINDS = (
     "Cushion", "Throws", "Baby Blanket", "Towel", "Beach Towel", "Tea Towels", "Duvet",
     "Duvet Cover", "Duvet Set", "Pillow", "Pillowcase", "Mattress Protector", "Mattress Topper",
     "Mattress", "Pillow Protector", "Valances", "Sofa Covers", "Apron", "Changing Mat",
+    "Sheet Set",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
     "Cloud", "Restful", "Snug", "Cosy", "Dream", "Drift", "Repose", "Nap", "Rest", "Hush", "Lull",
     "Slumber", "Doze", "Cuddle", "Tender", "Gentle", "Fluff", "Haze", "Calm", "Lounge",
+    "Dozy", "Snooze", "Sleepy", "Downy", "Fleecy", "Cozy", "Feathery", "Bedtime",
+    "Slumbery", "Hushed", "Sleepover", "Nightcap", "Eiderdown", "Coverlet",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

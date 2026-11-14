@@ -29,6 +29,10 @@ OWNERS = {
     "Dovecote Lane": "third_party", "Hushwell": "third_party", "Quillon Sleep": "own",
     "Wrenfield": "own", "Larkmoor": "own", "Hollinwray Knits": "third_party",
     "Harbour & Pine": "own",
+    # The bedding and food storage rows (bedding_storage_rows.py, gen#963) sell these brands.
+    "Marlowe & Moss": "third_party", "Quietbrook": "third_party", "Alderwick Living": "third_party",
+    "Ashgrove Home": "third_party", "Slate & Kiln": "third_party",
+    "Fernbrook Household": "third_party", "Rinsewell": "third_party",
     # The seating rows (sofa_rows.py, gen#196) and the furniture rows (furniture_rows.py,
     # gen#199) sell these furniture brands.
     "Brackenmere Home": "own", "Larchwood Living": "third_party", "Emberly Home": "third_party",

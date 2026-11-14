@@ -24,10 +24,10 @@ DEPARTMENT = "Home"
 #: The brands that sell bedding, with the three letters a row code ends in. The scaled build
 #: makes one style per brand and title, so these brands bound each type's depth.
 BEDDING_BRANDS = (
-    ("Quillon Sleep", "QSL"), ("Hushwell", "HSH"), ("Dovecote Lane", "DVL"),
+    ("Quillon Sleep", "QSL"), ("Quietbrook", "HSH"), ("Marlowe & Moss", "DVL"),
     ("Brackenmere Home", "BRK"), ("Wrenfield", "WRN"), ("Larkmoor", "LRK"),
-    ("Harbour & Pine", "HBP"), ("Emberly Home", "EMB"), ("Larchwood Living", "LRW"),
-    ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"), ("Cobble & Kiln", "CBK"),
+    ("Harbour & Pine", "HBP"), ("Ashgrove Home", "EMB"), ("Alderwick Living", "LRW"),
+    ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"), ("Slate & Kiln", "CBK"),
     ("Hearth & Table", "HRT"),
 )  # fmt: skip
 #: The brands that sell pillows: the bedding brands the line grammar's soft family already deals
@@ -36,9 +36,9 @@ PILLOW_BRANDS = tuple((b, t) for b, t in BEDDING_BRANDS if b not in ("Wrenfield"
 #: The brands that sell food storage.
 KITCHEN_BRANDS = (
     ("Hearth & Table", "HRT"), ("Pantry Mill", "PNM"), ("Freshfold", "FRF"),
-    ("Clearbrook Household", "CLB"), ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"),
-    ("Emberly Home", "EMB"), ("Cobble & Kiln", "CBK"), ("Brackenmere Home", "BRK"),
-    ("Larchwood Living", "LRW"), ("Harbour & Pine", "HBP"), ("Soapwell", "SPW"),
+    ("Fernbrook Household", "CLB"), ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"),
+    ("Ashgrove Home", "EMB"), ("Slate & Kiln", "CBK"), ("Brackenmere Home", "BRK"),
+    ("Alderwick Living", "LRW"), ("Harbour & Pine", "HBP"), ("Rinsewell", "SPW"),
     ("Wrenfield", "WRN"),
 )  # fmt: skip
 

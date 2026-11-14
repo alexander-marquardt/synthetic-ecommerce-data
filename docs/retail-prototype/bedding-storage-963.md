@@ -39,7 +39,6 @@ something not sold apart in a title (`… with Two Pillowcases`, `… in a Zip P
 `… for Lunch Box Packing`), and another type's name in a range name (`Duvet Lane` sheet set,
 `Cushion Hill` pillow, `Breadbin Row` food storage). The structured fields tell the truth.
 
-**Measured** (ceiling build, seed 0, without slice 1): `Home` holds 21,459 SKUs, from 14,059 on
-main. Sheet Set 4,228 SKUs, Food Storage Container 2,856, Pillow 342 (with the microfiber pair). Floor care and furniture
+**Measured** (ceiling build, seed 0, without slice 1): `Home` grows from 14,059 SKUs on main. Sheet Set 3,272 SKUs, Food Storage Container 2,790, Pillow 424 (with the microfiber pair). Floor care and furniture
 (slice 3: vacuum cleaners, desks, wall art) is the last slice of gen#963, which with slice 1
 reaches its 23,750 floor. The guards are in `tests/test_retail_bedding_storage_963.py`.

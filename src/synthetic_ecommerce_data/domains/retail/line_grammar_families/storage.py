@@ -12,13 +12,15 @@ KINDS = (
     "Storage Basket", "Storage Boxes", "Storage Box", "Garment Bags", "Hanger", "Clothes Hangers",
     "Wash Bags", "Nursery Storage", "Laundry Basket", "Drying Racks", "Clothes Airer",
     "Wall Hooks", "Picture Hook", "Door Stop", "Car Boot Organiser", "Cup Holder", "Nappy Caddy",
-    "Money Box",
+    "Money Box", "Food Storage Container",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
     "Tidy", "Stow", "Neat", "Order", "Stack", "Tuck", "Sort", "Keep", "Fold", "Hold", "Haul",
     "Carry", "Shelve", "Clear", "Space", "Nook", "Cache", "Locker", "Handy", "Utility",
     "Cubby", "Stash", "Cove", "Burrow", "Trove", "Alcove", "Niche", "Hideaway",
+    "Seal", "Lidded", "Snap", "Keeper", "Crate", "Tub", "Vault", "Airtight",
+    "Nestable", "Leftover", "Sealable", "Bento", "Brimful", "Stowaway", "Hoard", "Keepsafe",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

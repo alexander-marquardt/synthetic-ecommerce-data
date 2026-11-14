@@ -98,19 +98,22 @@ def _golden(home: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Sheet Set": [
-        ("BRD-03493FD968A6", "Fairfell Extra Deep Pocket Microfiber Sheet Set", 24, 36.0),
-        ("BRD-047BADA800F2", "Penbridge Deep Pocket Flannel Sheet Set", 8, 20.0),
-        ("BRD-04D37065C777", "Branworth Deep Pocket Cotton Percale Sheet Set", 24, 54.0),
+        ("BRD-03493FD968A6",
+         "Harbour & Pine Hush Extra Deep Pocket Microfiber Sheet Set", 24, 36.0),
+        ("BRD-0504EEF40C88", "Alderwick Living Cloud Deep Pocket Bamboo Sheet Set", 24, 40.0),
+        ("BRD-06938AB61FD2", "Brackenmere Home Nightcap Deep Pocket Flannel Sheet Set", 8, 76.0),
     ],
     "Pillow": [
-        ("BRD-0308F0BA8C1F", "Hushwell Lull Medium Feather Pillow", 2, 15.0),
-        ("BRD-0375EA18ECDD", "Dovecote Lane Drift Plush Memory Foam Pillow", 2, 34.0),
-        ("BRD-0B74A251560C", "Dovecote Lane Drift Extra Firm Down Alternative Pillow", 2, 56.0),
+        ("BRD-02444678A084", "Calderby & Lune Eiderdown Firm Cooling Gel Pillow", 2, 34.0),
+        ("BRD-0308F0BA8C1F", "Brackenmere Home Nightcap Medium Feather Pillow", 2, 17.0),
+        ("BRD-0375EA18ECDD", "Lanternby Slumber Plush Memory Foam Pillow", 2, 34.0),
     ],
     "Food Storage Container": [
-        ("BRD-0405D7AD0731", "Weslow Leakproof Glass Food Storage Container", 6, 30.0),
-        ("BRD-07FD859A8696", "Kirkmouth Vented Silicone Food Storage Container", 18, 20.0),
-        ("BRD-0970D8AE602F", "Shelfell Snap-Lock Stainless Steel Food Storage Container", 6, 41.0),
+        ("BRD-0405D7AD0731", "Cobble & Kiln Stash Leakproof Glass Food Storage Container", 6, 30.0),
+        ("BRD-07FD859A8696",
+         "Alderwick Living Haul Vented Silicone Food Storage Container", 18, 16.5),
+        ("BRD-08883E193B9D",
+         "Harbour & Pine Alcove Airtight Plastic Food Storage Container", 9, 33.0),
     ],
 }  # fmt: skip
 
