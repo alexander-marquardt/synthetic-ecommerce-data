@@ -9,7 +9,10 @@ laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `elect
 ## Tree
 
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
-`Tablets > {Tablets, E-readers}`, `TVs` and `Accessories > <leaf>`. Each type nests under its generic node
+`Tablets > {Tablets, E-readers}`, `TVs` and `Accessories > <leaf>`. Gen#956's printers and ink add
+`Printers > {Printers, Ink Cartridges}` (see
+[retail-prototype/electronics-printers-956.md](retail-prototype/electronics-printers-956.md)).
+Each type nests under its generic node
 and no sibling label is a word-suffix of another (`tree_guard`).
 
 ## Every brand is invented (gen#720)
