@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 49997,
+    "lines": 50597,
     "price_pins": {},
-    "skus": 178674,
+    "skus": 179813,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -15,7 +15,7 @@
       "ball_stock_rubber": 1,
       "ball_valves": 2,
       "band_saw_blades": 2,
-      "bar_stock_hex": 2,
+      "bar_stock_hex": 1141,
       "bar_stock_round": 1223,
       "bar_stock_square": 1,
       "bearing_greases": 2,
