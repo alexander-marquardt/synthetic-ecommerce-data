@@ -323,8 +323,12 @@ def left_out() -> frozenset[str]:
     (gen#537): the rows of every spec that is not ``derivable``, every spec decoy, and the rows
     that a spec's ``Home(source, derivable=False)`` names in a shared source (the shirts, the
     furniture, the garden, the grocery, the Knacks rows and the rest of the templates-only
-    rows), and the clones of :mod:`decoy_apparel`, which are in no source."""
-    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS
+    rows), and the clones of :mod:`decoy_apparel`, which are in no source. The film merchandise
+    (:mod:`kids_films`) and the Barry Plotter range (:mod:`barry_plotter`) are never copied
+    either, even in a ``derivable`` spec such as the building sets' (gen#960): a derived copy
+    would sell the range under another brand."""
+    films = kids_films.ids() | barry_plotter.ids()
+    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS | films
     homed = collections.defaultdict(set)
     for source, dept, ptype in type_registry.homed(derivable=False):
         homed[source].add((dept, ptype))
