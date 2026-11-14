@@ -119,7 +119,23 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
-GOLDEN: dict[str, list[tuple]] = {"Smart Plug": [], "Smart Bulb": [], "Doorbell Camera": []}
+GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
+    "Smart Plug": [
+        ("BRD-01793710EC8B", "Brockgate Mini Zigbee Smart Plug", 2, 31.0),
+        ("BRD-02062D564652", "Woldsside Mini Zigbee Smart Plug", 6, 16.5),
+        ("BRD-065868823F3B", "Presbank Mini Zigbee Smart Plug", 6, 37.0),
+    ],
+    "Smart Bulb": [
+        ("BRD-022943A5D604", "Horbrook Wi-Fi Smart Bulb, GU10 Fitting", 4, 10.5),
+        ("BRD-02A9A32D1BF5", "Langstead GU10 Warm White Zigbee Smart Bulb", 4, 10.5),
+        ("BRD-033371888FD4", "Ellerdale E14 Color Changing Wi-Fi Smart Bulb", 4, 16.0),
+    ],
+    "Doorbell Camera": [
+        ("BRD-0284498502E6", "Copbank Video Doorbell Camera with Package Detection", 2, 140.0),
+        ("BRD-066BF8907A5A", "Wigbank Video Doorbell Camera with Night Vision", 6, 130.0),
+        ("BRD-072A1FF1DEDA", "Foxmoor Wired Doorbell Camera with App Alerts", 6, 61.0),
+    ],
+}
 
 
 @pytest.mark.parametrize("ptype", TYPES)
