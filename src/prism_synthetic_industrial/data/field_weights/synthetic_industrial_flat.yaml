@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 140 distinct attribute names and a hand-maintained list
-# of 140 declarations drifts from the data the first time either side moves.
+# publishes 141 distinct attribute names and a hand-maintained list
+# of 141 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      140
-#   offered as facets        122  (1 numeric ranges, 121 terms)
+#   attributes declared      141
+#   offered as facets        123  (1 numeric ranges, 122 terms)
 #   declared, not faceted    18
 # =============================================================================
 
@@ -312,8 +312,8 @@ fields:
   - name: coating
     type: terms
     source: facets.coating
-  # Color -- 6 distinct values over 14 product-value pairs is 0.43 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 31 documents across 1 product type(s); 6 distinct values
+  # Color -- 6 distinct values over 31 product-value pairs is 0.19 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 56 documents across 2 product type(s); 6 distinct values
   - name: color
     type: terms
     source: facets.color
@@ -424,6 +424,11 @@ fields:
   - name: face_type
     type: terms
     source: facets.face_type
+  # Features -- 2 distinct values over 17 product-value pairs is 0.12 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 25 documents across 1 product type(s); 2 distinct values
+  - name: features
+    type: terms
+    source: facets.features
   # Finish -- 23 distinct values over 4374 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 9069 documents across 70 product type(s); 23 distinct values
   - name: finish
@@ -572,8 +577,8 @@ fields:
   - name: knit_gauge
     type: terms
     source: facets.knit_gauge
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 117 distinct values over 3661 product-value pairs is 0.03 per product
-  #   present on 3853 documents across 40 product type(s); 117 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 122 distinct values over 3686 product-value pairs is 0.03 per product
+  #   present on 3878 documents across 41 product type(s); 122 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -614,8 +619,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 62 distinct values over 6450 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 12967 documents across 162 product type(s); 62 distinct values
+  # Material -- 63 distinct values over 6467 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 12992 documents across 163 product type(s); 63 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -646,7 +651,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 6071 documents across 63 product type(s); 4 distinct values
+  #   present on 6079 documents across 64 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -786,8 +791,8 @@ fields:
   - name: shank_type
     type: terms
     source: facets.shank_type
-  # Shape -- 9 distinct values over 119 product-value pairs is 0.08 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 221 documents across 2 product type(s); 9 distinct values
+  # Shape -- 12 distinct values over 136 product-value pairs is 0.09 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 246 documents across 3 product type(s); 12 distinct values
   - name: shape
     type: terms
     source: facets.shape

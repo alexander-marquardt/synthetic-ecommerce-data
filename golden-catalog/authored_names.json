@@ -327,6 +327,9 @@
   "Threads per inch": "Threads per Inch",
   "Width across flats": "Width Across Flats"
  },
+ "levels": {
+  "Measurement system": "Measurement System"
+ },
  "lock_nuts_nylon_insert": {
   "Measurement system": "Measurement System",
   "Thread direction": "Thread Direction",

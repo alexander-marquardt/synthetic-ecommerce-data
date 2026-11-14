@@ -67,6 +67,8 @@ MATERIAL_FILL: dict[str, str] = {
     # one elastomer and two PPE materials that the tool- and
     # fastener-specific vocabulary above has no entry for.
     "Aluminum": "#d7dde1",
+    # A level's die-cast magnesium frame (gen#971): darker and greyer than aluminum.
+    "Magnesium": "#b9bfc4",
     "Stainless Steel": "#e6ebee",
     "Cast Iron": "#8a8d8f",
     "Bronze": "#b08d57",
@@ -184,6 +186,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Silicon Carbide": Hatch((), 3.0, dots=True),
     # See MATERIAL_FILL above for why these seven are here.
     "Aluminum": Hatch((30,), 5.0),
+    # A level's magnesium frame (gen#971): a pattern no other material uses.
+    "Magnesium": Hatch((150,), 6.5, dots=True),
     "Stainless Steel": Hatch((150,), 5.0, dots=True),
     "Cast Iron": Hatch((0, 60), 4.0, dots=True),
     "Bronze": Hatch((60, 120), 3.0),
