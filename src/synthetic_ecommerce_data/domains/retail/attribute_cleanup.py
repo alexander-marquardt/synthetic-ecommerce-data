@@ -166,9 +166,14 @@ PLACE_OF: dict[str, str] = {
     "Colombian": "Colombia",
     "Croatian": "Croatia",
     "Ethiopian": "Ethiopia",
+    "Costa Rican": "Costa Rica",
     "Greek": "Greece",
     "Guatemalan": "Guatemala",
+    "Honduran": "Honduras",
     "Italian": "Italy",
+    "Kenyan": "Kenya",
+    "Mexican": "Mexico",
+    "Peruvian": "Peru",
     "Portuguese": "Portugal",
     "Sicilian": "Sicily",
     "Spanish": "Spain",
@@ -197,9 +202,9 @@ PLACES = frozenset(
     {
         "Argentina", "Australia", "Barbados", "Brazil", "Caribbean", "Chile", "Colombia",
         "Costa Rica", "Croatia", "Dominican Republic", "Ecuador", "Egypt", "Ethiopia", "France",
-        "Germany", "Greece", "Guatemala", "Guyana", "Indonesia", "Ireland", "Israel", "Italy",
-        "Jamaica", "Mexico", "Morocco", "Netherlands", "New Zealand", "Peru", "Poland",
-        "Portugal", "Serbia", "South Africa", "Spain", "Sweden", "Tunisia", "Turkey",
+        "Germany", "Greece", "Guatemala", "Guyana", "Honduras", "Indonesia", "Ireland", "Israel",
+        "Italy", "Jamaica", "Kenya", "Mexico", "Morocco", "Netherlands", "New Zealand", "Peru",
+        "Poland", "Portugal", "Serbia", "South Africa", "Spain", "Sweden", "Tunisia", "Turkey",
         "United Kingdom", "United States", *WITHIN,
     }
 )  # fmt: skip

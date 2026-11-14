@@ -18,8 +18,8 @@ KINDS = (
     "Baby Food", "Battered Fish", "Biscuit", "Biscuits", "Bread", "Butter & Spreads", "Cake",
     "Cereal", "Cereal Bar", "Cheese", "Chips", "Chocolate Bar", "Chocolate Box",
     "Christmas Pudding", "Chutney", "Cookies", "Crisps", "Doughnut", "Easy Peelers",
-    "Festive Bake", "Fish", "Free From Snack", "Fresh Fruit", "Fresh Vegetables",
-    "Frozen Vegetables", "Fruit", "Hamper", "Honey", "Ice Cream", "Jam", "Lemons",
+    "Festive Bake", "Fish", "Free From Snack", "Flour", "Fresh Fruit", "Fresh Vegetables",
+    "Frozen Vegetables", "Fruit", "Granola", "Hamper", "Honey", "Ice Cream", "Jam", "Lemons",
     "Letterbox Gift", "Meat", "Nuts & Popcorn", "Olive Oil", "Oranges", "Panettone", "Pasta",
     "Pickle", "Pizza", "Porridge", "Potatoes", "Ready Meal", "Rice & Grains", "Sauce",
     "Seasoning", "Snack Bar", "Spread", "Sugar", "Sweets", "Tinned Food", "Vinegar",
@@ -28,7 +28,7 @@ KINDS = (
 #: The lead words of the scale build.
 LEADS = (
     "Sunday", "Weekday", "Basics", "Value", "Steady", "Plenty", "Bountiful", "Kindly",
-    "Heartfelt", "Wholefood",
+    "Heartfelt", "Wholefood", "Unfussy",
 )  # fmt: skip
 #: The lead words of the grocery build: disjoint from ``LEADS``, so one word belongs to one
 #: brand across both builds (gen#642).
@@ -137,6 +137,10 @@ STYLES = {
         "Bakery Style", "Soft Baked", "Oven Baked", "Lunchbox", "Light & Crispy", "Hand Baked",
         "Thin & Crispy", "Lightly Baked",
     ),
+    "Flour": (
+        "Fine Sifted", "Baker's Choice", "Family Mill", "Home Baking", "Kitchen Staple",
+        "Pantry Staple", "Well Sifted", "Bake Day",
+    ),
     "Fresh Fruit": _FRUIT,
     "Fresh Vegetables": _VEGETABLE,
     "Frozen Vegetables": (
@@ -144,6 +148,10 @@ STYLES = {
         "Microwave Ready", "Extra Tender",
     ),
     "Fruit": _FRUIT,
+    "Granola": (
+        "Oven Baked", "Slow Baked", "Hand Baked", "Breakfast Style", "Big Clusters",
+        "Family Size", "Bowl Ready", "Kitchen Made",
+    ),
     "Hamper": _GIFT,
     "Honey": (
         "Raw", "Beekeeper's", "Pure", "Lightly Filtered", "Golden", "Breakfast", "Homely",
