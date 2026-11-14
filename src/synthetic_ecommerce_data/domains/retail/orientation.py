@@ -85,12 +85,12 @@ UPRIGHT: tuple[str, ...] = (
     "nursery_storage", "onion", "ornament", "panettone", "paper_cup", "parasol", "party_cup",
     "pedestal_fan", "pen", "pencil", "phone_case", "photo_frame", "picnic_blanket",
     "picture_hook", "pillow", "pizza", "plant_pot", "plate", "play_kitchen", "potted_herb",
-    "potted_tree", "pouch", "primer",
+    "potted_tree", "pouch", "power_bank", "primer",
     "produce_pile", "pudding", "pump", "pumpkin", "punnet", "purse", "recliner_sofa",
     "resistance_band", "ride_on", "rim_block", "ring", "robot_mower", "role_play", "roll_mat",
     "rug", "saucepan", "screen_protector", "screwdriver", "sds_drill", "serum", "setting_spray",
     "sheet", "shower_curtain", "side_table", "sippy_cup", "skateboard", "sleeping_bag", "sleeve",
-    "smartphone", "sofa", "sofa_bed", "sofa_cover", "sofa_seats", "sofa_version",
+    "smartphone", "smartwatch", "sofa", "sofa_bed", "sofa_cover", "sofa_seats", "sofa_version",
     "spiral_notebook", "star",
     "steak_tray", "stems", "step_ladder", "sticker_sheet", "storage_box", "strawberry", "suitcase",
     "sun_cream",
@@ -99,7 +99,7 @@ UPRIGHT: tuple[str, ...] = (
     "tote_bag", "tower_fan", "travel_cup", "travel_organizer", "tray", "trigger_spray",
     "trinket_tray", "trophy", "tub", "tulip", "tumble_dryer", "tumbler", "tv", "umbrella",
     "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "washer_dryer",
-    "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wooden_toy",
+    "washing_machine", "watch", "water_gun", "webcam", "weekend_bag", "whale", "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
 )
 
