@@ -120,6 +120,8 @@ MATERIAL_FILL: dict[str, str] = {
     "ABS Plastic": "#a7b4c2",
     "Rubber-Coated ABS": "#45474a",
     "Chrome-Plated ABS": "#e3e8ec",
+    # The utility knife handles (gen#971): a die-cast zinc body.
+    "Zinc Alloy": "#9aa3a8",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -233,6 +235,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "ABS Plastic": Hatch((85,), 7.5, dots=True),
     "Rubber-Coated ABS": Hatch((25,), 2.5, dots=True),
     "Chrome-Plated ABS": Hatch((5,), 9.5),
+    # The utility knife handles (gen#971): a pattern no other material uses.
+    "Zinc Alloy": Hatch((115,), 6.5, dots=True),
 }
 
 

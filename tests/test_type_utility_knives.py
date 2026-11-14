@@ -55,7 +55,7 @@ MAIN_COLORS = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
 WIDTHS_MM = {"Snap-Off": {9, 18, 25}, "Retractable": {19}, "Folding": {19}, "Fixed Blade": {19}}
 
 #: The spare-blade counts a knife is sold with.
-BLADE_COUNTS = {1, 3, 5, 10}
+BLADE_COUNTS = {3, 5, 10, 20}
 
 
 def _default_docs() -> list[dict]:
@@ -128,7 +128,8 @@ def test_every_style_width_material_count_and_main_color_is_built():
     knives = _module()
     docs = _default_docs()
     assert {_value(d, "Style") for d in docs} == set(WIDTHS_MM)
-    assert {_value(d, "Width") for d in docs} == {"9 mm", "18 mm", "19 mm", "25 mm"}
+    widths = {round(parse_length(_value(d, "Width")).inches * 25.4) for d in docs}
+    assert widths == {9, 18, 19, 25}
     assert {_value(d, "Material") for d in docs} == set(knives.MATERIALS)
     assert {int(_value(d, "Number of Blades")) for d in docs} == BLADE_COUNTS
     assert {_value(d, "Color") for d in docs} == MAIN_COLORS

@@ -1,6 +1,6 @@
 {
- "lines": 7445,
- "skus": 14731,
+ "lines": 7459,
+ "skus": 14757,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -159,6 +159,7 @@
   "tool_holsters": 1,
   "turnbuckles": 42,
   "u_bolts": 1,
+  "utility_knives": 14,
   "v_belts": 1,
   "washer_flat": 135,
   "wedge_anchors": 1,
@@ -325,6 +326,7 @@
   "tool_holsters": 2,
   "turnbuckles": 87,
   "u_bolts": 2,
+  "utility_knives": 26,
   "v_belts": 2,
   "washer_flat": 225,
   "wedge_anchors": 2,
@@ -1856,6 +1858,17 @@
     "2": 1
    }
   },
+  "utility_knives": {
+   "products": 14,
+   "median": 1.5,
+   "max": 4,
+   "histogram": {
+    "1": 7,
+    "2": 3,
+    "3": 3,
+    "4": 1
+   }
+  },
   "v_belts": {
    "products": 1,
    "median": 2,
@@ -3121,6 +3134,14 @@
    "Material",
    "Size"
   ],
+  "utility_knives": [
+   "Color",
+   "Material",
+   "Measurement System",
+   "Number of Blades",
+   "Style",
+   "Width"
+  ],
   "v_belts": [
    "Length",
    "Material",
@@ -3171,7 +3192,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 153556,
+ "total_attribute_entries": 153704,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3205,16 +3226,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 5991,
+   "denominator": 6009,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.016989,
+   "achieved": 0.0169585,
    "numerator": 246,
-   "denominator": 14480,
+   "denominator": 14506,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -3230,18 +3251,18 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.355444,
-   "numerator": 7443,
-   "denominator": 20940,
+   "achieved": 0.356243,
+   "numerator": 7469,
+   "denominator": 20966,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.128797,
+   "achieved": 0.128637,
    "numerator": 2697,
-   "denominator": 20940,
+   "denominator": 20966,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3250,7 +3271,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14731,
+   "denominator": 14757,
    "note": "over titles",
    "band": null
   },
@@ -3259,7 +3280,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14731,
+   "denominator": 14757,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3268,16 +3289,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14731,
+   "denominator": 14757,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.424,
-   "numerator": 153556,
-   "denominator": 14731,
+   "achieved": 10.4157,
+   "numerator": 153704,
+   "denominator": 14757,
    "note": "count, not a rate",
    "band": null
   },
@@ -4291,65 +4312,65 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00562702,
-   "achieved": 0.00489374,
+   "target": 0.00562751,
+   "achieved": 0.00488486,
    "numerator": 70,
-   "denominator": 14304,
+   "denominator": 14330,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00244125,
-    0.00881278
+    0.00244752,
+    0.0088075
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0896901,
-   "achieved": 0.0858501,
-   "numerator": 1228,
-   "denominator": 14304,
+   "target": 0.0896449,
+   "achieved": 0.0859735,
+   "numerator": 1232,
+   "denominator": 14330,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.071653,
-    0.107727
+    0.0716406,
+    0.107649
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0608172,
-   "achieved": 0.0572567,
+   "target": 0.0607821,
+   "achieved": 0.0571528,
    "numerator": 819,
-   "denominator": 14304,
+   "denominator": 14330,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0438111,
-    0.0778232
+    0.0438069,
+    0.0777573
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.216608,
-   "achieved": 0.214276,
-   "numerator": 3065,
-   "denominator": 14304,
+   "target": 0.216622,
+   "achieved": 0.214096,
+   "numerator": 3068,
+   "denominator": 14330,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196205,
-    0.237012
+    0.196256,
+    0.236989
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 5991
+  "Measurement System": 6009
  },
  "measurement_system_values": {
   "Fractional Inch": 3437,
   "Inch": 330,
-  "Metric": 2156,
+  "Metric": 2174,
   "Decimal Inch": 68
  },
  "unit_suffix_distribution": {
   "in": 29800,
-  "mm": 17057
+  "mm": 17083
  },
  "standards_present": 7742,
  "standards_multivalued": 1831,
@@ -4359,7 +4380,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 14731,
+  "n_skus_checked": 14757,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4528,29 +4549,29 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 63,
+   "modelled_types": 64,
    "breadth_categories": 101,
    "brands": 45
   },
   "drawings": {
-   "count": 14731,
-   "bytes": 38364940,
+   "count": 14757,
+   "bytes": 38426515,
    "geometry": {
     "nominal": 196,
     "partial": 2977,
-    "record": 11558
+    "record": 11584
    },
    "largest_bytes": 7403,
    "largest_product_type": "roller_chain"
   },
   "dispersion": {
-   "quantitative_attributes": 64,
-   "faceted_attributes": 57,
+   "quantitative_attributes": 65,
+   "faceted_attributes": 58,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",
-   "smallest_faceted": "Gauge",
-   "smallest_faceted_products": 16,
+   "smallest_faceted": "Number of blades",
+   "smallest_faceted_products": 14,
    "drive_size_cardinality": 45,
    "drive_size_present": 2241,
    "held_by_floor": [

@@ -116,6 +116,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Collet",
     # The homeowner tools of #971.
     "Tape Measure",
+    "Utility Knife",
     # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
     # "Handle" stays unregistered: it is the negative control of
     # ``test_the_head_noun_rule_bites``.
@@ -297,20 +298,29 @@ NAME_EXCEPTIONS: dict[str, str] = {
 }
 
 
+def noun_forms(noun: str, *, singular: bool = True) -> str:
+    """``noun`` as a regex group: its plural (``-s``, ``-es``, or ``-fe`` to ``-ves``, as a
+    knife is sold as knives, #971), and its singular too unless ``singular`` is False."""
+    forms = [rf"{re.escape(noun)}(?:e?s){'?' if singular else ''}"]
+    if noun.lower().endswith("fe"):
+        forms.append(rf"{re.escape(noun[:-2])}ves")
+    return "(?:" + "|".join(forms) + ")"
+
+
 def own_nouns(category: tuple[str, ...]) -> tuple[str, ...]:
     """The product nouns a category path names: the record's own type words."""
     joined = " ".join(category)
     return tuple(
         noun
         for noun in PRODUCT_NOUNS
-        if re.search(rf"\b{re.escape(noun)}(e?s)?\b", joined, flags=re.IGNORECASE)
+        if re.search(rf"\b{noun_forms(noun)}\b", joined, flags=re.IGNORECASE)
     )
 
 
 def qualifying_noun(name: str, nouns: tuple[str, ...] = PRODUCT_NOUNS) -> str | None:
     """The noun from ``nouns`` that ``name`` contains as a word (singular or plural), if any."""
     for noun in nouns:
-        if re.search(rf"\b{re.escape(noun)}(e?s)?\b", name, flags=re.IGNORECASE):
+        if re.search(rf"\b{noun_forms(noun)}\b", name, flags=re.IGNORECASE):
             return noun
     return None
 
