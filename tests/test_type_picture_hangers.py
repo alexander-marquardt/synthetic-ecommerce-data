@@ -14,7 +14,7 @@ The gates of ``test_type_lock_nuts_nylon_insert.py``, the template (#53 step 3):
 
 And this type's own: it is filed under ``Hardware``; every rating is one its style stocks in
 pounds; every style, material and main
-colour (gen#275) is built; and some titles are text-match decoys (gen#294) that name a thing a
+color (gen#275) is built; and some titles are text-match decoys (gen#294) that name a thing a
 hanger holds while every attribute stays true.
 """
 
@@ -49,7 +49,7 @@ DEFAULT_SKU_FLOOR = 10
 #: share for each of the six home-hardware types it plans.
 LARGE_BUILD_FLOOR = 248
 
-#: The six main colours every colour-bearing type offers (gen#275).
+#: The six main colors every color-bearing type offers (gen#275).
 MAIN_COLORS = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
 
 #: The ratings each style is stocked in, in pounds.

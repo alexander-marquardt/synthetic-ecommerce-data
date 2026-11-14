@@ -3,7 +3,7 @@
 A picture hanger is the small piece of hardware that holds a frame on a wall: a hook driven
 in with a nail, a sawtooth strip or a D-ring fixed to the back of the frame, or a kit of
 hooks, wire and nails. A hardware listing sells it by the weight it holds and names its
-style, its metal and its colour.
+style, its metal and its color.
 
 **Ratings.** The weights a style is rated for are the ones hardware listings stock
 (:data:`LB_RATINGS`): a sawtooth strip holds a light frame, a nail hook or a D-ring a heavy
@@ -13,13 +13,13 @@ other ``Load Capacity`` in the catalogue carries (casters, shackles, turnbuckles
 holds one quantity kind and ranges across them. Kilograms are not offered: the industrial unit
 table reads neither ``kg`` nor ``kgf``.
 
-**Lines.** A line is one brand's hangers of one style, one metal and one colour. Its SKUs are
+**Lines.** A line is one brand's hangers of one style, one metal and one color. Its SKUs are
 a run of weight ratings. The (style, material) combinations are rotated, so every one of them
-is built, and so are the colours.
+is built, and so are the colors.
 
-**Colours.** The hanger comes in each of the six main colours (gen#275): red, blue, green,
-yellow, black and white (:data:`COLORS`). The colour rotation steps one further at each full
-turn of the combinations, so every combination is built in more than one colour
+**Colors.** The hanger comes in each of the six main colors (gen#275): red, blue, green,
+yellow, black and white (:data:`COLORS`). The color rotation steps one further at each full
+turn of the combinations, so every combination is built in more than one color
 (:func:`hanger_color`).
 
 **Decoys.** Every type carries text-match decoys (gen#294). In every :data:`DECOY_PERIOD`
@@ -63,7 +63,7 @@ STYLES: tuple[str, ...] = tuple(LB_RATINGS)
 #: The metals a hanger is made of.
 MATERIALS: tuple[str, ...] = ("Steel", "Stainless Steel", "Brass")
 
-#: The six main colours (gen#275), and the swatch the drawing fills the hanger with.
+#: The six main colors (gen#275), and the swatch the drawing fills the hanger with.
 COLORS: dict[str, str] = {
     "Red": "#c8322b",
     "Blue": "#2f6db5",
@@ -73,7 +73,7 @@ COLORS: dict[str, str] = {
     "White": "#ffffff",
 }
 
-#: Every line a brand can offer, without its colour: a style and a material. All 12, in an
+#: Every line a brand can offer, without its color: a style and a material. All 12, in an
 #: order whose first four lines already hold every style and material, so a small build
 #: offers each of them too.
 COMBOS: tuple[tuple[str, str], ...] = tuple(
@@ -97,9 +97,9 @@ def decoy_item(gen: Any, type_key: str) -> str:
 
 
 def hanger_color(n: int) -> str:
-    """The colour of the ``n``-th line. The combination rotation turns every ``len(COMBOS)``
-    lines, a multiple of the six colours, so a colour rotating beside it would pair each
-    combination with one colour only. This one steps one further at every turn."""
+    """The color of the ``n``-th line. The combination rotation turns every ``len(COMBOS)``
+    lines, a multiple of the six colors, so a color rotating beside it would pair each
+    combination with one color only. This one steps one further at every turn."""
     return tuple(COLORS)[(n + n // len(COMBOS)) % len(COLORS)]
 
 
@@ -171,7 +171,7 @@ def _pounds(record: dict[str, str]) -> float | None:
 
 
 def figure(record: dict[str, str]) -> Drawn:
-    """The hanger face on, filled with the record's colour and sized to its rating (a heavier
+    """The hanger face on, filled with the record's color and sized to its rating (a heavier
     rating is a bigger piece). A nail hook is a bent hook with its nail through the top, a
     sawtooth hanger a toothed strip with two nail holes, a D-ring a ring on a strap plate, and
     a kit a hook beside a coil of wire."""
