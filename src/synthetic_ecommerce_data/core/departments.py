@@ -30,6 +30,7 @@ RETAIL = (
     "Garden",
     "Sports & outdoors",
     "Electronics",
+    "Office & school",
     "Automotive",
 )
 
