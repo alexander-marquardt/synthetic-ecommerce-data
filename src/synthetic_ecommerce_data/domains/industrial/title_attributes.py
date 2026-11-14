@@ -394,6 +394,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     "swivel_casters": (("Diameter", "Dia"),),
     "t_slot_nuts": (("Thread Size", "Thread"),),
     "tap_extractors": (("Size", "Size"),),
+    "tape_measures": (
+        ("Length", "L"),
+        ("Width", "W"),
+        ("Color", None),
+    ),
     "tap_spiral_point": (
         ("Thread Size", "Thread"),
         ("Number of Flutes", "FL"),
