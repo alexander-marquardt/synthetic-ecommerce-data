@@ -130,6 +130,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Desk Fan": ("blade_size_in",),
     "Frying Pan": ("diameter_cm",),
     "Garden Hose": ("length_m",),
+    "Bunting": ("length_m",),
     "Grass Trimmer": ("cutting_width_cm",),
     "Hedge Trimmer": ("blade_length_cm",),
     "Kitchen Knife": ("blade_length_cm",),
