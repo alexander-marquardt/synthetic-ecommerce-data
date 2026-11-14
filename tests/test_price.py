@@ -1067,6 +1067,7 @@ NOT_MEASURED = frozenset(
         "flange_nuts",
         "bronze_sleeve_bushings",
         "levels",
+        "tape_measures",
         *tabletype.tables(),
     }
 )

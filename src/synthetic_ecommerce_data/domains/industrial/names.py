@@ -115,6 +115,8 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Gage",
     "Level",
     "Collet",
+    # The homeowner tools of #971.
+    "Tape Measure",
     # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
     # "Handle" stays unregistered: it is the negative control of
     # ``test_the_head_noun_rule_bites``.

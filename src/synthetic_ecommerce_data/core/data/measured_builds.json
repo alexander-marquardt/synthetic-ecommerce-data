@@ -3,9 +3,9 @@
     "price_pins": {}
   },
   "hundred_k": {
-    "lines": 50035,
+    "lines": 50248,
     "price_pins": {},
-    "skus": 178678,
+    "skus": 179062,
     "skus_by_type": {
       "abrasive_flap_disc": 2398,
       "anaerobic_threadlockers": 2,
@@ -153,6 +153,7 @@
       "tap_extractors": 2,
       "tap_spiral_point": 3709,
       "tap_wrenches": 1,
+      "tape_measures": 384,
       "tapping_fluids": 2,
       "thread_chasers": 2,
       "thread_pitch_gages": 2,
