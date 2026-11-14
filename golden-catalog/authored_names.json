@@ -105,7 +105,10 @@
   "Units per pack": "Units per Pack"
  },
  "coupling_nuts": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "cut_resistant_gloves": {
   "ANSI cut level": "ANSI Cut Level",
