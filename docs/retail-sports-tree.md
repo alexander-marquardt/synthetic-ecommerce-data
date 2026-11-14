@@ -5,7 +5,9 @@ The department is built from one spec file per type in `src/synthetic_ecommerce_
 roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
 helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
 helmets, Water Sports and Wheeled Sports; gen#625 numbers the bikes and adds four cycling
-accessories: chain lube, bike bottles, bike saddles and bike pedals). This note records, per leaf,
+accessories: chain lube, bike bottles, bike saddles and bike pedals; gen#959 adds the Fishing
+family (rods, reels, tackle boxes) and the Golf family (clubs, balls, gloves), the department's
+first derivable types, described in `docs/retail-prototype/sports-fishing-golf-959.md`). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -60,6 +62,12 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Cycling > Bike Bottles | bottle_type, insulated, capacity, color | none | none |
 | Sports & Outdoors > Cycling > Bike Saddles | saddle_type, padding, color | none | none |
 | Sports & Outdoors > Cycling > Bike Pedals | pedal_type, material, color | none | none |
+| Sports & Outdoors > Fishing > Fishing Rods | rod_type, rod_power, material, pieces, item_length, color | none | none |
+| Sports & Outdoors > Fishing > Fishing Reels | reel_type, body_material, ball_bearings, reel_size, color | none | none |
+| Sports & Outdoors > Fishing > Tackle Boxes | tackle_type, trays, material, size, color | none | none |
+| Sports & Outdoors > Golf > Golf Clubs | club_type, shaft_material, handedness, color | none | none |
+| Sports & Outdoors > Golf > Golf Balls | construction, cover, pack_size, color | none | none |
+| Sports & Outdoors > Golf > Golf Gloves | material, worn_on, size, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
