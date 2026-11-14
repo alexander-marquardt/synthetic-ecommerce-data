@@ -609,6 +609,9 @@
   "Thread type": "Thread Type",
   "Threads per inch": "Threads per Inch"
  },
+ "tape_measures": {
+  "Measurement system": "Measurement System"
+ },
  "tapping_fluids": {
   "Container size": "Container Size"
  },
