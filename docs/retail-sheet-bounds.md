@@ -53,3 +53,6 @@ largest size after its turn, and the SKU's own when that differs. The transform 
 joined with 28..362, so every size of one product is placed alike, and a drawing inside
 28..362 keeps the transform it had. `tests/test_product_clear_of_logo_932.py` measures every
 hoodie and all-in-one SKU image's `<g class="product">` against those rows.
+`tests/test_every_image_clear_of_logo_932.py` makes the same check on every styled SKU image of
+the default catalogue, every shape: about 121,600 SKUs and 83,300 drawings, 110 s on one local
+core. It deals the templates into 12 tests that xdist spreads over its workers.
