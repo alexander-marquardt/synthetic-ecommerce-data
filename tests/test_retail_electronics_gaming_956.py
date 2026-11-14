@@ -116,8 +116,16 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
-    "Game Controller": [],
-    "Gaming Headset": [],
+    "Game Controller": [
+        ("BRD-04F2FEFA22A6", "Burnbury Pro Wireless Game Controller", 4, 33.0),
+        ("BRD-05693091192E", "Holwell Wireless Game Controller", 6, 50.0),
+        ("BRD-061FF7AC2190", "Beling Pro Wireless Game Controller", 6, 28.0),
+    ],
+    "Gaming Headset": [
+        ("BRD-013A5149F0E8", "Thorncliffe Wireless Gaming Headset", 6, 100.0),
+        ("BRD-0856DD2BE3A9", "Elleringham Wireless Stereo Gaming Headset", 6, 130.0),
+        ("BRD-094AD4605794", "Walholme Wired Stereo Gaming Headset", 6, 41.0),
+    ],
 }
 
 
