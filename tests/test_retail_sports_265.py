@@ -20,6 +20,7 @@ from synthetic_ecommerce_data.domains.retail import (
     export,
     kit,
     kit_cycling,
+    kit_fishing_golf,
     kit_sports,
     main_colors,
     scale,
@@ -72,6 +73,13 @@ KEYS = {
     "Bike Bottle": {"bottle_type", "insulated", "capacity", "color"},
     "Bike Saddle": {"saddle_type", "padding", "color"},
     "Bike Pedals": {"pedal_type", "material", "color"},
+    # gen#959: the Fishing and Golf families, drawn by kit_fishing_golf
+    "Fishing Rod": {"rod_power", "material", "rod_type", "pieces", "item_length", "color"},
+    "Fishing Reel": {"body_material", "ball_bearings", "reel_type", "reel_size", "color"},
+    "Tackle Box": {"trays", "tackle_type", "material", "size", "color"},
+    "Golf Club": {"shaft_material", "club_type", "handedness", "color"},
+    "Golf Ball": {"cover", "construction", "pack_size", "color"},
+    "Golf Glove": {"material", "worn_on", "size", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -92,6 +100,7 @@ AXES = {
     "Swim Armbands": ("max_load_kg", "max_load_kg", "KGM"),
     "Football": ("ball_size", "ball_size", "C62"),
     "Badminton Set": ("players", "players", "C62"),
+    "Fishing Rod": ("length_cm", "item_length", "CMT"),
 }
 
 #: A SKU axis that is a plain word or number, never a unit: the export key it becomes.
@@ -100,6 +109,11 @@ PLAIN_AXES = {
     "Camping Lantern": ("brightness_lm", "brightness"),
     "Tennis Racket": ("grip", "grip_size"),
     "Picnic Blanket": ("dimensions", "dimensions"),
+    "Fishing Reel": ("reel_size", "reel_size"),
+    "Tackle Box": ("size", "size"),
+    "Golf Club": ("handedness", "handedness"),
+    "Golf Ball": ("pack_size", "pack_size"),
+    "Golf Glove": ("size", "size"),
 }
 
 
@@ -135,7 +149,8 @@ def test_every_type_has_two_styles_from_two_brands() -> None:
 
 
 def test_every_style_draws_as_its_own_sports_shape() -> None:
-    shapes = kit_sports.SHAPES | kit_cycling.SHAPES  # gen#625 draws the cycling accessories
+    # gen#625 draws the cycling accessories, gen#959 the fishing and golf types
+    shapes = kit_sports.SHAPES | kit_cycling.SHAPES | kit_fishing_golf.SHAPES
     assert {r.code: r.shape for r in ROWS if r.shape not in shapes} == {}
     assert len({r.shape for r in ROWS}) == len(KEYS)
 
@@ -231,6 +246,12 @@ VARIANTS = [
     ("football", {"panels": "classic"}, {"panels": "modern"}),
     ("tennis_racket", {"strings": "open"}, {"strings": "dense"}),
     ("badminton_set", {"players": "2"}, {"players": "4"}),
+    ("fishing_rod", {"rod_type": "spinning"}, {"rod_type": "fly"}),
+    ("fishing_reel", {"reel_type": "spinning"}, {"reel_type": "baitcasting"}),
+    ("tackle_box", {"tackle_type": "cantilever"}, {"tackle_type": "drawer"}),
+    ("golf_club", {"club_type": "driver"}, {"club_type": "putter"}),
+    ("golf_ball", {"construction": "2-piece"}, {"construction": "4-piece"}),
+    ("golf_glove", {"material": "cabretta leather"}, {"material": "synthetic"}),
 ]
 
 
@@ -307,7 +328,7 @@ def test_the_tree_has_camping_and_yoga_and_fitness_under_the_root() -> None:
     families = {p[1] for p in _paths()}
     assert families == {
         "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports",
-        "Water Sports", "Wheeled Sports",
+        "Water Sports", "Wheeled Sports", "Fishing", "Golf",
     }
     assert {p[-1] for p in _paths()} >= {"Dome Tents", "Tunnel Tents", "Sleeping Bags", "Dumbbells"}
     assert all(len(p) >= 3 for p in _paths())
@@ -328,10 +349,19 @@ def test_a_title_naming_a_deeper_node_must_sit_in_it() -> None:
     assert tree_guard.misplaced_title_findings(rows) != []
 
 
+#: The breadth types of gen#959, derivable on purpose: the scaled build draws more styles from them.
+DERIVABLE = frozenset(
+    {"Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove"}
+)
+
+
 def test_the_sports_styles_are_left_out_of_the_derivation() -> None:
     tpls = scale.templates()
     kept = {r["product_id"] for r in scale.derivable(tpls)}
-    assert SPORTS_IDS and not (SPORTS_IDS & kept)
+    fixed = {f"BRD-{r.code}" for r in ROWS if r.product_type not in DERIVABLE}
+    breadth = {f"BRD-{r.code}" for r in ROWS if r.product_type in DERIVABLE}
+    assert fixed and not (fixed & kept)
+    assert breadth and breadth <= kept
 
 
 @pytest.mark.timeout(300)
