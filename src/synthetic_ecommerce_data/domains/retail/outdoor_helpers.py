@@ -1,8 +1,9 @@
 """What the Garden specs share (gen#203): the six main colors, the attribute builders and one row.
 
 :mod:`garden_rows` (the machines and the decoys) and the specs ``hedge_trimmer``,
-``garden_furniture_set`` and ``parasol`` build their rows from these, so the swatches and the
-unit handling have one home. The module imports no spec: the specs import it.
+``garden_furniture_set``, ``parasol``, ``planter``, ``outdoor_light`` and ``garden_chair`` build
+their rows from these, so the swatches, the packs and the unit handling have one home. The
+module imports no spec: the specs import it.
 """
 
 from __future__ import annotations
@@ -39,6 +40,11 @@ def u(key: str, name: str, v: int, unit: str) -> tuple[str, str, str, str, float
 def axis(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
     """SKU values of a measured axis and the price at each."""
     return tuple((f"{v:g}", p) for v, p in pairs)
+
+
+def packs(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
+    """A style's packs as its SKU sizes: ``Single`` or ``<n> pack``, each at its price (gen#961)."""
+    return tuple(("Single" if n == 1 else f"{n} pack", p) for n, p in pairs)
 
 
 def row(
