@@ -26,10 +26,11 @@ from pathlib import Path
 
 import pytest
 
+import pinned
 import type_gates
 from published import authored_attributes
 from synthetic_ecommerce_data.core import typespec
-from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
+from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from test_attribute_names import CENSUS, OBSERVED
@@ -86,10 +87,10 @@ def test_the_default_build_is_deep():
 
 
 def test_the_large_build_holds_the_slice_floor():
-    """``ecom-generate build --lines 39000`` builds each type on its own (the independence
-    gates below), so the type's own build at that size is the count the large build holds."""
-    lines = generate_type(GeneratorConfig(lines=LARGE_BUILD_LINES), KEY)
-    assert sum(len(line.children) for line in lines) >= LARGE_BUILD_FLOOR
+    """The large build's count of this type, from ``measured_builds.json``: the merge script's
+    rebuild writes it and ``test_measured_figures.py`` refuses it stale, so no module builds its
+    own 39,000-line copy (``test_shared_builds_140.py``)."""
+    assert pinned.hundred_k_skus(KEY) >= LARGE_BUILD_FLOOR
 
 
 def test_the_type_is_filed_under_hardware():

@@ -1,6 +1,6 @@
 # Picture hangers: home hardware for general retail (gen#958, slice 1)
 
-`Hardware > Fasteners > Picture hanging > Picture hangers` is a new modelled type, `product_types/fasteners/picture_hangers.py`, and `tests/test_type_picture_hangers.py` runs the per-type gates on it. It is the first of six home-hardware types gen#958 plans for the `Hardware` department (picture hanging, knobs and hinges, shelf brackets, hooks, wall anchors). The large build (`ecom-generate build --lines 39000`) holds 395 of them; the test holds it to at least 248, 95% of a sixth of the issue's 1,564.
+`Hardware > Fasteners > Picture hanging > Picture hangers` is a new modelled type, `product_types/fasteners/picture_hangers.py`, and `tests/test_type_picture_hangers.py` runs the per-type gates on it. It is the first of six home-hardware types gen#958 plans for the `Hardware` department (picture hanging, knobs and hinges, shelf brackets, hooks, wall anchors). The large build (`ecom-generate build --lines 39000`) holds 395 of them; the test reads that count from `measured_builds.json` and holds it to at least 248, 95% of a sixth of the issue's 1,564.
 
 **Lines.** A line is one brand's hangers of one style (nail hook, sawtooth hanger, D-ring hanger or hanging kit), one metal (steel, stainless steel or brass) and one color. Its SKUs are a run of the weight ratings that style is stocked in: a sawtooth strip 10 to 30 lb, a nail hook 10 to 100 lb.
 
