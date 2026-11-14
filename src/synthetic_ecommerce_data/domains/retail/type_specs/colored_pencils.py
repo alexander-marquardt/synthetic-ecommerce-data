@@ -25,16 +25,16 @@ from synthetic_ecommerce_data.domains.retail.office_rows import (
     packs,
     row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a, count
 
 
-def _set(kind: str, count: str) -> tuple[tuple, ...]:
-    return (a("pencil_type", "Pencil type", kind), a("count", "Pencils in set", count),
+def _set(kind: str, n: str) -> tuple[tuple, ...]:
+    return (a("pencil_type", "Pencil type", kind), count("count", "Pencils in set", int(n)),
             a("material", "Material", "Cedar"))  # fmt: skip
 
 
-def _params(kind: str, count: str) -> tuple[tuple[str, str], ...]:
-    return (("pencil_type", kind.lower()), ("count", count))
+def _params(kind: str, n: str) -> tuple[tuple[str, str], ...]:
+    return (("pencil_type", kind.lower()), ("count", n))
 
 
 ROWS = (

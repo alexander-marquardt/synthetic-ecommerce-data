@@ -27,23 +27,24 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _bag(style: str, litres: str) -> tuple[tuple, ...]:
-    return (a("backpack_style", "Backpack style", style), a("capacity", "Capacity", litres),
+    """The capacity in litres (``LTR``), as every other ``capacity`` carries its unit."""
+    return (a("backpack_style", "Backpack style", style), ("capacity", "Capacity", litres, "LTR"),
             a("material", "Material", "Polyester"))  # fmt: skip
 
 
 ROWS = (
     row("SBPC20", "20 L Classic School Backpack", CALDERBY, BACKPACKS, "School Backpack", "school_backpack",
         "A padded school backpack with a zipped main compartment, a front pocket for pens and a side pocket for a bottle.",
-        _bag("Classic", "20 L"), packs((1, 22.0)), (("backpack_style", "classic"),)),
+        _bag("Classic", "20"), packs((1, 22.0)), (("backpack_style", "classic"),)),
     row("SBPL25", "25 L Laptop School Backpack", LANTERNBY, BACKPACKS, "School Backpack", "school_backpack",
         "A school backpack with a padded laptop sleeve, a front organizer pocket and cushioned shoulder straps.",
-        _bag("Laptop", "25 L"), packs((1, 32.0)), (("backpack_style", "laptop"),)),
+        _bag("Laptop", "25"), packs((1, 32.0)), (("backpack_style", "laptop"),)),
     row("SBPR30", "30 L Rolling School Backpack", THISTLE, BACKPACKS, "School Backpack", "school_backpack",
         "A school backpack on two wheels with a telescopic handle, for heavy books on the walk to school.",
-        _bag("Rolling", "30 L"), packs((1, 45.0)), (("backpack_style", "rolling"),)),
+        _bag("Rolling", "30"), packs((1, 45.0)), (("backpack_style", "rolling"),)),
     row("SBPM15", "15 L Mini School Backpack", THISTLE, BACKPACKS, "School Backpack", "school_backpack",
         "A small school backpack for younger pupils, with a name tag window and a reflective strip.",
-        _bag("Mini", "15 L"), packs((1, 16.0)), (("backpack_style", "mini"),)),
+        _bag("Mini", "15"), packs((1, 16.0)), (("backpack_style", "mini"),)),
 )
 
 SPEC = TypeSpec(

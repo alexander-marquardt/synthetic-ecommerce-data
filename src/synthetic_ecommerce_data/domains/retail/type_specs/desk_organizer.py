@@ -23,11 +23,12 @@ from synthetic_ecommerce_data.domains.retail.office_rows import (
     packs,
     row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a, count
 
 
 def _org(compartments: str, material: str) -> tuple[tuple, ...]:
-    return (a("compartments", "Compartments", compartments), a("material", "Material", material))
+    return (count("compartments", "Compartments", int(compartments)),
+            a("material", "Material", material))  # fmt: skip
 
 
 def _params(compartments: str, material: str) -> tuple[tuple[str, str], ...]:
