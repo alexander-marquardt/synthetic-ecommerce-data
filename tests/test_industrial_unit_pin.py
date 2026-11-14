@@ -16,9 +16,12 @@ size from it. Two things can make it lie, and they are checked in two places:
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import importlib.util
+import json
 import os
+import re
 import subprocess
 import sys
 from fractions import Fraction
@@ -162,6 +165,37 @@ def test_an_unreadable_source_fails_loudly(tmp_path):
     )
     assert done.returncode == 2, done.stdout + done.stderr
     assert "cannot read" in done.stderr, done.stderr
+
+
+def test_the_recorded_commit_is_read_where_the_pin_says_it_was_taken(tmp_path, monkeypatch):
+    """A source renamed since the pin was taken is drift to compare, not an unreadable source.
+
+    #49: the deployment moved to elastic/prism-retail-and-industrial and its file to a new
+    path. The recorded commit holds the file only at the recorded path, so reading it at
+    today's path was a 404 and the script exited 2, "Nothing was compared", on a stale pin.
+    """
+    script = _script()
+    old_repo, old_path = "elastic/an-older-name", "src/older/data/customization.yaml"
+    pin = re.sub(r"(?m)^  repo: .*$", f"  repo: {old_repo}", PIN_TEXT, count=1)
+    pin = re.sub(r"(?m)^  path: .*$", f"  path: {old_path}", pin, count=1)
+    assert pin != PIN_TEXT, "the plant did not apply"
+    provenance = yaml.safe_load(pin)["pin"]
+    pin_file = tmp_path / "pin.yaml"
+    pin_file.write_text(pin, encoding="utf-8")
+    calls: list[str] = []
+
+    def gh(endpoint: str) -> str:
+        calls.append(endpoint)
+        if "/commits?" in endpoint:
+            return json.dumps([{"sha": "f" * 40}])
+        content = base64.b64encode(_source(BLOCK).encode("utf-8")).decode("ascii")
+        return json.dumps({"content": content, "sha": provenance["blob"]})
+
+    monkeypatch.setattr(script, "PIN", pin_file)
+    monkeypatch.setattr(script, "_gh", gh)
+    assert script.main([]) == 0, calls
+    assert f"repos/{old_repo}/contents/{old_path}?ref={provenance['commit']}" in calls, calls
+    assert f"repos/{script.REPO}/contents/{script.SOURCE_PATH}?ref={'f' * 40}" in calls, calls
 
 
 # --- the parser the contract test reads the pin with --------------------------
