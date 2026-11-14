@@ -97,10 +97,23 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
-GOLDEN: dict[str, list[tuple]] = {
-    "Headphones": [],
-    "Portable Speaker": [],
-    "Soundbar": [],
+GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
+    "Headphones": [
+        ("BRD-00158C009A1C", "Woldscliffe Wired On-Ear Studio Headphones", 2, 130.0),
+        ("BRD-00584B99872D", "Rudborough Bass Boost USB-C Headphones", 2, 90.0),
+        ("BRD-019BC6280FF4", "Shelgarth USB-C Over-Ear Hi-Res Headphones", 6, 60.0),
+    ],
+    "Portable Speaker": [
+        ("BRD-007B2C3AFCCB", "Wigwick Waterproof Bluetooth Speaker with Built-In Mic", 8, 59.0),
+        ("BRD-00E2C61EB6D9", "Hulington Mini Splash-Proof Bluetooth Speaker", 12, 26.0),
+        ("BRD-03384A7AF87A",
+         "Rosfield Compact Splash-Proof Bluetooth Speaker with Built-In Mic", 12, 56.0),
+    ],
+    "Soundbar": [
+        ("BRD-00E223234E14", "Glenwick 5.1 Channel Bluetooth Soundbar", 6, 375.0),
+        ("BRD-0152E9BC8020", "Clevethorpe Compact 3.1 Channel Optical Soundbar", 6, 410.0),
+        ("BRD-01EF816FCCD6", "Yeldhill Compact 2.0 Channel Bluetooth Soundbar", 4, 250.0),
+    ],
 }
 
 
