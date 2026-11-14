@@ -43,6 +43,38 @@ def test_every_type_of_the_slice_is_derived_in_the_ceiling_build(garden) -> None
     assert set(TYPES) <= kinds
 
 
+def _golden(garden: list[dict], ptype: str) -> list[tuple]:
+    derived = set(ceiling_build().template_of)
+    mine = sorted((r for r in garden if r["product_type"] == ptype and r["product_id"] in derived),
+                  key=lambda r: r["product_id"])  # fmt: skip
+    return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
+
+
+#: Each type's first three derived styles by product id (seed 0, ceiling build).
+GOLDEN: dict[str, list[tuple]] = {
+    "Planter": [
+        ("BRD-01D3D51BC153", "Rookery Garden Co. Sprout Round Concrete Planter", 12, 33.0),
+        ("BRD-048027E684AD", "Fenwold Nursery Paddock Trough Ceramic Planter", 6, 51.0),
+        ("BRD-06041DA4CDD7", "Harbour & Pine Copse Square Galvanized Steel Planter", 18, 53.0),
+    ],
+    "Outdoor Light": [
+        ("BRD-012D10F91282", "Larkmoor Bloom Hardwired Cube Wall Light", 12, 15.0),
+        ("BRD-0283E629D687", "Thistle & Wren Wildflower Battery Lantern Wall Light", 18, 28.0),
+        ("BRD-02A965807B4F", "Rookery Garden Co. Sprout Solar Bulkhead Wall Light", 18, 27.0),
+    ],
+    "Garden Chair": [
+        ("BRD-00224F280A77", "Fenwold Nursery Paddock Reclining Aluminum Garden Chair", 18, 70.0),
+        ("BRD-07968A557327", "Thistle & Wren Wildflower Reclining Acacia Garden Chair", 12, 27.0),
+        ("BRD-0ADE7569A567", "Larkmoor Bloom Stacking Plastic Garden Chair", 6, 27.0),
+    ],
+}
+
+
+@pytest.mark.parametrize("ptype", TYPES)
+def test_each_type_golden_slice(garden, ptype) -> None:
+    assert _golden(garden, ptype) == GOLDEN[ptype]
+
+
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_has_unique_ids_titles_and_twin_keys(garden, ptype) -> None:
     mine = [r for r in garden if r["product_type"] == ptype]

@@ -123,6 +123,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mirror": ("height_cm", "width_cm", "size"),
     "Plant": ("size",),
     "Plant Pot": ("diameter_cm",),
+    "Planter": ("width_cm",),
     # Tools, cables and machines by what they cut or reach.
     "BBQ": ("diameter_cm", "length_cm"),
     "Cable": ("length_m",),
