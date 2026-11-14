@@ -1504,7 +1504,12 @@ key dimension, the material and the attribute the census names for the type (`pr
 a type whose specs hold no material. A SKU that sparsity left without one of them is in no spec, and the type's brand-spread row says how many in its note. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
-`brand_spread_band`). Every row is scored at the default size and at 100K
+`brand_spread_band`). A p50 or p90/p10 band also takes in the build's own
+error: three standard errors of a bootstrap over the type's product lines
+(`price_report.build_errors`), at most x1.25 either side (`BUILD_SE_CAP`), so a
+type the default build makes on a few dozen lines holds its band on other seeds
+too (#891). `uv run python scripts/price_seed_survey.py SEED ...` prints the rows
+out of band on any of several seeds. Every row is scored at the default size and at 100K
 (`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and

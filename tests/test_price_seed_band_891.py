@@ -81,8 +81,10 @@ def test_the_widening_is_capped_so_a_doubled_price_still_leaves_the_p50_band():
     1.25 ceiling is 0.625, under the capped 0.8 / 1.25."""
     low, high = price_report.widened(price_report.P50_BAND, 5.0)
     assert (low, high) == pytest.approx(
-        (price_report.P50_BAND[0] / price_report.BUILD_SE_CAP,
-         price_report.P50_BAND[1] * price_report.BUILD_SE_CAP)
+        (
+            price_report.P50_BAND[0] / price_report.BUILD_SE_CAP,
+            price_report.P50_BAND[1] * price_report.BUILD_SE_CAP,
+        )
     )
     assert 2 * price_report.P50_BAND[0] > high
     assert 0.5 * price_report.P50_BAND[1] < low
