@@ -45,7 +45,7 @@ from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 KEY = "levels"
 ITEM = "Level"
-CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Levels")
+CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Leveling Tools", "Spirit Levels")
 
 #: What every record says about where its length came from.
 PROVENANCE = f"Length is a conventional stocked size; {NO_STANDARD}"

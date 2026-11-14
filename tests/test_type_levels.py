@@ -79,9 +79,9 @@ def test_the_default_build_is_deep():
 
 
 def test_the_type_is_filed_under_tools():
-    assert taxonomy.LEAVES[KEY] == (("Measuring & Inspecting", "Levels"),)
+    assert taxonomy.LEAVES[KEY] == (("Measuring & Inspecting", "Leveling Tools", "Spirit Levels"),)
     paths = {tuple(doc["category_path"]) for doc in _default_docs()}
-    assert paths == {("Tools", "Measuring & inspecting", "Levels")}
+    assert paths == {("Tools", "Measuring & inspecting", "Leveling tools", "Spirit levels")}
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():

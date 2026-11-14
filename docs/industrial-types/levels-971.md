@@ -1,6 +1,6 @@
 # Levels: a homeowner tool for general retail (gen#971, slice 2)
 
-`Tools > Measuring & inspecting > Levels` is a new modelled type, `product_types/hand_tools/levels.py`, and `tests/test_type_levels.py` runs the per-type gates over it. It is the second of the homeowner tools gen#971 adds to `Tools`, after tape measures.
+`Tools > Measuring & inspecting > Leveling tools > Spirit levels` is a new modelled type, `product_types/hand_tools/levels.py`, and `tests/test_type_levels.py` runs the per-type gates over it. It is the second of the homeowner tools gen#971 adds to `Tools`, after tape measures.
 
 **Shapes and lengths.** A level is published with its frame `Shape`: a torpedo level in 9 or 12 in (230 or 300 mm), a box-beam level in 24, 48 or 72 in (600, 1200 or 1800 mm), or an I-beam level in 24 or 48 in (600 or 1200 mm). No standard fixes these lengths, and the provenance says so. A length is published the way the catalogue writes every other length (`24"`, `600mm`), and carries its value in inches.
 
