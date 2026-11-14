@@ -57,6 +57,7 @@ EXCEPTIONS = {
     "Duvet": "inner bedding: sold in its natural white cover",
     "Pillow": "inner bedding: sold in its natural white cover",
     "Pillow Protector": "inner bedding: sold in its natural white cover",
+    "Smart Bulb": "white frosted glass: the light color is set in the app (gen#956)",
 }
 
 
