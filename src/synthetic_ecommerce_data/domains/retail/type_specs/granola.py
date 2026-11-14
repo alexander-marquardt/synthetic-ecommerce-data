@@ -39,7 +39,7 @@ def _attrs(texture: str, grain: str, flavor: str) -> tuple[tuple, ...]:
 def _row(code: str, texture: str, grain: str, flavor: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{texture} {grain} Granola with {flavor}", brand, PATH, "Granola", "bag",
-               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, "Granola")  # fmt: skip
+               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, f"{grain} {flavor}")  # fmt: skip
 
 
 _SMALL = grams((0.4, 2.5), (0.5, 3.0), (0.75, 4.2))
@@ -59,7 +59,7 @@ ROWS = (
     _row("GRNTOT", "Toasted", "Oat", "Tropical Fruit", HEARTH,
          "Wholegrain granola for a bowl with milk, with no artificial colors or flavorings.", _SMALL, SKY),
     _row("GRNCOM", "Crunchy", "Oat", "Mixed Seed", GOLDFIELD,
-         "Wholegrain granola baked slowly, lower in sugar than our classic recipe.", _SMALL, NAVY),
+         "Wholegrain granola baked slowly, with a lighter sweetness than our classic recipe.", _SMALL, NAVY),
     _row("GRNCBH", "Clustered", "Buckwheat", "Honey & Almond", GOLDFIELD,
          "Granola baked in small batches from wholegrain, high in fiber, in a resealable bag.", _LARGE, SAND),
     _row("GRNTSA", "Toasted", "Spelt", "Apple & Cinnamon", CRUNCHWORTH,

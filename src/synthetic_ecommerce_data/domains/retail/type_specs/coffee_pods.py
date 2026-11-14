@@ -39,7 +39,7 @@ def _row(code: str, origin: str, roast: str, style: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{origin} {roast} Roast {style} Coffee Pods", brand, PATH, "Coffee Pods",
                "box", desc, _pod(origin, roast, style), sizes, "units_per_pack", color,
-               "Pods")  # fmt: skip
+               f"{origin} {roast}")  # fmt: skip
 
 
 _SMALL = units((10, 3.0), (20, 5.5), (30, 7.5))

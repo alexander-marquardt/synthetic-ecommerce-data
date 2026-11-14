@@ -14,8 +14,7 @@ pantry-staple types are now specs of their own on the quick path
 
 The shared pieces (the department, the brands, the pack colors, `grams()`, `units()`, `row()`
 and `decoy()`) are in `pantry_rows.py`. The brands are the department's existing invented ones
-(Brewhollow Roasters, Pantry Mill, Hearth & Table, Crunchworth, Goldfield Farms, Wheatsheaf
-Lane, Crofter's Bakehouse), so each already has its house style, and their owners are read from
+(Brewhollow Roasters, Pantry Mill, Hearth & Table, Crunchworth, Goldfield Farms, Crofter's Bakehouse), so each already has its house style, and their owners are read from
 `grocery_rows.OWNERS` rather than restated. Every brand is invented (ruling 2026-10-30, gen#720).
 
 **Color.** Food carries no color (`colorless`), as Tea and Coffee already do: a style's one
@@ -23,7 +22,9 @@ color is its pack's print, which the drawing takes as its fill and the store doe
 variant. A style's SKUs are its sizes alone.
 
 **Drawings.** No new shape: a coffee pod style is drawn as a `box`, a granola or a flour as a
-`bag`, both shapes the department's kit already draws.
+`bag`, both shapes the department's kit already draws. The pack's label is its title-shown
+values (origin and roast; grain and flavor; milling and flour type), so a derived style is
+redrawn with its own label and the results grid does not show clones.
 
 **Breadth.** The three types are derivable: a derived style recombines the title-shown
 attributes (origin, roast, brew style; texture, grain, flavor; milling, flour type) across the
@@ -35,8 +36,8 @@ name that the product is not: `Vanilla Wharf` and `Caramel Quay` unflavored coff
 `Peanut Row` and `Protein Hill` granolas, and `Rice Hill` and `Coconut Lane` wheat and spelt
 flours.
 
-**Measured** (ceiling build, `retail_figures.ceiling()`, seed 0): Coffee Pods 2,422 SKUs in
-712 styles, Granola 1,287 in 429 and Flour 560 in 160, 4,269 SKUs in all. `Food & Drink` goes from 12,265 SKUs to 16,534, above
-the issue's floor of 16,150 (95% of the 17,000 target). The guards are in
+**Measured** (ceiling build, `retail_figures.ceiling()`, seed 0): the three types' SKUs and
+styles are build output, read with `retail_figures.figures()` and not restated here. `Food & Drink`
+rises above the issue's floor of 16,150 SKUs (95% of the 17,000 target). The guards are in
 `tests/test_retail_food_pantry_964.py`: the floor of the three types and of the department,
 each type's leaf, unique ids, titles and twin keys, determinism, decoys and a golden slice.

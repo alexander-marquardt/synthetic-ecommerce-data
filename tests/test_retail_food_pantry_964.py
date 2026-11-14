@@ -10,6 +10,8 @@ rows and their drawings are the same on every call; each type carries its text-m
 and a golden slice pins each type's first derived styles, so a change that moves them shows here.
 """
 
+# ruff: noqa: E501 -- the golden rows read better whole than wrapped.
+
 from __future__ import annotations
 
 import collections
@@ -102,19 +104,19 @@ def _golden(food: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Coffee Pods": [
-        ("BRD-001C88E1EE69", "Torburn Sumatran Dark Roast Espresso Coffee Pods", 3, 3.3),
-        ("BRD-00BD2AD56CE1", "Zenton Colombian Light Roast Espresso Coffee Pods", 3, 3.45),
-        ("BRD-00E40C5C57D0", "Hamcliffe Costa Rican Medium Roast Espresso Coffee Pods", 4, 3.15),
+        ("BRD-001C88E1EE69", "Lunchtime Hand Roasted Sumatran Dark Roast Espresso Coffee Pods", 3, 3.05),
+        ("BRD-00BD2AD56CE1", "Bubbly Roastery Style Colombian Light Roast Espresso Coffee Pods", 3, 3.45),
+        ("BRD-00E40C5C57D0", "Bubbly Costa Rican Medium Roast Espresso Coffee Pods", 4, 3.15),
     ],
     "Granola": [
-        ("BRD-00A5603347BE", "Sedhill Crunchy Oat Granola with Apple & Cinnamon", 3, 3.8),
-        ("BRD-01CB10F6A181", "Hamwood Clustered Spelt Granola with Honey & Almond", 3, 3.25),
-        ("BRD-0209B1668DAE", "Ashholme Crunchy Oat Granola with Apple & Cinnamon", 3, 2.7),
+        ("BRD-00A5603347BE", "Kindly Bowl Ready Crunchy Oat Granola with Apple & Cinnamon", 3, 3.8),
+        ("BRD-01CB10F6A181", "Goldfield Farms Proper Hand Baked Clustered Spelt Granola with Honey & Almond", 3, 3.25),
+        ("BRD-0209B1668DAE", "Trusty Hand Baked Crunchy Oat Granola with Apple & Cinnamon", 3, 2.7),
     ],
     "Flour": [
-        ("BRD-0160FB66CA1A", "Reahurst Fine Milled Plain Flour", 3, 2.15),
-        ("BRD-029B2DF151BA", "Wencombe Fine Milled Self-Raising Flour", 3, 2.05),
-        ("BRD-06B252D6A087", "Haling Fine Milled Self-Raising Flour", 3, 2.0),
+        ("BRD-0160FB66CA1A", "Crofter's Bakehouse Fair Kitchen Staple Fine Milled Plain Flour", 3, 2.15),
+        ("BRD-026F386294B0", "Wheatsheaf Lane Unfussy Roller Milled Plain Flour", 3, 2.05),
+        ("BRD-029B2DF151BA", "Trusty Fine Sifted Fine Milled Self-Raising Flour", 3, 2.05),
     ],
 }  # fmt: skip
 

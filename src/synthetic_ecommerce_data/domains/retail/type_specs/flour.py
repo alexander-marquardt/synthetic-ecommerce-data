@@ -13,6 +13,7 @@ from synthetic_ecommerce_data.domains.retail.pantry_rows import (
     DEPARTMENT,
     FOREST,
     GOLDFIELD,
+    HEARTH,
     NAVY,
     OWNERS,
     PANTRY_MILL,
@@ -21,7 +22,6 @@ from synthetic_ecommerce_data.domains.retail.pantry_rows import (
     SAND,
     SKY,
     TEAL,
-    WHEATSHEAF,
     decoy,
     grams,
     row,
@@ -38,30 +38,30 @@ def _attrs(milling: str, flour: str) -> tuple[tuple, ...]:
 def _row(code: str, milling: str, flour: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{milling} {flour} Flour", brand, PATH, "Flour", "bag", desc,
-               _attrs(milling, flour), sizes, "net_weight_g", color, "Flour")  # fmt: skip
+               _attrs(milling, flour), sizes, "net_weight_g", color, f"{milling} {flour}")  # fmt: skip
 
 
 _EVERYDAY = grams((0.5, 0.9), (1.0, 1.4), (1.5, 1.9), (5.0, 5.5))
 _SPECIALTY = grams((0.5, 1.8), (1.0, 2.9), (1.5, 3.9))
 
 ROWS = (
-    _row("FLRSWS", "Stoneground", "Wholemeal Spelt", WHEATSHEAF,
+    _row("FLRSWS", "Stoneground", "Wholemeal Spelt", HEARTH,
          "Milled from grain grown on partner farms, in a paper bag that keeps it dry.", _SPECIALTY, SAND),
     _row("FLRFPL", "Fine Milled", "Plain", PANTRY_MILL,
          "An everyday flour from our own mill, in a paper bag.", _EVERYDAY, NAVY),
-    _row("FLRTSR", "Traditional Milled", "Self-Raising", PANTRY_MILL,
+    _row("FLRTSR", "Roller Milled", "Self-Raising", PANTRY_MILL,
          "Milled and sifted for an even bake, in a paper bag with a fold-down top.", _EVERYDAY, RUST),
     _row("FLRSRY", "Stoneground", "Rye", CROFTER,
          "Milled in small batches from grain grown on partner farms.", _SPECIALTY, PLUM),
-    _row("FLRFIT", "Fine Milled", "Italian 00", CROFTER,
+    _row("FLRFIT", "Fine Milled", "Pizza", CROFTER,
          "Milled from carefully chosen grain and sifted for an even texture.", _SPECIALTY, TEAL),
-    _row("FLRTWW", "Traditional Milled", "Wholemeal Wheat", WHEATSHEAF,
+    _row("FLRTWW", "Roller Milled", "Wholemeal Wheat", HEARTH,
          "Milled from grain grown within fifty miles of the mill, in a paper bag.", _EVERYDAY, FOREST),
     _row("FLRSBW", "Stoneground", "Buckwheat", GOLDFIELD,
          "Milled in small batches, in a paper bag that keeps it dry.", _SPECIALTY, SKY),
     _row("FLRFCK", "Fine Milled", "Chickpea", GOLDFIELD,
          "Milled from carefully chosen crops and sifted for an even texture.", _SPECIALTY, SAND),
-    _row("FLRTSB", "Traditional Milled", "Strong Bread", WHEATSHEAF,
+    _row("FLRTSB", "Roller Milled", "Strong Bread", HEARTH,
          "A baker's flour from a family mill, in a paper bag with a fold-down top.", _EVERYDAY, RUST),
     _row("FLRSSP", "Stoneground", "Plain", CROFTER,
          "Milled in small batches at a family mill, in a paper bag.", _EVERYDAY, FOREST),
