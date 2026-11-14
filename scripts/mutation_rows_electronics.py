@@ -31,8 +31,8 @@ def rows() -> list[Row]:
         _row(
             "Electronics leaves the closed department list",
             "departments.py",
-            '    "Sports & Outdoors",\n    "Electronics",\n)',
-            '    "Sports & Outdoors",\n)',
+            '    "Electronics",\n    "Health",\n)',
+            '    "Health",\n)',
             f"{_T}::test_the_department_is_on_the_closed_list_and_holds_every_node_of_the_issue",
             "Electronics is a department of the closed list",
         ),

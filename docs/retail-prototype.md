@@ -605,9 +605,9 @@ standard's text check (`scale.TEXT_EXEMPT`), as the other text-match decoys are.
 legacy type list (deleted since, gen#537). Scarves (`type_specs/scarf.py`, shape `scarf`: four kinds, a material and a measured length, `Womens > Accessories > Scarves`) and wallets (`type_specs/wallet.py`, shape `wallet_fold`: four kinds, a material and RFID blocking, `Mens > Accessories > Wallets`) finish the six, in the same way with color as the only SKU axis. `feature_decoys/accessories_422.py` holds the class 8 decoys: a belt sander, a screw cap, a pen cap and two scarf stores. `tests/test_retail_accessories_queries_422.py` holds every query shape of the issue on the ceiling build, and the six types' growth of at least 150 SKUs.
 
 **The store's department is the top level of `category_path`, and no document states one**
-(gen#281). The retail tree has exactly twelve roots, `core/departments.RETAIL`: Womens, Mens,
-Kids, Food & drink, Home, Beauty, Cleaning, Toys, Gifts, Garden, Sports & outdoors (gen#265) and
-Electronics. That closed list is core's, beside industrial's three, and the output standard
+(gen#281). The retail tree has exactly thirteen roots, `core/departments.RETAIL`: Womens, Mens,
+Kids, Food & drink, Home, Beauty, Cleaning, Toys, Gifts, Garden, Sports & outdoors (gen#265),
+Electronics and Health (gen#968, [retail-health.md](retail-health.md)). That closed list is core's, beside industrial's three, and the output standard
 refuses a top level off it (slice 3 of the 2026-10-28 ruling on #125; README, "Every path starts
 at its department"). Food sits under Food &
 Drink, Baby under Kids (`Kids > Baby > ...`) and Electricals under Home (`Home > Electricals >
