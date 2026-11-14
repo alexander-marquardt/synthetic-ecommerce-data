@@ -114,6 +114,8 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Vise",
     "Gage",
     "Collet",
+    # The home hardware of #958.
+    "Picture Hanger",
     # The homeowner tools of #971.
     "Tape Measure",
     # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
