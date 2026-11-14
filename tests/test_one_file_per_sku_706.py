@@ -107,6 +107,9 @@ def test_one_archive_carries_both_halves_under_one_digest(tmp_path) -> None:
     sidecar = archive.with_name(archive.name + ".content-sha256").read_text("utf-8")
     assert sidecar == f"{bundle.files_digest(members)}  {industrial + retail}\n"
     assert f"{industrial + retail} files for {industrial + retail} SKUs" in run.stdout
+    # Each member's drawing is named beside the archive, both halves in one file (gen#924).
+    rows = image_release.read_drawings(archive.with_name(image_release.DRAWINGS_FILE))
+    assert sorted("/images/" + name for name, _ in members) == [row["image_url"] for row in rows]
 
 
 def test_the_pin_bump_writes_one_image_pin(tmp_path, capsys) -> None:

@@ -289,6 +289,26 @@ code, not a committed catalog), so the render is its source.
 the one-file-per-SKU rule, that every document's image URL resolves to a packaged file, and the
 package shape.
 
+**Each image names what it was drawn from** (gen#924). Beside the archive, and in `--out`,
+`drawings.jsonl.gz` holds one row per image file, sorted by `image_url`: `image_url`,
+`image_id`, `product_id`, `sku`, `title` and `drawing`. A retail `drawing` is the colorway
+drawing the file was rendered from: `shape`, the fill (`base`, `pattern`, `accent`), `params`
+(a dress's `features`, a lamp's `finish`), and any `size_scale`, `pack_scale` or `pack_count`.
+An industrial one is `core.drawing.drawing_spec`: the type's figure (`shape`), the part fill its
+finish or material picks (`fill`) and the published values the figure reads (`params`). When an
+image contradicts its title (gen#922), look the image up instead of re-deriving its drawing
+from the templates. The lookup needs no cluster:
+
+```sh
+uv run python -m synthetic_ecommerce_data.domains.retail.image_release \
+    --lookup /images/retail/dress/PLT-DPT105/PLT-DPT105-EF21AEB0.svg --drawings out/drawings.jsonl.gz
+```
+
+`--lookup` takes an `image_url` (an absolute URL matches on its path), a product id (every SKU
+of it) or a SKU. The file is not an archive member: the archive holds one file per SKU, and its
+count names the images release. `tests/test_drawing_manifest_924.py` pins that a retail row
+re-renders its image byte for byte and that an industrial row redraws the recorded sha256.
+
 A `v*` tag builds the retail ceiling and the industrial large build, composes them into one catalog, builds this bundle, uploads them to a release with their
 `.content-sha256`, and opens the pin-bump pull request in the catalogue repository
 ([docs/releasing.md](releasing.md), gen#536); a manual run of the workflow is the dry run.

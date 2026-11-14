@@ -33,7 +33,9 @@ together, one file per SKU (gen#706), and it ships as its own release, tagged
    `catalog.ndjson.gz.content-sha256` (`<sha256>  <count>`);
 6. uploads the bundle to its own release, `images-<count>-<YYYYMMDD>` (the archive's file count
    from `images.tar.gz.content-sha256` and the UTC day of the run, gen#804), with that sidecar and
-   `images.tar.gz.sha256`. The images release holds `images.tar.gz` and nothing of the catalog.
+   `images.tar.gz.sha256` and `drawings.jsonl.gz`, the drawing each image was rendered from, a row
+   per image (gen#924, [docs/images.md](images.md)). The images release holds `images.tar.gz`
+   and nothing of the catalog.
    A second `v*` tag the same day whose archive has the same count reuses that release when its
    `images.tar.gz.content-sha256` is the same, and fails when it differs;
 7. runs `scripts/open_pin_bump_pr.py --images-tag images-<count>-<YYYYMMDD>`, which writes the two
