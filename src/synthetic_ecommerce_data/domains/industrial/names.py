@@ -114,6 +114,8 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Vise",
     "Gage",
     "Collet",
+    # The home hardware of #958.
+    "Picture Hanger",
     # The text-match decoys' head nouns (alexander-marquardt/synthetic-ecommerce-data#462).
     # "Handle" stays unregistered: it is the negative control of
     # ``test_the_head_noun_rule_bites``.

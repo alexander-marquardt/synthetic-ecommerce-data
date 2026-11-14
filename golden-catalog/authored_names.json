@@ -379,6 +379,10 @@
  "orb_hydraulic_fittings": {
   "Thread size": "Thread Size"
  },
+ "picture_hangers": {
+  "Load capacity": "Load Capacity",
+  "Measurement system": "Measurement System"
+ },
  "pillow_block_bearings": {
   "Base to center height": "Base to Center Height",
   "Bolt hole center-to-center": "Bolt Hole Center-to-Center",

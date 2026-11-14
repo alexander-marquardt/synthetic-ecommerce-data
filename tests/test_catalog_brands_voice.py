@@ -305,6 +305,10 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same rows. Measured at 100K, 421 distinct specs of 722 SKUs (0.583), rounded
     # down to 0.05.
     "flange_nuts": 0.55,
+    # #958: a picture hanger is a style, a metal and a colour on a stocked rating, and makers
+    # sell the same ones. Measured at 100K, 260 distinct specs of 395 SKUs (0.658), rounded
+    # down to 0.05.
+    "picture_hangers": 0.65,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers

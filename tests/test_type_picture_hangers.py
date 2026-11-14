@@ -13,7 +13,7 @@ The gates of ``test_type_lock_nuts_nylon_insert.py``, the template (#53 step 3):
   golden has it.
 
 And this type's own: it is filed under ``Hardware``; every rating is one its style stocks in
-its unit system, and carries its value in pounds; every style, material, unit system and main
+pounds; every style, material and main
 colour (gen#275) is built; and some titles are text-match decoys (gen#294) that name a thing a
 hanger holds while every attribute stays true.
 """
@@ -29,7 +29,7 @@ import pytest
 import type_gates
 from published import authored_attributes
 from synthetic_ecommerce_data.core import typespec
-from synthetic_ecommerce_data.core.config import GeneratorConfig
+from synthetic_ecommerce_data.core.config import LARGE_BUILD_LINES, GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
 from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from test_attribute_names import CENSUS, OBSERVED
@@ -43,23 +43,21 @@ SLICE = Path(__file__).parent / "data" / "golden_slices" / f"{KEY}.jsonl"
 
 #: Two thirds of the default build's SKUs, rounded down to a ten
 #: (docs/adding-a-type.md "SKU floor"): it catches a collapse, and is not a target.
-DEFAULT_SKU_FLOOR = 20
+DEFAULT_SKU_FLOOR = 10
+
+#: Slice 1's floor at the large build (#958): 95% of a sixth of the issue's 1,564 SKUs, one
+#: share for each of the six home-hardware types it plans.
+LARGE_BUILD_FLOOR = 248
 
 #: The six main colours every colour-bearing type offers (gen#275).
 MAIN_COLORS = {"Red", "Blue", "Green", "Yellow", "Black", "White"}
 
-#: The ratings each style is stocked in: pounds, then kilograms.
+#: The ratings each style is stocked in, in pounds.
 LB = {
     "Nail Hook": (10, 20, 30, 50, 75, 100),
     "Sawtooth Hanger": (10, 15, 20, 25, 30),
     "D-Ring Hanger": (20, 30, 50, 75, 100),
     "Hanging Kit": (20, 30, 50, 75, 100),
-}
-KG = {
-    "Nail Hook": (5, 10, 15, 25, 35, 45),
-    "Sawtooth Hanger": (5, 7, 9, 11, 14),
-    "D-Ring Hanger": (10, 15, 25, 35, 45),
-    "Hanging Kit": (10, 15, 25, 35, 45),
 }
 
 
@@ -75,12 +73,8 @@ def _module():
     )
 
 
-def _attribute(doc: dict, name: str) -> dict:
-    return next(a for a in authored_attributes(doc) if a["name"] == name)
-
-
 def _value(doc: dict, name: str) -> str:
-    return _attribute(doc, name)["value"]
+    return next(a["value"] for a in authored_attributes(doc) if a["name"] == name)
 
 
 def test_the_type_is_modelled_in_its_own_module():
@@ -89,6 +83,13 @@ def test_the_type_is_modelled_in_its_own_module():
 
 def test_the_default_build_is_deep():
     assert len(_default_docs()) >= DEFAULT_SKU_FLOOR
+
+
+def test_the_large_build_holds_the_slice_floor():
+    """``ecom-generate build --lines 39000`` builds each type on its own (the independence
+    gates below), so the type's own build at that size is the count the large build holds."""
+    lines = generate_type(GeneratorConfig(lines=LARGE_BUILD_LINES), KEY)
+    assert sum(len(line.children) for line in lines) >= LARGE_BUILD_FLOOR
 
 
 def test_the_type_is_filed_under_hardware():
@@ -117,38 +118,31 @@ def test_the_provenance_names_where_each_rating_came_from():
 def test_every_rating_is_one_its_style_stocks():
     for doc in _default_docs():
         size, unit = _value(doc, "Load Capacity").split()
-        table = KG if unit == "kg" else LB
-        assert unit in {"lb", "kg"}, doc["sku"]
-        assert int(size) in table[_value(doc, "Style")], doc["sku"]
+        assert unit == "lbf", doc["sku"]
+        assert int(size) in LB[_value(doc, "Style")], doc["sku"]
 
 
 def test_the_modules_stocked_ratings_are_the_ones_listed_here():
     hangers = _module()
     assert hangers.LB_RATINGS == LB
-    assert hangers.KG_RATINGS == KG
 
 
-def test_every_style_material_system_and_main_color_is_built():
+def test_every_style_material_and_main_color_is_built():
     hangers = _module()
     docs = _default_docs()
     assert {_value(d, "Style") for d in docs} == set(hangers.STYLES)
     assert {_value(d, "Material") for d in docs} == set(hangers.MATERIALS)
-    assert {_value(d, "Load Capacity").split()[1] for d in docs} == {"lb", "kg"}
     assert {_value(d, "Color") for d in docs} == MAIN_COLORS
-    assert len(set(hangers.COMBOS)) == len(hangers.STYLES) * len(hangers.MATERIALS) * 2
+    assert len(set(hangers.COMBOS)) == len(hangers.STYLES) * len(hangers.MATERIALS)
 
 
 def test_a_rating_ranges_in_pounds():
-    """A rating is published in pounds or kilograms and still ranges in pounds."""
-    hangers = _module()
-    assert hangers.rating("lb", 30) == ("30 lb", 30.0)
-    published, pounds = hangers.rating("kg", 10)
-    assert published == "10 kg"
-    assert pounds == pytest.approx(22.05, abs=0.01)
+    """A rating is published as ``<n> lbf``, the unit of every other ``Load Capacity``."""
+    assert _module().rating(30) == ("30 lbf", 30.0)
     for doc in _default_docs():
-        size, unit = _value(doc, "Load Capacity").split()
-        expected = int(size) * (2.20462 if unit == "kg" else 1.0)
-        assert _attribute(doc, "Load Capacity")["value_num"] == pytest.approx(expected, abs=0.01)
+        entry = next(a for a in doc["attributes"] if a["key"] == "load_capacity")
+        assert entry["unit_code"] == "C78", doc["sku"]
+        assert entry["value"] == _value(doc, "Load Capacity").split()[0], doc["sku"]
 
 
 def test_some_titles_name_a_held_thing_and_every_title_names_the_item():
@@ -168,11 +162,19 @@ def test_some_titles_name_a_held_thing_and_every_title_names_the_item():
 
 def test_each_style_is_drawn_its_own_way():
     hangers = _module()
-    shapes = {
-        style: len(hangers.figure({"Style": style, "Load Capacity": "30 lb"}).fig.shapes)
+    drawings = {
+        repr(hangers.figure({"Style": style, "Load Capacity": "30 lbf"}).figure.shapes)
         for style in hangers.STYLES
     }
-    assert len(set(shapes.values())) == len(hangers.STYLES), shapes
+    assert len(drawings) == len(hangers.STYLES)
+
+
+def test_a_heavier_rating_is_a_bigger_drawing():
+    hangers = _module()
+    light = hangers.figure({"Style": "Nail Hook", "Load Capacity": "10 lbf"})
+    heavy = hangers.figure({"Style": "Nail Hook", "Load Capacity": "100 lbf"})
+    assert (light.source, heavy.source) == ("record", "record")
+    assert heavy.figure.size_in > light.figure.size_in
 
 
 def test_two_builds_are_byte_identical():
