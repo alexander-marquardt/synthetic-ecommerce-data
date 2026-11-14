@@ -55,12 +55,12 @@ SLIGHT: tuple[str, ...] = (
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
     "aftershave", "air_fryer", "analog_watch", "angled_bottle", "anti_vibration_mat", "apple",
-    "armchair",
-    "baby_blanket", "backpack", "bag", "banana", "bar", "baseball_bat", "baseball_glove",
-    "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
-    "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals", "bike_pump",
-    "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
-    "blender", "bowl", "box", "box_wide", "bracelet", "building_set", "butter_block", "cabin_case",
+    "armchair", "baby_blanket", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
+    "baseball_glove", "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq",
+    "beach_towel", "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals",
+    "bike_pump", "bike_saddle", "bird", "blender", "blind", "board_game", "body_mist", "bookcase",
+    "bottle", "bouquet", "bowl", "box", "box_wide", "bracelet", "building_set", "bunting",
+    "butter_block", "cabin_case",
     "cake",
     "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat", "caulking_gun",
     "ceiling_fan", "ceiling_light", "chain_lube", "chairbed", "chaise_sofa", "changing_mat",
