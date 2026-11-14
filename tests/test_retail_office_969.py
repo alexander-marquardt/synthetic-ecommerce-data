@@ -80,19 +80,19 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
-        ("BRD-02FD05FA1851", "Kelfell Bold Ballpoint Pens", 9, 4.65),
-        ("BRD-0AEED8938A93", "Wesbury Bold Rollerball Pens", 18, 5.5),
-        ("BRD-1154563F036E", "Glenbank Fine Rollerball Pens", 18, 5.5),
+        ("BRD-02FD05FA1851", "Kirkbury Bold Ballpoint Pens", 9, 4.65),
+        ("BRD-0AEED8938A93", "Ingden Bold Rollerball Pens", 18, 5.5),
+        ("BRD-1154563F036E", "Leaness Fine Rollerball Pens", 18, 5.5),
     ],
     "Pencil": [
-        ("BRD-00177A9CA748", "Birkhaugh 2B Pencils with Eraser", 15, 1.9),
-        ("BRD-14C1085C8C1C", "Hamgarth 2H Pencils with Eraser", 18, 2.05),
-        ("BRD-16AF6C00FB2D", "Foxgarth 4B Drawing Pencils", 18, 2.9),
+        ("BRD-00177A9CA748", "Linfell 2B Pencils with Eraser", 15, 1.9),
+        ("BRD-14C1085C8C1C", "Cordale 2H Pencils with Eraser", 18, 2.05),
+        ("BRD-16AF6C00FB2D", "Rushfell 4B Drawing Pencils", 18, 2.9),
     ],
     "Spiral Notebook": [
-        ("BRD-082994CBD41A", "Brackbank A5 Dotted Spiral Notebook", 6, 2.9),
-        ("BRD-15F48D958E7F", "Edenworth A5 Lined Spiral Notebook", 6, 3.95),
-        ("BRD-29026ABE797F", "Sandlow B5 Squared Spiral Notebook", 9, 3.4),
+        ("BRD-082994CBD41A", "Wenbury A5 Dotted Spiral Notebook", 6, 2.9),
+        ("BRD-15F48D958E7F", "Fenstone A5 Lined Spiral Notebook", 6, 3.95),
+        ("BRD-29026ABE797F", "Ellerhurst B5 Squared Spiral Notebook", 9, 3.4),
     ],
 }
 
