@@ -1,4 +1,5 @@
-"""Office and school supplies for the retail drawing kit (gen#969): pens, pencils, notebooks.
+"""Office and school supplies for the retail drawing kit (gen#969): pens, pencils, notebooks,
+binders, folders and calculators.
 
 ===============  =============================================  ==================================
 shape            draws                                          params
@@ -11,6 +12,17 @@ pencil           a sharpened wooden pencil at a slant, with an  eraser (yes, no)
 spiral_notebook  a closed notebook: the cover, its coil along   binding (side bound, top bound),
                  the bound edge, and a cover panel showing the  ruling (lined, squared, plain,
                  ruling                                         dotted)
+ring_binder      an open binder lying flat: both covers, the    ring_type (round ring, d-ring,
+                 spine, a stack of punched sheets and the ring  slanted ring)
+                 mechanism, whose rings are round, D-shaped or
+                 slanted
+document_folder  a closed folder: its back, its front with a    closure (elastic, press stud, zip)
+                 flap and, by ``closure``, two elastic bands, a
+                 press stud on the flap or a zip with its pull
+calculator       a calculator face on: its case, the display    calculator_type (pocket, basic,
+                 and a key grid; ``calculator_type`` sets the   desktop, scientific), power
+                 case and the grid, ``power`` a solar strip or  (solar, dual power, battery)
+                 none
 ===============  =============================================  ==================================
 
 Each param's values are the lower-cased attribute values of the spec rows, so a derived style
@@ -41,6 +53,13 @@ GRAPHITE = "#4a4a50"
 ERASER = "#e9a3a0"
 #: The ruling printed on a notebook's cover panel.
 RULE = "#6d86a8"
+#: A binder's rings, darker than the plate they are riveted to.
+RING = "#7d838c"
+#: A document folder's elastic bands.
+INK_BAND = "#2a2a2e"
+#: A calculator's display and its solar cell.
+DISPLAY = "#c9d4b8"
+SOLAR = "#3b3f58"
 #: Every pen and pencil is drawn at this slant, about the center of the sheet.
 SLANT = '<g transform="rotate(35 200 200)">'
 
@@ -162,5 +181,108 @@ def spiral_notebook(
     return _label(out, label)
 
 
-SHAPES = {"pen": pen, "pencil": pencil, "spiral_notebook": spiral_notebook}
+def _ring(kind: str, cx: float, cy: float) -> str:
+    """One binder ring seen from above the open binder: round, D-shaped (flat on the back cover's
+    side) or slanted."""
+    if kind == "d-ring":
+        d = (f"M{cx - 14},{cy - 24} L{cx - 14},{cy + 24} L{cx + 2},{cy + 24} "
+             f"Q{cx + 28},{cy} {cx + 2},{cy - 24} Z")  # fmt: skip
+        return _path(d, "none", 6, "", RING)
+    if kind == "slanted ring":
+        return (f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="12" ry="25" fill="none" stroke="{RING}" '
+                f'stroke-width="6" transform="rotate(-28 {cx:.1f} {cy:.1f})"/>')  # fmt: skip
+    return (f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="20" fill="none" stroke="{RING}" '
+            f'stroke-width="6"/>')  # fmt: skip
+
+
+def ring_binder(
+    paint: str, fill: Fill, label: str | None, ring_type: str = "round ring"
+) -> list[str]:
+    """An open ring binder lying flat: both covers, the spine between them, a stack of punched
+    sheets on the right and the mechanism's rings by ``ring_type`` (round, D-shaped, slanted)."""
+    out = [
+        _rect(40, 88, 160, 236, paint, 6),
+        _rect(214, 88, 160, 236, paint, 6),
+        _rect(196, 88, 22, 236, _shade(fill.base, 0.25), 2),
+        _rect(70, 120, 100, 150, _tint(fill.base, 0.35), 4, LW_DETAIL),
+        _rect(226, 98, 138, 216, PAPER, 2, LW_DETAIL),
+        _rect(200, 132, 18, 152, STEEL, 4, LW_DETAIL),
+    ]
+    out += [_line(f"M{250},{y} L{352},{y}", LW_DETAIL, "", RULE) for y in range(128, 300, 18)]
+    out += [_ring(ring_type, 222, y) for y in (166, 250)]
+    out.append(_highlight("M56,108 L56,300", 5, 0.4))
+    return _label(out, label)
+
+
+def document_folder(
+    paint: str, fill: Fill, label: str | None, closure: str = "elastic"
+) -> list[str]:
+    """A closed document folder: its back, its front panel with a flap folded over the top and,
+    by ``closure``, two elastic bands over the corners, a press stud on the flap or a zip with
+    its pull along the top."""
+    zip_ = closure == "zip"
+    out = [
+        _rect(70, 70, 270, 290, _shade(fill.base, 0.2), 8),
+        _rect(60, 84, 270, 280, paint, 8),
+        _rect(84, 200, 120, 70, _tint(fill.base, 0.5), 4, LW_DETAIL),
+    ]
+    if zip_:
+        out += [
+            _rect(60, 84, 270, 22, _shade(fill.base, 0.35), 4, LW_DETAIL),
+            *[_line(f"M{x},90 L{x},100", 2.0, "", STEEL) for x in range(72, 320, 8)],
+            _rect(282, 98, 16, 34, STEEL, 4),
+        ]
+    else:
+        out.append(_path("M60,84 L330,84 L330,150 Q195,176 60,150 Z", _shade(fill.base, 0.12)))
+    if closure == "elastic":
+        out += [
+            _line("M92,84 L60,118", 7, "", INK_BAND),
+            _line("M298,364 L330,330", 7, "", INK_BAND),
+        ]
+    elif closure == "press stud":
+        out += [_ell(195, 160, 13, 13, STEEL), _ell(195, 160, 5, 5, _shade(STEEL, 0.3), LW_DETAIL)]
+    out.append(_highlight("M84,200 L84,340", 5, 0.4))
+    return _label(out, label)
+
+
+def _keys(x0: float, y0: float, cols: int, rows: int, w: float, h: float, gap: float,
+          paint: str) -> list[str]:  # fmt: skip
+    """A grid of calculator keys, the right-hand column in the case's color (the operators)."""
+    return [_rect(x0 + c * (w + gap), y0 + r * (h + gap), w, h, paint if c == cols - 1 else PAPER,
+                  4, LW_DETAIL)
+            for r in range(rows) for c in range(cols)]  # fmt: skip
+
+
+def calculator(paint: str, fill: Fill, label: str | None, calculator_type: str = "pocket",
+               power: str = "solar") -> list[str]:  # fmt: skip
+    """A calculator face on: its case in the color, a display, a solar strip unless ``power`` is
+    battery, and a key grid by ``calculator_type``: a slim case of 4 x 5 keys (pocket), a broader
+    one of 4 x 6 keys (basic), a wide one of 5 x 5 big keys (desktop) or a tall one of 6 x 8 small
+    keys (scientific)."""
+    x0, y0, w, h, cols, rows = {
+        "desktop": (64, 56, 272, 300, 5, 5),
+        "scientific": (110, 30, 180, 340, 6, 8),
+        "basic": (100, 40, 200, 320, 4, 6),
+    }.get(calculator_type, (120, 50, 160, 300, 4, 5))
+    out = [_rect(x0, y0, w, h, paint, 18), _rect(x0 + 14, y0 + 44, w - 28, 54, DISPLAY, 6)]
+    out.append(_line(f"M{x0 + 28},{y0 + 84} L{x0 + w - 28},{y0 + 84}", LW_DETAIL, "", GRAPHITE))
+    if power != "battery":
+        out.append(_rect(x0 + w - 74, y0 + 14, 60, 20, SOLAR, 3, LW_DETAIL))
+    gap = 8
+    top = y0 + 112
+    kw = (w - 28 - gap * (cols - 1)) / cols
+    kh = (h - 128 - gap * (rows - 1)) / rows
+    out += _keys(x0 + 14, top, cols, rows, kw, kh, gap, _shade(fill.base, 0.3))
+    out.append(_highlight(f"M{x0 + 8},{y0 + 30} L{x0 + 8},{y0 + h - 30}", 4, 0.4))
+    return _label(out, label)
+
+
+SHAPES = {
+    "pen": pen,
+    "pencil": pencil,
+    "spiral_notebook": spiral_notebook,
+    "ring_binder": ring_binder,
+    "document_folder": document_folder,
+    "calculator": calculator,
+}
 register(SHAPES)
