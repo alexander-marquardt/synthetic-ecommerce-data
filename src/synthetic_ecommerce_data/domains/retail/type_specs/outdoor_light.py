@@ -78,7 +78,7 @@ ROWS = (
     ),
     _light(
         "OLTBGL",
-        "Battery",
+        "Battery-Powered",
         "Globe",
         "Ground Stake",
         H,
@@ -105,7 +105,7 @@ ROWS = (
     ),
     _light(
         "OLTBWC",
-        "Battery",
+        "Battery-Powered",
         "Cube",
         "Wall",
         V,

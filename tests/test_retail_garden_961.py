@@ -59,8 +59,8 @@ GOLDEN: dict[str, list[tuple]] = {
     ],
     "Outdoor Light": [
         ("BRD-012D10F91282", "Larkmoor Bloom Hardwired Cube Wall Light", 12, 15.0),
-        ("BRD-0283E629D687", "Thistle & Wren Wildflower Battery Lantern Wall Light", 18, 28.0),
         ("BRD-02A965807B4F", "Rookery Garden Co. Sprout Solar Bulkhead Wall Light", 18, 27.0),
+        ("BRD-046E72E409C4", "Larkmoor Seedling Battery-Powered Lantern Path Light", 6, 13.0),
     ],
     "Garden Chair": [
         ("BRD-00224F280A77", "Fenwold Nursery Paddock Reclining Aluminum Garden Chair", 18, 70.0),
