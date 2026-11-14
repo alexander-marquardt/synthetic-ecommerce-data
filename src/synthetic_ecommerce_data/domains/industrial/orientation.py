@@ -69,8 +69,8 @@ SLIGHT: tuple[str, ...] = ()
 #: Sets and kits, drawn as several items: at 0 degrees only (#884).
 LEVEL: tuple[str, ...] = (
     "bit_socket_sets", "cord_splicing_kits", "driver_bit_sets", "hex_bit_socket_sets",
-    "kit_assortment", "pin_punch_sets", "seal_pick_sets", "sleeve_installation_kits",
-    "thread_repair_kits",
+    "household_tool_sets", "kit_assortment", "pin_punch_sets", "seal_pick_sets",
+    "sleeve_installation_kits", "thread_repair_kits",
 )
 
 #: Type key -> orientation.
