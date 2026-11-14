@@ -307,8 +307,21 @@ def test_stainless_costs_several_times_steel_and_a_long_bar_under_its_short_bars
         assert len(shared) >= 5, (top, bottom, shared)
         return statistics.median(median[(*top, s)] / median[(*bottom, s)] for s in shared)
 
+    def across_lengths(top: str, bottom: str) -> float:
+        pairs = [
+            median[(top, length, s)] / median[(bottom, length, s)]
+            for length in (12, 36, 72, 144)
+            for s in SIZES
+            if (top, length, s) in median and (bottom, length, s) in median
+        ]
+        assert len(pairs) >= 20, (top, bottom, len(pairs))
+        return statistics.median(pairs)
+
     assert 2.0 < ratio(("Stainless Steel", 12), ("Steel", 12)) < 5.0
-    assert 2.0 < ratio(("Brass", 12), ("Steel", 12)) < 4.5
+    # One alloy of nine is brass, so at one length most sizes have a single brass line and
+    # its brand's draw (#830: 1.75 at 12", 2.25 to 2.72 at the other lengths); the four
+    # lengths together hold the model's factor.
+    assert 2.0 < across_lengths("Brass", "Steel") < 4.5
     assert 2.0 < ratio(("Steel", 36), ("Steel", 12)) < 3.0
     assert 8.0 < ratio(("Steel", 144), ("Steel", 12)) < 12.0
 
