@@ -148,8 +148,9 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
-#: The departments the ceiling build sells in.
-DEPARTMENTS = 11
+#: The departments the ceiling build sells in (derivable styles). Electronics joined with
+#: gen#956's first derivable types (its gaming types, its smart home types or its audio types).
+DEPARTMENTS = 12
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
