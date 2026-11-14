@@ -49,7 +49,7 @@ TYPES = {
         path=("Toys", "Games", "Card Games"), ptype="Card Game", axis="edition",
         entries={"toy_type": None, "min_players": "C62", "max_players": "C62",
                  "play_time": None, "age_range": None},
-        turn=("kind", "family", "party"), colored=False),
+        turn=("kind", "family card game", "party card game"), colored=False),
     "marble_run": dict(
         path=("Toys", "Building & Construction", "Marble Runs"), ptype="Marble Run",
         axis="piece_count",
@@ -215,12 +215,19 @@ def test_the_type_sits_in_the_tree_under_the_guards_rules(key) -> None:
     assert tree_guard.misplaced_title_findings(triples) == []
 
 
+#: The types a later issue made breadth types: card games since gen#960 (slice 1).
+DERIVED = {"card_game"}
+
+
 @pytest.mark.parametrize("key", KEYS)
-def test_the_type_is_left_out_of_the_derivation(key) -> None:
+def test_the_type_is_left_out_of_the_derivation_unless_a_breadth_type(key) -> None:
     spec = _spec(key)
     kept = {r["product_id"] for r in scale.derivable(scale.templates())}
-    assert not spec.derivable
-    assert _ids(key) and not (_ids(key) & kept)
+    assert spec.derivable == (key in DERIVED)
+    if key in DERIVED:
+        assert _ids(key) and _ids(key) <= kept
+    else:
+        assert _ids(key) and not (_ids(key) & kept)
 
 
 def test_the_six_types_add_at_least_150_skus() -> None:
@@ -249,6 +256,15 @@ def index() -> br.Index:
     return br.Index(ceiling_build().records)
 
 
+@pytest.fixture(scope="module")
+def authored() -> br.Index:
+    """The ceiling build's authored styles: since gen#960 card games are a breadth type, and
+    some 270 derived card games answer "card game" ahead of every decoy, so a decoy's window is
+    measured against the authored answer it was placed beside."""
+    build = ceiling_build()
+    return br.Index([r for r in build.records if r["product_id"] not in build.template_of])
+
+
 @pytest.mark.timeout(300)
 @pytest.mark.parametrize("query", QUERIES)
 def test_the_toys_department_answers_the_query_with_the_intended_type(query, index) -> None:
@@ -265,10 +281,12 @@ def test_the_toys_department_answers_the_query_with_the_intended_type(query, ind
 
 @pytest.mark.timeout(300)
 @pytest.mark.parametrize("query", DECOYS)
-def test_an_unfiltered_ranking_puts_a_decoy_beside_the_answer(query, index) -> None:
-    """The window is the first 30 hits: the toys' own decoys (DECOY_PINS) and the memory-card word
-    decoys (gen#796) share the top twenty."""
-    got = {h["product_type"] for h in br.rank(index, query, 30)}
+def test_an_unfiltered_ranking_puts_a_decoy_beside_the_answer(query, authored) -> None:
+    """The window is the first 50 hits of the authored styles: the toys' own decoys (DECOY_PINS)
+    and the memory-card word decoys (gen#796) share it. It was 30 until gen#960 gave card games
+    sixteen themed templates, which take 18 of the first 30 hits for "card game"; the greeting
+    and gift cards follow at 34 and 35."""
+    got = {h["product_type"] for h in br.rank(authored, query, 50)}
     assert got & DECOYS[query], got
 
 
@@ -360,10 +378,10 @@ def test_a_toy_decoy_is_a_row_of_its_type_in_the_toys_leaf_that_holds_its_word(k
 @pytest.mark.timeout(300)
 @pytest.mark.parametrize(("key", "code"), PINNED)
 def test_an_unfiltered_ranking_puts_each_toy_decoy_among_the_hits_of_its_query(
-    key, code, index
+    key, code, authored
 ) -> None:
-    """The decoy is in the build and the ranking finds it for the query it targets (the first 50
-    hits), so the policy that repairs it has something to repair."""
+    """The decoy is in the build and the ranking of the authored styles finds it for the query it
+    targets (the first 50 hits), so the policy that repairs it has something to repair."""
     d = _decoy(key, code)
-    ids = [h["product_id"] for h in br.rank(index, d.query, 50)]
+    ids = [h["product_id"] for h in br.rank(authored, d.query, 50)]
     assert f"BRD-{code}" in ids, (d.query, ids[:10])

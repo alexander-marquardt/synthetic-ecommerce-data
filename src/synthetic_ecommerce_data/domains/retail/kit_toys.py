@@ -11,7 +11,8 @@ shape         draws                                                        param
 building_set  a set's box, its art the theme, and one loose brick         theme, bricks
 jigsaw        a finished puzzle cut into exactly ``pieces`` tiles, and     pieces, theme
               one loose piece (``class="cut-h"`` / ``"cut-v"`` per cut)
-board_game    a track board, a hex board, a fan of cards or a party box    kind
+board_game    a track board, a hex board, a fan of cards or a party box    kind, theme
+              (a themed game's name panel on its box, gen#960)
 doll          a fashion, baby or rag doll, or a row of doll's house        kind, accessories,
               figures; each accessory beside it (``class="accessory"``)    counts
 wooden_toy    stacking rings, a shape sorter, a train on its track, a      kind, counts,
@@ -45,6 +46,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     LW_DETAIL,
     Fill,
     _line,
+    _panel,
     _path,
     _shade,
     _tint,
@@ -194,6 +196,10 @@ def grid(pieces: int) -> tuple[int, int]:
     return min(pairs, key=lambda rc: abs(rc[0] / rc[1] - 0.72))
 
 
+#: A breadth jigsaw's theme (gen#960) -> the picture :func:`_jig_picture` draws for it.
+JIG_THEMES = {"world map": "maps", "dinosaur": "dinosaurs", "landscape": "landscapes"}
+
+
 def _jig_picture(theme: str, x: float, y: float, w: float, h: float, fill: Fill) -> list[str]:
     base = y + h
     if theme == "space":
@@ -287,7 +293,9 @@ def jigsaw(
     character: str = "",
 ) -> list[str]:
     """A finished puzzle of ``pieces`` tiles: rows x columns cuts over the ``theme`` picture
-    (knobbed at 100 pieces or fewer), and one loose piece lifted off at the corner."""
+    (knobbed at 100 pieces or fewer), and one loose piece lifted off at the corner. A theme may
+    be a breadth jigsaw's own word ("world map", "dinosaur", "landscape", gen#960)."""
+    theme = JIG_THEMES.get(theme.lower(), theme.lower())
     n = max(1, _n(pieces, 100))
     rows, cols = grid(n)
     x, y, w, h = 34.0, 46.0, 300.0, 240.0
@@ -343,11 +351,26 @@ def _card(x: float, y: float, w: float, h: float, turn: float, mark: str, color:
 
 
 def board_game(
-    paint: str, fill: Fill, label: str | None, kind: str = "family", character: str = ""
+    paint: str,
+    fill: Fill,
+    label: str | None,
+    kind: str = "family",
+    character: str = "",
+    theme: str = "",
 ) -> list[str]:
+    """The game (:func:`_board`), and a themed game's theme on a name panel along the foot of
+    its box (gen#960): the title shows the theme, so the picture does too, and two derived
+    games of one kind draw different tiles."""
+    out = _board(paint, fill, kind, character)
+    return [*out, *_panel(24, 350, 230, 34, theme.title(), 22)] if theme else out
+
+
+def _board(paint: str, fill: Fill, kind: str, character: str) -> list[str]:
     """A ``family`` game's square board with a track of squares round its edge, dice and
     pawns; a ``strategy`` game's board of hex tiles with pieces on it; a ``card`` game's
-    tuck box and a fan of cards; a ``party`` game's box, a sand timer and a stack of cards."""
+    tuck box and a fan of cards; a ``party`` game's box, a sand timer and a stack of cards.
+    The kind may be a toy type's own words ("strategy board game", gen#960)."""
+    kind = kind.lower().removesuffix(" board game")
     out = [_shadow(200, 344, 170)]
     if kind == "card":
         out += [_rect(46, 150, 120, 180, paint, 8), _rect(46, 150, 120, 38, _shade(fill.base, 0.2), 8, LW_DETAIL),
