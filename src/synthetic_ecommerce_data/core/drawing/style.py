@@ -115,6 +115,11 @@ MATERIAL_FILL: dict[str, str] = {
     # The bushing bronzes (#833): a porous pressed bronze, lighter, and a cast one.
     "Oil-Impregnated Sintered Bronze": "#c4a46e",
     "Cast Bronze": "#9a7542",
+    # The tape measure cases (gen#971): a plain ABS shell, one with a black rubber grip
+    # moulded over it, and a chrome-plated one.
+    "ABS Plastic": "#a7b4c2",
+    "Rubber-Coated ABS": "#45474a",
+    "Chrome-Plated ABS": "#e3e8ec",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -224,6 +229,10 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     # The bushing bronzes (#833): the sintered one dotted for its pores.
     "Oil-Impregnated Sintered Bronze": Hatch((60,), 3.5, dots=True),
     "Cast Bronze": Hatch((120, 60), 4.0),
+    # The tape measure cases (gen#971): each a pattern no other material uses.
+    "ABS Plastic": Hatch((85,), 7.5, dots=True),
+    "Rubber-Coated ABS": Hatch((25,), 2.5, dots=True),
+    "Chrome-Plated ABS": Hatch((5,), 9.5),
 }
 
 
