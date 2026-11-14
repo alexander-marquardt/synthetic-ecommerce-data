@@ -7,10 +7,11 @@ hair_dryer          a hair dryer from the side: its body and      technology (io
                     nozzle in the SKU's color, a vent grille,     tourmaline, infrared), form
                     a badge by ``technology`` and a handle by     (compact, salon, travel,
                     ``form`` (a folding travel handle is drawn    folding)
-                    hinged, a salon dryer long with a cord)
+                    hinged, a salon dryer long with a cord,
+                    a travel dryer with a hanging loop)
 hair_straightener   a closed straightener, upright: two arms in   plate (ceramic, titanium,
                     the SKU's color, plates whose tone is the     tourmaline), kind (mini,
-                    ``plate`` material, and by ``kind`` a short   salon, cordless)
+                    ``plate`` material, and by ``kind`` a short   salon, cordless, travel)
                     body, a long one with a cord, or a battery
 hairbrush           a hairbrush, upright: a handle in the SKU's   head (paddle, round, vent,
                     color, a head by ``head`` and bristle tips    detangling), bristle (boar,
@@ -87,6 +88,8 @@ def hair_dryer(
     out.append(_rect(hx + 10, hy0 + 30, 16, 26, _tint(fill.base, 0.5), 4, LW_DETAIL))
     if long:
         out.append(_cord(hx + 18, hy0 + hlen))
+    elif form == "travel":
+        out.append(_ell(hx + 18, hy0 + hlen + 8, 10, 8, "none", LW_DETAIL))
     out.append(_highlight(f"M{x0 + 40},{cy - r + 12} L{x1 - 20},{cy - r + 12}", 6, 0.45))
     return _label(out, label)
 

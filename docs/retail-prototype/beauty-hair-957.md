@@ -31,7 +31,7 @@ derived style that swaps a value is drawn the way its title reads (gen#512):
 
 - A dryer's technology picks the color of its badge, and its form picks the handle. A folding
   handle is drawn with a hinge. A salon dryer gets a long handle and a cord. A compact or travel
-  dryer is drawn smaller.
+  dryer is drawn smaller, and a travel dryer has a hanging loop.
 - A straightener's plate material picks the tone of its plates. A mini is drawn short. A salon
   model has a cord, and a cordless one has a battery.
 - A brush's head picks its outline. A vent head has slots, a round head is a barrel with pins on

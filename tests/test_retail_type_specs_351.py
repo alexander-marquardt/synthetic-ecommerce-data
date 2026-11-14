@@ -35,7 +35,9 @@ RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
 
 TRACKSUIT_IDS = {f"BRD-TST{c}" for c in ("MFL", "MSH", "MHZ", "WFL", "WVL", "W3P", "BHD", "G3P")}
-SHAMPOO_IDS = {"BRD-SHPARG", "BRD-SHPROS"}
+SHAMPOO_IDS = {
+    "BRD-SHPARG", "BRD-SHPROS", "BRD-SHPTEA", "BRD-SHPKER", "BRD-SHPALO", "BRD-SHPBIO",
+}  # fmt: skip
 
 
 # Example types the tests below use for a type that is NOT registered. A real type added in its own
