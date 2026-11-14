@@ -100,6 +100,12 @@ def records(parent: dict, facets_by_sku: dict[str, dict]) -> list[dict[str, str]
     return out
 
 
+def drawing_rows(catalog_dir: Path) -> list[dict]:
+    """Stub (gen#924): no row yet."""
+    del catalog_dir
+    return []
+
+
 def member_path(path: str) -> str:
     """A drawing's path inside the archive: under the bundle's top-level folder."""
     from synthetic_ecommerce_data.core.emit import IMAGE_ROOT  # noqa: PLC0415

@@ -113,6 +113,27 @@ def records(skus: int | None = None) -> list[dict]:
     return [rec for recs in samples().values() for rec in recs]
 
 
+#: The file beside the image release naming what each image was drawn from (gen#924).
+DRAWINGS_FILE = "drawings.jsonl.gz"
+
+
+def drawing_rows(recs: list[dict]) -> list[dict]:
+    """Stub (gen#924): no row yet."""
+    del recs
+    return []
+
+
+def write_drawings(rows: list[dict], path: Path) -> None:
+    """Stub (gen#924): writes nothing."""
+    del rows, path
+
+
+def drawing_for(path: Path, key: str) -> list[dict]:
+    """Stub (gen#924): finds nothing."""
+    del path, key
+    return []
+
+
 def image_files(recs: list[dict] | None = None) -> list[tuple[str, bytes]]:
     """``(member path, svg bytes)`` for every SKU's own image file, sorted.
 
