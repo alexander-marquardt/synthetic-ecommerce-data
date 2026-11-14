@@ -113,6 +113,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Socket",
     "Vise",
     "Gage",
+    "Finder",
     "Collet",
     # The homeowner tools of #971.
     "Tape Measure",

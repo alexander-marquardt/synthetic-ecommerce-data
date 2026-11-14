@@ -590,6 +590,11 @@
  "snap_ring_pliers": {
   "Overall length": "Overall Length"
  },
+ "stud_finders": {
+  "Application modes": "Application Modes",
+  "Measurement system": "Measurement System",
+  "Scan depth (in.)": "Scan Depth (In.)"
+ },
  "studs_double_end": {
   "Measurement system": "Measurement System",
   "Thread direction": "Thread Direction",
