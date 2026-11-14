@@ -25,11 +25,15 @@ pytest and exits ``128 + signal``. A timer prints the same every ``--evidence-ev
 (default 300, 0 for none): the runner may end the step with SIGKILL, which no trap catches.
 pytest's output is relayed on its own thread while the main thread waits, so a stop signal's
 handler runs within ``SIGNAL_LATENCY`` seconds, whatever the relay is doing (#929).
+
+A SIGUSR1 dumps every thread's stack to stderr and the wrapper goes on (#931): a hung wrapper then
+says where it waits before a SIGKILL ends it. ``tests/wrapper_process.py`` sends it on giving up.
 """
 
 from __future__ import annotations
 
 import argparse
+import faulthandler
 import os
 import re
 import resource
@@ -221,6 +225,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(head)
     if not command:
         parser.error("no command after --")
+    faulthandler.register(signal.SIGUSR1, all_threads=True)
     attempt = 0
     while True:
         attempt += 1

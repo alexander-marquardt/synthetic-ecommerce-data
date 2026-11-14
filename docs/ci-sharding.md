@@ -348,6 +348,17 @@ on its own thread, and the main thread only waits on it, waking every `SIGNAL_LA
 (0.5), so the handler runs within that. `tests/test_ci_signal_mid_write_929.py` blocks the relay
 on a full pipe and sends SIGTERM into that write.
 
+That cause was found by reading the code: the tests ended a wrapper that outlived their patience
+with SIGKILL, which runs no handler, so their log never said where its threads were (#931). The
+script therefore has faulthandler dump every thread's stack to stderr on SIGUSR1, and goes on
+running. Every test that starts the wrapper does it through `tests/wrapper_process.py`, which runs
+it with `PYTHONFAULTHANDLER=1` and, on giving up, sends SIGUSR1, waits three seconds for the dump,
+and only then kills the session. A test that hangs on the wrapper thus fails with the wrapper's
+`Thread 0x... (most recent call first):` stacks in its captured output: the main thread in
+`run_once`, the relay in `relay`, the timer in `tick`. `tests/test_ci_thread_dump_931.py` is the
+guard, and it fails a test file that starts the wrapper by itself. To see where a hung wrapper is
+by hand, `kill -USR1 <pid>`.
+
 A killed worker never sends its `module peak memory:` figures to the controller, so the script
 also names where each lost worker was (#845). Each attempt names a fresh directory in
 `WORKER_PEAK_DIR`, and `tests/worker_peak.py` has each worker append `<module>\t<MB>` to

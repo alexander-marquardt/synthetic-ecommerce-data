@@ -43,16 +43,25 @@ def start(
     """Start ``ci_run_pytest.py <args>``: output piped, stderr into stdout unless ``popen`` says."""
     opts: dict[str, Any] = {"stdout": subprocess.PIPE, "stderr": subprocess.STDOUT} | popen
     return subprocess.Popen(
-        [sys.executable, str(SCRIPT), *args], env=os.environ if env is None else env,
+        [sys.executable, str(SCRIPT), *args],
+        env=(os.environ if env is None else env) | {"PYTHONFAULTHANDLER": "1"},
         start_new_session=True, **opts,
     )  # fmt: skip
 
 
 def give_up(proc: subprocess.Popen[Any]) -> tuple[Any, Any]:
-    """End a wrapper that outlived the test's patience: its whole output, stdout then stderr."""
+    """End a wrapper that outlived the test's patience: its whole output, stdout then stderr.
+
+    The output read before the timeout is kept: ``communicate`` after ``TimeoutExpired`` loses none.
+    """
     with contextlib.suppress(ProcessLookupError):
-        os.killpg(proc.pid, signal.SIGKILL)
-    return proc.communicate()
+        os.kill(proc.pid, signal.SIGUSR1)
+    try:
+        return proc.communicate(timeout=DUMP_GRACE)
+    except subprocess.TimeoutExpired:
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(proc.pid, signal.SIGKILL)
+        return proc.communicate()
 
 
 def finish(proc: subprocess.Popen[Any], timeout: float) -> Run:

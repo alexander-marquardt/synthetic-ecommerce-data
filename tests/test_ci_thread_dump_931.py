@@ -49,7 +49,9 @@ def test_the_wrapper_s_python_runs_with_faulthandler_on() -> None:
 
 def test_every_test_starts_the_wrapper_through_the_helper() -> None:
     # A test that runs ``str(SCRIPT)`` itself would end it with a bare SIGKILL and no dump.
-    bound = re.compile(r'^SCRIPT = REPO / "scripts" / "ci_run_pytest\.py"$', re.M)
+    bound = re.compile(
+        r'^SCRIPT = (?:REPO / "scripts" / "ci_run_pytest\.py"|wrapper_process\.SCRIPT)$', re.M
+    )
     direct = [
         path.name
         for path in sorted(TESTS.rglob("*.py"))
