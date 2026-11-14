@@ -3,8 +3,9 @@
 The maintainer, on the #860 contact sheet: the glove and ball valve images "are a bit too
 square". The ball valve, bench vise, thread pitch gauge and T-slot nut drew the
 generic ``block``; each now has a shape of its own, drawn in code like the C-clamp (#803).
-``bar_stock_square`` is a block and keeps it. The glove's palm, thumb and fingers were
-rectangles; it is now one curved outline, still in its shell's knit hatch and the brand's ink.
+``bar_stock_square`` was a block until it became a deep type with its own drawing (#830).
+The glove's palm, thumb and fingers were rectangles; it is now one curved outline, still in
+its shell's knit hatch and the brand's ink.
 Every new figure sits on the white paper at its product's angle (#849/#860).
 """
 
@@ -74,8 +75,10 @@ def test_the_type_draws_its_own_shape_not_the_box(key, shape):
     assert domain.figure(key)[0] is not breadth_shapes.block
 
 
-def test_square_bar_stock_keeps_the_box():
-    assert breadth.row_for("bar_stock_square").shape == "block"
+def test_square_bar_stock_is_a_modelled_type_with_its_own_drawing():
+    """Square bar stock was a breadth block; it is a deep type now (#830, slice 3)."""
+    assert "bar_stock_square" not in {row.key for row in breadth.load_rows()}
+    assert domain.figure("bar_stock_square")[0] is not breadth_shapes.block
 
 
 def test_roller_chain_already_draws_its_own_chain():
