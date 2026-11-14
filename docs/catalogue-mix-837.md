@@ -67,7 +67,7 @@ starts before the build stops crashing at larger sizes. A row that does not grow
 | Gifts | retail | existing | 1,003 | 3,000 | 1,997 | gen#966 | party supplies (balloons, party tableware), seasonal decorations (Christmas, Halloween), gift wrap and cards in depth |
 | Pets | retail | existing | 0 | 7,000 | 7,000 | gen#967 | dog and cat food, treats, cat litter, toys, beds and crates, leashes and collars, grooming, aquarium and small-animal supplies |
 | Health | retail | new | 0 | 5,000 | 5,000 | gen#968 | vitamins and supplements, first aid, thermometers and blood-pressure monitors, eye care, incontinence, mobility aids; over-the-counter only, invented brands, no medical claims |
-| Office & school | retail | new | 0 | 4,500 | 4,500 | gen#969 | pens and pencils, paper and notebooks, binders and folders, backpacks, desk accessories, calculators, art supplies |
+| Office & school | retail | existing | 0 | 4,500 | 4,500 | gen#969 | pens and pencils, paper and notebooks, binders and folders, backpacks, desk accessories, calculators, art supplies |
 | Automotive | retail | new | 0 | 2,000 | 2,000 | gen#970 | car wash and wax, wiper blades, motor oil and fluids, phone mounts, seat covers and floor mats, jump starters, tire inflators |
 | Hardware | industrial | existing | 73,436 | 75,000 | 1,564 | gen#958 | home hardware only: picture hanging, hooks, wall anchors, door and cabinet knobs and hinges, shelf brackets, household fastener assortments |
 | Tools | industrial | existing | 58,147 | 59,500 | 1,353 | gen#971 | homeowner tools only: tape measures, levels, utility knives, stud finders, household tool sets |
