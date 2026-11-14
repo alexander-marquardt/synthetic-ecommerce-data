@@ -31,13 +31,12 @@ Both new shapes are filed as upright in `orientation.py`.
 
 ## Measured
 
-The ceiling build (seed 0) holds 2,869 Gifts SKUs: Balloons 795, Bunting 624 and Party Plates
-447 are new. `tests/test_retail_party_966.py` holds the slice's floor of 1,650 and, per type,
-unique ids, titles, twin keys and SKUs, determinism and a golden slice.
+The ceiling build (seed 0) gives Gifts three new leaves of party supplies. The totals are
+measured by `retail_figures`, not typed here. `tests/test_retail_party_966.py` holds the slice's
+floor and, per type, unique ids, titles, twin keys and SKUs, determinism and a golden slice.
 
-Adding the three types moves the range names the build gives some Home tableware styles (the
-name allocation is shared across the build), and the Home plates, bowls and dinner sets lose 36
-SKUs between them.
+The three kinds join the gifts family of the line grammar, so a derived style's title leads with
+its brand or a plain model word, never a coined range name.
 
 ## Remaining
 

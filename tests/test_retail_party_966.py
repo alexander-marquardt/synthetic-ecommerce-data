@@ -98,19 +98,19 @@ def _golden(party: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Balloon": [
-        ("BRD-03577D8FD6A0", "Cressgate Matte Foil Balloons", 18, 4.5),
-        ("BRD-0ACEACD6977D", "Dewthorpe Matte Latex Balloons", 18, 5.5),
-        ("BRD-0B0AFA8BF2B1", "Stokemoor Metallic Foil Balloons", 18, 6.5),
+        ("BRD-01FAEB90C5CC", "Calderby & Lune Token Clear Confetti Balloons", 15, 3.65),
+        ("BRD-03577D8FD6A0", "Lanternby Celebrate Matte Foil Balloons", 18, 4.5),
+        ("BRD-0AE460A0A58F", "Ribbonvale Milestone Matte Latex Balloons", 18, 5.5),
     ],
     "Party Plate": [
-        ("BRD-08603C539371", "Kelby Card Side Plates", 18, 4.05),
-        ("BRD-0AA9CB10EA26", "Darham Bamboo Side Plates", 12, 2.2),
-        ("BRD-139B51C33C33", "Torthwaite Card Dinner Plates", 18, 2.05),
+        ("BRD-08603C539371", "Ribbonvale Milestone Card Side Plates", 18, 4.2),
+        ("BRD-0A4597818CD6", "Thistle & Wren Hello Card Side Plates", 18, 2.1),
+        ("BRD-0AA9CB10EA26", "Little Fernby Parcel Bamboo Side Plates", 12, 2.2),
     ],
     "Bunting": [
-        ("BRD-087FF7CAE62D", "Wathfield Paper Pennant Bunting", 9, 7.5),
-        ("BRD-1135CE7E367D", "Wenmere Fabric Square Bunting", 15, 7.0),
-        ("BRD-1A2DA76E4A30", "Bolthill Fabric Scalloped Bunting", 6, 6.5),
+        ("BRD-087FF7CAE62D", "Little Fernby Parcel Paper Pennant Bunting", 18, 6.5),
+        ("BRD-1135CE7E367D", "Ribbonvale Milestone Fabric Square Bunting", 15, 7.0),
+        ("BRD-1A2DA76E4A30", "Thistle & Wren Hello Fabric Scalloped Bunting", 6, 6.5),
     ],
 }
 

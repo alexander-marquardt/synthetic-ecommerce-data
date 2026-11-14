@@ -20,13 +20,12 @@ from synthetic_ecommerce_data.domains.retail.gifts_rows import (
     FERNBY,
     HEARTH,
     LANTERNBY,
-    PIPWICK,
     SIX_COLORS,
     THISTLE,
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import Row
 
-__all__ = ["CALDERBY", "DEPARTMENT", "FERNBY", "HEARTH", "LANTERNBY", "PIPWICK", "THISTLE"]
+__all__ = ["CALDERBY", "DEPARTMENT", "FERNBY", "HEARTH", "LANTERNBY", "THISTLE"]
 
 ROOT = DEPARTMENT
 BALLOONS = (ROOT, "Party Supplies", "Balloons")

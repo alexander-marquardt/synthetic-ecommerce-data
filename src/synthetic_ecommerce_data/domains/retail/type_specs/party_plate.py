@@ -11,10 +11,10 @@ color in a pack of 8, 16 or 24.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.party_rows import (
+    CALDERBY,
     DEPARTMENT,
     FERNBY,
     LANTERNBY,
-    PIPWICK,
     PLATES,
     RED,
     THISTLE,
@@ -44,7 +44,7 @@ ROWS = (
         "Compostable bamboo fibre dinner plates with a rim band, strong enough for a hot meal.",
         _plate("Bamboo", "Dinner", "Rim Band"), packs((8, 4.0), (16, 7.0), (24, 9.5)),
         (("kind", "dinner"), ("finish", "rim band"))),
-    row("PPLCDS", "Card Side Plates", PIPWICK, PLATES, "Party Plate", "plate",
+    row("PPLCDS", "Card Side Plates", CALDERBY, PLATES, "Party Plate", "plate",
         "Coated card side plates for a children's party, wipe-clean and easy to stack.",
         _plate("Card", "Side", "Plain"), packs((8, 2.0), (16, 3.5), (24, 4.5)),
         (("kind", "side"), ("finish", "plain"))),

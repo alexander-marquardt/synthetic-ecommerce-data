@@ -12,10 +12,10 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.party_rows import (
     BALLOONS,
+    CALDERBY,
     DEPARTMENT,
     FERNBY,
     LANTERNBY,
-    PIPWICK,
     THISTLE,
     WHITE,
     YELLOW,
@@ -35,7 +35,7 @@ ROWS = (
         "Matte latex balloons for a birthday or a garden party, tied with a curling ribbon.",
         _balloon("Matte", "Latex"), packs((10, 3.0), (25, 6.0), (50, 10.0)),
         (("style", "latex"), ("finish", "matte"))),
-    row("BALPRL", "Pearl Latex Balloons", PIPWICK, BALLOONS, "Balloon", "balloon",
+    row("BALPRL", "Pearl Latex Balloons", CALDERBY, BALLOONS, "Balloon", "balloon",
         "Pearl latex balloons with a soft sheen, to fill with air or helium for a celebration.",
         _balloon("Pearl", "Latex"), packs((10, 3.5), (25, 7.0), (50, 12.0)),
         (("style", "latex"), ("finish", "pearl"))),
