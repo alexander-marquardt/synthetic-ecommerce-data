@@ -30,6 +30,7 @@
  "tests/test_customer_name_check_393.py": 25.6,
  "tests/test_determinism_check.py": 29.2,
  "tests/test_dimensions.py": 0.0,
+ "tests/test_every_image_clear_of_logo_932.py": 363.0,
  "tests/test_facet_control_rule.py": 75.6,
  "tests/test_file_size_gate_11683.py": 1.6,
  "tests/test_fit_price_model.py": 8.9,
