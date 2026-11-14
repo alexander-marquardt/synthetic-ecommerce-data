@@ -91,7 +91,8 @@ UPRIGHT: tuple[str, ...] = (
     "produce_pile", "pudding", "pump", "pumpkin", "punnet", "purse", "recliner_sofa",
     "resistance_band", "ride_on", "rim_block", "ring", "robot_mower", "role_play", "roll_mat",
     "rug", "saucepan", "screen_protector", "screwdriver", "sds_drill", "serum", "setting_spray",
-    "sheet", "shower_curtain", "side_table", "sippy_cup", "skateboard", "sleeping_bag", "sleeve",
+    "sheet", "sheet_set", "shower_curtain", "side_table", "sippy_cup", "skateboard",
+    "sleeping_bag", "sleeve",
     "smartphone", "sofa", "sofa_bed", "sofa_cover", "sofa_seats", "sofa_version",
     "spiral_notebook", "star",
     "steak_tray", "stems", "step_ladder", "sticker_sheet", "storage_box", "strawberry", "suitcase",
@@ -107,7 +108,8 @@ UPRIGHT: tuple[str, ...] = (
 
 #: Set types, drawn as several items: at 0 degrees only (#884).
 LEVEL: tuple[str, ...] = (
-    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "gift_set", "luggage_set",
+    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "food_storage", "gift_set",
+    "luggage_set",
 )
 
 #: Shape -> orientation.

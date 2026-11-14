@@ -99,6 +99,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mattress Topper": ("bed_size", "size_eu", "size_uk"),
     "Pillow": ("size_eu", "size_uk"),
     "Pillowcase": ("size_eu", "size_uk"),
+    "Sheet Set": ("bed_size",),
     "Sofa Bed": ("bed_size",),
     # Rugs, towels and what else is sold by its dimensions.
     "Bath Mat": ("width_cm", "length_cm"),
