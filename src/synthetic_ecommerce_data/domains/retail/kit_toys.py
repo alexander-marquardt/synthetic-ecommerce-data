@@ -194,6 +194,10 @@ def grid(pieces: int) -> tuple[int, int]:
     return min(pairs, key=lambda rc: abs(rc[0] / rc[1] - 0.72))
 
 
+#: A breadth jigsaw's theme (gen#960) -> the picture :func:`_jig_picture` draws for it.
+JIG_THEMES = {"world map": "maps", "dinosaur": "dinosaurs", "landscape": "landscapes"}
+
+
 def _jig_picture(theme: str, x: float, y: float, w: float, h: float, fill: Fill) -> list[str]:
     base = y + h
     if theme == "space":
@@ -287,7 +291,9 @@ def jigsaw(
     character: str = "",
 ) -> list[str]:
     """A finished puzzle of ``pieces`` tiles: rows x columns cuts over the ``theme`` picture
-    (knobbed at 100 pieces or fewer), and one loose piece lifted off at the corner."""
+    (knobbed at 100 pieces or fewer), and one loose piece lifted off at the corner. A theme may
+    be a breadth jigsaw's own word ("world map", "dinosaur", "landscape", gen#960)."""
+    theme = JIG_THEMES.get(theme.lower(), theme.lower())
     n = max(1, _n(pieces, 100))
     rows, cols = grid(n)
     x, y, w, h = 34.0, 46.0, 300.0, 240.0
@@ -347,7 +353,9 @@ def board_game(
 ) -> list[str]:
     """A ``family`` game's square board with a track of squares round its edge, dice and
     pawns; a ``strategy`` game's board of hex tiles with pieces on it; a ``card`` game's
-    tuck box and a fan of cards; a ``party`` game's box, a sand timer and a stack of cards."""
+    tuck box and a fan of cards; a ``party`` game's box, a sand timer and a stack of cards.
+    The kind may be a toy type's own words ("strategy board game", gen#960)."""
+    kind = kind.lower().removesuffix(" board game")
     out = [_shadow(200, 344, 170)]
     if kind == "card":
         out += [_rect(46, 150, 120, 180, paint, 8), _rect(46, 150, 120, 38, _shade(fill.base, 0.2), 8, LW_DETAIL),

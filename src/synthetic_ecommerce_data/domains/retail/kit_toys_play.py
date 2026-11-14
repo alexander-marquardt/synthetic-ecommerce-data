@@ -138,7 +138,9 @@ def dolls_house(paint: str, fill: Fill, label: str | None, floors: str = "2") ->
 
 def card_game(paint: str, fill: Fill, label: str | None, kind: str = "family") -> list[str]:
     """A card game: a tuck box behind a fan of three cards. The kind is a pip on the cards:
-    a round pip for family, a star for party, a square one for strategy."""
+    a round pip for family, a star for party, a square one for strategy. The kind may be a toy
+    type's own words ("party card game", gen#960)."""
+    kind = kind.lower().removesuffix(" card game")
     out = [_rect(70, 90, 170, 250, paint, 10), _rect(90, 120, 130, 60, _tint(fill.base, 0.6), 6)]
     for ang, x in ((-18, 190), (0, 235), (18, 280)):
         pip = {
