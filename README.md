@@ -1314,12 +1314,18 @@ uv run python scripts/check_industrial_unit_pin.py --refresh  # rewrite the pin 
 ```
 
 `tests/data/industrial_canonical_units.yaml` is a verbatim copy of the
-industrial deployment's `canonical_units:` block, and the contract test takes
-every unit's kind and size from it. Its source is a private repository that
-this repository's CI cannot read, so the comparison is a script run by hand,
-through an authenticated `gh`, never a pytest that could only skip in CI. **Run
-it whenever the deployment's `canonical_units` changes, and before a 100-type
-build.** It exits 0 on a match, 1 on a mismatch (naming whether the pin was
+industrial deployment's `canonical_units:` block (`src/prism_retail_and_industrial/data/customization.yaml`
+in elastic/prism-retail-and-industrial), and the contract test takes every
+unit's kind and size from it. The copy is the deployment's block as of its
+recorded commit, and no more: its source is a private repository that this
+repository's CI cannot read, so CI here checks only the copy's own digest, and
+nothing here notices when the deployment's `canonical_units` changes. The drift
+check belongs in the deployment's CI, which can read this public copy
+(elastic/prism-retail-and-industrial#1855). Until it runs there, the comparison
+is this script, run by hand through an authenticated `gh`, never a pytest that
+could only skip in CI. **Run it before a 100-type build.** It reads the
+recorded commit at the repository and path the pin records, so a source renamed
+since the pin was taken is reported as drift, not as unreadable. It exits 0 on a match, 1 on a mismatch (naming whether the pin was
 edited, misnames its commit, or the source has moved on), and 2 when it cannot
 read the source; it never passes a comparison it could not make.
 

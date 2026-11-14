@@ -6,14 +6,16 @@
 # longer matches it. The script compares the block with its source.
 #
 # The contract test (tests/test_nested_entry_contract.py) reads each unit's kind
-# and exact size from here, so a unit the deployment rules on -- `TPI` as a
-# reciprocal length, elastic/prism#9877 -- cannot be redeclared in a test unseen.
+# and exact size from here, so no test here redeclares a unit the deployment
+# rules on (`TPI` as a reciprocal length, elastic/prism#9877). That holds against
+# the deployment only as of `commit` below: this CI cannot read the source, and
+# the drift check is the deployment's (elastic/prism-retail-and-industrial#1855).
 pin:
-  repo: elastic/prism-industrial-products
-  path: src/prism_industrial_products/data/customization.yaml
-  commit: d965af03c4ae38dbd227c4fa04432732dbd14cb6
-  blob: 6285640ed370aa3184983992f13e14135a1f9c6c
-  sha256: 6d473aed5e04fba1b08c84f274687e1b2a6d1838fb84b0450b5fa21afff882d1
+  repo: elastic/prism-retail-and-industrial
+  path: src/prism_retail_and_industrial/data/customization.yaml
+  commit: 9642d5b94f782bf0615fe6847bf5dc6e2cbae377
+  blob: 70185d976f20d71f2c78c42c388503b9c6f5ed99
+  sha256: 0d8875c8dfb4a2eb6b20e5923816b4678a06218e089ac265f5b770c781e0b61d
 canonical_units:
   # MILLIMETRES — buys 1/512 inch exactly, far finer than the 64ths this
   # catalog stocks or the 1/256 its own interval ladder can publish.
@@ -23,7 +25,10 @@ canonical_units:
     # 20 TPI is 1/20 inch, 1.27 mm. Declared like INH and MMT, with a RECIPROCAL
     # conversion -- `n` TPI is `127/5 / n` mm -- so an imperial thread pitch is
     # stored under its own unit (ruled on elastic/prism#9877, 2026-10-01).
-    units: { INH: "127/5", MMT: "1", TPI: { reciprocal: "127/5" } }
+    # One line on purpose: tests/test_canonical_units_9299.py pins it.
+    # prettier-ignore
+    units:
+      { INH: "127/5", FOT: "1524/5", MMT: "1", CMT: "10", MTR: "1000", TPI: { reciprocal: "127/5" } }
   # GRAMS, not milligrams. Milligrams would buy a finer low end (1/8 ounce
   # against a whole one) and cost the high end: past ~2^53 the two paths ES
   # uses to reach the stored long disagree, on 836 of the whole pounds from
@@ -31,23 +36,53 @@ canonical_units:
   # above.
   mass:
     code: GRM
-    units: { ONZ: "45359237/1600000", GRM: "1", MGM: "1/1000", KGM: "1000" }
+    units:
+      {
+        ONZ: "45359237/1600000",
+        LBR: "45359237/100000",
+        GRM: "1",
+        MGM: "1/1000",
+        KGM: "1000",
+      }
   # DEGREES. "Metric for everything" was never a claim about radians — no
   # engineering catalog publishes a chamfer as 0.7854 rad.
   plane_angle:
     code: DD
     units: { DD: "1" }
-  # A DIMENSIONLESS COUNT — flutes, grit numbers. Not convertible into
-  # anything, so no ruling about measurement systems reaches it.
+  # A DIMENSIONLESS COUNT — flutes, grit numbers: not convertible, and not typed
+  # ("4 flute" names the attribute), so no `${UNIT_COUNT}` (elastic/prism#13537).
   count:
     code: C62
     units: { C62: "1" }
+    typed: false
   # REVOLUTIONS PER MINUTE, published to the whole RPM.
   rotation:
     code: RPM
     units: { RPM: "1" }
+  # MILLILITRES -- the retail catalog's volumes (a 250 ml bottle), the one kind
+  # only the retail persona writes. Declared here because the Engine's boot
+  # census reads every persona's unit codes against this one taxonomy, and the
+  # Combined persona reads retail's attributes through ``catalog_combined``. LTR (a litre, 1000 ml) is a retail Capacity.
+  volume:
+    code: MLT
+    units: { MLT: "1", LTR: "1000" }
+  # VOLTS -- the retail catalog's voltage_v attribute (a 12 V charger), written
+  # only by the retail persona. Declared for the same reason as ``volume``.
+  voltage:
+    code: VLT
+    units: { VLT: "1" }
+  # WATTS -- a light bulb's Bulb wattage and Equivalent wattage (8.5 W, 60 W),
+  # never converted. Declared for the same reason as ``volume``.
+  power:
+    code: WTT
+    units: { WTT: "1" }
+  # KELVIN -- a bulb's or lamp's Color temperature (2700 K), never converted.
+  # Declared for the same reason as ``volume``.
+  color_temperature:
+    code: KEL
+    units: { KEL: "1" }
   # POUND-FORCE — a bearing's dynamic and static load ratings
-  # (prism-industrial-products#103). NOT NEWTONS, and that is measured rather
+  # (#103). NOT NEWTONS, and that is measured rather
   # than a departure from the metric ruling above: a pound-force is
   # 4.4482216152605 N exactly, and at the Engine's fixed nine-decimal
   # resolution some of the catalog's 677 load ratings land ON a rounding tie

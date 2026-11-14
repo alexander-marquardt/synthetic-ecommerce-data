@@ -4,19 +4,24 @@
     uv run python scripts/check_industrial_unit_pin.py --refresh  # rewrite the pin from the source
 
 ``tests/data/industrial_canonical_units.yaml`` is a verbatim copy of the
-``canonical_units:`` block in elastic/prism-industrial-products, and the
-contract test reads every unit's kind and exact size from it. The source is a
-PRIVATE repository this repository's CI cannot read, so this comparison cannot
-be a pytest: there it could only skip. It is run by hand, through an
-authenticated ``gh``, whenever the deployment's ``canonical_units`` changes and
-before a 100-type build.
+``canonical_units:`` block in elastic/prism-retail-and-industrial (formerly
+elastic/prism-industrial-products), and the contract test reads every unit's
+kind and exact size from it. The source is a PRIVATE repository this
+repository's CI cannot read, so this comparison cannot be a pytest: there it
+could only skip. This CI checks only the pin's own digest; the pin is the
+deployment's block as of its recorded commit, and no more. The drift check
+belongs where the block changes: the deployment's CI, which can read this
+public pin (elastic/prism-retail-and-industrial#1855). Until then, and before a
+100-type build, run this script by hand through an authenticated ``gh``.
 
 It checks three things:
 
 * the pin's recorded ``sha256`` is the digest of its own block (the same check
   ``tests/test_industrial_unit_pin.py`` runs everywhere);
-* at the recorded ``commit`` the source file is the recorded ``blob`` and holds
-  this block, so the pin names where it came from truthfully;
+* at the recorded ``commit`` the source file, read at the pin's recorded
+  ``repo`` and ``path``, is the recorded ``blob`` and holds this block, so the
+  pin names where it came from truthfully (a source renamed since is drift to
+  report, not a source it cannot read, #49);
 * on the source's default branch the block is still this one, byte for byte,
   comments included. A change elsewhere in the file is not drift.
 
@@ -41,8 +46,8 @@ from pathlib import Path
 
 import yaml
 
-REPO = "elastic/prism-industrial-products"
-SOURCE_PATH = "src/prism_industrial_products/data/customization.yaml"
+REPO = "elastic/prism-retail-and-industrial"
+SOURCE_PATH = "src/prism_retail_and_industrial/data/customization.yaml"
 PIN = Path(__file__).resolve().parents[1] / "tests" / "data" / "industrial_canonical_units.yaml"
 KEY = "canonical_units:"
 
@@ -55,8 +60,10 @@ HEADER = """\
 # longer matches it. The script compares the block with its source.
 #
 # The contract test (tests/test_nested_entry_contract.py) reads each unit's kind
-# and exact size from here, so a unit the deployment rules on -- `TPI` as a
-# reciprocal length, elastic/prism#9877 -- cannot be redeclared in a test unseen.
+# and exact size from here, so no test here redeclares a unit the deployment
+# rules on (`TPI` as a reciprocal length, elastic/prism#9877). That holds against
+# the deployment only as of `commit` below: this CI cannot read the source, and
+# the drift check is the deployment's (elastic/prism-retail-and-industrial#1855).
 """
 
 
@@ -152,9 +159,9 @@ def _gh(*args: str) -> str:
     return done.stdout
 
 
-def fetch(ref: str) -> tuple[str, str]:
-    """The source file's text and blob sha at ``ref``."""
-    body = json.loads(_gh(f"repos/{REPO}/contents/{SOURCE_PATH}?ref={ref}"))
+def fetch(ref: str, repo: str = REPO, path: str = SOURCE_PATH) -> tuple[str, str]:
+    """The source file's text and blob sha at ``ref``, by default where it lives today."""
+    body = json.loads(_gh(f"repos/{repo}/contents/{path}?ref={ref}"))
     return base64.b64decode(body["content"]).decode("utf-8"), body["sha"]
 
 
@@ -185,7 +192,12 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 1
-        source_at_pin, blob_at_pin = fetch(provenance.get("commit") or "")
+        # where the pin was taken: a source renamed since is drift, not unreadable (#49)
+        source_at_pin, blob_at_pin = fetch(
+            provenance.get("commit") or "",
+            provenance.get("repo") or REPO,
+            provenance.get("path") or SOURCE_PATH,
+        )
         source_now, _ = fetch(newest_commit())
     except SourceUnreadable as error:
         print(
