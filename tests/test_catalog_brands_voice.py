@@ -229,6 +229,10 @@ DISTINCT_SPEC_FLOOR = {
     # of the material family sells the same ones. Measured at 100K, 1038 distinct specs over
     # 1223 SKUs (0.849), rounded down to 0.05.
     "bar_stock_round": 0.80,
+    # #830: a hex bar is a size, an alloy and a cut length, 1,080 specs a maker, half the
+    # round bar's, so two makers share more of them. Measured at 100K, 796 distinct specs
+    # over 1141 SKUs (0.698), rounded down to 0.05.
+    "bar_stock_hex": 0.65,
     "washer_flat": 0.15,
     "roller_chain": 0.70,
     "hammer_ball_pein": 0.70,

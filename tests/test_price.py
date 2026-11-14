@@ -1058,6 +1058,7 @@ NOT_MEASURED = frozenset(
         *hammers.KINDS,
         *plain_screws.KINDS,
         "key_stock",
+        "bar_stock_hex",
         "bar_stock_round",
         "er_collets",
         "drill_bushings",
