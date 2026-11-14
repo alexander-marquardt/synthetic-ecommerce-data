@@ -1,12 +1,15 @@
-"""Office & school, slice 1 (gen#969): the department, with pens, pencils and spiral notebooks.
+"""Office & school, slices 1 and 3 (gen#969): the department, with pens, pencils, spiral
+notebooks, school backpacks, colored pencils and desk organizers.
 
 The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
-drawn by :mod:`kit_office`. These checks hold the slice's Done-when: the ceiling build has at least
-1,400 SKUs under the department; each type's styles have unique ids, titles and twin keys; the
-rows and their drawings are the same on every call; and a golden slice pins each type's first
-derived styles, so a change that moves them shows here.
+drawn by :mod:`kit_office`. Slice 3 adds the bag, art and desk types
+(``type_specs/school_backpack.py``, ``colored_pencils.py``, ``desk_organizer.py``). These checks
+hold the slices' Done-when: the ceiling build has each slice's share of SKUs under the department;
+each type's styles have unique ids, titles and twin keys; the rows and their drawings are the same
+on every call; and a golden slice pins each type's first derived styles, so a change that moves
+them shows here.
 """
 
 from __future__ import annotations
@@ -19,10 +22,22 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, type_registry
 
-TYPES = ("Pen", "Pencil", "Spiral Notebook")
-KEYS = {"Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook"}
-#: The slice's floor at the ceiling build (the gate comment of gen#969).
-FLOOR = 1_400
+SLICE_3 = ("School Backpack", "Colored Pencils", "Desk Organizer")
+TYPES = ("Pen", "Pencil", "Spiral Notebook", *SLICE_3)
+KEYS = {
+    "Pen": "pen",
+    "Pencil": "pencil",
+    "Spiral Notebook": "spiral_notebook",
+    "School Backpack": "school_backpack",
+    "Colored Pencils": "colored_pencils",
+    "Desk Organizer": "desk_organizer",
+}
+#: Slice 3's share of the department at the ceiling build: the issue's 4,275 less slice 2's
+#: floor of 2,850 (the gate comments of gen#969).
+SLICE_3_SHARE = 1_425
+#: The department's floor at the ceiling build: slice 1's 1,400 plus slice 3's share. With
+#: slice 2's 1,450 it is the issue's 4,275.
+FLOOR = 1_400 + SLICE_3_SHARE
 
 
 @pytest.fixture(scope="module")
@@ -38,6 +53,17 @@ def test_the_department_is_on_the_closed_list() -> None:
 def test_the_ceiling_build_holds_the_slice_floor_of_office_skus(office) -> None:
     skus = sum(r["sku_count"] for r in office)
     assert skus >= FLOOR, skus
+
+
+def test_the_slice_3_types_hold_their_share_of_office_skus(office) -> None:
+    skus = sum(r["sku_count"] for r in office if r["product_type"] in SLICE_3)
+    assert skus >= SLICE_3_SHARE, skus
+
+
+def test_the_school_backpack_is_its_own_type_apart_from_clothing_backpacks() -> None:
+    specs = type_registry.specs()
+    assert specs["school_backpack"].product_type == "School Backpack"
+    assert specs["backpack"].department == "Clothing"
 
 
 def test_every_type_of_the_slice_is_derived_in_the_ceiling_build(office) -> None:
@@ -93,6 +119,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-082994CBD41A", "Brackbank A5 Dotted Spiral Notebook", 6, 2.9),
         ("BRD-15F48D958E7F", "Edenworth A5 Lined Spiral Notebook", 6, 3.95),
         ("BRD-29026ABE797F", "Sandlow B5 Squared Spiral Notebook", 9, 3.4),
+    ],
+    "School Backpack": [
+        ("BRD-01A43CE6FCD7", "Sandcroft 15 L Classic School Backpack", 6, 15.5),
+        ("BRD-01BA38373142", "Falborough 25 L Laptop School Backpack", 6, 34.0),
+        ("BRD-0592753A802F", "Ravbeck 30 L Classic School Backpack", 2, 50.0),
+    ],
+    "Colored Pencils": [
+        ("BRD-0E1EAFC1DBA7", "Whitwick 36 Watercolor Colored Pencils", 6, 25.0),
+        ("BRD-15303E7EFCBF", "Salmoor 48 Classic Colored Pencils", 12, 31.0),
+        ("BRD-17B4E307D6ED", "Wigbury 12 Soft Core Colored Pencils", 18, 7.0),
+    ],
+    "Desk Organizer": [
+        ("BRD-0433EA9A7695", "Oakmouth 6 Compartment Felt Desk Organizer", 18, 19.0),
+        ("BRD-0B28AA29D695", "Hamgarth 3 Compartment Mesh Desk Organizer", 6, 8.5),
+        ("BRD-0BCD3137F6B9", "Fernbeck 5 Compartment Metal Desk Organizer", 18, 11.0),
     ],
 }
 
