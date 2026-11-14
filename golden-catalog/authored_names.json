@@ -305,6 +305,11 @@
   "Pressure rating (psi)": "Pressure Rating (psi)",
   "Thread type": "Thread Type"
  },
+ "household_tool_sets": {
+  "Container type": "Container Type",
+  "Measurement system": "Measurement System",
+  "Piece count": "Piece Count"
+ },
  "induction_heaters": {
   "Maximum workpiece weight": "Maximum Workpiece Weight"
  },

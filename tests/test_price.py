@@ -1067,6 +1067,7 @@ NOT_MEASURED = frozenset(
         "flange_nuts",
         "bronze_sleeve_bushings",
         "tape_measures",
+        "household_tool_sets",
         *tabletype.tables(),
     }
 )

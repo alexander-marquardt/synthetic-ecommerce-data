@@ -309,6 +309,10 @@ DISTINCT_SPEC_FLOOR = {
     # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
     # SKUs (0.802), rounded down to 0.05.
     "tape_measures": 0.80,
+    # #971: a household tool set is a container, a tool steel and a color on a stocked piece
+    # count, 648 specs, and makers sell the same ones. Measured at 100K, 310 distinct specs of
+    # 394 SKUs (0.787), rounded down to 0.05.
+    "household_tool_sets": 0.75,
 }
 DEFAULT_DISTINCT_SPEC_FLOOR = 0.90
 #: A table type is a dozen sizes in a few materials and packs, so its makers
