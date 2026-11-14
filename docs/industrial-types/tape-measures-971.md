@@ -1,6 +1,6 @@
 # Tape measures: a homeowner tool for general retail (gen#971, slice 1)
 
-`Tools > Measuring & inspecting > Tape measures` is a new modelled type, `product_types/hand_tools/tape_measures.py`, and `tests/test_type_tape_measures.py` runs the per-type gates over it. It is the first of the homeowner tools gen#971 adds to `Tools`.
+`Tools > Measuring & inspecting > Hand measuring > Tape measures` is a new modelled type, `product_types/hand_tools/tape_measures.py`, and `tests/test_type_tape_measures.py` runs the per-type gates over it. It is the first of the homeowner tools gen#971 adds to `Tools`.
 
 **Lines.** A line is one brand's tapes with one case material (ABS, rubber-coated ABS or chrome-plated ABS), one lock (slide, auto or push button) and one case color, in inches or metric. Its SKUs are a run of blade lengths: 10 to 35 ft or 3 to 10 m. The blade width goes with the length. No standard fixes either, and the provenance says so.
 

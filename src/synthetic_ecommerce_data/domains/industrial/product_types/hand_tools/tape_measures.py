@@ -44,7 +44,7 @@ from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 KEY = "tape_measures"
 ITEM = "Tape Measure"
-CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Tape Measures")
+CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Hand Measuring", "Tape Measures")
 
 #: What every record says about where its length and blade width came from.
 PROVENANCE = f"Length and Width are conventional stocked sizes; {NO_STANDARD}"
