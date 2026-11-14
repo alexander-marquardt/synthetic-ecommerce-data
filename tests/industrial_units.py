@@ -3,10 +3,12 @@
 Each unit code's KIND and EXACT size come from ``tests/data/
 industrial_canonical_units.yaml``, a verbatim copy of the deployment's
 ``canonical_units:`` block. A test that needs a unit's size reads it here
-rather than writing it down, so a unit the deployment rules on cannot be
-redeclared in this repository unseen. The copy records its own digest, which
-``tests/test_industrial_unit_pin.py`` checks, and
-``scripts/check_industrial_unit_pin.py`` compares it with its source.
+rather than writing it down, so no test here redeclares a unit the copy holds.
+That holds against the deployment only as of the copy's recorded commit. This
+repository's CI checks the copy's own digest (``tests/test_industrial_unit_pin.py``)
+and cannot read the private source; ``scripts/check_industrial_unit_pin.py``
+compares the two by hand, and the drift check belongs in the deployment's CI
+(elastic/prism-retail-and-industrial#1855).
 """
 
 from __future__ import annotations

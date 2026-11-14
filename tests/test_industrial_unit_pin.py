@@ -10,8 +10,9 @@ size from it. Two things can make it lie, and they are checked in two places:
 * DRIFT from the source, a PRIVATE repository this repository's CI cannot read.
   A pytest that needs it could only skip in CI, a gate that never bites where
   merges are decided, so that comparison is the script's, run by hand (see the
-  README's "The pinned unit declaration"). Its decision logic is tested here
-  offline, against sources built from the pin itself.
+  README's "The pinned unit declaration"), and belongs in the deployment's CI
+  (elastic/prism-retail-and-industrial#1855). Nothing here catches drift. Its
+  decision logic is tested here offline, against sources built from the pin itself.
 """
 
 from __future__ import annotations
@@ -126,7 +127,7 @@ def test_a_change_outside_the_block_is_green():
 
 
 def test_a_source_whose_block_moved_on_is_red():
-    moved = BLOCK.replace('MMT: "1", TPI', 'MMT: "1", CMT: "10", TPI')
+    moved = BLOCK.replace('{ DD: "1" }', '{ DD: "1", GRD: "9/10" }')
     assert moved != BLOCK, "the plant did not apply"
     problems = _compare(_source(BLOCK), _source(moved))
     assert problems and "--refresh" in " ".join(problems)
