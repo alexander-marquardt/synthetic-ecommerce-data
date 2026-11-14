@@ -208,7 +208,7 @@ JIGSAWS = (
     TRow("JIG035", "Rumblesaur Ridge 35 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          8.0, "jigsaw", "The Rumblesaur Ridge gang by their volcano, in sturdy card pieces. "
          "For ages 4 and up.",
-         (GREEN,), _jig(35, "Dinosaurs", "4+ years", (40, 28), "Rumblesaur Ridge"),
+         (GREEN,), _jig(35, "Dinosaur", "4+ years", (40, 28), "Rumblesaur Ridge"),
          audience=KIDS, colorless=True, params=_jp(35, "dinosaurs", "Rumblesaur Ridge")),
     TRow("JIG048", "Moonmoth Rangers 48 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          9.0, "jigsaw", "The Rangers' rocket over a cratered moon, with a poster of the "
@@ -218,17 +218,17 @@ JIGSAWS = (
     TRow("JIG100", "World Map 100 Piece Jigsaw Puzzle", _L, _T, _JIG, "Jigsaw Puzzle", 11.0,
          "jigsaw", "A bright map of the continents and oceans with the animals that live "
          "there. For ages 6 and up.",
-         (BLUE,), _jig(100, "Maps", "6+ years", (49, 36)), audience=KIDS, colorless=True,
+         (BLUE,), _jig(100, "World Map", "6+ years", (49, 36)), audience=KIDS, colorless=True,
          params=_jp(100, "maps")),
     TRow("JIG500", "Harbour Village 500 Piece Jigsaw Puzzle", _K, _T, _JIG, "Jigsaw Puzzle",
          14.0, "jigsaw", "Painted cottages around a busy harbour at sunset, cut in a classic "
          "grid. For ages 10 and up.",
-         (ORANGE,), _jig(500, "Landscapes", "10+ years", (49, 36)), audience=KIDS,
+         (ORANGE,), _jig(500, "Landscape", "10+ years", (49, 36)), audience=KIDS,
          colorless=True, params=_jp(500, "landscapes")),
     TRow("JIG1KA", "Alpine Lake 1000 Piece Jigsaw Puzzle", _P, _T, _JIG, "Jigsaw Puzzle",
          16.0, "jigsaw", "Snowy peaks reflected in a still lake, on thick blue-backed board "
          "with a linen finish. For ages 12 and up.",
-         (BLUE,), _jig(1000, "Landscapes", "12+ years", (68, 49)), audience=ADULT,
+         (BLUE,), _jig(1000, "Landscape", "12+ years", (68, 49)), audience=ADULT,
          colorless=True, params=_jp(1000, "landscapes")),
     TRow("JIG1KB", "Night Sky 1000 Piece Jigsaw Puzzle", _L, _T, _JIG, "Jigsaw Puzzle", 16.0,
          "jigsaw", "Stars, planets and a crescent moon on a deep blue sky, a slow, absorbing "
@@ -264,14 +264,14 @@ BOARD_GAMES = (
          "board_game", "Race your hedgehog round the hedgerow, dodge the puddles and hop the "
          "shortcuts. A family game for 2 to 6 players that takes about half an hour. For ages "
          "6 and up. The travel edition folds into a pocket-sized tin.",
-         (RED,), _game("Family Game", 2, 6, 30, "6+ years"),
+         (RED,), _game("Family Board Game", 2, 6, 30, "6+ years"),
          _ed(("Standard", 18.0), ("Travel", 10.0)), audience=KIDS, colorless=True,
          params=(("kind", "family"),), size_key="edition"),
     TRow("GAMSTR", "Quayside Traders Strategy Board Game", _K, _T, _GAM, "Board Game", 35.0,
          "board_game", "Build ports, trade salt and silk, and outwit your rivals across a "
          "board of hex tiles. A strategy game for 2 to 4 players, about 90 minutes. For ages "
          "10 and up. The deluxe edition has wooden pieces.",
-         (NAVY,), _game("Strategy Game", 2, 4, 90, "10+ years"),
+         (NAVY,), _game("Strategy Board Game", 2, 4, 90, "10+ years"),
          _ed(("Standard", 35.0), ("Deluxe", 55.0)), audience=KIDS, colorless=True,
          params=(("kind", "strategy"),), size_key="edition"),
     TRow("GAMCRD", "Thimblewhip Card Game", _P, _T, _GAM, "Board Game", 8.0, "board_game",
@@ -283,13 +283,13 @@ BOARD_GAMES = (
     TRow("GAMPTY", "Muddle & Mime Party Game", _P, _T, _GAM, "Board Game", 22.0, "board_game",
          "Draw, act or hum the word on the card before the sand runs out. A party game for 4 "
          "to 12 players, about 45 minutes. For ages 12 and up.",
-         (PURPLE,), _game("Party Game", 4, 12, 45, "12+ years"), _ed(("Standard", 22.0),),
+         (PURPLE,), _game("Party Board Game", 4, 12, 45, "12+ years"), _ed(("Standard", 22.0),),
          audience=KIDS, colorless=True, params=(("kind", "party"),), size_key="edition"),
     TRow("GAMMMR", "Moonmoth Rangers Race to the Moon Board Game", _P, _T, _GAM, "Board Game",
          15.0, "board_game", "Roll, fly and dodge the comets to land the Rangers' rocket on "
          "the moon first. A family game for 2 to 4 players in about 25 minutes. For ages 5 "
          "and up.",
-         (NAVY,), _game("Family Game", 2, 4, 25, "5+ years", "Moonmoth Rangers"),
+         (NAVY,), _game("Family Board Game", 2, 4, 25, "5+ years", "Moonmoth Rangers"),
          _ed(("Standard", 15.0), ("Travel", 9.0)), audience=KIDS, colorless=True,
          params=(("kind", "family"), *_char("Moonmoth Rangers")), size_key="edition"),
     TRow("GAMOWL", "Hazelwren Owls Memory Card Game", _L, _T, _GAM, "Board Game", 7.0,

@@ -11,7 +11,8 @@ play_kitchen    a cooker with four rings, an oven door,     sink (yes, no)
 dolls_house     an open-fronted house of rooms under a      floors (2, 3)
                 pitched roof, with a front door
 card_game       a tuck box with a fan of three cards        kind (family, party,
-                before it, its pip marking the kind         strategy)
+                before it, its pip marking the kind; a      strategy), theme
+                themed game's name on the box (gen#960)
 marble_run      a stand with sloped channels, each ending   tiers (3, 4)
                 over the next, and marbles on them
 water_gun       a pistol, a blaster with a pump grip or a   kind (pistol, blaster,
@@ -28,6 +29,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     Fill,
     _highlight,
     _line,
+    _panel,
     _path,
     _shade,
     _tint,
@@ -136,10 +138,17 @@ def dolls_house(paint: str, fill: Fill, label: str | None, floors: str = "2") ->
     return _label(out, label)
 
 
-def card_game(paint: str, fill: Fill, label: str | None, kind: str = "family") -> list[str]:
+def card_game(
+    paint: str, fill: Fill, label: str | None, kind: str = "family", theme: str = ""
+) -> list[str]:
     """A card game: a tuck box behind a fan of three cards. The kind is a pip on the cards:
-    a round pip for family, a star for party, a square one for strategy."""
-    out = [_rect(70, 90, 170, 250, paint, 10), _rect(90, 120, 130, 60, _tint(fill.base, 0.6), 6)]
+    a round pip for family, a star for party, a square one for strategy. The kind may be a toy
+    type's own words ("party card game", gen#960). A themed game's theme is on the box's panel,
+    as its title shows it (gen#960)."""
+    kind = kind.lower().removesuffix(" card game")
+    out = [_rect(70, 90, 170, 250, paint, 10)]
+    panel = _rect(90, 120, 130, 60, _tint(fill.base, 0.6), 6)
+    out += _panel(90, 120, 130, 60, theme.title(), 22) if theme else [panel]
     for ang, x in ((-18, 190), (0, 235), (18, 280)):
         pip = {
             "party": _path(
