@@ -1060,6 +1060,7 @@ NOT_MEASURED = frozenset(
         "key_stock",
         "bar_stock_hex",
         "bar_stock_round",
+        "bar_stock_square",
         "er_collets",
         "drill_bushings",
         "roll_pins",
