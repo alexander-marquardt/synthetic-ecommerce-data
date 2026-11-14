@@ -27,8 +27,8 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _bag(style: str, litres: str) -> tuple[tuple, ...]:
-    """The capacity in litres (``LTR``), as every other ``capacity`` carries its unit."""
-    return (a("backpack_style", "Backpack style", style), ("capacity", "Capacity", litres, "LTR"),
+    """The capacity in litres (``LTR``), its canonical value in millilitres, as every other ``capacity``."""
+    return (a("backpack_style", "Backpack style", style), ("capacity", "Capacity", litres, "LTR", float(litres) * 1000),
             a("material", "Material", "Polyester"))  # fmt: skip
 
 
