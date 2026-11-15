@@ -152,7 +152,7 @@ _FRONT_LENGTHS = ("13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "2
 _REAR_LENGTHS = ("10", "11", "12", "13", "14", "16")
 _BLADES = (
     ("WBC", "Conventional Wiper Blade", "Conventional", "Front", "All-Season", "conventional", _FRONT_LENGTHS, 8.0,
-     "a steel-frame blade whose bridges press the rubber evenly along a flat or gently curved windshield"),
+     "a steel-frame blade whose bridges press the rubber evenly along the whole windshield"),
     ("WBB", "Flat Wiper Blade", "Flat", "Front", "All-Season", "beam", _FRONT_LENGTHS, 14.0,
      "a frameless flat blade that follows the curve of the glass, with no frame for snow to pack into"),
     ("WBH", "Hybrid Wiper Blade", "Hybrid", "Front", "All-Season", "hybrid", _FRONT_LENGTHS, 17.0,
