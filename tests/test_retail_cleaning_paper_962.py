@@ -121,21 +121,21 @@ def _golden(cleaning: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Toilet Paper": [
-        ("BRD-00253D010CDE", "Salcroft Ultra Strong 3-Ply Toilet Paper, Mega Rolls", 6, 3.55),
-        ("BRD-00EF506C9697", "Wykefell Ultra Strong 4-Ply Toilet Paper, Mega Rolls", 6, 3.25),
-        ("BRD-033E1D3D791A", "Denington Ultra Soft 4-Ply Toilet Paper, Mega Rolls", 6, 3.05),
+        ("BRD-00253D010CDE", "Midbeck Ultra Strong 3-Ply Toilet Paper, Mega Rolls", 6, 3.55),
+        ("BRD-00EF506C9697", "Burnham Ultra Strong 4-Ply Toilet Paper, Mega Rolls", 6, 3.25),
+        ("BRD-033E1D3D791A", "Easingham Ultra Soft 4-Ply Toilet Paper, Mega Rolls", 6, 3.05),
     ],
     "Paper Towels": [
-        ("BRD-0410EECB425D", "Mordale Embossed Paper Towels, Half Sheet, Triple Rolls", 5, 3.3),
-        ("BRD-046AAA078A64", "Ellerborough Recycled Paper Towels, Full Sheet, Double Rolls", 5,
+        ("BRD-0410EECB425D", "Cressness Embossed Paper Towels, Half Sheet, Triple Rolls", 5, 3.3),
+        ("BRD-046AAA078A64", "Sandbank Recycled Paper Towels, Full Sheet, Double Rolls", 5,
          4.25),
-        ("BRD-04B2FA3C12AA", "Lamstead Ultra Strong Paper Towels, Half Sheet, Regular Rolls", 5,
+        ("BRD-04B2FA3C12AA", "Skelscar Ultra Strong Paper Towels, Half Sheet, Regular Rolls", 5,
          2.65),
     ],
     "Facial Tissues": [
-        ("BRD-001DED332822", "Glenwood Lotion 3-Ply Facial Tissues, Flat Box", 16, 2.6),
-        ("BRD-02B93040D771", "Rosridge Menthol 2-Ply Facial Tissues, Cube Box", 8, 1.75),
-        ("BRD-0D593922307B", "Rudness Menthol 3-Ply Facial Tissues, Flat Box", 20, 1.65),
+        ("BRD-001DED332822", "Swangate Lotion 3-Ply Facial Tissues, Flat Box", 16, 2.6),
+        ("BRD-02B93040D771", "Shelbank Menthol 2-Ply Facial Tissues, Cube Box", 8, 1.75),
+        ("BRD-0D593922307B", "Cudbeck Menthol 3-Ply Facial Tissues, Flat Box", 20, 1.65),
     ],
 }  # fmt: skip
 
