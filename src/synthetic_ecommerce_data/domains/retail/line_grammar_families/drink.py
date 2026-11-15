@@ -8,8 +8,8 @@ an optional style word of the kind, then the product, e.g. "Brisk Whole Leaf Tea
 from __future__ import annotations
 
 KINDS = (
-    "Tea", "Coffee", "Juice", "Soft Drink", "Milk", "Plant Milk", "Hot Chocolate", "Ginger Beer",
-    "Root Beer",
+    "Tea", "Coffee", "Coffee Pods", "Juice", "Soft Drink", "Milk", "Plant Milk", "Hot Chocolate",
+    "Ginger Beer", "Root Beer",
 )  # fmt: skip
 #: The lead words of the scale build.
 LEADS = (
@@ -33,6 +33,10 @@ STYLES = {
     "Coffee": (
         "Freshly Roasted", "Slow Roasted", "Small Batch", "Smooth Blend", "Rich Blend",
         "Barista Style", "Hand Roasted", "Roastery Style",
+    ),
+    "Coffee Pods": (
+        "Freshly Roasted", "Slow Roasted", "Small Batch", "Barista Style", "Hand Roasted",
+        "Roastery Style", "Machine Ready", "Single Serve",
     ),
     "Juice": (
         "Breakfast", "Sun Ripened", "Refreshing", "Daily Pour", "Lunchbox", "Family", "Sharing",
