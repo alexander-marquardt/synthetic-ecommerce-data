@@ -2,10 +2,12 @@
 
 The microfiber pillow pair stays in the shared row module named by ``homes``. The rows here are
 the range a shopper finds under **Home > Bedding > Pillows**: down alternative, memory foam,
-shredded memory foam, cooling gel and feather pillows in a soft, a medium or a firm support, one
-style per brand that sells them, by pillow size. A pillow keeps its natural white cover
-(``main_colors.EXCEPTIONS``), and the kit's ``pillow`` shape draws every fill alike: the fill is
-inside the cover. A derivable breadth type: the scaled build draws more styles from these rows.
+shredded memory foam, cooling gel and feather pillows from plush to extra firm, one style per
+brand that sells them, by pillow size. A pillow keeps its natural white cover
+(``main_colors.EXCEPTIONS``), so :mod:`kit_bedding_storage`'s ``bed_pillow`` shape draws the fill
+and the support instead: in a white grid, a pillow that drew every fill alike shared its tile
+with most of the leaf. A derivable breadth type: the scaled build draws more styles from these
+rows.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -23,9 +25,11 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Home, T
 
 
 def _pillows(standard: float, step: float) -> tuple[tuple[str, float], ...]:
-    """The standard and the king pillow, the king a step dearer: entries of the bedding chart,
-    which every SKU states in UK, EU and US sizes."""
-    return (("Standard Pillow", standard), ("King Pillow", standard + step))
+    """The standard, the square and the king pillow (``variants.PILLOWS``), the square half a
+    step dearer and the king a step: entries of the bedding chart, which every SKU states in UK,
+    EU and US sizes."""
+    return (("Standard Pillow", standard), ("Square Pillow", standard + step / 2),
+            ("King Pillow", standard + step))  # fmt: skip
 
 
 #: Each fill: its price, its description and its pillow sizes, each at its price.
@@ -36,13 +40,13 @@ KINDS = {
     "Cooling Gel": (45.0, "A memory foam pillow topped with a cooling gel layer that draws heat away through the night.", _pillows(45.0, 10.0)),
     "Feather": (25.0, "A traditional pillow of duck feathers in a downproof cotton cover, plump and easy to shape.", _pillows(25.0, 7.0)),
 }
-#: Five supports, so no two of the eleven brands share a fill and a support (a title).
+#: Five supports, so no two of the eight brands share a fill and a support (a title).
 SUPPORTS = ("Plush", "Soft", "Medium", "Firm", "Extra Firm")
 PATH = ("Home", "Bedding", "Pillows")
 
-ROWS = table("PLW", PILLOW_BRANDS, PATH, "Pillow", "pillow", ("pillow_fill", "Pillow fill"),
-             KINDS, ("support", "Support"), SUPPORTS, "size_eu", white_only=True, drawn=False,
-             row_type=ChartRow)
+ROWS = table("PLW", PILLOW_BRANDS, PATH, "Pillow", "bed_pillow", ("pillow_fill", "Pillow fill"),
+             KINDS, ("support", "Support"), SUPPORTS, "size_eu", white_only=True,
+             design_param="support", row_type=ChartRow)
 
 SPEC = TypeSpec(
     key="pillow",

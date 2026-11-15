@@ -3,12 +3,12 @@
 ``Home > Bedding`` sold no sheet set, one pillow style of 2 SKUs, and no food storage container,
 so a search for ``sheets``, ``pillow`` or ``food storage`` found almost nothing. Slice 2 adds
 three derivable types, each a spec of its own (``type_specs/bed_sheet.py``, ``pillow.py``,
-``food_storage_container.py``); :mod:`kit_bedding_storage` draws the sheet set and the
-containers, and the kit's ``pillow`` shape the pillows. These checks hold the slice's Done-when
+``food_storage_container.py``); :mod:`kit_bedding_storage` draws the sheet set, the
+containers and the pillows. These checks hold the slice's Done-when
 (the gate comments of gen#963): the ceiling build has at least 20,400 SKUs under ``Home``; each
 type's styles have unique ids, titles, twin keys and SKU ids; the rows and their drawings are the
-same on every call; a material draws apart; and a golden slice pins each type's first derived
-styles, so a change that moves them shows here.
+same on every call; a material, and a pillow's support, draws apart; and a golden slice pins
+each type's first derived styles, so a change that moves them shows here.
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
         assert first == kit.render(row.shape, fill, params=params)
 
 
-@pytest.mark.parametrize("shape", ["sheet_set", "food_storage"])
+@pytest.mark.parametrize("shape", ["sheet_set", "food_storage", "bed_pillow"])
 def test_each_material_draws_apart(shape) -> None:
     rows = [r for s in type_registry.specs().values() for r in s.rows if r.shape == shape]
     fill = kit.Fill("solid", "#123456", "#654321")
@@ -81,6 +81,19 @@ def test_each_material_draws_apart(shape) -> None:
     assert len(kinds) >= 4
     drawn = {kit.render(shape, fill, params={"kind": k}) for k in kinds}
     assert len(drawn) == len(kinds)
+
+
+def test_each_pillow_support_draws_apart() -> None:
+    """A pillow is sold in white alone, so its support is what tells two pillows of one fill
+    apart in a results grid: each support draws apart, for every fill."""
+    rows = type_registry.specs()["pillow"].rows
+    fill = kit.Fill("solid", "#f4f1ea", "#8f989f")
+    supports = {dict(r.params)["support"] for r in rows}
+    assert len(supports) == 5
+    for kind in {dict(r.params)["kind"] for r in rows}:
+        drawn = {kit.render("bed_pillow", fill, params={"kind": kind, "support": s})
+                 for s in supports}  # fmt: skip
+        assert len(drawn) == len(supports), kind
 
 
 def test_a_pillow_keeps_its_white_cover(home) -> None:
@@ -98,22 +111,24 @@ def _golden(home: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Sheet Set": [
+        ("BRD-019B50BDAF91",
+         "Lanternby Nightcap Extra Deep Pocket Cotton Sateen Sheet Set", 24, 51.0),
         ("BRD-03493FD968A6",
-         "Harbour & Pine Hush Extra Deep Pocket Microfiber Sheet Set", 24, 36.0),
-        ("BRD-0504EEF40C88", "Alderwick Living Cloud Deep Pocket Bamboo Sheet Set", 24, 40.0),
-        ("BRD-06938AB61FD2", "Brackenmere Home Nightcap Deep Pocket Flannel Sheet Set", 8, 76.0),
+         "Harbour & Pine Lullaby Extra Deep Pocket Microfiber Sheet Set", 24, 36.0),
+        ("BRD-04016CC17E44", "Larkmoor Comfy Standard Pocket Cotton Sateen Sheet Set", 24, 46.0),
     ],
     "Pillow": [
-        ("BRD-02444678A084", "Calderby & Lune Eiderdown Firm Cooling Gel Pillow", 2, 34.0),
-        ("BRD-0308F0BA8C1F", "Brackenmere Home Nightcap Medium Feather Pillow", 2, 17.0),
-        ("BRD-0375EA18ECDD", "Lanternby Slumber Plush Memory Foam Pillow", 2, 34.0),
+        ("BRD-0308F0BA8C1F", "Calderby & Lune Restful Medium Feather Pillow", 3, 31.0),
+        ("BRD-05F908CF614B", "Emberly Home Drift Extra Firm Memory Foam Pillow", 3, 53.0),
+        ("BRD-069F70423039", "Mirefield Naturals Doze Plush Shredded Memory Foam Pillow", 3, 45.0),
     ],
     "Food Storage Container": [
-        ("BRD-0405D7AD0731", "Cobble & Kiln Stash Leakproof Glass Food Storage Container", 6, 30.0),
+        ("BRD-028A98079832",
+         "Wrenfield Frugal Snap-Lock Silicone Food Storage Container", 18, 36.0),
+        ("BRD-0405D7AD0731",
+         "Kettleby Tea Co. Hoard Leakproof Glass Food Storage Container", 6, 30.0),
         ("BRD-07FD859A8696",
-         "Alderwick Living Haul Vented Silicone Food Storage Container", 18, 16.5),
-        ("BRD-08883E193B9D",
-         "Harbour & Pine Alcove Airtight Plastic Food Storage Container", 9, 33.0),
+         "Mirefield Naturals Stockpile Vented Silicone Food Storage Container", 18, 16.5),
     ],
 }  # fmt: skip
 
