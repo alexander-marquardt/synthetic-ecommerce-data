@@ -58,7 +58,8 @@ UPRIGHT: tuple[str, ...] = (
     "baby_blanket", "baby_bottle", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
     "baseball_glove",
     "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
-    "bed_frame", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals", "bike_pump",
+    "bed_frame", "bed_pillow", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals",
+    "bike_pump",
     "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
     "bowl", "box", "box_wide", "bracelet", "building_set", "bunting", "butter_block", "cabin_case",
     "cake",
@@ -92,7 +93,8 @@ UPRIGHT: tuple[str, ...] = (
     "produce_pile", "pudding", "pump", "pumpkin", "punnet", "purse", "recliner_sofa",
     "resistance_band", "ride_on", "rim_block", "ring", "robot_mower", "role_play", "roll_mat",
     "rug", "saucepan", "screen_protector", "screwdriver", "sds_drill", "serum", "setting_spray",
-    "sheet", "shower_curtain", "side_table", "sippy_cup", "skateboard", "sleeping_bag", "sleeve",
+    "sheet", "sheet_set", "shower_curtain", "side_table", "sippy_cup", "skateboard",
+    "sleeping_bag", "sleeve",
     "smartphone", "sofa", "sofa_bed", "sofa_cover", "sofa_seats", "sofa_version",
     "spiral_notebook", "star",
     "steak_tray", "stems", "step_ladder", "sticker_sheet", "storage_box", "strawberry", "suitcase",
@@ -109,7 +111,8 @@ UPRIGHT: tuple[str, ...] = (
 
 #: Set types, drawn as several items: at 0 degrees only (#884).
 LEVEL: tuple[str, ...] = (
-    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "gift_set", "luggage_set",
+    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "food_storage", "gift_set",
+    "luggage_set",
 )
 
 #: Shape -> orientation.
