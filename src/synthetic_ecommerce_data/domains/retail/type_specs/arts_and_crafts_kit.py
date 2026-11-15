@@ -42,7 +42,7 @@ _LEADS = (
     "Make a {t} picture to hang on the wall or give away.",
     "Everything for a rainy afternoon of {t} crafts is in the box.",
     "Follow the {t} guide, then make up new designs.",
-    "The {t} pieces are sorted in trays that close for next time.",
+    "The {t} pieces are sorted in trays that close for tidy storage.",
 )
 
 

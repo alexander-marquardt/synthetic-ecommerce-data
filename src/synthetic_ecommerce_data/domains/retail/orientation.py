@@ -103,6 +103,7 @@ UPRIGHT: tuple[str, ...] = (
     "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "washer_dryer",
     "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
+    "craft_tub", "learning_toy", "rc_vehicle",
 )
 
 #: Set types, drawn as several items: at 0 degrees only (#884).

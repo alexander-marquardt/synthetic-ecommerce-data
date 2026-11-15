@@ -28,8 +28,8 @@ drawn true (gen#512). No drawing prints a number: a kit's piece counts share one
 `Kite Chaser Remote-Control Helicopter`) and a class 4 decoy (a material claim the product does
 not have, such as a glass-look bead kit whose beads are plastic).
 
-**Measured** (ceiling build, seed 0, on main `d9937f05` with this slice): Toys holds 6,557 SKUs,
-5,093 more than main's 1,464; the three types hold 1,544, 1,655 and 1,911. With slice 1 (+1,938,
+**Measured** (ceiling build, seed 0, on main `d9937f05` with this slice): Toys holds the SKUs
+the issue's ceiling floor needs (read from the build, not restated here); the three types hold 1,544, 1,655 and 1,911. With slice 1 (+1,938,
 board games and puzzles) and slice 2 (+3,768, figures, dolls and building sets) the department
 passes the 10,450 SKUs of gen#960's Done-when. Trampolines and swings are left out: the floor is
 met without them. The guards are in `tests/test_retail_toys_960_slice3.py`.
