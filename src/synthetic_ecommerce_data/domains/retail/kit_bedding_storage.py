@@ -11,6 +11,12 @@ food_storage   two containers stacked on a third, each with its    kind (glass, 
                lid: clear glass with food inside, frosted          stainless steel, silicone)
                plastic, brushed steel, or silicone that folds
                flat in pleats
+bed_pillow     a bed pillow in its cover, seen from the front: a   kind (down alternative, memory
+               quilted down alternative, a solid memory foam       foam, shredded memory foam,
+               block with air holes, a gel layer on foam, a        cooling gel, feather); support
+               zipped cover of shredded foam, a piped feather      (plush, soft, medium, firm,
+               pillow; the support sets how far it bulges and      extra firm)
+               how deep its side stands
 =============  ==================================================  ==============================
 
 Each param's values are the lower-cased attribute values of the spec rows, so a derived style
@@ -126,5 +132,52 @@ def food_storage(paint: str, fill: Fill, label: str | None, kind: str = "plastic
     return out
 
 
-SHAPES = {"sheet_set": sheet_set, "food_storage": food_storage}
+#: Each support: how far a pillow's sides bulge and how deep its side stands. A plush pillow is
+#: full and round; an extra firm one keeps square edges and a deep side.
+SUPPORT = {"plush": (30, 10), "soft": (24, 14), "medium": (18, 18), "firm": (12, 22),
+           "extra firm": (6, 26)}  # fmt: skip
+GEL = "#8cc8ee"
+ZIP = "#8f989f"
+
+
+def bed_pillow(paint: str, fill: Fill, label: str | None, kind: str = "down alternative",
+               support: str = "medium") -> list[str]:  # fmt: skip
+    """A bed pillow from the front: ``kind`` is the fill, which sets the cover's make, and
+    ``support`` how far the sides bulge and how deep the side below the face stands."""
+    bulge, side = SUPPORT[support]
+    x0, x1, y0, y1 = 82, 318, 120, 296 - side
+    if kind in ("memory foam", "cooling gel"):  # a solid block: straight sides, round corners
+        face = f"M{x0 + 18},{y0} L{x1 - 18},{y0} Q{x1},{y0} {x1},{y0 + 18} L{x1},{y1 - 18} Q{x1},{y1} {x1 - 18},{y1} L{x0 + 18},{y1} Q{x0},{y1} {x0},{y1 - 18} L{x0},{y0 + 18} Q{x0},{y0} {x0 + 18},{y0} Z"
+    else:
+        mid = (y0 + y1) / 2
+        face = f"M{x0},{y0} Q200,{y0 - bulge} {x1},{y0} Q{x1 + bulge},{mid} {x1},{y1} Q200,{y1 + bulge} {x0},{y1} Q{x0 - bulge},{mid} {x0},{y0} Z"
+    out = ['<ellipse cx="200" cy="340" rx="130" ry="10" fill="#000000" fill-opacity=".08"/>']
+    out.append(_path(f"M{x0 + 4},{y1 - 6} L{x1 - 4},{y1 - 6} L{x1 - 10},{y1 + side} L{x0 + 10},{y1 + side} Z", _shade(paint, 0.12) if paint.startswith("#") else paint))
+    out.append(_path(face, paint))
+    if kind == "down alternative":  # a quilted cover
+        for x in range(x0 + 40, x1 - 20, 48):
+            out.append(_line(f"M{x},{y0 + 12} L{x + 30},{y1 - 12}", 1.0, ' stroke-opacity=".45" stroke-dasharray="5 4"'))
+            out.append(_line(f"M{x + 30},{y0 + 12} L{x},{y1 - 12}", 1.0, ' stroke-opacity=".45" stroke-dasharray="5 4"'))
+    elif kind == "memory foam":  # air holes in the foam
+        for row, y in enumerate(range(y0 + 34, y1 - 20, 30)):
+            for x in range(x0 + 36 + 15 * (row % 2), x1 - 24, 30):
+                out.append(f'<circle cx="{x}" cy="{y}" r="3.5" fill="#000000" fill-opacity=".14"/>')
+    elif kind == "cooling gel":  # a gel layer across the top of the foam
+        out.append(_path(f"M{x0 + 14},{y0 + 10} L{x1 - 14},{y0 + 10} L{x1 - 14},{y0 + 46} Q200,{y0 + 60} {x0 + 14},{y0 + 46} Z", GEL, 1.0, ' fill-opacity=".85"'))
+        out.append(_highlight(f"M{x0 + 40},{y0 + 26} Q150,{y0 + 18} 200,{y0 + 26} T{x1 - 40},{y0 + 26}", 4, 0.6))
+    elif kind == "shredded memory foam":  # a zip along the foot, the shredded fill in lumps
+        out.append(_line(f"M{x0 + 30},{y1 - 14} L{x1 - 30},{y1 - 14}", 3, "", ZIP))
+        for x in range(x0 + 34, x1 - 30, 8):
+            out.append(_line(f"M{x},{y1 - 18} L{x},{y1 - 10}", 1.0, "", ZIP))
+        for cx, cy in ((140, y0 + 50), (210, y0 + 70), (260, y0 + 44), (176, y0 + 96)):
+            out.append(_line(f"M{cx - 14},{cy} q7,-9 14,0 t14,0", 1.2, ' stroke-opacity=".4"'))
+    else:  # feather: a piped edge and pointed corners
+        out.append(_path(face, "none", 1.2, ' transform="translate(200 208) scale(.92) translate(-200 -208)"'))
+        for (x, y), (dx, dy) in (((x0, y0), (-10, -8)), ((x1, y0), (10, -8)), ((x0, y1), (-10, 8)), ((x1, y1), (10, 8))):
+            out.append(_line(f"M{x},{y} L{x + dx},{y + dy}", 2.0))
+    out.append(_highlight(f"M{x0 + 30},{y0 + 26} Q150,{y0 + 10} 200,{y0 + 10}", 6, 0.3))
+    return out
+
+
+SHAPES = {"sheet_set": sheet_set, "food_storage": food_storage, "bed_pillow": bed_pillow}
 register(SHAPES)

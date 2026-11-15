@@ -3,8 +3,12 @@ the table that turns a type's kinds into one style per brand.
 
 Sheet sets and pillows (``type_specs/bed_sheet.py``, ``pillow.py``) sit beside the duvets under
 ``Home > Bedding``; food storage containers (``food_storage_container.py``) beside the storage
-boxes under ``Home > Storage``. Their brands are the invented Home brands other rows already
-carry (ruling 2026-10-30, gen#720), so every one has its owner, its mark and its house style.
+boxes under ``Home > Storage``. Their brands are invented brands other rows already carry
+(ruling 2026-10-30, gen#720), so every one has its owner, its mark and its house style. A brand
+new to the build would join the scale build's range-name deal (``scale._range_deal``), which
+deals the names over every brand a derived style may carry, and so rename the derived styles of
+every other department (gen#963 review); none of these brands is an ``EXTRA_BRANDS`` one, which a
+template may not carry.
 A sheet set and a container lid are sold in the six main colors (ruling 2026-10-13, gen#275);
 a pillow keeps its natural white cover (``main_colors.EXCEPTIONS``).
 """
@@ -24,10 +28,10 @@ DEPARTMENT = "Home"
 #: The brands that sell bedding, with the three letters a row code ends in. The scaled build
 #: makes one style per brand and title, so these brands bound each type's depth.
 BEDDING_BRANDS = (
-    ("Quillon Sleep", "QSL"), ("Quietbrook", "HSH"), ("Marlowe & Moss", "DVL"),
+    ("Quillon Sleep", "QSL"), ("Thistle & Wren", "THW"), ("Hollinwray Knits", "HWK"),
     ("Brackenmere Home", "BRK"), ("Wrenfield", "WRN"), ("Larkmoor", "LRK"),
-    ("Harbour & Pine", "HBP"), ("Ashgrove Home", "EMB"), ("Alderwick Living", "LRW"),
-    ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"), ("Slate & Kiln", "CBK"),
+    ("Harbour & Pine", "HBP"), ("Little Fernby", "LFB"), ("Mirefield Naturals", "MFN"),
+    ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"), ("Puddlecombe Toys", "PDT"),
     ("Hearth & Table", "HRT"),
 )  # fmt: skip
 #: The brands that sell pillows: the bedding brands the line grammar's soft family already deals
@@ -36,9 +40,9 @@ PILLOW_BRANDS = tuple((b, t) for b, t in BEDDING_BRANDS if b not in ("Wrenfield"
 #: The brands that sell food storage.
 KITCHEN_BRANDS = (
     ("Hearth & Table", "HRT"), ("Pantry Mill", "PNM"), ("Freshfold", "FRF"),
-    ("Fernbrook Household", "CLB"), ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"),
-    ("Ashgrove Home", "EMB"), ("Slate & Kiln", "CBK"), ("Brackenmere Home", "BRK"),
-    ("Alderwick Living", "LRW"), ("Harbour & Pine", "HBP"), ("Rinsewell", "SPW"),
+    ("Kettleby Tea Co.", "KTC"), ("Lanternby", "LNT"), ("Calderby & Lune", "CLD"),
+    ("Little Fernby", "LFB"), ("Thistle & Wren", "THW"), ("Brackenmere Home", "BRK"),
+    ("Mirefield Naturals", "MFN"), ("Harbour & Pine", "HBP"), ("Brewhollow Roasters", "BHR"),
     ("Wrenfield", "WRN"),
 )  # fmt: skip
 
@@ -74,13 +78,15 @@ class ChartRow(Row):
 def table(prefix: str, brands: tuple[tuple[str, str], ...], path: tuple[str, ...],
           product_type: str, shape: str, kind_attr: tuple[str, str], kinds: Kinds,
           design_attr: tuple[str, str], designs: tuple[str, ...], size_key: str,
-          white_only: bool = False, drawn: bool = True,
+          white_only: bool = False, design_param: str = "",
           row_type: type[Row] = Row) -> tuple[Row, ...]:  # fmt: skip
     """One style per brand: the brand's kind and design cycle through ``kinds`` and ``designs``,
     so every value is on a template. The title is the design, the kind and the product type,
     which the scaled build varies. ``white_only`` sells every style in white alone; else the six
-    main colors, each style's hero in turn. ``drawn`` passes the kind to the drawing; ``row_type``
-    is :class:`ChartRow` for a type sized by the bedding chart."""
+    main colors, each style's hero in turn. The drawing's ``kind`` param is the kind, and
+    ``design_param`` names a param that draws the design too (a pillow's support), so a derived
+    style that changes either draws what it states (gen#512); ``row_type`` is :class:`ChartRow`
+    for a type sized by the bedding chart."""
     names = list(kinds)
     out = []
     for i, (brand, tag) in enumerate(brands):
@@ -89,7 +95,8 @@ def table(prefix: str, brands: tuple[tuple[str, str], ...], path: tuple[str, ...
         price, description, sizes = kinds[kind]
         attrs = ((*kind_attr, kind), (*design_attr, design))
         palette = (WHITE,) if white_only else colors(MAIN[i % len(MAIN)])
-        params = (("kind", kind.lower()),) if drawn else ()
+        drawn_design = ((design_param, design.lower()),) if design_param else ()
+        params = (("kind", kind.lower()), *drawn_design)
         out.append(row_type(f"{prefix}{tag}", f"{design} {kind} {product_type}", brand, DEPARTMENT,
                        path, product_type, sizes[0][1], shape, description, palette, attrs,
                        sizes, params=params, size_key=size_key))  # fmt: skip
