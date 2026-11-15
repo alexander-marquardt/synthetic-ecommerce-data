@@ -78,8 +78,11 @@ def _value(doc: dict, name: str) -> str:
 
 
 def _inches(doc: dict) -> float:
+    """The diameter in inches: the published entry is inches (``INH``) and its canonical
+    value is millimeters."""
     entry = next(a for a in doc["attributes"] if a["key"] == "diameter")
-    return entry["value_canonical"]
+    assert entry["unit_code"] == "INH", doc["sku"]
+    return round(entry["value_canonical"] / 25.4, 3)
 
 
 def test_the_type_is_modelled_in_its_own_module():
