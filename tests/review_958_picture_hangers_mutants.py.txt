@@ -1,0 +1,12 @@
+M = "src/synthetic_ecommerce_data/domains/industrial/product_types/fasteners/picture_hangers.py"
+TESTS = ["tests/test_type_picture_hangers.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-n", "4", "-k", "not other_type and not two_builds and not whole_build"]
+MUTANTS = [
+    (M, '"Sawtooth Hanger": (10, 15, 20, 25, 30),', '"Sawtooth Hanger": (10, 15, 20, 25, 300),', "a sawtooth strip rated 300 lb"),
+    (M, "(STYLES[i % 4], MATERIALS[(i + i // 4) % 3])", "(STYLES[i % 4], MATERIALS[0])", "no stainless or brass hanger built"),
+    (M, "(n + n // len(COMBOS)) % len(COLORS)]", "(n + n // len(COMBOS)) % (len(COLORS) - 1)]", "no white hanger built"),
+    (M, "DECOY_SLOTS: tuple[int, ...] = (1, 4)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
+    (M, 'return f"{pounds} lbf", float(pounds)', 'return f"{pounds} lb", float(pounds)', "a rating published as a mass beside the catalogue's lbf"),
+    (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no rating"),
+    (M, "    side = 0.8 + 0.25 * math.sqrt(pounds)", "    side = 2.0", "every rating drawn one size"),
+]
