@@ -32,7 +32,8 @@ from synthetic_ecommerce_data.domains.retail import pack_copies
 
 #: Things with no natural up, drawn at any of the 24 clock positions.
 ANY: tuple[str, ...] = (
-    "baseball", "cable", "cable_ties", "football", "gloves", "jumper_cables", "lemon", "orange",
+    "baseball", "cable", "cable_ties", "football", "gloves", "golf_ball", "jumper_cables", "lemon",
+    "orange",
     "potato", "round_produce", "screw", "shoe_laces", "snowflake",
 )
 
@@ -78,9 +79,11 @@ UPRIGHT: tuple[str, ...] = (
     "doll", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
     "drill_driver", "drinking_glass", "drop_earrings", "dumbbell", "duvet", "e_reader", "earbuds",
     "earrings", "espresso_cup", "eye_patches", "eyeliner", "face_mask", "false_nails", "fish_bag",
-    "fitness_band", "floor_lamp", "foam_roller", "footstool", "fragrance", "fridge",
+    "fishing_reel", "fishing_rod", "fitness_band", "floor_lamp", "foam_roller", "footstool",
+    "fragrance", "fridge",
     "fridge_magnet", "fridge_thermometer", "frying_pan", "garden_furniture", "garden_hose",
-    "garment_bag", "gift_bag", "gift_card", "gift_hamper", "gift_mug", "glue_gun", "grass_trimmer",
+    "garment_bag", "gift_bag", "gift_card", "gift_hamper", "gift_mug", "glue_gun", "golf_club",
+    "golf_glove", "grass_trimmer",
     "greeting_card", "grill_press", "hair_dryer", "hair_straightener", "hairbrush", "hammer",
     "hammer_drill", "handbag", "handheld_fan", "hanger",
     "hangers", "heater", "hedge_trimmer", "holdall", "hook_rail", "hoop_earrings", "ice_cream",
@@ -105,7 +108,8 @@ UPRIGHT: tuple[str, ...] = (
     "spiral_notebook", "star",
     "steak_tray", "stems", "step_ladder", "sticker_sheet", "storage_box", "strawberry", "suitcase",
     "sun_cream",
-    "sunglasses", "swim_armbands", "swim_goggles", "table_lamp", "tablet", "talc", "tea_cup",
+    "sunglasses", "swim_armbands", "swim_goggles", "table_lamp", "tablet", "tackle_box", "talc",
+    "tea_cup",
     "tea_towel", "tennis_racket", "tent", "throw", "tin", "toaster", "tomato", "tool_kit",
     "tote_bag", "tower_fan", "travel_cup", "travel_organizer", "tray", "trigger_spray",
     "trinket_tray", "trophy", "tub", "tulip", "tumble_dryer", "tumbler", "tv", "umbrella",
