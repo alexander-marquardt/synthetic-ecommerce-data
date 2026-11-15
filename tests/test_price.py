@@ -1067,6 +1067,7 @@ NOT_MEASURED = frozenset(
         "lag_screws",
         "flange_nuts",
         "bronze_sleeve_bushings",
+        "levels",
         "picture_hangers",
         "tape_measures",
         "utility_knives",
