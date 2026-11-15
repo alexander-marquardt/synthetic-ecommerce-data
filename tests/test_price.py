@@ -1067,6 +1067,7 @@ NOT_MEASURED = frozenset(
         "lag_screws",
         "flange_nuts",
         "bronze_sleeve_bushings",
+        "picture_hangers",
         "stud_finders",
         "tape_measures",
         *tabletype.tables(),

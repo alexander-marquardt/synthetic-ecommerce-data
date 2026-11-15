@@ -14,7 +14,8 @@ The gates of ``test_type_lock_nuts_nylon_insert.py``, the template (#53 step 3):
 
 And this type's own: it is filed under ``Tools``; every scan depth is one its tier is
 sold in; every style, indicator, scan-mode set and main color (gen#275) is built; a
-magnetic finder has no electronic indicator; and some titles are text-match decoys
+magnetic finder has no electronic indicator; a line's ``Material`` is its housing, fixed by
+its tier; and some titles are text-match decoys
 (gen#294) that name another tool while every attribute stays true.
 """
 
@@ -91,9 +92,9 @@ def test_the_default_build_is_deep():
 
 
 def test_the_type_is_filed_under_tools():
-    assert taxonomy.LEAVES[KEY] == (("Measuring & Inspecting", "Stud Finders"),)
+    assert taxonomy.LEAVES[KEY] == (("Measuring & Inspecting", "Detection Tools", "Stud Finders"),)
     paths = {tuple(doc["category_path"]) for doc in _default_docs()}
-    assert paths == {("Tools", "Measuring & inspecting", "Stud finders")}
+    assert paths == {("Tools", "Measuring & inspecting", "Detection tools", "Stud finders")}
 
 
 def test_no_two_skus_of_one_brand_are_the_same_product():
@@ -154,6 +155,20 @@ def test_each_combination_meets_every_main_color_over_six_turns():
     turns = len(finders.COMBOS) * len(MAIN_COLORS)
     pairs = {(n % len(finders.COMBOS), finders.body_color(n)) for n in range(turns)}
     assert len(pairs) == turns
+
+
+def test_the_housing_material_is_fixed_by_the_tier():
+    """``Material`` is the line's housing, in the case materials tape measures publish: a
+    multi-scan scanner's is rubber-coated, every other finder's plain ABS. The tier fixes
+    it, so it adds no combination to the 13."""
+    finders = _module()
+    docs = _default_docs()
+    for doc in docs:
+        multi = _value(doc, "Application Modes") == finders.MODES["Multi-Scan"]
+        expected = "Rubber-Coated ABS" if multi else "ABS Plastic"
+        assert _value(doc, "Material") == expected, doc["sku"]
+    assert {_value(d, "Material") for d in docs} == {"ABS Plastic", "Rubber-Coated ABS"}
+    assert len(finders.COMBOS) == 13
 
 
 def test_some_titles_name_another_tool_and_every_title_names_the_item():

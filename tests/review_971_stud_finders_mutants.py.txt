@@ -7,5 +7,6 @@ MUTANTS = [
     (M, '    ("Magnetic", MAGNET, "Magnetic"),\n', '    ("Magnetic", "LED Arrows", "Magnetic"),\n', "a magnetic finder with an electronic indicator"),
     (M, "DECOY_SLOTS: tuple[int, ...] = (1, 4)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
     (M, '("Basic", "Multi-Scan")[(i // 2) % 2]', '"Basic"', "no multi-scan tier built"),
+    (M, '    "Multi-Scan": "Rubber-Coated ABS",', '    "Multi-Scan": "ABS Plastic",', "a multi-scan housing published as plain ABS"),
     (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no scan depth"),
 ]

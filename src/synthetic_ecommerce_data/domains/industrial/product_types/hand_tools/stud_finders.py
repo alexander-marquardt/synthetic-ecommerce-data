@@ -19,8 +19,13 @@ Depth (In.)``, so a depth is published in inches only.
 **Lines.** A line is one brand's finders of one style, one indicator (a single LED, LED
 arrows or an LCD screen; a magnetic finder's is its pivoting magnet) and one tier, in one
 body color. Its SKUs are the tier's scan depths. The 13 (style, indicator, modes)
-combinations are rotated in an order whose first six lines already hold every style,
+combinations are rotated in an order whose first five lines already hold every style,
 indicator and mode set (:data:`COMBOS`), so a small build offers each of them too.
+
+**Material.** A line publishes its housing's ``Material``, the names tape measures use:
+``Rubber-Coated ABS`` on a multi-scan scanner, ``ABS Plastic`` on every other finder
+(:data:`MATERIALS`). The tier fixes it, so it adds no combination: the 13 combinations
+and the color rotation are the same with it as without it.
 
 **Colors.** The body comes in each of the six main colors (gen#275): red, blue, green,
 yellow, black and white (:data:`COLORS`). The color rotation steps one further at each
@@ -51,7 +56,7 @@ from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
 KEY = "stud_finders"
 ITEM = "Stud Finder"
-CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Stud Finders")
+CATEGORY: tuple[str, ...] = ("Measuring & Inspecting", "Detection Tools", "Stud Finders")
 
 #: The census's name for how deep a finder scans; its values are inches.
 DEPTH = "Scan Depth (In.)"
@@ -76,6 +81,12 @@ DEPTHS_IN: dict[str, tuple[float, ...]] = {
     "Multi-Scan": (1.5, 2.0),
     "Magnetic": (0.75, 1.0),
 }
+#: The housing each tier is made of, in the case materials tape measures publish.
+MATERIALS: dict[str, str] = {
+    "Basic": "ABS Plastic",
+    "Multi-Scan": "Rubber-Coated ABS",
+    "Magnetic": "ABS Plastic",
+}
 
 #: The six main colors (gen#275), and the swatch the drawing fills the body with.
 COLORS: dict[str, str] = {
@@ -89,9 +100,10 @@ COLORS: dict[str, str] = {
 
 #: The twelve electronic lines a brand can offer, without their color: an edge- or
 #: center-finding scanner, one of three indicators, in the basic or the multi-scan tier.
-#: In an order whose first four lines already hold both styles, both tiers and three
-#: indicators: the (style, indicator) pairs turn every six lines, and the tier of the
-#: ``i``-th line is the other one from line ``i - 6``'s.
+#: In an order whose first four lines already hold both styles, both tiers and all three
+#: indicators, so with the magnetic finder third (:data:`COMBOS`) the first five lines
+#: hold every style, indicator and mode set: the (style, indicator) pairs turn every six
+#: lines, and the tier of the ``i``-th line is the other one from line ``i - 6``'s.
 _ELECTRONIC: tuple[tuple[str, str, str], ...] = tuple(
     (STYLES[i % 2], INDICATORS[i % 3], ("Basic", "Multi-Scan")[(i // 2) % 2]) for i in range(12)
 )
@@ -138,6 +150,7 @@ VOCAB = (
     _spec("Style", "line"),
     _spec("Indicator", "line"),
     _spec("Application Modes", "line"),
+    _spec("Material", "line"),
     _spec(DEPTH, "sku", kind="length"),
 )
 
@@ -164,6 +177,7 @@ def _make(gen: Any, type_key: str, category: tuple[str, ...]) -> Any:
         keyword_attribute("Style", style),
         keyword_attribute("Indicator", indicator),
         keyword_attribute("Application Modes", MODES[tier]),
+        keyword_attribute("Material", MATERIALS[tier]),
     ]
     draft.descriptors = [("Style", style), ("Color", color)]
     pool = list(DEPTHS_IN[tier])
