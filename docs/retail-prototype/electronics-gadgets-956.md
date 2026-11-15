@@ -52,11 +52,18 @@ another color in its title:
 - `Cellular Smartwatch with Red Crown` is black. `White Peak GPS Smartwatch` is black.
 
 **Breadth.** Measured on the ceiling build, seed 0: Power Bank 563, Webcam 449 and Smartwatch 447
-SKUs. That is 1,459 on its own, and Electronics goes from 1,166 to 2,625 on main. With slice 1
+SKUs. That is 1,459 on its own. The department's total is `ceiling.top_levels.Electronics.skus`
+in `retail_figures.figures()`. With slice 1
 (9,479), slice 2a (+1,782) and slice 2b (+1,052), the department holds about 13,769. That passes
 the issue's 13,300 floor (95% of 14,000). The first power-bank cut, with three features, drew 612
 SKUs, over the 350-to-600 band each type keeps so slice 3b has its share. The feature list was
 cut to two.
+
+**Rate.** Electronics has its own `DEPARTMENT_RATE` in `scale.py`. That rate is its target share
+divided by its summed leaf weights (gen#626). It used to fall back to `DEFAULT_RATE`, which gave
+its templates a 6.6% share of the derived styles against a 1.0% target. That pulled Clothing below
+its target too. At the lower rate the three types still use up their title values, so the counts
+above hold.
 
 **Test.** `tests/test_retail_electronics_gadgets_956.py` checks the following:
 - the slice's floor of 1,000 SKUs, and each type's band;
