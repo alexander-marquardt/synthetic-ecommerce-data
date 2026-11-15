@@ -81,19 +81,19 @@ def _golden(pets: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Dog Food": [
-        ("BRD-00E89FE10BED", "Fenstone Adult Large Breed Dry Dog Food with Chicken & Rice", 4, 8.5),
-        ("BRD-0139F80E655E", "Glenby Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),
-        ("BRD-015EB9FD793C", "Merhill Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
+        ("BRD-00E89FE10BED", "Whitthorpe Adult Large Breed Dry Dog Food with Chicken & Rice", 4, 8.5),  # noqa: E501
+        ("BRD-0139F80E655E", "Leaburn Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),  # noqa: E501
+        ("BRD-015EB9FD793C", "Malwood Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
     ],
     "Cat Food": [
-        ("BRD-006AF6BEB0E4", "Hepgate Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
-        ("BRD-01B4E9895FF8", "Walwyke Adult Hairball Control Dry Cat Food with Chicken", 3, 3.85),
-        ("BRD-02FDA95F49AE", "Fenbank Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),
+        ("BRD-006AF6BEB0E4", "Dalwick Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
+        ("BRD-01B4E9895FF8", "Hazshaw Adult Hairball Control Dry Cat Food with Chicken", 3, 3.85),
+        ("BRD-02FDA95F49AE", "Copfell Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),
     ],
     "Cat Litter": [
-        ("BRD-00112B468C03", "Baringham Baby Powder Wood Pellet Cat Litter", 3, 6.5),
-        ("BRD-03E57A1B6D5A", "Sandcroft Lavender Clumping Clay Cat Litter", 3, 3.2),
-        ("BRD-06F75E8C843B", "Holness Citrus Clumping Clay Cat Litter", 3, 5.5),
+        ("BRD-00112B468C03", "Wenborough Baby Powder Wood Pellet Cat Litter", 3, 6.5),
+        ("BRD-03E57A1B6D5A", "Zenstead Lavender Clumping Clay Cat Litter", 3, 3.2),
+        ("BRD-06F75E8C843B", "Wesbridge Citrus Clumping Clay Cat Litter", 3, 5.5),
     ],
 }  # fmt: skip
 

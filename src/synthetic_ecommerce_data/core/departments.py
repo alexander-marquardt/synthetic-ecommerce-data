@@ -31,6 +31,7 @@ RETAIL = (
     "Sports & outdoors",
     "Electronics",
     "Pets",
+    "Health",
     "Office & school",
 )
 
