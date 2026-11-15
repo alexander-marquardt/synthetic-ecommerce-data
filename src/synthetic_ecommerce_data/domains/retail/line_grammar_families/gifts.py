@@ -10,13 +10,13 @@ from __future__ import annotations
 #: The product types of the family.
 KINDS = (
     "Keyring", "Gift Bag", "Gift Set", "Gift Hamper", "Gift Card", "Greeting Card",
-    "Wrapping Paper", "Notebook", "Diary", "Bouquet",
+    "Wrapping Paper", "Notebook", "Diary", "Bouquet", "Balloon", "Party Plate", "Bunting",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
     "Present", "Surprise", "Token", "Treat", "Wish", "Greeting", "Regards", "Thanks", "Blessing",
     "Occasion", "Celebrate", "Party", "Parcel", "Ribbon", "Jubilee", "Milestone", "Gesture",
-    "Wrap", "Offering", "Hello",
+    "Wrap", "Offering", "Hello", "Revel", "Soiree", "Hooray", "Fanfare", "Streamer", "Gala",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Plus", "Max", "Duo", "Lite", "Pro")

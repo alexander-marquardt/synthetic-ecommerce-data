@@ -62,7 +62,7 @@ PART_OF_WHOLE = (
 )
 
 #: The measurement system a published length mark belongs to.
-SYSTEM_OF_MARK = {'"': "inch", "in": "inch", "in.": "inch", "mm": "metric"}
+SYSTEM_OF_MARK = {'"': "inch", "ft": "inch", "in": "inch", "in.": "inch", "mm": "metric"}
 
 SAMPLES = {
     "measured defect rates": SMALL,

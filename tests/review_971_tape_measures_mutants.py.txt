@@ -1,0 +1,11 @@
+M = "src/synthetic_ecommerce_data/domains/industrial/product_types/hand_tools/tape_measures.py"
+TESTS = ["tests/test_type_tape_measures.py"]
+PYTEST_ARGS = ["-q", "-p", "no:cacheprovider", "-n", "4", "-k", "not other_type and not two_builds and not whole_build"]
+MUTANTS = [
+    (M, "{10: 0.5, 12: 0.75, 16: 0.75, 25: 1.0, 30: 1.0, 35: 1.25}", "{10: 0.5, 12: 0.75, 16: 0.75, 25: 0.75, 30: 1.0, 35: 1.25}", "a 25 ft tape on a 3/4 in blade"),
+    (M, "(MATERIALS[i % 3], LOCKS[(i + i // 6) % 3], SYSTEMS[i % 2])", "(MATERIALS[i % 3], LOCKS[(i + i // 6) % 3], SYSTEMS[0])", "no metric tape built"),
+    (M, "(n + n // len(COMBOS)) % len(COLORS)]", "(n + n // len(COMBOS)) % (len(COLORS) - 1)]", "no white case built"),
+    (M, "DECOY_SLOTS: tuple[int, ...] = (0, 3)", "DECOY_SLOTS: tuple[int, ...] = ()", "no decoy titles"),
+    (M, 'numeric_attribute("Length", published, length_in)', 'numeric_attribute("Length", published, float(size))', "a length carried in feet or metres, not inches"),
+    (M, "        provenance=PROVENANCE,\n", "        provenance='generated; no standard fixes these values',\n", "provenance naming no length"),
+]

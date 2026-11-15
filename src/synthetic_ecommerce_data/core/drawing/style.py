@@ -67,6 +67,8 @@ MATERIAL_FILL: dict[str, str] = {
     # one elastomer and two PPE materials that the tool- and
     # fastener-specific vocabulary above has no entry for.
     "Aluminum": "#d7dde1",
+    # A level's die-cast magnesium frame (gen#971): darker and greyer than aluminum.
+    "Magnesium": "#b9bfc4",
     "Stainless Steel": "#e6ebee",
     "Cast Iron": "#8a8d8f",
     "Bronze": "#b08d57",
@@ -115,6 +117,11 @@ MATERIAL_FILL: dict[str, str] = {
     # The bushing bronzes (#833): a porous pressed bronze, lighter, and a cast one.
     "Oil-Impregnated Sintered Bronze": "#c4a46e",
     "Cast Bronze": "#9a7542",
+    # The tape measure cases (gen#971): a plain ABS shell, one with a black rubber grip
+    # moulded over it, and a chrome-plated one.
+    "ABS Plastic": "#a7b4c2",
+    "Rubber-Coated ABS": "#45474a",
+    "Chrome-Plated ABS": "#e3e8ec",
 }
 
 #: Finishes the original twelve types never published, and their colors.
@@ -179,6 +186,8 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     "Silicon Carbide": Hatch((), 3.0, dots=True),
     # See MATERIAL_FILL above for why these seven are here.
     "Aluminum": Hatch((30,), 5.0),
+    # A level's magnesium frame (gen#971): a pattern no other material uses.
+    "Magnesium": Hatch((150,), 6.5, dots=True),
     "Stainless Steel": Hatch((150,), 5.0, dots=True),
     "Cast Iron": Hatch((0, 60), 4.0, dots=True),
     "Bronze": Hatch((60, 120), 3.0),
@@ -224,6 +233,10 @@ MATERIAL_HATCH: dict[str, Hatch] = {
     # The bushing bronzes (#833): the sintered one dotted for its pores.
     "Oil-Impregnated Sintered Bronze": Hatch((60,), 3.5, dots=True),
     "Cast Bronze": Hatch((120, 60), 4.0),
+    # The tape measure cases (gen#971): each a pattern no other material uses.
+    "ABS Plastic": Hatch((85,), 7.5, dots=True),
+    "Rubber-Coated ABS": Hatch((25,), 2.5, dots=True),
+    "Chrome-Plated ABS": Hatch((5,), 9.5),
 }
 
 

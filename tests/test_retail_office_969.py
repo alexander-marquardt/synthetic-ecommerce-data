@@ -1,15 +1,17 @@
-"""Office & school, slices 1 and 3 (gen#969): the department, with pens, pencils, spiral
-notebooks, school backpacks, colored pencils and desk organizers.
+"""Office & school, slices 1, 2 and 3 (gen#969): the department, with pens, pencils, spiral
+notebooks, ring binders, document folders, calculators, school backpacks, colored pencils and
+desk organizers.
 
 The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
-drawn by :mod:`kit_office`. Slice 3 adds the bag, art and desk types
+drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,
+``document_folder.py``, ``calculator.py``) and slice 3 the bag, art and desk types
 (``type_specs/school_backpack.py``, ``colored_pencils.py``, ``desk_organizer.py``). These checks
-hold the slices' Done-when: the ceiling build has each slice's share of SKUs under the department;
-each type's styles have unique ids, titles and twin keys; the rows and their drawings are the same
-on every call; and a golden slice pins each type's first derived styles, so a change that moves
-them shows here.
+hold the slices' Done-when: the ceiling build has at least 4,275 SKUs under the department, with
+each slice's share; each type's styles have unique ids, titles and twin keys; the rows and their
+drawings are the same on every call; and a golden slice pins each type's first derived styles, so
+a change that moves them shows here.
 """
 
 from __future__ import annotations
@@ -23,21 +25,21 @@ from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, type_registry
 
 SLICE_3 = ("School Backpack", "Colored Pencils", "Desk Organizer")
-TYPES = ("Pen", "Pencil", "Spiral Notebook", *SLICE_3)
+TYPES = (
+    "Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator", *SLICE_3
+)
 KEYS = {
-    "Pen": "pen",
-    "Pencil": "pencil",
-    "Spiral Notebook": "spiral_notebook",
-    "School Backpack": "school_backpack",
-    "Colored Pencils": "colored_pencils",
+    "Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook",
+    "Ring Binder": "ring_binder", "Document Folder": "document_folder", "Calculator": "calculator",
+    "School Backpack": "school_backpack", "Colored Pencils": "colored_pencils",
     "Desk Organizer": "desk_organizer",
-}
+}  # fmt: skip
 #: Slice 3's share of the department at the ceiling build: the issue's 4,275 less slice 2's
 #: floor of 2,850 (the gate comments of gen#969).
 SLICE_3_SHARE = 1_425
-#: The department's floor at the ceiling build: slice 1's 1,400 plus slice 3's share. With
-#: slice 2's 1,450 it is the issue's 4,275.
-FLOOR = 1_400 + SLICE_3_SHARE
+#: The department's floor at the ceiling build: slice 1's 1,400, slice 2's 1,450 and slice 3's
+#: 1,425, the issue's 4,275.
+FLOOR = 1_400 + 1_450 + SLICE_3_SHARE
 
 
 @pytest.fixture(scope="module")
@@ -106,34 +108,49 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
-        ("BRD-02FD05FA1851", "Kelfell Bold Ballpoint Pens", 9, 4.65),
-        ("BRD-0AEED8938A93", "Wesbury Bold Rollerball Pens", 18, 5.5),
-        ("BRD-1154563F036E", "Glenbank Fine Rollerball Pens", 18, 5.5),
+        ("BRD-02FD05FA1851", "Foxlow Bold Ballpoint Pens", 9, 4.65),
+        ("BRD-0AEED8938A93", "Melwood Bold Rollerball Pens", 18, 5.5),
+        ("BRD-1154563F036E", "Hazford Fine Rollerball Pens", 18, 5.5),
     ],
     "Pencil": [
-        ("BRD-00177A9CA748", "Birkhaugh 2B Pencils with Eraser", 15, 1.9),
-        ("BRD-14C1085C8C1C", "Hamgarth 2H Pencils with Eraser", 18, 2.05),
-        ("BRD-16AF6C00FB2D", "Foxgarth 4B Drawing Pencils", 18, 2.9),
+        ("BRD-00177A9CA748", "Hambeck 2B Pencils with Eraser", 15, 1.9),
+        ("BRD-14C1085C8C1C", "Easwell 2H Pencils with Eraser", 18, 2.05),
+        ("BRD-16AF6C00FB2D", "Oakscar 4B Drawing Pencils", 18, 2.9),
     ],
     "Spiral Notebook": [
-        ("BRD-082994CBD41A", "Brackbank A5 Dotted Spiral Notebook", 6, 2.9),
-        ("BRD-15F48D958E7F", "Edenworth A5 Lined Spiral Notebook", 6, 3.95),
-        ("BRD-29026ABE797F", "Sandlow B5 Squared Spiral Notebook", 9, 3.4),
+        ("BRD-082994CBD41A", "Falworth A5 Dotted Spiral Notebook", 6, 2.9),
+        ("BRD-15F48D958E7F", "Alnworth A5 Lined Spiral Notebook", 6, 3.95),
+        ("BRD-29026ABE797F", "Horbridge B5 Squared Spiral Notebook", 9, 3.4),
+    ],
+    "Ring Binder": [
+        ("BRD-07E9D725EAA2", "Wykebank A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Brocking A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Trentingham A5 Slanted Ring Binder", 12, 2.65),
+    ],
+    "Document Folder": [
+        ("BRD-04A14787D567", "Holdale A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Hawcliffe A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Halgarth Letter Zip Document Folders", 6, 5.5),
+    ],
+    "Calculator": [
+        ("BRD-03D4351FCA63", "Foxlow 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Tidley 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Merwick 12 Digit Basic Calculator", 18, 4.05),
     ],
     "School Backpack": [
-        ("BRD-01A43CE6FCD7", "Sandcroft 15 L Classic School Backpack", 6, 15.5),
-        ("BRD-01BA38373142", "Falborough 25 L Laptop School Backpack", 6, 34.0),
-        ("BRD-0592753A802F", "Ravbeck 30 L Classic School Backpack", 2, 50.0),
+        ("BRD-01A43CE6FCD7", "Thornshaw 15 L Classic School Backpack", 6, 15.5),
+        ("BRD-01BA38373142", "Rythwaite 25 L Laptop School Backpack", 6, 34.0),
+        ("BRD-0592753A802F", "Alnwyke 30 L Classic School Backpack", 2, 50.0),
     ],
     "Colored Pencils": [
-        ("BRD-0E1EAFC1DBA7", "Whitwick 36 Watercolor Colored Pencils", 6, 25.0),
-        ("BRD-15303E7EFCBF", "Salmoor 48 Classic Colored Pencils", 12, 31.0),
-        ("BRD-17B4E307D6ED", "Wigbury 12 Soft Core Colored Pencils", 18, 7.0),
+        ("BRD-0E1EAFC1DBA7", "Wesby 36 Watercolor Colored Pencils", 6, 25.0),
+        ("BRD-15303E7EFCBF", "Malley 48 Classic Colored Pencils", 12, 31.0),
+        ("BRD-17B4E307D6ED", "Penthwaite 12 Soft Core Colored Pencils", 18, 7.0),
     ],
     "Desk Organizer": [
-        ("BRD-0433EA9A7695", "Oakmouth 6 Compartment Felt Desk Organizer", 18, 19.0),
-        ("BRD-0B28AA29D695", "Hamgarth 3 Compartment Mesh Desk Organizer", 6, 8.5),
-        ("BRD-0BCD3137F6B9", "Fernbeck 5 Compartment Metal Desk Organizer", 18, 11.0),
+        ("BRD-0433EA9A7695", "Brackhill 6 Compartment Felt Desk Organizer", 18, 19.0),
+        ("BRD-0B28AA29D695", "Easwell 3 Compartment Mesh Desk Organizer", 6, 8.5),
+        ("BRD-0BCD3137F6B9", "Crakebank 5 Compartment Metal Desk Organizer", 18, 11.0),
     ],
 }
 
