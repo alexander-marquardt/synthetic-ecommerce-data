@@ -74,6 +74,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Yoga Mat": ("thickness_mm",),
     "Yoga Strap": ("length_cm",),
     # What holds: a volume or a capacity.
+    "Air Fryer": ("capacity_l",),
     "Backpack": ("capacity_l",),
     "Casserole Dish": ("capacity_l",),
     "Holdall": ("capacity_l",),
