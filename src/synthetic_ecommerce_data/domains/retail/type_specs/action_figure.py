@@ -39,7 +39,7 @@ SIX = (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)
 
 #: The opening sentences: each names the character and nothing that holds for one kind only.
 _LEADS = (
-    "{c} is ready for the next mission.",
+    "{c} is ready for a new mission.",
     "{c} leads the team into every adventure.",
     "Pose {c} for a battle on the rug or for the display shelf.",
     "{c} comes with a spare pair of hands and a display stand.",
