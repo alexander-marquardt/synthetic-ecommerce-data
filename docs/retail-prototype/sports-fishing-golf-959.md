@@ -25,7 +25,11 @@ and its reel seat at the end. `fishing_reel` takes `reel_type` (spinning, baitca
 `tackle_box` takes `tackle_type` (cantilever, drawer, hip roof), `golf_club` takes `club_type`
 (driver, fairway wood, iron, wedge, putter), `golf_ball` takes `construction`, and `golf_glove`
 takes `material` (cabretta leather, synthetic, hybrid). Each param is the lower-cased attribute
-value, so a derived style that swaps the value is drawn true (gen#512).
+value, so a derived style that swaps the value is drawn true (gen#512). A golf ball turns at any
+angle and the other five shapes stand upright (`orientation.py`, gen#849). A rod's length, a
+reel's size and a tackle box's or a glove's size are size axes (`size_axes.py`, gen#719), so the
+longer rod and the larger box are drawn bigger (the largest cantilever box is sold in L and XL,
+the letters the combined loader reads); a club's handedness is a fit, not a size.
 
 **Breadth.** These are the department's first derivable types: the scaled build draws more styles
 from each by the values its title shows (a rod's power, blank material and kind; a reel's body
@@ -36,6 +40,10 @@ earlier Sports & Outdoors types stay out of the derivation.
 `feature_decoys/fishing_golf_959.py`: a product of another department whose title holds the
 shopper's words, such as a `Fishing Rod Print T-Shirt` or a `Golf Club Print Beach Towel`. No
 title or description names a color.
+
+**Counts.** A golf ball's `2-Piece` is how the ball is built, not a count:
+`pack_copies.PIECE_BUILT` leaves it out of the title's count, so its packs of 3, 12 and 24 are
+counted by their pack size (gen#728).
 
 **Measured** (ceiling build, seed 0): the department's size, its styles per type and the
 authored and derived split are read from the build (`retail_figures`), never typed here. Fitness,
