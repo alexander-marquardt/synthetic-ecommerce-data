@@ -68,7 +68,7 @@ def _decoy(code: str, title: str, description: str, base: Row, brand: str = "") 
 
 # --- Car shampoo: brand x formula, sold by the bottle size in ml ---------------------------------
 _SHAMPOO_FORMULAS = (
-    ("SHN", "pH Neutral Car Shampoo", "pH Neutral", "a gentle pH-neutral shampoo that lifts road grime without stripping wax or sealant"),
+    ("SHN", "pH Neutral Car Shampoo", "pH Neutral", "a mild pH-neutral shampoo that lifts road grime without stripping wax or sealant"),
     ("SHW", "Wash and Wax Car Shampoo", "Wash and Wax", "a shampoo that leaves a thin layer of carnauba wax as it rinses, for a quick shine"),
     ("SHF", "Snow Foam Car Shampoo", "Snow Foam", "a thick pre-wash foam for a foam lance that clings to the paint and softens dirt before a contact wash"),
     ("SHL", "Waterless Car Wash Spray", "Waterless", "a spray-on wash for light dust between washes: wipe it off with a microfiber towel, no hose needed"),
@@ -106,7 +106,7 @@ CAR_WAXES = tuple(
 _POLISHES = (
     ("PLC", "Polishing Compound", "Polishing Compound", "a cutting compound that levels swirl marks and light oxidation by hand or with a dual-action polisher"),
     ("PLS", "Scratch Remover", "Scratch Remover", "a fine abrasive cream for a single light scratch: rub it in with the pad in the box until the mark fades"),
-    ("PLH", "Headlight Restorer", "Headlight Restorer", "a polish and sealant for yellowed plastic headlight lenses that clears the haze and slows its return"),
+    ("PLH", "Headlight Restorer", "Headlight Restorer", "a polish and sealant for yellowed plastic headlight lenses that clears the fogging and slows its return"),
 )
 CAR_POLISHES = tuple(
     _row(f"AU{code}{b + 1}", f"{brand} {title}", brand, "Car Polish", "Car Polish", "bottle",
@@ -136,7 +136,7 @@ WASHER_FLUIDS = tuple(
 _INTERIOR = (
     ("ICD", "Dashboard Cleaner", "Dashboard", "a matte-finish spray for plastic and vinyl trim that lifts dust and leaves no greasy shine"),
     ("ICU", "Upholstery Cleaner", "Upholstery", "a foaming spray for cloth seats and carpets that lifts coffee, mud and pet marks"),
-    ("ICL", "Leather Cleaner", "Leather", "a gentle spray for leather seats and steering wheels that cleans without drying the hide"),
+    ("ICL", "Leather Cleaner", "Leather", "a mild spray for leather seats and steering wheels that cleans without drying the hide"),
     ("ICG", "Car Glass Cleaner", "Glass", "a streak-free spray for the inside of the windshield and windows, safe on tinted film"),
 )
 INTERIOR_CLEANERS = tuple(
