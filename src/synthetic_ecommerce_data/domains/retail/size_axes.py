@@ -48,6 +48,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Batting Helmet": ("head_cm",),
     "Belt": ("waist_in",),
     "Bike Helmet": ("size",),
+    "Hairbrush": ("size",),
     "Bracelet": ("size",),
     "Gloves": ("glove_size_letter",),
     "Hat": ("hat_size",),
@@ -147,6 +148,8 @@ AXES: dict[str, tuple[str, ...]] = {
 
 #: The SKU keys that vary within a product and are not its size, and why.
 NOT_SIZES: dict[str, str] = {
+    "attachments": "what comes in the box with a hair dryer: the dryer is drawn the same",
+    "plate_width": "the width of a straightener's plates: the tool is drawn the same",
     "brightness_lm": "a rating",
     "cup_size": "a fit",
     "diaper_size": "a fit: the baby's weight band, on a pack drawn the same (gen#965)",
