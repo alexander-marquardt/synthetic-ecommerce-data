@@ -247,7 +247,7 @@ DEPARTMENT_RATE = {
     "Clothing": 0.01227, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.02503, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
-    "Footwear": 0.01799,
+    "Footwear": 0.01799, "Electronics": 0.001187,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
 DEFAULT_RATE = 0.008
