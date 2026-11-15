@@ -84,7 +84,7 @@ def test_each_type_has_unique_ids_titles_and_twin_keys(electronics, ptype) -> No
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
     spec = type_registry.specs()[KEYS[ptype]]
-    assert [r.doc() for r in spec.rows] == [r.doc() for r in spec.rows]
+    assert spec.docs() == spec.docs()  # docs() states the spec's brand owners first
     fill = kit.Fill("solid", "#123456", "#654321")
     for row in spec.rows:
         params = dict(row.params)
@@ -117,9 +117,9 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Game Controller": [
-        ("BRD-04F2FEFA22A6", "Burnbury Pro Wireless Game Controller", 4, 33.0),
-        ("BRD-05693091192E", "Holwell Wireless Game Controller", 6, 50.0),
-        ("BRD-061FF7AC2190", "Beling Pro Wireless Game Controller", 6, 28.0),
+        ("BRD-04F2FEFA22A6", "Inglow Pro Wireless Game Controller", 4, 33.0),
+        ("BRD-05693091192E", "Tanstone Wireless Game Controller", 6, 50.0),
+        ("BRD-061FF7AC2190", "Boltscar Pro Wireless Game Controller", 6, 28.0),
     ],
     "Gaming Headset": [
         ("BRD-013A5149F0E8", "Thorncliffe Wireless Gaming Headset", 6, 100.0),

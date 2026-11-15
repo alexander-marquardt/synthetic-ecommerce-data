@@ -52,7 +52,7 @@ ROWS = (
     _gc("GMC004", "Wired Game Controller", BOLTWICK, 25.0,
         "A ten foot cable, so it never needs a charge, for a PC or a console.", "Classic", "Wired", "Remappable Buttons"),
     _gc("GMC005", "Game Controller with Hall Effect Sticks", ARDMOOR, 59.0,
-        "Magnetic sticks that do not drift, and a textured grip for long sessions.", "Classic", "Wireless", "Hall Effect Sticks"),
+        "Magnetic sticks that stay true, and a textured grip for long sessions.", "Classic", "Wireless", "Hall Effect Sticks"),
     _gc("GMC006", "Game Controller with Remappable Buttons", NIMBREL, 55.0,
         "Map any move to a back button and save four profiles on the pad itself.", "Pro", "Wired", "Remappable Buttons"),
     _gc("GMC007", "Pro Wireless Game Controller", DASKEL, 79.0,
