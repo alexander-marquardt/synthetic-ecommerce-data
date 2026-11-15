@@ -122,9 +122,9 @@ GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
         ("BRD-061FF7AC2190", "Boltscar Pro Wireless Game Controller", 6, 28.0),
     ],
     "Gaming Headset": [
-        ("BRD-013A5149F0E8", "Thorncliffe Wireless Gaming Headset", 6, 100.0),
-        ("BRD-0856DD2BE3A9", "Elleringham Wireless Stereo Gaming Headset", 6, 130.0),
-        ("BRD-094AD4605794", "Walholme Wired Stereo Gaming Headset", 6, 41.0),
+        ("BRD-013A5149F0E8", "Malhurst Wireless Gaming Headset", 6, 100.0),
+        ("BRD-03E7F449D670", "Gosgarth Wireless Stereo Gaming Headset", 6, 46.0),
+        ("BRD-0856DD2BE3A9", "Cresscroft Wireless Stereo Gaming Headset", 6, 130.0),
     ],
 }
 
