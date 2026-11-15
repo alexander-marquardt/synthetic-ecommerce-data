@@ -1,6 +1,6 @@
 {
- "lines": 7527,
- "skus": 14899,
+ "lines": 7541,
+ "skus": 14926,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -100,6 +100,7 @@
   "nylon_wall_anchors": 1,
   "o_rings": 38,
   "orb_hydraulic_fittings": 1,
+  "picture_hangers": 14,
   "pillow_block_bearings": 43,
   "piloted_counterbores": 1,
   "pin_pullers": 1,
@@ -266,6 +267,7 @@
   "nylon_wall_anchors": 2,
   "o_rings": 66,
   "orb_hydraulic_fittings": 2,
+  "picture_hangers": 27,
   "pillow_block_bearings": 90,
   "piloted_counterbores": 2,
   "pin_pullers": 2,
@@ -1287,6 +1289,17 @@
    "max": 2,
    "histogram": {
     "2": 1
+   }
+  },
+  "picture_hangers": {
+   "products": 14,
+   "median": 1.5,
+   "max": 5,
+   "histogram": {
+    "1": 7,
+    "2": 3,
+    "3": 3,
+    "5": 1
    }
   },
   "pillow_block_bearings": {
@@ -2658,6 +2671,13 @@
    "Material",
    "Thread Size"
   ],
+  "picture_hangers": [
+   "Color",
+   "Load Capacity",
+   "Material",
+   "Measurement System",
+   "Style"
+  ],
   "pillow_block_bearings": [
    "Base to Center Height",
    "Bolt Hole Center-to-Center",
@@ -3183,7 +3203,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 154303,
+ "total_attribute_entries": 154422,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3242,18 +3262,18 @@
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.356307,
+   "achieved": 0.355852,
    "numerator": 7522,
-   "denominator": 21111,
+   "denominator": 21138,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.127753,
+   "achieved": 0.12759,
    "numerator": 2697,
-   "denominator": 21111,
+   "denominator": 21138,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3262,7 +3282,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14899,
+   "denominator": 14926,
    "note": "over titles",
    "band": null
   },
@@ -3271,7 +3291,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14899,
+   "denominator": 14926,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3280,16 +3300,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14899,
+   "denominator": 14926,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.3566,
-   "numerator": 154303,
-   "denominator": 14899,
+   "achieved": 10.3458,
+   "numerator": 154422,
+   "denominator": 14926,
    "note": "count, not a rate",
    "band": null
   },
@@ -4303,50 +4323,50 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00563023,
-   "achieved": 0.00490501,
+   "target": 0.00563074,
+   "achieved": 0.00489588,
    "numerator": 71,
-   "denominator": 14475,
+   "denominator": 14502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00248201,
-    0.00877846
+    0.00248837,
+    0.0087731
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.089396,
-   "achieved": 0.0855959,
-   "numerator": 1239,
-   "denominator": 14475,
+   "target": 0.0893502,
+   "achieved": 0.0855054,
+   "numerator": 1240,
+   "denominator": 14502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0715718,
-    0.10722
+    0.0715592,
+    0.107141
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0605889,
-   "achieved": 0.0572712,
-   "numerator": 829,
-   "denominator": 14475,
+   "target": 0.0605534,
+   "achieved": 0.0572335,
+   "numerator": 830,
+   "denominator": 14502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0437836,
-    0.0773942
+    0.0437794,
+    0.0773274
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.216699,
-   "achieved": 0.214024,
-   "numerator": 3098,
-   "denominator": 14475,
+   "target": 0.216713,
+   "achieved": 0.214246,
+   "numerator": 3107,
+   "denominator": 14502,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196536,
-    0.236862
+    0.196588,
+    0.236838
    ]
   }
  ],
@@ -4371,7 +4391,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 14899,
+  "n_skus_checked": 14926,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4540,17 +4560,17 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 65,
+   "modelled_types": 66,
    "breadth_categories": 99,
    "brands": 45
   },
   "drawings": {
-   "count": 14899,
-   "bytes": 38660406,
+   "count": 14926,
+   "bytes": 38701102,
    "geometry": {
     "nominal": 193,
     "partial": 2977,
-    "record": 11729
+    "record": 11756
    },
    "largest_bytes": 7403,
    "largest_product_type": "roller_chain"

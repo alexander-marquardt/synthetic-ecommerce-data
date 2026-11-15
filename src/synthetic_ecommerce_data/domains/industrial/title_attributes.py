@@ -260,6 +260,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Units per Pack", "Pk"),
     ),
     "piloted_counterbores": (("Diameter", "Dia"),),
+    "picture_hangers": (
+        ("Style", None),
+        ("Load Capacity", "Load"),
+        ("Color", None),
+    ),
     "pin_pullers": (("Maximum Size", "Max"),),
     "pin_punch_sets": (("Piece Count", "Pc"),),
     "pneumatic_cut_off_tools": (("Diameter", "Dia"),),
