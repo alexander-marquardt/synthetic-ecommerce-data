@@ -16,10 +16,16 @@ hair_straightener   a closed straightener, upright: two arms in   plate (ceramic
 hairbrush           a hairbrush, upright: a handle in the SKU's   head (paddle, round, vent,
                     color, a head by ``head`` and bristle tips    detangling), bristle (boar,
                     by ``bristle``                                nylon, mixed)
+wash_bottle         a shampoo or conditioner bottle: the label    hair_type (dry, curly, oily,
+                    prints the product word over the              fine, normal, thick, damaged),
+                    ``ingredient``, and the cap's tone is the     ingredient (any word: printed)
+                    ``hair_type``
 ==================  ============================================  ================================
 
 Each param's values are the lower-cased attribute values of the spec rows, so a derived style
-that changes a dryer's ``form`` or a brush's ``head`` draws what it states (gen#512).
+that changes a dryer's ``form``, a brush's ``head`` or a shampoo's ``ingredient`` draws what it
+states (gen#512). A wash drawn on the plain ``bottle`` showed one picture for every hair type and
+ingredient, so its derived styles shared their grid tile (:func:`scale.grid_clones`).
 """
 
 from __future__ import annotations
@@ -32,6 +38,8 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _path,
     _shade,
     _tint,
+    _word,
+    bottle,
     register,
 )
 from synthetic_ecommerce_data.domains.retail.kit_sports import _ell, _label, _rect
@@ -45,6 +53,11 @@ BADGE = {"ionic": "#6fb3d9", "ceramic": "#efe9dc", "tourmaline": "#b25c86", "inf
 PLATE = {"ceramic": "#f2ede2", "titanium": "#9aa1a9", "tourmaline": "#6a3a55"}
 #: A hairbrush's bristle tips, one tone per bristle.
 BRISTLE = {"boar": "#c9a77a", "nylon": "#f4f4f2", "mixed": "#c9a77a"}
+#: A wash bottle's cap, one tone per hair type.
+CAP = {"dry": "#c98a2e", "curly": "#7a4a8a", "oily": "#3f8a6a", "fine": "#9ab8d8",
+       "normal": "#e8e4dc", "thick": "#5a3a2a", "damaged": "#b04a4a"}  # fmt: skip
+#: The cap of :func:`kit.bottle`, which :func:`wash_bottle` paints by hair type.
+_CAP = "M176,36 L224,36 L224,94 L176,94 Z"
 
 
 def _cord(x: float, y: float) -> str:
@@ -160,5 +173,34 @@ def hairbrush(
     return _label(out, label)
 
 
-SHAPES = {"hair_dryer": hair_dryer, "hair_straightener": hair_straightener, "hairbrush": hairbrush}
+def wash_bottle(
+    paint: str,
+    fill: Fill,
+    label: str | None,
+    hair_type: str = "normal",
+    ingredient: str = "",
+) -> list[str]:
+    """A shampoo or conditioner bottle: the product word over the ``ingredient`` on its label,
+    and a cap in the ``hair_type``'s tone."""
+    out = bottle(paint, fill, None)
+    out[1] = _path(_CAP, CAP.get(hair_type, GRILLE))
+    if label:
+        out.append(_word(label, 200, 258, 86, 20))
+    if ingredient:
+        out.append(_word(ingredient.title(), 200, 292, 86, 14, "#5a5f66"))
+    return out
+
+
+def wash(hair: str, ingredient: str) -> tuple[tuple[str, str], ...]:
+    """A wash row's drawing params: its hair type and ingredient, lower-cased as the derived
+    style's swap expects (``scale``)."""
+    return (("hair_type", hair.lower()), ("ingredient", ingredient.lower()))
+
+
+SHAPES = {
+    "hair_dryer": hair_dryer,
+    "hair_straightener": hair_straightener,
+    "hairbrush": hairbrush,
+    "wash_bottle": wash_bottle,
+}
 register(SHAPES)

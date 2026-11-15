@@ -7,6 +7,7 @@ conditioners by the hair type and the ingredient their titles show.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail.kit_hair import wash
 from synthetic_ecommerce_data.domains.retail.type_registry import Home, Row, TypeSpec, a, cw
 
 _PATH = ("Beauty", "Hair Care", "Conditioner")
@@ -19,9 +20,9 @@ def _hair(hair: str, ingredient: str) -> tuple[tuple[str, str, str], ...]:
 def _row(code: str, title: str, brand: str, price: float, desc: str, color: tuple,
          hair: str, ingredient: str) -> Row:  # fmt: skip
     sizes = ((250.0, price), (400.0, round(price * 1.35, 1)), (750.0, round(price * 1.95, 1)))
-    return Row(code, title, brand, "Beauty", _PATH, "Conditioner", price, "bottle", desc,
-               (color,), _hair(hair, ingredient), sizes, "Conditioner", colorless=True,
-               size_key="net_volume_ml")  # fmt: skip
+    return Row(code, title, brand, "Beauty", _PATH, "Conditioner", price, "wash_bottle",
+               desc, (color,), _hair(hair, ingredient), sizes, "Conditioner", colorless=True,
+               size_key="net_volume_ml", params=wash(hair, ingredient))  # fmt: skip
 
 
 #: Four more styles beside the two of ``breadth_beauty`` (gen#957): six hair types and six

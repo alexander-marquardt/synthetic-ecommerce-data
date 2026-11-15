@@ -1,9 +1,9 @@
 # Beauty, hair care in depth (gen#957, slice 1)
 
 The 500K mix ([catalogue-mix-837.md](../catalogue-mix-837.md)) plans 14,000 `Beauty` SKUs. Main's
-ceiling build held 2,589. Shampoo and Conditioner had 24 SKUs each, and the department had no hair
-tool, so a search for `hair dryer`, `straightener` or `paddle brush` found nothing. Slice 1 of
-gen#957 deepens `Beauty > Hair Care`.
+ceiling build held 2,589. Shampoo and Conditioner had two templates each, and the department had
+no hair tool, so a search for `hair dryer`, `straightener` or `paddle brush` found nothing. Slice
+1 of gen#957 deepens `Beauty > Hair Care`.
 
 ## The three new types
 
@@ -46,6 +46,20 @@ Each type gains four templates and now spans six hair types and six ingredients,
 build draws more styles from the wider pools. Shampoo's new rows sit in its spec. Conditioner's
 two original rows stay in `breadth_beauty.py`, and its four new rows are the spec's own.
 
+Both are drawn as a `wash_bottle` (`kit_hair.py`). It is the kit's bottle, with the product word
+over the ingredient on its label and a cap in one tone per hair type. On the plain `bottle`, every
+derived wash of a template drew one picture, and the derived prices fall on a few price points.
+At the ceiling build 319 of the 348 derived washes shared a results-grid tile with another style,
+which took the build's grid-clone share past `CEILING_GRID_CLONES` (`tests/test_retail_scale.py`).
+With the hair type and the ingredient drawn, no derived wash shares a tile.
+
+The added templates raise Beauty's share of derived styles from 8% to 11.6% at the old rate, so
+`scale.DEPARTMENT_RATE["Beauty"]` is recomputed (shares divided by summed leaf weights) to hold the
+department at its 8% (`tests/test_retail_stable_ids_626.py`).
+
+New Beauty brands move which derived lines each brand holds. A Foundation brand then held two
+lines on one form and top, so `pack_looks.BASES["Foundation"]` starts one place on (gen#748).
+
 ## Tests
 
 `tests/test_retail_beauty_hair_957.py` checks:
@@ -55,5 +69,5 @@ two original rows stay in `breadth_beauty.py`, and its four new rows are the spe
 - that Shampoo and Conditioner each reach six hair types, six ingredients and 400 SKUs;
 - unique ids, titles, twin keys and SKU ids for each new type;
 - that rows and drawings come out the same on every call;
-- that each param value draws its own figure;
+- that each param value draws its own figure, the wash bottle's hair type and ingredient too;
 - a golden slice for each type.

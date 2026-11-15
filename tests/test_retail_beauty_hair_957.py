@@ -17,7 +17,7 @@ import collections
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit, kit_hair, scale, type_registry
 
 TYPES = ("Hair Dryer", "Hair Straightener", "Hairbrush")
 KEYS = {
@@ -93,12 +93,28 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
         ("hair_straightener", "kind", ("mini", "salon", "cordless", "travel")),
         ("hairbrush", "head", ("paddle", "round", "vent", "detangling")),
         ("hairbrush", "bristle", ("boar", "nylon", "mixed")),
+        ("wash_bottle", "hair_type", tuple(kit_hair.CAP)),
+        ("wash_bottle", "ingredient", ("argan oil", "rosemary", "tea tree", "keratin", "biotin")),
     ],
 )
 def test_each_param_value_draws_its_own_figure(shape, key, values) -> None:
     fill = kit.Fill("solid", "#123456", "#654321")
-    drawn = {kit.render(shape, fill, params={key: v}) for v in values}
+    drawn = {kit.render(shape, fill, label="Shampoo", params={key: v}) for v in values}
     assert len(drawn) == len(values)
+
+
+@pytest.mark.parametrize("ptype", ("Shampoo", "Conditioner"))
+def test_each_wash_draws_the_hair_type_and_ingredient_its_title_shows(beauty, ptype) -> None:
+    """On the plain bottle every derived wash of a template drew one picture, so most shared a
+    results-grid tile; the ``wash_bottle`` draws both values (gen#512)."""
+    mine = [r for r in beauty if r["product_type"] == ptype]
+    assert mine
+    for r in mine:
+        attrs = {a["key"]: str(a["value"]).lower() for a in r["attributes"]}
+        params = r["drawing"]["params"]
+        assert r["drawing"]["shape"] == "wash_bottle", r["product_id"]
+        assert (params["hair_type"], params["ingredient"]) == (
+            attrs["hair_type"], attrs["ingredient"]), r["product_id"]  # fmt: skip
 
 
 def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
@@ -111,19 +127,19 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
 #: Each new type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Hair Dryer": [
-        ("BRD-0077A410FA13", "Rosfield Ceramic Travel Hair Dryer", 18, 47.0),
-        ("BRD-01D56FB601F9", "Bradridge Infrared Travel Hair Dryer", 6, 38.0),
-        ("BRD-0609FB2D7E62", "Dunstead Infrared Folding Hair Dryer", 15, 30.0),
+        ("BRD-0077A410FA13", "Foxstead Ceramic Travel Hair Dryer", 18, 47.0),
+        ("BRD-01D56FB601F9", "Yarford Infrared Travel Hair Dryer", 6, 38.0),
+        ("BRD-0609FB2D7E62", "Foxingham Infrared Folding Hair Dryer", 15, 30.0),
     ],
     "Hair Straightener": [
-        ("BRD-027568501F10", "Fairmoor Ceramic Salon Hair Straightener", 6, 17.0),
+        ("BRD-027568501F10", "Merby Ceramic Salon Hair Straightener", 6, 17.0),
         ("BRD-051B2818F4E3", "Rosley Tourmaline Mini Hair Straightener", 12, 51.0),
-        ("BRD-107E2D20C55F", "Cleveside Titanium Salon Hair Straightener", 6, 62.0),
+        ("BRD-107E2D20C55F", "Kilmere Titanium Salon Hair Straightener", 6, 62.0),
     ],
     "Hairbrush": [
-        ("BRD-0160A1505BAC", "Elleringham Nylon Paddle Hairbrush", 9, 7.5),
-        ("BRD-03DDB4C39E3D", "Falmouth Mixed Bristle Vent Hairbrush", 18, 12.0),
-        ("BRD-03F99A7428C0", "Cresswick Mixed Vent Hairbrush", 12, 9.5),
+        ("BRD-0160A1505BAC", "Wenmere Nylon Paddle Hairbrush", 9, 7.5),
+        ("BRD-03DDB4C39E3D", "Salfield Mixed Bristle Vent Hairbrush", 18, 12.0),
+        ("BRD-03F99A7428C0", "Tidwood Mixed Vent Hairbrush", 12, 9.5),
     ],
 }
 

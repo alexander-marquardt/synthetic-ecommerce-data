@@ -102,8 +102,8 @@ UPRIGHT: tuple[str, ...] = (
     "tea_towel", "tennis_racket", "tent", "throw", "tin", "toaster", "tomato", "tool_kit",
     "tote_bag", "tower_fan", "travel_cup", "travel_organizer", "tray", "trigger_spray",
     "trinket_tray", "trophy", "tub", "tulip", "tumble_dryer", "tumbler", "tv", "umbrella",
-    "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "washer_dryer",
-    "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wipes_pack",
+    "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "wash_bottle",
+    "washer_dryer", "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wipes_pack",
     "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
 )
