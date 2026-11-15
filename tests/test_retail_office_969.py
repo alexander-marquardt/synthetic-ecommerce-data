@@ -83,7 +83,9 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each type's first three derived styles by product id (seed 0, ceiling build).
+#: Each type's first three derived styles by product id (seed 0, ceiling build). Slice 2's
+#: range words follow Health's Ledwick Botanics in the scale deal (gen#968), as slice 1's did
+#: there; the ids, SKU counts and prices are unchanged (gen#1024).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
         ("BRD-02FD05FA1851", "Foxlow Bold Ballpoint Pens", 9, 4.65),
@@ -101,19 +103,19 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-29026ABE797F", "Horbridge B5 Squared Spiral Notebook", 9, 3.4),
     ],
     "Ring Binder": [
-        ("BRD-07E9D725EAA2", "Swanden A4 Slanted Ring Binder", 18, 4.25),
-        ("BRD-128CB3EE9170", "Foxburn A4 Slanted Ring Binder", 6, 4.8),
-        ("BRD-14A4E5C2F585", "Wraybrook A5 Slanted Ring Binder", 12, 2.65),
+        ("BRD-07E9D725EAA2", "Wykebank A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Brocking A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Trentingham A5 Slanted Ring Binder", 12, 2.65),
     ],
     "Document Folder": [
-        ("BRD-04A14787D567", "Rudthwaite A5 Zip Document Folders", 6, 2.95),
-        ("BRD-08B37DC9ED90", "Upgate A5 Elastic Document Folders", 18, 4.2),
-        ("BRD-0DCF8456C313", "Milness Letter Zip Document Folders", 6, 5.5),
+        ("BRD-04A14787D567", "Holdale A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Hawcliffe A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Halgarth Letter Zip Document Folders", 6, 5.5),
     ],
     "Calculator": [
-        ("BRD-03D4351FCA63", "Kelfell 12 Digit Desktop Calculator", 18, 10.0),
-        ("BRD-048533587DC8", "Clevecombe 8 Digit Basic Calculator", 18, 4.5),
-        ("BRD-1FFE28C571F6", "Chaphurst 12 Digit Basic Calculator", 18, 4.05),
+        ("BRD-03D4351FCA63", "Foxlow 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Tidley 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Merwick 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 
