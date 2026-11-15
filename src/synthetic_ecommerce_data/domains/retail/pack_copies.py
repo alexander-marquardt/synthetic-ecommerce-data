@@ -112,6 +112,9 @@ KIND_COUNT = {
 }
 #: The shapes whose "N Piece" set is N of the one item drawn (gen#728).
 PIECE_COPIES = frozenset({"chopping_board", "dinosaur", "screwdriver"})
+#: The shapes whose "N-Piece" names how one item is built, not a count: a 2-piece golf ball is one
+#: ball of two layers, sold in packs its pack size counts (gen#959).
+PIECE_BUILT = frozenset({"golf_ball"})
 #: The printed count's tag: its right and top edge on the sheet, its width and height.
 TAG = (376.0, 28.0, 120.0, 80.0)
 #: What a shape that draws several in one drawing is told, so that a copy is one item.
@@ -166,6 +169,14 @@ def title_count(title: str, patterns: tuple[re.Pattern[str], ...] = _STATED) -> 
         if named:
             return _WORDS.get(named[1].lower()) or int(named[1])
     return 2 if _TWO.search(title) else None
+
+
+def stated(rec: dict[str, Any]) -> int | None:
+    """The count the product's title states (:func:`title_count`), its pieces left out where a
+    piece is how one item is built (:data:`PIECE_BUILT`)."""
+    if rec["drawing"]["shape"] in PIECE_BUILT:
+        return title_count(rec["title"], _STATED[:2])
+    return title_count(rec["title"])
 
 
 def _titled(rec: dict[str, Any]) -> int:
@@ -228,7 +239,7 @@ def printed(rec: dict[str, Any], sku: dict[str, Any]) -> int | None:
     """The count printed on the SKU's image: its title's, for a SKU laid out as no copies whose
     drawing does not show that count (a dinner set's plate, bowl and mug), or shows more than
     :data:`MOST_DRAWN` (a 1000 piece puzzle)."""
-    n = title_count(rec["title"])
+    n = stated(rec)
     if n is None or n == 1 or copies(rec, sku) > 1:
         return None
     return n if shown(rec) != n or n > MOST_DRAWN else None

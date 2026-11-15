@@ -57,8 +57,8 @@ SPEC = TypeSpec(
              (BLUE, RED, YELLOW, WHITE), _box("2", "Hip Roof"),
              _words(("Small", 18.0), ("Medium", 21.0)), "size", (("tackle_type", "hip roof"),)),
         _row("TCKCN5", "5 Tray Cantilever Tackle Box", _H, TACKLE_BOXES, "Tackle Box", 39.0, "tackle_box",
-             "A large cantilever tackle box with 5 trays on steel arms and a lockable latch, for a full kit of lures and hooks.",
+             "A cantilever tackle box with 5 trays on steel arms and a lockable latch, for a full kit of lures and hooks.",
              (RED, BLACK, YELLOW, BLUE), _box("5", "Cantilever"),
-             _words(("Large", 39.0), ("Extra Large", 46.0)), "size", (("tackle_type", "cantilever"),)),
+             _words(("L", 39.0), ("XL", 46.0)), "size", (("tackle_type", "cantilever"),)),
     ),
 )  # fmt: skip
