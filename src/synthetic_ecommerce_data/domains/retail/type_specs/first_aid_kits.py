@@ -34,13 +34,13 @@ def _kit(code, title, brand, kind, case, sizes, desc) -> object:  # noqa: ANN001
 ROWS = (
     _kit("HFATRV", "Travel First Aid Kit", VELLING, "Travel", "Soft Pouch", counts((30, 6.0), (60, 10.0)),
          "A zipped pouch of plasters, dressings, wipes, tape and tweezers, small enough for a day bag."),
-    _kit("HFAHOM", "Home First Aid Kit", QUELLMOOR, "Home", "Hard Case", counts((60, 12.0), (100, 18.0)),
+    _kit("HFAHOM", "Home First Aid Kit", QUELLMOOR, "Home", "Hard case", counts((60, 12.0), (100, 18.0)),
          "A hard case with a carry handle, holding plasters, bandages, dressings, gloves and scissors."),
     _kit("HFACAR", "Car First Aid Kit", HALVERING, "Car", "Soft Pouch", counts((40, 9.0), (70, 13.0)),
          "A flat zipped pouch that fits a glovebox, with plasters, bandages, gloves and a foil blanket."),
     _kit("HFASPT", "Sports First Aid Kit", VELLING, "Sports", "Soft Pouch", counts((40, 10.0), (70, 15.0)),
          "A kit-bag pouch with plasters, tape, instant cold packs, wipes and a triangular bandage."),
-    _kit("HFAWRK", "Workplace First Aid Kit", QUELLMOOR, "Workplace", "Hard Case", counts((100, 22.0), (200, 35.0)),
+    _kit("HFAWRK", "Workplace First Aid Kit", QUELLMOOR, "Workplace", "Hard case", counts((100, 22.0), (200, 35.0)),
          "A wall-mountable hard case with labeled compartments, refills and a contents list."),
 )  # fmt: skip
 

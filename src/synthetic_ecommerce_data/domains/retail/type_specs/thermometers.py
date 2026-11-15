@@ -27,7 +27,7 @@ _PATH = (*MONITORS, "Thermometers")
 
 def _thermo(code, title, brand, kind, display, price, desc, color=WHITE) -> object:  # noqa: ANN001
     return row(code, title, brand, _PATH, "Thermometers", "thermometer", desc,
-               (a("thermometer_type", "Type", kind), a("display", "Display", display)),
+               (a("thermometer_type", "Thermometer type", kind), a("display", "Display", display)),
                ("kind", kind.lower()), price=price, color=color)  # fmt: skip
 
 

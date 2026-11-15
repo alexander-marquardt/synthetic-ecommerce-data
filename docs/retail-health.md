@@ -41,7 +41,7 @@ and a `row` helper. Each type has its own spec (`plasters.py`, `first_aid_kits.p
 | Type | Shape | Param, from the attribute | SKUs |
 |---|---|---|---|
 | Plasters | `plaster_box`: a carton with one plaster in front | `plaster` (`plaster_type`: Fabric, Waterproof, Clear, Blister, Sensitive) | a box of 6 to 80 (`piece_count`) |
-| First Aid Kits | `first_aid_kit`, in green with the white cross of the first-aid sign | `case` (Soft Pouch, Hard Case) | the kit's piece count |
+| First Aid Kits | `first_aid_kit`, in green with the white cross of the first-aid sign | `case` (Soft Pouch, Hard case) | the kit's piece count |
 | Thermometers | `thermometer` | `kind` (`thermometer_type`: Digital Stick, Ear, Forehead) | one per style |
 | Blood Pressure Monitors | `bp_monitor`: a desk unit with an arm cuff, or a wrist unit | `fit` (Upper Arm, Wrist) | one per style |
 
