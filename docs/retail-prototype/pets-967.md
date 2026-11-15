@@ -26,18 +26,34 @@ of kibble, which takes `animal` (dog, cat): bones for a dog, fish for a cat. `we
 grains, crystals, wood or paper pellets, or corn grains. Each param is the lower-cased attribute
 value, so a derived style that swaps the value is drawn true (gen#512). All three are upright.
 
+What the pack says is drawn on it too, so two styles of one leaf and one price read apart on a
+results grid. `pets_rows.row()` adds each style's `life_stage`, `flavor`, `breed_size`,
+`special_need` and `scent` to its drawing's params (`pets_rows.DRAWN`):
+
+- the life stage is a row of pips: one for a puppy or a kitten, two for an adult, three for a senior;
+- the flavor is a band in two inks, its meat's or fish's and its side's (rice, gravy, jelly, ...);
+- a dog's breed size is the size of the kibble in the bowl;
+- a cat's special need is an emblem beside the paw: a house for indoor, a heart for sterilized, a
+  coil for hairball control, a leaf for sensitive;
+- a litter's scent is a sprig in the scent's ink, and an unscented litter has none.
+
+Without them the three shapes drew a style as its animal, its pack color and its format alone,
+and 389 of the 619 Pets styles at the ceiling shared a grid tile. That took the catalog's
+grid-clone share to 18.7%, over the 15.2% cap in `tests/test_retail_scale.py`. With them, 2 Pets
+styles share a tile and the catalog's share is 13.4% (963 of 7,194 styles).
+
 **Breadth.** The three types are derivable. A colorless style has only its three or four sizes
 as SKUs, so a type needs more templates than a colored one to reach the same SKU count: the two
 last litter templates (Multi-Cat Fresh Linen Clumping Clay, Citrus Clumping Wood Pellet) widen
 the scent and brand pools that the derived litters draw from.
 
 **Decoys.** Each type carries two text-match decoys: a word that names another type in a brand
-or a range name (`Alley Cat Larder` dog food, `Dog Rose` cat food, `Kitten Mill` adult cat food,
+or a range name (`Alley Cat Provisions` dog food, `Dog Rose` cat food, `Kitten Mill` adult cat food,
 `Puppy Hill` senior dog food, `Lavender Hill` pine litter) and, for litter, a refill bag
 whose title names a litter tray it does not include.
 
-**Measured** (ceiling build, seed 0): 2,173 SKUs in 626 styles under Pets (Dog Food 239 styles,
-Cat Food 235, Cat Litter 152; 31 authored with the decoys, 595 derived), about 31% of the
+**Measured** (ceiling build, seed 0): 2,159 SKUs in 622 styles under Pets (Dog Food 236 styles,
+Cat Food 234, Cat Litter 152; 31 authored with the decoys, 591 derived), about 31% of the
 department's 7,000 target in `docs/catalogue-mix-837.md`. Treats, toys and beds (slice 2), and
 leads and collars, grooming and aquarium and small-animal supplies (slice 3), are later slices
 of gen#967. The guards are in `tests/test_retail_pets_967.py`.

@@ -30,18 +30,18 @@ LITTER = (ROOT, "Litter & Hygiene", "Cat Litter")
 
 HOUND = "Hound & Heath"
 BARKWELL = "Barkwell"
-FURROW = "Furrow & Field"
+TAILMOOR = "Tailmoor"
 WHISKERBY = "Whiskerby"
 PURRSEY = "Purrsey Lane"
 PINEHOLLOW = "Pinehollow"
 CLUMPTON = "Clumpton"
 #: The brands of the text-match decoys: each holds the word its decoy's query names.
-ALLEY_CAT = "Alley Cat Larder"
+ALLEY_CAT = "Alley Cat Provisions"
 KITTEN_MILL = "Kitten Mill"
 
 #: Who makes each brand: the store's own label, or another house.
 OWNERS = (
-    (HOUND, "third_party"), (BARKWELL, "third_party"), (FURROW, "own"),
+    (HOUND, "third_party"), (BARKWELL, "third_party"), (TAILMOOR, "own"),
     (WHISKERBY, "third_party"), (PURRSEY, "third_party"), (PINEHOLLOW, "third_party"),
     (CLUMPTON, "third_party"), (ALLEY_CAT, "third_party"), (KITTEN_MILL, "third_party"),
 )  # fmt: skip
@@ -66,12 +66,20 @@ def units(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
     return tuple((str(n), p) for n, p in pairs)
 
 
+#: The attributes the pack prints, so its drawing shows them (:mod:`kit_pets`): two styles of one
+#: leaf and price that differ in one read apart on a results grid.
+DRAWN = ("life_stage", "flavor", "breed_size", "special_need", "scent")
+
+
 def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str, shape: str,
         description: str, attrs: tuple[tuple, ...], sizes: tuple[tuple[str, float], ...],
         size_key: str, params: tuple[tuple[str, str], ...], color: tuple) -> Row:  # fmt: skip
-    """One pet style: its sizes are its SKUs, and its one pack color is drawn, not sold."""
+    """One pet style: its sizes are its SKUs, and its one pack color is drawn, not sold. Each
+    :data:`DRAWN` attribute joins ``params`` as its lower-cased value, so a derived style that
+    swaps the value is drawn true (gen#512)."""
+    drawn = tuple((k, v.lower()) for k, _, v in attrs if k in DRAWN)
     return Row(code, title, brand, DEPARTMENT, path, product_type, sizes[0][1], shape,
-               description, (color,), attrs, sizes, colorless=True, params=params,
+               description, (color,), attrs, sizes, colorless=True, params=params + drawn,
                size_key=size_key)  # fmt: skip
 
 
