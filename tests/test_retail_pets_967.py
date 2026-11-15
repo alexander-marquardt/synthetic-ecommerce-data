@@ -6,7 +6,8 @@ types, each a spec of its own (``type_specs/dog_food.py``, ``cat_food.py``, ``ca
 drawn by :mod:`kit_pets`. These checks hold the slice's Done-when: the ceiling build has at least
 2,000 SKUs under the department; each type's styles have unique ids, titles and twin keys; the
 rows and their drawings are the same on every call; and a golden slice pins each type's first
-derived styles, so a change that moves them shows here.
+derived styles, so a change that moves them shows here. The pack draws what it says (its life
+stage, flavor, breed size, special need and scent), so few Pets styles share a results grid tile.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
-from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit, pets_rows, scale, type_registry
 
 #: The department, the top level of every pets path.
 ROOT = "Pets"
@@ -25,6 +26,9 @@ TYPES = ("Dog Food", "Cat Food", "Cat Litter")
 KEYS = {"Dog Food": "dog_food", "Cat Food": "cat_food", "Cat Litter": "cat_litter"}
 #: The slice's floor at the ceiling build (the gate comment of gen#967).
 FLOOR = 2_000
+#: The Pets styles at the ceiling that may share a grid tile. The shapes drew only the animal,
+#: the pack color and the format, and 389 of 619 did, which put the catalog over its cap.
+PETS_GRID_CLONES = 0.02
 
 
 @pytest.fixture(scope="module")
@@ -101,3 +105,30 @@ GOLDEN: dict[str, list[tuple]] = {
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_golden_slice(pets, ptype) -> None:
     assert _golden(pets, ptype) == GOLDEN[ptype]
+
+
+def test_few_pets_styles_share_a_results_grid_tile(pets) -> None:
+    """Guard: a pack that drops a :data:`pets_rows.DRAWN` attribute from its drawing clones
+    tiles again. Metric: the Pets grid-clone share, in the failure message."""
+    main = scale.derivable(pets)
+    report = scale.grid_clones(main)
+    rate = report["grid_clones"] / len(main)
+    assert rate <= PETS_GRID_CLONES, f"{report['grid_clones']} of {len(main)} styles ({rate:.1%})"
+
+
+#: Two values of each attribute the pack draws (:data:`pets_rows.DRAWN`).
+DRAWN_VALUES = {"life_stage": ("puppy", "senior"), "flavor": ("chicken & rice", "salmon & potato"),
+                "breed_size": ("small breed", "large breed"),
+                "special_need": ("indoor", "sensitive"), "scent": ("lavender", "pine")}  # fmt: skip
+
+
+@pytest.mark.parametrize("key", tuple(DRAWN_VALUES))
+def test_each_drawn_attribute_changes_the_picture(key) -> None:
+    """Two values of one drawn attribute give two pictures (the litter's ``scent`` on the litter
+    bag, the rest on the dry food bag), and the rows draw each of them."""
+    assert key in getattr(pets_rows, "DRAWN", ())
+    shape = "cat_litter" if key == "scent" else "dry_pet_food"
+    values = DRAWN_VALUES[key]
+    fill = kit.Fill("solid", "#123456", "#654321")
+    one, two = (kit.render(shape, fill, params={key: v}) for v in values)
+    assert one != two
