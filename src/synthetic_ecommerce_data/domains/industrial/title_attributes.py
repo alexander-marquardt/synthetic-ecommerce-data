@@ -38,7 +38,7 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     "band_saw_blades": (("Length", "L"),),
     "bar_stock_hex": (("Size", "Size"),),
     "bar_stock_round": (("Diameter", "Dia"),),
-    "bar_stock_square": (("Size", "Size"),),
+    "bar_stock_square": (("Width", "W"),),
     "bearing_greases": (("Container Size", "Size"),),
     "bearing_pullers": (("Maximum Size", "Max"),),
     "bearing_radial_ball": (
@@ -260,6 +260,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Units per Pack", "Pk"),
     ),
     "piloted_counterbores": (("Diameter", "Dia"),),
+    "picture_hangers": (
+        ("Style", None),
+        ("Load Capacity", "Load"),
+        ("Color", None),
+    ),
     "pin_pullers": (("Maximum Size", "Max"),),
     "pin_punch_sets": (("Piece Count", "Pc"),),
     "pneumatic_cut_off_tools": (("Diameter", "Dia"),),
