@@ -109,14 +109,14 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-00E40C5C57D0", "Bubbly Costa Rican Medium Roast Espresso Coffee Pods", 4, 3.15),
     ],
     "Granola": [
-        ("BRD-00A5603347BE", "Kindly Bowl Ready Crunchy Oat Granola with Apple & Cinnamon", 3, 3.8),
         ("BRD-01CB10F6A181", "Goldfield Farms Proper Hand Baked Clustered Spelt Granola with Honey & Almond", 3, 3.25),
-        ("BRD-0209B1668DAE", "Trusty Hand Baked Crunchy Oat Granola with Apple & Cinnamon", 3, 2.7),
+        ("BRD-02CC3C8AB270", "Plentiful Toasted Buckwheat Granola with Fruit & Nut", 3, 3.75),
+        ("BRD-02CCE5F95950", "Goldfield Farms Proper Oven Baked Clustered Spelt Granola with Apple & Cinnamon", 3, 2.55),
     ],
     "Flour": [
-        ("BRD-0160FB66CA1A", "Crofter's Bakehouse Fair Kitchen Staple Fine Milled Plain Flour", 3, 2.15),
-        ("BRD-026F386294B0", "Wheatsheaf Lane Unfussy Roller Milled Plain Flour", 3, 2.05),
-        ("BRD-029B2DF151BA", "Trusty Fine Sifted Fine Milled Self-Raising Flour", 3, 2.05),
+        ("BRD-0160FB66CA1A", "Crofter's Bakehouse Fair Cake Making Fine Milled Plain Flour", 3, 2.15),
+        ("BRD-026F386294B0", "Wheatsheaf Lane Wholefood Roller Milled Plain Flour", 3, 2.05),
+        ("BRD-029B2DF151BA", "Dependable Home Baking Fine Milled Self-Raising Flour", 3, 2.05),
     ],
 }  # fmt: skip
 

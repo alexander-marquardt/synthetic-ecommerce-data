@@ -138,8 +138,8 @@ STYLES = {
         "Thin & Crispy", "Lightly Baked",
     ),
     "Flour": (
-        "Fine Sifted", "Baker's Choice", "Family Mill", "Home Baking", "Kitchen Staple",
-        "Pantry Staple", "Well Sifted", "Bake Day",
+        "Home Baking", "Cupboard Staple", "Larder Staple", "Bake Day", "Cake Making",
+        "Scone Making", "Weekend Baking", "Everyday Baking",
     ),
     "Fresh Fruit": _FRUIT,
     "Fresh Vegetables": _VEGETABLE,
@@ -150,7 +150,7 @@ STYLES = {
     "Fruit": _FRUIT,
     "Granola": (
         "Oven Baked", "Slow Baked", "Hand Baked", "Breakfast Style", "Big Clusters",
-        "Family Size", "Bowl Ready", "Kitchen Made",
+        "Family Size", "Bowl Ready", "Home Made",
     ),
     "Hamper": _GIFT,
     "Honey": (

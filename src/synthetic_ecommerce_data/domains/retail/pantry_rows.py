@@ -21,7 +21,6 @@ DEPARTMENT = "Food & Drink"
 BREWHOLLOW = "Brewhollow Roasters"
 PANTRY_MILL = "Pantry Mill"
 HEARTH = "Hearth & Table"
-CRUNCHWORTH = "Crunchworth"
 GOLDFIELD = "Goldfield Farms"
 WHEATSHEAF = "Wheatsheaf Lane"
 CROFTER = "Crofter's Bakehouse"
@@ -29,7 +28,7 @@ CROFTER = "Crofter's Bakehouse"
 #: Who makes each brand, as the grocery build states it (:data:`grocery_rows.OWNERS`): a spec
 #: row needs its owner before the grocery build has run.
 OWNERS = tuple((b, grocery_rows.OWNERS[b]) for b in (
-    BREWHOLLOW, PANTRY_MILL, HEARTH, CRUNCHWORTH, GOLDFIELD, WHEATSHEAF, CROFTER))  # fmt: skip
+    BREWHOLLOW, PANTRY_MILL, HEARTH, GOLDFIELD, WHEATSHEAF, CROFTER))  # fmt: skip
 
 #: The pack colors: a box's or a bag's print, which the drawing takes as its fill.
 RUST = cw("Rust", "#b5522f", "solid", "#ffffff")

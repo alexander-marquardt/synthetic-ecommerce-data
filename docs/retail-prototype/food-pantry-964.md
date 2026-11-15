@@ -14,7 +14,7 @@ pantry-staple types are now specs of their own on the quick path
 
 The shared pieces (the department, the brands, the pack colors, `grams()`, `units()`, `row()`
 and `decoy()`) are in `pantry_rows.py`. The brands are the department's existing invented ones
-(Brewhollow Roasters, Pantry Mill, Hearth & Table, Crunchworth, Goldfield Farms, Crofter's Bakehouse), so each already has its house style, and their owners are read from
+(Brewhollow Roasters, Pantry Mill, Hearth & Table, Goldfield Farms, Crofter's Bakehouse), so each already has its house style, and their owners are read from
 `grocery_rows.OWNERS` rather than restated. Every brand is invented (ruling 2026-10-30, gen#720).
 
 **Color.** Food carries no color (`colorless`), as Tea and Coffee already do: a style's one

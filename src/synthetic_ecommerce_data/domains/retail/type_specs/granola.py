@@ -9,7 +9,6 @@ the flavor; each SKU is a bag's net weight. The bag is drawn (``bag``).
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.pantry_rows import (
-    CRUNCHWORTH,
     DEPARTMENT,
     FOREST,
     GOLDFIELD,
@@ -39,16 +38,16 @@ def _attrs(texture: str, grain: str, flavor: str) -> tuple[tuple, ...]:
 def _row(code: str, texture: str, grain: str, flavor: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{texture} {grain} Granola with {flavor}", brand, PATH, "Granola", "bag",
-               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, f"{grain} {flavor}")  # fmt: skip
+               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, "Granola")  # fmt: skip
 
 
 _SMALL = grams((0.4, 2.5), (0.5, 3.0), (0.75, 4.2))
 _LARGE = grams((0.5, 3.2), (0.75, 4.5), (1.0, 5.6))
 
 ROWS = (
-    _row("GRNCOH", "Crunchy", "Oat", "Honey & Almond", CRUNCHWORTH,
+    _row("GRNCOH", "Crunchy", "Oat", "Honey & Almond", GOLDFIELD,
          "Baked slowly until golden, for a bowl with cold milk or a spoonful over yogurt.", _LARGE, SAND),
-    _row("GRNCLF", "Clustered", "Oat", "Fruit & Nut", CRUNCHWORTH,
+    _row("GRNCLF", "Clustered", "Oat", "Fruit & Nut", GOLDFIELD,
          "Wholegrain granola baked in small batches, high in fiber.", _LARGE, RUST),
     _row("GRNTSM", "Toasted", "Spelt", "Maple & Pecan", PANTRY_MILL,
          "Granola baked with a little rapeseed oil, a source of fiber, in a resealable bag.", _SMALL, PLUM),
@@ -62,7 +61,7 @@ ROWS = (
          "Wholegrain granola baked slowly, with a lighter sweetness than our classic recipe.", _SMALL, NAVY),
     _row("GRNCBH", "Clustered", "Buckwheat", "Honey & Almond", GOLDFIELD,
          "Granola baked in small batches from wholegrain, high in fiber, in a resealable bag.", _LARGE, SAND),
-    _row("GRNTSA", "Toasted", "Spelt", "Apple & Cinnamon", CRUNCHWORTH,
+    _row("GRNTSA", "Toasted", "Spelt", "Apple & Cinnamon", GOLDFIELD,
          "Slow-baked granola for milk, yogurt or a fruit bowl.", _SMALL, RUST),
     _row("GRNCOF", "Crunchy", "Oat", "Fruit & Nut", PANTRY_MILL,
          "Wholegrain granola baked until crisp, a source of fiber.", _LARGE, FOREST),

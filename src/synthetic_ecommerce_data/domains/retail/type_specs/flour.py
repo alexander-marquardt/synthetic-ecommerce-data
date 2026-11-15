@@ -38,7 +38,7 @@ def _attrs(milling: str, flour: str) -> tuple[tuple, ...]:
 def _row(code: str, milling: str, flour: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{milling} {flour} Flour", brand, PATH, "Flour", "bag", desc,
-               _attrs(milling, flour), sizes, "net_weight_g", color, f"{milling} {flour}")  # fmt: skip
+               _attrs(milling, flour), sizes, "net_weight_g", color, "Flour")  # fmt: skip
 
 
 _EVERYDAY = grams((0.5, 0.9), (1.0, 1.4), (1.5, 1.9), (5.0, 5.5))
