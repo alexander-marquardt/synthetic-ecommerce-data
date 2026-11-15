@@ -153,16 +153,16 @@ _REAR_LENGTHS = ("10", "11", "12", "13", "14", "16")
 _BLADES = (
     ("WBC", "Conventional Wiper Blade", "Conventional", "Front", "All-Season", "conventional", _FRONT_LENGTHS, 8.0,
      "a steel-frame blade whose bridges press the rubber evenly along a flat or gently curved windshield"),
-    ("WBB", "Beam Wiper Blade", "Beam", "Front", "All-Season", "beam", _FRONT_LENGTHS, 14.0,
-     "a frameless beam blade that follows the curve of the glass, with no frame for snow to pack into"),
+    ("WBB", "Flat Wiper Blade", "Flat", "Front", "All-Season", "beam", _FRONT_LENGTHS, 14.0,
+     "a frameless flat blade that follows the curve of the glass, with no frame for snow to pack into"),
     ("WBH", "Hybrid Wiper Blade", "Hybrid", "Front", "All-Season", "hybrid", _FRONT_LENGTHS, 17.0,
-     "a hybrid blade: a beam's even pressure under a spoiler cover that holds it down at highway speed"),
+     "a hybrid blade: a flat blade's even pressure under a spoiler cover that holds it down at highway speed"),
     ("WBR", "Rear Wiper Blade", "Conventional", "Rear", "All-Season", "rear", _REAR_LENGTHS, 7.0,
      "a short rear blade for a hatchback or SUV tailgate"),
 )
 _WINTER = (
-    ("WBW", "Winter Beam Wiper Blade", "Beam", "Front", "Winter", "beam", _FRONT_LENGTHS, 18.0,
-     "a winter beam blade in a sealed rubber boot, so ice cannot lock the joints and the edge stays soft in the cold"),
+    ("WBW", "Winter Flat Wiper Blade", "Flat", "Front", "Winter", "beam", _FRONT_LENGTHS, 18.0,
+     "a winter flat blade in a sealed rubber boot, so ice cannot lock the joints and the edge stays soft in the cold"),
 )
 _BLADE_BRANDS = ((GLOSSMERE, 1.15), (KESTROVA, 1.0), (DRAYFIELD, 0.85), (OSTREL, 0.95))
 _WINTER_BRANDS = ((KESTROVA, 1.0), (DRAYFIELD, 0.85))
@@ -219,7 +219,7 @@ WASH_MITTS = tuple(
          colors, (_a("material", "Material", material),), (), "size", (("style", style),), colorless=False)
     for c, title, material, style, colors, note in (
         ("C", "Chenille Microfiber Wash Mitt", "Chenille Microfiber", "chenille", MAIN,
-         "a mitt of soft microfiber noodles that hold suds and pull grit away from the paint"),
+         "a mitt of soft microfiber noodles that hold suds and pull dirt away from the paint"),
         ("L", "Lambswool Wash Mitt", "Lambswool", "lambswool", (CREAM,),
          "a deep-pile natural lambswool mitt, the gentlest wash for soft or dark paint"),
     )
@@ -278,8 +278,8 @@ DECOY_ROWS = {
          _decoy("AUDIC2", "Upholstery Cleaner for Ostrel Seat Brushes", "A foaming seat cleaner to work in with an Ostrel seat brush.", INTERIOR_CLEANERS[5])),
     ),
     "wiper_blade": (
-        (6, "snow wiper blade", "generic", _decoy("AUDWB1", "Snow Ridge Beam Wiper Blade",
-         "From the Snow Ridge range: an all-season beam blade.", WIPER_BLADES[5])),
+        (6, "snow wiper blade", "generic", _decoy("AUDWB1", "Snow Ridge Flat Wiper Blade",
+         "From the Snow Ridge range: an all-season flat blade.", WIPER_BLADES[5])),
         (4, "rear wiper blade", "vocabulary", _decoy("AUDWB2", "Hybrid Wiper Blade with Rear-Mounted Spoiler",
          "A front hybrid blade whose spoiler sits at the rear edge of the cover.", WIPER_BLADES[9])),
     ),

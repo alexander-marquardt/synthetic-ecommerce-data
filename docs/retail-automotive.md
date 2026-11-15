@@ -14,7 +14,7 @@ in `type_specs/` (`car_shampoo.py` to `microfiber_towel.py`). Slices 2 (fluids a
 | Car Polish | Automotive > Car Care > Car Polish | brand and polish type | bottle size (ml) | polish type |
 | Windshield Washer Fluid | Automotive > Car Care > Windshield Washer Fluid | brand, blend and form (ready to use, concentrate) | bottle size (ml) | blend, fluid form |
 | Car Interior Cleaner | Automotive > Car Care > Car Interior Cleaners | brand and surface | bottle size (ml) | surface |
-| Wiper Blade | Automotive > Car Care > Wiper Blades | brand, blade type (conventional, beam, hybrid, rear, winter) | blade length (in) | blade type, connector, season, wiper position |
+| Wiper Blade | Automotive > Car Care > Wiper Blades | brand, blade type (conventional, flat, hybrid, rear, winter) | blade length (in) | blade type, connector, season, wiper position |
 | Car Air Freshener | Automotive > Car Care > Car Air Fresheners | brand, format and scent | pack size | freshener format, scent |
 | Wash Mitt | Automotive > Car Care > Wash Mitts | brand and material | size | material |
 | Microfiber Towel | Automotive > Car Care > Microfiber Towels | brand and towel type | dimensions | material, towel type |
