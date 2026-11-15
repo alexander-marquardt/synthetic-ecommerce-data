@@ -38,7 +38,7 @@ def _attrs(texture: str, grain: str, flavor: str) -> tuple[tuple, ...]:
 def _row(code: str, texture: str, grain: str, flavor: str, brand: str, desc: str,
          sizes: tuple[tuple[str, float], ...], color: tuple) -> object:  # fmt: skip
     return row(code, f"{texture} {grain} Granola with {flavor}", brand, PATH, "Granola", "bag",
-               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, "Granola")  # fmt: skip
+               desc, _attrs(texture, grain, flavor), sizes, "net_weight_g", color, f"{grain} {flavor} Granola")  # fmt: skip
 
 
 _SMALL = grams((0.4, 2.5), (0.5, 3.0), (0.75, 4.2))
