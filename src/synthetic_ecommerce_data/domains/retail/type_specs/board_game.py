@@ -73,11 +73,13 @@ def _game(code: str, theme: str, game: str, brand: str, lo: int, hi: int, minute
 
 
 #: The opening sentences: each names the board by its theme and nothing else, so a derived
-#: style that swaps the theme or the kind reads true.
+#: style that swaps the theme or the kind reads true. They use no lead word of a line-grammar
+#: family ("surprise", "token"): a word any template's text uses leaves that family's deal
+#: (:func:`line_grammar.deals`), which retitles other departments' derived styles.
 _LEADS = (
     "Take turns across the {t} board and be the first to reach the final square.",
-    "Every space on the {t} board holds a surprise, and the first player home wins.",
-    "Collect a token from each corner of the {t} board before the others do.",
+    "Every space on the {t} board holds a twist, and the first player home wins.",
+    "Collect a counter from each corner of the {t} board before the others do.",
     "Plan each move on the {t} board and keep one step ahead of the other players.",
 )
 
@@ -88,7 +90,7 @@ ROWS = (
     _game("BGMHAU", "Haunted Manor", "Party", THISTLE, 4, 10, 40, 10, _LEADS[3], PINK, 22.0),
     _game("BGMROC", "Rocket Station", "Strategy", CALDERBY, 2, 5, 75, 12, _LEADS[0], BLUE, 35.0),
     _game("BGMDRA", "Dragon Mountain", "Family", LANTERNBY, 2, 5, 35, 7, _LEADS[1], ORANGE, 22.0),
-    _game("BGMREE", "Treasure Reef", "Party", THISTLE, 3, 8, 30, 8, _LEADS[2], BLUE, 20.0),
+    _game("BGMREE", "Coral Reef", "Party", THISTLE, 3, 8, 30, 8, _LEADS[2], BLUE, 20.0),
     _game("BGMFOR", "Wildwood Forest", "Strategy", THISTLE, 2, 4, 90, 12, _LEADS[3], GREEN, 38.0),
     _game("BGMARC", "Arctic Expedition", "Family", FERNBY, 2, 6, 30, 6, _LEADS[0], BLUE, 19.0),
     _game("BGMCAR", "Desert Caravan", "Strategy", LANTERNBY, 2, 4, 60, 10, _LEADS[1], YELLOW, 32.0),
@@ -96,7 +98,7 @@ ROWS = (
     _game("BGMWIZ", "Wizard Academy", "Family", PUDDLE, 2, 4, 40, 8, _LEADS[3], PINK, 21.0),
     _game("BGMVOY", "Ocean Voyage", "Strategy", LANTERNBY, 2, 5, 80, 12, _LEADS[0], BLUE, 34.0),
     _game("BGMVOL", "Volcano Quest", "Party", FERNBY, 3, 8, 30, 8, _LEADS[1], RED, 18.0),
-    _game("BGMFAR", "Farmyard Frolic", "Family", LANTERNBY, 2, 4, 20, 4, _LEADS[2], YELLOW, 15.0),
+    _game("BGMFAR", "Farmyard Friends", "Family", LANTERNBY, 2, 4, 20, 4, _LEADS[2], YELLOW, 15.0),
     _game("BGMCAS", "Castle Siege", "Strategy", PUDDLE, 2, 4, 75, 12, _LEADS[3], RED, 33.0),
     _game("BGMCAN", "Candy Kingdom", "Family", CALDERBY, 2, 4, 25, 5, _LEADS[0], PINK, 17.0),
     _game("BGMMER", "Mermaid Lagoon", "Party", LANTERNBY, 3, 8, 30, 7, _LEADS[1], BLUE, 19.0),

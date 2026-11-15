@@ -8,7 +8,9 @@ theme and kind, a jigsaw's theme, a card game's kind and theme). These checks ho
 Done-when: the ceiling build has at least 3,000 SKUs under ``Toys``; each type's styles have
 unique ids, titles and twin keys; the rows and their drawings are the same on every call; a
 derived style keeps its template's age range, play time and finished size; and a golden slice
-pins each type's first derived styles, so a change that moves them shows here.
+pins each type's first derived styles, so a change that moves them shows here. Their text
+takes no line-grammar lead word the other templates leave free, so no other department's
+derived titles move.
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ import collections
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit, line_grammar, scale, type_registry
 
 TYPES = ("Board Game", "Jigsaw Puzzle", "Card Game")
 KEYS = {"Board Game": "board_game", "Jigsaw Puzzle": "jigsaw_puzzle", "Card Game": "card_game"}
@@ -27,6 +29,8 @@ FLOOR = 3_000
 #: The entries a derived style keeps from its template: an age, a play time and a size follow
 #: the piece count and the kind of game the template is, never a draw.
 KEPT = ("age_range", "play_time", "finished_size")
+#: The lead words only these types' templates use, all from rows older than gen#960.
+OWN_LEADS = {"alpine", "giggle", "puddle", "sunset"}
 
 
 @pytest.fixture(scope="module")
@@ -96,24 +100,24 @@ def _golden(toys: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Board Game": [
-        ("BRD-00CDBC0B4318", "Pipwick Toys Imagine Farmyard Frolic Party Board Game", 3, 18.0),
-        ("BRD-01E496529CE6", "Pipwick Toys Imagine Wildwood Forest Family Board Game", 3, 15.0),
-        ("BRD-02096B1A91DE", "Lanternby Wonder Wizard Academy Family Board Game", 3, 23.0),
+        ("BRD-01970E3FA611", "Thistle & Wren Frolic Farmyard Friends Family Board Game", 3, 15.0),
+        ("BRD-01E496529CE6", "Puddlecombe Toys Imagine Wildwood Forest Family Board Game", 3, 16.0),
+        ("BRD-02096B1A91DE", "Lanternby Caper Wizard Academy Family Board Game", 3, 23.0),
     ],
     "Jigsaw Puzzle": [
         (
             "BRD-033462830AF2",
-            "Puddlecombe Toys Pretend World Map 1200 Piece Jigsaw Puzzle",
+            "Puddlecombe Toys Imagine World Map 1200 Piece Jigsaw Puzzle",
             1,
             16.0,
         ),
-        ("BRD-0790FABADDDA", "Calderby & Lune Caper World Map 200 Piece Jigsaw Puzzle", 1, 11.5),
-        ("BRD-0D31E4C3132C", "Lanternby Wobble Dinosaur 300 Piece Jigsaw Puzzle", 1, 12.5),
+        ("BRD-0790FABADDDA", "Calderby & Lune Bounce World Map 200 Piece Jigsaw Puzzle", 1, 11.5),
+        ("BRD-0D31E4C3132C", "Lanternby Caper Dinosaur 300 Piece Jigsaw Puzzle", 1, 12.5),
     ],
     "Card Game": [
-        ("BRD-003AD9103AC0", "Pipwick Toys Imagine Garden Gnomes Party Card Game", 3, 11.5),
-        ("BRD-022B945AAD59", "Pipwick Toys Imagine Racing Snails Strategy Card Game", 3, 7.0),
-        ("BRD-02E397FE9A73", "Puddlecombe Toys Pretend Ninja Kittens Strategy Card Game", 3, 8.5),
+        ("BRD-003AD9103AC0", "Pipwick Toys Squeak Garden Gnomes Party Card Game", 3, 11.5),
+        ("BRD-022B945AAD59", "Pipwick Toys Squeak Racing Snails Strategy Card Game", 3, 7.0),
+        ("BRD-02E397FE9A73", "Puddlecombe Toys Imagine Ninja Kittens Strategy Card Game", 3, 8.5),
     ],
 }
 
@@ -121,3 +125,17 @@ GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_golden_slice(toys, ptype) -> None:
     assert _golden(toys, ptype) == GOLDEN[ptype]
+
+
+def test_the_types_take_no_lead_word_from_another_departments_deal() -> None:
+    """A lead word any template's text uses leaves its family's deal (line_grammar.deals), so
+    "token" in a board game's description retitled derived balloons and party plates. The four
+    words of :data:`OWN_LEADS` were the older rows' before gen#960 ("Alpine Lake", "Giggle
+    Pile", the Puddlecombe brand, "at sunset"); any other is a word this slice took."""
+    leads = {
+        w.lower() for s in line_grammar._NUMBERED.values() for w in (*s.leads, *s.grocery_leads)
+    }
+    tpls = scale.templates()
+    rest = [r for r in tpls if not (r["category_path"][0] == "Toys" and r["product_type"] in TYPES)]
+    added = (line_grammar.text_words(tpls) - line_grammar.text_words(rest)) & leads
+    assert added == OWN_LEADS, sorted(added)

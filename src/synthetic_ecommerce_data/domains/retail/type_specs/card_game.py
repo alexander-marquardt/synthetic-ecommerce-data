@@ -101,7 +101,7 @@ _ROWS = (
         for r in (
             ("CGMTH01", "Cosmic Comets", CALDERBY, "family", 2, 6, 20, 7, 9.0),
             ("CGMTH02", "Pixel Pets", THISTLE, "party", 3, 8, 25, 8, 11.0),
-            ("CGMTH03", "Royal Banquet", LANTERNBY, "strategy", 2, 4, 45, 12, 15.0),
+            ("CGMTH03", "Royal Castle", LANTERNBY, "strategy", 2, 4, 45, 12, 15.0),
             ("CGMTH04", "Monster Mash", CALDERBY, "party", 4, 10, 30, 10, 12.0),
             ("CGMTH05", "Sunken Ship", CALDERBY, "strategy", 2, 5, 40, 10, 14.0),
             ("CGMTH06", "Fairy Glen", THISTLE, "family", 2, 4, 15, 5, 8.0),
