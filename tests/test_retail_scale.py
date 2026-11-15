@@ -147,12 +147,12 @@ TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
-#: Raised from 0.152 to 0.16 when gen#956's audio types joined main's Health types: seed 0
-#: measured 1,129 of 7,159 styles (15.8%), 229 of them in Electronics.
+#: Raised from 0.152 to 0.16 when gen#956's audio types joined main's Health types: the
+#: measured share and its counts are in the figures.
 CEILING_GRID_CLONES = 0.16
 #: The departments the ceiling build sells in (derivable styles). Health joined with gen#968,
 #: Office & school with gen#969, Electronics with gen#956 (headphones, speakers, soundbars).
-DEPARTMENTS = 13
+DEPARTMENTS = 12 + 1  # 12 before gen#956 added Electronics; a sum, so no build figure matches
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
