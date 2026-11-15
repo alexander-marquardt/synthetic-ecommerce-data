@@ -75,7 +75,7 @@ ROWS = (
     _vehicle("RCVLAK", "Lake Racer", "Boat", LANTERNBY, _LEADS[2], 27.0),
     _vehicle("RCVHAW", "Storm Hawk", "Helicopter", THISTLE, _LEADS[3], 36.0),
     _vehicle("RCVCAN", "Canyon Climber", "Truck", FERNBY, _LEADS[0], 35.0),
-    _vehicle("RCVDRI", "Drift Fox", "Car", PUDDLE, _LEADS[1], 22.0),
+    _vehicle("RCVDRI", "Rally Fox", "Car", PUDDLE, _LEADS[1], 22.0),
     _vehicle("RCVREE", "Reef Runner", "Boat", CALDERBY, _LEADS[2], 31.0),
     _vehicle("RCVRES", "Rescue Hopper", "Helicopter", LANTERNBY, _LEADS[3], 33.0),
     _vehicle("RCVBOU", "Boulder Basher", "Truck", THISTLE, _LEADS[0], 38.0),
@@ -85,7 +85,7 @@ ROWS = (
     _vehicle("RCVTUN", "Tundra Tracker", "Truck", LANTERNBY, _LEADS[0], 34.0),
     _vehicle("RCVPIT", "Pit Lane Pro", "Car", THISTLE, _LEADS[1], 28.0),
     _vehicle("RCVLAG", "Lagoon Skipper", "Boat", FERNBY, _LEADS[2], 26.0),
-    _vehicle("RCVSUM", "Cloud Spinner", "Helicopter", PUDDLE, _LEADS[3], 37.0),
+    _vehicle("RCVSUM", "Gale Spinner", "Helicopter", PUDDLE, _LEADS[3], 37.0),
 )  # fmt: skip
 
 SPEC = TypeSpec(

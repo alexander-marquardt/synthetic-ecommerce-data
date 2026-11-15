@@ -221,6 +221,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Material", None),
         ("Length", "L"),
     ),
+    "levels": (
+        ("Length", "L"),
+        ("Shape", None),
+        ("Color", None),
+    ),
     "lock_nuts_nylon_insert": (
         ("Material", None),
         ("Thread Size", "Thread"),

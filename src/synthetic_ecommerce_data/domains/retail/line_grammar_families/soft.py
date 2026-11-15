@@ -12,6 +12,7 @@ KINDS = (
     "Cushion", "Throws", "Baby Blanket", "Towel", "Beach Towel", "Tea Towels", "Duvet",
     "Duvet Cover", "Duvet Set", "Pillow", "Pillowcase", "Mattress Protector", "Mattress Topper",
     "Mattress", "Pillow Protector", "Valances", "Sofa Covers", "Apron", "Changing Mat",
+    "Diapers", "Baby Wipes", "Baby Bottle",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
