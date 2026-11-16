@@ -54,6 +54,8 @@ def test_every_value_of_a_param_draws_a_picture_of_its_own(shape: str, key: str)
     values = kit_home_furniture.PARAMS[shape][key]
     assert len(values) >= 2, (shape, key)
     pictures = {_svg(shape, **{key: v}) for v in values}
+    for svg in pictures:
+        ET.fromstring(svg)  # every variant is a well-formed document, not only the default
     assert len(pictures) == len(values), (shape, key)
 
 
