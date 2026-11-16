@@ -33,5 +33,5 @@ authored row it copies, so its litres never disagree with its dimensions or mate
 
 The department path is `Womens > Accessories > Travel`, the path the existing "Travel Cases"
 decoys already use. A suitcase or a holdall is not women's-only, and the store has no unisex
-travel or luggage root (the eleven roots are in `tests/test_retail_departments_281.py`), so the
+travel or luggage root (the retail roots are `core/departments.RETAIL`, guarded by `tests/test_retail_departments_281.py`), so the
 audience is an attribute (Unisex) and the path stays under `Womens`.
