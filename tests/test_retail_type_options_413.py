@@ -81,6 +81,8 @@ MOVED = {
         Option("seat_count", "seat_count", "Seat count", "C62"),
         Option("depth_cm", "item_depth", "Item depth", "CMT"),
     ],
+    # a wiper blade's length in inches, the SKU axis (gen#970)
+    "wiper_blade": [Option("blade_length_in", "blade_length", "Blade length", "INH")],
     # a diaper's size, Size 1 to Size 6 (#965)
     "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
 }
