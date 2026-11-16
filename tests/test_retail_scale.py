@@ -30,6 +30,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     scale,
     scale_rows,
+    smart_home_rows,
     stable_ids,
 )
 from synthetic_ecommerce_data.domains.retail.retail_figures import (
@@ -761,6 +762,8 @@ def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
         # material, ``scale._sku_values``): that key differs by design.
         before = {a["key"]: a["value"] for a in t["attributes"]}
         changed = {a["key"] for a in r["attributes"] if before.get(a["key"]) != a["value"]}
+        # A smart bulb's new shape gives its SKUs that shape's brightness (gen#956).
+        changed |= {k for c in changed for k in smart_home_rows.REFIT_SKU_KEYS.get(c, ())}
         mine, theirs = runs(r, changed), runs(t, changed)
         assert mine and set(mine) <= set(theirs)
         assert all(mine[c] == theirs[c] for c in mine), r["product_id"]

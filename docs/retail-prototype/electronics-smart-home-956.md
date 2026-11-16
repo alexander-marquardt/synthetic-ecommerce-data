@@ -71,7 +71,7 @@ blue ring light on a black doorbell. The other is class 6: a color word in a ran
 draws its base row's picture, so it carries a brand the bulb templates do not use.
 
 **Department rates.** A department's derived share comes from its rate (`scale.DEPARTMENT_RATE`).
-Electronics gets its own, so its share is its 1.1% target, and Clothing's is recomputed, since
+Electronics gets its own, so its share meets its target, and Clothing's is recomputed, since
 the new department took Clothing more than 3 points under its 44% target
 (`tests/test_retail_stable_ids_626.py`).
 

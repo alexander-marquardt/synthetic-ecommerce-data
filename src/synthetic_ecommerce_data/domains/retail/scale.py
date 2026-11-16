@@ -246,7 +246,7 @@ LEAF_RANKS = 40
 #: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
 #: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
 #: Electronics' is set for the smart home types of gen#956 slice 2a (the default 0.008 times its
-#: 1.1% target over the 2.5% it reached), and Clothing's is recomputed then: a new department's
+#: target share over the 2.5% it reached), and Clothing's is recomputed then: a new department's
 #: styles took its share from 41.1% on main to 40.6%, more than 3 points under its 44% target
 #: (0.01227 times 44 over 40.6).
 DEPARTMENT_RATE = {
@@ -851,6 +851,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         name = deal.owned(brand, slot, kind) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
+        price *= smart_home_rows.shape_factor(tpl, changes)  # a candle costs more (gen#956)
         target = price_point(min(max(price, lo), hi), lo, hi)
         if target == tpl["price"]:  # a re-drawn price is never the template's own
             up = target + _step(target)

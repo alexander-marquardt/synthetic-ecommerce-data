@@ -124,22 +124,24 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each new type's first three derived styles by product id (seed 0, ceiling build).
+#: Each new type's first three derived styles by product id (seed 0, ceiling build). The smart
+#: home brands of gen#956 slice 2a move the range words in the scale deal; the ids, SKU counts
+#: and prices are unchanged.
 GOLDEN: dict[str, list[tuple]] = {
     "Hair Dryer": [
-        ("BRD-0077A410FA13", "Foxstead Ceramic Travel Hair Dryer", 18, 47.0),
-        ("BRD-01D56FB601F9", "Yarford Infrared Travel Hair Dryer", 6, 38.0),
-        ("BRD-0609FB2D7E62", "Foxingham Infrared Folding Hair Dryer", 15, 30.0),
+        ("BRD-0077A410FA13", "Wenington Ceramic Travel Hair Dryer", 18, 47.0),
+        ("BRD-01D56FB601F9", "Hulmouth Infrared Travel Hair Dryer", 6, 38.0),
+        ("BRD-0609FB2D7E62", "Swanstone Infrared Folding Hair Dryer", 15, 30.0),
     ],
     "Hair Straightener": [
-        ("BRD-027568501F10", "Merby Ceramic Salon Hair Straightener", 6, 17.0),
-        ("BRD-051B2818F4E3", "Rosley Tourmaline Mini Hair Straightener", 12, 51.0),
-        ("BRD-107E2D20C55F", "Kilmere Titanium Salon Hair Straightener", 6, 62.0),
+        ("BRD-027568501F10", "Ellering Ceramic Salon Hair Straightener", 6, 17.0),
+        ("BRD-051B2818F4E3", "Sandbank Tourmaline Mini Hair Straightener", 12, 51.0),
+        ("BRD-107E2D20C55F", "Dewshaw Titanium Salon Hair Straightener", 6, 62.0),
     ],
     "Hairbrush": [
-        ("BRD-0160A1505BAC", "Wenmere Nylon Paddle Hairbrush", 9, 7.5),
-        ("BRD-03DDB4C39E3D", "Salfield Mixed Bristle Vent Hairbrush", 18, 12.0),
-        ("BRD-03F99A7428C0", "Tidwood Mixed Vent Hairbrush", 12, 9.5),
+        ("BRD-0160A1505BAC", "Thurwell Nylon Paddle Hairbrush", 9, 7.5),
+        ("BRD-03DDB4C39E3D", "Birkness Mixed Bristle Vent Hairbrush", 18, 12.0),
+        ("BRD-03F99A7428C0", "Hamington Mixed Vent Hairbrush", 12, 9.5),
     ],
 }
 

@@ -141,12 +141,42 @@ def real_pair(leaf: str, values: dict[str, str]) -> bool:
     return values["bulb_fitting"] in BULB_FITTINGS.get(values["bulb_shape"], ())
 
 
+#: SKU keys :func:`fit_bulb` rewrites when the title-shown key changes: a derived bulb's new
+#: shape gives its SKUs that shape's brightness steps (``tests/test_retail_scale.py`` reads it).
+REFIT_SKU_KEYS: dict[str, tuple[str, ...]] = {"bulb_shape": ("brightness_lm",)}
+
+
+def _refit(old: str, new: str, lm: int) -> tuple[int, float]:
+    """A SKU at ``lm`` on shape ``old``, moved to ``new``: its brightness there (the same step,
+    or the brightest the new shape has) and its single-bulb price over the old one's."""
+    step = BULB_LUMENS[old].index(lm)
+    to = lumens(new, step)
+    ratio = (BULB_BASE[new] * STEP_WEIGHT ** BULB_LUMENS[new].index(to)) / (
+        BULB_BASE[old] * STEP_WEIGHT**step
+    )
+    return to, ratio
+
+
+def shape_factor(tpl: dict, changes: dict[str, tuple[str, str]]) -> float:
+    """The price multiplier of a smart bulb derived to another shape: its cheapest SKU on the
+    new shape over the template's price (its cheapest SKU). ``scale`` folds it into the price
+    it draws, so the drawn price is the derived bulb's own and never the template's (1.0 for
+    every other change)."""
+    if tpl["product_type"] != "Smart Bulb" or "bulb_shape" not in changes:
+        return 1.0
+    old, new = changes["bulb_shape"]
+    low = min(s["price"] * _refit(old, new, int(s["brightness_lm"]))[1] for s in tpl["skus"])
+    return low / tpl["price"]
+
+
 def fit_bulb(tpl: dict, rec: dict, skus: list[dict]) -> None:
     """Give a smart bulb derived to another shape that shape's brightness and prices.
 
     ``scale.derive`` copies the template's SKUs, so a candle derived from an A60 template kept
     its 1521 lm. Each SKU takes the step it had on the template's shape (or the brightest the
-    new shape has), and its price moves by the new shape's base over the old one's.
+    new shape has). The cheapest SKU's move is :func:`shape_factor`, already in the price
+    ``scale`` drew; each SKU moves by its own ratio over that factor, so the derived bulb's
+    price is the drawn one.
     """
     if rec["product_type"] != "Smart Bulb":
         return
@@ -154,13 +184,10 @@ def fit_bulb(tpl: dict, rec: dict, skus: list[dict]) -> None:
     new = next(a["value"] for a in rec["attributes"] if a["key"] == "bulb_shape")
     if old == new:
         return
+    factor = shape_factor(tpl, {"bulb_shape": (old, new)})
     for s in skus:
         if "brightness_lm" not in s:
             continue
-        step = BULB_LUMENS[old].index(int(s["brightness_lm"]))
-        lm = lumens(new, step)
-        ratio = (BULB_BASE[new] * STEP_WEIGHT ** BULB_LUMENS[new].index(lm)) / (
-            BULB_BASE[old] * STEP_WEIGHT**step
-        )
+        lm, ratio = _refit(old, new, int(s["brightness_lm"]))
         s["brightness_lm"] = str(lm)
-        s["price"] = round(s["price"] * ratio, 2)
+        s["price"] = round(s["price"] * ratio / factor, 2)
