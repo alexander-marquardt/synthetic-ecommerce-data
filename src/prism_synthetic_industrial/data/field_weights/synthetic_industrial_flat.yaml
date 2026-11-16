@@ -312,8 +312,8 @@ fields:
   - name: coating
     type: terms
     source: facets.coating
-  # Color -- 6 distinct values over 59 product-value pairs is 0.10 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 114 documents across 4 product type(s); 6 distinct values
+  # Color -- 6 distinct values over 45 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 83 documents across 3 product type(s); 6 distinct values
   - name: color
     type: terms
     source: facets.color
@@ -379,8 +379,8 @@ fields:
   - name: dia_tolerance
     type: terms
     source: facets.dia_tolerance
-  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 47 distinct values over 968 product-value pairs is 0.05 per product
-  #   present on 1608 documents across 22 product type(s); 47 distinct values
+  # Diameter -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 47 distinct values over 937 product-value pairs is 0.05 per product
+  #   present on 1577 documents across 21 product type(s); 47 distinct values
   - name: diameter
     type: terms
     source: facets.diameter
@@ -619,8 +619,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 63 distinct values over 6607 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 13283 documents across 165 product type(s); 63 distinct values
+  # Material -- 63 distinct values over 6593 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 13252 documents across 164 product type(s); 63 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -651,7 +651,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 6207 documents across 69 product type(s); 4 distinct values
+  #   present on 6196 documents across 68 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -832,8 +832,8 @@ fields:
   - name: stock_fit
     type: terms
     source: facets.stock_fit
-  # Style -- 29 distinct values over 211 product-value pairs is 0.14 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 378 documents across 16 product type(s); 29 distinct values
+  # Style -- 25 distinct values over 197 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 347 documents across 15 product type(s); 25 distinct values
   - name: style
     type: terms
     source: facets.style
