@@ -72,9 +72,10 @@ def test_only_a_push_with_the_variable_set_asks_for_the_reserved_runners(event, 
     assert runs_on(event, **kw) == want
 
 
-# --- the concurrency group (#614) ---------------------------------------------------------
-# A merge batch must queue one main run, not N: a newer push to main cancels the older run.
-# A pull request keeps its own group per number; a dispatched run (merge_pr.sh --github-ci) is
+# --- the concurrency group (#614, #1029) --------------------------------------------------
+# A merged sha's CI result is its proof (agent-ops#1743): a push to main has a group of its own
+# sha and is never cancelled, so a later push cannot erase it. A pull request keeps its own
+# group per number and cancels its older head; a dispatched run (merge_pr.sh --github-ci) is
 # never cancelled, so its group is unique to the run.
 
 def _concurrency_value(template, names):
@@ -87,6 +88,7 @@ def _concurrency_value(template, names):
             (r"github\.event\.pull_request\.number", "PR"),
             (r"github\.event_name", "EVENT"),
             (r"github\.run_id", "RUN"),
+            (r"github\.sha", "SHA"),
             (r"github\.ref", "REF"),
             (r"format\(", "fmt("),
             (r"&&", " and "),
@@ -101,21 +103,28 @@ def _concurrency_value(template, names):
     return re.sub(r"\$\{\{ (.*?) \}\}", lambda m: str(evaluate(m.group(1))), template)
 
 
-def concurrency(event, *, ref="refs/heads/main", pr=None, run=1):
+def concurrency(event, *, ref="refs/heads/main", pr=None, run=1, sha="6f0702fe"):
     """The (group, cancel-in-progress) the CI workflow gives a run of ``event``."""
     block = yaml.safe_load(CI.read_text())["concurrency"]
-    names = {"EVENT": event, "REF": ref, "PR": pr, "RUN": run}
+    names = {"EVENT": event, "REF": ref, "PR": pr, "RUN": run, "SHA": sha}
     return (
         _concurrency_value(block["group"], names),
         _concurrency_value(block["cancel-in-progress"], names),
     )
 
 
-def test_a_newer_push_to_main_cancels_the_older_main_run():
-    older = concurrency("push", run=101)
-    newer = concurrency("push", run=102)
-    assert older[0] == newer[0]
-    assert older[1] is True
+def test_a_newer_push_to_main_never_cancels_the_older_main_run():
+    # 2026-11-15: the push of 6aeb4daa (#988) cancelled run 43755228001 on 6f0702fe (#1026)
+    older = concurrency("push", run=101, sha="6f0702fe")
+    newer = concurrency("push", run=102, sha="6aeb4daa")
+    assert older[0] != newer[0]
+    assert older[1] is False
+    assert newer[1] is False
+
+
+def test_no_push_run_cancels_whatever_its_ref():
+    for ref in ["refs/heads/main", "refs/heads/other"]:
+        assert concurrency("push", ref=ref)[1] is False
 
 
 def test_a_pull_request_keeps_its_own_group_and_cancels_only_its_own_older_head():
