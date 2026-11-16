@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.breadth_gifts import _scent
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
+from synthetic_ecommerce_data.domains.retail.kit_hair import wash
 from synthetic_ecommerce_data.domains.retail.variants import _shades, _tones, cw
 
 # --------------------------------------------------------------------------
@@ -35,17 +36,17 @@ def _formula(formula: str) -> tuple[tuple[str, str, str], ...]:
 
 BEAUTY = (
     Row("CNDARG", "Argan Oil Conditioner for Dry Hair", "Mirefield Naturals", "Beauty",
-        _CONDIT, "Conditioner", 6.0, "bottle",
+        _CONDIT, "Conditioner", 6.0, "wash_bottle",
         "A rinse-out cream for the mid-lengths and ends. Leave on for one minute.",
         (cw("Cream", "#efe8d8", "solid", "#c98a2e"),), _hair("Dry", "Argan Oil"),
         ((250.0, 6.0), (400.0, 8.0), (500.0, 10.0)), "Conditioner", colorless=True,
-        size_key="net_volume_ml"),
+        size_key="net_volume_ml", params=wash("Dry", "Argan Oil")),
     Row("CNDCOC", "Coconut Conditioner for Curly Hair", "Hollin Hair", "Beauty", _CONDIT,
-        "Conditioner", 8.0, "bottle",
+        "Conditioner", 8.0, "wash_bottle",
         "A thick cream that defines the curl pattern and cuts frizz between washes.",
         (cw("White", "#ffffff", "solid", "#7a5a3a"),), _hair("Curly", "Coconut"),
         ((250.0, 8.0), (400.0, 10.5), (500.0, 12.5)), "Conditioner", colorless=True,
-        size_key="net_volume_ml"),
+        size_key="net_volume_ml", params=wash("Curly", "Coconut")),
     Row("HWSFIG", "Fig Leaf Hand Wash 300ml", "Mirefield Naturals", "Beauty", _HANDWASH,
         "Hand Wash", 5.0, "bottle",
         "A gentle pump wash with plant glycerin, for kitchen or bathroom. Scented with fig leaf.",
