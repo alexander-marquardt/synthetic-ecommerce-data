@@ -21,7 +21,10 @@ The ceiling build (`retail_figures.ceiling()`, seed 0) holds 363 `Health` SKUs i
 slice 1: 213 vitamins and 150 minerals. Its 162 derivable styles are above the floor every
 department holds (`breadth_rows.DEPARTMENT_FLOOR`, 150, `tests/test_retail_scale.py`). Slice 2
 raises this to 482 SKUs in 245 styles, adding 47 plasters, 34 first-aid kits, 22 thermometers and
-16 blood-pressure monitors.
+16 blood-pressure monitors. With those four templates, Clothing's share of derived styles fell to
+40.6% against its 44% target, past the 3-point drift `tests/test_retail_stable_ids_626.py`
+allows, so `scale.DEPARTMENT_RATE` for Clothing is recomputed (0.01227 to 0.01328, the old rate
+times 44 / 40.6). The Health counts above do not move with it.
 
 ## Tree
 
