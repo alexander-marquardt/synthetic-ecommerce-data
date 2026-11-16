@@ -103,19 +103,19 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-29026ABE797F", "Elmcroft B5 Squared Spiral Notebook", 9, 3.4),
     ],
     "Ring Binder": [
-        ("BRD-07E9D725EAA2", "Wykebank A4 Slanted Ring Binder", 18, 4.25),
-        ("BRD-128CB3EE9170", "Brocking A4 Slanted Ring Binder", 6, 4.8),
-        ("BRD-14A4E5C2F585", "Trentingham A5 Slanted Ring Binder", 12, 2.65),
+        ("BRD-07E9D725EAA2", "Kirkfield A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Lonmere A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Dunington A5 Slanted Ring Binder", 12, 2.65),
     ],
     "Document Folder": [
-        ("BRD-04A14787D567", "Holdale A5 Zip Document Folders", 6, 2.95),
-        ("BRD-08B37DC9ED90", "Hawcliffe A5 Elastic Document Folders", 18, 4.2),
-        ("BRD-0DCF8456C313", "Halgarth Letter Zip Document Folders", 6, 5.5),
+        ("BRD-04A14787D567", "Cressgate A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Bramcroft A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Bradingham Letter Zip Document Folders", 6, 5.5),
     ],
     "Calculator": [
-        ("BRD-03D4351FCA63", "Foxlow 12 Digit Desktop Calculator", 18, 10.0),
-        ("BRD-048533587DC8", "Tidley 8 Digit Basic Calculator", 18, 4.5),
-        ("BRD-1FFE28C571F6", "Merwick 12 Digit Basic Calculator", 18, 4.05),
+        ("BRD-03D4351FCA63", "Darfield 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Belshaw 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Denstone 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 
