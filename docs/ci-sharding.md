@@ -183,17 +183,18 @@ there only by shard 9 on the throwaway merge branch. `GEN_GITHUB_CI=1` makes it 
 `--local-ci` stays as the fallback when GitHub is down or out of minutes; both print
 `gen-merge-minutes` at the end.
 
-## Superseded runs are cancelled (#614)
+## Superseded runs are cancelled (#614), main runs never (#1029)
 
-`ci.yaml` has a `concurrency` block, so a merge batch queues one main run, not one per merge:
+`ci.yaml` has a `concurrency` block. A pull request's newer head cancels its older run; a merged
+sha's run is its proof (agent-ops#1743), so no run on main is ever cancelled:
 
-| Run                        | Group                | Cancelled by a newer run of the group                               |
-| -------------------------- | -------------------- | ------------------------------------------------------------------- |
-| push to `main`             | `ci-refs/heads/main` | yes: the newest main commit is the one that answers "is main green" |
-| pull request               | `ci-pr-<number>`     | yes: only the newest head of a pull request matters                 |
-| dispatched (`--github-ci`) | `ci-run-<run id>`    | no: the group is the run's own, so a merge check is never cancelled |
+| Run                        | Group             | Cancelled by a newer run of the group                                     |
+| -------------------------- | ----------------- | ------------------------------------------------------------------------- |
+| push to `main`             | `ci-push-<sha>`   | no: each merged sha keeps its own result, so a later push cannot erase it |
+| pull request               | `ci-pr-<number>`  | yes: only the newest head of a pull request matters                       |
+| dispatched (`--github-ci`) | `ci-run-<run id>` | no: the group is the run's own, so a merge check is never cancelled       |
 
-A cancelled main run is a superseded run, not a red one. `tests/test_ci_runs_on_596.py` reads the
+A batch of merges queues one main run per merge. `tests/test_ci_runs_on_596.py` reads the
 block and evaluates the group and `cancel-in-progress` for each kind of run.
 
 The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
