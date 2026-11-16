@@ -54,6 +54,7 @@ VALUE_FAMILY: dict[str, str] = {
     "zip": "zip",
     "magnetic": "magnetic",
     "snap": "snap",
+    "press stud": "snap",
     "drawstring": "drawstring",
     "clasp": "clasp",
     "buckle": "buckle",
