@@ -1,0 +1,431 @@
+[
+  {
+    "brand": "Ostrel",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Car Air Fresheners"
+    ],
+    "price": 2.0,
+    "product_id": "BRD-AUFCNC1",
+    "product_type": "Car Air Freshener",
+    "sku_count": 2,
+    "skus": [
+      {
+        "in_stock": true,
+        "pack_size": "Single",
+        "price": 2.0,
+        "sku": "BRD-AUFCNC1-2CAB2F0A"
+      },
+      {
+        "in_stock": true,
+        "pack_size": "3 pack",
+        "price": 5.0,
+        "sku": "BRD-AUFCNC1-A00F2079"
+      }
+    ],
+    "title": "Ostrel New Car Hanging Car Air Freshener"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Car Interior Cleaners"
+    ],
+    "price": 5.2,
+    "product_id": "BRD-AUICD1",
+    "product_type": "Car Interior Cleaner",
+    "sku_count": 3,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "250",
+        "price": 5.2,
+        "sku": "BRD-AUICD1-507D8C3A"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "500",
+        "price": 7.8,
+        "sku": "BRD-AUICD1-160E5B23"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "750",
+        "price": 10.4,
+        "sku": "BRD-AUICD1-8E01FA45"
+      }
+    ],
+    "title": "Glossmere Dashboard Cleaner"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Car Polish"
+    ],
+    "price": 6.5,
+    "product_id": "BRD-AUPLC1",
+    "product_type": "Car Polish",
+    "sku_count": 3,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "100",
+        "price": 6.5,
+        "sku": "BRD-AUPLC1-E8994102"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "250",
+        "price": 11.7,
+        "sku": "BRD-AUPLC1-507D8C3A"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "500",
+        "price": 19.5,
+        "sku": "BRD-AUPLC1-160E5B23"
+      }
+    ],
+    "title": "Glossmere Polishing Compound"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Car Shampoo"
+    ],
+    "price": 9.1,
+    "product_id": "BRD-AUSHN1",
+    "product_type": "Car Shampoo",
+    "sku_count": 3,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "500",
+        "price": 9.1,
+        "sku": "BRD-AUSHN1-160E5B23"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "1000",
+        "price": 14.3,
+        "sku": "BRD-AUSHN1-003D57EE"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "2000",
+        "price": 23.4,
+        "sku": "BRD-AUSHN1-795939FD"
+      }
+    ],
+    "title": "Glossmere pH Neutral Car Shampoo"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Car Wax"
+    ],
+    "price": 15.6,
+    "product_id": "BRD-AUWXP1",
+    "product_type": "Car Wax",
+    "sku_count": 2,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_weight_g": "200",
+        "price": 15.6,
+        "sku": "BRD-AUWXP1-4EAABA69"
+      },
+      {
+        "in_stock": true,
+        "net_weight_g": "400",
+        "price": 26.0,
+        "sku": "BRD-AUWXP1-A0ADD8FC"
+      }
+    ],
+    "title": "Glossmere Carnauba Paste Car Wax Pot"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Microfiber Towels"
+    ],
+    "price": 9.6,
+    "product_id": "BRD-AUTWD1",
+    "product_type": "Microfiber Towel",
+    "sku_count": 12,
+    "skus": [
+      {
+        "color": "Red",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-87FEC522"
+      },
+      {
+        "color": "Red",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-D7691DE8"
+      },
+      {
+        "color": "Blue",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-C00DA238"
+      },
+      {
+        "color": "Blue",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-363D4565"
+      },
+      {
+        "color": "Green",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-C629E1BF"
+      },
+      {
+        "color": "Green",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-C52693C8"
+      },
+      {
+        "color": "Yellow",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-F1AAD172"
+      },
+      {
+        "color": "Yellow",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-259CA557"
+      },
+      {
+        "color": "Black",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-C5FEEE0A"
+      },
+      {
+        "color": "Black",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-59782AC1"
+      },
+      {
+        "color": "White",
+        "dimensions": "40 x 60 cm",
+        "in_stock": true,
+        "price": 9.6,
+        "sku": "BRD-AUTWD1-EDC70197"
+      },
+      {
+        "color": "White",
+        "dimensions": "60 x 90 cm",
+        "in_stock": true,
+        "price": 16.8,
+        "sku": "BRD-AUTWD1-CC22FEE2"
+      }
+    ],
+    "title": "Glossmere Microfiber Drying Towel"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Wash Mitts"
+    ],
+    "price": 10.8,
+    "product_id": "BRD-AUMTC1",
+    "product_type": "Wash Mitt",
+    "sku_count": 6,
+    "skus": [
+      {
+        "color": "Red",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-57DE4325"
+      },
+      {
+        "color": "Blue",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-6CFDD44A"
+      },
+      {
+        "color": "Green",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-6AED33A0"
+      },
+      {
+        "color": "Yellow",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-BF90CB10"
+      },
+      {
+        "color": "Black",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-D9C87124"
+      },
+      {
+        "color": "White",
+        "in_stock": true,
+        "price": 10.8,
+        "sku": "BRD-AUMTC1-AD722269"
+      }
+    ],
+    "title": "Glossmere Chenille Microfiber Wash Mitt"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Windshield Washer Fluid"
+    ],
+    "price": 3.9,
+    "product_id": "BRD-AUWFA1",
+    "product_type": "Windshield Washer Fluid",
+    "sku_count": 3,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "1000",
+        "price": 3.9,
+        "sku": "BRD-AUWFA1-003D57EE"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "2000",
+        "price": 6.5,
+        "sku": "BRD-AUWFA1-795939FD"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "5000",
+        "price": 11.7,
+        "sku": "BRD-AUWFA1-C1C2F3C4"
+      }
+    ],
+    "title": "Glossmere All-Season Windshield Washer Fluid"
+  },
+  {
+    "brand": "Glossmere",
+    "category_path": [
+      "Automotive",
+      "Car Care",
+      "Wiper Blades"
+    ],
+    "price": 9.2,
+    "product_id": "BRD-AUWBC1",
+    "product_type": "Wiper Blade",
+    "sku_count": 13,
+    "skus": [
+      {
+        "blade_length_in": "13",
+        "in_stock": true,
+        "price": 9.2,
+        "sku": "BRD-AUWBC1-D77081CA"
+      },
+      {
+        "blade_length_in": "14",
+        "in_stock": true,
+        "price": 9.49,
+        "sku": "BRD-AUWBC1-EDCBD940"
+      },
+      {
+        "blade_length_in": "15",
+        "in_stock": true,
+        "price": 9.77,
+        "sku": "BRD-AUWBC1-B8DA320C"
+      },
+      {
+        "blade_length_in": "16",
+        "in_stock": true,
+        "price": 10.06,
+        "sku": "BRD-AUWBC1-5A7DF4DF"
+      },
+      {
+        "blade_length_in": "17",
+        "in_stock": true,
+        "price": 10.35,
+        "sku": "BRD-AUWBC1-D210B169"
+      },
+      {
+        "blade_length_in": "18",
+        "in_stock": true,
+        "price": 10.64,
+        "sku": "BRD-AUWBC1-166A661C"
+      },
+      {
+        "blade_length_in": "19",
+        "in_stock": true,
+        "price": 10.92,
+        "sku": "BRD-AUWBC1-9111F9EE"
+      },
+      {
+        "blade_length_in": "20",
+        "in_stock": true,
+        "price": 11.21,
+        "sku": "BRD-AUWBC1-9604E936"
+      },
+      {
+        "blade_length_in": "21",
+        "in_stock": true,
+        "price": 11.5,
+        "sku": "BRD-AUWBC1-4BBB0FE9"
+      },
+      {
+        "blade_length_in": "22",
+        "in_stock": true,
+        "price": 11.79,
+        "sku": "BRD-AUWBC1-BA4A97B5"
+      },
+      {
+        "blade_length_in": "24",
+        "in_stock": true,
+        "price": 12.07,
+        "sku": "BRD-AUWBC1-9A5312D3"
+      },
+      {
+        "blade_length_in": "26",
+        "in_stock": true,
+        "price": 12.36,
+        "sku": "BRD-AUWBC1-1C511CB7"
+      },
+      {
+        "blade_length_in": "28",
+        "in_stock": true,
+        "price": 12.65,
+        "sku": "BRD-AUWBC1-4CCE4C92"
+      }
+    ],
+    "title": "Glossmere Conventional Wiper Blade"
+  }
+]
