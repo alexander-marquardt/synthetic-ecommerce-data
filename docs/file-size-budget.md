@@ -24,7 +24,10 @@ elastic/prism's (`contributing/file-size-budget.md` there), run on this tree
   prototype reference moved to [`retail-prototype.md`](retail-prototype.md) (#240),
   and a feature's section is a page in `docs/retail-prototype/`. When it nears the cap again the
   README is split by section: the Images section moved to [`images.md`](images.md)
-  (#701), and `tests/test_readme_split_images.py` holds 200 lines of headroom.
+  (#701), and `tests/test_readme_split_images.py` holds 200 lines of headroom. The data
+  model moved to [`data-model.md`](data-model.md) (#1034) once two README-touching pull
+  requests went red together, and `tests/test_readme_headroom_1034.py` fails while the README
+  is within 50 lines of that bound: file the next split then, before pull requests collide.
 
 Why: an agent looking for one spot in a big file reads a large part of it, and
 what it reads stays in its context for every later step.
