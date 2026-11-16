@@ -88,34 +88,34 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
 #: there; the ids, SKU counts and prices are unchanged (gen#1024).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
-        ("BRD-02FD05FA1851", "Carrwell Bold Ballpoint Pens", 9, 4.65),
-        ("BRD-0AEED8938A93", "Gosford Bold Rollerball Pens", 18, 5.5),
-        ("BRD-1154563F036E", "Skelbank Fine Rollerball Pens", 18, 5.5),
+        ("BRD-02FD05FA1851", "Oxridge Bold Ballpoint Pens", 9, 4.65),
+        ("BRD-0AEED8938A93", "Caldstead Bold Rollerball Pens", 18, 5.5),
+        ("BRD-1154563F036E", "Marden Fine Rollerball Pens", 18, 5.5),
     ],
     "Pencil": [
-        ("BRD-00177A9CA748", "Ramhill 2B Pencils with Eraser", 15, 1.9),
-        ("BRD-14C1085C8C1C", "Malbury 2H Pencils with Eraser", 18, 2.05),
-        ("BRD-16AF6C00FB2D", "Kelford 4B Drawing Pencils", 18, 2.9),
+        ("BRD-00177A9CA748", "Fairmere 2B Pencils with Eraser", 15, 1.9),
+        ("BRD-14C1085C8C1C", "Brockcliffe 2H Pencils with Eraser", 18, 2.05),
+        ("BRD-16AF6C00FB2D", "Midstead 4B Drawing Pencils", 18, 2.9),
     ],
     "Spiral Notebook": [
-        ("BRD-082994CBD41A", "Crakestone A5 Dotted Spiral Notebook", 6, 2.9),
-        ("BRD-15F48D958E7F", "Hamworth A5 Lined Spiral Notebook", 6, 3.95),
-        ("BRD-29026ABE797F", "Stanmere B5 Squared Spiral Notebook", 9, 3.4),
+        ("BRD-082994CBD41A", "Ludholme A5 Dotted Spiral Notebook", 6, 2.9),
+        ("BRD-15F48D958E7F", "Gosford A5 Lined Spiral Notebook", 6, 3.95),
+        ("BRD-29026ABE797F", "Dunwood B5 Squared Spiral Notebook", 9, 3.4),
     ],
     "Ring Binder": [
-        ("BRD-07E9D725EAA2", "Reedley A4 Slanted Ring Binder", 18, 4.25),
-        ("BRD-128CB3EE9170", "Crakeness A4 Slanted Ring Binder", 6, 4.8),
-        ("BRD-14A4E5C2F585", "Malington A5 Slanted Ring Binder", 12, 2.65),
+        ("BRD-07E9D725EAA2", "Ormstead A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Copfield A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Dunton A5 Slanted Ring Binder", 12, 2.65),
     ],
     "Document Folder": [
-        ("BRD-04A14787D567", "Winmoor A5 Zip Document Folders", 6, 2.95),
-        ("BRD-08B37DC9ED90", "Wesmere A5 Elastic Document Folders", 18, 4.2),
-        ("BRD-0DCF8456C313", "Warstone Letter Zip Document Folders", 6, 5.5),
+        ("BRD-04A14787D567", "Oldcliffe A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Oxton A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Ulvstone Letter Zip Document Folders", 6, 5.5),
     ],
     "Calculator": [
-        ("BRD-03D4351FCA63", "Carrwell 12 Digit Desktop Calculator", 18, 10.0),
-        ("BRD-048533587DC8", "Brammoor 8 Digit Basic Calculator", 18, 4.5),
-        ("BRD-1FFE28C571F6", "Londen 12 Digit Basic Calculator", 18, 4.05),
+        ("BRD-03D4351FCA63", "Oxridge 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Tanholme 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Bradcliffe 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 

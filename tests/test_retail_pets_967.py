@@ -85,19 +85,19 @@ def _golden(pets: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Dog Food": [
-        ("BRD-0139F80E655E", "Warmere Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),  # noqa: E501
-        ("BRD-015EB9FD793C", "Malwood Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
-        ("BRD-01F0AFDFC4B3", "Beckridge Senior Small Breed Dry Dog Food with Duck & Pea", 3, 8.0),
+        ("BRD-0139F80E655E", "Malshaw Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),  # noqa: E501
+        ("BRD-015EB9FD793C", "Horridge Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
+        ("BRD-01F0AFDFC4B3", "Yarhurst Senior Small Breed Dry Dog Food with Duck & Pea", 3, 8.0),
     ],
     "Cat Food": [
-        ("BRD-006AF6BEB0E4", "Dalwick Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
-        ("BRD-01B4E9895FF8", "Ludmoor Adult Hairball Control Dry Cat Food with Chicken", 3, 4.9),
-        ("BRD-02FDA95F49AE", "Oxington Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),  # noqa: E501
+        ("BRD-006AF6BEB0E4", "Cressfell Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
+        ("BRD-01B4E9895FF8", "Bramgarth Adult Hairball Control Dry Cat Food with Chicken", 3, 4.9),
+        ("BRD-02FDA95F49AE", "Wrayhaugh Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),  # noqa: E501
     ],
     "Cat Litter": [
-        ("BRD-00112B468C03", "Kelness Baby Powder Wood Pellet Cat Litter", 3, 6.5),
-        ("BRD-03E57A1B6D5A", "Zenstead Lavender Clumping Clay Cat Litter", 3, 3.2),
-        ("BRD-06F75E8C843B", "Wesbridge Citrus Clumping Clay Cat Litter", 3, 5.5),
+        ("BRD-00112B468C03", "Skelcroft Baby Powder Wood Pellet Cat Litter", 3, 6.5),
+        ("BRD-03E57A1B6D5A", "Wykecombe Lavender Clumping Clay Cat Litter", 3, 3.2),
+        ("BRD-06F75E8C843B", "Boltden Citrus Clumping Clay Cat Litter", 3, 5.5),
     ],
 }  # fmt: skip
 
