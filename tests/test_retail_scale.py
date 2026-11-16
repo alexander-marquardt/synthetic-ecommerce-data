@@ -24,6 +24,7 @@ import pytest
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     breadth_rows,
+    departments,
     lighting_rows,
     line_grammar,
     line_grammar_families,
@@ -148,8 +149,13 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
-#: The departments the ceiling build sells in.
-DEPARTMENTS = 13  # Health joined with gen#968, Office & school with gen#969, Pets with gen#967
+#: The closed list's departments the ceiling build draws no derived style in: Electronics and
+#: Sports & Outdoors sell their authored rows only, Workwear & PPE and Furniture & Seating are
+#: the industrial catalog's.
+UNDERIVED = {"Sports & Outdoors", "Electronics", "Workwear & PPE", "Furniture & Seating"}
+#: The departments the ceiling build sells derived styles in, named and not counted: a new
+#: department joins by its closed-list entry (Health gen#968, Office gen#969, Pets gen#967).
+DEPARTMENTS = {*departments.RETAIL, *departments.SHARED} - UNDERIVED
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -945,7 +951,7 @@ def test_every_department_holds_its_floor_of_styles(ceiling):
     department's count against the floor, in the failure message.
     """
     styles = styles_by_department(ceiling.records)
-    assert len(styles) == DEPARTMENTS, sorted(styles)
+    assert set(styles) == DEPARTMENTS, sorted(styles)
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
     floor = breadth_rows.DEPARTMENT_FLOOR
     assert starved(styles) == {}, f"{smallest}: {n} styles, under the floor of {floor}"

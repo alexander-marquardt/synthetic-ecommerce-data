@@ -52,8 +52,9 @@ or a range name (`Alley Cat Provisions` dog food, `Dog Rose` cat food, `Kitten M
 `Puppy Hill` senior dog food, `Lavender Hill` pine litter) and, for litter, a refill bag
 whose title names a litter tray it does not include.
 
-**Measured** (ceiling build, seed 0): 2,159 SKUs in 622 styles under Pets (Dog Food 236 styles,
-Cat Food 234, Cat Litter 152; 31 authored with the decoys, 591 derived), about 31% of the
+**Measured** (ceiling build, `retail_figures.ceiling()`, seed 0): the department's and the three
+types' SKUs and styles, and the authored and derived split, are build output, read with
+`retail_figures.figures()` and not restated here. Slice 1's floor is 2,000 SKUs, against the
 department's 7,000 target in `docs/catalogue-mix-837.md`. Treats, toys and beds (slice 2), and
 leads and collars, grooming and aquarium and small-animal supplies (slice 3), are later slices
 of gen#967. The guards are in `tests/test_retail_pets_967.py`.
