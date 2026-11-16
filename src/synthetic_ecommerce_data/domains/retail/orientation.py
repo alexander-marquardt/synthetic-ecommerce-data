@@ -54,19 +54,22 @@ SLIGHT: tuple[str, ...] = (
 
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
-    "aftershave", "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
+    "aftershave", "air_fryer",
+    "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
     "baby_blanket", "baby_bottle", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
     "baseball_glove",
     "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
     "bed_frame", "bed_pillow", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals",
     "bike_pump",
-    "bike_saddle", "bird", "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
+    "bike_saddle", "bird", "blender",
+    "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
     "bowl", "box", "box_wide", "bracelet", "building_set", "bunting", "butter_block", "cabin_case",
     "cake", "calculator",
     "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat", "caulking_gun",
     "ceiling_fan", "ceiling_light", "chain_lube", "chairbed", "chaise_sofa", "changing_mat",
     "charger", "charging_pad", "cherries", "chest_of_drawers", "chocolate_box", "chopping_board",
-    "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_table", "colander",
+    "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_maker",
+    "coffee_table", "colander",
     "combi_drill", "compact", "corded_drill", "corner_sofa", "craft_kit", "crisps_bag", "cupcake",
     "curtains", "cushion", "cutlery_piece", "daisy", "desk_fan", "desk_lamp", "desktop",
     "diaper_pack", "diary",
@@ -111,6 +114,7 @@ UPRIGHT: tuple[str, ...] = (
     "wipes_pack",
     "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
+    "craft_tub", "learning_toy", "rc_vehicle",
     "air_freshener", "fluid_jug", "microfiber_towel", "wash_mitt", "wiper_blade",
 )
 
