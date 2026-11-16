@@ -36,6 +36,7 @@ PROTOTYPE_PAGES = tuple(
 #: total may be named, and they name none.
 QUOTING = (
     "README.md",
+    "docs/data-model.md",
     "docs/retail-prototype.md",
     *PROTOTYPE_PAGES,
     "src/synthetic_ecommerce_data/domains/retail/scale.py",
