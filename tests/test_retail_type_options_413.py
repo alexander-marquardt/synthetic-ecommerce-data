@@ -56,6 +56,8 @@ MOVED = {
     "resistance_band": [Option("resistance", "resistance_level", "Resistance level")],
     "camping_lantern": [Option("brightness_lm", "brightness", "Brightness (lm)")],
     "tennis_racket": [Option("grip", "grip_size", "Grip size")],
+    "hair_dryer": [Option("attachments", "attachments", "Attachments")],
+    "hair_straightener": [Option("plate_width", "plate_width", "Plate width")],
     "skateboard": [Option("deck_width_in", "deck_width", "Deck width", "INH")],
     "bicycle": [Option("frame_cm", "frame_size", "Frame size", "CMT")],
     "curtains": [_DROP],
@@ -79,6 +81,8 @@ MOVED = {
         Option("seat_count", "seat_count", "Seat count", "C62"),
         Option("depth_cm", "item_depth", "Item depth", "CMT"),
     ],
+    # a wiper blade's length in inches, the SKU axis (gen#970)
+    "wiper_blade": [Option("blade_length_in", "blade_length", "Blade length", "INH")],
     # a diaper's size, Size 1 to Size 6 (#965)
     "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
 }
