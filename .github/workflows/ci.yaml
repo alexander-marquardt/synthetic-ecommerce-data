@@ -35,14 +35,15 @@ on:
 permissions:
   contents: read
 
-# A newer commit supersedes the older run of the same thing (#614): a push to main cancels the
-# older main run, so a batch of merges queues one main run, not one per merge; a new push to a
-# pull request cancels that pull request's older run (one group per number). A dispatched run
-# (merge_pr.sh --github-ci) is never cancelled: its group is its own run id. The prefixes keep a
-# run id from landing in a pull request's group. tests/test_ci_runs_on_596.py reads this block.
+# A merged sha's CI result is its proof (#1029, agent-ops#1743): a push to main has a group of its
+# own sha and is never cancelled, so a later push cannot erase an earlier merge's result. A new
+# push to a pull request cancels that pull request's older run (one group per number, #614). A
+# dispatched run (merge_pr.sh --github-ci) is never cancelled: its group is its own run id. The
+# prefixes keep a sha or run id from landing in a pull request's group.
+# tests/test_ci_runs_on_596.py reads this block.
 concurrency:
-  group: ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.event_name == 'push' && github.ref || format('run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+  group: ci-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.event_name == 'push' && format('push-{0}', github.sha) || format('run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Where every job runs (synthetic-ecommerce-data#596): the self-hosted runner on the agent VM
 # (agent-ops vm/ci_runner: one throwaway container per job, no host mounts, no metadata server)
