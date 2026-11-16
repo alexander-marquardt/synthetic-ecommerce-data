@@ -29,8 +29,9 @@ FLOOR = 3_000
 #: The entries a derived style keeps from its template: an age, a play time and a size follow
 #: the piece count and the kind of game the template is, never a draw.
 KEPT = ("age_range", "play_time", "finished_size")
-#: The lead words only these types' templates use, all from rows older than gen#960.
-OWN_LEADS = {"alpine", "giggle", "puddle", "sunset"}
+#: The lead words only these types' templates use, all from rows older than gen#960. "Sunset"
+#: left it when the craft kits (main) took "Safari Sunset".
+OWN_LEADS = {"alpine", "giggle", "puddle"}
 
 
 @pytest.fixture(scope="module")
@@ -129,9 +130,9 @@ def test_each_type_golden_slice(toys, ptype) -> None:
 
 def test_the_types_take_no_lead_word_from_another_departments_deal() -> None:
     """A lead word any template's text uses leaves its family's deal (line_grammar.deals), so
-    "token" in a board game's description retitled derived balloons and party plates. The four
+    "token" in a board game's description retitled derived balloons and party plates. The three
     words of :data:`OWN_LEADS` were the older rows' before gen#960 ("Alpine Lake", "Giggle
-    Pile", the Puddlecombe brand, "at sunset"); any other is a word this slice took."""
+    Pile", the Puddlecombe brand); any other is a word this slice took."""
     leads = {
         w.lower() for s in line_grammar._NUMBERED.values() for w in (*s.leads, *s.grocery_leads)
     }
