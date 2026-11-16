@@ -37,13 +37,13 @@ def _sp(code: str, title: str, brand: str, price: float, description: str, form:
 
 ROWS = (
     _sp("SMP001", "Mini Smart Plug with App Control", MARRICK, 19.0,
-        "A small plug that leaves the next socket free, switched from a phone.", "Mini", "Wi-Fi", "Energy Monitoring"),
+        "A small plug that leaves the second socket of a wall plate free, switched from a phone.", "Mini", "Wi-Fi", "Energy Monitoring"),
     _sp("SMP002", "Dual Outlet Smart Plug with App Control", CINDREL, 29.0,
         "Two sockets each switched on its own, from the app or on a schedule.", "Dual Outlet", "Zigbee", "Scheduling"),
     _sp("SMP003", "Wi-Fi Smart Plug", WEXMOOR, 17.0,
         "Turn a kettle or a fan on from anywhere, with no hub to set up.", "Mini", "Wi-Fi", "Voice Control"),
     _sp("SMP004", "Zigbee Smart Plug", BOLTWICK, 15.0,
-        "A plug that joins a smart hub and repeats its signal to the next room.", "Mini", "Zigbee", "Scheduling"),
+        "A plug that joins a smart hub and carries its signal on to a far room.", "Mini", "Zigbee", "Scheduling"),
     _sp("SMP005", "Smart Plug with Energy Monitoring", NIMBREL, 22.0,
         "Track a washing machine's power use and get a message when it ends.", "Dual Outlet", "Zigbee", "Energy Monitoring"),
     _sp("SMP006", "Smart Plug with Voice Control", QUORRIN, 18.0,
