@@ -244,8 +244,10 @@ LEAF_RANKS = 40
 #: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
 #: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
 #: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
-#: Clothing's is recomputed for the school backpacks, colored pencils and desk organizers of
-#: gen#969 slice 3 (0.01227 times its 44% target over the 40.8% it reached).
+#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
+#: blenders of slice 1 (Home took its share from 41.2% to 40.9%), then recomputed to 0.013232
+#: for the school backpacks, colored pencils and desk organizers of gen#969 slice 3 (0.0124
+#: times its 44% target over the share it reached).
 DEPARTMENT_RATE = {
     "Clothing": 0.013232, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,

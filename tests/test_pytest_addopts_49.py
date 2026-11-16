@@ -60,7 +60,8 @@ def test_the_rounding_rule_is_cited_to_its_source() -> None:
     """``value_canonical``'s one rounding is prism's rule, named where this repository states it."""
     from synthetic_ecommerce_data.core.entry import canonical
 
-    readme = (REPO / "README.md").read_text(encoding="utf-8")
-    for where, text in (("README.md", readme), ("entry.canonical", canonical.__doc__ or "")):
+    # The data model section that states it left the README for its own page (#1034).
+    page = (REPO / "docs" / "data-model.md").read_text(encoding="utf-8")
+    for where, text in (("docs/data-model.md", page), ("entry.canonical", canonical.__doc__ or "")):
         assert "measurement_values.py" in text, f"{where} does not cite prism's measurement_values"
         assert "nested.py" in text, f"{where} does not cite the deployment's nested.py"
