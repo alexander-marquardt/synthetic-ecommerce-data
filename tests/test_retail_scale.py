@@ -148,8 +148,6 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
-#: The departments the ceiling build sells in (derivable styles).
-DEPARTMENTS = 13  # Health: gen#968, Office & school: gen#969, Electronics: gen#956
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -945,7 +943,8 @@ def test_every_department_holds_its_floor_of_styles(ceiling):
     department's count against the floor, in the failure message.
     """
     styles = styles_by_department(ceiling.records)
-    assert len(styles) == DEPARTMENTS, sorted(styles)
+    # The departments the ceiling build sells in, read from the figures, not restated (gen#162).
+    assert len(styles) == len(FIGURES["departments"]), sorted(styles)
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
     floor = breadth_rows.DEPARTMENT_FLOOR
     assert starved(styles) == {}, f"{smallest}: {n} styles, under the floor of {floor}"

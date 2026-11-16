@@ -14,10 +14,11 @@ from synthetic_ecommerce_data.domains.retail import line_grammar
 #: light's build (gen#197): a wall light's ``ip_rating`` (a bathroom light's text says
 #: where it may go) and what a lampshade's ring fits (``fitting``).
 #: A tableware kind (gen#198) fixes the drawn profile and the measured size beside it, so a
-#: 27 cm dinner plate never becomes a side plate.
+#: 27 cm dinner plate never becomes a side plate. A smart bulb's filter-only facts (gen#956) follow
+#: its SKUs' connections, which a derived bulb keeps: ``matter``, ``works_with``, ``hub_required``.
 FROZEN_KEYS = frozenset(
     {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
-     "ip_rating", "fitting",
+     "ip_rating", "fitting", "matter", "works_with", "hub_required",
      "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
 )  # fmt: skip
 

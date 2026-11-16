@@ -1,12 +1,18 @@
 """Smart bulbs (gen#956): Electronics > Smart Home > Smart Bulbs.
 
-A breadth type: ``derivable`` True, so the scaled build draws more bulbs from these rows by the
-values their titles show (fitting, light and connection). A smart bulb is sold in white frosted
-glass, its light color set in the app, so it is a main-color exception
-(``main_colors.EXCEPTIONS``); its SKUs are packs, a single bulb, a 2, 4 or 6 pack.
-``bulb_fitting`` draws a screw base (E27, or the small E14), a bayonet base (B22) or a spot
-on two pins (GU10) (:func:`kit_smart_home.smart_bulb`), with the key and name the lighting rows
-use. Four title patterns, each by two brands.
+A breadth type: ``derivable`` True. A product is its brand, range, ``bulb_shape`` and
+``bulb_fitting`` (the 2026-11-15 ruling on gen#1005: every different product has a different
+picture), and its title shows those two values alone, so the scaled build draws a new product for
+each shape and fitting a brand does not sell yet, and only on a fitting the shape is sold on
+(:data:`smart_home_rows.BULB_FITTINGS`). Each shape is drawn by its own outline
+(:func:`kit_smart_home.smart_bulb`). The light (warm white, tunable white or color changing), the
+connection and the brightness are the options of the SKUs, each in a single bulb, a 2 pack and a
+4 pack, each priced on its own (:func:`smart_home_rows.bulb_skus`). Matter, the voice assistants it
+works with and whether it needs a hub are filter-only attributes. The bulb is sold in white
+frosted glass, its light color set in the app, so it is a main-color exception
+(``main_colors.EXCEPTIONS``). Every template has its own brand and one title pattern, so a brand
+sells one product of each shape and fitting. The two decoys carry brands the bulb templates do not
+use, so neither draws its base row's brand and picture a second time.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -14,49 +20,66 @@ use. Four title patterns, each by two brands.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.electronics_rows import (
+    ARDMOOR,
+    BOLTWICK,
     CINDREL,
     DASKEL,
+    DUNVALE,
     ELECTRONICS_OWNERS,
     HALVERN,
     MARRICK,
+    MERVANE,
+    NIMBREL,
     PELLIMAR,
     QUORRIN,
     TORVANE,
     WEXMOOR,
+    XELL,
 )
-from synthetic_ecommerce_data.domains.retail.smart_home_rows import BULBS, WHITE, decoy, row
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.smart_home_rows import WHITE, bulb_row, decoy
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec, a
 
 DEPARTMENT = "Electronics"
+CC, TW, WW = "Color Changing", "Tunable White", "Warm White"
+WIFI, BT, ZB = "Wi-Fi", "Bluetooth", "Zigbee"
 
 
-def _sb(code: str, title: str, brand: str, price: float, description: str, fitting: str,
-        light: str, link: str) -> object:  # fmt: skip
-    attrs = (a("bulb_fitting", "Bulb fitting", fitting), a("bulb_light", "Light", light),
-             a("connectivity", "Connectivity", link))  # fmt: skip
-    packs = (("Single", price), ("2 pack", round(price * 1.8, 2)), ("4 pack", round(price * 3.4, 2)),
-             ("6 pack", round(price * 4.8, 2)))  # fmt: skip
-    return row(code, title, brand, BULBS, "Smart Bulb", "smart_bulb", price, description, attrs,
-               (("bulb_fitting", fitting.lower()),), packs, "pack_size", (WHITE,))  # fmt: skip
+def _sb(code: str, brand: str, shape: str, fitting: str, description: str,
+        variants: tuple[tuple[str, str, int], ...], matter: bool, assistants: tuple[str, ...]) -> object:  # fmt: skip
+    """A bulb template: ``variants`` are its (light, connection, brightness step) SKU options."""
+    hub = any(link == ZB for _, link, _ in variants)
+    attrs = (a("matter", "Matter", "Yes" if matter else "No"),
+             *(a("works_with", "Works with", w) for w in assistants),
+             a("hub_required", "Hub required", "Yes" if hub else "No"))  # fmt: skip
+    return bulb_row(code, brand, shape, fitting, description, variants, attrs)
 
 
+_ALL = ("Alexa", "Google Home", "Apple Home")
 ROWS = (
-    _sb("SMB001", "E27 Color Changing Wi-Fi Smart Bulb", DASKEL, 15.0,
-        "Sixteen million shades and a sunrise alarm, set from the app.", "E27", "Color Changing", "Wi-Fi"),
-    _sb("SMB002", "B22 Tunable White Bluetooth Smart Bulb", MARRICK, 12.0,
-        "Cool daylight for work and a warm glow for the evening, with no hub.", "B22", "Tunable White", "Bluetooth"),
-    _sb("SMB003", "GU10 Warm White Smart Bulb", CINDREL, 9.0,
-        "A dimmable spot for a kitchen ceiling, switched by voice or on a timer.", "GU10", "Warm White", "Zigbee"),
-    _sb("SMB004", "E14 Color Changing Smart Bulb", PELLIMAR, 14.0,
-        "A small candle bulb for a bedside lamp, with scenes for films and parties.", "E14", "Color Changing", "Bluetooth"),
-    _sb("SMB005", "Wi-Fi Smart Bulb, B22 Fitting", HALVERN, 11.0,
-        "Switch the hall light from the sofa or set it to come on at dusk.", "B22", "Warm White", "Wi-Fi"),
-    _sb("SMB006", "Zigbee Smart Bulb, E14 Fitting", QUORRIN, 10.0,
-        "A candle bulb that joins a smart hub and dims with the rest of the room.", "E14", "Tunable White", "Zigbee"),
-    _sb("SMB007", "Dimmable Tunable White Zigbee Smart Bulb", WEXMOOR, 13.0,
-        "A light that follows the day, from bright morning white to warm night.", "GU10", "Tunable White", "Zigbee"),
-    _sb("SMB008", "Dimmable Warm White Bluetooth Smart Bulb", TORVANE, 8.0,
-        "A soft glow that fades out at bedtime, paired with a phone in a minute.", "E27", "Warm White", "Bluetooth"),
+    _sb("SMB001", DASKEL, "A60 Standard", "E27",
+        "Dims from the app or by voice, and joins a room scene with the other lights in the house.", ((CC, WIFI, 2), (TW, WIFI, 1)), True, _ALL),
+    _sb("SMB002", MARRICK, "A60 Standard", "B22",
+        "Set up from a phone in a minute, then dimmed from the app or a voice speaker.", ((WW, BT, 0), (TW, BT, 1)), False, ("Alexa", "Google Home")),
+    _sb("SMB003", CINDREL, "Spot", "GU10",
+        "A dimmable bulb for a kitchen ceiling, switched by voice or from the app.", ((WW, ZB, 0), (CC, ZB, 0)), True, _ALL),
+    _sb("SMB004", PELLIMAR, "Candle", "E14",
+        "A small bulb for a bedside lamp, with scenes for films and parties.", ((CC, BT, 0), (WW, BT, 0)), False, ("Alexa",)),
+    _sb("SMB005", HALVERN, "Large Globe", "B22",
+        "A statement bulb for a bare pendant, dimmed from the sofa with a phone.", ((WW, WIFI, 0), (CC, WIFI, 1)), True, ("Alexa", "Google Home")),
+    _sb("SMB006", QUORRIN, "Golf Ball", "E14",
+        "A neat bulb for a wall light or a small shade, grouped with the room in the app.", ((TW, ZB, 0), (CC, ZB, 0)), True, _ALL),
+    _sb("SMB007", WEXMOOR, "Reflector", "E27",
+        "Bright enough for a reading corner, and dimmed from the app or by voice.", ((TW, ZB, 1), (WW, ZB, 0)), False, ("Google Home",)),
+    _sb("SMB008", TORVANE, "Edison Filament", "E27",
+        "A glowing bulb for a cafe-style pendant, controlled from the app.", ((WW, BT, 0), (WW, WIFI, 1)), False, ("Alexa", "Google Home")),
+    _sb("SMB009", NIMBREL, "Candle", "E27",
+        "Lights a chandelier or a wall bracket, and dims with the rest of the room.", ((WW, WIFI, 0), (TW, WIFI, 0)), True, ("Alexa", "Apple Home")),
+    _sb("SMB010", BOLTWICK, "Golf Ball", "E27",
+        "Fits a small lampshade or a wall bracket, and dims from the app.", ((WW, ZB, 0), (TW, ZB, 0)), False, ("Alexa",)),
+    _sb("SMB011", MERVANE, "Large Globe", "E27",
+        "A big bulb that hangs bare from a pendant cord and fills a room with even light.", ((TW, WIFI, 0), (CC, WIFI, 1)), True, _ALL),
+    _sb("SMB012", ARDMOOR, "Edison Filament", "B22",
+        "Gives a hallway or a porch light a soft glow, switched from the app or a voice speaker.", ((WW, WIFI, 0), (WW, BT, 1)), False, ("Google Home",)),
 )  # fmt: skip
 
 SPEC = TypeSpec(
@@ -65,11 +88,16 @@ SPEC = TypeSpec(
     product_type="Smart Bulb",
     derivable=True,
     owners=ELECTRONICS_OWNERS,
+    options=(
+        Option("bulb_light", "bulb_light", "Light"),
+        Option("connectivity", "connectivity", "Connectivity"),
+        Option("brightness_lm", "brightness", "Brightness (lm)"),
+    ),
     rows=ROWS,
     decoys=(
-        Decoy(4, "green smart bulb", "vocabulary", decoy(ROWS[1], "SMBGEN", "Green Energy B22 Tunable White Bluetooth Smart Bulb",
-              "A white bulb that draws nine watts: its green energy label is its low power use.", WHITE)),
-        Decoy(6, "blue smart bulb", "generic", decoy(ROWS[2], "SMBBMW", "Blue Meadow GU10 Warm White Smart Bulb",
-              "From the Blue Meadow range: a warm white smart spot bulb.", WHITE)),
+        Decoy(4, "green smart bulb", "vocabulary", decoy(ROWS[1], "SMBGEN", "Green Energy A60 Standard Smart Bulb, B22 Fitting",
+              "A white bulb that draws nine watts: its green energy label is its low power use.", WHITE, DUNVALE)),
+        Decoy(6, "blue smart bulb", "generic", decoy(ROWS[2], "SMBBMW", "Blue Meadow Spot Smart Bulb, GU10 Fitting",
+              "From the Blue Meadow range: a white smart bulb for a kitchen ceiling.", WHITE, XELL)),
     ),
 )  # fmt: skip

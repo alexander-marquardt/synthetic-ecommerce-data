@@ -154,6 +154,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     sale_share,
     shoe_grid,
+    smart_home_rows,
     stable_ids,
     style_table,
     type_registry,
@@ -242,12 +243,15 @@ LEAF_RANKS = 40
 #: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
 #: the shares they give drift more than 3 points, which is the signal to recompute them. Home's
 #: is recomputed for the sheet sets, pillows and food storage of gen#963 slice 2 (0.01009 times
-#: its 20% target over the 23.2% it reached).
+#: its 20% target over the 23.2% it reached). Electronics' is set for the smart home types of
+#: gen#956 slice 2a (the default 0.008 times its 1.1% target over the 2.5% it reached), and
+#: Clothing's is recomputed then: a new department's styles took its share from 41.1% on main
+#: to 40.6%, more than 3 points under its 44% target (0.01227 times 44 over 40.6).
 DEPARTMENT_RATE = {
-    "Clothing": 0.01227, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
+    "Clothing": 0.0133, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.02503, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
-    "Footwear": 0.01799,
+    "Footwear": 0.01799, "Electronics": 0.00352,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
 DEFAULT_RATE = 0.008
@@ -589,6 +593,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
     _sku_values(rec, skus, sku_swaps)
+    smart_home_rows.fit_bulb(tpl, rec, skus)  # a candle bulb is never 1521 lm (gen#956)
     if colors:
         kept = len({s["color"] for s in skus if "color" in s})
         rec["title"] = _restate_color_count(rec["title"], kept)
@@ -770,6 +775,8 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
     combos: list[tuple] = [()]
     for k in shown:
         combos = [(*c, v) for c in combos for v in pools[(leaf, k)]]
+    combos = [c for c in combos
+              if smart_home_rows.real_pair(leaf, dict(zip(shown, c, strict=True)))]  # fmt: skip
     families = list(dict.fromkeys(_family(c) for c in tpl.get("color_options", ()))) or [None]
     mine = signature(tpl, shown)
     return [(c, f) for c in combos for f in families if (c, f) != mine]

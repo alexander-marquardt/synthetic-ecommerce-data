@@ -7,17 +7,21 @@ smart_plug       a plug body with its socket, a button and a  plug_form (mini, d
                  status light: small and square, wide with    outdoor)
                  two sockets, or tall with a hinged cover
                  and a cable
-smart_bulb       a bulb: a round globe on a threaded screw    bulb_fitting (e27, e14, b22,
-                 base (narrow for e14), on a smooth bayonet   gu10)
-                 base with two
-                 side pins, or a spot cone on two pins
+smart_bulb       a bulb by its glass outline: a pear-shaped   bulb_shape (a60 standard, candle,
+                 a60, a tall candle with a pointed tip, a     golf ball, large globe,
+                 small golf ball, a wide globe, a reflector   reflector, spot, edison
+                 dome on a cone, a spot cone on two pins, or  filament), bulb_fitting (e27,
+                 a tall clear filament bulb; on a threaded    e14, b22, gu10)
+                 screw base (narrow for e14) or a smooth
+                 bayonet base with two side pins
 doorbell_camera  a tall doorbell with its camera lens and a   doorbell_power (battery, wired)
                  lit button, and a battery gauge or two wires
                  out of its foot
 ===============  ===========================================  ===================================
 
 Each param's values are the lower-cased attribute values of the spec rows, so a derived style
-that changes a plug's ``plug_form`` or a bulb's ``bulb_fitting`` draws what it states (gen#512).
+that changes a plug's ``plug_form`` or a bulb's ``bulb_shape`` or ``bulb_fitting`` draws what it
+states (gen#512). Each bulb shape is drawn by its own outline (the 2026-11-15 ruling on gen#1005).
 """
 
 from __future__ import annotations
@@ -79,42 +83,71 @@ def smart_plug(paint: str, fill: Fill, label: str | None, plug_form: str = "mini
     return _label(out, label)
 
 
-def smart_bulb(paint: str, fill: Fill, label: str | None, bulb_fitting: str = "e27") -> list[str]:
-    """A smart bulb by ``bulb_fitting``: a globe on a screw or bayonet base, or a spot on pins."""
-    if bulb_fitting == "gu10":
-        out = [
-            _path("M110,100 L290,100 L240,250 L160,250 Z", paint),
-            _ell(200, 100, 90, 20, _tint(fill.base, 0.5), LW_DETAIL),
-            _rect(176, 250, 12, 44, STEEL, 3, LW_DETAIL),
-            _rect(212, 250, 12, 44, STEEL, 3, LW_DETAIL),
-            _ell(182, 296, 9, 6, STEEL, LW_DETAIL),
-            _ell(218, 296, 9, 6, STEEL, LW_DETAIL),
-            _highlight("M136,112 L172,234", 4, 0.5),
-        ]
-        return _label(out, label)
-    out = [
-        _path(
-            "M168,226 C120,196 104,160 104,130 C104,74 148,40 200,40 C252,40 296,74 296,130 "
-            "C296,160 280,196 232,226 Z",
-            paint,
-        ),  # fmt: skip
-        _rect(166, 222, 68, 22, _shade(fill.base, 0.15), 6, LW_DETAIL),
+#: Each bulb shape's glass outline, from the left of its neck round to the right (y 226).
+GLASS = {
+    "a60 standard": "M168,226 C120,196 104,160 104,130 C104,74 148,40 200,40 C252,40 296,74 "
+                    "296,130 C296,160 280,196 232,226 Z",
+    "candle": "M174,226 C164,186 160,154 168,124 C176,96 192,74 200,40 C208,74 224,96 232,124 "
+              "C240,154 236,186 226,226 Z",
+    "golf ball": "M178,226 C150,214 138,194 138,166 C138,132 166,106 200,106 C234,106 262,132 "
+                 "262,166 C262,194 250,214 222,226 Z",
+    "large globe": "M172,226 C98,210 80,168 80,124 C80,58 134,12 200,12 C266,12 320,58 320,124 "
+                   "C320,168 302,210 228,226 Z",
+    "reflector": "M172,226 L116,122 C110,108 118,92 134,88 C170,80 230,80 266,88 C282,92 290,108 "
+                 "284,122 L228,226 Z",
+    "edison filament": "M176,226 C152,192 130,152 134,108 C138,62 166,30 200,30 C234,30 262,62 "
+                       "266,108 C270,152 248,192 224,226 Z",
+}  # fmt: skip
+#: A filament bulb's clear glass shows its glowing filament.
+FILAMENT = "#e0a030"
+
+
+def _spot(paint: str, fill: Fill) -> list[str]:
+    """A GU10 spot: a cone with its lens up, on two pins."""
+    return [
+        _path("M110,100 L290,100 L240,250 L160,250 Z", paint),
+        _ell(200, 100, 90, 20, _tint(fill.base, 0.5), LW_DETAIL),
+        _rect(176, 250, 12, 44, STEEL, 3, LW_DETAIL),
+        _rect(212, 250, 12, 44, STEEL, 3, LW_DETAIL),
+        _ell(182, 296, 9, 6, STEEL, LW_DETAIL),
+        _ell(218, 296, 9, 6, STEEL, LW_DETAIL),
+        _highlight("M136,112 L172,234", 4, 0.5),
     ]
+
+
+def _base(bulb_fitting: str) -> list[str]:
+    """The metal base under the collar: a bayonet with two side pins, or a threaded screw."""
     if bulb_fitting == "b22":
-        out += [
+        return [
             _rect(170, 244, 60, 50, STEEL, 8, LW_DETAIL),
             _rect(158, 262, 12, 10, STEEL, 2, LW_DETAIL),
             _rect(230, 262, 12, 10, STEEL, 2, LW_DETAIL),
             _ell(186, 300, 7, 5, MESH, LW_DETAIL),
             _ell(214, 300, 7, 5, MESH, LW_DETAIL),
         ]
-    else:
-        half = 18 if bulb_fitting == "e14" else 30
-        out += [_rect(200 - half, 244, 2 * half, 56, STEEL, 8, LW_DETAIL)]
-        out += [_line(f"M{202 - half},{y} L{198 + half},{y + 6}", 1.6, "", _shade(STEEL, 0.4))
-                for y in (252, 266, 280)]  # fmt: skip
-        out += [_ell(200, 306, half / 2, 8, MESH, LW_DETAIL)]
-    out.append(_highlight("M132,140 C132,104 152,80 180,70", 5, 0.5))
+    half = 18 if bulb_fitting == "e14" else 30
+    out = [_rect(200 - half, 244, 2 * half, 56, STEEL, 8, LW_DETAIL)]
+    out += [_line(f"M{202 - half},{y} L{198 + half},{y + 6}", 1.6, "", _shade(STEEL, 0.4))
+            for y in (252, 266, 280)]  # fmt: skip
+    return [*out, _ell(200, 306, half / 2, 8, MESH, LW_DETAIL)]
+
+
+def smart_bulb(paint: str, fill: Fill, label: str | None, bulb_fitting: str = "e27",
+               bulb_shape: str = "a60 standard") -> list[str]:  # fmt: skip
+    """A smart bulb: its ``bulb_shape``'s glass outline on its ``bulb_fitting``'s base, or a
+    spot cone on two pins (a ``spot`` shape, or any bulb on ``gu10``)."""
+    if bulb_shape == "spot" or bulb_fitting == "gu10":
+        return _label(_spot(paint, fill), label)
+    glass = paint
+    if bulb_shape == "edison filament":
+        glass = _tint(fill.base, 0.75)
+    out = [_path(GLASS.get(bulb_shape, GLASS["a60 standard"]), glass)]
+    if bulb_shape == "edison filament":
+        out += [_line("M190,222 L190,120 L196,104 L204,104 L210,120 L210,222", 2.4, "", FILAMENT)]
+    if bulb_shape == "reflector":
+        out += [_ell(200, 90, 76, 12, _tint(fill.base, 0.4), LW_DETAIL)]
+    out += [_rect(166, 222, 68, 22, _shade(fill.base, 0.15), 6, LW_DETAIL), *_base(bulb_fitting)]
+    out.append(_highlight("M150,150 C150,124 160,108 180,100", 5, 0.5))
     return _label(out, label)
 
 
