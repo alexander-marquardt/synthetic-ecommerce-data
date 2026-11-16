@@ -56,7 +56,7 @@ starts before the build stops crashing at larger sizes. A row that does not grow
 | Department | Domain | Status | Today | Target | Growth | Family issue | Add first: what the retailers carry and the catalogue lacks or has thinly |
 |---|---|---|---:|---:|---:|---|---|
 | Electronics | retail | existing | 1,166 | 14,000 | 12,834 | gen#956 | headphones and speakers (23 earbuds today), TVs by size and soundbars, smart home (plugs, bulbs, doorbell cameras), video-game controllers and headsets, printers and ink, wearables, power banks, webcams |
-| Beauty | retail | existing | 2,589 | 14,000 | 11,411 | gen#957 | hair care (24 shampoos today), hair dryers and straighteners, oral care, shaving and grooming, deodorant, skincare beyond creams (cleansers, serums), eye make-up (26 today), fragrance (82 today), nails |
+| Beauty | retail | existing | 2,589 | 14,000 | 11,411 | gen#957 | hair care (slice 1: dryers, straighteners, hairbrushes, wider shampoo and conditioner, [beauty-hair-957.md](retail-prototype/beauty-hair-957.md)), oral care, shaving and grooming, deodorant, skincare beyond creams (cleansers, serums), eye make-up (26 today), fragrance (82 today), nails |
 | Sports & outdoors | retail | existing | 1,093 | 11,000 | 9,907 | gen#959 | fishing, golf, cardio machines and weights, team-sport balls and gear, racket sports, hiking packs, coolers and bottles, bike lights and locks, winter sports |
 | Toys | retail | existing | 1,464 | 11,000 | 9,536 | gen#960 | board games and puzzles (10 board games today), action figures, dolls in depth, building sets (89 today), arts and crafts (38 today), remote-control vehicles, learning toys, trampolines and swings |
 | Garden | retail | existing | 827 | 9,000 | 8,173 | gen#961 | patio furniture in depth, planters and pots, hand tools, seeds and bulbs, outdoor lighting, soil and compost, weed and pest control, bird care, grill accessories |
@@ -68,7 +68,7 @@ starts before the build stops crashing at larger sizes. A row that does not grow
 | Pets | retail | new | 0 | 7,000 | 7,000 | gen#967 | dog and cat food, treats, cat litter, toys, beds and crates, leashes and collars, grooming, aquarium and small-animal supplies |
 | Health | retail | existing | 0 | 5,000 | 5,000 | gen#968 | vitamins and supplements, first aid, thermometers and blood-pressure monitors, eye care, incontinence, mobility aids; over-the-counter only, invented brands, no medical claims |
 | Office & school | retail | existing | 0 | 4,500 | 4,500 | gen#969 | pens and pencils, paper and notebooks, binders and folders, backpacks, desk accessories, calculators, art supplies |
-| Automotive | retail | new | 0 | 2,000 | 2,000 | gen#970 | car wash and wax, wiper blades, motor oil and fluids, phone mounts, seat covers and floor mats, jump starters, tire inflators |
+| Automotive | retail | existing | 0 | 2,000 | 2,000 | gen#970 | car wash and wax, wiper blades, motor oil and fluids, phone mounts, seat covers and floor mats, jump starters, tire inflators |
 | Hardware | industrial | existing | 73,436 | 75,000 | 1,564 | gen#958 | home hardware only: picture hanging, hooks, wall anchors, door and cabinet knobs and hinges, shelf brackets, household fastener assortments |
 | Tools | industrial | existing | 58,147 | 59,500 | 1,353 | gen#971 | homeowner tools only: tape measures, levels, utility knives, stud finders, household tool sets |
 | Workshop & safety | industrial | existing | 413 | 413 | 0 | none | none |

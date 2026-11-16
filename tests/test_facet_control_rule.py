@@ -491,9 +491,11 @@ RETIRED_TERMS_CAP = 25
 #: attribute, once the tenth, is not published any more (#497). An ER collet's
 #: Grip Range (#831) is one more: 26 clamping ranges over 53 product-value
 #: pairs on the default build (0.49), each repeated across the makers' lines.
-#: Stud finders (#971) brought the eleventh, the shared Style: their Edge
-#: Finding, Center Finding and Magnetic took it from 25 values to 28, over
-#: 214 products on the default build (0.13).
+#: Style is one more (#958): the cabinet knobs' four styles (round, mushroom,
+#: square, drop ring) take its distinct values past the retired cap of 25, and
+#: they repeat across the makers' lines, so the relative rule offers it.
+#: Stud finders (#971) repeat it: their Edge Finding, Center Finding and
+#: Magnetic add three values to it.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
