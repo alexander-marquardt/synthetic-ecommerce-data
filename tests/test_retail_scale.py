@@ -918,20 +918,10 @@ def styles_by_department(records: list[dict[str, Any]]) -> collections.Counter[s
     return collections.Counter(scale._department(r) for r in scale.derivable(records))
 
 
-#: Departments still being built over several slices, held to the floor once the last slice
-#: lands: Office & Stationery is slice 1 of 3 of gen#969 (pens, pencils, spiral notebooks), and
-#: slice 3 removes it from this set.
-FLOOR_EXEMPT = {"Office & Stationery"}
-
-
 def starved(styles: collections.Counter[str]) -> dict[str, int]:
     """The departments under ``breadth_rows.DEPARTMENT_FLOOR``, with their counts. Each is
     held to the floor alone, so another department's growth never moves it."""
-    return {
-        d: n
-        for d, n in sorted(styles.items())
-        if n < breadth_rows.DEPARTMENT_FLOOR and d not in FLOOR_EXEMPT
-    }
+    return {d: n for d, n in sorted(styles.items()) if n < breadth_rows.DEPARTMENT_FLOOR}
 
 
 #: The lowest value ``breadth_rows.DEPARTMENT_FLOOR`` may take (gen#234). The floor is the only

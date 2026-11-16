@@ -12,6 +12,11 @@
  "anti_seize_compounds": {
   "Container size": "Container Size"
  },
+ "bar_stock_hex": {
+  "Material grade": "Material Grade",
+  "Measurement system": "Measurement System",
+  "Width across flats": "Width Across Flats"
+ },
  "bar_stock_round": {
   "Material grade": "Material Grade",
   "Measurement system": "Measurement System"
@@ -65,6 +70,9 @@
   "Flange thickness": "Flange Thickness",
   "Measurement system": "Measurement System",
   "Outside dia.": "Outside Dia."
+ },
+ "cabinet_knobs": {
+  "Measurement system": "Measurement System"
  },
  "cantilever_racks": {
   "Rated load": "Rated Load"
