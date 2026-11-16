@@ -82,6 +82,8 @@ MOVED = {
     # a fishing reel's size and a golf club's hand (gen#959), declared by their specs from the start
     "fishing_reel": [Option("reel_size", "reel_size", "Reel size")],
     "golf_club": [Option("handedness", "handedness", "Handedness")],
+    # a wiper blade's length in inches, the SKU axis (gen#970)
+    "wiper_blade": [Option("blade_length_in", "blade_length", "Blade length", "INH")],
     # a diaper's size, Size 1 to Size 6 (#965)
     "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
 }
