@@ -12,7 +12,9 @@ green check does not show it, so this file pins:
   oracle written here, apart from the selector), and every mutation row's file selects
   ``tests/test_mutation_bed.py``;
 * ``plan``: disjoint shards whose union is the selection, no range meaning every file;
-* the tables: ``SMOKE``, ``FULL_RUN`` and ``CONTENT_INSENSITIVE`` name files that exist.
+* the tables: ``SMOKE``, ``FULL_RUN`` and ``SELECTED_ONLY_BY`` name files that exist, and the
+  merge-script tests of ``SELECTED_ONLY_BY`` are selected by the merge path and by no product
+  change (#1035).
 
 It times nothing.
 """
@@ -56,8 +58,8 @@ def _tree(tmp_path: Path, files: dict[str, str]) -> ci_select.Tree:
     return ci_select.Tree(tmp_path)
 
 
-def _picked(tree: ci_select.Tree, *changed: str, modified: tuple[str, ...] = ()) -> list[str]:
-    return ci_select.select(list(changed), tree, modified=set(modified))[0]
+def _picked(tree: ci_select.Tree, *changed: str) -> list[str]:
+    return ci_select.select(list(changed), tree)[0]
 
 
 # --- each rule, on a throwaway tree --------------------------------------------------------
@@ -342,23 +344,27 @@ def test_a_deleted_module_still_named_by_a_test_selects_it(tmp_path: Path) -> No
     assert _picked(tree, "src/retired_module.py") == ["tests/test_gone.py"]
 
 
-def test_a_modified_golden_file_does_not_select_a_content_insensitive_test(tmp_path: Path) -> None:
-    name = next(iter(ci_select.CONTENT_INSENSITIVE), None)
-    assert name is not None, "CONTENT_INSENSITIVE names at least one test"
+def test_a_test_selected_only_by_its_paths_ignores_imports_scans_and_mentions(
+    tmp_path: Path,
+) -> None:
+    name, listed = next(iter(ci_select.SELECTED_ONLY_BY.items()))
+    script = next(p for p in listed if not p.endswith("/") and p != name)
     tree = _tree(
         tmp_path,
         {
+            "src/m.py": "M = 1\n",
             "golden-retail/stats.json": "{}\n",
-            name: 'P = "golden-retail/stats.json"\n',
-            "tests/test_reads_it.py": 'P = "golden-retail/stats.json"\n',
+            script: "S = 1\n",
+            name: 'import m\nP = "golden-retail/stats.json"\nsubprocess.run(["git", "ls-files"])\n',
+            "tests/test_reads_it.py": 'import m\nP = "golden-retail/stats.json"\n',
         },
     )
-    assert _picked(tree, "golden-retail/stats.json", modified=("golden-retail/stats.json",)) == [
-        "tests/test_reads_it.py"
-    ]
-    assert name in _picked(tree, "golden-retail/stats.json"), (
-        "an added or deleted file still selects it"
-    )
+    assert name not in _picked(tree, "src/m.py"), "an import does not select it"
+    assert name not in _picked(tree, "golden-retail/stats.json"), "a mention does not select it"
+    assert _picked(tree, "src/m.py") == ["tests/test_reads_it.py"]
+    assert name in _picked(tree, script), f"a change to {script} selects it"
+    assert name in _picked(tree, name), "a change to the file itself selects it"
+    assert name in _picked(tree, "uv.lock"), "a full run still holds it"
 
 
 def test_a_change_to_the_workflow_the_lock_or_a_shared_fixture_selects_every_test(
@@ -449,6 +455,8 @@ def test_every_test_that_imports_a_module_is_selected_when_that_module_changes(
         for module in sorted(_import_closure(test, cache)):
             if module.startswith(("vendor/", "tests/conftest")) or module == test:
                 continue
+            if test in ci_select.SELECTED_ONLY_BY:
+                continue  # selected by its listed paths alone: the merge-path tests below
             if module not in selected:
                 selected[module] = ci_select.select([module], real)[0]
             chosen = selected[module]
@@ -591,10 +599,14 @@ def test_the_tables_name_files_that_exist() -> None:
         "scripts/ci_shards.py",
     ):
         assert must in ci_select.FULL_RUN, f"a change to {must} must run every test"
-    for name, prefixes in ci_select.CONTENT_INSENSITIVE.items():
-        assert (REPO / name).is_file(), f"CONTENT_INSENSITIVE names {name}"
-        assert name in ci_shards.SPLIT_FILES, f"{name} is too heavy to be listed unless it is split"
-        assert prefixes, f"{name} lists nothing it is insensitive to"
+    for name, paths in ci_select.SELECTED_ONLY_BY.items():
+        assert (REPO / name).is_file(), f"SELECTED_ONLY_BY names {name}"
+        assert name in paths, f"a change to {name} must select it"
+        for path in paths:
+            target = REPO / path
+            assert target.is_dir() if path.endswith("/") else target.is_file(), (
+                f"SELECTED_ONLY_BY lists {path} for {name}, which does not exist"
+            )
 
 
 # --- the plan -------------------------------------------------------------------------------
@@ -679,16 +691,16 @@ def test_no_range_is_every_test_file_on_every_shard_of_the_matrix(
     assert ci_select.selection_for_range("", "", root) is None
 
 
-def test_a_range_that_only_modifies_a_golden_file_skips_the_content_insensitive_test(
+def test_a_range_selects_a_test_of_selected_only_by_only_when_it_changes_a_listed_path(
     tmp_path: Path,
 ) -> None:
-    name = next(iter(ci_select.CONTENT_INSENSITIVE), None)
-    assert name is not None, "CONTENT_INSENSITIVE names at least one test"
+    name, listed = next(iter(ci_select.SELECTED_ONLY_BY.items()))
+    script = next(p for p in listed if not p.endswith("/") and p != name)
     _write(
         tmp_path,
         {
             "golden-retail/stats.json": "{}\n",
-            "golden-retail/other.json": "{}\n",
+            script: "S = 1\n",
             name: 'P = "golden-retail/stats.json"\n',
             "tests/test_reads_it.py": 'P = "golden-retail/stats.json"\n',
         },
@@ -697,18 +709,16 @@ def test_a_range_that_only_modifies_a_golden_file_skips_the_content_insensitive_
     _git(tmp_path, "add", "-A")
     _git(tmp_path, "commit", "-q", "-m", "base")
     base = _git(tmp_path, "rev-parse", "HEAD")
-    (tmp_path / "golden-retail/stats.json").write_text('{"a": 1}\n', encoding="utf-8")
-    _git(tmp_path, "commit", "-q", "-am", "regenerate")
-    modified_head = _git(tmp_path, "rev-parse", "HEAD")
-    assert ci_select.selection_for_range(base, modified_head, tmp_path) == [
-        "tests/test_reads_it.py"
-    ]
     (tmp_path / "golden-retail/stats.json").unlink()
-    _git(tmp_path, "commit", "-q", "-am", "delete")
+    _git(tmp_path, "commit", "-q", "-am", "delete a golden file")
+    golden_head = _git(tmp_path, "rev-parse", "HEAD")
+    assert ci_select.selection_for_range(base, golden_head, tmp_path) == ["tests/test_reads_it.py"]
+    (tmp_path / script).write_text("S = 2\n", encoding="utf-8")
+    _git(tmp_path, "commit", "-q", "-am", "change the script")
     selected = ci_select.selection_for_range(
-        modified_head, _git(tmp_path, "rev-parse", "HEAD"), tmp_path
+        golden_head, _git(tmp_path, "rev-parse", "HEAD"), tmp_path
     )
-    assert selected is not None and name in selected, "a deleted file still selects it"
+    assert selected is not None and name in selected, f"a change to {script} selects it"
 
 
 def test_an_unreadable_range_is_every_test_file(repo_with_change: tuple[Path, str, str]) -> None:
