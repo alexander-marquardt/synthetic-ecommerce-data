@@ -242,17 +242,15 @@ LEAF_RANKS = 40
 #: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
 #: the shares they give drift more than 3 points, which is the signal to recompute them. Beauty's
 #: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
-#: derived styles at 0.02503, against its 8%). Home's
-#: is recomputed for the sheet sets, pillows and food storage of gen#963 slice 2 (0.01009 times
-#: its 20% target over the 23.2% it reached). Food & Drink, Toys, Cleaning & Janitorial, Gifts
-#: and Garden are recomputed for the Toys of gen#960 slice 2 beside the Food & Drink of gen#964
-#: (each rate times its target over its reached share, iterated: Food & Drink had reached 5.8%
-#: of a 3.3% target, Gifts 3.3% of 1.9%, Garden 3.5% of 2.4%, Cleaning 2.3% of 1.6%, Toys 3.4%
-#: of 3.0%, which took Clothing to 40.4% of its 44%).
+#: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
+#: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
+#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
+#: blenders of slice 1, whose Home styles took its share from 41.2% to 40.9%, past the 3
+#: points (it is now 41.1%, against its 44%).
 DEPARTMENT_RATE = {
-    "Clothing": 0.01227, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
-    "Beauty": 0.01665, "Food & Drink": 0.0034, "Toys": 0.004291,
-    "Cleaning & Janitorial": 0.005569, "Gifts": 0.002504, "Garden": 0.006686,
+    "Clothing": 0.0124, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
+    "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
+    "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
     "Footwear": 0.01799,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
