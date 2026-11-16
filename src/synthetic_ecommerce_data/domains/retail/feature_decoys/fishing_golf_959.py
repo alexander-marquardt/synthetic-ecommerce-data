@@ -36,3 +36,9 @@ def word_rows(d):
         d(_FIRST + i, kind, title, desc, color, query, noun, "department", cross=cross, target=target)
         for i, (kind, title, desc, color, query, noun, cross, target) in enumerate(rows)
     )
+
+
+def ids() -> frozenset[str]:
+    """Every product id of these decoys (``PLT-DY9591`` to ``PLT-DY9602``): a check pinned to
+    the types they share a type with leaves them out by these, not by a prefix."""
+    return frozenset(word_rows(lambda n, *_, **__: f"PLT-DY{n:02d}"))
