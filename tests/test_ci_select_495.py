@@ -527,6 +527,49 @@ def test_a_documentation_change_selects_a_small_part_of_the_suite(real: ci_selec
     assert share < 0.2, f"a document change selects {share:.0%} of the suite's seconds: {chosen}"
 
 
+#: The tests of ``scripts/merge_pr.sh`` that build a throwaway origin per case: 76 of the
+#: suite's 257 minutes (#1035).
+_MERGE_SCRIPT_TESTS = ("tests/test_merge_pr.py", "tests/test_merge_pr_github_ci_348.py")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        # what PR #983 (an Automotive department) changed, which selected both (#1035)
+        "src/synthetic_ecommerce_data/core/departments.py",
+        "src/synthetic_ecommerce_data/core/price.py",
+        "src/synthetic_ecommerce_data/generate_cli.py",
+        "golden-retail/stats.json",
+        "golden-catalog/stats.json",
+    ],
+)
+def test_a_product_change_does_not_select_the_merge_script_tests(
+    real: ci_select.Tree, path: str
+) -> None:
+    chosen = set(ci_select.select([path], real)[0])
+    assert not chosen & set(_MERGE_SCRIPT_TESTS), (
+        f"a change to {path} selects {sorted(chosen & set(_MERGE_SCRIPT_TESTS))}"
+    )
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "scripts/merge_pr.sh",
+        "scripts/merge_pr/tree.sh",
+        "scripts/local_ci_jobs.py",
+        "scripts/local_ci_guard.py",
+        "scripts/measure_pins.py",
+        "tests/test_merge_pr.py",
+    ],
+)
+def test_a_change_to_the_merge_path_selects_the_merge_script_tests(
+    real: ci_select.Tree, path: str
+) -> None:
+    chosen = ci_select.select([path], real)[0]
+    assert set(_MERGE_SCRIPT_TESTS) <= set(chosen), path
+
+
 def test_the_tables_name_files_that_exist() -> None:
     for name in ci_select.SMOKE:
         assert (REPO / name).is_file(), f"SMOKE names {name}, which is not a file"
