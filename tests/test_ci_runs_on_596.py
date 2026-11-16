@@ -5,7 +5,9 @@ agent VM. The variable gate lets the runner be switched off with no commit.
 
 A push to main may ask for the runners reserved for it (agent-ops#189): the ``synth-ci-main`` label
 that only the last slots of the VM register with, so a merge's run does not queue behind the pull
-requests' jobs. Only a ``push`` asks for it, and only while ``SYNTH_CI_MAIN_RUNNER`` is ``true``.
+requests' jobs. A ``push`` asks for it, and so does the merge train's batch run (a
+``workflow_dispatch`` on a ``ci/batch-*`` ref, synthetic-ecommerce-data#1031), only while
+``SYNTH_CI_MAIN_RUNNER`` is ``true``. merge_pr.sh's dispatch on ``ci/merge-<N>`` keeps the pool.
 """
 import json
 import re
@@ -20,13 +22,14 @@ MAIN = ["self-hosted", "synth-ci-main"]
 RUNS_ON = (
     "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || "
     "github.event.pull_request.head.repo.full_name == github.repository) && "
-    "fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
+    "fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && "
+    "startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
     "'[\"self-hosted\",\"synth-ci-main\"]' || '[\"self-hosted\",\"synth-ci\"]') "
     "|| 'ubuntu-latest' }}"
 )
 
 
-def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r"):
+def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r", ref="main"):
     """What the expression gives: GitHub's ``&&`` and ``||`` return an operand, as Python's do."""
     body = re.fullmatch(r"\$\{\{ (.*) \}\}", RUNS_ON).group(1)
     for gh, py in [
@@ -35,13 +38,17 @@ def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r"):
         (r"github\.event\.pull_request\.head\.repo\.full_name", "HEAD"),
         (r"github\.repository", "REPO"),
         (r"github\.event_name", "EVENT"),
+        (r"github\.ref_name", "REF_NAME"),
         (r"fromJSON", "json.loads"),
+        (r"startsWith", "starts_with"),
         (r"&&", " and "),
         (r"\|\|", " or "),
     ]:
         body = re.sub(gh, py, body)
     names = {"json": json, "SELF_HOSTED": self_hosted, "MAIN": main, "HEAD": head, "REPO": repo}
-    return eval(body, {**names, "EVENT": event})
+    # GitHub's startsWith ignores case; the refs here are lower case.
+    names["starts_with"] = lambda s, prefix: s.lower().startswith(prefix.lower())
+    return eval(body, {**names, "EVENT": event, "REF_NAME": ref})
 
 
 def test_every_job_runs_on_the_one_expression():
@@ -64,11 +71,22 @@ def test_the_expression_keeps_fork_pull_requests_on_hosted_runners():
     ("push", {"main": "false"}, POOL),                         # the variable is the switch
     ("push", {"main": ""}, POOL),                              # unset
     ("pull_request", {}, POOL),                                # a pull request never asks for it
-    ("workflow_dispatch", {}, POOL),                           # merge_pr.sh --github-ci runs here
+    ("workflow_dispatch", {"ref": "ci/merge-12"}, POOL),       # merge_pr.sh --github-ci runs here
+    ("workflow_dispatch", {}, POOL),                           # a dispatch on main by hand
+    # the merge train's batch run (agent-ops coordinator/gen_train.sh, #1031)
+    ("workflow_dispatch", {"ref": "ci/batch-gen_train"}, MAIN),
+    ("workflow_dispatch", {"ref": "ci/batch-gen_train", "main": "false"}, POOL),
+    ("workflow_dispatch", {"ref": "ci/batch-gen_train", "main": ""}, POOL),
+    ("workflow_dispatch", {"ref": "ci/batch-gen_train", "self_hosted": "false"}, "ubuntu-latest"),
+    ("pull_request", {"ref": "ci/batch-gen_train"}, POOL),     # only a dispatch on the ref asks
+    ("push", {"ref": "feature/ci/batch-x"}, MAIN),             # a push asks whatever its ref
+    ("workflow_dispatch", {"ref": "feature/ci/batch-x"}, POOL),  # the prefix starts the ref
     ("push", {"self_hosted": "false"}, "ubuntu-latest"),       # the #596 switch still wins
     ("pull_request", {"self_hosted": "false"}, "ubuntu-latest"),
 ])
-def test_only_a_push_with_the_variable_set_asks_for_the_reserved_runners(event, kw, want):
+def test_only_a_push_or_a_batch_dispatch_with_the_variable_set_asks_for_the_reserved_runners(
+    event, kw, want
+):
     assert runs_on(event, **kw) == want
 
 
