@@ -85,38 +85,38 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build). Slice 2's
 #: range words follow Health's Ledwick Botanics in the scale deal (gen#968), as slice 1's did
-#: there, and the first-aid and monitor brands of gen#968 slice 3 shift the draw again; the
-#: ids, SKU counts and prices are unchanged (gen#1024).
+#: there, and the first-aid and monitor types of gen#968 slice 2 with the hair types of gen#957
+#: shift the draw again; the ids, SKU counts and prices are unchanged (gen#1024).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
-        ("BRD-02FD05FA1851", "Walbeck Bold Ballpoint Pens", 9, 4.65),
-        ("BRD-0AEED8938A93", "Caldlow Bold Rollerball Pens", 18, 5.5),
-        ("BRD-1154563F036E", "Noring Fine Rollerball Pens", 18, 5.5),
+        ("BRD-02FD05FA1851", "Ingmoor Bold Ballpoint Pens", 9, 4.65),
+        ("BRD-0AEED8938A93", "Marcliffe Bold Rollerball Pens", 18, 5.5),
+        ("BRD-1154563F036E", "Tidfield Fine Rollerball Pens", 18, 5.5),
     ],
     "Pencil": [
-        ("BRD-00177A9CA748", "Yeldborough 2B Pencils with Eraser", 15, 1.9),
-        ("BRD-14C1085C8C1C", "Merdale 2H Pencils with Eraser", 18, 2.05),
-        ("BRD-16AF6C00FB2D", "Dunhurst 4B Drawing Pencils", 18, 2.9),
+        ("BRD-00177A9CA748", "Kenwood 2B Pencils with Eraser", 15, 1.9),
+        ("BRD-14C1085C8C1C", "Caldborough 2H Pencils with Eraser", 18, 2.05),
+        ("BRD-16AF6C00FB2D", "Roswell 4B Drawing Pencils", 18, 2.9),
     ],
     "Spiral Notebook": [
-        ("BRD-082994CBD41A", "Chellow A5 Dotted Spiral Notebook", 6, 2.9),
-        ("BRD-15F48D958E7F", "Wathshaw A5 Lined Spiral Notebook", 6, 3.95),
-        ("BRD-29026ABE797F", "Elmcroft B5 Squared Spiral Notebook", 9, 3.4),
+        ("BRD-082994CBD41A", "Thurridge A5 Dotted Spiral Notebook", 6, 2.9),
+        ("BRD-15F48D958E7F", "Irethorpe A5 Lined Spiral Notebook", 6, 3.95),
+        ("BRD-29026ABE797F", "Rosness B5 Squared Spiral Notebook", 9, 3.4),
     ],
     "Ring Binder": [
-        ("BRD-07E9D725EAA2", "Pilhaugh A4 Slanted Ring Binder", 18, 4.25),
-        ("BRD-128CB3EE9170", "Thirshaw A4 Slanted Ring Binder", 6, 4.8),
-        ("BRD-14A4E5C2F585", "Woldsside A5 Slanted Ring Binder", 12, 2.65),
+        ("BRD-07E9D725EAA2", "Rushthwaite A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Fairwell A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Tidthwaite A5 Slanted Ring Binder", 12, 2.65),
     ],
     "Document Folder": [
-        ("BRD-04A14787D567", "Cressgate A5 Zip Document Folders", 6, 2.95),
-        ("BRD-08B37DC9ED90", "Lamstead A5 Elastic Document Folders", 18, 4.2),
-        ("BRD-0DCF8456C313", "Brockbury Letter Zip Document Folders", 6, 5.5),
+        ("BRD-04A14787D567", "Lincroft A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Eskfell A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Hazingham Letter Zip Document Folders", 6, 5.5),
     ],
     "Calculator": [
-        ("BRD-03D4351FCA63", "Walbeck 12 Digit Desktop Calculator", 18, 10.0),
-        ("BRD-048533587DC8", "Clevescar 8 Digit Basic Calculator", 18, 4.5),
-        ("BRD-1FFE28C571F6", "Wykecombe 12 Digit Basic Calculator", 18, 4.05),
+        ("BRD-03D4351FCA63", "Ingmoor 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Kelford 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Wykefell 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 
