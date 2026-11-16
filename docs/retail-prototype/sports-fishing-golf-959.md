@@ -34,12 +34,17 @@ the letters the combined loader reads); a club's handedness is a fit, not a size
 **Breadth.** These are the department's first derivable types: the scaled build draws more styles
 from each by the values its title shows (a rod's power, blank material and kind; a reel's body
 material, bearings and kind), so the department grows without a hand-written row per style. The
-earlier Sports & Outdoors types stay out of the derivation.
+earlier Sports & Outdoors types stay out of the derivation. The department draws at a rate of its
+own in `scale.DEPARTMENT_RATE` (its target share over its summed leaf weights), and Food & Drink's
+rate, the furthest over its target, is recomputed the same way, so Clothing keeps its share within
+3 points of 44% (`test_retail_stable_ids_626`); every other department's rate is unchanged.
 
 **Decoys.** Each type carries two class-8 text-match decoys in
 `feature_decoys/fishing_golf_959.py`: a product of another department whose title holds the
 shopper's words, such as a `Fishing Rod Print T-Shirt` or a `Golf Club Print Beach Towel`. No
-title or description names a color.
+title or description names a color. Like every decoy, none is the exemplar an apparel decoy
+clones (`decoy_apparel.build`), and `fishing_golf_959.ids()` names them for a check that pins the
+types they share, such as the kids' films neighbours.
 
 **Counts.** A golf ball's `2-Piece` is how the ball is built, not a count:
 `pack_copies.PIECE_BUILT` leaves it out of the title's count, so its packs of 3, 12 and 24 are
