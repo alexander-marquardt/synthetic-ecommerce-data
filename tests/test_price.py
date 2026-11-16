@@ -1058,6 +1058,7 @@ NOT_MEASURED = frozenset(
         *hammers.KINDS,
         *plain_screws.KINDS,
         "key_stock",
+        "bar_stock_hex",
         "bar_stock_round",
         "bar_stock_square",
         "er_collets",
@@ -1067,6 +1068,9 @@ NOT_MEASURED = frozenset(
         "lag_screws",
         "flange_nuts",
         "bronze_sleeve_bushings",
+        "levels",
+        "picture_hangers",
+        "cabinet_knobs",
         "tape_measures",
         *tabletype.tables(),
     }
