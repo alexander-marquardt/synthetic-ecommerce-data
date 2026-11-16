@@ -491,6 +491,9 @@ RETIRED_TERMS_CAP = 25
 #: attribute, once the tenth, is not published any more (#497). An ER collet's
 #: Grip Range (#831) is one more: 26 clamping ranges over 53 product-value
 #: pairs on the default build (0.49), each repeated across the makers' lines.
+#: Style is one more (#958): the cabinet knobs' four styles (round, mushroom,
+#: square, drop ring) take its distinct values past the retired cap of 25, and
+#: they repeat across the makers' lines, so the relative rule offers it.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
@@ -501,6 +504,7 @@ NEWLY_OFFERED = frozenset(
         "material",
         "sizes_included",
         "standards",
+        "style",
         "thread_size",
         "type",
     }

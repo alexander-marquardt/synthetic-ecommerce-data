@@ -240,13 +240,15 @@ LEAF_RANKS = 40
 #: templates there are, so adding one adds its styles and moves no other (gen#626). The figures
 #: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
 #: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
-#: the shares they give drift more than 3 points, which is the signal to recompute them. Home's
-#: is recomputed for the sheet sets, pillows and food storage of gen#963 slice 2 (0.01009 times
-#: its 20% target over the 23.2% it reached). Clothing's is recomputed for the Toys breadth
-#: types of gen#960 slice 1 (0.01227 times its 44% target over the 40.3% it reached, #995).
+#: the shares they give drift more than 3 points, which is the signal to recompute them. Beauty's
+#: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
+#: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
+#: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
+#: Clothing's is recomputed for the Toys breadth types of gen#960 slice 1 (0.01227 times its 44%
+#: target over the 40.3% it reached, #995).
 DEPARTMENT_RATE = {
     "Clothing": 0.01341, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
-    "Beauty": 0.02503, "Food & Drink": 0.006468, "Toys": 0.005199,
+    "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
     "Footwear": 0.01799,
 }  # fmt: skip
