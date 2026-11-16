@@ -45,6 +45,7 @@ QUOTING = (
     "README.md",
     "docs/retail-prototype.md",
     *PROTOTYPE_PAGES,
+    "docs/data-model.md",
     "docs/drawings.md",
     "docs/adding-a-type.md",
     "src/synthetic_ecommerce_data/prism/derive.py",
@@ -100,7 +101,8 @@ _UNIT_AFTER = "|".join(
 
 def _count(number: int) -> str:
     """A count spelled as a bare number, unless a unit marker follows it: seed 20260918
-    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's ``1,070 lbf`` is a load (#50).
+    builds 1,070 ``screw_hex_head`` SKUs at 100K, and the data model page's ``1,070 lbf`` is a
+    load (#50).
 
     A word unit ends at a non-letter, so ``1,070 lbs`` is still a count. The inch mark
     counts only right after the number and when no ``"`` opens before it, so a quoted
@@ -178,15 +180,16 @@ def test_no_doc_restates_a_figure_the_build_measures(stats: dict, path: str) -> 
 def test_a_published_measurement_is_not_read_as_a_count(
     stats: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Seed 20260918 builds 1,070 ``screw_hex_head`` SKUs at 100K, and the README's
-    ``1,070 lbf`` is a load, not that count (#50). The count's own spellings stay refused."""
+    """Seed 20260918 builds 1,070 ``screw_hex_head`` SKUs at 100K, and the data model page's
+    ``1,070 lbf`` (the README's until #1034) is a load, not that count (#50). The count's own
+    spellings stay refused."""
     builds = json.loads(BUILDS_FILE.read_text("utf-8"))
     builds["hundred_k"]["skus_by_type"]["screw_hex_head"] = 1070
     moved = tmp_path / "measured_builds.json"
     moved.write_text(json.dumps(builds), "utf-8")
     monkeypatch.setattr(f"{__name__}.BUILDS_FILE", moved)
     pattern = _quotations(stats)["hundred_k.skus_by_type.screw_hex_head"]
-    readme = (ROOT / "README.md").read_text("utf-8")
+    readme = (ROOT / "docs" / "data-model.md").read_text("utf-8")
     assert "`1,070 lbf`" in readme
     assert not re.search(pattern, readme)
     for unit in ("lbf", "lb", "mm", "ft", "oz", "Degrees", "in."):
