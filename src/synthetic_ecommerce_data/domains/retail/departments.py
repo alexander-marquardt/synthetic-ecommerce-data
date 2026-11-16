@@ -30,6 +30,7 @@ RETAIL = (
     "Sports & Outdoors",
     "Electronics",
     "Health",
+    "Automotive",
 )
 SHARED = (
     "Workwear & PPE",
