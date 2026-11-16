@@ -15,8 +15,20 @@ from dataclasses import replace
 from synthetic_ecommerce_data.domains.retail import (
     kit_hair,  # noqa: F401 -- registers hair_dryer, hair_straightener, hairbrush
 )
+from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.type_registry import Row, cw
+
+#: The hair tools' brands and who makes them. They are registered here, where the rows are
+#: declared, so a row's ``doc()`` knows its brand's owner without a prior ``TypeSpec.docs()``
+#: call (a CI worker that loads the ceiling build never makes one). A brand already in
+#: ``OWNERS`` keeps its owner, as ``TypeSpec.docs()`` does.
+OWNED = (
+    ("Hollin Hair", "third_party"), ("Veilmoor", "third_party"), ("Fenmere", "third_party"),
+    ("Aldermist", "third_party"), ("Pearlbrook", "third_party"),
+    ("Thornlea Skin", "third_party"), ("Sorrel & Salt", "third_party"),
+)  # fmt: skip
+OWNERS.update({b: o for b, o in OWNED if b not in OWNERS})
 
 DEPARTMENT = "Beauty"
 DRYERS = (DEPARTMENT, "Hair Care", "Hair Dryers")
