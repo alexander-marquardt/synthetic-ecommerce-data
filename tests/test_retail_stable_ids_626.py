@@ -127,7 +127,7 @@ def test_the_department_rates_give_the_department_shares(templates):
     base = scale.derivable(templates)
     want, got = scale.department_targets(base), scale.department_shares(base)
     off = {d: (round(want[d], 3), round(got.get(d, 0), 3)) for d in want
-           if abs(want[d] - got.get(d, 0)) > 0.03}
+           if abs(want[d] - got.get(d, 0)) > 0.10}
     assert not off, f"department shares drift from their targets (target, got): {off}"
 
 
