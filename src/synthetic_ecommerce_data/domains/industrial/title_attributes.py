@@ -36,7 +36,7 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     "ball_stock_rubber": (("Diameter", "Dia"),),
     "ball_valves": (("Size", "Size"),),
     "band_saw_blades": (("Length", "L"),),
-    "bar_stock_hex": (("Size", "Size"),),
+    "bar_stock_hex": (("Width Across Flats", "A/F"),),
     "bar_stock_round": (("Diameter", "Dia"),),
     "bar_stock_square": (("Width", "W"),),
     "bearing_greases": (("Container Size", "Size"),),
@@ -67,6 +67,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Length", "L"),
     ),
     "c_clamps": (("Size", "Size"),),
+    "cabinet_knobs": (
+        ("Diameter", "Dia"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "cantilever_racks": (("Rated Load", "Load"),),
     "cap_nuts_acorn": (("Thread Size", "Thread"),),
     "carriage_bolts": (
@@ -220,6 +225,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Diameter", "Dia"),
         ("Material", None),
         ("Length", "L"),
+    ),
+    "levels": (
+        ("Length", "L"),
+        ("Shape", None),
+        ("Color", None),
     ),
     "lock_nuts_nylon_insert": (
         ("Material", None),
