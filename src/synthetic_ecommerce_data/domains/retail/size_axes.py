@@ -48,6 +48,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Batting Helmet": ("head_cm",),
     "Belt": ("waist_in",),
     "Bike Helmet": ("size",),
+    "Hairbrush": ("size",),
     "Bracelet": ("size",),
     "Gloves": ("glove_size_letter",),
     "Hat": ("hat_size",),
@@ -99,6 +100,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mattress Topper": ("bed_size", "size_eu", "size_uk"),
     "Pillow": ("size_eu", "size_uk"),
     "Pillowcase": ("size_eu", "size_uk"),
+    "Sheet Set": ("bed_size",),
     "Sofa Bed": ("bed_size",),
     # Rugs, towels and what else is sold by its dimensions.
     "Bath Mat": ("width_cm", "length_cm"),
@@ -130,6 +132,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Desk Fan": ("blade_size_in",),
     "Frying Pan": ("diameter_cm",),
     "Garden Hose": ("length_m",),
+    "Bunting": ("length_m",),
     "Grass Trimmer": ("cutting_width_cm",),
     "Hedge Trimmer": ("blade_length_cm",),
     "Kitchen Knife": ("blade_length_cm",),
@@ -140,12 +143,19 @@ AXES: dict[str, tuple[str, ...]] = {
     "Laptop Sleeve": ("screen_size_in",),
     "Monitor": ("screen_size_in",),
     "TV": ("screen_size_in",),
+    # Baby gear (gen#965): a bottle is sold by what it holds.
+    "Baby Bottle": ("capacity_ml",),
 }
 
 #: The SKU keys that vary within a product and are not its size, and why.
 NOT_SIZES: dict[str, str] = {
+    "attachments": "what comes in the box with a hair dryer: the dryer is drawn the same",
+    "plate_width": "the width of a straightener's plates: the tool is drawn the same",
+    "blade_length_in": "a fit: the blade is cut to the car's wiper arm",
     "brightness_lm": "a rating",
     "cup_size": "a fit",
+    "dimensions": "a towel's cloth cut: the drawing is one towel",
+    "diaper_size": "a fit: the baby's weight band, on a pack drawn the same (gen#965)",
     "edition": "a kind of game",
     "fin_count": "the heater's drawing reads it",
     "finish": "a color",

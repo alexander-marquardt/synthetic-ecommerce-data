@@ -30,7 +30,9 @@ RETAIL = (
     "Garden",
     "Sports & outdoors",
     "Electronics",
+    "Health",
     "Office & school",
+    "Automotive",
 )
 
 #: The industrial supplier's departments: the maintainer's three (2026-10-13), first kept as

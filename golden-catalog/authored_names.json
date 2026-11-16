@@ -12,7 +12,16 @@
  "anti_seize_compounds": {
   "Container size": "Container Size"
  },
+ "bar_stock_hex": {
+  "Material grade": "Material Grade",
+  "Measurement system": "Measurement System",
+  "Width across flats": "Width Across Flats"
+ },
  "bar_stock_round": {
+  "Material grade": "Material Grade",
+  "Measurement system": "Measurement System"
+ },
+ "bar_stock_square": {
   "Material grade": "Material Grade",
   "Measurement system": "Measurement System"
  },
@@ -332,6 +341,9 @@
   "Threads per inch": "Threads per Inch",
   "Width across flats": "Width Across Flats"
  },
+ "levels": {
+  "Measurement system": "Measurement System"
+ },
  "lock_nuts_nylon_insert": {
   "Measurement system": "Measurement System",
   "Thread direction": "Thread Direction",
@@ -383,6 +395,10 @@
  },
  "orb_hydraulic_fittings": {
   "Thread size": "Thread Size"
+ },
+ "picture_hangers": {
+  "Load capacity": "Load Capacity",
+  "Measurement system": "Measurement System"
  },
  "pillow_block_bearings": {
   "Base to center height": "Base to Center Height",

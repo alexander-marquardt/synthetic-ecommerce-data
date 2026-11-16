@@ -36,9 +36,9 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     "ball_stock_rubber": (("Diameter", "Dia"),),
     "ball_valves": (("Size", "Size"),),
     "band_saw_blades": (("Length", "L"),),
-    "bar_stock_hex": (("Size", "Size"),),
+    "bar_stock_hex": (("Width Across Flats", "A/F"),),
     "bar_stock_round": (("Diameter", "Dia"),),
-    "bar_stock_square": (("Size", "Size"),),
+    "bar_stock_square": (("Width", "W"),),
     "bearing_greases": (("Container Size", "Size"),),
     "bearing_pullers": (("Maximum Size", "Max"),),
     "bearing_radial_ball": (
@@ -225,6 +225,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Material", None),
         ("Length", "L"),
     ),
+    "levels": (
+        ("Length", "L"),
+        ("Shape", None),
+        ("Color", None),
+    ),
     "lock_nuts_nylon_insert": (
         ("Material", None),
         ("Thread Size", "Thread"),
@@ -264,6 +269,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Units per Pack", "Pk"),
     ),
     "piloted_counterbores": (("Diameter", "Dia"),),
+    "picture_hangers": (
+        ("Style", None),
+        ("Load Capacity", "Load"),
+        ("Color", None),
+    ),
     "pin_pullers": (("Maximum Size", "Max"),),
     "pin_punch_sets": (("Piece Count", "Pc"),),
     "pneumatic_cut_off_tools": (("Diameter", "Dia"),),

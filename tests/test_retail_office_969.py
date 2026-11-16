@@ -1,12 +1,14 @@
-"""Office & school, slice 1 (gen#969): the department, with pens, pencils and spiral notebooks.
+"""Office & school, slices 1 and 2 (gen#969): the department, with pens, pencils, spiral
+notebooks, ring binders, document folders and calculators.
 
 The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
-drawn by :mod:`kit_office`. These checks hold the slice's Done-when: the ceiling build has at least
-1,400 SKUs under the department; each type's styles have unique ids, titles and twin keys; the
-rows and their drawings are the same on every call; and a golden slice pins each type's first
-derived styles, so a change that moves them shows here.
+drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,
+``document_folder.py``, ``calculator.py``). These checks hold the slices' Done-when: the ceiling
+build has at least 2,850 SKUs under the department; each type's styles have unique ids, titles
+and twin keys; the rows and their drawings are the same on every call; and a golden slice pins
+each type's first derived styles, so a change that moves them shows here.
 """
 
 from __future__ import annotations
@@ -19,10 +21,14 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, type_registry
 
-TYPES = ("Pen", "Pencil", "Spiral Notebook")
-KEYS = {"Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook"}
-#: The slice's floor at the ceiling build (the gate comment of gen#969).
-FLOOR = 1_400
+TYPES = ("Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator")
+KEYS = {
+    "Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook",
+    "Ring Binder": "ring_binder", "Document Folder": "document_folder", "Calculator": "calculator",
+}  # fmt: skip
+#: Slice 2's floor at the ceiling build (the gate comment of gen#969): 1,400 for slice 1, plus
+#: 1,450 for ring binders, document folders and calculators.
+FLOOR = 2_850
 
 
 @pytest.fixture(scope="module")
@@ -77,22 +83,39 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each type's first three derived styles by product id (seed 0, ceiling build).
+#: Each type's first three derived styles by product id (seed 0, ceiling build). Slice 2's
+#: range words follow Health's Ledwick Botanics in the scale deal (gen#968), as slice 1's did
+#: there; the ids, SKU counts and prices are unchanged (gen#1024).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
-        ("BRD-02FD05FA1851", "Kelfell Bold Ballpoint Pens", 9, 4.65),
-        ("BRD-0AEED8938A93", "Wesbury Bold Rollerball Pens", 18, 5.5),
-        ("BRD-1154563F036E", "Glenbank Fine Rollerball Pens", 18, 5.5),
+        ("BRD-02FD05FA1851", "Kirkmouth Bold Ballpoint Pens", 9, 4.65),
+        ("BRD-0AEED8938A93", "Morridge Bold Rollerball Pens", 18, 5.5),
+        ("BRD-1154563F036E", "Zenhaugh Fine Rollerball Pens", 18, 5.5),
     ],
     "Pencil": [
-        ("BRD-00177A9CA748", "Birkhaugh 2B Pencils with Eraser", 15, 1.9),
-        ("BRD-14C1085C8C1C", "Hamgarth 2H Pencils with Eraser", 18, 2.05),
-        ("BRD-16AF6C00FB2D", "Foxgarth 4B Drawing Pencils", 18, 2.9),
+        ("BRD-00177A9CA748", "Braming 2B Pencils with Eraser", 15, 1.9),
+        ("BRD-14C1085C8C1C", "Fairbrook 2H Pencils with Eraser", 18, 2.05),
+        ("BRD-16AF6C00FB2D", "Gilcroft 4B Drawing Pencils", 18, 2.9),
     ],
     "Spiral Notebook": [
-        ("BRD-082994CBD41A", "Brackbank A5 Dotted Spiral Notebook", 6, 2.9),
-        ("BRD-15F48D958E7F", "Edenworth A5 Lined Spiral Notebook", 6, 3.95),
-        ("BRD-29026ABE797F", "Sandlow B5 Squared Spiral Notebook", 9, 3.4),
+        ("BRD-082994CBD41A", "Ellerborough A5 Dotted Spiral Notebook", 6, 2.9),
+        ("BRD-15F48D958E7F", "Leastone A5 Lined Spiral Notebook", 6, 3.95),
+        ("BRD-29026ABE797F", "Thurholme B5 Squared Spiral Notebook", 9, 3.4),
+    ],
+    "Ring Binder": [
+        ("BRD-07E9D725EAA2", "Hawbank A4 Slanted Ring Binder", 18, 4.25),
+        ("BRD-128CB3EE9170", "Stokeburn A4 Slanted Ring Binder", 6, 4.8),
+        ("BRD-14A4E5C2F585", "Sowcroft A5 Slanted Ring Binder", 12, 2.65),
+    ],
+    "Document Folder": [
+        ("BRD-04A14787D567", "Claydale A5 Zip Document Folders", 6, 2.95),
+        ("BRD-08B37DC9ED90", "Boltdale A5 Elastic Document Folders", 18, 4.2),
+        ("BRD-0DCF8456C313", "Rushmouth Letter Zip Document Folders", 6, 5.5),
+    ],
+    "Calculator": [
+        ("BRD-03D4351FCA63", "Kirkmouth 12 Digit Desktop Calculator", 18, 10.0),
+        ("BRD-048533587DC8", "Sutthorpe 8 Digit Basic Calculator", 18, 4.5),
+        ("BRD-1FFE28C571F6", "Townbank 12 Digit Basic Calculator", 18, 4.05),
     ],
 }
 
