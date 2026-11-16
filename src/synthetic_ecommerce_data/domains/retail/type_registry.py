@@ -150,7 +150,9 @@ class TypeSpec:
 
     ``derivable`` True lets the scaled build draw derived styles from ``rows`` (a breadth type
     that grows with the build); False keeps them as templates only. A decoy is never derived.
-    ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated.
+    ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated;
+    the spec registers them in ``OWNERS`` when it is built, so a row's ``doc()`` finds its owner
+    after the spec's own import, whatever else ran (gen#994).
     A clothing, footwear or lingerie type carries ``apparel`` (its :class:`ApparelPlan` of
     text-match decoys, gen#311) or ``apparel_exempt`` (the reason it carries none); a type of any
     other department carries neither. :mod:`decoy_apparel` reads the plan from the registry.
@@ -167,6 +169,9 @@ class TypeSpec:
     apparel_exempt: str = ""
     options: tuple[Option, ...] = ()
     homes: tuple[Home, ...] = ()
+
+    def __post_init__(self) -> None:
+        OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
