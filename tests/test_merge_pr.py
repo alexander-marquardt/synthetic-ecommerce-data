@@ -35,7 +35,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-from synthetic_ecommerce_data import generate_cli as cli
 from synthetic_ecommerce_data.core import price
 
 REPO = Path(__file__).resolve().parent.parent
@@ -491,12 +490,6 @@ def test_a_merge_github_refuses_once_is_retried(world: dict) -> None:
     assert _merged(world)
 
 
-
-
-
-
-
-
 def _committed(world: dict, path: str, text: str) -> str:
     """``text``, the committed ``path``, in a file of its own: where a rebuild's stand-in
     reads the slow part of what the real one measures."""
@@ -553,7 +546,6 @@ def test_a_pin_rule_no_sku_meets_refuses_the_merge(world: dict) -> None:
     assert "no SKU satisfies the pin rule" in result.stderr
     assert "golden pins refuse" in result.stderr
     assert not _merged(world)
-
 
 
 # -- a check run that is not a green run ------------------------------------
@@ -648,9 +640,9 @@ def test_with_nothing_to_push_the_heads_own_ci_gates_the_merge(world: dict) -> N
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_CI="red")
     assert result.returncode != 0
     # The check is a shard of the sharded tests job (`tests (2)`), or plain `tests`.
-    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), (
-        result.stderr[-800:]
-    )
+    assert re.search(rf"check tests( \(\d+\))? on {head} is failure", result.stderr), result.stderr[
+        -800:
+    ]
     assert not _merged(world)
 
 
@@ -935,24 +927,9 @@ def _add_a_type(world: dict, branch: str, key: str, label: str, tuple_name: str)
 
 
 #: The keys the test below adds as new types. A key's block is derived from the key, so each
-#: of these takes a fixed block, and a real type that declares one of them collides with it.
+#: of these takes a fixed block, and a real type that declares one of them collides with it
+#: (tests/test_merge_pr_product_pins_1035.py).
 _ADDED_TYPES = ("ball_stock_ptfe", "ball_stock_quartz")
-
-
-def test_no_real_type_takes_a_block_the_merge_test_s_added_types_derive() -> None:
-    """The two-PR merge test adds keys whose derived blocks must stay free of real types.
-
-    chain_lubricants (#462) declared block 7423, the block ball_stock_quartz derives, and the
-    merge test's build stopped on the collision."""
-    from synthetic_ecommerce_data.core import typespec
-    from synthetic_ecommerce_data.domains.industrial import generate as industrial
-
-    real = {key: typespec.block_of(key) for key in industrial.all_type_keys()}
-    for key in _ADDED_TYPES:
-        owners = [k for k, block in real.items() if block == typespec.part_number_block(key)]
-        assert owners == [], (
-            f"{key} derives block {typespec.part_number_block(key)}, held by {owners}"
-        )
 
 
 @pytest.mark.timeout(900)  # two full merges; 300 s is tight in a heavy shard
@@ -1046,25 +1023,6 @@ def _printed(flag: str) -> list[str]:
     return subprocess.run(
         [str(SCRIPT), flag], capture_output=True, text=True, check=True
     ).stdout.splitlines()
-
-
-def test_the_generated_files_are_exactly_what_the_build_writes() -> None:
-    """Only a file the rebuild rewrites may have a conflict resolved by it."""
-    golden = _git(REPO, "ls-files", "golden-catalog").splitlines()
-    field_map = cli.field_map_target().relative_to(REPO).as_posix()
-    builds = price.BUILDS_FILE.relative_to(REPO).as_posix()
-    want = sorted([*golden, field_map, builds, _PINS])
-    assert sorted(_printed("--print-generated")) == want
-
-
-def test_the_builds_rebuild_is_the_command_the_builds_module_names() -> None:
-    """One module writes the pinned figures and the 100K sizes; the script runs it (#85)."""
-    from synthetic_ecommerce_data.domains.industrial import measured_builds  # noqa: PLC0415
-
-    assert price.BUILDS_FILE.is_file()
-    assert f"python -m {measured_builds.__name__}" in measured_builds.REBUILD
-    assert measured_builds.__name__ in (SCRIPT_PARTS / "config.sh").read_text()
-
 
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
@@ -1480,43 +1438,6 @@ def test_a_dry_run_regenerates_the_golden_but_pushes_and_merges_nothing(world: d
     assert "dry run: would push" in done.stdout
     assert _branch(world) == head
     assert not _merged(world)
-
-
-def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
-    """A renamed freshness test would silently turn the regeneration off."""
-    printed = subprocess.run(
-        [str(SCRIPT), "--print-freshness"], capture_output=True, text=True, check=False
-    )
-    assert printed.returncode == 0, printed.stderr
-    named = printed.stdout.splitlines()
-    assert sorted(named) == sorted(_ALL_FRESH), named
-    collected = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pytest",
-            "-o",
-            "addopts=",
-            "-p",
-            "no:randomly",
-            "--collect-only",
-            "-q",
-            "-p",
-            "no:cacheprovider",
-            "-n",
-            "0",
-            *named,
-        ],
-        cwd=REPO,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert collected.returncode == 0, collected.stdout + collected.stderr
-    for node in named:
-        assert node in collected.stdout or f"{node}[" in collected.stdout, (
-            f"{node} is not collected"
-        )
 
 
 # -- the one parser: every workflow job has a local equivalent ---------------

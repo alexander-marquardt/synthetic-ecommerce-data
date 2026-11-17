@@ -83,10 +83,7 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each type's first three derived styles by product id (seed 0, ceiling build). Slice 2's
-#: range words follow Health's Ledwick Botanics in the scale deal (gen#968), as slice 1's did
-#: there; the ids, SKU counts and prices are unchanged (gen#1024). Re-pinned again for Clothing's
-#: recomputed DEPARTMENT_RATE (gen#956): the range word only.
+#: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
         ("BRD-02FD05FA1851", "Dalington Bold Ballpoint Pens", 9, 4.65),

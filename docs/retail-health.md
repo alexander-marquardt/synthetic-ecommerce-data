@@ -24,19 +24,27 @@ department holds (`breadth_rows.DEPARTMENT_FLOOR`, 150, `tests/test_retail_scale
 ## Tree
 
 `Health > Vitamins & Supplements > {Vitamins, Minerals}`. Each type is a spec in
-`domains/retail/type_specs/` (`vitamins.py`, `minerals.py`): a tub of tablets or capsules
-(shape `tub`, `colorless`), sold by count. The SKU axis is `piece_count` (30, 60, 90, 120 or 180),
+`domains/retail/type_specs/` (`vitamins.py`, `minerals.py`): a bottle of tablets or capsules
+(shape `supplement_bottle`, `colorless`), sold by count. The SKU axis is `piece_count` (30, 60, 90, 120 or 180),
 and each count is dearer than the last. A row carries the active ingredient (`nutrient` or
-`mineral`) and the `form` (Tablets or Capsules), and its title names both, so the tub drawing's
+`mineral`) and the `form` (Tablets or Capsules), and its title names both, so the bottle's
 label is honest (`tests/test_retail_drawing_honesty.py`). Both types are `derivable`: the scaled
-build draws more tubs by swapping the ingredient and the form.
+build draws more bottles by swapping the ingredient and the form.
+
+The bottle (`kit_health.py`, gen#1028) replaced the retail `tub`, a tall open pot that read as a
+paper cup. It is drawn in the colorway's base (white, amber, sage), with the cap in its accent.
+Its wrapped label carries what tells two bottles of one brand apart: the nutrient's name, a band
+colored by the nutrient, and a scored tablet or a two-tone capsule by `form`. The nutrient and
+the form are the drawing's params, so a derived style that swaps them is redrawn. Within each leaf,
+no brand draws two products alike (`tests/test_retail_supplement_bottle_1028.py`). That test also
+lists every type still drawn as a `tub`.
 
 ## Over the counter only, and no claims
 
 Every product is one a shopper can take off the shelf: no prescription medicine. No title or
 description claims an effect: no word that cures, treats, prevents, boosts, heals, relieves,
 protects or supports, and no "clinically" or "immunity". A description says how the product is
-taken and packed (one a day with a meal, a resealable tub, vegan). `tests/test_retail_health_vitamins_968.py`
+taken and packed (one a day with a meal, a resealable bottle, vegan). `tests/test_retail_health_vitamins_968.py`
 refuses a claim word in any `Health` title or description.
 
 Every brand is invented: Velling Apothecary, Ledwick Botanics and Mirefield Naturals,
@@ -47,8 +55,8 @@ decoy. A spec declares its brands' owner (`owners=`), the same owner the rest of
 
 Each type plants text-match decoys inside the department (classes 4, 6 and 7): a title holds the
 query's ingredient as a color or range word, or the brand holds it (Vitamin C Orchard), while the
-fields say another ingredient, so `iron tablets` meets "Iron Grey Tub Zinc Tablets". Only a policy
-that reads the `mineral` or `nutrient` field puts the real tubs first. The decoys are in each spec's
+fields say another ingredient, so `iron tablets` meets "Iron Grey Bottle Zinc Tablets". Only a policy
+that reads the `mineral` or `nutrient` field puts the real bottles first. The decoys are in each spec's
 `DECOYS`, and the output standard's text check leaves them out (`scale.TEXT_EXEMPT`).
 
 ## The four per-type gates

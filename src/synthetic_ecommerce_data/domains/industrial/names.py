@@ -113,6 +113,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Socket",
     "Vise",
     "Gage",
+    "Finder",
     "Level",
     "Collet",
     # The home hardware of #958.
