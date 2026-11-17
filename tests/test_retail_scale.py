@@ -151,9 +151,9 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: link, so derived soundbars at one price share a tile. The cap keeps the headroom main had
 #: over the measured share; a soundbar drawing that shows the profile would win it back.
 CEILING_GRID_CLONES = 0.158
-#: The departments the ceiling build sells in (derivable styles). Health joined with gen#968,
-#: Office & school with gen#969, Electronics with gen#956 (headphones, speakers, soundbars).
-DEPARTMENTS = 12 + 1  # 12 before gen#956 added Electronics; a sum, so no build figure matches
+#: The departments the ceiling build sells in. Health joined with gen#968, Office & school
+#: with gen#969, Electronics with gen#956.
+DEPARTMENTS = 13
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028

@@ -10,7 +10,9 @@ laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `elect
 
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
 `Tablets > {Tablets, E-readers}`, `TVs`, `Audio > {Headphones, Portable Speakers, Soundbars}`
-(gen#956, see [retail-prototype/electronics-audio-956.md](retail-prototype/electronics-audio-956.md))
+(gen#956, see [retail-prototype/electronics-audio-956.md](retail-prototype/electronics-audio-956.md)),
+`Gaming > {Game Controllers, Gaming Headsets}`
+(gen#956, see [retail-prototype/electronics-gaming-956.md](retail-prototype/electronics-gaming-956.md))
 and `Accessories > <leaf>`. Each type nests under its generic node
 and no sibling label is a word-suffix of another (`tree_guard`).
 

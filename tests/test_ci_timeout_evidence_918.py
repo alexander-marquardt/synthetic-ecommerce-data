@@ -23,8 +23,9 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
-SCRIPT = REPO / "scripts" / "ci_run_pytest.py"
+import wrapper_process
+
+SCRIPT = wrapper_process.SCRIPT
 
 #: The kernel's OOM line, as the stub ``dmesg`` prints it.
 OOM_LINE = "[12345.6] Out of memory: Killed process 4242 (python) total-vm:9000000kB"
@@ -43,25 +44,16 @@ def run_until(tmp_path: Path, opts: list[str], stop: Stop) -> tuple[int, str]:
     dmesg.write_text(f"#!/bin/sh\necho '{OOM_LINE}'\n", encoding="utf-8")
     dmesg.chmod(0o755)
     env = os.environ | {"PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
-    command = [sys.executable, str(SCRIPT), *opts, "--", sys.executable, "-c", HUNG_PYTEST]
-    proc = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env,
-        start_new_session=True,
-    )  # fmt: skip
+    command = [*opts, "--", sys.executable, "-c", HUNG_PYTEST]
+    proc = wrapper_process.start(command, text=True, env=env)
     assert proc.stdout is not None
     try:
         first = proc.stdout.readline()
         stop(proc)
-        try:
-            rest, _ = proc.communicate(timeout=10)
-        except subprocess.TimeoutExpired:
-            with contextlib.suppress(ProcessLookupError):
-                os.killpg(proc.pid, signal.SIGKILL)
-            rest, _ = proc.communicate()
+        done = wrapper_process.finish(proc, timeout=10)
     finally:
-        with contextlib.suppress(ProcessLookupError):
-            os.killpg(proc.pid, signal.SIGKILL)
-    return proc.wait(), first + rest
+        wrapper_process.reap(proc)
+    return done.returncode, first + done.stdout
 
 
 def test_a_shard_ended_by_the_timeout_prints_the_oom_lines(tmp_path: Path) -> None:
@@ -98,8 +90,11 @@ def test_the_evidence_names_the_cgroup_s_memory_in_use_now(tmp_path: Path) -> No
 def test_a_green_run_shorter_than_the_period_prints_no_evidence(tmp_path: Path) -> None:
     # A second of running: a default period of seconds, not minutes, would print evidence here.
     child = "import time; time.sleep(1); print('ok')"
-    done = subprocess.run(
-        [sys.executable, str(SCRIPT), "--", sys.executable, "-c", child],
-        capture_output=True, text=True, timeout=60, check=False,
-    )  # fmt: skip
+    proc = wrapper_process.start(
+        ["--", sys.executable, "-c", child], stderr=subprocess.PIPE, text=True
+    )
+    try:
+        done = wrapper_process.finish(proc, timeout=60)
+    finally:
+        wrapper_process.reap(proc)
     assert (done.returncode, done.stdout) == (0, "ok\n"), done.stdout + done.stderr
