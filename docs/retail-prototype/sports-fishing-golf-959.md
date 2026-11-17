@@ -35,9 +35,10 @@ the letters the combined loader reads); a club's handedness is a fit, not a size
 from each by the values its title shows (a rod's power, blank material and kind; a reel's body
 material, bearings and kind), so the department grows without a hand-written row per style. The
 earlier Sports & Outdoors types stay out of the derivation. The department draws at a rate of its
-own in `scale.DEPARTMENT_RATE` (its target share over its summed leaf weights), and Food & Drink's
-rate, the furthest over its target, is recomputed the same way, so Clothing keeps its share within
-3 points of 44% (`test_retail_stable_ids_626`); every other department's rate is unchanged.
+own in `scale.DEPARTMENT_RATE` (its target share over its summed leaf weights). Its styles took
+Clothing's share past 3 points under 44% (`test_retail_stable_ids_626`), so Clothing's rate is
+raised, from 0.0124 to 0.0130. Every other department's rate, Food & Drink's among them, is
+unchanged.
 
 **Decoys.** Each type carries two class-8 text-match decoys in
 `feature_decoys/fishing_golf_959.py`: a product of another department whose title holds the
