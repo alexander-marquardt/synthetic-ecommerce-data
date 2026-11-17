@@ -85,19 +85,19 @@ def _golden(pets: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Dog Food": [
-        ("BRD-0139F80E655E", "Sowwick Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),  # noqa: E501
-        ("BRD-015EB9FD793C", "Quarthwaite Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
-        ("BRD-01F0AFDFC4B3", "Sedmouth Senior Small Breed Dry Dog Food with Duck & Pea", 3, 8.0),
+        ("BRD-0139F80E655E", "Ryscar Puppy Small Breed Dry Dog Food with Beef & Vegetable", 3, 8.5),  # noqa: E501
+        ("BRD-015EB9FD793C", "Wenton Senior Medium Breed Dry Dog Food with Turkey & Sweet Potato", 3, 8.5),  # noqa: E501
+        ("BRD-01B3CCA7FC57", "Ellerborough Puppy Large Breed Dry Dog Food with Lamb & Rice", 4, 11.5),  # noqa: E501
     ],
     "Cat Food": [
-        ("BRD-006AF6BEB0E4", "Foxgate Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
-        ("BRD-01B4E9895FF8", "Caldness Adult Hairball Control Dry Cat Food with Chicken", 3, 4.9),
-        ("BRD-02FDA95F49AE", "Chaphaugh Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),  # noqa: E501
+        ("BRD-006AF6BEB0E4", "Oakness Senior Wet Cat Food with Tuna Pate, Tins", 4, 2.55),
+        ("BRD-01B4E9895FF8", "Salfield Adult Hairball Control Dry Cat Food with Chicken", 3, 4.9),
+        ("BRD-02FDA95F49AE", "Edenthorpe Senior Wet Cat Food with Chicken in Jelly, Pouches", 3, 4.45),  # noqa: E501
     ],
     "Cat Litter": [
-        ("BRD-00112B468C03", "Lingate Baby Powder Wood Pellet Cat Litter", 3, 6.5),
-        ("BRD-03E57A1B6D5A", "Kilden Lavender Clumping Clay Cat Litter", 3, 3.2),
-        ("BRD-06F75E8C843B", "Sowside Citrus Clumping Clay Cat Litter", 3, 5.5),
+        ("BRD-00112B468C03", "Ramhurst Baby Powder Wood Pellet Cat Litter", 3, 6.5),
+        ("BRD-03E57A1B6D5A", "Rosbeck Lavender Clumping Clay Cat Litter", 3, 3.2),
+        ("BRD-06F75E8C843B", "Rockgate Citrus Clumping Clay Cat Litter", 3, 5.5),
     ],
 }  # fmt: skip
 
