@@ -1,8 +1,8 @@
-# Office & school, slices 1 and 2 (gen#969)
+# Office & school, slices 1, 2 and 3 (gen#969)
 
 The store had no office or school department, so a search for `gel pens`, `HB pencils` or an
 `A4 notebook` found nothing. `Office & school` is now on the closed list of retail departments
-(`core/departments.RETAIL`). Slice 1 added writing and paper, and slice 2 filing and desk; each
+(`core/departments.RETAIL`). Slice 1 added writing and paper, slice 2 filing and desk, and slice 3 bags, art and desk; each
 type is a spec of its own:
 
 | Type | Spec | Path | Templates | SKU axis |
@@ -13,13 +13,21 @@ type is a spec of its own:
 | Ring Binder | `type_specs/ring_binder.py` | Office & School > Binders & Folders > Ring Binders | A4 D-ring, A5 round ring, Letter slanted ring, Foolscap D-ring | color x single, pack of 4, 10 |
 | Document Folder | `type_specs/document_folder.py` | Office & School > Binders & Folders > Document Folders | A4 elastic, A5 press stud, Foolscap zip, Letter press stud | color x pack of 5, 10, 25 |
 | Calculator | `type_specs/calculator.py` | Office & School > Office Electronics > Calculators | 8 digit pocket, 12 digit desktop, 10 digit scientific, 10 digit basic | color x single, class pack of 5, 10 |
+| School Backpack | `type_specs/school_backpack.py` | Office & School > Bags & Cases > School Backpacks | 20 L classic, 25 L laptop, 30 L rolling, 15 L mini | color, sold singly |
+| Colored Pencils | `type_specs/colored_pencils.py` | Office & School > Art Supplies > Colored Pencils | 12 classic, 24 watercolor, 36 soft core, 48 erasable | tin color x pack of 1, 2, 3 tins |
+| Desk Organizer | `type_specs/desk_organizer.py` | Office & School > Desk Accessories > Desk Organizers | 5 compartment mesh, 3 plastic, 4 felt, 6 metal | color x pack of 1, 2, 4 |
+
+Slice 3 (the last three rows) adds the bag, art and desk types. School Backpack is its own
+product type, apart from Clothing's `Backpack` accessories. A set of colored pencils holds many
+colors, so its SKU's color is the tin's; the drawing shows the set's own count (its `count`
+param), so a tin is one item and a 2 or 3 pack is that many tins.
 
 The build record's `department` is `Office & Stationery`, from the retail closed list
 (`domains/retail/departments.py`), which keys the brand pools. The shared pieces (the paths, the
 six main colors of gen#275, `packs()`, `row()` and `decoy()`) are in `office_rows.py`. A SKU's
 pack size is its `pack_size` axis, and `pack_copies` draws a pack of ten as ten pens.
 
-**Drawings.** `kit_office.py` draws six shapes. `pen` takes `style` (ballpoint, gel,
+**Drawings.** `kit_office.py` draws nine shapes. `pen` takes `style` (ballpoint, gel,
 rollerball, felt tip), which draws the tip, and `mechanism` (retractable, capped), which draws a
 click button or a cap. `pencil` takes `eraser` (yes, no): a ferrule and an eraser, or a dipped
 end. `spiral_notebook` takes `binding` (side bound, top bound), which puts the coil on the side or
@@ -42,15 +50,22 @@ one pool instead (Foolscap, Basic). A derived style keeps its template's price, 
 templates stay in one price band: a printing calculator at four times a pocket one would have
 priced derived pocket calculators like printing ones.
 
+Slice 3's drawings: `school_backpack` takes `backpack_style` (classic, laptop, rolling, mini): a
+padded laptop panel, a telescopic handle and wheels, or a smaller bag with a reflective strip.
+`colored_pencils` takes `pencil_type` (classic, watercolor, soft core, erasable) and `count`: up to
+twelve pencils stand in the open tin, thicker for soft core, with a brush or an eraser before the
+tin, and the count printed on its front. `desk_organizer` takes `compartments` (the number of
+sections, stepped front to back) and `material` (mesh, plastic, felt, metal).
+
 **Decoys.** Each type carries two text-match decoys: class 4 (a color word for a part, such as
 a red grip on a black-ink pen, a yellow spine label on a blue binder, red keys on a white
 calculator) and class 6 (a color word in a range name, such as `Green Park`, `White Cliffs`,
 `Red Fern` or `Blue Ridge`).
 
 **Measured** (ceiling build, seed 0): the department's size, its styles per type and the
-authored and derived split are read from the build (`retail_figures`), never typed here. Slice 2's
-floor is 2,850 SKUs, about two thirds of the department's 4,500 target in
-`docs/catalogue-mix-837.md`. Backpacks, art supplies and desk organizers are slice 3 of gen#969.
-The department now holds more styles than `breadth_rows.DEPARTMENT_FLOOR`, so
-`tests/test_retail_scale.py` holds it to that floor like every other department. The guards are
-in `tests/test_retail_office_969.py`.
+authored and derived split are read from the build (`retail_figures`), never typed here. Slice 1
+held at least 1,400 SKUs, slice 2's binders, folders and calculators at least 1,450 more and
+slice 3 at least 1,425 more on its own, so the department meets the issue's 4,275, 95% of its
+4,500 target in `docs/catalogue-mix-837.md`. The department holds more styles than
+`breadth_rows.DEPARTMENT_FLOOR`, so `tests/test_retail_scale.py` holds it to that floor like every
+other department. The guards are in `tests/test_retail_office_969.py`.
