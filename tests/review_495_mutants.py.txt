@@ -3,11 +3,10 @@ PYTEST_ARGS = ["--noconftest", "-q", "-p", "no:cacheprovider", "-x"]
 S = "scripts/ci_select.py"
 H = "scripts/ci_shards.py"
 MUTANTS = [
-    (S, "            if path in (modified or ()) and path.startswith(CONTENT_INSENSITIVE.get(test, ())):", "            if False:", "a modified golden path selects the content-insensitive test"),
-    (S, '        if any(path == f or (f.endswith("/") and path.startswith(f)) for f in FULL_RUN):', "        if False:", "a workflow change no longer runs every test"),
+    (S, "            if test in reasons or test in held:", "            if test in reasons:", "an import selects a test of SELECTED_ONLY_BY"),
+    (S, "        if _listed(path, FULL_RUN):", "        if False:", "a workflow change no longer runs every test"),
     (S, '            reasons[test] = "smoke"', "            pass", "the smoke tests are not selected"),
-    (S, '        if status == "M":', '        if status == "Z":', "no path is read as only modified"),
-    (S, "    if not found or not found[0]:", "    if not found:", "an empty diff selects nothing instead of everything"),
+    (S, "    if not found:", "    if found is None:", "an empty diff selects nothing instead of everything"),
     (S, "            if callee not in _EXEC_CALLEES:", "            if False:", "any call that names a script runs it"),
     (S, "        if self._owner_module_in(members, changed):", "        if False:", "a package data file reaches no test"),
     (S, '            if "." in value and _DOTTED.fullmatch(value.strip()):', "            if False:", "a package named whole in a string is not imported"),
