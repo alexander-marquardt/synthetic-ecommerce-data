@@ -629,7 +629,10 @@ the census.
 **A row that leaves its band is declared, never given a wider band.** The
 bands are `price_report`'s (`P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and
 three census standard errors where the census sample is small), one rule for
-every type. When the fit says a row cannot reach its band, find the
+every type. A p50 or p90/p10 band is also widened by the build's own error,
+three bootstrap standard errors over the type's product lines, at most
+`BUILD_SE_CAP` (x1.25) either side (#891). That widening comes from the
+build's sampling; a row is never given it as a declaration. When the fit says a row cannot reach its band, find the
 cause, then declare it in `core/price.py` with that cause and the issue
 that fixes it:
 
