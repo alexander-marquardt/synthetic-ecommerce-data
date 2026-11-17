@@ -249,10 +249,8 @@ LEAF_RANKS = 40
 #: target over the 2.69% it reached).
 #: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
 #: blenders of slice 1 (gen#963), whose Home styles took its share from 41.2% to 40.9%.
-#: Electronics' is set for the smart home types of gen#956 slice 2a (the default 0.008 times its
-#: target share over the 2.5% it reached), and Clothing's is recomputed then: a new department's
-#: styles took its share from 41.1% on main to 40.6%, more than 3 points under its 44% target
-#: (0.01227 times 44 over 40.6).
+#: Electronics' (0.001187) and Clothing's (0.01405) are main's, set for the gadgets and gaming types
+#: of gen#956; the smart home types of slice 2a add templates, which move no rate (gen#626).
 DEPARTMENT_RATE = {
     "Clothing": 0.01405, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
