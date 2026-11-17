@@ -36,7 +36,7 @@ ROWS = (
         _book("A4", "Lined", "Side Bound"), packs((1, 3.0), (3, 7.5), (5, 11.0)),
         (("binding", "side bound"), ("ruling", "lined"))),
     row("SNBA5S", "A5 Squared Spiral Notebook", LANTERNBY, NOTEBOOKS, "Spiral Notebook", "spiral_notebook",
-        "A wirebound notebook of 60 squared sheets that fold flat over the coil, for maths and sketches.",
+        "A wirebound notebook of 60 squared sheets that fold flat over the coil, for math and sketches.",
         _book("A5", "Squared", "Top Bound"), packs((1, 2.5), (3, 6.0), (5, 9.0)),
         (("binding", "top bound"), ("ruling", "squared"))),
     row("SNBB5D", "B5 Dotted Spiral Notebook", THISTLE, NOTEBOOKS, "Spiral Notebook", "spiral_notebook",

@@ -313,6 +313,11 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same rows. Measured at 100K, 421 distinct specs of 722 SKUs (0.583), rounded
     # down to 0.05.
     "flange_nuts": 0.55,
+    # #829: an acorn cap nut is a DIN 1587 row or an SAE J483 row of a low or a high crown, in
+    # five stocked combinations, 175 specs before a dropped head diameter or finish, and every
+    # maker sells the same rows. Measured at 100K, 415 distinct specs of 746 SKUs (0.556),
+    # rounded down to 0.05.
+    "cap_nuts_acorn": 0.55,
     # #829: a coupling nut is a DIN 6334 or ASME B18.2.2 row (19 threads, one length each) in
     # five stocked combinations, 95 specs before a dropped grade or finish, and every maker
     # sells the same rows. Measured at 100K, 244 distinct specs of 636 SKUs (0.384), rounded
