@@ -138,19 +138,19 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-1FFE28C571F6", "Morhurst 12 Digit Basic Calculator", 18, 4.05),
     ],
     "School Backpack": [
-        ("BRD-01A43CE6FCD7", "Rudlow 15 L Classic School Backpack", 6, 15.5),
-        ("BRD-01BA38373142", "Clevebrook 25 L Laptop School Backpack", 6, 34.0),
-        ("BRD-0592753A802F", "Townborough 30 L Classic School Backpack", 2, 50.0),
+        ("BRD-01A43CE6FCD7", "Claywyke 15 L Classic School Backpack", 6, 15.5),
+        ("BRD-01BA38373142", "Rockgate 25 L Laptop School Backpack", 6, 34.0),
+        ("BRD-0592753A802F", "Bradness 30 L Classic School Backpack", 2, 50.0),
     ],
     "Colored Pencils": [
-        ("BRD-0E1EAFC1DBA7", "Ravbury 36 Watercolor Colored Pencils", 6, 25.0),
-        ("BRD-15303E7EFCBF", "Readale 48 Classic Colored Pencils", 12, 31.0),
-        ("BRD-17B4E307D6ED", "Penworth 12 Soft Core Colored Pencils", 18, 7.0),
+        ("BRD-0E1EAFC1DBA7", "Giling 36 Watercolor Colored Pencils", 6, 25.0),
+        ("BRD-15303E7EFCBF", "Flaxbridge 48 Classic Colored Pencils", 12, 31.0),
+        ("BRD-17B4E307D6ED", "Gilcroft 12 Soft Core Colored Pencils", 18, 7.0),
     ],
     "Desk Organizer": [
-        ("BRD-0433EA9A7695", "Ryshaw 6 Compartment Felt Desk Organizer", 18, 20.0),
-        ("BRD-0B28AA29D695", "Flaxside 3 Compartment Mesh Desk Organizer", 6, 9.0),
-        ("BRD-0BCD3137F6B9", "Hawcombe 5 Compartment Metal Desk Organizer", 18, 11.0),
+        ("BRD-0433EA9A7695", "Holhaugh 6 Compartment Felt Desk Organizer", 18, 19.0),
+        ("BRD-0B28AA29D695", "Warbridge 3 Compartment Mesh Desk Organizer", 6, 8.5),
+        ("BRD-0BCD3137F6B9", "Corby 5 Compartment Metal Desk Organizer", 18, 11.0),
     ],
 }
 
