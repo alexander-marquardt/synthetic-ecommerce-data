@@ -24,7 +24,6 @@ import pytest
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     breadth_rows,
-    departments,
     lighting_rows,
     line_grammar,
     line_grammar_families,
@@ -149,15 +148,15 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
-#: The closed list's departments the ceiling build draws no derived style in:
-#: Automotive (gen#970) and Sports & Outdoors sell their authored rows only, Workwear & PPE
-#: and Furniture & Seating are the industrial catalog's.
-UNDERIVED = {
-    "Sports & Outdoors", "Automotive", "Workwear & PPE", "Furniture & Seating",
-}  # fmt: skip
-#: The departments the ceiling build sells derived styles in, named and not counted: a new
-#: department joins by its closed-list entry (Health gen#968, Office gen#969, Pets gen#967).
-DEPARTMENTS = {*departments.RETAIL, *departments.SHARED} - UNDERIVED
+#: The departments the ceiling build sells in (derivable styles), by name: a count here would
+#: read as a measured total (``tests/test_retail_figures_162.py``). Health joined with gen#968,
+#: Office & school with gen#969, Electronics with gen#956's first derivable types, Pets with
+#: gen#967.
+DEPARTMENTS = frozenset({
+    "Beauty", "Cleaning & Janitorial", "Clothing", "Electronics", "Food & Drink", "Footwear",
+    "Garden", "Gifts", "Health", "Home", "Lingerie & Nightwear", "Office & Stationery",
+    "Pets", "Toys",
+})  # fmt: skip
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
