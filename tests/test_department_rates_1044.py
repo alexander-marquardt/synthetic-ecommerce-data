@@ -1,13 +1,15 @@
 """A department's derived-style rate is a module in ``department_rates/`` (gen#1044).
 
 The rates were one ``DEPARTMENT_RATE`` table in ``scale.py``, and 8 PRs in 7 days conflicted on it,
-since each PR that adds product types recomputes one department's rate. The move is mechanical: the
-first test pins the table the build reads to the one before the move, value for value; the rest
-hold the package contract with a probe package planted in a throwaway directory.
+since each PR that adds product types recomputes one department's rate. No test here names a
+rate: a pin of every value would put the conflict point back in this file. The tests hold that
+``scale.py`` reads its table from the package and binds no table of its own, and the package
+contract, with a probe package planted in a throwaway directory.
 """
 
 from __future__ import annotations
 
+import ast
 import importlib
 import sys
 from pathlib import Path
@@ -15,33 +17,86 @@ from types import ModuleType
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import department_rates, scale
-
-#: ``scale.DEPARTMENT_RATE`` on main at the merge of origin/main, before the move.
-BEFORE = {
-    "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
-    "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
-    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
-    "Footwear": 0.01799, "Electronics": 0.001187,
-}  # fmt: skip
+from synthetic_ecommerce_data.domains.retail import department_rates, departments, scale
 
 
-def test_the_rates_the_build_reads_are_the_table_before_the_move() -> None:
-    assert scale.DEPARTMENT_RATE == BEFORE
+def test_scale_reads_the_table_the_package_builds() -> None:
+    assert department_rates.rates() == scale.DEPARTMENT_RATE
     assert scale.DEFAULT_RATE == 0.008
 
 
-def test_scale_holds_no_department_rate_literal() -> None:
-    text = Path(scale.__file__).read_text()
-    assert "DEPARTMENT_RATE = department_rates.rates()" in text
-    for department, rate in BEFORE.items():
-        assert f'"{department}": {rate}' not in text, department
+def _is_rates_call(node: ast.expr | None) -> bool:
+    return (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "rates"
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "department_rates"
+    )
+
+
+def _names_table(node: ast.AST) -> bool:
+    return isinstance(node, ast.Name) and node.id == "DEPARTMENT_RATE"
+
+
+def _table_writes(tree: ast.AST) -> list[str]:
+    """Each place ``tree`` binds or changes ``DEPARTMENT_RATE`` other than by a rates() call."""
+    writes = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if _names_table(target) and not (
+                    not isinstance(node, ast.AugAssign) and _is_rates_call(node.value)
+                ):
+                    writes.append(f"line {node.lineno}: DEPARTMENT_RATE bound to a non-call")
+                if isinstance(target, ast.Subscript) and _names_table(target.value):
+                    writes.append(f"line {node.lineno}: DEPARTMENT_RATE[...] assigned")
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and _names_table(node.func.value)
+            and node.func.attr in {"update", "setdefault", "__setitem__", "__ior__"}
+        ):
+            writes.append(f"line {node.lineno}: DEPARTMENT_RATE.{node.func.attr}(...)")
+    return writes
+
+
+def test_scale_binds_department_rate_only_to_the_package_call() -> None:
+    tree = ast.parse(Path(scale.__file__).read_text())
+    binds = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+        and any(
+            _names_table(t)
+            for t in (node.targets if isinstance(node, ast.Assign) else [node.target])
+        )
+    ]
+    assert len(binds) == 1, [b.lineno for b in binds]
+    assert _is_rates_call(binds[0].value), ast.unparse(binds[0])
+    assert _table_writes(tree) == []
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'DEPARTMENT_RATE = {"Pets": 0.004}\n',
+        'DEPARTMENT_RATE = department_rates.rates()\nDEPARTMENT_RATE = {"Home": 8.35e-3}\n',
+        "DEPARTMENT_RATE: dict[str, float] = dict(Home=0.009)\n",
+        'DEPARTMENT_RATE = department_rates.rates()\nDEPARTMENT_RATE["Electronics"] = 0.002\n',
+        'DEPARTMENT_RATE = department_rates.rates()\nDEPARTMENT_RATE.update({"Toys": 0.006})\n',
+        'DEPARTMENT_RATE = department_rates.rates()\nDEPARTMENT_RATE |= {"Gifts": 0.005}\n',
+    ],
+)
+def test_a_table_put_back_in_scale_is_seen(source: str) -> None:
+    assert _table_writes(ast.parse(source))
 
 
 def test_each_module_names_one_department_and_its_docstring_says_why() -> None:
     for module in department_rates.modules():
         assert (module.__doc__ or "").strip(), module.__name__
-        assert module.DEPARTMENT in BEFORE, module.__name__
+        assert module.DEPARTMENT in departments.DEPARTMENTS, module.__name__
 
 
 def _probe(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, files: dict[str, str]) -> ModuleType:
