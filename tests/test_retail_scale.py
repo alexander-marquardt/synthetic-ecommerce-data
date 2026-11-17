@@ -149,11 +149,11 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
 CEILING_GRID_CLONES = 0.152
-#: The closed list's departments the ceiling build draws no derived style in: Electronics,
+#: The closed list's departments the ceiling build draws no derived style in:
 #: Automotive (gen#970) and Sports & Outdoors sell their authored rows only, Workwear & PPE
 #: and Furniture & Seating are the industrial catalog's.
 UNDERIVED = {
-    "Sports & Outdoors", "Electronics", "Automotive", "Workwear & PPE", "Furniture & Seating",
+    "Sports & Outdoors", "Automotive", "Workwear & PPE", "Furniture & Seating",
 }  # fmt: skip
 #: The departments the ceiling build sells derived styles in, named and not counted: a new
 #: department joins by its closed-list entry (Health gen#968, Office gen#969, Pets gen#967).

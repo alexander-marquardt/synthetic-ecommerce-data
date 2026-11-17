@@ -267,13 +267,15 @@ at a time, and `-n auto` starts 2 workers there (agent-ops `vm/ci_runner/runner.
 `CI_CPUS`, `CI_MEMORY`, `CI_MAX_JOBS`, `CI_PYTEST_WORKERS`), so a full run's jobs queue behind
 each other there. Unsetting the variable sends every job back to
 hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
-`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead; pull requests and
-dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
+`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead, and so do the jobs of
+the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-ops
+`coordinator/gen_train.sh`, #1031). Pull requests and the other dispatched runs (including
+`merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
-`vm/ci_runner/README.md`), so a merge's main run no longer waits behind pull-request runs. A
+`vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
 full run is 25 jobs (18 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
-to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
 
 ## A lost xdist worker is an infra failure, rerun once (#629)
 
@@ -348,6 +350,17 @@ reentrant call`. Either way a hung shard printed nothing (#929). The output is t
 on its own thread, and the main thread only waits on it, waking every `SIGNAL_LATENCY` seconds
 (0.5), so the handler runs within that. `tests/test_ci_signal_mid_write_929.py` blocks the relay
 on a full pipe and sends SIGTERM into that write.
+
+That cause was found by reading the code: the tests ended a wrapper that outlived their patience
+with SIGKILL, which runs no handler, so their log never said where its threads were (#931). The
+script therefore has faulthandler dump every thread's stack to stderr on SIGUSR1, and goes on
+running. Every test that starts the wrapper does it through `tests/wrapper_process.py`, which runs
+it with `PYTHONFAULTHANDLER=1` and, on giving up, sends SIGUSR1, waits three seconds for the dump,
+and only then kills the session. A test that hangs on the wrapper thus fails with the wrapper's
+`Thread 0x... (most recent call first):` stacks in its captured output: the main thread in
+`run_once`, the relay in `relay`, the timer in `tick`. `tests/test_ci_thread_dump_931.py` is the
+guard, and it fails a test file that starts the wrapper by itself. To see where a hung wrapper is
+by hand, `kill -USR1 <pid>`.
 
 A killed worker never sends its `module peak memory:` figures to the controller, so the script
 also names where each lost worker was (#845). Each attempt names a fresh directory in
