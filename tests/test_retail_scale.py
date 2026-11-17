@@ -147,10 +147,7 @@ TARGET = TEMPLATE_SKUS + DERIVED_SKUS
 CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: The grid-clone share the ceiling build may reach (:func:`scale.grid_clones`). The
 #: measured share is in the figures: the rest is the headroom the 50K and 100K rounds may spend.
-#: Raised from 0.152 with gen#956: a soundbar's picture draws its channels, not its profile or
-#: link, so derived soundbars at one price share a tile. The cap keeps the headroom main had
-#: over the measured share; a soundbar drawing that shows the profile would win it back.
-CEILING_GRID_CLONES = 0.158
+CEILING_GRID_CLONES = 0.152
 #: The departments the ceiling build sells in (derivable styles), by name: a count here would
 #: read as a measured total (``tests/test_retail_figures_162.py``). Health joined with gen#968,
 #: Office & school with gen#969, Electronics with gen#956's first derivable types.
