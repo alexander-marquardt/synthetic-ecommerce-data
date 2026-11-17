@@ -104,6 +104,8 @@ def test_the_automotive_templates_are_byte_deterministic() -> None:
 
 def test_the_golden_slice_matches_the_fixture() -> None:
     expected = json.loads(GOLDEN.read_text(encoding="utf-8"))
-    got = json.loads(json.dumps(_golden_of(_automotive(scale.templates())), default=str))
-    assert {d["product_type"] for d in got} >= CAR_CARE_TYPES
+    # Slice 1 pins its own nine Car Care types, so a later slice's Automotive type does not move it.
+    built = json.loads(json.dumps(_golden_of(_automotive(scale.templates())), default=str))
+    got = [d for d in built if d["product_type"] in CAR_CARE_TYPES]
+    assert {d["product_type"] for d in got} == CAR_CARE_TYPES
     assert got == expected
