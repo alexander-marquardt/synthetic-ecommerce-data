@@ -107,24 +107,29 @@ def _golden(toys: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Arts and Crafts Kit": [
-        ("BRD-015AC5D14340", "Thistle & Wren Frolic Butterfly Garden Pom-Pom Kit", 4, 8.5),
-        ("BRD-033151BE2230", "Pipwick Toys Squeak Candy Shop Gem Art Kit", 4, 11.5),
-        ("BRD-042761DB3909", "Little Fernby Skip Jungle Parade Gem Art Kit", 4, 10.5),
+        ("BRD-015AC5D14340", "Thistle & Wren Bounce Butterfly Garden Pom-Pom Kit", 4, 8.5),
+        ("BRD-033151BE2230", "Pipwick Toys Imagine Candy Shop Gem Art Kit", 4, 11.5),
+        ("BRD-042761DB3909", "Little Fernby Leap Jungle Parade Gem Art Kit", 4, 10.5),
     ],
     "Remote-Control Vehicle": [
-        ("BRD-0060ACD63ECA", "Puddlecombe Toys Whizz Lagoon Skipper Remote-Control Truck", 2, 32.0),
+        (
+            "BRD-0060ACD63ECA",
+            "Puddlecombe Toys Frolic Lagoon Skipper Remote-Control Truck",
+            2,
+            32.0,
+        ),
         (
             "BRD-008EDCE03A88",
-            "Thistle & Wren Pretend Wave Dasher Remote-Control Helicopter",
+            "Thistle & Wren Explore Wave Dasher Remote-Control Helicopter",
             2,
             23.0,
         ),
-        ("BRD-01584ABAA280", "Little Fernby Skip Track Blazer Remote-Control Boat", 2, 40.0),
+        ("BRD-01584ABAA280", "Little Fernby Leap Track Blazer Remote-Control Boat", 2, 40.0),
     ],
     "Learning Toy": [
-        ("BRD-00998F125497", "Lanternby Caper Clever Owl Shape Sorter", 2, 27.0),
-        ("BRD-01D59194F9AC", "Puddlecombe Toys Imagine Dino Discovery Activity Cube", 6, 16.5),
-        ("BRD-028B85676BFF", "Pipwick Toys Squeak Snail Trail Activity Cube", 6, 14.0),
+        ("BRD-00998F125497", "Lanternby Wobble Clever Owl Shape Sorter", 2, 27.0),
+        ("BRD-01D59194F9AC", "Puddlecombe Toys Pretend Dino Discovery Activity Cube", 6, 16.5),
+        ("BRD-028B85676BFF", "Pipwick Toys Imagine Snail Trail Activity Cube", 6, 14.0),
     ],
 }
 

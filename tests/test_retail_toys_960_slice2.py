@@ -105,27 +105,27 @@ GOLDEN: dict[str, list[tuple]] = {
     "Action Figure": [
         (
             "BRD-004BCAB0F11C",
-            "Thistle & Wren Pretend Mossback Golem Adventure Action Figure",
+            "Thistle & Wren Explore Mossback Golem Adventure Action Figure",
             2,
             9.5,
         ),
         (
             "BRD-01EB5FAEA7D0",
-            "Thistle & Wren Pretend Captain Comet Adventure Action Figure",
+            "Thistle & Wren Explore Captain Comet Adventure Action Figure",
             6,
             8.0,
         ),
-        ("BRD-020891469510", "Pipwick Toys Leap Tidal Knight Space Action Figure", 2, 10.5),
+        ("BRD-020891469510", "Pipwick Toys Whizz Tidal Knight Space Action Figure", 2, 10.5),
     ],
     "Doll": [
-        ("BRD-01236D7BC7B4", "Puddlecombe Toys Imagine Unicorn Rag Doll", 6, 17.5),
-        ("BRD-0328A56A4C40", "Pipwick Toys Leap Skater Fashion Doll", 2, 13.5),
-        ("BRD-038CBE964538", "Puddlecombe Toys Imagine Fairy Fashion Doll", 5, 16.5),
+        ("BRD-01236D7BC7B4", "Puddlecombe Toys Pretend Unicorn Rag Doll", 6, 17.5),
+        ("BRD-0328A56A4C40", "Pipwick Toys Whizz Skater Fashion Doll", 2, 13.5),
+        ("BRD-038CBE964538", "Puddlecombe Toys Pretend Fairy Fashion Doll", 5, 16.5),
     ],
     "Building Set": [
-        ("BRD-00ABB0020EE3", "Calderby & Lune Bounce Jungle Creature Building Set", 4, 16.5),
-        ("BRD-00D879B6B5C9", "Calderby & Lune Bounce Fairy Forest Creature Building Set", 4, 14.0),
-        ("BRD-011DC39EEF94", "Thistle & Wren Frolic Fairy Forest Creature Building Set", 4, 10.5),
+        ("BRD-00ABB0020EE3", "Calderby & Lune Caper Jungle Creature Building Set", 4, 16.5),
+        ("BRD-00D879B6B5C9", "Calderby & Lune Caper Fairy Forest Creature Building Set", 4, 14.0),
+        ("BRD-011DC39EEF94", "Thistle & Wren Bounce Fairy Forest Creature Building Set", 4, 10.5),
     ],
 }
 
