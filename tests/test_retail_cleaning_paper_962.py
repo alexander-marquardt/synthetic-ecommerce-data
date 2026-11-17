@@ -121,21 +121,20 @@ def _golden(cleaning: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Toilet Paper": [
-        ("BRD-00253D010CDE", "Whitington Ultra Strong 3-Ply Toilet Paper, Mega Rolls", 6, 3.55),
-        ("BRD-00EF506C9697", "Hazwyke Ultra Strong 4-Ply Toilet Paper, Mega Rolls", 6, 3.25),
-        ("BRD-033E1D3D791A", "Clayscar Ultra Soft 4-Ply Toilet Paper, Mega Rolls", 6, 3.05),
+        ("BRD-00253D010CDE", "Fernhurst Ultra Strong 3-Ply Toilet Paper, Mega Rolls", 6, 3.55),
+        ("BRD-00EF506C9697", "Denbridge Ultra Strong 4-Ply Toilet Paper, Mega Rolls", 6, 3.25),
+        ("BRD-033E1D3D791A", "Pickbury Ultra Soft 4-Ply Toilet Paper, Mega Rolls", 6, 3.05),
     ],
     "Paper Towels": [
-        ("BRD-0410EECB425D", "Eskstead Embossed Paper Towels, Half Sheet, Triple Rolls", 5, 3.3),
-        ("BRD-046AAA078A64", "Salhaugh Recycled Paper Towels, Full Sheet, Double Rolls", 5,
-         4.25),
-        ("BRD-04B2FA3C12AA", "Bradby Ultra Strong Paper Towels, Half Sheet, Regular Rolls", 5,
+        ("BRD-0410EECB425D", "Boltford Embossed Paper Towels, Half Sheet, Triple Rolls", 5, 3.3),
+        ("BRD-046AAA078A64", "Rosmouth Recycled Paper Towels, Full Sheet, Double Rolls", 5, 4.25),
+        ("BRD-04B2FA3C12AA", "Reedcliffe Ultra Strong Paper Towels, Half Sheet, Regular Rolls", 5,
          2.65),
     ],
     "Facial Tissues": [
-        ("BRD-001DED332822", "Lamgate Lotion 3-Ply Facial Tissues, Flat Box", 16, 2.6),
-        ("BRD-02B93040D771", "Sandgate Menthol 2-Ply Facial Tissues, Cube Box", 8, 1.75),
-        ("BRD-0D593922307B", "Ravby Menthol 3-Ply Facial Tissues, Flat Box", 20, 1.65),
+        ("BRD-001DED332822", "Thurwick Lotion 3-Ply Facial Tissues, Flat Box", 16, 2.6),
+        ("BRD-02B93040D771", "Chelcombe Menthol 2-Ply Facial Tissues, Cube Box", 8, 1.75),
+        ("BRD-0D593922307B", "Cormere Menthol 3-Ply Facial Tissues, Flat Box", 20, 1.65),
     ],
 }  # fmt: skip
 
