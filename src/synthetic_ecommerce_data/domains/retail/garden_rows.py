@@ -42,10 +42,13 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.machine_model_numbers import numbered
 from synthetic_ecommerce_data.domains.retail.type_specs import (
+    garden_chair,
     garden_furniture_set,
     garden_hose,
     hedge_trimmer,
+    outdoor_light,
     parasol,
+    planter,
 )
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -258,6 +261,9 @@ DECOY_TABLE = {
     "DCGCSH": ("type", "hedge trimmer", "Hedge Trimmer"), "DCGCND": ("incidental", "hedge trimmer", "Hedge Trimmer"),
     "DCFCSH": ("type", "garden furniture set", "Garden Furniture Set"), "DCFCND": ("incidental", "garden furniture set", "Garden Furniture Set"),
     "DCPCSH": ("type", "parasol", "Parasol"), "DCPCND": ("incidental", "parasol", "Parasol"),
+    "DCNCSH": ("type", "planter", "Planter"), "DCNCND": ("incidental", "planter", "Planter"),
+    "DCOCSH": ("type", "outdoor light", "Outdoor Light"), "DCOCND": ("incidental", "outdoor light", "Outdoor Light"),
+    "DCKCSH": ("type", "garden chair", "Garden Chair"), "DCKCND": ("incidental", "garden chair", "Garden Chair"),
 }  # fmt: skip
 
 DECOYS = (
@@ -291,6 +297,12 @@ DECOYS = (
     _candle("DCFCND", "Summer Garden Furniture Candle", "A warm cedar scent in a glass jar, for a shelf by the patio door.", "Cedar"),
     _cushion("DCPCSH", "Parasol Print Cushion", "A cotton cushion printed with a striped parasol over a deck chair."),
     _candle("DCPCND", "Seaside Parasol Candle", "A sea salt scent in a glass jar, for a shelf by the patio door.", "Sea Salt"),
+    _cushion("DCNCSH", "Planter Print Cushion", "A cotton cushion printed with a row of herb planters on a sunny sill."),
+    _candle("DCNCND", "Herb Planter Candle", "A basil and thyme scent in a glass jar, as a herb planter smells after watering.", "Basil"),
+    _cushion("DCOCSH", "Outdoor Light Print Cushion", "A cotton cushion printed with glowing lanterns along a garden path."),
+    _candle("DCOCND", "Outdoor Evening Candle", "A warm amber scent in a glass jar, for a table outdoors on a summer night.", "Amber"),
+    _cushion("DCKCSH", "Garden Chair Seat Cushion", "A cotton seat cushion with ties, to soften a slatted chair on the patio."),
+    _candle("DCKCND", "Summer Garden Candle", "A honeysuckle scent in a glass jar, for a shelf by the garden door.", "Honeysuckle"),
 )
 
 
@@ -299,12 +311,15 @@ DECOYS = (
 # misleads, and the first size only.
 _MAIN = ("red", "blue", "green", "yellow", "black", "white")
 _BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows,
-                                  *hedge_trimmer.ROWS, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows)}
+                                  *hedge_trimmer.ROWS, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows,
+                                  *planter.ROWS, *outdoor_light.ROWS, *garden_chair.ROWS)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
 _QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose",
-          "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol"}
+          "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol",
+          "Planter": "planter", "Outdoor Light": "outdoor light", "Garden Chair": "garden chair"}
 _ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex",
-           "Hedge Trimmer": "cordless", "Garden Furniture Set": "rattan", "Parasol": "cantilever"}
+           "Hedge Trimmer": "cordless", "Garden Furniture Set": "rattan", "Parasol": "cantilever",
+           "Planter": "plastic", "Outdoor Light": "solar", "Garden Chair": "plastic"}
 
 
 _NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
@@ -437,6 +452,45 @@ _REAL = {
         ("DCPH02", "shade", "Wide Canopy Tilting Parasol", "PRSTLT", "black", "A crank-lift parasol with a yellow crank handle and a filled base."),
         ("DCPH03", "shade", "Heavy Duty Cantilever Parasol", "PRSCNT", "white", "A side-arm parasol with a cross base and a green winter cover."),
     ),
+    "Planter": (
+        ("DCNA01", "absent", "Plastic Free Round Ceramic Planter", "PLNRCR", "blue", "A round ceramic planter fired in a kiln, with no plastic liner inside."),
+        ("DCNA02", "absent", "Tall Fiberglass Planter, Not Plastic", "PLNTFG", "black", "A tall fiberglass planter, light for its size and stiffer than a plastic pot."),
+        ("DCNA03", "absent", "Concrete Trough Planter, No Plastic", "PLNTRC", "white", "A trough concrete planter cast in one piece, with no plastic in it."),
+        ("DCNI01", "incidental", "Red Harrier Planter", "PLNRCR", "black", "A round ceramic planter from the Harrier range, with a raised rim."),
+        ("DCNI02", "incidental", "Blue Moon Planter", "PLNTRC", "yellow", "A trough concrete planter from the Moon range, for a row of herbs."),
+        ("DCNS01", "secondary", "Green Round Ceramic Planter with Red Rim", "PLNRCR", "green", "A round ceramic planter with a drainage hole."),
+        ("DCNS02", "secondary", "White Tall Planter with Black Feet", "PLNTFG", "white", "A tall fiberglass planter for a shrub beside a door."),
+        ("DCNS03", "secondary", "Yellow Square Planter with Blue Band", "PLNSPL", "yellow", "A square plastic planter that is light to move."),
+        ("DCNH01", "shade", "Large Herb Planter", "PLNRCR", "white", "A round ceramic planter with a red saucer in the box."),
+        ("DCNH02", "shade", "Balcony Trough Planter", "PLNTRC", "black", "A trough concrete planter supplied with a yellow drip tray."),
+        ("DCNH03", "shade", "Lightweight Shrub Planter", "PLNTFG", "blue", "A tall fiberglass planter with a green liner for a small tree."),
+    ),
+    "Outdoor Light": (
+        ("DCOA01", "absent", "Plug-In Bollard Path Light, Not Solar", "OLTPBL", "black", "A plug-in bollard on a low-voltage cable, bright all night with no solar panel to fade."),
+        ("DCOA02", "absent", "Solar Free Hardwired Wall Light", "OLTHWB", "white", "A hardwired bulkhead wired to the mains, with no panel to keep clean."),
+        ("DCOA03", "absent", "Battery Globe Path Light, No Solar", "OLTBGL", "green", "A battery globe on a ground stake, for a shady border where a solar panel would not charge."),
+        ("DCOI01", "incidental", "Red Harrier Outdoor Light", "OLTPBL", "black", "A plug-in bollard from the Harrier range, on a ground stake."),
+        ("DCOI02", "incidental", "Blue Moon Outdoor Light", "OLTSWL", "yellow", "A solar lantern from the Moon range, for a fence or a porch."),
+        ("DCOS01", "secondary", "Black Lantern Path Light with White Cap", "OLTSLP", "black", "A solar lantern on a ground stake that lights a path from dusk."),
+        ("DCOS02", "secondary", "Green Bulkhead Wall Light with Red Frame", "OLTHWB", "green", "A hardwired bulkhead for a porch, sealed against rain."),
+        ("DCOS03", "secondary", "Blue Globe Path Light with Yellow Base", "OLTBGL", "blue", "A battery globe on a ground stake with a six hour timer."),
+        ("DCOH01", "shade", "Bright Lantern Path Light", "OLTSLP", "white", "A solar lantern on a ground stake, sold with a red spare stake."),
+        ("DCOH02", "shade", "Porch Bulkhead Wall Light", "OLTHWB", "black", "A hardwired bulkhead with a yellow rubber seal round its glass."),
+        ("DCOH03", "shade", "Fence Cube Wall Light", "OLTBWC", "red", "A battery cube with a motion sensor and a green mounting plate in the box."),
+    ),
+    "Garden Chair": (
+        ("DCKA01", "absent", "Plastic Free Folding Acacia Garden Chair", "GCHFAC", "blue", "A folding acacia chair in oiled hardwood, with no plastic caps or fittings."),
+        ("DCKA02", "absent", "Steel Stacking Garden Chair, Not Plastic", "GCHSST", "black", "A stacking steel chair with a powder-coated finish that outlasts a plastic one."),
+        ("DCKA03", "absent", "Aluminum Garden Chair, No Plastic", "GCHRAL", "white", "A reclining aluminum chair with a seat pad, with no plastic slats to crack."),
+        ("DCKI01", "incidental", "Red Harrier Garden Chair", "GCHFAC", "black", "A folding acacia chair from the Harrier range, with armrests."),
+        ("DCKI02", "incidental", "Blue Moon Garden Chair", "GCHSST", "yellow", "A stacking steel chair from the Moon range, for a bistro table."),
+        ("DCKS01", "secondary", "Green Folding Garden Chair with Red Legs", "GCHFAC", "green", "A folding acacia chair that packs flat for the shed."),
+        ("DCKS02", "secondary", "White Reclining Garden Chair with Black Armrests", "GCHRAL", "white", "A reclining aluminum chair with five back positions."),
+        ("DCKS03", "secondary", "Yellow Stacking Garden Chair with Blue Seat Pad", "GCHSST", "yellow", "A stacking steel chair for a bistro table on a terrace."),
+        ("DCKH01", "shade", "Classic Adirondack Garden Chair", "GCHART", "white", "An adirondack rattan chair with wide armrests and a red seat cushion."),
+        ("DCKH02", "shade", "Compact Folding Garden Chair", "GCHFAC", "black", "A folding acacia chair with a yellow carry strap for the boot."),
+        ("DCKH03", "shade", "Lounge Reclining Garden Chair", "GCHRAL", "red", "A reclining aluminum chair supplied with a green head pillow."),
+    ),
 }
 def _hose_candle(code: str, title: str, desc: str) -> Row:
     return _candle(code, title, desc, "Fresh Grass")
@@ -459,6 +513,12 @@ _SIBLINGS = (
     ("DCFT02", "Garden Furniture Set", _cushion, "Garden Furniture Set Joke Cushion", "A cotton cushion printed with a patio table and a joke about the weather."),
     ("DCPT01", "Parasol", _apron, "Parasol Picnic Apron", "A cotton apron with a pocket, printed with a striped parasol."),
     ("DCPT02", "Parasol", _cushion, "Parasol Garden Cushion", "A cotton cushion printed with a striped parasol over a deck chair."),
+    ("DCNT01", "Planter", _apron, "Planter Potting Apron", "A cotton apron with two pockets, for filling a planter with compost on the patio."),
+    ("DCNT02", "Planter", _cushion, "Planter Herb Cushion", "A cotton cushion printed with a planter of basil and thyme."),
+    ("DCOT01", "Outdoor Light", _apron, "Outdoor Light Garden Apron", "A cotton apron with a pocket, printed with a string of lanterns over a lawn."),
+    ("DCOT02", "Outdoor Light", _cushion, "Outdoor Light Lantern Cushion", "A cotton cushion printed with a glowing lantern on a fence."),
+    ("DCKT01", "Garden Chair", _apron, "Garden Chair Builder Apron", "A cotton apron with two pockets, for the one who puts the flat pack together."),
+    ("DCKT02", "Garden Chair", _cushion, "Garden Chair Back Cushion", "A cotton back cushion with ties, for a slatted chair on the patio."),
 )
 _CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
 _COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)
