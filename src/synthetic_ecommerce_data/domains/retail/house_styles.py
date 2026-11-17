@@ -728,5 +728,6 @@ from synthetic_ecommerce_data.domains.retail import (  # noqa: E402
     electronics_brand_styles,  # noqa: E402,F401 -- gen#332, #721, #724: 17 marks and styles of the Electronics department join the tables
     grocery_brand_styles,  # noqa: E402,F401 -- gen#376: 22 marks and styles of the 50K grocery tier join the tables
     luggage_brand_styles,  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
+    paper_brand_styles,  # noqa: E402,F401 -- #962: three marks and styles of the Cleaning paper goods join the tables
     place_brand_styles,  # noqa: E402,F401 -- gen#663: 15 marks and styles of the class 6 place brands join the tables
 )
