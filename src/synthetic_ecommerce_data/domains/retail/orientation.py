@@ -81,7 +81,8 @@ UPRIGHT: tuple[str, ...] = (
     "earrings", "espresso_cup", "eye_patches", "eyeliner", "face_mask", "false_nails", "fish_bag",
     "fishing_reel", "fishing_rod", "fitness_band", "floor_lamp", "foam_roller", "footstool",
     "fragrance", "fridge",
-    "fridge_magnet", "fridge_thermometer", "frying_pan", "garden_furniture", "garden_hose",
+    "fridge_magnet", "fridge_thermometer", "frying_pan",
+    "game_controller", "gaming_headset", "garden_furniture", "garden_hose",
     "garment_bag", "gift_bag", "gift_card", "gift_hamper", "gift_mug", "glue_gun", "golf_club",
     "golf_glove", "grass_trimmer",
     "greeting_card", "grill_press", "hair_dryer", "hair_straightener", "hairbrush", "hammer",
@@ -117,6 +118,7 @@ UPRIGHT: tuple[str, ...] = (
     "washer_dryer", "washing_machine", "watch", "water_gun", "weekend_bag", "whale", "wipes_pack",
     "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
+    "craft_tub", "learning_toy", "rc_vehicle",
     "air_freshener", "fluid_jug", "microfiber_towel", "wash_mitt", "wiper_blade",
 )
 

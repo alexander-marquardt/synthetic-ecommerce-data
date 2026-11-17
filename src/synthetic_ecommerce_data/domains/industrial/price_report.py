@@ -36,7 +36,13 @@ Each row is computed the way the census computed its figure:
 A new band is three census standard errors either side of the target, and a
 share or brand-spread row's band is never narrower than that: a figure the
 census measured on few pairs or specs gets the wide band its own sample
-leaves (:func:`share_band`, :func:`brand_spread_band`). A row
+leaves (:func:`share_band`, :func:`brand_spread_band`). A p50 or p90/p10
+row's band also takes in the build's own error (#891). It is widened by
+:data:`CENSUS_SES` standard errors of a bootstrap over the type's product lines
+(:func:`build_errors`), at most :data:`BUILD_SE_CAP` either side. A type that
+the default build makes on a few dozen lines lands its figures by those few
+draws, so another seed moves them further than the census band allows, while
+the 100K build's many lines leave its band near the census's. A row
 :data:`.price.PINNED_SHORTFALLS` names is reported with its reason, and is
 pinned by the tests to the side of its band that reason puts it, no further
 out than the figure :data:`.price.PINNED_FIGURES` records for that build
@@ -104,6 +110,13 @@ MONOTONE_BAND = 0.08
 ENDING_CLASSES = (".99", ".00", ".50", "other .x5")
 #: How many census standard errors a new band spans either side.
 CENSUS_SES = 3.0
+#: How many resamples of a type's product lines :func:`build_errors` draws.
+BOOTSTRAP_DRAWS = 200
+#: The most a p50 or p90/p10 band widens either side for the build's own error
+#: (:func:`widened`, #891). x2 of a p50 at the 0.8 floor is 1.6, past 1.25 x 1.25,
+#: and x0.5 of one at the 1.25 ceiling is 0.625, under 0.8 / 1.25: a catalog priced
+#: twice or half as high still leaves the band, as a squared or fifth-root spread does.
+BUILD_SE_CAP = 1.25
 BRAND_SPREAD_BAND = (0.75, 1.33)
 #: The fewest census pairs a smaller-costs-2x-or-more target is implied from
 #: (:func:`implied_twice_share`): below it, the census larger-costs-less
@@ -168,6 +181,8 @@ class Collected:
 
     #: Every modelled SKU's type.
     type_of: dict[str, str] = field(default_factory=dict)
+    #: Per type, each product line's modelled SKUs: what :func:`build_errors` resamples.
+    line_skus: dict[str, list[list[str]]] = field(default_factory=lambda: defaultdict(list))
     #: Per type, every within-cell (larger, smaller) SKU pair whose key differs.
     pairs: dict[str, CellPairs] = field(default_factory=dict)
     #: Per type, every (longer, shorter) SKU pair of one brand and line cell
@@ -225,10 +240,12 @@ def collect_into(out: Collected, catalog: Catalog) -> None:
         held = cell_names.get(line.type_key, frozenset())
         line_cell = tuple((a.name, a.value) for a in line.attributes if a.name in held)
         in_line: list[tuple[float, float, str]] = []
+        line_skus: list[str] = []
         for child in line.children:
             if child.detail_image_id:
                 continue  # a pack's price is its single's down a curve, not a census price (gen#14)
             out.type_of[child.sku] = line.type_key
+            line_skus.append(child.sku)
             if key_of is None:
                 continue
             attrs = {a.name: a for a in catalog.merged_attributes(line, child)}
@@ -258,6 +275,8 @@ def collect_into(out: Collected, catalog: Catalog) -> None:
                 (key, (_magnitude(attrs["Length"]) or 0.0) if length else 0.0, child.sku)
             )
         _product_pairs(out, line.type_key, in_line)
+        if line_skus:
+            out.line_skus[line.type_key].append(line_skus)
     for target, groups in ((out.pairs, cells), (out.length_pairs, by_length)):
         for (type_key, *_), members in groups.items():
             target.setdefault(type_key, CellPairs()).cells.append(members)
@@ -319,7 +338,10 @@ def _product_pairs(out: Collected, type_key: str, in_line: list[tuple[float, flo
 
 
 def _quantile(values: list[float], q: float) -> float:
-    ordered = sorted(values)
+    return _sorted_quantile(sorted(values), q)
+
+
+def _sorted_quantile(ordered: list[float], q: float) -> float:
     position = q * (len(ordered) - 1)
     low = math.floor(position)
     high = min(low + 1, len(ordered) - 1)
@@ -366,6 +388,32 @@ def ending_band(cls: str, type_counts: Mapping[str, int]) -> tuple[float, float]
     target = ending_targets(type_counts).get(cls, 0.0)
     width = CENSUS_SES * math.sqrt(_ending_variance(cls, type_counts))
     return (max(0.0, target - width), target + width)
+
+
+def build_errors(type_key: str, lines: Sequence[Sequence[float]]) -> tuple[float, float]:
+    """The standard errors, in logs, of a type's p50 and p90/p10 over its product lines'
+    ``lines`` of prices: :data:`BOOTSTRAP_DRAWS` resamples of the lines, with replacement.
+
+    A line is the unit a build draws (its brand, its sizes, its group noise), so a type built
+    on few lines lands its figures by few draws, and another seed moves them further than the
+    census band allows (#891). The resamples are seeded by the type, so a build always gets the
+    same band. One line has no error to resample: (0.0, 0.0)."""
+    if len(lines) < 2:
+        return 0.0, 0.0
+    rng = random.Random(f"price-bootstrap:{type_key}")
+    p50s, spreads = [], []
+    for _ in range(BOOTSTRAP_DRAWS):
+        ordered = sorted(p for _ in lines for p in rng.choice(lines))
+        p50s.append(math.log(_sorted_quantile(ordered, 0.5)))
+        spreads.append(math.log(_sorted_quantile(ordered, 0.9) / _sorted_quantile(ordered, 0.1)))
+    return statistics.stdev(p50s), statistics.stdev(spreads)
+
+
+def widened(band: tuple[float, float], error: float) -> tuple[float, float]:
+    """``band`` widened either side by :data:`CENSUS_SES` of the build's standard
+    ``error`` in logs (:func:`build_errors`), by :data:`BUILD_SE_CAP` at most."""
+    factor = min(math.exp(CENSUS_SES * error), BUILD_SE_CAP)
+    return band[0] / factor, band[1] * factor
 
 
 def share_band(target: float, n_pairs: int) -> tuple[float, float]:
@@ -531,7 +579,8 @@ def level_rows(
     collected: Collected,
     prices: Mapping[str, float],
 ) -> list[Comparison]:
-    """The p50 and p90/p10 rows of one type, against its census quantiles."""
+    """The p50 and p90/p10 rows of one type, against its census quantiles, each band
+    widened by the build's own error over its product lines (:func:`widened`, #891)."""
     from synthetic_ecommerce_data.domains.industrial.measure import (
         Comparison,  # noqa: PLC0415 -- measure imports this module
     )
@@ -541,6 +590,10 @@ def level_rows(
     built_p50 = _quantile(values, 0.5) if values else 0.0
     spread = _quantile(values, 0.9) / _quantile(values, 0.1) if values else 0.0
     target_spread = p90 / p10
+    p50_error, spread_error = build_errors(
+        type_key,
+        [[prices[sku] for sku in skus] for skus in collected.line_skus.get(type_key, ())],
+    )
     return [
         Comparison(
             f"price p50 (USD): {type_key}",
@@ -548,8 +601,8 @@ def level_rows(
             built_p50,
             n,
             census_n,
-            "shown price; denom is the census n",
-            (p50 * P50_BAND[0], p50 * P50_BAND[1]),
+            "shown price; denom is the census n; band widened by the build's error",
+            widened((p50 * P50_BAND[0], p50 * P50_BAND[1]), p50_error),
         ),
         Comparison(
             SPREAD_ROW.format(type_key),
@@ -557,8 +610,8 @@ def level_rows(
             spread,
             n,
             census_n,
-            "shown price; denom is the census n",
-            (target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]),
+            "shown price; denom is the census n; band widened by the build's error",
+            widened((target_spread * SPREAD_BAND[0], target_spread * SPREAD_BAND[1]), spread_error),
         ),
     ]
 
