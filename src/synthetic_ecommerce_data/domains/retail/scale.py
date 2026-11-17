@@ -248,8 +248,13 @@ LEAF_RANKS = 40
 #: slices of gen#956 present (audio, gaming and gadgets): it drew 1.54% at 0.001461.
 #: Cleaning's is recomputed for the paper goods of gen#962 slice 1 (0.008594 times its 2.28%
 #: target over the 2.69% it reached).
+#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
+#: blenders of slice 1 (Home took its share from 41.2% to 40.9%), then recomputed to 0.013232
+#: for the school backpacks, colored pencils and desk organizers of gen#969 slice 3 (0.0124
+#: times its 44% target over the share it reached), then merged with main's 0.01405 for
+#: the other new types (both dilute Clothing: 0.0124 x 1.067 x 1.133 = 0.01499).
 DEPARTMENT_RATE = {
-    "Clothing": 0.01405, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
+    "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
     "Footwear": 0.01799, "Electronics": 0.001461,
