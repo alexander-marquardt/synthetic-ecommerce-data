@@ -65,5 +65,5 @@ def ci_select():
 def test_a_change_to_a_part_selects_the_tests_that_drive_the_script(ci_select, part) -> None:
     """The selection keys on names in a test's text: ``merge_pr.sh`` alone misses a part."""
     path = f"scripts/merge_pr/{part}.sh"
-    selected = ci_select.select([path], modified={path})[0]
+    selected = ci_select.select([path])[0]
     assert set(DRIVERS) <= set(selected)

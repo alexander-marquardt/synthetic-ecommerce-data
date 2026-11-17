@@ -54,7 +54,7 @@ SLIGHT: tuple[str, ...] = (
 
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
-    "aftershave", "air_fryer",
+    "action_figure", "aftershave", "air_fryer",
     "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
     "baby_blanket", "baby_bottle", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
     "baseball_glove",
@@ -63,7 +63,8 @@ UPRIGHT: tuple[str, ...] = (
     "bike_pump",
     "bike_saddle", "bird", "blender",
     "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
-    "bowl", "box", "box_wide", "bracelet", "building_set", "bunting", "butter_block", "cabin_case",
+    "bowl", "box", "box_wide", "bracelet",
+    "brick_box", "building_set", "bunting", "butter_block", "cabin_case",
     "cake", "calculator",
     "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat", "cat_litter",
     "caulking_gun",
@@ -76,7 +77,7 @@ UPRIGHT: tuple[str, ...] = (
     "diaper_pack", "diary",
     "digital_watch", "dining_chair", "dining_table", "dinosaur", "dishwasher",
     "dishwasher_tablets", "document_folder",
-    "doll", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
+    "doll", "doll_box", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
     "drill_driver", "drinking_glass", "drop_earrings", "dry_pet_food", "dumbbell", "duvet",
     "e_reader", "earbuds",
     "earrings", "espresso_cup", "eye_patches", "eyeliner", "face_mask", "false_nails", "fish_bag",

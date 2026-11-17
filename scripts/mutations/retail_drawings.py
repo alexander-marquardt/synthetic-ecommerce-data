@@ -397,8 +397,8 @@ MUTATIONS: list[Mutation] = [
             (
                 "an apparel decoy is copied by the derivation",
                 "scale.py",
-                "    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS\n",
-                "    out = set(type_registry.left_out_ids())\n",
+                "    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS | films\n",
+                "    out = set(type_registry.left_out_ids()) | films\n",
                 "tests/test_retail_apparel_decoys_311.py -k never_copied_or_color_completed",
                 "an apparel decoy stays a template",
             ),
