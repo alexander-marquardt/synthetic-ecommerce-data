@@ -18,7 +18,7 @@ _SHAPE = "supplement_bottle"
 _WHITE = cw("White", "#f4f4f2", "solid", "#2a2a2e")
 _AMBER = cw("Amber", "#c98a2e", "solid", "#ffffff")
 _SAGE = cw("Sage", "#9bb08f", "solid", "#2a2a2e")
-#: The "Iron Grey Bottle" decoy's own colour: its title names it.
+#: The "Iron Grey Bottle" decoy's own color: its title names it.
 _GREY = cw("Grey", "#8d9399", "solid", "#ffffff")
 
 

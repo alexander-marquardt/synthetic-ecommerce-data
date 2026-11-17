@@ -2,9 +2,9 @@
 
 The maintainer, looking at a "vitamins" search: "make vitamins look more like vitamin bottles
 rather than how they currently look, which is like cups". Every vitamin and mineral drew the
-retail ``tub`` (a tall tapered open pot), so within a leaf only one of three pot colours told
+retail ``tub`` (a tall tapered open pot), so within a leaf only one of three pot colors told
 two products apart. ``supplement_bottle`` (``kit_health.py``) is a capped bottle in the
-colourway's colour, the cap in its accent, with a wrapped label: a band in the nutrient's colour,
+colorway's color, the cap in its accent, with a wrapped label: a band in the nutrient's color,
 the nutrient's name, and a tablet or capsule glyph by ``form``. The nutrient and the form are
 drawing params, so a derived style that swaps them is redrawn
 (``test_retail_scale.test_a_changed_value_is_redrawn_in_the_picture``).
@@ -91,19 +91,19 @@ def test_a_capsule_bottle_draws_a_capsule_glyph() -> None:
     assert 'class="tablet"' not in svg
 
 
-def test_the_label_band_is_coloured_by_nutrient() -> None:
+def test_the_label_band_is_colored_by_nutrient() -> None:
     def band(svg: str) -> str:
         found = re.search(r'class="band"[^>]*fill="(#[0-9a-f]{6})"', svg)
         assert found, "no label band"
         return found.group(1)
 
-    colours = {n: band(_svg(n, "Tablets")) for n in ("Vitamin C", "Zinc", "Magnesium")}
-    assert colours == {n: kit_health.band_colour(n) for n in colours}
-    assert len(set(colours.values())) == 3
-    assert band(_svg("Vitamin C", "Capsules")) == colours["Vitamin C"]
+    colors = {n: band(_svg(n, "Tablets")) for n in ("Vitamin C", "Zinc", "Magnesium")}
+    assert colors == {n: kit_health.band_color(n) for n in colors}
+    assert len(set(colors.values())) == 3
+    assert band(_svg("Vitamin C", "Capsules")) == colors["Vitamin C"]
 
 
-def test_the_cap_is_the_colourways_accent_and_the_bottle_its_base() -> None:
+def test_the_cap_is_the_colorways_accent_and_the_bottle_its_base() -> None:
     amber = kit.Fill("solid", "#c98a2e", "#ffffff")
     svg = _svg("Iron", "Tablets", amber)
     assert re.search(r'class="cap"[^>]*fill="#ffffff"', svg)

@@ -32,9 +32,9 @@ label is honest (`tests/test_retail_drawing_honesty.py`). Both types are `deriva
 build draws more bottles by swapping the ingredient and the form.
 
 The bottle (`kit_health.py`, gen#1028) replaced the retail `tub`, a tall open pot that read as a
-paper cup. It is drawn in the colourway's base (white, amber, sage), with the cap in its accent.
+paper cup. It is drawn in the colorway's base (white, amber, sage), with the cap in its accent.
 Its wrapped label carries what tells two bottles of one brand apart: the nutrient's name, a band
-coloured by the nutrient, and a scored tablet or a two-tone capsule by `form`. The nutrient and
+colored by the nutrient, and a scored tablet or a two-tone capsule by `form`. The nutrient and
 the form are the drawing's params, so a derived style that swaps them is redrawn. Within each leaf,
 no brand draws two products alike (`tests/test_retail_supplement_bottle_1028.py`). That test also
 lists every type still drawn as a `tub`.
