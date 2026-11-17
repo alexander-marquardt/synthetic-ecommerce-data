@@ -3,7 +3,7 @@
 The retail catalogue had no Health department: a ``terms`` count on the top level of
 ``category_path`` found none, where the 500K mix plans 5,000 (``docs/catalogue-mix-837.md``).
 This slice puts ``Health`` on the closed department list and adds the first two types under
-``Health > Vitamins & Supplements``: tubs of tablets and capsules sold by count, over the counter
+``Health > Vitamins & Supplements``: bottles of tablets and capsules sold by count, over the counter
 only, with invented brands and no medical or efficacy claim in any title or description.
 
 Each type passes the per-type gates the issue names, on its own (``docs/retail-health.md``):
@@ -86,9 +86,9 @@ def test_the_type_is_a_health_spec_under_vitamins_and_supplements(key: str) -> N
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_every_style_is_a_tub_sold_by_count_and_a_bigger_tub_costs_more(key: str) -> None:
+def test_every_style_is_a_bottle_sold_by_count_and_a_bigger_bottle_costs_more(key: str) -> None:
     for row in _spec(key).rows:
-        assert row.shape == "tub" and row.colorless, row.code
+        assert row.shape == "supplement_bottle" and row.colorless, row.code  # gen#1028
         assert re.search(r"\b(Tablets|Capsules)\b", row.title), row.code
         assert row.size_key == "piece_count", row.code
         counts = [int(n) for n, _ in row.sizes]
