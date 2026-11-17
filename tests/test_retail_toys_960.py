@@ -101,24 +101,24 @@ def _golden(toys: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Board Game": [
-        ("BRD-01970E3FA611", "Thistle & Wren Frolic Farmyard Friends Family Board Game", 3, 15.0),
-        ("BRD-01E496529CE6", "Puddlecombe Toys Imagine Wildwood Forest Family Board Game", 3, 16.0),
-        ("BRD-02096B1A91DE", "Lanternby Caper Wizard Academy Family Board Game", 3, 23.0),
+        ("BRD-01970E3FA611", "Thistle & Wren Bounce Farmyard Friends Family Board Game", 3, 15.0),
+        ("BRD-01E496529CE6", "Puddlecombe Toys Pretend Wildwood Forest Family Board Game", 3, 16.0),
+        ("BRD-02096B1A91DE", "Lanternby Wonder Wizard Academy Family Board Game", 3, 23.0),
     ],
     "Jigsaw Puzzle": [
         (
             "BRD-033462830AF2",
-            "Puddlecombe Toys Imagine World Map 1200 Piece Jigsaw Puzzle",
+            "Puddlecombe Toys Pretend World Map 1200 Piece Jigsaw Puzzle",
             1,
             16.0,
         ),
-        ("BRD-0790FABADDDA", "Calderby & Lune Bounce World Map 200 Piece Jigsaw Puzzle", 1, 11.5),
-        ("BRD-0D31E4C3132C", "Lanternby Caper Dinosaur 300 Piece Jigsaw Puzzle", 1, 12.5),
+        ("BRD-0790FABADDDA", "Calderby & Lune Caper World Map 200 Piece Jigsaw Puzzle", 1, 11.5),
+        ("BRD-0D31E4C3132C", "Lanternby Wobble Dinosaur 300 Piece Jigsaw Puzzle", 1, 12.5),
     ],
     "Card Game": [
-        ("BRD-003AD9103AC0", "Pipwick Toys Squeak Garden Gnomes Party Card Game", 3, 11.5),
-        ("BRD-022B945AAD59", "Pipwick Toys Squeak Racing Snails Strategy Card Game", 3, 7.0),
-        ("BRD-02E397FE9A73", "Puddlecombe Toys Imagine Ninja Kittens Strategy Card Game", 3, 8.5),
+        ("BRD-003AD9103AC0", "Pipwick Toys Imagine Garden Gnomes Party Card Game", 3, 11.5),
+        ("BRD-022B945AAD59", "Pipwick Toys Imagine Racing Snails Strategy Card Game", 3, 7.0),
+        ("BRD-02E397FE9A73", "Puddlecombe Toys Pretend Ninja Kittens Strategy Card Game", 3, 8.5),
     ],
 }
 
