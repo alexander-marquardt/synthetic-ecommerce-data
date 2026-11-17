@@ -124,24 +124,22 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each new type's first three derived styles by product id (seed 0, ceiling build). The
-#: first-aid and monitor types of gen#968 slice 2 shift the seeded brand draw; the ids, SKU
-#: counts and prices are unchanged.
+#: Each new type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Hair Dryer": [
-        ("BRD-0077A410FA13", "Brackworth Ceramic Travel Hair Dryer", 18, 47.0),
-        ("BRD-01D56FB601F9", "Hamington Infrared Travel Hair Dryer", 6, 38.0),
-        ("BRD-0609FB2D7E62", "Burnfield Infrared Folding Hair Dryer", 15, 30.0),
+        ("BRD-0077A410FA13", "Chapingham Ceramic Travel Hair Dryer", 18, 47.0),
+        ("BRD-01D56FB601F9", "Otton Infrared Travel Hair Dryer", 6, 38.0),
+        ("BRD-0609FB2D7E62", "Glenbank Infrared Folding Hair Dryer", 15, 30.0),
     ],
     "Hair Straightener": [
-        ("BRD-027568501F10", "Sandgate Ceramic Salon Hair Straightener", 6, 17.0),
-        ("BRD-051B2818F4E3", "Rosley Tourmaline Mini Hair Straightener", 12, 51.0),
-        ("BRD-107E2D20C55F", "Tidstead Titanium Salon Hair Straightener", 6, 62.0),
+        ("BRD-027568501F10", "Chelcombe Ceramic Salon Hair Straightener", 6, 17.0),
+        ("BRD-051B2818F4E3", "Sandbank Tourmaline Mini Hair Straightener", 12, 51.0),
+        ("BRD-107E2D20C55F", "Gosgate Titanium Salon Hair Straightener", 6, 62.0),
     ],
     "Hairbrush": [
-        ("BRD-0160A1505BAC", "Stokegarth Nylon Paddle Hairbrush", 9, 7.5),
-        ("BRD-03DDB4C39E3D", "Hamwell Mixed Bristle Vent Hairbrush", 18, 12.0),
-        ("BRD-03F99A7428C0", "Wathholme Mixed Vent Hairbrush", 12, 9.5),
+        ("BRD-0160A1505BAC", "Glenthorpe Nylon Paddle Hairbrush", 9, 7.5),
+        ("BRD-03DDB4C39E3D", "Quargarth Mixed Bristle Vent Hairbrush", 18, 12.0),
+        ("BRD-03F99A7428C0", "Rambeck Mixed Vent Hairbrush", 12, 9.5),
     ],
 }
 
