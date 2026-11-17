@@ -244,7 +244,7 @@ LEAF_RANKS = 40
 #: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
 #: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
 #: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
-#: Electronics' is its by-template-count share (0.9%) over its summed leaf weights, set with
+#: Electronics' is its by-template-count share over its summed leaf weights, set with
 #: Clothing's (0.01227 to 0.014044) for the audio types of gen#956 slice 1: at the default rate it
 #: drew 2.1% and took Clothing's share down to 40%. Slice 1 of gen#963 (coffee makers, air fryers
 #: and blenders) had raised it to 0.0124 on main; 0.014044 covers both.
