@@ -267,13 +267,15 @@ at a time, and `-n auto` starts 2 workers there (agent-ops `vm/ci_runner/runner.
 `CI_CPUS`, `CI_MEMORY`, `CI_MAX_JOBS`, `CI_PYTEST_WORKERS`), so a full run's jobs queue behind
 each other there. Unsetting the variable sends every job back to
 hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
-`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead; pull requests and
-dispatched runs (including `merge_pr.sh --github-ci`) keep `[self-hosted, synth-ci]`. The VM
+`true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead, and so do the jobs of
+the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-ops
+`coordinator/gen_train.sh`, #1031). Pull requests and the other dispatched runs (including
+`merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
-`vm/ci_runner/README.md`), so a merge's main run no longer waits behind pull-request runs. A
+`vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
 full run is 25 jobs (18 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
-to `false` to send main pushes back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
 
 ## A lost xdist worker is an infra failure, rerun once (#629)
 
