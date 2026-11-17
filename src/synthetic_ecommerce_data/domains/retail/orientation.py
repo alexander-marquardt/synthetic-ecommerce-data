@@ -114,6 +114,7 @@ UPRIGHT: tuple[str, ...] = (
     "wooden_toy",
     "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
     "bp_monitor", "first_aid_kit", "plaster_box", "thermometer",  # Health (gen#968)
+    "craft_tub", "learning_toy", "rc_vehicle",
     "air_freshener", "fluid_jug", "microfiber_towel", "wash_mitt", "wiper_blade",
 )
 
