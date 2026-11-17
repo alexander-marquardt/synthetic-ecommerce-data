@@ -16,7 +16,7 @@ that last recomputed it. A rate depends on its department and leaf alone, never 
 templates there are, so adding one adds its styles and moves no other (gen#626). The figures are
 ``scale.DEPARTMENT_SHARE`` (the rest by template count) divided by the department's summed leaf
 weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when the shares
-they give drift more than 3 points, which is the signal to recompute one, in its module here.
+they give drift more than 10 points, which is the signal to recompute one, in its module here.
 
 A module that lacks either name, whose rate is not a positive number, or that names a department
 another module names is refused by :func:`rates`. ``tests/test_department_rates_1044.py`` holds

@@ -21,7 +21,7 @@ from synthetic_ecommerce_data.domains.retail import department_rates, scale
 BEFORE = {
     "Clothing": 0.01405, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
-    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.01059,
+    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
     "Footwear": 0.01799, "Electronics": 0.001187,
 }  # fmt: skip
 

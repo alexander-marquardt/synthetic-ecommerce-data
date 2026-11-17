@@ -4,4 +4,4 @@ As calibrated at the templates of gen#626.
 """
 
 DEPARTMENT = "Garden"
-RATE = 0.01059
+RATE = 0.005990
