@@ -53,7 +53,7 @@ At the ceiling build 319 of the 348 derived washes shared a results-grid tile wi
 which took the build's grid-clone share past `CEILING_GRID_CLONES` (`tests/test_retail_scale.py`).
 With the hair type and the ingredient drawn, no derived wash shares a tile.
 
-The added templates raise Beauty's share of derived styles from 8% to 11.6% at the old rate, so
+The added templates raise Beauty's share of derived styles from 8% to 11.6 percent at the old rate, so
 `scale.DEPARTMENT_RATE["Beauty"]` is recomputed (shares divided by summed leaf weights) to hold the
 department at its 8% (`tests/test_retail_stable_ids_626.py`).
 
