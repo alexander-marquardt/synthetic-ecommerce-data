@@ -99,20 +99,21 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Headphones": [
-        ('BRD-00158C009A1C', 'Zenford Wired On-Ear Studio Headphones', 2, 130.0),
-        ('BRD-00584B99872D', 'Tidington Bass Boost USB-C Headphones', 2, 90.0),
-        ('BRD-019BC6280FF4', 'Chapingham USB-C Over-Ear Hi-Res Headphones', 6, 60.0),
+        ('BRD-00158C009A1C', 'Ramwell Wired On-Ear Studio Headphones', 2, 130.0),
+        ('BRD-00584B99872D', 'Beckington Bass Boost USB-C Headphones', 2, 90.0),
+        ('BRD-019BC6280FF4', 'Crakeley USB-C Over-Ear Hi-Res Headphones', 6, 60.0),
     ],
     "Portable Speaker": [
-        ('BRD-007B2C3AFCCB', 'Reafell Waterproof Bluetooth Speaker with Built-In Mic', 8, 59.0),
-        ('BRD-00E2C61EB6D9', 'Ormthorpe Mini Splash-Proof Bluetooth Speaker', 12, 26.0),
+        ('BRD-007B2C3AFCCB',
+         'Woldsthwaite Waterproof Bluetooth Speaker with Built-In Mic', 8, 59.0),
+        ('BRD-00E2C61EB6D9', 'Salthwaite Mini Splash-Proof Bluetooth Speaker', 12, 26.0),
         ('BRD-03384A7AF87A',
-         'Beckhill Compact Splash-Proof Bluetooth Speaker with Built-In Mic', 12, 56.0),
+         'Reathorpe Compact Splash-Proof Bluetooth Speaker with Built-In Mic', 12, 56.0),
     ],
     "Soundbar": [
-        ('BRD-00E223234E14', 'Yeldness 5.1 Channel Bluetooth Soundbar', 6, 375.0),
-        ('BRD-0152E9BC8020', 'Garingham Compact 3.1 Channel Optical Soundbar', 6, 410.0),
-        ('BRD-01EF816FCCD6', 'Rockbank Compact 2.0 Channel Bluetooth Soundbar', 4, 250.0),
+        ('BRD-00E223234E14', 'Kelholme 5.1 Channel Bluetooth Soundbar', 6, 375.0),
+        ('BRD-0152E9BC8020', 'Reaton Compact 3.1 Channel Optical Soundbar', 6, 410.0),
+        ('BRD-01EF816FCCD6', 'Wraybeck Compact 2.0 Channel Bluetooth Soundbar', 4, 250.0),
     ],
 }
 
