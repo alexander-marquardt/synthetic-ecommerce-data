@@ -2,8 +2,8 @@
 
 Raised from 0.01227 to 0.0124 for the coffee makers, air fryers and blenders of gen#963
 slice 1, whose Home styles took Clothing's share from 41.2% to 40.9%, past the 3 points (it is
-now 41.1%, against its 44%).
+now 41.1%, against its 44%). Raised again to 0.01405 by a later change on main.
 """
 
 DEPARTMENT = "Clothing"
-RATE = 0.0124
+RATE = 0.01405
