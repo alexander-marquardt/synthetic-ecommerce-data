@@ -482,7 +482,7 @@ RETIRED_TERMS_CAP = 25
 
 #: What the default build gains under the relative rule: every one is a terms
 #: attribute the retired cap withheld for its count alone. Measured on the
-#: default build and on ``--lines 39000``: the same eleven at both, and the
+#: default build and on ``--lines 39000``: these eleven at both, and the
 #: large build gains two more, an O-ring's Inside Dia. Tolerance and a drill
 #: bushing's Drill Size.
 #: The O-rings (#53) brought the ninth and tenth: their Dash Number (41 values)
@@ -492,8 +492,10 @@ RETIRED_TERMS_CAP = 25
 #: attribute, once the tenth, is not published any more (#497). An ER collet's
 #: Grip Range (#831) is one more: 26 clamping ranges over 53 product-value
 #: pairs on the default build (0.49), each repeated across the makers' lines.
-#: Style is the eleventh, which the acorn cap nuts' two crowns (#829), Low
-#: Crown and High Crown, took from 25 values to 27.
+#: Style is one more (#971): the stud finders' Edge Finding, Center Finding and
+#: Magnetic repeat across the makers' lines, so the relative rule offers it. The
+#: acorn cap nuts' two crowns (#829), Low Crown and High Crown, took it from 25
+#: values to 27.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",

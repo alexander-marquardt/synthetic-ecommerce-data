@@ -27,5 +27,5 @@ MUTANTS = [
      'random.Random(number(seed, "gaps", r["product_id"]) + len(base))',
      "clock-seed-by-template-count"),
     (I, "digest(axes(sku))[:SKU_HEX]", "digest(sku)[:SKU_HEX]", "sku-id-hashes-the-price"),
-    (S, '"Clothing": 0.01227,', '"Clothing": 0.02227,', "department-rate-drift"),
+    (S, '"Clothing": 0.01405,', '"Clothing": 0.02405,', "department-rate-drift"),
 ]
