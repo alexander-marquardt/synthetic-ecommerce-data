@@ -127,19 +127,19 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
 #: Each new type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Hair Dryer": [
-        ("BRD-0077A410FA13", "Wigbury Ceramic Travel Hair Dryer", 18, 47.0),
-        ("BRD-01D56FB601F9", "Malbrook Infrared Travel Hair Dryer", 6, 38.0),
-        ("BRD-0609FB2D7E62", "Sutham Infrared Folding Hair Dryer", 15, 30.0),
+        ("BRD-0077A410FA13", "Alnstone Ceramic Travel Hair Dryer", 18, 47.0),
+        ("BRD-01D56FB601F9", "Thurhurst Infrared Travel Hair Dryer", 6, 38.0),
+        ("BRD-0609FB2D7E62", "Wraywood Infrared Folding Hair Dryer", 15, 30.0),
     ],
     "Hair Straightener": [
-        ("BRD-027568501F10", "Ulvcombe Ceramic Salon Hair Straightener", 6, 17.0),
-        ("BRD-051B2818F4E3", "Sandbank Tourmaline Mini Hair Straightener", 12, 51.0),
-        ("BRD-107E2D20C55F", "Torhill Titanium Salon Hair Straightener", 6, 62.0),
+        ("BRD-027568501F10", "Ormthwaite Ceramic Salon Hair Straightener", 6, 17.0),
+        ("BRD-051B2818F4E3", "Rosingham Tourmaline Mini Hair Straightener", 12, 51.0),
+        ("BRD-107E2D20C55F", "Copthwaite Titanium Salon Hair Straightener", 6, 62.0),
     ],
     "Hairbrush": [
-        ("BRD-0160A1505BAC", "Thirstone Nylon Paddle Hairbrush", 9, 7.5),
-        ("BRD-03DDB4C39E3D", "Rockmoor Mixed Bristle Vent Hairbrush", 18, 12.0),
-        ("BRD-03F99A7428C0", "Townton Mixed Vent Hairbrush", 12, 9.5),
+        ("BRD-0160A1505BAC", "Ashfield Nylon Paddle Hairbrush", 9, 7.5),
+        ("BRD-03DDB4C39E3D", "Kenborough Mixed Bristle Vent Hairbrush", 18, 12.0),
+        ("BRD-03F99A7428C0", "Birkden Mixed Vent Hairbrush", 12, 9.5),
     ],
 }
 

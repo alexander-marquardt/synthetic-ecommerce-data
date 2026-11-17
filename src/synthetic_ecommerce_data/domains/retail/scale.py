@@ -253,6 +253,7 @@ LEAF_RANKS = 40
 #: for the school backpacks, colored pencils and desk organizers of gen#969 slice 3 (0.0124
 #: times its 44% target over the share it reached), then merged with main's 0.01405 for
 #: the other new types (both dilute Clothing: 0.0124 x 1.067 x 1.133 = 0.01499).
+#: Pets (gen#967 slice 1) was checked against 0.01499: every share stays inside its cap.
 #: Sports & Outdoors gets its own rate with the fishing and golf styles of gen#959, its first
 #: derivable types.
 DEPARTMENT_RATE = {

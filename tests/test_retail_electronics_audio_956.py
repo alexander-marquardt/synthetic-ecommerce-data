@@ -99,21 +99,19 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Headphones": [
-        ('BRD-00158C009A1C', 'Marthorpe Wired On-Ear Studio Headphones', 2, 130.0),
-        ('BRD-00584B99872D', 'Rockhill Bass Boost USB-C Headphones', 2, 90.0),
-        ('BRD-019BC6280FF4', 'Kirkburn USB-C Over-Ear Hi-Res Headphones', 6, 60.0),
+        ("BRD-00158C009A1C", "Winholme Wired On-Ear Studio Headphones", 2, 130.0),
+        ("BRD-00584B99872D", "Shelbank Bass Boost USB-C Headphones", 2, 90.0),
+        ("BRD-019BC6280FF4", "Gilton USB-C Over-Ear Hi-Res Headphones", 6, 60.0),
     ],
     "Portable Speaker": [
-        ('BRD-007B2C3AFCCB',
-         'Oxingham Waterproof Bluetooth Speaker with Built-In Mic', 8, 59.0),
-        ('BRD-00E2C61EB6D9', 'Otwyke Mini Splash-Proof Bluetooth Speaker', 12, 26.0),
-        ('BRD-03384A7AF87A',
-         'Pilwyke Compact Splash-Proof Bluetooth Speaker with Built-In Mic', 12, 66.0),
+        ("BRD-007B2C3AFCCB", "Stokemouth Waterproof Bluetooth Speaker with Built-In Mic", 8, 59.0),
+        ("BRD-00E2C61EB6D9", "Goswood Mini Splash-Proof Bluetooth Speaker", 12, 26.0),
+        ("BRD-03384A7AF87A", "Glenscar Compact Splash-Proof Bluetooth Speaker with Built-In Mic", 12, 56.0),  # noqa: E501
     ],
     "Soundbar": [
-        ('BRD-00E223234E14', 'Gosside 5.1 Channel Bluetooth Soundbar', 6, 375.0),
-        ('BRD-0152E9BC8020', 'Beckwell Compact 3.1 Channel Optical Soundbar', 6, 410.0),
-        ('BRD-01EF816FCCD6', 'Otfell Compact 2.0 Channel Bluetooth Soundbar', 4, 250.0),
+        ("BRD-00E223234E14", "Copwell 5.1 Channel Bluetooth Soundbar", 6, 375.0),
+        ("BRD-0152E9BC8020", "Kilstone Compact 3.1 Channel Optical Soundbar", 6, 410.0),
+        ("BRD-01EF816FCCD6", "Bramthwaite Compact 2.0 Channel Bluetooth Soundbar", 4, 250.0),
     ],
 }
 

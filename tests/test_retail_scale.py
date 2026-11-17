@@ -150,12 +150,12 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 CEILING_GRID_CLONES = 0.152
 #: The departments the ceiling build sells in (derivable styles), by name: a count here would
 #: read as a measured total (``tests/test_retail_figures_162.py``). Health joined with gen#968,
-#: Office & school with gen#969, Electronics with gen#956's first derivable types,
-#: Sports & Outdoors with gen#959's.
+#: Office & school with gen#969, Electronics with gen#956's first derivable types, Pets with
+#: gen#967, Sports & Outdoors with gen#959's.
 DEPARTMENTS = frozenset({
     "Beauty", "Cleaning & Janitorial", "Clothing", "Electronics", "Food & Drink", "Footwear",
     "Garden", "Gifts", "Health", "Home", "Lingerie & Nightwear", "Office & Stationery",
-    "Sports & Outdoors", "Toys",
+    "Pets", "Sports & Outdoors", "Toys",
 })  # fmt: skip
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
