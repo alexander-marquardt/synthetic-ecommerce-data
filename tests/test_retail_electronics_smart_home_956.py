@@ -170,7 +170,8 @@ def test_no_two_bulb_products_share_a_picture_on_any_seed(monkeypatch, seed) -> 
     """A bulb-only build with every bulb template exhausted (as ``test_retail_stable_ids_626``)."""
     tpls = [t for t in scale.templates() if t["product_type"] == "Smart Bulb"]
     monkeypatch.setattr(scale, "templates", lambda baseline=True: copy.deepcopy(tpls))
-    built = scale.build(10**6, seed=seed)
+    total = 10**6
+    built = scale.build(total, seed=seed)
     derived = [r for r in built.records if r["product_id"] in built.template_of]
     assert len(derived) > 100, len(derived)
     assert _shared_pictures(built.records) == []

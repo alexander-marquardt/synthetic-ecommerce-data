@@ -152,8 +152,10 @@ AXES: dict[str, tuple[str, ...]] = {
 NOT_SIZES: dict[str, str] = {
     "attachments": "what comes in the box with a hair dryer: the dryer is drawn the same",
     "plate_width": "the width of a straightener's plates: the tool is drawn the same",
+    "bulb_light": "a color: the bulb is drawn the same",
     "blade_length_in": "a fit: the blade is cut to the car's wiper arm",
     "brightness_lm": "a rating",
+    "connectivity": "how the bulb joins the home: the bulb is drawn the same",
     "cup_size": "a fit",
     "dimensions": "a towel's cloth cut: the drawing is one towel",
     "diaper_size": "a fit: the baby's weight band, on a pack drawn the same (gen#965)",
