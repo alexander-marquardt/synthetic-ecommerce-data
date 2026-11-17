@@ -122,8 +122,11 @@ def test_a_build_that_gives_two_styles_one_id_raises(monkeypatch, templates):
 
 
 def test_the_department_rates_give_the_department_shares(templates):
-    """The rates are constants, so a template added to a department moves its share: this fails
-    then, and DEPARTMENT_RATE is recomputed (shares / summed leaf weights)."""
+    """The department shares are guidance, not a hard requirement: a template added to one
+    department moves the others' shares, and this only fails past a 0.10 drift, so a PR that
+    grows one department is not held for shifting the others' shares. The ruling: "Generator
+    department shares are guidance: a PR that grows one department is not held for shifting the
+    other departments' shares" (2026-11-16, alexander-marquardt/synthetic-ecommerce-data#1011)."""
     base = scale.derivable(templates)
     want, got = scale.department_targets(base), scale.department_shares(base)
     off = {d: (round(want[d], 3), round(got.get(d, 0), 3)) for d in want
