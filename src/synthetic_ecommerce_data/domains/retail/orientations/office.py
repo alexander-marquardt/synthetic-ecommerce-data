@@ -2,9 +2,12 @@
 
 UPRIGHT: tuple[str, ...] = (
     "calculator",
+    "colored_pencils",
+    "desk_organizer",
     "document_folder",
     "pen",
     "pencil",
     "ring_binder",
+    "school_backpack",
     "spiral_notebook",
 )
