@@ -171,11 +171,15 @@ class TypeSpec:
     homes: tuple[Home, ...] = ()
 
     def __post_init__(self) -> None:
+        self.register_owners()
+
+    def register_owners(self) -> None:
+        """Add ``owners`` to :data:`breadth_rows.OWNERS`, keeping a brand another module states."""
         OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
 
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
-        OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
+        self.register_owners()
         return [r.doc() for r in self.rows] + [d.row.doc() for d in self.decoys]
 
 
@@ -329,6 +333,8 @@ def specs() -> dict[str, TypeSpec]:
         if spec.key != info.name:
             raise SpecError(f"type_specs/{info.name}.py declares key {spec.key!r}: name the file")
         validate(spec)
+        # A row read from the registry builds its document before any build has run (gen#1040).
+        spec.register_owners()
         found[spec.key] = spec
     seen: dict[tuple[str, str], str] = {}
     for spec in found.values():
