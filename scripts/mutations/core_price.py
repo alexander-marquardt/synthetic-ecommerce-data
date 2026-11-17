@@ -273,6 +273,14 @@ MUTATIONS: list[Mutation] = [
                 "the ending bands bite",
             ),
             (
+                "the build's error widens a p50 band without a cap",
+                "domains/industrial/price_report.py",
+                "BUILD_SE_CAP = 1.25",
+                "BUILD_SE_CAP = 9.0",
+                "scaling_every_price",
+                "a x2 or x0.5 price still leaves the p50 band (#891)",
+            ),
+            (
                 "the equal-price band is 10x wider",
                 "domains/industrial/price_report.py",
                 "    width = CENSUS_SES * math.sqrt(share * (1 - share) / census.n_pairs)",
@@ -484,5 +492,14 @@ MUTATIONS: list[Mutation] = [
                 "the counts are the census's",
             ),
         ]
+    ),
+    Mutation(
+        "price: a level band never takes in the build's error",
+        "domains/industrial/price_report.py",
+        "    if len(lines) < 2:\n        return 0.0, 0.0",
+        "    if len(lines) < 10**9:\n        return 0.0, 0.0",
+        "tests/test_price_seed_band_891.py -k moved_seed_holds_every_level_row",
+        "A",
+        "a moved seed's level rows hold their widened bands (#891)",
     ),
 ]

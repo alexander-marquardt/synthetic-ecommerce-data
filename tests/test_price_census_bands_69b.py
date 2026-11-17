@@ -13,6 +13,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.measure import measure
 from synthetic_ecommerce_data.domains.industrial.price_report import (
+    BUILD_SE_CAP,
     LENGTH_ROW,
     ORDER_ROW,
     P50_BAND,
@@ -59,11 +60,19 @@ def test_each_types_rows_are_scored_against_its_own_census_band(rows, type_key):
     q = entry["price_quantiles_usd"]
     assert f"price p50 (USD): {type_key}" in rows
     p50 = rows[f"price p50 (USD): {type_key}"]
-    assert p50.band == (q["p50"] * P50_BAND[0], q["p50"] * P50_BAND[1])
+    _assert_census_band_widened_by_the_build(p50.band, q["p50"], P50_BAND)
     spread = rows[SPREAD_ROW.format(type_key)]
-    target = q["p90"] / q["p10"]
-    assert spread.band == (target * SPREAD_BAND[0], target * SPREAD_BAND[1])
+    _assert_census_band_widened_by_the_build(spread.band, q["p90"] / q["p10"], SPREAD_BAND)
     assert ORDER_ROW.format(type_key) in rows
+
+
+def _assert_census_band_widened_by_the_build(band, target, census_band):
+    """The census band about ``target``, widened by the build's error and no more than
+    BUILD_SE_CAP either side, by one factor (#891)."""
+    low, high = target * census_band[0], target * census_band[1]
+    assert low / BUILD_SE_CAP <= band[0] <= low
+    assert high <= band[1] <= high * BUILD_SE_CAP
+    assert low / band[0] == pytest.approx(band[1] / high)
 
 
 def test_the_set_screws_length_row_is_scored_against_the_census_length_share(rows):
