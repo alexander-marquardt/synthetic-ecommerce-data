@@ -48,8 +48,7 @@ ANY: tuple[str, ...] = (
 UPRIGHT: tuple[str, ...] = (
     "anaerobic_threadlockers", "anti_seize_compounds", "ball_valves", "band_saw_blades",
     "bearing_greases", "bearing_pullers", "bench_tool_racks", "bench_vises", "bit_index_cases",
-    "bit_sharpeners", "c_clamps", "cabinet_knobs", "cantilever_racks", "center_punches",
-    "chain_breakers",
+    "bit_sharpeners", "c_clamps", "cantilever_racks", "center_punches", "chain_breakers",
     "chain_lubricants", "chain_tensioners", "circle_cutters", "cold_chisels",
     "combination_wrenches", "compound_cutters", "conduit_pliers", "cutter_sharpening_fixtures",
     "cutter_storage_cases", "cutter_storage_racks", "drawer_slides", "drive_guards",
@@ -60,7 +59,8 @@ UPRIGHT: tuple[str, ...] = (
     "pillow_block_bearings", "pin_pullers", "pneumatic_cut_off_tools", "rigging_pulleys",
     "rigid_casters", "safety_glasses",
     "shaft_alignment_lasers", "side_lock_holders", "silicone_greases", "snap_ring_pliers",
-    "spanner_wrenches", "swivel_casters", "tap_wrenches", "tape_measures", "tapping_fluids",
+    "spanner_wrenches", "stud_finders", "swivel_casters", "tap_wrenches", "tape_measures",
+    "tapping_fluids",
     "thread_chasers", "thread_pitch_gages", "thread_plug_gages", "thread_restoring_files",
     "tool_holsters", "wrench_organizers",
 )

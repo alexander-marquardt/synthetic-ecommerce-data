@@ -16,15 +16,16 @@ from __future__ import annotations
 import importlib.util
 import os
 import re
-import signal
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
+import wrapper_process
+
 REPO = Path(__file__).resolve().parent.parent
-SCRIPT = REPO / "scripts" / "ci_run_pytest.py"
+SCRIPT = wrapper_process.SCRIPT
 WORKFLOW = REPO / ".github" / "workflows" / "ci.yaml"
 
 _spec = importlib.util.spec_from_file_location("ci_run_pytest", SCRIPT)
@@ -78,16 +79,19 @@ else:
 """
 
 
-def run_wrapper(tmp_path: Path, mode: str) -> tuple[subprocess.CompletedProcess[str], int]:
+def run_wrapper(tmp_path: Path, mode: str) -> tuple[wrapper_process.Run, int]:
     fake = tmp_path / "fake.py"
     fake.write_text(FAKE, encoding="utf-8")
     counter = tmp_path / "runs"
-    done = subprocess.run(
-        [sys.executable, str(SCRIPT), "--", sys.executable, str(fake), str(counter), mode],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    proc = wrapper_process.start(
+        ["--", sys.executable, str(fake), str(counter), mode],
+        stderr=subprocess.PIPE, text=True,
+    )  # fmt: skip
+    try:
+        done = wrapper_process.finish(proc, timeout=60)
+    finally:
+        wrapper_process.reap(proc)
+    assert not done.gave_up, done.stdout + done.stderr
     return done, int(counter.read_text())
 
 
@@ -190,10 +194,14 @@ def test_a_killed_worker_s_last_module_and_peak_are_in_the_log(tmp_path: Path) -
     pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
                   "-p", "no:randomly", "--rootdir", str(tmp_path), "-n", "1",
                   "test_done.py", "test_killed.py"]  # fmt: skip
-    done = subprocess.run(
-        [sys.executable, str(SCRIPT), "--reruns", "0", "--", *pytest_cmd],
-        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
+    proc = wrapper_process.start(
+        ["--reruns", "0", "--", *pytest_cmd],
+        cwd=tmp_path, env=env, stderr=subprocess.PIPE, text=True,
     )  # fmt: skip
+    try:
+        done = wrapper_process.finish(proc, timeout=120)
+    finally:
+        wrapper_process.reap(proc)
     assert done.returncode == ci_run_pytest.EXIT_INFRA, done.stdout + done.stderr
     named = re.compile(r"^ci_run_pytest: gw0 was in test_killed\.py at \d+ MB$", re.M)
     assert named.search(done.stdout), done.stdout
@@ -232,16 +240,15 @@ def test_a_worker_lost_under_the_tests_job_s_options_ends_the_run(tmp_path: Path
     pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
                   "-p", "no:randomly", "--rootdir", str(tmp_path),
                   "test_a_killed.py", "test_b_later.py"]  # fmt: skip
-    run = subprocess.Popen(
-        [sys.executable, str(SCRIPT), "--reruns", "0", "--", *pytest_cmd],
-        cwd=tmp_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-        start_new_session=True,
-    )  # fmt: skip
+    run = wrapper_process.start(
+        ["--reruns", "0", "--", *pytest_cmd], cwd=tmp_path, env=env, text=True
+    )
     try:
-        out, _ = run.communicate(timeout=90)
-    except subprocess.TimeoutExpired:
-        os.killpg(run.pid, signal.SIGKILL)
-        out, _ = run.communicate()
+        done = wrapper_process.finish(run, timeout=90)
+    finally:
+        wrapper_process.reap(run)
+    out = done.stdout
+    if done.gave_up:
         pytest.fail(f"the run never ended after its worker was lost:\n{out}")
-    assert run.returncode == ci_run_pytest.EXIT_INFRA, out
+    assert done.returncode == ci_run_pytest.EXIT_INFRA, out
     assert "infra: worker lost" in out, out

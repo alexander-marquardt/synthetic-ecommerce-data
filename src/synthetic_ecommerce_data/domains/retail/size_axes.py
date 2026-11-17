@@ -75,6 +75,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Yoga Mat": ("thickness_mm",),
     "Yoga Strap": ("length_cm",),
     # What holds: a volume or a capacity.
+    "Air Fryer": ("capacity_l",),
     "Backpack": ("capacity_l",),
     "Casserole Dish": ("capacity_l",),
     "Holdall": ("capacity_l",),
@@ -125,6 +126,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mirror": ("height_cm", "width_cm", "size"),
     "Plant": ("size",),
     "Plant Pot": ("diameter_cm",),
+    "Planter": ("width_cm",),
     # Tools, cables and machines by what they cut or reach.
     "BBQ": ("diameter_cm", "length_cm"),
     "Cable": ("length_m",),

@@ -52,15 +52,9 @@ MAGNITUDE_WITH_UNIT = re.compile(
 #: never written here: ``TPI`` is a reciprocal LENGTH by ruling (elastic/prism#9877),
 #: and a test that wrote its own size could overrule that unseen.
 #:
-#: ``LBR`` and ``FOT`` are the codes this catalog writes that the deployment does
-#: not declare, so their sizes are stated here: ``LBR`` on one row
-#: (elastic/prism-industrial-products#164), ``FOT`` on a roller chain's
-#: ``Length`` (elastic/prism-industrial-products#170).
-UNITS: dict[str, Unit] = {
-    **pinned(),
-    "LBR": Unit("mass", Fraction(45359237, 100000)),
-    "FOT": Unit("length", Fraction(1524, 5)),
-}
+#: ``LBR`` and ``FOT`` were stated here while the deployment did not declare them;
+#: it does now, at the same sizes (the #49 refresh), so they are read like the rest.
+UNITS: dict[str, Unit] = pinned()
 
 #: The entries the angle defect (``Helix Angle = 42"``) wrote before #79: the inch mark
 #: read as an inch, so 78 rows of the default build put a LENGTH under an angle key.
@@ -166,14 +160,6 @@ def test_a_measured_value_carries_magnitude_unit_code_and_value_canonical(entrie
         assert entry["unit_code"] in UNITS, entry
         expected = float(UNITS[entry["unit_code"]].canonical(_exact(entry["value"])))
         assert entry["value_canonical"] == expected, entry
-
-
-def test_the_lbr_size_stated_here_redeclares_no_pinned_unit():
-    assert "LBR" not in pinned()
-
-
-def test_the_fot_size_stated_here_redeclares_no_pinned_unit():
-    assert "FOT" not in pinned()
 
 
 def _quantity(entry: dict[str, Any]) -> str | None:

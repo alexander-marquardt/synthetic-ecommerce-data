@@ -71,14 +71,16 @@
   "Measurement system": "Measurement System",
   "Outside dia.": "Outside Dia."
  },
- "cabinet_knobs": {
-  "Measurement system": "Measurement System"
- },
  "cantilever_racks": {
   "Rated load": "Rated Load"
  },
  "cap_nuts_acorn": {
-  "Thread size": "Thread Size"
+  "Head dia.": "Head Dia.",
+  "Measurement system": "Measurement System",
+  "Overall height": "Overall Height",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "carriage_bolts": {
   "Head dia.": "Head Dia.",
@@ -117,7 +119,10 @@
   "Units per pack": "Units per Pack"
  },
  "coupling_nuts": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "cut_resistant_gloves": {
   "ANSI cut level": "ANSI Cut Level",
@@ -609,6 +614,11 @@
  },
  "snap_ring_pliers": {
   "Overall length": "Overall Length"
+ },
+ "stud_finders": {
+  "Application modes": "Application Modes",
+  "Measurement system": "Measurement System",
+  "Scan depth (in.)": "Scan Depth (In.)"
  },
  "studs_double_end": {
   "Measurement system": "Measurement System",

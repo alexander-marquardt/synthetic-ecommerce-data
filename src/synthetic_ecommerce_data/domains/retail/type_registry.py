@@ -150,7 +150,9 @@ class TypeSpec:
 
     ``derivable`` True lets the scaled build draw derived styles from ``rows`` (a breadth type
     that grows with the build); False keeps them as templates only. A decoy is never derived.
-    ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated.
+    ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated;
+    the spec registers them in ``OWNERS`` when it is built, so a row's ``doc()`` finds its owner
+    after the spec's own import, whatever else ran (gen#994).
     A clothing, footwear or lingerie type carries ``apparel`` (its :class:`ApparelPlan` of
     text-match decoys, gen#311) or ``apparel_exempt`` (the reason it carries none); a type of any
     other department carries neither. :mod:`decoy_apparel` reads the plan from the registry.
@@ -168,9 +170,16 @@ class TypeSpec:
     options: tuple[Option, ...] = ()
     homes: tuple[Home, ...] = ()
 
+    def __post_init__(self) -> None:
+        self.register_owners()
+
+    def register_owners(self) -> None:
+        """Add ``owners`` to :data:`breadth_rows.OWNERS`, keeping a brand another module states."""
+        OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
+
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
-        OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
+        self.register_owners()
         return [r.doc() for r in self.rows] + [d.row.doc() for d in self.decoys]
 
 
@@ -324,6 +333,8 @@ def specs() -> dict[str, TypeSpec]:
         if spec.key != info.name:
             raise SpecError(f"type_specs/{info.name}.py declares key {spec.key!r}: name the file")
         validate(spec)
+        # A row read from the registry builds its document before any build has run (gen#1040).
+        spec.register_owners()
         found[spec.key] = spec
     seen: dict[tuple[str, str], str] = {}
     for spec in found.values():

@@ -240,15 +240,22 @@ LEAF_RANKS = 40
 #: templates there are, so adding one adds its styles and moves no other (gen#626). The figures
 #: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
 #: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
-#: the shares they give drift more than 3 points, which is the signal to recompute them. Beauty's
+#: the shares they give drift more than 10 points, which is the signal to recompute them. Beauty's
 #: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
 #: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
 #: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
+#: Cleaning's is recomputed for the paper goods of gen#962 slice 1 (0.008594 times its 2.28%
+#: target over the 2.69% it reached).
+#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
+#: blenders of slice 1 (Home took its share from 41.2% to 40.9%), then recomputed to 0.013232
+#: for the school backpacks, colored pencils and desk organizers of gen#969 slice 3 (0.0124
+#: times its 44% target over the share it reached), then merged with main's 0.01405 for
+#: the other new types (both dilute Clothing: 0.0124 x 1.067 x 1.133 = 0.01499).
 DEPARTMENT_RATE = {
-    "Clothing": 0.01227, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
+    "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
-    "Cleaning & Janitorial": 0.008594, "Gifts": 0.0048, "Garden": 0.01059,
-    "Footwear": 0.01799,
+    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
+    "Footwear": 0.01799, "Electronics": 0.001187,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
 DEFAULT_RATE = 0.008
@@ -326,8 +333,12 @@ def left_out() -> frozenset[str]:
     (gen#537): the rows of every spec that is not ``derivable``, every spec decoy, and the rows
     that a spec's ``Home(source, derivable=False)`` names in a shared source (the shirts, the
     furniture, the garden, the grocery, the Knacks rows and the rest of the templates-only
-    rows), and the clones of :mod:`decoy_apparel`, which are in no source."""
-    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS
+    rows), and the clones of :mod:`decoy_apparel`, which are in no source. The film merchandise
+    (:mod:`kids_films`) and the Barry Plotter range (:mod:`barry_plotter`) are never copied
+    either, even in a ``derivable`` spec such as the building sets' (gen#960): a derived copy
+    would sell the range under another brand."""
+    films = kids_films.ids() | barry_plotter.ids()
+    out = set(type_registry.left_out_ids()) | decoy_apparel.IDS | films
     homed = collections.defaultdict(set)
     for source, dept, ptype in type_registry.homed(derivable=False):
         homed[source].add((dept, ptype))

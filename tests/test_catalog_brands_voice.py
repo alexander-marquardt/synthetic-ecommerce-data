@@ -313,10 +313,24 @@ DISTINCT_SPEC_FLOOR = {
     # sells the same rows. Measured at 100K, 421 distinct specs of 722 SKUs (0.583), rounded
     # down to 0.05.
     "flange_nuts": 0.55,
+    # #829: an acorn cap nut is a DIN 1587 row or an SAE J483 row of a low or a high crown, in
+    # five stocked combinations, 175 specs before a dropped head diameter or finish, and every
+    # maker sells the same rows. Measured at 100K, 415 distinct specs of 746 SKUs (0.556),
+    # rounded down to 0.05.
+    "cap_nuts_acorn": 0.55,
+    # #829: a coupling nut is a DIN 6334 or ASME B18.2.2 row (19 threads, one length each) in
+    # five stocked combinations, 95 specs before a dropped grade or finish, and every maker
+    # sells the same rows. Measured at 100K, 244 distinct specs of 636 SKUs (0.384), rounded
+    # down to 0.05.
+    "coupling_nuts": 0.35,
     # #958: a picture hanger is a style, a metal and a color on a stocked rating, and makers
     # sell the same ones. Measured at 100K, 260 distinct specs of 395 SKUs (0.658), rounded
     # down to 0.05.
     "picture_hangers": 0.65,
+    # #971: a stud finder is a style, an indicator and a scan-mode tier (13 lines), a body
+    # color and the tier's two scan depths, 156 specs, and every maker sells the same ones.
+    # Measured at 100K, 156 distinct specs of 345 SKUs (0.452), rounded down to 0.05.
+    "stud_finders": 0.40,
     # #971: a tape measure is a case material, a lock and a color on a stocked blade length,
     # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
     # SKUs (0.802), rounded down to 0.05.
