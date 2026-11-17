@@ -55,8 +55,9 @@ QUOTING = (
 
 #: Constants that tune the build, not totals it measures: a small total that happens to equal
 #: one (gen#200's 40 household styles and ``ATTEMPTS = 40``, gen#626's ``LEAF_RANKS = 40`` and
-#: ``RETRIES = 4``) is a collision, not a quotation.
-TUNING = ("ATTEMPTS", "LEAF_RANKS", "RETRIES")
+#: ``RETRIES = 4``, gen#956's 13 departments and the 13 cups-plural styles) is a collision, not
+#: a quotation.
+TUNING = ("ATTEMPTS", "DEPARTMENTS", "LEAF_RANKS", "RETRIES")
 
 
 #: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
