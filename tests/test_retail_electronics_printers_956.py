@@ -126,14 +126,14 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Printer": [
-        ("BRD-0206A3C29992", "Fairley Laser Photo Printer", 2, 270.0),
-        ("BRD-0230D119E7A4", "Gilstead Laser Multifunction Printer", 6, 220.0),
-        ("BRD-024FA5CEDC39", "Chapcliffe Inkjet Photo Printer", 6, 135.0),
+        ("BRD-0206A3C29992", "Rockden Laser Photo Printer", 2, 270.0),
+        ("BRD-0230D119E7A4", "Melford Laser Multifunction Printer", 6, 220.0),
+        ("BRD-024FA5CEDC39", "Leaburn Inkjet Photo Printer", 6, 135.0),
     ],
     "Ink Cartridge": [
-        ("BRD-033A01D781CE", "Holington Standard Dye Ink Cartridge", 6, 41.0),
-        ("BRD-043A22B65182", "Harbury XL Ink Cartridge", 6, 17.0),
-        ("BRD-0529840C833B", "Gosgate Standard Ink Cartridge", 6, 34.0),
+        ("BRD-033A01D781CE", "Towncombe Standard Dye Ink Cartridge", 6, 41.0),
+        ("BRD-043A22B65182", "Hepdale XL Ink Cartridge", 6, 17.0),
+        ("BRD-0529840C833B", "Reathwaite Standard Ink Cartridge", 6, 34.0),
     ],
 }
 
