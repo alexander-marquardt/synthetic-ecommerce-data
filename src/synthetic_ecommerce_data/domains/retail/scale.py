@@ -254,10 +254,10 @@ LEAF_RANKS = 40
 #: styles took its share from 41.1% on main to 40.6%, more than 3 points under its 44% target
 #: (0.01227 times 44 over 40.6).
 DEPARTMENT_RATE = {
-    "Clothing": 0.0133, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
+    "Clothing": 0.01405, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.01059,
-    "Footwear": 0.01799, "Electronics": 0.00352,
+    "Footwear": 0.01799, "Electronics": 0.001187,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
 DEFAULT_RATE = 0.008
