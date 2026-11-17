@@ -164,7 +164,7 @@ _INFLATORS = (
     ("DP", "Dual Power Tire Inflator", "12V Socket or Wall Outlet", "150", "box", 69.0,
      "it runs from the car's 12 V socket on the road or a wall outlet in the garage"),
     ("BC", "Battery Clamp Tire Inflator", "Car Battery Clamps", "150", "box", 79.0,
-     "it clamps straight onto the car battery to fill the larger tires of an SUV or a pickup quickly"),
+     "it clamps straight onto the car battery to fill the larger tires of a pickup or a big SUV quickly"),
     ("MN", "Mini Tire Inflator", "Rechargeable Battery", "120", "handheld", 35.0,
      "a palm-sized inflator for the glovebox that tops up one tire on a charge"),
 )
@@ -172,7 +172,7 @@ _INFLATOR_BRANDS = ((AMPWICK, 1.1), (HOLTVANE, 1.0), (DRAYFIELD, 0.85))
 TIRE_INFLATORS = tuple(
     _row(f"AUTI{c}{b + 1}", f"{brand} {title}", brand, "Electrics", "Tire Inflators", "Tire Inflator", "tire_inflator",
          f"{_sentence(note)} It reads the pressure in psi and holds up to {psi} psi.",
-         (_a("power_source", "Power source", power), _a("max_pressure", "Max pressure", f"{psi} psi")),
+         (_a("power_source", "Power source", power), _a("max_pressure", "Maximum pressure (psi)", psi)),
          (), "size", round(price * k, 2), (("style", style),))
     for c, title, power, psi, style, price, note in _INFLATORS
     for b, (brand, k) in enumerate(_INFLATOR_BRANDS)
@@ -222,7 +222,7 @@ _CHARGER_BRANDS = ((AMPWICK, 1.1), (HOLTVANE, 1.0), (DRAYFIELD, 0.85))
 CAR_CHARGERS = tuple(
     _row(f"AUCC{c}{b + 1}", f"{brand} {title}", brand, "Electrics", "Car Chargers", "Car Charger", "charger",
          f"{_sentence(note)} It plugs into the 12 V socket and gives up to {watts} in all.",
-         (_a("ports", "Ports", ports), _a("power_output", "Power output", watts)),
+         (_a("ports", "Ports", ports), _a("power_output", "Power output (W)", watts.removesuffix(" W"))),
          (("Single", round(price * k, 2)), ("2 pack", round(price * k * 1.8, 2))), "pack_size", params=(("kind", "car"),))
     for c, title, ports, watts, price, note in _CHARGERS
     for b, (brand, k) in enumerate(_CHARGER_BRANDS)
@@ -247,7 +247,7 @@ DECOY_ROWS = {
         (6, "lithium jump starter", "generic", _decoy("AUDJS1", "Ampwick 900A Lithium Run Jump Starter Box",
          "From the Lithium Run range: a sealed lead-acid jump box with a carry handle.", JUMP_STARTERS[27])),
         (7, "holtvane jump starter", "brand facet: a brand named in the text is not the product's brand",
-         _decoy("AUDJS2", "Jump Starter that Charges Holtvane Phone Mounts", "A jump starter whose USB-C port can power a Holtvane wireless mount.", JUMP_STARTERS[3], brand=AMPWICK)),
+         _decoy("AUDJS2", "Jump Starter with USB-C Power for Holtvane Phone Mounts", "A jump starter whose USB-C port can power a Holtvane wireless mount.", JUMP_STARTERS[3], brand=AMPWICK)),
     ),
     "tire_inflator": (
         (6, "cordless tire inflator", "generic", _decoy("AUDTI1", "Cordless Garage 12V Plug-In Tire Inflator",
