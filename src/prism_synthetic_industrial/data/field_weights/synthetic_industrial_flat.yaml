@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 141 distinct attribute names and a hand-maintained list
-# of 141 declarations drifts from the data the first time either side moves.
+# publishes 144 distinct attribute names and a hand-maintained list
+# of 144 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      141
-#   offered as facets        123  (1 numeric ranges, 122 terms)
+#   attributes declared      144
+#   offered as facets        126  (1 numeric ranges, 125 terms)
 #   declared, not faceted    18
 # =============================================================================
 
@@ -237,6 +237,11 @@ fields:
     type: terms
     source: facets.application
     facet: false
+  # Application modes -- 3 distinct values over 17 product-value pairs is 0.18 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 28 documents across 1 product type(s); 3 distinct values
+  - name: application_modes
+    type: terms
+    source: facets.application_modes
   # Arbor hole -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 3 distinct values over 741 product-value pairs is 0.00 per product
   #   present on 1298 documents across 2 product type(s); 3 distinct values
   - name: arbor_hole
@@ -312,8 +317,8 @@ fields:
   - name: coating
     type: terms
     source: facets.coating
-  # Color -- 6 distinct values over 45 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 83 documents across 3 product type(s); 6 distinct values
+  # Color -- 6 distinct values over 62 product-value pairs is 0.10 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 111 documents across 4 product type(s); 6 distinct values
   - name: color
     type: terms
     source: facets.color
@@ -429,8 +434,8 @@ fields:
   - name: features
     type: terms
     source: facets.features
-  # Finish -- 23 distinct values over 4373 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 9068 documents across 69 product type(s); 23 distinct values
+  # Finish -- 23 distinct values over 4398 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 9121 documents across 69 product type(s); 23 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -465,8 +470,8 @@ fields:
   - name: gauge
     type: terms
     source: facets.gauge
-  # Grade -- 13 distinct values over 878 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 1719 documents across 9 product type(s); 13 distinct values
+  # Grade -- 13 distinct values over 896 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 1757 documents across 10 product type(s); 13 distinct values
   - name: grade
     type: terms
     source: facets.grade
@@ -552,6 +557,11 @@ fields:
   - name: hub_diameter
     type: terms
     source: facets.hub_diameter
+  # Indicator -- 4 distinct values over 17 product-value pairs is 0.24 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 28 documents across 1 product type(s); 4 distinct values
+  - name: indicator
+    type: terms
+    source: facets.indicator
   # Inside dia. -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 65 distinct values over 373 product-value pairs is 0.17 per product
   #   present on 373 documents across 3 product type(s); 65 distinct values
   - name: inside_dia
@@ -577,8 +587,8 @@ fields:
   - name: knit_gauge
     type: terms
     source: facets.knit_gauge
-  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 121 distinct values over 3769 product-value pairs is 0.03 per product
-  #   present on 4047 documents across 42 product type(s); 121 distinct values
+  # Length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 125 distinct values over 3828 product-value pairs is 0.03 per product
+  #   present on 4112 documents across 42 product type(s); 125 distinct values
   - name: length
     type: terms
     source: facets.length
@@ -619,8 +629,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 63 distinct values over 6563 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 13187 documents across 164 product type(s); 63 distinct values
+  # Material -- 63 distinct values over 6610 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 13280 documents across 165 product type(s); 63 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -651,7 +661,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 6162 documents across 67 product type(s); 4 distinct values
+  #   present on 6207 documents across 69 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -766,6 +776,11 @@ fields:
     type: terms
     source: facets.row_type
     facet: false
+  # Scan depth (in.) -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 28 product-value pairs is 0.14 per product
+  #   present on 28 documents across 1 product type(s); 4 distinct values
+  - name: scan_depth_in
+    type: terms
+    source: facets.scan_depth_in
   # Schedule -- 2 distinct values over 32 product-value pairs is 0.06 per product, below the 0.50 identifier threshold, so the values repeat
   #   present on 57 documents across 1 product type(s); 2 distinct values
   - name: schedule
@@ -817,8 +832,8 @@ fields:
     type: terms
     source: facets.square_size
     facet: false
-  # Standards -- 86 distinct values over 4911 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 7742 documents across 38 product type(s); 86 distinct values
+  # Standards -- 87 distinct values over 4927 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 7779 documents across 39 product type(s); 87 distinct values
   - name: standards
     type: terms
     source: facets.standards
@@ -832,8 +847,8 @@ fields:
   - name: stock_fit
     type: terms
     source: facets.stock_fit
-  # Style -- 25 distinct values over 197 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 347 documents across 15 product type(s); 25 distinct values
+  # Style -- 28 distinct values over 214 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 375 documents across 16 product type(s); 28 distinct values
   - name: style
     type: terms
     source: facets.style
@@ -869,13 +884,13 @@ fields:
     type: terms
     source: facets.thread_pitch
     facet: false
-  # Thread size -- 67 distinct values over 2473 product-value pairs is 0.03 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 2507 documents across 21 product type(s); 67 distinct values
+  # Thread size -- 67 distinct values over 2538 product-value pairs is 0.03 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 2572 documents across 21 product type(s); 67 distinct values
   - name: thread_size
     type: terms
     source: facets.thread_size
-  # Thread type -- 5 distinct values over 1917 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 3868 documents across 15 product type(s); 5 distinct values
+  # Thread type -- 5 distinct values over 1940 product-value pairs is 0.00 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 3924 documents across 16 product type(s); 5 distinct values
   - name: thread_type
     type: terms
     source: facets.thread_type
@@ -924,8 +939,8 @@ fields:
   - name: width
     type: terms
     source: facets.width
-  # Width across flats -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 86 distinct values over 2261 product-value pairs is 0.04 per product
-  #   present on 2598 documents across 7 product type(s); 86 distinct values
+  # Width across flats -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 87 distinct values over 2319 product-value pairs is 0.04 per product
+  #   present on 2665 documents across 8 product type(s); 87 distinct values
   - name: width_across_flats
     type: terms
     source: facets.width_across_flats

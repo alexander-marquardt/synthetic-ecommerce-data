@@ -114,7 +114,10 @@
   "Units per pack": "Units per Pack"
  },
  "coupling_nuts": {
-  "Thread size": "Thread Size"
+  "Measurement system": "Measurement System",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "cut_resistant_gloves": {
   "ANSI cut level": "ANSI Cut Level",
@@ -601,6 +604,11 @@
  },
  "snap_ring_pliers": {
   "Overall length": "Overall Length"
+ },
+ "stud_finders": {
+  "Application modes": "Application Modes",
+  "Measurement system": "Measurement System",
+  "Scan depth (in.)": "Scan Depth (In.)"
  },
  "studs_double_end": {
   "Measurement system": "Measurement System",
