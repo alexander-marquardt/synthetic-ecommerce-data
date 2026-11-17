@@ -1,4 +1,4 @@
-"""Mutation rows for the main-push runner reservation (agent-ops#189).
+"""Mutation rows for the main-push and batch-dispatch runner reservation (agent-ops#189, #1031).
 
 Each row plants one defect in the ``runs-on`` expression of one job in ``ci.yaml`` and names the
 test that must go red. Found by ``mutation_row.discover``; ``--only "main runner:"`` re-runs them.
@@ -15,7 +15,11 @@ _HEAD = (
     "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || "
     "github.event.pull_request.head.repo.full_name == github.repository) && "
 )
-_PICK = "fromJSON(github.event_name == 'push' && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
+_EVENT = (
+    "(github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && "
+    "startsWith(github.ref_name, 'ci/batch-')))"
+)
+_PICK = "fromJSON(" + _EVENT + " && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
 _MAIN = '\'["self-hosted","synth-ci-main"]\''
 _POOL = '\'["self-hosted","synth-ci"]\''
 # `lint:` is the first job and `runs-on:` follows it directly, so its line is unique in the file.
@@ -38,8 +42,20 @@ def rows() -> list[Row]:
         _row(
             "the variable gate is dropped",
             _LINT + _PICK,
-            _LINT + "fromJSON(github.event_name == 'push' && ",
+            _LINT + "fromJSON(" + _EVENT + " && ",
             "the repository variable is the switch for the reservation",
+        ),
+        _row(
+            "the batch dispatch is dropped",
+            _LINT + _PICK,
+            _LINT + _PICK.replace(_EVENT, "github.event_name == 'push'"),
+            "the merge train's batch run asks for the reserved runners (#1031)",
+        ),
+        _row(
+            "every dispatch asks for the reserved runners",
+            _LINT + _PICK,
+            _LINT + _PICK.replace("'ci/batch-'", "''"),
+            "merge_pr.sh's dispatch on ci/merge-<N> keeps the shared pool (#1031)",
         ),
         _row(
             "the main label is misspelt",
