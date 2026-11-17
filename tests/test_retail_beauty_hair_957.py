@@ -124,9 +124,7 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each new type's first three derived styles by product id (seed 0, ceiling build). The smart
-#: home brands of gen#956 slice 2a move the range words in the scale deal; the ids, SKU counts
-#: and prices are unchanged.
+#: Each new type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Hair Dryer": [
         ("BRD-0077A410FA13", "Stanmere Ceramic Travel Hair Dryer", 18, 47.0),

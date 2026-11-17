@@ -197,7 +197,8 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
-#: Cleaning's paper brands (gen#962) moved the range words; ids, SKU counts, prices are unchanged.
+#: Main's brand pool moved the range words in the window gen#962, gen#1007 and gen#1010 merged
+#: in; ids, SKU counts, prices are unchanged.
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Smart Plug": [
         ("BRD-01793710EC8B", "Alnholme Mini Zigbee Smart Plug", 2, 31.0),

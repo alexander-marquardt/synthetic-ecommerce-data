@@ -71,9 +71,9 @@ blue ring light on a black doorbell. The other is class 6: a color word in a ran
 draws its base row's picture, so it carries a brand the bulb templates do not use.
 
 **Department rates.** A department's derived share comes from its rate (`scale.DEPARTMENT_RATE`).
-Electronics gets its own, so its share meets its target, and Clothing's is recomputed, since
-the new department took Clothing more than 3 points under its 44% target
-(`tests/test_retail_stable_ids_626.py`).
+The smart home types change no rate: Electronics and Clothing keep the rates main set for
+the earlier Electronics types. They add templates, which move no rate (gen#626), and
+`tests/test_retail_stable_ids_626.py` holds each department's share near its target.
 
 **Measured** (ceiling build, seed 0): the department's size, its styles per type and the
 authored and derived split are read from the build (`retail_figures`), never typed here. On
