@@ -1,14 +1,17 @@
-"""Office & school, slices 1 and 2 (gen#969): the department, with pens, pencils, spiral
-notebooks, ring binders, document folders and calculators.
+"""Office & school, slices 1, 2 and 3 (gen#969): the department, with pens, pencils, spiral
+notebooks, ring binders, document folders, calculators, school backpacks, colored pencils and
+desk organizers.
 
 The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
 drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,
-``document_folder.py``, ``calculator.py``). These checks hold the slices' Done-when: the ceiling
-build has at least 2,850 SKUs under the department; each type's styles have unique ids, titles
-and twin keys; the rows and their drawings are the same on every call; and a golden slice pins
-each type's first derived styles, so a change that moves them shows here.
+``document_folder.py``, ``calculator.py``) and slice 3 the bag, art and desk types
+(``type_specs/school_backpack.py``, ``colored_pencils.py``, ``desk_organizer.py``). These checks
+hold the slices' Done-when: the ceiling build has at least 4,275 SKUs under the department, with
+each slice's share; each type's styles have unique ids, titles and twin keys; the rows and their
+drawings are the same on every call; and a golden slice pins each type's first derived styles, so
+a change that moves them shows here.
 """
 
 from __future__ import annotations
@@ -21,14 +24,22 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, type_registry
 
-TYPES = ("Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator")
+SLICE_3 = ("School Backpack", "Colored Pencils", "Desk Organizer")
+TYPES = (
+    "Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator", *SLICE_3
+)
 KEYS = {
     "Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook",
     "Ring Binder": "ring_binder", "Document Folder": "document_folder", "Calculator": "calculator",
+    "School Backpack": "school_backpack", "Colored Pencils": "colored_pencils",
+    "Desk Organizer": "desk_organizer",
 }  # fmt: skip
-#: Slice 2's floor at the ceiling build (the gate comment of gen#969): 1,400 for slice 1, plus
-#: 1,450 for ring binders, document folders and calculators.
-FLOOR = 2_850
+#: Slice 3's share of the department at the ceiling build: the issue's 4,275 less slice 2's
+#: floor of 2,850 (the gate comments of gen#969).
+SLICE_3_SHARE = 1_425
+#: The department's floor at the ceiling build: slice 1's 1,400, slice 2's 1,450 and slice 3's
+#: 1,425, the issue's 4,275.
+FLOOR = 1_400 + 1_450 + SLICE_3_SHARE
 
 
 @pytest.fixture(scope="module")
@@ -44,6 +55,17 @@ def test_the_department_is_on_the_closed_list() -> None:
 def test_the_ceiling_build_holds_the_slice_floor_of_office_skus(office) -> None:
     skus = sum(r["sku_count"] for r in office)
     assert skus >= FLOOR, skus
+
+
+def test_the_slice_3_types_hold_their_share_of_office_skus(office) -> None:
+    skus = sum(r["sku_count"] for r in office if r["product_type"] in SLICE_3)
+    assert skus >= SLICE_3_SHARE, skus
+
+
+def test_the_school_backpack_is_its_own_type_apart_from_clothing_backpacks() -> None:
+    specs = type_registry.specs()
+    assert specs["school_backpack"].product_type == "School Backpack"
+    assert specs["backpack"].department == "Clothing"
 
 
 def test_every_type_of_the_slice_is_derived_in_the_ceiling_build(office) -> None:
@@ -114,6 +136,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-03D4351FCA63", "Lincliffe 12 Digit Desktop Calculator", 18, 10.0),
         ("BRD-048533587DC8", "Uplow 8 Digit Basic Calculator", 18, 4.5),
         ("BRD-1FFE28C571F6", "Morhurst 12 Digit Basic Calculator", 18, 4.05),
+    ],
+    "School Backpack": [
+        ("BRD-01A43CE6FCD7", "Rudlow 15 L Classic School Backpack", 6, 15.5),
+        ("BRD-01BA38373142", "Clevebrook 25 L Laptop School Backpack", 6, 34.0),
+        ("BRD-0592753A802F", "Townborough 30 L Classic School Backpack", 2, 50.0),
+    ],
+    "Colored Pencils": [
+        ("BRD-0E1EAFC1DBA7", "Ravbury 36 Watercolor Colored Pencils", 6, 25.0),
+        ("BRD-15303E7EFCBF", "Readale 48 Classic Colored Pencils", 12, 31.0),
+        ("BRD-17B4E307D6ED", "Penworth 12 Soft Core Colored Pencils", 18, 7.0),
+    ],
+    "Desk Organizer": [
+        ("BRD-0433EA9A7695", "Ryshaw 6 Compartment Felt Desk Organizer", 18, 20.0),
+        ("BRD-0B28AA29D695", "Flaxside 3 Compartment Mesh Desk Organizer", 6, 9.0),
+        ("BRD-0BCD3137F6B9", "Hawcombe 5 Compartment Metal Desk Organizer", 18, 11.0),
     ],
 }
 

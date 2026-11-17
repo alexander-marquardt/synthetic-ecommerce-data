@@ -41,7 +41,7 @@ ROWS = (
         _calc("Desktop", "12 Digit", "Dual Power"), packs((1, 9.0), (5, 42.0), (10, 80.0)),
         (("calculator_type", "desktop"), ("power", "dual power"))),
     row("CALS10", "10 Digit Scientific Calculator", THISTLE, CALCULATORS, "Calculator", "calculator",
-        "A calculator with 240 functions, fractions and statistics, for school maths and science lessons.",
+        "A calculator with 240 functions, fractions and statistics, for school math and science lessons.",
         _calc("Scientific", "10 Digit", "Battery"), packs((1, 12.0), (5, 55.0), (10, 105.0)),
         (("calculator_type", "scientific"), ("power", "battery"))),
     row("CALB10", "10 Digit Basic Calculator", CALDERBY, CALCULATORS, "Calculator", "calculator",
@@ -60,6 +60,6 @@ SPEC = TypeSpec(
         Decoy(4, "red calculator", "vocabulary", decoy(ROWS[0], "CALRDK", "8 Digit Pocket Calculator with Red Keys",
               "A white calculator with a large display and red rubber keys.", WHITE)),
         Decoy(6, "blue calculator", "generic", decoy(ROWS[2], "CALBRG", "Blue Ridge 10 Digit Scientific Calculator",
-              "From the Blue Ridge range: a black calculator with 240 functions for school maths.", BLACK)),
+              "From the Blue Ridge range: a black calculator with 240 functions for school math.", BLACK)),
     ),
 )  # fmt: skip
