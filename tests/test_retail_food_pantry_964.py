@@ -71,10 +71,22 @@ def test_each_type_has_unique_ids_titles_and_twin_keys(food, ptype) -> None:
     assert len(skus) == len(set(skus))
 
 
+def _spec(ptype: str) -> type_registry.TypeSpec:
+    """The type's spec, its brands' owners stated as the build states them.
+
+    ``TypeSpec.docs`` adds the spec's ``owners`` to ``breadth_row.OWNERS``; a row's ``doc()``
+    alone reads them. Without this call a case passed only after another test of the process had
+    built the catalogue, and failed on a CI shard that ran it first (gen#1037).
+    """
+    spec = type_registry.specs()[KEYS[ptype]]
+    spec.docs()
+    return spec
+
+
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
-    spec = type_registry.specs()[KEYS[ptype]]
-    assert [r.doc() for r in spec.rows] == [r.doc() for r in spec.rows]
+    spec = _spec(ptype)
+    assert spec.docs() == spec.docs()
     fill = kit.Fill("solid", "#123456", "#654321")
     for row in spec.rows:
         params = dict(row.params)
@@ -84,7 +96,7 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
 
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_carries_text_match_decoys_whose_fields_tell_the_truth(ptype) -> None:
-    spec = type_registry.specs()[KEYS[ptype]]
+    spec = _spec(ptype)
     assert len(spec.decoys) >= 2
     for d in spec.decoys:
         word = d.query.split()[0]

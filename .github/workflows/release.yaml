@@ -96,7 +96,7 @@ jobs:
             gh release create "$IMAGES_TAG" --target "$GITHUB_SHA" --title "$IMAGES_TAG" \
               --notes "Every drawing, industrial and retail, a file per SKU (generator $TAG)." \
               build/release/images.tar.gz build/release/images.tar.gz.content-sha256 \
-              build/release/images.tar.gz.sha256
+              build/release/images.tar.gz.sha256 build/release/drawings.jsonl.gz
           fi
           python3 scripts/open_pin_bump_pr.py "${flags[@]}"
       - uses: actions/upload-artifact@v4
@@ -110,4 +110,5 @@ jobs:
             build/release/catalog/provenance.json
             build/release/catalog.ndjson.gz
             build/release/images.tar.gz
+            build/release/drawings.jsonl.gz
           if-no-files-found: error

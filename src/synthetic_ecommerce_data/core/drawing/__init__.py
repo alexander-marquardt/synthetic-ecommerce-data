@@ -46,6 +46,7 @@ from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
 __all__ = [
     "draw_product",
     "draw_sku",
+    "drawing_spec",
     "magnifier",
     "product_angle",
     "product_scale_for",
@@ -244,6 +245,16 @@ def draw_sku(
     :mod:`.figures` for what each means.
     """
     return draw_product(product_type, brand, [record], product_id)[0]
+
+
+def drawing_spec(product_type: str, record: Mapping[str, str]) -> dict[str, object]:
+    """What one SKU's drawing is asked to render (gen#924): its type's figure (``shape``), the
+    part fill its finish or material picks (``fill``, as :func:`_draw` paints it) and the
+    published values the figure reads (``params``). Written beside the image release, so a
+    drawing that contradicts its title is traced without re-deriving it."""
+    finish = _first(record, FINISH_ATTRIBUTES)
+    material = _first(record, MATERIAL_ATTRIBUTES)
+    return {"shape": product_type, "fill": part_fill(finish, material), "params": dict(record)}
 
 
 def _figure(product_type: str):
