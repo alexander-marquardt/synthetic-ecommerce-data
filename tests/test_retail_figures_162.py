@@ -36,6 +36,7 @@ PROTOTYPE_PAGES = tuple(
 #: total may be named, and they name none.
 QUOTING = (
     "README.md",
+    "docs/data-model.md",
     "docs/retail-prototype.md",
     *PROTOTYPE_PAGES,
     "src/synthetic_ecommerce_data/domains/retail/scale.py",
@@ -54,8 +55,9 @@ QUOTING = (
 
 #: Constants that tune the build, not totals it measures: a small total that happens to equal
 #: one (gen#200's 40 household styles and ``ATTEMPTS = 40``, gen#626's ``LEAF_RANKS = 40`` and
-#: ``RETRIES = 4``) is a collision, not a quotation.
-TUNING = ("ATTEMPTS", "LEAF_RANKS", "RETRIES")
+#: ``RETRIES = 4``, gen#956's 13 departments and the 13 cups-plural styles) is a collision, not
+#: a quotation.
+TUNING = ("ATTEMPTS", "DEPARTMENTS", "LEAF_RANKS", "RETRIES")
 
 
 #: Sections of a quoting file that report the INDUSTRIAL build. Their figures (a bearing count of
@@ -63,12 +65,22 @@ TUNING = ("ATTEMPTS", "LEAF_RANKS", "RETRIES")
 #: a retail PR must never bend its data to dodge such a collision. Keyed by file, by heading line.
 INDUSTRIAL_SECTIONS = {"README.md": ("### The 100K catalog",)}
 
+#: Phrases of a quoting file that state a figure of the reference CORPUS, not of the build. The
+#: build's rates move with every catalogue slice and may round to the same percentage by chance
+#: (the grid-clone rate reached 10.89%, #956), so each phrase is blanked; a retail PR must never
+#: bend its data or the corpus's measured figure to dodge such a collision. Keyed by file.
+CORPUS_FIGURES = {"README.md": ("The corpus measures 10.89% of records",)}
+
 
 def _scoped(path: str, text: str) -> str:
-    """``text`` with each industrial section blanked, line for line so a line number stays true.
+    """``text`` with each industrial section and corpus phrase blanked, so a line number stays true.
 
-    A section runs from its heading to the next heading of any level. A heading that is no longer
-    there fails, so a renamed section cannot silently widen or narrow what the guard reads."""
+    A section runs from its heading to the next heading of any level. A heading or phrase that is
+    no longer there fails, so a reworded one cannot silently widen or narrow what the guard reads.
+    """
+    for phrase in CORPUS_FIGURES.get(path, ()):
+        assert phrase in text, f"{path}: the corpus phrase {phrase!r} is gone; update it"
+        text = text.replace(phrase, " " * len(phrase))
     lines = text.split("\n")
     for heading in INDUSTRIAL_SECTIONS.get(path, ()):
         assert heading in lines, f"{path}: the industrial section {heading!r} is gone; update it"
@@ -229,7 +241,8 @@ def test_the_guard_catches_a_restated_total(stats: dict) -> None:
 def test_an_industrial_section_is_not_read_but_a_retail_figure_still_is(stats: dict) -> None:
     """An industrial figure equal to a retail total is let through; a stale retail one is not."""
     total = f"{stats['ceiling']['skus']:,}"
-    doc = f"# R\n\nRetail text.\n\n### The 100K catalog\n\n{total} bearings\n\n## Brands\n\n"
+    corpus = CORPUS_FIGURES["README.md"][0]  # the file's corpus phrase must be there too
+    doc = f"# R\n\n{corpus}.\n\n### The 100K catalog\n\n{total} bearings\n\n## Brands\n\n"
     patterns = _quotations(stats)
 
     def hits(text: str) -> list[str]:
@@ -248,3 +261,24 @@ def test_an_astm_standard_number_is_not_a_quoted_total(stats: dict) -> None:
     pattern = _quotations(stats)["ceiling.styles"]
     assert re.search(pattern, f"hot-dip galvanizing (ASTM F{number})", re.MULTILINE) is None
     assert re.search(pattern, f"the ceiling is {number} styles", re.MULTILINE)
+
+
+def test_a_corpus_figure_is_not_read_but_the_same_rate_elsewhere_still_is() -> None:
+    """The README's corpus sentence is let through when a build rate rounds to its figure (#956);
+    the same percentage typed anywhere else in the file is still refused."""
+    (phrase,) = CORPUS_FIGURES["README.md"]
+    figure = re.search(r"\d+\.\d+(?=%)", phrase).group(0)  # type: ignore[union-attr]
+    patterns = _quotations({"near_duplicates": {"rate": float(figure) / 100}})
+
+    def hits(text: str) -> list[str]:
+        return [k for k, p in patterns.items() if re.search(p, text, re.MULTILINE)]
+
+    industrial = INDUSTRIAL_SECTIONS["README.md"][0]  # the file's section heading must be there
+    doc = f"# R\n\n{phrase} carrying no parseable image reference.\n\n{industrial}\n\n## Brands\n"
+    scoped = _scoped("README.md", doc)
+    assert hits(doc) and hits(scoped) == []
+    assert scoped.count("\n") == doc.count("\n")
+    assert scoped.index("carrying") == doc.index("carrying")  # blanked in place, same columns
+    assert hits(_scoped("README.md", doc + f"The build measures {figure}% grid clones.\n")) != []
+    with pytest.raises(AssertionError, match="corpus phrase"):
+        _scoped("README.md", f"# R\n\nThe corpus measured something else.\n\n{industrial}\n")

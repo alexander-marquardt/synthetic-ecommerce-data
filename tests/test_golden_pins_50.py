@@ -228,6 +228,7 @@ def test_no_hand_typed_pin_is_left(pin: str) -> None:
 
 PROSE = {
     "readme": "README.md",
+    "data-model-doc": "docs/data-model.md",
     "drawings-doc": "docs/drawings.md",
     "naming-docstring": "src/synthetic_ecommerce_data/core/naming.py",
 }

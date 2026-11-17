@@ -1,6 +1,6 @@
 {
- "lines": 7572,
- "skus": 14982,
+ "lines": 7605,
+ "skus": 15044,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -25,7 +25,6 @@
   "bolt_hex": 240,
   "bronze_sleeve_bushings": 39,
   "c_clamps": 1,
-  "cabinet_knobs": 14,
   "cantilever_racks": 1,
   "cap_nuts_acorn": 1,
   "carriage_bolts": 31,
@@ -41,7 +40,7 @@
   "conduit_pliers": 2,
   "cord_splicing_kits": 1,
   "cotter_pins": 39,
-  "coupling_nuts": 1,
+  "coupling_nuts": 31,
   "cut_resistant_gloves": 39,
   "cutter_sharpening_fixtures": 1,
   "cutter_storage_cases": 1,
@@ -144,6 +143,7 @@
   "snap_ring_pliers": 3,
   "spanner_wrenches": 1,
   "spill_socks": 1,
+  "stud_finders": 17,
   "studs_double_end": 38,
   "swivel_casters": 1,
   "t_slot_nuts": 1,
@@ -194,7 +194,6 @@
   "bolt_hex": 516,
   "bronze_sleeve_bushings": 66,
   "c_clamps": 2,
-  "cabinet_knobs": 31,
   "cantilever_racks": 2,
   "cap_nuts_acorn": 1,
   "carriage_bolts": 63,
@@ -210,7 +209,7 @@
   "conduit_pliers": 3,
   "cord_splicing_kits": 2,
   "cotter_pins": 67,
-  "coupling_nuts": 2,
+  "coupling_nuts": 67,
   "cut_resistant_gloves": 68,
   "cutter_sharpening_fixtures": 2,
   "cutter_storage_cases": 2,
@@ -313,6 +312,7 @@
   "snap_ring_pliers": 4,
   "spanner_wrenches": 2,
   "spill_socks": 2,
+  "stud_finders": 28,
   "studs_double_end": 71,
   "swivel_casters": 2,
   "t_slot_nuts": 1,
@@ -554,17 +554,6 @@
     "2": 1
    }
   },
-  "cabinet_knobs": {
-   "products": 14,
-   "median": 2.0,
-   "max": 4,
-   "histogram": {
-    "1": 3,
-    "2": 6,
-    "3": 4,
-    "4": 1
-   }
-  },
   "cantilever_racks": {
    "products": 1,
    "median": 2,
@@ -699,11 +688,15 @@
    }
   },
   "coupling_nuts": {
-   "products": 1,
+   "products": 31,
    "median": 2,
-   "max": 2,
+   "max": 5,
    "histogram": {
-    "2": 1
+    "1": 11,
+    "2": 10,
+    "3": 5,
+    "4": 4,
+    "5": 1
    }
   },
   "cut_resistant_gloves": {
@@ -1738,6 +1731,15 @@
     "2": 1
    }
   },
+  "stud_finders": {
+   "products": 17,
+   "median": 2,
+   "max": 2,
+   "histogram": {
+    "1": 6,
+    "2": 11
+   }
+  },
   "studs_double_end": {
    "products": 38,
    "median": 1.5,
@@ -2123,13 +2125,6 @@
    "Size",
    "Style"
   ],
-  "cabinet_knobs": [
-   "Color",
-   "Diameter",
-   "Material",
-   "Measurement System",
-   "Style"
-  ],
   "cantilever_racks": [
    "Finish",
    "Material",
@@ -2221,9 +2216,14 @@
   ],
   "coupling_nuts": [
    "Finish",
+   "Grade",
    "Length",
    "Material",
-   "Thread Size"
+   "Measurement System",
+   "Standards",
+   "Thread Size",
+   "Thread Type",
+   "Width Across Flats"
   ],
   "cut_resistant_gloves": [
    "ANSI Cut Level",
@@ -3074,6 +3074,15 @@
    "Length",
    "Material"
   ],
+  "stud_finders": [
+   "Application Modes",
+   "Color",
+   "Indicator",
+   "Material",
+   "Measurement System",
+   "Scan Depth (In.)",
+   "Style"
+  ],
   "studs_double_end": [
    "Finish",
    "Grade",
@@ -3243,7 +3252,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 154690,
+ "total_attribute_entries": 155214,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3277,43 +3286,43 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 6082,
+   "denominator": 6116,
    "note": "deliberate: the corpus measures 0.0323",
    "band": null
   },
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0167301,
-   "numerator": 246,
-   "denominator": 14704,
+   "achieved": 0.0167254,
+   "numerator": 247,
+   "denominator": 14768,
    "note": "over records with a readable dimension",
    "band": null
   },
   {
    "name": "parent repeats a (name, value) pair",
    "target": 0.0085,
-   "achieved": 0.00896152,
+   "achieved": 0.00892388,
    "numerator": 34,
-   "denominator": 3794,
+   "denominator": 3810,
    "note": "over parents carrying Standards; the shape reverse_nested exists for (#1)",
    "band": null
   },
   {
    "name": "title dimension token unlabelled",
    "target": 0.4667,
-   "achieved": 0.356374,
-   "numerator": 7553,
-   "denominator": 21194,
+   "achieved": 0.356995,
+   "numerator": 7589,
+   "denominator": 21258,
    "note": "over title dimension tokens",
    "band": null
   },
   {
    "name": "title dimension token is not the primary dimension",
    "target": 0.1714,
-   "achieved": 0.127253,
+   "achieved": 0.12687,
    "numerator": 2697,
-   "denominator": 21194,
+   "denominator": 21258,
    "note": "over title dimension tokens",
    "band": null
   },
@@ -3322,7 +3331,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14982,
+   "denominator": 15044,
    "note": "over titles",
    "band": null
   },
@@ -3331,7 +3340,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14982,
+   "denominator": 15044,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3340,16 +3349,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 14982,
+   "denominator": 15044,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.3251,
-   "numerator": 154690,
-   "denominator": 14982,
+   "achieved": 10.3173,
+   "numerator": 155214,
+   "denominator": 15044,
    "note": "count, not a rate",
    "band": null
   },
@@ -3359,10 +3368,10 @@
    "achieved": 8.585,
    "numerator": 232,
    "denominator": 135,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    6.944,
-    10.85
+    5.84036,
+    12.9003
    ]
   },
   {
@@ -3371,10 +3380,10 @@
    "achieved": 3.47606,
    "numerator": 232,
    "denominator": 135,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    2.63298,
-    4.66915
+    2.10638,
+    5.83644
    ]
   },
   {
@@ -3395,10 +3404,10 @@
    "achieved": 36.8,
    "numerator": 1182,
    "denominator": 390,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    29.98,
-    46.8438
+    23.984,
+    58.5547
    ]
   },
   {
@@ -3407,10 +3416,10 @@
    "achieved": 18.0469,
    "numerator": 1182,
    "denominator": 390,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    12.0707,
-    21.4054
+    10.0553,
+    25.6959
    ]
   },
   {
@@ -3431,10 +3440,10 @@
    "achieved": 20.885,
    "numerator": 516,
    "denominator": 347,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    16.728,
-    26.1375
+    13.3824,
+    32.6719
    ]
   },
   {
@@ -3443,10 +3452,10 @@
    "achieved": 10.2783,
    "numerator": 516,
    "denominator": 347,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    6.15411,
-    10.9133
+    4.92329,
+    13.6416
    ]
   },
   {
@@ -3467,10 +3476,10 @@
    "achieved": 6.06,
    "numerator": 580,
    "denominator": 885,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    4.8,
-    7.5
+    4.0996,
+    8.78134
    ]
   },
   {
@@ -3479,10 +3488,10 @@
    "achieved": 9.67732,
    "numerator": 580,
    "denominator": 885,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.18546,
-    12.7422
+    5.74837,
+    15.9278
    ]
   },
   {
@@ -3503,10 +3512,10 @@
    "achieved": 86.87,
    "numerator": 835,
    "denominator": 65,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    70.584,
-    110.288
+    58.2181,
+    133.713
    ]
   },
   {
@@ -3515,10 +3524,10 @@
    "achieved": 7.38956,
    "numerator": 835,
    "denominator": 65,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    6.472,
-    11.477
+    5.4059,
+    13.7404
    ]
   },
   {
@@ -3539,10 +3548,10 @@
    "achieved": 53.315,
    "numerator": 1258,
    "denominator": 69,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    42.0,
-    65.625
+    35.6695,
+    77.272
    ]
   },
   {
@@ -3551,10 +3560,10 @@
    "achieved": 8.3807,
    "numerator": 1258,
    "denominator": 69,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    5.65286,
-    10.0244
+    4.67458,
+    12.1223
    ]
   },
   {
@@ -3575,10 +3584,10 @@
    "achieved": 9.615,
    "numerator": 1178,
    "denominator": 270,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.744,
-    12.1
+    6.79569,
+    13.7885
    ]
   },
   {
@@ -3587,10 +3596,10 @@
    "achieved": 13.9343,
    "numerator": 1178,
    "denominator": 270,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    10.8062,
-    19.1631
+    8.68645,
+    23.8395
    ]
   },
   {
@@ -3611,10 +3620,10 @@
    "achieved": 72.05,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    64.46,
-    100.719
+    51.568,
+    125.898
    ]
   },
   {
@@ -3623,10 +3632,10 @@
    "achieved": 106.744,
    "numerator": 59,
    "denominator": 46,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    85.6948,
-    151.965
+    68.5559,
+    189.957
    ]
   },
   {
@@ -3647,10 +3656,10 @@
    "achieved": 20.58,
    "numerator": 469,
    "denominator": 100,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    17.712,
-    27.675
+    14.1696,
+    34.5938
    ]
   },
   {
@@ -3659,10 +3668,10 @@
    "achieved": 9.70348,
    "numerator": 469,
    "denominator": 100,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.2258,
-    12.8137
+    5.78064,
+    16.0172
    ]
   },
   {
@@ -3683,10 +3692,10 @@
    "achieved": 15.44,
    "numerator": 1329,
    "denominator": 473,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    12.248,
-    19.1375
+    10.9167,
+    21.4713
    ]
   },
   {
@@ -3695,10 +3704,10 @@
    "achieved": 12.606,
    "numerator": 1329,
    "denominator": 473,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.81812,
-    13.8641
+    6.25449,
+    17.3302
    ]
   },
   {
@@ -3719,10 +3728,10 @@
    "achieved": 20.0,
    "numerator": 708,
    "denominator": 308,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    17.228,
-    26.9187
+    14.6648,
+    31.6237
    ]
   },
   {
@@ -3731,10 +3740,10 @@
    "achieved": 5.58267,
    "numerator": 708,
    "denominator": 308,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    5.14982,
-    9.13235
+    4.11986,
+    11.4154
    ]
   },
   {
@@ -3755,10 +3764,10 @@
    "achieved": 17.14,
    "numerator": 535,
    "denominator": 510,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    16.6,
-    25.9375
+    13.6997,
+    31.4287
    ]
   },
   {
@@ -3767,10 +3776,10 @@
    "achieved": 3.63132,
    "numerator": 535,
    "denominator": 510,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    3.44018,
-    6.10059
+    2.83661,
+    7.39866
    ]
   },
   {
@@ -3791,10 +3800,10 @@
    "achieved": 22.235,
    "numerator": 342,
    "denominator": 487,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    16.016,
-    25.025
+    12.8128,
+    31.2812
    ]
   },
   {
@@ -3803,10 +3812,10 @@
    "achieved": 5.52295,
    "numerator": 342,
    "denominator": 487,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    4.02104,
-    7.13064
+    3.21683,
+    8.9133
    ]
   },
   {
@@ -3827,10 +3836,10 @@
    "achieved": 5.04,
    "numerator": 225,
    "denominator": 174,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    3.912,
-    6.1125
+    3.1296,
+    7.64062
    ]
   },
   {
@@ -3839,10 +3848,10 @@
    "achieved": 23.4895,
    "numerator": 225,
    "denominator": 174,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    18.603,
-    32.9893
+    14.8824,
+    41.2366
    ]
   },
   {
@@ -3863,10 +3872,10 @@
    "achieved": 9.87,
    "numerator": 1162,
    "denominator": 217,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.608,
-    11.8875
+    6.42591,
+    14.0743
    ]
   },
   {
@@ -3875,10 +3884,10 @@
    "achieved": 9.65125,
    "numerator": 1162,
    "denominator": 217,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.49742,
-    13.2954
+    5.99794,
+    16.6193
    ]
   },
   {
@@ -3899,10 +3908,10 @@
    "achieved": 22.45,
    "numerator": 63,
    "denominator": 110,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    20.88,
-    32.625
+    16.704,
+    40.7812
    ]
   },
   {
@@ -3911,10 +3920,10 @@
    "achieved": 5.89736,
    "numerator": 63,
    "denominator": 110,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    4.64936,
-    8.24487
+    3.71949,
+    10.3061
    ]
   },
   {
@@ -3923,10 +3932,10 @@
    "achieved": 13.6,
    "numerator": 78,
    "denominator": 158,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    12.304,
-    19.225
+    9.8432,
+    24.0312
    ]
   },
   {
@@ -3935,10 +3944,10 @@
    "achieved": 7.39031,
    "numerator": 78,
    "denominator": 158,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.31956,
-    12.98
+    5.85565,
+    16.225
    ]
   },
   {
@@ -3947,10 +3956,10 @@
    "achieved": 21.335,
    "numerator": 68,
    "denominator": 22,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    17.16,
-    26.8125
+    13.728,
+    33.5156
    ]
   },
   {
@@ -3959,10 +3968,10 @@
    "achieved": 7.95909,
    "numerator": 68,
    "denominator": 22,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    5.37103,
-    9.52463
+    4.29683,
+    11.9058
    ]
   },
   {
@@ -3971,10 +3980,10 @@
    "achieved": 4.92,
    "numerator": 70,
    "denominator": 81,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    4.16,
-    6.5
+    3.328,
+    8.125
    ]
   },
   {
@@ -3983,10 +3992,10 @@
    "achieved": 3.77224,
    "numerator": 70,
    "denominator": 81,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    3.65766,
-    6.48625
+    2.92613,
+    8.10781
    ]
   },
   {
@@ -3995,10 +4004,10 @@
    "achieved": 76.0,
    "numerator": 69,
    "denominator": 157,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    60.96,
-    95.25
+    48.768,
+    119.062
    ]
   },
   {
@@ -4007,10 +4016,10 @@
    "achieved": 17.0078,
    "numerator": 69,
    "denominator": 157,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    12.7211,
-    22.5588
+    10.1769,
+    28.1985
    ]
   },
   {
@@ -4019,10 +4028,10 @@
    "achieved": 17.89,
    "numerator": 70,
    "denominator": 118,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    17.144,
-    26.7875
+    13.7152,
+    33.4844
    ]
   },
   {
@@ -4031,10 +4040,10 @@
    "achieved": 4.53134,
    "numerator": 70,
    "denominator": 118,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    4.23565,
-    7.51123
+    3.38852,
+    9.38903
    ]
   },
   {
@@ -4043,10 +4052,10 @@
    "achieved": 315.75,
    "numerator": 73,
    "denominator": 71,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    286.4,
-    447.5
+    229.12,
+    559.375
    ]
   },
   {
@@ -4055,10 +4064,10 @@
    "achieved": 12.1303,
    "numerator": 73,
    "denominator": 71,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    7.82389,
-    13.8744
+    6.25911,
+    17.3429
    ]
   },
   {
@@ -4067,10 +4076,10 @@
    "achieved": 8.135,
    "numerator": 52,
    "denominator": 74,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    6.884,
-    10.7563
+    5.5072,
+    13.4453
    ]
   },
   {
@@ -4079,10 +4088,10 @@
    "achieved": 4.12601,
    "numerator": 52,
    "denominator": 74,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    3.639,
-    6.45316
+    2.9112,
+    8.06645
    ]
   },
   {
@@ -4091,10 +4100,10 @@
    "achieved": 27.75,
    "numerator": 61,
    "denominator": 248,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    26.816,
-    41.9
+    21.4528,
+    52.375
    ]
   },
   {
@@ -4103,10 +4112,10 @@
    "achieved": 20.639,
    "numerator": 61,
    "denominator": 248,
-   "note": "shown price; denom is the census n",
+   "note": "shown price; denom is the census n; band widened by the build's error",
    "band": [
-    16.225,
-    28.7724
+    12.98,
+    35.9655
    ]
   },
   {
@@ -4363,75 +4372,75 @@
   },
   {
    "name": "price ending .99",
-   "target": 0.00563177,
-   "achieved": 0.00494573,
-   "numerator": 72,
-   "denominator": 14558,
+   "target": 0.00563294,
+   "achieved": 0.0048557,
+   "numerator": 71,
+   "denominator": 14622,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.00250148,
-    0.00876206
+    0.00251632,
+    0.00874956
    ]
   },
   {
    "name": "price ending .00",
-   "target": 0.0892557,
-   "achieved": 0.0853139,
-   "numerator": 1242,
-   "denominator": 14558,
+   "target": 0.0891486,
+   "achieved": 0.0850773,
+   "numerator": 1244,
+   "denominator": 14622,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0715332,
-    0.106978
+    0.0715036,
+    0.106794
    ]
   },
   {
    "name": "price ending .50",
-   "target": 0.0604801,
-   "achieved": 0.0574255,
-   "numerator": 836,
-   "denominator": 14558,
+   "target": 0.060397,
+   "achieved": 0.0574477,
+   "numerator": 840,
+   "denominator": 14622,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.0437706,
-    0.0771896
+    0.0437606,
+    0.0770334
    ]
   },
   {
    "name": "price ending other .x5",
-   "target": 0.216742,
-   "achieved": 0.214246,
-   "numerator": 3119,
-   "denominator": 14558,
+   "target": 0.216775,
+   "achieved": 0.21454,
+   "numerator": 3137,
+   "denominator": 14622,
    "note": "over modelled SKUs; target is each type's census mix on the catalog's type mix",
    "band": [
-    0.196695,
-    0.23679
+    0.196815,
+    0.236735
    ]
   }
  ],
  "measurement_system_names": {
-  "Measurement System": 6082
+  "Measurement System": 6116
  },
  "measurement_system_values": {
-  "Fractional Inch": 3502,
-  "Inch": 345,
+  "Fractional Inch": 3522,
+  "Inch": 347,
   "Decimal Inch": 75,
-  "Metric": 2160
+  "Metric": 2172
  },
  "unit_suffix_distribution": {
-  "in": 30184,
-  "mm": 17068
+  "in": 30266,
+  "mm": 17117
  },
- "standards_present": 7742,
+ "standards_present": 7779,
  "standards_multivalued": 1831,
- "standards_total_values": 9924,
+ "standards_total_values": 9961,
  "multivalued_attribute_names": {
   "Standards": 1831,
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 14982,
+  "n_skus_checked": 15044,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4600,24 +4609,24 @@
  },
  "figures": {
   "catalog": {
-   "modelled_types": 68,
-   "breadth_categories": 99,
+   "modelled_types": 69,
+   "breadth_categories": 98,
    "brands": 45
   },
   "drawings": {
-   "count": 14982,
-   "bytes": 38797061,
+   "count": 15044,
+   "bytes": 38928117,
    "geometry": {
-    "nominal": 193,
+    "nominal": 191,
     "partial": 2977,
-    "record": 11812
+    "record": 11876
    },
    "largest_bytes": 7403,
    "largest_product_type": "roller_chain"
   },
   "dispersion": {
-   "quantitative_attributes": 64,
-   "faceted_attributes": 57,
+   "quantitative_attributes": 65,
+   "faceted_attributes": 58,
    "faceted_low": 0.004,
    "faceted_high": 0.6944,
    "densest_faceted": "Dowel dia.",
