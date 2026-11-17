@@ -244,6 +244,8 @@ LEAF_RANKS = 40
 #: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
 #: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
 #: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
+#: Electronics' is its by-template-count share over its summed leaf weights (1.6%), set with both
+#: slices of gen#956 present (audio, gaming and gadgets): it drew 1.54% at 0.001461.
 #: Cleaning's is recomputed for the paper goods of gen#962 slice 1 (0.008594 times its 2.28%
 #: target over the 2.69% it reached).
 #: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
@@ -255,7 +257,7 @@ DEPARTMENT_RATE = {
     "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
     "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
-    "Footwear": 0.01799, "Electronics": 0.001187,
+    "Footwear": 0.01799, "Electronics": 0.001461,
 }  # fmt: skip
 #: The rate of a department the table does not hold yet.
 DEFAULT_RATE = 0.008
