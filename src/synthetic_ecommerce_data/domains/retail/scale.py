@@ -134,6 +134,7 @@ from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     decoy_product_words,
     decoy_rows,
+    department_rates,
     dress_features,
     footwear_rows,
     garden_rows,
@@ -236,26 +237,11 @@ ZIPF_S = 1.0
 LEAF_RANKS = 40
 
 #: Department -> the rate at which each of its templates draws a derived style, before its leaf's
-#: weight. A template's rate depends on its department and leaf alone, never on how many
-#: templates there are, so adding one adds its styles and moves no other (gen#626). The figures
-#: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
-#: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
-#: the shares they give drift more than 3 points, which is the signal to recompute them. Beauty's
-#: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
-#: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
-#: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
-#: Cleaning's is recomputed for the paper goods of gen#962 slice 1 (0.008594 times its 2.28%
-#: target over the 2.69% it reached).
-#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
-#: blenders of slice 1, whose Home styles took its share from 41.2% to 40.9%, past the 3
-#: points (it is now 41.1%, against its 44%).
-DEPARTMENT_RATE = {
-    "Clothing": 0.0124, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
-    "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
-    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.01059,
-    "Footwear": 0.01799,
-}  # fmt: skip
-#: The rate of a department the table does not hold yet.
+#: weight: one module per department under :mod:`department_rates`, which holds each rate's
+#: calibration note and how a rate is recomputed (gen#626, gen#1044). Change a rate there, never
+#: here.
+DEPARTMENT_RATE = department_rates.rates()
+#: The rate of a department :mod:`department_rates` has no module for yet.
 DEFAULT_RATE = 0.008
 
 #: Draws per template before it counts as exhausted.
