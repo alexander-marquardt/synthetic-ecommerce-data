@@ -256,6 +256,7 @@ LEAF_RANKS = 40
 #: the other new types (both dilute Clothing: 0.0124 x 1.067 x 1.133 = 0.01499).
 #: Electronics' (0.001187) is main's, set for the gadgets and gaming types of gen#956; the smart
 #: home types of slice 2a add templates, which move no rate (gen#626).
+#: Pets (gen#967 slice 1) was checked against 0.01499: every share stays inside its cap.
 DEPARTMENT_RATE = {
     "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
     "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
