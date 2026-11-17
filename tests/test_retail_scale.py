@@ -151,9 +151,13 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 #: link, so derived soundbars at one price share a tile. The cap keeps the headroom main had
 #: over the measured share; a soundbar drawing that shows the profile would win it back.
 CEILING_GRID_CLONES = 0.158
-#: The departments the ceiling build sells in. Health joined with gen#968, Office & school
-#: with gen#969, Electronics with gen#956.
-DEPARTMENTS = 13
+#: The departments the ceiling build sells in (derivable styles), by name: a count here would
+#: read as a measured total (``tests/test_retail_figures_162.py``). Health joined with gen#968,
+#: Office & school with gen#969, Electronics with gen#956's first derivable types.
+DEPARTMENTS = frozenset({
+    "Beauty", "Cleaning & Janitorial", "Clothing", "Electronics", "Food & Drink", "Footwear",
+    "Garden", "Gifts", "Health", "Home", "Lingerie & Nightwear", "Office & Stationery", "Toys",
+})  # fmt: skip
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
 CEILING_NEAR_DUPLICATES = 0.028
@@ -949,7 +953,7 @@ def test_every_department_holds_its_floor_of_styles(ceiling):
     department's count against the floor, in the failure message.
     """
     styles = styles_by_department(ceiling.records)
-    assert len(styles) == DEPARTMENTS, sorted(styles)
+    assert set(styles) == DEPARTMENTS, sorted(styles)
     smallest, n = min(styles.items(), key=lambda kv: kv[1])
     floor = breadth_rows.DEPARTMENT_FLOOR
     assert starved(styles) == {}, f"{smallest}: {n} styles, under the floor of {floor}"

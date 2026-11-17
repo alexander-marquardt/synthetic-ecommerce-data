@@ -36,7 +36,9 @@ The selection is built to over-select, never to drop. A test file is selected wh
 
 A change to the workflow, the project file, the lock file, the vendored core or a test
 fixture module every test uses (``FULL_RUN``), or a diff that cannot be read, selects every
-test. The same holds with no base and head (a push to ``main``).
+test. The same holds with no base and head (a push to ``main``). A test file of
+``SELECTED_ONLY_BY`` (the tests of ``scripts/merge_pr.sh``) is selected by a change to one of
+its listed paths and by no other rule (#1035).
 ``tests/test_ci_select_495.py`` pins each rule on a throwaway repository and pins the
 real tree: every test that imports a module is selected when that module changes.
 """
@@ -81,20 +83,37 @@ FULL_RUN: tuple[str, ...] = (
     "scripts/ci_shard_weights.json",
 )
 
-#: Test files that name a data file only as a fixture or pin its listing, never its content:
-#: a MODIFIED path under one of these prefixes does not select the test. An added or deleted
-#: path still does (a pinned listing of the tracked files changes). ``tests/test_merge_pr.py``
-#: drives ``scripts/merge_pr.sh`` in a throwaway origin of its own and compares the
-#: ``GENERATED`` list with ``git ls-files golden-catalog``, so a regenerated golden file
-#: cannot change its result, and it is 76 of the suite's 256 minutes.
-CONTENT_INSENSITIVE: dict[str, tuple[str, ...]] = {
-    "tests/test_merge_pr.py": ("golden-retail/", "golden-catalog/", "docs/", "README.md"),
-    "tests/test_merge_pr_github_ci_348.py": (
-        "golden-retail/",
-        "golden-catalog/",
-        "docs/",
-        "README.md",
-    ),
+#: What ``scripts/merge_pr.sh`` is made of and runs: its parts, the scripts and the module it
+#: calls, the tests whose ids it names, and the test files that drive it (#1035).
+_MERGE_PATH: tuple[str, ...] = (
+    "scripts/merge_pr.sh",
+    "scripts/merge_pr/",
+    "scripts/local_ci_guard.py",
+    "scripts/local_ci_jobs.py",
+    "scripts/measure_pins.py",
+    "scripts/golden_pins.py",
+    "src/synthetic_ecommerce_data/domains/industrial/measured_builds.py",
+    "tests/pinned.py",
+    "tests/test_catalog_golden.py",
+    "tests/test_prism_field_map_drift.py",
+    "tests/test_product_type_label_331.py",
+    "tests/test_readme_split_240.py",
+    "tests/test_merge_pr.py",
+    "tests/test_merge_pr_github_ci_348.py",
+)
+
+#: Test files selected only by a change to one of their paths (an exact path, or a prefix
+#: ending in ``/``), never by an import, a mention, ``SMOKE`` or a tree scan. The tests of
+#: ``scripts/merge_pr.sh`` each build a throwaway origin and run a real catalogue build, 76 of
+#: the suite's 257 minutes. Their closure holds nearly all of ``src/`` because the script
+#: builds the catalogue, so every product PR selected them, though what they test is the
+#: script's order of operations (#1035). The pins that hold the script to the product (the
+#: generated files, the rebuild command, the freshness test ids, the blocks of the types the
+#: two-PR case adds) are in ``tests/test_merge_pr_product_pins_1035.py``, which the usual rules
+#: select. A ``FULL_RUN`` change and a push to ``main`` still run these files.
+SELECTED_ONLY_BY: dict[str, tuple[str, ...]] = {
+    "tests/test_merge_pr.py": _MERGE_PATH,
+    "tests/test_merge_pr_github_ci_348.py": _MERGE_PATH,
 }
 
 #: Test files that read the repository whole through no import and no name: a gate that checks
@@ -142,6 +161,11 @@ def _callee(node: ast.Call) -> str:
     return node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
 
 
+def _listed(path: str, entries: Collection[str]) -> bool:
+    """Whether ``path`` is one of ``entries``: an exact path, or under a prefix ending in ``/``."""
+    return any(path == f or (f.endswith("/") and path.startswith(f)) for f in entries)
+
+
 def tracked_files(root: Path) -> list[str]:
     """Repo-relative posix paths of every tracked or unignored file (every file but .git and
     virtual environments when ``root`` is not a git checkout)."""
@@ -160,9 +184,9 @@ def tracked_files(root: Path) -> list[str]:
     return sorted(p for p in found if (root / p).is_file())
 
 
-def changed_paths(base: str, head: str, root: Path = REPO) -> tuple[list[str], set[str]] | None:
+def changed_paths(base: str, head: str, root: Path = REPO) -> list[str] | None:
     """Paths changed from the merge base of ``base`` and ``head`` to ``head`` (a rename is its
-    two paths), and which of them were only modified; None when git cannot say."""
+    two paths); None when git cannot say."""
     try:
         out = subprocess.run(
             [
@@ -170,7 +194,7 @@ def changed_paths(base: str, head: str, root: Path = REPO) -> tuple[list[str], s
                 "-C",
                 str(root),
                 "diff",
-                "--name-status",
+                "--name-only",
                 "--no-renames",
                 "-z",
                 f"{base}...{head}",
@@ -180,14 +204,7 @@ def changed_paths(base: str, head: str, root: Path = REPO) -> tuple[list[str], s
         ).stdout.decode()
     except (subprocess.CalledProcessError, OSError):
         return None
-    fields = [f for f in out.split("\0") if f]
-    paths: list[str] = []
-    modified: set[str] = set()
-    for status, path in zip(fields[0::2], fields[1::2], strict=False):
-        paths.append(path)
-        if status == "M":
-            modified.add(path)
-    return paths, modified
+    return [f for f in out.split("\0") if f]
 
 
 class Tree:
@@ -425,9 +442,9 @@ class Tree:
 
     def reads_whole_tree(self, test: str) -> bool:
         """Whether ``test`` scans the repository: a listed gate, or a glob or walk in its own
-        text or in a helper under ``tests/`` it imports. A test of ``CONTENT_INSENSITIVE`` is
+        text or in a helper under ``tests/`` it imports. A test of ``SELECTED_ONLY_BY`` is
         governed by that table alone."""
-        if test in CONTENT_INSENSITIVE:
+        if test in SELECTED_ONLY_BY:
             return False
         if test in READS_WHOLE_TREE:
             return True
@@ -497,7 +514,6 @@ def select(
     changed: list[str],
     tree: Tree | None = None,
     root: Path = REPO,
-    modified: set[str] | None = None,
     among: Collection[str] | None = None,
 ) -> tuple[list[str], dict[str, str]]:
     """The test files to run for the changed paths, and the reason for each.
@@ -508,19 +524,22 @@ def select(
     tests = sorted(p for p in tree.py if is_test_file(p) and (among is None or p in among))
     reasons: dict[str, str] = {}
     for path in changed:
-        if any(path == f or (f.endswith("/") and path.startswith(f)) for f in FULL_RUN):
+        if _listed(path, FULL_RUN):
             return tests, {t: f"full run: {path}" for t in tests}
+    held = [t for t in tests if t in SELECTED_ONLY_BY]
+    for test in held:
+        hit = [p for p in changed if _listed(p, SELECTED_ONLY_BY[test])]
+        if hit:
+            reasons[test] = hit[0]
     for test in SMOKE:
-        if test in tests:
+        if test in tests and test not in held:
             reasons[test] = "smoke"
     for test in tests:
-        if test not in reasons and tree.reads_whole_tree(test):
+        if test not in reasons and test not in held and tree.reads_whole_tree(test):
             reasons[test] = "reads the whole tree"
     for path in changed:
         for test in tests:
-            if test in reasons:
-                continue
-            if path in (modified or ()) and path.startswith(CONTENT_INSENSITIVE.get(test, ())):
+            if test in reasons or test in held:
                 continue
             if path == test or tree.reaches(test, path):
                 reasons[test] = path
@@ -532,9 +551,9 @@ def selection_for_range(base: str, head: str, root: Path = REPO) -> list[str] | 
     if not base or not head:
         return None
     found = changed_paths(base, head, root)
-    if not found or not found[0]:
+    if not found:
         return None
-    chosen, _ = select(found[0], Tree(root), modified=found[1])
+    chosen, _ = select(found, Tree(root))
     return chosen
 
 
@@ -545,12 +564,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--changed", nargs="*", default=None)
     parser.add_argument("--why", action="store_true")
     args = parser.parse_args(argv)
-    modified: set[str] = set()
     if args.changed is not None:
         changed: list[str] | None = args.changed
     elif args.base and args.head:
-        found = changed_paths(args.base, args.head)
-        changed, modified = found if found else (None, set())
+        changed = changed_paths(args.base, args.head)
     else:
         changed = None
     tree = Tree()
@@ -559,7 +576,7 @@ def main(argv: list[str] | None = None) -> int:
         # No range, or git cannot read it, or an empty diff: nothing may be dropped.
         print("\n".join(every))
         return 0
-    chosen, reasons = select(changed, tree, modified=modified)
+    chosen, reasons = select(changed, tree)
     for test in chosen:
         print(f"{test}\t{reasons[test]}" if args.why else test)
     return 0
