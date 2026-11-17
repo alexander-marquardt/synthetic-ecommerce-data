@@ -70,9 +70,12 @@ a push to `main` runs every test file, so the whole suite still runs once after 
 - `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
   `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
   scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the
-  selection and of the sharding, which every pull request runs. `CONTENT_INSENSITIVE` lists the two
-  `test_merge_pr` files, which name the golden files as fixtures: a modified golden or docs path
-  does not select them (an added or deleted one does).
+  selection and of the sharding, which every pull request runs. `SELECTED_ONLY_BY` lists the two
+  `test_merge_pr` files (76 of the suite's 257 minutes): only a change to `scripts/merge_pr.sh`,
+  `scripts/merge_pr/`, a script or module it runs, a test whose id it names, or the two files
+  themselves selects them, never an import or a mention, since their closure holds nearly all of
+  `src/` (#1035). The pins that hold the script to the product are in
+  `tests/test_merge_pr_product_pins_1035.py`, which a product change selects.
 - `python3 scripts/ci_shards.py --plan K --of N --base B --head H` prints `shards=<n>`, then shard
   K's files. A selection is dealt to as few shards as keep each under `SCOPED_SHARD_SECONDS`
   (1200 s of the weights, `SHARD_BUDGET_SECONDS`), checked against the deal itself: the
