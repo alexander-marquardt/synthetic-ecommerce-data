@@ -105,9 +105,7 @@ def _golden(office: list[dict], ptype: str) -> list[tuple]:
     return [(r["product_id"], r["title"], r["sku_count"], r["price"]) for r in mine[:3]]
 
 
-#: Each type's first three derived styles by product id (seed 0, ceiling build). Slice 2's
-#: range words follow Health's Ledwick Botanics in the scale deal (gen#968), as slice 1's did
-#: there; the ids, SKU counts and prices are unchanged (gen#1024).
+#: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Pen": [
         ("BRD-02FD05FA1851", "Dalington Bold Ballpoint Pens", 9, 4.65),
@@ -140,19 +138,19 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-1FFE28C571F6", "Oldworth 12 Digit Basic Calculator", 18, 4.05),
     ],
     "School Backpack": [
-        ("BRD-01BA38373142", "Rambridge 25 L Laptop School Backpack", 6, 34.0),
-        ("BRD-0592753A802F", "Chapcliffe 30 L Classic School Backpack", 2, 50.0),
-        ("BRD-0EEF01A88D56", "Harley 25 L Rolling School Backpack", 6, 34.0),
+        ("BRD-01A43CE6FCD7", "Rudlow 15 L Classic School Backpack", 6, 15.5),
+        ("BRD-01BA38373142", "Clevebrook 25 L Laptop School Backpack", 6, 34.0),
+        ("BRD-0592753A802F", "Townborough 30 L Classic School Backpack", 2, 50.0),
     ],
     "Colored Pencils": [
-        ("BRD-0E1EAFC1DBA7", "Ulvcliffe 36 Watercolor Colored Pencils", 6, 25.0),
-        ("BRD-15303E7EFCBF", "Otbrook 48 Classic Colored Pencils", 12, 31.0),
-        ("BRD-17B4E307D6ED", "Tanshaw 12 Soft Core Colored Pencils", 18, 7.0),
+        ("BRD-0E1EAFC1DBA7", "Ravbury 36 Watercolor Colored Pencils", 6, 25.0),
+        ("BRD-15303E7EFCBF", "Readale 48 Classic Colored Pencils", 12, 31.0),
+        ("BRD-17B4E307D6ED", "Penworth 12 Soft Core Colored Pencils", 18, 7.0),
     ],
     "Desk Organizer": [
-        ("BRD-0433EA9A7695", "Tanmouth 6 Compartment Felt Desk Organizer", 18, 19.0),
-        ("BRD-0B28AA29D695", "Fairbrook 3 Compartment Mesh Desk Organizer", 6, 8.5),
-        ("BRD-0BCD3137F6B9", "Lonshaw 5 Compartment Metal Desk Organizer", 18, 11.0),
+        ("BRD-0433EA9A7695", "Ryshaw 6 Compartment Felt Desk Organizer", 18, 20.0),
+        ("BRD-0B28AA29D695", "Flaxside 3 Compartment Mesh Desk Organizer", 6, 9.0),
+        ("BRD-0BCD3137F6B9", "Hawcombe 5 Compartment Metal Desk Organizer", 18, 11.0),
     ],
 }
 

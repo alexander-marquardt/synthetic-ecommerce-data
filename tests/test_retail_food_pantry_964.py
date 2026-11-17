@@ -15,6 +15,8 @@ and a golden slice pins each type's first derived styles, so a change that moves
 from __future__ import annotations
 
 import collections
+import subprocess
+import sys
 
 import pytest
 
@@ -92,6 +94,28 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
         params = dict(row.params)
         first = kit.render(row.shape, fill, params=params)
         assert first == kit.render(row.shape, fill, params=params)
+
+
+#: A fresh interpreter that imports only what this module imports from the package and calls
+#: ``doc()`` on every row and decoy of the three types, as the determinism test does.
+_ISOLATED = """
+from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+specs = type_registry.specs()
+for key in {keys!r}:
+    spec = specs[key]
+    for r in (*spec.rows, *(d.row for d in spec.decoys)):
+        r.doc()
+"""
+
+
+def test_each_type_draws_its_rows_in_a_fresh_interpreter() -> None:
+    """A row's ``doc()`` reads its brand's owner from ``OWNERS``. On a worker where no other test
+    filled the table, Granola and Flour raised ``KeyError: 'Goldfield Farms'`` (gen#994's red
+    ``tests (2)``): the spec declared the owners, but only ``TypeSpec.docs()`` registered them.
+    A subprocess holds this to the spec's own import, whatever shares the pytest worker."""
+    code = _ISOLATED.format(keys=tuple(KEYS.values()))
+    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0, done.stderr[-2000:]
 
 
 @pytest.mark.parametrize("ptype", TYPES)
