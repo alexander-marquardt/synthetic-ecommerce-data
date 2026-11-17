@@ -241,9 +241,10 @@ LEAF_RANKS = 40
 #: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
 #: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
 #: the shares they give drift more than 3 points, which is the signal to recompute them. Beauty's
-#: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
-#: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
-#: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
+#: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6
+#: percent of derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets,
+#: pillows and food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it
+#: reached).
 #: Electronics' is its by-template-count share over its summed leaf weights, set with
 #: Clothing's (0.01227 to 0.014044) for the audio types of gen#956 slice 1: at the default rate it
 #: drew 2.1% and took Clothing's share down to 40%. Slice 1 of gen#963 (coffee makers, air fryers
