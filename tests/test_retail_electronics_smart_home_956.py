@@ -197,21 +197,22 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
+#: Slice 2b's gaming brands moved the range words; ids, SKU counts and prices are unchanged.
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Smart Plug": [
-        ("BRD-01793710EC8B", "Darhill Mini Zigbee Smart Plug", 2, 31.0),
-        ("BRD-02062D564652", "Denthorpe Mini Zigbee Smart Plug", 6, 16.5),
-        ("BRD-065868823F3B", "Oxgate Mini Zigbee Smart Plug", 6, 37.0),
+        ("BRD-01793710EC8B", "Townwell Mini Zigbee Smart Plug", 2, 31.0),
+        ("BRD-02062D564652", "Ingley Mini Zigbee Smart Plug", 6, 16.5),
+        ("BRD-065868823F3B", "Townholme Mini Zigbee Smart Plug", 6, 37.0),
     ],
     "Smart Bulb": [
-        ("BRD-0069548F2733", "Towncroft Golf Ball Smart Bulb, E14 Fitting", 6, 8.0),
-        ("BRD-05A7A8562577", "Fairness Spot Smart Bulb, GU10 Fitting", 6, 12.5),
-        ("BRD-05DDC409DDB8", "Ludton Large Globe Smart Bulb, B22 Fitting", 6, 15.0),
+        ("BRD-0069548F2733", "Malthorpe Golf Ball Smart Bulb, E14 Fitting", 6, 8.0),
+        ("BRD-05A7A8562577", "Whithill Spot Smart Bulb, GU10 Fitting", 6, 12.5),
+        ("BRD-05DDC409DDB8", "Pilcliffe Large Globe Smart Bulb, B22 Fitting", 6, 15.0),
     ],
     "Doorbell Camera": [
-        ("BRD-0284498502E6", "Stanford Video Doorbell Camera with Package Detection", 2, 140.0),
-        ("BRD-066BF8907A5A", "Elleringham Video Doorbell Camera with Night Vision", 6, 130.0),
-        ("BRD-072A1FF1DEDA", "Yeldness Wired Doorbell Camera with App Alerts", 6, 61.0),
+        ("BRD-0284498502E6", "Skelley Video Doorbell Camera with Package Detection", 2, 140.0),
+        ("BRD-066BF8907A5A", "Townwyke Video Doorbell Camera with Night Vision", 6, 130.0),
+        ("BRD-072A1FF1DEDA", "Chapworth Wired Doorbell Camera with App Alerts", 6, 61.0),
     ],
 }
 

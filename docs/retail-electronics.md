@@ -9,8 +9,10 @@ laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `elect
 ## Tree
 
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
-`Tablets > {Tablets, E-readers}`, `TVs`, `Smart Home > {Smart Plugs, Smart Bulbs, Doorbell Cameras}`
-(gen#956, see [retail-prototype/electronics-smart-home-956.md](retail-prototype/electronics-smart-home-956.md))
+`Tablets > {Tablets, E-readers}`, `TVs`, `Smart Home > {Smart Plugs, Smart Bulbs, Doorbell Cameras}`,
+`Gaming > {Game Controllers, Gaming Headsets}`
+(gen#956, see [retail-prototype/electronics-smart-home-956.md](retail-prototype/electronics-smart-home-956.md)
+and [retail-prototype/electronics-gaming-956.md](retail-prototype/electronics-gaming-956.md))
 and `Accessories > <leaf>`. Each type nests under its generic node
 and no sibling label is a word-suffix of another (`tree_guard`).
 

@@ -1110,12 +1110,18 @@ uv run python scripts/check_industrial_unit_pin.py --refresh  # rewrite the pin 
 ```
 
 `tests/data/industrial_canonical_units.yaml` is a verbatim copy of the
-industrial deployment's `canonical_units:` block, and the contract test takes
-every unit's kind and size from it. Its source is a private repository that
-this repository's CI cannot read, so the comparison is a script run by hand,
-through an authenticated `gh`, never a pytest that could only skip in CI. **Run
-it whenever the deployment's `canonical_units` changes, and before a 100-type
-build.** It exits 0 on a match, 1 on a mismatch (naming whether the pin was
+industrial deployment's `canonical_units:` block (`src/prism_retail_and_industrial/data/customization.yaml`
+in elastic/prism-retail-and-industrial), and the contract test takes every
+unit's kind and size from it. The copy is the deployment's block as of its
+recorded commit, and no more: its source is a private repository that this
+repository's CI cannot read, so CI here checks only the copy's own digest, and
+nothing here notices when the deployment's `canonical_units` changes. The drift
+check belongs in the deployment's CI, which can read this public copy
+(elastic/prism-retail-and-industrial#1855). Until it runs there, the comparison
+is this script, run by hand through an authenticated `gh`, never a pytest that
+could only skip in CI. **Run it before a 100-type build.** It reads the
+recorded commit at the repository and path the pin records, so a source renamed
+since the pin was taken is reported as drift, not as unreadable. It exits 0 on a match, 1 on a mismatch (naming whether the pin was
 edited, misnames its commit, or the source has moved on), and 2 when it cannot
 read the source; it never passes a comparison it could not make.
 
@@ -1300,7 +1306,12 @@ key dimension, the material and the attribute the census names for the type (`pr
 a type whose specs hold no material. A SKU that sparsity left without one of them is in no spec, and the type's brand-spread row says how many in its note. Each row has a band
 (`price_report.P50_BAND`, `SPREAD_BAND`, `MONOTONE_BAND`, and three census
 standard errors where the census sample is small: `share_band`,
-`brand_spread_band`). Every row is scored at the default size and at 100K
+`brand_spread_band`). A p50 or p90/p10 band also takes in the build's own
+error: three standard errors of a bootstrap over the type's product lines
+(`price_report.build_errors`), at most x1.25 either side (`BUILD_SE_CAP`), so a
+type the default build makes on a few dozen lines holds its band on other seeds
+too (#891). `uv run python scripts/price_seed_survey.py SEED ...` prints the rows
+out of band on any of several seeds. Every row is scored at the default size and at 100K
 (`--lines 39000`, `config.LARGE_BUILD_LINES`), and must land in band, or be
 pinned, at both:
 `test_every_price_row_is_within_its_band_or_pinned_at_the_default_size` and
