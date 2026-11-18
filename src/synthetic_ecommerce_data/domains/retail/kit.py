@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from html import escape
 from pathlib import Path
 
-from synthetic_ecommerce_data.domains.retail.kit_figure import figure_at
+from synthetic_ecommerce_data.domains.retail.figure_stretch import figure_at
 
 SIZE = 400
 INK = "#2b3440"
@@ -955,14 +955,10 @@ def render(
     ``emblem`` names the invented film whose emblem the product carries, and whose licence line
     a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
     """
-    from synthetic_ecommerce_data.domains.retail import (
-        size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
-    )
+    from synthetic_ecommerce_data.domains.retail import size_ladder  # deferred: gen#339 layer
 
     if copies > 1:
-        from synthetic_ecommerce_data.domains.retail import (
-            pack_copies,  # deferred: pack_copies draws with this kit
-        )
+        from synthetic_ecommerce_data.domains.retail import pack_copies  # deferred: draws with kit
 
         params = pack_copies.one_item(shape, params)
     draw = _draw(shape)
