@@ -170,6 +170,9 @@ SCALE = Roster(
 )  # fmt: skip
 
 
+GROCERY = Roster(base=())
+
+
 def whole_halves() -> dict[str, list[str]]:
     """The pool split into the ``scale`` half and the ``grocery`` half, each in a seeded order,
     the excluded words still in."""
