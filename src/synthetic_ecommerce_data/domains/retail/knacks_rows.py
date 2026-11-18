@@ -22,7 +22,7 @@ The rows are templates only: :func:`scale.derivable` leaves them out (``scale.so
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail import breadth_rows, dark_blues
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail import footwear_rows as fw
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
@@ -34,11 +34,11 @@ from synthetic_ecommerce_data.domains.retail.scale_rows import Bra
 from synthetic_ecommerce_data.domains.retail.variants import cw, style_docs
 
 BRAND = "Knacks"
-breadth_rows.OWNERS[BRAND] = "third_party"
-#: The brands the decoys keep (all invented), owned as the rest of the catalog states.
-breadth_rows.OWNERS.update({b: BRAND_OWNER[b] for b in (
+#: The brand and the brands the decoys keep (all invented), owned as the rest of the catalog
+#: states (gen#1039).
+OWNED = ((BRAND, "third_party"), *((b, BRAND_OWNER[b]) for b in (
     "Calderby & Lune", "Stridewell", "Little Fernby", "Pewley Table", "Hearth & Table",
-    "Saltmarsh", "Larkmoor")})  # fmt: skip
+    "Saltmarsh", "Larkmoor")))  # fmt: skip
 
 _C = "Clothing"
 BLACK, WHITE = cw("Black", "#2a2a2e"), cw("White", "#f4f1ea", "solid", "#9a9ca0")

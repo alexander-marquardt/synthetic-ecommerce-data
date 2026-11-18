@@ -68,11 +68,11 @@ refuses it: add it to `colorwords.PLAIN` or use a plain word. A foundation, a co
 Every color-bearing type also carries red, blue, green, yellow, black and white somewhere, or a
 reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py`).
 
-## 6. Brands: `breadth_rows.OWNERS` and house styles
+## 6. Brands: `brand_owners.table()` and house styles
 
-* Who owns a brand: `owners=(("Brand", "own"),)` in the spec when no module states it yet
-  (`type_registry.TypeSpec`; `specs()` registers it in `breadth_rows.OWNERS`, gen#1040); an
-  older module adds the brand to `breadth_rows.OWNERS` and goes in `brand_owners.SOURCES`: `doc()` reads `brand_owners.owner()`, which imports every source first (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
+* Who owns a brand: `owners=(("Brand", "own"),)` in the spec (`type_registry.TypeSpec`); an
+  older module states its brands in a module-level `OWNED` of the same pairs and goes in `brand_owners.SOURCES`.
+  Nothing writes an owner at import (`breadth_rows.OWNERS` is the read-only base): `doc()` reads `brand_owners.owner()`, which merges the base, every `OWNED` and every spec's `owners` and raises `OwnerConflict` when two give one brand different owners (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
 * Every brand also needs one row in `house_styles.HOUSE_STYLES` (the frame, outline and
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.

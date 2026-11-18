@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail import (
     color_word_brand_styles,  # noqa: F401 -- registers the six house styles
     dark_blues,
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row, _a1, _in, _volts
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row, _a1, _in, _volts
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 #: The six invented brands, each named after a color (or gold, silver, grey) and each selling
@@ -44,10 +44,8 @@ BRANDS = (
 #: the line field (the ``line`` attribute) and in the title.
 LINES = ("Red Cask", "Black Cask", "Blue Cask", "Black Cherry", "Belgian White")
 
-for _brand in BRANDS:
-    OWNERS.setdefault(_brand, "third_party")
-for _brand in ("Stonepine Estate", "Vine & Valley"):
-    OWNERS.setdefault(_brand, "third_party")
+#: The brands this module states (gen#1039).
+OWNED = tuple((b, "third_party") for b in (*BRANDS, "Stonepine Estate", "Vine & Valley"))
 
 #: The docs' buckets, in table order.
 BUCKETS = ("food", "drink", "home", "garden", "tools")

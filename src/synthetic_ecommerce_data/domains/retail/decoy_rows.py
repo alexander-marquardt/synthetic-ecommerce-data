@@ -41,7 +41,6 @@ from synthetic_ecommerce_data.domains.retail import (
     feature_decoys,
     fruit_word_brand_styles,  # noqa: F401 -- registers the five house styles
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, Style, one
 from synthetic_ecommerce_data.domains.retail.decoy_kind import Kind
 from synthetic_ecommerce_data.domains.retail.decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
@@ -52,7 +51,7 @@ from synthetic_ecommerce_data.domains.retail.decoy_plural_rows import ROWS as PL
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 # The invented fruit-word brands of the class 9 non-food rows (gen#445), third party.
-OWNERS.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
+OWNED = tuple((b, "third_party") for b in FRUIT_BRANDS)
 BRAND_OWNER.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")

@@ -33,12 +33,12 @@ from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
     kit_school,  # noqa: F401 -- registers school_trousers, school_skirt, ...
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _BRANDS = ("Little Fernby", "Calderby & Lune", "Bramblewood", "Larkmoor")
-OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
+OWNED = tuple((b, BRAND_OWNER[b]) for b in _BRANDS)  # the brands it states (gen#1039)
 LF, CL, BW, LK = _BRANDS
 
 DEPARTMENT = "Clothing"

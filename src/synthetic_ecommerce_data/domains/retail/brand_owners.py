@@ -1,12 +1,13 @@
 """Who owns each breadth brand, resolved the same way in any interpreter (gen#1039).
 
-:data:`breadth_row.OWNERS` starts with the base brands, and the modules in :data:`SOURCES` add
-theirs when they are imported, as does every spec of ``type_specs`` (``TypeSpec.owners``). Read
-directly, that dict holds only what this interpreter happened to import first, so a row's
-``doc()`` raised ``KeyError`` for a brand whose module had not been imported (``electronics_rows``
-alone: ``KeyError: 'Halvern'``). :func:`table` imports every source and every spec before it
-answers, so the answer does not depend on import order. ``tests/test_brand_owners_1039.py``
-fails when a module writes ``OWNERS`` and is not in :data:`SOURCES`.
+Nothing writes an owner at import time. :data:`breadth_row.OWNERS` is the read-only base table,
+each module in :data:`SOURCES` states its brands as a constant ``OWNED`` (pairs of brand and
+``"own"`` or ``"third_party"``), and every spec of ``type_specs`` states its own in
+``TypeSpec.owners``. :func:`table` imports them all and merges them, so the answer does not
+depend on what was imported first. A brand two sources give different owners raises
+:class:`OwnerConflict` naming both: a first-wins merge once hid ``beach_towel`` calling two of the
+shop's own brands third party. ``tests/test_brand_owners_1039.py`` fails when a module states
+``OWNED`` and is not in :data:`SOURCES`, or when any module writes ``OWNERS``.
 """
 
 from __future__ import annotations
@@ -19,8 +20,8 @@ from types import MappingProxyType
 
 _PACKAGE = __name__.rpartition(".")[0]
 
-#: Every retail module that adds brands to :data:`breadth_row.OWNERS` when it is imported, in the
-#: order :func:`table` imports them. The specs of ``type_specs`` are found by walking the package.
+#: Every retail module that states brands in a module-level ``OWNED``, in the order :func:`table`
+#: merges them. The specs of ``type_specs`` are found by walking the package.
 SOURCES = (
     "accessory_rows",
     "barry_plotter",
@@ -29,6 +30,7 @@ SOURCES = (
     "decoy_word_kinds",
     "gadgets_rows",
     "hair_rows",
+    "jewellery_rows",
     "kids_depth_rows",
     "kids_films",
     "knacks_rows",
@@ -39,6 +41,7 @@ SOURCES = (
     "misspelled_brands",
     "neckline_rows",
     "school_rows",
+    "swimwear_rows",
     "womens_depth_rows",
 )
 
@@ -48,22 +51,37 @@ class OwnerConflict(ValueError):
 
 
 def merge(sources: Iterable[tuple[str, Iterable[tuple[str, str]]]]) -> dict[str, str]:
-    """Stub (red commit)."""
-    return {b: o for _, pairs in sources for b, o in pairs}
+    """One owner per brand from ``(source name, (brand, owner) pairs)``: :class:`OwnerConflict`
+    when two sources disagree on a brand, naming the brand, both owners and both sources."""
+    owners: dict[str, str] = {}
+    said_by: dict[str, str] = {}
+    for name, pairs in sources:
+        for brand, owner in pairs:
+            if owners.setdefault(brand, owner) != owner:
+                raise OwnerConflict(
+                    f"{brand!r} is {owners[brand]!r} in {said_by[brand]} and {owner!r} in {name}"
+                )
+            said_by.setdefault(brand, name)
+    return owners
+
+
+def _sources() -> list[tuple[str, Iterable[tuple[str, str]]]]:
+    from synthetic_ecommerce_data.domains.retail import type_specs
+    from synthetic_ecommerce_data.domains.retail.breadth_row import OWNERS
+
+    found: list[tuple[str, Iterable[tuple[str, str]]]] = [("breadth_row", OWNERS.items())]
+    for name in SOURCES:
+        found.append((name, importlib.import_module(f"{_PACKAGE}.{name}").OWNED))
+    for info in pkgutil.iter_modules(type_specs.__path__):
+        spec = getattr(importlib.import_module(f"{type_specs.__name__}.{info.name}"), "SPEC", None)
+        found.append((f"type_specs/{info.name}", getattr(spec, "owners", ())))
+    return found
 
 
 @functools.cache
 def table() -> Mapping[str, str]:
     """Every breadth brand's owner (``"own"`` or ``"third_party"``), the same in any interpreter."""
-    from synthetic_ecommerce_data.domains.retail import type_specs
-    from synthetic_ecommerce_data.domains.retail.breadth_row import OWNERS
-
-    for name in SOURCES:
-        importlib.import_module(f"{_PACKAGE}.{name}")
-    # A spec registers its ``owners`` when it is built, so importing the module is enough.
-    for info in pkgutil.iter_modules(type_specs.__path__):
-        importlib.import_module(f"{type_specs.__name__}.{info.name}")
-    return MappingProxyType(dict(OWNERS))
+    return MappingProxyType(merge(_sources()))
 
 
 def owner(brand: str) -> str:

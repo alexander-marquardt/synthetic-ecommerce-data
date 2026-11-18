@@ -16,6 +16,7 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -1363,18 +1364,22 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
     list of three. Metric: the brands with two values, in the failure message.
     """
     from synthetic_ecommerce_data.domains.retail import (
+        brand_owners,
         class_model,  # noqa: F401
         grocery_rows,  # noqa: F401
     )
 
     owners: dict[str, dict[str, str]] = collections.defaultdict(dict)
+    # The breadth rows' merged table: no module writes its owners into a dict any more (gen#1039).
+    for brand, owner in brand_owners.table().items():
+        owners[brand].setdefault(owner, "brand_owners.table()")
     tables = 0
     for name, mod in sorted(sys.modules.items()):
         if not str(getattr(mod, "__file__", "") or "").startswith(str(RETAIL)):
             continue
         for attr in ("OWNERS", "BRAND_OWNER"):
             table = getattr(mod, attr, None)
-            if isinstance(table, dict):
+            if isinstance(table, Mapping):
                 tables += 1
                 for brand, owner in table.items():
                     owners[brand].setdefault(owner, f"{name}.{attr}")

@@ -15,13 +15,12 @@ about half of the house styles on a full lockup (``test_house_styles.py``).
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.house_styles import H, _dot, _ring, _stroke
 
 #: The invented brands, each holding one misspelled product word.
 BRANDS = ("Choocolate Factory", "Bannana Bros", "Leggins Lab", "Cardigen & Co")
-OWNERS.update(dict.fromkeys(BRANDS, "third_party"))
+OWNED = tuple((b, "third_party") for b in BRANDS)
 BRAND_OWNER.update(dict.fromkeys(BRANDS, "third_party"))
 
 

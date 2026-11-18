@@ -61,7 +61,6 @@ from synthetic_ecommerce_data.domains.retail import (
     type_colors,
     type_registry,
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, LEGS3
 from synthetic_ecommerce_data.domains.retail.decoy_apparel import DETAIL_HEX
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
@@ -71,10 +70,10 @@ from synthetic_ecommerce_data.domains.retail.variants import cw
 
 #: The shop's own brands these rows sell, owned as the rest of the clothing tree states.
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune", "Bramblewood")
-OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
 #: The invented class-7 brands: a color or a category word in the name (not real shops).
 NEW_BRANDS = ("Black Curlew", "Yellow Plover", "Jacket Wren")
-OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
+#: The brands this module states (gen#1039).
+OWNED = (*((b, BRAND_OWNER[b]) for b in _BRANDS), *((b, "third_party") for b in NEW_BRANDS))
 
 _C = "Clothing"
 _LING = "Lingerie & Nightwear"

@@ -27,13 +27,13 @@ from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
     kit_accessories,  # noqa: F401 -- registers handbag, backpack, tote_bag, ...
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
-for _brand, _owner in {"Marrowgate": "third_party", "Pellbrook": "third_party",
-                       "Osier & Vane": "third_party", "Tallow Street": "third_party",
-                       "Wrenfield": "own", "Harbour & Pine": "own"}.items():  # fmt: skip
-    OWNERS.setdefault(_brand, _owner)
+#: The brands this module states (gen#1039).
+OWNED = (("Marrowgate", "third_party"), ("Pellbrook", "third_party"),
+         ("Osier & Vane", "third_party"), ("Tallow Street", "third_party"),
+         ("Wrenfield", "own"), ("Harbour & Pine", "own"))  # fmt: skip
 
 _CL = "Clothing"
 _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street", "Wrenfield",
