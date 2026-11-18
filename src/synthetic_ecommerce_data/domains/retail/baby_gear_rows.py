@@ -1,13 +1,16 @@
 """The baby gear of Kids > Baby's shared pieces (gen#965): its paths, brands, colors and rows.
 
-Kids > Baby sold clothing only. Its gear is under two new nodes: ``Diapering`` (diapers and baby
-wipes) and ``Feeding`` (baby bottles, beside the Beakers already there). Each type is a spec of
-its own (``type_specs/diapers.py``, ``baby_wipes.py``, ``baby_bottle.py``) drawn by
-:mod:`kit_baby_gear`. The build record's ``department`` is ``Home``, as for the nursery types
+Kids > Baby sold clothing only. Its gear is under three new nodes: ``Diapering`` (diapers and
+baby wipes), ``Feeding`` (baby bottles and high chairs, beside the Beakers already there) and
+``Travel`` (strollers and car seats). Each type is a spec of its own (``type_specs/diapers.py``,
+``baby_wipes.py``, ``baby_bottle.py``, ``stroller.py``, ``car_seat.py``, ``high_chair.py``) drawn
+by :mod:`kit_baby_gear`. The build record's ``department`` is ``Home``, as for the nursery types
 and the baby beakers (:mod:`babywear_rows`), which keys the brand pools; the store's department
 is the top level of the path, ``Kids``. Diapers and wipes carry no color (``colorless``): their
 one color is the pack's, and the drawing takes it. A bottle is sold in a color, and its collar
-takes it. The brands are the invented baby and nursery brands already on the catalogue.
+takes it; a stroller, a car seat and a high chair are sold in a color, one SKU each
+(:func:`gear_row`), which their fabric takes. The brands are the invented baby and nursery brands
+already on the catalogue.
 """
 
 from __future__ import annotations
@@ -15,7 +18,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from synthetic_ecommerce_data.domains.retail import (
-    kit_baby_gear,  # noqa: F401 -- registers diaper_pack, wipes_pack, baby_bottle
+    kit_baby_gear,  # noqa: F401 -- registers the baby gear shapes
 )
 from synthetic_ecommerce_data.domains.retail.babywear_rows import (
     BLACK,
@@ -35,6 +38,9 @@ BABY = ("Kids", "Baby")
 DIAPERS = (*BABY, "Diapering", "Diapers")
 WIPES = (*BABY, "Diapering", "Baby Wipes")
 BOTTLES = (*BABY, "Feeding", "Baby Bottles")
+HIGH_CHAIRS = (*BABY, "Feeding", "High Chairs")
+STROLLERS = (*BABY, "Travel", "Strollers")
+CAR_SEATS = (*BABY, "Travel", "Car Seats")
 
 LITTLE_FERNBY = "Little Fernby"
 FENWOLD = "Fenwold Nursery"
@@ -54,10 +60,10 @@ LEMON = cw("Lemon", "#f3e08c", "solid", "#2a2a2e")
 NAVY = cw("Navy", "#2f4a78", "solid", "#ffffff")
 
 __all__ = [
-    "BABY", "BLACK", "BLUE", "BOTTLES", "CALDERBY", "DEPARTMENT", "DIAPERS", "FENWOLD", "GREEN",
-    "GREY", "HUSHWELL", "LANTERNBY", "LEMON", "LILAC", "LITTLE_FERNBY", "MINT", "MIREFIELD",
-    "NAVY", "PEACH", "PINK", "QUILLON", "RED", "SKY", "THISTLE", "WHITE", "WIPES", "YELLOW",
-    "decoy", "packs", "row",
+    "BABY", "BLACK", "BLUE", "BOTTLES", "CALDERBY", "CAR_SEATS", "DEPARTMENT", "DIAPERS",
+    "FENWOLD", "GREEN", "GREY", "HIGH_CHAIRS", "HUSHWELL", "LANTERNBY", "LEMON", "LILAC",
+    "LITTLE_FERNBY", "MINT", "MIREFIELD", "NAVY", "PEACH", "PINK", "QUILLON", "RED", "SKY",
+    "STROLLERS", "THISTLE", "WHITE", "WIPES", "YELLOW", "decoy", "gear_row", "packs", "row",
 ]  # fmt: skip
 
 
@@ -74,6 +80,14 @@ def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: 
     return Row(code, title, brand, DEPARTMENT, path, product_type, sizes[0][1], shape, description,
                colors, attrs, sizes, audience="baby", colorless=colorless, params=params,
                size_key=size_key)  # fmt: skip
+
+
+def gear_row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str,
+             shape: str, description: str, attrs: tuple[tuple, ...], price: float,
+             params: tuple[tuple[str, str], ...], colors: tuple) -> Row:  # fmt: skip
+    """One stroller, car seat or high chair style: one SKU per color, no size."""
+    return Row(code, title, brand, DEPARTMENT, path, product_type, price, shape, description,
+               colors, attrs, audience="baby", params=params)  # fmt: skip
 
 
 def decoy(base: Row, code: str, title: str, description: str, colors: tuple | None = None) -> Row:
