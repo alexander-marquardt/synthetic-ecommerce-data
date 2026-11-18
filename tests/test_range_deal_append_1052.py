@@ -17,7 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import range_ownership, scale
 
-NEW = ("Pennywhistle Angling", "Larchmere Golf")
+NEW = ("Probe Brand One", "Probe Brand Two")
 
 
 def _slots(deal: range_ownership.Deal, brand: str) -> list[str]:
@@ -62,12 +62,12 @@ def test_the_base_brands_keep_the_deal_they_had_before_1052(built, monkeypatch):
     tpls, brands = built
     rostered = scale._range_deal(tpls, brands)
     roster = range_ownership.SCALE
-    assert rostered.brands == list(roster.base)
+    assert rostered.brands == sorted({*roster.base, *roster.added})
     skip = _reserved(tpls) | range_ownership.EXCLUDED
     monkeypatch.setattr(range_ownership, "EXCLUDED", frozenset())
-    plain = range_ownership.Deal("scale", rostered.brands, roster.gaps)
+    plain = range_ownership.Deal("scale", roster.base, roster.gaps)
     expected = {b: tuple(n for n in plain.of(b) if n not in skip) for b in plain.brands}
-    assert {b: rostered.of(b) for b in rostered.brands} == expected
+    assert {b: rostered.of(b) for b in roster.base} == expected
 
 
 def test_the_gaps_are_the_words_the_base_deal_skipped():

@@ -62,7 +62,7 @@ def rows(records: list[dict]) -> list[Row]:
     """One row per (type, title N, SKU count) of ``records``, from the first SKU met."""
     seen: dict[tuple[str, int, int], tuple[dict, dict]] = {}
     for rec in records:
-        n = pack_copies.title_count(rec["title"])
+        n = pack_copies.stated(rec)
         if n is None:
             continue
         for sku in rec["skus"]:

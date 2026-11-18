@@ -79,7 +79,10 @@ from synthetic_ecommerce_data.domains.retail.decoy_plural_nonfood_rows import (
     IDS as PLURAL_NONFOOD_IDS,
 )
 from synthetic_ecommerce_data.domains.retail.decoy_rows import COLORS
-from synthetic_ecommerce_data.domains.retail.feature_decoys import misspelled_words_944
+from synthetic_ecommerce_data.domains.retail.feature_decoys import (
+    fishing_golf_959,
+    misspelled_words_944,
+)
 from synthetic_ecommerce_data.domains.retail.place_ranges import LINE_KEYS
 from synthetic_ecommerce_data.domains.retail.variants import attr, cw, product, swatch
 
@@ -692,6 +695,7 @@ def build(body: list[dict]) -> list[Row]:
             and d["product_id"] not in kids_films.ids()  # gen#887: a film's name is no clone's
             and d["product_id"] not in barry_plotter.ids()  # gen#925: nor the range's
             and d["product_id"] not in misspelled_words_944.product_ids()  # gen#944: nor these
+            and d["product_id"] not in fishing_golf_959.ids()  # gen#959: nor its print pyjamas
             and _names_its_drawing(d)
         ):
             pool.setdefault(d["product_type"], []).append(d)
