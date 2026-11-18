@@ -155,6 +155,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     sale_share,
     shoe_grid,
+    smart_home_rows,
     stable_ids,
     style_table,
     type_registry,
@@ -209,25 +210,13 @@ HERE = Path(__file__).resolve().parent
 #: owns (:mod:`range_ownership`), so a range name is never under a second brand (gen#623).
 RANGE_SLOTS = 60
 
-#: Invented brands a department's derived styles may carry, beside its template brands.
-EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
-    "Clothing": ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street"),
-    "Lingerie & Nightwear": ("Dovecote Lane", "Hushwell"),
-    "Home": ("Larchwood Living", "Emberly Home", "Cobble & Kiln"),
-    "Beauty": ("Brightwater Botanics", "Orrin Skin"),
-    "Food & Drink": ("Mossgill Dairy", "Wheatsheaf Lane", "Barrowby Kitchen"),
-    "Footwear": ("Cobbleway", "Treadmoor"),
-    "Garden": ("Rookery Garden Co.",),
-    "Gifts": ("Ribbonvale",),
-    "Toys": ("Pipwick Toys",),
-    "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
-}
+#: Invented brands a department's derived styles may carry, beside its template brands: each
+#: department's ``EXTRA_BRANDS`` in :mod:`department_rates` (gen#1044). Add a brand there.
+EXTRA_BRANDS = department_rates.extra_brands()
 
-#: The share of derived styles per department; the rest split by template count.
-DEPARTMENT_SHARE = {
-    "Clothing": 0.44, "Lingerie & Nightwear": 0.04, "Footwear": 0.10,
-    "Home": 0.20, "Beauty": 0.08,
-}  # fmt: skip
+#: The share of derived styles per department, each department's ``SHARE`` in
+#: :mod:`department_rates` (gen#1044); the rest split by template count.
+DEPARTMENT_SHARE = department_rates.shares()
 
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S, where a leaf's rank is a hash of its
@@ -585,6 +574,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
     _sku_values(rec, skus, sku_swaps)
+    smart_home_rows.fit_bulb(tpl, rec, skus)  # a candle bulb is never 1521 lm (gen#956)
     if colors:
         kept = len({s["color"] for s in skus if "color" in s})
         rec["title"] = _restate_color_count(rec["title"], kept)
@@ -766,6 +756,8 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
     combos: list[tuple] = [()]
     for k in shown:
         combos = [(*c, v) for c in combos for v in pools[(leaf, k)]]
+    combos = [c for c in combos
+              if smart_home_rows.real_pair(leaf, dict(zip(shown, c, strict=True)))]  # fmt: skip
     families = list(dict.fromkeys(_family(c) for c in tpl.get("color_options", ()))) or [None]
     mine = signature(tpl, shown)
     return [(c, f) for c in combos for f in families if (c, f) != mine]
@@ -838,6 +830,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         name = deal.owned(brand, slot, kind) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
+        price *= smart_home_rows.shape_factor(tpl, changes)  # a candle costs more (gen#956)
         target = price_point(min(max(price, lo), hi), lo, hi)
         if target == tpl["price"]:  # a re-drawn price is never the template's own
             up = target + _step(target)
