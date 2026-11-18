@@ -15,7 +15,8 @@ shape cannot forget it. The sets are :data:`...core.drawing.product_look.ORIENTA
   a toy), and every shape nobody was sure of.
 
 * ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
-  luggage), which overlap on a slant.
+  luggage), which overlap on a slant; and a bicycle, which rests on its two wheels and reads as
+  falling or wheelieing on a slant (#1049).
 
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
@@ -59,7 +60,7 @@ UPRIGHT: tuple[str, ...] = (
     "baby_blanket", "baby_bottle", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
     "baseball_glove",
     "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
-    "bed_frame", "bed_pillow", "bicycle", "bike_bottle", "bike_helmet", "bike_pedals",
+    "bed_frame", "bed_pillow", "bike_bottle", "bike_helmet", "bike_pedals",
     "bike_pump",
     "bike_saddle", "bird", "blender",
     "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
@@ -130,8 +131,9 @@ UPRIGHT: tuple[str, ...] = (
     "air_freshener", "fluid_jug", "microfiber_towel", "wash_mitt", "wiper_blade",
 )
 
-#: Set types, drawn as several items: at 0 degrees only (#884).
+#: Set types, drawn as several items (#884), and a bicycle on its wheels (#1049): 0 degrees only.
 LEVEL: tuple[str, ...] = (
+    "bicycle",
     "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "food_storage", "gift_set",
     "luggage_set",
 )
