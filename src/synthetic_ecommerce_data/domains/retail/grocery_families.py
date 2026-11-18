@@ -430,11 +430,11 @@ FAMILIES: tuple[Family, ...] = (
     # is a fruit and a flavor; "honey" a scent in dozens of body-care SKUs. Each family is one
     # leaf with its own scent list and the same ``scent`` attribute the Kitchen Cleaner uses,
     # so one policy routes on the attribute and the product type. Drawn from their own stream.
-    Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "bottle",
+    Family("DSH", ("Cleaning", "Kitchen & Surfaces", "Dish Soap"), "{line} {flavor} Dish Soap", "Dish Soap", "squeeze_bottle",
            "Dish Soap", _A, "", 1.2, ("500ml", "1L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="washing-up liquid that cuts through grease", depth=True),
     Family("GLS", ("Cleaning", "Kitchen & Surfaces", "Cleaners", "Glass Cleaners"), "{line} {flavor} Glass Cleaner", "Glass Cleaner",
-           "bottle", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
+           "trigger_spray", "Glass Cleaner", _A, "", 1.6, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="streak-free spray for windows and mirrors", depth=True),
     Family("FLR", ("Cleaning", "Floor Care", "Floor Cleaners"), "{line} {flavor} Floor Cleaner", "Floor Cleaner",
            "bottle", "Floor Cleaner", _A, "", 2.0, ("1L", "2L", "750ml"), _HOME_SCENTS, _HOME_BRANDS, 0.016, axis="scent",
@@ -443,7 +443,7 @@ FAMILIES: tuple[Family, ...] = (
            "bottle", "Bathroom Cleaner", _A, "", 1.8, ("500ml", "750ml", "1L"), _HOME_SCENTS, _HOME_BRANDS, 0.01,
            axis="scent", department="Cleaning & Janitorial", noun="spray that removes limescale and soap scum", depth=True),
     Family("LDY", ("Cleaning", "Laundry", "Laundry Detergent"), "{line} {flavor} Laundry Liquid", "Laundry Detergent",
-           "bottle", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L", "4.5L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
+           "jug", "Laundry Liquid", _A, "", 4.0, ("1.5L", "3L", "4.5L"), _HOME_SCENTS, _HOME_BRANDS, 0.01, axis="scent",
            department="Cleaning & Janitorial", noun="liquid detergent for every wash", depth=True),
     Family("HWS", ("Beauty", "Bath & Body", "Hand Wash"), "{line} {flavor} Hand Wash", "Hand Wash", "bottle",
            "Hand Wash", _A, "", 1.8, ("250ml", "500ml", "1L"), _BODY_SCENTS, _BODY_BRANDS, 0.032, axis="scent",
