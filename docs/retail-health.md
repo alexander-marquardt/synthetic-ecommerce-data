@@ -69,8 +69,8 @@ brands and `row` helper. Each type has its own spec (`eye_drops.py`, `incontinen
 | Type | Shape | Param, from the attribute | SKUs |
 |---|---|---|---|
 | Eye Drops | `eye_drop_bottle`: a carton with the pack in front | `pack` (`eye_care_pack`: Dropper Bottle, Single-Dose Vials, Eye Wash) | a box of 20 to 60 vials (`piece_count`), else one per style |
-| Incontinence Pads | `pad_pack`: a soft pack with a pad on its front, one drop per absorbency step and a moon for overnight | `absorbency` (Light, Medium, Heavy, Overnight) | a pack of 10 to 48 (`piece_count`) |
-| Walking Sticks | `walking_stick` on its rubber tip | `handle` (`handle_type`: Crook, Derby, Offset, T-Handle) | one per style |
+| Incontinence Pads | `pad_pack`: a soft pack with a pad on its front, one drop per absorbency step and a moon for overnight | `pad_absorbency` (Light, Medium, Heavy, Overnight) | a pack of 10 to 48 (`piece_count`) |
+| Walking Sticks | `walking_stick` on its rubber tip | `handle` (`handle_style`, shown as Handle style: Crook, Derby, Offset, T-Handle) | one per style |
 
 Each value of these params draws a different figure too (`tests/test_retail_health_care_968.py`).
 No walking stick is white: a white cane signals sight loss and is not a product color.

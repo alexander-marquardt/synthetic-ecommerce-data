@@ -34,7 +34,7 @@ BLACK = cw("Black", "#2e2f33", "solid", "#ffffff")
 
 def _stick(code, title, brand, handle, material, price, desc, color) -> object:  # noqa: ANN001
     return row(code, title, brand, _PATH, "Walking Sticks", "walking_stick", desc,
-               (a("handle_type", "Handle", handle), a("material", "Material", material)),
+               (a("handle_style", "Handle style", handle), a("material", "Material", material)),
                ("handle", handle.lower()), price=price, color=color)  # fmt: skip
 
 
@@ -52,7 +52,7 @@ ROWS = (
 )  # fmt: skip
 
 #: Text-match decoys: the title names a range holding the query's word, the fields say another
-#: handle, so only a policy that reads ``handle_type`` puts the real sticks first.
+#: handle, so only a policy that reads ``handle_style`` puts the real sticks first.
 DECOYS = (
     Decoy(6, "derby walking stick", "generic", decoy(
         ROWS[0], "HWSDY1", "Derby Lane Wooden Crook Walking Stick",

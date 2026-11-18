@@ -34,7 +34,7 @@ _PATH = (ROOT, "Incontinence", "Incontinence Pads")
 
 def _pads(code, title, brand, absorbency, sizes, desc, color=BLUE) -> object:  # noqa: ANN001
     return row(code, title, brand, _PATH, "Incontinence Pads", "pad_pack", desc,
-               (a("absorbency", "Absorbency", absorbency),), ("absorbency", absorbency.lower()),
+               (a("pad_absorbency", "Absorbency", absorbency),), ("absorbency", absorbency.lower()),
                sizes, color=color)  # fmt: skip
 
 
@@ -52,7 +52,7 @@ ROWS = (
 )  # fmt: skip
 
 #: Text-match decoys: the title names a range holding the query's word, the fields say a lighter
-#: absorbency, so only a policy that reads ``absorbency`` puts the real packs first.
+#: absorbency, so only a policy that reads ``pad_absorbency`` puts the real packs first.
 DECOYS = (
     Decoy(6, "overnight incontinence pads", "generic", decoy(
         ROWS[0], "HIPDY1", "Overnight Bag Light Incontinence Pads",
