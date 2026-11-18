@@ -73,7 +73,7 @@ ADDED_SHARE = 35
 #: block ``k``; append only, as for :data:`ADDED_STEMS`.
 GROCERY_STEMS = (
     "Abb", "Bick", "Cogg", "Dribb", "Edg", "Grims", "Hutt", "Ingle", "Jarr", "Kex", "Lyth",
-    "Mux", "Nidd", "Pock", "Quen", "Rigg", "Tees", "Ure", "Wend", "Yock", "Brom", "Cark",
+    "Mux", "Nidd", "Pock", "Quar", "Rigg", "Tees", "Ure", "Wend", "Yock", "Brom", "Cark",
     "Dent", "Fulb",
 )  # fmt: skip
 
