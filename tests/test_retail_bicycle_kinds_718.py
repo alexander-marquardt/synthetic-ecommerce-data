@@ -4,7 +4,8 @@ The maintainer could tell the kinds apart only by looking hard, and a kids' bike
 in front of its rear wheel looked like a stationary trainer. So a mountain bike has larger wheels
 with fat, knobbly tires and a sloping top tube, an electric bike has a thick down tube carrying a
 large battery in a color that stands out from the frame, and a kids' bike has one stabilizer behind
-the rear axle, on the same ground. A bicycle's sizes are on the shared size ladder, whole drawing
+the rear axle, on the same ground. A bicycle's sizes are on a size ladder of its own (#1049),
+narrower than the shared one so the smallest frame still fills the figure area, whole drawing
 scaled, tires included.
 """
 
@@ -189,12 +190,15 @@ def test_a_road_bike_has_no_stabilizer_battery_or_hub_motor():
 
 
 @pytest.mark.parametrize("kind", ["Road", "Mountain", "Electric", "Kids"])
-def test_a_bikes_sizes_step_up_the_shared_ladder(kind):
+def test_a_bikes_sizes_step_up_the_bicycle_ladder(kind):
     rec = BIKES[kind][0]
     key = "wheel_size_in" if kind == "Kids" else "frame_cm"
     rungs = {sku[key]: export.drawing_spec(rec, sku).get("size_scale") for sku in rec["skus"]}
     ordered = [rungs[size] for size in sorted(rungs, key=int)]
-    assert ordered == [size_ladder.BOTTOM, size_ladder.scale_at(1, 3), size_ladder.TOP]
+    bottom = size_ladder.bottom(rec)
+    assert ordered == [bottom, size_ladder.scale_at(1, 3, bottom), size_ladder.TOP]
+    # narrower than the shared ladder, and the smallest frame at least 0.8 of full size (#1049)
+    assert bottom > size_ladder.BOTTOM and bottom / size_ladder.TOP >= 0.8
 
 
 @pytest.mark.parametrize("kind", ["Road", "Mountain", "Electric", "Kids"])
@@ -204,7 +208,8 @@ def test_the_largest_size_is_wider_than_the_smallest_by_the_ladders_ratio(kind):
     key = "wheel_size_in" if kind == "Kids" else "frame_cm"
     skus = sorted((s for s in rec["skus"] if s["color"] == color), key=lambda s: int(s[key]))
     ratio = _bare_width(rec, skus[-1]) / _bare_width(rec, skus[0])
-    assert ratio == pytest.approx(size_ladder.TOP / size_ladder.BOTTOM, rel=0.05)
+    assert ratio == pytest.approx(size_ladder.TOP / size_ladder.bottom(rec), rel=0.05)
+    assert ratio >= 1.15, "the sizes no longer draw visibly apart"
 
 
 def test_every_size_of_a_color_draws_its_own_picture_and_stays_on_the_sheet():
