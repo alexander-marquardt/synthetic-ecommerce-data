@@ -148,7 +148,7 @@ SCALE = Roster(
         "Thistle & Wren", "Thornlea Skin", "Thrennick", "Torvane", "Treadmoor", "Veilmoor",
         "Velling Apothecary", "Wexmoor", "Wheatsheaf Lane", "Whiskerby", "Wrenfield",
     ),
-    added=(),
+    added=("Pennywhistle Angling", "Larchmere Golf"),
 )  # fmt: skip
 
 

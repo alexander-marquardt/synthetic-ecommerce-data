@@ -17,7 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import range_ownership, scale
 
-NEW = ("Pennywhistle Angling", "Larchmere Golf")
+NEW = ("Probe Brand One", "Probe Brand Two")
 
 
 def _slots(deal: range_ownership.Deal, brand: str) -> list[str]:
@@ -60,9 +60,10 @@ def test_the_base_brands_keep_the_deal_they_had_before_1052(built):
     goldens stay put: the rostered deal equals the plain round-robin over the same brands."""
     tpls, brands = built
     rostered = scale._range_deal(tpls, brands)
-    assert rostered.brands == list(range_ownership.SCALE.base)
-    plain = range_ownership.Deal("scale", rostered.brands, _reserved(tpls))
-    assert {b: rostered.of(b) for b in rostered.brands} == {b: plain.of(b) for b in plain.brands}
+    roster = range_ownership.SCALE
+    assert rostered.brands == sorted({*roster.base, *roster.added})
+    plain = range_ownership.Deal("scale", roster.base, _reserved(tpls))
+    assert {b: rostered.of(b) for b in roster.base} == {b: plain.of(b) for b in plain.brands}
 
 
 def test_appended_brands_own_names_no_other_brand_or_half_holds(built, monkeypatch):
