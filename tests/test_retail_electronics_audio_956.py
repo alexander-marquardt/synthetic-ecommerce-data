@@ -97,21 +97,21 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
-GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
+GOLDEN: dict[str, list[tuple]] = {
     "Headphones": [
-        ("BRD-00158C009A1C", "Winholme Wired On-Ear Studio Headphones", 2, 130.0),
-        ("BRD-00584B99872D", "Shelbank Bass Boost USB-C Headphones", 2, 90.0),
-        ("BRD-019BC6280FF4", "Gilton USB-C Over-Ear Hi-Res Headphones", 6, 60.0),
+        ("BRD-00158C009A1C", "Staningham Wired On-Ear Studio Headphones", 2, 130.0),
+        ("BRD-00584B99872D", "Rushfell Bass Boost USB-C Headphones", 2, 90.0),
+        ("BRD-019BC6280FF4", "Fairham USB-C Over-Ear Hi-Res Headphones", 6, 60.0),
     ],
     "Portable Speaker": [
-        ("BRD-007B2C3AFCCB", "Stokemouth Waterproof Bluetooth Speaker with Built-In Mic", 8, 59.0),
-        ("BRD-00E2C61EB6D9", "Goswood Mini Splash-Proof Bluetooth Speaker", 12, 26.0),
-        ("BRD-03384A7AF87A", "Glenscar Compact Splash-Proof Bluetooth Speaker with Built-In Mic", 12, 56.0),  # noqa: E501
+        ("BRD-007B2C3AFCCB", "Kilmoor Waterproof Bluetooth Speaker with Built-In Mic", 8, 59.0),
+        ("BRD-00E2C61EB6D9", "Birkford Mini Splash-Proof Bluetooth Speaker", 12, 26.0),
+        ("BRD-03384A7AF87A", "Eskhurst Compact Splash-Proof Bluetooth Speaker with Built-In Mic", 12, 56.0),  # noqa: E501
     ],
     "Soundbar": [
-        ("BRD-00E223234E14", "Copwell 5.1 Channel Bluetooth Soundbar", 6, 375.0),
-        ("BRD-0152E9BC8020", "Kilstone Compact 3.1 Channel Optical Soundbar", 6, 410.0),
-        ("BRD-01EF816FCCD6", "Bramthwaite Compact 2.0 Channel Bluetooth Soundbar", 4, 250.0),
+        ("BRD-00E223234E14", "Falridge 5.1 Channel Bluetooth Soundbar", 6, 375.0),
+        ("BRD-0152E9BC8020", "Stokegate Compact 3.1 Channel Optical Soundbar", 6, 410.0),
+        ("BRD-01EF816FCCD6", "Tanstone Compact 2.0 Channel Bluetooth Soundbar", 4, 250.0),
     ],
 }
 

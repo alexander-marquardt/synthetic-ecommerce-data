@@ -129,21 +129,21 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
-GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
+GOLDEN: dict[str, list[tuple]] = {
     "Power Bank": [
-        ("BRD-006DDB4B6F2A", "Chelgarth Rugged Power Bank", 6, 43.0),
-        ("BRD-02166BB08EC2", "Inglow Power Bank with Built-in Cable", 6, 36.0),
-        ("BRD-049E59BD4EDB", "Daring Power Bank with Built-in Cable", 6, 50.0),
+        ("BRD-003A1901A4AC", "Arkwood USB-C Power Bank", 6, 40.0),
+        ("BRD-006DDB4B6F2A", "Cudwood Rugged Power Bank", 6, 43.0),
+        ("BRD-02166BB08EC2", "Baring Power Bank with Built-in Cable", 6, 36.0),
     ],
     "Webcam": [
-        ("BRD-028A1F52DDA5", "Linley Full HD Streaming Webcam", 6, 95.0),
-        ("BRD-03A5CF4A742C", "Marcombe Webcam with Ring Light", 6, 40.0),
-        ("BRD-05F0E6B1F561", "Updale 4K Conference Webcam", 6, 88.0),
+        ("BRD-028A1F52DDA5", "Gilmouth Full HD Streaming Webcam", 6, 95.0),
+        ("BRD-03A5CF4A742C", "Reaington Webcam with Ring Light", 6, 40.0),
+        ("BRD-05F0E6B1F561", "Wykestead 4K Conference Webcam", 6, 88.0),
     ],
     "Smartwatch": [
-        ("BRD-021690316470", "Brockwick GPS Smartwatch", 6, 295.0),
-        ("BRD-09047AA2CAC1", "Flaxdale Round Cellular Smartwatch", 6, 350.0),
-        ("BRD-0995A2837ADD", "Lamshaw Cellular Smartwatch", 6, 245.0),
+        ("BRD-021690316470", "Gildale GPS Smartwatch", 6, 295.0),
+        ("BRD-09047AA2CAC1", "Swanborough Round Cellular Smartwatch", 6, 350.0),
+        ("BRD-0995A2837ADD", "Wrayscar Cellular Smartwatch", 6, 245.0),
     ],
 }
 
