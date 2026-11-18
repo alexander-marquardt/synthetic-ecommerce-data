@@ -376,6 +376,17 @@ type's pack and both new shapes, and checks that no brand draws two products ali
 leaf. `TUB_TYPES` in `tests/test_retail_supplement_bottle_1028.py` lists every type still drawn
 as a `tub`, so a new one shows in review.
 
+### `tub` is drawn as a real lidded tub (gen#1028)
+
+The maintainer: "that 'tub' drawing label feels a bit misleading if it looks like a cup". The
+retail `tub` (`kit.tub`) is now short and wide. Its wall flares a little up to a lid with a rim,
+in a light tone of the colorway's accent, where it used to be a tall open pot. Only real tubs
+draw it: yogurt, laundry pods and capsules, the gel air freshener pot and the car wax pot.
+Butter and spreads draw the grocery `lidded_tub`, which is a taller pot with a snap-on lid and a
+thumb tab. The one hot chocolate that drew `tub` (`PLT-HCORNG`) is a `tin`.
+`tests/test_retail_tub_redraw_1028.py` pins the redrawn tub on a yogurt and checks the hot
+chocolate leaf, and `TUB_TYPES` names only those real tubs.
+
 ## Determinism and the publish gate
 
 A drawing is a pure function of `(product_type, brand, record)`. It does not

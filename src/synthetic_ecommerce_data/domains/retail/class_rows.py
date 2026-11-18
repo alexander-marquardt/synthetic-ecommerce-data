@@ -146,7 +146,7 @@ NOT_ORANGES = (
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
            (*DRINKS, "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
-           "Hot Chocolate", "tub", pack("#5a3020", 480), unit=(250.0, "g"),
+           "Hot Chocolate", "tin", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("XPCHOR", "Cherry & Orange Christmas Pudding", "Hearth & Table", FOOD,
            ("Food & Drink", "Desserts", "Christmas Puddings"), 9.0,
