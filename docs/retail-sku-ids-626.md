@@ -36,9 +36,11 @@ Guards: `tests/test_retail_stable_ids_626.py`.
 - The industrial side (`core/ids.py`, `IdMinter`) is a different scheme and is not changed here.
 - The ceiling figures (`golden-retail/stats.json`) changed with the derived styles.
 - Near the ceiling the derived department mix is skewed against the targets: the fast clocks of
-  small departments run out first. `DEPARTMENT_RATE` in `scale.py` holds the rates, calibrated to
-  `DEPARTMENT_SHARE` at today's templates; when a template changes a department's share
-  (`test_the_department_rates_give_the_department_shares` fails) recompute them.
+  small departments run out first. The rates are calibrated to `DEPARTMENT_SHARE` at today's
+  templates, one module per department under `domains/retail/department_rates/` (`DEPARTMENT`,
+  `RATE` and its calibration note; `scale.DEPARTMENT_RATE` is built from them, gen#1044). When a
+  template changes a department's share (`test_the_department_rates_give_the_department_shares`
+  fails) recompute its rate in its module; a new department is a new module there.
 
 ## One-off migration: the last positional ids
 
