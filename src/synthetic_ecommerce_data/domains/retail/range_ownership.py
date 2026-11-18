@@ -182,7 +182,8 @@ SCALE = Roster(
         "Thistle & Wren", "Thornlea Skin", "Thrennick", "Torvane", "Treadmoor", "Veilmoor",
         "Velling Apothecary", "Wexmoor", "Wheatsheaf Lane", "Whiskerby", "Wrenfield",
     ),
-    added=("Pennywhistle Angling", "Larchmere Golf"),
+    added=("Pennywhistle Angling", "Larchmere Golf", "Corvane Pharmacy", "Brannock Health",
+           "Hallowby Chemist", "Lindcombe Health", "Sedgemoor Pharmacy", "Ottermere Care"),
     # The scale-half words skipped when the base was dealt: the excluded words in the half and
     # Fenmere, a brand's own word. Never edit: a word dropped later leaves its owner alone.
     gaps=frozenset({

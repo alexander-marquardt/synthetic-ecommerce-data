@@ -4,8 +4,9 @@ The kit could draw dining tables, chairs, wardrobes and sofas, but not a bar sto
 office chair, a TV stand or a kitchen island. A home department that grows into those types needs
 them drawn first. This slice adds them as kit shapes in
 `src/synthetic_ecommerce_data/domains/retail/kit_home_furniture.py`, and no generator product uses
-them yet. gen#1022's later slices add the public draw call with its finishes, the rest of the home
-types, and the products that use them.
+them yet. [Slice 2](render-and-finishes-1022.md) adds the public draw call with its finishes and
+proportions, and five storage shapes. Later slices add the rest of the home types and the
+products that use them.
 
 Each shape is drawn from the attributes a record states. `kit_home_furniture.PARAMS` is each
 shape's table of params and the values it draws:
