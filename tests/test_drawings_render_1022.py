@@ -201,5 +201,5 @@ def test_the_share_of_products_sharing_a_picture_is_printed_for_each_finish(
     for name in ("figure", *drawings.FINISHES):
         shared, total = share[name]
         assert re.search(
-            rf"^{name}: {shared} of {total} share a picture \(\d+\.\d%\)$", out, re.M
+            rf"^{name}: {shared} of {total} share a picture \((?:\d+\.\d%|none)\)$", out, re.M
         ), out

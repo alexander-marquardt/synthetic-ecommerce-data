@@ -30,7 +30,8 @@ def main(argv: list[str]) -> int:
     types = sorted({r["type"] for r in rows})
     print(f"drawings: {len(rows)} of {', '.join(types)} ({path.name})")
     for name, (shared, total) in drawings.picture_share(rows).items():
-        print(f"{name}: {shared} of {total} share a picture ({100 * shared / total:.1f}%)")
+        share = f"{100 * shared / total:.1f}%" if shared else "none"
+        print(f"{name}: {shared} of {total} share a picture ({share})")
     return 0
 
 

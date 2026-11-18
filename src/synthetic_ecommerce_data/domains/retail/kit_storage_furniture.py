@@ -112,7 +112,7 @@ def sideboard(paint: str, fill: Fill, label: str | None, doors: str = "2", drawe
     nd, nr = int(doors), int(drawers)
     x0, w, y0 = 40, 320, 168
     y1 = FLOOR - (14 if legs == "plinth" else 40)
-    out = [_rect(x0, y0, w, y1 - y0, paint), _slab(x0 - 8, y0 - 12, w + 16, 12, paint), _grain(x0 - 8, y0 - 12, w + 16, 12, paint)]
+    out = [_rect(x0, y0, w, y1 - y0, paint), _slab(x0 - 8, y0 - 12, 16 + w, 12, paint), _grain(x0 - 8, y0 - 12, 16 + w, 12, paint)]
     band = 40 if nr else 0
     if nr:
         out += _drawer_fronts(x0 + 4, y0 + 4, w - 8, band, nr, paint, cols=nr)
@@ -149,7 +149,7 @@ def bar_cabinet(paint: str, fill: Fill, label: str | None, doors: str = "2", gla
     nd, ns = int(doors), int(stools)
     x0, w, y0, y1 = 104, 192, 58, FLOOR - 14
     mid = y0 + 128
-    out = [_rect(x0, y0, w, y1 - y0, paint), _slab(x0 - 8, y0 - 12, w + 16, 12, paint), _rect(x0 + 10, y1, w - 20, 14, _shade(paint, 0.1), LW_DETAIL)]
+    out = [_rect(x0, y0, w, y1 - y0, paint), _slab(x0 - 8, y0 - 12, 16 + w, 12, paint), _rect(x0 + 10, y1, w - 20, 14, _shade(paint, 0.1), LW_DETAIL)]
     out.append(_rect(x0 + 8, y0 + 8, w - 16, mid - y0 - 12, _shade(paint, 0.12), LW_DETAIL))
     rack = mid - 8
     out.append(_rect(x0 + 10, rack - 4, w - 20, 6, paint, 1.0))

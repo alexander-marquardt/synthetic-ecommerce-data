@@ -113,8 +113,8 @@ sideboards from the generator's own vocabulary):
 ```
 drawings: 200 of sideboard (sideboards_200.json)
 figure: 45 of 200 share a picture (22.5%)
-unbranded: 0 of 200 share a picture (0.0%)
-brand: 0 of 200 share a picture (0.0%)
+unbranded: 0 of 200 share a picture (none)
+brand: 0 of 200 share a picture (none)
 ```
 
 Products whose attributes match draw the same figure, and the finish (the angle and the frame,
