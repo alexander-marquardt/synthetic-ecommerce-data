@@ -31,7 +31,26 @@ from typing import Any
 from synthetic_ecommerce_data.core.size_rungs import BOTTOM, TOP, scale_at
 from synthetic_ecommerce_data.domains.retail import size_axes
 
-__all__ = ["BOTTOM", "TOP", "primary", "scale_at", "size_scale", "spec", "stand"]
+__all__ = [
+    "BOTTOM",
+    "BOTTOMS",
+    "TOP",
+    "bottom",
+    "primary",
+    "scale_at",
+    "size_scale",
+    "spec",
+    "stand",
+]
+
+#: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049).
+BOTTOMS: dict[str, float] = {}
+
+
+def bottom(rec: dict) -> float:
+    """The scale the smallest rung of ``rec``'s ladder stands for (a shape's own, or BOTTOM)."""
+    return BOTTOMS.get(rec.get("drawing", {}).get("shape", ""), BOTTOM)
+
 
 #: Letter sizes, smallest first; "2XL" is the same rung as "XXL".
 LETTERS = ("XXXS", "XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL")
@@ -119,7 +138,7 @@ def size_scale(rec: dict, sku: dict) -> float | None:
     ladder = sorted({_order(rec, key, v) for v in {str(s[key]) for s in rec["skus"] if key in s}})
     if len(ladder) < 2:
         return None
-    return scale_at(ladder.index(_order(rec, key, value)), len(ladder))
+    return scale_at(ladder.index(_order(rec, key, value)), len(ladder), bottom(rec))
 
 
 def stand(body: str, defs: str, size_scale: float | None) -> str:
