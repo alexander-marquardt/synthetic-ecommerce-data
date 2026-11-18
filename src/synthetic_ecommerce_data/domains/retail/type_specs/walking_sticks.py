@@ -3,7 +3,7 @@
 A breadth type (``derivable``): the scaled build draws more sticks by swapping the handle the
 title shows. Each style is one SKU. The drawing is a stick on its rubber tip with a crook, derby,
 offset or T handle by the row's handle (:func:`kit_health_care.walking_stick`). No stick is
-white: a white cane is a sign for sight loss, not a product colour.
+white: a white cane is a sign for sight loss, not a product color.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
