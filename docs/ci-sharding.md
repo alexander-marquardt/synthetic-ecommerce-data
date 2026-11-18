@@ -83,9 +83,9 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
   that count prints no file, and its job ends after the checkout without installing anything.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 19 shards of about 1015 s of the
+  every file, for a local run. A full run deals the files to 19 shards of about 1134 s of the
   weights each. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
-  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 then (#949); at 18 the smart home test file (#956) put it at 1200.4 s, so it is 19 now.
+  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19.
   `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
   count, so the shard to add is named before the pull request that would need it.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
@@ -276,7 +276,7 @@ the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-
 `merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
 `vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
-full run is 25 jobs (18 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+full run is 25 jobs (19 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
 to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
 
