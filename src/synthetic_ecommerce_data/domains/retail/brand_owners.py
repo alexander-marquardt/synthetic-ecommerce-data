@@ -14,7 +14,7 @@ from __future__ import annotations
 import functools
 import importlib
 import pkgutil
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from types import MappingProxyType
 
 _PACKAGE = __name__.rpartition(".")[0]
@@ -41,6 +41,15 @@ SOURCES = (
     "school_rows",
     "womens_depth_rows",
 )
+
+
+class OwnerConflict(ValueError):
+    """Two sources give one brand different owners."""
+
+
+def merge(sources: Iterable[tuple[str, Iterable[tuple[str, str]]]]) -> dict[str, str]:
+    """Stub (red commit)."""
+    return {b: o for _, pairs in sources for b, o in pairs}
 
 
 @functools.cache

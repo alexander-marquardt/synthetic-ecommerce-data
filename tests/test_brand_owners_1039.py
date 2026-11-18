@@ -92,18 +92,56 @@ def test_brand_owner_is_the_same_whatever_was_imported_first(first: str) -> None
 #: or ``OWNERS[brand] = ``.
 WRITE = re.compile(r"\bOWNERS(\.update\(|\.setdefault\(|\[[^]]+\]\s*=[^=])")
 
+#: A module-level ``OWNED = ...`` (or ``OWNED: ... = ...``): the brands a module states.
+STATES = re.compile(r"^OWNED\b\s*(:[^=]+)?=", re.M)
 
-def test_every_module_that_writes_owners_is_a_source_of_the_table() -> None:
-    """A module that adds owners at import and is not in ``SOURCES`` would make ``table()``
-    miss its brands. Spec modules are walked, and ``type_registry`` only registers specs."""
-    writers = {
-        p.stem
-        for p in RETAIL.glob("*.py")
-        if WRITE.search(p.read_text()) and p.stem not in {"type_registry", "brand_owners"}
-    }
-    assert writers, "the pattern found no writer: it no longer matches how modules add owners"
-    assert sorted(writers - set(brand_owners.SOURCES)) == []
-    assert sorted(set(brand_owners.SOURCES) - writers) == []
+
+def test_no_module_writes_the_owner_table() -> None:
+    """A write at import time makes the table hold only what this interpreter imported, and a
+    first-wins or last-wins write hides two modules that disagree on an owner (gen#1039)."""
+    src = RETAIL.parents[1]
+    writes = [
+        f"{p.relative_to(src)}:{n}"
+        for p in sorted(src.rglob("*.py"))
+        for n, line in enumerate(p.read_text().splitlines(), 1)
+        if WRITE.search(line)
+    ]
+    assert writes == []
+
+
+def test_every_module_that_states_owners_is_a_source_of_the_table() -> None:
+    """A module whose ``OWNED`` is not in ``SOURCES`` would leave its brands out of ``table()``,
+    and a source with no ``OWNED`` names nothing. Spec modules are walked for ``SPEC.owners``."""
+    stating = {p.stem for p in RETAIL.glob("*.py") if STATES.search(p.read_text())}
+    assert stating, "the pattern found no module: it no longer matches how modules state owners"
+    assert sorted(stating - set(brand_owners.SOURCES)) == []
+    assert sorted(set(brand_owners.SOURCES) - stating) == []
+
+
+def test_two_sources_that_disagree_on_a_brand_raise_naming_both() -> None:
+    """A brand two sources give different owners is an error, never a silent first or last win:
+    ``beach_towel`` stated ``Harbour & Pine`` as third party while every other source said own."""
+    sources = (
+        ("breadth_row", (("Harbour & Pine", "own"), ("Larkmoor", "own"))),
+        ("spec:beach_towel", (("Harbour & Pine", "third_party"),)),
+    )
+    try:
+        brand_owners.merge(sources)
+    except brand_owners.OwnerConflict as exc:
+        said = str(exc)
+    else:
+        said = "no error"
+    assert "Harbour & Pine" in said
+    assert "breadth_row" in said
+    assert "spec:beach_towel" in said
+
+
+def test_two_sources_that_agree_on_a_brand_merge() -> None:
+    sources = (
+        ("a", (("Larkmoor", "own"),)),
+        ("b", (("Larkmoor", "own"), ("Soapwell", "third_party"))),
+    )
+    assert brand_owners.merge(sources) == {"Larkmoor": "own", "Soapwell": "third_party"}
 
 
 #: Validates a copy of the ``plasters`` spec whose one row sells ``Tallow Street``, a brand only
