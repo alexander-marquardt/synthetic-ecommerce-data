@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from html import escape
 from pathlib import Path
 
+from synthetic_ecommerce_data.domains.retail.figure_stretch import figure_at
+
 SIZE = 400
 INK = "#2b3440"
 PAPER = "#fbfaf6"
@@ -935,6 +937,7 @@ def render(
     angle: float = 0.0,
     emblem: str | None = None,
     printed: int | None = None,
+    stretch: tuple[float, float] | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -952,20 +955,17 @@ def render(
     ``emblem`` names the invented film whose emblem the product carries, and whose licence line
     a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
     """
-    from synthetic_ecommerce_data.domains.retail import (
-        size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
-    )
+    from synthetic_ecommerce_data.domains.retail import size_ladder  # deferred: gen#339 layer
 
     if copies > 1:
-        from synthetic_ecommerce_data.domains.retail import (
-            pack_copies,  # deferred: pack_copies draws with this kit
-        )
+        from synthetic_ecommerce_data.domains.retail import pack_copies  # deferred: draws with kit
 
         params = pack_copies.one_item(shape, params)
     draw = _draw(shape)
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = _paint(fill, pid)
+    draw = draw if stretch is None else figure_at(draw, stretch, defs)
     if style is not None:
         return _render_styled(
             shape,
