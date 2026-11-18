@@ -756,7 +756,10 @@ the row carries its name as a `Line` attribute. The scale half is dealt over an 
 (#1052, `range_ownership.SCALE`): the 85 brands dealt before it keep their round-robin share, and a
 brand new to the scale build is appended to `SCALE.added`, where it takes its own block of 35 names
 from `ADDED_STEMS`, place words outside the shuffled pool. A new brand therefore moves no other
-brand's range names and no style in another department; a brand off the roster is refused by name. No title names another brand, and no brand is made of
+brand's range names and no style in another department; a brand off the roster is refused by name.
+The base is dealt over the whole half less `SCALE.gaps`, the words skipped when it was dealt, so a
+word reserved or excluded later (a brand's own word, an authored range, a `PRODUCT_WORDS` entry)
+leaves only the brand that owned it (#1052 slice 2, `tests/test_range_deal_reserve_1052.py`). No title names another brand, and no brand is made of
 product nouns; `scripts/review_range_names.py` counts all three classes (shared range word, foreign
 brand in a title, product-phrase brand) plus the name-led titles that lack a Line, and reports 0. A
 clothing or footwear range reads as a model, not a place word ([retail-line-grammar-663.md](retail-line-grammar-663.md)). It

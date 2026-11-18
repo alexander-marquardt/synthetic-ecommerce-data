@@ -10,6 +10,9 @@ its owner's names. Metric: the brands other than the owner whose 60 slots change
 
 from __future__ import annotations
 
+import hashlib
+import json
+
 import pytest
 
 from synthetic_ecommerce_data.domains.retail import range_ownership, scale
@@ -68,3 +71,17 @@ def test_an_excluded_word_moves_only_its_owner(built, monkeypatch):
     after = scale._range_deal(tpls, brands)
     assert _moved(before, after) == [owner]
     assert after.of(owner) == tuple(n for n in before.of(owner) if n != word)
+
+
+#: sha256 of the 85 base brands' names in the scale deal on main e9651a66, before slice 2.
+MAIN_DEAL = "475f7e0d53feeb9aeb259af6e0888b41efbf4cb9d76df2da9942d349726390b0"
+
+
+def test_the_base_positions_are_main_s_deal(monkeypatch):
+    """With nothing skipped but the gaps, the base brands hold exactly the names main dealt them,
+    so the frozen gaps (and the stems, endings and seed under them) are what main skipped."""
+    monkeypatch.setattr(range_ownership, "EXCLUDED", frozenset())
+    roster = range_ownership.SCALE
+    owned = roster.owned(range_ownership.whole_halves()["scale"], set())
+    names = json.dumps({b: owned[b] for b in roster.base}).encode()
+    assert hashlib.sha256(names).hexdigest() == MAIN_DEAL
