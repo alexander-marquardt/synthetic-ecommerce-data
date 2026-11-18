@@ -1,4 +1,4 @@
-"""Clothing's derived-style rate (gen#1044 moved it here from ``scale.py``).
+"""Clothing's derived-style figures (gen#1044 moved them here from ``scale.py``).
 
 Raised from 0.01227 to 0.0124 for the coffee makers, air fryers and blenders of gen#963
 slice 1, whose Home styles took Clothing's share from 41.2% to 40.9%, past the 3 points (it is
@@ -11,3 +11,7 @@ every share stays inside its cap.
 
 DEPARTMENT = "Clothing"
 RATE = 0.01499
+#: Its share of derived styles; a department with no SHARE splits the rest by template count.
+SHARE = 0.44
+#: Invented brands its derived styles may carry, beside its template brands.
+EXTRA_BRANDS = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street")
