@@ -84,34 +84,34 @@ def _golden(sports: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Fishing Rod": [
-        ("BRD-090958B9198F", "Hawbury Medium Fiberglass Spinning Fishing Rod", 12, 41.0),
-        ("BRD-0D5F1D0F2695", "Winbridge Medium Fiberglass Casting Fishing Rod", 6, 63.0),
-        ("BRD-0EB768D023F8", "Ormborough Heavy Fiberglass Fly Fishing Rod", 6, 79.0),
+        ("BRD-090958B9198F", "Corwick Medium Fiberglass Spinning Fishing Rod", 12, 41.0),
+        ("BRD-0D5F1D0F2695", "Beckscar Medium Fiberglass Casting Fishing Rod", 6, 63.0),
+        ("BRD-0EB768D023F8", "Wenford Heavy Fiberglass Fly Fishing Rod", 6, 79.0),
     ],
     "Fishing Reel": [
-        ("BRD-062CA0F7D510", "Holhaugh Aluminum 3 Bearing Spinning Fishing Reel", 12, 42.0),
-        ("BRD-0654A32212EB", "Pickhaugh Aluminum 5 Bearing Baitcasting Fishing Reel", 12, 17.0),
-        ("BRD-08D13BABC85D", "Crakebank Graphite 5 Bearing Spinning Fishing Reel", 12, 55.0),
+        ("BRD-062CA0F7D510", "Penbridge Aluminum 3 Bearing Spinning Fishing Reel", 12, 42.0),
+        ("BRD-0654A32212EB", "Coldridge Aluminum 5 Bearing Baitcasting Fishing Reel", 12, 17.0),
+        ("BRD-08D13BABC85D", "Brackburn Graphite 5 Bearing Spinning Fishing Reel", 12, 55.0),
     ],
     "Tackle Box": [
-        ("BRD-048D1B5CA18B", "Ulvgarth 2 Tray Drawer Tackle Box", 8, 18.5),
-        ("BRD-05D95C54AC61", "Glencliffe 2 Tray Hip Roof Tackle Box", 4, 25.0),
-        ("BRD-06A41B8EA7EC", "Wenthwaite 3 Tray Drawer Tackle Box", 4, 16.0),
+        ("BRD-048D1B5CA18B", "Yarhurst 2 Tray Drawer Tackle Box", 8, 18.5),
+        ("BRD-05D95C54AC61", "Hamhurst 2 Tray Hip Roof Tackle Box", 4, 25.0),
+        ("BRD-06A41B8EA7EC", "Cresston 3 Tray Drawer Tackle Box", 4, 16.0),
     ],
     "Golf Club": [
-        ("BRD-061454920FCD", "Walbank Graphite Driver Golf Club", 8, 62.0),
-        ("BRD-084930823321", "Denham Steel Fairway Wood Golf Club", 6, 79.0),
-        ("BRD-0D1525BCCAE1", "Langwood Steel Driver Golf Club", 8, 65.0),
+        ("BRD-061454920FCD", "Whitfell Graphite Driver Golf Club", 8, 62.0),
+        ("BRD-084930823321", "Walridge Steel Fairway Wood Golf Club", 6, 79.0),
+        ("BRD-0D1525BCCAE1", "Ludridge Steel Driver Golf Club", 8, 65.0),
     ],
     "Golf Ball": [
-        ("BRD-08134E2AC941", "Wraybeck Urethane 4-Piece Golf Balls", 12, 10.5),
-        ("BRD-0E9B6CA81DA4", "Kenridge Urethane 2-Piece Golf Balls", 12, 11.0),
-        ("BRD-10BDF9821931", "Kelfell Urethane 4-Piece Golf Balls", 12, 12.0),
+        ("BRD-08134E2AC941", "Cressbury Urethane 4-Piece Golf Balls", 12, 10.5),
+        ("BRD-0E9B6CA81DA4", "Malthorpe Urethane 2-Piece Golf Balls", 12, 11.0),
+        ("BRD-10BDF9821931", "Pilcliffe Urethane 4-Piece Golf Balls", 12, 12.0),
     ],
     "Golf Glove": [
-        ("BRD-100228D32570", "Chapside Cabretta Leather Golf Glove, Left Hand", 16, 17.0),
-        ("BRD-145EDF083F79", "Otmouth Synthetic Golf Glove, Right Hand", 16, 11.0),
-        ("BRD-24BC6EB2F440", "Woldsbury Synthetic Golf Glove, Left Hand", 12, 11.5),
+        ("BRD-100228D32570", "Ingbrook Cabretta Leather Golf Glove, Left Hand", 16, 17.0),
+        ("BRD-145EDF083F79", "Weston Synthetic Golf Glove, Right Hand", 16, 11.0),
+        ("BRD-24BC6EB2F440", "Ulvhill Synthetic Golf Glove, Left Hand", 12, 11.5),
     ],
 }
 
