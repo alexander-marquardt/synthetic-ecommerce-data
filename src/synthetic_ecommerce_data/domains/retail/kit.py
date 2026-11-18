@@ -654,18 +654,12 @@ def tray(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 
 def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
-    """One lidded tub: short and wide, its wall flaring a little up to a lid with a rim (gen#1028).
-
-    Not a tall open pot, which read as a paper cup. A pack of them is :mod:`pack_copies`'."""
+    """One short, wide lidded tub, not a tall open pot that read as a cup (gen#1028); a pack is :mod:`pack_copies`'."""
     lid = _mix(fill.accent, "#ffffff", 0.55)
     top_rx, top_ry = _rim(124)
     return [
         _path("M88,198 L312,198 L300,334 A100,22.7 0 0 1 100,334 Z", paint, extra=' class="pot"'),
-        _path(
-            f"M76,172 L324,172 L324,198 A{top_rx:g},{top_ry:g} 0 0 1 76,198 Z",
-            _shade(lid, 0.12),
-            extra=' class="lid-rim"',
-        ),
+        _path(f"M76,172 L324,172 L324,198 A{top_rx:g},{top_ry:g} 0 0 1 76,198 Z", _shade(lid, 0.12), extra=' class="lid-rim"'),
         f'<ellipse class="lid" cx="200" cy="172" rx="{top_rx:g}" ry="{top_ry:g}" fill="{lid}" stroke="{INK}" stroke-width="{LW}"/>',
         f'<ellipse cx="200" cy="172" rx="104" ry="{_rim(104)[1]:g}" fill="none" stroke="{INK}" stroke-width="1.2" stroke-opacity=".5"/>',
         *_panel(104, 230, 192, 84, label, 46, rim=_rim(112), lean=7.4),
