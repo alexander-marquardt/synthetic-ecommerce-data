@@ -57,7 +57,9 @@ def test_each_type_on_a_declared_axis_draws_its_smallest_and_largest_rung_apart(
     wrong: dict[str, str] = {}
     for rec, key in SIZED:
         scales = {s for rung in _rungs(rec, key).values() for s in rung}
-        if None in scales or min(scales) != size_ladder.BOTTOM or max(scales) != size_ladder.TOP:
+        # the shared bottom, or the shape's own narrower one (a bicycle, #1049)
+        bottom = size_ladder.bottom(rec)
+        if None in scales or min(scales) != bottom or max(scales) != size_ladder.TOP:
             wrong[rec["product_type"]] = f"{rec['product_id']} {key}: {sorted(scales, key=str)}"
     assert not wrong
 

@@ -10,8 +10,12 @@ drawn inside, :data:`.house_styles.TURN_AREA`: 344 units across. Level, each adu
 drawing spans most of it (road 318 units, electric 312, mountain 376). A bike looked a third of the
 sheet wide because three factors multiplied: the turn's fit-scale (0.909 at 24 degrees, down to
 0.707), the size ladder's smallest frame (0.55 / 0.90 of full size, gen#339 and gen#718), and the
-house style's product scale (0.86 or 0.78). This slice removes the first. Every SKU at 80% (the
-smaller frames and the kids' bike, 256 units) is slice 2.
+house style's product scale (0.86 or 0.78). Slice 1 removed the first.
+
+SLICE 2: EVERY SKU. A bicycle has a size ladder of its own (:data:`.size_ladder.BOTTOMS`): its
+smallest frame draws at 0.82 of full size, not the shared 0.61. The road, electric and kids
+drawings are as wide as the figure area at full size, so every SKU, every frame size and the kids'
+bike included, spans at least 80% of it, and its sizes still draw apart (gen#718).
 """
 
 from __future__ import annotations
@@ -33,9 +37,9 @@ from synthetic_ecommerce_data.domains.retail import (
 NS = "{http://www.w3.org/2000/svg}"
 #: The figure area's width, in the kit's units.
 AREA_WIDTH = house_styles.TURN_AREA[2] - house_styles.TURN_AREA[0]
-#: The share of it a level adult bike's full-size drawing spans at least (the issue's target).
+#: The share of it every bicycle SKU's drawing spans at least (the issue's target).
 FILL = 0.80
-#: The kinds sold to adults; the kids' bike is drawn smaller (slice 2 of #1049).
+#: The kinds sold to adults, beside the kids' bike.
 ADULT = ("Road", "Mountain", "Electric")
 #: The issue's two products, turned -24 and +24 degrees on main.
 NAMED = ("BRD-BIKOB22RD2826", "BRD-BIKRMRD222826")
@@ -78,16 +82,6 @@ def _drawn_width(root: ET.Element) -> float:
     return box[2] - box[0]
 
 
-def _full_size(rec: dict) -> list[dict]:
-    """The SKUs on the largest rung of the product's size ladder: drawn at full size."""
-    out = []
-    for sku in rec["skus"]:
-        rung = size_ladder.size_scale(rec, sku)
-        if rung is None or rung >= size_ladder.TOP:
-            out.append(sku)
-    return out
-
-
 def test_the_built_catalogue_sells_bikes_of_every_kind_and_both_named_products():
     assert len(BIKES) >= 40
     assert {_kind(rec) for rec in BIKES} == {*ADULT, "Kids"}
@@ -109,15 +103,12 @@ def test_no_sku_of_a_bicycle_is_turned(rec):
         assert "rotate(" not in (_product(root).get("transform") or "")
 
 
-@pytest.mark.parametrize(
-    "rec", [r for r in BIKES if _kind(r) in ADULT], ids=lambda rec: rec["product_id"]
-)
-def test_a_level_adult_bike_at_full_size_spans_most_of_the_figure_area(rec):
-    full = _full_size(rec)
-    assert full, f"{rec['product_id']} has no SKU on its largest rung"
-    for sku in full:
+@pytest.mark.parametrize("rec", BIKES, ids=lambda rec: rec["product_id"])
+def test_every_sku_of_a_bicycle_spans_most_of_the_figure_area(rec):
+    """Every SKU: each frame size on the bicycle's own ladder, and the kids' bike (slice 2)."""
+    for sku in rec["skus"]:
         width = _drawn_width(_root(rec["product_id"], sku["sku"]))
         assert width >= FILL * AREA_WIDTH, (
-            f"{sku['sku']} ({_kind(rec)}) spans {width:.0f} of the figure area's "
-            f"{AREA_WIDTH:.0f} units, under {FILL:.0%}"
+            f"{sku['sku']} ({_kind(rec)}, size scale {size_ladder.size_scale(rec, sku)}) spans "
+            f"{width:.0f} of the figure area's {AREA_WIDTH:.0f} units, under {FILL:.0%}"
         )
