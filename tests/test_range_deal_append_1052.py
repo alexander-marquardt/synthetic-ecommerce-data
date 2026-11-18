@@ -17,7 +17,7 @@ import pytest
 
 from synthetic_ecommerce_data.domains.retail import range_ownership, scale
 
-NEW = ("Pennywhistle Angling", "Larchmere Golf")
+NEW = ("Probe Brand One", "Probe Brand Two")
 
 
 def _slots(deal: range_ownership.Deal, brand: str) -> list[str]:
@@ -55,14 +55,24 @@ def test_appending_brands_moves_no_existing_brands_range_names(built, monkeypatc
     assert set(before.brands) <= set(after.brands)
 
 
-def test_the_base_brands_keep_the_deal_they_had_before_1052(built):
+def test_the_base_brands_keep_the_deal_they_had_before_1052(built, monkeypatch):
     """The roster's base is the brand set dealt round-robin before #1052, so today's titles and
-    goldens stay put: the rostered deal equals the plain round-robin over the same brands."""
+    goldens stay put: the rostered deal is the plain round-robin over the same brands with the
+    roster's gaps (the words skipped then) kept out, less the words skipped now (slice 2)."""
     tpls, brands = built
     rostered = scale._range_deal(tpls, brands)
-    assert rostered.brands == list(range_ownership.SCALE.base)
-    plain = range_ownership.Deal("scale", rostered.brands, _reserved(tpls))
-    assert {b: rostered.of(b) for b in rostered.brands} == {b: plain.of(b) for b in plain.brands}
+    roster = range_ownership.SCALE
+    assert rostered.brands == sorted({*roster.base, *roster.added})
+    skip = _reserved(tpls) | range_ownership.EXCLUDED
+    monkeypatch.setattr(range_ownership, "EXCLUDED", frozenset())
+    plain = range_ownership.Deal("scale", roster.base, roster.gaps)
+    expected = {b: tuple(n for n in plain.of(b) if n not in skip) for b in plain.brands}
+    assert {b: rostered.of(b) for b in roster.base} == expected
+
+
+def test_the_gaps_are_the_words_the_base_deal_skipped():
+    """Every gap is a word of the scale half, so the frozen set names only what the base skipped."""
+    assert range_ownership.SCALE.gaps <= set(range_ownership.whole_halves()["scale"])
 
 
 def test_appended_brands_own_names_no_other_brand_or_half_holds(built, monkeypatch):

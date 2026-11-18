@@ -1,4 +1,4 @@
-# Health: over-the-counter vitamins, first aid and monitors (gen#968)
+# Health: over-the-counter vitamins, first aid, monitors, eye care, incontinence and mobility aids (gen#968)
 
 `Health` is the retail catalogue's thirteenth department, on the closed list in
 `core/departments.RETAIL` and the build's `domains/retail/departments.RETAIL`. The 500K mix
@@ -15,13 +15,16 @@ The issue grows the department in three slices (the gate comment on gen#968):
 |---|---|---|
 | 1 | `Vitamins`, `Minerals` | built |
 | 2 | `Plasters`, `First Aid Kits`, `Thermometers`, `Blood Pressure Monitors`, drawn in `kit_health.py` | built |
-| 3 | eye care, incontinence, mobility aids, then depth to 4,750 SKUs | to do |
+| 3 (first cut) | `Eye Drops`, `Incontinence Pads`, `Walking Sticks`, drawn in `kit_health_care.py` | built |
+| 3 (next cut) | depth to 4,750 SKUs | to do |
 
 The ceiling build (`retail_figures.ceiling()`, seed 0) holds 363 `Health` SKUs in 168 styles after
 slice 1: 213 vitamins and 150 minerals. Its 162 derivable styles are above the floor every
 department holds (`breadth_rows.DEPARTMENT_FLOOR`, 150, `tests/test_retail_scale.py`). Slice 2
 raises this to 482 SKUs in 245 styles, adding 47 plasters, 34 first-aid kits, 22 thermometers and
 16 blood-pressure monitors.
+The first cut of slice 3 raises it to 565 SKUs in 299 styles, adding 15 eye drops, 47 packs of
+incontinence pads and 22 walking sticks (the seeded draw moves one thermometer, 22 to 21).
 
 ## Tree
 
@@ -58,6 +61,20 @@ value therefore draws what it states (gen#512), and each value draws a different
 (`tests/test_retail_health_first_aid_968.py`). The rows are `colorless`: the box, case or body color
 appears in the drawing only. A first-aid kit's cross is white on green, never a red one.
 
+`Health > Eye Care > Eye Drops`, `Health > Incontinence > Incontinence Pads` and
+`Health > Mobility Aids > Walking Sticks` (the first cut of slice 3) reuse `health_rows.py`'s
+brands and `row` helper. Each type has its own spec (`eye_drops.py`, `incontinence_pads.py`,
+`walking_sticks.py`) and its own shape in `domains/retail/kit_health_care.py`:
+
+| Type | Shape | Param, from the attribute | SKUs |
+|---|---|---|---|
+| Eye Drops | `eye_drop_bottle`: a carton with the pack in front | `pack` (`eye_care_pack`: Dropper Bottle, Single-Dose Vials, Eye Wash) | a box of 20 to 60 vials (`piece_count`), else one per style |
+| Incontinence Pads | `pad_pack`: a soft pack with a pad on its front, one drop per absorbency step and a moon for overnight | `pad_absorbency` (Light, Medium, Heavy, Overnight) | a pack of 10 to 48 (`piece_count`) |
+| Walking Sticks | `walking_stick` on its rubber tip | `handle` (`handle_style`, shown as Handle style: Crook, Derby, Offset, T-Handle) | one per style |
+
+Each value of these params draws a different figure too (`tests/test_retail_health_care_968.py`).
+No walking stick is white: a white cane signals sight loss and is not a product color.
+
 ## Over the counter only, and no claims
 
 Every product is one a shopper can take off the shelf: no prescription medicine. No title or
@@ -80,14 +97,17 @@ query's ingredient as a color or range word, or the brand holds it (Vitamin C Or
 fields say another ingredient, so `iron tablets` meets "Iron Grey Bottle Zinc Tablets". Only a policy
 that reads the `mineral` or `nutrient` field puts the real bottles first. Slice 2's decoys are class 6: a range name
 holds the query's word, so `waterproof plasters` meets "Waterproof Walker Fabric Plasters" and
-`wrist blood pressure monitor` meets "Wrist Ease Upper Arm Blood Pressure Monitor". The decoys are in each spec's
+`wrist blood pressure monitor` meets "Wrist Ease Upper Arm Blood Pressure Monitor". Slice 3's are class 6
+too: `derby walking stick` meets "Derby Lane Wooden Crook Walking Stick" and `overnight incontinence
+pads` meets "Overnight Bag Light Incontinence Pads". The decoys are in each spec's
 `DECOYS`, and the output standard's text check leaves them out (`scale.TEXT_EXEMPT`).
 
 ## The four per-type gates
 
 The issue's Done-when asks each added type to pass four gates. For a retail spec they are read as four
 checks in the type's own test file (`tests/test_retail_health_vitamins_968.py` for slice 1,
-`tests/test_retail_health_first_aid_968.py` for slice 2):
+`tests/test_retail_health_first_aid_968.py` for slice 2, `tests/test_retail_health_care_968.py` for
+slice 3):
 
 - **uniqueness**: no `product_id`, SKU or title is shared within the type in the ceiling build;
 - **census**: the spec is registered in its department and tree, plants its decoys, and its documents
