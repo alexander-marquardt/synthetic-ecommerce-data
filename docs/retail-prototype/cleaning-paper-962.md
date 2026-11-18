@@ -49,6 +49,7 @@ in `docs/catalogue-mix-837.md`. The three templates raise Cleaning's share of de
 so its `scale.DEPARTMENT_RATE` is recomputed to 0.007275 (0.008594 times its 2.28% target over
 the 2.69% it reached), which keeps every department within the 3 points
 `tests/test_retail_stable_ids_626.py` allows. Every template is exhausted at the ceiling build,
-so the rate changes no ceiling figure. Trash bags, food storage and food wrap (slice 2), and cloths,
+so the rate changes no ceiling figure. Trash bags, food storage and food wrap are slice 2
+([cleaning-bags-wrap-962.md](cleaning-bags-wrap-962.md)), and cloths,
 tablets, laundry and power (slice 3) are later slices of gen#962. The guards are in
 `tests/test_retail_cleaning_paper_962.py`.
