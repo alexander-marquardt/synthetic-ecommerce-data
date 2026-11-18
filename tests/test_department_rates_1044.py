@@ -36,33 +36,90 @@ def _names(node: ast.AST, table: str) -> bool:
     return isinstance(node, ast.Name) and node.id == table
 
 
-@pytest.mark.parametrize(
-    ("table", "builder"),
-    [("DEPARTMENT_SHARE", "shares"), ("EXTRA_BRANDS", "extra_brands")],
-)
+_TABLES = [("DEPARTMENT_SHARE", "shares"), ("EXTRA_BRANDS", "extra_brands")]
+_MUTATORS = {
+    "update",
+    "setdefault",
+    "pop",
+    "popitem",
+    "clear",
+    "__setitem__",
+    "__delitem__",
+    "__ior__",
+}
+
+
+def _package_table_writes(tree: ast.AST, table: str, builder: str) -> list[str]:
+    """Each place ``tree`` binds or changes ``table`` other than its one
+    ``table = department_rates.<builder>()``; a missing or repeated call is one too."""
+    call = f"{table} = department_rates.{builder}()"
+    writes, calls = [], 0
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if _names(target, table):
+                    if ast.unparse(node) == call:
+                        calls += 1
+                    else:
+                        writes.append(f"line {node.lineno}: {ast.unparse(node)}")
+                elif isinstance(target, ast.Subscript) and _names(target.value, table):
+                    writes.append(f"line {node.lineno}: {table}[...] assigned")
+        elif isinstance(node, ast.Delete):
+            writes += [
+                f"line {node.lineno}: del {table}[...]"
+                for t in node.targets
+                if isinstance(t, ast.Subscript) and _names(t.value, table)
+            ]
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and _names(node.func.value, table)
+            and node.func.attr in _MUTATORS
+        ):
+            writes.append(f"line {node.lineno}: {table}.{node.func.attr}(...)")
+    if calls != 1:
+        writes.append(f"{call} appears {calls} times, not once")
+    return writes
+
+
+@pytest.mark.parametrize(("table", "builder"), _TABLES)
 def test_scale_binds_the_shares_and_the_brands_only_to_the_package_call(
     table: str, builder: str
 ) -> None:
     tree = ast.parse(Path(scale.__file__).read_text())
-    binds = [
-        node
-        for node in ast.walk(tree)
-        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign))
-        and any(
-            _names(t.value if isinstance(t, ast.Subscript) else t, table)
-            for t in (node.targets if isinstance(node, ast.Assign) else [node.target])
-        )
-    ]
-    assert [ast.unparse(b) for b in binds] == [f"{table} = department_rates.{builder}()"]
-    calls = [
-        node
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and _names(node.func.value, table)
-        and node.func.attr in {"update", "setdefault", "__setitem__", "__ior__"}
-    ]
-    assert calls == [], [c.lineno for c in calls]
+    assert _package_table_writes(tree, table, builder) == []
+
+
+@pytest.mark.parametrize(("table", "builder"), _TABLES)
+@pytest.mark.parametrize(
+    "source",
+    [
+        '{t} = {{"Pets": 0.05}}\n',
+        "{t}: dict = {{}}\n",
+        "{t} = department_rates.{b}()\n{t} = dict({t})\n",
+        "{t} = department_rates.{b}()\n{t} = department_rates.{b}()\n",
+        "import x\n{t} = x.{b}()\n",
+        "PLACEHOLDER = 1\n",
+        '{t} = department_rates.{b}()\n{t}["Pets"] = 0.05\n',
+        '{t} = department_rates.{b}()\n{t}.update({{"Pets": 0.05}})\n',
+        '{t} = department_rates.{b}()\n{t}.setdefault("Pets", 0.05)\n',
+        '{t} = department_rates.{b}()\n{t} |= {{"Pets": 0.05}}\n',
+        '{t} = department_rates.{b}()\ndel {t}["Home"]\n',
+        '{t} = department_rates.{b}()\n{t}.pop("Home")\n',
+    ],
+)
+def test_a_share_or_brand_table_put_back_in_scale_is_seen(
+    table: str, builder: str, source: str
+) -> None:
+    tree = ast.parse(source.format(t=table, b=builder))
+    assert _package_table_writes(tree, table, builder)
+
+
+@pytest.mark.parametrize(("table", "builder"), _TABLES)
+def test_the_one_package_call_is_not_a_write(table: str, builder: str) -> None:
+    source = f"{table} = department_rates.{builder}()\nx = {table}.get('Home')\n"
+    assert _package_table_writes(ast.parse(source), table, builder) == []
 
 
 def _is_rates_call(node: ast.expr | None) -> bool:
