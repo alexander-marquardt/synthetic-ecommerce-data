@@ -15,6 +15,8 @@ The scale half is dealt over an append-only :class:`Roster` (#1052): the brands 
 keep their round-robin share of the half, and a brand appended later takes its own block of
 :data:`ADDED_SHARE` names from :data:`ADDED_STEMS`, place words kept out of the shuffled pool. A
 brand new to the build therefore moves no other brand's names, so no style in another department.
+The base brands are dealt over the whole half less the roster's frozen :attr:`Roster.gaps`, and
+a word reserved or excluded later only leaves its owner's names, so it moves no other brand either.
 """
 
 from __future__ import annotations
@@ -107,16 +109,26 @@ def added_words() -> list[str]:
 class Roster:
     """The brands of a deal in the order they joined it (#1052): ``base`` was dealt round-robin
     before the roster existed and keeps that deal; ``added`` is append-only, brand ``k`` holding
-    block ``k`` of :func:`added_words`."""
+    block ``k`` of :func:`added_words`.
+
+    ``gaps`` are the words of the half that were kept out when ``base`` was dealt (reserved or
+    excluded then). It is frozen: the base is dealt over the whole half less ``gaps``, then a word
+    skipped now is dropped from its owner's names alone, so one more reserved or excluded word
+    moves no other brand (#1052 slice 2). A gap no longer skipped stays undealt."""
 
     base: tuple[str, ...]
     added: tuple[str, ...] = ()
+    gaps: frozenset[str] = frozenset()
 
-    def owned(self, pool: list[str], skip: set[str]) -> dict[str, tuple[str, ...]]:
+    def owned(self, whole: list[str], skip: set[str]) -> dict[str, tuple[str, ...]]:
         """Every rostered brand's names, present in the build or not, so a brand that leaves
-        moves no other brand either."""
+        moves no other brand either. ``whole`` is the half with nothing dropped."""
         count = len(self.base)
-        out = {b: tuple(pool[i::count]) for i, b in enumerate(self.base)}
+        pool = [n for n in whole if n not in self.gaps]
+        out = {
+            b: tuple(n for n in pool[i::count] if n not in skip and n not in EXCLUDED)
+            for i, b in enumerate(self.base)
+        }
         words = added_words()
         for k, brand in enumerate(self.added):
             block = words[k * ADDED_SHARE : (k + 1) * ADDED_SHARE]
@@ -149,20 +161,29 @@ SCALE = Roster(
         "Velling Apothecary", "Wexmoor", "Wheatsheaf Lane", "Whiskerby", "Wrenfield",
     ),
     added=("Pennywhistle Angling", "Larchmere Golf"),
+    # The scale-half words skipped when the base was dealt: the excluded words in the half and
+    # Fenmere, a brand's own word. Never edit: a word dropped later leaves its owner alone.
+    gaps=frozenset({
+        "Alnwick", "Ashlow", "Ashwell", "Denby", "Ellerby", "Elmwood", "Fenmere", "Fernwood",
+        "Halden", "Harwell", "Hollow", "Kelden", "Malham", "Oakham", "Oldstead", "Penley",
+    }),
 )  # fmt: skip
 
 
-def halves() -> dict[str, list[str]]:
-    """The pool split into the ``scale`` half and the ``grocery`` half, each in a seeded order.
-
-    The shuffle and the split run over every word and the excluded ones are dropped after, so
-    excluding one more word never moves another word to the other half or to another brand."""
+def whole_halves() -> dict[str, list[str]]:
+    """The pool split into the ``scale`` half and the ``grocery`` half, each in a seeded order,
+    the excluded words still in."""
     names = _everything()
     random.Random(SEED).shuffle(names)
-    return {
-        "scale": [n for n in names[0::2] if n not in EXCLUDED],
-        "grocery": [n for n in names[1::2] if n not in EXCLUDED],
-    }
+    return {"scale": names[0::2], "grocery": names[1::2]}
+
+
+def halves() -> dict[str, list[str]]:
+    """:func:`whole_halves` less the excluded words.
+
+    The shuffle and the split run over every word and the excluded ones are dropped after, so
+    excluding one more word never moves another word to the other half."""
+    return {h: [n for n in names if n not in EXCLUDED] for h, names in whole_halves().items()}
 
 
 class Deal:
@@ -170,8 +191,9 @@ class Deal:
 
     ``reserved`` holds the words that must not be dealt (the brands' own words and the range
     names an authored row already carries). With no ``roster`` the half is dealt round-robin over
-    the sorted brands, so one brand more moves every brand's names; with one, every brand must be
-    on it and a brand appended moves no other (#1052)."""
+    the sorted brands, so one brand more or one word more reserved moves every brand's names; with
+    one, every brand must be on it, and neither a brand appended nor a word reserved or excluded
+    later moves another brand (#1052)."""
 
     def __init__(
         self,
@@ -183,13 +205,13 @@ class Deal:
         self.half = half
         self.brands = sorted(set(brands))
         skip = set(reserved)
-        pool = [n for n in halves()[half] if n not in skip]
         if roster is None:
+            pool = [n for n in halves()[half] if n not in skip]
             count = len(self.brands) or 1
             self._owned = {b: tuple(pool[i::count]) for i, b in enumerate(self.brands)}
             self.names = tuple(pool)
             return
-        owned = roster.owned(pool, skip)
+        owned = roster.owned(whole_halves()[half], skip)
         if off := [b for b in self.brands if b not in owned]:
             raise ValueError(f"{off} not on the {half} roster: append each to its added brands")
         self._owned = {b: owned[b] for b in self.brands}

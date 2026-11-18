@@ -38,9 +38,11 @@ Guards: `tests/test_retail_stable_ids_626.py`.
 - Near the ceiling the derived department mix is skewed against the targets: the fast clocks of
   small departments run out first. The rates are calibrated to `DEPARTMENT_SHARE` at today's
   templates, one module per department under `domains/retail/department_rates/` (`DEPARTMENT`,
-  `RATE` and its calibration note; `scale.DEPARTMENT_RATE` is built from them, gen#1044). When a
-  template changes a department's share (`test_the_department_rates_give_the_department_shares`
-  fails) recompute its rate in its module; a new department is a new module there.
+  `RATE` and its calibration note, and its `SHARE` and `EXTRA_BRANDS` when it has them;
+  `scale.DEPARTMENT_RATE`, `scale.DEPARTMENT_SHARE` and `scale.EXTRA_BRANDS` are built from them,
+  gen#1044). When a template changes a department's share
+  (`test_the_department_rates_give_the_department_shares` fails) recompute its rate in its module;
+  a new department is a new module there.
 
 ## One-off migration: the last positional ids
 
