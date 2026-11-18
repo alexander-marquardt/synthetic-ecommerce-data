@@ -197,6 +197,10 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Size", "Size"),
         ("Overall Length", "OAL"),
     ),
+    "household_tool_sets": (
+        ("Piece Count", "Pc"),
+        ("Color", None),
+    ),
     "hex_pipe_nipples": (
         ("Material", None),
         ("Type", None),

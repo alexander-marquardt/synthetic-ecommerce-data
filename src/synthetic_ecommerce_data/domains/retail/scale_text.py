@@ -15,10 +15,13 @@ from synthetic_ecommerce_data.domains.retail import line_grammar
 #: where it may go) and what a lampshade's ring fits (``fitting``).
 #: A tableware kind (gen#198) fixes the drawn profile and the measured size beside it, so a
 #: 27 cm dinner plate never becomes a side plate.
+#: A game's age range and play time and a jigsaw's finished size follow the template's kind
+#: of game and piece count, which a derived style keeps (gen#960).
 FROZEN_KEYS = frozenset(
     {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
      "ip_rating", "fitting",
-     "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type"}
+     "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type",
+     "age_range", "play_time", "finished_size"}
 )  # fmt: skip
 
 
