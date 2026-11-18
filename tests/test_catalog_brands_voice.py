@@ -335,6 +335,10 @@ DISTINCT_SPEC_FLOOR = {
     # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
     # SKUs (0.802), rounded down to 0.05.
     "tape_measures": 0.80,
+    # #971: a utility knife is a style on its blade width, a handle material, a color and a
+    # blade count, 432 specs, and makers sell the same ones. Measured at 100K, 306 distinct
+    # specs of 388 SKUs (0.789), rounded down to 0.05.
+    "utility_knives": 0.75,
     # #971: a household tool set is a container, a tool steel and a color on a stocked piece
     # count, 648 specs, and makers sell the same ones. Measured at 100K, 310 distinct specs of
     # 394 SKUs (0.787), rounded down to 0.05.

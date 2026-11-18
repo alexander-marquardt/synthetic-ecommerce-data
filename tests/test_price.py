@@ -1075,6 +1075,7 @@ NOT_MEASURED = frozenset(
         "stud_finders",
         "tape_measures",
         "household_tool_sets",
+        "utility_knives",
         *tabletype.tables(),
     }
 )

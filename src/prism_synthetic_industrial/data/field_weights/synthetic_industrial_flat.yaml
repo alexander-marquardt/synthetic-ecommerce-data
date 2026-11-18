@@ -10,8 +10,8 @@
 # ``tests/test_prism_field_map_drift.py`` fails if this file and a fresh
 # derivation disagree. Editing this file alone reds that test; changing the
 # generator without rebuilding reds it too, which is the point -- the catalog
-# publishes 144 distinct attribute names and a hand-maintained list
-# of 144 declarations drifts from the data the first time either side moves.
+# publishes 145 distinct attribute names and a hand-maintained list
+# of 145 declarations drifts from the data the first time either side moves.
 #
 # WHICH ATTRIBUTES BECOME FACETS
 # -----------------------------------------------------------------------------
@@ -66,8 +66,8 @@
 #
 # MEASURED OUTCOME
 # -----------------------------------------------------------------------------
-#   attributes declared      144
-#   offered as facets        126  (1 numeric ranges, 125 terms)
+#   attributes declared      145
+#   offered as facets        127  (1 numeric ranges, 126 terms)
 #   declared, not faceted    18
 # =============================================================================
 
@@ -317,8 +317,8 @@ fields:
   - name: coating
     type: terms
     source: facets.coating
-  # Color -- 6 distinct values over 76 product-value pairs is 0.08 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 136 documents across 5 product type(s); 6 distinct values
+  # Color -- 6 distinct values over 90 product-value pairs is 0.07 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 162 documents across 6 product type(s); 6 distinct values
   - name: color
     type: terms
     source: facets.color
@@ -629,8 +629,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 63 distinct values over 6654 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 13357 documents across 166 product type(s); 63 distinct values
+  # Material -- 64 distinct values over 6668 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 13383 documents across 167 product type(s); 64 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -661,7 +661,7 @@ fields:
     type: terms
     source: facets.maximum_workpiece_weight
   # Measurement system -- present on 42% of its product types' documents (floor 50%)
-  #   present on 6237 documents across 71 product type(s); 4 distinct values
+  #   present on 6255 documents across 72 product type(s); 4 distinct values
   - name: measurement_system
     type: terms
     source: facets.measurement_system
@@ -688,6 +688,11 @@ fields:
     type: terms
     source: facets.neck_length
     facet: false
+  # Number of blades -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 26 product-value pairs is 0.15 per product
+  #   present on 26 documents across 1 product type(s); 4 distinct values
+  - name: number_of_blades
+    type: terms
+    source: facets.number_of_blades
   # Number of flutes -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 4 distinct values over 960 product-value pairs is 0.00 per product
   #   present on 2582 documents across 3 product type(s); 4 distinct values
   - name: number_of_flutes
@@ -847,8 +852,8 @@ fields:
   - name: stock_fit
     type: terms
     source: facets.stock_fit
-  # Style -- 30 distinct values over 235 product-value pairs is 0.13 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 411 documents across 17 product type(s); 30 distinct values
+  # Style -- 34 distinct values over 249 product-value pairs is 0.14 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 437 documents across 18 product type(s); 34 distinct values
   - name: style
     type: terms
     source: facets.style
@@ -934,8 +939,8 @@ fields:
   - name: wheel_grade
     type: terms
     source: facets.wheel_grade
-  # Width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 87 distinct values over 899 product-value pairs is 0.10 per product
-  #   present on 1439 documents across 11 product type(s); 87 distinct values
+  # Width -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 87 distinct values over 913 product-value pairs is 0.10 per product
+  #   present on 1465 documents across 12 product type(s); 87 distinct values
   - name: width
     type: terms
     source: facets.width
