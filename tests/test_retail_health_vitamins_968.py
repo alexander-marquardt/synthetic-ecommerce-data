@@ -10,7 +10,9 @@ Each type passes the per-type gates the issue names, on its own (``docs/retail-h
 uniqueness (no id, SKU or title shared within the type at the ceiling), census (registered,
 in its department and tree, decoys planted, the output standard), byte-determinism (two
 processes under two hash seeds build the same bytes) and a golden slice (the committed documents
-are a fresh build). Rewrite a slice with ``uv run python tests/test_retail_health_vitamins_968.py``.
+are a fresh build). Slice 4 adds herbal supplements and omega oils under the same parent, on
+the same bottle and gates. Rewrite a slice with
+``uv run python tests/test_retail_health_vitamins_968.py``.
 """
 
 from __future__ import annotations
@@ -32,7 +34,8 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import departments, scale, type_registry
 
-KEYS = ("vitamins", "minerals")
+#: Slice 1's two types and slice 4's two, all bottles under one parent node.
+KEYS = ("vitamins", "minerals", "herbal_supplements", "omega_oils")
 ROOT = "Health"
 PARENT = ("Health", "Vitamins & Supplements")
 SLICES = Path(__file__).parent / "data" / "golden_slices_retail"
@@ -89,7 +92,7 @@ def test_the_type_is_a_health_spec_under_vitamins_and_supplements(key: str) -> N
 def test_every_style_is_a_bottle_sold_by_count_and_a_bigger_bottle_costs_more(key: str) -> None:
     for row in _spec(key).rows:
         assert row.shape == "supplement_bottle" and row.colorless, row.code  # gen#1028
-        assert re.search(r"\b(Tablets|Capsules)\b", row.title), row.code
+        assert re.search(r"\b(Tablets|Capsules|Softgels|Gummies)\b", row.title), row.code
         assert row.size_key == "piece_count", row.code
         counts = [int(n) for n, _ in row.sizes]
         prices = [p for _, p in row.sizes]

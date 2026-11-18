@@ -3,13 +3,15 @@
 Slices 1 to 3 put nine over-the-counter types under ``Health`` (vitamins, minerals, first aid,
 monitors, eye care, incontinence and mobility aids), 565 SKUs at the ceiling. The 500K mix
 (``docs/catalogue-mix-837.md``) plans 5,000, and the issue's Done-when asks for 95% of it at the
-build ``release.yaml`` runs (``--skus ceiling``). Slice 4 adds no type: it widens the values a
-title shows (more nutrients, minerals and forms), the Health-wide brands of
-``department_rates/health.py`` and the real pack counts a style is sold in, so the build draws
-more distinct products from the same types (``docs/retail-health.md``).
+build ``release.yaml`` runs (``--skus ceiling``). Slice 4 widens the values a title shows (more
+nutrients, minerals and forms), the Health-wide brands of ``department_rates/health.py`` and the
+real pack counts a style is sold in, and adds two bottle types under ``Vitamins & Supplements``
+(herbal supplements and omega oils), so the build draws more distinct products
+(``docs/retail-health.md``).
 
 Each type's four per-type gates stay in its own slice's file
-(``tests/test_retail_health_vitamins_968.py``, ``..._first_aid_968.py``, ``..._care_968.py``).
+(``tests/test_retail_health_vitamins_968.py``, which also holds slice 4's two types,
+``..._first_aid_968.py``, ``..._care_968.py``).
 """
 
 from __future__ import annotations
@@ -24,10 +26,10 @@ from synthetic_ecommerce_data.domains.retail import department_rates, scale
 ROOT = "Health"
 #: 95% of the mix's 5,000 (the issue's Done-when).
 TARGET = 4_750
-#: The nine Health types of slices 1 to 3.
+#: The nine Health types of slices 1 to 3 and slice 4's two.
 TYPES = (
-    "Vitamins", "Minerals", "Plasters", "First Aid Kits", "Thermometers",
-    "Blood Pressure Monitors", "Eye Drops", "Incontinence Pads", "Walking Sticks",
+    "Vitamins", "Minerals", "Herbal Supplements", "Omega Oils", "Plasters", "First Aid Kits",
+    "Thermometers", "Blood Pressure Monitors", "Eye Drops", "Incontinence Pads", "Walking Sticks",
 )  # fmt: skip
 
 

@@ -1,5 +1,5 @@
-"""Herbal supplements: bottles of herb tablets, capsules, softgels and gummies sold by count (gen#968,
-slice 4).
+"""Herbal supplements: bottles of herb tablets, capsules, softgels and gummies sold by count
+(gen#968, slice 4).
 
 A breadth type (``derivable``) beside the vitamins and minerals: the scaled build draws more
 bottles by swapping the herb and the form the title shows. Over the counter only, and no title or
@@ -32,7 +32,8 @@ def _row(code, title, brand, herb, form, sizes, desc, color=_WHITE) -> Row:  # n
 ROWS = (
     _row("HRBTUR", "Turmeric Capsules", _LEDWICK, "Turmeric", "Capsules",
          (("60", 7.0), ("120", 12.0), ("180", 16.5)),
-         "Two capsules a day with food, in a resealable bottle, vegan and free from gelatin.", _AMBER),
+         "Two capsules a day with food, in a resealable bottle, vegan and free from gelatin.",
+         _AMBER),
     _row("HRBECH", "Echinacea Tablets", _MIREFIELD, "Echinacea", "Tablets",
          (("30", 5.0), ("60", 8.5), ("120", 14.5)),
          "One-a-day tablets in a resealable bottle, swallowed with water.", _SAGE),
