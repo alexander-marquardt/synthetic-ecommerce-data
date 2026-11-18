@@ -72,7 +72,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 
 * Who owns a brand: `owners=(("Brand", "own"),)` in the spec when no module states it yet
   (`type_registry.TypeSpec`; `specs()` registers it in `breadth_rows.OWNERS`, gen#1040); an
-  older module adds the brand to `breadth_rows.OWNERS`. A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
+  older module adds the brand to `breadth_rows.OWNERS` and goes in `brand_owners.SOURCES`: `doc()` reads `brand_owners.owner()`, which imports every source first (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
 * Every brand also needs one row in `house_styles.HOUSE_STYLES` (the frame, outline and
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
