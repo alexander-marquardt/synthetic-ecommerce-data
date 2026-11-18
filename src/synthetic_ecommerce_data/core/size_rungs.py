@@ -20,9 +20,12 @@ TOP = 0.90
 BOTTOM = 0.55
 
 
-def scale_at(rank: int, rungs: int) -> float:
-    """The scale rung ``rank`` (0 = smallest) of ``rungs`` stands for, ``BOTTOM`` to ``TOP``."""
-    return round(BOTTOM + (TOP - BOTTOM) * rank / (rungs - 1), 4)
+def scale_at(rank: int, rungs: int, bottom: float = BOTTOM) -> float:
+    """The scale rung ``rank`` (0 = smallest) of ``rungs`` stands for, ``bottom`` to ``TOP``.
+
+    ``bottom`` is :data:`BOTTOM` unless a type has a narrower ladder of its own (a bicycle, #1049).
+    """
+    return round(bottom + (TOP - bottom) * rank / (rungs - 1), 4)
 
 
 def ratio_at(rank: int, rungs: int) -> float:
