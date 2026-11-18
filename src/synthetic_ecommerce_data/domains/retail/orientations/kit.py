@@ -19,7 +19,6 @@ UPRIGHT: tuple[str, ...] = (
     "baseball_bat",
     "baseball_glove",
     "batting_helmet",
-    "bicycle",
     "bike_helmet",
     "bike_pump",
     "bottle",
@@ -63,4 +62,4 @@ UPRIGHT: tuple[str, ...] = (
     "yoga_mat",
     "yoga_strap",
 )
-LEVEL: tuple[str, ...] = ("badminton_set", "drill_bit_set")
+LEVEL: tuple[str, ...] = ("badminton_set", "bicycle", "drill_bit_set")

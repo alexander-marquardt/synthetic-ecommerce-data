@@ -86,9 +86,21 @@ every other drawing -- only the GEOMETRY is fixed.
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a sofa), and any type nobody was sure of |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
-  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), and every pack (#884) |
+  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), and a bicycle (#1049) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
+
+  A bicycle is `level` (#1049): it rests on its two wheels, so turned it reads as falling or
+  doing a wheelie. Two road bikes, the smallest frame size of each, turned -24 and +24
+  degrees before ([before](images/bicycle-level-1049-before.svg)) and level after
+  ([after](images/bicycle-level-1049-after.svg)). The size, measured in the kit's units:
+  level, each adult kind's full-size drawing spans most of the 344-unit figure area
+  (`house_styles.TURN_AREA`): road 318, electric 312, mountain 376. A bike looked a third
+  of the sheet wide because of three factors. The turn's fit-scale took it to 0.909 at 24
+  degrees (as low as 0.707 at other angles). The size ladder draws the smallest of three
+  frame sizes at 0.55 / 0.90 of full size. The house style scales the product to 0.86 or
+  0.78. This change removes the first factor. `tests/test_bicycle_level_1049.py` checks
+  every SKU of every bike in the built catalogue.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

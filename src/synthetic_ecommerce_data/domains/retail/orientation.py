@@ -17,7 +17,8 @@ table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
   a toy), and every shape nobody was sure of.
 
 * ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
-  luggage), which overlap on a slant.
+  luggage), which overlap on a slant; and a bicycle, which rests on its two wheels and reads as
+  falling or wheelieing on a slant (#1049).
 
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
@@ -69,7 +70,7 @@ SLIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["SLI
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["UPRIGHT"])
 
-#: Set types, drawn as several items: at 0 degrees only (#884).
+#: Set types, drawn as several items (#884), and a bicycle on its wheels (#1049): 0 degrees only.
 LEVEL: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["LEVEL"])
 
 #: Shape -> orientation.
