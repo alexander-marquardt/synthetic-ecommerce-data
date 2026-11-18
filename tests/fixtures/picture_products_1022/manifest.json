@@ -1,0 +1,14 @@
+[
+  {"image_id": "2b5d454ad52f6674", "type": "sideboard", "color": "Natural", "parts": {"doors": 3, "drawers": 3, "legs": "tapered"}, "proportions": {"height_per_width": 0.5, "depth_per_width": 0.27}},
+  {"image_id": "c3f9938efc19d4ca", "type": "sideboard", "color": "Dark Brown", "parts": {"doors": 2, "drawers": 0, "legs": "plinth"}, "proportions": {"height_per_width": 0.55, "depth_per_width": 0.3}},
+  {"image_id": "75349a749c9fd7e9", "type": "bar_cabinet", "color": "Black", "parts": {"doors": 2, "glass_rack": "yes", "stools": 2}, "proportions": {"height_per_width": 1.6, "depth_per_width": 0.45}},
+  {"image_id": "125b66382dd11b5e", "type": "storage_cabinet", "color": "Grey", "parts": {"front": "glass", "shelves": 4, "drawers": 1, "lock": "yes"}, "proportions": {"height_per_width": 2.0, "depth_per_width": 0.55}},
+  {"image_id": "cf83cc2b09528f3f", "type": "shoe_storage", "color": "White", "parts": {"tiers": 3, "form": "bench", "frame": "wood"}, "proportions": {"height_per_width": 0.6, "depth_per_width": 0.35}},
+  {"image_id": "cba8b6069b38f87d", "type": "wall_shelf", "color": "Natural", "parts": {"shelves": 3, "mount": "floating", "layout": "staggered"}, "proportions": {"height_per_width": 0.7, "depth_per_width": 0.25}},
+  {"image_id": "5de6deec62edc350", "type": "bar_stool", "color": "Black", "parts": {"seat_height": "counter", "back": "low", "seat": "round", "base": "four_leg"}, "proportions": {"height_per_width": 2.2, "depth_per_width": 1.0}},
+  {"image_id": "4b546c9570abf6f2", "type": "desk", "color": "Natural", "parts": {"outline": "l_shaped", "drawers": 2, "legs": "panel"}, "proportions": {"height_per_width": 0.55, "depth_per_width": 0.45}},
+  {"image_id": "ed230e96bb569b29", "type": "office_chair", "color": "Navy", "parts": {"back": "high", "cover": "mesh", "arms": "yes", "base": "castor"}, "proportions": {"height_per_width": 1.8, "depth_per_width": 1.0}},
+  {"image_id": "ac56aae12a46cbf8", "type": "tv_stand", "color": "Dark Brown", "parts": {"doors": 2, "shelves": 1, "legs": "hairpin"}, "proportions": {"height_per_width": 0.35, "depth_per_width": 0.28}},
+  {"image_id": "f16d569a83bff420", "type": "kitchen_island", "color": "White", "parts": {"doors": 2, "drawers": 2, "top": "marble_effect", "wheels": "no"}, "proportions": {"height_per_width": 0.7, "depth_per_width": 0.6}},
+  {"image_id": "f2ec58cd9799f0be", "type": "desk", "color": "Red", "parts": {"outline": "rectangular", "drawers": 0, "legs": "hairpin"}}
+]

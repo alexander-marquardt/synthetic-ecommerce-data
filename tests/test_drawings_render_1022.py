@@ -10,6 +10,7 @@ on fixtures made from the generator's own vocabulary.
 
 from __future__ import annotations
 
+import inspect
 import json
 import re
 import runpy
@@ -20,7 +21,7 @@ import pytest
 
 from synthetic_ecommerce_data import drawings
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
-from synthetic_ecommerce_data.domains.retail import sheet_extent
+from synthetic_ecommerce_data.domains.retail import kit, sheet_extent
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "drawings_1022" / "sideboards_200.json"
@@ -203,3 +204,17 @@ def test_the_share_of_products_sharing_a_picture_is_printed_for_each_finish(
         assert re.search(
             rf"^{name}: {shared} of {total} share a picture \((?:\d+\.\d%|none)\)$", out, re.M
         ), out
+
+
+def test_no_shape_names_a_param_as_an_attribute_render_reads_itself():
+    """A param named ``height`` was read as the dimension, so ``render`` could not draw a bar
+    stool's counter or bar seat (gen#1022, slice 3): the shape calls it ``seat_height``."""
+    for type_ in drawings.PROPORTIONS:
+        own = set(inspect.signature(kit._draw(type_)).parameters)
+        assert not own & {"color", *drawings.DIMENSIONS}, type_
+    counter, bar = (
+        drawings.render("bar_stool", {"color": "#2a2a2e", "seat_height": h, "height": 40},
+                        "unbranded", product_id=PID)
+        for h in ("counter", "bar")
+    )  # fmt: skip
+    assert counter != bar
