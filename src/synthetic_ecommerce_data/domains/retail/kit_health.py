@@ -81,7 +81,8 @@ def _wrapped(top: float, height: float) -> str:
 
 
 def _glyph(form: str, cx: float, cy: float, color: str) -> str:
-    """A scored tablet for ``Tablets``, a two-tone capsule for ``Capsules``, else nothing."""
+    """A scored tablet for ``Tablets``, a two-tone capsule for ``Capsules``, an amber oval for
+    ``Softgels`` and a domed drop for ``Gummies``, else nothing."""
     kind = form.strip().lower()
     if kind.startswith("tablet"):
         return (
@@ -98,6 +99,22 @@ def _glyph(form: str, cx: float, cy: float, color: str) -> str:
             f'<g class="capsule" transform="rotate(-30 {cx:g} {cy:g})">'
             f'<path d="{left}" fill="{color}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
             f'<path d="{right}" fill="#ffffff" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+            "</g>"
+        )
+    if kind.startswith("softgel"):  # a clear amber oval with its seam (gen#968, slice 4)
+        return (
+            f'<g class="softgel" transform="rotate(-20 {cx:g} {cy:g})">'
+            f'<ellipse cx="{cx:g}" cy="{cy:g}" rx="15" ry="9" fill="#e0a43a" fill-opacity=".85" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+            f'<path d="M{cx - 13:g},{cy:g} L{cx + 13:g},{cy:g}" stroke="{INK}" stroke-width=".8" stroke-opacity=".6"/>'
+            f'<ellipse cx="{cx - 5:g}" cy="{cy - 3:g}" rx="4" ry="2" fill="#ffffff" fill-opacity=".7"/>'
+            "</g>"
+        )
+    if kind.startswith("gumm"):  # a domed gummy drop in the nutrient's color, sugar-dusted
+        return (
+            f'<g class="gummy">'
+            f'<path d="M{cx - 12:g},{cy + 8:g} Q{cx - 13:g},{cy - 10:g} {cx:g},{cy - 10:g} Q{cx + 13:g},{cy - 10:g} {cx + 12:g},{cy + 8:g} Z" fill="{color}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
+            f'<circle cx="{cx - 4:g}" cy="{cy - 3:g}" r="1.2" fill="#ffffff"/>'
+            f'<circle cx="{cx + 4:g}" cy="{cy + 1:g}" r="1.2" fill="#ffffff"/>'
             "</g>"
         )
     return ""
