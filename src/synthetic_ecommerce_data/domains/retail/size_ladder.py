@@ -7,7 +7,9 @@ true to dimension, so S is visibly smaller than M, and a 50 cm frame than a 58 c
 - THE SCALE is the size's rank in the product's OWN ladder (the distinct primary sizes of its
   SKUs, smallest first), stepped evenly from :data:`BOTTOM` (the smallest) to :data:`TOP` (the
   largest), the scale the full-size drawing stands for (the largest keeps the style's size, the
-  smallest draws at ``BOTTOM / TOP`` of it). A product with one size has no ladder
+  smallest draws at ``BOTTOM / TOP`` of it; a shape in :data:`BOTTOMS` has a narrower ladder of
+  its own, a bicycle's so its smallest frame still fills the figure area, #1049). A product with
+  one size has no ladder
   and is not scaled (:func:`size_scale` is ``None``).
 - THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): the first key
   of the type's declared axis (:data:`size_axes.AXES`) that varies within the product. That is a
@@ -43,8 +45,10 @@ __all__ = [
     "stand",
 ]
 
-#: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049).
-BOTTOMS: dict[str, float] = {}
+#: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049). A bicycle
+#: fills the figure area at full size, and its smallest frame draws at 0.74 / 0.90 = 0.82 of that
+#: (the shared ladder: 0.61), so every frame size still spans most of the figure area.
+BOTTOMS: dict[str, float] = {"bicycle": 0.74}
 
 
 def bottom(rec: dict) -> float:
