@@ -85,6 +85,12 @@ MOVED = {
     "wiper_blade": [Option("blade_length_in", "blade_length", "Blade length", "INH")],
     # a diaper's size, Size 1 to Size 6 (#965)
     "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
+    # a smart bulb's light, connection and brightness (#956)
+    "smart_bulb": [
+        Option("bulb_light", "bulb_light", "Light"),
+        Option("connectivity", "connectivity", "Connectivity"),
+        Option("brightness_lm", "brightness", "Brightness (lm)"),
+    ],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 

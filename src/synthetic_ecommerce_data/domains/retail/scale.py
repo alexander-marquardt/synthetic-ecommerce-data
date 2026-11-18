@@ -155,6 +155,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     sale_share,
     shoe_grid,
+    smart_home_rows,
     stable_ids,
     style_table,
     type_registry,
@@ -585,6 +586,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
     _sku_values(rec, skus, sku_swaps)
+    smart_home_rows.fit_bulb(tpl, rec, skus)  # a candle bulb is never 1521 lm (gen#956)
     if colors:
         kept = len({s["color"] for s in skus if "color" in s})
         rec["title"] = _restate_color_count(rec["title"], kept)
@@ -766,6 +768,8 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
     combos: list[tuple] = [()]
     for k in shown:
         combos = [(*c, v) for c in combos for v in pools[(leaf, k)]]
+    combos = [c for c in combos
+              if smart_home_rows.real_pair(leaf, dict(zip(shown, c, strict=True)))]  # fmt: skip
     families = list(dict.fromkeys(_family(c) for c in tpl.get("color_options", ()))) or [None]
     mine = signature(tpl, shown)
     return [(c, f) for c in combos for f in families if (c, f) != mine]
@@ -838,6 +842,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         name = deal.owned(brand, slot, kind) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
+        price *= smart_home_rows.shape_factor(tpl, changes)  # a candle costs more (gen#956)
         target = price_point(min(max(price, lo), hi), lo, hi)
         if target == tpl["price"]:  # a re-drawn price is never the template's own
             up = target + _step(target)
