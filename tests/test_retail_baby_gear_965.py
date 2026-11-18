@@ -116,9 +116,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-0423DFABAECE", "Fenwold Nursery Repose Fast Flow Silicone Baby Bottle", 4, 8.0),
         ("BRD-077995839159", "Fenwold Nursery Repose Anti-Colic Glass Baby Bottle", 12, 6.5),
     ],
-    "Stroller": [],
-    "Car Seat": [],
-    "High Chair": [],
+    "Stroller": [
+        ("BRD-00B0FC30CD7A", "Little Fernby Sail Reversible Seat Full-Size Stroller", 2, 180.0),
+        ("BRD-0558EE92E904", "Hushwell Pip One-Hand Fold Jogging Stroller", 3, 450.0),
+        ("BRD-05602DD61254", "Larchwood Living Acorn Lightweight Compact Stroller", 2, 335.0),
+    ],
+    "Car Seat": [
+        ("BRD-014566DE43C0", "Mirefield Naturals Rover Easy Clean High-Back Booster Car Seat", 2, 130.0),
+        ("BRD-0318851BA458", "Emberly Home Saunter Side Impact Convertible Car Seat", 2, 73.0),
+        ("BRD-043710479D3B", "Mirefield Naturals Promenade Padded Convertible Car Seat", 4, 82.0),
+    ],
+    "High Chair": [
+        ("BRD-026CA93CB5DD", "Hushwell Hike Easy Clean Wooden High Chair", 2, 240.0),
+        ("BRD-043C204F8B10", "Thistle & Wren Voyager Space-Saving Folding High Chair", 2, 145.0),
+        ("BRD-0458B6E8B169", "Mirefield Naturals Rover Reclining Folding High Chair", 2, 155.0),
+    ],
 }
 
 
