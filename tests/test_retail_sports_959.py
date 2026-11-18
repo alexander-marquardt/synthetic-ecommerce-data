@@ -1,4 +1,4 @@
-"""Sports & Outdoors, fishing and golf, slice 1 (gen#959).
+"""Sports & Outdoors: fishing and golf, then fitness, team and racket sports (gen#959).
 
 The retail Sports & Outdoors department held 1,093 SKUs at the ceiling build against the 11,000
 of the #837 mix, and no fishing or golf product, so a search for ``golf balls`` or ``fishing reel``
@@ -8,6 +8,10 @@ balls, gloves), each type a derivable spec of its own in ``type_specs/`` drawn b
 3,000 SKUs under the department; each new type's styles have unique ids, titles, twin keys and
 SKUs; the rows and their drawings are the same on every call; and a golden slice pins each type's
 first derived styles, so a change that moves them shows here.
+
+Slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness, and
+basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats under
+Team & Racket Sports, drawn by :mod:`kit_fitness_team`, and raises the floor to 7,000 SKUs.
 """
 
 from __future__ import annotations
@@ -20,7 +24,23 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
 from synthetic_ecommerce_data.domains.retail.sports_helpers import DEPARTMENT
 
-TYPES = ("Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove")
+TYPES = (
+    "Fishing Rod",
+    "Fishing Reel",
+    "Tackle Box",
+    "Golf Club",
+    "Golf Ball",
+    "Golf Glove",
+    "Exercise Bike",
+    "Weight Plate",
+    "Weight Bench",
+    "Basketball",
+    "Volleyball",
+    "Shin Guard",
+    "Hockey Stick",
+    "Pickleball Paddle",
+    "Table Tennis Bat",
+)
 KEYS = {
     "Fishing Rod": "fishing_rod",
     "Fishing Reel": "fishing_reel",
@@ -28,9 +48,18 @@ KEYS = {
     "Golf Club": "golf_club",
     "Golf Ball": "golf_ball",
     "Golf Glove": "golf_glove",
+    "Exercise Bike": "exercise_bike",
+    "Weight Plate": "weight_plate",
+    "Weight Bench": "weight_bench",
+    "Basketball": "basketball",
+    "Volleyball": "volleyball",
+    "Shin Guard": "shin_guard",
+    "Hockey Stick": "hockey_stick",
+    "Pickleball Paddle": "pickleball_paddle",
+    "Table Tennis Bat": "table_tennis_bat",
 }
-#: The slice's floor at the ceiling build (the gate comment of gen#959).
-FLOOR = 3_000
+#: Slice 2's floor at the ceiling build (the gate comment of gen#959; slice 1's was 3,000).
+FLOOR = 7_000
 
 
 @pytest.fixture(scope="module")
