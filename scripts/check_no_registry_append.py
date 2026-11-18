@@ -62,6 +62,15 @@ _WORD_ROW = (r"^\s+_[a-z]\(\s*\d+,", r"^\s+_[a-z]\($")
 _WORD_KIND = (r"^NEW_KINDS\.update\(", _KIND_ENTRY)
 #: A row module named by hand: an import (plain or in a parenthesised list) or a ``docs()`` call.
 _FAMILY = (r"^import \w+_rows\b", r"^\s+\w+_rows,$", r"\b\w+_rows\.docs\(\)")
+#: A department's rate back in ``scale.py`` (gen#1044): a ``"<Department>": <rate>`` entry, a rate
+#: written to three or more places (``0.00835``, ``8.35e-3``; a ``DEPARTMENT_SHARE`` entry such as
+#: ``0.20`` is not one), or a line that binds or changes ``DEPARTMENT_RATE`` other than building it
+#: from the package (``DEPARTMENT_RATE = department_rates.rates()``).
+_RATE = (
+    r'(?:^\s*|[{,]\s*)"[A-Z][^"]*":\s*(?:0\.\d{3,}|\d(?:\.\d+)?e-\d+)',
+    r"^\s*DEPARTMENT_RATE\s*(?:\[|\.(?:update|setdefault|__setitem__)\(|\|=|(?::[^=]*)?="
+    r"(?!=|\s*department_rates\.rates\(\)\s*(?:#.*)?$))",
+)
 
 REGISTRIES: tuple[Registry, ...] = (
     Registry(
@@ -79,6 +88,15 @@ REGISTRIES: tuple[Registry, ...] = (
         f"declare the type as a spec, {RD}/type_specs/<key>.py (uv run python scripts/new_type.py"
         " <key>); the registry feeds the scaled build, so scale.py gains no import and no id set",
         ("scripts/new_type.py", f"{RD}/type_registry.py"),
+    ),
+    Registry(
+        f"{RD}/scale.py",
+        _shapes(*_RATE),
+        '    "Pets": 0.004, "Electronics": 0.001461,',
+        f"set the department's RATE in {RD}/department_rates/<department>.py (DEPARTMENT, RATE and"
+        " its calibration note); scale.DEPARTMENT_RATE is built from that package, so scale.py"
+        " gains no rate line (gen#1044)",
+        (f"{RD}/department_rates/__init__.py", f"{RD}/department_rates/home.py"),
     ),
     Registry(
         f"{RD}/retail_figures.py",
