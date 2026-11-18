@@ -17,6 +17,10 @@ keep their round-robin share of the half, and a brand appended later takes its o
 brand new to the build therefore moves no other brand's names, so no style in another department.
 The base brands are dealt over the whole half less the roster's frozen :attr:`Roster.gaps`, and
 a word reserved or excluded later only leaves its owner's names, so it moves no other brand either.
+
+The grocery half is dealt the same way over :data:`GROCERY` (#1052 slice 3). Its appended brands
+take blocks of :data:`GROCERY_SHARE` names from :data:`GROCERY_STEMS`, so no word is held by both
+a scale-appended and a grocery-appended brand.
 """
 
 from __future__ import annotations
@@ -64,6 +68,19 @@ ADDED_STEMS = (
 #: The names an appended brand holds: the base brands' share of the scale half (2,997 over 85).
 ADDED_SHARE = 35
 
+#: The stems a brand appended to the :data:`GROCERY` roster takes its names from (#1052 slice 3):
+#: apart from :data:`ADDED_STEMS`, so a scale-appended and a grocery-appended brand never both hold
+#: block ``k``; append only, as for :data:`ADDED_STEMS`.
+GROCERY_STEMS = (
+    "Abb", "Bick", "Cogg", "Dribb", "Edg", "Grims", "Hutt", "Ingle", "Jarr", "Kex", "Lyth",
+    "Mux", "Nidd", "Pock", "Quar", "Rigg", "Tees", "Ure", "Wend", "Yock", "Brom", "Cark",
+    "Dent", "Fulb",
+)  # fmt: skip
+
+#: The names an appended grocery brand holds: the base brands' share of the grocery half (2,993
+#: over 45), so its titles repeat no more often than an existing grocery brand's.
+GROCERY_SHARE = 66
+
 #: Words no range name may be: a product or a material read as a range.
 PRODUCT_WORDS = frozenset({
     "Hollow", "Oakwood", "Elmwood", "Ashwood", "Fernwood", "Garden", "Pillow", "Bramley",
@@ -90,15 +107,17 @@ def _everything() -> list[str]:
 
 def candidates() -> list[str]:
     """Every invented place word that may be a range name, sorted and unique."""
-    return sorted(n for n in {*_everything(), *added_words()} if n not in EXCLUDED)
+    words = {*_everything(), *added_words(), *added_words(GROCERY_STEMS)}
+    return sorted(n for n in words if n not in EXCLUDED)
 
 
-def added_words() -> list[str]:
-    """The place words of :data:`ADDED_STEMS`, stem by stem, each stem's endings in its own
-    seeded order, less any word of the shuffled pool: a new stem only appends words."""
+def added_words(stems: tuple[str, ...] | None = None) -> list[str]:
+    """The place words of ``stems`` (:data:`ADDED_STEMS` when none), stem by stem, each stem's
+    endings in its own seeded order, less any word of the shuffled pool: a new stem only appends
+    words."""
     pool = set(_everything())
     out: list[str] = []
-    for stem in ADDED_STEMS:
+    for stem in ADDED_STEMS if stems is None else stems:
         words = [stem + e for e in ENDINGS]
         random.Random(f"{SEED}:{stem}").shuffle(words)
         out += [w for w in words if w not in pool]
@@ -109,7 +128,8 @@ def added_words() -> list[str]:
 class Roster:
     """The brands of a deal in the order they joined it (#1052): ``base`` was dealt round-robin
     before the roster existed and keeps that deal; ``added`` is append-only, brand ``k`` holding
-    block ``k`` of :func:`added_words`.
+    block ``k`` (``share`` names) of :func:`added_words` over ``stems`` (:data:`ADDED_STEMS` when
+    none).
 
     ``gaps`` are the words of the half that were kept out when ``base`` was dealt (reserved or
     excluded then). It is frozen: the base is dealt over the whole half less ``gaps``, then a word
@@ -119,6 +139,8 @@ class Roster:
     base: tuple[str, ...]
     added: tuple[str, ...] = ()
     gaps: frozenset[str] = frozenset()
+    stems: tuple[str, ...] | None = None
+    share: int = ADDED_SHARE
 
     def owned(self, whole: list[str], skip: set[str]) -> dict[str, tuple[str, ...]]:
         """Every rostered brand's names, present in the build or not, so a brand that leaves
@@ -129,11 +151,11 @@ class Roster:
             b: tuple(n for n in pool[i::count] if n not in skip and n not in EXCLUDED)
             for i, b in enumerate(self.base)
         }
-        words = added_words()
+        words = added_words(self.stems)
         for k, brand in enumerate(self.added):
-            block = words[k * ADDED_SHARE : (k + 1) * ADDED_SHARE]
-            if len(block) < ADDED_SHARE:
-                raise ValueError(f"no names left for {brand!r}: append stems to ADDED_STEMS")
+            block = words[k * self.share : (k + 1) * self.share]
+            if len(block) < self.share:
+                raise ValueError(f"no names left for {brand!r}: append stems to its added stems")
             out[brand] = tuple(w for w in block if w not in skip and w not in EXCLUDED)
         return out
 
@@ -167,6 +189,36 @@ SCALE = Roster(
         "Alnwick", "Ashlow", "Ashwell", "Denby", "Ellerby", "Elmwood", "Fenmere", "Fernwood",
         "Halden", "Harwell", "Hollow", "Kelden", "Malham", "Oakham", "Oldstead", "Penley",
     }),
+)  # fmt: skip
+
+
+#: The grocery brands, dealt the grocery half (``grocery.range_names``, #1052 slice 3). ``base`` is
+#: the sorted set dealt before it; a grocery brand new to the build is appended to ``added``, in
+#: the order brands join, and takes its block from :data:`GROCERY_STEMS`.
+GROCERY = Roster(
+    base=(
+        "Barrowby Kitchen", "Brewhollow Roasters", "Brightwater Botanics", "Brindlemere Drinks",
+        "Clearbrook Household", "Cobbleby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse",
+        "Crunchworth", "Dellwick Chocolatiers", "Dunnock Bakehouse", "Fellbeck Roasters",
+        "Freshfold", "Goldfield Farms", "Hearth & Table", "Heronsgate Fresh", "Hobsworth Kitchen",
+        "Hollowbrook Cellars", "Honeysett Sweets", "Kettleby Tea Co.", "Larchfield Home Care",
+        "Ledwick Botanics", "Marlpit Growers", "Marrowdale Tea Co.", "Meadowgate Dairy",
+        "Mossgill Dairy", "Oakenshaw Mills", "Olivar Grove", "Orchardgate Cider Co.", "Orrin Skin",
+        "Ovenden Vineyards", "Pantry Mill", "Pellam Crisps", "Pippinfold Cider Co.",
+        "Plumtree Larder", "Saltmarsh Preserves", "Soapwell", "Stonepine Estate",
+        "Tamsworth Cellars", "Thistlemoor Snacks", "Velling Apothecary", "Vine & Valley",
+        "Wetherly Creamery", "Wheatsheaf Lane", "Wyncote Skin",
+    ),
+    added=(),
+    # The grocery-half words skipped when the base was dealt: the excluded words in the half and
+    # the brands' own words. Never edit: a word dropped later leaves its owner alone.
+    gaps=frozenset({
+        "Ashby", "Ashwood", "Bramley", "Brockhurst", "Dunholme", "Eskdale", "Fenbridge", "Fenby",
+        "Garden", "Kenwick", "Kildale", "Kirkham", "Lindale", "Mardale", "Marlow", "Norbury",
+        "Oakwood", "Pillow", "Thornby", "Winscar",
+    }),
+    stems=GROCERY_STEMS,
+    share=GROCERY_SHARE,
 )  # fmt: skip
 
 

@@ -46,6 +46,7 @@ APPAREL_TESTS = "tests/test_retail_apparel_decoys_311.py"
 DETAILS = f"{RD}/details.py"
 FIGURES = f"{RD}/retail_figures.py"
 REGISTRY = f"{RD}/type_registry.py"
+ORIENT = f"{RD}/orientation.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -165,6 +166,13 @@ APPENDS = {
     ),
     "parts-entry": (DETAILS, '    "probe_coat": {"hem": TORSO_HEM},', "register_parts"),
     "parts-open": (DETAILS, '    "probe_coat": {', "register_parts"),
+    "orientation-shape": (ORIENT, '    "kayak",', "orientations/<owner>.py"),
+    "orientation-tuple": (
+        ORIENT,
+        'UPRIGHT: tuple[str, ...] = ("kayak",)',
+        "orientations/<owner>.py",
+    ),
+    "orientation-entry": (ORIENT, '    "kayak": "upright",', "orientations/<owner>.py"),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -186,6 +194,7 @@ BASE = {
         'WORDS = frozenset({\n    "Cami Bra",\n})\n\n\ndef test_x(rows):\n    assert rows\n'
     ),
     DETAILS: 'PARTS = {\n    "raincoat": {"hem": TORSO_HEM},\n}\n',
+    ORIENT: 'ORIENTATION = {\n    **dict.fromkeys(ANY, "any"),\n}\n',
     FIGURES: "from x import (\n    export,\n)\n",
     REGISTRY: 'BUILD_SOURCES = (\n    "samples",\n    "foo_rows",\n)\n',
 }

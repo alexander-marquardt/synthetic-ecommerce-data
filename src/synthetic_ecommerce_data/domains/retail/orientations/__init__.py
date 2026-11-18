@@ -13,5 +13,8 @@ A module exposes any of ``ANY``, ``SLIGHT``, ``UPRIGHT`` and ``LEVEL``, each a t
 names (the sets are :mod:`..orientation`'s). A PR that adds a ``kit_<owner>.py`` adds
 ``<owner>.py`` here, and edits no line another department's PR touches. :mod:`..orientation`
 finds each module by walking this package, in the order of their names. It refuses a module
-that names no shape, and a shape that two modules name.
+that names no shape, and a shape that two modules name. ``tests/test_orientation_owners_1045.py``
+refuses a shape filed in a module other than its owner's (the module that first registers it),
+and ``scripts/check_no_registry_append.py`` refuses a shape line added back to
+:mod:`..orientation`.
 """
