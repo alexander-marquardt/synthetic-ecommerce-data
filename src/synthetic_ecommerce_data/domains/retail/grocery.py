@@ -57,6 +57,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
     kit_punnet,  # noqa: E402,F401 -- registers punnet
     line_grammar,
+    range_ownership,
 )
 from synthetic_ecommerce_data.domains.retail.departments import (
     check as check_departments,
@@ -468,11 +469,13 @@ def budgets(skus: int) -> dict[str, int]:
 @functools.cache
 def range_names() -> Deal:
     """The grocery half of the range-name pool, dealt over every grocery brand (gen#623): the
-    range a brand's styles lead with is one it owns and no other brand carries."""
+    range a brand's styles lead with is one it owns and no other brand carries. The deal holds
+    the append-only ``range_ownership.GROCERY`` roster, so a grocery brand new to the build must
+    be appended to it and moves no other grocery brand's names (#1052)."""
     brands = {b for f in FAMILIES for b in f.brands}
     brands |= {b for extra in grocery_rows.TIER_BRANDS.values() for b in extra}
     reserved = {w for b in brands for w in re.findall(r"[A-Za-z]+", b)}
-    return Deal("grocery", brands, reserved)
+    return Deal("grocery", brands, reserved, roster=range_ownership.GROCERY)
 
 
 @functools.cache
