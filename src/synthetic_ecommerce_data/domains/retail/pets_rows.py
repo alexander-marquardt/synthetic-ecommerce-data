@@ -1,5 +1,9 @@
 """The Pets department's shared pieces (gen#967): its paths, brands, packs and rows.
 
+Slice 2 adds Dog Treats (``type_specs/dog_treats.py``, colorless, by the bag's net weight), Pet
+Toy and Pet Bed (``pet_toy.py``, ``pet_bed.py``), sold in the six main colors (:data:`MAIN`,
+ruling 2026-10-13, gen#275) by size, built by :func:`gear` and drawn by :mod:`kit_pet_gear`.
+
 ``Pets`` is both the store's department (the top level of ``category_path``, on
 ``core/departments.RETAIL``) and the build record's ``department`` (:mod:`departments`), which
 keys the department's brand pools. Each type is a spec of its own (``type_specs/dog_food.py``,
@@ -15,8 +19,10 @@ from __future__ import annotations
 from dataclasses import replace
 
 from synthetic_ecommerce_data.domains.retail import (
+    kit_pet_gear,  # noqa: F401 -- registers dog_treats, pet_toy, pet_bed
     kit_pets,  # noqa: F401 -- registers dry_pet_food, wet_pet_food, cat_litter
 )
+from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.type_registry import Row, cw
 
 #: The build record's department, and the top level of every path.
@@ -27,6 +33,13 @@ WET_DOG = (ROOT, "Dog Food", "Wet Dog Food")
 DRY_CAT = (ROOT, "Cat Food", "Dry Cat Food")
 WET_CAT = (ROOT, "Cat Food", "Wet Cat Food")
 LITTER = (ROOT, "Litter & Hygiene", "Cat Litter")
+DENTAL = (ROOT, "Dog Treats", "Dental Chews")
+BISCUITS = (ROOT, "Dog Treats", "Dog Biscuits")
+TRAINING = (ROOT, "Dog Treats", "Training Treats")
+DOG_TOYS = (ROOT, "Pet Toys", "Dog Toys")
+CAT_TOYS = (ROOT, "Pet Toys", "Cat Toys")
+DOG_BEDS = (ROOT, "Pet Beds", "Dog Beds")
+CAT_BEDS = (ROOT, "Pet Beds", "Cat Beds")
 
 HOUND = "Hound & Heath"
 BARKWELL = "Barkwell"
@@ -54,6 +67,9 @@ PLUM = cw("Plum", "#6e3b6e", "solid", "#ffffff")
 TEAL = cw("Teal", "#1f7a7a", "solid", "#ffffff")
 SAND = cw("Sand", "#d9c08c", "solid", "#2a2a2e")
 SKY = cw("Sky", "#7fb2d9", "solid", "#2a2a2e")
+#: The six main colors a toy or a bed is sold in (gen#275), each its own SKU and drawing.
+MAIN = tuple(cw(name, hex_, "solid", "#2a2a2e" if name in ("Yellow", "White") else "#ffffff")
+             for name, hex_ in MAIN_COLORS.items())  # fmt: skip
 
 
 def grams(*pairs: tuple[float, float]) -> tuple[tuple[str, float], ...]:
@@ -68,7 +84,8 @@ def units(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
 
 #: The attributes the pack prints, so its drawing shows them (:mod:`kit_pets`): two styles of one
 #: leaf and price that differ in one read apart on a results grid.
-DRAWN = ("life_stage", "flavor", "breed_size", "special_need", "scent")
+DRAWN = ("life_stage", "flavor", "breed_size", "special_need", "scent", "treat_form", "toy_kind",
+         "play_feature", "bed_style", "cover")  # fmt: skip
 
 
 def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str, shape: str,
@@ -81,6 +98,18 @@ def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: 
     return Row(code, title, brand, DEPARTMENT, path, product_type, sizes[0][1], shape,
                description, (color,), attrs, sizes, colorless=True, params=params + drawn,
                size_key=size_key)  # fmt: skip
+
+
+def gear(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str, shape: str,
+         description: str, attrs: tuple[tuple, ...], price: float,
+         sizes: tuple[tuple[str, float], ...] = (), animal: str = "dog") -> Row:  # fmt: skip
+    """One toy or bed style: its six main colors times its sizes (``Small`` to ``Extra Large``)
+    are its SKUs, or its colors alone when it has one size. Each :data:`DRAWN` attribute joins
+    ``params`` as its lower-cased value, as in :func:`row`."""
+    drawn = tuple((k, v.lower()) for k, _, v in attrs if k in DRAWN)
+    first = sizes[0][1] if sizes else price
+    return Row(code, title, brand, DEPARTMENT, path, product_type, first, shape, description,
+               MAIN, attrs, sizes, params=(("animal", animal), *drawn))  # fmt: skip
 
 
 def decoy(base: Row, code: str, title: str, description: str, brand: str | None = None) -> Row:
