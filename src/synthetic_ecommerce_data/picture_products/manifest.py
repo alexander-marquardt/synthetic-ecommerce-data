@@ -28,6 +28,7 @@ any other field or value with a ``ValueError`` that names it::
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
@@ -177,10 +178,21 @@ def check(row: Any, where: str = "row") -> Picture:
 
 
 def load(rows: Iterable[Any]) -> list[Picture]:
-    """Stub: checks nothing yet."""
-    return []
+    """Every row of a manifest, checked; a repeated image id is refused too."""
+    out: list[Picture] = []
+    seen: set[str] = set()
+    for i, row in enumerate(rows):
+        picture = check(row, f"row {i}")
+        if picture.image_id in seen:
+            raise ValueError(f"row {i}: image_id repeated")
+        seen.add(picture.image_id)
+        out.append(picture)
+    return out
 
 
 def load_file(path: str | Path) -> list[Picture]:
-    """Stub: reads nothing yet."""
-    return []
+    """A manifest file: a JSON list of rows, or JSON Lines (one row a line)."""
+    text = Path(path).read_text(encoding="utf-8")
+    if text.lstrip().startswith("["):
+        return load(json.loads(text))
+    return load(json.loads(line) for line in text.splitlines() if line.strip())

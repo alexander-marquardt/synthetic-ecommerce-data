@@ -13,7 +13,7 @@ shape's table of params and the values it draws:
 
 | Shape | Params (values) |
 |---|---|
-| `bar_stool` | `height` (counter, bar), `back` (none, low, full), `seat` (round, square), `base` (four_leg, pedestal, sled) |
+| `bar_stool` | `seat_height` (counter, bar), `back` (none, low, full), `seat` (round, square), `base` (four_leg, pedestal, sled) |
 | `desk` | `outline` (rectangular, l_shaped), `drawers` (0 to 4), `legs` (straight, panel, hairpin) |
 | `office_chair` | `back` (mid, high), `cover` (mesh, fabric), `arms` (yes, no), `base` (castor, sled) |
 | `tv_stand` | `doors` (0 to 4), `shelves` (0 to 3), `legs` (short, plinth, hairpin) |
