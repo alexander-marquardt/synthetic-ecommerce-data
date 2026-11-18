@@ -327,6 +327,10 @@ DISTINCT_SPEC_FLOOR = {
     # sell the same ones. Measured at 100K, 260 distinct specs of 395 SKUs (0.658), rounded
     # down to 0.05.
     "picture_hangers": 0.65,
+    # #958: a cabinet hinge is a style, a metal and a color on a stocked length, and makers
+    # sell the same ones. Measured at 100K, 328 distinct specs of 377 SKUs (0.870), rounded
+    # down to 0.05.
+    "cabinet_hinges": 0.85,
     # #971: a stud finder is a style, an indicator and a scan-mode tier (13 lines), a body
     # color and the tier's two scan depths, 156 specs, and every maker sells the same ones.
     # Measured at 100K, 156 distinct specs of 345 SKUs (0.452), rounded down to 0.05.
