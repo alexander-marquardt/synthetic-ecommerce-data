@@ -29,4 +29,5 @@ shape's table of params and the values it draws:
 - a White piece reads white, by the gen#226 rule the rest of the furniture range keeps: legs,
   castors and gas lifts are the kit's metal, and no body is shaded far toward black.
 
-Each shape is `upright` in the orientation table (`orientation.py`, #860).
+Each shape is `upright` in its owner's orientation module, `orientations/home_furniture.py`
+(#1045), which `orientation.py` reads with the rest (#860).

@@ -7,7 +7,8 @@ from synthetic_ecommerce_data.domains.retail.breadth_row import Row
 from synthetic_ecommerce_data.domains.retail.variants import Color, cw
 
 # --------------------------------------------------------------------------
-# Cleaning: the fragrance varies; the bottle or the spray is drawn.
+# Cleaning: the fragrance varies; the pack is drawn as itself (gen#1028): a jug of laundry
+# liquid or softener, a squeeze bottle of dish soap, a trigger spray, a box of tablets.
 # --------------------------------------------------------------------------
 
 _BATHRM = ("Cleaning", "Bathroom", "Bathroom Cleaners")
@@ -57,15 +58,15 @@ CLEANING = (
         "Scented with mint.",
         _spray("Aqua"), _scent("Mint"), label="Refill", colorless=True),
     Row("GLSWIP", "Eucalyptus Glass Cleaning Wipes, Pack of 40", "Freshfold", _CJ, _GLASS,
-        "Glass Cleaner", 2.5, "tub",
+        "Glass Cleaner", 2.5, "wipes_pack",
         "Lint-free wipes for screens, mirrors and car windows. Scented with eucalyptus.",
         _spray("Teal", "#ffffff"), _scent("Eucalyptus"), label="Wipes", colorless=True),
     Row("DSHSOP", "Aloe Vera Dish Soap 500ml", "Pantry Mill", _CJ, _DISH, "Dish Soap", 1.5,
-        "bottle",
+        "squeeze_bottle",
         "A gentle soap that cuts grease and is kind to hands. Scented with aloe vera.",
         _spray("Green"), _scent("Aloe Vera"), label="Dish Soap", colorless=True),
     Row("DSHCON", "Green Tea Concentrated Dish Soap 1L", "Freshfold", _CJ, _DISH, "Dish Soap",
-        2.8, "bottle",
+        2.8, "squeeze_bottle",
         "A concentrated soap: a few drops do a sink of dishes. Scented with green tea.",
         _spray("Green", "#ffffff"), _scent("Green Tea"), label="Dish Soap", colorless=True),
     Row("DSHPMP", "Pomegranate Dish Soap Pump 400ml", "Pantry Mill", _CJ, _DISH, "Dish Soap",
@@ -73,12 +74,12 @@ CLEANING = (
         "A pump bottle for the side of the sink, refillable. Scented with pomegranate.",
         _spray("Pink"), _scent("Pomegranate"), label="Pump", colorless=True),
     Row("LDRLIQ", "Fresh Cotton Laundry Detergent, 40 Washes", "Freshfold", _CJ, _LAUND,
-        "Laundry Detergent", 6.0, "bottle",
+        "Laundry Detergent", 6.0, "jug",
         "A non-bio liquid that cleans at 20 degrees, gentle on sensitive skin. "
         "Scented with fresh cotton.",
         _spray("White", "#3f6fb5"), _scent("Fresh Cotton"), label="Detergent", colorless=True),
     Row("LDRCON", "Spring Meadow Bio Laundry Detergent, 60 Washes", "Pantry Mill", _CJ, _LAUND,
-        "Laundry Detergent", 8.5, "bottle",
+        "Laundry Detergent", 8.5, "jug",
         "A concentrated bio liquid for stains at low temperatures. Scented with spring meadow.",
         _spray("Blue", "#ffffff"), _scent("Spring Meadow"), label="Detergent", colorless=True),
     Row("LDRPOD", "Lavender Laundry Pods, 30 Washes", "Freshfold", _CJ, _LAUND,
@@ -87,11 +88,11 @@ CLEANING = (
         "Scented with lavender.",
         _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Pods", colorless=True),
     Row("SFTLAV", "Lavender Fabric Softener, 50 Washes", "Pantry Mill", _CJ, _SOFTEN,
-        "Fabric Softener", 3.5, "bottle",
+        "Fabric Softener", 3.5, "jug",
         "A softener that keeps towels fluffy and cuts creases. Scented with lavender.",
         _spray("Lilac", "#ffffff"), _scent("Lavender"), label="Softener", colorless=True),
     Row("SFTSEN", "Wild Jasmine Fabric Softener, 33 Washes", "Freshfold", _CJ, _SOFTEN,
-        "Fabric Softener", 2.8, "bottle",
+        "Fabric Softener", 2.8, "jug",
         "A softener with plant-based ingredients, in a recycled bottle. "
         "Scented with wild jasmine.",
         _spray("Pink", "#ffffff"), _scent("Wild Jasmine"), label="Softener", colorless=True),
@@ -100,7 +101,7 @@ CLEANING = (
         "An angled-neck bottle of thick gel that clings under the rim. Scented with pine.",
         _spray("Green", "#ffffff"), _scent("Pine"), label="Cleaner", colorless=True),
     Row("LOOTAB", "Ocean Breeze Toilet Cleaning Tablets, Pack of 8", "Freshfold", _CJ, _LOO,
-        "Toilet Cleaner", 3.0, "tub",
+        "Toilet Cleaner", 3.0, "box",
         "Drop-in tablets that fizz away limescale overnight. Scented with ocean breeze.",
         _spray("Aqua", "#ffffff"), _scent("Ocean Breeze"), label="Tablets", colorless=True),
     # Round 2 (gen#125): at 20K, cleaning held 22 styles against a half share of 30.
@@ -123,11 +124,11 @@ CLEANING = (
         "Scented with cucumber.",
         _spray("Aqua", "#ffffff"), _scent("Cucumber"), colorless=True),
     Row("DSHLEM", "Lemon Dishwashing Liquid, Value Size 1.5L", "Pantry Mill", _CJ, _DISH,
-        "Dish Soap", 3.0, "bottle",
+        "Dish Soap", 3.0, "squeeze_bottle",
         "A family-size bottle with a flip cap, for daily washing up. Scented with lemon.",
         _spray("Yellow", "#ffffff"), _scent("Lemon"), label="Liquid", colorless=True),
     Row("DSHSEN", "Chamomile Sensitive Dish Soap", "Freshfold", _CJ, _DISH, "Dish Soap", 2.4,
-        "bottle",
+        "squeeze_bottle",
         "A dermatologically tested soap for dry or sensitive hands. Scented with chamomile.",
         _spray("Cream", "#4f7a3a"), _scent("Chamomile"), label="Dish Soap", colorless=True),
     Row("LDRPWD", "Cherry Blossom Laundry Powder, 50 Washes", "Pantry Mill", _CJ, _LAUND,
@@ -141,12 +142,12 @@ CLEANING = (
         "Scented with sandalwood.",
         _spray("Cream", "#7a5a3a"), _scent("Sandalwood"), label="Sheets", colorless=True),
     Row("SFTVAN", "Vanilla Musk Fabric Conditioner", "Freshfold", _CJ, _SOFTEN,
-        "Fabric Softener", 3.0, "bottle",
+        "Fabric Softener", 3.0, "jug",
         "A thick conditioner for the drawer, enough for 40 loads. Scented with vanilla musk.",
         _spray("Cream", "#2a2a2e"), _scent("Vanilla Musk"), label="Softener", colorless=True,
         sizes=((850.0, 2.4), (1200.0, 3.0), (2000.0, 4.6)), size_key="net_volume_ml"),
     Row("SFTBED", "Cotton Flower Scent Booster Beads", "Pantry Mill", _CJ, _SOFTEN,
-        "Fabric Softener", 5.5, "tub",
+        "Fabric Softener", 5.5, "jug",
         "Beads that go in the drum with the washing and last for weeks in the wardrobe. "
         "Scented with cotton flower.",
         _spray("Purple", "#ffffff"), _scent("Cotton Flower"), label="Beads", colorless=True),
@@ -182,7 +183,7 @@ CLEANING = (
         _spray("Cream", "#ffffff"), _scent("Vanilla"), label="Gel", colorless=True),
     # Growth round 4: a new fragrance in each leaf, so every row in it may take one more.
     Row("LDRMEA", "Spring Meadow Laundry Liquid 1.4L", "Freshfold", _CJ, _LAUND,
-        "Laundry Detergent", 7.5, "bottle",
+        "Laundry Detergent", 7.5, "jug",
         "A concentrated non-biological liquid for 40 washes, gentle on sensitive skin. "
         "Scented with spring meadow.",
         _spray("Aqua", "#ffffff"), _scent("Spring Meadow"), label="Liquid", colorless=True),
@@ -192,7 +193,7 @@ CLEANING = (
         "Scented with ocean breeze.",
         _spray("Blue", "#ffffff"), _scent("Ocean Breeze"), label="Capsules", colorless=True),
     Row("SFTJAS", "Jasmine Fabric Conditioner 1L", "Pantry Mill", _CJ, _SOFTEN,
-        "Fabric Softener", 2.5, "bottle",
+        "Fabric Softener", 2.5, "jug",
         "A light conditioner that softens towels and cuts creasing, for 33 loads. "
         "Scented with jasmine.",
         _spray("White", "#b9a3d0"), _scent("Jasmine"), label="Softener", colorless=True),

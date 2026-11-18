@@ -30,6 +30,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     scale,
     scale_rows,
+    smart_home_rows,
     stable_ids,
 )
 from synthetic_ecommerce_data.domains.retail.retail_figures import (
@@ -150,10 +151,12 @@ CAPACITY = (FIGURES["ceiling"]["styles"], FIGURES["ceiling"]["skus"])
 CEILING_GRID_CLONES = 0.152
 #: The departments the ceiling build sells in (derivable styles), by name: a count here would
 #: read as a measured total (``tests/test_retail_figures_162.py``). Health joined with gen#968,
-#: Office & school with gen#969, Electronics with gen#956's first derivable types.
+#: Office & school with gen#969, Electronics with gen#956's first derivable types, Pets with
+#: gen#967.
 DEPARTMENTS = frozenset({
     "Beauty", "Cleaning & Janitorial", "Clothing", "Electronics", "Food & Drink", "Footwear",
-    "Garden", "Gifts", "Health", "Home", "Lingerie & Nightwear", "Office & Stationery", "Toys",
+    "Garden", "Gifts", "Health", "Home", "Lingerie & Nightwear", "Office & Stationery",
+    "Pets", "Toys",
 })  # fmt: skip
 #: The near-duplicate share the ceiling build may reach: the 30K ceiling's share
 #: (gen#136), rounded up to the 20K build's. Growth must not dilute it.
@@ -768,6 +771,8 @@ def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
         # material, ``scale._sku_values``): that key differs by design.
         before = {a["key"]: a["value"] for a in t["attributes"]}
         changed = {a["key"] for a in r["attributes"] if before.get(a["key"]) != a["value"]}
+        # A smart bulb's new shape gives its SKUs that shape's brightness (gen#956).
+        changed |= {k for c in changed for k in smart_home_rows.REFIT_SKU_KEYS.get(c, ())}
         mine, theirs = runs(r, changed), runs(t, changed)
         assert mine and set(mine) <= set(theirs)
         assert all(mine[c] == theirs[c] for c in mine), r["product_id"]
