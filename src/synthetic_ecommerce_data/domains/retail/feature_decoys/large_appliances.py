@@ -24,7 +24,8 @@ _CF = "Pantry Mill"
 #: crisps): the tablets, salt and rinse aid are dishwashing products, the machine cleaner,
 #: descaler and pods are laundry products.
 KINDS = {
-    "la_tablets": Kind("Cleaning & Janitorial", _DISH, "Dish Soap", "tub", _CF, 9.0, colorless=True),
+    "la_tablets": Kind("Cleaning & Janitorial", _DISH, "Dish Soap", "dishwasher_tablets", _CF, 9.0,
+                       params=(("label", "Tablets"),), colorless=True),
     "la_salt": Kind("Cleaning & Janitorial", _DISH, "Dish Soap", "pouch", _CF, 4.0, colorless=True),
     "la_rinse": Kind("Cleaning & Janitorial", _DISH, "Dish Soap", "bottle", _CF, 3.5, colorless=True),
     "la_cleaner": Kind("Cleaning & Janitorial", _LAUNDRY, "Laundry Detergent", "angled_bottle", _CF, 5.0, colorless=True),
