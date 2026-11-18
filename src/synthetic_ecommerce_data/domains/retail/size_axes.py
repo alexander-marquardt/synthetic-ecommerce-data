@@ -87,6 +87,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Suitcase": ("capacity_l", "weight_kg"),
     "Travel Cup": ("capacity_ml",),
     "Tumbler": ("capacity_ml",),
+    "Watering Can": ("capacity_l",),
     # Bags and baskets sold by a word.
     "Gift Bag": ("size", "dimensions"),
     "Handbag": ("size",),
