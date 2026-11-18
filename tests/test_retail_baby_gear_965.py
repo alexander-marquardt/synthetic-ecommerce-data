@@ -1,11 +1,13 @@
-"""Baby gear, slice 1 (gen#965): diapers, baby wipes and baby bottles under Kids > Baby.
+"""Baby gear (gen#965): diapers, wipes, bottles, strollers, car seats and high chairs.
 
-Kids > Baby sold clothing only, so a search for ``diapers``, ``baby wipes`` or ``baby bottle``
-found nothing. Slice 1 adds its first three gear types, each a spec of its own
-(``type_specs/diapers.py``, ``baby_wipes.py``, ``baby_bottle.py``) drawn by :mod:`kit_baby_gear`.
-These checks hold the slice's Done-when: the ceiling build has at least 1,100 SKUs of the three
-types under Kids > Baby; each type's styles have unique ids, titles and twin keys; the rows and
-their drawings are the same on every call; and a golden slice pins each type's first derived
+Kids > Baby sold clothing only, so a search for ``diapers``, ``baby wipes``, ``baby bottle`` or
+``stroller`` found nothing. Slice 1 adds its first three gear types (``type_specs/diapers.py``,
+``baby_wipes.py``, ``baby_bottle.py``); slice 2 adds strollers, car seats and high chairs
+(``type_specs/stroller.py``, ``car_seat.py``, ``high_chair.py``). Each is a spec of its own,
+drawn by :mod:`kit_baby_gear`. These checks hold each slice's Done-when: the ceiling build has at
+least 1,100 SKUs of the slice's three types under Kids > Baby; each type's styles have unique
+ids, titles and twin keys; the rows and their drawings are the same on every call; a param of
+each slice 2 shape changes its drawing; and a golden slice pins each type's first derived
 styles, so a change that moves them shows here.
 """
 
@@ -18,9 +20,14 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
 
-TYPES = ("Diapers", "Baby Wipes", "Baby Bottle")
-KEYS = {"Diapers": "diapers", "Baby Wipes": "baby_wipes", "Baby Bottle": "baby_bottle"}
-#: The slice's floor at the ceiling build (the gate comment of gen#965).
+SLICE_1 = ("Diapers", "Baby Wipes", "Baby Bottle")
+SLICE_2 = ("Stroller", "Car Seat", "High Chair")
+TYPES = SLICE_1 + SLICE_2
+KEYS = {
+    "Diapers": "diapers", "Baby Wipes": "baby_wipes", "Baby Bottle": "baby_bottle",
+    "Stroller": "stroller", "Car Seat": "car_seat", "High Chair": "high_chair",
+}  # fmt: skip
+#: Each slice's floor at the ceiling build (the gate comments of gen#965).
 FLOOR = 1_100
 
 
@@ -33,8 +40,9 @@ def gear() -> list[dict]:
     ]
 
 
-def test_the_ceiling_build_holds_the_slice_floor_of_baby_gear_skus(gear) -> None:
-    skus = sum(r["sku_count"] for r in gear)
+@pytest.mark.parametrize("types", [SLICE_1, SLICE_2], ids=["slice_1", "slice_2"])
+def test_the_ceiling_build_holds_the_slice_floor_of_baby_gear_skus(gear, types) -> None:
+    skus = sum(r["sku_count"] for r in gear if r["product_type"] in types)
     assert skus >= FLOOR, skus
 
 
@@ -68,6 +76,21 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
         assert first == kit.render(row.shape, fill, params=params)
 
 
+#: Each slice 2 shape, its param and two readings that must draw differently (gen#512).
+PARAMS = {
+    "stroller": ("stroller_style", "full-size", "jogging"),
+    "car_seat": ("seat_type", "infant carrier", "high-back booster"),
+    "high_chair": ("frame", "wooden", "folding"),
+}
+
+
+@pytest.mark.parametrize("shape", PARAMS)
+def test_a_param_changes_the_drawing(shape) -> None:
+    key, one, other = PARAMS[shape]
+    fill = kit.Fill("solid", "#3f6fb5", "#f4f1ea")
+    assert kit.render(shape, fill, params={key: one}) != kit.render(shape, fill, params={key: other})
+
+
 def _golden(gear: list[dict], ptype: str) -> list[tuple]:
     derived = set(ceiling_build().template_of)
     mine = sorted((r for r in gear if r["product_type"] == ptype and r["product_id"] in derived),
@@ -93,9 +116,14 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-0423DFABAECE", "Fenwold Nursery Repose Fast Flow Silicone Baby Bottle", 4, 8.0),
         ("BRD-077995839159", "Fenwold Nursery Repose Anti-Colic Glass Baby Bottle", 12, 6.5),
     ],
+    "Stroller": [],
+    "Car Seat": [],
+    "High Chair": [],
 }
 
 
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_golden_slice(gear, ptype) -> None:
-    assert _golden(gear, ptype) == GOLDEN[ptype]
+    got = _golden(gear, ptype)
+    assert got, ptype
+    assert got == GOLDEN[ptype]
