@@ -29,7 +29,7 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, retail_figures
 
 #: Titles whose product really is a tub (a pot of tablets, pods, a drink powder).
-TUB_NOUNS = re.compile(r"\b(Wipes|Tablets|Pods|Capsules|Beads|Chocolate|Yogurt|Pot)\b")
+TUB_NOUNS = re.compile(r"\b(Pods|Capsules|Yogurt|Pot)\b")
 VESSEL = re.compile(r"\b(Mug|Mugs|Cup|Cups|Tumbler|Travel Cup)\b")
 CUT = re.compile(r",|\d| for | with | of | in | to ")
 
