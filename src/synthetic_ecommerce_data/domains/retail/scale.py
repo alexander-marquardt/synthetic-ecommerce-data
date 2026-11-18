@@ -209,25 +209,13 @@ HERE = Path(__file__).resolve().parent
 #: owns (:mod:`range_ownership`), so a range name is never under a second brand (gen#623).
 RANGE_SLOTS = 60
 
-#: Invented brands a department's derived styles may carry, beside its template brands.
-EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
-    "Clothing": ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street"),
-    "Lingerie & Nightwear": ("Dovecote Lane", "Hushwell"),
-    "Home": ("Larchwood Living", "Emberly Home", "Cobble & Kiln"),
-    "Beauty": ("Brightwater Botanics", "Orrin Skin"),
-    "Food & Drink": ("Mossgill Dairy", "Wheatsheaf Lane", "Barrowby Kitchen"),
-    "Footwear": ("Cobbleway", "Treadmoor"),
-    "Garden": ("Rookery Garden Co.",),
-    "Gifts": ("Ribbonvale",),
-    "Toys": ("Pipwick Toys",),
-    "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
-}
+#: Invented brands a department's derived styles may carry, beside its template brands: each
+#: department's ``EXTRA_BRANDS`` in :mod:`department_rates` (gen#1044). Add a brand there.
+EXTRA_BRANDS = department_rates.extra_brands()
 
-#: The share of derived styles per department; the rest split by template count.
-DEPARTMENT_SHARE = {
-    "Clothing": 0.44, "Lingerie & Nightwear": 0.04, "Footwear": 0.10,
-    "Home": 0.20, "Beauty": 0.08,
-}  # fmt: skip
+#: The share of derived styles per department, each department's ``SHARE`` in
+#: :mod:`department_rates` (gen#1044); the rest split by template count.
+DEPARTMENT_SHARE = department_rates.shares()
 
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S, where a leaf's rank is a hash of its
