@@ -5,6 +5,7 @@ from __future__ import annotations
 import zlib
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.domains.retail import brand_owners
 from synthetic_ecommerce_data.domains.retail.departments import (
     check as check_departments,
 )
@@ -17,7 +18,9 @@ from synthetic_ecommerce_data.domains.retail.variants import (
     swatch,
 )
 
-#: Who makes each brand these rows carry: the retailer ("own") or another house.
+#: Who makes each brand these rows carry: the retailer ("own") or another house. Other modules add
+#: their brands when imported; read an owner through :func:`brand_owners.owner`, which imports
+#: them all first, so the answer does not depend on import order (gen#1039).
 OWNERS = {
     "Little Fernby": "own", "Puddlecombe Toys": "third_party",
     "Thistle & Wren": "third_party", "Fenwold Nursery": "third_party",
@@ -107,7 +110,7 @@ class Row:
         swatches = {c[0]: swatch(c) for c in self.colors}
         return product(
             f"BRD-{self.code}", skus, swatches,
-            title=self.title, brand=self.brand, brand_owner=OWNERS[self.brand],
+            title=self.title, brand=self.brand, brand_owner=brand_owners.owner(self.brand),
             department=[self.department], product_type=self.product_type,
             category_path=list(self.path), category_leaf=self.path[-1],
             description=self.description,

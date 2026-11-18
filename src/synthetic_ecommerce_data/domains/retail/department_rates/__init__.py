@@ -20,7 +20,8 @@ they give drift more than 10 points, which is the signal to recompute one, in it
 
 A module that lacks either name, whose rate is not a positive number, or that names a department
 another module names is refused by :func:`rates`. ``tests/test_department_rates_1044.py`` holds
-the contract. A department with no module draws at ``scale.DEFAULT_RATE``.
+the contract. A department with no module draws at ``scale.DEFAULT_RATE``. A rate line added back
+to ``scale.py`` is refused by ``scripts/check_no_registry_append.py``, which names this package.
 """
 
 from __future__ import annotations

@@ -7,7 +7,9 @@ true to dimension, so S is visibly smaller than M, and a 50 cm frame than a 58 c
 - THE SCALE is the size's rank in the product's OWN ladder (the distinct primary sizes of its
   SKUs, smallest first), stepped evenly from :data:`BOTTOM` (the smallest) to :data:`TOP` (the
   largest), the scale the full-size drawing stands for (the largest keeps the style's size, the
-  smallest draws at ``BOTTOM / TOP`` of it). A product with one size has no ladder
+  smallest draws at ``BOTTOM / TOP`` of it; a shape in :data:`BOTTOMS` has a narrower ladder of
+  its own, a bicycle's so its smallest frame still fills the figure area, #1049). A product with
+  one size has no ladder
   and is not scaled (:func:`size_scale` is ``None``).
 - THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): the first key
   of the type's declared axis (:data:`size_axes.AXES`) that varies within the product. That is a
@@ -31,7 +33,28 @@ from typing import Any
 from synthetic_ecommerce_data.core.size_rungs import BOTTOM, TOP, scale_at
 from synthetic_ecommerce_data.domains.retail import size_axes
 
-__all__ = ["BOTTOM", "TOP", "primary", "scale_at", "size_scale", "spec", "stand"]
+__all__ = [
+    "BOTTOM",
+    "BOTTOMS",
+    "TOP",
+    "bottom",
+    "primary",
+    "scale_at",
+    "size_scale",
+    "spec",
+    "stand",
+]
+
+#: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049). A bicycle
+#: fills the figure area at full size, and its smallest frame draws at 0.74 / 0.90 = 0.82 of that
+#: (the shared ladder: 0.61), so every frame size still spans most of the figure area.
+BOTTOMS: dict[str, float] = {"bicycle": 0.74}
+
+
+def bottom(rec: dict) -> float:
+    """The scale the smallest rung of ``rec``'s ladder stands for (a shape's own, or BOTTOM)."""
+    return BOTTOMS.get(rec.get("drawing", {}).get("shape", ""), BOTTOM)
+
 
 #: Letter sizes, smallest first; "2XL" is the same rung as "XXL".
 LETTERS = ("XXXS", "XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL")
@@ -119,7 +142,7 @@ def size_scale(rec: dict, sku: dict) -> float | None:
     ladder = sorted({_order(rec, key, v) for v in {str(s[key]) for s in rec["skus"] if key in s}})
     if len(ladder) < 2:
         return None
-    return scale_at(ladder.index(_order(rec, key, value)), len(ladder))
+    return scale_at(ladder.index(_order(rec, key, value)), len(ladder), bottom(rec))
 
 
 def stand(body: str, defs: str, size_scale: float | None) -> str:

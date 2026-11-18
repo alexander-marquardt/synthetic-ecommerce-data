@@ -96,9 +96,9 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     ),
     (
         "a retail shape forgets its orientation",
-        "domains/retail/orientation.py",
-        '"football", "gloves", "golf_ball",',
-        '"football", "golf_ball",',
+        "domains/retail/orientations/kit.py",
+        '    "blouse",',
+        '    # "blouse",',
         (
             f'{T} -k "every_type_names_one_orientation and retail"',
             f"{T}::test_gloves_turn_any_way_and_clothing_only_slightly",

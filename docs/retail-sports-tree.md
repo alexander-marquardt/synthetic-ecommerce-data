@@ -141,8 +141,11 @@ weight. A colored frame stays bare, because at 120 px the outline would darken i
 `tests/test_retail_bicycle_white_frame_746.py` holds this on all ten bicycle brands' sheets.
 
 Each size is the whole drawing scaled, tires included, at the size's rank among the product's own
-sizes on the shared ladder (`size_ladder.py`): 55/90 of the largest for the smallest. A bike's first
-SKU is its smallest size, so that rung is the image on its product card.
+sizes on the bicycle's own ladder (`size_ladder.BOTTOMS`, #1049): 74/90 = 0.82 of the largest for the
+smallest, narrower than the shared 55/90. A bike's first SKU is its smallest size, so that rung is the
+image on its product card. Every kind's full-size drawing spans about the whole figure area (the
+mountain bike past it), so every SKU, the kids' bike's too, spans at least 80% of it
+(`tests/test_bicycle_level_1049.py`).
 
 The price follows from the parts. The kind sets a base, and the frame material (steel, aluminum,
 carbon), the brake (coaster, rim, disc) and each extra gear add to it. Last year's model sells at

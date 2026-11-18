@@ -5,10 +5,10 @@ Sheet sets and pillows (``type_specs/bed_sheet.py``, ``pillow.py``) sit beside t
 ``Home > Bedding``; food storage containers (``food_storage_container.py``) beside the storage
 boxes under ``Home > Storage``. Their brands are invented brands other rows already carry
 (ruling 2026-10-30, gen#720), so every one has its owner, its mark and its house style. A brand
-new to the build would join the scale build's range-name deal (``scale._range_deal``), which
-deals the names over every brand a derived style may carry, and so rename the derived styles of
-every other department (gen#963 review); none of these brands is an ``EXTRA_BRANDS`` one, which a
-template may not carry. A sheet set and a food storage container are each a line-grammar family of
+new to the build once renamed the derived styles of every other department through the scale
+build's range-name deal (gen#963 review); since #1052 it is appended to ``range_ownership.SCALE``
+and moves no other brand. None of these brands is an ``EXTRA_BRANDS`` one, which a template may
+not carry. A sheet set and a food storage container are each a line-grammar family of
 their own (``line_grammar_families/sheets.py``, ``food_storage.py``): joining the soft or storage
 family would add their brands to that family's deal and rename main's styles of it.
 A sheet set and a container lid are sold in the six main colors (ruling 2026-10-13, gen#275);

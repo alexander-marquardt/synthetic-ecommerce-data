@@ -30,7 +30,7 @@ from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from synthetic_ecommerce_data.domains.retail import departments, type_specs
+from synthetic_ecommerce_data.domains.retail import brand_owners, departments, type_specs
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
@@ -285,7 +285,8 @@ def validate(spec: TypeSpec) -> None:
     codes = [r.code for r in rows]
     for code in sorted({c for c in codes if codes.count(c) > 1}):
         raise SpecError(f"{spec.key}: row code {code} is used twice")
-    known = {**OWNERS, **dict(spec.owners)}
+    # Every owner module's brands, not only those imported so far (gen#1039).
+    known = {**brand_owners.table(), **dict(spec.owners)}
     for r in rows:
         if (r.department, r.product_type) != (spec.department, spec.product_type):
             raise SpecError(

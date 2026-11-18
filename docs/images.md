@@ -73,7 +73,10 @@ every other drawing -- only the GEOMETRY is fixed.
   from two brands no longer draw the same picture. Every type names one of
   four orientations (`domains/industrial/orientation.py` by type,
   `domains/retail/orientation.py` by drawn shape; a test refuses a type that
-  names none). A product any SKU of which is a pack of several items (a cup
+  names none). A retail shape's orientation sits in
+  `domains/retail/orientations/<owner>.py`, named after the module that
+  registers the shape (`kit_health.py` -> `health.py`, #1045), so PRs from
+  two departments do not edit one list. A product any SKU of which is a pack of several items (a cup
   set in 2, 4 and 8 packs, a card of end mills) is drawn `level` on every SKU
   whatever its type's orientation (#884): a turned group sits on a slant and
   overlaps. A single product keeps its tilt.
@@ -96,8 +99,19 @@ every other drawing -- only the GEOMETRY is fixed.
   of the sheet wide because of three factors. The turn's fit-scale took it to 0.909 at 24
   degrees (as low as 0.707 at other angles). The size ladder draws the smallest of three
   frame sizes at 0.55 / 0.90 of full size. The house style scales the product to 0.86 or
-  0.78. This change removes the first factor. `tests/test_bicycle_level_1049.py` checks
-  every SKU of every bike in the built catalogue.
+  0.78. Slice 1 removed the first factor.
+
+  Slice 2 (#1049) makes every bike SKU span at least 80% of the figure area. A bicycle has a
+  size ladder of its own (`size_ladder.BOTTOMS`): its smallest frame draws at 0.74 / 0.90 =
+  0.82 of full size, the middle one at 0.91 (the shared ladder: 0.61 and 0.81). The road,
+  electric and kids drawings are widened to the figure area's 344 units at full size (the
+  axles moved out, the kids' wheels a little larger), so the smallest frame spans 283 units
+  (82%), the mountain bike's 309 (90%). Measured on all 492 bike SKUs, before: 300 under 80%,
+  the smallest road frame at 56% and the smallest kids' bike at 45%; after: none.
+  Each size of one road and one kids' bike, before
+  ([before](images/bicycle-fill-1049-before.svg)) and after
+  ([after](images/bicycle-fill-1049-after.svg)).
+  `tests/test_bicycle_level_1049.py` checks every SKU of every bike in the built catalogue.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

@@ -713,7 +713,7 @@ def _range_deal(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> r
     reserved = {x for r in tpls if (x := _line(r))}
     reserved |= {w for r in tpls for w in re.findall(r"[A-Za-z]+", r["brand"])}
     names = {b for pool in brands.values() for b in pool}
-    return range_ownership.Deal("scale", names, reserved)
+    return range_ownership.Deal("scale", names, reserved, roster=range_ownership.SCALE)
 
 
 @dataclass
