@@ -909,6 +909,32 @@ def register_all() -> None:
         importlib.import_module(f"{type_specs.__name__}.{info.name}")
 
 
+def figure_at(draw, stretch: tuple[float, float], defs: str):
+    """``draw`` with its parts in one ``<g class="figure">``, scaled ``stretch`` (x, y) about the
+    bottom center of the box they cover (gen#1022): a 90-inch sideboard draws longer for its
+    height than a 60-inch one, and stands on the same floor. ``defs`` holds what the parts refer
+    to, so they can be measured."""
+
+    def drawn(paint: str, fill: Fill, label: str | None, **params) -> list[str]:
+        parts = draw(paint, fill, label, **params)
+        sx, sy = stretch
+        if (sx, sy) == (1.0, 1.0):
+            return ['<g class="figure">', *parts, "</g>"]
+        from synthetic_ecommerce_data.domains.retail import (
+            sheet_extent,  # deferred: sheet_extent measures what this kit draws
+        )
+
+        svg = f'<svg xmlns="http://www.w3.org/2000/svg"><defs>{defs}</defs>{"".join(parts)}</svg>'
+        box = sheet_extent.reach(svg)
+        if box is None:
+            return ['<g class="figure">', *parts, "</g>"]
+        x, y = (box[0] + box[2]) / 2, box[3]
+        move = f"translate({x:g} {y:g}) scale({sx:.4f} {sy:.4f}) translate({-x:g} {-y:g})"
+        return [f'<g class="figure" transform="{move}">', *parts, "</g>"]
+
+    return drawn
+
+
 def _draw(shape: str):
     """The drawing ``shape`` names; a shape not yet registered fills the registry
     (:func:`register_all`) before it is looked up again (synth#797)."""
@@ -931,6 +957,7 @@ def render(
     angle: float = 0.0,
     emblem: str | None = None,
     printed: int | None = None,
+    stretch: tuple[float, float] | None = None,
 ) -> str:
     """One product drawing as a standalone SVG document string.
 
@@ -947,6 +974,8 @@ def render(
     ``angle`` turns a styled drawing by its product's angle (``house_styles.turn``, #849).
     ``emblem`` names the invented film whose emblem the product carries, and whose licence line
     a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
+    ``stretch`` (x, y) draws the shape in one ``<g class="figure">`` scaled about its bottom
+    center to its product's own proportions (:func:`figure_at`, gen#1022); ``None`` leaves it.
     """
     from synthetic_ecommerce_data.domains.retail import (
         size_ladder,  # deferred: the size ladder is an optional layer over the kit (gen#339)
@@ -962,6 +991,8 @@ def render(
     pid = f"fill-{uid}"
     defs = pattern_defs(fill, pid)
     paint = _paint(fill, pid)
+    if stretch is not None:
+        draw = figure_at(draw, stretch, defs)
     if style is not None:
         return _render_styled(
             shape,
