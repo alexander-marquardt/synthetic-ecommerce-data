@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSp
 
 
 def _attrs(resistance_type: str, bike_style: str, console: str) -> tuple[tuple, ...]:
-    return (_a("resistance_type", "Resistance", resistance_type), _a("bike_style", "Style", bike_style), _a("console", "Console", console))
+    return (_a("resistance_type", "Resistance", resistance_type), _a("bike_style", "Bike style", bike_style), _a("console", "Console", console))
 
 
 SPEC = TypeSpec(

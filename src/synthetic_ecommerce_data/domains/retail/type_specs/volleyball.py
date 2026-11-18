@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSp
 
 
 def _attrs(cover: str, play: str, grade: str) -> tuple[tuple, ...]:
-    return (_a("cover", "Cover", cover), _a("play", "Play", play), _a("ball_grade", "Grade", grade))
+    return (_a("cover", "Cover", cover), _a("play", "Play", play), _a("ball_grade", "Ball grade", grade))
 
 
 SPEC = TypeSpec(

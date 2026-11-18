@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Option, TypeSp
 
 
 def _attrs(paddle_weight: str, face: str, shape: str) -> tuple[tuple, ...]:
-    return (_a("paddle_weight", "Weight class", paddle_weight), _a("face", "Face", face), _a("paddle_shape", "Shape", shape))
+    return (_a("paddle_weight", "Weight class", paddle_weight), _a("face", "Face", face), _a("paddle_shape", "Paddle shape", shape))
 
 
 SPEC = TypeSpec(

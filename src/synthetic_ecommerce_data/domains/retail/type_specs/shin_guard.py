@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
 
 
 def _attrs(shell: str, guard_type: str, profile: str) -> tuple[tuple, ...]:
-    return (_a("shell", "Shell", shell), _a("guard_type", "Guard type", guard_type), _a("guard_profile", "Profile", profile))
+    return (_a("shell", "Shell", shell), _a("guard_type", "Guard type", guard_type), _a("guard_profile", "Guard profile", profile))
 
 
 SPEC = TypeSpec(
