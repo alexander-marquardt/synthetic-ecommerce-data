@@ -26,11 +26,12 @@ from synthetic_ecommerce_data.domains.retail import kit, kit_health, scale, type
 #: Spec key -> the attribute key that names what the bottle holds.
 SUPPLEMENTS = {"vitamins": "nutrient", "minerals": "mineral"}
 
-#: Every product type the authored build still draws as a ``tub`` (gen#1028). The cleaning
-#: types and Hot Chocolate leave it in the issue's later slices.
+#: Every product type the authored build still draws as a ``tub`` (gen#1028). Slice 2 took
+#: Dish Soap, Fabric Softener, Glass Cleaner and Toilet Cleaner off it
+#: (``tests/test_retail_cleaning_packs_1028.py``): Air Freshener and Laundry Detergent stay for
+#: their gel pot, pods and capsules, which are real tubs. Hot Chocolate leaves it in slice 3.
 TUB_TYPES = frozenset({
-    "Air Freshener", "Car Wax", "Dish Soap", "Fabric Softener", "Glass Cleaner",
-    "Hot Chocolate", "Laundry Detergent", "Toilet Cleaner", "Yogurt",
+    "Air Freshener", "Car Wax", "Hot Chocolate", "Laundry Detergent", "Yogurt",
 })  # fmt: skip
 
 WHITE = kit.Fill("solid", "#f4f4f2", "#2a2a2e")

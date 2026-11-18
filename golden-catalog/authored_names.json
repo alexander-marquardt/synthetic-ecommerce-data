@@ -75,7 +75,12 @@
   "Rated load": "Rated Load"
  },
  "cap_nuts_acorn": {
-  "Thread size": "Thread Size"
+  "Head dia.": "Head Dia.",
+  "Measurement system": "Measurement System",
+  "Overall height": "Overall Height",
+  "Thread size": "Thread Size",
+  "Thread type": "Thread Type",
+  "Width across flats": "Width Across Flats"
  },
  "carriage_bolts": {
   "Head dia.": "Head Dia.",
@@ -316,6 +321,11 @@
   "Pipe size": "Pipe Size",
   "Pressure rating (psi)": "Pressure Rating (psi)",
   "Thread type": "Thread Type"
+ },
+ "household_tool_sets": {
+  "Container type": "Container Type",
+  "Measurement system": "Measurement System",
+  "Piece count": "Piece Count"
  },
  "induction_heaters": {
   "Maximum workpiece weight": "Maximum Workpiece Weight"

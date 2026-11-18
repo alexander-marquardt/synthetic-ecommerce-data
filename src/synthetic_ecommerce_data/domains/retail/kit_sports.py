@@ -586,12 +586,14 @@ def bicycle(paint: str, fill: Fill, label: str | None, style: str = "road") -> l
     rear hub motor). The kinds read apart at thumbnail size (gen#718)."""
     kind = style.lower()
     dark = _shade(fill.base, 0.35)
-    # wheel radius, tire width, rear axle, front axle, bottom bracket, seat top, head top
+    # wheel radius, tire width, rear axle, front axle, bottom bracket, seat top, head top. Each
+    # kind spans about the whole figure area at full size, so its smallest frame still fills most
+    # of it on the bicycle's own size ladder (#1049).
     r, tire, rx, fx, by, sy, hy = {
         "mountain": (78, 18, 100, 300, 268, 200, 160),
-        "kids": (46, 6, 120, 280, 300, 220, 218),
-        "electric": (62, 5, 106, 294, 274, 168, 164),
-    }.get(kind, (64, 4, 105, 295, 275, 168, 168))
+        "kids": (54, 6, 82, 318, 292, 210, 208),
+        "electric": (62, 5, 90, 310, 274, 168, 164),
+    }.get(kind, (64, 4, 92, 308, 275, 168, 168))
     cy = by
     bx, sx, hx = 198, 168, 262
     out = [_stabilizer(rx, cy, r, tire, dark)] if kind == "kids" else []

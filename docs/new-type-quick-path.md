@@ -193,6 +193,8 @@ names the file that replaces it:
 |---|---|---|
 | `scripts/mutation_check.py` | an import or a wrapper per rows file | `scripts/mutation_rows_<topic>.py` with `PREFIX` and `rows()` |
 | `src/synthetic_ecommerce_data/domains/retail/scale.py` | `import <x>_rows`, `<X>_IDS = ...` | the type's spec, `type_specs/<key>.py` |
+| `src/synthetic_ecommerce_data/domains/retail/scale.py` | a department's recalibrated rate, a `"<Department>": <rate>` entry in `DEPARTMENT_RATE` (gen#1044) | the rate in that department's module, `department_rates/<department>.py` (`DEPARTMENT`, `RATE` and its calibration note) |
+| `src/synthetic_ecommerce_data/domains/retail/scale.py` | a department's invented brands or fixed share, an entry in `EXTRA_BRANDS` or `DEPARTMENT_SHARE` (gen#1044) | `EXTRA_BRANDS` or `SHARE` in that department's module, `department_rates/<department>.py`: a new department is that one file |
 | `src/synthetic_ecommerce_data/domains/retail/retail_figures.py` | an import or a `<x>_rows.docs()` line | nothing: `measure()` walks `type_registry.BUILD_SOURCES` |
 | `src/synthetic_ecommerce_data/domains/retail/type_registry.py` | a `"<x>_rows",` entry in `BUILD_SOURCES` | the type's spec, `type_specs/<key>.py` |
 | `decoy_rows.py` | a `_d(...)` row, a `Kind` entry | `feature_decoys/<topic>.py` with `decoy_rows(d)` and `KINDS` |
