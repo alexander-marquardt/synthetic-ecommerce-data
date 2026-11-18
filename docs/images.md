@@ -73,7 +73,10 @@ every other drawing -- only the GEOMETRY is fixed.
   from two brands no longer draw the same picture. Every type names one of
   four orientations (`domains/industrial/orientation.py` by type,
   `domains/retail/orientation.py` by drawn shape; a test refuses a type that
-  names none). A product any SKU of which is a pack of several items (a cup
+  names none). A retail shape's orientation sits in
+  `domains/retail/orientations/<owner>.py`, named after the module that
+  registers the shape (`kit_health.py` -> `health.py`, #1045), so PRs from
+  two departments do not edit one list. A product any SKU of which is a pack of several items (a cup
   set in 2, 4 and 8 packs, a card of end mills) is drawn `level` on every SKU
   whatever its type's orientation (#884): a turned group sits on a slant and
   overlaps. A single product keeps its tilt.
