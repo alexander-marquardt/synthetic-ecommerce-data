@@ -11,6 +11,7 @@ pool. Metric: the existing brands whose 60 slots change when two brands are appe
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 
 import pytest
 
@@ -38,7 +39,10 @@ def _reserved(tpls: list[dict]) -> set[str]:
 def _grown(
     tpls: list[dict], brands: dict, added: tuple[str, ...], monkeypatch: pytest.MonkeyPatch
 ) -> range_ownership.Deal:
-    """The real scale deal (``scale._range_deal``) with ``added`` new to the build."""
+    """The real scale deal (``scale._range_deal``) with ``added`` new to the build and appended
+    to its roster, as a contributor adds a brand."""
+    roster = range_ownership.SCALE
+    monkeypatch.setattr(range_ownership, "SCALE", replace(roster, added=roster.added + added))
     return scale._range_deal(tpls, dict(brands) | {("zz-probe", "zz-probe"): list(added)})
 
 

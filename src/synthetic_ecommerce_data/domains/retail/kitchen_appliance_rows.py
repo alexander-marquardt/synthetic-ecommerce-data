@@ -7,10 +7,11 @@ Home brands the kettles and toasters already carry (ruling 2026-10-30, gen#720),
 has its owner, its mark and its house style.
 
 The brands are only those a derivable template of the kitchen family already carries, and none
-of :data:`scale.EXTRA_BRANDS`: the range names and the model words are dealt round the sorted
-set of every brand a derived style may carry (:class:`range_ownership.Deal`,
-:class:`line_grammar.Deal`), so a brand new to that set would move the range name of a style in
-every other department (gen#963).
+of :data:`scale.EXTRA_BRANDS`: the model words are dealt round the sorted set of the family's
+brands (:class:`line_grammar.Deal`), and the range names were dealt round every brand a derived
+style may carry, so a brand new to that set moved the range name of a style in every other
+department (gen#963) until the scale deal took an append-only roster (#1052,
+:data:`range_ownership.SCALE`).
 """
 
 from __future__ import annotations
