@@ -100,10 +100,9 @@ refuses a claim word in any `Health` title or description.
 Every brand is invented. Velling Apothecary, Ledwick Botanics and Mirefield Naturals are
 third-party brands already sold elsewhere in the build, and Vitamin C Orchard appears on one
 decoy. Slice 2 adds three third-party brands, Quellmoor Care, Halvering and Thrennick, which sell
-first aid and monitors alongside Velling Apothecary. Slice 4 adds two chemist's own labels,
-Corvane Pharmacy (a mortar mark) and Brannock Health (twin arcs), and lets all six of Velling
-Apothecary, Quellmoor Care, Halvering, Thrennick, Corvane Pharmacy and Brannock Health carry a
-derived style of any Health type (`department_rates/health.py`). Their marks and house styles are in
+first aid and monitors alongside Velling Apothecary. Slice 4 adds six chemist's own labels,
+Corvane Pharmacy (a mortar mark), Brannock Health (twin arcs), Hallowby Chemist, Lindcombe Health,
+Sedgemoor Pharmacy and Ottermere Care, and lets all six carry a derived style of any Health type (`department_rates/health.py`). Their marks and house styles are in
 `domains/retail/health_brand_styles.py`; none of the marks is a cross. A description says what is in the kit or how the
 device reads; it makes no claim about a condition. A spec declares its brands' owner (`owners=`), the same owner the rest of the build gives them.
 

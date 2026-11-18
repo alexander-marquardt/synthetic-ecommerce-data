@@ -3,8 +3,8 @@
 Quellmoor Care, Halvering and Thrennick sell plasters, first-aid kits, thermometers and
 blood-pressure monitors beside Velling Apothecary (:mod:`health_rows`). Each draws its own mark
 and name on its product images, as every other invented brand does. No mark is a cross: the
-cross on a first-aid kit is the first-aid sign's, drawn by :mod:`kit_health`. Corvane Pharmacy and
-Brannock Health, slice 4's own labels, sell across every Health type (``department_rates/health.py``).
+cross on a first-aid kit is the first-aid sign's, drawn by :mod:`kit_health`. Corvane Pharmacy,
+Brannock Health and four more of slice 4's own labels sell across every Health type (``department_rates/health.py``).
 
 :mod:`house_styles` imports this module last, so its marks join ``MARKS`` and its
 styles join ``HOUSE_STYLES`` whichever module is imported first.
@@ -57,8 +57,32 @@ def m_twin_arc(c: str) -> list[str]:
     ]
 
 
+def m_hex_ring(c: str) -> list[str]:
+    """A hexagon outline around a dot (Hallowby Chemist)."""
+    return [_stroke("M0,-.85 L.74,-.42 L.74,.42 L0,.85 L-.74,.42 L-.74,-.42 Z", 0.14, c, "miter"), _dot(0, 0, 0.14, c)]
+
+
+def m_wave(c: str) -> list[str]:
+    """Two stacked waves (Lindcombe Health)."""
+    return [
+        _stroke("M-.9,-.25 Q-.45,-.7 0,-.25 T.9,-.25", 0.14, c, "round"),
+        _stroke("M-.9,.35 Q-.45,-.1 0,.35 T.9,.35", 0.14, c, "round"),
+    ]
+
+
+def m_bars(c: str) -> list[str]:
+    """Three bars of falling length (Sedgemoor Pharmacy)."""
+    return [_stroke(f"M-.8,{y} L{x},{y}", 0.2, c, "butt") for y, x in ((-.5, .8), (0, .45), (.5, .1))]
+
+
+def m_trio(c: str) -> list[str]:
+    """Three dots in a row (Ottermere Care)."""
+    return [_dot(x, 0, 0.22, c) for x in (-.6, 0, .6)]
+
+
 hs.MARKS.update({"pulse_line": m_pulse_line, "still_drop": m_still_drop, "split_disc": m_split_disc,
-                 "mortar": m_mortar, "twin_arc": m_twin_arc})
+                 "mortar": m_mortar, "twin_arc": m_twin_arc, "hex_ring": m_hex_ring, "wave": m_wave,
+                 "bars": m_bars, "trio": m_trio})
 
 # fmt: off
 #: Brand -> house style: one lockup beside the mark, one mark alone, one mark above.
@@ -69,6 +93,10 @@ STYLES = {
     # Slice 4's chemist's own labels, sold across every Health type (department_rates/health.py).
     "Corvane Pharmacy": H("rounded", "#1f6f5c", "#0e352b", 1.0, False, "round", "mortar",     "mark_left",  "bottom_left",  "none",  "sans",     700, "title",     1.0),
     "Brannock Health":  H("thin",    "#3a5aa8", "#18264a", 0.9, False, "sharp", "twin_arc",   "mark_above", "top_center",   "none",  "humanist", 400, "lower",     1.5),
+    "Hallowby Chemist":   H("heavy",   "#8a3b52", "#3a1522", 1.1, True,  "sharp", "hex_ring",     "mark_only",  "bottom_left", "plain", "serif",    700, "smallcaps", 1.0),
+    "Lindcombe Health":   H("heavy"  , "#2e7d4f", "#123521", 1.0, False, "round", "wave", "mark_left",  "top_left",    "none",  "mono",     400, "title",     0.5),
+    "Sedgemoor Pharmacy": H("thin",    "#9a6a1f", "#3d2a0a", 0.9, False, "sharp", "bars",   "mark_above", "top_center",  "none" , "mono",     700, "lower",     2.0),
+    "Ottermere Care":     H("rounded", "#2a6f8f", "#0f2f3d", 1.0, False, "round", "trio", "mark_only",  "top_right",  "plain", "humanist", 700, "title",     1.5),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

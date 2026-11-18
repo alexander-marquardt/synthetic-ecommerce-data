@@ -42,7 +42,7 @@ ROWS = (
     _row("OMGFLX", "Flaxseed Oil Capsules", _MIREFIELD, "Flaxseed Oil", "Capsules",
          (("60", 6.0), ("120", 10.5), ("180", 14.5)),
          "Two capsules a day with food, in a resealable bottle.", _SAGE),
-    _row("OMGEPO", "Evening Primrose Oil Softgels", _LEDWICK, "Evening Primrose Oil", "Softgels",
+    _row("OMGEPO", "Primrose Oil Softgels", _LEDWICK, "Primrose Oil", "Softgels",
          (("60", 6.5), ("120", 11.0), ("240", 19.0)),
          "One softgel twice a day with water, in a resealable bottle.", _AMBER),
     _row("OMGALG", "Algae Oil Capsules", _VELLING, "Algae Oil", "Capsules",
