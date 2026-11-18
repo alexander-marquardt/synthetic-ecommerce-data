@@ -76,7 +76,10 @@ every other drawing -- only the GEOMETRY is fixed.
   names none). A retail shape's orientation sits in
   `domains/retail/orientations/<owner>.py`, named after the module that
   registers the shape (`kit_health.py` -> `health.py`, #1045), so PRs from
-  two departments do not edit one list. A product any SKU of which is a pack of several items (a cup
+  two departments do not edit one list. `tests/test_orientation_owners_1045.py`
+  refuses a shape filed in a module other than its owner's, and
+  `scripts/check_no_registry_append.py` refuses a shape line added back to
+  `orientation.py`. A product any SKU of which is a pack of several items (a cup
   set in 2, 4 and 8 packs, a card of end mills) is drawn `level` on every SKU
   whatever its type's orientation (#884): a turned group sits on a slant and
   overlaps. A single product keeps its tilt.

@@ -228,6 +228,19 @@ REGISTRIES: tuple[Registry, ...] = (
         f" {RD}/type_specs/<key>.py, beside its kit.register; PARTS gains no entry",
         (f"{RD}/type_registry.py",),
     ),
+    Registry(
+        f"{RD}/orientation.py",
+        _shapes(
+            r'^\s+"[a-z][a-z0-9_]*",\s*(?:#.*)?$',
+            r"^(?:ANY|SLIGHT|UPRIGHT|LEVEL)\b[^=]*=\s*\(",
+            r'^\s+"[a-z][a-z0-9_]*":\s*"(?:any|slight|upright|level)",',
+        ),
+        '    "kayak",',
+        f"name the shape in its owner's {RD}/orientations/<owner>.py (kit_<owner>.py -> <owner>.py,"
+        " kit.py -> kit.py, type_specs/<x>.py -> spec_<x>.py; a new owner adds a new file);"
+        " orientation.py walks that package and names no shape (#1045)",
+        (f"{RD}/orientations/__init__.py",),
+    ),
 )
 
 
