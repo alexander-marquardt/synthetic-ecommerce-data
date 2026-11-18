@@ -88,6 +88,12 @@ MOVED = {
     # a fishing reel's size and a golf club's hand (gen#959), declared by their specs from the start
     "fishing_reel": [Option("reel_size", "reel_size", "Reel size")],
     "golf_club": [Option("handedness", "handedness", "Handedness")],
+    # a smart bulb's light, connection and brightness (#956)
+    "smart_bulb": [
+        Option("bulb_light", "bulb_light", "Light"),
+        Option("connectivity", "connectivity", "Connectivity"),
+        Option("brightness_lm", "brightness", "Brightness (lm)"),
+    ],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
