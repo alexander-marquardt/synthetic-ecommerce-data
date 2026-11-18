@@ -99,21 +99,21 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Headphones": [
-        ('BRD-00158C009A1C', 'Torcroft Wired On-Ear Studio Headphones', 2, 130.0),
-        ('BRD-00584B99872D', 'Ormbank Bass Boost USB-C Headphones', 2, 90.0),
-        ('BRD-019BC6280FF4', 'Wesford USB-C Over-Ear Hi-Res Headphones', 6, 60.0),
+        ('BRD-00158C009A1C', 'Fairfield Wired On-Ear Studio Headphones', 2, 130.0),
+        ('BRD-00584B99872D', 'Upstone Bass Boost USB-C Headphones', 2, 90.0),
+        ('BRD-019BC6280FF4', 'Wykedale USB-C Over-Ear Hi-Res Headphones', 6, 60.0),
     ],
     "Portable Speaker": [
         ('BRD-007B2C3AFCCB',
-         'Shapford Waterproof Bluetooth Speaker with Built-In Mic', 8, 59.0),
-        ('BRD-00E2C61EB6D9', 'Rymere Mini Splash-Proof Bluetooth Speaker', 12, 26.0),
+         'Wykemouth Waterproof Bluetooth Speaker with Built-In Mic', 8, 59.0),
+        ('BRD-00E2C61EB6D9', 'Ingley Mini Splash-Proof Bluetooth Speaker', 12, 26.0),
         ('BRD-03384A7AF87A',
-         'Horbrook Compact Splash-Proof Bluetooth Speaker with Built-In Mic', 12, 56.0),
+         'Foxstead Compact Splash-Proof Bluetooth Speaker with Built-In Mic', 12, 56.0),
     ],
     "Soundbar": [
-        ('BRD-00E223234E14', 'Ribgarth 5.1 Channel Bluetooth Soundbar', 6, 375.0),
-        ('BRD-0152E9BC8020', 'Morburn Compact 3.1 Channel Optical Soundbar', 6, 410.0),
-        ('BRD-01EF816FCCD6', 'Quarmoor Compact 2.0 Channel Bluetooth Soundbar', 4, 250.0),
+        ('BRD-00E223234E14', 'Warthorpe 5.1 Channel Bluetooth Soundbar', 6, 375.0),
+        ('BRD-0152E9BC8020', 'Brockshaw Compact 3.1 Channel Optical Soundbar', 6, 410.0),
+        ('BRD-01EF816FCCD6', 'Corham Compact 2.0 Channel Bluetooth Soundbar', 4, 250.0),
     ],
 }
 

@@ -336,6 +336,11 @@ def specs() -> dict[str, TypeSpec]:
         # A row read from the registry builds its document before any build has run (gen#1040).
         spec.register_owners()
         found[spec.key] = spec
+    # A spec's rows give their documents once the registry has loaded it, whatever else was
+    # imported first (gen#1039): the owners are registered here, not only by docs(), and after
+    # every spec is validated, so no spec's validation leans on another spec's owners.
+    for spec in found.values():
+        OWNERS.update({b: o for b, o in spec.owners if b not in OWNERS})
     seen: dict[tuple[str, str], str] = {}
     for spec in found.values():
         other = seen.setdefault((spec.department, spec.product_type), spec.key)
