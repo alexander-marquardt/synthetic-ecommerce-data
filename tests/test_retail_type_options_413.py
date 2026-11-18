@@ -88,6 +88,8 @@ MOVED = {
     # a fishing reel's size and a golf club's hand (gen#959), declared by their specs from the start
     "fishing_reel": [Option("reel_size", "reel_size", "Reel size")],
     "golf_club": [Option("handedness", "handedness", "Handedness")],
+    # a table tennis bat's handle shape (gen#959 slice 2), declared by its spec from the start
+    "table_tennis_bat": [Option("handle_shape", "handle_shape", "Handle shape")],
     # a smart bulb's light, connection and brightness (#956)
     "smart_bulb": [
         Option("bulb_light", "bulb_light", "Light"),
