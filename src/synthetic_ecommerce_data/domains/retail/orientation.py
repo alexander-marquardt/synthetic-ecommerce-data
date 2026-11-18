@@ -2,9 +2,11 @@
 
 Retail draws a product as a shape (:data:`kit.SHAPES`), and many types share one (jeans, chinos
 and joggers are all ``trousers``), so the orientation is the shape's: what is drawn is what
-looks right or wrong turned. Every registered shape names one, here, and
+looks right or wrong turned. Every registered shape names one, in the module of
+:mod:`orientations` named after the module that registers it (#1045), and
 ``tests/test_one_paper_one_angle_849.py`` refuses a shape missing from this table, so a new
-shape cannot forget it. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
+shape cannot forget it. This module holds no shape: it walks that package and builds the
+table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
 
 * ``any`` (the 24 clock positions): a thing with no natural up. Gloves (the maintainer's ruling
   on #860), a screw, a ball, round fruit, a snowflake, coiled cables and laces.
@@ -21,124 +23,55 @@ shape cannot forget it. The sets are :data:`...core.drawing.product_look.ORIENTA
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
 whatever its shape (:func:`of_product`, #884), so a cup set in 2, 4 and 8 packs stands level
-while a single cup keeps its tilt. To move a shape, move its line to another tuple.
+while a single cup keeps its tilt. To move a shape, move its line to another tuple of its owner's
+module in :mod:`orientations`.
 """
 
 from __future__ import annotations
 
+import importlib
+import pkgutil
 from typing import Any
 
 from synthetic_ecommerce_data.core.drawing import product_look
-from synthetic_ecommerce_data.domains.retail import pack_copies
+from synthetic_ecommerce_data.domains.retail import orientations, pack_copies
+
+_SETS: tuple[str, ...] = ("ANY", "SLIGHT", "UPRIGHT", "LEVEL")
+
+
+def _owned() -> dict[str, dict[str, tuple[str, ...]]]:
+    """Each module of :mod:`orientations` by name -> its four tuples (an absent one empty).
+    A module that names no shape, or a shape another module (or set) already names, is refused."""
+    owned: dict[str, dict[str, tuple[str, ...]]] = {}
+    seen: dict[str, str] = {}
+    for info in sorted(pkgutil.iter_modules(orientations.__path__), key=lambda i: i.name):
+        module = importlib.import_module(f"{orientations.__name__}.{info.name}")
+        sets = {name: tuple(getattr(module, name, ())) for name in _SETS}
+        if not any(sets.values()):
+            raise ValueError(f"orientations/{info.name}.py names no shape in {', '.join(_SETS)}")
+        for name, shapes in sets.items():
+            for shape in shapes:
+                where = f"orientations/{info.name}.py {name}"
+                if shape in seen:
+                    raise ValueError(f"shape {shape!r} is in {seen[shape]} and {where}")
+                seen[shape] = where
+        owned[info.name] = sets
+    return owned
+
+
+_OWNED = _owned()
 
 #: Things with no natural up, drawn at any of the 24 clock positions.
-ANY: tuple[str, ...] = (
-    "baseball", "cable", "cable_ties", "football", "gloves", "jumper_cables", "lemon", "orange",
-    "potato", "round_produce", "screw", "shoe_laces", "snowflake",
-)
+ANY: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["ANY"])
 
 #: Clothing, footwear and what is worn with them: within +-15 degrees.
-SLIGHT: tuple[str, ...] = (
-    "all_in_one", "apron", "baby_bodysuit", "belt", "belt_buckled", "bikini_bottoms", "bikini_top",
-    "blouse", "bodysuit", "bolero", "bomber_jacket", "boot_sock", "boxers", "boys_suit", "bra",
-    "cardigan", "changing_robe", "coat", "cover_up", "cycling_shorts", "dinner_suit", "dress",
-    "dressing_gown", "formal_accessory", "gilet", "hat", "hoodie", "jeans_bootcut",
-    "jeans_straight", "joggers", "kids_swimsuit", "knickers", "leggings", "mens_pants",
-    "outfit_set", "parka", "pe_shorts", "peacoat", "puddlesuit", "puffer", "puffer_jacket",
-    "pyjamas", "raincoat", "sandal", "scarf", "school_blazer", "school_pinafore", "school_polo",
-    "school_shirt", "school_skirt", "school_socks", "school_trousers", "shacket", "shapewear",
-    "shirt_dress", "shoe", "shorts", "skirt", "sleepsuit", "slip", "snowsuit", "socks",
-    "suit_jacket", "suit_trousers", "sweatshirt", "swim_bottoms", "swim_cap", "swim_shorts",
-    "swimsuit", "tankini", "tights", "top", "tracksuit", "trainer", "trench_coat", "trouser_suit",
-    "trousers", "tshirt", "utility_jacket", "vest", "waistcoat", "windbreaker",
-)
+SLIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["SLIGHT"])
 
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
-UPRIGHT: tuple[str, ...] = (
-    "action_figure", "aftershave", "air_fryer",
-    "analog_watch", "angled_bottle", "anti_vibration_mat", "apple", "armchair",
-    "baby_blanket", "baby_bottle", "backpack", "bag", "balloon", "banana", "bar", "baseball_bat",
-    "baseball_glove",
-    "basic_phone", "bath_mat", "bath_towel", "battery", "batting_helmet", "bbq", "beach_towel",
-    "bed_frame", "bed_pillow", "bike_bottle", "bike_helmet", "bike_pedals",
-    "bike_pump",
-    "bike_saddle", "bird", "blender",
-    "blind", "board_game", "body_mist", "bookcase", "bottle", "bouquet",
-    "bowl", "box", "box_wide", "bracelet",
-    "brick_box", "building_set", "bunting", "butter_block", "cabin_case",
-    "cake", "calculator",
-    "camp_chair", "car", "card_game", "carrot", "carton", "casserole", "cat", "cat_litter",
-    "caulking_gun",
-    "ceiling_fan", "ceiling_light", "chain_lube", "chairbed", "chaise_sofa", "changing_mat",
-    "charger", "charging_pad", "cherries", "chest_of_drawers", "chocolate_box", "chopping_board",
-    "christmas_tree", "clock", "clothes_airer", "coat_stand", "coffee_maker",
-    "coffee_table", "colander", "colored_pencils",
-    "combi_drill", "compact", "corded_drill", "corner_sofa", "craft_kit", "crisps_bag", "cupcake",
-    "curtains", "cushion", "cutlery_piece", "daisy", "desk_fan", "desk_lamp", "desktop",
-    "desk_organizer", "diaper_pack", "diary",
-    "digital_watch", "dining_chair", "dining_table", "dinosaur", "dishwasher",
-    "dishwasher_tablets", "document_folder",
-    "doll", "doll_box", "dolls_house", "door_stop", "doughnut", "draped_throw", "drill",
-    "drill_driver", "drinking_glass", "drop_earrings", "dry_pet_food", "dumbbell", "duvet",
-    "e_reader", "earbuds",
-    "earrings", "espresso_cup", "eye_patches", "eyeliner", "face_mask", "false_nails", "fish_bag",
-    "fitness_band", "floor_lamp", "foam_roller", "footstool", "fragrance", "fridge",
-    "fridge_magnet", "fridge_thermometer", "frying_pan",
-    "game_controller", "gaming_headset", "garden_chair", "garden_furniture",
-    "garden_hose",
-    "garment_bag", "gift_bag", "gift_card", "gift_hamper", "gift_mug", "glue_gun", "grass_trimmer",
-    "greeting_card", "grill_press", "hair_dryer", "hair_straightener", "hairbrush", "hammer",
-    "hammer_drill", "handbag", "handheld_fan", "hanger",
-    "hangers", "headphones", "heater", "hedge_trimmer", "holdall", "hook_rail", "hoop_earrings",
-    "ice_cream",
-    "impact_driver", "ink_cartridge", "jar", "jigsaw", "kayak", "kettle", "kettlebell", "keyboard",
-    "keyring",
-    "kick_scooter", "kickboard", "kitchen_bin", "kitchen_knife", "kitchen_scales",
-    "kitchen_utensil", "kite", "lampshade", "lantern", "laptop", "laptop_sleeve", "laundry_basket",
-    "lawn_mower", "lidded_tub", "light_bulb", "lipstick", "loaf", "marble_run", "mascara",
-    "mattress", "mattress_protector", "mattress_topper", "measuring_cup", "memory_card",
-    "mesh_bag", "mirror", "modular_sofa", "moisturiser_jar", "money_box", "monitor", "mop",
-    "mouse", "mug", "mushroom", "nappy_caddy", "neck_pillow", "necklace", "notebook",
-    "nursery_storage", "onion", "ornament", "outdoor_light", "panettone", "paper_cup",
-    "paper_towel_roll", "parasol",
-    "party_cup", "pedestal_fan", "pen", "pencil", "phone_case", "photo_frame", "picnic_blanket",
-    "picture_hook", "pillow", "pizza", "plant_pot", "planter", "plate", "play_kitchen",
-    "portable_speaker",
-    "potted_herb", "potted_tree", "pouch", "power_bank", "primer", "printer",
-    "produce_pile", "pudding", "pump", "pumpkin", "punnet", "purse", "recliner_sofa",
-    "resistance_band", "ride_on", "rim_block", "ring", "ring_binder",
-    "robot_mower", "role_play", "roll_mat",
-    "rug", "saucepan", "school_backpack", "screen_protector", "screwdriver", "sds_drill", "serum",
-    "setting_spray",
-    "sheet", "sheet_set", "shower_curtain", "side_table", "sippy_cup", "skateboard",
-    "sleeping_bag", "sleeve",
-    "smartphone", "smartwatch", "sofa", "sofa_bed", "sofa_cover", "sofa_seats", "sofa_version",
-    "soundbar", "spiral_notebook", "star",
-    "steak_tray", "stems", "step_ladder", "sticker_sheet", "storage_box", "strawberry", "suitcase",
-    "sun_cream",
-    "sunglasses", "swim_armbands", "swim_goggles", "table_lamp", "tablet", "talc", "tea_cup",
-    "tea_towel", "tennis_racket", "tent", "throw", "tin", "tissue_box", "toaster",
-    "toilet_roll", "tomato", "tool_kit",
-    "tote_bag", "tower_fan", "travel_cup", "travel_organizer", "tray", "trigger_spray",
-    "trinket_tray", "trophy", "tub", "tulip", "tumble_dryer", "tumbler", "tv", "umbrella",
-    "volt_meter", "wall_light", "wallet", "wallet_fold", "wallpaper", "wardrobe", "wash_bottle",
-    "washer_dryer", "washing_machine", "watch", "water_gun", "webcam", "weekend_bag",
-    "wet_pet_food", "whale", "wipes_pack",
-    "wooden_toy",
-    "wrapping_paper", "wrench", "yoga_block", "yoga_mat", "yoga_strap",
-    "bp_monitor", "first_aid_kit", "plaster_box", "thermometer",  # Health (gen#968)
-    "craft_tub", "learning_toy", "rc_vehicle",
-    "supplement_bottle",
-    "jug", "squeeze_bottle",
-    "air_freshener", "fluid_jug", "microfiber_towel", "wash_mitt", "wiper_blade",
-)
+UPRIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["UPRIGHT"])
 
 #: Set types, drawn as several items (#884), and a bicycle on its wheels (#1049): 0 degrees only.
-LEVEL: tuple[str, ...] = (
-    "bicycle",
-    "badminton_set", "cutlery_set", "dinner_set", "drill_bit_set", "food_storage", "gift_set",
-    "luggage_set",
-)
+LEVEL: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["LEVEL"])
 
 #: Shape -> orientation.
 ORIENTATION: dict[str, str] = {
