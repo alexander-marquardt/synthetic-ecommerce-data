@@ -1,6 +1,6 @@
 """The orientation of each shape ``kit.py`` registers (#1045)."""
 
-ANY: tuple[str, ...] = ("baseball", "football", "round_produce")
+ANY: tuple[str, ...] = ("baseball", "football", "golf_ball", "round_produce")
 SLIGHT: tuple[str, ...] = (
     "blouse",
     "bra",
@@ -32,7 +32,11 @@ UPRIGHT: tuple[str, ...] = (
     "crisps_bag",
     "drill_driver",
     "dumbbell",
+    "fishing_reel",
+    "fishing_rod",
     "foam_roller",
+    "golf_club",
+    "golf_glove",
     "hammer_drill",
     "impact_driver",
     "jar",
@@ -51,6 +55,7 @@ UPRIGHT: tuple[str, ...] = (
     "step_ladder",
     "swim_armbands",
     "swim_goggles",
+    "tackle_box",
     "tennis_racket",
     "tent",
     "tin",
