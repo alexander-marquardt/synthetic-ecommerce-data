@@ -73,11 +73,11 @@ def test_the_word_sits_in_the_middle_of_the_band_below_its_top_edge(shape):
 
 
 def test_the_pots_label_stays_inside_the_pot():
-    """The pot's sides run from (112,118) to (138,356); the label leans in with them."""
+    """The tub's sides run from (88,198) to (100,334) (gen#1028); the label leans in with them."""
     (x0, y0), (x1, _), (x2, y2), (x3, y3) = corners(label("tub"))
 
     def left(y: float) -> float:
-        return 112 + (y - 118) * 26 / 238
+        return 88 + (y - 198) * 12 / 136
 
     for x, y in ((x0, y0), (x3, y3)):
         assert x >= left(y), (x, y)
