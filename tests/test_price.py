@@ -1074,6 +1074,7 @@ NOT_MEASURED = frozenset(
         "picture_hangers",
         "stud_finders",
         "tape_measures",
+        "household_tool_sets",
         *tabletype.tables(),
     }
 )
