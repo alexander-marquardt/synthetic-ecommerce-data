@@ -198,22 +198,22 @@ def _golden(electronics: list[dict], ptype: str) -> list[tuple]:
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 #: Main's brand pool moved the range words in the window gen#962, gen#1007, gen#1010 and
-#: gen#967 merged in; ids, SKU counts, prices are unchanged.
+#: gen#967 merged in, and again for #1053; ids, SKU counts, prices are unchanged.
 GOLDEN: dict[str, list[tuple]] = {  # fmt: skip
     "Smart Plug": [
-        ("BRD-01793710EC8B", "Tidton Mini Zigbee Smart Plug", 2, 31.0),
-        ("BRD-02062D564652", "Ravridge Mini Zigbee Smart Plug", 6, 16.5),
-        ("BRD-065868823F3B", "Beling Mini Zigbee Smart Plug", 6, 37.0),
+        ("BRD-01793710EC8B", "Ribbridge Mini Zigbee Smart Plug", 2, 31.0),
+        ("BRD-02062D564652", "Yeldhill Mini Zigbee Smart Plug", 6, 16.5),
+        ("BRD-065868823F3B", "Salwood Mini Zigbee Smart Plug", 6, 37.0),
     ],
     "Smart Bulb": [
-        ("BRD-0069548F2733", "Ryton Golf Ball Smart Bulb, E14 Fitting", 6, 8.0),
-        ("BRD-05A7A8562577", "Eskshaw Spot Smart Bulb, GU10 Fitting", 6, 12.5),
-        ("BRD-05DDC409DDB8", "Arking Large Globe Smart Bulb, B22 Fitting", 6, 15.0),
+        ("BRD-0069548F2733", "Wykebury Golf Ball Smart Bulb, E14 Fitting", 6, 8.0),
+        ("BRD-05A7A8562577", "Copthorpe Spot Smart Bulb, GU10 Fitting", 6, 12.5),
+        ("BRD-05DDC409DDB8", "Belton Large Globe Smart Bulb, B22 Fitting", 6, 15.0),
     ],
     "Doorbell Camera": [
-        ("BRD-0284498502E6", "Ravmouth Video Doorbell Camera with Package Detection", 2, 140.0),
-        ("BRD-066BF8907A5A", "Falfield Video Doorbell Camera with Night Vision", 6, 130.0),
-        ("BRD-072A1FF1DEDA", "Norstead Wired Doorbell Camera with App Alerts", 6, 61.0),
+        ("BRD-0284498502E6", "Wathshaw Video Doorbell Camera with Package Detection", 2, 140.0),
+        ("BRD-066BF8907A5A", "Shelwell Video Doorbell Camera with Night Vision", 6, 130.0),
+        ("BRD-072A1FF1DEDA", "Tanthorpe Wired Doorbell Camera with App Alerts", 6, 61.0),
     ],
 }
 
