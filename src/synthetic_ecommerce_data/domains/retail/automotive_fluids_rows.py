@@ -95,7 +95,7 @@ _OIL_PRICES = {"F": (9.0, 29.0, 35.0, 119.0), "B": (7.0, 22.0, 26.0), "H": (8.0,
 MOTOR_OILS = tuple(
     _row(f"AUMO{code}{grade.replace('-', '')}{b + 1}", f"{brand} {grade} {oil_type} Motor Oil", brand, "Fluids", "Motor Oil",
          "Motor Oil", "fluid_jug", f"{_sentence(_GRADES[grade])} {note}.",
-         (_a("viscosity_grade", "Viscosity grade", grade), _a("oil_type", "Oil type", oil_type)),
+         (_a("viscosity_grade", "Viscosity grade", grade), _a("oil_type", "Motor oil type", oil_type)),
          tuple((s, round(p * k, 2)) for s, p in zip(("1000", "4000", "5000", "20000") if drum else ("1000", "4000", "5000"),
                                                     _OIL_PRICES[code], strict=True)), "net_volume_ml")
     for code, oil_type, grades, brands, drum, note in _BASES
