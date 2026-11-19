@@ -100,8 +100,8 @@ def test_a_vanity_with_neither_doors_nor_drawers_shows_an_open_shelf() -> None:
 
 
 def test_a_tile_panel_draws_its_tiles_and_a_gloss_tile_its_highlights() -> None:
-    for shape in kit_bath_kitchen.PARAMS["tile"]["shape"]:
-        assert _count(_svg("tile", shape=shape), "tile") >= 9, shape
+    for form in kit_bath_kitchen.PARAMS["tile"]["form"]:
+        assert _count(_svg("tile", form=form), "tile") >= 9, form
     tiles = _count(_svg("tile"), "tile")
     assert _count(_svg("tile", surface="gloss"), "gloss") == tiles
     assert _count(_svg("tile", surface="matte"), "gloss") == 0
