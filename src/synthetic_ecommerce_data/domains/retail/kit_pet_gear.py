@@ -63,7 +63,7 @@ STEEL = "#c3c7cd"
 
 
 def _bone(x: float, y: float, k: float, ink: str, width: float = LW_DETAIL) -> str:
-    """A bone ``k`` times its unit size, centred on ``(x, y)``: a biscuit or a chew toy."""
+    """A bone ``k`` times its unit size, centered on ``(x, y)``: a biscuit or a chew toy."""
     return _path(f"M{x - 20 * k},{y - 8 * k} L{x + 20 * k},{y - 8 * k} Q{x + 30 * k},{y - 22 * k} {x + 32 * k},{y - 6 * k} "
                  f"Q{x + 40 * k},{y} {x + 32 * k},{y + 6 * k} Q{x + 30 * k},{y + 22 * k} {x + 20 * k},{y + 8 * k} "
                  f"L{x - 20 * k},{y + 8 * k} Q{x - 30 * k},{y + 22 * k} {x - 32 * k},{y + 6 * k} "
