@@ -382,7 +382,7 @@ their product families, market weight, house style and title voice.
 
 * **A long tail, not ten equal houses.** Three broad-line houses make
   something in every family; the rest make one to three families. At 100K the
-  largest brand carries 8.0% of SKUs and the smallest 0.5%; a test pins both
+  largest brand carries 8.0% of SKUs and the smallest under 1%; a test pins both
   ends (at most 10%, at least 0.3%).
 * **Some names contain an ordinary word** on purpose (`Iron Heron`, `Lantern
   Rock`, `Stone Wicket`, `Tin Kestrel`, `Lark & Lathe`, `Tall Mast`, `Salt
