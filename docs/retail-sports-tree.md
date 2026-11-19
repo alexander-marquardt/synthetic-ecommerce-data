@@ -7,7 +7,10 @@ helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's
 helmets, Water Sports and Wheeled Sports; gen#625 numbers the bikes and adds four cycling
 accessories: chain lube, bike bottles, bike saddles and bike pedals; gen#959 adds the Fishing
 family (rods, reels, tackle boxes) and the Golf family (clubs, balls, gloves), the department's
-first derivable types, described in `docs/retail-prototype/sports-fishing-golf-959.md`). This note records, per leaf,
+first derivable types, described in `docs/retail-prototype/sports-fishing-golf-959.md`;
+its slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness and
+basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats
+under Team & Racket Sports, described in `docs/retail-prototype/sports-fitness-team-959.md`). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -68,6 +71,15 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Golf > Golf Clubs | club_type, shaft_material, handedness, color | none | none |
 | Sports & Outdoors > Golf > Golf Balls | construction, cover, pack_size, color | none | none |
 | Sports & Outdoors > Golf > Golf Gloves | material, worn_on, size, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Exercise Bikes | resistance_type, bike_style, console, max_load_kg, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Weights > Weight Plates | material, bore, plate_grip, weight, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Weight Benches | bench_type, upholstery, bench_grade, max_load_kg, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Basketballs | cover, court, ball_grade, ball_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Volleyballs | cover, play, ball_grade, ball_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Shin Guards | shell, guard_type, guard_profile, size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Hockey Sticks | material, hockey_type, blade_curve, handedness, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Pickleball Paddles | paddle_weight, face, paddle_shape, grip_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Table Tennis Bats | blade, play_style, bat_rubber, handle_shape, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
