@@ -53,7 +53,7 @@ def _row(code: str, feature: str, kind: str, brand: str, price: float, colors: t
 
 ROWS = (
     _row("BMNLRA", "Long Range", "Audio", FENWOLD, 39.0, (WHITE, GREY, BLUE),
-         "an alert when the baby cries, heard from the next room or the garden."),
+         "an alert when the baby cries, heard from another room or the garden."),
     _row("BMNTTA", "Two-Way Talk", "Audio", LITTLE_FERNBY, 49.0, (WHITE, GREEN, YELLOW),
          "a soft glow on the nursery unit for night feeds."),
     _row("BMNRCV", "Rechargeable", "Video", FENWOLD, 119.0, (WHITE, BLACK, GREY),
@@ -64,7 +64,7 @@ ROWS = (
          "a wall bracket and a long cable for the nursery unit."),
     _row("BMNRTS", "Room Temperature", "Smart", MIREFIELD, 179.0, (WHITE, GREEN, BLACK),
          "an alert when the nursery grows too warm or too cold."),
-    _row("BMNLLS", "Lullaby", "Smart", LANTERNBY, 199.0, (WHITE, YELLOW, RED),
+    _row("BMNLLS", "Soothing Sounds", "Smart", LANTERNBY, 199.0, (WHITE, YELLOW, RED),
          "a set-up that takes minutes and a link that holds through the night."),
 )  # fmt: skip
 

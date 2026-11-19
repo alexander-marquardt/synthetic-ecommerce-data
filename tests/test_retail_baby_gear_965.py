@@ -159,7 +159,7 @@ GOLDEN: dict[str, list[tuple]] = {
     "Baby Monitor": [
         ("BRD-0015F68114F1", "Mirefield Naturals Firefly Sound-Activated Video Baby Monitor", 3, 220.0),
         ("BRD-00389B9778F7", "Mirefield Naturals Firefly Room Temperature Audio Baby Monitor", 3, 170.0),
-        ("BRD-02DAB1B9EDF1", "Little Fernby Thimble Room Temperature Video Baby Monitor", 2, 190.0),
+        ("BRD-007AE0B181C9", "Emberly Home Clover Night Light Smart Baby Monitor", 2, 155.0),
     ],
 }
 
