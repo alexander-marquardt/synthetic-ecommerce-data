@@ -1,14 +1,17 @@
-"""Baby gear (gen#965): diapers, wipes, bottles, strollers, car seats and high chairs.
+"""Baby gear (gen#965): diapers, wipes, bottles, strollers, car seats, high chairs, cribs and
+baby monitors.
 
 Kids > Baby sold clothing only, so a search for ``diapers``, ``baby wipes``, ``baby bottle`` or
 ``stroller`` found nothing. Slice 1 adds its first three gear types (``type_specs/diapers.py``,
 ``baby_wipes.py``, ``baby_bottle.py``); slice 2 adds strollers, car seats and high chairs
-(``type_specs/stroller.py``, ``car_seat.py``, ``high_chair.py``). Each is a spec of its own,
-drawn by :mod:`kit_baby_gear`. These checks hold each slice's Done-when: the ceiling build has at
-least 1,100 SKUs of the slice's three types under Kids > Baby; each type's styles have unique
-ids, titles and twin keys; the rows and their drawings are the same on every call; a param of
-each slice 2 shape changes its drawing; and a golden slice pins each type's first derived
-styles, so a change that moves them shows here.
+(``type_specs/stroller.py``, ``car_seat.py``, ``high_chair.py``); slice 3 adds cribs and baby
+monitors (``type_specs/crib.py``, ``baby_monitor.py``). Each is a spec of its own, drawn by
+:mod:`kit_baby_gear`. These checks hold each slice's Done-when: the ceiling build has at least
+the slice's floor of SKUs of its types under Kids > Baby (1,100 for the three types of slices 1
+and 2, 600 for the two of slice 3); each type's styles have unique ids, titles and twin keys; the
+rows and their drawings are the same on every call; a param of each slice 2 and 3 shape changes
+its drawing; and a golden slice pins each type's first derived styles, so a change that moves
+them shows here.
 """
 
 from __future__ import annotations
@@ -22,13 +25,15 @@ from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
 
 SLICE_1 = ("Diapers", "Baby Wipes", "Baby Bottle")
 SLICE_2 = ("Stroller", "Car Seat", "High Chair")
-TYPES = SLICE_1 + SLICE_2
+SLICE_3 = ("Crib", "Baby Monitor")
+TYPES = SLICE_1 + SLICE_2 + SLICE_3
 KEYS = {
     "Diapers": "diapers", "Baby Wipes": "baby_wipes", "Baby Bottle": "baby_bottle",
     "Stroller": "stroller", "Car Seat": "car_seat", "High Chair": "high_chair",
+    "Crib": "crib", "Baby Monitor": "baby_monitor",
 }  # fmt: skip
 #: Each slice's floor at the ceiling build (the gate comments of gen#965).
-FLOOR = 1_100
+FLOORS = {SLICE_1: 1_100, SLICE_2: 1_100, SLICE_3: 600}
 
 
 @pytest.fixture(scope="module")
@@ -40,10 +45,10 @@ def gear() -> list[dict]:
     ]
 
 
-@pytest.mark.parametrize("types", [SLICE_1, SLICE_2], ids=["slice_1", "slice_2"])
+@pytest.mark.parametrize("types", list(FLOORS), ids=["slice_1", "slice_2", "slice_3"])
 def test_the_ceiling_build_holds_the_slice_floor_of_baby_gear_skus(gear, types) -> None:
     skus = sum(r["sku_count"] for r in gear if r["product_type"] in types)
-    assert skus >= FLOOR, skus
+    assert skus >= FLOORS[types], skus
 
 
 def test_every_type_of_the_slice_is_derived_in_the_ceiling_build(gear) -> None:
@@ -76,11 +81,13 @@ def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
         assert first == kit.render(row.shape, fill, params=params)
 
 
-#: Each slice 2 shape, its param and two readings that must draw differently (gen#512).
+#: Each slice 2 and 3 shape, its param and two readings that must draw differently (gen#512).
 PARAMS = {
     "stroller": ("stroller_style", "full-size", "jogging"),
     "car_seat": ("seat_type", "infant carrier", "high-back booster"),
     "high_chair": ("frame", "wooden", "folding"),
+    "crib": ("crib_style", "standard", "convertible"),
+    "baby_monitor": ("monitor_type", "audio", "video"),
 }
 
 
@@ -132,6 +139,8 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-043C204F8B10", "Thistle & Wren Rover Space-Saving Folding High Chair", 2, 145.0),
         ("BRD-050A2E09CB73", "Fenwold Nursery Perch Adjustable Height Folding High Chair", 3, 210.0),
     ],
+    "Crib": [],
+    "Baby Monitor": [],
 }
 
 
