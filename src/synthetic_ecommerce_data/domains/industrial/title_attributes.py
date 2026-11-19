@@ -72,6 +72,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Style", None),
         ("Color", None),
     ),
+    "cabinet_knobs": (
+        ("Diameter", "Dia"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "cantilever_racks": (("Rated Load", "Load"),),
     "cap_nuts_acorn": (("Thread Size", "Thread"),),
     "carriage_bolts": (

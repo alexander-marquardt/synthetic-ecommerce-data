@@ -496,6 +496,8 @@ RETIRED_TERMS_CAP = 25
 #: Magnetic repeat across the makers' lines, so the relative rule offers it. The
 #: acorn cap nuts' two crowns (#829), Low Crown and High Crown, took it from 25
 #: values to 27, and the utility knives (#971) add their four styles to the others'.
+#: The cabinet knobs (#958) add their four styles (round, mushroom, square,
+#: drop ring), which repeat across the makers' lines too.
 NEWLY_OFFERED = frozenset(
     {
         "ansi_number",
