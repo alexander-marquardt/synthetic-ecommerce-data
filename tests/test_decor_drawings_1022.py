@@ -111,8 +111,8 @@ def test_framed_wall_art_draws_a_frame_round_each_panel_and_a_canvas_none() -> N
         for frame in ("thin", "wide"):
             assert _count(_svg("wall_art", panels=panels, frame=frame), "frame") == int(panels)
         assert _count(_svg("wall_art", panels=panels, frame="canvas"), "frame") == 0
-    assert _count(_svg("wall_art", frame="wide"), "mat") == 1
-    assert _count(_svg("wall_art", frame="thin"), "mat") == 0
+    assert _count(_svg("wall_art", panels="3", frame="wide"), "mat") == 3
+    assert _count(_svg("wall_art", panels="3", frame="thin"), "mat") == 0
 
 
 def test_a_statue_stands_on_a_plinth_only_when_it_says_so() -> None:
