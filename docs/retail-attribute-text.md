@@ -8,7 +8,7 @@ and on the ceiling build, and holds the check itself against hand-made rows.
 
 | Attribute | The row agrees when |
 | --- | --- |
-| `closure` is Zip, Magnetic, Snap, Drawstring, Clasp or Buckle | the title or description, if it names any closure word (zip, magnetic, snap, drawstring, clasp, buckle), names that one |
+| `closure` is Zip, Magnetic, Snap, Drawstring, Clasp or Buckle, or a value `VALUE_FAMILY` maps to one (Press Stud is Snap, Zip Seal is Zip) | the title or description, if it names any closure word (zip, magnetic, snap, drawstring, clasp, buckle), names that one |
 | `closure` is anything else (Lace-Up, Pull-On, Ankle Strap, ...) | the text names no closure word, or only those `ALSO` lists for that value, each with its reason |
 | `pattern` | every color option and the drawing carry the pattern `PATTERN_KIND` maps it to, and the text names no other pattern (a gingham check may say "check") |
 | a grocery SKU's `contains` and `may_contain` (#913) | every allergen the description's "Contains:" line names is in each SKU's `contains`, and every one its "May contain:" line names is in each SKU's `contains` or `may_contain` |

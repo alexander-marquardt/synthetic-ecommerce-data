@@ -117,6 +117,14 @@ def test_a_tote_that_says_zip_over_a_zip_closure_agrees():
     assert attribute_text.closure_lines(rec) == []
 
 
+def test_a_zip_seal_bag_that_says_zip_seal_agrees_and_one_that_says_drawstring_does_not():
+    ok = _rec("Zip Seal Freezer Bags", "Freezer bags with a Zip Seal closure.", closure="Zip Seal")
+    assert attribute_text.closure_lines(ok) == []
+    bad = _rec(description="Freezer bags with a drawstring top.", closure="Zip Seal")
+    want = ["closure Zip Seal but the text names ['drawstring']"]
+    assert attribute_text.closure_lines(bad) == want
+
+
 def test_a_zipped_pocket_is_not_the_closure():
     rec = _rec(
         description="A bag with a magnetic flap and a zipped inner pocket.", closure="Magnetic"

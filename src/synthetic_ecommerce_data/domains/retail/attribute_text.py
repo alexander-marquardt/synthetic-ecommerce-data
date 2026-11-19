@@ -9,8 +9,8 @@ holds it at zero, and holds the check itself against hand-made rows).
 Closure. The closure words are the six of :data:`FAMILIES`. A record that has a
 ``closure`` attribute and names a closure word in its title or description:
 
-- when the attribute is one of the six (Zip, Magnetic, Snap, Drawstring, Clasp, Buckle), the text
-  must name that closure;
+- when the attribute is one of the six (Zip, Magnetic, Snap, Drawstring, Clasp, Buckle), or a
+  value :data:`VALUE_FAMILY` maps to one (Press Stud, Zip Seal), the text must name that closure;
 - when it is another closure (Lace-Up, Pull-On, Ankle Strap, ...), the text may name only the
   closures :data:`ALSO` lists for it, each with the reason.
 
@@ -52,6 +52,7 @@ FAMILIES: dict[str, str] = {
 #: closure attribute value (lower case) -> its family, for the six that are one.
 VALUE_FAMILY: dict[str, str] = {
     "zip": "zip",
+    "zip seal": "zip",  # a food storage bag's press-shut seal (gen#962)
     "magnetic": "magnetic",
     "snap": "snap",
     "press stud": "snap",
