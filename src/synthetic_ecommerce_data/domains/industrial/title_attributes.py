@@ -398,6 +398,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
     ),
     "shaft_alignment_lasers": (("Overall Length", "OAL"),),
     "shaft_collars": (("Bore Dia.", "Bore"),),
+    "shelf_brackets": (
+        ("Length", "L"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "side_lock_holders": (("Size", "Size"),),
     "silicone_greases": (("Container Size", "Size"),),
     "sleeve_anchors": (("Diameter", "Dia"),),

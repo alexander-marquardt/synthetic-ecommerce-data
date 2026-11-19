@@ -1073,6 +1073,7 @@ NOT_MEASURED = frozenset(
         "levels",
         "picture_hangers",
         "cabinet_hinges",
+        "shelf_brackets",
         "stud_finders",
         "tape_measures",
         "household_tool_sets",
