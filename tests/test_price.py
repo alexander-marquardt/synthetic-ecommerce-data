@@ -1074,6 +1074,7 @@ NOT_MEASURED = frozenset(
         "picture_hangers",
         "cabinet_hinges",
         "stud_finders",
+        "cabinet_knobs",
         "tape_measures",
         "household_tool_sets",
         "utility_knives",
