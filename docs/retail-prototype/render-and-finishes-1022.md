@@ -77,6 +77,7 @@ longer for its height than a 60-inch one and stands on the same floor.
 | `rug` | top | 96 | 0.5 | 60 |
 | `tile`, `vanity`, `cabinet_pull`, `sink_faucet`, `bath_storage`, `canister` | front | see [slice 4](bath-kitchen-drawings-1022.md) | | |
 | `wall_art`, `decor_object`, `garden_statue`, `faux_floral`, `fountain` | front | see [slice 6](decor-drawings-1022.md) | | |
+| `vanity_light`, `bench` | front | see [slice 7](home-variants-1022.md) | | |
 
 ## The five storage shapes
 
@@ -127,6 +128,7 @@ keyed by the product id) tells them apart.
 [Slice 3](picture-products-1022.md) adds the manifest loader and the combined writer.
 [Slice 4](bath-kitchen-drawings-1022.md) adds the bath and kitchen types (tile, vanity, pulls,
 faucet, bath storage, canisters) as kit shapes drawn through `render`. [Slice 6](decor-drawings-1022.md)
-adds the décor types (wall art, decorative objects, statues, florals, fountains). Slice 7 adds the
-rug, wall light and bench variants. Slice 5 ships a home type in a generator build with its own
-products.
+adds the décor types (wall art, decorative objects, statues, florals, fountains).
+[Slice 7](home-variants-1022.md) draws the rug, wall light and bench variants: the `doormat` and
+`kitchen_mat` rug forms, a kids' rug's `motif`, `vanity_light` and `bench`. Slice 5 ships a home
+type in a generator build with its own products.

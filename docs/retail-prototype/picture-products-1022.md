@@ -106,5 +106,6 @@ elastic/prism-wands#1's map must write `seat_height`.
 - Slice 4 adds the rest of the home types (tile, vanity, pulls, faucet, bath storage, canisters,
   wall art, decor objects, statues, florals, fountains, and rug, wall light and bench variants) as
   kit shapes drawn through `render`.
-- Slice 5 meets Done-when 3: a home type ships in a generator build with its own products and
-  passes the product-split and non-copying audits.
+- Slice 5 meets Done-when 3: `sideboard` ships in the retail build with products of its own, and
+  passes the product-split and non-copying audits
+  ([a sideboard ships](sideboard-ships-1022.md)).

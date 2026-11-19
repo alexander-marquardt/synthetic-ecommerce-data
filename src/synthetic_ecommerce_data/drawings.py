@@ -84,6 +84,8 @@ PROPORTIONS: dict[str, tuple[str, float, float, float]] = {
     "chest_of_drawers": ("front", 32, 44, 18),
     "sofa": ("front", 80, 34, 36),
     "rug": ("top", 96, 0.5, 60),
+    "vanity_light": ("front", 24, 9, 7),
+    "bench": ("front", 48, 18, 16),
 }
 
 #: The least a figure is squeezed along one axis, so a very long piece still reads as itself.
