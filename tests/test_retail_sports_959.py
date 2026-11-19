@@ -12,6 +12,11 @@ first derived styles, so a change that moves them shows here.
 Slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness, and
 basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats under
 Team & Racket Sports, drawn by :mod:`kit_fitness_team`, and raises the floor to 7,000 SKUs.
+
+Slice 3, the last, adds hiking backpacks under a new Hiking family, coolers and insulated water
+bottles under Camping, bike lights and bike locks under Cycling, and sleds, snowboards and ski
+goggles under a new Winter Sports family, drawn by :mod:`kit_outdoor_winter`, and raises the floor
+to the issue's own: 10,450 SKUs, 95% of the 11,000 target.
 """
 
 from __future__ import annotations
@@ -40,6 +45,14 @@ TYPES = (
     "Hockey Stick",
     "Pickleball Paddle",
     "Table Tennis Bat",
+    "Hiking Backpack",
+    "Cooler",
+    "Insulated Water Bottle",
+    "Bike Light",
+    "Bike Lock",
+    "Sled",
+    "Snowboard",
+    "Ski Goggles",
 )
 KEYS = {
     "Fishing Rod": "fishing_rod",
@@ -57,9 +70,18 @@ KEYS = {
     "Hockey Stick": "hockey_stick",
     "Pickleball Paddle": "pickleball_paddle",
     "Table Tennis Bat": "table_tennis_bat",
+    "Hiking Backpack": "hiking_backpack",
+    "Cooler": "cooler",
+    "Insulated Water Bottle": "insulated_water_bottle",
+    "Bike Light": "bike_light",
+    "Bike Lock": "bike_lock",
+    "Sled": "sled",
+    "Snowboard": "snowboard",
+    "Ski Goggles": "ski_goggles",
 }
-#: Slice 2's floor at the ceiling build (the gate comment of gen#959; slice 1's was 3,000).
-FLOOR = 7_000
+#: The issue's floor at the ceiling build, 95% of the 11,000 target (gen#959's Done-when; slice 1's
+#: was 3,000 and slice 2's 7,000).
+FLOOR = 10_450
 
 
 @pytest.fixture(scope="module")
