@@ -83,7 +83,9 @@ def test_the_drawn_count_is_the_stated_count(shape: str, key: str, cls: str) -> 
 
 def test_a_bar_stool_stands_taller_than_a_counter_stool() -> None:
     def seat_y(height: str) -> float:
-        m = re.search(r'<[^>]*class="seat"[^>]*\by="([\d.]+)"', _svg("bar_stool", height=height))
+        m = re.search(
+            r'<[^>]*class="seat"[^>]*\by="([\d.]+)"', _svg("bar_stool", seat_height=height)
+        )
         assert m, height
         return float(m[1])
 
