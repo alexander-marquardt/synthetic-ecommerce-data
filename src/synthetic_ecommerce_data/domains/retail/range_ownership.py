@@ -10,12 +10,24 @@ Two builds draw range names, each from a half of the pool: ``scale`` for the der
 different set in each and no name is ever shared. A builder keeps drawing its slot (an index into
 its old name list, so its random stream and its title-collision pattern stay as they were) and
 :func:`Deal.owned` answers which name the brand holds at that slot.
+
+The scale half is dealt over an append-only :class:`Roster` (#1052): the brands dealt before it
+keep their round-robin share of the half, and a brand appended later takes its own block of
+:data:`ADDED_SHARE` names from :data:`ADDED_STEMS`, place words kept out of the shuffled pool. A
+brand new to the build therefore moves no other brand's names, so no style in another department.
+The base brands are dealt over the whole half less the roster's frozen :attr:`Roster.gaps`, and
+a word reserved or excluded later only leaves its owner's names, so it moves no other brand either.
+
+The grocery half is dealt the same way over :data:`GROCERY` (#1052 slice 3). Its appended brands
+take blocks of :data:`GROCERY_SHARE` names from :data:`GROCERY_STEMS`, so no word is held by both
+a scale-appended and a grocery-appended brand.
 """
 
 from __future__ import annotations
 
 import random
 from collections.abc import Iterable
+from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
 
@@ -45,6 +57,30 @@ ENDINGS = (
 
 SEED = "range-names:623"
 
+#: The stems of the place words a brand appended to a :class:`Roster` takes its names from
+#: (#1052). Their words are in no half, so the shuffled pool never moves; append only, since a
+#: stem's words go to the end of :func:`added_words` and a block already held stays put.
+ADDED_STEMS = (
+    "Alw", "Bix", "Blyth", "Corb", "Cran", "Elst", "Gled", "Hask", "Hest", "Ilk", "Lowd", "Pym",
+    "Mox", "Nab", "Ost", "Varn", "Rans", "Scaw", "Shil", "Tebb", "Thack", "Ulp", "Wass", "Yox",
+)  # fmt: skip
+
+#: The names an appended brand holds: the base brands' share of the scale half (2,997 over 85).
+ADDED_SHARE = 35
+
+#: The stems a brand appended to the :data:`GROCERY` roster takes its names from (#1052 slice 3):
+#: apart from :data:`ADDED_STEMS`, so a scale-appended and a grocery-appended brand never both hold
+#: block ``k``; append only, as for :data:`ADDED_STEMS`.
+GROCERY_STEMS = (
+    "Abb", "Bick", "Cogg", "Dribb", "Edg", "Grims", "Hutt", "Ingle", "Jarr", "Kex", "Lyth",
+    "Mux", "Nidd", "Pock", "Quar", "Rigg", "Tees", "Ure", "Wend", "Yock", "Brom", "Cark",
+    "Dent", "Fulb",
+)  # fmt: skip
+
+#: The names an appended grocery brand holds: the base brands' share of the grocery half (2,993
+#: over 45), so its titles repeat no more often than an existing grocery brand's.
+GROCERY_SHARE = 66
+
 #: Words no range name may be: a product or a material read as a range.
 PRODUCT_WORDS = frozenset({
     "Hollow", "Oakwood", "Elmwood", "Ashwood", "Fernwood", "Garden", "Pillow", "Bramley",
@@ -71,36 +107,168 @@ def _everything() -> list[str]:
 
 def candidates() -> list[str]:
     """Every invented place word that may be a range name, sorted and unique."""
-    return [n for n in _everything() if n not in EXCLUDED]
+    words = {*_everything(), *added_words(), *added_words(GROCERY_STEMS)}
+    return sorted(n for n in words if n not in EXCLUDED)
+
+
+def added_words(stems: tuple[str, ...] | None = None) -> list[str]:
+    """The place words of ``stems`` (:data:`ADDED_STEMS` when none), stem by stem, each stem's
+    endings in its own seeded order, less any word of the shuffled pool: a new stem only appends
+    words."""
+    pool = set(_everything())
+    out: list[str] = []
+    for stem in ADDED_STEMS if stems is None else stems:
+        words = [stem + e for e in ENDINGS]
+        random.Random(f"{SEED}:{stem}").shuffle(words)
+        out += [w for w in words if w not in pool]
+    return out
+
+
+@dataclass(frozen=True)
+class Roster:
+    """The brands of a deal in the order they joined it (#1052): ``base`` was dealt round-robin
+    before the roster existed and keeps that deal; ``added`` is append-only, brand ``k`` holding
+    block ``k`` (``share`` names) of :func:`added_words` over ``stems`` (:data:`ADDED_STEMS` when
+    none).
+
+    ``gaps`` are the words of the half that were kept out when ``base`` was dealt (reserved or
+    excluded then). It is frozen: the base is dealt over the whole half less ``gaps``, then a word
+    skipped now is dropped from its owner's names alone, so one more reserved or excluded word
+    moves no other brand (#1052 slice 2). A gap no longer skipped stays undealt."""
+
+    base: tuple[str, ...]
+    added: tuple[str, ...] = ()
+    gaps: frozenset[str] = frozenset()
+    stems: tuple[str, ...] | None = None
+    share: int = ADDED_SHARE
+
+    def owned(self, whole: list[str], skip: set[str]) -> dict[str, tuple[str, ...]]:
+        """Every rostered brand's names, present in the build or not, so a brand that leaves
+        moves no other brand either. ``whole`` is the half with nothing dropped."""
+        count = len(self.base)
+        pool = [n for n in whole if n not in self.gaps]
+        out = {
+            b: tuple(n for n in pool[i::count] if n not in skip and n not in EXCLUDED)
+            for i, b in enumerate(self.base)
+        }
+        words = added_words(self.stems)
+        for k, brand in enumerate(self.added):
+            block = words[k * self.share : (k + 1) * self.share]
+            if len(block) < self.share:
+                raise ValueError(f"no names left for {brand!r}: append stems to its added stems")
+            out[brand] = tuple(w for w in block if w not in skip and w not in EXCLUDED)
+        return out
+
+
+#: The brands a derived style may carry, dealt the scale half (``scale._range_deal``). ``base``
+#: is the sorted set dealt before #1052; a brand new to the scale build is appended to ``added``,
+#: in the order brands join, never sorted in, or every later brand's block would move.
+SCALE = Roster(
+    base=(
+        "Aldermist", "Ardmoor", "Barkwell", "Barrowby Kitchen", "Boltwick", "Brackenmere Home",
+        "Bramblewood", "Brewhollow Roasters", "Brightwater Botanics", "Calderby & Lune",
+        "Calderwick Denim", "Cindrel", "Clearbrook Household", "Clumpton", "Cobble & Kiln",
+        "Cobbleway", "Copper Hill Preserves", "Crofter's Bakehouse", "Daskel", "Dovecote Lane",
+        "Dunvale", "Emberly Home", "Featherlee", "Fenmere", "Fenwold Nursery", "Ferrowick Denim",
+        "Freshfold", "Goldfield Farms", "Halvering", "Halvern", "Harbour & Pine", "Hearth & Table",
+        "Hollin Hair", "Hollinsby", "Hollinwray Knits", "Hound & Heath", "Hushwell",
+        "Kestlewood Cosmetics", "Kettleby Tea Co.", "Lanternby", "Larchwood Living", "Larkmoor",
+        "Ledwick Botanics", "Little Fernby", "Marrick", "Marrowgate", "Mervane",
+        "Mirefield Naturals", "Mossdown", "Mossgill Dairy", "Nimbrel", "Orrin Skin",
+        "Osier & Vane", "Ottery Denim", "Pantry Mill", "Pearlbrook", "Pellbrook", "Pellimar",
+        "Pewley Table", "Pinehollow", "Pipwick Toys", "Puddlecombe Toys", "Purrsey Lane",
+        "Quellmoor Care", "Quillon Sleep", "Quorrin", "Ribbonvale", "Rookery Garden Co.",
+        "Saltmarsh", "Soapwell", "Sorrel & Salt", "Stridewell", "Tailmoor", "Tallow Street",
+        "Thistle & Wren", "Thornlea Skin", "Thrennick", "Torvane", "Treadmoor", "Veilmoor",
+        "Velling Apothecary", "Wexmoor", "Wheatsheaf Lane", "Whiskerby", "Wrenfield",
+    ),
+    added=("Pennywhistle Angling", "Larchmere Golf", "Corvane Pharmacy", "Brannock Health",
+           "Hallowby Chemist", "Lindcombe Health", "Sedgemoor Pharmacy", "Ottermere Care"),
+    # The scale-half words skipped when the base was dealt: the excluded words in the half and
+    # Fenmere, a brand's own word. Never edit: a word dropped later leaves its owner alone.
+    gaps=frozenset({
+        "Alnwick", "Ashlow", "Ashwell", "Denby", "Ellerby", "Elmwood", "Fenmere", "Fernwood",
+        "Halden", "Harwell", "Hollow", "Kelden", "Malham", "Oakham", "Oldstead", "Penley",
+    }),
+)  # fmt: skip
+
+
+#: The grocery brands, dealt the grocery half (``grocery.range_names``, #1052 slice 3). ``base`` is
+#: the sorted set dealt before it; a grocery brand new to the build is appended to ``added``, in
+#: the order brands join, and takes its block from :data:`GROCERY_STEMS`.
+GROCERY = Roster(
+    base=(
+        "Barrowby Kitchen", "Brewhollow Roasters", "Brightwater Botanics", "Brindlemere Drinks",
+        "Clearbrook Household", "Cobbleby Kitchen", "Copper Hill Preserves", "Crofter's Bakehouse",
+        "Crunchworth", "Dellwick Chocolatiers", "Dunnock Bakehouse", "Fellbeck Roasters",
+        "Freshfold", "Goldfield Farms", "Hearth & Table", "Heronsgate Fresh", "Hobsworth Kitchen",
+        "Hollowbrook Cellars", "Honeysett Sweets", "Kettleby Tea Co.", "Larchfield Home Care",
+        "Ledwick Botanics", "Marlpit Growers", "Marrowdale Tea Co.", "Meadowgate Dairy",
+        "Mossgill Dairy", "Oakenshaw Mills", "Olivar Grove", "Orchardgate Cider Co.", "Orrin Skin",
+        "Ovenden Vineyards", "Pantry Mill", "Pellam Crisps", "Pippinfold Cider Co.",
+        "Plumtree Larder", "Saltmarsh Preserves", "Soapwell", "Stonepine Estate",
+        "Tamsworth Cellars", "Thistlemoor Snacks", "Velling Apothecary", "Vine & Valley",
+        "Wetherly Creamery", "Wheatsheaf Lane", "Wyncote Skin",
+    ),
+    added=(),
+    # The grocery-half words skipped when the base was dealt: the excluded words in the half and
+    # the brands' own words. Never edit: a word dropped later leaves its owner alone.
+    gaps=frozenset({
+        "Ashby", "Ashwood", "Bramley", "Brockhurst", "Dunholme", "Eskdale", "Fenbridge", "Fenby",
+        "Garden", "Kenwick", "Kildale", "Kirkham", "Lindale", "Mardale", "Marlow", "Norbury",
+        "Oakwood", "Pillow", "Thornby", "Winscar",
+    }),
+    stems=GROCERY_STEMS,
+    share=GROCERY_SHARE,
+)  # fmt: skip
+
+
+def whole_halves() -> dict[str, list[str]]:
+    """The pool split into the ``scale`` half and the ``grocery`` half, each in a seeded order,
+    the excluded words still in."""
+    names = _everything()
+    random.Random(SEED).shuffle(names)
+    return {"scale": names[0::2], "grocery": names[1::2]}
 
 
 def halves() -> dict[str, list[str]]:
-    """The pool split into the ``scale`` half and the ``grocery`` half, each in a seeded order.
+    """:func:`whole_halves` less the excluded words.
 
     The shuffle and the split run over every word and the excluded ones are dropped after, so
-    excluding one more word never moves another word to the other half or to another brand."""
-    names = _everything()
-    random.Random(SEED).shuffle(names)
-    return {
-        "scale": [n for n in names[0::2] if n not in EXCLUDED],
-        "grocery": [n for n in names[1::2] if n not in EXCLUDED],
-    }
+    excluding one more word never moves another word to the other half."""
+    return {h: [n for n in names if n not in EXCLUDED] for h, names in whole_halves().items()}
 
 
 class Deal:
     """One half of the pool dealt over a set of brands: every name has one owner.
 
     ``reserved`` holds the words that must not be dealt (the brands' own words and the range
-    names an authored row already carries)."""
+    names an authored row already carries). With no ``roster`` the half is dealt round-robin over
+    the sorted brands, so one brand more or one word more reserved moves every brand's names; with
+    one, every brand must be on it, and neither a brand appended nor a word reserved or excluded
+    later moves another brand (#1052)."""
 
-    def __init__(self, half: str, brands: Iterable[str], reserved: Iterable[str] = ()) -> None:
+    def __init__(
+        self,
+        half: str,
+        brands: Iterable[str],
+        reserved: Iterable[str] = (),
+        roster: Roster | None = None,
+    ) -> None:
         self.half = half
         self.brands = sorted(set(brands))
         skip = set(reserved)
-        pool = [n for n in halves()[half] if n not in skip]
-        count = len(self.brands) or 1
-        self._owned = {b: tuple(pool[i::count]) for i, b in enumerate(self.brands)}
-        self.names = tuple(pool)
+        if roster is None:
+            pool = [n for n in halves()[half] if n not in skip]
+            count = len(self.brands) or 1
+            self._owned = {b: tuple(pool[i::count]) for i, b in enumerate(self.brands)}
+            self.names = tuple(pool)
+            return
+        owned = roster.owned(whole_halves()[half], skip)
+        if off := [b for b in self.brands if b not in owned]:
+            raise ValueError(f"{off} not on the {half} roster: append each to its added brands")
+        self._owned = {b: owned[b] for b in self.brands}
+        self.names = tuple(n for b in self.brands for n in self._owned[b])
 
     def owned(self, brand: str, slot: int) -> str:
         """The name ``brand`` holds at ``slot``: a slot beyond its names wraps."""

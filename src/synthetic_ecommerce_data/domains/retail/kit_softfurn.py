@@ -10,9 +10,11 @@ curtains        a pair of panels with folds on a pole           heading (eyelet,
                                                                 tab), lined (yes, no)
 blind           a window frame with the blind fitted            kind (roller, roman,
                                                                 venetian, vertical)
-rug             a floor covering in perspective                 form (rectangle, round,
-                                                                runner), pile (flat, shag,
-                                                                short)
+rug             a floor covering in perspective: a rug, a       form (rectangle, round,
+                doormat or a kitchen mat, a kids' rug with      runner, doormat,
+                its motif                                       kitchen_mat), pile (flat,
+                                                                shag, short), motif (none,
+                                                                road, hopscotch, stars)
 draped_throw    a throw over a sofa arm                         edge (fringe, bound,
                                                                 pompom)
 bath_mat        a mat in perspective on the floor               texture (ribbed, tufted,
@@ -35,6 +37,7 @@ import math
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
+    LW_DETAIL,
     Fill,
     _highlight,
     _line,
@@ -148,12 +151,75 @@ def _ticks(points: list[tuple[float, float]], dx: float, dy: float, cls: str, co
     return [f'<g class="{cls}">{_line(f"M{x:.1f},{y:.1f} L{x + dx:.1f},{y + dy:.1f}", width, stroke=color)}</g>' for x, y in points]
 
 
-def rug(paint: str, fill: Fill, label: str | None, form: str = "rectangle", pile: str = "short") -> list[str]:
-    """A rug on a floor line, in perspective. ``form`` is ``rectangle``, ``round`` or ``runner``;
-    ``pile`` is ``flat`` (a fringe at both ends), ``shag`` (a shaggy edge all round) or ``short``
-    (a plain edge with an inner border)."""
+#: The rug's params and the values it draws; any other value is refused naming the param. The
+#: doormat, the kitchen mat and the motifs of a kids' rug are gen#1022's slice 7.
+RUG_PARAMS: dict[str, tuple[str, ...]] = {
+    "form": ("rectangle", "round", "runner", "doormat", "kitchen_mat"),
+    "pile": ("flat", "shag", "short"),
+    "motif": ("none", "road", "hopscotch", "stars"),
+}
+#: Where a kids' rug's motif sits on each form: its center and half-extents on the sheet.
+MOTIF_AREA = {
+    "rectangle": (200, 232, 110, 52), "round": (200, 236, 100, 30), "runner": (200, 228, 64, 72),
+    "doormat": (200, 246, 76, 28), "kitchen_mat": (200, 244, 120, 28),
+}  # fmt: skip
+#: A kids' rug's bright motif colors, and the grey of its play road.
+KIDS = ("#f2c14e", "#5b8def", "#e4572e", "#5fae5a")
+ROAD = "#6b6b6b"
+#: A doormat's rubber rim.
+RUBBER = "#3d3a36"
+
+
+def _bristles(top: float, bottom: float, left: float, right: float, slant: float, dark: str) -> list[str]:
+    """A doormat's coir: rows of short stiff strokes (``class="bristle"``) across its face, each row
+    as wide as the mat is at that depth (``slant``: how far each side leans out per unit down)."""
+    out = []
+    for i in range(5):
+        y = top + 10 + i * (bottom - top - 20) / 4
+        x0, x1 = left - (y - top) * slant + 8, right + (y - top) * slant - 8
+        out += _ticks([(x0 + (x1 - x0) * j / 11, y) for j in range(12)], 0, 6, "bristle", dark, 1.8)
+    return out
+
+
+def _star(cx: float, cy: float, r: float, color: str) -> str:
+    pts = [(cx + (r if k % 2 == 0 else r * 0.45) * math.sin(k * math.pi / 5), cy - (r if k % 2 == 0 else r * 0.45) * math.cos(k * math.pi / 5) * 0.7) for k in range(10)]
+    return _path("M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + " Z", color, 1.6)
+
+
+def _motif(motif: str, cx: float, cy: float, rx: float, ry: float) -> list[str]:
+    """A kids' rug's motif in one ``class="motif"`` group: a play road, a hopscotch court or stars."""
+    if motif == "road":
+        ring = f'cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx * 0.78:.1f}" ry="{ry * 0.7:.1f}" fill="none"'
+        parts = [f'<ellipse {ring} stroke="{ROAD}" stroke-width="{max(ry * 0.3, 8):.1f}"/>',
+                 f'<ellipse {ring} stroke="#ffffff" stroke-width="1.6" stroke-dasharray="6 6"/>',
+                 _rect(cx - rx * 0.78 - 9, cy - 6, 18, 12, KIDS[2], 3, 1.6), _rect(cx + rx * 0.78 - 9, cy - 6, 18, 12, KIDS[1], 3, 1.6)]
+    elif motif == "hopscotch":
+        parts, rows = [], (1, 2, 1, 2, 1)  # laid along the rug's longer side
+        long, short = (rx, ry) if rx >= ry else (ry, rx)
+        step, side = 1.6 * long / len(rows), 0.7 * short
+        for r, n in enumerate(rows):
+            a = -0.8 * long + r * step
+            for k in range(n):
+                b = -side / 2 if n == 1 else -side + k * side
+                x, y, w, h = (cx + a, cy + b, step, side) if rx >= ry else (cx + b, cy + a, side, step)
+                parts.append(_rect(x, y, w, h, KIDS[(r + k) % len(KIDS)], 0, 1.6))
+    else:
+        parts = [_star(cx + rx * dx, cy + ry * dy, max(ry * 0.45, 12), KIDS[i % len(KIDS)])
+                 for i, (dx, dy) in enumerate(((-0.6, -0.3), (-0.2, 0.35), (0.15, -0.4), (0.55, 0.2), (0.0, 0.0)))]
+    return [f'<g class="motif">{"".join(parts)}</g>']
+
+
+def rug(paint: str, fill: Fill, label: str | None, form: str = "rectangle", pile: str = "short", motif: str = "none") -> list[str]:
+    """A rug on a floor line, in perspective. ``form`` is ``rectangle``, ``round``, ``runner``,
+    ``doormat`` (a coir face in a rubber rim) or ``kitchen_mat`` (a long cushioned mat, its
+    beveled front edge ``class="bevel"``); ``pile`` is ``flat`` (a fringe at both ends), ``shag``
+    (a shaggy edge all round) or ``short`` (a plain edge with an inner border); ``motif`` is a kids'
+    rug's ``road``, ``hopscotch`` or ``stars``, and ``none`` draws no motif."""
     dark = _shade(fill.base, 0.3)
-    s, p = form.lower(), pile.lower()
+    s, p, m = form.lower(), pile.lower(), motif.lower()
+    for key, value in (("form", s), ("pile", p), ("motif", m)):
+        if value not in RUG_PARAMS[key]:
+            raise ValueError(f"unknown rug {key} {value!r}; one of {RUG_PARAMS[key]}")
     out = [_line("M20,300 L380,300", 2, stroke=_tint(INK, 0.6))]
     if s == "round":
         out.append(_ell(200, 236, 150, 52, paint))
@@ -163,6 +229,17 @@ def rug(paint: str, fill: Fill, label: str | None, form: str = "rectangle", pile
         out.append(_path("M120,120 L280,120 L336,330 L64,330 Z", paint))
         inner = _path("M134,140 L266,140 L314,310 L86,310 Z", "none", 2)
         edge = [(120 + 160 * i / 6, 120) for i in range(7)] + [(64 + 272 * i / 6, 330) for i in range(7)]
+    elif s == "doormat":
+        out += [_path("M104,190 L296,190 L336,302 L64,302 Z", RUBBER), _path("M118,202 L282,202 L314,290 L86,290 Z", paint)]
+        out += _bristles(202, 290, 118, 282, 32 / 88, dark)
+        inner = _path("M132,214 L268,214 L294,278 L106,278 Z", "none", 2)
+        edge = [(118 + 164 * i / 6, 202) for i in range(7)] + [(86 + 228 * i / 6, 290) for i in range(7)]
+    elif s == "kitchen_mat":
+        out.append(_path("M70,200 L330,200 L362,288 L38,288 Z", paint))
+        out.append(_path("M38,288 L362,288 L358,300 L42,300 Z", _shade(fill.base, 0.15), LW_DETAIL, ' class="bevel"'))
+        out += [_line(f"M{70 - (y - 200) * 0.36:.1f},{y} L{330 + (y - 200) * 0.36:.1f},{y}", 1.4, ' stroke-opacity=".5"', dark) for y in (222, 244, 266)]
+        inner = _path("M84,212 L316,212 L342,278 L58,278 Z", "none", 2)
+        edge = [(70 + 260 * i / 8, 200) for i in range(9)] + [(38 + 324 * i / 8, 288) for i in range(9)]
     else:
         out.append(_path("M96,150 L304,150 L368,310 L32,310 Z", paint))
         inner = _path("M112,168 L288,168 L344,296 L56,296 Z", "none", 2)
@@ -176,6 +253,8 @@ def rug(paint: str, fill: Fill, label: str | None, form: str = "rectangle", pile
         out += [_line("M130,220 L280,220", 2.4, stroke=dark), _line("M120,250 L292,250", 2.4, stroke=dark)]
     else:
         out.append(inner)
+    if m != "none":
+        out += _motif(m, *MOTIF_AREA[s])
     return _label(out, label)
 
 

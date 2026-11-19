@@ -71,6 +71,9 @@
   "Measurement system": "Measurement System",
   "Outside dia.": "Outside Dia."
  },
+ "cabinet_hinges": {
+  "Measurement system": "Measurement System"
+ },
  "cantilever_racks": {
   "Rated load": "Rated Load"
  },
@@ -678,6 +681,10 @@
   "Take up": "Take Up",
   "Thread size": "Thread Size",
   "Units per pack": "Units per Pack"
+ },
+ "utility_knives": {
+  "Measurement system": "Measurement System",
+  "Number of blades": "Number of Blades"
  },
  "washer_flat": {
   "Inside dia.": "Inside Dia.",

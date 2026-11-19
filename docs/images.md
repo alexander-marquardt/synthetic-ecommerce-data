@@ -73,7 +73,13 @@ every other drawing -- only the GEOMETRY is fixed.
   from two brands no longer draw the same picture. Every type names one of
   four orientations (`domains/industrial/orientation.py` by type,
   `domains/retail/orientation.py` by drawn shape; a test refuses a type that
-  names none). A product any SKU of which is a pack of several items (a cup
+  names none). A retail shape's orientation sits in
+  `domains/retail/orientations/<owner>.py`, named after the module that
+  registers the shape (`kit_health.py` -> `health.py`, #1045), so PRs from
+  two departments do not edit one list. `tests/test_orientation_owners_1045.py`
+  refuses a shape filed in a module other than its owner's, and
+  `scripts/check_no_registry_append.py` refuses a shape line added back to
+  `orientation.py`. A product any SKU of which is a pack of several items (a cup
   set in 2, 4 and 8 packs, a card of end mills) is drawn `level` on every SKU
   whatever its type's orientation (#884): a turned group sits on a slant and
   overlaps. A single product keeps its tilt.
@@ -83,9 +89,32 @@ every other drawing -- only the GEOMETRY is fixed.
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a sofa), and any type nobody was sure of |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
-  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), and every pack (#884) |
+  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), and a bicycle (#1049) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
+
+  A bicycle is `level` (#1049): it rests on its two wheels, so turned it reads as falling or
+  doing a wheelie. Two road bikes, the smallest frame size of each, turned -24 and +24
+  degrees before ([before](images/bicycle-level-1049-before.svg)) and level after
+  ([after](images/bicycle-level-1049-after.svg)). The size, measured in the kit's units:
+  level, each adult kind's full-size drawing spans most of the 344-unit figure area
+  (`house_styles.TURN_AREA`): road 318, electric 312, mountain 376. A bike looked a third
+  of the sheet wide because of three factors. The turn's fit-scale took it to 0.909 at 24
+  degrees (as low as 0.707 at other angles). The size ladder draws the smallest of three
+  frame sizes at 0.55 / 0.90 of full size. The house style scales the product to 0.86 or
+  0.78. Slice 1 removed the first factor.
+
+  Slice 2 (#1049) makes every bike SKU span at least 80% of the figure area. A bicycle has a
+  size ladder of its own (`size_ladder.BOTTOMS`): its smallest frame draws at 0.74 / 0.90 =
+  0.82 of full size, the middle one at 0.91 (the shared ladder: 0.61 and 0.81). The road,
+  electric and kids drawings are widened to the figure area's 344 units at full size (the
+  axles moved out, the kids' wheels a little larger), so the smallest frame spans 283 units
+  (82%), the mountain bike's 309 (90%). Measured on all 492 bike SKUs, before: 300 under 80%,
+  the smallest road frame at 56% and the smallest kids' bike at 45%; after: none.
+  Each size of one road and one kids' bike, before
+  ([before](images/bicycle-fill-1049-before.svg)) and after
+  ([after](images/bicycle-fill-1049-after.svg)).
+  `tests/test_bicycle_level_1049.py` checks every SKU of every bike in the built catalogue.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

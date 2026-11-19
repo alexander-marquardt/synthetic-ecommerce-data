@@ -30,7 +30,7 @@ from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from synthetic_ecommerce_data.domains.retail import departments, type_specs
+from synthetic_ecommerce_data.domains.retail import brand_owners, departments, type_specs
 from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
@@ -285,7 +285,8 @@ def validate(spec: TypeSpec) -> None:
     codes = [r.code for r in rows]
     for code in sorted({c for c in codes if codes.count(c) > 1}):
         raise SpecError(f"{spec.key}: row code {code} is used twice")
-    known = {**OWNERS, **dict(spec.owners)}
+    # Every owner module's brands, not only those imported so far (gen#1039).
+    known = {**brand_owners.table(), **dict(spec.owners)}
     for r in rows:
         if (r.department, r.product_type) != (spec.department, spec.product_type):
             raise SpecError(
@@ -336,6 +337,11 @@ def specs() -> dict[str, TypeSpec]:
         # A row read from the registry builds its document before any build has run (gen#1040).
         spec.register_owners()
         found[spec.key] = spec
+    # A spec's rows give their documents once the registry has loaded it, whatever else was
+    # imported first (gen#1039): the owners are registered here, not only by docs(), and after
+    # every spec is validated, so no spec's validation leans on another spec's owners.
+    for spec in found.values():
+        OWNERS.update({b: o for b, o in spec.owners if b not in OWNERS})
     seen: dict[tuple[str, str], str] = {}
     for spec in found.values():
         other = seen.setdefault((spec.department, spec.product_type), spec.key)

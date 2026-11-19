@@ -11,6 +11,8 @@ laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `elect
 `Electronics > Phones > {Smartphones, Basic Phones}`, `Computers > {Laptops, Desktops}`,
 `Tablets > {Tablets, E-readers}`, `TVs`, `Audio > {Headphones, Portable Speakers, Soundbars}`
 (gen#956, see [retail-prototype/electronics-audio-956.md](retail-prototype/electronics-audio-956.md)),
+`Smart Home > {Smart Plugs, Smart Bulbs, Doorbell Cameras}`
+(gen#956, see [retail-prototype/electronics-smart-home-956.md](retail-prototype/electronics-smart-home-956.md)),
 `Gaming > {Game Controllers, Gaming Headsets}`
 (gen#956, see [retail-prototype/electronics-gaming-956.md](retail-prototype/electronics-gaming-956.md)),
 `Accessories > Power Banks`, `Computers > Webcams`, `Wearables > Smartwatches` (gen#956's gadgets, see

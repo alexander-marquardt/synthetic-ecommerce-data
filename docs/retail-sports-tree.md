@@ -5,7 +5,16 @@ The department is built from one spec file per type in `src/synthetic_ecommerce_
 roll mats, bike pumps, baseball, swimming, team and racket sports; gen#352 adds bicycles, bike
 helmets, kayaks, kick scooters and skateboards, in three new families: Cycling's bikes and
 helmets, Water Sports and Wheeled Sports; gen#625 numbers the bikes and adds four cycling
-accessories: chain lube, bike bottles, bike saddles and bike pedals). This note records, per leaf,
+accessories: chain lube, bike bottles, bike saddles and bike pedals; gen#959 adds the Fishing
+family (rods, reels, tackle boxes) and the Golf family (clubs, balls, gloves), the department's
+first derivable types, described in `docs/retail-prototype/sports-fishing-golf-959.md`;
+its slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness and
+basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats
+under Team & Racket Sports, described in `docs/retail-prototype/sports-fitness-team-959.md`;
+its slice 3 adds hiking backpacks under a new Hiking family, coolers and insulated water bottles
+under Camping, bike lights and bike locks under Cycling, and sleds, snowboards and ski goggles
+under a new Winter Sports family, described in
+`docs/retail-prototype/sports-outdoor-winter-959.md`). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -60,6 +69,29 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Cycling > Bike Bottles | bottle_type, insulated, capacity, color | none | none |
 | Sports & Outdoors > Cycling > Bike Saddles | saddle_type, padding, color | none | none |
 | Sports & Outdoors > Cycling > Bike Pedals | pedal_type, material, color | none | none |
+| Sports & Outdoors > Fishing > Fishing Rods | rod_type, rod_power, material, pieces, item_length, color | none | none |
+| Sports & Outdoors > Fishing > Fishing Reels | reel_type, body_material, ball_bearings, reel_size, color | none | none |
+| Sports & Outdoors > Fishing > Tackle Boxes | tackle_type, trays, material, size, color | none | none |
+| Sports & Outdoors > Golf > Golf Clubs | club_type, shaft_material, handedness, color | none | none |
+| Sports & Outdoors > Golf > Golf Balls | construction, cover, pack_size, color | none | none |
+| Sports & Outdoors > Golf > Golf Gloves | material, worn_on, size, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Exercise Bikes | resistance_type, bike_style, console, max_load_kg, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Weights > Weight Plates | material, bore, plate_grip, weight, color | none | none |
+| Sports & Outdoors > Yoga & Fitness > Weight Benches | bench_type, upholstery, bench_grade, max_load_kg, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Basketballs | cover, court, ball_grade, ball_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Volleyballs | cover, play, ball_grade, ball_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Shin Guards | shell, guard_type, guard_profile, size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Hockey Sticks | material, hockey_type, blade_curve, handedness, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Pickleball Paddles | paddle_weight, face, paddle_shape, grip_size, color | none | none |
+| Sports & Outdoors > Team & Racket Sports > Table Tennis Bats | blade, play_style, bat_rubber, handle_shape, color | none | none |
+| Sports & Outdoors > Hiking > Hiking Backpacks | pack_fabric, pack_frame, pack_opening, capacity, color | none | none |
+| Sports & Outdoors > Camping > Coolers | cooler_use, cooler_type, ice_retention, capacity, color | none | none |
+| Sports & Outdoors > Camping > Insulated Water Bottles | bottle_coating, bottle_mouth, bottle_lid, capacity, color | none | none |
+| Sports & Outdoors > Cycling > Bike Lights | light_power, light_position, light_modes, light_output, color | none | none |
+| Sports & Outdoors > Cycling > Bike Locks | lock_grade, lock_type, lock_opening, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Sleds | sled_build, sled_riders, sled_type, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Snowboards | riding_style, board_shape, board_profile, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Ski Goggles | lens_coating, lens_shape, goggle_fit, size, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
@@ -133,8 +165,11 @@ weight. A colored frame stays bare, because at 120 px the outline would darken i
 `tests/test_retail_bicycle_white_frame_746.py` holds this on all ten bicycle brands' sheets.
 
 Each size is the whole drawing scaled, tires included, at the size's rank among the product's own
-sizes on the shared ladder (`size_ladder.py`): 55/90 of the largest for the smallest. A bike's first
-SKU is its smallest size, so that rung is the image on its product card.
+sizes on the bicycle's own ladder (`size_ladder.BOTTOMS`, #1049): 74/90 = 0.82 of the largest for the
+smallest, narrower than the shared 55/90. A bike's first SKU is its smallest size, so that rung is the
+image on its product card. Every kind's full-size drawing spans about the whole figure area (the
+mountain bike past it), so every SKU, the kids' bike's too, spans at least 80% of it
+(`tests/test_bicycle_level_1049.py`).
 
 The price follows from the parts. The kind sets a base, and the frame material (steel, aluminum,
 carbon), the brake (coaster, rim, disc) and each extra gear add to it. Last year's model sells at
@@ -149,8 +184,6 @@ carries a reason.
 
 | Type | Family | Disposition |
 | --- | --- | --- |
-| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
-| Bike locks | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Swimsuits and trunks | Swimming | Clothing already has them: reused, not duplicated (gen#265) |
 | Balance bikes | Cycling | Stay in Toys (gen#265) |

@@ -28,8 +28,8 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, retail_figures
 
-#: Titles whose product really is a tub (a pot of tablets, wipes, beads, a drink powder).
-TUB_NOUNS = re.compile(r"\b(Wipes|Tablets|Pods|Capsules|Beads|Chocolate|Yogurt|Pot)\b")
+#: Titles whose product really is a tub (a pot of tablets, pods, a drink powder).
+TUB_NOUNS = re.compile(r"\b(Pods|Capsules|Yogurt|Pot)\b")
 VESSEL = re.compile(r"\b(Mug|Mugs|Cup|Cups|Tumbler|Travel Cup)\b")
 CUT = re.compile(r",|\d| for | with | of | in | to ")
 
@@ -126,7 +126,7 @@ def test_a_pickled_ceiling_leaves_every_drawn_shape_registered(records):
 def _expected_loo_shape(title: str) -> str:
     if "Block" in title:
         return "rim_block"
-    return "tub" if "Tablets" in title else "angled_bottle"
+    return "box" if "Tablets" in title else "angled_bottle"  # a box of tablets (gen#1028)
 
 
 def test_a_toilet_cleaner_is_not_drawn_as_a_cup(records):

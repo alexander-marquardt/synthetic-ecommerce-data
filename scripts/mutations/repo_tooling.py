@@ -367,8 +367,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         "sports note: a disposition is a placeholder",
         "docs/retail-sports-tree.md",
-        '| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |',
-        "| Bike lights | Cycling | not reached |",
+        '| Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |',
+        "| Camping stoves | Camping | not reached |",
         "tests/test_retail_sports_tree_note_290.py::test_every_type_not_built_has_an_open_issue_or_a_reason",
         "",
         "a Not built disposition is an issue or a reason",

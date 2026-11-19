@@ -134,6 +134,7 @@ from synthetic_ecommerce_data.domains.retail import (
     decoy_apparel,
     decoy_product_words,
     decoy_rows,
+    department_rates,
     dress_features,
     footwear_rows,
     garden_rows,
@@ -154,6 +155,7 @@ from synthetic_ecommerce_data.domains.retail import (
     range_ownership,
     sale_share,
     shoe_grid,
+    smart_home_rows,
     stable_ids,
     style_table,
     type_registry,
@@ -208,25 +210,13 @@ HERE = Path(__file__).resolve().parent
 #: owns (:mod:`range_ownership`), so a range name is never under a second brand (gen#623).
 RANGE_SLOTS = 60
 
-#: Invented brands a department's derived styles may carry, beside its template brands.
-EXTRA_BRANDS: dict[str, tuple[str, ...]] = {
-    "Clothing": ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street"),
-    "Lingerie & Nightwear": ("Dovecote Lane", "Hushwell"),
-    "Home": ("Larchwood Living", "Emberly Home", "Cobble & Kiln"),
-    "Beauty": ("Brightwater Botanics", "Orrin Skin"),
-    "Food & Drink": ("Mossgill Dairy", "Wheatsheaf Lane", "Barrowby Kitchen"),
-    "Footwear": ("Cobbleway", "Treadmoor"),
-    "Garden": ("Rookery Garden Co.",),
-    "Gifts": ("Ribbonvale",),
-    "Toys": ("Pipwick Toys",),
-    "Cleaning & Janitorial": ("Clearbrook Household", "Soapwell"),
-}
+#: Invented brands a department's derived styles may carry, beside its template brands: each
+#: department's ``EXTRA_BRANDS`` in :mod:`department_rates` (gen#1044). Add a brand there.
+EXTRA_BRANDS = department_rates.extra_brands()
 
-#: The share of derived styles per department; the rest split by template count.
-DEPARTMENT_SHARE = {
-    "Clothing": 0.44, "Lingerie & Nightwear": 0.04, "Footwear": 0.10,
-    "Home": 0.20, "Beauty": 0.08,
-}  # fmt: skip
+#: The share of derived styles per department, each department's ``SHARE`` in
+#: :mod:`department_rates` (gen#1044); the rest split by template count.
+DEPARTMENT_SHARE = department_rates.shares()
 
 
 #: Leaf weight within a department: 1 / rank ** ZIPF_S, where a leaf's rank is a hash of its
@@ -236,31 +226,11 @@ ZIPF_S = 1.0
 LEAF_RANKS = 40
 
 #: Department -> the rate at which each of its templates draws a derived style, before its leaf's
-#: weight. A template's rate depends on its department and leaf alone, never on how many
-#: templates there are, so adding one adds its styles and moves no other (gen#626). The figures
-#: are :data:`DEPARTMENT_SHARE` (the rest by template count) divided by the department's summed
-#: leaf weights at the templates of gen#626; ``tests/test_retail_stable_ids_626.py`` fails when
-#: the shares they give drift more than 10 points, which is the signal to recompute them. Beauty's
-#: was recomputed when gen#957 added the hair tools and four shampoos and conditioners (11.6% of
-#: derived styles at 0.02503, against its 8%). Home's is recomputed for the sheet sets, pillows and
-#: food storage of gen#963 slice 2 (0.01009 times its 20% target over the 23.2% it reached).
-#: Electronics' is its by-template-count share over its summed leaf weights (1.6%), set with both
-#: slices of gen#956 present (audio, gaming and gadgets): it drew 1.54% at 0.001461.
-#: Cleaning's is recomputed for the paper goods of gen#962 slice 1 (0.008594 times its 2.28%
-#: target over the 2.69% it reached).
-#: Clothing's is raised from 0.01227 to 0.0124 for the coffee makers, air fryers and
-#: blenders of slice 1 (Home took its share from 41.2% to 40.9%), then recomputed to 0.013232
-#: for the school backpacks, colored pencils and desk organizers of gen#969 slice 3 (0.0124
-#: times its 44% target over the share it reached), then merged with main's 0.01405 for
-#: the other new types (both dilute Clothing: 0.0124 x 1.067 x 1.133 = 0.01499).
-#: Pets (gen#967 slice 1) was checked against 0.01499: every share stays inside its cap.
-DEPARTMENT_RATE = {
-    "Clothing": 0.01499, "Lingerie & Nightwear": 0.003558, "Home": 0.00835,
-    "Beauty": 0.01665, "Food & Drink": 0.006468, "Toys": 0.005199,
-    "Cleaning & Janitorial": 0.007275, "Gifts": 0.0048, "Garden": 0.005990,
-    "Footwear": 0.01799, "Electronics": 0.001461,
-}  # fmt: skip
-#: The rate of a department the table does not hold yet.
+#: weight: one module per department under :mod:`department_rates`, which holds each rate's
+#: calibration note and how a rate is recomputed (gen#626, gen#1044). Change a rate there, never
+#: here.
+DEPARTMENT_RATE = department_rates.rates()
+#: The rate of a department :mod:`department_rates` has no module for yet.
 DEFAULT_RATE = 0.008
 
 #: Draws per template before it counts as exhausted.
@@ -604,6 +574,7 @@ def derive(tpl: dict, pid: str, name: str, brand: str, values: dict[str, str],
             if "color" not in s or s["color"] in rank]  # fmt: skip
     skus.sort(key=lambda s: rank.get(s.get("color"), 0))
     _sku_values(rec, skus, sku_swaps)
+    smart_home_rows.fit_bulb(tpl, rec, skus)  # a candle bulb is never 1521 lm (gen#956)
     if colors:
         kept = len({s["color"] for s in skus if "color" in s})
         rec["title"] = _restate_color_count(rec["title"], kept)
@@ -732,7 +703,7 @@ def _range_deal(tpls: list[dict], brands: dict[tuple[str, str], list[str]]) -> r
     reserved = {x for r in tpls if (x := _line(r))}
     reserved |= {w for r in tpls for w in re.findall(r"[A-Za-z]+", r["brand"])}
     names = {b for pool in brands.values() for b in pool}
-    return range_ownership.Deal("scale", names, reserved)
+    return range_ownership.Deal("scale", names, reserved, roster=range_ownership.SCALE)
 
 
 @dataclass
@@ -785,6 +756,8 @@ def _signatures(tpl: dict, shown: list[str], pools: dict) -> list[tuple]:
     combos: list[tuple] = [()]
     for k in shown:
         combos = [(*c, v) for c in combos for v in pools[(leaf, k)]]
+    combos = [c for c in combos
+              if smart_home_rows.real_pair(leaf, dict(zip(shown, c, strict=True)))]  # fmt: skip
     families = list(dict.fromkeys(_family(c) for c in tpl.get("color_options", ()))) or [None]
     mine = signature(tpl, shown)
     return [(c, f) for c in combos for f in families if (c, f) != mine]
@@ -857,6 +830,7 @@ def _draw(tpl: dict, ctx: _Context, brands: list[str], owners: dict[str, str],
         name = deal.owned(brand, slot, kind) if deal else ctx.names.owned(brand, slot)
         changes = {k: (old[k], v) for k, v in values.items() if v != old[k]}
         price = tpl["price"] * price_factor(changes) * rng.uniform(*JITTER)
+        price *= smart_home_rows.shape_factor(tpl, changes)  # a candle costs more (gen#956)
         target = price_point(min(max(price, lo), hi), lo, hi)
         if target == tpl["price"]:  # a re-drawn price is never the template's own
             up = target + _step(target)

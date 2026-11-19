@@ -359,6 +359,34 @@ shape's parts and checks the glove. Every SKU of a product shares its angle and 
 paper (#849). Before and after, the first product of each type and three of its SKUs:
 [before](images/breadth-figures-873-before.svg), [after](images/breadth-figures-873-after.svg).
 
+### A cleaning product is drawn as its own pack (gen#1028)
+
+The maintainer, 2026-11-15: "laundry detergent should look different than a cup .. so should
+dish soap". Liquid laundry detergent, fabric softener, dish soap and the grocery glass cleaners
+drew the plain `bottle`. Glass wipes, toilet tablets, scent beads and dishwasher tablets drew
+the retail `tub`, a tall open pot that reads as a paper cup. `kit_cleaning.py` adds two packs:
+`jug` (a wide laundry jug, a grip hole through its upper right, a ribbed cap) and
+`squeeze_bottle` (a waisted bottle under a flip cap). Each is drawn in the colorway's base, with
+the cap in its accent. Liquid laundry detergent and fabric softener draw `jug`, and dish soap
+draws `squeeze_bottle`, except the pump. Glass cleaner draws `trigger_spray`, except the refill
+and the concentrate (bottles) and the wipes (`wipes_pack`). Toilet tablets come in a `box`, and
+dishwasher tablets in `dishwasher_tablets`. Laundry pods and capsules and the gel air freshener
+stay on `tub`, because they are real tubs. `tests/test_retail_cleaning_packs_1028.py` pins each
+type's pack and both new shapes, and checks that no brand draws two products alike in a cleaning
+leaf. `TUB_TYPES` in `tests/test_retail_supplement_bottle_1028.py` lists every type still drawn
+as a `tub`, so a new one shows in review.
+
+### `tub` is drawn as a real lidded tub (gen#1028)
+
+The maintainer: "that 'tub' drawing label feels a bit misleading if it looks like a cup". The
+retail `tub` (`kit.tub`) is now short and wide. Its wall flares a little up to a lid with a rim,
+in a light tone of the colorway's accent, where it used to be a tall open pot. Only real tubs
+draw it: yogurt, laundry pods and capsules, the gel air freshener pot and the car wax pot.
+Butter and spreads draw the grocery `lidded_tub`, which is a taller pot with a snap-on lid and a
+thumb tab. The one hot chocolate that drew `tub` (`PLT-HCORNG`) is a `tin`.
+`tests/test_retail_tub_redraw_1028.py` pins the redrawn tub on a yogurt and checks the hot
+chocolate leaf, and `TUB_TYPES` names only those real tubs.
+
 ## Determinism and the publish gate
 
 A drawing is a pure function of `(product_type, brand, record)`. It does not

@@ -72,7 +72,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 
 * Who owns a brand: `owners=(("Brand", "own"),)` in the spec when no module states it yet
   (`type_registry.TypeSpec`; `specs()` registers it in `breadth_rows.OWNERS`, gen#1040); an
-  older module adds the brand to `breadth_rows.OWNERS`. A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
+  older module adds the brand to `breadth_rows.OWNERS` and goes in `brand_owners.SOURCES`: `doc()` reads `brand_owners.owner()`, which imports every source first (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
 * Every brand also needs one row in `house_styles.HOUSE_STYLES` (the frame, outline and
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
@@ -95,7 +95,7 @@ and its decoys are too. A spec needs no edit to `templates()`, and neither `scal
 `export.drawing_spec` is the style's drawing in the SKU's color swatch plus the SKU's own value
 of each drawing param. So a style yields one image per colorway, and a drawing param that varies
 by SKU (a lamp's `finish`) yields one per value. A style whose SKUs differ on its type's declared size axis adds `size_scale`
-(`size_ladder.py`, gen#339, gen#719): one image per rung, the smallest at 55/90 of the largest (its own size). A new type with a SKU key that varies declares it in `size_axes.py`, in `AXES` or as one of `NOT_SIZES`; `tests/test_retail_size_axes_719.py` refuses anything else.
+(`size_ladder.py`, gen#339, gen#719): one image per rung, the smallest at 55/90 of the largest (its own size), or at a drawing shape's own narrower bottom in `size_ladder.BOTTOMS` (a bicycle: 74/90, #1049). A new type with a SKU key that varies declares it in `size_axes.py`, in `AXES` or as one of `NOT_SIZES`; `tests/test_retail_size_axes_719.py` refuses anything else.
 A size outside the axis adds none, except a SKU with a `net_volume_ml` or `net_weight_g` (Food & Drink and Beauty also
 `units_per_pack`), drawn at the cube root of that content against its style's largest size, floored at 0.6
 (`pack_scale.factor`). Both scale the drawing about its bottom center (`kit.render(shrink=)`); one size is unchanged. A pack of N draws N copies of the drawing, or its outer box above 24 (`pack_copies.py`, gen#728); socks and knickers fan rather than stand in rows (`pack_copies.FANS`, gen#734).

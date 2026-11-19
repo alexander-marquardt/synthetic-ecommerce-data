@@ -46,6 +46,7 @@ APPAREL_TESTS = "tests/test_retail_apparel_decoys_311.py"
 DETAILS = f"{RD}/details.py"
 FIGURES = f"{RD}/retail_figures.py"
 REGISTRY = f"{RD}/type_registry.py"
+ORIENT = f"{RD}/orientation.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -59,6 +60,21 @@ APPENDS = {
     "figures-family-docs": (FIGURES, '        "probe_rows": probe_rows.docs(),', "BUILD_SOURCES"),
     "build-source": (REGISTRY, '    "probe_rows",', "type_specs"),
     "scale-ids": (SCALE, "PROBE_IDS = frozenset(r.code for r in probe_rows.ROWS)", "type_specs"),
+    "scale-rate-row": (SCALE, '    "Pets": 0.004, "Electronics": 0.001461,', "department_rates/"),
+    "scale-rate-table": (SCALE, '_EXTRA_RATE = {"Pets": 4e-3}', "department_rates/"),
+    "scale-rate-rebound": (
+        SCALE,
+        "DEPARTMENT_RATE = {**department_rates.rates(), **_PETS}",
+        "department_rates/",
+    ),
+    "scale-rate-set": (SCALE, 'DEPARTMENT_RATE["Electronics"] = 0.002', "department_rates/"),
+    "scale-rate-update": (SCALE, "DEPARTMENT_RATE.update(_PETS)", "department_rates/"),
+    "scale-rate-merge": (SCALE, "DEPARTMENT_RATE |= _PETS", "department_rates/"),
+    "scale-rate-annotated": (
+        SCALE,
+        "DEPARTMENT_RATE: dict[str, float] = dict(Home=0.009)",
+        "department_rates/",
+    ),
     "decoy-row": (
         DECOY_ROWS,
         '    _d("XZ01", "sofa", "Title", "Desc", "Red", 1, "red sofa", 720),',
@@ -150,6 +166,13 @@ APPENDS = {
     ),
     "parts-entry": (DETAILS, '    "probe_coat": {"hem": TORSO_HEM},', "register_parts"),
     "parts-open": (DETAILS, '    "probe_coat": {', "register_parts"),
+    "orientation-shape": (ORIENT, '    "kayak",', "orientations/<owner>.py"),
+    "orientation-tuple": (
+        ORIENT,
+        'UPRIGHT: tuple[str, ...] = ("kayak",)',
+        "orientations/<owner>.py",
+    ),
+    "orientation-entry": (ORIENT, '    "kayak": "upright",', "orientations/<owner>.py"),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -171,6 +194,7 @@ BASE = {
         'WORDS = frozenset({\n    "Cami Bra",\n})\n\n\ndef test_x(rows):\n    assert rows\n'
     ),
     DETAILS: 'PARTS = {\n    "raincoat": {"hem": TORSO_HEM},\n}\n',
+    ORIENT: 'ORIENTATION = {\n    **dict.fromkeys(ANY, "any"),\n}\n',
     FIGURES: "from x import (\n    export,\n)\n",
     REGISTRY: 'BUILD_SOURCES = (\n    "samples",\n    "foo_rows",\n)\n',
 }
@@ -256,6 +280,32 @@ def test_a_row_edited_in_place_is_not_an_append(repo, capsys):
     text = BASE[WORDS].replace("Block Heel", "Block Heel Shoes")
     _commit(root, "feature", {WORDS: text})
     assert _run(root, base, capsys)[0] == 0
+
+
+def test_the_rate_built_from_its_package_and_a_share_are_not_a_rate_line(repo, capsys):
+    """Only a department's rate has a module of its own (gen#1044): building ``DEPARTMENT_RATE``
+    from the package, a ``DEPARTMENT_SHARE`` entry and ``DEFAULT_RATE`` stay in ``scale.py``."""
+    root, base = repo
+    lines = [
+        "DEPARTMENT_RATE = department_rates.rates()",
+        "DEPARTMENT_RATE: dict[str, float] = department_rates.rates()  # gen#1044",
+        '    "Pets": 0.05, "Home": 0.20,',
+        "DEFAULT_RATE = 0.008",
+        "    rate = DEPARTMENT_RATE.get(department, DEFAULT_RATE)",
+    ]
+    _commit(root, "feature", {SCALE: BASE[SCALE] + "\n".join(lines) + "\n"})
+    code, out = _run(root, base, capsys)
+    assert code == 0, out
+
+
+def test_no_line_of_scale_on_main_is_a_department_rate():
+    """The rates left ``scale.py`` in gen#1044 slice 1; the row's shapes find none there now, so
+    the guard refuses only a rate added back."""
+    rate_rows = [r for r in guard.REGISTRIES if r.path == SCALE and "department_rates" in r.form]
+    assert len(rate_rows) == 1
+    lines = (ROOT / SCALE).read_text(encoding="utf-8").splitlines()
+    hits = [ln for ln in lines if any(s.search(ln) for s in rate_rows[0].shapes)]
+    assert hits == []
 
 
 def test_a_line_removed_is_not_an_append(repo, capsys):

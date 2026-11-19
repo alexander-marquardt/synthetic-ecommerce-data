@@ -37,8 +37,22 @@ SECOND_INCREMENT = (
 FIRST_INCREMENT = (
     "Tent", "Sleeping Bag", "Camping Chair", "Yoga Mat", "Dumbbell", "Kettlebell", "Foam Roller",
 )  # fmt: skip
+#: The Fishing and Golf types of gen#959 (decoys in ``feature_decoys/fishing_golf_959.py``).
+FISHING_GOLF = ("Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove")
+#: The fitness, team and racket types of gen#959 slice 2 (decoys in
+#: ``feature_decoys/fitness_team_959.py``).
+FITNESS_TEAM = (
+    "Exercise Bike", "Weight Plate", "Weight Bench", "Basketball", "Volleyball", "Shin Guard",
+    "Hockey Stick", "Pickleball Paddle", "Table Tennis Bat",
+)  # fmt: skip
+#: The outdoors and winter-sports types of gen#959 slice 3 (decoys in
+#: ``feature_decoys/outdoor_winter_959.py``).
+OUTDOOR_WINTER = (
+    "Hiking Backpack", "Cooler", "Insulated Water Bottle", "Bike Light", "Bike Lock", "Sled",
+    "Snowboard", "Ski Goggles",
+)  # fmt: skip
 #: Every type this file holds to the two-decoy floor.
-SPORTS_TYPES = (*FIRST_INCREMENT, *SECOND_INCREMENT)
+SPORTS_TYPES = (*FIRST_INCREMENT, *SECOND_INCREMENT, *FISHING_GOLF, *FITNESS_TEAM, *OUTDOOR_WINTER)
 COLOR_WORDS = {c.lower() for c in dpw.COLORS} - {"clear"}  # glass is clear, not a color
 
 

@@ -327,6 +327,10 @@ DISTINCT_SPEC_FLOOR = {
     # sell the same ones. Measured at 100K, 260 distinct specs of 395 SKUs (0.658), rounded
     # down to 0.05.
     "picture_hangers": 0.65,
+    # #958: a cabinet hinge is a style, a metal and a color on a stocked length, and makers
+    # sell the same ones. Measured at 100K, 328 distinct specs of 377 SKUs (0.870), rounded
+    # down to 0.05.
+    "cabinet_hinges": 0.85,
     # #971: a stud finder is a style, an indicator and a scan-mode tier (13 lines), a body
     # color and the tier's two scan depths, 156 specs, and every maker sells the same ones.
     # Measured at 100K, 156 distinct specs of 345 SKUs (0.452), rounded down to 0.05.
@@ -335,6 +339,10 @@ DISTINCT_SPEC_FLOOR = {
     # 540 specs, and makers sell the same ones. Measured at 100K, 308 distinct specs of 384
     # SKUs (0.802), rounded down to 0.05.
     "tape_measures": 0.80,
+    # #971: a utility knife is a style on its blade width, a handle material, a color and a
+    # blade count, 432 specs, and makers sell the same ones. Measured at 100K, 306 distinct
+    # specs of 388 SKUs (0.789), rounded down to 0.05.
+    "utility_knives": 0.75,
     # #971: a household tool set is a container, a tool steel and a color on a stocked piece
     # count, 648 specs, and makers sell the same ones. Measured at 100K, 310 distinct specs of
     # 394 SKUs (0.787), rounded down to 0.05.

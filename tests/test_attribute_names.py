@@ -156,7 +156,7 @@ def test_every_category_leaf_ends_in_its_own_product_noun():
             heads = [
                 noun
                 for noun in names.PRODUCT_NOUNS
-                if re.search(rf"\b{re.escape(noun.lower())}(e?s)$", leaf)
+                if re.search(rf"\b{names.noun_forms(noun.lower(), singular=False)}$", leaf)
             ]
             assert heads, (type_key, leaf)
 
@@ -168,7 +168,8 @@ def test_the_head_noun_rule_bites():
     # before them use it, so this stays a genuine negative control.
     leaf = "tap handles"
     assert not any(
-        re.search(rf"\b{re.escape(noun.lower())}(e?s)$", leaf) for noun in names.PRODUCT_NOUNS
+        re.search(rf"\b{names.noun_forms(noun.lower(), singular=False)}$", leaf)
+        for noun in names.PRODUCT_NOUNS
     )
 
 

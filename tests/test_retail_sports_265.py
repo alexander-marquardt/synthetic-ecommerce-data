@@ -20,6 +20,9 @@ from synthetic_ecommerce_data.domains.retail import (
     export,
     kit,
     kit_cycling,
+    kit_fishing_golf,
+    kit_fitness_team,
+    kit_outdoor_winter,
     kit_sports,
     main_colors,
     scale,
@@ -72,6 +75,32 @@ KEYS = {
     "Bike Bottle": {"bottle_type", "insulated", "capacity", "color"},
     "Bike Saddle": {"saddle_type", "padding", "color"},
     "Bike Pedals": {"pedal_type", "material", "color"},
+    # gen#959: the Fishing and Golf families, drawn by kit_fishing_golf
+    "Fishing Rod": {"rod_power", "material", "rod_type", "pieces", "item_length", "color"},
+    "Fishing Reel": {"body_material", "ball_bearings", "reel_type", "reel_size", "color"},
+    "Tackle Box": {"trays", "tackle_type", "material", "size", "color"},
+    "Golf Club": {"shaft_material", "club_type", "handedness", "color"},
+    "Golf Ball": {"cover", "construction", "pack_size", "color"},
+    "Golf Glove": {"material", "worn_on", "size", "color"},
+    # gen#959 slice 2: fitness, team and racket sports, drawn by kit_fitness_team
+    "Exercise Bike": {"resistance_type", "bike_style", "console", "max_load_kg", "color"},
+    "Weight Plate": {"material", "bore", "plate_grip", "weight", "color"},
+    "Weight Bench": {"bench_type", "upholstery", "bench_grade", "max_load_kg", "color"},
+    "Basketball": {"cover", "court", "ball_grade", "ball_size", "color"},
+    "Volleyball": {"cover", "play", "ball_grade", "ball_size", "color"},
+    "Shin Guard": {"shell", "guard_type", "guard_profile", "size", "color"},
+    "Hockey Stick": {"material", "hockey_type", "blade_curve", "handedness", "color"},
+    "Pickleball Paddle": {"paddle_weight", "face", "paddle_shape", "grip_size", "color"},
+    "Table Tennis Bat": {"blade", "play_style", "bat_rubber", "handle_shape", "color"},
+    # gen#959 slice 3: outdoors and winter sports, drawn by kit_outdoor_winter
+    "Hiking Backpack": {"pack_fabric", "pack_frame", "pack_opening", "capacity", "color"},
+    "Cooler": {"cooler_use", "cooler_type", "ice_retention", "capacity", "color"},
+    "Insulated Water Bottle": {"bottle_coating", "bottle_mouth", "bottle_lid", "capacity", "color"},
+    "Bike Light": {"light_power", "light_position", "light_modes", "light_output", "color"},
+    "Bike Lock": {"lock_grade", "lock_type", "lock_opening", "item_length", "color"},
+    "Sled": {"sled_build", "sled_riders", "sled_type", "item_length", "color"},
+    "Snowboard": {"riding_style", "board_shape", "board_profile", "item_length", "color"},
+    "Ski Goggles": {"lens_coating", "lens_shape", "goggle_fit", "size", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -92,6 +121,18 @@ AXES = {
     "Swim Armbands": ("max_load_kg", "max_load_kg", "KGM"),
     "Football": ("ball_size", "ball_size", "C62"),
     "Badminton Set": ("players", "players", "C62"),
+    "Fishing Rod": ("length_cm", "item_length", "CMT"),
+    "Exercise Bike": ("max_load_kg", "max_load_kg", "KGM"),
+    "Weight Plate": ("weight_kg", "weight", "KGM"),
+    "Weight Bench": ("max_load_kg", "max_load_kg", "KGM"),
+    "Basketball": ("ball_size", "ball_size", "C62"),
+    "Volleyball": ("ball_size", "ball_size", "C62"),
+    "Hiking Backpack": ("capacity_l", "capacity", "LTR"),
+    "Cooler": ("capacity_l", "capacity", "LTR"),
+    "Insulated Water Bottle": ("capacity_ml", "capacity", "MLT"),
+    "Bike Lock": ("length_cm", "item_length", "CMT"),
+    "Sled": ("length_cm", "item_length", "CMT"),
+    "Snowboard": ("length_cm", "item_length", "CMT"),
 }
 
 #: A SKU axis that is a plain word or number, never a unit: the export key it becomes.
@@ -100,6 +141,17 @@ PLAIN_AXES = {
     "Camping Lantern": ("brightness_lm", "brightness"),
     "Tennis Racket": ("grip", "grip_size"),
     "Picnic Blanket": ("dimensions", "dimensions"),
+    "Fishing Reel": ("reel_size", "reel_size"),
+    "Tackle Box": ("size", "size"),
+    "Golf Club": ("handedness", "handedness"),
+    "Golf Ball": ("pack_size", "pack_size"),
+    "Golf Glove": ("size", "size"),
+    "Shin Guard": ("size", "size"),
+    "Hockey Stick": ("handedness", "handedness"),
+    "Pickleball Paddle": ("grip", "grip_size"),
+    "Table Tennis Bat": ("handle_shape", "handle_shape"),
+    "Bike Light": ("light_output", "light_output"),
+    "Ski Goggles": ("size", "size"),
 }
 
 
@@ -135,7 +187,15 @@ def test_every_type_has_two_styles_from_two_brands() -> None:
 
 
 def test_every_style_draws_as_its_own_sports_shape() -> None:
-    shapes = kit_sports.SHAPES | kit_cycling.SHAPES  # gen#625 draws the cycling accessories
+    # gen#625 draws the cycling accessories, gen#959 the fishing, golf, fitness, team, outdoors
+    # and winter types
+    shapes = (
+        kit_sports.SHAPES
+        | kit_cycling.SHAPES
+        | kit_fishing_golf.SHAPES
+        | kit_fitness_team.SHAPES
+        | kit_outdoor_winter.SHAPES
+    )
     assert {r.code: r.shape for r in ROWS if r.shape not in shapes} == {}
     assert len({r.shape for r in ROWS}) == len(KEYS)
 
@@ -190,7 +250,8 @@ def test_a_tent_sells_each_berth_and_the_berths_grow_with_the_price() -> None:
 
 def test_a_weight_is_sold_in_kilograms_that_differ_by_style() -> None:
     weights = {r.code: [w for w, _ in r.sizes] for r in ROWS if r.size_key == "weight_kg"}
-    assert len(weights) == 4 and all(len(set(w)) == len(w) >= 3 for w in weights.values())
+    # two dumbbells, two kettlebells and the four weight plates of gen#959 slice 2
+    assert len(weights) == 8 and all(len(set(w)) == len(w) >= 3 for w in weights.values())
     assert weights["KTBCST"] != weights["KTBVIN"]
 
 
@@ -231,6 +292,29 @@ VARIANTS = [
     ("football", {"panels": "classic"}, {"panels": "modern"}),
     ("tennis_racket", {"strings": "open"}, {"strings": "dense"}),
     ("badminton_set", {"players": "2"}, {"players": "4"}),
+    ("fishing_rod", {"rod_type": "spinning"}, {"rod_type": "fly"}),
+    ("fishing_reel", {"reel_type": "spinning"}, {"reel_type": "baitcasting"}),
+    ("tackle_box", {"tackle_type": "cantilever"}, {"tackle_type": "drawer"}),
+    ("golf_club", {"club_type": "driver"}, {"club_type": "putter"}),
+    ("golf_ball", {"construction": "2-piece"}, {"construction": "4-piece"}),
+    ("golf_glove", {"material": "cabretta leather"}, {"material": "synthetic"}),
+    ("exercise_bike", {"bike_style": "upright"}, {"bike_style": "recumbent"}),
+    ("weight_plate", {"material": "cast iron"}, {"material": "urethane"}),
+    ("weight_bench", {"bench_type": "flat"}, {"bench_type": "adjustable"}),
+    ("basketball", {"cover": "rubber"}, {"cover": "composite"}),
+    ("volleyball", {"play": "indoor"}, {"play": "beach"}),
+    ("shin_guard", {"guard_type": "slip-in"}, {"guard_type": "sleeve"}),
+    ("hockey_stick", {"hockey_type": "ice"}, {"hockey_type": "street"}),
+    ("pickleball_paddle", {"face": "graphite"}, {"face": "wood"}),
+    ("table_tennis_bat", {"blade": "wood"}, {"blade": "carbon"}),
+    ("hiking_backpack", {"pack_frame": "internal frame"}, {"pack_frame": "frameless"}),
+    ("cooler", {"cooler_type": "hard"}, {"cooler_type": "wheeled"}),
+    ("bottle_insul", {"bottle_lid": "screw cap"}, {"bottle_lid": "straw lid"}),
+    ("bike_light", {"light_position": "front"}, {"light_position": "rear"}),
+    ("bike_lock", {"lock_type": "shackle"}, {"lock_type": "chain"}),
+    ("sled", {"sled_type": "toboggan"}, {"sled_type": "saucer"}),
+    ("snowboard", {"board_profile": "camber"}, {"board_profile": "rocker"}),
+    ("ski_goggles", {"lens_shape": "spherical"}, {"lens_shape": "toric"}),
 ]
 
 
@@ -306,8 +390,18 @@ def test_the_department_sits_in_the_tree_under_the_guards_rules() -> None:
 def test_the_tree_has_camping_and_yoga_and_fitness_under_the_root() -> None:
     families = {p[1] for p in _paths()}
     assert families == {
-        "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports",
-        "Water Sports", "Wheeled Sports",
+        "Camping",
+        "Yoga & Fitness",
+        "Cycling",
+        "Baseball",
+        "Swimming",
+        "Team & Racket Sports",
+        "Water Sports",
+        "Wheeled Sports",
+        "Fishing",
+        "Golf",
+        "Hiking",
+        "Winter Sports",
     }
     assert {p[-1] for p in _paths()} >= {"Dome Tents", "Tunnel Tents", "Sleeping Bags", "Dumbbells"}
     assert all(len(p) >= 3 for p in _paths())
@@ -328,10 +422,24 @@ def test_a_title_naming_a_deeper_node_must_sit_in_it() -> None:
     assert tree_guard.misplaced_title_findings(rows) != []
 
 
+#: The breadth types of gen#959, derivable on purpose: the scaled build draws more styles from them.
+DERIVABLE = frozenset(
+    {
+        "Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove",
+        "Exercise Bike", "Weight Plate", "Weight Bench", "Basketball", "Volleyball", "Shin Guard",
+        "Hockey Stick", "Pickleball Paddle", "Table Tennis Bat", "Hiking Backpack", "Cooler",
+        "Insulated Water Bottle", "Bike Light", "Bike Lock", "Sled", "Snowboard", "Ski Goggles",
+    }
+)  # fmt: skip
+
+
 def test_the_sports_styles_are_left_out_of_the_derivation() -> None:
     tpls = scale.templates()
     kept = {r["product_id"] for r in scale.derivable(tpls)}
-    assert SPORTS_IDS and not (SPORTS_IDS & kept)
+    fixed = {f"BRD-{r.code}" for r in ROWS if r.product_type not in DERIVABLE}
+    breadth = {f"BRD-{r.code}" for r in ROWS if r.product_type in DERIVABLE}
+    assert fixed and not (fixed & kept)
+    assert breadth and breadth <= kept
 
 
 @pytest.mark.timeout(300)
