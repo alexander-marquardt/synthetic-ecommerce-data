@@ -1,4 +1,4 @@
-# Baby gear, slices 1 and 2 (gen#965)
+# Baby gear, slices 1 to 3 (gen#965)
 
 Kids > Baby sold clothing only, so a search for `diapers`, `baby wipes` or a `glass baby bottle`
 found nothing. Slice 1 adds the first three gear types under it, each a spec of its own:
@@ -49,8 +49,7 @@ bottles that are white).
 
 **Measured** (ceiling build, seed 0): the slice's size, its styles per type and the authored and
 derived split are read from the build (`retail_figures`), never typed here. Strollers, car seats
-and high chairs are slice 2 (below); nursery furniture and baby monitors are a later slice of
-gen#965. The guards are in `tests/test_retail_baby_gear_965.py`.
+and high chairs are slice 2, and cribs and baby monitors slice 3 (below). The guards are in `tests/test_retail_baby_gear_965.py`.
 
 ## Slice 2: strollers, car seats and high chairs
 
@@ -89,3 +88,45 @@ stroller that is black, a `Yellow Finch` high chair that is not yellow).
 
 **Breadth.** The three are derivable, as in slice 1, and take the slice past its floor of 1,100
 SKUs at the ceiling build.
+
+## Slice 3: cribs and baby monitors
+
+A search for `crib` or `baby monitor` found nothing either. Slice 3 adds the two under two new
+nodes: `Nursery Furniture` and `Safety`.
+
+| Type | Spec | Path | Templates | SKU axis |
+|---|---|---|---|---|
+| Crib | `type_specs/crib.py` | Kids > Baby > Nursery Furniture > Cribs | Standard, Convertible, Mini (`crib_style`) | color |
+| Baby Monitor | `type_specs/baby_monitor.py` | Kids > Baby > Safety > Baby Monitors | Audio, Video, Smart (`monitor_type`) | color |
+
+**Colors.** As in slice 2, one SKU per color (`baby_gear_rows.gear_row`): the crib's painted frame
+and the monitor's casing take it, and the templates' colors spread the six main colors.
+
+**Drawings.** `kit_baby_gear.py` draws two more shapes, each with a param per template above.
+`crib` draws slatted sides on four short legs (standard), arched end panels with a toddler guard
+on the front (convertible), or a small frame on locking castors (mini). `baby_monitor` draws a
+handset with a speaker grille and a sound light bar beside a small baby unit (audio), a parent
+screen beside a camera on a stand (video), or a phone app beside a Wi-Fi camera (smart).
+`orientations/baby_gear.py` lists both as upright.
+
+**Text that survives a derived style.** A derived style swaps the feature and the style words of
+its template's title and description and keeps the rest of the description. So every feature
+suits every style (no "Split Screen Audio" monitor, no "Folding Convertible" crib), and the rest
+of each description names nothing that belongs to one style: no screen size, mattress size or
+castors.
+
+**Titles.** The two kinds are a line grammar family of their own,
+`line_grammar_families/nursery_gear.py`, not kinds of the baby gear family. A family's lead words
+are dealt over its brands, so a kind added to `baby_gear.py` would deal them again and rename the
+strollers, car seats and high chairs already sold. The lead words are plain English words of a
+quiet room at night ("Moonbeam", "Hushaby", "Firefly"), so a title reads "Cobble & Kiln Starling
+Wipe-Clean Standard Crib".
+
+**Decoys.** Each type carries two: a class 2 (a crib with a `baby monitor` mount, a baby monitor
+with a `crib` mount; neither includes the other) and a class 6 (a `Green Willow` crib that is
+grey, a `Red Robin` baby monitor that is white).
+
+**Breadth.** Both are derivable and take the slice past its floor of 600 SKUs at the ceiling
+build. With them, gen#965's Done-when holds: at least 18,050 `Kids` SKUs, at least 3,261 of them
+baby gear under Kids > Baby. `tests/test_retail_baby_gear_965.py` reads both counts from the
+build.

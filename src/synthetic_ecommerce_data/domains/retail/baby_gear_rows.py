@@ -1,16 +1,17 @@
 """The baby gear of Kids > Baby's shared pieces (gen#965): its paths, brands, colors and rows.
 
-Kids > Baby sold clothing only. Its gear is under three new nodes: ``Diapering`` (diapers and
-baby wipes), ``Feeding`` (baby bottles and high chairs, beside the Beakers already there) and
-``Travel`` (strollers and car seats). Each type is a spec of its own (``type_specs/diapers.py``,
-``baby_wipes.py``, ``baby_bottle.py``, ``stroller.py``, ``car_seat.py``, ``high_chair.py``) drawn
-by :mod:`kit_baby_gear`. The build record's ``department`` is ``Home``, as for the nursery types
-and the baby beakers (:mod:`babywear_rows`), which keys the brand pools; the store's department
-is the top level of the path, ``Kids``. Diapers and wipes carry no color (``colorless``): their
-one color is the pack's, and the drawing takes it. A bottle is sold in a color, and its collar
-takes it; a stroller, a car seat and a high chair are sold in a color, one SKU each
-(:func:`gear_row`), which their fabric takes. The brands are the invented baby and nursery brands
-already on the catalogue.
+Kids > Baby sold clothing only. Its gear is under five new nodes: ``Diapering`` (diapers and baby
+wipes), ``Feeding`` (baby bottles and high chairs, beside the Beakers already there), ``Travel``
+(strollers and car seats), ``Nursery Furniture`` (cribs) and ``Safety`` (baby monitors). Each type
+is a spec of its own (``type_specs/diapers.py``, ``baby_wipes.py``, ``baby_bottle.py``,
+``stroller.py``, ``car_seat.py``, ``high_chair.py``, ``crib.py``, ``baby_monitor.py``) drawn by
+:mod:`kit_baby_gear`. The build record's ``department`` is ``Home``, as for the nursery types and
+the baby beakers (:mod:`babywear_rows`), which keys the brand pools; the store's department is the
+top level of the path, ``Kids``. Diapers and wipes carry no color (``colorless``): their one color
+is the pack's, and the drawing takes it. A bottle is sold in a color, and its collar takes it; a
+stroller, a car seat, a high chair, a crib and a baby monitor are sold in a color, one SKU each
+(:func:`gear_row`), which their fabric, frame or casing takes. The brands are the invented baby and
+nursery brands already on the catalogue.
 """
 
 from __future__ import annotations
@@ -42,6 +43,8 @@ BOTTLES = (*BABY, "Feeding", "Baby Bottles")
 HIGH_CHAIRS = (*BABY, "Feeding", "High Chairs")
 STROLLERS = (*BABY, "Travel", "Strollers")
 CAR_SEATS = (*BABY, "Travel", "Car Seats")
+CRIBS = (*BABY, "Nursery Furniture", "Cribs")
+MONITORS = (*BABY, "Safety", "Baby Monitors")
 
 LITTLE_FERNBY = "Little Fernby"
 FENWOLD = "Fenwold Nursery"
@@ -64,9 +67,10 @@ NAVY = cw("Navy", "#2f4a78", "solid", "#ffffff")
 FABRIC_NAVY = cw("Navy", dark_blues.NAVY, "solid", "#ffffff")
 
 __all__ = [
-    "BABY", "BLACK", "BLUE", "BOTTLES", "CALDERBY", "CAR_SEATS", "DEPARTMENT", "DIAPERS",
+    "BABY", "BLACK", "BLUE", "BOTTLES", "CALDERBY", "CAR_SEATS", "CRIBS", "DEPARTMENT", "DIAPERS",
     "FABRIC_NAVY", "FENWOLD", "GREEN", "GREY", "HIGH_CHAIRS", "HUSHWELL", "LANTERNBY", "LEMON",
-    "LILAC", "LITTLE_FERNBY", "MINT", "MIREFIELD", "NAVY", "PEACH", "PINK", "QUILLON", "RED",
+    "LILAC", "LITTLE_FERNBY", "MINT", "MIREFIELD", "MONITORS", "NAVY", "PEACH", "PINK", "QUILLON",
+    "RED",
     "SKY", "STROLLERS", "THISTLE", "WHITE", "WIPES", "YELLOW", "article", "decoy", "gear_row",
     "packs", "row",
 ]  # fmt: skip
@@ -95,7 +99,8 @@ def article(word: str) -> str:
 def gear_row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str,
              shape: str, description: str, attrs: tuple[tuple, ...], price: float,
              params: tuple[tuple[str, str], ...], colors: tuple) -> Row:  # fmt: skip
-    """One stroller, car seat or high chair style: one SKU per color, no size."""
+    """One stroller, car seat, high chair, crib or baby monitor style: one SKU per color, no
+    size."""
     return Row(code, title, brand, DEPARTMENT, path, product_type, price, shape, description,
                colors, attrs, audience="baby", params=params)  # fmt: skip
 
