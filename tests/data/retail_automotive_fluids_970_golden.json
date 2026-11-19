@@ -1,0 +1,168 @@
+[
+  {
+    "brand": "Ampwick",
+    "category_path": [
+      "Automotive",
+      "Electrics",
+      "Car Chargers"
+    ],
+    "price": 9.9,
+    "product_id": "BRD-AUCCA21",
+    "product_type": "Car Charger",
+    "sku_count": 2,
+    "skus": [
+      {
+        "in_stock": true,
+        "pack_size": "Single",
+        "price": 9.9,
+        "sku": "BRD-AUCCA21-2CAB2F0A"
+      },
+      {
+        "in_stock": true,
+        "pack_size": "2 pack",
+        "price": 17.82,
+        "sku": "BRD-AUCCA21-6E6AE0EB"
+      }
+    ],
+    "title": "Ampwick Dual USB-A Car Charger"
+  },
+  {
+    "brand": "Corvane",
+    "category_path": [
+      "Automotive",
+      "Fluids",
+      "Coolant"
+    ],
+    "price": 10.8,
+    "product_id": "BRD-AUCOUNC1",
+    "product_type": "Coolant",
+    "sku_count": 3,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "1000",
+        "price": 10.8,
+        "sku": "BRD-AUCOUNC1-003D57EE"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "2000",
+        "price": 18.0,
+        "sku": "BRD-AUCOUNC1-795939FD"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "4000",
+        "price": 28.8,
+        "sku": "BRD-AUCOUNC1-4BFD5F2A"
+      }
+    ],
+    "title": "Corvane Universal Antifreeze Coolant Concentrate"
+  },
+  {
+    "brand": "Ampwick",
+    "category_path": [
+      "Automotive",
+      "Electrics",
+      "Jump Starters"
+    ],
+    "price": 67.85,
+    "product_id": "BRD-AUJSLC10001",
+    "product_type": "Jump Starter",
+    "sku_count": 1,
+    "skus": [
+      {
+        "in_stock": true,
+        "price": 67.85,
+        "sku": "BRD-AUJSLC10001-E10808D4"
+      }
+    ],
+    "title": "Ampwick 1000A Lithium Jump Starter"
+  },
+  {
+    "brand": "Corvane",
+    "category_path": [
+      "Automotive",
+      "Fluids",
+      "Motor Oil"
+    ],
+    "price": 11.25,
+    "product_id": "BRD-AUMOF0W161",
+    "product_type": "Motor Oil",
+    "sku_count": 4,
+    "skus": [
+      {
+        "in_stock": true,
+        "net_volume_ml": "1000",
+        "price": 11.25,
+        "sku": "BRD-AUMOF0W161-003D57EE"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "4000",
+        "price": 36.25,
+        "sku": "BRD-AUMOF0W161-4BFD5F2A"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "5000",
+        "price": 43.75,
+        "sku": "BRD-AUMOF0W161-C1C2F3C4"
+      },
+      {
+        "in_stock": true,
+        "net_volume_ml": "20000",
+        "price": 148.75,
+        "sku": "BRD-AUMOF0W161-28D2D67E"
+      }
+    ],
+    "title": "Corvane 0W-16 Full Synthetic Motor Oil"
+  },
+  {
+    "brand": "Holtvane",
+    "category_path": [
+      "Automotive",
+      "Electrics",
+      "Phone Mounts"
+    ],
+    "price": 13.2,
+    "product_id": "BRD-AUPMVC1",
+    "product_type": "Phone Mount",
+    "sku_count": 2,
+    "skus": [
+      {
+        "in_stock": true,
+        "pack_size": "Single",
+        "price": 13.2,
+        "sku": "BRD-AUPMVC1-2CAB2F0A"
+      },
+      {
+        "in_stock": true,
+        "pack_size": "2 pack",
+        "price": 23.76,
+        "sku": "BRD-AUPMVC1-6E6AE0EB"
+      }
+    ],
+    "title": "Holtvane Air Vent Phone Mount"
+  },
+  {
+    "brand": "Ampwick",
+    "category_path": [
+      "Automotive",
+      "Electrics",
+      "Tire Inflators"
+    ],
+    "price": 31.9,
+    "product_id": "BRD-AUTIPL1",
+    "product_type": "Tire Inflator",
+    "sku_count": 1,
+    "skus": [
+      {
+        "in_stock": true,
+        "price": 31.9,
+        "sku": "BRD-AUTIPL1-E10808D4"
+      }
+    ],
+    "title": "Ampwick 12V Plug-In Tire Inflator"
+  }
+]
