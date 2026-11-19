@@ -127,19 +127,19 @@ def _golden(cleaning: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Trash Bags": [
-        ("BRD-024E4FD4E4D7", "Ravwell Tear Resistant Drawstring Kitchen Trash Bags", 6, 6.5),
-        ("BRD-03AE1649B8D3", "Wathington Heavy Duty Tie Handle Bathroom Trash Bags", 12, 4.55),
-        ("BRD-05E73AFE5533", "Lealey Tear Resistant Drawstring Bathroom Trash Bags", 15, 3.95),
+        ("BRD-024E4FD4E4D7", "Mildale Tear Resistant Drawstring Kitchen Trash Bags", 6, 6.5),
+        ("BRD-03AE1649B8D3", "Lonworth Heavy Duty Tie Handle Bathroom Trash Bags", 12, 4.55),
+        ("BRD-05E73AFE5533", "Zenworth Tear Resistant Drawstring Bathroom Trash Bags", 15, 3.95),
     ],
     "Food Storage Bags": [
-        ("BRD-0093A797EFD0", "Clayholme Fold Top Snack Bags, Large", 5, 2.85),
-        ("BRD-03222E9A5BDC", "Burncroft Slider Snack Bags, Medium", 5, 2.15),
-        ("BRD-089DDEE0A793", "Foxwood Fold Top Snack Bags, Small", 5, 2.75),
+        ("BRD-0093A797EFD0", "Horwyke Fold Top Snack Bags, Large", 5, 2.85),
+        ("BRD-03222E9A5BDC", "Horhill Slider Snack Bags, Medium", 5, 2.15),
+        ("BRD-089DDEE0A793", "Stokestone Fold Top Snack Bags, Small", 5, 2.75),
     ],
     "Food Wrap": [
-        ("BRD-00772D88C5D5", "Rushmere Heavy Duty Plastic Wrap, Large Roll", 3, 4.35),
-        ("BRD-02585D96E700", "Ashham Everyday Plastic Wrap, Jumbo Roll", 3, 3.6),
-        ("BRD-06F48834B63E", "Sedthwaite Heavy Duty Wax Paper, Large Roll", 3, 2.75),
+        ("BRD-00772D88C5D5", "Barcliffe Heavy Duty Plastic Wrap, Large Roll", 3, 4.35),
+        ("BRD-02585D96E700", "Kelley Everyday Plastic Wrap, Jumbo Roll", 3, 3.6),
+        ("BRD-06F48834B63E", "Ryworth Heavy Duty Wax Paper, Large Roll", 3, 2.75),
     ],
 }  # fmt: skip
 
