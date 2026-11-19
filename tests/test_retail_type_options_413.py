@@ -90,6 +90,8 @@ MOVED = {
     "golf_club": [Option("handedness", "handedness", "Handedness")],
     # a table tennis bat's handle shape (gen#959 slice 2), declared by its spec from the start
     "table_tennis_bat": [Option("handle_shape", "handle_shape", "Handle shape")],
+    # a bike light's output in lumens (gen#959 slice 3), declared by its spec from the start
+    "bike_light": [Option("light_output", "light_output", "Light output")],
     # a smart bulb's light, connection and brightness (#956)
     "smart_bulb": [
         Option("bulb_light", "bulb_light", "Light"),

@@ -27,6 +27,7 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.feature_decoys import (
     fishing_golf_959,
     fitness_team_959,
+    outdoor_winter_959,
 )
 
 FILMS = (
@@ -188,6 +189,7 @@ def test_the_other_products_of_the_joined_types_are_what_they_were_on_main(catal
         and d["product_id"] not in kids_films.ids() | barry_plotter.ids()  # gen#925 joins them too
         and d["product_id"] not in fishing_golf_959.ids()  # gen#959's decoys share these types
         and d["product_id"] not in fitness_team_959.ids()  # and so do its slice 2 decoys
+        and d["product_id"] not in outdoor_winter_959.ids()  # and its slice 3 decoys
     }
     new = sorted(set(got) - set(pinned["products"]))
     assert all(pid.startswith("BRD-STK") for pid in new), new
