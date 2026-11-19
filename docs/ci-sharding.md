@@ -236,6 +236,13 @@ Of the 25 merge calls the train logged from 10-31 11:15Z to 11-02 00:27Z (its `M
 one went through `merge_pr.sh` (#779, which refused it), so `gen-merge-minutes` was printed for
 none of the merges.
 
+Since agent-ops#2313 (the 2026-11-19 ruling) the train merges optimistically, as agent-ops does: a
+PR merges on agent-ops' shared gate (`coordinator/ghshim/required_checks.py check`), which needs
+every check named in `.github/required-checks.json` green at the PR's head and an ARM for it, and
+merges main in only when main's newer change meets the PR's files or imports. `tests` there is
+the roll-up of the `tests (N)` shards of one run, as the gate reads it. `main-merged-tree` is not
+in the list: it runs only on a push to main, so a PR's head never carries it.
+
 | Run | What its time is | Target | Measured |
 | --- | --- | --- | --- |
 | `merge_pr.sh --local-ci <N>` | `gen-merge-minutes` | under 10 | not run since the train |
