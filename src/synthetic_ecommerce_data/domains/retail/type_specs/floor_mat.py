@@ -13,7 +13,7 @@ from synthetic_ecommerce_data.domains.retail.automotive_interior_rows import (
     FLOOR_MATS,
     INTERIOR_OWNERS,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="floor_mat",
@@ -22,4 +22,5 @@ SPEC = TypeSpec(
     owners=INTERIOR_OWNERS,
     rows=FLOOR_MATS,
     decoys=tuple(Decoy(c, q, p, r) for c, q, p, r in DECOY_ROWS["floor_mat"]),
+    options=(Option("coverage", "coverage", "Coverage", None),),
 )

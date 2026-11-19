@@ -98,12 +98,21 @@ Slice 3 adds the family `Automotive > Interior`: five types whose rows are in
 | Floor Mat | Automotive > Interior > Floor Mats | brand and build (all-weather rubber, trim-to-fit rubber, deep dish liner, carpet, premium carpet) | color x set (front pair, 4-piece set) | material, floor mat type |
 | Trunk Liner | Automotive > Interior > Trunk Liners | brand and build (rubber tray, waterproof fabric, fabric with bumper flap) | color x vehicle size (sedan trunk, midsize SUV, full-size SUV) | material, liner type |
 | Steering Wheel Cover | Automotive > Interior > Steering Wheel Covers | brand and material (faux leather, microfiber suede, silicone, sport grip) | color x rim size (standard, large) | material |
-| Sun Shade | Automotive > Interior > Sun Shades | brand and build (accordion, reflective bubble, twist-fold, umbrella, side window) | size (standard, large, jumbo) or pack size | shade type |
+| Sun Shade | Automotive > Interior > Sun Shades | brand and build (accordion, reflective bubble, twist-fold, umbrella, side window) | windshield size (standard, large, jumbo) or pack size | shade type |
+
+None of these SKU axes is a garment size, so no SKU carries a `size` key: the set a seat cover or
+floor mat comes in is `coverage`, and the car a trunk liner, steering wheel cover or windshield
+shade is cut to is `vehicle_fit` (the side window shade's pack is `pack_size`). Both keys are named
+in `size_axes.NOT_SIZES` as fits, so a style's SKUs share one drawing, and the combined loader
+never reads "Front Pair" or "Sedan Trunk" as a size it cannot place.
 
 Two existing types move out of `Home` (`decoy_word_kinds.py`, `footwear_rows.py` and their spec
 files): Jump Leads to `Automotive > Electrics > Jump Leads`, beside the jump starters, and Car
 Boot Organiser to `Automotive > Interior > Car Boot Organisers`, beside the trunk liners. Their
-rows, brand and decoys are unchanged; only the department and the path move. The boots
+rows, brand and decoys are unchanged; only the department and the path move. The car boot
+organiser in `samples` is now a template only (`Home("samples", False)`), like every Automotive
+type: the scaled build drew no copy of it, and a derivable style would make Automotive a
+department `tests/test_retail_scale.py` holds to a floor of 150 derived styles. The boots
 distractor (`BOOTORG`) still answers no footwear word: it is now a car item instead of a Home one.
 
 With slices 1 and 2 the templates hold 521 Automotive styles and 2,101 SKUs (Seat Cover 225, Floor

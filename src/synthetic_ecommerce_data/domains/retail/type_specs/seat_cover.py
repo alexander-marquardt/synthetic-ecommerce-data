@@ -13,7 +13,7 @@ from synthetic_ecommerce_data.domains.retail.automotive_interior_rows import (
     INTERIOR_OWNERS,
     SEAT_COVERS,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="seat_cover",
@@ -22,4 +22,5 @@ SPEC = TypeSpec(
     owners=INTERIOR_OWNERS,
     rows=SEAT_COVERS,
     decoys=tuple(Decoy(c, q, p, r) for c, q, p, r in DECOY_ROWS["seat_cover"]),
+    options=(Option("coverage", "coverage", "Coverage", None),),
 )

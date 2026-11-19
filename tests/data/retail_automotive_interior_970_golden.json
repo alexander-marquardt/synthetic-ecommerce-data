@@ -13,44 +13,44 @@
     "sku_count": 6,
     "skus": [
       {
-        "sku": "BRD-AUFMRU1-6399B98A",
+        "sku": "BRD-AUFMRU1-A18BEE68",
         "color": "Black",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 24.65,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUFMRU1-E08EF853",
+        "sku": "BRD-AUFMRU1-7CA0705E",
         "color": "Black",
-        "size": "4-Piece Set",
+        "coverage": "4-Piece Set",
         "price": 39.44,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUFMRU1-56855679",
+        "sku": "BRD-AUFMRU1-FAAAAD9C",
         "color": "Grey",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 24.65,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUFMRU1-9303822B",
+        "sku": "BRD-AUFMRU1-BA88C7B6",
         "color": "Grey",
-        "size": "4-Piece Set",
+        "coverage": "4-Piece Set",
         "price": 39.44,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUFMRU1-6914D479",
+        "sku": "BRD-AUFMRU1-A7ED68C3",
         "color": "Beige",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 24.65,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUFMRU1-09B69860",
+        "sku": "BRD-AUFMRU1-D3292AF9",
         "color": "Beige",
-        "size": "4-Piece Set",
+        "coverage": "4-Piece Set",
         "price": 39.44,
         "in_stock": true
       }
@@ -70,86 +70,86 @@
     "sku_count": 12,
     "skus": [
       {
-        "sku": "BRD-AUSCNE1-BF6545F1",
+        "sku": "BRD-AUSCNE1-E0036996",
         "color": "Red",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-7EBD1DDB",
+        "sku": "BRD-AUSCNE1-CD0A5F1D",
         "color": "Red",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-428B5ED8",
+        "sku": "BRD-AUSCNE1-53CC5067",
         "color": "Blue",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-6BAE8CA9",
+        "sku": "BRD-AUSCNE1-F6422E70",
         "color": "Blue",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-B1D00352",
+        "sku": "BRD-AUSCNE1-41E2A2E6",
         "color": "Green",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-52111136",
+        "sku": "BRD-AUSCNE1-E64053D5",
         "color": "Green",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-7C15563F",
+        "sku": "BRD-AUSCNE1-B6923CA5",
         "color": "Yellow",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-799EB395",
+        "sku": "BRD-AUSCNE1-42E568B5",
         "color": "Yellow",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-6399B98A",
+        "sku": "BRD-AUSCNE1-A18BEE68",
         "color": "Black",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-96A0EDBF",
+        "sku": "BRD-AUSCNE1-81CF345C",
         "color": "Black",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-F4DCFEDE",
+        "sku": "BRD-AUSCNE1-BFFF39FF",
         "color": "White",
-        "size": "Front Pair",
+        "coverage": "Front Pair",
         "price": 67.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSCNE1-22790769",
+        "sku": "BRD-AUSCNE1-D0BA2B45",
         "color": "White",
-        "size": "Full Set",
+        "coverage": "Full Set",
         "price": 117.51,
         "in_stock": true
       }
@@ -169,114 +169,114 @@
     "sku_count": 16,
     "skus": [
       {
-        "sku": "BRD-AUSWLT1-30900C62",
+        "sku": "BRD-AUSWLT1-77111AEA",
         "color": "Red",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-17B9B626",
+        "sku": "BRD-AUSWLT1-F768B1AB",
         "color": "Red",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-2D8521E1",
+        "sku": "BRD-AUSWLT1-979820F8",
         "color": "Blue",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-CD96E9AA",
+        "sku": "BRD-AUSWLT1-6799121A",
         "color": "Blue",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-ED8D179C",
+        "sku": "BRD-AUSWLT1-481A8041",
         "color": "Green",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-26523EE9",
+        "sku": "BRD-AUSWLT1-B2F8C9D4",
         "color": "Green",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-D182B3B8",
+        "sku": "BRD-AUSWLT1-96873DF7",
         "color": "Yellow",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-015FDB19",
+        "sku": "BRD-AUSWLT1-D5AA1B5B",
         "color": "Yellow",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-98A9EB75",
+        "sku": "BRD-AUSWLT1-BF508380",
         "color": "Black",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-6B8EDE06",
+        "sku": "BRD-AUSWLT1-B675A94B",
         "color": "Black",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-C7B33DAD",
+        "sku": "BRD-AUSWLT1-29918ECE",
         "color": "White",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-D68188A3",
+        "sku": "BRD-AUSWLT1-06456FFB",
         "color": "White",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-8210EA85",
+        "sku": "BRD-AUSWLT1-59392A63",
         "color": "Grey",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-CA8E391D",
+        "sku": "BRD-AUSWLT1-A76152E1",
         "color": "Grey",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-BE9DCC8B",
+        "sku": "BRD-AUSWLT1-C7B04EAE",
         "color": "Beige",
-        "size": "Standard",
+        "vehicle_fit": "Standard",
         "price": 16.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSWLT1-91657C92",
+        "sku": "BRD-AUSWLT1-E577FD54",
         "color": "Beige",
-        "size": "Large",
+        "vehicle_fit": "Large",
         "price": 18.57,
         "in_stock": true
       }
@@ -296,20 +296,20 @@
     "sku_count": 3,
     "skus": [
       {
-        "sku": "BRD-AUSSAC1-783599BC",
-        "size": "Standard",
+        "sku": "BRD-AUSSAC1-84FF9625",
+        "vehicle_fit": "Standard",
         "price": 12.75,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSSAC1-6041FC17",
-        "size": "Large",
+        "sku": "BRD-AUSSAC1-46E9183F",
+        "vehicle_fit": "Large",
         "price": 15.3,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUSSAC1-29FCA3AC",
-        "size": "Jumbo",
+        "sku": "BRD-AUSSAC1-A9568E55",
+        "vehicle_fit": "Jumbo",
         "price": 18.49,
         "in_stock": true
       }
@@ -329,44 +329,44 @@
     "sku_count": 6,
     "skus": [
       {
-        "sku": "BRD-AUTLTY1-86BEDB9B",
+        "sku": "BRD-AUTLTY1-57819C83",
         "color": "Black",
-        "size": "Sedan Trunk",
+        "vehicle_fit": "Sedan Trunk",
         "price": 33.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUTLTY1-9DA83078",
+        "sku": "BRD-AUTLTY1-9C69A268",
         "color": "Black",
-        "size": "Midsize SUV",
+        "vehicle_fit": "Midsize SUV",
         "price": 41.44,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUTLTY1-948F0038",
+        "sku": "BRD-AUTLTY1-A307A16C",
         "color": "Black",
-        "size": "Full-Size SUV",
+        "vehicle_fit": "Full-Size SUV",
         "price": 49.73,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUTLTY1-4B555433",
+        "sku": "BRD-AUTLTY1-FEB4FCEA",
         "color": "Grey",
-        "size": "Sedan Trunk",
+        "vehicle_fit": "Sedan Trunk",
         "price": 33.15,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUTLTY1-6DF58EA2",
+        "sku": "BRD-AUTLTY1-0177BC2D",
         "color": "Grey",
-        "size": "Midsize SUV",
+        "vehicle_fit": "Midsize SUV",
         "price": 41.44,
         "in_stock": true
       },
       {
-        "sku": "BRD-AUTLTY1-F7D72431",
+        "sku": "BRD-AUTLTY1-5C18E11E",
         "color": "Grey",
-        "size": "Full-Size SUV",
+        "vehicle_fit": "Full-Size SUV",
         "price": 49.73,
         "in_stock": true
       }

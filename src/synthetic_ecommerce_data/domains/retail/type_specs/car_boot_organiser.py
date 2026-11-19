@@ -15,7 +15,7 @@ SPEC = TypeSpec(
     product_type="Car Boot Organiser",
     rows=(),
     homes=(
-        Home("samples", True),
+        Home("samples", False),
         Home("decoy_product_words", False),
     ),
 )

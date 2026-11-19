@@ -13,7 +13,7 @@ from synthetic_ecommerce_data.domains.retail.automotive_interior_rows import (
     INTERIOR_OWNERS,
     SUN_SHADES,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec
 
 SPEC = TypeSpec(
     key="sun_shade",
@@ -22,4 +22,5 @@ SPEC = TypeSpec(
     owners=INTERIOR_OWNERS,
     rows=SUN_SHADES,
     decoys=tuple(Decoy(c, q, p, r) for c, q, p, r in DECOY_ROWS["sun_shade"]),
+    options=(Option("vehicle_fit", "vehicle_fit", "Vehicle fit", None),),
 )

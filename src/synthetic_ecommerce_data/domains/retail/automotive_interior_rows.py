@@ -103,7 +103,7 @@ SEAT_COVERS = tuple(
     _row(f"AUSC{c}{b + 1}", f"{brand} {title}", brand, "Seat Covers", "Seat Cover", "seat_cover",
          f"{_sentence(note)} It fits most cars, trucks and SUVs and leaves room for the side airbags.", colors,
          (_a("material", "Material", material), _a("seat_cover_type", "Seat cover type", kind)),
-         tuple((s, price * f) for s, f in sets), k, style)
+         tuple((s, price * f) for s, f in sets), k, style, "coverage")
     for c, title, material, kind, style, colors, price, sets, note in _SEATS
     for b, (brand, k) in enumerate(_THREE)
 )  # fmt: skip
@@ -126,7 +126,7 @@ FLOOR_MATS = tuple(
     _row(f"AUFM{c}{b + 1}", f"{brand} {title}", brand, "Floor Mats", "Floor Mat", "floor_mat",
          f"{_sentence(note)} Each mat has holes for the car's floor hooks.", colors,
          (_a("material", "Material", material), _a("floor_mat_type", "Floor mat type", kind)),
-         tuple((s, price * f) for s, f in _MAT_SETS), k, style)
+         tuple((s, price * f) for s, f in _MAT_SETS), k, style, "coverage")
     for c, title, material, kind, style, colors, price, note in _MATS
     for b, (brand, k) in enumerate(_FOUR)
 )  # fmt: skip
@@ -145,7 +145,7 @@ TRUNK_LINERS = tuple(
     _row(f"AUTL{c}{b + 1}", f"{brand} {title}", brand, "Trunk Liners", "Trunk Liner", "trunk_liner",
          f"{_sentence(note)} Pick the size of the car's cargo floor.", colors,
          (_a("material", "Material", material), _a("liner_type", "Liner type", kind)),
-         tuple((s, price * f) for s, f in _VEHICLES), k, style)
+         tuple((s, price * f) for s, f in _VEHICLES), k, style, "vehicle_fit")
     for c, title, material, kind, style, colors, price, note in _LINERS
     for b, (brand, k) in enumerate(_FOUR)
 )  # fmt: skip
@@ -166,7 +166,8 @@ STEERING_WHEEL_COVERS = tuple(
     _row(f"AUSW{c}{b + 1}", f"{brand} {title}", brand, "Steering Wheel Covers", "Steering Wheel Cover",
          "steering_wheel_cover",
          f"{_sentence(note)} Standard fits a 14.5 to 15 inch wheel; Large fits a 15.5 to 16 inch truck wheel.", colors,
-         (_a("material", "Material", material),), tuple((s, price * f) for s, f in rims), k, style)
+         (_a("material", "Material", material),), tuple((s, price * f) for s, f in rims), k, style,
+         "vehicle_fit")
     for c, title, material, style, colors, price, rims, note in _WHEELS
     for b, (brand, k) in enumerate(_THREE)
 )  # fmt: skip
@@ -174,13 +175,13 @@ STEERING_WHEEL_COVERS = tuple(
 # --- Sun shades: brand x build, one per size, colorless -------------------------------------------
 _SHADE_SIZES = (("Standard", 1.0), ("Large", 1.2), ("Jumbo", 1.45))
 _SHADES = (
-    ("AC", "Accordion Windshield Sun Shade", "Accordion", "accordion", 15.0, _SHADE_SIZES, "size",
+    ("AC", "Accordion Windshield Sun Shade", "Accordion", "accordion", 15.0, _SHADE_SIZES, "vehicle_fit",
      "a reflective shade that folds like an accordion and is held up by the sun visors"),
-    ("RB", "Reflective Bubble Windshield Sun Shade", "Accordion", "accordion", 18.0, _SHADE_SIZES, "size",
+    ("RB", "Reflective Bubble Windshield Sun Shade", "Accordion", "accordion", 18.0, _SHADE_SIZES, "vehicle_fit",
      "a two-layer shade with an air bubble core that keeps the dashboard and the seats cooler"),
-    ("TW", "Twist-Fold Windshield Sun Shade", "Twist-Fold", "twist", 17.0, _SHADE_SIZES, "size",
+    ("TW", "Twist-Fold Windshield Sun Shade", "Twist-Fold", "twist", 17.0, _SHADE_SIZES, "vehicle_fit",
      "two spring-wire rounds that pop open across the glass and twist down into a small pouch"),
-    ("UM", "Umbrella Windshield Sun Shade", "Umbrella", "umbrella", 19.0, (("Standard", 1.0), ("Large", 1.2)), "size",
+    ("UM", "Umbrella Windshield Sun Shade", "Umbrella", "umbrella", 19.0, (("Standard", 1.0), ("Large", 1.2)), "vehicle_fit",
      "it opens like an umbrella behind the windshield and its handle rests on the dashboard"),
     ("SW", "Side Window Sun Shade", "Side Window Mesh", "side", 12.0, (("2 pack", 1.0), ("4 pack", 1.6)), "pack_size",
      "a static-cling mesh that shades a child in the back seat and still lets the driver see out"),
@@ -212,7 +213,7 @@ DECOY_ROWS = {
         (6, "carpet floor mats", "generic", _decoy("AUDFM1", "Carpet Saver All-Weather Rubber Floor Mats",
          "From the Carpet Saver range: rubber mats that keep the car's own carpet clean.", _first(FLOOR_MATS, "AUFMRU2"))),
         (7, "ostrel floor mats", "brand facet: a brand named in the text is not the product's brand",
-         _decoy("AUDFM2", "Floor Mats to Match Ostrel Seat Covers", "Carpet mats in the shades of Ostrel seat covers.",
+         _decoy("AUDFM2", "Carpet Floor Mats Made for Ostrel Seat Covers", "Carpet mats in the shades of Ostrel seat covers.",
                 _first(FLOOR_MATS, "AUFMCP2"), brand=HOLTVANE)),
     ),
     "trunk_liner": (
@@ -225,7 +226,7 @@ DECOY_ROWS = {
         (6, "leather steering wheel cover", "generic", _decoy("AUDSW1", "Leather Grain Silicone Steering Wheel Cover",
          "From the Leather Grain range: a silicone cover pressed with a grain texture.", _first(STEERING_WHEEL_COVERS, "AUSWSI2"))),
         (7, "holtvane steering wheel cover", "brand facet: a brand named in the text is not the product's brand",
-         _decoy("AUDSW2", "Steering Wheel Cover to Match Holtvane Seat Covers", "A wheel cover in the shades of Holtvane seat covers.",
+         _decoy("AUDSW2", "Steering Wheel Cover Made for Holtvane Seat Covers", "A wheel cover in the shades of Holtvane seat covers.",
                 _first(STEERING_WHEEL_COVERS, "AUSWLT1"), brand=DRAYFIELD)),
     ),
     "sun_shade": (
