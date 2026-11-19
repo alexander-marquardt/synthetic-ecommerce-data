@@ -148,6 +148,10 @@ def _ticks(points: list[tuple[float, float]], dx: float, dy: float, cls: str, co
     return [f'<g class="{cls}">{_line(f"M{x:.1f},{y:.1f} L{x + dx:.1f},{y + dy:.1f}", width, stroke=color)}</g>' for x, y in points]
 
 
+#: The rug's params and the values it draws.
+RUG_PARAMS: dict[str, tuple[str, ...]] = {"form": ("rectangle", "round", "runner"), "pile": ("flat", "shag", "short")}
+
+
 def rug(paint: str, fill: Fill, label: str | None, form: str = "rectangle", pile: str = "short") -> list[str]:
     """A rug on a floor line, in perspective. ``form`` is ``rectangle``, ``round`` or ``runner``;
     ``pile`` is ``flat`` (a fringe at both ends), ``shag`` (a shaggy edge all round) or ``short``
