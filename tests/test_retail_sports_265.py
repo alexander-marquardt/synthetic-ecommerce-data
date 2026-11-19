@@ -22,6 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_cycling,
     kit_fishing_golf,
     kit_fitness_team,
+    kit_outdoor_winter,
     kit_sports,
     main_colors,
     scale,
@@ -91,6 +92,15 @@ KEYS = {
     "Hockey Stick": {"material", "hockey_type", "blade_curve", "handedness", "color"},
     "Pickleball Paddle": {"paddle_weight", "face", "paddle_shape", "grip_size", "color"},
     "Table Tennis Bat": {"blade", "play_style", "bat_rubber", "handle_shape", "color"},
+    # gen#959 slice 3: outdoors and winter sports, drawn by kit_outdoor_winter
+    "Hiking Backpack": {"pack_fabric", "pack_frame", "pack_opening", "capacity", "color"},
+    "Cooler": {"cooler_use", "cooler_type", "ice_retention", "capacity", "color"},
+    "Insulated Water Bottle": {"bottle_coating", "bottle_mouth", "bottle_lid", "capacity", "color"},
+    "Bike Light": {"light_power", "light_position", "light_modes", "light_output", "color"},
+    "Bike Lock": {"lock_grade", "lock_type", "lock_opening", "item_length", "color"},
+    "Sled": {"sled_build", "sled_riders", "sled_type", "item_length", "color"},
+    "Snowboard": {"riding_style", "board_shape", "board_profile", "item_length", "color"},
+    "Ski Goggles": {"lens_coating", "lens_shape", "goggle_fit", "size", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -117,6 +127,12 @@ AXES = {
     "Weight Bench": ("max_load_kg", "max_load_kg", "KGM"),
     "Basketball": ("ball_size", "ball_size", "C62"),
     "Volleyball": ("ball_size", "ball_size", "C62"),
+    "Hiking Backpack": ("capacity_l", "capacity", "LTR"),
+    "Cooler": ("capacity_l", "capacity", "LTR"),
+    "Insulated Water Bottle": ("capacity_ml", "capacity", "MLT"),
+    "Bike Lock": ("length_cm", "item_length", "CMT"),
+    "Sled": ("length_cm", "item_length", "CMT"),
+    "Snowboard": ("length_cm", "item_length", "CMT"),
 }
 
 #: A SKU axis that is a plain word or number, never a unit: the export key it becomes.
@@ -134,6 +150,8 @@ PLAIN_AXES = {
     "Hockey Stick": ("handedness", "handedness"),
     "Pickleball Paddle": ("grip", "grip_size"),
     "Table Tennis Bat": ("handle_shape", "handle_shape"),
+    "Bike Light": ("light_output", "light_output"),
+    "Ski Goggles": ("size", "size"),
 }
 
 
@@ -169,10 +187,14 @@ def test_every_type_has_two_styles_from_two_brands() -> None:
 
 
 def test_every_style_draws_as_its_own_sports_shape() -> None:
-    # gen#625 draws the cycling accessories, gen#959 the fishing, golf, fitness and team types
+    # gen#625 draws the cycling accessories, gen#959 the fishing, golf, fitness, team, outdoors
+    # and winter types
     shapes = (
-        kit_sports.SHAPES | kit_cycling.SHAPES | kit_fishing_golf.SHAPES
+        kit_sports.SHAPES
+        | kit_cycling.SHAPES
+        | kit_fishing_golf.SHAPES
         | kit_fitness_team.SHAPES
+        | kit_outdoor_winter.SHAPES
     )
     assert {r.code: r.shape for r in ROWS if r.shape not in shapes} == {}
     assert len({r.shape for r in ROWS}) == len(KEYS)
@@ -285,6 +307,14 @@ VARIANTS = [
     ("hockey_stick", {"hockey_type": "ice"}, {"hockey_type": "street"}),
     ("pickleball_paddle", {"face": "graphite"}, {"face": "wood"}),
     ("table_tennis_bat", {"blade": "wood"}, {"blade": "carbon"}),
+    ("hiking_backpack", {"pack_frame": "internal frame"}, {"pack_frame": "frameless"}),
+    ("cooler", {"cooler_type": "hard"}, {"cooler_type": "wheeled"}),
+    ("bottle_insul", {"bottle_lid": "screw cap"}, {"bottle_lid": "straw lid"}),
+    ("bike_light", {"light_position": "front"}, {"light_position": "rear"}),
+    ("bike_lock", {"lock_type": "shackle"}, {"lock_type": "chain"}),
+    ("sled", {"sled_type": "toboggan"}, {"sled_type": "saucer"}),
+    ("snowboard", {"board_profile": "camber"}, {"board_profile": "rocker"}),
+    ("ski_goggles", {"lens_shape": "spherical"}, {"lens_shape": "toric"}),
 ]
 
 
@@ -360,8 +390,18 @@ def test_the_department_sits_in_the_tree_under_the_guards_rules() -> None:
 def test_the_tree_has_camping_and_yoga_and_fitness_under_the_root() -> None:
     families = {p[1] for p in _paths()}
     assert families == {
-        "Camping", "Yoga & Fitness", "Cycling", "Baseball", "Swimming", "Team & Racket Sports",
-        "Water Sports", "Wheeled Sports", "Fishing", "Golf",
+        "Camping",
+        "Yoga & Fitness",
+        "Cycling",
+        "Baseball",
+        "Swimming",
+        "Team & Racket Sports",
+        "Water Sports",
+        "Wheeled Sports",
+        "Fishing",
+        "Golf",
+        "Hiking",
+        "Winter Sports",
     }
     assert {p[-1] for p in _paths()} >= {"Dome Tents", "Tunnel Tents", "Sleeping Bags", "Dumbbells"}
     assert all(len(p) >= 3 for p in _paths())
@@ -387,7 +427,8 @@ DERIVABLE = frozenset(
     {
         "Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove",
         "Exercise Bike", "Weight Plate", "Weight Bench", "Basketball", "Volleyball", "Shin Guard",
-        "Hockey Stick", "Pickleball Paddle", "Table Tennis Bat",
+        "Hockey Stick", "Pickleball Paddle", "Table Tennis Bat", "Hiking Backpack", "Cooler",
+        "Insulated Water Bottle", "Bike Light", "Bike Lock", "Sled", "Snowboard", "Ski Goggles",
     }
 )  # fmt: skip
 
