@@ -18,6 +18,7 @@ non-copying audits.
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import (
+    dark_blues,
     kit_storage_furniture,  # noqa: F401 -- registers the sideboard shape
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import BRAND_OWNER, Row, TypeSpec, cw
@@ -31,7 +32,7 @@ BASES = {"tapered": "Tapered legs", "plinth": "Plinth", "hairpin": "Hairpin legs
 NATURAL = cw("Natural", "#c9a06a", accent="#7a5a3a")
 DARK_BROWN = cw("Dark Brown", "#5e3b25")
 WHITE, GREY, BLACK = cw("White", "#f2efe8"), cw("Grey", "#9a9ca0"), cw("Black", "#2b2b2e")
-GREEN, NAVY = cw("Green", "#3f6b4f"), cw("Navy", "#26324a")
+GREEN, NAVY = cw("Green", "#3f6b4f"), cw("Navy", dark_blues.NAVY)
 
 
 def _count(key: str, name: str, n: int) -> tuple[str, str, str, str]:
