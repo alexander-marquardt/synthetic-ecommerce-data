@@ -69,6 +69,11 @@ PROPORTIONS: dict[str, tuple[str, float, float, float]] = {
     "sink_faucet": ("front", 6, 10, 5),
     "bath_storage": ("front", 24, 60, 9),
     "canister": ("front", 16, 9, 5),
+    "wall_art": ("front", 36, 24, 1.5),
+    "decor_object": ("front", 12, 10, 6),
+    "garden_statue": ("front", 14, 24, 12),
+    "faux_floral": ("front", 18, 24, 18),
+    "fountain": ("front", 30, 48, 30),
     "bar_stool": ("front", 17, 41, 17),
     "desk": ("front", 48, 30, 24),
     "office_chair": ("front", 26, 42, 26),
@@ -79,6 +84,8 @@ PROPORTIONS: dict[str, tuple[str, float, float, float]] = {
     "chest_of_drawers": ("front", 32, 44, 18),
     "sofa": ("front", 80, 34, 36),
     "rug": ("top", 96, 0.5, 60),
+    "vanity_light": ("front", 24, 9, 7),
+    "bench": ("front", 48, 18, 16),
 }
 
 #: The least a figure is squeezed along one axis, so a very long piece still reads as itself.

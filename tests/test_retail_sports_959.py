@@ -12,6 +12,11 @@ first derived styles, so a change that moves them shows here.
 Slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness, and
 basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats under
 Team & Racket Sports, drawn by :mod:`kit_fitness_team`, and raises the floor to 7,000 SKUs.
+
+Slice 3, the last, adds hiking backpacks under a new Hiking family, coolers and insulated water
+bottles under Camping, bike lights and bike locks under Cycling, and sleds, snowboards and ski
+goggles under a new Winter Sports family, drawn by :mod:`kit_outdoor_winter`, and raises the floor
+to the issue's own: 10,450 SKUs, 95% of the 11,000 target.
 """
 
 from __future__ import annotations
@@ -40,6 +45,14 @@ TYPES = (
     "Hockey Stick",
     "Pickleball Paddle",
     "Table Tennis Bat",
+    "Hiking Backpack",
+    "Cooler",
+    "Insulated Water Bottle",
+    "Bike Light",
+    "Bike Lock",
+    "Sled",
+    "Snowboard",
+    "Ski Goggles",
 )
 KEYS = {
     "Fishing Rod": "fishing_rod",
@@ -57,9 +70,18 @@ KEYS = {
     "Hockey Stick": "hockey_stick",
     "Pickleball Paddle": "pickleball_paddle",
     "Table Tennis Bat": "table_tennis_bat",
+    "Hiking Backpack": "hiking_backpack",
+    "Cooler": "cooler",
+    "Insulated Water Bottle": "insulated_water_bottle",
+    "Bike Light": "bike_light",
+    "Bike Lock": "bike_lock",
+    "Sled": "sled",
+    "Snowboard": "snowboard",
+    "Ski Goggles": "ski_goggles",
 }
-#: Slice 2's floor at the ceiling build (the gate comment of gen#959; slice 1's was 3,000).
-FLOOR = 7_000
+#: The issue's floor at the ceiling build, 95% of the 11,000 target (gen#959's Done-when; slice 1's
+#: was 3,000 and slice 2's 7,000).
+FLOOR = 10_450
 
 
 @pytest.fixture(scope="module")
@@ -220,6 +242,106 @@ GOLDEN: dict[str, list[tuple]] = {
             "Ribgarth Allround Table Tennis Bat with Carbon Blade and Tacky Rubber",
             6,
             39.0,
+        ),
+    ],
+    "Hiking Backpack": [
+        (
+            "BRD-0217148FF5B8",
+            "Yeldridge Waxed Canvas Internal Frame Hiking Backpack with Roll Top",
+            9,
+            70.0,
+        ),
+        (
+            "BRD-03CA2B20B102",
+            "Holborough Ripstop Nylon Internal Frame Hiking Backpack with Roll Top",
+            6,
+            115.0,
+        ),
+        (
+            "BRD-072824B1E9FE",
+            "Hazley Waxed Canvas External Frame Hiking Backpack with Top Lid",
+            6,
+            125.0,
+        ),
+    ],
+    "Cooler": [
+        ("BRD-02BE3D68D706", "Ravwick Camp Hard Cooler with 2-Day Ice Retention", 4, 44.0),
+        ("BRD-03F1C748468E", "Holness Beach Hard Cooler with 2-Day Ice Retention", 9, 36.0),
+        ("BRD-06DC4AF8B6DE", "Otdale Marine Wheeled Cooler with 2-Day Ice Retention", 6, 185.0),
+    ],
+    "Insulated Water Bottle": [
+        (
+            "BRD-03A2A43A0DD9",
+            "Foxfell Gloss Enamel Wide Mouth Insulated Water Bottle with Straw Lid",
+            4,
+            16.0,
+        ),
+        (
+            "BRD-0697172B2FFD",
+            "Weston Powder-Coated Narrow Mouth Insulated Water Bottle with Chug Lid",
+            8,
+            23.0,
+        ),
+        (
+            "BRD-0AF7B984DC76",
+            "Garton Gloss Enamel Narrow Mouth Insulated Water Bottle with Chug Lid",
+            12,
+            28.0,
+        ),
+    ],
+    "Bike Light": [
+        ("BRD-009486C91E1D", "Malwood Battery-Powered Rear Bike Light with 7 Modes", 6, 19.5),
+        ("BRD-079D9EA7DDD2", "Halstead USB Rechargeable Rear Bike Light with 3 Modes", 4, 9.5),
+        (
+            "BRD-07D2AB778C0B",
+            "Brockwick Battery-Powered Twin-Pack Bike Light with 3 Modes",
+            12,
+            20.0,
+        ),
+    ],
+    "Bike Lock": [
+        ("BRD-00C9F1091995", "Caldham Heavy-Duty Chain Bike Lock with Combination", 6, 14.0),
+        ("BRD-0135703F7B58", "Brackham Heavy-Duty Shackle Bike Lock with Key", 6, 38.0),
+        (
+            "BRD-038FFF88B966",
+            "Bradborough Lightweight Shackle Bike Lock with Combination",
+            12,
+            15.0,
+        ),
+    ],
+    "Sled": [
+        ("BRD-030D8D94AC4E", "Eskcombe Foam 1-Person Toboggan Sled", 6, 39.0),
+        ("BRD-17E2A72D21DC", "Reaholme Inflatable 2-Person Toboggan Sled", 6, 29.0),
+        ("BRD-193F65DA4C58", "Morlow Molded Plastic 2-Person Steerable Sled", 8, 37.0),
+    ],
+    "Snowboard": [
+        ("BRD-077A266A64B8", "Foxwick Freeride Directional Snowboard with Flat Profile", 12, 270.0),
+        (
+            "BRD-0B9DF312903E",
+            "Ribmoor All-Mountain Directional Snowboard with Flat Profile",
+            12,
+            345.0,
+        ),
+        ("BRD-0D170785626A", "Kelridge Freeride True Twin Snowboard with Flat Profile", 12, 325.0),
+    ],
+    "Ski Goggles": [
+        (
+            "BRD-07D14410FE27",
+            "Ellerfield Polarized Cylindrical Ski Goggles with Over-the-Glasses Fit",
+            6,
+            88.0,
+        ),
+        (
+            "BRD-0B14C998E7BA",
+            "Walbank Polarized Cylindrical Ski Goggles with Regular Fit",
+            9,
+            115.0,
+        ),
+        (
+            "BRD-126E1E56D41E",
+            "Kelridge Mirrored Toric Ski Goggles with Over-the-Glasses Fit",
+            12,
+            105.0,
         ),
     ],
 }
