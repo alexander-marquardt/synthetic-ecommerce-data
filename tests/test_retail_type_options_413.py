@@ -30,6 +30,8 @@ _LENGTH = Option("length_m", "item_length", "Item length", "MTR")
 _DROP = Option("drop_cm", "drop_length", "Drop length", "CMT")
 _THICKNESS = Option("thickness_mm", "thickness", "Thickness", "MMT")
 _WEIGHT = Option("weight_kg", "weight", "Weight", "KGM")
+_VEHICLE = Option("vehicle_fit", "vehicle_fit", "Vehicle fit", None)
+_COVERAGE = Option("coverage", "coverage", "Coverage", None)
 MOVED = {
     "parasol": [Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR")],
     "garden_furniture_set": [Option("seats", "seats", "Seats", "C62")],
@@ -92,6 +94,13 @@ MOVED = {
     "table_tennis_bat": [Option("handle_shape", "handle_shape", "Handle shape")],
     # a bike light's output in lumens (gen#959 slice 3), declared by its spec from the start
     "bike_light": [Option("light_output", "light_output", "Light output")],
+    # the car a trunk liner, steering wheel cover or sun shade is cut to (gen#970 slice 3)
+    "trunk_liner": [_VEHICLE],
+    "steering_wheel_cover": [_VEHICLE],
+    "sun_shade": [_VEHICLE],
+    # how much of the seat or floor a cover or mat spans (gen#970 slice 3)
+    "seat_cover": [_COVERAGE],
+    "floor_mat": [_COVERAGE],
     # a smart bulb's light, connection and brightness (#956)
     "smart_bulb": [
         Option("bulb_light", "bulb_light", "Light"),

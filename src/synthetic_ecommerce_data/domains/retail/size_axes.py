@@ -174,6 +174,7 @@ NOT_SIZES: dict[str, str] = {
     "blade_length_in": "a fit: the blade is cut to the car's wiper arm",
     "brightness_lm": "a rating",
     "connectivity": "how the bulb joins the home: the bulb is drawn the same",
+    "coverage": "a fit: the seats or footwells a car set covers, drawn as one (gen#970)",
     "cup_size": "a fit",
     "dimensions": "a towel's cloth cut: the drawing is one towel",
     "diaper_size": "a fit: the baby's weight band, on a pack drawn the same (gen#965)",
@@ -214,6 +215,7 @@ NOT_SIZES: dict[str, str] = {
     "theme": "a kind",
     "units_per_pack": "a pack: pack_scale and pack_copies",
     "upper_material": "a material",
+    "vehicle_fit": "a fit: the car a trunk liner, wheel cover or sun shade is cut to (gen#970)",
     "wattage": "a rating",
     "width": "a shoe's fit",
 }

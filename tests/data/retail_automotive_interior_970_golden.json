@@ -1,0 +1,375 @@
+[
+  {
+    "product_id": "BRD-AUFMRU1",
+    "title": "Drayfield All-Weather Rubber Floor Mats",
+    "brand": "Drayfield",
+    "product_type": "Floor Mat",
+    "category_path": [
+      "Automotive",
+      "Interior",
+      "Floor Mats"
+    ],
+    "price": 24.65,
+    "sku_count": 6,
+    "skus": [
+      {
+        "sku": "BRD-AUFMRU1-A18BEE68",
+        "color": "Black",
+        "coverage": "Front Pair",
+        "price": 24.65,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUFMRU1-7CA0705E",
+        "color": "Black",
+        "coverage": "4-Piece Set",
+        "price": 39.44,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUFMRU1-FAAAAD9C",
+        "color": "Grey",
+        "coverage": "Front Pair",
+        "price": 24.65,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUFMRU1-BA88C7B6",
+        "color": "Grey",
+        "coverage": "4-Piece Set",
+        "price": 39.44,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUFMRU1-A7ED68C3",
+        "color": "Beige",
+        "coverage": "Front Pair",
+        "price": 24.65,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUFMRU1-D3292AF9",
+        "color": "Beige",
+        "coverage": "4-Piece Set",
+        "price": 39.44,
+        "in_stock": true
+      }
+    ]
+  },
+  {
+    "product_id": "BRD-AUSCNE1",
+    "title": "Drayfield Neoprene Seat Covers",
+    "brand": "Drayfield",
+    "product_type": "Seat Cover",
+    "category_path": [
+      "Automotive",
+      "Interior",
+      "Seat Covers"
+    ],
+    "price": 67.15,
+    "sku_count": 12,
+    "skus": [
+      {
+        "sku": "BRD-AUSCNE1-E0036996",
+        "color": "Red",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-CD0A5F1D",
+        "color": "Red",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-53CC5067",
+        "color": "Blue",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-F6422E70",
+        "color": "Blue",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-41E2A2E6",
+        "color": "Green",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-E64053D5",
+        "color": "Green",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-B6923CA5",
+        "color": "Yellow",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-42E568B5",
+        "color": "Yellow",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-A18BEE68",
+        "color": "Black",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-81CF345C",
+        "color": "Black",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-BFFF39FF",
+        "color": "White",
+        "coverage": "Front Pair",
+        "price": 67.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSCNE1-D0BA2B45",
+        "color": "White",
+        "coverage": "Full Set",
+        "price": 117.51,
+        "in_stock": true
+      }
+    ]
+  },
+  {
+    "product_id": "BRD-AUSWLT1",
+    "title": "Drayfield Leatherette Steering Wheel Cover",
+    "brand": "Drayfield",
+    "product_type": "Steering Wheel Cover",
+    "category_path": [
+      "Automotive",
+      "Interior",
+      "Steering Wheel Covers"
+    ],
+    "price": 16.15,
+    "sku_count": 16,
+    "skus": [
+      {
+        "sku": "BRD-AUSWLT1-77111AEA",
+        "color": "Red",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-F768B1AB",
+        "color": "Red",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-979820F8",
+        "color": "Blue",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-6799121A",
+        "color": "Blue",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-481A8041",
+        "color": "Green",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-B2F8C9D4",
+        "color": "Green",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-96873DF7",
+        "color": "Yellow",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-D5AA1B5B",
+        "color": "Yellow",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-BF508380",
+        "color": "Black",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-B675A94B",
+        "color": "Black",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-29918ECE",
+        "color": "White",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-06456FFB",
+        "color": "White",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-59392A63",
+        "color": "Grey",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-A76152E1",
+        "color": "Grey",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-C7B04EAE",
+        "color": "Beige",
+        "vehicle_fit": "Standard",
+        "price": 16.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSWLT1-E577FD54",
+        "color": "Beige",
+        "vehicle_fit": "Large",
+        "price": 18.57,
+        "in_stock": true
+      }
+    ]
+  },
+  {
+    "product_id": "BRD-AUSSAC1",
+    "title": "Drayfield Accordion Windshield Sun Shade",
+    "brand": "Drayfield",
+    "product_type": "Sun Shade",
+    "category_path": [
+      "Automotive",
+      "Interior",
+      "Sun Shades"
+    ],
+    "price": 12.75,
+    "sku_count": 3,
+    "skus": [
+      {
+        "sku": "BRD-AUSSAC1-84FF9625",
+        "vehicle_fit": "Standard",
+        "price": 12.75,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSSAC1-46E9183F",
+        "vehicle_fit": "Large",
+        "price": 15.3,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUSSAC1-A9568E55",
+        "vehicle_fit": "Jumbo",
+        "price": 18.49,
+        "in_stock": true
+      }
+    ]
+  },
+  {
+    "product_id": "BRD-AUTLTY1",
+    "title": "Drayfield Rubber Cargo Tray Liner",
+    "brand": "Drayfield",
+    "product_type": "Trunk Liner",
+    "category_path": [
+      "Automotive",
+      "Interior",
+      "Trunk Liners"
+    ],
+    "price": 33.15,
+    "sku_count": 6,
+    "skus": [
+      {
+        "sku": "BRD-AUTLTY1-57819C83",
+        "color": "Black",
+        "vehicle_fit": "Sedan Trunk",
+        "price": 33.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUTLTY1-9C69A268",
+        "color": "Black",
+        "vehicle_fit": "Midsize SUV",
+        "price": 41.44,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUTLTY1-A307A16C",
+        "color": "Black",
+        "vehicle_fit": "Full-Size SUV",
+        "price": 49.73,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUTLTY1-FEB4FCEA",
+        "color": "Grey",
+        "vehicle_fit": "Sedan Trunk",
+        "price": 33.15,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUTLTY1-0177BC2D",
+        "color": "Grey",
+        "vehicle_fit": "Midsize SUV",
+        "price": 41.44,
+        "in_stock": true
+      },
+      {
+        "sku": "BRD-AUTLTY1-5C18E11E",
+        "color": "Grey",
+        "vehicle_fit": "Full-Size SUV",
+        "price": 49.73,
+        "in_stock": true
+      }
+    ]
+  }
+]
