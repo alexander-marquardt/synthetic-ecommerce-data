@@ -1,4 +1,4 @@
-# Pets, slice 1 (gen#967)
+# Pets, slices 1 and 2 (gen#967)
 
 The store had no pets department, so a search for `dry dog food`, `wet cat food` or `cat litter`
 found nothing. `Pets` is now on the closed list of retail departments (`core/departments.RETAIL`)
@@ -55,6 +55,43 @@ whose title names a litter tray it does not include.
 **Measured** (ceiling build, `retail_figures.ceiling()`, seed 0): the department's and the three
 types' SKUs and styles, and the authored and derived split, are build output, read with
 `retail_figures.figures()` and not restated here. Slice 1's floor is 2,000 SKUs, against the
-department's 7,000 target in `docs/catalogue-mix-837.md`. Treats, toys and beds (slice 2), and
-leads and collars, grooming and aquarium and small-animal supplies (slice 3), are later slices
-of gen#967. The guards are in `tests/test_retail_pets_967.py`.
+department's 7,000 target in `docs/catalogue-mix-837.md`. The guards are in
+`tests/test_retail_pets_967.py`.
+
+## Slice 2: treats, toys and beds
+
+Slice 2 adds three more derivable types, each a spec of its own drawn by `kit_pet_gear.py`:
+
+| Type | Spec | Paths | SKU axis |
+|---|---|---|---|
+| Dog Treats | `type_specs/dog_treats.py` | Pets > Dog Treats > Dental Chews, Dog Biscuits, Training Treats | bag weight (`net_weight_g`); colorless, like the food |
+| Pet Toy | `type_specs/pet_toy.py` | Pets > Pet Toys > Dog Toys, Cat Toys | the six main colors, times Small and Large for a dog toy |
+| Pet Bed | `type_specs/pet_bed.py` | Pets > Pet Beds > Dog Beds, Cat Beds | the six main colors, times Small, Medium and Large for a dog bed |
+
+A dental chew's title names its breed size and flavor, and a biscuit's or training treat's names
+its life stage and flavor. A dog toy is a ball, rope, ring, bone or flying disc, and a cat toy a
+wand, mouse, ball or kicker. Each title names its play feature (squeaky, floating, chew-resistant,
+glow-in-the-dark, feather, catnip, jingle bell, crinkle, tug). A dog bed is a donut, bolster,
+orthopedic or cushion bed, and a cat bed a cave, donut or radiator bed. Each title names its cover (faux fur,
+corduroy, quilted, waterproof, velvet, sherpa). Toys and beds are sold in each of the six main
+colors (red, blue, green, yellow, black, white; ruling 2026-10-13, gen#275). Treats are not:
+the pouch's color is its print, as on a food bag. `pets_rows.gear()` builds a toy or bed row
+from its sizes and colors, and the new paths and brands live in `pets_rows.py` with slice 1's.
+
+**Drawings.** `dog_treats` is a resealable pouch with its treats in a window (sticks, twists,
+bone biscuits or small bites, by `treat_form`), and it carries the food bags' flavor band,
+life-stage pips and breed-sized treats. `pet_toy` draws the toy (`toy_kind`) in its color, with
+its feature's mark beside it (`play_feature`): sound arcs for a squeaker, waves for a floater, a
+shield for a chew-resistant toy, and so on. `pet_bed` draws the bed (`bed_style`) in its color, with a
+swatch tag of its cover (`cover`). The five new attributes join `pets_rows.DRAWN`, so a derived
+style that swaps one draws what it states (gen#512). All three shapes are upright, filed in
+`orientations/pet_gear.py`, the module named after `kit_pet_gear.py` (gen#1045).
+
+**Decoys.** Each new type has two text-match decoys. Each one is a word that names another type,
+used in a brand or range name: `Alley Cat Provisions` dog biscuits and a dog toy, a `Dental Hill`
+biscuit that is not a dental chew, a `Tennis Club` rope that is not a tennis ball, a `Kitten Mill`
+dog bed, and a `Sofa Style` bolster bed that is a pet bed, not a sofa.
+
+**Measured** (ceiling build, seed 0): the department's and each type's SKUs are build output,
+read with `retail_figures.figures()`. Slice 2's floor is 4,300 Pets SKUs. Slice 3 is still to
+come: leads and collars, grooming brushes, and aquarium and small-animal supplies.

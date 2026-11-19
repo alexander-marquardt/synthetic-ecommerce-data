@@ -1,4 +1,4 @@
-"""Pets, slice 1 (gen#967): the department, with dog food, cat food and cat litter.
+"""Pets, slices 1 and 2 (gen#967): the department, its food, litter, treats, toys and beds.
 
 The retail catalogue had no pets department, so a search for ``dry dog food`` or ``cat litter``
 found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first three
@@ -8,6 +8,10 @@ drawn by :mod:`kit_pets`. These checks hold the slice's Done-when: the ceiling b
 rows and their drawings are the same on every call; and a golden slice pins each type's first
 derived styles, so a change that moves them shows here. The pack draws what it says (its life
 stage, flavor, breed size, special need and scent), so few Pets styles share a results grid tile.
+
+Slice 2 adds Dog Treats, Pet Toy and Pet Bed (``type_specs/dog_treats.py``, ``pet_toy.py``,
+``pet_bed.py``, drawn by :mod:`kit_pet_gear`) and raises the floor to 4,300 SKUs; the toys and
+beds are sold in each of the six main colors (ruling 2026-10-13, gen#275).
 """
 
 from __future__ import annotations
@@ -19,13 +23,17 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
 from synthetic_ecommerce_data.domains.retail import kit, pets_rows, scale, type_registry
+from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 
 #: The department, the top level of every pets path.
 ROOT = "Pets"
-TYPES = ("Dog Food", "Cat Food", "Cat Litter")
-KEYS = {"Dog Food": "dog_food", "Cat Food": "cat_food", "Cat Litter": "cat_litter"}
-#: The slice's floor at the ceiling build (the gate comment of gen#967).
-FLOOR = 2_000
+TYPES = ("Dog Food", "Cat Food", "Cat Litter", "Dog Treats", "Pet Toy", "Pet Bed")
+KEYS = {"Dog Food": "dog_food", "Cat Food": "cat_food", "Cat Litter": "cat_litter",
+        "Dog Treats": "dog_treats", "Pet Toy": "pet_toy", "Pet Bed": "pet_bed"}  # fmt: skip
+#: The types sold in colors: each offers the six main colors (ruling 2026-10-13, gen#275).
+COLORED = ("Pet Toy", "Pet Bed")
+#: Slice 2's floor at the ceiling build (the gate comment of gen#967; slice 1's was 2,000).
+FLOOR = 4_300
 #: The Pets styles at the ceiling that may share a grid tile. The shapes drew only the animal,
 #: the pack color and the format, and 389 of 619 did, which put the catalog over its cap.
 PETS_GRID_CLONES = 0.02
@@ -64,6 +72,12 @@ def test_each_type_has_unique_ids_titles_and_twin_keys(pets, ptype) -> None:
     assert len(skus) == len(set(skus))
 
 
+@pytest.mark.parametrize("ptype", COLORED)
+def test_each_colored_type_offers_the_six_main_colors(pets, ptype) -> None:
+    offered = {s.get("color") for r in pets if r["product_type"] == ptype for s in r["skus"]}
+    assert set(MAIN_COLORS) <= offered, sorted(set(MAIN_COLORS) - offered)
+
+
 @pytest.mark.parametrize("ptype", TYPES)
 def test_each_type_rows_and_drawings_are_deterministic(ptype) -> None:
     spec = type_registry.specs()[KEYS[ptype]]
@@ -99,6 +113,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-03E57A1B6D5A", "Rosbeck Lavender Clumping Clay Cat Litter", 3, 3.2),
         ("BRD-06F75E8C843B", "Rockgate Citrus Clumping Clay Cat Litter", 3, 5.5),
     ],
+    "Dog Treats": [
+        ("BRD-04F2CBC42E62", "Dalfield Puppy Training Treats with Chicken", 3, 2.6),
+        ("BRD-061F1A8B8A96", "Hawstone Adult Dog Biscuits with Peanut Butter", 2, 3.85),
+        ("BRD-0A40CCF4FCA4", "Kirkside Dental Twists for Small Dogs with Chicken", 3, 3.85),
+    ],
+    "Pet Toy": [
+        ("BRD-02A4A298BB17", "Norburn Jingle Bell Mouse Cat Toy", 6, 4.95),
+        ("BRD-06965CF66B37", "Thorningham Crinkle Kicker Cat Toy", 6, 4.0),
+        ("BRD-0726DDAAC2B5", "Eskhurst Catnip Kicker Cat Toy", 6, 3.6),
+    ],
+    "Pet Bed": [
+        ("BRD-01407B4F80F0", "Caldden Quilted Orthopedic Dog Bed", 15, 21.0),
+        ("BRD-02DAEB2F0F4E", "Rudthwaite Velvet Cave Cat Bed", 2, 19.5),
+        ("BRD-03C0D08BD728", "Ellerborough Faux Fur Bolster Dog Bed", 6, 16.0),
+    ],
 }  # fmt: skip
 
 
@@ -119,15 +148,21 @@ def test_few_pets_styles_share_a_results_grid_tile(pets) -> None:
 #: Two values of each attribute the pack draws (:data:`pets_rows.DRAWN`).
 DRAWN_VALUES = {"life_stage": ("puppy", "senior"), "flavor": ("chicken & rice", "salmon & potato"),
                 "breed_size": ("small breed", "large breed"),
-                "special_need": ("indoor", "sensitive"), "scent": ("lavender", "pine")}  # fmt: skip
+                "special_need": ("indoor", "sensitive"), "scent": ("lavender", "pine"),
+                "treat_form": ("dental stick", "training bite"), "toy_kind": ("ball", "rope"),
+                "play_feature": ("squeaky", "floating"), "bed_style": ("donut", "cave"),
+                "cover": ("faux fur", "corduroy")}  # fmt: skip
+#: The shape that draws each attribute; the rest are drawn on the dry food bag.
+DRAWN_ON = {"scent": "cat_litter", "treat_form": "dog_treats", "toy_kind": "pet_toy",
+            "play_feature": "pet_toy", "bed_style": "pet_bed", "cover": "pet_bed"}  # fmt: skip
 
 
 @pytest.mark.parametrize("key", tuple(DRAWN_VALUES))
 def test_each_drawn_attribute_changes_the_picture(key) -> None:
-    """Two values of one drawn attribute give two pictures (the litter's ``scent`` on the litter
-    bag, the rest on the dry food bag), and the rows draw each of them."""
+    """Two values of one drawn attribute give two pictures (on its shape in :data:`DRAWN_ON`, else
+    on the dry food bag), and the rows draw each of them."""
     assert key in getattr(pets_rows, "DRAWN", ())
-    shape = "cat_litter" if key == "scent" else "dry_pet_food"
+    shape = DRAWN_ON.get(key, "dry_pet_food")
     values = DRAWN_VALUES[key]
     fill = kit.Fill("solid", "#123456", "#654321")
     one, two = (kit.render(shape, fill, params={key: v}) for v in values)
