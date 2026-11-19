@@ -197,7 +197,8 @@ def figure(record: dict[str, str]) -> Drawn:
     fig.rect(k0, 0.0, k1, h, "dark")
     holes = [(0.2 * h, y * h) for y in (0.22, 0.5, 0.78)]
     holes += [(0.72 * h, y * h) for y in (0.3, 0.7)]
-    fig.discs(holes, 0.04 * h, "dark")
+    for hole in holes:  # one disc each: a grouped run nests a <g> in the turned figure
+        fig.disc(hole, 0.04 * h, "dark")
     return Drawn(fig, source)
 
 
