@@ -1,4 +1,4 @@
-"""Sports & Outdoors, fishing and golf, slice 1 (gen#959).
+"""Sports & Outdoors: fishing and golf, then fitness, team and racket sports (gen#959).
 
 The retail Sports & Outdoors department held 1,093 SKUs at the ceiling build against the 11,000
 of the #837 mix, and no fishing or golf product, so a search for ``golf balls`` or ``fishing reel``
@@ -8,6 +8,10 @@ balls, gloves), each type a derivable spec of its own in ``type_specs/`` drawn b
 3,000 SKUs under the department; each new type's styles have unique ids, titles, twin keys and
 SKUs; the rows and their drawings are the same on every call; and a golden slice pins each type's
 first derived styles, so a change that moves them shows here.
+
+Slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness, and
+basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats under
+Team & Racket Sports, drawn by :mod:`kit_fitness_team`, and raises the floor to 7,000 SKUs.
 """
 
 from __future__ import annotations
@@ -20,7 +24,23 @@ from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
 from synthetic_ecommerce_data.domains.retail.sports_helpers import DEPARTMENT
 
-TYPES = ("Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove")
+TYPES = (
+    "Fishing Rod",
+    "Fishing Reel",
+    "Tackle Box",
+    "Golf Club",
+    "Golf Ball",
+    "Golf Glove",
+    "Exercise Bike",
+    "Weight Plate",
+    "Weight Bench",
+    "Basketball",
+    "Volleyball",
+    "Shin Guard",
+    "Hockey Stick",
+    "Pickleball Paddle",
+    "Table Tennis Bat",
+)
 KEYS = {
     "Fishing Rod": "fishing_rod",
     "Fishing Reel": "fishing_reel",
@@ -28,9 +48,18 @@ KEYS = {
     "Golf Club": "golf_club",
     "Golf Ball": "golf_ball",
     "Golf Glove": "golf_glove",
+    "Exercise Bike": "exercise_bike",
+    "Weight Plate": "weight_plate",
+    "Weight Bench": "weight_bench",
+    "Basketball": "basketball",
+    "Volleyball": "volleyball",
+    "Shin Guard": "shin_guard",
+    "Hockey Stick": "hockey_stick",
+    "Pickleball Paddle": "pickleball_paddle",
+    "Table Tennis Bat": "table_tennis_bat",
 }
-#: The slice's floor at the ceiling build (the gate comment of gen#959).
-FLOOR = 3_000
+#: Slice 2's floor at the ceiling build (the gate comment of gen#959; slice 1's was 3,000).
+FLOOR = 7_000
 
 
 @pytest.fixture(scope="module")
@@ -112,6 +141,86 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-100228D32570", "Clayborough Cabretta Leather Golf Glove, Left Hand", 16, 17.0),
         ("BRD-145EDF083F79", "Weston Synthetic Golf Glove, Right Hand", 16, 11.0),
         ("BRD-24BC6EB2F440", "Ormthwaite Synthetic Golf Glove, Left Hand", 12, 11.5),
+    ],
+    "Exercise Bike": [
+        ("BRD-07D4885AEAD5", "Ormden Air Folding Exercise Bike with LCD Console", 12, 415.0),
+        ("BRD-097F350FD5C5", "Chapwell Friction Upright Exercise Bike with LCD Console", 6, 230.0),
+        (
+            "BRD-16BFEEA8934B",
+            "Holborough Magnetic Folding Exercise Bike with LCD Console",
+            6,
+            365.0,
+        ),
+    ],
+    "Weight Plate": [
+        ("BRD-064B72660B80", "Haling Rubber Coated Olympic Dual-Grip Weight Plate", 8, 9.5),
+        ("BRD-150C93EB061D", "Rystead Cast Iron Olympic Tri-Grip Weight Plate", 16, 8.0),
+        ("BRD-1E14BEBFA232", "Kelridge Rubber Coated Standard Dual-Grip Weight Plate", 12, 23.0),
+    ],
+    "Weight Bench": [
+        ("BRD-084DC6EDC9C2", "Ramside Commercial Decline Weight Bench with Canvas Pad", 12, 69.0),
+        ("BRD-09AC876BFE46", "Woldsbeck Home Flat Weight Bench with Canvas Pad", 6, 110.0),
+        ("BRD-09C43470398A", "Reedgate Home Adjustable Weight Bench with Canvas Pad", 6, 61.0),
+    ],
+    "Basketball": [
+        ("BRD-0B0C9DB6B5D2", "Woldsbeck Training Rubber Indoor Basketball", 6, 57.0),
+        ("BRD-0BDA01929CA1", "Oldwood Official Composite Outdoor Basketball", 15, 14.5),
+        ("BRD-11DB9C56896B", "Sandcliffe Training Rubber Outdoor Basketball", 6, 20.0),
+    ],
+    "Volleyball": [
+        ("BRD-09887005B08D", "Trentlow Recreational Rubber Beach Volleyball", 8, 11.5),
+        ("BRD-0B5ACB8B29E0", "Oldwood Recreational Synthetic Beach Volleyball", 4, 11.5),
+        ("BRD-0B665262AD3C", "Stavham Official Synthetic Beach Volleyball", 8, 20.0),
+    ],
+    "Shin Guard": [
+        ("BRD-004E62E62DD5", "Ormden Reinforced Plastic Slip-In Shin Guards", 12, 27.0),
+        ("BRD-058936D49688", "Stanmere Low-Profile Fiberglass Ankle Shin Guards", 8, 53.0),
+        ("BRD-17C0F2F03FEF", "Stanmere Reinforced Plastic Slip-In Shin Guards", 8, 31.0),
+    ],
+    "Hockey Stick": [
+        ("BRD-01F2E7647BC5", "Sandcliffe Fiberglass Ice Hockey Stick with Heel Curve", 4, 40.0),
+        ("BRD-07CD62CF36CB", "Torton Fiberglass Ice Hockey Stick with Heel Curve", 4, 38.0),
+        ("BRD-09B6FAEA9975", "Warhill Wood Street Hockey Stick with Toe Curve", 6, 31.0),
+    ],
+    "Pickleball Paddle": [
+        (
+            "BRD-0FBA1A54AC46",
+            "Ellerhurst Lightweight Carbon Fiber Elongated Pickleball Paddle",
+            9,
+            47.0,
+        ),
+        (
+            "BRD-14F93D3A7068",
+            "Ribgarth Heavyweight Carbon Fiber Widebody Pickleball Paddle",
+            6,
+            85.0,
+        ),
+        (
+            "BRD-161C543DBA51",
+            "Lamthwaite Lightweight Fiberglass Widebody Pickleball Paddle",
+            9,
+            44.0,
+        ),
+    ],
+    "Table Tennis Bat": [
+        (
+            "BRD-06B9F1E4C580",
+            "Branhill Offensive Table Tennis Bat with Wood Blade and Pimpled Rubber",
+            8,
+            21.0,
+        ),
+        (
+            "BRD-0D49C524A04C",
+            "Garton Control Table Tennis Bat with Wood Blade and Pimpled Rubber",
+            8,
+            18.5,
+        ),
+        (
+            "BRD-0E503A99E6DB",
+            "Ribgarth Allround Table Tennis Bat with Carbon Blade and Tacky Rubber",
+            6,
+            39.0,
+        ),
     ],
 }
 
