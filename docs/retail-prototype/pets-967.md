@@ -84,8 +84,8 @@ life-stage pips and breed-sized treats. `pet_toy` draws the toy (`toy_kind`) in 
 its feature's mark beside it (`play_feature`): sound arcs for a squeaker, waves for a floater, a
 shield for a chew-resistant toy, and so on. `pet_bed` draws the bed (`bed_style`) in its color, with a
 swatch tag of its cover (`cover`). The five new attributes join `pets_rows.DRAWN`, so a derived
-style that swaps one draws what it states (gen#512). All three shapes are upright
-(`orientation.UPRIGHT`).
+style that swaps one draws what it states (gen#512). All three shapes are upright, filed in
+`orientations/pet_gear.py`, the module named after `kit_pet_gear.py` (gen#1045).
 
 **Decoys.** Each new type has two text-match decoys. Each one is a word that names another type,
 used in a brand or range name: `Alley Cat Provisions` dog biscuits and a dog toy, a `Dental Hill`

@@ -114,19 +114,19 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-06F75E8C843B", "Rockgate Citrus Clumping Clay Cat Litter", 3, 5.5),
     ],
     "Dog Treats": [
-        ("BRD-04F2CBC42E62", "Towncroft Puppy Training Treats with Chicken", 3, 2.6),
-        ("BRD-061F1A8B8A96", "Corness Adult Dog Biscuits with Peanut Butter", 2, 3.85),
-        ("BRD-0A40CCF4FCA4", "Stavham Dental Twists for Small Dogs with Chicken", 3, 3.85),
+        ("BRD-04F2CBC42E62", "Dalfield Puppy Training Treats with Chicken", 3, 2.6),
+        ("BRD-061F1A8B8A96", "Hawstone Adult Dog Biscuits with Peanut Butter", 2, 3.85),
+        ("BRD-0A40CCF4FCA4", "Kirkside Dental Twists for Small Dogs with Chicken", 3, 3.85),
     ],
     "Pet Toy": [
-        ("BRD-02A4A298BB17", "Hulridge Jingle Bell Mouse Cat Toy", 6, 4.95),
-        ("BRD-06965CF66B37", "Flaxingham Crinkle Kicker Cat Toy", 6, 4.0),
-        ("BRD-0726DDAAC2B5", "Cudness Catnip Kicker Cat Toy", 6, 3.6),
+        ("BRD-02A4A298BB17", "Norburn Jingle Bell Mouse Cat Toy", 6, 4.95),
+        ("BRD-06965CF66B37", "Thorningham Crinkle Kicker Cat Toy", 6, 4.0),
+        ("BRD-0726DDAAC2B5", "Eskhurst Catnip Kicker Cat Toy", 6, 3.6),
     ],
     "Pet Bed": [
-        ("BRD-01407B4F80F0", "Ulvcombe Quilted Orthopedic Dog Bed", 15, 21.0),
-        ("BRD-02DAEB2F0F4E", "Malwood Velvet Cave Cat Bed", 2, 19.5),
-        ("BRD-03C0D08BD728", "Marborough Faux Fur Bolster Dog Bed", 6, 16.0),
+        ("BRD-01407B4F80F0", "Caldden Quilted Orthopedic Dog Bed", 15, 21.0),
+        ("BRD-02DAEB2F0F4E", "Rudthwaite Velvet Cave Cat Bed", 2, 19.5),
+        ("BRD-03C0D08BD728", "Ellerborough Faux Fur Bolster Dog Bed", 6, 16.0),
     ],
 }  # fmt: skip
 
