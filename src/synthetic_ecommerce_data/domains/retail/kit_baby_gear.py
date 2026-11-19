@@ -1,5 +1,5 @@
 """Baby gear for the retail drawing kit (gen#965): diapers, wipes, bottles, strollers, car
-seats and high chairs.
+seats, high chairs, cribs and baby monitors.
 
 =============  ==============================================  =================================
 shape          draws                                           params
@@ -26,12 +26,21 @@ high_chair     a high chair with a tray, its seat pad in the   frame (wooden, fo
                SKU's color: on four splayed wooden legs, a     pedestal)
                folding X-frame on wheels, or one pedestal on
                a round foot
+crib           a crib, its frame painted in the SKU's color:   crib_style (standard,
+               slatted sides on four short legs, arched end    convertible, mini)
+               panels with a toddler guard on the front, or a
+               small folding frame on locking castors
+baby_monitor   a baby monitor, its casing in the SKU's color:  monitor_type (audio, video,
+               a handset with a speaker grille and a sound     smart)
+               light bar beside a small baby unit, a parent
+               screen beside a camera on a stand, or a phone
+               app beside a Wi-Fi camera
 =============  ==============================================  =================================
 
 Each param's values are the lower-cased attribute values of the spec rows, so a derived style
 that changes a diaper's ``diaper_style``, a bottle's ``material``, a stroller's
-``stroller_style``, a car seat's ``seat_type`` or a high chair's ``frame`` draws what it states
-(gen#512).
+``stroller_style``, a car seat's ``seat_type``, a high chair's ``frame``, a crib's ``crib_style``
+or a baby monitor's ``monitor_type`` draws what it states (gen#512).
 """
 
 from __future__ import annotations
@@ -66,6 +75,11 @@ BEECH = "#d4a46a"
 #: A car seat's shell and harness.
 SHELL = "#4a4d55"
 STRAP = "#2f3137"
+#: A baby monitor's dark screen and lens, and a phone app's pale screen.
+SCREEN = "#1f2a36"
+APP = "#cfe3f2"
+#: A sound light bar's lamps, quiet to loud.
+LAMPS = ("#5bb36a", "#e8c547", "#d9573b")
 
 
 def _diaper(style: str) -> list[str]:
@@ -286,8 +300,102 @@ def high_chair(paint: str, fill: Fill, label: str | None, frame: str = "wooden")
     return _label(out, label)
 
 
+def _slats(x0: float, x1: float, y0: float, y1: float, paint: str) -> list[str]:
+    """A crib side's upright slats between two rails, in the frame's color."""
+    return [_rect(x, y0, 8, y1 - y0, paint, 3, LW_DETAIL) for x in range(int(x0), int(x1), 22)]
+
+
+def crib(paint: str, fill: Fill, label: str | None, crib_style: str = "standard") -> list[str]:
+    """A crib, its frame painted in the SKU's color, a white mattress inside."""
+    trim = _shade(fill.base, 0.18)
+    if crib_style == "mini":
+        out = [
+            _rect(116, 236, 168, 16, PAPER, 6, LW_DETAIL),
+            *_slats(126, 278, 168, 268, paint),
+            _rect(104, 140, 20, 160, paint, 6),
+            _rect(276, 140, 20, 160, paint, 6),
+            _rect(104, 160, 192, 12, trim, 5),
+            _rect(104, 266, 192, 12, trim, 5),
+            _line("M200,166 L200,274", 3, "", FRAME),
+            *_wheel(114, 316, 14),
+            *_wheel(286, 316, 14),
+        ]
+    elif crib_style == "convertible":
+        out = [
+            _rect(92, 248, 216, 18, PAPER, 6, LW_DETAIL),
+            *_slats(100, 300, 150, 266, paint),
+            _path("M56,340 L56,96 Q80,62 104,96 L104,340 Z", paint),
+            _path("M296,340 L296,150 Q320,122 344,150 L344,340 Z", paint),
+            _rect(104, 140, 192, 14, trim, 5),
+            _rect(104, 264, 192, 14, trim, 5),
+            _rect(150, 206, 120, 12, trim, 5, LW_DETAIL),
+        ]
+    else:
+        out = [
+            _rect(92, 244, 216, 18, PAPER, 6, LW_DETAIL),
+            *_slats(102, 300, 136, 262, paint),
+            _rect(70, 100, 22, 240, paint, 6),
+            _rect(308, 100, 22, 240, paint, 6),
+            _rect(70, 124, 260, 14, trim, 5),
+            _rect(70, 260, 260, 14, trim, 5),
+        ]
+    gloss = "M80,120 L80,320" if crib_style != "mini" else "M112,150 L112,290"
+    out.append(_highlight(gloss, 4, 0.35))
+    return _label(out, label)
+
+
+def _lamps(x: float, y: float) -> list[str]:
+    """A sound light bar: three lamps, quiet to loud."""
+    return [_ell(x + i * 18, y, 6, 6, c, LW_DETAIL) for i, c in enumerate(LAMPS)]
+
+
+def baby_monitor(
+    paint: str, fill: Fill, label: str | None, monitor_type: str = "audio"
+) -> list[str]:
+    """A baby monitor, its casing in the SKU's color: a parent unit and what it watches with."""
+    trim = _shade(fill.base, 0.2)
+    if monitor_type == "video":
+        out = [
+            _rect(64, 150, 176, 132, paint, 18),
+            _rect(78, 164, 148, 96, SCREEN, 8, LW_DETAIL),
+            _ell(152, 222, 34, 14, _tint(APP, 0.2), LW_DETAIL),
+            _ell(126, 214, 12, 11, _tint(APP, 0.2), LW_DETAIL),
+            _ell(312, 146, 42, 42, paint),
+            _ell(312, 146, 18, 18, SCREEN, LW_DETAIL),
+            _rect(304, 186, 16, 104, trim, 6),
+            _ell(312, 298, 46, 12, paint),
+        ]
+    elif monitor_type == "smart":
+        out = [
+            _rect(74, 112, 112, 210, STRAP, 18),
+            _rect(84, 130, 92, 168, APP, 6, LW_DETAIL),
+            _rect(96, 146, 68, 50, SCREEN, 4, LW_DETAIL),
+            _rect(96, 210, 68, 10, MARK, 4, LW_DETAIL),
+            _rect(96, 228, 44, 10, MARK, 4, LW_DETAIL),
+            _rect(236, 104, 112, 112, paint, 34),
+            _ell(292, 160, 26, 26, SCREEN, LW_DETAIL),
+            _ell(292, 160, 9, 9, _tint(SCREEN, 0.4), LW_DETAIL),
+            _rect(282, 214, 20, 72, trim, 6),
+            _rect(246, 284, 92, 18, paint, 8),
+        ]
+    else:
+        out = [
+            _rect(204, 78, 16, 46, trim, 6),
+            _rect(140, 112, 104, 210, paint, 30),
+            *[_line(f"M164,{y} L220,{y}", 4, "", trim) for y in range(150, 206, 12)],
+            *_lamps(174, 236),
+            _rect(168, 268, 48, 18, trim, 8, LW_DETAIL),
+            _path("M268,320 L268,268 Q300,224 332,268 L332,320 Z", paint),
+            _ell(300, 280, 10, 10, _tint(LAMPS[1], 0.4), LW_DETAIL),
+        ]
+    gloss = "M152,140 L152,290" if monitor_type == "audio" else "M246,130 Q250,120 262,116"
+    out.append(_highlight(gloss, 5, 0.35))
+    return _label(out, label)
+
+
 SHAPES = {
     "diaper_pack": diaper_pack, "wipes_pack": wipes_pack, "baby_bottle": baby_bottle,
-    "stroller": stroller, "car_seat": car_seat, "high_chair": high_chair,
+    "stroller": stroller, "car_seat": car_seat, "high_chair": high_chair, "crib": crib,
+    "baby_monitor": baby_monitor,
 }  # fmt: skip
 register(SHAPES)

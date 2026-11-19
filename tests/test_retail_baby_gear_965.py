@@ -8,7 +8,8 @@ Kids > Baby sold clothing only, so a search for ``diapers``, ``baby wipes``, ``b
 monitors (``type_specs/crib.py``, ``baby_monitor.py``). Each is a spec of its own, drawn by
 :mod:`kit_baby_gear`. These checks hold each slice's Done-when: the ceiling build has at least
 the slice's floor of SKUs of its types under Kids > Baby (1,100 for the three types of slices 1
-and 2, 600 for the two of slice 3); each type's styles have unique ids, titles and twin keys; the
+and 2, 600 for the two of slice 3), and all of them with the rest of Kids meet the issue's own
+counts; each type's styles have unique ids, titles and twin keys; the
 rows and their drawings are the same on every call; a param of each slice 2 and 3 shape changes
 its drawing; and a golden slice pins each type's first derived styles, so a change that moves
 them shows here.
@@ -49,6 +50,17 @@ def gear() -> list[dict]:
 def test_the_ceiling_build_holds_the_slice_floor_of_baby_gear_skus(gear, types) -> None:
     skus = sum(r["sku_count"] for r in gear if r["product_type"] in types)
     assert skus >= FLOORS[types], skus
+
+
+#: gen#965's Done-when: Kids SKUs (95% of the 19,000 target) and baby gear SKUs under Kids > Baby.
+KIDS_FLOOR = 18_050
+GEAR_FLOOR = 3_261
+
+
+def test_the_ceiling_build_meets_the_issue_done_when(gear) -> None:
+    kids = sum(r["sku_count"] for r in ceiling_build().records if r["category_path"][0] == "Kids")
+    assert kids >= KIDS_FLOOR, kids
+    assert sum(r["sku_count"] for r in gear) >= GEAR_FLOOR
 
 
 def test_every_type_of_the_slice_is_derived_in_the_ceiling_build(gear) -> None:
@@ -139,8 +151,16 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-043C204F8B10", "Thistle & Wren Rover Space-Saving Folding High Chair", 2, 145.0),
         ("BRD-050A2E09CB73", "Fenwold Nursery Perch Adjustable Height Folding High Chair", 3, 210.0),
     ],
-    "Crib": [],
-    "Baby Monitor": [],
+    "Crib": [
+        ("BRD-0022CA803780", "Larchwood Living Harebell Teething Rail Convertible Crib", 2, 360.0),
+        ("BRD-00C883D56F95", "Cobble & Kiln Starling Wipe-Clean Standard Crib", 2, 200.0),
+        ("BRD-01A4D62AE89F", "Larchwood Living Harebell Solid Wood Mini Crib", 2, 155.0),
+    ],
+    "Baby Monitor": [
+        ("BRD-0015F68114F1", "Mirefield Naturals Firefly Sound-Activated Video Baby Monitor", 3, 220.0),
+        ("BRD-00389B9778F7", "Mirefield Naturals Firefly Room Temperature Audio Baby Monitor", 3, 170.0),
+        ("BRD-02DAB1B9EDF1", "Little Fernby Thimble Room Temperature Video Baby Monitor", 2, 190.0),
+    ],
 }
 
 

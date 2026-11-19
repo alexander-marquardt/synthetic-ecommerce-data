@@ -138,9 +138,10 @@ def _quotations(stats: dict) -> dict[str, str]:
             # A date is not a total either: a count that reaches 2026 collided with every
             # ISO date of the README ("2026-09-28"), so a figure followed by "-MM-DD" is skipped.
             # A figure glued to a letter is part of a name, "iso4035def.csv" (a total of 4035
-            # derived styles collided with it, #851).
+            # derived styles collided with it, #851). A figure after a host and a colon is a
+            # port, "http://127.0.0.1:9201" (a total of 9201 styles collided with it, gen#965).
             plain = (
-                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<![\d.,_A-Za-z]){value}(?![\d,_])"
+                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<!\d:)(?<![\d.,_A-Za-z]){value}(?![\d,_])"
                 r"(?!-\d{2}-\d{2})"
             )
             grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
