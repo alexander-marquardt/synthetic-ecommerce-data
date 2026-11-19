@@ -781,13 +781,13 @@ BOOTS = dz.Row(
     "category intent: Boots",
     (
         dz.Distractor(dz.product(
-            "BOOTORG", "Car Boot Organiser", "Brackenmere Home", "Home",
-            ("Home", "Storage", "Car Boot Organisers"), 18.0,
+            "BOOTORG", "Car Boot Organiser", "Brackenmere Home", "Automotive",
+            ("Automotive", "Interior", "Car Boot Organisers"), 18.0,
             "A collapsible car boot organiser with three compartments. Keeps shopping upright "
             "in the boot and folds flat when the boot is full.",
             drawing("box_wide", cw("Charcoal", "#3f4247"), "Boot Tidy"),
             (("color", "Color", "Charcoal"),),
-        ), "category intent: Boots (a Home item never answers a footwear word)"),
+        ), "category intent: Boots (a car item never answers a footwear word)"),
         dz.Distractor(dz.product(
             "BOOTPOL", "Boot Polish & Brush Kit", "Calderby & Lune", "Footwear",
             ("Mens", "Accessories", "Shoe Care"), 12.0,
