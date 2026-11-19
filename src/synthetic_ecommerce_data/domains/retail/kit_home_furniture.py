@@ -55,7 +55,7 @@ from synthetic_ecommerce_data.domains.retail.kit_furniture import (
 
 #: Each shape's params and the values it draws, in the order a picker would list them.
 PARAMS: dict[str, dict[str, tuple[str, ...]]] = {
-    "bar_stool": {"height": ("counter", "bar"), "back": ("none", "low", "full"), "seat": ("round", "square"), "base": ("four_leg", "pedestal", "sled")},
+    "bar_stool": {"seat_height": ("counter", "bar"), "back": ("none", "low", "full"), "seat": ("round", "square"), "base": ("four_leg", "pedestal", "sled")},
     "desk": {"outline": ("rectangular", "l_shaped"), "drawers": ("0", "1", "2", "3", "4"), "legs": ("straight", "panel", "hairpin")},
     "office_chair": {"back": ("mid", "high"), "cover": ("mesh", "fabric"), "arms": ("yes", "no"), "base": ("castor", "sled")},
     "tv_stand": {"doors": ("0", "1", "2", "3", "4"), "shelves": ("0", "1", "2", "3"), "legs": ("short", "plinth", "hairpin")},
@@ -83,12 +83,12 @@ def _slab(x: float, y: float, w: float, h: float, paint: str) -> str:
     return _path(f"M{x:.1f},{y:.1f} L{x + w:.1f},{y:.1f} L{x + w:.1f},{y + h:.1f} L{x:.1f},{y + h:.1f} Z", paint, LW_DETAIL)
 
 
-def bar_stool(paint: str, fill: Fill, label: str | None, height: str = "bar", back: str = "low", seat: str = "round", base: str = "four_leg") -> list[str]:
-    """A stool whose seat (``class="seat"``) stands at ``counter`` or ``bar`` height, with no
+def bar_stool(paint: str, fill: Fill, label: str | None, seat_height: str = "bar", back: str = "low", seat: str = "round", base: str = "four_leg") -> list[str]:
+    """A stool whose seat (``class="seat"``) stands at ``counter`` or ``bar`` ``seat_height``, with no
     back, a ``low`` or a ``full`` back, a ``round`` or ``square`` seat, on four legs, a pedestal
     or a sled frame."""
-    _valid("bar_stool", height=height, back=back, seat=seat, base=base)
-    sy = {"counter": 172, "bar": 120}[height]
+    _valid("bar_stool", seat_height=seat_height, back=back, seat=seat, base=base)
+    sy = {"counter": 172, "bar": 120}[seat_height]
     out: list[str] = []
     if back != "none":
         top = sy - (54 if back == "low" else 120)

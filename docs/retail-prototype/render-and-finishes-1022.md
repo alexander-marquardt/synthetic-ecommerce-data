@@ -122,6 +122,7 @@ keyed by the product id) tells them apart.
 
 ## What comes next
 
-Slice 3 adds the manifest loader and the combined writer. Slice 4 adds the rest of the home types
-(tile, vanity, pulls, faucet, bath storage, canisters, wall art, decor objects, statues, florals,
-fountains, and rug, wall light and bench variants) as kit shapes drawn through `render`.
+[Slice 3](picture-products-1022.md) adds the manifest loader and the combined writer. Slice 4 adds
+the rest of the home types (tile, vanity, pulls, faucet, bath storage, canisters, wall art, decor
+objects, statues, florals, fountains, and rug, wall light and bench variants) as kit shapes drawn
+through `render`. Slice 5 ships a home type in a generator build with its own products.
