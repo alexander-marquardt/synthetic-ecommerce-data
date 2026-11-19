@@ -27,8 +27,9 @@ from synthetic_ecommerce_data.domains.retail import (
 #: prefix) where it draws the product honestly.
 HONEST_FOR: dict[str, tuple[str, ...]] = {
     "box": ("Food & Drink",),
-    # A storage organiser is a fabric box with compartments, so a wide box is its kind.
-    "box_wide": ("Food & Drink > Hampers & Gifts", "Home > Storage"),
+    # A storage organiser is a fabric box with compartments, so a wide box is its kind; the car
+    # boot organiser sits under Automotive > Interior since gen#970 slice 3.
+    "box_wide": ("Food & Drink > Hampers & Gifts", "Automotive > Interior"),
     # Still generic, honest nowhere now: loose fruit draws as its own
     # ``produce_pile`` (kit_produce.py), so any round_produce use fails.
     "round_produce": (),

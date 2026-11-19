@@ -1,4 +1,4 @@
-"""Car Boot Organiser (Home), registered by its spec (gen#537).
+"""Car Boot Organiser (Automotive since gen#970, Home before), registered by its spec (gen#537).
 
 The rows stay in the shared row modules named by ``homes``; ``derivable`` there says
 whether the scaled build draws more of them. Add rows of this type there, and a new
@@ -11,7 +11,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 SPEC = TypeSpec(
     key="car_boot_organiser",
-    department="Home",
+    department="Automotive",
     product_type="Car Boot Organiser",
     rows=(),
     homes=(

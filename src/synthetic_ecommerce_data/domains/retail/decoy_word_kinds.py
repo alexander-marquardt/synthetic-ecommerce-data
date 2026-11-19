@@ -152,8 +152,10 @@ NEW_KINDS = {
         3.5,
         units_per_pack=100,
     ),
+    # Automotive since gen#970 slice 3: jump leads are car electrics, beside the jump starters.
     "jumper": Kind(
-        "Home", (*_DIY, "Jump Leads"), "Jump Leads", "jumper_cables", "Brackenmere Home", 16.0
+        "Automotive", ("Automotive", "Electrics", "Jump Leads"), "Jump Leads", "jumper_cables",
+        "Brackenmere Home", 16.0,
     ),
     "paint": Kind(
         "Home", (*_DIY, "Paint"), "Paint", "tin", "Brackenmere Home", 14.0, colorless=True
@@ -280,8 +282,9 @@ _SPORTS_KINDS = {
                      "Crofter's Bakehouse", 4.5, colorless=True),
     "s_handwash": Kind("Beauty", ("Beauty", "Bath & Body", "Hand Wash"), "Hand Wash", "bottle",
                        "Velling Apothecary", 5.0, params=(("label", "Hand Wash"),), colorless=True),
-    "s_organizer": Kind("Home", ("Home", "Storage", "Car Boot Organisers"), "Car Boot Organiser",
-                        "box_wide", "Brackenmere Home", 18.0),
+    # Automotive since gen#970 slice 3: a car boot organiser is car interior, by the trunk liners.
+    "s_organizer": Kind("Automotive", ("Automotive", "Interior", "Car Boot Organisers"),
+                        "Car Boot Organiser", "box_wide", "Brackenmere Home", 18.0),
     "s_duvet_set": Kind("Home", ("Home", "Bedding", "Bedding Sets"), "Duvet Set", "duvet",
                         "Brackenmere Home", 32.0),
     "s_duvet": Kind("Home", ("Home", "Bedding", "Duvets"), "Duvet", "duvet", "Quillon Sleep", 35.0),

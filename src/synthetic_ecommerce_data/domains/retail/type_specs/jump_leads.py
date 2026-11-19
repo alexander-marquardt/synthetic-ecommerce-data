@@ -1,4 +1,4 @@
-"""Jump Leads (Home), registered by its spec (gen#537).
+"""Jump Leads (Automotive since gen#970 slice 3, Home before), registered by its spec (gen#537).
 
 The rows stay in the shared row modules named by ``homes``; ``derivable`` there says
 whether the scaled build draws more of them. Add rows of this type there, and a new
@@ -11,7 +11,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 SPEC = TypeSpec(
     key="jump_leads",
-    department="Home",
+    department="Automotive",
     product_type="Jump Leads",
     rows=(),
     homes=(Home("decoy_product_words", False),),
