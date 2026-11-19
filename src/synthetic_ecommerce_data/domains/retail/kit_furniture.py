@@ -55,6 +55,8 @@ CHAIR_STYLES = ("upholstered", "spindle", "cantilever", "bench")
 SIDE_KINDS = ("side", "bedside", "console", "nest")
 MIRROR_SHAPES = ("round", "arched", "rectangular", "sunburst")
 MIRROR_KINDS = ("wall", "full_length", "floor", "bathroom", "vanity")
+#: The dining bench's padded seat, three-quarters front: ``kit_home_variants.bench`` sits on it too.
+BENCH_SEAT = "M66,190 Q200,176 334,190 Q352,192 350,214 L346,244 L54,244 L50,214 Q48,192 66,190 Z"
 
 
 def _rect(x: float, y: float, w: float, h: float, fill: str, width: float = LW, rx: float = 0, cls: str = "") -> str:
@@ -190,7 +192,7 @@ def _one_chair(style: str, paint: str, fill: Fill) -> list[str]:
     if style == "bench":
         return [
             *_legs([86, 314], 236, 336, "#4a3a2e", 14), *_legs([112, 288], 236, 316, "#3a2d24", 10),
-            _path("M66,190 Q200,176 334,190 Q352,192 350,214 L346,244 L54,244 L50,214 Q48,192 66,190 Z", paint),
+            _path(BENCH_SEAT, paint),
             _line("M60,226 L340,226", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
             _line("M76,204 Q200,192 324,204", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
         ]
