@@ -44,9 +44,9 @@ SPEC = TypeSpec(
     product_type="Ski Goggles",
     derivable=True,
     rows=(
-        _row("SKGMSS", "Mirrored Spherical Ski Goggles with Standard Fit", _W, SKI_GOGGLES, "Ski Goggles", 59.0, "ski_goggles",
+        _row("SKGMSS", "Mirrored Spherical Ski Goggles with Regular Fit", _W, SKI_GOGGLES, "Ski Goggles", 59.0, "ski_goggles",
              "Ski goggles with a mirrored double lens that resists fog, a foam face and a wide silicone strap.",
-             (BLACK, WHITE, RED, BLUE), _attrs("Mirrored", "Spherical", "Standard"),
+             (BLACK, WHITE, RED, BLUE), _attrs("Mirrored", "Spherical", "Regular"),
              _sizes(59.0), "size", (("lens_shape", "spherical"),)),
         _row("SKGPCO", "Photochromic Cylindrical Ski Goggles with Over-the-Glasses Fit", _H, SKI_GOGGLES, "Ski Goggles", 79.0, "ski_goggles",
              "Ski goggles whose lens darkens in bright sun, with a deep frame that fits over glasses.",
@@ -56,9 +56,9 @@ SPEC = TypeSpec(
              "Ski goggles with a polarized lens that cuts glare off the snow and a low-bridge foam for a narrower nose.",
              (BLUE, RED, YELLOW, GREEN), _attrs("Polarized", "Toric", "Low-Bridge"),
              _sizes(99.0), "size", (("lens_shape", "toric"),)),
-        _row("SKGMCS", "Mirrored Cylindrical Ski Goggles with Standard Fit", _L, SKI_GOGGLES, "Ski Goggles", 45.0, "ski_goggles",
+        _row("SKGMCS", "Mirrored Cylindrical Ski Goggles with Regular Fit", _L, SKI_GOGGLES, "Ski Goggles", 45.0, "ski_goggles",
              "Ski goggles with a mirrored cylindrical lens, vents in the frame and an adjustable strap.",
-             (WHITE, BLACK, GREEN, YELLOW), _attrs("Mirrored", "Cylindrical", "Standard"),
+             (WHITE, BLACK, GREEN, YELLOW), _attrs("Mirrored", "Cylindrical", "Regular"),
              _sizes(45.0), "size", (("lens_shape", "cylindrical"),)),
     ),
 )  # fmt: skip
