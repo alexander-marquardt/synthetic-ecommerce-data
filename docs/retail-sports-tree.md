@@ -10,7 +10,11 @@ family (rods, reels, tackle boxes) and the Golf family (clubs, balls, gloves), t
 first derivable types, described in `docs/retail-prototype/sports-fishing-golf-959.md`;
 its slice 2 adds exercise bikes, weight plates and weight benches under Yoga & Fitness and
 basketballs, volleyballs, shin guards, hockey sticks, pickleball paddles and table tennis bats
-under Team & Racket Sports, described in `docs/retail-prototype/sports-fitness-team-959.md`). This note records, per leaf,
+under Team & Racket Sports, described in `docs/retail-prototype/sports-fitness-team-959.md`;
+its slice 3 adds hiking backpacks under a new Hiking family, coolers and insulated water bottles
+under Camping, bike lights and bike locks under Cycling, and sleds, snowboards and ski goggles
+under a new Winter Sports family, described in
+`docs/retail-prototype/sports-outdoor-winter-959.md`). This note records, per leaf,
 what a shopper filters on and whether a reference retailer's tree was compared; and, per type not
 yet built, where it is scheduled.
 `tests/test_retail_sports_tree_note_290.py` keeps both tables equal to the rows: a new leaf
@@ -80,6 +84,14 @@ no guidance example says `none` there too.
 | Sports & Outdoors > Team & Racket Sports > Hockey Sticks | material, hockey_type, blade_curve, handedness, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Pickleball Paddles | paddle_weight, face, paddle_shape, grip_size, color | none | none |
 | Sports & Outdoors > Team & Racket Sports > Table Tennis Bats | blade, play_style, bat_rubber, handle_shape, color | none | none |
+| Sports & Outdoors > Hiking > Hiking Backpacks | pack_fabric, pack_frame, pack_opening, capacity, color | none | none |
+| Sports & Outdoors > Camping > Coolers | cooler_use, cooler_type, ice_retention, capacity, color | none | none |
+| Sports & Outdoors > Camping > Insulated Water Bottles | bottle_coating, bottle_mouth, bottle_lid, capacity, color | none | none |
+| Sports & Outdoors > Cycling > Bike Lights | light_power, light_position, light_modes, light_output, color | none | none |
+| Sports & Outdoors > Cycling > Bike Locks | lock_grade, lock_type, lock_opening, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Sleds | sled_build, sled_riders, sled_type, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Snowboards | riding_style, board_shape, board_profile, item_length, color | none | none |
+| Sports & Outdoors > Winter Sports > Ski Goggles | lens_coating, lens_shape, goggle_fit, size, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Sit-on-Top Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Water Sports > Kayaks > Inflatable Kayaks | kayak_type, seat_count, max_load_kg, material, item_length, color | none | none |
 | Sports & Outdoors > Wheeled Sports > Kick Scooters | scooter_type, wheel_size, max_load_kg, folds, color | none | none |
@@ -172,8 +184,6 @@ carries a reason.
 
 | Type | Family | Disposition |
 | --- | --- | --- |
-| Bike lights | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
-| Bike locks | Cycling | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Camping stoves | Camping | Optional in #352 ("if cheap"), left out to hold the range to the listed types (gen#352) |
 | Swimsuits and trunks | Swimming | Clothing already has them: reused, not duplicated (gen#265) |
 | Balance bikes | Cycling | Stay in Toys (gen#265) |
