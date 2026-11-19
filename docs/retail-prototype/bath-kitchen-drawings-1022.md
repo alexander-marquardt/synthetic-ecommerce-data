@@ -54,6 +54,6 @@ is (#884). The other five are `upright`.
 
 ## What comes next
 
-Slice 6 adds the décor types (wall art, decorative objects, garden statues, faux florals and
-fountains) and the `rug`, `wall_light` and bench variants. Slice 5 ships a home type in a
-generator build with its own products.
+[Slice 6](decor-drawings-1022.md) adds the décor types (wall art, decorative objects, garden
+statues, faux florals and fountains). Slice 7 adds the `rug`, `wall_light` and bench variants.
+Slice 5 ships a home type in a generator build with its own products.
