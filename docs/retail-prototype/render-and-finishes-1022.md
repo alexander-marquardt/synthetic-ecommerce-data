@@ -75,6 +75,7 @@ longer for its height than a 60-inch one and stands on the same floor.
 | `chest_of_drawers` | front | 32 | 44 | 18 |
 | `sofa` | front | 80 | 34 | 36 |
 | `rug` | top | 96 | 0.5 | 60 |
+| `tile`, `vanity`, `cabinet_pull`, `sink_faucet`, `bath_storage`, `canister` | front | see [slice 4](bath-kitchen-drawings-1022.md) | | |
 
 ## The five storage shapes
 
@@ -122,7 +123,8 @@ keyed by the product id) tells them apart.
 
 ## What comes next
 
-[Slice 3](picture-products-1022.md) adds the manifest loader and the combined writer. Slice 4 adds
-the rest of the home types (tile, vanity, pulls, faucet, bath storage, canisters, wall art, decor
-objects, statues, florals, fountains, and rug, wall light and bench variants) as kit shapes drawn
-through `render`. Slice 5 ships a home type in a generator build with its own products.
+[Slice 3](picture-products-1022.md) adds the manifest loader and the combined writer.
+[Slice 4](bath-kitchen-drawings-1022.md) adds the bath and kitchen types (tile, vanity, pulls,
+faucet, bath storage, canisters) as kit shapes drawn through `render`. Slice 6 adds the décor types
+(wall art, decorative objects, statues, florals, fountains) and the rug, wall light and bench
+variants. Slice 5 ships a home type in a generator build with its own products.

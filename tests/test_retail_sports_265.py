@@ -21,6 +21,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit,
     kit_cycling,
     kit_fishing_golf,
+    kit_fitness_team,
     kit_sports,
     main_colors,
     scale,
@@ -80,6 +81,16 @@ KEYS = {
     "Golf Club": {"shaft_material", "club_type", "handedness", "color"},
     "Golf Ball": {"cover", "construction", "pack_size", "color"},
     "Golf Glove": {"material", "worn_on", "size", "color"},
+    # gen#959 slice 2: fitness, team and racket sports, drawn by kit_fitness_team
+    "Exercise Bike": {"resistance_type", "bike_style", "console", "max_load_kg", "color"},
+    "Weight Plate": {"material", "bore", "plate_grip", "weight", "color"},
+    "Weight Bench": {"bench_type", "upholstery", "bench_grade", "max_load_kg", "color"},
+    "Basketball": {"cover", "court", "ball_grade", "ball_size", "color"},
+    "Volleyball": {"cover", "play", "ball_grade", "ball_size", "color"},
+    "Shin Guard": {"shell", "guard_type", "guard_profile", "size", "color"},
+    "Hockey Stick": {"material", "hockey_type", "blade_curve", "handedness", "color"},
+    "Pickleball Paddle": {"paddle_weight", "face", "paddle_shape", "grip_size", "color"},
+    "Table Tennis Bat": {"blade", "play_style", "bat_rubber", "handle_shape", "color"},
 }
 
 #: The SKU axis of a type that has one, the export key it becomes and its unit code.
@@ -101,6 +112,11 @@ AXES = {
     "Football": ("ball_size", "ball_size", "C62"),
     "Badminton Set": ("players", "players", "C62"),
     "Fishing Rod": ("length_cm", "item_length", "CMT"),
+    "Exercise Bike": ("max_load_kg", "max_load_kg", "KGM"),
+    "Weight Plate": ("weight_kg", "weight", "KGM"),
+    "Weight Bench": ("max_load_kg", "max_load_kg", "KGM"),
+    "Basketball": ("ball_size", "ball_size", "C62"),
+    "Volleyball": ("ball_size", "ball_size", "C62"),
 }
 
 #: A SKU axis that is a plain word or number, never a unit: the export key it becomes.
@@ -114,6 +130,10 @@ PLAIN_AXES = {
     "Golf Club": ("handedness", "handedness"),
     "Golf Ball": ("pack_size", "pack_size"),
     "Golf Glove": ("size", "size"),
+    "Shin Guard": ("size", "size"),
+    "Hockey Stick": ("handedness", "handedness"),
+    "Pickleball Paddle": ("grip", "grip_size"),
+    "Table Tennis Bat": ("handle_shape", "handle_shape"),
 }
 
 
@@ -149,8 +169,11 @@ def test_every_type_has_two_styles_from_two_brands() -> None:
 
 
 def test_every_style_draws_as_its_own_sports_shape() -> None:
-    # gen#625 draws the cycling accessories, gen#959 the fishing and golf types
-    shapes = kit_sports.SHAPES | kit_cycling.SHAPES | kit_fishing_golf.SHAPES
+    # gen#625 draws the cycling accessories, gen#959 the fishing, golf, fitness and team types
+    shapes = (
+        kit_sports.SHAPES | kit_cycling.SHAPES | kit_fishing_golf.SHAPES
+        | kit_fitness_team.SHAPES
+    )
     assert {r.code: r.shape for r in ROWS if r.shape not in shapes} == {}
     assert len({r.shape for r in ROWS}) == len(KEYS)
 
@@ -205,7 +228,8 @@ def test_a_tent_sells_each_berth_and_the_berths_grow_with_the_price() -> None:
 
 def test_a_weight_is_sold_in_kilograms_that_differ_by_style() -> None:
     weights = {r.code: [w for w, _ in r.sizes] for r in ROWS if r.size_key == "weight_kg"}
-    assert len(weights) == 4 and all(len(set(w)) == len(w) >= 3 for w in weights.values())
+    # two dumbbells, two kettlebells and the four weight plates of gen#959 slice 2
+    assert len(weights) == 8 and all(len(set(w)) == len(w) >= 3 for w in weights.values())
     assert weights["KTBCST"] != weights["KTBVIN"]
 
 
@@ -252,6 +276,15 @@ VARIANTS = [
     ("golf_club", {"club_type": "driver"}, {"club_type": "putter"}),
     ("golf_ball", {"construction": "2-piece"}, {"construction": "4-piece"}),
     ("golf_glove", {"material": "cabretta leather"}, {"material": "synthetic"}),
+    ("exercise_bike", {"bike_style": "upright"}, {"bike_style": "recumbent"}),
+    ("weight_plate", {"material": "cast iron"}, {"material": "urethane"}),
+    ("weight_bench", {"bench_type": "flat"}, {"bench_type": "adjustable"}),
+    ("basketball", {"cover": "rubber"}, {"cover": "composite"}),
+    ("volleyball", {"play": "indoor"}, {"play": "beach"}),
+    ("shin_guard", {"guard_type": "slip-in"}, {"guard_type": "sleeve"}),
+    ("hockey_stick", {"hockey_type": "ice"}, {"hockey_type": "street"}),
+    ("pickleball_paddle", {"face": "graphite"}, {"face": "wood"}),
+    ("table_tennis_bat", {"blade": "wood"}, {"blade": "carbon"}),
 ]
 
 
@@ -351,8 +384,12 @@ def test_a_title_naming_a_deeper_node_must_sit_in_it() -> None:
 
 #: The breadth types of gen#959, derivable on purpose: the scaled build draws more styles from them.
 DERIVABLE = frozenset(
-    {"Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove"}
-)
+    {
+        "Fishing Rod", "Fishing Reel", "Tackle Box", "Golf Club", "Golf Ball", "Golf Glove",
+        "Exercise Bike", "Weight Plate", "Weight Bench", "Basketball", "Volleyball", "Shin Guard",
+        "Hockey Stick", "Pickleball Paddle", "Table Tennis Bat",
+    }
+)  # fmt: skip
 
 
 def test_the_sports_styles_are_left_out_of_the_derivation() -> None:
