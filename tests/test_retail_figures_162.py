@@ -140,11 +140,13 @@ def _quotations(stats: dict) -> dict[str, str]:
             # A figure glued to a letter is part of a name, "iso4035def.csv" (a total of 4035
             # derived styles collided with it, #851). A figure after a host and a colon is a
             # port, "http://127.0.0.1:9201" (a total of 9201 styles collided with it, gen#965).
+            # A signed figure is a slice's delta, not a total: "slice 2b (+1,052)" (a total of
+            # 1052 Garden styles collided with it, gen#961).
             plain = (
-                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<!\d:)(?<![\d.,_A-Za-z]){value}(?![\d,_])"
+                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<!\d:)(?<![\d.,_+A-Za-z]){value}(?![\d,_])"
                 r"(?!-\d{2}-\d{2})"
             )
-            grouped = rf"(?<![\d.,_]){value:,}(?!\d)|(?<![\d.,_]){value:_}(?!\d)"
+            grouped = rf"(?<![\d.,_+]){value:,}(?!\d)|(?<![\d.,_+]){value:_}(?!\d)"
             patterns[name] = f"{plain}|{grouped}"
         else:
             noun = r"(?:authored\s+|deep-SKU\s+|grocery\s+)?(?:styles?|SKUs?|images?)\b"

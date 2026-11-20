@@ -67,7 +67,7 @@ ROWS = (
         "Metal",
         "Suet Cage",
         H,
-        "A metal suet cage under a little roof, for a fat block or suet balls in winter.",
+        "A metal suet cage under a little roof, for a fat block or suet balls.",
         packs((1, 6.0), (2, 10.0), (3, 14.0)),
     ),
     _feeder(

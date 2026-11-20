@@ -70,7 +70,7 @@ GOLDEN: dict[str, list[tuple]] = {
     "Outdoor Light": [
         ("BRD-012D10F91282", "Larkmoor Bloom Hardwired Cube Wall Light", 12, 15.0),
         ("BRD-02A965807B4F", "Rookery Garden Co. Sprout Solar Bulkhead Wall Light", 18, 27.0),
-        ("BRD-046E72E409C4", "Larkmoor Sunlit Battery-Powered Lantern Path Light", 6, 13.0),
+        ("BRD-046E72E409C4", "Larkmoor Seedling Battery-Powered Lantern Path Light", 6, 13.0),
     ],
     "Garden Chair": [
         ("BRD-00224F280A77", "Fenwold Nursery Paddock Reclining Aluminum Garden Chair", 18, 70.0),
@@ -85,13 +85,13 @@ GOLDEN: dict[str, list[tuple]] = {
     "Watering Can": [
         (
             "BRD-023B1301C5CA",
-            "Thistle & Wren Wildflower Slimline Galvanized Steel Watering Can",
+            "Thistle & Wren Cottage Slimline Galvanized Steel Watering Can",
             18,
             33.0,
         ),
         (
             "BRD-03760D4621F8",
-            "Larkmoor Sunlit Long Reach Powder-Coated Steel Watering Can",
+            "Larkmoor Seedling Long Reach Powder-Coated Steel Watering Can",
             12,
             28.0,
         ),
@@ -100,7 +100,7 @@ GOLDEN: dict[str, list[tuple]] = {
     "Bird Feeder": [
         ("BRD-018763BB0040", "Larkmoor Bloom Metal Tube Bird Feeder", 12, 15.5),
         ("BRD-042267D46A49", "Harbour & Pine Copse Plastic Window Bird Feeder", 12, 17.5),
-        ("BRD-0BFBE7AF7415", "Rookery Garden Co. Cottage Plastic Platform Bird Feeder", 9, 4.7),
+        ("BRD-0BFBE7AF7415", "Rookery Garden Co. Sunlit Plastic Platform Bird Feeder", 9, 4.7),
     ],
 }
 

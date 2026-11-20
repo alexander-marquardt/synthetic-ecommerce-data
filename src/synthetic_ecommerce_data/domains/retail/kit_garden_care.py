@@ -207,7 +207,7 @@ def bird_feeder(paint: str, fill: Fill, label: str | None, style: str = "tube", 
             pt.mark("hanger", _ell(x + w - 24, y + 24, 14, 14, hanger)),
             _rect(x, y, w, h, paint, 10),
             pt.mark("roof", _path(f"M{x - 10},{y + 6} L{x + w + 10},{y + 6} L{x + w},{y - 22} L{x},{y - 22} Z", roof)),
-            pt.mark("perch", _rect(x - 8, y + h - 16, w + 16, 12, perch, 6)),
+            pt.mark("perch", _rect(x - 8, y + h - 16, w + 2 * 8, 12, perch, 6)),
         ]
     elif style == "suet cage":
         x, y, w, h = 130.0, 130.0, 140.0, 140.0
@@ -217,7 +217,7 @@ def bird_feeder(paint: str, fill: Fill, label: str | None, style: str = "tube", 
             pt.mark("hanger", _line(f"M{CX},{y - 30} L{CX},40", 5, stroke=hanger)),
             _rect(x, y, w, h, paint, 6),
             _line(grid, 2, stroke=_shade(fill.base, 0.4)),
-            pt.mark("roof", _path(f"M{x - 16},{y + 2} L{CX},{y - 34} L{x + w + 16},{y + 2} Z", roof)),
+            pt.mark("roof", _path(f"M{x - 16},{y + 2} L{CX},{y - 34} L{x + w + 2 * 8},{y + 2} Z", roof)),
             pt.mark("perch", _rect(x + 20, y + h + 6, w - 40, 12, perch, 6)),
         ]
     elif style == "platform":
