@@ -40,7 +40,8 @@ ANY: tuple[str, ...] = (
     "screw_socket_head", "screw_wood", "sds_drill_bits", "sems_bolts", "serrated_flange_nuts",
     "set_screws_hex_socket", "shackles", "shaft_collars", "sleeve_anchors", "spill_socks",
     "studs_double_end", "t_slot_nuts", "tap_extractors", "tap_spiral_point", "threaded_rod",
-    "timing_pulleys", "turnbuckles", "u_bolts", "v_belts", "washer_flat", "wedge_anchors",
+    "timing_pulleys", "turnbuckles", "u_bolts", "v_belts", "wall_anchors", "washer_flat",
+    "wedge_anchors",
     "wheel_depressed_center", "wheel_mandrels", "zerk_grease_fittings",
 )
 
