@@ -46,6 +46,9 @@ from synthetic_ecommerce_data.domains.retail.type_specs import (
     garden_chair,
     garden_furniture_set,
     garden_hose,
+    garden_storage,
+    garden_table,
+    grill_accessory,
     hand_tool,
     hedge_trimmer,
     outdoor_light,
@@ -270,6 +273,9 @@ DECOY_TABLE = {
     "DCJCSH": ("type", "hand tool", "Hand Tool"), "DCJCND": ("incidental", "hand tool", "Hand Tool"),
     "DCQCSH": ("type", "watering can", "Watering Can"), "DCQCND": ("incidental", "watering can", "Watering Can"),
     "DCVCSH": ("type", "bird feeder", "Bird Feeder"), "DCVCND": ("incidental", "bird feeder", "Bird Feeder"),
+    "DCLCSH": ("type", "garden table", "Garden Table"), "DCLCND": ("incidental", "garden table", "Garden Table"),
+    "DCXCSH": ("type", "grill accessory", "Grill Accessory"), "DCXCND": ("incidental", "grill accessory", "Grill Accessory"),
+    "DCUCSH": ("type", "garden storage", "Garden Storage"), "DCUCND": ("incidental", "garden storage", "Garden Storage"),
 }  # fmt: skip
 
 DECOYS = (
@@ -315,6 +321,12 @@ DECOYS = (
     _candle("DCQCND", "Morning Watering Candle", "A wet earth scent in a glass jar, as a border smells after the can has been round.", "Wet Earth"),
     _cushion("DCVCSH", "Bird Feeder Print Cushion", "A cotton cushion printed with finches on a hanging bird feeder."),
     _candle("DCVCND", "Garden Birdsong Candle", "A fresh linden scent in a glass jar, for a sill that looks out on the garden.", "Linden"),
+    _cushion("DCLCSH", "Garden Table Print Cushion", "A cotton cushion printed with a table laid for lunch under a pergola."),
+    _candle("DCLCND", "Garden Supper Candle", "A citronella scent in a glass jar, for the table on a summer evening.", "Citronella"),
+    _cushion("DCXCSH", "Grill Accessory Print Cushion", "A cotton cushion printed with tongs, a brush and a spatula over a grill."),
+    _candle("DCXCND", "Grill Night Candle", "A smoky cedar scent in a glass jar, for a shelf by the grill.", "Smoked Cedar"),
+    _cushion("DCUCSH", "Garden Storage Print Cushion", "A cotton cushion printed with a little shed and a deck box among the roses."),
+    _candle("DCUCND", "Garden Shed Candle", "A pine needle scent in a glass jar, for the shelf of a tidy shed.", "Pine Needle"),
 )
 
 
@@ -325,16 +337,19 @@ _MAIN = ("red", "blue", "green", "yellow", "black", "white")
 _BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows,
                                   *hedge_trimmer.ROWS, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows,
                                   *planter.ROWS, *outdoor_light.ROWS, *garden_chair.ROWS,
-                                  *hand_tool.ROWS, *watering_can.ROWS, *bird_feeder.ROWS)}
+                                  *hand_tool.ROWS, *watering_can.ROWS, *bird_feeder.ROWS,
+                                  *garden_table.ROWS, *grill_accessory.ROWS, *garden_storage.ROWS)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
 _QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose",
           "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol",
           "Planter": "planter", "Outdoor Light": "outdoor light", "Garden Chair": "garden chair",
-          "Hand Tool": "hand tool", "Watering Can": "watering can", "Bird Feeder": "bird feeder"}
+          "Hand Tool": "hand tool", "Watering Can": "watering can", "Bird Feeder": "bird feeder",
+          "Garden Table": "garden table", "Grill Accessory": "grill accessory", "Garden Storage": "garden storage"}
 _ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex",
            "Hedge Trimmer": "cordless", "Garden Furniture Set": "rattan", "Parasol": "cantilever",
            "Planter": "plastic", "Outdoor Light": "solar", "Garden Chair": "plastic",
-           "Hand Tool": "plastic", "Watering Can": "plastic", "Bird Feeder": "plastic"}
+           "Hand Tool": "plastic", "Watering Can": "plastic", "Bird Feeder": "plastic",
+           "Garden Table": "plastic", "Grill Accessory": "plastic", "Garden Storage": "plastic"}
 
 
 _NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
@@ -545,6 +560,45 @@ _REAL = {
         ("DCVH02", "shade", "Double Suet Bird Feeder", "BFRSME", "black", "A metal suet cage sold with a yellow hanging chain."),
         ("DCVH03", "shade", "Garden Platform Bird Feeder", "BFRPWD", "blue", "A wood platform feeder with a green roof felt in the box."),
     ),
+    "Garden Table": (
+        ("DCLA01", "absent", "Plastic Free Acacia Garden Table", "GTLBAC", "green", "An acacia bistro table with no plastic in the top or the feet."),
+        ("DCLA02", "absent", "Steel Garden Table, Not Plastic", "GTLDST", "black", "A steel dining table that will not fade in the sun as a plastic one can."),
+        ("DCLA03", "absent", "Aluminum Garden Table, No Plastic", "GTLDAL", "white", "An aluminum dining table with no plastic in it."),
+        ("DCLI01", "incidental", "Red Harrier Garden Table", "GTLSST", "black", "A steel side table from the Harrier range, for a drink by a lounger."),
+        ("DCLI02", "incidental", "Blue Moon Garden Table", "GTLFAC", "yellow", "An acacia folding table from the Moon range."),
+        ("DCLS01", "secondary", "Green Bistro Garden Table with Red Legs", "GTLBAC", "green", "An acacia bistro table for two."),
+        ("DCLS02", "secondary", "White Dining Garden Table with Black Rim", "GTLDAL", "white", "An aluminum dining table for six."),
+        ("DCLS03", "secondary", "Yellow Side Garden Table with Blue Feet", "GTLSST", "yellow", "A steel side table for a drink and a book."),
+        ("DCLH01", "shade", "Balcony Bistro Table", "GTLBAC", "white", "An acacia bistro table sold with a red seat pad."),
+        ("DCLH02", "shade", "Family Dining Table", "GTLDST", "black", "A steel dining table sold with a yellow parasol base."),
+        ("DCLH03", "shade", "Compact Folding Table", "GTLFAC", "blue", "An acacia folding table with a green carry bag in the box."),
+    ),
+    "Grill Accessory": (
+        ("DCXA01", "absent", "Plastic Free Stainless Steel Grill Tool Set", "GRATSS", "black", "A stainless steel grill tool set with no plastic in the grips to melt by the coals."),
+        ("DCXA02", "absent", "Bamboo Grill Tongs, Not Plastic", "GRATGB", "green", "Bamboo grill tongs that will not melt on a hot grate as plastic ones can."),
+        ("DCXA03", "absent", "Canvas Grill Cover, No Plastic", "GRACCV", "white", "A canvas cabinet grill cover with no plastic coating to crack in the cold."),
+        ("DCXI01", "incidental", "Red Harrier Grill Brush", "GRABSS", "black", "A stainless steel grill brush from the Harrier range."),
+        ("DCXI02", "incidental", "Blue Moon Grill Cover", "GRAKPO", "yellow", "A polyester kettle grill cover from the Moon range."),
+        ("DCXS01", "secondary", "Green Grill Tool Set with Red Trim", "GRATSS", "green", "A stainless steel grill tool set with three tools."),
+        ("DCXS02", "secondary", "White Kettle Grill Cover with Black Strap", "GRAKPO", "white", "A polyester kettle grill cover with a hem cord."),
+        ("DCXS03", "secondary", "Yellow Grill Brush with Blue Tag", "GRABSS", "yellow", "A stainless steel grill brush with a long handle."),
+        ("DCXH01", "shade", "Weekend Grill Tool Set", "GRATSB", "white", "A bamboo grill tool set sold with a red storage roll."),
+        ("DCXH02", "shade", "Heavy Duty Grill Cover", "GRACCV", "black", "A canvas cabinet grill cover with a yellow drawstring."),
+        ("DCXH03", "shade", "Long Handle Grill Tongs", "GRATGB", "blue", "Bamboo grill tongs sold with a green hanging hook."),
+    ),
+    "Garden Storage": (
+        ("DCUA01", "absent", "Plastic Free Wood Storage Bench", "GDBBWD", "green", "A wood storage bench with no plastic in the seat or the frame."),
+        ("DCUA02", "absent", "Steel Garden Shed, Not Plastic", "GDBAST", "black", "A steel apex shed that will not warp in the sun as a plastic one can."),
+        ("DCUA03", "absent", "Wood Garden Shed, No Plastic", "GDBPWD", "white", "A wood pent shed with no plastic in the walls or the roof."),
+        ("DCUI01", "incidental", "Red Harrier Garden Deck Box", "GDBDRS", "black", "A resin deck box from the Harrier range, for patio cushions."),
+        ("DCUI02", "incidental", "Blue Moon Garden Cabinet", "GDBCRS", "yellow", "A resin tall cabinet from the Moon range."),
+        ("DCUS01", "secondary", "Green Deck Box with Red Lid", "GDBDRS", "green", "A resin deck box for patio cushions."),
+        ("DCUS02", "secondary", "White Storage Bench with Black Handle", "GDBBWD", "white", "A wood storage bench by the back door."),
+        ("DCUS03", "secondary", "Yellow Apex Shed with Blue Hinges", "GDBAST", "yellow", "A steel apex shed for the mower."),
+        ("DCUH01", "shade", "Patio Deck Box", "GDBDRS", "white", "A resin deck box sold with a red padlock."),
+        ("DCUH02", "shade", "Tool Storage Shed", "GDBPWD", "black", "A wood pent shed with a yellow tool rack in the box."),
+        ("DCUH03", "shade", "Back Door Tall Cabinet", "GDBCRS", "blue", "A resin tall cabinet sold with a green set of shelves."),
+    ),
 }
 def _hose_candle(code: str, title: str, desc: str) -> Row:
     return _candle(code, title, desc, "Fresh Grass")
@@ -579,6 +633,12 @@ _SIBLINGS = (
     ("DCQT02", "Watering Can", _cushion, "Watering Can Garden Cushion", "A cotton cushion printed with a watering can by a greenhouse door."),
     ("DCVT01", "Bird Feeder", _apron, "Bird Feeder Garden Apron", "A cotton apron with a pocket, printed with finches round a bird feeder."),
     ("DCVT02", "Bird Feeder", _cushion, "Bird Feeder Robin Cushion", "A cotton cushion printed with a robin on a bird feeder in the snow."),
+    ("DCLT01", "Garden Table", _apron, "Garden Table Host Apron", "A cotton apron with two pockets, for carrying plates out to the garden table."),
+    ("DCLT02", "Garden Table", _cushion, "Garden Table Bench Cushion", "A cotton bench cushion with ties, for the seats round a garden table."),
+    ("DCXT01", "Grill Accessory", _apron, "Grill Accessory Chef Apron", "A cotton apron with loops for tongs and a brush, for the one at the grill."),
+    ("DCXT02", "Grill Accessory", _cushion, "Grill Accessory Pattern Cushion", "A cotton cushion printed with grill tools hung on a rail."),
+    ("DCUT01", "Garden Storage", _apron, "Garden Storage Tidy Apron", "A cotton apron with deep pockets, for clearing the patio into the garden storage."),
+    ("DCUT02", "Garden Storage", _cushion, "Garden Storage Seat Cushion", "A cotton seat cushion with ties, for the lid of a storage bench."),
 )
 _CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
 _COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)
