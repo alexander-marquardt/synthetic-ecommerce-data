@@ -1,5 +1,10 @@
 """The Pets department's shared pieces (gen#967): its paths, brands, packs and rows.
 
+Slice 3 adds Leash & Collar and Grooming Brush (``type_specs/leash_collar.py``,
+``grooming_brush.py``), sold like the toys in the six main colors by size, and Small Pet Supply
+(``small_pet_supply.py``: fish food, aquarium gravel, small-animal food, hay and bedding),
+colorless and sold by the bag's weight like the food, all three drawn by :mod:`kit_pet_care`.
+
 Slice 2 adds Dog Treats (``type_specs/dog_treats.py``, colorless, by the bag's net weight), Pet
 Toy and Pet Bed (``pet_toy.py``, ``pet_bed.py``), sold in the six main colors (:data:`MAIN`,
 ruling 2026-10-13, gen#275) by size, built by :func:`gear` and drawn by :mod:`kit_pet_gear`.
@@ -19,6 +24,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from synthetic_ecommerce_data.domains.retail import (
+    kit_pet_care,  # noqa: F401 -- registers pet_leash, grooming_brush, small_pet_supply
     kit_pet_gear,  # noqa: F401 -- registers dog_treats, pet_toy, pet_bed
     kit_pets,  # noqa: F401 -- registers dry_pet_food, wet_pet_food, cat_litter
 )
@@ -40,6 +46,18 @@ DOG_TOYS = (ROOT, "Pet Toys", "Dog Toys")
 CAT_TOYS = (ROOT, "Pet Toys", "Cat Toys")
 DOG_BEDS = (ROOT, "Pet Beds", "Dog Beds")
 CAT_BEDS = (ROOT, "Pet Beds", "Cat Beds")
+DOG_LEASHES = (ROOT, "Leashes & Collars", "Dog Leashes")
+RETRACTABLE = (ROOT, "Leashes & Collars", "Retractable Leashes")
+DOG_COLLARS = (ROOT, "Leashes & Collars", "Dog Collars")
+HARNESSES = (ROOT, "Leashes & Collars", "Dog Harnesses")
+CAT_COLLARS = (ROOT, "Leashes & Collars", "Cat Collars")
+DOG_BRUSHES = (ROOT, "Grooming", "Dog Brushes")
+CAT_BRUSHES = (ROOT, "Grooming", "Cat Brushes")
+FISH_FOOD = (ROOT, "Fish & Aquarium", "Fish Food")
+GRAVEL = (ROOT, "Fish & Aquarium", "Aquarium Gravel")
+SMALL_FOOD = (ROOT, "Small Animal", "Small Animal Food")
+HAY = (ROOT, "Small Animal", "Hay")
+BEDDING = (ROOT, "Small Animal", "Small Animal Bedding")
 
 HOUND = "Hound & Heath"
 BARKWELL = "Barkwell"
@@ -48,6 +66,9 @@ WHISKERBY = "Whiskerby"
 PURRSEY = "Purrsey Lane"
 PINEHOLLOW = "Pinehollow"
 CLUMPTON = "Clumpton"
+#: Slice 3's fish and small-animal brands.
+FINBROOK = "Finbrook"
+BURROWELL = "Burrowell"
 #: The brands of the text-match decoys: each holds the word its decoy's query names.
 ALLEY_CAT = "Alley Cat Provisions"
 KITTEN_MILL = "Kitten Mill"
@@ -57,6 +78,7 @@ OWNERS = (
     (HOUND, "third_party"), (BARKWELL, "third_party"), (TAILMOOR, "own"),
     (WHISKERBY, "third_party"), (PURRSEY, "third_party"), (PINEHOLLOW, "third_party"),
     (CLUMPTON, "third_party"), (ALLEY_CAT, "third_party"), (KITTEN_MILL, "third_party"),
+    (FINBROOK, "third_party"), (BURROWELL, "third_party"),
 )  # fmt: skip
 
 #: The pack colors: a bag's or a tin's print, which the drawing takes as its fill.
@@ -85,7 +107,8 @@ def units(*pairs: tuple[int, float]) -> tuple[tuple[str, float], ...]:
 #: The attributes the pack prints, so its drawing shows them (:mod:`kit_pets`): two styles of one
 #: leaf and price that differ in one read apart on a results grid.
 DRAWN = ("life_stage", "flavor", "breed_size", "special_need", "scent", "treat_form", "toy_kind",
-         "play_feature", "bed_style", "cover")  # fmt: skip
+         "play_feature", "bed_style", "cover", "gear_kind", "material", "brush_kind", "coat_type",
+         "supply_kind", "formula")  # fmt: skip
 
 
 def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str, shape: str,

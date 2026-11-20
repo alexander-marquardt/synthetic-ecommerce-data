@@ -1,12 +1,13 @@
-"""Marks and house styles of the nine invented brands of the Pets department (gen#967).
+"""Marks and house styles of the eleven invented brands of the Pets department (gen#967).
 
 Hound & Heath, Barkwell and Tailmoor sell dog food, Whiskerby, Purrsey Lane and Tailmoor cat
 food, and Pinehollow, Clumpton and Whiskerby cat litter (:mod:`pets_rows`). Alley Cat Provisions
-and Kitten Mill are the brands of two text-match decoys. Each draws its own mark and name
+and Kitten Mill are the brands of two text-match decoys. Finbrook sells fish food and gravel,
+and Burrowell small-animal food, hay and bedding (slice 3). Each draws its own mark and name
 on its product images, as every other invented brand does.
 
-:mod:`house_styles` imports this module last, so the nine marks join ``MARKS`` and the nine
-styles join ``HOUSE_STYLES`` whichever module is imported first.
+:mod:`house_styles` imports this module last, so the eleven marks join ``MARKS`` and the
+eleven styles join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
 # ruff: noqa: E501 -- the style table reads best whole (prototype only).
@@ -95,14 +96,34 @@ def m_mill_wheel(c: str) -> list[str]:
     ]
 
 
+def m_fin_brook(c: str) -> list[str]:
+    """A fish over a brook: a lens body, a tail and two waves under it."""
+    return [
+        f'<path d="M-.7,-.2 Q-.1,-.75 .45,-.2 Q-.1,.35 -.7,-.2 Z" fill="{c}"/>',
+        f'<path d="M.4,-.2 L.85,-.5 L.85,.1 Z" fill="{c}"/>',
+        _stroke("M-.9,.45 Q-.6,.3 -.3,.45 T.3,.45 T.9,.45", 0.1, c),
+        _stroke("M-.9,.75 Q-.6,.6 -.3,.75 T.3,.75 T.9,.75", 0.1, c),
+    ]
+
+
+def m_burrow(c: str) -> list[str]:
+    """A burrow: a mound with a dark round entrance and a sprig of grass."""
+    return [
+        f'<path d="M-.95,.7 Q0,-.75 .95,.7 Z" fill="{c}"/>',
+        _dot(0, 0.38, 0.26, "#ffffff"),
+        _stroke("M.55,-.2 L.62,-.75 M.55,-.2 L.35,-.65 M.55,-.2 L.8,-.6", 0.08, c),
+    ]
+
+
 hs.MARKS.update({
     "heath_paw": m_paw, "dog_bone": m_bone, "moor_furrows": m_moor, "cat_face": m_whisker,
     "lane_gate": m_lane_gate, "hollow_pine": m_pine, "litter_clump": m_clump,
-    "alley_moon": m_alley_moon, "mill_wheel": m_mill_wheel,
+    "alley_moon": m_alley_moon, "mill_wheel": m_mill_wheel, "fin_brook": m_fin_brook,
+    "burrow": m_burrow,
 })  # fmt: skip
 
 # fmt: off
-#: Brand -> house style: five lockups and four marks alone, as about half the table is.
+#: Brand -> house style: six lockups and five marks alone, as about half the table is.
 STYLES = {
     "Hound & Heath":    H("double",  "#7a4a26", "#33200f", 1.05, False, "round", "heath_paw",      "mark_left",  "top_left",      "none",      "serif",    700, "title",     0.5),
     "Barkwell":         H("heavy",   "#b13a2a", "#4a170f", 1.15, False, "round", "dog_bone",       "mark_only",  "top_right",     "flag",      "sans",     700, "caps",      2.0),
@@ -113,6 +134,8 @@ STYLES = {
     "Clumpton":         H("double",  "#4a6a8a", "#1d2a37", 1.0,  True,  "round", "litter_clump",   "mark_only",  "top_left",      "rect",      "mono",     700, "lower",     0.0),
     "Alley Cat Provisions": H("heavy",   "#3a3a5e", "#181828", 1.2,  False, "sharp", "alley_moon",    "mark_left",  "bottom_center", "none",      "serif",    700, "caps",      1.0, True),
     "Kitten Mill":      H("thin",    "#a8742a", "#45300f", 0.9,  False, "round", "mill_wheel",     "mark_only",  "bottom_right",  "plain",     "humanist", 400, "title",     1.0),
+    "Finbrook":         H("rounded", "#1f6f9a", "#0d2c3d", 1.05, False, "round", "fin_brook",      "mark_left",  "top_center",    "none",      "sans",     700, "title",     0.5),
+    "Burrowell":        H("ticks",   "#8a5a2e", "#3a2412", 0.95, False, "round", "burrow",         "mark_only",  "bottom_left",   "flag",      "serif",    700, "caps",      1.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

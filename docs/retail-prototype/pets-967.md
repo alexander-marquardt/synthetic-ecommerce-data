@@ -1,4 +1,4 @@
-# Pets, slices 1 and 2 (gen#967)
+# Pets, slices 1 to 3 (gen#967)
 
 The store had no pets department, so a search for `dry dog food`, `wet cat food` or `cat litter`
 found nothing. `Pets` is now on the closed list of retail departments (`core/departments.RETAIL`)
@@ -93,5 +93,43 @@ biscuit that is not a dental chew, a `Tennis Club` rope that is not a tennis bal
 dog bed, and a `Sofa Style` bolster bed that is a pet bed, not a sofa.
 
 **Measured** (ceiling build, seed 0): the department's and each type's SKUs are build output,
-read with `retail_figures.figures()`. Slice 2's floor is 4,300 Pets SKUs. Slice 3 is still to
-come: leads and collars, grooming brushes, and aquarium and small-animal supplies.
+read with `retail_figures.figures()`. Slice 2's floor is 4,300 Pets SKUs.
+
+## Slice 3: leashes and collars, grooming brushes, fish and small-animal supplies
+
+Slice 3 adds the last three types, each a spec of its own drawn by `kit_pet_care.py`:
+
+| Type | Spec | Paths | SKU axis |
+|---|---|---|---|
+| Leash & Collar | `type_specs/leash_collar.py` | Pets > Leashes & Collars > Dog Leashes, Retractable Leashes, Dog Collars, Dog Harnesses, Cat Collars | the six main colors, times Small, Medium and Large for dog gear |
+| Grooming Brush | `type_specs/grooming_brush.py` | Pets > Grooming > Dog Brushes, Cat Brushes | the six main colors, times Small and Large for a dog brush |
+| Small Pet Supply | `type_specs/small_pet_supply.py` | Pets > Fish & Aquarium > Fish Food, Aquarium Gravel; Pets > Small Animal > Small Animal Food, Hay, Small Animal Bedding | pack weight (`net_weight_g`); colorless, like the food |
+
+A leash, collar or harness title names its material (nylon, leather, rope, padded, reflective),
+and a brush title names the coat it is for (short, long, double, curly) and its kind (slicker,
+pin, bristle, deshedding, rubber curry, grooming glove). Leashes, collars and brushes are sold in
+each of the six main colors (gen#275). A small-pet supply title names its formula (tropical,
+goldfish, betta, timothy, meadow, vitamin C, and so on) and its animal (fish, rabbit, guinea pig,
+hamster). As on a food bag, the pack's color is its print, not a variant. Two new invented brands
+sell the fish and small-animal supplies: `Finbrook` and `Burrowell` (gen#720). Their marks and
+house styles are in `pet_brand_styles.py`. Both are appended to the scale roster's added brands
+(`range_ownership.SCALE.added`), so the names they own move no other brand's (#1052).
+
+**Drawings.** `pet_leash` draws a leash with its handle loop and clip, a retractable leash's
+case, a buckled collar or a harness (`gear_kind`) in its color, with a swatch of its `material`:
+a nylon weave, leather stitching, reflective rays, padded quilting or rope twists.
+`grooming_brush` draws a slicker, pin, bristle or deshedding brush, a rubber curry or a grooming
+glove (`brush_kind`) in its color, with a tag of its `coat_type`: short strokes, long waves, two
+layers or curls. `small_pet_supply` draws a tub for fish and a bag for the rest. Its window shows
+what the pack holds (`supply_kind`: flakes, pellets, gravel, hay, nuggets, bedding), and it also
+carries the animal's emblem and the formula's band. The six new attributes join `pets_rows.DRAWN`
+(gen#512). The three shapes are upright, filed in `orientations/pet_care.py`.
+
+**Decoys.** Each new type has two text-match decoys: a `Seat Belt Buckle` leash that is not a
+seat belt, a `Chain Link` harness with no chain, a `Hairbrush Style` dog brush that is not for
+people, a `Toothbrush Grip` slicker, a `Litter Corner` rabbit bedding that is not cat litter, and
+a `Tea Time` hay that is not a tea.
+
+**Measured** (ceiling build, seed 0): slice 3's floor is the issue's own, 6,650 Pets SKUs (95% of
+the 7,000 target in `docs/catalogue-mix-837.md`). The figures themselves are build output, read
+with `retail_figures.figures()`. The guards are in `tests/test_retail_pets_967.py`.

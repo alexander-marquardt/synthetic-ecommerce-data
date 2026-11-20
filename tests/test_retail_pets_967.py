@@ -1,4 +1,5 @@
-"""Pets, slices 1 and 2 (gen#967): the department, its food, litter, treats, toys and beds.
+"""Pets, slices 1 to 3 (gen#967): the department, its food, litter, treats, toys, beds, leashes,
+brushes and small-pet supplies.
 
 The retail catalogue had no pets department, so a search for ``dry dog food`` or ``cat litter``
 found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first three
@@ -12,6 +13,11 @@ stage, flavor, breed size, special need and scent), so few Pets styles share a r
 Slice 2 adds Dog Treats, Pet Toy and Pet Bed (``type_specs/dog_treats.py``, ``pet_toy.py``,
 ``pet_bed.py``, drawn by :mod:`kit_pet_gear`) and raises the floor to 4,300 SKUs; the toys and
 beds are sold in each of the six main colors (ruling 2026-10-13, gen#275).
+
+Slice 3 adds Leash & Collar, Grooming Brush and Small Pet Supply (``type_specs/leash_collar.py``,
+``grooming_brush.py``, ``small_pet_supply.py``, drawn by :mod:`kit_pet_care`) and raises the floor
+to the issue's own, 6,650 SKUs (95% of the 7,000 target); the leashes and brushes are sold in each
+of the six main colors.
 """
 
 from __future__ import annotations
@@ -27,13 +33,17 @@ from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 
 #: The department, the top level of every pets path.
 ROOT = "Pets"
-TYPES = ("Dog Food", "Cat Food", "Cat Litter", "Dog Treats", "Pet Toy", "Pet Bed")
+TYPES = ("Dog Food", "Cat Food", "Cat Litter", "Dog Treats", "Pet Toy", "Pet Bed",
+         "Leash & Collar", "Grooming Brush", "Small Pet Supply")  # fmt: skip
 KEYS = {"Dog Food": "dog_food", "Cat Food": "cat_food", "Cat Litter": "cat_litter",
-        "Dog Treats": "dog_treats", "Pet Toy": "pet_toy", "Pet Bed": "pet_bed"}  # fmt: skip
+        "Dog Treats": "dog_treats", "Pet Toy": "pet_toy", "Pet Bed": "pet_bed",
+        "Leash & Collar": "leash_collar", "Grooming Brush": "grooming_brush",
+        "Small Pet Supply": "small_pet_supply"}  # fmt: skip
 #: The types sold in colors: each offers the six main colors (ruling 2026-10-13, gen#275).
-COLORED = ("Pet Toy", "Pet Bed")
-#: Slice 2's floor at the ceiling build (the gate comment of gen#967; slice 1's was 2,000).
-FLOOR = 4_300
+COLORED = ("Pet Toy", "Pet Bed", "Leash & Collar", "Grooming Brush")
+#: The issue's floor at the ceiling build: 95% of the 7,000 target (slice 1's was 2,000, slice
+#: 2's 4,300).
+FLOOR = 6_650
 #: The Pets styles at the ceiling that may share a grid tile. The shapes drew only the animal,
 #: the pack color and the format, and 389 of 619 did, which put the catalog over its cap.
 PETS_GRID_CLONES = 0.02
@@ -128,6 +138,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-02DAEB2F0F4E", "Rudthwaite Velvet Cave Cat Bed", 2, 19.5),
         ("BRD-03C0D08BD728", "Ellerborough Faux Fur Bolster Dog Bed", 6, 16.0),
     ],
+    "Leash & Collar": [
+        ("BRD-0974E02FCA21", "Brackstone Reflective Dog Harness", 18, 18.5),
+        ("BRD-0F5B0A24A851", "Boltfell Rope Dog Leash", 18, 14.5),
+        ("BRD-159C2DE74F4A", "Birkbank Nylon Cat Collar", 6, 4.35),
+    ],
+    "Grooming Brush": [
+        ("BRD-048B21AA800F", "Claycroft Long Coat Deshedding Cat Brush", 6, 7.5),
+        ("BRD-075D9932AB7F", "Skelbeck Short Coat Pin Dog Brush", 12, 7.0),
+        ("BRD-0954E8651170", "Garford Long Coat Slicker Cat Brush", 2, 8.5),
+    ],
+    "Small Pet Supply": [
+        ("BRD-002A223CBB69", "Gledham Betta Pellets", 3, 4.55),
+        ("BRD-0304F2CC131F", "Haskburn Guinea Pig Nuggets with Honey & Seed", 2, 7.0),
+        ("BRD-05F8FA70BF7B", "Gledthwaite Hamster Nuggets with Timothy", 2, 3.55),
+    ],
 }  # fmt: skip
 
 
@@ -151,10 +176,16 @@ DRAWN_VALUES = {"life_stage": ("puppy", "senior"), "flavor": ("chicken & rice", 
                 "special_need": ("indoor", "sensitive"), "scent": ("lavender", "pine"),
                 "treat_form": ("dental stick", "training bite"), "toy_kind": ("ball", "rope"),
                 "play_feature": ("squeaky", "floating"), "bed_style": ("donut", "cave"),
-                "cover": ("faux fur", "corduroy")}  # fmt: skip
+                "cover": ("faux fur", "corduroy"), "gear_kind": ("leash", "harness"),
+                "material": ("nylon", "leather"), "brush_kind": ("slicker", "bristle"),
+                "coat_type": ("short coat", "long coat"), "supply_kind": ("flakes", "hay"),
+                "formula": ("timothy", "tropical")}  # fmt: skip
 #: The shape that draws each attribute; the rest are drawn on the dry food bag.
 DRAWN_ON = {"scent": "cat_litter", "treat_form": "dog_treats", "toy_kind": "pet_toy",
-            "play_feature": "pet_toy", "bed_style": "pet_bed", "cover": "pet_bed"}  # fmt: skip
+            "play_feature": "pet_toy", "bed_style": "pet_bed", "cover": "pet_bed",
+            "gear_kind": "pet_leash", "material": "pet_leash", "brush_kind": "grooming_brush",
+            "coat_type": "grooming_brush", "supply_kind": "small_pet_supply",
+            "formula": "small_pet_supply"}  # fmt: skip
 
 
 @pytest.mark.parametrize("key", tuple(DRAWN_VALUES))
