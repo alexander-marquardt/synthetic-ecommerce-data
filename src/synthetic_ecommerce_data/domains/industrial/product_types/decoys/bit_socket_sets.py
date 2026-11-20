@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "bit_socket_sets",
     label="Hex Key Bit Socket Set",
+    use_lines=(
+        "Hex key bits in ratchet sockets, for socket head screws that need more torque than an "
+        "L-shaped hex key gives.",
+        "Each socket carries a hex key bit, giving more reach and torque than a hand hex key.",
+    ),
     breadth=BreadthRow(
         key="bit_socket_sets",
         category=("Hand Tools", "Sockets & Ratchets", "Bit Socket Sets"),

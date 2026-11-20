@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "diamond_wheels",
     label="Carbide Drill Bit Sharpening Wheel",
+    use_lines=(
+        "Regrinds the point of a carbide drill bit on a bench or tool grinder, restoring the "
+        "drill bit's lip angle.",
+        "Sharpens worn carbide drill bits without chipping the cutting edge, so each drill bit "
+        "cuts to size again.",
+    ),
     breadth=BreadthRow(
         key="diamond_wheels",
         category=("Abrasives", "Grinding & Cut-Off", "Diamond Wheels"),

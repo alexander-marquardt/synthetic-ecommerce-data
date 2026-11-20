@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "grinder_guards",
     label="Flap Disc Angle Grinder Guard",
+    use_lines=(
+        "Covers the back of a flap disc on an angle grinder and deflects the sparks and debris "
+        "the flap disc throws off.",
+        "Shields the operator from a spinning flap disc and contains the fragments if a flap "
+        "disc breaks.",
+    ),
     breadth=BreadthRow(
         key="grinder_guards",
         category=("Abrasives", "Grinder Accessories", "Grinder Guards"),

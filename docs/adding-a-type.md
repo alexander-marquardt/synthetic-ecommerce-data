@@ -834,6 +834,12 @@ lines say only what is true of every product of the type, never repeat the noun 
 catalogue would write, and name no size or material. `tests/test_item_noun_decoy_copy_951.py`
 checks every such type's lines and its SKUs' `text`.
 
+A decoy for a seed whose terms hold a tool noun (`end mill`, `drill bit`, `flap disc`, `hex key`)
+declares its use lines the same way (#1062): "Holds a set of hex keys by size, so each hex key is
+in its slot." A real end mill holds its noun in its title, its category leaf (`End mills`) and its
+text, and a decoy that said it only in its title ranked past 500 on `1/2 endmill` with policies
+off. `tests/test_tool_noun_decoy_copy_1062.py` checks every such type's lines and its SKUs' `text`.
+
 ## The commands
 
 ```sh

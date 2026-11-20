@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "bit_index_cases",
     label="Carbide Drill Bit Index Case",
+    use_lines=(
+        "Stores drill bits by size in marked slots, so each drill bit is easy to find and put "
+        "back.",
+        "Holds a set of carbide drill bits upright, keeping the cutting edges of each drill "
+        "bit apart.",
+    ),
     breadth=BreadthRow(
         key="bit_index_cases",
         category=("Material Handling & Storage", "Tool Storage", "Bit Index Cases"),

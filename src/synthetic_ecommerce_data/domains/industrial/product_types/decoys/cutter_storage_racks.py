@@ -13,6 +13,10 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "cutter_storage_racks",
     label="End Mill Storage Rack",
+    use_lines=(
+        "Stands end mills upright by shank size, so each end mill is in its slot and easy to find.",
+        "Racks end mills at the machine, keeping the cutting edges of each end mill apart.",
+    ),
     breadth=BreadthRow(
         key="cutter_storage_racks",
         category=("Material Handling & Storage", "Tool Storage", "Cutter Storage Racks"),
