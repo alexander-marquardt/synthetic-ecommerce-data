@@ -150,7 +150,7 @@ GOLDEN: dict[str, list[tuple]] = {
     ],
     "Small Pet Supply": [
         ("BRD-002A223CBB69", "Gledham Betta Pellets", 3, 4.55),
-        ("BRD-0304F2CC131F", "Salfield Guinea Pig Nuggets with Honey & Seed", 2, 5.5),
+        ("BRD-0304F2CC131F", "Haskburn Guinea Pig Nuggets with Honey & Seed", 2, 7.0),
         ("BRD-05F8FA70BF7B", "Gledthwaite Hamster Nuggets with Timothy", 2, 3.55),
     ],
 }  # fmt: skip
