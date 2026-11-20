@@ -126,9 +126,29 @@ def _golden(cleaning: list[dict], ptype: str) -> list[tuple]:
 
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
-    "Sponges & Cloths": [],
-    "Dishwasher Tablets": [],
-    "Laundry Pods": [],
+    "Sponges & Cloths": [
+        ("BRD-0139CA08328C", "Kirkness Heavy Duty Kitchen Dish Cloth", 18, 2.05),
+        ("BRD-01ADA214B494", "Hamthorpe Everyday Bathroom Microfiber Cloth", 18, 2.15),
+        ("BRD-071C7EA65C9A", "Sutthorpe Heavy Duty Bathroom Microfiber Cloth", 18, 2.45),
+    ],
+    "Dishwasher Tablets": [
+        ("BRD-0175F9EBDE19", "Zenworth All in One Dishwasher Tablets, Unscented, 80 Count", 3, 8.0),
+        ("BRD-01BEB812C382", "Merfell Max Clean Dishwasher Tablets, Spring Rain, 30 Count", 3, 7.5),
+        (
+            "BRD-02D35949D01C",
+            "Melgate All in One Dishwasher Tablets, Spring Rain, 80 Count",
+            3, 7.5,
+        ),
+    ],
+    "Laundry Pods": [
+        ("BRD-027A0467B24B", "Sowby Oxi Boost Laundry Pods, Unscented, 64 Loads", 3, 5.5),
+        (
+            "BRD-075546D236EF",
+            "Barcliffe Sensitive Skin Laundry Pods, Spring Rain, 64 Loads",
+            3, 5.5,
+        ),
+        ("BRD-083EDBEEAFE7", "Brackthorpe Oxi Boost Laundry Pods, Clean Breeze, 24 Loads", 3, 17.0),
+    ],
 }  # fmt: skip
 
 

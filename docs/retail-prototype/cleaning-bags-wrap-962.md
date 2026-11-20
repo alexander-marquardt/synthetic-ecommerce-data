@@ -53,5 +53,6 @@ the build (`retail_figures`), never typed here. The slice's floor is 5,600 Clean
 ceiling build, against the department's 9,000 target in `docs/catalogue-mix-837.md`. Every
 template is exhausted at the ceiling build, so `scale.DEPARTMENT_RATE` changes no ceiling figure,
 and the department shares stay inside the drift `tests/test_retail_stable_ids_626.py` allows.
-Cloths, tablets, laundry and power (slice 3) are the last slice of gen#962. The guards are in
+Sponges and cloths, dishwasher tablets and laundry pods are slice 3, in
+[cleaning-care-962.md](cleaning-care-962.md). The guards are in
 `tests/test_retail_cleaning_bags_wrap_962.py`.
