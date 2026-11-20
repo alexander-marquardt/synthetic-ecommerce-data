@@ -1,6 +1,6 @@
 """Beauty, slice 2 (gen#957): oral care and shaving, with toothbrushes, toothpaste and razors.
 
-After slice 1 (#1000, hair care) main's ceiling build held 7,792 Beauty SKUs against the 500K
+After slice 1 (#1000, hair care) main's ceiling build held 7,804 Beauty SKUs against the 500K
 mix's 14,000, with no toothbrush, toothpaste or razor, so a search for ``toothbrush``,
 ``whitening toothpaste`` or ``5 blade razor`` found nothing, and Aftershave held three styles.
 This slice adds three types, each a spec of its own (``type_specs/toothbrush.py``,
@@ -127,19 +127,19 @@ def _golden(beauty: list[dict], ptype: str) -> list[tuple]:
 #: Each new type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Toothbrush": [
-        ("BRD-007BFC80AF6B", "Holley Firm Manual Toothbrush", 18, 2.75),
-        ("BRD-00FBE1A18EE9", "Linholme Soft Battery Toothbrush", 9, 10.0),
-        ("BRD-0404370786BF", "Halgate Soft Electric Toothbrush", 18, 8.0),
+        ("BRD-007BFC80AF6B", "Dewgarth Firm Manual Toothbrush", 18, 2.75),
+        ("BRD-00FBE1A18EE9", "Tanholme Soft Battery Toothbrush", 9, 10.0),
+        ("BRD-0404370786BF", "Warbeck Soft Electric Toothbrush", 18, 8.0),
     ],
     "Toothpaste": [
-        ("BRD-0036A75ADD44", "Yaringham Sensitive Herbal Toothpaste", 3, 4.4),
-        ("BRD-010BCB2EF73F", "Townworth Cavity Protection Herbal Toothpaste", 3, 4.1),
-        ("BRD-01CBEFB85181", "Hulhurst Cavity Protection Eucalyptus Toothpaste", 3, 4.75),
+        ("BRD-0036A75ADD44", "Braming Sensitive Herbal Toothpaste", 3, 4.4),
+        ("BRD-010BCB2EF73F", "Kenbrook Cavity Protection Herbal Toothpaste", 3, 4.1),
+        ("BRD-01CBEFB85181", "Stanwell Cavity Protection Eucalyptus Toothpaste", 3, 4.75),
     ],
     "Razor": [
-        ("BRD-01F28475B2DB", "Tidstead Ergonomic 3-Blade Razor", 18, 9.0),
-        ("BRD-04CB51D2C187", "Belwick Weighted 2-Blade Razor", 15, 14.5),
-        ("BRD-0A0D84A23618", "Skelhill Rubber Grip 4-Blade Razor", 18, 4.0),
+        ("BRD-01F28475B2DB", "Brackbrook Ergonomic 3-Blade Razor", 18, 9.0),
+        ("BRD-04CB51D2C187", "Ingborough Weighted 2-Blade Razor", 15, 14.5),
+        ("BRD-0A0D84A23618", "Cressing Rubber Grip 4-Blade Razor", 18, 4.0),
     ],
 }
 
