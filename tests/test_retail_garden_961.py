@@ -118,6 +118,21 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-042267D46A49", "Harbour & Pine Copse Plastic Window Bird Feeder", 12, 17.5),
         ("BRD-0BFBE7AF7415", "Rookery Garden Co. Sunlit Plastic Platform Bird Feeder", 9, 4.7),
     ],
+    "Garden Table": [
+        ("BRD-0196A12A28C4", "Larkmoor Seedling Side Steel Garden Table", 18, 55.0),
+        ("BRD-0B9EA02BA2EB", "Rookery Garden Co. Sunlit Dining Steel Garden Table", 18, 175.0),
+        ("BRD-10FE61035F5F", "Larkmoor Seedling Dining Steel Garden Table", 6, 52.0),
+    ],
+    "Grill Accessory": [
+        ("BRD-0C88BE889DD6", "Harbour & Pine Furrow Polyester Kettle Grill Cover", 5, 35.0),
+        ("BRD-0FBD90213767", "Rookery Garden Co. Sprout Bamboo Grill Tool Set", 6, 16.5),
+        ("BRD-1B45ADEEA116", "Rookery Garden Co. Sunlit Polyester Kettle Grill Cover", 6, 40.0),
+    ],
+    "Garden Storage": [
+        ("BRD-052F23343099", "Harbour & Pine Furrow Wood Tall Cabinet", 12, 110.0),
+        ("BRD-05A16B606626", "Fenwold Nursery Paddock Resin Deck Box", 18, 150.0),
+        ("BRD-0650BEC561C4", "Thistle & Wren Wildflower Wood Tall Cabinet", 18, 125.0),
+    ],
 }
 
 

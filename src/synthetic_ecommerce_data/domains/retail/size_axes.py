@@ -147,6 +147,8 @@ AXES: dict[str, tuple[str, ...]] = {
     "Plant": ("size",),
     "Plant Pot": ("diameter_cm",),
     "Planter": ("width_cm",),
+    "Garden Table": ("width_cm",),
+    "Garden Storage": ("capacity_l", "width_cm"),
     # Tools, cables and machines by what they cut or reach.
     "BBQ": ("diameter_cm", "length_cm"),
     "Cable": ("length_m",),
