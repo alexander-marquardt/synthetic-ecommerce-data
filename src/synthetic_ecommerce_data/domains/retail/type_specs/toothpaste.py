@@ -58,7 +58,7 @@ SPEC = TypeSpec(
     product_type="Toothpaste",
     derivable=True,
     rows=ROWS,
-    owners=(*OWNED, ("Red Harbour", "third_party")),
+    owners=OWNED,
     decoys=(
         Decoy(4, "white toothpaste", "vocabulary", Row(
             "TPSWHS", "Mint Toothpaste for White Smiles", "Pearlbrook", DEPARTMENT, TOOTHPASTE, "Toothpaste", 3.0,
@@ -66,8 +66,8 @@ SPEC = TypeSpec(
             _paste("Cavity Protection", "Mint"), _tubes(3.0), "Toothpaste", colorless=True, size_key="net_volume_ml",
             params=(("benefit", "cavity protection"), ("flavour", "mint")))),
         Decoy(6, "red toothpaste", "generic", Row(
-            "TPSRDH", "Red Harbour Sensitive Toothpaste", "Red Harbour", DEPARTMENT, TOOTHPASTE, "Toothpaste", 4.0,
-            "toothpaste", "From Red Harbour: a cool mint fluoride paste for sensitive teeth.", (cw("Pale Blue", "#d6e3ee", "solid", "#2f3a4a"),),
+            "TPSRDH", "Red Harbour Sensitive Toothpaste", "Aldermist", DEPARTMENT, TOOTHPASTE, "Toothpaste", 4.0,
+            "toothpaste", "From the Red Harbour range: a cool mint fluoride paste for sensitive teeth.", (cw("Pale Blue", "#d6e3ee", "solid", "#2f3a4a"),),
             _paste("Sensitive", "Cool Mint"), _tubes(4.0), "Toothpaste", colorless=True, size_key="net_volume_ml",
             params=(("benefit", "sensitive"), ("flavour", "cool mint")))),
     ),

@@ -25,8 +25,10 @@ main colors (gen#275). A toothpaste is colorless, like a shampoo: its tube is it
 `size_axes.NOT_SIZES`. Each type has two text-match decoys (gen#309). The class 4 decoy names a
 color its fields do not hold (`Manual Toothbrush with Blue Bristles`, sold in white). The class 6
 decoy has a color word in its range or brand name (`White Cliff Electric Toothbrush`, sold in
-blue). The template brands are the department's invented brands (gen#720). A toothpaste
-decoy's brand, Red Harbour, is new and also invented. No flavour is a color word: `Charcoal` is
+blue). The template brands are the department's invented brands (gen#720), and each decoy is
+sold under one of them: `Red Harbour` is a toothpaste decoy's range, not a brand, so it needs no
+house style. No toothbrush text says `rechargeable`, a `power` value other types hold (an
+electric brush says it has a charging stand). No flavour is a color word: `Charcoal` is
 one (`colorwords.COLOR_WORDS`), so the sixth flavour is Eucalyptus.
 
 ## Aftershave
