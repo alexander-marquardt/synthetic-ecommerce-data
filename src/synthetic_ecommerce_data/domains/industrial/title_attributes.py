@@ -473,6 +473,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Color", None),
     ),
     "v_belts": (("Length", "L"),),
+    "wall_anchors": (
+        ("Length", "L"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "washer_flat": (
         ("Material", None),
         ("Size", "Size"),

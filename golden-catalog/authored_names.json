@@ -695,6 +695,9 @@
   "Measurement system": "Measurement System",
   "Number of blades": "Number of Blades"
  },
+ "wall_anchors": {
+  "Measurement system": "Measurement System"
+ },
  "washer_flat": {
   "Inside dia.": "Inside Dia.",
   "Measurement system": "Measurement System",
