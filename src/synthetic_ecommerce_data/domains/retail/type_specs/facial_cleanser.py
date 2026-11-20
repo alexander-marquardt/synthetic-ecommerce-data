@@ -39,7 +39,7 @@ ROWS = (
          "A daily cleanser with zinc that clears away the day's grime and leaves skin comfortable.",
          "Foaming", "Oily", 8.0, cw("White", "#ffffff", "solid", "#2f6b8a")),
     _row("FCLGEL", "Gel Facial Cleanser for Combination Skin", "Aldermist",
-         "A morning and evening cleanser with green tea extract, free from soap and added colourants.",
+         "A morning and evening cleanser with green tea extract and no soap or added colorants.",
          "Gel", "Combination", 7.0, cw("Pale Blue", "#d6e3ee", "solid", "#2f3a4a")),
     _row("FCLOIL", "Oil Facial Cleanser for Dry Skin", "Pearlbrook",
          "A gentle cleanser that lifts sunscreen and make-up in one step, tested by dermatologists.",
