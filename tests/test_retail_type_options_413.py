@@ -60,6 +60,7 @@ MOVED = {
     "tennis_racket": [Option("grip", "grip_size", "Grip size")],
     "hair_dryer": [Option("attachments", "attachments", "Attachments")],
     "hair_straightener": [Option("plate_width", "plate_width", "Plate width")],
+    "razor": [Option("cartridges", "cartridges", "Cartridges", "C62")],
     "skateboard": [Option("deck_width_in", "deck_width", "Deck width", "INH")],
     "bicycle": [Option("frame_cm", "frame_size", "Frame size", "CMT")],
     "curtains": [_DROP],

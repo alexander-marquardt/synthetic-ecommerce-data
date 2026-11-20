@@ -174,6 +174,7 @@ AXES: dict[str, tuple[str, ...]] = {
 #: The SKU keys that vary within a product and are not its size, and why.
 NOT_SIZES: dict[str, str] = {
     "attachments": "what comes in the box with a hair dryer: the dryer is drawn the same",
+    "cartridges": "the spare cartridges boxed with a razor: the razor is drawn the same",
     "plate_width": "the width of a straightener's plates: the tool is drawn the same",
     "bulb_light": "a color: the bulb is drawn the same",
     "blade_length_in": "a fit: the blade is cut to the car's wiper arm",
