@@ -1,5 +1,5 @@
-"""Garden, slices 1 and 2 (gen#961): planters, outdoor lights, garden chairs, hand tools, watering
-cans and bird feeders.
+"""Garden, slices 1 to 3 (gen#961): planters, outdoor lights, garden chairs, hand tools, watering
+cans, bird feeders, garden tables, grill accessories and garden storage.
 
 The Garden department held 827 SKUs at the ceiling build, against the 9,000 the 500K mix plans
 (``docs/catalogue-mix-837.md``), so a shopper's search for a planter or a solar path light found
@@ -10,7 +10,10 @@ have unique ids, titles, twin keys and SKU ids; the rows and their drawings are 
 call; and a golden slice pins each type's first derived styles, so a change that moves them shows
 here. Slice 2 adds hand tools, watering cans and bird feeders (``type_specs/hand_tool.py``,
 ``watering_can.py``, ``bird_feeder.py``, drawn by :mod:`kit_garden_care`) and raises the floor to
-6,000. The decoy census of the department (three of each of five classes) is
+6,000. Slice 3 adds garden tables, grill accessories and garden storage
+(``type_specs/garden_table.py``, ``grill_accessory.py``, ``garden_storage.py``, drawn by
+:mod:`kit_garden_yard`) and raises the floor to the issue's own: 8,550, 95% of the 9,000 target.
+The decoy census of the department (three of each of five classes) is
 ``tests/test_retail_garden_203.py``, which reads these types from the registry.
 """
 
@@ -23,7 +26,17 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, main_colors, scale, type_registry
 
-TYPES = ("Planter", "Outdoor Light", "Garden Chair", "Hand Tool", "Watering Can", "Bird Feeder")
+TYPES = (
+    "Planter",
+    "Outdoor Light",
+    "Garden Chair",
+    "Hand Tool",
+    "Watering Can",
+    "Bird Feeder",
+    "Garden Table",
+    "Grill Accessory",
+    "Garden Storage",
+)
 KEYS = {
     "Planter": "planter",
     "Outdoor Light": "outdoor_light",
@@ -31,10 +44,13 @@ KEYS = {
     "Hand Tool": "hand_tool",
     "Watering Can": "watering_can",
     "Bird Feeder": "bird_feeder",
+    "Garden Table": "garden_table",
+    "Grill Accessory": "grill_accessory",
+    "Garden Storage": "garden_storage",
 }
-#: The floor at the ceiling build: slice 2's, from the gate comment of gen#961 (slice 1's was
-#: 3,400, a third of the way from 827 to the issue's 8,550).
-FLOOR = 6_000
+#: The floor at the ceiling build: the issue's Done-when, 95% of the 9,000 target (slice 1's was
+#: 3,400 and slice 2's 6,000, from the gate comments of gen#961).
+FLOOR = 8_550
 
 
 @pytest.fixture(scope="module")
@@ -156,6 +172,12 @@ VARIANTS = [
     ("watering_can", {"material": "plastic"}, {"material": "galvanized steel"}),
     ("bird_feeder", {"style": "tube"}, {"style": "window"}),
     ("bird_feeder", {"material": "metal"}, {"material": "wood"}),
+    ("garden_table", {"style": "bistro"}, {"style": "dining"}),
+    ("garden_table", {"material": "acacia"}, {"material": "steel"}),
+    ("grill_accessory", {"kind": "tool set"}, {"kind": "kettle"}),
+    ("grill_accessory", {"material": "stainless steel"}, {"material": "bamboo"}),
+    ("garden_storage", {"style": "deck box"}, {"style": "apex"}),
+    ("garden_storage", {"material": "resin"}, {"material": "steel"}),
 ]
 
 
