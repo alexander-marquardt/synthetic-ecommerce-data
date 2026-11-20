@@ -1,4 +1,4 @@
-"""Garden storage (gen#961, slice 3): Garden > Garden Storage > Storage Boxes and Sheds.
+"""Garden storage (gen#961, slice 3): Garden > Garden Storage > Storage Boxes and Outbuildings.
 
 A breadth type: ``derivable`` True, so the scaled build draws more storage from these by the
 values their titles show (the style and the material). The scale pools values per leaf, so a box
@@ -35,7 +35,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 _ROOT = ("Garden", "Garden Storage")
 PATH_BOXES = (*_ROOT, "Storage Boxes")
-PATH_SHEDS = (*_ROOT, "Sheds")
+PATH_SHEDS = (*_ROOT, "Outbuildings")
 _PT = "Garden Storage"
 SIX = (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)
 

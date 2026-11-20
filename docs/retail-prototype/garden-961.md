@@ -69,7 +69,7 @@ Red Rose"); and a color in the description only.
 |---|---|---|---|---|
 | Garden Table | `type_specs/garden_table.py` | Garden > Garden Furniture > Garden Tables | Bistro Acacia, Dining Aluminum, Side Steel, Folding Acacia, Dining Steel | color x width (cm) |
 | Grill Accessory | `type_specs/grill_accessory.py` | Garden > Barbecues & Grills > Grill Tools / Grill Covers | Stainless Steel Tool Set, Bamboo Tool Set, Stainless Steel Brush, Bamboo Tongs (tools); Polyester Kettle, Canvas Cabinet (covers) | color |
-| Garden Storage | `type_specs/garden_storage.py` | Garden > Garden Storage > Storage Boxes / Sheds | Resin Deck Box, Wood Storage Bench, Resin Tall Cabinet (boxes); Steel Apex, Wood Pent (sheds) | color x capacity (l) for a box, color x width (cm) for a shed |
+| Garden Storage | `type_specs/garden_storage.py` | Garden > Garden Storage > Storage Boxes / Outbuildings | Resin Deck Box, Wood Storage Bench, Resin Tall Cabinet (boxes); Steel Apex, Wood Pent (outbuildings) | color x capacity (l) for a box, color x width (cm) for a shed |
 
 A garden table's title is `<style> <material> Garden Table`, a grill tool's `<material> Grill
 <tool>`, a grill cover's `<material> <fits> Grill Cover`, a storage box's `<material> <style>`
