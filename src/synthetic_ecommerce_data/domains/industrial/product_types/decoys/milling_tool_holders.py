@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "milling_tool_holders",
     label="End Mill Holder",
+    use_lines=(
+        "Holds an end mill in the machine spindle, with a set screw clamping the flat of the "
+        "end mill shank.",
+        "Carries a straight-shank end mill on the spindle taper and keeps the end mill running "
+        "true.",
+    ),
     breadth=BreadthRow(
         key="milling_tool_holders",
         category=("Tool Holding", "Holders", "Milling Tool Holders"),

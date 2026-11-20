@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "drill_stop_collars",
     label="Drill Bit Stop Collar",
+    use_lines=(
+        "Clamps onto a drill bit with a set screw to stop the drill bit at a set hole depth.",
+        "Slides over the drill bit and locks in place, so every hole the drill bit makes is "
+        "the same depth.",
+    ),
     breadth=BreadthRow(
         key="drill_stop_collars",
         category=("Holemaking", "Drill Accessories", "Depth Stop Collars"),

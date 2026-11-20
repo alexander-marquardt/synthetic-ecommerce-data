@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "cutter_sharpening_fixtures",
     label="Square End Mill Sharpening Fixture",
+    use_lines=(
+        "Holds a square end mill at a set angle on a tool grinder, so each flute of the end "
+        "mill is reground evenly.",
+        "Indexes a worn square end mill flute by flute for regrinding the end teeth of the end "
+        "mill.",
+    ),
     breadth=BreadthRow(
         key="cutter_sharpening_fixtures",
         category=("Machinery", "Tool Grinding", "Cutter Sharpening Fixtures"),

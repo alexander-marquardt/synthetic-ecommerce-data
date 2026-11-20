@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "grub_screw_keys",
     label="Hex Key for M6x1 Set Screws",
+    use_lines=(
+        "An L-shaped hex key for set screws; the long arm of the hex key gives leverage when "
+        "tightening.",
+        "Drives grub screws in collars and pulleys, and the short arm of the hex key reaches a "
+        "recessed screw where a longer hex key will not fit.",
+    ),
     breadth=BreadthRow(
         key="grub_screw_keys",
         category=("Hand Tools", "Wrenches & Keys", "Grub Screw Keys"),

@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "bit_sharpeners",
     label="Drill Bit Sharpener",
+    use_lines=(
+        "Regrinds the point of a dull drill bit, restoring the drill bit's cutting lips and "
+        "point angle.",
+        "Sharpens twist drill bits at the bench, so a dull drill bit cuts clean again.",
+    ),
     breadth=BreadthRow(
         key="bit_sharpeners",
         category=("Holemaking", "Drill Accessories", "Bit Sharpeners"),

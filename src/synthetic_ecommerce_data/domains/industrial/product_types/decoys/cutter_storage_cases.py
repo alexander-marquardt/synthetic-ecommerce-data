@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "cutter_storage_cases",
     label="Square End Mill Storage Case",
+    use_lines=(
+        "Stores square end mills upright in individual slots, so no end mill edge touches another.",
+        "Keeps each square end mill in its own pocket, protecting the cutting edges of the end "
+        "mill in a drawer or on the bench.",
+    ),
     breadth=BreadthRow(
         key="cutter_storage_cases",
         category=("Material Handling & Storage", "Tool Storage", "Cutter Storage Cases"),

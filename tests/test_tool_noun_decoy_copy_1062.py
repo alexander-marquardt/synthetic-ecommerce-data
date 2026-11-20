@@ -25,8 +25,14 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 TOOL_NOUNS = ("end mill", "drill bit", "flap disc", "hex key")
 #: The seeds of the issue's Deliverable 1; dropping one from the seed table must not pass.
 ISSUE_SEEDS = (
-    "1/2 endmill", "3/8 square endmill", "2.5mm end mill", "25mm end mill", "3/8 inch drill bit",
-    "carbide drill bit", "flap discs", "hex keys",
+    "1/2 endmill",
+    "3/8 square endmill",
+    "2.5mm end mill",
+    "25mm end mill",
+    "3/8 inch drill bit",
+    "carbide drill bit",
+    "flap discs",
+    "hex keys",
 )
 #: Fewer than this many mentions outside the title leaves the decoy under the real tools.
 MENTIONS = 2

@@ -13,6 +13,12 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "milling_collets",
     label="ER32 Collet for End Mill",
+    use_lines=(
+        "Grips the shank of an end mill in an ER collet chuck, centring the end mill for low "
+        "runout.",
+        "Closes evenly around an end mill shank as the nut is tightened, holding the end mill "
+        "true.",
+    ),
     breadth=BreadthRow(
         key="milling_collets",
         category=("Tool Holding", "Collets", "Milling Collets"),

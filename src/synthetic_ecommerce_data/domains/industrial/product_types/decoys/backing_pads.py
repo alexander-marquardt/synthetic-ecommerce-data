@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "backing_pads",
     label="Flap Disc Backing Pad",
+    use_lines=(
+        "Mounts a flap disc on an angle grinder and backs the flap disc so it sands flat.",
+        "Supports the flap disc from behind, so the flap disc keeps its shape under grinding "
+        "pressure.",
+    ),
     breadth=BreadthRow(
         key="backing_pads",
         category=("Abrasives", "Sanding & Grinding Accessories", "Backing Pads"),

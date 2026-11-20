@@ -13,6 +13,11 @@ from synthetic_ecommerce_data.domains.industrial.breadth import BreadthRow
 SPEC = TypeSpec(
     "wrench_organizers",
     label="Hex Key Holder",
+    use_lines=(
+        "Holds a set of hex keys by size, so each hex key is in its slot.",
+        "Keeps hex keys in size order on the bench or in a drawer, so the right hex key is "
+        "easy to grab.",
+    ),
     breadth=BreadthRow(
         key="wrench_organizers",
         category=("Material Handling & Storage", "Tool Storage", "Wrench Organizers"),
