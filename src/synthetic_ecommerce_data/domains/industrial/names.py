@@ -120,6 +120,7 @@ PRODUCT_NOUNS: tuple[str, ...] = (
     "Picture Hanger",
     "Cabinet Hinge",
     "Cabinet Knob",
+    "Shelf Bracket",
     # The homeowner tools of #971.
     "Tape Measure",
     "Utility Knife",
