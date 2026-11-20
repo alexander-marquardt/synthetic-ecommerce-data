@@ -1,4 +1,5 @@
-"""Garden, slice 1 (gen#961): planters, outdoor lights and garden chairs.
+"""Garden, slices 1 and 2 (gen#961): planters, outdoor lights, garden chairs, hand tools, watering
+cans and bird feeders.
 
 The Garden department held 827 SKUs at the ceiling build, against the 9,000 the 500K mix plans
 (``docs/catalogue-mix-837.md``), so a shopper's search for a planter or a solar path light found
@@ -7,7 +8,9 @@ nothing. Slice 1 adds three derivable types, each a spec of its own (``type_spec
 slice's Done-when: the ceiling build has at least 3,400 SKUs under ``Garden``; each type's styles
 have unique ids, titles, twin keys and SKU ids; the rows and their drawings are the same on every
 call; and a golden slice pins each type's first derived styles, so a change that moves them shows
-here. The decoy census of the department (three of each of five classes) is
+here. Slice 2 adds hand tools, watering cans and bird feeders (``type_specs/hand_tool.py``,
+``watering_can.py``, ``bird_feeder.py``, drawn by :mod:`kit_garden_care`) and raises the floor to
+6,000. The decoy census of the department (three of each of five classes) is
 ``tests/test_retail_garden_203.py``, which reads these types from the registry.
 """
 
@@ -20,11 +23,18 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import kit, main_colors, scale, type_registry
 
-TYPES = ("Planter", "Outdoor Light", "Garden Chair")
-KEYS = {"Planter": "planter", "Outdoor Light": "outdoor_light", "Garden Chair": "garden_chair"}
-#: The slice's floor at the ceiling build (the gate comment of gen#961): a third of the way from
-#: 827 to the issue's 8,550.
-FLOOR = 3_400
+TYPES = ("Planter", "Outdoor Light", "Garden Chair", "Hand Tool", "Watering Can", "Bird Feeder")
+KEYS = {
+    "Planter": "planter",
+    "Outdoor Light": "outdoor_light",
+    "Garden Chair": "garden_chair",
+    "Hand Tool": "hand_tool",
+    "Watering Can": "watering_can",
+    "Bird Feeder": "bird_feeder",
+}
+#: The floor at the ceiling build: slice 2's, from the gate comment of gen#961 (slice 1's was
+#: 3,400, a third of the way from 827 to the issue's 8,550).
+FLOOR = 6_000
 
 
 @pytest.fixture(scope="module")
@@ -60,12 +70,37 @@ GOLDEN: dict[str, list[tuple]] = {
     "Outdoor Light": [
         ("BRD-012D10F91282", "Larkmoor Bloom Hardwired Cube Wall Light", 12, 15.0),
         ("BRD-02A965807B4F", "Rookery Garden Co. Sprout Solar Bulkhead Wall Light", 18, 27.0),
-        ("BRD-046E72E409C4", "Larkmoor Seedling Battery-Powered Lantern Path Light", 6, 13.0),
+        ("BRD-046E72E409C4", "Larkmoor Sunlit Battery-Powered Lantern Path Light", 6, 13.0),
     ],
     "Garden Chair": [
         ("BRD-00224F280A77", "Fenwold Nursery Paddock Reclining Aluminum Garden Chair", 18, 70.0),
         ("BRD-07968A557327", "Thistle & Wren Wildflower Reclining Acacia Garden Chair", 12, 27.0),
         ("BRD-0ADE7569A567", "Larkmoor Bloom Stacking Plastic Garden Chair", 6, 27.0),
+    ],
+    "Hand Tool": [
+        ("BRD-00382772E317", "Harbour & Pine Furrow Stainless Steel Pruner", 2, 13.5),
+        ("BRD-0264F29EE94B", "Larkmoor Bloom Carbon Steel Cultivator", 2, 10.5),
+        ("BRD-045D374AB40F", "Harbour & Pine Furrow Stainless Steel Cultivator", 3, 10.5),
+    ],
+    "Watering Can": [
+        (
+            "BRD-023B1301C5CA",
+            "Thistle & Wren Wildflower Slimline Galvanized Steel Watering Can",
+            18,
+            33.0,
+        ),
+        (
+            "BRD-03760D4621F8",
+            "Larkmoor Sunlit Long Reach Powder-Coated Steel Watering Can",
+            12,
+            28.0,
+        ),
+        ("BRD-043D7764161C", "Wrenfield Trellis Classic Powder-Coated Steel Watering Can", 18, 9.5),
+    ],
+    "Bird Feeder": [
+        ("BRD-018763BB0040", "Larkmoor Bloom Metal Tube Bird Feeder", 12, 15.5),
+        ("BRD-042267D46A49", "Harbour & Pine Copse Plastic Window Bird Feeder", 12, 17.5),
+        ("BRD-0BFBE7AF7415", "Rookery Garden Co. Cottage Plastic Platform Bird Feeder", 9, 4.7),
     ],
 }
 
@@ -115,6 +150,12 @@ VARIANTS = [
     ("outdoor_light", {"power_source": "solar"}, {"power_source": "plug-in"}),
     ("garden_chair", {"style": "folding"}, {"style": "reclining"}),
     ("garden_chair", {"material": "acacia"}, {"material": "steel"}),
+    ("hand_tool", {"kind": "trowel"}, {"kind": "pruner"}),
+    ("hand_tool", {"head": "stainless steel"}, {"head": "carbon steel"}),
+    ("watering_can", {"style": "classic"}, {"style": "long reach"}),
+    ("watering_can", {"material": "plastic"}, {"material": "galvanized steel"}),
+    ("bird_feeder", {"style": "tube"}, {"style": "window"}),
+    ("bird_feeder", {"material": "metal"}, {"material": "wood"}),
 ]
 
 
@@ -123,3 +164,18 @@ def test_a_param_changes_the_drawing(shape: str, one: dict, other: dict) -> None
     fill = kit.Fill("solid", "#123456", "#654321")
     assert kit.render(shape, fill, params=one) != kit.render(shape, fill, params=other)
     assert kit.render(shape, fill, params={}) == kit.render(shape, fill, params=one)
+
+
+@pytest.mark.parametrize("ptype", TYPES)
+def test_each_value_of_a_param_draws_apart_from_the_others(ptype) -> None:
+    """A pair in ``VARIANTS`` misses a value drawn as another non-default one (wood as plastic)."""
+    fill = kit.Fill("solid", "#123456", "#654321")
+    rows = type_registry.specs()[KEYS[ptype]].rows
+    values: dict[str, set[str]] = collections.defaultdict(set)
+    for row in rows:
+        for key, value in row.params:
+            values[key].add(value)
+    shape = rows[0].shape
+    for key, seen in values.items():
+        drawings = {v: kit.render(shape, fill, params={key: v}) for v in sorted(seen)}
+        assert len(set(drawings.values())) == len(drawings), (key, sorted(seen))

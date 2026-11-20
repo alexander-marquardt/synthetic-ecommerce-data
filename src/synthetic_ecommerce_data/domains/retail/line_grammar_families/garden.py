@@ -11,7 +11,8 @@ from __future__ import annotations
 KINDS = (
     "Plant", "Bedding Plant", "Bulbs", "Seeds", "Growing Kit", "Christmas Tree", "BBQ",
     "Garden Furniture Set", "Lawn Mower", "Robot Mower", "Grass Trimmer", "Hedge Trimmer",
-    "Parasol", "Garden Hose", "Planter", "Outdoor Light", "Garden Chair",
+    "Parasol", "Garden Hose", "Planter", "Outdoor Light", "Garden Chair", "Hand Tool",
+    "Watering Can", "Bird Feeder",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

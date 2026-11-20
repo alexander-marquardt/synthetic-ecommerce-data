@@ -4,7 +4,8 @@ The Garden department held plants and growing kits only. `garden_rows.py` adds f
 `kit_garden.py`, under two new families of the Garden root. Three more are specs of their own
 (`type_specs/hedge_trimmer.py`, `garden_furniture_set.py`, `parasol.py`), drawn by `kit_outdoor.py`.
 Planters, outdoor lights and garden chairs (gen#961, slice 1) are derivable specs drawn by
-`kit_patio.py`: [retail-prototype/garden-961.md](retail-prototype/garden-961.md).
+`kit_patio.py`; hand tools, watering cans and bird feeders (slice 2) are drawn by
+`kit_garden_care.py`: [retail-prototype/garden-961.md](retail-prototype/garden-961.md).
 
 | Type | Path | Style axis | SKU axis | Key attributes |
 |---|---|---|---|---|
@@ -22,7 +23,7 @@ knob per burner, and the SKU axes are never printed on an image.
 
 ## Text-match decoys
 
-Each of the eleven types (the seven above, the garden hose and the three of gen#961) carries fifteen decoys, three of each
+Each of the fourteen types (the seven above, the garden hose and the six of gen#961) carries fifteen decoys, three of each
 of five classes (gen#294), listed in `garden_rows.DECOY_TABLE` with their class and the query they
 target. The hose's are copies of its two styles from `type_specs/garden_hose.py`. The guard
 `test_each_type_carries_at_least_three_decoys_of_each_class` reads the Garden types from the
@@ -39,8 +40,8 @@ carries the misleading word. Each is exempt from the text check and left out of 
 | secondary | "Green Lawn Mower with Red Wheels", "Red Portable BBQ with Black Legs", "Black Garden Hose with Green Connectors" | the title names a part's color beside the product's own, so "red lawn mower" matches a green one |
 | shade | "Light Corded Lawn Mower" (a blue mower with "a bright red start switch"), "Family Kettle BBQ" | the description alone names another main color |
 
-A decoy title names a color only when its drawing shows it (the #311 ruling). The thirty-three
-secondary decoys and the twenty-two short-title incidental decoys on a real product name one: the row
+A decoy title names a color only when its drawing shows it (the #311 ruling). The forty-two
+secondary decoys and the twenty-eight short-title incidental decoys on a real product name one: the row
 passes `part` and `part_color` to its shape (`kit_garden.PARTS` lists the parts), and the shape draws
 that part, and only that part, in the color, each element marked `data-part`. A secondary title
 names its part ("with Red Wheels", "with White Engine", "with Green Connectors"); a short title
