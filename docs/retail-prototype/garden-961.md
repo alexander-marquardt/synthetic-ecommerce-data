@@ -1,4 +1,4 @@
-# Garden, slice 1 (gen#961)
+# Garden, slices 1 and 2 (gen#961)
 
 The Garden department held machines, barbecues, furniture sets, parasols and plants, far short
 of the 9,000 SKUs the 500K mix plans for it (`docs/catalogue-mix-837.md`), so a search for a
@@ -36,9 +36,36 @@ Light, Not Solar"); a short title with a color word ("Red Harrier Planter", whic
 red); a part's color ("Green Round Ceramic Planter with Red Rim"); and a color in the description
 only. `kit_patio.PARTS` lists the parts a decoy can name, and `kit_garden.PARTS` takes them.
 
+## Slice 2: hand tools, watering cans and bird feeders
+
+| Type | Spec | Path | Templates | SKU axis |
+|---|---|---|---|---|
+| Hand Tool | `type_specs/hand_tool.py` | Garden > Garden Tools > Hand Tools | Stainless Steel Trowel, Carbon Steel Hand Fork, Cast Aluminum Cultivator, Stainless Steel Transplanter, Carbon Steel Pruner | handle color |
+| Watering Can | `type_specs/watering_can.py` | Garden > Watering > Watering Cans | Classic Plastic, Long Reach Galvanized Steel, Indoor Powder-Coated Steel, Slimline Plastic, Classic Galvanized Steel | color x capacity (l) |
+| Bird Feeder | `type_specs/bird_feeder.py` | Garden > Bird Care > Bird Feeders | Metal Tube, Plastic Window, Metal Suet Cage, Wood Platform, Plastic Tube | color x single, 2 pack, 3 pack |
+
+A hand tool's title is `<head metal> <kind>`, a watering can's `<style> <material> Watering Can`
+and a bird feeder's `<material> <style> Bird Feeder`. `size_axes.AXES` reads a watering can by
+capacity.
+
+**Drawings.** `kit_garden_care.py` draws three shapes. `hand_tool` takes `kind` (trowel, hand
+fork, cultivator, transplanter, pruner), which draws the head (or a pruner's two blades and
+handles), and `head` (stainless steel, carbon steel, cast aluminum), which draws its metal.
+`watering_can` takes `style` (classic, long reach, indoor, slimline), which draws the body and
+spout, and `material` (plastic, galvanized steel, powder-coated steel), which draws its surface
+marks. `bird_feeder` takes `style` (tube, window, suet cage, platform) and `material` (metal,
+plastic, wood). `kit_garden_care.PARTS` (a tool's grip, ferrule and hang loop; a can's rose,
+handle and spout; a feeder's roof, perch and hanger) is added to `kit_garden.PARTS`.
+
+**Decoys.** Each type carries fifteen decoys in `garden_rows.py`, three of each class, as in
+slice 1: a cushion and a candle that hold the type word; a real product that names plastic it
+lacks ("Carbon Steel Hand Fork, Not Plastic", "Plastic Free Classic Watering Can"); a short
+title with a color word ("Red Harrier Trowel"); a part's color ("Green Classic Watering Can with
+Red Rose"); and a color in the description only.
+
 **Measured** (ceiling build, seed 0): the department's size, its styles per type and the
-authored and derived split are read from the build (`retail_figures`), never typed here. The
-slice's floor is 3,400 Garden SKUs at the ceiling build, a third of the way to the issue's
-target. Hand tools, watering cans and bird care (slice 2), then garden tables, grill accessories
-and storage (slice 3) are the rest of gen#961. The guards are in
-`tests/test_retail_garden_961.py` and `tests/test_retail_garden_203.py`.
+authored and derived split are read from the build (`retail_figures`), never typed here. Slice
+1's floor was 3,400 Garden SKUs at the ceiling build, a third of the way to the issue's target;
+slice 2's is 6,000. Garden tables, grill accessories and storage (slice 3) are the rest of
+gen#961. The guards are in `tests/test_retail_garden_961.py` and
+`tests/test_retail_garden_203.py`.

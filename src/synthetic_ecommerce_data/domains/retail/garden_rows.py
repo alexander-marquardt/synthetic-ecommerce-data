@@ -42,13 +42,16 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.machine_model_numbers import numbered
 from synthetic_ecommerce_data.domains.retail.type_specs import (
+    bird_feeder,
     garden_chair,
     garden_furniture_set,
     garden_hose,
+    hand_tool,
     hedge_trimmer,
     outdoor_light,
     parasol,
     planter,
+    watering_can,
 )
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -264,6 +267,9 @@ DECOY_TABLE = {
     "DCNCSH": ("type", "planter", "Planter"), "DCNCND": ("incidental", "planter", "Planter"),
     "DCOCSH": ("type", "outdoor light", "Outdoor Light"), "DCOCND": ("incidental", "outdoor light", "Outdoor Light"),
     "DCKCSH": ("type", "garden chair", "Garden Chair"), "DCKCND": ("incidental", "garden chair", "Garden Chair"),
+    "DCJCSH": ("type", "hand tool", "Hand Tool"), "DCJCND": ("incidental", "hand tool", "Hand Tool"),
+    "DCQCSH": ("type", "watering can", "Watering Can"), "DCQCND": ("incidental", "watering can", "Watering Can"),
+    "DCVCSH": ("type", "bird feeder", "Bird Feeder"), "DCVCND": ("incidental", "bird feeder", "Bird Feeder"),
 }  # fmt: skip
 
 DECOYS = (
@@ -303,6 +309,12 @@ DECOYS = (
     _candle("DCOCND", "Outdoor Evening Candle", "A warm amber scent in a glass jar, for a table outdoors on a summer night.", "Amber"),
     _cushion("DCKCSH", "Garden Chair Seat Cushion", "A cotton seat cushion with ties, to soften a slatted chair on the patio."),
     _candle("DCKCND", "Summer Garden Candle", "A honeysuckle scent in a glass jar, for a shelf by the garden door.", "Honeysuckle"),
+    _cushion("DCJCSH", "Hand Tool Print Cushion", "A cotton cushion printed with a trowel and a fork crossed over a seed packet."),
+    _candle("DCJCND", "Potting Bench Candle", "A cedar and moss scent in a glass jar, for the shelf where the hand tools hang.", "Cedar Moss"),
+    _cushion("DCQCSH", "Watering Can Print Cushion", "A cotton cushion printed with a watering can among the sweet peas."),
+    _candle("DCQCND", "Morning Watering Candle", "A wet earth scent in a glass jar, as a border smells after the can has been round.", "Wet Earth"),
+    _cushion("DCVCSH", "Bird Feeder Print Cushion", "A cotton cushion printed with finches on a hanging bird feeder."),
+    _candle("DCVCND", "Garden Birdsong Candle", "A fresh linden scent in a glass jar, for a sill that looks out on the garden.", "Linden"),
 )
 
 
@@ -312,14 +324,17 @@ DECOYS = (
 _MAIN = ("red", "blue", "green", "yellow", "black", "white")
 _BASE = {r.code: r for r in (*LAWN_MOWERS, *ROBOT_MOWERS, *GRASS_TRIMMERS, *BBQS, *garden_hose.SPEC.rows,
                                   *hedge_trimmer.ROWS, *garden_furniture_set.SPEC.rows, *parasol.SPEC.rows,
-                                  *planter.ROWS, *outdoor_light.ROWS, *garden_chair.ROWS)}
+                                  *planter.ROWS, *outdoor_light.ROWS, *garden_chair.ROWS,
+                                  *hand_tool.ROWS, *watering_can.ROWS, *bird_feeder.ROWS)}
 _COLOR = {c[0].lower(): c for c in (RED, BLUE, GREEN, YELLOW, BLACK, WHITE)}
 _QUERY = {"Lawn Mower": "lawn mower", "Robot Mower": "robot mower", "Grass Trimmer": "grass trimmer", "BBQ": "bbq", "Garden Hose": "garden hose",
           "Hedge Trimmer": "hedge trimmer", "Garden Furniture Set": "garden furniture set", "Parasol": "parasol",
-          "Planter": "planter", "Outdoor Light": "outdoor light", "Garden Chair": "garden chair"}
+          "Planter": "planter", "Outdoor Light": "outdoor light", "Garden Chair": "garden chair",
+          "Hand Tool": "hand tool", "Watering Can": "watering can", "Bird Feeder": "bird feeder"}
 _ABSENT = {"Lawn Mower": "petrol", "Robot Mower": "gps", "Grass Trimmer": "cordless", "BBQ": "gas", "Garden Hose": "latex",
            "Hedge Trimmer": "cordless", "Garden Furniture Set": "rattan", "Parasol": "cantilever",
-           "Planter": "plastic", "Outdoor Light": "solar", "Garden Chair": "plastic"}
+           "Planter": "plastic", "Outdoor Light": "solar", "Garden Chair": "plastic",
+           "Hand Tool": "plastic", "Watering Can": "plastic", "Bird Feeder": "plastic"}
 
 
 _NAMED_PART = re.compile(r"\bwith (\w+) ([\w ]+)$")
@@ -491,6 +506,45 @@ _REAL = {
         ("DCKH02", "shade", "Compact Folding Garden Chair", "GCHFAC", "black", "A folding acacia chair with a yellow carry strap for the boot."),
         ("DCKH03", "shade", "Lounge Reclining Garden Chair", "GCHRAL", "red", "A reclining aluminum chair supplied with a green head pillow."),
     ),
+    "Hand Tool": (
+        ("DCJA01", "absent", "Plastic Free Stainless Steel Trowel", "HTLTRS", "blue", "A stainless steel trowel with no plastic in the head or the handle."),
+        ("DCJA02", "absent", "Carbon Steel Hand Fork, Not Plastic", "HTLFCS", "black", "A forged carbon steel hand fork, stiffer than a plastic one in clay soil."),
+        ("DCJA03", "absent", "Carbon Steel Pruner, No Plastic Parts", "HTLPRC", "white", "A carbon steel bypass pruner with no plastic parts to snap."),
+        ("DCJI01", "incidental", "Red Harrier Trowel", "HTLTRS", "black", "A stainless steel trowel from the Harrier range, a hand tool for bulbs."),
+        ("DCJI02", "incidental", "Blue Moon Hand Fork", "HTLFCS", "yellow", "A carbon steel hand fork from the Moon range, with three tines."),
+        ("DCJS01", "secondary", "Green Stainless Steel Trowel with Red Grip", "HTLTRS", "green", "A stainless steel trowel with a wide scoop."),
+        ("DCJS02", "secondary", "White Cultivator with Black Ferrule", "HTLCAL", "white", "A cast aluminum cultivator with three curved claws."),
+        ("DCJS03", "secondary", "Yellow Pruner with Blue Hang Loop", "HTLPRC", "yellow", "A carbon steel bypass pruner with a safety catch."),
+        ("DCJH01", "shade", "Wide Scoop Trowel", "HTLTRS", "white", "A stainless steel trowel sold with a red kneeling pad."),
+        ("DCJH02", "shade", "Narrow Transplanter", "HTLTPS", "black", "A stainless steel transplanter sold with a yellow set of plant labels."),
+        ("DCJH03", "shade", "Garden Bypass Pruner", "HTLPRC", "blue", "A carbon steel bypass pruner with a green holster in the box."),
+    ),
+    "Watering Can": (
+        ("DCQA01", "absent", "Plastic Free Classic Watering Can", "WCNCGS", "green", "A classic galvanized steel can with riveted seams and no plastic rose or cap."),
+        ("DCQA02", "absent", "Long Reach Steel Watering Can, Not Plastic", "WCNLGS", "black", "A long reach galvanized steel can that will not crack in a frost as a plastic one can."),
+        ("DCQA03", "absent", "Indoor Watering Can, No Plastic", "WCNIPC", "white", "A small powder-coated steel can for house plants, with no plastic in it."),
+        ("DCQI01", "incidental", "Red Harrier Watering Can", "WCNCGS", "black", "A classic galvanized steel watering can from the Harrier range."),
+        ("DCQI02", "incidental", "Blue Moon Watering Can", "WCNCPL", "yellow", "A classic plastic watering can from the Moon range, light to carry."),
+        ("DCQS01", "secondary", "Green Classic Watering Can with Red Rose", "WCNCPL", "green", "A classic plastic can with a long spout."),
+        ("DCQS02", "secondary", "White Slimline Watering Can with Black Handle", "WCNSPL", "white", "A tall slimline plastic can that fits under a tap."),
+        ("DCQS03", "secondary", "Yellow Long Reach Watering Can with Blue Spout", "WCNLGS", "yellow", "A long reach galvanized steel can for the back of a border."),
+        ("DCQH01", "shade", "Indoor Watering Can", "WCNCPL", "white", "A classic plastic can with a red spare rose in the box."),
+        ("DCQH02", "shade", "Balcony Watering Can", "WCNIPC", "black", "A small powder-coated steel can sold with a yellow drip saucer."),
+        ("DCQH03", "shade", "Allotment Watering Can", "WCNCGS", "blue", "A classic galvanized steel can supplied with a green spare rose."),
+    ),
+    "Bird Feeder": (
+        ("DCVA01", "absent", "Plastic Free Metal Tube Bird Feeder", "BFRTME", "green", "A metal tube feeder with steel ports and no plastic for a squirrel to chew."),
+        ("DCVA02", "absent", "Wood Platform Bird Feeder, Not Plastic", "BFRPWD", "blue", "A wood platform feeder on cords, with no plastic tray to crack in the sun."),
+        ("DCVA03", "absent", "Suet Cage Bird Feeder, No Plastic", "BFRSME", "black", "A metal suet cage under a little roof, with no plastic in it."),
+        ("DCVI01", "incidental", "Red Harrier Bird Feeder", "BFRTME", "black", "A metal tube feeder from the Harrier range, with two ports."),
+        ("DCVI02", "incidental", "Blue Moon Bird Feeder", "BFRPWD", "yellow", "A wood platform feeder from the Moon range, on four cords."),
+        ("DCVS01", "secondary", "Green Tube Bird Feeder with Red Roof", "BFRTME", "green", "A metal tube feeder with two feeding ports."),
+        ("DCVS02", "secondary", "White Window Bird Feeder with Black Roof", "BFRWPL", "white", "A plastic window feeder on suction cups."),
+        ("DCVS03", "secondary", "Yellow Suet Cage Bird Feeder with Blue Hanger", "BFRSME", "yellow", "A metal suet cage for a fat block."),
+        ("DCVH01", "shade", "Hanging Seed Bird Feeder", "BFRTPL", "white", "A plastic tube feeder with a red seed tray at its foot."),
+        ("DCVH02", "shade", "Double Suet Bird Feeder", "BFRSME", "black", "A metal suet cage sold with a yellow hanging chain."),
+        ("DCVH03", "shade", "Garden Platform Bird Feeder", "BFRPWD", "blue", "A wood platform feeder with a green roof felt in the box."),
+    ),
 }
 def _hose_candle(code: str, title: str, desc: str) -> Row:
     return _candle(code, title, desc, "Fresh Grass")
@@ -519,6 +573,12 @@ _SIBLINGS = (
     ("DCOT02", "Outdoor Light", _cushion, "Outdoor Light Lantern Cushion", "A cotton cushion printed with a glowing lantern on a fence."),
     ("DCKT01", "Garden Chair", _apron, "Garden Chair Builder Apron", "A cotton apron with two pockets, for the one who puts the flat pack together."),
     ("DCKT02", "Garden Chair", _cushion, "Garden Chair Back Cushion", "A cotton back cushion with ties, for a slatted chair on the patio."),
+    ("DCJT01", "Hand Tool", _apron, "Hand Tool Gardener Apron", "A cotton apron with deep pockets that hold a trowel and a hand fork."),
+    ("DCJT02", "Hand Tool", _cushion, "Hand Tool Potting Shed Cushion", "A cotton cushion printed with a row of hand tools on a potting bench."),
+    ("DCQT01", "Watering Can", _apron, "Watering Can Potting Apron", "A cotton apron with a pocket, printed with a watering can and a row of seedlings."),
+    ("DCQT02", "Watering Can", _cushion, "Watering Can Garden Cushion", "A cotton cushion printed with a watering can by a greenhouse door."),
+    ("DCVT01", "Bird Feeder", _apron, "Bird Feeder Garden Apron", "A cotton apron with a pocket, printed with finches round a bird feeder."),
+    ("DCVT02", "Bird Feeder", _cushion, "Bird Feeder Robin Cushion", "A cotton cushion printed with a robin on a bird feeder in the snow."),
 )
 _CLASS_QUERY = {"type": "{q}", "absent": "{a} {q}", "incidental": "{c} {q}", "secondary": "{c} {q}", "shade": "{c} {q}"}
 _COLOR_WORD = re.compile(r"\b(red|blue|green|yellow|black|white)\b", re.I)

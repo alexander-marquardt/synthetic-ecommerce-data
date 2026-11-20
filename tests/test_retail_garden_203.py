@@ -254,6 +254,9 @@ TARGETS = {
     "Planter": "planter",
     "Outdoor Light": "outdoor light",
     "Garden Chair": "garden chair",
+    "Hand Tool": "hand tool",
+    "Watering Can": "watering can",
+    "Bird Feeder": "bird feeder",
 }
 
 
@@ -355,6 +358,9 @@ def test_an_absent_decoy_names_a_power_source_it_lacks_and_is_the_type(ptype: st
         "Planter": "plastic",
         "Outdoor Light": "solar",
         "Garden Chair": "plastic",
+        "Hand Tool": "plastic",
+        "Watering Can": "plastic",
+        "Bird Feeder": "plastic",
     }[ptype]
     for row in _decoys(ptype)["absent"]:
         assert row.product_type == ptype
@@ -484,11 +490,11 @@ def _holds(el: ET.Element, hexv: str) -> bool:
 
 
 def test_the_decoys_that_name_a_color_are_the_secondary_and_the_real_incidental_ones() -> None:
-    """Thirty-three secondary decoys (three per type) and twenty-two short-title incidental ones
+    """Forty-two secondary decoys (three per type) and twenty-eight short-title incidental ones
     on a real product (two per type) name a color beside the product's own; the shade decoys, the
     scented candles and the sibling products name none in a title."""
     kinds = collections.Counter(garden_rows.DECOY_TABLE[c][0] for c in NAMED)
-    assert kinds == {"secondary": 33, "incidental": 22}
+    assert kinds == {"secondary": 42, "incidental": 28}
 
 
 @pytest.mark.parametrize("code", NAMED)
