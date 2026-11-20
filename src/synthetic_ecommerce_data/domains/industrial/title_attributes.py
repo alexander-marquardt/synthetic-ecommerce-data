@@ -461,6 +461,11 @@ TITLE_ATTRIBUTES: dict[str, tuple[tuple[str, str | None], ...]] = {
         ("Load Capacity", "Load"),
     ),
     "u_bolts": (("Size", "Size"),),
+    "utility_hooks": (
+        ("Length", "L"),
+        ("Style", None),
+        ("Color", None),
+    ),
     "utility_knives": (
         ("Number of Blades", "Blades"),
         ("Width", "W"),

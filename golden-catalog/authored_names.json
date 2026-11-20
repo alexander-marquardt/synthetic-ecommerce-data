@@ -688,6 +688,9 @@
   "Thread size": "Thread Size",
   "Units per pack": "Units per Pack"
  },
+ "utility_hooks": {
+  "Measurement system": "Measurement System"
+ },
  "utility_knives": {
   "Measurement system": "Measurement System",
   "Number of blades": "Number of Blades"
