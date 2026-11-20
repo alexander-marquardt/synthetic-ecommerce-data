@@ -43,6 +43,7 @@ from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import tabletype
 from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.muststock import MUST_STOCK
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -116,7 +117,7 @@ def same_product_duplicates(docs: list[dict]) -> list[tuple[str, str]]:
     for doc in docs:
         spec = _spec(doc)
         core = frozenset(pair for pair in spec if pair[0] in _BUCKET)
-        buckets[(doc["product_type"], doc["brand"], core)].append((spec, doc["sku"]))
+        buckets[(type_key_of(doc), doc["brand"], core)].append((spec, doc["sku"]))
     duplicates = []
     for members in buckets.values():
         for i, (a, sku_a) in enumerate(members):
@@ -147,7 +148,7 @@ def unexplained_duplicates(
     ``share`` of the SKUs (the whole catalog's ``RETIRED_TWIN_SHARE`` unless the caller holds
     one type, whose own share is larger); past it they all count.
     """
-    type_of = {doc["sku"]: doc["product_type"] for doc in docs}
+    type_of = {doc["sku"]: type_key_of(doc) for doc in docs}
     found = same_product_duplicates(docs)
     twins = [pair for pair in found if type_of[pair[0]] in RETIRED_TWIN_TYPES]
     if len(twins) > share * len(docs):
@@ -175,14 +176,14 @@ def test_the_retired_attribute_twins_stay_few(golden):
 
 def test_a_planted_duplicate_is_caught(golden):
     """The control: the check above fires on a real duplicate."""
-    first = next(doc for doc in golden if doc["product_type"] not in RETIRED_TWIN_TYPES)
+    first = next(doc for doc in golden if type_key_of(doc) not in RETIRED_TWIN_TYPES)
     twin = dict(first, sku="ZZ0000", product_id="ZZZ-0000", price_usd=1.0, stock=0)
     assert unexplained_duplicates([*golden, twin]) == [(first["sku"], "ZZ0000")]
 
 
 def test_too_many_retired_attribute_twins_are_not_excused(golden):
     """The control for the allowance: past the share, the twins count again."""
-    lock = next(d for d in golden if d["product_type"] == "lock_nuts_nylon_insert")
+    lock = next(d for d in golden if type_key_of(d) == "lock_nuts_nylon_insert")
     docs = [*golden, *(dict(lock, sku=f"ZY{i:04d}", product_id=f"ZYZ-{i:04d}") for i in range(60))]
     assert unexplained_duplicates(docs) != []
 
@@ -363,7 +364,7 @@ def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
     specs: dict[str, set] = collections.defaultdict(set)
     skus: collections.Counter = collections.Counter()
     for doc in hundred_k:
-        specs[doc["product_type"]].add(
+        specs[type_key_of(doc)].add(
             tuple(
                 sorted(
                     (a["name"], a["value"])
@@ -372,7 +373,7 @@ def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
                 )
             )
         )
-        skus[doc["product_type"]] += 1
+        skus[type_key_of(doc)] += 1
     assert set(TABLE_TYPES) & set(DISTINCT_SPEC_FLOOR) == set()
     assert set(TABLE_TYPES) <= set(skus)
     for type_key, count in skus.items():
@@ -387,7 +388,7 @@ def test_every_must_stock_example_is_stocked_at_100k(hundred_k):
     for entry in MUST_STOCK:
         assert any(
             entry.matches(
-                doc["product_type"], {a["name"]: a["value"] for a in authored_attributes(doc)}
+                type_key_of(doc), {a["name"]: a["value"] for a in authored_attributes(doc)}
             )
             for doc in hundred_k
         ), entry.example
@@ -414,7 +415,7 @@ def test_every_bearing_is_a_real_table_entry_with_its_own_dimensions(which, requ
     table |= {n: (b, o, w) for n, b, o, w in _BEARINGS_INCH}
     checked = 0
     for doc in request.getfixturevalue(which):
-        if doc["product_type"] != "bearing_radial_ball":
+        if type_key_of(doc) != "bearing_radial_ball":
             continue
         a = {x["name"]: x["value"] for x in authored_attributes(doc)}
         assert a.get("Bearing Number") in table, (doc["sku"], a.get("Bearing Number"))
@@ -541,15 +542,15 @@ def test_every_sampled_drawing_is_in_its_own_brands_house_style():
     facets = bundle.flat_facets(GOLDEN)
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
-        key = (parent["brand"], parent["product_type"])
+        key = (parent["brand"], type_key_of(parent))
         if key in seen:
             continue
         seen.add(key)
         variant = parent["variants"][0]
         record = bundle._record(
-            parent, variant, facets[variant["sku"]], facets.authored.get(parent["product_type"])
+            parent, variant, facets[variant["sku"]], facets.authored.get(type_key_of(parent))
         )
-        data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+        data, _ = draw_sku(type_key_of(parent), parent["brand"], record)
         svg = data.decode()
         style = house_style(parent["brand"])
         assert style.ink in svg and f'fill="{style.paper}"' in svg, key
@@ -608,7 +609,7 @@ def voice_deviations(docs: list[dict]) -> list[tuple]:
     openings = collections.defaultdict(set)
     tails = collections.defaultdict(list)
     for doc in docs:
-        key = (doc["brand"], doc["product_type"])
+        key = (doc["brand"], type_key_of(doc))
         # A text-match decoy's title is the item and its misleading word alone, in no
         # brand's voice (gen#320); its description still follows the template.
         if not is_incidental_decoy_title(doc["title"]):
@@ -658,7 +659,7 @@ def test_two_brands_of_a_type_do_not_all_read_alike(golden):
     """Between brands the template differs: more than one opening per type."""
     openings = collections.defaultdict(set)
     for doc in golden:
-        openings[doc["product_type"]].add(_opening(doc).replace(doc["brand"], "<brand>"))
+        openings[type_key_of(doc)].add(_opening(doc).replace(doc["brand"], "<brand>"))
     assert all(len(o) >= 2 for o in openings.values()), openings
 
 
@@ -672,7 +673,7 @@ def test_every_qualifier_is_non_factual(golden):
 
     values = collections.defaultdict(set)
     for doc in golden:
-        family = STANDARDS_FAMILY[doc["product_type"]]
+        family = STANDARDS_FAMILY[type_key_of(doc)]
         values[family].update(a["value"].lower() for a in authored_attributes(doc))
     clashes = [
         (family, word)

@@ -48,6 +48,7 @@ from synthetic_ecommerce_data.domains.retail import (
     pack_scale,
     shades,
     size_ladder,
+    size_systems,
     type_registry,
 )
 from synthetic_ecommerce_data.domains.retail.audience import audience_of
@@ -433,6 +434,25 @@ def _variant_axes(attributes: list[dict[str, Any]], variants: list[dict[str, Any
     return variant_axes(profiles)
 
 
+def _sized(
+    attributes: list[dict[str, Any]], variants: list[dict[str, Any]], department: str
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The style's and each SKU's entries with every bare ``size`` under its size system's key
+    (:mod:`.size_systems`, gen#125). A SKU's size is read against the SKU's own row; a size the
+    style lists is read against the row of the SKU that states it, else the style's."""
+    product = size_systems.siblings_of(attributes)
+    stated: dict[str, dict[str, str]] = {}
+    sized = []
+    for variant in variants:
+        row = product | size_systems.siblings_of(variant["attributes"])
+        for e in variant["attributes"]:
+            if e["key"] == size_systems.SIZE:
+                stated.setdefault(str(e["value"]), row)
+        own = size_systems.renamed(variant["attributes"], department, lambda _, row=row: row)
+        sized.append(variant | {"attributes": own})
+    return size_systems.renamed(attributes, department, lambda v: stated.get(v, product)), sized
+
+
 def standard_document(rec: dict) -> dict[str, Any]:
     """One build record as the standard's nested product document.
 
@@ -454,6 +474,7 @@ def standard_document(rec: dict) -> dict[str, Any]:
         path = facet_leaves.collapsed_path(path, rec["product_type"])
         attributes = [e for e in attributes if e["key"] not in replaced]
         attributes += [_entry(key, name, None, value) for key, name, value in added]
+    attributes, variants = _sized(attributes, variants, path[0])
     product_type = PRODUCT_TYPE_FOLDS.get(rec["product_type"], rec["product_type"])
     doc: dict[str, Any] = {
         "product_id": rec["product_id"],

@@ -28,6 +28,7 @@ from synthetic_ecommerce_data.domains.industrial.product_split import (
     skus_per_product,
 )
 from synthetic_ecommerce_data.prism import field_map
+from type_key import type_key_of
 
 PACK = "Units per Pack"
 MILL = "end_mill_square"
@@ -319,7 +320,7 @@ def test_quantity_over_ten_returns_exactly_the_published_packs_over_ten(flat):
     }
     assert got == wanted
 
-    plugs = {doc["sku"]: doc for doc in flat if doc["product_type"] == "foam_ear_plugs"}
+    plugs = {doc["sku"]: doc for doc in flat if type_key_of(doc) == "foam_ear_plugs"}
     numbers = {sku: doc["facets_num"]["units_per_pack"] for sku, doc in plugs.items()}
     assert {sku for sku, n in numbers.items() if n > 10} == plugs.keys() & got
     assert sorted(set(numbers.values())) == [1.0, 10.0, 25.0, 50.0]

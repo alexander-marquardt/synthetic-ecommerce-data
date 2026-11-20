@@ -57,7 +57,8 @@ def test_plain_shopper_english(type_key, label):
 
 
 def test_industrial_documents_carry_the_label_beside_the_unchanged_id():
-    for doc in [*emit.iter_nested(CATALOG), *emit.iter_flat(CATALOG)]:
+    flat = [doc | {"product_type": emit.flat_type_key(doc)} for doc in emit.iter_flat(CATALOG)]
+    for doc in [*emit.iter_nested(CATALOG), *flat]:  # a flat row's key is in image_id (gen#125)
         assert doc["product_type"] in LEAVES
         assert doc.get("product_type_label") == label_for(doc["product_type"]), doc["product_id"]
         assert doc["product_type_label"], doc["product_id"]

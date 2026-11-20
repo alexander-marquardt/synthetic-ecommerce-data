@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data.domains.industrial import taxonomy
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog"
 
@@ -66,7 +67,7 @@ def test_the_committed_catalog_files_each_type_under_its_node():
         for line in lines:
             doc = json.loads(line)
             if doc["category_path"][:2] == ["Hardware", "Fasteners"]:
-                types_by_node[doc["category_path"][2]].add(doc["product_type"])
+                types_by_node[doc["category_path"][2]].add(type_key_of(doc))
     assert types_by_node["Screws"] == NODES["Screws"]
     assert types_by_node["Cap screws"] == NODES["Cap Screws"]
     assert types_by_node["Bolts"] == NODES["Bolts"]

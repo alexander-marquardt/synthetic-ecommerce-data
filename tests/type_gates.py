@@ -130,7 +130,7 @@ def builds_under_two_hash_seeds(key: str) -> tuple[list[str], list[str]]:
 def _by_type(lines: Iterable[str]) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for line in lines:
-        out.setdefault(json.loads(line)["product_type"], []).append(line)
+        out.setdefault(emit.flat_type_key(json.loads(line)), []).append(line)
     return out
 
 

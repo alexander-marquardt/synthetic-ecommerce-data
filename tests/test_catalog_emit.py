@@ -20,6 +20,7 @@ from synthetic_ecommerce_data.domains.industrial import pack
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.taxonomy import product_type_for_image
 from synthetic_ecommerce_data.domains.industrial.vocab import STANDARDS_NAME
+from type_key import type_key_of
 
 CATALOG = generate(SMALL)
 
@@ -89,7 +90,7 @@ def test_a_metric_tap_publishes_pitch_in_mm_and_an_inch_tap_threads_per_inch_in_
             entries = {e["name"]: e for e in variant["attributes"]}
             if (
                 sentence_case("Thread Size") not in entries
-                or doc["product_type"] != "tap_spiral_point"
+                or type_key_of(doc) != "tap_spiral_point"
             ):
                 continue
             metric = entries[sentence_case("Thread Size")]["value"].startswith("M")
@@ -186,7 +187,7 @@ def test_every_sku_names_its_own_drawing():
     for doc in emit.iter_flat(CATALOG):
         assert doc["image_id"] == f"{doc['product_type']}/{doc['product_id']}/{doc['sku']}"
         assert doc["image_url"] == f"{emit.DEFAULT_IMAGE_BASE_URL}/{doc['image_id']}.svg"
-        if doc["pricing_unit"] == "Per Pack" and doc["product_type"] in pack.AXES:
+        if doc["pricing_unit"] == "Per Pack" and type_key_of(doc) in pack.AXES:
             continue  # a pack's detail is its single's drawing: tests/test_pack_axis_14.py
         assert doc["image_detail_url"] == doc["image_url"], "one SVG serves both views"
 
@@ -220,7 +221,7 @@ def test_the_manifest_has_one_row_per_sku_with_its_digest():
         assert len(row["sha256"]) == 64
         assert row["bytes"] > 0
         assert row["geometry"] in ("record", "partial", "nominal")
-        assert row["product_type"] == product_type_for_image(row["image_id"])
+        assert type_key_of(row) == product_type_for_image(row["image_id"])
 
 
 def test_the_manifest_and_the_records_agree_on_every_url():

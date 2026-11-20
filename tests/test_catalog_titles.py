@@ -62,6 +62,7 @@ from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.naming import DELIMITER, TYPE_DELIMITER
 from synthetic_ecommerce_data.domains.industrial import grouped, pack
 from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
+from type_key import type_key_of
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -280,7 +281,7 @@ def _per_quantity(by_line: dict[str, list[dict]]) -> list[tuple[str, list[dict]]
     pair by its diameter and its length of cut, and a length of cut repeats across diameters."""
     out: list[tuple[str, list[dict]]] = []
     for product_id, docs in sorted(by_line.items()):
-        kind = docs[0]["product_type"]
+        kind = type_key_of(docs[0])
         if kind not in pack.AXES and kind not in grouped.REACH:
             out.append((product_id, docs))
             continue
@@ -367,7 +368,7 @@ def test_the_end_mill_titles_that_already_worked_are_not_regressed(
     title hazards -- an unlabelled dimension token, a token that is not the
     primary dimension -- would have been erased from this type first.
     """
-    mills = [doc for doc in flat_docs if doc["product_type"].startswith("end_mill")]
+    mills = [doc for doc in flat_docs if type_key_of(doc).startswith("end_mill")]
     assert mills, "no end mill documents"
     carrying = [
         doc
@@ -475,7 +476,7 @@ def test_no_title_is_cut_mid_word(flat_docs: list[dict]) -> None:
         # Since #937 the attributes follow ``<Type>: `` and a label is the abbreviation
         # its type declares (``Drive`` for ``Drive Size``): a declared abbreviation is whole.
         tail = title.split(TYPE_DELIMITER, 1)[-1].rsplit(",", 1)[-1].strip()
-        abbreviations = {a for _, a in TITLE_ATTRIBUTES.get(doc["product_type"], ()) if a}
+        abbreviations = {a for _, a in TITLE_ATTRIBUTES.get(type_key_of(doc), ()) if a}
         published = set(doc["attribute_names"])
         # A whole published value is not a label cut short: an ER collet's
         # class ``Standard`` is a prefix of the ``Standards`` label.

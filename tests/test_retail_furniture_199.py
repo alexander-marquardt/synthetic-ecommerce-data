@@ -12,6 +12,7 @@ from __future__ import annotations
 import re
 
 from retail_ceiling import ceiling_build
+from sized import with_size
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
     breadth_rows,
@@ -81,13 +82,14 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export() -> None:
     for doc in _docs():
         std = export.standard_document(doc)
         keys = set(_attrs(std["attributes"])) | attribute_cleanup.withheld(doc["attributes"])
+        keys = with_size(keys)
         ptype = doc["product_type"]
         dropped = {
             e["key"] for e in doc["attributes"] if attribute_cleanup.restates_the_type(e, ptype)
         }  # a Side Table's table_type Side Table (gen#497)
         want = {attribute_cleanup.published(k, ptype) for k in KEYS[ptype][1] - dropped}
         assert want <= keys, (doc["product_id"], keys)
-        variant_keys = {a["key"] for v in std["variants"] for a in v["attributes"]}
+        variant_keys = with_size({a["key"] for v in std["variants"] for a in v["attributes"]})
         assert {"color"} | SKU_KEYS.get(doc["product_type"], set()) <= variant_keys, doc["title"]
 
 

@@ -24,6 +24,7 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners.dowel_pins import (
     DIA as DOWEL_DIA,
 )
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4
@@ -92,7 +93,7 @@ def _diameter(designation: str) -> str:
 def _holds(match: re.Match[str], doc: dict, siblings: list[dict]) -> bool:  # noqa: C901, PLR0911, PLR0912
     g = {k: v for k, v in match.groupdict().items() if v is not None}
     values = _values(doc)
-    kind = doc["product_type"]
+    kind = type_key_of(doc)
     if "not_threads" in g:
         thread = next((values[n] for n in THREAD_ATTRIBUTE if n in values), None)
         if thread is None:
@@ -245,7 +246,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
     seen: set[str] = set()
     eligible = carrying = 0
     for doc in docs:
-        names = primary.get(doc["product_type"], ())
+        names = primary.get(type_key_of(doc), ())
         names = (names,) if isinstance(names, str) else names
         values = _values(doc)
         seen.update(n for n in names if n in values)
@@ -268,7 +269,7 @@ def test_unit_equivalents_are_a_minority_within_their_bound(docs):
 
 
 def _kits(docs):
-    return [d for d in docs if d["product_type"] == "kit_assortment"]
+    return [d for d in docs if type_key_of(d) == "kit_assortment"]
 
 
 def _contents(doc: dict) -> list[str]:
@@ -280,7 +281,7 @@ def test_a_kit_is_one_sku_of_its_own_product(docs):
     assert len(kits) >= 30
     kit_products = {d["product_id"] for d in kits}
     assert len(kit_products) == len(kits), "a kit product has more than one SKU"
-    parts = {d["product_id"] for d in docs if d["product_type"] != "kit_assortment"}
+    parts = {d["product_id"] for d in docs if type_key_of(d) != "kit_assortment"}
     assert not kit_products & parts
 
 
@@ -331,9 +332,7 @@ def test_kits_and_grouping_are_different_mechanisms(docs):
         return round(_inches(value) * MM, 2)
 
     single = {
-        mm(_values(d)["Size"])
-        for d in docs
-        if d["product_type"] == "hex_key" and "Size" in _values(d)
+        mm(_values(d)["Size"]) for d in docs if type_key_of(d) == "hex_key" and "Size" in _values(d)
     }
     in_kits = {
         mm(v) for d in _kits(docs) if _values(d).get("Type") == "Hex Key Set" for v in _contents(d)

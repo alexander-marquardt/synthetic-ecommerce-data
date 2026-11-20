@@ -14,6 +14,7 @@ import re
 
 import pytest
 
+from sized import with_size
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
@@ -142,16 +143,16 @@ PLAIN_AXES = {
     "Tennis Racket": ("grip", "grip_size"),
     "Picnic Blanket": ("dimensions", "dimensions"),
     "Fishing Reel": ("reel_size", "reel_size"),
-    "Tackle Box": ("size", "size"),
+    "Tackle Box": ("size", "size_letter"),  # a letter size (gen#125)
     "Golf Club": ("handedness", "handedness"),
     "Golf Ball": ("pack_size", "pack_size"),
-    "Golf Glove": ("size", "size"),
-    "Shin Guard": ("size", "size"),
+    "Golf Glove": ("size", "size_letter"),  # a letter size (gen#125)
+    "Shin Guard": ("size", "size_letter"),  # a letter size (gen#125)
     "Hockey Stick": ("handedness", "handedness"),
     "Pickleball Paddle": ("grip", "grip_size"),
     "Table Tennis Bat": ("handle_shape", "handle_shape"),
     "Bike Light": ("light_output", "light_output"),
-    "Ski Goggles": ("size", "size"),
+    "Ski Goggles": ("size", "size_letter"),  # a letter size (gen#125)
 }
 
 
@@ -159,7 +160,7 @@ def _keys(row) -> set[str]:
     doc = export.standard_document(row.doc())
     keys = {e["key"] for e in doc["attributes"]}
     keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
+    return with_size(keys | attribute_cleanup.withheld(row.doc()["attributes"]))
 
 
 def _svg(row=None, **kw) -> str:

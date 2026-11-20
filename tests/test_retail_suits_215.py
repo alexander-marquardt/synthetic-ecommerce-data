@@ -260,4 +260,7 @@ def test_a_mens_suit_jacket_sells_each_length_as_its_own_sku() -> None:
         assert len(skus) == len(r.colors) * len(r.sizes) * len(JACKET_LENGTHS), r.code
         axes = export.standard_document(r.doc())["variant_axes"]
         # Published as the jacket's height fit, ``fit_length`` (#497, the 11-03 ruling).
-        assert axes[-2:] == ["size", attribute_cleanup.published("length", "Suit Jacket")], r.code
+        # The chest size is a letter size, ``size_letter`` (gen#125).
+        assert axes[-2:] == ["size_letter", attribute_cleanup.published("length", "Suit Jacket")], (
+            r.code
+        )

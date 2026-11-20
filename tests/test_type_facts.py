@@ -25,6 +25,7 @@ from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.domains.industrial import conformance
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 from test_catalog_facts import untitled_keys, wrong_claims
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 BREADTH_QUALITY = "fast_and_cheap"
@@ -61,7 +62,7 @@ def _socket_screw_docs(count: int) -> list[dict]:
             if '"screw_socket_head"' not in line:
                 continue
             doc = json.loads(line)
-            if doc["product_type"] == "screw_socket_head" and any(
+            if type_key_of(doc) == "screw_socket_head" and any(
                 a["name"] == "Standards" for a in authored_entries(doc)
             ):
                 docs.append(doc)
@@ -132,7 +133,7 @@ def test_each_types_declared_size_is_its_size_in_the_committed_catalog() -> None
             for line in handle:
                 doc = json.loads(line)
                 if doc["spec_quality"] != BREADTH_QUALITY:
-                    counted[doc["product_type"]][slot] += 1
+                    counted[type_key_of(doc)][slot] += 1
     assert {key: tuple(pair) for key, pair in counted.items()} == type_facts.default_size()
 
 

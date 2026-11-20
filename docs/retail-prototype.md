@@ -94,8 +94,15 @@ nested. A size is three fields, `size_uk`, `size_eu` and `size_us`, read from
 one chart row of the audience, so they never disagree. The charts are core's
 (`src/synthetic_ecommerce_data/core/size_charts.py`, gen#125): a size system is a fact about
 the world, so a domain reads a chart and never builds one, and `check_catalog` refuses a variant
-that states one of the three keys without the other two, or three values that are no row of a
-core chart. Half sizes exist only
+that states `size_eu` or `size_us` without the other two, or three values that are no row of a
+core chart. A lone `size_uk` (a dress's `12`, a bra's `32B`) is a size in one system and passes
+(the 2026-11-20 ruling on gen#125). The export writes no bare `size`: each build row's `size`
+goes under its size system's key, `size_letter` (`M`, `L/XL`), `size_age` (`3-4 Yrs`,
+`0-3 Mths`), `size_uk` or `size_towel` (`Bath Sheet`), and a value that is no size system under
+`dimensions` (`5 x 7 in`), `pack_size` (a Food & drink or Beauty `150g`), `capacity_volume`
+(`0.5 L`) or a measured `item_height`, `item_width` or `diameter` in centimetres (a plant's
+`60 cm`; a Home length reads the row's `item_*` and `shape` to say which). A shape no row names stops the
+export, never guessed: `domains/retail/size_systems.py`. Half sizes exist only
 where a shoe is cut in them, and a wide fit only in the sizes it names. A ring's UK
 letter and US number are other kinds of value, so they sit under `ring_size_uk` and
 `ring_size_us` (gen#249), never these keys. Each

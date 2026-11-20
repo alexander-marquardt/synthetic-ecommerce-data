@@ -253,10 +253,10 @@ def _measured_figures(out: Path) -> dict[str, Any]:
 
     def tallied() -> Iterator[dict[str, Any]]:
         for doc in _jsonl(out / "flat.jsonl"):
-            types.add(doc["product_type"])
+            types.add(emit.flat_type_key(doc))
             brands.add(doc["brand"])
             if doc.get("spec_quality") == SPEC_QUALITY:
-                breadth.add(doc["product_type"])
+                breadth.add(emit.flat_type_key(doc))
             overmatch.add(doc)
             yield doc
 

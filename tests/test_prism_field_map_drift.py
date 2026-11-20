@@ -173,6 +173,7 @@ def test_namespacing_that_would_itself_collide_is_refused() -> None:
             "sku": "A",
             "product_id": "P",
             "product_type": "t",
+            "image_id": "nut_hex/P/A",
             "attributes": [
                 {"name": "Series", "value": "62"},
                 {"name": "attr series", "value": "x"},

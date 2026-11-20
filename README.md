@@ -767,7 +767,7 @@ The retail prototype's reference (planted distractors, footwear, grocery, the fa
 
 | file | |
 |---|---|
-| `flat.jsonl` | about 30 MB — one document per SKU |
+| `flat.jsonl` | about 30 MB — one document per SKU; its `product_type` is the category leaf (`Hammers`), the type key stays in `image_id` (`emit.flat_type_key`, gen#125) |
 | `nested.jsonl` | about 18 MB — one document per product, nested variants and key-value attributes |
 | `mapping.flat.json`, `mapping.nested.json` | the Elasticsearch mappings for each shape; the nested one maps `attributes.value` with a `value.normalized` keyword sub-field (lowercase + asciifolding) for Prism's `value_normalized_field` (elastic/prism#10648) |
 | `images.jsonl` | 4.0 MB — one row per SKU drawing: its path in the bundle, its URL, the sha256 of its bytes |
@@ -1268,7 +1268,7 @@ and maximum; feed it `git show ba90b5e:golden-catalog/flat.jsonl` (the last
 uniform-multiplier catalog) for the earlier figures:
 
 ```sh
-python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(json.loads, sys.stdin) if r['product_type'] == sys.argv[1]]; print(len(p), s.median(p), min(p), max(p))" lock_nuts_nylon_insert < golden-catalog/flat.jsonl
+python3 -c "import json, statistics as s, sys; p = [r['price_usd'] for r in map(json.loads, sys.stdin) if r['image_id'].split('/')[0] == sys.argv[1]]; print(len(p), s.median(p), min(p), max(p))" lock_nuts_nylon_insert < golden-catalog/flat.jsonl
 ```
 
 The button, flat and low-head socket screws price as the socket head

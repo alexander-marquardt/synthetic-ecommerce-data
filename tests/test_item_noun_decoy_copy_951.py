@@ -20,6 +20,7 @@ from synthetic_ecommerce_data.core import emit, voice
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import seed_decoys
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 ITEM_NOUNS = ("o-rings", "screws", "bolts", "washers", "nuts")
 #: Fewer than this many mentions outside the title leaves the decoy under the plain items.
@@ -46,7 +47,7 @@ def _mentions(noun: str, text: str) -> int:
 def _skus_by_type() -> dict[str, tuple[dict, ...]]:
     rows: dict[str, list[dict]] = {}
     for row in emit.iter_flat(generate(GeneratorConfig(lines=1, new_type_share={}))):
-        rows.setdefault(row["product_type"], []).append(row)
+        rows.setdefault(type_key_of(row), []).append(row)
     return {key: tuple(value) for key, value in rows.items()}
 
 

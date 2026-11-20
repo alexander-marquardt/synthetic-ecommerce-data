@@ -103,7 +103,8 @@ def test_a_shoe_fit_width_is_fit_width_never_a_bare_width_label(retail_docs):
 
 
 #: The bare ``size`` shapes the ceiling build writes (52,048 entries on main ``da8b44e4``), one
-#: each, and the entry each becomes: elastic/prism-retail-and-industrial's ``retail_size_key``.
+#: each, and the entry each becomes: elastic/prism-retail-and-industrial's ``retail_size_key``,
+#: a length under gen#227's ``item_height`` / ``item_width``.
 def _size(key: str, name: str, value: str) -> dict[str, Any]:
     return {"key": key, "name": name, "value": value}
 
@@ -131,9 +132,9 @@ SIZE_ROWS = [
     # A build row's department is cased as the row writes it, before letter case runs.
     ("150g", "Food & Drink", {}, _size("pack_size", "Pack size", "150g")),
     ("0.5 L", "Home", {}, _size("capacity_volume", "Capacity (volume)", "0.5 L")),
-    ("60 cm", "Garden", {}, _cm("height", "Height", "60")),
-    ("1.2 m", "Garden", {}, _cm("height", "Height", "120")),
-    ("70 cm", "Home", SQUARE, _cm("width", "Width", "70")),
+    ("60 cm", "Garden", {}, _cm("item_height", "Item height", "60")),
+    ("1.2 m", "Garden", {}, _cm("item_height", "Item height", "120")),
+    ("70 cm", "Home", SQUARE, _cm("item_width", "Item width", "70")),
     ("90 cm", "Home", ROUND, _cm("diameter", "Diameter", "90")),
 ]
 

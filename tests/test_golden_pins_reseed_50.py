@@ -21,6 +21,7 @@ import pytest
 
 from synthetic_ecommerce_data import generate_cli as cli
 from synthetic_ecommerce_data.core.config import GeneratorConfig
+from type_key import type_key_of
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
@@ -55,7 +56,7 @@ def _lines(golden: Path) -> list[dict]:
 
 
 def _fits(rule: golden_pins.SkuRule, parent: dict, variant: dict) -> bool:
-    if parent["product_type"] != rule.product_type:
+    if type_key_of(parent) != rule.product_type:
         return False
     if rule.attribute is None:
         return True
