@@ -35,7 +35,7 @@ the letters the combined loader reads); a club's handedness is a fit, not a size
 from each by the values its title shows (a rod's power, blank material and kind; a reel's body
 material, bearings and kind), so the department grows without a hand-written row per style. The
 earlier Sports & Outdoors types stay out of the derivation. The department draws at a rate of its
-own, 0.001726 (`department_rates/sports_outdoors.py`): the rate that gives its 0.48% target share
+own, 0.001726 (`department_rates/sports_outdoors.py`): the rate that gives its target share (`scale.department_targets`)
 of derived styles with every other rate held. At the default rate it drew 2.18%. Every other
 department's rate is unchanged, and the rate moves no style of the ceiling build, where every
 template is drawn until it is exhausted.
