@@ -2,9 +2,9 @@
 
 :mod:`garden_rows` (the machines and the decoys) and the specs ``hedge_trimmer``,
 ``garden_furniture_set``, ``parasol``, ``planter``, ``outdoor_light``, ``garden_chair``,
-``hand_tool``, ``watering_can`` and ``bird_feeder`` build their rows from these, so the
-swatches, the packs and the unit handling have one home. The module imports no spec: the specs
-import it.
+``hand_tool``, ``watering_can``, ``bird_feeder``, ``garden_table``, ``grill_accessory`` and
+``garden_storage`` build their rows from these, so the swatches, the packs and the unit handling
+have one home. The module imports no spec: the specs import it.
 """
 
 from __future__ import annotations

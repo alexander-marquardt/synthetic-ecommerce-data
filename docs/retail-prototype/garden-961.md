@@ -1,4 +1,4 @@
-# Garden, slices 1 and 2 (gen#961)
+# Garden, slices 1 to 3 (gen#961)
 
 The Garden department held machines, barbecues, furniture sets, parasols and plants, far short
 of the 9,000 SKUs the 500K mix plans for it (`docs/catalogue-mix-837.md`), so a search for a
@@ -63,9 +63,38 @@ lacks ("Carbon Steel Hand Fork, Not Plastic", "Plastic Free Classic Watering Can
 title with a color word ("Red Harrier Trowel"); a part's color ("Green Classic Watering Can with
 Red Rose"); and a color in the description only.
 
+## Slice 3: garden tables, grill accessories and garden storage
+
+| Type | Spec | Path | Templates | SKU axis |
+|---|---|---|---|---|
+| Garden Table | `type_specs/garden_table.py` | Garden > Garden Furniture > Garden Tables | Bistro Acacia, Dining Aluminum, Side Steel, Folding Acacia, Dining Steel | color x width (cm) |
+| Grill Accessory | `type_specs/grill_accessory.py` | Garden > Barbecues & Grills > Grill Tools / Grill Covers | Stainless Steel Tool Set, Bamboo Tool Set, Stainless Steel Brush, Bamboo Tongs (tools); Polyester Kettle, Canvas Cabinet (covers) | color |
+| Garden Storage | `type_specs/garden_storage.py` | Garden > Garden Storage > Storage Boxes / Outbuildings | Resin Deck Box, Wood Storage Bench, Resin Tall Cabinet (boxes); Steel Apex, Wood Pent (outbuildings) | color x capacity (l) for a box, color x width (cm) for a shed |
+
+A garden table's title is `<style> <material> Garden Table`, a grill tool's `<material> Grill
+<tool>`, a grill cover's `<material> <fits> Grill Cover`, a storage box's `<material> <style>`
+and a shed's `<material> <roof> Shed`. The scale pools values per leaf, so a cover never takes a
+tool's material and a box never takes a shed's roof. `size_axes.AXES` reads a garden table by
+width and garden storage by capacity, then width.
+
+**Drawings.** `kit_garden_yard.py` draws three shapes. `garden_table` takes `style` (bistro,
+dining, side, folding), which draws the top and the legs, and `material` (acacia, steel,
+aluminum), which draws its marks. `grill_accessory` takes `kind` (tool set, brush, tongs, kettle,
+cabinet), which draws the tools or the cover, and `material` (stainless steel, bamboo, polyester,
+canvas). `garden_storage` takes `style` (deck box, storage bench, tall cabinet, apex, pent) and
+`material` (resin, wood, steel). `kit_garden_yard.PARTS` (a table's legs, rim and feet; an
+accessory's trim, strap and tag; storage's lid, handle and hinges) is added to
+`kit_garden.PARTS`.
+
+**Decoys.** Each type carries fifteen decoys in `garden_rows.py`, three of each class, as in
+slices 1 and 2: a cushion and a candle that hold the type word; a real product that names
+plastic it lacks ("Plastic Free Acacia Garden Table", "Bamboo Grill Tongs, Not Plastic"); a
+short title with a color word ("Red Harrier Grill Brush"); a part's color ("Green Bistro Garden
+Table with Red Legs"); and a color in the description only.
+
 **Measured** (ceiling build, seed 0): the department's size, its styles per type and the
 authored and derived split are read from the build (`retail_figures`), never typed here. Slice
 1's floor was 3,400 Garden SKUs at the ceiling build, a third of the way to the issue's target;
-slice 2's is 6,000. Garden tables, grill accessories and storage (slice 3) are the rest of
-gen#961. The guards are in `tests/test_retail_garden_961.py` and
+slice 2's was 6,000 and slice 3's is 8,550, within five percent of the 9,000 the issue asks for.
+Slice 3 completes gen#961. The guards are in `tests/test_retail_garden_961.py` and
 `tests/test_retail_garden_203.py`.
