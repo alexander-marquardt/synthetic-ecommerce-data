@@ -200,10 +200,26 @@ def test_a_pack_of_fruit_its_drawing_already_counts_keeps_its_image_id() -> None
     assert "params" not in export.drawing_spec(rec, sku)
 
 
-def test_a_single_of_fruit_keeps_its_lines_pile() -> None:
+def test_a_product_of_one_pack_keeps_its_pile_at_the_skus_count() -> None:
     rec = {"title": "Pears", "drawing": {"shape": "produce_pile", "params": {"count": 3}}}
     assert pack_copies.pile_count(rec, {"units_per_pack": 1}) == {}
     assert pack_copies.pile_count(rec, {"units_per_pack": 4}) == {"count": 4}
+
+
+def test_each_pack_of_a_line_of_fruit_draws_its_own_pile() -> None:
+    """gen#1111: the drawing holds the first pack's pile, and each other pack draws its own."""
+    params = {"fruit": "lemon", "count": 1, "seed": "GRC-LEM", "pack": "loose"}
+    skus = [
+        {"pack_size": "Single", "units_per_pack": 1},
+        {"pack_size": "4 pack", "units_per_pack": 4},
+        {"pack_size": "1kg", "units_per_pack": 1, "net_weight_g": 1000.0},
+    ]
+    rec = {"title": "Lemons", "drawing": {"shape": "produce_pile", "params": params}, "skus": skus}
+    assert [pack_copies.pile_count(rec, s) for s in skus] == [
+        {},
+        {"count": 4, "pack": "net"},
+        {"count": 7, "pack": "bag"},
+    ]
 
 
 def test_every_pack_above_24_is_its_outer_box_and_loose_items() -> None:

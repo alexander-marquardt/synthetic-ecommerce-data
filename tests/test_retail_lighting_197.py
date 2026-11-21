@@ -134,7 +134,8 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
     (whether or not that template's drawing declares params), has a spec with no ``params``
     and the image id it had before SKU params existed. A template that declares params
     (a heater's ``fin_count``) is held to it on its param-less SKUs. A pack draws its items and has
-    an image id of its own, as does a set with its count printed (gen#728)."""
+    an image id of its own, as does a set with its count printed (gen#728) and a pack of fruit that
+    draws its own pile, not its line's first pack's (gen#1111)."""
     checked = 0
     for t in scale.templates():
         declared = t["drawing"].get("params") or {}
@@ -142,6 +143,8 @@ def test_a_sku_that_carries_no_drawing_param_keeps_its_image_id() -> None:
             if any(k in s for k in declared):
                 continue
             if pack_copies.count(t, s) > 1 or pack_copies.printed(t, s):
+                continue
+            if pack_copies.pile_count(t, s):
                 continue
             if lipstick_looks.params(t) or pack_looks.params(t):
                 continue

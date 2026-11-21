@@ -45,7 +45,7 @@ def test_the_kit_lays_out_one_to_seven_fruits() -> None:
 
 #: The shapes drawn as one round body, which a pack of one or two shows (a lemon, an onion).
 #: A banana, a carrot or a pair of cherries is long or thin: one alone cannot fill a square,
-#: and :func:`kit_produce.fruit_count` never draws fewer than ``MIN_FRUIT`` of any fruit.
+#: and :func:`kit_produce.fruit_count` draws fewer than ``MIN_FRUIT`` only for a count pack.
 ROUND = {"orange", "lemon", "apple", "tomato", "onion", "potato"}
 
 

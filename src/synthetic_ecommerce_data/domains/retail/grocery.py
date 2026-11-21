@@ -93,7 +93,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     F,
     Family,
 )
-from synthetic_ecommerce_data.domains.retail.kit_produce import pile_params
+from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
 from synthetic_ecommerce_data.domains.retail.range_ownership import Deal
 from synthetic_ecommerce_data.domains.retail.variants import attr, drawing, product
 
@@ -150,9 +150,6 @@ FRUIT = {"Unwaxed Lemons": "lemon", "Lemons": "lemon", "Meyer Lemons": "lemon",
          "Loose Ripe Bananas": "banana", "Sweet Red Cherries": "cherry",
          "Large Dark Cherries": "cherry", "Ripe British Cherries": "cherry",
          "Juicy Morello Cherries": "cherry"}  # fmt: skip
-#: A pack word -> how a fruit pile shows it.
-PILE_PACK = {"Single": "loose", "4 pack": "net", "1kg": "bag", "150g": "bag", "250g": "bag",
-             "300g": "bag", "400g": "bag", "500g": "bag", "800g": "bag", "2kg": "bag"}  # fmt: skip
 
 #: Product entries that are a union over the flavors, so a flat SKU must not inherit them.
 UNIONED = frozenset({"contains", "may_contain"})
@@ -344,9 +341,8 @@ def _drawing(
         marks["ending"] = ending
     shape = SHAPES.get((fam.code, flavor.name), fam.shape)
     if fam.shape == "produce_pile":
-        grams = pack.get("net_weight_g")
-        count = None if grams else pack["units_per_pack"]
-        params = pile_params(FRUIT[flavor.name], pid, PILE_PACK[pack["pack_size"]], grams, count)
+        # the first pack's pile; each other SKU draws its own (pack_copies.pile_count, gen#1111)
+        params = sku_pile(FRUIT[flavor.name], pid, pack)
         return drawing(shape, color, pack_label(title, lead), **params)
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)

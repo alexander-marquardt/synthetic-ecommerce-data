@@ -398,6 +398,8 @@ def test_every_fruit_and_tool_motif_is_sold_singular_and_plural() -> None:
 
 def test_fruit_count_reads_the_count_or_the_weight_and_clamps() -> None:
     assert fruit_count("lemon", count=4) == 4
+    assert fruit_count("lemon", count=1) == 1  # a Single is one fruit (gen#1111)
+    assert fruit_count("lemon", count=12) == 7
     assert fruit_count("orange", grams=1000) == 5
     assert fruit_count("orange", grams=200) == 3
     assert fruit_count("clementine", grams=1200) == 7
