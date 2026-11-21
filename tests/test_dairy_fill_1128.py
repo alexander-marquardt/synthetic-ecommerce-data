@@ -83,7 +83,9 @@ def _fill(svg: str) -> float:
 
 
 def _width(svg: str) -> float:
-    box = sheet_extent.reach(_pack_only(svg))
+    group = re.search(r'<g class="dairy">.*?</g>', svg)
+    assert group, "no dairy group"
+    box = sheet_extent.reach(f'<svg xmlns="http://www.w3.org/2000/svg">{group.group(0)}</svg>')
     assert box is not None
     return box[2] - box[0]
 
@@ -137,12 +139,16 @@ def test_each_sku_of_a_mixed_line_draws_its_own_fat_level() -> None:
 
 @pytest.mark.parametrize("code", FAMILIES)
 def test_a_larger_pack_of_a_line_draws_a_wider_pack(code: str) -> None:
-    rec = _records()[code][0]
-    flavor = rec["skus"][0]["flavor"]
-    by_ml = sorted((s["net_volume_ml"], s["sku"]) for s in rec["skus"] if s["flavor"] == flavor)
-    widths = [_width(_served(rec["product_id"], sku)) for _, sku in by_ml]
-    assert len(widths) == 3, by_ml
-    assert widths == sorted(widths) and len(set(widths)) == 3, (by_ml, widths)
+    lines = 0
+    for rec in _records()[code]:
+        flavor = rec["skus"][0]["flavor"]
+        by_ml = sorted((s["net_volume_ml"], s["sku"]) for s in rec["skus"] if s["flavor"] == flavor)
+        if len(by_ml) < 2:
+            continue
+        widths = [_width(_served(rec["product_id"], sku)) for _, sku in by_ml]
+        assert widths == sorted(widths) and len(set(widths)) == len(widths), (by_ml, widths)
+        lines += 1
+    assert lines, f"no {code} line sells two sizes of one flavour"
 
 
 @pytest.mark.parametrize("code", FAMILIES)
