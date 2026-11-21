@@ -18,6 +18,9 @@ grow: half the content is a pack about 0.79 as tall.
 - A PILE OF FRUIT takes no factor either: its count shows its size (a Single is one fruit, 1 kg a
   bag of several, gen#1111). A factor set a Single's count of 1 against 1 kg's 1000 g and drew
   the one fruit at the floor.
+- NOR DOES A MILK JUG OR CARTON (``milk_jug``, ``milk_carton``, gen#1128): each pint or litre
+  size is drawn in its own proportions and fills half its picture, where a factor drew a 1 pint
+  at 0.63 and a fifth of its product area.
 - THE CANVAS is unchanged: :func:`wrap` scales the pack about the bottom center of its bounding
   box, so every size of a line stands on one baseline and one center line of the same 400 x 400
   sheet.
@@ -35,6 +38,8 @@ from synthetic_ecommerce_data.domains.retail import pack_copies
 FLOOR = 0.6
 #: The content keys, in the order they are read: a total content beats a count.
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
+#: The shapes whose drawing shows its own size, which take no factor (gen#1111, gen#1128).
+SELF_SIZED = frozenset({"produce_pile", "milk_jug", "milk_carton"})
 #: The count key, and the departments whose pack it sizes.
 COUNT_KEY = "units_per_pack"
 COUNT_DEPARTMENTS = frozenset({"Food & Drink", "Beauty"})
@@ -55,7 +60,7 @@ def quantity(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
 def factor(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
     """The factor the SKU's pack is drawn at, or ``None`` for the natural size (the line's
     largest size, a line of one size, or a SKU with no content to size by)."""
-    if (rec.get("drawing") or {}).get("shape") == "produce_pile":  # its count shows it (gen#1111)
+    if (rec.get("drawing") or {}).get("shape") in SELF_SIZED:  # it draws its own size
         return None
     own = quantity(rec, sku)
     if not own or own <= 0 or pack_copies.copies(rec, sku) > 1:
