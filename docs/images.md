@@ -169,6 +169,17 @@ every other drawing -- only the GEOMETRY is fixed.
   were turned; after the change, none. `tests/test_level_default_1101.py` lists the 78 shapes
   and checks each one.
 
+  The retail build report audits what it tilts (#1101, slice 3). The report's `tilt` section
+  (`tilt_audit.audit`) reads each product's drawn angle, `orientation.drawn_angle`, which is
+  the angle the image is rendered at. It gives the products and turned products of each
+  category, and the 20 turned items with the largest stated height or length. The build exits
+  3, naming each product on stderr, when a turned product is in a never-tilt category or states
+  a size over 60 cm. The audit reads the category and size itself, not through the guard, so a
+  change that weakens the guard fails the build. On the retail ceiling (368,575 SKUs), 20,255
+  of the 34,463 products are turned, in 685 of the 910 categories, and none is refused. The
+  largest turned items are 60 cm: a foam roller, a floor puzzle, a snood and artificial stems.
+  `tests/test_tilt_audit_1101.py` plants a turned fridge and checks that the build fails.
+
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
   (`tests/test_brand_marks.py`; the closest pair measures 25).
