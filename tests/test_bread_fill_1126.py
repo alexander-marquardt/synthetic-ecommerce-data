@@ -1,6 +1,6 @@
 """Every bread SKU is a baked loaf of its own crust and form, filling its picture (gen#1126).
 
-Before gen#1126, every bread line was one flat ``loaf`` outline in its flavour's colour, at 0.29
+Before gen#1126, every bread line was one flat ``loaf`` outline in its flavour's color, at 0.29
 (400g) and 0.46 (800g) of the product area. Fill here is #1111's measure: the share of the plain
 sheet's product area (``TURN_AREA``) that the loaf's own ``bread`` group paints in
 ``image_release.render``'s SVG, so the sheet, the brand tag and the ground shadow are not counted.
@@ -132,7 +132,7 @@ def _rgb(hex_: str) -> tuple[int, ...]:
     return tuple(int(hex_[i : i + 2], 16) for i in (1, 3, 5))
 
 
-def test_each_of_the_six_crusts_has_its_own_colour_and_texture() -> None:
+def test_each_of_the_six_crusts_has_its_own_color_and_texture() -> None:
     drawn = _by_crust("tin")
     assert sorted(drawn) == sorted(CRUSTS)
     looks = {}

@@ -1,10 +1,10 @@
 # Bread drawn as bakery loaves (gen#1126)
 
-Before gen#1126 every bread SKU was one flat `kit.loaf` outline in its line's colour: the same
+Before gen#1126 every bread SKU was one flat `kit.loaf` outline in its line's color: the same
 shape for a sourdough and a sliced white, covering 0.29 of the product area at 400g and 0.46 at
 800g. A loaf is now drawn by `kit_bread.loaf` from two things the row already names:
 
-- its **crust** (`kit_bread.CRUSTS`, keyed by the line's flavour): a colour and a texture of its
+- its **crust** (`kit_bread.CRUSTS`, keyed by the line's flavour): a color and a texture of its
   own. White is pale golden with a dust of flour, Wholemeal brown with bran flecks, Seeded
   carries its seeds, Sourdough is dark and blistered with a scored ear, Malted Beer is dark and
   glossy with malt flakes, and Gluten Free Brown is matt and crackled;
@@ -39,7 +39,7 @@ the product area; 0.9 keeps it visibly the smaller loaf and above the floor.
 
 `tests/test_bread_fill_1126.py` reads the served SVG only. It holds that the build sells every
 crust at 400g and 800g, that every bread SKU fills at least half its product area, that the 800g
-is drawn larger than its 400g at 0.9, that each of the six crusts has its own colour and
+is drawn larger than its 400g at 0.9, that each of the six crusts has its own color and
 texture, and that each form draws its own outline with a highlight and a shade.
 
 Slice 2 (open): a sliced line is drawn as slices in a printed bag with a window and a clip.

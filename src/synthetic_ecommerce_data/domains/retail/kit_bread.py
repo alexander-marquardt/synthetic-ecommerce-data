@@ -1,9 +1,9 @@
 """A bakery loaf drawn by its crust and its form, filling its picture (gen#1126, slice 1).
 
-Before gen#1126, every bread SKU was one flat ``kit.loaf`` outline in its line's colour,
+Before gen#1126, every bread SKU was one flat ``kit.loaf`` outline in its line's color,
 covering 0.29 (400g) or 0.46 (800g) of the product area. A loaf is now drawn by:
 
-- its **crust** (:data:`CRUSTS`, keyed by the line's flavour): a colour and a texture of its own.
+- its **crust** (:data:`CRUSTS`, keyed by the line's flavour): a color and a texture of its own.
   A farmhouse White is pale golden with a dust of flour, a Sourdough is dark and blistered with a
   scored ear, a Wholemeal is brown with bran flecks, a Seeded crust carries its seeds, a Malted
   Beer top is dark and glossy with malt flakes, and a Gluten Free Brown is matt and crackled;
@@ -37,7 +37,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     register,
 )
 
-#: Flavour -> (crust, side, texture, gloss): the top crust's colour, the paler colour of a tin
+#: Flavour -> (crust, side, texture, gloss): the top crust's color, the paler color of a tin
 #: loaf's sides and of a slash's opened crumb edge, the texture its crust carries, and how strong
 #: its highlight is (a malted top shines, a gluten free crust is matt).
 CRUSTS: dict[str, tuple[str, str, str, float]] = {
@@ -54,7 +54,7 @@ CRUMB = "#f3e4c4"
 
 #: Form -> (the loaf's outline, the box its crust texture is scattered in as (cx, cy, rx, ry),
 #: its slashes as (cx, cy, length, angle in degrees), where its label sits as (x, y, w, h)).
-#: Coordinates are the 400 x 400 sheet's, the loaf standing on y=352 and centred on x=200.
+#: Coordinates are the 400 x 400 sheet's, the loaf standing on y=352 and centered on x=200.
 FORMS: dict[
     str,
     tuple[
@@ -220,9 +220,9 @@ def _slash(cx: float, cy: float, length: float, angle: float, side: str, ear: bo
 def loaf(
     paint: str, fill: Fill, label: str | None, flavor: str = "White", form: str = "tin"
 ) -> list[str]:
-    """A loaf of ``flavor``'s crust in ``form`` (gen#1126): the outline in the crust colour, a
+    """A loaf of ``flavor``'s crust in ``form`` (gen#1126): the outline in the crust color, a
     tin loaf's paler sides, the crust's texture, its slashes, a highlight and a shade, a ground
-    shadow, and a label sticker. ``paint`` is not read: a loaf's colour is its crust's."""
+    shadow, and a label sticker. ``paint`` is not read: a loaf's color is its crust's."""
     del paint, fill
     if flavor not in CRUSTS:
         raise ValueError(f"no bread crust {flavor!r}; known: {sorted(CRUSTS)}")
