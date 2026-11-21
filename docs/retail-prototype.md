@@ -723,7 +723,9 @@ no derived style copies one), then the living-room seating (`sofa_rows.py`, gen#
 sofas sold as 2, 2.5, 3 and 4 seaters, left- and right-hand corner and chaise sofas,
 modular, recliner and sofa-bed sofas, armchairs and footstools, each drawn by its own
 shape in `kit_seating.py`; a sofa, corner sofa and chaise sofa is drawn with exactly the whole seat
-cushions its `seat_count` states (a corner sofa's return and corner seats are counted in it), a chaise has its
+cushions its `seat_count` states (a corner sofa's return and corner seats are counted in it), a U-shaped
+corner sofa is drawn as a U by its own `u_sofa` shape, a back along the run and along each return, the space
+between the returns open and the run at least one seat wide (#1105, `tests/test_retail_u_sofa_1105.py`), a chaise has its
 back along the whole rear, and a sofa bed's and a topper's `depth` is a bare number in `CMT` with a millimeter
 canonical value (gen#225, `tests/test_retail_seating_225.py`); no derived style copies one, and
 `tests/test_retail_seating_196.py` holds the range), then the household styles (`household_rows.py`, gen#200:

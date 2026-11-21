@@ -11,4 +11,5 @@ LEVEL: tuple[str, ...] = (
     "sofa_bed",
     "sofa_seats",
     "sofa_version",
+    "u_sofa",
 )
