@@ -174,6 +174,11 @@ PUNNET = {
     "Sweet Peppers": "pepper",
     "Baby Spinach": "herb",
 }
+#: A wine family's bottle style (``kit_drinks.STYLES``), which its ``wine_bottle`` draws (gen#1127).
+WINE_STYLES = {
+    "WRD": "red", "WWH": "white", "WRS": "rose", "WSP": "sparkling", "WCH": "champagne",
+    "FPT": "port", "FSY": "sherry", "FVM": "vermouth",
+}  # fmt: skip
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -328,8 +333,15 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str, lead: str = "",
+    fam: Family,
+    flavors: list[F],
+    pid: str,
+    pack: dict,
+    title: str,
+    head: str,
+    lead: str = "",
     ending: str = "",
+    largest: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
@@ -349,6 +361,8 @@ def _drawing(
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
+    if shape == "wine_bottle":  # each SKU draws its own size against the line's largest (gen#1127)
+        marks |= {"wine": WINE_STYLES[fam.code], "pack_size": pack["pack_size"], "largest": largest}
     return drawing(shape, color, label, **marks)
 
 
@@ -437,7 +451,8 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
         product_type=fam.product_type, category_path=list(path), category_leaf=path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
-        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead, ending),
+        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead, ending,
+                         max(parsed, key=_size)["pack_size"]),
         collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
