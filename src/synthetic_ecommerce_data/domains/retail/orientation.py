@@ -13,12 +13,14 @@ table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
 * ``slight`` (+-15 degrees): clothing, footwear and what is worn with them (a belt, a scarf, a
   tie, a hat), where a garment turned further reads as falling over (the maintainer's ruling
   on #860).
-* ``upright`` (+-36 degrees): everything with a natural up (a bottle, a sofa, a lamp, a fridge,
-  a toy), and every shape nobody was sure of.
+* ``upright`` (+-36 degrees): everything with a natural up (a bottle, a lamp, a fridge, a toy),
+  and every shape nobody was sure of.
 
 * ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
   luggage), which overlap on a slant; and a bicycle, which rests on its two wheels and reads as
-  falling or wheelieing on a slant (#1049).
+  falling or wheelieing on a slant (#1049); and every furniture item (a bed, a sofa, a table,
+  a wardrobe: the shapes of the furniture, seating, home and storage furniture kits), which
+  stands on the floor and looks wrong turned (the maintainer, 2026-11-20, #1095).
 
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
@@ -70,7 +72,8 @@ SLIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["SLI
 #: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["UPRIGHT"])
 
-#: Set types, drawn as several items (#884), and a bicycle on its wheels (#1049): 0 degrees only.
+#: Set types, drawn as several items (#884), a bicycle on its wheels (#1049) and furniture
+#: (#1095): 0 degrees only.
 LEVEL: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["LEVEL"])
 
 #: Shape -> orientation.

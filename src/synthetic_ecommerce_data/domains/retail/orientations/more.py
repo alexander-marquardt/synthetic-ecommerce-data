@@ -2,9 +2,7 @@
 
 SLIGHT: tuple[str, ...] = ("bodysuit", "cardigan", "socks")
 UPRIGHT: tuple[str, ...] = (
-    "bed_frame",
     "bouquet",
-    "chairbed",
     "charging_pad",
     "compact",
     "earrings",
@@ -17,3 +15,5 @@ UPRIGHT: tuple[str, ...] = (
     "wallet",
     "watch",
 )
+#: Furniture is level (#1095).
+LEVEL: tuple[str, ...] = ("bed_frame", "chairbed")
