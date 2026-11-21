@@ -16,11 +16,34 @@ for a round fruit once a house style frames it, so the contact sheets report bot
 | shapes | floor | measured (counts 3-7, and 1-2 for a round body) |
 |---|---|---|
 | orange, lemon, apple, strawberry, tomato, onion, potato | 0.50 | 0.52 to 0.79 |
-| banana, carrot, cherries | 0.25 (slice 3 raises it to 0.50) | 0.38 to 0.57 |
+| banana, carrot, cherries, 3 to 7 (a hand, a bunch, a heap) | 0.50 | 0.51 to 0.71 |
+| banana, carrot, cherries, 1 or 2 alone | 0.25 | 0.28 to 0.43 |
 
 `tests/test_produce_fill_1111.py` pins the floors over every `FRUIT` x pack form x count, the
-gloss on each fruit and the ground shadow. A banana, a carrot or a cherry pile needs its own
-arrangement (a hand, a bunch, a heap) to fill a square, which slice 3 draws.
+gloss on each fruit and the ground shadow.
+
+**A banana, carrot or cherry pile has its own arrangement (slice 3, first cut).** `PILES`' grid
+leaves a long or forked fruit's box mostly empty (0.38 to 0.57 before), so three or more of
+them are laid out by `kit_produce.ARRANGE` and the whole arrangement is scaled to fill `ROOM`:
+
+- a **hand** of bananas: every banana turns about its stalk, fanned over 55 degrees, so the
+  hand hangs from one crown;
+- a **bunch** of carrots: every carrot turns about its top, the tops side by side and the roots
+  fanned out, the middle carrot in front; each carrot carries filled leafy tops
+  (`CARROT_TOPS`) under its frond lines, so the bunch is green at its tie;
+- a **heap** of cherry pairs in rows narrowing to the top (`HEAP_ROWS`): the front row stands
+  stalk up over the fruit behind it, and each pair behind lies stalk down, its stalk hidden.
+
+Each fruit still turns a little by the product's hash (`jitter`), so two products' hands
+differ. The test also checks that a hand's stalks meet (they span at most a quarter of what its
+tips span) and that a bunch's tops are tied closer than its roots spread. One or two long
+fruits alone (a Single banana) keep slice 1's drawing and its 0.25 floor. The rest of slice 3,
+the punnet and the single motifs at the same floor and distinct heaps for the small-fruit
+weights, follows in its own PRs.
+
+![Banana, carrot and cherry piles of 1 to 7 before the arrangements](../images/produce-arranged-1111-before.png)
+
+![Banana, carrot and cherry piles of 1 to 7 as a hand, a bunch and a heap](../images/produce-arranged-1111-after.png)
 
 **Each SKU draws its own pack (slice 2).** A grocery line's drawing is made from its first
 pack, and before slice 2 every other SKU kept it: a Single lemon drew a pile of 3, a 1 kg bag
