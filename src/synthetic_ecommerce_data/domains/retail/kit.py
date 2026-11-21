@@ -668,19 +668,6 @@ def tub(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def loaf(paint: str, fill: Fill, label: str | None) -> list[str]:
-    d = (
-        "M64,336 L64,212 C60,150 116,128 150,150 C172,118 228,118 250,150 "
-        "C284,128 340,150 336,212 L336,336 Z"
-    )
-    return [
-        _path(d, paint),
-        _line("M110,180 Q124,164 140,170 M186,150 Q200,136 216,146 M262,170 Q276,160 292,178", 3),
-        _line("M64,322 L336,322", 1.2, ' stroke-opacity=".5"'),
-        *_panel(108, 222, 184, 84, label, 52),
-    ]
-
-
 def cake(paint: str, fill: Fill, label: str | None) -> list[str]:
     drip = " ".join(
         f"Q{x + 10},{252 if i % 2 else 262} {x + 20},248" for i, x in enumerate(range(80, 320, 20))
@@ -738,7 +725,6 @@ SHAPES = {
     "crisps_bag": crisps_bag,
     "tray": tray,
     "tub": tub,
-    "loaf": loaf,
     "cake": cake,
     "round_produce": round_produce,
 }

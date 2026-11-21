@@ -53,6 +53,7 @@ from synthetic_ecommerce_data.domains.retail import (
     food_title_words,
     grocery_rows,
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
+    kit_bread,  # noqa: E402,F401 -- registers loaf
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
     kit_punnet,  # noqa: E402,F401 -- registers punnet
@@ -350,6 +351,8 @@ def _drawing(
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
+    if shape == "loaf":  # a loaf is drawn by its crust and the form its line names (gen#1126)
+        marks |= {"flavor": flavor.name, "form": kit_bread.form_of(head, flavor.name)}
     return drawing(shape, color, label, **marks)
 
 
