@@ -109,7 +109,7 @@ def _polygons(el: ET.Element, tag: str) -> list[list[Point]]:
 
 
 class _Grid:
-    """Sample points at the centres of ``step``-unit cells over ``box``."""
+    """Sample points at the centers of ``step``-unit cells over ``box``."""
 
     def __init__(self, box: Box, step: float) -> None:
         self.box = box
