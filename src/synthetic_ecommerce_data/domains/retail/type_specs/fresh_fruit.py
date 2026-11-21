@@ -16,7 +16,6 @@ SPEC = TypeSpec(
     rows=(),
     homes=(
         Home("breadth_rows", True),
-        Home("decoy_product_words", False),  # gen#944: the misspelled products
         Home("grocery", False),
     ),
 )
