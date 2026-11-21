@@ -259,13 +259,17 @@ def pile_count(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int | str]
     """The ``count`` and ``pack`` a pack of fruit draws where they are not the ones its line's
     drawing was made for. The drawing holds the line's first pack, so in a line of several packs
     each SKU draws its own (:func:`kit_produce.sku_pile`): a Single one loose fruit, a 4 pack 4 in
-    a net, 1 kg a bag (gen#1111). A product of one pack keeps its own pile, at the SKU's count."""
+    a net, 1 kg a bag (gen#1111), each weight counted with the line's others
+    (:func:`kit_produce.weight_counts`). A product of one pack keeps its own pile, at the SKU's
+    count."""
     drawing = rec["drawing"]
     if drawing["shape"] != "produce_pile":
         return {}
     params = drawing.get("params") or {}
-    if "pack_size" in sku and len({s.get("pack_size") for s in rec.get("skus", ())}) > 1:
-        own = kit_produce.sku_pile(params["fruit"], str(params.get("seed", "")), sku)
+    skus = rec.get("skus", ())
+    if "pack_size" in sku and len({s.get("pack_size") for s in skus}) > 1:
+        weights = [s["net_weight_g"] for s in skus if "net_weight_g" in s]
+        own = kit_produce.sku_pile(params["fruit"], str(params.get("seed", "")), sku, weights)
         return {k: own[k] for k in ("count", "pack") if str(params.get(k)) != str(own[k])}
     n = count(rec, sku)
     if n == 1:

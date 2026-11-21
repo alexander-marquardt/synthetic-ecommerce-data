@@ -14,7 +14,9 @@ shade down-right) and the pile stands on a ground shadow, so it reads as round.
 
 Each SKU draws its own pack (:func:`sku_pile`): a Single is one fruit lying loose, a 4 pack is 4
 in a net, and a weight is a clear bag of as many as it holds, so a line's packs are three
-pictures, not its first pack's pile three times (gen#1111).
+pictures, not its first pack's pile three times (gen#1111). A line's weights are counted together
+(:func:`weight_counts`), so 250 g, 500 g and 1 kg of grapes, each more than 7 grapes, are three
+heaps, not one 7-grape bag three times (gen#1111, slice 5).
 
 Three or more long fruits are not laid out in :data:`PILES`, whose grid only a round fruit fills:
 bananas hang from one crown as a hand, carrots are tied at their leafy tops as a bunch, and
@@ -197,11 +199,39 @@ def pack_form(pack_size: str) -> str:
     raise ValueError(f"no produce form for pack {pack_size!r}")
 
 
-def sku_pile(fruit: str, seed: str, pack: dict) -> dict:
+#: How many fewer fruits a weight draws per halving of its weight, below its line's largest, where
+#: its own count reaches :data:`MAX_FRUIT` (gen#1111, slice 5).
+FEWER_PER_HALVING = 2
+
+
+def weight_counts(fruit: str, grams) -> dict[float, int]:
+    """Each of a line's weights -> the count it draws, a larger weight always more (gen#1111).
+
+    A weight draws its own count (:func:`fruit_count`). Where that count reaches
+    :data:`MAX_FRUIT` (250 g of grapes is 50), it draws :data:`FEWER_PER_HALVING` fewer per
+    halving below the line's largest weight instead; and every weight draws at least one fewer
+    than the next size up, in 3-7. A line of one weight draws its own count."""
+    top = max(grams)
+    most = fruit_count(fruit, top)
+    out: dict[float, int] = {}
+    above = MAX_FRUIT + 1
+    for g in sorted(set(grams), reverse=True):
+        n = fruit_count(fruit, g)
+        if g / FRUIT[fruit][1] >= MAX_FRUIT:  # its own count reaches 7, or is clamped to it
+            n = min(n, round(most - FEWER_PER_HALVING * math.log2(top / g)))
+        above = out[g] = max(MIN_FRUIT, min(n, above - 1))
+    return out
+
+
+def sku_pile(fruit: str, seed: str, pack: dict, weights=()) -> dict:
     """The pile ``pack`` (a SKU's ``pack_size`` with its ``net_weight_g`` or ``units_per_pack``)
-    draws: its own form and count, so each pack of a line is its own picture (gen#1111)."""
+    draws: its own form and count, so each pack of a line is its own picture (gen#1111).
+    ``weights`` are the ``net_weight_g`` of every pack of its line: a weight is counted with
+    them (:func:`weight_counts`)."""
     grams = pack.get("net_weight_g")
     count = None if grams else pack["units_per_pack"]
+    if grams and grams in weights:
+        grams, count = None, weight_counts(fruit, weights)[grams]
     return pile_params(fruit, seed, pack_form(pack["pack_size"]), grams, count)
 
 
