@@ -37,13 +37,41 @@ them are laid out by `kit_produce.ARRANGE` and the whole arrangement is scaled t
 Each fruit still turns a little by the product's hash (`jitter`), so two products' hands
 differ. The test also checks that a hand's stalks meet (they span at most a quarter of what its
 tips span) and that a bunch's tops are tied closer than its roots spread. One or two long
-fruits alone (a Single banana) keep slice 1's drawing and its 0.25 floor. The rest of slice 3,
-the punnet and the single motifs at the same floor and distinct heaps for the small-fruit
-weights, follows in its own PRs.
+fruits alone (a Single banana) keep slice 1's drawing and its 0.25 floor. The punnet and the
+single motifs follow in slice 4 below; distinct heaps for the small-fruit weights in their own PR.
 
 ![Banana, carrot and cherry piles of 1 to 7 before the arrangements](../images/produce-arranged-1111-before.png)
 
 ![Banana, carrot and cherry piles of 1 to 7 as a hand, a bunch and a heap](../images/produce-arranged-1111-after.png)
+
+**The punnet and the single motifs fill their picture too (slice 4).** Before it, a punnet
+(`kit_punnet.punnet`, the GRC-VEG lines) drew eight small items peeking over an opaque tray
+under a wide label band, and a fruit or vegetable motif drawn alone (`kit_motifs`: orange,
+lemon, apple, strawberry, cherries, carrot, mushroom; a strawberry plant's or a growing kit's
+picture) covered 0.12 to 0.35 of the product area.
+
+- A **punnet** is a heap of 16 items (`HEAP`) behind a clear tray: the back row stands over
+  the rim and the rest shows through the tray's film. Every item is drawn to the same painted
+  area (`ITEM_AREA`) whatever its own size, no longer than `ITEM_LONGEST`, and a baby carrot
+  or a bean is drawn chunkier (`STRETCH`). Each carries the produce kit's gloss, and the label
+  is a small sticker on the tray's front (`class="label"`).
+- Each **motif** is redrawn large, keeping its highlight; the carrot lies on the diagonal with
+  filled leafy tops. A produce pile keeps drawing the small fruit its layouts are in the units
+  of (`kit_motifs.PILE_FRUIT`), so no pile changes.
+
+| drawing | floor | before | after |
+|---|---|---|---|
+| punnet, produce shown (not under the label), each of 7 `PRODUCE` | 0.50 | none measurable: under 0.35 with the tray | 0.51 to 0.58 |
+| orange, lemon, apple, strawberry, cherries, mushroom motif | 0.50 | 0.19 to 0.35 | 0.53 to 0.55 |
+| carrot motif (long, drawn alone) | 0.25 | 0.12 | 0.29 |
+
+`tests/test_produce_fill_1111.py` pins both floors, and checks that nothing opaque but the label
+is drawn over a punnet's produce. Distinct heaps for the small-fruit weights follow in their own
+PR.
+
+![Punnets and fruit and vegetable motifs before slice 4](../images/produce-punnet-motifs-1111-before.png)
+
+![Punnets and fruit and vegetable motifs after slice 4](../images/produce-punnet-motifs-1111-after.png)
 
 **Each SKU draws its own pack (slice 2).** A grocery line's drawing is made from its first
 pack, and before slice 2 every other SKU kept it: a Single lemon drew a pile of 3, a 1 kg bag

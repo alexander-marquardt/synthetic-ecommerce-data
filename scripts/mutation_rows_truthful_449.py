@@ -17,8 +17,8 @@ ROWS: list[tuple[str, str, str, str, str | tuple[str, ...], str]] = [
     (
         "every punnet holds strawberries again",
         "kit_punnet.py",
-        "item = PRODUCE[produce]",
-        'item = PRODUCE["strawberry"]',
+        "item, color = PRODUCE[produce]",
+        'item, color = PRODUCE["strawberry"]',
         f"{_T}::test_a_punnet_holds_what_the_title_says",
         "a punnet draws the produce its title names",
     ),

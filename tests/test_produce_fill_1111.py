@@ -1,11 +1,13 @@
-"""The produce kit fills its picture with round, fresh fruit (gen#1111, slices 1 and 3).
+"""The produce kit fills its picture with round, fresh fruit (gen#1111, slices 1, 3 and 4).
 
 Before gen#1111, a pile of fruit was drawn at each fruit's small table size inside a layout
 made for up to seven, so three lemons covered about a tenth of the picture and read as flat
 blobs. Fill here is the share of the product area the house style frames (``TURN_AREA``, the
 plain sheet's 344 x 334 box) that the fruits themselves paint, measured by :mod:`sheet_cover`;
 the ground shadow, a bag's film, a net and a tag are not counted. A banana, carrot or cherry
-pile is a hand, a bunch or a heap, so it fills the area as a round fruit's pile does.
+pile is a hand, a bunch or a heap, so it fills the area as a round fruit's pile does. A punnet
+shows a heap of produce through its clear tray, and a fruit or vegetable motif drawn alone fills
+the area as a Single fruit does (slice 4).
 """
 
 from __future__ import annotations
@@ -16,7 +18,14 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from synthetic_ecommerce_data.domains.retail import kit, kit_produce, sheet_cover, sheet_extent
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    kit_motifs,
+    kit_produce,
+    kit_punnet,
+    sheet_cover,
+    sheet_extent,
+)
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
 from synthetic_ecommerce_data.domains.retail.kit import Fill
 
@@ -119,6 +128,54 @@ def test_every_fruit_is_glossed_and_the_pile_stands_on_a_shadow() -> None:
         assert len(fruits) == 3, fruit
         assert all("url(#gloss-" in g for g in fruits), fruit  # a highlight and a shade on each
         assert 'class="ground"' in svg, fruit
+
+
+def _sheet(parts: list[str]) -> str:
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">{"".join(parts)}</svg>'
+
+
+def _cover(elements: list[ET.Element]) -> float:
+    inner = "".join(ET.tostring(el, encoding="unicode") for el in elements)
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg">{inner}</svg>'
+    return sheet_cover.cover(svg, TURN_AREA, step=4.0)
+
+
+#: The fruit and vegetable motifs: each is drawn alone as a product too (a strawberry plant's
+#: picture, a growing kit's mushroom), so one fills the product area as a Single fruit does.
+MOTIFS = sorted(m for m, c in kit_motifs.CATEGORY.items() if c in {"fruit", "vegetables"})
+#: A carrot alone is long and thin, as one or two long fruits in a pile are, so it holds
+#: ``LONG_FLOOR``; before slice 4 of gen#1111 it covered 0.12.
+LONG_MOTIFS = {"carrot"}
+
+
+@pytest.mark.parametrize("motif", MOTIFS)
+def test_every_fruit_and_vegetable_motif_fills_half_its_product_area(motif: str) -> None:
+    fill = Fill("solid", BASE, "#ffffff")
+    share = sheet_cover.cover(_sheet(kit.SHAPES[motif](BASE, fill, None)), TURN_AREA, step=4.0)
+    floor = LONG_FLOOR if motif in LONG_MOTIFS else FLOOR
+    assert share >= floor, (motif, round(share, 3), floor)
+
+
+@pytest.mark.parametrize("produce", sorted(kit_punnet.PRODUCE))
+def test_every_punnet_shows_produce_over_half_its_product_area(produce: str) -> None:
+    """The produce a punnet shows: what its ``fruit`` items paint, less what the opaque label band
+    hides. The tray is clear film, so nothing else drawn over the produce hides it."""
+    fill = Fill("solid", "#2f6b3c", "#ffffff")
+    root = ET.fromstring(_sheet(kit.SHAPES["punnet"]("#2f6b3c", fill, "Veg", produce=produce)))
+    items = list(root)
+    fruit = [el for el in items if el.get("class") == "fruit"]
+    label = [el for el in items if el.get("class") == "label"]
+    shown = _cover(fruit + label) - _cover(label)
+    assert shown >= FLOOR, (produce, round(shown, 3))
+    over = items[items.index(fruit[0]) :]
+    opaque = [
+        el.get("d", el.tag)[:40]
+        for el in over
+        if el.get("class") not in {"fruit", "label"}
+        and el.get("fill", "none") != "none"
+        and float(el.get("fill-opacity", "1")) >= 1
+    ]
+    assert not opaque, (produce, opaque)
 
 
 def test_sheet_cover_measures_a_circle_and_its_clip() -> None:
