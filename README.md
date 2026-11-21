@@ -889,7 +889,7 @@ earlier line, and that an entry no builder can reach fails the build.
 The 1-5 knob fits marketplace-like types. A distributor, though, sells one cap screw or set
 screw (thread, material, finish, point) in a run of standard lengths, and one end-mill or
 drill line in a run of diameters. Under the knob alone such a type's search page had almost
-nothing to group: `m6x1 set screws` returned 141 products for 260 SKUs, most tiles one
+nothing to group: `m6x1 set screws` returned 141 products for 260 variants, most tiles one
 variant (#710).
 
 So on twelve types most products of a large build are **run lines**: hex socket set screws;

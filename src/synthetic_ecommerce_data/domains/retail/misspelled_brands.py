@@ -67,7 +67,7 @@ hs.MARKS.update({"bar_grid": m_bar_grid, "peel_arc": m_peel_arc, "stride_bars": 
 
 # fmt: off
 STYLES = {
-    "Choo-Choocolate Express": H("heavy",   "#6b3a1f", "#2e1a0e", 1.1, False, "sharp", "bar_grid",    "mark_left",  "top_left",     "none",      "serif",    700, "caps",      1.0),
+    "Choo-Choocolate Express": H("heavy",   "#6b3a1f", "#2e1a0e", 1.1, False, "sharp", "bar_grid",    "mark_left",  "top_left",     "none",      "serif",    700, "title",     0.3),
     "Bannana Bros":       H("rounded", "#e0b82e", "#4a3a10", 1.0, False, "round", "peel_arc",    "mark_only",  "top_right",    "flag",      "sans",     700, "title",     0.5),
     "Leggins Lab":        H("thin",    "#3a3a6e", "#1c1c38", 0.9, False, "round", "stride_bars", "mark_only",  "bottom_left",  "underline", "humanist", 400, "smallcaps", 2.0),
     "Cardigen & Co":      H("ticks",   "#8a5a6a", "#3a1e28", 1.0, True,  "round", "button_pair", "mark_left",  "bottom_right", "none",      "serif",    400, "title",     1.5, True),

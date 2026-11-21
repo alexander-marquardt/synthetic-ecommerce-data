@@ -13,7 +13,7 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model: a plain word of household-care listings ("Keen", "Total").
 LEADS = (
-    "Keen", "Total", "Intense", "Express", "Advanced", "Ultimate", "Strong", "Maximum", "Turbo",
+    "Keen", "Total", "Intense", "Stellar", "Advanced", "Ultimate", "Strong", "Maximum", "Turbo",
     "Mighty", "Dynamic", "Precision", "Optimum", "Exemplar", "Tough", "Solid", "Spotless", "Nimble",
     "Force", "Fusion", "Shield", "Defence", "Energy", "Aegis", "Focus", "Clarity", "Resolute",
     "Stalwart", "Zenith", "Expert", "Ideal", "Swift",
