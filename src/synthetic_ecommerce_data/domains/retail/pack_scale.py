@@ -15,6 +15,9 @@ grow: half the content is a pack about 0.79 as tall.
   bodysuits holds the same bodysuit, so a garment is never scaled by its count.
 - A PACK OF ITEMS takes no factor: its copies show its size (:mod:`pack_copies`, gen#728), and a
   factor on top would shrink the items twice.
+- A PILE OF FRUIT takes no factor either: its count shows its size (a Single is one fruit, 1 kg a
+  bag of several, gen#1111). A factor set a Single's count of 1 against 1 kg's 1000 g and drew
+  the one fruit at the floor.
 - THE CANVAS is unchanged: :func:`wrap` scales the pack about the bottom center of its bounding
   box, so every size of a line stands on one baseline and one center line of the same 400 x 400
   sheet.
@@ -52,6 +55,8 @@ def quantity(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
 def factor(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
     """The factor the SKU's pack is drawn at, or ``None`` for the natural size (the line's
     largest size, a line of one size, or a SKU with no content to size by)."""
+    if (rec.get("drawing") or {}).get("shape") == "produce_pile":  # its count shows it (gen#1111)
+        return None
     own = quantity(rec, sku)
     if not own or own <= 0 or pack_copies.copies(rec, sku) > 1:
         return None

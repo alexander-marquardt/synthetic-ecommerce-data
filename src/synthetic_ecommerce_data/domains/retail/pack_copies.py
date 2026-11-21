@@ -42,7 +42,7 @@ import re
 from html import escape
 from typing import Any, NamedTuple
 
-from synthetic_ecommerce_data.domains.retail import sheet_extent
+from synthetic_ecommerce_data.domains.retail import kit_produce, sheet_extent
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW_DETAIL,
@@ -255,15 +255,22 @@ def spec(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
     return {"printed_count": stated} if stated else {}
 
 
-def pile_count(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int]:
-    """The ``count`` a pack of fruit draws when it is not the one its line's drawing was made for:
-    the drawing holds the line's first pack, so a line that starts at a single would draw its
-    4 pack as that single's pile."""
+def pile_count(rec: dict[str, Any], sku: dict[str, Any]) -> dict[str, int | str]:
+    """The ``count`` and ``pack`` a pack of fruit draws where they are not the ones its line's
+    drawing was made for. The drawing holds the line's first pack, so in a line of several packs
+    each SKU draws its own (:func:`kit_produce.sku_pile`): a Single one loose fruit, a 4 pack 4 in
+    a net, 1 kg a bag (gen#1111). A product of one pack keeps its own pile, at the SKU's count."""
     drawing = rec["drawing"]
-    n = count(rec, sku)
-    if drawing["shape"] != "produce_pile" or n == 1:
+    if drawing["shape"] != "produce_pile":
         return {}
-    return {} if str((drawing.get("params") or {}).get("count")) == str(n) else {"count": n}
+    params = drawing.get("params") or {}
+    if "pack_size" in sku and len({s.get("pack_size") for s in rec.get("skus", ())}) > 1:
+        own = kit_produce.sku_pile(params["fruit"], str(params.get("seed", "")), sku)
+        return {k: own[k] for k in ("count", "pack") if str(params.get(k)) != str(own[k])}
+    n = count(rec, sku)
+    if n == 1:
+        return {}
+    return {} if str(params.get("count")) == str(n) else {"count": n}
 
 
 def one_item(shape: str, params: dict | None) -> dict | None:

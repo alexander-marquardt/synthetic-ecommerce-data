@@ -11,6 +11,10 @@ fruits one size, and every fruit is drawn to the same painted area at that
 size whatever its own shape's size, so a pile covers more than half the product
 area the house style frames. Each fruit carries a gloss (a highlight up-left, a
 shade down-right) and the pile stands on a ground shadow, so it reads as round.
+
+Each SKU draws its own pack (:func:`sku_pile`): a Single is one fruit lying loose, a 4 pack is 4
+in a net, and a weight is a clear bag of as many as it holds, so a line's packs are three
+pictures, not its first pack's pile three times (gen#1111).
 """
 
 # ruff: noqa: E501 -- SVG literals and data rows read better whole (prototype only).
@@ -161,14 +165,39 @@ register({"tomato": tomato, "onion": onion, "potato": potato, "banana": banana})
 
 
 def fruit_count(fruit: str, grams: float | None = None, count: int | None = None) -> int:
-    """How many fruits a pack shows: its count, else its weight over one fruit's, in 3-7."""
+    """How many fruits a pack shows: its count (a Single is one fruit, gen#1111), else its
+    weight over one fruit's, in 3-7; no pack draws more than 7."""
     if fruit not in FRUIT:
         raise ValueError(f"unknown fruit {fruit!r}; one of {sorted(FRUIT)}")
-    if count is None:
-        if grams is None:
-            raise ValueError("a produce pack states its count or its weight")
-        count = round(grams / FRUIT[fruit][1])
-    return max(MIN_FRUIT, min(MAX_FRUIT, count))
+    if count is not None:
+        return max(1, min(MAX_FRUIT, count))
+    if grams is None:
+        raise ValueError("a produce pack states its count or its weight")
+    return max(MIN_FRUIT, min(MAX_FRUIT, round(grams / FRUIT[fruit][1])))
+
+
+_COUNT_PACK = re.compile(r"\d+ pack")
+_WEIGHT_PACK = re.compile(r"\d+(?:\.\d+)?k?g")
+
+
+def pack_form(pack_size: str) -> str:
+    """The form a pack of fruit is drawn in, from its ``pack_size``: a Single lies loose, a
+    count ("4 pack") comes in a net and a weight ("1kg", "500g") in a clear bag (gen#1111)."""
+    if pack_size == "Single":
+        return "loose"
+    if _COUNT_PACK.fullmatch(pack_size):
+        return "net"
+    if _WEIGHT_PACK.fullmatch(pack_size):
+        return "bag"
+    raise ValueError(f"no produce form for pack {pack_size!r}")
+
+
+def sku_pile(fruit: str, seed: str, pack: dict) -> dict:
+    """The pile ``pack`` (a SKU's ``pack_size`` with its ``net_weight_g`` or ``units_per_pack``)
+    draws: its own form and count, so each pack of a line is its own picture (gen#1111)."""
+    grams = pack.get("net_weight_g")
+    count = None if grams else pack["units_per_pack"]
+    return pile_params(fruit, seed, pack_form(pack["pack_size"]), grams, count)
 
 
 def jitter(seed: str, i: int) -> tuple[float, float, float]:
