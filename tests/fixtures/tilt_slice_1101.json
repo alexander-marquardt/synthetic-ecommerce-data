@@ -1,0 +1,640 @@
+[
+ {
+  "attributes": [],
+  "audience": "adult",
+  "badges": [],
+  "bestseller_rank": 22,
+  "brand": "Brackenmere Home",
+  "brand_owner": "own",
+  "category_leaf": "Corner Sofas",
+  "category_path": [
+   "Home",
+   "Furniture",
+   "Sofas",
+   "Corner Sofas"
+  ],
+  "collections": [],
+  "color_options": [
+   {
+    "color": "Cream",
+    "family": "cream",
+    "hex": "#efe6d2",
+    "pattern": "solid"
+   },
+   {
+    "color": "Sage",
+    "family": "green",
+    "hex": "#9bb08f",
+    "pattern": "solid"
+   }
+  ],
+  "currency": "GBP",
+  "department": [
+   "Home"
+  ],
+  "description": "A deep corner sofa in a soft boucle weave. Shown in cream.",
+  "drawing": {
+   "accent": "#333333",
+   "base": "#efe6d2",
+   "label": null,
+   "pattern": "solid",
+   "shape": "sofa",
+   "third": "#f2d14b"
+  },
+  "online_only": false,
+  "price": 2795.0,
+  "price_max": 2795.0,
+  "price_min": 2795.0,
+  "product_id": "PLT-SOFCRN",
+  "product_type": "Corner Sofa",
+  "rating": 4.8,
+  "review_count": 586,
+  "sku_count": 2,
+  "skus": [
+   {
+    "color": "Cream",
+    "in_stock": true,
+    "price": 2795.0,
+    "sku": "PLT-SOFCRN-D8A0D3FE"
+   },
+   {
+    "color": "Sage",
+    "in_stock": true,
+    "price": 2795.0,
+    "sku": "PLT-SOFCRN-0A779270"
+   }
+  ],
+  "sold_last_5_days": 680,
+  "title": "Four Seater Corner Sofa",
+  "trending": false
+ },
+ {
+  "attributes": [
+   {
+    "key": "bike_type",
+    "name": "Bike type",
+    "value": "Mountain"
+   },
+   {
+    "key": "frame_material",
+    "name": "Frame material",
+    "value": "Aluminum"
+   },
+   {
+    "key": "gears",
+    "name": "Gears",
+    "unit_code": "C62",
+    "value": "21",
+    "value_canonical": 21.0
+   },
+   {
+    "key": "wheel_size",
+    "name": "Wheel size",
+    "unit_code": "INH",
+    "value": "26",
+    "value_canonical": 660.4
+   },
+   {
+    "key": "brake_type",
+    "name": "Brake type",
+    "value": "Disc"
+   },
+   {
+    "key": "model_number",
+    "name": "Model number",
+    "value": "MT26-21-26"
+   },
+   {
+    "key": "model_year",
+    "name": "Model year",
+    "value": "2026"
+   },
+   {
+    "key": "line",
+    "name": "Line",
+    "value": "Aero Max"
+   }
+  ],
+  "audience": "adult",
+  "brand": "Wrenfield",
+  "brand_owner": "own",
+  "category_leaf": "Mountain Bikes",
+  "category_path": [
+   "Sports & Outdoors",
+   "Cycling",
+   "Bikes",
+   "Mountain Bikes"
+  ],
+  "collections": [],
+  "color_options": [
+   {
+    "color": "Green",
+    "hex": "#4f8a3a",
+    "pattern": "solid"
+   },
+   {
+    "color": "Orange",
+    "hex": "#e07a1f",
+    "pattern": "solid"
+   },
+   {
+    "color": "Black",
+    "hex": "#2d2d33",
+    "pattern": "solid"
+   },
+   {
+    "color": "Yellow",
+    "hex": "#f2c230",
+    "pattern": "solid"
+   }
+  ],
+  "currency": "GBP",
+  "department": [
+   "Sports & Outdoors"
+  ],
+  "description": "A hardtail aluminum mountain bicycle with front suspension, wide tires, disc brakes and 21 gears for trails and fire roads.",
+  "drawing": {
+   "accent": "#333333",
+   "base": "#4f8a3a",
+   "label": null,
+   "params": {
+    "style": "mountain"
+   },
+   "pattern": "solid",
+   "shape": "bicycle",
+   "third": "#f2d14b"
+  },
+  "price": 549.0,
+  "price_max": 559.0,
+  "price_min": 549.0,
+  "product_id": "BRD-BIKMT262126",
+  "product_line": "Aero Max",
+  "product_type": "Bicycle",
+  "rating": 3.9,
+  "review_count": 286,
+  "sku_count": 12,
+  "skus": [
+   {
+    "color": "Green",
+    "frame_cm": "41",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-C32B2A2A"
+   },
+   {
+    "color": "Green",
+    "frame_cm": "46",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-5F85EBC7"
+   },
+   {
+    "color": "Green",
+    "frame_cm": "51",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 559.0,
+    "sku": "BRD-BIKMT262126-725BD15E"
+   },
+   {
+    "color": "Orange",
+    "frame_cm": "41",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-EF639BB7"
+   },
+   {
+    "color": "Orange",
+    "frame_cm": "46",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-8EFC6EAF"
+   },
+   {
+    "color": "Orange",
+    "frame_cm": "51",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 559.0,
+    "sku": "BRD-BIKMT262126-15827AAB"
+   },
+   {
+    "color": "Black",
+    "frame_cm": "41",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-0FE8DD07"
+   },
+   {
+    "color": "Black",
+    "frame_cm": "46",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-0A629914"
+   },
+   {
+    "color": "Black",
+    "frame_cm": "51",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 559.0,
+    "sku": "BRD-BIKMT262126-04DB69DD"
+   },
+   {
+    "color": "Yellow",
+    "frame_cm": "41",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-EFA8EBDB"
+   },
+   {
+    "color": "Yellow",
+    "frame_cm": "46",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 549.0,
+    "sku": "BRD-BIKMT262126-64A26E7E"
+   },
+   {
+    "color": "Yellow",
+    "frame_cm": "51",
+    "in_stock": true,
+    "model_number": "MT26-21-26",
+    "price": 559.0,
+    "sku": "BRD-BIKMT262126-C6393D9B"
+   }
+  ],
+  "sold_last_5_days": 50,
+  "title": "Wrenfield Aero Max MT26-21-26 26in 21 Speed Aluminum Hardtail Mountain Bike"
+ },
+ {
+  "attributes": [
+   {
+    "key": "appliance_type",
+    "name": "Type",
+    "value": "Fridge Freezer 70/30"
+   },
+   {
+    "key": "capacity",
+    "name": "Capacity",
+    "unit_code": "LTR",
+    "value": "260",
+    "value_canonical": 260000.0
+   },
+   {
+    "key": "item_width",
+    "name": "Item width",
+    "unit_code": "CMT",
+    "value": "55",
+    "value_canonical": 550.0
+   },
+   {
+    "key": "energy_rating",
+    "name": "Energy rating",
+    "value": "D"
+   },
+   {
+    "key": "frost_free",
+    "name": "Frost free",
+    "value": "Yes"
+   },
+   {
+    "key": "generation",
+    "name": "Generation",
+    "value": "D"
+   },
+   {
+    "key": "model_number",
+    "name": "Model number",
+    "value": "GLN-260DW"
+   },
+   {
+    "key": "base_model",
+    "name": "Base model",
+    "value": "GLN-260D"
+   },
+   {
+    "key": "line",
+    "name": "Line",
+    "value": "Fairmile"
+   }
+  ],
+  "audience": "adult",
+  "brand": "GoodLook",
+  "brand_owner": "third_party",
+  "category_leaf": "Fridges & Freezers",
+  "category_path": [
+   "Home",
+   "Large Appliances",
+   "Fridges & Freezers"
+  ],
+  "collections": [],
+  "color_options": [
+   {
+    "color": "White",
+    "hex": "#f4f1ea",
+    "pattern": "solid"
+   },
+   {
+    "color": "Black",
+    "hex": "#2d2d33",
+    "pattern": "solid"
+   },
+   {
+    "color": "Silver",
+    "hex": "#c3c8cc",
+    "pattern": "solid"
+   }
+  ],
+  "currency": "GBP",
+  "department": [
+   "Home"
+  ],
+  "description": "A tall fridge freezer, 70% fridge above and 30% freezer below. 260 litres in all, 55 cm wide, energy rating D, frost free.",
+  "drawing": {
+   "accent": "#9a9ca0",
+   "accents": {
+    "Black": "#333333",
+    "Silver": "#6e757b"
+   },
+   "base": "#f4f1ea",
+   "label": null,
+   "params": {
+    "kind": "fridge_freezer_7030"
+   },
+   "pattern": "solid",
+   "shape": "fridge",
+   "third": "#f2d14b"
+  },
+  "price": 349.0,
+  "price_max": 349.0,
+  "price_min": 349.0,
+  "product_id": "BRD-GLA001",
+  "product_line": "Fairmile",
+  "product_type": "Fridge & Freezer",
+  "rating": 4.5,
+  "review_count": 250,
+  "sku_count": 3,
+  "skus": [
+   {
+    "color": "White",
+    "in_stock": true,
+    "model_number": "GLN-260DW",
+    "price": 349.0,
+    "sku": "BRD-GLA001-81EFA9A9"
+   },
+   {
+    "color": "Black",
+    "in_stock": true,
+    "model_number": "GLN-260DB",
+    "price": 349.0,
+    "sku": "BRD-GLA001-006ADD27"
+   },
+   {
+    "color": "Silver",
+    "in_stock": true,
+    "model_number": "GLN-260DS",
+    "price": 349.0,
+    "sku": "BRD-GLA001-3F326113"
+   }
+  ],
+  "sold_last_5_days": 43,
+  "title": "GoodLook Fairmile GLN-260DW 260L 70/30 Fridge Freezer",
+  "unit_measure": "ml",
+  "unit_size": 260000.0
+ },
+ {
+  "attributes": [
+   {
+    "key": "door_count",
+    "name": "Door count",
+    "unit_code": "C62",
+    "value": "2",
+    "value_canonical": 2.0
+   },
+   {
+    "key": "mirrored",
+    "name": "Mirrored",
+    "value": "no"
+   },
+   {
+    "key": "door_type",
+    "name": "Door type",
+    "value": "Hinged"
+   },
+   {
+    "key": "material",
+    "name": "Material",
+    "value": "Pine"
+   },
+   {
+    "key": "item_width",
+    "name": "Item width",
+    "unit_code": "CMT",
+    "value": "90",
+    "value_canonical": 900.0
+   },
+   {
+    "key": "item_height",
+    "name": "Item height",
+    "unit_code": "CMT",
+    "value": "180",
+    "value_canonical": 1800.0
+   },
+   {
+    "key": "room",
+    "name": "Room",
+    "value": "Bedroom"
+   }
+  ],
+  "audience": "adult",
+  "brand": "Hearth & Table",
+  "brand_owner": "own",
+  "category_leaf": "Wardrobes",
+  "category_path": [
+   "Home",
+   "Furniture",
+   "Wardrobes"
+  ],
+  "collections": [],
+  "color_options": [
+   {
+    "color": "White",
+    "hex": "#f2efe8",
+    "pattern": "solid"
+   },
+   {
+    "color": "Grey",
+    "hex": "#9a9ca0",
+    "pattern": "solid"
+   },
+   {
+    "color": "Natural",
+    "hex": "#c9a06a",
+    "pattern": "solid"
+   },
+   {
+    "color": "Red",
+    "family": "red",
+    "hex": "#c8322b",
+    "pattern": "solid"
+   }
+  ],
+  "currency": "GBP",
+  "department": [
+   "Home"
+  ],
+  "description": "A double pine wardrobe with two hinged doors over a full-length hanging rail and a top shelf, for a small bedroom.",
+  "drawing": {
+   "accent": "#333333",
+   "accents": {
+    "Natural": "#7a5a3a"
+   },
+   "base": "#f2efe8",
+   "label": null,
+   "params": {
+    "door": "hinged",
+    "doors": "2",
+    "mirrored": "no"
+   },
+   "pattern": "solid",
+   "shape": "wardrobe",
+   "third": "#f2d14b"
+  },
+  "price": 249.0,
+  "price_max": 249.0,
+  "price_min": 249.0,
+  "product_id": "BRD-WD2HG",
+  "product_type": "Wardrobe",
+  "rating": 4.3,
+  "review_count": 147,
+  "sku_count": 4,
+  "skus": [
+   {
+    "color": "White",
+    "in_stock": true,
+    "price": 249.0,
+    "sku": "BRD-WD2HG-AD722269"
+   },
+   {
+    "color": "Grey",
+    "in_stock": true,
+    "price": 249.0,
+    "sku": "BRD-WD2HG-B01AB677"
+   },
+   {
+    "color": "Natural",
+    "in_stock": true,
+    "price": 249.0,
+    "sku": "BRD-WD2HG-804257CD"
+   },
+   {
+    "color": "Red",
+    "in_stock": true,
+    "price": 249.0,
+    "sku": "BRD-WD2HG-57DE4325"
+   }
+  ],
+  "sold_last_5_days": 53,
+  "title": "2 Door Pine Wardrobe"
+ },
+ {
+  "attributes": [
+   {
+    "key": "glove_style",
+    "name": "Glove style",
+    "value": "Knitted"
+   },
+   {
+    "key": "lining",
+    "name": "Lining",
+    "value": "Unlined"
+   },
+   {
+    "key": "audience",
+    "name": "Audience",
+    "value": "Unisex"
+   }
+  ],
+  "audience": "adult",
+  "brand": "Wrenfield",
+  "brand_owner": "own",
+  "category_leaf": "Gloves",
+  "category_path": [
+   "Womens",
+   "Accessories",
+   "Gloves"
+  ],
+  "collections": [],
+  "color_options": [
+   {
+    "color": "Black",
+    "hex": "#2d2d33",
+    "pattern": "solid"
+   }
+  ],
+  "currency": "GBP",
+  "department": [
+   "Clothing"
+  ],
+  "description": "Knitted gloves in a style like our touchscreen gloves, for looks only: the fingertips are plain knit and do not work on a screen.",
+  "drawing": {
+   "accent": "#333333",
+   "base": "#2d2d33",
+   "label": null,
+   "params": {
+    "kind": "Knitted"
+   },
+   "pattern": "solid",
+   "shape": "gloves",
+   "third": "#f2d14b"
+  },
+  "price": 6.0,
+  "price_max": 6.0,
+  "price_min": 6.0,
+  "product_id": "BRD-DCGLV1",
+  "product_type": "Gloves",
+  "rating": 3.9,
+  "review_count": 327,
+  "sku_count": 4,
+  "skus": [
+   {
+    "color": "Black",
+    "glove_size_letter": "S",
+    "in_stock": true,
+    "price": 6.0,
+    "sku": "BRD-DCGLV1-CD0F9E33"
+   },
+   {
+    "color": "Black",
+    "glove_size_letter": "M",
+    "in_stock": true,
+    "price": 6.0,
+    "sku": "BRD-DCGLV1-002D762D"
+   },
+   {
+    "color": "Black",
+    "glove_size_letter": "L",
+    "in_stock": true,
+    "price": 6.0,
+    "sku": "BRD-DCGLV1-44147BF6"
+   },
+   {
+    "color": "Black",
+    "glove_size_letter": "XL",
+    "in_stock": true,
+    "price": 6.0,
+    "sku": "BRD-DCGLV1-D98BC1C1"
+   }
+  ],
+  "sold_last_5_days": 87,
+  "title": "Fashion Knitted Gloves"
+ }
+]

@@ -92,6 +92,22 @@ def of(shape: str) -> str:
     return ORIENTATION[shape]
 
 
+#: A stub for #1101's red commit: the guard is not written yet.
+MAX_TILT_CM = 60.0
+
+
+def stated_cm(rec: dict[str, Any]) -> float | None:
+    """Stub (#1101): no size is read yet."""
+    return None
+
+
+def level_because(rec: dict[str, Any]) -> str | None:
+    """Stub (#1101): only the pack rule (#884)."""
+    if any(pack_copies.count(rec, sku) > 1 for sku in rec.get("skus", ())):
+        return "pack"
+    return None
+
+
 def of_product(rec: dict[str, Any]) -> str:
     """The orientation product ``rec`` is drawn at: its shape's, or ``level`` when any of its
     SKUs is a pack of several items (#884), so every SKU of it shares the one angle."""
