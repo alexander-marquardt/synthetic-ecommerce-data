@@ -92,6 +92,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     PACKS_PER_STYLE,
     F,
     Family,
+    chocolate_of,
 )
 from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
 from synthetic_ecommerce_data.domains.retail.range_ownership import Deal
@@ -350,6 +351,8 @@ def _drawing(
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
     if shape == "chocolate_bar":  # a SKU draws its own weight or its multipack (gen#1125)
         marks["pack_size"] = pack["pack_size"]
+        if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
+            marks["chocolate"] = choc
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)

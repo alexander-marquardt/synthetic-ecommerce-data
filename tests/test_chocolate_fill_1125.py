@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
 from synthetic_ecommerce_data.domains.retail.kit import Fill
+from synthetic_ecommerce_data.domains.retail.kit_chocolate import CHOCOLATE
 
 FLOOR = 0.5
 #: The families whose products are chocolate bars (a multipack is a pack of them).
@@ -143,3 +144,32 @@ def test_each_sku_draws_its_own_pack_size_unscaled() -> None:
             spec = export.drawing_spec(rec, sku)
             assert spec.get("params", {}).get("pack_size") == sku["pack_size"], sku["sku"]
             assert "pack_scale" not in spec and "pack_count" not in spec, (sku["sku"], spec)
+
+
+def _chocolate_fills(parts: list[str]) -> set[str]:
+    groups = re.findall(r'<g class="chocolate"[^>]*>(.*?)</g>', "".join(parts))
+    return {c for g in groups for c in re.findall(r'fill="(#[0-9a-f]{6})"', g)}
+
+
+def test_a_mint_dark_bar_is_dark_chocolate_in_a_green_wrapper() -> None:
+    green = "#2f6b52"
+    fill = Fill("solid", green, "#ffffff")
+    parts = kit.SHAPES["chocolate_bar"](
+        green, fill, "Mint Dark", pack_size="100g", chocolate="dark"
+    )
+    assert CHOCOLATE["dark"] in _chocolate_fills(parts)
+    assert green not in _chocolate_fills(parts)
+    assert _wrapper(parts) == green
+
+
+def test_every_bar_style_draws_the_chocolate_its_flavour_is_made_of() -> None:
+    for rec in _records():
+        params = rec["drawing"].get("params", {})
+        assert params.get("chocolate") in CHOCOLATE, (rec["product_id"], params)
+
+
+@pytest.mark.parametrize(
+    ("kind", "chocolate"), [("dark_chocolate", "dark"), ("white_chocolate", "white")]
+)
+def test_a_decoy_bar_names_its_chocolate(kind: str, chocolate: str) -> None:
+    assert dict(decoy_rows.KINDS[kind].params)["chocolate"] == chocolate

@@ -1,16 +1,20 @@
-"""The chocolate selection box (gen#609).
+"""The chocolate selection box (gen#609) and the chocolate bar (gen#1125).
 
-==============  ===================================================  ======
+==============  ===================================================  ============
 shape           draws                                                params
-==============  ===================================================  ======
+==============  ===================================================  ============
 chocolate_box   a flat, wide, shallow lidded box seen at a slight     --
                 angle, a ribbon across the lid
-==============  ===================================================  ======
+chocolate_bar   an opened bar, its wrapper torn back over the foil    pack_size,
+                to show the glossy segmented block, broken pieces     chocolate
+                in front; a multipack a stack of its bars
+==============  ===================================================  ============
 
 The record's fill paints the lid and the front of the box; the label panel on the lid carries
 the product word, the range name and the band of the style's flavour colors (``kit._panel``).
 The pack scale (gen#543) draws a smaller box smaller on the same sheet, so a 150g selection is
-visibly smaller than a 400g one.
+visibly smaller than a 400g one. A bar draws its own weight and multipack instead
+(docs/retail-prototype/chocolate-fill-1125.md).
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
@@ -73,6 +77,9 @@ GLOSS = (
     '<stop offset=".62" stop-color="#000000" stop-opacity="0"/>'
     '<stop offset="1" stop-color="#000000" stop-opacity=".34"/></linearGradient>'
 )
+#: The chocolate a bar is made of, by its kind: a bar's block is chocolate, whatever the
+#: flavour's color on the wrapper (a mint dark bar is dark chocolate in a green wrapper).
+CHOCOLATE = {"milk": "#7a4a2a", "dark": "#3a2216", "white": "#f1e4c4"}
 _PACK = re.compile(r"(?:(\d+)\s*x\s*)?(\d+(?:\.\d+)?)\s*g", re.IGNORECASE)
 
 
@@ -95,6 +102,15 @@ def wrapper_color(base: str) -> str:
         if 1.05 / (_luminance(color) + 0.05) >= WRAPPER_CONTRAST:
             return color
     return COCOA
+
+
+def chocolate_color(chocolate: str | None, base: str) -> str:
+    """The color of a bar's chocolate: the :data:`CHOCOLATE` of its kind; with no kind, the one
+    ``base`` reads as, a pale base white, a very dark one dark, else milk."""
+    if chocolate in CHOCOLATE:
+        return CHOCOLATE[chocolate]
+    lum = _luminance(base)
+    return CHOCOLATE["white" if lum > 0.55 else "dark" if lum < 0.04 else "milk"]
 
 
 def pack_items(pack_size: str | None) -> tuple[int, float | None]:
@@ -201,14 +217,16 @@ def _bar(
 
 
 def chocolate_bar(
-    paint: str, fill: Fill, label: str | None, pack_size: str | None = None
-) -> list[str]:
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
     """A chocolate bar seen from a little above, its wrapper torn back over the foil to show
     the glossy segmented block, two broken pieces in front; a multipack (``"4 x 35g"``) is a
     stack of its bars, the front one opened. A bar under :data:`BAR_FULL_G` is drawn a little
-    smaller, by about the cube root of its weight, never under :data:`BAR_SMALLEST`."""
+    smaller, by about the cube root of its weight, never under :data:`BAR_SMALLEST`. The
+    wrapper is the flavour's color, the block the ``chocolate`` it is made of (:func:`chocolate_color`)."""
     n, grams = pack_items(pack_size)
-    choc = fill.base
+    choc = chocolate_color(chocolate, fill.base)
     wrapper = wrapper_color(fill.base) if fill.pattern == "solid" else paint
     gloss = f"choc-gloss-{choc[1:]}"
     out = [GLOSS.format(gloss)]

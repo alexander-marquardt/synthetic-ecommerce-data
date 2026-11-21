@@ -54,14 +54,20 @@ def _s(name: str, hex_: str, abv: float, country: str, style: str, codes: str = 
     return F(name, hex_, codes, abv, (("country", "Country", country), ("spirit_style", "Style", style)))
 
 
+def chocolate_of(f: F) -> str | None:
+    """The chocolate a bar flavor is made of: the white or dark its name says, else milk when it
+    contains milk, else None. It files the bar (gen#298) and colors its drawn chocolate (gen#1125)."""
+    return next((k.lower() for k in ("White", "Dark") if k in f.name.split()), "milk" if "M" in f.codes else None)
+
+
 def _bars(fam: Family) -> Family:
     """A bar family under Chocolate Bars: each flavor files in the child for its chocolate
     (gen#298), the white or dark its name says, else milk, which it then contains."""
     def child(f: F) -> str:
-        kind = next((k for k in ("White", "Dark") if k in f.name.split()), "Milk" if "M" in f.codes else "")
+        kind = chocolate_of(f)
         if not kind:
             raise ValueError(f"{fam.code} {f.name}: names no white or dark and contains no milk")
-        return f"{kind} Chocolate Bars"
+        return f"{kind.title()} Chocolate Bars"
 
     return replace(fam, children=tuple((f.name, child(f)) for f in fam.flavors))
 

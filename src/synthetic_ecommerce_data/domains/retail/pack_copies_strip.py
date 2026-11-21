@@ -37,7 +37,7 @@ SHOWN = (
     ("Knickers, 7 pack", "knickers", "Briefs", 7),
     ("Ginger beer, 6 bottles", "bottle", "Beer", 6),
     ("Yogurt, 4 pots", "tub", "Yogurt", 4),
-    ("Chocolate, 4 bars", "bar", "Chocolate", 4),
+    ("Chocolate, 4 bars", "chocolate_bar", "Chocolate", 4),
     ("Eye patches, 24", "eye_patches", "Patches", 24),
     ("Tea, 40 bags", "box", "Tea", 40),
     ("Tea, 80 bags", "box", "Tea", 80),
