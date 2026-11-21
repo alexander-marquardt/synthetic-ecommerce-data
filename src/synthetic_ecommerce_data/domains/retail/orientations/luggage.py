@@ -1,11 +1,14 @@
 """The orientation of each shape ``kit_luggage.py`` registers (#1045)."""
 
 UPRIGHT: tuple[str, ...] = (
-    "cabin_case",
     "holdall",
     "neck_pillow",
-    "suitcase",
     "travel_organizer",
     "weekend_bag",
 )
-LEVEL: tuple[str, ...] = ("luggage_set",)
+#: Not held or worn, so drawn level (#1101): cabin_case, suitcase.
+LEVEL: tuple[str, ...] = (
+    "cabin_case",
+    "luggage_set",
+    "suitcase",
+)

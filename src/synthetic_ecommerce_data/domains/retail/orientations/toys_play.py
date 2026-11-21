@@ -2,9 +2,13 @@
 
 UPRIGHT: tuple[str, ...] = (
     "card_game",
-    "dolls_house",
     "kite",
     "marble_run",
-    "play_kitchen",
     "water_gun",
+)
+
+#: Not held or worn, so drawn level (#1101).
+LEVEL: tuple[str, ...] = (
+    "dolls_house",
+    "play_kitchen",
 )

@@ -2,11 +2,15 @@
 
 UPRIGHT: tuple[str, ...] = (
     "casserole",
-    "clothes_airer",
     "frying_pan",
-    "kitchen_bin",
     "laundry_basket",
     "mop",
     "saucepan",
     "storage_box",
+)
+
+#: Not held or worn, so drawn level (#1101).
+LEVEL: tuple[str, ...] = (
+    "clothes_airer",
+    "kitchen_bin",
 )

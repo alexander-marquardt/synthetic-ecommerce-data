@@ -3,15 +3,22 @@
 UPRIGHT: tuple[str, ...] = (
     "bath_towel",
     "beach_towel",
-    "duvet",
     "eyeliner",
     "fragrance",
     "lipstick",
-    "mattress_protector",
-    "mattress_topper",
     "moisturiser_jar",
     "photo_frame",
     "pillow",
 )
 #: Sets drawn as several items (#884), a sofa (furniture) and a table lamp (#1095).
-LEVEL: tuple[str, ...] = ("cutlery_set", "dinner_set", "gift_set", "sofa", "table_lamp")
+#: Not held or worn, so drawn level (#1101): duvet, mattress_protector, mattress_topper.
+LEVEL: tuple[str, ...] = (
+    "cutlery_set",
+    "dinner_set",
+    "duvet",
+    "gift_set",
+    "mattress_protector",
+    "mattress_topper",
+    "sofa",
+    "table_lamp",
+)

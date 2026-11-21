@@ -4,11 +4,9 @@ ANY: tuple[str, ...] = ("lemon", "orange", "screw", "snowflake")
 UPRIGHT: tuple[str, ...] = (
     "apple",
     "bird",
-    "car",
     "carrot",
     "cat",
     "cherries",
-    "christmas_tree",
     "cupcake",
     "daisy",
     "dinosaur",
@@ -24,4 +22,10 @@ UPRIGHT: tuple[str, ...] = (
     "tulip",
     "whale",
     "wrench",
+)
+
+#: Not held or worn, so drawn level (#1101).
+LEVEL: tuple[str, ...] = (
+    "car",
+    "christmas_tree",
 )

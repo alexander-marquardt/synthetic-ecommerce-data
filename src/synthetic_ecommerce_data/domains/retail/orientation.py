@@ -2,27 +2,31 @@
 
 Retail draws a product as a shape (:data:`kit.SHAPES`), and many types share one (jeans, chinos
 and joggers are all ``trousers``), so the orientation is the shape's: what is drawn is what
-looks right or wrong turned. Every registered shape names one, in the module of
-:mod:`orientations` named after the module that registers it (#1045), and
-``tests/test_one_paper_one_angle_849.py`` refuses a shape missing from this table, so a new
-shape cannot forget it. This module holds no shape: it walks that package and builds the
-table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
+looks right or wrong turned. Tilt is opt-in (#1101): a shape is named, in the module of
+:mod:`orientations` named after the module that registers it (#1045), only to give it a tilt
+or to record why it is level. A shape no module names is ``level`` (:func:`of`), so a new
+shape is never turned by accident. This module holds no shape: it walks that package and builds
+the table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
 
-* ``any`` (the 24 clock positions): a thing with no natural up. Gloves (the maintainer's ruling
-  on #860), a screw, a ball, round fruit, a snowflake, coiled cables and laces.
+* ``any`` (the 24 clock positions): a small thing with no natural up. Gloves (the maintainer's
+  ruling on #860), a screw, a ball, round fruit, a snowflake, coiled cables and laces.
 * ``slight`` (+-15 degrees): clothing, footwear and what is worn with them (a belt, a scarf, a
   tie, a hat), where a garment turned further reads as falling over (the maintainer's ruling
   on #860).
-* ``upright`` (+-36 degrees): everything with a natural up (a bottle, a bulb, a fridge, a toy),
-  and every shape nobody was sure of.
+* ``upright`` (+-36 degrees): a small thing you hold, carry or wear that has a natural up (a
+  bottle, a bulb, a kettle, a phone, a doll, a drill).
 
-* ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
-  luggage), which overlap on a slant; and a bicycle, which rests on its two wheels and reads as
-  falling or wheelieing on a slant (#1049); and every furniture item (a bed, a sofa, a table,
-  a wardrobe: the shapes of the furniture, seating, home and storage furniture kits), which
-  stands on the floor and looks wrong turned (the maintainer, 2026-11-20, #1095), and with it
-  every lamp and light fitting, the lampshade, the coat stand, the garden furniture and
-  parasols, and the crib (#1095, slice 2).
+* ``level`` (0 degrees only, #884), and every shape no module names: a set type drawn as several
+  items (cutlery, a dinner set, luggage), which overlap on a slant; and a bicycle, which rests
+  on its two wheels and reads as falling or wheelieing on a slant (#1049); and every furniture
+  item (a bed, a sofa, a table, a wardrobe: the shapes of the furniture, seating, home and
+  storage furniture kits), which stands on the floor and looks wrong turned (the maintainer,
+  2026-11-20, #1095), and with it every lamp and light fitting, the lampshade, the coat stand,
+  the garden furniture and parasols, and the crib (#1095, slice 2); and each shape that was
+  ``upright`` but is not held or worn (#1101, slice 2: the list is
+  ``tests/test_level_default_1101.py``). That covers a shape that stands on the floor, one fixed
+  to a wall, ceiling, car or plumbing, a mains appliance or screen used where it stands,
+  bedding, rugs, mats and curtains, and a vehicle or anything on wheels.
 
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
@@ -78,11 +82,11 @@ ANY: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["ANY"])
 #: Clothing, footwear and what is worn with them: within +-15 degrees.
 SLIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["SLIGHT"])
 
-#: Everything with a natural up, and every shape nobody was sure of: within +-36 degrees.
+#: Small things held, carried or worn that have a natural up: within +-36 degrees (#1101).
 UPRIGHT: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["UPRIGHT"])
 
-#: Set types, drawn as several items (#884), a bicycle on its wheels (#1049) and furniture
-#: (#1095): 0 degrees only.
+#: Set types, drawn as several items (#884), a bicycle on its wheels (#1049), furniture (#1095)
+#: and what is not held or worn (#1101): 0 degrees only, as is every shape no module names.
 LEVEL: tuple[str, ...] = tuple(s for sets in _OWNED.values() for s in sets["LEVEL"])
 
 #: Shape -> orientation.
@@ -95,8 +99,9 @@ ORIENTATION: dict[str, str] = {
 
 
 def of(shape: str) -> str:
-    """The orientation ``shape`` is drawn at. ``KeyError`` for a shape the table does not name."""
-    return ORIENTATION[shape]
+    """The orientation ``shape`` is drawn at: ``level`` for a shape the table does not name, so
+    tilt is opt-in (#1101)."""
+    return ORIENTATION.get(shape, "level")
 
 
 #: Category path prefixes whose products stand on the floor or on wheels and are drawn level

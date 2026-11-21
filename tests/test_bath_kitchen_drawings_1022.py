@@ -22,11 +22,11 @@ from test_retail_furniture_drawings_226 import BASE, _lum, _rgb, _structure_lumi
 
 TYPES = ("tile", "vanity", "cabinet_pull", "sink_faucet", "bath_storage", "canister")
 ORIENTATIONS = {
-    "tile": "upright",
-    "vanity": "upright",
+    "tile": "level",  # fixed to a wall, not held (#1101)
+    "vanity": "level",  # stands on the floor, not held (#1101)
     "cabinet_pull": "upright",
-    "sink_faucet": "upright",
-    "bath_storage": "upright",
+    "sink_faucet": "level",  # fixed to the plumbing, not held (#1101)
+    "bath_storage": "level",  # stands on the floor, not held (#1101)
     "canister": "level",  # a set drawn as several items (#884)
 }
 WOOD = kit.Fill("solid", "#8a5a3a", "#333333", "#f2d14b")

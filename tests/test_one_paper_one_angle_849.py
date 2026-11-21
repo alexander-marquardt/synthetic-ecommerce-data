@@ -9,8 +9,8 @@ The issue's Done-when, one test group each:
    angles spread over each orientation's set (not 0 degrees for most), two products of one
    type at two angles draw two pictures, and the turned figure stays inside its area;
 3. every type names its orientation (#860): the 24 clock positions (``any``), +-36 degrees
-   (``upright``), +-15 degrees (``slight``) or none (``level``, #884), every industrial type
-   and every retail shape.
+   (``upright``), +-15 degrees (``slight``) or none (``level``, #884), every industrial type;
+   a retail shape is named only to tilt it, and one no module names is ``level`` (#1101).
 """
 
 from __future__ import annotations
@@ -264,11 +264,13 @@ def _retail_shapes() -> set[str]:
     ids=["industrial type", "retail shape"],
 )
 def test_every_type_names_one_orientation(table, every):
-    """A drawn type missing from its domain's table, or named twice, fails here, so a new
-    type cannot forget its orientation."""
+    """A drawn industrial type missing from its domain's table, or a type named twice, fails
+    here, so a new type cannot forget its orientation. A retail shape may go unnamed: tilt is
+    opt-in there, and an unnamed shape is ``level`` (#1101)."""
     named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *table.LEVEL]
     assert len(named) == len(set(named)), Counter(named).most_common(3)
-    assert sorted(every() - set(named)) == []
+    if table is industrial_orientation:
+        assert sorted(every() - set(named)) == []
     assert sorted(set(named) - every()) == []
     assert set(table.ORIENTATION.values()) <= set(product_look.ORIENTATIONS)
 
