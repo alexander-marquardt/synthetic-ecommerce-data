@@ -87,9 +87,9 @@ every other drawing -- only the GEOMETRY is fixed.
   | Orientation | Angles | For |
   |---|---|---|
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
-  | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a lamp), and any type nobody was sure of |
+  | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a light bulb), and any type nobody was sure of |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
-  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), and every furniture item (#1095) |
+  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), and every furniture item, lamp, light fitting, garden furniture piece and crib (#1095) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
 
@@ -125,8 +125,14 @@ every other drawing -- only the GEOMETRY is fixed.
   degrees before ([before](images/furniture-level-1095-before.svg)) and level after
   ([after](images/furniture-level-1095-after.svg)).
   `tests/test_furniture_level_1095.py` checks every SKU of every Home > Furniture product in the
-  built catalogue. Lamps, lighting, garden furniture and cribs are still `upright` (#1095's
-  slice 2).
+  built catalogue.
+
+  Slice 2 (#1095) moves the rest of what the issue counts to `level`: every lamp and light
+  fitting (table, desk and floor lamps, ceiling, wall, vanity and outdoor lights), the
+  lampshade, the coat stand, the garden furniture (sets, chairs, tables and parasols), the
+  crib and the bench. A light bulb keeps its tilt. Before, 94 of the 134 products in those
+  groups were turned (the mirror was already level); after, none. The same test checks every
+  SKU of each of them.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

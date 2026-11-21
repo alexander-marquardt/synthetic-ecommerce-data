@@ -2,7 +2,6 @@
 
 ANY: tuple[str, ...] = ("cable_ties", "jumper_cables", "shoe_laces")
 UPRIGHT: tuple[str, ...] = (
-    "coat_stand",
     "garment_bag",
     "hangers",
     "hook_rail",
@@ -11,3 +10,5 @@ UPRIGHT: tuple[str, ...] = (
     "sofa_cover",
     "throw",
 )
+#: A coat stand is furniture: level (#1095).
+LEVEL: tuple[str, ...] = ("coat_stand",)
