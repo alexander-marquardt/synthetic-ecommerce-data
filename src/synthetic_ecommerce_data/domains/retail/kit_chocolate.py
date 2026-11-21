@@ -50,4 +50,13 @@ def chocolate_box(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-register({"chocolate_box": chocolate_box})
+def chocolate_bar(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None
+) -> list[str]:
+    """A chocolate bar (gen#1125): the generic bar until the shape is drawn."""
+    from synthetic_ecommerce_data.domains.retail.kit_grocery import bar
+
+    return bar(paint, fill, label)
+
+
+register({"chocolate_box": chocolate_box, "chocolate_bar": chocolate_bar})
