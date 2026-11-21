@@ -1,35 +1,66 @@
-"""The retail build sells products whose text holds a common misspelling (gen#944).
+"""The retail build sells products whose text holds a common misspelling (gen#944, gen#1130).
 
 The R&I demo offers "You may also consider searching for <common spelling>" only when a search has
-3 or fewer Best results and the common spelling is at least 5 times more common. Two words are on
-3 products each (the hits and the suggestion show) and two on 7 to 10 (hits only). Each product is
-an ordinary product of its word's own type and category; the misspelling sits in an invented
-brand, in the title, or in the description alone, and never in a category, type or attribute.
+3 or fewer Best results and the common spelling is at least 5 times more common. Three words are
+on 3 products each (the hits and the suggestion show) and two on 7 to 10 (hits only).
+
+gen#1130: a planted misspelling is a deliberate brand or product name, a pun a real company might
+choose (Bannana Bros gummy sweets, the Pliars bluffing card game), never a misspelled generic word
+in an ordinary product's title or description ("Big Bannana Bunch" read as a data error). The
+three suggestion words follow that rule here; ``leggins`` and ``cardigen`` stay on #944's rows
+until the issue's slice 2. No category, type or attribute holds any of the five.
 
 These tests read the ceiling build, the one a release ships (docs/releasing.md).
 """
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
 import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import house_styles, scale
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
+from synthetic_ecommerce_data.domains.retail.feature_decoys import misspelled_words_944 as ms
 
-#: misspelling -> (common spelling, the category node and type its products sit in, products).
+#: misspelling -> (common spelling, how many products carry it).
 WORDS = {
-    "choocolate": ("chocolate", "Milk Chocolate Bars", "Chocolate Bar", range(3, 4)),
-    "bannana": ("banana", "Bananas", "Fresh Fruit", range(3, 4)),
-    "leggins": ("leggings", "Leggings", "Leggings", range(7, 11)),
-    "cardigen": ("cardigan", "Cardigans", "Cardigan", range(7, 11)),
+    "choocolate": ("chocolate", range(3, 4)),
+    "bannana": ("banana", range(3, 4)),
+    "pliars": ("pliers", range(3, 4)),
+    "leggins": ("leggings", range(7, 11)),
+    "cardigen": ("cardigan", range(7, 11)),
 }
+#: gen#1130: each word -> the brand or product names that may carry it, and the (category leaf,
+#: product type) pairs its products sit in, every one of them used.
+NAMED = {
+    "choocolate": (
+        ("Choo-Choocolate Express",),
+        {("Chocolate Boxes", "Chocolate Box"), ("Wooden Toys", "Wooden Toy")},
+    ),
+    "bannana": (
+        ("Bannana Bros", "Bannana Brothers"),
+        {("Sweets", "Sweets"), ("Board Games", "Board Game")},
+    ),
+    "pliars": (("Pliars",), {("Card Games", "Card Game")}),
+}
+#: gen#1130: the drawings of a word's products, each in its own kit (no reused banana).
+SHAPES = {
+    "choocolate": {"box", "wooden_toy"},
+    "bannana": {"bag", "board_game"},
+    "pliars": {"card_game"},
+}
+#: #944's rows, the word in an ordinary product of its own type, until gen#1130's slice 2.
+LEGACY = {"leggins": ("Leggings", "Leggings"), "cardigen": ("Cardigans", "Cardigan")}
 #: The Engine's head-hit threshold and the floor the common spelling must clear (issue text).
 THRESHOLD, RATIO = 3, 5
 #: The invented brands that carry a misspelling.
-BRANDS = ("Choocolate Factory", "Bannana Bros", "Leggins Lab", "Cardigen & Co")
+BRANDS = ("Choo-Choocolate Express", "Bannana Bros", "Leggins Lab", "Cardigen & Co")
+#: The industrial catalogue the R&I demo serves beside retail: its pliers count for `pliars`.
+INDUSTRIAL = Path(__file__).resolve().parent.parent / "golden-catalog" / "flat.jsonl"
 
 
 @pytest.fixture(scope="module")
@@ -41,32 +72,74 @@ def _has(word: str, text: str) -> bool:
     return re.search(rf"\b{re.escape(word)}s?\b", text.lower()) is not None
 
 
+def _text(r: dict) -> str:
+    return " ".join((r["brand"], r["title"], r.get("description", "")))
+
+
 def _carrying(records: list[dict], word: str) -> list[dict]:
-    return [r for r in records if _has(word, " ".join((r["brand"], r["title"], r["description"])))]
+    return [r for r in records if _has(word, _text(r))]
 
 
 @pytest.mark.parametrize("word", WORDS)
 def test_each_misspelling_is_on_its_number_of_products(records, word) -> None:
-    *_, count = WORDS[word]
+    _, count = WORDS[word]
     assert len(_carrying(records, word)) in count, [r["title"] for r in _carrying(records, word)]
 
 
-def test_two_words_show_the_suggestion_and_two_do_not() -> None:
-    """Half the words sit at or under the threshold, half above it."""
-    under = [w for w, (*_, n) in WORDS.items() if max(n) <= THRESHOLD]
-    over = [w for w, (*_, n) in WORDS.items() if min(n) > THRESHOLD]
-    assert len(under) == len(over) == 2
+def test_three_words_show_the_suggestion_and_two_do_not() -> None:
+    under = {w for w, (_, n) in WORDS.items() if max(n) <= THRESHOLD}
+    over = {w for w, (_, n) in WORDS.items() if min(n) > THRESHOLD}
+    assert (under, over) == ({"choocolate", "bannana", "pliars"}, {"leggins", "cardigen"})
 
 
-@pytest.mark.parametrize("word", [w for w, (*_, n) in WORDS.items() if max(n) <= THRESHOLD])
+@pytest.mark.parametrize("word", [w for w, (_, n) in WORDS.items() if max(n) <= THRESHOLD])
 def test_the_common_spelling_is_five_times_more_common(records, word) -> None:
+    """Counted over the Combined catalogue: retail and the industrial golden catalogue."""
     common = WORDS[word][0]
-    assert len(_carrying(records, common)) >= RATIO * len(_carrying(records, word)) > 0
+    industrial = [json.loads(raw) for raw in INDUSTRIAL.read_text().splitlines()]
+    searched = ("title", "parent_title", "brand", "description", "text")
+    commons = len(_carrying(records, common))
+    commons += sum(
+        1 for r in industrial if _has(common, " ".join(str(r.get(f, "")) for f in searched))
+    )
+    assert commons >= RATIO * len(_carrying(records, word)) > 0
 
 
-@pytest.mark.parametrize("word", WORDS)
-def test_each_product_is_of_its_words_own_type_and_category(records, word) -> None:
-    _, node, ptype, _ = WORDS[word]
+@pytest.mark.parametrize("word", NAMED)
+def test_the_misspelling_is_only_ever_a_brand_or_product_name(records, word) -> None:
+    """With its brand and product names taken out, no product's text holds the word, and every
+    product carrying it names one in its brand or title."""
+    names, _ = NAMED[word]
+    strip = re.compile("|".join(rf"\b{re.escape(n)}\b" for n in names), re.IGNORECASE)
+    for r in _carrying(records, word):
+        assert not _has(word, strip.sub(" ", _text(r))), (r["product_id"], _text(r))
+        assert strip.search(f"{r['brand']} {r['title']}"), (r["product_id"], r["title"])
+
+
+@pytest.mark.parametrize("word", NAMED)
+def test_each_named_product_is_of_the_specs_type_and_category(records, word) -> None:
+    _, places = NAMED[word]
+    found = {(r["category_path"][-1], r["product_type"]) for r in _carrying(records, word)}
+    assert found == places
+
+
+@pytest.mark.parametrize(("word", "common"), [("bannana", "banana"), ("pliars", "pliers")])
+def test_no_named_product_sits_in_its_common_words_own_category(records, word, common) -> None:
+    """The shopper who types the word is after the brand: no Bananas, no Pliers leaf."""
+    for r in _carrying(records, word):
+        assert not any(_has(common, node) for node in r["category_path"]), r["category_path"]
+        assert r["category_path"][:3] != ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
+
+
+@pytest.mark.parametrize("word", NAMED)
+def test_each_named_product_is_drawn_by_its_own_kit(word) -> None:
+    shapes = {ms.KINDS[kind].shape for _, kind, *_, w, _ in ms._ROWS if w == word}
+    assert shapes == SHAPES[word]
+
+
+@pytest.mark.parametrize("word", LEGACY)
+def test_each_legacy_product_is_of_its_words_own_type_and_category(records, word) -> None:
+    node, ptype = LEGACY[word]
     found = _carrying(records, word)
     assert found
     wrong = {r["product_id"]: (r["category_path"], r["product_type"]) for r in found
@@ -84,19 +157,6 @@ def test_the_misspelling_is_product_text_only(records, word) -> None:
         if any(_has(word, str(f)) for f in fields):
             leaks.append(r["product_id"])
     assert leaks == []
-
-
-@pytest.mark.parametrize("word", WORDS)
-def test_the_placements_mix_brand_and_title(records, word) -> None:
-    found = _carrying(records, word)
-    assert any(_has(word, r["brand"]) for r in found), word
-    assert any(_has(word, r["title"]) and not _has(word, r["brand"]) for r in found), word
-
-
-def test_some_products_hold_the_misspelling_in_the_description_only(records) -> None:
-    only = [r["product_id"] for w in WORDS for r in _carrying(records, w)
-            if not _has(w, f"{r['brand']} {r['title']}")]  # fmt: skip
-    assert 1 <= len(only) <= 2, only
 
 
 @pytest.mark.parametrize("brand", BRANDS)

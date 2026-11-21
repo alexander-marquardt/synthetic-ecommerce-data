@@ -142,8 +142,10 @@ def _quotations(stats: dict) -> dict[str, str]:
             # port, "http://127.0.0.1:9201" (a total of 9201 styles collided with it, gen#965).
             # A signed figure is a slice's delta, not a total: "slice 2b (+1,052)" (a total of
             # 1052 Garden styles collided with it, gen#961).
+            # A figure after "#" is a hex color, "#34466e" (a total of 34466 styles collided
+            # with it, gen#1130).
             plain = (
-                rf"(?<!ISO )(?<!DIN )(?<!ASTM F)(?<!\d:)(?<![\d.,_+A-Za-z]){value}(?![\d,_])"
+                rf"(?<!#)(?<!ISO )(?<!DIN )(?<!ASTM F)(?<!\d:)(?<![\d.,_+A-Za-z]){value}(?![\d,_])"
                 r"(?!-\d{2}-\d{2})"
             )
             grouped = rf"(?<![\d.,_+]){value:,}(?!\d)|(?<![\d.,_+]){value:_}(?!\d)"

@@ -121,5 +121,5 @@ SPEC = TypeSpec(
                   "A strategy board game in a box printed to look like oak; the board and pieces "
                   "are card and plastic.", color=ORANGE),
     ),
-    homes=(Home("toys_rows", False),),
+    homes=(Home("toys_rows", False), Home("decoy_product_words", False)),  # gen#1130: Bannana Brothers
 )  # fmt: skip

@@ -1,9 +1,11 @@
-"""The industrial build sells 3 pliers whose text holds the misspelling `pliars` (#944).
+"""No industrial product holds the misspelling `pliars`: it is a card game's name (gen#1130).
 
 The R&I demo serves a misspelled search's literal hits. It offers the common spelling only when
-there are 3 Best results or fewer and the common spelling is at least 5 times more common. With
-3 products, `pliars` shows the hits and the suggestion "pliers". The misspelling is product text
-only: no category, type label or attribute holds it, so no vocabulary learns it. See
+there are 3 Best results or fewer and the common spelling is at least 5 times more common. #944
+put `pliars` in the titles of 3 industrial pliers ("Conduit Pliars"), which read as a typo in the
+data. gen#1130 moved the word to Pliars, a retail bluffing card game of 3 products
+(``feature_decoys/misspelled_words_944.py``), so no pliers line may hold it, and the industrial
+pliers are the common spelling the suggestion offers. See
 docs/retail-prototype/misspelled-words-944.md.
 """
 
@@ -21,7 +23,7 @@ from synthetic_ecommerce_data.domains.industrial.generate import generate
 
 WORD = re.compile(r"\bpliars\b", re.IGNORECASE)
 TYPES = ("conduit_pliers", "snap_ring_pliers")
-GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "nested.jsonl"
+GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog" / "flat.jsonl"
 
 
 def _text(line) -> str:
@@ -31,51 +33,40 @@ def _text(line) -> str:
 
 @pytest.fixture(scope="module", params=(None, 20_000), ids=("default", "lines-20000"))
 def built(request):
-    """The two pliers types, at the default size and at a larger one."""
+    """The two pliers types #944 planted the word on, at the default size and at a larger one."""
     config = GeneratorConfig()
     if request.param is not None:
         config = replace(config, lines=request.param)
     return generate(config, types=TYPES).lines
 
 
-def test_three_pliers_hold_the_misspelling_at_any_size(built):
-    held = [line for line in built if WORD.search(_text(line))]
-    assert len(held) == 3, [line.title for line in held]
-    for line in held:
-        assert line.type_key in TYPES
-        assert "Pliers" in line.category, line.category
-        same_type = [other for other in built if other.type_key == line.type_key]
-        (own,) = [other for other in same_type if not WORD.search(_text(other))]
-        assert line.category == own.category
-        assert WORD.search(line.children[0].title), "the misspelling is in the title"
+def test_no_pliers_line_holds_the_misspelling_at_any_size(built):
+    assert built
+    held = [line.title for line in built if WORD.search(_text(line))]
+    assert held == []
 
 
-def test_the_misspelling_is_product_text_only(built):
-    for line in built:
-        assert not WORD.search(" ".join(line.category)), line.category
-        assert not WORD.search(line.type_label), line.type_label
-        attributes = [*line.attributes, *(a for sku in line.children for a in sku.attributes)]
-        for attribute in attributes:
-            assert not WORD.search(f"{attribute.name} {attribute.value}"), attribute
+def test_each_pliers_type_builds_its_own_line_only(built):
+    """The one-SKU misspelled lines are gone: each type builds its breadth line and no more."""
+    assert sorted(line.type_key for line in built) == sorted(TYPES)
 
 
-def test_no_misspelled_line_names_a_seed_noun(built):
-    """A seed decoy (#462) holds `nut` or `retaining ring`; these lines must not add to them."""
-    for line in built:
-        if WORD.search(_text(line)):
-            title = line.children[0].title.lower()
-            assert "nut" not in title and "retaining ring" not in title, title
+def _golden() -> list[dict]:
+    return [json.loads(raw) for raw in GOLDEN.read_text().splitlines()]
 
 
-def test_the_golden_catalogue_sells_the_three():
-    rows = [json.loads(raw) for raw in GOLDEN.read_text().splitlines()]
-    held = [
-        row
-        for row in rows
-        if WORD.search(json.dumps([row["title"], row["brand"], row.get("description", "")]))
-        or any(WORD.search(f"{v['title']} {v['description']}") for v in row.get("variants", ()))
-    ]
-    assert len(held) == 3, [row["title"] for row in held]
-    assert {row["product_type"] for row in held} == set(TYPES)
-    for row in held:
-        assert row["category_path"][:3] == ["Tools", "Hand tools", "Pliers"], row["category_path"]
+def _row_text(row: dict) -> str:
+    """A flat (SKU) row's searched text: its title, brand, description and ``text``."""
+    fields = ("title", "parent_title", "brand", "description", "text")
+    return " ".join(str(row.get(f, "")) for f in fields)
+
+
+def test_the_golden_catalogue_holds_no_pliars():
+    held = [row["title"] for row in _golden() if WORD.search(_row_text(row))]
+    assert held == []
+
+
+def test_the_golden_catalogue_sells_pliers_five_times_the_card_games_three():
+    """The suggestion needs the common spelling 5 times more common than the 3 Pliars games."""
+    pliers = re.compile(r"\bpliers\b", re.IGNORECASE)
+    assert sum(1 for row in _golden() if pliers.search(_row_text(row))) >= 5 * 3

@@ -17,5 +17,6 @@ SPEC = TypeSpec(
     homes=(
         Home("toys_rows", False),
         Home("decor_rows", False),
+        Home("decoy_product_words", False),  # gen#1130: the Choo-Choocolate Express train
     ),
 )

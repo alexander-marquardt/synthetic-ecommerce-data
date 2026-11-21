@@ -434,8 +434,8 @@ fields:
   - name: features
     type: terms
     source: facets.features
-  # Finish -- 23 distinct values over 4427 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 9172 documents across 69 product type(s); 23 distinct values
+  # Finish -- 23 distinct values over 4426 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 9171 documents across 69 product type(s); 23 distinct values
   - name: finish
     type: terms
     source: facets.finish
@@ -629,8 +629,8 @@ fields:
     type: terms
     source: facets.lubricant
     facet: false
-  # Material -- 64 distinct values over 6738 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 13520 documents across 172 product type(s); 64 distinct values
+  # Material -- 64 distinct values over 6735 product-value pairs is 0.01 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 13517 documents across 172 product type(s); 64 distinct values
   - name: material
     type: terms
     source: facets.material
@@ -718,8 +718,8 @@ fields:
   - name: overall_height
     type: terms
     source: facets.overall_height
-  # Overall length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 266 distinct values over 3942 product-value pairs is 0.07 per product
-  #   present on 4550 documents across 19 product type(s); 266 distinct values
+  # Overall length -- a discrete list: the generator declares its values tabled, a standard's list of sizes, so they are offered as a list rather than an interval whatever the ratio; 264 distinct values over 3939 product-value pairs is 0.07 per product
+  #   present on 4547 documents across 19 product type(s); 264 distinct values
   - name: overall_length
     type: terms
     source: facets.overall_length
@@ -919,8 +919,8 @@ fields:
   - name: tread_width
     type: terms
     source: facets.tread_width
-  # Type -- 63 distinct values over 3673 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
-  #   present on 6706 documents across 34 product type(s); 63 distinct values
+  # Type -- 63 distinct values over 3671 product-value pairs is 0.02 per product, below the 0.50 identifier threshold, so the values repeat
+  #   present on 6704 documents across 34 product type(s); 63 distinct values
   - name: type
     type: terms
     source: facets.type

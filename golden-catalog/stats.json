@@ -1,6 +1,6 @@
 {
- "lines": 7733,
- "skus": 15284,
+ "lines": 7730,
+ "skus": 15281,
  "lines_by_type": {
   "abrasive_flap_disc": 129,
   "anaerobic_threadlockers": 1,
@@ -39,7 +39,7 @@
   "combination_wrenches": 35,
   "compound_cutters": 1,
   "compression_springs": 1,
-  "conduit_pliers": 2,
+  "conduit_pliers": 1,
   "cord_splicing_kits": 1,
   "cotter_pins": 39,
   "coupling_nuts": 31,
@@ -144,7 +144,7 @@
   "silicone_greases": 1,
   "sleeve_anchors": 1,
   "sleeve_installation_kits": 1,
-  "snap_ring_pliers": 3,
+  "snap_ring_pliers": 1,
   "spanner_wrenches": 1,
   "spill_socks": 1,
   "stud_finders": 17,
@@ -215,7 +215,7 @@
   "combination_wrenches": 78,
   "compound_cutters": 2,
   "compression_springs": 2,
-  "conduit_pliers": 3,
+  "conduit_pliers": 2,
   "cord_splicing_kits": 2,
   "cotter_pins": 67,
   "coupling_nuts": 67,
@@ -320,7 +320,7 @@
   "silicone_greases": 2,
   "sleeve_anchors": 2,
   "sleeve_installation_kits": 2,
-  "snap_ring_pliers": 4,
+  "snap_ring_pliers": 2,
   "spanner_wrenches": 2,
   "spill_socks": 2,
   "stud_finders": 28,
@@ -699,11 +699,10 @@
    }
   },
   "conduit_pliers": {
-   "products": 2,
-   "median": 1.5,
+   "products": 1,
+   "median": 2,
    "max": 2,
    "histogram": {
-    "1": 1,
     "2": 1
    }
   },
@@ -1769,11 +1768,10 @@
    }
   },
   "snap_ring_pliers": {
-   "products": 3,
-   "median": 1,
+   "products": 1,
+   "median": 2,
    "max": 2,
    "histogram": {
-    "1": 2,
     "2": 1
    }
   },
@@ -3402,7 +3400,7 @@
    "Thread Size"
   ]
  },
- "total_attribute_entries": 156496,
+ "total_attribute_entries": 156487,
  "comparisons": [
   {
    "name": "shank == cutting diameter",
@@ -3443,9 +3441,9 @@
   {
    "name": "unit mixing within one record",
    "target": 0.0222,
-   "achieved": 0.0167512,
+   "achieved": 0.0167546,
    "numerator": 251,
-   "denominator": 14984,
+   "denominator": 14981,
    "note": "over records with a readable dimension",
    "band": null
   },
@@ -3481,7 +3479,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 15284,
+   "denominator": 15281,
    "note": "over titles",
    "band": null
   },
@@ -3490,7 +3488,7 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 15284,
+   "denominator": 15281,
    "note": "deliberate: the corpus measures 0.1089",
    "band": null
   },
@@ -3499,16 +3497,16 @@
    "target": 0.0,
    "achieved": 0.0,
    "numerator": 0,
-   "denominator": 15284,
+   "denominator": 15281,
    "note": "deliberate: the corpus measures 0.7353",
    "band": null
   },
   {
    "name": "attributes per record (mean)",
    "target": 13.12,
-   "achieved": 10.2392,
-   "numerator": 156496,
-   "denominator": 15284,
+   "achieved": 10.2406,
+   "numerator": 156487,
+   "denominator": 15281,
    "note": "count, not a rate",
    "band": null
   },
@@ -4579,7 +4577,7 @@
   "Metric": 2196
  },
  "unit_suffix_distribution": {
-  "in": 30505,
+  "in": 30502,
   "mm": 17195
  },
  "standards_present": 7804,
@@ -4590,7 +4588,7 @@
   "Sizes Included": 59
  },
  "noncopy_audit": {
-  "n_skus_checked": 15284,
+  "n_skus_checked": 15281,
   "full_tuple_collisions": [],
   "sku_collisions": [],
   "verbatim_dimension_tuple_collisions": [
@@ -4764,10 +4762,10 @@
    "brands": 45
   },
   "drawings": {
-   "count": 15284,
-   "bytes": 39577780,
+   "count": 15281,
+   "bytes": 39573802,
    "geometry": {
-    "nominal": 190,
+    "nominal": 187,
     "partial": 2982,
     "record": 12112
    },
