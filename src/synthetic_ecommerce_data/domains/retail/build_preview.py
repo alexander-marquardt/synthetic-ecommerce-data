@@ -19,7 +19,6 @@ import json
 from html import escape
 from pathlib import Path
 
-from synthetic_ecommerce_data.core.drawing import product_look
 from synthetic_ecommerce_data.domains.retail import (
     film_emblems,
     kit_garments,  # noqa: E402,F401 -- registers the trousers and top shapes
@@ -73,7 +72,7 @@ def drawing_svg(rec: dict, styled: bool = True) -> str:
                 detail=(d["detail"]["part"], d["detail"]["color"]) if d.get("detail") else None)  # fmt: skip
     # The product's one angle, over its shape's orientation (#849), level for a pack (#884); the
     # plain sheet is upright.
-    angle = product_look.angle_of(rec["product_id"], orientation.of_product(rec)) if styled else 0
+    angle = orientation.drawn_angle(rec) if styled else 0
     return render(
         d["shape"],
         fill,

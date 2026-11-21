@@ -176,3 +176,9 @@ def of_product(rec: dict[str, Any]) -> str:
     over the limit, #1101), so every SKU of it shares the one angle."""
     held = level_because(rec) is not None
     return product_look.product_orientation(of(rec["drawing"]["shape"]), held)
+
+
+def drawn_angle(rec: dict[str, Any]) -> int:
+    """The angle every SKU of product ``rec`` is drawn at, over :func:`of_product`: the one the
+    styled image is rendered at and the build report's tilt audit reads (#1101)."""
+    return product_look.angle_of(rec["product_id"], of_product(rec))
