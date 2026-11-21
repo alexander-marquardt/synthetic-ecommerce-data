@@ -1,4 +1,4 @@
-"""Each produce SKU's served picture draws its own pack, big (gen#1111, slice 2).
+"""Each produce SKU's served picture draws its own pack, big (gen#1111, slices 2 and 5).
 
 A grocery line's drawing is made from its first pack, and before slice 2 every other SKU kept it:
 a Single lemon drew a pile of 3, a 1 kg bag drew the Single's 3 loose fruit, and a 4 pack lay
@@ -7,6 +7,11 @@ shrank it to its 0.6 floor. Each SKU now draws its own pack (Single: one loose f
 in a net, a weight: a bag of as many as it holds), and a pile takes no ``pack_scale`` factor: the
 count drawn already shows the size. Fill is the share of the plain sheet's product area
 (``TURN_AREA``) the fruits paint in ``image_release.render``'s own SVG, as slice 1 measures it.
+
+A line of small fruit sells weights that each hold more than 7 fruits (250 g of grapes is about
+50), so before slice 5 its 250g, 500g and 1kg each drew one identical 7-fruit bag. A line's
+weights are now counted together (``kit_produce.weight_counts``): the largest draws its own count
+and each smaller weight draws fewer, so each weight is its own heap.
 """
 
 from __future__ import annotations
@@ -35,10 +40,15 @@ DRAWN = ("path", "rect", "circle", "ellipse")
 
 
 @functools.cache
+def _build() -> tuple[dict, ...]:
+    return tuple(grocery.build(400))
+
+
+@functools.cache
 def _lines() -> dict[str, dict]:
     """Each named family's first line in a small grocery build."""
     out: dict[str, dict] = {}
-    for rec in grocery.build(400):
+    for rec in _build():
         code = rec["product_id"].split("-")[1]
         if code in LINES and rec["drawing"]["shape"] == "produce_pile":
             out.setdefault(code, rec)
@@ -141,3 +151,50 @@ def test_the_bag_of_lemons_keeps_its_four_and_fills_half() -> None:
     assert svg.count('class="fruit"') == distractors.LEMON_PACK
     assert _form(svg) == "bag"
     assert _fill(svg) >= FLOOR
+
+
+#: The small-fruit lines whose every weight holds more than 7 fruits (gen#1111, slice 5).
+SMALL = ("GRP", "BLK", "CHY", "CAR")
+
+
+def _weights(rec: dict) -> list[dict]:
+    return [sku for sku in rec["skus"] if _want_form(sku["pack_size"]) == "bag"]
+
+
+@pytest.mark.parametrize("code", SMALL)
+def test_each_weight_of_a_small_fruit_line_draws_its_own_heap(code: str) -> None:
+    recs = [
+        rec
+        for rec in _build()
+        if rec["product_id"].split("-")[1] == code and rec["drawing"]["shape"] == "produce_pile"
+    ]
+    assert any(len(_weights(rec)) > 1 for rec in recs), f"{code}: no line sells two weights"
+    for rec in recs:
+        drawn = {}
+        for sku in sorted(_weights(rec), key=lambda s: s["net_weight_g"]):
+            svg = _served(rec, sku)
+            got = _fill(svg)
+            assert got >= FLOOR, f"{sku['sku']} {sku['pack_size']}: {got:.0%} of the product area"
+            drawn[sku["pack_size"]] = (svg.count('class="fruit"'), svg)
+        counts = [n for n, _ in drawn.values()]
+        pictures = len({svg for _, svg in drawn.values()})
+        assert pictures == len(drawn), f"{rec['product_id']}: {pictures} picture(s) for {counts}"
+        assert counts == sorted(set(counts)), f"{rec['product_id']}: a larger weight, more fruits"
+        assert all(kit_produce.MIN_FRUIT <= n <= kit_produce.MAX_FRUIT for n in counts), counts
+
+
+@pytest.mark.parametrize(
+    ("fruit", "grams", "want"),
+    [
+        ("grape", (250, 500, 1000), (3, 5, 7)),  # each over 7 fruits: two fewer per halving
+        ("cherry", (250, 400, 500), (5, 6, 7)),  # and one fewer at least than the next size up
+        ("onion", (500, 1000), (3, 7)),  # counts that already differ stay each weight's own
+        ("potato", (1000, 2000), (6, 7)),
+        ("lemon", (1000,), (7,)),  # a line of one weight draws its own count
+    ],
+)
+def test_a_lines_weights_are_counted_together(
+    fruit: str, grams: tuple[int, ...], want: tuple[int, ...]
+) -> None:
+    got = kit_produce.weight_counts(fruit, grams)
+    assert tuple(got[g] for g in grams) == want
