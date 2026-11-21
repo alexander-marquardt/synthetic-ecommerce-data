@@ -56,7 +56,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     register,
 )
 
-#: The bottle's foot: every size of a line stands on this baseline, on the sheet's centre line.
+#: The bottle's foot: every size of a line stands on this baseline, on the sheet's center line.
 BASE_Y = PRODUCT_TOP + PRODUCT_SPAN - 8
 CX = 200.0
 #: The share of the product area's height the line's largest size spans.
