@@ -87,7 +87,7 @@ every other drawing -- only the GEOMETRY is fixed.
   | Orientation | Angles | For |
   |---|---|---|
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
-  | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a light bulb), and any type nobody was sure of |
+  | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a bottle, a vise, a light bulb); in retail only a small thing held, carried or worn (#1101) |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
   | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), every furniture item, lamp, light fitting, garden furniture piece and crib (#1095), and every product the guard below holds level: a large appliance, a bike, a scooter, or anything over 60 cm (#1101) |
 
@@ -149,6 +149,25 @@ every other drawing -- only the GEOMETRY is fixed.
   fishing rods, Christmas trees, scarves and the like). `tests/test_tilt_guard_1101.py`
   checks a recorded slice of the built catalogue (a sofa, a mountain bike, a fridge, a
   wardrobe and a glove): only the glove is turned.
+
+  Tilt is opt-in in retail (#1101, slice 2). A shape that no `orientations/` module names is
+  `level` (`orientation.of`), so a new shape is never turned by accident. Only a small thing
+  you hold, carry or wear keeps `any`, `slight` or `upright`. Of the shapes in `upright`, 78
+  were not held or worn, and each moved to `level` in its owner's module:
+  - **Stands on the floor:** a heater, a tower or pedestal fan, a fridge, a dishwasher, the
+    laundry machines, a high chair, a car seat, a pet bed, a planter, a potted or Christmas
+    tree, a tent, a play kitchen, a dolls' house.
+  - **Fixed in place:** to a wall, ceiling, car or plumbing, such as a wall clock, a ceiling
+    fan, a tap, tiles, wallpaper or a seat cover.
+  - **Used where it stands:** a mains appliance or screen, such as a TV, a monitor, a desktop,
+    a printer, a soundbar, a toaster, a coffee maker or a blender.
+  - **Laid flat or hung:** bedding, rugs, mats, throws and curtains.
+  - **Vehicles and things on wheels:** a stroller, a suitcase, a skateboard, a kick scooter, a
+    lawn mower, a toy car, a ride-on, a kayak.
+
+  On main f53951d2, with the guard applied, 485 of the 752 products drawn with these shapes
+  were turned; after the change, none. `tests/test_level_default_1101.py` lists the 78 shapes
+  and checks each one.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels

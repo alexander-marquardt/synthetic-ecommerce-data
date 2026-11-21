@@ -23,9 +23,9 @@ TYPES = ("wall_art", "decor_object", "garden_statue", "faux_floral", "fountain")
 ORIENTATIONS = {
     "wall_art": "level",  # hung level; a set of panels is drawn as several items (#884)
     "decor_object": "level",  # a set of pieces is drawn as several items (#884)
-    "garden_statue": "upright",
+    "garden_statue": "level",  # stands on the ground, not held (#1101)
     "faux_floral": "upright",
-    "fountain": "upright",
+    "fountain": "level",  # stands on the ground, not held (#1101)
 }
 WOOD = kit.Fill("solid", "#8a5a3a", "#333333", "#f2d14b")
 BRAND = "Harbour & Pine"

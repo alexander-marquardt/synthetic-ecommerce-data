@@ -6,7 +6,9 @@ UPRIGHT: tuple[str, ...] = (
     "craft_kit",
     "doll",
     "jigsaw",
-    "ride_on",
     "role_play",
     "wooden_toy",
 )
+
+#: Not held or worn, so drawn level (#1101).
+LEVEL: tuple[str, ...] = ("ride_on",)

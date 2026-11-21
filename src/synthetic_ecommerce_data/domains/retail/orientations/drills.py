@@ -7,8 +7,11 @@ UPRIGHT: tuple[str, ...] = (
     "hammer_drill",
     "impact_driver",
     "sds_drill",
-    "step_ladder",
     "tool_kit",
     "volt_meter",
 )
-LEVEL: tuple[str, ...] = ("drill_bit_set",)
+#: Not held or worn, so drawn level (#1101): step_ladder.
+LEVEL: tuple[str, ...] = (
+    "drill_bit_set",
+    "step_ladder",
+)

@@ -7,8 +7,11 @@ UPRIGHT: tuple[str, ...] = (
     "hook_rail",
     "mesh_bag",
     "pump",
+)
+#: A coat stand is furniture: level (#1095).
+#: Not held or worn, so drawn level (#1101): sofa_cover, throw.
+LEVEL: tuple[str, ...] = (
+    "coat_stand",
     "sofa_cover",
     "throw",
 )
-#: A coat stand is furniture: level (#1095).
-LEVEL: tuple[str, ...] = ("coat_stand",)
