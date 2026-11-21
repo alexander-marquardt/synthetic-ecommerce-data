@@ -43,12 +43,23 @@ def test_the_kit_lays_out_one_to_seven_fruits() -> None:
     assert sorted(kit_produce.PILES) == list(range(1, 8))
 
 
+#: The shapes drawn as one round body, which a pack of one or two shows (a lemon, an onion).
+#: A banana, a carrot or a pair of cherries is long or thin: one alone cannot fill a square,
+#: and :func:`kit_produce.fruit_count` never draws fewer than ``MIN_FRUIT`` of any fruit.
+ROUND = {"orange", "lemon", "apple", "tomato", "onion", "potato"}
+
+
+def _counts(fruit: str) -> range:
+    fewest = 1 if kit_produce.FRUIT[fruit][0] in ROUND else kit_produce.MIN_FRUIT
+    return range(fewest, kit_produce.MAX_FRUIT + 1)
+
+
 @pytest.mark.parametrize("pack", kit_produce.PACKS)
 def test_every_pile_fills_half_its_product_area(pack: str) -> None:
     under = {
         (fruit, count): round(share, 3)
         for fruit in kit_produce.FRUIT
-        for count in sorted(kit_produce.PILES)
+        for count in _counts(fruit)
         if (share := _fill(_pile(fruit, count, pack))) < FLOOR
     }
     assert not under, f"{pack}: under {FLOOR:.0%} of the product area: {under}"
