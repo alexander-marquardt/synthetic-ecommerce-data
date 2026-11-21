@@ -31,7 +31,7 @@ from synthetic_ecommerce_data.domains.retail.toys_play_common import (
     style,
     toy_decoy,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import Row, TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, Row, TypeSpec, a
 
 _PATH = ("Toys", "Games", "Card Games")
 CALDERBY, LANTERNBY, THISTLE = "Calderby & Lune", "Lanternby", "Thistle & Wren"
@@ -126,6 +126,7 @@ SPEC = TypeSpec(
     product_type="Card Game",
     rows=_ROWS,
     derivable=True,
+    homes=(Home("decoy_product_words", False),),  # gen#1130: Pliars
     decoys=(
         toy_decoy(6, "kite", "generic", _ROWS[0], 20, "Kite Field Card Game",
                   "From the Kite Field range, named after a windy meadow; it is a game of cards "
