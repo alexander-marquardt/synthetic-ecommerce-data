@@ -177,9 +177,9 @@ KINDS = {
              "Vine & Valley", 1.1),
     # A bar sits in the Chocolate Bars child for its chocolate, a box under Chocolate (gen#298).
     "dark_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "Dark Chocolate Bars"), "Chocolate Bar",
-                      "bar", "Pantry Mill", 2.2),
+                      "chocolate_bar", "Pantry Mill", 2.2),
     "white_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "White Chocolate Bars"),
-                       "Chocolate Bar", "bar", "Pantry Mill", 2.2),
+                       "Chocolate Bar", "chocolate_bar", "Pantry Mill", 2.2),
     "chocolate_box": _food((*_CHOCOLATE, "Chocolate Boxes"), "Chocolate Box", "box",
                      "Hearth & Table", 4.5),
     "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",

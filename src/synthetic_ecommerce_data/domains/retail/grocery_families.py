@@ -113,7 +113,7 @@ TIER_BRANDS: dict[tuple[str, ...], tuple[str, ...]] = {
 FAMILIES: tuple[Family, ...] = (
     # Chocolate & Sweets
     _bars(Family("CHB", _BARS, "{line} Chocolate Bar", "Chocolate Bar",
-           "bar", "Chocolate", _A, "DE", 1.5, ("100g", "4 x 35g", "200g"),
+           "chocolate_bar", "Chocolate", _A, "DE", 1.5, ("100g", "4 x 35g", "200g"),
            (F("Milk", "#8a5a3c", "M"), F("Dark 70%", "#3b2416"), F("Hazelnut Milk", "#9a6a44", "MT"),
             F("Peanut Caramel", "#b07a3c", "MP"), F("Mint Dark", "#2f6b52"), F("Orange Dark", "#d9822b"),
             F("Coconut Dark", "#efe8d8"), F("Salted Caramel Milk", "#c48a3a", "M"),
@@ -398,7 +398,7 @@ FAMILIES: tuple[Family, ...] = (
            _SNACK, 0.003, may=((3, ""), (1, "M"))),
     # Class "oranges": the word names a flavour in a bar, a bake, a biscuit and a drink, in
     # categories other than Oranges.
-    _bars(Family("CHO", _BARS, "{line} {flavor}", "Chocolate Bar", "bar",
+    _bars(Family("CHO", _BARS, "{line} {flavor}", "Chocolate Bar", "chocolate_bar",
            "Chocolate Orange", _A, "DE", 1.8, ("100g", "175g"),
            (F("Milk Chocolate Orange", "#d9822b", "M"), F("Dark Chocolate Orange", "#8a4a1c")),
            _CHOC, 0.008, base="S", may=_NUTS)),
@@ -704,18 +704,18 @@ FAMILIES: tuple[Family, ...] = (
     # ``DECOY_ANCHORS`` only (a depth family's budget is spent by them); the ingredient fields
     # (``facets.ingredient_base``, ``contains``, ``may_contain``) are the truth the policy reads.
     _bars(Family("PNT", _BARS, "{line} {flavor}", "Chocolate Bar",
-           "bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
+           "chocolate_bar", "Chocolate", _A, "DE", 1.8, ("100g", "200g"),
            (F("Chocolate Peanut Butter Cups", "#a06a30", "MP"), F("Milk Chocolate with Crunchy Peanuts", "#8a5a3c", "MP"),
             F("Chocolate Coated Peanuts", "#7a4a2a", "MP"), F("Peanut Caramel Chocolate Bar", "#b07a3c", "MP"),
             F("Dark Chocolate Peanut Clusters", "#3b2416", "P"), F("Chocolate Peanut Brittle", "#c48a3a", "MP")),
            _CHOC, 0.001, base="S", depth=True)),
     _bars(Family("PNH", _BARS, "{line} {flavor}", "Chocolate Bar",
-           "bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
+           "chocolate_bar", "Chocolate", _A, "DE", 1.6, ("100g", "200g"),
            (F("Milk Chocolate Praline Bar", "#9a6a44", "MP"), F("Triple Chocolate Biscuit Bar", "#6a3a22", "GMP"),
             F("Dark Chocolate Crunch Bar", "#3b2416", "P")),
            _CHOC, 0.001, base="S", depth=True)),
     _bars(Family("PNF", _BARS, "{line} {flavor}", "Chocolate Bar",
-           "bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
+           "chocolate_bar", "Chocolate", _A, "DE", 1.7, ("100g", "200g"),
            (F("Peanut-Free Milk Chocolate Bar", "#8a5a3c", "M"), F("Peanut-Free Dark Chocolate Bar", "#3b2416"),
             F("No Peanuts Hazelnut Milk Chocolate Bar", "#9a6a44", "MT"), F("No Peanuts Orange Dark Chocolate Bar", "#d9822b"),
             F("Peanut-Free Salted Caramel Chocolate Bar", "#c48a3a", "M")),
@@ -756,7 +756,7 @@ FAMILIES: tuple[Family, ...] = (
            _FRESH, 0.005, axis="variety", depth=True),
     # The Chocolate aisle's pack-size leaves (gen#298): the bar lines in a multipack of bars and
     # in a sharing bag of buttons or bites. Appended last, from the depth stream, so no draw moves.
-    Family("CMP", (*_CHOCOLATE, "Chocolate Multipacks"), "{line} {flavor} Multipack", "Chocolate Bar", "bar",
+    Family("CMP", (*_CHOCOLATE, "Chocolate Multipacks"), "{line} {flavor} Multipack", "Chocolate Bar", "chocolate_bar",
            "Chocolate", _A, "DE", 2.0, ("4 x 35g", "6 x 25g"),
            (F("Milk Chocolate", "#8a5a3c", "M"), F("Dark Chocolate", "#3b2416"), F("White Chocolate", "#f2e6c8", "M"),
             F("Hazelnut Milk Chocolate", "#9a6a44", "MT"), F("Salted Caramel Milk Chocolate", "#c48a3a", "M"),

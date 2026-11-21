@@ -348,6 +348,8 @@ def _drawing(
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+    if shape == "chocolate_bar":  # a SKU draws its own weight or its multipack (gen#1125)
+        marks["pack_size"] = pack["pack_size"]
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)
