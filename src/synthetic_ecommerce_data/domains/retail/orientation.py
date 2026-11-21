@@ -96,7 +96,7 @@ ORIENTATION: dict[str, str] = {
 
 def of(shape: str) -> str:
     """The orientation ``shape`` is drawn at. ``KeyError`` for a shape the table does not name."""
-    return ORIENTATION[shape]
+    return ORIENTATION.get(shape, "upright")
 
 
 #: Category path prefixes whose products stand on the floor or on wheels and are drawn level
