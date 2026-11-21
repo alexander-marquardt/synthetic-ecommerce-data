@@ -236,7 +236,7 @@ def produce_pile(
     ]
     if pack == "bag":
         out.append(_path(BAG, "#eef6f8", LW_DETAIL, ' fill-opacity=".55"'))
-    body = "".join(_glossed(SHAPES[shape](fill.base, one, None), fill.base, gloss))
+    body = "".join(_glossed(_drawn(shape)(fill.base, one, None), fill.base, gloss))
     if shape in ARRANGE and count >= MIN_FRUIT:
         out += _arranged(shape, count, seed, body)
     else:
@@ -275,10 +275,16 @@ BAG = "M50,92 Q200,72 350,92 Q368,220 362,336 Q200,364 38,336 Q32,220 50,92 Z"
 NET = "M44,108 Q200,52 356,108 Q386,224 350,344 Q200,372 50,344 Q14,224 44,108 Z"
 
 
+def _drawn(shape: str):
+    """What draws one fruit of ``shape`` in a pile: a motif's small fruit (``kit_motifs.PILE_FRUIT``),
+    which the pile's layouts are in the units of, never the large motif drawn alone (gen#1111)."""
+    return kit_motifs.PILE_FRUIT.get(shape) or SHAPES[shape]
+
+
 @functools.cache
 def _shape_box(shape: str) -> tuple[tuple[float, float, float, float], float]:
     """The box one fruit of ``shape`` covers on its own sheet, and the share of it it paints."""
-    svg = _SVG.format("".join(SHAPES[shape]("#888888", Fill("solid", "#888888", "#444444"), None)))
+    svg = _SVG.format("".join(_drawn(shape)("#888888", Fill("solid", "#888888", "#444444"), None)))
     box = sheet_extent.reach(svg)
     assert box is not None, shape
     return box, sheet_cover.cover(svg, box)

@@ -1,6 +1,6 @@
 """Printable motifs for the retail drawing kit (gen#125, motif prints).
 
-Small flat drawings that a print repeats on a surface (see :mod:`motifs`):
+Drawings that a print repeats on a surface (see :mod:`motifs`):
 fruit, vegetables, animals, dinosaurs and vehicles, flowers, stars, seasonal
 figures, food treats and tools. Each is an ordinary kit shape, so it also
 draws as a product (a dinosaur toy, an orange) and every other kit shape is
@@ -57,20 +57,142 @@ def _star_points(cx: float, cy: float, outer: float, inner: float, n: int = 5) -
 # --------------------------------------------------------------------------
 # Fruit
 # --------------------------------------------------------------------------
+# Each fruit and vegetable is drawn large, filling at least half the product area (gen#1111): it
+# is drawn alone as a product too (a strawberry plant's picture), where a small one read as a
+# few flat shapes in an empty frame.
 
 
 def orange(paint: str, fill: Fill, label: str | None) -> list[str]:
+    dimples = ((138, 181), (178, 258), (245, 176), (270, 268), (210, 321), (112, 256), (300, 206))
+    return [
+        _path("M200,68 Q198,50 204,36", "none", 5),
+        _path("M204,52 Q246,18 282,42 Q246,74 204,52 Z", LEAF, 2),
+        _circle(200, 206, 140, paint),
+        *[
+            f'<circle cx="{x}" cy="{y}" r="3.2" fill="{_shade(fill.base, 0.2)}"/>'
+            for x, y in dimples
+        ],
+        _highlight("M114,166 Q126,122 170,100", 11, 0.45),
+    ]
+
+
+def lemon(paint: str, fill: Fill, label: str | None) -> list[str]:
+    body = "M31,214 Q56,193 83,131 Q200,45 317,131 Q344,193 369,214 Q344,235 317,297 Q200,383 83,297 Q56,235 31,214 Z"
+    return [
+        _path("M270,96 Q304,46 352,52 Q330,100 270,96 Z", LEAF, 2),
+        _path(body, paint),
+        _line("M276,96 Q308,70 344,58", 1.4),
+        _highlight("M101,166 Q138,112 205,101", 11, 0.45),
+    ]
+
+
+def apple(paint: str, fill: Fill, label: str | None) -> list[str]:
+    body = "M200,105 C150,65 60,82 60,188 C60,290 138,362 200,332 C262,362 340,290 340,188 C340,82 250,65 200,105 Z"
+    return [
+        _path(body, paint),
+        _path("M200,108 Q195,60 212,30", "none", 6, stroke=STEM),
+        _path("M208,65 Q250,25 290,50 Q250,88 208,65 Z", LEAF, 2),
+        _highlight("M100,168 Q108,130 140,112", 11, 0.45),
+    ]
+
+
+def strawberry(paint: str, fill: Fill, label: str | None) -> list[str]:
+    body = "M200,360 C88,308 23,199 60,136 C95,82 305,82 340,136 C377,199 312,308 200,360 Z"
+    seeds = (
+        (122, 157),
+        (200, 147),
+        (278, 157),
+        (92, 212),
+        (163, 209),
+        (237, 209),
+        (308, 212),
+        (129, 264),
+        (200, 266),
+        (271, 264),
+        (166, 313),
+        (234, 313),
+    )
+    calyx = "M200,118 L163,69 L200,89 L222,48 L234,92 L290,74 L256,115 L200,131 L144,115 L110,76 Z"
+    return [
+        _path(body, paint),
+        *[
+            f'<ellipse cx="{x}" cy="{y}" rx="4.4" ry="7" fill="{YOLK}" stroke="{INK}" stroke-width="0.9"/>'
+            for x, y in seeds
+        ],
+        _path(calyx, LEAF, 2),
+        _highlight("M88,157 Q104,123 141,110", 10, 0.4),
+    ]
+
+
+def cherries(paint: str, fill: Fill, label: str | None) -> list[str]:
+    return [
+        _path("M136,180 Q156,100 214,52 M266,184 Q252,110 214,52", "none", 5, stroke=STEM),
+        _path("M214,52 Q262,18 310,40 Q266,80 214,52 Z", LEAF, 2),
+        _circle(134, 254, 104, paint),
+        _circle(266, 258, 104, paint),
+        _highlight("M82,236 Q90,200 122,186", 9, 0.45),
+        _highlight("M212,240 Q220,204 252,190", 9, 0.45),
+    ]
+
+
+# --------------------------------------------------------------------------
+# Vegetables
+# --------------------------------------------------------------------------
+
+
+def carrot(paint: str, fill: Fill, label: str | None) -> list[str]:
+    """A carrot with its leafy tops filled under the fronds, drawn upright and then laid on the
+    diagonal, the longest line the sheet holds, so a long root fills as much of it as it can."""
+    tops = (
+        "M196,118 C170,90 140,66 128,20 C162,34 192,76 206,112 Z "
+        "M194,114 C184,78 188,40 204,8 C222,42 218,80 208,114 Z "
+        "M206,118 C230,84 258,56 284,30 C282,72 248,100 212,120 Z"
+    )
+    root = "M120,120 Q200,88 280,120 Q262,250 212,372 Q200,386 188,372 Q138,250 120,120 Z"
+    fronds = "M200,118 Q160,72 132,26 M200,118 Q196,60 204,14 M200,118 Q240,74 280,36"
+    upright = (
+        _path(tops, LEAF, 2),
+        _path(fronds, "none", 3, stroke=_shade(LEAF, 0.3)),
+        _path(root, paint),
+        _line("M142,170 L170,172 M232,206 L256,204 M158,260 L182,262 M214,312 L232,310", 1.8),
+        _highlight("M140,140 Q146,200 168,262", 9, 0.4),
+    )
+    return [f'<g transform="rotate(-35 200 200)">{"".join(upright)}</g>']
+
+
+def mushroom(paint: str, fill: Fill, label: str | None) -> list[str]:
+    spots = ((131, 142, 21), (236, 118, 26), (297, 186, 16), (87, 199, 13), (200, 186, 17))
+    return [
+        _path("M146,218 L136,342 Q200,364 264,342 L254,218 Z", "#f4ecdc"),
+        _path("M30,226 Q40,70 200,60 Q360,70 370,226 Q200,254 30,226 Z", paint),
+        *[_circle(x, y, r, "#ffffff", 1.4) for x, y, r in spots],
+        _highlight("M70,176 Q84,118 132,92", 10, 0.4),
+    ]
+
+
+# --------------------------------------------------------------------------
+# The fruit a produce pile repeats
+# --------------------------------------------------------------------------
+# A pile (:mod:`kit_produce`) lays out several of one fruit in its own units: a hand of
+# bananas, a bunch of carrots at their tops, a heap of cherry pairs. It keeps drawing the
+# small upright fruit it was laid out for, whose outline it scales with the pile.
+
+
+def _small_orange(paint: str, fill: Fill, label: str | None) -> list[str]:
     dimples = ((150, 200), (182, 262), (236, 196), (256, 270), (208, 312), (130, 260), (280, 220))
     return [
         _path("M200,110 Q198,94 204,80", "none", 4),
         _path("M204,94 Q240,64 270,86 Q238,114 204,94 Z", LEAF, 2),
         _circle(200, 220, 112, paint),
-        *[f'<circle cx="{x}" cy="{y}" r="2.6" fill="{_shade(fill.base, 0.2)}"/>' for x, y in dimples],
+        *[
+            f'<circle cx="{x}" cy="{y}" r="2.6" fill="{_shade(fill.base, 0.2)}"/>'
+            for x, y in dimples
+        ],
         _highlight("M132,182 Q142,146 176,130", 9, 0.45),
     ]
 
 
-def lemon(paint: str, fill: Fill, label: str | None) -> list[str]:
+def _small_lemon(paint: str, fill: Fill, label: str | None) -> list[str]:
     body = "M64,222 Q84,206 106,160 Q200,96 294,160 Q316,206 336,222 Q316,238 294,284 Q200,348 106,284 Q84,238 64,222 Z"
     return [
         _path("M262,128 Q300,84 340,100 Q312,142 262,128 Z", LEAF, 2),
@@ -80,7 +202,7 @@ def lemon(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def apple(paint: str, fill: Fill, label: str | None) -> list[str]:
+def _small_apple(paint: str, fill: Fill, label: str | None) -> list[str]:
     body = "M200,140 C160,108 88,122 88,206 C88,288 150,346 200,322 C250,346 312,288 312,206 C312,122 240,108 200,140 Z"
     return [
         _path(body, paint),
@@ -90,10 +212,25 @@ def apple(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def strawberry(paint: str, fill: Fill, label: str | None) -> list[str]:
+def _small_strawberry(paint: str, fill: Fill, label: str | None) -> list[str]:
     body = "M200,336 C128,296 86,212 110,164 C132,122 268,122 290,164 C314,212 272,296 200,336 Z"
-    seeds = ((150, 180), (200, 172), (250, 180), (130, 222), (176, 220), (224, 220), (270, 222), (154, 262), (200, 264), (246, 262), (178, 300), (222, 300))
-    calyx = "M200,150 L176,112 L200,128 L214,96 L222,130 L258,116 L236,148 L200,160 L164,148 L142,118 Z"
+    seeds = (
+        (150, 180),
+        (200, 172),
+        (250, 180),
+        (130, 222),
+        (176, 220),
+        (224, 220),
+        (270, 222),
+        (154, 262),
+        (200, 264),
+        (246, 262),
+        (178, 300),
+        (222, 300),
+    )
+    calyx = (
+        "M200,150 L176,112 L200,128 L214,96 L222,130 L258,116 L236,148 L200,160 L164,148 L142,118 Z"
+    )
     return [
         _path(body, paint),
         *[
@@ -105,7 +242,7 @@ def strawberry(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def cherries(paint: str, fill: Fill, label: str | None) -> list[str]:
+def _small_cherries(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path("M150,250 Q170,150 222,96 M254,262 Q244,170 222,96", "none", 4, stroke=STEM),
         _path("M222,96 Q262,70 294,92 Q258,118 222,96 Z", LEAF, 2),
@@ -116,12 +253,7 @@ def cherries(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-# --------------------------------------------------------------------------
-# Vegetables
-# --------------------------------------------------------------------------
-
-
-def carrot(paint: str, fill: Fill, label: str | None) -> list[str]:
+def _small_carrot(paint: str, fill: Fill, label: str | None) -> list[str]:
     root = "M150,128 Q200,108 250,128 Q238,220 206,344 Q200,352 194,344 Q162,220 150,128 Z"
     fronds = "M200,124 Q178,82 150,62 M200,124 Q200,76 206,48 M200,124 Q224,84 256,66"
     return [
@@ -131,12 +263,15 @@ def carrot(paint: str, fill: Fill, label: str | None) -> list[str]:
     ]
 
 
-def mushroom(paint: str, fill: Fill, label: str | None) -> list[str]:
-    return [
-        _path("M164,222 L158,322 Q200,338 242,322 L236,222 Z", "#f4ecdc"),
-        _path("M80,226 Q88,104 200,96 Q312,104 320,226 Q200,248 80,226 Z", paint),
-        *[_circle(x, y, r, "#ffffff", 1.4) for x, y, r in ((150, 160, 16), (226, 140, 20), (270, 196, 12), (118, 206, 10), (200, 196, 13))],
-    ]
+#: Pile fruit -> its small drawing (:mod:`kit_produce` draws these, never the large motif).
+PILE_FRUIT = {
+    "orange": _small_orange,
+    "lemon": _small_lemon,
+    "apple": _small_apple,
+    "strawberry": _small_strawberry,
+    "cherries": _small_cherries,
+    "carrot": _small_carrot,
+}
 
 
 # --------------------------------------------------------------------------
@@ -147,7 +282,9 @@ def mushroom(paint: str, fill: Fill, label: str | None) -> list[str]:
 def cat(paint: str, fill: Fill, label: str | None) -> list[str]:
     head = "M136,170 L128,86 L176,124 Q200,116 224,124 L272,86 L264,170 Q264,226 200,228 Q136,226 136,170 Z"
     return [
-        _path("M262,316 Q340,310 326,236 Q320,212 300,222", "none", 10, stroke=_shade(fill.base, 0.15)),
+        _path(
+            "M262,316 Q340,310 326,236 Q320,212 300,222", "none", 10, stroke=_shade(fill.base, 0.15)
+        ),
         _path("M126,330 Q118,240 168,218 L232,218 Q282,240 274,330 Z", paint),
         _path(head, paint),
         f'<ellipse cx="176" cy="166" rx="7" ry="10" fill="{INK}"/>',
@@ -160,7 +297,9 @@ def cat(paint: str, fill: Fill, label: str | None) -> list[str]:
 def bird(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path("M96,240 L52,206 L60,262 Z", _shade(fill.base, 0.15), 2),
-        _path("M90,236 Q120,150 220,150 Q300,150 304,226 Q300,300 200,306 Q120,306 90,236 Z", paint),
+        _path(
+            "M90,236 Q120,150 220,150 Q300,150 304,226 Q300,300 200,306 Q120,306 90,236 Z", paint
+        ),
         _path("M296,190 L344,206 L298,220 Z", YOLK, 2),
         _path("M150,226 Q200,196 240,236 Q200,270 150,226 Z", _shade(fill.base, 0.15), 2),
         _circle(266, 196, 8, INK, 1),
@@ -171,9 +310,17 @@ def bird(paint: str, fill: Fill, label: str | None) -> list[str]:
 def whale(paint: str, fill: Fill, label: str | None) -> list[str]:
     body = "M70,226 Q80,146 200,146 Q290,146 316,212 L350,176 L362,252 L316,236 Q290,292 200,292 Q80,292 70,226 Z"
     return [
-        _line("M168,128 Q160,96 140,86 M168,128 Q170,92 168,72 M168,128 Q178,96 196,86", 3, stroke="#5b9bd5"),
+        _line(
+            "M168,128 Q160,96 140,86 M168,128 Q170,92 168,72 M168,128 Q178,96 196,86",
+            3,
+            stroke="#5b9bd5",
+        ),
         _path(body, paint),
-        _path("M80,246 Q200,284 300,240 Q290,288 200,290 Q100,290 80,246 Z", _tint(fill.base, 0.5), 1.4),
+        _path(
+            "M80,246 Q200,284 300,240 Q290,288 200,290 Q100,290 80,246 Z",
+            _tint(fill.base, 0.5),
+            1.4,
+        ),
         _circle(124, 214, 7, INK, 1),
         _line("M108,240 Q124,250 140,240", 1.6),
     ]
@@ -187,7 +334,10 @@ def dinosaur(paint: str, fill: Fill, label: str | None) -> list[str]:
     )
     return [
         _path(body, paint),
-        *[_circle(x, y, r, _shade(fill.base, 0.2), 1.2) for x, y, r in ((176, 214, 12), (220, 226, 9), (250, 204, 8), (150, 240, 7))],
+        *[
+            _circle(x, y, r, _shade(fill.base, 0.2), 1.2)
+            for x, y, r in ((176, 214, 12), (220, 226, 9), (250, 204, 8), (150, 240, 7))
+        ],
         _circle(324, 100, 5, INK, 1),
         _line("M330,112 L344,108", 1.4),
     ]
@@ -241,7 +391,15 @@ def christmas_tree(paint: str, fill: Fill, label: str | None) -> list[str]:
         _path("M200,108 L286,232 L114,232 Z", paint),
         _path("M200,70 L262,166 L138,166 Z", paint),
         _path(_star_points(200, 66, 22, 9), YOLK, 1.6),
-        *[_circle(x, y, 8, c, 1.2) for x, y, c in ((160, 270, "#d23b3b"), (236, 252, YOLK), (196, 200, "#d23b3b"), (230, 150, YOLK))],
+        *[
+            _circle(x, y, 8, c, 1.2)
+            for x, y, c in (
+                (160, 270, "#d23b3b"),
+                (236, 252, YOLK),
+                (196, 200, "#d23b3b"),
+                (230, 150, YOLK),
+            )
+        ],
     ]
 
 
@@ -272,7 +430,9 @@ def cupcake(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path("M118,226 L282,226 L258,336 L142,336 Z", "#f2d9b0"),
         _line("M150,230 L162,334 M184,230 L190,334 M216,230 L210,334 M250,230 L238,334", 1.4),
-        _path("M108,230 Q96,186 140,180 Q140,128 200,130 Q260,128 260,180 Q304,186 292,230 Z", paint),
+        _path(
+            "M108,230 Q96,186 140,180 Q140,128 200,130 Q260,128 260,180 Q304,186 292,230 Z", paint
+        ),
         _circle(200, 112, 18, "#d23b3b", 2),
     ]
 
@@ -281,20 +441,31 @@ def ice_cream(paint: str, fill: Fill, label: str | None) -> list[str]:
     return [
         _path("M142,212 L258,212 L200,352 Z", "#e2b26a"),
         _line("M160,232 L230,300 M196,224 L248,262 M240,232 L170,300 M204,224 L152,262", 1.2),
-        _path("M126,214 Q118,150 170,140 Q190,96 236,112 Q290,128 276,184 Q290,214 270,216 Z", paint),
+        _path(
+            "M126,214 Q118,150 170,140 Q190,96 236,112 Q290,128 276,184 Q290,214 270,216 Z", paint
+        ),
     ]
 
 
 def doughnut(paint: str, fill: Fill, label: str | None) -> list[str]:
     ring = "M90,210 A110,110 0 1,0 310,210 A110,110 0 1,0 90,210 Z M164,210 A36,36 0 1,1 236,210 A36,36 0 1,1 164,210 Z"
     icing = "M104,200 Q110,120 200,112 Q290,120 296,200 Q290,250 270,244 Q250,280 220,262 Q190,300 160,264 Q120,282 110,240 Q96,230 104,200 Z M168,206 A32,32 0 1,1 232,206 A32,32 0 1,1 168,206 Z"
-    sprinkles = ((150, 150, 20), (240, 146, -30), (270, 200, 60), (130, 210, -50), (200, 136, 0), (250, 240, 30))
+    sprinkles = (
+        (150, 150, 20),
+        (240, 146, -30),
+        (270, 200, 60),
+        (130, 210, -50),
+        (200, 136, 0),
+        (250, 240, 30),
+    )
     return [
         _path(ring, "#e2b26a", extra=' fill-rule="evenodd"'),
         _path(icing, paint, 2, ' fill-rule="evenodd"'),
         *[
             f'<rect x="{x - 8}" y="{y - 2.5}" width="16" height="5" rx="2.5" fill="{c}" transform="rotate({r} {x} {y})"/>'
-            for (x, y, r), c in zip(sprinkles, ("#ffffff", YOLK, "#5b9bd5", "#ffffff", LEAF, YOLK), strict=True)
+            for (x, y, r), c in zip(
+                sprinkles, ("#ffffff", YOLK, "#5b9bd5", "#ffffff", LEAF, YOLK), strict=True
+            )
         ],
     ]
 
@@ -334,7 +505,10 @@ def screwdriver(paint: str, fill: Fill, label: str | None) -> list[str]:
         f'<g transform="rotate(40 200 200)">'
         f'<rect x="192" y="52" width="16" height="170" fill="{METAL}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>'
         + _path("M192,52 L208,52 L204,36 L196,36 Z", METAL, LW_DETAIL)
-        + _path("M168,222 Q168,208 184,208 L216,208 Q232,208 232,222 L236,330 Q236,352 214,352 L186,352 Q164,352 164,330 Z", paint)
+        + _path(
+            "M168,222 Q168,208 184,208 L216,208 Q232,208 232,222 L236,330 Q236,352 214,352 L186,352 Q164,352 164,330 Z",
+            paint,
+        )
         + _line("M186,236 L186,330 M200,236 L200,330 M214,236 L214,330", 1.4)
         + "</g>"
     ]
