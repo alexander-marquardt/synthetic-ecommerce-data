@@ -13,14 +13,16 @@ table. The sets are :data:`...core.drawing.product_look.ORIENTATIONS`:
 * ``slight`` (+-15 degrees): clothing, footwear and what is worn with them (a belt, a scarf, a
   tie, a hat), where a garment turned further reads as falling over (the maintainer's ruling
   on #860).
-* ``upright`` (+-36 degrees): everything with a natural up (a bottle, a lamp, a fridge, a toy),
+* ``upright`` (+-36 degrees): everything with a natural up (a bottle, a bulb, a fridge, a toy),
   and every shape nobody was sure of.
 
 * ``level`` (0 degrees only, #884): a set type drawn as several items (cutlery, a dinner set,
   luggage), which overlap on a slant; and a bicycle, which rests on its two wheels and reads as
   falling or wheelieing on a slant (#1049); and every furniture item (a bed, a sofa, a table,
   a wardrobe: the shapes of the furniture, seating, home and storage furniture kits), which
-  stands on the floor and looks wrong turned (the maintainer, 2026-11-20, #1095).
+  stands on the floor and looks wrong turned (the maintainer, 2026-11-20, #1095), and with it
+  every lamp and light fitting, the lampshade, the coat stand, the garden furniture and
+  parasols, and the crib (#1095, slice 2).
 
 A product any SKU of which is a pack of several items (``pack_copies.count``: its pack size,
 units per pack or pack attribute, or "Set of 2" in its title) is drawn level on every SKU
