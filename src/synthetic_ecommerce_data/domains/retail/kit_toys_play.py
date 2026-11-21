@@ -1,5 +1,6 @@
 """Drawings of the six toy types of gen#424: a kite, a play kitchen, a dolls' house, a card game,
-a marble run and a water gun. Each is its own shape and registers itself with the kit.
+a marble run and a water gun, and gen#1130's trading card products. Each is its own shape and
+registers itself with the kit.
 
 ==============  ==========================================  ==========================
 shape           what it draws                               params
@@ -13,7 +14,11 @@ dolls_house     an open-fronted house of rooms under a      floors (2, 3)
 card_game       a tuck box with a fan of three cards        kind (family, party,
                 before it, its pip marking the kind; a      strategy), theme
                 themed game's name on the box (gen#960)
-marble_run      a stand with sloped channels, each ending   tiers (3, 4)
+trading_cards   a trading card game's product (gen#1130):   form (booster_pack,
+                a foil pack, a display box of packs, a      expansion, booster_box,
+                deck, two decks on a mat, sleeves or a      starter_deck, battle_set,
+                deck box                                    sleeves, deck_box), theme
+marble_run     a stand with sloped channels, each ending   tiers (3, 4)
                 over the next, and marbles on them
 water_gun       a pistol, a blaster with a pump grip or a   kind (pistol, blaster,
                 backpack tank with a hose and a nozzle      backpack)
@@ -219,11 +224,112 @@ def water_gun(paint: str, fill: Fill, label: str | None, kind: str = "pistol") -
     return _label(out, label)
 
 
+def _card_back(x: float, y: float, w: float, h: float, paint: str) -> list[str]:
+    """A trading card face down: a white border round a painted back with a diamond on it."""
+    cx, cy = x + w / 2, y + h / 2
+    return [
+        _rect(x, y, w, h, "#ffffff", 8),
+        _rect(x + 8, y + 8, w - 16, h - 16, paint, 5, 2),
+        _path(
+            f"M{cx:g},{cy - h / 4:g} L{cx + w / 4:g},{cy:g} L{cx:g},{cy + h / 4:g} "
+            f"L{cx - w / 4:g},{cy:g} Z",
+            _tint(paint, 0.45),
+            2,
+        ),
+    ]
+
+
+def _foil_pack(x: float, y: float, w: float, h: float, paint: str, theme: str = "") -> list[str]:
+    """A sealed foil booster pack: crimped strips at its top and bottom, a gloss streak and a
+    panel, the theme on it when the pack is an expansion's."""
+    dark = _shade(paint, 0.3)
+    teeth = 8
+    step = w / teeth
+    top = " ".join(
+        f"L{x + (i + 0.5) * step:g},{y} L{x + (i + 1) * step:g},{y + 8}" for i in range(teeth)
+    )
+    right = x + w
+    bottom = " ".join(
+        f"L{right - (i + 0.5) * step:g},{y + h} L{right - (i + 1) * step:g},{y + h - 8}"
+        for i in range(teeth)
+    )
+    out = [
+        _path(f"M{x},{y + 8} {top} L{x + w},{y + h - 8} {bottom} Z", paint),
+        _rect(x, y + 8, w, 16, dark, 0, 2),
+        _rect(x, y + h - 24, w, 16, dark, 0, 2),
+        _highlight(f"M{x + 18:g},{y + 44:g} L{x + 34:g},{y + h - 44:g}", 7, 0.45),
+    ]
+    if theme:
+        return out + _panel(x + 14, y + h * 0.58, w - 28, 44, theme, 20)
+    cx, cy = x + w / 2, y + h * 0.45
+    return out + [_path(f"M{cx:g},{cy - 34:g} L{cx + 26:g},{cy:g} L{cx:g},{cy + 34:g} "
+                        f"L{cx - 26:g},{cy:g} Z", _tint(paint, 0.55), 2.4)]  # fmt: skip
+
+
+def trading_cards(paint: str, fill: Fill, label: str | None, form: str = "booster_pack",
+                  theme: str = "") -> list[str]:  # fmt: skip
+    """A deck-building trading card game's product (gen#1130), its ``form``: a foil
+    ``booster_pack`` (an ``expansion`` pack shows its theme), a ``booster_box`` of pack tops in an
+    open display box, a ``starter_deck`` of stacked cards with the top one face up, a
+    ``battle_set`` of two decks on a play mat, ``sleeves``, a clear stack with a card half in it,
+    or an upright ``deck_box`` with a flip lid. No form is the tuck box and fan of
+    :func:`card_game`."""
+    dark = _shade(fill.base, 0.3)
+    f = form.lower()
+    if f == "booster_box":
+        out = [_rect(60, 120, 280, 90, dark, 6)]
+        for i in range(5):
+            px, py = 78 + i * 50, 92 + (i % 2) * 10
+            out += [_rect(px, py, 44, 110, paint, 3, 2), _rect(px, py, 44, 12, dark, 0, 1.6)]
+        out += [_rect(60, 190, 280, 150, paint, 6), *_panel(110, 236, 180, 56, theme or None, 24)]
+    elif f == "starter_deck":
+        out = []
+        for i in (3, 2, 1):
+            out += [_rect(122 + i * 7, 62 + i * 7, 160, 240, "#ffffff", 8)]
+        out += [
+            _rect(122, 62, 160, 240, paint, 8),
+            _rect(136, 78, 132, 104, _tint(paint, 0.55), 4, 2),
+            _rect(136, 194, 132, 90, "#ffffff", 4, 2),
+            *(_line(f"M146,{y} L258,{y}", 2.4) for y in (214, 236, 258)),
+        ]
+    elif f == "battle_set":
+        out = [_rect(40, 190, 320, 150, _tint(fill.base, 0.5), 18)]
+        for x in (72, 228):
+            for i in (2, 1):
+                out.append(_rect(x + i * 5, 150 + i * 5, 100, 150, "#ffffff", 7))
+            out += _card_back(x, 150, 100, 150, paint)
+    elif f == "sleeves":
+        out = [_rect(132 + i * 8, 92 + i * 8, 150, 230, GLASS, 8, 2) for i in (3, 2, 1)]
+        out += _card_back(140, 50, 134, 200, paint)
+        out += [
+            _path(
+                "M124,140 L290,140 L290,322 Q290,330 282,330 L132,330 Q124,330 124,322 Z",
+                GLASS,
+                2.6,
+                ' fill-opacity="0.75"',
+            ),
+            _highlight("M140,160 L140,310", 6, 0.6),
+        ]
+    elif f == "deck_box":
+        out = [
+            _path("M290,130 L326,106 L326,316 L290,340 Z", dark),
+            _rect(110, 130, 180, 210, paint, 6),
+            _path("M110,130 L146,106 L326,106 L290,130 Z", _shade(paint, 0.15)),
+            _rect(110, 130, 180, 64, _shade(paint, 0.2), 6, 2),
+            _rect(184, 178, 32, 30, METAL, 6, 2),
+            *_panel(132, 236, 136, 60, None),
+        ]
+    else:
+        out = _foil_pack(120, 50, 160, 300, paint, theme if f == "expansion" else "")
+    return _label(out, label)
+
+
 SHAPES = {
     "kite": kite,
     "play_kitchen": play_kitchen,
     "dolls_house": dolls_house,
     "card_game": card_game,
+    "trading_cards": trading_cards,
     "marble_run": marble_run,
     "water_gun": water_gun,
 }

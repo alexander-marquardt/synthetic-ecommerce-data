@@ -6,9 +6,9 @@ on 3 products each (the hits and the suggestion show) and two on 7 to 10 (hits o
 
 gen#1130: a planted misspelling is a deliberate brand or product name, a pun a real company might
 choose (Bannana Bros gummy sweets, the Pliars bluffing card game), never a misspelled generic word
-in an ordinary product's title or description ("Big Bannana Bunch" read as a data error). The
-three suggestion words follow that rule here; ``leggins`` and ``cardigen`` stay on #944's rows
-until the issue's slice 2. No category, type or attribute holds any of the five.
+in an ordinary product's title or description ("Big Bannana Bunch" read as a data error). All
+five words follow it: ``Leggins & Co`` is a fashion label and ``Cardigen`` a deck-building trading
+card game, far from knitwear. No category, type or attribute holds any of the five.
 
 These tests read the ceiling build, the one a release ships (docs/releasing.md).
 """
@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import house_styles, scale
+from synthetic_ecommerce_data.domains.retail import house_styles, kit, kit_toys_play, scale
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.feature_decoys import misspelled_words_944 as ms
 
@@ -46,19 +46,22 @@ NAMED = {
         {("Sweets", "Sweets"), ("Board Games", "Board Game")},
     ),
     "pliars": (("Pliars",), {("Card Games", "Card Game")}),
+    "leggins": (("Leggins & Co",), {("Leggings", "Leggings")}),
+    "cardigen": (("Cardigen",), {("Card Games", "Card Game")}),
 }
-#: gen#1130: the drawings of a word's products, each in its own kit (no reused banana).
+#: gen#1130: the drawings of a word's products, each in its own kit (no reused banana, and
+#: Cardigen is not drawn as the Pliars tuck box).
 SHAPES = {
     "choocolate": {"box", "wooden_toy"},
     "bannana": {"bag", "board_game"},
     "pliars": {"card_game"},
+    "leggins": {"leggings"},
+    "cardigen": {"trading_cards"},
 }
-#: #944's rows, the word in an ordinary product of its own type, until gen#1130's slice 2.
-LEGACY = {"leggins": ("Leggings", "Leggings"), "cardigen": ("Cardigans", "Cardigan")}
 #: The Engine's head-hit threshold and the floor the common spelling must clear (issue text).
 THRESHOLD, RATIO = 3, 5
 #: The invented brands that carry a misspelling.
-BRANDS = ("Choo-Choocolate Express", "Bannana Bros", "Leggins Lab", "Cardigen & Co")
+BRANDS = ("Choo-Choocolate Express", "Bannana Bros", "Leggins & Co", "Cardigen")
 #: The industrial catalogue the R&I demo serves beside retail: its pliers count for `pliars`.
 INDUSTRIAL = Path(__file__).resolve().parent.parent / "golden-catalog" / "flat.jsonl"
 
@@ -123,12 +126,16 @@ def test_each_named_product_is_of_the_specs_type_and_category(records, word) -> 
     assert found == places
 
 
-@pytest.mark.parametrize(("word", "common"), [("bannana", "banana"), ("pliars", "pliers")])
+@pytest.mark.parametrize(
+    ("word", "common"), [("bannana", "banana"), ("pliars", "pliers"), ("cardigen", "cardigan")]
+)
 def test_no_named_product_sits_in_its_common_words_own_category(records, word, common) -> None:
-    """The shopper who types the word is after the brand: no Bananas, no Pliers leaf."""
+    """The shopper who types the word is after the brand: no Bananas, Pliers or Cardigans leaf,
+    and no Cardigen product in clothing."""
     for r in _carrying(records, word):
         assert not any(_has(common, node) for node in r["category_path"]), r["category_path"]
         assert r["category_path"][:3] != ["Food & Drink", "Fruit & Vegetables", "Fresh Fruit"]
+        assert "Knitwear" not in r["category_path"] and r["department"] != "Clothing"
 
 
 @pytest.mark.parametrize("word", NAMED)
@@ -137,14 +144,15 @@ def test_each_named_product_is_drawn_by_its_own_kit(word) -> None:
     assert shapes == SHAPES[word]
 
 
-@pytest.mark.parametrize("word", LEGACY)
-def test_each_legacy_product_is_of_its_words_own_type_and_category(records, word) -> None:
-    node, ptype = LEGACY[word]
-    found = _carrying(records, word)
-    assert found
-    wrong = {r["product_id"]: (r["category_path"], r["product_type"]) for r in found
-             if r["category_path"][-1] != node or r["product_type"] != ptype}  # fmt: skip
-    assert wrong == {}
+def test_each_cardigen_product_draws_its_own_picture() -> None:
+    """Eight products, eight pictures: no two Cardigen products draw the same trading card
+    form (a pack, an expansion pack per theme, a display box, a deck, a battle set, sleeves, a
+    deck box)."""
+    fill = kit.Fill("solid", "#4a3a8a")
+    kinds = [kind for _, kind, *_, w, _ in ms._ROWS if w == "cardigen"]
+    drawn = {"".join(kit_toys_play.trading_cards(fill.base, fill, None, **dict(ms.KINDS[k].params)))
+             for k in kinds}  # fmt: skip
+    assert len(kinds) == len(set(kinds)) == len(drawn) == 8
 
 
 @pytest.mark.parametrize("word", WORDS)
