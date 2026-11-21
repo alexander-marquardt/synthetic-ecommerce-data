@@ -97,6 +97,10 @@ with and without the grocery styles). Past that, the CLI reports
 per leaf that the title shows, more colorways, and more templates, deep-SKU ones
 above all.
 
+Tilt: the report's ``tilt`` section (:func:`tilt_audit.audit`, #1101) counts each category's
+turned products and lists the 20 largest turned items. The CLI exits 3, naming each one on
+stderr, when a turned product is in a never-tilt category or states a size over the limit.
+
 Images: a derived style keeps its template's drawing (params and a changed motif
 aside), so the distinct drawings (:func:`coverage` ``images.distinct_drawings``)
 stay near the template count. ``export.image_id`` still embeds the product id, so
@@ -158,6 +162,7 @@ from synthetic_ecommerce_data.domains.retail import (
     smart_home_rows,
     stable_ids,
     style_table,
+    tilt_audit,
     type_registry,
 )
 from synthetic_ecommerce_data.domains.retail.build_preview4 import samples
@@ -933,6 +938,7 @@ def main(argv: list[str] | None = None) -> int:
             k: v for k, v in prices_per_leaf(scaled.records).items() if k != "distinct"
         },  # fmt: skip
         "standard_problems": len(problems),
+        "tilt": tilt_audit.audit(scaled.records),
         "build_seconds": round(built, 2),
     }
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
@@ -945,6 +951,9 @@ def main(argv: list[str] | None = None) -> int:
         print(p, file=sys.stderr)
     if problems:
         return 1
+    if tilted := tilt_audit.refusals(report["tilt"]):  # a turned sofa or fridge (#1101)
+        print("\n".join(tilted), file=sys.stderr)
+        return 3
     if not report["reached_target"]:
         print(
             f"short: {scaled.skus} SKUs of {args.skus}; every template is exhausted",
