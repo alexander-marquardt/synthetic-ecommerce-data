@@ -89,7 +89,7 @@ every other drawing -- only the GEOMETRY is fixed.
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a sink, a bottle, a vise, a light bulb), and any type nobody was sure of |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
-  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), and every furniture item, lamp, light fitting, garden furniture piece and crib (#1095) |
+  | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), every furniture item, lamp, light fitting, garden furniture piece and crib (#1095), and every product the guard below holds level: a large appliance, a bike, a scooter, or anything over 60 cm (#1101) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
 
@@ -133,6 +133,22 @@ every other drawing -- only the GEOMETRY is fixed.
   crib and the bench. A light bulb keeps its tilt. Before, 94 of the 134 products in those
   groups were turned (the mirror was already level); after, none. The same test checks every
   SKU of each of them.
+
+  A guard beside the pack rule wins over the shape table (#1101,
+  `orientation.level_because`). It draws a retail product `level` whatever its shape when its
+  category is one that stands on the floor or on wheels (`orientation.NEVER_TILT`: Home >
+  Furniture, garden and nursery furniture, Home > Large Appliances, bikes and exercise bikes,
+  kick scooters, ride-on toys), or when it states a height or length over 60 cm
+  (`orientation.MAX_TILT_CM`). The size is read from `item_height` and `item_length`, a SKU's
+  `height_cm`, `length_cm` or `height` in feet, and each side of a `dimensions` value. A run
+  length in metres (a cable, a hose) is not a size, because the item is drawn coiled. Before
+  the guard, an unsure shape went to `upright`, so every fridge and washing machine was turned.
+  On main d4e5232e, 100 of the 119 Home > Large Appliances products were turned. The guard
+  levels 183 turned products: 100 large appliances, 3 kick scooters and 6 ride-ons by
+  category, and 74 by size (rugs, throws, beach towels, bath mats, kayaks, snowboards,
+  fishing rods, Christmas trees, scarves and the like). `tests/test_tilt_guard_1101.py`
+  checks a recorded slice of the built catalogue (a sofa, a mountain bike, a fridge, a
+  wardrobe and a glove): only the glove is turned.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
