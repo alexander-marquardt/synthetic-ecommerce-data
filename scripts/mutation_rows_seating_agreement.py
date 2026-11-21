@@ -18,19 +18,10 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "a corner sofa draws a run of three whatever its seat count",
         "kit_seating.py",
-        "n = max(0, int(float(seats)) - 3 * returns)",
-        "n = 3",
+        "n = max(0, int(float(seats)) - 3)  # run seats other than the corner seat",
+        "n = 3  # run seats other than the corner seat",
         f'{_T} -k "seat_cushions_its_record_states and corner_sofa"',
         "a corner sofa is drawn with the seat cushions its record states",
-        _ROOT,
-    ),
-    (
-        "a u-shaped corner sofa counts one return",
-        "kit_seating.py",
-        'returns = 2 if side == "u" else 1',
-        "returns = 1",
-        f'{_T} -k "seat_cushions_its_record_states and corner_sofa"',
-        "a u-shaped corner sofa takes the seats of both returns from its seat count",
         _ROOT,
     ),
     (

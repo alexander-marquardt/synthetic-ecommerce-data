@@ -114,3 +114,29 @@ def test_every_u_shaped_sofa_in_the_built_catalogue_is_drawn_by_the_u_sofa_kit(
     }
     assert "BRD-CNASHU" in u_shaped
     assert {pid: k for pid, k in u_shaped.items() if k != {"u_sofa"}} == {}
+
+
+@pytest.mark.parametrize("side", ["u", "both", ""])
+def test_the_corner_sofa_kit_refuses_any_side_but_left_or_right(side: str) -> None:
+    """A U is ``u_sofa``'s to draw: ``corner_sofa`` has one return, on the left or the right."""
+    with pytest.raises(ValueError, match="left or right"):
+        kit_seating.corner_sofa("#123456", kit.Fill("solid", "#123456", "#654321"), None, "6", side)
+
+
+def test_no_corner_sofa_row_or_built_drawing_has_a_side_but_left_or_right(
+    built: list[dict],
+) -> None:
+    rows = {
+        r.code: dict(r.params).get("side", "left")
+        for r in sofa_rows.ROWS
+        if r.shape == "corner_sofa"
+    }
+    assert rows and set(rows.values()) <= {"left", "right"}, rows
+    drawings = [
+        d
+        for rec in built
+        for d in (rec["drawing"], *(s["drawing"] for s in rec["skus"] if "drawing" in s))
+        if d["shape"] == "corner_sofa"
+    ]
+    sides = {(d.get("params") or {}).get("side", "left") for d in drawings}
+    assert drawings and sides <= {"left", "right"}, sides
