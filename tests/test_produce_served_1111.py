@@ -181,3 +181,21 @@ def test_each_weight_of_a_small_fruit_line_draws_its_own_heap(code: str) -> None
         assert pictures == len(drawn), f"{rec['product_id']}: {pictures} picture(s) for {counts}"
         assert counts == sorted(set(counts)), f"{rec['product_id']}: a larger weight, more fruits"
         assert all(kit_produce.MIN_FRUIT <= n <= kit_produce.MAX_FRUIT for n in counts), counts
+
+
+@pytest.mark.parametrize(
+    ("fruit", "grams", "want"),
+    [
+        ("grape", (250, 500, 1000), (3, 5, 7)),  # each 7 or more fruits: two fewer per halving
+        ("carrot", (500, 1000), (5, 7)),  # 500 g is 7 carrots: it steps down as well
+        ("cherry", (250, 400, 500), (5, 6, 7)),  # and one fewer at least than the next size up
+        ("onion", (500, 1000), (3, 7)),  # counts that already differ stay each weight's own
+        ("potato", (1000, 2000), (6, 7)),
+        ("lemon", (1000,), (7,)),  # a line of one weight draws its own count
+    ],
+)
+def test_a_lines_weights_are_counted_together(
+    fruit: str, grams: tuple[int, ...], want: tuple[int, ...]
+) -> None:
+    got = kit_produce.weight_counts(fruit, grams)
+    assert tuple(got[g] for g in grams) == want

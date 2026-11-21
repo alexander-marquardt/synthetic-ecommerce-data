@@ -38,7 +38,7 @@ Each fruit still turns a little by the product's hash (`jitter`), so two product
 differ. The test also checks that a hand's stalks meet (they span at most a quarter of what its
 tips span) and that a bunch's tops are tied closer than its roots spread. One or two long
 fruits alone (a Single banana) keep slice 1's drawing and its 0.25 floor. The punnet and the
-single motifs follow in slice 4 below; distinct heaps for the small-fruit weights in their own PR.
+single motifs follow in slice 4 below, and distinct heaps for the small-fruit weights in slice 5.
 
 ![Banana, carrot and cherry piles of 1 to 7 before the arrangements](../images/produce-arranged-1111-before.png)
 
@@ -66,8 +66,7 @@ picture) covered 0.12 to 0.35 of the product area.
 | carrot motif (long, drawn alone) | 0.25 | 0.12 | 0.29 |
 
 `tests/test_produce_fill_1111.py` pins both floors, and checks that nothing opaque but the label
-is drawn over a punnet's produce. Distinct heaps for the small-fruit weights follow in their own
-PR.
+is drawn over a punnet's produce. Distinct heaps for the small-fruit weights follow in slice 5.
 
 ![Punnets and fruit and vegetable motifs before slice 4](../images/produce-punnet-motifs-1111-before.png)
 
@@ -84,8 +83,31 @@ first pack and `pack_copies.pile_count` for every other. `fruit_count` draws a c
 against 1 kg's 1000 g and drew the one fruit at 0.6.
 
 A product of one pack (PLT-LEMONS, the class-model and authored piles) keeps its own pile.
-A line whose weight packs all hold 7 or more fruits (grapes, berries, cherries, carrots) draws
-one 7-fruit bag at each weight; slice 3's heaps are where they can differ.
+**A line's weights are counted together (slice 5).** A weight's own count is its grams over one
+fruit's, clamped to 3-7, so before slice 5 a line of small fruit (grapes, berries, cherries,
+carrots), whose every weight holds 7 or more, drew one identical 7-fruit bag at 250g, 500g and
+1kg. `kit_produce.weight_counts` now counts a line's weights together: the largest draws its own
+count; a smaller weight whose own count reaches 7 draws `FEWER_PER_HALVING` (2) fewer per halving
+below the largest; and every weight draws at least one fewer than the next size up, never below 3.
+`grocery._drawing` and `pack_copies.pile_count` pass `sku_pile` the line's weights. A weight under 7
+keeps its own count (onions 500g / 1kg still draw 3 / 7, potatoes 1kg / 2kg 6 / 7), and a line of
+one weight draws as before.
+
+| line | weights | fruits before | fruits after | share of the product area after |
+|---|---|---|---|---|
+| GRC-GRP-0001 grapes | 250g / 500g / 1kg | 7 / 7 / 7 | 3 / 5 / 7 | 62% / 67% / 70% |
+| GRC-BLK-0001 blackberries | 150g / 300g | 7 / 7 | 5 / 7 | 71% / 70% |
+| GRC-CHY-0001 cherries (pairs) | 250g / 400g / 500g | 7 / 7 / 7 | 5 / 6 / 7 | 52% / 63% / 70% |
+| GRC-CAR-0001 carrots | 500g / 1kg | 7 / 7 | 5 / 7 | 69% / 71% |
+
+`tests/test_produce_served_1111.py` pins it over every GRP, BLK, CHY and CAR line of a grocery
+build: each line's weights serve distinct pictures, a larger weight more fruits, each at half the
+product area or more; and `weight_counts` on its own for grapes, cherries, carrots, onions,
+potatoes and one lemon weight.
+
+![GRP, BLK, CHY and CAR weight packs before slice 5: one picture per line](../images/produce-weights-1111-before.png)
+
+![GRP, BLK, CHY and CAR weight packs after slice 5: a heap per weight](../images/produce-weights-1111-after.png)
 
 `tests/test_produce_served_1111.py` pins it over `image_release.render`'s plain-sheet output for
 the lemon, orange, apple and onion lines and PLT-LEMONS: each pack's own count and form, a

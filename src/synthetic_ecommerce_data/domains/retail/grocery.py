@@ -328,13 +328,13 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family, flavors: list[F], pid: str, pack: dict, title: str, head: str, lead: str = "",
-    ending: str = "",
+    fam: Family, flavors: list[F], pid: str, packs: list[dict], title: str, head: str,
+    lead: str = "", ending: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
     lead = lead or head  # what the title starts with: the range, or the brand and the range
-    flavor = flavors[0]
+    flavor, pack = flavors[0], packs[0]
     color = (flavor.name, "solid", flavor.hex, "#ffffff")
     marks = {"line": head, "chips": ",".join(f.hex for f in flavors)}
     if ending:  # two rounds of one model draw apart by the word the title ends on (gen#729)
@@ -342,7 +342,8 @@ def _drawing(
     shape = SHAPES.get((fam.code, flavor.name), fam.shape)
     if fam.shape == "produce_pile":
         # the first pack's pile; each other SKU draws its own (pack_copies.pile_count, gen#1111)
-        params = sku_pile(FRUIT[flavor.name], pid, pack)
+        weights = [p["net_weight_g"] for p in packs if "net_weight_g" in p]
+        params = sku_pile(FRUIT[flavor.name], pid, pack, weights)
         return drawing(shape, color, pack_label(title, lead), **params)
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
@@ -437,7 +438,7 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
         title=title, brand=brand, brand_owner=OWNERS[brand], department=[fam.department],
         product_type=fam.product_type, category_path=list(path), category_leaf=path[-1],
         description=_description(fam, flavors, parsed, skus), attributes=attrs,
-        drawing=_drawing(fam, flavors, pid, parsed[0], title, head, lead, ending),
+        drawing=_drawing(fam, flavors, pid, parsed, title, head, lead, ending),
         collections=[], currency="GBP",
         audience="baby" if fam.code == "BAB" else "adult",
         sold_last_5_days=5 + h % 90, rating=round(3.8 + (h >> 8) % 11 / 10, 1),
