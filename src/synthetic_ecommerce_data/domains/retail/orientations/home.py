@@ -12,7 +12,7 @@ UPRIGHT: tuple[str, ...] = (
     "moisturiser_jar",
     "photo_frame",
     "pillow",
-    "sofa",
     "table_lamp",
 )
-LEVEL: tuple[str, ...] = ("cutlery_set", "dinner_set", "gift_set")
+#: Sets drawn as several items (#884), and a sofa, furniture (#1095).
+LEVEL: tuple[str, ...] = ("cutlery_set", "dinner_set", "gift_set", "sofa")

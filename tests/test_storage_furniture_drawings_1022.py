@@ -34,7 +34,7 @@ def test_the_five_types_are_registered_with_their_param_tables() -> None:
     assert set(kit_storage_furniture.PARAMS) == set(TYPES)
     assert set(TYPES) <= set(kit.SHAPES)
     for shape in TYPES:
-        assert orientation.of(shape) == "upright", shape
+        assert orientation.of(shape) == "level", shape  # furniture is level (#1095)
 
 
 @pytest.mark.parametrize("shape", TYPES)
