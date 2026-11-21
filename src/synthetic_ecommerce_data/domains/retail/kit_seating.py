@@ -13,6 +13,9 @@ sofa_seats      a straight sofa, one seat and back cushion       seats (2, 2.5, 
                 per seat (2.5 draws two wide ones)               legs
 corner_sofa     a sofa and its return, the return with its own   seats (in all), side (left,
                 back and seats; ``u`` returns on both sides      right, u), arms, legs
+u_sofa          a U: a run, and a return coming forward at each  seats (in all, 5 or more),
+                end, each with its own back; the middle between  legs
+                the returns stays open
 sofa_version    one version of a sofa sold as several (gen#808): configuration (2 Seater,
                 the 2 or 3 seater, or the left-hand corner       3 Seater, Corner), arms, legs
 chaise_sofa    a sofa whose end seat runs forward as a chaise,  seats, side (left, right),
@@ -342,6 +345,41 @@ def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", sid
     return _draw(boxes, paint, fill)
 
 
+def u_sofa(paint: str, fill: Fill, label: str | None, seats: str = "6", legs: str = "oak") -> list[str]:
+    """``seats`` seats in all, in a U: a run along the back and a return coming forward at each end.
+
+    Each end has a corner seat, and from it a return comes forward: one seat, or two from eight
+    seats. The return has its own back along its outer edge, and its front end is open, so its
+    seat shows. The run between the two corner seats takes the rest, at least one seat, so the
+    middle of the U stays open and the drawing shows the seat count its record states. Fewer than
+    five seats make no U and are refused.
+    """
+    total = int(float(seats))
+    if total < 5:
+        raise ValueError(f"a U-shaped sofa has at least 5 seats (two corners, two returns and a run), not {seats}")
+    per_return = 2 if total >= 8 else 1
+    run = total - 2 - 2 * per_return  # the run's seats between the corner seats
+    d, width, reach = DEPTH, SEAT * run, SEAT * per_return
+    # the left end: its return, its back and its legs; the right end is the left mirrored about the run
+    end = [
+        *_legs(-d, 0.0, -reach, d, legs),
+        Box(-d, -d + 14, BASE, BACK - 6, -reach, d - 14, "fill"),
+        *[Box(-d + 14, -d + 32, BASE, BACK, z, z + SEAT - 2, "fill") for z in (1.0, *(-(k + 1) * SEAT + 1 for k in range(per_return)))],
+        Box(-d, 0.0, LEG, BASE, -reach, 0.0, "fill", front=0.14),
+        *[Box(-d + 32, -1.0, BASE, CUSHION, -(k + 1) * SEAT + 1, -k * SEAT - 1, "fill") for k in range(per_return)],
+    ]
+    boxes = [
+        *_legs(0.0, width, 0.0, d, legs),
+        Box(-d, width + d, BASE, BACK - 6, d - 14, d, "fill"),
+        *_cushions(32 - d, width + d - 32, run + 2, CUSHION - 2, BACK, d - 32, d - 14),
+        Box(-d, width + d, LEG, BASE, 0.0, d - 14, "fill", front=0.14),
+        *_cushions(32 - d, width + d - 32, run + 2, BASE, CUSHION, 0.0, d - 32),
+        *end,
+        *[Box(width - b.x1, width - b.x0, b.y0, b.y1, b.z0, b.z1, b.paint, front=b.front) for b in end],
+    ]
+    return _draw(boxes, paint, fill)
+
+
 #: A version of a sofa sold as several (gen#808) -> the seats it has in all; the corner is an
 #: L-shape, a run of two beside its corner seat and a two-seat return.
 CONFIGURATION_SEATS = {"2 Seater": 2, "3 Seater": 3, "Corner": 5}
@@ -604,6 +642,7 @@ SHAPES = {
     "sofa_seats": sofa_seats, "corner_sofa": corner_sofa, "chaise_sofa": chaise_sofa,
     "modular_sofa": modular_sofa, "recliner_sofa": recliner_sofa, "sofa_bed": sofa_bed,
     "armchair": armchair, "footstool": footstool, "sofa_version": sofa_version,
+    "u_sofa": u_sofa,
 }  # fmt: skip
 
 register(SHAPES)

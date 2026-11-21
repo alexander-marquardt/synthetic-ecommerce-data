@@ -186,7 +186,7 @@ CORNER_ROWS = (
              "A five seater L-shaped corner sofa in a soft faux leather that wipes clean.",
              (("shape", "Shape", "L-Shape"),), legs="chrome"),
     Row("CNASHU", "Ashby Boucle U-Shaped Corner Sofa", "Larchwood Living", "Home", CORNER,
-        "Corner Sofa", 2299.0, "corner_sofa",
+        "Corner Sofa", 2299.0, "u_sofa",
         "A six seater U-shaped corner sofa in boucle, with a return at both ends for a big"
         " family room.",
         (CREAM, OAT, TAUPE),
@@ -194,7 +194,7 @@ CORNER_ROWS = (
          ("material", "Material", "Boucle"),
          ("shape", "Shape", "U-Shape"), ("arm_style", "Arm style", "Track"),
          ("leg_finish", "Leg finish", "Oak")),
-        params=(("seats", "6"), ("side", "u"), ("arms", "track"), ("legs", "oak"))),
+        params=(("seats", "6"), ("legs", "oak"))),
 )  # fmt: skip
 
 
