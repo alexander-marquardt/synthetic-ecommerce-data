@@ -15,6 +15,10 @@ shade down-right) and the pile stands on a ground shadow, so it reads as round.
 Each SKU draws its own pack (:func:`sku_pile`): a Single is one fruit lying loose, a 4 pack is 4
 in a net, and a weight is a clear bag of as many as it holds, so a line's packs are three
 pictures, not its first pack's pile three times (gen#1111).
+
+Three or more long fruits are not laid out in :data:`PILES`, whose grid only a round fruit fills:
+bananas hang from one crown as a hand, carrots are tied at their leafy tops as a bunch, and
+cherry pairs lie in a heap (:data:`ARRANGE`), each fitted to the room (gen#1111, slice 3).
 """
 
 # ruff: noqa: E501 -- SVG literals and data rows read better whole (prototype only).
@@ -27,7 +31,7 @@ import re
 import zlib
 
 from synthetic_ecommerce_data.domains.retail import (
-    kit_motifs,  # noqa: F401 -- registers carrot and cherries, drawn in a pile
+    kit_motifs,  # registers carrot and cherries, drawn in a pile
     sheet_cover,
     sheet_extent,
 )
@@ -94,7 +98,8 @@ AREA = 0.72
 #: or tall bulbs leaves the picture empty.
 STRETCH = {"carrot": 1.8, "onion": 1.3}
 #: Shape -> how much farther than a round fruit it may reach: a long or forked fruit (a banana,
-#: a carrot, a pair of cherries) paints less of its box, so it is drawn longer to paint as much.
+#: a carrot, a pair of cherries) paints less of its box, so one or two alone are drawn longer to
+#: paint as much; three or more are drawn in their :data:`ARRANGE` layout instead.
 REACH = {"banana": 1.6, "carrot": 1.6, "cherries": 1.4}
 #: The box the whole pile stays inside: the sheet, less a margin for the outline and the turn.
 ROOM = (14.0, 20.0, 386.0, 364.0)
@@ -231,15 +236,18 @@ def produce_pile(
     ]
     if pack == "bag":
         out.append(_path(BAG, "#eef6f8", LW_DETAIL, ' fill-opacity=".55"'))
-    reach = REACH.get(shape, 1.0)
-    box, k = _fit(shape, size, widest * reach, tallest * reach)
     body = "".join(_glossed(SHAPES[shape](fill.base, one, None), fill.base, gloss))
-    fruits = _place(centers, seed, box, k, STRETCH.get(shape, 1.0), body)
-    f = _room(sheet_extent.reach(_SVG.format("".join(fruits))))
-    if f < 1.0:
-        centers = tuple((200 + (x - 200) * f, 200 + (y - 200) * f) for x, y in centers)
-        fruits = _place(centers, seed, box, k * f, STRETCH.get(shape, 1.0), body)
-    out += fruits
+    if shape in ARRANGE and count >= MIN_FRUIT:
+        out += _arranged(shape, count, seed, body)
+    else:
+        reach = REACH.get(shape, 1.0)
+        box, k = _fit(shape, size, widest * reach, tallest * reach)
+        fruits = _place(centers, seed, box, k, STRETCH.get(shape, 1.0), body)
+        f = _room(sheet_extent.reach(_SVG.format("".join(fruits))))
+        if f < 1.0:
+            centers = tuple((200 + (x - 200) * f, 200 + (y - 200) * f) for x, y in centers)
+            fruits = _place(centers, seed, box, k * f, STRETCH.get(shape, 1.0), body)
+        out += fruits
     if pack == "bag":  # the film over the fruit: a sheen and the bag's twisted neck
         out += [
             _path(BAG, "#ffffff", LW_DETAIL, ' fill-opacity=".16"', stroke=_shade("#eef6f8", 0.45)),
@@ -324,6 +332,85 @@ def _place(
             f'scale({k * sx:.4g} {k:.4g}) translate({-cx:g} {-cy:g})">{body}</g>'
         )
     return out
+
+
+def _fan(shape: str, count: int) -> list[tuple[float, float, float]]:
+    """``count`` fruits of a hand or a bunch: turned from ``turn - fan / 2`` to ``turn + fan / 2``
+    about their own crown, the crowns ``spread`` apart along the line the middle fruit lies on."""
+    turn, fan, spread = FANS[shape]
+    out = []
+    for i in range(count):
+        u = i / (count - 1) - 0.5
+        a = math.radians(turn)
+        out.append((spread * u * math.cos(a), spread * u * math.sin(a), turn + fan * u))
+    if shape in FRONT_MIDDLE:  # the outer fruits first, so the middle one stands in front
+        out.sort(key=lambda f: -abs(f[2] - turn))
+    return out
+
+
+def _heap(shape: str, count: int) -> list[tuple[float, float, float]]:
+    """A heap of cherry pairs in rows, back row first. The front row's pairs stand stalk up over
+    the fruit behind them; every pair behind lies stalk down, its stalk hidden under the front."""
+    rows = HEAP_ROWS[count]
+    out = []
+    for r, n in enumerate(rows):
+        y = (r - len(rows) + 1) * HEAP_DY  # the front row at 0, each row behind it higher
+        flip = 0.0 if r == len(rows) - 1 else 180.0
+        for j in range(n):
+            x = (j - (n - 1) / 2) * HEAP_DX
+            out.append((x, y, flip + HEAP_TURNS[len(out) % len(HEAP_TURNS)]))
+    return out
+
+
+#: Shape -> (the point of one fruit its arrangement turns it about, in its own units; the
+#: layout of ``count`` fruits as (dx, dy, turn) about that point). A banana's is its stalk and a
+#: carrot's its top, so a hand hangs from one crown and a bunch is tied at its tops; a cherry
+#: pair turns about its fruit (gen#1111, slice 3).
+ARRANGE = {
+    "banana": ((119.0, 112.0), _fan),
+    "carrot": ((200.0, 124.0), _fan),
+    "cherries": ((202.0, 287.0), _heap),
+}
+#: Shape -> (the middle fruit's turn, the angle the fan opens, how far apart the outer crowns are).
+FANS = {"banana": (-20.0, 55.0, 20.0), "carrot": (0.0, -20.0, 120.0)}
+#: The shapes whose middle fruit stands in front of the rest (a bunch), not the last one (a hand).
+FRONT_MIDDLE = {"carrot"}
+#: Shape -> how much wider an arranged fruit is drawn than its own proportions.
+ARRANGE_STRETCH = {"carrot": 1.3}
+#: Count -> the pairs in each row of a heap, back row first.
+HEAP_ROWS = {3: (1, 2), 4: (2, 2), 5: (2, 3), 6: (1, 2, 3), 7: (2, 3, 2)}
+HEAP_DX, HEAP_DY = 100.0, 100.0
+HEAP_TURNS = (-14.0, 12.0, -6.0, 18.0, -18.0, 8.0, -10.0)
+#: A carrot's leafy tops, filled under the fronds' midribs: a bunch is green at its tie.
+CARROT_TOPS = (
+    "M198,128 C176,104 150,84 140,52 C168,62 194,92 206,124 Z "
+    "M196,126 C188,96 192,64 206,40 C220,68 216,100 206,126 Z "
+    "M204,128 C224,100 246,78 264,58 C262,90 236,112 210,130 Z"
+)
+
+
+def _arranged(shape: str, count: int, seed: str, body: str) -> list[str]:
+    """``count`` fruits of ``shape`` in its :data:`ARRANGE` layout, each turned a little by the
+    product's :func:`jitter`, the whole scaled to fill :data:`ROOM`."""
+    (px, py), layout = ARRANGE[shape]
+    sx = ARRANGE_STRETCH.get(shape, 1.0)
+    if shape == "carrot":
+        body = _path(CARROT_TOPS, kit_motifs.LEAF, LW_DETAIL) + body
+    own = []
+    for i, (x, y, turn) in enumerate(layout(shape, count)):
+        wobble = jitter(seed, i)[2] / 8
+        own.append(
+            f"translate({x:.4g} {y:.4g}) rotate({turn + wobble:.4g}) scale({sx:g} 1) "
+            f"translate({-px:g} {-py:g})"
+        )
+    drawn = "".join(f'<g transform="{t}">{body}</g>' for t in own)
+    box = sheet_extent.reach(_SVG.format(drawn))
+    assert box is not None, shape
+    x0, y0, x1, y1 = box
+    s = min((ROOM[2] - ROOM[0]) / (x1 - x0), (ROOM[3] - ROOM[1]) / (y1 - y0))
+    cx, cy = (ROOM[0] + ROOM[2]) / 2, (ROOM[1] + ROOM[3]) / 2
+    fit = f"translate({cx:.4g} {cy:.4g}) scale({s:.4g}) translate({-(x0 + x1) / 2:.4g} {-(y0 + y1) / 2:.4g})"
+    return [f'<g class="fruit" transform="{fit} {t}">{body}</g>' for t in own]
 
 
 def _glossed(parts: list[str], paint: str, gloss: str) -> list[str]:
