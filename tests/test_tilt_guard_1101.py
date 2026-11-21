@@ -91,21 +91,24 @@ def test_the_category_wins_over_a_tiltable_shape(name):
 
 
 @pytest.mark.parametrize(
-    ("field", "value", "cm"),
+    ("field", "value", "cm", "why"),
     [
-        ("length_cm", 170, 170.0),
-        ("height_cm", "61", 61.0),
-        ("height", "6 ft", 6 * 30.48),
-        ("dimensions", "60 x 90 cm", 90.0),
-        ("dimensions", "30 x 20 cm, 40 x 28 cm", 40.0),
+        ("length_cm", 170, 170.0, "size"),
+        ("height_cm", "61", 61.0, "size"),
+        ("height_cm", 60, 60.0, None),
+        ("height", "6 ft", 6 * 30.48, "size"),
+        ("dimensions", "60 x 90 cm", 90.0, "size"),
+        ("dimensions", "30 x 20 cm, 40 x 28 cm", 40.0, None),
     ],
 )
-def test_a_stated_size_over_60_cm_is_level_whatever_the_shape(field, value, cm):
-    """The glove, outside any never-tilt category, given one SKU that states a size."""
+def test_a_stated_size_over_60_cm_is_level_whatever_the_shape(field, value, cm, why):
+    """The glove, outside any never-tilt category, given one SKU that states a size: over 60 cm
+    is level, 60 cm itself keeps the shape's tilt."""
     rec = copy.deepcopy(next(r for r in SLICE if r["product_id"] == NAMED["glove"]))
     rec["skus"][0][field] = value
     assert orientation.stated_cm(rec) == pytest.approx(cm)
-    assert orientation.level_because(rec) == ("size" if cm > orientation.MAX_TILT_CM else None)
+    assert orientation.level_because(rec) == why
+    assert orientation.of_product(rec) == ("level" if why else "any")
 
 
 def test_a_run_length_in_metres_is_not_a_size():

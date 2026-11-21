@@ -29,12 +29,19 @@ units per pack or pack attribute, or "Set of 2" in its title) is drawn level on 
 whatever its shape (:func:`of_product`, #884), so a cup set in 2, 4 and 8 packs stands level
 while a single cup keeps its tilt. To move a shape, move its line to another tuple of its owner's
 module in :mod:`orientations`.
+
+A guard beside the pack rule wins over the shape table (:func:`level_because`, #1101). A product
+in a category of :data:`NEVER_TILT` (furniture, large appliances, bikes, kick scooters,
+ride-ons) is drawn level, and so is a product whose stated height or length is over
+:data:`MAX_TILT_CM` (:func:`stated_cm`). The shape alone used to decide: a shape nobody was sure
+of went to ``upright``, so every fridge and washing machine was turned by up to 36 degrees.
 """
 
 from __future__ import annotations
 
 import importlib
 import pkgutil
+import re
 from typing import Any
 
 from synthetic_ecommerce_data.core.drawing import product_look
@@ -92,24 +99,75 @@ def of(shape: str) -> str:
     return ORIENTATION[shape]
 
 
-#: A stub for #1101's red commit: the guard is not written yet.
+#: Category path prefixes whose products stand on the floor or on wheels and are drawn level
+#: whatever their shape (#1101): the maintainer, 2026-11-21, "sofas should not be tilted. I
+#: think most furniture should not. Neither should mountain bikes."
+NEVER_TILT: tuple[tuple[str, ...], ...] = (
+    ("Home", "Furniture"),
+    ("Garden", "Garden Furniture"),
+    ("Kids", "Baby", "Nursery Furniture"),
+    ("Home", "Large Appliances"),
+    ("Sports & Outdoors", "Cycling", "Bikes"),
+    ("Sports & Outdoors", "Yoga & Fitness", "Exercise Bikes"),
+    ("Sports & Outdoors", "Wheeled Sports", "Kick Scooters"),
+    ("Toys", "Outdoor Toys", "Ride-On Toys"),
+)
+
+#: A product with a stated height or length over this many centimetres is drawn level (#1101).
 MAX_TILT_CM = 60.0
+
+#: The attributes and SKU fields that state an item's own height or length, in centimetres. A
+#: run length in metres (a cable, a hose, bunting) is not one: the item is drawn coiled.
+_CM_FIELDS: tuple[str, ...] = ("item_height", "item_length", "height_cm", "length_cm")
+
+_FEET = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*ft\b")
+_CM_DIMS = re.compile(r"(\d+(?:\.\d+)?(?:\s*x\s*\d+(?:\.\d+)?)+)\s*cm\b")
+
+
+def _cm(key: str, value: Any) -> list[float]:
+    """The centimetre figures field ``key`` states in ``value``: a number for a
+    :data:`_CM_FIELDS` field, a ``"5 ft"`` height, or each side of a ``"60 x 90 cm"``
+    ``dimensions`` value (all its sizes, when it lists several)."""
+    text = str(value)
+    if key in _CM_FIELDS:
+        try:
+            return [float(text)]
+        except ValueError:
+            return []
+    if key == "height" and (feet := _FEET.match(text)):
+        return [float(feet.group(1)) * 30.48]
+    if key == "dimensions":
+        return [float(n) for dims in _CM_DIMS.findall(text) for n in re.split(r"\s*x\s*", dims)]
+    return []
 
 
 def stated_cm(rec: dict[str, Any]) -> float | None:
-    """Stub (#1101): no size is read yet."""
-    return None
+    """The largest height or length product ``rec`` states, in centimetres, over its attributes
+    and every SKU (``None`` when it states none)."""
+    figures = [n for attr in rec.get("attributes", ()) for n in _cm(attr["key"], attr["value"])]
+    figures += [n for sku in rec.get("skus", ()) for key, v in sku.items() for n in _cm(key, v)]
+    return max(figures, default=None)
 
 
 def level_because(rec: dict[str, Any]) -> str | None:
-    """Stub (#1101): only the pack rule (#884)."""
+    """Why product ``rec`` is drawn level whatever its shape, or ``None``: ``"pack"`` when any of
+    its SKUs is a pack of several items (#884), ``"category"`` when its category is under
+    :data:`NEVER_TILT`, ``"size"`` when it states a height or length over :data:`MAX_TILT_CM`
+    (#1101)."""
     if any(pack_copies.count(rec, sku) > 1 for sku in rec.get("skus", ())):
         return "pack"
+    path = tuple(rec.get("category_path", ()))
+    if any(path[: len(prefix)] == prefix for prefix in NEVER_TILT):
+        return "category"
+    cm = stated_cm(rec)
+    if cm is not None and cm > MAX_TILT_CM:
+        return "size"
     return None
 
 
 def of_product(rec: dict[str, Any]) -> str:
-    """The orientation product ``rec`` is drawn at: its shape's, or ``level`` when any of its
-    SKUs is a pack of several items (#884), so every SKU of it shares the one angle."""
-    packed = any(pack_copies.count(rec, sku) > 1 for sku in rec.get("skus", ()))
-    return product_look.product_orientation(of(rec["drawing"]["shape"]), packed)
+    """The orientation product ``rec`` is drawn at: its shape's, or ``level`` when
+    :func:`level_because` names a reason (a pack, #884; a never-tilt category or a stated size
+    over the limit, #1101), so every SKU of it shares the one angle."""
+    held = level_because(rec) is not None
+    return product_look.product_orientation(of(rec["drawing"]["shape"]), held)
