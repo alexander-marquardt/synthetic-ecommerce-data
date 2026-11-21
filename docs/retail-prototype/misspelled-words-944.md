@@ -14,8 +14,8 @@ and the four invented brands, with their owners and house styles, in `misspelled
 | choocolate | 3 | chocolate | the `Choo-Choocolate Express` brand: two chocolate train gift boxes (Chocolate Boxes) and a wooden train set (Wooden Toys) | the hits and the suggestion |
 | bannana | 3 | banana | the `Bannana Bros` brand: two bags of gummy sweets (Sweets); the Bannana Brothers Crazy Apes board game (Board Games) | the hits and the suggestion |
 | pliars | 3 | pliers | Pliars, a bluffing party card game (pliers and liars): the base game, an expansion and a travel edition (Card Games) | the hits and the suggestion |
-| leggins | 8 | leggings | #944's leggings (Womens > Leggings) | hits only |
-| cardigen | 8 | cardigan | #944's cardigans (Womens > Knitwear > Cardigans) | hits only |
+| leggins | 8 | leggings | the `Leggins & Co` fashion label: eight leggings (Womens > Leggings) | hits only |
+| cardigen | 8 | cardigan | `Cardigen`, a deck-building trading card game (cards and generations): a starter deck, a booster pack, a booster box, the Dragons and Deep Space expansions, a two-player battle set, card sleeves and a deck box (Card Games) | hits only |
 
 ## What a product is (gen#1130)
 
@@ -23,19 +23,23 @@ and the four invented brands, with their owners and house styles, in `misspelled
   so a shopper who types it is looking for that brand. It is never a misspelled generic word in
   an ordinary product's title or description: #944's `Big Bannana Bunch` of fresh bananas and
   `Hazelnut Milk Chocolate Bar` ("in creamy milk choocolate") read as data errors, and are gone.
-  `tests/test_retail_misspelled_words_944.py` checks that every occurrence of `choocolate`,
-  `bannana` and `pliars` sits inside one of the named brands or products.
+  So are #944's `High-Rise Gym Leggins` and `Chunky Knit Cardigen`.
+  `tests/test_retail_misspelled_words_944.py` checks that every occurrence of each of the five
+  words sits inside one of the named brands or products.
+- **Cardigen is far from knitwear.** It is a trading card game in Toys > Games > Card Games,
+  with its own brand, title pattern and drawing, apart from the Pliars bluffing party game.
 - **Each product is drawn by its own kit**: a gift box, a wooden train, a sweets bag, a
-  board-game box, a card-game tuck box. No product reuses the banana drawing.
+  board-game box, a card-game tuck box, leggings in three lengths (one pair with pockets), and
+  the `trading_cards` shape of `kit_toys_play.py` for Cardigen: a foil pack (an expansion's
+  shows its theme), a display box of packs, a stacked deck, two decks on a play mat, sleeves
+  and a deck box. No product reuses the banana drawing.
 - **No category node, product type or attribute holds a misspelling**, so no vocabulary or
   category name learns one. The types and categories are the real ones of the catalogue.
-- **No real brand.** The four brands (`Choo-Choocolate Express`, `Bannana Bros`, `Leggins Lab`,
-  `Cardigen & Co`) are invented and third party; each draws its own name on its images in a
+- **No real brand.** The four brands (`Choo-Choocolate Express`, `Bannana Bros`, `Leggins & Co`,
+  `Cardigen`) are invented and third party; each draws its own name on its images in a
   dedicated house style, with a mark no other brand draws (`bar_grid`, `peel_arc`,
-  `stride_bars`, `button_pair`). The board game and the three card games carry the own toy brand
-  `Little Fernby`, with the misspelling in the product name.
-- `leggins` and `cardigen` are still #944's ordinary leggings and cardigans with the word in
-  the brand, the title or the description; the issue's slice 2 turns them into names too.
+  `stride_bars`, `card_fan`). The board game and the three Pliars card games carry the own toy
+  brand `Little Fernby`, with the misspelling in the product name.
 
 ## Pliars moved from industrial to retail
 
@@ -50,7 +54,8 @@ the golden catalogue still has its pliers.
 
 - The rows are left out of the derived styles: `Home("decoy_product_words", False)` on the Board
   Game, Card Game and Wooden Toy specs (Chocolate Box and Sweets had it already). Fresh Fruit and
-  Chocolate Bar no longer hold a row here, so their home is dropped.
+  Chocolate Bar no longer hold a row here, so their home is dropped, and so is Cardigan's once
+  the Cardigen rows became card games.
 - The golden catalogue loses the three industrial pliers products and their 3 SKUs
   (`nested.jsonl`, `flat.jsonl` and `images.jsonl` each drop 3 rows), and `stats.json`,
   `measured_builds.json` and the industrial field weights are rebuilt from it. No pin moved.

@@ -20,11 +20,13 @@ gen#1130: a misspelling is a deliberate brand or product name, a pun a real comp
 never a misspelled generic word in an ordinary product's title ("Big Bannana Bunch" read as a
 data error). The shopper who types it knows the brand: ``Choo-Choocolate Express`` (chocolate
 train gift boxes and a wooden train set), ``Bannana Bros`` gummy sweets and the Bannana Brothers
-Crazy Apes board game, and Pliars, a bluffing party card game (pliers and liars) that replaced
-#944's three industrial "Conduit Pliars". ``leggins`` and ``cardigen`` are still #944's ordinary
-leggings and cardigans until the issue's slice 2. No category node, product type or attribute
-holds a misspelling, so no vocabulary or category name learns one; each product is drawn by its
-own kit (a gift box, a wooden train, a sweets bag, a board-game box, a card-game tuck box).
+Crazy Apes board game, Pliars, a bluffing party card game (pliers and liars) that replaced
+#944's three industrial "Conduit Pliars", the ``Leggins & Co`` fashion label's eight leggings, and
+``Cardigen``, a deck-building trading card game (cards and generations) of eight products in Card
+Games, far from knitwear. No category node, product type or attribute holds a misspelling, so no
+vocabulary or category name learns one; each product is drawn by its own kit (a gift box, a
+wooden train, a sweets bag, a board-game box, a card-game tuck box, leggings, and Cardigen's
+``trading_cards`` packs, display box, decks, sleeves and deck box).
 ``tests/test_retail_misspelled_words_944.py`` counts each word's products and checks the rules.
 """
 
@@ -65,14 +67,37 @@ KINDS = {
                             params=(("kind", "party"),),
                             extra=(("toy_type", "Toy type", "Party Card Game"), ("age_range", "Age range", "10+ years")),
                             colorless=True),
-    "ms944_leggings": Kind("Clothing", ("Womens", "Leggings"), "Leggings", "leggings", "Larkmoor", 18.0, sizes=_UK,
-                           size_range="regular", params=(("length", "full"), ("rise", "high"))),
-    "ms944_cardigan": Kind("Clothing", ("Womens", "Knitwear", "Cardigans"), "Cardigan", "cardigan", "Larkmoor", 34.0, sizes=_UK,
-                           size_range="regular", params=(("neckline", "crew"), ("sleeve", "long")),
-                           extra=(("sleeve_length", "Sleeve length", "Long"),)),
+    **{
+        f"ms944_leggings{key}": Kind("Clothing", ("Womens", "Leggings"), "Leggings", "leggings", "Larkmoor", 18.0, sizes=_UK,
+                                     size_range="regular", params=params)
+        for key, params in (
+            ("", (("length", "full"), ("rise", "high"))),
+            ("_pocket", (("length", "full"), ("rise", "high"), ("pocket", "yes"))),
+            ("_78", (("length", "7_8"), ("rise", "high"))),
+            ("_cropped", (("length", "cropped"), ("rise", "mid"))),
+        )
+    },
+    **{
+        f"ms944_tcg_{form if not theme else theme.split()[-1].lower()}": Kind(
+            "Toys", ("Toys", "Games", "Card Games"), "Card Game", "trading_cards", "Little Fernby", price, "kids",
+            params=(("form", form), *((("theme", theme),) if theme else ())),
+            extra=(("toy_type", "Toy type", toy_type), ("age_range", "Age range", "8+ years"),
+                   *((("theme", "Theme", theme),) if theme else ())),
+            colorless=True)
+        for form, theme, toy_type, price in (
+            ("starter_deck", "", "Trading Card Game", 12.0),
+            ("booster_pack", "", "Trading Card Game", 4.0),
+            ("booster_box", "", "Trading Card Game", 90.0),
+            ("expansion", "Dragons", "Trading Card Game", 14.0),
+            ("expansion", "Deep Space", "Trading Card Game", 14.0),
+            ("battle_set", "", "Trading Card Game", 25.0),
+            ("sleeves", "", "Card Sleeves", 7.0),
+            ("deck_box", "", "Deck Box", 9.0),
+        )
+    },
 }  # fmt: skip
 
-_CE, _BB, _LS, _CC = misspelled_brands.BRANDS
+_CE, _BB, _LC, _CG = misspelled_brands.BRANDS
 
 #: Rows of (number, kind, title, description, color, the misspelling, brand or None for the kind's).
 _ROWS = (
@@ -88,24 +113,24 @@ _ROWS = (
     (9463, "ms944_card_game", "Pliars Bluffing Party Card Game", "Play a card face down and say what it is: the table calls your bluff or lets it go. A party game for 3 to 8 players that takes about 20 minutes. For ages 10 and up.", "Red", "pliars", None),
     (9464, "ms944_card_game", "Pliars Big Fibs Expansion Pack", "Sixty new cards for Pliars, with wild cards and double bluffs. Needs the Pliars base game.", "Blue", "pliars", None),
     (9465, "ms944_card_game", "Pliars Travel Edition", "Pliars in a pocket-sized tin: the bluffing party game for trains, planes and holidays.", "Green", "pliars", None),
-    # leggins: 8 products, three by the brand, four by name, one in the description
-    (9447, "ms944_leggings", "Leggins Lab High-Rise Leggings", "Full length leggings with a high, wide waistband.", "Black", "leggins", _LS),
-    (9448, "ms944_leggings", "Leggins Lab Yoga Leggings", "Soft stretch leggings for yoga and the studio.", "Navy", "leggins", _LS),
-    (9449, "ms944_leggings", "Leggins Lab Ribbed Leggings", "Ribbed jersey leggings with a high waist.", "Grey", "leggins", _LS),
-    (9450, "ms944_leggings", "High-Rise Gym Leggins", "Squat-proof leggings with a high waistband.", "Black", "leggins", None),
-    (9451, "ms944_leggings", "Seamless Sports Leggins", "Seamless knit leggings that move with you.", "Blue", "leggins", None),
-    (9452, "ms944_leggings", "Everyday Stretch Leggins", "Cotton stretch leggings for every day.", "Grey", "leggins", None),
-    (9453, "ms944_leggings", "Soft Lounge Leggins", "Brushed jersey leggings for the sofa.", "Pink", "leggins", None),
-    (9454, "ms944_leggings", "Jersey Waistband Leggings", "Soft stretch jersey leggins with a wide waistband.", "Black", "leggins", None),
-    # cardigen: 8 products, four by the brand and four by name
-    (9455, "ms944_cardigan", "Cardigen & Co Ribbed Cardigan", "A ribbed knit cardigan with a crew neck.", "Cream", "cardigen", _CC),
-    (9456, "ms944_cardigan", "Cardigen & Co Cable Cardigan", "A cable knit cardigan with four buttons.", "Navy", "cardigen", _CC),
-    (9457, "ms944_cardigan", "Cardigen & Co Soft Cardigan", "A soft knit cardigan to layer over a dress.", "Grey", "cardigen", _CC),
-    (9458, "ms944_cardigan", "Cardigen & Co Fine Knit Cardigan", "A fine knit cardigan for the office.", "Black", "cardigen", _CC),
-    (9459, "ms944_cardigan", "Chunky Knit Cardigen", "A chunky knit cardigan with a crew neck.", "Cream", "cardigen", None),
-    (9460, "ms944_cardigan", "Button Front Cardigen", "A button front cardigan in a soft knit.", "Pink", "cardigen", None),
-    (9461, "ms944_cardigan", "Longline Cardigen", "A long knit cardigan that reaches the hip.", "Green", "cardigen", None),
-    (9462, "ms944_cardigan", "Everyday Cardigen", "A light knit cardigan for every day.", "Red", "cardigen", None),
+    # leggins: 8 leggings of the Leggins & Co fashion label, the word only in the brand
+    (9447, "ms944_leggings", "Leggins & Co High-Rise Leggings", "Full length leggings with a high, wide waistband.", "Black", "leggins", _LC),
+    (9448, "ms944_leggings", "Leggins & Co Yoga Leggings", "Soft stretch leggings for yoga and the studio.", "Navy", "leggins", _LC),
+    (9449, "ms944_leggings", "Leggins & Co Ribbed Leggings", "Ribbed jersey leggings with a high waist.", "Grey", "leggins", _LC),
+    (9450, "ms944_leggings_pocket", "Leggins & Co Gym Leggings with Pockets", "Squat-proof full length leggings with a high waistband and a side pocket on each leg.", "Black", "leggins", _LC),
+    (9451, "ms944_leggings_78", "Leggins & Co Seamless 7/8 Leggings", "Seamless knit leggings that stop just above the ankle.", "Blue", "leggins", _LC),
+    (9452, "ms944_leggings", "Leggins & Co Everyday Stretch Leggings", "Cotton stretch leggings for every day.", "Grey", "leggins", _LC),
+    (9453, "ms944_leggings_cropped", "Leggins & Co Cropped Lounge Leggings", "Brushed jersey leggings that stop at mid calf, for the sofa.", "Pink", "leggins", _LC),
+    (9454, "ms944_leggings", "Leggins & Co Thermal Running Leggings", "Brushed-back running leggings with a high waistband, for cold mornings.", "Black", "leggins", _LC),
+    # cardigen: 8 products of Cardigen, the deck-building trading card game (cards and generations)
+    (9455, "ms944_tcg_starter_deck", "Cardigen Starter Deck", "A ready-to-play deck of 60 cards, a rules guide and a fold-out play mat: the way into the Cardigen deck-building trading card game. For 2 players, ages 8 and up.", "Purple", "cardigen", _CG),
+    (9456, "ms944_tcg_booster_pack", "Cardigen Booster Pack", "Ten random Cardigen cards in a sealed foil pack, one of them rare or better, to grow your deck.", "Purple", "cardigen", _CG),
+    (9457, "ms944_tcg_booster_box", "Cardigen Booster Box", "A display box of 36 sealed Cardigen booster packs, for a league night or a big trade.", "Purple", "cardigen", _CG),
+    (9458, "ms944_tcg_dragons", "Cardigen Expansion: Dragons", "Sixty new cards of fire-breathing dragons and the hoards they guard. Needs a Cardigen starter deck to play.", "Red", "cardigen", _CG),
+    (9459, "ms944_tcg_space", "Cardigen Expansion: Deep Space", "Sixty new cards of starships, comets and far-off moons. Needs a Cardigen starter deck to play.", "Blue", "cardigen", _CG),
+    (9460, "ms944_tcg_battle_set", "Cardigen Two-Player Battle Set", "Two ready-to-play decks, two play mats and a rules guide: all two players need to start a Cardigen duel.", "Purple", "cardigen", _CG),
+    (9461, "ms944_tcg_sleeves", "Cardigen Card Sleeves (100 pack)", "One hundred clear card sleeves that keep your Cardigen cards safe in play and in trade.", "Clear", "cardigen", _CG),
+    (9462, "ms944_tcg_deck_box", "Cardigen Deck Box", "A hard deck box with a magnetic flip lid that holds a sleeved deck of up to 80 cards.", "Black", "cardigen", _CG),
 )  # fmt: skip
 
 
