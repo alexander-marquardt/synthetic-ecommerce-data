@@ -12,7 +12,7 @@ shape           draws                                            params
 sofa_seats      a straight sofa, one seat and back cushion       seats (2, 2.5, 3, 4), arms,
                 per seat (2.5 draws two wide ones)               legs
 corner_sofa     a sofa and its return, the return with its own   seats (in all), side (left,
-                back and seats; ``u`` returns on both sides      right, u), arms, legs
+                back and seats (a U is ``u_sofa``)               right), arms, legs
 u_sofa          a U: a run, and a return coming forward at each  seats (in all, 5 or more),
                 end, each with its own back; the middle between  legs
                 the returns stays open
@@ -301,45 +301,36 @@ def sofa_seats(paint: str, fill: Fill, label: str | None, seats: str = "3", arms
 
 
 def corner_sofa(paint: str, fill: Fill, label: str | None, seats: str = "5", side: str = "left", arms: str = "track", legs: str = "black_metal") -> list[str]:
-    """``seats`` seats in all: a run, and a two-seat return coming forward on ``side`` (a return at
-    each end for ``u``).
+    """``seats`` seats in all: a run, and a two-seat return coming forward on ``side`` (``left``
+    or ``right``; a U is :func:`u_sofa`'s, and any other side is refused).
 
     The return has its own back along its outer edge and its own seat cushions; a corner seat
-    joins the two, and an arm closes any end with no return. Every return takes its two seats and
-    its corner seat from ``seats``, and the run is the rest (``seats`` less three per return), so
-    the drawing shows the seat count its record states. Below the floor (3 for a return, 6 for
-    ``u``) it draws the floor: a corner seat and the return, no run.
+    joins the two, and an arm closes the end with no return. The return takes its two seats and
+    its corner seat from ``seats``, and the run is the rest (``seats`` less three), so the drawing
+    shows the seat count its record states. Below the floor of 3 it draws the floor: a corner
+    seat and the return, no run.
     """
-    returns = 2 if side == "u" else 1
-    n = max(0, int(float(seats)) - 3 * returns)  # run seats other than the corner seats
+    if side not in ("left", "right"):
+        raise ValueError(f"a corner sofa's return is on the left or right, not {side!r} (a U is u_sofa)")
+    n = max(0, int(float(seats)) - 3)  # run seats other than the corner seat
     width = SEAT * n
     aw = ARMS[arms][0]
     d, ret = DEPTH, 2 * SEAT
-    left = side in ("left", "right", "u")  # a right-hand sofa is the left-hand one flipped
-    right = side == "u"
-    x0 = -d if left else -aw
-    x1 = width + d if right else width + aw
+    x0, x1 = -d, width + aw  # a right-hand sofa is the left-hand one flipped
     boxes = [
         *_legs(x0, 0.0, -ret, d, legs)[1:],
-        *(_legs(width, x1, -ret, d, legs)[:1] if right else _legs(0.0, x1, 0.0, d, legs)[:1]),
+        *_legs(0.0, x1, 0.0, d, legs)[:1],
         Box(x0, x1, BASE, BACK - 6, d - 14, d, "fill"),
-        *_cushions(x0 + 32 if left else 0.0, x1 - 32 if right else width, n + left + right, CUSHION - 2, BACK, d - 32, d - 14),
-        Box(x0 if left else 0.0, x1 if right else width, LEG, BASE, 0.0, d - 14, "fill", front=0.14),
-        *_cushions(x0 + 32 if left else 0.0, x1 - 32 if right else width, n + left + right, BASE, CUSHION, 0.0, d - 32),
-    ]
-    if not right:
-        boxes.append(_arm(width, arms))
-    for flip in (False, True)[: 1 + right]:
+        *_cushions(x0 + 32, width, n + 1, CUSHION - 2, BACK, d - 32, d - 14),
+        Box(x0, width, LEG, BASE, 0.0, d - 14, "fill", front=0.14),
+        *_cushions(x0 + 32, width, n + 1, BASE, CUSHION, 0.0, d - 32),
+        _arm(width, arms),
         # the return: a back along its outer edge, two seats facing in, from z=-ret to the run
-        ret_boxes = [
-            Box(-d, -d + 14, BASE, BACK - 6, -ret, d - 14, "fill"),
-            *[Box(-d + 14, -d + 32, BASE, BACK, z, z + SEAT - 2, "fill") for z in (1.0, -SEAT + 1)],
-            Box(-d, 0.0, LEG, BASE, -ret, 0.0, "fill", front=0.14),
-            *[Box(-d + 32, -1.0, BASE, CUSHION, z, z + SEAT - 2, "fill") for z in (-SEAT + 1, -ret + 1)],
-        ]
-        if flip:
-            ret_boxes = [Box(width - b.x1, width - b.x0, b.y0, b.y1, b.z0, b.z1, b.paint, front=b.front) for b in ret_boxes]
-        boxes += ret_boxes
+        Box(-d, -d + 14, BASE, BACK - 6, -ret, d - 14, "fill"),
+        *[Box(-d + 14, -d + 32, BASE, BACK, z, z + SEAT - 2, "fill") for z in (1.0, -SEAT + 1)],
+        Box(-d, 0.0, LEG, BASE, -ret, 0.0, "fill", front=0.14),
+        *[Box(-d + 32, -1.0, BASE, CUSHION, z, z + SEAT - 2, "fill") for z in (-SEAT + 1, -ret + 1)],
+    ]
     if side == "right":
         boxes = _mirrored(boxes)
     return _draw(boxes, paint, fill)
