@@ -8,7 +8,8 @@ grow: half the content is a pack about 0.79 as tall.
   (the cap, 1.0), so a line of one size, and the largest size of any line, draw exactly as
   before and keep their image ids.
 - THE FLOOR is :data:`FLOOR`: a size below about a fifth of the largest still draws at 0.6, so it
-  stays legible.
+  stays legible. A shape drawn to fill its picture has its own, higher floor
+  (:data:`SHAPE_FLOORS`: a loaf's 400g draws at 0.9 of its 800g, gen#1126).
 - THE CONTENT is the SKU's ``net_volume_ml`` or ``net_weight_g`` (a multipack's is its total). A
   count (``units_per_pack``) stands in only where there is no content and only in
   :data:`COUNT_DEPARTMENTS`: a pack of six cans is bigger than a single can, but a pack of three
@@ -41,6 +42,10 @@ from synthetic_ecommerce_data.domains.retail import pack_copies
 
 #: The smallest factor: a tiny size still draws at this share of the largest.
 FLOOR = 0.6
+#: Shape -> its own smallest factor, over :data:`FLOOR`. A loaf is drawn to fill its picture, and
+#: its 400g at the cube root (0.79) covered under half the product area: it is drawn at 0.9 of
+#: its 800g, still the smaller loaf, so every size holds the fill floor (gen#1126).
+SHAPE_FLOORS = {"loaf": 0.9}
 #: The content keys, in the order they are read: a total content beats a count.
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
 #: The shapes whose drawing shows its own size, which take no factor: a pile by its count
@@ -77,7 +82,8 @@ def factor(rec: dict[str, Any], sku: dict[str, Any]) -> float | None:
     largest = max(q for q in (quantity(rec, s) for s in rec["skus"]) if q)
     if own >= largest:
         return None
-    return round(max(FLOOR, (own / largest) ** (1 / 3)), 3)
+    floor = SHAPE_FLOORS.get((rec.get("drawing") or {}).get("shape"), FLOOR)
+    return round(max(floor, (own / largest) ** (1 / 3)), 3)
 
 
 def wrap(pack: str, parts: list[str], shrink: float) -> str:

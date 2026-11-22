@@ -92,13 +92,13 @@ def test_the_pots_label_stays_inside_the_pot():
 #: sha256 of each kit shape's plain and marked drawing, taken on main before gen#737: the
 #: flat packs that carry a ``_panel`` and some clothing. The kit's own functions are drawn, not
 #: ``SHAPES``, which another module may override (``kit_garments`` redraws ``jeans_straight``).
+#: The loaf left this set when synth#1126 moved it to ``kit_bread`` and drew it per crust and form.
 UNCHANGED = {
     "box": "0f69b42a5d696978323706f6e74541e78db964ad3c311e712c8ff340bc76cc22",
     "box_wide": "1b95690ddf781a4350e9a75d519f5d74d30514567d4383d78a7a6926b96ecf55",
     "carton": "cd1690be65e0ea0c3e349cf3a2d8da123fbee3665a997cbfe8368451c13707db",
     "crisps_bag": "35822e795e33386b68adb76cb5a6d506eb2b31f0564e77f260a7eea310b14864",
     "tray": "fe1b5e7b1b307367a8a9ce8b7891456c5d1ae16b33519670351d9c0ad3076278",
-    "loaf": "e49c37b6b3c1d2f4de539b17cc8fbafea9095a9bd171a6fab4ad9fa95c5ed8ef",
     "cake": "36f09290b4cd1c45bd06bc1032164b749ecbf449d2b169ea2c54ae0a7f60c2d6",
     "round_produce": "d7ade352b0a115205aeac829d46b62a13e60589998fba858862153f002015dec",
     "tshirt": "e0a099ceda8617959450ef947ad0991f46351d121c0ab2d7563a8ca0fa5b6140",
