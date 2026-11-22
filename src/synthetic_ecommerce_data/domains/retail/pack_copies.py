@@ -18,9 +18,9 @@ family uses: a new family needs no drawing of its own to show its pack.
 - ABOVE :data:`MOST_DRAWN` the outer box stands in for the items (:func:`outer_box`): the count
   large on its front, three loose items before it, and a box that grows a little with the count.
 - A DRAWING THAT ALREADY DRAWS ITS COUNT is left as it is (:func:`self_drawn`): a pile of fruit
-  (told the SKU's count by :func:`pile_count`), a nest of tables, a shape with its own ``count``,
-  ``pieces`` or ``units`` of that number. ``tub`` drew its own pots and moved onto this layout, as
-  did socks and the school shirt.
+  (told the SKU's count by :func:`pile_count`), a nest of tables, a chocolate multipack's stack of
+  bars (gen#1125), a shape with its own ``count``, ``pieces`` or ``units`` of that number.
+  ``tub`` drew its own pots and moved onto this layout, as did socks and the school shirt.
 - A PIECE SET (gen#728, the 11-04 scan) whose piece is one item (:data:`PIECE_COPIES`: a
   screwdriver set, a set of chopping boards, a dinosaur figure set) lays out its title's "N Piece"
   as N copies. One whose drawing shows its parts rather than N items (a dinner set's plate, bowl
@@ -101,7 +101,9 @@ FANS = {
 
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
-SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table", "yogurt"})
+SELF_DRAWN_SHAPES = frozenset(
+    {"anti_vibration_mat", "chocolate_bar", "produce_pile", "side_table", "yogurt"}
+)
 #: The shapes whose kind draws a set of a fixed count: four pads, a nest of three tables, a knife
 #: block's five knives and the block, four utensils and their holder.
 KIND_COUNT = {

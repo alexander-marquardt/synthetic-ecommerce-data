@@ -94,6 +94,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     PACKS_PER_STYLE,
     F,
     Family,
+    chocolate_of,
 )
 from synthetic_ecommerce_data.domains.retail.kit_dairy import SKU_PARAMS as DAIRY_PARAMS
 from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
@@ -356,6 +357,10 @@ def _drawing(
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+    if shape == "chocolate_bar":  # a SKU draws its own weight or its multipack (gen#1125)
+        marks["pack_size"] = pack["pack_size"]
+        if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
+            marks["chocolate"] = choc
     if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
         own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
