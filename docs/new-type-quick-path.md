@@ -136,9 +136,10 @@ registry finds the module and feeds the scaled build; the decoy tables find `fea
    `kit.register_all()` before its first answer and returns a read-only view; `kit.render` and
    `motifs.motif` fill it themselves on an unregistered shape, and `retail_figures.ceiling` after
    it loads its pickle (synth#797). A direct read of `kit.SHAPES` outside `kit.py` answers with
-   whatever was imported first, so `tests/test_kit_shapes_1039.py` refuses one (#1039). Look at it (import the kit module first, with
-   `src/synthetic_ecommerce_data/domains/retail` on `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"),
-   params={...})`, write the SVG to a file and `rsvg-convert -o shape.png shape.svg`.
+   whatever was imported first, so `tests/test_kit_shapes_1039.py` refuses one (#1039). Look at
+   it (import the kit module first, with `src/synthetic_ecommerce_data/domains/retail` on
+   `sys.path`): `kit.render("name", kit.Fill("solid", "#c8312e"), params={...})`, write the SVG
+   to a file and `rsvg-convert -o shape.png shape.svg`.
 2. **Write the rows** in the spec: each style is a `Row` of colors times a SKU axis (`sizes`, or
    the measured `size_key` axis with its unit in the spec's `options=`). The six main colors are spread
    across the styles (every type has red, blue, green, yellow, black and white somewhere, gen#275;

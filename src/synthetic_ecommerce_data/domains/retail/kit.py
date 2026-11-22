@@ -21,7 +21,6 @@ standard library. It is a sneak peek, not the core's drawing kit.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
@@ -903,16 +902,12 @@ def register_all() -> None:
         importlib.import_module(f"{type_specs.__name__}.{info.name}")
 
 
-#: Set once :func:`shapes` has filled the registry.
-_FILLED: list[bool] = []
+_FILLED: list[bool] = []  # holds True once shapes() has filled the registry
 
 
-def shapes() -> Mapping[str, object]:
-    """Every shape the kit draws, as a read-only view: the registry is filled
-    (:func:`register_all`) before the first answer, so it holds the same shapes whatever this
-    interpreter imported before. Code outside this module reads the registry only here, or
-    one shape through :func:`render`; ``tests/test_kit_shapes_1039.py`` refuses a direct
-    read of :data:`SHAPES` (#1039)."""
+def shapes() -> MappingProxyType[str, object]:
+    """Every shape, read-only, after :func:`register_all` filled the registry, whatever this
+    interpreter imported first; ``tests/test_kit_shapes_1039.py`` refuses a direct read (#1039)."""
     if not _FILLED:
         register_all()
         _FILLED.append(True)
