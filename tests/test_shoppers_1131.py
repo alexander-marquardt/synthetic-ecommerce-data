@@ -112,6 +112,9 @@ def test_every_purchase_fits_its_shoppers_cohort() -> None:
             else:
                 assert all(fit), (user["id"], cohort, fit)
             checked += len(rows)
+            if cohort in ("halal", "kosher"):
+                meat = sum("x" in _flags(*_skus()[p["product_id"]][:2]) for p in rows)
+                assert meat * 2 >= len(rows), (user["id"], meat)
     assert checked == 6 * 12
 
 
