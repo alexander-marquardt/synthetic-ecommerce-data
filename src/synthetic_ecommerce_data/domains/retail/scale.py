@@ -155,6 +155,7 @@ from synthetic_ecommerce_data.domains.retail import (
     neckline_rows,
     needs_rows,
     net_volume,
+    owned_rows,
     plus_sizes,
     range_ownership,
     sale_share,
@@ -386,6 +387,7 @@ def templates(baseline: bool = True) -> list[dict]:
     ``test_grocery_tiles_are_measured_apart_from_the_clothing_gate``,
     ``test_grocery_style_attributes_list_the_values_of_their_skus``,
     ``test_no_grocery_title_or_description_names_a_value_no_sku_carries``)."""
+    owned_rows.check()  # gen#1039: a row's unowned brand fails here, not at its doc()
     sections = samples()
     authored = [r for recs in sections.values() for r in recs]
     sampled = {r["product_id"] for r in authored}  # the footwear specs' styles are among them
