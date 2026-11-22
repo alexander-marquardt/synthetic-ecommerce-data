@@ -23,6 +23,7 @@ from synthetic_ecommerce_data.domains.retail import (
     grocery,
     kit,
     sheet_cover,
+    sheet_extent,
 )
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
 from synthetic_ecommerce_data.domains.retail.kit import Fill
@@ -88,6 +89,19 @@ def test_every_pack_of_every_flavour_fills_half_its_product_area() -> None:
     }
     first = dict(list(under.items())[:6])
     assert not under, f"{len(under)} under {FLOOR:.0%} of the product area, first: {first}"
+
+
+def test_every_pack_draws_inside_its_sheet() -> None:
+    """The bar, its pieces and its shadow stay on the 400 x 400 sheet (gen#242) for every pack,
+    a multipack and a bar heavier than the full one included."""
+    packs = [*_packs(), None, "400g"]
+    assert {"4 x 35g", "6 x 25g"} <= set(packs)
+    past = {
+        pack: round(over, 1)
+        for pack in packs
+        if (over := sheet_extent.overrun(_svg(_parts("#8a5a3c", pack)), 400.0)) > 0
+    }
+    assert not past, f"packs drawn past the sheet, by units: {past}"
 
 
 def test_a_larger_bar_draws_larger() -> None:
