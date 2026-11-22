@@ -71,7 +71,7 @@ own query (`kitchen knife`, `garden chair`) does not match a title and is unchan
 | `lantern light` | Camping Lantern, Night Light | lantern 77; light 756; both words 36 | the game first |
 | `picnic blanket panic` | Picnic Blanket | picnic 25; blanket 13; both words 5 | the game first |
 | `coffee table tycoon` | Coffee Table, Coffee | coffee 1,027; table 881; both words 110 | the game first |
-| `candle keeper` | Scented Candle | candle 173 | the game first |
+| `candle vigil` | Scented Candle | candle 173 | the game first |
 | `light bulb labs` | Light Bulb | light 756; bulb 64 | the game first |
 | `ladder climb` | Step Ladder | ladder 10 | the game first |
 
@@ -81,3 +81,17 @@ own query (`kitchen knife`, `garden chair`) does not match a title and is unchan
 |---|---|---|
 | `garden party game` | `game` also matches the party board and card games (101 and 87 styles hold "party"), so they sit around the video game | the title and `game` name the Video Games category: the video game first |
 | `garden party chairs` | no style holds all three words; `garden chair` is in 133 titles (Garden Chair 130), and the video game holds two of the three words | `chairs` names Garden Chair, so the query is not a whole title: Garden Chairs first and the game off the first row |
+
+## No other department moves
+
+A game's title, description and attribute values join the build's text words, and the line
+grammar drops a lead word that any template's text holds (`line_grammar.deals`), as the scale
+range deal drops a word an authored row uses. One game word from a family's lead list
+(`Bounce`, `Leap`, `Keeper`, `Scout`, `Sleepover`) or the scale range pool (`burning`, `picking`)
+re-dealt that whole family: the first draft renamed 2,757 toy, sheet set, food storage and boot
+styles and dropped 251. The games use none of those words now, and
+`test_the_games_take_no_word_another_department_draws_names_from` holds it. The ceiling build
+(seed 0) gains the 213 game and console styles and their 650 SKUs, and no other record changes.
+
+The eight publishers each have a mark and a house style of their own
+(`gaming_brand_styles.py`); the console makers are the existing electronics brands.

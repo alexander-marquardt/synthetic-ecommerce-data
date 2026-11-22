@@ -191,3 +191,29 @@ def test_a_param_changes_the_drawing(shape, params, other) -> None:
     assert shape in kit.shapes(), shape
     fill = kit.Fill("solid", "#123456", "#654321")
     assert kit.render(shape, fill, params=params) != kit.render(shape, fill, params=other)
+
+
+def test_the_games_take_no_word_another_department_draws_names_from() -> None:
+    """A word of a game's text that is a line grammar lead word or a scale range name re-deals
+    that whole family's names: the first draft's "Bounce" and "Leap" renamed every derived toy.
+    The games add no such word to the build's text."""
+    import pkgutil  # noqa: PLC0415
+
+    from synthetic_ecommerce_data.domains.retail import (  # noqa: PLC0415
+        line_grammar,
+        line_grammar_families,
+        range_ownership,
+    )
+
+    tpls = scale.templates(baseline=False)
+    games = [r for r in tpls if r["product_type"] in (GAME, CONSOLE)]
+    assert games
+    rest = [r for r in tpls if r["product_type"] not in (GAME, CONSOLE)]
+    added = line_grammar.text_words(games) - line_grammar.text_words(rest)
+    pools = {"range.scale": set(range_ownership.whole_halves()["scale"])}
+    for m in pkgutil.iter_modules(line_grammar_families.__path__):
+        mod = importlib.import_module(f"{line_grammar_families.__name__}.{m.name}")
+        pools[m.name] = set(getattr(mod, "LEADS", ()))
+    assert len([p for p in pools.values() if p]) > 5  # non-vacuous: the families' lead lists load
+    hits = {name: sorted(w for w in words if w.lower() in added) for name, words in pools.items()}
+    assert {k: v for k, v in hits.items() if v} == {}
