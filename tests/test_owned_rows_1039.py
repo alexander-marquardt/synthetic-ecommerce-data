@@ -31,7 +31,8 @@ def test_an_unowned_module_row_fails_in_the_check_and_never_reaches_doc(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     bad = dataclasses.replace(electronics_rows.LAPTOPS[0], brand=UNOWNED)
-    monkeypatch.setattr(electronics_rows, "INJECTED", (bad,), raising=False)
+    # As deep as the walk looks: a dict of tuples of tuples of rows.
+    monkeypatch.setattr(electronics_rows, "INJECTED", {"laptops": ((bad,),)}, raising=False)
 
     def no_doc(self: Row) -> dict:
         raise AssertionError(f"doc() ran for {self.code}: the check must not build documents")
