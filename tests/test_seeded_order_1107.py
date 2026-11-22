@@ -22,8 +22,8 @@ MODULES = {
 }
 
 
-def _collected(tmp_path: Path, *options: str) -> tuple[list[str], str]:
-    """The node ids a child pytest collects, in its order, and the header it prints."""
+def _run(tmp_path: Path, *options: str) -> str:
+    """What a child pytest's ``--collect-only`` over the three modules prints."""
     (tmp_path / "conftest.py").write_text(
         (REPO / "tests" / "conftest.py").read_text(encoding="utf-8"), encoding="utf-8"
     )
@@ -34,38 +34,49 @@ def _collected(tmp_path: Path, *options: str) -> tuple[list[str], str]:
     env["PYTHONPATH"] = str(REPO / "tests")
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-         "--rootdir", str(tmp_path), "--collect-only", "-q", *options, *MODULES],
+         "--rootdir", str(tmp_path), "--collect-only", *options, *MODULES],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip
     assert done.returncode == 0, done.stdout + done.stderr
-    ids = [line for line in done.stdout.splitlines() if "::" in line]
-    assert len(ids) == 12, done.stdout
-    return ids, done.stdout
+    return done.stdout
+
+
+def _collected(tmp_path: Path, *options: str) -> list[str]:
+    """The node ids a child pytest collects, in its order."""
+    printed = _run(tmp_path, "-q", *options)
+    ids = [line for line in printed.splitlines() if "::" in line]
+    assert len(ids) == 12, printed
+    return ids
 
 
 def test_no_seed_keeps_the_file_order(tmp_path) -> None:
-    ids, printed = _collected(tmp_path)
+    ids = _collected(tmp_path)
     assert ids[0] == "test_a.py::test_a0" and ids[-1] == "test_c.py::test_c3", ids
     assert ids == sorted(ids, key=lambda i: (i[5], int(i[-1]))), ids
-    assert "order-seed" not in printed
+    assert "test order" not in _run(tmp_path)
 
 
 def test_the_same_seed_gives_the_same_order_and_another_seed_another(tmp_path) -> None:
-    first, printed = _collected(tmp_path, "--order-seed=7")
-    again, _ = _collected(tmp_path, "--order-seed=7")
-    other, _ = _collected(tmp_path, "--order-seed=8")
-    plain, _ = _collected(tmp_path)
+    first = _collected(tmp_path, "--order-seed=7")
+    again = _collected(tmp_path, "--order-seed=7")
+    other = _collected(tmp_path, "--order-seed=8")
+    plain = _collected(tmp_path)
     assert first == again
     assert first != other
     assert sorted(first) == sorted(other) == sorted(plain)
     assert first != plain and other != plain
-    assert "test order: shuffled by --order-seed=7" in printed
+    assert "test order: shuffled by --order-seed=7" in _run(tmp_path, "--order-seed=7")
 
 
 def test_a_shuffle_keeps_each_module_together(tmp_path) -> None:
     """A module's fixtures are built once: its tests are never split by another module's."""
     for seed in ("1", "2", "3"):
-        ids, _ = _collected(tmp_path, f"--order-seed={seed}")
+        ids = _collected(tmp_path, f"--order-seed={seed}")
         files = [i.split("::")[0] for i in ids]
         runs = [f for n, f in enumerate(files) if n == 0 or files[n - 1] != f]
         assert sorted(runs) == sorted(MODULES), (seed, ids)
+
+
+def test_pytest_randomly_is_in_no_dependency_list_or_lock() -> None:
+    for name in ("pyproject.toml", "uv.lock"):
+        assert "pytest-randomly" not in (REPO / name).read_text(encoding="utf-8"), name
