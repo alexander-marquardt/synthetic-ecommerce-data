@@ -199,4 +199,4 @@ def test_a_beer_takes_no_pack_scale_factor_and_draws_its_own_pack(
     assert all(pack_scale.factor(rec, sku) is None for rec, sku in beers)
     rec, _ = beers[0]
     assert pack_copies.self_drawn(rec, 4)
-    assert kit.SHAPES["beer"] is kit_beer.beer
+    assert kit.shapes()["beer"] is kit_beer.beer
