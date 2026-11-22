@@ -1,4 +1,5 @@
-"""Milk is drawn as a jug and plant milk as a gable-top carton, filling their picture (gen#1128).
+"""Milk is drawn as a jug, plant milk as a gable-top carton and yoghurt as its pots or tub, each
+filling its picture (gen#1128).
 
 Before gen#1128 every milk (GRC-MLK) and plant milk (GRC-PLM) SKU drew the kit's generic
 ``carton``, painted in its line's first flavor, and ``pack_scale`` shrank a 1 pint to 0.63 and a
@@ -8,6 +9,11 @@ fat level's color, the SKU's own (whole blue, semi skimmed green, skimmed red, a
 code it). The 1, 2 and 4 pint jugs are drawn in their own proportions, the larger jug wider. A
 plant milk is a gable-top carton. Both carry a gloss and stand on a ground shadow, and neither
 takes a ``pack_scale`` factor.
+
+Every yoghurt (GRC-YOG) drew the generic ``tub`` in its line's first flavor, and a 4 x 125g was
+laid out as 4 copies of that tub. A 4 x 125g is now 4 pots with foil lids joined in a cardboard
+sleeve, drawn as one picture, and a 500g one large lidded tub. Each SKU draws its own flavor: the
+yoghurt's own color on the label (a plain line white) and its fruit where it has one.
 
 Fill is measured as gen#1111 measures it: the share of the plain sheet's product area
 (``TURN_AREA``) that the pack (``<g class="dairy">``) paints in ``image_release.render``'s own
@@ -25,6 +31,7 @@ import pytest
 from synthetic_ecommerce_data.domains.retail import (
     grocery,
     image_release,
+    pack_copies,
     pack_scale,
     sheet_cover,
     sheet_extent,
@@ -35,6 +42,10 @@ FLOOR = 0.5
 #: Over this, the pack no longer sits framed with paper round it (the issue asks 60-70%).
 CEILING = 0.8
 FAMILIES = ("MLK", "PLM")
+#: Every family this file reads: the milks and the yoghurt.
+CODES = (*FAMILIES, "YOG")
+#: The yoghurt flavors that show white: a plain line.
+PLAIN = frozenset({"Natural", "Coconut", "Vanilla"})
 DRAWN = ("path", "rect", "circle", "ellipse")
 #: The channel that leads in each fat level's cap: blue, green, red (and Lactose Free purple).
 CAP_LEAD = {"Whole": "b", "Semi Skimmed": "g", "Skimmed": "r", "Lactose Free": "rb"}
@@ -42,8 +53,8 @@ CAP_LEAD = {"Whole": "b", "Semi Skimmed": "g", "Skimmed": "r", "Lactose Free": "
 
 @functools.cache
 def _records() -> dict[str, list[dict]]:
-    """Every milk and plant milk product of the 10K grocery build, by family."""
-    out: dict[str, list[dict]] = {code: [] for code in FAMILIES}
+    """Every milk, plant milk and yoghurt product of the 10K grocery build, by family."""
+    out: dict[str, list[dict]] = {code: [] for code in CODES}
     for rec in grocery.build():
         code = rec["product_id"].split("-")[1]
         if code in out:
@@ -168,3 +179,80 @@ def test_a_milk_jug_shows_white_milk_through_its_plastic() -> None:
     assert milk and min(_rgb(milk[0]).values()) >= 0xF0, milk
     plastic = re.findall(r'class="jug"[^>]*fill-opacity="([.0-9]+)"', svg)
     assert plastic and float(plastic[0]) < 1, "the jug's plastic is translucent over the milk"
+
+
+def _count(svg: str, part: str) -> int:
+    return len(re.findall(rf'class="{part}"', svg))
+
+
+def test_every_yogurt_sku_fills_half_its_product_area() -> None:
+    fills = {sku["sku"]: _fill(_served(rec["product_id"], sku["sku"])) for rec, sku in _skus("YOG")}
+    low = {k: round(v, 3) for k, v in fills.items() if v < FLOOR}
+    high = {k: round(v, 3) for k, v in fills.items() if v > CEILING}
+    assert not low, f"{len(low)} YOG SKUs under {FLOOR}: {dict(list(low.items())[:5])}"
+    assert not high, f"{len(high)} YOG SKUs over {CEILING}: {dict(list(high.items())[:5])}"
+
+
+def test_a_yogurt_pack_is_one_picture_unshrunk() -> None:
+    """The 4 x 125g draws its own 4 pots, so it is not laid out as 4 copies, and no pack takes a
+    ``pack_scale`` factor."""
+    wrong = [
+        (sku["sku"], pack_copies.copies(rec, sku), pack_scale.factor(rec, sku))
+        for rec, sku in _skus("YOG")
+        if pack_copies.copies(rec, sku) != 1 or pack_scale.factor(rec, sku) is not None
+    ]
+    assert not wrong, wrong[:5]
+
+
+def test_a_four_pot_pack_draws_four_foil_lidded_pots_in_a_sleeve() -> None:
+    fours = [(rec, sku) for rec, sku in _skus("YOG") if sku["pack_size"] == "4 x 125g"]
+    assert fours
+    for rec, sku in fours:
+        svg = _served(rec["product_id"], sku["sku"])
+        drawn = {part: _count(svg, part) for part in ("pot", "foil", "sleeve", "tub")}
+        assert drawn == {"pot": 4, "foil": 4, "sleeve": 1, "tub": 0}, (sku["sku"], drawn)
+
+
+def test_a_500g_pack_draws_one_lidded_tub() -> None:
+    tubs = [(rec, sku) for rec, sku in _skus("YOG") if sku["pack_size"] == "500g"]
+    assert tubs
+    for rec, sku in tubs:
+        svg = _served(rec["product_id"], sku["sku"])
+        drawn = {part: _count(svg, part) for part in ("tub", "lid", "pot", "sleeve")}
+        assert drawn == {"tub": 1, "lid": 1, "pot": 0, "sleeve": 0}, (sku["sku"], drawn)
+
+
+def test_a_plain_yogurt_shows_white_and_a_fruit_one_its_color_and_fruit() -> None:
+    seen: set[str] = set()
+    for rec, sku in _skus("YOG"):
+        svg = _served(rec["product_id"], sku["sku"])
+        shown = re.findall(r'class="yogurt"[^>]*fill="(#[0-9a-f]{6})"', svg)
+        assert shown, sku["sku"]
+        white = min(_rgb(shown[0]).values()) >= 0xF0
+        assert white == (sku["flavor"] in PLAIN), (sku["sku"], sku["flavor"], shown[0])
+        if sku["flavor"] in ("Strawberry", "Lemon Curd"):
+            assert 'class="fruit"' in svg, (sku["sku"], sku["flavor"])
+        seen.add(sku["flavor"])
+    assert PLAIN & seen and {"Strawberry", "Lemon Curd"} <= seen, seen
+
+
+def test_each_sku_of_a_yogurt_line_draws_its_own_flavor_and_pack() -> None:
+    lines = 0
+    for rec in _records()["YOG"]:
+        drawn: dict[tuple[str, str], set[str]] = {}
+        for sku in rec["skus"]:
+            drawn.setdefault((sku["flavor"], sku["pack_size"]), set()).add(
+                _served(rec["product_id"], sku["sku"])
+            )
+        assert all(len(v) == 1 for v in drawn.values()), rec["product_id"]
+        pictures = {next(iter(v)) for v in drawn.values()}
+        assert len(pictures) == len(drawn), (rec["product_id"], sorted(drawn))
+        lines += len(drawn) > 1
+    assert lines
+
+
+def test_every_yogurt_pack_has_a_gloss_and_stands_on_a_ground_shadow() -> None:
+    for rec, sku in _skus("YOG")[:10]:
+        svg = _served(rec["product_id"], sku["sku"])
+        assert 'class="ground"' in svg, sku["sku"]
+        assert 'class="gloss"' in svg, sku["sku"]

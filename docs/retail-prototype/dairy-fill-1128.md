@@ -1,4 +1,4 @@
-# Milk drawn as the jug or carton it is sold in (gen#1128)
+# Milk and yoghurt drawn as the jug, carton, pots or tub they are sold in (gen#1128)
 
 Before gen#1128 every milk (`GRC-MLK`, 89 products) and plant milk (`GRC-PLM`, 112 products)
 SKU drew the kit's generic `carton`, painted in its line's first flavor, and `pack_scale` shrank
@@ -42,5 +42,39 @@ flavor, the gloss and ground shadow, and white milk behind translucent plastic.
 
 ![Milk as jugs with a cap by fat level at 1, 2 and 4 pint, and plant milk as gable-top cartons](../images/dairy-milk-1128-after.png)
 
-No milk line in the catalogue is sold in a glass bottle, so none is drawn. Yoghurt (single pots,
-the 4 x 125g sleeve and the 500g tub) follows in its own PR.
+No milk line in the catalogue is sold in a glass bottle, so none is drawn.
+
+## Yoghurt
+
+Before, every yoghurt (`GRC-YOG`, 44 products) drew the kit's generic `tub` in its line's first
+flavor: a Lemon Curd SKU of a Strawberry-first line drew a red tub, and a 4 x 125g was laid out
+by `pack_copies` as 4 copies of that tub. `kit_dairy.py` now draws **`yogurt`** from the SKU's
+own `flavor` and `pack_size`:
+
+- **4 x 125g**: four pots, two behind two, each under a foil lid with its pull tab, the front two
+  joined by a cardboard sleeve in the flavor's color. The drawing shows its own 4 pots, so
+  `pack_copies` lays out one copy (`pack_copies.SELF_DRAWN_SHAPES`).
+- **500g**: one large round tub under a lid in the flavor's color, a label band round it.
+
+The label carries the flavor's name and a dollop of yoghurt in its own color (`YOGHURTS`): a
+plain line (Natural, Coconut, Vanilla) is white, Strawberry pink, Lemon Curd pale yellow, Honey
+amber. Strawberry, Lemon Curd and Coconut show their fruit beside the dollop. Neither pack takes
+a `pack_scale` factor (`pack_scale.SELF_SIZED`).
+
+| pack | before | after |
+|---|---|---|
+| Yogurt 4 x 125g | 0.58 (4 copies of the tub) | 0.59 |
+| Yogurt 500g | 0.40 | 0.60 |
+
+`tests/test_dairy_fill_1128.py` pins, over every yoghurt SKU of the 10K grocery build: the fill
+between 0.50 and 0.80, one picture with no `pack_scale` factor, 4 foil-lidded pots in a sleeve
+for a 4 x 125g, one lidded tub for a 500g, a white yoghurt for a plain flavor and a colored one
+with its fruit for a fruit flavor, a picture of its own for each flavor and size of a line, and
+the gloss and ground shadow.
+
+![Yoghurt before: the generic tub in the line's first flavor, a 4 x 125g as 4 copies of it](../images/dairy-yogurt-1128-before.png)
+
+![Yoghurt as 4 foil-lidded pots in a sleeve and as a 500g lidded tub, each flavor's own color and fruit](../images/dairy-yogurt-1128-after.png)
+
+The two planted `yoghurt` decoys (`Fruit Yogurt, 4 Pack`, `Strawberries and Cream Yogurt, 4 Pack`)
+are not of the `Yogurt` family and keep their own `tub`.

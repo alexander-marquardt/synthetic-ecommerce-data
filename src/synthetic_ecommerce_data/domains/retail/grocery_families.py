@@ -192,7 +192,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Oat", "#d8c9a8", "G"), F("Almond", "#c9a96e", "T"), F("Soya", "#efe8d8", "S"), F("Coconut", "#f4f0e6"),
             F("Barista Oat", "#a8784a", "G")),
            _DAIRY, 0.025),
-    Family("YOG", _p("Dairy & Alternatives", "Yogurt"), "{line} Yogurt", "Yogurt", "tub", "Yogurt", _C, "BC", 1.0,
+    Family("YOG", _p("Dairy & Alternatives", "Yogurt"), "{line} Yogurt", "Yogurt", "yogurt", "Yogurt", _C, "BC", 1.0,
            ("4 x 125g", "500g"),
            (F("Natural", "#f4f0e6", "M"), F("Strawberry", "#c8312e", "M"), F("Lemon Curd", "#f2d14b", "ME"),
             F("Coconut", "#efe8d8", "M"), F("Honey", "#d9a441", "Mh"), F("Vanilla", "#f2e6c8", "M")),
