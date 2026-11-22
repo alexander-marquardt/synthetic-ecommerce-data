@@ -62,7 +62,7 @@ jobs:
           out="$RUNNER_TEMP/pip-audit-$n.json"
           uv export --frozen --directory "$(dirname "$lock")" \
             --format requirements-txt --all-groups \
-            --no-emit-workspace --no-emit-project -o "$req"
+            --no-emit-workspace --no-emit-project --no-emit-local -o "$req"
           bash $GITHUB_WORKSPACE/.github/vuln-gate/.github/scripts/retry.sh --timeout 120 python3 .github/vuln-gate/.github/scripts/vuln_gate.py pip-audit \
             --out "$out" -- \
             "$(uv tool dir --bin)/pip-audit" -r "$req" \

@@ -1,12 +1,12 @@
 {
   "source": "elastic/prism",
-  "commit": "7387940e05d57bb698d7e37e0a5ee232ded3093e",
+  "commit": "d26df5eef01a3bfd67b26b6efa1a02c80ae86e77",
   "sha256": {
     "vuln-gate/.github/scripts/npm_audit_advisories.py": "97ff22beafd7b6771ca7ecb1f52831c133847b81c538b179b8779541f84f1b00",
     "vuln-gate/.github/scripts/npm_registry_advisories.py": "d1e04db2204169e8552a3017c0ee474dac8e80393b3cdebd9a3ff0efb23792c8",
     "vuln-gate/.github/scripts/retry.sh": "5c69d8c2215776710b2e08e0a11488ef950625f3a67ffaf147d86292bdd4e1bf",
     "vuln-gate/.github/scripts/vuln_gate.py": "99fa8e8c2c2803d7c737f681a82dc84c27f38a64670b37cb3dd7574c830d78c8",
     "vuln-gate/verify_pin.py": "a5299e734cb742ec4e6e217b7afa2f9644d9323e49a99be17c9607437cf86012",
-    "workflows/vuln-gate.yaml": "841128005b7a8a1f75f6e8ac07411dad1a4d08e2c5d78967e787d23e10206589"
+    "workflows/vuln-gate.yaml": "7ae409f0182d3cc7d3965043bbcd5e78861c112925acc1e6ebe49e309167e477"
   }
 }
