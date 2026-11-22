@@ -1,20 +1,24 @@
-"""The chocolate selection box (gen#609) and the chocolate bar (gen#1125).
+"""The chocolate box (gen#609), bar and sharing bag (gen#1125).
 
 ==============  ===================================================  ============
 shape           draws                                                params
 ==============  ===================================================  ============
-chocolate_box   a flat, wide, shallow lidded box seen at a slight     --
-                angle, a ribbon across the lid
+chocolate_box   an opened gift box seen from a little above, its      pack_size,
+                lid standing behind it, the chocolates in their       chocolate
+                paper cups on the tray
 chocolate_bar   an opened bar, its wrapper torn back over the foil    pack_size,
                 to show the glossy segmented block, broken pieces     chocolate
                 in front; a multipack a stack of its bars
+chocolate_bag   a stand-up sharing bag, its buttons or bites seen     pack_size,
+                through a window and a few spilled in front           chocolate,
+                                                                      piece
 ==============  ===================================================  ============
 
-The record's fill paints the lid and the front of the box; the label panel on the lid carries
-the product word, the range name and the band of the style's flavour colors (``kit._panel``).
-The pack scale (gen#543) draws a smaller box smaller on the same sheet, so a 150g selection is
-visibly smaller than a 400g one. A bar draws its own weight and multipack instead
-(docs/retail-prototype/chocolate-fill-1125.md).
+Every chocolate shows glossed: a highlight at the top left and a shade at the foot right. Each
+shape draws its own weight (a 150g box is smaller than a 400g one, never under its smallest
+scale), so the pack scale (gen#543) gives it no factor and every size fills half its product
+area (docs/retail-prototype/chocolate-fill-1125.md). A box's label panel sits on the lid, a
+bag's above its window.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
@@ -40,25 +44,6 @@ RIBBON = "#d9b45a"
 def _tag(cls: str, element: str) -> str:
     """``element`` (a ``<path .../>``) with a ``class`` so a test and a reader can find the part."""
     return element.replace("<path ", f'<path class="{cls}" ', 1)
-
-
-def chocolate_box(
-    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
-) -> list[str]:  # fmt: skip
-    """A flat box, wide and shallow: the lid's top face towards the viewer, the front and one
-    side below it, a ribbon across the lid and down the front, the label panel on the lid."""
-    side = _shade(fill.base, 0.25)
-    ribbon = _shade(RIBBON, 0.1)
-    return [
-        _path("M304,290 L360,200 L360,250 L304,340 Z", side),
-        _path("M40,290 L304,290 L304,340 L40,340 Z", paint),
-        _line("M40,308 L304,308 M304,308 L360,218", LW_DETAIL, ' stroke-opacity=".7"'),
-        _tag("lid", _path("M40,290 L96,200 L360,200 L304,290 Z", _mix(fill.base, "#ffffff", 0.18))),
-        _tag("ribbon", _path("M268,290 L324,200 L346,200 L290,290 Z", RIBBON, LW_DETAIL)),
-        _tag("ribbon", _path("M268,290 L290,290 L290,340 L268,340 Z", ribbon, LW_DETAIL)),
-        *_panel(100, 214, 150, 62, label, 40),
-    ]
 
 
 #: The foil under a bar's wrapper, and its crinkles.
@@ -260,12 +245,179 @@ def chocolate_bar(
     return out
 
 
+#: A box's drawn size: the weight at and above which it is the full one, and its smallest scale.
+BOX_FULL_G, BOX_SMALLEST = 400.0, 0.84
+#: A sharing bag's: the same.
+BAG_FULL_G, BAG_SMALLEST = 250.0, 0.9
+#: The box's tray, the paper cups the chocolates sit in, and a cup's pleats.
+TRAY, CUP, CUP_PLEAT = "#c9a752", "#4a3020", "#2a1a10"
+#: The center a box or bag is drawn about, and scaled about for its weight.
+PACK_CENTER = (200.0, CENTER_Y)
+#: An assortment's second chocolate, and the drizzle across a third of its pieces.
+_ALSO = {"milk": "dark", "dark": "milk", "white": "milk"}
+_DRIZZLE = {"milk": "white", "dark": "white", "white": "dark"}
+
+
+def own_scale(pack_size: str | None, full: float, smallest: float) -> float:
+    """The scale a pack of ``pack_size`` is drawn at: 1 at ``full`` grams and above, the cube
+    root of its share below, never under ``smallest``; 1 with no weight named."""
+    _, grams = pack_items(pack_size)
+    return 1.0 if grams is None else max(smallest, min(1.0, (grams / full) ** (1 / 3)))
+
+
+def _scaled(k: float, parts: list[str], cls: str) -> list[str]:
+    """``parts`` in a ``<g class=cls>`` scaled by ``k`` about :data:`PACK_CENTER`."""
+    cx, cy = PACK_CENTER
+    at = (
+        f' transform="translate({cx * (1 - k):.2f} {cy * (1 - k):.2f}) scale({k:.4f})"'
+        if k != 1
+        else ""
+    )
+    return [f'<g class="{cls}"{at}>', *parts, "</g>"]
+
+
+def _disc(cx: float, cy: float, rx: float, ry: float) -> str:
+    """An ellipse as a path of four curves."""
+    a, b = rx * 0.5523, ry * 0.5523
+    return (f"M{cx + rx:.1f},{cy:.1f} C{cx + rx:.1f},{cy + b:.1f} {cx + a:.1f},{cy + ry:.1f} {cx:.1f},{cy + ry:.1f} "
+            f"C{cx - a:.1f},{cy + ry:.1f} {cx - rx:.1f},{cy + b:.1f} {cx - rx:.1f},{cy:.1f} "
+            f"C{cx - rx:.1f},{cy - b:.1f} {cx - a:.1f},{cy - ry:.1f} {cx:.1f},{cy - ry:.1f} "
+            f"C{cx + a:.1f},{cy - ry:.1f} {cx + rx:.1f},{cy - b:.1f} {cx + rx:.1f},{cy:.1f} Z")  # fmt: skip
+
+
+def _button(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A chocolate button seen from a little above: a disc on its shaded edge, a raised rim."""
+    ring = _line(_disc(cx, cy, r * 0.68, r * 0.55), 1.2, stroke=_mix(choc, "#ffffff", 0.3))
+    edge = _disc(cx, cy + r * 0.18, r, r * 0.8)
+    return _chocolate(_disc(cx, cy, r, r * 0.8), edge, [ring], choc, gloss)
+
+
+def _bite(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A chocolate bite: a small block, its top face square on, its front edge in shade."""
+    top = _rect(cx - r, cy - r * 0.8, 2 * r, 1.6 * r)
+    groove = _line(f"M{cx - r * 0.6:.1f},{cy - r * 0.1:.1f} L{cx + r * 0.6:.1f},{cy - r * 0.1:.1f}",
+                   1.2, stroke=_shade(choc, 0.45))  # fmt: skip
+    return _chocolate(top, _rect(cx - r, cy + r * 0.8, 2 * r, r * 0.42), [groove], choc, gloss)
+
+
+def _praline(kind: int, cx: float, cy: float, rx: float, ry: float, colors: tuple[str, str, str],
+             gloss: str) -> list[str]:  # fmt: skip
+    """One chocolate of an assortment in its paper cup: ``kind`` 0 a round truffle, 1 a square
+    praline in the second chocolate, 2 a dome with a drizzle of the third across it."""
+    choc, also, drizzle = colors
+    cup = _path(_disc(cx, cy + ry * 0.12, rx, ry), CUP, 1.2, stroke=CUP_PLEAT)
+    pleats = _line(" ".join(f"M{cx + rx * t:.1f},{cy + ry * 0.7:.1f} L{cx + rx * t * 1.1:.1f},{cy + ry * 1.05:.1f}"
+                            for t in (-0.6, -0.2, 0.2, 0.6)), 1.0, stroke=CUP_PLEAT)  # fmt: skip
+    out = [cup, pleats]
+    px, py = rx * 0.8, ry * 0.78
+    if kind == 1:
+        top = _rect(cx - px * 0.88, cy - py * 0.9, px * 1.76, py * 1.5)
+        ridge = _line(f"M{cx - px * 0.5:.1f},{cy - py * 0.2:.1f} L{cx + px * 0.5:.1f},{cy - py * 0.2:.1f}",
+                      1.2, stroke=_shade(also, 0.45))  # fmt: skip
+        return out + _chocolate(
+            top, _rect(cx - px * 0.88, cy + py * 0.6, px * 1.76, py * 0.32), [ridge], also, gloss
+        )
+    extra = []
+    if kind == 2:
+        zig = " ".join(
+            f"L{cx - px * 0.7 + i * px * 0.28:.1f},{cy - py * (0.35 if i % 2 else -0.1):.1f}"
+            for i in range(6)
+        )
+        extra = [_line(f"M{cx - px * 0.7:.1f},{cy + py * 0.1:.1f} {zig}", 2.6, stroke=drizzle)]
+    return out + _chocolate(
+        _disc(cx, cy - py * 0.12, px, py), _disc(cx, cy, px, py), extra, choc, gloss
+    )
+
+
+def chocolate_box(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
+    """An opened gift box seen from a little above: the lid stands behind it with a ribbon and
+    the label panel, and the tray holds the chocolates in their paper cups, an assortment of
+    truffles, square pralines in a second chocolate and drizzled domes. A box under
+    :data:`BOX_FULL_G` is drawn smaller (:func:`own_scale`), and holds fewer chocolates."""
+    k = own_scale(pack_size, BOX_FULL_G, BOX_SMALLEST)
+    _, grams = pack_items(pack_size)
+    cols, rows = (6, 4) if grams is None or grams >= 300 else (5, 3) if grams >= 200 else (4, 3)
+    choc = chocolate_color(chocolate, fill.base)
+    kind = next((name for name, hex_ in CHOCOLATE.items() if hex_ == choc), "milk")
+    colors = (choc, CHOCOLATE[_ALSO[kind]], CHOCOLATE[_DRIZZLE[kind]])
+    box = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    gloss = f"choc-gloss-{choc[1:]}"
+    lid = _mix(box, "#ffffff", 0.14)
+    out = [
+        _tag("lid", _path("M74,40 L326,40 L340,140 L60,140 Z", lid)),
+        _line("M78,50 L322,50", 1.2, ' stroke-opacity=".5"'),
+        _tag("ribbon", _path("M276,40 L298,40 L304,140 L282,140 Z", RIBBON, LW_DETAIL)),
+        _tag("ribbon", _path("M287,46 C262,24 252,52 287,50 C322,52 312,24 287,46 Z", _shade(RIBBON, 0.1), LW_DETAIL)),
+        *_panel(90, 58, 172, 64, label, 34),
+        _tag("wrapper", _path("M50,132 L350,132 L364,296 L36,296 Z", box)),
+        _path("M36,296 L364,296 L364,340 L36,340 Z", _shade(box, 0.28)),
+        _line("M36,310 L364,310", 1.6, ' stroke-opacity=".8"', RIBBON),
+        _tag("tray", _path("M64,144 L336,144 L348,284 L52,284 Z", TRAY, LW_DETAIL)),
+    ]  # fmt: skip
+    top, bottom = 144.0, 284.0
+    for r in range(rows):
+        t = (r + 0.5) / rows
+        y = top + (bottom - top) * t
+        left, right = 64 + (52 - 64) * t, 336 + (348 - 336) * t
+        cw, ch = (right - left) / cols, (bottom - top) / rows
+        for c in range(cols):
+            out += _praline(
+                (c + r) % 3, left + cw * (c + 0.5), y, cw * 0.42, ch * 0.4, colors, gloss
+            )
+    ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (348 - CENTER_Y) * k:.1f}" '
+              f'rx="{176 * k:.1f}" ry="12" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
+    return [GLOSS.format(gloss), ground, *_scaled(k, out, "box")]
+
+
 def chocolate_bag(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
     chocolate: str | None = None, piece: str | None = None,
 ) -> list[str]:  # fmt: skip
-    """A stub: the sharing bag's outline only (gen#1125, red)."""
-    return [_tag("wrapper", _path("M112,70 L288,70 L300,330 L100,330 Z", paint))]
+    """A stand-up sharing bag: a crimped top seal, the label panel, a window showing the
+    ``piece`` it holds (``"buttons"``, or else bites) and a few spilled at its foot. The bag is
+    the flavour's color, kept visible on white paper (:func:`wrapper_color`); a bag under
+    :data:`BAG_FULL_G` is drawn smaller (:func:`own_scale`)."""
+    k = own_scale(pack_size, BAG_FULL_G, BAG_SMALLEST)
+    choc = chocolate_color(chocolate, fill.base)
+    bag = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    gloss = f"choc-gloss-{choc[1:]}"
+    draw = _button if piece == "buttons" else _bite
+    seal = (
+        "M86,34 "
+        + " ".join(f"L{86 + i * 12:.0f},{34 if i % 2 else 28}" for i in range(1, 20))
+        + " L314,34 L314,60 L86,60 Z"
+    )
+    out = [
+        _tag("wrapper", _path("M86,56 L314,56 C324,150 334,240 338,312 Q338,336 314,336 L86,336 "
+                              "Q62,336 62,312 C66,240 76,150 86,56 Z", bag)),
+        _path(seal, _shade(bag, 0.22)),
+        _line("M88,48 L312,48", 1.0, ' stroke-dasharray="4 4"'),
+        _line("M96,72 C90,150 84,230 80,300", 9, ' stroke-opacity=".22"', "#ffffff"),
+        *_panel(108, 74, 184, 66, label, 36),
+        _tag("window", _path(_disc(200, 232, 104, 74), _shade(choc, 0.55), 2.0, stroke=_mix(bag, "#ffffff", 0.5))),
+    ]  # fmt: skip
+    r = 21.0
+    for row, y in enumerate((186.0, 218.0, 250.0, 280.0)):
+        half = 104 * (1 - ((y - 232) / 74) ** 2) ** 0.5 - r
+        n = max(1, int(2 * half // (2 * r)) + 1)
+        span = 2 * r * (n - 1)
+        out += [
+            p
+            for i in range(n)
+            for p in draw(
+                200 - span / 2 + 2 * r * i + (r * 0.5 if row % 2 else 0), y, r, choc, gloss
+            )
+        ]
+    out.append(_line(_disc(200, 232, 104, 74), 2.0, stroke=_mix(bag, "#ffffff", 0.5)))
+    out.append(_line("M136,184 C150,172 168,166 186,164", 6, ' stroke-opacity=".45"', "#ffffff"))
+    for x, y in ((92, 334), (140, 348), (196, 340), (252, 350), (306, 334)):
+        out += draw(x, y, 24.0, choc, gloss)
+    ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (364 - CENTER_Y) * k:.1f}" '
+              f'rx="{170 * k:.1f}" ry="11" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
+    return [GLOSS.format(gloss), ground, *_scaled(k, out, "sharing-bag")]
 
 
 register(
