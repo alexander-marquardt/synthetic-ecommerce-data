@@ -43,9 +43,10 @@ row judged, with three `<FILL` lines for the author: claims, repro commands, mut
 
 ## The hook
 
-`pre-commit install` installs the `prepush-gate` hook (`bash scripts/prepush.sh --hook`).
-It judges the checkout at HEAD, with unstaged edits stashed by pre-commit; untracked
-files are in reach of `ruff check .` as in CI.
+`python3 scripts/hooks.py install` writes the pre-push hook, which runs `prepush-gate`
+(`bash scripts/prepush.sh --hook`). It judges the checkout at HEAD, with unstaged edits set
+aside by `scripts/hooks.py`. The lint row runs CI's `scripts/hooks.py run pre-commit
+--all-files`, which reads tracked files only, as CI does.
 
 - A branch with an **open pull request**, and `main`, are blocked on a red row.
 - A branch with none runs every row and ends `ADVISORY — NOT A PASS`, exit 0, no packet:
@@ -56,5 +57,4 @@ files are in reach of `ruff check .` as in CI.
 - A push of a commit other than the checkout's HEAD fails the `pushed-commit` row: the
   gate judges the checkout, not the commit named on the command line.
 
-A deliberate skip is `SKIP=prepush-gate git push`, which pre-commit prints; CI runs every job
-regardless.
+A deliberate skip is `SKIP=prepush-gate git push`; CI runs every job regardless.

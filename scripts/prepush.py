@@ -27,9 +27,9 @@ The shape is elastic/prism's ``scripts/prepush.sh`` (its job list is not copied)
   ``PREPUSH rc=N failed=<rows> log=<path>``;
 * a blocking pass prints a REVIEW PACKET for the PR body and saves it beside the log.
 
-By hand the gate blocks. As the hook (``--hook``, the ``prepush-gate`` hook in
-``.pre-commit-config.yaml``) it judges the checkout at HEAD, with unstaged edits
-stashed by pre-commit, and blocks only a branch that has an OPEN pull request, or
+By hand the gate blocks. As the hook (``--hook``, the ``prepush-gate`` hook of
+``scripts/hooks.py``) it judges the checkout at HEAD, with unstaged edits set
+aside by that script, and blocks only a branch that has an OPEN pull request, or
 ``main``. With none, every row still runs and prints, and the run ends
 ``ADVISORY — NOT A PASS`` with exit 0, so a work-in-progress push is never refused
 and nobody learns to bypass the hook. A push to ``wip/<task>`` is a backup: the
@@ -37,8 +37,8 @@ commit-message rule only (a trailer is fixed by rewriting history), then
 ``NOT JUDGED (wip backup)``. A branch delete is not judged. A pull-request lookup that
 fails blocks: the gate cannot tell, and says so.
 
-A deliberate skip is ``SKIP=prepush-gate git push``, which pre-commit prints; CI still
-runs every job. Untracked scratch files are in reach of ``ruff check .`` as in CI.
+A deliberate skip is ``SKIP=prepush-gate git push``; CI still runs every job. The lint
+row runs CI's ``scripts/hooks.py run pre-commit --all-files``, so it reads tracked files only.
 
 Exit status: 0 pass (or advisory), 1 a row failed, 2 usage, 3 the gate could not judge.
 """
@@ -81,7 +81,7 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 CI_COMMANDS: dict[str, tuple[str, str]] = {
     "commit-messages": ("commit-messages", "check_commit_msg.py"),
     "customer-names": ("customer-name-check", "check_customer_names.py"),
-    "lint": ("lint", "ruff check"),
+    "lint": ("lint", "hooks.py run pre-commit"),
     "file-size": ("file-size", "--no-body-is-advisory"),
     "file-size-body": ("file-size", "--pr-body-file"),
     "tree-scans": ("tests", "pytest"),
@@ -283,7 +283,8 @@ def row_customer_names(ctx: Context) -> Result:
 
 def row_lint(ctx: Context) -> Result:
     rc, out = run(ctx.argv("lint"), ctx.root)
-    return Result("PASS" if rc == 0 else "FAIL", f"ruff check . on {ctx.head[:7]}", out)
+    judged = f"the file checks and ruff check on {ctx.head[:7]}"
+    return Result("PASS" if rc == 0 else "FAIL", judged, out)
 
 
 def row_file_size(ctx: Context) -> Result:
@@ -437,7 +438,7 @@ def main(argv: list[str]) -> int:
         log.write_text("\n".join(lines) + "\n", encoding="utf-8")
         return rc
 
-    env = os.environ
+    env = os.environ  # the push's refs: scripts/hooks.py sets them under pre-commit's names
     branch = env.get("PRE_COMMIT_REMOTE_BRANCH", "").removeprefix("refs/heads/")
     to_ref = env.get("PRE_COMMIT_TO_REF", "")
     if args.hook and to_ref == ZEROS:
