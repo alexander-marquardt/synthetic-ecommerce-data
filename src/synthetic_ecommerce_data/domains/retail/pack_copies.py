@@ -101,7 +101,7 @@ FANS = {
 
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
-SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table"})
+SELF_DRAWN_SHAPES = frozenset({"anti_vibration_mat", "produce_pile", "side_table", "yogurt"})
 #: The shapes whose kind draws a set of a fixed count: four pads, a nest of three tables, a knife
 #: block's five knives and the block, four utensils and their holder.
 KIND_COUNT = {
