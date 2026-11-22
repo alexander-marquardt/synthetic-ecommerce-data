@@ -42,7 +42,10 @@ def _tag(cls: str, element: str) -> str:
     return element.replace("<path ", f'<path class="{cls}" ', 1)
 
 
-def chocolate_box(paint: str, fill: Fill, label: str | None) -> list[str]:
+def chocolate_box(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
     """A flat box, wide and shallow: the lid's top face towards the viewer, the front and one
     side below it, a ribbon across the lid and down the front, the label panel on the lid."""
     side = _shade(fill.base, 0.25)
@@ -257,4 +260,14 @@ def chocolate_bar(
     return out
 
 
-register({"chocolate_box": chocolate_box, "chocolate_bar": chocolate_bar})
+def chocolate_bag(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None, piece: str | None = None,
+) -> list[str]:  # fmt: skip
+    """A stub: the sharing bag's outline only (gen#1125, red)."""
+    return [_tag("wrapper", _path("M112,70 L288,70 L300,330 L100,330 Z", paint))]
+
+
+register(
+    {"chocolate_box": chocolate_box, "chocolate_bar": chocolate_bar, "chocolate_bag": chocolate_bag}
+)
