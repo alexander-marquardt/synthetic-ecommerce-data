@@ -404,7 +404,7 @@ FAMILIES: tuple[Family, ...] = (
            _SNACK, 0.003, may=((3, ""), (1, "M"))),
     # Class "oranges": the word names a flavour in a bar, a bake, a biscuit and a drink, in
     # categories other than Oranges.
-    _bars(Family("CHO", _BARS, "{line} {flavor}", "Chocolate Bar", "chocolate_bar",
+    _bars(Family("CHO", _BARS, "{line} {flavor}", "Chocolate Bar", "chocolate_orange",
            "Chocolate Orange", _A, "DE", 1.8, ("100g", "175g"),
            (F("Milk Chocolate Orange", "#d9822b", "M"), F("Dark Chocolate Orange", "#8a4a1c")),
            _CHOC, 0.008, base="S", may=_NUTS)),
@@ -418,7 +418,7 @@ FAMILIES: tuple[Family, ...] = (
            (F("Orange Shortbread", "#efd9a8", "GM"), F("Chocolate & Orange Cookies", "#7a4a2a", "GME"),
             F("Orange Cream Sandwich Biscuits", "#f2a14b", "GMS")),
            _SNACK, 0.006, may=((3, ""), (1, "T"))),
-    Family("HOT", _p("Drinks", "Hot Chocolate"), "{line} {flavor}", "Hot Chocolate", "jar", "Drinking Chocolate",
+    Family("HOT", _p("Drinks", "Hot Chocolate"), "{line} {flavor}", "Hot Chocolate", "hot_chocolate", "Drinking Chocolate",
            _A, "CD", 2.6, ("250g", "400g"),
            (F("Orange Drinking Chocolate", "#d9822b", "M"), F("Classic Drinking Chocolate", "#5a3a26", "M"),
             F("Salted Caramel Hot Chocolate", "#c48a3a", "M")),

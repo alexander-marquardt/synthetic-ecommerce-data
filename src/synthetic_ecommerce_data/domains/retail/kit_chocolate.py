@@ -1,30 +1,35 @@
-"""The chocolate box (gen#609), bar and sharing bag (gen#1125).
+"""The chocolate box (gen#609), bar, sharing bag, hot chocolate and chocolate orange (gen#1125).
 
-==============  ===================================================  ============
-shape           draws                                                params
-==============  ===================================================  ============
-chocolate_box   an opened gift box seen from a little above, its      pack_size,
-                lid standing behind it, the chocolates in their       chocolate
-                paper cups on the tray
-chocolate_bar   an opened bar, its wrapper torn back over the foil    pack_size,
-                to show the glossy segmented block, broken pieces     chocolate
-                in front; a multipack a stack of its bars
-chocolate_bag   a stand-up sharing bag, its buttons or bites seen     pack_size,
-                through a window and a few spilled in front           chocolate,
-                                                                      piece
-==============  ===================================================  ============
+================  ===================================================  ============
+shape             draws                                                params
+================  ===================================================  ============
+chocolate_box     an opened gift box seen from a little above, its      pack_size,
+                  lid standing behind it, the chocolates in their       chocolate
+                  paper cups on the tray
+chocolate_bar     an opened bar, its wrapper torn back over the foil    pack_size,
+                  to show the glossy segmented block, broken pieces     chocolate
+                  in front; a multipack a stack of its bars
+chocolate_bag     a stand-up sharing bag, its buttons or bites seen     pack_size,
+                  through a window and a few spilled in front           chocolate,
+                                                                        piece
+hot_chocolate     a lidded tub of drinking chocolate, a mug filled      pack_size,
+                  with glossy cocoa in front of it                      chocolate
+chocolate_orange  a ball of glossy segments in its opened foil, two     pack_size,
+                  segments loose in front                               chocolate
+================  ===================================================  ============
 
 Every chocolate shows glossed: a highlight at the top left and a shade at the foot right. Each
 shape draws its own weight (a 150g box is smaller than a 400g one, never under its smallest
 scale), so the pack scale (gen#543) gives it no factor and every size fills half its product
 area (docs/retail-prototype/chocolate-fill-1125.md). A box's label panel sits on the lid, a
-bag's above its window.
+bag's above its window, a hot chocolate's on its tub and a chocolate orange's on its foil.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).
 
 from __future__ import annotations
 
+import math
 import re
 
 from synthetic_ecommerce_data.domains.retail.kit import (
@@ -420,6 +425,137 @@ def chocolate_bag(
     return [GLOSS.format(gloss), ground, *_scaled(k, out, "sharing-bag")]
 
 
+#: A hot chocolate's drawn size (a tub of drinking chocolate): the weight at and above which it
+#: is the full one, and its smallest scale.
+HOT_FULL_G, HOT_SMALLEST = 400.0, 0.9
+#: A chocolate orange's: the same.
+ORANGE_FULL_G, ORANGE_SMALLEST = 175.0, 0.9
+#: The steam over a filled mug, and the segments a chocolate orange shows from its pole.
+STEAM = "#9a9a9a"
+ORANGE_MERIDIANS = (-72.0, -48.0, -24.0, 0.0, 24.0, 48.0, 72.0)
+#: Where the dimples of the orange's peel, pressed into its chocolate, sit on the ball (in radii).
+ORANGE_DIMPLES = ((-0.5, -0.35), (-0.2, -0.55), (0.25, -0.4), (0.55, -0.15), (-0.62, 0.1),
+                  (-0.3, 0.05), (0.1, -0.1), (0.38, 0.2), (-0.45, 0.45), (0.0, 0.35),
+                  (0.6, 0.42), (-0.1, 0.65), (0.3, 0.62), (0.15, -0.7))  # fmt: skip
+
+
+def hot_chocolate(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
+    """A tub of drinking chocolate and, in front of it, a mug filled with it: the tub is the
+    flavour's color (:func:`wrapper_color`) under a lid in its shade, with the label panel and
+    a sheen down its left side; the mug's cocoa is the ``chocolate`` the drink is made of,
+    glossed, a swirl on it and steam above. A tub under :data:`HOT_FULL_G` is drawn smaller
+    (:func:`own_scale`)."""
+    k = own_scale(pack_size, HOT_FULL_G, HOT_SMALLEST)
+    choc = chocolate_color(chocolate, fill.base)
+    tub = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    lid = _shade(tub, 0.3)
+    mug = _mix(tub, "#ffffff", 0.78)
+    gloss = f"choc-gloss-{choc[1:]}"
+    out = [
+        _tag("wrapper", _path("M44,72 L276,72 L276,326 C276,340 224,350 160,350 "
+                              "C96,350 44,340 44,326 Z", tub)),
+        _line("M60,104 C58,180 58,250 60,316", 10, ' stroke-opacity=".22"', "#ffffff"),
+        _tag("lid", _path("M38,44 L282,44 L282,88 C282,98 228,106 160,106 "
+                          "C92,106 38,98 38,88 Z", lid)),
+        _path(_disc(160, 44, 122, 20), _mix(lid, "#ffffff", 0.18)),
+        _line("M40,80 C80,92 240,92 280,80", 1.2, ' stroke-opacity=".5"'),
+        *_panel(64, 130, 192, 92, label, 38),
+        _tag("mug", _path("M202,214 L340,214 L332,340 C332,350 306,356 271,356 "
+                          "C236,356 210,350 210,340 Z", mug)),
+        _tag("mug", _path("M338,234 C384,228 386,318 330,314 L331,296 C362,298 362,250 337,252 Z", mug)),
+        _path(_disc(271, 214, 69, 16), _mix(mug, "#ffffff", 0.4)),
+        *_chocolate(_disc(271, 216, 60, 12), _disc(271, 218, 60, 12),
+                    [_line("M244,216 C258,208 286,210 296,218 C286,224 262,222 258,216", 1.4,
+                           stroke=_mix(choc, "#ffffff", 0.45))], choc, gloss),
+        _line("M246,196 C234,178 260,170 248,150 M276,194 C264,172 292,166 280,140 "
+              "M304,198 C294,182 318,176 308,158", 3, ' stroke-opacity=".6"', STEAM),
+    ]  # fmt: skip
+    ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (360 - CENTER_Y) * k:.1f}" '
+              f'rx="{170 * k:.1f}" ry="11" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
+    return [GLOSS.format(gloss), ground, *_scaled(k, out, "hot-chocolate")]
+
+
+def _meridian(cx: float, cy: float, r: float, phi: float) -> str:
+    """A groove between two segments of a ball of radius ``r``: the meridian at ``phi``
+    degrees from the front, seen from a little above, from the top pole to the foot."""
+    bulge = r * math.sin(math.radians(phi)) * 1.33
+    top, foot = cy - r * 0.86, cy + r
+    return (f"M{cx:.1f},{top:.1f} C{cx + bulge:.1f},{top + r * 0.3:.1f} "
+            f"{cx + bulge:.1f},{foot - r * 0.4:.1f} {cx + bulge * 0.12:.1f},{foot:.1f}")  # fmt: skip
+
+
+def _segment(cx: float, cy: float, w: float, h: float, angle: float, choc: str,
+             gloss: str) -> list[str]:  # fmt: skip
+    """One segment of a chocolate orange lying loose: its rounded outer face and the flat
+    inner face it broke from the ball along."""
+    top = (f"M{cx - w / 2:.1f},{cy:.1f} C{cx - w / 2:.1f},{cy - h:.1f} {cx + w / 2:.1f},{cy - h:.1f} "
+           f"{cx + w / 2:.1f},{cy:.1f} Z")  # fmt: skip
+    edge = _rect(cx - w / 2 + 3, cy - 2, w - 6, h * 0.3)
+    groove = _line(f"M{cx - w * 0.3:.1f},{cy - h * 0.3:.1f} C{cx - w * 0.1:.1f},{cy - h * 0.6:.1f} "
+                   f"{cx + w * 0.1:.1f},{cy - h * 0.6:.1f} {cx + w * 0.3:.1f},{cy - h * 0.3:.1f}",
+                   1.2, stroke=_shade(choc, 0.45))  # fmt: skip
+    return _chocolate(top, edge, [groove], choc, gloss, f"rotate({angle:g} {cx:.1f} {cy:.1f})")
+
+
+def chocolate_orange(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
+    """A chocolate orange: a ball of segments in the ``chocolate`` it is made of, glossed, its
+    grooves running from the top pole, sitting in its opened foil (the flavour's color, kept
+    visible on white paper by :func:`wrapper_color`), two loose segments in front and the
+    label panel on the foil. An orange under :data:`ORANGE_FULL_G` is drawn smaller
+    (:func:`own_scale`)."""
+    k = own_scale(pack_size, ORANGE_FULL_G, ORANGE_SMALLEST)
+    choc = chocolate_color(chocolate, fill.base)
+    foil = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    gloss = f"choc-gloss-{choc[1:]}"
+    cx, cy, r = 200.0, 166.0, 138.0
+    petals = " ".join(
+        f"{'M' if i == 0 else 'L'}{200 + rx * math.cos(math.radians(a)):.1f},{298 + ry * math.sin(math.radians(a)):.1f}"
+        for i, a in enumerate(range(0, 360, 12))
+        for rx, ry in [(176, 66) if i % 2 == 0 else (150, 52)]
+    )
+    grooves = [
+        _line(_meridian(cx, cy, r, phi), 1.6, stroke=_shade(choc, 0.5)) for phi in ORANGE_MERIDIANS
+    ]
+    dimples = [
+        _path(
+            _disc(cx + r * u, cy + r * v, 3.2, 2.4),
+            _shade(choc, 0.25),
+            0.6,
+            stroke=_shade(choc, 0.4),
+        )
+        for u, v in ORANGE_DIMPLES
+    ]
+    crinkles = " ".join(
+        f"M{200 + 70 * math.cos(math.radians(a)):.1f},{298 + 26 * math.sin(math.radians(a)):.1f} "
+        f"L{200 + 158 * math.cos(math.radians(a)):.1f},{298 + 58 * math.sin(math.radians(a)):.1f}"
+        for a in range(6, 360, 24)
+    )
+    out = [
+        _tag("wrapper", _path(f"{petals} Z", foil)),
+        _line(crinkles, 1.2, ' stroke-opacity=".55"', _mix(foil, "#ffffff", 0.5)),
+        *_chocolate(_disc(cx, cy, r, r), _disc(cx, cy + 8, r * 0.98, r), [*grooves, *dimples], choc, gloss),
+        _path(_disc(cx, cy - r * 0.86, 12, 5), _shade(choc, 0.2), 1.2, stroke=_shade(choc, 0.5)),
+        *_panel(128, 318, 144, 38, label, 22),
+    ]  # fmt: skip
+    out += _segment(70, 336, 76, 50, -16, choc, gloss)
+    out += _segment(330, 340, 76, 50, 14, choc, gloss)
+    ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (366 - CENTER_Y) * k:.1f}" '
+              f'rx="{176 * k:.1f}" ry="11" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
+    return [GLOSS.format(gloss), ground, *_scaled(k, out, "chocolate-orange")]
+
+
 register(
-    {"chocolate_box": chocolate_box, "chocolate_bar": chocolate_bar, "chocolate_bag": chocolate_bag}
+    {
+        "chocolate_box": chocolate_box,
+        "chocolate_bar": chocolate_bar,
+        "chocolate_bag": chocolate_bag,
+        "hot_chocolate": hot_chocolate,
+        "chocolate_orange": chocolate_orange,
+    }
 )
