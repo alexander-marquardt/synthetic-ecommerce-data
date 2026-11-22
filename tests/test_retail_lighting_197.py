@@ -71,7 +71,7 @@ def test_every_type_has_three_styles_from_three_brands_in_its_own_leaf() -> None
         want = ("Home", "Lighting", *([generic] if generic else []), leaf)
         assert {tuple(r["category_path"]) for r in recs} == {want}, ptype
         assert {r["drawing"]["shape"] for r in recs} == {shape}, ptype
-        assert all(shape in kit.SHAPES for r in recs)
+        assert all(shape in kit.shapes() for r in recs)
 
 
 def test_key_attributes_are_structured_entries_and_the_sku_axis_is_a_variant_entry() -> None:

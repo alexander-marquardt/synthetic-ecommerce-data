@@ -201,7 +201,7 @@ def test_each_accessory_decoy_says_bicycle_or_bike_and_sits_outside_bikes(access
 
 def test_each_accessory_is_drawn_as_its_own_shape(accessories):
     for r in accessories:
-        assert r["drawing"]["shape"] in kit.SHAPES
+        assert r["drawing"]["shape"] in kit.shapes()
         assert r["drawing"]["shape"] != "bicycle"
 
 

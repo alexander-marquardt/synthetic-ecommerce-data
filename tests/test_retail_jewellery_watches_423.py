@@ -88,7 +88,7 @@ def test_each_type_has_two_styles_from_two_invented_brands(
 @pytest.mark.parametrize("ptype", NEW_TYPES)
 def test_each_type_is_drawn_by_a_shape_of_its_own(templates: list[dict], ptype: str) -> None:
     shape = {r["drawing"]["shape"] for r in _of(templates, ptype)}
-    assert len(shape) == 1 and shape <= set(kit.SHAPES), (ptype, shape)
+    assert len(shape) == 1 and shape <= set(kit.shapes()), (ptype, shape)
     others = {
         r["drawing"]["shape"] for r in templates
         if r["product_type"] in NEW_TYPES and r["product_type"] != ptype

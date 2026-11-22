@@ -179,4 +179,4 @@ def test_a_soft_drink_takes_no_pack_scale_factor_and_draws_its_own_pack(
     assert all(pack_scale.factor(rec, sku) is None for rec, sku in drinks)
     rec, _ = drinks[0]
     assert pack_copies.self_drawn(rec, 6)
-    assert kit.SHAPES["soft_drink"] is kit_soft_drinks.soft_drink
+    assert kit.shapes()["soft_drink"] is kit_soft_drinks.soft_drink

@@ -69,7 +69,7 @@ PARAMS = {
 
 
 def _svg(shape: str, **params: str) -> str:
-    assert shape in kit.SHAPES, f"{shape} is not drawn"
+    assert shape in kit.shapes(), f"{shape} is not drawn"
     return kit.render(shape, kit.Fill("solid", "#123456", "#654321"), params=params)
 
 
@@ -92,7 +92,7 @@ def test_the_six_types_each_have_three_styles_from_three_brands() -> None:
 
 def test_every_style_draws_as_its_own_soft_furnishing_shape() -> None:
     for shape in (s for s, _ in TYPES.values()):
-        assert shape in kit.SHAPES and shape in kit_softfurn.SHAPES
+        assert shape in kit.shapes() and shape in kit_softfurn.SHAPES
         assert shape not in ("box", "box_wide")
         assert len(_svg(shape)) > 400, shape
     assert len({_svg(s) for s, _ in TYPES.values()}) == len(TYPES)

@@ -125,7 +125,7 @@ def test_titles_and_codes_are_unique_and_every_row_builds_a_valid_document() -> 
         doc = row.doc()
         assert doc["skus"], row.code
         assert doc["attributes"], row.code
-        assert doc["drawing"]["shape"] in kit.SHAPES, row.code
+        assert doc["drawing"]["shape"] in kit.shapes(), row.code
         assert doc["drawing"].get("label") is None, row.code
 
 

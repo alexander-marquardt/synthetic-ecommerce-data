@@ -55,7 +55,7 @@ def _flavors() -> dict[str, str]:
 
 def _parts(base: str, pack_size: str | None) -> list[str]:
     fill = Fill("solid", base, "#ffffff")
-    return kit.SHAPES["chocolate_bar"](base, fill, "Chocolate Bar", pack_size=pack_size)
+    return kit.shapes()["chocolate_bar"](base, fill, "Chocolate Bar", pack_size=pack_size)
 
 
 def _svg(parts: list[str]) -> str:
@@ -171,7 +171,7 @@ def _chocolate_fills(parts: list[str]) -> set[str]:
 def test_a_mint_dark_bar_is_dark_chocolate_in_a_green_wrapper() -> None:
     green = "#2f6b52"
     fill = Fill("solid", green, "#ffffff")
-    parts = kit.SHAPES["chocolate_bar"](
+    parts = kit.shapes()["chocolate_bar"](
         green, fill, "Mint Dark", pack_size="100g", chocolate="dark"
     )
     assert CHOCOLATE["dark"] in _chocolate_fills(parts)
@@ -220,7 +220,7 @@ def _pack_parts(code: str, flavor: str, base: str, pack_size: str | None) -> lis
     }
     if code == "CSB":
         params["piece"] = "buttons" if "Buttons" in flavor else "bites"
-    return kit.SHAPES[PACK_SHAPES[code]](
+    return kit.shapes()[PACK_SHAPES[code]](
         base, Fill("solid", base, "#ffffff"), "Chocolates", **params
     )
 

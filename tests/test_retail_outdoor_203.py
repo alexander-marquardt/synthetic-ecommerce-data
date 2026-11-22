@@ -85,7 +85,7 @@ def test_each_type_draws_as_a_shape_of_its_own(ptype: str) -> None:
     rows = _rows(ptype)
     shape = TYPES[ptype][1]
     assert {r.shape for r in rows} == {shape}
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     assert shape not in ("box", "box_wide")
 
 
@@ -163,7 +163,7 @@ VARIANTS = [
 @pytest.mark.parametrize(("shape", "one", "other"), VARIANTS, ids=lambda v: str(v))
 def test_a_param_changes_the_drawing(shape: str, one: dict, other: dict) -> None:
     type_registry.specs()
-    assert shape in kit.SHAPES, shape
+    assert shape in kit.shapes(), shape
     assert _svg(shape=shape, **one) != _svg(shape=shape, **other)
     assert _svg(shape=shape) == _svg(shape=shape, **one), "the default is the first reading"
 

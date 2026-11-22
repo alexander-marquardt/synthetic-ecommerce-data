@@ -148,7 +148,7 @@ def test_every_drawing_param_says_what_the_attributes_say() -> None:
     """The picture is the data: a 6 seater draws six chairs, a 5 drawer chest five fronts."""
     for doc in _docs():
         d = doc["drawing"]
-        assert d["shape"] in kit.SHAPES, doc["product_id"]
+        assert d["shape"] in kit.shapes(), doc["product_id"]
         attrs = {a["key"]: str(a["value"]) for a in doc["attributes"]}
         for param, keys in DRAWN[d["shape"]].items():
             value = d["params"][param]

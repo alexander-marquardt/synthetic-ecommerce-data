@@ -66,7 +66,7 @@ def _styles(ptype: str):
 
 
 def _svg(shape: str, **params: str) -> str:
-    assert shape in kit.SHAPES, shape
+    assert shape in kit.shapes(), shape
     return kit.render(shape, kit.Fill("solid", "#123456", "#654321"), params=params)
 
 
@@ -81,7 +81,7 @@ def test_a_type_has_three_brands_and_three_styles_under_the_tailoring_category(p
 @pytest.mark.parametrize("ptype", TYPES)
 def test_a_type_draws_as_its_own_shape(ptype: str) -> None:
     shape, _ = TYPES[ptype]
-    assert shape in kit.SHAPES and shape not in GENERIC
+    assert shape in kit.shapes() and shape not in GENERIC
     assert {r.shape for r in _styles(ptype)} == {shape}
     assert {r.shape for r in mens_depth_rows.ROWS if r.product_type == ptype} == {shape}
 

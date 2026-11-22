@@ -18,16 +18,22 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
     LW_DETAIL,
-    SHAPES,
     Fill,
     _highlight,
     _line,
     _panel,
     _path,
     _word,
+    bottle,
+    jar,
     register,
 )
-from synthetic_ecommerce_data.domains.retail.kit_home import _lipstick_emblem, _text
+from synthetic_ecommerce_data.domains.retail.kit_home import (
+    _lipstick_emblem,
+    _text,
+    fragrance,
+    moisturiser_jar,
+)
 
 
 @dataclass(frozen=True)
@@ -172,6 +178,11 @@ FAMILIES = {
 }
 
 
+#: The one drawing each family's shape draws with no look, named here rather than read back from
+#: the registry, which holds whatever its imports registered so far (#1039).
+PLAIN = {"bottle": bottle, "jar": jar, "moisturiser_jar": moisturiser_jar, "fragrance": fragrance}
+
+
 def _top(family: Family, form: Form, top: str, color: str, trim: str) -> list[str]:
     half = min(family.half, form.panel[2] * 0.62)
     if not family.neck:
@@ -201,7 +212,7 @@ def _pack(family: Family, paint: str, fill: Fill, label: str | None, form: str, 
 
 def _looked(shape: str):
     """``shape``'s drawing, which draws a pack of its family when its params carry a look."""
-    plain, family = SHAPES[shape], FAMILIES[shape]
+    plain, family = PLAIN[shape], FAMILIES[shape]
 
     def draw(paint: str, fill: Fill, label: str | None, **look: str) -> list[str]:
         return _pack(family, paint, fill, label, **look) if look else plain(paint, fill, label)

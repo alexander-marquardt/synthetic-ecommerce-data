@@ -121,7 +121,7 @@ def test_the_worked_example_is_drawn_by_the_kit_module_the_section_names() -> No
     shapes = {r.shape for r in spec.rows}
     assert len(shapes) == 1, shapes
     (shape,) = shapes
-    module = kit.SHAPES[shape].__module__
+    module = kit.shapes()[shape].__module__
     path = module.removeprefix("synthetic_ecommerce_data.domains.retail.").replace(".", "/")
     assert f"src/synthetic_ecommerce_data/domains/retail/{path}.py" in _section(), module
 

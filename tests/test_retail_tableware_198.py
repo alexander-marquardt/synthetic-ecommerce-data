@@ -114,7 +114,7 @@ def test_a_type_draws_with_its_own_shape(ptype: str) -> None:
 
 @pytest.mark.parametrize("shape", kit_tableware.SHAPES)
 def test_a_tableware_shape_paints_the_records_color_and_pattern(shape: str) -> None:
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     solid = kit.render(shape, kit.Fill("solid", "#123456", "#654321"), uid="a")
     striped = kit.render(shape, kit.Fill("stripe", "#abcdef", "#fedcba"), uid="b")
     assert "#123456" in solid

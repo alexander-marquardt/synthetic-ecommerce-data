@@ -93,7 +93,7 @@ def test_the_styles_are_templates_and_not_derived() -> None:
 
 def test_every_style_draws_as_the_wallet_shape_of_its_own() -> None:
     assert {r.shape for r in ROWS} == {"wallet_fold"}
-    assert "wallet_fold" in kit.SHAPES
+    assert "wallet_fold" in kit.shapes()
 
 
 def test_each_kind_draws_differently() -> None:
