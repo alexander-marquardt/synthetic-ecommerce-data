@@ -1,0 +1,4 @@
+{
+  "about": "High and critical advisories the vulnerability gate (.github/workflows/vuln-gate.yaml, elastic/prism#16291) lets pass. Each entry names the advisory, its package, the open issue in this repository that fixes it, and the last day it holds; an expired entry, or one whose issue has closed, fails the gate.",
+  "entries": []
+}
