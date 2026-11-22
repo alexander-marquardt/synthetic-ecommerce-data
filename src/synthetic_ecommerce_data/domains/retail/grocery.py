@@ -175,6 +175,11 @@ PUNNET = {
     "Sweet Peppers": "pepper",
     "Baby Spinach": "herb",
 }
+#: A wine family's bottle style (``kit_drinks.STYLES``), which its ``wine_bottle`` draws (gen#1127).
+WINE_STYLES = {
+    "WRD": "red", "WWH": "white", "WRS": "rose", "WSP": "sparkling", "WCH": "champagne",
+    "FPT": "port", "FSY": "sherry", "FVM": "vermouth",
+}  # fmt: skip
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -354,6 +359,9 @@ def _drawing(
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
+    if shape == "wine_bottle":  # each SKU draws its own size against the line's largest (gen#1127)
+        largest = max(packs, key=_size)["pack_size"]
+        marks |= {"wine": WINE_STYLES[fam.code], "pack_size": pack["pack_size"], "largest": largest}
     return drawing(shape, color, label, **marks)
 
 
