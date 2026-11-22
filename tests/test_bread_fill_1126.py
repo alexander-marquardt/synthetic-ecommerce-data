@@ -18,14 +18,14 @@ from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
 FLOOR = 0.5
 DRAWN = ("path", "rect", "circle", "ellipse")
 CRUSTS = ("White", "Wholemeal", "Seeded", "Sourdough", "Gluten Free Brown", "Malted Beer")
-#: A line word -> the loaf it names. Sliced lines are tin loaves (their bag is gen#1126 slice 2).
+#: A line word -> the loaf it names. Sliced lines come in a printed bag (gen#1126 slice 2).
 FORM_WORDS = {
     "Hand Shaped": "boule",
     "Crusty": "boule",
     "Oven Bottom": "oven bottom",
     "Stonebaked": "stonebaked",
-    "Thick Sliced": "tin",
-    "Medium Sliced": "tin",
+    "Thick Sliced": "bag",
+    "Medium Sliced": "bag",
     "Farmhouse": "tin",
 }
 
@@ -71,7 +71,18 @@ def _fill(svg: str) -> float:
 
 def _crust(svg: str) -> ET.Element | None:
     """The loaf's crust outline (``class="crust"``), or None when nothing draws one."""
-    return next((el for el in ET.fromstring(svg).iter() if el.get("class") == "crust"), None)
+    return _classed(svg, "crust")
+
+
+def _classed(svg: str, name: str) -> ET.Element | None:
+    """The first element whose class is exactly ``name``, or None."""
+    return next((el for el in ET.fromstring(svg).iter() if el.get("class") == name), None)
+
+
+def _outline(svg: str) -> ET.Element | None:
+    """What a loaf's form shows: its crust outline, or a sliced loaf's bag."""
+    crust = _crust(svg)
+    return crust if crust is not None else _classed(svg, "bag")
 
 
 def _form(rec: dict) -> str:
@@ -118,13 +129,16 @@ def test_a_400g_loaf_is_drawn_at_nine_tenths_of_its_800g() -> None:
             assert pack_scale.factor(rec, sku) == want, (rec["product_id"], sku.get("pack_size"))
 
 
-def _by_crust(form: str) -> dict[str, str]:
-    """Crust -> the served SVG of its first line drawn in ``form``, at 800g."""
+def _by_crust() -> dict[str, str]:
+    """Crust -> the served SVG of its first unbagged loaf at 800g (a sliced loaf's crust is
+    behind its bag's window, so the crust's own look is read off a bare loaf)."""
     out: dict[str, str] = {}
     for rec in _breads():
         sku = next((s for s in rec["skus"] if s.get("pack_size") == "800g"), None)
-        if sku and _form(rec) == form:
-            out.setdefault(sku["flavor"], _served(rec["product_id"], sku["sku"]))
+        if sku and sku["flavor"] not in out and _form(rec) != "bag":
+            svg = _served(rec["product_id"], sku["sku"])
+            if _crust(svg) is not None:
+                out[sku["flavor"]] = svg
     return out
 
 
@@ -133,7 +147,7 @@ def _rgb(hex_: str) -> tuple[int, ...]:
 
 
 def test_each_of_the_six_crusts_has_its_own_color_and_texture() -> None:
-    drawn = _by_crust("tin")
+    drawn = _by_crust()
     assert sorted(drawn) == sorted(CRUSTS)
     looks = {}
     for flavor, svg in drawn.items():
@@ -166,11 +180,54 @@ def test_each_form_draws_its_own_outline_and_every_loaf_has_a_highlight_and_shad
         if not form:
             continue
         svg = _served(rec["product_id"], rec["skus"][-1]["sku"])
-        crust = _crust(svg)
-        outlines.setdefault(form, set()).add(crust.get("d") if crust is not None else "")
+        drawn = _outline(svg)
+        outlines.setdefault(form, set()).add(drawn.get("d") if drawn is not None else "")
         assert 'class="gloss"' in svg and 'class="ground"' in svg, rec["product_id"]
     assert sorted(outlines) == sorted(set(FORM_WORDS.values()))
     assert all(len(ds) == 1 for ds in outlines.values()), {f: len(ds) for f, ds in outlines.items()}
     assert len({next(iter(ds)) for ds in outlines.values()}) == len(outlines), (
         "two forms share an outline"
     )
+
+
+def _sliced(word: str) -> list[tuple[dict, dict]]:
+    """Every (line, SKU) whose line name carries ``word`` (``Medium`` or ``Thick Sliced``)."""
+    return [
+        (rec, sku)
+        for rec in _breads()
+        if word in (rec["drawing"].get("params") or {}).get("line", "")
+        for sku in rec["skus"]
+    ]
+
+
+def _slices(svg: str) -> list[ET.Element]:
+    """The slices the bag's window shows (``class="slice"``, the cut end not counted)."""
+    return [el for el in ET.fromstring(svg).iter() if el.get("class") == "slice"]
+
+
+def test_every_sliced_line_is_drawn_as_slices_in_a_printed_bag_with_a_window_and_a_clip() -> None:
+    """gen#1126 slice 2: a sliced loaf is sold in a bag, so it is drawn in one, not bare."""
+    sliced = _sliced("Medium Sliced") + _sliced("Thick Sliced")
+    assert len({rec["product_id"] for rec, _ in sliced}) >= 10, "the build sells sliced lines"
+    for rec, sku in sliced:
+        svg = _served(rec["product_id"], sku["sku"])
+        where = (rec["product_id"], sku.get("pack_size"))
+        assert _crust(svg) is None, f"a bare loaf, not a bag: {where}"
+        for part in ("bag", "window", "clip", "bag-tail"):
+            assert _classed(svg, part) is not None, f"no {part}: {where}"
+        window = _classed(svg, "window")
+        clipped = [
+            g
+            for g in ET.fromstring(svg).iter()
+            if "window" in (g.get("clip-path") or "") and any(c.get("class") == "slice" for c in g)
+        ]
+        assert clipped, f"the slices are not seen through the window: {where}"
+        assert len(_slices(svg)) >= 6, where
+        x, w = float(window.get("x")), float(window.get("width"))
+        assert w >= 200 and x >= 0, where
+
+
+def test_a_thick_sliced_loaf_shows_fewer_wider_slices_than_a_medium_sliced_one() -> None:
+    medium = {len(_slices(_served(r["product_id"], s["sku"]))) for r, s in _sliced("Medium Sliced")}
+    thick = {len(_slices(_served(r["product_id"], s["sku"]))) for r, s in _sliced("Thick Sliced")}
+    assert medium and thick and max(thick) < min(medium), (thick, medium)
