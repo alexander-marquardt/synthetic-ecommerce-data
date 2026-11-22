@@ -35,7 +35,7 @@ The line's largest size (the `largest` param) spans `FULL_SHARE` 0.97 of the pro
 height. A smaller size steps down by its real height ratio to the largest raised to
 `STEP_POWER` 0.3, never below `MIN_SHARE` 0.8 of the largest. A real step (a 375ml is 0.7 of a
 magnum's height) would leave the half bottle in a mostly empty frame again. No `pack_scale`
-factor applies on top (`pack_scale.OWN_SIZE`, beside gen#1111's `produce_pile`).
+factor applies on top (`pack_scale.SELF_SIZED`, beside gen#1111's `produce_pile`).
 
 **Measured**: the cover of the product area (`house_styles.TURN_AREA`, `sheet_cover`, step 2)
 over every wine SKU of the grocery build.

@@ -24,7 +24,7 @@ the product area's height (the house style's 334 high box). A smaller size steps
 real height ratio to the largest, compressed by :data:`STEP_POWER` and never below
 :data:`MIN_SHARE` of the largest's height. A single image is seen alone, so the step only has to
 read; a real step (a 375ml is 0.7 of a magnum's height) would leave the half bottle in a mostly
-empty frame again. No :mod:`pack_scale` factor applies on top (``pack_scale.OWN_SIZE``).
+empty frame again. No :mod:`pack_scale` factor applies on top (``pack_scale.SELF_SIZED``).
 
 THE COLOR. The record's fill is the wine's own color (a Malbec's purple, a Fino's straw). It is
 drawn below the fill line through the glass: :func:`through_glass` mixes it with the glass's
