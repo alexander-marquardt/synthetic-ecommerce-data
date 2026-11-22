@@ -131,7 +131,7 @@ def test_every_title_of_a_leaf_draws_its_own_cover() -> None:
     n: collections.Counter = collections.Counter()
     for row in _spec().rows:
         c = row.colors[0]
-        svg = kit.render(row.shape, kit.Fill(c[2], c[1], c[3]), params=dict(row.params))
+        svg = kit.render(row.shape, kit.Fill(c[1], c[2], c[3]), params=dict(row.params))
         by_leaf[row.path].add(svg)
         n[row.path] += 1
     for leaf, svgs in by_leaf.items():
@@ -150,3 +150,20 @@ def test_each_cover_param_changes_the_drawing(param, a, b) -> None:
 def test_few_book_styles_share_a_results_grid_tile(books) -> None:
     report = scale.grid_clones(books)
     assert report["grid_clones"] == 0, report
+
+
+def test_no_book_word_takes_a_range_word_of_a_derived_family() -> None:
+    """A word that any template's text uses is no derived model's range (#851): a book title or
+    blurb that used 'Craft' or 'Spice' would rename the derived jeans or kitchen ranges."""
+    from synthetic_ecommerce_data.domains.retail import line_grammar
+
+    words: set[str] = set()
+    for r in _spec().rows:
+        values = " ".join(str(a[2]) for a in r.attrs)
+        text = f"{r.title} {r.description} {r.brand} {values}".lower()
+        words.update(re.findall(r"[a-z]+", text))
+    hits = {
+        fam: [w for w in (*spec.leads, *spec.grocery_leads) if w.lower() in words]
+        for fam, spec in line_grammar._NUMBERED.items()
+    }
+    assert not {f: h for f, h in hits.items() if h}
