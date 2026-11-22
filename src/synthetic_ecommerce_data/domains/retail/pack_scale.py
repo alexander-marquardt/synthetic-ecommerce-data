@@ -20,7 +20,9 @@ grow: half the content is a pack about 0.79 as tall.
   the one fruit at the floor.
 - A WINE BOTTLE takes no factor: it draws its own size against its line's largest, at the
   bottle's real proportions and never below 0.8 of the largest's height (``kit_drinks``,
-  gen#1127). A factor drew a half bottle at 0.63 of the magnum, in a mostly empty frame.
+  gen#1127). A factor drew a half bottle at 0.63 of the magnum, in a mostly empty frame. A SOFT
+  DRINK neither (``kit_soft_drinks``): its bottle steps down as a wine bottle does, and its can
+  and multipack of cans fill half the product area.
 - NOR DOES A MILK JUG OR CARTON (``milk_jug``, ``milk_carton``, gen#1128): each pint or litre
   size is drawn in its own proportions and fills half its picture, where a factor drew a 1 pint
   at 0.63 and a fifth of its product area.
@@ -42,7 +44,7 @@ FLOOR = 0.6
 #: The content keys, in the order they are read: a total content beats a count.
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
 #: The shapes whose drawing shows its own size, which take no factor (gen#1111, gen#1127, gen#1128).
-SELF_SIZED = frozenset({"produce_pile", "wine_bottle", "milk_jug", "milk_carton"})
+SELF_SIZED = frozenset({"produce_pile", "wine_bottle", "soft_drink", "milk_jug", "milk_carton"})
 #: The count key, and the departments whose pack it sizes.
 COUNT_KEY = "units_per_pack"
 COUNT_DEPARTMENTS = frozenset({"Food & Drink", "Beauty"})

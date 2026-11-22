@@ -180,6 +180,9 @@ WINE_STYLES = {
     "WRD": "red", "WWH": "white", "WRS": "rose", "WSP": "sparkling", "WCH": "champagne",
     "FPT": "port", "FSY": "sherry", "FVM": "vermouth",
 }  # fmt: skip
+#: What a soft drink family's 330ml single is sold in (``kit_soft_drinks.container``): a brewed
+#: ginger beer in a glass bottle; any other line's 330ml in a can (gen#1127).
+SMALL_DRINK = {"GNB": "glass"}
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -334,8 +337,14 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family, flavors: list[F], pid: str, packs: list[dict], title: str, head: str,
-    lead: str = "", ending: str = "",
+    fam: Family,
+    flavors: list[F],
+    pid: str,
+    packs: list[dict],
+    title: str,
+    head: str,
+    lead: str = "",
+    ending: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
@@ -362,6 +371,11 @@ def _drawing(
     if shape == "wine_bottle":  # each SKU draws its own size against the line's largest (gen#1127)
         largest = max(packs, key=_size)["pack_size"]
         marks |= {"wine": WINE_STYLES[fam.code], "pack_size": pack["pack_size"], "largest": largest}
+    if shape == "soft_drink":  # each SKU its own flavor and pack (gen#1127)
+        singles = [p for p in packs if " x " not in p["pack_size"]] or packs
+        largest = max(singles, key=_size)["pack_size"]
+        marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"], "largest": largest,
+                  "small": SMALL_DRINK.get(fam.code, "can")}  # fmt: skip
     return drawing(shape, color, label, **marks)
 
 
