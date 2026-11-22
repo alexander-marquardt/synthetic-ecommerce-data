@@ -10,7 +10,9 @@ covering 0.29 (400g) or 0.46 (800g) of the product area. A loaf is now drawn by:
 - its **form** (:data:`FORMS`, read from the line's own word by :func:`form_of`): a tin loaf with
   a domed crown over straight tin-baked sides, a round hand-shaped boule, a flat-bottomed
   oven-bottom loaf with diagonal slashes, and a stonebaked loaf under its flour. A sliced line
-  (Medium or Thick Sliced) is a tin loaf here; its bag is slice 2;
+  (Medium or Thick Sliced) is a tin loaf cut into slices in a printed bag (:func:`_bagged`,
+  slice 2): a clear window shows the slices, a thick-sliced loaf fewer and wider ones, and the
+  bag's end is gathered in a twist and held by a clip;
 - a highlight up top and a shade below (:data:`GLOSS`) and a shadow on the ground, so it reads as
   baked and not as a flat fill.
 
@@ -34,6 +36,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _panel,
     _path,
     _shade,
+    _tint,
     register,
 )
 
@@ -96,14 +99,40 @@ FORMS: dict[
 #: A line with none of them is a tin loaf, but an unworded sourdough is hand shaped, as one is in
 #: a bakery.
 FORM_WORDS = (
-    ("Thick Sliced", "sliced"),
-    ("Medium Sliced", "sliced"),
+    ("Thick Sliced", "thick_sliced"),
+    ("Medium Sliced", "medium_sliced"),
     ("Hand Shaped", "boule"),
     ("Crusty", "boule"),
     ("Oven Bottom", "oven_bottom"),
     ("Stonebaked", "stonebaked"),
     ("Farmhouse", "tin"),
 )
+
+#: A sliced form -> how many slices its bag's window shows: a thick slice is about half as wide
+#: again as a medium one.
+SLICES = {"medium_sliced": 13, "thick_sliced": 9}
+
+#: Flavour -> the ink its bag is printed in, chosen to stand off the crust seen through the
+#: window (no White line is sold sliced, but its bag is here for when one is).
+BAG_PRINT = {
+    "White": "#2c62b0",
+    "Wholemeal": "#3f6e3a",
+    "Seeded": "#c2562b",
+    "Sourdough": "#2f4f7a",
+    "Gluten Free Brown": "#4f7f8c",
+    "Malted Beer": "#7a2430",
+}
+
+#: The bag: its body (a tin loaf's shape, a little larger), gathered at the right into a neck,
+#: the clip across the neck as (x, y, w, h), and the twisted tail flaring past it.
+BAG = (
+    "M54,352 Q32,352 32,330 L32,168 C32,118 72,94 124,92 L260,92 C298,94 312,118 314,150 "
+    "C318,180 326,198 336,208 L336,248 C326,258 318,276 314,306 C310,338 298,352 276,352 Z"
+)
+BAG_CLIP = (334, 194, 16, 68)
+BAG_TAIL = "M350,214 C356,198 362,182 370,168 L370,290 C362,276 356,260 350,244 Z"
+#: The clear window in the bag's print, as (x, y, w, h): the loaf's slices show through it.
+WINDOW = (46, 112, 254, 176)
 
 #: The stonebaked loaf's flour, thickest on its crown; then the highlight (up top) and the shade
 #: (down low) over every loaf's crust.
@@ -226,9 +255,11 @@ def loaf(
     del paint, fill
     if flavor not in CRUSTS:
         raise ValueError(f"no bread crust {flavor!r}; known: {sorted(CRUSTS)}")
-    shape = "tin" if form == "sliced" else form  # a sliced loaf's bag is slice 2
+    if form in SLICES:
+        return _bagged(flavor, SLICES[form], label)
+    shape = form
     if shape not in FORMS:
-        raise ValueError(f"no bread form {form!r}; known: {sorted(FORMS)} or 'sliced'")
+        raise ValueError(f"no bread form {form!r}; known: {sorted([*FORMS, *SLICES])}")
     crust, side, texture, shine = CRUSTS[flavor]
     outline, box, slashes, (lx, ly, lw, lh) = FORMS[shape]
     key = f"{texture}-{shape}"
@@ -263,6 +294,89 @@ def loaf(
     body += _panel(lx, ly, lw, lh, label, 30)
     shadow = f'<ellipse class="ground" cx="200" cy="356" rx="176" ry="9" fill="{INK}" fill-opacity=".18"/>'
     return [shadow, f'<g class="bread">{"".join(body)}</g>']
+
+
+def _crown(x: float) -> float:
+    """The top of the sliced tin loaf inside the bag at ``x``: a dome, highest at x=172."""
+    return 106 + 54 * ((x - 172) / 128) ** 2
+
+
+def _slices(flavor: str, n: int) -> list[str]:
+    """A tin loaf cut into ``n`` slices, seen from its side: each slice a band of crust under
+    the dome, every other one a shade darker so the cuts read, and the cut end at the left
+    showing its crumb inside a rim of crust."""
+    crust, side, texture, _ = CRUSTS[flavor]
+    left, right, base = 64.0, 300.0, 342.0
+    width = (right - left) / n
+    out = []
+    for i in range(n):
+        x0, x1 = left + i * width, left + (i + 1) * width
+        xm = (x0 + x1) / 2
+        ctrl = 2 * _crown(xm) - (_crown(x0) + _crown(x1)) / 2
+        d = (
+            f"M{x0:.1f},{base:g} L{x0:.1f},{_crown(x0):.1f} "
+            f"Q{xm:.1f},{ctrl:.1f} {x1:.1f},{_crown(x1):.1f} L{x1:.1f},{base:g} Z"
+        )
+        tone = crust if i % 2 else _mix(crust, side, 0.35)
+        out.append(_path(d, tone, 1.2, ' class="slice"', _shade(crust, 0.55)))
+    out += _texture(texture, crust, (180, 140, 110, 22))
+    top = _crown(left)
+    out.append(  # the cut end: crumb in its crust, a little turned toward the viewer
+        f'<ellipse class="slice end" cx="{left:g}" cy="{(top + base) / 2:.1f}" rx="16" '
+        f'ry="{(base - top) / 2:.1f}" fill="{CRUMB}" stroke="{crust}" stroke-width="5"/>'
+    )
+    return out
+
+
+def _bagged(flavor: str, n: int, label: str | None) -> list[str]:
+    """A sliced loaf of ``flavor``'s crust in its printed bag (gen#1126 slice 2): the bag's
+    print, a clear window showing the ``n`` slices, the film's sheen, the gathered neck held
+    by a clip, the twisted tail, a highlight and a shade over it all, and the label on the
+    bag's lower band."""
+    ink = BAG_PRINT[flavor]
+    wx, wy, ww, wh = WINDOW
+    key = f"bag-{n}"
+    window = f'<rect x="{wx:g}" y="{wy:g}" width="{ww:g}" height="{wh:g}" rx="16"'
+    body = [
+        GLOSS.format(key, 0.45),
+        f'<defs><clipPath id="bread-window-{key}">{window}/></clipPath></defs>',
+        _path(BAG, ink, extra=' class="bag"'),
+        _line(  # the print's lighter band along the bag's shoulder
+            "M40,150 C60,108 100,100 130,100 L256,100 C290,102 304,120 306,150",
+            8,
+            ' stroke-opacity=".8"',
+            _tint(ink, 0.45),
+        ),
+        f'{window} class="window-film" fill="#eef4f6" stroke="none"/>',
+        f'<g clip-path="url(#bread-window-{key})">{"".join(_slices(flavor, n))}</g>',
+        f'{window} class="window" fill="none" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        *(  # the film's sheen across the window
+            _line(d, 5, ' stroke-opacity=".55"', "#ffffff")
+            for d in ("M78,280 L150,120", "M98,284 L162,142", "M232,282 L290,150")
+        ),
+        _path(
+            "M314,150 C318,180 326,198 336,208 L336,248 C326,258 318,276 314,306", "none", LW_DETAIL
+        ),
+        *(  # the film gathered into the neck
+            _line(d, 1.2, "", _shade(ink, 0.35))
+            for d in ("M318,196 L334,214", "M320,226 L334,228", "M318,262 L334,242")
+        ),
+        _path(BAG_TAIL, _tint(ink, 0.25), LW_DETAIL, ' class="bag-tail"'),
+        *(
+            _line(d, 1.2, "", _shade(ink, 0.35))
+            for d in ("M354,212 L368,184", "M354,229 L368,229", "M354,246 L368,274")
+        ),
+        f'<rect class="clip" x="{BAG_CLIP[0]:g}" y="{BAG_CLIP[1]:g}" width="{BAG_CLIP[2]:g}" '
+        f'height="{BAG_CLIP[3]:g}" rx="4" fill="#f4f1e8" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        _line(
+            f"M{BAG_CLIP[0] + 8:g},{BAG_CLIP[1] + 8:g} L{BAG_CLIP[0] + 8:g},{BAG_CLIP[1] + BAG_CLIP[3] - 8:g}",
+            2,
+        ),
+        _path(BAG, f"url(#bread-gloss-{key})", 0, ' class="gloss"', "none"),
+    ]
+    body += _panel(112, 296, 176, 50, label, 26)
+    shadow = f'<ellipse class="ground" cx="200" cy="356" rx="176" ry="9" fill="{INK}" fill-opacity=".18"/>'
+    return [shadow, f'<g class="bread bagged">{"".join(body)}</g>']
 
 
 register({"loaf": loaf})

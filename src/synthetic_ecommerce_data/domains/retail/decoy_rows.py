@@ -64,10 +64,11 @@ COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY
           "Orange": ORANGE}  # fmt: skip
 
 
-def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float) -> Kind:
+def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float,
+          params: tuple[tuple[str, str], ...] = ()) -> Kind:  # fmt: skip
     """A Food & Drink kind sold without a color, in a leaf under the department."""
     return Kind("Food & Drink", ("Food & Drink", *path), product_type, shape, brand, price,
-                colorless=True)
+                colorless=True, params=params)
 
 
 _SOFAS = ("Home", "Furniture", "Sofas")
@@ -176,9 +177,10 @@ KINDS = {
              "Vine & Valley", 1.1),
     # A bar sits in the Chocolate Bars child for its chocolate, a box under Chocolate (gen#298).
     "dark_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "Dark Chocolate Bars"), "Chocolate Bar",
-                      "bar", "Pantry Mill", 2.2),
+                      "chocolate_bar", "Pantry Mill", 2.2, (("chocolate", "dark"),)),
     "white_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "White Chocolate Bars"),
-                       "Chocolate Bar", "bar", "Pantry Mill", 2.2),
+                       "Chocolate Bar", "chocolate_bar", "Pantry Mill", 2.2,
+                       (("chocolate", "white"),)),
     "chocolate_box": _food((*_CHOCOLATE, "Chocolate Boxes"), "Chocolate Box", "box",
                      "Hearth & Table", 4.5),
     "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",

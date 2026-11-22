@@ -248,7 +248,9 @@ packet on its side, crimped at both ends), in `kit_biscuits.py`
 `kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
 scale still draws a 150g box smaller than a 400g one;
 `tests/test_chocolate_box_drawn_609.py`, the before and after is
-`docs/images/chocolate-box-drawn-609.svg`). The build makes
+`docs/images/chocolate-box-drawn-609.svg`); the chocolate bars and multipacks draw a
+`chocolate_bar` (an opened, glossy bar or a stack of a multipack's bars, its block the
+chocolate it is made of; [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
