@@ -15,7 +15,7 @@ walking_stick    a walking stick on its rubber tip, its handle    handle (crook,
 Each param's values are the lower-cased attribute values of the spec rows (``type_specs/
 eye_drops.py``, ``incontinence_pads.py`` and ``walking_sticks.py``), so a derived style that
 swaps the pack, the absorbency or the handle draws what it states (gen#512). The shapes join
-:data:`kit.SHAPES` when :func:`kit.load_shapes` imports this module, as every ``kit_*`` module.
+:data:`kit.SHAPES` when :func:`kit.register_all` imports this module, as every ``kit_*`` module.
 """
 
 # ruff: noqa: E501 -- SVG path literals read better whole than wrapped (prototype only).

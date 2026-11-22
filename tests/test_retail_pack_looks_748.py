@@ -211,8 +211,8 @@ def test_a_shape_with_no_look_draws_as_it_did(shape: str) -> None:
         "moisturiser_jar": kit_home.moisturiser_jar,
         "fragrance": kit_home.fragrance,
     }[shape]
-    assert kit.SHAPES[shape] is not plain
-    assert kit.SHAPES[shape]("#abcdef", FILL, "Word") == plain("#abcdef", FILL, "Word")
+    assert kit.shapes()[shape] is not plain
+    assert kit.shapes()[shape]("#abcdef", FILL, "Word") == plain("#abcdef", FILL, "Word")
 
 
 def test_a_jar_of_either_shape_draws_a_jar_under_a_lid() -> None:

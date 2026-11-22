@@ -40,8 +40,8 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW_DETAIL,
-    SHAPES,
     Fill,
+    _draw,
     _highlight,
     _line,
     _panel,
@@ -308,7 +308,7 @@ NET = "M44,108 Q200,52 356,108 Q386,224 350,344 Q200,372 50,344 Q14,224 44,108 Z
 def _drawn(shape: str):
     """What draws one fruit of ``shape`` in a pile: a motif's small fruit (``kit_motifs.PILE_FRUIT``),
     which the pile's layouts are in the units of, never the large motif drawn alone (gen#1111)."""
-    return kit_motifs.PILE_FRUIT.get(shape) or SHAPES[shape]
+    return kit_motifs.PILE_FRUIT.get(shape) or _draw(shape)
 
 
 @functools.cache

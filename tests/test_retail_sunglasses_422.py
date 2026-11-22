@@ -86,7 +86,7 @@ def test_the_styles_are_templates_and_not_derived() -> None:
 
 def test_every_style_draws_as_the_sunglasses_shape_of_its_own() -> None:
     assert {r.shape for r in ROWS} == {"sunglasses"}
-    assert "sunglasses" in kit.SHAPES
+    assert "sunglasses" in kit.shapes()
 
 
 def test_each_frame_and_each_lens_draws_differently() -> None:

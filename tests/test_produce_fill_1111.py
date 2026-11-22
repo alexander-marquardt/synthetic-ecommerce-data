@@ -35,7 +35,7 @@ BASE = "#f2e04b"
 
 def _pile(fruit: str, count: int, pack: str) -> str:
     fill = Fill("solid", BASE, "#ffffff")
-    parts = kit.SHAPES["produce_pile"](
+    parts = kit.shapes()["produce_pile"](
         BASE, fill, "Lemons", fruit=fruit, count=count, seed=f"T-{fruit}-{count}", pack=pack
     )
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">{"".join(parts)}</svg>'
@@ -151,7 +151,7 @@ LONG_MOTIFS = {"carrot"}
 @pytest.mark.parametrize("motif", MOTIFS)
 def test_every_fruit_and_vegetable_motif_fills_half_its_product_area(motif: str) -> None:
     fill = Fill("solid", BASE, "#ffffff")
-    share = sheet_cover.cover(_sheet(kit.SHAPES[motif](BASE, fill, None)), TURN_AREA, step=4.0)
+    share = sheet_cover.cover(_sheet(kit.shapes()[motif](BASE, fill, None)), TURN_AREA, step=4.0)
     floor = LONG_FLOOR if motif in LONG_MOTIFS else FLOOR
     assert share >= floor, (motif, round(share, 3), floor)
 
@@ -161,7 +161,7 @@ def test_every_punnet_shows_produce_over_half_its_product_area(produce: str) -> 
     """The produce a punnet shows: what its ``fruit`` items paint, less what the opaque label band
     hides. The tray is clear film, so nothing else drawn over the produce hides it."""
     fill = Fill("solid", "#2f6b3c", "#ffffff")
-    root = ET.fromstring(_sheet(kit.SHAPES["punnet"]("#2f6b3c", fill, "Veg", produce=produce)))
+    root = ET.fromstring(_sheet(kit.shapes()["punnet"]("#2f6b3c", fill, "Veg", produce=produce)))
     items = list(root)
     fruit = [el for el in items if el.get("class") == "fruit"]
     label = [el for el in items if el.get("class") == "label"]

@@ -155,7 +155,7 @@ def test_the_color_decoys_say_one_color_and_draw_another(electronics):
 
 def test_the_devices_have_drawings():
     for shape in ("smartphone", "laptop", "tablet", "phone_case", "earbuds", "monitor"):
-        assert shape in kit.SHAPES, shape
+        assert shape in kit.shapes(), shape
 
 
 def test_the_doc_records_the_rulings():

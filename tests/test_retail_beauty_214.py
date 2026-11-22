@@ -138,7 +138,7 @@ def test_every_type_has_three_styles_from_three_invented_brands(ptype: str) -> N
 def test_every_style_draws_as_the_types_own_shape(ptype: str) -> None:
     shape = TYPES[ptype][1]
     assert {r.shape for r in _rows(ptype)} == {shape}
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     assert shape not in {"box", "box_wide", "bottle", "jar", "tub", "tin"}
 
 
@@ -225,7 +225,7 @@ def test_sun_cream_is_a_spec_that_owns_its_rows() -> None:
 @pytest.mark.parametrize("variant", VARIANTS, ids=[v[0] for v in VARIANTS])
 def test_a_shapes_param_changes_the_drawing(variant: tuple) -> None:
     shape, one, other, third = variant
-    assert shape in kit.SHAPES, f"no {shape} shape registered"
+    assert shape in kit.shapes(), f"no {shape} shape registered"
     assert _svg(shape=shape, **one) != _svg(shape=shape, **other)
     assert _svg(shape=shape) == _svg(shape=shape, **one), "the default is the first reading"
     if third:

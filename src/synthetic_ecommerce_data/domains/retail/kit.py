@@ -24,6 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
+from types import MappingProxyType
 
 from synthetic_ecommerce_data.domains.retail.figure_stretch import figure_at
 
@@ -887,8 +888,8 @@ def register(shapes: dict, offsets: dict | None = None) -> None:
 def register_all() -> None:
     """Fill :data:`SHAPES` with every shape: import each module that registers one (``kit_*.py``
     and ``type_specs/*.py``). A shape is registered when its module is imported, and a build
-    loaded from a pickle imports none of the row modules, so code that reads the whole registry
-    calls this first (synth#797)."""
+    loaded from a pickle imports none of the row modules, so code reads the whole registry
+    through :func:`shapes`, which calls this first (synth#797, #1039)."""
     import importlib  # deferred: the kits import this module
     import pkgutil
 
@@ -899,6 +900,18 @@ def register_all() -> None:
             importlib.import_module(f"{__package__}.{info.name}")
     for info in pkgutil.iter_modules(type_specs.__path__):
         importlib.import_module(f"{type_specs.__name__}.{info.name}")
+
+
+_FILLED: list[bool] = []  # holds True once shapes() has filled the registry
+
+
+def shapes() -> MappingProxyType[str, object]:
+    """Every shape, read-only, after :func:`register_all` filled the registry, whatever this
+    interpreter imported first; ``tests/test_kit_shapes_1039.py`` refuses a direct read (#1039)."""
+    if not _FILLED:
+        register_all()
+        _FILLED.append(True)
+    return MappingProxyType(SHAPES)
 
 
 def _draw(shape: str):

@@ -93,8 +93,8 @@ def test_the_styles_are_templates_and_not_derived() -> None:
 
 def test_every_style_draws_as_the_belt_shape_of_its_own() -> None:
     assert {r.shape for r in ROWS} == {"belt_buckled"}
-    assert "belt_buckled" in kit.SHAPES
-    assert kit.SHAPES["belt_buckled"] is not kit.SHAPES["belt"]
+    assert "belt_buckled" in kit.shapes()
+    assert kit.shapes()["belt_buckled"] is not kit.shapes()["belt"]
 
 
 def test_each_buckle_and_each_material_draws_differently() -> None:

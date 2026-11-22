@@ -29,7 +29,7 @@ def render(shape: str = "fish_bag", **marks: str) -> str:
 
 def size(shape: str) -> tuple[float, float]:
     """The width and height of the pack alone, without the sheet's paper and frame."""
-    pack = "".join(kit.SHAPES[shape]("#d8a548", FILL, "Battered Fish"))
+    pack = "".join(kit.shapes()[shape]("#d8a548", FILL, "Battered Fish"))
     left, top, right, bottom = sheet_extent.reach(f'<svg xmlns="http://www.w3.org/2000/svg">{pack}</svg>')
     return right - left, bottom - top
 
@@ -37,7 +37,7 @@ def size(shape: str) -> tuple[float, float]:
 def test_the_battered_fish_family_has_its_own_container() -> None:
     assert BBF.shape == "fish_bag"
     assert BBF.shape != "box"
-    assert "fish_bag" in kit.SHAPES
+    assert "fish_bag" in kit.shapes()
 
 
 def test_no_battered_fish_flavour_resolves_to_the_carton() -> None:
