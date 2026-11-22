@@ -337,14 +337,8 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family,
-    flavors: list[F],
-    pid: str,
-    packs: list[dict],
-    title: str,
-    head: str,
-    lead: str = "",
-    ending: str = "",
+    fam: Family, flavors: list[F], pid: str, packs: list[dict], title: str, head: str,
+    lead: str = "", ending: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""

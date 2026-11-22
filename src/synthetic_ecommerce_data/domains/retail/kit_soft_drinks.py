@@ -8,7 +8,7 @@ at its real proportions, from the SKU's own ``pack_size`` and ``flavor`` (per-SK
 pack                draws
 ==================  =========================================================================
 500ml, 1L, 1.5L     a clear PET bottle: a screw cap, a neck ring, a waist rib, a petaloid
-                    foot, the drink in its flavour's color through the plastic, a wrap label
+                    foot, the drink in its flavor's color through the plastic, a wrap label
 330ml (``small``    a clear glass bottle with a crown cap (a brewed ginger beer), or
 glass or can)       a ring-pull can
 N x 330ml           N ring-pull cans in two rows under a card carrier, so the pack draws its
@@ -21,7 +21,7 @@ real height ratio to the power ``STEP_POWER``, never below ``MIN_SHARE`` of it. 
 and wide, so it is drawn at the full height wherever it stands, and a multipack's cans fill the
 area's width: each paints half the product area or more. No ``pack_scale`` factor applies.
 
-THE COLOR. :data:`LIQUIDS` is each flavour's drink as it is poured (a cola dark, a cloudy
+THE COLOR. :data:`LIQUIDS` is each flavor's drink as it is poured (a cola dark, a cloudy
 lemonade pale). A bottle shows it through its clear wall (:data:`CLEAR`); a can is printed in it.
 """
 
@@ -61,7 +61,7 @@ from synthetic_ecommerce_data.domains.retail.kit_drinks import (
     millilitres,
 )
 
-#: Each flavour's drink as it is poured: shown through a bottle's wall and printed on its can.
+#: Each flavor's drink as it is poured: shown through a bottle's wall and printed on its can.
 LIQUIDS = {
     "Cola": "#3b1c10",
     "Orange Crush": "#f08a24",

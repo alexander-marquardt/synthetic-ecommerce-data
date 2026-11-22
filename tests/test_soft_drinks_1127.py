@@ -3,7 +3,7 @@
 Before gen#1127 every soft drink (SFT, GNB ginger and root beer) drew the generic ``bottle``,
 shrunk by :mod:`pack_scale`, and a 6 x 330ml was six copies of that bottle. ``soft_drink``
 (:mod:`kit_soft_drinks`) draws a PET bottle, a glass bottle or ring-pull cans from the SKU's own
-pack and flavour. Cover is the share of the house style's product area (``TURN_AREA``) the
+pack and flavor. Cover is the share of the house style's product area (``TURN_AREA``) the
 drawing paints, its ground shadow left out (:mod:`sheet_cover`), as the wine test measures it.
 """
 

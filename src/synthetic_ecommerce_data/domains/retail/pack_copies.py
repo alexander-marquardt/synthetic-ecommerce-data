@@ -299,7 +299,9 @@ def rows(n: int, width: float, height: float) -> list[int]:
 
 def _file(n: int, width: float, height: float) -> list[Place]:
     """A file of ``n`` copies, front first: each behind the last, smaller, up and to the right."""
-    return [(i * FILE_STEP_X * width, -i * FILE_STEP_Y * height, FILE_SHRINK**i) for i in range(n)]
+    return [
+        (i * FILE_STEP_X * width, -i * FILE_STEP_Y * height, FILE_SHRINK**i) for i in range(n)
+    ]
 
 
 def _rows(n: int, width: float, height: float) -> list[Place]:
