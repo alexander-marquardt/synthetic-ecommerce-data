@@ -67,7 +67,7 @@ WRAPPER_CONTRAST = 3.0
 #: A bar's drawn size: the largest bar's top face, the smallest scale a lighter one is drawn at,
 #: and the weight at and above which a bar is the full one.
 BAR_W, BAR_H, BAR_SMALLEST, BAR_FULL_G = 328.0, 196.0, 0.9, 200.0
-#: A broken piece's segment pitch, and the centre the drawing is placed about (the product area's).
+#: A broken piece's segment pitch, and the center the drawing is placed about (the product area's).
 PIECE_PITCH, CENTER_Y = 40.0, 195.0
 #: The gloss over a chocolate surface: a highlight at the top left, a shade at the foot right.
 GLOSS = (
@@ -251,7 +251,9 @@ def chocolate_bar(
         out += _bar(
             x0 + i * dx, y0 - i * dy, w, h, (6, 2), wrapper, choc, gloss, label, opened=not i
         )
-    out += _piece(x0 + w * 0.6, y0 + h - 6, 2, 2, 9, choc, gloss)
+    # The piece sits on the front bar's foot, high enough that it and its turn stay on the
+    # sheet: at the 4-bar stack's foot it reached 3.3 past the bottom edge (gen#242).
+    out += _piece(x0 + w * 0.6, y0 + h - 20, 2, 2, 9, choc, gloss)
     return out
 
 
