@@ -68,7 +68,7 @@ A kit is the module that defines the shape: `kit.shapes()[shape]`'s module, such
 
 ## At the templates (c1a8d103)
 
-There were 1,180 renders over 736 (product type, shape) rows and 96 kit modules, in 20 s on 32
+There were 1,182 renders over 736 (product type, shape) rows and 96 kit modules, in 21 s on 32
 vCPUs. The median render took 0.6 ms and the p95 2.2 ms. Of the 736 rows, 481 are empty and 560
 are flat. The produce kit paints a median of 72% of the area, matching gen#1111's 71%. The base
 kit's tins paint 14-16% at their most common pack (a 0.63 pack scale) and 84% as a 4-pack. The
