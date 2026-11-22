@@ -55,6 +55,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
     kit_bread,  # noqa: E402,F401 -- registers loaf
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
+    kit_drinks,  # noqa: E402,F401 -- registers wine_bottle (gen#1142)
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
     kit_punnet,  # noqa: E402,F401 -- registers punnet
     line_grammar,
