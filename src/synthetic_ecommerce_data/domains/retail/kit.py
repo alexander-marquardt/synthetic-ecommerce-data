@@ -21,9 +21,11 @@ standard library. It is a sneak peek, not the core's drawing kit.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
+from types import MappingProxyType
 
 from synthetic_ecommerce_data.domains.retail.figure_stretch import figure_at
 
@@ -899,6 +901,11 @@ def register_all() -> None:
             importlib.import_module(f"{__package__}.{info.name}")
     for info in pkgutil.iter_modules(type_specs.__path__):
         importlib.import_module(f"{type_specs.__name__}.{info.name}")
+
+
+def shapes() -> Mapping[str, object]:
+    """Every registered shape (#1039): red-commit stub."""
+    return MappingProxyType(SHAPES)
 
 
 def _draw(shape: str):
