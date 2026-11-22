@@ -141,7 +141,16 @@ standard. Its styles, SKUs and each family's share are `templates.grocery` and
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 `contains` and `may_contain` over seven allergens (peanuts, tree nuts,
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
-Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
+Dairy Free, Nut Free, Organic, Halal, Kosher), `pack_size`, `units_per_pack` and its net weight or volume.
+
+Halal and Kosher are certifications of a product line, not facts of its allergens (gen#1131).
+Each one is drawn once per product, from its id, at its category's share in
+`grocery_model.CERTIFICATION`, and every other category holds neither. The shares (Halal / Kosher) are:
+Fresh and Packaged Meat 30% / 15%, Fish 20% / 25%, Ready Meals and Pizza 20% / 10%, and
+Chocolate and Sweets 25% / 30%. A variant keeps a certification only when it passes the rules:
+no Halal on pork (the `p` flavour flag) or on alcohol (a drink, or an ingredient that names one);
+no Kosher on pork, shellfish (the `s` flag) or meat with milk. `p` and `s` each imply `x`.
+`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU.
 
 The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3 -m synthetic_ecommerce_data.domains.retail.grocery --skus 50000 --out DIR`. A title is a range name plus a
 flavor, so the 10K build's range names ran out for a family at this size and it stopped short
@@ -190,7 +199,7 @@ strict), not data.
 The flat file exposes four food facts as facets, because a hard filter can only
 target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
 allergens its ingredients name), `facets.may_contain` (factory traces) and
-`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
+`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Dairy Free, Nut Free, Organic, Halal, Kosher),
 each a keyword list (`facets.ingredient_base` is the normalised head of each: [docs/retail-catalog-batch-1.md](retail-catalog-batch-1.md)). `contains`, `may_contain` and `dietary` are warnings and claims,
 not description, so they stay out of the flat `text`: a "peanut" query cannot match a
 product only through an allergen warning
