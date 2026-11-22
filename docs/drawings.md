@@ -381,7 +381,9 @@ as a `tub`, so a new one shows in review.
 The maintainer: "that 'tub' drawing label feels a bit misleading if it looks like a cup". The
 retail `tub` (`kit.tub`) is now short and wide. Its wall flares a little up to a lid with a rim,
 in a light tone of the colorway's accent, where it used to be a tall open pot. Only real tubs
-draw it: yogurt, laundry pods and capsules, the gel air freshener pot and the car wax pot.
+draw it: the two yogurt decoys, laundry pods and capsules, the gel air freshener pot and the car
+wax pot. A yogurt of the grocery `Yogurt` family draws `kit_dairy.yogurt`: 4 foil-lidded pots in
+a sleeve, or a 500g tub (gen#1128, [its page](retail-prototype/dairy-fill-1128.md)).
 Butter and spreads draw the grocery `lidded_tub`, which is a taller pot with a snap-on lid and a
 thumb tab. The one hot chocolate that drew `tub` (`PLT-HCORNG`) is a `tin`.
 `tests/test_retail_tub_redraw_1028.py` pins the redrawn tub on a yogurt and checks the hot

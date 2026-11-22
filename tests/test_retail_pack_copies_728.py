@@ -268,16 +268,18 @@ def test_a_matching_pack_variant_carries_the_pack_image() -> None:
 
 
 def test_a_yogurt_of_four_pots_shows_four_pots() -> None:
+    """The 4 x 125g draws its own 4 pots in a sleeve (``kit_dairy.yogurt``, gen#1128), so it is
+    one picture, not 4 copies of one pot."""
     rec, sku = next(
         (r, s)
         for r in templates()
-        if r["drawing"]["shape"] == "tub"
+        if r["drawing"]["shape"] == "yogurt"
         for s in r["skus"]
         if s.get("pack_size") == "4 x 125g"
     )
     svg = _svg(rec, sku)
-    assert len(USE.findall(svg)) == 4
-    assert svg.count('class="pot"') == 1, "one pot in the <defs>, four uses of it"
+    assert len(USE.findall(svg)) == 0
+    assert svg.count('class="pot"') == 4, "four pots drawn, none laid out as a copy"
 
 
 def test_a_pack_is_not_scaled_by_its_pack_factor_too() -> None:

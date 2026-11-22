@@ -22,7 +22,6 @@ UPRIGHT: tuple[str, ...] = (
     "carton",
     "crisps_bag",
     "jar",
-    "loaf",
     "tin",
     "tray",
     "tub",
