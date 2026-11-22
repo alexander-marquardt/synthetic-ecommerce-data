@@ -6,8 +6,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-#: The dietary labels a SKU may carry: one closed list (gen#296).
-DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
+#: The dietary labels a SKU may carry: one closed list (gen#296). Halal and Kosher are
+#: certifications of a product line, drawn per product at :data:`CERTIFICATION`'s shares (gen#1131).
+DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic", "Halal", "Kosher")
 
 #: The (Halal, Kosher) share, in percent, of the products of a category (``path[1:3]``) that hold
 #: the certification (gen#1131). Every other category holds none. A variant keeps a certification
@@ -28,7 +29,10 @@ ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": 
 
 @dataclass(frozen=True)
 class F:
-    """One flavor, scent or variety: its name, pack color and contained allergens."""
+    """One flavor, scent or variety: its name, pack color and contained allergens.
+
+    ``codes`` holds the allergens (upper case, :data:`ALLERGENS`) and the animal flags: ``x`` meat
+    or fish, ``h`` honey, ``p`` pork and ``s`` shellfish; ``p`` and ``s`` each imply ``x``."""
 
     name: str
     hex: str
