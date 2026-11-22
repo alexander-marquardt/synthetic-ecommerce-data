@@ -94,6 +94,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     F,
     Family,
 )
+from synthetic_ecommerce_data.domains.retail.kit_dairy import SKU_PARAMS as DAIRY_PARAMS
 from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
 from synthetic_ecommerce_data.domains.retail.range_ownership import Deal
 from synthetic_ecommerce_data.domains.retail.variants import attr, drawing, product
@@ -349,6 +350,9 @@ def _drawing(
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+    if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
+        own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+        marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     if shape == "loaf":  # a loaf is drawn by its crust and the form its line names (gen#1126)
