@@ -132,8 +132,8 @@ def registry_rows() -> list[Row]:
         Row(
             "the workflow is not registered as not-a-check",
             "local_ci_jobs.py",
-            '"release.yml", "review-verdict.yaml", "review-verdict.yml")',
-            '"release.yml")',
+            '    "review-verdict.yaml",\n    "review-verdict.yml",\n',
+            "",
             "tests/test_merge_pr.py::test_every_job_of_the_real_workflows_has_a_local_equivalent",
             "the local job list reads every workflow",
             "scripts",
