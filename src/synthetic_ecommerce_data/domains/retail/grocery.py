@@ -57,6 +57,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_drinks,  # noqa: E402,F401 -- registers wine_bottle (gen#1142)
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
     kit_punnet,  # noqa: E402,F401 -- registers punnet
+    kit_soft_drinks,  # noqa: E402,F401 -- registers soft_drink (gen#1127)
     line_grammar,
     range_ownership,
 )
