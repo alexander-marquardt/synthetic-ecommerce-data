@@ -29,7 +29,7 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail.kit import Fill
 from test_soft_drinks_1127 import SVG, _classes, _cover, _span, _svg
 
-#: The beer families: whether the line sells cans or bottles.
+#: The beer families: whether the line is sold in cans or bottles.
 LINES = {
     "BLG": "can",
     "BSO": "can",
@@ -82,7 +82,7 @@ def test_every_beer_draws_the_beer_shape_and_spirits_keep_the_bottle(
     assert {rec["drawing"]["shape"] for rec, _ in beers} == {"beer"}
     assert {_family(rec) for rec, _ in beers} == set(LINES)
     for rec, _ in beers:
-        assert rec["drawing"]["params"]["line"] == LINES[_family(rec)]
+        assert rec["drawing"]["params"]["sold_in"] == LINES[_family(rec)]
     spirits = {
         rec["drawing"]["shape"]
         for rec in grocery.build(grocery.TARGET)
@@ -183,13 +183,13 @@ def test_brown_glass_hides_more_of_the_beer_than_clear_glass() -> None:
     fill = Fill("solid", "#e8b04a", "#ffffff")
     drinks = {}
     for glass in ("brown", "clear"):
-        svg = SVG.format("".join(kit_beer.beer("#e8b04a", fill, "Ale", pack_size="500ml", line="bottle", glass=glass)))  # fmt: skip
+        svg = SVG.format("".join(kit_beer.beer("#e8b04a", fill, "Ale", pack_size="500ml", sold_in="bottle", glass=glass)))  # fmt: skip
         (drink,) = _classes(svg, "drink")
         drinks[glass] = drink.get("fill")
     assert drinks["brown"] != drinks["clear"]
     assert drinks["clear"] == kit_beer.through("#e8b04a", "clear")
     with pytest.raises(ValueError):
-        kit_beer.beer("#e8b04a", fill, "Ale", line="keg")
+        kit_beer.beer("#e8b04a", fill, "Ale", sold_in="keg")
 
 
 def test_a_beer_takes_no_pack_scale_factor_and_draws_its_own_pack(

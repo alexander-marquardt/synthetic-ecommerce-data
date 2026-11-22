@@ -3,7 +3,7 @@
 A lager, sour or alcohol free beer used to draw the generic ``kit.tin``, and a pale ale or fruit
 beer the generic ``kit.bottle``, each shrunk by :mod:`pack_scale`; a 4-pack was four copies of
 that one drawing. ``beer`` draws the container each pack is sold in, at its real proportions,
-from the SKU's own ``pack_size`` and its line's ``line`` and ``glass`` (per-SKU drawing params):
+from the SKU's own ``pack_size`` and its line's ``sold_in`` and ``glass`` (per-SKU drawing params):
 
 =======================  ====================================================================
 pack                     draws
@@ -11,7 +11,7 @@ pack                     draws
 330ml, 500ml in a        a glass beer bottle: a crown cap on a bead, a long neck, a label,
 bottle line              the beer through the glass (:data:`GLASSES`: brown, clear, green)
 330ml, 440ml in a can    a ring-pull can printed in the beer's own color (``kit_soft_drinks``)
-line; a 440ml anywhere   (a 440ml is a can size: no shop sells a 440ml beer bottle)
+line; a 440ml anywhere   (a 440ml is a can size)
 N x 440ml, N x 330ml     N cans in two rows under a card carrier (``kit_soft_drinks``)
 N x 500ml in a bottle    N bottles in a row in a card basket printed with the label
 line
@@ -97,12 +97,12 @@ _MULTI = re.compile(r"^(\d+) x (.+)$")
 BASKET = 0.55
 
 
-def container(pack_size: str, line: str = "can") -> tuple[str, int, float]:
-    """``(form, count, ml)``: what ``pack_size`` is sold in, in a ``line`` of cans or bottles.
+def container(pack_size: str, sold_in: str = "can") -> tuple[str, int, float]:
+    """``(form, count, ml)``: what ``pack_size`` is sold in, in a line ``sold_in`` cans or bottles.
     A bottle line sells a bottle of a :data:`BOTTLE_SIZES` size and a can of any other."""
     m = _MULTI.match(pack_size.strip())
     n, ml = (int(m[1]), millilitres(m[2])) if m else (1, millilitres(pack_size))
-    form = "bottle" if line == "bottle" and ml in BOTTLE_SIZES else "can"
+    form = "bottle" if sold_in == "bottle" and ml in BOTTLE_SIZES else "can"
     return form, n, ml
 
 
@@ -118,11 +118,11 @@ def dimensions(form: str, ml: float) -> tuple[float, float]:
     return h * k, d * k
 
 
-def drawn_height(pack_size: str, largest: str, line: str = "can") -> float:
+def drawn_height(pack_size: str, largest: str, sold_in: str = "can") -> float:
     """The container's drawn height in kit units: a bottle against the line's ``largest`` single
     bottle as a wine bottle is (:func:`kit_drinks.drawn_height`), a can always at the full height."""
     full = FULL_SHARE * PRODUCT_SPAN
-    form, _, ml = container(pack_size, line)
+    form, _, ml = container(pack_size, sold_in)
     if form == "can":
         return full
     top_ml = millilitres(largest) if largest else ml
@@ -169,21 +169,21 @@ def basket(n: int, d_over_h: float, beer: str, glass: str, label: str | None) ->
 
 
 def beer(paint: str, fill: Fill, label: str | None, pack_size: str = "330ml", largest: str = "",
-         line: str = "can", glass: str = "brown") -> list[str]:  # fmt: skip
-    """A beer in its ``pack_size`` container, in a ``line`` of cans or bottles in ``glass``,
+         sold_in: str = "can", glass: str = "brown") -> list[str]:  # fmt: skip
+    """A beer in its ``pack_size`` container, in a line ``sold_in`` cans or bottles in ``glass``,
     whose largest single bottle is ``largest`` (the SKU's own size when empty)."""
-    if line not in ("can", "bottle"):
-        raise ValueError(f"a beer line is of cans or bottles, not {line!r}")
+    if sold_in not in ("can", "bottle"):
+        raise ValueError(f"a beer line is sold in cans or bottles, not {sold_in!r}")
     if glass not in GLASSES:
         raise ValueError(f"no beer glass {glass!r}; known: {sorted(GLASSES)}")
     color = fill.base
-    form, n, ml = container(pack_size, line)
+    form, n, ml = container(pack_size, sold_in)
     h_mm, d_mm = dimensions(form, ml)
     if n > 1:
         if form == "bottle":
             return basket(n, d_mm / h_mm, color, glass, label)
         return multipack(n, d_mm / h_mm, color, label)
-    h = drawn_height(pack_size, largest, line)
+    h = drawn_height(pack_size, largest, sold_in)
     if form == "can":
         w = h * d_mm / h_mm
         return [_ground(w / 2), *can(CX, BASE_Y, w, h, color, label)]
