@@ -10,3 +10,5 @@ drawn in that color's swatch (base, pattern and accent).
 `image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.
 
 **A wine bottle draws its own size (gen#1127).** `wine_bottle` takes no factor (`pack_scale.SELF_SIZED`, beside `produce_pile`): it draws each size at its real proportions against its line's largest, never below 0.8 of its height. See [the wine bottle page](wine-bottles-1127.md).
+
+**A soft drink draws its own size too (gen#1127).** `soft_drink` takes no factor: its bottle steps down as a wine bottle does, and its can and multipack of cans fill half the product area. See [the soft drinks page](soft-drinks-1127.md).

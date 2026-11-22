@@ -1,8 +1,9 @@
 """Every registered spec's rows give their documents in a fresh interpreter (gen#1039).
 
-``Row.doc()`` reads a brand's owner from ``breadth_row.OWNERS``, which modules fill as they are
-imported. ``type_specs/granola.py`` and ``flour.py`` (gen#988) state their brands' owners on the
-spec (``owners=``), and ``type_registry.specs()`` did not register them: in a fresh interpreter,
+``Row.doc()`` read a brand's owner from ``breadth_row.OWNERS``, which modules filled as they were
+imported (it now reads ``brand_owners.table()``, which no import fills). ``type_specs/granola.py``
+and ``flour.py`` (gen#988) state their brands' owners on the spec (``owners=``), and
+``type_registry.specs()`` did not register them: in a fresh interpreter,
 ``specs()["granola"].rows[i].doc()`` raised ``KeyError: 'Goldfield Farms'``.
 ``tests/test_retail_food_pantry_964.py`` passed alone (building the ceiling registers the brand)
 and failed in CI on a worker where nothing had (``tests (12)`` of synth#1020). This test runs in a

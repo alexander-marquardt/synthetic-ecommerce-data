@@ -36,7 +36,8 @@ the same bounds as a single drawing.
 **A drawing that already shows its count stays as it is** (`pack_copies.self_drawn`): a pile of
 fruit, a nest of tables, four rubber pads, and any drawing with its own `count`, `pieces` or `units`
 of that number, such as a set of steak knives. A pile draws its own SKU's count, not the first pack
-of its line (`pack_copies.pile_count`). `tub`, `socks` and `school_shirt` drew their own
+of its line (`pack_copies.pile_count`). A soft drink's multipack draws its own cans, in two rows
+under a card carrier (`soft_drink`, gen#1127: [the soft drinks page](soft-drinks-1127.md)). `tub`, `socks` and `school_shirt` drew their own
 packs and moved onto the layout. A shape that draws several items by default is told to draw one
 for a pack (`pack_copies.ONE_ITEM`: hangers, a pile of towels, packing cubes), so a copy is one item.
 

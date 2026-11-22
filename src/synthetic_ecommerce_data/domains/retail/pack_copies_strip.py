@@ -35,9 +35,9 @@ SHOWN = (
     ("Knickers, 3 pack", "knickers", "Briefs", 3),
     ("Knickers, 5 pack", "knickers", "Briefs", 5),
     ("Knickers, 7 pack", "knickers", "Briefs", 7),
-    ("Ginger beer, 6 bottles", "bottle", "Beer", 6),
+    ("Ale, 4 bottles", "bottle", "Ale", 4),  # a soft drink draws its own cans (gen#1127)
     ("Yogurt, 4 pots", "yogurt", "Yogurt", 4),
-    ("Chocolate, 4 bars", "bar", "Chocolate", 4),
+    ("Chocolate, 4 bars", "chocolate_bar", "Chocolate", 4),
     ("Eye patches, 24", "eye_patches", "Patches", 24),
     ("Tea, 40 bags", "box", "Tea", 40),
     ("Tea, 80 bags", "box", "Tea", 80),

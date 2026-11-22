@@ -35,6 +35,7 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.grocery_families import (
     FAMILIES,
     TIER_BRANDS,  # noqa: F401 -- read through this module
+    chocolate_of,  # noqa: F401 -- read through this module
 )
 from synthetic_ecommerce_data.domains.retail.grocery_model import (
     ALLERGENS,  # noqa: F401 -- read through this module

@@ -41,7 +41,6 @@ from synthetic_ecommerce_data.domains.retail import (
     feature_decoys,
     fruit_word_brand_styles,  # noqa: F401 -- registers the five house styles
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, Style, one
 from synthetic_ecommerce_data.domains.retail.decoy_kind import Kind
 from synthetic_ecommerce_data.domains.retail.decoy_plural_nonfood_rows import BRANDS as FRUIT_BRANDS
@@ -52,7 +51,7 @@ from synthetic_ecommerce_data.domains.retail.decoy_plural_rows import ROWS as PL
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 # The invented fruit-word brands of the class 9 non-food rows (gen#445), third party.
-OWNERS.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
+OWNED = tuple((b, "third_party") for b in FRUIT_BRANDS)
 BRAND_OWNER.update(dict.fromkeys(FRUIT_BRANDS, "third_party"))
 
 RED, BLUE, BLACK, WHITE, GREY = ("#c8322b", "#2f6db5", "#2a2a2e", "#ffffff", "#8a8a8e")
@@ -65,10 +64,11 @@ COLORS = {"Red": RED, "Blue": BLUE, "Black": BLACK, "White": WHITE, "Grey": GREY
           "Orange": ORANGE}  # fmt: skip
 
 
-def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float) -> Kind:
+def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, price: float,
+          params: tuple[tuple[str, str], ...] = ()) -> Kind:  # fmt: skip
     """A Food & Drink kind sold without a color, in a leaf under the department."""
     return Kind("Food & Drink", ("Food & Drink", *path), product_type, shape, brand, price,
-                colorless=True)
+                colorless=True, params=params)
 
 
 _SOFAS = ("Home", "Furniture", "Sofas")
@@ -177,9 +177,10 @@ KINDS = {
              "Vine & Valley", 1.1),
     # A bar sits in the Chocolate Bars child for its chocolate, a box under Chocolate (gen#298).
     "dark_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "Dark Chocolate Bars"), "Chocolate Bar",
-                      "bar", "Pantry Mill", 2.2),
+                      "chocolate_bar", "Pantry Mill", 2.2, (("chocolate", "dark"),)),
     "white_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "White Chocolate Bars"),
-                       "Chocolate Bar", "bar", "Pantry Mill", 2.2),
+                       "Chocolate Bar", "chocolate_bar", "Pantry Mill", 2.2,
+                       (("chocolate", "white"),)),
     "chocolate_box": _food((*_CHOCOLATE, "Chocolate Boxes"), "Chocolate Box", "box",
                      "Hearth & Table", 4.5),
     "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",

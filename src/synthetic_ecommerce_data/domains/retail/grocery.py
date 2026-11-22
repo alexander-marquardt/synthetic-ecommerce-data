@@ -58,6 +58,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_drinks,  # noqa: E402,F401 -- registers wine_bottle (gen#1142)
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
     kit_punnet,  # noqa: E402,F401 -- registers punnet
+    kit_soft_drinks,  # noqa: E402,F401 -- registers soft_drink (gen#1127)
     line_grammar,
     range_ownership,
 )
@@ -94,6 +95,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     PACKS_PER_STYLE,
     F,
     Family,
+    chocolate_of,
 )
 from synthetic_ecommerce_data.domains.retail.kit_dairy import SKU_PARAMS as DAIRY_PARAMS
 from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
@@ -182,6 +184,9 @@ WINE_STYLES = {
     "WRD": "red", "WWH": "white", "WRS": "rose", "WSP": "sparkling", "WCH": "champagne",
     "FPT": "port", "FSY": "sherry", "FVM": "vermouth",
 }  # fmt: skip
+#: What a soft drink family's 330ml single is sold in (``kit_soft_drinks.container``): a brewed
+#: ginger beer in a glass bottle; any other line's 330ml in a can (gen#1127).
+SMALL_DRINK = {"GNB": "glass"}
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -356,6 +361,10 @@ def _drawing(
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+    if shape == "chocolate_bar":  # a SKU draws its own weight or its multipack (gen#1125)
+        marks["pack_size"] = pack["pack_size"]
+        if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
+            marks["chocolate"] = choc
     if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
         own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
@@ -366,6 +375,11 @@ def _drawing(
     if shape == "wine_bottle":  # each SKU draws its own size against the line's largest (gen#1127)
         largest = max(packs, key=_size)["pack_size"]
         marks |= {"wine": WINE_STYLES[fam.code], "pack_size": pack["pack_size"], "largest": largest}
+    if shape == "soft_drink":  # each SKU its own flavor and pack (gen#1127)
+        singles = [p for p in packs if " x " not in p["pack_size"]] or packs
+        largest = max(singles, key=_size)["pack_size"]
+        marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"], "largest": largest,
+                  "small": SMALL_DRINK.get(fam.code, "can")}  # fmt: skip
     return drawing(shape, color, label, **marks)
 
 

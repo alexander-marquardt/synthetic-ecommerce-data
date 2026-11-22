@@ -10,7 +10,7 @@ the kind draws an open spool, a low baitcasting body or a closed spincast cone
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import OWNERS, PENNYWHISTLE, REELS
+from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import OWNED, PENNYWHISTLE, REELS
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _H,
     _L,
@@ -37,7 +37,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Fishing Reel",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     options=(Option("reel_size", "reel_size", "Reel size"),),
     rows=(
         _row("FRLSPN", "Aluminum 7 Bearing Spinning Fishing Reel", _H, REELS, "Fishing Reel", 34.0, "fishing_reel",
