@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.decoy_rows import KINDS as BASE_KINDS
 from synthetic_ecommerce_data.domains.retail.decoy_rows import UK, Kind
 
 #: The invented class-7 brand: a color word in the name of a footwear house (not a real shop).
 NEW_BRANDS = ("Blue Bull",)
-OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = tuple((b, "third_party") for b in NEW_BRANDS)
 BRAND_OWNER.update(dict.fromkeys(NEW_BRANDS, "third_party"))
 
 _BR = (("kind", "brogue"), ("material", "leather"), ("closure", "Lace-Up"))

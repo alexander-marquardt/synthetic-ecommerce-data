@@ -1,6 +1,6 @@
-"""A spec's brands are known to ``breadth_rows.OWNERS`` once the registry holds it (gen#1040).
+"""A spec's brands are known to ``brand_owners.table()`` before any build (gen#1040, gen#1039).
 
-``Row.doc()`` reads the brand's owner from ``breadth_rows.OWNERS``. A spec states the owners of
+``Row.doc()`` reads the brand's owner from ``brand_owners.table()``. A spec states the owners of
 its new brands in ``TypeSpec.owners``. When only ``TypeSpec.docs()`` wrote them, a test that built
 ``spec.rows`` straight from ``type_registry.specs()`` passed after a build had run in the same
 process and raised ``KeyError`` before one, which turned main red when the CI shard plan
@@ -16,11 +16,10 @@ import sys
 
 _PROBE = """
 import json
-from synthetic_ecommerce_data.domains.retail import type_registry
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
+from synthetic_ecommerce_data.domains.retail import brand_owners, type_registry
 specs = type_registry.specs()
 rows = [r for s in specs.values() for r in (*s.rows, *(d.row for d in s.decoys))]
-print(json.dumps(sorted({r.brand for r in rows} - OWNERS.keys())))
+print(json.dumps(sorted({r.brand for r in rows} - brand_owners.table().keys())))
 """
 
 

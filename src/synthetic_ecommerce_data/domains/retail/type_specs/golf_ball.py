@@ -9,7 +9,7 @@ layers in a cut-away quarter (:func:`kit_fishing_golf.golf_ball`). Each SKU is a
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import BALLS, LARCHMERE, OWNERS
+from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import BALLS, LARCHMERE, OWNED
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _H,
     _L,
@@ -36,7 +36,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Golf Ball",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     rows=(
         _row("GBLTWO", "Ionomer 2-Piece Golf Balls", _W, BALLS, "Golf Ball", 9.0, "golf_ball",
              "Durable 2-piece golf balls with ionomer covers and large cores, for distance and a straight flight.",

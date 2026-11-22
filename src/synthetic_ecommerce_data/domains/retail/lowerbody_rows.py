@@ -23,7 +23,7 @@ from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
     kit_lowerbody,  # noqa: F401 -- registers leggings, joggers, shorts, ...
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import (
     BRAND_OWNER,
     LEGS3,
@@ -36,7 +36,8 @@ from synthetic_ecommerce_data.domains.retail.variants import cw
 #: The brands these rows sell, owned as the rest of the clothing tree already states.
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Stridewell", "Hollinwray Knits",
            "Calderby & Lune", "Bramblewood", "Saltmarsh")  # fmt: skip
-OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = tuple((b, BRAND_OWNER[b]) for b in _BRANDS)
 HP, LK, WF, SW, HK, CL, BW, SM = _BRANDS
 
 CL_ = "Clothing"

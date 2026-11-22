@@ -34,7 +34,6 @@ import zlib
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import dark_blues, style_table
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.kit_garments import NECKLINES
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
@@ -42,7 +41,8 @@ from synthetic_ecommerce_data.domains.retail.main_colors import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Wrenfield", "Calderby & Lune")
-OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = tuple((b, BRAND_OWNER[b]) for b in _BRANDS)
 _C = "Clothing"
 _TOPS = ("Womens", "Tops")
 HEX = {

@@ -108,5 +108,7 @@ SPEC = TypeSpec(
     department="Home",
     product_type="Beach Towel",
     rows=ROWS,
-    owners=tuple((b, "third_party") for b in (CALDERBY, HARBOUR, THISTLE, LARCHWOOD, BRACKENMERE, EMBERLY, COBBLE, LANTERNBY)),
+    # Harbour & Pine and Brackenmere Home are the shop's own, as the base table states (gen#1039).
+    owners=(*((b, "third_party") for b in (CALDERBY, THISTLE, LARCHWOOD, EMBERLY, COBBLE, LANTERNBY)),
+            (HARBOUR, "own"), (BRACKENMERE, "own")),
 )  # fmt: skip

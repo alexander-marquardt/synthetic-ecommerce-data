@@ -17,14 +17,13 @@ from dataclasses import replace
 from synthetic_ecommerce_data.domains.retail import (
     kit_gadgets,  # noqa: F401 -- registers power_bank, webcam, smartwatch
 )
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.electronics_rows import DEPARTMENT, ELECTRONICS_OWNERS
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 from synthetic_ecommerce_data.domains.retail.type_registry import Row, cw
 
-# A row's document reads its brand's owner, so the owners are known once the rows are: a spec's
-# ``docs()`` registers them too, but a row may be read before any spec builds (gen#956).
-OWNERS.update({b: o for b, o in ELECTRONICS_OWNERS if b not in OWNERS})
+#: A row's document reads its brand's owner, so ``brand_owners.table()`` reads these too: a row
+#: may be read before any spec builds (gen#956, gen#1039).
+OWNED = ELECTRONICS_OWNERS
 
 #: The top level of every path: the store's department.
 ROOT = "Electronics"

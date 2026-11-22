@@ -35,7 +35,7 @@ from __future__ import annotations
 import functools
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import breadth_rows, sale_share
+from synthetic_ecommerce_data.domains.retail import sale_share
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.kids_films import (
@@ -86,9 +86,8 @@ MOTIFS: dict[str, str] = {
 BLACK = cw("Black", "#2a2a2e")
 WARM_WHITE = cw("Warm White", "#fbefc9")
 
-breadth_rows.OWNERS.update(
-    {b: BRAND_OWNER[b] for b in ("Crofter's Bakehouse",) if b not in breadth_rows.OWNERS}
-)
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = (("Crofter's Bakehouse", BRAND_OWNER["Crofter's Bakehouse"]),)
 
 
 @dataclass(frozen=True)
