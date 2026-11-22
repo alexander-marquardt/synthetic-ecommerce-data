@@ -10,7 +10,7 @@ SKU is a color in a size.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import GLOVES, LARCHMERE, OWNERS
+from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import GLOVES, LARCHMERE, OWNED
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _H,
     _L,
@@ -41,7 +41,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Golf Glove",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     rows=(
         _row("GGLCAB", "Cabretta Leather Golf Glove, Left Hand", LARCHMERE, GLOVES, "Golf Glove", 18.0, "golf_glove",
              "A soft cabretta leather golf glove for the left hand, with perforated fingers and a hook-and-loop wrist tab.",

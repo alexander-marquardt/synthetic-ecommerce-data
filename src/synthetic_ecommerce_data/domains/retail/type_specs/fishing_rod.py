@@ -9,7 +9,7 @@ places the guides (:func:`kit_fishing_golf.fishing_rod`). Each SKU is a color in
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import OWNERS, PENNYWHISTLE, RODS
+from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import OWNED, PENNYWHISTLE, RODS
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _H,
     _W,
@@ -36,7 +36,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Fishing Rod",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     rows=(
         _row("FRDSPN", "Medium Carbon Spinning Fishing Rod", _W, RODS, "Fishing Rod", 39.0, "fishing_rod",
              "A medium power spinning rod with a carbon blank, a cork handle and a screw reel seat, for lures and float fishing.",

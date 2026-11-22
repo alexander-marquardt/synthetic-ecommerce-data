@@ -11,7 +11,7 @@ cantilever trays, three drawer fronts or a hip roof of clear trays
 from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import (
-    OWNERS,
+    OWNED,
     PENNYWHISTLE,
     TACKLE_BOXES,
 )
@@ -42,7 +42,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Tackle Box",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     rows=(
         _row("TCKCNT", "3 Tray Cantilever Tackle Box", _W, TACKLE_BOXES, "Tackle Box", 24.0, "tackle_box",
              "A cantilever tackle box with 3 trays that fan open as the lid lifts, and a deep base for reels and spools.",
