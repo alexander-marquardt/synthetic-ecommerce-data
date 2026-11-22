@@ -366,7 +366,8 @@ the file count are printed and written beside it as `.content-sha256`.
 **Every SKU has its own file.** A retail `image_id` is `<type>/<product>/<sku>`, as an
 industrial one is. What the file draws is keyed separately (`export.drawing_id`): the style and
 colorway, the pack scale (a smaller size of a line draws smaller, gen#543; see
-[the pack scale page](retail-prototype/pack-scale-543.md)), the pack count (a pack of N draws N
+[the pack scale page](retail-prototype/pack-scale-543.md); a loaf's crust and form, gen#1126, are on
+[the bread page](retail-prototype/bread-1126.md)), the pack count (a pack of N draws N
 items, gen#728; see [the pack copies page](retail-prototype/pack-copies-728.md)), and for a type that declares a
 size axis (`size_axes.AXES`) the size-ladder rung (`size_ladder.py`, gen#339, gen#719). SKUs that draw the same picture each get their own
 copy of it, so one SKU's color, size or shape can change later without moving another's image.

@@ -529,7 +529,7 @@ FOOD = [
         "attributes": food_attrs(
             800, "GRM", "Cupboard", ["Vegan"], ["Wheat", "Gluten", "Sesame"], "Malted Seeds"
         ),
-        "drawing": drawing("loaf", "solid", "#b9773d", label="Bread"),
+        "drawing": drawing("loaf", "solid", "#b9773d", label="Bread", flavor="Seeded", form="tin"),
     },
     {
         "title": "Iced Rich Fruit Christmas Cake 900g",

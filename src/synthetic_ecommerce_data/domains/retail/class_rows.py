@@ -105,7 +105,8 @@ NOT_BEER = (
     (Style("BRBRED", "Malted Beer Bread", "Crofter's Bakehouse", FOOD,
            ("Food & Drink", "Bakery", "Bread"), 1.6,
            "A soft malted loaf baked with a dark beer.",
-           "Bread", "loaf", pack("#8a5a30", 300), unit=(400.0, "g"), colorless=True),
+           "Bread", "loaf", pack("#8a5a30", 300), unit=(400.0, "g"), colorless=True,
+           params=(("flavor", "Malted Beer"), ("form", "tin"))),
      _ROUTE_BEER),
 )  # fmt: skip
 

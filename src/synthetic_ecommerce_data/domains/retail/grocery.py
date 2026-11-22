@@ -53,6 +53,7 @@ from synthetic_ecommerce_data.domains.retail import (
     food_title_words,
     grocery_rows,
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
+    kit_bread,  # noqa: E402,F401 -- registers loaf
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
     kit_drinks,  # noqa: E402,F401 -- registers wine_bottle (gen#1142)
     kit_grocery,  # noqa: E402,F401 -- registers bar and bag
@@ -360,6 +361,8 @@ def _drawing(
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
+    if shape == "loaf":  # a loaf is drawn by its crust and the form its line names (gen#1126)
+        marks |= {"flavor": flavor.name, "form": kit_bread.form_of(head, flavor.name)}
     if shape == "wine_bottle":  # each SKU draws its own size against the line's largest (gen#1127)
         largest = max(packs, key=_size)["pack_size"]
         marks |= {"wine": WINE_STYLES[fam.code], "pack_size": pack["pack_size"], "largest": largest}
