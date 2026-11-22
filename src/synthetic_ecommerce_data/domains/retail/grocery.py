@@ -170,6 +170,8 @@ SHAPES = {
     ("BUT", "Spreadable Butter"): "lidded_tub",
     ("BUT", "Plant Spread"): "lidded_tub",
 }
+#: The chocolate shapes a SKU draws at its own weight, in its own chocolate (gen#1125).
+CHOCOLATE_SHAPES = frozenset({"chocolate_bar", "chocolate_box", "chocolate_bag"})
 #: What a punnet holds, by the VEG variety (``kit_punnet.PRODUCE``).
 PUNNET = {
     "Cherry Tomatoes": "tomato",
@@ -348,8 +350,14 @@ def pack_label(title: str, head: str) -> str:
 
 
 def _drawing(
-    fam: Family, flavors: list[F], pid: str, packs: list[dict], title: str, head: str,
-    lead: str = "", ending: str = "",
+    fam: Family,
+    flavors: list[F],
+    pid: str,
+    packs: list[dict],
+    title: str,
+    head: str,
+    lead: str = "",
+    ending: str = "",
 ) -> dict:
     """One style's drawing: the first flavor's color, the title's noun, and the marks that make
     a sibling's picture differ: the range name and a band of the style's flavor colors."""
@@ -368,10 +376,12 @@ def _drawing(
     label = LABELS.get((fam.code, flavor.name)) or pack_label(title, lead)
     if shape == "pizza":  # a SKU draws its own flavour and size (export.drawing_spec, gen#604)
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"]}
-    if shape == "chocolate_bar":  # a SKU draws its own weight or its multipack (gen#1125)
+    if shape in CHOCOLATE_SHAPES:  # a SKU draws its own weight or its multipack (gen#1125)
         marks["pack_size"] = pack["pack_size"]
         if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
             marks["chocolate"] = choc
+    if shape == "chocolate_bag":  # a sharing bag shows the buttons or bites it holds
+        marks["piece"] = "buttons" if "Buttons" in flavor.name else "bites"
     if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
         own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}

@@ -768,7 +768,7 @@ FAMILIES: tuple[Family, ...] = (
             F("Hazelnut Milk Chocolate", "#9a6a44", "MT"), F("Salted Caramel Milk Chocolate", "#c48a3a", "M"),
             F("Mint Dark Chocolate", "#2f6b52")),
            _CHOC, 0.005, base="S", may=_NUTS, depth=True),
-    Family("CSB", (*_CHOCOLATE, "Sharing Bags"), "{line} {flavor} Sharing Bag", "Chocolate Bar", "bag",
+    Family("CSB", (*_CHOCOLATE, "Sharing Bags"), "{line} {flavor} Sharing Bag", "Chocolate Bar", "chocolate_bag",
            "Chocolate", _A, "E", 2.2, ("150g", "250g"),
            (F("Milk Chocolate Buttons", "#8a5a3c", "M"), F("White Chocolate Buttons", "#f2e6c8", "M"),
             F("Dark Chocolate Buttons", "#3b2416"), F("Honeycomb Milk Chocolate Bites", "#d9a441", "M"),
