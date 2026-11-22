@@ -94,6 +94,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     Family,
     chocolate_of,
 )
+from synthetic_ecommerce_data.domains.retail.kit_dairy import SKU_PARAMS as DAIRY_PARAMS
 from synthetic_ecommerce_data.domains.retail.kit_produce import sku_pile
 from synthetic_ecommerce_data.domains.retail.range_ownership import Deal
 from synthetic_ecommerce_data.domains.retail.variants import attr, drawing, product
@@ -353,6 +354,9 @@ def _drawing(
         marks["pack_size"] = pack["pack_size"]
         if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
             marks["chocolate"] = choc
+    if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
+        own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
+        marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}
     if shape == "punnet":
         marks["produce"] = PUNNET[flavor.name]
     return drawing(shape, color, label, **marks)
