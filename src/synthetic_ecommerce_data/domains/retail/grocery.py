@@ -257,7 +257,18 @@ def allergens(fam: Family, flavor: F, may_codes: str) -> dict[str, list[str]]:
     }
 
 
-def dietary(flavor: F, facts: dict[str, list[str]], organic: bool) -> list[str]:
+def certified(fam: Family, pid: str) -> frozenset[str]:
+    """Stub (gen#1131): no certification yet."""
+    return frozenset()
+
+
+def alcoholic(fam: Family, flavor: F, listed: list[str] | None) -> bool:
+    """Stub (gen#1131)."""
+    return False
+
+
+def dietary(flavor: F, facts: dict[str, list[str]], organic: bool,
+            certs: frozenset[str] = frozenset(), alcohol: bool = False) -> list[str]:  # fmt: skip
     """One variant's dietary labels, from its allergens and its animal flags."""
     have, traced = set(facts["contains"]), set(facts["contains"]) | set(facts["may_contain"])
     out = []

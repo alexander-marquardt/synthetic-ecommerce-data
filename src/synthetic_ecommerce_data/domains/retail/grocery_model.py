@@ -9,6 +9,20 @@ from dataclasses import dataclass
 #: The dietary labels a SKU may carry: one closed list (gen#296).
 DIETARY: tuple[str, ...] = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
 
+#: The (Halal, Kosher) share, in percent, of the products of a category (``path[1:3]``) that hold
+#: the certification (gen#1131). Every other category holds none. A variant keeps a certification
+#: only if it passes the rules in ``grocery.dietary`` (no pork in either, no shellfish or meat with
+#: milk in Kosher, no alcohol in Halal).
+CERTIFICATION: dict[tuple[str, str], tuple[int, int]] = {
+    ("Meat & Fish", "Fresh Meat"): (30, 15),
+    ("Meat & Fish", "Packaged Meat"): (30, 15),
+    ("Meat & Fish", "Fish"): (20, 25),
+    ("Chilled", "Ready Meals"): (20, 10),
+    ("Chilled", "Pizza"): (20, 10),
+    ("Chocolate & Sweets", "Chocolate"): (25, 30),
+    ("Chocolate & Sweets", "Sweets"): (25, 30),
+}
+
 ALLERGENS = {"P": "Peanuts", "T": "Tree Nuts", "M": "Milk", "G": "Gluten", "S": "Soy", "E": "Egg", "F": "Fish"}
 
 
