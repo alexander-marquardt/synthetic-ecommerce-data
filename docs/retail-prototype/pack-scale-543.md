@@ -8,3 +8,5 @@ size, draw as they always did. Every size drawn at one scale shares its color's 
 drawn in that color's swatch (base, pattern and accent).
 ![A line's 30, 50 and 100 ml drawn before and after](../images/pack-scale.svg)
 `image_release.py --skus 20000` is 1,346 images for 20,074 SKUs.
+
+**A wine bottle draws its own size (gen#1127).** `wine_bottle` takes no factor (`pack_scale.SELF_SIZED`, beside `produce_pile`): it draws each size at its real proportions against its line's largest, never below 0.8 of its height. See [the wine bottle page](wine-bottles-1127.md).
