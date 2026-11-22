@@ -274,6 +274,18 @@ def test_every_grocery_shape_is_a_kit_shape() -> None:
     assert {f.shape for f in grocery.FAMILIES} <= set(kit.SHAPES)
 
 
+def test_importing_grocery_alone_registers_every_family_shape() -> None:
+    """A fresh process that imports only grocery and kit holds every family's shape (gen#1142):
+    a shape module grocery never imports registers nothing until a build draws it, so the
+    check above passed or failed with whatever the worker imported first."""
+    code = (
+        "from synthetic_ecommerce_data.domains.retail import grocery, kit\n"
+        "print(sorted({f.shape for f in grocery.FAMILIES} - set(kit.SHAPES)))"
+    )
+    run = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    assert run.stdout.strip() == "[]"
+
+
 # --------------------------------------------------------------------------
 # The planted demo cases: each exists, in the department its meaning flips to.
 # --------------------------------------------------------------------------
