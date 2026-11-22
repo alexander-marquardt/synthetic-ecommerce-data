@@ -133,14 +133,16 @@ def test_the_packs_drawn_are_the_most_common_then_the_largest_and_smallest() -> 
     keys = [four, one, four, twelve, four, one]
     assert pf.chosen_packs(keys) == [("common", four), ("largest", twelve), ("smallest", one)]
     assert pf.chosen_packs([(), ()]) == [("common", ())]
-    assert pf.pack_size((("pack_size", "6 x 330ml"), ("pack_scale", 0.5))) == pytest.approx(3.0)
+    assert pf.pack_size((("pack_size", "6 x 330ml"), ("pack_scale", 0.5))) == pytest.approx(990)
+    assert pf.pack_size((("pack_size", "1L"),)) > pf.pack_size((("pack_size", "500ml"),))
 
 
 def test_drawn_to_scale_is_a_dimension_the_kit_code_reads() -> None:
-    source = 'def lampshade(...):\n    d = float(params["diameter_cm"])\n'
-    assert pf.scaled_keys({"diameter_cm", "finish"}, source) == ["diameter_cm"]
-    assert pf.scaled_keys({"length_mm"}, source) == []  # a SKU attribute the drawing ignores
-    assert pf.scaled_keys({"pack_size"}, 'params["pack_size"]') == []  # a pack, not a dimension
+    source = 'def lampshade(...):\n    d = float(params["diameter_cm"])\n    pack_size.split()\n'
+    assert pf.scaled_keys({"diameter_cm": {"30"}, "finish": {"brass"}}, source) == ["diameter_cm"]
+    assert pf.scaled_keys({"length_mm": {"40"}}, source) == []  # an attribute the drawing ignores
+    assert pf.scaled_keys({"pack_size": {"12 inch", "10 inch"}}, source) == ["pack_size"]  # pizza
+    assert pf.scaled_keys({"pack_size": {"6 x 330ml", "1L"}}, source) == []  # a pack, not a length
 
 
 def _render(kit_name: str, ptype: str, role: str, area: float, flat: bool = True) -> dict:
