@@ -307,7 +307,7 @@ def yogurt_tub(flavor: str) -> list[str]:
 
 
 def _dollop(x: float, y: float, color: str, fruit: str | None) -> list[str]:
-    """A swirl of yoghurt in its own ``color`` centred on (x, y), its ``fruit`` leaning on it."""
+    """A swirl of yoghurt in its own ``color`` centered on (x, y), its ``fruit`` leaning on it."""
     swirl = (
         f"M{x - 38:g},{y + 18:g} Q{x - 42:g},{y - 6:g} {x - 18:g},{y - 12:g} Q{x - 10:g},{y - 34:g} {x + 8:g},{y - 26:g} "
         f"Q{x + 22:g},{y - 22:g} {x + 20:g},{y - 10:g} Q{x + 40:g},{y - 4:g} {x + 38:g},{y + 18:g} Z"
