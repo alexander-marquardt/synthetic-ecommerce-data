@@ -82,7 +82,7 @@ def test_real_cup_titles_are_realistic_six_to_ten_words(
 def test_every_cup_kind_has_a_drawing_of_its_own(docs: list[dict], product_type: str) -> None:
     shapes = {d["drawing"]["shape"] for d in _of(docs, product_type)}
     assert shapes == {CUP_KINDS[product_type]}, product_type
-    assert CUP_KINDS[product_type] in kit.SHAPES
+    assert CUP_KINDS[product_type] in kit.shapes()
 
 
 def test_the_cup_kinds_do_not_share_a_drawing_and_none_is_the_mug(docs: list[dict]) -> None:

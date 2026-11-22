@@ -28,9 +28,9 @@ from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 from synthetic_ecommerce_data.domains.retail.class_model import Style
 from synthetic_ecommerce_data.domains.retail.kit import (
     PLACEMENTS,
-    SHAPES,
     Fill,
     render,
+    shapes,
 )
 from synthetic_ecommerce_data.domains.retail.kit_produce import (
     FRUIT,
@@ -77,12 +77,12 @@ def test_the_sweep_runs_with_every_shape_module_loaded_whatever_ran_before_it() 
     )
     assert len(registering) > 30, registering
     assert [m for m in registering if f"synthetic_ecommerce_data.domains.retail.{m}" not in sys.modules] == []
-    assert "frying_pan" in SHAPES
+    assert "frying_pan" in shapes()
 
 
 def test_the_registry_is_every_kit_shape_and_every_motif_has_a_known_category() -> None:
     reg = motifs.registry()
-    assert list(reg) == list(SHAPES)
+    assert list(reg) == list(shapes())
     assert set(kit_motifs.CATEGORY.values()) <= set(motifs.CATEGORIES)
     assert len(MOTIFS) == 26
     assert reg["tshirt"].category == "product"
@@ -183,7 +183,7 @@ def test_a_large_placement_fills_55_to_65_percent_of_the_chest_print_area() -> N
 def test_every_placement_surface_has_a_print_box_and_every_kit_shape_a_drawn_box() -> None:
     placed = {s for s, (places, _) in motifs.SURFACES.items() if "placement" in places}
     assert placed == set(motifs.PRINT_BOX)
-    for name in SHAPES:
+    for name in shapes():
         x0, y0, x1, y1 = motifs.drawn_box(name)
         assert 0 <= x0 < x1 <= 400 and -60 <= y0 < y1 <= 460, name
 

@@ -1,7 +1,7 @@
 """Motif prints: any kit drawing repeated on a printable surface (gen#125).
 
 The **registry** (:func:`registry`) is every shape the kit can draw, read
-from :data:`kit.SHAPES` at call time, so the motif pool grows as product
+from :func:`kit.shapes` at call time, so the motif pool grows as product
 types are added. A shape's category comes from :data:`kit_motifs.CATEGORY`
 (fruit, vegetables, animals, flowers, stars, seasonal, food treats, ...); any
 other kit shape is a ``product`` motif, which, like ``tools``, only a novelty
@@ -44,10 +44,11 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     MOTIF_COUNTS,
     OFFSET_Y,
     PLACEMENTS,
-    SHAPES,
     SIZE,
     Fill,
+    _draw,
     _shade,
+    shapes,
 )
 
 #: Printable categories, then the two only novelty and gift ranges may print.
@@ -90,19 +91,24 @@ PLURAL = {"cherries": "Cherries"}
 
 
 def registry() -> dict[str, Motif]:
-    """Every kit shape as a motif, in :data:`kit.SHAPES` order."""
-    return {n: Motif(n, kit_motifs.CATEGORY.get(n, "product")) for n in SHAPES}
+    """Every kit shape as a motif, in :func:`kit.shapes` order."""
+    return {n: Motif(n, kit_motifs.CATEGORY.get(n, "product")) for n in shapes()}
 
 
 def motif(name: str) -> Motif:
-    found = registry().get(name)
-    if found is None:
-        raise ValueError(f"unknown motif {name!r}: no kit shape draws it")
-    return found
+    """``name``'s motif. One shape is looked up as :func:`kit.render` looks it up, so a shape
+    no imported module registered fills the registry first, and a motif this module's own
+    imports registered never does: a print row is checked while the type specs that fill it
+    are still being imported (#1039)."""
+    try:
+        _draw(name)
+    except KeyError:
+        raise ValueError(f"unknown motif {name!r}: no kit shape draws it") from None
+    return Motif(name, kit_motifs.CATEGORY.get(name, "product"))
 
 
 def _body(name: str, color: str) -> str:
-    return "".join(SHAPES[name](color, Fill("solid", color, _shade(color, 0.3)), None))
+    return "".join(_draw(name)(color, Fill("solid", color, _shade(color, 0.3)), None))
 
 
 def motif_svg(

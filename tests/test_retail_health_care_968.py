@@ -64,7 +64,7 @@ def test_the_type_is_a_derivable_health_spec_drawn_by_its_own_shape(key: str) ->
     for row in (*spec.rows, *(d.row for d in spec.decoys)):
         assert row.path[:2] == parent, row.code
         assert row.product_type == spec.product_type, row.code
-        assert row.shape == shape and shape in kit.SHAPES, row.code
+        assert row.shape == shape and shape in kit.shapes(), row.code
         assert row.colorless, row.code
         # Each drawing param is an attribute value of the row, so a derived style that swaps
         # the value draws what it states (gen#512).

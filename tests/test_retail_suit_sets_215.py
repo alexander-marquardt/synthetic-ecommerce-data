@@ -68,7 +68,7 @@ def _spec(ptype: str):
 
 
 def _svg(shape: str, **params: str) -> str:
-    assert shape in kit.SHAPES, f"{shape} is not a kit shape"
+    assert shape in kit.shapes(), f"{shape} is not a kit shape"
     return kit.render(shape, kit.Fill("solid", "#123456", "#654321"), params=params)
 
 
@@ -89,7 +89,7 @@ def test_a_type_is_a_spec_with_three_brands_and_three_styles_under_its_path(ptyp
 @pytest.mark.parametrize("ptype", TYPES)
 def test_a_type_draws_as_its_own_shape(ptype: str) -> None:
     _, shape, _, _ = TYPES[ptype]
-    assert shape in kit.SHAPES and shape not in GENERIC
+    assert shape in kit.shapes() and shape not in GENERIC
     assert {r.shape for r in _spec(ptype).rows} == {shape}
 
 

@@ -271,7 +271,7 @@ def test_a_grocery_pack_shape_paints_the_records_fill(shape: str) -> None:
 
 def test_every_grocery_shape_is_a_kit_shape() -> None:
     assert {d["image_id"].split("/")[0] for d in docs()}
-    assert {f.shape for f in grocery.FAMILIES} <= set(kit.SHAPES)
+    assert {f.shape for f in grocery.FAMILIES} <= set(kit.shapes())
 
 
 def test_importing_grocery_alone_registers_every_family_shape() -> None:

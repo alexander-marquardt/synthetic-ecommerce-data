@@ -60,7 +60,7 @@ def _table(shape: str) -> dict[str, tuple[str, ...]]:
 def test_the_two_types_are_registered_with_their_param_tables() -> None:
     kit.register_all()
     assert set(kit_home_variants.PARAMS) == set(TYPES)
-    assert set(TYPES) <= set(kit.SHAPES)
+    assert set(TYPES) <= set(kit.shapes())
     for shape in TYPES:
         # A bench is furniture and a vanity light a light fitting: level (#1095).
         assert orientation.of(shape) == "level", shape

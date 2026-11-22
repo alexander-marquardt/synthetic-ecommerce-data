@@ -107,7 +107,7 @@ def test_an_olive_tree_row_is_labelled_tree_like_its_title():
 
 
 def test_the_potted_herb_blooms_only_when_the_row_says_so():
-    assert "potted_herb" in kit.SHAPES
+    assert "potted_herb" in kit.shapes()
     fill = kit.Fill("solid", "#b5603a", "#4f7a3a")
     plain = kit.render("potted_herb", fill, params={})
     bloom = kit.render("potted_herb", fill, params={"bloom": "#8c6bb1"})

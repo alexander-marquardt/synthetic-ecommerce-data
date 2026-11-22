@@ -84,7 +84,7 @@ def test_every_type_is_a_spec_with_three_styles_from_three_brands() -> None:
 
 def test_every_style_draws_as_its_own_registered_shape() -> None:
     rows = _rows()
-    assert {r.code: r.shape for r in rows if r.shape not in kit.SHAPES} == {}
+    assert {r.code: r.shape for r in rows if r.shape not in kit.shapes()} == {}
     assert {r.shape for r in rows} == set(PARAMS) | FIXED_SHAPES
     assert {r.shape for r in rows} & {"box", "box_wide"} == set()
 

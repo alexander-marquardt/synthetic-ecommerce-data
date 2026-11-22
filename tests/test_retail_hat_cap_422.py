@@ -90,7 +90,7 @@ def test_the_styles_are_templates_and_not_derived() -> None:
 
 def test_every_style_draws_as_the_hat_shape_of_its_own() -> None:
     assert {r.shape for r in ROWS} == {"hat"}
-    assert "hat" in kit.SHAPES
+    assert "hat" in kit.shapes()
 
 
 def test_each_kind_draws_differently() -> None:

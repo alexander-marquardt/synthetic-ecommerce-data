@@ -129,7 +129,7 @@ def test_the_type_has_two_styles_from_two_brands(key) -> None:
 def test_the_type_draws_as_its_own_shape(key) -> None:
     rows = _spec(key).rows
     assert {r.shape for r in rows} == {key}
-    assert key in kit.SHAPES
+    assert key in kit.shapes()
 
 
 @pytest.mark.parametrize("key", KEYS)

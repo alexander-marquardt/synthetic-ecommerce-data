@@ -46,7 +46,7 @@ def drawn_scale(svg: str) -> float:
 def test_the_chocolate_box_family_has_its_own_container() -> None:
     assert CHX.shape == "chocolate_box"
     assert CHX.shape != "box"
-    assert "chocolate_box" in kit.SHAPES
+    assert "chocolate_box" in kit.shapes()
 
 
 def test_no_chocolate_selection_style_is_drawn_with_the_generic_box() -> None:
@@ -56,7 +56,7 @@ def test_no_chocolate_selection_style_is_drawn_with_the_generic_box() -> None:
 
 
 def test_the_chocolate_box_is_wide_and_shallow() -> None:
-    width, height = size(kit.SHAPES["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
+    width, height = size(kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
     assert width >= 2 * height  # the carton it replaces is taller than wide
 
 
@@ -70,7 +70,7 @@ def test_a_400g_box_is_visibly_larger_than_a_150g_one() -> None:
     by_size = {s["pack_size"]: s for s in rec["skus"]}
     small = drawn_scale(image_release.render(rec, by_size["150g"], styled=False).decode())
     big = drawn_scale(image_release.render(rec, by_size["400g"], styled=False).decode())
-    width, height = size(kit.SHAPES["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
+    width, height = size(kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
     assert big == 1.0  # the line's largest size is drawn at the shape's natural size
     assert small < 0.8 * big  # so a 150g box is drawn well under a 400g one
     assert width <= 400 and height <= 400  # on the one sheet, whatever the scale

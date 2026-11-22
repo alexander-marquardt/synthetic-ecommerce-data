@@ -71,7 +71,7 @@ def test_electronics_carries_a_memory_card_type_sold_by_capacity(ceiling: list[d
 
 
 def test_the_memory_card_has_a_drawing_of_its_own(ceiling: list[dict]) -> None:
-    assert "memory_card" in kit.SHAPES
+    assert "memory_card" in kit.shapes()
     cards = _cards(ceiling)
     assert cards
     for doc in cards:

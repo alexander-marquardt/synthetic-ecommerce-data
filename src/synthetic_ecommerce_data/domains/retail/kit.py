@@ -889,8 +889,8 @@ def register(shapes: dict, offsets: dict | None = None) -> None:
 def register_all() -> None:
     """Fill :data:`SHAPES` with every shape: import each module that registers one (``kit_*.py``
     and ``type_specs/*.py``). A shape is registered when its module is imported, and a build
-    loaded from a pickle imports none of the row modules, so code that reads the whole registry
-    calls this first (synth#797)."""
+    loaded from a pickle imports none of the row modules, so code reads the whole registry
+    through :func:`shapes`, which calls this first (synth#797, #1039)."""
     import importlib  # deferred: the kits import this module
     import pkgutil
 
@@ -903,8 +903,19 @@ def register_all() -> None:
         importlib.import_module(f"{type_specs.__name__}.{info.name}")
 
 
+#: Set once :func:`shapes` has filled the registry.
+_FILLED: list[bool] = []
+
+
 def shapes() -> Mapping[str, object]:
-    """Every registered shape (#1039): red-commit stub."""
+    """Every shape the kit draws, as a read-only view: the registry is filled
+    (:func:`register_all`) before the first answer, so it holds the same shapes whatever this
+    interpreter imported before. Code outside this module reads the registry only here, or
+    one shape through :func:`render`; ``tests/test_kit_shapes_1039.py`` refuses a direct
+    read of :data:`SHAPES` (#1039)."""
+    if not _FILLED:
+        register_all()
+        _FILLED.append(True)
     return MappingProxyType(SHAPES)
 
 

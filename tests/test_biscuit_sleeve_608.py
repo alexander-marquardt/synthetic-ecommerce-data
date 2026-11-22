@@ -36,7 +36,7 @@ def family(code: str) -> grocery.Family:
 
 def aspect(shape: str) -> float:
     """Width over height of the pack's own drawn elements (the sheet frame left out)."""
-    parts = kit.SHAPES[shape](FILL.base, FILL, "Biscuits")
+    parts = kit.shapes()[shape](FILL.base, FILL, "Biscuits")
     svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">{"".join(parts)}</svg>'
     left, top, right, bottom = sheet_extent.reach(svg)
     return (right - left) / (bottom - top)
@@ -54,7 +54,7 @@ def test_the_cereal_family_keeps_the_box() -> None:
 
 
 def test_the_sleeve_is_wider_than_tall_and_not_the_carton() -> None:
-    assert "sleeve" in kit.SHAPES
+    assert "sleeve" in kit.shapes()
     assert aspect("sleeve") > 1.3
     assert render() != render("box")
 
