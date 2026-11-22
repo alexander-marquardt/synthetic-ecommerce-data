@@ -50,6 +50,16 @@ def test_every_allowlist_entry_names_advisory_package_issue_and_expiry() -> None
         assert set(entry) >= {"advisory", "package", "issue", "expires"}, entry
 
 
+def test_merge_pr_local_ci_skips_the_gate_and_still_reads_every_other_workflow() -> None:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import local_ci_jobs
+
+    assert WORKFLOW.name in local_ci_jobs.NOT_A_CHECK
+    jobs = local_ci_jobs.load_jobs(ROOT / ".github" / "workflows")
+    assert "vuln-gate" not in jobs
+    assert "lint" in jobs
+
+
 def test_ruff_leaves_the_vendored_copy_alone() -> None:
     ruff = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["tool"]["ruff"]
     assert ".github/vuln-gate" in ruff.get("extend-exclude", [])
