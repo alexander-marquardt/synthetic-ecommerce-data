@@ -12,7 +12,7 @@ shape for a sourdough and a sliced white, covering 0.29 of the product area at 4
 
 | line word | form |
 |---|---|
-| Thick Sliced, Medium Sliced | a tin loaf for now; its bag is slice 2 |
+| Thick Sliced, Medium Sliced | its slices in a printed bag: see below |
 | Hand Shaped, Crusty | a round boule with crossed slashes |
 | Oven Bottom | a flat-bottomed loaf with diagonal slashes |
 | Stonebaked | a wide loaf under a flour dusting |
@@ -34,15 +34,26 @@ the product area; 0.9 keeps it visibly the smaller loaf and above the floor.
 
 | SKUs (68 lines, 135 SKUs) | before | after |
 |---|---|---|
-| every bread line, 400g | 0.29 | 0.54 to 0.59 |
+| every bread line, 400g | 0.29 | 0.53 to 0.59 |
 | every bread line, 800g | 0.46 | 0.66 to 0.72 |
 
 `tests/test_bread_fill_1126.py` reads the served SVG only. It holds that the build sells every
 crust at 400g and 800g, that every bread SKU fills at least half its product area, that the 800g
 is drawn larger than its 400g at 0.9, that each of the six crusts has its own color and
-texture, and that each form draws its own outline with a highlight and a shade.
+texture, and that each form (the bag counted as a sliced line's) draws its own outline with a
+highlight and a shade.
 
-Slice 2 (open): a sliced line is drawn as slices in a printed bag with a window and a clip.
+**A sliced line comes in its bag** (slice 2, `kit_bread._bagged`). A Medium Sliced or Thick
+Sliced line is a tin loaf cut into slices inside a printed bakery bag: the bag is printed in an ink
+of its crust's own (`kit_bread.BAG_PRINT`), a clear window shows the slices in the crust's color
+and texture with the cut end's crumb at the left, the film's sheen runs across the window, and the
+bag's end is gathered at a neck, held by a clip and twisted into a tail. A Thick Sliced loaf shows
+9 slices and a Medium Sliced one 13 (`kit_bread.SLICES`), so a thick slice is drawn half as wide
+again. The label sits on the bag's lower band. No line sells a paper bakery wrap, so none is drawn.
+Fourteen lines are sliced (28 SKUs, five crusts: no White is sold sliced); each fills 0.53 at 400g
+and 0.66 at 800g. `tests/test_bread_fill_1126.py` holds that every sliced SKU draws the bag, its
+window, its clip and its tail with at least six slices seen through the window, and no bare crust,
+and that a thick-sliced loaf shows fewer slices than a medium-sliced one.
 
 Before (one crust x form x pack per cell, captioned with its fill):
 
@@ -51,3 +62,7 @@ Before (one crust x form x pack per cell, captioned with its fill):
 After slice 1:
 
 ![Bread after gen#1126 slice 1](../images/bread-1126-after.png)
+
+After slice 2, every crust in every form it is sold in, at 400g and 800g (the full contact sheet):
+
+![Bread after gen#1126 slice 2](../images/bread-1126-sliced.png)

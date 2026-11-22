@@ -19,6 +19,8 @@ grow: half the content is a pack about 0.79 as tall.
 - A PILE OF FRUIT takes no factor either: its count shows its size (a Single is one fruit, 1 kg a
   bag of several, gen#1111). A factor set a Single's count of 1 against 1 kg's 1000 g and drew
   the one fruit at the floor.
+- A CHOCOLATE BAR takes none: it draws its weight and its multipack itself (gen#1125), so a 100g
+  bar keeps half its product area.
 - A WINE BOTTLE takes no factor: it draws its own size against its line's largest, at the
   bottle's real proportions and never below 0.8 of the largest's height (``kit_drinks``,
   gen#1127). A factor drew a half bottle at 0.63 of the magnum, in a mostly empty frame. A SOFT
@@ -49,9 +51,19 @@ FLOOR = 0.6
 SHAPE_FLOORS = {"loaf": 0.9}
 #: The content keys, in the order they are read: a total content beats a count.
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
-#: The shapes whose drawing shows its own size, which take no factor (gen#1111, gen#1127, gen#1128).
+#: The shapes whose drawing shows its own size, which take no factor: a pile by its count
+#: (gen#1111), a wine bottle (gen#1127), a soft drink (gen#1127), a milk jug, carton or yogurt
+#: (gen#1128), a chocolate bar by its weight or multipack (gen#1125).
 SELF_SIZED = frozenset(
-    {"produce_pile", "wine_bottle", "soft_drink", "milk_jug", "milk_carton", "yogurt"}
+    {
+        "produce_pile",
+        "wine_bottle",
+        "soft_drink",
+        "milk_jug",
+        "milk_carton",
+        "yogurt",
+        "chocolate_bar",
+    }
 )
 #: The count key, and the departments whose pack it sizes.
 COUNT_KEY = "units_per_pack"
