@@ -244,13 +244,14 @@ pillow bag with fillets on the front, `tests/test_battered_fish_drawn_610.py`), 
 `kit_grocery.py`; the biscuit families (`BIS`, `ORB`) draw a `sleeve` (a flow-wrapped
 packet on its side, crimped at both ends), in `kit_biscuits.py`
 (`tests/test_biscuit_sleeve_608.py`); and `chocolate_box`
-(a flat, wide, lidded selection box with a ribbon across the lid, in
-`kit_chocolate.py`; the chocolate boxes no longer draw the upright carton, and the pack
-scale still draws a 150g box smaller than a 400g one;
-`tests/test_chocolate_box_drawn_609.py`, the before and after is
+(an opened gift box, its lid with a ribbon standing behind it, the chocolates in their
+paper cups on the tray, in `kit_chocolate.py`; a 150g box draws itself smaller than a 400g
+one; `tests/test_chocolate_box_drawn_609.py`, the flat box it replaced is
 `docs/images/chocolate-box-drawn-609.svg`); the chocolate bars and multipacks draw a
 `chocolate_bar` (an opened, glossy bar or a stack of a multipack's bars, its block the
-chocolate it is made of; [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
+chocolate it is made of) and the sharing bags a `chocolate_bag` (a stand-up bag, its
+buttons or bites in a window and spilled in front;
+[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;

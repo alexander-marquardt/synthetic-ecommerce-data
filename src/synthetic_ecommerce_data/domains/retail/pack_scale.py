@@ -53,7 +53,8 @@ SHAPE_FLOORS = {"loaf": 0.9}
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
 #: The shapes whose drawing shows its own size, which take no factor: a pile by its count
 #: (gen#1111), a wine bottle (gen#1127), a soft drink (gen#1127), a milk jug, carton or yogurt
-#: (gen#1128), a chocolate bar by its weight or multipack (gen#1125).
+#: (gen#1128), a chocolate bar by its weight or multipack, a chocolate box or sharing bag by its
+#: weight (gen#1125).
 SELF_SIZED = frozenset(
     {
         "produce_pile",
@@ -63,6 +64,8 @@ SELF_SIZED = frozenset(
         "milk_carton",
         "yogurt",
         "chocolate_bar",
+        "chocolate_box",
+        "chocolate_bag",
     }
 )
 #: The count key, and the departments whose pack it sizes.
