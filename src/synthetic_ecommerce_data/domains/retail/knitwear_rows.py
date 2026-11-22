@@ -53,7 +53,6 @@ import zlib
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data.domains.retail import dark_blues, named_parts
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.decoy_apparel_words import (
     AUDIENCE_COPY,
@@ -66,10 +65,10 @@ from synthetic_ecommerce_data.domains.retail.variants import cw
 
 #: The shop's own brands these rows sell, owned as the rest of the clothing tree states.
 _BRANDS = ("Harbour & Pine", "Larkmoor", "Hollinwray Knits", "Wrenfield", "Calderby & Lune")
-OWNERS.update({b: BRAND_OWNER[b] for b in _BRANDS})
 #: The invented class-7 brands: a color or a category word in the name (not real shops).
 NEW_BRANDS = ("White Heron", "Red Kite", "Cardigan Finch")
-OWNERS.update(dict.fromkeys(NEW_BRANDS, "third_party"))
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = (*((b, BRAND_OWNER[b]) for b in _BRANDS), *((b, "third_party") for b in NEW_BRANDS))
 
 _C = "Clothing"
 #: Each style's own hex: the drawing keeps these, so Ecru here (#e4d9bd) is not ``variants.py``'s

@@ -101,8 +101,16 @@ FANS = {
 
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
+#: A soft drink's multipack draws its own cans, in two rows under a card carrier (gen#1127).
 SELF_DRAWN_SHAPES = frozenset(
-    {"anti_vibration_mat", "chocolate_bar", "produce_pile", "side_table", "yogurt"}
+    {
+        "anti_vibration_mat",
+        "chocolate_bar",
+        "produce_pile",
+        "side_table",
+        "soft_drink",
+        "yogurt",
+    }
 )
 #: The shapes whose kind draws a set of a fixed count: four pads, a nest of three tables, a knife
 #: block's five knives and the block, four utensils and their holder.

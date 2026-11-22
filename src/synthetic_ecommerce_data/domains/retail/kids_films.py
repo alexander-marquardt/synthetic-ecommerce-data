@@ -32,7 +32,7 @@ from __future__ import annotations
 import functools
 from dataclasses import dataclass
 
-from synthetic_ecommerce_data.domains.retail import breadth_rows, dark_blues
+from synthetic_ecommerce_data.domains.retail import dark_blues
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.prints import ADULT_SIZES, KIDS_SIZES
@@ -74,9 +74,8 @@ def called_a_movie(film: str) -> str:
     return film if film.lower().endswith(MOVIE) else f"{film} {MOVIE}"
 
 
-breadth_rows.OWNERS.update(
-    {b: BRAND_OWNER[b] for b in ("Crofter's Bakehouse",) if b not in breadth_rows.OWNERS}
-)
+#: The brands these rows sell and who makes them, read by ``brand_owners.table()`` (gen#1039).
+OWNED = (("Crofter's Bakehouse", BRAND_OWNER["Crofter's Bakehouse"]),)
 
 WHITE, NAVY = cw("White", "#f4f1ea", "solid", "#9a9ca0"), cw("Navy", dark_blues.NAVY)
 RED, BLUE = cw("Red", "#c8312e"), cw("Blue", "#2f6db5")

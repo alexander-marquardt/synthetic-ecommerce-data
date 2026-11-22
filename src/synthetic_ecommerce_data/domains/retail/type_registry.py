@@ -31,7 +31,7 @@ from dataclasses import dataclass
 from typing import NamedTuple
 
 from synthetic_ecommerce_data.domains.retail import brand_owners, departments, type_specs
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS, Row
+from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER
 from synthetic_ecommerce_data.domains.retail.lowerbody_rows import LRow
 from synthetic_ecommerce_data.domains.retail.variants import cw
@@ -150,9 +150,10 @@ class TypeSpec:
 
     ``derivable`` True lets the scaled build draw derived styles from ``rows`` (a breadth type
     that grows with the build); False keeps them as templates only. A decoy is never derived.
-    ``owners`` states ``brand -> "own" | "third_party"`` for a brand no other module has stated;
-    the spec registers them in ``OWNERS`` when it is built, so a row's ``doc()`` finds its owner
-    after the spec's own import, whatever else ran (gen#994).
+    ``owners`` states ``brand -> "own" | "third_party"`` for the spec's brands. Nothing is written
+    when the spec is built: :func:`brand_owners.table` reads every spec's ``owners`` with the other
+    sources and raises when two give one brand different owners, so a row's ``doc()`` finds its
+    owner whatever was imported first (gen#994, gen#1039).
     A clothing, footwear or lingerie type carries ``apparel`` (its :class:`ApparelPlan` of
     text-match decoys, gen#311) or ``apparel_exempt`` (the reason it carries none); a type of any
     other department carries neither. :mod:`decoy_apparel` reads the plan from the registry.
@@ -170,16 +171,8 @@ class TypeSpec:
     options: tuple[Option, ...] = ()
     homes: tuple[Home, ...] = ()
 
-    def __post_init__(self) -> None:
-        self.register_owners()
-
-    def register_owners(self) -> None:
-        """Add ``owners`` to :data:`breadth_rows.OWNERS`, keeping a brand another module states."""
-        OWNERS.update({b: o for b, o in self.owners if b not in OWNERS})
-
     def docs(self) -> list[dict]:
         """The catalog documents: the rows, then the decoys."""
-        self.register_owners()
         return [r.doc() for r in self.rows] + [d.row.doc() for d in self.decoys]
 
 
@@ -334,14 +327,7 @@ def specs() -> dict[str, TypeSpec]:
         if spec.key != info.name:
             raise SpecError(f"type_specs/{info.name}.py declares key {spec.key!r}: name the file")
         validate(spec)
-        # A row read from the registry builds its document before any build has run (gen#1040).
-        spec.register_owners()
         found[spec.key] = spec
-    # A spec's rows give their documents once the registry has loaded it, whatever else was
-    # imported first (gen#1039): the owners are registered here, not only by docs(), and after
-    # every spec is validated, so no spec's validation leans on another spec's owners.
-    for spec in found.values():
-        OWNERS.update({b: o for b, o in spec.owners if b not in OWNERS})
     seen: dict[tuple[str, str], str] = {}
     for spec in found.values():
         other = seen.setdefault((spec.department, spec.product_type), spec.key)

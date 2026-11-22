@@ -16,6 +16,7 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -1362,8 +1363,9 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
     a brand no row carries yet (``Meadowgate Dairy`` was own in ``class_model`` and third party
     in ``grocery_rows``, and split the moment a class row and a grocery row both used it).
 
-    Guard: every module-level ``OWNERS`` / ``BRAND_OWNER`` dict of the retail modules, not a
-    list of three. Metric: the brands with two values, in the failure message.
+    Guard: every module-level ``OWNERS`` / ``BRAND_OWNER`` table of the retail modules (a dict, or
+    the read-only base table of ``breadth_row``), not a list of three. Metric: the brands with two
+    values, in the failure message.
     """
     from synthetic_ecommerce_data.domains.retail import (
         class_model,  # noqa: F401
@@ -1377,7 +1379,7 @@ def test_no_two_owner_tables_give_one_brand_two_owners():
             continue
         for attr in ("OWNERS", "BRAND_OWNER"):
             table = getattr(mod, attr, None)
-            if isinstance(table, dict):
+            if isinstance(table, Mapping):
                 tables += 1
                 for brand, owner in table.items():
                     owners[brand].setdefault(owner, f"{name}.{attr}")

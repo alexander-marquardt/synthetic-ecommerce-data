@@ -10,7 +10,7 @@ or a left-handed player.
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import CLUBS, LARCHMERE, OWNERS
+from synthetic_ecommerce_data.domains.retail.fishing_golf_rows import CLUBS, LARCHMERE, OWNED
 from synthetic_ecommerce_data.domains.retail.sports_helpers import (
     _H,
     _L,
@@ -41,7 +41,7 @@ SPEC = TypeSpec(
     department="Sports & Outdoors",
     product_type="Golf Club",
     derivable=True,
-    owners=OWNERS,
+    owners=OWNED,
     options=(Option("handedness", "handedness", "Handedness"),),
     rows=(
         _row("GCLDRV", "Graphite Driver Golf Club", LARCHMERE, CLUBS, "Golf Club", 149.0, "golf_club",

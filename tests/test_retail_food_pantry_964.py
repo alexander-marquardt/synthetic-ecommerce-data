@@ -74,15 +74,11 @@ def test_each_type_has_unique_ids_titles_and_twin_keys(food, ptype) -> None:
 
 
 def _spec(ptype: str) -> type_registry.TypeSpec:
-    """The type's spec, its brands' owners stated as the build states them.
-
-    ``TypeSpec.docs`` adds the spec's ``owners`` to ``breadth_row.OWNERS``; a row's ``doc()``
-    alone reads them. Without this call a case passed only after another test of the process had
-    built the catalogue, and failed on a CI shard that ran it first (gen#1037).
+    """The type's spec. A row's ``doc()`` reads its brand's owner from ``brand_owners.table()``,
+    which reads every spec's ``owners`` itself, so no case needs another test of the process to
+    have built the catalogue first (gen#1037, gen#1039).
     """
-    spec = type_registry.specs()[KEYS[ptype]]
-    spec.docs()
-    return spec
+    return type_registry.specs()[KEYS[ptype]]
 
 
 @pytest.mark.parametrize("ptype", TYPES)

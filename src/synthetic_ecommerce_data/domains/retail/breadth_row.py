@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import zlib
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 
 from synthetic_ecommerce_data.domains.retail import brand_owners
 from synthetic_ecommerce_data.domains.retail.departments import (
@@ -18,10 +20,11 @@ from synthetic_ecommerce_data.domains.retail.variants import (
     swatch,
 )
 
-#: Who makes each brand these rows carry: the retailer ("own") or another house. Other modules add
-#: their brands when imported; read an owner through :func:`brand_owners.owner`, which imports
-#: them all first, so the answer does not depend on import order (gen#1039).
-OWNERS = {
+#: Who makes each brand these rows carry: the retailer ("own") or another house. The base table,
+#: read-only: other modules state their brands in an ``OWNED`` constant and no module writes here.
+#: Read an owner through :func:`brand_owners.owner`, which merges them all, so the answer does not
+#: depend on import order (gen#1039).
+OWNERS: Mapping[str, str] = MappingProxyType({
     "Little Fernby": "own", "Puddlecombe Toys": "third_party",
     "Thistle & Wren": "third_party", "Fenwold Nursery": "third_party",
     "Lanternby": "third_party", "Calderby & Lune": "third_party",
@@ -46,7 +49,7 @@ OWNERS = {
     "Gorsecliff": "third_party", "Rindlemoor": "third_party", "Tolvaney": "third_party",
     "Ostlebury": "third_party", "Wattlebrook": "third_party", "Pipkinford": "third_party",
     "Hessenby": "third_party",
-}  # fmt: skip
+})  # fmt: skip
 
 
 @dataclass(frozen=True)

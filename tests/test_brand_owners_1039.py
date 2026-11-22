@@ -4,13 +4,15 @@
 when they are imported. So a row's document depended on import order: in a fresh interpreter
 ``electronics_rows.LAPTOPS[0].doc()`` raised ``KeyError: 'Halvern'``, and gave ``third_party``
 once ``type_registry.specs()`` had run. A test passed or failed by which test files shared its
-CI worker (``tests (12)`` of synth#1020). ``brand_owners.table()`` imports every module that
-states owners before it answers. These checks run in fresh interpreters, one per first import,
-so nothing an earlier test imported can fill the table for them.
+CI worker (``tests (12)`` of synth#1020). Now no module writes the table: each states its brands
+in an ``OWNED`` constant, and ``brand_owners.table()`` merges those, every spec's ``owners`` and
+the base table, raising when two give one brand different owners. These checks run in fresh
+interpreters, one per first import, so nothing an earlier test imported can fill the table.
 """
 
 from __future__ import annotations
 
+import ast
 import functools
 import json
 import re
@@ -88,22 +90,64 @@ def test_brand_owner_is_the_same_whatever_was_imported_first(first: str) -> None
     assert got["table"] == baseline()["table"]
 
 
-#: A line that adds to the breadth ``OWNERS`` dict: ``OWNERS.update(``, ``OWNERS.setdefault(``
-#: or ``OWNERS[brand] = ``.
-WRITE = re.compile(r"\bOWNERS(\.update\(|\.setdefault\(|\[[^]]+\]\s*=[^=])")
+#: A line that adds to an ``OWNERS`` table: ``OWNERS.update(``, ``OWNERS.setdefault(`` or
+#: ``OWNERS[brand] = ``, also under an alias that ends in ``OWNERS`` (``_BREADTH_OWNERS``).
+WRITE = re.compile(r"OWNERS(\.update\(|\.setdefault\(|\[[^]]+\]\s*=[^=])")
 
 
-def test_every_module_that_writes_owners_is_a_source_of_the_table() -> None:
-    """A module that adds owners at import and is not in ``SOURCES`` would make ``table()``
-    miss its brands. Spec modules are walked, and ``type_registry`` only registers specs."""
-    writers = {
-        p.stem
-        for p in RETAIL.glob("*.py")
-        if WRITE.search(p.read_text()) and p.stem not in {"type_registry", "brand_owners"}
-    }
-    assert writers, "the pattern found no writer: it no longer matches how modules add owners"
-    assert sorted(writers - set(brand_owners.SOURCES)) == []
-    assert sorted(set(brand_owners.SOURCES) - writers) == []
+def test_no_module_writes_an_owner_when_it_is_imported() -> None:
+    """An import-time write makes an owner depend on what was imported first; a module states its
+    brands in ``OWNED`` instead (gen#1039)."""
+    assert WRITE.search('_BREADTH_OWNERS.setdefault(b, o)\nOWNERS["Knacks"] = "own"\n')
+    writes = [
+        f"{p.relative_to(RETAIL)}:{n}"
+        for p in sorted(RETAIL.rglob("*.py"))
+        for n, line in enumerate(p.read_text().splitlines(), 1)
+        if WRITE.search(line)
+    ]
+    assert writes == []
+
+
+def _states_owned(path: Path) -> bool:
+    """True when the module binds ``OWNED`` at its top level."""
+    for node in ast.parse(path.read_text()).body:
+        targets = node.targets if isinstance(node, ast.Assign) else [getattr(node, "target", None)]
+        if any(isinstance(t, ast.Name) and t.id == "OWNED" for t in targets):
+            return True
+    return False
+
+
+def test_every_module_that_states_owned_is_a_source_of_the_table() -> None:
+    """A module whose ``OWNED`` is not in ``SOURCES`` would make ``table()`` miss its brands, and a
+    source without ``OWNED`` would fail when the table is read. Spec modules are walked."""
+    stating = {p.stem for p in RETAIL.glob("*.py") if _states_owned(p)}
+    assert stating, "no module states OWNED: the check no longer matches how modules state owners"
+    assert sorted(stating - set(brand_owners.SOURCES)) == []
+    assert sorted(set(brand_owners.SOURCES) - stating) == []
+
+
+def test_two_sources_that_disagree_on_a_brand_raise_naming_both() -> None:
+    """No first-wins rule hides a disagreement: ``beach_towel`` said ``Harbour & Pine`` was third
+    party while 33 other sources said own, and the import-time writes dropped it silently."""
+    agree = [
+        ("a.OWNED", (("Larkmoor", "own"),)),
+        ("b.OWNED", (("Larkmoor", "own"), ("Fenmere", "third_party"))),
+    ]
+    assert brand_owners.merge(agree) == {"Larkmoor": "own", "Fenmere": "third_party"}
+    disagree = [*agree, ("type_specs/beach_towel.py", (("Larkmoor", "third_party"),))]
+    with pytest.raises(brand_owners.OwnerConflict) as err:
+        brand_owners.merge(disagree)
+    assert "'Larkmoor'" in str(err.value)
+    assert "a.OWNED" in str(err.value) and "type_specs/beach_towel.py" in str(err.value)
+
+
+def test_every_source_of_the_table_agrees_on_every_brand() -> None:
+    """The base table, each ``OWNED`` and each spec's ``owners`` give each brand one owner."""
+    names = [name for name, _ in brand_owners.sources()]
+    assert "breadth_row.OWNERS" in names and "hair_rows.OWNED" in names
+    assert "type_specs/beach_towel.py" in names
+    assert brand_owners.merge(brand_owners.sources()) == dict(brand_owners.table())
+    assert brand_owners.table()["Harbour & Pine"] == "own"
 
 
 #: Validates a copy of the ``plasters`` spec whose one row sells ``Tallow Street``, a brand only

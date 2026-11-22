@@ -18,7 +18,6 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.domains.retail.accessory_rows import ARow, _a, _count, _num, _who
 from synthetic_ecommerce_data.domains.retail.audience import UNISEX
-from synthetic_ecommerce_data.domains.retail.breadth_rows import OWNERS
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
 PATH = ("Womens", "Accessories", "Travel")
@@ -30,8 +29,6 @@ TARNWICK, FENMOOR, SKERRY, MARROWGATE, PELLBROOK, WRENFIELD = (
 )  # fmt: skip
 #: The brands this module states: the other three are in ``accessory_rows`` already.
 OWNED = ((TARNWICK, "third_party"), (FENMOOR, "third_party"), (SKERRY, "own"))
-
-OWNERS.update(dict(OWNED))
 
 RED = cw("Red", "#c8312e")
 BLUE = cw("Blue", "#3f6fb5")
