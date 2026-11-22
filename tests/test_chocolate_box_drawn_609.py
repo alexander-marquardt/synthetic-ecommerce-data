@@ -1,8 +1,9 @@
 """A chocolate selection box is drawn as a flat selection box (gen#609), not as the kit's carton.
 
-The CHX family draws the ``chocolate_box`` pack shape: a wide, shallow lidded box seen at a slight
-angle, a ribbon across the lid. The pack scale (gen#543) still draws a 150g box smaller than a 400g
-one on the same sheet, and the range name and the flavour-color band (the brand band) stay.
+The CHX family draws the ``chocolate_box`` pack shape: an opened box seen from a little above, its
+lid standing behind it with a ribbon, the chocolates on its tray (gen#1125). A 150g box draws
+itself smaller than a 400g one on the same sheet, and the range name and the flavour-color band
+(the brand band) stay.
 """
 
 from __future__ import annotations
@@ -55,9 +56,11 @@ def test_no_chocolate_selection_style_is_drawn_with_the_generic_box() -> None:
     assert {r["drawing"]["shape"] for r in recs} == {"chocolate_box"}
 
 
-def test_the_chocolate_box_is_wide_and_shallow() -> None:
+def test_the_chocolate_box_is_opened_on_its_tray() -> None:
+    svg = kit.render("chocolate_box", FILL, "Chocolates")
     width, height = size(kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
-    assert width >= 2 * height  # the carton it replaces is taller than wide
+    assert width >= height  # a box, wider than it stands with its lid behind it
+    assert 'class="tray"' in svg and 'class="chocolate"' in svg
 
 
 def test_the_lid_carries_a_ribbon() -> None:
@@ -70,10 +73,15 @@ def test_a_400g_box_is_visibly_larger_than_a_150g_one() -> None:
     by_size = {s["pack_size"]: s for s in rec["skus"]}
     small = drawn_scale(image_release.render(rec, by_size["150g"], styled=False).decode())
     big = drawn_scale(image_release.render(rec, by_size["400g"], styled=False).decode())
-    width, height = size(kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates"))
-    assert big == 1.0  # the line's largest size is drawn at the shape's natural size
-    assert small < 0.8 * big  # so a 150g box is drawn well under a 400g one
-    assert width <= 400 and height <= 400  # on the one sheet, whatever the scale
+    assert small == big == 1.0  # the box draws its own weight (gen#1125): no pack factor
+    small_w, _ = size(
+        kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates", pack_size="150g")
+    )
+    width, height = size(
+        kit.shapes()["chocolate_box"]("#8a5a3c", FILL, "Chocolates", pack_size="400g")
+    )
+    assert small_w < 0.9 * width  # so a 150g box is drawn under a 400g one
+    assert width <= 400 and height <= 400  # on the one sheet
 
 
 @pytest.mark.parametrize("line", ["Ingleby Organic", "Fresh Hearth"])

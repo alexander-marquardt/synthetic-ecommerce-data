@@ -1,4 +1,4 @@
-"""A chocolate bar fills its picture and shows its chocolate (gen#1125, slice 1).
+"""A chocolate bar, box and sharing bag fill their picture and show their chocolate (gen#1125).
 
 Before gen#1125 every chocolate bar was the grocery kit's generic ``bar``: a flat wrapper in the
 flavour's color that covered about a fifth of the product area at 100g, with the chocolate seen
@@ -7,7 +7,9 @@ segmented block, glossed, with broken pieces in front, and a multipack is a stac
 is the share of the product area the house style frames (``TURN_AREA``) the drawing paints,
 measured by :mod:`sheet_cover` as gen#1111 measures produce; the ground shadow does not count.
 A bar shows its weight itself (a 100g block is smaller than a 200g one), so no pack factor
-shrinks it under the floor.
+shrinks it under the floor. Slice 2 does the same for the boxes (``chocolate_box``, opened on
+its tray of chocolates) and the sharing bags (``chocolate_bag``, its buttons or bites in a
+window and spilled in front).
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ from synthetic_ecommerce_data.domains.retail import (
     sheet_cover,
     sheet_extent,
 )
+from synthetic_ecommerce_data.domains.retail.grocery_families import chocolate_of
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
 from synthetic_ecommerce_data.domains.retail.kit import Fill
 from synthetic_ecommerce_data.domains.retail.kit_chocolate import CHOCOLATE
@@ -187,3 +190,139 @@ def test_every_bar_style_draws_the_chocolate_its_flavour_is_made_of() -> None:
 )
 def test_a_decoy_bar_names_its_chocolate(kind: str, chocolate: str) -> None:
     assert dict(decoy_rows.KINDS[kind].params)["chocolate"] == chocolate
+
+
+#: The box and bag families, and the shape each draws.
+PACK_SHAPES = {"CHX": "chocolate_box", "CSB": "chocolate_bag"}
+
+
+@functools.lru_cache(maxsize=1)
+def _pack_records() -> tuple[dict, ...]:
+    codes = tuple(f"GRC-{c}-" for c in PACK_SHAPES)
+    return tuple(r for r in grocery.build(grocery.TARGET) if r["product_id"].startswith(codes))
+
+
+def _pack_cases() -> list[tuple[str, str, str, str | None]]:
+    """(family, flavour, color, pack size) for every flavour of a box or bag family, at every
+    pack size its family sells and with none."""
+    out = []
+    for fam in grocery.FAMILIES:
+        if fam.code in PACK_SHAPES:
+            out += [(fam.code, f.name, f.hex, p) for f in fam.flavors for p in (*fam.packs, None)]
+    return out
+
+
+def _pack_parts(code: str, flavor: str, base: str, pack_size: str | None) -> list[str]:
+    """The family's shape drawn as the build asks: its own pack size, chocolate and piece."""
+    params: dict = {
+        "pack_size": pack_size,
+        "chocolate": chocolate_of(grocery_families_flavor(code, flavor)),
+    }
+    if code == "CSB":
+        params["piece"] = "buttons" if "Buttons" in flavor else "bites"
+    return kit.shapes()[PACK_SHAPES[code]](
+        base, Fill("solid", base, "#ffffff"), "Chocolates", **params
+    )
+
+
+def grocery_families_flavor(code: str, name: str):
+    fam = next(f for f in grocery.FAMILIES if f.code == code)
+    return next(f for f in fam.flavors if f.name == name)
+
+
+def test_every_box_and_bag_family_draws_its_chocolate_shape() -> None:
+    shapes = {r["product_id"][4:7]: r["drawing"]["shape"] for r in _pack_records()}
+    assert shapes == PACK_SHAPES
+
+
+def test_every_box_and_bag_fills_half_its_product_area() -> None:
+    cases = _pack_cases()
+    assert {("CHX", "150g"), ("CHX", "400g"), ("CSB", "150g")} <= {(c, p) for c, _, _, p in cases}
+    under = {
+        (code, name, pack): round(share, 3)
+        for code, name, base, pack in cases
+        if (share := _fill(_pack_parts(code, name, base, pack))) < FLOOR
+    }
+    first = dict(list(under.items())[:6])
+    assert not under, f"{len(under)} under {FLOOR:.0%} of the product area, first: {first}"
+
+
+@pytest.mark.parametrize(
+    ("code", "small", "big"), [("CHX", "150g", "400g"), ("CSB", "150g", "250g")]
+)
+def test_a_heavier_box_or_bag_draws_larger(code: str, small: str, big: str) -> None:
+    name = "Classic Milk" if code == "CHX" else "Milk Chocolate Buttons"
+    base = grocery_families_flavor(code, name).hex
+    assert (
+        _fill(_pack_parts(code, name, base, small))
+        < _fill(_pack_parts(code, name, base, big)) - 0.04
+    )
+
+
+def test_every_box_and_bag_draws_inside_its_sheet() -> None:
+    past = {
+        (code, pack): round(over, 1)
+        for code, name, base, pack in _pack_cases()
+        if (over := sheet_extent.overrun(_svg(_pack_parts(code, name, base, pack)), 400.0)) > 0
+    }
+    assert not past, f"packs drawn past the sheet, by units: {past}"
+
+
+GLOSSED = [
+    ("CHX", "Dark Truffle", 12),
+    ("CSB", "Milk Chocolate Buttons", 10),
+    ("CSB", "Caramel Milk Chocolate Bites", 10),
+]
+
+
+@pytest.mark.parametrize(("code", "name", "least"), GLOSSED)
+def test_the_box_and_bag_show_their_chocolates_glossed(code: str, name: str, least: int) -> None:
+    svg = "".join(_pack_parts(code, name, grocery_families_flavor(code, name).hex, "150g"))
+    gloss = re.search(r'<linearGradient id="([^"]+)"', svg)
+    assert gloss, "no gloss gradient"
+    chocolate = re.findall(r'<g class="chocolate"[^>]*>(.*?)</g>', svg)
+    assert len(chocolate) >= least, len(chocolate)
+    assert all(f"url(#{gloss[1]})" in g for g in chocolate)
+
+
+def test_a_larger_box_holds_more_chocolates() -> None:
+    def count(pack: str) -> int:
+        svg = "".join(_pack_parts("CHX", "Praline", "#9a6a44", pack))
+        return svg.count('<g class="chocolate"')
+
+    assert count("150g") < count("250g") < count("400g")
+
+
+def test_a_box_draws_its_own_chocolate_and_a_second_one() -> None:
+    fills = _chocolate_fills(_pack_parts("CHX", "Dark Truffle", "#3b2416", "400g"))
+    assert {CHOCOLATE["dark"], CHOCOLATE["milk"]} <= fills
+
+
+def test_a_sharing_bag_draws_the_pieces_its_flavour_names() -> None:
+    pieces = {
+        r["drawing"]["params"].get("piece")
+        for r in _pack_records()
+        if r["product_id"].startswith("GRC-CSB")
+    }
+    assert pieces == {"buttons", "bites"}
+    buttons = _pack_parts("CSB", "Milk Chocolate Buttons", "#8a5a3c", "250g")
+    bites = _pack_parts("CSB", "Caramel Milk Chocolate Bites", "#8a5a3c", "250g")
+    assert buttons != bites
+
+
+@pytest.mark.parametrize(
+    ("code", "name", "base"), [(c, n, b) for c, n, b, p in _pack_cases() if p == "150g"]
+)
+def test_every_box_and_bag_stands_out_on_white_paper(code: str, name: str, base: str) -> None:
+    wrapper = _wrapper(_pack_parts(code, name, base, "150g"))
+    assert wrapper is not None, "no wrapper"
+    assert _contrast(wrapper, "#ffffff") >= 3.0, (name, wrapper)
+    assert _contrast(wrapper, kit.PAPER) >= 3.0, (name, wrapper)
+
+
+def test_each_box_and_bag_sku_draws_its_own_pack_size_unscaled() -> None:
+    for rec in _pack_records():
+        for sku in rec["skus"]:
+            spec = export.drawing_spec(rec, sku)
+            assert spec.get("params", {}).get("pack_size") == sku["pack_size"], sku["sku"]
+            assert "pack_scale" not in spec and "pack_count" not in spec, (sku["sku"], spec)

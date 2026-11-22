@@ -72,7 +72,7 @@ reasoned line in `main_colors.EXCEPTIONS` (`tests/test_retail_main_colors_275.py
 
 * Who owns a brand: `owners=(("Brand", "own"),)` in the spec (`type_registry.TypeSpec`); an
   older row module states the same pairs in a module-level `OWNED` and goes in `brand_owners.SOURCES`.
-  `breadth_rows.OWNERS` is the read-only base table and no module writes an owner at import: `doc()` reads `brand_owners.owner()`, whose `table()` merges the base table, every `OWNED` and every spec's `owners`, and raises `OwnerConflict` naming the brand and both sources when two disagree (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and a `KeyError` when an older module's document is built.
+  `breadth_rows.OWNERS` is the read-only base table and no module writes an owner at import: `doc()` reads `brand_owners.owner()`, whose `table()` merges the base table, every `OWNED` and every spec's `owners`, and raises `OwnerConflict` naming the brand and both sources when two disagree (gen#1039, `tests/test_brand_owners_1039.py`). A row whose brand has no owner is a `SpecError` from `type_registry.validate` for a spec row, and, for a module-level row of any retail module, an `UnownedBrand` naming module, row code and brand from `owned_rows.check()`, which `scale.templates()` runs before it builds a document, never a `KeyError` at the row's first `doc()` (`tests/test_owned_rows_1039.py`).
 * Every brand also needs one row in `house_styles.HOUSE_STYLES` (the frame, outline and
   its own mark), or its image cannot render:
   `tests/test_retail_scale.py::test_every_brand_in_the_build_has_a_house_style`.
