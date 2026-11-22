@@ -20,7 +20,8 @@ from synthetic_ecommerce_data.domains.retail import pack_scale
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "src/synthetic_ecommerce_data/domains/retail/pack_scale_families"
 
-#: The tables on main before the split (d96084e3): the move changes no shape and no floor.
+#: The tables on main before the split (d96084e3), plus the shapes added since (#1125):
+#: the move changes no shape and no floor.
 SELF_SIZED_BEFORE = frozenset(
     {
         "produce_pile",
@@ -32,6 +33,8 @@ SELF_SIZED_BEFORE = frozenset(
         "chocolate_bar",
         "chocolate_box",
         "chocolate_bag",
+        "hot_chocolate",
+        "chocolate_orange",
     }
 )
 SHAPE_FLOORS_BEFORE = {"loaf": 0.9}
