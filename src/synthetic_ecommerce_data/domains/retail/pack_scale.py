@@ -9,27 +9,17 @@ grow: half the content is a pack about 0.79 as tall.
   before and keep their image ids.
 - THE FLOOR is :data:`FLOOR`: a size below about a fifth of the largest still draws at 0.6, so it
   stays legible. A shape drawn to fill its picture has its own, higher floor
-  (:data:`SHAPE_FLOORS`: a loaf's 400g draws at 0.9 of its 800g, gen#1126).
+  (:data:`SHAPE_FLOORS`).
 - THE CONTENT is the SKU's ``net_volume_ml`` or ``net_weight_g`` (a multipack's is its total). A
   count (``units_per_pack``) stands in only where there is no content and only in
   :data:`COUNT_DEPARTMENTS`: a pack of six cans is bigger than a single can, but a pack of three
   bodysuits holds the same bodysuit, so a garment is never scaled by its count.
 - A PACK OF ITEMS takes no factor: its copies show its size (:mod:`pack_copies`, gen#728), and a
   factor on top would shrink the items twice.
-- A PILE OF FRUIT takes no factor either: its count shows its size (a Single is one fruit, 1 kg a
-  bag of several, gen#1111). A factor set a Single's count of 1 against 1 kg's 1000 g and drew
-  the one fruit at the floor.
-- A CHOCOLATE BAR takes none: it draws its weight and its multipack itself (gen#1125), so a 100g
-  bar keeps half its product area.
-- A WINE BOTTLE takes no factor: it draws its own size against its line's largest, at the
-  bottle's real proportions and never below 0.8 of the largest's height (``kit_drinks``,
-  gen#1127). A factor drew a half bottle at 0.63 of the magnum, in a mostly empty frame. A SOFT
-  DRINK neither (``kit_soft_drinks``): its bottle steps down as a wine bottle does, and its can
-  and multipack of cans fill half the product area.
-- NOR DOES A MILK JUG OR CARTON (``milk_jug``, ``milk_carton``, gen#1128): each pint or litre
-  size is drawn in its own proportions and fills half its picture, where a factor drew a 1 pint
-  at 0.63 and a fifth of its product area. A YOGHURT (``yogurt``) draws its 4 x 125g as 4 pots
-  and its 500g as one tub, each filling half its picture.
+- A SHAPE THAT DRAWS ITS OWN SIZE takes no factor (:data:`SELF_SIZED`). Each family of such
+  shapes, and each shape with its own floor, is a module of :mod:`pack_scale_families` that says
+  why (#1151): both tables are built by walking that package, so a family adds or edits its own
+  module there and this file gains no line.
 - THE CANVAS is unchanged: :func:`wrap` scales the pack about the bottom center of its bounding
   box, so every size of a line stands on one baseline and one center line of the same 400 x 400
   sheet.
@@ -41,33 +31,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from synthetic_ecommerce_data.domains.retail import pack_copies
+from synthetic_ecommerce_data.domains.retail import pack_copies, pack_scale_families
 
 #: The smallest factor: a tiny size still draws at this share of the largest.
 FLOOR = 0.6
-#: Shape -> its own smallest factor, over :data:`FLOOR`. A loaf is drawn to fill its picture, and
-#: its 400g at the cube root (0.79) covered under half the product area: it is drawn at 0.9 of
-#: its 800g, still the smaller loaf, so every size holds the fill floor (gen#1126).
-SHAPE_FLOORS = {"loaf": 0.9}
 #: The content keys, in the order they are read: a total content beats a count.
 CONTENT_KEYS = ("net_volume_ml", "net_weight_g")
-#: The shapes whose drawing shows its own size, which take no factor: a pile by its count
-#: (gen#1111), a wine bottle (gen#1127), a soft drink (gen#1127), a milk jug, carton or yogurt
-#: (gen#1128), a chocolate bar by its weight or multipack, a chocolate box or sharing bag by its
-#: weight (gen#1125).
-SELF_SIZED = frozenset(
-    {
-        "produce_pile",
-        "wine_bottle",
-        "soft_drink",
-        "milk_jug",
-        "milk_carton",
-        "yogurt",
-        "chocolate_bar",
-        "chocolate_box",
-        "chocolate_bag",
-    }
-)
+#: The shapes whose drawing shows its own size, which take no factor, and shape -> its own
+#: smallest factor over :data:`FLOOR`: one module of :mod:`pack_scale_families` per family.
+SELF_SIZED, SHAPE_FLOORS = pack_scale_families.tables()
 #: The count key, and the departments whose pack it sizes.
 COUNT_KEY = "units_per_pack"
 COUNT_DEPARTMENTS = frozenset({"Food & Drink", "Beauty"})
