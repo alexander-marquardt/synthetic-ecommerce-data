@@ -105,7 +105,7 @@ PARAMS = {
 
 @pytest.mark.parametrize("shape", PARAMS)
 def test_a_param_changes_the_drawing(shape) -> None:
-    assert shape in kit.SHAPES, f"no {shape} shape is registered"
+    assert shape in kit.shapes(), f"no {shape} shape is registered"
     key, one, other = PARAMS[shape]
     fill = kit.Fill("solid", "#3f6fb5", "#f4f1ea")
     assert kit.render(shape, fill, params={key: one}) != kit.render(shape, fill, params={key: other})

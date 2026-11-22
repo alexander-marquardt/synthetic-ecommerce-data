@@ -137,7 +137,7 @@ def test_every_type_has_three_styles_from_three_invented_brands(ptype: str) -> N
 def test_every_style_draws_as_the_types_own_shape(ptype: str) -> None:
     shape = TYPES[ptype][1]
     assert {r.shape for r in _rows(ptype)} == {shape}
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     assert [p for p, t in TYPES.items() if t[1] == shape] == [ptype], "one shape per type"
 
 
@@ -203,7 +203,7 @@ def test_puffer_jacket_is_a_spec_that_owns_its_rows() -> None:
 @pytest.mark.parametrize("variant", VARIANTS, ids=IDS)
 def test_a_shapes_param_changes_the_drawing(variant: tuple) -> None:
     shape, param, readings = variant
-    assert shape in kit.SHAPES, f"no {shape} shape registered"
+    assert shape in kit.shapes(), f"no {shape} shape registered"
     drawn = [_svg(shape=shape, **{param: r}) for r in readings]
     assert len(set(drawn)) == len(readings), "every reading draws differently"
     assert _svg(shape=shape) == drawn[0], "the default is the first reading"

@@ -102,7 +102,7 @@ def test_a_type_draws_its_own_shape_and_the_variant_param_changes_the_picture(ke
     rows = _spec(key).rows
     assert rows
     assert {r.shape for r in rows} == {shape}
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     assert _svg(shape, **{param: one}) != _svg(shape, **{param: two})
     seen = {dict(r.params).get(param) for r in rows}
     assert len(seen) >= 2, f"the styles all draw the same {param}"

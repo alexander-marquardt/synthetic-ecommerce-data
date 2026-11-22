@@ -48,7 +48,7 @@ def crust_rx(svg: str) -> float:
 
 def test_the_pizza_family_has_its_own_container() -> None:
     assert PIZ.shape == "pizza"
-    assert "pizza" in kit.SHAPES
+    assert "pizza" in kit.shapes()
 
 
 def test_the_pizza_is_round_on_a_card_under_film() -> None:

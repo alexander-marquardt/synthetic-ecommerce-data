@@ -57,7 +57,7 @@ _NOT_HELD = sorted(s for shapes in NOT_HELD.values() for s in shapes)
 def test_the_review_lists_78_registered_shapes_once():
     kit.register_all()
     assert len(_NOT_HELD) == len(set(_NOT_HELD)) == 78
-    assert sorted(set(_NOT_HELD) - set(kit.SHAPES)) == []
+    assert sorted(set(_NOT_HELD) - set(kit.shapes())) == []
 
 
 def test_a_shape_no_module_names_is_drawn_level():

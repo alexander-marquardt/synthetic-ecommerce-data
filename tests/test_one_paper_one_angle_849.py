@@ -252,7 +252,7 @@ def _drawn_industrial_types() -> set[str]:
 
 def _retail_shapes() -> set[str]:
     kit.register_all()
-    return set(kit.SHAPES)
+    return set(kit.shapes())
 
 
 @pytest.mark.parametrize(

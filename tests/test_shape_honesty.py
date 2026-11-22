@@ -101,7 +101,7 @@ def test_table_lamps_are_drawn_as_a_table_lamp() -> None:
 
 @pytest.mark.parametrize("shape", NEW_SHAPES)
 def test_a_new_shape_paints_the_records_color_and_pattern(shape: str) -> None:
-    assert shape in kit.SHAPES
+    assert shape in kit.shapes()
     solid = kit.render(shape, kit.Fill("solid", "#123456", "#654321"), uid="a")
     striped = kit.render(shape, kit.Fill("stripe", "#abcdef", "#fedcba"), uid="b")
     assert "#123456" in solid
@@ -129,7 +129,7 @@ def test_a_sock_drawing_shows_the_packs_pair_count() -> None:
 
 @pytest.mark.parametrize("stems", [5, 7, 9])
 def test_a_bouquet_draws_its_stem_count_with_its_foliage(stems: int) -> None:
-    assert "bouquet" in kit.SHAPES
+    assert "bouquet" in kit.shapes()
     svg = kit.render(
         "bouquet", kit.Fill("solid", "#b0182f"), params={"stems": str(stems), "foliage": "#d4af37"}
     )
@@ -282,7 +282,7 @@ def test_a_new_garment_part_is_drawn_by_its_kit_function() -> None:
     dress = _svg(kit_garments.shirt_dress("#7a8fb5", fill, None))
     assert dress.count("<circle") == 6, "six buttons"
     assert "M200,100 L200,364" in dress, "the center placket"
-    assert "M200,100 L200,364" not in _svg(kit.SHAPES["dress"]("#7a8fb5", fill, None))
+    assert "M200,100 L200,364" not in _svg(kit.shapes()["dress"]("#7a8fb5", fill, None))
 
 
 # --- gen#447 part 2: a title that names a part draws that part --------------------------------
@@ -331,7 +331,7 @@ NEW_PARTS = {
 def test_a_new_part_is_one_the_shape_shows(shape: str, part: str) -> None:
     assert part in details.parts_of(shape)
     fill = kit.Fill(detail=(part, "#c8322b"))
-    drawn = kit.SHAPES[shape]("#7a8fb5", fill, None)
+    drawn = kit.shapes()[shape]("#7a8fb5", fill, None)
     svg = details.overlay(shape, fill, drawn, "#7a8fb5", "t")
     assert f'data-part="{part}"' in svg and "#c8322b" in svg
 

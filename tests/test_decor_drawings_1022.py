@@ -42,7 +42,7 @@ def _count(svg: str, cls: str) -> int:
 def test_the_five_types_are_registered_with_their_param_tables() -> None:
     kit.register_all()
     assert set(kit_decor_pieces.PARAMS) == set(TYPES)
-    assert set(TYPES) <= set(kit.SHAPES)
+    assert set(TYPES) <= set(kit.shapes())
     for shape in TYPES:
         assert orientation.of(shape) == ORIENTATIONS[shape], shape
 

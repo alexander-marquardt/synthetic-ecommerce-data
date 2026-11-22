@@ -103,7 +103,7 @@ def _label_pairs(records: list[dict[str, Any]]) -> set[tuple[str, str]]:
 
 
 def test_every_drawn_shape_is_registered(records):
-    unknown = sorted({r["drawing"]["shape"] for r in records} - set(kit.SHAPES))
+    unknown = sorted({r["drawing"]["shape"] for r in records} - set(kit.shapes()))
     assert unknown == []
 
 

@@ -114,7 +114,7 @@ def test_the_type_has_three_styles_from_three_brands_under_its_path(key: str) ->
 @pytest.mark.parametrize("key", KEYS)
 def test_every_style_draws_as_the_types_own_shape(key: str) -> None:
     shape = TYPES[key][3]
-    assert shape in kit_baby.SHAPES and shape in kit.SHAPES
+    assert shape in kit_baby.SHAPES and shape in kit.shapes()
     spec = _spec(key)
     assert {r.code: r.shape for r in spec.rows if r.shape != shape} == {}
     assert shape not in ("box", "box_wide")

@@ -22,7 +22,7 @@ ARC = re.compile(r"A([\d.]+),([\d.]+) 0 0 ([01]) ([\d.]+),([\d.]+)")
 
 
 def label(shape: str) -> str:
-    return next(e for e in kit.SHAPES[shape](FILL.base, FILL, "Soup") if LABEL in e)
+    return next(e for e in kit.shapes()[shape](FILL.base, FILL, "Soup") if LABEL in e)
 
 
 def corners(d: str) -> list[tuple[float, float]]:
@@ -66,7 +66,7 @@ def test_the_word_sits_in_the_middle_of_the_band_below_its_top_edge(shape):
     rx, ry = (float(v) for v in ARC.findall(el)[0][:2])
     half = (x1 - x0) / 2
     sag = ry * (1 - (1 - (half / rx) ** 2) ** 0.5)
-    drawn = "".join(kit.SHAPES[shape](FILL.base, FILL, "Soup"))
+    drawn = "".join(kit.shapes()[shape](FILL.base, FILL, "Soup"))
     text = re.search(r'<text x="[\d.]+" y="([\d.]+)"[^>]*font-size="([\d.]+)"[^>]*>Soup<', drawn)
     middle = float(text.group(1)) - float(text.group(2)) * 0.35
     assert middle == pytest.approx((y0 + sag + y3) / 2, abs=0.1), shape

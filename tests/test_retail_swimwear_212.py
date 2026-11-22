@@ -139,7 +139,7 @@ def test_every_type_nests_under_the_swimwear_node_of_its_audience() -> None:
 def test_every_style_draws_as_its_own_swimwear_shape() -> None:
     own = {k: {r.shape for r in _rows(k)} for k in TYPES}
     assert own == {k: {k} for k in TYPES}
-    assert {k for k in TYPES if k not in kit.SHAPES} == set()
+    assert {k for k in TYPES if k not in kit.shapes()} == set()
 
 
 @pytest.mark.parametrize("key", sorted(TYPES))
