@@ -32,6 +32,7 @@ RETAIL = (
     "Pets",
     "Health",
     "Automotive",
+    "Books",
 )
 SHARED = (
     "Workwear & PPE",
