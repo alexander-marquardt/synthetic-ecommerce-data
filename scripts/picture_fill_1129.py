@@ -819,6 +819,7 @@ def industrial_sweep(catalog) -> tuple[list[dict], dict, dict[str, bytes], set[s
     product's siblings (its size rung and angle are the product's) as ``emit`` serves it."""
     from synthetic_ecommerce_data.core.drawing import draw_product  # noqa: PLC0415
     from synthetic_ecommerce_data.core.emit import drawing_record  # noqa: PLC0415
+    from synthetic_ecommerce_data.domains.industrial.tabletype import PACK  # noqa: PLC0415
 
     groups: dict[str, list[tuple]] = collections.defaultdict(list)
     served: dict[tuple[str, str], int] = collections.Counter()
@@ -828,8 +829,8 @@ def industrial_sweep(catalog) -> tuple[list[dict], dict, dict[str, bytes], set[s
         shapes[line.type_key] = (fn, *figure_kit(fn, line.type_key))
         records = [drawing_record(catalog, line, child) for child in line.children]
         for i, (child, record) in enumerate(zip(line.children, records, strict=True)):
-            pack = record.get("Units per Pack") if domain.is_pack_type(line.type_key) else None
-            key = (("Units per Pack", pack),) if pack else ()
+            pack = record.get(PACK) if domain.is_pack_type(line.type_key) else None
+            key = ((PACK, pack),) if pack else ()
             groups[line.type_key].append((line, records, i, child, key))
         served[(line.type_key, shapes[line.type_key][2])] += len(line.children)
     renders, svgs, kits = [], {}, set()

@@ -120,10 +120,10 @@ worst kits are `belt` (4%), `kit_footwear`, `kit_accessories` and `kit_garden` (
 
 ## With the industrial rows (e79f1382)
 
-There were 1,368 renders over 914 type rows, 174 of them industrial (15,281 SKUs in the default
+There were 1,368 renders over 914 type rows, 174 of them industrial (every SKU of the default
 industrial build), in 34 s on 32 vCPUs. Of the 914 rows, 642 are empty and 735 are flat. All 174
 industrial rows are flat and 163 are empty; their median area is 7%. 65 industrial types are out
-of scope as drawn to scale, and 109 are in scope: the 97 breadth types and
+of scope as drawn to scale, and 109 are in scope: the breadth types and
 `cut_resistant_gloves`, the 7 hammers, `household_tool_sets`, `kit_assortment`,
 `picture_hangers` and `safety_glasses`. The worst in-scope industrial pictures are
 `hammer_ball_pein` (3%), `picture_hangers` (3%) and `hammer_claw` (4%).
@@ -132,7 +132,7 @@ The render cost, measured on the agent VM (32 vCPU), is the same vCPU count as t
 VM (`alex-prism-generator-ci`, `c4d-highcpu-32`), so it scales one to one. It was not timed
 there, since no agent key runs a command on that VM. Retail took a median of 0.68 ms per SKU, a
 p95 of 2.5 ms and a mean of 1.0 ms, so 500,000 SKUs re-render in 16 s of wall time. Industrial
-took a median of 0.13 ms and a p95 of 0.36 ms, so its 15,281 SKUs take 0.08 s. That is render
+took a median of 0.13 ms and a p95 of 0.36 ms, so the whole industrial build takes under a second. That is render
 time only, not the build. A drawing in strokes only reads 0% by this fill method, such as the
 clothes hangers and the snowflake.
 
