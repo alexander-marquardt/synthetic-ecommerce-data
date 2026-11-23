@@ -1,7 +1,7 @@
 # Electronics: phones, computers, tablets, TVs and their accessories (gen#332, #721, #724)
 
 The department has 17 product types in `src/synthetic_ecommerce_data/domains/retail/type_specs/` (one spec each,
-besides the breadth leaf Batteries) and 212 template styles: 96 devices (smartphones, basic phones, laptops,
+besides the breadth leaf Batteries) and 212 template styles (before gen#1117's phone range, below): 96 devices (smartphones, basic phones, laptops,
 desktops, tablets, e-readers, TVs) and 116 accessories (phone cases, screen protectors, chargers, cables, earbuds,
 laptop sleeves, mice, keyboards, monitors, memory cards). The rows are in `electronics_rows.py`; the drawings are in
 `kit_electronics.py` (a house-style drawing per type). Prices, specs and stock are synthetic.
@@ -76,6 +76,31 @@ that follows it lands on the maker's own rows and on compatible rows from other 
 - A GrapePad case is in `Phone Cases`, with no new leaf, as a GrapePad protector is in `Screen
   Protectors`.
 - `tests/test_own_brand_accessories_724.py` holds the rows.
+
+## The phone range (gen#1117)
+
+The range was thin (265 smartphone SKUs, 89 cases, 21 screen protectors), so `phone_range_rows.py`
+adds 24 invented handsets and the accessories for every model; the gen#332 rows stay as they were.
+
+- A new smartphone (`BRD-EPR001` to `BRD-EPR024`) is sold by storage, color and `network_lock`
+  (`Unlocked` or `Carrier-locked`, the third SKU axis; a locked one costs 10% less). Its screen
+  size is an attribute.
+- Every smartphone, old or new, has a clear, a rugged and a wallet case (`BRD-ECR...`) and a
+  clear, a matte and a privacy screen protector (`BRD-ESR...`). A row is added only where that
+  model has none of that style.
+- `compatible_with` is the phone's `model_line`, our own model id, so a filter on it joins the
+  phone to its accessories, and the title ends `for <model line>`.
+- Each new phone has its own charger (`BRD-ECG...`: wall, wireless or car in turn). Six more
+  cables (`BRD-ECL...`) carry no model. Automotive's phone mounts gain a magnetic wireless
+  charging mount and a long-arm windshield mount, from each of their three brands.
+
+The range adds 1,204 SKUs over the issue's count: Smartphone 265 to 653, Phone Case 89 to 637,
+Screen Protector 21 to 167, Charger 35 to 91, Cable 88 to 142 and Phone Mount 52 to 64.
+
+Search demo: `"case for Halvern Arc 6"`. The words also match the cases of the Halvern Arc 6 Pro,
+the near-miss family: only the three whose `compatible_with` is `Halvern Arc 6` are right, and a
+filter on `compatible_with` (or a policy that reads the model from the query) leaves them.
+`tests/test_phone_range_1117.py` holds the counts, the per-model accessories and the demo.
 
 ## Decoys
 
