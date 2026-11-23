@@ -1,10 +1,10 @@
 """Suitcase (gen#209): hard and soft shell cases in cabin, medium and large, by wheels and lock.
 
-**Womens > Accessories > Travel > Suitcases**: four styles from four invented brands, drawn by
+**Home > Luggage & Travel > Suitcases**: eight styles from four invented brands, drawn by
 :func:`kit_luggage.suitcase` (``size``, ``shell``, ``wheels``). A SKU is a color times a size:
 the capacity in litres is the axis, and each litre carries its size name (Cabin, Medium, Large)
-and its weight in kilograms, so ``lightweight suitcase under 3 kg`` and ``red suitcase 65 litre``
-are range and equality filters on structured entries. Authored rows only (not derivable).
+its weight in kilograms and its dimensions in centimetres, so ``lightweight suitcase under 3 kg`` and ``red suitcase 65 litre``
+are range and equality filters on structured entries. A breadth type: the scaled build derives styles from the rows (gen#1114).
 The decoys (gen#294) are real suitcases whose title or description holds a word that fools a
 search: a red zip, the word weekend, a lock the case lacks.
 """
@@ -16,16 +16,21 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
-    EXEMPT,
+    BURGUNDY,
     FENMOOR,
     GREEN,
+    GREY,
     MARROWGATE,
     NAVY,
     OWNED,
+    PINK,
     RED,
+    SILVER,
     SKERRY,
     TARNWICK,
+    TEAL,
     WHITE,
+    WRENFIELD,
     YELLOW,
     a,
     luggage_row,
@@ -45,26 +50,47 @@ def _row(code, title, brand, price, desc, colors, shell, wheels, lock, expandabl
                        (("shell", shell), ("wheels", wheels)), extra=extra, **kw)  # fmt: skip
 
 
-_LIGHT = ((38, "Cabin", 2.4, 54.0), (65, "Medium", 3.1, 69.0), (95, "Large", 3.9, 84.0))
-_HEAVY = ((40, "Cabin", 3.0, 44.0), (70, "Medium", 3.9, 58.0), (100, "Large", 4.8, 72.0))
-_SOFT = ((35, "Cabin", 2.6, 34.0), (60, "Medium", 3.4, 46.0), (85, "Large", 4.2, 58.0))
+#: ``(litres, size, kg, price, dimensions)``: every cabin size is ``55 x 40 x 20 cm`` or within
+#: it, the size most airlines allow in the cabin (the demo's ``cabin suitcase 55x40x20``).
+_LIGHT = ((38, "Cabin", 2.4, 54.0, "55 x 40 x 20 cm"), (65, "Medium", 3.1, 69.0, "68 x 46 x 27 cm"),
+          (95, "Large", 3.9, 84.0, "78 x 52 x 31 cm"))
+_HEAVY = ((40, "Cabin", 3.0, 44.0, "55 x 40 x 20 cm"), (70, "Medium", 3.9, 58.0, "69 x 47 x 28 cm"),
+          (100, "Large", 4.8, 72.0, "79 x 54 x 32 cm"))
+_SOFT = ((35, "Cabin", 2.6, 34.0, "55 x 38 x 20 cm"), (60, "Medium", 3.4, 46.0, "67 x 44 x 27 cm"),
+         (85, "Large", 4.2, 58.0, "77 x 50 x 30 cm"))
 _ROWS = (
     _row("SUTPCB", "Polycarbonate Hard Shell Spinner Suitcase", TARNWICK, 54.0,
          "A lightweight hard shell suitcase in polycarbonate with four spinner wheels, a TSA lock "
          "and a telescopic handle. Expands by 4 cm for the trip home.",
-         (BLACK, NAVY, WHITE, YELLOW), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
+         (BLACK, NAVY, WHITE, YELLOW, GREY, RED), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
     _row("SUTABS", "ABS Hard Shell Suitcase, Two Wheel", FENMOOR, 44.0,
          "A tough ABS hard shell suitcase on two inline wheels with a TSA lock and a "
          "telescopic handle. Roomy and easy to roll over kerbs.",
-         (RED, BLUE, BLACK), "hard", "2", TSA, "No", "ABS", _HEAVY),
-    _row("SUTSFT", "Soft Shell Spinner Suitcase with Front Pocket", MARROWGATE, 34.0,
+         (RED, BLUE, BLACK, NAVY, GREY, GREEN), "hard", "2", TSA, "No", "ABS", _HEAVY),
+    _row("SUTSFT", "Soft Shell Spinner Suitcase with Front Pocket", WRENFIELD, 34.0,
          "A flexible polyester suitcase on four spinner wheels with a zipped front pocket for a "
          "laptop and papers. Expands for extra room.",
-         (GREEN, NAVY, BLACK), "soft", "4", "No", "Yes", "Polyester", _SOFT),
+         (GREEN, NAVY, BLACK, GREY, RED, BLUE), "soft", "4", "No", "Yes", "Polyester", _SOFT),
     _row("SUTSKY", "Lightweight Hard Shell Suitcase", SKERRY, 59.0,
          "A very light hard shell suitcase with a combination TSA lock, four spinner wheels and "
          "a lined interior with a divider.",
-         (WHITE, RED, GREEN, BLUE), "hard", "4", TSA, "No", "Polycarbonate", _LIGHT),
+         (WHITE, RED, GREEN, BLUE, BLACK, NAVY), "hard", "4", TSA, "No", "Polycarbonate", _LIGHT),
+    _row("SUTALU", "Aluminum Hard Shell Spinner Suitcase", TARNWICK, 119.0,
+         "A ribbed aluminum hard shell suitcase on four spinner wheels, with corner guards, a TSA "
+         "lock and a telescopic handle. Built to last for years of trips.",
+         (SILVER, BLACK, BLUE, NAVY, GREY, RED), "hard", "4", TSA, "No", "Aluminum", _HEAVY),
+    _row("SUTRCY", "Recycled Polyester Soft Spinner Suitcase", FENMOOR, 39.0,
+         "A soft suitcase woven from recycled polyester, on four spinner wheels with an expandable "
+         "zip and a padded top handle.",
+         (TEAL, GREY, BLACK, NAVY, RED, BLUE), "soft", "4", "No", "Yes", "Recycled Polyester", _SOFT),
+    _row("SUTLAP", "Hard Shell Suitcase with Laptop Pocket", SKERRY, 64.0,
+         "A hard shell suitcase with a padded front pocket that opens for a laptop, a TSA lock and "
+         "four spinner wheels.",
+         (NAVY, PINK, BLACK, GREY, RED, BLUE), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
+    _row("SUTUPR", "Soft Upright Suitcase, Two Wheel", FENMOOR, 32.0,
+         "A soft upright suitcase on two inline wheels, with a telescopic handle, two front pockets "
+         "and an expandable zip.",
+         (BURGUNDY, NAVY, GREY, BLACK, RED, BLUE), "soft", "2", "No", "Yes", "Polyester", _SOFT),
 )  # fmt: skip
 
 
@@ -77,7 +103,7 @@ def _decoy(cls, query, policy, code, title, desc, color, shell, wheels, lock, br
 
 SPEC = TypeSpec(
     key="suitcase",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     options=(
         Option("weight_kg", "weight", "Weight", "KGM"),
@@ -85,7 +111,7 @@ SPEC = TypeSpec(
     ),
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red suitcase", "color", "SUTDRZ", "Hard Shell Suitcase, Red Zips",
                "A black hard shell suitcase with red zip pulls and red trim on the handle.",
