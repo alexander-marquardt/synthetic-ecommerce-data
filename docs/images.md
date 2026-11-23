@@ -367,7 +367,8 @@ the file count are printed and written beside it as `.content-sha256`.
 industrial one is. What the file draws is keyed separately (`export.drawing_id`): the style and
 colorway, the pack scale (a smaller size of a line draws smaller, gen#543; see
 [the pack scale page](retail-prototype/pack-scale-543.md); a loaf's crust and form, gen#1126, are on
-[the bread page](retail-prototype/bread-1126.md)), the pack count (a pack of N draws N
+[the bread page](retail-prototype/bread-1126.md)), the net volume of a hand-written drink, which is
+its container (gen#1127, [the beer page](retail-prototype/beer-1127.md#hand-written-rows)), the pack count (a pack of N draws N
 items, gen#728; see [the pack copies page](retail-prototype/pack-copies-728.md)), and for a type that declares a
 size axis (`size_axes.AXES`) the size-ladder rung (`size_ladder.py`, gen#339, gen#719). SKUs that draw the same picture each get their own
 copy of it, so one SKU's color, size or shape can change later without moving another's image.
