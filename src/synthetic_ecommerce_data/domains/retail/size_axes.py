@@ -206,6 +206,7 @@ NOT_SIZES: dict[str, str] = {
     "net_weight_g": "a pack's content: pack_scale",
     "network_lock": "a kind: unlocked or carrier-locked, the phone drawn the same (gen#1117)",
     "pack_size": "a pack: pack_scale and pack_copies",
+    "platform": "a kind: the machine a game is sold for, its box drawn the same",
     "piece_count": "a count",
     "ram_gb": "a rating",
     "recline": "a kind",
