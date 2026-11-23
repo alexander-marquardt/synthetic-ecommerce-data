@@ -207,6 +207,7 @@ NOT_SIZES: dict[str, str] = {
     "model_number": "an identifier",
     "net_volume_ml": "a pack's content: pack_scale",
     "net_weight_g": "a pack's content: pack_scale",
+    "network_lock": "a kind: unlocked or carrier-locked, the phone drawn the same (gen#1117)",
     "pack_size": "a pack: pack_scale and pack_copies",
     "piece_count": "a count",
     "ram_gb": "a rating",
