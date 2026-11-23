@@ -150,7 +150,9 @@ Fresh and Packaged Meat 30% / 15%, Fish 20% / 25%, Ready Meals and Pizza 20% / 1
 Chocolate and Sweets 25% / 30%. A variant keeps a certification only when it passes the rules:
 no Halal on pork (the `p` flavour flag) or on alcohol (a drink, or an ingredient that names one);
 no Kosher on pork, shellfish (the `s` flag) or meat with milk. `p` and `s` each imply `x`.
-`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU.
+`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU. The 14 cohort shoppers
+who buy them, and their seeded purchases, are written by `shoppers.py`:
+[retail-prototype/shoppers-1131.md](retail-prototype/shoppers-1131.md).
 
 The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3 -m synthetic_ecommerce_data.domains.retail.grocery --skus 50000 --out DIR`. A title is a range name plus a
 flavor, so the 10K build's range names ran out for a family at this size and it stopped short
@@ -258,8 +260,10 @@ paper cups on the tray, in `kit_chocolate.py`; a 150g box draws itself smaller t
 one; `tests/test_chocolate_box_drawn_609.py`, the flat box it replaced is
 `docs/images/chocolate-box-drawn-609.svg`); the chocolate bars and multipacks draw a
 `chocolate_bar` (an opened, glossy bar or a stack of a multipack's bars, its block the
-chocolate it is made of) and the sharing bags a `chocolate_bag` (a stand-up bag, its
-buttons or bites in a window and spilled in front;
+chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, its
+buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
+lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
+ball of segments in its opened foil;
 [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza

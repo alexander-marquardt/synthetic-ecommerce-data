@@ -50,11 +50,13 @@ def _path_points(svg: str, part: str) -> list[tuple[float, float]]:
     return points
 
 
-def test_hot_chocolate_is_drawn_as_a_tin_or_a_jar(rows) -> None:
+def test_hot_chocolate_is_drawn_as_a_tin_a_jar_or_its_tub_and_mug(rows) -> None:
+    """Never the redrawn ``tub``: gen#1125 draws it as ``hot_chocolate``, a tub with a mug."""
+    drawn = {"tin", "jar", "hot_chocolate"}
     wrong = [
         (r["product_id"], r["drawing"]["shape"])
         for r in rows
-        if r["product_type"] == "Hot Chocolate" and r["drawing"]["shape"] not in {"tin", "jar"}
+        if r["product_type"] == "Hot Chocolate" and r["drawing"]["shape"] not in drawn
     ]
     assert wrong == []
 

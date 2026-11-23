@@ -81,6 +81,13 @@ The new targets put 363,902 SKUs in retail and 134,913 in industrial. The growth
 101,132 of it in retail and 2,917 in industrial home hardware and DIY. The thin departments come
 first in the table, as the issue orders, and then the departments the catalogue lacks.
 
+## Grown by family issues since
+
+- gen#1117 (phones, part of Electronics): +1,204 SKUs over its 2026-11-21 count, in templates.
+  Smartphone 265 to 653, Phone Case 89 to 637, Screen Protector 21 to 167, Charger 35 to 91,
+  Cable 88 to 142, and Automotive's Phone Mount 52 to 64. See
+  [retail-electronics.md](retail-electronics.md#the-phone-range-gen1117).
+
 ## Left out
 
 - **Music, movies and video games.** All four retailers sell them, but each product is a named
