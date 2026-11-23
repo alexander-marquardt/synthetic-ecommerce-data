@@ -373,7 +373,7 @@ def test_an_import_in_a_subcommand_s_branch_is_reached_only_by_a_test_that_names
             ),
             "src/pkg/union.py": "from pkg import retail\n",
             "src/pkg/retail.py": "R = 1\n",
-            "src/pkg/build.py": "B = 1\n",
+            "src/pkg/build.py": 'B = "the union"\n',  # product text says no subcommand
             "tests/test_build.py": 'from pkg import cli\n\ncli.main(["build"])\n',
             "tests/test_union.py": 'from pkg import cli\n\ncli.main(["union"])\n',
             "tests/runner.py": 'ARGS = "ecom union --out x"\n',
