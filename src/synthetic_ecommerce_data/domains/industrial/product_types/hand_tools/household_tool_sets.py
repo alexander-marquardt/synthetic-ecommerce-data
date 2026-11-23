@@ -1,4 +1,4 @@
-"""Household tool sets: a homeowner tool for the general-retail catalogue (#971, slice 3).
+"""Household tool sets: a homeowner tool for the R&I catalogue (#971, slice 3).
 
 A household tool set is the kit a homeowner keeps in a cupboard: a hammer, screwdrivers, a
 few wrenches and pliers, hex keys and a run of sockets and bits, in one container. A

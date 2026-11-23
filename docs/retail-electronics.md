@@ -129,4 +129,4 @@ filter on `compatible_with` (or a policy that reads the model from the query) le
 
 ## Release
 
-Ships with the next retail catalogue re-release (the batch rule), not as its own ingest.
+Ships with the next re-release of the retail products (the batch rule), not as its own ingest.

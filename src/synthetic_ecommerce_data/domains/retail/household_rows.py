@@ -1,4 +1,4 @@
-"""Household templates for the scaled retail catalog (gen#200): data only.
+"""Household templates for the scaled retail domain (gen#200): data only.
 
 The catalog had cleaning chemicals and storage baskets but no cookware, kitchen bins,
 storage boxes, laundry baskets, mops or clothes airers, so a search for a pan, a bin or a
