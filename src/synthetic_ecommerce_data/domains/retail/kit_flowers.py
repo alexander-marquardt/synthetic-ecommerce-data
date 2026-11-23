@@ -18,7 +18,7 @@ house_plant   a house plant of its kind in a pot painted in   kind (orchid, eche
 plant_food    a liquid feed bottle with a measuring cap, a    form (liquid, feed sticks, granules),
               carton of feed sticks or a tub of granules      plant (the plant it feeds: its leaf
               with a scoop, its pack in the record's fill     or fruit on the pack: house plant,
-                                                              orchid, rose, cactus, tomato, citrus)
+                                                              orchid, rose, cactus, tomato, citrus tree)
 ============  ==============================================  =====================================
 
 The bloom is the record's color on a cut flower; a house plant's leaves and blooms are its own
@@ -57,7 +57,7 @@ KINDS = (
 )  # fmt: skip
 POTS = ("ceramic", "plastic", "metal")
 FORMS = ("liquid", "feed sticks", "granules")
-PLANTS = ("house plant", "orchid", "rose", "cactus", "tomato", "citrus")
+PLANTS = ("house plant", "orchid", "rose", "cactus", "tomato", "citrus tree")
 
 
 def _pick(value: str, allowed: tuple[str, ...], what: str) -> str:
@@ -272,7 +272,7 @@ def _motif(plant: str, cx: float, cy: float) -> list[str]:
         return [_rect(cx - 10, cy - 28, 20, 52, "#4f8a45", 10, LW_DETAIL), _rect(cx - 26, cy - 8, 12, 24, "#4f8a45", 6, LW_DETAIL)]
     if plant == "tomato":
         return [_ell(cx, cy, 20, 18, "#d23a2a", LW_DETAIL), _path(f"M{cx - 10},{cy - 16} L{cx},{cy - 10} L{cx + 10},{cy - 16} L{cx + 4},{cy - 8} Z", LEAF, 1.0)]
-    if plant == "citrus":
+    if plant == "citrus tree":
         return [_ell(cx + 6, cy + 6, 20, 20, "#f0a020", LW_DETAIL), _oval_leaf(cx - 14, cy - 16, 16, 8, -30, LEAF)]
     if plant != "house plant":
         raise ValueError(f"no plant food motif {plant!r}: one of {', '.join(PLANTS)}")

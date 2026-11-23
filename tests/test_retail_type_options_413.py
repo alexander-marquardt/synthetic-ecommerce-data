@@ -108,6 +108,9 @@ MOVED = {
         Option("connectivity", "connectivity", "Connectivity"),
         Option("brightness_lm", "brightness", "Brightness (lm)"),
     ],
+    # a bouquet's stems and a house plant's pot (gen#1115)
+    "bouquet": [Option("stem_count", "stem_count", "Stem count", "C62")],
+    "house_plant": [Option("pot_size_cm", "pot_size", "Pot size", "CMT")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 

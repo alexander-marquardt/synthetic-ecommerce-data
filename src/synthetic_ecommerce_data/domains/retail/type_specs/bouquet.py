@@ -19,7 +19,7 @@ from synthetic_ecommerce_data.domains.retail import (
     kit_flowers,  # noqa: F401 -- registers cut_flowers
 )
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
-from synthetic_ecommerce_data.domains.retail.outdoor_helpers import DEPARTMENT, H, L, M, V, W, a
+from synthetic_ecommerce_data.domains.retail.outdoor_helpers import DEPARTMENT, V, a
 from synthetic_ecommerce_data.domains.retail.type_registry import Home, Option, TypeSpec
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
@@ -51,33 +51,33 @@ def _row(code: str, title: str, brand: str, path: tuple[str, ...], flower: str, 
 
 ROWS = (
     _row("CFRSHT", "Hand-Tied Rose Bouquet", G, BOUQUETS, "Rose", "Anniversary", (RED, PINK, WHITE, YELLOW),
-         _stems((6, 25.0), (12, 40.0), (24, 65.0)),
+         _stems((6, 25.0), (12, 40.0)),
          "A hand-tied bouquet: each rose stem is cut in bud and tied with eucalyptus, sent in water with flower food and a gift card."),
     _row("CFRSLS", "Long-Stem Rose Bouquet", V, BOUQUETS, "Rose", "Valentine's Day", (RED, PINK, WHITE),
          _stems((12, 55.0), (24, 90.0)),
          "A bouquet of long stems, each rose stem 60 cm tall, wrapped in kraft paper and sent with flower food."),
-    _row("CFTLSP", "Spring Tulip Bouquet", M, BOUQUETS, "Tulip", "Birthday", (RED, PINK, YELLOW, WHITE, PURPLE, ORANGE),
-         _stems((10, 22.0), (20, 32.0), (30, 42.0)),
+    _row("CFTLSP", "Spring Tulip Bouquet", V, BOUQUETS, "Tulip", "Birthday", (RED, PINK, YELLOW, PURPLE),
+         _stems((10, 22.0), (20, 32.0)),
          "A fresh bouquet: each tulip stem is picked closed so it opens in the vase, tied with a raffia bow."),
-    _row("CFLYSC", "Scented Lily Bouquet", W, BOUQUETS, "Lily", "Sympathy", (WHITE, PINK, ORANGE, YELLOW),
-         _stems((5, 30.0), (10, 48.0), (15, 62.0)),
+    _row("CFLYSC", "Scented Lily Bouquet", G, BOUQUETS, "Lily", "Sympathy", (WHITE, PINK, ORANGE, YELLOW),
+         _stems((5, 30.0), (10, 48.0)),
          "A bouquet with each lily stem sent in bud, so the blooms open over a week."),
-    _row("CFCNTY", "Carnation Bouquet", H, BOUQUETS, "Carnation", "Thank You", (RED, PINK, WHITE, PURPLE),
+    _row("CFCNTY", "Carnation Bouquet", V, BOUQUETS, "Carnation", "Thank You", (RED, PINK, WHITE, PURPLE),
          _stems((10, 20.0), (20, 30.0)),
          "A long-lasting bouquet: each carnation stem keeps two weeks in fresh water."),
-    _row("CFGRBR", "Gerbera Bouquet", L, BOUQUETS, "Gerbera", "Congratulations", (ORANGE, YELLOW, PINK, RED),
+    _row("CFGRBR", "Gerbera Bouquet", G, BOUQUETS, "Gerbera", "Congratulations", (ORANGE, YELLOW, PINK, RED),
          _stems((7, 24.0), (14, 36.0)),
          "A bright bouquet: each gerbera stem is supported by a fine wire so the head stays up."),
     _row("CFMXSN", "Seasonal Mixed Flower Bouquet", G, BOUQUETS, "Mixed Flower", "Birthday", (PINK, YELLOW, WHITE, ORANGE),
-         _stems((10, 30.0), (15, 40.0), (20, 50.0)),
+         _stems((10, 30.0), (15, 40.0)),
          "The florist's choice of the season's blooms in one tone, each mixed flower stem tied by hand with seasonal foliage."),
     _row("LBRSCL", "Rose Letterbox Flowers", G, LETTERBOX, "Rose", "Anniversary", (RED, PINK, WHITE, YELLOW),
          _stems((8, 22.0), (12, 30.0)),
          "Letterbox flowers: each rose stem is packed in bud in a slim box that fits through the letterbox, with a vase guide and flower food."),
-    _row("LBTLFL", "Tulip Letterbox Flowers", M, LETTERBOX, "Tulip", "Thank You", (RED, PINK, YELLOW, WHITE, PURPLE, ORANGE),
-         _stems((10, 18.0), (15, 24.0), (20, 30.0)),
+    _row("LBTLFL", "Tulip Letterbox Flowers", V, LETTERBOX, "Tulip", "Thank You", (RED, PINK, YELLOW, PURPLE),
+         _stems((10, 18.0), (15, 24.0)),
          "Letterbox flowers: each tulip stem is packed closed in a slim box that fits through the letterbox, to open in the vase."),
-    _row("LBLYBX", "Lily Letterbox Flowers", W, LETTERBOX, "Lily", "Birthday", (WHITE, PINK, ORANGE),
+    _row("LBLYBX", "Lily Letterbox Flowers", G, LETTERBOX, "Lily", "Birthday", (WHITE, PINK, ORANGE),
          _stems((5, 24.0), (8, 32.0)),
          "Letterbox flowers: each lily stem is sent in bud in a slim box that fits through the letterbox."),
     _row("LBMXPS", "Mixed Flower Letterbox Flowers", V, LETTERBOX, "Mixed Flower", "Get Well", (PINK, YELLOW, WHITE),

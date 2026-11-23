@@ -53,8 +53,10 @@ def test_letterbox_flowers_have_their_own_leaf(live) -> None:
 
 
 def test_each_new_bouquet_carries_flower_occasion_color_and_stem_count(live) -> None:
-    new = [r for r in live if r["product_type"] == "Bouquet" and r["category_path"][1] == "Flowers"]
-    assert len(new) > len(type_registry.specs()["bouquet"].rows)
+    own = {row.product_id for row in type_registry.specs()["bouquet"].rows}
+    of = ceiling_build().template_of
+    new = [r for r in live if r["product_id"] in own or of.get(r["product_id"]) in own]
+    assert len(new) > len(own)
     for r in new:
         keys = {a["key"] for a in r["attributes"]}
         assert {"flower", "occasion"} <= keys, r["title"]

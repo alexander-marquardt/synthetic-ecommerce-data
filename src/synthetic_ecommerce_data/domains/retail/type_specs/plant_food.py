@@ -1,4 +1,4 @@
-"""Plant food (gen#1115): Garden > Plant Care > Plant Food.
+"""Plant food (gen#1115): Garden > Plants > Plant Food.
 
 Feeds for the plants a shopper grows: house plants, orchids, roses, cacti, tomatoes and citrus,
 as a liquid, feed sticks or granules. A breadth type: ``derivable`` True, so the scaled build
@@ -29,7 +29,7 @@ from synthetic_ecommerce_data.domains.retail.outdoor_helpers import (
 from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
-PATH = (DEPARTMENT, "Plant Care", "Plant Food")
+PATH = (DEPARTMENT, "Plants", "Plant Food")
 _PT = "Plant Food"
 PACK = cw("Green", "#4f8a45")
 #: form -> the SKU field its sizes are stored under.
@@ -45,19 +45,19 @@ def _food(code: str, title: str, plant: str, form: str, brand: str, desc: str, s
 
 ROWS = (
     _food("PFHPLQ", "House Plant Liquid Feed", "House Plant", "Liquid", V,
-          "A balanced liquid feed: add one capful to a watering can every two weeks in spring and summer.", axis((250, 4.5), (500, 7.0), (1000, 11.0))),
+          "A liquid feed for a house plant: add one capful to a watering can every two weeks while it is growing.", axis((250, 4.5), (500, 7.0), (1000, 11.0))),
     _food("PFORLQ", "Orchid Liquid Feed", "Orchid", "Liquid", M,
-          "A gentle liquid feed for an orchid: add a few drops at each watering to keep the flower spikes coming.", axis((250, 5.0), (500, 8.0))),
+          "A liquid feed for an orchid: add one capful to a watering can every two weeks while it is growing.", axis((250, 5.0), (500, 8.0))),
     _food("PFTMLQ", "Tomato Liquid Feed", "Tomato", "Liquid", W,
-          "A high-potash liquid feed for a tomato once the first truss has set, for more and sweeter fruit.", axis((1000, 6.0), (2500, 12.0))),
+          "A liquid feed for a tomato: add one capful to a watering can every two weeks while it is growing.", axis((1000, 6.0), (2500, 12.0))),
     _food("PFRSGR", "Rose Feed Granules", "Rose", "Granules", H,
-          "Slow-release granules for a rose bush: scatter round the base in spring and again in summer for more blooms.", axis((750, 7.0), (1500, 11.0), (3000, 18.0))),
-    _food("PFCTGR", "Citrus Feed Granules", "Citrus", "Granules", L,
-          "Granules for a lemon or orange tree in a pot: mix into the top of the compost each month.", axis((750, 8.0), (1500, 13.0))),
+          "Slow-release granules for a rose: mix them into the top of the compost in spring and again in summer.", axis((750, 7.0), (1500, 11.0), (3000, 18.0))),
+    _food("PFCTGR", "Citrus Tree Feed Granules", "Citrus Tree", "Granules", L,
+          "Slow-release granules for a citrus tree: mix them into the top of the compost in spring and again in summer.", axis((750, 8.0), (1500, 13.0))),
     _food("PFCCST", "Cactus Feed Sticks", "Cactus", "Feed Sticks", V,
           "Feed sticks for a cactus: push one into the compost and it feeds for up to three months.", axis((20, 4.0), (40, 7.0))),
     _food("PFHPST", "House Plant Feed Sticks", "House Plant", "Feed Sticks", M,
-          "Feed sticks for a house plant: push one into the compost by the stem for three months of feeding.", axis((20, 4.0), (40, 6.5), (80, 11.0))),
+          "Feed sticks for a house plant: push one into the compost and it feeds for up to three months.", axis((20, 4.0), (40, 6.5), (80, 11.0))),
 )
 
 SPEC = TypeSpec(
