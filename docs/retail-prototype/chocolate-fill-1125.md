@@ -77,7 +77,36 @@ is made of (`grocery_families.chocolate_of`), passed as `chocolate`, as for the 
 | sharing bag 150g | 0.50 | 0.59-0.61 |
 | sharing bag 250g, or no pack size | 0.50 | 0.72-0.73 |
 
+## Hot chocolate and the chocolate orange (slice 3)
+
+Before this slice hot chocolate was a plain `jar` (GRC-HOT: 27% of the product area at 250g,
+37% at 400g) or `tin` (PLT-HCORNG: 41%), with no cocoa in sight. The chocolate orange (GRC-CHO)
+was drawn as a bar.
+
+**`kit_chocolate.hot_chocolate`** (GRC-HOT, PLT-HCORNG) draws a lidded tub of drinking
+chocolate in the flavour's color, with a sheen down its left side and the label panel. In front
+of it stands a mug filled with the drink: a glossed `<g class="chocolate">` of the chocolate it
+is made of, with a swirl on top and steam above.
+
+**`kit_chocolate.chocolate_orange`** (GRC-CHO) draws a ball of segments in the chocolate it is
+made of, glossed. Its grooves run from the top pole, the peel's dimples are pressed into it, and
+it sits in its opened foil (the flavour's color) with two loose segments in front. The label
+panel is on the foil.
+
+Both are drawn about the product area's center and draw their own weight, by the cube root of
+its share: a tub under 400g and an orange under 175g, never under 0.9. `pack_scale.SELF_SIZED`
+gives them no factor. The tub and the foil go through `wrapper_color`, as the bars do.
+
+| pack | floor | measured |
+|---|---|---|
+| hot chocolate 250g | 0.50 | 0.61 |
+| hot chocolate 400g, or no pack size (PLT-HCORNG) | 0.50 | 0.74 |
+| chocolate orange 100g | 0.50 | 0.59 |
+| chocolate orange 175g, or no pack size | 0.50 | 0.73 |
+
 `tests/test_chocolate_fill_1125.py` pins the floor over every bar, box and bag flavour and pack,
 the gloss, the multipack's bar count and a box's chocolates by its size, that every pack stays
 on its sheet, the wrapper's contrast, the chocolate of each style, the bag's pieces, and that
-each SKU draws its own pack size.
+each SKU draws its own pack size. It pins the same over every hot chocolate and chocolate orange
+flavour and pack, and PLT-HCORNG, together with the mug and its lid, and a dark orange drawn in
+dark chocolate and a milk one in milk.
