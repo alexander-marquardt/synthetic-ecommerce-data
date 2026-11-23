@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -115,6 +116,14 @@ def draw(manifest: Path, out: Path) -> Report:
     images = out / IMAGES
     images.mkdir(exist_ok=True)
     drawn = 0
+    for row in rows:
+        path = images / f"{row.image_id}.svg"
+        if path.exists():
+            continue
+        part = path.with_suffix(".part")
+        part.write_text(picture(row), encoding="utf-8")
+        os.replace(part, path)
+        drawn += 1
     return Report(
         rows=len(rows),
         files=sum(1 for _ in images.glob("*.svg")),
