@@ -94,8 +94,9 @@ markers = [
 line-length = 100
 src = ["src", "tests"]
 # elastic/prism's file-size gate, vendored byte for byte (vendor/prism/PIN.txt):
-# core lints it under core's rules, and a fix here would break the pin.
-extend-exclude = ["vendor"]
+# core lints it under core's rules, and a fix here would break the pin. The vulnerability
+# gate's copy (.github/vuln-gate/PIN.json, #1149) is core's too, written for core's Python 3.12.
+extend-exclude = ["vendor", ".github/vuln-gate"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

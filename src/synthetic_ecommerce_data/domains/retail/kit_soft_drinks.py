@@ -185,18 +185,21 @@ def _ink_on(color: str) -> str:
     return INK if 0.299 * r + 0.587 * g + 0.114 * b > 140 else "#ffffff"
 
 
-def bottle(form_name: str, h: float, d_over_h: float, liquid: str, label: str | None) -> list[str]:
-    """A clear PET or glass bottle ``h`` high, the drink below its fill line, its cap on top."""
-    form = FORMS[form_name]
+def bottle(form_name: str, h: float, d_over_h: float, liquid: str, label: str | None,
+           wall: str = CLEAR, hides: float = CLEAR_HIDES, shape: Form | None = None) -> list[str]:  # fmt: skip
+    """A PET or glass bottle ``h`` high, the drink below its fill line, its cap on top. ``wall``
+    is the glass's tint and ``hides`` how much of the drink's color it hides (a clear wall by
+    default; a beer's brown glass, :mod:`kit_beer`); ``shape`` a form not in :data:`FORMS`."""
+    form = shape or FORMS[form_name]
     half = h * d_over_h / 2
     top = form.profile[-1][0]
-    drink = through_clear(liquid)
+    drink = _mix(liquid, wall, hides)
     lo, hi = form.label
     label_y, label_bot = BASE_Y - hi * h, BASE_Y - lo * h
     body_top = max(t for t, r in form.profile if r == 1)
     out = [
         _ground(half),
-        _path(_outline(form, h, half, 0, top), CLEAR, LW, ' class="bottle"'),
+        _path(_outline(form, h, half, 0, top), wall, LW, ' class="bottle"'),
         _path(
             _outline(form, h, half, 0, form.fill_line), drink, LW_DETAIL, ' class="drink"', drink
         ),
@@ -236,7 +239,7 @@ def bottle(form_name: str, h: float, d_over_h: float, liquid: str, label: str | 
             f"M{CX + half * 0.7:.1f},{BASE_Y - 0.06 * h:.1f} L{CX + half * 0.7:.1f},{BASE_Y - (body_top - 0.02) * h:.1f}",
             max(3.0, half * 0.12),
             ' stroke-opacity=".18" class="shade"',
-            _shade(CLEAR, 0.6),
+            _shade(wall, 0.6),
         ),
     ]
     return out + _cap(form_name, form, h, half, liquid)
