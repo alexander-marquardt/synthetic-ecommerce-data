@@ -23,6 +23,9 @@ need a product type the catalog lacked, so each is a spec with one ordinary prod
 stainless steel and a washing machine with a "Red Spot" dial that is white.
 `tests/test_retail_large_appliances_334.py` holds the depth and the decoys.
 
+Cooking (#1116): three more leaves, Range Cookers, Built-in Ovens and Hobs, with their own specs
+and `kit_cooking.py`; see [cooking-appliances-1116.md](cooking-appliances-1116.md).
+
 Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
 (`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's
 `product_line` is the series (`Row.product_line`), which export reads as the top-level `series`
