@@ -603,14 +603,15 @@ def test_a_merge_waits_for_every_check_on_the_pushed_tree(
 
 @pytest.mark.parametrize(
     "skipped, merges",
-    [("review-verdict-rerun", True), ("review-verdict", False)],
-    ids=["verdict-rerun-by-design", "other-skip-refused"],
+    [("review-verdict-rerun", True), ("cancel-on-red-tests", True), ("review-verdict", False)],
+    ids=["verdict-rerun-by-design", "cancel-on-red-by-design", "other-skip-refused"],
 )
 def test_review_verdict_rerun_skipped_is_by_design_and_any_other_skip_is_not(
     world: dict, skipped: str, merges: bool
 ) -> None:
     """review-verdict-rerun runs only on a verdict comment or review, never on the PR's
-    own run, so every rollup carries it skipped (#708); another skipped check still refuses."""
+    own run, so every rollup carries it skipped (#708); so do the cancel-on-red jobs when the
+    run is green (#1175). Another skipped check still refuses."""
     head = _open_pr(world, _GREEN)
     result = _run(world, head, _GREEN_CHECK, FAKE_GH_ALSO_SKIPPED=skipped)
     assert (result.returncode == 0) is merges, result.stdout + result.stderr
@@ -1027,9 +1028,11 @@ def _printed(flag: str) -> list[str]:
 
 def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
     """Every job a pull request runs is required; a push-only job is skipped by design, and so
-    is a review-verdict job whose condition never names a pull_request run (#708)."""
+    are a review-verdict job whose condition never names a pull_request run (#708) and the jobs
+    that run only when a required job is red (#1175)."""
     jobs = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text())["jobs"]
     push_only = {key for key, job in jobs.items() if job.get("if") == "github.event_name == 'push'"}
+    on_red = {key for key, job in jobs.items() if str(job.get("if")).startswith("failure()")}
     verdict = yaml.safe_load((REPO / ".github" / "workflows" / "review-verdict.yaml").read_text())
     never_on_pr = {
         job["name"]
@@ -1037,8 +1040,8 @@ def test_the_ci_checks_a_merge_waits_for_are_the_workflows_jobs() -> None:
         if "if" in job and "'pull_request'" not in job["if"]
     }
     want = sorted(
-        [f"required {key}" for key in jobs if key not in push_only]
-        + [f"skipped-by-design {key}" for key in push_only]
+        [f"required {key}" for key in jobs if key not in push_only | on_red]
+        + [f"skipped-by-design {key}" for key in push_only | on_red]
         + [f"skipped-by-design {name}" for name in never_on_pr]
     )
     assert sorted(_printed("--print-ci")) == want
