@@ -45,6 +45,19 @@ The catalogue has no department for pets, health, office and school, or automoti
 baby only as clothing (Kids > Baby, 1,226), and household essentials only as cleaning sprays
 and detergents.
 
+## Counts added by the gap issues
+
+The gap issues of 2026-11-21 each grow one family of types the retailers carry and the catalogue
+lacked or held thinly. Each records here the SKUs it added per type, measured on the ceiling build
+(`retail_figures.ceiling()`, seed 0) in the pull request that adds them. The table sits above the
+mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
+
+| Issue | Department | Type | SKUs added |
+|---|---|---|---:|
+| gen#1112 (slice 1) | Health | Sanitary Pads | 299 |
+| gen#1112 (slice 1) | Health | Tampons | 212 |
+| gen#1112 (slice 1) | Health | Panty Liners | 128 |
+
 ## The mix
 
 `Domain` is the generator domain that builds the department. `Status` is `existing` for a

@@ -734,5 +734,6 @@ from synthetic_ecommerce_data.domains.retail import (  # noqa: E402
     paper_brand_styles,  # noqa: E402,F401 -- #962: three marks and styles of the Cleaning paper goods join the tables
     pet_brand_styles,  # noqa: E402,F401 -- gen#967: nine marks and styles of the Pets department join the tables
     place_brand_styles,  # noqa: E402,F401 -- gen#663: 15 marks and styles of the class 6 place brands join the tables
+    sewing_brand_styles,  # noqa: E402,F401 -- gen#1118: two marks and styles of the sewing and knitting brands join the tables
     sports_brand_styles,  # noqa: E402,F401 -- gen#959: the fishing and golf brands' two marks and styles join the tables
 )
