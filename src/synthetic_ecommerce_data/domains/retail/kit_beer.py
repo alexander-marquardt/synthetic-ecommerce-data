@@ -1,8 +1,8 @@
-"""A beer drawn as its real can, bottle or 4-pack (gen#1127, slice 3).
+"""A beer, cider or perry drawn as its real can, bottle or 4-pack (gen#1127, slice 3).
 
-A lager, sour or alcohol free beer used to draw the generic ``kit.tin``, and a pale ale or fruit
-beer the generic ``kit.bottle``, each shrunk by :mod:`pack_scale`; a 4-pack was four copies of
-that one drawing. ``beer`` draws the container each pack is sold in, at its real proportions,
+A lager, sour or alcohol free beer used to draw the generic ``kit.tin``, and a pale ale, fruit
+beer, cider or perry the generic ``kit.bottle``, each shrunk by :mod:`pack_scale`; a 4-pack was
+four copies of that one drawing. ``beer`` draws the container each pack is sold in, at its real proportions,
 from the SKU's own ``pack_size`` and its line's ``sold_in`` and ``glass`` (per-SKU drawing params):
 
 =======================  ====================================================================
@@ -10,6 +10,8 @@ pack                     draws
 =======================  ====================================================================
 330ml, 500ml in a        a glass beer bottle: a crown cap on a bead, a long neck, a label,
 bottle line              the beer through the glass (:data:`GLASSES`: brown, clear, green)
+1L or more in a bottle   a PET bottle (``kit_soft_drinks``): a screw cap, a petaloid foot,
+line                     the drink through its clear wall (a cider's 2L)
 330ml, 440ml in a can    a ring-pull can printed in the beer's own color (``kit_soft_drinks``)
 line; a 440ml anywhere   (a 440ml is a can size)
 N x 440ml, N x 330ml     N cans in two rows under a card carrier (``kit_soft_drinks``)
@@ -82,8 +84,10 @@ FORM = Form(
 #: A beer bottle's real (height, diameter) in mm by content in ml: a 330ml squat craft bottle
 #: and a 500ml ale bottle.
 BOTTLES = {275: (200, 60), 330: (205, 64), 500: (245, 75)}
-#: The bottle sizes a shop sells beer in: a 440ml (or any other) is a can.
+#: The bottle sizes a shop sells beer in: a 440ml (or any other under :data:`PET_FROM`) is a can.
 BOTTLE_SIZES = frozenset(BOTTLES)
+#: A bottle line's single of this many ml or more is a PET bottle (a cider's 2L).
+PET_FROM = 1000
 
 #: Glass -> (its tint, how much of the beer's color it hides).
 GLASSES = {
@@ -99,17 +103,22 @@ BASKET = 0.55
 
 def container(pack_size: str, sold_in: str = "can") -> tuple[str, int, float]:
     """``(form, count, ml)``: what ``pack_size`` is sold in, in a line ``sold_in`` cans or bottles.
-    A bottle line sells a bottle of a :data:`BOTTLE_SIZES` size and a can of any other."""
+    A bottle line sells a bottle of a :data:`BOTTLE_SIZES` size, a ``"pet"`` bottle of a single
+    of :data:`PET_FROM` ml or more, and a can of any other."""
     m = _MULTI.match(pack_size.strip())
     n, ml = (int(m[1]), millilitres(m[2])) if m else (1, millilitres(pack_size))
-    form = "bottle" if sold_in == "bottle" and ml in BOTTLE_SIZES else "can"
+    form = "can"
+    if sold_in == "bottle" and ml in BOTTLE_SIZES:
+        form = "bottle"
+    elif sold_in == "bottle" and n == 1 and ml >= PET_FROM:
+        form = "pet"
     return form, n, ml
 
 
 def dimensions(form: str, ml: float) -> tuple[float, float]:
     """The real (height, diameter) in mm of a ``form`` container holding ``ml``."""
-    if form == "can":
-        return can_dimensions("can", ml)
+    if form in ("can", "pet"):
+        return can_dimensions(form, ml)
     if ml in BOTTLES:
         return BOTTLES[ml]
     near = min(BOTTLES, key=lambda k: abs(k - ml))
@@ -119,14 +128,15 @@ def dimensions(form: str, ml: float) -> tuple[float, float]:
 
 
 def drawn_height(pack_size: str, largest: str, sold_in: str = "can") -> float:
-    """The container's drawn height in kit units: a bottle against the line's ``largest`` single
-    bottle as a wine bottle is (:func:`kit_drinks.drawn_height`), a can always at the full height."""
+    """The container's drawn height in kit units: a glass or PET bottle against the line's
+    ``largest`` single bottle as a wine bottle is (:func:`kit_drinks.drawn_height`), a can always
+    at the full height."""
     full = FULL_SHARE * PRODUCT_SPAN
     form, _, ml = container(pack_size, sold_in)
     if form == "can":
         return full
-    top_ml = millilitres(largest) if largest else ml
-    ratio = min(1.0, dimensions(form, ml)[0] / dimensions(form, top_ml)[0])
+    top_form, _, top_ml = container(largest, sold_in) if largest else (form, 1, ml)
+    ratio = min(1.0, dimensions(form, ml)[0] / dimensions(top_form, top_ml)[0])
     return full * max(MIN_SHARE, ratio**STEP_POWER)
 
 
@@ -187,6 +197,8 @@ def beer(paint: str, fill: Fill, label: str | None, pack_size: str = "330ml", la
     if form == "can":
         w = h * d_mm / h_mm
         return [_ground(w / 2), *can(CX, BASE_Y, w, h, color, label)]
+    if form == "pet":  # clear PET whatever the line's glass
+        return bottle("pet", h, d_mm / h_mm, color, label)
     tint, hides = GLASSES[glass]
     return bottle("beer", h, d_mm / h_mm, color, label, tint, hides, FORM)
 
