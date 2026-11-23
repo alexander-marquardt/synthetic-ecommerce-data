@@ -102,8 +102,8 @@ hs.MARKS.update({
 STYLES = {
     "Wrenhallow Press":      H("thin",    "#5a3d2b", "#2a1a10", 0.95, False, "round", "wren",         "mark_left",  "top_left",      "none",      "serif",    400, "title",     0.5, True),
     "Marlowby Books":        H("double",  "#2a4f6e", "#11222f", 1.05, False, "round", "marlow_wave",  "mark_only",  "top_right",     "underline", "serif",    700, "smallcaps", 1.0),
-    "Thimblecote Press":     H("rounded", "#8a4a6a", "#3a1d2c", 1.0,  False, "round", "thimble",      "mark_above", "top_center",    "none",      "humanist", 400, "title",     0.0),
-    "Ferncastle Editions":   H("ticks",   "#2e5e3a", "#132818", 1.1,  False, "sharp", "fern_tower",   "mark_only",  "bottom_left",   "rect",      "serif",    700, "caps",      2.0),
+    "Thimblecote Press":     H("rounded", "#8a4a6a", "#3a1d2c", 1.0,  False, "round", "thimble",      "mark_above", "top_center",    "none",      "humanist", 400, "title",     0.5, True),
+    "Ferncastle Editions":   H("ticks",   "#2e5e3a", "#132818", 1.1,  False, "sharp", "fern_tower",   "mark_only",  "bottom_left",   "rect",      "serif",    700, "caps",      3.0),
     "Ashcombe & Rook":       H("heavy",   "#2a2a33", "#101014", 1.15, False, "sharp", "rook_bar",     "mark_right", "bottom_center", "none",      "sans",     700, "caps",      1.5),
     "Lindenquay Publishing": H("none",    "#5e7a2a", "#263212", 0.9,  False, "round", "linden_leaf",  "mark_only",  "top_left",      "flag",      "humanist", 700, "lower",     0.5),
     "Moddlewick Books":      H("double",  "#a8582a", "#45220f", 1.0,  True,  "round", "open_book",    "pill",       "bottom_right",  "none",      "sans",     400, "title",     1.0),
