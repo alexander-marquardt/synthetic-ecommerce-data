@@ -1,4 +1,5 @@
-"""Gaming for the retail drawing kit (gen#956, slice 2b): game controllers and gaming headsets.
+"""Gaming for the retail drawing kit: game controllers and gaming headsets (gen#956, slice 2b),
+video games and consoles (gen#1120).
 
 ===============  ============================================  ==================================
 shape            draws                                         params
@@ -11,11 +12,19 @@ game_controller  a gamepad with a d-pad, two sticks and four   controller_form (
 gaming_headset   a headband, two ear cups with lit rings and   connection (wireless, wired)
                  a boom mic; a cable and plug when wired, a
                  power light when wireless
+video_game       a game case with its cover art and a disc     format (disc, download code),
+                 beside it; ``download code`` is a card with   edition (standard, deluxe)
+                 a code strip; ``deluxe`` adds a slipcover
+                 behind and a gold band
+game_console     a console box with a disc slot and a power    console_form (home, slim,
+                 light; ``slim`` is thinner, ``handheld`` a    handheld)
+                 screen between two sets of controls
 ===============  ============================================  ==================================
 
 Each param's values are the lower-cased attribute values of the spec rows. A derived style that
 changes a controller's ``controller_form`` or either type's ``connection`` draws what it states
-(gen#512).
+(gen#512). Video games and consoles are templates only (gen#1120), so no derived style redraws
+them.
 """
 
 from __future__ import annotations
@@ -27,6 +36,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _line,
     _path,
     _shade,
+    _tint,
     register,
 )
 from synthetic_ecommerce_data.domains.retail.kit_sports import _ell, _label, _rect
@@ -37,6 +47,8 @@ STEEL = "#c3c7cd"
 #: A power light's green and a lit ring's cyan.
 LIGHT = "#2fbf71"
 GLOW = "#5fd3e8"
+#: A deluxe edition's gold band.
+GOLD = "#d4a537"
 #: The four face buttons.
 FACE = ("#2fbf71", "#c8312e", "#3f6fb5", "#f2c230")
 
@@ -116,5 +128,68 @@ def gaming_headset(paint: str, fill: Fill, label: str | None,
     return _label(out, label)
 
 
-SHAPES = {"game_controller": game_controller, "gaming_headset": gaming_headset}
+def video_game(paint: str, fill: Fill, label: str | None, format: str = "disc",
+               edition: str = "standard") -> list[str]:  # fmt: skip
+    """A video game by ``format``: a case and its disc, or a download code card; ``deluxe`` adds
+    a slipcover behind it and a gold band across it."""
+    art = _tint(fill.base, 0.45)
+    out: list[str] = []
+    if format == "download code":
+        if edition == "deluxe":
+            out.append(_rect(100, 112, 240, 150, _shade(fill.base, 0.3), 12, LW_DETAIL))
+        out += [
+            _rect(70, 130, 260, 160, paint, 12),
+            _rect(90, 150, 100, 120, art, 6, LW_DETAIL),
+            _rect(206, 226, 108, 28, STEEL, 4, LW_DETAIL),
+            _line("M216,240 L304,240", 2.0),
+        ]
+        emblem, band, gloss = (140, 210), (70, 160, 260), "M84,146 L84,276"
+    else:
+        if edition == "deluxe":
+            out.append(_rect(136, 44, 180, 300, _shade(fill.base, 0.3), 10, LW_DETAIL))
+        out += [
+            _ell(262, 204, 92, 92, STEEL, LW_DETAIL),
+            _ell(262, 204, 22, 22, "#ffffff", LW_DETAIL),
+            _rect(100, 60, 180, 290, paint, 10),
+            _rect(100, 60, 20, 290, _shade(fill.base, 0.35), 4, LW_DETAIL),
+            _rect(136, 104, 128, 160, art, 6, LW_DETAIL),
+        ]
+        emblem, band, gloss = (200, 184), (120, 290, 160), "M112,80 L112,330"
+    out.append(_ell(*emblem, 30, 30, _shade(fill.base, 0.5), LW_DETAIL))
+    if edition == "deluxe":
+        x, y, w = band
+        out.append(_rect(x, y, w, 18, GOLD, 2, LW_DETAIL))
+    out.append(_highlight(gloss, 4, 0.5))
+    return _label(out, label)
+
+
+def game_console(paint: str, fill: Fill, label: str | None,
+                 console_form: str = "home") -> list[str]:  # fmt: skip
+    """A game console by ``console_form``: a home box (``slim`` is thinner) with a disc slot and
+    a power light, or a handheld with its screen between two sets of controls."""
+    if console_form == "handheld":
+        out = [
+            _rect(40, 140, 320, 150, paint, 44),
+            _rect(118, 158, 164, 114, MESH, 8, LW_DETAIL),
+            _rect(128, 168, 144, 94, "#1f2024", 4, LW_DETAIL),
+            *_controls(80, 320, 194, fill),
+            _ell(80, 254, 14, 14, MESH, LW_DETAIL),
+            _ell(320, 254, 14, 14, MESH, LW_DETAIL),
+            _highlight("M64,170 L64,260", 4, 0.5),
+        ]
+        return _label(out, label)
+    y, h = (164, 72) if console_form == "slim" else (128, 128)
+    out = [
+        _rect(50, y, 300, h, paint, 14),
+        _rect(50, y + h - 18, 300, 18, _shade(fill.base, 0.35), 6, LW_DETAIL),
+        _rect(80, y + 22, 140, 9, MESH, 3, LW_DETAIL),
+        _ell(318, y + 26, 6, 6, LIGHT, 1.2),
+        _rect(290, y + 44, 40, 8, _shade(fill.base, 0.25), 3, LW_DETAIL),
+        _highlight(f"M66,{y + 14} L200,{y + 14}", 4, 0.5),
+    ]
+    return _label(out, label)
+
+
+SHAPES = {"game_controller": game_controller, "gaming_headset": gaming_headset,
+          "video_game": video_game, "game_console": game_console}  # fmt: skip
 register(SHAPES)

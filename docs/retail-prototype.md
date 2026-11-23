@@ -150,7 +150,9 @@ Fresh and Packaged Meat 30% / 15%, Fish 20% / 25%, Ready Meals and Pizza 20% / 1
 Chocolate and Sweets 25% / 30%. A variant keeps a certification only when it passes the rules:
 no Halal on pork (the `p` flavour flag) or on alcohol (a drink, or an ingredient that names one);
 no Kosher on pork, shellfish (the `s` flag) or meat with milk. `p` and `s` each imply `x`.
-`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU.
+`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU. The 14 cohort shoppers
+who buy them, and their seeded purchases, are written by `shoppers.py`:
+[retail-prototype/shoppers-1131.md](retail-prototype/shoppers-1131.md).
 
 The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3 -m synthetic_ecommerce_data.domains.retail.grocery --skus 50000 --out DIR`. A title is a range name plus a
 flavor, so the 10K build's range names ran out for a family at this size and it stopped short
