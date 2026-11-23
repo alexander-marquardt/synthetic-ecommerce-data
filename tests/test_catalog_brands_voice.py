@@ -384,13 +384,13 @@ def test_each_type_keeps_its_distinct_spec_floor_at_100k(hundred_k):
 
 
 def test_every_must_stock_example_is_stocked_at_100k(hundred_k):
+    # Each document's attributes once, not once per entry (#1035): the scan was 39 s of CI.
+    held = [
+        (doc["product_type"], {a["name"]: a["value"] for a in authored_attributes(doc)})
+        for doc in hundred_k
+    ]
     for entry in MUST_STOCK:
-        assert any(
-            entry.matches(
-                doc["product_type"], {a["name"]: a["value"] for a in authored_attributes(doc)}
-            )
-            for doc in hundred_k
-        ), entry.example
+        assert any(entry.matches(kind, attrs) for kind, attrs in held), entry.example
 
 
 @pytest.mark.parametrize("which", ["golden", "hundred_k"])
