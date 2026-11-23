@@ -26,10 +26,11 @@ from synthetic_ecommerce_data.domains.retail import department_rates, scale
 ROOT = "Health"
 #: 95% of the mix's 5,000 (the issue's Done-when).
 TARGET = 4_750
-#: The nine Health types of slices 1 to 3 and slice 4's two.
+#: The nine Health types of slices 1 to 3, slice 4's two and gen#1112's three feminine-care types.
 TYPES = (
     "Vitamins", "Minerals", "Herbal Supplements", "Omega Oils", "Plasters", "First Aid Kits",
     "Thermometers", "Blood Pressure Monitors", "Eye Drops", "Incontinence Pads", "Walking Sticks",
+    "Sanitary Pads", "Tampons", "Panty Liners",
 )  # fmt: skip
 
 
