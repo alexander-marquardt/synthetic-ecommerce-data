@@ -103,7 +103,7 @@ COLLISIONS = (
     Collision("Tent Troopers", ("tent",), ("Tent",), "Strategy", "12+", "1-2", "Pitch a base camp in the wilds, survey the ridge and outlast a rival camp through a storm."),
     Collision("Golf Club Legends", ("golf", "club"), ("Golf Club", "Golf Ball"), "Sports", "3+", "1-4", "Eighteen fantasy courses, a career mode and a club house to fill with trophies."),
     Collision("Robot Mower Mayhem", ("robot", "mower"), ("Robot Mower", "Lawn Mower"), "Racing", "7+", "1-4", "Race runaway lawn robots round the suburbs, cutting shortcuts through every hedge."),
-    Collision("Jigsaw Island", ("jigsaw",), ("Jigsaw Puzzle",), "Puzzle", "3+", "1", "Piece together the map of a lost island, one picture at a time, to open its next shore."),
+    Collision("Jigsaw Island", ("jigsaw",), ("Jigsaw Puzzle",), "Puzzle", "3+", "1", "Piece together the map of a lost island, one picture at a time, to open the shore beyond."),
     Collision("Toaster Tactics", ("toaster",), ("Toaster",), "Strategy", "7+", "1-2", "Command an army of kitchen gadgets in turn-based battles across the breakfast table."),
     Collision("Kettle Kingdom", ("kettle",), ("Kettle",), "Adventure", "7+", "1", "Clockwork knights defend a tiny realm built on a stove top from the cold of the fridge."),
     Collision("Blender Brawl", ("blender",), ("Blender",), "Fighting", "12+", "1-2", "Fruit fighters spin, slice and smoothie each other in a whirling arena."),

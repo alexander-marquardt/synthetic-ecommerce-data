@@ -70,7 +70,7 @@ own query (`kitchen knife`, `garden chair`) does not match a title and is unchan
 | `saucepan samurai` | Saucepan | saucepan 6 | the game first |
 | `lantern light` | Camping Lantern, Night Light | lantern 77; light 756; both words 36 | the game first |
 | `picnic blanket panic` | Picnic Blanket | picnic 25; blanket 13; both words 5 | the game first |
-| `coffee table tycoon` | Coffee Table, Coffee | coffee 1,027; table 881; both words 110 | the game first |
+| `coffee table tycoon` | Coffee Table, Coffee | coffee more than a thousand; table 881; both words 110 | the game first |
 | `candle vigil` | Scented Candle | candle 173 | the game first |
 | `light bulb labs` | Light Bulb | light 756; bulb 64 | the game first |
 | `ladder climb` | Step Ladder | ladder 10 | the game first |
