@@ -135,8 +135,16 @@ class NoLocalEquivalent(Exception):
 #: Workflows that are not pull-request checks: ``release.yaml`` runs on a ``v*`` tag, uploads a
 #: release and opens a pull request elsewhere (gen#536), so ``--local-ci`` must never run it.
 #: ``review-verdict.yaml`` reads the pull request's reviews and head through the GitHub API, so it
-#: has no local value either.
-NOT_A_CHECK = ("release.yaml", "release.yml", "review-verdict.yaml", "review-verdict.yml")
+#: has no local value either. ``vuln-gate.yaml`` is generated in elastic/prism (#1149): it asks
+#: the advisory databases and the GitHub API whether each allowlist issue is open, and its
+#: workflow ``env`` and ``setup-uv`` step are core's to keep, so GitHub runs it, never --local-ci.
+NOT_A_CHECK = (
+    "release.yaml",
+    "release.yml",
+    "review-verdict.yaml",
+    "review-verdict.yml",
+    "vuln-gate.yaml",
+)
 
 
 def workflow_files(directory: Path) -> list[Path]:

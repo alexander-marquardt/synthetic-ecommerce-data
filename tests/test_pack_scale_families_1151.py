@@ -27,6 +27,7 @@ SELF_SIZED_BEFORE = frozenset(
         "produce_pile",
         "wine_bottle",
         "soft_drink",
+        "beer",
         "milk_jug",
         "milk_carton",
         "yogurt",
