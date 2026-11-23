@@ -68,16 +68,18 @@ NAMED = (
 APPAREL = ("kit:tshirt", "kit:dress", "kit:blouse")
 #: One redraw issue each.
 GROUPS = (
-    Group("Shoes and boots", ("kit_footwear",)),
+    Group("Shoes and boots", ("kit_footwear",), 1190),
     Group(
         "Dresses, tops, jeans and trousers",
         (*APPAREL, "kit_garments", "kit_lowerbody", "mens_pants"),
+        1189,
     ),
-    Group("Sweatshirts, pyjamas, sheets, mugs and aprons", ("kit_surfaces",)),
-    Group("Underwear and swimwear", ("kit:bra", "kit_underwear", "kit_swimwear")),
+    Group("Sweatshirts, pyjamas, sheets, mugs and aprons", ("kit_surfaces",), 1193),
+    Group("Underwear and swimwear", ("kit:bra", "kit_underwear", "kit_swimwear"), 1200),
     Group(
         "Coats, suits and school uniform",
         ("kit:coat", "kit_coats", "kit_outerwear", "kit_suits", "kit_suit_sets", "kit_school"),
+        1204,
     ),
     Group(
         "Accessories, jewellery and luggage",
@@ -92,8 +94,9 @@ GROUPS = (
             "sunglasses",
             "kit_luggage",
         ),
+        1198,
     ),
-    Group("Baby clothes and baby gear", ("kit_baby", "kit_baby_gear")),
+    Group("Baby clothes and baby gear", ("kit_baby", "kit_baby_gear"), 1203),
     Group(
         "Beauty, hair, grooming and health",
         (
@@ -106,8 +109,9 @@ GROUPS = (
             "kit_health_care",
             "kit_health_feminine",
         ),
+        1207,
     ),
-    Group("Bottles and jars (the shared packs)", ("kit_packs",)),
+    Group("Bottles and jars (the shared packs)", ("kit_packs",), 1196),
     Group(
         "Grocery packs, cakes and trays",
         (
@@ -123,20 +127,28 @@ GROUPS = (
             "kit_biscuits",
             "kit_punnet",
         ),
+        1195,
     ),
     Group(
         "Cleaning and paper goods",
         ("kit_cleaning", "kit_cleaning_care", "kit_paper", "kit_bags_wrap"),
+        1213,
     ),
     Group(
-        "Bedding, towels and soft furnishings", ("kit_home", "kit_softfurn", "kit_bedding_storage")
+        "Bedding, towels, soft furnishings, lipstick and eyeliner",
+        ("kit_home", "kit_softfurn", "kit_bedding_storage"),
+        1191,
     ),
-    Group("Furniture and sofas", ("kit_furniture", "kit_seating", "kit_storage_furniture")),
-    Group("Beds, plants, socks and the other kit_more shapes", ("kit_more",)),
-    Group("Gift bags, gifts and party goods", ("kit_round4", "kit_gifts", "kit_party", "stickers")),
-    Group("Picture motifs", ("kit_motifs",)),
-    Group("Tableware and kitchenware", ("kit_tableware", "kit_cups", "kit_household")),
-    Group("Appliances", ("kit_kitchen_appliances", "kit_appliances", "kit_large_appliances")),
+    Group("Furniture and sofas", ("kit_furniture", "kit_seating", "kit_storage_furniture"), 1214),
+    Group("Beds, plants, socks and the other kit_more shapes", ("kit_more",), 1192),
+    Group(
+        "Gifts, party goods, spray bottles and outfit sets",
+        ("kit_round4", "kit_gifts", "kit_party", "stickers"),
+        1194,
+    ),
+    Group("Picture motifs", ("kit_motifs",), 1197),
+    Group("Tableware and kitchenware", ("kit_tableware", "kit_cups", "kit_household"), 1208),
+    Group("Appliances", ("kit_kitchen_appliances", "kit_appliances", "kit_large_appliances"), 1211),
     Group(
         "Electronics and office",
         (
@@ -148,20 +160,24 @@ GROUPS = (
             "kit_smart_home",
             "kit_office",
         ),
+        1210,
     ),
     Group(
         "Garden and patio",
         ("kit_garden", "kit_garden_care", "kit_garden_yard", "kit_patio", "kit_outdoor"),
+        1201,
     ),
     Group(
         "Sports and outdoors",
         ("kit_sports", "kit_fitness_team", "kit_fishing_golf", "kit_cycling", "kit_outdoor_winter"),
+        1202,
     ),
     Group(
         "Car care and car accessories",
         ("kit_automotive", "kit_automotive_electrics", "kit_automotive_interior"),
+        1206,
     ),
-    Group("Pets", ("kit_pet_care", "kit_pet_gear", "kit_pets")),
+    Group("Pets", ("kit_pet_care", "kit_pet_gear", "kit_pets"), 1199),
     Group(
         "Toys",
         (
@@ -172,9 +188,10 @@ GROUPS = (
             "kit_toys_figures",
             "kit_toy_word_decoys",
         ),
+        1209,
     ),
-    Group("Lighting and decor", ("kit_lighting", "kit_decor")),
-    Group("Household goods and sewing", ("kit_goods", "kit_plain_goods", "kit_sewing")),
+    Group("Lighting and decor", ("kit_lighting", "kit_decor"), 1205),
+    Group("Household goods and sewing", ("kit_goods", "kit_plain_goods", "kit_sewing"), 1212),
     Group(
         "Drills, hammers, tool sets and ladders",
         (
@@ -183,19 +200,19 @@ GROUPS = (
             "industrial/household_tool_sets",
             "industrial/picture_hangers",
         ),
-        0,
+        1215,
         INDUSTRIAL_TIER,
     ),
     Group(
         "Safety glasses and cut-resistant gloves",
         ("industrial/safety_glasses", "industrial/cut_resistant_gloves"),
-        0,
+        1217,
         INDUSTRIAL_TIER,
     ),
     Group(
         "Industrial breadth types (storage, workwear, hand tools, vises and the rest)",
         ("industrial/breadth_shapes", "industrial/kit_assortment"),
-        0,
+        1216,
         INDUSTRIAL_TIER,
     ),
 )
