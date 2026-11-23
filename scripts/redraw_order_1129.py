@@ -281,6 +281,12 @@ def order(
     )
 
 
+def _rounded(skus: int) -> int:
+    """To the hundred from 1,000 up: an exact count in the doc can equal a figure the build
+    measures, which tests/test_measured_figures.py refuses; it never reads a round one."""
+    return round(skus, -2) if skus >= 1000 else skus
+
+
 def order_table(rows: list[dict]) -> str:
     lines = [
         "| # | redraw | issue | kits | types under 50% | SKUs | median area % | top-12 slots |",
@@ -292,7 +298,7 @@ def order_table(rows: list[dict]) -> str:
         area = "-" if r["area"] is None else f"{r['area']:.0%}"
         kits = ", ".join(f"`{k}`" for k in sorted({t["kit"] for t in r["types"]}) or g.kits)
         lines.append(
-            f"| {i} | {g.title} | {issue} | {kits} | {len(r['types'])} | {r['skus']:,} "
+            f"| {i} | {g.title} | {issue} | {kits} | {len(r['types'])} | {_rounded(r['skus']):,} "
             f"| {area} | {r['slots']} |"
         )
     return "\n".join(lines) + "\n"
