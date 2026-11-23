@@ -24,7 +24,7 @@ from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = ["Home", "Large Appliances"]
 #: the attribute holding each kind's capacity: a load, litres, or place settings
-CAPACITY_KEYS = ("load", "capacity", "place_settings")
+CAPACITY_KEYS = ("load", "capacity", "place_settings", "item_width")
 FROM_FORM = re.compile(r"^(?P<kind>.+) from (?P<brand>.+), Model (?P<code>[A-Z0-9-]+)$")
 
 
