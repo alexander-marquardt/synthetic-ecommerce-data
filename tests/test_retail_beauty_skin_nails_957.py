@@ -144,7 +144,7 @@ GOLDEN: dict[str, list[tuple]] = {
         ("BRD-025B74640728", "Cudwood Micellar Facial Cleanser for Oily Skin", 3, 14.5),
     ],
     "Deodorant": [
-        ("BRD-005232EC9A8D", "Chelhurst Cedarwood Gel Deodorant", 3, 6.5),
+        ("BRD-005232EC9A8D", "Dalridge Cedarwood Gel Deodorant", 3, 6.5),
         ("BRD-00BAF8E3C07E", "Wathwood Sandalwood Spray Deodorant", 3, 3.95),
         ("BRD-00CD57CCC5F2", "Rosshaw Sea Breeze Roll-On Deodorant", 3, 6.0),
     ],

@@ -34,6 +34,7 @@ RETAIL = (
     "Health",
     "Office & school",
     "Automotive",
+    "Books",
 )
 
 #: The industrial supplier's departments: the maintainer's three (2026-10-13), first kept as
