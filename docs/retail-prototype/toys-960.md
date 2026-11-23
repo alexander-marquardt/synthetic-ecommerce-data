@@ -1,6 +1,6 @@
 # Toys in depth, slice 1 (gen#960): board games, jigsaws and card games
 
-The Toys department held 1,464 SKUs at the ceiling build, 10 of them board games and 7 jigsaws,
+The Toys department held under 1,500 SKUs at the ceiling build, 10 of them board games and 7 jigsaws,
 because every game and puzzle row was a template only (`toys_rows`, left out of the
 derivation). Slice 1 of gen#960 makes three types breadth types: their spec files hold
 `derivable` rows whose titles show the values a derived style swaps.

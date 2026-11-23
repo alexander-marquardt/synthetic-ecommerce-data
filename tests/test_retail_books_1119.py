@@ -23,7 +23,14 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core import departments
-from synthetic_ecommerce_data.domains.retail import brand_owners, kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import (
+    barry_plotter,
+    barry_plotter_books,
+    brand_owners,
+    kit,
+    scale,
+    type_registry,
+)
 from synthetic_ecommerce_data.domains.retail import departments as retail_departments
 
 ROOT = "Books"
@@ -66,8 +73,10 @@ def test_the_ceiling_build_holds_the_slice_floor_of_book_skus(books) -> None:
 
 
 def test_every_title_is_sold_in_exactly_the_three_formats_cheapest_first() -> None:
-    rows = _spec().rows
-    assert len(rows) >= 480
+    # The Barry Plotter series has a box set and an illustrated edition in fewer formats;
+    # tests/test_barry_plotter_books_1119.py checks it.
+    rows = [r for r in _spec().rows if r.product_id not in barry_plotter_books.ids()]
+    assert len(rows) == 480
     for row in rows:
         assert row.size_key == "format", row.code
         assert tuple(s for s, _ in row.sizes) == FORMATS, row.code
@@ -157,14 +166,21 @@ def test_few_book_styles_share_a_results_grid_tile(books) -> None:
 
 def test_no_book_word_takes_a_range_word_of_a_derived_family() -> None:
     """A word that any template's text uses is no derived model's range (#851): a book title or
-    blurb that used 'Craft' or 'Spice' would rename the derived jeans or kitchen ranges."""
+    blurb that used 'Craft' or 'Spice' would rename the derived jeans or kitchen ranges. A word the
+    Barry Plotter merchandise already uses (gen#925: 'Moonlit', 'Bramble') takes no more."""
     from synthetic_ecommerce_data.domains.retail import line_grammar
 
-    words: set[str] = set()
-    for r in _spec().rows:
-        values = " ".join(str(a[2]) for a in r.attrs)
-        text = f"{r.title} {r.description} {r.brand} {values}".lower()
-        words.update(re.findall(r"[a-z]+", text))
+    def words_of(rows) -> set[str]:
+        out: set[str] = set()
+        for r in rows:
+            values = " ".join(str(a[2]) for a in r.attrs)
+            text = f"{r.title} {r.description} {r.brand} {values}".lower()
+            out.update(re.findall(r"[a-z]+", text))
+        return out
+
+    own = [r for r in _spec().rows if r.product_id in barry_plotter_books.ids()]
+    rest = [r for r in _spec().rows if r.product_id not in barry_plotter_books.ids()]
+    words = words_of(rest) | (words_of(own) - words_of(barry_plotter.ROWS))
     hits = {
         fam: [w for w in (*spec.leads, *spec.grocery_leads) if w.lower() in words]
         for fam, spec in line_grammar._NUMBERED.items()
