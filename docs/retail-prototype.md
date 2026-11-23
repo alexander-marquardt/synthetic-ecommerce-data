@@ -258,8 +258,10 @@ paper cups on the tray, in `kit_chocolate.py`; a 150g box draws itself smaller t
 one; `tests/test_chocolate_box_drawn_609.py`, the flat box it replaced is
 `docs/images/chocolate-box-drawn-609.svg`); the chocolate bars and multipacks draw a
 `chocolate_bar` (an opened, glossy bar or a stack of a multipack's bars, its block the
-chocolate it is made of) and the sharing bags a `chocolate_bag` (a stand-up bag, its
-buttons or bites in a window and spilled in front;
+chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, its
+buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
+lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
+ball of segments in its opened foil;
 [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
