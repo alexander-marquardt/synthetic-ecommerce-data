@@ -25,7 +25,7 @@ import re
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit, real_brands, scale, type_registry
 
 ROOT = "Electronics"
 GAME, CONSOLE = "Video Game", "Game Console"
@@ -159,6 +159,14 @@ def test_no_real_console_platform_or_publisher_name(electronics, ptype) -> None:
                          *(str(x["value"]) for x in r["attributes"])]).lower()  # fmt: skip
         found += [(r["product_id"], n) for n in REAL if re.search(rf"\b{re.escape(n)}\b", text)]
     assert not found
+
+
+@pytest.mark.parametrize("ptype", [GAME, CONSOLE], ids=["video_game", "game_console"])
+def test_the_rows_pass_the_real_brand_check(electronics, ptype) -> None:
+    """The whole-build gate reads descriptions too: "its next shore" named the retailer Next."""
+    mine = _mine(electronics, ptype)
+    assert mine
+    assert real_brands.check(mine) == []
 
 
 def test_the_demo_page_lists_every_collision_and_the_demo_queries() -> None:
