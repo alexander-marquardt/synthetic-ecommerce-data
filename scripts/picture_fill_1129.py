@@ -629,6 +629,42 @@ def sweep(recs: list[dict]) -> tuple[list[dict], dict, dict[str, bytes], set[str
     return renders, served, svgs, kits
 
 
+# --- the industrial rows (slice 2): stubs the next commit fills in ---------------------------
+
+OUT_OF_SCOPE = "out of scope (maintainer 11-21): drawn to scale"
+NAMED_NOTE = "yes (maintainer 11-21 names it realistic; its code draws to scale)"
+
+
+def sheet_measures(svg: str | bytes) -> tuple[float, Measure | None]:
+    """Stub: an industrial sheet is not measured yet."""
+    return 0.0, None
+
+
+def lengthened(value: str) -> str | None:
+    """Stub: a published length is not made longer yet."""
+    return value
+
+
+def drawn_to_scale(fn, record: dict) -> list[str]:
+    """Stub: no figure is read as drawn to scale yet."""
+    return []
+
+
+def figure_kit(fn, type_key: str) -> tuple[str, str]:
+    """Stub: an industrial figure has no kit yet."""
+    return "", ""
+
+
+def in_scope(type_key: str, scaled: list[str]) -> tuple[bool, str]:
+    """Stub: every industrial type is in scope."""
+    return True, "yes"
+
+
+def contact_svg(rows: list[dict], svgs: dict[str, bytes], count: int = 40, cols: int = 5) -> str:
+    """Stub: the contact SVG holds no cell yet."""
+    return '<svg xmlns="http://www.w3.org/2000/svg"/>'
+
+
 def _kit_modules() -> list[str]:
     here = Path(kit.__file__).parent
     return sorted(p.stem for p in [here / "kit.py", *here.glob("kit_*.py")])
