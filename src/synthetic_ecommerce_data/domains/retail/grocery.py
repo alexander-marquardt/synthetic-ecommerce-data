@@ -54,6 +54,7 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.retail import (
     food_title_words,
     grocery_rows,
+    kit_beer,  # noqa: E402 -- registers beer (gen#1127)
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
     kit_bread,  # noqa: E402,F401 -- registers loaf
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
@@ -192,6 +193,12 @@ WINE_STYLES = {
 #: What a soft drink family's 330ml single is sold in (``kit_soft_drinks.container``): a brewed
 #: ginger beer in a glass bottle; any other line's 330ml in a can (gen#1127).
 SMALL_DRINK = {"GNB": "glass"}
+#: A beer family's line (``kit_beer.container``): whether it is sold in cans or bottles, and its
+#: bottles' glass: a pale ale in brown glass, a fruit beer in clear glass (gen#1127).
+BEER_LINES = {
+    "BLG": ("can", "brown"), "BSO": ("can", "brown"), "BAF": ("can", "brown"),
+    "BPA": ("bottle", "brown"), "BFR": ("bottle", "clear"),
+}  # fmt: skip
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -432,6 +439,13 @@ def _drawing(
         largest = max(singles, key=_size)["pack_size"]
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"], "largest": largest,
                   "small": SMALL_DRINK.get(fam.code, "can")}  # fmt: skip
+    if shape == "beer":  # each SKU its own pack, in its line's cans or bottles (gen#1127)
+        sold_in, glass = BEER_LINES[fam.code]
+        singles = [p for p in packs if kit_beer.container(p["pack_size"], sold_in)[1] == 1]
+        bottles = [p for p in singles if kit_beer.container(p["pack_size"], sold_in)[0] == "bottle"]
+        largest = max(bottles, key=_size)["pack_size"] if bottles else ""
+        marks |= {"pack_size": pack["pack_size"], "largest": largest, "sold_in": sold_in,
+                  "glass": glass}  # fmt: skip
     return drawing(shape, color, label, **marks)
 
 

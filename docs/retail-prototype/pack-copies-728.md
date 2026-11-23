@@ -37,7 +37,8 @@ the same bounds as a single drawing.
 fruit, a nest of tables, four rubber pads, and any drawing with its own `count`, `pieces` or `units`
 of that number, such as a set of steak knives. A pile draws its own SKU's count, not the first pack
 of its line (`pack_copies.pile_count`). A soft drink's multipack draws its own cans, in two rows
-under a card carrier (`soft_drink`, gen#1127: [the soft drinks page](soft-drinks-1127.md)). `tub`, `socks` and `school_shirt` drew their own
+under a card carrier (`soft_drink`, gen#1127: [the soft drinks page](soft-drinks-1127.md)), and a beer's
+4-pack its own cans under a carrier or bottles in a card basket (`beer`: [the beer page](beer-1127.md)). `tub`, `socks` and `school_shirt` drew their own
 packs and moved onto the layout. A shape that draws several items by default is told to draw one
 for a pack (`pack_copies.ONE_ITEM`: hangers, a pile of towels, packing cubes), so a copy is one item.
 
@@ -46,7 +47,9 @@ single of the same line keeps its factor.
 
 `tests/test_retail_pack_copies_728.py` holds the whole catalogue to this. The strip is drawn by
 `pack_copies_strip.py`, and the test compares it with `docs/images/pack-copies.svg`. The catalogue
-sells no six cans, so that cell gives a real product that pack's size.
+sells no six tins of baked beans, so that cell gives a real product that pack's size. A beer or
+soft drink draws its own multipack, so the strip shows tins of chickpeas and baked beans as
+copies where it showed an ale and a lager (gen#1127).
 
 ## Sets and piece sets (the 2026-11-04 scan)
 
