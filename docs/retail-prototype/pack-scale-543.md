@@ -15,4 +15,4 @@ drawn in that color's swatch (base, pattern and accent).
 
 **A soft drink draws its own size too (gen#1127).** `soft_drink` takes no factor: its bottle steps down as a wine bottle does, and its can and multipack of cans fill half the product area. See [the soft drinks page](soft-drinks-1127.md).
 
-**A beer draws its own size too (gen#1127).** `beer` takes no factor: its bottle steps down as a wine bottle does, a can stands at the full height, and its 4-pack fills the product area's width. See [the beer page](beer-1127.md).
+**A beer, cider or perry draws its own size too (gen#1127).** `beer` takes no factor: its bottle steps down as a wine bottle does, a can stands at the full height, and its 4-pack fills the product area's width. See [the beer page](beer-1127.md).
