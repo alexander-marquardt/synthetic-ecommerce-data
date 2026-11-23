@@ -16,7 +16,7 @@ KINDS = (
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
-    "Voyage", "Transit", "Trip", "Transfer", "Gateway", "Passage", "Departure", "Layover",
+    "Sojourn", "Transit", "Trip", "Transfer", "Gateway", "Passage", "Departure", "Layover",
     "Stopover", "Boarding", "Getaway", "Excursion", "Odyssey", "Itinerary", "Jetset", "Embark",
     "Horizon", "Route", "Wayfare", "Tourer",
 )  # fmt: skip
