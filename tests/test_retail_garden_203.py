@@ -299,11 +299,11 @@ EXEMPT = {
         "Bulbs",
         "Christmas Tree",
         "Growing Kit",
-        "House Plant",
         "Plant",
         "Seeds",
     )
 } | {
+    "House Plant": "a house plant, bought by variety like the nursery types (gen#1115)",
     "Plant Food": "a feed bought by the plant it feeds, like the nursery types it serves (gen#1115)"
 }
 DECOY_TYPES = [t for t in GARDEN_TYPES if t not in EXEMPT]

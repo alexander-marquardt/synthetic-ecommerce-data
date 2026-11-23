@@ -41,7 +41,15 @@ value (gen#512), and each value draws apart
 
 **Count.** At the ceiling build the three types hold 1,343 SKUs, against 5 before: +1,338 against
 the issue's target of about +1,200 (floor 1,140). That is Bouquet 653 (103 styles), House Plant
-588 (49) and Plant Food 102 (42). Garden goes from 10,100 to 11,438.
+588 (49) and Plant Food 102 (42).
+
+**Titles and sizes.** House Plant and Plant Food are kinds of the garden family of the line
+grammar (`line_grammar_families/garden.py`), so a derived style's model is a garden lead word
+and not an invented range name. `size_axes.AXES` declares a bouquet's `stem_count` and a house
+plant's `pot_size_cm`, so the larger bouquet and the larger pot are drawn larger. The bouquet
+texts say a stem is sent closed, not "in bud": a word in a template's text is no derived model,
+and "Bud" is a baby gear lead word, so using it would re-deal that family's models and change
+the stroller, car seat and high chair titles.
 
 **Decoys.** House Plant joins the nursery types in `tests/test_retail_garden_203.py`'s
 exemption (a plant bought by variety). So does Plant Food, a feed bought by the plant it feeds.

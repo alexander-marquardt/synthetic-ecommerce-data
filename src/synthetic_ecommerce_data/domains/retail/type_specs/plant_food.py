@@ -37,7 +37,7 @@ SIZE_KEY = {"Liquid": "net_volume_ml", "Granules": "net_weight_g", "Feed Sticks"
 
 
 def _food(code: str, title: str, plant: str, form: str, brand: str, desc: str, sizes: tuple) -> Row:
-    attrs = (a("plant", "For", plant), a("feed_form", "Form", form))
+    attrs = (a("plant", "For", plant), a("feed_form", "Feed form", form))
     params = (("form", form.lower()), ("plant", plant.lower()))
     return Row(code, title, brand, DEPARTMENT, PATH, _PT, sizes[0][1], "plant_food", desc, (PACK,), attrs, sizes,
                colorless=True, params=params, size_key=SIZE_KEY[form])  # fmt: skip
