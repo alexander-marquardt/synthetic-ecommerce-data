@@ -17,7 +17,13 @@ import collections
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import kit, scale, size_ladder, type_registry
+from synthetic_ecommerce_data.domains.retail import (
+    kit,
+    line_grammar,
+    scale,
+    size_ladder,
+    type_registry,
+)
 
 ROOT = "Office & School"
 NODE = "Sewing & Knitting"
@@ -168,3 +174,19 @@ def test_each_type_carries_a_part_color_and_a_range_name_decoy(key) -> None:
         (color,) = decoy.row.colors
         word = decoy.query.split()[0].capitalize()
         assert word in MAIN and word in decoy.row.title and color[0] != word, decoy.row.title
+
+
+def test_the_cut_takes_no_lead_word_from_another_family() -> None:
+    """A lead word any template's text uses leaves its family's deal (#851), and the rest are
+    dealt again. The cut's first build titled a decoy "White Cottage", which took garden's
+    "Cottage" and moved a golden slice of ``tests/test_retail_garden_961.py``."""
+    tpls = scale.templates()
+    mine = [r for r in tpls if r["product_type"] in TYPES]
+    rest = [r for r in tpls if r["product_type"] not in TYPES]
+    leads = {
+        w.lower()
+        for fam in line_grammar._NUMBERED.values()
+        for w in (*fam.leads, *fam.grocery_leads)
+    }  # fmt: skip
+    new = line_grammar.text_words(mine) - line_grammar.text_words(rest)
+    assert mine and not new & leads, sorted(new & leads)
