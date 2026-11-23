@@ -574,9 +574,9 @@ def test_the_strip_shows_the_packs_the_issue_names() -> None:
     captions = [caption for caption, _ in pack_copies_strip.cells()]
     assert len(captions) == len(set(captions)) == 19
     drawn = dict(pack_copies_strip.cells())
-    for caption, n in (("Socks, 3 pairs", 3), ("Socks, 5 pairs", 5), ("Lager, 6 cans", 6),
+    for caption, n in (("Socks, 3 pairs", 3), ("Socks, 5 pairs", 5), ("Baked beans, 6 tins", 6),
                        ("Knickers, 3 pack", 3), ("Knickers, 7 pack", 7),
-                       ("Ale, 4 bottles", 4),
+                       ("Chickpeas, 4 tins", 4),
                        ("Eye patches, 24", 24),
                        ("Kids dresses, 2 pack", 2), ("Kids dresses, 3 pack", 3)):  # fmt: skip
         assert drawn[caption].decode().count('class="pack-copy"') == n, caption

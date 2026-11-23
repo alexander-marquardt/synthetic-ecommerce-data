@@ -4,7 +4,8 @@ Before gen#1127 every soft drink (the SFT soft drink lines and the GNB ginger be
 beer lines) shared the generic `bottle` shape, shrunk by `pack_scale` (gen#543). A 500ml
 covered about a tenth of the product area, and a 6 x 330ml was six copies of that bottle. The
 two families now draw `soft_drink` (`kit_soft_drinks.py`): 42 products, 354 SKUs. Wine is
-slice 1 ([the wine bottle page](wine-bottles-1127.md)); beer, cider and perry (slice 3) follow.
+slice 1 ([the wine bottle page](wine-bottles-1127.md)), beer slice 3 ([the beer page](beer-1127.md)); cider and
+perry follow.
 
 ![Soft drinks and two spirits, each pack, before (the generic bottle shrunk by pack_scale) and after](../images/soft-drinks-1127.png)
 
