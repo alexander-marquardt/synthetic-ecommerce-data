@@ -136,6 +136,21 @@ def test_the_table_names_each_groups_issue_kits_and_numbers() -> None:
     assert lines[4] == "| 3 | Boots | gen#1 | `kit_boots` | 1 | 10 | 25% | 7 |"
 
 
+def test_the_table_rounds_a_count_of_a_thousand_or_more_to_a_hundred() -> None:
+    """An exact count can equal a figure the build measures (tests/test_measured_figures.py)."""
+
+    def printed(skus: int) -> str:
+        rows = _order([_row("kit_boots", "Boot", area=0.25, skus=skus)])
+        return ro.order_table(rows).splitlines()[4].split(" | ")[5]
+
+    assert {n: printed(n) for n in (999, 1000, 1009, 28830)} == {
+        999: "999",
+        1000: "1,000",
+        1009: "1,000",
+        28830: "28,800",
+    }
+
+
 def test_the_script_prints_the_table_of_a_rows_file(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
