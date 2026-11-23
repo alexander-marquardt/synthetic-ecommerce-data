@@ -1,10 +1,11 @@
 """Screen protectors (gen#332): glass, matte and privacy sheets for a named phone or tablet.
 
-Rows: ``electronics_rows``. Drawing: ``kit_electronics``.
+Rows: ``electronics_rows`` and ``phone_range_rows`` (gen#1117). Drawing: ``kit_electronics``.
 """
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import phone_range_rows
 from synthetic_ecommerce_data.domains.retail.electronics_rows import (
     ELECTRONICS_OWNERS,
     SCREEN_PROTECTORS,
@@ -16,5 +17,5 @@ SPEC = TypeSpec(
     department="Electronics",
     product_type="Screen Protector",
     owners=ELECTRONICS_OWNERS,
-    rows=SCREEN_PROTECTORS,
+    rows=SCREEN_PROTECTORS + phone_range_rows.SCREEN_PROTECTORS_NEW,
 )
