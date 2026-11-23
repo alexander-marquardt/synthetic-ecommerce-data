@@ -727,6 +727,7 @@ from synthetic_ecommerce_data.domains.retail import (  # noqa: E402
     color_word_brand_styles,  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
     diy_brand_styles,  # noqa: E402,F401 -- gen#191: four marks and styles join the tables
     electronics_brand_styles,  # noqa: E402,F401 -- gen#332, #721, #724: 17 marks and styles of the Electronics department join the tables
+    gaming_brand_styles,  # noqa: E402,F401 -- gen#1120: the eight video game publishers' marks and styles join the tables
     grocery_brand_styles,  # noqa: E402,F401 -- gen#376: 22 marks and styles of the 50K grocery tier join the tables
     health_brand_styles,  # noqa: E402,F401 -- gen#968: three marks and styles of the Health first-aid and monitor brands join the tables
     luggage_brand_styles,  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
