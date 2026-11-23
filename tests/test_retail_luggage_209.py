@@ -22,6 +22,7 @@ from synthetic_ecommerce_data.domains.retail import (
     main_colors,
     retail_figures,
     scale,
+    scale_text,
     type_registry,
 )
 
@@ -151,9 +152,46 @@ def test_no_luggage_style_of_the_ceiling_build_sits_under_womens() -> None:
     assert off == []
 
 
-#: The luggage SKUs of the ceiling build: 138 before gen#1114, 1,975 after it (its target was
-#: about +1,800). The floor leaves room for a derivation that another change moves.
-LUGGAGE_SKU_FLOOR = 1800
+#: Product type -> the keys a derived style keeps from its template (gen#1114): the text and the
+#: drawing follow them, so a swap made "Soft Shell" suitcases of ABS, a "No lock" and an
+#: under-seat case on spinner wheels. A holdall's and a weekend bag's material and a neck
+#: pillow's cover stand alone and may still vary.
+BUILD_KEYS = {
+    "Suitcase": {"shell", "wheels", "lock", "expandable", "material"},
+    "Cabin Case": {"shell", "wheels", "airline_allowance", "dimensions"},
+    "Holdall": {"wheels", "use"},
+    "Weekend Bag": {"trolley_sleeve"},
+    "Luggage Set": {"shell", "wheels", "sizes_included"},
+    "Travel Organizer": {"organizer_type", "material"},
+    "Neck Pillow": {"fill", "hood"},
+}
+
+
+def test_a_luggage_template_offers_no_build_key_for_a_derived_style_to_change() -> None:
+    authored = [r for r in _ceiling_luggage() if r["product_id"] not in retail_figures.ceiling().template_of]
+    pools = scale_text.value_pools(authored)
+    offered = sorted({(r["product_type"], k) for r in authored
+                      for k in scale_text.variable_keys(r, pools) if k in BUILD_KEYS[r["product_type"]]})  # fmt: skip
+    assert offered == []
+
+
+def test_a_derived_luggage_style_keeps_the_build_of_its_template() -> None:
+    """gen#1114: no derived style of the ceiling build changes a key its text or drawing follows."""
+    scaled = retail_figures.ceiling()
+    by_id = {r["product_id"]: r for r in scaled.records}
+    derived = [r for r in _ceiling_luggage() if r["product_id"] in scaled.template_of]
+    assert derived
+    changed = []
+    for r in derived:
+        old = {a["key"]: str(a["value"]) for a in by_id[scaled.template_of[r["product_id"]]]["attributes"]}
+        changed += [(r["title"], a["key"], old.get(a["key"]), str(a["value"])) for a in r["attributes"]
+                    if a["key"] in BUILD_KEYS[r["product_type"]] and old.get(a["key"]) != str(a["value"])]  # fmt: skip
+    assert changed == []
+
+
+#: The luggage SKUs of the ceiling build (seed 0): 138 before gen#1114, 1,993 after it (its
+#: target was about +1,800), once the build keys are frozen and the authored colorways widened.
+LUGGAGE_SKU_FLOOR = 1993
 
 
 def test_the_ceiling_build_holds_the_luggage_range() -> None:
