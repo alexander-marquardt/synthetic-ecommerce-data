@@ -172,10 +172,19 @@ SHAPES = {
     ("BUT", "Unsalted Butter"): "butter_block",
     ("BUT", "Spreadable Butter"): "lidded_tub",
     ("BUT", "Plant Spread"): "lidded_tub",
+    ("PNT", "Chocolate Peanut Butter Cups"): "peanut_butter_cups",
+    ("PNT", "Chocolate Coated Peanuts"): "chocolate_bag",
 }
 #: The chocolate shapes a SKU draws at its own weight, in its own chocolate (gen#1125).
 CHOCOLATE_SHAPES = frozenset(
-    {"chocolate_bar", "chocolate_box", "chocolate_bag", "hot_chocolate", "chocolate_orange"}
+    {
+        "chocolate_bar",
+        "chocolate_box",
+        "chocolate_bag",
+        "hot_chocolate",
+        "chocolate_orange",
+        "peanut_butter_cups",
+    }
 )
 #: What a punnet holds, by the VEG variety (``kit_punnet.PRODUCE``).
 PUNNET = {
@@ -424,8 +433,11 @@ def _drawing(
         marks["pack_size"] = pack["pack_size"]
         if choc := chocolate_of(flavor):  # the chocolate is its own, not the flavour's color
             marks["chocolate"] = choc
-    if shape == "chocolate_bag":  # a sharing bag shows the buttons or bites it holds
-        marks["piece"] = "buttons" if "Buttons" in flavor.name else "bites"
+    if shape == "chocolate_bag":  # a sharing bag shows the buttons, peanuts or bites it holds
+        marks["piece"] = next(
+            (p for w, p in (("Buttons", "buttons"), ("Peanuts", "peanuts")) if w in flavor.name),
+            "bites",
+        )
     if shape in DAIRY_PARAMS:  # a SKU draws its own fat level and size (gen#1128)
         own = {"flavor": flavor.name, "pack_size": pack["pack_size"]}
         marks |= {k: own[k] for k in DAIRY_PARAMS[shape]}

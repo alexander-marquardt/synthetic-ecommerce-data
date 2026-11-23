@@ -180,7 +180,7 @@ SEASONS = (
     SRow("SEAWRP", "Christmas Wrapping Paper, 3 m Roll", "Lanternby", _H, _WRAPPAPER, "Wrapping Paper", 4.0, "wrapping_paper",
          "A 3 m roll of heavy gift wrap in a deep, solid shade.",
          (RUST, CHAMPAGNE), collections=(XMAS,)),
-    SRow("SEAADV", "Chocolate Advent Calendar", "Pantry Mill", _FOOD, _BOXES, "Chocolate Box", 6.0, "box",
+    SRow("SEAADV", "Chocolate Advent Calendar", "Pantry Mill", _FOOD, _BOXES, "Chocolate Box", 6.0, "advent_calendar",
          "A window a day to Christmas, each with a milk chocolate shape. 24 windows, 100g.",
          (NATURAL,), collections=(ADVENT, XMAS), colorless=True, label="Calendar"),
     SRow("SEABAD", "Beauty Advent Calendar", "Kestlewood Cosmetics", "Beauty", _MAKEUP_SET, "Gift Set", 45.0, "gift_set",
