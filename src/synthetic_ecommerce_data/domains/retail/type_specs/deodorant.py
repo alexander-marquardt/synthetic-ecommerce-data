@@ -16,23 +16,26 @@ from synthetic_ecommerce_data.domains.retail.skin_rows import DEODORANTS, OWNED
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Row, TypeSpec, a, cw
 
 
-def _attrs(scent: str, applicator: str) -> tuple[tuple, ...]:
-    return (a("scent", "Scent", scent), a("applicator", "Applicator", applicator))
+def _attrs(scent: str, applicator: str, protection: str = "") -> tuple[tuple, ...]:
+    out = (a("scent", "Scent", scent), a("applicator", "Applicator", applicator))
+    return (*out, a("protection", "Protection", protection)) if protection else out
 
 
 def _packs(price: float) -> tuple[tuple[str, float], ...]:
     return (("1", price), ("2", round(price * 1.8, 2)), ("3", round(price * 2.5, 2)))
 
 
-def _params(scent: str, applicator: str) -> tuple[tuple[str, str], ...]:
-    return (("scent", scent.lower()), ("applicator", applicator.lower()))
+def _params(scent: str, applicator: str, protection: str = "") -> tuple[tuple[str, str], ...]:
+    out = (("scent", scent.lower()), ("applicator", applicator.lower()))
+    return (*out, ("protection", protection.lower())) if protection else out
 
 
 def _row(code: str, title: str, brand: str, desc: str, scent: str, applicator: str, price: float,
-         pack: tuple) -> Row:  # fmt: skip
+         pack: tuple, protection: str = "") -> Row:  # fmt: skip
     return Row(code, title, brand, DEPARTMENT, DEODORANTS, "Deodorant", price, "deodorant",
-               desc, (pack,), _attrs(scent, applicator), _packs(price), "Deodorant",
-               colorless=True, size_key="units_per_pack", params=_params(scent, applicator))  # fmt: skip
+               desc, (pack,), _attrs(scent, applicator, protection), _packs(price), "Deodorant",
+               colorless=True, size_key="units_per_pack",
+               params=_params(scent, applicator, protection))  # fmt: skip
 
 
 ROWS = (
@@ -54,6 +57,17 @@ ROWS = (
     _row("DEOCED", "Cedarwood Stick Deodorant", "Fenmere",
          "A deodorant with odour control free from baking soda, in recyclable packaging.",
          "Cedarwood", "Stick", 7.0, cw("Kraft", "#c9a77c", "solid", "#3a2a1a")),
+    # gen#1112 slice 3: rows whose title also shows the protection, Antiperspirant or
+    # Aluminum-Free, so the scaled build draws the range in both and 'antiperspirant' finds it.
+    _row("DEOAPR", "Unscented Antiperspirant Roll-On Deodorant", "Pearlbrook",
+         "A daily deodorant for the underarms, in a pack small enough for a gym bag.",
+         "Unscented", "Roll-On", 3.25, cw("Pale Grey", "#e4e6e8", "solid", "#2f3a4a"), "Antiperspirant"),
+    _row("DEOAFS", "Citrus Aluminum-Free Stick Deodorant", "Veilmoor",
+         "A deodorant made without parabens, sold in a recyclable pack.",
+         "Citrus", "Stick", 5.0, cw("Cream", "#efe8d8", "solid", "#5a4a1a"), "Aluminum-Free"),
+    _row("DEOAPS", "Sea Breeze Antiperspirant Spray Deodorant", "Thornlea Skin",
+         "A deodorant for a long working day, tested by dermatologists.",
+         "Sea Breeze", "Spray", 3.75, cw("Navy", "#2f3a4a", "solid", "#ffffff"), "Antiperspirant"),
 )  # fmt: skip
 
 SPEC = TypeSpec(

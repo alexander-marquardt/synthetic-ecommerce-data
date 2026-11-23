@@ -60,6 +60,10 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1112 (slice 2) | Beauty | Cotton Pads | 121 |
 | gen#1112 (slice 2) | Beauty | Cotton Buds | 84 |
 | gen#1112 (slice 2) | Beauty | Cotton Wool | 55 |
+| gen#1112 (slice 3) | Beauty | Deodorant (417 to 849) | 432 |
+| gen#1112 (slice 3) | Beauty | Shower Gel (body wash, 292 to 763) | 471 |
+| gen#1112 (slice 3) | Beauty | Razor Cartridges | 150 |
+| gen#1112 (slice 3) | Beauty | Shave Gel | 222 |
 | gen#1114 (bags) | Clothing | Crossbody Bag | 444 |
 | gen#1114 (bags) | Clothing | Shoulder Bag | 310 |
 | gen#1114 (bags) | Clothing | Clutch Bag | 173 |
@@ -88,15 +92,16 @@ starts before the build stops crashing at larger sizes. A row that does not grow
 | Health | retail | existing | 0 | 5,000 | 5,000 | gen#968 | vitamins and supplements, first aid, thermometers and blood-pressure monitors, eye care, incontinence, mobility aids; over-the-counter only, invented brands, no medical claims |
 | Office & school | retail | existing | 0 | 4,500 | 4,500 | gen#969 | pens and pencils, paper and notebooks, binders and folders, backpacks, desk accessories, calculators, art supplies |
 | Automotive | retail | existing | 0 | 2,000 | 2,000 | gen#970 | car wash and wax, wiper blades, motor oil and fluids, phone mounts, seat covers and floor mats, jump starters, tire inflators |
+| Books | retail | existing | 0 | 1,500 | 1,500 | gen#1119 | invented titles in hardback, paperback and ebook: cookery, crafts, gardening, DIY, pets, children's, fiction and travel, with titles that collide with other departments, and a Barry Plotter series |
 | Hardware | industrial | existing | 73,436 | 75,000 | 1,564 | gen#958 | home hardware only: picture hanging, hooks, wall anchors, door and cabinet knobs and hinges, shelf brackets, household fastener assortments |
 | Tools | industrial | existing | 58,147 | 59,500 | 1,353 | gen#971 | homeowner tools only: tape measures, levels, utility knives, stud finders, household tool sets |
 | Workshop & safety | industrial | existing | 413 | 413 | 0 | none | none |
 | Womens | retail | existing | 163,904 | 163,904 | 0 | none | none |
 | Mens | retail | existing | 47,998 | 47,998 | 0 | none | none |
-| **Total** | | | **394,766** | **497,315** | **102,549** | | |
+| **Total** | | | **394,766** | **498,815** | **104,049** | | |
 
-The new targets put 362,402 SKUs in retail and 134,913 in industrial. The growth is 102,549:
-99,632 of it in retail and 2,917 in industrial home hardware and DIY. The thin departments come
+The new targets put 363,902 SKUs in retail and 134,913 in industrial. The growth is 104,049:
+101,132 of it in retail and 2,917 in industrial home hardware and DIY. The thin departments come
 first in the table, as the issue orders, and then the departments the catalogue lacks.
 
 ## Grown by family issues since
@@ -108,9 +113,10 @@ first in the table, as the issue orders, and then the departments the catalogue 
 
 ## Left out
 
-- **Books, music, movies and video games.** All four retailers sell them, but each product is a
-  named work. An invented title has no attributes to filter on, and a real one fails the
-  non-copying audit.
+- **Music, movies and video games.** All four retailers sell them, but each product is a named
+  work, and a real one fails the non-copying audit. Books are in since gen#1119: an invented title
+  carries attributes to filter on (format, author, publisher, genre, pages, publication year, age
+  band), and its words collide with other departments, which is what the demo searches.
 - **Prescription pharmacy and fresh perishables.** These go beyond what the demo searches today.
   Health stays over the counter.
 - **More apparel.** Womens and Mens hold 54% of the SKUs today and 43% at the target. That share
