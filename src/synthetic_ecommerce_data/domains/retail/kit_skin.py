@@ -123,8 +123,10 @@ def deodorant(
     label: str | None,
     applicator: str = "roll-on",
     scent: str = "unscented",
+    protection: str = "",
 ) -> list[str]:
-    """A deodorant, upright: its pack by ``applicator`` and a band in the ``scent``'s tone."""
+    """A deodorant, upright: its pack by ``applicator``, a band in the ``scent``'s tone, and
+    a mark for its ``protection`` when it states one (a drop, or a struck-out 'Al')."""
     band = BAND.get(scent, BAND["unscented"])
     lid = _shade(fill.base, 0.3)
     if applicator == "stick":  # an oval stick on its twist base
@@ -146,6 +148,12 @@ def deodorant(
         out = [_rect(x, top, w, 190, paint, 30), _rect(x - 4, 60, w + 8, 116, lid, 40),
                _ell(200, 176, 30, 6, STEEL, LW_DETAIL)]  # fmt: skip
     out.append(_rect(x, 238, w, 34, band, 2, LW_DETAIL))
+    if protection == "antiperspirant":  # a drop
+        out.append(_path("M200,194 Q188,212 188,218 A12,12 0 0 0 212,218 Q212,212 200,194 Z",
+                         "#5fa8d0", LW_DETAIL))  # fmt: skip
+    elif protection == "aluminum-free":  # 'Al' struck out in a circle
+        out += [_ell(200, 214, 15, 15, "#ffffff", LW_DETAIL), _word("Al", 200, 214, 18, 12, GREY),
+                _line("M190,226 L210,202", LW_DETAIL)]  # fmt: skip
     ink = "#ffffff" if scent in DARK_BANDS else GREY
     out.append(_word(scent.title(), 200, 255, w - 12, 13, ink))
     if label:
