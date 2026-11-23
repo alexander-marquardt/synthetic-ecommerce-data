@@ -1,7 +1,8 @@
 """Shared pieces of the seven luggage and travel types (gen#209): colors, brands, row builder.
 
-Luggage sits in **Womens > Accessories > Travel** beside the travel cases (gen#248: an accessory
-is one product in one place, and its audience is the ``audience`` attribute, here Unisex). Every
+Luggage sits in **Home > Luggage & Travel** (gen#1114: a shopper looks for a suitcase where a
+retailer files it, not under Womens; gen#248: an accessory is one product in one place, and its
+audience is the ``audience`` attribute, here Unisex). Every
 type is its own spec under ``type_specs/`` and its own drawing in :mod:`kit_luggage`. A style is
 an :class:`~accessory_rows.ARow`: its SKUs are the colors times the type's own axis, and
 ``extra`` states the other fields a size carries (a suitcase's size name and its weight), so a
@@ -20,9 +21,8 @@ from synthetic_ecommerce_data.domains.retail.accessory_rows import ARow, _a, _co
 from synthetic_ecommerce_data.domains.retail.audience import UNISEX
 from synthetic_ecommerce_data.domains.retail.variants import cw
 
-PATH = ("Womens", "Accessories", "Travel")
-DEPARTMENT = "Clothing"
-EXEMPT = "luggage, not a garment: the type carries its own text-match decoys (gen#209)"
+PATH = ("Home", "Luggage & Travel")
+DEPARTMENT = "Home"
 
 TARNWICK, FENMOOR, SKERRY, MARROWGATE, PELLBROOK, WRENFIELD = (
     "Tarnwick", "Fenmoor & Co", "Skerry Travel", "Marrowgate", "Pellbrook", "Wrenfield",
@@ -61,8 +61,11 @@ def luggage_row(code, title, brand, price, desc, colors, ptype, leaf, shape, att
                 sizes, params=params, size_key=size_key, extra=extra)  # fmt: skip
 
 
-def sized(*rows: tuple[int, str, float, float]) -> tuple[tuple[tuple[str, float], ...], tuple]:
-    """``(litres, size name, kg, price)`` rows as the SKU axis and the fields each litre carries."""
-    sizes = num(*((lt, p) for lt, _, _, p in rows))
-    extra = tuple((f"{lt:g}", (("luggage_size", n), ("weight_kg", f"{kg:g}"))) for lt, n, kg, _ in rows)
+def sized(*rows: tuple[int, str, float, float, str]) -> tuple[tuple[tuple[str, float], ...], tuple]:
+    """``(litres, size name, kg, price, dimensions)`` rows as the SKU axis and the fields each
+    litre carries: its size name, its weight and its outer dimensions in centimetres, so a
+    ``cabin suitcase 55 x 40 x 20`` reads the cabin SKU of the size it names (gen#1114)."""
+    sizes = num(*((lt, p) for lt, _, _, p, _ in rows))
+    extra = tuple((f"{lt:g}", (("luggage_size", n), ("weight_kg", f"{kg:g}"), ("dimensions", dims)))
+                  for lt, n, kg, _, dims in rows)  # fmt: skip
     return sizes, extra

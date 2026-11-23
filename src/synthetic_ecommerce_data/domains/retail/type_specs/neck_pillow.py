@@ -1,8 +1,8 @@
 """Neck Pillow (gen#209): memory foam, microbead and inflatable travel pillows.
 
-**Womens > Accessories > Travel > Neck Pillows**: three styles from three invented brands, drawn
+**Home > Luggage & Travel > Neck Pillows**: three styles from three invented brands, drawn
 by :func:`kit_luggage.neck_pillow` (``hood``). The fill, the cover and the hood are structured
-entries, so ``memory foam neck pillow`` reads the fill. A SKU is a color. Authored rows only. The
+entries, so ``memory foam neck pillow`` reads the fill. A SKU is a color. A breadth type: the scaled build derives styles from the rows (gen#1114). The
 decoys are real neck pillows whose title or description holds a word that fools a search (red
 piping, a suitcase strap, a fill that only feels like memory foam).
 """
@@ -14,7 +14,6 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
-    EXEMPT,
     FENMOOR,
     GREEN,
     GREY,
@@ -41,15 +40,15 @@ def _row(code, title, brand, price, desc, colors, fill, cover, hood, **kw):
 
 
 _ROWS = (
-    _row("NCKMEM", "Memory Foam Neck Pillow", PELLBROOK, 14.0,
+    _row("NCKMEM", "Memory Foam Neck Pillow", WRENFIELD, 14.0,
          "A contoured memory foam neck pillow with a soft velour cover that unzips to wash, and a "
-         "clip to hold it on a bag.", (GREY, BLACK, BLUE), "Memory Foam", "Velour", False),
+         "clip to hold it on a bag.", (GREY, BLACK, BLUE, NAVY, RED, GREEN), "Memory Foam", "Velour", False),
     _row("NCKMIC", "Microbead Neck Pillow with Hood", FENMOOR, 12.0,
          "A squashy microbead neck pillow with a hood that pulls up for sleep on long flights.",
-         (GREEN, YELLOW, RED), "Microbead", "Cotton", True),
+         (GREEN, YELLOW, RED, BLACK, NAVY, GREY), "Microbead", "Cotton", True),
     _row("NCKINF", "Inflatable Neck Pillow", SKERRY, 7.0,
          "A neck pillow that inflates in a few breaths and packs flat into a pouch, with a soft "
-         "flocked cover.", (WHITE, BLUE, NAVY), "Inflatable", "Flocked", False),
+         "flocked cover.", (WHITE, BLUE, NAVY, BLACK, GREY, RED), "Inflatable", "Flocked", False),
 )  # fmt: skip
 
 
@@ -59,11 +58,11 @@ def _decoy(cls, query, policy, code, title, desc, color, fill, cover, brand):
 
 SPEC = TypeSpec(
     key="neck_pillow",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red neck pillow", "color", "NCKDRD", "Neck Pillow, Red Piping",
                "A grey microbead neck pillow with red piping round the seam.", GREY, "Microbead",
