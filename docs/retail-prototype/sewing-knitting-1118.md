@@ -69,7 +69,7 @@ up.
 
 **Colors.** A machine style offers the six main colors. A needle or hook style offers three of
 them, at three sizes, and the four styles of each type carry all six between them (gen#275). Six
-colors at three sizes would have made 18 SKUs a style.
+colors at three sizes would have doubled the size of a style.
 
 **Drawings.** `sewing_machine` draws the bed, the pillar and the arm in the body color. The head
 holds the needle over the plate, with a handwheel and a spool pin. The pillar shows the
@@ -84,15 +84,16 @@ have no up, and a machine stands level.
 **Decoys.** Each type carries a part-color decoy (class 4) and a range-name decoy (class 6).
 `yellow sewing machine` meets a white machine with a yellow stitch dial. `blue sewing machine`
 meets the Blue Ribbon range in green. `green knitting needles` meets a blue pair with green end
-caps. `white knitting needles` meets the White Cottage range in red. `yellow crochet hook` meets a
+caps. `white knitting needles` meets the White Swan range in red. `yellow crochet hook` meets a
 green hook with a yellow thumb rest. `black crochet hook` meets the Black Cat range in blue.
 
-**Measured** (ceiling build, seed 0, cut 2 on main a9739a42): the new types make 215 SKUs in 34
-styles. Sewing Machine has 44 SKUs in 10 styles (4 derived), Knitting Needles has 99 in 14 (8
-derived), and Crochet Hook has 72 in 10 (4 derived). The new templates also move the department's
-derivation draw, so cut 1's types now measure 690 SKUs: Sewing Thread 141, Yarn 339 and Fabric
-210. The node holds 905 SKUs, which meets the issue's +900 target. The test's floor for cut 2 is
-150 (`tests/test_retail_sewing_cut2_1118.py`, `FLOOR`).
+**Measured** (ceiling build, seed 0): each new type is derived as well as authored. The new
+templates also move the department's derivation draw, so Yarn gains styles and cut 1's figures
+above are cut 1's own. With cut 2 the node passes the issue's +900 target. The counts move with
+every slice, so they are measured at run time and not restated here: the test's floor for cut 2
+is in `tests/test_retail_sewing_cut2_1118.py` (`FLOOR`). No decoy or row uses a lead word of
+another family's model grammar (`line_grammar_families/`), because a word the text uses leaves
+that family's deal and moves its styles.
 
 **Left for the next cut:** needles and pins, and embroidery kits; #837's department count; and
 the `thread` demo queries (`sewing thread white` against `m6 thread`, without and with a policy)

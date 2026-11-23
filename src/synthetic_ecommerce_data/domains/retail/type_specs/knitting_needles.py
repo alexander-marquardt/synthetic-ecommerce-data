@@ -100,7 +100,7 @@ SPEC = TypeSpec(
     decoys=(
         Decoy(4, "green knitting needles", "vocabulary", decoy(ROWS[0], "KNNGEC", "Aluminum Straight Knitting Needles with Green End Caps",
               "A blue pair of needles whose end knobs are capped in a soft rubber.", BLUE)),
-        Decoy(6, "white knitting needles", "generic", decoy(ROWS[3], "KNNWCT", "White Cottage Plastic Straight Knitting Needles",
-              "From the White Cottage range: a pair of plastic needles in a bright red.", RED)),
+        Decoy(6, "white knitting needles", "generic", decoy(ROWS[3], "KNNWSW", "White Swan Plastic Straight Knitting Needles",
+              "From the White Swan range: a pair of plastic needles in a bright red.", RED)),
     ),
 )  # fmt: skip
