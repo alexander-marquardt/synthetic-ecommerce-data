@@ -1,8 +1,8 @@
 """Travel Organizer (gen#209): packing cubes, passport holders, toiletry rolls and adapter cases.
 
-**Womens > Accessories > Travel > Travel Organizers**: four styles from four invented brands, one
+**Home > Luggage & Travel > Travel Organizers**: four styles from four invented brands, one
 for each kind, drawn by :func:`kit_luggage.travel_organizer` (``kind``). The organizer type, the
-pieces in the pack and the material are structured entries; a SKU is a color. Authored rows only.
+pieces in the pack and the material are structured entries; a SKU is a color. A breadth type: the scaled build derives styles from the rows (gen#1114).
 The decoys are real organizers whose title or description holds a word that fools a search: a
 packing cube set titled for the suitcase it fits, a red lining, a leather finish that is not
 leather.
@@ -15,7 +15,6 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
-    EXEMPT,
     FENMOOR,
     GREEN,
     GREY,
@@ -70,11 +69,11 @@ def _decoy(cls, query, policy, code, title, desc, color, kind, pieces, material,
 
 SPEC = TypeSpec(
     key="travel_organizer",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red passport holder", "color", "TRVDRD", "Passport Holder, Red Lining",
                "A black passport holder with a bright red lining and a red zip pull.", BLACK,

@@ -1,9 +1,8 @@
 """Weekend Bag (gen#209): rounded duffels in canvas, leather-look and nylon.
 
-**Womens > Accessories > Travel > Weekend Bags**: three styles from three invented brands, drawn
+**Home > Luggage & Travel > Weekend Bags**: three styles from three invented brands, drawn
 by :func:`kit_luggage.weekend_bag` (``compartments``, ``sleeve``). The material, the compartments,
-the trolley sleeve and the capacity in litres are structured entries; a SKU is a color. Authored
-rows only. The decoys are real weekend bags whose title or description holds a word that fools a
+the trolley sleeve and the capacity in litres are structured entries; a SKU is a color. A breadth type: the scaled build derives styles from the rows (gen#1114). The decoys are real weekend bags whose title or description holds a word that fools a
 search (a red lining, a wash bag that comes with it, a leather look that is not leather).
 """
 
@@ -15,7 +14,6 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
     BURGUNDY,
-    EXEMPT,
     FENMOOR,
     GREEN,
     NAVY,
@@ -63,11 +61,11 @@ def _decoy(cls, query, policy, code, title, desc, color, material, brand, litre)
 
 SPEC = TypeSpec(
     key="weekend_bag",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red weekend bag", "color", "WKBDRD", "Weekend Bag, Red Lining",
                "A navy canvas weekend bag with a bright red lining and red handles.", NAVY, "Canvas", SKERRY, 35),

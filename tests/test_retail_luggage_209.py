@@ -20,11 +20,12 @@ from synthetic_ecommerce_data.domains.retail import (
     export,
     kit,
     main_colors,
+    retail_figures,
     scale,
     type_registry,
 )
 
-PATH = ("Womens", "Accessories", "Travel")
+PATH = ("Home", "Luggage & Travel")
 #: key -> (product type, category leaf, shape, structured attributes each style states, the
 #: drawing param and two readings that must draw differently).
 TYPES = {
@@ -79,7 +80,7 @@ def test_a_type_has_three_styles_from_three_invented_brands(key: str) -> None:
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_the_product_type_names_the_type_and_the_path_is_under_travel(key: str) -> None:
+def test_the_product_type_names_the_type_and_the_path_is_under_luggage_and_travel(key: str) -> None:
     ptype, leaf, *_ = TYPES[key]
     spec = _spec(key)
     assert spec.product_type == ptype
@@ -124,12 +125,64 @@ def test_a_type_carries_three_decoys_one_of_them_an_incidental_word(key: str) ->
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_a_type_reaches_the_scaled_build_as_authored_templates(key: str) -> None:
+def test_a_type_reaches_the_scaled_build_as_a_breadth_type(key: str) -> None:
+    """gen#1114: the styles are templates the scaled build derives from; the decoys never are."""
     spec = _spec(key)
     ids = {f"BRD-{r.code}" for r in spec.rows}
+    decoys = {f"BRD-{d.row.code}" for d in spec.decoys}
     built = {d["product_id"] for d in scale.templates() if d["product_type"] == TYPES[key][0]}
+    derivable = {d["product_id"] for d in scale.derivable(scale.templates())}
     assert ids and ids <= built
-    assert not any(d["product_id"] in ids for d in scale.derivable(scale.templates()))
+    assert ids <= derivable
+    assert not decoys & derivable
+
+
+def _ceiling_luggage() -> list[dict]:
+    product_types = {t[0] for t in TYPES.values()}
+    return [r for r in retail_figures.ceiling().records if r["product_type"] in product_types]
+
+
+def test_no_luggage_style_of_the_ceiling_build_sits_under_womens() -> None:
+    """gen#1114: a shopper looks for a suitcase where a retailer files it, under Luggage & Travel."""
+    styles = _ceiling_luggage()
+    assert styles
+    off = sorted({(r["product_type"], " > ".join(r["category_path"])) for r in styles
+                  if tuple(r["category_path"][:2]) != PATH})  # fmt: skip
+    assert off == []
+
+
+#: The luggage SKUs of the ceiling build: 138 before gen#1114, 1,975 after it (its target was
+#: about +1,800). The floor leaves room for a derivation that another change moves.
+LUGGAGE_SKU_FLOOR = 1800
+
+
+def test_the_ceiling_build_holds_the_luggage_range() -> None:
+    by_type: dict[str, int] = {}
+    for r in _ceiling_luggage():
+        by_type[r["product_type"]] = by_type.get(r["product_type"], 0) + r["sku_count"]
+    assert sum(by_type.values()) >= LUGGAGE_SKU_FLOOR, by_type
+    assert set(by_type) == {t[0] for t in TYPES.values()}
+
+
+def _cm(text: str) -> tuple[float, ...]:
+    return tuple(float(n) for n in text.removesuffix(" cm").split(" x "))
+
+
+def test_a_suitcase_sku_states_its_dimensions_and_a_cabin_size_fits_55_x_40_x_20() -> None:
+    """``cabin suitcase 55x40x20`` (gen#1114): every suitcase SKU states its outer size, and a
+    Cabin one is within the 55 x 40 x 20 cm most airlines allow, in the ceiling build too."""
+    authored = [export.standard_document(d) for d in _spec("suitcase").docs()]
+    derived = [export.standard_document(r) for r in _ceiling_luggage() if r["product_type"] == "Suitcase"]
+    assert len(derived) > len(authored)
+    exact = 0
+    for doc in (*authored, *derived):
+        for v in doc["variants"]:
+            entries = {e["key"]: e["value"] for e in v["attributes"]}
+            assert "dimensions" in entries, doc["product_id"]
+            if entries["luggage_size"] == "Cabin":
+                assert all(n <= cap for n, cap in zip(_cm(entries["dimensions"]), (55, 40, 20), strict=True)), doc["product_id"]
+                exact += entries["dimensions"] == "55 x 40 x 20 cm"
+    assert exact
 
 
 def test_a_suitcase_sku_states_size_litres_and_weight() -> None:

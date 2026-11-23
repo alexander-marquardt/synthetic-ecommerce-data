@@ -1,10 +1,10 @@
 """Cabin Case (gen#209): carry-on and under-seat cases sized to an airline allowance.
 
-**Womens > Accessories > Travel > Cabin Cases**: three styles from three invented brands, drawn
+**Home > Luggage & Travel > Cabin Cases**: five styles from three invented brands, drawn
 by :func:`kit_luggage.cabin_case` (``kind``, ``wheels``, ``shell``). The allowance (carry-on or
 under-seat) and the dimensions in centimetres are structured entries, so ``cabin bag 55 x 40 x 20``
 reads the dimensions, and the capacity and weight are measured entries. A SKU is a color.
-Authored rows only. The decoys are real cabin cases whose title or description holds a word that
+A breadth type: the scaled build derives styles from the rows (gen#1114). The decoys are real cabin cases whose title or description holds a word that
 fools a search (a red piping, the word weekend, a feature the case lacks).
 """
 
@@ -15,13 +15,13 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
-    EXEMPT,
     FENMOOR,
     GREEN,
     GREY,
     NAVY,
     OWNED,
     RED,
+    SILVER,
     SKERRY,
     TARNWICK,
     WHITE,
@@ -58,6 +58,14 @@ _ROWS = (
          "A squat soft cabin case that slides under the seat in front, with a grab handle and a "
          "shoulder strap. No wheels, so it stays light.",
          (WHITE, BLACK, GREY), "Under-Seat", "40 x 30 x 20 cm", "soft", "no", 25, 1.2),
+    _row("CBCALU", "Aluminum Carry-On Cabin Case", TARNWICK, 99.0,
+         "A ribbed aluminum cabin case with corner guards, four spinner wheels and a TSA lock. "
+         "Sized for the overhead locker.",
+         (SILVER, BLACK, NAVY), "Carry-On", "55 x 40 x 23 cm", "hard", "yes", 40, 3.4),
+    _row("CBCWHL", "Wheeled Under-Seat Cabin Case", FENMOOR, 39.0,
+         "A soft under-seat cabin case on four small spinner wheels, with a telescopic handle and "
+         "a zipped front pocket.",
+         (RED, NAVY, GREEN), "Under-Seat", "45 x 36 x 20 cm", "soft", "yes", 30, 1.9),
 )  # fmt: skip
 
 
@@ -68,11 +76,11 @@ def _decoy(cls, query, policy, code, title, desc, color, allowance, dims, shell,
 
 SPEC = TypeSpec(
     key="cabin_case",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red cabin case", "color", "CBCDRD", "Cabin Case, Red Piping",
                "A blue hard shell cabin case with red piping round the zip and a red handle grip.",
