@@ -157,6 +157,39 @@ catalogue. In Beauty and Health, 'pads' finds cotton pads and incontinence pads,
 pads too once gen#1112 slice 1 is in: three families. Outside them it also meets a mop's, a
 polisher's and a car seat's pads.
 
+## Bath and shaving depth (gen#1112)
+
+gen#1112 slice 3 deepens two of gen#957's types in place, without a second type beside them,
+and adds two under `Beauty > Shaving`. They share `domains/retail/bath_shave_rows.py`: the
+paths, the brands, six colors and a `row` helper that makes each attribute a drawing param of the
+same key with its lower-cased value. The shapes are in `domains/retail/kit_bath_shave.py`.
+
+| Type | Shape | Axes the title shows | SKUs | At the ceiling |
+|---|---|---|---|---:|
+| Deodorant | `deodorant` (gen#957's), its `protection` param drawing a drop for Antiperspirant and a struck-out 'Al' for Aluminum-Free | `scent`, `applicator` (Spray, Roll-On, Stick, Gel) and, on the new rows, `protection` (Antiperspirant, Aluminum-Free) | a pack of 1 to 3 (`units_per_pack`) | 849 (was 417) |
+| Shower Gel | `body_wash_bottle`: a tall bottle under a flip cap, or a pump for a foaming wash, a window showing a cream, bubbles, grains or a sheen, and a band that prints the scent | `scent` (Coconut, Lavender, Honey, Mint, Vanilla, Almond, Eucalyptus), `wash_finish` (Creamy, Silky, Exfoliating, Foaming) | a bottle of 250 to 750 ml (`net_volume_ml`) | 763 (was 292) |
+| Razor Cartridges | `razor_cartridge_pack`: a blister card of four heads, each with its blades and a strip in the strip's tone | `blades` (3-Blade, 4-Blade, 5-Blade), `cartridge_strip` (Aloe, Shea, Charcoal, Cooling) | a pack of 4 to 12 (`piece_count`) | 150 |
+| Shave Gel | `shave_gel_can`: a tall can under its actuator, a band in the scent's tone and the skin type printed below | `scent` (Aloe Vera, Menthol, Sandalwood, Unscented, Coconut), `skin_type` (Sensitive, Normal, Dry) | a can of 150 to 300 ml (`net_volume_ml`) | 222 |
+
+Shower Gel's own rows are titled 'Body Wash' ("Creamy Coconut Body Wash"); the older rows stay
+in the shared row modules its spec names as homes, each with `derivable` False so the scaled
+build never swaps the scent of a row whose text names it (`Lemon & Bergamot Shower Gel`). A razor cartridge title puts the noun before
+the blade count ("Razor Cartridges, 5-Blade, Aloe Strip"), since a title's product noun is the
+word before its first digit (`tests/test_retail_drawing_honesty.py`). The four types are breadth
+types (`derivable` True): the scaled build draws more by swapping the axes the title shows. The
+ceiling holds Deodorant at 849 against the issue's 800, Shower Gel at 763 against 700, and the
+two shaving types at 372 against 300 (`tests/test_retail_bath_shave_1112.py`).
+
+Razor Cartridges and Shave Gel each plant two class 6 decoys: `aloe razor cartridges` meets
+"Aloe Bay Razor Cartridges, 4-Blade, Charcoal Strip", `cooling razor cartridges` meets "Cooling
+Tower Razor Cartridges, 3-Blade, Aloe Strip", `menthol shave gel` meets "Menthol Ridge Sandalwood
+Shave Gel for Dry Skin" and `sensitive shave gel` meets "Sensitive Point Menthol Shave Gel for
+Normal Skin".
+
+'antiperspirant', 'body wash', 'razor cartridges' and 'shave gel' each find their own type only,
+in the whole catalogue. The razors the cartridges fit are gen#957's `Razor` type, in the leaf
+beside them.
+
 ## Text-match decoys (gen#294)
 
 Each type carries three decoys, a clone of its first style whose words mislead a plain text
