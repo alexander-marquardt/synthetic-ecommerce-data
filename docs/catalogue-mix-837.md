@@ -57,6 +57,9 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1112 (slice 1) | Health | Sanitary Pads | 299 |
 | gen#1112 (slice 1) | Health | Tampons | 212 |
 | gen#1112 (slice 1) | Health | Panty Liners | 128 |
+| gen#1112 (slice 2) | Beauty | Cotton Pads | 121 |
+| gen#1112 (slice 2) | Beauty | Cotton Buds | 84 |
+| gen#1112 (slice 2) | Beauty | Cotton Wool | 55 |
 
 ## The mix
 

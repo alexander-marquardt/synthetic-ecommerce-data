@@ -1,9 +1,9 @@
 """Holdall (gen#209): soft gym and travel holdalls, with and without wheels.
 
-**Womens > Accessories > Travel > Holdalls**: three styles from three invented brands, drawn by
+**Home > Luggage & Travel > Holdalls**: four styles from four invented brands, drawn by
 :func:`kit_luggage.holdall` (``wheels``, ``strap``). The use (gym or travel), the material, the
 shoulder strap and the wheels are structured entries; a SKU is a color times a capacity in
-litres. Authored rows only. The decoys are real holdalls whose title or description holds a word
+litres. A breadth type: the scaled build derives styles from the rows (gen#1114). The decoys are real holdalls whose title or description holds a word
 that fools a search (red handles, the word suitcase, a leather look that is not leather).
 """
 
@@ -14,17 +14,21 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BLACK,
     BLUE,
-    EXEMPT,
     FENMOOR,
     GREEN,
+    GREY,
     KHAKI,
     MARROWGATE,
     NAVY,
     OWNED,
     PELLBROOK,
+    PINK,
     RED,
+    SKERRY,
     TARNWICK,
+    TEAL,
     WHITE,
+    WRENFIELD,
     YELLOW,
     a,
     luggage_row,
@@ -43,18 +47,22 @@ def _row(code, title, brand, price, desc, colors, use, material, wheels, caps, *
 
 
 _ROWS = (
-    _row("HLDGYM", "Gym Holdall with Shoe Compartment", MARROWGATE, 22.0,
+    _row("HLDGYM", "Gym Holdall with Shoe Compartment", WRENFIELD, 22.0,
          "A padded gym holdall with a ventilated shoe compartment, a wet pocket and a shoulder "
          "strap. Two zipped end pockets for a towel and a water bottle.",
-         (BLACK, RED, BLUE), "Gym", "Polyester", "no", ((30, 22.0), (45, 28.0))),
+         (BLACK, RED, BLUE, NAVY, GREY, GREEN), "Gym", "Polyester", "no", ((30, 22.0), (45, 28.0))),
     _row("HLDWHL", "Wheeled Travel Holdall", TARNWICK, 46.0,
          "A large soft holdall on two wheels with a telescopic handle, a shoulder strap and "
          "a zipped lid pocket. Packs away flat when empty.",
-         (NAVY, GREEN, YELLOW), "Travel", "Polyester", "yes", ((60, 46.0), (85, 56.0))),
-    _row("HLDCNV", "Canvas Holdall with Shoulder Strap", PELLBROOK, 38.0,
+         (NAVY, GREEN, YELLOW, BLACK, GREY, RED), "Travel", "Polyester", "yes", ((60, 46.0), (85, 56.0))),
+    _row("HLDCNV", "Canvas Holdall with Shoulder Strap", FENMOOR, 38.0,
          "A hardwearing canvas holdall with leather-look handles, a detachable shoulder strap and "
          "a lined main compartment.",
-         (KHAKI, WHITE, BLACK), "Travel", "Canvas", "no", ((40, 38.0), (60, 46.0))),
+         (KHAKI, WHITE, BLACK, NAVY, GREY, RED), "Travel", "Canvas", "no", ((40, 38.0), (60, 46.0))),
+    _row("HLDFLD", "Foldable Duffel Holdall", SKERRY, 18.0,
+         "A light nylon duffel holdall that folds into its own zipped pocket, with two carry "
+         "handles and a shoulder strap. Slips into a suitcase for the trip home.",
+         (GREY, TEAL, PINK, BLACK, NAVY, RED), "Travel", "Nylon", "no", ((35, 18.0), (50, 24.0))),
 )  # fmt: skip
 
 
@@ -64,11 +72,11 @@ def _decoy(cls, query, policy, code, title, desc, color, material, brand, wheels
 
 SPEC = TypeSpec(
     key="holdall",
-    department="Clothing",
+    department="Home",
     product_type=PT,
     rows=_ROWS,
     owners=OWNED,
-    apparel_exempt=EXEMPT,
+    derivable=True,
     decoys=(
         _decoy(1, "red holdall", "color", "HLDDRD", "Holdall with Red Handles",
                "A black polyester holdall with red handles and a red zip pull.", BLACK, "Polyester", MARROWGATE),
