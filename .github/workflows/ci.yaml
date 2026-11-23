@@ -50,13 +50,9 @@ concurrency:
 # for a push, a dispatched run and a pull request from a branch of this repository, once the
 # repository variable SYNTH_CI_SELF_HOSTED is `true`; a fork's pull request, and every run while
 # the variable is unset, stays on GitHub-hosted ubuntu-latest. Every job carries the same
-# expression: tests/test_ci_runs_on_596.py.
+# expression, but for the hosted cancel-on-red jobs (#1175): tests/test_ci_runs_on_596.py.
 jobs:
   lint:
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
@@ -73,12 +69,6 @@ jobs:
       # is refused, not silently re-locked for this run only.
       - name: Lint
         run: uv run --locked ruff check .
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   ceiling-catalogue:
     # The retail ceiling build and its figures, once per run (#539): 45 test files each built it
@@ -96,14 +86,10 @@ jobs:
     # of this job, not a job of its own: the legs run on two runners side by side, `tests` needs
     # both, and the checks a merge waits for (scripts/merge_pr/config.sh) are unchanged. The
     # local run takes the matrix as the one `all` leg and builds both.
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
         shard: [ceiling, hundred_k]
     steps:
@@ -131,12 +117,6 @@ jobs:
           retention-days: 1
           # Pickles of a few hundred MB: the fastest zip level, which every shard then unzips.
           compression-level: 1
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   tests:
     needs: ceiling-catalogue
@@ -156,14 +136,10 @@ jobs:
     # has no range, so it runs every test file: the whole suite runs once after
     # every merge.
     name: tests (${{ matrix.shard }})
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 25
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
     env:
@@ -257,12 +233,6 @@ jobs:
           name: module-peaks-${{ matrix.shard }}
           path: ${{ runner.temp }}/module-peaks-${{ matrix.shard }}.json
           if-no-files-found: ignore
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   main-merged-tree:
     # This repository has no branch protection (the plan answers 403), so a
@@ -294,10 +264,6 @@ jobs:
     # is checked with scripts/check_commit_msg.py (the vendored core
     # AI-attribution family plus this repository's additions).
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -310,12 +276,6 @@ jobs:
         run: >-
           python3 scripts/check_commit_msg.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   no-derived-files:
     # No file under git is build output (gen#536). The retail totals, the sneak-peek samples
@@ -326,10 +286,6 @@ jobs:
     # the `derived` artifact of the run. A test reads a figure with retail_figures.figures(),
     # never a committed number.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
@@ -359,12 +315,6 @@ jobs:
           name: derived
           path: build/derived
           if-no-files-found: error
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   file-size:
     # The file-size budget (elastic/prism#11683; docs/file-size-budget.md): a
@@ -379,7 +329,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -402,12 +351,6 @@ jobs:
           gh pr view "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}" \
             --json body --jq .body > "$body"
           python3 scripts/file_size_gate.py --base "$base" --pr-body-file "$body"
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   red-commit-proof:
     # A commit whose ``Red-Test:`` trailer names tests claims they fail at that
@@ -418,10 +361,6 @@ jobs:
     # ``Red-Test: none - <reason>``, runs nothing, so a PR without a declared
     # red commit costs this job a few seconds. docs/red-commit-and-mutants.md.
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
-    permissions:
-      contents: read
-      # scripts/ci_cancel_run.py, the last step (#1175).
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -434,12 +373,6 @@ jobs:
         run: >-
           uv run --locked python scripts/red_commit_proof.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
-      - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ci_cancel_run.py
 
   customer-name-check:
     # NO CUSTOMER NAME COMES BACK (#393, the generator half of
@@ -459,7 +392,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-      actions: write
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -476,9 +408,151 @@ jobs:
           python3 scripts/check_customer_names.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
           --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"
-      # A red required check cancels the rest of a pull request's run (#1175): docs/ci-sharding.md.
+
+  # A pull request run's first red required check cancels the rest of the run (#1175,
+  # docs/ci-sharding.md): one job per required job, started once that job has ended red. Never a
+  # step of the red job, which GitHub would then record as cancelled; hosted, so it does not queue
+  # behind the self-hosted pool. Skipped on every green run and on every other event.
+  cancel-on-red-lint:
+    needs: [lint]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
       - name: Cancel the rest of this pull request's run
-        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-ceiling-catalogue:
+    needs: [ceiling-catalogue]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-tests:
+    needs: [tests]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-commit-messages:
+    needs: [commit-messages]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-file-size:
+    needs: [file-size]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-red-commit-proof:
+    needs: [red-commit-proof]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-customer-name-check:
+    needs: [customer-name-check]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-no-derived-files:
+    needs: [no-derived-files]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/ci_cancel_run.py

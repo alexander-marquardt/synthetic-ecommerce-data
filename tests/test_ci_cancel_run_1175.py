@@ -1,6 +1,6 @@
 """scripts/ci_cancel_run.py cancels only a pull request's run, and the replay of red runs (#1175).
 
-The cancel step runs after its job already failed, so the script must never turn a red check
+The cancel job runs after a required job already failed, so the script must never turn a red check
 into anything else: every answer it gets (a fork's 403, a run already cancelled, a network error)
 is a line and exit 0. The replay reads recorded runs (tests/fixtures/red_runs_1175.json, the jobs
 API's answer for four red runs, trimmed to the fields it reads) and prints what a cancel at each
@@ -35,7 +35,6 @@ ENV = {
     "GITHUB_API_URL": "https://api.github.com",
     "GITHUB_REPOSITORY": "o/r",
     "GITHUB_RUN_ID": "42",
-    "GITHUB_JOB": "tests",
     "GH_TOKEN": "t",
 }
 
@@ -44,12 +43,12 @@ def test_a_red_pull_request_job_cancels_its_own_run():
     sent = []
     line = ci_cancel_run.cancel(ENV, lambda url, token: sent.append((url, token)) or 202)
     assert sent == [("https://api.github.com/repos/o/r/actions/runs/42/cancel", "t")]
-    assert line == "ci_cancel_run: tests is red, so run 42's other jobs are cancelled (#1175)"
+    assert line == "ci_cancel_run: a required job is red: the rest of run 42 is cancelled (#1175)"
 
 
 @pytest.mark.parametrize("event", ["push", "merge_group", "workflow_dispatch", "schedule", ""])
 def test_a_run_that_is_not_a_pull_request_s_is_never_cancelled(event):
-    """The step's ``if:`` names the event; the script checks it again, so a main run stays."""
+    """The job's ``if:`` names the event; the script checks it again, so a main run stays."""
 
     def send(url, token):
         raise AssertionError(f"a {event!r} run asked to cancel {url}")

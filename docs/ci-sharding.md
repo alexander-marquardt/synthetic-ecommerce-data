@@ -209,29 +209,43 @@ The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
 A red run used to keep every runner it held until each shard ended (`fail-fast: false`, no
 cancel). Those shards cannot change the result, and they take runners from the merge path's run,
 since GitHub hands a queued job to whichever self-hosted runner asks first. Each required job
-(`REQUIRED_CI` in `scripts/merge_pr/config.sh`) now ends with one step:
+(`REQUIRED_CI` in `scripts/merge_pr/config.sh`) now has a job of its own that cancels the run:
 
 ```yaml
-- name: Cancel the rest of this pull request's run
+cancel-on-red-lint:
+  needs: [lint]
   if: failure() && github.event_name == 'pull_request'
-  env:
-    GH_TOKEN: ${{ github.token }}
-  run: python3 scripts/ci_cancel_run.py
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+    actions: write
 ```
 
-- It is the job's last step, so it follows the step that went red and any rerun inside that step,
-  and the job's `always()` uploads. The run's other jobs end as **cancelled** within seconds; the
-  red job stays **red** (a job whose step failed keeps `failure` when its run is cancelled).
+- It runs `scripts/ci_cancel_run.py` once the required job has **ended** red, its in-shard rerun and
+  its `always()` uploads done. The red job is recorded as `failure` and the run's other jobs end as
+  `cancelled`. There is one per required job because a single job that needs them all would start
+  only when all had ended; it is hosted, so it does not queue behind the `synth-ci` pool.
+- The cancel is **never a step of the red job**. GitHub records a job that is still running when its
+  run is cancelled as `cancelled`, even though a step of it failed: in job 137725634488 the `Tests`
+  step is `failure` and the job is `cancelled` (`tests/fixtures/cancelled_from_inside_1175.json`).
+  Nothing then reads the pull request as red: v3 re-ran that head instead of starting a fix round.
+- The `tests` and `ceiling-catalogue` matrices have `fail-fast: ${{ github.event_name ==
+  'pull_request' }}`: a red leg keeps `failure`, GitHub cancels its sibling legs, so the matrix job
+  ends and its cancel job starts. On a push or a dispatched run it is `false` and every leg ends.
 - Only a `pull_request` run cancels: a push to main, a merge-group run and a dispatched run
   (`merge_pr.sh --github-ci`, the batch train) never do, since their result is a merged sha's
   proof. `scripts/ci_cancel_run.py` checks the event again and cancels nothing on any other.
-- The jobs that cancel are granted `actions: write`; the workflow's default token stays
+- Only the cancel jobs are granted `actions: write`; the workflow's default token stays
   `contents: read`. A fork's pull request gets a read-only token: the cancel answers 403, the
-  step says so, and the run goes on as before.
-- The cancelled jobs run again on the pull request's next push. `merge_pr.sh --local-ci` drops
-  this step (`HOSTED_CANCEL_STEP` in `scripts/local_ci_jobs.py`): a local run has no run to cancel.
-- `tests/test_ci_cancel_on_red_1175.py` pins the step on every required job and on no other, and
-  that it runs only on a red pull request run; `tests/test_ci_cancel_run_1175.py` pins the script.
+  job says so, and the rest of the run goes on.
+- On a green run, a push and a dispatched run the cancel jobs are **skipped**. They are in no
+  `REQUIRED_CI` list, and `SKIPPED_BY_DESIGN_CI` in `scripts/merge_pr/config.sh` names them, since
+  `merge_pr.sh` refuses any other skipped check.
+- The cancelled jobs run again on the pull request's next push. `merge_pr.sh --local-ci` and the
+  prepush gate leave the cancel jobs out (`only_cancels` in `scripts/local_ci_jobs.py`): a local
+  run has no run to cancel.
+- `tests/test_ci_cancel_on_red_1175.py` pins the jobs, and that they run only on a red pull request
+  run; `tests/test_ci_cancel_run_1175.py` pins the script.
 
 **The replay.** `scripts/ci_red_run_replay.py` reads a run's jobs (`gh api
 "repos/<owner>/<repo>/actions/runs/<id>/jobs?per_page=100&filter=latest"`) and prints the
@@ -317,7 +331,7 @@ workers stays under 1.2 GB. Cutting those tests, and the worker count they hold 
 
 ## Where the jobs run (#596)
 
-Every job's `runs-on` is one expression: `[self-hosted, synth-ci]` when the repository variable
+Every job's `runs-on` (but a `cancel-on-red-*` job's, #1175) is one expression: `[self-hosted, synth-ci]` when the repository variable
 `SYNTH_CI_SELF_HOSTED` is `true` and the run is a push, a dispatched run or a pull request whose
 head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull request never runs
 on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
@@ -334,7 +348,8 @@ registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-o
 `vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
 full run is 25 jobs (19 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
-to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression, but for the `cancel-on-red-*` jobs (#1175), which are
+hosted.
 
 ## A lost xdist worker is an infra failure, rerun once (#629)
 

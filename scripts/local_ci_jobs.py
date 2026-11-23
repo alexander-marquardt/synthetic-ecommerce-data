@@ -19,13 +19,12 @@ and the working directory GitHub gives a ``run:`` step.
 A job has a local equivalent only if everything in it is understood: the
 ``uses:`` steps that merely set the machine up or publish a report (checkout, uv,
 python, upload-artifact) are dropped because the merged tree and the tools are
-already here, and so is the step that cancels a hosted pull request's run once its
-job is red (``HOSTED_CANCEL_STEP``, #1175), since a local run has no run to
-cancel; any other action, a custom shell, or an expression other than the
+already here; any other action, a custom shell, or an expression other than the
 pull request's base and head shas is an error, never a silent skip. The ``if:`` of
 a job is ignored: a pull request's local run executes every job, the
 push-only ``main-merged-tree`` included, since it is the same check on the
-same tree.
+same tree. The one kind of job left out is ``cancel-on-red-<job>`` (#1175), which
+checks nothing: it cancels a hosted pull request's run, and a local run has none.
 
 A matrix is understood in one shape: ``strategy: {matrix: {shard: [...]}}`` (with
 ``fail-fast``), the CI test shards (``scripts/ci_shards.py``). Locally the job runs
@@ -66,13 +65,11 @@ SETUP_ACTIONS = (
     "actions/download-artifact",
 )
 
-#: The last step of each required job (#1175): on a hosted pull request's run, a red job cancels
-#: the rest of the run. A local run has no GitHub run to cancel, so exactly this step is dropped;
-#: any other step with an ``if:`` is still an error.
-HOSTED_CANCEL_STEP = {
-    "if": "failure() && github.event_name == 'pull_request'",
-    "run": "python3 scripts/ci_cancel_run.py",
-}
+#: A job that cancels a hosted pull request's run once a required job is red (#1175): its name's
+#: start, its condition and its one command. Nothing else is left out of the job list.
+CANCEL_JOB_PREFIX = "cancel-on-red-"
+CANCEL_JOB_IF = "failure() && github.event_name == 'pull_request'"
+CANCEL_JOB_RUN = "python3 scripts/ci_cancel_run.py"
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
@@ -162,8 +159,18 @@ def workflow_files(directory: Path) -> list[Path]:
     return sorted(path for path in found if path.name not in NOT_A_CHECK)
 
 
+def only_cancels(job_id: str, job: dict) -> bool:
+    """True for a job that does nothing but cancel a red hosted pull request run (#1175)."""
+    return (
+        job_id.startswith(CANCEL_JOB_PREFIX)
+        and job.get("if") == CANCEL_JOB_IF
+        and [step["run"] for step in job.get("steps", []) if "run" in step] == [CANCEL_JOB_RUN]
+    )
+
+
 def load_jobs(directory: Path) -> dict[str, dict]:
-    """Every job of every workflow file, by job id (an id used twice is an error)."""
+    """Every job of every workflow file, by job id (an id used twice is an error), but for the
+    jobs that only cancel a hosted run: they check nothing, here or in the prepush gate."""
     jobs: dict[str, dict] = {}
     for path in workflow_files(directory):
         document = yaml.safe_load(path.read_text()) or {}
@@ -174,7 +181,7 @@ def load_jobs(directory: Path) -> dict[str, dict]:
             if job_id in jobs:
                 raise NoLocalEquivalent(f"job {job_id!r} is defined twice (in {path.name})")
             jobs[job_id] = job
-    return jobs
+    return {job_id: job for job_id, job in jobs.items() if not only_cancels(job_id, job)}
 
 
 def _substitute(text: str, values: dict[str, str], where: str) -> str:
@@ -232,8 +239,6 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
         where = f"{job_id} step {number}"
         if "uses" in step and step["uses"].split("@")[0].startswith(SETUP_ACTIONS):
             continue  # a setup or report step, whatever its `if:`
-        if all(step.get(key) == value for key, value in HOSTED_CANCEL_STEP.items()):
-            continue  # cancels a hosted pull request's run (#1175): locally there is none
         for key in ("if", "continue-on-error", "timeout-minutes"):
             if key in step:
                 raise NoLocalEquivalent(f"{where}: step key {key!r} is not reproduced locally")
