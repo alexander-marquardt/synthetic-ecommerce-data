@@ -174,7 +174,9 @@ SHAPES = {
     ("BUT", "Plant Spread"): "lidded_tub",
 }
 #: The chocolate shapes a SKU draws at its own weight, in its own chocolate (gen#1125).
-CHOCOLATE_SHAPES = frozenset({"chocolate_bar", "chocolate_box", "chocolate_bag"})
+CHOCOLATE_SHAPES = frozenset(
+    {"chocolate_bar", "chocolate_box", "chocolate_bag", "hot_chocolate", "chocolate_orange"}
+)
 #: What a punnet holds, by the VEG variety (``kit_punnet.PRODUCE``).
 PUNNET = {
     "Cherry Tomatoes": "tomato",
