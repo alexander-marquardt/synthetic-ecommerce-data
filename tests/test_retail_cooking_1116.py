@@ -111,8 +111,9 @@ def test_range_cooker_90cm_finds_only_90cm_range_cookers(index):
 
 
 def test_range_meets_range_cookers_and_the_signal_range_products_without_a_policy(index):
-    """Both families, as the issue's table asks: a policy, not the data, picks the intent."""
-    types = Counter(r["product_type"] for r in br.rank(index, "range", 40, popular=False))
+    """Both families in the top 10, as the issue's table asks: a policy, not the data, picks the
+    intent."""
+    types = Counter(r["product_type"] for r in br.rank(index, "range", 10, popular=False))
     assert types["Range Cooker"] >= 1, types
     assert set(types) - {"Range Cooker"}, types
 
