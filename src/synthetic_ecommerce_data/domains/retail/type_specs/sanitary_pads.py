@@ -25,10 +25,15 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _pads(code, title, brand, thickness, absorbency, wings, sizes, desc, color=None) -> object:  # noqa: ANN001
-    attrs = (a("pad_thickness", "Pad thickness", thickness), a("pad_absorbency", "Absorbency", absorbency),
-             a("pad_wings", "Wings", wings))
+    attrs = (
+        a("pad_thickness", "Pad thickness", thickness),
+        a("pad_absorbency", "Absorbency", absorbency),
+        a("pad_wings", "Wings", wings),
+    )
     extra = {"color": color} if color else {}
-    return row(code, title, brand, "Sanitary Pads", "sanitary_pad_pack", desc, attrs, sizes, **extra)
+    return row(
+        code, title, brand, "Sanitary Pads", "sanitary_pad_pack", desc, attrs, sizes, **extra
+    )
 
 
 ROWS = (
@@ -54,8 +59,8 @@ DECOYS = (
         ROWS[0], "HFSDY1", "Overnight Glow Ultra Thin Regular Sanitary Pads With Wings",
         "From the Overnight Glow range: soft-cover pads, each one wrapped on its own.")),
     Decoy(6, "maxi sanitary pads", "generic", decoy(
-        ROWS[4], "HFSDY2", "Maxi Bloom Ultra Thin Light Sanitary Pads Without Wings",
-        "From the Maxi Bloom range: slim, discreet pads in a soft pouch.")),
+        ROWS[4], "HFSDY2", "Maxi Daisy Ultra Thin Light Sanitary Pads Without Wings",
+        "From the Maxi Daisy range: slim, discreet pads in a soft pouch.")),
 )  # fmt: skip
 
 SPEC = TypeSpec(

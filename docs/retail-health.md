@@ -111,7 +111,7 @@ three types (`department_rates/health.py`).
 
 Each type plants two class 6 decoys: a range name holds the query's word while the fields say
 another value. `overnight sanitary pads` meets "Overnight Glow Ultra Thin Regular Sanitary Pads
-With Wings", `maxi sanitary pads` meets "Maxi Bloom Ultra Thin Light Sanitary Pads Without Wings",
+With Wings", `maxi sanitary pads` meets "Maxi Daisy Ultra Thin Light Sanitary Pads Without Wings",
 `super tampons` meets "Super Soft Light Non-Applicator Tampons", `plastic applicator tampons`
 meets "Plastic Free Super Cardboard Applicator Tampons", `long panty liners` meets "Long Weekend
 Regular Unscented Panty Liners" and `fresh scent panty liners` meets "Fresh Start Long Unscented

@@ -24,8 +24,10 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _tampons(code, title, brand, absorbency, applicator, sizes, desc, color=None) -> object:  # noqa: ANN001
-    attrs = (a("tampon_absorbency", "Tampon absorbency", absorbency),
-             a("tampon_applicator", "Applicator", applicator))
+    attrs = (
+        a("tampon_absorbency", "Tampon absorbency", absorbency),
+        a("tampon_applicator", "Tampon applicator", applicator),
+    )
     extra = {"color": color} if color else {}
     return row(code, title, brand, "Tampons", "tampon_box", desc, attrs, sizes, **extra)
 
