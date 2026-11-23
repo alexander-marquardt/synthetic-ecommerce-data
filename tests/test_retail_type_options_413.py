@@ -42,7 +42,8 @@ MOVED = {
     "tracksuit": [Option("sold_as", "sold_as", "Sold as")],
     "sun_cream": [Option("spf", "spf", "SPF")],
     "garden_hose": [Option("length_m", "item_length", "Item length", "MTR")],
-    "smartphone": [_STORAGE],
+    # a new phone is sold unlocked or carrier-locked, its third SKU axis (gen#1117)
+    "smartphone": [_STORAGE, Option("network_lock", "network_lock", "Network lock")],
     "tablet": [_STORAGE],
     "e_reader": [_STORAGE],
     "laptop": [_STORAGE, _RAM, _SCREEN],
