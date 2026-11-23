@@ -38,6 +38,9 @@ OWNED = (("Marrowgate", "third_party"), ("Pellbrook", "third_party"),
 _CL = "Clothing"
 _M, _P, _O, _T, _W, _H = ("Marrowgate", "Pellbrook", "Osier & Vane", "Tallow Street", "Wrenfield",
                           "Harbour & Pine")  # fmt: skip
+#: The jewelry's further brands (gen#1113): its rows are derivable, so none carries a brand of
+#: clothing's ``EXTRA_BRANDS``, which a derived style may draw.
+_L, _C = "Larkmoor", "Calderby & Lune"
 #: A bag, purse or umbrella sits under ``Womens > Accessories`` (gen#248), one product in one place.
 #: The path is the department, not the audience: a backpack, a tote and an umbrella are unisex, and
 #: say so in ``facets.audience``, declared here the way every worn SKU has one (:mod:`audience`).
@@ -429,13 +432,13 @@ _LEN = {"pendant": _num((40, 16.0), (45, 18.0)), "chain": _num((45, 14.0), (50, 
         "choker": _num((33, 12.0), (36, 13.0)), "layered": _num((40, 22.0), (45, 24.0))}  # fmt: skip
 
 NECKLACES = (
-    _jrow("NCKPND", "Teardrop Pendant Necklace", _P, 16.0,
+    _jrow("NCKPND", "Teardrop Pendant Necklace", _L, 16.0,
           "A fine chain necklace with a polished teardrop pendant and a lobster clasp with a "
           "five centimeter extender.",
           _MT, _METALS, _j(_METALS, _MT, _a("necklace_type", "Necklace type", "Pendant")),
           "Necklaces", "Necklace", "necklace", (("kind", "pendant"),), _LEN["pendant"],
           "length_cm"),
-    _jrow("NCKRBY", "Ruby Pendant Necklace", _O, 26.0,
+    _jrow("NCKRBY", "Ruby Pendant Necklace", _C, 26.0,
           "A pendant necklace with a faceted ruby set in a round bezel, on a fine belcher "
           "chain. Ruby is the birthstone for July.",
           (GOLD, SILVER), _METALS,
@@ -443,7 +446,7 @@ NECKLACES = (
              *_stone("Ruby"), _a("birthstone", "Birthstone", "July")),
           "Necklaces", "Necklace", "necklace", (("kind", "pendant"), ("stone", "ruby")),
           _LEN["pendant"], "length_cm"),
-    _jrow("NCKSPH", "Sapphire Pendant Necklace", _M, 28.0,
+    _jrow("NCKSPH", "Sapphire Pendant Necklace", _W, 28.0,
           "A pendant necklace with a faceted sapphire set in a round bezel, on a fine chain. "
           "Sapphire is the birthstone for September.",
           (SILVER, ROSE_GOLD), _METALS,
@@ -451,7 +454,7 @@ NECKLACES = (
              *_stone("Sapphire"), _a("birthstone", "Birthstone", "September")),
           "Necklaces", "Necklace", "necklace", (("kind", "pendant"), ("stone", "sapphire")),
           _LEN["pendant"], "length_cm"),
-    _jrow("NCKCHN", "Stainless Steel Chain Necklace", _T, 14.0,
+    _jrow("NCKCHN", "Stainless Steel Chain Necklace", _L, 14.0,
           "A classic stainless steel chain with a lobster clasp, plain enough to wear alone or "
           "to hang a pendant from.",
           (GOLD, SILVER), _STEEL,
@@ -470,7 +473,7 @@ NECKLACES = (
              _count("layers", "Layers", 3)),
           "Necklaces", "Necklace", "necklace", (("kind", "layered"), ("layers", "3")),
           _LEN["layered"], "length_cm"),
-    _jrow("NCKLY2", "Double Layered Pendant Necklace", _M, 19.0,
+    _jrow("NCKLY2", "Double Layered Pendant Necklace", _C, 19.0,
           "Two chains of different lengths on one clasp, the shorter plain and the longer "
           "hung with a small charm.",
           (GOLD, ROSE_GOLD), _METALS,
@@ -488,20 +491,20 @@ def _bk(kind: str) -> tuple:
 
 
 BRACELETS = (
-    _jrow("BRCBNG", "Plain Bangle Bracelet", _P, 12.0,
+    _jrow("BRCBNG", "Plain Bangle Bracelet", _L, 12.0,
           "A smooth round bangle in a polished finish, slim enough to stack with others.",
           _MT, _METALS, _j(_METALS, _MT, _bk("Bangle")), "Bracelets", "Bracelet", "bracelet",
           (("kind", "bangle"),), _BS),
-    _jrow("BRCSTN", "Crystal Bangle Bracelet", _O, 18.0,
+    _jrow("BRCSTN", "Crystal Bangle Bracelet", _C, 18.0,
           "A polished bangle with a single clear crystal set at the front.",
           (GOLD, SILVER), _METALS,
           _j(_METALS, (GOLD, SILVER), _bk("Bangle"), *_stone("Clear Crystal")), "Bracelets",
           "Bracelet", "bracelet", (("kind", "bangle"), ("stone", "clear crystal")), _BS),
-    _jrow("BRCCUF", "Open Cuff Bracelet", _M, 14.0,
+    _jrow("BRCCUF", "Open Cuff Bracelet", _H, 14.0,
           "A wide open cuff with a smooth finish that you slip over the wrist and press to fit.",
           (GOLD, SILVER, ROSE_GOLD), _METALS, _j(_METALS, _MT, _bk("Cuff")), "Bracelets",
           "Bracelet", "bracelet", (("kind", "cuff"),), _sizes(("Small", 14.0), ("Large", 15.0))),
-    _jrow("BRCCHN", "Stainless Steel Chain Bracelet", _T, 11.0,
+    _jrow("BRCCHN", "Stainless Steel Chain Bracelet", _L, 11.0,
           "A fine stainless steel chain bracelet with a lobster clasp, plain or worn with a "
           "charm.",
           (GOLD, SILVER), _STEEL, _j(_STEEL, (GOLD, SILVER), _bk("Chain")), "Bracelets",
@@ -540,22 +543,22 @@ def _rk(kind: str) -> tuple:
 _L4 = ("J", "L", "N", "P")
 
 RINGS = (
-    _jrow("RNGBND", "Plain Band Ring", _P, 10.0,
+    _jrow("RNGBND", "Plain Band Ring", _L, 10.0,
           "A slim polished band, comfortable enough to wear every day.",
           _MT, _METALS, _j(_METALS, _MT, _rk("Band")), "Rings", "Ring", "ring",
           (("kind", "band"),), _rs(*_L4, base=10.0), "ring_size_uk", _rx(*_L4)),
-    _jrow("RNGSGN", "Oval Signet Ring", _O, 18.0,
+    _jrow("RNGSGN", "Oval Signet Ring", _C, 18.0,
           "A classic oval signet ring with a flat polished face, worn on the little finger.",
           (GOLD, SILVER), _METALS, _j(_METALS, (GOLD, SILVER), _rk("Signet")), "Rings", "Ring",
           "ring", (("kind", "signet"),), _rs("L", "N", "P", "R", base=18.0), "ring_size_uk",
           _rx("L", "N", "P", "R")),
-    _jrow("RNGSTK", "Set of Three Stacking Rings", _M, 15.0,
+    _jrow("RNGSTK", "Set of Three Stacking Rings", _H, 15.0,
           "Three slim rings to wear together or apart, with a polished finish.",
           (GOLD, SILVER, ROSE_GOLD), _METALS,
           _j(_METALS, _MT, _rk("Stacking"), _count("piece_count", "Piece count", 3)), "Rings",
           "Ring", "ring", (("kind", "stacking"), ("pieces", "3")), _rs(*_L4, base=15.0),
           "ring_size_uk", _rx(*_L4)),
-    _jrow("RNGSOL", "Solitaire Cubic Zirconia Ring", _T, 20.0,
+    _jrow("RNGSOL", "Solitaire Cubic Zirconia Ring", _L, 20.0,
           "A solitaire ring with one cubic zirconia in a four prong setting on a slim band.",
           (GOLD, SILVER), _METALS,
           _j(_METALS, (GOLD, SILVER), _rk("Solitaire"), *_stone("Cubic Zirconia")), "Rings",

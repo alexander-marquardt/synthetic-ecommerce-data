@@ -22,6 +22,12 @@ bangle          a rigid round bangle seen at an angle (gen#1113)    style (plain
                                                                     twisted, stacked)
 cufflinks       a pair of cufflinks, each a face on a swivel bar    face (round, square, knot,
                 (gen#1113)                                          stone), stone (a stone name)
+pendant         one large pendant on a fine chain (gen#1113)        charm (heart, star, moon, cross,
+                                                                    disc, pearl, stone), stone
+anklet          a fine chain laid in a round, with a clasp and an   style (chain, beaded, charm,
+                extender (gen#1113)                                 double)
+watch_strap     the two parts of a strap, side by side (gen#1113)   material (leather, silicone,
+                                                                    fabric, mesh)
 ==============  ==================================================  ===========================
 
 Every params value is a string, as a style row's ``params`` carry it.
@@ -45,7 +51,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _word,
     register,
 )
-from synthetic_ecommerce_data.domains.retail.kit_accessories import STONES, _annulus, _gem
+from synthetic_ecommerce_data.domains.retail.kit_accessories import STONES, _annulus, _chain, _gem
 from synthetic_ecommerce_data.domains.retail.kit_more import _circle, _ring
 
 STEEL, GOLD_CASE, ROSE_CASE = "#cfd5da", "#d4af37", "#d8a28f"
@@ -289,4 +295,100 @@ def cufflinks(paint: str, fill: Fill, label: str | None, face: str = "round", st
     return out
 
 
-register({"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})
+def _star(cx: float, cy: float, r: float) -> str:
+    pts = []
+    for k in range(10):
+        a, q = math.radians(k * 36), r if k % 2 == 0 else r * 0.45
+        pts.append(f"{cx + q * math.sin(a):.1f},{cy - q * math.cos(a):.1f}")
+    return "M" + " L".join(pts) + " Z"
+
+
+#: The outline of each metal charm, about 150 units across, hung at (200, 130).
+CHARMS = {
+    "heart": "M200,188 C170,140 106,152 110,214 C114,266 168,300 200,334 C232,300 286,266 290,214 C294,152 230,140 200,188 Z",
+    "star": _star(200, 240, 104),
+    "moon": "M226,150 A92,92 0 1 0 284,286 A76,76 0 1 1 226,150 Z",
+    "cross": "M180,146 H220 V206 H276 V246 H220 V346 H180 V246 H124 V206 H180 Z",
+}
+
+
+def pendant(paint: str, fill: Fill, label: str | None, charm: str = "heart", stone: str = "") -> list[str]:
+    """One large pendant on a fine chain, in the record's metal: a ``charm`` (heart, star, moon, cross or a plain disc), a round pearl, or a faceted ``stone`` of the stone named in a round setting (gen#1113)."""
+    _choice("pendant charm", charm, (*CHARMS, "disc", "pearl", "stone"))
+    out = [*_chain("M70,28 Q110,92 200,124 Q290,92 330,28", paint, 6), *_ring(200, 134, 13, paint, 5)]
+    if charm in CHARMS:
+        out += [_path(CHARMS[charm], paint)]
+    elif charm == "disc":
+        out += [_circle(200, 242, 94, paint), _circle(200, 242, 80, "none", 1.4)]
+    elif charm == "pearl":
+        out += [_path("M178,142 Q200,128 222,142 L232,172 Q200,160 168,172 Z", paint), _circle(200, 246, 88, PEARL)]
+    else:
+        if stone.lower() not in STONES:
+            raise ValueError(f"unknown pendant stone {stone!r}; {', '.join(STONES)}")
+        out += [_circle(200, 242, 98, paint), _circle(200, 242, 84, _shade(paint, -0.12), 1.4), *_gem(200, 240, 72, stone)]
+    out.append(_highlight("M150,232 Q152,200 178,186", 6, 0.5))
+    if label:
+        out.append(_word(label, 200, 382, 200, 22))
+    return out
+
+
+def anklet(paint: str, fill: Fill, label: str | None, style: str = "chain") -> list[str]:
+    """An anklet laid in a round, closed by a lobster clasp with an extender: a plain ``chain``, a ``beaded`` one, a chain with small ``charm`` discs, or a ``double`` chain (gen#1113)."""
+    _choice("anklet style", style, ("chain", "beaded", "charm", "double"))
+    cx, cy, rx, ry = 200.0, 206.0, 158.0, 138.0
+    ring = f"M{cx},{cy - ry} A{rx},{ry} 0 1 1 {cx - 0.1},{cy - ry} Z"
+    out = list(_chain(ring, paint, 9 if style == "chain" else 6))
+    if style == "double":
+        out += _chain(f"M{cx},{cy - ry + 8} A{rx - 30},{ry - 22} 0 1 1 {cx - 0.1},{cy - ry + 8} Z", paint, 5)
+    steps = {"beaded": range(0, 360, 12), "charm": range(60, 301, 40)}.get(style, ())
+    for deg in steps:
+        t = math.radians(deg)
+        x, y = cx + rx * math.sin(t), cy - ry * math.cos(t)
+        if style == "beaded":
+            out.append(_circle(x, y, 12, paint, 2))
+        else:
+            out += [_line(f"M{x:.1f},{y:.1f} L{x:.1f},{y + 20:.1f}", 3), _circle(x, y + 34, 17, paint, 2.2)]
+    out += [_circle(cx, cy - ry, 14, paint), _circle(cx + 4, cy - ry - 2, 5, "#ffffff", 1.4)]
+    out += [_circle(cx + 26 + 17 * k, cy - ry - 8, 6, paint, 1.8) for k in range(3)]
+    if label:
+        out.append(_word(label, 200, 212, 160, 22))
+    return out
+
+
+def watch_strap(paint: str, fill: Fill, label: str | None, material: str = "leather") -> list[str]:
+    """A two part watch strap laid flat, the short part with its buckle beside the long part with its holes: ``leather`` is stitched, ``silicone`` is ribbed, ``fabric`` is woven with a center stripe and ``mesh`` is a fine metal weave with a slide clasp (gen#1113)."""
+    _choice("strap material", material, ("leather", "silicone", "fabric", "mesh"))
+    short = "M72,70 L168,70 L160,300 L80,300 Z"
+    long = "M232,30 L328,30 L318,330 Q318,372 280,372 Q242,372 242,330 Z"
+    out = [_path(d, paint) for d in (short, long)]
+    for x0, y in ((66, 300), (226, 30)):  # the spring bar end of each part
+        out.append(f'<rect x="{x0}" y="{y - 9}" width="108" height="18" rx="9" fill="{_shade(paint, -0.18)}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>')
+    if material == "leather":
+        for d in ("M84,82 L90,286 M156,82 L150,286", "M246,46 L254,328 Q256,358 280,358 Q304,358 306,328 L314,46"):
+            out.append(_line(d, 2, ' stroke-dasharray="8 6" stroke-opacity=".7"'))
+    elif material == "silicone":
+        out += [_line(f"M{82 + k * 0.3:.1f},{100 + 18 * k} H{158 - k * 0.3:.1f}", 3, ' stroke-opacity=".4"') for k in range(10)]
+        out += [_line(f"M{242 + k * 0.3:.1f},{60 + 18 * k} H{318 - k * 0.3:.1f}", 3, ' stroke-opacity=".4"') for k in range(7)]
+    elif material == "fabric":
+        stripe = _shade(paint, 0.45)
+        out += [_path("M108,70 L132,70 L131,290 L109,290 Z", stripe, 1.2), _path("M268,40 L292,40 L290,370 L270,370 Z", stripe, 1.2)]
+        out += [_line(f"M{76 + k * 0.4:.1f},{84 + 10 * k} H{164 - k * 0.4:.1f}", 1, ' stroke-opacity=".35"') for k in range(20)]
+        out += [_line(f"M{236 + k * 0.4:.1f},{46 + 10 * k} H{324 - k * 0.4:.1f}", 1, ' stroke-opacity=".35"') for k in range(29)]
+    else:
+        for k in range(22):
+            out.append(_line(f"M{74 + k * 0.4:.1f},{80 + 10 * k} l8,-5 " + "l8,5 l8,-5 " * 5, 1.2, ' stroke-opacity=".5"'))
+        for k in range(30):
+            out.append(_line(f"M{238 + k * 0.35:.1f},{48 + 10 * k} l8,-5 " + "l8,5 l8,-5 " * 4, 1.2, ' stroke-opacity=".5"'))
+    if material == "mesh":
+        out.append(f'<rect x="62" y="38" width="116" height="44" rx="8" fill="{STEEL}" stroke="{INK}" stroke-width="{LW}"/>')
+    else:  # a pin buckle, and the holes of the long part
+        out += [f'<rect x="60" y="28" width="120" height="50" rx="12" fill="none" stroke="{INK}" stroke-width="15"/>',
+                f'<rect x="60" y="28" width="120" height="50" rx="12" fill="none" stroke="{STEEL}" stroke-width="9"/>',
+                _line("M120,78 L120,26", 7), _line("M120,78 L120,28", 3, stroke=STEEL)]
+        out += [_circle(280, 206 + 28 * k, 6, "#ffffff", 2) for k in range(5)]
+    if label:
+        out.append(_word(label, 120, 340, 140, 20))
+    return out
+
+
+register({"pendant": pendant, "anklet": anklet, "watch_strap": watch_strap, "hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})

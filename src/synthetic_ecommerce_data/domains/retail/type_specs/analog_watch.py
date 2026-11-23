@@ -53,6 +53,7 @@ SPEC = TypeSpec(
     key="analog_watch",
     department="Clothing",
     product_type=PTYPE,
+    derivable=True,
     options=(Option("case_mm", "case_diameter", "Case diameter", "MMT"),),
     owners=OWNED,
     apparel_exempt="a watch: the color is the strap, not a printed or dyed garment color; it carries its own decoys (gen#423)",
