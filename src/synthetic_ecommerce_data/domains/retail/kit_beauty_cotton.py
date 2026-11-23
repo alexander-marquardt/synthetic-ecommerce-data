@@ -95,8 +95,8 @@ def cotton_pad_pack(
 
 def _bud(x: float, top: float, stem: str, tip: str) -> list[str]:
     """One bud standing up from the tub: its stem from ``top`` down, a tip at each end."""
-    colour = BAMBOO if stem == "bamboo" else COTTON
-    out = [_rect(x - 3, top, 6, 120, colour, 2, LW_DETAIL)]
+    color = BAMBOO if stem == "bamboo" else COTTON
+    out = [_rect(x - 3, top, 6, 120, color, 2, LW_DETAIL)]
     if stem == "bamboo":  # the nodes of a bamboo stem
         out.append(
             _line(

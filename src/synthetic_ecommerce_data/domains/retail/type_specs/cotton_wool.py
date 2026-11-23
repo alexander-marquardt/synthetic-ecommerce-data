@@ -26,7 +26,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _wool(code, title, brand, form, grade, sizes, desc, color=None) -> object:  # noqa: ANN001
-    attrs = (a("wool_form", "Form", form), a("cotton_grade", "Cotton", grade))
+    attrs = (a("wool_form", "Wool form", form), a("cotton_grade", "Cotton", grade))
     extra = {"color": color} if color else {}
     return row(
         code,

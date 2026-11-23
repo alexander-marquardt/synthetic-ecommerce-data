@@ -148,7 +148,7 @@ The department's rate is unchanged: Beauty's share of derived styles stays insid
 Each type plants two class 6 decoys: a range name holds the query's word while the fields say
 another value. `square cotton pads` meets "Square Mile Round Quilted Cotton Pads", `smooth cotton
 pads` meets "Smooth Day Round Exfoliating Cotton Pads", `bamboo cotton buds` meets "Bamboo Grove
-Paper Standard Tip Cotton Buds", `precision tip cotton buds` meets "Precision Line Bamboo Standard
+Paper Standard Tip Cotton Buds", `precision tip cotton buds` meets "True Precision Bamboo Standard
 Tip Cotton Buds", `organic cotton wool` meets "Organic Meadow Pure Cotton Wool Balls" and `cotton
 wool roll` meets "Roll Call Pure Cotton Wool Pleat".
 

@@ -61,8 +61,8 @@ DECOYS = (
         ROWS[0], "CTBDY1", "Bamboo Grove Paper Standard Tip Cotton Buds",
         "From the Bamboo Grove range: firm buds with a generous cotton tip at each end.")),
     Decoy(6, "precision tip cotton buds", "generic", decoy(
-        ROWS[1], "CTBDY2", "Precision Line Bamboo Standard Tip Cotton Buds",
-        "From the Precision Line range: buds on a rigid stem, in a card tub.")),
+        ROWS[1], "CTBDY2", "True Precision Bamboo Standard Tip Cotton Buds",
+        "From the True Precision range: buds on a rigid stem, in a card tub.")),
 )  # fmt: skip
 
 SPEC = TypeSpec(

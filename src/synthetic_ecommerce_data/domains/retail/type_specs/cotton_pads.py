@@ -26,7 +26,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _pads(code, title, brand, shape, texture, sizes, desc, color=None) -> object:  # noqa: ANN001
-    attrs = (a("pad_shape", "Pad shape", shape), a("pad_texture", "Texture", texture))
+    attrs = (a("pad_shape", "Pad shape", shape), a("pad_texture", "Pad texture", texture))
     extra = {"color": color} if color else {}
     return row(
         code,
