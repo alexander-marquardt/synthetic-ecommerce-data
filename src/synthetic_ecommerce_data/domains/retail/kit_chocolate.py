@@ -1,21 +1,27 @@
-"""The chocolate box (gen#609), bar, sharing bag, hot chocolate and chocolate orange (gen#1125).
+"""The chocolate box (gen#609), bar, sharing bag, hot chocolate, chocolate orange, peanut butter
+cups and advent calendar (gen#1125).
 
 ================  ===================================================  ============
 shape             draws                                                params
 ================  ===================================================  ============
 chocolate_box     an opened gift box seen from a little above, its      pack_size,
-                  lid standing behind it, the chocolates in their       chocolate
-                  paper cups on the tray
+                  lid standing behind it, the chocolates in their       chocolate,
+                  paper cups on the tray (``piece="cherries"``: a       piece
+                  coated cherry and its stalk in each cup)
 chocolate_bar     an opened bar, its wrapper torn back over the foil    pack_size,
                   to show the glossy segmented block, broken pieces     chocolate
                   in front; a multipack a stack of its bars
-chocolate_bag     a stand-up sharing bag, its buttons or bites seen     pack_size,
-                  through a window and a few spilled in front           chocolate,
-                                                                        piece
+chocolate_bag     a stand-up sharing bag, its ``piece`` seen through    pack_size,
+                  a window and a few spilled in front: buttons,         chocolate,
+                  peanuts, strawberries, bananas, else bites            piece
 hot_chocolate     a lidded tub of drinking chocolate, a mug filled      pack_size,
                   with glossy cocoa in front of it                      chocolate
 chocolate_orange  a ball of glossy segments in its opened foil, two     pack_size,
                   segments loose in front                               chocolate
+peanut_butter_    two fluted cups before their opened wrapper and a     pack_size,
+cups              third in front, cut to show its peanut filling        chocolate
+advent_calendar   a board of 24 numbered doors under its label, doors   chocolate
+                  1 and 2 open, each on a glossed chocolate star
 ================  ===================================================  ============
 
 Every chocolate shows glossed: a highlight at the top left and a shade at the foot right. Each
@@ -40,6 +46,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _panel,
     _path,
     _shade,
+    _word,
     register,
 )
 
@@ -305,15 +312,40 @@ def _bite(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
     return _chocolate(top, _rect(cx - r, cy + r * 0.8, 2 * r, r * 0.42), [groove], choc, gloss)
 
 
+def _paper_cup(cx: float, cy: float, rx: float, ry: float) -> list[str]:
+    """The paper cup a chocolate of an assortment sits in, and its pleats."""
+    cup = _path(_disc(cx, cy + ry * 0.12, rx, ry), CUP, 1.2, stroke=CUP_PLEAT)
+    pleats = _line(" ".join(f"M{cx + rx * t:.1f},{cy + ry * 0.7:.1f} L{cx + rx * t * 1.1:.1f},{cy + ry * 1.05:.1f}"
+                            for t in (-0.6, -0.2, 0.2, 0.6)), 1.0, stroke=CUP_PLEAT)  # fmt: skip
+    return [cup, pleats]
+
+
+#: A coated cherry's stalk, and the dark red of the cherry where the stalk leaves the coat.
+STALK, CHERRY = "#5a4a22", "#6a0f1c"
+
+
+def _cherry(cx: float, cy: float, rx: float, ry: float, choc: str, gloss: str) -> list[str]:
+    """A cherry coated in chocolate in its paper cup: a round glossed ball, the dark red of the
+    cherry where its stalk leaves the coat, and the stalk rising from it."""
+    r = min(rx * 0.86, ry * 1.6)
+    by = cy - ry * 0.35  # the ball's center, a little above the cup's
+    top = by - r * 0.92
+    stalk = (f"M{cx:.1f},{top + 2:.1f} C{cx + r * 0.1:.1f},{top - r * 0.5:.1f} "
+             f"{cx + r * 0.4:.1f},{top - r * 0.8:.1f} {cx + r * 0.75:.1f},{top - r * 1.05:.1f}")  # fmt: skip
+    return [
+        *_paper_cup(cx, cy, rx, ry),
+        *_chocolate(_disc(cx, by, r, r * 0.92), _disc(cx, by + r * 0.14, r, r * 0.92), [], choc, gloss),
+        _tag("cherry", _path(_disc(cx, top + 2, r * 0.2, r * 0.12), CHERRY, 1.0)),
+        _tag("stalk", _line(stalk, 2.6, stroke=STALK)),
+    ]  # fmt: skip
+
+
 def _praline(kind: int, cx: float, cy: float, rx: float, ry: float, colors: tuple[str, str, str],
              gloss: str) -> list[str]:  # fmt: skip
     """One chocolate of an assortment in its paper cup: ``kind`` 0 a round truffle, 1 a square
     praline in the second chocolate, 2 a dome with a drizzle of the third across it."""
     choc, also, drizzle = colors
-    cup = _path(_disc(cx, cy + ry * 0.12, rx, ry), CUP, 1.2, stroke=CUP_PLEAT)
-    pleats = _line(" ".join(f"M{cx + rx * t:.1f},{cy + ry * 0.7:.1f} L{cx + rx * t * 1.1:.1f},{cy + ry * 1.05:.1f}"
-                            for t in (-0.6, -0.2, 0.2, 0.6)), 1.0, stroke=CUP_PLEAT)  # fmt: skip
-    out = [cup, pleats]
+    out = _paper_cup(cx, cy, rx, ry)
     px, py = rx * 0.8, ry * 0.78
     if kind == 1:
         top = _rect(cx - px * 0.88, cy - py * 0.9, px * 1.76, py * 1.5)
@@ -336,11 +368,12 @@ def _praline(kind: int, cx: float, cy: float, rx: float, ry: float, colors: tupl
 
 def chocolate_box(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
+    chocolate: str | None = None, piece: str | None = None,
 ) -> list[str]:  # fmt: skip
     """An opened gift box seen from a little above: the lid stands behind it with a ribbon and
     the label panel, and the tray holds the chocolates in their paper cups, an assortment of
-    truffles, square pralines in a second chocolate and drizzled domes. A box under
+    truffles, square pralines in a second chocolate and drizzled domes; with ``piece``
+    ``"cherries"`` each cup holds a coated cherry and its stalk (:func:`_cherry`). A box under
     :data:`BOX_FULL_G` is drawn smaller (:func:`own_scale`), and holds fewer chocolates."""
     k = own_scale(pack_size, BOX_FULL_G, BOX_SMALLEST)
     _, grams = pack_items(pack_size)
@@ -369,12 +402,83 @@ def chocolate_box(
         left, right = 64 + (52 - 64) * t, 336 + (348 - 336) * t
         cw, ch = (right - left) / cols, (bottom - top) / rows
         for c in range(cols):
-            out += _praline(
-                (c + r) % 3, left + cw * (c + 0.5), y, cw * 0.42, ch * 0.4, colors, gloss
+            x = left + cw * (c + 0.5)
+            out += (
+                _cherry(x, y, cw * 0.42, ch * 0.4, choc, gloss)
+                if piece == "cherries"
+                else _praline((c + r) % 3, x, y, cw * 0.42, ch * 0.4, colors, gloss)
             )
     ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (348 - CENTER_Y) * k:.1f}" '
               f'rx="{176 * k:.1f}" ry="12" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
     return [GLOSS.format(gloss), ground, *_scaled(k, out, "box")]
+
+
+#: A dipped strawberry's red and its calyx, and the cream face of a banana slice broken open.
+STRAWBERRY, CALYX, BANANA = "#c8283a", "#4f7a2a", "#f0dc9a"
+
+
+def _peanut(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A chocolate coated peanut: an oval pinched at its waist, lying at a slant of its own."""
+    rx, ry = r * 1.05, r * 0.66
+    waist = ry * 0.74
+    top = (f"M{cx - rx:.1f},{cy:.1f} C{cx - rx:.1f},{cy - ry:.1f} {cx - rx * 0.25:.1f},{cy - ry:.1f} {cx:.1f},{cy - waist:.1f} "
+           f"C{cx + rx * 0.25:.1f},{cy - ry:.1f} {cx + rx:.1f},{cy - ry:.1f} {cx + rx:.1f},{cy:.1f} "
+           f"C{cx + rx:.1f},{cy + ry:.1f} {cx + rx * 0.25:.1f},{cy + ry:.1f} {cx:.1f},{cy + waist:.1f} "
+           f"C{cx - rx * 0.25:.1f},{cy + ry:.1f} {cx - rx:.1f},{cy + ry:.1f} {cx - rx:.1f},{cy:.1f} Z")  # fmt: skip
+    angle = (cx * 7 + cy * 3) % 50 - 25
+    return _chocolate(top, _disc(cx, cy + r * 0.16, rx, ry), [], choc, gloss,
+                      f"rotate({angle:.0f} {cx:.1f} {cy:.1f})")  # fmt: skip
+
+
+def _strawberry(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A strawberry dipped in chocolate: its red shoulders and seeds and its green calyx above
+    the glossed coat, which runs to the tip."""
+    h = r * 1.25
+
+    def side(dy: float) -> str:  # the coat's wavy dip line, then down both sides to the tip
+        dip = " ".join(f"L{cx - r * 0.98 + i * r * 0.392:.1f},{cy - h * (0.1 if i % 2 else 0.02) + dy:.1f}"
+                       for i in range(1, 6))  # fmt: skip
+        return (f"M{cx - r * 0.98:.1f},{cy - h * 0.06 + dy:.1f} {dip} "
+                f"C{cx + r:.1f},{cy + h * 0.25 + dy:.1f} {cx + r * 0.3:.1f},{cy + h * 0.8 + dy:.1f} {cx:.1f},{cy + h * 0.85 + dy:.1f} "
+                f"C{cx - r * 0.3:.1f},{cy + h * 0.8 + dy:.1f} {cx - r:.1f},{cy + h * 0.25 + dy:.1f} {cx - r * 0.98:.1f},{cy - h * 0.06 + dy:.1f} Z")  # fmt: skip
+
+    body = (f"M{cx - r:.1f},{cy - h * 0.4:.1f} C{cx - r:.1f},{cy + h * 0.25:.1f} {cx - r * 0.3:.1f},{cy + h * 0.8:.1f} {cx:.1f},{cy + h * 0.85:.1f} "
+            f"C{cx + r * 0.3:.1f},{cy + h * 0.8:.1f} {cx + r:.1f},{cy + h * 0.25:.1f} {cx + r:.1f},{cy - h * 0.4:.1f} "
+            f"C{cx + r * 0.6:.1f},{cy - h * 0.72:.1f} {cx - r * 0.6:.1f},{cy - h * 0.72:.1f} {cx - r:.1f},{cy - h * 0.4:.1f} Z")  # fmt: skip
+    seeds = " ".join(f"M{cx + r * u:.1f},{cy - h * v:.1f} l1.4,1.4" for u, v in
+                     ((-0.55, 0.36), (-0.2, 0.46), (0.2, 0.46), (0.55, 0.36), (0.0, 0.26)))  # fmt: skip
+    calyx = " ".join(f"M{cx:.1f},{cy - h * 0.6:.1f} L{cx + r * u:.1f},{cy - h * v:.1f} L{cx + r * u * 0.5:.1f},{cy - h * 0.66:.1f} Z"
+                     for u, v in ((-0.6, 0.5), (-0.25, 0.8), (0.25, 0.8), (0.6, 0.5)))  # fmt: skip
+    return [
+        _tag("strawberry", _path(body, STRAWBERRY, 1.2)),
+        _line(seeds, 1.2, stroke="#f6d36a"),
+        *_chocolate(side(0), side(3), [], choc, gloss),
+        _path(calyx, CALYX, 1.0),
+    ]
+
+
+def _banana(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A dried banana slice coated in chocolate: a thick round coin, its coat raised at the rim."""
+    ring = _line(_disc(cx, cy, r * 0.62, r * 0.48), 1.0, stroke=_mix(choc, "#ffffff", 0.25))
+    return _chocolate(_disc(cx, cy, r, r * 0.78), _disc(cx, cy + r * 0.22, r, r * 0.78), [ring], choc, gloss)
+
+
+def _banana_cut(cx: float, cy: float, r: float, choc: str, gloss: str) -> list[str]:
+    """A coated banana slice broken open: the chocolate rim round the banana's cream face, its
+    seeds in a ring."""
+    seeds = " ".join(f"M{cx + r * 0.24 * math.cos(a):.1f},{cy + r * 0.19 * math.sin(a):.1f} l1,1"
+                     for a in (i * math.pi / 3 for i in range(6)))  # fmt: skip
+    return [
+        *_banana(cx, cy, r, choc, gloss),
+        _tag("banana", _path(_disc(cx, cy, r * 0.72, r * 0.55), BANANA, 1.0, stroke=_shade(BANANA, 0.3))),
+        _line(seeds, 1.8, stroke="#6a4a20"),
+    ]  # fmt: skip
+
+
+#: What a sharing bag holds, by its ``piece`` (anything else is bites), and the piece shown
+#: broken open among those spilled in front, where one shows the fruit inside.
+PIECES = {"buttons": _button, "peanuts": _peanut, "strawberries": _strawberry, "bananas": _banana}
+CUT = {"bananas": _banana_cut}
 
 
 def chocolate_bag(
@@ -382,14 +486,16 @@ def chocolate_bag(
     chocolate: str | None = None, piece: str | None = None,
 ) -> list[str]:  # fmt: skip
     """A stand-up sharing bag: a crimped top seal, the label panel, a window showing the
-    ``piece`` it holds (``"buttons"``, or else bites) and a few spilled at its foot. The bag is
+    ``piece`` it holds (one of :data:`PIECES`, else bites) and a few spilled at its foot, the
+    middle one broken open where the piece shows fruit inside (:data:`CUT`). The bag is
     the flavour's color, kept visible on white paper (:func:`wrapper_color`); a bag under
     :data:`BAG_FULL_G` is drawn smaller (:func:`own_scale`)."""
     k = own_scale(pack_size, BAG_FULL_G, BAG_SMALLEST)
     choc = chocolate_color(chocolate, fill.base)
     bag = wrapper_color(fill.base) if fill.pattern == "solid" else paint
     gloss = f"choc-gloss-{choc[1:]}"
-    draw = _button if piece == "buttons" else _bite
+    draw = PIECES.get(piece or "", _bite)
+    cut = CUT.get(piece or "", draw)
     seal = (
         "M86,34 "
         + " ".join(f"L{86 + i * 12:.0f},{34 if i % 2 else 28}" for i in range(1, 20))
@@ -418,8 +524,8 @@ def chocolate_bag(
         ]
     out.append(_line(_disc(200, 232, 104, 74), 2.0, stroke=_mix(bag, "#ffffff", 0.5)))
     out.append(_line("M136,184 C150,172 168,166 186,164", 6, ' stroke-opacity=".45"', "#ffffff"))
-    for x, y in ((92, 334), (140, 348), (196, 340), (252, 350), (306, 334)):
-        out += draw(x, y, 24.0, choc, gloss)
+    for i, (x, y) in enumerate(((92, 334), (140, 348), (196, 340), (252, 350), (306, 334))):
+        out += (cut if i == 2 else draw)(x, y, 24.0, choc, gloss)
     ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (364 - CENTER_Y) * k:.1f}" '
               f'rx="{170 * k:.1f}" ry="11" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
     return [GLOSS.format(gloss), ground, *_scaled(k, out, "sharing-bag")]
@@ -550,6 +656,136 @@ def chocolate_orange(
     return [GLOSS.format(gloss), ground, *_scaled(k, out, "chocolate-orange")]
 
 
+#: A pack of peanut butter cups' drawn size: the weight at and above which it is the full one,
+#: and its smallest scale; the paper case a cup sits in, and the filling a cut cup shows.
+CUPS_FULL_G, CUPS_SMALLEST = 200.0, 0.9
+CASE, PEANUT_BUTTER = "#a27a4e", "#c98a3e"
+
+
+def _half_disc(cx: float, cy: float, rx: float, ry: float) -> str:
+    """The front half of an ellipse, from its left end to its right, as two curves."""
+    a, b = rx * 0.5523, ry * 0.5523
+    return (f"C{cx - rx:.1f},{cy + b:.1f} {cx - a:.1f},{cy + ry:.1f} {cx:.1f},{cy + ry:.1f} "
+            f"C{cx + a:.1f},{cy + ry:.1f} {cx + rx:.1f},{cy + b:.1f} {cx + rx:.1f},{cy:.1f}")  # fmt: skip
+
+
+def _cup(cx: float, top: float, r: float, h: float, choc: str, gloss: str, cut: bool) -> list[str]:
+    """A peanut butter cup seen from a little above: its fluted paper case narrowing to the
+    foot, the glossed chocolate top with its ridged rim; ``cut`` takes a wedge out of its front
+    to show the peanut filling inside."""
+    ry, foot = r * 0.34, r * 0.8
+    fy = foot * 0.34
+    case = (f"M{cx - r * 1.04:.1f},{top:.1f} L{cx - foot:.1f},{top + h:.1f} "
+            f"{_half_disc(cx, top + h, foot, fy)} L{cx + r * 1.04:.1f},{top:.1f} Z")  # fmt: skip
+    flutes = " ".join(
+        f"M{cx + r * 1.04 * t:.1f},{top + ry * (1 - t * t) ** 0.5:.1f} "
+        f"L{cx + foot * t:.1f},{top + h + fy * (1 - t * t) ** 0.5:.1f}"
+        for t in (-0.85, -0.6, -0.32, 0.0, 0.32, 0.6, 0.85)
+    )
+    ridge = _line(_disc(cx, top - 1, r * 0.76, ry * 0.72), 1.4, stroke=_mix(choc, "#ffffff", 0.25))
+    out = [
+        _tag("cup", _path(case, CASE)),
+        _line(flutes, 1.2, stroke=_shade(CASE, 0.4)),
+        *_chocolate(_disc(cx, top, r, ry), _disc(cx, top + 6, r, ry), [ridge], choc, gloss),
+    ]
+    if cut:  # the wedge from the center to the front rim, and the cut wall below it
+        rim = [(cx + r * 0.96 * math.cos(math.radians(a)), top + ry * 0.96 * math.sin(math.radians(a)))
+               for a in range(40, 141, 10)]  # fmt: skip
+        wedge = f"M{cx:.1f},{top:.1f} " + " ".join(f"L{x:.1f},{y:.1f}" for x, y in rim) + " Z"
+        (x0, y0), (x1, y1) = rim[0], rim[-1]
+        wall = (f"M{x0:.1f},{y0:.1f} L{x0 - 4:.1f},{y0 + h * 0.5:.1f} L{x1 + 4:.1f},{y1 + h * 0.5:.1f} "
+                f"L{x1:.1f},{y1:.1f} " + " ".join(f"L{x:.1f},{y:.1f}" for x, y in rim[-2::-1]) + " Z")  # fmt: skip
+        out += [
+            _path(wall, _shade(PEANUT_BUTTER, 0.18), 1.2),
+            _line(f"M{x0 - 4:.1f},{y0 + h * 0.5:.1f} L{x1 + 4:.1f},{y1 + h * 0.5:.1f}", 5, stroke=choc),
+            _tag("filling", _path(wedge, PEANUT_BUTTER, 1.2)),
+        ]
+    return out
+
+
+def peanut_butter_cups(
+    paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
+    chocolate: str | None = None,
+) -> list[str]:  # fmt: skip
+    """A pack of peanut butter cups: the opened wrapper lies behind (the flavour's color, kept
+    visible on white paper by :func:`wrapper_color`) with its crimped ends and label panel, two
+    fluted cups stand before it and a third in front, cut to show its filling. Each cup's top is
+    the ``chocolate`` it is made of, glossed. A pack under :data:`CUPS_FULL_G` is drawn smaller
+    (:func:`own_scale`)."""
+    k = own_scale(pack_size, CUPS_FULL_G, CUPS_SMALLEST)
+    choc = chocolate_color(chocolate, fill.base)
+    wrapper = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    gloss = f"choc-gloss-{choc[1:]}"
+    torn = " ".join(f"L{52 + i * 296 / 22:.1f},{48 - (6 if i % 2 else 0)}" for i in range(1, 23))
+    out = [
+        _tag("wrapper", _path(f"M52,48 {torn} L348,196 L52,196 Z", wrapper)),
+        _path("M40,52 L52,48 L52,196 L40,192 Z", _shade(wrapper, 0.2), LW_DETAIL),
+        _path("M360,52 L348,48 L348,196 L360,192 Z", _shade(wrapper, 0.2), LW_DETAIL),
+        _line("M66,60 C64,110 64,150 66,186", 8, ' stroke-opacity=".22"', "#ffffff"),
+        *_panel(84, 64, 232, 80, label, 36),
+    ]  # fmt: skip
+    out += _cup(118, 214, 70, 56, choc, gloss, cut=False)
+    out += _cup(282, 214, 70, 56, choc, gloss, cut=False)
+    out += _cup(200, 262, 76, 58, choc, gloss, cut=True)
+    ground = (f'<ellipse class="ground" cx="200" cy="{CENTER_Y + (350 - CENTER_Y) * k:.1f}" '
+              f'rx="{168 * k:.1f}" ry="11" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
+    return [GLOSS.format(gloss), ground, *_scaled(k, out, "peanut-butter-cups")]
+
+
+#: The numbers on an advent calendar's 24 doors, row by row, and the doors drawn open.
+DOORS = (17, 3, 22, 9, 14, 6, 11, 24, 1, 19, 8, 15, 5, 13, 20, 2, 23, 10, 18, 7, 12, 21, 4, 16)
+OPEN = (1, 2)
+
+
+def _star(cx: float, cy: float, r: float) -> str:
+    """A five-pointed star of outer radius ``r``, a point upward."""
+    pts = [(cx + (r if i % 2 == 0 else r * 0.46) * math.sin(math.pi * i / 5),
+            cy - (r if i % 2 == 0 else r * 0.46) * math.cos(math.pi * i / 5)) for i in range(10)]  # fmt: skip
+    return "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + " Z"
+
+
+def advent_calendar(
+    paint: str, fill: Fill, label: str | None, chocolate: str | None = None
+) -> list[str]:
+    """A chocolate advent calendar seen front on: a board (the flavour's color, kept visible on
+    white paper by :func:`wrapper_color`) with its edge in shade, the label panel between two
+    stars, and 24 numbered doors in four rows of six. Doors 1 and 2 stand open, each on a
+    glossed star of the ``chocolate`` inside (milk when none is named)."""
+    choc = chocolate_color(chocolate or "milk", fill.base)
+    board = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    door = _mix(board, "#ffffff", 0.24)
+    gloss = f"choc-gloss-{choc[1:]}"
+    out = [
+        GLOSS.format(gloss),
+        '<ellipse class="ground" cx="200" cy="348" rx="160" ry="9" fill="#000000" fill-opacity=".14"/>',
+        _path("M56,46 L356,46 L356,342 L56,342 Z", _shade(board, 0.3)),
+        _tag("wrapper", _path(_rect(48, 40, 300, 294), board)),
+        _path(_star(76, 78, 15), "#ffffff", LW_DETAIL),
+        _path(_star(320, 78, 15), "#ffffff", LW_DETAIL),
+        *_panel(102, 54, 192, 50, label, 30),
+    ]
+    x0, y0, cols, rows, gap = 62.0, 118.0, 6, 4, 6.0
+    dw, dh = (272 - gap * (cols - 1)) / cols, (204 - gap * (rows - 1)) / rows
+    for i, n in enumerate(DOORS):
+        x, y = x0 + (i % cols) * (dw + gap), y0 + (i // cols) * (dh + gap)
+        if n not in OPEN:
+            out += [
+                _tag("door", _path(_rect(x, y, dw, dh), door, 1.2)),
+                _word(str(n), x + dw / 2, y + dh / 2, dw - 10, 22),
+            ]
+            continue
+        flap = dw * 0.36
+        out += [
+            _tag("door open", _path(_rect(x, y, dw, dh), _shade(board, 0.6), 1.2)),
+            *_chocolate(_star(x + dw / 2, y + dh / 2 - 1, dh * 0.38),
+                        _star(x + dw / 2, y + dh / 2 + 2, dh * 0.38), [], choc, gloss),
+            _path(f"M{x:.1f},{y:.1f} L{x - flap:.1f},{y + 5:.1f} L{x - flap:.1f},{y + dh - 5:.1f} "
+                  f"L{x:.1f},{y + dh:.1f} Z", door, 1.2),
+            _word(str(n), x - flap / 2, y + dh / 2, flap - 2, 13),
+        ]  # fmt: skip
+    return out
+
+
 register(
     {
         "chocolate_box": chocolate_box,
@@ -557,5 +793,7 @@ register(
         "chocolate_bag": chocolate_bag,
         "hot_chocolate": hot_chocolate,
         "chocolate_orange": chocolate_orange,
+        "peanut_butter_cups": peanut_butter_cups,
+        "advent_calendar": advent_calendar,
     }
 )
