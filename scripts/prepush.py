@@ -126,7 +126,18 @@ def _jobs(workflows: Path) -> dict[str, dict]:
 
 
 def _run_steps(job: dict) -> list[dict]:
-    return [step for step in job.get("steps", []) if "run" in step]
+    """A job's run steps, less the cancel a red hosted pull request run makes (#1175): a push
+    has no run to cancel, so the gate neither runs nor names it, as ``--local-ci`` drops it."""
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    from local_ci_jobs import HOSTED_CANCEL_STEP  # noqa: PLC0415  # needs pyyaml, as _jobs does
+
+    return [
+        step
+        for step in job.get("steps", [])
+        if "run" in step and any(step.get(k) != v for k, v in HOSTED_CANCEL_STEP.items())
+    ]
 
 
 def _statement(run: str, needle: str) -> list[str] | None:

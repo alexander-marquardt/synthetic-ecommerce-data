@@ -19,7 +19,9 @@ and the working directory GitHub gives a ``run:`` step.
 A job has a local equivalent only if everything in it is understood: the
 ``uses:`` steps that merely set the machine up or publish a report (checkout, uv,
 python, upload-artifact) are dropped because the merged tree and the tools are
-already here; any other action, a custom shell, or an expression other than the
+already here, and so is the step that cancels a hosted pull request's run once its
+job is red (``HOSTED_CANCEL_STEP``, #1175), since a local run has no run to
+cancel; any other action, a custom shell, or an expression other than the
 pull request's base and head shas is an error, never a silent skip. The ``if:`` of
 a job is ignored: a pull request's local run executes every job, the
 push-only ``main-merged-tree`` included, since it is the same check on the
@@ -63,6 +65,14 @@ SETUP_ACTIONS = (
     "actions/upload-artifact",
     "actions/download-artifact",
 )
+
+#: The last step of each required job (#1175): on a hosted pull request's run, a red job cancels
+#: the rest of the run. A local run has no GitHub run to cancel, so exactly this step is dropped;
+#: any other step with an ``if:`` is still an error.
+HOSTED_CANCEL_STEP = {
+    "if": "failure() && github.event_name == 'pull_request'",
+    "run": "python3 scripts/ci_cancel_run.py",
+}
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
@@ -222,6 +232,8 @@ def emit(job_id: str, job: dict, base: str, head: str) -> str:
         where = f"{job_id} step {number}"
         if "uses" in step and step["uses"].split("@")[0].startswith(SETUP_ACTIONS):
             continue  # a setup or report step, whatever its `if:`
+        if all(step.get(key) == value for key, value in HOSTED_CANCEL_STEP.items()):
+            continue  # cancels a hosted pull request's run (#1175): locally there is none
         for key in ("if", "continue-on-error", "timeout-minutes"):
             if key in step:
                 raise NoLocalEquivalent(f"{where}: step key {key!r} is not reproduced locally")

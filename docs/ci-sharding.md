@@ -204,6 +204,55 @@ The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
 `bash scripts/merge_pr.sh --local-ci $n`; switching it is replacing `--local-ci` with
 `--github-ci` on that line.
 
+## A red pull request run cancels the rest of itself (#1175)
+
+A red run used to keep every runner it held until each shard ended (`fail-fast: false`, no
+cancel). Those shards cannot change the result, and they take runners from the merge path's run,
+since GitHub hands a queued job to whichever self-hosted runner asks first. Each required job
+(`REQUIRED_CI` in `scripts/merge_pr/config.sh`) now ends with one step:
+
+```yaml
+- name: Cancel the rest of this pull request's run
+  if: failure() && github.event_name == 'pull_request'
+  env:
+    GH_TOKEN: ${{ github.token }}
+  run: python3 scripts/ci_cancel_run.py
+```
+
+- It is the job's last step, so it follows the step that went red and any rerun inside that step,
+  and the job's `always()` uploads. The run's other jobs end as **cancelled** within seconds; the
+  red job stays **red** (a job whose step failed keeps `failure` when its run is cancelled).
+- Only a `pull_request` run cancels: a push to main, a merge-group run and a dispatched run
+  (`merge_pr.sh --github-ci`, the batch train) never do, since their result is a merged sha's
+  proof. `scripts/ci_cancel_run.py` checks the event again and cancels nothing on any other.
+- The jobs that cancel are granted `actions: write`; the workflow's default token stays
+  `contents: read`. A fork's pull request gets a read-only token: the cancel answers 403, the
+  step says so, and the run goes on as before.
+- The cancelled jobs run again on the pull request's next push. `merge_pr.sh --local-ci` drops
+  this step (`HOSTED_CANCEL_STEP` in `scripts/local_ci_jobs.py`): a local run has no run to cancel.
+- `tests/test_ci_cancel_on_red_1175.py` pins the step on every required job and on no other, and
+  that it runs only on a red pull request run; `tests/test_ci_cancel_run_1175.py` pins the script.
+
+**The replay.** `scripts/ci_red_run_replay.py` reads a run's jobs (`gh api
+"repos/<owner>/<repo>/actions/runs/<id>/jobs?per_page=100&filter=latest"`) and prints the
+runner-minutes a cancel at its first red required check frees. On the recorded runs
+(`tests/fixtures/red_runs_1175.json`): the three red runs of the 2026-11-23 04:56Z queue and one
+from 2026-11-22:
+
+| Run (pull request)    | First red required check | Jobs that ran on | Runner-min freed |
+| --------------------- | ------------------------ | ---------------- | ---------------- |
+| 45102749533 (#1171)   | `tests (10)` 04:26:22Z   | 8                | 39.9             |
+| 45103039265 (#1166)   | `red-commit-proof` 03:54Z | 19              | 144.2            |
+| 45106728542 (#1172)   | `red-commit-proof` 04:00Z | 19              | 128.8            |
+| 45084861912 (#1120)   | `red-commit-proof` 23:53Z | 23              | 135.5            |
+
+About 7.5 runner-hours over four red runs.
+
+**What this costs.** A fix round sees only the failures up to the first red check, not every
+shard's: run 45084861912 had `red-commit-proof` red and five `tests` shards red as well, and a
+cancel at the first would have shown only the first. Such a pull request can take one more fix
+round; count fix rounds per red pull request before and after this change.
+
 ## The metric: `gen-merge-minutes`
 
 Wall minutes from the start of `merge_pr.sh <N>` to the squash merge, printed as

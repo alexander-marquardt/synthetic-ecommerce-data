@@ -418,7 +418,8 @@ def test_the_ci_job_runs_on_pull_requests_with_a_read_only_token() -> None:
         " (github.event_name == 'workflow_dispatch' && inputs.head != '')"
     )
     assert _step()["env"]["GH_TOKEN"] == "${{ github.token }}"
-    assert job["permissions"] == {"contents": "read", "pull-requests": "read"}
+    # actions: write is the last step's alone, the cancel of a red pull request run (#1175).
+    assert job["permissions"] == {"contents": "read", "pull-requests": "read", "actions": "write"}
 
 
 def test_the_local_ci_run_of_the_job_emits_its_command_with_the_shas_and_an_empty_token() -> None:

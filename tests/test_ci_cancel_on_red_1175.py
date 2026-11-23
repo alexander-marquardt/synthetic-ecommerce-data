@@ -10,6 +10,8 @@ a dispatched run never cancel: their result is a merged sha's proof (#1029, agen
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -86,3 +88,15 @@ def _step_runs(event: str, failed: bool) -> bool:
 )
 def test_only_a_red_pull_request_run_is_cancelled(event, failed, runs):
     assert _step_runs(event, failed) is runs
+
+
+def test_a_local_run_drops_the_cancel_step_and_still_runs_every_required_job():
+    """merge_pr.sh --local-ci emits each job's steps; it has no GitHub run to cancel, so the
+    cancel step is dropped, never an error that leaves the job without a local equivalent."""
+    for name in _required():
+        emit = ["scripts/local_ci_jobs.py", "--emit", name, "--base", "b", "--head", "h"]
+        done = subprocess.run([sys.executable, *emit], cwd=REPO, capture_output=True, text=True)
+        assert done.returncode == 0, done.stderr
+        script = done.stdout
+        assert "ci_cancel_run" not in script, name
+        assert f"== job {name} ==" in script
