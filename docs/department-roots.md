@@ -10,4 +10,6 @@ refuses a top level off the list for any domain. The table was the catalogue rep
 (`INDUSTRIAL_DEPARTMENTS`, which re-rooted every industrial path at load) until it moved here.
 
 The retail list grows by a department's family issue: `Automotive` joined it with gen#970
-(`docs/retail-automotive.md`).
+(`docs/retail-automotive.md`), and `Books` with gen#1119
+(`docs/retail-prototype/books-1119.md`): its eight leaves sit under it (`Books > Fiction`), and
+`Books` is a book's build-record `department` too.

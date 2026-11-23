@@ -92,6 +92,7 @@ MOVED = {
     # a fishing reel's size and a golf club's hand (gen#959), declared by their specs from the start
     "fishing_reel": [Option("reel_size", "reel_size", "Reel size")],
     "golf_club": [Option("handedness", "handedness", "Handedness")],
+    "book": [Option("format", "format", "Format")],
     # a table tennis bat's handle shape (gen#959 slice 2), declared by its spec from the start
     "table_tennis_bat": [Option("handle_shape", "handle_shape", "Handle shape")],
     # a bike light's output in lumens (gen#959 slice 3), declared by its spec from the start
@@ -109,6 +110,10 @@ MOVED = {
         Option("connectivity", "connectivity", "Connectivity"),
         Option("brightness_lm", "brightness", "Brightness (lm)"),
     ],
+    # a fabric's cut, a fat quarter to 2 meters (gen#1118), declared by its spec from the start
+    "fabric": [Option("fabric_cut", "fabric_cut", "Fabric cut")],
+    # the platform a video game SKU is sold on: PC or an invented console family (gen#1120)
+    "video_game": [Option("platform", "platform", "Platform")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 

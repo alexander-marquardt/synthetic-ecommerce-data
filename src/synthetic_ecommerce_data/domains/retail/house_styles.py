@@ -723,14 +723,17 @@ def differing(a: HouseStyle, b: HouseStyle) -> int:
 from synthetic_ecommerce_data.domains.retail import (  # noqa: E402
     appliance_brand_styles,  # noqa: E402,F401 -- gen#334, #721: eight marks and styles join the tables
     bicycle_brand_styles,  # noqa: E402,F401 -- gen#718: seven marks and styles join the tables
+    book_brand_styles,  # noqa: E402,F401 -- gen#1119: eight marks and styles of the Books publishers join the tables
     color_word_brand_styles,  # noqa: E402,F401 -- gen#312: six marks and styles join the tables
     diy_brand_styles,  # noqa: E402,F401 -- gen#191: four marks and styles join the tables
     electronics_brand_styles,  # noqa: E402,F401 -- gen#332, #721, #724: 17 marks and styles of the Electronics department join the tables
+    gaming_brand_styles,  # noqa: E402,F401 -- gen#1120: the eight video game publishers' marks and styles join the tables
     grocery_brand_styles,  # noqa: E402,F401 -- gen#376: 22 marks and styles of the 50K grocery tier join the tables
     health_brand_styles,  # noqa: E402,F401 -- gen#968: three marks and styles of the Health first-aid and monitor brands join the tables
     luggage_brand_styles,  # noqa: E402,F401 -- gen#209: three marks and styles join the tables
     paper_brand_styles,  # noqa: E402,F401 -- #962: three marks and styles of the Cleaning paper goods join the tables
     pet_brand_styles,  # noqa: E402,F401 -- gen#967: nine marks and styles of the Pets department join the tables
     place_brand_styles,  # noqa: E402,F401 -- gen#663: 15 marks and styles of the class 6 place brands join the tables
+    sewing_brand_styles,  # noqa: E402,F401 -- gen#1118: two marks and styles of the sewing and knitting brands join the tables
     sports_brand_styles,  # noqa: E402,F401 -- gen#959: the fishing and golf brands' two marks and styles join the tables
 )
