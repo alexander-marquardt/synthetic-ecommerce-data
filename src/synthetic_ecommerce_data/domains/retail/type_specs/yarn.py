@@ -29,7 +29,7 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _row(code: str, weight: str, material: str, brand: str, description: str, price: float):
-    attrs = (a("yarn_weight", "Yarn weight", weight), a("material", "Material", material))
+    attrs = (a("yarn_weight", "Yarn weight", weight), a("material", "Material", material.capitalize()))
     params = (("yarn_weight", weight.lower()), ("material", material.lower()))
     return row(code, f"{weight} {material} Yarn", brand, YARN, "Yarn", "yarn", description, attrs,
                packs((1, price), (5, round(price * 4.6, 2)), (10, round(price * 8.8, 2))), params)  # fmt: skip
