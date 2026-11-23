@@ -124,6 +124,39 @@ in the top 12.
 
 `false_nails` (`type_specs/false_nails.py`, leaf `Nails > False Nails`, shape `false_nails` with the param `tip`) gives `nails` its second real meaning: the hardware is under `Fasteners > Nails` ([adding-a-type.md](adding-a-type.md#nails-three-kinds-three-leaves-gen751)). Five styles from three brands, tip shape and nail length as attributes, each style in two colors and packs of 24 and 30, so 20 SKUs, and three decoys. The six main colors are spread across the styles. The titles hold both `Nails` and `Nail` (`Oval False Nail Set`), and the descriptions say `fake nails`. `tests/test_nails_751.py` holds them.
 
+## Cotton pads, buds and wool (gen#1112)
+
+`Beauty > Cotton > {Cotton Pads, Cotton Buds, Cotton Wool}` (gen#1112 slice 2) share
+`domains/retail/cotton_rows.py`: the path, the brands, four pack colors and a `row` helper that
+makes each attribute a drawing param of the same key with its lower-cased value. Each type has its
+own spec (`cotton_pads.py`, `cotton_buds.py`, `cotton_wool.py`) and its own shape in
+`domains/retail/kit_beauty_cotton.py`. Unlike the ten types above they are breadth types
+(`derivable` True): the title shows both axes, so the scaled build draws more packs by swapping
+them, and each value draws a different figure:
+
+| Type | Shape | Axes the title shows | SKUs | At the ceiling |
+|---|---|---|---|---:|
+| Cotton Pads | `cotton_pad_pack`: a clear bag with a stack of pads seen through its front, the front pad round, oval or square, quilted with a grid, smooth, or dotted | `pad_shape` (Round, Oval, Square), `pad_texture` (Quilted, Smooth, Exfoliating) | a bag of 50 to 150 (`piece_count`) | 121 |
+| Cotton Buds | `cotton_bud_tub`: a round tub with a fan of buds, each on a white paper or a ringed bamboo stem, with a rounded, a pointed or a bulb tip | `bud_stem` (Paper, Bamboo), `bud_tip` (Standard, Precision, Safety) | a tub of 56 to 500 (`piece_count`) | 84 |
+| Cotton Wool | `cotton_wool_bag`: a soft bag with balls, a folded pleat or a rolled sheet in its window, and a leaf for organic | `wool_form` (Balls, Pleat, Roll), `cotton_grade` (Pure, Organic) | a bag of 50 g to 400 g (`net_weight_g`) | 55 |
+
+The 260 SKUs meet the issue's 250 for the three (`tests/test_retail_cotton_1112.py`). The
+templates carry four Beauty brands; derived styles may also carry the department's extra labels.
+The department's rate is unchanged: Beauty's share of derived styles stays inside the drift
+`tests/test_retail_stable_ids_626.py` allows.
+
+Each type plants two class 6 decoys: a range name holds the query's word while the fields say
+another value. `square cotton pads` meets "Square Mile Round Quilted Cotton Pads", `smooth cotton
+pads` meets "Smooth Day Round Exfoliating Cotton Pads", `bamboo cotton buds` meets "Bamboo Grove
+Paper Standard Tip Cotton Buds", `precision tip cotton buds` meets "True Precision Bamboo Standard
+Tip Cotton Buds", `organic cotton wool` meets "Organic Meadow Pure Cotton Wool Balls" and `cotton
+wool roll` meets "Roll Call Pure Cotton Wool Pleat".
+
+'cotton pads', 'cotton buds' and 'cotton wool' each find their own type only, in the whole
+catalogue. In Beauty and Health, 'pads' finds cotton pads and incontinence pads, and sanitary
+pads too once gen#1112 slice 1 is in: three families. Outside them it also meets a mop's, a
+polisher's and a car seat's pads.
+
 ## Text-match decoys (gen#294)
 
 Each type carries three decoys, a clone of its first style whose words mislead a plain text

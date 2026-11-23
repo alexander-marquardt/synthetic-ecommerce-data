@@ -17,6 +17,10 @@ type is a spec of its own:
 | Colored Pencils | `type_specs/colored_pencils.py` | Office & School > Art Supplies > Colored Pencils | 12 classic, 24 watercolor, 36 soft core, 48 erasable | tin color x pack of 1, 2, 3 tins |
 | Desk Organizer | `type_specs/desk_organizer.py` | Office & School > Desk Accessories > Desk Organizers | 5 compartment mesh, 3 plastic, 4 felt, 6 metal | color x pack of 1, 2, 4 |
 
+Sewing and knitting (thread, yarn and fabric, gen#1118) sit beside Art Supplies under
+`Office & School > Sewing & Knitting` and have a page of their own:
+[sewing-knitting-1118.md](sewing-knitting-1118.md).
+
 Slice 3 (the last three rows) adds the bag, art and desk types. School Backpack is its own
 product type, apart from Clothing's `Backpack` accessories. A set of colored pencils holds many
 colors, so its SKU's color is the tin's; the drawing shows the set's own count (its `count`

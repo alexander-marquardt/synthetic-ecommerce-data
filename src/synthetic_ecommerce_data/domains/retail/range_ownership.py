@@ -184,7 +184,7 @@ SCALE = Roster(
     ),
     added=("Pennywhistle Angling", "Larchmere Golf", "Corvane Pharmacy", "Brannock Health",
            "Hallowby Chemist", "Lindcombe Health", "Sedgemoor Pharmacy", "Ottermere Care",
-           "Finbrook", "Burrowell",
+           "Finbrook", "Burrowell", "Bobbinmere", "Purlwick",
            # The luggage brands, derived from gen#1114 on.
            "Tarnwick", "Fenmoor & Co", "Skerry Travel"),
     # The scale-half words skipped when the base was dealt: the excluded words in the half and
