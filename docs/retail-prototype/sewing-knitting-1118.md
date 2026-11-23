@@ -1,4 +1,4 @@
-# Sewing and knitting, cut 1: thread, yarn and fabric (gen#1118)
+# Sewing and knitting: thread, yarn, fabric and the tools (gen#1118)
 
 The retail build held no sewing machine, thread, fabric, yarn or needle, so a shopper's `thread`
 found only the industrial catalogue's threaded rods, thread taps and fastener thread sizes. This
@@ -41,13 +41,59 @@ Rose quilting range in red. `green yarn` meets a blue yarn with a green ball ban
 meets the Black Sheep range in white. `yellow fabric` meets a blue poplin with a yellow selvage;
 `red fabric` meets the Red Robin range in green.
 
-**Measured** (ceiling build, seed 0): the cut makes 591 SKUs in 66 styles. Sewing Thread has
-141 SKUs in 28 styles (22 derived), Yarn has 240 in 20 (14 derived), and Fabric has 210 in 18 (12
+**Measured at cut 1** (ceiling build, seed 0): the cut made 591 SKUs in 66 styles. Sewing Thread had
+141 SKUs in 28 styles (22 derived), Yarn had 240 in 20 (14 derived), and Fabric had 210 in 18 (12
 derived). The issue's target is about +900 SKUs for its eight types, and this cut is three of
 them. The first draft of the cut, with eight colors, three brands per type, thread fiber in the
 title and four fabric cuts, made 4,003 SKUs at the ceiling. The test's floor is 340
 (`tests/test_retail_sewing_1118.py`, `FLOOR`).
 
-**Left for the next cut:** sewing machines, needles and pins, knitting needles and crochet hooks,
-and embroidery kits; #837's department count; and the `thread` demo queries (`sewing thread
-white` against `m6 thread`, without and with a policy) on an index that carries the range.
+## Cut 2: sewing machines, knitting needles and crochet hooks
+
+Cut 1 gave a knitter yarn and nothing to knit it with, and gave a sewer thread and no machine.
+Cut 2 adds three tools, each a spec of its own, drawn by `kit_sewing_tools.py`:
+
+| Type | Spec | Path | Templates | SKU axis |
+|---|---|---|---|---|
+| Sewing Machine | `type_specs/sewing_machine.py` | Office & School > Sewing & Knitting > Sewing Machines | mechanical, computerized, heavy duty, mini | color, a machine sold singly |
+| Knitting Needles | `type_specs/knitting_needles.py` | Office & School > Sewing & Knitting > Knitting Needles | aluminum straight, plastic circular, aluminum double pointed, plastic straight | color x 4, 5, 6 mm |
+| Crochet Hook | `type_specs/crochet_hook.py` | Office & School > Sewing & Knitting > Crochet Hooks | inline aluminum, soft grip aluminum, soft grip plastic, inline plastic | color x 3.5, 4, 5 mm |
+
+**Units.** A needle and a hook are sold by their size in millimeters. Each spec declares its
+measured SKU axis: `Option("needle_mm", "needle_size", "Needle size", "MMT")` and
+`Option("hook_mm", "hook_size", "Hook size", "MMT")`. Both keys are size axes in `size_axes.AXES`,
+so `size_ladder` draws a 6 mm needle larger than a 4 mm one. Each size costs a little more than
+the one below it. A machine states its `built_in_stitches` as an attribute and in its
+description, not in its title, so a derived machine type never carries a count its template made
+up.
+
+**Colors.** A machine style offers the six main colors. A needle or hook style offers three of
+them, at three sizes, and the four styles of each type carry all six between them (gen#275). Six
+colors at three sizes would have made 18 SKUs a style.
+
+**Drawings.** `sewing_machine` draws the bed, the pillar and the arm in the body color. The head
+holds the needle over the plate, with a handwheel and a spool pin. The pillar shows the
+`machine_type`: two dials for a mechanical machine, a screen and buttons for a computerized one,
+and a steel face plate and a large handwheel for a heavy duty one. A mini is drawn at two thirds
+of the size, with one dial. `knitting_needles` draws a crossed straight pair, two tips on a looped
+cable for circular needles, or a set of four double pointed needles. `crochet_hook` draws the
+hook's notch and its thumb rest, and adds a ribbed soft grip handle for a soft grip hook. A metal
+needle or hook shines. The orientations are in `orientations/sewing_tools.py`: needles and hooks
+have no up, and a machine stands level.
+
+**Decoys.** Each type carries a part-color decoy (class 4) and a range-name decoy (class 6).
+`yellow sewing machine` meets a white machine with a yellow stitch dial. `blue sewing machine`
+meets the Blue Ribbon range in green. `green knitting needles` meets a blue pair with green end
+caps. `white knitting needles` meets the White Cottage range in red. `yellow crochet hook` meets a
+green hook with a yellow thumb rest. `black crochet hook` meets the Black Cat range in blue.
+
+**Measured** (ceiling build, seed 0, cut 2 on main a9739a42): the new types make 215 SKUs in 34
+styles. Sewing Machine has 44 SKUs in 10 styles (4 derived), Knitting Needles has 99 in 14 (8
+derived), and Crochet Hook has 72 in 10 (4 derived). The new templates also move the department's
+derivation draw, so cut 1's types now measure 690 SKUs: Sewing Thread 141, Yarn 339 and Fabric
+210. The node holds 905 SKUs, which meets the issue's +900 target. The test's floor for cut 2 is
+150 (`tests/test_retail_sewing_cut2_1118.py`, `FLOOR`).
+
+**Left for the next cut:** needles and pins, and embroidery kits; #837's department count; and
+the `thread` demo queries (`sewing thread white` against `m6 thread`, without and with a policy)
+on an index that carries the range.

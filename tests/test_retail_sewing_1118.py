@@ -34,7 +34,10 @@ FLOOR = 340
 
 @pytest.fixture(scope="module")
 def sewing() -> list[dict]:
-    return [r for r in ceiling_build().records if tuple(r["category_path"][:2]) == (ROOT, NODE)]
+    # the node also holds cut 2's tools (tests/test_retail_sewing_cut2_1118.py)
+    records = ceiling_build().records
+    return [r for r in records if tuple(r["category_path"][:2]) == (ROOT, NODE)
+            and r["product_type"] in TYPES]  # fmt: skip
 
 
 def _spec(key: str) -> type_registry.TypeSpec:
