@@ -185,6 +185,7 @@ NOT_SIZES: dict[str, str] = {
     "dimensions": "a towel's cloth cut: the drawing is one towel",
     "diaper_size": "a fit: the baby's weight band, on a pack drawn the same (gen#965)",
     "edition": "a kind of game",
+    "format": "a kind: the book's binding or an ebook, on a cover drawn the same (gen#1119)",
     "fabric_cut": "a cut of one fabric (gen#1118): the folded fabric is drawn the same",
     "fin_count": "the heater's drawing reads it",
     "finish": "a color",
