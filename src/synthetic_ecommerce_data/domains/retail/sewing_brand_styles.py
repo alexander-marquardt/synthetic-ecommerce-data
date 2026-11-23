@@ -35,7 +35,7 @@ hs.MARKS.update({"bobbin_mere": m_bobbin, "purl_ball": m_purl})
 
 # fmt: off
 STYLES = {
-    "Bobbinmere": H("thin",    "#3a6a8a", "#16293a", 1.0,  False, "round", "bobbin_mere", "mark_left",  "top_left",  "none", "humanist", 400, "title", 0.5),
+    "Bobbinmere": H("double",  "#3a6a8a", "#16293a", 1.0,  False, "sharp", "bobbin_mere", "mark_right", "bottom_right", "none", "humanist", 400, "title", 0.5),
     "Purlwick":   H("rounded", "#a83a5a", "#3c1623", 1.05, False, "round", "purl_ball",   "mark_above", "top_center", "none", "serif",    700, "title", 0.0),
 }
 # fmt: on
