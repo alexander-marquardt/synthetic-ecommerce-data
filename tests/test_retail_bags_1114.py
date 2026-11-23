@@ -117,6 +117,14 @@ def test_the_type_plants_text_match_decoys(key: str) -> None:
         assert word not in stated, d.row.code
 
 
+@pytest.mark.parametrize("form", sorted(TYPES["crossbody_bag"][3]))
+def test_the_red_strap_a_crossbody_decoy_names_is_drawn_on_every_form(form: str) -> None:
+    _spec("crossbody_bag")
+    fill = kit.Fill("solid", "#1f1f22", detail=("strap", "#c8322b"))
+    svg = kit.render("crossbody_bag", fill, params={"bag_shape": form.lower(), "material": "nylon"})
+    assert 'stroke="#c8322b"' in svg and 'data-part="strap"' in svg
+
+
 @pytest.mark.parametrize("key", KEYS)
 def test_the_ceiling_holds_the_range(key: str, ceiling) -> None:
     assert sum(r["sku_count"] for r in _mine(ceiling, key)) >= TYPES[key][5]

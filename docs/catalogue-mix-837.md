@@ -60,6 +60,9 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1112 (slice 2) | Beauty | Cotton Pads | 121 |
 | gen#1112 (slice 2) | Beauty | Cotton Buds | 84 |
 | gen#1112 (slice 2) | Beauty | Cotton Wool | 55 |
+| gen#1114 (bags) | Clothing | Crossbody Bag | 444 |
+| gen#1114 (bags) | Clothing | Shoulder Bag | 310 |
+| gen#1114 (bags) | Clothing | Clutch Bag | 173 |
 
 ## The mix
 

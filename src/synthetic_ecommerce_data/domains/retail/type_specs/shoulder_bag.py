@@ -16,7 +16,7 @@ PT = "Shoulder Bag"
 
 
 def _row(code, title, brand, price, desc, colors, form, material, closure):
-    return bc.bag_row(code, title, brand, price, desc, colors, PT, "shoulder_bag", form, material, closure, "Short",
+    return bc.bag_row(code, title, brand, price, desc, colors, PT, "shoulder_bag", form, material, closure, None,
                       bc.small_medium(price, price + 10))  # fmt: skip
 
 
@@ -44,7 +44,7 @@ SPEC = TypeSpec(
     apparel_exempt=bc.APPAREL_EXEMPT,
     decoys=(
         bc.decoy(1, "red shoulder bag", "color", _row(
-            "SHBDRD", "Shoulder Bag with Red Lining", bc.WRENFIELD, 30.0,
+            "SHBDRD", "Contrast Lining Shoulder Bag", bc.WRENFIELD, 30.0,
             "A black faux leather shoulder bag with a red lining.", (bc.BLACK,), "Baguette", "Faux Leather", "Turn Lock")),
         bc.decoy(4, "suede shoulder bag", "generic", _row(
             "SHBDSU", "Suede-Look Shoulder Bag", bc.THISTLE, 27.0,

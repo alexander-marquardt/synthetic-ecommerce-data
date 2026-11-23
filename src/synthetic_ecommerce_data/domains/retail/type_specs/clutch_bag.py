@@ -43,7 +43,7 @@ SPEC = TypeSpec(
     apparel_exempt=bc.APPAREL_EXEMPT,
     decoys=(
         bc.decoy(1, "red clutch bag", "color", _row(
-            "CLTDRD", "Clutch Bag with Red Lining", bc.WRENFIELD, 21.0,
+            "CLTDRD", "Contrast Lining Clutch Bag", bc.WRENFIELD, 21.0,
             "A black satin clutch with a red lining.", (bc.BLACK,), "Envelope", "Satin", "Magnetic")),
         bc.decoy(4, "satin clutch bag", "generic", _row(
             "CLTDST", "Satin-Finish Clutch Bag", bc.THISTLE, 20.0,

@@ -20,6 +20,7 @@ Every param is a string with a default, so each shape also draws bare.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import details
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     Fill,
@@ -136,3 +137,5 @@ def clutch_bag(paint: str, fill: Fill, label: str | None, bag_shape: str = "enve
 
 SHAPES = {"crossbody_bag": crossbody_bag, "shoulder_bag": shoulder_bag, "clutch_bag": clutch_bag}
 register(SHAPES)
+#: The one long strap of every crossbody form, down to the bag's top edge: "with Red Strap" draws it.
+details.register_parts("crossbody_bag", {"strap": details.free(("M107,186 C60,-23 340,-23 293,186", 9.0))})

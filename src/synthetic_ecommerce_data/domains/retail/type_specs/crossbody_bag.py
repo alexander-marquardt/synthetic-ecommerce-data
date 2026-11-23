@@ -26,10 +26,10 @@ _ROWS = (
          bc.CLASSIC, "Saddle", "Leather", "Flap", "Adjustable"),
     _row("CBGSDC", "Canvas Saddle Crossbody Bag", bc.HARBOUR, 26.0,
          "A light canvas crossbody with a stud flap and a slip pocket at the back for a phone.",
-         bc.EARTH, "Saddle", "Canvas", "Flap", "Webbing"),
+         bc.EARTH, "Saddle", "Canvas", "Flap", "Adjustable"),
     _row("CBGCMN", "Nylon Camera Crossbody Bag", bc.WRENFIELD, 22.0,
          "A wipe-clean nylon crossbody with a zip top, a zipped front pocket and a wide strap.",
-         bc.SOFT, "Camera", "Nylon", "Zip", "Webbing"),
+         bc.SOFT, "Camera", "Nylon", "Zip", "Adjustable"),
     _row("CBGSTF", "Faux Leather Satchel Crossbody Bag", bc.THISTLE, 34.0,
          "A structured faux leather crossbody with two buckled straps and a slip pocket at the back.",
          bc.BRIGHT, "Satchel", "Faux Leather", "Buckle", "Adjustable"),
@@ -45,7 +45,7 @@ SPEC = TypeSpec(
     decoys=(
         bc.decoy(1, "red crossbody bag", "color", _row(
             "CBGDRD", "Crossbody Bag with Red Strap", bc.WRENFIELD, 27.0,
-            "A black nylon crossbody with a red strap and a red zip pull.", (bc.BLACK,), "Camera", "Nylon", "Zip", "Webbing")),
+            "A black nylon crossbody with a red strap and a zip top.", (bc.BLACK,), "Camera", "Nylon", "Zip", "Adjustable")),
         bc.decoy(4, "leather crossbody bag", "generic", _row(
             "CBGDLK", "Leather-Look Crossbody Bag", bc.THISTLE, 25.0,
             "A crossbody with a leather-look finish; there is no leather in it.", (bc.TAN,), "Saddle", "Faux Leather", "Flap", "Adjustable")),
