@@ -14,7 +14,6 @@ from __future__ import annotations
 from synthetic_ecommerce_data.domains.retail.office_rows import (
     BLUE,
     LANTERNBY,
-    THISTLE,
     WHITE,
     decoy,
     packs,
@@ -57,17 +56,17 @@ ROWS = (
         "YRNCHA",
         "Chunky",
         "Acrylic",
-        THISTLE,
+        LANTERNBY,
         "A thick, quick-knitting yarn in a 100 g ball that machine washes, for blankets, scarves and cushions.",
         4.0,
     ),
     _row(
-        "YRN4PA",
-        "4 Ply",
-        "Alpaca",
+        "YRNDKC",
+        "DK",
+        "Cotton",
         PURLWICK,
-        "A fine, warm yarn with a soft halo in a 50 g ball, for socks, shawls and lace on 3 mm needles.",
-        8.5,
+        "A light, breathable double knit yarn in a 50 g ball, for baby blankets, tops and toys on 4 mm needles.",
+        5.5,
     ),
 )
 

@@ -2,33 +2,31 @@
 
 A breadth type: ``derivable`` True, so the scaled build draws more fabrics from these four by the
 values their titles show (the fiber and the weave). A fabric is sold by the cut: a fat quarter
-(about 50 x 55 cm, the quilter's cut), a half meter, one meter or two meters off the bolt, each a
+(about 50 x 55 cm, the quilter's cut), one meter or two meters off the bolt, each a
 SKU of the ``fabric_cut`` option at its own price. The picture is the same folded fabric whatever
 the cut (``size_axes.NOT_SIZES``). The drawing shows three folded layers with the weave on each
-face, slubs for a linen and a sheen for a polyester (:func:`kit_sewing.fabric`).
+face and a sheen for a polyester (:func:`kit_sewing.fabric`).
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
 
 from __future__ import annotations
 
-from synthetic_ecommerce_data.domains.retail.office_rows import CALDERBY, GREEN, LANTERNBY, decoy
+from synthetic_ecommerce_data.domains.retail.office_rows import BLUE, CALDERBY, GREEN, decoy
 from synthetic_ecommerce_data.domains.retail.sewing_rows import (
     BOBBINMERE,
     DEPARTMENT,
     FABRIC,
-    NAVY,
     OWNERS,
-    PURLWICK,
     row,
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, Option, TypeSpec, a
 
 
 def _cuts(per_meter: float) -> tuple[tuple[str, float], ...]:
-    """A fabric's cuts and the price of each: a fat quarter costs a little under half a meter."""
-    return (("Fat Quarter", round(per_meter * 0.45, 2)), ("Half Meter", round(per_meter * 0.55, 2)),
-            ("1 Meter", per_meter), ("2 Meters", round(per_meter * 1.9, 2)))  # fmt: skip
+    """A fabric's cuts and the price of each: a fat quarter costs a little under half a meter's worth."""
+    return (("Fat Quarter", round(per_meter * 0.45, 2)), ("1 Meter", per_meter),
+            ("2 Meters", round(per_meter * 1.9, 2)))  # fmt: skip
 
 
 def _row(code: str, material: str, style: str, brand: str, description: str, per_meter: float):
@@ -48,8 +46,8 @@ ROWS = (
         11.0,
     ),
     _row(
-        "FABLCA",
-        "Linen",
+        "FABCCA",
+        "Cotton",
         "Canvas",
         CALDERBY,
         "A heavy, hard-wearing fabric 140 cm wide, for bags, cushions, aprons and upholstery.",
@@ -59,15 +57,15 @@ ROWS = (
         "FABPCR",
         "Polyester",
         "Crepe",
-        LANTERNBY,
+        CALDERBY,
         "A light, fluid fabric 150 cm wide with a fine crinkled face that drapes well, for blouses and skirts.",
         9.0,
     ),
     _row(
-        "FABVJE",
-        "Viscose",
+        "FABPJE",
+        "Polyester",
         "Jersey",
-        PURLWICK,
+        BOBBINMERE,
         "A soft, stretchy knit fabric 150 cm wide, for T-shirts, leggings and loungewear.",
         12.0,
     ),
@@ -83,8 +81,8 @@ SPEC = TypeSpec(
     rows=ROWS,
     decoys=(
         Decoy(4, "yellow fabric", "vocabulary", decoy(ROWS[0], "FABYSV", "Cotton Poplin Fabric with a Yellow Selvage",
-              "A navy cotton poplin whose selvage is printed with the maker's name.", NAVY)),
-        Decoy(6, "red fabric", "generic", decoy(ROWS[1], "FABRRB", "Red Robin Linen Canvas Fabric",
-              "From the Red Robin range: a heavy linen canvas in a leaf green.", GREEN)),
+              "A blue cotton poplin whose selvage is printed with the maker's name.", BLUE)),
+        Decoy(6, "red fabric", "generic", decoy(ROWS[1], "FABRRB", "Red Robin Cotton Canvas Fabric",
+              "From the Red Robin range: a heavy cotton canvas in a leaf green.", GREEN)),
     ),
 )  # fmt: skip

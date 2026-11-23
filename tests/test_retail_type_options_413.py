@@ -108,6 +108,8 @@ MOVED = {
         Option("connectivity", "connectivity", "Connectivity"),
         Option("brightness_lm", "brightness", "Brightness (lm)"),
     ],
+    # a fabric's cut, a fat quarter to 2 meters (gen#1118), declared by its spec from the start
+    "fabric": [Option("fabric_cut", "fabric_cut", "Fabric cut")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
