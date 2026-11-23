@@ -86,8 +86,18 @@ def test_iron_meets_steam_irons_and_the_metal_iron_products_without_a_policy(ind
 @pytest.mark.parametrize(
     ("query", "ptype"),
     [("vacuum cleaner", "Vacuum Cleaner"), ("cordless vacuum", "Vacuum Cleaner"),
-     ("microwave", "Microwave"), ("combination microwave", "Microwave")],
+     ("microwave", "Microwave")],
 )  # fmt: skip
 def test_a_clash_query_finds_its_own_type_first(index, query, ptype):
     top = br.rank(index, query, 5, popular=False)
     assert [r["product_type"] for r in top] == [ptype] * 5, [r["title"] for r in top]
+
+
+def test_combination_microwave_finds_the_combination_microwaves_first(index, templates):
+    """Its kind is in its title and its structured type, so the combination ones lead, before the
+    combination locks."""
+    want = sum(1 for r in templates if r["product_type"] == "Microwave"
+               and _attrs(r)["microwave_type"] == "Combination")  # fmt: skip
+    top = br.rank(index, "combination microwave", want, popular=False)
+    got = [(r["product_type"], _attrs(r).get("microwave_type")) for r in top]
+    assert want >= 2 and got == [("Microwave", "Combination")] * want, [r["title"] for r in top]
