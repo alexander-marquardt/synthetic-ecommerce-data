@@ -60,6 +60,10 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1112 (slice 2) | Beauty | Cotton Pads | 121 |
 | gen#1112 (slice 2) | Beauty | Cotton Buds | 84 |
 | gen#1112 (slice 2) | Beauty | Cotton Wool | 55 |
+| gen#1112 (slice 3) | Beauty | Deodorant (417 to 849) | 432 |
+| gen#1112 (slice 3) | Beauty | Shower Gel (body wash, 292 to 763) | 471 |
+| gen#1112 (slice 3) | Beauty | Razor Cartridges | 150 |
+| gen#1112 (slice 3) | Beauty | Shave Gel | 222 |
 
 ## The mix
 
