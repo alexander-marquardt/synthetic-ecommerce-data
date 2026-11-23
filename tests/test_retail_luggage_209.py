@@ -20,11 +20,13 @@ from synthetic_ecommerce_data.domains.retail import (
     export,
     kit,
     main_colors,
+    retail_figures,
     scale,
+    scale_text,
     type_registry,
 )
 
-PATH = ("Womens", "Accessories", "Travel")
+PATH = ("Home", "Luggage & Travel")
 #: key -> (product type, category leaf, shape, structured attributes each style states, the
 #: drawing param and two readings that must draw differently).
 TYPES = {
@@ -79,7 +81,7 @@ def test_a_type_has_three_styles_from_three_invented_brands(key: str) -> None:
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_the_product_type_names_the_type_and_the_path_is_under_travel(key: str) -> None:
+def test_the_product_type_names_the_type_and_the_path_is_under_luggage_and_travel(key: str) -> None:
     ptype, leaf, *_ = TYPES[key]
     spec = _spec(key)
     assert spec.product_type == ptype
@@ -124,12 +126,101 @@ def test_a_type_carries_three_decoys_one_of_them_an_incidental_word(key: str) ->
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_a_type_reaches_the_scaled_build_as_authored_templates(key: str) -> None:
+def test_a_type_reaches_the_scaled_build_as_a_breadth_type(key: str) -> None:
+    """gen#1114: the styles are templates the scaled build derives from; the decoys never are."""
     spec = _spec(key)
     ids = {f"BRD-{r.code}" for r in spec.rows}
+    decoys = {f"BRD-{d.row.code}" for d in spec.decoys}
     built = {d["product_id"] for d in scale.templates() if d["product_type"] == TYPES[key][0]}
+    derivable = {d["product_id"] for d in scale.derivable(scale.templates())}
     assert ids and ids <= built
-    assert not any(d["product_id"] in ids for d in scale.derivable(scale.templates()))
+    assert ids <= derivable
+    assert not decoys & derivable
+
+
+def _ceiling_luggage() -> list[dict]:
+    product_types = {t[0] for t in TYPES.values()}
+    return [r for r in retail_figures.ceiling().records if r["product_type"] in product_types]
+
+
+def test_no_luggage_style_of_the_ceiling_build_sits_under_womens() -> None:
+    """gen#1114: a shopper looks for a suitcase where a retailer files it, under Luggage & Travel."""
+    styles = _ceiling_luggage()
+    assert styles
+    off = sorted({(r["product_type"], " > ".join(r["category_path"])) for r in styles
+                  if tuple(r["category_path"][:2]) != PATH})  # fmt: skip
+    assert off == []
+
+
+#: Product type -> the keys a derived style keeps from its template (gen#1114): the text and the
+#: drawing follow them, so a swap made "Soft Shell" suitcases of ABS, a "No lock" and an
+#: under-seat case on spinner wheels. A holdall's and a weekend bag's material and a neck
+#: pillow's cover stand alone and may still vary.
+BUILD_KEYS = {
+    "Suitcase": {"shell", "wheels", "lock", "expandable", "material"},
+    "Cabin Case": {"shell", "wheels", "airline_allowance", "dimensions"},
+    "Holdall": {"wheels", "use"},
+    "Weekend Bag": {"trolley_sleeve"},
+    "Luggage Set": {"shell", "wheels", "sizes_included"},
+    "Travel Organizer": {"organizer_type", "material"},
+    "Neck Pillow": {"fill", "hood"},
+}
+
+
+def test_a_luggage_template_offers_no_build_key_for_a_derived_style_to_change() -> None:
+    authored = [r for r in _ceiling_luggage() if r["product_id"] not in retail_figures.ceiling().template_of]
+    pools = scale_text.value_pools(authored)
+    offered = sorted({(r["product_type"], k) for r in authored
+                      for k in scale_text.variable_keys(r, pools) if k in BUILD_KEYS[r["product_type"]]})  # fmt: skip
+    assert offered == []
+
+
+def test_a_derived_luggage_style_keeps_the_build_of_its_template() -> None:
+    """gen#1114: no derived style of the ceiling build changes a key its text or drawing follows."""
+    scaled = retail_figures.ceiling()
+    by_id = {r["product_id"]: r for r in scaled.records}
+    derived = [r for r in _ceiling_luggage() if r["product_id"] in scaled.template_of]
+    assert derived
+    changed = []
+    for r in derived:
+        old = {a["key"]: str(a["value"]) for a in by_id[scaled.template_of[r["product_id"]]]["attributes"]}
+        changed += [(r["title"], a["key"], old.get(a["key"]), str(a["value"])) for a in r["attributes"]
+                    if a["key"] in BUILD_KEYS[r["product_type"]] and old.get(a["key"]) != str(a["value"])]  # fmt: skip
+    assert changed == []
+
+
+#: The luggage SKUs of the ceiling build (seed 0): 138 before gen#1114, 1,963 after it (its
+#: target was about +1,800), once the build keys are frozen and the authored colorways widened.
+LUGGAGE_SKU_FLOOR = 1963
+
+
+def test_the_ceiling_build_holds_the_luggage_range() -> None:
+    by_type: dict[str, int] = {}
+    for r in _ceiling_luggage():
+        by_type[r["product_type"]] = by_type.get(r["product_type"], 0) + r["sku_count"]
+    assert sum(by_type.values()) >= LUGGAGE_SKU_FLOOR, by_type
+    assert set(by_type) == {t[0] for t in TYPES.values()}
+
+
+def _cm(text: str) -> tuple[float, ...]:
+    return tuple(float(n) for n in text.removesuffix(" cm").split(" x "))
+
+
+def test_a_suitcase_sku_states_its_dimensions_and_a_cabin_size_fits_55_x_40_x_20() -> None:
+    """``cabin suitcase 55x40x20`` (gen#1114): every suitcase SKU states its outer size, and a
+    Cabin one is within the 55 x 40 x 20 cm most airlines allow, in the ceiling build too."""
+    authored = [export.standard_document(d) for d in _spec("suitcase").docs()]
+    derived = [export.standard_document(r) for r in _ceiling_luggage() if r["product_type"] == "Suitcase"]
+    assert len(derived) > len(authored)
+    exact = 0
+    for doc in (*authored, *derived):
+        for v in doc["variants"]:
+            entries = {e["key"]: e["value"] for e in v["attributes"]}
+            assert "dimensions" in entries, doc["product_id"]
+            if entries["luggage_size"] == "Cabin":
+                assert all(n <= cap for n, cap in zip(_cm(entries["dimensions"]), (55, 40, 20), strict=True)), doc["product_id"]
+                exact += entries["dimensions"] == "55 x 40 x 20 cm"
+    assert exact
 
 
 def test_a_suitcase_sku_states_size_litres_and_weight() -> None:

@@ -403,7 +403,7 @@ def test_each_copy_can_still_be_told_apart(n: int, width: int, height: int) -> N
 
 
 def test_the_rear_copy_is_drawn_first_so_the_front_one_is_on_top() -> None:
-    rec, sku = _pack_of("bottle", 4)
+    rec, sku = _pack_of("tin", 4)  # a cider's 4-pack of bottles draws its own cans (gen#1127)
     sizes = [float(m[3]) for m in USE.findall(_svg(rec, sku))]
     assert sizes == sorted(sizes)
     assert sizes[0] < sizes[-1]
