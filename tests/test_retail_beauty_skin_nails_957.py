@@ -145,7 +145,7 @@ GOLDEN: dict[str, list[tuple]] = {
     ],
     "Deodorant": [
         ("BRD-002CDCB0B79D", "Elmshaw Citrus Antiperspirant Stick Deodorant", 3, 3.5),
-        ("BRD-005232EC9A8D", "Chelhurst Cedarwood Gel Deodorant", 3, 6.5),
+        ("BRD-005232EC9A8D", "Dalridge Cedarwood Gel Deodorant", 3, 6.5),
         ("BRD-009991C4F3B3", "Dewgarth Aloe Vera Antiperspirant Gel Deodorant", 3, 3.55),
     ],
     "Nail Polish": [
