@@ -189,9 +189,9 @@ def test_a_derived_luggage_style_keeps_the_build_of_its_template() -> None:
     assert changed == []
 
 
-#: The luggage SKUs of the ceiling build (seed 0): 138 before gen#1114, 1,993 after it (its
+#: The luggage SKUs of the ceiling build (seed 0): 138 before gen#1114, 1,963 after it (its
 #: target was about +1,800), once the build keys are frozen and the authored colorways widened.
-LUGGAGE_SKU_FLOOR = 1993
+LUGGAGE_SKU_FLOOR = 1963
 
 
 def test_the_ceiling_build_holds_the_luggage_range() -> None:

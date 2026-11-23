@@ -40,15 +40,15 @@ def _row(code, title, brand, price, desc, colors, fill, cover, hood, **kw):
 
 
 _ROWS = (
-    _row("NCKMEM", "Memory Foam Neck Pillow", PELLBROOK, 14.0,
+    _row("NCKMEM", "Memory Foam Neck Pillow", WRENFIELD, 14.0,
          "A contoured memory foam neck pillow with a soft velour cover that unzips to wash, and a "
-         "clip to hold it on a bag.", (GREY, BLACK, BLUE), "Memory Foam", "Velour", False),
+         "clip to hold it on a bag.", (GREY, BLACK, BLUE, NAVY, RED, GREEN), "Memory Foam", "Velour", False),
     _row("NCKMIC", "Microbead Neck Pillow with Hood", FENMOOR, 12.0,
          "A squashy microbead neck pillow with a hood that pulls up for sleep on long flights.",
-         (GREEN, YELLOW, RED), "Microbead", "Cotton", True),
+         (GREEN, YELLOW, RED, BLACK, NAVY, GREY), "Microbead", "Cotton", True),
     _row("NCKINF", "Inflatable Neck Pillow", SKERRY, 7.0,
          "A neck pillow that inflates in a few breaths and packs flat into a pouch, with a soft "
-         "flocked cover.", (WHITE, BLUE, NAVY), "Inflatable", "Flocked", False),
+         "flocked cover.", (WHITE, BLUE, NAVY, BLACK, GREY, RED), "Inflatable", "Flocked", False),
 )  # fmt: skip
 
 

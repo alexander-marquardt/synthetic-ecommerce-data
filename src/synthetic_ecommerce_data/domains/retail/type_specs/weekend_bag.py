@@ -16,6 +16,7 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     BURGUNDY,
     FENMOOR,
     GREEN,
+    GREY,
     NAVY,
     OWNED,
     RED,
@@ -44,13 +45,13 @@ def _row(code, title, brand, price, desc, colors, material, rooms, sleeve, litre
 _ROWS = (
     _row("WKBCNV", "Canvas Weekend Bag", SKERRY, 34.0,
          "A roomy canvas weekend bag with two top handles, a zip and a cotton lining, big enough "
-         "for two nights away.", (GREEN, BLUE, WHITE), "Canvas", 1, False, 35),
+         "for two nights away.", (GREEN, BLUE, WHITE, BLACK, NAVY, GREY), "Canvas", 1, False, 35),
     _row("WKBLTH", "Leather-Look Weekend Bag", FENMOOR, 49.0,
          "A smart weekend bag in polyurethane with a leather finish, a zipped end pocket and "
-         "a detachable shoulder strap.", (BLACK, TAN, BURGUNDY), "Leather-Look", 2, False, 40),
+         "a detachable shoulder strap.", (BLACK, TAN, BURGUNDY, NAVY, GREY, RED), "Leather-Look", 2, False, 40),
     _row("WKBNYL", "Nylon Weekend Bag with Trolley Sleeve", WRENFIELD, 39.0,
          "A light nylon weekend bag with a trolley sleeve that slides over a suitcase handle, two "
-         "end pockets and a shoulder strap.", (RED, YELLOW, NAVY), "Nylon", 3, True, 45),
+         "end pockets and a shoulder strap.", (RED, YELLOW, NAVY, BLACK, GREY, BLUE), "Nylon", 3, True, 45),
 )  # fmt: skip
 
 

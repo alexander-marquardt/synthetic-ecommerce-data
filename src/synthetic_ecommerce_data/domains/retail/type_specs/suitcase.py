@@ -1,6 +1,6 @@
 """Suitcase (gen#209): hard and soft shell cases in cabin, medium and large, by wheels and lock.
 
-**Home > Luggage & Travel > Suitcases**: eight styles from five invented brands, drawn by
+**Home > Luggage & Travel > Suitcases**: eight styles from four invented brands, drawn by
 :func:`kit_luggage.suitcase` (``size``, ``shell``, ``wheels``). A SKU is a color times a size:
 the capacity in litres is the axis, and each litre carries its size name (Cabin, Medium, Large)
 its weight in kilograms and its dimensions in centimetres, so ``lightweight suitcase under 3 kg`` and ``red suitcase 65 litre``
@@ -23,7 +23,6 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     MARROWGATE,
     NAVY,
     OWNED,
-    PELLBROOK,
     PINK,
     RED,
     SILVER,
@@ -31,6 +30,7 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     TARNWICK,
     TEAL,
     WHITE,
+    WRENFIELD,
     YELLOW,
     a,
     luggage_row,
@@ -62,35 +62,35 @@ _ROWS = (
     _row("SUTPCB", "Polycarbonate Hard Shell Spinner Suitcase", TARNWICK, 54.0,
          "A lightweight hard shell suitcase in polycarbonate with four spinner wheels, a TSA lock "
          "and a telescopic handle. Expands by 4 cm for the trip home.",
-         (BLACK, NAVY, WHITE, YELLOW), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
+         (BLACK, NAVY, WHITE, YELLOW, GREY, RED), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
     _row("SUTABS", "ABS Hard Shell Suitcase, Two Wheel", FENMOOR, 44.0,
          "A tough ABS hard shell suitcase on two inline wheels with a TSA lock and a "
          "telescopic handle. Roomy and easy to roll over kerbs.",
-         (RED, BLUE, BLACK), "hard", "2", TSA, "No", "ABS", _HEAVY),
-    _row("SUTSFT", "Soft Shell Spinner Suitcase with Front Pocket", MARROWGATE, 34.0,
+         (RED, BLUE, BLACK, NAVY, GREY, GREEN), "hard", "2", TSA, "No", "ABS", _HEAVY),
+    _row("SUTSFT", "Soft Shell Spinner Suitcase with Front Pocket", WRENFIELD, 34.0,
          "A flexible polyester suitcase on four spinner wheels with a zipped front pocket for a "
          "laptop and papers. Expands for extra room.",
-         (GREEN, NAVY, BLACK), "soft", "4", "No", "Yes", "Polyester", _SOFT),
+         (GREEN, NAVY, BLACK, GREY, RED, BLUE), "soft", "4", "No", "Yes", "Polyester", _SOFT),
     _row("SUTSKY", "Lightweight Hard Shell Suitcase", SKERRY, 59.0,
          "A very light hard shell suitcase with a combination TSA lock, four spinner wheels and "
          "a lined interior with a divider.",
-         (WHITE, RED, GREEN, BLUE), "hard", "4", TSA, "No", "Polycarbonate", _LIGHT),
+         (WHITE, RED, GREEN, BLUE, BLACK, NAVY), "hard", "4", TSA, "No", "Polycarbonate", _LIGHT),
     _row("SUTALU", "Aluminum Hard Shell Spinner Suitcase", TARNWICK, 119.0,
          "A ribbed aluminum hard shell suitcase on four spinner wheels, with corner guards, a TSA "
          "lock and a telescopic handle. Built to last for years of trips.",
-         (SILVER, BLACK, BLUE), "hard", "4", TSA, "No", "Aluminum", _HEAVY),
+         (SILVER, BLACK, BLUE, NAVY, GREY, RED), "hard", "4", TSA, "No", "Aluminum", _HEAVY),
     _row("SUTRCY", "Recycled Polyester Soft Spinner Suitcase", FENMOOR, 39.0,
          "A soft suitcase woven from recycled polyester, on four spinner wheels with an expandable "
          "zip and a padded top handle.",
-         (TEAL, GREY, BLACK), "soft", "4", "No", "Yes", "Recycled Polyester", _SOFT),
+         (TEAL, GREY, BLACK, NAVY, RED, BLUE), "soft", "4", "No", "Yes", "Recycled Polyester", _SOFT),
     _row("SUTLAP", "Hard Shell Suitcase with Laptop Pocket", SKERRY, 64.0,
          "A hard shell suitcase with a padded front pocket that opens for a laptop, a TSA lock and "
          "four spinner wheels.",
-         (NAVY, PINK, BLACK), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
-    _row("SUTUPR", "Soft Upright Suitcase, Two Wheel", PELLBROOK, 32.0,
+         (NAVY, PINK, BLACK, GREY, RED, BLUE), "hard", "4", TSA, "Yes", "Polycarbonate", _LIGHT),
+    _row("SUTUPR", "Soft Upright Suitcase, Two Wheel", FENMOOR, 32.0,
          "A soft upright suitcase on two inline wheels, with a telescopic handle, two front pockets "
          "and an expandable zip.",
-         (BURGUNDY, NAVY, GREY), "soft", "2", "No", "Yes", "Polyester", _SOFT),
+         (BURGUNDY, NAVY, GREY, BLACK, RED, BLUE), "soft", "2", "No", "Yes", "Polyester", _SOFT),
 )  # fmt: skip
 
 

@@ -28,6 +28,7 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     TARNWICK,
     TEAL,
     WHITE,
+    WRENFIELD,
     YELLOW,
     a,
     luggage_row,
@@ -46,22 +47,22 @@ def _row(code, title, brand, price, desc, colors, use, material, wheels, caps, *
 
 
 _ROWS = (
-    _row("HLDGYM", "Gym Holdall with Shoe Compartment", MARROWGATE, 22.0,
+    _row("HLDGYM", "Gym Holdall with Shoe Compartment", WRENFIELD, 22.0,
          "A padded gym holdall with a ventilated shoe compartment, a wet pocket and a shoulder "
          "strap. Two zipped end pockets for a towel and a water bottle.",
-         (BLACK, RED, BLUE), "Gym", "Polyester", "no", ((30, 22.0), (45, 28.0))),
+         (BLACK, RED, BLUE, NAVY, GREY, GREEN), "Gym", "Polyester", "no", ((30, 22.0), (45, 28.0))),
     _row("HLDWHL", "Wheeled Travel Holdall", TARNWICK, 46.0,
          "A large soft holdall on two wheels with a telescopic handle, a shoulder strap and "
          "a zipped lid pocket. Packs away flat when empty.",
-         (NAVY, GREEN, YELLOW), "Travel", "Polyester", "yes", ((60, 46.0), (85, 56.0))),
-    _row("HLDCNV", "Canvas Holdall with Shoulder Strap", PELLBROOK, 38.0,
+         (NAVY, GREEN, YELLOW, BLACK, GREY, RED), "Travel", "Polyester", "yes", ((60, 46.0), (85, 56.0))),
+    _row("HLDCNV", "Canvas Holdall with Shoulder Strap", FENMOOR, 38.0,
          "A hardwearing canvas holdall with leather-look handles, a detachable shoulder strap and "
          "a lined main compartment.",
-         (KHAKI, WHITE, BLACK), "Travel", "Canvas", "no", ((40, 38.0), (60, 46.0))),
+         (KHAKI, WHITE, BLACK, NAVY, GREY, RED), "Travel", "Canvas", "no", ((40, 38.0), (60, 46.0))),
     _row("HLDFLD", "Foldable Duffel Holdall", SKERRY, 18.0,
          "A light nylon duffel holdall that folds into its own zipped pocket, with two carry "
          "handles and a shoulder strap. Slips into a suitcase for the trip home.",
-         (GREY, TEAL, PINK), "Travel", "Nylon", "no", ((35, 18.0), (50, 24.0))),
+         (GREY, TEAL, PINK, BLACK, NAVY, RED), "Travel", "Nylon", "no", ((35, 18.0), (50, 24.0))),
 )  # fmt: skip
 
 

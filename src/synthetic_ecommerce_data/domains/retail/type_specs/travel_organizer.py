@@ -27,6 +27,7 @@ from synthetic_ecommerce_data.domains.retail.luggage_common import (
     TAN,
     TARNWICK,
     WHITE,
+    WRENFIELD,
     YELLOW,
     a,
     count,
@@ -50,16 +51,16 @@ _ROWS = (
     _row("TRVCUB", "Packing Cubes, Set of 4", TARNWICK, 16.0,
          "Four zipped packing cubes in small, medium, large and a flat shoe size, with a mesh "
          "panel to see inside. Compresses a week of clothes.",
-         (RED, BLUE, GREEN, YELLOW), "Packing Cubes", 4, "Nylon"),
-    _row("TRVPSP", "Passport Holder with Card Slots", MARROWGATE, 12.0,
+         (RED, BLUE, GREEN, YELLOW, BLACK, NAVY), "Packing Cubes", 4, "Nylon"),
+    _row("TRVPSP", "Passport Holder with Card Slots", WRENFIELD, 12.0,
          "A slim passport holder with a boarding pass pocket, four card slots and a pen loop. "
-         "Blocks card skimming.", (BLACK, WHITE, TAN), "Passport Holder", 1, "Polyurethane"),
+         "Blocks card skimming.", (BLACK, WHITE, TAN, NAVY, GREY, RED), "Passport Holder", 1, "Polyurethane"),
     _row("TRVTLR", "Hanging Toiletry Roll", SKERRY, 14.0,
          "A toiletry roll that unrolls and hangs on a hook, with three zipped pockets and a "
-         "wipe-clean lining.", (NAVY, YELLOW, BLUE), "Toiletry Roll", 1, "Polyester"),
+         "wipe-clean lining.", (NAVY, YELLOW, BLUE, BLACK, GREY, RED), "Toiletry Roll", 1, "Polyester"),
     _row("TRVADP", "Travel Adapter Case", FENMOOR, 9.0,
          "A hard-lined zip case that holds a plug adapter, a charger and cables, with a "
-         "mesh divider.", (BLACK, GREY, WHITE), "Adapter Case", 1, "Polyester"),
+         "mesh divider.", (BLACK, GREY, WHITE, NAVY, RED, BLUE), "Adapter Case", 1, "Polyester"),
 )  # fmt: skip
 
 

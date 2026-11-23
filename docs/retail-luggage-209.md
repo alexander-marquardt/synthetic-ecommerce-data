@@ -7,8 +7,12 @@ type below is its own spec under `src/synthetic_ecommerce_data/domains/retail/ty
 [new-type-quick-path.md](new-type-quick-path.md)), built from the shared pieces in
 `luggage_common.py` and drawn by `kit_luggage.py`. Since gen#1114 every type is a breadth type
 (`derivable=True`): the scaled build derives styles from the authored rows (the decoys never), so
-the ceiling build holds 1,975 luggage SKUs, up from 138. `tests/test_retail_luggage_209.py` holds
-the table below and a floor of 1,800 on that count.
+the ceiling build (seed 0) holds 1,963 luggage SKUs, up from 138. A derived style keeps the keys
+its text and drawing follow (`scale_text.TYPE_FROZEN_KEYS`: a suitcase's shell, wheels, lock,
+expansion and material, a cabin case's allowance and dimensions, and so on), so it differs from its
+template by brand, model word (the `luggage` family of `line_grammar_families/`, after the brand: "Skerry Travel Stopover Memory Foam Neck Pillow"), price and colors; the authored rows carry six colorways each so
+the range still reaches its size. `tests/test_retail_luggage_209.py` holds the table below, the
+frozen keys and a floor of 1,963 on that count.
 
 | Type (spec key) | Leaf (under Home > Luggage & Travel) | Key attributes | SKUs | Shape and param |
 |---|---|---|---|---|

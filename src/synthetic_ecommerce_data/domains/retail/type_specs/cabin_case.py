@@ -49,23 +49,23 @@ _ROWS = (
     _row("CBCHRD", "Hard Shell Carry-On Cabin Case", TARNWICK, 59.0,
          "A hard shell cabin case with four spinner wheels and a front flap pocket for a laptop. "
          "Fits the overhead locker of most airlines.",
-         (RED, BLUE, BLACK), "Carry-On", "55 x 40 x 20 cm", "hard", "yes", 38, 2.5),
+         (RED, BLUE, BLACK, NAVY, GREY, GREEN), "Carry-On", "55 x 40 x 20 cm", "hard", "yes", 38, 2.5),
     _row("CBCSFT", "Soft Cabin Case, Spinner Carry-On", FENMOOR, 42.0,
          "A soft cabin case in tough polyester with four spinner wheels, a front pocket and an "
          "expandable zip. Carry-on size.",
-         (GREEN, NAVY, YELLOW), "Carry-On", "55 x 35 x 23 cm", "soft", "yes", 40, 2.3),
+         (GREEN, NAVY, YELLOW, BLACK, GREY, RED), "Carry-On", "55 x 35 x 23 cm", "soft", "yes", 40, 2.3),
     _row("CBCUND", "Under-Seat Cabin Case", SKERRY, 36.0,
          "A squat soft cabin case that slides under the seat in front, with a grab handle and a "
          "shoulder strap. No wheels, so it stays light.",
-         (WHITE, BLACK, GREY), "Under-Seat", "40 x 30 x 20 cm", "soft", "no", 25, 1.2),
+         (WHITE, BLACK, GREY, NAVY, RED, BLUE), "Under-Seat", "40 x 30 x 20 cm", "soft", "no", 25, 1.2),
     _row("CBCALU", "Aluminum Carry-On Cabin Case", TARNWICK, 99.0,
          "A ribbed aluminum cabin case with corner guards, four spinner wheels and a TSA lock. "
          "Sized for the overhead locker.",
-         (SILVER, BLACK, NAVY), "Carry-On", "55 x 40 x 23 cm", "hard", "yes", 40, 3.4),
+         (SILVER, BLACK, NAVY, GREY, RED, BLUE), "Carry-On", "55 x 40 x 23 cm", "hard", "yes", 40, 3.4),
     _row("CBCWHL", "Wheeled Under-Seat Cabin Case", FENMOOR, 39.0,
          "A soft under-seat cabin case on four small spinner wheels, with a telescopic handle and "
          "a zipped front pocket.",
-         (RED, NAVY, GREEN), "Under-Seat", "45 x 36 x 20 cm", "soft", "yes", 30, 1.9),
+         (RED, NAVY, GREEN, BLACK, GREY, BLUE), "Under-Seat", "45 x 36 x 20 cm", "soft", "yes", 30, 1.9),
 )  # fmt: skip
 
 
