@@ -196,6 +196,11 @@ _MOUNTS = (
      "its arms close by themselves around the phone and charge it without a cable when the phone supports it"),
     ("MD", "Magnetic Dashboard Phone Mount", "Dashboard", "Magnetic", "magnetic", 14.0,
      "a low round pad sticks to the dashboard with adhesive and holds the phone by its metal plate"),
+    # The phone range's car mounts (gen#1117).
+    ("MW", "Magnetic Wireless Charging Phone Mount", "Air Vent", "Magnetic", "magnetic", 32.0,
+     "a magnet ring holds a phone in a magnetic case and charges it without a cable"),
+    ("LA", "Long Arm Windshield Phone Mount", "Windshield", "Spring Clamp", "suction", 24.0,
+     "a suction cup and a telescopic arm bring the phone close to the driver in a deep cab"),
 )
 _MOUNT_BRANDS = ((HOLTVANE, 1.1), (AMPWICK, 1.0), (DRAYFIELD, 0.85))
 PHONE_MOUNTS = tuple(
