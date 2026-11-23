@@ -1,4 +1,4 @@
-"""Measure every retail product type's picture for fill and flatness, worst first (gen#1129).
+"""Measure every product type's picture for fill and flatness, worst first (gen#1129).
 
     uv run python scripts/picture_fill_1129.py --out .agent/fill-1129 [--skus 500000]
 
@@ -15,13 +15,18 @@ the measuring side only, so arcs and ``<use>`` copies count):
   tone of another of its colors);
 * **empty**: the area share is under 35%;
 * **drawn to scale**: a SKU attribute naming a dimension (``diameter_cm``) is a drawing param
-  that the kit's own code reads;
+  that the kit's own code reads; for an industrial type, a length the SKU publishes that its
+  figure draws to (made longer, the figure changes). A drawn-to-scale industrial type is out of
+  scope for a redraw (the maintainer, 2026-11-21);
 * **render cost**: the seconds each served render takes, and the wall time to re-render a
   catalogue of ``--catalogue-skus`` on ``--vcpus`` workers at that rate.
 
+The industrial rows (slice 2) draw one SKU per industrial type of the default build through
+``core.drawing.draw_product``, as served, and measure its 200 x 300 sheet the same way.
+
 It writes ``types.md`` and ``kits.md`` (the two tables, worst first), ``rows.json`` (every
-render's numbers) and ``worst40.html`` (the worst 40 types' served pictures). It changes no
-drawing: docs/retail-prototype/picture-fill-1129.md.
+render's numbers), and ``worst40.html`` and ``worst40.svg`` (the worst 40 in-scope types' served
+pictures). It changes no drawing: docs/retail-prototype/picture-fill-1129.md.
 """
 
 from __future__ import annotations
@@ -44,6 +49,10 @@ from pathlib import Path
 
 import numpy as np
 
+from synthetic_ecommerce_data.core import domain
+from synthetic_ecommerce_data.core.dimensions import DimensionParseError, parse_length
+from synthetic_ecommerce_data.core.drawing import sheet as core_sheet
+from synthetic_ecommerce_data.core.drawing import svg as core_svg
 from synthetic_ecommerce_data.domains.retail import export, kit, scale, sheet_cover
 from synthetic_ecommerce_data.domains.retail import image_release as ir
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
@@ -83,6 +92,33 @@ DIMENSION = re.compile(r"length|width|height|depth|diameter|radius|thickness|_(m
 LENGTH = re.compile(r"\s*\d+(\.\d+)?\s*(mm|cm|m|in|inch|inches|ft|\")\s*", re.IGNORECASE)
 #: A pack's amount in one unit per kind, so ``"1L"`` is more than ``"500ml"``.
 UNITS = {"ml": 1, "cl": 10, "l": 1000, "pint": 568, "pints": 568, "g": 1, "kg": 1000}
+#: An industrial sheet (``core.drawing.sheet``): the whole image, the strip above the brand
+#: plate the figure is drawn in, and the area inside its margins that a type's largest extent
+#: fills (``sheet.type_scale``), the industrial counterpart of ``TURN_AREA``.
+SHEET: Box = (0.0, 0.0, float(core_svg.WIDTH), float(core_svg.HEIGHT))
+SHEET_FIGURE: Box = (0.0, 0.0, float(core_svg.WIDTH), core_sheet.FIGURE_HEIGHT)
+SHEET_AREA: Box = (
+    core_sheet.MARGIN,
+    core_sheet.MARGIN,
+    core_svg.WIDTH - core_sheet.MARGIN,
+    core_sheet.FIGURE_HEIGHT - core_sheet.MARGIN,
+)
+#: How much longer a published length is made to see whether a figure draws to it.
+LONGER = 1.5
+#: The in-scope note on a drawn-to-scale industrial type (the maintainer, 2026-11-21).
+OUT_OF_SCOPE = "out of scope (maintainer 11-21): drawn to scale"
+#: The industrial kinds the maintainer names as getting a realistic drawing (2026-11-21: "others
+#: such as hammers, screwdrivers, electric drill, etc. would get realistic drawings"): in scope
+#: even where their code draws to a length, with the note saying so.
+NAMED_REALISTIC = ("hammer_", "screwdriver", "electric_drill")
+NAMED_NOTE = "yes (maintainer 11-21 names it realistic; its code draws to scale)"
+
+
+def in_scope(type_key: str, scaled: list[str]) -> tuple[bool, str]:
+    """Whether an industrial type is in scope for a redraw, and its table note."""
+    if any(type_key.startswith(k) for k in NAMED_REALISTIC):
+        return True, NAMED_NOTE if scaled else "yes"
+    return (False, OUT_OF_SCOPE) if scaled else (True, "yes")
 
 
 # --- reading the SVG -----------------------------------------------------------------------
@@ -256,11 +292,16 @@ class _Paint:
         self.label = np.zeros(self.grid.x.shape, dtype=int)  # 0: unpainted
         self.keys: dict[object, int] = {None: 0}
         self.highlight = self.shadow = False
+        #: A fill of this color is paper, not figure (an industrial sheet's cut-outs).
+        self.erase: str | None = None
 
     def intern(self, key: object) -> int:
         return self.keys.setdefault(key, len(self.keys))
 
     def lay(self, inside: np.ndarray, fill: str, alpha: float, gradients: set[str]) -> None:
+        if self.erase is not None and alpha >= 1 and fill.lower() == self.erase:
+            self.label[inside] = 0  # a hole cut in the paper's color, or the lens's white
+            return
         ref = re.fullmatch(r"url\(#([^)]+)\)", fill)
         if ref is not None:
             gradient = ref.group(1) in gradients
@@ -349,15 +390,23 @@ def _walk(
 
 
 def measure(
-    svg: str | bytes, box: Box = IMAGE, skip: tuple[str, ...] = ("ground",), only: str | None = None
+    svg: str | bytes,
+    box: Box = IMAGE,
+    skip: tuple[str, ...] = ("ground",),
+    only: str | None = None,
+    erase_paper: bool = False,
 ) -> Measure:
     """The cover, solid share and shading of an SVG's figure over ``box``: every filled shape,
     or with ``only`` those inside the group of that class (``"product"`` on a served image).
-    The 400 x 400 paper is not the figure."""
+    The paper (a top-level rect the size of the sheet) is not the figure; with ``erase_paper``,
+    a fill of the paper's color is not either (it cuts a hole, as an industrial sheet does)."""
     root = ET.fromstring(svg)
     inline_uses(root)
+    sizes = {("400", "400"), (root.get("width"), root.get("height"))}
+    paper = None
     for el in list(root):
-        if el.tag == NS + "rect" and el.get("width") == "400" and el.get("height") == "400":
+        if el.tag == NS + "rect" and (el.get("width"), el.get("height")) in sizes:
+            paper = paper or (el.get("fill") or "").lower()
             root.remove(el)
     named = {el.get("id", ""): el for el in root.iter()}
     gradients = {k for k, el in named.items() if el.tag.removeprefix(NS).endswith("Gradient")}
@@ -365,6 +414,7 @@ def measure(
     if only is not None:
         tops = [el for el in root.iter() if only in (el.get("class") or "").split()][:1]
     paint = _Paint(box)
+    paint.erase = paper if erase_paper else None
     for top in tops:
         _walk(top, IDENTITY, paint, named, gradients, set(skip), None, 1.0)
     return paint.measure()
@@ -432,6 +482,12 @@ def _yes(x: bool) -> str:
     return "yes" if x else "no"
 
 
+def _scope(row: dict) -> str:
+    if row.get("note"):
+        return row["note"]
+    return "yes" if row["in_scope"] else (OUT_OF_SCOPE if row["scale"] else "no")
+
+
 def type_rows(renders: list[dict], served: dict[tuple[str, str], int]) -> list[dict]:
     """One row per (kit, product type, shape), from its most common pack, worst area first."""
     by = collections.defaultdict(list)
@@ -456,16 +512,25 @@ def type_rows(renders: list[dict], served: dict[tuple[str, str], int]) -> list[d
                 "scale": common["scale"],
                 "in_scope": common["in_scope"],
                 "sku": common["sku"],
+                "domain": common.get("domain", "retail"),
+                "note": common.get("note", ""),
             }
         )
     return sorted(rows, key=lambda r: (r["area"], r["whole"], r["kit"], r["type"]))
 
 
 def kit_rows(types: list[dict]) -> list[dict]:
-    """One row per kit over its type rows: medians, and yes when most of its types are."""
+    """One row per kit over its type rows: medians, and yes when most of its types are. A kit
+    that holds in-scope types and drawn-to-scale ones is split in two by them (gen#1129)."""
+    kinds = collections.defaultdict(set)
+    for r in types:
+        kinds[r["kit"]].add(r["in_scope"])
     by = collections.defaultdict(list)
     for r in types:
-        by[r["kit"]].append(r)
+        name = r["kit"]
+        if len(kinds[name]) > 1:
+            name += " (in scope)" if r["in_scope"] else " (drawn to scale)"
+        by[name].append(r)
     rows = []
     for kit_name, rs in by.items():
         worst = min(rs, key=lambda r: r["area"])
@@ -480,6 +545,7 @@ def kit_rows(types: list[dict]) -> list[dict]:
                 "empty": statistics.median(r["area"] for r in rs) < EMPTY_FLOOR,
                 "scale": any(r["scale"] for r in rs),
                 "in_scope": any(r["in_scope"] for r in rs),
+                "domain": rs[0].get("domain", "retail"),
                 "worst": f"{worst['type']} ({worst['shape']}) {_pct(worst['area'])}",
             }
         )
@@ -497,7 +563,7 @@ def type_table(rows: list[dict]) -> str:
         lines.append(
             f"| {i} | `{r['kit']}` | {r['type']} | {r['shape']} | {r['skus']:,} "
             f"| {_pct(r['whole'])} | {_pct(r['area'])} | {span} | {_yes(r['flat'])} "
-            f"| {_yes(r['empty'])} | {_yes(bool(r['scale']))} | {_yes(r['in_scope'])} |"
+            f"| {_yes(r['empty'])} | {_yes(bool(r['scale']))} | {_scope(r)} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -512,7 +578,7 @@ def kit_table(rows: list[dict], unserved: list[str]) -> str:
         lines.append(
             f"| {i} | `{r['kit']}` | {r['types']} | {r['skus']:,} | {_pct(r['whole'])} "
             f"| {_pct(r['area'])} | {_yes(r['flat'])} | {_yes(r['empty'])} "
-            f"| {_yes(r['scale'])} | {_yes(r['in_scope'])} | {r['worst']} |"
+            f"| {_yes(r['scale'])} | {_scope(r)} | {r['worst']} |"
         )
     if unserved:
         lines += [
@@ -539,13 +605,22 @@ def cost(seconds: list[float], skus: int, vcpus: int) -> dict:
     }
 
 
+def _caption(i: int, r: dict) -> str:
+    return (
+        f"{i}. {r['type']} ({r['kit']}, {r['shape']}) area {_pct(r['area'])}, "
+        f"whole {_pct(r['whole'])}, {r['sku']}"
+    )
+
+
+def worst(rows: list[dict], count: int = 40) -> list[dict]:
+    """The ``count`` worst in-scope type rows: a drawn-to-scale type gets no redraw."""
+    return [r for r in rows if r["in_scope"]][:count]
+
+
 def contact_sheet(rows: list[dict], svgs: dict[str, bytes], count: int = 40) -> str:
     cells = []
-    for i, r in enumerate(rows[:count], 1):
-        caption = (
-            f"{i}. {r['type']} ({r['kit']}, {r['shape']}) area {_pct(r['area'])}, "
-            f"whole {_pct(r['whole'])}, {r['sku']}"
-        )
+    for i, r in enumerate(worst(rows, count), 1):
+        caption = _caption(i, r)
         cells.append(
             f"<figure>{svgs[r['sku']].decode()}<figcaption>{html.escape(caption)}"
             "</figcaption></figure>"
@@ -557,6 +632,55 @@ def contact_sheet(rows: list[dict], svgs: dict[str, bytes], count: int = 40) -> 
     return (
         f"<!doctype html><meta charset=utf-8><title>Worst {count} pictures (gen#1129)</title>"
         f"<style>{style}</style><main>{''.join(cells)}</main>\n"
+    )
+
+
+_ID = re.compile(r'\bid="([^"]+)"')
+
+
+def _own_ids(svg: str, prefix: str) -> str:
+    """``svg`` with each id (and every reference to it) prefixed, so cells' ids stay apart."""
+    for name in sorted(set(_ID.findall(svg)), key=len, reverse=True):
+        svg = re.sub(
+            rf'(\bid="|url\(#|href="#){re.escape(name)}(?=[")])', rf"\g<1>{prefix}{name}", svg
+        )
+    return svg
+
+
+def _placed(svg: str, x: float, y: float, size: float) -> str:
+    """``svg`` as a nested ``<svg>`` at ``(x, y)``, ``size`` square (its viewBox kept)."""
+    start = svg.index("<svg")
+    end = svg.index(">", start)
+    head = re.sub(r'\s(?:x|y|width|height)="[^"]*"', "", svg[start:end])
+    return f'{svg[:start]}{head} x="{x}" y="{y}" width="{size}" height="{size}"{svg[end:]}'
+
+
+def contact_svg(rows: list[dict], svgs: dict[str, bytes], count: int = 40, cols: int = 5) -> str:
+    """The worst ``count`` in-scope pictures as one SVG (for a PNG on the issue): each in a
+    200 x 200 cell, its own sheet scaled to fit, with its caption under it."""
+    cell, cap = 200, 30
+    picked = worst(rows, count)
+    out = []
+    for i, r in enumerate(picked):
+        x, y = (i % cols) * cell, (i // cols) * (cell + cap)
+        body = re.sub(r"<\?xml[^>]*>", "", svgs[r["sku"]].decode())
+        body = _own_ids(body, f"c{i}-")
+        out.append(_placed(body, x, y, cell))
+        lines = (
+            f"{i + 1}. {r['type']} ({r['kit'].removeprefix('industrial/')})",
+            f"area {_pct(r['area'])}, whole {_pct(r['whole'])}, {r['shape']}",
+        )
+        for n, text in enumerate(lines):
+            out.append(
+                f'<text x="{x + 4}" y="{y + cell + 11 + 11 * n}" font-family="sans-serif" '
+                f'font-size="9">{html.escape(text[:40])}</text>'
+            )
+    rows_n = math.ceil(len(picked) / cols) or 1
+    w, h = cols * cell, rows_n * (cell + cap)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+        f'width="{w}" height="{h}" viewBox="0 0 {w} {h}"><rect width="{w}" height="{h}" '
+        f'fill="#ffffff"/>{"".join(out)}</svg>\n'
     )
 
 
@@ -629,6 +753,126 @@ def sweep(recs: list[dict]) -> tuple[list[dict], dict, dict[str, bytes], set[str
     return renders, served, svgs, kits
 
 
+# --- the industrial rows (slice 2) ----------------------------------------------------------
+
+
+def sheet_measures(svg: str | bytes) -> tuple[float, Measure]:
+    """An industrial sheet's whole share (the figure over the 200 x 300 image, the brand plate
+    under :data:`SHEET_FIGURE` not counted) and its measure over :data:`SHEET_AREA`. A fill in
+    the paper's color is a hole, not paint (a cut-out, the magnifier's lens)."""
+    figure = measure(svg, SHEET_FIGURE, erase_paper=True)
+    share = (SHEET_FIGURE[3] - SHEET_FIGURE[1]) / (SHEET[3] - SHEET[1])
+    return figure.cover * share, measure(svg, SHEET_AREA, erase_paper=True)
+
+
+def lengthened(value: str) -> str | None:
+    """A published length made :data:`LONGER` times longer, in inches; None for a value that is
+    not one length (a list of sizes, a thread, a count)."""
+    try:
+        inches = parse_length(value).inches
+    except (DimensionParseError, ValueError, TypeError):
+        return None
+    return f"{inches * LONGER:.4f} in"
+
+
+def _drawing(fn, record: dict) -> tuple[str, str] | None:
+    try:
+        drawn = fn(dict(record))
+    except Exception:  # noqa: BLE001  (a refused value draws nothing, so it is not drawn to)
+        return None
+    figure = getattr(drawn, "figure", drawn)
+    return repr((figure.size_in, figure.shapes)), getattr(drawn, "source", "")
+
+
+def drawn_to_scale(fn, record: dict) -> list[str]:
+    """The lengths ``record`` publishes that the figure function ``fn`` draws to: made longer,
+    the figure it draws changes, with its source unchanged (a value it refuses and replaces by a
+    nominal one is not drawn to). This reads the kit code by running it, so a ``Dim`` of a spec
+    and a geometry reader count alike; a size rung alone (``size_rungs``) is not drawn to scale,
+    since its scale is symbolic."""
+    base = _drawing(fn, record)
+    if base is None:
+        return []
+    out = []
+    for name, value in record.items():
+        longer = lengthened(value)
+        if longer is None:
+            continue
+        other = _drawing(fn, {**record, name: longer})
+        if other is not None and other[1] == base[1] and other[0] != base[0]:
+            out.append(name)
+    return sorted(out)
+
+
+def figure_kit(fn, type_key: str) -> tuple[str, str]:
+    """An industrial figure function's kit (``industrial/<module>``) and its shape: the
+    function's name, or the type's own key when the function is a type module's ``figure``."""
+    inner = getattr(fn, "func", fn)
+    module = getattr(inner, "__module__", "?").rsplit(".", 1)[-1]
+    name = getattr(inner, "__name__", "?")
+    return f"industrial/{module}", type_key if name in ("figure", "_figure", "<lambda>") else name
+
+
+def industrial_sweep(catalog) -> tuple[list[dict], dict, dict[str, bytes], set[str]]:
+    """:func:`sweep` for the industrial build: one SKU per type of its most common
+    ``Units per Pack``, plus its largest and smallest on a pack type, each drawn with its
+    product's siblings (its size rung and angle are the product's) as ``emit`` serves it."""
+    from synthetic_ecommerce_data.core.drawing import draw_product  # noqa: PLC0415
+    from synthetic_ecommerce_data.core.emit import drawing_record  # noqa: PLC0415
+
+    groups: dict[str, list[tuple]] = collections.defaultdict(list)
+    served: dict[tuple[str, str], int] = collections.Counter()
+    shapes = {}
+    for line in catalog.lines:
+        fn, _ = domain.figure(line.type_key)
+        shapes[line.type_key] = (fn, *figure_kit(fn, line.type_key))
+        records = [drawing_record(catalog, line, child) for child in line.children]
+        for i, (child, record) in enumerate(zip(line.children, records, strict=True)):
+            pack = record.get("Units per Pack") if domain.is_pack_type(line.type_key) else None
+            key = (("Units per Pack", pack),) if pack else ()
+            groups[line.type_key].append((line, records, i, child, key))
+        served[(line.type_key, shapes[line.type_key][2])] += len(line.children)
+    renders, svgs, kits = [], {}, set()
+    for ptype, members in sorted(groups.items()):
+        fn, kit_name, shape = shapes[ptype]
+        kits.add(kit_name)
+        keys = [m[4] for m in members]
+        for role, key in chosen_packs(keys):
+            line, records, i, child, _ = members[keys.index(key)]
+            t0 = time.perf_counter()
+            served_svg = draw_product(ptype, line.brand, records, line.product_id)[i][0]
+            seconds = (time.perf_counter() - t0) / len(records)
+            whole, area = sheet_measures(served_svg)
+            scaled = drawn_to_scale(fn, records[i])
+            scope, note = in_scope(ptype, scaled)
+            svgs[child.sku] = served_svg
+            renders.append(
+                {
+                    "kit": kit_name,
+                    "type": ptype,
+                    "shape": shape,
+                    "role": role,
+                    "pack": dict(key),
+                    "product_id": line.product_id,
+                    "sku": child.sku,
+                    "whole": round(whole, 4),
+                    "area": round(area.cover, 4),
+                    "solid": round(area.solid, 4),
+                    "highlight": area.highlight,
+                    "shadow": area.shadow,
+                    "flat": area.flat,
+                    "empty": area.cover < EMPTY_FLOOR,
+                    "scale": scaled,
+                    "in_scope": scope,
+                    "note": note,
+                    "seconds": seconds,
+                    "domain": "industrial",
+                    "spec_quality": line.spec_quality,
+                }
+            )
+    return renders, served, svgs, kits
+
+
 def _kit_modules() -> list[str]:
     here = Path(kit.__file__).parent
     return sorted(p.stem for p in [here / "kit.py", *here.glob("kit_*.py")])
@@ -650,18 +894,32 @@ def main(argv: list[str] | None = None) -> int:
         help="the catalogue size the re-render wall time is for",
     )
     parser.add_argument("--vcpus", type=int, default=os.cpu_count() or 1)
+    parser.add_argument(
+        "--no-industrial", action="store_true", help="measure the retail rows only (slice 1)"
+    )
     args = parser.parse_args(argv)
     t0 = time.perf_counter()
     recs = scale.templates() if args.skus is None else scale.build(args.skus).records
     renders, served, svgs, kits = sweep(recs)
+    spent_by = {"retail": cost([r["seconds"] for r in renders], args.catalogue_skus, args.vcpus)}
+    if not args.no_industrial:
+        from synthetic_ecommerce_data.domains.industrial.generate import generate  # noqa: PLC0415
+
+        catalog = generate()
+        more, more_served, more_svgs, _ = industrial_sweep(catalog)
+        renders, svgs = renders + more, svgs | more_svgs
+        served = {**served, **more_served}
+        spent_by["industrial"] = cost([r["seconds"] for r in more], catalog.sku_count, args.vcpus)
     types = type_rows(renders, served)
     kits_drawn = kit_rows(types)
     unserved = [k for k in _kit_modules() if k not in kits]
     spent = cost([r["seconds"] for r in renders], args.catalogue_skus, args.vcpus)
+    spent["by_domain"] = spent_by
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "types.md").write_text(type_table(types), encoding="utf-8")
     (args.out / "kits.md").write_text(kit_table(kits_drawn, unserved), encoding="utf-8")
     (args.out / "worst40.html").write_text(contact_sheet(types, svgs), encoding="utf-8")
+    (args.out / "worst40.svg").write_text(contact_svg(types, svgs), encoding="utf-8")
     (args.out / "rows.json").write_text(
         json.dumps({"cost": spent, "renders": renders}, indent=1, default=str), encoding="utf-8"
     )
@@ -669,10 +927,12 @@ def main(argv: list[str] | None = None) -> int:
         f"{len(renders)} renders, {len(types)} type rows, {len(kits_drawn)} kits, "
         f"{len(unserved)} kit modules unserved, {time.perf_counter() - t0:.0f} s"
     )
-    print(
-        f"render s/SKU median {spent['median_s']:.4f} p95 {spent['p95_s']:.4f}; "
-        f"{spent['skus']:,} SKUs on {spent['vcpus']} vCPUs: {spent['wall_s']:.0f} s wall"
-    )
+    for name, part in spent_by.items():
+        print(
+            f"{name}: render s/SKU median {part['median_s']:.4f} p95 {part['p95_s']:.4f}; "
+            f"{part['skus']:,} SKUs on {part['vcpus']} vCPUs: {part['wall_s']:.0f} s wall"
+        )
+    print(f"out of scope (drawn to scale): {sum(not r['in_scope'] for r in types)} type rows")
     print(
         f"empty {sum(r['empty'] for r in types)}, flat {sum(r['flat'] for r in types)} "
         f"of {len(types)} type rows; written to {args.out}"
