@@ -9,6 +9,11 @@ as ``sports_outdoors.py``'s is: the target share times the other departments' su
 no style of the ceiling build, where every template is drawn until it is exhausted. Recompute it
 the same way when a later issue adds Health types.
 
+Recomputed for the sanitary pads, tampons and panty liners of gen#1112 slice 1: the target is
+1.74% (121 of the derivable templates), the other departments' summed rates 1.43488 and the
+department's summed leaf weights 10.6285, so the rate is 0.002385; at slice 4's 0.002402 the
+department drew 1.75%.
+
 Six brands sell across every Health type, as a chemist's own label does: Corvane Pharmacy,
 Brannock Health, Hallowby Chemist, Lindcombe Health, Sedgemoor Pharmacy and Ottermere Care, all
 slice 4's. (Quellmoor Care, Halvering and Thrennick are template brands of slice 2 and may not be
@@ -16,7 +21,7 @@ extras too.) Their house styles are in ``health_brand_styles.py``. All are inven
 """
 
 DEPARTMENT = "Health"
-RATE = 0.002402
+RATE = 0.002385
 #: Invented brands its derived styles may carry, beside its template brands.
 EXTRA_BRANDS = (
     "Corvane Pharmacy", "Brannock Health", "Hallowby Chemist", "Lindcombe Health",

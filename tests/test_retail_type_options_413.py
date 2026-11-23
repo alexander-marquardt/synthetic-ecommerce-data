@@ -112,6 +112,8 @@ MOVED = {
     # a bouquet's stems and a house plant's pot (gen#1115)
     "bouquet": [Option("stem_count", "stem_count", "Stem count", "C62")],
     "house_plant": [Option("pot_size_cm", "pot_size", "Pot size", "CMT")],
+    # the platform a video game SKU is sold on: PC or an invented console family (gen#1120)
+    "video_game": [Option("platform", "platform", "Platform")],
 }
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
