@@ -263,10 +263,7 @@ one; `tests/test_chocolate_box_drawn_609.py`, the flat box it replaced is
 chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, its
 buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
 lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
-ball of segments in its opened foil); peanut butter cups draw `peanut_butter_cups` (fluted
-cups before their opened wrapper, one cut to show its filling), coated peanuts and fruit a
-`chocolate_bag` of that piece, the dark chocolate cherries a `chocolate_box` of cherries and
-the chocolate advent calendar an `advent_calendar` (24 numbered doors, two open on a chocolate;
+ball of segments in its opened foil;
 [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
