@@ -44,6 +44,12 @@ ROWS = (
           sizes((250, 4.5), (500, 7.5), (750, 10.0)), "A wash for the knees, elbows and heels, worked in with a cloth.", CREAM),
     _wash("BWSFMN", "Foaming Mint Body Wash", VEILMOOR, "Mint", "Foaming",
           sizes((250, 3.0), (500, 5.25), (750, 7.0)), "A wash for after the gym that rinses off quickly and leaves no film.", FERN),
+    _wash("BWSCVN", "Creamy Vanilla Body Wash", PEARLBROOK, "Vanilla", "Creamy",
+          sizes((250, 3.75), (500, 6.25), (750, 8.5)), "A warm, sweet wash for a long shower, thick enough to use without a sponge.", CREAM),
+    _wash("BWSSAL", "Silky Almond Body Wash", ALDERMIST, "Almond", "Silky",
+          sizes((250, 4.25), (500, 7.0), (750, 9.5)), "A wash with almond oil for dry skin, rinsing off without the tight feel of soap.", BLUSH),
+    _wash("BWSFEU", "Foaming Eucalyptus Body Wash", FENMERE, "Eucalyptus", "Foaming",
+          sizes((250, 3.25), (500, 5.5), (750, 7.5)), "A fresh wash for the morning shower, pumped straight into the hand as foam.", FERN),
 )  # fmt: skip
 
 SPEC = TypeSpec(

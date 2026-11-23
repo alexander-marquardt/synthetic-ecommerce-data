@@ -1,7 +1,9 @@
 """Razor cartridges (gen#1112, slice 3): Beauty > Shaving > Razor Cartridges.
 
 A breadth type (``derivable``): the title shows the blade count (3, 4 or 5) and the lubricating
-strip (aloe, shea, charcoal, cooling), and the scaled build draws more packs by swapping them. A
+strip (aloe, shea, charcoal, cooling) after the product noun ('Razor Cartridges, 5-Blade, Aloe
+Strip', so a title's noun comes before its first digit), and the scaled build draws more packs by
+swapping them. A
 SKU is a pack of 4 to 12 cartridges (``piece_count``). The drawing is a blister card of four
 heads, each with its blades and strip (:func:`kit_bath_shave.razor_cartridge_pack`). The razors
 the cartridges fit are gen#957's ``Razor`` type, in the leaf beside this one.
@@ -37,13 +39,13 @@ def _pack(code, title, brand, blades, strip, skus, desc, color=NAVY) -> object: 
 
 
 ROWS = (
-    _pack("RZCAL3", "3-Blade Razor Cartridges with Aloe Strip", THORNLEA, "3-Blade", "Aloe",
+    _pack("RZCAL3", "Razor Cartridges, 3-Blade, Aloe Strip", THORNLEA, "3-Blade", "Aloe",
           sizes((4, 6.0), (8, 11.0), (12, 15.0)), "Spare heads that click onto the handle and rinse clean under a running tap."),
-    _pack("RZCSH5", "5-Blade Razor Cartridges with Shea Strip", ALDERMIST, "5-Blade", "Shea",
+    _pack("RZCSH5", "Razor Cartridges, 5-Blade, Shea Strip", ALDERMIST, "5-Blade", "Shea",
           sizes((4, 12.0), (8, 22.0), (12, 30.0)), "Refill heads with a pivot that follows the jaw, sold in a recyclable tray.", SLATE),
-    _pack("RZCCH4", "4-Blade Razor Cartridges with Charcoal Strip", PEARLBROOK, "4-Blade", "Charcoal",
+    _pack("RZCCH4", "Razor Cartridges, 4-Blade, Charcoal Strip", PEARLBROOK, "4-Blade", "Charcoal",
           sizes((4, 9.0), (8, 16.5), (12, 23.0)), "Replacement heads with a precision edge on the back for the sideburns."),
-    _pack("RZCCO5", "5-Blade Razor Cartridges with Cooling Strip", SORREL, "5-Blade", "Cooling",
+    _pack("RZCCO5", "Razor Cartridges, 5-Blade, Cooling Strip", SORREL, "5-Blade", "Cooling",
           sizes((4, 11.0), (8, 20.0), (12, 28.0)), "Spare heads in a tray that keeps the edges covered until they are used.", TEAL),
 )  # fmt: skip
 
@@ -52,10 +54,10 @@ ROWS = (
 #: real packs first.
 DECOYS = (
     Decoy(6, "aloe razor cartridges", "generic", decoy(
-        ROWS[2], "RZCDY1", "Aloe Bay 4-Blade Razor Cartridges with Charcoal Strip",
+        ROWS[2], "RZCDY1", "Aloe Bay Razor Cartridges, 4-Blade, Charcoal Strip",
         "From the Aloe Bay range: replacement heads with a precision edge on the back.")),
     Decoy(6, "cooling razor cartridges", "generic", decoy(
-        ROWS[0], "RZCDY2", "Cooling Tower 3-Blade Razor Cartridges with Aloe Strip",
+        ROWS[0], "RZCDY2", "Cooling Tower Razor Cartridges, 3-Blade, Aloe Strip",
         "From the Cooling Tower range: spare heads that click onto the handle.")),
 )  # fmt: skip
 
