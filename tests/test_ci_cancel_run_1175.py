@@ -50,10 +50,11 @@ def test_a_red_pull_request_job_cancels_its_own_run():
 def test_a_run_that_is_not_a_pull_request_s_is_never_cancelled(event):
     """The job's ``if:`` names the event; the script checks it again, so a main run stays."""
 
-    def send(url, token):
-        raise AssertionError(f"a {event!r} run asked to cancel {url}")
-
-    line = ci_cancel_run.cancel({**ENV, "GITHUB_EVENT_NAME": event}, send)
+    sent = []
+    line = ci_cancel_run.cancel(
+        {**ENV, "GITHUB_EVENT_NAME": event}, lambda url, token: sent.append(url) or 202
+    )
+    assert sent == [], f"a {event!r} run was cancelled"
     assert "never cancelled" in line
 
 
@@ -117,6 +118,8 @@ def test_the_first_red_is_a_required_check_and_a_skipped_job_frees_nothing():
         _job("tests (2)", "failure", "2026-11-23T00:00:00Z", "2026-11-23T00:10:00Z"),
         _job("tests (3)", "success", "2026-11-23T00:05:00Z", "2026-11-23T00:20:00Z"),
         _job("lint", "skipped", "2026-11-23T00:30:01Z", "2026-11-23T00:30:00Z"),
+        # Cancelled before the first red: no red check itself (#1175).
+        _job("file-size", "cancelled", "2026-11-23T00:00:00Z", "2026-11-23T00:02:00Z"),
     ]
     result = ci_red_run_replay.replay(jobs, required)
     assert result.first_red == "tests (2)"

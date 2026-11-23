@@ -1461,6 +1461,11 @@ def test_every_job_of_the_real_workflows_has_a_local_equivalent() -> None:
         if path.name in local_ci_jobs.NOT_A_CHECK:  # a tag-triggered release (gen#536)
             continue
         declared += list(yaml.safe_load(path.read_text())["jobs"])
+    # The jobs that only cancel a red hosted pull request run check nothing (#1175).
+    required = [line.split()[1] for line in _printed("--print-ci") if line.startswith("required")]
+    cancels = {f"cancel-on-red-{name}" for name in required}
+    assert cancels <= set(declared)
+    declared = [job for job in declared if job not in cancels]
     listed = _jobs_cli("--list")
     assert listed.returncode == 0, listed.stderr
     assert listed.stdout.split() == declared
