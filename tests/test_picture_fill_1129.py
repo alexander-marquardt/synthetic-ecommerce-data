@@ -4,7 +4,8 @@
 first. These tests hold its readers to fixed SVGs: an arc and a ``<use>`` copy count as paint,
 the paper, a ground shadow and the brand band do not, and a drawing is flat when one solid color
 paints most of it or it has no highlight and no shadow. One test reads the base kit's tin, whose
-arcs ``sheet_cover`` alone refuses.
+arcs ``sheet_cover`` alone refuses. The industrial rows (slice 2) read a 200 x 300 sheet without
+its brand plate, and call a type drawn to scale when its figure draws to a length it publishes.
 """
 
 from __future__ import annotations
@@ -12,10 +13,15 @@ from __future__ import annotations
 import importlib.util
 import math
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from synthetic_ecommerce_data.core import domain
+from synthetic_ecommerce_data.core.dimensions import parse_length
+from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.domains.retail import kit, sheet_cover
 from synthetic_ecommerce_data.domains.retail.build_preview import drawing_svg
 from synthetic_ecommerce_data.domains.retail.house_styles import TURN_AREA
@@ -179,3 +185,110 @@ def test_the_render_cost_gives_the_median_p95_and_the_wall_time() -> None:
     assert spent["median_s"] == pytest.approx(0.001)
     assert spent["p95_s"] == pytest.approx(0.001)
     assert spent["wall_s"] == pytest.approx(0.002 * 500_000 / 32)
+
+
+# --- the industrial rows (slice 2) ----------------------------------------------------------
+
+
+def _sheet(body: str) -> str:
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300">'
+        f'<rect width="200" height="300" fill="#ffffff"/>{body}</svg>'
+    )
+
+
+def test_an_industrial_sheet_counts_its_figure_not_the_paper_a_hole_or_the_plate() -> None:
+    body = (
+        '<rect x="6" y="6" width="188" height="288" rx="14" fill="none" stroke="#1b2a6b"/>'
+        '<path d="M50 50L150 50L150 150L50 150Z" fill="#e7ecef" stroke="#1b2a6b"/>'
+        '<path d="M90 90L110 90L110 110L90 110Z" fill="#ffffff"/>'  # a hole, in the paper's color
+        '<path d="M14 240L46 240L46 272L14 272Z" fill="#1b2a6b"/>'  # the brand plate's mark
+    )
+    whole, area = pf.sheet_measures(_sheet(body))
+    assert whole == pytest.approx((10000 - 400) / (200 * 300), abs=0.003)
+    assert area.cover == pytest.approx((10000 - 400) / (164 * 200), abs=0.004)
+    assert area.flat  # one solid grey, no highlight, no shadow
+
+
+def test_a_length_is_made_longer_and_anything_else_is_not() -> None:
+    assert parse_length(pf.lengthened('1/4"')).inches == pytest.approx(0.375)
+    assert parse_length(pf.lengthened("10 mm")).inches == pytest.approx(15 / 25.4, abs=1e-4)
+    for value in ("9", "1.50mm, 2mm, 2.50mm", "Steel", "1/4-20"):
+        assert pf.lengthened(value) is None, value
+
+
+def _figure_of(*read: str, refuse_over: float | None = None):
+    """A figure function that draws a bar as long as each named length it reads."""
+
+    def fn(record: dict) -> SimpleNamespace:
+        fig, source = Figure(size_in=1.0), "record"
+        for name in read:
+            inches = parse_length(record[name]).inches
+            if refuse_over is not None and inches > refuse_over:
+                inches, source = 1.0, "nominal"
+            fig.poly([(0, 0), (inches, 0), (inches, 0.1)])
+        return SimpleNamespace(figure=fig, source=source)
+
+    return fn
+
+
+def test_drawn_to_scale_is_a_published_length_the_figure_draws_to() -> None:
+    record = {"Length": '2"', "Face Dia.": "25 mm", "Material": "Steel", "Piece Count": "9"}
+    assert pf.drawn_to_scale(_figure_of("Length"), record) == ["Length"]
+    assert pf.drawn_to_scale(_figure_of("Length", "Face Dia."), record) == ["Face Dia.", "Length"]
+    assert pf.drawn_to_scale(_figure_of(), record) == []  # it reads no length: a fixed picture
+    # a longer value it refuses and draws nominal instead is not a length it draws to
+    assert pf.drawn_to_scale(_figure_of("Length", refuse_over=2.5), record) == []
+
+
+def test_the_assortment_kit_figure_draws_to_no_length() -> None:
+    fn, _ = domain.figure("kit_assortment")
+    record = {"Type": "Hex Key Set", "Finish": "Chrome Plated", "Container Type": "Folding Holder",
+              "Tip Style": "Ball End", "Piece Count": "9",
+              "Sizes Included": "1.50mm, 2mm, 2.50mm, 3mm, 4mm, 5mm, 6mm, 8mm, 10mm"}  # fmt: skip
+    assert pf.drawn_to_scale(fn, record) == []
+    assert pf.figure_kit(fn, "kit_assortment") == ("industrial/figures", "kit")
+
+
+def test_a_drawn_to_scale_type_is_out_of_scope_unless_the_maintainer_names_its_kind() -> None:
+    assert pf.in_scope("washer_flat", ["Outside Dia."]) == (False, pf.OUT_OF_SCOPE)
+    assert pf.in_scope("kit_assortment", []) == (True, "yes")
+    assert pf.in_scope("hammer_claw", ["Overall Length"]) == (True, pf.NAMED_NOTE)
+
+
+def test_a_kit_holding_both_kinds_is_split_and_the_contact_sheet_skips_the_scaled() -> None:
+    renders = [
+        {**_render("industrial/figures", "washer_flat", "common", 0.05), "scale": ["Thickness"],
+         "in_scope": False, "note": pf.OUT_OF_SCOPE, "domain": "industrial"},
+        {**_render("industrial/figures", "kit_assortment", "common", 0.21), "note": "yes",
+         "domain": "industrial"},
+    ]  # fmt: skip
+    served = {("washer_flat", "washer_flat"): 40, ("kit_assortment", "kit_assortment"): 9}
+    types = pf.type_rows(renders, served)
+    kits = pf.kit_rows(types)
+    assert sorted(r["kit"] for r in kits) == [
+        "industrial/figures (drawn to scale)", "industrial/figures (in scope)"
+    ]  # fmt: skip
+    assert f"| {pf.OUT_OF_SCOPE} |" in pf.type_table(types)
+    assert [r["type"] for r in pf.worst(types)] == ["kit_assortment"]
+
+
+def test_the_contact_svg_keeps_each_cell_ids_apart() -> None:
+    cell = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300">'
+        '<defs><pattern id="h0" width="5" height="5"/></defs>'
+        '<rect width="200" height="300" fill="url(#h0)"/></svg>'
+    )
+    rows = [
+        {**_render("k", t, "common", 0.1), "area_min": 0.1, "area_max": 0.1, "skus": 1}
+        for t in ("A", "B")
+    ]
+    out = pf.contact_svg(rows, {"A-common": cell.encode(), "B-common": cell.encode()})
+    root = ET.fromstring(out)
+    ids = [el.get("id") for el in root.iter() if el.get("id")]
+    assert ids == ["c0-h0", "c1-h0"]
+    assert 'fill="url(#c1-h0)"' in out
+    inner = [el for el in root if el.tag.endswith("svg")]
+    assert [(el.get("x"), el.get("width"), el.get("viewBox")) for el in inner] == [
+        ("0", "200", "0 0 200 300"), ("200", "200", "0 0 200 300")
+    ]  # fmt: skip
