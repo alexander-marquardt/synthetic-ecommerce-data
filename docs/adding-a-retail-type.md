@@ -28,7 +28,7 @@ A key whose value the drawing or a measured SKU follows must never be swapped: a
 would otherwise change Round to Rectangular and keep the drawn round table and its `160 x 90 cm`
 SKUs (a hypothetical: furniture is left out of `scale.derivable`). Most specs are not
 `derivable` (the default is `False`), so a new type can usually skip this section. Add the key to `scale.FROZEN_KEYS` (today a lamp's `ip_rating` and `fitting`, a plate's
-`plate_type`, a pattern's `motif_count`).
+`plate_type`, a pattern's `motif_count`); a key fixed on one type but free on others (a suitcase's `material` follows its shell) goes in `scale_text.TYPE_FROZEN_KEYS` under that type (gen#1114).
 A value with a unit, or one that names the leaf, is already never changed
 (`tests/test_retail_scale.py::test_only_a_value_free_of_the_leaf_the_unit_and_a_longer_word_may_vary`).
 
