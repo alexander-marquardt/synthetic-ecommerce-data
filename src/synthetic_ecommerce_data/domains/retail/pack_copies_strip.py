@@ -35,7 +35,7 @@ SHOWN = (
     ("Knickers, 3 pack", "knickers", "Briefs", 3),
     ("Knickers, 5 pack", "knickers", "Briefs", 5),
     ("Knickers, 7 pack", "knickers", "Briefs", 7),
-    ("Ale, 4 bottles", "bottle", "Ale", 4),  # a soft drink draws its own cans (gen#1127)
+    ("Chickpeas, 4 tins", "tin", "Chickpeas", 4),  # a drink draws its own cans (gen#1127)
     ("Yogurt, 4 pots", "yogurt", "Yogurt", 4),
     ("Chocolate, 4 bars", "chocolate_bar", "Chocolate", 4),
     ("Eye patches, 24", "eye_patches", "Patches", 24),
@@ -48,7 +48,7 @@ SHOWN = (
     ("Kids dresses, 3 pack", "dress", "Girls", 3),
 )
 #: ``(caption, shape, a word of the title, count)``: a product given a pack it is not sold in yet.
-GIVEN = (("Lager, 6 cans", "tin", "Lager", 6),)
+GIVEN = (("Baked beans, 6 tins", "tin", "Beans", 6),)
 
 
 def _named(recs: list[dict], shape: str, word: str) -> list[dict]:
