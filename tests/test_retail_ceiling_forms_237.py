@@ -13,7 +13,8 @@ import re
 
 import pytest
 
-from retail_ceiling import ceiling_build, templates
+from retail_ceiling import ceiling_build
+from retail_templates import templates
 from synthetic_ecommerce_data.domains.retail import (
     lighting_rows,
     scale,

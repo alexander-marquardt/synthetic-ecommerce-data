@@ -41,7 +41,8 @@ from synthetic_ecommerce_data.domains.retail.retail_figures import held as value
 ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
-from retail_ceiling import ceiling_build, templates  # noqa: E402
+from retail_ceiling import ceiling_build  # noqa: E402
+from retail_templates import templates  # noqa: E402
 
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()

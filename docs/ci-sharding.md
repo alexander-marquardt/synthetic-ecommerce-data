@@ -185,7 +185,7 @@ seconds of a hosted run are not the ones the shards spend. The refresh for #1035
 
 What a heavy file most often repeats is a build the worker could share:
 
-* `templates()` in `tests/retail_ceiling.py` reads the retail templates once per worker. A call
+* `templates()` in `tests/retail_templates.py` reads the retail templates once per worker. A call
   to `scale.templates()` takes 6 to 9 s, and `test_retail_scale.py` made 23 of them.
 * `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
   the 40-odd type files that compare against it share that build.

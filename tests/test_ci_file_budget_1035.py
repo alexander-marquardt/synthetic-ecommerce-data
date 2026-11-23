@@ -82,8 +82,8 @@ def test_every_file_over_the_budget_has_a_reason() -> None:
     missing = unexcused(_weights(), REASONS)
     assert missing == {}, (
         f"over {FILE_BUDGET_SECONDS:.0f} s with no reason in REASONS: {missing}. Share the "
-        "build it makes (tests/retail_ceiling.py, tests/shared_builds.py) or split the file; "
-        "a reason is for a cost that stays."
+        "build it makes (tests/retail_ceiling.py, tests/retail_templates.py, "
+        "tests/shared_builds.py) or split the file; a reason is for a cost that stays."
     )
 
 

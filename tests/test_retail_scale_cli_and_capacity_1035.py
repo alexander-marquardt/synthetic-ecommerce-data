@@ -17,7 +17,8 @@ from pathlib import Path
 
 import pytest
 
-from retail_ceiling import ceiling_build, templates
+from retail_ceiling import ceiling_build
+from retail_templates import templates
 from synthetic_ecommerce_data.domains.retail import scale
 from synthetic_ecommerce_data.domains.retail.retail_figures import figures
 from test_retail_scale import starved, styles_by_department
