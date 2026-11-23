@@ -27,7 +27,7 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import check_catalog
-from synthetic_ecommerce_data.domains.retail import kit, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit, line_grammar, scale, type_registry
 from test_retail_health_vitamins_968 import _DIGEST, CLAIM, SLICES, _slice_path, _slice_text
 
 ROOT = "Health"
@@ -143,6 +143,23 @@ def test_the_type_plants_text_match_decoys(key: str) -> None:
     assert all(1 <= d.cls <= 7 for d in decoys)
     for d in decoys:
         assert d.query.split()[0].lower() in d.row.title.lower(), d.row.code
+
+
+def test_the_feminine_care_text_takes_no_lead_word_from_another_family() -> None:
+    """A lead word any template's text uses leaves its family's deal (#851), and the rest are
+    dealt again, so one such word moves every brand's models in that family. The first build
+    titled a decoy "Maxi Bloom", which took garden's "Bloom" and moved every garden golden slice
+    and Fenwold Nursery's "Plot" series."""
+    tpls = scale.templates()
+    mine = [r for r in tpls if tuple(r["category_path"][:2]) == PARENT]
+    rest = [r for r in tpls if tuple(r["category_path"][:2]) != PARENT]
+    leads = {
+        w.lower()
+        for fam in line_grammar._NUMBERED.values()
+        for w in (*fam.leads, *fam.grocery_leads)
+    }  # fmt: skip
+    new = line_grammar.text_words(mine) - line_grammar.text_words(rest)
+    assert mine and not new & leads, sorted(new & leads)
 
 
 @pytest.mark.parametrize("key", KEYS)
