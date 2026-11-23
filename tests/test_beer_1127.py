@@ -61,9 +61,12 @@ TALL_CAN = 0.38
 #: A single beer bottle at real proportions paints at least this share of the area. A fruit
 #: beer's 500ml covered 0.269 on main as the generic bottle, half again as wide as a real one.
 BOTTLE = 0.20
-#: A 2L PET bottle (105 x 335 mm) at the full height paints what its outline holds. The generic
-#: bottle a cider's 2L drew on main 703b459d covered 0.269.
-PET = 0.26
+#: A bottle that steps down under its line's larger PET bottle (a cider's 500ml under its 2L, at
+#: 0.88 of the height) paints what its shorter outline holds.
+STEPPED = 0.19
+#: A 2L PET bottle (105 x 335 mm) at the full height paints what its outline holds (0.235). The
+#: generic bottle a cider's 2L drew on main 703b459d covered 0.269, as wide as a 3L would be.
+PET = 0.23
 #: The line's largest single bottle spans this share of the area's height, a smaller one this
 #: share of it; a can spans the full share wherever it is sold (the wine and soft drink floors).
 FULL, STEP = 0.95, 0.8
@@ -120,6 +123,8 @@ def test_every_pack_fills_its_floor_and_no_single_less_than_before(
             floor = HALF
         else:
             floor = {"can": TALL_CAN, "pet": PET}.get(form, BOTTLE)
+            if form == "bottle" and sku["pack_size"] != rec["drawing"]["params"]["largest"]:
+                floor = min(floor, STEPPED)
         before = BEFORE.get((form if form == "can" else _family(rec), sku["pack_size"]), 0.0)
         if share < max(floor, before):
             low.append(

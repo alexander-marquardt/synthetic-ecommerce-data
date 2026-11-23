@@ -194,10 +194,12 @@ WINE_STYLES = {
 #: ginger beer in a glass bottle; any other line's 330ml in a can (gen#1127).
 SMALL_DRINK = {"GNB": "glass"}
 #: A beer family's line (``kit_beer.container``): whether it is sold in cans or bottles, and its
-#: bottles' glass: a pale ale in brown glass, a fruit beer in clear glass (gen#1127).
+#: bottles' glass: a pale ale in brown glass, a fruit beer in clear, a cider or perry in green
+#: (its 2L a PET bottle; gen#1127).
 BEER_LINES = {
     "BLG": ("can", "brown"), "BSO": ("can", "brown"), "BAF": ("can", "brown"),
     "BPA": ("bottle", "brown"), "BFR": ("bottle", "clear"),
+    "CDR": ("bottle", "green"), "PRY": ("bottle", "green"),
 }  # fmt: skip
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
@@ -442,7 +444,7 @@ def _drawing(
     if shape == "beer":  # each SKU its own pack, in its line's cans or bottles (gen#1127)
         sold_in, glass = BEER_LINES[fam.code]
         singles = [p for p in packs if kit_beer.container(p["pack_size"], sold_in)[1] == 1]
-        bottles = [p for p in singles if kit_beer.container(p["pack_size"], sold_in)[0] == "bottle"]
+        bottles = [p for p in singles if kit_beer.container(p["pack_size"], sold_in)[0] != "can"]
         largest = max(bottles, key=_size)["pack_size"] if bottles else ""
         marks |= {"pack_size": pack["pack_size"], "largest": largest, "sold_in": sold_in,
                   "glass": glass}  # fmt: skip
