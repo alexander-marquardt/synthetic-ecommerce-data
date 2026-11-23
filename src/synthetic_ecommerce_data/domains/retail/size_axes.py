@@ -54,6 +54,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Leash & Collar": ("size",),
     "Grooming Brush": ("size",),
     "Bracelet": ("size",),
+    "Bangle": ("size",),
     "Gloves": ("glove_size_letter",),
     "Hat": ("hat_size",),
     "Necklace": ("length_cm",),
