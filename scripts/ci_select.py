@@ -73,6 +73,10 @@ SMOKE: tuple[str, ...] = (
     "tests/test_ci_select_495.py",
     "tests/test_ci_shards_348.py",
     "tests/test_ci_tests_job_parallel_348.py",
+    # These read the list of test files, so a new one can break them: 1.3 s together (#1035).
+    "tests/test_ci_run_order_348.py",
+    "tests/test_ci_shard_budget_704.py",
+    "tests/test_ci_workers_790.py",
 )
 
 #: A change to one of these (path prefix or exact path) selects every test: the CI definition,
@@ -83,6 +87,7 @@ FULL_RUN: tuple[str, ...] = (
     "uv.lock",
     "vendor/",
     "tests/conftest.py",
+    "tests/templates_memo.py",
     "tests/ci_shard_split.py",
     "tests/xdist_groups.py",
     "scripts/ci_select.py",
@@ -203,7 +208,19 @@ _DOC_DIR = "docs/"
 _DOC_READERS = ("tests/", "scripts/")
 
 #: A file that imports by a computed name depends on every Python file under its directory.
+#: Read from the text of a product file: the docstring of a walked package's ``__init__`` says
+#: that its modules are walked, and is the one place that does (``product_types``).
 _DYNAMIC = re.compile(r"\b(import_module|walk_packages|iter_modules|__import__)\b|glob\([^)]*\.py")
+#: Read from a script's code, not its comments and docstrings: a sentence about ``import_module``
+#: imports nothing, and the pattern above made this file, and each test that reads it, depend on
+#: every script and so on the retail package (#1035). A string that holds such a call is code
+#: another interpreter may run.
+_DYNAMIC_NAMES = frozenset({"import_module", "walk_packages", "iter_modules", "__import__"})
+_GLOBS = frozenset({"glob", "rglob", "iglob"})
+_PY_GLOB = re.compile(r"\.py(?!\w)")
+_DYNAMIC_STRING = re.compile(
+    r"\b(import_module|walk_packages|iter_modules|__import__)\s*\(|glob\([^)]*\.py(?!\w)"
+)
 _GENERIC_DIRS = frozenset({"tests", "scripts", "src", "docs"})
 _PY_NAME = re.compile(r"[\w.-]+\.py\b")
 #: A call that runs or loads what it is given: a ``.py`` file named inside its arguments is
@@ -226,6 +243,35 @@ _TEXT_LIMIT = 2_000_000
 
 def _callee(node: ast.Call) -> str:
     return node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
+
+
+#: A file that imports by a computed name, and the file whose strings are the names: it depends on
+#: the modules so named, not on its own directory (#1035). ``golden_pins.measure_figures`` imports
+#: each test module of ``pinned.MODULES``; the directory rule gave it every script instead, and so
+#: gave the five industrial tests that import it the whole retail package.
+IMPORTS_NAMED_BY: dict[str, str] = {"scripts/golden_pins.py": "tests/pinned.py"}
+
+
+def _imports_by_name(nodes: list[ast.AST], strings: list[str]) -> bool:
+    """Whether a script imports by a computed name, or globs Python files (``_DYNAMIC_NAMES``)."""
+    for node in nodes:
+        if isinstance(node, ast.Name):
+            named = node.id
+        elif isinstance(node, ast.Attribute):
+            named = node.attr
+        elif isinstance(node, ast.alias):
+            named = node.name
+        elif isinstance(node, ast.Call) and _callee(node) in _GLOBS:
+            for arg in [*node.args, *(k.value for k in node.keywords)]:
+                for inner in ast.walk(arg):
+                    if isinstance(inner, ast.Constant) and _PY_GLOB.search(str(inner.value)):
+                        return True
+            continue
+        else:
+            continue
+        if named in _DYNAMIC_NAMES:
+            return True
+    return any(_DYNAMIC_STRING.search(value) for value in strings)
 
 
 def _listed(path: str, entries: Collection[str]) -> bool:
@@ -382,10 +428,10 @@ class Tree:
         return found & here
 
     @staticmethod
-    def _strings(module: ast.Module) -> list[str]:
+    def _strings(nodes: list[ast.AST]) -> list[str]:
         """Every string constant that is not a docstring (a docstring names files in prose)."""
         docstrings: set[int] = set()
-        for node in ast.walk(module):
+        for node in nodes:
             if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 first = node.body[0] if node.body else None
                 if (
@@ -396,7 +442,7 @@ class Tree:
                     docstrings.add(id(first.value))
         return [
             n.value
-            for n in ast.walk(module)
+            for n in nodes
             if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docstrings
         ]
 
@@ -416,12 +462,12 @@ class Tree:
                         if isinstance(target, ast.Name):
                             self.aliases[target.id] |= named
 
-    def _executed_names(self, module: ast.Module) -> set[str]:
+    def _executed_names(self, nodes: list[ast.AST]) -> set[str]:
         """The ``.py`` base names a file passes to a call that runs them."""
         found: set[str] = set()
-        calls = [n for n in ast.walk(module) if isinstance(n, ast.Call)]
+        calls = [n for n in nodes if isinstance(n, ast.Call)]
         if any(_callee(n) in _LOADERS for n in calls):
-            for node in ast.walk(module):
+            for node in nodes:
                 if isinstance(node, ast.Constant) and isinstance(node.value, str):
                     found.update(Path(n).name for n in _PY_NAME.findall(node.value))
         for node in calls:
@@ -442,19 +488,21 @@ class Tree:
         leaves: set[str] = set()
         module = self.trees.get(path)
         here = Path(path).parent
-        strings = self._strings(module) if module is not None else []
+        # One walk of the file, read by every rule below: a plan parses 2000 files (#1035).
+        nodes = list(ast.walk(module)) if module is not None else []
+        strings = self._strings(nodes)
         self.strings[path] = "\n".join(strings)
         if module is not None:
             branches = {
                 id(inner): word
-                for node in ast.walk(module)
+                for node in nodes
                 if isinstance(node, ast.If) and (word := _subcommand(node)) is not None
                 for statement in node.body
                 for inner in ast.walk(statement)
             }
             always = edges
             gated: dict[str, set[str]] = defaultdict(set)
-            for node in ast.walk(module):
+            for node in nodes:
                 word = branches.get(id(node))
                 edges = always if word is None else gated[word]
                 if isinstance(node, ast.Import):
@@ -491,7 +539,7 @@ class Tree:
         # What a file names in a string is a dependency of the file that names it; its prose
         # (comments, docstrings) is not. Product code under src/ takes its dependencies by import.
         if not path.startswith("src/"):
-            executed = self._executed_names(module) if module is not None else set()
+            executed = self._executed_names(nodes)
             for value in strings:
                 for name in _PY_NAME.findall(value):
                     # A test file named in a string is named, not run (a row of the mutation
@@ -507,7 +555,15 @@ class Tree:
                 for script, targets in self.scripts.items():
                     if re.search(rf"(?<![\w-]){re.escape(script)}(?![\w-])", value):
                         edges |= targets
-        if _DYNAMIC.search(text) and not path.startswith("tests/"):
+        if path.startswith("scripts/") and module is not None:
+            dynamic = _imports_by_name(nodes, strings)
+        else:
+            dynamic = _DYNAMIC.search(text) is not None
+        if dynamic and path in IMPORTS_NAMED_BY:
+            named_by = self.trees.get(IMPORTS_NAMED_BY[path])
+            for value in self._strings(list(ast.walk(named_by))) if named_by else []:
+                edges |= self.by_name.get(value, set())
+        elif dynamic and not path.startswith("tests/"):
             prefix = str(here) + "/"
             edges |= {p for p in self.py if p.startswith(prefix)}
             # A package-walk registry (``typespec.discover``) loads every module of the package
