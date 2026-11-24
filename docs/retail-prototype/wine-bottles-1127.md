@@ -5,7 +5,9 @@ shape, shrunk by `pack_scale` (gen#543), so a half bottle stood at 0.63 of the f
 and covered about a tenth of the product area. These eight families (`grocery.WINE_STYLES`:
 WRD, WWH, WRS, WSP, WCH, FPT, FSY, FVM) now draw `wine_bottle` (`kit_drinks.py`). Spirits and
 mead keep `bottle`. Soft drinks draw `soft_drink` (slice 2, [the soft drinks page](soft-drinks-1127.md)),
-beer, cider and perry draw `beer` (slice 3, [the beer page](beer-1127.md)).
+beer, cider and perry draw `beer` (slice 3, [the beer page](beer-1127.md)). The two hand-written
+red wines (`BRD-CW06`, `BRD-CW07`) draw `wine_bottle` too
+([the one-size rows](beer-1127.md#one-size-rows)).
 `grocery.py` imports `kit_drinks` with its other shape modules. A shape registers only when its
 module is imported, so without that import `kit.SHAPES` lacked `wine_bottle` until a build drew
 one, and the test that checks every family's shape failed depending on test order (gen#1142).
