@@ -23,7 +23,25 @@ from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import
 
 FLOOR = 0.50
 #: The named exceptions: a true outline that cannot reach the floor, at its own measured one.
-FLOORS: dict[str, float] = {}
+FLOORS: dict[str, float] = {
+    "c_clamps": 0.42,  # its throat is open
+    "chain_lubricants": 0.41,  # an aerosol is a narrow can
+    "compound_cutters": 0.39,  # its handles stand apart
+    "eye_bolts": 0.43,  # an open eye over a narrower shank
+    "replacement_pins": 0.36,  # an eye, a collar and a narrower shank
+    # Rods, laid corner to corner.
+    "magnetic_bit_holders": 0.23,
+    "pin_pullers": 0.20,
+    "sds_drill_bits": 0.18,
+    "tap_extractors": 0.24,
+    "thread_plug_gages": 0.26,
+}
+
+
+def test_every_named_exception_is_under_the_floor():
+    """An exception that reaches the floor is an exception no longer."""
+    for key, floor in FLOORS.items():
+        assert floor <= min(area.cover for _, _, area in _measured(key)) < FLOOR, key
 
 
 def _measured(key):
