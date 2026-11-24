@@ -29,7 +29,7 @@ EXEMPT = {"tests/data/industrial_canonical_units.yaml"}
 
 def refused(text: str) -> list[int]:
     """The line numbers (from 1) at which ``text`` starts a refused phrase."""
-    return []
+    return [text.count("\n", 0, m.start()) + 1 for m in REFUSED.finditer(text)]
 
 
 def tree_hits(root: Path) -> list[str]:
