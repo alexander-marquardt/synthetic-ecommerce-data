@@ -1036,7 +1036,8 @@ def _run_step(tmp_path: Path, run: str, planner: str) -> tuple[int, str]:
         capture_output=True,
         text=True,
         check=False,
-        env={**os.environ, "GITHUB_OUTPUT": str(output)},
+        # the running CI job has a RUNNER_TEMP, and its own plan is saved there
+        env={**os.environ, "GITHUB_OUTPUT": str(output), "RUNNER_TEMP": str(tmp_path)},
     )
     return done.returncode, output.read_text(encoding="utf-8")
 
