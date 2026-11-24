@@ -1,0 +1,21 @@
+{
+  "about": "Every direct dependency of this repo by manifest and group (#16448). CI refuses a manifest entry not listed here, a stale one, and a new entry or a lock with more packages without the PR label dependency-approved. Regenerate: python3 .github/scripts/check_dependency_allowlist.py --write. Rule: contributing/dependency-allowlist.md.",
+  "manifests": {
+    "pyproject.toml": {
+      "build-system.requires": [
+        "hatchling"
+      ],
+      "dependency-groups.dev": [
+        "hatchling",
+        "pytest",
+        "pytest-timeout",
+        "pytest-xdist",
+        "pyyaml",
+        "ruff"
+      ],
+      "project.dependencies": [
+        "numpy"
+      ]
+    }
+  }
+}
