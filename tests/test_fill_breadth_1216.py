@@ -37,6 +37,50 @@ FLOORS: dict[str, float] = {
     "thread_plug_gages": 0.26,
 }
 
+#: Slice 2: the types drawn by their row's shared shape at 5 to 15% of the area before it.
+SLICE_2 = (
+    "backing_pads",
+    "band_saw_blades",
+    "bench_tool_racks",
+    "bit_index_cases",
+    "bit_socket_sets",
+    "blind_rivets",
+    "cantilever_racks",
+    "cold_chisels",
+    "cutter_sharpening_fixtures",
+    "cutter_storage_cases",
+    "diamond_wheels",
+    "drawer_slides",
+    "driver_bit_sets",
+    "foam_ear_plugs",
+    "grub_screw_keys",
+    "handle_wedges",
+    "hex_bit_socket_sets",
+    "micro_collets",
+    "nut_drivers_hex",
+    "nylon_wall_anchors",
+    "piloted_counterbores",
+    "pin_punch_sets",
+    "pneumatic_cut_off_tools",
+    "quick_disconnect_couplings",
+    "rigging_pulleys",
+    "rigid_shaft_couplings",
+    "snap_ring_pliers",
+    "spanner_wrenches",
+    "spill_socks",
+    "thread_restoring_files",
+    "tool_holsters",
+    "v_belts",
+    "wrench_organizers",
+)
+
+
+@pytest.mark.parametrize("key", SLICE_2)
+def test_a_slice_2_type_is_drawn_as_its_own_product(key):
+    """Every fill test below runs over ``BREADTH_PRODUCTS``, so a type that leaves it is
+    unmeasured."""
+    assert key in BREADTH_PRODUCTS
+
 
 def test_every_named_exception_is_under_the_floor():
     """An exception that reaches the floor is an exception no longer."""
