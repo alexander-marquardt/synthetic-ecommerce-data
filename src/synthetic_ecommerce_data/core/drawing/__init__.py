@@ -211,6 +211,9 @@ def product_scale_for(
     # A figure drawn ``fit_turned`` takes its own scale instead, in :func:`_draw`.
     del records
     _, extent = _figure(product_type)
+    outline = product_look.OUTLINES.get(product_type)
+    if outline is not None and angle:
+        return type_scale(product_look.turned_outline(outline, angle))
     return type_scale(product_look.turned(*extent, angle))
 
 
