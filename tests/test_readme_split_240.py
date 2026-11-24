@@ -23,7 +23,7 @@ MOVED_HEADINGS = (
     "### Footwear",
     "### Grocery",
     "### Observed failure classes 2 to 15, before and after on Elasticsearch",
-    "### The retail catalog at a size: `scale.py --skus N`",
+    "### The retail domain at a size: `scale.py --skus N`",
 )
 
 LINK = re.compile(r"\]\(([^)\s]+)\)")

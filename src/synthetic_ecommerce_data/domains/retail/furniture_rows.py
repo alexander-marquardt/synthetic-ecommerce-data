@@ -1,7 +1,7 @@
 """Furniture for the rest of the house (gen#199): dining tables and chairs, coffee and side
 tables, bookcases, wardrobes, chests of drawers and mirrors (data only).
 
-Beyond a sofa and its beds, the retail catalog had no furniture, so a search by room, material,
+Beyond a sofa and its beds, the retail domain had no furniture, so a search by room, material,
 size or finish had no range to land on. Each type here is a leaf of its own (under
 ``Home/Furniture``, a mirror under ``Home/Home Accessories``), typed by its name, with at least
 three styles from at least three brands, and draws with its own shape in :mod:`kit_furniture`.

@@ -1,4 +1,4 @@
-"""The retail catalog at any size: a target SKU count, reached from the templates (gen#125).
+"""The retail domain at any size: a target SKU count, reached from the templates (gen#125).
 
 Usage::
 

@@ -1,6 +1,6 @@
 # Retail Automotive: car care, fluids, electrics and interior (gen#970, slices 1 to 3)
 
-The retail catalogue had no `Automotive` department: `core/departments.RETAIL` did not list it and
+The retail domain had no `Automotive` department: `core/departments.RETAIL` did not list it and
 no `category_path` started with it. gen#970 adds it in three slices of about 2,000 SKUs in all
 (`docs/catalogue-mix-837.md`). Slice 1 adds the department and its first family,
 `Automotive > Car Care`: nine types whose rows are in `automotive_rows.py` and whose spec files are
