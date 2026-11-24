@@ -3,6 +3,7 @@
 #: Stand on the floor, sit in a housing or lie in a worktop: never held, so drawn level (#1101).
 LEVEL: tuple[str, ...] = (
     "built_in_oven",
+    "cooker_hood",
     "hob",
     "range_cooker",
 )

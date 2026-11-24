@@ -113,7 +113,7 @@ def test_a_few_washing_machines_use_the_from_brand_title_form(appliances):
     assert 1 <= len(forms) <= 4, [r["title"] for r in forms]
     for r in forms:
         m = FROM_FORM.match(r["title"])
-        assert m["kind"] == "Washing Machine"
+        assert m["kind"] in {"Washing Machine", "Washer"}  # "Washer" is the US word (#1116)
         assert m["code"] == _attrs(r)["model_number"]
         assert r["product_type"] == "Laundry Appliance"
 
