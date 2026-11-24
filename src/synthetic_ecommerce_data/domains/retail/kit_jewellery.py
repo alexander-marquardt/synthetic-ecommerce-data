@@ -16,6 +16,12 @@ analog_watch    a round case, dial and hands on a strap             strap (leath
                                                                     case (steel, gold, rose)
 digital_watch   a square case with an LCD and side buttons          buttons (2, 4)
 fitness_band    a slim touch screen on a ribbed silicone band       screen (heart, steps, clock)
+stud_earrings   a pair of studs, each on a post with a butterfly    stud (ball, gem, pearl, knot),
+                back (gen#1113)                                     stone (a stone name, for gem)
+bangle          a rigid round bangle seen at an angle (gen#1113)    style (plain, hammered,
+                                                                    twisted, stacked)
+cufflinks       a pair of cufflinks, each a face on a swivel bar    face (round, square, knot,
+                (gen#1113)                                          stone), stone (a stone name)
 ==============  ==================================================  ===========================
 
 Every params value is a string, as a style row's ``params`` carry it.
@@ -39,6 +45,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     _word,
     register,
 )
+from synthetic_ecommerce_data.domains.retail.kit_accessories import STONES, _annulus, _gem
 from synthetic_ecommerce_data.domains.retail.kit_more import _circle, _ring
 
 STEEL, GOLD_CASE, ROSE_CASE = "#cfd5da", "#d4af37", "#d8a28f"
@@ -209,4 +216,77 @@ def fitness_band(paint: str, fill: Fill, label: str | None, screen: str = "heart
     return out
 
 
-register({"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band})
+def stud_earrings(paint: str, fill: Fill, label: str | None, stud: str = "ball", stone: str = "") -> list[str]:
+    """A pair of studs seen from the front, each with its post and butterfly back below: a polished metal ``ball``, a ``gem`` of the ``stone`` in a metal bezel, a ``pearl`` in a metal cup, or a ``knot`` of metal (gen#1113)."""
+    _choice("stud", stud, ("ball", "gem", "pearl", "knot"))
+    out: list[str] = []
+    for cx in (130, 270):
+        out += [
+            _line(f"M{cx},150 L{cx},252", 5),
+            f'<rect x="{cx - 22}" y="232" width="44" height="18" rx="7" fill="{paint}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+        ]
+        if stud == "ball":
+            out += [_circle(cx, 150, 40, paint), _highlight(f"M{cx - 24},138 Q{cx - 18},118 {cx - 2},112", 6, 0.75)]
+        elif stud == "pearl":
+            out += [_circle(cx, 156, 14, paint, 1.6), _circle(cx, 148, 40, PEARL), _highlight(f"M{cx - 24},136 Q{cx - 18},116 {cx - 2},110", 6, 0.8)]
+        elif stud == "gem":
+            out += [_circle(cx, 150, 44, paint), *_gem(cx, 150, 30, stone or "cubic zirconia")]
+        else:
+            out += [_circle(cx, 150, 40, paint)]
+            out += [_line(f"M{cx - 30},{150 + 8 * k} Q{cx},{126 + 8 * k} {cx + 30},{150 + 8 * k}", 2.4, ' stroke-opacity=".6"') for k in (-2, 0, 2)]
+    if label:
+        out.append(_word(label, 200, 330, 200, 22))
+    return out
+
+
+def bangle(paint: str, fill: Fill, label: str | None, style: str = "plain") -> list[str]:
+    """A rigid bangle in the record's metal, tilted so its round shows as an ellipse: ``plain`` polish, ``hammered`` dimples, a ``twisted`` rope, or a ``stacked`` set of three (each a ``class="band"``) (gen#1113)."""
+    _choice("bangle style", style, ("plain", "hammered", "twisted", "stacked"))
+    out: list[str] = []
+    if style == "stacked":
+        for y in (168, 200, 232):
+            out.append(f'<g class="band">{_annulus(200, y, 130, 116, paint, 0.42)}{_highlight(f"M96,{y + 8} Q120,{y + 38} 180,{y + 52}", 3, 0.5)}</g>')
+        return out + ([_word(label, 200, 340, 200, 22)] if label else [])
+    out += [_annulus(200, 200, 140, 116, paint, 0.5), _highlight("M84,214 Q108,262 182,276", 5, 0.55)]
+    if style == "hammered":
+        for k in range(12):
+            a = math.radians(k * 30 + 15)
+            out.append(f'<ellipse cx="{200 + 128 * math.cos(a):.1f}" cy="{200 + 64 * math.sin(a):.1f}" rx="6" ry="4" fill="{_shade(paint, 0.15)}" stroke="none"/>')
+    elif style == "twisted":
+        for k in range(24):
+            a = math.radians(k * 15)
+            x0, y0 = 200 + 118 * math.cos(a), 200 + 59 * math.sin(a)
+            x1, y1 = 200 + 138 * math.cos(a + 0.12), 200 + 69 * math.sin(a + 0.12)
+            out.append(_line(f"M{x0:.1f},{y0:.1f} L{x1:.1f},{y1:.1f}", 1.4, ' stroke-opacity=".55"'))
+    if label:
+        out.append(_word(label, 200, 340, 200, 22))
+    return out
+
+
+def cufflinks(paint: str, fill: Fill, label: str | None, face: str = "round", stone: str = "") -> list[str]:
+    """A pair of cufflinks, each a ``face`` (a ``round`` or ``square`` plate, a ``knot`` of metal, or a ``stone`` inlay of the ``stone`` named) on a post with a swivel bar (gen#1113)."""
+    _choice("cufflink face", face, ("round", "square", "knot", "stone"))
+    out: list[str] = []
+    for cx in (124, 276):
+        out += [
+            _line(f"M{cx},180 L{cx},256", 7),
+            _line(f"M{cx},180 L{cx},256", 3.5, stroke=paint),
+            f'<rect x="{cx - 34}" y="250" width="68" height="16" rx="8" fill="{paint}" stroke="{INK}" stroke-width="{LW}"/>',
+        ]
+        if face == "square":
+            out += [f'<rect x="{cx - 50}" y="96" width="100" height="100" rx="10" fill="{paint}" stroke="{INK}" stroke-width="{LW}"/>',
+                    f'<rect x="{cx - 38}" y="108" width="76" height="76" rx="6" fill="none" stroke="{INK}" stroke-width="1.2" stroke-opacity=".5"/>']
+        elif face == "knot":
+            out += [_circle(cx, 146, 48, paint)]
+            out += [_line(f"M{cx - 40},{146 + 10 * k} Q{cx},{116 + 10 * k} {cx + 40},{146 + 10 * k}", 2.6, ' stroke-opacity=".6"') for k in (-2, 0, 2)]
+        elif face == "stone":
+            out += [_circle(cx, 146, 52, paint), _circle(cx, 146, 38, STONES.get(stone.lower(), "#2c2c32") if stone else "#2c2c32", 1.6)]
+        else:
+            out += [_circle(cx, 146, 52, paint), _circle(cx, 146, 40, "none", 1.2)]
+        out.append(_highlight(f"M{cx - 32},126 Q{cx - 24},104 {cx - 4},98", 5, 0.6))
+    if label:
+        out.append(_word(label, 200, 330, 200, 22))
+    return out
+
+
+register({"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})

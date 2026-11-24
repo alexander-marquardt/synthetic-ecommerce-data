@@ -10,6 +10,7 @@ hand-listed registry. Each test here pins one half of that promise
 from __future__ import annotations
 
 import dataclasses
+import functools
 import json
 import random
 import subprocess
@@ -45,6 +46,24 @@ def _by_type(lines) -> dict[str, list[str]]:
     return out
 
 
+@functools.cache
+def _small_build() -> Catalog:
+    """The whole build from its own ``small()``, made once per process (#1035).
+
+    The full side of :func:`_moved_by_removing` and the unedited side of each edit below is this
+    one build, and each test (and each type file's left-out test) built it again, about half its
+    time. The other side is still built in the test, after it, so a build that leaves state behind
+    for the next one still differs here. A caller reads it and never edits it.
+    """
+    return generate.generate(small())
+
+
+@functools.cache
+def _small_by_type() -> dict[str, list[str]]:
+    """:func:`_small_build`, serialised by type, once per process (#1035)."""
+    return _by_type(_small_build().lines)
+
+
 def _moved_by_removing(removed: str) -> list[str]:
     """Every type whose records change when ``removed`` is left out of the build.
 
@@ -52,7 +71,7 @@ def _moved_by_removing(removed: str) -> list[str]:
     write ``removed`` makes into it reaches both sides and they agree.
     """
     keys = generate.all_type_keys()
-    full = _by_type(generate.generate(small()).lines)
+    full = _small_by_type()
     reduced = _by_type(generate.generate(small(), types=[k for k in keys if k != removed]).lines)
     assert removed in full, f"{removed} built nothing at all"
     assert removed not in reduced, f"{removed} was still built after it was removed"
@@ -65,7 +84,8 @@ def _moved_by_changing(changed: str, before: Catalog, after: Catalog) -> list[st
     ``changed`` itself must differ, or the edit under test did nothing and the
     empty answer would prove nothing.
     """
-    full, edited = _by_type(before.lines), _by_type(after.lines)
+    full = _small_by_type() if before is _small_build() else _by_type(before.lines)
+    edited = _by_type(after.lines)
     assert full.get(changed) != edited.get(changed), f"the edit did not change {changed}"
     assert set(full) == set(edited), "an edit to one type added or removed another"
     return sorted(k for k in full if k != changed and full[k] != edited[k])
@@ -584,7 +604,7 @@ def test_the_block_command_reports_a_block_already_declared(
 
 
 def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:
-    for line in generate.generate(SMALL).lines:
+    for line in _small_build().lines:
         block = f"{typespec.block_of(line.type_key):04d}"
         assert f"-{block}-" in line.product_id, (line.type_key, line.product_id)
         for child in line.children:
@@ -607,10 +627,11 @@ def test_removing_a_type_leaves_every_other_type_byte_identical(removed: str) ->
 def test_resizing_a_type_leaves_every_other_type_byte_identical(resized: str, knob: str) -> None:
     """A type's size is its own share of ``lines``, never a share of a total
     that every other type's share is also part of (config.py)."""
-    shares = getattr(SMALL, knob)
+    base = small()
+    shares = getattr(base, knob)
     share = shares.get(resized, typespec.modelled()[resized].share)
-    bigger = dataclasses.replace(SMALL, **{knob: {**shares, resized: share * 1.3}})
-    moved = _moved_by_changing(resized, generate.generate(SMALL), generate.generate(bigger))
+    bigger = dataclasses.replace(base, **{knob: {**shares, resized: share * 1.3}})
+    moved = _moved_by_changing(resized, _small_build(), generate.generate(bigger))
     assert not moved, f"resizing {resized} changed {len(moved)} other type(s): {moved[:8]}"
 
 
@@ -619,14 +640,14 @@ def test_editing_one_yaml_row_leaves_every_other_type_byte_identical(
 ) -> None:
     """A breadth row's edit is that row's alone, like a type module's."""
     edited = "shaft_collars"
-    before = generate.generate(SMALL)
+    before = _small_build()  # before the patch below: the cache never holds the edited build
     rows = tuple(
         dataclasses.replace(row, price_range=(40.0, 90.0)) if row.key == edited else row
         for row in breadth.rows()
     )
     assert rows != breadth.rows(), f"no {edited} row to edit"
     monkeypatch.setattr(breadth, "_ROWS", rows)
-    moved = _moved_by_changing(edited, before, generate.generate(SMALL))
+    moved = _moved_by_changing(edited, before, generate.generate(small()))
     assert not moved, f"editing the {edited} row changed {len(moved)} other type(s): {moved[:8]}"
 
 
@@ -657,9 +678,9 @@ def test_a_planted_shared_random_stream_is_caught(monkeypatch: pytest.MonkeyPatc
 
 def test_the_whole_build_is_the_per_type_builds_concatenated() -> None:
     """Why one process per type is safe: assembling the parts gives the whole."""
-    whole = generate.generate(SMALL).lines
+    whole = _small_build().lines
     keys = generate.all_type_keys()
-    parts = [line for key in keys for line in generate.generate_type(SMALL, key)]
+    parts = [line for key in keys for line in generate.generate_type(small(), key)]
     assert [line.product_id for line in whole] == [line.product_id for line in parts]
     assert _by_type(whole) == _by_type(parts)
 

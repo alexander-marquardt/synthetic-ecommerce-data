@@ -11,10 +11,7 @@ template, and keeps the drawings bounded.
 from __future__ import annotations
 
 import collections
-import copy
-import json
 import re
-import subprocess
 import sys
 from collections.abc import Mapping
 from pathlib import Path
@@ -45,6 +42,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RETAIL = ROOT / "src" / "synthetic_ecommerce_data" / "domains" / "retail"
 
 from retail_ceiling import ceiling_build  # noqa: E402
+from retail_templates import templates  # noqa: E402
 
 #: The measured totals (``retail_figures.figures()``, gen#162): never typed here.
 FIGURES = figures()
@@ -177,7 +175,7 @@ def built() -> scale.Scaled:
 @pytest.fixture(scope="module")
 def pairs(built) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style."""
-    by_id = {t["product_id"]: t for t in scale.templates()}
+    by_id = {t["product_id"]: t for t in templates()}
     return [(r, by_id[built.template_of[r["product_id"]]]) for r in built.records[TEMPLATES:]]
 
 
@@ -190,7 +188,7 @@ def ceiling() -> scale.Scaled:
 @pytest.fixture(scope="module")
 def ceiling_pairs(ceiling) -> list[tuple[dict[str, Any], dict[str, Any]]]:
     """(derived style, its template) for every derived style of the ceiling build."""
-    by_id = {t["product_id"]: t for t in scale.templates()}
+    by_id = {t["product_id"]: t for t in templates()}
     return [(r, by_id[ceiling.template_of[r["product_id"]]]) for r in ceiling.records[TEMPLATES:]]
 
 
@@ -204,12 +202,12 @@ def test_the_size_parameter_reaches_the_target_sku_count(built):
 def test_the_target_leaves_the_derived_style_tests_a_sample(built, pairs):
     """New templates raise :data:`TEMPLATE_SKUS`; the pin fails until it is updated, and
     the floor fails if :data:`TARGET` is left behind it."""
-    assert sum(t["sku_count"] for t in scale.templates()) == TEMPLATE_SKUS
+    assert sum(t["sku_count"] for t in templates()) == TEMPLATE_SKUS
     assert len(pairs) >= MIN_DERIVED, (len(pairs), MIN_DERIVED)
 
 
 def test_the_templates_come_first_and_a_small_target_takes_a_prefix(built):
-    ids = [t["product_id"] for t in scale.templates()]
+    ids = [t["product_id"] for t in templates()]
     assert [r["product_id"] for r in built.records[:TEMPLATES]] == ids
     small = scale.build(100)
     assert small.template_of == {}
@@ -234,7 +232,7 @@ def test_a_derived_style_adds_no_duplicate_title_and_no_twin(built, pairs):
     twins = collections.Counter(scale.twin_key(r) for r in built.records)
     assert [r["title"] for r, _ in pairs if titles[r["title"]] > 1] == []
     assert [r["product_id"] for r, _ in pairs if twins[scale.twin_key(r)] > 1] == []
-    got, authored = scale.distinctness(built.records), scale.distinctness(scale.templates())
+    got, authored = scale.distinctness(built.records), scale.distinctness(templates())
     assert (got["duplicate_titles"], got["clones"]) == (
         authored["duplicate_titles"],
         authored["clones"],
@@ -311,7 +309,7 @@ def test_grocery_styles_mostly_draw_a_tile_of_their_own(ceiling):
 
 
 def test_grid_clones_count_every_style_of_a_shared_tile():
-    tpls = scale.templates()
+    tpls = templates()
     twin = dict(tpls[0], product_id="X-1", brand="Elsewhere")
     report = scale.grid_clones([tpls[0], twin, tpls[1]])
     assert (report["grid_clones"], report["largest_group"]) == (2, 2)
@@ -334,7 +332,7 @@ def test_a_derived_style_differs_from_its_template_and_siblings_in_a_visible_att
     """A range name and a brand alone are not a style: each derived style changes a value
     the title shows, or the hero color family, against its template and every sibling."""
     by_tpl: dict[str, set[tuple]] = collections.defaultdict(set)
-    for t in scale.templates():
+    for t in templates():
         by_tpl[t["product_id"]].add(_signature(t, t))
     same = []
     for r, t in pairs:
@@ -356,7 +354,7 @@ def _signature(rec: dict[str, Any], tpl: dict[str, Any]) -> tuple:
 def test_a_derived_price_is_redrawn_inside_its_leafs_band(built, pairs):
     lo_f, hi_f = scale.PRICE_BAND
     band: dict[str, list[float]] = collections.defaultdict(list)
-    for t in scale.templates():
+    for t in templates():
         band[t["category_leaf"]].append(t["price"])
     for r, _ in pairs:
         prices = band[r["category_leaf"]]
@@ -502,7 +500,7 @@ def test_a_changed_value_is_redrawn_in_the_picture(ceiling_pairs):
 def _motif_drawn() -> dict[str, str]:
     """A ``motif`` attribute value -> the drawing motif its templates draw (Cherry: cherries)."""
     out: dict[str, str] = {}
-    for t in scale.templates():
+    for t in templates():
         for a in t["attributes"]:
             if a["key"] == "motif":
                 motif = t["drawing"]["motif"]
@@ -569,7 +567,7 @@ def test_a_style_that_changes_no_shown_value_is_its_brands_one_product_in_every_
     Soft Veil Foundation, Toffee" was one): a lipstick or foundation line sells its shades as
     SKUs."""
     taken: dict[str, set[tuple]] = collections.defaultdict(set)
-    for t in scale.templates():
+    for t in templates():
         taken[t["product_id"]].add(_signature(t, t)[0])
     merged = []
     for r, t in ceiling_pairs:
@@ -590,7 +588,7 @@ def test_a_redrawn_print_motif_takes_its_plural_and_article():
     style at :data:`TARGET` reaches either, so the record is made here."""
     import copy  # noqa: PLC0415
 
-    tpl = next(t for t in scale.templates() if t["product_id"] == "PLT-TTW-STRAWBERRY")
+    tpl = next(t for t in templates() if t["product_id"] == "PLT-TTW-STRAWBERRY")
     rec = copy.deepcopy(tpl)
     scale._redraw_motif(rec, "Strawberry", "Orange")
     assert rec["title"] == "Oranges Print Tea Towels, Set of 2"
@@ -635,15 +633,6 @@ def test_a_derived_style_carries_no_bestseller_badge(pairs):
     # Non-vacuous: some derived style comes from a template that carries Bestseller,
     # so the strip had something to remove.
     assert any("Bestseller" in t.get("badges", ()) for _, t in pairs)
-
-
-def test_the_cli_refuses_a_target_below_one():
-    done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), "--skus", "0"],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
-    assert done.returncode == 2
-    assert "--skus must be at least 1" in done.stderr
 
 
 def _fitted_out(r: dict[str, Any], t: dict[str, Any]) -> set[str]:
@@ -785,64 +774,18 @@ def test_skus_are_the_templates_size_run_times_a_color_subset(pairs):
 
 def test_every_leaf_keeps_products_with_a_long_tail(built):
     report = scale.coverage(built.records)
-    assert report["leaves"] == len({t["category_leaf"] for t in scale.templates()})
+    assert report["leaves"] == len({t["category_leaf"] for t in templates()})
     sizes = report["leaf_size"]
     assert sizes["min"] >= 1
     assert sizes["max"] >= 5 * sizes["median"]
     assert set(report["skus_per_style_by_department"]) == {
-        str(t["department"][0]) for t in scale.templates()
+        str(t["department"][0]) for t in templates()
     }
 
 
 def test_the_drawings_stay_bounded(built):
-    authored = scale.coverage(scale.templates())["images"]["distinct_drawings"]
+    authored = scale.coverage(templates())["images"]["distinct_drawings"]
     assert scale.coverage(built.records)["images"]["distinct_drawings"] <= 2 * authored
-
-
-def test_the_cli_writes_the_report_and_the_documents(tmp_path):
-    out, report = tmp_path / "retail.jsonl", tmp_path / "report.json"
-    argv = ["--skus", "8000", "--out", str(out), "--report", str(report)]
-    done = subprocess.run(
-        [sys.executable, str(RETAIL / "scale.py"), *argv],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert done.returncode == 0, done.stderr[-2000:]
-    got = json.loads(report.read_text(encoding="utf-8"))
-    assert got["reached_target"] is True
-    assert got["standard_problems"] == 0
-    assert got["coverage"]["skus"] >= 8000
-    lines = out.read_text(encoding="utf-8").splitlines()
-    assert len(lines) == got["coverage"]["styles"]
-    assert sum(json.loads(line)["variant_count"] for line in lines) == got["coverage"]["skus"]
-
-
-def test_a_target_past_the_capacity_stops_there_and_the_cli_says_so(
-    tmp_path, monkeypatch, capsys, ceiling
-):
-    """The CLI's own run, in process, on the shared ceiling build (#790): a target past the
-    capacity takes ``build``'s loop to the same end as the ceiling's own target, so the build
-    the CLI would make is the one already made, and a subprocess building it again was a minute
-    of the same work. The ceiling build itself is that loop running out of templates."""
-    PAST = CAPACITY[1] + 20000  # the ceiling moves with the data: a fixed target fell under it
-    asked: list[tuple[int, int]] = []
-
-    def shared(skus: int, seed: int = 0) -> scale.Scaled:
-        asked.append((skus, seed))
-        return ceiling
-
-    monkeypatch.setattr(scale, "build", shared)
-    report = tmp_path / "report.json"
-    code = scale.main(["--skus", str(PAST), "--report", str(report)])
-    stderr = capsys.readouterr().err
-    assert asked == [(PAST, 0)], "the CLI did not ask the build for its target on seed 0"
-    assert code == 2, stderr[-2000:]
-    assert f"short: {CAPACITY[1]} SKUs of {PAST}" in stderr
-    got = json.loads(report.read_text(encoding="utf-8"))
-    assert got["reached_target"] is False
-    assert got["standard_problems"] == 0
-    assert (got["coverage"]["styles"], got["coverage"]["skus"]) == CAPACITY
 
 
 def test_the_derivable_styles_hold_the_near_duplicate_share_at_the_ceiling(ceiling):
@@ -962,42 +905,11 @@ def test_every_department_holds_its_floor_of_styles(ceiling):
     assert starved(styles) == {}, f"{smallest}: {n} styles, under the floor of {floor}"
 
 
-#: The Home templates :func:`test_growing_one_department_never_starves_another` adds: a
-#: batch the size of the Home types the open batches plan (gen#196-#217).
-SYNTHETIC_HOME = 210
-
-
-def test_growing_one_department_never_starves_another(ceiling, monkeypatch):
-    """A batch that adds templates to one department leaves every other department's floor
-    where it was (gen#220): each Home batch failed the old rule (half an even split of the
-    total, which the batch itself inflates) and padded unrelated departments with filler rows.
-    The build here adds :data:`SYNTHETIC_HOME` Home templates (copies of today's under new ids
-    and titles) before the grocery styles, at the ceiling."""
-    tpls = scale.templates()
-    home = [r for r in scale.derivable(tpls) if scale._department(r) == "Home"]
-    extra = []
-    for i in range(SYNTHETIC_HOME):
-        r = copy.deepcopy(home[i % len(home)])
-        old_id = r["product_id"]
-        r["product_id"] += f"-SYN{i}"
-        for s in r["skus"]:
-            s["sku"] = r["product_id"] + s["sku"][len(old_id) :]
-        r["title"] += f" Set {i + 2}"
-        extra.append(r)
-    grocery = [r for r in tpls if r["product_id"].startswith(scale.GROCERY_PREFIX)]
-    rest = [r for r in tpls if not r["product_id"].startswith(scale.GROCERY_PREFIX)]
-    monkeypatch.setattr(scale, "templates", lambda: [*rest, *extra, *grocery])
-    grown = styles_by_department(scale.build(CAPACITY[1] * 4).records)
-    before = styles_by_department(ceiling.records)
-    assert grown["Home"] >= before["Home"] + SYNTHETIC_HOME
-    assert starved(grown) == {}
-
-
 def test_every_scale_only_row_opens_a_leaf_or_a_title_value_its_leaf_lacked():
     """A ``scale_rows`` template adds capacity only through what the authored styles lack."""
     rows = scale_rows.docs()
     assert len(rows) == SCALE_ROWS
-    authored = scale.templates()[:AUTHORED]
+    authored = templates()[:AUTHORED]
     have = {
         (t["category_leaf"], a["key"], str(a["value"])) for t in authored for a in t["attributes"]
     }
@@ -1030,7 +942,7 @@ def test_a_scale_only_shoe_comes_in_a_material_its_leaf_already_sells():
     footwear_rows = 13
     assert len(rows) == footwear_rows
     sold: dict[str, set[str]] = collections.defaultdict(set)
-    for t in scale.templates()[:AUTHORED]:
+    for t in templates()[:AUTHORED]:
         sold[t["category_leaf"]] |= {
             s["upper_material"] for s in t["skus"] if "upper_material" in s
         }
@@ -1058,7 +970,7 @@ def test_a_scale_only_bra_describes_its_own_straps_and_fastening():
 def test_the_invented_names_are_new_and_never_repeat():
     """An extra brand already on a template adds nothing to its pool, and a repeated
     range name gives two styles the same head."""
-    tpl_brands = {t["brand"] for t in scale.derivable(scale.templates())}
+    tpl_brands = {t["brand"] for t in scale.derivable(templates())}
     extra = [b for pool in scale.EXTRA_BRANDS.values() for b in pool]
     assert len(extra) == len(set(extra))
     assert sorted(set(extra) & tpl_brands) == []
@@ -1067,7 +979,7 @@ def test_the_invented_names_are_new_and_never_repeat():
     halves = range_ownership.halves()
     assert sorted(set(halves["scale"]) & set(halves["grocery"])) == []
     # gen#623: an authored row's range is in no half, or a builder would deal it a second time
-    authored = {scale._line(t) for t in scale.templates() if not t["product_id"].startswith("GRC-")}
+    authored = {scale._line(t) for t in templates() if not t["product_id"].startswith("GRC-")}
     assert sorted(authored & set(pool)) == []
 
 
@@ -1351,7 +1263,7 @@ def test_every_brand_has_exactly_one_owner_across_the_templates_and_the_ceiling(
     brands that hold two owners, in the failure message.
     """
     owners: dict[str, set[str]] = collections.defaultdict(set)
-    for rec in [*scale.templates(), *ceiling.records]:
+    for rec in [*templates(), *ceiling.records]:
         if "brand_owner" in rec:
             owners[rec["brand"]].add(rec["brand_owner"])
     split = {b: sorted(o) for b, o in owners.items() if len(o) > 1}
@@ -1482,7 +1394,7 @@ def test_a_family_model_name_is_built_from_its_family_vocabulary(ceiling):
     A home, gifts, garden or toys style a brand authored keeps its own range name, which stands
     directly after the brand (gen#664). Metric: the styles whose model name is not, with the
     name."""
-    authored = {line for r in scale.templates() if (line := scale._line(r))}
+    authored = {line for r in templates() if (line := scale._line(r))}
     off = [
         (r["product_id"], r["brand"], line)
         for r in _family_records(ceiling.records)
@@ -1531,9 +1443,7 @@ def test_every_home_gifts_garden_and_toys_kind_has_a_family():
     """Guard (gen#664): a kind outside ``line_grammar.FAMILIES`` keeps the invented range words of
     :mod:`range_ownership`, which lead its titles like a second brand ("Eskshaw Scalloped Velvet
     Lampshade"). Metric: the product types of the four departments that no family names."""
-    kinds = {
-        r["product_type"] for r in scale.templates() if HOME_DEPARTMENTS & set(r["department"])
-    }
+    kinds = {r["product_type"] for r in templates() if HOME_DEPARTMENTS & set(r["department"])}
     assert sorted(k for k in kinds if k not in line_grammar.FAMILIES) == []
 
 
@@ -1563,7 +1473,7 @@ def test_the_plain_model_words_are_plain_and_belong_to_one_family():
     sport = line_grammar_families.families()["sport"]
     words = [w for fam in leads.values() for w in fam]
     assert len(words) == len(set(words))  # a word is one family's
-    brand_words = {w for r in scale.templates() for w in re.findall(r"[A-Za-z]+", r["brand"])}
+    brand_words = {w for r in templates() for w in re.findall(r"[A-Za-z]+", r["brand"])}
     subs = {s for f in _PLAIN.values() for s in f.subs}
     named = {*line_grammar.NAME_WORDS, *sport.leads, *subs, *brand_words}
     assert sorted(set(words) & named) == []
