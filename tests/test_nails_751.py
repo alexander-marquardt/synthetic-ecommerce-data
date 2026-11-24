@@ -226,11 +226,16 @@ def test_every_other_type_builds_as_the_committed_golden_has_it(key):
         pytest.fail(report)
 
 
+@pytest.fixture(scope="module")
+def whole_by_type() -> dict[str, list[str]]:
+    """The whole default build by type, once for the module, not once per nail type (#1035)."""
+    return _by_type(generate().lines)
+
+
 @pytest.mark.parametrize("key", KEYS)
-def test_the_whole_build_carries_exactly_this_types_own_build(key):
-    whole = _by_type(generate().lines)
+def test_the_whole_build_carries_exactly_this_types_own_build(key, whole_by_type):
     alone = _by_type(generate_type(GeneratorConfig(), key))
-    assert whole[key] == alone[key]
+    assert whole_by_type[key] == alone[key]
 
 
 @pytest.mark.parametrize("key", KEYS)

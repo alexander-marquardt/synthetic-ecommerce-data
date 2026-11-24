@@ -1,11 +1,12 @@
-"""Marks and house styles of the eight invented publishers of the Books department (gen#1119).
+"""Marks and house styles of the nine invented publishers of the Books department (gen#1119).
 
 Wrenhallow Press, Marlowby Books, Thimblecote Press, Ferncastle Editions, Ashcombe & Rook,
 Lindenquay Publishing, Moddlewick Books and Gullfeather Press publish the titles of
-:mod:`books_rows`. Each draws its own mark and name on its product images, as every other
+:mod:`books_rows`, and Trowelgate Books the Barry Plotter series (:mod:`barry_plotter_books`).
+Each draws its own mark and name on its product images, as every other
 invented brand does.
 
-:mod:`house_styles` imports this module last, so the eight marks join ``MARKS`` and the eight
+:mod:`house_styles` imports this module last, so the nine marks join ``MARKS`` and the nine
 styles join ``HOUSE_STYLES`` whichever module is imported first.
 """
 
@@ -91,14 +92,24 @@ def m_gull_feather(c: str) -> list[str]:
     ]
 
 
+def m_trowel_gate(c: str) -> list[str]:
+    """A trowel standing between two gateposts."""
+    return [
+        _stroke("M-.8,.85 L-.8,-.6 M.8,.85 L.8,-.6 M-.95,.85 L.95,.85", 0.14, c),
+        f'<path d="M-.3,0 L.3,0 Q.3,.45 0,.75 Q-.3,.45 -.3,0 Z" fill="{c}"/>',
+        _stroke("M0,0 L0,-.35", 0.1, c),
+        _stroke("M0,-.4 L0,-.8", 0.2, c),
+    ]
+
+
 hs.MARKS.update({
     "wren": m_wren, "marlow_wave": m_marlow_wave, "thimble": m_thimble, "fern_tower": m_fern_tower,
     "rook_bar": m_rook, "linden_leaf": m_linden_leaf, "open_book": m_open_book,
-    "gull_feather": m_gull_feather,
+    "gull_feather": m_gull_feather, "trowel_gate": m_trowel_gate,
 })  # fmt: skip
 
 # fmt: off
-#: Publisher -> house style: four lockups and four marks alone, as about half the table is.
+#: Publisher -> house style: five lockups and four marks alone, as about half the table is.
 STYLES = {
     "Wrenhallow Press":      H("thin",    "#5a3d2b", "#2a1a10", 0.95, False, "round", "wren",         "mark_left",  "top_left",      "none",      "serif",    400, "title",     0.5, True),
     "Marlowby Books":        H("double",  "#2a4f6e", "#11222f", 1.05, False, "round", "marlow_wave",  "mark_only",  "top_right",     "underline", "serif",    700, "smallcaps", 1.0),
@@ -108,6 +119,7 @@ STYLES = {
     "Lindenquay Publishing": H("none",    "#5e7a2a", "#263212", 0.9,  False, "round", "linden_leaf",  "mark_only",  "top_left",      "flag",      "humanist", 700, "lower",     0.5),
     "Moddlewick Books":      H("double",  "#a8582a", "#45220f", 1.0,  True,  "round", "open_book",    "pill",       "bottom_right",  "none",      "sans",     400, "title",     1.0),
     "Gullfeather Press":     H("thin",    "#3a6a8a", "#172b38", 0.95, False, "round", "gull_feather", "mark_only",  "top_right",     "plain",     "mono",     400, "lower",     2.5),
+    "Trowelgate Books":      H("rounded", "#4a6b2a", "#1e2c10", 1.0,  False, "round", "trowel_gate",  "mark_left",  "bottom_left",   "none",      "humanist", 700, "smallcaps", 1.0),
 }
 # fmt: on
 hs.HOUSE_STYLES.update(STYLES)

@@ -6,9 +6,14 @@ shape       draws                                                params
 book_cover  a hardback-shaped book: the page block behind, the   layout (0 to 5), genre
             spine in a darker shade, the front cover in the      (cookery, craft, gardening,
             title's cover color with its layout and its genre's  diy, pets, childrens, fiction,
-            emblem, and two bars where the title and author      travel)
+            emblem, and two bars where the title and author      travel), motif
             are printed
+book_box    a slipcase in the series' color with seven spines    motif
+_set        showing, and a motif's badge on its side
 ==========  ===================================================  ==============================
+
+A ``motif`` (:data:`barry_plotter.MOTIFS`) prints that motif's badge in place of the genre's
+emblem: the Barry Plotter books (:mod:`barry_plotter_books`).
 
 A layout is how the cover is laid out: ``0`` a band across the top, ``1`` a band across the
 foot, ``2`` an inset frame, ``3`` a diagonal sash, ``4`` a rule above and below the emblem, ``5``
@@ -21,6 +26,7 @@ and drawn by code (ruling 2026-11-02, gen#102).
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import film_emblems
 from synthetic_ecommerce_data.domains.retail.kit import (
     LW_DETAIL,
     PAPER,
@@ -97,11 +103,17 @@ def _emblem(genre: str, ink: str) -> list[str]:
             _line(f"M{x - 10},{y - 14} Q{x},{y - 4} {x + 10},{y - 14}", LW_DETAIL)]  # fmt: skip
 
 
+def _badge(motif: str, x: float, y: float, r: float) -> str:
+    """The motif's badge, the one its merchandise prints (gen#942)."""
+    return f'<g transform="translate({x:g} {y:g}) scale({r:g})">{film_emblems.badge(motif)}</g>'
+
+
 def book_cover(
-    paint: str, fill: Fill, label: str | None, layout: str = "0", genre: str = "cookery"
-) -> list[str]:
+    paint: str, fill: Fill, label: str | None, layout: str = "0", genre: str = "cookery",
+    motif: str = "",
+) -> list[str]:  # fmt: skip
     """A book: its page block, its spine and its front cover with the layout, the genre's emblem
-    and the title and author bars."""
+    (or the motif's badge) and the title and author bars."""
     out = [
         _path(
             f"M{X + 8},{Y + 8} L{X + W + 10},{Y + 8} L{X + W + 10},{Y + H + 8} L{X + 8},{Y + H + 8} Z",
@@ -112,12 +124,35 @@ def book_cover(
     ]
     out += [_line(f"M{X + W + 4},{Y + 14 + 6 * k} L{X + W + 4},{Y + H - 6}", 0.8) for k in range(2)]
     out += _layout(layout, _tint(fill.base, 0.45))
-    out += _emblem(genre, _tint(fill.base, 0.7))
+    out += [_badge(motif, CX, CY, 62)] if motif else _emblem(genre, _tint(fill.base, 0.7))
     out += [_rect(X + 34, Y + H - 66, W - 68, 12, PAPER, 3, LW_DETAIL),
             _rect(X + 54, Y + H - 46, W - 108, 9, PAPER, 3, LW_DETAIL)]  # fmt: skip
     out.append(_highlight(f"M{X - 18},{Y + 12} L{X - 18},{Y + H - 12}", 4, 0.35))
     return _label(out, label)
 
 
-SHAPES = {"book_cover": book_cover}
+#: The box set's spines: how many, the width of each, and the left edge of the first.
+SPINES, SPINE_W, SPINE_X = 7, 22.0, 66.0
+
+
+def book_box_set(
+    paint: str, fill: Fill, label: str | None, motif: str = "Enchanted Allotment"
+) -> list[str]:
+    """A slipcase seen from its open side: seven spines in a row, each with two rules, and the
+    case's side to the right of them with the motif's badge and two title bars."""
+    side = SPINE_X + SPINES * SPINE_W
+    out = [_rect(SPINE_X - 8, Y, side - SPINE_X + 150, H, _shade(fill.base, 0.35), 4)]
+    for k in range(SPINES):
+        x = SPINE_X + k * SPINE_W
+        out += [_rect(x, Y + 10, SPINE_W, H - 20, _tint(fill.base, 0.12 + 0.1 * k), 2, LW_DETAIL),
+                _line(f"M{x + 4},{Y + 40} L{x + SPINE_W - 4},{Y + 40}", 3),
+                _line(f"M{x + 4},{Y + H - 40} L{x + SPINE_W - 4},{Y + H - 40}", 3)]  # fmt: skip
+    out.append(_rect(side, Y, 142, H, paint, 4))
+    out.append(_badge(motif, side + 71, CY, 56))
+    out += [_rect(side + 24, Y + H - 56, 94, 11, PAPER, 3, LW_DETAIL),
+            _rect(side + 40, Y + H - 38, 62, 8, PAPER, 3, LW_DETAIL)]  # fmt: skip
+    return _label(out, label)
+
+
+SHAPES = {"book_cover": book_cover, "book_box_set": book_box_set}
 register(SHAPES)
