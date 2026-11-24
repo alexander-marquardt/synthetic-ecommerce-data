@@ -59,6 +59,7 @@ from synthetic_ecommerce_data.domains.retail.kit_drinks import (
     _outline,
     _radius,
     millilitres,
+    pack_of,
 )
 
 #: Each flavor's drink as it is poured: shown through a bottle's wall and printed on its can.
@@ -359,9 +360,12 @@ def multipack(n: int, d_over_h: float, livery: str, label: str | None) -> list[s
 
 
 def soft_drink(paint: str, fill: Fill, label: str | None, flavor: str = "", pack_size: str = "500ml",
-               largest: str = "", small: str = "can") -> list[str]:  # fmt: skip
+               largest: str = "", small: str = "can",
+               net_volume_ml: str = "") -> list[str]:  # fmt: skip
     """A ``flavor`` soft drink in its ``pack_size`` container, in a line whose largest single is
-    ``largest`` (the SKU's own size when empty). ``small`` is what a 330ml single is sold in."""
+    ``largest`` (the SKU's own size when empty). ``small`` is what a 330ml single is sold in,
+    ``net_volume_ml`` the pack of a row that sells its sizes by volume (:func:`kit_drinks.pack_of`)."""
+    pack_size = pack_of(pack_size, net_volume_ml)
     if flavor and flavor not in LIQUIDS:
         raise ValueError(f"no soft drink flavor {flavor!r}; known: {sorted(LIQUIDS)}")
     liquid = LIQUIDS.get(flavor, fill.base)
