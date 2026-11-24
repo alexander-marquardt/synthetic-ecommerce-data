@@ -36,7 +36,13 @@ from collections.abc import Mapping, Sequence
 from synthetic_ecommerce_data.core import brands, domain, size_rungs
 from synthetic_ecommerce_data.core.drawing import brand_mark, product_look
 from synthetic_ecommerce_data.core.drawing.model import fan
-from synthetic_ecommerce_data.core.drawing.sheet import magnifier, paint, type_scale, wordmark_of
+from synthetic_ecommerce_data.core.drawing.sheet import (
+    magnifier,
+    outline_scale,
+    paint,
+    type_scale,
+    wordmark_of,
+)
 from synthetic_ecommerce_data.core.drawing.style import house_style, material_hatch, part_fill
 from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     FINISH_ATTRIBUTES,
@@ -202,6 +208,7 @@ def product_scale_for(
     (:func:`.sheet.magnifier`) rather than a larger scale. ``records`` is accepted
     so a caller need not know that no record changes the answer.
     """
+    # A figure drawn ``fit_turned`` takes its own scale instead, in :func:`_draw`.
     del records
     _, extent = _figure(product_type)
     return type_scale(product_look.turned(*extent, angle))
@@ -280,6 +287,8 @@ def _draw(
     figure_fn, _ = _figure(product_type)
     drawn = figure_fn(dict(record))
     figure = drawn.figure
+    if figure.fit_turned:
+        scale = outline_scale(figure, angle)
     count = _pack_count(product_type, record)
     if count > 1:
         figure = fan(figure, count)
