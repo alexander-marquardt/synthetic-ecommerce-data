@@ -17,7 +17,7 @@ the catalog, so adding a product moves no other product's drawing. A drawing sca
 figure by its product's angle (:func:`turned`), so the turned figure and its dimension
 lines stay inside the frame.
 
-FOUR ORIENTATIONS. Every type names one (the industrial table in
+FIVE ORIENTATIONS. Every type names one (the industrial table in
 ``domains/industrial/orientation.py``, the retail one, by drawn shape, in
 ``domains/retail/orientation.py``):
 
@@ -27,7 +27,9 @@ FOUR ORIENTATIONS. Every type names one (the industrial table in
   down (a sink, a bottle, a vise, a sofa), and for any type nobody was sure of;
 * ``slight``: within +-15 degrees in 5 degree steps, for clothing and footwear, where even
   +-36 degrees reads as a garment falling over;
-* ``level``: 0 degrees only, for a set or kit drawn as several items (#884).
+* ``level``: 0 degrees only, for a set or kit drawn as several items (#884);
+* ``steady``: within +-6 degrees in 3 degree steps, for a product drawn to fill the figure area,
+  which a wider turn would shrink under half of it (#1216).
 
 A PACK IS LEVEL. A product any SKU of which is a pack of several items (a cup set in 2, 4
 and 8 packs, a card of end mills) is drawn level on every SKU, whatever its type's
@@ -47,12 +49,14 @@ PAPER = "#ffffff"
 
 #: The angles a figure may be turned by, in degrees clockwise on screen (SVG's ``rotate``), per
 #: orientation: ``any`` the 24 clock positions, ``upright`` the multiples of 12 within +-36,
-#: ``slight`` the multiples of 5 within +-15, ``level`` none but 0.
+#: ``slight`` the multiples of 5 within +-15, ``level`` none but 0,
+#: ``steady`` the multiples of 3 within +-6.
 ORIENTATIONS: dict[str, tuple[int, ...]] = {
     "any": tuple(range(0, 360, 15)),
     "upright": (-36, -24, -12, 0, 12, 24, 36),
     "slight": (-15, -10, -5, 0, 5, 10, 15),
     "level": (0,),
+    "steady": (-6, -3, 0, 3, 6),
 }
 
 #: The ``any`` set, which the clock positions name.
@@ -78,3 +82,18 @@ def turned(width: float, height: float, angle: float) -> tuple[float, float]:
     a = math.radians(angle)
     c, s = abs(math.cos(a)), abs(math.sin(a))
     return width * c + height * s, width * s + height * c
+
+
+#: A type whose scale is fitted to its own turned outline rather than to its turned box: the
+#: figure's points about the centre of its box (#1216), filled by the domain that owns the type.
+OUTLINES: dict[str, tuple[tuple[float, float], ...]] = {}
+
+
+def turned_outline(outline: tuple[tuple[float, float], ...], angle: float) -> tuple[float, float]:
+    """The width and height of the box, centred as the outline's is, that ``outline`` stays in
+    turned by ``angle``. At most :func:`turned` of its own box, and less for a rounded figure."""
+    a = math.radians(angle)
+    c, s = math.cos(a), math.sin(a)
+    across = max(abs(x * c - y * s) for x, y in outline)
+    down = max(abs(x * s + y * c) for x, y in outline)
+    return 2 * across, 2 * down
