@@ -190,7 +190,7 @@ shard while its deal cannot meet the bound. When no count up to the matrix does,
 OOM-killed worker: lower a named module's peak, or add a shard. A full run on a few shards
 (`--of 3`) is refused too, since main's eight modules over 2,500 MB each need a shard of their
 own. `--shard all` and `--plan all` are one local run with its own memory-capped worker count
-and are not bounded. A hosted runner has 16 GB, so the bound there only costs balance.
+and are not bounded. The bound holds on a hosted runner too, which has no such container.
 `tests/test_ci_shard_memory_1230.py` replays #1172's plan and #839's shard 9.
 
 What the bound does not see: memory a worker keeps from an earlier module (#839's leak, below),
