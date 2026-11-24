@@ -96,6 +96,7 @@ GROUPS = (
             "sunglasses",
             "kit_luggage",
             "kit_bags",
+            "kit_bags_carry",
         ),
         1198,
     ),
