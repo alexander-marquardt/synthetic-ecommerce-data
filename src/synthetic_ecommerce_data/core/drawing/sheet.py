@@ -81,6 +81,10 @@ MIN_STROKE = brands.WEIGHTS[0]
 LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
+#: The light on a figure (#1217): a highlight and a shadow, as a colour and its opacity. No
+#: outline, so the brand's ink stays the only line work.
+OVERLAYS = {"gloss": ("#ffffff", "0.55"), "shade": ("#000000", "0.2")}
+
 #: The magnifier's rule and geometry (see the module docstring).
 #: The too-small-to-see rule: a part drawn at most this share of the sheet's
 #: WIDTH and at most that share of its HEIGHT gets a lens.
@@ -364,6 +368,10 @@ def _figure_at(
             points = [at(p) for p in shape.points]
             weight = svg.num(house.stroke)
             page.polygon(points, fill=house.paper, stroke=house.paper, stroke_width=weight)
+            continue
+        if isinstance(shape, Poly) and shape.role in OVERLAYS:
+            color, opacity = OVERLAYS[shape.role]
+            page.polygon([at(p) for p in shape.points], fill=color, opacity=opacity)
             continue
         if shape.role == "part":
             color, hatched = fill, True
