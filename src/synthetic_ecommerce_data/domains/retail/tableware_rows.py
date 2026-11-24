@@ -1,4 +1,4 @@
-"""Tableware and kitchen utensil templates for the scaled retail catalog (gen#198): data only.
+"""Tableware and kitchen utensil templates for the scaled retail domain (gen#198): data only.
 
 The catalog had cutlery sets and dinner sets but no single plate, bowl, glass, piece of
 cutlery, kitchen knife or utensil, so a search for one piece found a boxed set or nothing.

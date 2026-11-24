@@ -1,4 +1,4 @@
-"""Toy templates for the scaled retail catalog (gen#201): data only.
+"""Toy templates for the scaled retail domain (gen#201): data only.
 
 The Toys department sold five kinds (soft toys, bath toys, toy vehicles, figures and night
 lights), so a search for a building set, a jigsaw, a board game, a doll, a play kitchen,

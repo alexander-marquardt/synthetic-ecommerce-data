@@ -1,4 +1,4 @@
-"""Tape measures: a homeowner tool for the general-retail catalogue (#971, slice 1).
+"""Tape measures: a homeowner tool for the R&I catalogue (#971, slice 1).
 
 A tape measure is a steel blade, printed with a scale, coiled in a case. It has a hook on
 the blade's end and a lock that holds the blade out. A hardware listing sells it by blade

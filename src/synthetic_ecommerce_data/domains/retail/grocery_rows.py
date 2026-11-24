@@ -1,4 +1,4 @@
-"""Grocery families for the retail catalog (gen#154): data only, read by :mod:`grocery`.
+"""Grocery families for the retail domain (gen#154): data only, read by :mod:`grocery`.
 
 A :class:`Family` is one kind of product on one leaf (milk chocolate bars, crisps,
 honey). :func:`grocery.build` makes styles from it. A style is a range name and a

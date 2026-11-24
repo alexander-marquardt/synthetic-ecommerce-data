@@ -1,6 +1,6 @@
 """The DIY drill family (gen#191): power drills that name their kind, and the comment's five types.
 
-The Retail catalog held four power drills, all one brand and all typed "Cordless Drill". Nine
+The retail domain held four power drills, all one brand and all typed "Cordless Drill". Nine
 type specs (Drill Driver, Combi Drill, Hammer Drill, Corded Drill, Impact Driver, SDS Hammer
 Drill, Drill Bit Set, Tool Kit, Step Ladder) now hold the range, each drawn as a shape of its own
 (:mod:`kit_drills`). These checks hold what the issue and its comment asked for: a product type

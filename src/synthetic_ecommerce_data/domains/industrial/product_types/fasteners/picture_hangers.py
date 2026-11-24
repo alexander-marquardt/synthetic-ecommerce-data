@@ -1,4 +1,4 @@
-"""Picture hangers: home hardware for the general-retail catalogue (#958, slice 1).
+"""Picture hangers: home hardware for the R&I catalogue (#958, slice 1).
 
 A picture hanger is the small piece of hardware that holds a frame on a wall: a hook driven
 in with a nail, a sawtooth strip or a D-ring fixed to the back of the frame, or a kit of

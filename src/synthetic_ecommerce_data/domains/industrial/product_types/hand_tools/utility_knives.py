@@ -1,4 +1,4 @@
-"""Utility knives: a homeowner tool for the general-retail catalogue (#971, slice 3).
+"""Utility knives: a homeowner tool for the R&I catalogue (#971, slice 3).
 
 A utility knife is a handle that holds a replaceable blade: it opens boxes, scores drywall
 and trims carpet. A hardware listing sells it by its style, names the blade width and the
