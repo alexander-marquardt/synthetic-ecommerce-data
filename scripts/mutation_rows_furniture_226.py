@@ -17,8 +17,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "a bookcase back is shaded 30% toward black",
         "kit_furniture.py",
-        "_rect(122, 52, 156, 296, _shade(paint, 0.1), LW_DETAIL)",
-        "_rect(122, 52, 156, 296, _shade(paint, 0.3), LW_DETAIL)",
+        "_rect(98, 54, 180, 290, _shade(paint, 0.1), LW_DETAIL)",
+        "_rect(98, 54, 180, 290, _shade(paint, 0.3), LW_DETAIL)",
         f"{_T}::test_a_white_bookcase_of_every_style_reads_white",
         "a White bookcase reads white",
     ),
