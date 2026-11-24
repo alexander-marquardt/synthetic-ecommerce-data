@@ -19,10 +19,12 @@ import pytest
 from synthetic_ecommerce_data.domains.retail import (
     ground_shadow,
     image_release,
+    kit,
     orientation,
     scale,
     sheet_extent,
 )
+from synthetic_ecommerce_data.domains.retail import house_styles as hs
 
 #: A picture of each shape that stands on a labelled shadow and is drawn turned: shape -> its kit.
 SHAPES = {
@@ -116,7 +118,10 @@ def _lowest(drawing: str) -> tuple[float, float, sheet_extent.Box]:
 
 def _check(rec: dict, sku: dict) -> None:
     svg = image_release.render(rec, sku).decode()
-    name = (rec["product_id"], sku["sku"], orientation.drawn_angle(rec))
+    _check_svg(svg, (rec["product_id"], sku["sku"], orientation.drawn_angle(rec)))
+
+
+def _check_svg(svg: str, name: tuple) -> None:
     _, found = _parts(svg)
     assert len(found) == 1, name
     el, above = found[0]
@@ -166,3 +171,55 @@ def test_the_shadow_falls_away_from_the_one_light() -> None:
     shift = float(el.get("cx", 0)) - 200
     assert 0 < shift < ground_shadow.PAD
     assert float(el.get("rx", 0)) == pytest.approx(100 + ground_shadow.PAD, abs=3)
+
+
+def _pile(style: hs.HouseStyle, brand: str, angle: float, shrink: float = 1.0) -> str:
+    fill = kit.Fill("solid", "#e8872b", "#8a4a10")
+    params = {"fruit": "orange", "count": 5, "seed": "x", "pack": "loose"}
+    return kit.render(
+        "produce_pile", fill, brand=brand, uid="u", params=params, style=style,
+        shrink=shrink, angle=angle,
+    )  # fmt: skip
+
+
+def test_a_smaller_pack_stands_on_its_own_shadow_not_the_largest_ones() -> None:
+    brand = _oranges()["brand"]
+    style = hs.HOUSE_STYLES[brand]
+    for angle in (12, -36, 90):
+        small, whole = _pile(style, brand, angle, 0.6), _pile(style, brand, angle)
+        _check_svg(small, ("shrunk", angle))
+        (_, _, (a0, _, a1, _)), (_, _, (b0, _, b1, _)) = (
+            _lowest(_without_shadow(svg)) for svg in (small, whole)
+        )
+        assert (a1 - a0) < 0.75 * (b1 - b0), angle
+
+
+def test_the_shadow_is_clear_of_a_logo_at_the_foot() -> None:
+    """Placed by the rows the drawing covers with its shadow, so the shadow keeps the logo's air."""
+    styles = [
+        (brand, style)
+        for brand, style in list(hs.HOUSE_STYLES.items())
+        if style.mark != hs.NO_MARK and hs.reach(style, brand)[1]
+    ][:6]
+    assert len(styles) == 6
+    for brand, style in styles:
+        for angle in (90, 180):  # the turned pile reaches the foot of its room
+            svg = _pile(style, brand, angle)
+            product = svg[svg.index('<g class="product"') : svg.index('<g class="brand">')]
+            box = sheet_extent.reach(f'<svg xmlns="http://www.w3.org/2000/svg">{product}</svg>')
+            assert box is not None
+            foot = hs.SIZE - hs.reach(style, brand)[1] - hs.AIR
+            assert box[3] <= foot + 0.5, (brand, angle, box)
+
+
+def test_the_shadow_is_as_wide_as_the_part_near_the_ground_not_the_whole_drawing() -> None:
+    """A square on its corner touches the ground at a point: its shadow is the width of its lowest
+    12%, 2 x 0.12 of its height, where the whole drawing is 283 wide."""
+    ground = '<ellipse class="ground" cx="200" cy="300" rx="100" ry="10" fill="#000000"/>'
+    square = '<path d="M100,100 L300,100 L300,300 L100,300 Z"/>'
+    shadow, _ = ground_shadow.turned(ground + square, "", "rotate(45 200 200)", "u")
+    el = ET.fromstring(f"<g>{shadow}</g>").find("ellipse")
+    assert el is not None
+    tall = 200 * math.sqrt(2)
+    assert float(el.get("cy", 0)) == pytest.approx(200 + tall / 2, abs=0.1)
+    assert float(el.get("rx", 0)) == pytest.approx(0.12 * tall + ground_shadow.PAD, abs=0.5)
