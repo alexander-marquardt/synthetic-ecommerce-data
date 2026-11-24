@@ -264,7 +264,9 @@ chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, it
 buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
 lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
 ball of segments in its opened foil;
-[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
+[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)); tables, chairs, bookcases,
+wardrobes and mirrors fill their picture too
+([furniture-fill-1214](retail-prototype/furniture-fill-1214.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
